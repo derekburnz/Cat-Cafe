@@ -2184,6 +2184,20 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	CrateReelTick = function()
 		Audio.play("uiReelTick")
 	end,
+	-- #3615: the Yard Sale lucky pick's board: the reel's tick as each row lights, and at the stop the reel's thunk,
+	-- with the gold reveal chime after it for a golden crate (Logic.yardLandCues).
+	YardSaleTick = function()
+		Audio.play("uiReelTick")
+	end,
+	YardSaleLanded = function(golden: any)
+		local stop, chime = Logic.yardLandCues(golden)
+		Audio.play(stop)
+		if chime ~= nil then
+			task.delay(Logic.YARD_CHIME_AFTER, function()
+				Audio.play(chime)
+			end)
+		end
+	end,
 	CrateReelLanded = function(rarity: any)
 		Audio.play("uiReelStop")
 		local cue = Logic.pullSting(rarity, nil)

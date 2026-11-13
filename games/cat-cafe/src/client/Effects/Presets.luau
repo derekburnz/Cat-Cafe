@@ -3232,6 +3232,16 @@ Presets.campCollect = {
 			ring = 3,
 		},
 	} :: { [string]: CampCollect },
+	-- #3615: a golden crate won on the Yard Sale's lucky pick adds this on top of the yardSale burst: more gold
+	-- sparkles, gold confetti, a wider gold ring and a short light column (no column with Reduce Motion). `within`
+	-- seconds is how close the pick's landing must come before the stall's collect.
+	yardSaleGold = {
+		within = 1,
+		sparkles = 16,
+		confetti = 14,
+		ring = 5.5,
+		column = { width = 1.4, height = 9, seconds = 1.2 },
+	},
 }
 
 -- A big pull (F89, luck-and-rare-moments.md 2a and 2b; Derek 2026-10-30: "when securing something good leg/mythic
@@ -4701,12 +4711,12 @@ Presets.binRoll = {
 	},
 	-- common, good (the board's soft blue edge) and best (gold)
 	colours = { Presets.palette.offwhite, Color3.fromRGB(143, 208, 255), Presets.palette.golden },
-	-- The lid on a win (#3612): still for a common prize, a hop for a good one, flies up turning and fades for the
-	-- best. The lid is the model's closed look (its child Model named with `lidSuffix`); a model without one (the
-	-- Yard Sale stall) just skips this.
 	reveal = 0.45, -- seconds a fixed prize's reveal takes (no roll)
 	-- the prize's hop from the bin to the player
 	hop = { seconds = 0.55, height = 3, size = 0.7, sparkles = 4 },
+	-- The lid on a win (#3612): still for a common prize, a hop for a good one, flies up turning and fades for the
+	-- best. The lid is the model's closed look (its child Model named with `lidSuffix`); a model without one (the
+	-- Yard Sale stall) just skips this.
 	lidSuffix = "_Empty",
 	lid = {
 		{ height = 0, seconds = 0, turns = 0, fly = false },
@@ -4820,7 +4830,7 @@ Presets.mysticPool = {
 Presets.mysticIntro = {
 	swingIn = 1,
 	swingOut = 0.8,
-	steps = 5, -- the five rarity colours (shared/Traits.RARITIES)
+	steps = 6, -- the six rarity colours, Epic among them since 2026-11-12 (shared/Traits.RARITIES)
 	step = 0.6, -- per colour, as the roll's own steps
 	blend = 0.25,
 	rise = 2, -- the silhouette and the card line
@@ -4913,6 +4923,28 @@ Presets.eventBanner = {
 	fishUp = 40,
 	fishFall = 150,
 	fishSpread = 180,
+	-- the "secrets" banner (#3523): a night strip, a "?" badge and the Secret cats as black shapes under the words
+	nightTop = Color3.fromRGB(64, 50, 132),
+	nightBottom = Color3.fromRGB(30, 22, 72),
+	secretBadge = Presets.palette.aurora,
+	spawnBadge = Color3.fromRGB(226, 214, 255), -- the "secretSpawn" banner's disc: the Secret starlight (#3545)
+	secretColours = { Presets.palette.aurora, Presets.palette.milk },
+	shapeMost = 3, -- cats in the row
+	shapeRow = 74, -- the row's height under the last line
+	shapeSize = 68,
+	shapeGap = 18,
+	shapeColour = Color3.fromRGB(8, 8, 10), -- the Index's black for a cat not found yet (CatPortrait)
+	shapeFov = 30,
+	shapeTurn = 20, -- degrees from face on, so both ears show and a little of the body behind the head
+	-- bits left off a shape because they read wrong in plain black: Glitch's trail of loose pixels off one ear
+	-- joins up into a horn (Derek, 2026-11-12: "the horn looks a little off"). Only the parts of these pieces no
+	-- longer than `shapeLoose` studs go (the pixels are 0.12 to 0.22); the torn bars at the head's sides (0.71) stay.
+	shapeLeaveOff = { "CatCafe_Cat_Glitch_Prop", "CatCafe_Cat_Glitch_Glow" },
+	shapeLoose = 0.3,
+	shapeFill = 0.92, -- how much of its square a shape may fill
+	shapeSeen = 0.95, -- a part at least this see-through is a hitbox and stays out of the shape
+	markSize = 24, -- the "?" on each shape
+	markColour = Color3.fromRGB(206, 196, 255),
 }
 
 -- A Secret stray in the world (#3470 section 5: "a soft dark aura and a thin beam of light to the sky that can be
@@ -4955,6 +4987,62 @@ Presets.lootCard = {
 	firstRow = 0.12,
 	gap = 0.15,
 	bounceSeconds = 0.22,
+}
+
+-- The stuck cat that calls for help (#2912, Design-Agent 2026-11-12): while this player's save waits for its first
+-- rescue (ProfileSync `stuckGoal`), the cat in the Alleyway's starter trap (its `Starter` attribute) wears a warm,
+-- `pillar` of light that can be seen from the camp (the Secret beam's maths, shorter and warm; it holds still),
+-- a `bubble` over it that rocks gently like a waving paw, its trap gives a small `wiggle` now and then, and the cat
+-- meows (`meow`, Audio's strayCall) as you come near, a few times at most. All of it goes when the rescue bar opens
+-- or someone else is on that cat. Nothing counts down and nothing says hurry. No arrow (Derek's no-arrows rule).
+-- Reduce Motion keeps the bubble and the trap still.
+Presets.stuckCall = {
+	checkEvery = 0.5,
+	-- Review-QA's Studio look (2026-11-12): at 0.4 studs, pale and 35% see-through it could not be made out by day
+	-- from the camp. It is now golden, at least `widthMin` 2 studs wide, nearly solid from afar (`far`), only half
+	-- additive (`emission`, so it holds its colour against a bright sky) and wears a soft `halo` `wide` times its
+	-- width that is `add` more see-through.
+	pillar = {
+		colour = Presets.palette.golden,
+		emission = 0.5,
+		height = 90,
+		lift = 1,
+		perStud = 0.03,
+		widthMin = 2,
+		widthMax = 4,
+		far = 0.12,
+		near = 0.85,
+		nearWithin = 18,
+		fadeOver = 25,
+		topFade = 0.5,
+		halo = { wide = 2.6, add = 0.6 },
+	},
+	-- Review-QA's second look: from the camp pad the Alleyway's street arch hides the pillar, so the trap also
+	-- wears a warm `glow` on the ground, `radius` studs across, that breathes slowly between `bright` and `dim`
+	-- see-through over `seconds` each way (well under once a second; held at `bright` with Reduce Motion), and a
+	-- soft warm light of `range` studs.
+	glow = {
+		colour = Color3.fromRGB(255, 150, 48), -- warm orange, apart from the guide trail's yellow dots
+		radius = 4,
+		thick = 0.05,
+		bright = 0.35,
+		dim = 0.65,
+		seconds = 1.6,
+		range = 14,
+		brightness = 2,
+	},
+	bubble = {
+		text = "Help! 🐾",
+		above = 4.4, -- studs over the cat's top, clear of the "!" and its gem
+		width = 4.6,
+		height = 1.5,
+		within = 70,
+		hideWithin = 10, -- the Rescue card shows from here
+		rock = 6, -- degrees each way
+		rockSeconds = 0.9, -- one way
+	},
+	wiggle = { every = 5, within = 80, hits = 1, needed = 3 }, -- a trapShake as small as a rescue's first hit
+	meow = { near = 60, gap = 45, most = 4 },
 }
 
 -- The Neighborhood's trampoline (#3690; Effects/Trampoline). A model whose name ends in `suffix` is one; its mat is

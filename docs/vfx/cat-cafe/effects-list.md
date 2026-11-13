@@ -1104,6 +1104,8 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 | `"party"`: a pink "x2" badge and 12 confetti sparkles in gold, pink and mint from behind the card. Sound: the station fanfare | kind `"party"` |
 | `"giftSoon"`: the golden fish badge and 6 sparkles, no shine. Sound: the soft gift chime | kind `"giftSoon"` |
 | `"gift"`: the golden fish badge, 12 confetti sparkles and 8 golden fish that hop out from under the card and fade as they fall. Sound: the update gift's jingle | kind `"gift"` |
+| `"secrets"` (#3523, the 2026-11-13 update): a night blue title strip, a violet "?" badge and, under the words, the Secret cats in a row as black shapes with a "?" on each. The shapes are the cats' own models from `ReplicatedStorage.Assets` drawn all black in a ViewportFrame (Derek, 2026-11-12: blacked out), with see-through parts made solid and every glow, particle and label taken off, so no coat, colour or name shows and a redesigned model changes its shape by itself; a black dot stands in for a model that is not there. Glitch's trail of loose pixels off one ear is left off its shape (`Presets.eventBanner.shapeLeaveOff`; in black it joined into a horn, Derek 2026-11-12). `cats = { ids }` draws only those cats, for a day one is held back. 6 sparkles in violet and cream, one shine, no fish. Sound: the Secret stray's low twinkle. Picture: Library `Motion-FX-Agent/for-derek-2026-11-12/friday-banner-secret-cats-3523.png` | kind `"secrets"` |
+| `"secretSpawn"` (#3545): a wild Secret cat has appeared. The night strip and, for a badge, a plain black cat head with a "?" on a starlight disc (226, 214, 255), drawn from plain shapes and the same every time, so it shows none of the three cats. 6 sparkles in violet and cream, one shine. Sound: the Secret stray's low twinkle. The caller gives the words ("A Secret cat is roaming the Park!"): the area, never the cat. Picture: Library `Motion-FX-Agent/for-derek-2026-11-12/secret-spawn-banner-3545.png` | kind `"secretSpawn"` |
 | One banner at a time; up to 3 wait; a kind already showing or waiting is dropped. Reduce Motion: the card fades in and out in place with no shine, confetti or fish. Low performance: half the confetti and fish | `EventBanner.onShown(listener)` (Audio's sound) |
 
 ## Mystic Pool first walk-up cutscene (#3430, 2026-11-12)
@@ -1138,6 +1140,19 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 | Landing by tier: nothing for a common prize; a blue ring and a few sparkles for a good one; a short thin gold light column (0.9 s) with a ring for the best, gone before the bar starts. | `BinRoll.landed(bin, tier)` (called by `play`) |
 | Win by tier: 6 sparkles; 12 sparkles, a 7 stud ring and 40% of the budget's confetti; 20 sparkles, a 10 stud ring, the budget's confetti, a gold light column for 3 s and a small screen shake. The lid (the bin's closed look) hops 1.6 studs for a good prize and flies up 9 studs turning and fades for the best; a model with no `_Empty` look skips it. Phone burst cap and confetti budget apply; Reduce Motion drops the column, the shake, the lid move and most confetti. | `BinRoll.win(bin, tier)`; the win's sound stays on `Moments.RummageWin` |
 | Fixed first prize: no roll, one short rattle (0.45 s), then the landing for its tier. The prize's hop: a small bright ball in the tier's colour arcs from the bin to the player in 0.55 s and ends in 4 sparkles (sparkles only with Reduce Motion). | `BinRoll.reveal(bin, tier, onDone)` returns a skip; `BinRoll.hop(bin, to, tier)` where `to()` gives the player's position |
+
+## The stuck cat that calls for help (#2912, 2026-11-12)
+
+Design-Agent's pick on top of the stuck cat pointer, for the first rescue step (140 of 582 new players never started one). `Effects/StuckCall.luau`, numbers in `Presets.stuckCall`.
+
+| Moment | What plays | Source |
+|---|---|---|
+| The save waits for its first rescue and the Alleyway's starter trap holds a cat | A golden pillar of light 90 studs tall over the trap, 2 to 4 studs wide with a soft halo and nearly solid from the camp so it reads by day, fading as you walk up. It holds still. Under the trap a warm orange glow on the ground (apart from the guide trail's yellow dots), 8 studs across with a soft light, breathes slowly (1.6 s each way, held still with Reduce Motion), so the cat reads from the camp pad where the street arch hides the pillar | ProfileSync `stuckGoal`, the `StuckCat` model with `Starter` true and `Area` alley |
+| Within 70 studs (not inside 10, where the Rescue card shows) | A "Help! 🐾" bubble over the "!" and the gem, rocking 6 degrees each way, 0.9 s one way, like a waving paw | the same |
+| Every 5 s within 80 studs | The trap gives one small shake, the size of a rescue's first hit (`Logic.trapShake`) | the `<rescueSpotId>_Trap` model |
+| Within 60 studs | The cat meows (`strayCall`), again every 45 s, 4 times at most in a session | `Beats.hit("stuckCall", cat)` |
+
+All of it goes at once when your rescue bar opens, while someone else is on that cat, at night (the trap is empty then) and for good once your first rescue has started. No arrow, no countdown, no "hurry". Reduce Motion: the bubble and the trap keep still; the pillar already does. Cost: one Beam, one BillboardGui and one part, for one player state.
 
 ## Petting a cat (#3651)
 

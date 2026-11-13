@@ -56,6 +56,9 @@ export type CatchPrompt = {
 	waiting: (self: CatchPrompt) -> (),
 	hide: (self: CatchPrompt) -> (),
 	isVisible: (self: CatchPrompt) -> boolean,
+	-- #3752: keeps the card over `top` (design pixels from the screen's bottom, negative: the Tackle bar's top
+	-- edge), or back at its own place for nil
+	setClear: (self: CatchPrompt, top: number?) -> (),
 	grabShowing: (self: CatchPrompt) -> boolean, -- #2409
 	blockedText: (self: CatchPrompt) -> string?,
 	holdStart: (self: CatchPrompt) -> (),
@@ -65,6 +68,17 @@ export type CatchPrompt = {
 
 local CatchPrompt = {}
 CatchPrompt.__index = CatchPrompt
+
+CatchPrompt.FOOT = -140 -- the card's bottom edge, design pixels from the screen's bottom
+CatchPrompt.CLEAR_GAP = 8 -- px the card keeps over the Tackle bar (#3752)
+
+-- Where the card's bottom edge sits when something whose top edge is at `top` shows under it (nil: nothing).
+function CatchPrompt.foot(top: number?): number
+	if top == nil then
+		return CatchPrompt.FOOT
+	end
+	return math.min(CatchPrompt.FOOT, top - CatchPrompt.CLEAR_GAP)
+end
 
 function CatchPrompt.new(parent: Instance): CatchPrompt
 	local self = setmetatable({}, CatchPrompt) :: any
@@ -103,7 +117,7 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		BackgroundTransparency = Theme.hud.panelTransparency,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 1, -140),
+		Position = UDim2.new(0.5, 0, 1, CatchPrompt.FOOT),
 		Size = UDim2.fromOffset(CARD_W, CARD_H),
 		Parent = root,
 	}, {
@@ -603,6 +617,14 @@ function CatchPrompt.hide(self: any)
 	self._keyFill.Size = UDim2.fromScale(1, 0)
 	self._grabFill.Size = UDim2.fromScale(0, 0)
 	self.screenGui.Enabled = false
+end
+
+function CatchPrompt.setClear(self: any, top: number?)
+	local foot = CatchPrompt.foot(top)
+	if foot ~= self._foot then
+		self._foot = foot
+		self._card.Position = UDim2.new(0.5, 0, 1, foot)
+	end
 end
 
 function CatchPrompt.isVisible(self: any): boolean

@@ -552,6 +552,8 @@ function Logic.bannerCue(kind: any): string?
 		return "uiGiftReady"
 	elseif kind == "gift" then
 		return "indexReward"
+	elseif kind == "secrets" or kind == "secretSpawn" then
+		return "secretNear" -- #3523: the Secret stray's low twinkle
 	end
 	return nil
 end
@@ -816,6 +818,7 @@ local BEAT_CUES: { [string]: string } = {
 	rodCast = "campSplash",
 	basketOpen = "campBasket",
 	lidRattle = "campRattle",
+	stuckCall = "strayCall", -- #2912: the starter trap's cat calls for help (Effects/StuckCall)
 }
 
 function Logic.beatCue(beat: any): string?
@@ -930,6 +933,14 @@ function Logic.shouldReload(isLoaded: any, age: any, tries: any): boolean
 		and age >= Logic.RELOAD_AFTER
 		and type(tries) == "number"
 		and tries < Logic.RELOAD_TRIES
+end
+
+-- #3615: the Yard Sale lucky pick's landing: the reel's stop, and for a golden crate the gold reveal chime
+-- YARD_CHIME_AFTER seconds later, so the two do not land on each other.
+Logic.YARD_CHIME_AFTER = 0.25
+
+function Logic.yardLandCues(golden: any): (string, string?)
+	return "uiReelStop", if golden == true then "goldReveal" else nil
 end
 
 return Logic

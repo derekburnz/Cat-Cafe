@@ -13,6 +13,7 @@
 -- too. A character carrying a cat keeps its arms on the cat (Tackle). Reduce Motion keeps the hearts and the purr and
 -- drops the arm, the perk and the flying heart. Listening only: nothing here fires a remote or changes game state.
 
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local Avatar = require(script.Parent.Avatar)
@@ -225,6 +226,10 @@ function PetCat.start()
 		return
 	end
 	started = true
+	-- a player who leaves mid-pet never draws again, so their start would stay behind
+	Players.PlayerRemoving:Connect(function(player: Player)
+		starts[player.UserId] = nil
+	end)
 	local moment = (Moments :: any).CatPetted
 	if moment ~= nil then
 		moment:Connect(petted)

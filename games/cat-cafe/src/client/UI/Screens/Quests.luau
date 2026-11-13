@@ -559,8 +559,10 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 	-- the bar and count on the left half, what it pays on the right half of the second line
 	-- Review-QA's Studio pass 2026-11-13: CLAIM and SWAP covered the last prize chip ("+1") in the family look;
 	-- there the bar is shorter and the chips end a clear gap before the button
+	-- Studio again (5e74d9b4): Roblox draws the "+1" wider than the chips' fit allows at the 9 px floor, so on a 667 x 375
+	-- window it ran 4 px under CLAIM; the chips now stop 34 px short of CLAIM, the widest of the two buttons
 	local split = if family then 0.34 else 0.42
-	local gap = if family then 28 else 16
+	local gap = if family then 44 else 16
 	local fill = bar(frame, UDim2.fromOffset(left, 48), UDim2.new(split, -left, 0, BAR))
 	local count = text({
 		Name = "Count",
@@ -666,7 +668,9 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 		Name = "Prize",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(12, 82),
-		Size = UDim2.new(1, -(24 + ACTION_W - 16), 0, CARD_CHIP + 22),
+		-- Studio (5e74d9b4): the chips ended only 2 px before Claim and ran up to 8 px under it on 667 x 375; they now
+		-- stop 18 px short of it
+		Size = UDim2.new(1, -(24 + ACTION_W), 0, CARD_CHIP + 22),
 		Parent = frame,
 	})
 	local chips = PrizeChips.new({

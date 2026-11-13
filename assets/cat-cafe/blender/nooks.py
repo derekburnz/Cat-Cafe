@@ -1,7 +1,7 @@
 """Hidden nooks (#2687 part 2, claim #2688): the little walled corner each area opens when its station unlocks, with
 one extra rescue spot inside, so ranking up opens a new place to look and not only a new menu.
 
-  CatCafe_Nook_<Area>   Park, Neighbourhood, Woods, Sewer, Desert, Ruins. An 8 x 7 walled nook in the area's
+  CatCafe_Nook_<Area>   Park, Neighbourhood, Woods, Sewer, Desert, Ruins, Snowy. An 8 x 7 walled nook in the area's
                         theme, open at the front (-Z) through a two-leaf gate, with four stepping stones leading
                         out 10.5 studs in front of it. Pivot at the middle of the nook's floor, front -Z: stand it
                         with its back to a wall or a hedge and its stones toward the path. Footprint x -4.3 to 4.3,
@@ -13,9 +13,9 @@ one extra rescue spot inside, so ranking up opens a new place to look and not on
                         Attachments: `RescueSpot` in the middle of the floor (0, 0, 0.4), where the area's trap piece
                         goes, a 3 x 3 square kept clear for it; `PathEnd` at the last stone (0, 0, -10.4).
                         Everything collides except the floor patch, the stones and the flowers (`_Decor`).
-                        The Woods, Sewer, Desert and Ruins nooks carry their trap piece (TRAPS, child Model
-                        `<Name>_Trap`): the area's own bramble, grate, clay urn or stone urn, so Layout.setStuckPoses
-                        fits the stuck cat as in the set. `RescueSpot` stands on that piece's spot, turned by its
+                        The Woods, Sewer, Desert, Ruins and Snowy nooks carry their trap piece (TRAPS, child Model
+                        `<Name>_Trap`): the area's own bramble, grate, clay urn, stone urn or snowdrift, so
+                        Layout.setStuckPoses fits the stuck cat as in the set. `RescueSpot` stands on that piece's spot, turned by its
                         turn. The Park and Neighbourhood traps are the bin props the game stands at `RescueSpot`.
 
 Where each nook stands is Layout's (Layout.<area>.nook, #2687): against a side wall in the set's far half, its
@@ -30,6 +30,7 @@ from mathutils import Matrix, Vector
 import common
 import desertset
 import ruinsset
+import snowyset
 import woods
 from alleyway import flower_clump
 from cannon import frame_at
@@ -50,6 +51,7 @@ THEMES = {
     "Sewer": ("brick", "concrete", "fur_soot", "concrete", "concrete_dark", "sewer"),
     "Desert": ("terracotta", "paving_tan", "dark_wood", "paving_tan", "paving_sand", "desert"),
     "Ruins": ("fur_dusty", "leaf_dark", "fur_soot", "fur_pewter", "fur_pewter", "ruins"),
+    "Snowy": ("fur_white", "milk", "dark_wood", "fur_silver", "fur_mist", "snowy"),      # a snow fort (#3997)
 }
 ATTACHMENTS = {}         # asset -> [(name, Roblox point, Roblox rotation)]
 
@@ -74,6 +76,7 @@ TRAPS = {
     "Sewer": ("grate", _grate, 0.4, 0),
     "Desert": ("clay_urn", desertset.trap_clay_urn, -0.3, -90),
     "Ruins": ("stone_urn", ruinsset.trap_stone_urn, 0.4, 0),
+    "Snowy": ("snowdrift", snowyset.trap_snowdrift, 0.4, 0),
 }
 
 
@@ -175,6 +178,18 @@ def _theme(b, d, theme):
             b.box((x, r * 0.7, z), (2 * r, 1.4 * r, 2 * r), "fur_dusty", rot=rot_y(30))
         for k in range(4):                                                                      # moss on the stones
             b.ball((-3.0 + k * 2.0, WALL_H + 0.25, BACK), 0.35, "leaf_dark", scale=(1.4, 0.6, 1.0))
+
+    elif theme == "snowy":
+        _cushion(b, -2.4, 2.1, "eye_blue")
+        for k in range(9):                                                                      # snow blocks on top
+            b.span((-3.9 + k * 0.9, WALL_H, BACK - 0.36), (-3.9 + k * 0.9 + 0.8, WALL_H + 0.35 + 0.02 * (k % 2),
+                   BACK + 0.36), ("milk", "fur_white")[k % 2])
+        for (y, r) in ((0.45, 0.45), (1.1, 0.32), (1.6, 0.22)):                                 # a little snowman
+            b.ball((2.8, y, 2.4), r, "milk")
+        b.cyl((2.8, 1.6, 2.15), 0.04, 0.22, "fur_orange", axis="Z", segments=6)
+        b.cyl((2.8, 1.33, 2.4), 0.3, 0.08, "shirt_red", segments=10)
+        b.ball((2.9, 0.25, 1.2), 0.25, "milk")                                                  # snowballs
+        b.ball((3.3, 0.25, 1.5), 0.25, "fur_white")
 
 
 def build_nook(area):

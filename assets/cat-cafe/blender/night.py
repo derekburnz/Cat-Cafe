@@ -5,7 +5,7 @@ night, so the boards are a night blue that reads in the dark, and the moon, star
 (Neon at night, WorldController).
 
   CatCafe_<Area>_NightFence       across a gate's opening, behind its Bars (Park, Neighbourhood, Woods, Sewer, Desert,
-                                  Ruins),
+                                  Ruins, Snowy),
                                   or behind the posts of the street arch (Alley); place it at the gate's or arch's
                                   pivot with no offset
   CatCafe_Alley_NightFenceSegment an 8 stud piece that tiles end to end along the back alleys' inner edges and
@@ -41,6 +41,7 @@ GATES = {
     "sewer": ("CatCafe_Sewer_NightFence", "CatCafe_Sewer_Gate", 30.0, 0.0),
     "desert": ("CatCafe_Desert_NightFence", "CatCafe_Desert_Gate", 24.0, 0.0),        # Tier 6 (#2651)
     "ruins": ("CatCafe_Ruins_NightFence", "CatCafe_Ruins_Gate", 24.0, 0.0),           # Tier 7 (#2651)
+    "snowy": ("CatCafe_Snowy_NightFence", "CatCafe_Snowy_Gate", 24.0, 0.0),           # Tier 8 (#3997)
     # the arch has no Bars and hangs flower baskets in its opening, so its fence stands behind the posts and their
     # plinths (z 1.3), as wide as the arch: 36 inner plus two 2 stud posts
     "alley": ("CatCafe_Alley_NightFence", "CatCafe_Alley_ArchStreet", 40.0, 1.05),

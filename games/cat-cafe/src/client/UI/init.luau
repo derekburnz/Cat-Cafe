@@ -5899,7 +5899,9 @@ do
 					end
 				end,
 			}, true) -- news, not an ask: AskPacing does not hold it back (#2880)
-			if visit.carded then
+			if not visit.carded then
+				task.delay(1, present, token, away) -- the card's slot is taken (another card, or its own way out)
+			else
 				-- #3620: a window or the perk card that opens over the shown card takes the screen; the card
 				-- steps aside and comes back when it has closed, while the visit lasts
 				task.spawn(function()

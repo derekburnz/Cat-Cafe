@@ -3428,6 +3428,16 @@ local SCENES = {
 		local function away()
 			return true
 		end
+		-- the card comes at present()'s next one second look after the window has closed, so wait for it, not a fixed time
+		local function comes(): boolean
+			for _ = 1, 16 do
+				if UI.firstVisit.carded then
+					return true
+				end
+				task.wait(0.25)
+			end
+			return UI.firstVisit.carded
+		end
 		UI.firstVisit.changed(nil, away)
 		UI.open("DailyTreat")
 		UI.firstVisit.changed("rich", away)
@@ -3436,14 +3446,12 @@ local SCENES = {
 		local holder = ask and ask:FindFirstChild("Holder", true)
 		assert(holder and not UI.firstVisit.carded, "uigate: the rich customer's card showed over a window (#3620)")
 		UI.close()
-		task.wait(1.4)
-		assert(UI.firstVisit.carded and holder.Visible, "uigate: the card did not come once the window closed (#3620)")
+		assert(comes() and holder.Visible, "uigate: the card did not come once the window closed (#3620)")
 		UI.open("DailyTreat")
 		task.wait(0.6)
 		assert(not UI.firstVisit.carded, "uigate: the card stayed under a window that opened over it (#3620)")
 		UI.close()
-		task.wait(1.4)
-		assert(UI.firstVisit.carded and holder.Visible, "uigate: the card did not come back after the window (#3620)")
+		assert(comes() and holder.Visible, "uigate: the card did not come back after the window (#3620)")
 	end },
 	-- #2791 (Derek2: "we have gift milestones can be improved but don't make this ... take a lot of precious phone
 	-- screen space"): the gift ladder on the Rewards tile, no new slot: the tile counts down to the next step and its

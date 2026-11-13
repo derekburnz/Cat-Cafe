@@ -1544,6 +1544,9 @@ function CatRoom._placeFeed(self: any)
 	self._detailDesc.Position = UDim2.fromOffset(10, descTop)
 	local descBottom = self._descBottom + (descTop - self._descTop)
 	self._detailDesc.Size = UDim2.new(1, -20, 1, -descBottom)
+	-- #3989 (Review-QA, Studio 667 x 375): with the food row pushed up there is no room left for the description, so
+	-- it hides while Feed is open instead of drawing faintly between the tiles and the buttons
+	self._detailDesc.Visible = not squeezed
 end
 
 -- One food's tile: a tap feeds one; held, it feeds again every FEED_REPEAT seconds while the food and the cat's

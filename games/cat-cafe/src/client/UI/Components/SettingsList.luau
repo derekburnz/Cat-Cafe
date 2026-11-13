@@ -165,6 +165,9 @@ SettingsList.OTHER_KEYS = {
 	roadmapOpen = true,
 	goalFolded = true, -- #2714: the goal card's fold tab and chip set it
 	shopAlerts = true, -- #3118: still saved, but its Fresh Catch alert is gone, so no row
+	catPickSort = true, -- #3940: the Mystic Pool's Filter pop-up sets these three
+	catPickFlipped = true,
+	catPickShow = true,
 } :: { [string]: boolean }
 
 -- Every row in screen order.

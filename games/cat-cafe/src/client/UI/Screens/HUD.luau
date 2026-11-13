@@ -64,6 +64,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Invite = require(script.Parent.Parent.Components.Invite)
 local LuckChip = require(script.Parent.LuckChip)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
+local MenuFit = require(script.Parent.Parent.Components.MenuFit)
 local MoneyFlash = require(script.Parent.Parent.Components.MoneyFlash)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
@@ -185,7 +186,9 @@ export type HUD = {
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local NewKind = require(Shared:WaitForChild("NewKind")) -- #3529: the goal card's "Catch new kinds of cat"
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel")) -- #1888: where a Store open came from
+local StuckGoal = require(Shared:WaitForChild("StuckGoal")) -- #2912: the goal card's "Free a stuck cat"
 
 local MARGIN = 16
 -- the money and golden fish counters, one row in the bottom left corner with no box behind them (the lighter HUD);
@@ -310,6 +313,26 @@ local function chatWindow(): Instance?
 	return (service :: Instance):FindFirstChildOfClass("ChatWindowConfiguration")
 end
 
+-- #3686: the box under the chat window (TextChatService's ChatInputBarConfiguration)
+local function chatInputBar(): Instance?
+	local ok, service = pcall(function(): Instance?
+		return game:GetService("TextChatService")
+	end)
+	if not ok or service == nil then
+		return nil
+	end
+	return (service :: Instance):FindFirstChildOfClass("ChatInputBarConfiguration")
+end
+
+-- #3686: false once the player has closed the chat with the top bar's chat button (StarterGui's "ChatActive" core
+-- value); true when Roblox cannot say
+local function chatActive(): boolean
+	local ok, active = pcall(function(): any
+		return game:GetService("StarterGui"):GetCore("ChatActive")
+	end)
+	return not (ok and active == false)
+end
+
 local function chatBottom(root: GuiObject, columnW: number): number?
 	local config: any = chatWindow()
 	if config == nil or config.Enabled ~= true then
@@ -328,7 +351,22 @@ local function chatBottom(root: GuiObject, columnW: number): number?
 	if size.X <= 0 or size.Y <= 0 or left > columnW then
 		return nil
 	end
-	return (at :: Vector2).Y + (size :: Vector2).Y - root.AbsolutePosition.Y
+	if not chatActive() then
+		return nil -- #3686: the player closed the chat from Roblox's top bar
+	end
+	local bottom = (at :: Vector2).Y + (size :: Vector2).Y
+	-- #3686 (Review-QA, Studio 11-12: the window ended at 208 px and the box under it at 253): the box the player
+	-- types in sits under the window and takes clicks too
+	local bar: any = chatInputBar()
+	if bar ~= nil and bar.Enabled == true then
+		local okBar, barBottom = pcall(function(): number
+			return bar.AbsolutePosition.Y + bar.AbsoluteSize.Y
+		end)
+		if okBar and type(barBottom) == "number" then
+			bottom = math.max(bottom, barBottom)
+		end
+	end
+	return bottom - root.AbsolutePosition.Y
 end
 
 local function menuWidth(columns: number): number
@@ -2317,19 +2355,35 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- #3033: and Roblox's chat window, which can sit over the Store tile on a computer
 	local chat: any = if TOUCH then nil else chatWindow()
 	if chat ~= nil then
-		for _, property in { "AbsolutePosition", "AbsoluteSize", "Enabled" } do
-			local okSignal, signal = pcall(function(): RBXScriptSignal
-				return chat:GetPropertyChangedSignal(property)
-			end)
-			if okSignal then
-				table.insert(
-					self._connections,
-					signal:Connect(function()
-						self:_layoutMenu()
-					end)
-				)
+		-- #3686: and the box under it
+		for _, config: any in { chat, chatInputBar() } do
+			for _, property in { "AbsolutePosition", "AbsoluteSize", "Enabled" } do
+				local okSignal, signal = pcall(function(): RBXScriptSignal
+					return config:GetPropertyChangedSignal(property)
+				end)
+				if okSignal then
+					table.insert(
+						self._connections,
+						signal:Connect(function()
+							self:_layoutMenu()
+						end)
+					)
+				end
 			end
 		end
+		-- #3686: Roblox has no signal for the top bar's chat button, so the menu looks once a second and moves when
+		-- the chat was opened or closed
+		local was = chatActive()
+		task.spawn(function()
+			while not self._gone do
+				task.wait(1)
+				local now = chatActive()
+				if now ~= was and not self._gone then
+					was = now
+					self:_layoutMenu()
+				end
+			end
+		end)
 	end
 	-- the left side follows the screen's size (a phone turned, a window resized)
 	table.insert(
@@ -3700,7 +3754,7 @@ function HUD.setAreasOpen(self: any, open: boolean)
 	self:_renderTravel()
 	-- #3238: the "Catch a 2nd cat" card says when the strays come back, so it follows dusk and sunrise
 	local state = self._state
-	if state ~= nil and state.secondCat then
+	if state ~= nil and (state.secondCat or state.stuckGoal == true) then
 		self:render(state)
 	end
 end
@@ -5060,6 +5114,28 @@ function HUD._layoutMenu(self: any)
 			columns += 1
 		end
 	end
+	-- #3686 (Review-QA, Studio 11-12: "clicks on Store did nothing while the chat was open"): on a computer the chat
+	-- window lies over the top of the column, and on most screens the column did not fit under it, so it stayed
+	-- (#3033 only moved a column that fitted). Now a column that does not fit under the chat takes more tiles a
+	-- row until it does, with the arrow tab beside it as on a short screen.
+	local chatTop: number? = nil
+	if not TOUCH and scale > 0 then
+		local under = chatBottom(self._root, (MARGIN + MENU_W) * scale)
+		if under ~= nil then
+			chatTop = math.ceil(under / scale) + gap
+		end
+	end
+	if chatTop ~= nil then
+		local fitsAsIs = roomy
+			and chatTop + gridH(columns) + foldUnder <= bandBottom - (buffsH + BUFFS_GAP)
+		if not fitsAsIs then
+			local wider = MenuFit.underChat(chatTop, bandBottom, columns, MENU_COLUMNS_MAX, gridH)
+			if wider ~= nil then
+				columns = wider
+				roomy = false
+			end
+		end
+	end
 	local rows = math.ceil(shown / columns)
 	local spaces = math.max(0, rows - 1)
 	self._menuLayout.FillDirectionMaxCells = columns
@@ -5081,20 +5157,15 @@ function HUD._layoutMenu(self: any)
 	self._menuTop = if roomy then MARGIN + math.max(0, math.floor((band - block) / 2)) else MARGIN
 	-- #3033: on a computer, the column starts under Roblox's chat window when that covers it and the column still
 	-- fits above the counters; else it stays where it was
-	if not TOUCH and scale > 0 then
-		local under = chatBottom(self._root, (MARGIN + menuW) * scale)
-		if under ~= nil then
-			local top = math.ceil(under / scale) + gap
-			if top > self._menuTop and top + block <= bandBottom then
-				self._menuTop = top
-			end
-		end
+	if chatTop ~= nil and chatTop > self._menuTop and chatTop + block <= bandBottom then
+		self._menuTop = chatTop
 	end
 	self._gridTop = self._menuTop + storeH
 	self._foldBeside = not roomy
 	-- the luck, potion and pal chips stay just over the counters on a short screen too, when they fit under the grid
 	-- (Derek 2026-11-02: "the luck on mobile should be moved somewhere better"); else they go beside the arrow tab
-	self._buffsLow = roomy or MARGIN + storeH + menuH + gap <= bandBottom - (buffsH + BUFFS_GAP)
+	self._buffsLow = roomy
+		or self._menuTop + storeH + menuH + gap <= bandBottom - (buffsH + BUFFS_GAP)
 	if TOUCH then
 		-- #2393: under the counters at the top middle, wherever the menu goes
 		self:_liftTop()
@@ -5275,6 +5346,24 @@ end
 function HUD._secondGoal(self: any): GoalCard.Goal?
 	local second: SecondCatGoal.View? = self._second
 	if second == nil then
+		-- #2912 (shared/StuckGoal): "Free a stuck cat" while the pointer to the first rescue is up
+		local state = self._state
+		if state ~= nil and state.stuckGoal == true and state.carrying == nil then
+			return {
+				title = StuckGoal.TITLE,
+				lines = if self._areasOpen ~= false
+					then {}
+					elseif TOUCH then { StuckGoal.NIGHT_NARROW }
+					else { StuckGoal.NIGHT },
+				chip = StuckGoal.TITLE,
+			}
+		end
+		-- #3529 (shared/NewKind): "Catch new kinds of cat 3/5" while five different cats is the goal
+		local newKind = if state ~= nil then state.newKindGoal else nil
+		if state ~= nil and type(newKind) == "number" and state.carrying == nil then
+			local title = NewKind.title(newKind, TOUCH)
+			return { title = title, lines = {}, chip = title }
+		end
 		return nil
 	end
 	local lines: { string } = {}

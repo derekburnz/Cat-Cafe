@@ -50,7 +50,7 @@ Gentle. No timer, no arrows, nothing that says to stay or that anything is lost 
 
 ## 6a. The banner, reworked (#3701)
 
-Status 2026-11-12: spec, not built yet. Derek, 22:07 UTC: "the message that pops up about stay in cafe for 2x money only pops up once not everytime your in cafe and also gets cut off make it more obvious redo the banner and shorter clear message". When this is built it replaces lines 1 and 2 of section 6; line 3 (the welcome back toast) stays. Layout draft in the Library: `Design-Agent/for-derek-2026-11-12/cafe-rest-banner.png`.
+Status 2026-11-12: built the same evening by Design-Agent (all hands on launch fixes). Derek, 22:07 UTC: "the message that pops up about stay in cafe for 2x money only pops up once not everytime your in cafe and also gets cut off make it more obvious redo the banner and shorter clear message". It replaces lines 1 and 2 of section 6; line 3 (the welcome back toast) stays. Layout draft in the Library: `Design-Agent/for-derek-2026-11-12/cafe-rest-banner.png`.
 
 One banner, three states, same spot (top centre, under the HUD's top row)
 
@@ -65,7 +65,7 @@ A cream pill with the dark outline, a round "2x" badge on the left, one big line
 - **State 1** shows on every entry, for 5 seconds, then fades. Not more than once every 60 seconds, so walking in and out of the door does not flash it. It is no longer once a session.
 - **State 2** appears after 10 seconds without moving and counts down to the start of the rest (`Config.AfkCafeSeconds`). Any move ends it. The time is the client's own count; the server still decides when the rest really starts.
 - **State 3** is green and stays while the rest lasts. It replaces the small rest chip of #3578 (one thing on screen, not two). Gone the moment the player moves.
-- **During a 2x party** (or any time the party slot is already at 2): state 1 reads "Rest here, cats keep earning" with small line "Even while you are away", state 2 is skipped and state 3 reads "Resting in your cafe" with no number. The banner never promises a 2x the player will not get.
+- **During a 2x party** (or any time the party slot is already at 2): state 1 reads "Rest here, cats still earn" with small line "Even while you are away", state 2 is skipped and state 3 reads "Resting in your cafe" with no number. The banner never promises a 2x the player will not get.
 - The "Welcome back! Your cats earned [amount] while you rested" toast stays as it is.
 
 ### Never cut off
@@ -78,6 +78,14 @@ A cream pill with the dark outline, a round "2x" badge on the left, one big line
 - No arrows, no pulsing, no sound on state 1. Nothing that tells the player to stay or that anything is lost by leaving. Nothing sold beside it.
 - Not shown in the first session's tutorial, and never over an open window or a minigame.
 - It never says or suggests the player will not be kicked.
+
+### As built
+
+- The server sets the Player attribute `CafeRestZone` while a player past the tutorial stands in the rest zone (true when a rest would double the pay, false in a 2x party). The once a session toast is gone.
+- The banner sits at the head of the toast stack, top centre and clear of the HUD, so toasts line up under it.
+- State 2 holds at its last second for up to 5 seconds while the server takes the rest up. A move ends the count at once; it does not bring state 1 back.
+- Party wording was shortened to "Rest here, cats still earn" (26 characters) so the big line keeps to its limit. State 3 in a party reads "Resting in your cafe" with "Your cats keep earning" under it.
+- The old rest chip's code is kept but no longer shown.
 
 ## 7. Numbers and checks
 

@@ -2040,6 +2040,13 @@ Layout.townSquare = {
 -- the leaderboards, the cannon, its pad and the spawn stay. The notes below keep each station's history; the
 -- numbers are #3454's.
 Layout.spinWheel = station(-26, 54) -- #3454: (-35, 35) before
+-- #3715 (Derek 2026-11-12: "move this station into spawn so more people see it/notice the update"): the Mystic Pool,
+-- north-east of the cannon between the lanes and the market corner, its front toward the player spawn (not the
+-- cannon) so a landing player sees it about 30 degrees to their left. Model-Agent's spot, fitted against the real
+-- parts with the radius 6.5 ring: 6 studs off the street lane, 6.6 off the cross lane, 13.4 off the Day Cart's ring.
+-- The free spot at (44, 22) stays free. It stood on the Park camp's picnic spot before; the Picnic Basket has that
+-- spot back.
+Layout.mysticPool = { x = 26, y = 0.1, z = 28, rotY = 31.76 } :: Point
 Layout.fishMarket = station(45, 52) -- #3454: (42, 44.5) before
 -- #3000 (Derek2 2026-11-10: "push the codes back between mystery market and codes cat", option A): the whole Codes
 -- stand stands back from the middle, in the gap between the Mystery Market and the Bellhop Cat (#3070: at

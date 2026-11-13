@@ -32,7 +32,7 @@ import accessories as acc
 import cats
 import props
 from alleyway import label
-from common import GLYPHS, RB, Builder, scale_mesh
+from common import GLYPHS, RB, Builder, _glyph_rects, scale_mesh
 from plot import rot_z
 
 HUB_Y = 6.5                                    # the axle's height
@@ -93,11 +93,10 @@ class _Icon:
         self.w.cyl((x, y, z - 0.03), r * 0.74, 0.04, "fur_golden", axis="Z", segments=16)
         if dollar:                                                           # the $ the game shows coins with
             px = r * 0.17
-            rows = GLYPHS["$"]
-            for row, bits in enumerate(rows):
-                for col, bit in enumerate(bits):
-                    if bit == "1":
-                        self.box(u + (col - 1) * px, v + (2 - row) * px, z - 0.07, (px, px, 0.03), "fur_orange_dark")
+            for r0, c0, c1, r1 in _glyph_rects(GLYPHS["$"]):                 # whole rectangles, as RB.text (#3743)
+                cc, rr = (c0 + c1 - 1) / 2, (r0 + r1 - 1) / 2
+                self.box(u + (cc - 1) * px, v + (2 - rr) * px, z - 0.07, ((c1 - c0) * px, (r1 - r0) * px, 0.03),
+                         "fur_orange_dark")
             self.box(u, v, z - 0.075, (px * 0.5, px * 7, 0.03), "fur_orange_dark")    # the stroke through it
 
     def fish(self, u, v, z, length, body, fin, eye="fur_black"):

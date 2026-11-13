@@ -5387,6 +5387,15 @@ local SCENES = {
 			end
 		end
 		assert(crates > 0, "uigate: no achievement shows the Classic Crate's picture (#2089)")
+		-- #3694: Devoted counts hours ("16/50 hours"), not seconds, and the words fit their box
+		local hours: TextLabel? = nil
+		for _, d in UIShim.playerGui:GetDescendants() do
+			if d:IsA("TextLabel") and string.match(d.Text, "^%d+/50 hours$") then
+				hours = d
+			end
+		end
+		assert(hours, "uigate: Devoted does not count in hours (#3694)")
+		assert((hours :: TextLabel).TextFits, "uigate: Devoted's hours do not fit (#3694)")
 	end },
 	-- a claim shows at once: the row reads Claimed and drops to the bottom (Derek 2026-10-29)
 	{ "QuestsClaimed", function()
@@ -6501,6 +6510,49 @@ local SCENES = {
 			kind = "rescue",
 			holdDuration = 0.5,
 		})
+	end },
+	-- #3752 (Studio, the starter stuck cat in the Alleyway: the "[E] Rescue" card lay on the TACKLE bar): in a catching
+	-- area with the join shield running, the card sits wholly over the bar and its shield chip, with a gap
+	{ "CatchPromptOverTackle", function()
+		local me = game:GetService("Players").LocalPlayer
+		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() + 272)
+		UI.setZone("Alley")
+		UI.shove.setEnabled(true)
+		Scenes._tackle = true
+		UI.catch.show({
+			strayId = "gate_stuck",
+			catId = Catalog.cats[2].id,
+			catName = "Garbage Bag Cat",
+			rarity = "Rare",
+			kind = "rescue",
+			holdDuration = 0.5,
+		})
+		UIShim.advance(0.3)
+		local tackleGui = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
+		local card = (UIShim.playerGui:FindFirstChild("CatCafeCatch") :: Instance):FindFirstChild("Card", true) :: Frame
+		assert(card and card.Visible, "uigate: no catch card (#3752)")
+		assert(tackleGui and tackleGui.Enabled, "uigate: no Tackle in the Alley (#3752)")
+		-- boxes, so the round touch button by the jump button counts as clear when it is beside the card
+		local function clear(piece: GuiObject?): boolean
+			if piece == nil or not piece.Visible or piece.AbsoluteSize.X <= 0 then
+				return true
+			end
+			local a, as = card.AbsolutePosition, card.AbsoluteSize
+			local b, bs = piece.AbsolutePosition, piece.AbsoluteSize
+			return a.X + as.X <= b.X + 0.5
+				or b.X + bs.X <= a.X + 0.5
+				or a.Y + as.Y <= b.Y + 0.5
+				or b.Y + bs.Y <= a.Y + 0.5
+		end
+		for _, name in { "Tackle", "Shield" } do
+			local piece = tackleGui:FindFirstChild(name, true) :: GuiObject?
+			assert(clear(piece), "uigate: the catch card lies on the Tackle " .. name .. " (#3752)")
+		end
+		-- the shield over, the card stays clear of the bar alone
+		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() - 1)
+		UIShim.advance(0.3)
+		assert(clear(tackleGui:FindFirstChild("Tackle", true) :: GuiObject?), "uigate: the catch card lies on the Tackle bar (#3752)")
+		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() + 272)
 	end },
 	-- #2315 (Derek2: "make sure mobile players have a way of doing rescue instead of holding e since they cant"): when
 	-- Roblox says the prompt is pressed by touch, the card offers its big RESCUE button even on a device that also

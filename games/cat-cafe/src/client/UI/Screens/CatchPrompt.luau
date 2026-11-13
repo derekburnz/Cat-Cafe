@@ -23,6 +23,7 @@
 -- bindProximityPrompts() in init.luau wires all of this to any ProximityPrompt with Style = Custom.
 
 local GuiService = game:GetService("GuiService")
+local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
@@ -46,6 +47,8 @@ local CARD_W = 360
 local CARD_H = 70
 local CARD_HINT_H = 86 -- with the hint line
 local MINI_W = 96
+local CARD_FOOT = -140 -- the card's foot over the screen's bottom, unless the Tackle bar reaches higher (#3752)
+local CARD_GAP = 8 -- #3752: room kept between the card and the Tackle bar
 
 export type CatchPrompt = {
 	screenGui: ScreenGui,
@@ -66,8 +69,11 @@ export type CatchPrompt = {
 local CatchPrompt = {}
 CatchPrompt.__index = CatchPrompt
 
-function CatchPrompt.new(parent: Instance): CatchPrompt
+-- `above` (#3752): how far over the screen's bottom something else at the bottom centre reaches (the Tackle bar), in
+-- design pixels and negative, or nil when nothing is there; the card keeps its foot a gap over it.
+function CatchPrompt.new(parent: Instance, above: (() -> number?)?): CatchPrompt
 	local self = setmetatable({}, CatchPrompt) :: any
+	self._above = above
 	self.holdBegan = Signal.new()
 	self.holdEnded = Signal.new()
 	self._connections = {} :: { RBXScriptConnection }
@@ -103,7 +109,7 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		BackgroundTransparency = Theme.hud.panelTransparency,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 1, -140),
+		Position = UDim2.new(0.5, 0, 1, CARD_FOOT),
 		Size = UDim2.fromOffset(CARD_W, CARD_H),
 		Parent = root,
 	}, {
@@ -383,6 +389,17 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 			end
 		end)
 	)
+	-- #3752: the Tackle bar under the card can show, hide or grow its shield chip while the card is up
+	if above ~= nil then
+		table.insert(
+			self._connections,
+			RunService.Heartbeat:Connect(function()
+				if screenGui.Enabled then
+					self:_follow()
+				end
+			end)
+		)
+	end
 
 	if parent then
 		screenGui.Parent = parent
@@ -515,6 +532,7 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._padKeyName = (info.gamepadKeyCode or Enum.KeyCode.ButtonX).Name -- #2874
 	self._promptTouch = info.touch
 	self:_paintInput()
+	self:_follow()
 	if not self.screenGui.Enabled then
 		self.screenGui.Enabled = true
 		Tween.popIn(self._card, 0.9)
@@ -603,6 +621,19 @@ function CatchPrompt.hide(self: any)
 	self._keyFill.Size = UDim2.fromScale(1, 0)
 	self._grabFill.Size = UDim2.fromScale(0, 0)
 	self.screenGui.Enabled = false
+end
+
+-- #3752 (Studio, at the starter stuck cat: the "[E] Rescue" card lay on the TACKLE bar): the card's foot sits CARD_FOOT
+-- over the bottom, or a gap over the Tackle bar and its shield chip when they reach higher. Checked every frame
+-- while the card shows, since the bar comes and goes with the catching area and the shield chip with its clock.
+function CatchPrompt._follow(self: any)
+	local above: (() -> number?)? = self._above
+	local reach: number? = if above ~= nil then above() else nil
+	local foot = if reach ~= nil then math.min(CARD_FOOT, reach - CARD_GAP) else CARD_FOOT
+	local at = UDim2.new(0.5, 0, 1, foot)
+	if self._card.Position ~= at then
+		self._card.Position = at
+	end
 end
 
 function CatchPrompt.isVisible(self: any): boolean

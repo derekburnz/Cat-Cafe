@@ -1482,7 +1482,11 @@ function UI.init(config: Types.InitConfig)
 		UI.events.screenOpened:Fire(name)
 	end)
 
-	catch = CatchPrompt.new(parent)
+	-- #3752: the card keeps clear of the Tackle bar (made just below) at the bottom centre
+	catch = CatchPrompt.new(parent, function(): number?
+		local bar = tackleBar
+		return if bar then bar:top() else nil
+	end)
 	circles = CatchCircles.new(parent)
 	rescueBar = RescueBar.new(parent)
 	actionPills = ActionPill.new(parent)

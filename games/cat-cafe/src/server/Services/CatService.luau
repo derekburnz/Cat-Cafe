@@ -2035,6 +2035,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		if area == "park" then
 			Telemetry.onboarding(player, profile, "first_park_catch")
 		end
+		Telemetry.caughtIn(player, profile, area) -- #3695: the clean funnel's area steps
 		return
 	end
 

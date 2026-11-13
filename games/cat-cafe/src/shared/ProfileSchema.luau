@@ -324,6 +324,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 			introStep = 0,
 			firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT,
 			firstHourV3Step = 0,
+			cleanStep = 0,
+			playtimeStep = 0,
 		},
 		tipsSeen = {},
 		feedbackAsked = false,
@@ -806,6 +808,8 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		introStep = 0,
 		firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT,
 		firstHourV3Step = 0,
+		cleanStep = 0,
+		playtimeStep = 0,
 	}
 	if type(value) ~= "table" then
 		return telemetry
@@ -856,6 +860,18 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		else 0
 	telemetry.firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT
 	telemetry.firstHourV3Step = math.clamp(firstHourV3Step, 0, Onboarding.FIRST_HOUR_COUNT)
+	-- #3695: the clean funnel and playtime_v1 from their own fields once this code has saved them. Without them (an
+	-- older save, or a server on v6 dropped them) a save past its first catch is out of the clean funnel, and one that
+	-- logged any first_hour step is out of playtime_v1: both count only players who start on them.
+	local cleanStep = value.cleanStep
+	telemetry.cleanStep = if type(cleanStep) == "number"
+		then math.clamp(asInt(cleanStep, 0), 0, Onboarding.CLEAN_COUNT)
+		else Onboarding.cleanStart(telemetry)
+	local playtimeStep = value.playtimeStep
+	telemetry.playtimeStep = if type(playtimeStep) == "number"
+		then math.clamp(asInt(playtimeStep, 0), 0, Onboarding.PLAYTIME_COUNT)
+		elseif telemetry.firstHourV3Step >= 1 then Onboarding.PLAYTIME_COUNT
+		else 0
 	telemetry.firstDay = math.clamp(asInt(value.firstDay, 0), 0, now // DAY_SECONDS)
 	telemetry.introGroup = IntroSplit.valid(value.introGroup) -- #3666
 	return telemetry

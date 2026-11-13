@@ -70,6 +70,7 @@ export type Catalog = {
 	questPrizes: { [string]: IndexPrize }?,
 	achievements: { AchievementDef }?,
 	achievementPrizes: { [string]: IndexPrize }?,
+	achievementPrizesById: { [string]: IndexPrize }?, -- #3694: Catalog.achievementPrize for each id
 	dailyTreat: { DailyTreatDay }?, -- F70: Catalog.dailyTreat, the Daily Treat card's seven days (data-model 11e)
 }
 

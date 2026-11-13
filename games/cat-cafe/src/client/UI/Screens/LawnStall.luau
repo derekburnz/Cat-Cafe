@@ -50,6 +50,9 @@ local ROW_H = 76
 local PICTURE = 60
 local BUY_W = 150
 local BADGE_H = 20
+-- #3961: the family look's picture cards (as the Decor mock, batch 4 panel 3): COLUMNS across, CARD_PICTURE tall art
+local COLUMNS = 4
+local CARD_PICTURE = 64
 local PENDING_SECONDS = 4 -- a buy with no answer lets the button go again after this long
 local GAP = Theme.sizes.gap
 local GLYPH = "🌷" -- a lawn piece with no picture yet (Screens/LawnTab's)
@@ -89,6 +92,7 @@ function LawnStall.new(callbacks: Callbacks): LawnStall
 	self._pendingToken = 0
 	self._open = false
 	self._tick = 0
+	self._family = MenuFamily.on()
 	local tabH = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 	local buyH = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 
@@ -160,6 +164,19 @@ function LawnStall.new(callbacks: Callbacks): LawnStall
 		}),
 		Outline.listPadding(10), -- #2294: room for the rows' outlines
 	})
+	if self._family then
+		-- #3961: a grid of picture cards in place of the rows
+		local rows = self._list:FindFirstChildWhichIsA("UIListLayout")
+		if rows ~= nil then
+			rows:Destroy()
+		end
+		Create("UIGridLayout", {
+			CellPadding = UDim2.fromOffset(GAP, GAP),
+			CellSize = UDim2.new(1 / COLUMNS, -GAP, 0, CARD_PICTURE + 80 + buyH),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			Parent = self._list,
+		})
+	end
 
 	for _, def in TABS do
 		for order, row in LawnLogic.stallRows(def.tab) do
@@ -190,15 +207,26 @@ function LawnStall._row(
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
+	local family = self._family
+	local CARD = MenuFamily.card
+	if family then
+		frame.BackgroundColor3 = CARD.card
+		local stroke = frame:FindFirstChildWhichIsA("UIStroke")
+		if stroke ~= nil then
+			(stroke :: UIStroke).Color = CARD.cardStroke
+		end
+	end
 	local icon = ItemIcon.new({
 		parent = frame,
-		size = UDim2.fromOffset(PICTURE, PICTURE),
-		anchorPoint = Vector2.new(0, 0.5),
-		position = UDim2.new(0, 8, 0.5, 0),
+		size = if family
+			then UDim2.fromOffset(CARD_PICTURE, CARD_PICTURE)
+			else UDim2.fromOffset(PICTURE, PICTURE),
+		anchorPoint = if family then Vector2.new(0.5, 0) else Vector2.new(0, 0.5),
+		position = if family then UDim2.new(0.5, 0, 0, 8) else UDim2.new(0, 8, 0.5, 0),
 	})
 	icon:set(row.model, GLYPH, nil)
 	local left = PICTURE + 18
-	text({
+	local name = text({
 		Name = "Name",
 		Position = UDim2.fromOffset(left, 10),
 		Size = UDim2.new(1, -(left + BUY_W + 16), 0, 26),
@@ -216,11 +244,26 @@ function LawnStall._row(
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = if family
+				then Enum.HorizontalAlignment.Center
+				else Enum.HorizontalAlignment.Left,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
-			Padding = UDim.new(0, 8),
+			Padding = UDim.new(0, if family then 4 else 8),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	if family then
+		-- #3961: the name under the picture, then the rarity chip and the spot, then the button across the foot
+		name.Position = UDim2.fromOffset(4, CARD_PICTURE + 10)
+		name.Size = UDim2.new(1, -8, 0, 32)
+		name.TextXAlignment = Enum.TextXAlignment.Center
+		name.TextSize = Theme.sizes.textSmall
+		name.TextWrapped = true -- a long name ("Potted Cat Topiary") takes two lines
+		name.TextTruncate = Enum.TextTruncate.None
+		name.TextColor3 = CARD.text
+		line.Position = UDim2.fromOffset(4, CARD_PICTURE + 44)
+		line.Size = UDim2.new(1, -8, 0, BADGE_H)
+	end
 	local badgeColor, badgeText = Theme.lawnRarityColors(row.rarity)
 	local badge = text({
 		Name = "Rarity",
@@ -237,6 +280,12 @@ function LawnStall._row(
 		Text = row.rarity,
 		Parent = line,
 	})
+	if family then
+		-- #3961: the rarity chip sits on the picture's corner (the Decor mock), the spot alone under the name
+		badge.Parent = frame
+		badge.Position = UDim2.fromOffset(4, 4)
+		badge.ZIndex = 4
+	end
 	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = badge })
 	Create("UIPadding", {
 		PaddingLeft = UDim.new(0, 8),
@@ -246,9 +295,10 @@ function LawnStall._row(
 	text({
 		Name = "Detail",
 		LayoutOrder = 2,
-		Size = UDim2.fromOffset(96, BADGE_H), -- "Small spot" whole at the small text size
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		Size = if family then UDim2.new(1, 0, 0, BADGE_H) else UDim2.fromOffset(96, BADGE_H), -- "Small spot" whole at the small text size
+		TextXAlignment = if family then Enum.TextXAlignment.Center else Enum.TextXAlignment.Left,
+		TextSize = if family then Theme.sizes.textTiny else Theme.sizes.textSmall,
+		TextColor3 = if family then CARD.subtext else PAL.subtext,
 		TextTruncate = Enum.TextTruncate.None,
 		Text = row.detail,
 		Parent = line,
@@ -265,9 +315,9 @@ function LawnStall._row(
 		name = "Buy",
 		text = "",
 		style = "gold",
-		size = UDim2.fromOffset(BUY_W, buyH),
-		anchorPoint = Vector2.new(1, 0.5),
-		position = UDim2.new(1, -10, 0.5, 0),
+		size = if family then UDim2.new(1, -12, 0, buyH) else UDim2.fromOffset(BUY_W, buyH),
+		anchorPoint = if family then Vector2.new(0.5, 1) else Vector2.new(1, 0.5),
+		position = if family then UDim2.new(0.5, 0, 1, -6) else UDim2.new(1, -10, 0.5, 0),
 		textSize = Theme.sizes.textBody,
 		parent = frame,
 		onClick = function()

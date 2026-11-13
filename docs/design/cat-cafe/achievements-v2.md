@@ -1,6 +1,6 @@
 # Achievements: easier targets, more steps, a prize of its own kind per line (#3694)
 
-Status 2026-11-13: sections 1 to 4 and the Devoted fault built by Design-Agent (names of the new steps in 2a, the new ones in 3a, prize notes in 4a), except `a_pet25`, which waits for the pet a cat server build; the titles not built yet. Asked by Derek at 20:39 UTC: "lower the difficuilty of these achievements add some more and make the rewards slightly more unique/diff". Build: Gameplay-Engineer. Test: Review-QA-Agent. The issue holds the checklist.
+Status 2026-11-13: sections 1 to 4 and the Devoted fault built by Design-Agent (names of the new steps in 2a, the new ones in 3a, prize notes in 4a), except `a_pet25`, which waits for the pet a cat server build; the chat titles built too (section 5). Asked by Derek at 20:39 UTC: "lower the difficuilty of these achievements add some more and make the rewards slightly more unique/diff". Build: Gameplay-Engineer. Test: Review-QA-Agent. The issue holds the checklist.
 
 ## Rules for the change
 
@@ -122,3 +122,11 @@ Today the prize depends only on the size: S a spin, M a Money Potion, L a Classi
 - Section 3's lines (Rummage Bin, Yard Sale, Mystic Pool, Mouse Dash) get their rows when their achievements are added; Trait Tokens will need a prize field of their own then.
 
 **Titles (second step, own PR if the title system needs work):** the XL achievements also give a chat title with the achievement's name: Cat Legend, Steady Hands, Devoted, Week Champion, Gold Rush. A player who already claimed one gets the title on the next join.
+
+## 5. Chat titles (as built)
+
+The five big achievements the issue names give a chat title with the achievement's name: Cat Legend (`a_catch10k`), Steady Hands (`a_perfect5k`), Devoted (`a_hours100`), Week Champion (`a_week10`) and Gold Rush (`a_gold50`). They are chat tags (`ChatTags.ACHIEVEMENT_TITLES`, ids `title_*`), offered after the Grand Opener tag and before the leaderboard ranks, and listed in the Bag's Titles tab as "Achievement: <name>" while locked.
+
+- Read from the save's claimed achievements every time, so nothing new is saved and a player who claimed one before has it on the next join.
+- A claim shows it at once: the server refreshes the tag and the Titles tab after the claim. With no title picked, the first one the player has in the order shows, as for every tag.
+- The other XL achievements (Every Cat, Grand Opening, Coin Mountain, Master Cat, Secret Keeper) give no title yet.

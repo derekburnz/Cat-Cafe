@@ -4124,6 +4124,15 @@ local SCENES = {
 		local trim = picker:FindFirstChild("trim", true)
 		assert(bag and trim, "uigate: the picker has no Bag and Trim grids (#3699)")
 		tap(bag:FindFirstChild("Swatch_mint"), "Mint swatch")
+		-- a short screen shows one block at a time behind Bag and Trim tabs; a tall one shows both
+		local trimTab = picker:FindFirstChild("Tab_trim", true)
+		if trimTab ~= nil then
+			assert(bag.Visible and not trim.Visible, "uigate: a short screen should open on the Bag block alone (#3699)")
+			tap(trimTab, "Trim tab")
+			assert(trim.Visible and not bag.Visible, "uigate: the Trim tab did not show the Trim block (#3699)")
+		else
+			assert(bag.Visible and trim.Visible, "uigate: a tall screen shows both blocks (#3699)")
+		end
 		tap(trim:FindFirstChild("Swatch_honey"), "Honey swatch")
 		tap(picker:FindFirstChild("Save", true), "Save")
 		listening:Disconnect()

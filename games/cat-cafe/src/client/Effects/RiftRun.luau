@@ -1268,7 +1268,7 @@ function RiftRun.play(
 				-(r.gateFirst + r.gateGap * (#plan.gates - 1) + r.starCatBeyond)
 			)
 		for i, point in Logic.CAT_CONSTELLATION do
-			task.delay((i - 1) * b.starGap, function()
+			task.delay((i - 1) * r.starCatGap, function()
 				if stopped then
 					return
 				end

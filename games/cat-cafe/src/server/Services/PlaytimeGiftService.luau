@@ -81,8 +81,8 @@ local function updateGift(player: Player): boolean
 end
 
 -- #3772: the welcome back gift, on the first second a returning player is loaded on a later UTC day than their
--- first; marked in codesRedeemed before paying, so it never pays twice, on this server or another.
-local function returnGift(player: Player)
+-- first; marked in codesRedeemed before paying, so it never pays twice, on this server or another. True when paid.
+local function returnGift(player: Player): boolean
 	local profile = DataService.get(player)
 	local now = os.time()
 	if
@@ -90,13 +90,14 @@ local function returnGift(player: Player)
 		or not LiveFlagService.on(ReturnGift.FLAG)
 		or not ReturnGift.due(profile, now)
 	then
-		return
+		return false
 	end
 	profile.codesRedeemed[ReturnGift.KEY] = now
 	local paid = Payout.pay(player, profile, ReturnGift.prize(), ReturnGift.REASON)
 	Telemetry.custom(player, "return_gift_paid", ReturnGift.daysSince(profile, now))
 	CafeService.sync(player)
 	Net.toast(player, ReturnGift.TOAST .. table.concat(paid, ", "), "good")
+	return true
 end
 
 -- true when a gift was paid this tick

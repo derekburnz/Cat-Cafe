@@ -9800,7 +9800,9 @@ local SCENES = {
 		for _, piece in hud:GetDescendants() do
 			if piece:IsA("TextLabel") or piece:IsA("TextButton") then
 				local text = (piece :: any).Text :: string
+				-- the boosts card (closed here) carries the pass's line on purpose, and with a running event its total
 				local shown = (piece :: GuiObject).Visible and (piece :: GuiObject).AbsoluteSize.X > 0
+					and piece:FindFirstAncestor("Boosts") == nil
 				assert(not (shown and (text:find("x4", 1, true) or text:find("4x", 1, true))), "uigate: the HUD still says " .. text .. " for the owned 4x pass (#3052)")
 			end
 		end

@@ -5365,6 +5365,11 @@ Presets.riftRun = {
 	},
 	dark = { brightness = -0.32, saturation = -0.6, tint = Color3.fromRGB(200, 196, 255) },
 	secretColour = Color3.fromRGB(240, 236, 255),
+	-- a Secret's cat of stars (Logic.CAT_CONSTELLATION), drawn in the dark `starCatBeyond` studs past the white gate,
+	-- its middle `starCatHeight` over the path, `starCatScale` studs a unit, so the low camera sees it ahead
+	starCatHeight = 11,
+	starCatBeyond = 16,
+	starCatScale = 4.5,
 	flashPink = Color3.fromRGB(255, 120, 200),
 	displayOrder = 40, -- over every window, the bars and the title
 	cap = 30, -- everything is back by now, whatever happens

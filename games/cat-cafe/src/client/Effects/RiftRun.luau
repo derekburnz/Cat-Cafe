@@ -846,7 +846,10 @@ local function hideWindows(): () -> ()
 	end
 	-- Review-QA on #4029: the HUD's pointer arrow (a marker drawn over the world) showed through, so billboards in
 	-- the PlayerGui hide too, at any depth
+	-- and one whose own code switches it back on (the arrow did for its first second in the realm) is switched off
+	-- again at once
 	local hidden: { LayerCollector } = {}
+	local watches: { RBXScriptConnection } = {}
 	local function hide(child: Instance)
 		if not (child:IsA("ScreenGui") or child:IsA("BillboardGui")) then
 			return
@@ -855,6 +858,14 @@ local function hideWindows(): () -> ()
 		if gui.Enabled and not OURS[gui.Name] then
 			gui.Enabled = false
 			table.insert(hidden, gui)
+			table.insert(
+				watches,
+				gui:GetPropertyChangedSignal("Enabled"):Connect(function()
+					if gui.Enabled then
+						gui.Enabled = false
+					end
+				end)
+			)
 		end
 	end
 	for _, child in playerGui:GetDescendants() do
@@ -868,6 +879,9 @@ local function hideWindows(): () -> ()
 		end
 		back = true
 		added:Disconnect()
+		for _, watch in watches do
+			watch:Disconnect()
+		end
 		for _, gui in hidden do
 			if gui.Parent ~= nil then
 				gui.Enabled = true
@@ -1245,16 +1259,23 @@ function RiftRun.play(
 	-- a Secret's cat of stars over the rift, a star at a time
 	local function drawConstellation()
 		local b = Presets.bigTrait
-		local centre = realm.ringCentre + Vector3.new(0, r.ringDiameter / 2 + 18, -6)
+		-- Review-QA on #4029: over the rift it was out of the low camera's view; it now draws in the dark ahead,
+		-- just past the white Secret gate, where the cat runs toward it
+		local centre = realm.origin
+			+ Vector3.new(
+				0,
+				r.starCatHeight,
+				-(r.gateFirst + r.gateGap * (#plan.gates - 1) + r.starCatBeyond)
+			)
 		for i, point in Logic.CAT_CONSTELLATION do
 			task.delay((i - 1) * b.starGap, function()
 				if stopped then
 					return
 				end
 				local at = centre
-					+ Vector3.new(point.X * b.skyScale * 1.6, point.Y * b.skyScale * 1.6, 0)
+					+ Vector3.new(point.X * r.starCatScale, point.Y * r.starCatScale, 0)
 				local star =
-					plain("StarCat", Vector3.new(1.4, 1.4, 1.4), r.secretColour, Enum.Material.Neon)
+					plain("StarCat", Vector3.new(1.8, 1.8, 1.8), r.secretColour, Enum.Material.Neon)
 				star.Shape = Enum.PartType.Ball
 				star.CFrame = CFrame.new(at)
 				star.Parent = realm.root

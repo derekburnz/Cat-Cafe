@@ -3880,7 +3880,7 @@ function Logic.riftPlan(rarity: string?): RiftPlan?
 	table.insert(knots, Vector2.new(leapAt, r.leapFrom))
 	local leapEnd = leapAt + r.leapSeconds
 	return {
-		rarity = rarity,
+		rarity = rarity :: string, -- CI's luau-lsp keeps the refined "mythic" | "secret" otherwise
 		gates = gates,
 		gateZ = gateZ,
 		gateAt = gateAt,

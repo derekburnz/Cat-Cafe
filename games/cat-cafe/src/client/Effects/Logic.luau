@@ -277,6 +277,27 @@ function Logic.glowColour(rarity: unknown): Color3
 	return Presets.rarityGlow[rarity] or Presets.rarity[rarity] or Presets.rarity.Common
 end
 
+-- #3544: how much of a Secret cat's glow is left at `distance` studs: all of it inside `full`, none at `within`.
+function Logic.secretGlowFade(distance: number): number
+	local g = Presets.secretGlow
+	if distance ~= distance then
+		return 0
+	end
+	return 1 - math.clamp((distance - g.full) / (g.within - g.full), 0, 1)
+end
+
+-- #3544: the share of full brightness a Secret cat's light has `t` seconds in, seen from `distance` studs. It
+-- breathes between `low` and 1 once every `breathe` seconds; with Reduce Motion it holds at `rest`.
+function Logic.secretGlowLevel(distance: number, t: number, reducedMotion: boolean): number
+	local g = Presets.secretGlow
+	local fade = Logic.secretGlowFade(distance)
+	if reducedMotion then
+		return g.rest * fade
+	end
+	local wave = 0.5 - 0.5 * math.cos(t * 2 * math.pi / g.breathe)
+	return (g.low + (1 - g.low) * wave) * fade
+end
+
 -- A Secret stray's sky beam seen from `distance` studs (Presets.secretStray.beam): its width in studs, wider the
 -- further you are so it stays a thin line on screen, and how see-through its foot is, fading as you come close.
 function Logic.secretBeam(distance: number): (number, number)

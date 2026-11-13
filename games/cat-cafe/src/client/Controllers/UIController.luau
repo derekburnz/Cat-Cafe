@@ -106,6 +106,15 @@ UIController.state = nil :: Types.PlayerState?
 UIController.leaderboards = nil :: Types.LeaderboardSync?
 
 -- #1645: the crate pieces, then the Cafe Pass decor (Catalog.passDecor), for the UI's crateDecor list.
+-- #3694: each achievement's prize with its line's item, for the Quests cards (the server pays the same).
+local function achievementPrizesById(): { [string]: Types.IndexPrize }
+	local out: { [string]: Types.IndexPrize } = {}
+	for _, def in Catalog.achievements do
+		out[def.id] = Catalog.achievementPrize(def)
+	end
+	return out
+end
+
 local function passAndCrateDecor(): { Types.DecorDef }
 	local list: { Types.DecorDef } = table.clone(Catalog.crateDecor)
 	for _, def in Catalog.passDecor do
@@ -3187,6 +3196,7 @@ function UIController.start()
 		questPrizes = Catalog.questPrizes, -- F73: daily, dailyBig, dailySet, weekly and weeklySet
 		achievements = Catalog.achievements, -- F73: the 44 achievements in table order
 		achievementPrizes = Catalog.achievementPrizes, -- F73: prizes by size
+		achievementPrizesById = achievementPrizesById(), -- #3694: each one's own prize, its line's item
 		dailyTreat = Catalog.dailyTreat, -- F70: the Daily Treat card's seven days and their prizes
 	}
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.

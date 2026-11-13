@@ -357844,6 +357844,662 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_MoneyBag.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_MoneyBag.png"
+    },
+    {
+      "name": "CatCafe_Accessory_CoolShades",
+      "category": "Accessory",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Accessory_CoolShades"
+      ],
+      "triangles": 132,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.91,
+        "y": 0.66,
+        "z": 0.25
+      },
+      "size_roblox": [
+        0.91,
+        0.25,
+        0.66
+      ],
+      "bounds_min": [
+        -0.46,
+        -0.05,
+        -0.13
+      ],
+      "bounds_max": [
+        0.46,
+        0.61,
+        0.12
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_CoolShades.model.json",
+      "rbx_parts": 11,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_CoolShades.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_CoolShades.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "132/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "66 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.13 (want 0)",
+          "centered": "footprint center x=0.00 y=0.28"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_WinterBobble",
+      "category": "Accessory",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Accessory_WinterBobble"
+      ],
+      "triangles": 396,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.74,
+        "y": 0.74,
+        "z": 0.52
+      },
+      "size_roblox": [
+        0.74,
+        0.52,
+        0.74
+      ],
+      "bounds_min": [
+        -0.37,
+        -0.37,
+        0.0
+      ],
+      "bounds_max": [
+        0.37,
+        0.37,
+        0.52
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_WinterBobble.model.json",
+      "rbx_parts": 18,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_WinterBobble.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_WinterBobble.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "396/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "176 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_PackChefHat",
+      "category": "Accessory",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Accessory_PackChefHat"
+      ],
+      "triangles": 256,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.6,
+        "y": 0.62,
+        "z": 0.56
+      },
+      "size_roblox": [
+        0.6,
+        0.56,
+        0.62
+      ],
+      "bounds_min": [
+        -0.3,
+        -0.31,
+        0.0
+      ],
+      "bounds_max": [
+        0.3,
+        0.31,
+        0.56
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_PackChefHat.model.json",
+      "rbx_parts": 9,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_PackChefHat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_PackChefHat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "256/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "148 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_BubbleHelmet",
+      "category": "Accessory",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Accessory_BubbleHelmet"
+      ],
+      "triangles": 392,
+      "budget": 600,
+      "size_studs": {
+        "x": 1.52,
+        "y": 1.26,
+        "z": 1.5
+      },
+      "size_roblox": [
+        1.52,
+        1.5,
+        1.26
+      ],
+      "bounds_min": [
+        -0.76,
+        -0.63,
+        -0.94
+      ],
+      "bounds_max": [
+        0.76,
+        0.63,
+        0.56
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_BubbleHelmet.model.json",
+      "rbx_parts": 7,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_BubbleHelmet.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_BubbleHelmet.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "392/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "196 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.94 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_SignClubBanner",
+      "category": "Plot",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Plot_SignClubBanner",
+        "CatCafe_Plot_SignClubBanner_SignBoard",
+        "CatCafe_Plot_SignClubBanner_Frame",
+        "CatCafe_Plot_SignClubBanner_Glow"
+      ],
+      "triangles": 424,
+      "budget": 3000,
+      "size_studs": {
+        "x": 16.8,
+        "y": 1.28,
+        "z": 6.35
+      },
+      "size_roblox": [
+        16.8,
+        6.35,
+        1.28
+      ],
+      "bounds_min": [
+        -8.4,
+        -19.34,
+        13.0
+      ],
+      "bounds_max": [
+        8.4,
+        -18.06,
+        19.35
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignClubBanner.model.json",
+      "rbx_parts": 32,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignClubBanner.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignClubBanner.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "424/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "214 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=13.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.70"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_SignSnowyBanner",
+      "category": "Plot",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Plot_SignSnowyBanner",
+        "CatCafe_Plot_SignSnowyBanner_SignBoard",
+        "CatCafe_Plot_SignSnowyBanner_Frame"
+      ],
+      "triangles": 648,
+      "budget": 3000,
+      "size_studs": {
+        "x": 18.1,
+        "y": 0.59,
+        "z": 7.43
+      },
+      "size_roblox": [
+        18.1,
+        7.43,
+        0.59
+      ],
+      "bounds_min": [
+        -9.05,
+        -18.81,
+        12.22
+      ],
+      "bounds_max": [
+        9.05,
+        -18.22,
+        19.64
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignSnowyBanner.model.json",
+      "rbx_parts": 52,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignSnowyBanner.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignSnowyBanner.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "648/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "354 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=12.22 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.52"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_SignBakeryBanner",
+      "category": "Plot",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Plot_SignBakeryBanner",
+        "CatCafe_Plot_SignBakeryBanner_SignBoard",
+        "CatCafe_Plot_SignBakeryBanner_Frame"
+      ],
+      "triangles": 820,
+      "budget": 3000,
+      "size_studs": {
+        "x": 16.8,
+        "y": 1.16,
+        "z": 7.16
+      },
+      "size_roblox": [
+        16.8,
+        7.16,
+        1.16
+      ],
+      "bounds_min": [
+        -8.4,
+        -19.18,
+        12.0
+      ],
+      "bounds_max": [
+        8.4,
+        -18.02,
+        19.16
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignBakeryBanner.model.json",
+      "rbx_parts": 85,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignBakeryBanner.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignBakeryBanner.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "820/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "421 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=12.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_SignStarBanner",
+      "category": "Plot",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Plot_SignStarBanner",
+        "CatCafe_Plot_SignStarBanner_SignBoard",
+        "CatCafe_Plot_SignStarBanner_Frame",
+        "CatCafe_Plot_SignStarBanner_Glow"
+      ],
+      "triangles": 728,
+      "budget": 3000,
+      "size_studs": {
+        "x": 18.15,
+        "y": 1.36,
+        "z": 7.3
+      },
+      "size_roblox": [
+        18.15,
+        7.3,
+        1.36
+      ],
+      "bounds_min": [
+        -9.75,
+        -19.48,
+        13.0
+      ],
+      "bounds_max": [
+        8.4,
+        -18.12,
+        20.3
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignStarBanner.model.json",
+      "rbx_parts": 76,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignStarBanner.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignStarBanner.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "728/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "341 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=13.00 (want 0)",
+          "centered": "footprint center x=-0.68 y=-18.80"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_DiscoBall",
+      "category": "Decor",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Decor_DiscoBall",
+        "CatCafe_Decor_DiscoBall_Glow"
+      ],
+      "triangles": 872,
+      "budget": 3000,
+      "size_studs": {
+        "x": 2.34,
+        "y": 2.4,
+        "z": 4.64
+      },
+      "size_roblox": [
+        2.34,
+        4.64,
+        2.4
+      ],
+      "bounds_min": [
+        -1.17,
+        -1.2,
+        0.0
+      ],
+      "bounds_max": [
+        1.17,
+        1.2,
+        4.64
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_DiscoBall.model.json",
+      "rbx_parts": 56,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_DiscoBall.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_DiscoBall.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "872/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "398 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_CocoaStand",
+      "category": "Decor",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Decor_CocoaStand",
+        "CatCafe_Decor_CocoaStand_Glow"
+      ],
+      "triangles": 758,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.8,
+        "y": 2.18,
+        "z": 4.15
+      },
+      "size_roblox": [
+        3.8,
+        4.15,
+        2.18
+      ],
+      "bounds_min": [
+        -1.9,
+        -1.18,
+        0.0
+      ],
+      "bounds_max": [
+        1.9,
+        1.0,
+        4.15
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_CocoaStand.model.json",
+      "rbx_parts": 49,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_CocoaStand.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_CocoaStand.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "758/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "331 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.09"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_PastryCase",
+      "category": "Decor",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Decor_PastryCase"
+      ],
+      "triangles": 600,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.8,
+        "y": 2.1,
+        "z": 3.2
+      },
+      "size_roblox": [
+        3.8,
+        3.2,
+        2.1
+      ],
+      "bounds_min": [
+        -1.9,
+        -1.05,
+        0.0
+      ],
+      "bounds_max": [
+        1.9,
+        1.05,
+        3.2
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PastryCase.model.json",
+      "rbx_parts": 38,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_PastryCase.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_PastryCase.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "600/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "348 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_RocketLamp",
+      "category": "Decor",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Decor_RocketLamp",
+        "CatCafe_Decor_RocketLamp_Glow"
+      ],
+      "triangles": 548,
+      "budget": 3000,
+      "size_studs": {
+        "x": 2.6,
+        "y": 2.6,
+        "z": 5.4
+      },
+      "size_roblox": [
+        2.6,
+        5.4,
+        2.6
+      ],
+      "bounds_min": [
+        -1.3,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        1.3,
+        1.3,
+        5.4
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_RocketLamp.model.json",
+      "rbx_parts": 26,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_RocketLamp.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_RocketLamp.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "548/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "197 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
     }
   ]
 }

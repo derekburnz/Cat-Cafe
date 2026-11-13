@@ -131,6 +131,11 @@ return function()
 				expect(LiveFlags.defaults().circleStreak).to.equal(true)
 				expect(LiveFlags.parse({ circleStreak = false }).circleStreak).to.equal(false)
 				expect(LiveFlags.parse({ mouseDash = true }).mouseDash).to.equal(true)
+				-- #2912: the stuck cat's call stays on (it is live) until an explicit false hides it
+				expect(LiveFlags.defaults().stuckCall).to.equal(true)
+				expect(LiveFlags.parse({ stuckCall = false }).stuckCall).to.equal(false)
+				expect(LiveFlags.shown("stuckCall", nil)).to.equal(true)
+				expect(LiveFlags.shown("stuckCall", false)).to.equal(false)
 				-- #3222: no Golden drop until it is switched on, even with a broken store
 				expect(LiveFlags.defaults().goldenDrops).to.equal(false)
 				expect(LiveFlags.parse(nil).goldenDrops).to.equal(false)

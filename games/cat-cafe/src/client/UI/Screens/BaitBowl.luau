@@ -39,6 +39,7 @@ local Format = require(script.Parent.Parent.Components.Format)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
+local LateBuild = require(script.Parent.Parent.Components.LateBuild)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -602,9 +603,21 @@ function BaitBowl._toggleDetail(self: any, lureId: string)
 	row.details:setText(if row.detail.Visible then "Hide details" else "Details")
 end
 
+BaitBowl.BUILD_AFTER = 8 -- #3722: seconds after the catalog arrives
+
 function BaitBowl.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
-	self:_buildRows()
+	-- #3722: the food rows are built after start-up, or at once when the window opens first
+	self._lateBuild = self._lateBuild
+		or LateBuild.new(BaitBowl.BUILD_AFTER, function()
+			self:_buildRows()
+		end, function()
+			local last: Types.PlayerState? = self._state
+			if last then
+				self:render(last)
+			end
+		end)
+	self._lateBuild:queue()
 	local state: Types.PlayerState? = self._state
 	if state then
 		self:render(state)
@@ -693,6 +706,9 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 	self:_layout()
 	if not self.frame.Visible then
 		return -- money ticks re-render every screen; this one catches up when it opens
+	end
+	if self._lateBuild ~= nil then
+		self._lateBuild:ensure()
 	end
 	local catalog: Types.Catalog? = self._catalog
 	-- the odds row and the split are the bowl level's (F82) at the player's Luck (F88), the split the tier's areas too

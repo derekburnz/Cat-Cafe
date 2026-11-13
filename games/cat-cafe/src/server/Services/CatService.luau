@@ -566,22 +566,27 @@ local PERCH_ABOVE = 0.5
 
 local function wander(stray: Stray)
 	local area = world.areas[stray.area]
-	if stray.mood == "Sleepy" then
+	-- #3545: a Secret roams fast and far and never settles for a nap
+	local secret = stray.def.rarity == Catalog.SECRET
+	local speed = if secret then Config.SecretWanderSpeed else Config.StrayWanderSpeed
+	local radius = if secret then Config.SecretWanderRadius else Config.StrayWanderRadius
+	local pause = if secret then Config.SecretWanderPauseScale else 1
+	if stray.mood == "Sleepy" and not secret then
 		stray.model:SetAttribute("Napping", true) -- #1884 (7a): curled up from the start
 	end
 	while stray.alive do
-		task.wait(rng:NextNumber(3, 7))
+		task.wait(rng:NextNumber(3, 7) * pause)
 		if not canWander(stray) then
 			continue
 		end
-		if stray.mood == "Sleepy" then
+		if stray.mood == "Sleepy" and not secret then
 			-- #1884 (7a): a Sleepy cat never wanders; a swing wakes it (setLock) and it curls up again after
 			if stray.model:GetAttribute("Napping") ~= true then
 				stray.model:SetAttribute("Napping", true)
 			end
 			continue
 		end
-		if rng:NextNumber() < NAP_CHANCE and not nap(stray) then
+		if not secret and rng:NextNumber() < NAP_CHANCE and not nap(stray) then
 			continue
 		end
 		-- A stray spawned up on a porch, a rock or the Sewer's catwalk (the area sets' cat spots) stays there until a
@@ -589,7 +594,6 @@ local function wander(stray: Stray)
 		if stray.home.Y > area.floorY + PERCH_ABOVE then
 			continue
 		end
-		local radius = Config.StrayWanderRadius
 		local at = stray.model:GetPivot().Position
 		local target = WorldBuilder.clampToArea(
 			area,
@@ -600,7 +604,7 @@ local function wander(stray: Stray)
 		)
 		stray.walk += 1
 		local walk = stray.walk
-		Mover.walkTo(stray.model, clearPath(at, target), Config.StrayWanderSpeed, function()
+		Mover.walkTo(stray.model, clearPath(at, target), speed, function()
 			return stray.alive and stray.lockedBy == 0 and stray.walk == walk
 		end)
 	end

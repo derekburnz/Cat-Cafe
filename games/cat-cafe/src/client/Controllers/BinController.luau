@@ -449,9 +449,18 @@ end
 -- The show before the bar: the roll or the reveal, until the bar comes or the player skips.
 local showing: { skip: (() -> ())? }? = nil
 
+-- Review-QA on #3904: the pop-ups wait while the roll plays (UI.setRollBusy), so a shout-out never crosses the board.
+local function quiet(on: boolean)
+	local set = (UI :: any).setRollBusy
+	if type(set) == "function" then
+		(set :: (boolean) -> ())(on)
+	end
+end
+
 local function endShow()
 	local show = showing
 	showing = nil
+	quiet(false)
 	if show ~= nil and show.skip ~= nil then
 		show.skip()
 	end
@@ -485,6 +494,7 @@ local function onRolled(rowId: unknown, mode: unknown, seconds: unknown)
 	end
 	local show: { skip: (() -> ())? } = { skip = nil }
 	showing = show
+	quiet(true)
 	local model, fx = firstBin(), binFx()
 	local function rollTo(at: number)
 		if play == playing then
@@ -499,6 +509,7 @@ local function onRolled(rowId: unknown, mode: unknown, seconds: unknown)
 		if showing == show then
 			show.skip = nil
 		end
+		quiet(false)
 		if index ~= nil then
 			rollTo(index)
 		end
@@ -525,6 +536,7 @@ local function onRolled(rowId: unknown, mode: unknown, seconds: unknown)
 	landed() -- no effects module: the board just shows the row
 end
 
+local SKIP_HOLD = 0.6 -- seconds the prize's row stays lit after a skip, before the bar
 local SKIP_KEYS: { [Enum.KeyCode]: boolean } = {
 	[Enum.KeyCode.Space] = true,
 	[Enum.KeyCode.E] = true,
@@ -553,8 +565,19 @@ local function onInput(input: InputObject, processed: boolean)
 	if kind == Enum.UserInputType.Keyboard and not SKIP_KEYS[input.KeyCode] then
 		return
 	end
+	-- Review-QA on #3904 (a near miss): a skip once asked for the bar at once, so the board hid with its light still
+	-- on whatever row the roll was passing. Now the light jumps to the prize (the effect's skip) and holds there
+	-- SKIP_HOLD seconds before the bar is asked for.
 	endShow()
-	Net.fire("RescuePress", RummageBin.SPOT, Workspace:GetServerTimeNow())
+	-- Review-QA on #3910: the server's own roll timer may start the bar inside the hold; a press then would count as a
+	-- bar press (and could cost a paw), so it is sent only while the bar has not come
+	local skipped = play
+	task.delay(SKIP_HOLD, function()
+		if play ~= skipped or (UI :: any).rescue.isActive() then
+			return
+		end
+		Net.fire("RescuePress", RummageBin.SPOT, Workspace:GetServerTimeNow())
+	end)
 end
 
 -- #3885: the prize's picture for its pop out of the bin, the same pictures as the loot card's (Screens/LootCard).
@@ -658,11 +681,13 @@ local function padStep()
 				playing.barSeen = true
 				playing.rolling = false
 				showing = nil -- the bar is here: the show is over and a tap is the bar's
+				quiet(false)
 				moved = true
 			end
 		elseif playing.barSeen or os.clock() > playing.untilAt then
 			play = nil -- the bar ended without a win, or never came (the server ended the run)
 			showing = nil
+			quiet(false)
 			moved = true
 			-- #3683: with the click prompt silenced the pad is the only way in, so a finished bar arms it again
 			-- once the server's wait after a miss is over; a player who stays on the ring gets the next try

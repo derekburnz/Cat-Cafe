@@ -1174,3 +1174,6 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
 ## 2026-11-13 Thank You cards shrink their words instead of cutting them (#3926, Design-Agent)
 - **Why:** Derek, 15:27 UTC: "a lot of thank you for ideas get cut off". An idea of up to 48 bytes had one 21 px line on its card and ended in "...".
 - **What:** the idea takes every line above the credit and shrinks to fit (down to 11 px, 0.17 studs); the credit wraps to two small lines for a long name; What's new rows shrink the same way. The UI gate's shim now takes a SurfaceGui's FixedSize CanvasSize as its face, so scene ThanksBoardFit checks the board at its real 486 x 333 px.
+## 2026-11-13 The Potions button counts only potions that can be drunk (#3937, Design-Agent)
+- **Why:** Derek, 15:43 UTC, with a picture of 26 Quick Bait potions all reading Full: don't show "potion numbers for ones that cant be drank because already full".
+- **What:** the HUD Potions pill adds only the potions whose Use is on now (`PotionLogic.drinkable`, the rows' own canUse) and hides at none. While some wait behind a Full timer it looks again every 5 seconds. The rows keep their own counts.

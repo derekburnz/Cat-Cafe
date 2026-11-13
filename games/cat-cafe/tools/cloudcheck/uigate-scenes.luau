@@ -5764,6 +5764,29 @@ local SCENES = {
 	-- #1281: the Bag's Bait tab: the bowl foods the player has, each with its picture, grade badge and count, no Use
 	-- #3190 (Derek2: "... delays on using potions too fast"): two quick Use presses both count at once, the button never
 	-- reads "...", and the bag's count drops before the server answers
+	-- #3937 (Derek 2026-11-13: not "potion numbers for ones that cant be drank because already full"): the Potions
+	-- pill counts only what Use can drink, and hides when every potion is behind a Full timer
+	{ "HUDPotionCount", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		assert(hud, "uigate: no HUD (#3937)")
+		local count: TextLabel? = nil
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "Potions" and piece:FindFirstChild("Count") then
+				count = piece:FindFirstChild("Count") :: TextLabel
+			end
+		end
+		assert(count, "uigate: no count on the Potions tile (#3937)")
+		count = count :: TextLabel
+		local full = game:GetService("Workspace"):GetServerTimeNow() + 1440 * 60 -- PotionMaxMinutes: no room for another
+		UI.update({ potions = { quick_bait_potion = 16, tip_potion = 2 }, buffs = { quick_bait_potion = full } } :: any)
+		UIShim.advance(0.1)
+		assert(count.Visible and count.Text == "2", "uigate: the Potions count reads " .. count.Text .. ", wanted 2 (#3937)")
+		UI.update({ potions = { quick_bait_potion = 16 }, buffs = { quick_bait_potion = full } } :: any)
+		UIShim.advance(0.1)
+		assert(not count.Visible, "uigate: the Potions count shows " .. count.Text .. " with every potion Full (#3937)")
+		UI.update({ potions = {}, buffs = {} } :: any)
+		UIShim.advance(0.1)
+	end },
 	{ "PotionsFastUse", function()
 		UI.update({ potions = { tip_potion = 3 }, buffs = {} })
 		UI.open("Potions")

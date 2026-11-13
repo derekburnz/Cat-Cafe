@@ -71,6 +71,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local PalMarker = require(script.Parent.PalMarker)
 local PassShop = require(script.Parent.Parent.Components.PassShop)
 local PityLogic = require(script.Parent.Parent.Components.PityLogic)
+local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local PromptKey = require(script.Parent.Parent.Components.PromptKey)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
@@ -2905,14 +2906,8 @@ function HUD.render(self: any, state: Types.PlayerState)
 	if self._boosts.Visible then
 		self:_renderBoosts()
 	end
-	local potions = 0
-	local bag: { [string]: number } = state.potions or {}
-	for _, count in bag do
-		potions += math.max(0, count)
-	end
-	self._potionCount.Text = tostring(potions)
-	self._potionCount.Visible = potions > 0
 	self._state = state
+	self:_renderPotionCount()
 	self._carryState = state.carrying ~= nil
 	self:setPacked(self._packed) -- #2731
 	self:_renderTravel()
@@ -5271,6 +5266,26 @@ end
 -- and no preview lines ("New kind of cat: +$50", "and 1 step closer to ..."); the card just reads the goal.
 function HUD._startSecond(self: any)
 	self._secondRun = (self._secondRun or 0) + 1
+end
+
+-- The Potions pill's count (#3937): only potions that can be drunk now, hidden at none. While some wait behind a Full
+-- timer it looks again every POTION_RECHECK seconds, since that timer running down makes them drinkable.
+local POTION_RECHECK = 5
+function HUD._renderPotionCount(self: any)
+	local state: Types.PlayerState? = self._state
+	if state == nil or self._potionCount.Parent == nil then
+		return
+	end
+	local usable, held = PotionLogic.drinkable(self._catalog, state, Workspace:GetServerTimeNow())
+	self._potionCount.Text = tostring(usable)
+	self._potionCount.Visible = usable > 0
+	if held > usable and not self._potionRecheck then
+		self._potionRecheck = true
+		task.delay(POTION_RECHECK, function()
+			self._potionRecheck = false
+			self:_renderPotionCount()
+		end)
+	end
 end
 
 function HUD.destroy(self: any)

@@ -346,6 +346,24 @@ function PotionLogic.owned(catalog: Types.Catalog?, state: Types.PlayerState, no
 	return owned
 end
 
+-- #3937 (Derek 2026-11-13: not "potion numbers for ones that cant be drank because already full"): the Potions
+-- button's count, the potions in the bag whose Use is on now (a row reading "Full" adds none), and how many the bag
+-- holds in all, so the HUD knows a Full one may come back as its timer runs down.
+function PotionLogic.drinkable(
+	catalog: Types.Catalog?,
+	state: Types.PlayerState,
+	now: number
+): (number, number)
+	local usable, held = 0, 0
+	for _, row in PotionLogic.rows(catalog, state, now) do
+		held += row.count
+		if row.canUse then
+			usable += row.count
+		end
+	end
+	return usable, held
+end
+
 function PotionLogic.boosts(catalog: Types.Catalog?, state: Types.PlayerState, now: number): Boosts
 	local defs: { [string]: Types.PotionDef } = {}
 	local list: { Types.PotionDef } = if catalog and type(catalog.potions) == "table"

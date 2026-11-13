@@ -3746,7 +3746,14 @@ local SCENES = {
 		assert(shown, "uigate: the invite card didn't show (#2797)")
 		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 		local title = ask and ask:FindFirstChild("Title", true)
-		assert(title and string.find(title.Text, "you both get", 1, true), "uigate: the invite card reads " .. tostring(title and title.Text) .. " (#2797)")
+		assert(title and string.find(title.Text, "% tips", 1, true) and string.find(title.Text, "20 each", 1, true), "uigate: the invite card reads " .. tostring(title and title.Text) .. " (#2797)")
+		-- Studio 2026-11-13: the X over the card's corner stays clear of the title's words
+		local close = ask:FindFirstChild("Close", true) :: GuiObject
+		local Button = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.Button")
+		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
+		local titleRight = title.AbsolutePosition.X + title.AbsoluteSize.X
+		local closeLeft = close.AbsolutePosition.X - Button.OUTLINE * Scale.get()
+		assert(titleRight <= closeLeft, ("uigate: the invite card's X (from %.0f) covers its title (to %.0f)"):format(closeLeft, titleRight))
 	end },
 	-- #2798 (Derek2: the Cozy Cafe countdown is the gift icon's tooltip, not a new strip): standing in your cafe, the
 	-- Rewards list says when the next Cozy gift comes; once the bag waits on the counter the tile wears the red "!"

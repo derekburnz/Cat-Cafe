@@ -31,6 +31,7 @@
 --   D:Invoke("campExtras", nil, 7 * 3600)   -- 7 hours away for the camp extras: the pond full, one picnic (F100)
 --   D:Invoke("bin", nil, "ready")      -- your Rummage Bin full now ("reset": and its two fixed first prizes again;
 --                                      "hit" or "miss": a press on its running bar) (#3050)
+--   D:Invoke("bin", nil, "prize:golden")   -- full now, with that BinRollTable row waiting: the roll lands on it (#3613)
 --   D:Invoke("spaAway", nil, 3600)     -- an hour away for the Oasis Spa: every soaking cat ready (#2651 part 4)
 --   D:Invoke("rally", nil, "force", true)    -- a Rescue Rally now (F101; false stops it, nil goes back to Config)
 --   D:Invoke("rally", nil, "points", 20)     -- 20 check-ins' points for you through the steps and prizes (F101)
@@ -497,10 +498,12 @@ function Debug.bin(player: (Player | number | string)?, how: string?): string
 	if how == "hit" or how == "miss" then
 		return BinService.debugPress(p, how)
 	end
-	local save = BinService.debugSet(p, if how == "reset" then "reset" else "ready")
-	return if save ~= nil
-		then string.format("nextAt=%d uses=%d", save.nextAt, save.uses)
-		else "no profile"
+	local forced = how ~= nil and how:match("^prize:") ~= nil
+	local save = BinService.debugSet(p, if how == "reset" or forced then how :: string else "ready")
+	if save == nil then
+		return "no profile"
+	end
+	return string.format("nextAt=%d uses=%d prize=%s", save.nextAt, save.uses, tostring(save.prize))
 end
 
 -- #2651 part 4 (late-stations.md section 4, check 1): every Oasis Spa cat's start `seconds` (default an hour) into

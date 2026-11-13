@@ -3,17 +3,22 @@
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
+	local Config = require(Shared.Config)
 	local UpgradePace = require(Shared.UpgradePace)
 
 	describe("UpgradePace (#2996)", function()
 		it("counts the levels bought over each upgrade's start level", function()
 			expect(UpgradePace.bought({})).to.equal(0)
-			expect(UpgradePace.bought({ tables = 1 })).to.equal(1)
-			expect(UpgradePace.bought({ tables = 2, lure_bowl = 1 })).to.equal(3)
+			-- #3660: every save is given Config.StartTables tables, so those are no buys
+			expect(Config.StartTables).to.equal(1)
+			expect(UpgradePace.bought({ tables = 1 })).to.equal(0)
+			expect(UpgradePace.bought({ tables = 2 })).to.equal(1)
+			expect(UpgradePace.bought({ tables = 2, lure_bowl = 1 })).to.equal(2)
+			expect(UpgradePace.bought({ tables = 1, lure_bowl = 1 })).to.equal(1)
 			-- Espresso starts at level 1, so its level 1 is no buy and its level 2 is one
 			expect((Catalog.getUpgrade("espresso") :: any).startLevel).to.equal(1)
 			expect(UpgradePace.bought({ espresso = 1 })).to.equal(0)
-			expect(UpgradePace.bought({ espresso = 2, tables = 1 })).to.equal(2)
+			expect(UpgradePace.bought({ espresso = 2, tables = 1 })).to.equal(1)
 			expect(UpgradePace.bought({ not_an_upgrade = 9 })).to.equal(0)
 		end)
 

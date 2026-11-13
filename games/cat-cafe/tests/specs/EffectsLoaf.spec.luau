@@ -9,6 +9,10 @@ return function()
 	local Presets = require(Effects:WaitForChild("Presets")) :: any
 
 	describe("Effects loaf", function()
+		it("is off for resting cafe cats, who stay asleep (#3923)", function()
+			expect(Presets.motion.loaf.resting).to.equal(false)
+		end)
+
 		it("lies tucked in on its belly, head up and level, and keeps still", function()
 			local l = Presets.motion.loaf
 			for t = 0, 30, 0.1 do

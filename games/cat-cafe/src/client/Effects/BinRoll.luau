@@ -18,7 +18,8 @@
 --                                    lit, the landing, and a returned function that skips to the stop (a tap)
 --   BinRoll.win(bin, tier)           the reward show plus its sound beat
 --   BinRoll.reveal(bin, tier, onDone)   a fixed prize's short reveal with no roll ("Your prize!"); returns a skip
---   BinRoll.hop(bin, to, tier)       the prize hops from the bin to the player as a small bright ball
+--   BinRoll.hop(bin, to, tier, image?)   the prize hops from the bin to the player as a small bright ball, or with
+--                                    the prize's picture (#3885) that picture pops up out of the bin into the hands
 --   BinRoll.onBeat(listener)         "tick", "land" and "win" beats for the sounds (Audio follows them)
 -- The roll always ends on the prize the server already picked and never lingers on another row. Reduce Motion
 -- drops the rattle, the shake and most confetti. On this client only; listening only.
@@ -326,10 +327,65 @@ function BinRoll.reveal(bin: Instance, tier: number, onDone: (() -> ())?): () ->
 	return finish
 end
 
+-- #3885: the prize's picture pops up out of the bin, grows, then arcs into the player's hands and shrinks there
+-- (Logic.binPrizePop), with sparkles at the pop and at the catch. The picture is a BillboardGui on a hidden part, so
+-- it always faces the camera; its size is in studs.
+local function popPrize(
+	from: Vector3,
+	to: () -> Vector3?,
+	first: Vector3,
+	colour: Color3,
+	image: string
+)
+	local p = Presets.binRoll
+	local q = p.prize
+	local holder = Context.effectPart("BinPrizePop", Vector3.one * 0.2, colour)
+	holder.Transparency = 1
+	holder.Position = from
+	local board = Instance.new("BillboardGui")
+	board.Name = "Prize"
+	board.LightInfluence = 0
+	board.AlwaysOnTop = true
+	board.Size = UDim2.fromScale(q.size * q.from, q.size * q.from)
+	board.Adornee = holder
+	board.Parent = holder
+	local picture = Instance.new("ImageLabel")
+	picture.Name = "Picture"
+	picture.BackgroundTransparency = 1
+	picture.Size = UDim2.fromScale(1, 1)
+	picture.Image = image
+	picture.ScaleType = Enum.ScaleType.Fit
+	picture.Parent = board
+	holder.Parent = Context.folder()
+	Particles.burst(p.emitter, from, q.sparkles, colour)
+	local started = os.clock()
+	local last: Vector3 = first
+	local step: RBXScriptConnection? = nil
+	step = RunService.Heartbeat:Connect(function()
+		local alpha = (os.clock() - started) / q.seconds
+		local target = to()
+		if target ~= nil then
+			last = target
+		end
+		if alpha >= 1 or target == nil or holder.Parent == nil then
+			if step ~= nil then
+				step:Disconnect()
+			end
+			holder:Destroy()
+			Particles.burst(p.emitter, last, q.catchSparkles, colour)
+			Particles.ring(last, colour, q.catchRing)
+			return
+		end
+		local at, grow = Logic.binPrizePop(from, last, alpha)
+		holder.Position = at
+		board.Size = UDim2.fromScale(q.size * grow, q.size * grow)
+	end)
+end
+
 -- The prize hops out of the bin to the player: a small bright ball in the tier's colour arcs from the top of the
 -- bin to `to()` (asked every frame, so it follows a moving player; nil ends it) and ends in a few sparkles there.
 -- With Reduce Motion only the sparkles at the player play.
-function BinRoll.hop(bin: Instance, to: () -> Vector3?, tier: number)
+function BinRoll.hop(bin: Instance, to: () -> Vector3?, tier: number, image: string?)
 	local p = Presets.binRoll
 	local found = base(bin)
 	local first = to()
@@ -342,6 +398,10 @@ function BinRoll.hop(bin: Instance, to: () -> Vector3?, tier: number)
 		return
 	end
 	local from: Vector3 = found + Vector3.new(0, p.lift, 0)
+	if image ~= nil and image ~= "" then
+		popPrize(from, to, first, colour, image)
+		return
+	end
 	local ball = Context.effectPart("BinPrizeHop", Vector3.one * p.hop.size, colour)
 	ball.Shape = Enum.PartType.Ball
 	ball.Material = Enum.Material.Neon

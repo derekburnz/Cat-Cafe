@@ -105,5 +105,29 @@ return function()
 			expect(gone).to.equal(1)
 			expect(select(2, Logic.binLidPop(0.5, p.lid[3].height, true))).to.equal(0)
 		end)
+		it("pops the prize's picture up out of the bin and into the hands (#3885)", function()
+			local q = p.prize
+			expect(q.seconds > 0 and q.seconds <= 1.5).to.equal(true)
+			local from, hands = Vector3.new(0, 3, 0), Vector3.new(10, 2, 0)
+			local near = function(a: Vector3, b: Vector3): boolean
+				return (a - b).Magnitude < 0.01
+			end
+			-- it starts small at the bin top
+			local start, small = Logic.binPrizePop(from, hands, 0)
+			expect(near(start, from)).to.equal(true)
+			expect(math.abs(small - q.from) < 0.001).to.equal(true)
+			-- it is full size straight above the bin once the pop is over
+			local top, full = Logic.binPrizePop(from, hands, q.popShare)
+			expect(near(top, from + Vector3.new(0, q.rise, 0))).to.equal(true)
+			expect(math.abs(full - 1) < 0.001).to.equal(true)
+			-- it ends in the hands, smaller
+			local last, caught = Logic.binPrizePop(from, hands, 1)
+			expect(near(last, hands)).to.equal(true)
+			expect(math.abs(caught - q.catch) < 0.001).to.equal(true)
+			-- the rise only goes up
+			local half = Logic.binPrizePop(from, hands, q.popShare / 2)
+			expect(half.X).to.equal(from.X)
+			expect(half.Y > from.Y).to.equal(true)
+		end)
 	end)
 end

@@ -1637,7 +1637,7 @@ Catalog.lures = {
 	-- more money", then "move all of those items to be in the billions" and "tier 6+"): the Day Cart's own two baits,
 	-- a little better at the top end than the dealer's best, sold only there (source "cart") at a flat `cost` that
 	-- no tier scales (Economy.foodPrice). Names, odds and the swap away from the dealer's foods are Design-Agent's,
-	-- made while Derek was away. Until their own models are in they wear the Moon Milk and Star Treat models.
+	-- made while Derek was away. #3945: each sits in the bowl as its own model (they wore Moon Milk's and Star Treat's).
 	{
 		id = "honey_cream",
 		name = "Honey Cream",
@@ -1648,7 +1648,7 @@ Catalog.lures = {
 		source = "cart",
 		description = "Thick, sweet and gone in one lick.",
 		odds = { Common = 0, Rare = 20, Epic = 40, Legendary = 32, Mythical = 8 },
-		asset = "CatCafe_Item_MoonMilk",
+		asset = "CatCafe_Item_HoneyCream",
 	},
 	{
 		id = "comet_treat",
@@ -1660,7 +1660,7 @@ Catalog.lures = {
 		source = "cart",
 		description = "Still warm from the sky.",
 		odds = { Common = 0, Rare = 0, Epic = 35, Legendary = 48, Mythical = 17 },
-		asset = "CatCafe_Item_StarTreat",
+		asset = "CatCafe_Item_CometTreat",
 	},
 } :: { Types.LureDef }
 

@@ -1490,7 +1490,8 @@ function UI.init(config: Types.InitConfig)
 		if view then
 			local dashWindow = require(script.Components.MouseDashLogic).WINDOW
 			local poolWindow = require(script.Components.MysticPoolLogic).WINDOW
-			view:setBusy(name == dashWindow or name == "Arcade" or name == poolWindow)
+			UI.rollBusy.window = name == dashWindow or name == "Arcade" or name == poolWindow
+			view:setBusy(UI.rollBusy.window or UI.rollBusy.on)
 		end
 	end)
 
@@ -2192,6 +2193,19 @@ end
 -- (ToastRules.announce); true when it showed.
 -- (init.luau is at Luau's 200 locals a scope, so the rules load here and the time lives on UI.shoutout)
 UI.shoutout = { at = nil :: number? }
+-- Review-QA on #3904: a shout-out slid across the Rummage Bin's board mid-roll. While a roll or reveal plays
+-- (BinController) the pop-ups wait, as on a busy window (Toasts.setBusy); `window` is the open window's own part.
+UI.rollBusy = { on = false, window = false }
+function UI.setRollBusy(on: boolean)
+	if UI.rollBusy.on == on then
+		return
+	end
+	UI.rollBusy.on = on
+	local view = toasts
+	if view then
+		view:setBusy(UI.rollBusy.window or on)
+	end
+end
 function UI.announce(text: string, rarity: string?): boolean
 	local ToastRules = require(script.Components.ToastRules)
 	local now = os.clock()
@@ -3782,15 +3796,15 @@ UI.catch = {}
 -- Luau's 200 local limit)
 UI.catch.promptTouch = false
 -- #3464 (Derek 2026-11-12: "show the loot obtained from rummage also"): the Rummage Bin's loot card
--- (Screens/LootCard). It shows as the bar's win banner closes, in the banner's place, and lists the server's items.
-local LOOT_AFTER_SECONDS = 1.6 -- the rescue bar's win banner (RescueBar's RESULT_SECONDS)
+-- (Screens/LootCard). It lists the server's items; since #3885 it shows as the prize lands in the hands.
+local LOOT_AFTER_POP_SECONDS = 0.9 -- #3885: as the prize's picture lands in the hands (Presets.binRoll.prize)
 UI.loot = { card = nil :: any, token = 0 }
-function UI.loot.show(win: unknown, after: number?)
+function UI.loot.show(win: unknown, after: number?, hint: string?)
 	UI.loot.token += 1
 	local token = UI.loot.token
 	local function show()
 		if UI.loot.token == token and UI.loot.card ~= nil then
-			UI.loot.card:show(win)
+			UI.loot.card:show(win, hint)
 		end
 	end
 	if after ~= nil and after > 0 then
@@ -4202,8 +4216,9 @@ do
 					gaveUp = "Maybe later",
 					won = "Got it!",
 					win = "Found something!",
-					lose = "So close!",
-					loseDetail = "Try again",
+					-- the prize is picked before the bar, so no "So close!" near-miss words (Review-QA, #3885)
+					lose = "Try again!",
+					loseDetail = "",
 				},
 			}
 			else { catName = catName, rarity = rarity }
@@ -4256,14 +4271,19 @@ do
 			return
 		end
 		if rescueBar then
-			local closing: RescueBar.Closing? = nil
-			if win ~= nil and type(win.id) == "string" then
-				local title, detail =
+			-- #3885 (Derek 2026-11-13: "drop the ui from rummage bin minigame as soon as its completed"): a Rummage Bin
+			-- win closes the bar at once, with no win banner over it. The prize's picture pops out of the bin into the
+			-- player's hands (BinController, Effects/BinRoll) and the loot card names what it was as it lands.
+			if win ~= nil and type(win.id) == "string" and done and success then
+				rescueBar:hide()
+				endRescue(true)
+				-- the banner's line ("Put it in your bowl", "Open it at the Golden Fish Market") goes on the loot card
+				local _, hint =
 					RummageBin.winWords(win.id, win.first == true, (win :: any).rolled == true)
-				closing = { title = title, detail = detail }
-				UI.loot.show(win, LOOT_AFTER_SECONDS) -- #3464: as the win banner closes
+				UI.loot.show(win, LOOT_AFTER_POP_SECONDS, hint)
+				return
 			end
-			rescueBar:update(hits, pawsLeft, done, success, bar, closing)
+			rescueBar:update(hits, pawsLeft, done, success, bar, nil)
 		end
 	end
 

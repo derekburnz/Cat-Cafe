@@ -1015,6 +1015,7 @@ function RescueBar.hide(self: any)
 	ContextActionService:UnbindAction(GIVE_UP_ACTION)
 	self._banner.Visible = false
 	self._word.Visible = false
+	self._tap.Visible = false -- #3885: a bin win hides the bar at once, without the result's own clear of it
 	self.screenGui.Enabled = false
 end
 

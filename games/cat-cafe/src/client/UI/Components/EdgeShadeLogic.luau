@@ -13,9 +13,12 @@ EdgeShadeLogic.DISPLAY_ORDER = 21 -- just over the modal layer (20), under toast
 -- The hint ("Tap to skip") is a small dark pill, so it reads over anything, and sits HINT_AT of the way down the
 -- screen: under the animation in the middle and above the HUD's bottom row of tiles, where it was drawn over
 -- their labels at first (Review-QA's Studio look at #3708).
-EdgeShadeLogic.HINT_SIZE = 18
+-- #3858 (Review-QA's Studio look at #3849): on a new save the see-through pill sat over the tutorial strip's Buy
+-- buttons and a gift card's Close and was hard to read, so it is now nearly solid, bold and ringed in white.
+EdgeShadeLogic.HINT_SIZE = 20
 EdgeShadeLogic.HINT_AT = 0.74
-EdgeShadeLogic.HINT_FILL = 0.35 -- the pill's transparency
+EdgeShadeLogic.HINT_FILL = 0.08 -- the pill's transparency
+EdgeShadeLogic.HINT_RING = 2 -- the white ring's thickness
 
 export type Edge = { name: string, anchor: Vector2, size: Vector2, rotation: number }
 

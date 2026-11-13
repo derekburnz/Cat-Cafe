@@ -282868,6 +282868,77 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Ruins_Gate.png"
     },
     {
+      "name": "CatCafe_Snowy_Gate",
+      "category": "Snowy",
+      "module": "areas",
+      "objects": [
+        "CatCafe_Snowy_Gate",
+        "CatCafe_Snowy_Gate_Bars",
+        "CatCafe_Snowy_Gate_SignBoard",
+        "CatCafe_Snowy_Gate_Lamp_Bulb"
+      ],
+      "triangles": 3184,
+      "budget": 6000,
+      "size_studs": {
+        "x": 36.48,
+        "y": 7.14,
+        "z": 20.22
+      },
+      "size_roblox": [
+        36.48,
+        20.22,
+        7.14
+      ],
+      "bounds_min": [
+        -18.24,
+        -5.04,
+        -0.52
+      ],
+      "bounds_max": [
+        18.24,
+        2.1,
+        19.7
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          10.0,
+          2.5
+        ],
+        "centre": [
+          0.0,
+          9.65,
+          -0.85
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Snowy_Gate.model.json",
+      "rbx_parts": 245,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Snowy_Gate.fbx",
+        "assets/cat-cafe/exports/CatCafe_Snowy_Gate.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "3184/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1544 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.52 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.47"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Plot_Cafe_Mint",
       "category": "Plot",
       "module": "plot",
@@ -305641,6 +305712,121 @@
       }
     },
     {
+      "name": "CatCafe_Camp_Cannon_Snowy",
+      "category": "Camp",
+      "module": "cannon",
+      "objects": [
+        "CatCafe_Camp_Cannon_Snowy",
+        "CatCafe_Camp_Cannon_Snowy_Turret",
+        "CatCafe_Camp_Cannon_Snowy_Climb",
+        "CatCafe_Camp_Cannon_Snowy_MoonCover"
+      ],
+      "triangles": 5116,
+      "budget": 6000,
+      "size_studs": {
+        "x": 7.54,
+        "y": 9.03,
+        "z": 9.55
+      },
+      "size_roblox": [
+        7.54,
+        9.55,
+        9.03
+      ],
+      "bounds_min": [
+        -3.77,
+        -4.2,
+        -0.01
+      ],
+      "bounds_max": [
+        3.77,
+        4.83,
+        9.54
+      ],
+      "pivot": "The base centre on the camp's floor; -Z toward the camp's back wall, the barrel at rest along +Z over the area. The _Turret pivot is the turntable's top centre.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Cannon_Snowy_Turret": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_Snowy_Climb": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_Snowy_MoonCover": [
+          -0.0,
+          3.73,
+          8.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Cannon_Snowy_Turret": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_Snowy_Climb": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_Snowy_MoonCover": [
+          0.0,
+          8.6,
+          3.73
+        ]
+      },
+      "turret": {
+        "model": "CatCafe_Camp_Cannon_Snowy_Turret",
+        "pivot_roblox": [
+          0,
+          1.485,
+          0
+        ],
+        "rest": "barrel along +Z",
+        "turn_y_deg": {
+          "Alleyway": -135,
+          "Park": 180,
+          "Neighbourhood": 0,
+          "Woods": -90,
+          "Sewer": 90,
+          "Desert": 128.3,
+          "Ruins": 52.2,
+          "Snowy": -45.0
+        },
+        "attachments": [
+          "Muzzle",
+          "Fuse",
+          "Seat"
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_Snowy.model.json",
+      "rbx_parts": 355,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Snowy.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Snowy.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5116/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=4.83 (want 0)",
+          "centered": "footprint center x=0.00 y=0.32"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Camp_Alleyway",
       "category": "Camp",
       "module": "camps",
@@ -307023,6 +307209,128 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Ruins.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Ruins.png"
+    },
+    {
+      "name": "CatCafe_Camp_Snowy",
+      "category": "Camp",
+      "module": "camps",
+      "objects": [
+        "CatCafe_Camp_Snowy",
+        "CatCafe_Camp_Snowy_000_Basket",
+        "CatCafe_Camp_Snowy_001_LodgeFront",
+        "CatCafe_Camp_Snowy_001_LodgeFront_Pane",
+        "CatCafe_Camp_Snowy_002_FirePit",
+        "CatCafe_Camp_Snowy_002_FirePit_Glow",
+        "CatCafe_Camp_Snowy_003_Bench",
+        "CatCafe_Camp_Snowy_004_Bench",
+        "CatCafe_Camp_Snowy_005_Bench",
+        "CatCafe_Camp_Snowy_006_Bench",
+        "CatCafe_Camp_Snowy_007_SkiRack",
+        "CatCafe_Camp_Snowy_008_Lamp",
+        "CatCafe_Camp_Snowy_008_Lamp_Bulb",
+        "CatCafe_Camp_Snowy_009_Lamp",
+        "CatCafe_Camp_Snowy_009_Lamp_Bulb",
+        "CatCafe_Camp_Snowy_010_Pine",
+        "CatCafe_Camp_Snowy_011_Lamp",
+        "CatCafe_Camp_Snowy_011_Lamp_Bulb",
+        "CatCafe_Camp_Snowy_012_Lamp",
+        "CatCafe_Camp_Snowy_012_Lamp_Bulb",
+        "CatCafe_Camp_Snowy_013_Pine",
+        "CatCafe_Camp_Snowy_014_Pine",
+        "CatCafe_Camp_Snowy_015_SnowmanA",
+        "CatCafe_Camp_Snowy_016_Sled",
+        "CatCafe_Camp_Snowy_017_SnowballPile",
+        "CatCafe_Camp_Snowy_Barrier"
+      ],
+      "triangles": 7636,
+      "budget": 20000,
+      "size_studs": {
+        "x": 152.0,
+        "y": 32.0,
+        "z": 31.0
+      },
+      "size_roblox": [
+        152.0,
+        31.0,
+        32.0
+      ],
+      "bounds_min": [
+        -76.0,
+        -312.0,
+        -1.0
+      ],
+      "bounds_max": [
+        76.0,
+        -280.0,
+        30.0
+      ],
+      "pivot": "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "pad": [
+          [
+            0,
+            0.0,
+            -293.0
+          ]
+        ],
+        "cannon": [
+          [
+            0,
+            0.0,
+            -305.5
+          ]
+        ],
+        "basket": [
+          [
+            -11.0,
+            0.0,
+            -293.0
+          ]
+        ],
+        "index_board": [
+          [
+            -19.0,
+            0.0,
+            -282.5
+          ]
+        ]
+      },
+      "camp": {
+        "rect_roblox": [
+          -74.5,
+          -311.0,
+          74.5,
+          -281.0
+        ],
+        "gate_line_z": -281.0,
+        "opening_half_width": 12.0,
+        "pad_radius": 8.0,
+        "depth": 30.0
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Snowy.model.json",
+      "rbx_parts": 321,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Snowy.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Snowy.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "7636/20000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "3695 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-296.00"
+        }
+      }
     },
     {
       "name": "CatCafe_Lawn_TulipBed",

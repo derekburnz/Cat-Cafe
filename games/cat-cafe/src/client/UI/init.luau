@@ -2474,7 +2474,8 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 			def :: Types.CatDef,
 			cat,
 			if lureId then foodName(lureId) else nil,
-			if two then index else nil
+			if two then index else nil,
+			state.tutorialStep == 4 -- #3815: the first bowl cat, which the tutorial's last step waits on (#3158)
 		)
 	end
 	renderBait()

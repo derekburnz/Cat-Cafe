@@ -5,6 +5,9 @@
 -- (Derek 2026-10-28: "tame or let go from anywhere"; the server's range went in #720). setNear(false) still greys the
 -- buttons with a "walk to your bowl" line, should a range ever come back; nothing calls it now.
 -- The X hides the card; the bowl chip brings it back while the cat waits.
+-- #3815: the account's first bowl cat (the tutorial's step 4 waits on it, #3158) gets one wide "Tame it!" with the
+-- tutorial's gold pulse, arrow and spotlight (TutorialGlow) and no X or Let go: about 31% of players who put the first
+-- food in never pressed either button. Every later bowl cat has the card as before.
 
 local Button = require(script.Parent.Parent.Components.Button)
 local CatBuffs = require(script.Parent.Parent.Components.CatBuffs)
@@ -18,6 +21,7 @@ local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
+local TutorialGlow = require(script.Parent.Parent.Components.TutorialGlow)
 local Types = require(script.Parent.Parent.Types)
 
 export type Callbacks = {
@@ -31,7 +35,8 @@ export type BaitCard = {
 		def: Types.CatDef,
 		cat: Types.BaitCat,
 		foodName: string?,
-		bowl: number?
+		bowl: number?,
+		first: boolean?
 	) -> (),
 	hide: (self: BaitCard) -> (),
 	isShowing: (self: BaitCard) -> boolean,
@@ -81,6 +86,8 @@ local SHORT: Layout = {
 	hint = 226,
 	foot = 12,
 }
+local BUTTON_W = 150
+local FIRST_W = 240 -- #3815: the first bowl cat's one Tame button
 local CONFIRM_SECONDS = 3 -- Let go's second tap must come within this
 local PENDING_SECONDS = 6 -- the buttons come back if the server has not answered by then
 
@@ -110,6 +117,8 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 	self._pending = false
 	self._confirmUntil = 0
 	self._token = 0
+	self._first = false
+	self._foot = 0
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeBaitCard",
@@ -152,6 +161,7 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 	self._uiScale = Scale.bind(root)
 
 	local at: Layout = if Scale.isShort() then SHORT else TALL
+	self._foot = at.foot
 	local card: Frame = Create("Frame", {
 		Name = "Card",
 		BackgroundColor3 = Theme.modal.panel,
@@ -323,7 +333,7 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 		name = "Tame",
 		text = "Tame",
 		style = "primary",
-		size = UDim2.fromOffset(150, Theme.sizes.touchMin + 8),
+		size = UDim2.fromOffset(BUTTON_W, Theme.sizes.touchMin + 8),
 		anchorPoint = Vector2.new(1, 1),
 		position = UDim2.new(0.5, -6, 1, -at.foot),
 		textSize = Theme.sizes.textLarge - 2,
@@ -336,7 +346,7 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 		name = "LetGo",
 		text = "Let go",
 		style = "secondary",
-		size = UDim2.fromOffset(150, Theme.sizes.touchMin + 8),
+		size = UDim2.fromOffset(BUTTON_W, Theme.sizes.touchMin + 8),
 		anchorPoint = Vector2.new(0, 1),
 		position = UDim2.new(0.5, 6, 1, -at.foot),
 		textSize = Theme.sizes.textBody,
@@ -353,15 +363,39 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 	return self :: BaitCard
 end
 
--- #1161: `bowl` (1 or 2) only with two bowls, so the banner says which one the cat came to.
+-- #3815: the first bowl cat's one wide "Tame it!" (glowing, with the arrow) and no X, Let go or line, or the usual two buttons
+function BaitCard._setFirst(self: any, first: boolean)
+	self._first = first
+	self._close.instance.Visible = not first
+	self._letGo.instance.Visible = not first
+	local h = Theme.sizes.touchMin + 8
+	if first then
+		self._tame.instance.AnchorPoint = Vector2.new(0.5, 1)
+		self._tame.instance.Position = UDim2.new(0.5, 0, 1, -self._foot)
+		self._tame.instance.Size = UDim2.fromOffset(FIRST_W, h)
+	else
+		self._tame.instance.AnchorPoint = Vector2.new(1, 1)
+		self._tame.instance.Position = UDim2.new(0.5, -6, 1, -self._foot)
+		self._tame.instance.Size = UDim2.fromOffset(BUTTON_W, h)
+	end
+	-- the glow brings the tutorial's big arrow and spotlight, which win over the HUD's Bowl tile arrow of step 4; the
+	-- arrow stands where the line under the cat is, so that line is hidden on this card
+	TutorialGlow.set(self._tame.instance, first)
+	self._hint.Visible = not first
+end
+
+-- #1161: `bowl` (1 or 2) only with two bowls, so the banner says which one the cat came to. #3815: `first` for the
+-- account's first bowl cat.
 function BaitCard.show(
 	self: any,
 	def: Types.CatDef,
 	cat: Types.BaitCat,
 	foodName: string?,
-	bowl: number?
+	bowl: number?,
+	first: boolean?
 )
 	self._token += 1
+	self:_setFirst(first == true)
 	self._banner.Text = if bowl
 		then ("A CAT CAME TO BOWL %d!"):format(bowl)
 		else "A CAT CAME TO YOUR BOWL!"
@@ -411,7 +445,7 @@ function BaitCard._renderButtons(self: any)
 	self._tame:setEnabled(open)
 	self._letGo:setEnabled(open)
 	if not self._pending then
-		self._tame:setText("Tame")
+		self._tame:setText(if self._first then "Tame it!" else "Tame")
 		local confirming = os.clock() < self._confirmUntil
 		self._letGo:setText(if confirming then "Sure? Tap again" else "Let go")
 		self._letGo:setStyle(if confirming then "danger" else "secondary")
@@ -477,6 +511,7 @@ function BaitCard.hide(self: any)
 	self._token += 1
 	local token = self._token
 	self._pending = false
+	TutorialGlow.set(self._tame.instance, false) -- #3815: the arrow goes with the card
 	Sound.play("uiClose")
 	Tween.popOut(self._card, function()
 		if self._token == token then

@@ -3695,6 +3695,33 @@ local SCENES = {
 		local pill = UIShim.playerGui:FindFirstChild("CatCafeBaitCard"):FindFirstChild("AreaCount", true)
 		assert(pill == nil, "uigate: the Tame card still shows an area count (#2530)")
 	end },
+	-- #3815: the first bowl cat (tutorial step 4) has one wide glowing "Tame it!" with the tutorial's arrow and no X, Let go
+	-- or line under the cat; a later bowl cat's card has them all back
+	{ "BaitCardFirst", function()
+		local now = workspace:GetServerTimeNow()
+		local cat = { catId = Catalog.cats[1].id, stars = 1 }
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now - 5, placedAt = now - 30 }, 1)
+		-- a first bowl cat's card, then a later one's: the later card has its X and Let go back and no glow
+		UI.update({ tutorialStep = 4 })
+		UI.bait.showReady(cat, 1)
+		UI.update({ tutorialStep = 9 })
+		UI.bait.showReady(cat, 1)
+		local card = UIShim.playerGui:FindFirstChild("CatCafeBaitCard")
+		local tame = card:FindFirstChild("Tame", true)
+		assert(card:FindFirstChild("LetGo", true).Visible and card:FindFirstChild("Close", true).Visible,
+			"uigate: a later bowl cat's card lost Let go or the X (#3815)")
+		assert(tame:FindFirstChild("TutorialGlow") == nil, "uigate: a later bowl cat's Tame still glows (#3815)")
+		-- the first bowl cat's card, as the scene's picture
+		UI.update({ tutorialStep = 4 })
+		UI.bait.showReady(cat, 1)
+		assert(tame.Visible and tame.Size.X.Offset >= 200, "uigate: the first bowl cat's Tame is not the wide one (#3815)")
+		assert(tame:FindFirstChild("TutorialGlow") ~= nil, "uigate: the first bowl cat's Tame does not glow (#3815)")
+		assert(not card:FindFirstChild("LetGo", true).Visible, "uigate: the first bowl cat's card shows Let go (#3815)")
+		assert(not card:FindFirstChild("Close", true).Visible, "uigate: the first bowl cat's card shows the X (#3815)")
+		assert(not card:FindFirstChild("Hint", true).Visible, "uigate: the first bowl cat's line sits under the arrow (#3815)")
+		local label = tame:FindFirstChildWhichIsA("TextLabel", true)
+		assert(label and label.Text == "Tame it!", "uigate: the first bowl cat's button says " .. tostring(label and label.Text))
+	end },
 	-- #1161: a cat at each bowl: bowl 1 first, and each tab says its own bowl
 	{ "BaitBothReady", function()
 		local now = workspace:GetServerTimeNow()

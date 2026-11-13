@@ -246,9 +246,11 @@ function RollBoardLogic.rowOf(rows: { any }, crateId: string): number?
 	return nil
 end
 
--- The rows the pick's light passes, in order, with the seconds it rests on each: twice down the list from the top,
--- then on to `landing`, slowing evenly. It always moves one row at a time in list order and stops on the row the
--- server chose; it never slows near a golden row or steps back, so there is no near miss.
+-- The rows the pick's light passes, in order, with the seconds it rests on each. The rows run from the most common
+-- (Classic, on top) to the rarest (the golden crates, at the foot), so the light starts on the top row and walks down
+-- one row at a time to `landing`, the row the server chose, slowing evenly, and stops there. It never lights a row
+-- under the landing row, so it never runs past a rarer crate on its way to a plainer one: no near miss. A pick of
+-- the top row lights it straight away.
 function RollBoardLogic.rollSteps(
 	count: number,
 	landing: number
@@ -258,10 +260,9 @@ function RollBoardLogic.rollSteps(
 		return steps
 	end
 	local target = math.clamp(landing, 1, count)
-	local total = count * 2 + target
-	for step = 1, total do
-		local share = if total > 1 then (step - 1) / (total - 1) else 1
-		table.insert(steps, { index = (step - 1) % count + 1, rest = 0.05 + 0.2 * share * share })
+	for step = 1, target do
+		local share = if target > 1 then (step - 1) / (target - 1) else 1
+		table.insert(steps, { index = step, rest = 0.12 + 0.28 * share * share })
 	end
 	return steps
 end

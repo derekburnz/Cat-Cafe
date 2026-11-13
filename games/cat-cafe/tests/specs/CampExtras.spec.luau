@@ -459,6 +459,15 @@ return function()
 			local line, ready = CampExtras.pickerLine(view, "neighbourhood", T)
 			expect(line).to.equal("Yard Sale: free crate !")
 			expect(ready).to.equal(true)
+			-- #3615: with the lucky pick on, the line and the prompt name the pick, not a crate
+			local picking = at(save, 3, T)
+			picking.yardSale.pick = {}
+			expect((CampExtras.pickerLine(picking, "neighbourhood", T))).to.equal(
+				"Yard Sale: free lucky pick !"
+			)
+			expect(select(2, CampExtras.promptText("yardSale", picking.yardSale, T))).to.equal(
+				"Free lucky pick"
+			)
 			save.yardSale.lastClaimAt = T
 			save.yardSale.claims += 1
 			local soldOut, readyAfter =

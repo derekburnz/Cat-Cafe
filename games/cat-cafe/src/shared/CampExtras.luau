@@ -654,7 +654,11 @@ function CampExtras.promptText(
 		elseif extraId == "lostFound" then
 			return name, "Collect " .. plural(view.held, "find", "finds") -- #1732: "Collect 3 finds"
 		end
-		return name, "Take a free crate"
+		-- #3615: with the lucky pick on, the stall offers a pick, not a set crate
+		return name,
+			if extraId == CampExtras.YARD_SALE and view.pick ~= nil
+				then "Free lucky pick"
+				else "Take a free crate"
 	end
 	if extraId == CampExtras.YARD_SALE then
 		return name,
@@ -694,7 +698,10 @@ function CampExtras.pickerLine(
 			end
 			if def.id == CampExtras.YARD_SALE then
 				if view.held > 0 then
-					return "Yard Sale: free crate !", true
+					return if view.pick ~= nil
+						then "Yard Sale: free lucky pick !"
+						else "Yard Sale: free crate !",
+						true
 				end
 				return if wait ~= nil
 					then "Yard Sale: new crate in " .. wait

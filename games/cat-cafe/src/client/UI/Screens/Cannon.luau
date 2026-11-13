@@ -781,11 +781,14 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 	self._panel:setTitle("Cat Cannon", notice or plain)
 end
 
--- While the picker is open the sunrise countdown and the dusk warning move on their own, once a second.
 -- #3884: the lock breaking on card `id`, starting `wait` seconds in: the padlock wiggles (0.9 s), pops open and
 -- floats off with "Unlocked!", a sparkle burst and the gate sound; the cover fades (0.8 s) and the card bounces. The
 -- cover is put back as it was for the card, hidden now its area is open. Closed before it starts, it just opens.
+-- Review-QA's Studio look: the first wiggle read small, so it swings wider and the padlock punches in bigger.
 local WIGGLE = TweenInfo.new(0.15, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 2, true)
+local WIGGLE_DEGREES = 22
+local PUNCH = 1.6 -- the padlock's size as the wiggle starts, settling back to its own
+local BOUNCE = 0.8 -- the card's size as its cover goes, popping back to its own
 function Cannon._breakLock(self: any, id: string, wait: number)
 	local card = self._cards[id]
 	if card == nil then
@@ -830,8 +833,9 @@ function Cannon._breakLock(self: any, id: string, wait: number)
 			return
 		end
 		if padlock ~= nil then
-			padlock.Rotation = -12
-			Tween.to(padlock, WIGGLE, { Rotation = 12 })
+			padlock.Rotation = -WIGGLE_DEGREES
+			Tween.to(padlock, WIGGLE, { Rotation = WIGGLE_DEGREES })
+			Tween.popIn(padlock, PUNCH)
 		end
 		task.wait(0.9)
 		Sound.play("gateOpen")
@@ -865,12 +869,13 @@ function Cannon._breakLock(self: any, id: string, wait: number)
 		end
 		task.wait(1.3)
 		lock.Visible = false
-		Tween.popIn(card.frame, 0.92)
+		Tween.popIn(card.frame, BOUNCE)
 		task.wait(0.4)
 		finish()
 	end)
 end
 
+-- While the picker is open the sunrise countdown and the dusk warning move on their own, once a second.
 function Cannon.opened(self: any)
 	self._open = true
 	self._tick += 1

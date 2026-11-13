@@ -203,13 +203,15 @@ end
 
 -- #3198 (Derek2 2026-11-10: "now when cannoning into park it lands you over the fence and not in the proper area"):
 -- the Park's waiting strays stand past the camp's fence, so the spot beside one was behind a stretch of fence, out in
--- the wild part. A first Park flight now lands beside its stray only where the landing reads as the camp: inside the
--- camp's fence, or in its open gateway. Anywhere else the flight lands on the pad, turned toward the stray.
---   GATEWAY_DEPTH   how far past the fence line, inside the opening, still counts as the gateway
---   GATEWAY_INSET   studs kept from the opening's posts, the fence and the camp's edges
+-- the wild part. A first Park flight now lands beside its stray only where the landing reads as the camp. Anywhere
+-- else the flight lands on the pad, turned toward the stray.
+-- #3886 (Derek 2026-11-13, a screenshot at the Park gate: "landing outside zone in park"): the open gateway, up to 12
+-- studs past the gate line, counted as the camp too, so a flight could come down past the red SAFE ZONE stripe
+-- (WorldBuilder paints it 0.8 in from the gate line). Only the camp itself counts now, GATEWAY_INSET in from its gate
+-- line, fence and edges, so every landing is behind the stripe.
+--   GATEWAY_INSET   studs kept from the gate line, the fence and the camp's edges
 -- `x`, `z` are the spot in camp space (Layout.camps: origin the middle of the opening, +Z into the wild part, X
 -- across); `yard` is the camp: half its width, its depth, and half its opening.
-Cannon.GATEWAY_DEPTH = 12
 Cannon.GATEWAY_INSET = 2
 -- The Alleyway keeps #2913's landing beside the beginner's stray wherever it waits: the alley is one open floor from
 -- its camp's line on, and that landing is the first catch's.
@@ -219,10 +221,7 @@ export type Yard = { halfAcross: number, depth: number, openingHalfWidth: number
 
 function Cannon.inCampReach(x: number, z: number, yard: Yard): boolean
 	local inset = Cannon.GATEWAY_INSET
-	if z <= -inset then
-		return z >= -yard.depth + inset and math.abs(x) <= yard.halfAcross - inset
-	end
-	return z <= Cannon.GATEWAY_DEPTH and math.abs(x) <= yard.openingHalfWidth - inset
+	return z <= -inset and z >= -yard.depth + inset and math.abs(x) <= yard.halfAcross - inset
 end
 
 -- #3072 (Derek2 2026-11-10: "you spawn with camera inside cannon when rejoining put yourself infront of your cafe"):

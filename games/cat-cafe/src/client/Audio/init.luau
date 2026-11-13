@@ -31,6 +31,7 @@ local PetCat = require(script.Parent.Effects.PetCat)
 local Rally = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Rally"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local Splash = require(script.Parent.Effects.Splash)
+local Trampoline = require(script.Parent.Effects.Trampoline)
 
 local Audio = {}
 
@@ -2197,6 +2198,13 @@ local function followPool()
 	end)
 end
 
+-- #3690: this player's bounce on the trampoline, in 3D at the mat.
+local function followTrampoline()
+	Trampoline.onBounce(function(mat)
+		Audio.play(Logic.TRAMPOLINE_CUE, mat.Position)
+	end)
+end
+
 -- #3608: the Rummage Bin's roll ticks and lands on the effect's own beats, for the player rolling (flat).
 local function followBinRoll()
 	BinRoll.onBeat(function(beat)
@@ -2252,6 +2260,7 @@ function Audio.start()
 	followPool()
 	followPoolIntro()
 	followBinRoll()
+	followTrampoline()
 	followPetCat()
 	task.spawn(followSecuredRare)
 	task.spawn(followCatchWords)

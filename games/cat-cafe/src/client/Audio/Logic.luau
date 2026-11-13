@@ -425,6 +425,10 @@ function Logic.rummageCue(rowId: any): string
 	return "giftClaim"
 end
 
+-- #3690: a bounce on the Neighborhood's trampoline (Effects/Trampoline.onBounce): the net's springy bounce, until
+-- the trampoline has a boing of its own.
+Logic.TRAMPOLINE_CUE = "netBounce"
+
 -- #3608: the Rummage Bin's prize roll (Effects/BinRoll.onBeat). A soft tick as each row lights and the reel's
 -- stop as it lands, both existing cues. The win keeps its own cue by row (Logic.rummageCue on Moments.RummageWin),
 -- so the "win" beat plays nothing here and no win is heard twice. Nil for any other beat.

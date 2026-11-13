@@ -44,7 +44,8 @@ type Entry = {
 }
 
 local STRAY = "Stray"
-local TAGS = { STRAY, "StuckCat" }
+local STUCK = "StuckCat"
+local TAGS = { STRAY, STUCK }
 local PITY = "PityCat" -- shared/Pity.ATTRIBUTE: a pity cat wears its own tag in this spot
 local WIDTH = 120 -- px, the billboard; the pill inside is as wide as its word
 local HEIGHT = 22 -- px, smaller than the mood icon and the name
@@ -52,6 +53,10 @@ local TEXT_SIZE = 14
 -- above the 56 px mood icon box (centred 0.8 studs over the cat's head) with 6 px between
 local RAISE = (28 + 6 + HEIGHT / 2) / HEIGHT
 local LIFT = 0.8 -- studs over the top of the cat, as the mood icon
+-- A stuck cat wears the red "!" (and its rarity gem) over its head (Effects/Rescue, Presets.stuckMark: up to 2.9 studs
+-- over the cat with the gem and the bob), so its pill sits over that mark, not on it: it read "!EW" (Studio look,
+-- 2026-11-13)
+local LIFT_STUCK = 3
 local LOOK_SECONDS = 0.25 -- how often the distances are looked at
 
 local NewKindTags = {}
@@ -264,7 +269,11 @@ function NewKindTags._make(self: any, cat: Instance): Entry?
 		Name = "CatCafeNewKindTag",
 		Size = UDim2.fromOffset(WIDTH, HEIGHT),
 		SizeOffset = Vector2.new(0, RAISE),
-		StudsOffsetWorldSpace = Vector3.new(0, height + LIFT, 0),
+		StudsOffsetWorldSpace = Vector3.new(
+			0,
+			height + (if CollectionService:HasTag(cat, STUCK) then LIFT_STUCK else LIFT),
+			0
+		),
 		AlwaysOnTop = false,
 		MaxDistance = NewKind.RANGE,
 		LightInfluence = 0,

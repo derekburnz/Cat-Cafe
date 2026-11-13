@@ -3331,7 +3331,7 @@ end
 
 -- The Mystic Pool (#3314, trait-station.md section 1a): the rarity ids its liquid steps through, lowest first, the
 -- same ids and order as shared/Traits.RARITIES (EffectsMysticPool.spec checks).
-Logic.POOL_RARITIES = { "common", "uncommon", "rare", "legendary", "mythic" }
+Logic.POOL_RARITIES = { "common", "uncommon", "rare", "epic", "legendary", "mythic" }
 
 -- The colours the pool shows for a roll of `rarity`, grey first, one step per rarity up to it and never past it: a
 -- common stays grey, a rare goes grey, green, blue. An unknown rarity shows grey only.

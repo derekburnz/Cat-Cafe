@@ -103,6 +103,7 @@ local ALL_W = 110
 -- #3961: the family look's picture cards (batch 1 mock), three across under each section's header
 local CARD_PICTURE = 46 -- #4007: a little smaller, four cards a row
 local EFFECT_H = 42 -- #4007: three short lines on the narrower card
+local NAME_H = 34 -- #4030: a long name ("Small Steady Paw Potion") takes two lines instead of ending in "..."
 local MIN_CELL = 128 -- #4007: the narrowest card that still fits its name and Buy
 local ALL_PENDING_SECONDS = 3
 
@@ -579,7 +580,7 @@ function CornerShop._grid(self: any, kind: string, order: number): Frame
 end
 
 function CornerShop._cardHeight(self: any): number
-	return 8 + CARD_PICTURE + 4 + 20 + EFFECT_H + 4 + self._buyH + 8
+	return 8 + CARD_PICTURE + 4 + NAME_H + EFFECT_H + 4 + self._buyH + 8
 end
 
 -- #1599: a section's header over its rows ("Potions").
@@ -878,19 +879,21 @@ function CornerShop._pictureCard(
 	local name = text({
 		Name = "Name",
 		Position = UDim2.fromOffset(6, y),
-		Size = UDim2.new(1, -12, 0, 20),
+		Size = UDim2.new(1, -12, 0, NAME_H),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 1,
 		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
+		TextWrapped = true, -- #4030: two lines for a long name
+		TextTruncate = Enum.TextTruncate.None,
 		Text = if def then def.name else itemId,
 		Parent = frame,
 	})
-	FitText.shrink(name) -- #4007: a long name on a narrow card shrinks a little instead of cutting off
+	FitText.shrink(name) -- #4007: and still shrinks a little where even two lines are short of room
 	MenuFamily.outline(name, 1.5)
 	local effect = text({
 		Name = "Effect",
-		Position = UDim2.fromOffset(6, y + 20),
+		Position = UDim2.fromOffset(6, y + NAME_H),
 		Size = UDim2.new(1, -12, 0, EFFECT_H),
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = CARD.subtext,

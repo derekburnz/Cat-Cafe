@@ -4264,6 +4264,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(star and sardines, "uigate: the dealer drew no Star Treat or Sardines row (#2057)")
 		local first = star.Y < sardines.Y - 1 or (math.abs(star.Y - sardines.Y) <= 1 and star.X < sardines.X)
 		assert(first, "uigate: the dealer lists Sardines before Star Treat, wants rarest first (#2057)")
+		-- #4030 (Review-QA's Studio pass: Moon Milk's chip read "LEGEND"): every grade chip shows its whole word
+		local FoodGrade = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.FoodGrade")
+		for _, d in game:GetService("Players").LocalPlayer.PlayerGui:GetDescendants() do
+			if d:IsA("TextLabel") and d.Name == "Rarity" and d.Visible and d.Parent and d.Parent.Name == "moon_milk" then
+				assert(d.Text == FoodGrade.badge("Legendary"), "uigate: Moon Milk's chip reads " .. d.Text .. " (#4030)")
+				assert(d.TextTruncate == Enum.TextTruncate.None and d.TextFits, "uigate: Moon Milk's LEGENDARY chip is cut short (#4030)")
+			end
+		end
 	end },
 	-- Review-QA's Studio pass 2026-11-13: a card's odds (its ?) open over the whole food grid, not inside the card
 	{ "DealerDetail", function()

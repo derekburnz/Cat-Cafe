@@ -372,7 +372,8 @@ local function popPrize(
 				step:Disconnect()
 			end
 			holder:Destroy()
-			Particles.burst(p.emitter, last, q.sparkles, colour)
+			Particles.burst(p.emitter, last, q.catchSparkles, colour)
+			Particles.ring(last, colour, q.catchRing)
 			return
 		end
 		local at, grow = Logic.binPrizePop(from, last, alpha)

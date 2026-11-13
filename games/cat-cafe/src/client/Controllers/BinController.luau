@@ -275,6 +275,10 @@ local function boardView(): RollBoardLogic.View
 	})
 end
 
+-- #3885 (Review-QA's Studio look): after a win the board stays away until the prize's pop has landed in the hands,
+-- so the picture rises out of a clear bin and not over the board's rows.
+local POP_HOLD = 1.3 -- seconds: Presets.binRoll.prize.seconds and a little more
+local popHold = 0 -- os.clock() before which the board stays hidden
 -- Shows each bin's board to a player standing near it, with what it says now; hides it otherwise.
 local function boardRefresh()
 	local on = rollOn()
@@ -286,6 +290,7 @@ local function boardRefresh()
 			and prompt.Enabled
 			and near[model] == true
 			and not (UI :: any).rescue.isActive()
+			and os.clock() >= popHold
 		local found = if shown then boardFor(model) else boards[model]
 		if found == nil then
 			continue
@@ -582,6 +587,8 @@ end
 local function onWin(rowId: string, _first: boolean)
 	endShow()
 	play = nil
+	popHold = os.clock() + POP_HOLD
+	task.delay(POP_HOLD + 0.05, boardRefresh)
 	boardRefresh()
 	if BinController.onPrize ~= nil then
 		BinController.onPrize(nil, nil)

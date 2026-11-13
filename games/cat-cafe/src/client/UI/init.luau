@@ -4202,8 +4202,9 @@ do
 					gaveUp = "Maybe later",
 					won = "Got it!",
 					win = "Found something!",
-					lose = "So close!",
-					loseDetail = "Try again",
+					-- the prize is picked before the bar, so no "So close!" near-miss words (Review-QA, #3885)
+					lose = "Try again!",
+					loseDetail = "",
 				},
 			}
 			else { catName = catName, rarity = rarity }

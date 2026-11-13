@@ -4839,6 +4839,9 @@ Presets.binRoll = {
 		from = 0.3,
 		catch = 0.6,
 		sparkles = 6,
+		-- Review-QA's Studio look: the catch's few sparkles did not read, so the hands get a bigger burst and a ring
+		catchSparkles = 16,
+		catchRing = 4, -- studs wide
 	},
 	-- The lid on a win (#3612): still for a common prize, a hop for a good one, flies up turning and fades for the
 	-- best. The lid is the model's closed look (its child Model named with `lidSuffix`); a model without one (the

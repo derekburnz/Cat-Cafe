@@ -6018,7 +6018,7 @@ local SCENES = {
 		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
 		local outcome = barGui:FindFirstChild("Outcome", true) :: TextLabel
 		local detail = barGui:FindFirstChild("Detail", true) :: TextLabel
-		assert(outcome.Text == "So close!" and detail.Text == "Try again", "uigate: a bin miss reads " .. outcome.Text .. " / " .. detail.Text .. " (#3050)")
+		assert(outcome.Text == "Try again!" and detail.Text == "", "uigate: a bin miss reads " .. outcome.Text .. " / " .. detail.Text .. " (#3050, #3885)")
 		assert(outcome.TextFits and detail.TextFits, "uigate: the bin's miss words do not fit (#3050)")
 	end },
 	-- #2219 (crispi_255): a rescuer two hits in misses; the server sends the bar back to the start (no hits, zone 1)

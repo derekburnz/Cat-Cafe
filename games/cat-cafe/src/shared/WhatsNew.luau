@@ -30,6 +30,44 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #2718 refresh (11-13 00:30 UTC): the 02:30 UTC restart of 2026-11-13 and what went live since #3434. Merge with
+	-- that publish. Take out "epic_trait_tier" if #3719 is not on main at the publish.
+	{
+		id = "mystic_pool_at_spawn",
+		date = "2026-11-13",
+		icon = "new",
+		text = "Mystic Pool now at spawn",
+	},
+	{
+		id = "epic_trait_tier",
+		date = "2026-11-13",
+		icon = "new",
+		text = "New Epic trait tier",
+	},
+	{
+		id = "rarer_traits_more_often",
+		date = "2026-11-13",
+		icon = "new",
+		text = "Rare traits come up more",
+	},
+	{
+		id = "mouse_dash_menu_clock",
+		date = "2026-11-13",
+		icon = "look",
+		text = "Mouse Dash: new menu, clock",
+	},
+	{
+		id = "trade_shows_traits",
+		date = "2026-11-13",
+		icon = "look",
+		text = "Trades show cat traits",
+	},
+	{
+		id = "update_party_1113",
+		date = "2026-11-13",
+		icon = "new",
+		text = "Party: 2x money 30 min",
+	},
 	-- #3420, #3424: the Thursday 2026-11-12 launch (22:00 UTC). Merge this only with the launch publish, and only
 	-- the rows whose feature is switched on at the launch.
 	{

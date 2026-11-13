@@ -832,6 +832,7 @@ end
 function Quests._renderAchievements(self: any, state: Types.PlayerState, look: PrizeChips.Look)
 	local catalog: Types.Catalog? = self._catalog
 	local prizes = if catalog then catalog.achievementPrizes else nil
+	local byId = if catalog then catalog.achievementPrizesById else nil -- #3694: the line's item
 	-- a claim on its way counts as claimed: the card fades and moves to the end at once
 	local source = state.achievements
 	local views: { [string]: Types.AchievementView } = source or {}
@@ -869,7 +870,10 @@ function Quests._renderAchievements(self: any, state: Types.PlayerState, look: P
 				then ShortNumber.format(row.progress) .. "/" .. ShortNumber.format(needs)
 				else ShortNumber.commas(row.progress) .. "/" .. ShortNumber.commas(needs)
 		entry.chips:set(
-			if prizes then prizes[entry.size] else nil,
+			if byId and byId[row.def.id]
+				then byId[row.def.id]
+				elseif prizes then prizes[entry.size]
+				else nil,
 			if entry.size == "XL" then big else small
 		)
 		entry.claim.instance.Visible = row.ready

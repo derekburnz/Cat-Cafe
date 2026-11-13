@@ -257,6 +257,56 @@ return function()
 		end)
 	end)
 
+	describe("prizes by line (#3694)", function()
+		local Prizes = require(Shared.Prizes) :: any
+		it("pays the line's item with the size's coins and pass XP", function()
+			local wrangler = Catalog.getAchievement("a_catch1k") :: any
+			local prize = Quests.achievementPrize(wrangler) :: any
+			local L = Catalog.achievementPrizes.L :: any
+			expect(prize.coins).to.equal(L.coins)
+			expect(prize.coinSeconds).to.equal(L.coinSeconds)
+			expect(prize.passXp).to.equal(L.passXp)
+			expect(prize.crates.highest).to.equal(1)
+			expect(prize.crates.classic_crate).to.equal(nil)
+			local devoted = Quests.achievementPrize(Catalog.getAchievement("a_hours100") :: any) :: any
+			expect(devoted.fish).to.equal(50)
+			expect(devoted.potions.big_tip_potion).to.equal(1)
+			expect(devoted.crates).to.equal(nil)
+		end)
+
+		it("keeps the size's whole prize where a line has no row", function()
+			local tier = Quests.achievementPrize(Catalog.getAchievement("a_tier3") :: any) :: any
+			expect(tier).to.deepEqual(Catalog.achievementPrizes.M :: any)
+		end)
+
+		it("names only real items, and every achievement has a prize", function()
+			for _, def in Catalog.achievements do
+				local prize = Quests.achievementPrize(def) :: any
+				expect(prize.coins ~= nil or prize.coinSeconds ~= nil).to.equal(true)
+				for lureId in prize.lures or {} do
+					expect(Catalog.getLure(lureId)).to.be.ok()
+				end
+				for potionId in prize.potions or {} do
+					expect(Catalog.getPotion(potionId)).to.be.ok()
+				end
+				for crateId in prize.crates or {} do
+					expect(Prizes.crateFor(crateId, 2)).to.be.ok()
+				end
+				-- at most two pictures, three on XL (coins and pass XP are not pictures)
+				local pictures = 0
+				for _, key in { "lures", "potions", "crates" } do
+					for _ in prize[key] or {} do
+						pictures += 1
+					end
+				end
+				for _, key in { "fish", "spins" } do
+					pictures += if prize[key] then 1 else 0
+				end
+				expect(pictures <= (if def.size == "XL" then 3 else 2)).to.equal(true)
+			end
+		end)
+	end)
+
 	describe("needs, progress and done", function()
 		it("scales a coins quest with the day rate, never under its minimum", function()
 			local coins = Catalog.getQuest("d_coins") :: any

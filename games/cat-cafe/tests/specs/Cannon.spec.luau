@@ -169,7 +169,7 @@ return function()
 		end)
 	end)
 
-	describe("a first flight beside a stray stays in the camp or its gateway (#3198)", function()
+	describe("a first flight beside a stray lands behind the camp's stripe (#3886)", function()
 		local Layout = require(game:GetService("ServerScriptService").Server.World.Layout)
 		local yard = { halfAcross = 60, depth = 30, openingHalfWidth = 12 }
 
@@ -177,26 +177,25 @@ return function()
 			expect(Cannon.inCampReach(0, -13, yard)).to.equal(true)
 			expect(Cannon.inCampReach(40, -6, yard)).to.equal(true)
 			expect(Cannon.inCampReach(-57, -27, yard)).to.equal(true)
+			expect(Cannon.inCampReach(0, -Cannon.GATEWAY_INSET, yard)).to.equal(true)
 			expect(Cannon.inCampReach(59, -6, yard)).to.equal(false) -- on the side fence
 			expect(Cannon.inCampReach(0, -29, yard)).to.equal(false) -- on the back fence
 			expect(Cannon.inCampReach(0, -40, yard)).to.equal(false) -- behind the camp
 		end)
 
-		it(
-			"takes the open gateway, and nothing behind the fence beside it or deep in the wild part",
-			function()
-				expect(Cannon.inCampReach(0, 0, yard)).to.equal(true)
-				expect(Cannon.inCampReach(-9, 6, yard)).to.equal(true)
-				expect(Cannon.inCampReach(0, Cannon.GATEWAY_DEPTH, yard)).to.equal(true)
-				expect(Cannon.inCampReach(0, Cannon.GATEWAY_DEPTH + 1, yard)).to.equal(false)
-				-- Derek's landing: a few studs past the fence, beside the opening
-				expect(Cannon.inCampReach(13, 6, yard)).to.equal(false)
-				expect(Cannon.inCampReach(30, 3, yard)).to.equal(false)
-				-- on the fence line, at a post
-				expect(Cannon.inCampReach(11, 0, yard)).to.equal(false)
-				expect(Cannon.inCampReach(20, -1, yard)).to.equal(false)
-			end
-		)
+		it("takes nothing at or past the gate line, the open gateway included", function()
+			-- Derek's landing (#3886): under the gate's arch, past the stripe 0.8 in from the gate line
+			expect(Cannon.inCampReach(0, -0.8, yard)).to.equal(false)
+			expect(Cannon.inCampReach(0, 0, yard)).to.equal(false)
+			expect(Cannon.inCampReach(-9, 6, yard)).to.equal(false)
+			expect(Cannon.inCampReach(0, 12, yard)).to.equal(false)
+			-- a few studs past the fence, beside the opening (#3198)
+			expect(Cannon.inCampReach(13, 6, yard)).to.equal(false)
+			expect(Cannon.inCampReach(30, 3, yard)).to.equal(false)
+			-- on the fence line, at a post
+			expect(Cannon.inCampReach(11, 0, yard)).to.equal(false)
+			expect(Cannon.inCampReach(20, -1, yard)).to.equal(false)
+		end)
 
 		it("turns world points into camp space and back for every camp", function()
 			for _, camp in Layout.camps do
@@ -209,48 +208,43 @@ return function()
 			end
 		end)
 
-		it(
-			"lands every Park spawn point's flight in the camp, the gateway or on the pad",
-			function()
-				local camp, pad = Layout.camps.park, Layout.landingPads.park
-				local centre = Vector3.new(pad.centre.x, pad.centre.y, pad.centre.z)
-				local park: Cannon.Yard = {
-					halfAcross = camp.halfAcross,
-					depth = Config.World.CampDepth,
-					openingHalfWidth = camp.openingHalfWidth,
-				}
-				-- the pad itself is in reach, so the rule never refuses the camp
-				local px, pz = Layout.campSpace(camp, centre.X, centre.Z)
-				expect(Cannon.inCampReach(px, pz, park)).to.equal(true)
-				local near, beside, refused = 0, 0, 0
-				for _, point in Layout.areas.park.spawnPoints do
-					local stray = Vector3.new(point.x, centre.Y + (point.y or 0), point.z)
-					if (stray - centre).Magnitude < 60 then
-						near += 1
-						local at = Cannon.besideStray(stray, centre)
-						-- #3292: CannonService reads the camp rule on the plain spot by the stray as well
-						local byStray = Cannon.besideStray(stray, centre, nil, math.huge)
-						if at ~= nil and byStray ~= nil then
-							local x, z = Layout.campSpace(camp, at.X, at.Z)
-							local sx, sz = Layout.campSpace(camp, byStray.X, byStray.Z)
-							if
-								Cannon.inCampReach(x, z, park) and Cannon.inCampReach(sx, sz, park)
-							then
-								beside += 1
-								-- never behind a stretch of fence
-								expect(z <= 0 or math.abs(x) < camp.openingHalfWidth).to.equal(true)
-							else
-								refused += 1
-							end
+		it("lands every Park spawn point's flight in the camp or on the pad", function()
+			local camp, pad = Layout.camps.park, Layout.landingPads.park
+			local centre = Vector3.new(pad.centre.x, pad.centre.y, pad.centre.z)
+			local park: Cannon.Yard = {
+				halfAcross = camp.halfAcross,
+				depth = Config.World.CampDepth,
+				openingHalfWidth = camp.openingHalfWidth,
+			}
+			-- the pad itself is in reach, so the rule never refuses the camp
+			local px, pz = Layout.campSpace(camp, centre.X, centre.Z)
+			expect(Cannon.inCampReach(px, pz, park)).to.equal(true)
+			local near, beside, refused = 0, 0, 0
+			for _, point in Layout.areas.park.spawnPoints do
+				local stray = Vector3.new(point.x, centre.Y + (point.y or 0), point.z)
+				if (stray - centre).Magnitude < 60 then
+					near += 1
+					local at = Cannon.besideStray(stray, centre)
+					-- #3292: CannonService reads the camp rule on the plain spot by the stray as well
+					local byStray = Cannon.besideStray(stray, centre, nil, math.huge)
+					if at ~= nil and byStray ~= nil then
+						local x, z = Layout.campSpace(camp, at.X, at.Z)
+						local sx, sz = Layout.campSpace(camp, byStray.X, byStray.Z)
+						if Cannon.inCampReach(x, z, park) and Cannon.inCampReach(sx, sz, park) then
+							beside += 1
+							-- never past the gate line, so never past the SAFE ZONE stripe
+							expect(z < -0.8).to.equal(true)
+						else
+							refused += 1
 						end
 					end
 				end
-				expect(near > 0).to.equal(true)
-				-- the flowerbed's strays stand behind the fence: those flights land on the pad now
-				expect(refused > 0).to.equal(true)
-				expect(beside + refused <= near).to.equal(true)
 			end
-		)
+			expect(near > 0).to.equal(true)
+			-- the flowerbed's strays stand behind the fence: those flights land on the pad now
+			expect(refused > 0).to.equal(true)
+			expect(beside + refused <= near).to.equal(true)
+		end)
 	end)
 
 	describe("a returning player's join at their own front door (#3072)", function()

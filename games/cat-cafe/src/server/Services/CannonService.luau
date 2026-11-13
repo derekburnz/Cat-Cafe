@@ -84,8 +84,8 @@ end
 
 -- #3198: whether a first flight into `destination` may land at `beside`, the spot next to its waiting stray. The
 -- Alleyway's first flight lands beside the beginner's stray wherever it waits (#2913: the alley is open floor from
--- its camp's line on). Any other area's only inside its camp's fence or in the open gateway (Cannon.inCampReach):
--- the spot beside a Park stray was behind the camp's fence.
+-- its camp's line on). Any other area's only inside its camp, behind the SAFE ZONE stripe (Cannon.inCampReach):
+-- the spot beside a Park stray was behind the camp's fence (#3198), or past the stripe in the gateway (#3886).
 local function besideInReach(destination: string, beside: Vector3): boolean
 	local camp = Layout.camps[destination]
 	if camp == nil or destination == Cannon.OPEN_AREA then

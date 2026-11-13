@@ -1217,10 +1217,22 @@ do
 	end
 end
 
--- Sunrise (data-model section 9, v0.9): a full wave arrives at once. Dusk already cleared the area, so this only
+-- Sunrise (data-model section 9, v0.9): a full wave arrives. Dusk already cleared the area, so this only
 -- fills free points; a cat let go during night is still there and keeps its point. On a Lucky Day (F88) the wave
--- rolls at LuckyDayWaveLuck; nobody's own Luck touches it. Returns whether a Mythical came.
-local function spawnWave(areaDef: Types.AreaDef, luck: number): boolean
+-- rolls at LuckyDayWaveLuck; nobody's own Luck touches it.
+-- #3661 (Review-QA's Studio reading: one sunrise sent every client about 1.3 MB in a single burst, some 80 cat
+-- models at once, and everything else the server had to say queued behind it): the wave is rolled at once but
+-- placed over time. rollWave returns the area's strays to place, rarest first, and whether a Mythical is among
+-- them; sunriseWave places the first few of each area at once and the rest a few a second.
+type WavePlace = {
+	areaDef: Types.AreaDef,
+	rarity: Types.Rarity,
+	place: number,
+	count: number,
+	lucky: boolean,
+}
+
+local function rollWave(areaDef: Types.AreaDef, luck: number): ({ WavePlace }, boolean)
 	-- Roll the whole wave, then place the rarest first so Epic and rarer always find a Square point.
 	local odds = Luck.apply(areaDef.odds, luck)
 	local rarities: { Types.Rarity } = {}
@@ -1240,30 +1252,47 @@ local function spawnWave(areaDef: Types.AreaDef, luck: number): boolean
 		return Catalog.rarityRank[a] > Catalog.rarityRank[b]
 	end)
 	local mythical = false
+	local places: { WavePlace } = {}
 	for place, rarity: Types.Rarity in rarities do
 		mythical = mythical or rarity == "Mythical"
-		-- #1621: the commonest few land by the gate, so the start of the area is never bare at sunrise
-		local point = freeSpawnPoint(
-			areaDef.id,
-			rarity,
-			nil,
-			StrayTopUp.waveEntry(place, #rarities, areaDef.entryFloor)
-		)
-		if point ~= nil then
-			local stray = spawnAt(areaDef.id, point, rarity)
-			-- F58: everyone in the server hears of a wave's Mythical, those without the area too (a reason to rank
-			-- up); a tutorial or bait Mythical is not a wave's
-			-- #3470: one that turned Secret has had its own line (secretSpawned)
-			local text = if stray.def.rarity == rarity
-				then Catching.waveShoutOut(rarity, stray.variant, areaDef.name, luck > 1)
-				else nil
-			if text ~= nil then
-				Net.fireAll("Announce", text, rarity)
-			end
+		table.insert(places, {
+			areaDef = areaDef,
+			rarity = rarity,
+			place = place,
+			count = #rarities,
+			lucky = luck > 1,
+		})
+	end
+	return places, mythical
+end
+
+local function placeWave(entry: WavePlace)
+	-- (an annotated local: the CI type check widens the rarity read back from the record, or cast, to a string)
+	local areaDef = entry.areaDef
+	local rarity: Types.Rarity = entry.rarity :: any
+	-- #1621: the commonest few land by the gate, so the start of the area is never bare at sunrise
+	local point = freeSpawnPoint(
+		areaDef.id,
+		rarity,
+		nil,
+		StrayTopUp.waveEntry(entry.place, entry.count, areaDef.entryFloor)
+	)
+	if point ~= nil then
+		local stray = spawnAt(areaDef.id, point, rarity)
+		-- F58: everyone in the server hears of a wave's Mythical, those without the area too (a reason to rank
+		-- up); a tutorial or bait Mythical is not a wave's
+		-- #3470: one that turned Secret has had its own line (secretSpawned)
+		local text = if stray.def.rarity == rarity
+			then Catching.waveShoutOut(rarity, stray.variant, areaDef.name, entry.lucky)
+			else nil
+		if text ~= nil then
+			Net.fireAll("Announce", text, rarity)
 		end
 	end
-	return mythical
 end
+
+-- #3661: each sunrise has its own number, so a wave still being placed stops when the next dusk or sunrise comes
+local waveNumber = 0
 
 -- #1159 (shared/StrayTopUp): each area's seconds left until its next top-up, while it is under its floor.
 local topUpLeft: { [string]: number } = {}
@@ -3358,6 +3387,7 @@ end
 -- goes once that catch ends, unless the catch lands it. #3077: an uncaught pity cat waits through its first night
 -- (PityService says which, setPityKeeps), so one that came out just before dusk is still there at sunrise.
 function CatService.nightFalls()
+	waveNumber += 1 -- #3661: a sunrise wave still being placed stops here
 	local leaving: { Stray } = {}
 	local keeps = pityKeeps
 	for _, stray in strays do
@@ -3373,7 +3403,8 @@ function CatService.nightFalls()
 	end
 end
 
--- Sunrise (v0.9, F66): every area gets its wave of WaveSize strays at once, whether or not anyone has it unlocked.
+-- Sunrise (v0.9, F66): every area gets its wave of WaveSize strays, whether or not anyone has it unlocked. #3661:
+-- rolled at once, placed over Config.WaveSpreadSeconds.
 -- F88: a Lucky Day's waves roll at LuckyDayWaveLuck, and the day is logged as `lucky_day` (value the players in the
 -- server; the first area a Mythical came to, or "none"). #1888: any special day logs it, with its kinds ("lucky",
 -- "golden+rainbow").
@@ -3390,10 +3421,35 @@ function CatService.sunriseWave()
 	end
 	local luck = if luckyDay then Config.LuckyDayWaveLuck else 1
 	local mythicalArea = "none"
+	waveNumber += 1
+	local wave = waveNumber
+	local waves: { { WavePlace } } = {}
 	for _, areaDef in Catalog.areas do
-		if spawnWave(areaDef, luck) and mythicalArea == "none" then
+		local places, mythical = rollWave(areaDef, luck)
+		if mythical and mythicalArea == "none" then
 			mythicalArea = areaDef.id
 		end
+		table.insert(waves, places)
+	end
+	-- #3661: the first few of every area (its rarest) at once, then the rest in turn, one area after another
+	local order = StrayTopUp.waveOrder(waves, Config.WaveAtOnce)
+	local later: { WavePlace } = order.later
+	for _, entry: WavePlace in order.now do
+		placeWave(entry)
+	end
+	if #later > 0 then
+		local gap = StrayTopUp.waveGap(#later, Config.WaveSpreadSeconds)
+		task.spawn(function()
+			for _, entry: WavePlace in later do
+				task.wait(gap)
+				if waveNumber ~= wave or not ClockService.areasOpen() then
+					return -- dusk came (or the next sunrise): this wave is over
+				end
+				xpcall(placeWave, function(err: unknown)
+					warn("[CatService] wave: " .. tostring(err))
+				end, entry)
+			end
+		end)
 	end
 	if #kindNames > 0 then
 		-- a server event with no player of its own: logged under the first player here, none in an empty server

@@ -516,6 +516,10 @@ local Config = {
 	StrayEntryTopUpSeconds = 15, -- #2557 (was 20)
 	StrayTopUpMinSeconds = 30, -- #2557: 30 to 60 s (#1452 40 to 80, before it 60 to 120)
 	StrayTopUpMaxSeconds = 60,
+	-- #3661: a sunrise wave is rolled at once but placed over time, so no client gets every area's cats in one burst.
+	-- The rarest WaveAtOnce of each area are there at sunrise; the rest follow within WaveSpreadSeconds.
+	WaveAtOnce = 2,
+	WaveSpreadSeconds = 30,
 	StrayWanderSpeed = 3,
 	-- #3545 (Derek 2026-11-12 12:33 UTC: "have them be walking around much faster in the area"): a wild Secret stray
 	-- walks three times as fast over three times the reach, with half the pause between walks and no naps. It still

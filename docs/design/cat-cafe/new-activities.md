@@ -18,7 +18,7 @@ Its job is to keep new players past 5 minutes (35% still playing at 5 min on the
   - The prompt reads "Rummage" when ready and "Empty for now 🐾" otherwise. There is no countdown.
 - **Play:** the rescue bar with a **5-hit** attempt (`BinHits`, #3458; 2 before) and 3 paws.
   - Its own absolute bar: `BinZoneWidth` 0.22 and `BinBarSpeed` 0.80 (#3458, Derek: "require 5 hits and medium bit faster and a lot smaller area"; 0.42 and 0.64 before). It never follows the rescue tables.
-  - An account's first 3 rummages also get `BinFirstEase` (zone x1.6, speed x0.6, so 0.35 at 0.48) and need the 5 hits too.
+  - An account's first 3 rummages also get `BinFirstEase` (zone x1.6, speed x1 since PR #3705 on 2026-11-12 after Derek's report of the marker speed, so 0.35 at 0.80; the speed was x0.6 before) and need the 5 hits too.
   - A miss costs nothing and allows a retry after 10 s.
 - **Timing:** server side, per player, in its own DataStore `CatCafe_Bin` keyed by user id (#3104). It is **not** a profile save field, so it needs no save version step or restart.
   - Ready on the first visit, then 180 s after each of the first 3 uses, then every 900 s.

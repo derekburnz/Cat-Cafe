@@ -1,6 +1,6 @@
 # Achievements: easier targets, more steps, a prize of its own kind per line (#3694)
 
-Status 2026-11-12: spec, not built yet. Asked by Derek at 20:39 UTC: "lower the difficuilty of these achievements add some more and make the rewards slightly more unique/diff". Build: Gameplay-Engineer. Test: Review-QA-Agent. The issue holds the checklist.
+Status 2026-11-13: sections 1 and 2 and the Devoted fault built by Design-Agent (names of the new steps in 2a); sections 3 and 4 and the titles not built yet. Asked by Derek at 20:39 UTC: "lower the difficuilty of these achievements add some more and make the rewards slightly more unique/diff". Build: Gameplay-Engineer. Test: Review-QA-Agent. The issue holds the checklist.
 
 ## Rules for the change
 
@@ -48,6 +48,10 @@ The texts change with the numbers ("Catch 500 cats"). Sizes stay.
 | `a_level10` | Raise a cat to level 10 | M |
 
 Catch line after the change: 1, 25, 100, 250, 500, 1,000, 2,500.
+
+### 2a. Names of the new steps (as built)
+
+Cat Spotter (`a_catch25`), Cat Herder (`a_catch250`), Cat Tamer (`a_catch1000`), Rare Seeker (`a_rare25`), Gold Seeker (`a_gold10`), Sure Paws (`a_perfect100`), Helping Hand (`a_rescue25`), Bowl Regular (`a_bait25`), Quest Starter (`a_quests10`), Quest Fan (`a_quests30`), Week Keeper (`a_week3`), Settling In (`a_hours1`), Happy Visitor (`a_hours5`), Cafe Fixture (`a_hours25`), Rising Star (`a_level10`). Every name on the page is different. Play time reads "16/50 hours", rounded down.
 
 ## 3. New achievements for the newer features
 

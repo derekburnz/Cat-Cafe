@@ -1689,6 +1689,29 @@ local SCENES = {
 	{ "Index", function()
 		UI.open("Collection")
 	end },
+	-- #3722: the tiles are not built at start-up; the quiet build lays them a few a frame while the window is shut
+	{ "IndexQuietBuild", function()
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true) :: Instance?
+		assert(window, "uigate: no Index window")
+		local function tiles(): number
+			local count = 0
+			for _, each in (window :: Instance):GetDescendants() do
+				if each:IsA("TextButton") and each:FindFirstChild("Name") then
+					count += 1
+				end
+			end
+			return count
+		end
+		for _ = 1, 600 do
+			UIShim.advance(1 / 60)
+		end
+		assert(UI.isOpen() ~= "Collection", "uigate: the Index is open before the quiet build check")
+		local built = tiles()
+		assert(built > 50, ("uigate: the quiet build laid %d tiles in 10 s with the Index shut (#3722)"):format(built))
+		UI.open("Collection")
+		assert(tiles() == built, "uigate: opening the Index built tiles twice (#3722)")
+	end },
 	-- #2493: the forever pills' fit runs deferred and settles: after a few frames its scale holds still, and the row
 	-- stays inside the title bar
 	{ "IndexPerksFit", function()
@@ -1923,6 +1946,29 @@ local SCENES = {
 	-- #2418 (Derek2: "make the feeding cats from cat menu much easier and more clean looking then long blue bubbles and
 	-- text"): the picked cat's food tiles under its chips, one per food, inside the card; a tap feeds that food to
 	-- this cat; a cat at the top level and a Bag with no food each say so in the row instead
+	-- #3717: the picked cat's trait on the small detail card: its name with its rarity, then its effects; a cat with
+	-- none reads "No trait yet" only while the traits switch is on
+	{ "CatsTrait", function()
+		local before = (UI.getState() :: any).cats
+		Scenes._traitBefore = before -- Scenes.close puts the cats back, so no later scene sees this trait
+		local cats = table.clone(before)
+		cats.gate_3 = table.clone(cats.gate_3)
+		cats.gate_3.trait = { id = "cosmicFortune" }
+		UI.update({ cats = cats } :: any)
+		Scenes._poolTraits = true
+		UI.open("Cats")
+		task.delay(0.2, function()
+			press("Cats", "gate_3")
+			-- the name of the trait shows: in its own row, or on the phone's short sheet beside the Charm line
+			local shown = false
+			for _, piece in UIShim.playerGui:GetDescendants() do
+				if piece:IsA("TextLabel") and piece.Visible and piece.Text:find("Cosmic Fortune", 1, true) then
+					shown = true
+				end
+			end
+			assert(shown, "uigate: the detail card does not name the cat's trait (#3717)")
+		end)
+	end },
 	{ "CatsFeed", function()
 		local before: any = UI.getState()
 		Scenes._feedBefore = { catFood = before.catFood, cats = before.cats }
@@ -2466,6 +2512,9 @@ local SCENES = {
 		press("MysticPool", "Change")
 		local picker = window:FindFirstChild("Picker", true)
 		assert(picker.Visible, "uigate: Pick a cat did not open the cat list (#3196)")
+		for _ = 1, 10 do
+			UIShim.advance(1 / 60) -- the rest of the rows, a few a frame
+		end
 		press("MysticPool", "Picker.List.gate_2.Pick")
 		assert(not picker.Visible, "uigate: picking a cat left the list open (#3196)")
 		local words = roll:FindFirstChildWhichIsA("TextLabel", true)
@@ -2480,6 +2529,9 @@ local SCENES = {
 		local window = mysticPool(nil, "gate_1")
 		press("MysticPool", "Change")
 		local list = window:FindFirstChild("Picker", true):FindFirstChild("List")
+		for _ = 1, 10 do
+			UIShim.advance(1 / 60) -- the rest of the rows, a few a frame
+		end
 		local rows = 0
 		for _, row in list:GetChildren() do
 			rows += if row:IsA("Frame") then 1 else 0
@@ -2487,6 +2539,30 @@ local SCENES = {
 		assert(rows >= 10, "uigate: the cat list has only " .. rows .. " cats (#3196)")
 		local trait = list:FindFirstChild("gate_1"):FindFirstChild("Trait")
 		assert(trait.Text:find("Golden Whiskers", 1, true), "uigate: the row reads " .. trait.Text .. " (#3196)")
+		-- #3700: Sort chips (Rarity first and in use), the rarity's word on every row, and the Has trait filter
+		local tools = window:FindFirstChild("Picker", true):FindFirstChild("Tools")
+		local sortWords = tools:FindFirstChild("SortRarity"):FindFirstChildWhichIsA("TextLabel", true)
+		assert(sortWords.Text:find("Rarity", 1, true), "uigate: the Rarity sort chip reads " .. sortWords.Text .. " (#3700)")
+		assert(list:FindFirstChild("gate_1"):FindFirstChild("Rarity", true), "uigate: a row has no rarity tag (#3700)")
+		press("MysticPool", "Picker.Tools.Hastrait")
+		local shown = 0
+		for _, row in list:GetChildren() do
+			shown += if row:IsA("Frame") and row.Visible then 1 else 0
+		end
+		local withTrait = 0
+		for _, cat in (UI.getState() :: any).cats do
+			withTrait += if cat.trait ~= nil then 1 else 0
+		end
+		assert(withTrait >= 1, "uigate: the sample cats have no trait for the Has trait filter (#3700)")
+		assert(
+			shown == withTrait,
+			("uigate: Has trait shows %d cats, %d have a trait (#3700)"):format(shown, withTrait)
+		)
+		press("MysticPool", "Picker.Tools.All")
+		press("MysticPool", "Picker.Tools.SortLevel")
+		for _ = 1, 10 do
+			UIShim.advance(1 / 60)
+		end
 	end },
 	-- #3196: a re-roll waiting: the old trait and the new one side by side, Keep old and Take new the same size and
 	-- style, the odds line on it; Take new sends ChooseTrait's event with true
@@ -5390,6 +5466,15 @@ local SCENES = {
 			end
 		end
 		assert(crates > 0, "uigate: no achievement shows the Classic Crate's picture (#2089)")
+		-- #3694: Devoted counts hours ("16/50 hours"), not seconds, and the words fit their box
+		local hours: TextLabel? = nil
+		for _, d in UIShim.playerGui:GetDescendants() do
+			if d:IsA("TextLabel") and string.match(d.Text, "^%d+/50 hours$") then
+				hours = d
+			end
+		end
+		assert(hours, "uigate: Devoted does not count in hours (#3694)")
+		assert((hours :: TextLabel).TextFits, "uigate: Devoted's hours do not fit (#3694)")
 	end },
 	-- a claim shows at once: the row reads Claimed and drops to the bottom (Derek 2026-10-29)
 	{ "QuestsClaimed", function()
@@ -10164,6 +10249,10 @@ function Scenes.close()
 	if Scenes._rankTier ~= nil then
 		UI.update({ tier = Scenes._rankTier } :: any) -- #2121's Tier 2 rank-up scene
 		Scenes._rankTier = nil
+	end
+	if Scenes._traitBefore then
+		UI.update({ cats = Scenes._traitBefore } :: any) -- #3717's CatsTrait: gate_3 without its trait again
+		Scenes._traitBefore = nil
 	end
 	if Scenes._feedBefore then
 		UI.update({ catFood = Scenes._feedBefore.catFood or {} } :: any) -- #2418's CatsFeed: the Bag's food back

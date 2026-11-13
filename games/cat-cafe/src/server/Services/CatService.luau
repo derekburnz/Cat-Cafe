@@ -365,7 +365,10 @@ local holdsCatch: (Player) -> boolean
 -- #3063: the Swift Paws perk's walk speed for `player` (0 while its switch is off). Only the normal walk and a carry
 -- add it, never the catch rush or a Startled slow.
 local function pawsBonus(player: Player): number
-	return SwiftPaws.bonus(DataService.get(player), LiveFlagService.on(SwiftPaws.FLAG))
+	local profile = DataService.get(player)
+	-- #3871: plus the working cats' speed traits (Quick Paws and the combos that hold it), the best one only
+	local traits = if profile ~= nil then Economy.traitBonus(profile, "speed") else 0
+	return SwiftPaws.bonus(profile, LiveFlagService.on(SwiftPaws.FLAG)) + traits
 end
 
 -- #3535: the carry walk speed: CarryWalkSpeed with Swift Paws and, with the Speed Shoes owned and their switch on,

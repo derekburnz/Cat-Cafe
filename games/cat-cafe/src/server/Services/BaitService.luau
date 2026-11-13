@@ -118,6 +118,8 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 		EventService.luck(),
 		LiveFlagService.on(LuckyCharm.FLAG) -- #3298
 	)
+	-- #3871: the working cats' bowl luck traits (Lucky Bowl and the combos that hold it), on top, within LuckMax
+	luck = math.min(Config.LuckMax, luck + Economy.traitBonus(profile, "bowlLuck"))
 	local rarity: Types.Rarity = Catching.pickRarity(
 		Luck.apply(Bait.oddsFor(lure.odds, Economy.level(profile, "lure_bowl")), luck),
 		rng:NextNumber()

@@ -75,14 +75,15 @@ function StrayTopUp.waveEntry(place: number, size: number, entryFloor: number?):
 end
 
 -- #3661: a sunrise wave is placed over time, not all in one frame (some 80 cat models at once was one 1.3 MB burst
--- to every client). `waves` is each area's strays, rarest first. Returns the ones to place at once, the first
--- `atOnce` of every area (its rarest, so a Mythical is there at sunrise), and the rest in the order to place them:
+-- to every client). `waves` is each area's strays, rarest first. Returns `now`, the ones to place at once, the first
+-- `atOnce` of every area (its rarest, so a Mythical is there at sunrise), and `later`, the rest in the order to place them:
 -- one area after another in turn, each area from its commonest back, since those land by the gate (`waveEntry`)
 -- and the start of an area should not stay bare.
-function StrayTopUp.waveOrder<T>(waves: { { T } }, atOnce: number): ({ T }, { T })
+-- (a table of the two lists, not two results: the CI type check loses a generic function's second result)
+function StrayTopUp.waveOrder(waves: { { any } }, atOnce: number): { now: { any }, later: { any } }
 	local first = math.max(0, math.floor(atOnce))
-	local now: { T } = {}
-	local later: { T } = {}
+	local now: { any } = {}
+	local later: { any } = {}
 	local longest = 0
 	for _, wave in waves do
 		for index = 1, math.min(first, #wave) do
@@ -98,7 +99,7 @@ function StrayTopUp.waveOrder<T>(waves: { { T } }, atOnce: number): ({ T }, { T 
 			end
 		end
 	end
-	return now, later
+	return { now = now, later = later }
 end
 
 -- Seconds between two of the `count` strays placed later, so the last lands `spread` seconds after sunrise; never

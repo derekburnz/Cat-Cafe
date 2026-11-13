@@ -122,13 +122,15 @@ return function()
 				local a = { "a1", "a2", "a3", "a4", "a5" }
 				local b = { "b1", "b2", "b3" }
 				local c = { "c1" }
-				local now, later = StrayTopUp.waveOrder({ a, b, c }, 2)
+				local order = StrayTopUp.waveOrder({ a, b, c }, 2)
+				local now, later = order.now, order.later
 				expect(table.concat(now, " ")).to.equal("a1 a2 b1 b2 c1")
 				-- one area after another, each from its last (commonest, by the gate) back
 				expect(table.concat(later, " ")).to.equal("a5 b3 a4 a3")
 				-- nothing is lost or placed twice, whatever the sizes
 				for atOnce = 0, 6 do
-					local first, rest = StrayTopUp.waveOrder({ a, b, c, {} }, atOnce)
+					local split = StrayTopUp.waveOrder({ a, b, c, {} }, atOnce)
+					local first, rest = split.now, split.later
 					local seen: { [string]: number } = {}
 					for _, list in { first, rest } do
 						for _, name in list do
@@ -142,7 +144,8 @@ return function()
 					end
 					expect(#first + #rest).to.equal(9)
 				end
-				local all, none = StrayTopUp.waveOrder({ a }, 5)
+				local whole = StrayTopUp.waveOrder({ a }, 5)
+				local all, none = whole.now, whole.later
 				expect(#all).to.equal(5)
 				expect(#none).to.equal(0)
 				-- the gap: the last one lands WaveSpreadSeconds after sunrise, between a frame and a second apart

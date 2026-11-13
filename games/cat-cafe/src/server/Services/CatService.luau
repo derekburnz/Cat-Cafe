@@ -1267,7 +1267,8 @@ local function rollWave(areaDef: Types.AreaDef, luck: number): ({ WavePlace }, b
 end
 
 local function placeWave(entry: WavePlace)
-	local areaDef, rarity = entry.areaDef, entry.rarity
+	-- (cast: the CI type check widens the rarity read back from the record to a plain string)
+	local areaDef, rarity = entry.areaDef, (entry.rarity :: any) :: Types.Rarity
 	-- #1621: the commonest few land by the gate, so the start of the area is never bare at sunrise
 	local point = freeSpawnPoint(
 		areaDef.id,
@@ -3430,22 +3431,22 @@ function CatService.sunriseWave()
 		table.insert(waves, places)
 	end
 	-- #3661: the first few of every area (its rarest) at once, then the rest in turn, one area after another
-	local now, later = StrayTopUp.waveOrder(waves, Config.WaveAtOnce)
-	for _, entry in now do
+	local order = StrayTopUp.waveOrder(waves, Config.WaveAtOnce)
+	local later: { WavePlace } = order.later
+	for _, entry: WavePlace in order.now do
 		placeWave(entry)
 	end
 	if #later > 0 then
 		local gap = StrayTopUp.waveGap(#later, Config.WaveSpreadSeconds)
 		task.spawn(function()
-			for _, entry in later do
+			for _, entry: WavePlace in later do
 				task.wait(gap)
 				if waveNumber ~= wave or not ClockService.areasOpen() then
 					return -- dusk came (or the next sunrise): this wave is over
 				end
-				local ok, err = pcall(placeWave, entry)
-				if not ok then
+				xpcall(placeWave, function(err: unknown)
 					warn("[CatService] wave: " .. tostring(err))
-				end
+				end, entry)
 			end
 		end)
 	end

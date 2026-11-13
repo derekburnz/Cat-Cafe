@@ -96,7 +96,8 @@ local function row(state: any, item: any, now: number, open: boolean): Row
 	}
 end
 
-function MysteryLogic.view(state: any, now: number): View
+-- `flags` (live switch key -> on): an item behind a switch that is off is left off the shelf, featured or not (#3535).
+function MysteryLogic.view(state: any, now: number, flags: { [string]: boolean }?): View
 	local safe: any = {
 		mystery = if type(state) == "table" and type(state.mystery) == "table"
 			then state.mystery
@@ -109,6 +110,9 @@ function MysteryLogic.view(state: any, now: number): View
 	local featured: Row? = nil
 	local others: { Row } = {}
 	for _, item in Catalog.mysteryItems or {} do
+		if not MysteryMarket.listed(item, flags) then
+			continue
+		end
 		local made = row(safe, item, now, open)
 		if item.id == featuredId then
 			featured = made

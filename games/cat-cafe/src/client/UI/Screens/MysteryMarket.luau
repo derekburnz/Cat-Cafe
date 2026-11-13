@@ -494,7 +494,7 @@ function MysteryMarketScreen._buildLines(self: any, rows: { MysteryLogic.Row })
 			Position = UDim2.fromOffset(left, 26),
 			Size = UDim2.new(1, -(left + right), 0, 28),
 			TextWrapped = true,
-			TextTruncate = Enum.TextTruncate.None,
+			TextTruncate = Enum.TextTruncate.AtEnd, -- a line longer than two (the Backpack's) ends in "..."
 			TextYAlignment = Enum.TextYAlignment.Top,
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textTiny,
@@ -507,10 +507,14 @@ function MysteryMarketScreen._buildLines(self: any, rows: { MysteryLogic.Row })
 			Position = UDim2.fromOffset(left, 53),
 			Size = UDim2.new(1, -(left + right), 0, 16),
 			FontFace = Theme.fonts.bodyBold,
-			TextSize = Theme.sizes.textTiny,
+			TextScaled = true, -- "Not enough golden fish" shrinks to its column instead of being cut
 			TextColor3 = CARD.gold,
 			Parent = frame,
 		})
+		Create(
+			"UITextSizeConstraint",
+			{ MaxTextSize = Theme.sizes.textTiny, MinTextSize = 8, Parent = note }
+		)
 		local buy = Button.new({
 			name = "Buy",
 			text = row.button,

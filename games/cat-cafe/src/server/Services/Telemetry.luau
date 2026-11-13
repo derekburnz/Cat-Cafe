@@ -30,6 +30,7 @@ local Workspace = game:GetService("Workspace")
 local ArcadeFunnel = require(ReplicatedStorage.Shared.ArcadeFunnel)
 local CafePass = require(ReplicatedStorage.Shared.CafePass)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local Catching = require(ReplicatedStorage.Shared.Catching)
 local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -55,6 +56,7 @@ local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassService = require(script.Parent.PassService)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
+local RarityFunnel = require(ReplicatedStorage.Shared.RarityFunnel)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
@@ -602,6 +604,7 @@ type Session = {
 	introShot: number, -- #3098 P1b: the furthest intro shot the client reported this session (0 none)
 	stepClock: { [string]: number }, -- #3530: os.clock() when a step_gap step was reached this session
 	areasCaught: { [string]: boolean }?, -- #3695: the areas with a catch, for the clean funnel (nil until joined is logged)
+	rarityStep: number?, -- #3876: rarity_v1 steps logged this session (nil until joined is logged)
 }
 
 -- #2916: one next goal shown: where ("recap" or "join") and os.time() it was shown
@@ -1276,6 +1279,36 @@ local function logFirstHour(player: Player, profile: Profile)
 	end
 end
 
+-- #3876: the rarity_v1 funnel (shared/RarityFunnel), one run per player with the user id as its session: every step
+-- up to the best rarity in the save's Index not yet logged this session. A new session logs its steps again, which
+-- the report counts once a player (FunnelUserTotalCount); no save field is needed. Only with the `secretCats` switch.
+local function logRarity(player: Player, profile: Profile)
+	local session = sessions[player]
+	if session == nil or session.rarityStep == nil or not LiveFlagService.on(Catching.SECRET_FLAG) then
+		return
+	end
+	local logged = session.rarityStep :: number
+	if logged >= #RarityFunnel.STEPS then
+		return
+	end
+	for _, step in RarityFunnel.due(logged, RarityFunnel.best(profile.collection)) do
+		session.rarityStep = step
+		local name = RarityFunnel.STEPS[step]
+		local fields = grouped(profile, {}) -- #3666
+		remember(player, "funnel", RarityFunnel.NAME .. " " .. name, step, fields)
+		send(player, "funnel " .. RarityFunnel.NAME, function()
+			AnalyticsService:LogFunnelStepEvent(
+				player,
+				RarityFunnel.NAME,
+				tostring(player.UserId),
+				step,
+				name,
+				customFields(fields)
+			)
+		end)
+	end
+end
+
 -- #2796 (retention-ideas.md 5c): the pity_v1 funnel, one run per player per pity cat (`key`, the cat's claim key):
 -- 1 pity_seen (the player came within PITY_SEEN_STUDS of it), 2 pity_catch_started, 3 pity_caught (the claim won).
 -- Fields: the kind (Legendary or Mythical), the area and the player's minutes played on the account as a band.
@@ -1519,6 +1552,7 @@ end
 
 function Telemetry.collected(player: Player, profile: Profile, def: Types.CatDef)
 	goalsCheck(player, profile) -- #2916
+	logRarity(player, profile) -- #3876
 	if def.area == "spare" or def.area == "secret" then
 		return -- #3470: a Secret cat is on no area's Index page
 	end
@@ -1909,6 +1943,8 @@ local function logJoined(player: Player)
 	session.areasCaught = areasCaught
 	Telemetry.onboarding(player, profile, "joined", { session.source })
 	logFirstHour(player, profile)
+	session.rarityStep = 0 -- #3876
+	logRarity(player, profile)
 	if session.returnedNextDay then
 		Telemetry.onboarding(player, profile, "returned_next_day")
 	end
@@ -2760,6 +2796,7 @@ local function watchOnboarding(player: Player, session: Session)
 	end
 	if session.joinLogged then
 		logFirstHour(player, profile)
+		logRarity(player, profile) -- #3876: a cat from a trade or a switch turned on mid session
 	end
 	watchFirstFive(player, session, profile)
 	if not Onboarding.reached(profile.telemetry, "first_move") then

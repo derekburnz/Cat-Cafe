@@ -552,6 +552,8 @@ function Logic.bannerCue(kind: any): string?
 		return "uiGiftReady"
 	elseif kind == "gift" then
 		return "indexReward"
+	elseif kind == "secrets" then
+		return "secretNear" -- #3523: the Secret stray's low twinkle
 	end
 	return nil
 end

@@ -106,7 +106,7 @@ return function()
 			expect(EventBanner.fade(p.fadeSeconds, 6)).to.equal(0)
 			expect(EventBanner.fade(p.fadeSeconds + 6, 6)).to.equal(0)
 			expect(EventBanner.fade(p.fadeSeconds * 2 + 6 + 0.01, 6)).to.equal(1)
-			for _, kind in { "party", "giftSoon", "gift" } do
+			for _, kind in { "party", "giftSoon", "gift", "secrets" } do
 				local confetti, fish = EventBanner.counts(kind, false, true)
 				expect(confetti).to.equal(0)
 				expect(fish).to.equal(0)
@@ -135,6 +135,75 @@ return function()
 				expect(p.hold >= 3 and p.hold <= 5).to.equal(true)
 				expect(p.holdMax <= 5).to.equal(true)
 				expect(p.shineSeconds >= 0.5).to.equal(true)
+			end
+		)
+		it(
+			"shows the Secret cats as black shapes under the words, a few sparkles and no fish",
+			function()
+				local p = Presets.eventBanner
+				local plan = EventBanner.plan({
+					kind = "secrets",
+					title = "Secret cats are out!",
+					lines = { "Three hidden cats roam every area" },
+				})
+				expect(plan.kind).to.equal("secrets")
+				expect(plan.title).to.equal("Secret cats are out!")
+				-- the card grows by the row of shapes, and only this kind has it
+				expect(EventBanner.height("secrets", 1)).to.equal(
+					EventBanner.height("party", 1) + p.shapeRow
+				)
+				expect(p.shapeSize <= p.shapeRow).to.equal(true)
+				-- every shape is one of the Secret cats' own models, so a redesigned model changes its shape by itself
+				local Catalog = require(game:GetService("ReplicatedStorage").Shared.Catalog) :: any
+				local names = EventBanner.shapeModels()
+				expect(#names >= 1 and #names <= p.shapeMost).to.equal(true)
+				for i, name in names do
+					expect(name).to.equal(Catalog.catModelName(Catalog.secretCats[i].id))
+				end
+				-- the row fits the narrowest card (a 320 px phone at the card's width)
+				local row = #names * p.shapeSize + (#names - 1) * p.shapeGap
+				expect(row <= 320 * p.widthScale - p.pad * 2).to.equal(true)
+				-- black, with the "?" readable on it
+				local c = p.shapeColour
+				expect(math.max(c.R, c.G, c.B) < 0.06).to.equal(true)
+				local m = p.markColour
+				expect(math.min(m.R, m.G, m.B) > 0.7).to.equal(true)
+				-- a bigger box stands further back and a whole cat fits its square
+				local near =
+					EventBanner.shapeDistance(Vector3.new(2, 2, 3), p.shapeFov, p.shapeFill)
+				local far = EventBanner.shapeDistance(Vector3.new(4, 4, 6), p.shapeFov, p.shapeFill)
+				expect(far > near).to.equal(true)
+				local half = math.sqrt(2 * 2 + 3 * 3) / 2
+				expect(half / (near - half) <= math.tan(math.rad(p.shapeFov / 2))).to.equal(true)
+				expect(EventBanner.shapeDistance(Vector3.zero, p.shapeFov, p.shapeFill) > 0).to.equal(
+					true
+				)
+				-- only the loose bits of a Secret cat's own named prop are left off, never a body, head or ear
+				for _, name in p.shapeLeaveOff do
+					local prop = string.match(name, "^CatCafe_Cat_%a+_Prop%d?$") ~= nil
+					local glow = string.match(name, "^CatCafe_Cat_%a+_Glow$") ~= nil
+					expect(prop or glow).to.equal(true)
+				end
+				-- Glitch's pixels (0.12 to 0.22 studs) go, the torn bars at its head's sides (0.71 long) stay
+				expect(EventBanner.loose(0.22, 0.22, 0.22, p.shapeLoose)).to.equal(true)
+				expect(EventBanner.loose(0.12, 0.12, 0.12, p.shapeLoose)).to.equal(true)
+				expect(EventBanner.loose(0.17, 0.13, 0.71, p.shapeLoose)).to.equal(false)
+				-- a cat held back on the day stays off the row: the caller names the ones that are out
+				local first = Catalog.secretCats[1].id
+				local some = EventBanner.shapeModels({ first, "tabby", "nope" })
+				expect(#some).to.equal(1)
+				expect(some[1]).to.equal(Catalog.catModelName(first))
+				expect(#EventBanner.shapeModels({})).to.equal(0)
+				local named = EventBanner.plan({
+					kind = "secrets",
+					title = "Secret cats are out!",
+					cats = { first, 5, "glitch" },
+				})
+				expect(#named.cats).to.equal(2)
+				expect(plan.cats).to.equal(nil)
+				local confetti, fish = EventBanner.counts("secrets", false, false)
+				expect(confetti).to.equal(p.confettiSoon)
+				expect(fish).to.equal(0)
 			end
 		)
 	end)

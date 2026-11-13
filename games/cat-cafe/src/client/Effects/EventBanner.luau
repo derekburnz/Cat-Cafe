@@ -4,6 +4,11 @@
 --   "party"     the 1 hour Update Party starts (or you join during it): an "x2" badge, a shine and confetti
 --   "giftSoon"  a gift is on its way: a golden fish badge and a few sparkles
 --   "gift"      the gift is paid: the golden fish badge, a shine, confetti and golden fish hopping out of the card
+--   "secrets"   the Secret cats are out (#3523, the 2026-11-13 update): a night strip, a "?" badge and the Secret
+--               cats as black shapes in a row under the words, each with a "?" on it. The shapes are the cats' own
+--               models from ReplicatedStorage.Assets drawn all black (Derek, 2026-11-12: "in banner ... blacked
+--               out"), so a redesigned model changes its shape here by itself and no coat, glow or sparkle shows.
+--               `cats = { "nebula", "cafe_ghost" }` draws only those, for a day one of them is held back.
 --   EventBanner.show({ kind = "party", title = "Update Party!", lines = { "x2 cafe earnings until 6:00 PM" } })
 --   EventBanner.onShown(function(kind) ... end)   called as a banner starts to drop in (Audio plays its sound there)
 -- The caller owns the words (Design-Agent's, #3420 section 5); this only trims them to fit. Banners wait their turn:
@@ -16,7 +21,10 @@
 -- anything. Numbers in Presets.eventBanner.
 
 local GuiService = game:GetService("GuiService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+
+local Catalog = require(ReplicatedStorage.Shared.Catalog)
 
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
@@ -25,8 +33,15 @@ local ScreenFx = require(script.Parent.ScreenFx)
 
 local EventBanner = {}
 
-export type Kind = "party" | "giftSoon" | "gift"
-export type Plan = { kind: Kind, title: string, lines: { string }, seconds: number }
+export type Kind = "party" | "giftSoon" | "gift" | "secrets"
+-- `cats`: the "secrets" card's cat ids when the caller names them; nil draws every Secret cat
+export type Plan = {
+	kind: Kind,
+	title: string,
+	lines: { string },
+	seconds: number,
+	cats: { string }?,
+}
 
 local FONT_ID = "rbxasset://fonts/families/FredokaOne.json"
 local GUI_NAME = "EffectsEventBanner"
@@ -60,7 +75,7 @@ function EventBanner.plan(spec: any): Plan?
 		return nil
 	end
 	local kind = spec.kind
-	if kind ~= "party" and kind ~= "giftSoon" and kind ~= "gift" then
+	if kind ~= "party" and kind ~= "giftSoon" and kind ~= "gift" and kind ~= "secrets" then
 		return nil
 	end
 	if type(spec.title) ~= "string" then
@@ -88,7 +103,23 @@ function EventBanner.plan(spec: any): Plan?
 	if type(spec.seconds) == "number" and spec.seconds == spec.seconds then
 		seconds = math.clamp(spec.seconds, p.holdMin, p.holdMax)
 	end
-	return { kind = kind :: Kind, title = title, lines = lines, seconds = seconds }
+	local cats: { string }? = nil
+	if type(spec.cats) == "table" then
+		local named: { string } = {}
+		for _, id in ipairs(spec.cats) do
+			if type(id) == "string" then
+				table.insert(named, id)
+			end
+		end
+		cats = named
+	end
+	return {
+		kind = kind :: Kind,
+		title = title,
+		lines = lines,
+		seconds = seconds,
+		cats = cats,
+	}
 end
 
 -- Pure: whether a banner of `kind` may join the line: not while the same kind shows or waits, and not past `most`
@@ -155,12 +186,47 @@ function EventBanner.counts(
 		return 0, 0
 	end
 	local p = Presets.eventBanner
-	local confetti = if kind == "giftSoon" then p.confettiSoon else p.confetti
+	local confetti = if kind == "giftSoon" or kind == "secrets" then p.confettiSoon else p.confetti
 	local fish = if kind == "gift" then p.fish else 0
 	if lowPerformance then
 		return math.ceil(confetti / 2), math.ceil(fish / 2)
 	end
 	return confetti, fish
+end
+
+-- Pure: the models drawn as black shapes on the "secrets" banner: the Secret cats in catalog order, at most the
+-- preset's `shapeMost`. With `only` (cat ids) just those of them, so the row matches the cats that are really out
+-- when one is held back; an id that is not a Secret cat draws nothing.
+function EventBanner.shapeModels(only: { string }?): { string }
+	local names: { string } = {}
+	for _, def in Catalog.secretCats do
+		if #names >= Presets.eventBanner.shapeMost then
+			break
+		end
+		if only == nil or table.find(only, def.id) ~= nil then
+			table.insert(names, Catalog.catModelName(def.id))
+		end
+	end
+	return names
+end
+
+-- Pure: how tall the card for `kind` with `lines` lines is: the "secrets" card has the row of shapes under its words.
+function EventBanner.height(kind: Kind, lines: number): number
+	local p = Presets.eventBanner
+	local words = p.titleHeight + lines * p.lineHeight + p.pad * 2
+	return if kind == "secrets" then words + p.shapeRow else words
+end
+
+-- Whether a part of a left-off piece is one of its loose bits: no side longer than `most` studs.
+function EventBanner.loose(x: number, y: number, z: number, most: number): boolean
+	return math.max(x, y, z) <= most
+end
+
+-- Pure: how far back the camera stands so a box of `size`, turned any way round its upright axis, fills `fill` of
+-- a square view `fov` degrees tall: its nearest face is still inside the view.
+function EventBanner.shapeDistance(size: Vector3, fov: number, fill: number): number
+	local half = math.max(size.Y, math.sqrt(size.X * size.X + size.Z * size.Z), 0.02) / 2
+	return half / math.tan(math.rad(fov / 2)) / math.clamp(fill, 0.1, 1) + half
 end
 
 -- Calls `listener(kind)` each time a banner starts to show (Audio plays the banner's sound there).
@@ -197,10 +263,148 @@ local function round(parent: Instance, radius: UDim)
 	corner.Parent = parent
 end
 
+-- One Secret cat as a black shape: a copy of its model with everything but its solid parts taken off, drawn all
+-- black by the ViewportFrame's tint, so a see-through or glowing cat is still one plain shape. With no model in
+-- Assets it is a black dot. Each has a "?" on it. `fading` collects what Reduce Motion fades.
+local function shape(parent: Instance, modelName: string, fading: { GuiObject }): Frame
+	local p = Presets.eventBanner
+	local holder = Instance.new("Frame")
+	holder.Name = modelName
+	holder.BackgroundTransparency = 1
+	holder.Size = UDim2.fromOffset(p.shapeSize, p.shapeSize)
+	holder.Parent = parent
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local source = if assets ~= nil then assets:FindFirstChild(modelName) else nil
+	local model: Model? = nil
+	if source ~= nil and source:IsA("Model") then
+		local copy = source:Clone() :: Model
+		local solid = 0
+		-- the loose bits of a named piece: its parts no longer than shapeLoose on any side (the bigger ones stay)
+		for _, descendant in copy:GetDescendants() do
+			if
+				descendant:IsA("BasePart")
+				and table.find(p.shapeLeaveOff, descendant.Name) ~= nil
+			then
+				local size = (descendant :: BasePart).Size
+				if EventBanner.loose(size.X, size.Y, size.Z, p.shapeLoose) then
+					descendant:Destroy()
+				end
+			end
+		end
+		for _, descendant in copy:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				local part = descendant :: BasePart
+				if part.Transparency >= p.shapeSeen then
+					part:Destroy()
+				else
+					part.Transparency = 0
+					part.Anchored = true
+					solid += 1
+				end
+			elseif
+				not descendant:IsA("Model")
+				and not descendant:IsA("Folder")
+				and not descendant:IsA("DataModelMesh")
+			then
+				descendant:Destroy() -- scripts, particles, beams, lights, labels, welds: none of it is the shape
+			end
+		end
+		if solid > 0 then
+			model = copy
+		else
+			copy:Destroy()
+		end
+	end
+	if model ~= nil then
+		local cat: Model = model
+		local view = Instance.new("ViewportFrame")
+		view.Name = "View"
+		view.BackgroundTransparency = 1
+		view.Size = UDim2.fromScale(1, 1)
+		view.ImageColor3 = p.shapeColour
+		local camera = Instance.new("Camera")
+		camera.FieldOfView = p.shapeFov
+		camera.Parent = view
+		view.CurrentCamera = camera
+		-- the cat at the origin facing the camera (models face -Z), turned to a three-quarter view
+		cat:PivotTo(CFrame.new())
+		local box, size = cat:GetBoundingBox()
+		local centre = box.Position
+		local distance = EventBanner.shapeDistance(size, p.shapeFov, p.shapeFill)
+		camera.CFrame = CFrame.lookAt(centre + Vector3.new(0, size.Y * 0.15, -distance), centre)
+		cat:PivotTo(
+			CFrame.new(centre) * CFrame.Angles(0, math.rad(p.shapeTurn), 0) * CFrame.new(-centre)
+		)
+		cat.Parent = view
+		view.Parent = holder
+		table.insert(fading, view)
+	else
+		local dot = Instance.new("Frame")
+		dot.Name = "Dot"
+		dot.BackgroundColor3 = p.shapeColour
+		dot.BorderSizePixel = 0
+		dot.AnchorPoint = Vector2.new(0.5, 0.5)
+		dot.Position = UDim2.fromScale(0.5, 0.5)
+		dot.Size = UDim2.fromScale(0.8, 0.8)
+		round(dot, UDim.new(0.5, 0))
+		dot.Parent = holder
+		table.insert(fading, dot)
+	end
+	local mark = label(holder, "Mark", "?", p.markSize, p.markColour)
+	mark.AnchorPoint = Vector2.new(0.5, 0.5)
+	mark.Position = UDim2.fromScale(0.5, 0.56)
+	mark.Size = UDim2.fromOffset(p.markSize, p.markSize + 4)
+	mark.TextXAlignment = Enum.TextXAlignment.Center
+	mark.ZIndex = 2
+	table.insert(fading, mark)
+	return holder
+end
+
+-- The "secrets" card's row of black shapes. It lies over the card as its own frame, not inside it: the card is a
+-- CanvasGroup, which may not draw a ViewportFrame. `run` moves it with the card and fades what `fading` holds.
+local function shapes(
+	gui: ScreenGui,
+	card: GuiObject,
+	fading: { GuiObject },
+	only: { string }?
+): Frame
+	local p = Presets.eventBanner
+	local over = Instance.new("Frame")
+	over.Name = "Shapes"
+	over.AnchorPoint = card.AnchorPoint
+	over.BackgroundTransparency = 1
+	over.Size = card.Size
+	over.Position = card.Position
+	over.ZIndex = 3
+	local widest = Instance.new("UISizeConstraint")
+	widest.MaxSize = Vector2.new(p.maxWidth, math.huge)
+	widest.Parent = over
+	local row = Instance.new("Frame")
+	row.Name = "Row"
+	row.AnchorPoint = Vector2.new(0.5, 1)
+	row.BackgroundTransparency = 1
+	row.Position = UDim2.new(0.5, 0, 1, -p.pad / 2)
+	row.Size = UDim2.new(1, 0, 0, p.shapeSize)
+	local list = Instance.new("UIListLayout")
+	list.FillDirection = Enum.FillDirection.Horizontal
+	list.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	list.VerticalAlignment = Enum.VerticalAlignment.Center
+	list.Padding = UDim.new(0, p.shapeGap)
+	list.SortOrder = Enum.SortOrder.LayoutOrder
+	list.Parent = row
+	for i, modelName in EventBanner.shapeModels(only) do
+		shape(row, modelName, fading).LayoutOrder = i
+	end
+	row.Parent = over
+	over.Parent = gui
+	return over
+end
+
 -- The card for `plan`, parented to `gui` at its resting place; its shine band comes back with it.
 local function build(gui: ScreenGui, plan: Plan): (CanvasGroup, UIGradient?)
 	local p = Presets.eventBanner
-	local height = p.titleHeight + #plan.lines * p.lineHeight + p.pad * 2
+	local secret = plan.kind == "secrets"
+	local height = EventBanner.height(plan.kind, #plan.lines)
 	local card = Instance.new("CanvasGroup")
 	card.Name = "Card"
 	card.AnchorPoint = Vector2.new(0.5, 0)
@@ -218,25 +422,28 @@ local function build(gui: ScreenGui, plan: Plan): (CanvasGroup, UIGradient?)
 	outline.Thickness = 3
 	outline.Parent = card
 
-	-- the gold strip behind the title
+	-- the gold strip behind the title (the night sky for the Secret cats)
 	local strip = Instance.new("Frame")
 	strip.Name = "Strip"
 	strip.BackgroundColor3 = Color3.new(1, 1, 1)
 	strip.BorderSizePixel = 0
 	strip.Size = UDim2.new(1, 0, 0, p.titleHeight + p.pad)
 	local gold = Instance.new("UIGradient")
-	gold.Color = ColorSequence.new(p.stripTop, p.stripBottom)
+	gold.Color = if secret
+		then ColorSequence.new(p.nightTop, p.nightBottom)
+		else ColorSequence.new(p.stripTop, p.stripBottom)
 	gold.Rotation = 90
 	gold.Parent = strip
 	strip.Parent = card
 
-	-- the round badge on the left: "x2" for the party, the golden fish for a gift
+	-- the round badge on the left: "x2" for the party, "?" for the Secret cats, the golden fish for a gift
+	local words = height - (if secret then p.shapeRow else 0)
 	local badge = Instance.new("Frame")
 	badge.Name = "Badge"
 	badge.AnchorPoint = Vector2.new(0, 0.5)
-	badge.BackgroundColor3 = p.badge
+	badge.BackgroundColor3 = if secret then p.secretBadge else p.badge
 	badge.BorderSizePixel = 0
-	badge.Position = UDim2.new(0, p.pad, 0.5, 0)
+	badge.Position = UDim2.fromOffset(p.pad, words / 2)
 	badge.Size = UDim2.fromOffset(p.badgeSize, p.badgeSize)
 	badge.ZIndex = 3
 	round(badge, UDim.new(0.5, 0))
@@ -244,8 +451,8 @@ local function build(gui: ScreenGui, plan: Plan): (CanvasGroup, UIGradient?)
 	rim.Color = p.outline
 	rim.Thickness = 3
 	rim.Parent = badge
-	if plan.kind == "party" then
-		local times = label(badge, "Times", "x2", 30, p.badgeText)
+	if plan.kind == "party" or secret then
+		local times = label(badge, "Times", if secret then "?" else "x2", 30, p.badgeText)
 		times.Size = UDim2.fromScale(0.7, 0.7)
 		times.Position = UDim2.fromScale(0.15, 0.15)
 		times.TextXAlignment = Enum.TextXAlignment.Center
@@ -316,21 +523,21 @@ local function build(gui: ScreenGui, plan: Plan): (CanvasGroup, UIGradient?)
 end
 
 -- Confetti round the card: `count` sparkles in the preset's colours, spread along its top and bottom edges.
-local function confetti(gui: ScreenGui, card: GuiObject, count: number)
+local function confetti(gui: ScreenGui, card: GuiObject, count: number, colours: { Color3 })
 	local p = Presets.eventBanner
 	local corner = ScreenFx.toGui(gui, card.AbsolutePosition)
 	local size = card.AbsoluteSize
 	local byColour: { { Vector2 } } = {}
-	for i = 1, #p.confettiColours do
+	for i = 1, #colours do
 		byColour[i] = {}
 	end
 	for i = 1, count do
 		local x = corner.X + size.X * (i - 0.5) / count
 		local y = corner.Y + (if i % 2 == 0 then 0 else size.Y)
-		table.insert(byColour[(i - 1) % #p.confettiColours + 1], Vector2.new(x, y))
+		table.insert(byColour[(i - 1) % #colours + 1], Vector2.new(x, y))
 	end
 	for i, spots in byColour do
-		ScreenFx.sparkle(gui, spots, p.confettiColours[i], {
+		ScreenFx.sparkle(gui, spots, colours[i], {
 			size = p.confettiSize,
 			seconds = p.confettiSeconds,
 			reach = p.confettiReach,
@@ -417,14 +624,34 @@ local function run(plan: Plan)
 	local p = Presets.eventBanner
 	local still = Context.reducedMotion()
 	local card, band = build(gui, plan)
+	local fading: { GuiObject } = {}
+	local over: Frame? = if plan.kind == "secrets"
+		then shapes(gui, card, fading, plan.cats)
+		else nil
+	-- the shapes fade with the card (Reduce Motion); `seen` is 1 hidden, 0 solid
+	local function fadeShapes(seen: number)
+		for _, object in fading do
+			if object:IsA("ViewportFrame") then
+				(object :: ViewportFrame).ImageTransparency = seen
+			elseif object:IsA("TextLabel") then
+				(object :: TextLabel).TextTransparency = seen
+			else
+				object.BackgroundTransparency = seen
+			end
+		end
+	end
 	local rest = card.Position
 	local travel = rest.Y.Offset + card.Size.Y.Offset + 12 -- from fully off the top of the screen
 	local sparkles, fish = EventBanner.counts(plan.kind, Context.lowPerformance, still)
 	local popped = false
 	if still then
 		card.GroupTransparency = 1
+		fadeShapes(1)
 	else
 		card.Position = rest - UDim2.fromOffset(0, travel)
+	end
+	if over ~= nil then
+		over.Position = card.Position
 	end
 	for _, listener in listeners do
 		task.spawn(listener, plan.kind)
@@ -449,15 +676,23 @@ local function run(plan: Plan)
 				loop:Disconnect()
 			end
 			card:Destroy()
+			if over ~= nil then
+				over:Destroy()
+			end
 			showing = nil
 			advance()
 			return
 		end
 		if still then
-			card.GroupTransparency = EventBanner.fade(t, hold)
+			local seen = EventBanner.fade(t, hold)
+			card.GroupTransparency = seen
+			fadeShapes(seen)
 			return
 		end
 		card.Position = rest - UDim2.fromOffset(0, EventBanner.lift(t, hold, travel))
+		if over ~= nil then
+			over.Position = card.Position
+		end
 		if band ~= nil then
 			local k = (t - p.dropSeconds) / p.shineSeconds
 			band.Offset = Vector2.new(-1 + 2 * math.clamp(k, 0, 1), 0)
@@ -465,7 +700,12 @@ local function run(plan: Plan)
 		if not popped and t >= p.dropSeconds then
 			popped = true
 			if sparkles > 0 then
-				confetti(gui, card, sparkles)
+				confetti(
+					gui,
+					card,
+					sparkles,
+					if plan.kind == "secrets" then p.secretColours else p.confettiColours
+				)
 			end
 			if fish > 0 then
 				fishHop(gui, card, fish)

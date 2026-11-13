@@ -8,6 +8,8 @@
 --   away(distance) -> boolean        farther than AWAY_STUDS from the cafe; nil (no character yet) is not away
 --   holds(step, away, hint) -> boolean  the call waits: the player is away and the tutorial is under way or its
 --                                    last cannon line (`hint`) is still up
+--   yields(window, perkCard) -> boolean  #3620: a window or the "Unlocked!" perk card is up, so the call waits to
+--                                    show and, once shown, steps aside until they close
 --   show(kind, away) -> (how?, text) "card" or "toast" and the line; nil for the Collector at the cafe, whom the
 --                                    server already toasts ("The Cat Collector is at your cafe! ...")
 
@@ -48,6 +50,15 @@ function FirstVisitLogic.holds(step: unknown, away: boolean, hint: boolean?): bo
 		return false
 	end
 	return hint == true or (type(step) == "number" and step < FirstVisitLogic.TUTORIAL_DONE)
+end
+
+-- #3620 (Review-QA's Studio round 3, 2026-11-12): the card opened beside the "Unlocked! Mystic Pool" perk card, and
+-- the Daily Treat window opened over it and left it half hidden. One rule, as the perk card's own (#3585): never
+-- with a window or the perk card. `window` is the open window's name (nil with none).
+FirstVisitLogic.YIELD_STEP = 0.25 -- seconds between looks by a shown card for a window that opened after it
+
+function FirstVisitLogic.yields(window: string?, perkCard: boolean?): boolean
+	return window ~= nil or perkCard == true
 end
 
 function FirstVisitLogic.show(kind: string, away: boolean): (string?, string)

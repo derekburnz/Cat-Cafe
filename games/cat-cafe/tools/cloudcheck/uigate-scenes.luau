@@ -3422,6 +3422,29 @@ local SCENES = {
 		assert(not ask:FindFirstChild("Holder", true).Visible, "uigate: the card stays after the visit ended (#2792)")
 		UI.firstVisit.changed("collector", away)
 	end },
+	-- #3620 (Review-QA's Studio round 3: the Daily Treat window opened over the rich customer's card and left it half
+	-- hidden): the card waits while a window is up, steps aside when one opens over it and comes back when it closes
+	{ "FirstVisitYields", function()
+		local function away()
+			return true
+		end
+		UI.firstVisit.changed(nil, away)
+		UI.open("DailyTreat")
+		UI.firstVisit.changed("rich", away)
+		task.wait(0.3)
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local holder = ask and ask:FindFirstChild("Holder", true)
+		assert(holder and not UI.firstVisit.carded, "uigate: the rich customer's card showed over a window (#3620)")
+		UI.close()
+		task.wait(1.4)
+		assert(UI.firstVisit.carded and holder.Visible, "uigate: the card did not come once the window closed (#3620)")
+		UI.open("DailyTreat")
+		task.wait(0.6)
+		assert(not UI.firstVisit.carded, "uigate: the card stayed under a window that opened over it (#3620)")
+		UI.close()
+		task.wait(1.4)
+		assert(UI.firstVisit.carded and holder.Visible, "uigate: the card did not come back after the window (#3620)")
+	end },
 	-- #2791 (Derek2: "we have gift milestones can be improved but don't make this ... take a lot of precious phone
 	-- screen space"): the gift ladder on the Rewards tile, no new slot: the tile counts down to the next step and its
 	-- list shows the next two with what they pay

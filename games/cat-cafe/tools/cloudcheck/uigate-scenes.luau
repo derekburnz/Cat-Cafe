@@ -899,6 +899,24 @@ local function assertStoreCards(featured)
 				effectBottom <= cardBottom + 0.5 and clear,
 				"uigate: Store card " .. card.Name .. "'s description runs out of the card or under its button (#1221)"
 			)
+			-- #3572: the box can sit clear of the button while its words run on past it (a wide card's one line
+			-- pushed down by its chip), so on a wide card (the rework's, its picture centred at the left) the drawn
+			-- words must end above the button too
+			local tile = card:FindFirstChild("Tile")
+			local wide = not featured and tile ~= nil and tile:IsA("GuiObject") and tile.AnchorPoint.Y == 0.5
+			local besideButton = effect.AbsolutePosition.X + effect.AbsoluteSize.X <= buy.AbsolutePosition.X + 0.5
+			if wide and effect.Visible and not besideButton then
+				local drawnBottom = effect.AbsolutePosition.Y + effect.TextBounds.Y
+				assert(
+					drawnBottom <= buy.AbsolutePosition.Y + 0.5,
+					string.format(
+						"uigate: Store card %s's words end at %.1f, under its button's top %.1f (#3572)",
+						card.Name,
+						drawnBottom,
+						buy.AbsolutePosition.Y
+					)
+				)
+			end
 		end
 		cards += 1
 	end
@@ -9894,7 +9912,15 @@ local SCENES = {
 				assert(shown and (perk :: TextLabel).Text == "+15% money", "uigate: the " .. label.Text .. " card has no +15% money chip (#2147)")
 				local chip = perk :: TextLabel
 				assert(chip.TextFits, "uigate: the +15% chip's words do not fit (#2147)")
-				assert(effect.AbsolutePosition.Y >= chip.AbsolutePosition.Y + chip.AbsoluteSize.Y, "uigate: the " .. label.Text .. " words sit on the chip (#2147)")
+				local tile = card:FindFirstChild("Tile") :: Frame
+				if tile.AnchorPoint.Y == 0.5 then
+					-- #3572: a wide card's chip sits on the foot of its picture, clear of the words
+					local chipBottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
+					assert(chip.AbsolutePosition.X + chip.AbsoluteSize.X <= effect.AbsolutePosition.X, "uigate: the " .. label.Text .. " chip runs into the words (#3572)")
+					assert(chipBottom <= card.AbsolutePosition.Y + card.AbsoluteSize.Y, "uigate: the chip runs off the card's foot (#3572)")
+				else
+					assert(effect.AbsolutePosition.Y >= chip.AbsolutePosition.Y + chip.AbsoluteSize.Y, "uigate: the " .. label.Text .. " words sit on the chip (#2147)")
+				end
 				assert(chip.AbsolutePosition.Y >= label.AbsolutePosition.Y + label.AbsoluteSize.Y - 1, "uigate: the chip sits on the name (#2147)")
 				local cardRight = card.AbsolutePosition.X + card.AbsoluteSize.X
 				assert(chip.AbsolutePosition.X + chip.AbsoluteSize.X <= cardRight, "uigate: the chip runs off the card (#2147)")
@@ -10039,6 +10065,9 @@ local SCENES = {
 		local card = modals and modals:FindFirstChild("grid:vip", true)
 		assert(card, "uigate: no VIP card on Passes (#1823)")
 		assert(card:FindFirstChildOfClass("UIScale"), "uigate: the bought VIP card did not pop (StoreMotion, #1823)")
+		-- #3572: the cards are measured once the pop has settled (the gate grows a popped card's insides but not its
+		-- own box, which would squeeze a wide card's one line for the third of a second the pop lasts)
+		task.wait(0.5)
 		assertStoreCards(false)
 	end },
 	-- #1875: the Jukebox is free, so no Jukebox Pass card shows on Passes even with a pass id set

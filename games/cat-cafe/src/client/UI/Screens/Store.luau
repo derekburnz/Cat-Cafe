@@ -159,6 +159,29 @@ local function fitText(label: TextLabel, maxSize: number)
 	end
 end
 
+-- #3572: a wide card's words, fitted; when even the smallest size runs past its one line (a phone's narrow card),
+-- they drop the worth line and stop at the line's end with "...", so nothing runs on under the price button
+local function fitEffect(entry: any)
+	local effect = entry.effect :: TextLabel
+	if not entry.wide then
+		fitText(effect, entry.effectMax)
+		return
+	end
+	if effect.AbsoluteSize.X <= 0 or effect.AbsoluteSize.Y <= 0 then
+		return -- no box yet (or a card mid-pop from nothing): keep the last fit until it has one
+	end
+	effect.Text = entry.fullText or effect.Text
+	effect.TextWrapped = true
+	effect.TextTruncate = Enum.TextTruncate.None
+	fitText(effect, entry.effectMax)
+	if effect.TextFits then
+		return
+	end
+	effect.Text = entry.shortText or effect.Text
+	effect.TextWrapped = false
+	effect.TextTruncate = Enum.TextTruncate.AtEnd
+end
+
 function Store.new(callbacks: Callbacks): Store
 	local self = setmetatable({}, Store) :: any
 	-- #2500 (Derek2: "lots of store images when first opening store take a second to load and show old default
@@ -569,7 +592,7 @@ function Store._makeCard(
 	})
 	-- a new box (the window or the page resized): fit the words again
 	effect:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-		fitText(effect, entry.effectMax)
+		fitEffect(entry)
 	end)
 	self:_place(entry)
 	self._cards[slot] = entry
@@ -596,17 +619,18 @@ function Store._place(self: any, entry: any)
 		entry.effect.Position = UDim2.fromOffset(left, top + nameH + 6 + lift)
 		entry.effect.Size = UDim2.new(1, -(left + right), 0, math.max(wordsH - nameH - 6 - lift, 0))
 	elseif entry.wide then
-		-- #3572: the picture at the left, the name, the chip and what it does beside it, the button under the words
+		-- #3572: the picture at the left, the name and what it does beside it, the button under the words. The gold
+		-- chip sits on the foot of the picture, so it never pushes the one line of words under the button
 		local left = CARD_PAD + WIDE_TILE + 10
 		entry.name.Position = UDim2.fromOffset(left, CARD_PAD)
 		entry.name.Size = UDim2.new(1, -(left + CARD_PAD), 0, WIDE_NAME_H)
 		local top = CARD_PAD + WIDE_NAME_H + 2
-		entry.perk.Position = UDim2.fromOffset(left, top)
-		local lift = if entry.perk.Visible then PERK_H + 4 else 0
-		entry.effect.Position = UDim2.fromOffset(left, top + lift)
+		entry.perk.AnchorPoint = Vector2.new(0.5, 1)
+		entry.perk.Position = UDim2.new(0, CARD_PAD + WIDE_TILE / 2, 0.5, WIDE_TILE / 2 + 4)
+		entry.effect.Position = UDim2.fromOffset(left, top)
 		local saleRoom = if entry.saleLow then SALE_ROOM else 0
 		entry.effect.Size =
-			UDim2.new(1, -(left + CARD_PAD), 1, -(top + lift + 6 + saleRoom + action + CARD_PAD))
+			UDim2.new(1, -(left + CARD_PAD), 1, -(top + 6 + saleRoom + action + CARD_PAD))
 		entry.badge.AnchorPoint = if entry.saleLow then Vector2.new(0, 1) else Vector2.new(1, 0)
 		entry.badge.Position = if entry.saleLow
 			then UDim2.new(0, left, 1, -(CARD_PAD + action + 6))
@@ -649,7 +673,9 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	-- #3572: a wide card has room for one short line, so it keeps the first line of what the item does
 	local firstLine = string.match(row.effect, "^[^\n]+") or row.effect
 	local effect = if entry.wide then firstLine else row.effect
-	entry.effect.Text = if worth then effect .. "\n" .. worth else effect
+	entry.fullText = if worth then effect .. "\n" .. worth else effect
+	entry.shortText = effect
+	entry.effect.Text = entry.fullText
 	-- #2147: the gold chip, placed before the words are fitted under it
 	local perkText = row.perk or ""
 	local perkShown = perkText ~= "" and not entry.compact
@@ -658,7 +684,7 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 		entry.perk.Visible = perkShown
 		self:_place(entry)
 	end
-	fitText(entry.effect, entry.effectMax)
+	fitEffect(entry)
 	-- the money card's rung is part of its picture (2x, 3x and 4x each have one)
 	local art = row.key .. (if row.multiplier then tostring(row.multiplier) else "")
 	if entry.key ~= art then

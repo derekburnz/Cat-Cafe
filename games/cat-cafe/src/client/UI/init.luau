@@ -5259,6 +5259,11 @@ do
 	end
 
 	ticks.tips = function(dt: number)
+		-- #3752: the catch and rescue card stays over the Tackle bar while both show
+		local card, bar = catch, tackleBar
+		if card ~= nil and card:isVisible() then
+			card:setClear(if bar ~= nil then bar:top() else nil)
+		end
 		-- an ask already up steps aside while a popup (Welcome back, a cat found) shows over the screen
 		local ask = askCard
 		if ask ~= nil and popups ~= nil then

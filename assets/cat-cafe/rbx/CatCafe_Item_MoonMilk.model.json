@@ -13,18 +13,18 @@
      "CFrame": {
       "position": [
        0.0,
-       0.04,
+       0.025,
        0.0
       ],
       "orientation": [
        [
-        1.0,
         0.0,
+        -1.0,
         0.0
        ],
        [
-        0.0,
         1.0,
+        0.0,
         0.0
        ],
        [
@@ -36,14 +36,14 @@
      }
     },
     "Size": [
-     0.6,
-     0.072,
-     0.6
+     0.05,
+     0.76,
+     0.76
     ],
     "Color": [
-     1.0,
-     1.0,
-     1.0
+     0.7882,
+     0.7216,
+     0.9098
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -52,22 +52,23 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
+    "Shape": "Cylinder",
     "PivotOffset": {
      "CFrame": {
       "position": [
+       -0.025,
        0.0,
-       -0.04,
        0.0
       ],
       "orientation": [
        [
-        1.0,
         0.0,
+        1.0,
         0.0
        ],
        [
+        -1.0,
         0.0,
-        1.0,
         0.0
        ],
        [
@@ -81,16 +82,791 @@
    },
    "attributes": {
     "Rojo_Id": "CatCafe_Item_MoonMilk/0"
-   },
-   "children": [
-    {
-     "name": "Mesh",
-     "className": "SpecialMesh",
-     "properties": {
-      "MeshType": "Sphere"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3776,
+       0.07,
+       0.0751
+      ],
+      "orientation": [
+       [
+        0.9808,
+        0.0,
+        0.1951
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.1951,
+        0.0,
+        0.9808
+       ]
+      ]
      }
-    }
-   ]
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3201,
+       0.07,
+       0.2139
+      ],
+      "orientation": [
+       [
+        0.8315,
+        0.0,
+        0.5556
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.5556,
+        0.0,
+        0.8315
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2139,
+       0.07,
+       0.3201
+      ],
+      "orientation": [
+       [
+        0.5556,
+        0.0,
+        0.8315
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.8315,
+        0.0,
+        0.5556
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0751,
+       0.07,
+       0.3776
+      ],
+      "orientation": [
+       [
+        0.1951,
+        0.0,
+        0.9808
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9808,
+        0.0,
+        0.1951
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0751,
+       0.07,
+       0.3776
+      ],
+      "orientation": [
+       [
+        -0.1951,
+        0.0,
+        0.9808
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9808,
+        0.0,
+        -0.1951
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2139,
+       0.07,
+       0.3201
+      ],
+      "orientation": [
+       [
+        -0.5556,
+        0.0,
+        0.8315
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.8315,
+        0.0,
+        -0.5556
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3201,
+       0.07,
+       0.2139
+      ],
+      "orientation": [
+       [
+        -0.8315,
+        0.0,
+        0.5556
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.5556,
+        0.0,
+        -0.8315
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3776,
+       0.07,
+       0.0751
+      ],
+      "orientation": [
+       [
+        -0.9808,
+        0.0,
+        0.1951
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.1951,
+        0.0,
+        -0.9808
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3776,
+       0.07,
+       -0.0751
+      ],
+      "orientation": [
+       [
+        -0.9808,
+        0.0,
+        -0.1951
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.1951,
+        0.0,
+        -0.9808
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3201,
+       0.07,
+       -0.2139
+      ],
+      "orientation": [
+       [
+        -0.8315,
+        0.0,
+        -0.5556
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.5556,
+        0.0,
+        -0.8315
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2139,
+       0.07,
+       -0.3201
+      ],
+      "orientation": [
+       [
+        -0.5556,
+        0.0,
+        -0.8315
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.8315,
+        0.0,
+        -0.5556
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0751,
+       0.07,
+       -0.3776
+      ],
+      "orientation": [
+       [
+        -0.1951,
+        0.0,
+        -0.9808
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.9808,
+        0.0,
+        -0.1951
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0751,
+       0.07,
+       -0.3776
+      ],
+      "orientation": [
+       [
+        0.1951,
+        0.0,
+        -0.9808
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.9808,
+        0.0,
+        0.1951
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2139,
+       0.07,
+       -0.3201
+      ],
+      "orientation": [
+       [
+        0.5556,
+        0.0,
+        -0.8315
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.8315,
+        0.0,
+        0.5556
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3201,
+       0.07,
+       -0.2139
+      ],
+      "orientation": [
+       [
+        0.8315,
+        0.0,
+        -0.5556
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.5556,
+        0.0,
+        0.8315
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3776,
+       0.07,
+       -0.0751
+      ],
+      "orientation": [
+       [
+        0.9808,
+        0.0,
+        -0.1951
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.1951,
+        0.0,
+        0.9808
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.04,
+     0.1728
+    ],
+    "Color": [
+     0.5804,
+     0.4745,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
   },
   {
    "name": "CatCafe_Item_MoonMilk",
@@ -100,7 +876,7 @@
      "CFrame": {
       "position": [
        0.0,
-       0.02,
+       0.06,
        0.0
       ],
       "orientation": [
@@ -124,8 +900,8 @@
     },
     "Size": [
      0.04,
-     0.72,
-     0.72
+     0.7,
+     0.7
     ],
     "Color": [
      1.0,
@@ -149,8 +925,1260 @@
     "CFrame": {
      "CFrame": {
       "position": [
+       -0.1763,
+       0.095,
+       0.0472
+      ],
+      "orientation": [
+       [
+        0.9659,
+        0.0,
+        0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2588,
+        0.0,
+        0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.035,
+     0.03,
+     0.1118
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.129,
+       0.095,
+       0.129
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.035,
+     0.03,
+     0.1118
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0472,
+       0.095,
+       0.1763
+      ],
+      "orientation": [
+       [
+        0.2588,
+        0.0,
+        0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9659,
+        0.0,
+        0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.035,
+     0.03,
+     0.1118
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0472,
+       0.095,
+       0.1763
+      ],
+      "orientation": [
+       [
+        -0.2588,
+        0.0,
+        0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9659,
+        0.0,
+        -0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.035,
+     0.03,
+     0.1118
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.129,
+       0.095,
+       0.129
+      ],
+      "orientation": [
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.035,
+     0.03,
+     0.1118
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1763,
+       0.095,
+       0.0472
+      ],
+      "orientation": [
+       [
+        -0.9659,
+        0.0,
+        0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2588,
+        0.0,
+        -0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.035,
+     0.03,
+     0.1118
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1763,
+       0.095,
+       -0.0472
+      ],
+      "orientation": [
+       [
+        -0.9659,
+        0.0,
+        -0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2588,
+        0.0,
+        -0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.035,
+     0.03,
+     0.1118
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.129,
+       0.095,
+       -0.129
+      ],
+      "orientation": [
+       [
+        -0.7071,
+        0.0,
+        -0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.7071,
+        0.0,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.035,
+     0.03,
+     0.1118
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0472,
+       0.095,
+       -0.1763
+      ],
+      "orientation": [
+       [
+        -0.2588,
+        0.0,
+        -0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.9659,
+        0.0,
+        -0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.035,
+     0.03,
+     0.1118
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0472,
+       0.095,
+       -0.1763
+      ],
+      "orientation": [
+       [
+        0.2588,
+        0.0,
+        -0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.9659,
+        0.0,
+        0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.035,
+     0.03,
+     0.1118
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.129,
+       0.095,
+       -0.129
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        -0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.035,
+     0.03,
+     0.1118
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1763,
+       0.095,
+       -0.0472
+      ],
+      "orientation": [
+       [
+        0.9659,
+        0.0,
+        -0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2588,
+        0.0,
+        0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.035,
+     0.03,
+     0.1118
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1208,
+       0.096,
+       0.0463
+      ],
+      "orientation": [
+       [
+        0.9511,
+        0.0,
+        0.309
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.309,
+        0.0,
+        0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.028,
+     0.0667
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.09,
+       0.096,
+       0.0888
+      ],
+      "orientation": [
+       [
+        0.5878,
+        0.0,
+        0.809
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.809,
+        0.0,
+        0.5878
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.028,
+     0.0667
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.04,
+       0.096,
+       0.105
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.028,
+     0.0667
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.01,
+       0.096,
+       0.0888
+      ],
+      "orientation": [
+       [
+        -0.5878,
+        0.0,
+        0.809
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.809,
+        0.0,
+        -0.5878
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.028,
+     0.0667
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0408,
+       0.096,
+       0.0463
+      ],
+      "orientation": [
+       [
+        -0.9511,
+        0.0,
+        0.309
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.309,
+        0.0,
+        -0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.028,
+     0.0667
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0408,
+       0.096,
+       -0.0063
+      ],
+      "orientation": [
+       [
+        -0.9511,
+        0.0,
+        -0.309
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.309,
+        0.0,
+        -0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.028,
+     0.0667
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.01,
+       0.096,
+       -0.0488
+      ],
+      "orientation": [
+       [
+        -0.5878,
+        0.0,
+        -0.809
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.809,
+        0.0,
+        -0.5878
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.028,
+     0.0667
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.04,
+       0.096,
+       -0.065
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.028,
+     0.0667
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.09,
+       0.096,
+       -0.0488
+      ],
+      "orientation": [
+       [
+        0.5878,
+        0.0,
+        -0.809
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.809,
+        0.0,
+        0.5878
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.028,
+     0.0667
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1208,
+       0.096,
+       -0.0063
+      ],
+      "orientation": [
+       [
+        0.9511,
+        0.0,
+        -0.309
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.309,
+        0.0,
+        0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.028,
+     0.0667
+    ],
+    "Color": [
+     0.9569,
+     0.9333,
+     0.9647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.22,
+       0.085,
+       -0.12
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.03,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2,
+       0.085,
+       0.16
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.03,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.12,
+       0.085,
+       0.22
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.03,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
        -0.0621,
-       0.5782,
+       0.6582,
        0.0
       ],
       "orientation": [
@@ -199,7 +2227,7 @@
      "CFrame": {
       "position": [
        0.046,
-       0.5836,
+       0.6636,
        0.0
       ],
       "orientation": [
@@ -248,7 +2276,7 @@
      "CFrame": {
       "position": [
        0.1355,
-       0.5226,
+       0.6026,
        0.0
       ],
       "orientation": [
@@ -297,7 +2325,7 @@
      "CFrame": {
       "position": [
        0.17,
-       0.42,
+       0.5,
        0.0
       ],
       "orientation": [
@@ -346,7 +2374,7 @@
      "CFrame": {
       "position": [
        0.1355,
-       0.3174,
+       0.3974,
        0.0
       ],
       "orientation": [
@@ -395,7 +2423,7 @@
      "CFrame": {
       "position": [
        0.046,
-       0.2564,
+       0.3364,
        0.0
       ],
       "orientation": [
@@ -444,7 +2472,7 @@
      "CFrame": {
       "position": [
        -0.0621,
-       0.2618,
+       0.3418,
        0.0
       ],
       "orientation": [
@@ -493,7 +2521,7 @@
      "CFrame": {
       "position": [
        0.0,
-       0.2,
+       0.24,
        0.0
       ],
       "orientation": [
@@ -516,14 +2544,14 @@
      }
     },
     "Size": [
-     0.14,
-     0.04,
-     0.04
+     0.2,
+     0.036,
+     0.036
     ],
     "Color": [
-     1.0,
-     0.9569,
-     0.6902
+     0.9647,
+     0.8745,
+     0.6275
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -542,9 +2570,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.2065,
-       0.385,
-       -0.05
+       0.2254,
+       0.415,
+       -0.02
       ],
       "orientation": [
        [
@@ -568,7 +2596,7 @@
     "Size": [
      0.03,
      0.07,
-     0.027
+     0.0291
     ],
     "Color": [
      1.0,
@@ -591,9 +2619,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.2335,
-       0.385,
-       -0.05
+       0.2546,
+       0.415,
+       -0.02
       ],
       "orientation": [
        [
@@ -617,7 +2645,7 @@
     "Size": [
      0.0296,
      0.07,
-     0.027
+     0.0291
     ],
     "Color": [
      1.0,
@@ -640,9 +2668,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.2491,
-       0.3737,
-       -0.05
+       0.2688,
+       0.4047,
+       -0.02
       ],
       "orientation": [
        [
@@ -666,7 +2694,7 @@
     "Size": [
      0.0291,
      0.07,
-     0.027
+     0.0291
     ],
     "Color": [
      1.0,
@@ -689,9 +2717,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.2575,
-       0.348,
-       -0.05
+       0.2778,
+       0.377,
+       -0.02
       ],
       "orientation": [
        [
@@ -715,7 +2743,7 @@
     "Size": [
      0.0287,
      0.07,
-     0.027
+     0.0291
     ],
     "Color": [
      1.0,
@@ -738,9 +2766,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.2515,
-       0.3296,
-       -0.05
+       0.2723,
+       0.3602,
+       -0.02
       ],
       "orientation": [
        [
@@ -764,7 +2792,7 @@
     "Size": [
      0.0282,
      0.07,
-     0.027
+     0.0291
     ],
     "Color": [
      1.0,
@@ -787,9 +2815,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.2297,
-       0.3138,
-       -0.05
+       0.2488,
+       0.3431,
+       -0.02
       ],
       "orientation": [
        [
@@ -813,7 +2841,7 @@
     "Size": [
      0.0278,
      0.07,
-     0.027
+     0.0291
     ],
     "Color": [
      1.0,
@@ -836,9 +2864,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.2103,
-       0.3138,
-       -0.05
+       0.2312,
+       0.3431,
+       -0.02
       ],
       "orientation": [
        [
@@ -862,7 +2890,7 @@
     "Size": [
      0.0273,
      0.07,
-     0.027
+     0.0291
     ],
     "Color": [
      1.0,
@@ -885,9 +2913,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.1885,
-       0.3296,
-       -0.05
+       0.2077,
+       0.3602,
+       -0.02
       ],
       "orientation": [
        [
@@ -911,7 +2939,7 @@
     "Size": [
      0.0269,
      0.07,
-     0.027
+     0.0291
     ],
     "Color": [
      1.0,
@@ -934,9 +2962,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.1825,
-       0.348,
-       -0.05
+       0.2022,
+       0.377,
+       -0.02
       ],
       "orientation": [
        [
@@ -960,7 +2988,7 @@
     "Size": [
      0.0264,
      0.07,
-     0.027
+     0.0291
     ],
     "Color": [
      1.0,
@@ -983,9 +3011,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.1909,
-       0.3737,
-       -0.05
+       0.2112,
+       0.4047,
+       -0.02
       ],
       "orientation": [
        [
@@ -1009,7 +3037,7 @@
     "Size": [
      0.026,
      0.07,
-     0.027
+     0.0291
     ],
     "Color": [
      1.0,
@@ -1032,9 +3060,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.2511,
-       0.51,
-       0.02
+       -0.2625,
+       0.59,
+       -0.02
       ],
       "orientation": [
        [
@@ -1058,7 +3086,7 @@
     "Size": [
      0.03,
      0.06,
-     0.0222
+     0.025
     ],
     "Color": [
      1.0,
@@ -1081,9 +3109,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.2289,
-       0.51,
-       0.02
+       -0.2375,
+       0.59,
+       -0.02
       ],
       "orientation": [
        [
@@ -1107,7 +3135,7 @@
     "Size": [
      0.0296,
      0.06,
-     0.0222
+     0.025
     ],
     "Color": [
      1.0,
@@ -1130,9 +3158,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.2149,
-       0.4998,
-       0.02
+       -0.2253,
+       0.5811,
+       -0.02
       ],
       "orientation": [
        [
@@ -1156,7 +3184,7 @@
     "Size": [
      0.0291,
      0.06,
-     0.0222
+     0.025
     ],
     "Color": [
      1.0,
@@ -1179,9 +3207,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.208,
-       0.4787,
-       0.02
+       -0.2176,
+       0.5574,
+       -0.02
       ],
       "orientation": [
        [
@@ -1205,7 +3233,7 @@
     "Size": [
      0.0287,
      0.06,
-     0.0222
+     0.025
     ],
     "Color": [
      1.0,
@@ -1228,9 +3256,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.2134,
-       0.4622,
-       0.02
+       -0.2223,
+       0.5431,
+       -0.02
       ],
       "orientation": [
        [
@@ -1254,7 +3282,7 @@
     "Size": [
      0.0282,
      0.06,
-     0.0222
+     0.025
     ],
     "Color": [
      1.0,
@@ -1277,9 +3305,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.2313,
-       0.4492,
-       0.02
+       -0.2425,
+       0.5284,
+       -0.02
       ],
       "orientation": [
        [
@@ -1303,7 +3331,7 @@
     "Size": [
      0.0278,
      0.06,
-     0.0222
+     0.025
     ],
     "Color": [
      1.0,
@@ -1326,9 +3354,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.2487,
-       0.4492,
-       0.02
+       -0.2575,
+       0.5284,
+       -0.02
       ],
       "orientation": [
        [
@@ -1352,7 +3380,7 @@
     "Size": [
      0.0273,
      0.06,
-     0.0222
+     0.025
     ],
     "Color": [
      1.0,
@@ -1375,9 +3403,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.2666,
-       0.4622,
-       0.02
+       -0.2777,
+       0.5431,
+       -0.02
       ],
       "orientation": [
        [
@@ -1401,7 +3429,7 @@
     "Size": [
      0.0269,
      0.06,
-     0.0222
+     0.025
     ],
     "Color": [
      1.0,
@@ -1424,9 +3452,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.272,
-       0.4787,
-       0.02
+       -0.2824,
+       0.5574,
+       -0.02
       ],
       "orientation": [
        [
@@ -1450,7 +3478,7 @@
     "Size": [
      0.0264,
      0.06,
-     0.0222
+     0.025
     ],
     "Color": [
      1.0,
@@ -1473,9 +3501,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.2651,
-       0.4998,
-       0.02
+       -0.2747,
+       0.5811,
+       -0.02
       ],
       "orientation": [
        [
@@ -1499,7 +3527,497 @@
     "Size": [
      0.026,
      0.06,
-     0.0222
+     0.025
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1294,
+       0.3225,
+       -0.02
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.045,
+     0.0187
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1106,
+       0.3225,
+       -0.02
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0296,
+     0.045,
+     0.0187
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1015,
+       0.3159,
+       -0.02
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0291,
+     0.045,
+     0.0187
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0957,
+       0.2981,
+       -0.02
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.9511,
+        -0.309
+       ],
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0287,
+     0.045,
+     0.0187
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0992,
+       0.2873,
+       -0.02
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0282,
+     0.045,
+     0.0187
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1143,
+       0.2763,
+       -0.02
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0278,
+     0.045,
+     0.0187
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1257,
+       0.2763,
+       -0.02
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0273,
+     0.045,
+     0.0187
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1408,
+       0.2873,
+       -0.02
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0269,
+     0.045,
+     0.0187
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1443,
+       0.2981,
+       -0.02
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0264,
+     0.045,
+     0.0187
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Item_MoonMilk",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1385,
+       0.3159,
+       -0.02
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9511,
+        -0.309
+       ],
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.026,
+     0.045,
+     0.0187
     ],
     "Color": [
      1.0,

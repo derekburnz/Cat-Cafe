@@ -3957,6 +3957,20 @@ local SCENES = {
 		UI.bait.setSecond("on")
 		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now - 5, placedAt = now - 300 }, 2)
 		UI.bait.showReady({ catId = Catalog.cats[2].id, stars = 2 }, 2)
+		-- #3976 (Review-QA on a 667x375 phone): the banner's words end before the X and the outline drawn round it
+		local Button = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.Button")
+		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeBaitCard")
+		local banner = gui:FindFirstChild("Banner", true) :: TextLabel
+		local close = gui:FindFirstChild("Close", true) :: GuiObject
+		local pad = banner:FindFirstChildOfClass("UIPadding") :: UIPadding
+		local k = Scale.get()
+		local wordsRight = banner.AbsolutePosition.X + banner.AbsoluteSize.X - pad.PaddingRight.Offset * k
+		local xLeft = close.AbsolutePosition.X - (Button.OUTLINE + 1) * k
+		assert(
+			wordsRight <= xLeft,
+			("uigate: the bait card's title runs to %d, under the X at %d (#3976)"):format(wordsRight, xLeft)
+		)
 	end },
 	-- #2530 (Derek2: "remove pop ups for cats caught progress towards goal just adds more clutter"): the Tame card has
 	-- no "Park N / M" area count any more (#1919)

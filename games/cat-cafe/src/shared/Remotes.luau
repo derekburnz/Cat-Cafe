@@ -408,8 +408,8 @@ Remotes.ServerToClient = {
 	-- switch going off before it started)
 	"MouseDashState", -- (state: MouseDash.State)  #3296: this player's best, today's milestones (the arcade's), the
 	-- titles, the free run and the board, once both saves are read and after every game
-	"MouseDashBegan", -- (run: number, hearts: number, firstAt: number)  #3296: a game started; the first wave comes
-	-- at server time `firstAt`
+	"MouseDashBegan", -- (run: number, hearts: number, firstAt: number, endsAt: number?)  #3296: a game started; the
+	-- first wave comes at server time `firstAt` and the run's clock runs out at `endsAt` (nil from an older server)
 	"MouseDashWave", -- (run: number, index: number, pops: { { hole: number, kind: string, upAt: number, downAt: number
 	-- } }, hint: string?)  #3296: the wave that is up now, sent only as it starts; `hint` with a player's first kitten
 	"MouseDashJudged", -- (run: number, index: number, tap: MouseDash.Tap, points: number, hearts: number, streak:

@@ -425,6 +425,10 @@ function Logic.rummageCue(rowId: any): string
 	return "giftClaim"
 end
 
+-- #3690: a bounce on the Neighborhood's trampoline (Effects/Trampoline.onBounce): the net's springy bounce, until
+-- the trampoline has a boing of its own.
+Logic.TRAMPOLINE_CUE = "netBounce"
+
 -- #3608: the Rummage Bin's prize roll (Effects/BinRoll.onBeat). A soft tick as each row lights and the reel's
 -- stop as it lands, both existing cues. The win keeps its own cue by row (Logic.rummageCue on Moments.RummageWin),
 -- so the "win" beat plays nothing here and no win is heard twice. Nil for any other beat.
@@ -514,13 +518,14 @@ function Logic.mouseMissCue(kind: any): string?
 	return nil
 end
 
--- #3296: a run's end. `reason` is "hearts" (out of hearts), "win" (the top score) or "quit". A win or a new best
--- plays the fanfare (a run closed on a new best too, since the window throws its confetti then), any other run
--- that ran out of hearts with points the arcade's "nice try"; any other quit is silent.
+-- #3296: a run's end. `reason` is "hearts" (out of hearts), "time" (the run clock ran out, #3553), "win" (the top
+-- score) or "quit". A win or a new best plays the fanfare (a run closed on a new best too, since the window throws
+-- its confetti then), any other run that ran out of hearts or time with points the arcade's "nice try"; any other
+-- quit is silent.
 function Logic.mouseEndCue(points: any, reason: any, newBest: any): string?
 	if reason == "win" or newBest == true then
 		return "mouseBest"
-	elseif reason == "hearts" and type(points) == "number" and points > 0 then
+	elseif (reason == "hearts" or reason == "time") and type(points) == "number" and points > 0 then
 		return "arcadeEnd"
 	end
 	return nil

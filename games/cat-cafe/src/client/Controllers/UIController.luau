@@ -1151,6 +1151,8 @@ local function applyState(s: Types.PlayerState)
 		jukeboxShuffle = if shuffleCues ~= nil then (Jukebox :: any).SHUFFLE else nil, -- #2077
 		passBoosts = s.passBoosts, -- #1624: the store passes in the money card's Boosts list
 		tradeLog = s.tradeLog, -- F102: the Trades page
+		-- #3686: sent since #1714 but never copied, so "Codes you've used" stayed empty in the live game
+		codesRedeemed = s.codesRedeemed,
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.
@@ -2808,9 +2810,9 @@ local function wireServerEvents()
 	Net.on("MouseDashState", function(view: any)
 		UI.mouseDash.state(view)
 	end)
-	Net.on("MouseDashBegan", function(run: number, hearts: number, firstAt: number)
+	Net.on("MouseDashBegan", function(run: number, hearts: number, firstAt: number, endsAt: any)
 		arcadeMoment("MouseDashStart")
-		UI.mouseDash.began(run, hearts, firstAt)
+		UI.mouseDash.began(run, hearts, firstAt, if type(endsAt) == "number" then endsAt else nil)
 	end)
 	Net.on("MouseDashWave", function(run: number, index: number, pops: any, hint: string?)
 		if type(pops) == "table" then

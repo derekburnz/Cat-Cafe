@@ -36,10 +36,11 @@ function CoatWords.find(text: string): (number?, number?, string?)
 	return first, last, kind
 end
 
--- `word` in its colours, as rich text.
+-- `word` in its colours, as rich text, and bold: a Gold cat's line is often gold itself (a Legendary's chat line
+-- is #FFC94D), so the weight is what sets the word apart there.
 function CoatWords.paint(word: string, kind: string): string
 	if kind == "gold" then
-		return string.format('<font color="%s">%s</font>', CoatWords.GOLD, word)
+		return string.format('<b><font color="%s">%s</font></b>', CoatWords.GOLD, word)
 	end
 	local out = table.create(#word)
 	for index = 1, #word do
@@ -47,7 +48,7 @@ function CoatWords.paint(word: string, kind: string): string
 		out[index] =
 			string.format('<font color="%s">%s</font>', color, string.sub(word, index, index))
 	end
-	return table.concat(out)
+	return "<b>" .. table.concat(out) .. "</b>"
 end
 
 -- `text` safe inside rich text: the five characters rich text reads are escaped (as GlobalCatch.escape).

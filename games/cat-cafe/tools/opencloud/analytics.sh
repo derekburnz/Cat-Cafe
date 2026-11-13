@@ -756,6 +756,8 @@ fieldEvents=(
 	"arcade_run|CustomField1|CustomEventCount|Cat Arcade: games by circles hit (#3378)"
 	"arcade_run|CustomField2|CustomEventCount|Cat Arcade: games by prizes paid (#3378)"
 	"upgrade_bought|CustomField2,CustomField3|CustomEventCountUser|Players buying each upgrade level (Swift Paws 5 levels, #3332)"
+	"badge_awarded|CustomField1|CustomEventCountUser|Badges: players awarded each badge (#3617)"
+	"badge_awarded|CustomField1,CustomField2|CustomEventCountUser|Badges: players by badge, earned live or caught up on join (#3617)"
 	"arcade_quit|CustomField1|CustomEventCount|Cat Arcade: games left early, free or paid (#3378)"
 	"arcade_quit|CustomField1|CustomEventAvgValue|Cat Arcade: average circles hit before leaving early (#3378)"
 	"arcade_blocked|CustomField1|CustomEventCount|Cat Arcade: Start refused, by reason (closed, loading, running, busy, no_fish) (#3378)"

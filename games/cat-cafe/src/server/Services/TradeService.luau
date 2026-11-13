@@ -61,6 +61,7 @@ local Telemetry = require(script.Parent.Telemetry)
 local Trade = require(ReplicatedStorage.Shared.Trade)
 local TradeBook = require(script.Parent.Parent.Util.TradeBook)
 local TradeVault = require(script.Parent.TradeVault)
+local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 type Profile = Types.PlayerProfile
@@ -196,6 +197,7 @@ local function tilesFor(
 			charm = CatStats.charm(instance),
 			rateForMe = rate,
 			earnsNow = earnsNow,
+			trait = Traits.sanitize(instance.trait),
 		}
 		return shown
 	end

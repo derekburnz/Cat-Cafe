@@ -398,6 +398,7 @@ local stuckGoal = {
 	rescuing = false,
 	on = false,
 	target = nil :: Instance?,
+	aside = false, -- near the trap: the marker and trail are put away so the cat's own call shows (StuckGoal.aside)
 }
 
 local function stuckGoalActive(s: Types.PlayerState): boolean
@@ -664,12 +665,16 @@ local function refreshTutorial(s: Types.PlayerState)
 				stuckGoal.arrived = true
 				stuckGoal.shownAt = os.clock()
 			end
-			showTutorial(
-				s,
-				if where == "cat" then StuckGoal.LINE else StuckGoal.TOWN_LINE,
-				target,
-				if where == "cat" then StuckGoal.LABEL else "Cannon"
-			)
+			if where == "cat" and stuckGoal.aside then
+				UI.tutorial.hide()
+			else
+				showTutorial(
+					s,
+					if where == "cat" then StuckGoal.LINE else StuckGoal.TOWN_LINE,
+					target,
+					if where == "cat" then StuckGoal.LABEL else "Cannon"
+				)
+			end
 		end
 		stuckGoal.target = target
 	elseif newKindTrail(s) then
@@ -3223,7 +3228,19 @@ function UIController.start()
 			elseif on and where == "cannon" then
 				target = townCannon()
 			end
-			if target ~= stuckGoal.target then
+			local distance: number? = nil
+			if on and where == "cat" and target ~= nil and target:IsA("BasePart") then
+				local character = Players.LocalPlayer.Character
+				local root = if character ~= nil
+					then character:FindFirstChild("HumanoidRootPart")
+					else nil
+				if root ~= nil and root:IsA("BasePart") then
+					distance = ((target :: any).Position - root.Position).Magnitude
+				end
+			end
+			local aside = StuckGoal.aside(distance, stuckGoal.aside)
+			if target ~= stuckGoal.target or aside ~= stuckGoal.aside then
+				stuckGoal.aside = aside
 				refreshTutorial(current)
 			end
 			if on ~= stuckGoal.on then

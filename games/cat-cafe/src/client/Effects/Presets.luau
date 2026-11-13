@@ -2862,6 +2862,8 @@ Presets.mouseDash = {
 		sparkles = 6,
 		rings = 1,
 	},
+	-- MouseDashFx.prize: the next prize banner as a run passes a prize; the banner pops its own scale
+	prize = { colour = Presets.palette.golden, sparkles = 6, rings = 1 },
 	best = {
 		colour = Presets.palette.golden,
 		confetti = { Presets.palette.golden, Presets.palette.mint, Presets.palette.nosePink },

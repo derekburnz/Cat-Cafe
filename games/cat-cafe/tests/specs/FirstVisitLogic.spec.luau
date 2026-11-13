@@ -45,6 +45,12 @@ return function()
 				expect(FirstVisitLogic.holds(5, true, false)).to.equal(false)
 				expect(FirstVisitLogic.holds(5, false, true)).to.equal(false)
 				expect(FirstVisitLogic.holds(nil, true, true)).to.equal(true)
+				-- #3891: below Tier 2 every call waits, at the cafe too; from Tier 2 the old rules
+				expect(FirstVisitLogic.holds(5, false, false, 1)).to.equal(true)
+				expect(FirstVisitLogic.holds(5, true, false, 1)).to.equal(true)
+				expect(FirstVisitLogic.holds(5, false, false, 2)).to.equal(false)
+				expect(FirstVisitLogic.holds(5, true, false, 3)).to.equal(false)
+				expect(FirstVisitLogic.holds(4, true, false, 2)).to.equal(true)
 				-- #3620: a window or the "Unlocked!" perk card holds the call and makes a shown card step aside
 				expect(FirstVisitLogic.yields(nil, false)).to.equal(false)
 				expect(FirstVisitLogic.yields(nil, nil)).to.equal(false)

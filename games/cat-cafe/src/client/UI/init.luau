@@ -455,10 +455,12 @@ function applyTutorial()
 	if hint ~= nil then
 		text, target, label = hint, cannonPart, "Cannon"
 	end
-	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides
+	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides. #3893
+	-- (Derek 2026-11-13: "still show the tips all the way up to going to park"): and only once the Park is reached
 	if
 		not tutorialButtonOn
 		and (state.tutorialStep or math.huge) >= CannonLogic.WALKTHROUGH_STEP
+		and UI.parkTrail.reached
 	then
 		text, target = nil, nil
 	end
@@ -903,7 +905,8 @@ function UI.init(config: Types.InitConfig)
 			end
 			UI.toast(
 				if (state.tutorialStep or math.huge) < CannonLogic.WALKTHROUGH_STEP
-					then "Tips hidden. Your first walk-through still shows. Turn tips on in Settings."
+						or not UI.parkTrail.reached
+					then "Tips hidden. Your first steps up to the Park still show. Turn tips on in Settings."
 					else "Tutorial and tips hidden. Turn them on in Settings.",
 				"info"
 			)
@@ -3468,7 +3471,18 @@ UI.parkTrail = {
 	target = nil :: BasePart?,
 	goal = nil :: string?,
 	tutorial = false, -- a tutorial target has the trail
+	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
 }
+
+-- #3893: ParkTrailController says when the first steps are done, up to the Park; the tutorial X's hold on the
+-- strip lets go then
+function UI.parkTrail.reach(reached: boolean)
+	if UI.parkTrail.reached == reached then
+		return
+	end
+	UI.parkTrail.reached = reached
+	applyTutorial()
+end
 
 function UI.parkTrail.apply(tutorialTarget: any)
 	local trail = tutorialTrail
@@ -6023,7 +6037,12 @@ do
 			return -- #4005: the first visit calls wait for Tier 2 (Design-Agent, folding #3891's hold in)
 		end
 		if
-			FirstVisitLogic.holds(if now ~= nil then now.tutorialStep else nil, away(), wrapHint)
+			FirstVisitLogic.holds(
+				if now ~= nil then now.tutorialStep else nil,
+				away(),
+				wrapHint,
+				if now ~= nil then now.tier else nil
+			)
 		then
 			task.delay(1, present, token, away) -- not over a tutorial card; it comes once the tutorial is done
 			return

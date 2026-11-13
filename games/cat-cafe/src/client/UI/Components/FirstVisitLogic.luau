@@ -6,8 +6,8 @@
 -- window. Pure, so the cloud specs check it.
 --   kind(raw) -> string?             "rich", "mystery" or "collector" from the attribute, else nil
 --   away(distance) -> boolean        farther than AWAY_STUDS from the cafe; nil (no character yet) is not away
---   holds(step, away, hint) -> boolean  the call waits: the player is away and the tutorial is under way or its
---                                    last cannon line (`hint`) is still up
+--   holds(step, away, hint, tier) -> boolean  the call waits: below Tier 2 (#3891), or the player is away and the
+--                                    tutorial is under way or its last cannon line (`hint`) is still up
 --   yields(window, perkCard) -> boolean  #3620: a window or the "Unlocked!" perk card is up, so the call waits to
 --                                    show and, once shown, steps aside until they close
 --   show(kind, away) -> (how?, text) "card" or "toast" and the line; nil for the Collector at the cafe, whom the
@@ -45,7 +45,14 @@ FirstVisitLogic.TUTORIAL_DONE = 5
 
 -- Review-QA's retest: the save is already at TUTORIAL_DONE while the walk-through's last line, "Hop in the cannon to
 -- catch more cats!", still shows (until the next flight), so `hint` (that line is up) holds the call as well.
-function FirstVisitLogic.holds(step: unknown, away: boolean, hint: boolean?): boolean
+-- #3891 (Derek 2026-11-13: "wait for the rich customer pop up until after tier 2 is unlocked so people don't stop
+-- before 5 cats"): below FIRST_TIER (`tier`) every call waits, at the cafe or away, card and toast.
+FirstVisitLogic.FIRST_TIER = 2
+
+function FirstVisitLogic.holds(step: unknown, away: boolean, hint: boolean?, tier: unknown): boolean
+	if type(tier) == "number" and tier < FirstVisitLogic.FIRST_TIER then
+		return true
+	end
 	if not away then
 		return false
 	end

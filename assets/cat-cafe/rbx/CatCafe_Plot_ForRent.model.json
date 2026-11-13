@@ -532,7 +532,7 @@
      "CFrame": {
       "position": [
        4.54,
-       7.455,
+       7.26,
        -18.465
       ],
       "orientation": [
@@ -556,7 +556,7 @@
     },
     "Size": [
      0.04,
-     0.13,
+     0.52,
      0.13
     ],
     "Color": [
@@ -582,105 +582,7 @@
       "position": [
        4.54,
        7.325,
-       -18.53
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.26
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       7.195,
-       -18.465
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       7.065,
-       -18.465
+       -18.595
       ],
       "orientation": [
        [
@@ -777,7 +679,7 @@
      "CFrame": {
       "position": [
        4.54,
-       7.455,
+       7.26,
        -18.985
       ],
       "orientation": [
@@ -801,7 +703,7 @@
     },
     "Size": [
      0.04,
-     0.13,
+     0.52,
      0.13
     ],
     "Color": [
@@ -826,7 +728,7 @@
      "CFrame": {
       "position": [
        4.54,
-       7.455,
+       7.26,
        -19.245
       ],
       "orientation": [
@@ -850,203 +752,7 @@
     },
     "Size": [
      0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       7.325,
-       -18.985
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       7.325,
-       -19.245
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       7.195,
-       -18.985
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       7.195,
-       -19.245
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
+     0.52,
      0.13
     ],
     "Color": [
@@ -1096,7 +802,7 @@
     "Size": [
      0.04,
      0.13,
-     0.39
+     0.13
     ],
     "Color": [
      0.851,
@@ -1169,7 +875,7 @@
      "CFrame": {
       "position": [
        4.54,
-       7.455,
+       7.26,
        -19.505
       ],
       "orientation": [
@@ -1193,7 +899,7 @@
     },
     "Size": [
      0.04,
-     0.13,
+     0.52,
      0.13
     ],
     "Color": [
@@ -1268,56 +974,7 @@
       "position": [
        4.54,
        7.325,
-       -19.57
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.26
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       7.195,
-       -19.505
+       -19.635
       ],
       "orientation": [
        [
@@ -1365,7 +1022,7 @@
      "CFrame": {
       "position": [
        4.54,
-       7.195,
+       7.13,
        -19.765
       ],
       "orientation": [
@@ -1389,105 +1046,7 @@
     },
     "Size": [
      0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       7.065,
-       -19.505
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       7.065,
-       -19.765
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
+     0.26,
      0.13
     ],
     "Color": [
@@ -1561,7 +1120,7 @@
      "CFrame": {
       "position": [
        4.54,
-       6.705,
+       6.51,
        -18.465
       ],
       "orientation": [
@@ -1585,7 +1144,7 @@
     },
     "Size": [
      0.04,
-     0.13,
+     0.52,
      0.13
     ],
     "Color": [
@@ -1660,56 +1219,7 @@
       "position": [
        4.54,
        6.575,
-       -18.53
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.26
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.445,
-       -18.465
+       -18.595
       ],
       "orientation": [
        [
@@ -1757,7 +1267,7 @@
      "CFrame": {
       "position": [
        4.54,
-       6.445,
+       6.38,
        -18.725
       ],
       "orientation": [
@@ -1781,105 +1291,7 @@
     },
     "Size": [
      0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.315,
-       -18.465
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.315,
-       -18.725
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
+     0.26,
      0.13
     ],
     "Color": [
@@ -1953,7 +1365,7 @@
      "CFrame": {
       "position": [
        4.54,
-       6.705,
+       6.51,
        -18.985
       ],
       "orientation": [
@@ -1977,7 +1389,7 @@
     },
     "Size": [
      0.04,
-     0.13,
+     0.52,
      0.13
     ],
     "Color": [
@@ -2003,104 +1415,6 @@
       "position": [
        4.54,
        6.575,
-       -19.05
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.26
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.445,
-       -18.985
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.315,
        -19.115
       ],
       "orientation": [
@@ -2125,55 +1439,6 @@
     "Size": [
      0.04,
      0.13,
-     0.39
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.835,
-       -19.505
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
      0.13
     ],
     "Color": [
@@ -2198,57 +1463,8 @@
      "CFrame": {
       "position": [
        4.54,
-       6.835,
-       -19.895
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.705,
-       -19.57
+       6.315,
+       -19.18
       ],
       "orientation": [
        [
@@ -2296,8 +1512,106 @@
      "CFrame": {
       "position": [
        4.54,
-       6.705,
+       6.575,
+       -19.505
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.65,
+     0.13
+    ],
+    "Color": [
+     0.851,
+     0.2824,
+     0.2314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_ForRent",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       4.54,
+       6.575,
        -19.895
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.65,
+     0.13
+    ],
+    "Color": [
+     0.851,
+     0.2824,
+     0.2314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_ForRent",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       4.54,
+       6.705,
+       -19.635
       ],
       "orientation": [
        [
@@ -2346,252 +1660,7 @@
       "position": [
        4.54,
        6.575,
-       -19.505
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.575,
-       -19.83
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.26
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.445,
-       -19.505
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.445,
-       -19.895
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.315,
-       -19.505
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.315,
-       -19.895
+       -19.765
       ],
       "orientation": [
        [
@@ -2688,7 +1757,7 @@
      "CFrame": {
       "position": [
        4.54,
-       6.705,
+       6.51,
        -20.285
       ],
       "orientation": [
@@ -2712,154 +1781,7 @@
     },
     "Size": [
      0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.575,
-       -20.285
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.445,
-       -20.285
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.54,
-       6.315,
-       -20.285
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
+     0.52,
      0.13
     ],
     "Color": [
@@ -3178,7 +2100,7 @@
      "CFrame": {
       "position": [
        4.26,
-       7.455,
+       7.26,
        -20.435
       ],
       "orientation": [
@@ -3202,7 +2124,7 @@
     },
     "Size": [
      0.04,
-     0.13,
+     0.52,
      0.13
     ],
     "Color": [
@@ -3228,105 +2150,7 @@
       "position": [
        4.26,
        7.325,
-       -20.37
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.26
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       7.195,
-       -20.435
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       7.065,
-       -20.435
+       -20.305
       ],
       "orientation": [
        [
@@ -3423,7 +2247,7 @@
      "CFrame": {
       "position": [
        4.26,
-       7.455,
+       7.26,
        -19.915
       ],
       "orientation": [
@@ -3447,7 +2271,7 @@
     },
     "Size": [
      0.04,
-     0.13,
+     0.52,
      0.13
     ],
     "Color": [
@@ -3472,7 +2296,7 @@
      "CFrame": {
       "position": [
        4.26,
-       7.455,
+       7.26,
        -19.655
       ],
       "orientation": [
@@ -3496,203 +2320,7 @@
     },
     "Size": [
      0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       7.325,
-       -19.915
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       7.325,
-       -19.655
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       7.195,
-       -19.915
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       7.195,
-       -19.655
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
+     0.52,
      0.13
     ],
     "Color": [
@@ -3742,7 +2370,7 @@
     "Size": [
      0.04,
      0.13,
-     0.39
+     0.13
     ],
     "Color": [
      0.851,
@@ -3815,7 +2443,7 @@
      "CFrame": {
       "position": [
        4.26,
-       7.455,
+       7.26,
        -19.395
       ],
       "orientation": [
@@ -3839,7 +2467,7 @@
     },
     "Size": [
      0.04,
-     0.13,
+     0.52,
      0.13
     ],
     "Color": [
@@ -3914,56 +2542,7 @@
       "position": [
        4.26,
        7.325,
-       -19.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.26
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       7.195,
-       -19.395
+       -19.265
       ],
       "orientation": [
        [
@@ -4011,7 +2590,7 @@
      "CFrame": {
       "position": [
        4.26,
-       7.195,
+       7.13,
        -19.135
       ],
       "orientation": [
@@ -4035,105 +2614,7 @@
     },
     "Size": [
      0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       7.065,
-       -19.395
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       7.065,
-       -19.135
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
+     0.26,
      0.13
     ],
     "Color": [
@@ -4207,7 +2688,7 @@
      "CFrame": {
       "position": [
        4.26,
-       6.705,
+       6.51,
        -20.435
       ],
       "orientation": [
@@ -4231,7 +2712,7 @@
     },
     "Size": [
      0.04,
-     0.13,
+     0.52,
      0.13
     ],
     "Color": [
@@ -4306,56 +2787,7 @@
       "position": [
        4.26,
        6.575,
-       -20.37
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.26
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.445,
-       -20.435
+       -20.305
       ],
       "orientation": [
        [
@@ -4403,7 +2835,7 @@
      "CFrame": {
       "position": [
        4.26,
-       6.445,
+       6.38,
        -20.175
       ],
       "orientation": [
@@ -4427,105 +2859,7 @@
     },
     "Size": [
      0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.315,
-       -20.435
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.315,
-       -20.175
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
+     0.26,
      0.13
     ],
     "Color": [
@@ -4599,7 +2933,7 @@
      "CFrame": {
       "position": [
        4.26,
-       6.705,
+       6.51,
        -19.915
       ],
       "orientation": [
@@ -4623,7 +2957,7 @@
     },
     "Size": [
      0.04,
-     0.13,
+     0.52,
      0.13
     ],
     "Color": [
@@ -4649,104 +2983,6 @@
       "position": [
        4.26,
        6.575,
-       -19.85
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.26
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.445,
-       -19.915
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.315,
        -19.785
       ],
       "orientation": [
@@ -4771,55 +3007,6 @@
     "Size": [
      0.04,
      0.13,
-     0.39
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.835,
-       -19.395
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
      0.13
     ],
     "Color": [
@@ -4844,57 +3031,8 @@
      "CFrame": {
       "position": [
        4.26,
-       6.835,
-       -19.005
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.705,
-       -19.33
+       6.315,
+       -19.72
       ],
       "orientation": [
        [
@@ -4942,8 +3080,106 @@
      "CFrame": {
       "position": [
        4.26,
-       6.705,
+       6.575,
+       -19.395
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.65,
+     0.13
+    ],
+    "Color": [
+     0.851,
+     0.2824,
+     0.2314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_ForRent",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       4.26,
+       6.575,
        -19.005
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.65,
+     0.13
+    ],
+    "Color": [
+     0.851,
+     0.2824,
+     0.2314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_ForRent",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       4.26,
+       6.705,
+       -19.265
       ],
       "orientation": [
        [
@@ -4992,252 +3228,7 @@
       "position": [
        4.26,
        6.575,
-       -19.395
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.575,
-       -19.07
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.26
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.445,
-       -19.395
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.445,
-       -19.005
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.315,
-       -19.395
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.315,
-       -19.005
+       -19.135
       ],
       "orientation": [
        [
@@ -5334,7 +3325,7 @@
      "CFrame": {
       "position": [
        4.26,
-       6.705,
+       6.51,
        -18.615
       ],
       "orientation": [
@@ -5358,154 +3349,7 @@
     },
     "Size": [
      0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.575,
-       -18.615
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.445,
-       -18.615
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
-     0.13
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       4.26,
-       6.315,
-       -18.615
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.04,
-     0.13,
+     0.52,
      0.13
     ],
     "Color": [

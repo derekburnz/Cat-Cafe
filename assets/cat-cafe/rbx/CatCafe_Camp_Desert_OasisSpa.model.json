@@ -9086,7 +9086,7 @@
      "CFrame": {
       "position": [
        -5.19,
-       4.665,
+       4.53,
        -4.27
       ],
       "orientation": [
@@ -9110,7 +9110,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.36,
      0.04
     ],
     "Color": [
@@ -9135,7 +9135,7 @@
      "CFrame": {
       "position": [
        -5.37,
-       4.665,
+       4.53,
        -4.27
       ],
       "orientation": [
@@ -9159,203 +9159,7 @@
     },
     "Size": [
      0.09,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.19,
-       4.575,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.37,
-       4.575,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.19,
-       4.485,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.37,
-       4.485,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
+     0.36,
      0.04
     ],
     "Color": [
@@ -9403,7 +9207,7 @@
      }
     },
     "Size": [
-     0.27,
+     0.09,
      0.09,
      0.04
     ],
@@ -9478,7 +9282,7 @@
      "CFrame": {
       "position": [
        -5.55,
-       4.665,
+       4.53,
        -4.27
       ],
       "orientation": [
@@ -9502,7 +9306,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.36,
      0.04
     ],
     "Color": [
@@ -9527,7 +9331,7 @@
      "CFrame": {
       "position": [
        -5.73,
-       4.665,
+       4.53,
        -4.27
       ],
       "orientation": [
@@ -9551,7 +9355,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.36,
      0.04
     ],
     "Color": [
@@ -9577,202 +9381,6 @@
       "position": [
        -5.64,
        4.575,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.27,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.55,
-       4.485,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.73,
-       4.485,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.55,
-       4.395,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.73,
-       4.395,
        -4.27
       ],
       "orientation": [
@@ -9870,7 +9478,7 @@
      "CFrame": {
       "position": [
        -5.91,
-       4.665,
+       4.62,
        -4.27
       ],
       "orientation": [
@@ -9894,7 +9502,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.18,
      0.04
     ],
     "Color": [
@@ -9918,7 +9526,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -6.0,
+       -6.045,
        4.575,
        -4.27
       ],
@@ -9942,7 +9550,7 @@
      }
     },
     "Size": [
-     0.27,
+     0.18,
      0.09,
      0.04
     ],
@@ -9968,7 +9576,7 @@
      "CFrame": {
       "position": [
        -6.09,
-       4.485,
+       4.44,
        -4.27
       ],
       "orientation": [
@@ -9992,7 +9600,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.18,
      0.04
     ],
     "Color": [
@@ -10016,7 +9624,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -6.0,
+       -5.955,
        4.395,
        -4.27
       ],
@@ -10040,7 +9648,7 @@
      }
     },
     "Size": [
-     0.27,
+     0.18,
      0.09,
      0.04
     ],
@@ -10115,7 +9723,7 @@
      "CFrame": {
       "position": [
        -6.36,
-       4.665,
+       4.53,
        -4.27
       ],
       "orientation": [
@@ -10139,7 +9747,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.36,
      0.04
     ],
     "Color": [
@@ -10163,105 +9771,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -6.36,
-       4.575,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.36,
-       4.485,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.1216,
-     0.6471,
-     0.5608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.36,
+       -6.27,
        4.395,
        -4.27
       ],
@@ -10285,7 +9795,56 @@
      }
     },
     "Size": [
-     0.27,
+     0.09,
+     0.09,
+     0.04
+    ],
+    "Color": [
+     0.1216,
+     0.6471,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Camp_Desert_OasisSpa",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -6.45,
+       4.395,
+       -4.27
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.09,
      0.09,
      0.04
     ],
@@ -10360,7 +9919,7 @@
      "CFrame": {
       "position": [
        -6.63,
-       4.665,
+       4.62,
        -4.27
       ],
       "orientation": [
@@ -10384,7 +9943,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.18,
      0.04
     ],
     "Color": [
@@ -10408,7 +9967,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -6.72,
+       -6.765,
        4.575,
        -4.27
       ],
@@ -10432,7 +9991,7 @@
      }
     },
     "Size": [
-     0.27,
+     0.18,
      0.09,
      0.04
     ],
@@ -10458,7 +10017,7 @@
      "CFrame": {
       "position": [
        -6.81,
-       4.485,
+       4.44,
        -4.27
       ],
       "orientation": [
@@ -10482,7 +10041,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.18,
      0.04
     ],
     "Color": [
@@ -10506,7 +10065,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -6.72,
+       -6.675,
        4.395,
        -4.27
       ],
@@ -10530,7 +10089,7 @@
      }
     },
     "Size": [
-     0.27,
+     0.18,
      0.09,
      0.04
     ],
@@ -10605,7 +10164,7 @@
      "CFrame": {
       "position": [
        -5.55,
-       4.115,
+       4.07,
        -4.27
       ],
       "orientation": [
@@ -10629,7 +10188,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.18,
      0.04
     ],
     "Color": [
@@ -10653,7 +10212,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.64,
+       -5.685,
        4.025,
        -4.27
       ],
@@ -10677,7 +10236,7 @@
      }
     },
     "Size": [
-     0.27,
+     0.18,
      0.09,
      0.04
     ],
@@ -10703,7 +10262,7 @@
      "CFrame": {
       "position": [
        -5.73,
-       3.935,
+       3.89,
        -4.27
       ],
       "orientation": [
@@ -10727,7 +10286,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.18,
      0.04
     ],
     "Color": [
@@ -10751,7 +10310,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.64,
+       -5.595,
        3.845,
        -4.27
       ],
@@ -10775,7 +10334,7 @@
      }
     },
     "Size": [
-     0.27,
+     0.18,
      0.09,
      0.04
     ],
@@ -10850,7 +10409,7 @@
      "CFrame": {
       "position": [
        -5.91,
-       4.115,
+       3.98,
        -4.27
       ],
       "orientation": [
@@ -10874,7 +10433,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.36,
      0.04
     ],
     "Color": [
@@ -10947,106 +10506,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.955,
+       -6.0,
        4.025,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.18,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.91,
-       3.935,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.91,
-       3.845,
        -4.27
       ],
       "orientation": [
@@ -11144,7 +10605,7 @@
      "CFrame": {
       "position": [
        -6.27,
-       4.115,
+       3.98,
        -4.27
       ],
       "orientation": [
@@ -11168,7 +10629,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.36,
      0.04
     ],
     "Color": [
@@ -11193,7 +10654,7 @@
      "CFrame": {
       "position": [
        -6.45,
-       4.115,
+       3.98,
        -4.27
       ],
       "orientation": [
@@ -11217,7 +10678,7 @@
     },
     "Size": [
      0.09,
-     0.09,
+     0.36,
      0.04
     ],
     "Color": [
@@ -11243,202 +10704,6 @@
       "position": [
        -6.36,
        4.025,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.27,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.27,
-       3.935,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.45,
-       3.935,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.27,
-       3.845,
-       -4.27
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.09,
-     0.04
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Camp_Desert_OasisSpa",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.45,
-       3.845,
        -4.27
       ],
       "orientation": [

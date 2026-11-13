@@ -1506,7 +1506,7 @@ end
 function MouseDash.judged(
 	self: any,
 	run: number,
-	_index: number,
+	index: number,
 	tap: any,
 	points: number,
 	hearts: number,
@@ -1517,7 +1517,9 @@ function MouseDash.judged(
 	if self._run ~= run or type(tap) ~= "table" then
 		return
 	end
-	local hole: Hole? = self._holes[tap.hole]
+	-- #3959 review: a reply for an older wave that lands after the next wave popped leaves the hole alone (it holds the
+	-- new wave's animal now); the points and hearts it carries still count
+	local hole: Hole? = if index == self._index then self._holes[tap.hole] else nil
 	local lost = hearts < self._hearts
 	local won = hearts > self._hearts
 	self._points = points

@@ -27,6 +27,7 @@ local CollectionService = game:GetService("CollectionService")
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
@@ -284,6 +285,45 @@ local function boardRefresh()
 		end
 		if found.gui.Enabled ~= shown then
 			found.gui.Enabled = shown
+		end
+	end
+end
+
+-- #3683: from the usual walk up angle the board's title reached under the HUD's day clock. Each frame a board is
+-- up, it comes down just enough to clear the clock (RollBoardLogic.sizeOffsetY); one screen point a board.
+local CLOCK_GAP = 6 -- px between the clock and the board's top
+local function boardPlace()
+	local camera = Workspace.CurrentCamera
+	if camera == nil then
+		return
+	end
+	local left: number?, right: number?, bottom: number? = nil, nil, nil
+	local asked = false
+	for _, found in boards do
+		local gui = found.gui
+		local part = gui.Adornee
+		if not gui.Enabled or part == nil or not part:IsA("BasePart") then
+			continue
+		end
+		if not asked then
+			asked = true
+			left, right, bottom = (UI :: any).clockBox()
+		end
+		local point, onScreen =
+			camera:WorldToViewportPoint((part :: BasePart).Position + gui.StudsOffsetWorldSpace)
+		local y = if onScreen
+			then RollBoardLogic.sizeOffsetY(
+				point.X,
+				point.Y,
+				gui.AbsoluteSize.X,
+				gui.AbsoluteSize.Y,
+				if bottom ~= nil then bottom + CLOCK_GAP else nil,
+				left,
+				right
+			)
+			else 0.5
+		if math.abs(gui.SizeOffset.Y - y) > 0.005 then
+			gui.SizeOffset = Vector2.new(0, y)
 		end
 	end
 end
@@ -682,6 +722,12 @@ function BinController.start()
 		while true do
 			task.wait(LABEL_SECONDS)
 			label()
+		end
+	end)
+	-- #3683: only does anything while a board is up
+	RunService.RenderStepped:Connect(function()
+		if next(boards) ~= nil then
+			boardPlace()
 		end
 	end)
 	-- #3608

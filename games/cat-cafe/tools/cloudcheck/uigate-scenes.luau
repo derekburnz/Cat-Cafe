@@ -3056,6 +3056,32 @@ local SCENES = {
 	{ "Cannon", function()
 		UI.cannon.open()
 	end },
+	-- #3884: a rank up to Tier 2 since the picker last opened: the Park card keeps its lock a moment, the lock breaks
+	-- with "Unlocked!", and about 3 s later the cover is gone and the card can launch
+	{ "CannonUnlock", function()
+		UI.update({ tier = 1, tutorialStep = 5 } :: any)
+		UI.cannon.open()
+		UIShim.advance(0.2)
+		UI.close()
+		UIShim.advance(0.5)
+		UI.update({ tier = 2 } :: any)
+		UI.cannon.open()
+		UIShim.advance(0.2)
+		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+		local park = window:FindFirstChild("park", true)
+		local lock = park and park:FindFirstChild("Lock", true)
+		assert(lock and lock:IsA("GuiObject") and lock.Visible, "uigate: the Park card's lock did not wait to break (#3884)")
+		UIShim.advance(1.4)
+		local line = lock:FindFirstChild("Line")
+		assert(line and line.Text == "Unlocked!", "uigate: the breaking lock does not say Unlocked! (#3884)")
+		UIShim.advance(3)
+		assert(not lock.Visible, "uigate: the Park card's lock is still up after the break (#3884)")
+		UI.close()
+		UIShim.advance(0.5)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		assert(not lock.Visible, "uigate: the lock broke again on the next open (#3884)")
+	end },
 	-- #2692: at night a new player with the night pass (the NightPass attribute, before the first check-in) sees the
 	-- area cards open, no moon cover; once the pass ends, the cover is back
 	{ "CannonNightPass", function()

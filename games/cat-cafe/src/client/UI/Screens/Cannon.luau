@@ -17,9 +17,15 @@
 -- their own (Components/CampExtrasLogic.remoteAction). Until then only a Golden Pond owner's pond had Collect (#1463).
 -- #3691: the cards no longer wear the red "Rally: rescues x3" tag at night (Derek, 2026-11-12). The Rally banner and
 -- the Town Square board still say it.
+-- #3884 (Derek 2026-11-13: "a quick 3 second unlock cutscene in the cannon menu of the locks breaking off"): the
+-- first time the picker opens after a rank up, each card that rank opened (Tier 2's Park first) keeps its lock a
+-- moment, the padlock wiggles, pops open and floats off with "Unlocked!", sparkles burst round the card to the gate
+-- sound, the cover fades and the card bounces, about 3 s in all (_breakLock, CannonLogic.unlocked). Once per rank up,
+-- this session; Reduce Motion keeps the sound and drops the moves.
 -- #2915: setRing(areaId) puts the tutorial's pulsing gold ring and arrow (Components/StepTarget) on that card's Launch
 -- while it can launch: "Fly to the Park" on the rank-up card opens the picker with the Park's ringed.
 
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -39,6 +45,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
+local Sound = require(script.Parent.Parent.Components.Sound)
 local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -162,6 +169,8 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._pendingUntil = 0
 	self._open = false
 	self._tick = 0
+	self._seenTier = nil :: number? -- #3884: the tier the picker last knew, from the first synced state
+	self._toBreak = {} :: { [string]: boolean } -- #3884: cards whose lock breaks the next time the picker opens
 	self._pal = nil :: { areaId: string, name: string }?
 	self._extras = nil :: Types.CampExtrasState?
 	self._traits = nil :: any -- #3196: PlayerState.traits, for the Mystic Pool's strip
@@ -499,6 +508,7 @@ function Cannon._buildCards(self: any)
 			launch = launch,
 			buttonState = nil :: CannonLogic.ButtonState?,
 			pending = false,
+			breaking = false, -- #3884: its lock is breaking now
 		}
 	end
 end
@@ -664,6 +674,19 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 	end
 	local areas: { Types.AreaDef } = catalog.areas or {}
 	local tier = state.tier or 1
+	-- #3884: a rank up since the picker last knew the tier queues each card it opened for the lock breaking. The
+	-- first synced state (it carries tutorialStep; the UI's placeholder does not) only sets where it starts.
+	if state.tutorialStep ~= nil then
+		local seen: number? = self._seenTier
+		if seen == nil then
+			self._seenTier = tier
+		elseif tier > seen then
+			for _, id in CannonLogic.unlocked(areas :: any, seen, tier) do
+				self._toBreak[id] = true
+			end
+			self._seenTier = tier
+		end
+	end
 	local pass = hasNightPass()
 	local closed = not NightPass.open(NightClock.areasOpen(self._areasOpen), pass)
 	local remaining = self:_remaining()
@@ -692,7 +715,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		local buttonState: CannonLogic.ButtonState =
 			CannonLogic.button(id, closed, dusk, carrying, locked)
 		card.night.Visible = buttonState == "night"
-		card.lock.Visible = locked
+		card.lock.Visible = locked or card.breaking == true or self._toBreak[id] == true -- #3884: until it breaks
 		card.nightLine.Visible = ART_H >= 60 -- #2771: not in the phone's slim band
 		if id ~= CannonLogic.TOWN then
 			local counts = IndexRewards.counts(catalog, state, id)
@@ -759,11 +782,113 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 end
 
 -- While the picker is open the sunrise countdown and the dusk warning move on their own, once a second.
+-- #3884: the lock breaking on card `id`, starting `wait` seconds in: the padlock wiggles (0.9 s), pops open and
+-- floats off with "Unlocked!", a sparkle burst and the gate sound; the cover fades (0.8 s) and the card bounces. The
+-- cover is put back as it was for the card, hidden now its area is open. Closed before it starts, it just opens.
+local WIGGLE = TweenInfo.new(0.15, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 2, true)
+function Cannon._breakLock(self: any, id: string, wait: number)
+	local card = self._cards[id]
+	if card == nil then
+		return
+	end
+	card.breaking = true
+	local lock: Frame = card.lock
+	local padlockInstance = lock:FindFirstChild("Padlock")
+	local lineInstance = lock:FindFirstChild("Line")
+	local padlock: TextLabel? = nil
+	if padlockInstance ~= nil and padlockInstance:IsA("TextLabel") then
+		padlock = padlockInstance :: TextLabel
+	end
+	local line: TextLabel? = nil
+	if lineInstance ~= nil and lineInstance:IsA("TextLabel") then
+		line = lineInstance :: TextLabel
+	end
+	local home = if padlock ~= nil then padlock.Position else UDim2.new()
+	local function finish()
+		card.breaking = false
+		lock.BackgroundTransparency = 0.25
+		if padlock ~= nil then
+			padlock.Rotation = 0
+			padlock.Position = home
+			padlock.TextTransparency = 0
+			padlock.Text = Theme.icons.lock
+		end
+		if line ~= nil then
+			line.TextTransparency = 0
+			line.Text = ("Opens at Tier %d"):format(card.tier)
+		end
+		self:_rerender()
+	end
+	task.delay(wait, function()
+		if not self._open or not card.frame.Visible then
+			finish()
+			return
+		end
+		if GuiService.ReducedMotionEnabled then
+			Sound.play("gateOpen")
+			finish()
+			return
+		end
+		if padlock ~= nil then
+			padlock.Rotation = -12
+			Tween.to(padlock, WIGGLE, { Rotation = 12 })
+		end
+		task.wait(0.9)
+		Sound.play("gateOpen")
+		pcall(function()
+			local burst: any = require(script.Parent.Parent.Parent.Effects.StoreBurst)
+			burst.play(card.frame, "pass")
+		end)
+		if padlock ~= nil then
+			padlock.Rotation = 0
+			padlock.Text = Theme.icons.unlock
+			Tween.to(
+				padlock,
+				TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+				{ Position = home - UDim2.fromOffset(0, 24), TextTransparency = 1 }
+			)
+		end
+		if line ~= nil then
+			line.Text = "Unlocked!"
+		end
+		task.wait(0.4)
+		local fade = TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		Tween.to(lock, fade, { BackgroundTransparency = 1 })
+		if line ~= nil then
+			Tween.to(
+				line,
+				TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, false, 0.5),
+				{
+					TextTransparency = 1,
+				}
+			)
+		end
+		task.wait(1.3)
+		lock.Visible = false
+		Tween.popIn(card.frame, 0.92)
+		task.wait(0.4)
+		finish()
+	end)
+end
+
 function Cannon.opened(self: any)
 	self._open = true
 	self._tick += 1
 	local tick = self._tick
 	self:_rerender()
+	-- #3884: the cards a rank up opened break their locks, one after another
+	local queued: { string } = {}
+	for _, destination in
+		CannonLogic.cards((self._catalog and self._catalog.areas or {}) :: any, 99, self._cannonId)
+	do
+		if self._toBreak[destination.id] then
+			table.insert(queued, destination.id)
+		end
+	end
+	for index, id in queued do
+		self._toBreak[id] = nil
+		self:_breakLock(id, 0.3 + (index - 1) * 0.5)
+	end
 	task.spawn(function()
 		while self._open and self._tick == tick do
 			task.wait(1)

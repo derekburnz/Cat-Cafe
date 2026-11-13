@@ -2964,8 +2964,14 @@ local function wireServerEvents()
 	-- show as a banner falls back to the toast.
 	Net.on(
 		"UpdateGiftNotice",
-		function(kind: unknown, fish: unknown, spins: unknown, secondsLeft: unknown)
-			local banner = UpdateGift.banner(kind, fish, spins, secondsLeft)
+		function(
+			kind: unknown,
+			fish: unknown,
+			spins: unknown,
+			secondsLeft: unknown,
+			crates: unknown
+		)
+			local banner = UpdateGift.banner(kind, fish, spins, secondsLeft, crates) -- #3535: crates
 			if banner == nil then
 				return
 			end

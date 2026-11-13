@@ -5368,10 +5368,15 @@ Presets.riftRun = {
 	-- a Secret's cat of stars (Logic.CAT_CONSTELLATION), drawn in the dark `starCatBeyond` studs past the white gate,
 	-- its middle `starCatHeight` over the path, `starCatScale` studs a unit, so the low camera sees it framed in the
 	-- gate; a star every `starCatGap` seconds (Review-QA on #4029: one every 0.12 s left it half drawn)
-	starCatHeight = 6,
+	-- Review-QA on #4029 (follow up): a little lower so the ears clear the low camera's top edge, and a warm gold
+	-- ink a touch bigger so the stars stand out from the pale rift instead of fading into it (Neon washes a light
+	-- colour toward white, so the gold is deep; 4.5 keeps the ears clear on a phone too)
+	starCatHeight = 4.5,
 	starCatBeyond = 10,
 	starCatScale = 3,
 	starCatGap = 0.05,
+	starCatSize = 2.1,
+	starCatColour = Color3.fromRGB(255, 165, 40),
 	flashPink = Color3.fromRGB(255, 120, 200),
 	displayOrder = 40, -- over every window, the bars and the title
 	cap = 30, -- everything is back by now, whatever happens

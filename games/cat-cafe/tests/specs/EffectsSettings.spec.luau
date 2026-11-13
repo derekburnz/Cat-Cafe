@@ -80,5 +80,34 @@ return function()
 				expect(n >= 1 and n <= 8).to.equal(true)
 			end
 		end)
+		-- #3794: the lighter budget for phones and graphics quality 1 to 3, behind the fxLite switch
+		it("takes the lite budget under Low performance and over the phone's", function()
+			local tier, budget = Logic.budgetFor("high", false, false, true)
+			expect(tier).to.equal("low")
+			expect(budget).to.equal(Presets.budget.lite)
+			tier, budget = Logic.budgetFor("low", true, false, true)
+			expect(budget).to.equal(Presets.budget.lowPerformance)
+			tier, budget = Logic.budgetFor("low", false, false, false)
+			expect(tier).to.equal("low")
+			expect(budget).to.equal(Presets.budget.low)
+			local low, lite, saver =
+				Presets.budget.low, Presets.budget.lite, Presets.budget.lowPerformance
+			for field, value in low do
+				expect(type(lite[field])).to.equal("number")
+				expect(lite[field] <= value).to.equal(true)
+				expect(lite[field] >= saver[field]).to.equal(true)
+			end
+			expect(lite.animatedCats < low.animatedCats and lite.animHz < low.animHz).to.equal(true)
+		end)
+
+		it("wants lite on phones and graphics quality 1 to 3, only with the switch on", function()
+			expect(Logic.wantsLite(true, "low", 0)).to.equal(true)
+			expect(Logic.wantsLite(true, "high", 2)).to.equal(true)
+			expect(Logic.wantsLite(true, "high", 3)).to.equal(true)
+			expect(Logic.wantsLite(true, "high", 4)).to.equal(false)
+			expect(Logic.wantsLite(true, "high", 0)).to.equal(false)
+			expect(Logic.wantsLite(true, "high", nil)).to.equal(false)
+			expect(Logic.wantsLite(false, "low", 1)).to.equal(false)
+		end)
 	end)
 end

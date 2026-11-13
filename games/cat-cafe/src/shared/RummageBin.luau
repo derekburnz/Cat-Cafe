@@ -46,6 +46,8 @@ RummageBin.MODE_ROLL = "roll"
 RummageBin.MODE_FIXED = "fixed"
 RummageBin.MODE_WAITING = "waiting"
 RummageBin.RANGE_STUDS = 10 -- the prompt's reach; the server allows a little past it
+RummageBin.PAD_HEIGHT = 8 -- studs over or under the pad that still count as standing on it (#3680)
+RummageBin.PAD_FIRST = "Step onto the circle to rummage" -- #3680: a press from off the pad, `binRoll` on
 local RARITY: Types.Rarity = "Common"
 RummageBin.RARITY = RARITY -- the bar's pace
 
@@ -225,18 +227,15 @@ function RummageBin.win(save: Types.RummageBinSave, now: number, roll: number): 
 	return row
 end
 
--- #3608: the row the next rummage is for, with the mode the client shows it in. A prize already waiting stays
--- (MODE_WAITING, no roll); else the next fixed first prize (MODE_FIXED), else a roll of BinRollTable for `roll` in
--- [0, 1) (MODE_ROLL). The row's id is stored in the save.
+-- #3608: the row the next rummage is for, with how it came. A prize already waiting stays (MODE_WAITING: never
+-- rolled again); else a roll of BinRollTable for `roll` in [0, 1) (MODE_ROLL). The row's id is stored in the save.
+-- #3680 (Derek 2026-11-12: "the animation should always play no scripted starting rewards"): there is no fixed
+-- first prize here, an account's first rummage is rolled as every other is (MODE_FIXED is no longer sent), and the
+-- client plays the roll in both modes, landing on this row.
 function RummageBin.choose(save: Types.RummageBinSave, roll: number): (Row, string)
 	local waiting = RummageBin.rollRow(save.prize)
 	if waiting ~= nil then
 		return waiting, RummageBin.MODE_WAITING
-	end
-	local fixed = RummageBin.fixedFor(save.uses)
-	if fixed ~= nil then
-		save.prize = fixed.id
-		return fixed, RummageBin.MODE_FIXED
 	end
 	local rows = RummageBin.rollRows()
 	local picked = rows[#rows]
@@ -250,6 +249,13 @@ function RummageBin.choose(save: Types.RummageBinSave, roll: number): (Row, stri
 	end
 	save.prize = picked.id
 	return picked, RummageBin.MODE_ROLL
+end
+
+-- #3680 ("don't start animation until they are on the circle"): true when `offset`, from the pad's centre to the
+-- player's root, is inside the pad's ring of `radius` studs (flat), `slack` studs more for the server's late view.
+function RummageBin.onPad(offset: Vector3, radius: number, slack: number?): boolean
+	return Vector3.new(offset.X, 0, offset.Z).Magnitude <= radius + (slack or 0)
+		and math.abs(offset.Y) <= RummageBin.PAD_HEIGHT
 end
 
 -- #3608: a win at `now` of the stored prize: counts it, starts the wait, clears the stored prize and returns its

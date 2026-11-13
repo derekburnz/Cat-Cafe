@@ -65,6 +65,18 @@
 -- - `introSplit` (#3666): the intro scene plays itself for half of new players (shared/IntroSplit), so the two
 --   halves' first minutes can be compared. It starts OFF (OFF_BY_DEFAULT); off, nobody new joins the test and no
 --   intro plays itself.
+-- - `newKindTag` (#3529): the "NEW" tag over strays of kinds the player has never owned, the catch card's "New kind!"
+--   line and the five cats pointer (shared/NewKind). It starts OFF (OFF_BY_DEFAULT) until review and QA pass. Read by
+--   the client (the tag, the line, the pointer) and by Telemetry (the pointer's two step_time events).
+-- - `parkGateTrail` (#3554): after Tier 2 the goal card reads "Visit the Park" and a trail of paw prints leads to the
+--   nearest Cat Cannon, then to the first Park stray (UI/Components/ParkTrailLogic). It starts OFF (OFF_BY_DEFAULT);
+--   off, nothing shows.
+-- - `touchCatchReach` (#3556): on a touch screen the in-reach glow and the Net button show from 1.5 times a swing's
+--   reach, and a press out there walks the character to the stray and swings (shared/TouchReach). The server's reach
+--   does not change. It starts OFF (OFF_BY_DEFAULT).
+-- - `rankUpSpotlight` (#3555): the first rank up's walk-through, the tutorial's dim and pointer on the goal card and
+--   then on the rank up button, once the server says the rank up is possible and the player is in the safe area
+--   (shared/RankSpot). It starts OFF (OFF_BY_DEFAULT).
 -- - `petCats` (#3651): the Pet prompt on the cats in a player's own cafe; the petted cat is the happy cat, earning
 --   Config.PetMoneyBoost times its pay for Config.PetSeconds (shared/Pet). It starts OFF (OFF_BY_DEFAULT); off, no
 --   prompt shows, no pet is taken and a running heart pays nothing extra.
@@ -104,6 +116,10 @@ LiveFlags.KEYS = {
 	"binRoll",
 	"yardSaleRoll",
 	"introSplit",
+	"newKindTag",
+	"parkGateTrail",
+	"touchCatchReach",
+	"rankUpSpotlight",
 	"petCats",
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -124,6 +140,10 @@ LiveFlags.OFF_BY_DEFAULT = {
 	binRoll = true,
 	yardSaleRoll = true,
 	introSplit = true,
+	newKindTag = true,
+	parkGateTrail = true,
+	touchCatchReach = true,
+	rankUpSpotlight = true,
 	petCats = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

@@ -55,18 +55,19 @@ return function()
 			expect(#view.rows[2].images).to.equal(1)
 		end)
 
-		it("shows only the fixed first prize, with no chance, while one waits", function()
-			local view = RollBoardLogic.bin(input({ uses = 0 }))
-			expect(view.line).to.equal(RollBoardLogic.BIN_NEXT)
-			expect(#view.rows).to.equal(1)
-			expect(view.rows[1].id).to.equal(Config.BinFirstPrizes[1].id)
-			expect(view.rows[1].chance).to.equal(nil)
-			expect(view.foot).to.equal(
-				string.format("After your first %d: prizes are rolled", Config.BinFirstUses)
-			)
+		it("shows a new account the list with its chances: no fixed first prize (#3680)", function()
+			for uses = 0, Config.BinFirstUses do
+				local view = RollBoardLogic.bin(input({ uses = uses }))
+				expect(view.line).to.equal(RollBoardLogic.BIN_LIST)
+				expect(#view.rows).to.equal(#Config.BinRollTable)
+				expect(view.rows[1].chance).to.equal(
+					RollBoardLogic.percent(Config.BinRollTable[1].chance)
+				)
+				expect(view.foot).to.equal(nil)
+			end
 		end)
 
-		it("shows the prize kept after a miss ahead of the list and of a fixed prize", function()
+		it("shows the prize kept after a miss ahead of the list, new account or not", function()
 			for _, uses in { 0, Config.BinFirstUses } do
 				local view = RollBoardLogic.bin(input({ uses = uses, prize = "golden" }))
 				expect(view.line).to.equal(RollBoardLogic.BIN_WAITING)
@@ -102,5 +103,77 @@ return function()
 				expect(bar.rows[1].name).to.equal(RummageBin.rowName(RummageBin.rollRow("crate")))
 			end
 		)
+	end)
+
+	describe("RollBoardLogic.yard (#3615)", function()
+		local rows = {
+			{ crateId = "classic_crate", chance = 0.38, golden = false, tier = 1 },
+			{ crateId = "park_crate", chance = 0.125, golden = false, tier = 1 },
+			{ crateId = "classic_golden_crate", chance = 0.08, golden = true, tier = 3 },
+		}
+
+		it(
+			"shows every crate with its chance to one decimal and golden rows as the best",
+			function()
+				local view = RollBoardLogic.yard({ rows = rows, nextAt = nil, now = 100 })
+				expect(view.title).to.equal(RollBoardLogic.YARD_TITLE)
+				expect(view.line).to.equal(RollBoardLogic.yardLine())
+				expect(view.dim).to.equal(false)
+				expect(#view.rows).to.equal(3)
+				expect(view.rows[1].chance).to.equal("38.0%")
+				expect(view.rows[2].chance).to.equal("12.5%")
+				expect(view.rows[3].chance).to.equal("8.0%")
+				expect(view.rows[1].tier).to.equal(1)
+				expect(view.rows[3].tier).to.equal(3)
+			end
+		)
+
+		it("says the pick is free and how often", function()
+			expect(RollBoardLogic.yardLine()).to.equal(
+				string.format("Free every %d hours", Config.YardSaleRollHours)
+			)
+		end)
+
+		it("dims the rows and counts down while the next pick waits", function()
+			local view = RollBoardLogic.yard({ rows = rows, nextAt = 100 + 80 * 60, now = 100 })
+			expect(view.dim).to.equal(true)
+			expect(view.line).to.equal("Next pick in 1 h 20 m")
+		end)
+
+		it("keeps the rows at full strength while the light rolls, wait or not", function()
+			local view =
+				RollBoardLogic.yard({ rows = rows, nextAt = 9999, now = 100, rolling = true })
+			expect(view.dim).to.equal(false)
+			expect(view.line).to.equal(RollBoardLogic.YARD_ROLLING)
+		end)
+	end)
+
+	describe("RollBoardLogic.rowOf (#3615)", function()
+		it("finds the crate the server named, whatever its place in the rows", function()
+			local rows = { { crateId = "a" }, { crateId = "b" }, { crateId = "c" } }
+			expect(RollBoardLogic.rowOf(rows, "c")).to.equal(3)
+			expect(RollBoardLogic.rowOf(rows, "a")).to.equal(1)
+			expect(RollBoardLogic.rowOf(rows, "z")).to.equal(nil)
+		end)
+	end)
+
+	describe("RollBoardLogic.rollSteps (#3615)", function()
+		it("moves one row at a time in list order and stops on the landing row", function()
+			for landing = 1, 5 do
+				local steps = RollBoardLogic.rollSteps(5, landing)
+				expect(#steps).to.equal(10 + landing)
+				expect(steps[#steps].index).to.equal(landing)
+				for at = 2, #steps do
+					expect(steps[at].index).to.equal(steps[at - 1].index % 5 + 1)
+					-- it only ever slows: no pause that could look like a near miss
+					expect(steps[at].rest >= steps[at - 1].rest).to.equal(true)
+				end
+			end
+		end)
+
+		it("takes the same time whatever the row's prize, and has no steps for no rows", function()
+			expect(#RollBoardLogic.rollSteps(0, 1)).to.equal(0)
+			expect(RollBoardLogic.rollSteps(4, 9)[12].index).to.equal(4)
+		end)
 	end)
 end

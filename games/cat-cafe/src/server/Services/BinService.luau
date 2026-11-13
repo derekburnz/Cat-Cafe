@@ -40,10 +40,12 @@ local RescueService = require(script.Parent.RescueService)
 local RummageBin = require(ReplicatedStorage.Shared.RummageBin)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
+local WalkUp = require(ReplicatedStorage.Shared.WalkUp)
 
 local BinService = {}
 
 local RANGE_SLACK = 4 -- studs past the prompt's reach, for a character the server sees a moment late
+local PAD_SLACK = 3 -- #3680: studs past the pad's edge, for the same reason
 local LEAVE_RANGE_STUDS = 16 -- further than this from the bin ends the bar, as a rescue's
 local FLAG_SECONDS = 5
 
@@ -98,6 +100,28 @@ local function distance(player: Player): number?
 		return nil
 	end
 	return ((root :: BasePart).Position - at).Magnitude
+end
+
+-- #3680: true when the player stands on the bin's pad (its floor ring, World/WalkUpCircles), a little past its edge
+-- allowed. A bin with no ring (older art) has no pad to wait for.
+local function onPad(player: Player): boolean
+	local model = binModel()
+	local link = if model ~= nil then model:FindFirstChild(WalkUp.CIRCLE) else nil
+	local pad = if link ~= nil and link:IsA("ObjectValue") then (link :: ObjectValue).Value else nil
+	if pad == nil or not pad:IsA("BasePart") then
+		return true
+	end
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return false
+	end
+	local radius = pad:GetAttribute("Radius")
+	return RummageBin.onPad(
+		(root :: BasePart).Position - (pad :: BasePart).Position,
+		if type(radius) == "number" then radius else (pad :: BasePart).Size.X / 2,
+		PAD_SLACK
+	)
 end
 
 local function alive(player: Player): boolean
@@ -333,6 +357,12 @@ local function begin(player: Player)
 		Net.toast(player, Cooldown.text(retry - now), "warn")
 		return
 	end
+	-- #3680: with the roll on, a rummage starts only for a player standing on the pad, so the roll never plays for
+	-- someone still walking up
+	if LiveFlagService.on(RummageBin.ROLL_FLAG) and not onPad(player) then
+		Net.toast(player, RummageBin.PAD_FIRST, "info")
+		return
+	end
 	local run: Run = { attempt = nil, early = RummageBin.early(bin) }
 	runs[player] = run
 	watch(player, run)
@@ -348,10 +378,8 @@ local function begin(player: Player)
 		publish(player)
 		Telemetry.custom(player, "bin_roll", 1, { row.id, mode })
 	end
-	local seconds = if mode == RummageBin.MODE_ROLL
-		then Config.BinRollSeconds
-		elseif mode == RummageBin.MODE_FIXED then Config.BinRevealSeconds
-		else 0
+	-- #3680: the roll always plays, for a prize kept after a miss too (it lands on the kept prize)
+	local seconds: number = Config.BinRollSeconds
 	Net.fire(player, "BinRolled", row.id, mode, seconds)
 	if seconds <= 0 then
 		startBar(player, run)

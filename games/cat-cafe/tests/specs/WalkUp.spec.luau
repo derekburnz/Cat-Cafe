@@ -173,6 +173,8 @@ return function()
 				local wide, least = WalkUp.FRONT_RADIUS, WalkUp.FRONT_FIT_LEAST
 				expect(least < wide and least >= 4).to.equal(true)
 				expect(WalkUp.BOARD_RADIUS <= wide and WalkUp.BOARD_RADIUS >= 4).to.equal(true)
+				-- the Mystic Pool's is a little smaller than the town's and never under the least
+				expect(WalkUp.POOL_RADIUS < wide and WalkUp.POOL_RADIUS >= least).to.equal(true)
 				local shift, fitted = WalkUp.fitRing(wide, {}, WalkUp.FIT_SHIFT_MAX, least)
 				expect(shift.Magnitude).to.equal(0)
 				expect(fitted).to.equal(wide)
@@ -198,6 +200,36 @@ return function()
 			expect(WalkUp.aroundRadius(6, 10)).to.equal(10 - WalkUp.EDGE_SLACK)
 			expect(WalkUp.aroundRadius(3, 10)).to.equal(3 + WalkUp.AROUND_PAD)
 			expect(WalkUp.aroundRadius(0, 2)).to.equal(1)
+		end)
+
+		it("fills the Town Square cannon's wider range with its ring (#3671)", function()
+			local Cannon = require(Shared.Cannon)
+			local W = require(Shared.Config).World
+			expect(Cannon.range("town")).to.equal(11.5)
+			expect(Cannon.range("alley")).to.equal(W.CannonRangeStuds)
+			expect(Cannon.range(nil)).to.equal(W.CannonRangeStuds)
+			local radius = WalkUp.aroundRadius(4.8, Cannon.range("town"), nil, true)
+			expect(radius).to.equal(9.5)
+			expect(radius > WalkUp.aroundRadius(4.8, W.CannonRangeStuds)).to.equal(true)
+			-- a player who has just spawned stands outside the ring, so the window does not open by itself
+			local Layout = require(game:GetService("ServerScriptService").Server.World.Layout)
+			local cannon = Layout.cannons.town
+			local function away(point: any): number
+				return math.sqrt((point.x - cannon.x) ^ 2 + (point.z - cannon.z) ^ 2)
+			end
+			expect(away(Layout.playerSpawn) - radius >= 3).to.equal(true)
+			-- nor for a player who lands in town: every landing spot is outside the ring, and the landing circle's
+			-- edge is clear of it
+			local pad = Layout.landingPads.town
+			for _, spot in pad.spots do
+				expect(away(spot) - radius >= 1).to.equal(true)
+			end
+			expect(away(pad.centre) - W.LandingPadRadius - radius > 0).to.equal(true)
+			-- a cap still wins, and without fill nothing changes
+			expect(WalkUp.aroundRadius(4.8, 12, WalkUp.CAMP_RING_MAX, true)).to.equal(
+				WalkUp.CAMP_RING_MAX
+			)
+			expect(WalkUp.aroundRadius(4.8, 12)).to.equal(4.8 + WalkUp.AROUND_PAD)
 		end)
 	end)
 

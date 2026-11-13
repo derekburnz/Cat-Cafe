@@ -219,15 +219,19 @@ return function()
 		end)
 
 		it(
-			"makes the paw dizzy on an empty hole, at no heart, and taps while dizzy do nothing",
+			"costs a heart for a tap on an empty hole, once: taps while dizzy do nothing (Derek 2026-11-12)",
 			function()
 				local run, wave = mouseUp(0)
 				local hole = wave.pops[1].hole
 				local other = if hole == 1 then 2 else 1
 				local tap = MouseDash.tap(run, wave.index, other, 10.1, 0)
 				expect(tap.outcome).to.equal("empty")
-				expect(run.hearts).to.equal(3)
+				expect(tap.heart).to.equal(-1)
+				expect(run.hearts).to.equal(2)
+				expect(run.streak).to.equal(0)
 				expect(MouseDash.tap(run, wave.index, hole, 10.2, 0).outcome).to.equal("dizzy")
+				expect(MouseDash.tap(run, wave.index, other, 10.25, 0).outcome).to.equal("dizzy")
+				expect(run.hearts).to.equal(2) -- a slip never costs two
 				expect(run.points).to.equal(0)
 				expect(
 					MouseDash.tap(run, wave.index, hole, 10.1 + Config.MouseDashDizzySeconds, 0).outcome
@@ -327,6 +331,29 @@ return function()
 			expect(tap.waveOver).to.equal(true)
 			expect(run.hearts).to.equal(3)
 		end)
+
+		it(
+			"ends on the run's clock, MouseDashRunSeconds after the first mouse can come (Derek 2026-11-12)",
+			function()
+				local run = runAt(0)
+				local endsAt = run.startedAt + MouseDash.LEAD_IN + Config.MouseDashRunSeconds
+				expect(run.endsAt).to.be.near(endsAt, 1e-9)
+				expect(Config.MouseDashRunSeconds).to.equal(180)
+				expect(MouseDash.over(run)).to.equal(nil)
+				expect(MouseDash.over(run, endsAt - 0.01)).to.equal(nil)
+				expect(MouseDash.over(run, endsAt)).to.equal("time")
+				-- the server wakes for the clock even with a long window up, and a tap after it does nothing
+				run.nextAt = endsAt - 0.2
+				local wave = MouseDash.wave(run, run.nextAt, rolls({ 0.5 }))
+				expect(MouseDash.wakeAt(run, 0.1)).to.be.near(endsAt, 1e-9)
+				local late = MouseDash.tap(run, wave.index, wave.pops[1].hole, endsAt + 0.01, 0.1)
+				expect(late.outcome).to.equal("ignored")
+				expect(run.points).to.equal(0)
+				-- a win or the last heart still names the run's end first
+				run.hearts = 0
+				expect(MouseDash.over(run, endsAt + 1)).to.equal("hearts")
+			end
+		)
 
 		it("wakes the server at the next wave in a gap, else at the first window to end", function()
 			local run = runAt(0)

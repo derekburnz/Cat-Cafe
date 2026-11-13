@@ -64,6 +64,7 @@ local PotionService = require(script.Parent.Services.PotionService)
 local ProductService = require(script.Parent.Services.ProductService)
 local QuestService = require(script.Parent.Services.QuestService)
 local RallyService = require(script.Parent.Services.RallyService)
+local RankSpotService = require(script.Parent.Services.RankSpotService)
 local RareCatsTabService = require(script.Parent.Services.RareCatsTabService)
 local RareMomentService = require(script.Parent.Services.RareMomentService)
 local RescueService = require(script.Parent.Services.RescueService)
@@ -75,6 +76,7 @@ local ShopCatService = require(script.Parent.Services.ShopCatService)
 local ShoveService = require(script.Parent.Services.ShoveService)
 local SpinService = require(script.Parent.Services.SpinService)
 local StarterCatService = require(script.Parent.Services.StarterCatService)
+local StuckGoalService = require(script.Parent.Services.StuckGoalService)
 local Telemetry = require(script.Parent.Services.Telemetry)
 local TipJarService = require(script.Parent.Services.TipJarService)
 local TipPileService = require(script.Parent.Services.TipPileService)
@@ -116,6 +118,7 @@ CannonService.start(world) -- F84: after the cats, travel and the night sweep it
 TutorialMoveService.start(world) -- #2697: the bowl and cannon moves, after the cats and the cannons
 FallCatchService.start() -- #2651: the Ruins' mist catch, after the cannon whose pads it lands you on
 DealerService.start()
+RankSpotService.start() -- #3555: when the first rank up's walk-through may show, behind rankUpSpotlight
 RichTipService.start()
 TipPileService.start()
 MysteryService.start()
@@ -153,6 +156,7 @@ PalService.start() -- F92: pals; before Telemetry so pal_time goes out before it
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join
 LateStationService.start() -- #2651 part 4: the Oasis Spa and Relic Museum, before DataService (onLoaded)
+StuckGoalService.start() -- #2912: the stuck cat pointer, after RescueService
 BinService.start() -- #3050: the Rummage Bin, after RescueService (its bar's remotes) and before DataService
 InviteService.start() -- #2797: the invite reward, before DataService (onLoaded links an invited new player)
 CafePassService.start() -- #1645: the Cafe Pass, before DataService so its onLoaded sees every join

@@ -14,8 +14,8 @@ one extra rescue spot inside, so ranking up opens a new place to look and not on
                         goes, a 3 x 3 square kept clear for it; `PathEnd` at the last stone (0, 0, -10.4).
                         Everything collides except the floor patch, the stones and the flowers (`_Decor`).
                         The Woods, Sewer, Desert, Ruins and Snowy nooks carry their trap piece (TRAPS, child Model
-                        `<Name>_Trap`): the area's own bramble, grate, clay urn, stone urn or snowdrift, so Layout.setStuckPoses
-                        fits the stuck cat as in the set. `RescueSpot` stands on that piece's spot, turned by its
+                        `<Name>_Trap`): the area's own bramble, grate, clay urn, stone urn or snowdrift, so
+                        Layout.setStuckPoses fits the stuck cat as in the set. `RescueSpot` stands on that piece's spot, turned by its
                         turn. The Park and Neighbourhood traps are the bin props the game stands at `RescueSpot`.
 
 Where each nook stands is Layout's (Layout.<area>.nook, #2687): against a side wall in the set's far half, its

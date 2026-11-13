@@ -71,6 +71,9 @@ local TAB_MIN = 100
 -- in one row they wrap into rows of equal tabs, up to TAB_ROWS, each at least TAB_WRAP_MIN, so every area shows
 local TAB_ROWS = 3
 local TAB_WRAP_MIN = 84
+-- #3931 (Review-QA): on a short screen (a phone held sideways) the rows of tabs left no decor in view, so there the
+-- tabs stand in a column down the left side, RAIL_W wide, scrolling when they do not fit, with the page beside them
+local RAIL_W = 112
 local TAB_PAD = 3 -- room for a tab's outline inside the clipping row
 local TAB_BADGE = 4 -- and more above and right of the tabs for a page's red count badge, which sits over the corner
 local TAB_BAR = 4 -- the row's scroll bar, under the tabs
@@ -161,7 +164,8 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 	self._tabGrid = self._chipBar:FindFirstChild("Tabs") :: UIGridLayout
 	self._tabRows = 1
 
-	self._resized = self._chipBar:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+	self._rail = false
+	self._resized = self.frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		self:_sizeTabs()
 	end)
 
@@ -430,16 +434,15 @@ end
 
 -- Each page tab gets an equal share of its row. One row while that share is at least TAB_MIN, else the fewest rows
 -- (up to TAB_ROWS) whose share is at least TAB_WRAP_MIN (#3931); only past TAB_ROWS does the row scroll. The
--- completion line and the page move down under the rows.
+-- completion line and the page move down under the rows. On a short screen, where rows would leave no decor in
+-- view, more than one row becomes the left column (RAIL_W) instead, the page beside it (the completion line hides there: the open tab shows the page's count).
 function DecorIndex._sizeTabs(self: any)
 	local count = #self._chips
 	if count == 0 then
 		return
 	end
 	local gap = Theme.sizes.gap
-	local width = self._chipBar.AbsoluteSize.X / math.max(Scale.get(), 0.01)
-		- TAB_PAD * 2
-		- TAB_BADGE
+	local width = self.frame.AbsoluteSize.X / math.max(Scale.get(), 0.01) - TAB_PAD * 2 - TAB_BADGE
 	local rows, tab = TAB_ROWS, TAB_WRAP_MIN
 	for tryRows = 1, TAB_ROWS do
 		local perRow = math.ceil(count / tryRows)
@@ -449,20 +452,42 @@ function DecorIndex._sizeTabs(self: any)
 			break
 		end
 	end
+	local rail = rows > 1 and Scale.isShort()
+	if rail then
+		tab = RAIL_W
+	end
 	local chipHeight = self._chipHeight
 	local grid: UIGridLayout = self._tabGrid
 	grid.CellSize = UDim2.fromOffset(tab, chipHeight)
 	for _, chip: Chip in self._chips do
 		chip.frame.Size = UDim2.new(0, tab, 0, chipHeight)
 	end
-	if rows == self._tabRows and self._laidOut then
+	if rows == self._tabRows and rail == self._rail and self._laidOut then
 		return
 	end
 	self._tabRows = rows
+	self._rail = rail
 	self._laidOut = true
+	local bar: ScrollingFrame = self._chipBar
+	if rail then
+		local railWidth = RAIL_W + TAB_PAD * 2 + TAB_BADGE + TAB_BAR
+		bar.Size = UDim2.new(0, railWidth, 1, 0)
+		bar.AutomaticCanvasSize = Enum.AutomaticSize.Y
+		bar.ScrollingDirection = Enum.ScrollingDirection.Y
+		bar.CanvasPosition = Vector2.zero
+		-- the completion line goes: the open tab in the column already shows the page's "3 / 12"
+		local left = railWidth + gap
+		self._progress.Visible = false
+		self._page.Position = UDim2.fromOffset(left, 0)
+		self._page.Size = UDim2.new(1, -left, 1, 0)
+		return
+	end
 	local barHeight = rows * chipHeight + (rows - 1) * gap + TAB_PAD * 2 + TAB_BADGE + TAB_BAR
-	self._chipBar.Size = UDim2.new(1, 0, 0, barHeight)
+	bar.Size = UDim2.new(1, 0, 0, barHeight)
+	bar.AutomaticCanvasSize = Enum.AutomaticSize.X
+	bar.ScrollingDirection = Enum.ScrollingDirection.X
 	local progressTop = barHeight + gap
+	self._progress.Visible = true
 	self._progress.Position = UDim2.fromOffset(0, progressTop)
 	local pageTop = progressTop + PROGRESS_HEIGHT + gap
 	self._page.Position = UDim2.fromOffset(0, pageTop)

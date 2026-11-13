@@ -13,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
@@ -27,7 +28,8 @@ local Types = require(script.Parent.Parent.Types)
 local SharedTrade = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Trade")) :: any
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type Callbacks = {
 	close: () -> (),
@@ -67,7 +69,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -159,7 +161,7 @@ function TradeLog._line(_self: any, card: Frame, name: string, title: string, y:
 		Size = UDim2.fromOffset(LABEL_W, TILE),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		Text = title,
 		Parent = card,
 	})
@@ -189,7 +191,7 @@ function TradeLog._line(_self: any, card: Frame, name: string, title: string, y:
 		Name = name .. "Nothing",
 		Position = UDim2.fromOffset(LEFT_W + LABEL_W, y),
 		Size = UDim2.new(1, -(LEFT_W + LABEL_W + PAD), 0, TILE),
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		Text = "Nothing",
 		Visible = false,
 		Parent = card,
@@ -204,14 +206,14 @@ function TradeLog._card(self: any, index: number): Card
 	end
 	local frame: Frame = Create("Frame", {
 		Name = "Trade" .. index,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		LayoutOrder = index,
 		Size = UDim2.new(1, 0, 0, CARD_H),
 		Parent = self._list,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	local partner = text({
 		Name = "Partner",
@@ -226,7 +228,7 @@ function TradeLog._card(self: any, index: number): Card
 		Position = UDim2.fromOffset(PAD + 2, PAD + 32),
 		Size = UDim2.fromOffset(LEFT_W - PAD * 2, 20),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		TextColor3 = CARD.subtext,
 		Parent = frame,
 	})
 	local card: Card = {

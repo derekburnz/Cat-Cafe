@@ -276,6 +276,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 	for _, def in Catalog.upgrades do
 		levels[def.id] = def.startLevel
 	end
+	levels.tables = math.max(levels.tables or 0, Config.StartTables) -- #3660: the first table is already open
 	-- The starter has neutral charm (50) so every new cafe earns the same 1.5 per second.
 	local starter = CatStats.newInstance(STARTER_UID, "tabby", now)
 	starter.spotId = "barista_1"
@@ -327,7 +328,9 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		flags = { autoPress = false },
 		telemetry = {
 			onboardingStep = 0,
-			achieved = {},
+			-- #3660: the first table is there from the start, so its funnel step counts as met: it is logged in its
+			-- place as the funnel reaches it (the funnel needs every step in order) and nothing waits on it
+			achieved = Onboarding.startAchieved(Config.StartTables),
 			funnel = Onboarding.VERSION,
 			firstDay = now // DAY_SECONDS,
 			introStep = 0,

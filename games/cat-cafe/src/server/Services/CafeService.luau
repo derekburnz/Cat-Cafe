@@ -1384,6 +1384,15 @@ local function newUid(): string
 	return CatStats.uidFromGuid(HttpService:GenerateGUID(false))
 end
 
+-- #3660: the tutorial step a first cat put to work leads to: the first table (3), or for a save that has a table
+-- already (new saves start with one) the Bait bowl (4), or the end (5) when food has been used too.
+local function stepAfterJob(profile: Profile): number
+	if Economy.level(profile, "tables") < 1 then
+		return 3
+	end
+	return if profile.stats.luresUsed > 0 then 5 else 4
+end
+
 -- Moves the tutorial on to `step` when it is behind, and logs tutorial_step for every step it passes, as
 -- TutorialAdvance does for the steps the client reports, so a step skipped over (an upgrade bought from step 3, a
 -- catch before the alley step) still counts and never reads as a drop in the funnel.
@@ -1690,7 +1699,7 @@ local function onPlaceCat(player: Player, rawUid: unknown, rawSpot: unknown)
 	end
 	instance.spotId = spotId
 	noteHand(player, uid) -- #1955: Auto Equip leaves it there a while
-	CafeService.advanceTutorial(player, profile, 3)
+	CafeService.advanceTutorial(player, profile, stepAfterJob(profile))
 	Telemetry.onboarding(player, profile, "first_role_assigned")
 	Telemetry.catWorking(player, uid)
 	local catDef = Catalog.getCat(instance.catId)
@@ -1765,7 +1774,7 @@ local function runAutoEquip(player: Player, profile: Profile): number
 		end
 	end
 	if plan.catsPlaced > 0 then
-		CafeService.advanceTutorial(player, profile, 3)
+		CafeService.advanceTutorial(player, profile, stepAfterJob(profile))
 		Telemetry.onboarding(player, profile, "first_role_assigned")
 	end
 	if #swaps > 0 then
@@ -1849,7 +1858,7 @@ local function onEquipBest(player: Player)
 		end
 	end
 	if plan.catsPlaced > 0 then
-		CafeService.advanceTutorial(player, profile, 3)
+		CafeService.advanceTutorial(player, profile, stepAfterJob(profile))
 		Telemetry.onboarding(player, profile, "first_role_assigned")
 	end
 	Net.toast(

@@ -44,16 +44,20 @@ if #failures > 0 then
 	)
 end
 
-local placeholders = require(Server.World.AssetRegistry).ensurePlaceholders()
+local AssetRegistry = require(Server.World.AssetRegistry)
+local placeholders = AssetRegistry.ensurePlaceholders()
+-- as Main does (#3743): the world is built with the area sets and backdrops moved to ServerStorage
+local stowed = AssetRegistry.stowServerOnly()
 local world = require(Server.World.WorldBuilder).build()
 assert(#world.plots > 0, "WorldBuilder built no plots")
 
 local summary = string.format(
-	"[CatCafe] engine smoke ok in %.2fs: %d modules, %d plots, %d placeholder models",
+	"[CatCafe] engine smoke ok in %.2fs: %d modules, %d plots, %d placeholder models, %d server-only templates",
 	os.clock() - started,
 	loaded,
 	#world.plots,
-	placeholders
+	placeholders,
+	stowed
 )
 print(summary)
 return summary

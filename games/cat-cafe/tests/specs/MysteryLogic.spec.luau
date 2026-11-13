@@ -38,8 +38,9 @@ return function()
 			expect(view.others[1].id).to.equal("long_net")
 			expect(view.others[1].price).to.equal(320)
 			expect(view.others[1].sale).to.equal(false)
-			expect(view.ends).to.equal("Sale ends in 6d 21h")
-			expect(view.nextLine).to.equal("Next sale: 6d 21h")
+			-- #3535: the Backpack's sale ends at Friday's update, 22:00 UTC, two hours before the week does
+			expect(view.ends).to.equal("Sale ends in 6d 19h")
+			expect(view.nextLine).to.equal("Next sale: 6d 19h")
 		end)
 
 		it("says owned, the tier, the fish or soon on the button and under it", function()
@@ -60,12 +61,34 @@ return function()
 			expect(shut.enabled).to.equal(false)
 		end)
 
-		it("moves the sale on the next week", function()
+		it(
+			"moves the sale on to the Speed Shoes with Friday's update, switch on (#3535)",
+			function()
+				local view = MysteryLogic.view(
+					state(),
+					NOW + Config.MysteryRotateSeconds,
+					{ speedShoes = true }
+				)
+				expect(view.featured.id).to.equal("speed_shoes")
+				expect(view.featured.price).to.equal(375)
+				expect(view.featured.full).to.equal(500)
+				expect(#view.others).to.equal(2)
+				expect(view.others[1].id).to.equal("backpack")
+				expect(view.others[1].price).to.equal(400)
+				expect(view.others[2].id).to.equal("long_net")
+			end
+		)
+
+		it("leaves the Speed Shoes off the shelf while their switch is off (#3535)", function()
 			local view = MysteryLogic.view(state(), NOW + Config.MysteryRotateSeconds)
-			expect(view.featured.id).to.equal("long_net")
-			expect(view.featured.price).to.equal(240)
+			expect(view.featured).to.equal(nil)
+			expect(view.ends).to.equal(nil)
+			expect(#view.others).to.equal(2)
 			expect(view.others[1].id).to.equal("backpack")
 			expect(view.others[1].price).to.equal(400)
+			local now = MysteryLogic.view(state(), NOW)
+			expect(now.featured.id).to.equal("backpack")
+			expect(#now.others).to.equal(1)
 		end)
 
 		it("survives an empty state", function()

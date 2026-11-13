@@ -443,6 +443,7 @@ export type MysteryItem = {
 	cost: number,
 	minTier: number,
 	kind: "tool" | "decor" | "look" | "music",
+	flag: string?, -- #3535: the LiveFlags key that must be on for the item to be on the shelf (nil: always)
 }
 
 export type FishShopRow = {

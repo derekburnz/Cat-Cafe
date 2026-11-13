@@ -27,6 +27,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local CodeEntry = require(script.Parent.Parent.Components.CodeEntry)
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
@@ -39,7 +40,8 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
+local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
@@ -99,7 +101,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = PAL.text,
+		TextColor3 = CARD.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -154,7 +156,7 @@ function Codes.new(callbacks: Callbacks): Codes
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = PAL.subtext,
+		ScrollBarImageColor3 = CARD.subtext,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
@@ -226,15 +228,15 @@ function Codes.new(callbacks: Callbacks): Codes
 	})
 	local box: TextBox = Create("TextBox", {
 		Name = "Code",
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = CARD.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, -(REDEEM_WIDTH + GAP), 0, ROW),
 		ClearTextOnFocus = false,
 		ClipsDescendants = true,
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
-		TextColor3 = PAL.text,
-		PlaceholderColor3 = PAL.subtext,
+		TextColor3 = CARD.text,
+		PlaceholderColor3 = CARD.subtext,
 		PlaceholderText = PLACEHOLDER,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = "",
@@ -243,7 +245,7 @@ function Codes.new(callbacks: Callbacks): Codes
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }),
 	})
-	Outline.border(box, Theme.sizes.stroke, PAL.cardStroke)
+	Outline.border(box, Theme.sizes.stroke, CARD.cardStroke)
 	self._box = box
 	self._redeem = Button.new({
 		name = "Redeem",
@@ -447,7 +449,7 @@ function Codes._renderUsed(self: any)
 	for order, entry in list do
 		local frame: Frame = Create("Frame", {
 			Name = entry.id,
-			BackgroundColor3 = PAL.card,
+			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			Size = UDim2.new(1, 0, 0, USED_ROW),
 			LayoutOrder = order,
@@ -470,7 +472,7 @@ function Codes._renderUsed(self: any)
 			Position = UDim2.new(1, -10, 0, 0),
 			Size = UDim2.new(0, 64, 1, 0),
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = PAL.subtext,
+			TextColor3 = CARD.subtext,
 			TextXAlignment = Enum.TextXAlignment.Right,
 			Text = os.date("%b %d", entry.at) :: string,
 			Parent = frame,
@@ -483,7 +485,7 @@ function Codes._renderUsed(self: any)
 			Parent = frame,
 		})
 		local chips = PrizeChips.new({
-			textColor = PAL.text,
+			textColor = CARD.text,
 			parent = prizeArea,
 			tile = USED_TILE,
 			textSize = Theme.sizes.textSmall,
@@ -525,7 +527,7 @@ end
 function Codes._setAnswer(self: any, ok: boolean?, message: string?, prize: Types.IndexPrize?)
 	self._failed = ok == false
 	self._answer.Text = message or ""
-	self._answer.TextColor3 = if ok then Theme.colors.white else PAL.subtext
+	self._answer.TextColor3 = if ok then Theme.colors.white else CARD.subtext
 	self._result.BackgroundTransparency = if ok then 0 else 1
 	self._result.Visible = (message or "") ~= ""
 	self._chips:set(prize, self:_look())

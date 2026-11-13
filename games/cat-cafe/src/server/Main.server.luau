@@ -98,6 +98,8 @@ end
 
 local started = os.clock()
 local placeholders = AssetRegistry.ensurePlaceholders()
+-- #3743: the area sets and backdrops leave ReplicatedStorage before anyone joins, so no client is sent them
+local stowed = AssetRegistry.stowServerOnly()
 local world = WorldBuilder.build()
 
 Net.start()
@@ -199,9 +201,10 @@ end
 
 print(
 	string.format(
-		"[CatCafe] server ready in %.2fs: %d plots, %d placeholder models",
+		"[CatCafe] server ready in %.2fs: %d plots, %d placeholder models, %d server-only templates",
 		os.clock() - started,
 		#world.plots,
-		placeholders
+		placeholders,
+		stowed
 	)
 )

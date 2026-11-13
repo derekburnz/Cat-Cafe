@@ -4080,7 +4080,7 @@
      "CFrame": {
       "position": [
        0.385,
-       2.145,
+       2.0475,
        0.339
       ],
       "orientation": [
@@ -4104,7 +4104,7 @@
     },
     "Size": [
      0.065,
-     0.065,
+     0.26,
      0.03
     ],
     "Color": [
@@ -4128,105 +4128,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.385,
-       2.08,
-       0.339
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.065,
-     0.065,
-     0.03
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_HarvestCiderCart",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.385,
-       2.015,
-       0.339
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.065,
-     0.065,
-     0.03
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_HarvestCiderCart",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.32,
+       0.2875,
        1.95,
        0.339
       ],
@@ -4250,7 +4152,7 @@
      }
     },
     "Size": [
-     0.195,
+     0.13,
      0.065,
      0.03
     ],
@@ -4325,7 +4227,7 @@
      "CFrame": {
       "position": [
        0.06,
-       2.145,
+       2.0475,
        0.339
       ],
       "orientation": [
@@ -4349,7 +4251,7 @@
     },
     "Size": [
      0.065,
-     0.065,
+     0.26,
      0.03
     ],
     "Color": [
@@ -4373,105 +4275,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.06,
-       2.08,
-       0.339
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.065,
-     0.065,
-     0.03
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_HarvestCiderCart",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.06,
-       2.015,
-       0.339
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.065,
-     0.065,
-     0.03
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_HarvestCiderCart",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.06,
+       0.125,
        1.95,
        0.339
       ],
@@ -4495,7 +4299,56 @@
      }
     },
     "Size": [
-     0.195,
+     0.065,
+     0.065,
+     0.03
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HarvestCiderCart",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.005,
+       1.95,
+       0.339
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.065,
      0.065,
      0.03
     ],
@@ -4570,7 +4423,7 @@
      "CFrame": {
       "position": [
        -0.135,
-       2.145,
+       2.0475,
        0.339
       ],
       "orientation": [
@@ -4594,105 +4447,7 @@
     },
     "Size": [
      0.065,
-     0.065,
-     0.03
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_HarvestCiderCart",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.265,
-       2.145,
-       0.339
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.065,
-     0.065,
-     0.03
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_HarvestCiderCart",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.135,
-       2.08,
-       0.339
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.065,
-     0.065,
+     0.26,
      0.03
     ],
     "Color": [
@@ -4741,7 +4496,7 @@
     },
     "Size": [
      0.065,
-     0.065,
+     0.195,
      0.03
     ],
     "Color": [
@@ -4765,105 +4520,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.135,
-       2.015,
-       0.339
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.065,
-     0.065,
-     0.03
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_HarvestCiderCart",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.265,
-       2.015,
-       0.339
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.065,
-     0.065,
-     0.03
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_HarvestCiderCart",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1675,
+       -0.2,
        1.95,
        0.339
       ],
@@ -4887,7 +4544,7 @@
      }
     },
     "Size": [
-     0.13,
+     0.065,
      0.065,
      0.03
     ],
@@ -4962,7 +4619,7 @@
      "CFrame": {
       "position": [
        -0.395,
-       2.145,
+       2.0475,
        0.339
       ],
       "orientation": [
@@ -4986,105 +4643,7 @@
     },
     "Size": [
      0.065,
-     0.065,
-     0.03
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_HarvestCiderCart",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4275,
-       2.08,
-       0.339
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.13,
-     0.065,
-     0.03
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_HarvestCiderCart",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.395,
-       2.015,
-       0.339
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.065,
-     0.065,
+     0.26,
      0.03
     ],
     "Color": [
@@ -5109,6 +4668,55 @@
      "CFrame": {
       "position": [
        -0.46,
+       2.08,
+       0.339
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.065,
+     0.065,
+     0.03
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HarvestCiderCart",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4925,
        1.95,
        0.339
       ],
@@ -5132,7 +4740,7 @@
      }
     },
     "Size": [
-     0.195,
+     0.13,
      0.065,
      0.03
     ],
@@ -5207,7 +4815,7 @@
      "CFrame": {
       "position": [
        -0.655,
-       2.145,
+       2.0475,
        0.339
       ],
       "orientation": [
@@ -5231,7 +4839,7 @@
     },
     "Size": [
      0.065,
-     0.065,
+     0.26,
      0.03
     ],
     "Color": [
@@ -5304,7 +4912,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.6875,
+       -0.72,
        2.08,
        0.339
       ],
@@ -5328,204 +4936,57 @@
      }
     },
     "Size": [
+     0.065,
+     0.065,
+     0.03
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HarvestCiderCart",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.785,
+       1.9825,
+       0.339
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.065,
      0.13,
-     0.065,
-     0.03
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_HarvestCiderCart",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.655,
-       2.015,
-       0.339
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.065,
-     0.065,
-     0.03
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_HarvestCiderCart",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.785,
-       2.015,
-       0.339
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.065,
-     0.065,
-     0.03
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_HarvestCiderCart",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.655,
-       1.95,
-       0.339
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.065,
-     0.065,
-     0.03
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_HarvestCiderCart",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.785,
-       1.95,
-       0.339
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.065,
-     0.065,
      0.03
     ],
     "Color": [

@@ -166,6 +166,7 @@ export type CustomEvent =
 	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
+	| "intro_skip" -- #3773: a first play skipped; value the whole seconds watched; version:shot, device
 	| "potion_used" -- F64: potion id, tier
 	| "mystery_gift" -- F64: "opened" or "missed", kind:id ("potion:tip_potion", "spin"), tier; the value is the count
 	| "collector_visit" -- F63: "arrived", "traded", "declined", "timeout" or "withdrawn", catId:variant, offer value
@@ -265,6 +266,8 @@ export type CustomEvent =
 	-- F87 (TipService): a context tip shown (tip id, skipped yes or no), once per id until ClearTips;
 	-- a feedback face (love, ok or no; the chip or none; tier), FeedbackSessionLimit a session
 	| "tip_shown"
+	-- #3430: the Mystic Pool's first walk-up cutscene ended; value the seconds seen; watched or skipped
+	| "mystic_intro"
 	| "ask_shown" -- F96: value 1; kind (notify, favorite, like or F92's invite), the session number
 	| "feedback"
 	-- #2681: with each feedback answer, value 1: the face, the furthest clean funnel step (onboarding_v7, #3695), the account's minutes

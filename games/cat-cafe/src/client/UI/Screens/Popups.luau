@@ -21,6 +21,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local Rainbow = require(script.Parent.Parent.Components.Rainbow)
@@ -32,7 +33,7 @@ local Types = require(script.Parent.Parent.Types)
 local WelcomeBack = require(script.Parent.Parent.Components.WelcomeBack)
 
 -- the dark window palette (#1028), in place of Theme.modal: the popups match the dark windows
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
 
 export type Popups = {
 	screenGui: ScreenGui,

@@ -28,14 +28,45 @@ local Arcade = require(Shared:WaitForChild("Arcade"))
 local CampExtras = require(Shared:WaitForChild("CampExtras"))
 local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
 local LateStations = require(Shared:WaitForChild("LateStations"))
+local MysticIntroCut = require(script.Parent.Parent.Effects.MysticIntroCut)
 local Net = require(script.Parent.Parent.Net)
 local StationOpens = require(Shared:WaitForChild("StationOpens"))
+local Tips = require(Shared:WaitForChild("Tips"))
 local Traits = require(Shared:WaitForChild("Traits"))
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
 local WalkUp = require(Shared:WaitForChild("WalkUp"))
 
 local WalkUpController = {}
+
+-- #3430: the Mystic Pool's first walk-up. When the cutscene is due (Tips.mysticIntroDue) and Effects can play it
+-- now, its mark goes to the server as it starts (TipSeen, and into this client's state at once, so nothing plays it
+-- twice), and as it ends the card opens and the outcome and seconds seen follow for the `mystic_intro` count. False
+-- when it is not due or cannot play now (the camera is busy): the card opens as usual and the next walk-up tries
+-- again. The walk-up's own rules already keep it out of a catch, a rescue, a carry, a flight, the intro and any
+-- open window.
+local function mysticIntro(station: Instance): boolean
+	local state = UIController.state
+	if
+		state == nil
+		or not station:IsA("Model")
+		or not Tips.mysticIntroDue(state.tipsSeen, (state :: any).traits, state.tutorialStep)
+	then
+		return false
+	end
+	local playing = MysticIntroCut.play(station :: Model, function(outcome: string, seconds: number)
+		Net.fire("TipSeen", Tips.MYSTIC_INTRO, outcome == "skipped", seconds)
+		UI.mysticPool.open()
+	end)
+	if not playing then
+		return false
+	end
+	if state.tipsSeen ~= nil then
+		state.tipsSeen[Tips.MYSTIC_INTRO] = true
+	end
+	Net.fire("TipSeen", Tips.MYSTIC_INTRO)
+	return true
+end
 
 local player = Players.LocalPlayer
 local POLL_SECONDS = 0.15
@@ -115,8 +146,11 @@ local KINDS: { Kind } = {
 		tag = Traits.TAG, -- #3196: the Mystic Pool, in the Park camp while the `traits` switch is on
 		prompt = Traits.PROMPT,
 		window = "MysticPool",
-		open = function()
-			UI.mysticPool.open()
+		-- #3430: the first walk-up plays the pool's cutscene, and the card opens as it ends
+		open = function(model: Instance)
+			if not mysticIntro(model) then
+				UI.mysticPool.open()
+			end
 		end,
 	},
 	{

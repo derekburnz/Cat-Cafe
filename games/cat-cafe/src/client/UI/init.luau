@@ -3420,7 +3420,8 @@ function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?):
 	if target == nil then
 		return false
 	end
-	UI.rankSpot.close = SpotlightGuide.show(target, words or "", onOutside)
+	-- the goal card's lines start at its edge: its ring goes round it, not over the first letters
+	UI.rankSpot.close = SpotlightGuide.show(target, words or "", onOutside, phase == "button")
 	return true
 end
 
@@ -5221,7 +5222,7 @@ do
 
 	-- #3555: for the first rank up's walk-through (Controllers/RankSpotController). `moment` says whether nothing
 	-- else is going on (no catch, rescue, carry, cutscene or flight, the UI showing) and names the open window: the
-	-- modal's, or "other" for a popup, the bait card or an ask.
+	-- modal's, or "other" for a popup, the bait card, an ask or the gift, tip or recap card.
 	function UI.rankSpot.moment(): (boolean, string?)
 		local at = tipMoment()
 		local free = not (
@@ -5234,12 +5235,19 @@ do
 			or tipBusy
 		)
 		local window: string? = if modal ~= nil then modal:current() else nil
+		-- (any: UI.gift and UI.recap are filled further down this file, and the CI type check loses the whole UI
+		-- table's shape when they are read here by their own types)
+		local cards: any = UI
 		if
 			window == nil
 			and (
 				(popups ~= nil and popups:isShowing())
 				or (baitCard ~= nil and baitCard:isShowing())
 				or (askCard ~= nil and askCard:isShowing())
+				-- the gift, tip and recap cards too: a press on their Close is not a press on the dim
+				or (cards.gift.card ~= nil and cards.gift.card:isShowing())
+				or (tipCard ~= nil and tipCard:isShowing())
+				or (cards.recap.card ~= nil and cards.recap.card:isShowing())
 			)
 		then
 			window = "other"

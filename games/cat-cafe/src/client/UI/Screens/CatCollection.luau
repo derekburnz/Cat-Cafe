@@ -262,6 +262,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	-- tabs: Cats, Gold, Rainbow, Decor, then Claim all; tall enough for a finger on a phone and a 36 px face on
 	-- a mouse
 	local tabH = Scale.tapHeight(TAB_HEIGHT + 1, Theme.sizes.buttonDepth)
+	self._tabH = tabH
 	local tabs: Frame = Create("Frame", {
 		Name = "Tabs",
 		BackgroundTransparency = 1,
@@ -316,6 +317,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		end,
 	})
 	self._claimAll.instance.Visible = false
+	self:_fitTabs()
 
 	-- the forever bonuses, in the title bar right of the title and left of the X (F99: five tabs and Claim all fill
 	-- the tab row); shrinks to fit the room the title leaves on a narrow screen
@@ -923,6 +925,7 @@ function CatCollection.setCatalog(self: any, catalog: Types.Catalog)
 		self._tab = "Index"
 		self:_paintTabs()
 	end
+	self:_fitTabs()
 	self._dirty = true
 end
 
@@ -1333,9 +1336,34 @@ function CatCollection._syncClaimAll(self: any)
 	local count: number = self._waitingAll or 0
 	local can = (Config :: any).IndexClaimAll == true and self._callbacks.claimAll ~= nil
 	local pending = os.clock() - self._claimAllAt < CLAIM_ALL_HOLD
-	self._claimAll.instance.Visible = can and count >= 1
+	local shown = can and count >= 1
+	if shown ~= self._claimAll.instance.Visible then
+		self._claimAll.instance.Visible = shown
+		self:_fitTabs()
+	end
 	self._claimAll:setEnabled(not pending)
 	self._claimAll:setText(if pending then "Claiming" else ("Claim all (%d)"):format(count))
+end
+
+-- #3961 (Derek 2026-11-13: "easy to navigate on phone and pc"): the shown tabs share the row left of Claim all, as
+-- the Bag's and Settings' do, at least TAB_W each; the row's own UIListLayout keeps them in order
+function CatCollection._fitTabs(self: any)
+	local tabs = { self._indexTab, self._goldTab, self._rainbowTab, self._decorTab }
+	local shown = 0
+	for _, tab in tabs do
+		if tab.instance.Visible then
+			shown += 1
+		end
+	end
+	if shown == 0 then
+		return
+	end
+	local gap = Theme.sizes.gap
+	local claimW = if self._claimAll.instance.Visible then CLAIM_ALL_W + gap else 0
+	local take = claimW + gap * (shown - 1)
+	for _, tab in tabs do
+		tab.instance.Size = UDim2.new(1 / shown, -math.ceil(take / shown), 0, self._tabH)
+	end
 end
 
 function CatCollection._pressClaimAll(self: any)

@@ -86,6 +86,9 @@
 -- - `speedShoes` (#3535): the Mystery Market's Speed Shoes (shared/SpeedShoes). It starts OFF (OFF_BY_DEFAULT): off
 --   hides the shelf row, refuses a buy and adds no carry speed. Switch it on only once no server older than the
 --   publish that added the row is running, since an older server's save check drops an item id it does not know.
+-- - `petCats` (#3651): the Pet prompt on the cats in a player's own cafe; the petted cat is the happy cat, earning
+--   Config.PetMoneyBoost times its pay for Config.PetSeconds (shared/Pet). It starts OFF (OFF_BY_DEFAULT); off, no
+--   prompt shows, no pet is taken and a running heart pays nothing extra.
 -- - `returnGift` (#3772): a golden crate once per account on the first join on a later UTC day than its first, for
 --   accounts first seen from Config.ReturnGiftFromDay, and the recap's "come back tomorrow" line for it
 --   (shared/ReturnGift). It starts OFF (OFF_BY_DEFAULT).
@@ -132,6 +135,7 @@ LiveFlags.KEYS = {
 	"bagColours",
 	"menuFamily",
 	"speedShoes",
+	"petCats",
 	"returnGift",
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -159,6 +163,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	bagColours = true,
 	menuFamily = true,
 	speedShoes = true,
+	petCats = true,
 	returnGift = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

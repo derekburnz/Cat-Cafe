@@ -167,6 +167,10 @@ local Moments = {
 	MouseDashFaster = Signal.new() :: Signal.Signal<number>,
 	MouseDashMilestone = Signal.new() :: Signal.Signal<number>,
 	MouseDashEnd = Signal.new() :: Signal.Signal<number, string, boolean>,
+	-- #3651 (shared/Pet): (userId, cat, from) a player petted the working cat `cat` in their cafe; `from` is the cat
+	-- the heart left, when it moved from another one. Fired on every client that has the cat streamed in
+	-- (Controllers/PetController, from the server's CatPetted), for the reach, the hearts and the purr.
+	CatPetted = Signal.new() :: Signal.Signal<number, Model, Model?>,
 }
 
 return Moments

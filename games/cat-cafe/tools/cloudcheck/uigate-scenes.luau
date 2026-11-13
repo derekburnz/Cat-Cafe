@@ -2575,10 +2575,13 @@ local SCENES = {
 		assert(name.Text == "Golden Whiskers", "uigate: the trait card reads " .. name.Text .. " (#3196)")
 		local effects = window:FindFirstChild("Trait", true):FindFirstChild("Effect2")
 		assert(effects.Text ~= "", "uigate: a Legendary trait shows one effect only (#3196)")
-		-- #3961: the main card's odds are six rarity pills
+		-- #3961: the main card's odds are six rarity pills; #3908: seven with the secretTrait switch on, Mythic 4.9%
+		local secretOn = game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_secretTrait") == true
 		local pills = window:FindFirstChild("OddsPills", true)
 		local mythic = pills and pills:FindFirstChild("Mythic") :: TextLabel?
-		assert(pills and pills.Visible and mythic and mythic.Text == "Mythic 5%", "uigate: the odds pills are not on the card (#3196, #3961)")
+		local secret = pills and pills:FindFirstChild("Secret") :: TextLabel?
+		assert(pills and pills.Visible and mythic and mythic.Text == (if secretOn then "Mythic 4.9%" else "Mythic 5%"), "uigate: the odds pills are not on the card (#3196, #3961)")
+		assert((secret ~= nil) == secretOn and (secret == nil or secret.Text == "Secret 0.1%"), "uigate: the Secret pill shows only with its switch on (#3908)")
 		local roll = window:FindFirstChild("Roll", true):FindFirstChildWhichIsA("TextLabel", true)
 		assert(roll.Text == "Re-roll · 1 Trait Token", "uigate: Roll reads " .. roll.Text .. " (#3196)")
 		local tokens = window:FindFirstChild("Tokens", true)

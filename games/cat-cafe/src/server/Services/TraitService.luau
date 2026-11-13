@@ -19,6 +19,7 @@ local Workspace = game:GetService("Workspace")
 local CafeService = require(script.Parent.CafeService)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local GlobalCatchService = require(script.Parent.GlobalCatchService)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local LiveFlagService = require(script.Parent.LiveFlagService)
@@ -61,16 +62,24 @@ end
 -- Spec section 1a: a Mythic (or better) sends one server-wide line, display name only, through the rare-catch
 -- channel (the Announce toast every client shows, in the Mythical colour). #3942: the roller's whole scene at the
 -- pool plays meanwhile, so the line goes to everyone else and never spoils the roller's own reveal.
+local CHAT_DELAY_SECONDS = 25 -- past the end of the Secret Rift Run (Effects/RiftRun), so the scene reveals it first
+
 local function announce(player: Player, rolled: Traits.Trait)
 	local line = Traits.announceText(player.DisplayName, rolled)
 	if line == nil then
 		return
 	end
+	local chat = Traits.chatRarity(rolled) or "Mythical"
 	for _, other in Players:GetPlayers() do
 		if other ~= player then
-			Net.fire(other, "Announce", line, "Mythical")
+			Net.fire(other, "Announce", line, chat)
 		end
 	end
+	-- #3908: the chat line here and on the other servers, like a Mythical catch (#2203). It waits CHAT_DELAY_SECONDS so
+	-- the roller's own chat does not show it before their scene's reveal.
+	task.delay(CHAT_DELAY_SECONDS, function()
+		GlobalCatchService.share(line, chat)
+	end)
 	-- #3942: everyone near the pool sees its pillar go up (Effects/BigTraitCut.watchPool). Attributes on the station,
 	-- no new remote: who rolled (so their own client skips it, it plays the scene) and the rarity, then the time last,
 	-- which is what the clients watch.
@@ -125,7 +134,7 @@ local function onRoll(player: Player, rawUid: unknown)
 	end
 	local rolled = Traits.roll(function(n: number): number
 		return rng:NextInteger(1, n)
-	end)
+	end, LiveFlagService.on(Traits.SECRET_FLAG))
 	profile.stats.traitRolls += 1 -- #3694 section 3: every roll, a first or a re-roll
 	local reroll = cat.trait ~= nil
 	if reroll then

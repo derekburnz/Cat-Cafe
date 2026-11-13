@@ -592,6 +592,11 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 			.. "  ·  "
 			.. Format.money(state.money)
 	)
+	-- #3880: the tutorial's table and Bait bowl are both bought, so the X glows (arrow and spotlight) on either tab
+	TutorialGlow.set(
+		self._panel:closeTarget(),
+		TutorialHints.closeUpgrades(state.tutorialStep, state.upgradeLevels)
+	)
 	if self._tab == "Staff" then
 		self:_renderStaff(state)
 		return

@@ -163,6 +163,18 @@ return function()
 		end)
 	end)
 
+	describe("TutorialHints.closeUpgrades (#3880)", function()
+		it("points at the Upgrades X once the table and the Bait bowl are bought", function()
+			expect(TutorialHints.closeUpgrades(4, { lure_bowl = 1, tables = 1 })).to.equal(true)
+			expect(TutorialHints.closeUpgrades(4, {})).to.equal(false)
+			expect(TutorialHints.closeUpgrades(3, { lure_bowl = 1 })).to.equal(false)
+			expect(TutorialHints.closeUpgrades(TutorialHints.DONE, { lure_bowl = 1 })).to.equal(
+				false
+			)
+			expect(TutorialHints.closeUpgrades(nil, nil)).to.equal(false)
+		end)
+	end)
+
 	describe("TutorialHints.upgrade (#1796)", function()
 		it("asks for a table at step 3 and the Bait bowl at step 4 until it is owned", function()
 			expect(TutorialHints.upgrade(3, {})).to.equal("tables")

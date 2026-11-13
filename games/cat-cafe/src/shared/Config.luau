@@ -1327,7 +1327,33 @@ local Config = {
 		spins: number,
 		crates: { [string]: number }?,
 		to: number?,
+		traitTokens: number?,
 	}?,
+	-- Derek 2026-11-13 14:24 UTC, the 15:30 UTC station menus update: "run a couple giveaways of first 10 trait
+	-- rerolls for everyone online (2-3 minutes after server restart) then 100 gold fish 4-5 minutes after server
+	-- restart". Each pays once per account, to everyone in game from `from` and to anyone who joins before `to` (the
+	-- Update Party's end), beside the update gift (PlaytimeGiftService). Same fields as UpdateGift, plus traitTokens.
+	Giveaways = {
+		{
+			id = "2026-11-13-tokens",
+			from = 1794583980,
+			to = 1794587400,
+			fish = 0,
+			spins = 0,
+			traitTokens = 10,
+		},
+		{ id = "2026-11-13-fish", from = 1794584100, to = 1794587400, fish = 100, spins = 0 },
+	} :: {
+		{
+			id: string,
+			from: number,
+			to: number?,
+			fish: number,
+			spins: number,
+			crates: { [string]: number }?,
+			traitTokens: number?,
+		}
+	},
 	-- The gift after UpdateGift, which takes over at its own `from` (shared/UpdateGift.pick).
 	-- #3497: the weekly gift again, Saturday 2026-11-14 17:00 UTC for one week. It is set here ahead of time so the
 	-- servers started by Friday's restart already carry it: a later publish reaches new servers only.
@@ -1344,6 +1370,7 @@ local Config = {
 		spins: number,
 		crates: { [string]: number }?,
 		to: number?,
+		traitTokens: number?,
 	}?,
 	CodeMaxLength = 20,
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box

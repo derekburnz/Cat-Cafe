@@ -233296,33 +233296,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         32.9111,
-         0.795,
-         -267.1947
+         34.0,
+         0.75,
+         -268.0
         ],
         "orientation": [
          [
-          -0.328,
-          -0.3304,
-          -0.885
+          0.0,
+          -0.9397,
+          0.342
          ],
          [
-          0.8703,
-          0.2588,
-          -0.4191
+          1.0,
+          0.0,
+          0.0
          ],
          [
-          0.3675,
-          -0.9077,
-          0.2026
+          0.0,
+          0.342,
+          0.9397
          ]
         ]
        }
       },
       "Size": [
-       0.55,
        0.7,
-       0.5768
+       2.4,
+       2.4
       ],
       "Color": [
        0.1686,
@@ -233336,28 +233336,29 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
       "PivotOffset": {
        "CFrame": {
         "position": [
-         108.3017,
-         -231.8586,
-         83.601
+         -0.75,
+         123.6109,
+         240.2089
         ],
         "orientation": [
          [
-          -0.328,
-          0.8703,
-          0.3675
+          0.0,
+          1.0,
+          0.0
          ],
          [
-          -0.3304,
-          0.2588,
-          -0.9077
+          -0.9397,
+          0.0,
+          0.342
          ],
          [
-          -0.885,
-          -0.4191,
-          0.2026
+          0.342,
+          0.0,
+          0.9397
          ]
         ]
        }
@@ -233374,866 +233375,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         33.223,
-         0.75,
-         -267.4981
+         33.906,
+         1.45,
+         -267.9658
         ],
         "orientation": [
          [
-          0.84,
           0.0,
-          0.5425
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.5425,
-          0.0,
-          0.84
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         33.5177,
-         0.75,
-         -267.2107
-        ],
-        "orientation": [
-         [
-          0.5214,
-          0.0,
-          0.8533
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.8533,
-          0.0,
-          0.5214
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         33.9079,
-         0.75,
-         -267.0796
-        ],
-        "orientation": [
-         [
-          0.0996,
-          0.0,
-          0.995
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.995,
-          0.0,
-          0.0996
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.3164,
-         0.75,
-         -267.1308
-        ],
-        "orientation": [
-         [
-          -0.342,
-          0.0,
-          0.9397
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
           -0.9397,
-          0.0,
-          -0.342
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.6622,
-         0.75,
-         -267.3541
-        ],
-        "orientation": [
-         [
-          -0.7159,
-          0.0,
-          0.6982
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6982,
-          0.0,
-          -0.7159
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.8768,
-         0.75,
-         -267.7054
-        ],
-        "orientation": [
-         [
-          -0.9479,
-          0.0,
-          0.3185
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.3185,
-          0.0,
-          -0.9479
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.9178,
-         0.75,
-         -268.115
-        ],
-        "orientation": [
-         [
-          -0.9922,
-          0.0,
-          -0.1243
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.1243,
-          0.0,
-          -0.9922
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.777,
-         0.75,
-         -268.5019
-        ],
-        "orientation": [
-         [
-          -0.84,
-          0.0,
-          -0.5425
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.5425,
-          0.0,
-          -0.84
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.4823,
-         0.75,
-         -268.7893
-        ],
-        "orientation": [
-         [
-          -0.5214,
-          0.0,
-          -0.8533
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.8533,
-          0.0,
-          -0.5214
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.0921,
-         0.75,
-         -268.9204
-        ],
-        "orientation": [
-         [
-          -0.0996,
-          0.0,
-          -0.995
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.995,
-          0.0,
-          -0.0996
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         33.6836,
-         0.75,
-         -268.8692
-        ],
-        "orientation": [
-         [
-          0.342,
-          0.0,
-          -0.9397
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.9397,
-          0.0,
           0.342
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         33.3378,
-         0.75,
-         -268.6459
-        ],
-        "orientation": [
-         [
-          0.7159,
-          0.0,
-          -0.6982
          ],
          [
-          0.0,
           1.0,
+          0.0,
           0.0
          ],
          [
-          0.6982,
           0.0,
-          0.7159
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         33.1232,
-         0.75,
-         -268.2946
-        ],
-        "orientation": [
-         [
-          0.9479,
-          0.0,
-          -0.3185
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.3185,
-          0.0,
-          0.9479
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         33.0822,
-         0.75,
-         -267.885
-        ],
-        "orientation": [
-         [
-          0.9922,
-          0.0,
-          0.1243
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.1243,
-          0.0,
-          0.9922
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         33.129,
-         1.45,
-         -267.4639
-        ],
-        "orientation": [
-         [
-          0.84,
-          0.0,
-          0.5425
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.5425,
-          0.0,
-          0.84
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         33.4237,
-         1.45,
-         -267.1765
-        ],
-        "orientation": [
-         [
-          0.5214,
-          0.0,
-          0.8533
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.8533,
-          0.0,
-          0.5214
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         33.8139,
-         1.45,
-         -267.0454
-        ],
-        "orientation": [
-         [
-          0.0996,
-          0.0,
-          0.995
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.995,
-          0.0,
-          0.0996
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.2224,
-         1.45,
-         -267.0966
-        ],
-        "orientation": [
-         [
-          -0.342,
-          0.0,
+          0.342,
           0.9397
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.9397,
-          0.0,
-          -0.342
          ]
         ]
        }
       },
       "Size": [
-       0.55,
        0.7,
-       0.5768
+       2.4,
+       2.4
       ],
       "Color": [
        0.1686,
@@ -234246,497 +233414,8 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.5682,
-         1.45,
-         -267.3199
-        ],
-        "orientation": [
-         [
-          -0.7159,
-          0.0,
-          0.6982
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6982,
-          0.0,
-          -0.7159
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.7829,
-         1.45,
-         -267.6712
-        ],
-        "orientation": [
-         [
-          -0.9479,
-          0.0,
-          0.3185
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.3185,
-          0.0,
-          -0.9479
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.8239,
-         1.45,
-         -268.0808
-        ],
-        "orientation": [
-         [
-          -0.9922,
-          0.0,
-          -0.1243
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.1243,
-          0.0,
-          -0.9922
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.6831,
-         1.45,
-         -268.4677
-        ],
-        "orientation": [
-         [
-          -0.84,
-          0.0,
-          -0.5425
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.5425,
-          0.0,
-          -0.84
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         34.3884,
-         1.45,
-         -268.7551
-        ],
-        "orientation": [
-         [
-          -0.5214,
-          0.0,
-          -0.8533
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.8533,
-          0.0,
-          -0.5214
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         33.9981,
-         1.45,
-         -268.8862
-        ],
-        "orientation": [
-         [
-          -0.0996,
-          0.0,
-          -0.995
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.995,
-          0.0,
-          -0.0996
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         33.5897,
-         1.45,
-         -268.835
-        ],
-        "orientation": [
-         [
-          0.342,
-          0.0,
-          -0.9397
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.9397,
-          0.0,
-          0.342
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         33.2439,
-         1.45,
-         -268.6117
-        ],
-        "orientation": [
-         [
-          0.7159,
-          0.0,
-          -0.6982
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6982,
-          0.0,
-          0.7159
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         33.0292,
-         1.45,
-         -268.2604
-        ],
-        "orientation": [
-         [
-          0.9479,
-          0.0,
-          -0.3185
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.3185,
-          0.0,
-          0.9479
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         32.9882,
-         1.45,
-         -267.8508
-        ],
-        "orientation": [
-         [
-          0.9922,
-          0.0,
-          0.1243
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.1243,
-          0.0,
-          0.9922
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
      }
     },
     {
@@ -235843,6 +234522,55 @@
           0.419,
           -0.9077,
           0.0231
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.55,
+       0.7,
+       0.5768
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_074_TyreStack",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         32.9111,
+         0.795,
+         -267.1947
+        ],
+        "orientation": [
+         [
+          -0.328,
+          -0.3304,
+          -0.885
+         ],
+         [
+          0.8703,
+          0.2588,
+          -0.4191
+         ],
+         [
+          0.3675,
+          -0.9077,
+          0.2026
          ]
         ]
        }
@@ -246452,33 +245180,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         50.7013,
-         2.405,
-         -157.1843
+         52.0,
+         0.75,
+         -158.0
         ],
         "orientation": [
          [
-          -0.4339,
           0.0,
-          0.901
+          -1.0,
+          0.0
          ],
          [
-          -0.8703,
-          0.2588,
-          -0.4191
+          1.0,
+          0.0,
+          0.0
          ],
          [
-          -0.2332,
-          -0.9659,
-          -0.1123
+          0.0,
+          0.0,
+          1.0
          ]
         ]
        }
       },
       "Size": [
-       0.55,
        0.7,
-       0.5768
+       2.4,
+       2.4
       ],
       "Color": [
        0.1686,
@@ -246492,28 +245220,29 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -12.562,
-         -152.4508,
-         -62.3238
+         -0.75,
+         52.0,
+         158.0
         ],
         "orientation": [
          [
-          -0.4339,
-          -0.8703,
-          -0.2332
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
          ],
          [
           0.0,
-          0.2588,
-          -0.9659
-         ],
-         [
-          0.901,
-          -0.4191,
-          -0.1123
+          0.0,
+          1.0
          ]
         ]
        }
@@ -246530,180 +245259,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         51.0982,
-         0.75,
-         -157.7942
+         51.9,
+         1.45,
+         -158.0
         ],
         "orientation": [
          [
-          0.9749,
           0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
+          -1.0,
           0.0
          ],
          [
-          -0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.2768,
-         0.75,
-         -157.4233
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
           1.0,
+          0.0,
           0.0
          ],
-         [
-          -0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.5987,
-         0.75,
-         -157.1666
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.0,
-         0.75,
-         -157.075
-        ],
-        "orientation": [
          [
           0.0,
           0.0,
           1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
          ]
         ]
        }
       },
       "Size": [
-       0.55,
        0.7,
-       0.5768
+       2.4,
+       2.4
       ],
       "Color": [
        0.1686,
@@ -246716,1183 +245298,8 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.4013,
-         0.75,
-         -157.1666
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.7232,
-         0.75,
-         -157.4233
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.9018,
-         0.75,
-         -157.7942
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.9018,
-         0.75,
-         -158.2058
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.7232,
-         0.75,
-         -158.5767
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.4013,
-         0.75,
-         -158.8334
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.0,
-         0.75,
-         -158.925
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.5987,
-         0.75,
-         -158.8334
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.2768,
-         0.75,
-         -158.5767
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.0982,
-         0.75,
-         -158.2058
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         50.9982,
-         1.45,
-         -157.7942
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.1768,
-         1.45,
-         -157.4233
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.4987,
-         1.45,
-         -157.1666
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.9,
-         1.45,
-         -157.075
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.3013,
-         1.45,
-         -157.1666
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.6232,
-         1.45,
-         -157.4233
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.8018,
-         1.45,
-         -157.7942
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.8018,
-         1.45,
-         -158.2058
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.6232,
-         1.45,
-         -158.5767
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.3013,
-         1.45,
-         -158.8334
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.9,
-         1.45,
-         -158.925
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.4987,
-         1.45,
-         -158.8334
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.1768,
-         1.45,
-         -158.5767
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         50.9982,
-         1.45,
-         -158.2058
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
      }
     },
     {
@@ -248754,6 +246161,55 @@
           -0.2588,
           -0.9659,
           0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.55,
+       0.7,
+       0.5768
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_085_TyreStack",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         50.7013,
+         2.405,
+         -157.1843
+        ],
+        "orientation": [
+         [
+          -0.4339,
+          0.0,
+          0.901
+         ],
+         [
+          -0.8703,
+          0.2588,
+          -0.4191
+         ],
+         [
+          -0.2332,
+          -0.9659,
+          -0.1123
          ]
         ]
        }
@@ -276983,33 +274439,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -53.2987,
-         2.405,
-         -95.1843
+         -52.0,
+         0.75,
+         -96.0
         ],
         "orientation": [
          [
-          -0.4339,
           0.0,
-          0.901
+          -1.0,
+          0.0
          ],
          [
-          -0.8703,
-          0.2588,
-          -0.4191
+          1.0,
+          0.0,
+          0.0
          ],
          [
-          -0.2332,
-          -0.9659,
-          -0.1123
+          0.0,
+          0.0,
+          1.0
          ]
         ]
        }
       },
       "Size": [
-       0.55,
        0.7,
-       0.5768
+       2.4,
+       2.4
       ],
       "Color": [
        0.1686,
@@ -277023,28 +274479,29 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -43.2283,
-         -92.5634,
-         38.3394
+         -0.75,
+         -52.0,
+         96.0
         ],
         "orientation": [
          [
-          -0.4339,
-          -0.8703,
-          -0.2332
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
          ],
          [
           0.0,
-          0.2588,
-          -0.9659
-         ],
-         [
-          0.901,
-          -0.4191,
-          -0.1123
+          0.0,
+          1.0
          ]
         ]
        }
@@ -277061,180 +274518,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -52.9018,
-         0.75,
-         -95.7942
+         -52.1,
+         1.45,
+         -96.0
         ],
         "orientation": [
          [
-          0.9749,
           0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
+          -1.0,
           0.0
          ],
          [
-          -0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -52.7232,
-         0.75,
-         -95.4233
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
           1.0,
+          0.0,
           0.0
          ],
-         [
-          -0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -52.4013,
-         0.75,
-         -95.1666
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -52.0,
-         0.75,
-         -95.075
-        ],
-        "orientation": [
          [
           0.0,
           0.0,
           1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
          ]
         ]
        }
       },
       "Size": [
-       0.55,
        0.7,
-       0.5768
+       2.4,
+       2.4
       ],
       "Color": [
        0.1686,
@@ -277247,1183 +274557,8 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.5987,
-         0.75,
-         -95.1666
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.2768,
-         0.75,
-         -95.4233
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.0982,
-         0.75,
-         -95.7942
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.0982,
-         0.75,
-         -96.2058
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.2768,
-         0.75,
-         -96.5767
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.5987,
-         0.75,
-         -96.8334
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -52.0,
-         0.75,
-         -96.925
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -52.4013,
-         0.75,
-         -96.8334
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -52.7232,
-         0.75,
-         -96.5767
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -52.9018,
-         0.75,
-         -96.2058
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -53.0018,
-         1.45,
-         -95.7942
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -52.8232,
-         1.45,
-         -95.4233
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -52.5013,
-         1.45,
-         -95.1666
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -52.1,
-         1.45,
-         -95.075
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.6987,
-         1.45,
-         -95.1666
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.3768,
-         1.45,
-         -95.4233
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.1982,
-         1.45,
-         -95.7942
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.1982,
-         1.45,
-         -96.2058
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.3768,
-         1.45,
-         -96.5767
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.6987,
-         1.45,
-         -96.8334
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -52.1,
-         1.45,
-         -96.925
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -52.5013,
-         1.45,
-         -96.8334
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -52.8232,
-         1.45,
-         -96.5767
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -53.0018,
-         1.45,
-         -96.2058
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
      }
     },
     {
@@ -279285,6 +275420,55 @@
           -0.2588,
           -0.9659,
           0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.55,
+       0.7,
+       0.5768
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_099_TyreStack",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -53.2987,
+         2.405,
+         -95.1843
+        ],
+        "orientation": [
+         [
+          -0.4339,
+          0.0,
+          0.901
+         ],
+         [
+          -0.8703,
+          0.2588,
+          -0.4191
+         ],
+         [
+          -0.2332,
+          -0.9659,
+          -0.1123
          ]
         ]
        }
@@ -287873,33 +284057,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -51.2987,
-         2.405,
-         -63.1843
+         -50.0,
+         0.75,
+         -64.0
         ],
         "orientation": [
          [
-          -0.4339,
           0.0,
-          0.901
+          -1.0,
+          0.0
          ],
          [
-          -0.8703,
-          0.2588,
-          -0.4191
+          1.0,
+          0.0,
+          0.0
          ],
          [
-          -0.2332,
-          -0.9659,
-          -0.1123
+          0.0,
+          0.0,
+          1.0
          ]
         ]
        }
       },
       "Size": [
-       0.55,
        0.7,
-       0.5768
+       2.4,
+       2.4
       ],
       "Color": [
        0.1686,
@@ -287913,28 +284097,29 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -34.8985,
-         -61.6538,
-         40.131
+         -0.75,
+         -50.0,
+         64.0
         ],
         "orientation": [
          [
-          -0.4339,
-          -0.8703,
-          -0.2332
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
          ],
          [
           0.0,
-          0.2588,
-          -0.9659
-         ],
-         [
-          0.901,
-          -0.4191,
-          -0.1123
+          0.0,
+          1.0
          ]
         ]
        }
@@ -287951,180 +284136,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -50.9018,
-         0.75,
-         -63.7942
+         -50.1,
+         1.45,
+         -64.0
         ],
         "orientation": [
          [
-          0.9749,
           0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
+          -1.0,
           0.0
          ],
          [
-          -0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.7232,
-         0.75,
-         -63.4233
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
           1.0,
+          0.0,
           0.0
          ],
-         [
-          -0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.4013,
-         0.75,
-         -63.1666
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.0,
-         0.75,
-         -63.075
-        ],
-        "orientation": [
          [
           0.0,
           0.0,
           1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
          ]
         ]
        }
       },
       "Size": [
-       0.55,
        0.7,
-       0.5768
+       2.4,
+       2.4
       ],
       "Color": [
        0.1686,
@@ -288137,1183 +284175,8 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.5987,
-         0.75,
-         -63.1666
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.2768,
-         0.75,
-         -63.4233
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.0982,
-         0.75,
-         -63.7942
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.0982,
-         0.75,
-         -64.2058
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.2768,
-         0.75,
-         -64.5767
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.5987,
-         0.75,
-         -64.8334
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.0,
-         0.75,
-         -64.925
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.4013,
-         0.75,
-         -64.8334
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.7232,
-         0.75,
-         -64.5767
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.9018,
-         0.75,
-         -64.2058
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.0018,
-         1.45,
-         -63.7942
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.8232,
-         1.45,
-         -63.4233
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.5013,
-         1.45,
-         -63.1666
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.1,
-         1.45,
-         -63.075
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.6987,
-         1.45,
-         -63.1666
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.3768,
-         1.45,
-         -63.4233
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.1982,
-         1.45,
-         -63.7942
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.1982,
-         1.45,
-         -64.2058
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.3768,
-         1.45,
-         -64.5767
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.6987,
-         1.45,
-         -64.8334
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.1,
-         1.45,
-         -64.925
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.5013,
-         1.45,
-         -64.8334
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.8232,
-         1.45,
-         -64.5767
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.0018,
-         1.45,
-         -64.2058
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
      }
     },
     {
@@ -290175,6 +285038,55 @@
           -0.2588,
           -0.9659,
           0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.55,
+       0.7,
+       0.5768
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_110_TyreStack",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -51.2987,
+         2.405,
+         -63.1843
+        ],
+        "orientation": [
+         [
+          -0.4339,
+          0.0,
+          0.901
+         ],
+         [
+          -0.8703,
+          0.2588,
+          -0.4191
+         ],
+         [
+          -0.2332,
+          -0.9659,
+          -0.1123
          ]
         ]
        }
@@ -312154,33 +307066,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -51.2987,
-         2.405,
-         84.8157
+         -50.0,
+         0.75,
+         84.0
         ],
         "orientation": [
          [
-          -0.4339,
           0.0,
-          0.901
+          -1.0,
+          0.0
          ],
          [
-          -0.8703,
-          0.2588,
-          -0.4191
+          1.0,
+          0.0,
+          0.0
          ],
          [
-          -0.2332,
-          -0.9659,
-          -0.1123
+          0.0,
+          0.0,
+          1.0
          ]
         ]
        }
       },
       "Size": [
-       0.55,
        0.7,
-       0.5768
+       2.4,
+       2.4
       ],
       "Color": [
        0.1686,
@@ -312194,28 +307106,29 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -0.3867,
-         81.3032,
-         56.751
+         -0.75,
+         -50.0,
+         -84.0
         ],
         "orientation": [
          [
-          -0.4339,
-          -0.8703,
-          -0.2332
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
          ],
          [
           0.0,
-          0.2588,
-          -0.9659
-         ],
-         [
-          0.901,
-          -0.4191,
-          -0.1123
+          0.0,
+          1.0
          ]
         ]
        }
@@ -312232,180 +307145,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -50.9018,
-         0.75,
-         84.2058
+         -50.1,
+         1.45,
+         84.0
         ],
         "orientation": [
          [
-          0.9749,
           0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
+          -1.0,
           0.0
          ],
          [
-          -0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.7232,
-         0.75,
-         84.5767
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
           1.0,
+          0.0,
           0.0
          ],
-         [
-          -0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.4013,
-         0.75,
-         84.8334
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.0,
-         0.75,
-         84.925
-        ],
-        "orientation": [
          [
           0.0,
           0.0,
           1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
          ]
         ]
        }
       },
       "Size": [
-       0.55,
        0.7,
-       0.5768
+       2.4,
+       2.4
       ],
       "Color": [
        0.1686,
@@ -312418,1183 +307184,8 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.5987,
-         0.75,
-         84.8334
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.2768,
-         0.75,
-         84.5767
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.0982,
-         0.75,
-         84.2058
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.0982,
-         0.75,
-         83.7942
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.2768,
-         0.75,
-         83.4233
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.5987,
-         0.75,
-         83.1666
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.0,
-         0.75,
-         83.075
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.4013,
-         0.75,
-         83.1666
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.7232,
-         0.75,
-         83.4233
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.9018,
-         0.75,
-         83.7942
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.0018,
-         1.45,
-         84.2058
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.8232,
-         1.45,
-         84.5767
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.5013,
-         1.45,
-         84.8334
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.1,
-         1.45,
-         84.925
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.6987,
-         1.45,
-         84.8334
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.3768,
-         1.45,
-         84.5767
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.1982,
-         1.45,
-         84.2058
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.1982,
-         1.45,
-         83.7942
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.3768,
-         1.45,
-         83.4233
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -49.6987,
-         1.45,
-         83.1666
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.1,
-         1.45,
-         83.075
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.5013,
-         1.45,
-         83.1666
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -50.8232,
-         1.45,
-         83.4233
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -51.0018,
-         1.45,
-         83.7942
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
      }
     },
     {
@@ -314456,6 +308047,55 @@
           -0.2588,
           -0.9659,
           0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.55,
+       0.7,
+       0.5768
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_127_TyreStack",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -51.2987,
+         2.405,
+         84.8157
+        ],
+        "orientation": [
+         [
+          -0.4339,
+          0.0,
+          0.901
+         ],
+         [
+          -0.8703,
+          0.2588,
+          -0.4191
+         ],
+         [
+          -0.2332,
+          -0.9659,
+          -0.1123
          ]
         ]
        }
@@ -330565,33 +324205,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         52.7013,
-         2.405,
-         104.8157
+         54.0,
+         0.75,
+         104.0
         ],
         "orientation": [
          [
-          -0.4339,
           0.0,
-          0.901
+          -1.0,
+          0.0
          ],
          [
-          -0.8703,
-          0.2588,
-          -0.4191
+          1.0,
+          0.0,
+          0.0
          ],
          [
-          -0.2332,
-          -0.9659,
-          -0.1123
+          0.0,
+          0.0,
+          1.0
          ]
         ]
        }
       },
       "Size": [
-       0.55,
        0.7,
-       0.5768
+       2.4,
+       2.4
       ],
       "Color": [
        0.1686,
@@ -330605,28 +324245,29 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
       "PivotOffset": {
        "CFrame": {
         "position": [
-         49.401,
-         100.6217,
-         -34.7038
+         -0.75,
+         54.0,
+         -104.0
         ],
         "orientation": [
          [
-          -0.4339,
-          -0.8703,
-          -0.2332
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
          ],
          [
           0.0,
-          0.2588,
-          -0.9659
-         ],
-         [
-          0.901,
-          -0.4191,
-          -0.1123
+          0.0,
+          1.0
          ]
         ]
        }
@@ -330643,180 +324284,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         53.0982,
-         0.75,
-         104.2058
+         53.9,
+         1.45,
+         104.0
         ],
         "orientation": [
          [
-          0.9749,
           0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
+          -1.0,
           0.0
          ],
          [
-          -0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         53.2768,
-         0.75,
-         104.5767
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
           1.0,
+          0.0,
           0.0
          ],
-         [
-          -0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         53.5987,
-         0.75,
-         104.8334
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         54.0,
-         0.75,
-         104.925
-        ],
-        "orientation": [
          [
           0.0,
           0.0,
           1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
          ]
         ]
        }
       },
       "Size": [
-       0.55,
        0.7,
-       0.5768
+       2.4,
+       2.4
       ],
       "Color": [
        0.1686,
@@ -330829,1183 +324323,8 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         54.4013,
-         0.75,
-         104.8334
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         54.7232,
-         0.75,
-         104.5767
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         54.9018,
-         0.75,
-         104.2058
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         54.9018,
-         0.75,
-         103.7942
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         54.7232,
-         0.75,
-         103.4233
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         54.4013,
-         0.75,
-         103.1666
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         54.0,
-         0.75,
-         103.075
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         53.5987,
-         0.75,
-         103.1666
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         53.2768,
-         0.75,
-         103.4233
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         53.0982,
-         0.75,
-         103.7942
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.9982,
-         1.45,
-         104.2058
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         53.1768,
-         1.45,
-         104.5767
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         53.4987,
-         1.45,
-         104.8334
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         53.9,
-         1.45,
-         104.925
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         54.3013,
-         1.45,
-         104.8334
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         54.6232,
-         1.45,
-         104.5767
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         54.8018,
-         1.45,
-         104.2058
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         54.8018,
-         1.45,
-         103.7942
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         54.6232,
-         1.45,
-         103.4233
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         54.3013,
-         1.45,
-         103.1666
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         53.9,
-         1.45,
-         103.075
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         53.4987,
-         1.45,
-         103.1666
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         53.1768,
-         1.45,
-         103.4233
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.9982,
-         1.45,
-         103.7942
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
      }
     },
     {
@@ -332867,6 +325186,55 @@
           -0.2588,
           -0.9659,
           0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.55,
+       0.7,
+       0.5768
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_146_TyreStack",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         52.7013,
+         2.405,
+         104.8157
+        ],
+        "orientation": [
+         [
+          -0.4339,
+          0.0,
+          0.901
+         ],
+         [
+          -0.8703,
+          0.2588,
+          -0.4191
+         ],
+         [
+          -0.2332,
+          -0.9659,
+          -0.1123
          ]
         ]
        }
@@ -346186,33 +338554,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         50.7013,
-         2.405,
-         210.8157
+         52.0,
+         0.75,
+         210.0
         ],
         "orientation": [
          [
-          -0.4339,
           0.0,
-          0.901
+          -1.0,
+          0.0
          ],
          [
-          -0.8703,
-          0.2588,
-          -0.4191
+          1.0,
+          0.0,
+          0.0
          ],
          [
-          -0.2332,
-          -0.9659,
-          -0.1123
+          0.0,
+          0.0,
+          1.0
          ]
         ]
        }
       },
       "Size": [
-       0.55,
        0.7,
-       0.5768
+       2.4,
+       2.4
       ],
       "Color": [
        0.1686,
@@ -346226,28 +338594,29 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
       "PivotOffset": {
        "CFrame": {
         "position": [
-         73.2512,
-         203.0099,
-         -20.9983
+         -0.75,
+         52.0,
+         -210.0
         ],
         "orientation": [
          [
-          -0.4339,
-          -0.8703,
-          -0.2332
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
          ],
          [
           0.0,
-          0.2588,
-          -0.9659
-         ],
-         [
-          0.901,
-          -0.4191,
-          -0.1123
+          0.0,
+          1.0
          ]
         ]
        }
@@ -346264,180 +338633,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         51.0982,
-         0.75,
-         210.2058
+         51.9,
+         1.45,
+         210.0
         ],
         "orientation": [
          [
-          0.9749,
           0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
+          -1.0,
           0.0
          ],
          [
-          -0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.2768,
-         0.75,
-         210.5767
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
           1.0,
+          0.0,
           0.0
          ],
-         [
-          -0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.5987,
-         0.75,
-         210.8334
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.0,
-         0.75,
-         210.925
-        ],
-        "orientation": [
          [
           0.0,
           0.0,
           1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
          ]
         ]
        }
       },
       "Size": [
-       0.55,
        0.7,
-       0.5768
+       2.4,
+       2.4
       ],
       "Color": [
        0.1686,
@@ -346450,1183 +338672,8 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.4013,
-         0.75,
-         210.8334
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.7232,
-         0.75,
-         210.5767
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.9018,
-         0.75,
-         210.2058
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.9018,
-         0.75,
-         209.7942
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.7232,
-         0.75,
-         209.4233
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.4013,
-         0.75,
-         209.1666
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.0,
-         0.75,
-         209.075
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.5987,
-         0.75,
-         209.1666
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.2768,
-         0.75,
-         209.4233
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.0982,
-         0.75,
-         209.7942
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         50.9982,
-         1.45,
-         210.2058
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.1768,
-         1.45,
-         210.5767
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.4987,
-         1.45,
-         210.8334
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.9,
-         1.45,
-         210.925
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.3013,
-         1.45,
-         210.8334
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.6232,
-         1.45,
-         210.5767
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.8018,
-         1.45,
-         210.2058
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.8018,
-         1.45,
-         209.7942
-        ],
-        "orientation": [
-         [
-          -0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          -0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.6232,
-         1.45,
-         209.4233
-        ],
-        "orientation": [
-         [
-          -0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          -0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         52.3013,
-         1.45,
-         209.1666
-        ],
-        "orientation": [
-         [
-          -0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          -0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.9,
-         1.45,
-         209.075
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.4987,
-         1.45,
-         209.1666
-        ],
-        "orientation": [
-         [
-          0.4339,
-          0.0,
-          -0.901
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.901,
-          0.0,
-          0.4339
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         51.1768,
-         1.45,
-         209.4233
-        ],
-        "orientation": [
-         [
-          0.7818,
-          0.0,
-          -0.6235
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6235,
-          0.0,
-          0.7818
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         50.9982,
-         1.45,
-         209.7942
-        ],
-        "orientation": [
-         [
-          0.9749,
-          0.0,
-          -0.2225
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.2225,
-          0.0,
-          0.9749
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.55,
-       0.7,
-       0.5768
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
      }
     },
     {
@@ -348488,6 +339535,55 @@
           -0.2588,
           -0.9659,
           0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.55,
+       0.7,
+       0.5768
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_156_TyreStack",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         50.7013,
+         2.405,
+         210.8157
+        ],
+        "orientation": [
+         [
+          -0.4339,
+          0.0,
+          0.901
+         ],
+         [
+          -0.8703,
+          0.2588,
+          -0.4191
+         ],
+         [
+          -0.2332,
+          -0.9659,
+          -0.1123
          ]
         ]
        }

@@ -27,7 +27,7 @@ local rng = Random.new()
 -- each player's seconds of open day toward the next arriving customer
 local carried: { [Player]: number } = setmetatable({}, { __mode = "k" }) :: any
 
-local function send(player: Player, kind: RareCustomers.Kind): boolean
+local function send(player: Player, kind: string): boolean
 	if kind == "rich" then
 		return RichTipService.arriveRare(player, rng:NextNumber())
 	elseif kind == "mystery" then
@@ -36,15 +36,16 @@ local function send(player: Player, kind: RareCustomers.Kind): boolean
 	return CollectorService.arriveRare(player)
 end
 
-local function tick(dt: number)
+-- true once the step has run (a value of its own, so pcall has two to hand back)
+local function tick(dt: number): boolean
 	if not LiveFlagService.on(RareCustomers.FLAG) then
 		table.clear(carried)
-		return
+		return true
 	end
 	local now = os.time()
 	local dusk = math.floor(ClockService.phaseEndsAt())
 	if ClockService.isNight() or dusk - now <= Config.DuskWarningSeconds then
-		return -- the cafe is shut, or about to: no one walks in (the old timers held the same way)
+		return true -- the cafe is shut, or about to: no one walks in (the old timers held the same way)
 	end
 	for _, player in DataService.loadedPlayers() do
 		local profile = DataService.get(player)
@@ -67,6 +68,7 @@ local function tick(dt: number)
 			end
 		end
 	end
+	return true
 end
 
 function RareCustomerService.start()

@@ -122,10 +122,26 @@ OwnerTest.SHOUT_GAP_SECONDS = 20
 -- #3301 (Derek2: "make the /shout make a quick bubble with OWNER "whatever messege I put" on screen"): the bubble's
 -- title and its quoted line (Screens/OwnerShout)
 OwnerTest.BUBBLE_TITLE = "OWNER"
-OwnerTest.BUBBLE_SECONDS = 6
+-- #3872 (Derek 2026-11-13: "/shout works but it does not stay long enough for people to read"): the bubble stays
+-- BUBBLE_BASE seconds plus one for every BUBBLE_CHARS_PER_SECOND characters, from BUBBLE_SECONDS to BUBBLE_MAX
+-- (a full SHOUT_MAX shout gets the whole SHOUT_GAP_SECONDS)
+OwnerTest.BUBBLE_SECONDS = 10 -- the least, even for "hi"
+OwnerTest.BUBBLE_MAX = 20
+OwnerTest.BUBBLE_BASE = 6
+OwnerTest.BUBBLE_CHARS_PER_SECOND = 8
 
 function OwnerTest.bubbleLine(text: string): string
 	return '"' .. text .. '"'
+end
+
+-- How long the bubble for `text` stays on screen, in seconds.
+function OwnerTest.bubbleSeconds(text: string): number
+	local chars = utf8.len(text) or #text
+	return math.clamp(
+		OwnerTest.BUBBLE_BASE + chars / OwnerTest.BUBBLE_CHARS_PER_SECOND,
+		OwnerTest.BUBBLE_SECONDS,
+		OwnerTest.BUBBLE_MAX
+	)
 end
 
 function OwnerTest.isShoutCommand(text: unknown): boolean

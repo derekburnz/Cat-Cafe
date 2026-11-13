@@ -19,8 +19,10 @@
 -- that many studs, and SizeOffset moves it by a share of its own size (here up).
 
 local CollectionService = game:GetService("CollectionService")
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
@@ -63,6 +65,7 @@ local LIFT = 0.8 -- studs over the top of the cat, as the mood icon
 local LIFT_STUCK = 3
 local MARK_HIDES_WITHIN = 10
 local MARK_SHOWS_PAST = 11
+local MOVE = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 local LOOK_SECONDS = 0.25 -- how often the distances are looked at
 
 local NewKindTags = {}
@@ -171,7 +174,14 @@ function NewKindTags._look(self: any)
 			end
 			if lift ~= entry.lift then
 				entry.lift = lift
-				entry.billboard.StudsOffsetWorldSpace = Vector3.new(0, entry.height + lift, 0)
+				local offset = Vector3.new(0, entry.height + lift, 0)
+				if GuiService.ReducedMotionEnabled then
+					entry.billboard.StudsOffsetWorldSpace = offset
+				else
+					-- a short glide, not a 2 stud jump (Studio look, 2026-11-13)
+					TweenService:Create(entry.billboard, MOVE, { StudsOffsetWorldSpace = offset })
+						:Play()
+				end
 			end
 		end
 	end

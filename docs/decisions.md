@@ -1158,3 +1158,25 @@ Derek 16:17 UTC: "honestly don't like the purple theme menu as much where possib
 
 ## 2026-11-13: Yard Sale card and lucky pick redone (#3953)
 Derek 16:0x UTC: "yard sale seems like same old menu needs a change". The free crate card is now one wide picture card: the crate on a gold tile with a FREE TODAY / TAKEN pill, its name in the display font, the Market's price and its odds as coloured rarity pills always in view (the Odds button and its hidden sheet are gone; the crate is random, so its odds show before it is taken, monetization-policy section 2) and a wide Take button. The lucky pick's side is a cream card with the Yard Sale's picture, a FREE / SOON pill, its line in ink (it was ink on the dark body, unreadable) and a wide Lucky pick button. The window is 560 design px wide (was 480). Looks only: no prices, odds or rules change.
+
+## 2026-11-13: the Lost and Found gets a card (#3955)
+Derek 16:08 UTC: "lost and found also needs changing it just doesnt do anything but walk on and give u smth u cant even tell". Its ring and prompt now open a station card (`Screens/LostFound`, the station menus look): the picture with a "2 WAITING" / "SOON" pill, how many finds wait or when the next comes, what can turn up as picture tiles with their chances (Config.LostFoundTable, shown though the finds are free), and a Claim button that sends the same CollectCampExtra("lostFound"). The answer turns the card to a reveal of the find, large with a banner, instead of a toast. Walking into the ring no longer claims (`CampExtras.autoClaim` returns nothing for it), and the Cat Cannon strip's button opens the card from anywhere. The server is unchanged: it still decides each find and its timer.
+## 2026-11-13 Trait rarity in strong colour, on pills (#3950, Design-Agent)
+- **Why:** Derek, 16:02 UTC, priority: "the trait doesn't show rarity very well the text color is hard to see which color it is maybe bold it and make it stronger colored", and the same for the Keep old / Take new cards.
+- **What:** in the Mystic Pool's cat list a trait is a bold pill filled with its rarity's colour (white words, dark on Legendary's gold); on the Keep old / Take new cards the rarity sits on such a pill, the border is 4 px of that colour, the card takes a faint wash of it and the name is the colour deepened a third toward the cocoa ink. The cat card's trait line is bold in the deepened colour (`CatCardLogic.strong`).
+
+## 2026-11-13: Mystic Pool main card closer to the station menus picture (#3961 batch 3)
+The main card's odds are now six pills in the rarities' colours (two rows of three, "Common 30%"), with "Each trait inside a rarity is equally likely" beside them; Change cat and Odds are blue buttons; the trait's name is bigger and its effect lines bold. Same odds, prices and rules; the Keep old / Take new choice and the bundle offer keep their odds lines.
+
+## 2026-11-13 The Index's Decor tabs wrap into rows (#3931, Design-Agent)
+- **Why:** Derek, 15:35 UTC: "the decor menu side gets cut off for the new areas in index". With the new areas the tabs scrolled off the right edge.
+- **What:** each tab gets an equal share of its row; one row while that is at least 100 px, else the fewest rows (up to 3) at 84 px or more, so every area shows without scrolling. The completion line and the page move down under the rows. UI gate scene IndexDecorTabsFit.
+## 2026-11-13 Thank You cards shrink their words instead of cutting them (#3926, Design-Agent)
+- **Why:** Derek, 15:27 UTC: "a lot of thank you for ideas get cut off". An idea of up to 48 bytes had one 21 px line on its card and ended in "...".
+- **What:** the idea takes every line above the credit and shrinks to fit (down to 11 px, 0.17 studs); the credit wraps to two small lines for a long name; What's new rows shrink the same way. The UI gate's shim now takes a SurfaceGui's FixedSize CanvasSize as its face, so scene ThanksBoardFit checks the board at its real 486 x 333 px.
+## 2026-11-13 The Potions button counts only potions that can be drunk (#3937, Design-Agent)
+- **Why:** Derek, 15:43 UTC, with a picture of 26 Quick Bait potions all reading Full: don't show "potion numbers for ones that cant be drank because already full".
+- **What:** the HUD Potions pill adds only the potions whose Use is on now (`PotionLogic.drinkable`, the rows' own canUse) and hides at none. While some wait behind a Full timer it looks again every 5 seconds. The rows keep their own counts.
+## 2026-11-13 The Bag's Titles tab lists titles rarest first (Design-Agent)
+- **Why:** Derek: "sort titles in backpack section to sort rarest first so that leaderboards players can see their good titles first".
+- **What:** owned titles, then locked ones, each in `TitlesLogic.RAREST`: #1, #2, #3, then the big achievements hardest first (Cat Legend, Devoted, Steady Hands, Week Champion, Gold Rush), then Grand Opener, Maple, Thank You and VIP. The server's default title (`ChatTags.ORDER`) is unchanged.

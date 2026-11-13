@@ -91,6 +91,7 @@ local PICTURE = 48
 local TILE_W = 150
 local TILE_H = 100 -- the cat's tile and the trait's card
 local ODDS_W = 84
+local ODDS_SHARE = 0.66 -- #3961: the odds pills' share of the row, the "equally likely" line in the rest
 local WORDS_H = 18 + 28 -- what the player has (or why Roll is grey), then the odds on two lines
 -- #3848 (Derek 2026-11-13: "the collect trait reroll button is cutoff a bit on mobile"): on a short screen the card
 -- reached the screen's bottom edge, so the line of what the player has moves beside Collect, over the token line, and
@@ -136,7 +137,7 @@ MysticPool.__index = MysticPool
 -- #3864: `offered`, once the token offer has shown this session (a "No thanks" holds for the session)
 local remembered = { sort = CatPickLogic.DEFAULT_SORT, flipped = false, offered = false }
 
-local function text(props: { [string]: any }): TextLabel
+local function text(props: { [string]: any }, children: { Instance }?): TextLabel
 	local merged: { [string]: any } = {
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
@@ -149,7 +150,19 @@ local function text(props: { [string]: any }): TextLabel
 	for key, value in props do
 		merged[key] = value
 	end
-	return Create("TextLabel", merged)
+	return Create("TextLabel", merged, children)
+end
+
+-- #3950 (Derek 2026-11-13: "the trait doesn't show rarity very well ... maybe bold it and make it stronger colored"):
+-- a trait's rarity is shown on a pill filled with its own colour, never as pale words. The words on it are white,
+-- or dark ink on a light fill (Legendary's gold), so they read on every rarity.
+local function inkOn(fill: Color3): Color3
+	local light = 0.299 * fill.R + 0.587 * fill.G + 0.114 * fill.B
+	return if light > 0.62 then Theme.colors.ink else Theme.colors.white
+end
+-- a trait's name in its rarity's colour on the cream card: the colour itself, a little deeper so pale ones read
+local function deep(color: Color3): Color3
+	return if MenuFamily.on() then color:Lerp(Theme.colors.ink, 0.35) else color
 end
 
 -- A page over the card's content: a little past its edges (and the bottom row's button lips), so nothing under it
@@ -200,18 +213,26 @@ local function traitCard(
 		Position = UDim2.fromOffset(8, 5),
 		Size = UDim2.new(1, -16, 0, 22),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody + 2,
+		TextSize = Theme.sizes.textTitle - 4, -- #3961: the trait's name big, as the picture
 		ZIndex = z + 1,
 		Parent = frame,
 	})
+	-- #3950: "Now · Epic" on a pill of the rarity's colour, centred under the name
 	local rarity = text({
 		Name = "Rarity",
-		Position = UDim2.fromOffset(8, 27),
-		Size = UDim2.new(1, -16, 0, 15),
+		AnchorPoint = Vector2.new(0.5, 0),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 1,
+		Position = UDim2.new(0.5, 0, 0, 27),
+		Size = UDim2.fromOffset(0, 17),
 		FontFace = Theme.fonts.bodyBold,
-		TextSize = Theme.sizes.textTiny,
+		TextSize = Theme.sizes.textTiny + 1,
+		TextTruncate = Enum.TextTruncate.None,
 		ZIndex = z + 1,
 		Parent = frame,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, 5) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 7), PaddingRight = UDim.new(0, 7) }),
 	})
 	local lines: { TextLabel } = {}
 	for index = 1, EFFECT_LINES do
@@ -219,6 +240,7 @@ local function traitCard(
 			Name = "Effect" .. index,
 			Position = UDim2.fromOffset(8, 28 + index * 17),
 			Size = UDim2.new(1, -16, 0, 17),
+			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
 			ZIndex = z + 1,
 			Parent = frame,
@@ -243,22 +265,84 @@ local function oddsLines(parent: Instance, top: number, z: number)
 	end
 end
 
+-- #3961 (the station menus picture): the main card's odds as six pills of the rarities' colours, "Common 30%", in two
+-- rows of three, with the "equally likely" line beside them, in the two lines' place at `top`.
+local function oddsPills(parent: Instance, top: number, z: number)
+	local row: Frame = Create("Frame", {
+		Name = "OddsPills",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(0, top),
+		Size = UDim2.new(ODDS_SHARE, 0, 0, 28),
+		ZIndex = z,
+		Parent = parent,
+	}, {
+		Create("UIGridLayout", {
+			CellPadding = UDim2.fromOffset(3, 2),
+			CellSize = UDim2.new(1 / 3, -3, 0, 13),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	for order, odds in MysticPoolLogic.odds() do
+		local color = Color3.fromHex(odds.color)
+		text({
+			Name = odds.name,
+			LayoutOrder = order,
+			BackgroundTransparency = 0,
+			BackgroundColor3 = color,
+			FontFace = Theme.fonts.bodyBold,
+			TextScaled = true,
+			TextColor3 = inkOn(color),
+			TextTruncate = Enum.TextTruncate.None,
+			Text = ("%s %d%%"):format(odds.name, odds.percent),
+			ZIndex = z,
+			Parent = row,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }),
+			Create("UIStroke", {
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Color = CARD.cardStroke,
+				Thickness = 1,
+			}),
+			Create("UITextSizeConstraint", { MaxTextSize = Theme.sizes.textTiny, MinTextSize = 9 }),
+		})
+	end
+	text({
+		Name = "OddsNote",
+		Position = UDim2.new(ODDS_SHARE, 6, 0, top),
+		Size = UDim2.new(1 - ODDS_SHARE, -6, 0, 28),
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = PAL.subtext,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = MysticPoolLogic.ODDS_LINES[#MysticPoolLogic.ODDS_LINES],
+		ZIndex = z,
+		Parent = parent,
+	})
+end
+
 -- `rarity` is the line under the name: the trait's rarity, or `none` for a card without one ("Now: no trait").
 local function fill(card: TraitCard, trait: MysticPoolLogic.Card, head: string?, none: string?)
 	local color = Color3.fromHex(trait.color)
 	card.name.Text = trait.name
-	card.name.TextColor3 = if trait.has then MenuFamily.onCard(color) else CARD.subtext
+	card.name.TextColor3 = if trait.has then deep(color) else CARD.subtext
 	local rarity = if trait.has then trait.rarity else none or ""
 	card.rarity.Text = if head ~= nil and rarity ~= ""
 		then head .. " · " .. rarity
 		else head or rarity
-	card.rarity.TextColor3 = if trait.has then MenuFamily.onCard(color) else CARD.subtext
+	-- #3950: the rarity on a pill of its colour, a thick border of it and a faint wash of it over the card
+	card.rarity.BackgroundTransparency = if trait.has then 0 else 1
+	card.rarity.BackgroundColor3 = color
+	card.rarity.TextColor3 = if trait.has then inkOn(color) else CARD.subtext
 	for index, label in card.lines do
 		label.Text = trait.lines[index] or ""
 	end
+	card.frame.BackgroundColor3 = if trait.has then CARD.card:Lerp(color, 0.12) else CARD.card
 	local stroke = card.frame:FindFirstChildWhichIsA("UIStroke") :: UIStroke?
 	if stroke then
 		stroke.Color = if trait.has then color else CARD.cardStroke
+		stroke.Thickness = if trait.has then 4 else Theme.sizes.stroke
 	end
 end
 
@@ -411,7 +495,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._oddsButton = Button.new({
 		name = "Odds",
 		text = "Odds",
-		style = "ghost",
+		style = "sky", -- #3961: blue, as the station menus picture
 		size = UDim2.fromOffset(ODDS_W, rowH),
 		anchorPoint = Vector2.new(1, 0),
 		position = UDim2.new(1, 0, 0, rollTop),
@@ -435,7 +519,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		TextColor3 = PAL.text,
 		Parent = content,
 	})
-	oddsLines(content, if short then lineTop else lineTop + 18, 1)
+	oddsPills(content, if short then lineTop else lineTop + 18, 1)
 	-- the station's free tokens
 	self._tokens = text({
 		Name = "Tokens",
@@ -1285,26 +1369,61 @@ function MysticPool._row(self: any, order: number, cat: any): Row
 		Parent = facts,
 	})
 	-- its trait in the rarity's colour, so the list shows which cats still have none
+	-- #3950: a trait shows as a bold pill of its rarity's colour; none is grey words
 	local trait = MysticPoolLogic.card(cat.trait)
-	text({
-		Name = "Trait",
+	local traitColor = Color3.fromHex(trait.color)
+	local traitRow: Frame = Create("Frame", {
+		Name = "TraitRow",
+		BackgroundTransparency = 1,
+		ClipsDescendants = true,
 		Position = if short
-			then UDim2.new(0.55, left - math.floor((left + right) * 0.55) + 6, 0, 4)
+			then UDim2.new(0.55, left - math.floor((left + right) * 0.55) + 10, 0, 4) -- 4 px clear of "Lv 22"
 			else UDim2.fromOffset(left, 45),
 		Size = if short
-			then UDim2.new(0.45, -(math.ceil((left + right) * 0.45) + 6), 0, 18)
+			then UDim2.new(0.45, -(math.ceil((left + right) * 0.45) + 10), 0, 18)
 			else UDim2.new(1, -(left + right), 0, 18),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = if trait.has
-			then MenuFamily.onCard(Color3.fromHex(trait.color))
-			else CARD.subtext,
-		TextXAlignment = if short then Enum.TextXAlignment.Right else Enum.TextXAlignment.Left,
-		Text = if trait.has
-			then (if short then trait.name else "Trait: " .. trait.name)
-			else trait.name,
 		ZIndex = 7,
 		Parent = frame,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = if short
+				then Enum.HorizontalAlignment.Right
+				else Enum.HorizontalAlignment.Left,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
 	})
+	if trait.has then
+		text({
+			Name = "Trait",
+			AutomaticSize = Enum.AutomaticSize.X,
+			BackgroundTransparency = 0,
+			BackgroundColor3 = traitColor,
+			Size = UDim2.new(0, 0, 1, 0),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = inkOn(traitColor),
+			TextTruncate = Enum.TextTruncate.None,
+			Text = if short then trait.name else "Trait: " .. trait.name,
+			ZIndex = 7,
+			Parent = traitRow,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, 5) }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }),
+		})
+	else
+		text({
+			Name = "Trait",
+			Size = UDim2.fromScale(1, 1),
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = CARD.subtext,
+			TextXAlignment = if short then Enum.TextXAlignment.Right else Enum.TextXAlignment.Left,
+			Text = trait.name,
+			ZIndex = 7,
+			Parent = traitRow,
+		})
+	end
 	local uid = cat.uid
 	local button = Button.new({
 		name = "Pick",
@@ -1484,7 +1603,7 @@ function MysticPool._paint(self: any)
 	if self._changeText ~= changeText then
 		self._changeText = changeText
 		self._change:setText(changeText)
-		self._change:setStyle(if cat ~= nil then "ghost" else "primary")
+		self._change:setStyle(if cat ~= nil then "sky" else "primary") -- #3961: blue, as the picture
 	end
 	self._change:setEnabled(not resting)
 	fill(

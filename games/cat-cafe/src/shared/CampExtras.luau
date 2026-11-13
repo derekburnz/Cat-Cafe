@@ -603,6 +603,9 @@ function CampExtras.autoClaim(extraId: string, view: Types.CampExtraView): (stri
 	if view.treats ~= nil then
 		return nil, nil -- Picnic Treats: the player picks on the card, walking up never picks for them
 	end
+	if extraId == "lostFound" then
+		return nil, nil -- #3955: the ring opens the Lost and Found's card; Claim there shows what turned up
+	end
 	if extraId == CampExtras.YARD_SALE then
 		-- #3615: a lucky pick is pressed on the card, where its board rolls; walking up never spends it
 		if view.pick ~= nil then
@@ -622,7 +625,8 @@ end
 
 -- #3938 (Derek 2026-11-13: "the squares don't open menus if item not ready"): what stepping into an extra's ring
 -- does. "collect" and "yard" (with the free crate's id) claim as autoClaim does; "treats" opens the Picnic Treats
--- pick card and "yardCard" the Yard Sale's card, ready or not; "info" opens the station's card with its timer when
+-- pick card, "yardCard" the Yard Sale's card, ready or not, and "lostCard" the Lost and Found's card, open or shut
+-- (#3955: WalkUpController opens those three); "info" opens the station's card with its timer when
 -- nothing waits (or the extra is still shut). Walking up never spends a lucky pick or picks a treat.
 function CampExtras.walkUp(extraId: string, view: Types.CampExtraView): (string, string?)
 	local how, crateId = CampExtras.autoClaim(extraId, view)
@@ -634,6 +638,9 @@ function CampExtras.walkUp(extraId: string, view: Types.CampExtraView): (string,
 	end
 	if extraId == CampExtras.YARD_SALE then
 		return if view.open then "yardCard" else "info", nil
+	end
+	if extraId == "lostFound" then
+		return "lostCard", nil
 	end
 	return "info", nil
 end

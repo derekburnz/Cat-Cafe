@@ -87,13 +87,21 @@ return function()
 			"gives Mythic and Secret a whole scene, the Secret the bigger, inside the safety rules (#3942)",
 			function()
 				local b = Presets.bigTrait
-				expect(Logic.bigTraitScene("legendary")).to.equal(nil)
+				expect(Logic.bigTraitScene("rare")).to.equal(nil)
 				expect(Logic.bigTraitScene(nil)).to.equal(nil)
+				-- Derek 2026-11-13: a Legendary gets a small one, smaller than a Mythic's
+				local l = Logic.bigTraitScene("legendary")
+				expect(l ~= nil).to.equal(true)
+				expect(l.orbit < 20 and l.bars < 0.1 and l.lift > 0 and l.constellation == false).to.equal(
+					true
+				)
+				expect(l.liftHeight < Presets.mysticPool.liftHeight).to.equal(true)
+				expect(l.orbit / l.orbitSeconds <= 10).to.equal(true)
 				local m, x = Logic.bigTraitScene("mythic"), Logic.bigTraitScene("secret")
 				expect(m ~= nil and x ~= nil).to.equal(true)
 				expect(x.orbit > m.orbit and x.dim > m.dim and x.spiral > m.spiral).to.equal(true)
 				expect(m.constellation).to.equal(false)
-				-- the cat rises up the pillar a little longer for a Secret, and nothing rises for a Legendary
+				-- the cat rises up the pillar a little longer for a Secret
 				expect(x.lift > m.lift and m.lift > 0).to.equal(true)
 				expect(x.constellation).to.equal(true)
 				for _, scene in { m, x } :: { any } do
@@ -111,6 +119,22 @@ return function()
 				-- the stars come one after the other, slower than about 10 a second, and the cat is done in the big moment
 				expect(b.starGap >= 0.1).to.equal(true)
 				expect(#Logic.CAT_CONSTELLATION * b.starGap < b.sizes.secret.big).to.equal(true)
+			end
+		)
+
+		it(
+			"climbs a Legendary's words RARE, EPIC, LEGENDARY slower than three a second (Derek 2026-11-13)",
+			function()
+				expect(#b.ladder).to.equal(3)
+				expect(b.ladder[#b.ladder]).to.equal("legendary")
+				expect(b.ladderGap >= 1 / 3).to.equal(true)
+				-- the words and the title fit in the Legendary's big moment, before the swing back
+				expect(#b.ladder * b.ladderGap + b.popSeconds * 2 < b.sizes.legendary.big).to.equal(
+					true
+				)
+				for _, tier in b.ladder do
+					expect(type(b.ladderWords[tier])).to.equal("string")
+				end
 			end
 		)
 

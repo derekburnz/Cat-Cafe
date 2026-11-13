@@ -157,5 +157,14 @@ return function()
 				false
 			)
 		end)
+
+		it("keeps its window open past the rejoin's longest wait for the move home", function()
+			local Cannon =
+				require(game:GetService("ReplicatedStorage"):WaitForChild("Shared").Cannon)
+			local landed = Cannon.REJOIN_HOME_WAIT_SECONDS + AfkCafe.ARRIVAL_STILL_SECONDS
+			expect(AfkCafe.arrivalRests(landed, AfkCafe.ARRIVAL_STILL_SECONDS, true, false)).to.equal(
+				true
+			)
+		end)
 	end)
 end

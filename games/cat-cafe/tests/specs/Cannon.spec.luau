@@ -266,6 +266,12 @@ return function()
 			end
 		)
 
+		it("waits longer for a rest's rejoin, whose save comes late (Derek 2026-11-13)", function()
+			expect(Cannon.homeWaitSeconds(false)).to.equal(Cannon.HOME_WAIT_SECONDS)
+			expect(Cannon.homeWaitSeconds(true)).to.equal(Cannon.REJOIN_HOME_WAIT_SECONDS)
+			expect(Cannon.REJOIN_HOME_WAIT_SECONDS > Cannon.HOME_WAIT_SECONDS).to.equal(true)
+		end)
+
 		it("moves only a character that still stands at the spawn", function()
 			local spawn = Vector3.new(0, 0.6, -14)
 			expect(Cannon.stillAtSpawn(Vector3.new(0, 3.6, -14), spawn)).to.equal(true)

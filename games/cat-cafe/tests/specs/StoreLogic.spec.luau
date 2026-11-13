@@ -1035,6 +1035,43 @@ return function()
 			expect(#StoreLogic.railTabs(true)).to.equal(#StoreLogic.TABS)
 		end)
 
+		it("gives each tab its header line, Codes the window's own", function()
+			expect(StoreLogic.subtitle("passes")).to.equal(
+				"Passes are yours to keep. Prices are in Robux."
+			)
+			expect(StoreLogic.subtitle("potions")).to.equal(
+				"Potions are used from your Bag. Prices are in Robux."
+			)
+			expect(StoreLogic.subtitle("featured")).to.equal("Prices are in Robux.")
+			expect(StoreLogic.subtitle("codes")).to.equal(StoreLogic.SUBTITLE_DEFAULT)
+			for _, tab in StoreLogic.TABS do
+				expect(#StoreLogic.subtitle(tab.id) > 0).to.equal(true)
+			end
+		end)
+
+		it("lists each potion a pack holds once, by name, with the bag's count", function()
+			local view: any = {
+				products = {
+					{ id = "s", prize = { potions = { tip = 3, swift = 1 } } },
+					{ id = "m", prize = { potions = { tip = 5, steady = 2 } } },
+					{ id = "badge", prize = { potions = {} } },
+					{ id = "odd", prize = {} },
+				},
+				potionNames = { tip = "Big Money Potion", swift = "Swift Potion", steady = "Steady Paw Potion" },
+				have = { tip = 3, steady = 2.7, other = 9 },
+			}
+			local bag = StoreLogic.bag(view)
+			expect(#bag).to.equal(3)
+			expect(bag[1].name).to.equal("Big Money Potion")
+			expect(bag[1].count).to.equal(3)
+			expect(bag[2].id).to.equal("steady")
+			expect(bag[2].count).to.equal(2)
+			expect(bag[3].id).to.equal("swift")
+			expect(bag[3].count).to.equal(0)
+			expect(#StoreLogic.bag(nil)).to.equal(0)
+			expect(#StoreLogic.bag({ products = {} } :: any)).to.equal(0)
+		end)
+
 		it("orders rows cheapest first, unpriced and off sale last, ties as before", function()
 			local function row(key: string, passId: number): any
 				return { key = key, passId = passId, tab = "passes" }

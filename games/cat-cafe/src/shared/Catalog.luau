@@ -2654,31 +2654,32 @@ Catalog.achievementPrizes = {
 -- with no row for a size, or a measure with no line, pays the size's item as before. "highest" is the crate of the
 -- player's best open area and "highest_golden" its golden crate (shared/Prizes). Everything here is earned in play;
 -- none of it is sold for Robux.
-local CATCHING = {
+type AchievementLine = { [string]: Types.IndexPrize }
+local CATCHING: AchievementLine = {
 	S = { lures = { tuna = 2 } },
 	M = { lures = { salmon = 1, tuna = 1 } },
 	L = { crates = { highest = 1 } },
 	XL = { crates = { highest_golden = 1 }, lures = { caviar = 1 } },
 }
-local FINDING = {
+local FINDING: AchievementLine = {
 	S = { spins = 1 },
 	M = { crates = { highest = 1 } },
 	L = { crates = { highest_golden = 1 } },
 	XL = { crates = { highest_golden = 2 } },
 }
-local QUESTS = {
+local QUESTS: AchievementLine = {
 	S = { spins = 2 },
 	M = { spins = 3 },
 	L = { spins = 5, fish = 10 },
 	XL = { crates = { classic_golden_crate = 1 }, spins = 5 },
 }
-local PLAYING = {
+local PLAYING: AchievementLine = {
 	S = { fish = 5 },
 	M = { fish = 10 },
 	L = { fish = 25, potions = { tip_potion = 1 } },
 	XL = { fish = 50, potions = { big_tip_potion = 1 } },
 }
-Catalog.achievementLines = {
+local ACHIEVEMENT_LINES: { [string]: AchievementLine } = {
 	catsCaught = CATCHING,
 	rareCatches = CATCHING,
 	goldCatches = {
@@ -2713,7 +2714,8 @@ Catalog.achievementLines = {
 		L = { potions = { tip_potion = 2 } },
 		XL = { potions = { big_tip_potion = 1 }, crates = { classic_golden_crate = 1 } },
 	},
-} :: { [string]: { [string]: Types.IndexPrize } }
+}
+Catalog.achievementLines = ACHIEVEMENT_LINES
 
 -- #3694: what one achievement pays: its size's coins and pass XP with its line's item, or the size's whole prize when
 -- its line has no row for that size. A new table each call, so callers may keep it.

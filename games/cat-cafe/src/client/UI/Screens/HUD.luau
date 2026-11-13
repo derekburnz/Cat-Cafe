@@ -1427,7 +1427,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		}),
 	})
 	self._banner = banner
-	self._bannerHold = {} :: { [string]: boolean } -- why the strip steps aside (holdBanner)
+	self._bannerHold = {} :: { [string]: true } -- why the strip steps aside (holdBanner)
 	-- the event, the day kinds, the event's next shower, then the Rally: the first BANNER_MOST that show
 	-- (_paintBanner), fewer where a narrow phone's top right icons leave less room (_fitBanner)
 	local bannerLines: { GuiObject } =
@@ -3869,11 +3869,15 @@ end
 -- all"): the strip steps aside while `reason` holds (the Rummage Bin's roll, the arcade or the Mystic Pool open), as
 -- it does through a catch or rescue (HUD._applyFocus)
 function HUD.holdBanner(self: any, reason: string, on: boolean)
-	local hold: { [string]: boolean } = self._bannerHold
+	local hold: { [string]: true } = self._bannerHold
 	if (hold[reason] == true) == on then
 		return
 	end
-	hold[reason] = if on then true else nil
+	if on then
+		hold[reason] = true
+	else
+		hold[reason] = nil
+	end
 	self:_layoutRight()
 end
 

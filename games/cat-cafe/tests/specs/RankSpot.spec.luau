@@ -51,6 +51,12 @@ return function()
 		it("puts it away for good only for a press after 2 seconds on screen", function()
 			expect(RankSpot.putsAway(0.3)).to.equal(false)
 			expect(RankSpot.putsAway(RankSpot.KEEP_SECONDS)).to.equal(true)
+			-- a press while another card is up (a gift card's Close) never puts it away for good
+			expect(RankSpot.putsAway(10, "button", "other")).to.equal(false)
+			expect(RankSpot.putsAway(10, "button", RankSpot.WINDOW)).to.equal(false)
+			expect(RankSpot.putsAway(10, "confirm", "other")).to.equal(false)
+			expect(RankSpot.putsAway(10, "confirm", RankSpot.WINDOW)).to.equal(true)
+			expect(RankSpot.putsAway(10, "button", nil)).to.equal(true)
 		end)
 
 		it("says only what to do", function()

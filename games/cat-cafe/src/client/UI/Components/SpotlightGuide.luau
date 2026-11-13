@@ -40,13 +40,18 @@ local BREATHE = TweenInfo.new(0.9, Enum.EasingStyle.Sine, Enum.EasingDirection.I
 local closeCurrent: (() -> ())? = nil
 
 -- Lights `target` with `words` beside it; see the top of this file. Returns the function that closes it.
-function SpotlightGuide.show(target: GuiObject, words: string, onOutside: (() -> ())?): () -> ()
+function SpotlightGuide.show(
+	target: GuiObject,
+	words: string,
+	onOutside: (() -> ())?,
+	ringOutside: boolean?
+): () -> ()
 	local previous = closeCurrent
 	if previous ~= nil then
 		previous()
 	end
 	local gui = target:FindFirstAncestorOfClass("ScreenGui")
-	TutorialGlow.set(target, true)
+	TutorialGlow.set(target, true, ringOutside) -- outside: for a card whose words reach its edge
 	local caption: TextLabel? = nil
 	if gui ~= nil and words ~= "" then
 		local made: TextLabel = Create("TextLabel", {

@@ -8,7 +8,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local DataService = require(script.Parent.DataService)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local ReturnGift = require(ReplicatedStorage.Shared.ReturnGift)
 local SessionRecap = require(ReplicatedStorage.Shared.SessionRecap)
 
 local SessionRecapService = {}
@@ -16,6 +18,11 @@ local SessionRecapService = {}
 local CHECK_SECONDS = 1
 
 local starts: { [Player]: SessionRecap.Start } = {}
+
+-- #3772: whether the recap's Tomorrow line names the welcome back gift: the switch is on and it pays tomorrow
+local function giftTomorrow(profile: any, now: number): boolean
+	return LiveFlagService.on(ReturnGift.FLAG) and ReturnGift.waiting(profile, now)
+end
 
 -- true when the recap was sent this tick
 local function check(player: Player): boolean
@@ -31,7 +38,7 @@ local function check(player: Player): boolean
 	end
 	if SessionRecap.due(start, now, profile.settings.sessionRecap ~= false) then
 		start.sent = true
-		Net.fire(player, "SessionRecap", SessionRecap.view(start, profile, now))
+		Net.fire(player, "SessionRecap", SessionRecap.view(start, profile, now, giftTomorrow(profile, now)))
 		return true
 	end
 	return false
@@ -50,7 +57,7 @@ function SessionRecapService.debugSendNow(player: Player): boolean
 	local start = starts[player] or SessionRecap.start(profile, now - 60)
 	starts[player] = start
 	start.sent = true
-	Net.fire(player, "SessionRecap", SessionRecap.view(start, profile, now))
+	Net.fire(player, "SessionRecap", SessionRecap.view(start, profile, now, giftTomorrow(profile, now)))
 	return true
 end
 

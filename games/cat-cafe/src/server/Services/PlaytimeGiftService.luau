@@ -7,6 +7,8 @@
 -- #2997: the same loop pays the Saturday update gift (shared/UpdateGift) once per account per id.
 -- #2791: the gift ladder's small steps (2, 4, 6, 15 and 20 minutes) pay the same way, with a "Gift! ..." toast in place
 -- of the card; each paid step logs playtime_gift {step, "paid"}.
+-- #3772: and the welcome back gift (shared/ReturnGift), a golden crate once per account on its first later-day join,
+-- behind the returnGift switch.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -15,10 +17,12 @@ local CafeService = require(script.Parent.CafeService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
+local ReturnGift = require(ReplicatedStorage.Shared.ReturnGift)
 local Telemetry = require(script.Parent.Telemetry)
 local UpdateGift = require(ReplicatedStorage.Shared.UpdateGift)
 
@@ -76,6 +80,25 @@ local function updateGift(player: Player): boolean
 	return true
 end
 
+-- #3772: the welcome back gift, on the first second a returning player is loaded on a later UTC day than their
+-- first; marked in codesRedeemed before paying, so it never pays twice, on this server or another.
+local function returnGift(player: Player)
+	local profile = DataService.get(player)
+	local now = os.time()
+	if
+		profile == nil
+		or not LiveFlagService.on(ReturnGift.FLAG)
+		or not ReturnGift.due(profile, now)
+	then
+		return
+	end
+	profile.codesRedeemed[ReturnGift.KEY] = now
+	local paid = Payout.pay(player, profile, ReturnGift.prize(), ReturnGift.REASON)
+	Telemetry.custom(player, "return_gift_paid", ReturnGift.daysSince(profile, now))
+	CafeService.sync(player)
+	Net.toast(player, ReturnGift.TOAST .. table.concat(paid, ", "), "good")
+end
+
 -- true when a gift was paid this tick
 local function check(player: Player): boolean
 	local profile = DataService.get(player)
@@ -128,6 +151,10 @@ function PlaytimeGiftService.start()
 				local giftOk, giftErr = pcall(updateGift, player)
 				if not giftOk then
 					warn("[PlaytimeGiftService] update gift: " .. tostring(giftErr))
+				end
+				local returnOk, returnErr = pcall(returnGift, player)
+				if not returnOk then
+					warn("[PlaytimeGiftService] return gift: " .. tostring(returnErr))
 				end
 			end
 		end

@@ -101,11 +101,21 @@ return function()
 			expect(ReturnHook.pick(profile, NOW, "join")).to.equal(nil)
 		end)
 
-		it("only ever names one of the three kinds", function()
+		it("only ever names one of the four kinds", function()
 			for _, kind in ReturnHook.KINDS do
-				expect(kind == "bait" or kind == "treat" or kind == "quests").to.equal(true)
+				expect(kind == "gift" or kind == "bait" or kind == "treat" or kind == "quests").to.equal(true)
 			end
-			expect(#ReturnHook.KINDS).to.equal(3)
+			expect(#ReturnHook.KINDS).to.equal(4)
+		end)
+
+		it("names the welcome back gift first at a recap when it pays tomorrow, never on a join (#3772)", function()
+			local profile = fresh()
+			profile.bait = bait(NOW + 600)
+			expect((ReturnHook.pick(profile, NOW, "recap", true) :: any).kind).to.equal("gift")
+			expect((ReturnHook.pick(profile, NOW, "recap", false) :: any).kind).to.equal("bait")
+			expect((ReturnHook.pick(profile, NOW, "recap") :: any).kind).to.equal("bait")
+			profile.bait = bait(NOW - 600)
+			expect((ReturnHook.pick(profile, NOW, "join", true) :: any).kind).to.equal("bait")
 		end)
 	end)
 end

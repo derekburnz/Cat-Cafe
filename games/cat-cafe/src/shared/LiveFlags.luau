@@ -83,6 +83,9 @@
 -- - `menuFamily` (#3558): the station menu family's look for every dark window (client/UI/Components/MenuFamily).
 --   It starts OFF (OFF_BY_DEFAULT); read by the client alone. A window open when it flips keeps its look until
 --   it is opened again.
+-- - `returnGift` (#3772): a golden crate once per account on the first join on a later UTC day than its first, for
+--   accounts first seen from Config.ReturnGiftFromDay, and the recap's "come back tomorrow" line for it
+--   (shared/ReturnGift). It starts OFF (OFF_BY_DEFAULT).
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -125,6 +128,7 @@ LiveFlags.KEYS = {
 	"rankUpSpotlight",
 	"bagColours",
 	"menuFamily",
+	"returnGift",
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -150,6 +154,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	rankUpSpotlight = true,
 	bagColours = true,
 	menuFamily = true,
+	returnGift = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

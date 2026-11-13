@@ -1,7 +1,9 @@
 --!strict
 -- One reason to come back tomorrow (#2123, first-hour.md section 6a): the recap card's "Tomorrow" line and the welcome
 -- back card's line name the single best thing waiting, picked in this order. Pure; nothing new is saved.
---   pick(profile, now, "recap") -> Hook?   at the end of a session, what waits after the player leaves:
+--   pick(profile, now, "recap", gift?) -> Hook?   at the end of a session, what waits after the player leaves:
+--       "gift"    #3772: `gift` is true, so tomorrow's first join pays the welcome back golden crate
+--                 (shared/ReturnGift; the caller checks the switch) ("Come back tomorrow for a golden crate")
 --       "bait"    a bowl's bait cat comes after now ("Your bait cat will be waiting for you")
 --       "treat"   today's Daily Treat stamp is claimed, so tomorrow's day `day` is certain ("Tomorrow: Daily Treat
 --                 day D, PRIZE"; the UI words the prize from Catalog.dailyTreat[day])
@@ -24,7 +26,7 @@ export type Mode = "recap" | "join"
 -- Types.ReturnHookView: `kind` one of KINDS, `day` the Daily Treat day for "treat"
 export type Hook = Types.ReturnHookView
 
-ReturnHook.KINDS = table.freeze({ "bait", "treat", "quests" }) :: { string }
+ReturnHook.KINDS = table.freeze({ "gift", "bait", "treat", "quests" }) :: { string }
 
 -- When the bowl's cat comes (a save from before readyAt waits LureWaitSeconds from placedAt).
 local function readyAt(bait: Types.BaitState): number
@@ -46,7 +48,10 @@ local function baitWaiting(profile: Types.PlayerProfile, now: number, mode: Mode
 	return false
 end
 
-function ReturnHook.pick(profile: Types.PlayerProfile, now: number, mode: Mode): Hook?
+function ReturnHook.pick(profile: Types.PlayerProfile, now: number, mode: Mode, gift: boolean?): Hook?
+	if mode == "recap" and gift == true then
+		return { kind = "gift" }
+	end
 	if baitWaiting(profile, now, mode) then
 		return { kind = "bait" }
 	end

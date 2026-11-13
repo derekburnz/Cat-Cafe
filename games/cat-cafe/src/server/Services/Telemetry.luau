@@ -166,6 +166,7 @@ export type CustomEvent =
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
 	| "intro_skip" -- #3773: a first play skipped; value the whole seconds watched; version:shot, device
+	| "return_gift_paid" -- #3772 (shared/ReturnGift): the welcome back gift paid; value the UTC days since the first day
 	| "potion_used" -- F64: potion id, tier
 	| "mystery_gift" -- F64: "opened" or "missed", kind:id ("potion:tip_potion", "spin"), tier; the value is the count
 	| "collector_visit" -- F63: "arrived", "traded", "declined", "timeout" or "withdrawn", catId:variant, offer value

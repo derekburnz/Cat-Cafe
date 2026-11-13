@@ -39,14 +39,21 @@ return function()
 		expect(SessionRecap.due(start, NOW + 9000, true)).to.equal(false) -- once a session
 	end)
 
-	it("comes after 15 minutes in the account's first session (#2123)", function()
-		expect(Config.RecapFirstSessionSeconds).to.equal(900)
+	it("comes after 8 minutes in the account's first session (#2123, #3772)", function()
+		expect(Config.RecapFirstSessionSeconds).to.equal(480)
 		local profile: any = ProfileSchema.template(NOW)
 		profile.stats.sessions = 1 -- DataService counts this join before the recap starts
 		local start = SessionRecap.start(profile, NOW)
-		expect(SessionRecap.due(start, NOW + 899, true)).to.equal(false)
-		expect(SessionRecap.due(start, NOW + 900, true)).to.equal(true)
-		expect(SessionRecap.due(start, NOW + 900, false)).to.equal(false)
+		expect(SessionRecap.due(start, NOW + 479, true)).to.equal(false)
+		expect(SessionRecap.due(start, NOW + 480, true)).to.equal(true)
+		expect(SessionRecap.due(start, NOW + 480, false)).to.equal(false)
+	end)
+
+	it("names the welcome back gift as tomorrow's line when asked to (#3772)", function()
+		local profile: any = ProfileSchema.template(NOW)
+		local start = SessionRecap.start(profile, NOW)
+		expect((SessionRecap.view(start, profile, NOW + 600, true).tomorrow :: any).kind).to.equal("gift")
+		expect((SessionRecap.view(start, profile, NOW + 600, false).tomorrow :: any).kind).never.to.equal("gift")
 	end)
 
 	it("carries the Tomorrow line (#2123)", function()

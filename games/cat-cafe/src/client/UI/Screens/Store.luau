@@ -140,6 +140,8 @@ local PACK_LINE_ROW = 30
 local SHEET_PAD = 12
 local SHEET_TITLE_H = 30
 local SHEET_HOOK_H = 20
+local SALE_ROW_H = 26 -- #4026: Featured's Sale row under the picks
+local SALE_MOST = 3
 local INK = Color3.fromHex("2C1642") -- the family kit's ink, the i's letter and ring
 
 local PRELOAD_AFTER = 3 -- #2500: seconds after the Store is built (at join) before its pictures are fetched
@@ -350,6 +352,39 @@ function Store.new(callbacks: Callbacks): Store
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	-- #4026 (the approved store-v2 draft): the Sale row names the halved cards and their prices, under the picks. Words
+	-- only: the old price is on each card's own Sale badge, and there is no timer
+	self._saleRow = Create("Frame", {
+		Name = "SaleRow",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.fromScale(0, 1),
+		Size = UDim2.new(1, 0, 0, SALE_ROW_H),
+		Visible = false,
+		Parent = self._featured,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	local saleTitle = text({
+		Name = "Title",
+		Size = UDim2.fromOffset(0, SALE_ROW_H),
+		AutomaticSize = Enum.AutomaticSize.X,
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.gold,
+		TextTruncate = Enum.TextTruncate.None,
+		Text = "On sale",
+		LayoutOrder = 0,
+		Parent = self._saleRow,
+	})
+	MenuFamily.outline(saleTitle)
+	self._saleKey = ""
+	self._saleCount = 0
 	self._empty = text({
 		Name = "Empty",
 		Size = UDim2.new(1, 0, 0, 60),
@@ -928,6 +963,13 @@ function Store._layout(self: any)
 		return
 	end
 	local spacing = GAP + 2 * CARD_STROKE
+	-- #4026: the Sale row takes its strip at the foot of Featured, only where the hero and the picks keep their words
+	local saleShown = self._saleCount > 0
+		and height - SALE_ROW_H - 2 * spacing - self._cellMin >= HERO_ROOM
+	self._saleRow.Visible = saleShown
+	local saleH = if saleShown then SALE_ROW_H + spacing else 0
+	self._picks.Position = UDim2.new(0, 0, 1, -saleH)
+	height -= saleH
 	-- Featured: the picks as tall as a grid card needs, the hero takes the rest (never under HERO_MIN); on a short
 	-- page the picks drop their words first
 	local compact = height - spacing - self._cellMin < HERO_ROOM
@@ -985,6 +1027,51 @@ function Store._layout(self: any)
 		entry.effect.Position = UDim2.fromOffset(PACK_PAD + 2, y + PACK_NAME_H)
 	end
 	self:_placePackSheet(height)
+end
+
+-- #4026: the Sale row's chips, one per card on sale ("Royal Cat R$299"), rebuilt only when the list changes
+function Store._fillSale(self: any, list: { StoreLogic.SaleEntry })
+	local parts: { string } = {}
+	for _, entry in list do
+		table.insert(parts, entry.key .. "=" .. entry.robux)
+	end
+	local key = table.concat(parts, ",")
+	self._saleCount = #list
+	if key == self._saleKey then
+		return
+	end
+	self._saleKey = key
+	for _, child in self._saleRow:GetChildren() do
+		if child:IsA("TextLabel") and child.Name ~= "Title" then
+			child:Destroy()
+		end
+	end
+	for index, entry in list do
+		local chip = text({
+			Name = "Sale_" .. entry.key,
+			Size = UDim2.fromOffset(0, SALE_ROW_H - 4),
+			AutomaticSize = Enum.AutomaticSize.X,
+			BackgroundTransparency = 0,
+			BackgroundColor3 = CARD.card,
+			TextSize = Theme.sizes.textSmall,
+			TextTruncate = Enum.TextTruncate.None,
+			RichText = true,
+			Text = ("%s  <b>R$%d</b>"):format(entry.name, entry.robux),
+			LayoutOrder = index,
+			Parent = self._saleRow,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = chip })
+		Create("UIStroke", {
+			Color = Theme.colors.redDark,
+			Thickness = 1.5,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Parent = chip,
+		})
+		Create(
+			"UIPadding",
+			{ PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8), Parent = chip }
+		)
+	end
 end
 
 -- #4026: one outfit pack's card (Store._fillPack fills it), as the approved draft: the art with the gold "Up to +100%
@@ -1507,6 +1594,14 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 		self:_fill(entry, featured.picks[index])
 	end
 	self._picks.Visible = #featured.picks > 0
+	local onFeatured: { [string]: boolean } = {}
+	if featured.hero then
+		onFeatured[featured.hero.key] = true
+	end
+	for _, pick in featured.picks do
+		onFeatured[pick.key] = true
+	end
+	self:_fillSale(StoreLogic.saleList(rows, prices, Config, os.time(), SALE_MOST, onFeatured))
 	self._empty.Visible = #rows == 0
 	-- the grid: a card per row, kept for the next render
 	local shown: { [string]: boolean } = {}

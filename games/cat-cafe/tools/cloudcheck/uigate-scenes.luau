@@ -10674,6 +10674,53 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assert(ok, problem)
 	end },
+	-- #4026 (the approved store-v2 draft): with more cards on sale than Featured shows, the Sale row under the picks
+	-- names the others with their prices (at most three; StoreLogic.spec checks none is already on Featured), inside the
+	-- page and under the picks
+	{ "StoreSaleRow", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local prices = storePrices(true)
+		for key, entry in Config.StoreWasPrice do
+			local configKey = ({
+				extraSlot = "ExtraSlotPassIds",
+				uniforms = "UniformStylesPassId",
+				cafeStyle = "CafeStylePassId",
+				royalCat = "RoyalCatPassId",
+				kingCat = "KingCatPassId",
+				grandTheme = "GrandThemePassId",
+				kingPack = "KingPackPassId",
+			})[key]
+			local id = configKey and Config[configKey]
+			if type(id) == "table" then
+				id = id[1]
+			end
+			if type(id) == "number" and id ~= 0 then
+				prices[id] = { robux = entry.now, forSale = true }
+			end
+		end
+		UI.store.preview(prices, {})
+		UI.open("Store")
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
+		local row = window:FindFirstChild("SaleRow", true) :: Frame
+		assert(row, "uigate: no Sale row on Featured (#4026)")
+		if not row.Visible then
+			return -- a short page keeps the hero and the picks' words instead
+		end
+		local picks = window:FindFirstChild("Picks", true) :: Frame
+		local chips = 0
+		for _, chip in row:GetChildren() do
+			if chip:IsA("TextLabel") and chip.Name:sub(1, 5) == "Sale_" then
+				chips += 1
+				assert(chip.TextFits, "uigate: " .. chip.Name .. " does not fit (#4026)")
+				assert(string.find(chip.Text, "R$", 1, true), "uigate: " .. chip.Name .. " names no price (#4026)")
+				local right = chip.AbsolutePosition.X + chip.AbsoluteSize.X
+				local pageRight = row.AbsolutePosition.X + row.AbsoluteSize.X
+				assert(right <= pageRight + 1, "uigate: " .. chip.Name .. " runs past the page (#4026)")
+			end
+		end
+		assert(chips >= 1 and chips <= 3, ("uigate: the Sale row has %d chips (#4026)"):format(chips))
+		assert(row.AbsolutePosition.Y >= picks.AbsolutePosition.Y + picks.AbsoluteSize.Y - 1, "uigate: the Sale row is over the picks (#4026)")
+	end },
 	{ "StorePasses", function()
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")

@@ -349,13 +349,10 @@ function StoreLogic.packLines(key: string): { PackLine }
 	end
 	local lines: { PackLine } = {}
 	for _, piece in pack.pieces do
-		table.insert(
-			lines,
-			{
-				left = piece.name .. " · " .. piece.place,
-				right = ("+%d%% money"):format(piece.bonus),
-			}
-		)
+		table.insert(lines, {
+			left = piece.name .. " · " .. piece.place,
+			right = ("+%d%% money"):format(piece.bonus),
+		})
 	end
 	table.insert(
 		lines,
@@ -1089,6 +1086,9 @@ local PICK_ORDER =
 	{ "money", "royalCat", "kingPack", "secondBowl", "extraSlot", "vip", "longNap", "cafePass" }
 -- Then the passes the player keeps that are mostly looks (#2303, Monetization-Agent's order). Any other pass comes
 -- next, then any other product; the potion packs fill a pick only once nothing else can be bought.
+-- #4026: the outfit packs, newest first (Winter goes with the Snowy Mountain update); the first one still to buy is
+-- Featured's second pick
+StoreLogic.NEWEST_PACKS = { "packWinter", "packStylish", "packChef", "packSpace" }
 local PASS_PICKS = {
 	"accessories",
 	"cafeStyle",
@@ -1158,6 +1158,16 @@ function StoreLogic.featured(rows: { Row }, prices: { [number]: Price }?): Featu
 		if row and buyable(row) then
 			take(row)
 		end
+		if key == "money" then
+			-- #4026 (the approved store-v2 draft): the newest outfit pack still to buy sits beside 2x Money
+			for _, packKey in StoreLogic.NEWEST_PACKS do
+				local pack = byKey[packKey]
+				if pack and buyable(pack) then
+					take(pack)
+					break
+				end
+			end
+		end
 	end
 	for _, key in PASS_PICKS do
 		local row = byKey[key]
@@ -1184,6 +1194,46 @@ function StoreLogic.featured(rows: { Row }, prices: { [number]: Price }?): Featu
 		take(byKey[key]) -- everything bought: the picks still show, marked Owned
 	end
 	return { hero = hero, picks = picks }
+end
+
+-- #4026 (the approved store-v2 draft: "A Sale row names the halved items"): Featured's Sale row, the cards on sale
+-- right now (StoreLogic.saleWas) that can still be bought and are not already on Featured, biggest saving first and
+-- at most `most`. The row names each with its price; the old price stays on the card's own Sale badge.
+export type SaleEntry = { key: string, name: string, robux: number, tab: string }
+function StoreLogic.saleList(
+	rows: { Row },
+	prices: { [number]: Price }?,
+	config: any,
+	now: number,
+	most: number,
+	skip: { [string]: boolean }? -- the cards already on Featured, which show their own Sale badge
+): { SaleEntry }
+	local list: { SaleEntry } = {}
+	local saving: { [string]: number } = {}
+	if prices == nil then
+		return list
+	end
+	for _, row in rows do
+		local price = prices[row.passId]
+		local was = StoreLogic.saleWas(row, price, config, now)
+		if was and price and price.robux and not (skip and skip[row.key]) then
+			saving[row.key] = was - price.robux
+			table.insert(
+				list,
+				{ key = row.key, name = row.name, robux = price.robux, tab = row.tab }
+			)
+		end
+	end
+	table.sort(list, function(a, b)
+		if saving[a.key] ~= saving[b.key] then
+			return saving[a.key] > saving[b.key]
+		end
+		return a.key < b.key
+	end)
+	while #list > most do
+		table.remove(list)
+	end
+	return list
 end
 
 -- A card's button: Owned, "..." while the price loads, Soon while off sale, else the price in Robux.

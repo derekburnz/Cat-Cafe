@@ -383,7 +383,8 @@ return function()
 			"closes the Cafe Pass card for the next season in the last minutes of one (#2129)",
 			function()
 				local passConfig: any = table.clone(config)
-				passConfig.ProductIds = { steady_paw_pack = 31, starter_bundle = 40, cafe_pass = 50 }
+				passConfig.ProductIds =
+					{ steady_paw_pack = 31, starter_bundle = 40, cafe_pass = 50 }
 				local function card(saleOpen: boolean?, paid: boolean): any
 					local running: any = table.clone(view)
 					running.starterBought = true
@@ -412,7 +413,8 @@ return function()
 			"shows the Cafe Pass card only while a season runs, Yours once bought (#1646)",
 			function()
 				local passConfig: any = table.clone(config)
-				passConfig.ProductIds = { steady_paw_pack = 31, starter_bundle = 40, cafe_pass = 50 }
+				passConfig.ProductIds =
+					{ steady_paw_pack = 31, starter_bundle = 40, cafe_pass = 50 }
 				expect(table.concat(StoreLogic.productIds(passConfig), ",")).to.equal("40,50")
 				-- no season: no card and no Cafe Pass tab
 				expect(#StoreLogic.tabRows(StoreLogic.rows(passConfig, {}, nil, view), "cafePass")).to.equal(
@@ -773,7 +775,9 @@ return function()
 				expect(StoreLogic.saleBadge(999)).to.equal("SALE  was <s>R$999</s>")
 				for _, robux in { 450, 498 } do
 					local price = { robux = robux, forSale = true }
-					expect(StoreLogic.saleWas(card("kingPack"), price, Config, before)).to.equal(999)
+					expect(StoreLogic.saleWas(card("kingPack"), price, Config, before)).to.equal(
+						999
+					)
 				end
 				-- above the sale price (a regional price, a price that went up): no badge
 				for _, robux in { 500, 998, 999, 1200 } do
@@ -1029,7 +1033,9 @@ return function()
 			for _, tab in StoreLogic.railTabs(true) do
 				table.insert(ids, tab.id)
 			end
-			expect(table.concat(ids, ",")).to.equal("featured,packs,cats,passes,potions,cafePass,codes") -- #4026: Packs under Featured
+			expect(table.concat(ids, ",")).to.equal(
+				"featured,packs,cats,passes,potions,cafePass,codes"
+			) -- #4026: Packs under Featured
 			expect(StoreLogic.railTabs(false)).to.equal(StoreLogic.TABS)
 			expect(#StoreLogic.railTabs(true)).to.equal(#StoreLogic.TABS)
 		end)
@@ -1135,6 +1141,60 @@ return function()
 				shown = shown or tab.id == "packs"
 			end
 			expect(shown).to.equal(true)
+		end)
+
+		it("puts the newest pack still to buy beside 2x Money on Featured", function()
+			local config =
+				{ MoneyPassIds = { [2] = 11 }, WinterPackPassId = 78, StylishPackPassId = 77 }
+			local rows = StoreLogic.rows(config, {})
+			local featured = StoreLogic.featured(rows, nil)
+			expect(featured.picks[1].key).to.equal("money")
+			expect(featured.picks[2].key).to.equal("packWinter")
+			local owned = StoreLogic.rows(config, { [78] = true })
+			expect(StoreLogic.featured(owned, nil).picks[2].key).to.equal("packStylish")
+		end)
+
+		it("lists the cards on sale not already on Featured, biggest saving first", function()
+			local rows: { any } = {
+				{ key = "royalCat", name = "Royal Cat", passId = 1, tab = "cats", owned = false },
+				{
+					key = "kingPack",
+					name = "King Cat Pack",
+					passId = 2,
+					tab = "cats",
+					owned = false,
+				},
+				{
+					key = "cafeStyle",
+					name = "Cafe Style",
+					passId = 3,
+					tab = "passes",
+					owned = false,
+				},
+				{ key = "vip", name = "VIP", passId = 4, tab = "passes", owned = false },
+			}
+			local config = {
+				StoreWasPrice = {
+					royalCat = { was = 599, now = 299 },
+					kingPack = { was = 999, now = 499 },
+					cafeStyle = { was = 249, now = 125 },
+				},
+				StoreSaleEnds = 2000,
+			}
+			local prices = {
+				[1] = { robux = 299, forSale = true },
+				[2] = { robux = 499, forSale = true },
+				[3] = { robux = 125, forSale = true },
+				[4] = { robux = 25, forSale = true },
+			}
+			local list = StoreLogic.saleList(rows, prices, config, 1000, 3, { royalCat = true })
+			expect(#list).to.equal(2)
+			expect(list[1].key).to.equal("kingPack")
+			expect(list[1].robux).to.equal(499)
+			expect(list[2].key).to.equal("cafeStyle")
+			expect(#StoreLogic.saleList(rows, prices, config, 1000, 1, nil)).to.equal(1)
+			expect(#StoreLogic.saleList(rows, prices, config, 3000, 3, nil)).to.equal(0) -- the sale is over
+			expect(#StoreLogic.saleList(rows, nil, config, 1000, 3, nil)).to.equal(0)
 		end)
 	end)
 end

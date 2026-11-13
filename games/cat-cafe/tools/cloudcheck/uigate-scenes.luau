@@ -8821,6 +8821,34 @@ local SCENES = {
 		UI.campExtras.update(extras)
 		UI.campExtras.openYardSale(extras.yardSale)
 	end },
+	-- #3953: today's crate still free: the wide card with its "FREE TODAY" pill, the odds as pills in view (no Odds
+	-- button to find them behind) and the Take button
+	{ "YardSaleFree", function()
+		local extras = campExtras(0, false)
+		UI.campExtras.update(extras)
+		UI.campExtras.openYardSale(extras.yardSale)
+		task.wait(0.2)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local yard = modals and modals:FindFirstChild("YardSale", true)
+		assert(yard, "uigate: no Yard Sale card (#3953)")
+		local crates = yard:FindFirstChild("Crates", true)
+		local card = crates and crates:FindFirstChildWhichIsA("Frame")
+		assert(card, "uigate: no crate card on the Yard Sale (#3953)")
+		local status = card:FindFirstChild("Status")
+		assert(
+			status and status:IsA("TextLabel") and status.Text == "FREE TODAY",
+			"uigate: the Yard Sale crate has no FREE TODAY pill (#3953)"
+		)
+		assert(card:FindFirstChild("OddsSheet", true) == nil, "uigate: the Yard Sale still hides its odds on a sheet (#3953)")
+		local odds = card:FindFirstChild("Odds", true)
+		local pills = 0
+		for _, pill in (if odds then odds:GetChildren() else {}) do
+			if pill:IsA("TextLabel") and string.find(pill.Text, "%%") then
+				pills += 1
+			end
+		end
+		assert(pills >= 2, "uigate: the Yard Sale crate shows " .. pills .. " odds pills (#3953)")
+	end },
 	-- #3615: the Yard Sale card as the lucky pick (the `yardSaleRoll` switch): the board with one row per crate a
 	-- Tier 4 player can win, chances to one decimal, and the Lucky pick button
 	{ "YardSalePick", function()

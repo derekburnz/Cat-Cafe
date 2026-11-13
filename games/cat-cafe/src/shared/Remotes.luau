@@ -162,6 +162,9 @@ Remotes.ClientToServer = {
 	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), the crate up
 	-- now (CampExtras.yardStock), YardSaleClaimHours since the last take (#1154), free since #1051; banked for the
 	-- Market; 1 a second
+	"PickPicnicTreat", -- (treatId: string)  #3715: Picnic Treats (the `picnicTreats` switch): "sandwich", "lemonade"
+	-- or "cupcake" (shared/CampExtras.TREATS), one potion of that kind when a pick waits (one every
+	-- Config.PicnicTreatSeconds, the server's timer); 1 a second. Answered with CampExtraResult and CampExtrasState
 	"YardSalePick", -- ()  #3614: the Yard Sale's free lucky pick (the `yardSaleRoll` switch), within reach of the
 	-- stall or from its card; 1 a second. The server rolls shared/YardPick's rows and banks the crate in the same
 	-- call, answered with YardSalePicked (or CampExtraResult with ok false) and CampExtrasState

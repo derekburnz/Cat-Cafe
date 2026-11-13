@@ -119,6 +119,15 @@ end
 
 local function onTriggered(extraId: string)
 	if extraId ~= CampExtras.YARD_SALE then
+		local view = viewOf(extraId)
+		if view ~= nil and view.treats ~= nil then
+			-- #3715: Picnic Treats: the prompt opens the pick card, the player chooses there
+			local openPicnic = hook("openPicnic")
+			if openPicnic ~= nil then
+				openPicnic()
+			end
+			return
+		end
 		Net.fire("CollectCampExtra", extraId)
 		return
 	end
@@ -272,6 +281,12 @@ function CampExtrasController.start()
 		end)
 	end
 	-- #3615: the Yard Sale's lucky pick, from its card; the answer rolls the card's board to the row
+	-- #3715: Pick on the Picnic Treats card
+	if uiEvents.pickPicnicTreat ~= nil then
+		uiEvents.pickPicnicTreat:Connect(function(treatId: string)
+			Net.fire("PickPicnicTreat", treatId)
+		end)
+	end
 	if uiEvents.yardSalePick ~= nil then
 		uiEvents.yardSalePick:Connect(function()
 			Net.fire("YardSalePick")

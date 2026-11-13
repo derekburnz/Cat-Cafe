@@ -105,6 +105,11 @@ local function yardHours(): number?
 	return if pickOn() then YardPick.hours(true) else nil
 end
 
+-- #3715: Picnic Treats, behind its switch: the basket fills by the treats' rule and is taken with a pick.
+local function treatsOn(): boolean
+	return LiveFlagService.on(CampExtras.TREATS_FLAG)
+end
+
 -- #3614: with the pick on, the Yard Sale's view carries this player's rows: what the board shows is what is rolled.
 local function addPick(state: Types.CampExtrasState, tier: number)
 	if pickOn() and state.yardSale.open then
@@ -116,8 +121,9 @@ end
 local function refresh(player: Player, profile: Types.PlayerProfile, force: boolean)
 	local now = os.time()
 	local tier = Economy.tier(profile)
-	CampExtras.settle(profile.campExtras, tier, now)
-	local state = CampExtras.view(profile.campExtras, tier, now, pondTimes(player), yardHours())
+	CampExtras.settle(profile.campExtras, tier, now, treatsOn())
+	local state =
+		CampExtras.view(profile.campExtras, tier, now, pondTimes(player), yardHours(), treatsOn())
 	addPick(state, tier)
 	-- #1537: the Yard Sale's second panel, the day's lawn rows (lawn-nursery.md section 7)
 	local day = YardSale.dayAt(now)
@@ -237,7 +243,13 @@ local function onCollect(player: Player, rawExtraId: unknown)
 		refuse(player, extraId, string.format("Walk up to the %s first", def.name))
 		return
 	end
-	CampExtras.settle(profile.campExtras, tier, now)
+	if extraId == "picnic" and treatsOn() then
+		-- #3715: the basket is a pick now; an old button or a made-up call never takes it as potions
+		refuse(player, extraId, "Pick a treat at the Picnic Basket")
+		refresh(player, profile, true)
+		return
+	end
+	CampExtras.settle(profile.campExtras, tier, now, treatsOn())
 	local blocker = CampExtras.collectBlocker(profile.campExtras, extraId, tier, now)
 	if blocker ~= nil then
 		refuse(player, extraId, blocker)
@@ -295,6 +307,34 @@ local function onCollect(player: Player, rawExtraId: unknown)
 	refresh(player, profile, true)
 end
 
+-- #3715: Picnic Treats. The player's pick of one of three fixed treats, each one potion; the timer and the hold are
+-- the server's (CampExtras.pickTreat). Free: no coins, fish or Robux are read or taken, nothing shortens the wait and
+-- nothing is rolled. From anywhere, as every extra since #3082, so only the tier gates it.
+local function onPickTreat(player: Player, rawTreatId: unknown)
+	local treatId = Guard.oneOf(rawTreatId, CampExtras.treatIds())
+	local profile = DataService.get(player)
+	if treatId == nil or profile == nil then
+		return
+	end
+	if not treatsOn() then
+		refuse(player, "picnic", "Picnic Treats are not open yet")
+		return
+	end
+	local tier = Economy.tier(profile)
+	local prize, why = CampExtras.pickTreat(profile.campExtras, treatId, tier, os.time())
+	if prize == nil then
+		refuse(player, "picnic", why or "Nothing yet")
+		refresh(player, profile, true)
+		return
+	end
+	local paid = Payout.pay(player, profile, prize, "camp_extra")
+	Telemetry.onboarding(player, profile, "first_camp_collect") -- #1888
+	Telemetry.custom(player, "camp_extra", 1, { "picnic", treatId, tostring(tier) })
+	Net.fire(player, "CampExtraResult", "picnic", true, paid, prize)
+	CafeService.sync(player)
+	refresh(player, profile, true)
+end
+
 -- #3614 (camp-stations.md section 3a): the free lucky pick. Rolled from this player's YardPick rows and banked in
 -- this one call, so there is nothing to lose between the roll and the crate and nothing a client can choose. Free:
 -- no coins, fish or Robux are read or taken, and nothing shortens the wait.
@@ -311,7 +351,7 @@ local function onYardSalePick(player: Player)
 	local def = Catalog.getCampExtra(CampExtras.YARD_SALE) :: Types.CampExtraDef
 	local tier = Economy.tier(profile)
 	local now = os.time()
-	CampExtras.settle(profile.campExtras, tier, now)
+	CampExtras.settle(profile.campExtras, tier, now, treatsOn())
 	if
 		not CampExtras.FROM_ANYWHERE -- #3082: the Yard Sale's card opens from the Cat Cannon's menu too
 		and CampExtras.isOpen(CampExtras.YARD_SALE, tier)
@@ -360,7 +400,7 @@ local function onBuyYardSale(player: Player, rawCrateId: unknown)
 	local def = Catalog.getCampExtra(CampExtras.YARD_SALE) :: Types.CampExtraDef
 	local tier = Economy.tier(profile)
 	local now = os.time()
-	CampExtras.settle(profile.campExtras, tier, now)
+	CampExtras.settle(profile.campExtras, tier, now, treatsOn())
 	if
 		not CampExtras.FROM_ANYWHERE -- #3082: the Yard Sale's card opens from the Cat Cannon's menu too
 		and CampExtras.isOpen(CampExtras.YARD_SALE, tier)
@@ -408,6 +448,7 @@ end
 function CampExtraService.start()
 	Net.on("CollectCampExtra", onCollect)
 	Net.on("BuyYardSale", onBuyYardSale)
+	Net.on("PickPicnicTreat", onPickTreat)
 	Net.on("YardSalePick", function(player: Player)
 		onYardSalePick(player)
 	end)
@@ -444,7 +485,7 @@ function CampExtraService.debugAway(
 	save.yardSale.lastClaimAt = math.max(0, save.yardSale.lastClaimAt - seconds)
 	refresh(player, profile, true)
 	local tier = Economy.tier(profile)
-	local state = CampExtras.view(save, tier, os.time(), pondTimes(player), yardHours())
+	local state = CampExtras.view(save, tier, os.time(), pondTimes(player), yardHours(), treatsOn())
 	addPick(state, tier)
 	return state
 end

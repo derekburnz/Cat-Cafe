@@ -31,6 +31,112 @@ return function()
 		return CampExtras.view(save, tier, now)
 	end
 
+	describe("Picnic Treats (#3715, the picnicTreats switch)", function()
+		local function treatsAt(save: any, tier: number, now: number): any
+			CampExtras.settle(save, tier, now, true)
+			return CampExtras.view(save, tier, now, nil, nil, true)
+		end
+
+		it("has three treats, each one earned potion the catalog knows", function()
+			expect(#CampExtras.TREATS).to.equal(3)
+			local potions: { string } = {}
+			for _, treat in CampExtras.TREATS do
+				expect(Catalog.getPotion(treat.potion) ~= nil).to.equal(true)
+				expect(CampExtras.getTreat(treat.id)).to.equal(treat)
+				table.insert(potions, treat.potion)
+			end
+			expect(table.concat(potions, ",")).to.equal("tip_potion,swift_potion,lucky_potion")
+			expect(table.concat(CampExtras.treatIds(), ",")).to.equal("sandwich,lemonade,cupcake")
+			expect(CampExtras.getTreat("cake")).to.equal(nil)
+		end)
+
+		it("fills one pick every 4 hours and holds one", function()
+			expect(Config.PicnicTreatSeconds).to.equal(4 * HOUR)
+			expect(Config.PicnicTreatHold).to.equal(1)
+			local save = emptied(2)
+			local view = treatsAt(save, 2, T + 4 * HOUR - 60).picnic
+			expect(view.held).to.equal(0)
+			expect(view.nextAt).to.equal(T + 4 * HOUR)
+			expect(table.concat(view.treats, ",")).to.equal("sandwich,lemonade,cupcake")
+			view = treatsAt(save, 2, T + 4 * HOUR).picnic
+			expect(view.held).to.equal(1)
+			expect(view.nextAt).to.equal(nil)
+			-- a day away is still one pick
+			expect(treatsAt(save, 2, T + 30 * HOUR).picnic.held).to.equal(1)
+		end)
+
+		it("pays the picked treat's potion once and starts the wait from the pick", function()
+			local save = emptied(2)
+			local now = T + 9 * HOUR
+			local prize, why = CampExtras.pickTreat(save, "lemonade", 2, now)
+			expect(why).to.equal(nil)
+			expect((prize :: any).potions.swift_potion).to.equal(1)
+			expect((prize :: any).potions.tip_potion).to.equal(nil)
+			local again, blocker = CampExtras.pickTreat(save, "cupcake", 2, now + 60)
+			expect(again).to.equal(nil)
+			expect(blocker).to.equal("Next picnic in 3 h 59 m")
+			expect(treatsAt(save, 2, now + 60).picnic.nextAt).to.equal(now + 4 * HOUR)
+			expect(
+				(CampExtras.pickTreat(save, "cupcake", 2, now + 4 * HOUR) :: any).potions.lucky_potion
+			).to.equal(1)
+		end)
+
+		it(
+			"refuses an unknown treat and a player below the Park's tier, and takes nothing",
+			function()
+				local save = emptied(2)
+				local prize, why = CampExtras.pickTreat(save, "pizza", 2, T + 9 * HOUR)
+				expect(prize).to.equal(nil)
+				expect(why).to.equal("There is no treat like that")
+				prize, why = CampExtras.pickTreat(save, "sandwich", 1, T + 9 * HOUR)
+				expect(prize).to.equal(nil)
+				expect(why).to.equal("Picnic Treats open at Tier 2")
+				expect(
+					(CampExtras.pickTreat(save, "sandwich", 2, T + 9 * HOUR) :: any).potions.tip_potion
+				).to.equal(1)
+			end
+		)
+
+		it("turns a basket holding two potions into one pick ready now", function()
+			local save = emptied(2)
+			CampExtras.settle(save, 2, T + 20 * HOUR)
+			expect(save.picnic.held).to.equal(2)
+			local view = treatsAt(save, 2, T + 20 * HOUR).picnic
+			expect(view.held).to.equal(1)
+			expect(save.picnic.held).to.equal(1)
+		end)
+
+		it(
+			"never picks by a walk-up, and words the prompt and the cannon line as a pick",
+			function()
+				local save = emptied(2)
+				local ready = treatsAt(save, 2, T + 5 * HOUR)
+				expect(CampExtras.autoClaim("picnic", ready.picnic)).to.equal(nil)
+				local name, action = CampExtras.promptText("picnic", ready.picnic, T + 5 * HOUR)
+				expect(name).to.equal("Picnic Treats")
+				expect(action).to.equal("Pick one treat")
+				local line, bang = CampExtras.pickerLine(ready, "park", T + 5 * HOUR)
+				expect(line).to.equal("Picnic Treats: pick one !")
+				expect(bang).to.equal(true)
+				CampExtras.pickTreat(save, "sandwich", 2, T + 5 * HOUR)
+				local waiting = treatsAt(save, 2, T + 5 * HOUR + 60)
+				local _, wait = CampExtras.promptText("picnic", waiting.picnic, T + 5 * HOUR + 60)
+				expect(wait).to.equal("Next picnic in 3 h 59 m")
+				line, bang = CampExtras.pickerLine(waiting, "park", T + 5 * HOUR + 60)
+				expect(line).to.equal("Picnic Treats: next in 3 h 59 m")
+				expect(bang).to.equal(false)
+			end
+		)
+
+		it("leaves the basket as it was with the switch off", function()
+			local save = emptied(2)
+			local view = at(save, 2, T + 20 * HOUR).picnic
+			expect(view.held).to.equal(2)
+			expect(view.treats).to.equal(nil)
+			expect(CampExtras.autoClaim("picnic", view)).to.equal("collect")
+		end)
+	end)
+
 	describe("which tier opens each (section 1)", function()
 		it("opens one extra per rank up from Tier 2, none in the Alleyway", function()
 			expect(CampExtras.tierOf("picnic")).to.equal(2)

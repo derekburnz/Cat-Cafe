@@ -41,6 +41,46 @@ CampExtras.GOLD_POND_ATTRIBUTE = "GoldenPondPass"
 CampExtras.GOLD_HUT_MODEL = "CatCafe_Camp_Woods_FishingHut_Gold"
 CampExtras.TAKEN = "You took this crate" -- buyBlocker adds ". A new one in 3 h 59 m"
 
+-- Picnic Treats (#3715, Design-Agent's draft; the `picnicTreats` switch): the Picnic Basket becomes the one station
+-- where the player chooses. One pick every Config.PicnicTreatSeconds, holding Config.PicnicTreatHold, and a pick is
+-- one potion of the chosen kind. Free, never sold, never random. While the switch is on the basket's view carries
+-- `treats` (the ids below), walking up opens the pick card instead of collecting, and CollectCampExtra refuses the
+-- basket: PickPicnicTreat takes it. The save's picnic slot is the same one, so a basket holding potions on the day
+-- the switch goes on is one pick ready now.
+CampExtras.TREATS_FLAG = "picnicTreats"
+CampExtras.TREATS_NAME = "Picnic Treats"
+export type Treat = { id: string, name: string, potion: string }
+CampExtras.TREATS = {
+	{ id = "sandwich", name = "Sandwich", potion = "tip_potion" },
+	{ id = "lemonade", name = "Lemonade", potion = "swift_potion" },
+	{ id = "cupcake", name = "Cupcake", potion = "lucky_potion" },
+} :: { Treat }
+
+function CampExtras.treatIds(): { string }
+	local ids: { string } = {}
+	for _, treat in CampExtras.TREATS do
+		table.insert(ids, treat.id)
+	end
+	return ids
+end
+
+function CampExtras.getTreat(treatId: string): Treat?
+	for _, treat in CampExtras.TREATS do
+		if treat.id == treatId then
+			return treat
+		end
+	end
+	return nil
+end
+
+-- The basket's fill time and hold: the treats' while their switch is on (`treats`), else the potion basket's.
+local function picnicRule(treats: boolean?): (number, number)
+	if treats then
+		return Config.PicnicTreatSeconds, Config.PicnicTreatHold
+	end
+	return Config.PicnicEverySeconds, Config.PicnicHold
+end
+
 -- The UTC day number of os.time() `now`.
 function CampExtras.day(now: number): number
 	return math.floor(now / DAY)
@@ -158,12 +198,17 @@ end
 -- Brings a save up to `now` for a player of `tier`, in place: each open extra fills by the time passed up to its hold
 -- (a full one's clock waits, so the next fill counts from when it is emptied), and a shut extra goes back to its fresh
 -- state. The Yard Sale needs nothing here: its crate is ready once YardSaleClaimHours have passed since the last take.
-function CampExtras.settle(save: Types.CampExtrasSave, tier: number, now: number)
+-- `treats`: the Picnic Treats switch is on, so the basket fills by the treats' rule.
+function CampExtras.settle(save: Types.CampExtrasSave, tier: number, now: number, treats: boolean?)
 	local fresh = CampExtras.fresh(now)
 	if not CampExtras.isOpen("picnic", tier) then
 		save.picnic = fresh.picnic
 	else
-		fill(save.picnic, Config.PicnicEverySeconds, Config.PicnicHold, now)
+		local every, hold = picnicRule(treats)
+		-- a basket filled under the other rule never holds more than this one's hold, and its clock never waits
+		-- longer than one fill of this rule
+		save.picnic.held = math.min(save.picnic.held, hold)
+		fill(save.picnic, every, hold, now)
 	end
 	if not CampExtras.isOpen("pond", tier) then
 		save.pond = fresh.pond
@@ -219,15 +264,20 @@ function CampExtras.view(
 	tier: number,
 	now: number,
 	pondTimes: number?,
-	yardHours: number?
+	yardHours: number?,
+	treats: boolean?
 ): Types.CampExtrasState
 	local today = CampExtras.day(now)
 	local picnic = shut()
 	if CampExtras.isOpen("picnic", tier) then
+		local every, hold = picnicRule(treats)
 		picnic.open = true
-		picnic.held = save.picnic.held
-		if save.picnic.held < Config.PicnicHold then
-			picnic.nextAt = save.picnic.at + Config.PicnicEverySeconds
+		picnic.held = math.min(save.picnic.held, hold)
+		if picnic.held < hold then
+			picnic.nextAt = save.picnic.at + every
+		end
+		if treats then
+			picnic.treats = CampExtras.treatIds()
 		end
 	end
 	local pond = shut()
@@ -388,6 +438,34 @@ function CampExtras.collectBlocker(
 	return nil
 end
 
+-- Picnic Treats: takes the waiting pick as `treatId` from a save for a player of `tier` (settling it first by the
+-- treats' rule). The prize is one potion of the treat's kind; nil and why when the Park is shut, the id is unknown
+-- or no pick waits.
+function CampExtras.pickTreat(
+	save: Types.CampExtrasSave,
+	treatId: string,
+	tier: number,
+	now: number
+): (Types.IndexPrize?, string?)
+	local treat = CampExtras.getTreat(treatId)
+	if treat == nil then
+		return nil, "There is no treat like that"
+	end
+	if not CampExtras.isOpen("picnic", tier) then
+		return nil, string.format("Picnic Treats open at Tier %d", CampExtras.tierOf("picnic") or 0)
+	end
+	CampExtras.settle(save, tier, now, true)
+	if save.picnic.held <= 0 then
+		return nil,
+			string.format(
+				"Next picnic in %s",
+				CampExtras.waitText(save.picnic.at + Config.PicnicTreatSeconds - now)
+			)
+	end
+	save.picnic.held -= 1
+	return { potions = { [treat.potion] = 1 } }, nil
+end
+
 -- Takes everything `extraId` holds from a save for a player of `tier` (settling it first): the prize, how many
 -- fills it was and the rarities of the Lost and Found's lost cats (#1732), or nil, 0 and none when nothing waits.
 -- `roll` gives the Lost and Found's rolls in [0, 1), one a find.
@@ -522,6 +600,9 @@ function CampExtras.autoClaim(extraId: string, view: Types.CampExtraView): (stri
 	if not view.open or view.held <= 0 then
 		return nil, nil
 	end
+	if view.treats ~= nil then
+		return nil, nil -- Picnic Treats: the player picks on the card, walking up never picks for them
+	end
 	if extraId == CampExtras.YARD_SALE then
 		-- #3615: a lucky pick is pressed on the card, where its board rolls; walking up never spends it
 		if view.pick ~= nil then
@@ -553,6 +634,15 @@ function CampExtras.promptText(
 	local name = extraName(extraId)
 	if not view.open then
 		return name, string.format("Opens at Tier %d", CampExtras.tierOf(extraId) or 0)
+	end
+	if view.treats ~= nil then
+		return CampExtras.TREATS_NAME,
+			if view.held > 0
+				then "Pick one treat"
+				elseif view.nextAt ~= nil then "Next picnic in " .. CampExtras.waitText(
+					view.nextAt - now
+				)
+				else "Nothing yet"
 	end
 	if view.held > 0 then
 		if extraId == "picnic" then
@@ -593,6 +683,15 @@ function CampExtras.pickerLine(
 				return nil, false
 			end
 			local wait = if view.nextAt ~= nil then CampExtras.waitText(view.nextAt - now) else nil
+			if view.treats ~= nil then
+				if view.held > 0 then
+					return CampExtras.TREATS_NAME .. ": pick one !", true
+				end
+				return if wait ~= nil
+					then CampExtras.TREATS_NAME .. ": next in " .. wait
+					else CampExtras.TREATS_NAME,
+					false
+			end
 			if def.id == CampExtras.YARD_SALE then
 				if view.held > 0 then
 					return "Yard Sale: free crate !", true

@@ -1075,7 +1075,8 @@ local Config = {
 	-- pulls one BinTable prize out (chances add to 1, shown on its prompt). The account's first BinFirstUses rummages
 	-- are easier (BinFirstEase on top of BinZoneWidth and BinBarSpeed) and BinFirstRepeatSeconds apart; after that
 	-- the bin fills every BinCooldownSeconds. A miss costs nothing and waits BinMissRetrySeconds. The first win is
-	-- always BinFirstPrizes[1], the second BinFirstPrizes[2] and so on (#3460: their own rows, below).
+	-- always BinFirstPrizes[1], the second BinFirstPrizes[2] and so on (#3460: their own rows, below). #3680: not with
+	-- `binRoll` on (live since 2026-11-12), where every rummage rolls BinRollTable ("no scripted starting rewards").
 	BinFirstUses = 3,
 	BinFirstRepeatSeconds = 180,
 	BinCooldownSeconds = 900,

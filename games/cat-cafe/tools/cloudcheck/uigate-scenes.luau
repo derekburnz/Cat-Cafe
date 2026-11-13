@@ -3059,6 +3059,8 @@ local SCENES = {
 	-- #3884: a rank up to Tier 2 since the picker last opened: the Park card keeps its lock a moment, the lock breaks
 	-- with "Unlocked!", and about 3 s later the cover is gone and the card can launch
 	{ "CannonUnlock", function()
+		-- Scenes.close puts the sample tier back, so the later scenes in this shard see the tier they expect
+		Scenes._rankTier = (UI.getState() :: any).tier
 		UI.update({ tier = 1, tutorialStep = 5 } :: any)
 		UI.cannon.open()
 		UIShim.advance(0.2)
@@ -3081,11 +3083,6 @@ local SCENES = {
 		UI.cannon.open()
 		UIShim.advance(0.3)
 		assert(not lock.Visible, "uigate: the lock broke again on the next open (#3884)")
-		-- the later scenes in this shard's state expect the first tier, as every scene before this one left it
-		UI.close()
-		UIShim.advance(0.5)
-		UI.update({ tier = 1 } :: any)
-		UIShim.advance(0.2)
 	end },
 	-- #2692: at night a new player with the night pass (the NightPass attribute, before the first check-in) sees the
 	-- area cards open, no moon cover; once the pass ends, the cover is back

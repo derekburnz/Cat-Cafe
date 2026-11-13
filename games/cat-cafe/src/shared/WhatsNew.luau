@@ -66,7 +66,7 @@ WhatsNew.rows = table.freeze({
 		id = "update_party_1113",
 		date = "2026-11-13",
 		icon = "new",
-		text = "30 min party after update",
+		text = "Party: 2x money 30 min",
 	},
 	-- #3420, #3424: the Thursday 2026-11-12 launch (22:00 UTC). Merge this only with the launch publish, and only
 	-- the rows whose feature is switched on at the launch.

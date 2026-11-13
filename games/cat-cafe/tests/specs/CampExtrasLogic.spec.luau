@@ -36,6 +36,23 @@ return function()
 		}
 	end
 
+	describe("CampExtrasLogic.info (#3938)", function()
+		it("gives a waiting station's card its name, timer and what it gives", function()
+			local info = CampExtrasLogic.info("picnic", tier3(0, false).picnic, NOW)
+			expect(info.title).to.equal("Picnic Basket")
+			expect(info.icon).to.equal("🧺")
+			expect(info.picture).to.equal("Picnic")
+			expect(info.status).to.equal("Next in 2 h 10 m")
+			expect(info.gives).to.equal("A free Money Potion every 6 h, holds 2.")
+			local pond = CampExtrasLogic.info("pond", shut(), NOW)
+			expect(pond.picture).to.equal("Pond")
+			expect(string.sub(pond.status, 1, 9)).to.equal("Opens at ")
+			expect(pond.gives).to.equal("1 golden fish every 15 m, holds 24.")
+			local lost = CampExtrasLogic.info("lostFound", shut(), NOW)
+			expect(string.find(lost.gives, "every 2 h, holds 3", 1, true) ~= nil).to.equal(true)
+		end)
+	end)
+
 	describe("CampExtrasLogic.icon", function()
 		it("gives each extra its glyph and a gift for anything else", function()
 			expect(CampExtrasLogic.icon("picnic")).to.equal("🧺")

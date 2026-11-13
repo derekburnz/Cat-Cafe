@@ -74,6 +74,7 @@ local Signal = require(script.Components.Signal)
 local Sound = require(script.Components.Sound)
 local SpinWheel = require(script.Screens.SpinWheel)
 local SpotlightGuide = require(script.Components.SpotlightGuide) -- #3555
+local StationInfo = require(script.Screens.StationInfo)
 local TackleBar = require(script.Screens.TackleBar)
 local TackleLogic = require(script.Components.TackleLogic)
 local Theme = require(script.Theme)
@@ -6951,6 +6952,7 @@ do
 		late = nil :: any, -- #2651 part 4: the last LateStationsState
 		yard = nil :: YardSale.YardSale?,
 		picnic = nil :: PicnicTreats.PicnicTreats?, -- #3715: the Picnic Treats pick card
+		info = {} :: { [string]: StationInfo.StationInfo }, -- #3938: each station's card while nothing waits
 		bang = nil :: ReadyBang.ReadyBang?, -- the red "!" over each ready station (camp-stations.md section 1)
 		market = nil :: MarketBang.MarketBang?, -- #2214: the "!" over the Fish Market while crates wait to open
 		spin = nil :: MarketBang.MarketBang?, -- #2358: the "!" over the Spin Wheel while the player has a spin
@@ -7082,6 +7084,29 @@ do
 		})
 		camp.picnic = picnic
 		picnic:setView(if camp.state ~= nil then camp.state.picnic else nil)
+		-- #3938: a station square with nothing ready opens its card with the timer
+		local SharedCatalog =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+		for _, def in SharedCatalog.campExtras do
+			local extraId: string = def.id
+			local name = "StationInfo_" .. extraId
+			local card = StationInfo.new(extraId, function()
+				if modalView:current() == name then
+					modalView:close()
+				end
+			end)
+			card:setView(if camp.state ~= nil then (camp.state :: any)[extraId] else nil)
+			camp.info[extraId] = card
+			modalView:register(name, {
+				frame = card.frame,
+				onOpen = function()
+					card:opened()
+				end,
+				onClose = function()
+					card:closed()
+				end,
+			})
+		end
 		modalView:register("PicnicTreats", {
 			frame = picnic.frame,
 			onOpen = function()
@@ -7160,6 +7185,28 @@ do
 		if picnic then
 			picnic:setView(extras.picnic)
 		end
+		for extraId, card in camp.info do
+			card:setView((extras :: any)[extraId])
+		end
+	end
+
+	-- #3938: a station square with nothing ready: that station's card, its timer and what it gives
+	function UI.campExtras.openInfo(extraId: string)
+		local modalView = modal
+		local card = camp.info[extraId]
+		if card == nil or modalView == nil or modalView:current() ~= nil then
+			return
+		end
+		card:setView(if camp.state ~= nil then (camp.state :: any)[extraId] else nil)
+		modalView:open("StationInfo_" .. extraId)
+	end
+
+	-- #3938: walking off the square closes its card
+	function UI.campExtras.closeInfo(extraId: string)
+		local modalView = modal
+		if modalView ~= nil and modalView:current() == "StationInfo_" .. extraId then
+			modalView:close()
+		end
 	end
 
 	-- #3715: whether the server runs Picnic Treats (the basket's view carries its treats).
@@ -7232,6 +7279,10 @@ do
 			picnic:destroy()
 		end
 		camp.picnic = nil
+		for _, card in camp.info do
+			card:destroy()
+		end
+		camp.info = {}
 		local bang = camp.bang
 		if bang then
 			bang:destroy()

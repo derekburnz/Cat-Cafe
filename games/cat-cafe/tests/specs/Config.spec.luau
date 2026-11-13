@@ -600,8 +600,7 @@ return function()
 				PityAreaWeights = true, -- #1572 (luck-and-rare-moments.md 1h): a table, checked in Pity.spec
 				EventShowerDefaults = true, -- #2486 (live-events.md section 4): a table, checked in CafeEvents.spec
 				EventShowerAreaWeights = true, -- #2486: a table, checked in CafeEvents.spec
-				UpdateEventId = true, -- #2766: the next update's Roblox Event id, set per Event, checked in EventRsvp.spec
-				UpdateEventStartsAt = true, -- #2766: that Event's start (os.time(), UTC), set per Event
+				UpdateEvents = true, -- #2766: the listed Roblox Events (id, start), a table, checked in EventRsvp.spec
 				CozyLure = true, -- #2798: a lure id, checked in CozyCafe.spec
 				PlaytimeGiftSteps = true, -- #2791: a table, checked in PlaytimeGifts.spec
 				FirstVisitAt = true, -- #2792: a table, checked in FirstVisits.spec

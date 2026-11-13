@@ -124,34 +124,30 @@ end
 -- keyboard and touch lines several times a second and its wrap check flashed "..." each time. A new device now counts
 -- only once it has held for SETTLE_SECONDS without the old one coming back.
 TipQueue.SETTLE_SECONDS = 1.5
-export type Settle = { device: Device?, candidate: Device?, since: number }
+-- (Plain strings inside: luau-lsp widens the Device literals on the way in, so the answer is cast back.)
+export type Settle = { device: string?, candidate: string?, since: number }
 
 function TipQueue.newSettle(): Settle
 	return { device = nil, candidate = nil, since = 0 }
 end
 
 -- The settled device for the device read `now` at time `clock` (seconds). Mutates `settle`.
-function TipQueue.settle(settle: Settle, now: Device, clock: number): Device
+function TipQueue.settle(settle: Settle, now: string, clock: number): Device
 	local current = settle.device
 	if current == nil then
 		settle.device = now
-		return now
-	end
-	if now == current then
+		current = now
+	elseif now == current then
 		settle.candidate = nil
-		return current
-	end
-	if settle.candidate ~= now then
+	elseif settle.candidate ~= now then
 		settle.candidate = now
 		settle.since = clock
-		return current
-	end
-	if clock - settle.since >= TipQueue.SETTLE_SECONDS then
+	elseif clock - settle.since >= TipQueue.SETTLE_SECONDS then
 		settle.device = now
 		settle.candidate = nil
-		return now
+		current = now
 	end
-	return current
+	return (current :: any) :: Device
 end
 
 function TipQueue.line(id: string, device: Device, cut: boolean?, nextArea: string?): string?

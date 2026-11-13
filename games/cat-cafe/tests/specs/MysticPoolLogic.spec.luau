@@ -11,6 +11,18 @@ return function()
 	local first = Traits.LIST[1]
 	local last = Traits.LIST[#Traits.LIST]
 
+	describe("MysticPoolLogic.canSkip (#3943)", function()
+		it("lets a tap skip below Mythic and never for Mythic or Secret", function()
+			expect(MysticPoolLogic.canSkip("mythic")).to.equal(false)
+			expect(MysticPoolLogic.canSkip("secret")).to.equal(false)
+			for _, rarity in Traits.RARITIES do
+				if rarity.id ~= "mythic" and rarity.id ~= "secret" then
+					expect(MysticPoolLogic.canSkip(rarity.id)).to.equal(true)
+				end
+			end
+		end)
+	end)
+
 	describe("MysticPoolLogic.card", function()
 		it("shows a plain card for no trait or one it does not know", function()
 			for _, value in { nil, {}, { id = 3 }, { id = "no_such_trait" } } :: { any } do

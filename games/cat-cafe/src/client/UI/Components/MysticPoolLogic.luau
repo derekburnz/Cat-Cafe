@@ -320,6 +320,14 @@ function MysticPoolLogic.rarityId(id: string): string
 	return if def ~= nil then def.rarity.id else Traits.RARITIES[1].id
 end
 
+-- #3943 (Derek 2026-11-13: "not let people skip mythic + scenes"): a Mythic or Secret roll's scene plays to the end;
+-- a tap skips only the lower rarities. Closing the card or walking away still ends any scene.
+MysticPoolLogic.NO_SKIP = { mythic = true, secret = true } :: { [string]: boolean }
+
+function MysticPoolLogic.canSkip(rarity: string): boolean
+	return MysticPoolLogic.NO_SKIP[rarity] ~= true
+end
+
 -- #3864 (Derek 2026-11-13): the Trait Token bundles, offered on the card once the free rolls are used. A roll from a
 -- bought token is a paid random item (monetization-policy section 2), so the offer carries the full odds, plain words
 -- and a "No thanks" that holds for the session; it never shows unless the server says `bundles` (the traitBundles

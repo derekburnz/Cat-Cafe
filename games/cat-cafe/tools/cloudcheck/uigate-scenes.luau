@@ -5933,6 +5933,16 @@ local SCENES = {
 		assert(count == 2, "uigate: the bin's bar has " .. count .. " pips, not 2 (#3050)")
 		assert(UI.rescue.isActive(), "uigate: the bin's bar does not count as a rescue on screen (#3050)")
 	end },
+	-- #3885: a Rummage Bin win closes the bar at once, with no win banner (the prize pops out of the bin instead)
+	{ "RummageBinWinCloses", function()
+		UI.rescue.show("bin_alley", binChallenge())
+		UI.rescue.update("bin_alley", 2, 3, true, true, nil, { id = "first_tuna", first = true, items = {
+			{ kind = "lure", id = "tuna", count = 2 },
+		} } :: any)
+		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
+		assert(barGui and not barGui.Enabled, "uigate: the bin's bar stays up after a win (#3885)")
+		assert(not UI.rescue.isActive(), "uigate: the bin's win still counts as a rescue on screen (#3885)")
+	end },
 	-- #3611: the roll board that hovers over the Rummage Bin, drawn on the screen at the size its billboard gives it
 	-- (BOARD_SMALLEST on a phone): the list with its chances, the list mid roll with a row lit, and the two one
 	-- prize states beside the empty bin's faded list

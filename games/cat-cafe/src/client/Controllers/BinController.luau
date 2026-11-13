@@ -42,6 +42,7 @@ local RollBoard = require(script.Parent.Parent.UI.Components.RollBoard)
 local RollBoardLogic = require(script.Parent.Parent.UI.Components.RollBoardLogic)
 local RummageBin = require(Shared:WaitForChild("RummageBin"))
 local Scale = require(script.Parent.Parent.UI.Scale)
+local ShopIcons = require(script.Parent.Parent.UI.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local UI = require(script.Parent.Parent.UI)
 local UserInputService = game:GetService("UserInputService")
@@ -551,6 +552,33 @@ local function onInput(input: InputObject, processed: boolean)
 	Net.fire("RescuePress", RummageBin.SPOT, Workspace:GetServerTimeNow())
 end
 
+-- #3885: the prize's picture for its pop out of the bin, the same pictures as the loot card's (Screens/LootCard).
+local function prizePicture(row: RummageBin.Row): string?
+	if row.lure ~= nil then
+		return ShopIcons.food(row.lure)
+	elseif row.crate ~= nil then
+		return ShopIcons.crate(row.crate)
+	elseif row.potion ~= nil then
+		return ShopIcons.potion(row.potion)
+	end
+	return ShopIcons.prize("fish")
+end
+
+-- Where the prize lands: the player's right hand, or the middle of the body for a rig without one (nil: no body).
+local function hands(): Vector3?
+	local character = Players.LocalPlayer.Character
+	if character == nil then
+		return nil
+	end
+	for _, name in { "RightHand", "Right Arm", "HumanoidRootPart" } do
+		local part = character:FindFirstChild(name)
+		if part ~= nil and part:IsA("BasePart") then
+			return (part :: BasePart).Position
+		end
+	end
+	return nil
+end
+
 local function onWin(rowId: string, _first: boolean)
 	endShow()
 	play = nil
@@ -566,16 +594,11 @@ local function onWin(rowId: string, _first: boolean)
 		return
 	end
 	local tier = RummageBin.tier(row)
+	local picture = prizePicture(row :: RummageBin.Row)
 	setLook(model, false) -- the empty look first, so the lid that hops is the one that shows
 	pcall(function()
 		fx.win(model, tier)
-		fx.hop(model, function(): Vector3?
-			local character = Players.LocalPlayer.Character
-			local root = if character ~= nil
-				then character:FindFirstChild("HumanoidRootPart")
-				else nil
-			return if root ~= nil and root:IsA("BasePart") then (root :: BasePart).Position else nil
-		end, tier)
+		fx.hop(model, hands, tier, picture)
 	end)
 end
 

@@ -1273,13 +1273,18 @@ function RiftRun.play(
 				end
 				local at = centre
 					+ Vector3.new(point.X * r.starCatScale, point.Y * r.starCatScale, 0)
-				local star =
-					plain("StarCat", Vector3.new(1.8, 1.8, 1.8), r.secretColour, Enum.Material.Neon)
+				local size = r.starCatSize
+				local star = plain(
+					"StarCat",
+					Vector3.new(size, size, size),
+					r.starCatColour,
+					Enum.Material.Neon
+				)
 				star.Shape = Enum.PartType.Ball
 				star.CFrame = CFrame.new(at)
 				star.Parent = realm.root
 				table.insert(realm.constellation, star)
-				Particles.burst("catchSparkle", at, b.starSparkles, r.secretColour)
+				Particles.burst("catchSparkle", at, b.starSparkles, r.starCatColour)
 			end)
 		end
 	end

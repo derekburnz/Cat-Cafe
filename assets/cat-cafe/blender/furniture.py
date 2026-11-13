@@ -128,13 +128,13 @@ def build_cat_tree(mat):
     b.box_base((0, 0, 0), (2.0, 2.0, 0.2), "caramel_wood")
     b.cyl_base((-0.5, 0.3, 0.2), 0.2, 2.0, "caramel_wood", segments=10)
     for z in (0.7, 1.5):
-        b.ring((-0.5, 0.3, z), 0.24, 0.06, 0.3, "cardboard", segments=10, bevel=False)   # sisal wraps
+        b.cyl((-0.5, 0.3, z), 0.26, 0.3, "cardboard", segments=10, bevel=False)   # sisal wraps (one solid band each: #3743)
     b.box_base((-0.5, 0.3, 2.2), (1.4, 1.4, 0.15), "mint")
     b.box_base((0.5, -0.4, 0.2), (1.2, 1.2, 1.0), "cream")                     # cube house
     b.cyl((0.5, -1.01, 0.7), 0.35, 0.04, "dark_wood", segments=12, bevel=False, rot=(math.radians(90), "X"))  # door
     b.cyl_base((0.5, -0.4, 1.2), 0.2, 3.1, "caramel_wood", segments=10)
     for z in (1.7, 2.6, 3.5):
-        b.ring((0.5, -0.4, z), 0.24, 0.06, 0.3, "cardboard", segments=10, bevel=False)
+        b.cyl((0.5, -0.4, z), 0.26, 0.3, "cardboard", segments=10, bevel=False)
     b.box_base((0.5, -0.4, 4.3), (1.3, 1.3, 0.15), "blush")
     b.cyl_base((-0.05, 0.9, 1.88), 0.02, 0.33, "offwhite", segments=4, bevel=False)          # string
     b.sphere((-0.05, 0.9, 1.75), 0.15, "rarity_legend", segments=8, rings=5)  # toy ball dangling under the shelf
@@ -259,7 +259,7 @@ def build_cat_bed(mat):
     b = RB()
     b.cyl((0, 0.05, 0), BED_R - 0.05, 0.1, "dark_wood", segments=16)                         # the bed's base
     b.cyl((0, 0.23, 0.05), BED_R - BED_RIM + 0.02, 0.26, "offwhite", segments=16)          # cushion, top at BED_TOP
-    n = 16
+    n = 12                                                                 # #3743: 16 before; 80 beds in a full server
     for k in range(n):
         a = 2 * math.pi * (k + 0.5) / n                                    # 0 at +X, the front (-Z) at 270 degrees
         front = max(0.0, -math.sin(a))                                     # 1 at the front, 0 from the sides back

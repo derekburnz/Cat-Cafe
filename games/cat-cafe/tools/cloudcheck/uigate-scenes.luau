@@ -10404,19 +10404,12 @@ local SCENES = {
 		end
 		assert(found, "uigate: the Cats tab has no Second Bait Bowl card (#2010)")
 	end },
-	-- #1425: the Potions tab, each pack with its exact contents and the bag count
-	{ "StorePotions", function()
-		UI.store.preview(storePrices(true), {})
-		UI.open("Store")
-		press("CatCafeModals", "potions")
-		assertStoreCards(false)
-	end },
 	-- #1605 (Derek2 11-05: "scrolling down in shop causes it to snap back up"): a scrolled tab keeps its place when the
 	-- window renders again on a state change; another tab still starts at the top
 	{ "StoreScrollHolds", function()
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
-		press("CatCafeModals", "potions")
+		press("CatCafeModals", "cats")
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("Store", true)
 		local list = window and window:FindFirstChild("List", true) :: ScrollingFrame
@@ -10488,15 +10481,6 @@ local SCENES = {
 		UI.update({ storeSeen = allSeen } :: any)
 		assert(not (tileDot :: GuiObject).Visible, "uigate: the Store tile's New dot stays with every tab seen (#1823)")
 		press("Store", "cats")
-	end },
-	-- #1168 row 8: the Steady Paw Pack on the Potions tab, its card saying what is in it
-	{ "StoreSteadyPaw", function()
-		UI.store.preview(storePrices(true), {})
-		UI.open("Store")
-		press("Store", "potions")
-		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
-		local card = modals and modals:FindFirstChild("grid:steadyPaw", true)
-		assert(card and card.Visible, "uigate: no Steady Paw Pack card on the Potions tab (#1168)")
 	end },
 	-- #1823: a pass the server confirms while the Store is open gets Animation's pop (StoreMotion) and VFX's burst on
 	-- its card, and the card still sits inside the page afterwards

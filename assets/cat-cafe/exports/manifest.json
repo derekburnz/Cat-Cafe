@@ -307082,7 +307082,7 @@
         "CatCafe_Lawn_SandwichBoard",
         "CatCafe_Lawn_SandwichBoard_Chalk"
       ],
-      "triangles": 796,
+      "triangles": 568,
       "budget": 800,
       "size_studs": {
         "x": 1.49,
@@ -307107,7 +307107,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_SandwichBoard.model.json",
-      "rbx_parts": 62,
+      "rbx_parts": 43,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Lawn_SandwichBoard.fbx",
         "assets/cat-cafe/exports/CatCafe_Lawn_SandwichBoard.glb"
@@ -307119,10 +307119,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "796/800 tris",
+          "budget": "568/800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "382 faces on swatch centers",
+          "uv": "268 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-0.16 y=-0.17"
@@ -307809,7 +307809,7 @@
         "CatCafe_Lawn_FlowerCart_Lantern_Swing",
         "CatCafe_Lawn_FlowerCart_Lantern_Glow"
       ],
-      "triangles": 2472,
+      "triangles": 2244,
       "budget": 2500,
       "size_studs": {
         "x": 3.32,
@@ -307858,7 +307858,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_FlowerCart.model.json",
-      "rbx_parts": 234,
+      "rbx_parts": 215,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Lawn_FlowerCart.fbx",
         "assets/cat-cafe/exports/CatCafe_Lawn_FlowerCart.glb"
@@ -307870,10 +307870,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2472/2500 tris",
+          "budget": "2244/2500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1195 faces on swatch centers",
+          "uv": "1081 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.01 (want 0)",
           "centered": "footprint center x=-0.25 y=-0.23"
@@ -307892,7 +307892,7 @@
         "CatCafe_Lawn_CatTreeSign_Star_Spin",
         "CatCafe_Lawn_CatTreeSign_Toy_Swing"
       ],
-      "triangles": 2368,
+      "triangles": 2152,
       "budget": 2500,
       "size_studs": {
         "x": 3.5,
@@ -307941,7 +307941,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_CatTreeSign.model.json",
-      "rbx_parts": 197,
+      "rbx_parts": 179,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Lawn_CatTreeSign.fbx",
         "assets/cat-cafe/exports/CatCafe_Lawn_CatTreeSign.glb"
@@ -307951,10 +307951,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "2368/2500 tris",
+          "budget": "2152/2500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1108 faces on swatch centers",
+          "uv": "1000 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.02 y=0.00"

@@ -24,7 +24,7 @@ import math
 from mathutils import Matrix, Vector
 
 import common
-from common import GLYPHS, RB, text_width
+from common import GLYPHS, RB, _glyph_rects, text_width
 from crate_decor import _arc, _half_disc, _mushroom, _ring_flat, _ring_front, _rod
 from plot import HW, rot_x, rot_y, rot_z
 
@@ -76,20 +76,11 @@ class _Local:
             if g is None:
                 cur += 2
                 continue
-            for row, bits in enumerate(g):
-                col = 0
-                while col < len(bits):
-                    if bits[col] == "1":
-                        end = col
-                        while end < len(bits) and bits[end] == "1":
-                            end += 1
-                        ua, ub = u0 + dirn * (cur + col) * px, u0 + dirn * (cur + end) * px
-                        v = v0 + (4 - row) * px
-                        d = 0.002 * (row % 2) * (1 if w1 < w0 else -1)       # rows never share a vertex
-                        self.span((ua, v, w0 + d), (ub, v + px, w1 + d), sw)
-                        col = end
-                    else:
-                        col += 1
+            for i, (r, c, e, h) in enumerate(_glyph_rects(g)):       # whole rectangles, as RB.text (#3743)
+                ua, ub = u0 + dirn * (cur + c) * px, u0 + dirn * (cur + e) * px
+                v = v0 + (5 - h) * px
+                d = 0.002 * (i % 2) * (1 if w1 < w0 else -1)         # neighbours never share a vertex
+                self.span((ua, v, w0 + d), (ub, v + (h - r) * px, w1 + d), sw)
             cur += len(g[0]) + 1
 
 

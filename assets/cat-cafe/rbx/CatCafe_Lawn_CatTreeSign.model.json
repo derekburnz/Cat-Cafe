@@ -6786,9 +6786,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.9414,
-         4.4448,
-         -0.1675
+         1.0138,
+         4.2638,
+         -0.1655
         ],
         "orientation": [
          [
@@ -6810,8 +6810,8 @@
        }
       },
       "Size": [
-       0.2172,
        0.0724,
+       0.2897,
        0.025
       ],
       "Color": [
@@ -6829,9 +6829,9 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -0.9414,
-         -4.4448,
-         0.1675
+         -1.0138,
+         -4.2638,
+         0.1655
         ],
         "orientation": [
          [
@@ -6864,155 +6864,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.0138,
-         4.3724,
-         -0.1655
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.0138,
-         4.3,
-         -0.1675
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.0138,
-         4.2276,
-         -0.1655
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          0.9414,
-         4.1552,
+         4.4448,
          -0.1675
         ],
         "orientation": [
@@ -7036,6 +6889,55 @@
       },
       "Size": [
        0.2172,
+       0.0724,
+       0.025
+      ],
+      "Color": [
+       0.2314,
+       0.298,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_CatTreeSign_NameText",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.9052,
+         4.1552,
+         -0.1675
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1448,
        0.0724,
        0.025
       ],
@@ -7110,7 +7012,7 @@
        "CFrame": {
         "position": [
          0.7241,
-         4.3724,
+         4.2638,
          -0.1655
         ],
         "orientation": [
@@ -7134,7 +7036,7 @@
       },
       "Size": [
        0.0724,
-       0.0724,
+       0.2897,
        0.025
       ],
       "Color": [
@@ -7159,8 +7061,8 @@
        "CFrame": {
         "position": [
          0.5793,
-         4.3724,
-         -0.1655
+         4.2638,
+         -0.1675
         ],
         "orientation": [
          [
@@ -7183,7 +7085,7 @@
       },
       "Size": [
        0.0724,
-       0.0724,
+       0.2897,
        0.025
       ],
       "Color": [
@@ -7209,203 +7111,7 @@
         "position": [
          0.6517,
          4.3,
-         -0.1675
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2172,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.7241,
-         4.2276,
          -0.1655
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.5793,
-         4.2276,
-         -0.1655
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.7241,
-         4.1552,
-         -0.1675
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.5793,
-         4.1552,
-         -0.1675
         ],
         "orientation": [
          [
@@ -7502,7 +7208,7 @@
        "CFrame": {
         "position": [
          0.3621,
-         4.3724,
+         4.2638,
          -0.1655
         ],
         "orientation": [
@@ -7526,154 +7232,7 @@
       },
       "Size": [
        0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.3621,
-         4.3,
-         -0.1675
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.3621,
-         4.2276,
-         -0.1655
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.3621,
-         4.1552,
-         -0.1675
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
+       0.2897,
        0.025
       ],
       "Color": [
@@ -7747,7 +7306,7 @@
        "CFrame": {
         "position": [
          0.0,
-         4.3724,
+         4.2638,
          -0.1655
         ],
         "orientation": [
@@ -7771,7 +7330,7 @@
       },
       "Size": [
        0.0724,
-       0.0724,
+       0.2897,
        0.025
       ],
       "Color": [
@@ -7795,105 +7354,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.0,
-         4.3,
-         -0.1675
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         4.2276,
-         -0.1655
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.0724,
+         -0.1086,
          4.1552,
          -0.1675
         ],
@@ -7917,7 +7378,7 @@
        }
       },
       "Size": [
-       0.2172,
+       0.1448,
        0.0724,
        0.025
       ],
@@ -7992,7 +7453,7 @@
        "CFrame": {
         "position": [
          -0.2897,
-         4.3724,
+         4.2638,
          -0.1655
         ],
         "orientation": [
@@ -8016,7 +7477,7 @@
       },
       "Size": [
        0.0724,
-       0.0724,
+       0.2897,
        0.025
       ],
       "Color": [
@@ -8041,8 +7502,8 @@
        "CFrame": {
         "position": [
          -0.4345,
-         4.3724,
-         -0.1655
+         4.2638,
+         -0.1675
         ],
         "orientation": [
          [
@@ -8065,7 +7526,7 @@
       },
       "Size": [
        0.0724,
-       0.0724,
+       0.2897,
        0.025
       ],
       "Color": [
@@ -8091,203 +7552,7 @@
         "position": [
          -0.3621,
          4.3,
-         -0.1675
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2172,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.2897,
-         4.2276,
          -0.1655
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.4345,
-         4.2276,
-         -0.1655
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.2897,
-         4.1552,
-         -0.1675
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.4345,
-         4.1552,
-         -0.1675
         ],
         "orientation": [
          [
@@ -8384,7 +7649,7 @@
        "CFrame": {
         "position": [
          -0.5793,
-         4.3724,
+         4.2638,
          -0.1655
         ],
         "orientation": [
@@ -8408,7 +7673,7 @@
       },
       "Size": [
        0.0724,
-       0.0724,
+       0.2897,
        0.025
       ],
       "Color": [
@@ -8432,106 +7697,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.6155,
+         -0.6517,
          4.3,
-         -0.1675
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.1448,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.5793,
-         4.2276,
-         -0.1655
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.5793,
-         4.1552,
          -0.1675
         ],
         "orientation": [
@@ -8629,7 +7796,7 @@
        "CFrame": {
         "position": [
          -0.869,
-         4.3724,
+         4.2638,
          -0.1655
         ],
         "orientation": [
@@ -8653,105 +7820,7 @@
       },
       "Size": [
        0.0724,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.9052,
-         4.3,
-         -0.1675
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.1448,
-       0.0724,
-       0.025
-      ],
-      "Color": [
-       0.2314,
-       0.298,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_CatTreeSign_NameText",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.869,
-         4.2276,
-         -0.1655
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0724,
-       0.0724,
+       0.2897,
        0.025
       ],
       "Color": [
@@ -8776,7 +7845,7 @@
        "CFrame": {
         "position": [
          -0.9414,
-         4.1552,
+         4.3,
          -0.1675
         ],
         "orientation": [
@@ -8799,7 +7868,56 @@
        }
       },
       "Size": [
-       0.2172,
+       0.0724,
+       0.0724,
+       0.025
+      ],
+      "Color": [
+       0.2314,
+       0.298,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_CatTreeSign_NameText",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.9776,
+         4.1552,
+         -0.1655
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1448,
        0.0724,
        0.025
       ],

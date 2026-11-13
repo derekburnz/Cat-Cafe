@@ -1,15 +1,20 @@
 --!strict
 -- The one place models are fetched from. ReplicatedStorage.Assets is Rojo-synced from assets/cat-cafe/rbx/;
--- anything missing there gets a Part placeholder at startup. Swapping a real model in = dropping a file in that folder.
+-- anything missing there gets a Part placeholder at startup. The templates no client needs are moved to
+-- ServerStorage.Assets at start-up (stowServerOnly). Swapping a real model in = dropping a file in that folder.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerStorage = game:GetService("ServerStorage")
 
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Placeholders = require(script.Parent.Placeholders)
+local ServerOnlyAssets = require(script.Parent.ServerOnlyAssets)
 
 local AssetRegistry = {}
 
 local folder: Folder? = nil
+-- ServerStorage.Assets once stowServerOnly has run: the templates no client needs (#3743)
+local vault: Folder? = nil
 
 function AssetRegistry.folder(): Folder
 	if folder ~= nil then
@@ -29,12 +34,44 @@ function AssetRegistry.folder(): Folder
 	return result :: Folder
 end
 
+-- The template named `name`, in the shared folder or the server's own.
+local function find(name: string): Instance?
+	local found = AssetRegistry.folder():FindFirstChild(name)
+	if found == nil and vault ~= nil then
+		found = vault:FindFirstChild(name)
+	end
+	return found
+end
+
+-- Moves the templates only the server clones (ServerOnlyAssets) out of ReplicatedStorage.Assets into
+-- ServerStorage.Assets, so no client is sent them or keeps them in memory (#3743). Run once at start-up, before the
+-- world is built; `has`, `known` and `clone` read both folders. Returns how many were moved.
+function AssetRegistry.stowServerOnly(): number
+	local assets = AssetRegistry.folder()
+	local store = vault
+	if store == nil then
+		local made = Instance.new("Folder")
+		made.Name = "Assets"
+		made.Parent = ServerStorage
+		store = made
+		vault = made
+	end
+	local moved = 0
+	for _, child in assets:GetChildren() do
+		if ServerOnlyAssets.matches(child.Name) then
+			child.Parent = store
+			moved += 1
+		end
+	end
+	return moved
+end
+
 -- Fills in a placeholder for every asset name that has no real model yet. Returns how many were created.
 function AssetRegistry.ensurePlaceholders(): number
 	local assets = AssetRegistry.folder()
 	local created = 0
 	for _, name in Placeholders.names() do
-		if assets:FindFirstChild(name) == nil then
+		if find(name) == nil then
 			local model = Placeholders.build(name)
 			if model ~= nil then
 				model.Parent = assets
@@ -46,7 +83,7 @@ function AssetRegistry.ensurePlaceholders(): number
 end
 
 function AssetRegistry.has(name: string): boolean
-	return AssetRegistry.folder():FindFirstChild(name) ~= nil
+	return find(name) ~= nil
 end
 
 -- True when the named model is in the folder or can be built as a placeholder, so `clone` will not error.
@@ -57,7 +94,7 @@ end
 -- Clones the named model. Builds a placeholder on the spot if the name is unknown to the folder but known to us.
 function AssetRegistry.clone(name: string): Model
 	local assets = AssetRegistry.folder()
-	local source = assets:FindFirstChild(name)
+	local source = find(name)
 	if source == nil then
 		local built = Placeholders.build(name)
 		if built == nil then

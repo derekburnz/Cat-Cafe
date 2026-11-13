@@ -27,6 +27,7 @@ local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local CollectorLogic = require(script.Parent.Parent.Components.CollectorLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
+local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
@@ -37,7 +38,7 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
-local PAL = Theme.dark
+local PAL = MenuFamily.pal
 
 export type Callbacks = {
 	answer: (accept: boolean) -> (),

@@ -204,12 +204,51 @@ local function keepClear(area: Frame, buttons: { GuiObject }, unit: number, gap:
 		local width = math.max(0, math.floor((left - area.AbsolutePosition.X) / per - gap))
 		area.Size = UDim2.new(0, width, area.Size.Y.Scale, area.Size.Y.Offset)
 	end
+	-- Review-QA (19cb1e6a): the clip cut chips in half ("+150 pass", a sliver of "+1"). A chip that does not fit
+	-- whole inside the area is hidden instead (only ever hidden: a rebuilt row brings new chips, checked again)
+	local pending = false
+	local function hideCut()
+		pending = false
+		local right = area.AbsolutePosition.X + area.AbsoluteSize.X + 0.5
+		for _, row in area:GetChildren() do
+			if row:IsA("GuiObject") then
+				for _, chip in row:GetChildren() do
+					if
+						chip:IsA("GuiObject")
+						and chip.Visible
+						and chip.AbsolutePosition.X + chip.AbsoluteSize.X > right
+					then
+						chip.Visible = false
+					end
+				end
+			end
+		end
+	end
+	local function soon()
+		if not pending then
+			pending = true
+			task.defer(hideCut)
+		end
+	end
 	for _, button in buttons do
 		button:GetPropertyChangedSignal("AbsolutePosition"):Connect(fit)
 		button:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
 	end
 	area:GetPropertyChangedSignal("AbsolutePosition"):Connect(fit)
+	area:GetPropertyChangedSignal("AbsoluteSize"):Connect(soon)
+	area.DescendantAdded:Connect(soon)
+	area.ChildAdded:Connect(function(row)
+		if row:IsA("GuiObject") then
+			row:GetPropertyChangedSignal("AbsoluteSize"):Connect(soon)
+		end
+	end)
+	for _, row in area:GetChildren() do
+		if row:IsA("GuiObject") then
+			row:GetPropertyChangedSignal("AbsoluteSize"):Connect(soon)
+		end
+	end
 	fit()
+	soon()
 end
 
 local Quests = {}

@@ -923,7 +923,8 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 	-- the grid: a card per row, kept for the next render
 	local shown: { [string]: boolean } = {}
 	-- #3572: with the rework on, each tab cheapest first (StoreLogic.cheapestFirst); the cards are ordered, not moved
-	local gridRows = if self._rework then StoreLogic.cheapestFirst(rows, prices) else rows
+	local gridRows: { StoreLogic.Row } =
+		if self._rework then StoreLogic.cheapestFirst(rows, prices) else rows
 	for order, row in gridRows do
 		local slot = "grid:" .. row.key
 		local entry = self._cards[slot] or self:_makeCard(slot, "tile", self._list, order)

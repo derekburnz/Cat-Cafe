@@ -2202,6 +2202,13 @@ UI.shoutout = { at = nil :: number? }
 -- or its bar ends: `held()`.
 UI.rollBusy = { on = false, window = false, offAt = nil :: number?, CALM = 5 }
 function UI.rollBusy.held(): boolean
+	-- Review-QA (ea186f64): the roll's show ends when the bar comes, so the bar (and the board after it) count too:
+	-- while a bar is up the calm starts again
+	local rescue: any = (UI :: any).rescue
+	if rescue ~= nil and rescue.isActive() then
+		UI.rollBusy.offAt = os.clock()
+		return true
+	end
 	local offAt = UI.rollBusy.offAt
 	return UI.rollBusy.on or (offAt ~= nil and os.clock() - offAt < UI.rollBusy.CALM)
 end

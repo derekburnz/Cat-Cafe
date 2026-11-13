@@ -4980,6 +4980,38 @@ Presets.mysticIntro = {
 	tvSafe = 0.05,
 }
 
+-- #3846 (Effects/BigTraitCut, Derek 2026-11-13: "a quick cutscene animation for legendary+ trait rerolls with some
+-- vfx/sound before the menu pops up"): a Legendary or Mythic roll at the pool. Seconds, studs and pixels. The camera
+-- spot is Presets.mysticIntro's (back, up, swings). Nothing blinks: the rays turn slowly and the title grows in once.
+Presets.bigTrait = {
+	rarities = { legendary = true, mythic = true }, -- shared/Traits.RARITIES ids that get the cutscene
+	titles = { legendary = "LEGENDARY TRAIT!", mythic = "MYTHIC TRAIT!" },
+	swingIn = 0.9, -- the camera over to the pool as the roll starts
+	swingOut = 0.7, -- and back once the big moment is over
+	skipOut = 0.25, -- back after a skip
+	big = 2.2, -- the big moment, from the cat popping out to the swing back
+	beamWidth = 2.4,
+	beamHeight = 22,
+	ringDiameter = 12,
+	ringSeconds = 1.1,
+	stars = 24,
+	confetti = 40,
+	screenSeconds = 1.8, -- away from the pool: the rays and the title alone
+	still = 1.4, -- Reduce Motion: the title alone, still
+	popSeconds = 0.35, -- the title's grow in
+	popFrom = 0.55,
+	popOver = 1.08,
+	rays = 10,
+	raySpin = 0.06, -- turns a second
+	rayFade = 0.6, -- the rays' least transparency
+	titleSize = 64,
+	titleMin = 28,
+	titleInk = Color3.fromRGB(74, 52, 38),
+	displayOrder = 22, -- over the card's edge shade (21) and its "Tap to skip"
+	cap = 16, -- controls always come back by now
+	tvSafe = 0.05,
+}
+
 -- #3419 (the update party's banner, Effects/EventBanner): a cream and gold card at the top middle of the screen for
 -- the party's start, the gift on its way and the gift paid. Pixels and seconds. The words are the caller's (#3420);
 -- `titleLength` and `lineLength` are the most characters drawn. Everything plays once per banner.

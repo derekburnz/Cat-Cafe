@@ -19,6 +19,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Beats = require(script.Beats)
+local BigTraitCut = require(script.Parent.Effects.BigTraitCut)
 local BinRoll = require(script.Parent.Effects.BinRoll)
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 local Cues = require(script.Cues)
@@ -2260,6 +2261,16 @@ local function followPetCat()
 	end)
 end
 
+-- #3846: a Legendary or Mythic trait roll's cutscene: its fanfare, flat.
+local function followBigTrait()
+	BigTraitCut.onBeat(function(beat, rarity)
+		local cue = Logic.bigTraitCue(beat, rarity)
+		if cue ~= nil then
+			Audio.play(cue)
+		end
+	end)
+end
+
 -- #3430: the pool's first walk-up cutscene, on the pool's own chimes (in 3D at the pool, the rise flat).
 local function followPoolIntro()
 	MysticIntroCut.onBeat(function(beat, step, at)
@@ -2291,6 +2302,7 @@ function Audio.start()
 	followBeats()
 	followPool()
 	followPoolIntro()
+	followBigTrait()
 	followBinRoll()
 	followTrampoline()
 	followPetCat()

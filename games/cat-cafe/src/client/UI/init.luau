@@ -5846,10 +5846,11 @@ UI.firstVisit = { kind = nil :: string?, token = 0, carded = false }
 do
 	local FirstVisitLogic = require(script.Components.FirstVisitLogic)
 
-	-- #3620: a window or the "Unlocked!" perk card is up (UI.perks is filled further down this file)
+	-- #3620: a window or the "Unlocked!" perk card is up. (any: UI.perks is filled further down this file, and the CI
+	-- type check loses the whole UI table's shape when it is read here by its own type)
 	local function busy(): boolean
-		local perks: any = UI.perks
-		local perkCard = perks.card
+		local cards: any = UI
+		local perkCard = cards.perks.card
 		return FirstVisitLogic.yields(
 			if modal ~= nil then modal:current() else nil,
 			perkCard ~= nil and perkCard:isShowing()

@@ -65,20 +65,27 @@ return function()
 	end
 
 	describe("the list (section 1)", function()
-		it("is the 22 badges in creation order, each with a Config key", function()
+		it("is the 28 badges in badges-order.md's order, each with a Config key (#3618)", function()
 			local keys = {
-				"welcome",
 				"firstCatch",
-				"cozyCafe",
+				"firstHome",
+				"firstUpgrade",
+				"firstFlight",
+				"welcome",
 				"grandOpening",
+				"cornerCafe",
+				"cozyCafe",
+				"busyCafe",
+				"famousCafe",
+				"grandCafe",
+				"sunstoneCafe",
+				"wonderCafe",
 				"purrfect",
+				"purrfectStreak",
 				"baitCat",
 				"rareFind",
 				"legendaryFind",
 				"mythicalFind",
-				"busyCafe",
-				"famousCafe",
-				"grandCafe",
 				"catCollector",
 				"catExpert",
 				"goldenCoat",
@@ -86,7 +93,6 @@ return function()
 				"pageComplete",
 				"helpingPaw",
 				"firstTrade",
-				"purrfectStreak",
 				"partyGuest",
 				"metOwner",
 			}
@@ -279,6 +285,31 @@ return function()
 		end)
 	end)
 
+	describe("the six new badges (#3618)", function()
+		it("each reads only from the save", function()
+			local profile = fresh()
+			profile.stats.catsCaught = 1
+			expect(has(profile, "firstHome")).to.equal(true)
+			expect(has(profile, "firstUpgrade")).to.equal(false)
+			profile.upgradeLevels.tables = math.max(
+				profile.upgradeLevels.tables or 0,
+				Config.StartTables
+			) + 1
+			expect(has(profile, "firstUpgrade")).to.equal(true)
+			expect(has(profile, "firstFlight")).to.equal(false)
+			profile.stats.cannonFlights = 1
+			expect(has(profile, "firstFlight")).to.equal(true)
+			expect(has(profile, "cornerCafe")).to.equal(false)
+			profile.tutorialStep = Badges.WELCOME_STEP
+			expect(has(profile, "cornerCafe")).to.equal(true)
+			profile.tier = 6
+			expect(has(profile, "sunstoneCafe")).to.equal(true)
+			expect(has(profile, "wonderCafe")).to.equal(false)
+			profile.tier = 7
+			expect(has(profile, "wonderCafe")).to.equal(true)
+		end)
+	end)
+
 	describe("which are due (section 1's catch-up and retries)", function()
 		it("skips a badge with id 0, one owned and one waiting on a retry", function()
 			local profile = fresh()
@@ -287,7 +318,7 @@ return function()
 			profile.tier = 3
 			withIds({ welcome = 11, firstCatch = 12, cozyCafe = 0, busyCafe = 14 }, function()
 				local due = Badges.due(profile, {}, {}, 100)
-				expect(table.concat(due, ",")).to.equal("welcome,firstCatch,busyCafe")
+				expect(table.concat(due, ",")).to.equal("firstCatch,welcome,busyCafe")
 				due = Badges.due(profile, { [12] = true }, { busyCafe = 160 }, 100)
 				expect(table.concat(due, ",")).to.equal("welcome")
 				due = Badges.due(profile, { [12] = true }, { busyCafe = 160 }, 160)

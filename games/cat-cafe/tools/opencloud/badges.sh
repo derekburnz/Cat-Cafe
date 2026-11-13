@@ -30,7 +30,13 @@ helpingPaw|Helping Paw|Help another player free a stuck cat.|CatCafe_Icon_Badge_
 firstTrade|First Trade|Finish your first trade with another player.|CatCafe_Icon_Badge_FirstTrade.png
 purrfectStreak|Purrfect Streak|Land 5 PURRFECT catches in a row.|CatCafe_Icon_Badge_PurrfectStreak.png
 partyGuest|Cafe Party Guest|Catch a cat during a Cafe Event.|CatCafe_Icon_Badge_PartyGuest.png
-metOwner|Met the Owner|Be in a server while the game'\''s owner is playing.|CatCafe_Icon_Badge_MetOwner.png'
+metOwner|Met the Owner|Be in a server while the game'\''s owner is playing.|CatCafe_Icon_Badge_MetOwner.png
+firstHome|Home Sweet Home|Carry your first cat home to your cafe.|CatCafe_Icon_Badge_HomeSweetHome.png
+firstUpgrade|Fixing Up|Upgrade your cafe for the first time.|CatCafe_Icon_Badge_FixingUp.png
+firstFlight|Liftoff|Fly from the cannon for the first time.|CatCafe_Icon_Badge_Liftoff.png
+cornerCafe|Corner Cafe|Open your Tier 1 cafe.|CatCafe_Icon_Badge_CornerCafe.png
+sunstoneCafe|Sunstone Cafe|Rank your cafe up to Tier 6.|CatCafe_Icon_Badge_SunstoneCafe.png
+wonderCafe|Wonder Cafe|Rank your cafe up to Tier 7.|CatCafe_Icon_Badge_WonderCafe.png'
 
 usage() {
 	echo "usage: badges.sh list | create key[,key...] (at most 5; keys: $(cut -d'|' -f1 <<<"$TABLE" | paste -sd, -))" >&2

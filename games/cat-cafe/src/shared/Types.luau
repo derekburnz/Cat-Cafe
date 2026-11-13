@@ -690,6 +690,7 @@ export type Stats = {
 	dashRuns: number,
 	goldenCratesOpened: number,
 	restSeconds: number,
+	cannonFlights: number, -- #3618: cannon flights taken, for the Liftoff badge
 }
 
 export type WeekPlay = { week: number, seconds: number }

@@ -16,7 +16,7 @@
 --                                 "Outfit passes x1.15" (#1624) when the split can't be told
 --   Money pass            x2      the Money pass (passBoosts.money)
 --   Money Potion          +25%    each running potion with `tips`, all together at most Config.TimedTipsMax
---   Pals (2)              +15%    F92: shared Pals.bonus while pals are on the server (only then, so a solo player
+--   Friend bonus (2)      +15%    F92: shared Pals.bonus while pals are on the server (only then, so a solo player
 --                                 never sees a missing bonus), added to the potions as Economy.tipMultiplier does
 --   All together          x4.3    (1 + the cafe's percents) x tier x outfits x Money pass x (1 + potions + pals), as
 --                                 the server's Economy.incomePerSecond multiplies them
@@ -294,7 +294,7 @@ function BoostList.rows(
 	if palCount >= 1 then
 		local share: number = Pals.bonus(palCount)
 		tips += share
-		add(rows, "pals", ("Pals (%d)"):format(palCount), share)
+		add(rows, "pals", ("Friend bonus (%d)"):format(palCount), share)
 	end
 
 	local total = cafe * tierTimes * math.max(staff, 1) * math.max(moneyPass, 1) * (1 + tips)

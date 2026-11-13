@@ -42,9 +42,9 @@ return function()
 		it("gives each perk's number only from its tier", function()
 			expect(StationPerks.baitSpeed(1)).to.equal(0)
 			expect(StationPerks.baitSpeed(2)).to.equal(0.10)
-			expect(StationPerks.sellValue(100, 2)).to.equal(100)
-			expect(StationPerks.sellValue(100, 3)).to.equal(110)
-			expect(StationPerks.sellValue(25, 3)).to.equal(28) -- 27.5 rounds to a whole coin
+			expect(StationPerks.richBag(100, 2)).to.equal(100)
+			expect(StationPerks.richBag(100, 3)).to.equal(110)
+			expect(StationPerks.richBag(25, 3)).to.equal(28) -- 27.5 rounds to a whole coin
 			expect(StationPerks.firstCatchFish(3)).to.equal(0)
 			expect(StationPerks.firstCatchFish(4)).to.equal(1)
 			expect(StationPerks.homingSpeed(4)).to.equal(1)

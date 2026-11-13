@@ -13,7 +13,6 @@ local Types = require(script.Parent.Parent.Types)
 export type Callbacks = {
 	placeCat: (uid: string, spotId: string) -> (),
 	unplaceCat: (uid: string) -> (),
-	sellCat: (uid: string) -> (),
 	lockCat: (uid: string, locked: boolean) -> (),
 	renameCat: (uid: string, name: string) -> (),
 	feedCat: ((foodId: string, uid: string) -> ())?, -- #1181: the Feed button on the cat's detail
@@ -53,7 +52,6 @@ function MyCats.new(callbacks: Callbacks): MyCats
 	self._catRoom = CatRoom.new(panel.content, {
 		placeCat = callbacks.placeCat,
 		unplaceCat = callbacks.unplaceCat,
-		sellCat = callbacks.sellCat,
 		lockCat = callbacks.lockCat,
 		renameCat = callbacks.renameCat,
 		feedCat = callbacks.feedCat,
@@ -69,7 +67,7 @@ function MyCats.setCatalog(self: any, catalog: Types.Catalog)
 	self._catRoom:setCatalog(catalog)
 end
 
--- A fresh open drops a half-done Assign, Sell confirm or rename.
+-- A fresh open drops a half-done Equip, the open food tiles or a rename.
 function MyCats.reset(self: any)
 	self._catRoom:reset()
 end

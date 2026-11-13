@@ -120,8 +120,7 @@ UI.events = {
 	buyLure = Signal.new(), -- (lureId)
 	placeCat = Signal.new(), -- (uid, spotId)
 	unplaceCat = Signal.new(), -- (uid)
-	sellCat = Signal.new(), -- (uid)
-	lockCat = Signal.new(), -- (uid, locked)   the Lock row in the cat room: forward as LockCat (F62)
+	lockCat = Signal.new(), -- (uid, locked)   the Lock square in the cat room: forward as LockCat (F62)
 	renameCat = Signal.new(), -- (uid, name)   Rename in the cat room, trimmed and checked with Shared.CatName: forward as RenameCat (F33)
 	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
 	equipBestDecor = Signal.new(), -- ()   Equip Best on the Decor page: forward as EquipBestDecor (#828)
@@ -960,9 +959,6 @@ function UI.init(config: Types.InitConfig)
 		end,
 		unplaceCat = function(uid: string)
 			UI.events.unplaceCat:Fire(uid)
-		end,
-		sellCat = function(uid: string)
-			UI.events.sellCat:Fire(uid)
 		end,
 		lockCat = function(uid: string, locked: boolean)
 			UI.events.lockCat:Fire(uid, locked)
@@ -2918,14 +2914,11 @@ function UI.arcade.state(view: any)
 	end
 end
 
--- The `arcade` live switch: off hides the Menu row and greys Play (a game running finishes).
--- #3296: `row` is the Menu row alone, for when Circle Streak is vaulted (off) but Mouse Dash still opens from it.
-function UI.arcade.setOn(on: boolean, row: boolean?)
+-- The `arcade` live switch: off greys Play (a game running finishes). `row` was the Settings list's Arcade row,
+-- gone since 2026-11-13 (Derek: "remove the old cat arcade icon from settings"); callers may still pass it.
+function UI.arcade.setOn(on: boolean, _row: boolean?)
 	if arcadeScreen then
 		arcadeScreen:setOn(on)
-	end
-	if hud then
-		hud:setArcade(if row ~= nil then row else on)
 	end
 end
 

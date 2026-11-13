@@ -2489,10 +2489,20 @@ local SCENES = {
 		assert(UI.isOpen() == "OasisSpa", "uigate: the spa's prompt opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#2651)")
 		local window = lateWindow("OasisSpa")
 		local level = window:FindFirstChild("Slot1", true):FindFirstChild("Level")
-		assert(string.match(level.Text, "^Lv %d+ → %d+$"), "uigate: the soaking cat reads " .. level.Text .. " (#2651)")
+		-- #3961: the family look words it "Level 15, soaking" with a green "+3 levels ready" chip and a capital COLLECT
+		local family = window:FindFirstChild("Slot1", true):FindFirstChild("Ready")
+		family = family and family.Visible and family or nil
+		if family then
+			assert(string.match(level.Text, "^Level %d+, soaking$"), "uigate: the soaking cat reads " .. level.Text .. " (#3961)")
+			local chip = family:FindFirstChild("Words")
+			assert(chip and chip.Text == "+3 levels ready", "uigate: the ready chip reads " .. tostring(chip and chip.Text) .. " (#3961)")
+		else
+			assert(string.match(level.Text, "^Lv %d+ → %d+$"), "uigate: the soaking cat reads " .. level.Text .. " (#2651)")
+		end
 		local collect = window:FindFirstChild("Collect", true)
 		local words = collect and collect:FindFirstChildWhichIsA("TextLabel", true)
-		assert(words and words.Text == "Collect +3 levels", "uigate: Collect reads " .. tostring(words and words.Text) .. " (#2904)")
+		local want = if family then "COLLECT +3 LEVELS" else "Collect +3 levels"
+		assert(words and words.Text == want, "uigate: Collect reads " .. tostring(words and words.Text) .. " (#2904)")
 		local buy = window:FindFirstChild("Slot3", true):FindFirstChild("Action")
 		local price = buy and buy:FindFirstChildWhichIsA("TextLabel", true)
 		local found = false

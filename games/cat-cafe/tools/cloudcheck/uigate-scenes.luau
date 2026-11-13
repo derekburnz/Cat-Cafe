@@ -2754,6 +2754,58 @@ local SCENES = {
 			assert(chip.AbsolutePosition.X + chip.AbsoluteSize.X <= menu.AbsolutePosition.X + menu.AbsoluteSize.X, "uigate: " .. name .. " runs out of the pop-up (#3874)")
 		end
 	end },
+	-- #3940: Show chips stack (Working with No trait lists working cats with no trait), Filter stays gold with a dot,
+	-- and closing the pop-up saves the chips once; the list opens with them next time; All clears them
+	{ "MysticPoolCombine", function()
+		local window = mysticPool(nil, "gate_1")
+		press("MysticPool", "Change")
+		for _ = 1, 10 do
+			UIShim.advance(1 / 60)
+		end
+		local picker = window:FindFirstChild("Picker", true)
+		local list = picker:FindFirstChild("List")
+		local menu = picker:FindFirstChild("FilterMenu")
+		local cats = (UI.getState() :: any).cats
+		local function shownRows(): number
+			local shown = 0
+			for _, row in list:GetChildren() do
+				shown += if row:IsA("Frame") and row.Visible then 1 else 0
+			end
+			return shown
+		end
+		local want = 0
+		for _, cat in cats do
+			want += if cat.spotId ~= nil and cat.trait == nil then 1 else 0
+		end
+		assert(want >= 1, "uigate: no sample cat works with no trait (#3940)")
+		local sent: { [string]: any } = {}
+		local sends = 0
+		local connection = UI.events.setSetting:Connect(function(key, value)
+			sent[key] = value
+			sends += 1
+		end)
+		press("MysticPool", "Picker.Tools.Filter")
+		press("MysticPool", "Picker.FilterMenu.Working")
+		press("MysticPool", "Picker.FilterMenu.Notrait")
+		assert(shownRows() == want, ("uigate: Working with No trait shows %d cats, %d fit (#3940)"):format(shownRows(), want))
+		press("MysticPool", "Picker.FilterMenu.Close")
+		assert(sends == 1 and sent.catPickShow == "Working,No trait", ("uigate: closing sent %d settings, Show %s (#3940)"):format(sends, tostring(sent.catPickShow)))
+		local filterWords = picker.Tools:FindFirstChild("Filter"):FindFirstChildWhichIsA("TextLabel", true)
+		assert(filterWords.Text:find("•", 1, true), "uigate: Filter does not show its kept chips (#3940)")
+		-- back to the card and into the list again: the chips are still on
+		press("MysticPool", "Picker.Tools.Back")
+		press("MysticPool", "Change")
+		for _ = 1, 10 do
+			UIShim.advance(1 / 60)
+		end
+		assert(shownRows() == want, ("uigate: the list opened again with %d cats, the kept chips fit %d (#3940)"):format(shownRows(), want))
+		press("MysticPool", "Picker.Tools.Filter")
+		press("MysticPool", "Picker.FilterMenu.All")
+		press("MysticPool", "Picker.FilterMenu.Close")
+		connection:Disconnect()
+		assert(sent.catPickShow == "", "uigate: All did not save an empty Show (#3940)")
+		assert(not filterWords.Text:find("•", 1, true), "uigate: Filter still shows a dot after All (#3940)")
+	end },
 	-- #3196: a re-roll waiting: the old trait and the new one side by side, Keep old and Take new the same size and
 	-- style, the odds line on it; Take new sends ChooseTrait's event with true
 	{ "MysticPoolChoice", function()
@@ -2784,37 +2836,44 @@ local SCENES = {
 	end },
 	-- #3864: the Trait Token offer once the free rolls are used: both bundles with their prices, the full odds, a
 	-- No thanks that hides it, and once a session only
+	-- #4006: the token panel left open beside the card, for the picture
+	{ "MysticPoolSide", function()
+		local window = mysticPool(nil, "gate_1", { tokens = 0, freeLeft = 0, held = 0, bundles = true })
+		local side = window:FindFirstChild("TokenSide")
+		assert(side and side.Visible, "uigate: the token panel did not show (#4006)")
+	end },
 	{ "MysticPoolOffer", function()
 		local window = mysticPool(nil, "gate_1", { tokens = 0, freeLeft = 0, held = 0, bundles = true })
-		local offer = window:FindFirstChild("TokenOffer", true)
-		assert(offer and offer.Visible, "uigate: the token offer did not show after the free rolls (#3864)")
-		-- #3948: a picture card per bundle: the token, "20 Tokens", its rolls and Buy with the price
-		local want = { { "20 Tokens", "Buy · R$99" }, { "50 Tokens", "Buy · R$199" } }
+		assert(window:FindFirstChild("TokenOffer", true) == nil, "uigate: the token offer still pops up over the card (#4006)")
+		local side = window:FindFirstChild("TokenSide")
+		assert(side and side.Visible, "uigate: the token panel did not show beside the card after the free rolls (#4006)")
+		-- beside the card, never over it, and inside the screen
+		local cardRight = window.AbsolutePosition.X + window.AbsoluteSize.X
+		assert(side.AbsolutePosition.X >= cardRight, ("uigate: the token panel overlaps the card by %d px (#4006)"):format(cardRight - side.AbsolutePosition.X))
+		local screen = window.Parent :: GuiObject
+		local screenRight = screen.AbsolutePosition.X + screen.AbsoluteSize.X
+		local screenBottom = screen.AbsolutePosition.Y + screen.AbsoluteSize.Y
+		local camera = workspace.CurrentCamera
+		local viewX = if camera then camera.ViewportSize.X else screenRight
+		assert(side.AbsolutePosition.X + side.AbsoluteSize.X <= viewX, "uigate: the token panel runs off the screen's right edge (#4006)")
+		assert(side.AbsolutePosition.Y + side.AbsoluteSize.Y <= screenBottom + 1, "uigate: the token panel runs below its room (#4006)")
+		local want = { "20 Tokens · R$99", "50 Tokens · R$199" }
 		for index, words in want do
-			local card = offer:FindFirstChild("Bundle" .. index .. "Card", true)
-			assert(card and card.Visible and card:FindFirstChild("Token"), "uigate: bundle " .. index .. " has no picture card (#3948)")
-			assert(card:FindFirstChild("Heading").Text == words[1], "uigate: bundle " .. index .. " is headed " .. card:FindFirstChild("Heading").Text .. " (#3948)")
-			local button = card:FindFirstChild("Bundle" .. index)
+			local button = side:FindFirstChild("Bundle" .. index)
 			local label = button and button:FindFirstChildWhichIsA("TextLabel", true)
-			assert(button and button.Visible and label and label.Text == words[2], "uigate: bundle " .. index .. " reads " .. tostring(label and label.Text) .. " (#3864)")
-			assert(label.TextFits, "uigate: bundle " .. index .. "'s label does not fit (#3864)")
+			assert(button and button.Visible and label and label.Text == words, "uigate: bundle " .. index .. " reads " .. tostring(label and label.Text) .. " (#4006)")
+			assert(label.TextFits, "uigate: bundle " .. index .. "'s label does not fit (#4006)")
 		end
-		local odds = 0
-		for _, piece in offer:GetDescendants() do
-			if piece:IsA("TextLabel") and piece.Visible and piece.Text:find("%d+%%") then
-				odds += 1
-			end
-		end
-		assert(odds >= 1, "uigate: the token offer shows no odds before the buy buttons (#3864)")
-		local no = offer:FindFirstChild("NoThanks", true)
-		local buy = offer:FindFirstChild("Bundle1", true)
-		assert(math.abs(no.AbsoluteSize.Y - buy.AbsoluteSize.Y) <= 1, "uigate: No thanks is not as big as Buy (#3948)")
-		local bottom = offer.AbsolutePosition.Y + offer.AbsoluteSize.Y
-		assert(no and no.AbsolutePosition.Y + no.AbsoluteSize.Y <= bottom + 1, "uigate: No thanks hangs below the offer (#3864)")
-		press("MysticPool", "TokenOffer.NoThanks")
-		assert(not offer.Visible, "uigate: No thanks did not hide the token offer (#3864)")
+		local odds = side:FindFirstChild("Odds")
+		assert(odds and odds.Visible and odds.Text:find("Mythic 5%", 1, true) and odds.TextFits, "uigate: the token panel shows no roll odds before Buy (#4006)")
+		assert(odds.AbsolutePosition.Y < side:FindFirstChild("Bundle1").AbsolutePosition.Y, "uigate: the odds sit under Buy (#4006)")
+		local roll = window:FindFirstChild("Roll", true)
+		assert(roll == nil or not roll.Visible or roll.AbsolutePosition.X + roll.AbsoluteSize.X <= side.AbsolutePosition.X, "uigate: Roll sits under the token panel (#4006)")
+		press("MysticPool", "TokenSide.Head.Close")
+		assert(not side.Visible, "uigate: the small X did not hide the token panel (#4006)")
 		UI.update({ traits = { tokens = 0, freeLeft = 0, held = 0, bundles = true } } :: any)
-		assert(not offer.Visible, "uigate: the token offer showed twice in one session (#3864)")
+		assert(not side.Visible, "uigate: the token panel came back after its X in one session (#4006)")
+		assert(math.abs(window.AbsolutePosition.X + window.AbsoluteSize.X / 2 - (screen.AbsolutePosition.X + screen.AbsoluteSize.X / 2)) <= 2, "uigate: the card did not move back to the middle after the X (#4006)")
 	end },
 	-- #2651 part 4 (late-stations.md section 2): the Relic Museum card on the Alleyway room, two exhibits given (one
 	-- gold), one that can be filled with its green "!", the rest silhouettes with "You have n"

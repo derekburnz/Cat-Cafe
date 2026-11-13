@@ -269,7 +269,8 @@ return function()
 			expect(prize.passXp).to.equal(L.passXp)
 			expect(prize.crates.highest).to.equal(1)
 			expect(prize.crates.classic_crate).to.equal(nil)
-			local devoted = Quests.achievementPrize(Catalog.getAchievement("a_hours100") :: any) :: any
+			local devoted =
+				Quests.achievementPrize(Catalog.getAchievement("a_hours100") :: any) :: any
 			expect(devoted.fish).to.equal(50)
 			expect(devoted.potions.big_tip_potion).to.equal(1)
 			expect(devoted.crates).to.equal(nil)

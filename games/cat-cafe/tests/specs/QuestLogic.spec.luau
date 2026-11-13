@@ -154,11 +154,22 @@ return function()
 			gated.achievements = table.clone(gated.achievements)
 			table.insert(
 				gated.achievements,
-				{ id = "a_traits10", name = "Pool Regular", needs = 10, size = "M", flag = "traits" }
+				{
+					id = "a_traits10",
+					name = "Pool Regular",
+					needs = 10,
+					size = "M",
+					flag = "traits",
+				}
 			)
 			expect(#QuestLogic.achievementRows(gated, nil)).to.equal(4)
-			expect(#QuestLogic.achievementRows(gated, { a_rare1 = { progress = 1, claimed = false } })).to.equal(4)
-			local rows = QuestLogic.achievementRows(gated, { a_traits10 = { progress = 3, claimed = false } })
+			expect(
+				#QuestLogic.achievementRows(gated, { a_rare1 = { progress = 1, claimed = false } })
+			).to.equal(4)
+			local rows = QuestLogic.achievementRows(
+				gated,
+				{ a_traits10 = { progress = 3, claimed = false } }
+			)
 			expect(#rows).to.equal(5)
 		end)
 	end)
@@ -175,66 +186,74 @@ return function()
 			expect(count(nil)).to.equal(0)
 		end)
 
-	describe("QuestLogic.hoursText (#3694)", function()
-		it("counts play time in whole hours, rounded down", function()
-			local devoted: any = { id = "a_hours100", measure = "playtimeSeconds", needs = 180000, size = "XL" }
-			expect(QuestLogic.hoursText(devoted, 97153)).to.equal("26/50 hours")
-			expect(QuestLogic.hoursText(devoted, 0)).to.equal("0/50 hours")
-			expect(QuestLogic.hoursText(devoted, 999999)).to.equal("50/50 hours")
-			local first: any = { id = "a_hours1", measure = "playtimeSeconds", needs = 3600, size = "S" }
-			expect(QuestLogic.hoursText(first, 3599)).to.equal("0/1 hour")
-			expect(QuestLogic.hoursText(first, 3600)).to.equal("1/1 hour")
+		describe("QuestLogic.hoursText (#3694)", function()
+			it("counts play time in whole hours, rounded down", function()
+				local devoted: any =
+					{ id = "a_hours100", measure = "playtimeSeconds", needs = 180000, size = "XL" }
+				expect(QuestLogic.hoursText(devoted, 97153)).to.equal("26/50 hours")
+				expect(QuestLogic.hoursText(devoted, 0)).to.equal("0/50 hours")
+				expect(QuestLogic.hoursText(devoted, 999999)).to.equal("50/50 hours")
+				local first: any =
+					{ id = "a_hours1", measure = "playtimeSeconds", needs = 3600, size = "S" }
+				expect(QuestLogic.hoursText(first, 3599)).to.equal("0/1 hour")
+				expect(QuestLogic.hoursText(first, 3600)).to.equal("1/1 hour")
+			end)
+
+			it("counts resting time in hours too", function()
+				local napper: any =
+					{ id = "a_rest1h", measure = "restSeconds", needs = 3600, size = "M" }
+				expect(QuestLogic.hoursText(napper, 1800)).to.equal("0/1 hour")
+				expect(QuestLogic.hoursText(napper, 3700)).to.equal("1/1 hour")
+			end)
+
+			it("leaves every other count alone", function()
+				local catches: any =
+					{ id = "a_catch100", measure = "catsCaught", needs = 100, size = "M" }
+				expect(QuestLogic.hoursText(catches, 40)).to.equal(nil)
+			end)
 		end)
 
-		it("counts resting time in hours too", function()
-			local napper: any = { id = "a_rest1h", measure = "restSeconds", needs = 3600, size = "M" }
-			expect(QuestLogic.hoursText(napper, 1800)).to.equal("0/1 hour")
-			expect(QuestLogic.hoursText(napper, 3700)).to.equal("1/1 hour")
-		end)
-
-		it("leaves every other count alone", function()
-			local catches: any = { id = "a_catch100", measure = "catsCaught", needs = 100, size = "M" }
-			expect(QuestLogic.hoursText(catches, 40)).to.equal(nil)
-		end)
-	end)
-
-	describe("the achievement list (#3694)", function()
-		local ReplicatedStorage = game:GetService("ReplicatedStorage")
-		local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
-		local function find(id: string): any
-			for _, def in Catalog.achievements do
-				if def.id == id then
-					return def
+		describe("the achievement list (#3694)", function()
+			local ReplicatedStorage = game:GetService("ReplicatedStorage")
+			local Catalog =
+				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+			local function find(id: string): any
+				for _, def in Catalog.achievements do
+					if def.id == id then
+						return def
+					end
 				end
+				return nil
 			end
-			return nil
-		end
 
-		it("keeps every old id and lowers the big targets", function()
-			expect(find("a_catch1k").needs).to.equal(500)
-			expect(find("a_catch10k").needs).to.equal(2500)
-			expect(find("a_perfect5k").needs).to.equal(2000)
-			expect(find("a_rescue250").needs).to.equal(100)
-			expect(find("a_quests100").needs).to.equal(60)
-			expect(find("a_week10").needs).to.equal(5)
-			expect(find("a_hours100").needs).to.equal(50 * 3600)
-		end)
+			it("keeps every old id and lowers the big targets", function()
+				expect(find("a_catch1k").needs).to.equal(500)
+				expect(find("a_catch10k").needs).to.equal(2500)
+				expect(find("a_perfect5k").needs).to.equal(2000)
+				expect(find("a_rescue250").needs).to.equal(100)
+				expect(find("a_quests100").needs).to.equal(60)
+				expect(find("a_week10").needs).to.equal(5)
+				expect(find("a_hours100").needs).to.equal(50 * 3600)
+			end)
 
-		it("has a step on every catch count from 1 to 2,500, with unique ids and names", function()
-			local catches = {}
-			local ids, names = {}, {}
-			for _, def in Catalog.achievements do
-				expect(ids[def.id]).to.equal(nil)
-				expect(names[def.name]).to.equal(nil)
-				ids[def.id], names[def.name] = true, true
-				if def.measure == "catsCaught" then
-					table.insert(catches, def.needs)
+			it(
+				"has a step on every catch count from 1 to 2,500, with unique ids and names",
+				function()
+					local catches = {}
+					local ids, names = {}, {}
+					for _, def in Catalog.achievements do
+						expect(ids[def.id]).to.equal(nil)
+						expect(names[def.name]).to.equal(nil)
+						ids[def.id], names[def.name] = true, true
+						if def.measure == "catsCaught" then
+							table.insert(catches, def.needs)
+						end
+					end
+					table.sort(catches)
+					expect(table.concat(catches, ",")).to.equal("1,25,100,250,500,1000,2500")
+					expect(#Catalog.achievements).to.equal(69) -- #3694 section 3: ten for the newer features
 				end
-			end
-			table.sort(catches)
-			expect(table.concat(catches, ",")).to.equal("1,25,100,250,500,1000,2500")
-			expect(#Catalog.achievements).to.equal(69) -- #3694 section 3: ten for the newer features
+			)
 		end)
-	end)
 	end)
 end

@@ -1164,3 +1164,6 @@ Derek 16:08 UTC: "lost and found also needs changing it just doesnt do anything 
 ## 2026-11-13 Trait rarity in strong colour, on pills (#3950, Design-Agent)
 - **Why:** Derek, 16:02 UTC, priority: "the trait doesn't show rarity very well the text color is hard to see which color it is maybe bold it and make it stronger colored", and the same for the Keep old / Take new cards.
 - **What:** in the Mystic Pool's cat list a trait is a bold pill filled with its rarity's colour (white words, dark on Legendary's gold); on the Keep old / Take new cards the rarity sits on such a pill, the border is 4 px of that colour, the card takes a faint wash of it and the name is the colour deepened a third toward the cocoa ink. The cat card's trait line is bold in the deepened colour (`CatCardLogic.strong`).
+
+## 2026-11-13: Mystic Pool main card closer to the station menus picture (#3961 batch 3)
+The main card's odds are now six pills in the rarities' colours (two rows of three, "Common 30%"), with "Each trait inside a rarity is equally likely" beside them; Change cat and Odds are blue buttons; the trait's name is bigger and its effect lines bold. Same odds, prices and rules; the Keep old / Take new choice and the bundle offer keep their odds lines.

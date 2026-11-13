@@ -90,6 +90,7 @@ local PICTURE = 48
 local TILE_W = 150
 local TILE_H = 100 -- the cat's tile and the trait's card
 local ODDS_W = 84
+local ODDS_SHARE = 0.66 -- #3961: the odds pills' share of the row, the "equally likely" line in the rest
 local WORDS_H = 18 + 28 -- what the player has (or why Roll is grey), then the odds on two lines
 -- #3848 (Derek 2026-11-13: "the collect trait reroll button is cutoff a bit on mobile"): on a short screen the card
 -- reached the screen's bottom edge, so the line of what the player has moves beside Collect, over the token line, and
@@ -211,7 +212,7 @@ local function traitCard(
 		Position = UDim2.fromOffset(8, 5),
 		Size = UDim2.new(1, -16, 0, 22),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody + 2,
+		TextSize = Theme.sizes.textTitle - 4, -- #3961: the trait's name big, as the picture
 		ZIndex = z + 1,
 		Parent = frame,
 	})
@@ -238,6 +239,7 @@ local function traitCard(
 			Name = "Effect" .. index,
 			Position = UDim2.fromOffset(8, 28 + index * 17),
 			Size = UDim2.new(1, -16, 0, 17),
+			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
 			ZIndex = z + 1,
 			Parent = frame,
@@ -260,6 +262,63 @@ local function oddsLines(parent: Instance, top: number, z: number)
 			Parent = parent,
 		})
 	end
+end
+
+-- #3961 (the station menus picture): the main card's odds as six pills of the rarities' colours, "Common 30%", in two
+-- rows of three, with the "equally likely" line beside them, in the two lines' place at `top`.
+local function oddsPills(parent: Instance, top: number, z: number)
+	local row: Frame = Create("Frame", {
+		Name = "OddsPills",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(0, top),
+		Size = UDim2.new(ODDS_SHARE, 0, 0, 28),
+		ZIndex = z,
+		Parent = parent,
+	}, {
+		Create("UIGridLayout", {
+			CellPadding = UDim2.fromOffset(3, 2),
+			CellSize = UDim2.new(1 / 3, -3, 0, 13),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	for order, odds in MysticPoolLogic.odds() do
+		local color = Color3.fromHex(odds.color)
+		text({
+			Name = odds.name,
+			LayoutOrder = order,
+			BackgroundTransparency = 0,
+			BackgroundColor3 = color,
+			FontFace = Theme.fonts.bodyBold,
+			TextScaled = true,
+			TextColor3 = inkOn(color),
+			TextTruncate = Enum.TextTruncate.None,
+			Text = ("%s %d%%"):format(odds.name, odds.percent),
+			ZIndex = z,
+			Parent = row,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }),
+			Create("UIStroke", {
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Color = CARD.cardStroke,
+				Thickness = 1,
+			}),
+			Create("UITextSizeConstraint", { MaxTextSize = Theme.sizes.textTiny, MinTextSize = 9 }),
+		})
+	end
+	text({
+		Name = "OddsNote",
+		Position = UDim2.new(ODDS_SHARE, 6, 0, top),
+		Size = UDim2.new(1 - ODDS_SHARE, -6, 0, 28),
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = PAL.subtext,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = MysticPoolLogic.ODDS_LINES[#MysticPoolLogic.ODDS_LINES],
+		ZIndex = z,
+		Parent = parent,
+	})
 end
 
 -- `rarity` is the line under the name: the trait's rarity, or `none` for a card without one ("Now: no trait").
@@ -434,7 +493,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._oddsButton = Button.new({
 		name = "Odds",
 		text = "Odds",
-		style = "ghost",
+		style = "sky", -- #3961: blue, as the station menus picture
 		size = UDim2.fromOffset(ODDS_W, rowH),
 		anchorPoint = Vector2.new(1, 0),
 		position = UDim2.new(1, 0, 0, rollTop),
@@ -458,7 +517,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		TextColor3 = PAL.text,
 		Parent = content,
 	})
-	oddsLines(content, if short then lineTop else lineTop + 18, 1)
+	oddsPills(content, if short then lineTop else lineTop + 18, 1)
 	-- the station's free tokens
 	self._tokens = text({
 		Name = "Tokens",
@@ -1530,7 +1589,7 @@ function MysticPool._paint(self: any)
 	if self._changeText ~= changeText then
 		self._changeText = changeText
 		self._change:setText(changeText)
-		self._change:setStyle(if cat ~= nil then "ghost" else "primary")
+		self._change:setStyle(if cat ~= nil then "sky" else "primary") -- #3961: blue, as the picture
 	end
 	self._change:setEnabled(not resting)
 	fill(

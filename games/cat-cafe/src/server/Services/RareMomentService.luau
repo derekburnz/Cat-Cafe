@@ -17,6 +17,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GlobalCatch = require(ReplicatedStorage.Shared.GlobalCatch)
 local GlobalCatchService = require(script.Parent.GlobalCatchService)
 local Net = require(script.Parent.Net)
+local QuietStartService = require(script.Parent.QuietStartService)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -54,7 +55,7 @@ function RareMomentService.shoutOut(
 	if RareMoments.toasts(rarity) and not takeToast(player) then
 		return
 	end
-	Net.fireAll("Announce", text, rarity)
+	QuietStartService.fireAll(player, "Announce", text, rarity) -- #4005
 end
 
 -- `player` secured `def` (variant "base", "gold" or later "rainbow") by `method`; `hadEpicOrBetter` is whether their
@@ -76,7 +77,7 @@ function RareMomentService.secured(
 		Net.fire(player, "SecuredRare", player.UserId, def.id, def.rarity, gold, coat)
 		return
 	end
-	Net.fireAll("SecuredRare", player.UserId, def.id, def.rarity, gold, coat)
+	QuietStartService.fireAll(player, "SecuredRare", player.UserId, def.id, def.rarity, gold, coat) -- #4005
 	local fields: { string } = { def.rarity, if gold then "yes" else "no", RareMoments.how(method) }
 	Telemetry.custom(player, "rare_secured", 1, fields)
 end
@@ -85,7 +86,7 @@ end
 function RareMomentService.foundDecor(player: Player, decor: Types.DecorDef)
 	local rarity = decor.rarity or "Common"
 	if RareMoments.decorToasts(rarity) and takeToast(player) then
-		Net.fireAll("FoundRareDecor", player.UserId, decor.id)
+		QuietStartService.fireAll(player, "FoundRareDecor", player.UserId, decor.id) -- #4005
 	end
 	local text = GlobalCatch.crateLine(player.DisplayName, rarity, decor.name)
 	if text == nil then

@@ -877,118 +877,20 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.1176,
-       29.8489,
+       -0.1836,
+       29.6871,
        -18.2
       ],
       "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.5764
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1176,
-       29.3989,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
        ],
        [
+        0.0,
         1.0,
-        0.0,
         0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.3236
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1176,
-       29.3989,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
        ],
        [
         -1.0,
@@ -1000,57 +902,8 @@
     },
     "Size": [
      0.25,
-     0.2351,
-     0.3236
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.5455,
-       29.538,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.5764
+     0.9,
+     0.3671
     ],
     "Color": [
      1.0,
@@ -1073,757 +926,22 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.6182,
-       29.3144,
+       0.1836,
+       29.6871,
        -18.2
       ],
       "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.5764
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1902,
-       29.1753,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.3236
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1902,
-       29.1753,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.3236
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4547,
-       28.8112,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.5764
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2645,
-       28.673,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.5764
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       29.0371,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.3236
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       29.0371,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.3236
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2645,
-       28.673,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.5764
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4547,
-       28.8112,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.5764
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1902,
-       29.1753,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.3236
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1902,
-       29.1753,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.3236
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.6182,
-       29.3144,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.5764
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5455,
-       29.538,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.5764
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1176,
-       29.3989,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.3236
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1176,
-       29.3989,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.2351,
-     0.3236
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Tier5",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1176,
-       29.8489,
-       -18.2
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         -1.0
        ],
        [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
         1.0,
         0.0,
         0.0
@@ -1832,9 +950,401 @@
      }
     },
     "Size": [
-     0.25,
-     0.2351,
-     0.5764
+     0.2463,
+     0.9,
+     0.3671
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_Tier5",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3713,
+       29.5507,
+       -18.2
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2425,
+     0.9,
+     0.3671
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_Tier5",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4847,
+       29.2016,
+       -18.2
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.9511,
+        -0.309
+       ],
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2388,
+     0.9,
+     0.3671
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_Tier5",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.413,
+       28.9809,
+       -18.2
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.235,
+     0.9,
+     0.3671
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_Tier5",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.116,
+       28.7652,
+       -18.2
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2313,
+     0.9,
+     0.3671
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_Tier5",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.116,
+       28.7652,
+       -18.2
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2275,
+     0.9,
+     0.3671
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_Tier5",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.413,
+       28.9809,
+       -18.2
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2238,
+     0.9,
+     0.3671
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_Tier5",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4847,
+       29.2016,
+       -18.2
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.22,
+     0.9,
+     0.3671
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_Tier5",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3713,
+       29.5507,
+       -18.2
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9511,
+        -0.309
+       ],
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2163,
+     0.9,
+     0.3671
     ],
     "Color": [
      1.0,

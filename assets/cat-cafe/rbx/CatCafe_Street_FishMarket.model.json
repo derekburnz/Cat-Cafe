@@ -18481,20 +18481,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.0248,
-         1.1638,
+         0.0,
+         1.1886,
          -1.4605
         ],
         "orientation": [
          [
           0.0,
-          0.0,
-          -1.0
+          0.7071,
+          0.7071
          ],
          [
           0.0,
-          -1.0,
-          0.0
+          0.7071,
+          -0.7071
          ],
          [
           -1.0,
@@ -18506,57 +18506,8 @@
       },
       "Size": [
        0.031,
-       0.0496,
-       0.0496
-      ],
-      "Color": [
-       0.8784,
-       0.4784,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Street_FishMarket_Coin",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.0248,
-         1.1638,
-         -1.4605
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          1.0
-         ],
-         [
-          0.0,
-          -1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.031,
-       0.0496,
-       0.0496
+       0.0701,
+       0.0701
       ],
       "Color": [
        0.8784,

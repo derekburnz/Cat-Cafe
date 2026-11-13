@@ -300,118 +300,20 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0265,
-       1.4564,
+       -0.0416,
+       1.42,
        0.0
       ],
       "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.1272
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0265,
-       1.3564,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
        ],
        [
+        0.0,
         1.0,
-        0.0,
         0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.0728
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0265,
-       1.3564,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
        ],
        [
         -1.0,
@@ -423,8 +325,8 @@
     },
     "Size": [
      0.07,
-     0.0529,
-     0.0728
+     0.2,
+     0.0832
     ],
     "Color": [
      0.9843,
@@ -447,806 +349,22 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.1216,
-       1.3873,
+       0.0416,
+       1.42,
        0.0
       ],
       "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.1272
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1379,
-       1.337,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.1272
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0428,
-       1.3061,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.0728
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0428,
-       1.3061,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.0728
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1016,
-       1.2252,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.1272
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0588,
-       1.1941,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.1272
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       1.275,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.0728
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       1.275,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.0728
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0588,
-       1.1941,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.1272
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1016,
-       1.2252,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.1272
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0428,
-       1.3061,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.0728
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0428,
-       1.3061,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.0728
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1379,
-       1.337,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.1272
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1216,
-       1.3873,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.1272
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0265,
-       1.3564,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.0728
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0265,
-       1.3564,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.0529,
-     0.0728
-    ],
-    "Color": [
-     0.9843,
-     0.8941,
-     0.6039
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_Potion_GoldRush",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0265,
-       1.4564,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         -1.0
        ],
        [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
         1.0,
         0.0,
         0.0
@@ -1255,9 +373,401 @@
      }
     },
     "Size": [
-     0.07,
-     0.0529,
-     0.1272
+     0.069,
+     0.2,
+     0.0832
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Prop_Potion_GoldRush",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0823,
+       1.3905,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0679,
+     0.2,
+     0.0832
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Prop_Potion_GoldRush",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.108,
+       1.3113,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.9511,
+        -0.309
+       ],
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0669,
+     0.2,
+     0.0832
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Prop_Potion_GoldRush",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0924,
+       1.2635,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0658,
+     0.2,
+     0.0832
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Prop_Potion_GoldRush",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0251,
+       1.2147,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0648,
+     0.2,
+     0.0832
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Prop_Potion_GoldRush",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0251,
+       1.2147,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0637,
+     0.2,
+     0.0832
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Prop_Potion_GoldRush",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0924,
+       1.2635,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0627,
+     0.2,
+     0.0832
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Prop_Potion_GoldRush",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.108,
+       1.3113,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0616,
+     0.2,
+     0.0832
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Prop_Potion_GoldRush",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0823,
+       1.3905,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9511,
+        -0.309
+       ],
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0606,
+     0.2,
+     0.0832
     ],
     "Color": [
      0.9843,

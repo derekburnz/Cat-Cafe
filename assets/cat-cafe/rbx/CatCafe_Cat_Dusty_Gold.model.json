@@ -2552,19 +2552,19 @@
          "CFrame": {
           "position": [
            0.1205,
-           0.7281,
+           0.5857,
            -0.9419
           ],
           "orientation": [
            [
             0.0,
-            -0.7634,
-            -0.6459
+            1.0,
+            0.0
            ],
            [
             0.0,
-            0.6459,
-            -0.7634
+            0.0,
+            1.0
            ],
            [
             1.0,
@@ -2576,112 +2576,8 @@
         },
         "Size": [
          0.0438,
-         0.1839,
-         0.1556
-        ],
-        "Color": [
-         0.851,
-         0.298,
-         0.2314
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Dusty_Gold_Prop",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0,
-           0.5857,
-           -0.9419
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.7634,
-            0.6459
-           ],
-           [
-            0.0,
-            0.6459,
-            0.7634
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0438,
-         0.1839,
-         0.2174
-        ],
-        "Color": [
-         0.851,
-         0.298,
-         0.2314
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Dusty_Gold_Prop",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0,
-           0.5857,
-           -0.9419
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.7634,
-            -0.6459
-           ],
-           [
-            0.0,
-            0.6459,
-            0.7634
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0438,
-         0.1839,
-         0.2174
+         0.241,
+         0.2848
         ],
         "Color": [
          0.851,
@@ -2708,22 +2604,22 @@
          "CFrame": {
           "position": [
            -0.1205,
-           0.7281,
+           0.5857,
            -0.9419
           ],
           "orientation": [
            [
             0.0,
-            0.7634,
-            0.6459
+            0.0,
+            1.0
            ],
            [
             0.0,
-            0.6459,
-            -0.7634
+            -1.0,
+            0.0
            ],
            [
-            -1.0,
+            1.0,
             0.0,
             0.0
            ]
@@ -2732,8 +2628,8 @@
         },
         "Size": [
          0.0438,
-         0.1839,
-         0.1556
+         0.2848,
+         0.241
         ],
         "Color": [
          0.851,

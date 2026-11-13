@@ -6686,6 +6686,85 @@
      "children": [
       {
        "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1476,
+           0.722,
+           0.665
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0475,
+         0.1615,
+         0.0672
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.038,
+           -0.1757,
+           0.1476
+          ],
+          "orientation": [
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Nebula_Work/17",
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
        "className": "Part",
        "properties": {
         "CFrame": {
@@ -6730,36 +6809,9 @@
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
-        "BottomSurface": "Smooth",
-        "PivotOffset": {
-         "CFrame": {
-          "position": [
-           0.0424,
-           -0.0538,
-           0.0698
-          ],
-          "orientation": [
-           [
-            0.6306,
-            -0.7761,
-            0.0
-           ],
-           [
-            0.2495,
-            0.2027,
-            0.9469
-           ],
-           [
-            -0.7349,
-            -0.5971,
-            0.3215
-           ]
-          ]
-         }
-        }
+        "BottomSurface": "Smooth"
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Cat_Nebula_Work/17",
         "Follows": "Body"
        }
       },
@@ -6822,119 +6874,15 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.2063,
+           0.1643,
            0.969,
-           0.5355
+           0.513
           ],
           "orientation": [
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.0785
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.2063,
-           0.969,
-           0.4737
-          ],
-          "orientation": [
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
            [
             0.0,
             0.0,
             1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.045
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.2063,
-           0.969,
-           0.4737
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            0.9511
            ],
            [
             1.0,
@@ -6943,120 +6891,16 @@
            ],
            [
             0.0,
-            0.9511,
-            0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.045
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.2651,
-           0.969,
-           0.4928
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            -0.9511
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.9511,
-            -0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.0785
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.2752,
-           0.969,
-           0.4617
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.309,
-            -0.9511
-           ],
-           [
             1.0,
-            0.0,
             0.0
-           ],
-           [
-            0.0,
-            -0.9511,
-            -0.309
            ]
           ]
          }
         },
         "Size": [
          0.0475,
-         0.0327,
-         0.0785
+         0.1235,
+         0.0514
         ],
         "Color": [
          1.0,
@@ -7082,761 +6926,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.2164,
+           0.2157,
            0.969,
-           0.4427
+           0.513
           ],
           "orientation": [
-           [
-            0.0,
-            0.309,
-            0.9511
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.9511,
-            0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.045
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.2164,
-           0.969,
-           0.4427
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.809,
-            0.5878
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.5878,
-            -0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.045
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.2527,
-           0.969,
-           0.3927
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.809,
-            -0.5878
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.5878,
-            0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.0785
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.2263,
-           0.969,
-           0.3735
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            -0.5878
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.5878,
-            0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.0785
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.19,
-           0.969,
-           0.4235
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            0.5878
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.5878,
-            -0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.045
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.19,
-           0.969,
-           0.4235
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.809,
-            -0.5878
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.5878,
-            -0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.045
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.1537,
-           0.969,
-           0.3735
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.809,
-            0.5878
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.5878,
-            0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.0785
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.1273,
-           0.969,
-           0.3927
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            0.5878
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.5878,
-            0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.0785
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.1636,
-           0.969,
-           0.4427
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            -0.5878
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.5878,
-            -0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.045
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.1636,
-           0.969,
-           0.4427
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            -0.9511
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.9511,
-            0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.045
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.1048,
-           0.969,
-           0.4617
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            0.9511
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.9511,
-            -0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.0785
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.1149,
-           0.969,
-           0.4928
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.309,
-            0.9511
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.9511,
-            -0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.0785
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.1737,
-           0.969,
-           0.4737
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.309,
-            -0.9511
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.9511,
-            0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.045
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.1737,
-           0.969,
-           0.4737
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0327,
-         0.045
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.1737,
-           0.969,
-           0.5355
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
            [
             0.0,
             0.0,
             -1.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
            ]
           ]
          }
         },
         "Size": [
-         0.0475,
-         0.0327,
-         0.0785
+         0.0468,
+         0.1235,
+         0.0514
         ],
         "Color": [
          1.0,
@@ -7862,33 +6978,449 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.0926,
-           0.722,
-           0.6944
+           0.2408,
+           0.969,
+           0.4948
           ],
           "orientation": [
            [
             0.0,
-            1.0,
-            0.0
+            0.9511,
+            0.309
            ],
            [
             1.0,
             0.0,
             0.0
            ],
+           [
+            0.0,
+            0.309,
+            -0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0461,
+         0.1235,
+         0.0514
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2567,
+           0.969,
+           0.4459
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.9511,
+            -0.309
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.309,
+            0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0454,
+         0.1235,
+         0.0514
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2471,
+           0.969,
+           0.4164
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.5878,
+            -0.809
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.809,
+            -0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0446,
+         0.1235,
+         0.0514
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2055,
+           0.969,
+           0.3862
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.5878,
+            0.809
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.809,
+            0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0439,
+         0.1235,
+         0.0514
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1745,
+           0.969,
+           0.3862
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.5878,
+            -0.809
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.809,
+            0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0432,
+         0.1235,
+         0.0514
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1329,
+           0.969,
+           0.4164
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.5878,
+            0.809
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.809,
+            -0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0425,
+         0.1235,
+         0.0514
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1233,
+           0.969,
+           0.4459
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.9511,
+            0.309
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.309,
+            0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0418,
+         0.1235,
+         0.0514
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1392,
+           0.969,
+           0.4948
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.9511,
+            -0.309
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.309,
+            -0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.1235,
+         0.0514
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0804,
+           0.722,
+           0.665
+          ],
+          "orientation": [
            [
             0.0,
             0.0,
             -1.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
            ]
           ]
          }
         },
         "Size": [
-         0.0475,
-         0.0427,
-         0.1027
+         0.0468,
+         0.1615,
+         0.0672
         ],
         "Color": [
          1.0,
@@ -7914,67 +7446,431 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.0926,
+           -0.0476,
            0.722,
-           0.6136
+           0.6411
           ],
           "orientation": [
            [
             0.0,
+            0.9511,
+            0.309
+           ],
+           [
             1.0,
+            0.0,
             0.0
+           ],
+           [
+            0.0,
+            0.309,
+            -0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0461,
+         0.1615,
+         0.0672
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0268,
+           0.722,
+           0.5773
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.9511,
+            -0.309
            ],
            [
             -1.0,
             0.0,
             0.0
            ],
+           [
+            0.0,
+            0.309,
+            0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0454,
+         0.1615,
+         0.0672
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0394,
+           0.722,
+           0.5387
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.5878,
+            -0.809
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.809,
+            -0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0446,
+         0.1615,
+         0.0672
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0937,
+           0.722,
+           0.4992
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.5878,
+            0.809
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.809,
+            0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0439,
+         0.1615,
+         0.0672
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1343,
+           0.722,
+           0.4992
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.5878,
+            -0.809
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.809,
+            0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0432,
+         0.1615,
+         0.0672
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1886,
+           0.722,
+           0.5387
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.5878,
+            0.809
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.809,
+            -0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0425,
+         0.1615,
+         0.0672
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2012,
+           0.722,
+           0.5773
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.9511,
+            0.309
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.309,
+            0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0418,
+         0.1615,
+         0.0672
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1804,
+           0.722,
+           0.6411
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.9511,
+            -0.309
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.309,
+            -0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.1615,
+         0.0672
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0333,
+           0.456,
+           0.5462
+          ],
+          "orientation": [
            [
             0.0,
             0.0,
             1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.0588
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.0926,
-           0.722,
-           0.6136
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            0.9511
            ],
            [
             1.0,
@@ -7983,120 +7879,16 @@
            ],
            [
             0.0,
-            0.9511,
-            0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.0588
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.0158,
-           0.722,
-           0.6386
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            -0.9511
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.9511,
-            -0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.1027
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.0026,
-           0.722,
-           0.598
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.309,
-            -0.9511
-           ],
-           [
             1.0,
-            0.0,
             0.0
-           ],
-           [
-            0.0,
-            -0.9511,
-            -0.309
            ]
           ]
          }
         },
         "Size": [
          0.0475,
-         0.0427,
-         0.1027
+         0.114,
+         0.0474
         ],
         "Color": [
          1.0,
@@ -8122,847 +7914,15 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.0794,
-           0.722,
-           0.573
+           0.0807,
+           0.456,
+           0.5462
           ],
           "orientation": [
-           [
-            0.0,
-            0.309,
-            0.9511
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.9511,
-            0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.0588
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.0794,
-           0.722,
-           0.573
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.809,
-            0.5878
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.5878,
-            -0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.0588
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.032,
-           0.722,
-           0.5077
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.809,
-            -0.5878
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.5878,
-            0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.1027
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.0665,
-           0.722,
-           0.4826
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            -0.5878
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.5878,
-            0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.1027
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.114,
-           0.722,
-           0.5479
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            0.5878
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.5878,
-            -0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.0588
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.114,
-           0.722,
-           0.5479
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.809,
-            -0.5878
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.5878,
-            -0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.0588
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.1615,
-           0.722,
-           0.4826
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.809,
-            0.5878
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.5878,
-            0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.1027
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.196,
-           0.722,
-           0.5077
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            0.5878
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.5878,
-            0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.1027
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.1486,
-           0.722,
-           0.573
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            -0.5878
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.5878,
-            -0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.0588
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.1486,
-           0.722,
-           0.573
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            -0.9511
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.9511,
-            0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.0588
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.2254,
-           0.722,
-           0.598
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            0.9511
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.9511,
-            -0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.1027
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.2122,
-           0.722,
-           0.6386
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.309,
-            0.9511
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.9511,
-            -0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.1027
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.1354,
-           0.722,
-           0.6136
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.309,
-            -0.9511
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.9511,
-            0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.0588
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.1354,
-           0.722,
-           0.6136
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.0588
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.1354,
-           0.722,
-           0.6944
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
            [
             0.0,
             0.0,
             -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0427,
-         0.1027
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0721,
-           0.456,
-           0.567
-          ],
-          "orientation": [
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0725
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0721,
-           0.456,
-           0.51
-          ],
-          "orientation": [
-           [
-            0.0,
-            1.0,
-            0.0
            ],
            [
             -1.0,
@@ -8971,16 +7931,16 @@
            ],
            [
             0.0,
-            0.0,
-            1.0
+            1.0,
+            0.0
            ]
           ]
          }
         },
         "Size": [
-         0.0475,
-         0.0302,
-         0.0415
+         0.0468,
+         0.114,
+         0.0474
         ],
         "Color": [
          1.0,
@@ -9006,33 +7966,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.0721,
+           0.1039,
            0.456,
-           0.51
+           0.5294
           ],
           "orientation": [
-           [
-            0.0,
-            -0.309,
-            0.9511
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
            [
             0.0,
             0.9511,
             0.309
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.309,
+            -0.9511
            ]
           ]
          }
         },
         "Size": [
-         0.0475,
-         0.0302,
-         0.0415
+         0.0461,
+         0.114,
+         0.0474
         ],
         "Color": [
          1.0,
@@ -9058,709 +8018,293 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.1263,
+           0.1185,
            0.456,
-           0.5276
+           0.4843
           ],
           "orientation": [
-           [
-            0.0,
-            -0.309,
-            -0.9511
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
            [
             0.0,
             0.9511,
             -0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0725
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.1356,
-           0.456,
-           0.4989
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.309,
-            -0.9511
            ],
            [
-            1.0,
+            -1.0,
             0.0,
             0.0
            ],
-           [
-            0.0,
-            -0.9511,
-            -0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0725
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0814,
-           0.456,
-           0.4813
-          ],
-          "orientation": [
            [
             0.0,
             0.309,
             0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0454,
+         0.114,
+         0.0474
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1097,
+           0.456,
+           0.4571
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.5878,
+            -0.809
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.809,
+            -0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0446,
+         0.114,
+         0.0474
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0713,
+           0.456,
+           0.4292
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.5878,
+            0.809
            ],
            [
             -1.0,
             0.0,
             0.0
            ],
+           [
+            0.0,
+            -0.809,
+            0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0439,
+         0.114,
+         0.0474
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0427,
+           0.456,
+           0.4292
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.5878,
+            -0.809
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.809,
+            0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0432,
+         0.114,
+         0.0474
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0043,
+           0.456,
+           0.4571
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.5878,
+            0.809
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.809,
+            -0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0425,
+         0.114,
+         0.0474
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0045,
+           0.456,
+           0.4843
+          ],
+          "orientation": [
            [
             0.0,
             -0.9511,
             0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0415
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0814,
-           0.456,
-           0.4813
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.809,
-            0.5878
            ],
            [
             1.0,
             0.0,
             0.0
            ],
-           [
-            0.0,
-            0.5878,
-            -0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0415
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.1149,
-           0.456,
-           0.4352
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.809,
-            -0.5878
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.5878,
-            0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0725
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0905,
-           0.456,
-           0.4175
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            -0.5878
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.5878,
-            0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0725
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.057,
-           0.456,
-           0.4636
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            0.5878
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.5878,
-            -0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0415
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.057,
-           0.456,
-           0.4636
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.809,
-            -0.5878
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.5878,
-            -0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0415
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0235,
-           0.456,
-           0.4175
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.809,
-            0.5878
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.5878,
-            0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0725
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.0009,
-           0.456,
-           0.4352
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            0.5878
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.5878,
-            0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0725
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0326,
-           0.456,
-           0.4813
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            -0.5878
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.5878,
-            -0.809
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0415
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0326,
-           0.456,
-           0.4813
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            -0.9511
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.9511,
-            0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0415
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.0216,
-           0.456,
-           0.4989
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            0.9511
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            -0.9511,
-            -0.309
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0725
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.0123,
-           0.456,
-           0.5276
-          ],
-          "orientation": [
            [
             0.0,
             0.309,
             0.9511
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.9511,
-            -0.309
            ]
           ]
          }
         },
         "Size": [
-         0.0475,
-         0.0302,
-         0.0725
+         0.0418,
+         0.114,
+         0.0474
         ],
         "Color": [
          1.0,
@@ -9786,137 +8330,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.0419,
+           0.0101,
            0.456,
-           0.51
+           0.5294
           ],
           "orientation": [
+           [
+            0.0,
+            -0.9511,
+            -0.309
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
            [
             0.0,
             0.309,
             -0.9511
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.9511,
-            0.309
            ]
           ]
          }
         },
         "Size": [
-         0.0475,
-         0.0302,
-         0.0415
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0419,
-           0.456,
-           0.51
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0415
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "Neon",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Body"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Nebula_Work_Stars_Glow",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0419,
-           0.456,
-           0.567
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.0302,
-         0.0725
+         0.0411,
+         0.114,
+         0.0474
         ],
         "Color": [
          1.0,

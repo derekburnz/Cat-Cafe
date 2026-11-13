@@ -20011,33 +20011,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.7772,
-           12.4098,
-           4.6846
+           0.7089,
+           12.4338,
+           4.6559
           ],
           "orientation": [
            [
             0.0,
-            1.0,
+            0.0,
+            1.0
+           ],
+           [
+            0.766,
+            -0.6428,
             0.0
            ],
            [
-            0.766,
-            0.0,
-            0.6428
-           ],
-           [
             0.6428,
-            0.0,
-            -0.766
+            0.766,
+            0.0
            ]
           ]
          }
         },
         "Size": [
          0.04,
-         0.0543,
-         0.1452
+         0.22,
+         0.0823
         ],
         "Color": [
          0.9647,
@@ -20060,33 +20060,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.7772,
-           12.4805,
-           4.6003
+           0.7911,
+           12.4338,
+           4.6559
           ],
           "orientation": [
            [
             0.0,
-            1.0,
+            0.0,
+            -1.0
+           ],
+           [
+            -0.766,
+            -0.6428,
             0.0
            ],
            [
-            -0.766,
-            0.0,
-            -0.6428
-           ],
-           [
             -0.6428,
-            0.0,
-            0.766
+            0.766,
+            0.0
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0543,
-         0.0748
+         0.0394,
+         0.22,
+         0.0823
         ],
         "Color": [
          0.9647,
@@ -20109,33 +20109,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.7772,
-           12.4805,
-           4.6003
+           0.8419,
+           12.4575,
+           4.6277
           ],
           "orientation": [
            [
             0.0,
-            -0.309,
-            0.9511
+            0.9511,
+            0.309
            ],
            [
             0.766,
-            -0.6113,
-            -0.1986
+            -0.1986,
+            0.6113
            ],
            [
             0.6428,
-            0.7285,
-            0.2367
+            0.2367,
+            -0.7286
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0543,
-         0.0748
+         0.0388,
+         0.22,
+         0.0823
         ],
         "Color": [
          0.9647,
@@ -20158,33 +20158,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.8818,
-           12.4586,
-           4.6263
+           0.8673,
+           12.5078,
+           4.5677
           ],
           "orientation": [
            [
             0.0,
-            -0.309,
-            -0.9511
+            0.9511,
+            -0.309
            ],
            [
             -0.766,
-            -0.6113,
-            0.1986
+            -0.1986,
+            -0.6113
            ],
            [
             -0.6428,
-            0.7285,
-            -0.2367
+            0.2367,
+            0.7286
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0543,
-         0.1452
+         0.0382,
+         0.22,
+         0.0823
         ],
         "Color": [
          0.9647,
@@ -20207,33 +20207,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.8986,
-           12.4918,
-           4.5868
+           0.8479,
+           12.5462,
+           4.522
           ],
           "orientation": [
            [
             0.0,
-            0.309,
-            -0.9511
+            0.5878,
+            -0.809
            ],
            [
             0.766,
-            0.6113,
-            0.1986
+            0.52,
+            0.3778
            ],
            [
             0.6428,
-            -0.7286,
-            -0.2367
+            -0.6197,
+            -0.4503
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0543,
-         0.1452
+         0.0376,
+         0.22,
+         0.0823
         ],
         "Color": [
          0.9647,
@@ -20256,33 +20256,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.7939,
-           12.5137,
-           4.5607
+           0.7814,
+           12.5772,
+           4.485
           ],
           "orientation": [
            [
             0.0,
-            0.309,
-            0.9511
+            0.5878,
+            0.809
            ],
            [
             -0.766,
-            0.6113,
-            -0.1986
+            0.52,
+            -0.3778
            ],
            [
             -0.6428,
-            -0.7286,
-            0.2367
+            -0.6197,
+            0.4503
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0543,
-         0.0748
+         0.037,
+         0.22,
+         0.0823
         ],
         "Color": [
          0.9647,
@@ -20305,33 +20305,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.7939,
-           12.5137,
-           4.5607
+           0.7186,
+           12.5772,
+           4.485
           ],
           "orientation": [
            [
             0.0,
-            0.809,
-            0.5878
+            -0.5878,
+            -0.809
            ],
            [
             0.766,
-            -0.3778,
-            0.52
+            0.52,
+            -0.3778
            ],
            [
             0.6428,
-            0.4503,
-            -0.6197
+            -0.6197,
+            0.4503
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0543,
-         0.0748
+         0.0364,
+         0.22,
+         0.0823
         ],
         "Color": [
          0.9647,
@@ -20354,33 +20354,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.8586,
-           12.5709,
-           4.4926
+           0.6521,
+           12.5462,
+           4.522
           ],
           "orientation": [
            [
             0.0,
-            0.809,
-            -0.5878
+            -0.5878,
+            0.809
            ],
            [
             -0.766,
-            -0.3778,
-            -0.52
+            0.52,
+            0.3778
            ],
            [
             -0.6428,
-            0.4503,
-            0.6197
+            -0.6197,
+            -0.4503
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0543,
-         0.1452
+         0.0358,
+         0.22,
+         0.0823
         ],
         "Color": [
          0.9647,
@@ -20403,33 +20403,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.8147,
-           12.5914,
-           4.4681
+           0.6327,
+           12.5078,
+           4.5677
           ],
           "orientation": [
            [
             0.0,
-            -0.809,
-            -0.5878
+            -0.9511,
+            0.309
            ],
            [
             0.766,
-            0.3778,
-            -0.52
+            -0.1986,
+            -0.6113
            ],
            [
             0.6428,
-            -0.4503,
-            0.6197
+            0.2367,
+            0.7286
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0543,
-         0.1452
+         0.0352,
+         0.22,
+         0.0823
         ],
         "Color": [
          0.9647,
@@ -20452,33 +20452,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.75,
-           12.5342,
-           4.5363
+           0.6581,
+           12.4575,
+           4.6277
           ],
           "orientation": [
            [
             0.0,
-            -0.809,
-            0.5878
+            -0.9511,
+            -0.309
            ],
            [
             -0.766,
-            0.3778,
-            0.52
+            -0.1986,
+            0.6113
            ],
            [
             -0.6428,
-            -0.4503,
-            -0.6197
+            0.2367,
+            -0.7286
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0543,
-         0.0748
+         0.0346,
+         0.22,
+         0.0823
         ],
         "Color": [
          0.9647,
@@ -20501,425 +20501,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.75,
-           12.5342,
-           4.5363
+           0.9701,
+           11.8296,
+           5.376
           ],
           "orientation": [
            [
             0.0,
-            0.809,
-            -0.5878
+            0.0,
+            1.0
            ],
            [
             0.766,
-            0.3778,
-            0.52
-           ],
-           [
-            0.6428,
-            -0.4503,
-            -0.6197
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0543,
-         0.0748
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.6853,
-           12.5914,
-           4.4681
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.809,
-            0.5878
-           ],
-           [
-            -0.766,
-            0.3778,
-            -0.52
-           ],
-           [
             -0.6428,
-            -0.4503,
-            0.6197
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0543,
-         0.1452
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.6414,
-           12.5709,
-           4.4926
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            0.5878
-           ],
-           [
-            0.766,
-            -0.3778,
-            -0.52
-           ],
-           [
-            0.6428,
-            0.4503,
-            0.6197
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0543,
-         0.1452
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.7061,
-           12.5137,
-           4.5607
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            -0.5878
-           ],
-           [
-            -0.766,
-            -0.3778,
-            0.52
-           ],
-           [
-            -0.6428,
-            0.4503,
-            -0.6197
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0543,
-         0.0748
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.7061,
-           12.5137,
-           4.5607
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            -0.9511
-           ],
-           [
-            0.766,
-            0.6113,
-            -0.1986
-           ],
-           [
-            0.6428,
-            -0.7286,
-            0.2367
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0543,
-         0.0748
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.6014,
-           12.4918,
-           4.5868
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            0.9511
-           ],
-           [
-            -0.766,
-            0.6113,
-            0.1986
-           ],
-           [
-            -0.6428,
-            -0.7286,
-            -0.2367
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0543,
-         0.1452
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.6182,
-           12.4586,
-           4.6263
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.309,
-            0.9511
-           ],
-           [
-            0.766,
-            -0.6113,
-            0.1986
-           ],
-           [
-            0.6428,
-            0.7285,
-            -0.2367
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0543,
-         0.1452
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.7228,
-           12.4805,
-           4.6003
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.309,
-            -0.9511
-           ],
-           [
-            -0.766,
-            -0.6113,
-            -0.1986
-           ],
-           [
-            -0.6428,
-            0.7285,
-            0.2367
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0543,
-         0.0748
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.7228,
-           12.4805,
-           4.6003
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
             0.0
            ],
            [
-            0.766,
-            0.0,
-            -0.6428
-           ],
-           [
             0.6428,
-            0.0,
-            0.766
+            0.766,
+            0.0
            ]
           ]
          }
         },
         "Size": [
          0.04,
-         0.0543,
-         0.0748
+         0.16,
+         0.0598
         ],
         "Color": [
          0.9647,
@@ -20942,82 +20550,82 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.7228,
-           12.4098,
-           4.6846
+           1.0299,
+           11.8296,
+           5.376
           ],
           "orientation": [
            [
             0.0,
-            -1.0,
+            0.0,
+            -1.0
+           ],
+           [
+            -0.766,
+            -0.6428,
             0.0
            ],
            [
-            -0.766,
-            0.0,
-            0.6428
-           ],
-           [
             -0.6428,
-            0.0,
-            -0.766
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0543,
-         0.1452
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.0197,
-           11.8121,
-           5.3968
-          ],
-          "orientation": [
-           [
-            0.0,
-            1.0,
+            0.766,
             0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0394,
+         0.16,
+         0.0598
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Square_Cannon_MoonCover",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.0668,
+           11.8468,
+           5.3555
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.9511,
+            0.309
            ],
            [
             0.766,
-            0.0,
-            0.6428
+            -0.1986,
+            0.6113
            ],
            [
             0.6428,
-            0.0,
-            -0.766
+            0.2367,
+            -0.7286
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0395,
-         0.1056
+         0.0388,
+         0.16,
+         0.0598
         ],
         "Color": [
          0.9647,
@@ -21040,33 +20648,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.0197,
-           11.8635,
-           5.3356
+           1.0853,
+           11.8834,
+           5.3119
           ],
           "orientation": [
            [
             0.0,
-            1.0,
-            0.0
+            0.9511,
+            -0.309
            ],
            [
             -0.766,
-            0.0,
-            -0.6428
+            -0.1986,
+            -0.6113
            ],
            [
             -0.6428,
-            0.0,
-            0.766
+            0.2367,
+            0.7286
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0395,
-         0.0544
+         0.0382,
+         0.16,
+         0.0598
         ],
         "Color": [
          0.9647,
@@ -21089,229 +20697,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.0197,
-           11.8635,
-           5.3356
+           1.0712,
+           11.9113,
+           5.2786
           ],
           "orientation": [
            [
             0.0,
-            -0.309,
-            0.9511
-           ],
-           [
-            0.7661,
-            -0.6113,
-            -0.1986
-           ],
-           [
-            0.6428,
-            0.7286,
-            0.2367
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0395,
-         0.0544
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.0958,
-           11.8476,
-           5.3545
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            -0.9511
-           ],
-           [
-            -0.7661,
-            -0.6113,
-            0.1986
-           ],
-           [
-            -0.6428,
-            0.7286,
-            -0.2367
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0395,
-         0.1056
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.108,
-           11.8718,
-           5.3257
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.309,
-            -0.9511
-           ],
-           [
-            0.7661,
-            0.6113,
-            0.1986
-           ],
-           [
-            0.6428,
-            -0.7286,
-            -0.2367
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0395,
-         0.1056
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.032,
-           11.8877,
-           5.3068
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.309,
-            0.9511
-           ],
-           [
-            -0.7661,
-            0.6113,
-            -0.1986
-           ],
-           [
-            -0.6428,
-            -0.7286,
-            0.2367
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0395,
-         0.0544
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.032,
-           11.8877,
-           5.3068
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.809,
-            0.5878
+            0.5878,
+            -0.809
            ],
            [
             0.766,
-            -0.3778,
-            0.52
+            0.52,
+            0.3778
            ],
            [
             0.6428,
-            0.4503,
-            -0.6197
+            -0.6197,
+            -0.4503
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0395,
-         0.0544
+         0.0376,
+         0.16,
+         0.0598
         ],
         "Color": [
          0.9647,
@@ -21334,33 +20746,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.079,
-           11.9293,
-           5.2572
+           1.0228,
+           11.9339,
+           5.2517
           ],
           "orientation": [
            [
             0.0,
-            0.809,
-            -0.5878
+            0.5878,
+            0.809
            ],
            [
             -0.766,
-            -0.3778,
-            -0.52
+            0.52,
+            -0.3778
            ],
            [
             -0.6428,
-            0.4503,
-            0.6197
+            -0.6197,
+            0.4503
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0395,
-         0.1056
+         0.037,
+         0.16,
+         0.0598
         ],
         "Color": [
          0.9647,
@@ -21383,33 +20795,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.047,
-           11.9442,
-           5.2394
+           0.9772,
+           11.9339,
+           5.2517
           ],
           "orientation": [
            [
             0.0,
-            -0.809,
-            -0.5878
+            -0.5878,
+            -0.809
            ],
            [
             0.766,
-            0.3778,
-            -0.52
+            0.52,
+            -0.3778
            ],
            [
             0.6428,
-            -0.4503,
-            0.6197
+            -0.6197,
+            0.4503
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0395,
-         0.1056
+         0.0364,
+         0.16,
+         0.0598
         ],
         "Color": [
          0.9647,
@@ -21432,33 +20844,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.0,
-           11.9026,
-           5.289
+           0.9288,
+           11.9113,
+           5.2786
           ],
           "orientation": [
            [
             0.0,
-            -0.809,
-            0.5878
+            -0.5878,
+            0.809
            ],
            [
             -0.766,
-            0.3778,
-            0.52
+            0.52,
+            0.3778
            ],
            [
             -0.6428,
-            -0.4503,
-            -0.6197
+            -0.6197,
+            -0.4503
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0395,
-         0.0544
+         0.0358,
+         0.16,
+         0.0598
         ],
         "Color": [
          0.9647,
@@ -21481,33 +20893,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.0,
-           11.9026,
-           5.289
+           0.9147,
+           11.8834,
+           5.3119
           ],
           "orientation": [
            [
             0.0,
-            0.809,
-            -0.5878
+            -0.9511,
+            0.309
            ],
            [
             0.766,
-            0.3778,
-            0.52
+            -0.1986,
+            -0.6113
            ],
            [
             0.6428,
-            -0.4503,
-            -0.6197
+            0.2367,
+            0.7286
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0395,
-         0.0544
+         0.0352,
+         0.16,
+         0.0598
         ],
         "Color": [
          0.9647,
@@ -21530,425 +20942,33 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.953,
-           11.9442,
-           5.2394
+           0.9332,
+           11.8468,
+           5.3555
           ],
           "orientation": [
            [
             0.0,
-            0.809,
-            0.5878
+            -0.9511,
+            -0.309
            ],
            [
             -0.766,
-            0.3778,
-            -0.52
+            -0.1986,
+            0.6113
            ],
            [
             -0.6428,
-            -0.4503,
-            0.6197
+            0.2367,
+            -0.7286
            ]
           ]
          }
         },
         "Size": [
-         0.04,
-         0.0395,
-         0.1056
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.921,
-           11.9293,
-           5.2572
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            0.5878
-           ],
-           [
-            0.766,
-            -0.3778,
-            -0.52
-           ],
-           [
-            0.6428,
-            0.4503,
-            0.6197
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0395,
-         0.1056
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.968,
-           11.8877,
-           5.3068
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.809,
-            -0.5878
-           ],
-           [
-            -0.766,
-            -0.3778,
-            0.52
-           ],
-           [
-            -0.6428,
-            0.4503,
-            -0.6197
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0395,
-         0.0544
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.968,
-           11.8877,
-           5.3068
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            -0.9511
-           ],
-           [
-            0.7661,
-            0.6113,
-            -0.1986
-           ],
-           [
-            0.6428,
-            -0.7286,
-            0.2367
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0395,
-         0.0544
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.892,
-           11.8718,
-           5.3257
-          ],
-          "orientation": [
-           [
-            0.0,
-            -0.309,
-            0.9511
-           ],
-           [
-            -0.7661,
-            0.6113,
-            0.1986
-           ],
-           [
-            -0.6428,
-            -0.7286,
-            -0.2367
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0395,
-         0.1056
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.9042,
-           11.8476,
-           5.3545
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.309,
-            0.9511
-           ],
-           [
-            0.7661,
-            -0.6113,
-            0.1986
-           ],
-           [
-            0.6428,
-            0.7286,
-            -0.2367
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0395,
-         0.1056
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.9803,
-           11.8635,
-           5.3356
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.309,
-            -0.9511
-           ],
-           [
-            -0.7661,
-            -0.6113,
-            -0.1986
-           ],
-           [
-            -0.6428,
-            0.7286,
-            0.2367
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0395,
-         0.0544
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.9803,
-           11.8635,
-           5.3356
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            0.766,
-            0.0,
-            -0.6428
-           ],
-           [
-            0.6428,
-            0.0,
-            0.766
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0395,
-         0.0544
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Square_Cannon_MoonCover",
-       "className": "WedgePart",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.9803,
-           11.8121,
-           5.3968
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            -0.766,
-            0.0,
-            0.6428
-           ],
-           [
-            -0.6428,
-            0.0,
-            -0.766
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.04,
-         0.0395,
-         0.1056
+         0.0346,
+         0.16,
+         0.0598
         ],
         "Color": [
          0.9647,

@@ -1275,118 +1275,20 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0705,
-       5.1221,
+       -0.109,
+       5.025,
        1.25
       ],
       "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.3558
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0705,
-       4.8471,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
        ],
        [
+        0.0,
         1.0,
-        0.0,
         0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.1942
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0705,
-       4.8471,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
        ],
        [
         -1.0,
@@ -1398,8 +1300,8 @@
     },
     "Size": [
      0.16,
-     0.1411,
-     0.1942
+     0.55,
+     0.218
     ],
     "Color": [
      1.0,
@@ -1410,7 +1312,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -1422,806 +1324,22 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.3321,
-       4.9321,
+       0.109,
+       5.025,
        1.25
       ],
       "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.3558
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.3757,
-       4.7979,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.3558
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1141,
-       4.7129,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.1942
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1141,
-       4.7129,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.1942
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2758,
-       4.4904,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.3558
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1616,
-       4.4075,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.3558
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       4.63,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.1942
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       4.63,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.1942
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1616,
-       4.4075,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.3558
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2758,
-       4.4904,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.3558
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1141,
-       4.7129,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.1942
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1141,
-       4.7129,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.1942
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3757,
-       4.7979,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.3558
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3321,
-       4.9321,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.3558
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0705,
-       4.8471,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.1942
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0705,
-       4.8471,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.1411,
-     0.1942
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0705,
-       5.1221,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         -1.0
        ],
        [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
         1.0,
         0.0,
         0.0
@@ -2230,9 +1348,9 @@
      }
     },
     "Size": [
-     0.16,
-     0.1411,
-     0.3558
+     0.1576,
+     0.55,
+     0.218
     ],
     "Color": [
      1.0,
@@ -2243,7 +1361,399 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2279,
+       4.9387,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1552,
+     0.55,
+     0.218
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2952,
+       4.7313,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.9511,
+        -0.309
+       ],
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1528,
+     0.55,
+     0.218
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2498,
+       4.5916,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1504,
+     0.55,
+     0.218
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0734,
+       4.4634,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.148,
+     0.55,
+     0.218
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0734,
+       4.4634,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1456,
+     0.55,
+     0.218
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2498,
+       4.5916,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1432,
+     0.55,
+     0.218
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2952,
+       4.7313,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1408,
+     0.55,
+     0.218
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2279,
+       4.9387,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9511,
+        -0.309
+       ],
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1384,
+     0.55,
+     0.218
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -2355,118 +1865,20 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.9238,
-       3.4228,
+       0.8626,
+       3.39,
        1.25
       ],
       "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.1145
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9238,
-       3.3328,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
        ],
        [
+        0.0,
         1.0,
-        0.0,
         0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.0655
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9238,
-       3.3328,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
        ],
        [
         -1.0,
@@ -2478,8 +1890,8 @@
     },
     "Size": [
      0.06,
-     0.0476,
-     0.0655
+     0.18,
+     0.0749
     ],
     "Color": [
      1.0,
@@ -2502,806 +1914,22 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.0094,
-       3.3606,
+       0.9374,
+       3.39,
        1.25
       ],
       "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.1145
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.0241,
-       3.3153,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.1145
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9385,
-       3.2875,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.0655
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9385,
-       3.2875,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.0655
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9914,
-       3.2147,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.1145
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9529,
-       3.1867,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.1145
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9,
-       3.2595,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.0655
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9,
-       3.2595,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.0655
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.8471,
-       3.1867,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.1145
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.8086,
-       3.2147,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.1145
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.8615,
-       3.2875,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.0655
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.8615,
-       3.2875,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.0655
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.7759,
-       3.3153,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.1145
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.7906,
-       3.3606,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.1145
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.8762,
-       3.3328,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.0655
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.8762,
-       3.3328,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.0476,
-     0.0655
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.8762,
-       3.4228,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         -1.0
        ],
        [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
         1.0,
         0.0,
         0.0
@@ -3310,9 +1938,401 @@
      }
     },
     "Size": [
-     0.06,
-     0.0476,
-     0.1145
+     0.0591,
+     0.18,
+     0.0749
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.974,
+       3.3634,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0582,
+     0.18,
+     0.0749
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.9972,
+       3.2922,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.9511,
+        -0.309
+       ],
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0573,
+     0.18,
+     0.0749
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.9832,
+       3.2492,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0564,
+     0.18,
+     0.0749
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.9226,
+       3.2052,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0555,
+     0.18,
+     0.0749
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.8774,
+       3.2052,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0546,
+     0.18,
+     0.0749
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.8168,
+       3.2492,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0537,
+     0.18,
+     0.0749
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.8028,
+       3.2922,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0528,
+     0.18,
+     0.0749
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.826,
+       3.3634,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9511,
+        -0.309
+       ],
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0519,
+     0.18,
+     0.0749
     ],
     "Color": [
      1.0,
@@ -3385,118 +2405,20 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.9315,
-       2.9955,
+       -0.9791,
+       2.97,
        1.25
       ],
       "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.089
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9315,
-       2.9255,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
        ],
        [
+        0.0,
         1.0,
-        0.0,
         0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.051
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9315,
-       2.9255,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
        ],
        [
         -1.0,
@@ -3508,8 +2430,8 @@
     },
     "Size": [
      0.06,
-     0.037,
-     0.051
+     0.14,
+     0.0582
     ],
     "Color": [
      1.0,
@@ -3532,806 +2454,22 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.8649,
-       2.9471,
+       -0.9209,
+       2.97,
        1.25
       ],
       "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.089
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.8535,
-       2.9119,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.089
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.92,
-       2.8903,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.051
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.92,
-       2.8903,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.051
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.8789,
-       2.8336,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.089
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9089,
-       2.8119,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.089
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.95,
-       2.8685,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.051
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.95,
-       2.8685,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.051
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9911,
-       2.8119,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.089
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.0211,
-       2.8336,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.089
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.98,
-       2.8903,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.051
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.98,
-       2.8903,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.051
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.0465,
-       2.9119,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.089
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.0351,
-       2.9471,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.089
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9685,
-       2.9255,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.051
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9685,
-       2.9255,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     0.037,
-     0.051
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Furniture_StageCatTree_Stage",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9685,
-       2.9955,
-       1.25
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         -1.0
        ],
        [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
         1.0,
         0.0,
         0.0
@@ -4340,9 +2478,401 @@
      }
     },
     "Size": [
-     0.06,
-     0.037,
-     0.089
+     0.0591,
+     0.14,
+     0.0582
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.8924,
+       2.9493,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0582,
+     0.14,
+     0.0582
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.8744,
+       2.8939,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.9511,
+        -0.309
+       ],
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0573,
+     0.14,
+     0.0582
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.8853,
+       2.8605,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0564,
+     0.14,
+     0.0582
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.9324,
+       2.8263,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0555,
+     0.14,
+     0.0582
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.9676,
+       2.8263,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0546,
+     0.14,
+     0.0582
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.0147,
+       2.8605,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0537,
+     0.14,
+     0.0582
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.0256,
+       2.8939,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0528,
+     0.14,
+     0.0582
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Furniture_StageCatTree_Stage",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.0076,
+       2.9493,
+       1.25
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9511,
+        -0.309
+       ],
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0519,
+     0.14,
+     0.0582
     ],
     "Color": [
      1.0,

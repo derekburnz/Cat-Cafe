@@ -979,20 +979,20 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.04,
-       0.99,
+       0.0,
+       1.03,
        -0.155
       ],
       "orientation": [
        [
         0.0,
-        0.0,
-        -1.0
+        0.7071,
+        0.7071
        ],
        [
         0.0,
-        -1.0,
-        0.0
+        0.7071,
+        -0.7071
        ],
        [
         -1.0,
@@ -1004,57 +1004,8 @@
     },
     "Size": [
      0.05,
-     0.08,
-     0.08
-    ],
-    "Color": [
-     0.8784,
-     0.4784,
-     0.549
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": false,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Prop_FishCoin",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.04,
-       0.99,
-       -0.155
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.05,
-     0.08,
-     0.08
+     0.1131,
+     0.1131
     ],
     "Color": [
      0.8784,

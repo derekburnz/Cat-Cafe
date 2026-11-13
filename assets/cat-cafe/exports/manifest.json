@@ -349312,6 +349312,61 @@
       }
     },
     {
+      "name": "CatCafe_Camp_Snowy_CocoaStand",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Snowy_CocoaStand",
+        "CatCafe_Camp_Snowy_CocoaStand_Glow"
+      ],
+      "triangles": 2928,
+      "budget": 6000,
+      "size_studs": {
+        "x": 10.92,
+        "y": 5.83,
+        "z": 5.73
+      },
+      "size_roblox": [
+        10.92,
+        5.73,
+        5.83
+      ],
+      "bounds_min": [
+        -5.05,
+        -2.71,
+        0.0
+      ],
+      "bounds_max": [
+        5.87,
+        3.11,
+        5.73
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Snowy_CocoaStand.model.json",
+      "rbx_parts": 166,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Snowy_CocoaStand.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Snowy_CocoaStand.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2928/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1242 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.41 y=0.20"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Town_DayCart",
       "category": "Town",
       "module": "daycart",

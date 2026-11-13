@@ -248,8 +248,6 @@ def _shoe(b, s):
     b.cyl((s * (mid + 0.02), 0.025, SHOE_TOE), half + 0.02, 0.05, SHOE_OUT, segments=16)
     b.cyl((s * (mid + 0.02), 0.135, SHOE_TOE), half + 0.02, 0.17, SHOE_SOLE, segments=16)
     span(SHOE_IN - 0.006, SHOE_OUTER + 0.05, 0.11, 0.16, SHOE_TOE + 0.02, SHOE_HEEL + 0.07, SHOE_BAND)
-    for z in (-0.6, -0.2, 0.2):                                                    # tread notches on the outer side
-        span(SHOE_OUTER + 0.03, SHOE_OUTER + 0.055, 0.0, 0.08, z, z + 0.12, SHOE_OUT)
     # the upper: a round teal toe box with a cream rubber bumper, a slope up to the ankle, the high ankle part
     span(SHOE_IN, SHOE_OUTER - 0.02, 0.22, TOE_TOP, SHOE_TOE, -0.2, SHOE_BODY)
     b.cyl((s * (mid - 0.01), (0.22 + TOE_TOP - 0.03) / 2, SHOE_TOE), half - 0.01, TOE_TOP - 0.25, SHOE_BODY, segments=16)
@@ -264,11 +262,8 @@ def _shoe(b, s):
     for z in (-0.66, -0.55, -0.44, -0.33):
         y = TOE_TOP + (z + 0.72) * rise / 0.52 + 0.015
         b.box((s * (mid - 0.01), y, z), (0.72, 0.045, 0.06), SHOE_SOLE, rot=rot_x(slope))
-        for e in (-0.36, 0.36):                                                    # eyelets
-            b.box((s * (mid - 0.01 + e), y, z), (0.07, 0.06, 0.08), SHOE_BAND, rot=rot_x(slope))
-    for e in (-0.13, 0.13):                                                        # the bow
-        b.ball((s * (mid - 0.01 + e), SHOE_TOP - 0.02, -0.3), 0.085, SHOE_SOLE, scale=(1.3, 0.8, 0.8))
-    b.ball((s * (mid - 0.01), SHOE_TOP - 0.02, -0.31), 0.06, SHOE_SOLE)
+    # the bow, one flattened ball (worn, the shoe is about a stud long: eyelets and tread notches were too small to see)
+    b.ball((s * (mid - 0.01), SHOE_TOP - 0.02, -0.3), 0.085, SHOE_SOLE, scale=(2.9, 0.8, 0.8))
     # the padded collar, the heel counter and the pull tab
     span(0.42, SHOE_OUTER, SHOE_TOP, SHOE_TOP + 0.1, -0.2, 0.44, SHOE_TRIM)
     span(SHOE_IN, -0.4, SHOE_TOP, SHOE_TOP + 0.1, -0.2, 0.44, SHOE_TRIM)

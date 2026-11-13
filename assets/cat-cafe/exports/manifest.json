@@ -318806,7 +318806,7 @@
         "CatCafe_Item_SpeedShoes_Left",
         "CatCafe_Item_SpeedShoes_Right"
       ],
-      "triangles": 1944,
+      "triangles": 1600,
       "budget": 2400,
       "size_studs": {
         "x": 3.5,
@@ -318856,7 +318856,7 @@
       },
       "studio": "#3538 (update-2026-11-13.md): the Speed Shoes, for Juniper's window picture and the pedestal (the pair on a round mat). Worn: clone the child Models _Left and _Right alone, scale each by the foot's width (built for a 1 x 1 stud foot), pivot it to the middle of the R15 LeftFoot or RightFoot's underside facing the way the foot faces, and weld it there, massless and CanCollide off. On R6 the same spot under each leg.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_SpeedShoes.model.json",
-      "rbx_parts": 100,
+      "rbx_parts": 74,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_SpeedShoes.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_SpeedShoes.glb"
@@ -318868,15 +318868,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "1944/2400 tris",
+          "budget": "1600/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "886 faces on swatch centers",
+          "uv": "674 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.20"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_SpeedShoes.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_SpeedShoes.png"
     },
     {
       "name": "CatCafe_Desert_Set",

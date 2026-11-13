@@ -237,12 +237,11 @@ end
 -- Each reads its id from Config.ProductIds[productKey] (0 while not made: hidden) and its exact contents from
 -- Catalog.products, and the card says how many of those potions the player already has, so nobody buys blind.
 export type ProductCard = { key: string, productKey: string, effect: string }
--- Derek 2026-11-13 ("can honestly remove potion packs as they kind of suck"): the four potion packs (XS, S, M, L)
--- are no longer sold here; their products and ProcessReceipt handling stay, so a late receipt still pays.
-local PRODUCTS: { ProductCard } = {
-	-- #1168 row 8: 10 Steady Paw potions, bought each time like the packs above; its rows say what is in it
-	{ key = "steadyPaw", productKey = "steady_paw_pack", effect = "" },
-}
+-- Derek 2026-11-13 ("can honestly remove potion packs as they kind of suck", then "remove stead paw pack also"): the
+-- four potion packs (XS, S, M, L) and the Steady Paw Pack are no longer sold here, so the Potions tab has no cards and
+-- hides; their products and ProcessReceipt handling stay, so a late receipt still pays. The list stays for a later
+-- product card.
+local PRODUCTS: { ProductCard } = {}
 StoreLogic.PRODUCTS = PRODUCTS
 
 -- The Starter Bundle (store-skus.md section 1): a developer product sold once per account, under Cats and as the

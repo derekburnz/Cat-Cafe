@@ -404,7 +404,6 @@ local Config = {
 		kingCat = { was = 799, now = 399 },
 		grandTheme = { was = 799, now = 399 },
 		kingPack = { was = 999, now = 499 },
-		steadyPaw = { was = 25, now = 13 },
 		thankYou = { was = 25, now = 13 },
 		cafePass = { was = 299, now = 149 },
 	} :: { [string]: { was: number, now: number } },

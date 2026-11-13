@@ -207,12 +207,9 @@ return function()
 			for _, row in rows do
 				table.insert(keys, row.key)
 			end
-			expect(table.concat(keys, ",")).to.equal("vip,steadyPaw,royalCat")
-			expect(rows[2].product).to.equal(true)
-			expect(rows[2].owned).to.equal(false)
-			-- #1715: a row per potion, then the bag count on its own line
-			expect(rows[2].effect).to.equal("2x Big Money\nIn your bag: 4")
-			expect(table.concat(StoreLogic.productIds(config), ",")).to.equal("31")
+			-- Derek 2026-11-13: no potion pack is a Store card any more (their receipts still pay)
+			expect(table.concat(keys, ",")).to.equal("vip,royalCat")
+			expect(table.concat(StoreLogic.productIds(config), ",")).to.equal("")
 		end)
 	end)
 
@@ -292,13 +289,13 @@ return function()
 			expect(keys(StoreLogic.tabRows(rows, "cats"))).to.equal(
 				"starterBundle,royalCat,kingPack"
 			)
-			expect(keys(StoreLogic.tabRows(rows, "potions"))).to.equal("steadyPaw")
+			expect(keys(StoreLogic.tabRows(rows, "potions"))).to.equal("") -- no packs since 2026-11-13
 			local tabs = {}
 			for _, tab in StoreLogic.tabs(rows) do
 				table.insert(tabs, tab.id)
 			end
 			-- no Cafe Pass card yet, so no Cafe Pass tab; Codes always (#1428)
-			expect(table.concat(tabs, ",")).to.equal("featured,passes,cats,potions,codes")
+			expect(table.concat(tabs, ",")).to.equal("featured,passes,cats,codes")
 		end)
 
 		it("lights a New dot only on a tab the rail shows (#1823 section 4)", function()
@@ -308,7 +305,7 @@ return function()
 			-- no Cafe Pass card between seasons, so its dot never keeps the HUD's Store dot lit
 			expect(new.cafePass).to.equal(nil)
 			expect(new.featured).to.equal(true)
-			expect(new.potions).to.equal(true)
+			expect(new.potions).to.equal(nil) -- the Potions tab has no cards, so it is not on the rail
 			expect(new.codes).to.equal(true)
 			expect(new.passes).to.equal(nil)
 			expect(next(StoreLogic.newTabs({}, rows))).to.equal(nil)
@@ -416,7 +413,7 @@ return function()
 			function()
 				local passConfig: any = table.clone(config)
 				passConfig.ProductIds = { steady_paw_pack = 31, starter_bundle = 40, cafe_pass = 50 }
-				expect(table.concat(StoreLogic.productIds(passConfig), ",")).to.equal("31,40,50")
+				expect(table.concat(StoreLogic.productIds(passConfig), ",")).to.equal("40,50")
 				-- no season: no card and no Cafe Pass tab
 				expect(#StoreLogic.tabRows(StoreLogic.rows(passConfig, {}, nil, view), "cafePass")).to.equal(
 					0
@@ -466,7 +463,7 @@ return function()
 			unknown.starterBought = nil
 			local rows = StoreLogic.rows(config, {}, nil, unknown)
 			expect(keys(StoreLogic.tabRows(rows, "cats"))).to.equal("royalCat,kingPack")
-			expect(table.concat(StoreLogic.productIds(config), ",")).to.equal("31,40")
+			expect(table.concat(StoreLogic.productIds(config), ",")).to.equal("40")
 		end)
 
 		it(
@@ -560,11 +557,11 @@ return function()
 					local rows = store(true)
 					table.insert(rows, row("thankYou", false, true)) -- a product that is not a potion pack
 					expect(keys(StoreLogic.featured(rows).picks)).to.equal(
-						"thankYou,steadyPaw,money"
+						"steadyPaw,thankYou,money"
 					)
 					rows[7] = row("uniforms", false)
 					expect(keys(StoreLogic.featured(rows).picks)).to.equal(
-						"uniforms,thankYou,steadyPaw"
+						"uniforms,steadyPaw,thankYou"
 					)
 				end
 			)
@@ -831,7 +828,7 @@ return function()
 						count += 1
 						expect(math.abs(entry.was / 2 - entry.now) <= 0.5).to.equal(true)
 					end
-					expect(count).to.equal(10) -- the Golden Pond pass has no Store card; the potion packs left the Store
+					expect(count).to.equal(9) -- the Golden Pond pass has no Store card; the potion packs left the Store
 					-- every key is a card the Store can show
 					local cards: { [string]: boolean } = {
 						[StoreLogic.STARTER.key] = true,
@@ -886,11 +883,9 @@ return function()
 			end
 			return nil
 		end
-		it("shows the Steady Paw Pack under Potions once its product is made", function()
+		it("no longer shows the Steady Paw Pack (Derek 2026-11-13)", function()
 			local rows = StoreLogic.rows({ ProductIds = { steady_paw_pack = 77 } }, {}, nil, view)
-			local row = find(rows, "steadyPaw")
-			expect(row).to.be.ok()
-			expect(row.tab).to.equal("potions")
+			expect(find(rows, "steadyPaw")).to.equal(nil)
 			expect(
 				find(
 					StoreLogic.rows({ ProductIds = { steady_paw_pack = 0 } }, {}, nil, view),

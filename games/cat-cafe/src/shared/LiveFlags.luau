@@ -101,6 +101,8 @@
 -- - `storeRework` (#3572): the Store as in Model-Agent's OK'd mock: Cats above Passes on the rail, each tab cheapest
 --   first, two columns of cards with the picture at the left and the price button under the words
 --   (client/UI/Screens/Store). It starts OFF (OFF_BY_DEFAULT); read by the client alone, once when the Store is built.
+-- - `quietStart` (#4005): a new player's first 15 minutes of play on the account (shared/QuietStart) hide other players'
+--   pop ups, refuse trade requests to them and hold the extra tips and cards. It starts OFF (OFF_BY_DEFAULT).
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -152,6 +154,7 @@ LiveFlags.KEYS = {
 	"traitBundles", -- #3864: the Trait Token bundles at the Mystic Pool
 	"storeRework", -- #3572: the reworked Store layout
 	"indexTo70", -- #3992: the Index's All Cats tracks past 50 and Rainbow track past 25 (shared/IndexRewards.lateOpen)
+	"quietStart", -- #4005: a new player's first 15 minutes without other players' pop ups (shared/QuietStart)
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -184,6 +187,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	traitBundles = true,
 	storeRework = true,
 	indexTo70 = true,
+	quietStart = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

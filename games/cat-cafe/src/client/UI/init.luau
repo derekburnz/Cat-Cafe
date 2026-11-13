@@ -563,6 +563,17 @@ local function autoOpenDailyTreat()
 		-- strip and the cannon walk-through after it go first
 		or tutorialText ~= nil
 		or hintShown ~= nil
+		-- #4005: on the account's first day the "!" on its button is enough
+		or not (function(): boolean
+			local QuietStart =
+				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+			local firstDay = Players.LocalPlayer:GetAttribute(QuietStart.DAY_ATTRIBUTE)
+			return QuietStart.treatOpensItself(
+				(QuietStart.live()),
+				firstDay,
+				now // QuietStart.DAY_SECONDS
+			)
+		end)()
 		-- #3188: last, so the plot is only looked up when everything else is ready (defined further down the module)
 		or not DailyTreatLogic.autoOpen(view, now, nil, nil, (UI.giftWait :: any).atCafe())
 	then
@@ -2269,6 +2280,20 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		-- bloat"): the catch's own small pop-up already said it
 		local CatFoundLogic = require(script.Components.CatFoundLogic) :: any
 		if not CatFoundLogic.big(def.rarity, isNew, info) then
+			return
+		end
+		-- #4005: before Tier 2 a new kind below Epic is a toast; the tutorial's catches and any coat, banner or line
+		-- keep the card
+		local QuietStart =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+		local plain = not (info.shiny or info.rainbow or info.banner ~= nil or info.line ~= nil)
+		local Onboarding =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Onboarding")) :: any
+		local tutorial = (state.tutorialStep or math.huge) < Onboarding.NEW_PLAYER_STEP
+		if
+			plain and QuietStart.foundToast((QuietStart.live()), state.tier, def.rarity, tutorial)
+		then
+			UI.toast(string.format("New cat: %s!", def.name), "good")
 			return
 		end
 		popups:showCatFound(def, isNew, info)
@@ -5389,6 +5414,20 @@ do
 		if tipKnown(id) or tipQueue:has(id) then
 			return
 		end
+		-- #4005: the extras wait for Tier 2, the tackle try for the quiet start, and the rank up cut goes beside the
+		-- walk through. Never marked seen, so the server sends it again later.
+		local shared = ReplicatedStorage:WaitForChild("Shared")
+		local QuietStart = require(shared:WaitForChild("QuietStart")) :: any
+		local LiveFlags = require(shared:WaitForChild("LiveFlags")) :: any
+		local on, quiet = QuietStart.live()
+		local spotlight = LiveFlags.shown(
+			"rankUpSpotlight",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "rankUpSpotlight")
+		)
+		local now: any = UI.getState()
+		if QuietStart.holdsTip(on, id, if now ~= nil then now.tier else nil, quiet, spotlight) then
+			return
+		end
 		if id == TackleLessonLogic.TIP then
 			TIP.lessonDue = true -- #2198: the lesson, not a card
 		else
@@ -5931,6 +5970,13 @@ do
 		end
 		local now: any = UI.getState()
 		local wrapHint = UI.cannon.wrapUp.on and cannonHint() == CannonLogic.WRAP_UP_HINT
+		local QuietStart =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+		if
+			QuietStart.holdsFirstVisit((QuietStart.live()), if now ~= nil then now.tier else nil)
+		then
+			return -- #4005: the first visit calls wait for Tier 2 (Design-Agent, folding #3891's hold in)
+		end
 		if
 			FirstVisitLogic.holds(if now ~= nil then now.tutorialStep else nil, away(), wrapHint)
 		then

@@ -2042,6 +2042,14 @@ local SCENES = {
 			tiles += 1
 		end
 		assert(tiles == 3, "uigate: food tiles " .. tiles)
+		-- #3982 (Review-QA, a short window with a mouse): the tiles sit above the Equip / Feed / Lock row, whole
+		local actions = card:FindFirstChild("Actions") :: GuiObject?
+		if actions ~= nil then
+			for _, id in { "small_cat_snack", "cat_snack", "big_cat_snack" } do
+				local tile = row:FindFirstChild(id) :: GuiObject
+				assert(tile.AbsolutePosition.Y + tile.AbsoluteSize.Y <= actions.AbsolutePosition.Y + 1, "uigate: the " .. id .. " tile runs under the actions row (#3982)")
+			end
+		end
 		local count = row:FindFirstChild("cat_snack"):FindFirstChild("Count") :: TextLabel
 		assert(count.Text == "x3", "uigate: the cat_snack tile counts " .. count.Text .. " (#2418)")
 		local fed: { string } = {}
@@ -2780,11 +2788,15 @@ local SCENES = {
 		local window = mysticPool(nil, "gate_1", { tokens = 0, freeLeft = 0, held = 0, bundles = true })
 		local offer = window:FindFirstChild("TokenOffer", true)
 		assert(offer and offer.Visible, "uigate: the token offer did not show after the free rolls (#3864)")
-		local want = { "20 Tokens · R$99", "50 Tokens · R$199" }
+		-- #3948: a picture card per bundle: the token, "20 Tokens", its rolls and Buy with the price
+		local want = { { "20 Tokens", "Buy · R$99" }, { "50 Tokens", "Buy · R$199" } }
 		for index, words in want do
-			local button = offer:FindFirstChild("Bundle" .. index, true)
+			local card = offer:FindFirstChild("Bundle" .. index .. "Card", true)
+			assert(card and card.Visible and card:FindFirstChild("Token"), "uigate: bundle " .. index .. " has no picture card (#3948)")
+			assert(card:FindFirstChild("Heading").Text == words[1], "uigate: bundle " .. index .. " is headed " .. card:FindFirstChild("Heading").Text .. " (#3948)")
+			local button = card:FindFirstChild("Bundle" .. index)
 			local label = button and button:FindFirstChildWhichIsA("TextLabel", true)
-			assert(button and button.Visible and label and label.Text == words, "uigate: bundle " .. index .. " reads " .. tostring(label and label.Text) .. " (#3864)")
+			assert(button and button.Visible and label and label.Text == words[2], "uigate: bundle " .. index .. " reads " .. tostring(label and label.Text) .. " (#3864)")
 			assert(label.TextFits, "uigate: bundle " .. index .. "'s label does not fit (#3864)")
 		end
 		local odds = 0
@@ -2795,6 +2807,8 @@ local SCENES = {
 		end
 		assert(odds >= 1, "uigate: the token offer shows no odds before the buy buttons (#3864)")
 		local no = offer:FindFirstChild("NoThanks", true)
+		local buy = offer:FindFirstChild("Bundle1", true)
+		assert(math.abs(no.AbsoluteSize.Y - buy.AbsoluteSize.Y) <= 1, "uigate: No thanks is not as big as Buy (#3948)")
 		local bottom = offer.AbsolutePosition.Y + offer.AbsoluteSize.Y
 		assert(no and no.AbsolutePosition.Y + no.AbsoluteSize.Y <= bottom + 1, "uigate: No thanks hangs below the offer (#3864)")
 		press("MysticPool", "TokenOffer.NoThanks")
@@ -2820,6 +2834,16 @@ local SCENES = {
 		end
 		-- #3123: a cat's only copy can be given too, so every owned cat of the room shows one, gate_4's among them
 		assert(dots >= 1, "uigate: " .. dots .. " exhibits show a ! (#2651)")
+		-- #3961 (Derek: names clipped, cells cut off): both rows sit whole above the footer, nothing scrolls
+		local note = window:FindFirstChild("Note", true)
+		for index = 1, 10 do
+			local cell = window:FindFirstChild("Exhibit" .. index, true)
+			if cell ~= nil and cell.Visible then
+				local bottom = cell.AbsolutePosition.Y + cell.AbsoluteSize.Y
+				assert(bottom <= note.AbsolutePosition.Y + 1, "uigate: exhibit " .. index .. " runs under the footer (#3961)")
+				assert(cell.AbsoluteSize.Y >= 60, "uigate: exhibit " .. index .. " is " .. cell.AbsoluteSize.Y .. " px tall (#3961)")
+			end
+		end
 	end },
 	-- #2651 part 4: tapping the exhibit with a ! lists its copies weakest first; the gold copy asks first
 	{ "RelicMuseumGive", function()
@@ -10687,6 +10711,37 @@ local SCENES = {
 		end
 		assert(shown["Golden Whiskers"], "uigate: my cat's trait is not on its trade tile (#3710)")
 		assert(shown["Big Tipper"], "uigate: Sam's cat's trait is not on its trade tile (#3710)")
+	end },
+	-- #3932 (Derek: "in trade the search bar is missing"): the search over the list keeps the matching cards, and says
+	-- so when none match; the list shows a fourth card a row on a phone
+	{ "TradeSearch", function()
+		UI.trade.state(tradeState())
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals").Root.Container:FindFirstChild("Trade")
+		local picks = window:FindFirstChild("Picks", true)
+		local search = picks:FindFirstChild("Search", true)
+		local list = picks:FindFirstChild("List")
+		assert(search and search:IsA("TextBox") and search.Visible, "uigate: the Trade list has no search (#3932)")
+		local function shown(): number
+			local count = 0
+			for _, card in list:GetChildren() do
+				if card:IsA("GuiObject") and card.Visible then
+					count += 1
+				end
+			end
+			return count
+		end
+		local all = shown()
+		search.Text = "zzzz"
+		assert(shown() == 0, "uigate: a search for nothing still shows " .. shown() .. " cards (#3932)")
+		local empty = list.Parent:FindFirstChild("Empty")
+		assert(empty.Visible and empty.Text == 'Nothing matches "zzzz"', "uigate: the empty search reads " .. empty.Text .. " (#3932)")
+		search.Text = "  LEGENDARY "
+		local legendary = shown()
+		search.Text = "common"
+		local common = shown()
+		assert(legendary + common >= 1 and legendary < all and common < all, "uigate: the rarity search shows " .. legendary .. " and " .. common .. " of " .. all .. " cards (#3932)")
+		search.Text = ""
+		assert(shown() == all, "uigate: clearing the search did not bring every card back (#3932)")
 	end },
 	-- F102: Sam just added a cat: "Changed!" over Sam's side, the new tile flashing, both Ready cleared
 	{ "TradeChanged", function()

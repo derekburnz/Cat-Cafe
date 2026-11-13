@@ -40,7 +40,7 @@ return function()
 			expect(#x.gates).to.equal(7)
 			expect(x.gates[7]).to.equal("secret")
 			expect(x.darkAt ~= nil).to.equal(true)
-			for _, plan in { m, x } do
+			for _, plan in { m, x } :: { any } do
 				for i = 2, #plan.gates do
 					-- in order, along the path, about a second apart (never faster than three a second)
 					expect(plan.gateZ[i] > plan.gateZ[i - 1]).to.equal(true)

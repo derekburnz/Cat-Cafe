@@ -917,6 +917,9 @@ function UI.init(config: Types.InitConfig)
 		openFeedback = function()
 			UI.bugReport.open() -- F87: the faces page first
 		end,
+		openIdea = function()
+			UI.bugReport.open("idea") -- #3883: the map theme bubble
+		end,
 	})
 	local hudInstance = hud :: HUD.HUD
 
@@ -1840,6 +1843,14 @@ function UI.update(partial: Types.PartialState)
 	deriveState(partial)
 	render()
 	UI.giftLadder.refresh() -- #2791
+end
+
+-- #3883: the map theme bubble under the Feedback tile now (the UI gate's picture; the HUD shows it by itself)
+function UI.feedbackCallout()
+	local view = hud
+	if view then
+		view:showCallout()
+	end
 end
 
 function UI.getState(): Types.PlayerState

@@ -4457,6 +4457,33 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.tipJar.open()
 	end },
 	-- #1965: the HUD's Pass tile while a season runs, with the Cafe Pass ticket and a reward ready to claim
+	-- #3883: the map theme bubble hangs under the Feedback tile, on the screen, its point at the tile; its X puts it away
+	{ "FeedbackCallout", function()
+		UI.update({ tutorialStep = 5 } :: any)
+		UI.feedbackCallout()
+		local playerGui = UIShim.playerGui
+		local bubble = playerGui:FindFirstChild("FeedbackCallout", true)
+		assert(bubble and bubble.Visible, "uigate: the map theme bubble did not show (#3883)")
+		local tile = playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Icons", true):FindFirstChild("Feedback")
+		local screenW, screenH = UIShim.screen()
+		local x, y = bubble.AbsolutePosition.X, bubble.AbsolutePosition.Y
+		assert(x >= 0 and x + bubble.AbsoluteSize.X <= screenW, "uigate: the map theme bubble runs off the screen's side (#3883)")
+		assert(y >= tile.AbsolutePosition.Y + tile.AbsoluteSize.Y - 2 and y + bubble.AbsoluteSize.Y <= screenH, "uigate: the map theme bubble is not under its tile (#3883)")
+		local words = bubble:FindFirstChild("Words", true)
+		assert(words.Text:find("map theme", 1, true), "uigate: the bubble reads " .. words.Text .. " (#3883)")
+		assert(words.TextFits ~= false, "uigate: the bubble's words do not fit (#3883)")
+		local point = bubble:FindFirstChild("Point")
+		local middle = tile.AbsolutePosition.X + tile.AbsoluteSize.X / 2
+		local pointMiddle = point.AbsolutePosition.X + point.AbsoluteSize.X / 2
+		assert(math.abs(middle - pointMiddle) <= 8, ("uigate: the point is %d px off the tile's middle (#3883)"):format(pointMiddle - middle))
+	end },
+	{ "FeedbackCalloutClose", function()
+		UI.update({ tutorialStep = 5 } :: any)
+		UI.feedbackCallout()
+		local bubble = UIShim.playerGui:FindFirstChild("FeedbackCallout", true)
+		press("CatCafeHUD", "FeedbackCallout.Close")
+		assert(not bubble.Visible, "uigate: the X did not put the map theme bubble away (#3883)")
+	end },
 	{ "HUDPass", function()
 		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
 			levels = 30, paid = false, claimedFree = { 2 }, claimedPaid = {}, claimable = 1, items = {} })

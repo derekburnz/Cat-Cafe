@@ -336,7 +336,7 @@ declare -A retired=(
 funnelTable() { # funnel: the table for one funnel, or its error
 	local funnel=$1 line step label users first=0 previous=0 share lost unit=Runs change= gone=
 	local -a lines=()
-	[[ ${funnel,,} != *onboarding* && ${funnel,,} != first_hour* && ${funnel,,} != playtime* ]] || unit=Players
+	[[ ${funnel,,} != *onboarding* && ${funnel,,} != first_hour* && ${funnel,,} != playtime* && ${funnel,,} != rarity* ]] || unit=Players
 	[ "${funnel,,}" != "${arcadeFunnel,,}" ] || unit="Player days" # #3378: one run per player per UTC day
 	say "#### $funnel"
 	say ""
@@ -653,7 +653,7 @@ if values FunnelUserTotalCount Platform && [ -n "$result" ]; then
 else
 	platformsLogged=(Phone Computer Tablet Console)
 fi
-for funnel in "${cleanFunnel:-$onboardingFunnel}" "${playtimeFunnel:-$firstHourFunnel}" "$arcadeFunnel"; do
+for funnel in "${cleanFunnel:-$onboardingFunnel}" "${playtimeFunnel:-$firstHourFunnel}" "$arcadeFunnel" rarity_v1; do
 	say "#### $funnel by Platform"
 	say ""
 	declare -A cell=() firstOf=() label=()

@@ -33,6 +33,7 @@ export type Modal = {
 	close: (self: Modal) -> (),
 	toggle: (self: Modal, name: string) -> (),
 	current: (self: Modal) -> string?,
+	tuck: (self: Modal, name: string, away: boolean) -> (),
 	destroy: (self: Modal) -> (),
 }
 
@@ -125,6 +126,7 @@ function Modal.new(parent: Instance): Modal
 	self._screens = {} :: { [string]: Screen }
 	self._current = nil :: string?
 	self._closing = nil :: GuiObject? -- the frame still shrinking away after close()
+	self._tucked = nil :: string? -- #3702: the open window's name while it is tucked away
 	self._selectedBefore = nil :: GuiObject? -- #2872: the gamepad selection before the first window opened
 	self._selecting = false -- #2872: a window took the gamepad selection, so closing hands it back
 	self._fitConnection = Scale.changed:Connect(fit)
@@ -159,10 +161,14 @@ function Modal.open(self: any, name: string)
 	local fresh = self._current == nil
 	if self._current then
 		local previous: Screen = self._screens[self._current]
+		-- #3702: a tucked window is no longer tucked once another opens, so its onClose (which may ask to bring it
+		-- back) cannot show it again under the new one
+		self._tucked = nil
 		previous.frame.Visible = false
 		if previous.onClose then
 			previous.onClose()
 		end
+		previous.frame.Visible = false
 	end
 	-- a window still shrinking away goes now, so it never stays up under this one
 	local closing: GuiObject? = self._closing
@@ -170,6 +176,7 @@ function Modal.open(self: any, name: string)
 		closing.Visible = false
 	end
 	self._closing = nil
+	self._tucked = nil
 	self._current = name
 	self.screenGui.Enabled = true
 	self:_dim(Theme.modal.backdropTransparency)
@@ -202,6 +209,7 @@ function Modal.close(self: any)
 	local screen: Screen = self._screens[name]
 	local frame = screen.frame
 	self._closing = frame
+	self._tucked = nil
 	self._current = nil
 	Sound.play("uiClose")
 	self:_dim(1)
@@ -230,6 +238,30 @@ function Modal.close(self: any)
 		local before: GuiObject? = self._selectedBefore
 		self._selectedBefore = nil
 		GamepadNav.restore(before)
+	end
+end
+
+-- #3702: tucks the open window and the dim away for a moment (the Mystic Pool's animation plays in the world behind
+-- it), and brings them back with the window's pop. The window stays the current one throughout, so its state, the
+-- backdrop's tap guard and the gamepad's group are untouched. Bringing back does nothing if that window has closed
+-- or another has opened since.
+function Modal.tuck(self: any, name: string, away: boolean)
+	if self._current ~= name then
+		return
+	end
+	local screen: Screen = self._screens[name]
+	if away then
+		if self._tucked == name then
+			return
+		end
+		self._tucked = name
+		screen.frame.Visible = false
+		self:_dim(1)
+	elseif self._tucked == name then
+		self._tucked = nil
+		screen.frame.Visible = true
+		self:_dim(Theme.modal.backdropTransparency)
+		Tween.popIn(screen.frame)
 	end
 end
 

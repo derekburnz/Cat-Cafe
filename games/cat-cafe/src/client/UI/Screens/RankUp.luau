@@ -58,11 +58,16 @@ export type RankUp = {
 	-- #2915: just ranked up to Tier 2, the button reads `text` ("Fly to the Park") and calls callbacks.fly until the
 	-- next rank up is ready; nil puts it back
 	setFly: (self: RankUp, text: string?) -> (),
+	button: (self: RankUp) -> GuiObject, -- #3555: the Rank up button, for the first rank up's walk-through
 	destroy: (self: RankUp) -> (),
 }
 
 local RankUp = {}
 RankUp.__index = RankUp
+
+function RankUp.button(self: any): GuiObject
+	return self._button.instance
+end
 
 local ROW_HEIGHT = 46
 local TALL = Vector2.new(560, 492) -- the window where the screen has room for it (#2687: 22 px for the perk teaser)

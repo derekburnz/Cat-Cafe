@@ -218,6 +218,8 @@ local function spawnStuck(
 	model:SetAttribute("Area", areaId)
 	model:SetAttribute("LockedBy", 0)
 	model:SetAttribute("HelpedBy", 0) -- F92
+	-- #2912: the cat in the area's starter trap, the one the stuck cat pointer leads to (Effects/StuckCall)
+	model:SetAttribute("Starter", starterSpots[areaId] == spotId)
 	CollectionService:AddTag(model, "StuckCat")
 
 	-- #2335 (Derek2: "make rescue a one click thing instead of hold"): one press of E or one tap of the card's RESCUE
@@ -1015,6 +1017,17 @@ function RescueService.start(builtWorld: WorldBuilder.World)
 			refillStarters()
 		end
 	end)
+end
+
+-- #2912 (StuckGoalService): where the cat in `areaId`'s starter trap is, or nil while the trap is empty or the area
+-- has none.
+function RescueService.starterCat(areaId: string): Vector3?
+	local spotId = starterSpots[areaId]
+	local entry = if spotId ~= nil then stuckCats[spotId] else nil
+	if entry == nil or not entry.alive then
+		return nil
+	end
+	return entry.spot.Position
 end
 
 -- #3050: registers a bar of another kind under its spot id (BinService, at start).

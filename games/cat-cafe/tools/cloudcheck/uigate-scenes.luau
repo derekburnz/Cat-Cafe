@@ -10580,6 +10580,92 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		connection:Disconnect()
 	end },
 	-- #1425: the Passes tab, a grid of pass cards 3 across
+	-- #4026 (Derek 2026-11-13: "a little art image in the actual store and have a little white info button you can click
+	-- for the full breakdown"): with the four pack ids set, the Packs tab shows four art cards, each with its picture,
+	-- name, "Up to +100% money" chip, short line and R$99; the white i opens the breakdown (four pieces, the set and
+	-- +100% in total) inside the window with its R$99, and its X closes it
+	{ "StorePacks", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local keys = { "StylishPackPassId", "WinterPackPassId", "ChefPackPassId", "SpacePackPassId" }
+		local was = {}
+		local prices = storePrices(true)
+		for index, key in keys do
+			was[key] = Config[key]
+			Config[key] = 990000 + index
+			prices[990000 + index] = { robux = 99, forSale = true }
+		end
+		local ok, problem = pcall(function()
+			UI.store.preview(prices, {})
+			UI.open("Store")
+			press("CatCafeModals", "packs")
+			local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
+			local page = window:FindFirstChild("PacksPage", true) :: ScrollingFrame
+			assert(page and page.Visible, "uigate: the Packs tab's page is not up (#4026)")
+			local cards = 0
+			for _, card in page:GetChildren() do
+				if card:IsA("Frame") and card.Visible then
+					cards += 1
+					local art = card:FindFirstChild("Art") :: ImageLabel
+					assert(art and art.Image ~= "", "uigate: " .. card.Name .. " has no art (#4026)")
+					-- the lower part of the 2:1 render (the cats close up), drawn at that part's own shape so nothing stretches
+					local ratio = art.AbsoluteSize.X / math.max(art.AbsoluteSize.Y, 1)
+					local want = art.ImageRectSize.X / art.ImageRectSize.Y
+					assert(art.ImageRectSize.Y > 0 and math.abs(ratio - want) < 0.08, ("uigate: %s's art is %.2f:1, not %.2f:1 (#4026)"):format(card.Name, ratio, want))
+					local info = art:FindFirstChild("Info") :: TextButton
+					assert(info and info.Size.X.Offset >= 36, "uigate: " .. card.Name .. "'s white i is too small to tap (#4026)")
+					local perk = card:FindFirstChild("Perk", true) :: TextLabel
+					assert(perk and perk.Visible and perk.Text == "Up to +100% money", "uigate: " .. card.Name .. "'s chip reads " .. tostring(perk and perk.Text) .. " (#4026)")
+					local name = card:FindFirstChild("Name") :: TextLabel
+					assert(name.TextFits, "uigate: " .. card.Name .. "'s name does not fit (#4026)")
+					local effect = card:FindFirstChild("Effect") :: TextLabel
+					assert(effect.TextFits, "uigate: " .. card.Name .. "'s line runs past its two lines (#4026)")
+					local buy = card:FindFirstChild("Buy", true)
+					local label = buy and buy:FindFirstChildWhichIsA("TextLabel", true)
+					assert(label and string.find(label.Text, "99", 1, true), "uigate: " .. card.Name .. "'s button reads " .. tostring(label and label.Text) .. " (#4026)")
+					-- the words sit under the art, and the button under the words, inside the card
+					assert(name.AbsolutePosition.Y >= art.AbsolutePosition.Y + art.AbsoluteSize.Y, "uigate: " .. card.Name .. "'s name is over its art (#4026)")
+					assert(effect.AbsolutePosition.Y + effect.AbsoluteSize.Y <= buy.AbsolutePosition.Y + 1, "uigate: " .. card.Name .. "'s line runs into Buy (#4026)")
+				end
+			end
+			assert(cards == 4, ("uigate: the Packs tab shows %d cards, not 4 (#4026)"):format(cards))
+			-- the white i of the Winter Pack
+			press("Store", "Pack_packWinter.Info")
+			local sheet = window:FindFirstChild("PackInfo", true) :: GuiObject
+			assert(sheet and sheet.Visible, "uigate: the white i opened no breakdown (#4026)")
+			local title = sheet:FindFirstChild("Title", true) :: TextLabel
+			assert(title.Text == "Winter Pack", "uigate: the breakdown is titled " .. title.Text .. " (#4026)")
+			local lines = sheet:FindFirstChild("Lines", true)
+			local count, last = 0, nil
+			for _, line in lines:GetChildren() do
+				if line:IsA("Frame") then
+					count += 1
+					local piece = line:FindFirstChild("Piece") :: TextLabel
+					assert(piece.TextFits, "uigate: the breakdown's " .. piece.Text .. " does not fit (#4026)")
+					if last == nil or line.LayoutOrder > last.LayoutOrder then
+						last = line
+					end
+				end
+			end
+			assert(count == 6, ("uigate: the breakdown has %d lines, not 6 (#4026)"):format(count))
+			local total = last:FindFirstChild("Bonus") :: TextLabel
+			assert(total.Text == "+100% money", "uigate: the breakdown's total reads " .. total.Text .. " (#4026)")
+			local box = sheet:FindFirstChild("Sheet") :: GuiObject
+			local pageBox = page.Parent :: GuiObject
+			assert(box.AbsolutePosition.Y >= pageBox.AbsolutePosition.Y - 1 and box.AbsolutePosition.Y + box.AbsoluteSize.Y <= pageBox.AbsolutePosition.Y + pageBox.AbsoluteSize.Y + 1, "uigate: the breakdown runs past the Store's page (#4026)")
+			local sheetBuy = sheet:FindFirstChild("Buy", true)
+			local sheetLabel = sheetBuy and sheetBuy:FindFirstChildWhichIsA("TextLabel", true)
+			assert(sheetLabel and string.find(sheetLabel.Text, "99", 1, true), "uigate: the breakdown's button reads " .. tostring(sheetLabel and sheetLabel.Text) .. " (#4026)")
+			local linesBox = lines :: GuiObject
+			assert(linesBox.AbsolutePosition.Y + linesBox.AbsoluteSize.Y <= (sheetBuy :: GuiObject).AbsolutePosition.Y + 1, "uigate: the breakdown's lines run into its Buy (#4026)")
+			press("Store", "PackInfo.Close")
+			assert(not sheet.Visible, "uigate: the X left the breakdown open (#4026)")
+			press("Store", "Pack_packWinter.Info")
+		end)
+		for key, value in was do
+			Config[key] = value
+		end
+		assert(ok, problem)
+	end },
 	{ "StorePasses", function()
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
@@ -10602,7 +10688,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				continue
 			end
 			local card = label.Parent :: Frame
-			local perk = card:FindFirstChild("Perk") :: TextLabel?
+			local perk = card:FindFirstChild("Perk", true) :: TextLabel?
 			local effect = card:FindFirstChild("Effect") :: TextLabel
 			local shown = perk ~= nil and perk.Visible
 			if label.Text == "Cat Accessories" or label.Text == "Uniform Styles" then

@@ -1029,7 +1029,7 @@ return function()
 			for _, tab in StoreLogic.railTabs(true) do
 				table.insert(ids, tab.id)
 			end
-			expect(table.concat(ids, ",")).to.equal("featured,cats,passes,potions,cafePass,codes")
+			expect(table.concat(ids, ",")).to.equal("featured,packs,cats,passes,potions,cafePass,codes") -- #4026: Packs under Featured
 			expect(StoreLogic.railTabs(false)).to.equal(StoreLogic.TABS)
 			expect(#StoreLogic.railTabs(true)).to.equal(#StoreLogic.TABS)
 		end)
@@ -1056,7 +1056,11 @@ return function()
 					{ id = "badge", prize = { potions = {} } },
 					{ id = "odd", prize = {} },
 				},
-				potionNames = { tip = "Big Money Potion", swift = "Swift Potion", steady = "Steady Paw Potion" },
+				potionNames = {
+					tip = "Big Money Potion",
+					swift = "Swift Potion",
+					steady = "Steady Paw Potion",
+				},
 				have = { tip = 3, steady = 2.7, other = 9 },
 			}
 			local bag = StoreLogic.bag(view)
@@ -1094,6 +1098,43 @@ return function()
 				table.insert(none, r.key)
 			end
 			expect(table.concat(none, ",")).to.equal("a,b,c,d,e")
+		end)
+
+		-- #4026: the outfit packs
+		it("gives every outfit pack four pieces worth +100% with the set", function()
+			for _, key in { "stylish", "winter", "chef", "space" } do
+				local pack = StoreLogic.PACKS[key]
+				expect(pack).to.be.ok()
+				expect(#pack.pieces).to.equal(4)
+				expect(StoreLogic.packTotal(key)).to.equal(100)
+				local lines = StoreLogic.packLines(key)
+				expect(#lines).to.equal(6)
+				expect(lines[5].left).to.equal("All four in use")
+				expect(lines[6].right).to.equal("+100% money")
+			end
+			expect(StoreLogic.packTotal("nope")).to.equal(0)
+			expect(#StoreLogic.packLines("nope")).to.equal(0)
+		end)
+
+		it("shows a pack on the Packs tab only once its pass id is set", function()
+			local hidden = StoreLogic.rows({ StylishPackPassId = 0 }, {})
+			expect(#StoreLogic.tabRows(hidden, "packs")).to.equal(0)
+			local rows = StoreLogic.rows(
+				{ StylishPackPassId = 77, WinterPackPassId = 78 },
+				{ [78] = true }
+			)
+			local packs = StoreLogic.tabRows(rows, "packs")
+			expect(#packs).to.equal(2)
+			expect(packs[1].key).to.equal("packStylish")
+			expect(packs[1].pack).to.equal("stylish")
+			expect(packs[1].perk).to.equal("Up to +100% money")
+			expect(packs[1].owned).to.equal(false)
+			expect(packs[2].owned).to.equal(true)
+			local shown = false
+			for _, tab in StoreLogic.tabs(rows) do
+				shown = shown or tab.id == "packs"
+			end
+			expect(shown).to.equal(true)
 		end)
 	end)
 end

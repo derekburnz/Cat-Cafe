@@ -280,7 +280,7 @@ local function onCollect(player: Player, rawExtraId: unknown)
 		player,
 		"camp_extra",
 		count,
-		{ extraId, whatOf(prize, #lostCats), tostring(tier) }
+		{ tostring(extraId), whatOf(prize, #lostCats), tostring(tier) }
 	)
 	Net.fire(player, "CampExtraResult", extraId, true, paid, prize)
 	-- #3361: each lost cat on its own, so an error on one still brings the others, and the sync and the fresh view

@@ -21,7 +21,7 @@ return function()
 			game:GetService("StarterPlayer").StarterPlayerScripts.Client.UI.Components.CodeEntry
 		)
 		local SATURDAY = 1794675600 -- 2026-11-14 17:00 UTC
-		local gift = { id = "2026-11-14", from = SATURDAY, fish = 15, spins = 1 }
+		local gift: UpdateGift.Gift = { id = "2026-11-14", from = SATURDAY, fish = 15, spins = 1 }
 
 		it(
 			"is the launch's 100 golden fish, from 22:03 UTC on Thursday 2026-11-12 (#3420)",
@@ -33,6 +33,18 @@ return function()
 				)
 				expect(live.fish).to.equal(100)
 				expect(live.spins).to.equal(0)
+				-- #3779: it ended at 02:00 UTC on Friday 2026-11-13 and pays nobody new after that
+				expect(os.date("!%Y-%m-%d %H:%M %A", live.to)).to.equal("2026-11-13 02:00 Friday")
+				local to = live.to :: number
+				expect(UpdateGift.due({}, live, to - 1)).to.equal(true)
+				expect(UpdateGift.due({}, live, to)).to.equal(false)
+				expect(UpdateGift.due({}, live, to + 86400)).to.equal(false)
+				-- a gift with no end still pays, and one that ends before it starts gives no notice
+				expect(UpdateGift.due({}, gift, SATURDAY + 86400 * 30)).to.equal(true)
+				local dead: UpdateGift.Gift =
+					{ id = "x1", from = SATURDAY, fish = 5, spins = 0, to = SATURDAY - 10 }
+				expect(UpdateGift.soon({}, dead, SATURDAY - 60)).to.equal(nil)
+				expect(UpdateGift.due({}, dead, SATURDAY + 1)).to.equal(false)
 				expect(UpdateGift.words(live)).to.equal("Update gift! 🐟 100")
 				expect(UpdateGift.prize(live) :: any).to.deepEqual({ fish = 100 })
 				-- the weekly gift keeps its words and prize
@@ -122,7 +134,7 @@ return function()
 			expect(UpdateGift.due(profile.codesRedeemed, nil, SATURDAY)).to.equal(false)
 			profile.codesRedeemed[UpdateGift.key(gift.id)] = SATURDAY
 			expect(UpdateGift.due(profile.codesRedeemed, gift, SATURDAY + 60)).to.equal(false)
-			local nextWeek =
+			local nextWeek: UpdateGift.Gift =
 				{ id = "2026-11-21", from = SATURDAY + 7 * 86400, fish = 15, spins = 1 }
 			expect(UpdateGift.due(profile.codesRedeemed, nextWeek, SATURDAY + 7 * 86400)).to.equal(
 				true

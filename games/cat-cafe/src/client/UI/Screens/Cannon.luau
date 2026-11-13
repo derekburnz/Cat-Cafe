@@ -101,6 +101,7 @@ local PHONE_ART_H, PHONE_CARD_H = 24, 128
 local NAME_GAP = 14 -- the card's name sits this far under the picture (8 on a phone)
 local LAUNCH_INSET = 10 -- Launch's gap to the card's bottom (6 on a phone)
 local EXTRA_H = 40 -- F100: the camp extra's strip, added to the cards while one shows
+local EXTRA_ROOM = 8 -- #3961: more room under the strip in the family look (4 px to LAUNCH read as touching)
 -- #3082: the strip's button, as wide as its word needs, so the station's name and what waits keep their room on a
 -- phone's slim cards (#1463: the Golden Pond's Collect was 84)
 local BUTTON_W = { collect = 66, open = 52 } :: { [string]: number }
@@ -170,6 +171,7 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._open = false
 	self._tick = 0
 	self._seenTier = nil :: number? -- #3884: the tier the picker last knew, from the first synced state
+	self._family = MenuFamily.on() -- #3961: the batch 3 mock's words and chips while the family look is on
 	self._toBreak = {} :: { [string]: boolean } -- #3884: cards whose lock breaks the next time the picker opens
 	self._pal = nil :: { areaId: string, name: string }?
 	self._extras = nil :: Types.CampExtrasState?
@@ -402,6 +404,16 @@ function Cannon._buildCards(self: any)
 			Text = if id == CannonLogic.TOWN then "Cafes and markets" else "",
 			Parent = frame,
 		})
+		if self._family and id ~= CannonLogic.TOWN then
+			-- #3961: the "5/10 cats" chip of the batch 3 mock (render shows its fill on open areas only)
+			count.AnchorPoint = Vector2.new(0.5, 0)
+			count.Position = UDim2.new(0.5, 0, 0, ART_H + NAME_GAP + 27)
+			count.Size = UDim2.fromOffset(96, 18)
+			count.BackgroundColor3 = CREAM.line
+			count.FontFace = Theme.fonts.bodyBold
+			count.TextColor3 = CREAM.text
+			Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = count })
+		end
 		-- F100: the camp extra's strip, shown by render when the area's extra is open
 		local extra: Frame = Create("Frame", {
 			Name = "Extra",
@@ -719,7 +731,18 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		card.nightLine.Visible = ART_H >= 60 -- #2771: not in the phone's slim band
 		if id ~= CannonLogic.TOWN then
 			local counts = IndexRewards.counts(catalog, state, id)
-			card.count.Text = ("%d/%d cats"):format(counts.found, counts.total)
+			-- #3961 (batch 3 mock): in the family look an open area's count is a chip, and a shut one says what waits
+			if self._family and locked then
+				card.count.Text = "New cats wait here"
+				card.count.BackgroundTransparency = 1
+				card.count.Size = UDim2.new(1, -20, 0, 18)
+			else
+				card.count.Text = ("%d/%d cats"):format(counts.found, counts.total)
+				card.count.BackgroundTransparency = if self._family then 0 else 1
+				if self._family then
+					card.count.Size = UDim2.fromOffset(96, 18)
+				end
+			end
 		end
 		local line: CampExtrasLogic.Line? = if locked then nil else self:_line(id)
 		card.extra.Visible = line ~= nil
@@ -756,13 +779,26 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		local enabled = buttonState == "launch" and not pending
 		if card.buttonState ~= buttonState then
 			card.buttonState = buttonState
+			local family = self._family
 			card.launch:setText(
-				if buttonState == "locked"
-					then ("%s Tier %d"):format(Theme.icons.lock :: string, card.tier :: number)
+				if buttonState == "locked" and family
+					then ("Opens at Tier %d"):format(card.tier :: number)
+					elseif buttonState == "locked" then ("%s Tier %d"):format(
+						Theme.icons.lock :: string,
+						card.tier :: number
+					)
 					elseif buttonState == "night" then Theme.icons.moon .. " Sunrise"
 					elseif buttonState == "dusk" then "Night soon"
+					elseif family then "LAUNCH"
 					else "Launch"
 			)
+			if buttonState == "locked" and family then
+				-- #3961 (Studio look): a shut card shows only the lock, not the launch burst beside it
+				card.launch.label.Text = ("%s Opens at Tier %d"):format(
+					Theme.icons.lock :: string,
+					card.tier :: number
+				)
+			end
 		end
 		if card.enabled ~= enabled then
 			card.enabled = enabled
@@ -772,7 +808,10 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 	end
 	if tall ~= self._tall then
 		self._tall = tall
-		self._layout.CellSize = UDim2.fromOffset(CARD.X, CARD.Y + (if tall then EXTRA_H else 0))
+		-- #3961 (Studio look, #3990): in the family look the strip keeps 8 px or more clear of LAUNCH
+		local roomy = if tall and self._family then EXTRA_ROOM else 0
+		self._layout.CellSize =
+			UDim2.fromOffset(CARD.X, CARD.Y + (if tall then EXTRA_H else 0) + roomy)
 	end
 	local notice = CannonLogic.notice(closed, dusk, carrying, if closed then remaining else nil)
 	local plain = if self._cannonId == CannonLogic.TOWN

@@ -146,7 +146,7 @@ def _seg_rail(b, L, shade):
     for i in range(n + 1):
         x = -L / 2 + 0.3 + i * (L - 0.6) / n
         b.box_base((x, 0.45, 1.6), (0.16, 0.16, 3.5), "fur_black", bevel=False)
-        b.pyramid((x, 0.45, 5.1), 0.26, 0.4, "gold_mid")                                       # gilded tips
+        b.sphere((x, 0.45, 5.22), 0.14, "gold_mid", segments=8, rings=5)   # gilded tips: one Ball each, not 3 blocks (#3743)
     for z in (2.2, 4.6):
         b.box((0, 0.45, z), (L - 0.4, 0.14, 0.2), "fur_black", bevel=False)
 
@@ -201,7 +201,7 @@ def _seg_tall(b, L, shade, flowers_b):
     for i in range(n + 1):
         x = -L / 2 + 0.3 + i * (L - 0.6) / n
         b.box_base((x, 1.6, 1.35), (0.16, 0.16, TALL_RAIL - 1.35), "fur_black", bevel=False)
-        b.pyramid((x, 1.6, TALL_RAIL), 0.26, 0.4, "gold_mid")                                  # gilded tips
+        b.sphere((x, 1.6, TALL_RAIL + 0.12), 0.14, "gold_mid", segments=8, rings=5)   # gilded tips (#3743)
     for z in (1.9, TALL_RAIL - 0.5):
         b.box((0, 1.6, z), (L - 0.4, 0.12, 0.18), "fur_black", bevel=False)
     k = max(1, round(L / 7.0))

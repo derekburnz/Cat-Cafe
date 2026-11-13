@@ -14,6 +14,9 @@
 
 local Workspace = game:GetService("Workspace")
 
+local BagColourPicker = require(script.Parent.Parent.Components.BagColourPicker)
+local BagColours =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("BagColours"))
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
@@ -36,6 +39,10 @@ export type Callbacks = {
 	seen: () -> (), -- the first open: MarkMysterySeen clears the cart's "!"
 	close: () -> (),
 	far: (() -> boolean)?, -- true once the player has walked away from the cart
+	-- #3699: whether the switch bagColours is on, and Save on the colour picker (SetBagColours). With either left
+	-- out the owned Backpack's button stays "Owned"
+	colours: (() -> boolean)?,
+	saveColours: ((main: string, trim: string) -> ())?,
 }
 
 export type MysteryMarket = {
@@ -433,14 +440,22 @@ function MysteryMarketScreen._buildLines(self: any, rows: { MysteryLogic.Row })
 end
 
 -- The button's words and whether it can be pressed, with a buy out showing "...".
+-- #3699: an owned Backpack's button opens the colour picker (`colours`: the switch is on).
 local function paintButton(
 	button: Button.Button,
 	row: MysteryLogic.Row,
 	pending: boolean,
-	busy: boolean
+	busy: boolean,
+	colours: boolean
 ): (string, boolean)
-	local label = if pending then "..." else row.button
 	local fish: TextLabel? = button.icon
+	if colours and row.owned and row.id == BagColours.ITEM then
+		if fish then
+			fish.Visible = false
+		end
+		return BagColours.WORDS.open, true
+	end
+	local label = if pending then "..." else row.button
 	if fish then
 		fish.Visible = row.fish and not pending
 	end
@@ -450,6 +465,7 @@ end
 function MysteryMarketScreen._paint(self: any)
 	local view = MysteryLogic.view(self._state, Workspace:GetServerTimeNow())
 	local busy = self._pending ~= nil
+	local colours = self:_colours()
 	local featured = view.featured
 	self._featured.Visible = featured ~= nil
 	if featured ~= nil then
@@ -469,7 +485,7 @@ function MysteryMarketScreen._paint(self: any)
 		self._featuredNote.Text = featured.note or ""
 		self._featuredNote.TextColor3 = if featured.owned then CARD.good else CARD.gold
 		local label, enabled =
-			paintButton(self._featuredBuy, featured, self._pending == featured.id, busy)
+			paintButton(self._featuredBuy, featured, self._pending == featured.id, busy, colours)
 		if label ~= self._featuredLabel then
 			self._featuredLabel = label
 			self._featuredBuy:setText(label)
@@ -492,7 +508,7 @@ function MysteryMarketScreen._paint(self: any)
 	self._othersTitle.Visible = #view.others > 0
 	for index, row in view.others do
 		local line: Line = self._lines[index]
-		local label, enabled = paintButton(line.buy, row, self._pending == row.id, busy)
+		local label, enabled = paintButton(line.buy, row, self._pending == row.id, busy, colours)
 		if label ~= line.label then
 			line.label = label
 			line.buy:setText(label)
@@ -503,11 +519,45 @@ function MysteryMarketScreen._paint(self: any)
 		end
 		line.note.Text = row.note or ""
 		line.note.TextColor3 = if row.owned then CARD.good else CARD.gold
-		local faded = if row.owned then 0.4 else 0
+		local faded = if row.owned and not (colours and row.id == BagColours.ITEM) then 0.4 else 0
 		line.name.TextTransparency = faded
 		line.text.TextTransparency = faded
 	end
 	self._have.Text = string.format("You have %s golden fish", ShortNumber.format(view.fish))
+end
+
+-- #3699: whether the owned Backpack's button opens the colour picker.
+function MysteryMarketScreen._colours(self: any): boolean
+	local callbacks: Callbacks = self._callbacks
+	return callbacks.saveColours ~= nil and callbacks.colours ~= nil and callbacks.colours()
+end
+
+-- #3699: the colour picker in place of the shelf, and back. The picker is built on its first open.
+function MysteryMarketScreen._showPicker(self: any, shown: boolean)
+	local picker: any = self._picker
+	if shown then
+		if picker == nil then
+			picker = BagColourPicker.new(self._panel.content, {
+				save = function(main: string, trim: string)
+					local save = (self._callbacks :: Callbacks).saveColours
+					if save ~= nil then
+						save(main, trim)
+					end
+				end,
+				back = function()
+					self:_showPicker(false)
+				end,
+			})
+			self._picker = picker
+		end
+		local current: any = self._state
+		local saved = if current ~= nil then current.bagColours else nil
+		picker:open(if type(saved) == "table" then saved else nil)
+	elseif picker ~= nil then
+		picker:close()
+	end
+	self._body.Visible = not shown
+	self._have.Visible = not shown
 end
 
 function MysteryMarketScreen._press(self: any, itemId: string?)
@@ -520,6 +570,10 @@ function MysteryMarketScreen._press(self: any, itemId: string?)
 		table.insert(rows, view.featured)
 	end
 	for _, row in rows do
+		if row.id == itemId and row.owned and itemId == BagColours.ITEM and self:_colours() then
+			self:_showPicker(true)
+			return
+		end
 		if row.id == itemId and row.enabled then
 			self._pending = itemId
 			self._token += 1
@@ -545,6 +599,11 @@ function MysteryMarketScreen.render(self: any, state: Types.PlayerState)
 		self._token += 1
 	end
 	self:_paint()
+	local picker: BagColourPicker.BagColourPicker? = self._picker
+	if picker ~= nil then
+		local saved = (state :: any).bagColours
+		picker:saved(if type(saved) == "table" then saved else nil) -- #3699: answers a Save that was out
+	end
 end
 
 -- While open the countdowns move once a second and walking away closes it; the first open clears the cart's "!".
@@ -575,12 +634,16 @@ end
 function MysteryMarketScreen.closed(self: any)
 	self._open = false
 	self._tick += 1
+	self:_showPicker(false) -- #3699: the window opens on the shelf next time
 end
 
 function MysteryMarketScreen.destroy(self: any)
 	self._open = false
 	self._tick += 1
 	self:_clearLines()
+	if self._picker ~= nil then
+		self._picker:destroy()
+	end
 	self._featuredBuy:destroy()
 	self._panel:destroy()
 end

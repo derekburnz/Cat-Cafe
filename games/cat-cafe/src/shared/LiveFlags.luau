@@ -77,6 +77,9 @@
 -- - `rankUpSpotlight` (#3555): the first rank up's walk-through, the tutorial's dim and pointer on the goal card and
 --   then on the rank up button, once the server says the rank up is possible and the player is in the safe area
 --   (shared/RankSpot). It starts OFF (OFF_BY_DEFAULT).
+-- - `bagColours` (#3699): the Backpack's owner picks its two colours at the Featured Shop (shared/BagColours); off,
+--   SetBagColours is refused, the card has no Colours button and every bag wears the built colours. It starts OFF
+--   (OFF_BY_DEFAULT) and goes on only after a restart, so every server keeps the saved picks.
 -- - `menuFamily` (#3558): the station menu family's look for every dark window (client/UI/Components/MenuFamily).
 --   It starts OFF (OFF_BY_DEFAULT); read by the client alone. A window open when it flips keeps its look until
 --   it is opened again.
@@ -120,6 +123,7 @@ LiveFlags.KEYS = {
 	"parkGateTrail",
 	"touchCatchReach",
 	"rankUpSpotlight",
+	"bagColours",
 	"menuFamily",
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -144,6 +148,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	parkGateTrail = true,
 	touchCatchReach = true,
 	rankUpSpotlight = true,
+	bagColours = true,
 	menuFamily = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

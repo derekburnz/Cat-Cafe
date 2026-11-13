@@ -102,7 +102,7 @@ Catalog.rarities = {
 		shrinkSeconds = 0.50,
 		catchWindow = 0.64,
 		trustNeed = 26,
-		moods = { Sleepy = 20, Curious = 30, Skittish = 50 }, -- as Mythical
+		moods = { Sleepy = 0, Curious = 38, Skittish = 62 }, -- #3545: never Sleepy, so it always roams
 		doubleRings = true,
 		pawRings = true,
 		fleeStuds = 72,

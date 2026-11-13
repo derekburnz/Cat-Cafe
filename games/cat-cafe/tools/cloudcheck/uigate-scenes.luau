@@ -7718,6 +7718,21 @@ local SCENES = {
 		UI.parkTrail.set(nil, "Visit the Park 🐾") -- the picture
 		UIShim.advance(0.1)
 	end },
+	-- #3558: one menu look for a whole session. The switch flipping after the UI was built changes nothing here, so no
+	-- window can end up with cream cards under white words; the flip reaches a player at their next join.
+	{ "MenuFamilyLatch", function()
+		local MenuFamily = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily")
+		local RS = game:GetService("ReplicatedStorage")
+		local name = "LiveFlag_" .. MenuFamily.FLAG
+		local was = RS:GetAttribute(name)
+		local on = MenuFamily.on()
+		local card = MenuFamily.card.card
+		RS:SetAttribute(name, not on)
+		assert(MenuFamily.on() == on, "uigate: the menu look followed a mid-session switch flip (#3558)")
+		assert(MenuFamily.card.card == card, "uigate: the card colour followed a mid-session switch flip (#3558)")
+		RS:SetAttribute(name, was)
+		UI.open("Quests")
+	end },
 	-- #3555: the first rank up's walk-through: the goal card lit with "You can rank up!", then the rank up window's
 	-- button with "Press to rank up", and a press on the dim tells the caller. Nothing is left once it is closed.
 	{ "RankSpotlight", function()

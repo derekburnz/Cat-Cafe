@@ -108,7 +108,7 @@ local tintOrder: { string } = {}
 local tintLife: { [string]: number } = {}
 
 local function retire(key: string)
-	local emitter = pool[key]
+	local emitter: ParticleEmitter? = pool[key]
 	pool[key] = nil
 	local life = tintLife[key] or 0
 	tintLife[key] = nil

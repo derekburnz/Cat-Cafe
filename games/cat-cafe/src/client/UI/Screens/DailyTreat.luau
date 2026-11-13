@@ -99,7 +99,9 @@ function DailyTreat.new(callbacks: Callbacks): DailyTreat
 	self._pendingAt = nil :: number? -- os.clock() of the last Claim press
 	self._shown = false -- what status last said
 	self._due = false
-	if Scale.isPhone() then
+	-- #3974 (Studio, a 667x375 mouse window: day 5's Tomorrow chip cut): any short screen, mouse or touch, as the top
+	-- bar takes 58 px off a short PC window too and the tall cards' second row no longer fits
+	if Scale.isShort() then
 		CARD = Vector2.new(CARD.X, PHONE_CARD_H)
 		STRIP_HEIGHT = PHONE_STRIP_H
 	end

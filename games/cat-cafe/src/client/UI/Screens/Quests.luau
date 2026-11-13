@@ -212,13 +212,15 @@ local function keepClear(area: Frame, buttons: { GuiObject }, unit: number, gap:
 		local right = area.AbsolutePosition.X + area.AbsoluteSize.X + 0.5
 		for _, row in area:GetChildren() do
 			if row:IsA("GuiObject") then
-				for _, chip in row:GetChildren() do
-					if
-						chip:IsA("GuiObject")
-						and chip.Visible
-						and chip.AbsolutePosition.X + chip.AbsoluteSize.X > right
-					then
-						chip.Visible = false
+				for _, child in row:GetChildren() do
+					if child:IsA("GuiObject") then
+						local chip = child :: GuiObject
+						if
+							chip.Visible
+							and chip.AbsolutePosition.X + chip.AbsoluteSize.X > right
+						then
+							chip.Visible = false
+						end
 					end
 				end
 			end

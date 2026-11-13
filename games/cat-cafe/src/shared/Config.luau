@@ -1042,11 +1042,13 @@ local Config = {
 	-- zone with the Alleyway's ease (0.30 x 1.4), and 0.85 x 0.75 bar lengths a second.
 	-- #3458 (Derek 2026-11-12: "make the game require 5 hits and medium bit faster and a lot smaller area"): the
 	-- bin's own hit count (BinHits, never the rescue's), its zone 0.42 to 0.22 and its marker 0.64 to 0.80. The
-	-- first BinFirstUses rummages keep BinFirstEase (0.35 at 0.48) and need the 5 hits too.
+	-- first BinFirstUses rummages keep BinFirstEase's wider zone (0.35) and need the 5 hits too. Their marker runs
+	-- at the full BinBarSpeed since 2026-11-12 (Derek on the live game: "the moving marker is too slow not the same
+	-- speed as the studio version"): a new account saw 0.48 where his practised Studio save saw 0.80.
 	BinHits = 5,
 	BinZoneWidth = 0.22,
 	BinBarSpeed = 0.80,
-	BinFirstEase = { zone = 1.6, speed = 0.6 },
+	BinFirstEase = { zone = 1.6, speed = 1 },
 	-- #3460 (Derek 2026-11-12: "make the rummage bin rewards a bit better so people get a good starting boost
 	-- also"): an account's first three wins are these fixed prizes in order, their own rows apart from BinTable, so
 	-- they never change the rolled chances. A row may hold more than one thing; `count` is how many of its lure,
@@ -1207,7 +1209,10 @@ local Config = {
 	MouseDashPairChance = 0.20,
 	MouseDashPairKittenFrom = 40,
 	MouseDashHeartBackEvery = 10, -- catches in a row for a heart back
-	MouseDashDizzySeconds = 0.40, -- after a tap on an empty hole
+	MouseDashDizzySeconds = 0.40, -- after a tap on an empty hole (which costs a heart since 2026-11-12)
+	-- Derek 2026-11-12, on the live game: "make a timer for how long left in the minigame". A run has this long from
+	-- its first mouse; a perfect 100 point win takes up to about 110 s, so the clock ends only a slow run.
+	MouseDashRunSeconds = 180,
 	MouseDashFirstRunMice = 3, -- a first ever run opens with this many slow mice that cannot cost a heart
 	MouseDashFirstRunWindow = 2.0,
 	MouseDashMouserAt = 50, -- points for the Mouser title

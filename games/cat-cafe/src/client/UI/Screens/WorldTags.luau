@@ -36,6 +36,7 @@ local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local ProgressRing = require(script.Parent.Parent.Components.ProgressRing)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
+local TagHeight = require(script.Parent.Parent.Components.TagHeight)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
@@ -122,6 +123,11 @@ local function anchorOf(model: Instance): (BasePart?, number)
 	return part, top - part.Position.Y
 end
 
+-- Where a rate tag hangs: its middle, `height` studs (the model's top) over the anchor part's centre plus a gap.
+local function rateOffset(height: number): Vector3
+	return Vector3.new(0, height + (RATE_SIZE.Y + NAME_HEIGHT) / 2 + 0.3, 0)
+end
+
 -- `rates`: the Cat income switch (#2551), on when left out.
 function WorldTags.new(rates: boolean?): WorldTags
 	local self = setmetatable({}, WorldTags) :: any
@@ -137,6 +143,41 @@ function WorldTags.new(rates: boolean?): WorldTags
 	self._night = false
 	self._rates = rates ~= false -- #2551: the Cat income switch
 	self._destroyed = false
+	-- #3696: each rate tag's height over its anchor part, kept on the model's top as the cat stands up or is
+	-- dressed (Components/TagHeight)
+	self._heights = {} :: { [Instance]: number }
+	task.spawn(function()
+		while not self._destroyed do
+			task.wait(TagHeight.CHECK_SECONDS)
+			local camera = Workspace.CurrentCamera
+			local eye = if camera ~= nil then camera.CFrame.Position else nil
+			for cat, billboard: BillboardGui in self._labels do
+				local current: number? = self._heights[cat]
+				if current == nil or not billboard.Enabled then
+					continue
+				end
+				-- a tag past RATE_DISTANCE is not drawn, so its cat is not measured (Review-QA's cost note)
+				local hung = billboard.Parent
+				if
+					eye ~= nil
+					and hung ~= nil
+					and hung:IsA("BasePart")
+					and not TagHeight.near((hung.Position - eye).Magnitude, RATE_DISTANCE)
+				then
+					continue
+				end
+				local part, measured = anchorOf(cat)
+				if part == nil or part ~= billboard.Parent then
+					continue
+				end
+				local settled = TagHeight.settle(current, measured)
+				if settled ~= current then
+					self._heights[cat] = settled
+					billboard.StudsOffsetWorldSpace = rateOffset(settled)
+				end
+			end
+		end
+	end)
 
 	for _, cat in CollectionService:GetTagged(CAT_TAG) do
 		self:_attachCat(cat)
@@ -280,7 +321,7 @@ function WorldTags._attachCat(self: any, cat: Instance)
 	local billboard: BillboardGui = Create("BillboardGui", {
 		Name = "CatCafeRateTag",
 		Size = UDim2.new(RATE_SIZE.X, RATE_MIN.X, RATE_SIZE.Y + NAME_HEIGHT, RATE_MIN.Y),
-		StudsOffsetWorldSpace = Vector3.new(0, height + (RATE_SIZE.Y + NAME_HEIGHT) / 2 + 0.3, 0),
+		StudsOffsetWorldSpace = rateOffset(height),
 		MaxDistance = RATE_DISTANCE,
 		LightInfluence = 0,
 		ResetOnSpawn = false,
@@ -335,9 +376,11 @@ function WorldTags._attachCat(self: any, cat: Instance)
 	end
 	billboard.Parent = part
 	self._labels[cat] = billboard
+	self._heights[cat] = height
 	self._renders[cat] = render
 	local function making()
-		self:_renderMaking(cat, part, height + RATE_SIZE.Y + NAME_HEIGHT + 0.3)
+		local now: number = self._heights[cat] or height
+		self:_renderMaking(cat, part, now + RATE_SIZE.Y + NAME_HEIGHT + 0.3)
 	end
 	local function retime()
 		self:_retimeMaking(cat)
@@ -642,6 +685,7 @@ function WorldTags._detach(self: any, model: Instance)
 	self._making[model] = nil
 	local label: BillboardGui? = self._labels[model]
 	self._labels[model] = nil -- first, so the tag's own AncestryChanged does not take it for a lost one
+	self._heights[model] = nil
 	if label then
 		label:Destroy()
 	end

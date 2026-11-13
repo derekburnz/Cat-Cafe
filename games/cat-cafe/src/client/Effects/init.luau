@@ -64,6 +64,8 @@ local NetTrail = require(script.NetTrail)
 local Orders = require(script.Orders)
 local PalWave = require(script.PalWave)
 local PassThanks = require(script.PassThanks)
+local PawTrail = require(script.PawTrail)
+local PetCat = require(script.PetCat)
 local Pity = require(script.Pity)
 local Plots = require(script.Plots)
 local Potions = require(script.Potions)
@@ -90,6 +92,7 @@ local Themes = require(script.Themes)
 local Townsfolk = require(script.Townsfolk)
 local Trade = require(script.Trade)
 local TrailSparkle = require(script.TrailSparkle)
+local Trampoline = require(script.Trampoline)
 local WaitingCat = require(script.WaitingCat)
 local Wheel = require(script.Wheel)
 
@@ -119,6 +122,7 @@ function Effects.start()
 		PullHop.start,
 		CampExtras.start,
 		PalWave.start,
+		PetCat.start,
 		Signature.start,
 		Catch.start,
 		CatchReact.start,
@@ -179,6 +183,7 @@ function Effects.start()
 		ArcadeGlow.start,
 		RuinsWater.start,
 		TrailSparkle.start,
+		PawTrail.start,
 		GoldenFind.start,
 		MoneyBag.start,
 		StationBuild.start,
@@ -186,6 +191,7 @@ function Effects.start()
 		StrayCall.start,
 		CampGrowth.start,
 		Townsfolk.start,
+		Trampoline.start,
 	}
 	task.spawn(function()
 		local slice = os.clock()

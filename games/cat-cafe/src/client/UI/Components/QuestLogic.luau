@@ -14,6 +14,8 @@
 --   swapFree(quests, used) -> boolean            a free swap waits on an unfinished quest (the Weekly tab's dot)
 --   achievementRows(catalog, views) -> rows      ready to claim first, then the closest to done, claimed last
 --   claimedCount(catalog, views) -> number       achievements claimed ("12 of 44")
+--   hoursText(def, progress) -> string?          #3694: a play time achievement's count in whole hours ("27/50
+--                                                hours"); nil for every other measure
 -- Pure: no Theme, Format or CFrame, so the cloud test runner checks it.
 
 local Types = require(script.Parent.Parent.Types)
@@ -238,6 +240,18 @@ function QuestLogic.claimedCount(
 		end
 	end
 	return count
+end
+
+-- #3694 (Derek's picture: Devoted read "97,153/360,000", seconds): play time counts in whole hours, rounded down so
+-- the bar never says done early.
+local HOUR = 3600
+function QuestLogic.hoursText(def: Types.AchievementDef, progress: number): string?
+	if def.measure ~= "playtimeSeconds" then
+		return nil
+	end
+	local needs = math.max(1, math.floor(def.needs / HOUR + 0.5))
+	local have = math.clamp(math.floor(math.max(0, progress) / HOUR), 0, needs)
+	return ("%d/%d %s"):format(have, needs, if needs == 1 then "hour" else "hours")
 end
 
 return QuestLogic

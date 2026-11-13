@@ -54,9 +54,11 @@ jobs:
           comm -12 merged_pr_heads.txt tips.txt | cut -d' ' -f1 | sort -u > merged_pr.txt
           # Branches already in main by ancestry, but only when their last commit is over 2 days old: a branch
           # just made from main (no commits of its own yet, like a new claude/* session branch) is kept.
+          # (grep ends with 1 when nothing is left, which stopped the whole run under pipefail on a day with no
+          # such branch, 2026-11-12; so its exit is ignored)
           cutoff=$(date -u -d '2 days ago' +%s)
           git for-each-ref --merged origin/main --format='%(refname:lstrip=3) %(committerdate:unix)' refs/remotes/origin \
-            | awk -v c="$cutoff" '$2 < c {print $1}' | grep -v -x -e HEAD -e main -e origin | sort -u > in_main.txt
+            | awk -v c="$cutoff" '$2 < c {print $1}' | { grep -v -x -e HEAD -e main -e origin || true; } | sort -u > in_main.txt
           git branch -r --format='%(refname:short)' | sed 's#^origin/##' | grep -v -x -e HEAD -e main -e origin | sort -u > all.txt
           set -f
           printf '%s\n' $ALSO_DELETE | { grep -v -x -e '' -e main -e HEAD || true; } | sort -u > also.txt

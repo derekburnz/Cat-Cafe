@@ -14,7 +14,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CafeService = require(script.Parent.CafeService)
-local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
@@ -35,8 +34,7 @@ local rng = Random.new()
 
 -- Whether `profile`'s player can use the station now (CafeService.traitsView reads the same).
 function TraitService.open(profile: Profile): boolean
-	return LiveFlagService.on(Traits.FLAG)
-		and CampExtras.isOpen(Traits.STATION_EXTRA, Economy.tier(profile))
+	return LiveFlagService.on(Traits.FLAG) and Traits.openAt(Economy.tier(profile))
 end
 
 -- Adds `count` Trait Tokens from `source` (a spin, the Daily Treat, a quest set, Lost and Found, a code) and logs

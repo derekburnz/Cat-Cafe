@@ -47,6 +47,7 @@ local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local NetPing = require(ReplicatedStorage.Shared.NetPing)
+local NewKind = require(ReplicatedStorage.Shared.NewKind)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
@@ -58,6 +59,7 @@ local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SessionFeedback = require(ReplicatedStorage.Shared.SessionFeedback)
 local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
+local StepGaps = require(ReplicatedStorage.Shared.StepGaps)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
 local Types = require(ReplicatedStorage.Shared.Types)
 local UpgradePace = require(ReplicatedStorage.Shared.UpgradePace)
@@ -209,6 +211,12 @@ export type CustomEvent =
 	| "first_bait_wait"
 	-- #2774: an onboarding step reached, value the account's seconds of play then; the step name
 	| "step_time"
+	-- #3530 (shared/StepGaps): the later step of a gap reached, value the seconds since its first step (0 when not
+	-- known); the gap, the bucket (under_15s, 15_60s, 60_120s, over_120s, earlier_visit or no_start)
+	| "step_gap"
+	-- #3530: beside quit_state, value the session's seconds; kinds of cat ("0" to "5"), coins as a share of Tier 2's
+	-- cost (under_25, 25_50, 50_75, 75_plus), ready or not_ready (Tier 2's needs met: rank_up_ready_quit)
+	| "quit_have"
 	-- #3098 (shared/FirstFive, below Tier 2): a step became possible, value the account's seconds of play; the step
 	-- (table_afford, bowl_afford, second_stray_up), kind (coins or stray), device
 	| "step_ready"
@@ -319,6 +327,21 @@ export type CustomEvent =
 	| "tutorial_closed"
 	-- #2915: the first Park landing's hint, value 1, each kind once a session; toast or ring (PARK_HINTS)
 	| "park_first_hint"
+	-- #3554: the walk to a first Park catch, value 1, each once a session; the tier (PARK_TRAIL)
+	| "park_gate_trail_shown"
+	| "park_entered_first"
+	| "park_first_catch"
+	-- #3556: once a session each, value 1: first time near a free stray, and the first in-reach glow; the device,
+	-- the tier (CATCH_REACH)
+	| "stray_near_first"
+	-- #3555: the first rank up's walk-through. rank_up_ready_first (value 1) and rank_up_pressed_first (value the
+	-- seconds from ready to the rank up) from RankSpotService, once a session; shown and closed from the client
+	-- (RANK_SPOT), value 1, once a session each; the device
+	| "rank_up_ready_first"
+	| "rank_up_pressed_first"
+	| "rank_up_spotlight_shown"
+	| "rank_up_spotlight_closed"
+	| "catch_prompt_shown_first"
 	-- #2946: the first bait's cutscene ended, value 1, once a session; shown, skipped or none (CUT_OUTCOMES)
 	| "first_bait_cutscene"
 	-- #1888: each join, value 1; where it came from (JoinSource), "new" or "returning", tier
@@ -411,6 +434,7 @@ local REPORTS = {
 	"screen",
 	"tutorial_closed",
 	"store_opened", -- #1888: the Store opened, from StoreFunnel.SOURCES
+	"new_kind_trail", -- #3529: the five cats trail showed or was followed (shared/NewKind.REPORTS)
 	"stray_call", -- #3378: the waiting stray's call played for this player; the value is the call's number (1 to 4)
 	"store_tab", -- #1888: a Store tab shown, StoreFunnel.TABS
 	"store_buy", -- #1888: a buy button pressed, the pass or product id
@@ -424,6 +448,9 @@ local REPORTS = {
 	"event_rsvp", -- #2766: the update Event's Notify Me ask, RSVP_KINDS
 	"screen_short", -- #2913: the viewport's short side in px, SCREEN_SHORTS, once a session
 	"park_first_hint", -- #2915: the first Park landing's hint shown, PARK_HINTS
+	"park_trail", -- #3554: the walk to a first Park catch: shown, entered or caught (PARK_TRAIL)
+	"rank_spot", -- #3555: the rank up walk-through shown or closed (RANK_SPOT)
+	"catch_reach", -- #3556: first time near a stray, first in-reach glow: near or shown (CATCH_REACH)
 	"first_bait_cutscene", -- #2946: how the first bait's cutscene ended, CUT_OUTCOMES
 	"health_mem", -- #3098: the client's total memory in MB (0 to FirstFive.MEMORY_MAX), sent just before health_fps
 	"health_fps", -- #3098: the client's frames a second (0 to FirstFive.FPS_MAX), once a session (health_check)
@@ -443,6 +470,22 @@ local INTRO_CHOICES = 5
 -- #2915: the first Park landing's toast, and the soft ring on the nearest stray after 90 s with no Park catch; each
 -- once a session
 local PARK_HINTS = { "toast", "ring" }
+-- #3555: the client's rank_spot report to the event it logs (shared/RankSpot)
+local RANK_SPOT: { [string]: CustomEvent } = {
+	shown = "rank_up_spotlight_shown",
+	closed = "rank_up_spotlight_closed",
+}
+-- #3556: the client's catch_reach report to the event it logs (shared/TouchReach)
+local CATCH_REACH: { [string]: CustomEvent } = {
+	near = "stray_near_first",
+	shown = "catch_prompt_shown_first",
+}
+-- #3554: the client's park_trail report to the event it logs (UI/Components/ParkTrailLogic)
+local PARK_TRAIL: { [string]: CustomEvent } = {
+	shown = "park_gate_trail_shown",
+	entered = "park_entered_first",
+	caught = "park_first_catch",
+}
 -- #2946: the first bait's cutscene played to the end, was tapped through, or could not play (Reduce Motion, a busy
 -- camera, no cat in time); once a session
 local CUT_OUTCOMES = { "shown", "skipped", "none" }
@@ -511,6 +554,9 @@ type Session = {
 	uiOpened: { [string]: boolean }, -- ui_opened logged this session, by screen, so a flood logs each once (review)
 	tutorialClosed: boolean, -- #1273: tutorial_closed logged this session
 	parkHints: { [string]: boolean }, -- #2915: park_first_hint logged this session, by kind
+	parkTrail: { [string]: boolean }, -- #3554: park_trail logged this session, by kind
+	catchReach: { [string]: boolean }, -- #3556: catch_reach logged this session, by kind
+	rankSpot: { [string]: boolean }, -- #3555: rank_spot logged this session, by kind
 	firstBaitCut: boolean, -- #2946: first_bait_cutscene logged this session
 	source: string, -- #1888: where the join came from (JoinSource.parse of the launch data)
 	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
@@ -540,6 +586,7 @@ type Session = {
 	healthMem: string?, -- #3098 P2: the memory bucket the client reported, for health_check
 	healthLogged: boolean, -- #3098 P2: health_check logged this session
 	introShot: number, -- #3098 P1b: the furthest intro shot the client reported this session (0 none)
+	stepClock: { [string]: number }, -- #3530: os.clock() when a step_gap step was reached this session
 }
 
 -- #2916: one next goal shown: where ("recap" or "join") and os.time() it was shown
@@ -795,7 +842,28 @@ function Telemetry.onboarding(
 	stepName: Onboarding.StepName,
 	values: { string }?
 )
-	for _, name in Onboarding.reach(profile.telemetry, stepName) do
+	-- #3530: the gaps that end here, read before the step moves anything
+	local session = sessions[player]
+	local fresh = not Onboarding.reached(profile.telemetry, stepName)
+	local gaps: { { gap: StepGaps.Gap, startReached: boolean } } = {}
+	if fresh then
+		for _, gap in StepGaps.endingAt(stepName) do
+			table.insert(gaps, {
+				gap = gap,
+				startReached = Onboarding.reached(
+					profile.telemetry,
+					gap.from :: Onboarding.StepName
+				),
+			})
+		end
+	end
+	local reach = Onboarding.reachDetail(profile.telemetry, stepName)
+	-- #3530: a step put on hold is timed now, when it happened (first_bait_resolved used to wait for the rescue
+	-- steps in front of it and read as a 172 second bait wait); it is not timed again when the funnel lets it go
+	for _, name in reach.held do
+		Telemetry.stepTime(player, profile, name)
+	end
+	for _, name in reach.log do
 		local step = Onboarding.index(name)
 		local fields = grouped(profile, if name == stepName and values ~= nil then values else {})
 		remember(player, "onboarding", name, step, fields)
@@ -810,7 +878,9 @@ function Telemetry.onboarding(
 			)
 		end)
 		-- #2774 (Derek2: "setup funnels"): when in the account's play the step came, once per step
-		Telemetry.stepTime(player, profile, name)
+		if not reach.released[name] then
+			Telemetry.stepTime(player, profile, name)
+		end
 		for _, listener in stepListeners do
 			local ok, err = pcall(function()
 				listener(player, name)
@@ -818,6 +888,17 @@ function Telemetry.onboarding(
 			if not ok then
 				warn("[Telemetry] step listener: " .. tostring(err))
 			end
+		end
+	end
+	if fresh and session ~= nil then
+		local now = os.clock()
+		for _, entry in gaps do
+			local seconds, bucket =
+				StepGaps.measure(entry.startReached, session.stepClock[entry.gap.from], now)
+			Telemetry.custom(player, "step_gap", seconds, { entry.gap.name, bucket })
+		end
+		if StepGaps.marks(stepName) then
+			session.stepClock[stepName] = now
 		end
 	end
 end
@@ -1796,6 +1877,17 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.introChoices += 1
 			Telemetry.custom(player, "intro_choice", 1, { from })
 		end
+	elseif name == "new_kind_trail" then
+		-- #3529: once a session each, as step_time, and only with the switch on
+		local step = if type(rawValue) == "string" then NewKind.REPORTS[rawValue] else nil
+		if
+			step ~= nil
+			and LiveFlagService.on(NewKind.FLAG)
+			and not session.nudges["new_kind:" .. step]
+		then
+			session.nudges["new_kind:" .. step] = true
+			Telemetry.stepTime(player, profile, step)
+		end
 	elseif name == "stray_call" then
 		local number = Guard.int(rawValue, 1, 4) -- #3378
 		if number ~= nil then
@@ -1895,6 +1987,43 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if kind ~= nil and not session.parkHints[kind] then
 			session.parkHints[kind] = true
 			Telemetry.custom(player, "park_first_hint", 1, { kind })
+		end
+	elseif name == "park_trail" then
+		local kind = Guard.oneOf(rawValue, { "shown", "entered", "caught" })
+		local event = if kind ~= nil then PARK_TRAIL[kind] else nil
+		if kind ~= nil and event ~= nil and not session.parkTrail[kind] and profile.tier >= 2 then
+			session.parkTrail[kind] = true
+			Telemetry.custom(player, (event :: any) :: CustomEvent, 1, { tierText(profile) })
+		end
+	elseif name == "rank_spot" then
+		local kind = Guard.oneOf(rawValue, { "shown", "closed" })
+		local event = if kind ~= nil then RANK_SPOT[kind] else nil
+		-- only a player the server said may see it (the attribute RankSpotService sets), or one who just had it
+		if
+			kind ~= nil
+			and event ~= nil
+			and not session.rankSpot[kind]
+			and (player:GetAttribute("RankSpotlight") == true or session.rankSpot.shown)
+		then
+			session.rankSpot[kind] = true
+			Telemetry.custom(
+				player,
+				(event :: any) :: CustomEvent,
+				1,
+				{ session.device or "unknown" }
+			)
+		end
+	elseif name == "catch_reach" then
+		local kind = Guard.oneOf(rawValue, { "near", "shown" })
+		local event = if kind ~= nil then CATCH_REACH[kind] else nil
+		if kind ~= nil and event ~= nil and not session.catchReach[kind] then
+			session.catchReach[kind] = true
+			Telemetry.custom(
+				player,
+				(event :: any) :: CustomEvent,
+				1,
+				{ session.device or "unknown", tierText(profile) }
+			)
 		end
 	elseif name == "first_bait_cutscene" then
 		local outcome = Guard.oneOf(rawValue, CUT_OUTCOMES)
@@ -2086,6 +2215,9 @@ local function onLoaded(player: Player, profile: Profile)
 		uiOpened = {},
 		tutorialClosed = false,
 		parkHints = {},
+		parkTrail = {},
+		catchReach = {},
+		rankSpot = {},
 		firstBaitCut = false,
 		source = JoinSource.ORGANIC,
 		joinEvent = "",
@@ -2102,6 +2234,7 @@ local function onLoaded(player: Player, profile: Profile)
 		feedbackAsks = 0,
 		feedbackEnds = 0,
 		readyLogged = {},
+		stepClock = {},
 		stallStep = profile.telemetry.onboardingStep,
 		stallSince = os.clock(),
 		stallLogged = {},
@@ -2352,6 +2485,19 @@ local function onRelease(player: Player, profile: Profile)
 			where,
 			(if carrying then "carry" else "empty") .. (if baiting then " bait" else " nobait"),
 		})
+		-- #3530: what they had: short of cats or short of money, and whether they could have ranked up
+		local tier2 = Catalog.getTier(2)
+		Telemetry.custom(
+			player,
+			"quit_have",
+			played,
+			StepGaps.quitFields(
+				Economy.rankUpCatCount(profile.collection),
+				profile.coins,
+				if tier2 ~= nil then tier2.cost else 0,
+				Economy.rankUpBlocker(profile) == nil
+			)
+		)
 		-- #3098: how idle they were, the screen open, and whether the coins covered the next onboarding buy
 		local buy = FirstFive.nextBuy(profile.telemetry)
 		-- #3098 P1b: the exact scene they left in

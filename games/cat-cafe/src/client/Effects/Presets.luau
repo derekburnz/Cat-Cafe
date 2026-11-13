@@ -4715,9 +4715,61 @@ Presets.binRoll = {
 	},
 }
 
+-- Petting a cat in your cafe (#3651; Effects/PetCat). The left arm goes down to the cat over `raise` seconds,
+-- reached `sh` degrees forward and `sp` out with the elbow bent `el`, strokes `strokes` times (one every `every`
+-- seconds, the hand moving `swing` degrees either way) and comes back over `lower`: 1.25 s in all. R6 reaches the
+-- whole arm `sh6`. As the hand arrives the cat perks up (the catch's "perk") and `hearts` hearts (the ♥ glyph on
+-- billboards, no texture; scaled by the budget's burstScale) float up `heartRise` studs from `up` studs over it (its
+-- BubbleAnchor when it has one) in `colour` over `heartSeconds`, fanning `heartFan` studs apart, with a short purr
+-- and a heart chime (Audio/Logic.petCatCue). When the heart moves from another cat, one grey heart fades off the
+-- old cat and a pink heart `move.size` studs tall arcs `move.height` studs high to the new one in `move.seconds`.
+-- Played for cafes within `range` studs.
+Presets.petCat = {
+	raise = 0.2,
+	strokes = 2,
+	every = 0.4,
+	lower = 0.25,
+	sh = 50,
+	sp = 8,
+	el = 20,
+	swing = 10,
+	sh6 = 60,
+	up = 2.2,
+	hearts = 5,
+	heartSize = 0.9, -- studs
+	heartSeconds = 1.1,
+	heartRise = 2.4, -- studs a heart floats up
+	heartFan = 1.6, -- studs between the outermost hearts at the top
+	colour = Presets.palette.nosePink,
+	lost = Presets.palette.furGrey,
+	edge = Color3.fromRGB(94, 70, 52), -- palette 2, the UI's outline colour
+	move = { seconds = 0.6, height = 3, size = 0.9 },
+	range = 120,
+}
+
+-- Paw prints for a guide trail (#3554; Effects/PawTrail): while the trail's folder carries `attribute` = true, each
+-- dot is drawn as a paw print `size` studs across on a `pixels` square canvas, `offset` studs left and right of the
+-- line in turn. `toes` are x, y, width and height of each toe as shares of the canvas (the pad sits under them).
+-- `turn` turns the drawing on its part, should the toes come out facing the wrong way in Studio.
+Presets.pawTrail = {
+	attribute = "Paws",
+	home = "CatCafePawTrail",
+	size = 1.7,
+	pixels = 64,
+	offset = 0.45,
+	brightness = 1.6,
+	turn = 0,
+	toes = {
+		{ 0.2, 0.36, 0.2, 0.26 },
+		{ 0.39, 0.2, 0.2, 0.28 },
+		{ 0.61, 0.2, 0.2, 0.28 },
+		{ 0.8, 0.36, 0.2, 0.26 },
+	},
+}
+
 -- The Mystic Pool's roll (#3314, trait-station.md section 1a; Effects/MysticPool): Sage Sorrel raises his staff, the
 -- rolled cat floats up over the pool in a sparkle and drops in with a splash, the liquid steps grey, green, blue, gold
--- every `step` seconds with a bubble burst on each, stopping on the rolled rarity (a Mythic flashes on to purple with a
+-- every `step` seconds with a bubble burst on each, stopping on the rolled rarity (a Mythic flashes on to its pink-red with a
 -- rainbow shimmer and a star burst), then the cat pops back out and the trait card rises (the caller's onReveal).
 -- Never a near miss: the steps only go up and stop on the real rarity. A tap skips to the card at any point. The
 -- colours are shared/Traits.RARITIES' (the card's), so the pool and the card always match.
@@ -4726,11 +4778,11 @@ Presets.mysticPool = {
 	armSuffix = "_Sage_LegF2", -- the staff arm's Model; the staff rides it
 	step = 0.6, -- seconds per colour step
 	blend = 0.25, -- seconds a step's colour takes to blend in
-	flash = 0.12, -- the Mythic's fast flash from gold to purple
+	flash = 0.12, -- the Mythic's fast flash from gold to its own colour
 	hold = 0.6, -- seconds on the last colour before the cat pops out
-	mythicHold = 1.6, -- a Mythic's purple flash and shimmer, so its pool time is about 4 s
+	mythicHold = 1.6, -- a Mythic's flash and shimmer, so its pool time is about 4 s
 	shimmerHz = 0.9, -- rainbow cycles per second over a Mythic's liquid
-	shimmerMix = 0.55, -- how much rainbow over the purple (0 to 1)
+	shimmerMix = 0.55, -- how much rainbow over the Mythic's colour (0 to 1)
 	raise = 0.4, -- seconds Sorrel takes to raise his staff
 	raiseDegrees = 75, -- forward, about his shoulder
 	lower = 0.6, -- seconds to lower it again after the card
@@ -4750,9 +4802,11 @@ Presets.mysticPool = {
 	stars = 30, -- a Mythic's star burst
 	confetti = 40, -- a Mythic's confetti
 	revealSparkles = 18, -- the pop's sparkles, in the rarity's colour
+	-- the Mythic's confetti: its own colour first (shared/Traits.RARITIES' mythic, the Mythical cat rarity's
+	-- pink-red since #3712; was purple), then a rainbow
 	mythicColours = {
-		Color3.fromHex("B04FE0"),
-		Color3.fromHex("FF6B81"),
+		Color3.fromHex("FF5E7E"),
+		Color3.fromHex("FFF4E6"),
 		Color3.fromHex("F4C430"),
 		Color3.fromHex("4CAF50"),
 		Color3.fromHex("3F8FE0"),
@@ -4901,6 +4955,25 @@ Presets.lootCard = {
 	firstRow = 0.12,
 	gap = 0.15,
 	bounceSeconds = 0.22,
+}
+
+-- The Neighborhood's trampoline (#3690; Effects/Trampoline). A model whose name ends in `suffix` is one; its mat is
+-- the part at most `matThin` studs thin and at least `matWide` wide. A landing from above (the feet no more than
+-- `under` studs below the mat's top, within the mat's radius plus `edge`) throws the character `height` studs up,
+-- at most once every `gap` seconds; the landing is looked for `ray` studs under the feet. A jump off the mat reaches 7.2 studs, so `height` adds under 2 studs of reach.
+-- The mat dips `dip` studs over `down` seconds and springs back over `up`.
+Presets.trampoline = {
+	suffix = "_Trampoline",
+	matThin = 0.3,
+	matWide = 4,
+	height = 9,
+	gap = 0.25,
+	under = 0.6,
+	edge = 0.5,
+	ray = 1.5,
+	dip = 0.3,
+	down = 0.08,
+	up = 0.35,
 }
 
 return Presets

@@ -367,11 +367,16 @@ local function label()
 		end
 		setLook(model, full)
 		-- the "!" only while the bin can be rummaged: full, and its prompt on (the alleyBin switch)
-		-- and not under the board, which hangs in the same place
+		-- and not under the board, which hangs in the same place, nor while the bar runs (#3861: the board steps away
+		-- then, and the "!" must not take its place)
 		local board = boards[model]
 		setBang(
 			model,
-			full and prompt ~= nil and prompt.Enabled and not (board ~= nil and board.gui.Enabled)
+			full
+				and prompt ~= nil
+				and prompt.Enabled
+				and not (board ~= nil and board.gui.Enabled)
+				and not (UI :: any).rescue.isActive()
 		)
 	end
 	boardRefresh()

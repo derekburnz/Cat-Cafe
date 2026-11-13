@@ -2198,15 +2198,23 @@ Presets.cannonGlide = {
 -- Under the clouds it waits. `over` seconds before the drop it looks, for one frame, the way the landing pad faces
 -- at the player's own pitch, and the game's camera takes over from there (Logic.cannonHandBackAt). So the camera is
 -- the player's own all the way down, at the touch and after: #3444 (Derek 2026-11-12: "landing still moves your
--- camera on landing so remove that"). Before that the flight held the camera until the server let go (#2690) and
--- followed the flyer down, with a zoom in at the touch (#1081, #1131) that #3328 had already set to nothing; the
--- hand-back at the end still moved the view to the player's real zoom.
+-- camera on landing so remove that"). That one frame's pitch stays between `pitchLow` and `pitchHigh` degrees
+-- (`pitchRest` when unknown), its distance between `distanceMin` and `distanceMax` studs (`distanceRest` when
+-- unknown) and its focus within `focusMax` studs of the player (Logic.cannonLanding; #3548, #3549), so a camera that
+-- was straight down or far out when the flight began is never handed back that way.
 Presets.cannonCamera = {
 	launch = Vector3.new(5, 5, 14),
 	ahead = 12,
 	chase = Vector3.new(7, 2.5, 12),
 	catch = 0.15,
 	over = 0.1,
+	pitchLow = -50,
+	pitchHigh = 10,
+	pitchRest = -15,
+	distanceMin = 6,
+	distanceMax = 60, -- Config.CameraMaxZoomStuds: as far as a player can zoom out
+	distanceRest = 14,
+	focusMax = 4,
 }
 
 -- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue

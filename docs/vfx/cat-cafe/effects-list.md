@@ -1120,6 +1120,8 @@ Reduce Motion: no rings, no bounce, half the sparkles, the dust fades in place. 
 
 ## Cannon landing camera (#3444, 2026-11-12)
 
+**Guard added 2026-11-12 (#3548, #3549):** Derek reported a far overhead view on the cannon step and facing down after landing. The one frame handed back to the game's camera now keeps its pitch, distance and focus inside a normal play view (`Logic.cannonLanding`, `Logic.cannonLandingFocus`), so a camera that was straight down or far out when the flight began is never handed back that way. The #3444 hand-back itself is unchanged.
+
 `Effects/CannonGlide.luau` (`track`; `Logic.cannonHandBackAt`). The flight's camera follows the hop, the boom and the climb, waits under the clouds, and 0.1 s before the flyer drops back into sight puts the view behind the pad for one frame (clear of the cannon, #2779) and hands back to the game's camera. Nothing of ours moves, turns, zooms or shakes the camera as the feet land or when the server lets go; the player can turn the view on the way down. The landing's follow, zoom and push (#1081, #1131, #3328) are gone.
 
 ## Loot card pop-in (#3464, 2026-11-12)

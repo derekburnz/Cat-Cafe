@@ -26,6 +26,8 @@ local BaitBowl = require(script.Screens.BaitBowl)
 local BaitCard = require(script.Screens.BaitCard)
 local BugReport = require(script.Screens.BugReport)
 local BugReportLogic = require(script.Components.BugReportLogic)
+local BusyMouseDash = require(script.Components.MouseDashLogic) -- the busy windows (Toasts.setBusy)
+local BusyMysticPool = require(script.Components.MysticPoolLogic)
 local CafeSigns = require(script.Screens.CafeSigns)
 local Cannon = require(script.Screens.Cannon)
 local CannonCard = require(script.Screens.CannonCard)
@@ -1484,6 +1486,13 @@ function UI.init(config: Types.InitConfig)
 	modalInstance.changed:Connect(function(name: string?)
 		hudInstance:screenOpened(name)
 		UI.events.screenOpened:Fire(name)
+		-- Derek 2026-11-13: no pop-up bubbles while playing the arcade or rerolling traits (Toasts.setBusy)
+		local view = toasts
+		if view then
+			view:setBusy(
+				name == BusyMouseDash.WINDOW or name == "Arcade" or name == BusyMysticPool.WINDOW
+			)
+		end
 	end)
 
 	catch = CatchPrompt.new(parent)
@@ -2183,6 +2192,11 @@ UI.shoutout = { at = nil :: number? }
 function UI.announce(text: string, rarity: string?): boolean
 	local ToastRules = require(script.Components.ToastRules)
 	local now = os.clock()
+	-- Derek 2026-11-13: dropped, sting and all, while Mouse Dash or the Mystic Pool is open (Toasts.setBusy)
+	local view = toasts
+	if view and view:isBusy() then
+		return false
+	end
 	if not ToastRules.announce(rarity, now, UI.shoutout.at, Scale.isTouch()) then
 		return false
 	end

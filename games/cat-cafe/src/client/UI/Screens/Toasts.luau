@@ -68,6 +68,8 @@ export type Toasts = {
 	avoid: (self: Toasts, boxes: () -> { Types.Box }, floor: (() -> number)?) -> (),
 	setHeld: (self: Toasts, held: boolean) -> (),
 	setFocus: (self: Toasts, on: boolean) -> (), -- #2724: mid-catch toasts wait
+	setBusy: (self: Toasts, on: boolean) -> (), -- Mouse Dash or the Mystic Pool open: shout-outs dropped, toasts wait
+	isBusy: (self: Toasts) -> boolean,
 	isHeld: (self: Toasts) -> boolean,
 	pin: (self: Toasts, piece: GuiObject) -> (), -- #3701: the rest banner, kept at the head of the stack
 	lastShown: (self: Toasts) -> number?,
@@ -251,6 +253,9 @@ end
 -- Server shout-outs (Pet Simulator 99 style) on the colour of the cat's rarity, a little longer than a toast.
 -- Silent: Audio plays the shout-out sting from the Announce remote itself.
 function Toasts.announce(self: any, text: string, rarity: string?)
+	if self._busy then
+		return -- setBusy: a shout-out is news of the moment, so it is dropped, not kept for later
+	end
 	-- #3470: a Secret's pill is its near black swatch under the white words, not the pale UI colour
 	local fill = if rarity == "Secret"
 		then Theme.rarity.Secret.text
@@ -261,6 +266,9 @@ end
 
 -- A rainbow stray's shout-out: the announce pill in the cat's rarity colour with the rainbow bands on its edge.
 function Toasts.rainbow(self: any, text: string, rarity: string?)
+	if self._busy then
+		return
+	end
 	local fill = if rarity == "Secret"
 		then Theme.rarity.Secret.text
 		elseif rarity and (Theme.rarity :: any)[rarity] then Theme.rarityColor(rarity)
@@ -471,7 +479,9 @@ function Toasts._push(
 	local focusWait = self._focus
 		and fill ~= KIND_COLORS.warn
 		and string.sub(text, 1, 9) ~= "Try again"
-	if self._held or focusWait then
+	-- Derek 2026-11-13: none but a warning while Mouse Dash or the Mystic Pool's card is open (setBusy)
+	local busyWait = self._busy and fill ~= KIND_COLORS.warn
+	if self._held or focusWait or busyWait then
 		for _, waiting in self._queue do
 			if waiting.text == text and prize == nil then
 				return
@@ -846,7 +856,25 @@ function Toasts.setFocus(self: any, on: boolean)
 		return
 	end
 	self._focus = on
-	if on or self._held then
+	if on or self._held or self._busy then
+		return
+	end
+	local waiting: { Waiting } = table.clone(self._queue)
+	table.clear(self._queue)
+	for _, line in waiting do
+		self:_push(line.text, line.fill, line.lifetime, line.bands, line.prize, line.oneLine)
+	end
+end
+
+-- Derek 2026-11-13 ("turn off pop up bubbles for spawns etc when doing trait rerolls and arcade game"): while Mouse
+-- Dash's or the Mystic Pool's window is open, server shout-outs (spawns, other players' rare catches) are dropped and
+-- every other toast but a warning waits (QUEUE_MAX at most) to show when the window closes.
+function Toasts.setBusy(self: any, on: boolean)
+	if (self._busy == true) == on then
+		return
+	end
+	self._busy = on
+	if on or self._held or self._focus then
 		return
 	end
 	local waiting: { Waiting } = table.clone(self._queue)
@@ -862,6 +890,10 @@ function Toasts.pin(self: any, piece: GuiObject)
 	piece.LayoutOrder = 0
 	piece.Parent = self._stack
 	self:_place()
+end
+
+function Toasts.isBusy(self: any): boolean
+	return self._busy == true
 end
 
 function Toasts.isHeld(self: any): boolean

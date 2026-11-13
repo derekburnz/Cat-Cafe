@@ -72,8 +72,14 @@ local MAX_SIZE = Vector2.new(440, 334)
 local LEFT_WIDTH = 140 -- the cat's picture, name and rarity
 local ART = 100
 local NAME_HEIGHT = 36 -- #3132: two rows, so a long name wraps instead of ending in "…"
-local TAG_FACE = 28
-local TAG_ROW = 38
+-- Derek 2026-11-13 ("make cat collector box less obnoxiously big especially when far away tone it down like you did
+-- for rich customer"): the tag is about 60% of its old size with a thin edge, and past TAG_FAR studs it is his name
+-- only, as small as the rich tip's bubble
+local TAG_W = 160
+local TAG_TITLE = 20
+local TAG_FACE = 22
+local TAG_ROW = 28
+local TAG_FAR = 40
 local LINE_HEIGHT = 18
 local ARROW_WIDTH = 40
 local TILE = 52 -- an offer picture
@@ -85,7 +91,7 @@ local CONFIRM_SECONDS = 3
 local CHECK_SECONDS = 0.25 -- how often the range check and the timers run while he is here
 local TAG_OFFSET = 4 -- studs over the spot; he sits, and his bowler tops out at 2.7 (Model-Agent #532)
 -- #2272 (Derek2: "show cat collector through walls like rich tip"): seen from as far as the rich tip's bubble
-local TAG_DISTANCE = 150
+local TAG_DISTANCE = 90 -- Derek 2026-11-13: was 150, the rich tip's; from further it was only clutter
 
 local Collector = {}
 Collector.__index = Collector
@@ -261,7 +267,7 @@ function Collector.new(parent: Instance, callbacks: Callbacks): Collector
 		LightInfluence = 0,
 		MaxDistance = TAG_DISTANCE,
 		ResetOnSpawn = false,
-		Size = UDim2.fromOffset(240, 34 + TAG_ROW),
+		Size = UDim2.fromOffset(TAG_W, TAG_TITLE + 4 + TAG_ROW),
 		StudsOffset = Vector3.new(0, TAG_OFFSET, 0),
 		Adornee = self._anchor,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
@@ -280,31 +286,32 @@ function Collector.new(parent: Instance, callbacks: Callbacks): Collector
 	-- busy street instead of bare outlined words lost in the scenery
 	tagButton.BackgroundTransparency = 0
 	tagButton.BackgroundColor3 = Theme.colors.cocoa
-	Create("UICorner", { CornerRadius = UDim.new(0, 14), Parent = tagButton })
-	Outline.border(tagButton)
-	Outline.shade(tagButton)
+	Create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = tagButton })
+	Outline.border(tagButton, 2)
 	self._tagButton = tagButton
 	local tagName = text({
 		Name = "Title",
-		Size = UDim2.new(1, 0, 0, 28),
+		Position = UDim2.fromOffset(0, 2),
+		Size = UDim2.new(1, 0, 0, TAG_TITLE),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
+		TextSize = Theme.sizes.textBody,
 		TextColor3 = Theme.colors.white,
 		Text = "🧐 Cat Collector",
 		Parent = tagButton,
 	})
-	Outline.text(tagName, Theme.sizes.textOutline)
+	Outline.text(tagName, 1.5)
 	-- #3132: the cat he wants under his name: its face, then its name, rarity and the time left on one rich line that
 	-- shrinks and wraps, so the name is whole
 	local tagDisc: Frame = Create("Frame", {
 		Name = "Face",
 		BackgroundColor3 = Theme.colors.paper,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(10, 28 + (TAG_ROW - TAG_FACE) / 2),
+		Position = UDim2.fromOffset(8, TAG_TITLE + 2 + (TAG_ROW - TAG_FACE) / 2),
 		Size = UDim2.fromOffset(TAG_FACE, TAG_FACE),
 		Parent = tagButton,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	self._tagStroke = Outline.border(tagDisc, 2, Theme.rarityColor("Common"))
+	self._tagStroke = Outline.border(tagDisc, 1.5, Theme.rarityColor("Common"))
+	self._tagDisc = tagDisc
 	self._tagPortrait = CatPortrait.new({
 		parent = tagDisc,
 		size = UDim2.fromScale(1, 1),
@@ -313,19 +320,19 @@ function Collector.new(parent: Instance, callbacks: Callbacks): Collector
 	})
 	self._tagTime = text({
 		Name = "Time",
-		Position = UDim2.fromOffset(10 + TAG_FACE + 6, 28),
-		Size = UDim2.new(1, -(10 + TAG_FACE + 6 + 8), 0, TAG_ROW),
+		Position = UDim2.fromOffset(8 + TAG_FACE + 5, TAG_TITLE + 2),
+		Size = UDim2.new(1, -(8 + TAG_FACE + 5 + 6), 0, TAG_ROW),
 		FontFace = Theme.fonts.display,
 		RichText = true,
-		TextSize = Theme.sizes.textBody + 2,
+		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.colors.white,
 		TextTruncate = Enum.TextTruncate.None,
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = tagButton,
 	})
-	FitText.shrink(self._tagTime, Theme.sizes.textSmall)
-	Outline.text(self._tagTime, Theme.sizes.textOutline)
+	FitText.shrink(self._tagTime, Theme.sizes.textTiny)
+	Outline.text(self._tagTime, 1.5)
 	self._tagClick = tagButton.Activated:Connect(function()
 		if self._visit then
 			Sound.play("uiClick")
@@ -494,6 +501,16 @@ function Collector._check(self: any)
 
 	local position = rootPosition()
 	local distance = if spot and position then (position - spot.Position).Magnitude else nil
+	-- far off, only his name: a small tag that says he is here without covering the street
+	local far = distance ~= nil and distance > TAG_FAR
+	if self._tagFar ~= far then
+		self._tagFar = far
+		self._tagDisc.Visible = not far
+		self._tagTime.Visible = not far
+		self._billboard.Size = if far
+			then UDim2.fromOffset(TAG_W, TAG_TITLE + 6)
+			else UDim2.fromOffset(TAG_W, TAG_TITLE + 4 + TAG_ROW)
+	end
 	local wasNear = self._near
 	local near = showTag and CollectorLogic.near(distance, wasNear)
 	self._near = near

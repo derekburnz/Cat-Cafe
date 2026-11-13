@@ -5832,7 +5832,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.collector.offer("", nil, 0)
 		assert(tag and tag:IsA("BillboardGui"), "uigate: no Collector tag (#2272)")
 		assert(tag.AlwaysOnTop, "uigate: the Collector tag hides behind walls (#2272)")
-		assert(tag.MaxDistance >= 150, "uigate: the Collector tag fades at " .. tag.MaxDistance .. " studs, under the rich tip's 150 (#2272)")
+		-- Derek 2026-11-13: toned down, as the rich tip was: seen to 60 studs or more (90), about 60% of the old size
+		assert(tag.MaxDistance >= 60, "uigate: the Collector tag fades at " .. tag.MaxDistance .. " studs (#2272)")
+		assert(tag.Size.X.Offset <= 170 and tag.Size.Y.Offset <= 56, ("uigate: the Collector tag is %d x %d px, too big (Derek 2026-11-13)"):format(tag.Size.X.Offset, tag.Size.Y.Offset))
 		local button = tag:FindFirstChild("Tag")
 		assert(button and button.BackgroundTransparency == 0, "uigate: the Collector tag has no bubble behind its words (#2272)")
 	end },

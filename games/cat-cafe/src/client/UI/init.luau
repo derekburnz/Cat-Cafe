@@ -5265,6 +5265,18 @@ do
 		return false
 	end
 
+	-- Derek 2026-11-13: the account's first pet of its own cat says what petting does, once (the card waits for a
+	-- free moment like every tip)
+	Moments.CatPetted:Connect(function(userId: number)
+		if
+			userId == Players.LocalPlayer.UserId
+			and state.tipsSeen ~= nil
+			and not tipKnown("pet")
+		then
+			UI.tips.show("pet")
+		end
+	end)
+
 	-- The client-found tips, once the save says which were seen.
 	local function lookForTips()
 		if state.tipsSeen == nil then

@@ -1558,6 +1558,10 @@ function UI.init(config: Types.InitConfig)
 	-- then too, HUD._applyFocus)
 	hudInstance.catchingChanged:Connect(function(active: boolean)
 		toastsInstance:setFocus(active)
+		local pills = actionPills -- #3861: and the action pills step away from the bar
+		if pills then
+			pills:setQuiet(active)
+		end
 	end)
 	toastsInstance:avoid(
 		function() -- #2338: clear of the HUD's menu column and goal card on a phone

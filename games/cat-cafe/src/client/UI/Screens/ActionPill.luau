@@ -33,6 +33,7 @@ export type ActionPill = {
 	holdEnded: (self: ActionPill, prompt: ProximityPrompt) -> (),
 	triggered: (self: ActionPill, prompt: ProximityPrompt) -> (),
 	isShown: (self: ActionPill, prompt: ProximityPrompt) -> boolean,
+	setQuiet: (self: ActionPill, on: boolean) -> (), -- #3861: no pills while the catch circles or a rescue bar run
 	destroy: (self: ActionPill) -> (),
 }
 
@@ -354,6 +355,7 @@ function ActionPill.show(
 		return
 	end
 	self._pills[prompt] = pill
+	pill.billboard.Enabled = not self._quiet
 	Tween.popIn(pill.body, 0.6)
 end
 
@@ -407,6 +409,15 @@ function ActionPill.triggered(self: any, prompt: ProximityPrompt)
 	)
 	pill.scale.Scale = 0.88
 	Tween.to(pill.scale, Tween.POP, { Scale = 1 })
+end
+
+-- #3861 (Review-QA: the Rummage Bin's "Empty for now" pill sat over the bar's paw pips): while the catch circles or
+-- a rescue bar run (HUD.catchingChanged) every pill steps away, and comes back when they end.
+function ActionPill.setQuiet(self: any, on: boolean)
+	self._quiet = on
+	for _, pill: Pill in self._pills do
+		pill.billboard.Enabled = not on
+	end
 end
 
 function ActionPill.isShown(self: any, prompt: ProximityPrompt): boolean

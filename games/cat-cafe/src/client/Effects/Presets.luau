@@ -634,6 +634,42 @@ Presets.emitters = {
 		drag = 0.8,
 		lightEmission = 0.1,
 	},
+	-- The new areas' still water (Effects/AreaWater, #4070 and #4071): small glints that wink on a pool's surface,
+	-- foam flecks drifting round the lazy river and the splash pad's jets spraying at their tops.
+	poolGlint = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 1.1, 0.15 }, -- big enough to read from a standing camera (Review-QA, #4206: 0.45 was lost)
+		transparency = { 0, 1 },
+		lifetime = { 1, 1.6 },
+		speed = { 0, 0 },
+		spread = 0,
+		rate = 5,
+		lightEmission = 0.8,
+	},
+	riverFoam = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 0.5, 0.3 },
+		transparency = { 0.45, 1 },
+		lifetime = { 2.2, 3.2 },
+		speed = { 1.6, 2.4 },
+		spread = 6,
+		rate = 2.5,
+		lightEmission = 0.15,
+	},
+	padSpray = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 0.22, 0.12 },
+		transparency = { 0.3, 1 },
+		lifetime = { 0.6, 0.9 },
+		speed = { 5, 7 },
+		spread = 28,
+		rate = 9,
+		acceleration = Vector3.new(0, -16, 0),
+		lightEmission = 0.2,
+	},
 	-- A Cat Storm (Effects/StormFall, #4197): the puff where a storm stray lands, and the slow sparkles that drift
 	-- down round you while the storm runs.
 	stormPuff = {
@@ -660,6 +696,32 @@ Presets.emitters = {
 		rate = 10,
 		lightEmission = 0.4,
 		rotSpeed = { -30, 30 },
+	},
+	-- #4197 admin events' air (Effects/AdminAir): Golden Hour's slow gold motes and Money Storm's quicker coin
+	-- glints, falling round you while the event runs.
+	goldHourDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.golden, Presets.palette.goldLight },
+		size = { 0.4, 0.15 },
+		transparency = { 0.25, 1 },
+		lifetime = { 4, 5 },
+		speed = { 2.5, 4 },
+		spread = 10,
+		rate = 8,
+		lightEmission = 0.6,
+		rotSpeed = { -20, 20 },
+	},
+	moneyStormDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden },
+		size = { 0.55, 0.3 },
+		transparency = { 0.1, 0.8 },
+		lifetime = { 2.2, 3 },
+		speed = { 8, 11 },
+		spread = 6,
+		rate = 12,
+		lightEmission = 0.5,
+		rotSpeed = { -200, 200 },
 	},
 	-- Soft sparkles rising off the guide trail's dots (Effects/TrailSparkle, #3022), recoloured to each dot.
 	trailSparkle = {
@@ -3310,6 +3372,16 @@ Presets.stormFall = {
 	markWait = 2,
 }
 
+-- #4197 (Effects/AdminAir): the drift an admin event hangs round you while it runs, by its effect's name
+-- (AdminEventLogic.AIR). One emitter on an unseen `box` held `height` studs over the camera's focus, looked at every
+-- `every` seconds. None with Reduce Motion or in Low performance.
+Presets.adminAir = {
+	kinds = { goldBoost = "goldHourDrift", moneyStorm = "moneyStormDrift" } :: { [string]: string },
+	box = Vector3.new(70, 1, 70),
+	height = 22,
+	every = 0.5,
+}
+
 -- The Rally board's marquee (F101, Model-Agent's #759: `CatCafe_Square_RallyBoard` with its 32 bulbs in the
 -- `_Bulbs` Model round the face). While a Rally runs, every `gap`th bulb glows and the lit ones run round the frame
 -- clockwise at `hz` steps a second, `burstHz` for `burstSeconds` after each point anyone scores; each step of the bar
@@ -5262,6 +5334,11 @@ export type AuroraSpec = {
 	nestShown: { number }, -- each of those bands' own transparency at the ribbon's middle
 	nestBright: { number }, -- and its Beam.Brightness
 	height: number,
+	window: number, -- studs across your look the ribbons' box is wide: they run over 0.8 of it, side to side
+	deep: number, -- studs front to back the ribbons are spread over, centred `ahead` of you
+	ahead: number, -- studs out the way the camera looks, laid flat
+	recentre: number, -- the window moves once you are this far from where it was centred for
+	glide: number, -- seconds it takes to move
 	spread: number, -- of the area's shorter side the ribbons are spread over (over 1: the outer ones hang past its walls)
 	rise: number, -- studs each ribbon hangs above the one in front
 	width: number,
@@ -5308,6 +5385,8 @@ Presets.areaFx = {
 		scanSeconds = 10,
 		emitter = "duneSand",
 	},
+	-- the northern lights also hang through this many last seconds of the day: night closes the areas
+	auroraEvening = 60,
 	areas = {
 		desert = {
 			air = "desertSand",
@@ -5338,10 +5417,24 @@ Presets.areaFx = {
 			footStuds = 3,
 			aurora = {
 				ribbons = { 3, 2, 2 },
-				height = 90,
-				spread = 1.5,
-				rise = 12,
-				width = 46,
+				-- #4216 Studio look: hung over the whole 560 stud area at 90 studs they sat far off behind the
+				-- mountain and the top of the screen. So a window of them keeps ahead of you, lower. Second look: at
+				-- 62 studs they were still above what the default camera shows (it looks a little down, and the top
+				-- HUD bar covers the rest), so they hang low and further out: 10 to 20 degrees up from where you stand.
+				-- Third look: run along the area they were end on to you, thin slivers with faded tips. So they hang
+				-- across the way you look, side to side, at about 90, 150 and 210 studs ahead.
+				-- Fourth look: the camera at the landing looks along the area's short side, so nothing hung by the
+				-- area's sides is sure to be in view. They hang from the camera's own look now, 15 to 30 studs over
+				-- your feet: 6 to 14 degrees up, the upper third of the screen.
+				height = 20,
+				window = 300,
+				deep = 80,
+				ahead = 150,
+				recentre = 90,
+				glide = 4,
+				spread = 1,
+				rise = 4,
+				width = 30,
 				overlap = 0.45,
 				curve = 0.22,
 				curveMost = 60,
@@ -5349,10 +5442,12 @@ Presets.areaFx = {
 				-- #4085 Studio looks: the smoke picture drew as nothing on a Beam, a bare band at 0.4 is a solid sheet,
 				-- and three bands at 0.8 were only a haze. So no picture: three bands a colour, thinner over wider,
 				-- the thinner ones a little stronger and brighter, for a soft edge round a core line that reads.
-				shown = 0.6,
+				-- #4216: they show at dusk now (night closes the area), and against the brighter dusk sky 0.55 to 0.62
+				-- vanished, so each band is stronger.
+				shown = 0.42,
 				brightness = 1,
 				nest = { 1, 0.62, 0.3 },
-				nestShown = { 0.6, 0.62, 0.55 },
+				nestShown = { 0.42, 0.45, 0.38 },
 				nestBright = { 1, 1.5, 2 },
 				nestLow = 2,
 				fade = 3,
@@ -5565,6 +5660,73 @@ Presets.ruinsWater = {
 	ringSeconds = 1.2,
 	rippleEvery = 1.4,
 	colour = Presets.palette.milk,
+}
+
+-- The new areas' still water (Effects/AreaWater; #4070 the Water Park, #4071 the Castle's moat and well). A water
+-- piece is a Model whose name holds one of `sets` and ends `_Water` (Model-Agent's names are
+-- `<Set>_<nnn>_<Piece>_Water`, so the piece is found in the name, never by its number). Each kind, the first whose
+-- `piece` the name holds: `glint` an emitter on a thin sheet just over each flat part (the nearest `parts` of them),
+-- `flow` the same but drifting round the ring the parts make, `spray` an emitter at the top of each ball (a jet's
+-- cap), `mist` soft spray over each part, and a ring spreading on the surface every `ringEvery` seconds, `ring`
+-- studs wide. The nearest budget.waterfalls + `extra` pieces within `within` studs run, chosen every `pick`
+-- seconds. Reduce Motion drops the rings; Low performance leaves the water as built.
+export type AreaWaterKind = {
+	piece: string,
+	glint: string?,
+	flow: string?,
+	spray: string?,
+	mist: string?,
+	parts: number,
+	ringEvery: number?,
+	ring: number?,
+}
+Presets.areaWater = {
+	sets = {
+		"CatCafe_WaterPark_",
+		"CatCafe_Castle_",
+		"CatCafe_Camp_WaterPark",
+		"CatCafe_Camp_Castle",
+	},
+	suffix = "_Water",
+	within = 110,
+	pick = 1,
+	extra = 3,
+	lift = 0.06, -- studs over the surface the sheet sits
+	inner = 0.7, -- of a disc's width the sheet covers (a square inside the circle)
+	window = 36, -- studs: a part wider than this (the moat) gets a sheet this wide that follows you along it
+	ringSeconds = 1.3,
+	ringInner = 0.3, -- of the part's shorter side: how far from its middle a ring may start
+	colour = Presets.palette.milk,
+	kinds = {
+		{ piece = "LazyRiver", flow = "riverFoam", parts = 8 },
+		{ piece = "SplashPad", spray = "padSpray", parts = 8, ringEvery = 1.6, ring = 2.4 },
+		{ piece = "SlideTower", mist = "fallMist", parts = 2, ringEvery = 1.4, ring = 3.2 },
+		{ piece = "WavePool", glint = "poolGlint", parts = 1, ringEvery = 1.1, ring = 4.5 },
+		{ piece = "KidsPool", glint = "poolGlint", parts = 1, ringEvery = 2.2, ring = 2.6 },
+		{ piece = "Moat", glint = "poolGlint", parts = 2, ringEvery = 2.2, ring = 3 },
+		{ piece = "Well", glint = "poolGlint", parts = 1, ringEvery = 3.5, ring = 1.2 },
+	} :: { AreaWaterKind },
+}
+
+-- The fairground's bulbs chase at night (Effects/BulbChase, #4070 "ride lamps chase slowly"). A `_Bulbs` Model whose
+-- name holds one of `pieces` runs a chase, by day and by night: every `gap`th bulb wears a brighter Neon cover `grow`
+-- times its size, and the lit ones step along the row (or round the frame) `hz` times a second, so any one bulb
+-- lights once every gap / hz seconds, well under one flash a second. The nearest `most` rows within `within`
+-- studs (`mostLite` on the lite budget), chosen every `pick` seconds; `hzDay` steps a second by day; none with Reduce Motion or in Low
+-- performance. `round` is how wide the bulbs must spread across their second axis, of their first, to be taken as a
+-- frame and ordered round it and not along it.
+Presets.bulbChase = {
+	pieces = { "Booth_Bulbs", "WallBoards_Bulbs", "WallHedge_Bulbs", "TicketFront_Bulbs" },
+	within = 90,
+	pick = 1.5,
+	most = 5,
+	mostLite = 2,
+	gap = 3,
+	hz = 2,
+	hzDay = 1, -- by day, when the bulbs are not glowing themselves
+	grow = 1.3,
+	round = 0.3,
+	on = Color3.fromRGB(255, 240, 205),
 }
 
 -- The guide trail's sparkles (#3022, Effects/TrailSparkle): every `every`th of GuideTrail's `dot` parts in the
@@ -6090,18 +6252,6 @@ Presets.riftRun = {
 	},
 	dark = { brightness = -0.32, saturation = -0.6, tint = Color3.fromRGB(200, 196, 255) },
 	secretColour = Color3.fromRGB(240, 236, 255),
-	-- a Secret's cat of stars (Logic.CAT_CONSTELLATION), drawn in the dark `starCatBeyond` studs past the white gate,
-	-- its middle `starCatHeight` over the path, `starCatScale` studs a unit, so the low camera sees it framed in the
-	-- gate; a star every `starCatGap` seconds (Review-QA on #4029: one every 0.12 s left it half drawn)
-	-- Review-QA on #4029 (follow up): a little lower so the ears clear the low camera's top edge, and a warm gold
-	-- ink a touch bigger so the stars stand out from the pale rift instead of fading into it (Neon washes a light
-	-- colour toward white, so the gold is deep; 4.5 keeps the ears clear on a phone too)
-	starCatHeight = 4.5,
-	starCatBeyond = 10,
-	starCatScale = 3,
-	starCatGap = 0.05,
-	starCatSize = 2.1,
-	starCatColour = Color3.fromRGB(255, 165, 40),
 	flashPink = Color3.fromRGB(255, 120, 200),
 	displayOrder = 40, -- over every window, the bars and the title
 	cap = 30, -- everything is back by now, whatever happens

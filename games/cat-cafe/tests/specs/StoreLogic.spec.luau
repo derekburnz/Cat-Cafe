@@ -1154,6 +1154,136 @@ return function()
 			expect(StoreLogic.featured(owned, nil).picks[2].key).to.equal("packStylish")
 		end)
 
+		it(
+			"leads Featured with the update's own item only inside its window, with the switch on (#4175)",
+			function()
+				local rows: { any } = {
+					{
+						key = "starterBundle",
+						name = "Starter Bundle",
+						passId = 1,
+						tab = "cats",
+						owned = false,
+					},
+					{ key = "money", name = "2x Money", passId = 2, tab = "passes", owned = false },
+					{
+						key = "packChef",
+						name = "Chef Pack",
+						passId = 3,
+						tab = "packs",
+						owned = false,
+					},
+					{
+						key = "packSpace",
+						name = "Space Pack",
+						passId = 4,
+						tab = "packs",
+						owned = false,
+					},
+					{
+						key = "royalCat",
+						name = "Royal Cat",
+						passId = 5,
+						tab = "cats",
+						owned = false,
+					},
+					{
+						key = "kingPack",
+						name = "King Cat Pack",
+						passId = 6,
+						tab = "cats",
+						owned = false,
+					},
+				}
+				local prices: { [number]: any } = {}
+				for id = 1, 6 do
+					prices[id] = { robux = 100 + id, forSale = true }
+				end
+				local config: any = {
+					UpdateFeature = {
+						keys = { "packChef", "packSpace" },
+						starts = 1000,
+						ends = 2000,
+					},
+				}
+				local feature = StoreLogic.updateFeature(rows, prices, config, 1500, true)
+				expect(feature.row.key).to.equal("packChef")
+				expect(feature.line).to.equal("New today")
+				-- the usual hero leads the picks and the last pick gives way; no card shows twice
+				local featured = StoreLogic.featured(rows, prices, feature.row)
+				expect(featured.hero.key).to.equal("packChef")
+				expect(#featured.picks).to.equal(3)
+				expect(featured.picks[1].key).to.equal("starterBundle")
+				expect(featured.picks[2].key).to.equal("money")
+				for _, pick in featured.picks do
+					expect(pick.key ~= "packChef").to.equal(true)
+				end
+				-- switch off, before the window, at its end, no prices yet, no entry: Featured is as it was
+				expect(StoreLogic.updateFeature(rows, prices, config, 1500, false)).to.equal(nil)
+				expect(StoreLogic.updateFeature(rows, prices, config, 999, true)).to.equal(nil)
+				expect(StoreLogic.updateFeature(rows, prices, config, 2000, true)).to.equal(nil)
+				expect(StoreLogic.updateFeature(rows, nil, config, 1500, true)).to.equal(nil)
+				expect(StoreLogic.updateFeature(rows, prices, {}, 1500, true)).to.equal(nil)
+				expect(StoreLogic.featured(rows, prices).hero.key).to.equal("starterBundle")
+				-- an owned or off sale item is never pushed: the next key, then nothing
+				rows[3].owned = true
+				expect(StoreLogic.updateFeature(rows, prices, config, 1500, true).row.key).to.equal(
+					"packSpace"
+				)
+				prices[4] = { robux = nil, forSale = false }
+				expect(StoreLogic.updateFeature(rows, prices, config, 1500, true)).to.equal(nil)
+			end
+		)
+
+		it("names a real sale's end day only while the card is on that sale (#4175)", function()
+			local rows: { any } = {
+				{
+					key = "kingPack",
+					name = "King Cat Pack",
+					passId = 2,
+					tab = "cats",
+					owned = false,
+				},
+			}
+			local config: any = {
+				UpdateFeature = {
+					keys = { "kingPack" },
+					starts = 1000,
+					ends = 2000,
+					saleEnds = "Sunday",
+				},
+				StoreWasPrice = { kingPack = { was = 999, now = 499 } },
+				StoreSaleEnds = 3000,
+			}
+			local half = { [2] = { robux = 499, forSale = true } }
+			local full = { [2] = { robux = 999, forSale = true } }
+			expect(StoreLogic.updateFeature(rows, half, config, 1500, true).line).to.equal(
+				"Sale ends Sunday"
+			)
+			expect(StoreLogic.updateFeature(rows, full, config, 1500, true).line).to.equal(
+				"New today"
+			)
+		end)
+
+		it(
+			"keeps the shipped update feature to Store cards and a window of a week or less (#4175)",
+			function()
+				local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+				local RealConfig = require(Shared:WaitForChild("Config")) :: any
+				local entry = RealConfig.UpdateFeature
+				expect(entry.ends > entry.starts).to.equal(true)
+				expect(entry.ends - entry.starts <= 7 * 86400).to.equal(true)
+				local all: any = {}
+				for _, key in StoreLogic.NEWEST_PACKS do
+					all[key] = true
+				end
+				for _, key in entry.keys do
+					expect(all[key] == true or RealConfig.StoreWasPrice[key] ~= nil).to.equal(true)
+				end
+				expect(StoreLogic.UPDATE_FLAG).to.equal("updateFeature")
+			end
+		)
+
 		it("lists the cards on sale not already on Featured, biggest saving first", function()
 			local rows: { any } = {
 				{ key = "royalCat", name = "Royal Cat", passId = 1, tab = "cats", owned = false },

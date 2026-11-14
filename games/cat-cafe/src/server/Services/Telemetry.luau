@@ -2539,11 +2539,15 @@ local CAFE_REACH = 32 -- studs from the player's own plot's pivot that count as 
 
 -- Where the player's character stands as they leave, for quit_point: "cafe" by their own cafe, an area id on an
 -- area's floor, "town" anywhere else, "none" with no character.
-local function whereOf(player: Player): string
+-- #4097: where each player last stood (whereOf with a character), for the leave events. A leaving player's character
+-- is gone by the time their save is released, so every quit_state and quit_point read "none" (Nov 13: 31 of 33 rows).
+local lastWhere: { [Player]: string } = {}
+
+local function whereNow(player: Player): string?
 	local character = player.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
 	if root == nil or not root:IsA("BasePart") then
-		return "none"
+		return nil
 	end
 	local at = (root :: BasePart).Position
 	for _, plot in CollectionService:GetTagged("Plot") do
@@ -2579,6 +2583,16 @@ local function whereOf(player: Player): string
 		end
 	end
 	return "town"
+end
+
+-- Where the player stands now, else where they last stood (lastWhere), else "none".
+local function whereOf(player: Player): string
+	local now = whereNow(player)
+	if now ~= nil then
+		lastWhere[player] = now
+		return now
+	end
+	return lastWhere[player] or "none"
 end
 
 -- #2774: the account's first bait cat came `seconds` after the food went in; where the player was (cafe, an area id or
@@ -2739,6 +2753,7 @@ local function onRelease(player: Player, profile: Profile)
 		})
 	end
 	sessions[player] = nil
+	lastWhere[player] = nil
 	pendingPasses[player] = nil
 end
 
@@ -2865,6 +2880,21 @@ end
 function Telemetry.start()
 	DataService.onLoaded:Connect(onLoaded)
 	DataService.beforeRelease(onRelease)
+	-- #4097: note where a character stood as it goes (a leave removes it before the save's release)
+	local function watchCharacter(player: Player)
+		player.CharacterRemoving:Connect(function()
+			whereOf(player)
+		end)
+	end
+	Players.PlayerAdded:Connect(watchCharacter)
+	for _, player in Players:GetPlayers() do
+		watchCharacter(player)
+	end
+	Players.PlayerRemoving:Connect(function(player: Player)
+		task.delay(120, function() -- long after the save's release, which reads it
+			lastWhere[player] = nil
+		end)
+	end)
 	Net.on("TelemetryReport", onReport)
 	-- #2910: StationOpened(window, how) from WalkUpController, a count only
 	Net.on("StationOpened", function(player: Player, window: unknown, how: unknown)

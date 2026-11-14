@@ -990,11 +990,8 @@ function CatRoom._buildCrew(self: any)
 		local squares = {}
 		for slotIndex, slot in row.slots do
 			-- the face itself takes no input; its Hit pad (a finger's 44 px on touch) does
-			local button: TextButton = Create("TextButton", {
+			local button: Frame = Create("Frame", {
 				Name = slot.spotId,
-				Text = "",
-				AutoButtonColor = false,
-				Interactable = false,
 				BackgroundColor3 = Theme.colors.disabled,
 				BorderSizePixel = 0,
 				Size = UDim2.fromOffset(SQUARE, SQUARE),
@@ -1414,11 +1411,52 @@ end
 
 -- #4028: the Sort pop-up, open or shut (shut also drops a half-asked Unequip All)
 function CatRoom._showSortMenu(self: any, open: boolean)
-	self._sortMenu.Visible = open
+	local menu: Frame = self._sortMenu
+	menu.Visible = open
 	if not open and self._unequipAsk then
 		self._unequipAsk = false
 		self._unequipAll:setText("Unequip All")
 	end
+	if not open then
+		return
+	end
+	-- Review-QA 2026-11-14 (667 x 375): under the bar first; where that runs past the panel's foot it opens upward,
+	-- over the roles row, so Unequip All is never cut
+	local toolTop = self._toolbar.Position.Y.Offset
+	menu.AnchorPoint = Vector2.new(1, 0)
+	menu.Position = UDim2.new(1, -(EQUIP_W + GAP), 0, toolTop + TOOL_H + 4)
+	task.spawn(function()
+		-- its automatic height is measured a frame or two after it shows
+		for _ = 1, 5 do
+			if menu.AbsoluteSize.Y > 0 or not menu.Visible then
+				break
+			end
+			task.wait()
+		end
+		local holder = menu.Parent :: GuiObject?
+		if holder == nil or not menu.Visible then
+			return
+		end
+		local top = holder.AbsolutePosition.Y
+		local foot = top + holder.AbsoluteSize.Y
+		local height = menu.AbsoluteSize.Y
+		if menu.AbsolutePosition.Y + height <= foot then
+			return
+		end
+		local scale = menu.AbsoluteSize.X / SORT_MENU_W -- the window's own scale
+		if scale <= 0 then
+			return
+		end
+		-- the bar's top on screen, from where the menu sits under it now (the panel's padding counts in both)
+		local now = menu.AbsolutePosition.Y
+		local barTop = now - (TOOL_H + 8) * scale
+		-- upward when it fits over the roles row, else as low as the panel lets it (over the bar; a pick shuts it)
+		local at = if barTop - 4 * scale - height >= top
+			then barTop - 4 * scale - height
+			else math.max(top, foot - height)
+		menu.Position =
+			UDim2.new(1, -(EQUIP_W + GAP), 0, math.floor(toolTop + TOOL_H + 4 + (at - now) / scale))
+	end)
 end
 
 -- Cancels a half-done pick or rename and closes the food tiles (the tab was switched or the window closed).

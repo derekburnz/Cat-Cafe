@@ -1979,6 +1979,11 @@ local SCENES = {
 		assert(menu and not menu.Visible, "uigate: the Sort pop-up shows before Sort is pressed (#4028)")
 		press("Cats", "Sort")
 		assert(menu.Visible, "uigate: Sort did not open its pop-up (#4028)")
+		UIShim.advance(0.1) -- it flips upward a frame on where it would run past the panel's foot
+		local holder = menu.Parent :: GuiObject
+		local menuBottom = menu.AbsolutePosition.Y + menu.AbsoluteSize.Y
+		assert(menuBottom <= holder.AbsolutePosition.Y + holder.AbsoluteSize.Y + 1, ("uigate: the Sort pop-up runs past the panel's foot (Review-QA, #4028): menu %d..%d, panel %d..%d %s"):format(menu.AbsolutePosition.Y, menuBottom, holder.AbsolutePosition.Y, holder.AbsolutePosition.Y + holder.AbsoluteSize.Y, holder.Name))
+		assert(menu.AbsolutePosition.Y >= holder.AbsolutePosition.Y - 1, "uigate: the Sort pop-up runs past the panel's top (#4028)")
 		press("Cats", "UnequipAll")
 		local unequip = menu:FindFirstChild("UnequipAll", true) :: Instance
 		local asks = false
@@ -2000,6 +2005,28 @@ local SCENES = {
 		assert(reads, "uigate: Sort does not read Rarity after picking it (#4028)")
 		press("Cats", "Sort")
 		press("Cats", "SortBest")
+		-- Review-QA 2026-11-14: a working cat's face shows that cat (nothing over it takes its input away)
+		local hit: GuiButton? = nil
+		for _, column in columns do
+			for _, face in (column:FindFirstChild("Slots") :: Instance):GetChildren() do
+				local glyph = face:FindFirstChild("Glyph") :: TextLabel?
+				local pad = face:FindFirstChild("Hit") :: GuiButton?
+				if face:IsA("GuiObject") and face.Visible and glyph and glyph.Text == "" and pad and hit == nil then
+					hit = pad
+				end
+			end
+		end
+		assert(hit, "uigate: no working cat face in the roles row (#4028)")
+		local piece: Instance? = hit
+		while piece ~= nil and piece ~= window do
+			assert(not (piece:IsA("GuiObject") and (piece :: GuiObject).Interactable == false), "uigate: " .. piece.Name .. " blocks the face's tap (Review-QA, #4028)")
+			piece = piece.Parent
+		end
+		UIShim.fire(UIShim.eventOf(hit, "Activated"))
+		task.wait(0.1)
+		for _, label in window:GetDescendants() do
+			assert(not (label:IsA("TextLabel") and label.Visible and label.Text == "Tap a cat to see it."), "uigate: tapping a working face did not show the cat (Review-QA, #4028)")
+		end
 		UI.close()
 	end },
 	-- #2047 (Derek2: "with the extra slots it doesn't show all the working cats on the top"): a Tier 5 cafe with Grand

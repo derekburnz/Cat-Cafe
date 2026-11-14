@@ -1094,7 +1094,8 @@ return function()
 					expect(#card.effect <= 40).to.equal(true) -- one short line, in bigger words
 				end
 			end
-			for _, product in { StoreLogic.STARTER, StoreLogic.THANK_YOU } do
+			local products: { any } = { StoreLogic.STARTER, StoreLogic.THANK_YOU }
+			for _, product in products do
 				local row: any = { key = product.key, name = "x", effect = product.effect }
 				expect(#StoreLogic.infoLines(row) > 0).to.equal(true)
 			end

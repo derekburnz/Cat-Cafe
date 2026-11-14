@@ -68,7 +68,7 @@ from mathutils import Matrix, Vector
 from cannon import frame_at
 from campextras import gold_fish
 from common import RB, text_width
-from plot import rot_x
+from plot import rot_x, rot_y, rot_z
 
 ATTACHMENTS = {}        # asset -> [(name, Roblox point)]
 WOOD, DARK = "caramel_wood", "dark_wood"
@@ -1307,8 +1307,102 @@ def build_cocoa_stand(mat):
     return [b.finalize(COCOA, mat), glow.finalize(COCOA + "_Glow", mat)]
 
 
+# ------------------------------------------------------------------------------------------- the Dragon Keep --
+KEEP = "CatCafe_Camp_Castle_DragonKeep"
+KEEP_R, KEEP_WALL_H, KEEP_FLOOR = 7.0, 1.7, 0.3                # the yard: radius, wall height, paving top
+KEEP_GATE = 44.0                                              # the gate's opening, degrees round the front (-Z)
+STONE, STONE_DARK, STONE_LIGHT = "concrete", "concrete_dark", "fur_pewter"
+
+
+def build_dragon_keep(mat):
+    """#4062 (ticket-booth-and-dragon-keep.md 2.10): a round stone keep yard 14 across. A low wall with merlons rings
+    it, open at the front (-Z) under a gate arch with a banner; a crescent of gold lies round the back, with the
+    dragon's spot in the middle (Attachment DragonSpot) and a cushion for the Hatchling (`_Cushion`, pivot at its top
+    centre; hide it from stage 2). Four torches burn on the wall (`_Flame`, Neon). The gold is `_Gold` (and its
+    jewels `_Gold_Glow`), so the pile can be shown fuller as he grows. Attachments: PromptAnchor (the gate, 1.5 up),
+    BangAnchor (2 over the arch), DragonSpot (the yard's middle, on the paving), CatSpot1 to CatSpot12 (where the
+    cats that moved in nap, round the gold)."""
+    b, gold_, glow, flame, cush = RB(), RB(), RB(), RB(), RB()
+    b.cyl((0, KEEP_FLOOR / 2, 0), KEEP_R + 0.5, KEEP_FLOOR, STONE_DARK, segments=20)
+    b.cyl((0, KEEP_FLOOR + 0.02, 0), KEEP_R - 0.7, 0.04, "paving_tan", segments=20)
+    b.cyl((0, KEEP_FLOOR + 0.05, 0), 3.2, 0.04, "paving_light", segments=16)        # the dragon's round
+    n = 20
+    for k in range(n):                                                             # the wall, open at the gate
+        a = 360.0 * (k + 0.5) / n - 90.0                                           # -90 is the front
+        if abs(((a + 90 + 180) % 360) - 180) < KEEP_GATE / 2:
+            continue
+        ar = math.radians(a)
+        x, z = KEEP_R * math.cos(ar), KEEP_R * math.sin(ar)
+        seg = 2 * math.pi * KEEP_R / n
+        R = rot_y(-a + 90)
+        b.box((x, KEEP_FLOOR + KEEP_WALL_H / 2, z), (seg + 0.1, KEEP_WALL_H, 0.9), (STONE, STONE_LIGHT)[k % 2], rot=R)
+        b.box((x, KEEP_FLOOR + KEEP_WALL_H + 0.3, z), (seg * 0.5, 0.6, 0.9), STONE_LIGHT, rot=R)      # merlon
+        b.box((x * 0.985, KEEP_FLOOR + 0.25, z * 0.985), (seg * 0.6, 0.5, 1.1), "fur_moss" if k % 3 == 0 else STONE_DARK,
+              rot=R)                                                               # footing, mossy here and there
+    gx = KEEP_R * math.sin(math.radians(KEEP_GATE / 2)) + 0.5                       # the gate posts
+    gz = -KEEP_R * math.cos(math.radians(KEEP_GATE / 2))
+    top = KEEP_FLOOR + 4.6
+    for sx in (-1, 1):
+        b.box((sx * gx, KEEP_FLOOR + 2.3, gz), (1.5, 4.6, 1.5), STONE)
+        b.box((sx * gx, top + 0.25, gz), (1.9, 0.5, 1.9), STONE_LIGHT)
+        for (dx, dz) in ((-0.65, -0.65), (0.65, -0.65), (-0.65, 0.65), (0.65, 0.65)):
+            b.box((sx * gx + dx, top + 0.75, gz + dz), (0.5, 0.5, 0.5), STONE_LIGHT)
+        b.cyl((sx * gx, top + 1.5, gz), 0.75, 1.3, "royal_berry", r2=0.05, segments=8)   # a little roof
+    for k in range(7):                                                             # the arch between them
+        a = math.radians(180.0 * (k + 0.5) / 7)
+        b.box((gx * math.cos(a) * 0.86, KEEP_FLOOR + 3.4 + 1.3 * math.sin(a), gz), (gx * 0.5, 0.7, 1.1),
+              (STONE_LIGHT, STONE)[k % 2], rot=rot_z(math.degrees(a) + 90))
+    b.box((0, KEEP_FLOOR + 3.55, gz - 0.6), (1.5, 1.7, 0.08), "royal_berry")         # the banner
+    b.box((0, KEEP_FLOOR + 3.7, gz - 0.66), (0.7, 0.7, 0.06), "gold_mid", rot=rot_z(45))
+    b.box((0, KEEP_FLOOR + 4.45, gz - 0.6), (1.8, 0.14, 0.14), "dark_wood")
+    # the gold: a crescent of heaps round the back, coins spilling toward the middle
+    heaps = ((-4.0, 1.6, 1.5, 1.2), (-2.6, 3.6, 1.9, 1.7), (0.0, 4.6, 2.3, 2.2), (2.6, 3.6, 1.9, 1.6),
+             (4.0, 1.6, 1.5, 1.1), (-1.3, 4.9, 1.4, 1.3), (1.4, 5.0, 1.4, 1.2))
+    for k, (x, z, r, h) in enumerate(heaps):
+        gold_.cyl((x, KEEP_FLOOR + h * 0.3, z), r, h * 0.6, "gold_mid", r2=r * 0.62, segments=10)
+        gold_.cyl((x, KEEP_FLOOR + h * 0.8, z), r * 0.62, h * 0.4, "gold_light", r2=r * 0.2, segments=8)
+    for k in range(18):                                                            # loose coins
+        a = math.radians(20 + k * 23.0)
+        r = 3.4 + (k * 37 % 10) * 0.12
+        if math.sin(a) < -0.2:
+            continue
+        gold_.cyl((r * math.cos(a), KEEP_FLOOR + 0.1, r * math.sin(a)), 0.22, 0.07, ("gold_light", "gold_dark")[k % 2],
+                  segments=8)
+    for k, (x, y, z, sw) in enumerate(((-2.4, 2.0, 3.5, "rarity_mythic"), (0.3, 2.55, 4.5, "fish_blue"),
+                                       (2.7, 1.95, 3.4, "eye_green"), (-3.9, 1.5, 1.7, "rarity_epic"),
+                                       (4.0, 1.4, 1.5, "fish_blue"), (1.2, 1.5, 5.2, "rarity_mythic"))):
+        glow.box((x, KEEP_FLOOR + y - 0.3, z), (0.4, 0.4, 0.4), sw, rot=rot_x(45) @ rot_z(45))
+    gold_.box((-0.9, KEEP_FLOOR + 1.95, 4.2), (0.9, 0.7, 0.7), "dark_wood", rot=rot_y(20))          # a half-buried chest
+    gold_.box((-0.9, KEEP_FLOOR + 2.32, 4.2), (0.96, 0.12, 0.76), "brass", rot=rot_y(20))
+    gold_.cyl((2.0, KEEP_FLOOR + 1.75, 4.6), 0.4, 0.5, "gold_dark", r2=0.25, segments=8)             # a goblet
+    # the Hatchling's cushion, in front of the gold
+    cush.box((0, -0.2, 0), (2.1, 0.4, 2.1), "royal_berry")
+    cush.box((0, -0.03, 0), (1.7, 0.08, 1.7), "blush")
+    for (dx, dz) in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
+        cush.box((dx * 1.05, -0.2, dz * 1.05), (0.22, 0.22, 0.22), "gold_mid", rot=rot_y(45))
+    # torches on the wall
+    for a in (-35.0, 35.0, 145.0, 215.0):
+        ar = math.radians(a)
+        x, z = (KEEP_R - 0.75) * math.cos(ar), (KEEP_R - 0.75) * math.sin(ar)
+        b.box((x, KEEP_FLOOR + 1.5, z), (0.18, 3.0, 0.18), "dark_wood")
+        b.cyl((x, KEEP_FLOOR + 3.05, z), 0.3, 0.3, "fur_gunmetal", r2=0.2, segments=8)
+        flame.box((x, KEEP_FLOOR + 3.45, z), (0.34, 0.5, 0.34), "fur_orange", rot=rot_y(45))
+        flame.box((x, KEEP_FLOOR + 3.8, z), (0.2, 0.36, 0.2), "sparkle", rot=rot_y(45))
+    _anchor(KEEP, "PromptAnchor", (0.0, KEEP_FLOOR + 1.5, gz - 1.2))
+    _anchor(KEEP, "BangAnchor", (0.0, KEEP_FLOOR + 7.0, gz))
+    _anchor(KEEP, "DragonSpot", (0.0, KEEP_FLOOR + 0.07, 0.0))
+    spots = [(5.3, d) for d in (200, 220, 240, 300, 320, 340, 180, 0)] + [(3.9, d) for d in (205, 335, 250, 290)]
+    for k, (r, deg) in enumerate(spots):                                           # the cats' nap spots
+        a = math.radians(deg)
+        _anchor(KEEP, "CatSpot%d" % (k + 1), (r * math.cos(a), KEEP_FLOOR + 0.07, r * math.sin(a)))
+    return [b.finalize(KEEP, mat), gold_.finalize(KEEP + "_Gold", mat), glow.finalize(KEEP + "_Gold_Glow", mat),
+            flame.finalize(KEEP + "_Flame", mat),
+            cush.finalize(KEEP + "_Cushion", mat, location=(0.0, KEEP_FLOOR + 0.47, 0.0))]
+
+
 # #1800: the moving child Models' own numbers for Effects/Motion (rbx_export model_attributes), by asset
-MOVING = {YARD: {"model_attributes": {"_Sign_Swing": {"Angle": {"Float64": SIGN_ANGLE}}}}}
+MOVING = {YARD: {"model_attributes": {"_Sign_Swing": {"Angle": {"Float64": SIGN_ANGLE}}}},
+          KEEP: {"nest": {"_Gold_Glow": "_Gold"}}}   # #4062: the jewels ride the gold
 
 
 def rbx_attachments(name):
@@ -1329,4 +1423,5 @@ ASSETS = {
     MUSEUM: (build_relic_museum, 12000),
     BIN: (build_rummage_bin, 2500),
     COCOA: (build_cocoa_stand, 6000),
+    KEEP: (build_dragon_keep, 6000),
 }

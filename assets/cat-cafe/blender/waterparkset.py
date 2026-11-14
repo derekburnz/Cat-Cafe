@@ -478,6 +478,60 @@ def booth(mat, k=0):
     return [b.finalize(N + "Booth", mat), d.finalize(N + "Booth_Bulbs", mat)]
 
 
+def ticket_front(mat):
+    """The Ticket Gate's front, built against the camp's back wall (pivot at its base centre, front -Y): three
+    ticket windows 22 wide under a striped roof and valance, a counter along the front, a gold marquee board over
+    the middle window (the words are the game's) with a big ticket standing on it, bulbs along the eave (_Bulbs)
+    and warm panes in the windows (_Pane, lit at night)."""
+    b, d, panes = Builder(), Builder(), Builder()
+    W, D, H = 22.0, 4.0, 7.2
+    b.box_base((0, 0, 0), (W + 0.6, D + 0.6, 0.5), BLUE, bevel=False)
+    b.box_base((0, 0, 0.5), (W, D, H - 0.5), MILK, bevel=False)
+    n = 11
+    w = W / n
+    for i in range(n):                                                    # candy stripes up the front, under the sill
+        if i % 2 == 0:
+            b.box_base((-W / 2 + (i + 0.5) * w, -D / 2 - 0.04, 0.5), (w, 0.08, 2.3), RED, bevel=False)
+    b.box_base((0, -D / 2 - 0.5, 2.8), (W + 0.4, 1.3, 0.25), WOOD, bevel=False)             # the counter
+    for i, x in enumerate((-7.2, 0.0, 7.2)):
+        b.box((x, -D / 2 - 0.06, 4.7), (5.0, 0.2, 3.0), CANDY[i], bevel=False)               # window frames
+        panes.box((x, -D / 2 - 0.12, 4.7), (4.3, 0.06, 2.4), "lamp_warm", bevel=False)
+        b.box((x, -D / 2 - 0.2, 3.75), (1.6, 0.08, 0.5), WOOD_DARK, bevel=False)             # the ticket slot
+    m = 12
+    w = (W + 1.4) / m
+    for i in range(m):                                                    # the roof and its valance
+        x = -W / 2 - 0.7 + (i + 0.5) * w
+        b.box_base((x, -0.9, H), (w + 0.02, D + 3.0, 0.5 + 0.03 * (i % 2)), (RED, MILK)[i % 2], bevel=False)
+        b.box((x, -D / 2 - 2.36, H - 0.4), (w * 0.9, 0.14, 0.9), (MILK, RED)[i % 2], bevel=False)
+    b.box_base((0, -D / 2 - 1.0, H + 0.5), (10.0, 0.5, 2.4), GOLD, bevel=False)             # the marquee
+    b.box_base((0, -D / 2 - 1.28, H + 0.85), (9.0, 0.1, 1.7), MILK, bevel=False)
+    b.box_base((0, -D / 2 - 0.6, H + 2.9), (4.4, 0.3, 2.2), BUTTER, bevel=False)            # the big ticket
+    b.box_base((0, -D / 2 - 0.78, H + 3.15), (3.6, 0.08, 1.7), RED, bevel=False)
+    b.cyl((0, -D / 2 - 0.84, H + 4.0), 0.5, 0.08, BUTTER, segments=10, rot=(PI / 2, "X"), bevel=False)
+    for sx in (-1, 1):
+        b.cyl((sx * 2.2, -D / 2 - 0.6, H + 4.0), 0.36, 0.34, GOLD, segments=8, rot=(PI / 2, "X"), bevel=False)
+        b.cyl_base((sx * (W / 2 + 0.2), -D / 2 - 2.2, 0), 0.25, H, GOLD, segments=8, bevel=False)   # eave posts
+    _bulbs(d, W + 1.0, H - 0.05, y=-D / 2 - 2.55, step=1.6)
+    return [b.finalize(N + "TicketFront", mat), d.finalize(N + "TicketFront_Bulbs", mat),
+            panes.finalize(N + "TicketFront_Pane", mat)]
+
+
+def queue_rails(mat, lanes=3, L=9.0):
+    """A queue for the ticket windows: gold posts with red ropes in `lanes` lanes, L long (along Y), open at both
+    ends. About 1.2 high, so a cat hops it."""
+    b = Builder()
+    gap = 2.6
+    for i in range(lanes + 1):
+        x = (i - lanes / 2) * gap
+        for y in (-L / 2, 0.0, L / 2):
+            b.cyl_base((x, y, 0), 0.34, 0.12, GOLD, segments=8, bevel=False)
+            b.cyl_base((x, y, 0.12), 0.11, 1.05, GOLD, segments=8, bevel=False)
+            b.ico((x, y, 1.26), 0.17, GOLD, subdivisions=1)
+        for y in (-L / 4, L / 4):
+            b.box((x, y, 0.95), (0.14, L / 2 - 0.3, 0.14), RED, bevel=False)
+    return [b.finalize(N + "QueueRails", mat)]
+
+
 def prize_wall(mat, L=14.0, k=0):
     """A wall of prize plushies on three shelves under a striped pelmet, 9.4 high (front -Y)."""
     b = Builder()
@@ -985,6 +1039,18 @@ def trap_plush_pile(mat):
     b.box((0, 3.3, 1.2), (5.0, 0.3, 2.6), WOOD, bevel=False, rot=(0.5, "X"))
     b.cyl_base((0, 0.3, 0), 3.2, 0.1, "fur_rose", segments=14, bevel=False)
     return [b.finalize(N + "TrapPlushPile", mat)]
+
+
+def trap_plush_nook(mat):
+    """The plush pile cut down for the 8 x 7 nook: seven small plushies in a ring 1.35 out round the spot, open
+    toward local -Y, on a pink mat. The same trap type as trap_plush_pile."""
+    b = Builder()
+    cols = (PINK, BUTTER, LILAC, MINT, "fur_peach", "pastel_sky")
+    for k in range(7):
+        a = PI / 2 + 2 * PI * (k + 0.5) / 8
+        _plush(b, (1.35 * math.cos(a), 1.35 * math.sin(a), 0.0), 0.42 + 0.05 * (k % 3), cols[k % 6])
+    b.cyl_base((0, 0, 0), 1.9, 0.06, "fur_rose", segments=12, bevel=False)
+    return [b.finalize(N + "TrapPlushNook", mat)]
 
 
 def trap_river_ring(mat):

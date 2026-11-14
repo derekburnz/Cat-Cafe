@@ -203,6 +203,25 @@ return function()
 			end
 		end)
 
+		it("turns the Water Park's rides slowly about their own middles", function()
+			local p = Presets.rides
+			for _, suffix in { "CarouselTurn", "TeacupsTurn", "FerrisTurn" } do
+				local ride = p.kinds[suffix]
+				expect(ride ~= nil).to.equal(true)
+				expect(ride.seconds >= 12).to.equal(true) -- slow: a turn takes 12 seconds or more
+			end
+			expect(p.kinds.FerrisTurn.axis).to.equal("thin")
+			expect(p.kinds.FerrisTurn.seconds > p.kinds.CarouselTurn.seconds).to.equal(true)
+			expect(p.mostLite <= 1 and p.most <= 3).to.equal(true)
+			-- a wheel on its edge, 43 across and 4 thick: the axle is its thin side, whichever way it faces
+			local right, look = Vector3.xAxis, Vector3.zAxis
+			expect(Logic.rideAxis("thin", Vector3.new(43, 43, 4), right, look)).to.equal(look)
+			expect(Logic.rideAxis("thin", Vector3.new(4, 43, 43), right, look)).to.equal(right)
+			expect(Logic.rideAxis("up", Vector3.new(26, 9, 26), right, look)).to.equal(
+				Vector3.yAxis
+			)
+		end)
+
 		it("reads each new area's box from the Config by its own name", function()
 			local boxes = {
 				{

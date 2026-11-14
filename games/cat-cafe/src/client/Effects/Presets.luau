@@ -3531,6 +3531,27 @@ Presets.decorMotion = {
 	pick = 1, -- seconds between choosing which parts move
 }
 
+-- #4070 the Water Park's rides (Effects/Rides): each turning piece of the area set is a Model named ending with a key
+-- of `kinds`, and turns once every `seconds` about the middle of its own box: `axis` "up" straight up (the carousel,
+-- the teacups), "thin" along the box's thin side (the Ferris wheel, about its hub). All slow: the fastest rim, the
+-- carousel's, moves about 3.5 studs a second. The nearest `most` within `radius` studs turn (`mostLite` where the
+-- budget has no decor motion), chosen every `pick` seconds, stepped at the budget's rate but never above `hz`;
+-- a step never covers more than `longest` seconds. Reduce Motion and Low performance hold them all still.
+export type Ride = { axis: "up" | "thin", seconds: number }
+Presets.rides = {
+	kinds = {
+		CarouselTurn = { axis = "up", seconds = 24 },
+		TeacupsTurn = { axis = "up", seconds = 16 },
+		FerrisTurn = { axis = "thin", seconds = 60 },
+	} :: { [string]: Ride },
+	radius = 260,
+	most = 3,
+	mostLite = 1,
+	hz = 30,
+	longest = 0.25,
+	pick = 1,
+}
+
 -- The net swing (F93, catch-rework.md sections 1 and 5): a whoosh trail off the net's hoop over the downswing, from
 -- `from` to `to` seconds into the smack (it lands at netSmack.land), each piece fading over `lifetime`. The trail's
 -- edges are the hoop and a point `inner` of the way out from the grip, so it sweeps a fan like a swung racket. Only

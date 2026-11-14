@@ -2572,6 +2572,33 @@ local SCENES = {
 	end },
 	-- #3839 (84 "Setting GuiService.SelectedObject to invalid GuiObject" a day): a button whose ScreenGui was taken out of
 	-- PlayerGui keeps Enabled and Visible, and the engine refuses it; GamepadNav.select and restore leave it alone
+	-- Review-QA's controller pass (Nov 14): L1 / R1 step the Cats book's All / Working / Resting switch and Mouse Dash's
+	-- Prizes / Leaderboard, and a window with nothing to press but prices (the Cafe Pass) still takes the selection
+	{ "PadTabsMore", function()
+		local GuiService = game:GetService("GuiService")
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local GamepadNav = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.GamepadNav")
+		local Button = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.Button")
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", true)
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals") :: Instance
+		UI.open("Cats")
+		local row, tabs = GamepadNav.tabs(modals)
+		assert(row ~= nil and row.Name == "Filters" and #tabs == 3, "uigate: L1 / R1 do not see the Cats book's filters")
+		assert(GamepadNav.stepTab(modals, 1), "uigate: R1 did not step the Cats book's filters")
+		task.wait(0.1)
+		local _, after = GamepadNav.tabs(modals)
+		assert(Button.styleOf(after[2]) == "gold", "uigate: R1 did not land on Working")
+		UI.close()
+		UI.open("CafePass")
+		task.wait(0.1)
+		local window = modals:FindFirstChild("CafePass", true) :: Instance
+		local selected = GuiService.SelectedObject
+		assert(selected ~= nil and selected:IsDescendantOf(window), "uigate: the Cafe Pass took no selection on a pad")
+		UI.close()
+		UIShim.setLastInput(nil)
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", nil)
+	end },
 	{ "GamepadSelectDetached", function()
 		local GuiService = game:GetService("GuiService")
 		local GamepadNav = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.GamepadNav")

@@ -10845,6 +10845,99 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assert(ok, problem)
 	end },
+	-- #4055 (the golden fish plan Derek OK'd): the Robux / Fish switch in the title bar, clear of the title and the X;
+	-- in fish mode a pack shows its fish price and a bar of fish saved, 2x Money reads "Robux only", a buy takes two
+	-- taps, and a pass bought with fish shows as the player's
+	{ "StoreFish", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local FishStore = UIShim.require("ReplicatedStorage.Shared.FishStore")
+		local keys = { "StylishPackPassId", "WinterPackPassId", "ChefPackPassId", "SpacePackPassId" }
+		local was = {}
+		local prices = storePrices(true)
+		for index, key in keys do
+			was[key] = Config[key]
+			Config[key] = 990000 + index
+			prices[990000 + index] = { robux = 99, forSale = true }
+		end
+		local function view(bought)
+			local list = {}
+			for _, item in FishStore.LIST do
+				table.insert(list, { key = item.key, fish = FishStore.price(item), bought = bought[item.key] == true, made = FishStore.passId(item) ~= 0 })
+			end
+			return list
+		end
+		local sent = {}
+		local link = UI.events.buyWithFish:Connect(function(key, fish)
+			table.insert(sent, { key = key, fish = fish })
+		end)
+		local ok, problem = pcall(function()
+			UI.update({ fishStore = view({}), goldenFish = 2310 } :: any)
+			UI.store.preview(prices, {})
+			UI.open("Store")
+			local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
+			local switch = window:FindFirstChild("FishSwitch") :: GuiObject
+			assert(switch and switch.Visible, "uigate: the Store has no Robux / Fish switch (#4055)")
+			local header = window:FindFirstChild("Header", true) :: GuiObject
+			local close = (window:FindFirstChild("Close") or header:FindFirstChild("Close", true)) :: GuiObject
+			local sx, sw = switch.AbsolutePosition.X, switch.AbsoluteSize.X
+			assert(switch.AbsolutePosition.Y >= header.AbsolutePosition.Y - 1 and switch.AbsolutePosition.Y + switch.AbsoluteSize.Y <= header.AbsolutePosition.Y + header.AbsoluteSize.Y + 1, "uigate: the fish switch is not inside the title bar (#4055)")
+			if close then
+				assert(sx + sw <= close.AbsolutePosition.X + 1, "uigate: the fish switch runs under the X (#4055)")
+			end
+			for _, label in header:GetDescendants() do
+				if label:IsA("TextLabel") and label.Visible and label.Text ~= "" and not (close and label:IsDescendantOf(close)) then
+					local right = label.AbsolutePosition.X + math.min(label.TextBounds.X, label.AbsoluteSize.X)
+					local below = label.AbsolutePosition.Y > switch.AbsolutePosition.Y + switch.AbsoluteSize.Y
+					assert(below or right <= sx - 2, ("uigate: the header's %q runs under the fish switch (#4055)"):format(label.Text))
+				end
+			end
+			local count = switch:FindFirstChild("Count", true) :: TextLabel
+			assert(count.Text == "2,310" and count.TextFits, "uigate: the fish count reads " .. count.Text .. " (#4055)")
+			press("Store", "FishSwitch.Fish")
+			press("CatCafeModals", "packs")
+			local page = window:FindFirstChild("PacksPage", true) :: ScrollingFrame
+			local card = page:FindFirstChild("Pack_packWinter") :: GuiObject
+			local buy = card:FindFirstChild("Buy", true) :: GuiObject
+			local label = buy:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel
+			assert(string.find(label.Text, "4,950", 1, true), "uigate: the Winter Pack reads " .. label.Text .. " in fish mode (#4055)")
+			local bar = buy:FindFirstChild("FishBar") :: Frame
+			assert(bar and bar.Visible, "uigate: no bar of fish saved over the Winter Pack's button (#4055)")
+			local fill = bar:FindFirstChild("Fill") :: Frame
+			assert(math.abs(fill.Size.X.Scale - 2310 / 4950) < 0.01, "uigate: the fish bar is at " .. fill.Size.X.Scale .. " (#4055)")
+			local effect = card:FindFirstChild("Effect") :: GuiObject
+			assert(bar.AbsolutePosition.Y >= buy.AbsolutePosition.Y and bar.AbsolutePosition.Y + bar.AbsoluteSize.Y <= buy.AbsolutePosition.Y + buy.AbsoluteSize.Y, "uigate: the fish bar is not inside the Winter Pack's button (#4055)")
+			-- the money ladder is Robux only, and a tap on it goes back to Robux prices
+			press("CatCafeModals", "passes")
+			local money = window:FindFirstChild("grid:money", true) :: GuiObject
+			local moneyLabel = money:FindFirstChild("Buy", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel
+			assert(moneyLabel.Text == "Robux only", "uigate: 2x Money reads " .. moneyLabel.Text .. " in fish mode (#4055)")
+			assert(moneyLabel.TextFits, "uigate: Robux only does not fit 2x Money's button (#4055)")
+			press("Store", "grid:money.Buy")
+			assert(string.find(moneyLabel.Text, "R$", 1, true), "uigate: Robux only did not go back to Robux prices, it reads " .. moneyLabel.Text .. " (#4055)")
+			-- enough fish: two taps buy
+			UI.update({ goldenFish = 9000 } :: any)
+			press("Store", "FishSwitch.Fish")
+			press("CatCafeModals", "packs")
+			assert(not bar.Visible, "uigate: the fish bar stays with enough fish (#4055)")
+			press("Store", "Pack_packWinter.Buy")
+			assert(#sent == 0 and string.find(label.Text, "Buy?", 1, true), "uigate: the first tap did not ask, it reads " .. label.Text .. " (#4055)")
+			assert(label.TextFits, "uigate: " .. label.Text .. " does not fit its button (#4055)")
+			press("Store", "Pack_packWinter.Buy")
+			assert(#sent == 1 and sent[1].key == "winterPack" and sent[1].fish == 4950, "uigate: the second tap sent no BuyWithFish winterPack 4950 (#4055)")
+			UI.update({ fishStore = view({ winterPack = true }), goldenFish = 4050 } :: any)
+			local owned = card:FindFirstChild("Owned", true) :: GuiObject
+			assert(owned and owned.Visible and not buy.Visible, "uigate: the Winter Pack bought with fish does not show as yours (#4055)")
+			-- the switch goes when the fishStore switch is off
+			UI.update({ fishStore = false } :: any)
+			UI.store.render()
+			assert(not switch.Visible, "uigate: the fish switch stays with fishStore off (#4055)")
+		end)
+		link:Disconnect()
+		for key, value in was do
+			Config[key] = value
+		end
+		assert(ok, problem)
+	end },
 	-- #4026 (the approved store-v2 draft): with more cards on sale than Featured shows, the Sale row under the picks
 	-- names the others with their prices (at most three; StoreLogic.spec checks none is already on Featured), inside the
 	-- page and under the picks

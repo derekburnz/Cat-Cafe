@@ -1143,6 +1143,8 @@ local function applyState(s: Types.PlayerState)
 		-- #2555: the free Bellhop Cat's stand "!" (#2501) and its speech bubble show only while this is false
 		starterCatClaimed = s.starterCatClaimed,
 		storeSeen = s.storeSeen, -- #1823 §4: the Store tabs' New dots
+		-- #4055: the Store's golden fish prices; false (not nil, which UI.update would skip) while the switch is off
+		fishStore = s.fishStore or false,
 		-- #2574: Juniper's Mystery Market: the items owned, the cart's "!" until the first visit, and whether buys are
 		-- taken yet
 		mystery = s.mystery,
@@ -1277,6 +1279,18 @@ local function wireIntents()
 	-- two a second, so tabs tapped faster than that wait their turn here instead of being dropped.
 	local seenQueue: { string } = {}
 	local seenSending = false
+	-- #4055: one fish buy at a time; the server answers with a toast and a ProfileSync
+	local fishBuying = false
+	UI.events.buyWithFish:Connect(function(key: string, fish: number)
+		if fishBuying or type(key) ~= "string" or type(fish) ~= "number" then
+			return
+		end
+		fishBuying = true
+		Net.fire("BuyWithFish", key, fish)
+		task.delay(1, function()
+			fishBuying = false
+		end)
+	end)
 	UI.events.storeSeen:Connect(function(tab: string)
 		if table.find(seenQueue, tab) then
 			return

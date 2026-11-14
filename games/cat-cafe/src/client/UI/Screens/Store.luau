@@ -48,6 +48,8 @@ export type Callbacks = {
 	seen: ((tab: string) -> ())?,
 	-- #1888: every tab shown, the first on open included (the Store funnel's tab_viewed)
 	tabShown: ((tab: string) -> ())?,
+	-- #4055: a pass bought with golden fish, by its shared/FishStore key and the fish price the card showed
+	buyFish: ((key: string, fish: number) -> ())?,
 }
 
 -- the dark window palette (#1028), in place of Theme.modal
@@ -64,6 +66,8 @@ export type Store = {
 	) -> (),
 	showTab: (self: Store, tab: string) -> (),
 	setBag: (self: Store, bag: { StoreLogic.BagEntry }) -> (),
+	-- #4055: PlayerState.fishStore (nil hides the Robux / Fish switch) and the player's golden fish
+	setFish: (self: Store, list: { StoreLogic.FishRow }?, have: number) -> (),
 	setNew: (self: Store, tabs: { [string]: true }) -> (),
 	hasNew: (self: Store) -> boolean,
 	tab: (self: Store) -> string,
@@ -143,6 +147,12 @@ local SHEET_HOOK_H = 20
 local SALE_ROW_H = 26 -- #4026: Featured's Sale row under the picks
 local SALE_MOST = 3
 local INK = Color3.fromHex("2C1642") -- the family kit's ink, the i's letter and ring
+-- #4055: the Robux / Fish switch in the title bar, left of the X, and the player's fish beside it
+local SWITCH_W = 92 -- each half
+local SWITCH_W_TOUCH = 74
+local FISH_COUNT_W = 96
+local ARM_SECONDS = 4 -- a fish buy's first tap waits this long for the second
+local BAR_H = 5 -- the thin bar of fish saved, over a card's button
 
 local PRELOAD_AFTER = 3 -- #2500: seconds after the Store is built (at join) before its pictures are fetched
 local PRELOAD_BATCH = 8 -- pictures asked for at once
@@ -246,6 +256,13 @@ function Store.new(callbacks: Callbacks): Store
 	)
 	self._pickCompact = CARD_PAD + TILE + 6 + self._actionHeight + CARD_PAD
 	self._compact = false
+	-- #4055: fish mode (the switch on Fish), the fish view by FishStore key, the player's fish and the card armed for
+	-- its second tap
+	self._fishMode = false
+	self._fishOn = false
+	self._fishRows = {} :: { [string]: StoreLogic.FishRow }
+	self._fishHave = 0
+	self._armed = nil :: string?
 
 	local panel = Panel.new({
 		dark = true, -- #1028
@@ -260,6 +277,7 @@ function Store.new(callbacks: Callbacks): Store
 	Create("UISizeConstraint", { MaxSize = MAX_SIZE, Parent = panel.frame })
 	self._panel = panel
 	self.frame = panel.frame
+	self:_makeSwitch(panel)
 
 	-- the rail: one button per tab, top to bottom, a finger tall on touch (no lip, closer together, so six fit a
 	-- phone held sideways); it scrolls only on a screen too short for them all
@@ -520,6 +538,244 @@ end
 
 -- #3572: the potions the bag holds, for the Potions tab's strip (rework only). One chip per potion: its flask and
 -- "x3", as the OK'd mock; the pack cards under it name each potion beside the same flask.
+-- #4055 (the golden fish plan Derek OK'd, 2026-11-13 23:53 UTC): the Robux / Fish switch in the title bar, left of the
+-- X, with the player's golden fish beside it. It shows only while the fishStore switch is on (PlayerState.fishStore).
+function Store._makeSwitch(self: any, panel: any)
+	local touch = Scale.isTouch()
+	local half = if touch then SWITCH_W_TOUCH else SWITCH_W
+	local height = math.max(panel.headerHeight - 16, 26)
+	local bar: Frame = Create("Frame", {
+		Name = "FishSwitch",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(1, 0.5),
+		-- on the window frame, not the header, so a phone's taller tap pad is not clipped by the body (as DecorShop)
+		Position = UDim2.new(1, -(panel.closeReach + 12), 0, panel.headerHeight / 2 - 2),
+		Size = UDim2.fromOffset(2 * half + 4 + 8 + FISH_COUNT_W, height),
+		Visible = false,
+		ZIndex = 4,
+		Parent = panel.frame,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Right,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 4),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._switch = bar
+	self._robuxButton = Button.new({
+		name = "Robux",
+		text = "R$ Robux",
+		style = "gold",
+		size = UDim2.fromOffset(half, height),
+		textSize = Theme.sizes.textSmall,
+		layoutOrder = 1,
+		zIndex = 4,
+		parent = bar,
+		onClick = function()
+			self:setFishMode(false)
+		end,
+	})
+	self._fishButton = Button.new({
+		name = "Fish",
+		text = "Fish",
+		icon = Theme.icons.goldenFish,
+		style = "ghost",
+		size = UDim2.fromOffset(half, height),
+		textSize = Theme.sizes.textSmall,
+		layoutOrder = 2,
+		zIndex = 4,
+		parent = bar,
+		onClick = function()
+			self:setFishMode(true)
+		end,
+	})
+	local count: Frame = Create("Frame", {
+		Name = "FishCount",
+		BackgroundColor3 = PAL.card,
+		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(FISH_COUNT_W, height),
+		LayoutOrder = 3,
+		ZIndex = 4,
+		Parent = bar,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = 1.5 }),
+	})
+	Create("ImageLabel", {
+		Name = "Icon",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 8, 0.5, 0),
+		Size = UDim2.fromOffset(height - 10, height - 10),
+		Image = Theme.textures.fishCoin,
+		ScaleType = Enum.ScaleType.Fit,
+		ZIndex = 5,
+		Parent = count,
+	})
+	self._fishCount = text({
+		Name = "Count",
+		Position = UDim2.fromOffset(height - 2, 0),
+		Size = UDim2.new(1, -(height + 6), 1, 0),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = PAL.gold,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "0",
+		ZIndex = 5,
+		Parent = count,
+	})
+	FitText.shrink(self._fishCount)
+end
+
+-- #4055: the server's fish view (nil or false while the fishStore switch is off: no switch, Robux prices) and the fish the
+-- player has. The next render paints the cards.
+function Store.setFish(self: any, list: { StoreLogic.FishRow }?, have: number)
+	local on = type(list) == "table"
+	self._fishRows = StoreLogic.fishByKey(if on then list else nil)
+	self._fishHave = math.max(math.floor(have), 0)
+	self._fishCount.Text = StoreLogic.commas(self._fishHave)
+	if on ~= self._fishOn then
+		self._fishOn = on
+		self._switch.Visible = on
+		if not on then
+			self._fishMode = false
+			self._armed = nil
+		end
+		self:_paintSwitch()
+	end
+end
+
+-- #4055: the switch's two halves; Fish mode only while the switch shows.
+function Store.setFishMode(self: any, on: boolean)
+	local mode = on and self._fishOn
+	self._armed = nil
+	if mode == self._fishMode then
+		return
+	end
+	self._fishMode = mode
+	self:_paintSwitch()
+	self:_repaint()
+end
+
+function Store._paintSwitch(self: any)
+	self._robuxButton:setStyle(if self._fishMode then "ghost" else "gold")
+	self._fishButton:setStyle(if self._fishMode then "gold" else "ghost")
+end
+
+-- Paint the cards again from the last rows and prices (a switch flip, an armed tap or its time running out).
+function Store._repaint(self: any)
+	if self._rendered then
+		self:render(self._rows, self._prices)
+	end
+end
+
+-- #4055: whether a card's pass is the player's, by Robux (Roblox's word) or by fish (the save's).
+function Store._owned(self: any, row: StoreLogic.Row): boolean
+	if row.owned then
+		return true
+	end
+	local key = StoreLogic.FISH_KEYS[row.key]
+	local fishRow = if key then self._fishRows[key] else nil
+	return fishRow ~= nil and fishRow.bought
+end
+
+-- A card's button: the Robux price, or in fish mode its fish price, "Robux only" or "Coming soon".
+function Store._button(self: any, row: StoreLogic.Row): any
+	if not self._fishMode then
+		return StoreLogic.button(row, self._prices[row.passId])
+	end
+	local key = StoreLogic.FISH_KEYS[row.key]
+	return StoreLogic.fishButton(
+		row,
+		if key then self._fishRows[key] else nil,
+		self._fishHave,
+		self._armed == row.key
+	)
+end
+
+-- Paints a card's button and its thin bar of fish saved (along the button's foot); returns whether the pass is owned (the button hides).
+function Store._paintButton(self: any, entry: any, row: StoreLogic.Row): boolean
+	local owned = self:_owned(row)
+	local button = self:_button(row)
+	entry.button:setText(button.text)
+	entry.button:setStyle(button.style :: any)
+	entry.button:setEnabled(button.enabled)
+	entry.button.instance.Visible = not owned
+	local progress: number? = button.progress
+	local bar: Frame? = entry.fishBar
+	if progress ~= nil and bar == nil then
+		local made: Frame = Create("Frame", {
+			Name = "FishBar",
+			BackgroundColor3 = Color3.fromHex("D9CFC2"),
+			BorderSizePixel = 0,
+			-- inside the button's foot, under its words, so it never runs into the card's line above
+			AnchorPoint = Vector2.new(0.5, 1),
+			Position = UDim2.new(0.5, 0, 1, -6),
+			Size = UDim2.new(0.8, 0, 0, BAR_H),
+			ZIndex = entry.button.instance.ZIndex + 2,
+			Parent = entry.button.instance,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("Frame", {
+				Name = "Fill",
+				BackgroundColor3 = Theme.button.gold.bottom,
+				BorderSizePixel = 0,
+				Size = UDim2.fromScale(0, 1),
+				ZIndex = entry.button.instance.ZIndex + 2,
+			}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
+		})
+		entry.fishBar = made
+		bar = made
+	end
+	if bar ~= nil then
+		bar.Visible = progress ~= nil
+		local fill = bar:FindFirstChild("Fill") :: Frame?
+		if fill then
+			fill.Size = UDim2.fromScale(progress or 0, 1)
+		end
+	end
+	return owned
+end
+
+-- A card's buy tap: Roblox's purchase window, or in fish mode the fish buy (the first tap arms it, "Buy? 🐟 4,950",
+-- and the second within ARM_SECONDS buys), or back to Robux prices from a "Robux only" card.
+function Store._tap(self: any, row: StoreLogic.Row?, passId: number)
+	if not self._fishMode or row == nil then
+		self._callbacks.buy(passId)
+		return
+	end
+	local key = StoreLogic.FISH_KEYS[row.key]
+	local fishRow = if key then self._fishRows[key] else nil
+	local button = StoreLogic.fishButton(row, fishRow, self._fishHave, self._armed == row.key)
+	if button.action == "robux" then
+		self:setFishMode(false)
+		return
+	end
+	if button.action ~= "buy" or key == nil or fishRow == nil then
+		return
+	end
+	if self._armed == row.key then
+		self._armed = nil
+		local buyFish: ((string, number) -> ())? = self._callbacks.buyFish
+		if buyFish then
+			buyFish(key, fishRow.fish)
+		end
+		self:_repaint()
+		return
+	end
+	local armedKey = row.key
+	self._armed = armedKey
+	self:_repaint()
+	task.delay(ARM_SECONDS, function()
+		if self._armed == armedKey then
+			self._armed = nil
+			self:_repaint()
+		end
+	end)
+end
+
 function Store.setBag(self: any, bag: { StoreLogic.BagEntry })
 	self._bag = bag
 	local strip = self._bagStrip
@@ -792,7 +1048,7 @@ function Store._makeCard(
 				-- #1823: the card dips with the tap (the Buy button already dips through its own UIScale, so
 				-- StoreMotion moves the card rather than fight that tween)
 				StoreMotion.press(entry.frame :: any) -- press takes a GuiButton; it only scales the object
-				self._callbacks.buy(entry.passId)
+				self:_tap(entry.row, entry.passId)
 			end
 		end,
 	})
@@ -872,6 +1128,7 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	end
 	entry.frame.Visible = true
 	entry.passId = row.passId
+	entry.row = row -- #4055: a tap in fish mode reads its row
 	entry.rowKey = row.key -- #1823: the thank-you burst finds a bought row's cards by this
 	entry.name.Text = row.name
 	-- #1822: a bundle adds its "Worth R$X bought apart" line once every part's price is in
@@ -931,17 +1188,18 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 			IconArt.set(entry.glyph, row.icon)
 		end
 	end
-	local button = StoreLogic.button(row, self._prices[row.passId])
-	entry.button:setText(button.text)
-	entry.button:setStyle(button.style :: any)
-	entry.button:setEnabled(button.enabled)
-	entry.button.instance.Visible = not row.owned
-	entry.owned.Visible = row.owned
-	entry.dim.Visible = row.owned
-	-- one badge at most: #3572's Sale (red, with the true old price struck through) before Best Value
-	local was = StoreLogic.saleWas(row, self._prices[row.passId], Config, os.time())
+	local owned = self:_paintButton(entry, row)
+	entry.owned.Visible = owned
+	-- #4055: in fish mode a Robux only card is dimmed like an owned one
+	entry.dim.Visible = owned or (self._fishMode and StoreLogic.FISH_KEYS[row.key] == nil)
+	-- one badge at most: #3572's Sale (red, with the true old price struck through) before Best Value. #4055: none in
+	-- fish mode (fish prices are never on sale or struck out)
+	local was = if self._fishMode
+		then nil
+		else StoreLogic.saleWas(row, self._prices[row.passId], Config, os.time())
 	local badge = if was
 		then StoreLogic.saleBadge(was)
+		elseif self._fishMode then nil
 		else StoreLogic.badge(row, self._prices, self._ownedIds)
 	entry.badge.Visible = badge ~= nil
 	entry.badge.RichText = was ~= nil
@@ -1208,7 +1466,7 @@ function Store._packCard(self: any, key: string): any
 		onClick = function()
 			if entry.passId ~= 0 then
 				StoreMotion.press(entry.frame :: any)
-				self._callbacks.buy(entry.passId)
+				self:_tap(entry.row, entry.passId)
 			end
 		end,
 	})
@@ -1235,12 +1493,7 @@ function Store._fillPack(self: any, entry: any, row: StoreLogic.Row)
 	if entry.art.Image ~= art then
 		entry.art.Image = art
 	end
-	local button = StoreLogic.button(row, self._prices[row.passId])
-	entry.button:setText(button.text)
-	entry.button:setStyle(button.style :: any)
-	entry.button:setEnabled(button.enabled)
-	entry.button.instance.Visible = not row.owned
-	entry.owned.Visible = row.owned
+	entry.owned.Visible = self:_paintButton(entry, row)
 	if self._packShown == row.key then
 		self:_showPack(row.key) -- the open sheet follows a price or Owned change
 	end
@@ -1347,7 +1600,7 @@ function Store._packSheet(self: any, pages: Frame)
 		onClick = function()
 			local info = self._packInfo
 			if info and info.passId ~= 0 then
-				self._callbacks.buy(info.passId)
+				self:_tap(info.row, info.passId)
 			end
 		end,
 	})
@@ -1410,10 +1663,12 @@ function Store._showPack(self: any, key: string?)
 	info.passId = row.passId
 	info.title.Text = pack.title
 	info.hook.Text = string.match(row.effect, "^[^\n]+") or row.effect
-	local button = StoreLogic.button(row, self._prices[row.passId])
-	info.buy:setText(if row.owned then "✓ Yours" else button.text)
-	info.buy:setStyle(if row.owned then "ghost" else button.style :: any)
-	info.buy:setEnabled(button.enabled and not row.owned)
+	info.row = row
+	local button = self:_button(row)
+	local owned = self:_owned(row)
+	info.buy:setText(if owned then "✓ Yours" else button.text)
+	info.buy:setStyle(if owned then "ghost" else button.style :: any)
+	info.buy:setEnabled(button.enabled and not owned)
 	for _, child in info.lines:GetChildren() do
 		if child:IsA("Frame") then
 			child:Destroy()
@@ -1562,12 +1817,14 @@ function Store.closed(self: any)
 	end
 	self._tab = "featured"
 	self._fresh = true
+	self._armed = nil -- #4055: an armed fish buy does not wait over a closed window
 	self:_showPack(nil)
 end
 
 function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: StoreLogic.Price })
 	self._rows = rows
 	self._prices = prices
+	self._rendered = true
 	-- #1823 §4: the passes owned, so a bundle's worth counts only the parts still to buy
 	local ownedIds: { [number]: boolean } = {}
 	for _, row in rows do
@@ -1601,7 +1858,11 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 	for _, pick in featured.picks do
 		onFeatured[pick.key] = true
 	end
-	self:_fillSale(StoreLogic.saleList(rows, prices, Config, os.time(), SALE_MOST, onFeatured))
+	self:_fillSale(
+		if self._fishMode
+			then {}
+			else StoreLogic.saleList(rows, prices, Config, os.time(), SALE_MOST, onFeatured)
+	)
 	self._empty.Visible = #rows == 0
 	-- the grid: a card per row, kept for the next render
 	local shown: { [string]: boolean } = {}

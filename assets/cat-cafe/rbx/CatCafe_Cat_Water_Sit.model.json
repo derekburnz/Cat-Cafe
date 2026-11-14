@@ -1,0 +1,6979 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Cat_Water_Sit/0",
+  "PartBuilt": true,
+  "Scale": {
+   "Float64": 1.25
+  },
+  "PropSlot": "Head",
+  "PropSlot2": "Back"
+ },
+ "children": [
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.8788,
+       -0.0712
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.8312,
+     0.855,
+     0.6531
+    ],
+    "Color": [
+     0.6588,
+     0.8471,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.8788,
+       0.0712
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Cat_Water_Sit/0"
+   },
+   "children": [
+    {
+     "name": "Outfit_Apron",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.095,
+         -0.3265
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_BowTie",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0,
+         -0.3681
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Vest",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.095,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Sash",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.095,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Cape",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.2137,
+         0.3266
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.284,
+       0.1432
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.9726,
+     0.5681,
+     0.7376
+    ],
+    "Color": [
+     0.6588,
+     0.8471,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3913,
+       0.0772,
+       -0.1187
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.285,
+     0.1306,
+     0.475
+    ],
+    "Color": [
+     0.6588,
+     0.8471,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3913,
+       0.0772,
+       -0.1187
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.285,
+     0.1306,
+     0.475
+    ],
+    "Color": [
+     0.6588,
+     0.8471,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.2959,
+       0.1306
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.0082,
+     0.58,
+     0.4712
+    ],
+    "Color": [
+     0.4314,
+     0.7569,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.3007,
+       0.428
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.0682,
+     0.5823,
+     0.228
+    ],
+    "Color": [
+     0.6039,
+     0.6627,
+     0.7608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5219,
+       0.3791,
+       0.2731
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.095,
+     0.095,
+     0.095
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.5219,
+       0.1891,
+       0.0594
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.095,
+     0.095,
+     0.095
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.5219,
+       0.4266,
+       0.4631
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.095,
+     0.095,
+     0.095
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.19,
+       0.6037,
+       0.4156
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.095,
+     0.095,
+     0.095
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2138,
+       0.6037,
+       -0.0356
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.095,
+     0.095,
+     0.095
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5219,
+       0.4384,
+       -0.0831
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.095,
+     0.095,
+     0.095
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.5219,
+       0.4859,
+       0.2731
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.095,
+     0.095,
+     0.095
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.6037,
+       0.1544
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.095,
+     0.095,
+     0.095
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2244,
+       0.5918,
+       0.3144
+      ],
+      "orientation": [
+       [
+        0.866,
+        0.0,
+        0.5
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.5,
+        0.0,
+        0.866
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1425,
+     0.0594,
+     0.0475
+    ],
+    "Color": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1995,
+       0.5918,
+       0.0584
+      ],
+      "orientation": [
+       [
+        0.6428,
+        0.0,
+        -0.766
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.766,
+        0.0,
+        0.6428
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1425,
+     0.0594,
+     0.0475
+    ],
+    "Color": [
+     0.8667,
+     0.949,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0623,
+       0.5918,
+       0.1704
+      ],
+      "orientation": [
+       [
+        0.1736,
+        0.0,
+        0.9848
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9848,
+        0.0,
+        0.1736
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1425,
+     0.0594,
+     0.0475
+    ],
+    "Color": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2494,
+       0.5918,
+       0.3944
+      ],
+      "orientation": [
+       [
+        0.9848,
+        0.0,
+        0.1736
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.1736,
+        0.0,
+        0.9848
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1425,
+     0.0594,
+     0.0475
+    ],
+    "Color": [
+     0.8667,
+     0.949,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2494,
+       0.5918,
+       -0.0456
+      ],
+      "orientation": [
+       [
+        0.9397,
+        0.0,
+        -0.342
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.342,
+        0.0,
+        0.9397
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1425,
+     0.0594,
+     0.0475
+    ],
+    "Color": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4982,
+       0.3553,
+       0.2744
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.766,
+        0.6428
+       ],
+       [
+        0.0,
+        -0.6428,
+        0.766
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0475,
+     0.0475,
+     0.1425
+    ],
+    "Color": [
+     0.8667,
+     0.949,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4982,
+       0.2366,
+       0.0104
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.866,
+        -0.5
+       ],
+       [
+        0.0,
+        0.5,
+        0.866
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0475,
+     0.0475,
+     0.1425
+    ],
+    "Color": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4982,
+       0.3791,
+       0.1944
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.5,
+        -0.866
+       ],
+       [
+        0.0,
+        0.866,
+        0.5
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0475,
+     0.0475,
+     0.1425
+    ],
+    "Color": [
+     0.8667,
+     0.949,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4982,
+       0.2128,
+       -0.0456
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9397,
+        0.342
+       ],
+       [
+        0.0,
+        -0.342,
+        0.9397
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0475,
+     0.0475,
+     0.1425
+    ],
+    "Color": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.9642,
+       -0.4453
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.8977,
+     0.5985,
+     0.1425
+    ],
+    "Color": [
+     0.8667,
+     0.949,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4512,
+       0.9737,
+       0.0475
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.095,
+     0.095,
+     0.095
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4512,
+       0.7838,
+       -0.1663
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.095,
+     0.095,
+     0.095
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4512,
+       1.0213,
+       0.2375
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.095,
+     0.095,
+     0.095
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4512,
+       1.0331,
+       -0.3087
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.095,
+     0.095,
+     0.095
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4512,
+       1.0806,
+       0.0475
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.095,
+     0.095,
+     0.095
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4275,
+       0.95,
+       0.0319
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.766,
+        0.6428
+       ],
+       [
+        0.0,
+        -0.6428,
+        0.766
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0475,
+     0.0475,
+     0.1425
+    ],
+    "Color": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4275,
+       0.8313,
+       -0.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.866,
+        -0.5
+       ],
+       [
+        0.0,
+        0.5,
+        0.866
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0475,
+     0.0475,
+     0.1425
+    ],
+    "Color": [
+     0.8667,
+     0.949,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4275,
+       0.9737,
+       -0.0369
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.5,
+        -0.866
+       ],
+       [
+        0.0,
+        0.866,
+        0.5
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0475,
+     0.0475,
+     0.1425
+    ],
+    "Color": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Water_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4275,
+       0.8075,
+       -0.2431
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9397,
+        0.342
+       ],
+       [
+        0.0,
+        -0.342,
+        0.9397
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0475,
+     0.0475,
+     0.1425
+    ],
+    "Color": [
+     0.8667,
+     0.949,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Water_Sit/1"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.5437,
+         -0.2956
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0925,
+       0.9025,
+       0.8576
+      ],
+      "Color": [
+       0.6588,
+       0.8471,
+       0.9412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.3325,
+         0.1768
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Water_Sit/1"
+     },
+     "children": [
+      {
+       "name": "Carry",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.76,
+           0.0106
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_BaristaCap",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.4394,
+           -0.0606
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Boater",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.4394,
+           -0.0606
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_PartyHat",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.4394,
+           -0.0606
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Hat",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.4512,
+           0.0106
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_LeafBeret",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.4512,
+           0.0106
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_AcornHairClip",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.4512,
+           0.0106
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_MushroomCap",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.4512,
+           0.0106
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_LeafCrown",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.4512,
+           0.0106
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Glasses",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.0475,
+           -0.4882
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_ReadingGlasses",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.0475,
+           -0.4882
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.5437,
+         -0.0214
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.1281,
+       0.9381,
+       0.3691
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.8163,
+         -0.7386
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1603,
+       0.1603,
+       0.0475
+      ],
+      "Color": [
+       0.8667,
+       0.949,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.9205,
+         -0.7422
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1042,
+       0.1042,
+       0.0475
+      ],
+      "Color": [
+       0.8667,
+       0.949,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.9926,
+         -0.7457
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0561,
+       0.0561,
+       0.0475
+      ],
+      "Color": [
+       0.8667,
+       0.949,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.3591,
+         -0.7541
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1247,
+       0.0873,
+       0.0713
+      ],
+      "Color": [
+       0.2902,
+       0.2667,
+       0.3137
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.284,
+         -0.7303
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0333,
+       0.0867,
+       0.0356
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0312,
+         1.2282,
+         -0.7339
+        ],
+        "orientation": [
+         [
+          0.866,
+          0.5,
+          0.0
+         ],
+         [
+          -0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0623,
+       0.0333,
+       0.0356
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.106,
+         1.2282,
+         -0.7303
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0623,
+       0.0333,
+       0.0356
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0312,
+         1.2282,
+         -0.7339
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0623,
+       0.0333,
+       0.0356
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.106,
+         1.2282,
+         -0.7303
+        ],
+        "orientation": [
+         [
+          0.866,
+          0.5,
+          0.0
+         ],
+         [
+          -0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0623,
+       0.0333,
+       0.0356
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4489,
+         1.3217,
+         -0.7244
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1496,
+       0.0623,
+       0.0594
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4489,
+         1.3217,
+         -0.7244
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1496,
+       0.0623,
+       0.0594
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4275,
+         1.7337,
+         -0.7422
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0713,
+       0.0713,
+       0.0475
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4394,
+         1.2944,
+         -0.7513
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0713,
+       0.0713,
+       0.0657
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4394,
+         1.71,
+         -0.7554
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1187,
+       0.0416,
+       0.0811
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4275,
+         1.2587,
+         -0.7386
+        ],
+        "orientation": [
+         [
+          0.766,
+          0.6428,
+          0.0
+         ],
+         [
+          -0.6428,
+          0.766,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1188,
+       0.0416,
+       0.0475
+      ],
+      "Color": [
+       0.8667,
+       0.949,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.3563,
+         1.8169,
+         -0.7386
+        ],
+        "orientation": [
+         [
+          0.342,
+          -0.9397,
+          0.0
+         ],
+         [
+          0.9397,
+          0.342,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1188,
+       0.0416,
+       0.0475
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Water_Sit/2"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Water_Sit_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2618,
+           1.4963,
+           -0.7362
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2494,
+         0.3242,
+         0.0831
+        ],
+        "Color": [
+         0.5608,
+         0.8275,
+         0.7569
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Water_Sit/2"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2057,
+           1.587,
+           -0.7897
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0748,
+         0.0873,
+         0.0356
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.2618,
+         1.4963,
+         -0.7362
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Water_Sit_Eye1"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Water_Sit/3"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Water_Sit_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2618,
+           1.4963,
+           -0.7362
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2494,
+         0.3242,
+         0.0831
+        ],
+        "Color": [
+         0.5608,
+         0.8275,
+         0.7569
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Water_Sit/3"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.318,
+           1.587,
+           -0.7897
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0748,
+         0.0873,
+         0.0356
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.2618,
+         1.4963,
+         -0.7362
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Water_Sit_Eye2"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Water_Sit/4"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Water_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3078,
+           2.0213,
+           -0.2138
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2969,
+         0.1188,
+         0.2969
+        ],
+        "Color": [
+         0.6039,
+         0.6627,
+         0.7608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.037,
+           -0.0555,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Water_Sit/4"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3325,
+           2.1375,
+           -0.2138
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1781,
+         0.1188,
+         0.1781
+        ],
+        "Color": [
+         0.6039,
+         0.6627,
+         0.7608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3572,
+           2.2537,
+           -0.2138
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0594,
+         0.1188,
+         0.0594
+        ],
+        "Color": [
+         0.6039,
+         0.6627,
+         0.7608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3547,
+           2.0663,
+           -0.3582
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1283,
+         0.1354,
+         0.068
+        ],
+        "Color": [
+         0.8784,
+         0.4784,
+         0.549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.3325,
+         1.9594,
+         -0.2138
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Water_Sit_EarL"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Water_Sit/5"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Water_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3078,
+           2.0213,
+           -0.2138
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2969,
+         0.1188,
+         0.2969
+        ],
+        "Color": [
+         0.6039,
+         0.6627,
+         0.7608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.037,
+           -0.0555,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Water_Sit/5"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3325,
+           2.1375,
+           -0.2138
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1781,
+         0.1188,
+         0.1781
+        ],
+        "Color": [
+         0.6039,
+         0.6627,
+         0.7608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3572,
+           2.2537,
+           -0.2138
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0594,
+         0.1188,
+         0.0594
+        ],
+        "Color": [
+         0.6039,
+         0.6627,
+         0.7608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3547,
+           2.0663,
+           -0.3582
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1283,
+         0.1354,
+         0.068
+        ],
+        "Color": [
+         0.8784,
+         0.4784,
+         0.549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.3325,
+         1.9594,
+         -0.2138
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Water_Sit_EarR"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Water_Sit/9"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           2.2325,
+           -0.285
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1544,
+         0.4038,
+         0.1187
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -1.0213,
+           0.1662
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Water_Sit/9",
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3097,
+           2.0306,
+           -0.202
+          ],
+          "orientation": [
+           [
+            0.9659,
+            0.0,
+            0.2588
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.2588,
+            0.0,
+            0.9659
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0712,
+         0.0713,
+         0.1992
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2267,
+           2.0306,
+           -0.0583
+          ],
+          "orientation": [
+           [
+            0.7071,
+            0.0,
+            0.7071
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.7071,
+            0.0,
+            0.7071
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0712,
+         0.0713,
+         0.1992
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.083,
+           2.0306,
+           0.0247
+          ],
+          "orientation": [
+           [
+            0.2588,
+            0.0,
+            0.9659
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.9659,
+            0.0,
+            0.2588
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0712,
+         0.0713,
+         0.1992
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.083,
+           2.0306,
+           0.0247
+          ],
+          "orientation": [
+           [
+            -0.2588,
+            0.0,
+            0.9659
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.9659,
+            0.0,
+            -0.2588
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0713,
+         0.0713,
+         0.1992
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2267,
+           2.0306,
+           -0.0583
+          ],
+          "orientation": [
+           [
+            -0.7071,
+            0.0,
+            0.7071
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.7071,
+            0.0,
+            -0.7071
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0712,
+         0.0713,
+         0.1992
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3097,
+           2.0306,
+           -0.202
+          ],
+          "orientation": [
+           [
+            -0.9659,
+            0.0,
+            0.2588
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.2588,
+            0.0,
+            -0.9659
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0713,
+         0.0713,
+         0.1992
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3097,
+           2.0306,
+           -0.368
+          ],
+          "orientation": [
+           [
+            -0.9659,
+            0.0,
+            -0.2588
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.2588,
+            0.0,
+            -0.9659
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0713,
+         0.0713,
+         0.1992
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2267,
+           2.0306,
+           -0.5117
+          ],
+          "orientation": [
+           [
+            -0.7071,
+            0.0,
+            -0.7071
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.7071,
+            0.0,
+            -0.7071
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0712,
+         0.0713,
+         0.1992
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.083,
+           2.0306,
+           -0.5947
+          ],
+          "orientation": [
+           [
+            -0.2588,
+            0.0,
+            -0.9659
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.9659,
+            0.0,
+            -0.2588
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0713,
+         0.0713,
+         0.1992
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.083,
+           2.0306,
+           -0.5947
+          ],
+          "orientation": [
+           [
+            0.2588,
+            0.0,
+            -0.9659
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.9659,
+            0.0,
+            0.2588
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0712,
+         0.0713,
+         0.1992
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2267,
+           2.0306,
+           -0.5117
+          ],
+          "orientation": [
+           [
+            0.7071,
+            0.0,
+            -0.7071
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.7071,
+            0.0,
+            0.7071
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0713,
+         0.0713,
+         0.1992
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3097,
+           2.0306,
+           -0.368
+          ],
+          "orientation": [
+           [
+            0.9659,
+            0.0,
+            -0.2588
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.2588,
+            0.0,
+            0.9659
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0712,
+         0.0713,
+         0.1992
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           2.4225,
+           -0.3681
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.8192,
+            0.5736
+           ],
+           [
+            0.0,
+            -0.5736,
+            0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1425,
+         0.095,
+         0.1425
+        ],
+        "Color": [
+         0.6588,
+         0.8471,
+         0.9412
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2182,
+           2.1678,
+           -0.285
+          ],
+          "orientation": [
+           [
+            0.9703,
+            -0.2419,
+            0.0
+           ],
+           [
+            0.2419,
+            0.9703,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1544,
+         0.285,
+         0.1187
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1837,
+           2.2942,
+           -0.3681
+          ],
+          "orientation": [
+           [
+            0.9703,
+            -0.1982,
+            -0.1388
+           ],
+           [
+            0.2419,
+            0.7948,
+            0.5565
+           ],
+           [
+            0.0,
+            -0.5736,
+            0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1425,
+         0.095,
+         0.1425
+        ],
+        "Color": [
+         0.6588,
+         0.8471,
+         0.9412
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2182,
+           2.1678,
+           -0.285
+          ],
+          "orientation": [
+           [
+            0.9703,
+            0.2419,
+            0.0
+           ],
+           [
+            -0.2419,
+            0.9703,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1544,
+         0.285,
+         0.1187
+        ],
+        "Color": [
+         0.4314,
+         0.7569,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1837,
+           2.2942,
+           -0.3681
+          ],
+          "orientation": [
+           [
+            0.9703,
+            0.1982,
+            0.1388
+           ],
+           [
+            -0.2419,
+            0.7948,
+            0.5565
+           ],
+           [
+            0.0,
+            -0.5736,
+            0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1425,
+         0.095,
+         0.1425
+        ],
+        "Color": [
+         0.6588,
+         0.8471,
+         0.9412
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Cat_Water_Sit/10"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Cat_Water_Sit_Crest_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.1667,
+             2.2671,
+             -0.452
+            ],
+            "orientation": [
+             [
+              0.9703,
+              -0.1982,
+              -0.1388
+             ],
+             [
+              0.2419,
+              0.7948,
+              0.5565
+             ],
+             [
+              0.0,
+              -0.5736,
+              0.8192
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1565,
+           0.095,
+           0.0831
+          ],
+          "Color": [
+           1.0,
+           1.0,
+           1.0
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             -0.1701,
+             -0.0903,
+             0.1407
+            ],
+            "orientation": [
+             [
+              0.9703,
+              0.2419,
+              0.0
+             ],
+             [
+              -0.1982,
+              0.7948,
+              -0.5736
+             ],
+             [
+              -0.1388,
+              0.5565,
+              0.8192
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Cat_Water_Sit/10",
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Water_Sit_Crest_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             2.3999,
+             -0.4527
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.8192,
+              0.5736
+             ],
+             [
+              0.0,
+              -0.5736,
+              0.8192
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0824,
+           0.095,
+           0.0831
+          ],
+          "Color": [
+           1.0,
+           1.0,
+           1.0
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Water_Sit_Crest_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.1667,
+             2.2671,
+             -0.452
+            ],
+            "orientation": [
+             [
+              0.9703,
+              0.1982,
+              0.1388
+             ],
+             [
+              -0.2419,
+              0.7948,
+              0.5565
+             ],
+             [
+              0.0,
+              -0.5736,
+              0.8192
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1565,
+           0.095,
+           0.0831
+          ],
+          "Color": [
+           1.0,
+           1.0,
+           1.0
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           2.2325,
+           -0.285
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Cat_Water_Sit_Crest_Glow"
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         1.2112,
+         -0.1187
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Water_Sit_Prop"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       1.2112,
+       -0.1187
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Water_Sit_Head"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Water_Sit/6"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Water_Sit_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4565,
+         0.1627,
+         0.5876
+        ],
+        "orientation": [
+         [
+          0.342,
+          0.0,
+          -0.9397
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9397,
+          0.0,
+          0.342
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2779,
+       0.2779,
+       0.4869
+      ],
+      "Color": [
+       0.6588,
+       0.8471,
+       0.9412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0,
+         -0.2078
+        ],
+        "orientation": [
+         [
+          0.342,
+          0.0,
+          0.9397
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.9397,
+          0.0,
+          0.342
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Water_Sit/6"
+     },
+     "children": [
+      {
+       "name": "Outfit_TailBow",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.5089,
+           0.039,
+           0.2512
+          ],
+          "orientation": [
+           [
+            -0.7071,
+            0.0,
+            -0.7071
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.7071,
+            0.0,
+            -0.7071
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.7988,
+         0.1627,
+         0.5118
+        ],
+        "orientation": [
+         [
+          -0.7071,
+          0.0,
+          -0.7071
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.7071,
+          0.0,
+          -0.7071
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2779,
+       0.2779,
+       0.4869
+      ],
+      "Color": [
+       0.6588,
+       0.8471,
+       0.9412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.8579,
+         0.1777,
+         0.1765
+        ],
+        "orientation": [
+         [
+          -0.9063,
+          0.0,
+          0.4226
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.4226,
+          0.0,
+          -0.9063
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2779,
+       0.3079,
+       0.4869
+      ],
+      "Color": [
+       0.6039,
+       0.6627,
+       0.7608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.2612,
+       0.1627,
+       0.5166
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Water_Sit_Tail"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Water_Sit/7"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Water_Sit_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.2019,
+         0.3978,
+         -0.3562
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2375,
+       0.6769,
+       0.2375
+      ],
+      "Color": [
+       0.6588,
+       0.8471,
+       0.9412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.3384,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Water_Sit/7"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.2019,
+         0.0653,
+         -0.4156
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.285,
+       0.1306,
+       0.3325
+      ],
+      "Color": [
+       0.6588,
+       0.8471,
+       0.9412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.2019,
+       0.7362,
+       -0.3562
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Water_Sit_LegF1"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Water_Sit/8"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Water_Sit_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.2019,
+         0.3978,
+         -0.3562
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2375,
+       0.6769,
+       0.2375
+      ],
+      "Color": [
+       0.6588,
+       0.8471,
+       0.9412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.3384,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Water_Sit/8"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.2019,
+         0.0653,
+         -0.4156
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.285,
+       0.1306,
+       0.3325
+      ],
+      "Color": [
+       0.6588,
+       0.8471,
+       0.9412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.2019,
+       0.7362,
+       -0.3562
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Water_Sit_LegF2"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Water_Sit/11"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Water_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.216,
+         0.4097
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.309,
+          -0.9511
+         ],
+         [
+          0.0,
+          0.9511,
+          -0.309
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0831,
+       0.3088,
+       0.1615
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.0139,
+         1.2831
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.309,
+          0.9511
+         ],
+         [
+          0.0,
+          -0.9511,
+          -0.309
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Water_Sit/11",
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.026,
+         0.3889
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.309,
+          -0.9511
+         ],
+         [
+          0.0,
+          0.9511,
+          -0.309
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0831,
+       0.2672,
+       0.1615
+      ],
+      "Color": [
+       0.6588,
+       0.8471,
+       0.9412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.836,
+         0.3681
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.309,
+          -0.9511
+         ],
+         [
+          0.0,
+          0.9511,
+          -0.309
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0831,
+       0.2256,
+       0.1615
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.646,
+         0.3473
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.309,
+          -0.9511
+         ],
+         [
+          0.0,
+          0.9511,
+          -0.309
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0831,
+       0.1841,
+       0.1615
+      ],
+      "Color": [
+       0.6588,
+       0.8471,
+       0.9412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.2969,
+         1.4369,
+         0.3384
+        ],
+        "orientation": [
+         [
+          -0.7498,
+          -0.0868,
+          0.6559
+         ],
+         [
+          0.6616,
+          -0.0984,
+          0.7434
+         ],
+         [
+          0.0,
+          0.9914,
+          0.1312
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1009,
+       0.0475,
+       0.5431
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6531,
+         1.6744,
+         0.3978
+        ],
+        "orientation": [
+         [
+          -0.1961,
+          -0.1271,
+          0.9723
+         ],
+         [
+          0.9806,
+          -0.0254,
+          0.1945
+         ],
+         [
+          0.0,
+          0.9916,
+          0.1296
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0831,
+       0.0475,
+       0.3664
+      ],
+      "Color": [
+       0.6588,
+       0.8471,
+       0.9412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.9619,
+         1.615,
+         0.4334
+        ],
+        "orientation": [
+         [
+          0.5882,
+          -0.0593,
+          0.8066
+         ],
+         [
+          0.8087,
+          0.0431,
+          -0.5866
+         ],
+         [
+          0.0,
+          0.9973,
+          0.0733
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0653,
+       0.0475,
+       0.3239
+      ],
+      "Color": [
+       0.8667,
+       0.949,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.2969,
+         1.4369,
+         0.3384
+        ],
+        "orientation": [
+         [
+          -0.7498,
+          0.0868,
+          -0.6559
+         ],
+         [
+          -0.6616,
+          -0.0984,
+          0.7434
+         ],
+         [
+          0.0,
+          0.9914,
+          0.1312
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1009,
+       0.0475,
+       0.5431
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6531,
+         1.6744,
+         0.3978
+        ],
+        "orientation": [
+         [
+          -0.1961,
+          0.1271,
+          -0.9723
+         ],
+         [
+          -0.9806,
+          -0.0254,
+          0.1945
+         ],
+         [
+          0.0,
+          0.9916,
+          0.1296
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0831,
+       0.0475,
+       0.3664
+      ],
+      "Color": [
+       0.6588,
+       0.8471,
+       0.9412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Water_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.9619,
+         1.615,
+         0.4334
+        ],
+        "orientation": [
+         [
+          0.5882,
+          0.0593,
+          -0.8066
+         ],
+         [
+          -0.8087,
+          0.0431,
+          -0.5866
+         ],
+         [
+          0.0,
+          0.9973,
+          0.0733
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0653,
+       0.0475,
+       0.3239
+      ],
+      "Color": [
+       0.8667,
+       0.949,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Water_Sit/12"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Water_Sit_Foam_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.2754,
+           0.5759
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.309,
+            -0.9511
+           ],
+           [
+            0.0,
+            0.9511,
+            -0.309
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0891,
+         0.0594,
+         0.1069
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0215,
+           0.3351
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.309,
+            0.9511
+           ],
+           [
+            0.0,
+            -0.9511,
+            -0.309
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Water_Sit/12",
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Foam_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.0854,
+           0.5344
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.309,
+            -0.9511
+           ],
+           [
+            0.0,
+            0.9511,
+            -0.309
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0891,
+         0.0594,
+         0.1069
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Foam_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.8954,
+           0.4928
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.309,
+            -0.9511
+           ],
+           [
+            0.0,
+            0.9511,
+            -0.309
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0891,
+         0.0594,
+         0.1069
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Foam_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.7054,
+           0.4512
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.309,
+            -0.9511
+           ],
+           [
+            0.0,
+            0.9511,
+            -0.309
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0891,
+         0.0594,
+         0.1069
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.95,
+         0.4928
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Water_Sit_Foam_Glow"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Water_Sit/13"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Water_Sit_Bubbles_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0594,
+           2.185,
+           0.5166
+          ],
+          "orientation": [
+           [
+            0.7071,
+            -0.5,
+            -0.5
+           ],
+           [
+            0.7071,
+            0.5,
+            0.5
+           ],
+           [
+            0.0,
+            -0.7071,
+            0.7071
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1069,
+         0.1069,
+         0.1069
+        ],
+        "Color": [
+         0.8667,
+         0.949,
+         1.0
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.4282,
+           -0.2194,
+           -0.5049
+          ],
+          "orientation": [
+           [
+            0.7071,
+            0.7071,
+            0.0
+           ],
+           [
+            -0.5,
+            0.5,
+            -0.7071
+           ],
+           [
+            -0.5,
+            0.5,
+            0.7071
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Water_Sit/13",
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Bubbles_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.14,
+           1.425,
+           0.4453
+          ],
+          "orientation": [
+           [
+            0.7071,
+            -0.7071,
+            0.0
+           ],
+           [
+            0.7071,
+            0.7071,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.0713
+        ],
+        "Color": [
+         0.8667,
+         0.949,
+         1.0
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Bubbles_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3563,
+           2.0188,
+           0.4928
+          ],
+          "orientation": [
+           [
+            0.7071,
+            -0.5,
+            -0.5
+           ],
+           [
+            0.7071,
+            0.5,
+            0.5
+           ],
+           [
+            0.0,
+            -0.7071,
+            0.7071
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0831,
+         0.0831,
+         0.0831
+        ],
+        "Color": [
+         0.6588,
+         0.8471,
+         0.9412
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Bubbles_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.14,
+           1.425,
+           0.4453
+          ],
+          "orientation": [
+           [
+            0.7071,
+            -0.7071,
+            0.0
+           ],
+           [
+            0.7071,
+            0.7071,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.0713
+        ],
+        "Color": [
+         0.8667,
+         0.949,
+         1.0
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Water_Sit_Bubbles_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3563,
+           2.0188,
+           0.4928
+          ],
+          "orientation": [
+           [
+            0.7071,
+            -0.5,
+            -0.5
+           ],
+           [
+            0.7071,
+            0.5,
+            0.5
+           ],
+           [
+            0.0,
+            -0.7071,
+            0.7071
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0831,
+         0.0831,
+         0.0831
+        ],
+        "Color": [
+         0.6588,
+         0.8471,
+         0.9412
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         1.52,
+         0.3147
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Water_Sit_Bubbles_Glow"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Water_Sit_Prop2"
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

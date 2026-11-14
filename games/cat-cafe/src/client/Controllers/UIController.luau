@@ -26,6 +26,7 @@ local Catching = require(Shared:WaitForChild("Catching"))
 local Clock = require(Shared:WaitForChild("Clock"))
 local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
+local DragonRise = require(script.Parent.Parent.Effects.DragonRise)
 local Effects = require(script.Parent.Parent.Effects)
 local EventBanner = require(script.Parent.Parent.Effects.EventBanner)
 local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
@@ -346,6 +347,22 @@ local function circleVerb(): string
 	return "click"
 end
 
+-- #4151: the strip's own lines on the device the player used last, from TutorialHints' keyboard, touch and gamepad
+-- versions, so a phone reads "tap Upgrades" and never a letter key. `fallback` only if the id is unknown.
+local function deviceLine(id: string, fallback: string): string
+	local TutorialHints = require(script.Parent.Parent.UI.Components.TutorialHints) :: any
+	local last = UserInputService:GetLastInputType().Name
+	local device = if last:sub(1, 7) == "Gamepad"
+		then "gamepad"
+		elseif
+			last == "Touch"
+			or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+		then "touch"
+		else "keyboard"
+	local line: unknown = TutorialHints.lineFor(id, device)
+	return if type(line) == "string" and line ~= "" then line else fallback
+end
+
 local function swingHint(): string
 	local net: any = (UI :: any).net
 	local hint: unknown = if net ~= nil then net.hint else nil
@@ -547,6 +564,45 @@ end
 local CARRY_SETTLE = 0.6
 local tutorialCarry = { was = false, endedAt = -math.huge }
 
+-- #3995 (friend-join-3995.md 6, palJoin switch): a new player who joined through a friend and got the cafe next door
+-- reads "Your cafe is next to Sam's: step inside 🐾" as the strip's first line, with the trail to their own door,
+-- until they first stand inside it; then the tutorial goes on as normal. `pal` is the friend's user id.
+local palJoin = { pal = 0, nextDoor = false, entered = false, watching = false }
+local PAL_JOIN_WAIT = 5 -- seconds the joiner's note waits for the server's PalNextDoor attribute
+local PAL_JOIN_CHECK = 0.5 -- seconds between the "inside your cafe yet?" checks
+
+-- Whether this player's character stands inside their own cafe (over its Floor, under the roof).
+local function insideOwnCafe(): boolean
+	local plot = ownPlot()
+	local floor = if plot ~= nil then plot:FindFirstChild("Floor") else nil
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if floor == nil or not floor:IsA("BasePart") or root == nil or not root:IsA("BasePart") then
+		return false
+	end
+	local offset = (floor :: BasePart).CFrame:PointToObjectSpace((root :: BasePart).Position)
+	local half = (floor :: BasePart).Size / 2
+	return math.abs(offset.X) <= half.X
+		and math.abs(offset.Z) <= half.Z
+		and offset.Y >= -2
+		and offset.Y <= 14
+end
+
+-- The strip's next-door line while it applies (true), else false and the usual first line shows.
+local function palJoinLine(s: Types.PlayerState): boolean
+	if not palJoin.nextDoor or palJoin.entered or s.tutorialStep >= 2 then
+		return false
+	end
+	local PalsLogic = require(script.Parent.Parent.UI.Components.PalsLogic) :: any
+	local pal = Players:GetPlayerByUserId(palJoin.pal)
+	UI.tutorial.show(
+		PalsLogic.nextDoorLine(if pal ~= nil then pal.DisplayName else nil),
+		UIController.ownDoor(),
+		"Your cafe"
+	)
+	return true
+end
+
 local function refreshTutorial(s: Types.PlayerState)
 	if tutorialWatch.connection ~= nil then
 		tutorialWatch.connection:Disconnect()
@@ -586,6 +642,9 @@ local function refreshTutorial(s: Types.PlayerState)
 	if s.tutorialStep >= 2 and s.tutorialStep <= 4 then
 		reportStep("next_goal_shown")
 	end
+	if s.tutorialStep < 2 and palJoinLine(s) then
+		return
+	end
 	if s.tutorialStep < 2 then
 		showTutorial(
 			s,
@@ -601,12 +660,12 @@ local function refreshTutorial(s: Types.PlayerState)
 		if hasRestingCatAndFreeSpot(s) then
 			showTutorial(
 				s,
-				"Open the Collection (C) and give your new cat a role",
+				deviceLine("job", "Open Cats and give your new cat a job"),
 				restingCat(),
 				"Cat"
 			)
 		else
-			showTutorial(s, "Catch more cats in the alley, or buy a table in Upgrades (U)")
+			showTutorial(s, deviceLine("more", "Catch more cats, or buy a table in Upgrades"))
 		end
 	elseif s.tutorialStep == 3 then
 		-- #2912: with one cat, ring the nearest Alleyway stray (or where the tutorial stray waits) as well as the table;
@@ -615,12 +674,12 @@ local function refreshTutorial(s: Types.PlayerState)
 		if not SecondCat.done(s.stats) and areasShut() then
 			-- #3238: at night the strays are gone and the server picks the waiting one at sunrise, so say so and
 			-- point at the table instead of an empty alley
-			showTutorial(s, "Strays return at sunrise 🌅, or buy a table in Upgrades (U)")
+			showTutorial(s, deviceLine("secondNight", "Strays return at sunrise, or open Upgrades"))
 		elseif not SecondCat.done(s.stats) then -- #3160, #3551: the bowl's cat never ends it
 			local stray = nearestAlleyStray()
 			showTutorial(
 				s,
-				"Catch another cat, or buy a table in Upgrades (U)",
+				deviceLine("second", "Catch another cat 🐾"), -- #4097: one ask by day
 				stray or tutorialStrayPoint(),
 				"Catch another cat"
 			)
@@ -635,13 +694,13 @@ local function refreshTutorial(s: Types.PlayerState)
 				end)
 			end
 		else
-			showTutorial(s, "Buy your first table in Upgrades (U): more money from every cat")
+			showTutorial(s, deviceLine("table", "Open Upgrades and buy a table: more tips per cat"))
 		end
 	elseif s.tutorialStep == 4 then
 		-- gdd "The first ten minutes" beat 4: the bowl, then food in it (BaitService finishes the tutorial)
 		-- (the HUD strip shows about 50 characters on one line, reviewer N94)
 		if (s.upgradeLevels.lure_bowl or 0) < 1 then
-			showTutorial(s, "Buy the Bait bowl in Upgrades (U)")
+			showTutorial(s, deviceLine("bowl", "Open Upgrades and buy the Bait bowl"))
 		elseif s.bait ~= nil then
 			-- #3158: the first bait holds step 4 until its cat is tamed or let go (the line is TutorialHints'
 			-- "waiting", then "arrived")
@@ -649,7 +708,7 @@ local function refreshTutorial(s: Types.PlayerState)
 		else
 			showTutorial(
 				s,
-				"Put Kibble in your bowl on the back step (F)",
+				deviceLine("food", "Put Kibble in your bowl on the back step"),
 				UIController.ownBaitBowl(),
 				"Bowl"
 			)
@@ -715,6 +774,76 @@ local function refreshTutorial(s: Types.PlayerState)
 	else
 		UI.tutorial.hide()
 	end
+end
+
+-- #3995: watches for the joiner's first step inside their own cafe, then puts the strip back to the tutorial's own
+-- first line. Gives up once the tutorial has moved past its first steps.
+local function watchPalJoin()
+	if palJoin.watching then
+		return
+	end
+	palJoin.watching = true
+	task.spawn(function()
+		while not palJoin.entered do
+			task.wait(PAL_JOIN_CHECK)
+			local current = state
+			if current ~= nil and current.tutorialStep >= 2 then
+				break
+			end
+			if insideOwnCafe() then
+				palJoin.entered = true
+				local now = state
+				if now ~= nil then
+					refreshTutorial(now)
+				end
+			end
+		end
+		palJoin.watching = false
+	end)
+end
+
+-- #3995 (friend-join-3995.md 4 to 6): PalArrived with the palJoin switch on. The joiner's note waits a moment for the
+-- server's PalNextDoor attribute (it is set once the save and the plot are in), then shows; a new joiner next door
+-- gets the strip's next-door line. The friend gets their note at once.
+function UIController.palJoined(joinerId: number, palId: number)
+	if joinerId ~= player.UserId and palId ~= player.UserId then
+		return
+	end
+	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+	local PalJoin = require(Shared:WaitForChild("PalJoin")) :: any
+	local key: string = PalJoin.FLAG
+	if
+		not LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
+	then
+		return
+	end
+	local hook: unknown = (UI :: any).palJoined
+	if type(hook) ~= "function" then
+		return
+	end
+	local show = hook :: (number, number, boolean?) -> ()
+	if palId == player.UserId then
+		show(joinerId, palId, nil)
+		return
+	end
+	task.spawn(function()
+		local attribute: string = PalJoin.ATTRIBUTE
+		local started = os.clock()
+		while player:GetAttribute(attribute) == nil and os.clock() - started < PAL_JOIN_WAIT do
+			task.wait(0.25)
+		end
+		local nextDoor = player:GetAttribute(attribute) == true
+		show(joinerId, palId, nextDoor)
+		if nextDoor then
+			palJoin.pal = palId
+			palJoin.nextDoor = true
+			local now = state
+			if now ~= nil then
+				refreshTutorial(now)
+			end
+			watchPalJoin()
+		end
+	end)
 end
 
 -- Role changes since the last sync, for the sounds (sound list: place and unplace): a cat newly in a role or moved
@@ -1144,6 +1273,7 @@ local function applyState(s: Types.PlayerState)
 		-- #2555: the free Bellhop Cat's stand "!" (#2501) and its speech bubble show only while this is false
 		starterCatClaimed = s.starterCatClaimed,
 		storeSeen = s.storeSeen, -- #1823 §4: the Store tabs' New dots
+		dailyDeal = s.dailyDeal or false, -- #3996: Today's Deal on the Store's Featured tab
 		-- #2574: Juniper's Mystery Market: the items owned, the cart's "!" until the first visit, and whether buys are
 		-- taken yet
 		mystery = s.mystery,
@@ -1276,6 +1406,12 @@ local function wireIntents()
 	end)
 	-- #1823 §4: a Store tab with a New dot opened; the server saves its version (known tabs only). The server takes
 	-- two a second, so tabs tapped faster than that wait their turn here instead of being dropped.
+	-- #3996: Today's Deal's R$25: the server checks it is today's, not bought yet, and opens the prompt (1 a second)
+	UI.events.storeDeal:Connect(function(productId: string)
+		if type(productId) == "string" then
+			Net.fire("PromptDeal", productId)
+		end
+	end)
 	local seenQueue: { string } = {}
 	local seenSending = false
 	UI.events.storeSeen:Connect(function(tab: string)
@@ -1543,6 +1679,8 @@ local function wireIntents()
 		end
 	end)
 	RiftRun.onHold(UI.setCutscene)
+	-- #4062: the Dragon Keep's stage-up cutscene holds them the same way
+	DragonRise.onHold(UI.setCutscene)
 	mysticPool.far = function(): boolean
 		local distance = poolDistance()
 		return distance == nil or distance > POOL_FAR_STUDS
@@ -2517,6 +2655,7 @@ local function wireServerEvents()
 	-- the glowing travel button), else a toast when the pal is out in an area.
 	Net.on("PalArrived", function(joinerId: number, palId: number, palArea: string?)
 		Moments.PalArrived:Fire(joinerId, palId)
+		UIController.palJoined(joinerId, palId)
 		if joinerId ~= player.UserId then
 			return
 		end

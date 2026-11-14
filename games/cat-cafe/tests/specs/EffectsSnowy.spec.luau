@@ -69,9 +69,26 @@ return function()
 			-- Epic < Legendary < Mythical
 			expect(weight(ice) < weight(tiger)).to.equal(true)
 			expect(weight(tiger) < weight(blizzard)).to.equal(true)
-			-- the commons and rares have none: their props do the talking
-			for _, catId in { "flurry", "mitten", "hot_chocolate", "spruce", "snow_boots", "ski" } do
+			-- the second Epic matches the first
+			local leopard = Presets.signature.snow_leopard
+			expect(weight(leopard)).to.equal(weight(ice))
+			expect(Presets.emitters[leopard.emitter] ~= nil and PLACES[leopard.on]).to.equal(true)
+			-- the commons have none: their props do the talking
+			for _, catId in { "flurry", "mitten", "hot_chocolate", "spruce" } do
 				expect(Presets.signature[catId] == nil).to.equal(true)
+			end
+			-- the Rares: one faint emitter, only while they move, and only in a slot no rarer cat needs
+			for _, catId in { "snow_boots", "ski" } do
+				local rare = Presets.signature[catId]
+				expect(weight(rare)).to.equal(1)
+				expect(rare.moving).to.equal(true)
+				expect(rare.minor).to.equal(true)
+				expect(rare.eyes).to.equal(nil)
+				local kick = Presets.emitters[rare.emitter]
+				expect(kick.rate < Presets.emitters.sigFrostTrail.rate).to.equal(true)
+				expect(kick.transparency[1] > Presets.emitters.sigFrostTrail.transparency[1]).to.equal(
+					true
+				)
 			end
 			expect(blizzard.arrive.burst <= Presets.budget.low.maxBurst).to.equal(true)
 			expect(Presets.emitters[blizzard.arrive.preset] ~= nil).to.equal(true)
@@ -132,6 +149,79 @@ return function()
 			local a = Logic.orbitOffset(1, o.count, 0, radius, o.tilt, o.seconds)
 			local b = Logic.orbitOffset(1, o.count, o.seconds, radius, o.tilt, o.seconds)
 			expect((a - b).Magnitude < 1e-6).to.equal(true)
+		end)
+
+		it("wriggles a cat stuck in each of the Snowy Mountain's traps", function()
+			for _, trap in { "snowdrift", "snow_log", "snowman", "sled" } do
+				expect(Logic.stuckStyle(trap)).to.equal("stuckButt")
+			end
+		end)
+
+		it("hangs the northern lights over the area at night, slow and inside it", function()
+			local a = Presets.areaFx.areas.snowy.aurora :: any
+			expect(#a.ribbons).to.equal(3) -- one count per budget tier, fewer as the tier drops
+			expect(a.ribbons[1] >= a.ribbons[2] and a.ribbons[2] >= a.ribbons[3]).to.equal(true)
+			expect(a.ribbons[1] <= 3).to.equal(true) -- two Beams a ribbon: six at most
+			-- soft, never a solid band: the smoke picture thins it further (#4085: 0.72 could not be seen at all)
+			expect(a.shown >= 0.5 and a.shown < 1).to.equal(true)
+			expect(a.brightness >= 1 and a.brightness <= 3).to.equal(true)
+			-- thinner bands over wider ones, never more than three, and even all three together stay see-through
+			expect(#a.nest >= 2 and #a.nest <= 3).to.equal(true)
+			expect(a.nest[1]).to.equal(1)
+			for n = 2, #a.nest do
+				expect(a.nest[n] < a.nest[n - 1]).to.equal(true)
+			end
+			expect(a.nestLow >= 1 and a.nestLow <= #a.nest).to.equal(true)
+			local through = 1
+			for n = 1, #a.nest do
+				expect(a.nestShown[n] >= 0.5 and a.nestShown[n] < 1).to.equal(true)
+				expect(a.nestBright[n] >= 1 and a.nestBright[n] <= 2).to.equal(true)
+				through *= a.nestShown[n]
+			end
+			expect(through >= 0.15).to.equal(true)
+			for _, seconds in a.seconds do
+				expect(seconds >= 8).to.equal(true) -- a slow sway
+			end
+			local centre = { x = 100, z = -400 }
+			-- a wide area and a long one (the Snowy Mountain is 150 across and 560 deep): the ribbons run the long way
+			for _, size in { { width = 300, depth = 200 }, { width = 150, depth = 560 } } do
+				local alongZ = size.depth > size.width
+				local long = if alongZ then size.depth else size.width
+				local short = if alongZ then size.width else size.depth
+				local ribbons = Logic.auroraRibbons(
+					a.ribbons[1],
+					centre,
+					size,
+					a.height,
+					a.spread,
+					a.rise,
+					a.curve,
+					a.seconds,
+					a.curveMost
+				)
+				expect(#ribbons).to.equal(a.ribbons[1])
+				for i, r in ribbons do
+					local run = r.to - r.from
+					-- level, along the long side, inside the box end to end
+					expect(run.Y).to.equal(0)
+					expect(math.abs(run.Magnitude - long * 0.8) < 1e-6).to.equal(true)
+					expect(math.abs(if alongZ then run.X else run.Z) < 1e-6).to.equal(true)
+					-- it bends square to its length, never more than curveMost
+					expect(math.abs(r.across:Dot(run)) < 1e-6).to.equal(true)
+					expect(math.abs(r.bend) <= a.curveMost).to.equal(true)
+					-- spread over the short side, each a little higher, well over the roofs and the pines
+					local off = if alongZ then r.from.X - centre.x else r.from.Z - centre.z
+					expect(math.abs(off) < short * a.spread / 2).to.equal(true)
+					expect(r.from.Y).to.equal(a.height + (i - 1) * a.rise)
+					expect(r.from.Y >= 80).to.equal(true)
+					-- neighbours bend to opposite sides
+					expect(r.bend * (if i % 2 == 1 then 1 else -1) > 0).to.equal(true)
+					expect(r.seconds >= 8).to.equal(true)
+				end
+			end
+			expect(#Logic.auroraRibbons(0, centre, { width = 1, depth = 1 }, 1, 1, 1, 1, { 1 })).to.equal(
+				0
+			)
 		end)
 	end)
 end

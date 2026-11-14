@@ -178,6 +178,10 @@ local lastRainbowToastAt: number? = nil -- os.clock() of this server's last rain
 local inRescue: (Player) -> boolean = function(_player: Player): boolean
 	return false
 end
+-- #4128 follow-up: the words a refusal uses while that check is true ("Finish the Rummage Bin first" on the bin's bar)
+local rescueText: (Player) -> string = function(_player: Player): string
+	return "Finish this rescue first"
+end
 
 local MAX_CIRCLES = Circles.maxCircles() -- #1884: the most circles any schedule holds; bounds the CatchPress index
 
@@ -2256,7 +2260,7 @@ function startCatch(
 		return "Check in the cat you are carrying first"
 	end
 	if inRescue(player) then
-		return "Finish this rescue first"
+		return rescueText(player)
 	end
 	if inFlight(player) then
 		return "Land first"
@@ -3758,8 +3762,11 @@ function CatService.startCarry(
 end
 
 -- RescueService registers how to tell whether a player's rescue attempt is running.
-function CatService.setRescueCheck(check: (Player) -> boolean)
+function CatService.setRescueCheck(check: (Player) -> boolean, text: ((Player) -> string)?)
 	inRescue = check
+	if text ~= nil then
+		rescueText = text
+	end
 end
 
 -- Where strays and stuck cats live in the world (Workspace.World.Strays).
@@ -3785,7 +3792,7 @@ function CatService.busyReason(player: Player, hopOk: boolean?): string?
 		return "Finish this catch first"
 	end
 	if inRescue(player) then
-		return "Finish this rescue first"
+		return rescueText(player)
 	end
 	return nil
 end

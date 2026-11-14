@@ -37,6 +37,7 @@
 -- `played_60s` in front of `played_2m`; a save that logged any of `first_hour` leaves `first_hour_v2`, so both
 -- funnels count only players who started on them.
 
+local Catalog = require(script.Parent.Catalog)
 local Types = require(script.Parent.Types)
 
 local Onboarding = {}
@@ -839,7 +840,8 @@ function Onboarding.fromSave(facts: SaveFacts): { StepName }
 	if (facts.goalsDone or 0) >= 1 then
 		add("first_goal_done")
 	end
-	if facts.distinctCats >= 5 then
+	-- #4098: Tier 2's need (4 from 2026-11-14, 5 before); the id stays five_cats so the funnel keeps its step
+	if facts.distinctCats >= Catalog.tiers[2].distinctCats then
 		add("five_cats")
 	end
 	if facts.tier >= 2 then

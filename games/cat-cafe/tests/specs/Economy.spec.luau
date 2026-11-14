@@ -392,10 +392,10 @@ return function()
 				local p = freshProfile()
 				local base = Economy.incomePerSecond(p)
 				local xp = Economy.catXpRate(p.cats.starter)
-				p.cats.starter.trait = { id = "cosmicFortune" } -- +100% income, bowl luck 0.25, rich rate 0.25
+				p.cats.starter.trait = { id = "cosmicFortune" } -- +100% income, bowl luck 0.25, rare customer chance 0.25
 				expect(Economy.incomePerSecond(p)).to.be.near(base * 2, 1e-9)
 				expect(Economy.nightTraitRate(p)).to.equal(0)
-				expect(Economy.traitBonus(p, "richRate")).to.be.near(0.25)
+				expect(Economy.traitBonus(p, "rareCustomer")).to.be.near(0.25)
 				expect(Economy.traitBonus(p, "bowlLuck")).to.be.near(0.25)
 				expect(Economy.richRate(p)).to.be.near(1.25)
 				p.cats.starter.trait = { id = "eternalNight" } -- +150% night income, +150% XP, +2.5 studs/s
@@ -1204,17 +1204,17 @@ return function()
 		end)
 
 		it(
-			"Tier 1 to 2: 5 different cats and 13,500 coins (#3195; 12,000 for #2915, 22,000 for #2683, 30,000 for #1499), the starter Tabby counts",
+			"Tier 1 to 2: 4 different cats and 7,500 coins (#4098; 13,500 and 5 for #3195, 12,000 for #2915, 22,000 for #2683, 30,000 for #1499), the starter Tabby counts",
 			function()
 				local p = freshProfile()
-				p.coins = 13500
-				for _, id in { "ginger", "tuxedo", "smoke" } do
+				p.coins = 7500
+				for _, id in { "ginger", "tuxedo" } do
 					p.collection[id] = 1000
 				end
-				expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 4)")
-				p.collection.calico = 1000
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 4 different cats (you have 3)")
+				p.collection.smoke = 1000
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
-				p.coins = 13499
+				p.coins = 7499
 				expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
 			end
 		)
@@ -1318,7 +1318,7 @@ return function()
 				local p = freshProfile()
 				p.tier = damaged
 				p.coins = 1e9
-				expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 1)")
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 4 different cats (you have 1)")
 			end
 		end)
 
@@ -1329,6 +1329,81 @@ return function()
 			expect(p.coins).to.equal(8000)
 			expect(p.tier).to.equal(2)
 			expect(Economy.distinctCats(p)).to.equal(before)
+		end)
+	end)
+	-- #3889: rare customers by a chance per arriving customer (shared/RareCustomers). Here, not in a spec file of its
+	-- own, since the cloud checker holds a fixed number of spec files.
+	describe("rare customers by chance (#3889)", function()
+		local RareCustomers = require(Shared.RareCustomers)
+
+		it("keeps the old timers' averages and adds to at most 1", function()
+			local c = RareCustomers.chances(1, 0)
+			local every = Config.RareCustomerSeconds
+			expect(c.rich).to.be.near(every / 480, 1e-9)
+			expect(c.mystery).to.be.near(every / 1200, 1e-3)
+			expect(c.collector).to.be.near(every / 300, 1e-9)
+			-- the trait raises all three, the passes the rich one only
+			local boosted = RareCustomers.chances(1.4, 0.4)
+			expect(boosted.rich).to.be.near(c.rich * 1.4, 1e-9)
+			expect(boosted.mystery).to.be.near(c.mystery * 1.4, 1e-9)
+			expect(boosted.collector).to.be.near(c.collector * 1.4, 1e-9)
+			local passes = RareCustomers.chances(2.25, 0)
+			expect(passes.mystery).to.be.near(c.mystery, 1e-9)
+			-- never more than one kind a customer
+			local huge = RareCustomers.chances(1000, 1000)
+			expect(huge.rich + huge.mystery + huge.collector).to.be.near(1, 1e-9)
+		end)
+
+		it("picks one kind per customer from one roll, else an everyday customer", function()
+			local c = { rich = 0.1, mystery = 0.05, collector = 0.2 }
+			expect(RareCustomers.pick(c, 0)).to.equal("rich")
+			expect(RareCustomers.pick(c, 0.099)).to.equal("rich")
+			expect(RareCustomers.pick(c, 0.1)).to.equal("mystery")
+			expect(RareCustomers.pick(c, 0.149)).to.equal("mystery")
+			expect(RareCustomers.pick(c, 0.151)).to.equal("collector")
+			expect(RareCustomers.pick(c, 0.349)).to.equal("collector")
+			expect(RareCustomers.pick(c, 0.351)).to.equal(nil)
+			expect(RareCustomers.pick(c, 0.999)).to.equal(nil)
+			-- 100,000 rolls land near the chances
+			local r = Random.new(3889)
+			local got: { [string]: number } = { rich = 0, mystery = 0, collector = 0 }
+			local base = RareCustomers.chances(1, 0)
+			local n = 100000
+			for _ = 1, n do
+				local kind = RareCustomers.pick(base, r:NextNumber())
+				if kind ~= nil then
+					got[kind] += 1
+				end
+			end
+			expect(math.abs(got.rich / n - base.rich) < 0.002).to.equal(true)
+			expect(math.abs(got.mystery / n - base.mystery) < 0.002).to.equal(true)
+			expect(math.abs(got.collector / n - base.collector) < 0.002).to.equal(true)
+		end)
+
+		it(
+			"counts one customer every RareCustomerSeconds of open day, carrying the rest",
+			function()
+				local every = Config.RareCustomerSeconds
+				local count, left = RareCustomers.arrivals(0, every - 1)
+				expect(count).to.equal(0)
+				expect(left).to.be.near(every - 1)
+				count, left = RareCustomers.arrivals(left, 1)
+				expect(count).to.equal(1)
+				expect(left).to.be.near(0)
+				count, left = RareCustomers.arrivals(0, every * 3 + 2)
+				expect(count).to.equal(3)
+				expect(left).to.be.near(2)
+			end
+		)
+
+		it("seats a rare customer at any open table", function()
+			expect(RareCustomers.tableFor(1, 0.99)).to.equal(1)
+			expect(RareCustomers.tableFor(4, 0)).to.equal(1)
+			expect(RareCustomers.tableFor(4, 0.5)).to.equal(3)
+			expect(RareCustomers.tableFor(4, 0.999)).to.equal(4)
+			expect(RareCustomers.tableFor(0, 0.5)).to.equal(1)
+			expect(RareCustomers.percent(0.0125)).to.equal("1.3%")
+			expect(RareCustomers.percent(0.005)).to.equal("0.5%")
 		end)
 	end)
 end

@@ -8832,7 +8832,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ tutorialStep = 9, tier = 2 } :: any)
 		UI.parkTrail.reach(false)
 		UI.parkTrail.set(nil, "Visit the Park 🐾")
-		UIShim.advance(0.1)
+		-- a rank up in an earlier scene leaves "The Park is open!" up for its time; the Park line comes after it
+		local CannonLogic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.CannonLogic")
+		UIShim.advance(CannonLogic.OPENED_HINT_SECONDS + 1)
 		assert(strip() == UI.parkTrail.STRIP, "uigate: on the way to the Park the strip reads " .. strip() .. " (#3893)")
 		-- the Tutorial tile's red X (its Hide button, the Cross's grandparent)
 		local cross = hud:FindFirstChild("Cross", true) :: Instance

@@ -2,13 +2,14 @@
 -- A soft dark shade round the edges of the screen while something in the world has the player's eye (#3702, Derek
 -- 2026-11-12: "put a little shade around the outsides of screen until animation of pool is done"). Four black
 -- strips, one per edge, each fading to clear toward the middle through a UIGradient: no texture. The middle of the
--- screen stays clear. A tap anywhere (or a gamepad's A or B) calls `onTap`, and an optional small hint sits at the
+-- screen stays clear. A tap anywhere that is not a drag (or a gamepad's A or B) calls `onTap`, and an optional small hint sits at the
 -- bottom ("Tap to skip").
 --   EdgeShade.show(parent, hint, onTap)   shows it; returns the function that lifts it (safe to call twice)
 -- It fades in and out over FADE seconds, or appears at once with Roblox's Reduce Motion. Numbers in EdgeShadeLogic.
 
 local ContextActionService = game:GetService("ContextActionService")
 local GuiService = game:GetService("GuiService")
+local UserInputService = game:GetService("UserInputService")
 
 local Create = require(script.Parent.Create)
 local EdgeShadeLogic = require(script.Parent.EdgeShadeLogic)
@@ -87,15 +88,32 @@ function EdgeShade.show(parent: Instance, hint: string?, onTap: (() -> ())?): ()
 			onTap()
 		end
 	end
-	local catcher: TextButton = Create("TextButton", {
-		Name = "Tap",
-		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
-		Text = "",
-		ZIndex = 2,
-		Parent = gui,
-	})
-	catcher.Activated:Connect(tap)
+	-- #4016 (Derek: "move the screen with right click during trait normal animations"): no full-screen button, which
+	-- took every click and touch from the camera. A left click or a touch that ends near where it began, soon, and
+	-- that no GUI took, is the tap; a right click drag or a touch drag turns the camera as usual.
+	local downs: { [InputObject]: { at: Vector3, time: number } } = {}
+	local began = UserInputService.InputBegan:Connect(
+		function(input: InputObject, processed: boolean)
+			local kind = input.UserInputType
+			if
+				processed
+				or (kind ~= Enum.UserInputType.MouseButton1 and kind ~= Enum.UserInputType.Touch)
+			then
+				return
+			end
+			downs[input] = { at = input.Position, time = os.clock() }
+		end
+	)
+	local ended = UserInputService.InputEnded:Connect(function(input: InputObject)
+		local down = downs[input]
+		downs[input] = nil
+		if down == nil then
+			return
+		end
+		if EdgeShadeLogic.isTap((input.Position - down.at).Magnitude, os.clock() - down.time) then
+			tap()
+		end
+	end)
 	ContextActionService:BindAction(
 		ACTION,
 		function(_name: string, state: Enum.UserInputState): Enum.ContextActionResult
@@ -114,8 +132,9 @@ function EdgeShade.show(parent: Instance, hint: string?, onTap: (() -> ())?): ()
 		end
 		lifted = true
 		ContextActionService:UnbindAction(ACTION)
-		catcher.Active = false
-		catcher.Visible = false
+		began:Disconnect()
+		ended:Disconnect()
+		table.clear(downs)
 		if still then
 			gui:Destroy()
 			return

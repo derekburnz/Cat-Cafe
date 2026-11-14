@@ -5298,6 +5298,11 @@ export type AuroraSpec = {
 	nestShown: { number }, -- each of those bands' own transparency at the ribbon's middle
 	nestBright: { number }, -- and its Beam.Brightness
 	height: number,
+	window: number, -- studs across your look the ribbons' box is wide: they run over 0.8 of it, side to side
+	deep: number, -- studs front to back the ribbons are spread over, centred `ahead` of you
+	ahead: number, -- studs out the way the camera looks, laid flat
+	recentre: number, -- the window moves once you are this far from where it was centred for
+	glide: number, -- seconds it takes to move
 	spread: number, -- of the area's shorter side the ribbons are spread over (over 1: the outer ones hang past its walls)
 	rise: number, -- studs each ribbon hangs above the one in front
 	width: number,
@@ -5344,6 +5349,8 @@ Presets.areaFx = {
 		scanSeconds = 10,
 		emitter = "duneSand",
 	},
+	-- the northern lights also hang through this many last seconds of the day: night closes the areas
+	auroraEvening = 60,
 	areas = {
 		desert = {
 			air = "desertSand",
@@ -5374,10 +5381,24 @@ Presets.areaFx = {
 			footStuds = 3,
 			aurora = {
 				ribbons = { 3, 2, 2 },
-				height = 90,
-				spread = 1.5,
-				rise = 12,
-				width = 46,
+				-- #4216 Studio look: hung over the whole 560 stud area at 90 studs they sat far off behind the
+				-- mountain and the top of the screen. So a window of them keeps ahead of you, lower. Second look: at
+				-- 62 studs they were still above what the default camera shows (it looks a little down, and the top
+				-- HUD bar covers the rest), so they hang low and further out: 10 to 20 degrees up from where you stand.
+				-- Third look: run along the area they were end on to you, thin slivers with faded tips. So they hang
+				-- across the way you look, side to side, at about 90, 150 and 210 studs ahead.
+				-- Fourth look: the camera at the landing looks along the area's short side, so nothing hung by the
+				-- area's sides is sure to be in view. They hang from the camera's own look now, 15 to 30 studs over
+				-- your feet: 6 to 14 degrees up, the upper third of the screen.
+				height = 20,
+				window = 300,
+				deep = 80,
+				ahead = 150,
+				recentre = 90,
+				glide = 4,
+				spread = 1,
+				rise = 4,
+				width = 30,
 				overlap = 0.45,
 				curve = 0.22,
 				curveMost = 60,
@@ -5385,10 +5406,12 @@ Presets.areaFx = {
 				-- #4085 Studio looks: the smoke picture drew as nothing on a Beam, a bare band at 0.4 is a solid sheet,
 				-- and three bands at 0.8 were only a haze. So no picture: three bands a colour, thinner over wider,
 				-- the thinner ones a little stronger and brighter, for a soft edge round a core line that reads.
-				shown = 0.6,
+				-- #4216: they show at dusk now (night closes the area), and against the brighter dusk sky 0.55 to 0.62
+				-- vanished, so each band is stronger.
+				shown = 0.42,
 				brightness = 1,
 				nest = { 1, 0.62, 0.3 },
-				nestShown = { 0.6, 0.62, 0.55 },
+				nestShown = { 0.42, 0.45, 0.38 },
 				nestBright = { 1, 1.5, 2 },
 				nestLow = 2,
 				fade = 3,

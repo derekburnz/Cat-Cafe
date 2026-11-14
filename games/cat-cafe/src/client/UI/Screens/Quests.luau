@@ -27,12 +27,14 @@ local Workspace = game:GetService("Workspace")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local ShortNumber = require(script.Parent.Parent.Components.ShortNumber)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -161,8 +163,14 @@ local STAT_PICTURES: { [string]: string } = {
 	rareCatches = "💎",
 	rescues = "🆘",
 	spins = "🎡",
-	tipJarClaims = "🫙",
-	tipPilesCollected = "🪙",
+	-- #4046: 🫙 and 🪙 are newer than Roblox's emoji and drew blank (as #2015); these show while the pictures load
+	tipJarClaims = "🍯",
+	tipPilesCollected = "💰",
+}
+-- #4046: the stats drawn with a clean picture of ours over their emoji
+local STAT_IMAGES: { [string]: string } = {
+	tipJarClaims = "TipJar",
+	tipPilesCollected = "TipPile",
 }
 
 -- the quest's stat from the catalog, for its picture
@@ -957,7 +965,11 @@ function Quests._renderRow(
 	row.title.Text = quest.text
 	local picture: TextLabel? = row.picture
 	if picture ~= nil then
-		picture.Text = STAT_PICTURES[questStat(self._catalog, quest.id) or ""] or "📜"
+		local stat = questStat(self._catalog, quest.id) or ""
+		picture.Text = STAT_PICTURES[stat] or "📜"
+		-- #4046: the picture where the stat has one, and nil so a row that changed quest goes back to its emoji
+		local image = STAT_IMAGES[stat]
+		IconArt.setImage(picture, if image then ShopIcons.clean(image) else nil)
 	end
 	row.fill.Size = UDim2.fromScale(progress / needs, 1)
 	row.fill.BackgroundColor3 = if done then Theme.colors.gold else Theme.colors.good

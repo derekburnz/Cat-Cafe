@@ -107,7 +107,12 @@ local PERK_LINE = 24 -- #1767: one of the locked bowl 2 card's three lines
 -- beside it, each with a round "i" for its odds and a chunky USE
 local COLUMN_W = 0.34 -- the status column's share of the window's width
 local COLUMN_PICTURE = 56
-local INFO = 40 -- the round "i" that opens a food's odds (its Details), grown to the tap size on a phone
+-- the round "i" that opens a food's odds (its Details). Derek 2026-11-13 ("scale them down a little bit it's very
+-- big when barely anyone is checking it"): drawn well under USE, the tap size a mouse needs, and on a phone the
+-- button's invisible Hit pad (Components/Button) reaches out to a finger's 44 px so the look shrinks but the tap
+-- does not
+local INFO = 36
+local INFO_TOUCH = 44
 local COLUMN_USE_W = 84
 -- Derek 2026-11-13 ("the little blue detail buttons overlapping other buttons"): a clean button draws its outline
 -- past its box and a hover grows it round its middle (Button.OUTLINE, Button.HOVER_SCALE), so the row's two buttons
@@ -545,7 +550,7 @@ function BaitBowl._buildRows(self: any)
 	local column: boolean = self._column
 	-- #3961: the picture card's words take the width the round "i" leaves (narrower than Details)
 	local useW = if column then COLUMN_USE_W else BUTTON.X
-	local infoW = if column then Scale.tapHeight(INFO, Theme.sizes.buttonDepth) else DETAILS_W
+	local infoW = if column then (if Scale.isTouch() then INFO_TOUCH else INFO) else DETAILS_W
 	local textWidth = -(TEXT_LEFT + useW + infoW + ROW_RIGHT + ROW_GAP + 6)
 	if column then
 		topHeight = math.max(topHeight, ICON + 22) -- the name, the grade chip and the count, one line each
@@ -668,6 +673,7 @@ function BaitBowl._buildRows(self: any)
 			name = "Details",
 			text = if column then "i" else "Details",
 			style = if column then "sky" else "ghost",
+			shine = not column, -- the round "i" is plain, no light bar on top (Derek 2026-11-13)
 			size = if column
 				then UDim2.fromOffset(infoW, infoW)
 				else UDim2.fromOffset(DETAILS_W, detailsH),

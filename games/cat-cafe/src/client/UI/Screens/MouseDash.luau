@@ -504,6 +504,7 @@ function MouseDash.new(callbacks: Callbacks): MouseDash
 		Parent = card,
 	})
 	self._tabs = {} :: { [string]: Button.Button }
+	self._tabRow = tabs
 	-- each with its own picture and colour (#3553): a pink gift, a blue trophy. A second press folds its list away.
 	local looks: { { name: string, style: Button.Style, icon: string, image: string? } } = {
 		{ name = "Prizes", style = "berry", icon = "🎁", image = MouseDashLogic.GIFT },
@@ -1177,6 +1178,11 @@ function MouseDash._renderCard(self: any)
 	-- the prizes, each with its picture; two wide where the card has the room
 	local showPrizes = self._tab == "Prizes"
 	self._prizeList.Visible = showPrizes
+	-- Review-QA's controller pass: the tabs keep their own colours, so L1 / R1 read the open one here (GamepadNav)
+	self._tabRow:SetAttribute(
+		"OpenTab",
+		if self._tab == "Prizes" then 1 elseif self._tab == "Leaderboard" then 2 else 0
+	)
 	if showPrizes then
 		local wide = self._card.AbsoluteSize.X / math.max(Scale.get(), 0.01) >= TWO_COLUMNS_FROM
 		self._prizeGrid.CellSize = if wide

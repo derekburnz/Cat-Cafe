@@ -1204,17 +1204,17 @@ return function()
 		end)
 
 		it(
-			"Tier 1 to 2: 5 different cats and 13,500 coins (#3195; 12,000 for #2915, 22,000 for #2683, 30,000 for #1499), the starter Tabby counts",
+			"Tier 1 to 2: 4 different cats and 7,500 coins (#4098; 13,500 and 5 for #3195, 12,000 for #2915, 22,000 for #2683, 30,000 for #1499), the starter Tabby counts",
 			function()
 				local p = freshProfile()
-				p.coins = 13500
-				for _, id in { "ginger", "tuxedo", "smoke" } do
+				p.coins = 7500
+				for _, id in { "ginger", "tuxedo" } do
 					p.collection[id] = 1000
 				end
-				expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 4)")
-				p.collection.calico = 1000
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 4 different cats (you have 3)")
+				p.collection.smoke = 1000
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
-				p.coins = 13499
+				p.coins = 7499
 				expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
 			end
 		)
@@ -1318,7 +1318,7 @@ return function()
 				local p = freshProfile()
 				p.tier = damaged
 				p.coins = 1e9
-				expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 1)")
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 4 different cats (you have 1)")
 			end
 		end)
 

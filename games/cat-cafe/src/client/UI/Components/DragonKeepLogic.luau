@@ -196,6 +196,7 @@ export type Candidate = {
 	special: boolean, -- gold, rainbow or Legendary and better: asks once
 	working: boolean,
 	spare: boolean, -- not the last copy of its cat
+	copies: number, -- copies of its cat the player has, locked and busy ones too (as the server counts)
 	instance: any,
 }
 
@@ -228,6 +229,7 @@ function DragonKeepLogic.candidates(
 			special = DragonKeep.special(instance),
 			working = instance.spotId ~= nil,
 			spare = (copies[instance.catId] or 0) > 1,
+			copies = copies[instance.catId] or 0,
 			instance = instance,
 		})
 	end
@@ -247,10 +249,6 @@ end
 -- and keep one copy of each cat (as DragonKeep.quickPlan on the server). Never all the player's cats.
 function DragonKeepLogic.quick(list: { Candidate }, kind: string, total: number): { string }
 	local kept: { [string]: number } = {}
-	local copies: { [string]: number } = {}
-	for _, cand in list do
-		copies[cand.catId] = (copies[cand.catId] or 0) + 1
-	end
 	local out: { string } = {}
 	for _, cand in list do
 		if cand.working or cand.special or not cand.spare then
@@ -259,9 +257,9 @@ function DragonKeepLogic.quick(list: { Candidate }, kind: string, total: number)
 		if kind == "commons" and cand.rarity ~= "Common" then
 			continue
 		end
-		-- the strongest copy stays: list is weakest first, so the last free copy of each cat is kept
+		-- the last copy stays (at most copies - 1 go, as the server's quickPlan); list is weakest first
 		local used = kept[cand.catId] or 0
-		if used >= (copies[cand.catId] or 0) - 1 then
+		if used >= cand.copies - 1 then
 			continue
 		end
 		kept[cand.catId] = used + 1
@@ -301,10 +299,9 @@ function DragonKeepLogic.giveText(
 		return "Pick cats to move in"
 	end
 	if asking and special > 0 then
-		return ("Tap again: %d special cat%s move in"):format(
-			special,
-			if special == 1 then "" else "s"
-		)
+		return if special == 1
+			then "Tap again: 1 special cat moves in"
+			else ("Tap again: %d special cats move in"):format(special)
 	end
 	return ("Move %d cat%s in · +%s warmth"):format(
 		count,

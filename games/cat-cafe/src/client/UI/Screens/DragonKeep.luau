@@ -61,7 +61,7 @@ export type DragonKeep = {
 
 local MAX_SIZE = Vector2.new(820, 560)
 local GAP = Theme.sizes.gap
-local TAB_H = 30
+local TAB_H = 36 -- a tap target (ui-review: 36 px or more)
 local DRAGON_W = 200
 local SLOT_MIN = 72
 local BINDER_CELL = 104
@@ -151,6 +151,7 @@ function DragonKeep.new(callbacks: Callbacks): DragonKeep
 	self._asking = false
 	self._askToken = 0
 	self._chosen = nil :: string? -- a binder card picked, waiting for its slot
+	self._open = false
 	self._handPick = nil :: number? -- a Rekindle hand's card picked, waiting for its slot
 	self._handKey = ""
 	self._dealt = ""
@@ -368,7 +369,7 @@ function DragonKeep._buildSlots(self: any, pages: Frame)
 	local colours: Frame = Create("Frame", {
 		Name = "Colours",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, 30),
+		Size = UDim2.new(1, 0, 0, Scale.tapHeight(36)),
 		LayoutOrder = 2,
 		Visible = false,
 		Parent = right,
@@ -383,7 +384,7 @@ function DragonKeep._buildSlots(self: any, pages: Frame)
 	self._colourRow = colours
 	text({
 		Name = "Title",
-		Size = UDim2.fromOffset(96, 30),
+		Size = UDim2.fromOffset(96, 36),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -393,15 +394,25 @@ function DragonKeep._buildSlots(self: any, pages: Frame)
 	})
 	self._colourDots = {} :: { [string]: any }
 	for order, id in SharedKeep.COLOURS do
-		local dot: TextButton = Create("TextButton", {
+		-- the button is a finger's reach (Scale.tapHeight) around a 30 px dot
+		local reach = Scale.tapHeight(36)
+		local hit: TextButton = Create("TextButton", {
 			Name = "Colour_" .. id,
 			AutoButtonColor = false,
-			BackgroundColor3 = COLOURS[id] or Theme.colors.gold,
-			BorderSizePixel = 0,
-			Size = UDim2.fromOffset(28, 28),
+			BackgroundTransparency = 1,
+			Size = UDim2.fromOffset(reach, reach),
 			LayoutOrder = order,
 			Text = "",
 			Parent = colours,
+		})
+		local dot: Frame = Create("Frame", {
+			Name = "Dot",
+			BackgroundColor3 = COLOURS[id] or Theme.colors.gold,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromOffset(30, 30),
+			Parent = hit,
 		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 		local ring = Create("UIStroke", {
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
@@ -409,7 +420,7 @@ function DragonKeep._buildSlots(self: any, pages: Frame)
 			Thickness = 0,
 			Parent = dot,
 		})
-		dot.Activated:Connect(function()
+		hit.Activated:Connect(function()
 			self._callbacks.colour(id)
 		end)
 		self._colourDots[id] = ring
@@ -446,7 +457,7 @@ function DragonKeep._buildSlots(self: any, pages: Frame)
 		name = "BinderOnly",
 		text = "Keep it in the binder only",
 		style = "ghost",
-		size = UDim2.new(1, 0, 0, 30),
+		size = UDim2.new(1, 0, 0, 36),
 		textSize = Theme.sizes.textSmall,
 		layoutOrder = 5,
 		parent = right,
@@ -465,7 +476,7 @@ function DragonKeep._buildSlots(self: any, pages: Frame)
 		AutoButtonColor = false,
 		BackgroundColor3 = PAL.goldCard,
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 0, 48),
+		Size = UDim2.new(1, 0, 0, Scale.tapHeight(48)),
 		LayoutOrder = 6,
 		Text = "",
 		Visible = false,
@@ -720,7 +731,7 @@ function DragonKeep._buildGive(self: any, pages: Frame)
 	local top: Frame = Create("Frame", {
 		Name = "Top",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, 30),
+		Size = UDim2.new(1, 0, 0, 36),
 		Parent = page,
 	}, {
 		Create("UIListLayout", {
@@ -734,7 +745,7 @@ function DragonKeep._buildGive(self: any, pages: Frame)
 		name = "Commons",
 		text = "Spare Commons",
 		style = "ghost",
-		size = UDim2.fromOffset(132, 30),
+		size = UDim2.fromOffset(132, 36),
 		textSize = Theme.sizes.textSmall,
 		layoutOrder = 1,
 		parent = top,
@@ -746,7 +757,7 @@ function DragonKeep._buildGive(self: any, pages: Frame)
 		name = "Repeats",
 		text = "Repeats",
 		style = "ghost",
-		size = UDim2.fromOffset(100, 30),
+		size = UDim2.fromOffset(100, 36),
 		textSize = Theme.sizes.textSmall,
 		layoutOrder = 2,
 		parent = top,
@@ -758,7 +769,7 @@ function DragonKeep._buildGive(self: any, pages: Frame)
 		name = "Clear",
 		text = "Clear",
 		style = "ghost",
-		size = UDim2.fromOffset(72, 30),
+		size = UDim2.fromOffset(72, 36),
 		textSize = Theme.sizes.textSmall,
 		layoutOrder = 3,
 		parent = top,
@@ -770,7 +781,7 @@ function DragonKeep._buildGive(self: any, pages: Frame)
 	})
 	self._giveNote = text({
 		Name = "Note",
-		Size = UDim2.new(1, -330, 0, 30),
+		Size = UDim2.new(1, -330, 0, 36),
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -782,8 +793,8 @@ function DragonKeep._buildGive(self: any, pages: Frame)
 	})
 	FitText.shrink(self._giveNote)
 	local list = scroller("Cats", page)
-	list.Position = UDim2.fromOffset(0, 30 + 6)
-	list.Size = UDim2.new(1, 0, 1, -(30 + 6 + self._buyH + 8))
+	list.Position = UDim2.fromOffset(0, 36 + 6)
+	list.Size = UDim2.new(1, 0, 1, -(36 + 6 + self._buyH + 8))
 	self._giveList = list
 	local layout: UIGridLayout = Create("UIGridLayout", {
 		CellPadding = UDim2.fromOffset(6, 6),
@@ -1032,7 +1043,7 @@ function DragonKeep._buildHand(self: any, content: Frame)
 	self._hand = shade
 	self._handTitle = text({
 		Name = "Title",
-		Size = UDim2.new(1, -60, 0, 26),
+		Size = UDim2.new(1, -60, 0, 36),
 		Position = UDim2.fromOffset(8, 0),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
@@ -1047,7 +1058,7 @@ function DragonKeep._buildHand(self: any, content: Frame)
 		name = "Later",
 		text = "Later",
 		style = "ghost",
-		size = UDim2.fromOffset(72, 26),
+		size = UDim2.fromOffset(72, 36),
 		anchorPoint = Vector2.new(1, 0),
 		position = UDim2.fromScale(1, 0),
 		textSize = Theme.sizes.textSmall,
@@ -1060,8 +1071,8 @@ function DragonKeep._buildHand(self: any, content: Frame)
 	local row: Frame = Create("Frame", {
 		Name = "Cards",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, 32),
-		Size = UDim2.new(1, 0, 1, -(32 + 18 + 6 + self._buyH + 6)),
+		Position = UDim2.fromOffset(0, 42),
+		Size = UDim2.new(1, 0, 1, -(42 + 18 + 6 + self._buyH + 6)),
 		ZIndex = 21,
 		Parent = shade,
 	}, {
@@ -1387,6 +1398,10 @@ function DragonKeep.setView(
 		end
 	end
 	self:_paint()
+	-- a new hand while the window is open (a stage reached from the give page) comes up over it at once
+	if now ~= before and now ~= "" and self._open then
+		self:_showHand(true)
+	end
 end
 
 function DragonKeep._paint(self: any)
@@ -1409,6 +1424,7 @@ function DragonKeep._paint(self: any)
 end
 
 function DragonKeep.opened(self: any)
+	self._open = true
 	self._chosen = nil
 	self._handPick = nil
 	self:showTab("slots")
@@ -1417,6 +1433,7 @@ function DragonKeep.opened(self: any)
 end
 
 function DragonKeep.closed(self: any)
+	self._open = false
 	self._chosen = nil
 	self._handPick = nil
 	self._selected = nil

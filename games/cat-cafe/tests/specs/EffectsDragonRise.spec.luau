@@ -121,7 +121,7 @@ return function()
 			expect(math.abs(roaring.WingL.Y) < 1e-6).to.equal(true)
 			expect(roaring.WingL.Z).to.equal(-roaring.WingR.Z)
 			local up = Logic.dragonPose(0, 0, 1, 0.5, 0)
-			expect(up.WingR.Z > roaring.WingR.Z).to.equal(true)
+			expect(up.WingL.Z > roaring.WingL.Z).to.equal(true)
 			-- the roar eases in and out inside its time
 			local plan = Logic.dragonPlan(4, false)
 			expect(Logic.dragonRoar(plan, plan.roarAt)).to.equal(0)

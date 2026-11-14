@@ -350,10 +350,10 @@ local function drawnDragon(stage: number, colour: Color3): Rig
 
 	for _, leg in
 		{
-			{ name = "LegFL", x = -1, z = -1 },
-			{ name = "LegFR", x = 1, z = -1 },
-			{ name = "LegBL", x = -1, z = 1 },
-			{ name = "LegBR", x = 1, z = 1 },
+			{ name = "LegFL", x = 1, z = -1 },
+			{ name = "LegFR", x = -1, z = -1 },
+			{ name = "LegBL", x = 1, z = 1 },
+			{ name = "LegBR", x = -1, z = 1 },
 		}
 	do
 		local at = bodyAt + v(leg.x * 0.2, -0.14, leg.z * 0.22)
@@ -370,7 +370,7 @@ local function drawnDragon(stage: number, colour: Color3): Rig
 	if stage >= 2 then
 		local span: number = ({ 0, 0.34, 0.6, 0.78, 0.95 })[stage]
 		for _, side in { -1, 1 } do
-			local name = if side < 0 then "WingL" else "WingR"
+			local name = if side < 0 then "WingR" else "WingL"
 			local at = bodyAt + v(side * 0.16, 0.2, -0.02)
 			local wing = group(model, name, at)
 			local middle = at + v(side * span / 2, 0, span * 0.12)

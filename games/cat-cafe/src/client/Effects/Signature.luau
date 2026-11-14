@@ -201,6 +201,13 @@ end
 
 -- #4069: the gust where a cat with `arrive` lands (a stray appearing): a ring on the ground and a puff, in its
 -- colours, when it is near enough to be seen moving.
+-- Who wants to know about a gust (Audio plays the cat's arrival sound on it): the cat's id and where it landed.
+local arriveListeners: { (catId: string, at: Vector3) -> () } = {}
+
+function Signature.onArrive(listener: (catId: string, at: Vector3) -> ())
+	table.insert(arriveListeners, listener)
+end
+
 local function gust(model: Model, spec: Presets.Signature)
 	local arrive = spec.arrive
 	if arrive == nil then
@@ -219,6 +226,12 @@ local function gust(model: Model, spec: Presets.Signature)
 			or spec.colors
 		Particles.ring(at, colors[1], arrive.ring, 0.6)
 		Particles.burst(arrive.preset, at + Vector3.new(0, 0.4, 0), arrive.burst, colors[1])
+		local catId = model:GetAttribute("CatId")
+		if type(catId) == "string" then
+			for _, listener in arriveListeners do
+				task.spawn(listener, catId, at)
+			end
+		end
 	end)
 end
 
@@ -662,6 +675,7 @@ local function pick()
 		return
 	end
 	local candidates: { Logic.Candidate<Model> } = {}
+	local minor: { Logic.Candidate<Model> } = {} -- the Rares' small touches: only in slots left over
 	for model, entry in entries do
 		if model.Parent == nil then
 			dropOrbit(entry)
@@ -669,15 +683,19 @@ local function pick()
 		elseif hidden(model) then
 			switchOff(entry)
 		else
-			table.insert(
-				candidates,
-				{ key = model, distance = (model:GetPivot().Position - focus).Magnitude }
-			)
+			local candidate: Logic.Candidate<Model> =
+				{ key = model :: Model, distance = (model:GetPivot().Position - focus).Magnitude }
+			table.insert(if entry.spec.minor == true then minor else candidates, candidate)
 		end
 	end
 	local shown: { [Model]: boolean } = {}
 	for _, model in
-		Logic.nearest(candidates, Presets.signatureFx.radius, Context.budget.signatureCats)
+		Logic.nearestFirst(
+			candidates,
+			minor,
+			Presets.signatureFx.radius,
+			Context.budget.signatureCats
+		)
 	do
 		local entry: Entry? = entries[model]
 		if entry ~= nil then

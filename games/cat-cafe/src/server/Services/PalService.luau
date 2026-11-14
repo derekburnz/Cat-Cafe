@@ -24,7 +24,7 @@ local PalService = {}
 
 PalService.changed = Signal.new() :: Signal.Signal<Player, number>
 
-type PalTime = { since: number?, seconds: number, first: Pals.Link? }
+type PalTime = { since: number?, seconds: number, first: Pals.Link?, tier: number? }
 
 local links: { [Player]: { [Player]: Pals.Link } } = {}
 local inviters: { [Player]: number } = {} -- who invited each player, from their join data
@@ -202,8 +202,9 @@ local function onPlayerRemoving(player: Player)
 		local seconds = time.seconds
 			+ (if time.since ~= nil then os.clock() - (time.since :: number) else 0)
 		if seconds > 0 then
+			-- the tier the save had as it was released (onReleasing), since DataService may forget the player first
 			local profile = DataService.get(player)
-			local tier = if profile ~= nil then Economy.tier(profile) else 0
+			local tier = if profile ~= nil then Economy.tier(profile) else (time.tier or 0)
 			local fields: { string } = { time.first or "friend", tostring(tier) }
 			Telemetry.custom(player, "pal_time", math.ceil(seconds / 60), fields)
 		end
@@ -211,6 +212,14 @@ local function onPlayerRemoving(player: Player)
 end
 
 function PalService.start()
+	-- pal_time's tier at leave (Growth-Agent, #3995): DataService's own leave handler can run before ours and drop
+	-- the save, so the tier is kept as the save is released
+	DataService.onReleasing:Connect(function(player: Player, profile)
+		local time = palTime[player]
+		if time ~= nil then
+			time.tier = Economy.tier(profile)
+		end
+	end)
 	Players.PlayerAdded:Connect(onPlayerAdded)
 	Players.PlayerRemoving:Connect(onPlayerRemoving)
 	for _, player in Players:GetPlayers() do

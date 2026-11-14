@@ -40,6 +40,7 @@ local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local Products = require(ReplicatedStorage.Shared.Products)
 local SignStyles = require(ReplicatedStorage.Shared.SignStyles)
+local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
 local Telemetry = require(script.Parent.Telemetry)
 local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -311,6 +312,11 @@ local function onPromptDeal(player: Player, rawProduct: unknown)
 		Net.fire(player, "Toast", blocker, "warn")
 		CafeService.sync(player)
 		return
+	end
+	-- #4176: the deal card's prompt is the server's own, so the server tags its source
+	local sku = StoreFunnel.productSku(id)
+	if sku ~= nil then
+		Telemetry.buySource(player, sku, "deal_card")
 	end
 	MarketplaceService:PromptProductPurchase(player, id)
 end

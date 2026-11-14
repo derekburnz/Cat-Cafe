@@ -62,8 +62,10 @@ Intro.FACE_CAMERA_SECONDS = 0.4
 -- Review-QA (Studio, 2026-11-13): the turn needs time on screen. The short catch holds until this far in, about a
 -- second and a half of you facing the camera with the cat in your arms before the carry.
 Intro.SHORT_CATCH_HOLD = 3.4
--- Review-QA (Studio, f9293840): facing the camera by the root showed the back, so the turn aims the other way
-Intro.FACE_FLIP = true
+-- Review-QA (Studio, f9293840): facing the camera by the root showed the back, so the turn aimed the other way.
+-- #4019: the back showed because the copy was still curled in the cannon's ball pose (the short intro has no
+-- landing to end it); it now stands up for the catch, so the root's own facing is right and the flip is off.
+Intro.FACE_FLIP = false
 Intro.NEXT_AFTER = 0 -- #3168: was 1.0, then 0.2; spam clicks go straight through (the screen takes one Next a shot)
 Intro.SETTLE_SECONDS = 0.3
 

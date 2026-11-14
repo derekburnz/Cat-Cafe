@@ -1576,6 +1576,27 @@ local SCENES = {
 			},
 		})
 		UI.open("Decor")
+		-- #4278: each chip leads with its symbol, and Style sits right after All
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Decor", true)
+		local chips = {}
+		for _, name in { "All", "Style", "FrontLawn", "Plants", "Floor", "Walls" } do
+			local chip = window:FindFirstChild(name, true) :: GuiObject?
+			if chip and chip.Visible then
+				local words = ""
+				for _, piece in chip:GetDescendants() do
+					if piece:IsA("TextLabel") then
+						words ..= piece.Text .. "|"
+					end
+				end
+				local symbol = ({ All = "🏠", Style = "👕", FrontLawn = "🌳", Plants = "🌿", Floor = "⬜", Walls = "🧱" })[name]
+				assert(string.find(words, symbol, 1, true), "uigate: the " .. name .. " chip has no symbol (#4278): " .. words)
+				table.insert(chips, chip)
+			end
+		end
+		table.sort(chips, function(a, b)
+			return a.AbsolutePosition.X < b.AbsolutePosition.X
+		end)
+		assert(#chips >= 2 and chips[1].Name == "All" and chips[2].Name == "Style", "uigate: Style is not right after All (#4278)")
 		press("Decor", "Style")
 		assertEquipBestInHeader("the Style tab")
 	end },

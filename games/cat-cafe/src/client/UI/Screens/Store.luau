@@ -1016,6 +1016,15 @@ function Store._fillDeal(_self: any, entry: any, card: DealLogic.Card?)
 			if token ~= nil then
 				table.insert(images, token)
 			end
+		elseif card.kind == "crate" or card.kind == "fish" then
+			-- #4238: a golden crate (the Classic one's picture; the card's words say it is the best area's) or the
+			-- golden fish
+			local picture = if card.kind == "crate"
+				then ShopIcons.crate("classic_golden_crate")
+				else ShopIcons.prize("fish")
+			if picture ~= nil then
+				table.insert(images, picture)
+			end
 		else
 			for _, image in ShopIcons.potionAll(card.potion) do
 				table.insert(images, image)
@@ -1025,7 +1034,11 @@ function Store._fillDeal(_self: any, entry: any, card: DealLogic.Card?)
 				table.insert(images, flask)
 			end
 		end
-		entry.glyph.Text = if card.kind == "token" then "🪙" else "🧪"
+		entry.glyph.Text = if card.kind == "token"
+			then "🪙"
+			elseif card.kind == "crate" then "📦"
+			elseif card.kind == "fish" then "🐟"
+			else "🧪"
 		local padding = entry.glyph:FindFirstChildOfClass("UIPadding")
 		local inset = if #images > 0 then 0 else GLYPH_PAD
 		if padding then

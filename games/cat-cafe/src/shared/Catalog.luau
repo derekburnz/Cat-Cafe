@@ -5396,27 +5396,30 @@ Catalog.products = {
 		name = "50 Trait Tokens",
 		prize = { potions = {}, traitTokens = 50 },
 	},
-	-- #3996 (todays-deal-3996.md section 2): Today's Deal, R$25 each, one a UTC day (shared/DailyDeal). Fixed contents;
-	-- deal 2's tokens are offered only where the token bundles may be.
+	-- #3996 (todays-deal-3996.md section 2): Today's Deal, R$25 each, one a UTC day (shared/DailyDeal). Fixed contents.
+	-- #4238 (Derek 2026-11-14: "don't do any potion packs ... actually good stuff like 10 of the gold crates from your
+	-- best area, trait tokens and 250 gold fish"): no potions. "highest_golden" is the golden crate of the player's best
+	-- open area (shared/Prizes). Deal 2's tokens and the crates of deals 3 and 4 are offered only where paid random
+	-- items may be (DailyDeal.dealFor).
 	{
 		id = "deal_1",
-		name = "Today's Deal: Big Money",
-		prize = { potions = { big_tip_potion = 5, swift_potion = 2 } },
+		name = "Today's Deal: 250 Golden Fish",
+		prize = { potions = {}, fish = 250 },
 	},
 	{
 		id = "deal_2",
 		name = "Today's Deal: Trait Tokens",
-		prize = { potions = {}, traitTokens = 7 },
+		prize = { potions = {}, traitTokens = 10 },
 	},
 	{
 		id = "deal_3",
-		name = "Today's Deal: Steady Paw",
-		prize = { potions = { steady_potion = 10, big_tip_potion = 2 } },
+		name = "Today's Deal: Golden Crates",
+		prize = { potions = {}, crates = { highest_golden = 10 } },
 	},
 	{
 		id = "deal_4",
-		name = "Today's Deal: Potion Mix",
-		prize = { potions = { big_tip_potion = 4, swift_potion = 1, steady_potion = 2 } },
+		name = "Today's Deal: Golden Haul",
+		prize = { potions = {}, crates = { highest_golden = 5 }, fish = 100 },
 	},
 } :: { Types.ProductDef }
 Catalog.productsById = {} :: { [string]: Types.ProductDef }
@@ -5428,6 +5431,9 @@ for _, product in Catalog.products do
 	end
 	if product.prize.signStyles ~= nil then
 		table.freeze(product.prize.signStyles)
+	end
+	if product.prize.crates ~= nil then
+		table.freeze(product.prize.crates)
 	end
 	table.freeze(product.prize)
 	table.freeze(product)

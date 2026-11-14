@@ -246,6 +246,10 @@ export type ProductDef = {
 		-- #3864: Trait Tokens for the Mystic Pool (the token bundles). A token buys a trait roll, so these make the
 		-- roll a paid random item: the offer shows the roll's odds and is hidden where paid random items are restricted
 		traitTokens: number?,
+		-- #4238: Today's Deal's golden fish, and its crates ("highest_golden" the best open area's golden crate), paid
+		-- through Payout like an Index prize
+		fish: number?,
+		crates: { [string]: number }?,
 	},
 	-- #1625: sold once per account; a second receipt pays only the potions (Products.prizeFor)
 	oncePerAccount: boolean?,

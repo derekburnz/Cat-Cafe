@@ -10800,6 +10800,352 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	-- the Store window for a new player (#1425): it opens on Featured, the King Cat Pack as the hero over 2x Money,
 	-- Long Nap and the Royal Cat, all in view with no scrolling
+	-- #4061: the Ticket Booth window (the station menus picture Derek OK'd): six prize cards in rows, every card's
+	-- words fitting and its BUY inside it, the count up top, SAVE UP with a bar while short, "Tap again" at 1,000 and
+	-- over, and BuyTicketPrize sent on the buy
+	{ "TicketBooth", function()
+		local function prize(id, name, line, price, left, per, blocker)
+			return { id = id, name = name, line = line, price = price, left = left, per = per, blocker = blocker }
+		end
+		local short = "Not enough tickets yet"
+		local view = {
+			tickets = 1100,
+			spent = 0,
+			rushEndsAt = workspace:GetServerTimeNow() + 1800,
+			rushUsedToday = true,
+			weekEndsAt = workspace:GetServerTimeNow() + 3 * 86400,
+			ready = 3,
+			prizes = {
+				prize("fish25", "25 golden fish", "25 golden fish", 300, 4, "day"),
+				prize("traitToken", "Trait Token", "One Mystic Pool roll", 700, 3, "week"),
+				prize("goldenCrate", "Golden Crate", "A golden Cafe Crate", 900, 2, "day"),
+				prize("bigGoldRush", "Big Gold Rush Potion", "30 minutes", 1200, nil, nil, short),
+				prize("bigLucky", "Big Lucky Potion", "30 minutes", 1200, nil, nil, short),
+				prize("swiftPaws", "Swift Paws", "1 hour of Big Swift Potion", 800, nil, nil),
+			},
+		}
+		local sent = {}
+		local link = UI.events.lateStation:Connect(function(remote, id)
+			table.insert(sent, { remote = remote, id = id })
+		end)
+		local ok, problem = pcall(function()
+			UI.update({ ticketBooth = view } :: any)
+			UI.lateStations.openBooth()
+			local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("TicketBooth", true) :: GuiObject
+			assert(window and window.Visible, "uigate: the Ticket Booth window did not open (#4061)")
+			local count = window:FindFirstChild("Count", true) :: TextLabel
+			assert(string.find(count.Text, "1,100", 1, true) and count.TextFits, "uigate: the ticket count reads " .. count.Text .. " (#4061)")
+			local rush = window:FindFirstChild("Rush", true) :: TextLabel
+			assert(string.find(rush.Text, "min", 1, true) and rush.TextFits, "uigate: the Rush line reads " .. rush.Text .. " (#4061)")
+			local grid = window:FindFirstChild("Prizes", true) :: GuiObject
+			local cards = 0
+			for _, card in grid:GetChildren() do
+				if card:IsA("Frame") and card.Visible then
+					cards += 1
+					for _, name in { "Name", "Chip", "Price" } do
+						local label = card:FindFirstChild(name) :: TextLabel
+						assert(label.Text ~= "" and label.TextFits, ("uigate: %s's %s %q does not fit (#4061)"):format(card.Name, name, label.Text))
+					end
+					local buy = card:FindFirstChild("Buy", true) :: GuiObject
+					assert(buy.AbsolutePosition.Y + buy.AbsoluteSize.Y <= card.AbsolutePosition.Y + card.AbsoluteSize.Y + 1, card.Name .. "'s BUY runs past its card (#4061)")
+					local price = card:FindFirstChild("Price") :: GuiObject
+					assert(price.AbsolutePosition.Y + price.AbsoluteSize.Y <= buy.AbsolutePosition.Y + 1, "uigate: " .. card.Name .. "'s price runs into BUY (#4061)")
+					assert(card.AbsoluteSize.X >= 120, "uigate: " .. card.Name .. " is only " .. card.AbsoluteSize.X .. " px wide (#4061)")
+				end
+			end
+			assert(cards == 6, ("uigate: the booth shows %d prizes, not 6 (#4061)"):format(cards))
+			local lucky = grid:FindFirstChild("Prize_bigLucky") :: GuiObject
+			local saved = lucky:FindFirstChild("Saved") :: GuiObject
+			assert(saved.Visible, "uigate: no bar of tickets saved on a prize short of its price (#4061)")
+			local numbers = saved:FindFirstChild("Numbers") :: TextLabel
+			assert(numbers.Text == "1,100 / 1,200" and numbers.TextFits, "uigate: the saved line reads " .. numbers.Text .. " (#4061)")
+			local function buyText(id)
+				return (grid:FindFirstChild("Prize_" .. id):FindFirstChild("Buy", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel).Text
+			end
+			assert(buyText("bigLucky") == "SAVE UP", "uigate: a short prize's button reads " .. buyText("bigLucky") .. " (#4061)")
+			press("TicketBooth", "Prize_fish25.Buy")
+			assert(#sent == 1 and sent[1].remote == "BuyTicketPrize" and sent[1].id == "fish25", "uigate: BUY sent no BuyTicketPrize fish25 (#4061)")
+			-- 1,000 and over asks first
+			view.tickets = 5000
+			view.prizes[4].blocker = nil
+			UI.update({ ticketBooth = view } :: any)
+			UI.lateStations.render(UI.getState() :: any)
+			press("TicketBooth", "Prize_bigGoldRush.Buy")
+			assert(#sent == 1 and buyText("bigGoldRush") == "Tap again", "uigate: the first tap at 1,200 did not ask, it reads " .. buyText("bigGoldRush") .. " (#4061)")
+			press("TicketBooth", "Prize_bigGoldRush.Buy")
+			assert(#sent == 2 and sent[2].id == "bigGoldRush", "uigate: Tap again sent no BuyTicketPrize (#4061)")
+		end)
+		link:Disconnect()
+		assert(ok, problem)
+	end },
+	-- #4062: the Dragon Keep window at stage 3 (three slots, one empty), the binder's 54 cards, a card slotted from the
+	-- binder, the give picker's Repeats, a special cat's second tap and the stage hand over the window
+	{ "DragonKeep", function()
+		local before = UI.getState() :: any
+		local cats = {}
+		local first = nil
+		local taken = 0
+		for uid, cat in before.cats do
+			taken += 1
+			if taken > 8 then
+				break -- 24 cats, so every tile of the picker shows
+			end
+			cats[uid] = cat
+			first = first or uid
+			for copy = 1, 2 do
+				local twin = table.clone(cat)
+				twin.spotId = nil
+				twin.locked = nil
+				twin.variant = nil
+				cats[uid .. "_twin" .. copy] = twin
+			end
+		end
+		local view = {
+			warmth = 1480,
+			stage = 3,
+			stageName = "Drake",
+			nextAt = 2500,
+			slots = { "warmTips", "sharpEye", "" },
+			binder = { warmTips = true, sharpEye = true, emberTips = true },
+			hand = {},
+			handKind = nil,
+			hands = 0,
+			colour = "ruby",
+			sets = {},
+			napping = false,
+			kept = 312,
+			odds = { Common = 45, Rare = 30, Epic = 15, Legendary = 8, Mythic = 2 },
+		}
+		local sent = {}
+		local link = UI.events.lateStation:Connect(function(remote, a, b)
+			table.insert(sent, { remote = remote, a = a, b = b })
+		end)
+		local ok, problem = pcall(function()
+			UI.update({ cats = cats, dragon = view } :: any)
+			UI.lateStations.openKeep()
+			local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("DragonKeep", true) :: GuiObject
+			assert(window and window.Visible, "uigate: the Dragon Keep window did not open (#4062)")
+			local function fits(name: string)
+				local label = window:FindFirstChild(name, true) :: TextLabel
+				assert(label and label.Text ~= "" and label.TextFits, ("uigate: the Keep's %s %q does not fit (#4062)"):format(name, label and label.Text or "nil"))
+				return label
+			end
+			assert(string.find(fits("Warmth").Text, "1,480 / 2,500", 1, true), "uigate: the warmth line is wrong (#4062)")
+			local tabs = window:FindFirstChild("Tabs", true) :: GuiObject
+			for _, tab in tabs:GetChildren() do
+				if tab:IsA("GuiObject") then
+					assert(tab.AbsolutePosition.X + tab.AbsoluteSize.X <= window.AbsolutePosition.X + window.AbsoluteSize.X + 1, "uigate: " .. tab.Name .. " runs past the window (#4062)")
+				end
+			end
+			local slotsRow = window:FindFirstChild("Slots", true) :: GuiObject
+			for index = 1, 5 do
+				local slot = slotsRow:FindFirstChild("Slot" .. index, true) :: GuiObject
+				assert(slot and slot.Visible, "uigate: no Slot" .. index .. " (#4062)")
+				local label = slot:FindFirstChild("Label", true) :: TextLabel
+				assert(label.TextFits, ("uigate: Slot%d's %q does not fit (#4062)"):format(index, label.Text))
+				assert(slot.AbsolutePosition.X + slot.AbsoluteSize.X <= window.AbsolutePosition.X + window.AbsoluteSize.X + 1, "uigate: Slot" .. index .. " runs past the window (#4062)")
+			end
+			assert((slotsRow:FindFirstChild("Slot4", true):FindFirstChild("Label", true) :: TextLabel).Text == "Stage 4", "uigate: a locked slot does not say its stage (#4062)")
+			-- the binder: every card, a card owned slotted into the empty slot
+			press("DragonKeep", "Tab_binder")
+			local binder = window:FindFirstChild("BinderPage", true) :: GuiObject
+			assert(binder.Visible, "uigate: the Binder tab did not open (#4062)")
+			local cells = 0
+			for _, cell in binder:GetChildren() do
+				if cell:IsA("GuiObject") and string.sub(cell.Name, 1, 5) == "Card_" then
+					cells += 1
+				end
+			end
+			assert(cells == 54, ("uigate: the binder shows %d cards, not 54 (#4062)"):format(cells))
+			local ember = binder:FindFirstChild("Card_emberTips") :: GuiObject
+			for _, name in { "Name", "Rarity", "Words" } do
+				local label = ember:FindFirstChild(name, true) :: TextLabel
+				assert(label.Text ~= "" and label.TextFits, ("uigate: Ember Tips' %s %q does not fit (#4062)"):format(name, label.Text))
+			end
+			press("DragonKeep", "Card_emberTips")
+			press("DragonKeep", "Slot3")
+			assert(#sent == 1 and sent[1].remote == "SlotDragonCard" and sent[1].a == "emberTips" and sent[1].b == 3, "uigate: a binder card to Slot3 sent no SlotDragonCard (#4062)")
+			-- the give picker
+			press("DragonKeep", "Tab_give")
+			local give = window:FindFirstChild("GivePage", true) :: GuiObject
+			assert(give.Visible, "uigate: the Give cats tab did not open (#4062)")
+			press("DragonKeep", "Repeats")
+			local giveButton = give:FindFirstChild("Give", true) :: GuiObject
+			local giveText = (giveButton:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel)
+			assert(string.find(giveText.Text, "Move", 1, true) and giveText.TextFits, "uigate: the give button reads " .. giveText.Text .. " (#4062)")
+			press("DragonKeep", "Give")
+			assert(#sent == 2 and sent[2].remote == "GiveToKeep" and type(sent[2].a) == "table" and #sent[2].a > 0 and sent[2].b == false, "uigate: Move cats in sent no GiveToKeep (#4062)")
+			-- a gold cat asks once
+			local gold = table.clone(cats[first])
+			gold.spotId = nil
+			gold.locked = nil
+			gold.variant = "gold"
+			cats.goldOne = gold
+			UI.update({ cats = cats } :: any)
+			UI.lateStations.paintKeep(UI.getState() :: any)
+			press("DragonKeep", "Tab_give")
+			local cell = nil
+			for _, piece in give:GetDescendants() do
+				if piece:IsA("GuiObject") and string.match(piece.Name, "^Cat%d+$") and piece.Visible then
+					local tag = piece:FindFirstChild("Tag", true) :: TextLabel?
+					if tag and tag.Text == "Gold" then
+						cell = piece
+						break
+					end
+				end
+			end
+			assert(cell, "uigate: no gold cat tile in the give picker (#4062)")
+			press("DragonKeep", cell.Name)
+			press("DragonKeep", "Give")
+			assert(#sent == 2 and string.find(giveText.Text, "Tap again", 1, true), "uigate: a gold cat went in on one tap, the button reads " .. giveText.Text .. " (#4062)")
+			press("DragonKeep", "Give")
+			assert(#sent == 3 and sent[3].remote == "GiveToKeep" and sent[3].b == true, "uigate: Tap again sent no confirmed GiveToKeep (#4062)")
+			-- a stage hand comes up over the open window
+			view = table.clone(view) -- a new PlayerState each update, as the server sends
+			view.hand = { "warmTips", "emberTips", "sharpEye" }
+			view.handKind = "stage"
+			view.hands = 1
+			UI.update({ dragon = view } :: any)
+			UI.lateStations.paintKeep(UI.getState() :: any)
+			local hand = window:FindFirstChild("Hand", true) :: GuiObject
+			assert(hand.Visible, "uigate: the new hand did not come up over the window (#4062)")
+			for index = 1, 3 do
+				local card = hand:FindFirstChild("Card" .. index, true) :: GuiObject
+				assert(card and card.Visible, "uigate: no hand Card" .. index .. " (#4062)")
+				assert(card.AbsolutePosition.X >= hand.AbsolutePosition.X - 1 and card.AbsolutePosition.X + card.AbsoluteSize.X <= hand.AbsolutePosition.X + hand.AbsoluteSize.X + 1, "uigate: hand Card" .. index .. " runs off the hand (#4062)")
+			end
+			local odds = hand:FindFirstChild("Odds", true) :: TextLabel
+			assert(string.find(odds.Text, "Common 45%", 1, true) and odds.TextFits, "uigate: the hand's odds read " .. odds.Text .. " (#4062)")
+			press("DragonKeep", "Hand.Card2")
+			press("DragonKeep", "Hand.Take")
+			assert(#sent == 4 and sent[4].remote == "PickDragonCard" and sent[4].a == 2 and sent[4].b == nil, "uigate: Take sent no PickDragonCard 2 (#4062)")
+			-- leave it open on the slots with the hand up again, for the picture
+			press("DragonKeep", "Tab_slots")
+			UI.lateStations.render(UI.getState() :: any)
+		end)
+		link:Disconnect()
+		UI.update({ cats = before.cats } :: any)
+		assert(ok, problem)
+	end },
+	-- #4104: the Fusion Observatory window: two ready fusions and an "almost" row, the confirm card's default five,
+	-- a swap, the trait to keep and the two tap Fuse, then the dome running, ready and collected, and the Coats tab
+	{ "FusionObservatory", function()
+		local before = UI.getState() :: any
+		local function make(uid, catId, level, extra)
+			local out = { uid = uid, catId = catId, variant = "base", level = level, xp = 0, charm = 50, caughtAt = 0 }
+			for key, value in extra or {} do
+				out[key] = value
+			end
+			return out
+		end
+		local cats = {
+			t1 = make("t1", "tabby", 3),
+			t2 = make("t2", "tabby", 12, { trait = { id = "bigTipper_epic" }, name = "Mochi" }),
+			t3 = make("t3", "tabby", 1),
+			t4 = make("t4", "tabby", 7, { trait = { id = "nightOwl_common" } }),
+			t5 = make("t5", "tabby", 2),
+			t6 = make("t6", "tabby", 4),
+			t7 = make("t7", "tabby", 30, { spotId = "barista_1" }),
+			x1 = make("x1", "tuxedo", 1),
+			x2 = make("x2", "tuxedo", 1),
+			x3 = make("x3", "tuxedo", 1),
+		}
+		for index = 1, 5 do
+			cats["g" .. index] = make("g" .. index, "ginger", 5 + index, { variant = "gold" })
+		end
+		local view = { goldSeconds = 600, rainbowSeconds = 3600, made = { gold = 0, rainbow = 0 } }
+		local sent = {}
+		local link = UI.events.lateStation:Connect(function(remote, a, b)
+			table.insert(sent, { remote = remote, a = a, b = b })
+		end)
+		local ok, problem = pcall(function()
+			UI.update({ cats = cats, fusion = view } :: any)
+			UI.lateStations.openFusion()
+			local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("FusionObservatory", true) :: GuiObject
+			assert(window and window.Visible, "uigate: the Fusion Observatory did not open (#4104)")
+			local function fits(holder: Instance, name: string): TextLabel
+				local label = holder:FindFirstChild(name, true) :: TextLabel
+				assert(label and label.Text ~= "" and label.TextFits, ("uigate: %s's %s %q does not fit (#4104)"):format(holder.Name, name, label and label.Text or "nil"))
+				return label
+			end
+			local dome = window:FindFirstChild("Dome", true) :: GuiObject
+			assert(fits(dome, "Title").Text == "The dome is free", "uigate: the free dome reads wrong (#4104)")
+			local list = window:FindFirstChild("Ready", true) :: GuiObject
+			local function row(index: number): GuiObject
+				return list:FindFirstChild("Row" .. index) :: GuiObject
+			end
+			assert(fits(row(1), "Count").Text == "Gold Ginger ×5", "uigate: the first row is not the rainbow fusion (#4104)")
+			assert(fits(row(2), "Count").Text == "Tabby ×6", "uigate: the Tabby row reads " .. (row(2):FindFirstChild("Count") :: TextLabel).Text .. " (#4104)")
+			assert(fits(row(3), "Count").Text == "Tuxedo ×3 · 2 more", "uigate: no almost row for the Tuxedos (#4104)")
+			assert(not (row(3):FindFirstChild("Fuse") :: GuiObject).Visible, "uigate: an almost row has a Fuse button (#4104)")
+			for index = 1, 2 do
+				local fuse = row(index):FindFirstChild("Fuse") :: GuiObject
+				local count = row(index):FindFirstChild("Count") :: GuiObject
+				assert(count.AbsolutePosition.X + count.AbsoluteSize.X <= fuse.AbsolutePosition.X + 1, "uigate: Row" .. index .. "'s count runs under Fuse (#4104)")
+				assert(fuse.AbsolutePosition.X + fuse.AbsoluteSize.X <= window.AbsolutePosition.X + window.AbsoluteSize.X, "uigate: Row" .. index .. "'s Fuse runs past the window (#4104)")
+			end
+			-- the confirm card: the default five, a swap and the two taps
+			press("FusionObservatory", "Row2.Fuse")
+			local confirm = window:FindFirstChild("Confirm", true) :: GuiObject
+			assert(confirm.Visible, "uigate: Fuse opened no confirm card (#4104)")
+			fits(confirm, "Title")
+			fits(confirm, "Result")
+			fits(confirm, "Time")
+			local copies = confirm:FindFirstChild("Copies", true) :: GuiObject
+			local ticked = 0
+			for _, cell in copies:GetChildren() do
+				if cell:IsA("GuiObject") and cell.Visible and string.match(cell.Name, "^Copy%d+$") then
+					if (cell:FindFirstChild("Check") :: GuiObject).Visible then
+						ticked += 1
+					end
+					fits(cell, "Level")
+				end
+			end
+			assert(ticked == 5, ("uigate: %d copies ticked, not 5 (#4104)"):format(ticked))
+			local result = (confirm:FindFirstChild("Result", true) :: TextLabel).Text
+			assert(string.find(result, "Lv 12", 1, true) and string.find(result, "Mochi", 1, true), "uigate: the result reads " .. result .. " (#4104)")
+			local chip = confirm:FindFirstChild("Trait1", true) :: GuiObject
+			assert(chip and chip.Visible, "uigate: no trait to keep (#4104)")
+			local goText = (confirm:FindFirstChild("FuseGo", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel)
+			press("FusionObservatory", "Copy1") -- the Lv 12 copy leads the strip: untick it
+			assert(goText.Text == "Pick 1 more", "uigate: four picked reads " .. goText.Text .. " (#4104)")
+			press("FusionObservatory", "Copy1")
+			press("FusionObservatory", "FuseGo")
+			assert(#sent == 0 and string.find(goText.Text, "Tap again", 1, true) and goText.TextFits, "uigate: the first Fuse tap did not ask, it reads " .. goText.Text .. " (#4104)")
+			press("FusionObservatory", "FuseGo")
+			assert(#sent == 1 and sent[1].remote == "StartFusion" and #sent[1].a == 5 and sent[1].b == "t2", "uigate: Tap again sent no StartFusion with five cats and Mochi's trait (#4104)")
+			-- the dome running, then ready
+			view = table.clone(view)
+			view.running = { catId = "tabby", coat = "gold", doneAt = workspace:GetServerTimeNow() + 402, level = 12, name = "Mochi" }
+			UI.update({ fusion = view } :: any)
+			UI.lateStations.render(UI.getState() :: any)
+			assert(string.find(fits(dome, "Title").Text, "Gold Mochi · ", 1, true), "uigate: the running dome reads wrong (#4104)")
+			local busyText = (row(1):FindFirstChild("Fuse"):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel)
+			assert(busyText.Text == "Dome busy" and busyText.TextFits, "uigate: Fuse reads " .. busyText.Text .. " while the dome is busy (#4104)")
+			view = table.clone(view)
+			view.ready = true
+			UI.update({ fusion = view } :: any)
+			UI.lateStations.render(UI.getState() :: any)
+			assert(fits(dome, "Title").Text == "Gold Mochi is ready", "uigate: the ready dome reads wrong (#4104)")
+			local collect = dome:FindFirstChild("Collect", true) :: GuiObject
+			assert(collect.Visible, "uigate: no Collect on a ready dome (#4104)")
+			assert(collect.AbsolutePosition.X + collect.AbsoluteSize.X <= dome.AbsolutePosition.X + dome.AbsoluteSize.X + 1, "uigate: Collect runs off the dome (#4104)")
+			press("FusionObservatory", "Collect")
+			assert(#sent == 2 and sent[2].remote == "CollectFusion", "uigate: Collect sent no CollectFusion (#4104)")
+			-- the Coats tab
+			press("FusionObservatory", "Tab_coats")
+			local coats = window:FindFirstChild("CoatsPage", true) :: GuiObject
+			assert(coats.Visible, "uigate: the Coats tab did not open (#4104)")
+			local tabby = coats:FindFirstChild("Coat_tabby") :: GuiObject
+			assert(tabby and tabby.Visible, "uigate: no Tabby on the Coats tab (#4104)")
+			fits(tabby, "Name")
+			assert((tabby:FindFirstChild("Bang") :: GuiObject).Visible, "uigate: the Tabby can fuse but has no ! (#4104)")
+			press("FusionObservatory", "Tab_fuse")
+		end)
+		link:Disconnect()
+		UI.update({ cats = before.cats } :: any)
+		assert(ok, problem)
+	end },
 	{ "Store", function()
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")

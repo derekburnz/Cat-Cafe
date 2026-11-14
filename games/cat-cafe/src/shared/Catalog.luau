@@ -4625,6 +4625,7 @@ local PASS_DECOR: {
 		asset: string?,
 		pack: string?,
 		passKey: string?,
+		bonus: number?, -- #4026: a money bonus other than its rarity's CratePieceBonus
 	}
 } =
 	{
@@ -4751,10 +4752,51 @@ local PASS_DECOR: {
 			pack = "Garden Decor Pack",
 			passKey = "GardenDecorPackPassId",
 		},
+		-- #4026: the four outfit packs' decor pieces (storepacks.py), +25% money each while in use (shared/StorePacks)
+		{
+			id = "decor_pack_disco_ball",
+			rarity = "Legendary",
+			name = "Disco Ball",
+			kind = "furniture",
+			description = "A mirror ball on a stand, with coloured spots.",
+			pack = "Stylish Pack",
+			passKey = "StylishPackPassId",
+			bonus = 0.25,
+		},
+		{
+			id = "decor_pack_cocoa_stand",
+			rarity = "Legendary",
+			name = "Cocoa Stand",
+			kind = "furniture",
+			description = "A little cart of hot cocoa and marshmallows.",
+			pack = "Winter Pack",
+			passKey = "WinterPackPassId",
+			bonus = 0.25,
+		},
+		{
+			id = "decor_pack_pastry_case",
+			rarity = "Legendary",
+			name = "Pastry Case",
+			kind = "furniture",
+			description = "A glass case full of fresh pastries.",
+			pack = "Chef Pack",
+			passKey = "ChefPackPassId",
+			bonus = 0.25,
+		},
+		{
+			id = "decor_pack_rocket_lamp",
+			rarity = "Legendary",
+			name = "Rocket Lamp",
+			kind = "furniture",
+			description = "A rocket lamp that glows like the stars.",
+			pack = "Space Pack",
+			passKey = "SpacePackPassId",
+			bonus = 0.25,
+		},
 	}
 Catalog.passDecor = {} :: { Types.DecorDef }
 for _, row in PASS_DECOR do
-	local bonus = Config.CratePieceBonus[row.rarity]
+	local bonus = row.bonus or Config.CratePieceBonus[row.rarity]
 	local def: Types.DecorDef = {
 		id = row.id,
 		name = row.name,

@@ -80,7 +80,9 @@ ToastRules.CUT = {
 -- (the Store above all) still lets through, so a buyer always sees that what they paid for landed.
 ToastRules.PURCHASE = {
 	"^Thank you! ", -- ProductService's receipt (products, deals, the Cafe Pass paid track)
-	"^King Cat Pack: ", -- ShopCatService, the pack's game pass
+	"^King Cat Pack: ", -- ShopCatService, the pack's game pass (its old name)
+	"^Cat King Pack: ", -- #4261: ShopCatService, the Cat King Pack
+	"^Royal Cat Pack: ", -- #4261: ShopCatService, the Royal Cat Pack
 	"Your working cats now earn ", -- the outfit passes
 	"^New piece: ", -- FishMarket crates
 	" again: %+",

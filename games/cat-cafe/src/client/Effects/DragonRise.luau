@@ -183,8 +183,9 @@ end
 
 local function scaleColour(stage: number, colour: string?): Color3
 	local scales = Presets.dragonRise.scales :: { [string]: Color3 }
-	if stage >= 3 and colour ~= nil and scales[colour] ~= nil then
-		return scales[colour]
+	local picked: Color3? = if colour ~= nil then scales[colour] else nil
+	if stage >= 3 and picked then
+		return picked
 	end
 	return scales.pastel
 end
@@ -687,8 +688,9 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 	local tower = if info.tower ~= nil
 		then keep:PointToObjectSpace(info.tower.Position)
 		else d.crowned.tower
+	local cheer: { Model } = info.cheer or {}
 	local cheerHomes: { CFrame } = {}
-	for i, cat in info.cheer or {} do
+	for i, cat in cheer do
 		cheerHomes[i] = cat:GetPivot()
 	end
 
@@ -740,7 +742,7 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 		for _, coin in coins do
 			coin.part:Destroy()
 		end
-		for i, cat in info.cheer or {} do
+		for i, cat in cheer do
 			if cat.Parent ~= nil then
 				cat:PivotTo(cheerHomes[i])
 			end
@@ -1050,7 +1052,7 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 
 		-- the Keep's cats hop while he changes
 		if not reduced and t > plan.curlAt and t < plan.roarAt + d.roarSeconds then
-			for i, cat in info.cheer or {} do
+			for i, cat in cheer do
 				if cat.Parent ~= nil then
 					local up = math.abs(math.sin((t - plan.curlAt) * 4 + i)) * 0.6
 					cat:PivotTo(cheerHomes[i] + Vector3.new(0, up, 0))

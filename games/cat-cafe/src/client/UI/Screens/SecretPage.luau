@@ -320,7 +320,12 @@ function SecretPage.render(self: any, cards: { SecretTabLogic.Card })
 		end
 		if showCat then
 			parts.portrait:setSilhouette(not isFound)
-			parts.portrait.frame.ImageTransparency = if card.state == "locked" then 0.5 else 0
+			-- a locked area's shape shows faint (Review-QA in Studio: the portrait's frame is a Frame with no
+			-- ImageTransparency, so set it on its ViewportFrame)
+			local view = parts.portrait.frame:FindFirstChild("View")
+			if view ~= nil and view:IsA("ViewportFrame") then
+				view.ImageTransparency = if card.state == "locked" then 0.5 else 0
+			end
 		end
 	end
 	for area, parts in self._cards do

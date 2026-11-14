@@ -6053,6 +6053,15 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(parkName and parkName.Text == "Coming soon", "uigate: the Park card reads " .. tostring(parkName and parkName.Text))
 		local count = page:FindFirstChild("Count", true)
 		assert(count and string.find(count.Text, "^1 / %d+ found$") ~= nil, "uigate: the Secret count reads " .. tostring(count and count.Text))
+		-- Review-QA in Studio: a bad property on the first card stopped the rest; every area has its card, and a
+		-- locked area's shape is faint on the portrait's ViewportFrame
+		local Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog") :: any
+		for _, area in Catalog.areas do
+			local card = page:FindFirstChild(area.id, true) :: GuiObject?
+			assert(card ~= nil and card.Visible, "uigate: no Secret card for " .. area.id .. " (#4221)")
+		end
+		local view = ghost:FindFirstChild("View", true)
+		assert(view ~= nil and view:IsA("ViewportFrame") and view.ImageTransparency == 0, "uigate: the found Secret's portrait is faint (#4221)")
 		RS:SetAttribute("LiveFlag_secretAreas", nil)
 	end },
 	-- F99 section 3: the Index's Rainbow tab, the Rainbow cats line with its strip open on "Reward ready", rainbow

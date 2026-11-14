@@ -1705,8 +1705,8 @@ Catalog.tiers = {
 	{
 		tier = 8,
 		name = "Summit Cafe",
-		cost = 120000000000, -- #4192: 520,000,000,000 before, the same 9.6x step on #4189's Tier 7
-		distinctCats = 56,
+		cost = 42000000000, -- #4192 (Pace: about 4 to 5 h after Tier 7): 520,000,000,000 before
+		distinctCats = 47, -- #4192: 56 before, drafted when Tier 7 asked 47; the step of 9 kinds is kept on #4189's 38
 		needsRarity = "Mythical",
 		needsRarityCount = 4,
 		slots = 16,
@@ -1719,8 +1719,8 @@ Catalog.tiers = {
 	{
 		tier = 9,
 		name = "Funfair Cafe",
-		cost = 1200000000000, -- #4192: 5,000,000,000,000 before
-		distinctCats = 65,
+		cost = 500000000000, -- #4192 (Pace: about 6 to 7 h after Tier 8): 5,000,000,000,000 before
+		distinctCats = 56, -- #4192: 65 before
 		needsRarity = "Mythical",
 		needsRarityCount = 5,
 		slots = 18,
@@ -1733,8 +1733,8 @@ Catalog.tiers = {
 	{
 		tier = 10,
 		name = "Royal Cafe",
-		cost = 11500000000000, -- #4192: 48,000,000,000,000 before
-		distinctCats = 74,
+		cost = 3000000000000, -- #4192 (Pace: about 8 to 10 h after Tier 9): 48,000,000,000,000 before
+		distinctCats = 65, -- #4192: 74 before
 		needsRarity = "Mythical",
 		needsRarityCount = 6,
 		slots = 20,
@@ -1790,9 +1790,9 @@ Catalog.upgrades = {
 			6000000,
 			200000000,
 			1300000000,
-			12000000000,
-			115000000000,
-			1100000000000,
+			4200000000, -- #4192: levels 8 to 10 keep their share of the tier's cost (12B, 115B and 1.1T before)
+			50000000000,
+			300000000000,
 		}, -- #1896 re-fit with Catch v3: Espresso 4 700,000 before
 		startLevel = 1,
 	},
@@ -1835,9 +1835,9 @@ Catalog.upgrades = {
 			80000000,
 			250000000,
 			1700000000,
-			14000000000,
-			135000000000,
-			1300000000000,
+			5000000000, -- #4192: levels 8 to 10 keep their share of the tier's cost (14B, 135B and 1.3T before)
+			58000000000,
+			350000000000,
 		},
 		startLevel = 0,
 	},

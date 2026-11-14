@@ -52,6 +52,8 @@ AdminEventLogic.EXTRA = {
 	},
 	{ name = "crateDrop", line = "Golden crates drop into every area", times = false },
 	{ name = "speedRush", line = "Speed Shoes for everyone", times = false },
+	-- the Admin Wheel event (the server writes `wheel = true`; Design-Agent's wheel window opens by itself)
+	{ name = "wheel", line = "One free spin of the Admin Wheel", times = false },
 }
 -- The effects that hang a drift round you, first match wins (Presets.adminAir.kinds).
 AdminEventLogic.AIR = { "moneyStorm", "goldBoost" }

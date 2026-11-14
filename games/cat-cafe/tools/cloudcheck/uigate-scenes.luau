@@ -10961,6 +10961,57 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.open("Store")
 		assertStoreCards(true)
 	end },
+	-- #3996 (todays-deal-3996.md section 4): Today's Deal is the hero card while it shows, with what is in it, the honest
+	-- value line, the Tomorrow line and R$25, and the usual hero leads the picks; its press asks the server
+	-- (PromptDeal), never Roblox
+	{ "StoreDeal", function()
+		UI.update({ dailyDeal = { deal = 1, bought = false, tomorrow = 2 } } :: any)
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
+		local card = window:FindFirstChild("hero", true) :: Frame
+		assert(card and card.Visible, "uigate: no Today's Deal card on Featured (#3996)")
+		assert((card:FindFirstChild("Name") :: TextLabel).Text == "Today's Deal", "uigate: the deal card's title (#3996)")
+		local effect = card:FindFirstChild("Effect") :: TextLabel
+		assert(effect.Visible and string.find(effect.Text, "5 Big Money", 1, true), "uigate: the deal card does not say what is in it: " .. effect.Text .. " (#3996)")
+		assert(string.find(effect.Text, "Tomorrow: Trait Token deal", 1, true), "uigate: no Tomorrow line: " .. effect.Text .. " (#3996)")
+		assert(string.find(effect.Text, "more than Potion Pack S", 1, true), "uigate: no value line: " .. effect.Text .. " (#3996)")
+		local pick = window:FindFirstChild("pick1", true) :: Frame
+		local pickName = (pick:FindFirstChild("Name") :: TextLabel).Text
+		assert(pick.Visible and pickName ~= "" and pickName ~= "Today's Deal", "uigate: the usual hero does not lead the picks (#3996)")
+		local sent = nil
+		local connection = UI.events.storeDeal:Connect(function(productId)
+			sent = productId
+		end)
+		press("Store", "hero.Buy")
+		connection:Disconnect()
+		assert(sent == "deal_1", "uigate: the deal's R$25 sent " .. tostring(sent) .. " (#3996)")
+	end },
+	-- #3996: the token deal carries the Mystic Pool's roll odds on the card itself (monetization-policy, #3864)
+	{ "StoreDealTokens", function()
+		UI.update({ dailyDeal = { deal = 2, bought = false, tomorrow = 3 } } :: any)
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
+		local effect = window:FindFirstChild("hero", true):FindFirstChild("Effect") :: TextLabel
+		assert(string.find(effect.Text, "Roll odds:", 1, true), "uigate: the token deal shows no odds: " .. effect.Text .. " (#3996)")
+		assert(effect.TextFits ~= false or effect.TextTruncate == Enum.TextTruncate.None, "uigate: the token deal's odds are cut (#3996)")
+	end },
+	-- #3996: bought today, the card stays, a pick now, with "Bought today" in the button's place; switched off, no card
+	{ "StoreDealBought", function()
+		UI.update({ dailyDeal = { deal = 3, bought = true, tomorrow = 4 } } :: any)
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
+		local card = window:FindFirstChild("pick1", true) :: Frame
+		local owned = card:FindFirstChild("Owned") :: TextLabel
+		assert((card:FindFirstChild("Name") :: TextLabel).Text == "Today's Deal", "uigate: the bought deal is not the first pick (#3996)")
+		assert(card.Visible and owned.Visible and owned.Text == "Bought today", "uigate: the bought deal does not say so (#3996)")
+		assert(not (card:FindFirstChild("Buy") :: GuiObject).Visible, "uigate: the bought deal still has its button (#3996)")
+		UI.update({ dailyDeal = false } :: any)
+		local name = (card:FindFirstChild("Name") :: TextLabel).Text
+		assert(name ~= "Today's Deal" and not owned.Visible, "uigate: the deal card stays with the switch off (#3996)")
+	end },
 	-- #2850 (Derek2: "move the 999 pack and extra food bowl somewhere in featured"): with the Starter Bundle unbought
 	-- it is the hero, and the King Cat Pack and the Second Bait Bowl lead the picks; the hero lists the bundle's contents
 	{ "StoreStarter", function()

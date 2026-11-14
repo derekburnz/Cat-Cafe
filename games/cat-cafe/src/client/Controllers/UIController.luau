@@ -1161,6 +1161,7 @@ local function applyState(s: Types.PlayerState)
 		-- #2555: the free Bellhop Cat's stand "!" (#2501) and its speech bubble show only while this is false
 		starterCatClaimed = s.starterCatClaimed,
 		storeSeen = s.storeSeen, -- #1823 §4: the Store tabs' New dots
+		dailyDeal = s.dailyDeal or false, -- #3996: Today's Deal on the Store's Featured tab
 		-- #2574: Juniper's Mystery Market: the items owned, the cart's "!" until the first visit, and whether buys are
 		-- taken yet
 		mystery = s.mystery,
@@ -1293,6 +1294,12 @@ local function wireIntents()
 	end)
 	-- #1823 §4: a Store tab with a New dot opened; the server saves its version (known tabs only). The server takes
 	-- two a second, so tabs tapped faster than that wait their turn here instead of being dropped.
+	-- #3996: Today's Deal's R$25: the server checks it is today's, not bought yet, and opens the prompt (1 a second)
+	UI.events.storeDeal:Connect(function(productId: string)
+		if type(productId) == "string" then
+			Net.fire("PromptDeal", productId)
+		end
+	end)
 	local seenQueue: { string } = {}
 	local seenSending = false
 	UI.events.storeSeen:Connect(function(tab: string)

@@ -33,6 +33,7 @@ PassShop.changed = Signal.new() -- prices or ownership changed
 PassShop.purchased = Signal.new() -- (passId) #2147: the prompt says a pass was just bought here (never at join)
 PassShop.ownerGrant = Signal.new() -- (productId) #1770: owner test mode's grant in place of a purchase
 PassShop.blocked = Signal.new() -- (source, reason) #1936: a prompt refused, "no_tap" or "busy"
+PassShop.prompting = Signal.new() -- (source, id) #4176: Roblox's window is about to open for this pass or product
 -- #1936: set by UI.init, true during a catch, a rescue or a cutscene
 PassShop.busy = function(): boolean
 	return false
@@ -245,6 +246,7 @@ function PassShop.prompt(id: number, source: string?)
 	if service == nil or player == nil then
 		return
 	end
+	PassShop.prompting:Fire(source or "store", id)
 	pcall(function()
 		if products[id] then
 			-- a product (#1182): the server's ProcessReceipt grants it (#1207)

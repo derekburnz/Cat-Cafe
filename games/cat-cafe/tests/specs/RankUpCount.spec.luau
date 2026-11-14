@@ -14,6 +14,7 @@ return function()
 		require(Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("RankUpNeeds"))
 
 	local BELLHOP = "bellhop_cat"
+	local NEED = (Catalog.getTier(3) :: any).distinctCats :: number -- #4189: 8 (10 before)
 	local NOW = 1000
 
 	-- Caught (non exclusive, non spare) cat ids of one rarity, in catalog order.
@@ -27,8 +28,8 @@ return function()
 		return ids
 	end
 
-	-- A Tier 2 profile with plenty of coins and 9 different caught cats, one of them Epic (Tier 3 needs 10 and an
-	-- Epic since #3111; 11 before), plus the Bellhop Cat when `withBellhop`.
+	-- A Tier 2 profile with plenty of coins and NEED - 1 different caught cats, one of them Epic (Tier 3 needs NEED and
+	-- an Epic), plus the Bellhop Cat when `withBellhop`.
 	local function profile(withBellhop: boolean): any
 		local p: any = ProfileSchema.template(NOW)
 		p.tier = 2
@@ -39,13 +40,13 @@ return function()
 		local added = 1
 		for _, rarity in { "Common", "Rare" } do
 			for _, id in caughtIdsOf(rarity) do
-				if added < 9 then
+				if added < NEED - 1 then
 					p.collection[id] = NOW
 					added += 1
 				end
 			end
 		end
-		assert(added == 9, "not enough catalog cats for the test profile")
+		assert(added == NEED - 1, "not enough catalog cats for the test profile")
 		if withBellhop then
 			p.collection[BELLHOP] = NOW
 		end
@@ -70,29 +71,28 @@ return function()
 		end)
 
 		it(
-			"9 normal cats plus the Bellhop Cat: the client shows ready and the server ranks up",
+			"one short in normal cats plus the Bellhop Cat: the client shows ready and the server ranks up",
 			function()
 				local p = profile(true)
-				expect((Catalog.getTier(3) :: any).distinctCats).to.equal(10) -- #3111: was 11; #2683: was 13; #2230: was 12
-				expect(Economy.rankUpCatCount(p.collection)).to.equal(10)
+				expect(NEED).to.equal(8) -- #4189: was 10; #3111: was 11; #2683: was 13; #2230: was 12
+				expect(Economy.rankUpCatCount(p.collection)).to.equal(NEED)
 				expect(Economy.rankUpBlocker(p)).to.equal(nil)
 				local needs = client(p)
 				expect(needs.ready).to.equal(true)
-				expect(needs.catsHave).to.equal(10)
+				expect(needs.catsHave).to.equal(NEED)
 			end
 		)
 
-		it(
-			"9 normal cats without the Bellhop Cat: both say not yet, with the same count",
-			function()
-				local p = profile(false)
-				expect(Economy.rankUpCatCount(p.collection)).to.equal(9)
-				expect(Economy.rankUpBlocker(p)).to.equal("Needs 10 different cats (you have 9)")
-				local needs = client(p)
-				expect(needs.ready).to.equal(false)
-				expect(needs.catsHave).to.equal(9)
-			end
-		)
+		it("one short without the Bellhop Cat: both say not yet, with the same count", function()
+			local p = profile(false)
+			expect(Economy.rankUpCatCount(p.collection)).to.equal(NEED - 1)
+			expect(Economy.rankUpBlocker(p)).to.equal(
+				string.format("Needs %d different cats (you have %d)", NEED, NEED - 1)
+			)
+			local needs = client(p)
+			expect(needs.ready).to.equal(false)
+			expect(needs.catsHave).to.equal(NEED - 1)
+		end)
 
 		it(
 			"duplicates, gold coats and cats away, sold or traded change nothing: only the collection counts",
@@ -113,7 +113,7 @@ return function()
 			function()
 				local p = profile(false)
 				p.collection.not_a_cat = NOW
-				expect(Economy.rankUpCatCount(p.collection)).to.equal(10)
+				expect(Economy.rankUpCatCount(p.collection)).to.equal(NEED)
 				expect(Economy.rankUpCatsAtLeast(p.collection, "Epic")).to.equal(1)
 				expect(Economy.rankUpBlocker(p)).to.equal(nil)
 				expect(client(p).ready).to.equal(true)

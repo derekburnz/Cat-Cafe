@@ -51,7 +51,7 @@ from itertools import pairwise
 
 from mathutils import Matrix, Vector
 
-from areakit import PI, Set, gable, turned
+from areakit import PI, Set, gable, hinge, smoke, turned
 from common import Builder
 from desertset import _hip_ends, dune_piece
 from woodsset import _dist_seg, _path, bl
@@ -579,9 +579,10 @@ def summit_flag(mat):
     b.cyl_base((0, 0, 2.5), 0.4, 0.15, SNOW, segments=8, bevel=False)
     b.cyl_base((0, 0, 2.5), 0.1, 7.0, "metal", segments=8, bevel=False)
     b.ico((0, 0, 9.6), 0.22, "rarity_legend", subdivisions=1)
+    f = Builder()                    # the pennant flaps about the mast: the child Model ..._SummitFlag_Swing
     for i, sw in enumerate(FLAGS):
-        b.box((-0.6 - 0.62 * i, 0, 8.8 - 0.04 * i), (0.6, 0.06, 1.4 - 0.22 * i), sw, bevel=False)
-    return [b.finalize(N + "SummitFlag", mat)]
+        f.box((-0.6 - 0.62 * i, 0, 8.8 - 0.04 * i), (0.6, 0.06, 1.4 - 0.22 * i), sw, bevel=False)
+    return [b.finalize(N + "SummitFlag", mat), hinge(f.finalize(N + "SummitFlag_Swing", mat), (-0.1, 0, 8.8))]
 
 
 def observatory(mat):
@@ -964,7 +965,8 @@ def lodge_front(mat):
     b.box_base((-(W / 2 - 2.2), D / 2 - 1.0, 0), (2.4, 2.2, H + 6.4), ROCK_LIGHT, bevel=False)
     b.box_base((-(W / 2 - 2.2), D / 2 - 1.0, H + 6.4), (2.8, 2.6, 0.4), ROCK_DARK, bevel=False)
     b.box_base((-(W / 2 - 2.2), D / 2 - 1.0, H + 6.8), (2.2, 2.0, 0.2), SNOW, bevel=False)
-    return [b.finalize(N + "LodgeFront", mat), panes.finalize(N + "LodgeFront_Pane", mat)]
+    front = smoke(b.finalize(N + "LodgeFront", mat), (-(W / 2 - 2.2), D / 2 - 1.0, H + 7.0))
+    return [front, panes.finalize(N + "LodgeFront_Pane", mat)]
 
 
 def fire_pit(mat):

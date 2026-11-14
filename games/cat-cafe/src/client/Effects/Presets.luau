@@ -2784,7 +2784,8 @@ Presets.wheel = {
 -- cat moves. Only the nearest budget.signatureCats within `radius` studs show their emitter; eyes glow on all.
 export type Signature = {
 	emitter: string,
-	-- "Body" or "Head", or "Prop" / "Prop2" for the cat's first or second prop (parts named ..._Prop, ..._Prop2);
+	-- "Body" or "Head" (or any part name's ending after the last cat name underscore, as "Candle_Glow"), or
+	-- "Prop" / "Prop2" for the cat's first or second prop (parts named ..._Prop, ..._Prop2);
 	-- a prop's emitter goes on its `props` biggest parts (1 if not set), sharing the rate, and falls back to the body
 	-- while the prop has not streamed in
 	on: string,
@@ -3101,6 +3102,25 @@ Presets.signature = {
 			seconds = 3,
 		},
 		arrive = { ring = 9, burst = 10, preset = "catchSparkle" },
+	},
+	-- Sprinkles, the Starter Bundle's baker (Derek 2026-11-14: as good as an Epic from the best area, effects
+	-- included). The Epic rung of the same ladder on the lit parts of its model (#4190): sprinkles drift up off the
+	-- cupcake's candle through the puff's own colours, and the cherry on its toque twinkles a little. `on` names
+	-- the lit parts (..._Candle_Glow, ..._Cherry_Glow); a copy without them shows both on its body.
+	sprinkles = {
+		emitter = "sigRise",
+		on = "Candle_Glow",
+		colors = {
+			palette.neonPink,
+			palette.golden,
+			palette.mint,
+			palette.eyeBlue,
+			palette.aurora,
+		},
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Cherry_Glow" },
+		},
 	},
 } :: { [string]: Signature }
 Presets.signatureFx = {

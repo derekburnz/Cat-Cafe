@@ -42,6 +42,7 @@ StepTarget.NAME = "CatCafeStepTarget"
 local ARROW = 64 -- design px, the size of TutorialArrow's
 local FLASH_INFO = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
 local FILL_DIM, FILL_BRIGHT = 0.85, 0.45
+local EDGE_REACH = 1.5 -- #4158: how far the drawn edge arrow reaches from its centre, in arrow sizes
 local LOOK_SECONDS = 0.05 -- the edge arrow follows the camera at 20 Hz
 
 export type Target = BasePart | Attachment | Vector3
@@ -188,7 +189,9 @@ function StepTarget._place(self: any)
 	end
 	local boxes = avoid
 	if boxes ~= nil then
-		place = StepTargetLogic.clear(place, px, boxes(), camera.ViewportSize)
+		-- Review-QA on #4158 (667x375): turned and bobbing, the drawn arrow (its head glyph overflows the frame) reaches
+		-- about 1.5 times its size from its centre, past its own square
+		place = StepTargetLogic.clear(place, px, boxes(), camera.ViewportSize, nil, px * EDGE_REACH)
 	end
 	arrow.Size = UDim2.fromOffset(px, px)
 	arrow.Position = UDim2.fromOffset(place.x, place.y)

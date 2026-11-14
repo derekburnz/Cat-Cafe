@@ -92,6 +92,16 @@ return function()
 			expect(moved.y).to.equal(44)
 			expect(moved.x + 32 <= 260 or moved.x - 32 >= 420).to.equal(true)
 		end)
+		it("counts the drawn arrow's reach, not only its square (Review-QA on #4158)", function()
+			-- the 48 px square at y 278 ends at 302; the coin's box starts at 330, inside the 72 px reach
+			local place = { x = 36, y = 278, rotation = 63 }
+			local coin = { { x0 = 0, y0 = 330, x1 = 200, y1 = 375 } }
+			local square = StepTargetLogic.clear(place, 48, coin, screen)
+			expect(square.y).to.equal(278)
+			local reached = StepTargetLogic.clear(place, 48, coin, screen, nil, 72)
+			expect(reached.y + 72 <= 330).to.equal(true)
+			expect(reached.rotation).to.equal(63)
+		end)
 		it("leaves a clear arrow alone, and stays put where no spot is clear", function()
 			local place = { x = 44, y = 200, rotation = 90 }
 			local same = StepTargetLogic.clear(

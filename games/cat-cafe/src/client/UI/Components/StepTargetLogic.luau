@@ -5,8 +5,9 @@
 --                                                      (x, y in px, Z its depth, below 0 behind the camera); nil while
 --                                                      the target is on screen, else the arrow's centre kept whole
 --                                                      inside the screen and its rotation toward the target
---   clear(place, arrow, boxes, screen, margin?) -> Placement   #4152: the edge arrow slid along its edge until it keeps
---                                                      clear of `boxes` (the HUD's pieces, screen px), when it can
+--   clear(place, arrow, boxes, screen, margin?, reach?) -> Placement   #4152: the edge arrow slid along its edge until
+--                                                      what it draws (`reach` px from its centre each way, half its size
+--                                                      when not given) keeps clear of `boxes` (the HUD, screen px)
 --   rotation(direction) -> number                      the arrow is drawn pointing down; this turns it to `direction`
 --   small(size) -> boolean                             a model this size is one thing (a bowl, a cannon), not a whole
 --                                                      cafe or area, so the Highlight goes round all of it
@@ -77,10 +78,11 @@ function StepTargetLogic.clear(
 	arrow: number,
 	boxes: { Box },
 	screen: Vector2,
-	margin: number?
+	margin: number?,
+	reach: number?
 ): Placement
 	local gap = margin or StepTargetLogic.MARGIN
-	local half = arrow / 2
+	local half = reach or arrow / 2
 	local pad = StepTargetLogic.CLEAR
 	local x, y = place.x, place.y
 	local onSide = math.min(x, screen.X - x) <= math.min(y, screen.Y - y)
@@ -105,8 +107,8 @@ function StepTargetLogic.clear(
 		local at = if onSide then y else x
 		local before = (if onSide then box.y0 else box.x0) - half - pad
 		local after = (if onSide then box.y1 else box.x1) + half + pad
-		local lo = gap + half
-		local hi = (if onSide then screen.Y else screen.X) - gap - half
+		local lo = gap + arrow / 2
+		local hi = (if onSide then screen.Y else screen.X) - gap - arrow / 2
 		local best: number? = nil
 		for _, spot in { before, after } do
 			if

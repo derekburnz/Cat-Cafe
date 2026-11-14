@@ -8,7 +8,8 @@ Golden Fish Market's shelf, open in the crate reveal and give the shop and inven
                                    red team stripe, a gold star and a chequered lid; no golden twin), Desert
                                    (#2651: a caravan trunk with a woven band and a potted cactus on the lid), Ruins
                                    (#2651: a carved stone chest with a jade paw tablet, vines and a jade gem), Snowy
-                                   (#3997: a lodge chest with snow on its lid, ice blue bands and a snowflake)
+                                   (#3997: a lodge chest with snow on its lid, ice blue bands and a snowflake), WaterPark
+                                   (#4066: a prize crate with a striped lid, a swim ring and a balloon)
   CatCafe_Prop_Crate_<Pool>_Gold   the golden crate: the same crate in the three metal golds, its accents kept
 
 Each crate carries its zone's paw (paw_<zone>; Alley neon pink, Classic blush). Pivot base centre, front -Z, about
@@ -30,7 +31,8 @@ HINGE = (0.0, H, D + 0.06)       # the lid turns about the back top edge
 PAW = {"Alley": "neon_pink", "Park": "paw_park", "Neighbourhood": "paw_neighbourhood", "Woods": "paw_woods",
        "Sewer": "paw_sewer", "Classic": "blush", "Rally": "rarity_legend",
        "Desert": "eye_amber", "Ruins": "fur_emerald",                  # the areas' gate trims (#2651)
-       "Snowy": "eye_blue"}                                             # Tier 8 (#3997)
+       "Snowy": "eye_blue",                                             # Tier 8 (#3997)
+       "WaterPark": "shirt_red"}                                        # Tier 9 (#4066)
 
 
 def _paw(b, cx, cy, z, s, swatch, depth=0.02):
@@ -512,14 +514,49 @@ def snowy(b, lid):
         lid.cyl((px, H + y + 0.07, pz), r * 0.8, 0.02, "milk", segments=8)
 
 
+def waterpark(b, lid):
+    """A prize crate (#4066): cream boards in red corners and gold rails, a blue band with a butter stripe round it,
+    the red paw on a cream ticket, rope handles; on the lid red and cream stripes, a little swim ring and a balloon
+    on a stick."""
+    b.span((-W + 0.06, 0.04, -D + 0.06), (W - 0.06, H - 0.02, D - 0.06), "milk")
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            b.span((min(sx * W, sx * (W - 0.18)), 0.0, min(sz * D, sz * (D - 0.18))),
+                   (max(sx * W, sx * (W - 0.18)), H, max(sz * D, sz * (D - 0.18))), "shirt_red")
+
+    def side(axis, sign):
+        half = (W if axis == "z" else D) - 0.18
+        out = (D if axis == "z" else W) - 0.06
+        _side_span(b, axis, sign, -half, half, 0.0, 0.16, out, out + 0.06, "rarity_legend")     # rails
+        _side_span(b, axis, sign, -half, half, H - 0.16, H, out, out + 0.06, "rarity_legend")
+        _side_span(b, axis, sign, -half, half, 0.62, 0.98, out, out + 0.04, "shirt_blue")      # the band
+        _side_span(b, axis, sign, -half, half, 0.76, 0.84, out, out + 0.05, "pastel_butter")   # its stripe
+    _faces(side)
+    b.span((-0.3, 1.02, -(D - 0.02)), (0.3, 1.45, -(D - 0.06)), "cream")                       # the ticket
+    _paw(b, 0.0, 1.22, -(D - 0.02), 0.4, PAW["WaterPark"], depth=0.025)
+    for sx in (-1, 1):                                                   # rope handles on the ends
+        b.span((min(sx * W, sx * (W + 0.12)), 1.1, -0.35), (max(sx * W, sx * (W + 0.12)), 1.18, 0.35), "fur_sand")
+    lid.span((-W - 0.04, H, -D - 0.04), (W + 0.04, H + 0.08, D + 0.06), "rarity_legend")
+    n = 6
+    w = (2 * W - 0.12) / n
+    for k in range(n):                                                   # the striped top
+        lid.span((-W + 0.06 + k * w, H + 0.08, -D + 0.06), (-W + 0.06 + (k + 1) * w, H + 0.2 + 0.004 * (k % 2),
+                 D - 0.04), ("shirt_red", "milk")[k % 2])
+    lid.cyl((-0.5, H + 0.28, 0.1), 0.38, 0.16, "fur_bubblegum", segments=10)                   # a swim ring
+    lid.cyl((-0.5, H + 0.3, 0.1), 0.17, 0.16, "milk", segments=8)
+    lid.span((0.52, H + 0.2, -0.13), (0.58, H + 0.8, -0.07), "milk")                           # a balloon on a stick
+    lid.ball((0.55, H + 0.98, -0.1), 0.24, "pastel_butter", scale=(1.0, 1.2, 1.0))
+
+
 POOLS = {"Alley": alley, "Park": park, "Neighbourhood": neighbourhood, "Woods": woods, "Sewer": sewer,
-         "Classic": classic, "Rally": rally, "Desert": desert, "Ruins": ruins, "Snowy": snowy}
+         "Classic": classic, "Rally": rally, "Desert": desert, "Ruins": ruins, "Snowy": snowy, "WaterPark": waterpark}
 NO_GOLD = {"Rally"}           # the Rally Crate only comes from the Rally (F101): no golden twin
 # accents a golden crate keeps, so it still reads as its zone's crate
 KEEP = {"Alley": ("neon_pink",), "Park": ("bowl_red",), "Neighbourhood": ("pastel_sky", "blush", "bowl_red"),
         "Woods": ("bowl_red", "leaf_green"), "Sewer": ("bowl_red",), "Classic": ("blush", "nose_pink"),
         "Desert": ("leaf_green", "blush", "choco"), "Ruins": ("leaf_green", "leaf_dark", "fur_moss"),
-        "Snowy": ("milk", "pastel_sky", "leaf_dark", "paw_woods", "shirt_red")}
+        "Snowy": ("milk", "pastel_sky", "leaf_dark", "paw_woods", "shirt_red"),
+        "WaterPark": ("shirt_blue", "pastel_butter", "fur_bubblegum", "milk")}
 
 
 def _gold(pool):

@@ -6,6 +6,8 @@
 -- owned by the Creampuff Games group (run 42714863021, #2866; a user-owned image never loads in game) on 11-09.
 -- #3792 (phone texture memory): every picture swapped for the same art at 256 x 256 (shown at 40 to 100 px), group
 -- owned, runs 43359597703 and 43359644620 on 11-13; old and new ids in exports/icons/decor256/decor256-asset-ids.md.
+-- The Snowy Crate's twelve (snow_, Model-Agent #4139): group owned at 256, runs 43554372539 and 43555566969 on 11-14;
+-- ids in exports/icons/snowy-crate-asset-ids.md. Their catalog rows land with Tier 8 (#4135).
 
 return {
 	-- #2486's Cafe Event reward (Model-Agent #2488), uploaded by Tools-Agent on 11-08
@@ -137,6 +139,18 @@ return {
 	sewer_pipe_works = "rbxassetid://105981744692522",
 	sewer_porthole_hatch_door = "rbxassetid://106169722614017",
 	sewer_rubber_duck_row = "rbxassetid://136272183423400",
+	snow_aurora_ice = "rbxassetid://102883052537387",
+	snow_chalet_door = "rbxassetid://90401123418967",
+	snow_cocoa_brown = "rbxassetid://78387686505525",
+	snow_fireside_rug = "rbxassetid://71871438201265",
+	snow_frost_white = "rbxassetid://116849842955084",
+	snow_igloo_flap = "rbxassetid://112586218307854",
+	snow_knit_pattern = "rbxassetid://80902445953750",
+	snow_log_cabin = "rbxassetid://129470485772754",
+	snow_pine_planks = "rbxassetid://104830909303030",
+	snow_sled_shelf = "rbxassetid://89146719426426",
+	snow_snow_globe = "rbxassetid://139117318939097",
+	snow_stone_fireplace = "rbxassetid://104072478488345",
 	stepping_stones = "rbxassetid://118688246067774",
 	tulip_bed = "rbxassetid://99334772941256",
 	umbrella_table = "rbxassetid://95976611526053",

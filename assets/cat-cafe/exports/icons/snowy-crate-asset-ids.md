@@ -1,6 +1,6 @@
 # Snowy Crate set: picture ids
 
-Uploaded 2026-11-14 by upload-image run 43554372539, owned by the Creampuff Games group, 256 x 256.
+Uploaded 2026-11-14 by upload-image runs 43554372539 and 43555566969 (the six styles), owned by the Creampuff Games group, 256 x 256.
 
 | Key | File | Id |
 |---|---|---|
@@ -16,3 +16,9 @@ Uploaded 2026-11-14 by upload-image run 43554372539, owned by the Creampuff Game
 | `snow_snow_globe` | decor256/CatCafe_DecorIcon_snow_snow_globe.png | rbxassetid://139117318939097 |
 | `snow_chalet_door` | decor256/CatCafe_DecorIcon_snow_chalet_door.png | rbxassetid://90401123418967 |
 | `snow_igloo_flap` | decor256/CatCafe_DecorIcon_snow_igloo_flap.png | rbxassetid://112586218307854 |
+| `snow_log_cabin` | decor256/CatCafe_DecorIcon_snow_log_cabin.png | rbxassetid://129470485772754 |
+| `snow_knit_pattern` | decor256/CatCafe_DecorIcon_snow_knit_pattern.png | rbxassetid://80902445953750 |
+| `snow_pine_planks` | decor256/CatCafe_DecorIcon_snow_pine_planks.png | rbxassetid://104830909303030 |
+| `snow_aurora_ice` | decor256/CatCafe_DecorIcon_snow_aurora_ice.png | rbxassetid://102883052537387 |
+| `snow_frost_white` | decor256/CatCafe_DecorIcon_snow_frost_white.png | rbxassetid://116849842955084 |
+| `snow_cocoa_brown` | decor256/CatCafe_DecorIcon_snow_cocoa_brown.png | rbxassetid://78387686505525 |

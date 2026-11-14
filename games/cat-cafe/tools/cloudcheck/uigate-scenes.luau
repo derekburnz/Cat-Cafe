@@ -11922,6 +11922,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local label = buy:FindFirstChildWhichIsA("TextLabel", true)
 		assert(label == nil or label.TextFits, "uigate: the Starter card's Buy words do not fit (#4174)")
 		assert(said[1] == "shown", "uigate: the Starter card did not report shown (#4174)")
+		local track = ask:FindFirstChild("Track", true) :: GuiObject
+		assert(track and not track.Visible, "uigate: the Starter card shows a draining bar, which reads as a countdown (#4174)")
 		UIShim.advance(7)
 		assert(said[2] == "ignored", "uigate: the Starter card did not slide away by itself as ignored (#4174)")
 		connection:Disconnect()

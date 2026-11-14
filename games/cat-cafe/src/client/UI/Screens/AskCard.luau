@@ -45,6 +45,9 @@ export type Ask = {
 	thanks: string?, -- said for THANKS_SECONDS after a press, in place of the title; nil slides away at once
 	lines: number?, -- F92: 2 wraps a long title onto two lines and makes the card that much taller; 1 by default
 	rows: number?, -- #3657: 2 lays the buttons over two rows (the first half, rounded down, on top), the card that much taller
+	-- #4174: false hides the gold drain bar (a paid offer must not read as a countdown); it still slides away after
+	-- its seconds. Shown by default.
+	bar: boolean?,
 	answer: (id: string?) -> (),
 	ended: ((how: string) -> ())?,
 }
@@ -235,6 +238,7 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 		Size = UDim2.new(1, 0, 0, BAR_H),
 		Parent = card,
 	})
+	self._track = track
 	self._bar = Create("Frame", {
 		Name = "Bar",
 		BackgroundColor3 = Theme.colors.gold,
@@ -368,6 +372,8 @@ function AskCard.show(self: any, ask: Ask)
 	end
 	Sound.play("uiHint")
 	local bar: Frame = self._bar
+	local track: Frame = self._track
+	track.Visible = ask.bar ~= false
 	local old: Tween? = self._drain
 	if old then
 		old:Cancel()

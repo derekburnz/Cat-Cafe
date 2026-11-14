@@ -6022,6 +6022,7 @@ do
 		card:show({
 			title = StarterSuggest.TITLE,
 			lines = 2,
+			bar = false, -- review: a draining bar on a paid offer reads as a countdown (monetization-policy)
 			choices = {
 				{ id = "buy", label = StarterSuggest.buyLabel(robux), style = "primary" },
 			},

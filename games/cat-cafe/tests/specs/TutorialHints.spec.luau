@@ -312,6 +312,19 @@ return function()
 						{ step = 3, cats = 2 } :: any
 					) ~= nil
 				).to.equal(true)
+				-- the UI's own state shape: no stats, only secondCatDone (Review-QA on #4150)
+				local uiState =
+					{ tutorialStep = 3, upgradeLevels = { tables = 0 }, secondCatDone = false }
+				local dayView = TutorialHints.view(uiState, {}, "touch", true)
+				expect(TutorialHints.holdsOffer(dayView)).to.equal(true)
+				expect(TutorialHints.offer(3, { tables = 0 }, 850, upgrades, dayView)).to.equal(nil)
+				expect(TutorialHints.line(dayView)).to.equal("Catch another cat 🐾")
+				local nightView = TutorialHints.view(uiState, {}, "touch", false)
+				expect(TutorialHints.holdsOffer(nightView)).to.equal(false)
+				uiState.secondCatDone = true
+				expect(TutorialHints.holdsOffer(TutorialHints.view(uiState, {}, "touch", true))).to.equal(
+					false
+				)
 				-- a level past the price list (a save from a bigger list) is no offer
 				expect(TutorialHints.offer(3, { tables = 2 }, 99999, upgrades)).to.equal(nil)
 			end

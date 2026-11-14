@@ -2970,9 +2970,15 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- on the square alone: round the whole tile it covered the "Upgrades" label under it (device pass 2026-11-07)
 	-- #2759: none of the step rings while a fresh save's intro is on its way (holdTutorial)
 	local held = self._tutorialHeld == true
+	-- #4097: while the step asks for the second cat by day, nothing points at the table (no glow, no Buy button)
+	local stepView =
+		TutorialHints.view(state, if catalog then catalog.spots else nil, nil, areasOpen())
+	local holdsTable = TutorialHints.holdsOffer(stepView)
 	TutorialGlow.set(
 		self._upgradesTile.face,
-		not held and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+		not held
+			and not holdsTable
+			and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
 	)
 	-- #2697: the Cats tile while the step asks for a job, the Bowl tile while it asks for food in the bowl
 	local asks =
@@ -2987,7 +2993,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 			state.upgradeLevels,
 			state.money,
 			if catalog then catalog.upgrades else nil,
-			TutorialHints.view(state, if catalog then catalog.spots else nil, nil, areasOpen())
+			stepView
 		)
 	self._stripOffer = offer
 	self:_renderStripBuy()

@@ -27,6 +27,7 @@ local TipQueue = require(script.Parent.TipQueue)
 local TutorialHints = {}
 
 TutorialHints.DONE = 5
+local SECOND_DONE = 2 -- the cats count that ends step 3's "second" ask (shared/SecondCat.CATS)
 
 export type View = {
 	step: number,
@@ -139,6 +140,9 @@ function TutorialHints.view(
 		local hand = math.max(0, stats.catsCaught - tamed)
 		local counted = hand + (if tamed >= 1 then 1 else 0)
 		cats = if hand >= 1 then counted else math.min(counted, 1)
+	elseif type(state.secondCatDone) == "boolean" then
+		-- #4097: the UI's own state carries no stats, only SecondCat.done as UIController worked it out
+		cats = if state.secondCatDone then SECOND_DONE else 1
 	end
 	return {
 		step = state.tutorialStep or TutorialHints.DONE,

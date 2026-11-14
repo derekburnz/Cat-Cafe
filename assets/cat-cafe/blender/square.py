@@ -523,8 +523,12 @@ def build_arch_alley(mat):
 GARDEN_W = 26.0                                       # #3001: 22 before
 
 
-def _tree(b, x, z):
+def _tree(b, x, z, wall):
+    """A bed's tree. `wall` gets one invisible flat-sided box round the trunk (#4073): the thin, tapering round trunk
+    let a character's ladder check hit it at one height and miss it at the next, so it read as rungs and the
+    Humanoid flipped in and out of Climbing."""
     b.cyl((x, 2.6, z), 0.45, 5.2, "fur_brown", r2=0.32, segments=10)
+    wall.span((x - 0.5, 0.5, z - 0.5), (x + 0.5, 5.2, z + 0.5), "concrete")
     b.ball((x, 6.3, z), 2.4, "leaf_green")
     b.ball((x + 1.5, 5.4, z - 0.4), 1.5, "leaf_dark")
     b.ball((x - 1.4, 5.6, z + 0.5), 1.4, "leaf_green", scale=(1.0, 0.9, 1.0))
@@ -532,7 +536,7 @@ def _tree(b, x, z):
 
 
 def build_garden(mat):
-    b, flowers = RB(), RB()
+    b, flowers, wall = RB(), RB(), RB()
     hw, hd = GARDEN_W / 2, GARDEN_D / 2
     k_ = 0.5                                                                                   # kerb width
     b.span((-hw, 0, -hd), (hw, 0.65, -hd + k_), "brick")                                       # front kerb
@@ -546,7 +550,7 @@ def build_garden(mat):
         x = -hw + 2.6 + k * (GARDEN_W - 5.2) / 4
         b.ball((x, 2.1, hd - 1.4), 1.0, "leaf_dark", scale=(1.6, 0.55, 0.9))
     for x in (-8.0, 8.0):
-        _tree(b, x, 1.0)
+        _tree(b, x, 1.0, wall)
     # topiary cat in the middle, sitting, looking at the square
     b.ball((0, 1.55, 0.1), 1.25, "leaf_green", scale=(1.0, 1.0, 0.9))                          # its back on the hedge
     b.ball((0, 3.2, -0.25), 0.85, "leaf_green")
@@ -558,7 +562,8 @@ def build_garden(mat):
         flower_clump(flowers, x, 0.5, -hd + 1.4, n=4, spread=0.45)
     for x in (-3.4, 3.4):                                                                      # small bushes
         b.ball((x, 0.95, 0.45), 0.8, "leaf_dark")                                              # on the hedge
-    return [b.finalize("CatCafe_Square_Garden", mat), flowers.finalize("CatCafe_Square_Garden_Flowers", mat)]
+    return [b.finalize("CatCafe_Square_Garden", mat), flowers.finalize("CatCafe_Square_Garden_Flowers", mat),
+            wall.finalize("CatCafe_Square_Garden_Barrier", mat)]
 
 
 GARDEN_MID_W = 17.0                                   # the gap between the two gardens each side (z -8.5 to 8.5)
@@ -569,7 +574,7 @@ def build_garden_mid(mat):
     Same depth, kerb, grass, hedge and flowers as CatCafe_Square_Garden. Its ends are open: the gardens' end kerbs
     close them, and the hedge runs on over those kerbs to meet the gardens' hedges, so each side reads as one long bed.
     Placed like a garden: x +-64, z 0, front (-Z) toward the square (rotY 90 east, -90 west)."""
-    b, flowers = RB(), RB()
+    b, flowers, wall = RB(), RB(), RB()
     hw, hd = GARDEN_MID_W / 2, GARDEN_D / 2
     k_ = 0.5
     b.span((-hw, 0, -hd), (hw, 0.65, -hd + k_), "brick")                                       # front kerb
@@ -585,6 +590,7 @@ def build_garden_mid(mat):
     b.cyl((0, 1.45, 0.2), 0.28, 1.5, "concrete", segments=10)                                  # stem
     b.cyl((0, 2.3, 0.2), 1.05, 0.3, "concrete", r2=0.8, segments=14)                           # bowl
     b.cyl((0, 2.46, 0.2), 0.85, 0.04, "fish_blue", segments=14)                                # water
+    wall.span((-1.05, 0.5, -0.85), (1.05, 2.45, 1.25), "concrete")       # #4073: one flat box, no rungs (foot, stem, bowl)
     for s in (-1, 1):
         b.box((s * 0.6, 2.62, 0.2), (0.32, 0.32, 0.2), "concrete", rot=rot_z(45))             # ears on the rim
     b.ball((0.55, 2.62, 0.55), 0.17, "pastel_sky")                                             # a little bird
@@ -595,7 +601,8 @@ def build_garden_mid(mat):
     for k in range(6):                                                                         # flowers along the front
         x = -hw + 1.4 + k * (GARDEN_MID_W - 2.8) / 5
         flower_clump(flowers, x, 0.5, -hd + 1.4, n=4, spread=0.45)
-    return [b.finalize("CatCafe_Square_GardenMid", mat), flowers.finalize("CatCafe_Square_GardenMid_Flowers", mat)]
+    return [b.finalize("CatCafe_Square_GardenMid", mat), flowers.finalize("CatCafe_Square_GardenMid_Flowers", mat),
+            wall.finalize("CatCafe_Square_GardenMid_Barrier", mat)]
 
 
 GARDEN_Z = GARDEN_MID_W / 2 + GARDEN_W / 2            # 21.5: the gardens' middles, z either side of the lane
@@ -608,7 +615,7 @@ def build_garden_end(mat):
     42.5). Kerbs all round (its inner end kerb meets the garden's), grass, the hedge along the back, one tree in the
     middle, a bush either side and flowers along the front. Placed like a garden: x +-64, z +-44, front (-Z)
     toward the square (rotY 90 east, -90 west)."""
-    b, flowers = RB(), RB()
+    b, flowers, wall = RB(), RB(), RB()
     hw, hd = GARDEN_END_W / 2, GARDEN_D / 2
     k_ = 0.5
     b.span((-hw, 0, -hd), (hw, 0.65, -hd + k_), "brick")                                       # front kerb
@@ -625,14 +632,15 @@ def build_garden_end(mat):
     trees = max(1, round(GARDEN_END_W / 10))                                                   # 2 at 19, 3 at 34
     step = GARDEN_END_W / trees
     for k in range(trees):
-        _tree(b, -hw + (k + 0.5) * step, 1.0)
+        _tree(b, -hw + (k + 0.5) * step, 1.0, wall)
     for k in range(trees + 1):                                                                 # round bushes between
         b.ball((-hw + 1.5 + k * (GARDEN_END_W - 3.0) / trees, 0.95, 0.4), 0.85, "leaf_dark")
     n = max(4, round(GARDEN_END_W / 2.7))
     for k in range(n):                                                                         # flowers along the front
         x = -hw + 1.5 + k * (GARDEN_END_W - 3.0) / (n - 1)
         flower_clump(flowers, x, 0.5, -hd + 1.4, n=4, spread=0.45)
-    return [b.finalize("CatCafe_Square_GardenEnd", mat), flowers.finalize("CatCafe_Square_GardenEnd_Flowers", mat)]
+    return [b.finalize("CatCafe_Square_GardenEnd", mat), flowers.finalize("CatCafe_Square_GardenEnd_Flowers", mat),
+            wall.finalize("CatCafe_Square_GardenEnd_Barrier", mat)]
 
 
 ASSETS = {

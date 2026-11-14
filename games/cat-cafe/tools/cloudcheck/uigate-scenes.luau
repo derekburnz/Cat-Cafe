@@ -5294,6 +5294,50 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		counting:Disconnect()
 		UI.update({ crates = crates or {}, goldenFish = fish } :: any)
 	end },
+	-- #4274 (Derek 2026-11-14: "on the buying crates if you click one you cant afford make it turn gray and not
+	-- blue"): Open and Buy 5 pressed short of golden fish read "Need N more" on a grey face, and send nothing
+	{ "MarketCrateShort", function()
+		local before = UI.getState()
+		local crates, fish = before.crates, (before :: any).goldenFish
+		UI.update({ crates = {}, goldenFish = 0 } :: any)
+		local sent = 0
+		local counting = UI.events.openCrate:Connect(function()
+			sent += 1
+		end)
+		UI.market.open()
+		press("FishMarket", "CratesTab")
+		local window = UIShim.playerGui:FindFirstChild("FishMarket", true) :: Instance
+		local Button = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.Button")
+		local function styleOf(button: Instance): string?
+			local style = Button.styleOf(button)
+			if style == nil then
+				for _, piece in button:GetDescendants() do
+					style = style or Button.styleOf(piece)
+				end
+			end
+			return style
+		end
+		local card = window:FindFirstChild("park_crate", true) :: Instance
+		assert(card, "uigate: no park_crate card in the Market")
+		for _, name in { "Open", "Buy5" } do
+			local button = card:FindFirstChild(name) :: GuiObject?
+			if button and button.Visible then
+				press("FishMarket", "park_crate." .. name)
+				local style = styleOf(button)
+				assert(style == "slate", ("uigate: %s pressed short of fish shows %s, not grey (#4274)"):format(name, tostring(style)))
+				local words = ""
+				for _, piece in button:GetDescendants() do
+					if piece:IsA("TextLabel") and piece.Text ~= "" then
+						words = piece.Text
+					end
+				end
+				assert(string.find(words, "Need", 1, true), ("uigate: %s pressed short of fish reads %s (#1818)"):format(name, words))
+			end
+		end
+		assert(sent == 0, "uigate: an Open went with no fish (#1818)")
+		counting:Disconnect()
+		Scenes._marketRestore = { crates = crates or {}, goldenFish = fish }
+	end },
 	{ "Feedback", function()
 		UI.bugReport.open("bug")
 	end },
@@ -12380,6 +12424,10 @@ function Scenes.close()
 	end
 	if UI.recap.card and UI.recap.card:isShowing() then
 		UI.recap.card:hide() -- #1920
+	end
+	if Scenes._marketRestore then
+		UI.update(Scenes._marketRestore :: any) -- #4274's MarketCrateShort scene
+		Scenes._marketRestore = nil
 	end
 	if Scenes._settings then
 		UI.update({ settings = Scenes._settings } :: any) -- #1955's Auto Equip scene

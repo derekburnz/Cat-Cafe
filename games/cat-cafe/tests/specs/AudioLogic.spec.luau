@@ -182,6 +182,10 @@ return function()
 			expect(Logic.areaCue("catch", "waterpark", "water")).to.equal("campSplash")
 			expect(Logic.areaCue("catch", "waterpark", "coaster")).to.equal(nil)
 			expect(Cues.campSplash).to.be.ok()
+			-- #4071: the Dragon Knight lands and is caught with a little roar
+			expect(Logic.areaCue("arrive", nil, "dragon_knight")).to.equal("dragonChirp")
+			expect(Logic.areaCue("catch", "castle", "dragon_knight")).to.equal("dragonChirp")
+			expect(Cues.dragonChirp).to.be.ok()
 			for _, cue in { "snowStep", "snowGust", "frostChime" } do
 				expect(Cues[cue]).to.be.ok()
 			end

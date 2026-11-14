@@ -475,9 +475,15 @@ end
 -- every catch already has.
 local AREA_STEPS: { [string]: string } = { snowy = "snowStep" }
 -- #4070: the Water Cat lands and is caught with a splash (the Camp pond's, until the Water Park has its own sheet)
-local CAT_ARRIVES: { [string]: string } = { blizzard = "snowGust", water = "campSplash" }
-local CAT_CATCHES: { [string]: string } =
-	{ blizzard = "snowGust", white_tiger = "frostChime", water = "campSplash" }
+-- #4071: the Dragon Knight lands and is caught with a little dragon's roar (the Dragon Keep hatchling's)
+local CAT_ARRIVES: { [string]: string } =
+	{ blizzard = "snowGust", water = "campSplash", dragon_knight = "dragonChirp" }
+local CAT_CATCHES: { [string]: string } = {
+	blizzard = "snowGust",
+	white_tiger = "frostChime",
+	water = "campSplash",
+	dragon_knight = "dragonChirp",
+}
 function Logic.areaCue(beat: any, area: any, catId: any): string?
 	if beat == "step" then
 		return if type(area) == "string" then AREA_STEPS[area] else nil

@@ -41,7 +41,7 @@ return function()
 		it("opens slots by tier and says when the next one opens", function()
 			local roles = byRole(StaffSlots.rows(Catalog.spots, 1, {}))
 			expect(roles.barista.open).to.equal(1)
-			expect(roles.barista.locked).to.equal(3) -- #2651: barista_4 at Tier 7
+			expect(roles.barista.locked).to.equal(4) -- #2651: barista_4 at Tier 7; #4070: barista_5 at Tier 9
 			expect(roles.barista.nextTier).to.equal(3)
 			expect(roles.barista.summary).to.equal("1 free · next at Tier 3")
 			expect(roles.greeter.open).to.equal(0)
@@ -69,9 +69,10 @@ return function()
 				a = { catId = "tabby", spotId = "greeter_1" },
 				b = { catId = "tuxedo", spotId = "greeter_2" },
 				c = { catId = "calico", spotId = "greeter_3" }, -- #2651: Tier 7's
+				d = { catId = "siamese", spotId = "greeter_4" }, -- #4070: Tier 9's
 			}
-			local roles = byRole(StaffSlots.rows(Catalog.spots, 7, cats))
-			expect(roles.greeter.summary).to.equal("All 3 working")
+			local roles = byRole(StaffSlots.rows(Catalog.spots, 9, cats))
+			expect(roles.greeter.summary).to.equal("All 4 working")
 			expect(roles.greeter.nextTier).never.to.be.ok()
 		end)
 
@@ -158,6 +159,8 @@ return function()
 		it("hides the pass-only slots until extra slots open them (#1624)", function()
 			local roles = byRole(StaffSlots.rows(allSpots(), Catalog.maxTier, {}))
 			local hidden = 0
+			-- #4070: the pass-only pair is a waiter and an entertainer again (waiter_7, entertainer_4) since Tier 9 took
+			-- the barista and greeter that #3997 gave it
 			for _, role in { "waiter", "entertainer" } do
 				for _, slot in roles[role].slots do
 					if slot.hidden then
@@ -165,8 +168,8 @@ return function()
 						expect(slot.kind).to.equal("locked")
 					end
 				end
-				-- never "opens at Tier 8": the hidden slots stay out of the summary
-				expect(roles[role].summary:find("Tier 8")).to.equal(nil)
+				-- never "opens at Tier 10": the hidden slots stay out of the summary
+				expect(roles[role].summary:find("Tier 10")).to.equal(nil)
 				expect(roles[role].locked).to.equal(0)
 			end
 			expect(hidden).to.equal(2)
@@ -221,7 +224,7 @@ return function()
 		it(
 			"shows every working cat, a pass-only slot's too, even when extra slots are unknown (#2047)",
 			function()
-				-- Derek2's cafe: every slot filled, 16 working since #2651
+				-- Derek2's cafe: every slot filled, 16 working since #2651 (20 with #4070's Tier 9)
 				local cats = {}
 				for index, spot in allSpots() do
 					cats["c" .. index] = { catId = "tabby", spotId = spot.id }
@@ -240,7 +243,7 @@ return function()
 				expect(hidden).to.equal(0)
 				local waiter = byRole(rows).waiter
 				expect(waiter.slots[6].kind).to.equal("working")
-				expect(waiter.summary).to.equal("All 6 working")
+				expect(waiter.summary).to.equal("All 7 working") -- #4070: waiter_7, the pass's
 			end
 		)
 

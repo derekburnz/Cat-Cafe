@@ -49,6 +49,12 @@ return function()
 					"CatCafe_Alley_NightFence",
 					"CatCafe_Alley_NightFenceSegment",
 					"CatCafe_Nook_Desert",
+					-- #4070: the Snowy Mountain's and the Water Park's
+					"CatCafe_Camp_Snowy",
+					"CatCafe_Camp_WaterPark",
+					"CatCafe_Nook_Snowy",
+					"CatCafe_Nook_WaterPark",
+					"CatCafe_WaterPark_Gate",
 					"CatCafe_Square_Paving",
 					"CatCafe_Town_WelcomeArch",
 					"CatCafe_Alley_Mural",
@@ -84,6 +90,10 @@ return function()
 				{
 					"CatCafe_Sky",
 					"CatCafe_Camp_Park_Growth",
+					"CatCafe_Camp_Snowy_FusionObservatory", -- #4070: a camp's station stays with the client
+					"CatCafe_Camp_Snowy_CocoaStand",
+					"CatCafe_Camp_WaterPark_TicketBooth",
+					"CatCafe_Camp_Cannon_WaterPark",
 					"CatCafe_Furniture_TableRound",
 					"CatCafe_Furniture_Chair",
 					"CatCafe_Cat_Tabby",

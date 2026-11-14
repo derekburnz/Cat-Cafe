@@ -16,6 +16,7 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 
 local Context = require(script.Parent.Context)
@@ -47,14 +48,15 @@ local function areaBoxes(): { any }
 	-- area's air starts the day its box is in the Config (#4069)
 	local ids: { string } = {}
 	for area in Presets.areaFx.areas do
-		table.insert(ids, area:sub(1, 1):upper() .. area:sub(2))
+		table.insert(ids, area)
 	end
 	table.sort(ids)
 	for _, id in ids do
-		local x = if type(world) == "table" then world[id .. "CenterX"] else nil
-		local z = if type(world) == "table" then world[id .. "CenterZ"] else nil
-		local width = if type(world) == "table" then world[id .. "Width"] else nil
-		local depth = if type(world) == "table" then world[id .. "Depth"] else nil
+		local key = (Catalog :: any).areaArt(id) -- "waterpark" reads WaterParkCenterX (#4070)
+		local x = if type(world) == "table" then world[key .. "CenterX"] else nil
+		local z = if type(world) == "table" then world[key .. "CenterZ"] else nil
+		local width = if type(world) == "table" then world[key .. "Width"] else nil
+		local depth = if type(world) == "table" then world[key .. "Depth"] else nil
 		if
 			type(x) == "number"
 			and type(z) == "number"
@@ -62,7 +64,7 @@ local function areaBoxes(): { any }
 			and type(depth) == "number"
 		then
 			table.insert(list, {
-				id = id:lower(),
+				id = id,
 				centre = { x = x, z = z },
 				size = { width = width, depth = depth },
 			})

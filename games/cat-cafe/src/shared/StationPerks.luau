@@ -12,6 +12,8 @@
 --   5     Lost and Found   Homing Bell   your own dropped cats walk home twice as fast   CatService walkHome
 --   6     Oasis Spa        Warm Paws     rescue zones 10% wider                          RescueService (Rescue)
 --   7     Relic Museum     Curator       +5% tips                                        Economy.incomePerSecond
+--   8     Cocoa Stand      Cocoa Break   +10% money for 10 min, free every 2 hours       the Cocoa Stand (to build)
+--   9     Ticket Booth     Ticket Stubs  every catch drops tickets for the prize shelf   TicketBooth (#4061)
 --
 -- Pure, so the client shows the same numbers (the Unlocked card and the "Your perks" list are UI-Engineer's).
 
@@ -68,6 +70,23 @@ StationPerks.LIST = table.freeze({
 		station = "Relic Museum",
 		name = "Curator",
 		text = "+5% tips",
+	}),
+	-- #3997 (tier8-snowy-mountain.md section 5): the Cocoa Stand's free cocoa, a timed money boost rather than a lasting
+	-- one. Design calls it Warm Paws, a name the Oasis Spa's perk already has, so here it is Cocoa Break.
+	table.freeze({
+		id = "cocoa_break",
+		tier = 8,
+		station = "Cocoa Stand",
+		name = "Cocoa Break",
+		text = "Free cocoa every 2 hours: +10% money for 10 minutes",
+	}),
+	-- #4070: the Water Park's station is the Ticket Booth (#4061, shared/TicketBooth), which has its own switch
+	table.freeze({
+		id = "ticket_stubs",
+		tier = 9,
+		station = "Ticket Booth",
+		name = "Ticket Stubs",
+		text = "Every cat you catch drops tickets for the prize shelf",
 	}),
 } :: { Perk })
 

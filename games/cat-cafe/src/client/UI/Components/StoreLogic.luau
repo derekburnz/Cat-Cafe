@@ -181,6 +181,17 @@ local PASSES: { PassCard } = {
 		note = "Yours to keep.",
 		tab = "cats",
 	},
+	-- #4266 (Derek 2026-11-14): the Auto Bowl pass under Cats beside the Second Bait Bowl; the Bait bowl window's
+	-- empty space over Refill sells it too. Hidden while AutoBowlPassId is 0
+	{
+		key = "autoBowl",
+		configKey = "AutoBowlPassId",
+		name = "Auto Bowl",
+		icon = "🥣",
+		effect = "Claims each cat as it arrives and refills your bowl with your best food. Switch it off any time.",
+		note = "Yours to keep.",
+		tab = "cats",
+	},
 	{
 		key = "grandTheme",
 		configKey = "GrandThemePassId",

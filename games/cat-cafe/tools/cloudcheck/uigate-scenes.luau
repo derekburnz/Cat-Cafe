@@ -2225,6 +2225,12 @@ local SCENES = {
 		for _, piece in before do
 			assert(piece.Parent ~= nil and table.find(after, piece), ("uigate: Rank up row %s was drawn again on a state push, so it flashes (#4292)"):format(piece.Name))
 		end
+		-- #4292 again (22:01 UTC): the "It opens" list keeps its scroll bar's strip, so the bar coming and going never
+		-- changes the cards' width (that loop blinked the bottom card)
+		local opensList = UIShim.playerGui:FindFirstChild("OpensCards", true) :: ScrollingFrame?
+		if opensList then
+			assert(opensList.VerticalScrollBarInset == Enum.ScrollBarInset.Always, "uigate: the It opens list's cards change width with its scroll bar, so the last one blinks (#4292)")
+		end
 	end },
 	{ "RankUpTier2", function()
 		-- #2121: the Tier 1 card lists all five upgrade caps, Bait Bowl among them; the line still fits. The level is not

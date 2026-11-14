@@ -370,6 +370,11 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		ScrollBarThickness = 4,
 		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
+		-- #4292 again (Derek 2026-11-14 22:01 UTC: the bottom card still flashed on and off): with three cards the
+		-- list only just overflows. The bar came on, took 4 px from the cards' width, their wrapped words grew or
+		-- shrank the canvas, the bar went off, the width came back, and round again every frame. The bar's strip is
+		-- now always kept, so the cards' width never depends on the bar.
+		VerticalScrollBarInset = Enum.ScrollBarInset.Always,
 		Visible = self._family,
 		Parent = content,
 	}, {
@@ -379,7 +384,7 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		}),
 		Create("UIPadding", { -- room for the cards' outlines
 			PaddingLeft = UDim.new(0, 2),
-			PaddingRight = UDim.new(0, 6),
+			PaddingRight = UDim.new(0, 2), -- the bar's own strip is kept beside this (VerticalScrollBarInset)
 			PaddingTop = UDim.new(0, 2),
 			PaddingBottom = UDim.new(0, 2),
 		}),

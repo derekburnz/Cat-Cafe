@@ -1021,6 +1021,18 @@ def trap_helmet(mat):
     return [b.finalize(N + "TrapHelmet", mat)]
 
 
+def trap_hay_nook(mat):
+    """The haystack cut down for the 8 x 7 nook: a low ring of straw 1.9 out round the spot, open toward local -Y,
+    on loose straw. The same trap type as trap_haystack."""
+    b = Builder()
+    for k in range(7):
+        a = PI / 2 + 2 * PI * (k + 0.5) / 8
+        b.cyl_base((1.45 * math.cos(a), 1.45 * math.sin(a), 0.0), 0.5, 0.9 + 0.12 * (k % 3), (STRAW, "fur_sand")[k % 2],
+                   segments=8, radius2=0.36, bevel=False)
+    b.cyl_base((0, 0, 0), 1.9, 0.06, "pastel_butter", segments=12, bevel=False)
+    return [b.finalize(N + "TrapHayNook", mat)]
+
+
 TRAPS = {"trap_haystack": (trap_haystack, 4.0), "trap_barrel": (trap_barrel, 3.5),
          "trap_banner_pole": (trap_banner_pole, 2.5), "trap_awning": (trap_awning, 4.0),
          "trap_helmet": (trap_helmet, 2.5)}

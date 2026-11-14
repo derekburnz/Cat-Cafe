@@ -15,6 +15,7 @@ export type AreaTitle = {
 	show: (self: AreaTitle, key: string, title: string, subtitle: string?, color: Color3?) -> (),
 	-- key, title, subtitle, colour, seconds held, picture (an rbxassetid) left of the title
 	banner: (self: AreaTitle, string, string, string?, Color3?, number?, string?) -> (),
+	clear: (self: AreaTitle) -> (),
 	destroy: (self: AreaTitle) -> (),
 }
 
@@ -197,6 +198,12 @@ function AreaTitle._show(
 			end
 		end)
 	end)
+end
+
+-- Takes a banner that is up off the screen at once (the intro starting over a Lucky Day banner, Review-QA 2026-11-14).
+function AreaTitle.clear(self: any)
+	self._token += 1
+	self._holder.Visible = false
 end
 
 function AreaTitle.destroy(self: any)

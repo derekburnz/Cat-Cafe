@@ -66,6 +66,7 @@ local Config = {
 	-- into cafeMultiplier like tables and decor; Cat Accessories and Uniform Styles each multiply every working cat's
 	-- rate; Cafe Style and Grand Cafe add to how often rich visitors come (x(1 + 0.25 + 1.0) with both).
 	VipCafeBonus = 0.10,
+	VipBoostCafeBonus = 0.50, -- #4235 (Derek 2026-11-14): VIP's bonus while the vipBoost switch is on (Economy.vipBoost)
 	CafeStyleCafeBonus = 0.50,
 	GrandCafeBonus = 1.50,
 	AccessoriesStaffMultiplier = 1.15,

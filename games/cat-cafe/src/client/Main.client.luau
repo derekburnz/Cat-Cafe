@@ -48,7 +48,7 @@ DoorController.start()
 IntroController.start() -- after the UI and the world controller, whose hooks it uses
 MemoryWatchController.start() -- #3743: the client's memory at 5, 15, 30 and 60 minutes, analytics only
 StyleController.start()
-NoClimbController.start() -- #4073: the player's own character never enters Climbing
+NoClimbController.start() -- #4073: the player's own character climbs only at the real ladders
 ShoveController.start()
 NetSwingController.start() -- F93: the net swing, after the UI whose Net button it listens to
 CannonController.start() -- F84: after the UI, whose cannon picker it opens

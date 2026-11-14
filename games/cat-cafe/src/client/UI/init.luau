@@ -235,6 +235,8 @@ UI.events = {
 	-- #1936 (release.md section 3), analytics only: a purchase prompt refused with no tap or during a catch, rescue or
 	-- cutscene, "source:reason" (bait, store or cafePass; no_tap or busy)
 	storeGuardBlocked = Signal.new(), -- (what)   forward as TelemetryReport("store_guard_blocked", what)
+	buySource = Signal.new(), -- (what)   #4176: forward as TelemetryReport("buy_source", what)
+	starterSuggest = Signal.new(), -- (outcome)   #4174: forward as TelemetryReport("starter_suggest", outcome)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
@@ -873,7 +875,7 @@ function UI.init(config: Types.InitConfig)
 		-- #2353: the X2 Cash pill opens Roblox's window for the 2x pass, through the Store's tap guard (#1936)
 		buyPass = function(id: number)
 			local PassShop = require(script.Components.PassShop)
-			PassShop.prompt(id, "store")
+			PassShop.prompt(id, "hud_badge") -- #4176: purchase_source tells these from Store buys
 		end,
 		-- #1919: the goal card's nudge opens the Index on the newest open area with the most cats to find
 		openIndexAt = function(areaId: string?)
@@ -5515,8 +5517,8 @@ do
 	end
 
 	-- #3555: for the first rank up's walk-through (Controllers/RankSpotController). `moment` says whether nothing
-	-- else is going on (no catch, rescue, carry, cutscene or flight, the UI showing) and names the open window: the
-	-- modal's, or "other" for a popup, the bait card, an ask or the gift, tip or recap card.
+	-- else is going on (no catch, rescue, carry, intro or flight, the UI showing) and names the open window: the
+	-- modal's, or "other" for a popup, the bait card, an ask, the gift, tip or recap card or a cutscene.
 	function UI.rankSpot.moment(): (boolean, string?)
 		local at = tipMoment()
 		local free = not (
@@ -5542,6 +5544,10 @@ do
 				or (cards.gift.card ~= nil and cards.gift.card:isShowing())
 				or (tipCard ~= nil and tipCard:isShowing())
 				or (cards.recap.card ~= nil and cards.recap.card:isShowing())
+				-- #4188: and a cutscene (the first bait cat's). It counts as a card, not as busy: the free seconds keep
+				-- running under it, so with Tier 2 at 3 kinds the goal card lights the moment the bait cat's card and
+				-- scene are gone, not 2 s later
+				or UI.cutscene.on
 			)
 		then
 			window = "other"
@@ -5585,6 +5591,10 @@ do
 			lookForTips()
 			local tips: any = UI.tips -- lookForAsk is set by the ask's block below
 			tips.lookForAsk()
+			local lookForStarter: (() -> ())? = tips.lookForStarter -- #4174, set by its block below
+			if lookForStarter ~= nil then
+				lookForStarter()
+			end
 		end
 		if clocks.pump >= TIP.PUMP_EVERY then
 			clocks.pump = 0
@@ -5970,6 +5980,123 @@ do
 		if card ~= nil and not card:isShowing() then
 			openAsk(card)
 		end
+	end
+end
+
+-- #4174: the Starter Bundle's one slide-in card a session (shared/StarterSuggest), behind the starterSuggest switch.
+-- It rides the ask card (its X from the first frame, its picture and line, no timer: it stays until Buy or the X) with one Buy button, only in
+-- a clear moment past its random 10 to 15 minute mark. Its own block, as the module is short of locals.
+do
+	local StarterSuggest =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterSuggest")) :: any
+	local suggest = {
+		start = os.clock(),
+		dueAt = StarterSuggest.dueAt(math.random()),
+		done = false,
+	}
+
+	local function report(outcome: string)
+		UI.events.starterSuggest:Fire(outcome)
+	end
+
+	-- Roblox's price for the bundle when it is for sale, else nil
+	local function price(): (number?, number?)
+		local id = (Config :: any).ProductIds and (Config :: any).ProductIds.starter_bundle
+		if type(id) ~= "number" or id <= 0 then
+			return nil, nil
+		end
+		local PassShop = require(script.Components.PassShop) :: any
+		local known = PassShop.prices()[id]
+		if known == nil or known.forSale ~= true or type(known.robux) ~= "number" then
+			return id, nil
+		end
+		return id, known.robux
+	end
+
+	local function open(card: AskCard.AskCard, id: number, robux: number)
+		suggest.done = true
+		local ended = false
+		local function finish(how: string)
+			if ended then
+				return
+			end
+			ended = true
+			report(how)
+		end
+		card:show({
+			title = StarterSuggest.TITLE,
+			picture = StarterSuggest.PICTURE,
+			line = StarterSuggest.LINE,
+			choices = {
+				{ id = "buy", label = StarterSuggest.buyLabel(robux), style = "primary" },
+			},
+			-- no seconds: it stays until Buy or the X (Derek 2026-11-14), with no timer bar
+			answer = function(choice: string?)
+				if choice == "buy" then
+					finish("buy")
+					local PassShop = require(script.Components.PassShop) :: any
+					PassShop.noteTap()
+					PassShop.prompt(id, StarterSuggest.SOURCE)
+				end
+			end,
+			ended = function(how: string)
+				if how == "closed" or how == "ignored" then
+					finish(how)
+				elseif how ~= "answered" then
+					finish("hidden")
+				end
+			end,
+		})
+		UI.asks.shown()
+		report("shown")
+	end
+
+	-- From the tips clock, once a second.
+	function UI.tips.lookForStarter()
+		local card = askCard
+		if suggest.done or card == nil or card:isShowing() then
+			return
+		end
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local on = LiveFlags.shown(
+			StarterSuggest.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StarterSuggest.FLAG)
+		)
+		if not on then
+			return
+		end
+		local id, robux = price()
+		local QuietStart =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+		local PassShop = require(script.Components.PassShop) :: any
+		local okBusy, busy = pcall(PassShop.busy)
+		local due = StarterSuggest.due({
+			on = on,
+			done = suggest.done,
+			played = os.clock() - suggest.start,
+			dueAt = suggest.dueAt,
+			owned = (state :: any).starterBought,
+			quietUntil = Players.LocalPlayer:GetAttribute(QuietStart.ATTRIBUTE),
+			now = Workspace:GetServerTimeNow(),
+			tutorialDone = type(state.tutorialStep) == "number" and state.tutorialStep >= 5,
+			clear = UI.tips.quiet() and not (okBusy and busy == true) and UI.asks.paced(),
+			priced = robux ~= nil,
+		})
+		if due and id ~= nil and robux ~= nil then
+			open(card, id, robux)
+		end
+	end
+
+	-- The card now, whatever the clock and the switch say (QA in Studio and the UI gate), with a stand-in price
+	-- until Roblox's is known.
+	function UI.tips.showStarter()
+		local card = askCard
+		if card == nil then
+			return
+		end
+		local id, robux = price()
+		open(card, id or 0, robux or 99)
 	end
 end
 
@@ -8782,6 +8909,7 @@ do
 		playedAt = 0,
 		quietUntil = nil :: number?,
 		blocked = nil :: Signal.Connection?,
+		prompting = nil :: Signal.Connection?, -- #4176
 	}
 
 	-- #1936 (release.md section 3): under 30 minutes of total play the money badge has no price and does not pulse
@@ -8859,7 +8987,7 @@ do
 				hud:setStoreNew(screen:hasNew())
 			end
 		end
-		-- #1606: the money pass badge beside the HUD's money ("2x" to "4x", or "Get 2x" while the 2x pass is on sale)
+		-- #1606: the money pass button beside the HUD's money: the next rung up while it is on sale (2x, then 3x, then 4x)
 		if hud then
 			local boosts = (state :: any).passBoosts
 			local multiplier = if type(boosts) == "table" then boosts.money else nil
@@ -8904,14 +9032,15 @@ do
 			return
 		end
 		local screen = Store.new({
-			buy = function(passId: number)
+			buy = function(passId: number, source: string?)
 				-- #1888: the funnel's buy_pressed, the first buy of a visit
 				local key = "buy:" .. tostring(passId)
 				if not shop.reported[key] then
 					shop.reported[key] = true
 					UI.events.storeReport:Fire("store_buy", passId)
 				end
-				PassShop.prompt(passId, "store")
+				-- #4175: "featured_new" from the update's own card on Featured
+				PassShop.prompt(passId, source or "store")
 			end,
 			-- #3996: the server checks Today's Deal and opens Roblox's prompt itself
 			deal = function(productId: string)
@@ -8998,6 +9127,12 @@ do
 		shop.blocked = PassShop.blocked:Connect(function(source: string, reason: string)
 			UI.events.storeGuardBlocked:Fire(source .. ":" .. reason)
 		end)
+		-- #4176: where the prompt started, so the receipt's purchase_source can say it
+		shop.prompting = PassShop.prompting:Connect(function(source: string, id: number)
+			local funnel: any =
+				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StoreFunnel"))
+			UI.events.buySource:Fire(funnel.buySourceOf(source) .. ":" .. tostring(id))
+		end)
 		PassShop.start(StoreLogic.passIds(Config), StoreLogic.productIds(Config))
 		refresh()
 	end
@@ -9066,6 +9201,10 @@ do
 		if shop.blocked then
 			shop.blocked:Disconnect()
 			shop.blocked = nil
+		end
+		if shop.prompting then
+			shop.prompting:Disconnect()
+			shop.prompting = nil
 		end
 		shop.quietUntil = nil
 		if shop.supporter then
@@ -9653,6 +9792,7 @@ do
 	local events = {
 		boards = nil :: EventBoards.EventBoards?,
 		seen = nil :: EventLogic.Seen?, -- kept across rebuilds, so a respawn neither repeats the banner nor forgets the end
+		adminSeen = nil :: any, -- #4195: the same for the admin event (Effects/AdminEventLogic.Seen)
 		token = 0,
 	}
 
@@ -9765,10 +9905,32 @@ do
 				)
 			end
 		end
+		-- #4195: an admin event (Bowl Frenzy, the Admin Wheel) beside the Cafe Event: its warning card two minutes
+		-- before, its wide card as it starts, and its timer first on the event chip (Effects/AdminEventLogic)
+		local AdminEventLogic = require(script.Parent.Effects.AdminEventLogic) :: any
+		local adminView = AdminEventLogic.read(get, UI.cafeEvent.decode)
+		local adminSeen, adminBeat = AdminEventLogic.follow(events.adminSeen, adminView, now)
+		events.adminSeen = adminSeen
+		if adminBeat ~= nil and adminView ~= nil then
+			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
+			local card = if adminBeat == "start"
+				then AdminEventLogic.startBanner(adminView, now)
+				else AdminEventLogic.soonBanner(adminView, now)
+			EventBanner.show(card)
+			-- the same words as one line in the chat window, for a player who looked away
+			local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any
+			AdminEventChat.say(AdminEventLogic.chatLine(card))
+		end
 		local current = hud
 		if current then
-			local chipLines, chipKind = EventLogic.chip(view, seen, now)
-			current:setEvent(chipLines, chipKind, EventLogic.strip(view, seen, now))
+			local eventLines, eventKind = EventLogic.chip(view, seen, now)
+			local chipLines, chipKind, stripLines = AdminEventLogic.merge(
+				eventLines,
+				eventKind,
+				EventLogic.strip(view, seen, now),
+				AdminEventLogic.stripLine(adminView, now)
+			)
+			current:setEvent(chipLines, chipKind, stripLines)
 			current:setEventBoost(EventLogic.moneyBoost(view, now))
 		end
 		local boards = events.boards
@@ -9793,6 +9955,7 @@ do
 	-- the UI gate's scenes: forget the watched event, so a put-away test party is not "ended early"
 	function UI.cafeEvent.forget()
 		events.seen = nil
+		events.adminSeen = nil
 	end
 
 	function UI.cafeEvent.reset()

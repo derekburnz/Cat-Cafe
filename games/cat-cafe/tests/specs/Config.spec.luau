@@ -433,6 +433,7 @@ return function()
 		PassXpPerLevel = 800,
 		-- #1624 (economy-ladder.md section 6a v2.4): the store passes
 		VipCafeBonus = 0.10,
+		VipBoostCafeBonus = 0.50,
 		CafeStyleCafeBonus = 0.50,
 		GrandCafeBonus = 1.50,
 		AccessoriesStaffMultiplier = 1.15,
@@ -639,6 +640,7 @@ return function()
 				Giveaways = true, -- Derek 2026-11-13: the 15:30 UTC giveaways, checked in Codes.spec
 				StoreWasPrice = true, -- #3572: the Sale badge's true old prices, checked in StoreLogic.spec
 				StoreSaleEnds = true, -- #3572: checked in StoreLogic.spec
+				UpdateFeature = true, -- #4175: checked in StoreLogic.spec
 				EarlyCatchCount = true, -- #2913 follow-up: checked in Circles.spec
 				EarlyCatchWindowScale = true, -- #2913 follow-up: checked in Circles.spec and S24 here
 				AfkCafeSeconds = true, -- #3573: checked in AfkCafe.spec

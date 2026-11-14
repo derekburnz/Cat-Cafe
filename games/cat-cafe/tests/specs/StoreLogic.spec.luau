@@ -37,23 +37,52 @@ return function()
 	describe("StoreLogic.moneyBadge (#1606)", function()
 		local onSale = { [200] = { robux = 5, forSale = true } }
 
-		it("shows the highest money pass owned", function()
-			local badge = StoreLogic.moneyBadge(CONFIG, { [200] = true, [400] = true }, onSale)
-			expect(badge.text).to.equal("4x")
-			expect(badge.owned).to.equal(true)
-			expect(StoreLogic.moneyBadge(CONFIG, { [300] = true }, {}).text).to.equal("3x")
-			-- the server's PlayerState.passBoosts.money counts too
-			expect(StoreLogic.moneyBadge(CONFIG, {}, {}, 2).text).to.equal("2x")
-			expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, {}, 4).text).to.equal("4x")
-			expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, 1).text).to.equal("X2 Cash")
+		it(
+			"is owned once the top rung is owned or the next is off sale (#3052 hides it)",
+			function()
+				local badge = StoreLogic.moneyBadge(CONFIG, { [200] = true, [400] = true }, onSale)
+				expect(badge.text).to.equal("4x")
+				expect(badge.owned).to.equal(true)
+				expect(StoreLogic.moneyBadge(CONFIG, { [300] = true }, {}).text).to.equal("3x")
+				-- the server's PlayerState.passBoosts.money counts too
+				expect(StoreLogic.moneyBadge(CONFIG, {}, {}, 2).text).to.equal("2x")
+				expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, {}, 4).text).to.equal("4x")
+				expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, 1).text).to.equal("2x Money")
+			end
+		)
+
+		it("offers the next rung up with its own price (Derek 2026-11-14)", function()
+			local ladder = {
+				[200] = { robux = 25, forSale = true },
+				[300] = { robux = 59, forSale = true },
+				[400] = { robux = 99, forSale = true },
+			}
+			local first = StoreLogic.moneyBadge(CONFIG, {}, ladder)
+			expect(first.text).to.equal("2x Money")
+			expect(first.price).to.equal("R$25")
+			expect(first.id).to.equal(200)
+			local second = StoreLogic.moneyBadge(CONFIG, { [200] = true }, ladder)
+			expect(second.text).to.equal("3x Money")
+			expect(second.price).to.equal("R$59")
+			expect(second.id).to.equal(300)
+			expect(second.owned).to.equal(false)
+			local third = StoreLogic.moneyBadge(CONFIG, { [300] = true }, ladder)
+			expect(third.text).to.equal("4x Money")
+			expect(third.price).to.equal("R$99")
+			expect(third.id).to.equal(400)
+			-- the server's word counts as owned
+			expect(StoreLogic.moneyBadge(CONFIG, {}, ladder, 2).id).to.equal(300)
+			-- 4x owned: nothing left to offer
+			expect(StoreLogic.moneyBadge(CONFIG, { [400] = true }, ladder).owned).to.equal(true)
+			expect(StoreLogic.moneyBadge(CONFIG, {}, ladder, 4).id).to.equal(nil)
 		end)
 
 		it(
 			"offers X2 Cash with its price with none owned while the 2x pass is on sale (#1759)",
 			function()
 				local badge = StoreLogic.moneyBadge(CONFIG, {}, onSale)
-				expect(badge.text).to.equal("X2 Cash")
-				expect(badge.price).to.equal("Only R$5")
+				expect(badge.text).to.equal("2x Money")
+				expect(badge.price).to.equal("R$5")
 				expect(badge.owned).to.equal(false)
 				expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, onSale).price).to.equal(nil)
 			end
@@ -357,6 +386,32 @@ return function()
 					.. "\nSprinkles the cat, Bakery Stripes sign style"
 					.. "\n10x Big Money, 5x Swift potions" -- #2850: one line, so the bigger bundle fits the hero
 			)
+			-- #4020: with a Money pass owned the 2x line gives way to the swap potions, as the server pays them
+			full.products[#full.products].prize.moneyMultiplier = 2
+			full.products[#full.products].prize.moneySwap =
+				{ big_tip_potion = 10, swift_potion = 5 }
+			local plain = StoreLogic.tabRows(StoreLogic.rows(config, {}, nil, full), "cats")[1]
+			expect(string.find(plain.effect, "2x Money for good", 1, true) ~= nil).to.equal(true)
+			expect(string.find(plain.effect, "instead", 1, true)).to.equal(nil)
+			for multiplier, passId in config.MoneyPassIds do
+				local swapped = StoreLogic.tabRows(
+					StoreLogic.rows(config, { [passId] = true }, nil, full),
+					"cats"
+				)[1]
+				expect(string.find(swapped.effect, "2x Money for good", 1, true)).to.equal(nil)
+				expect(
+					string.find(
+						swapped.effect,
+						("You own %dx Money, so instead: 10x Big Money, 5x Swift potions"):format(
+							multiplier
+						),
+						1,
+						true
+					) ~= nil
+				).to.equal(true)
+			end
+			full.products[#full.products].prize.moneyMultiplier = nil
+			full.products[#full.products].prize.moneySwap = nil
 			-- a cat or style with no name yet still reads as words
 			expect(StoreLogic.extras({
 				potions = {},
@@ -1153,6 +1208,136 @@ return function()
 			local owned = StoreLogic.rows(config, { [78] = true })
 			expect(StoreLogic.featured(owned, nil).picks[2].key).to.equal("packStylish")
 		end)
+
+		it(
+			"leads Featured with the update's own item only inside its window, with the switch on (#4175)",
+			function()
+				local rows: { any } = {
+					{
+						key = "starterBundle",
+						name = "Starter Bundle",
+						passId = 1,
+						tab = "cats",
+						owned = false,
+					},
+					{ key = "money", name = "2x Money", passId = 2, tab = "passes", owned = false },
+					{
+						key = "packChef",
+						name = "Chef Pack",
+						passId = 3,
+						tab = "packs",
+						owned = false,
+					},
+					{
+						key = "packSpace",
+						name = "Space Pack",
+						passId = 4,
+						tab = "packs",
+						owned = false,
+					},
+					{
+						key = "royalCat",
+						name = "Royal Cat",
+						passId = 5,
+						tab = "cats",
+						owned = false,
+					},
+					{
+						key = "kingPack",
+						name = "King Cat Pack",
+						passId = 6,
+						tab = "cats",
+						owned = false,
+					},
+				}
+				local prices: { [number]: any } = {}
+				for id = 1, 6 do
+					prices[id] = { robux = 100 + id, forSale = true }
+				end
+				local config: any = {
+					UpdateFeature = {
+						keys = { "packChef", "packSpace" },
+						starts = 1000,
+						ends = 2000,
+					},
+				}
+				local feature = StoreLogic.updateFeature(rows, prices, config, 1500, true)
+				expect(feature.row.key).to.equal("packChef")
+				expect(feature.line).to.equal("New today")
+				-- the usual hero leads the picks and the last pick gives way; no card shows twice
+				local featured = StoreLogic.featured(rows, prices, feature.row)
+				expect(featured.hero.key).to.equal("packChef")
+				expect(#featured.picks).to.equal(3)
+				expect(featured.picks[1].key).to.equal("starterBundle")
+				expect(featured.picks[2].key).to.equal("money")
+				for _, pick in featured.picks do
+					expect(pick.key ~= "packChef").to.equal(true)
+				end
+				-- switch off, before the window, at its end, no prices yet, no entry: Featured is as it was
+				expect(StoreLogic.updateFeature(rows, prices, config, 1500, false)).to.equal(nil)
+				expect(StoreLogic.updateFeature(rows, prices, config, 999, true)).to.equal(nil)
+				expect(StoreLogic.updateFeature(rows, prices, config, 2000, true)).to.equal(nil)
+				expect(StoreLogic.updateFeature(rows, nil, config, 1500, true)).to.equal(nil)
+				expect(StoreLogic.updateFeature(rows, prices, {}, 1500, true)).to.equal(nil)
+				expect(StoreLogic.featured(rows, prices).hero.key).to.equal("starterBundle")
+				-- an owned or off sale item is never pushed: the next key, then nothing
+				rows[3].owned = true
+				expect(StoreLogic.updateFeature(rows, prices, config, 1500, true).row.key).to.equal(
+					"packSpace"
+				)
+				prices[4] = { robux = nil, forSale = false }
+				expect(StoreLogic.updateFeature(rows, prices, config, 1500, true)).to.equal(nil)
+			end
+		)
+
+		it("names a real sale's end day only while the card is on that sale (#4175)", function()
+			local rows: { any } = {
+				{
+					key = "kingPack",
+					name = "King Cat Pack",
+					passId = 2,
+					tab = "cats",
+					owned = false,
+				},
+			}
+			local config: any = {
+				UpdateFeature = {
+					keys = { "kingPack" },
+					starts = 1000,
+					ends = 2000,
+					saleEnds = "Sunday",
+				},
+				StoreWasPrice = { kingPack = { was = 999, now = 499 } },
+				StoreSaleEnds = 3000,
+			}
+			local half = { [2] = { robux = 499, forSale = true } }
+			local full = { [2] = { robux = 999, forSale = true } }
+			expect(StoreLogic.updateFeature(rows, half, config, 1500, true).line).to.equal(
+				"Sale ends Sunday"
+			)
+			expect(StoreLogic.updateFeature(rows, full, config, 1500, true).line).to.equal(
+				"New today"
+			)
+		end)
+
+		it(
+			"keeps the shipped update feature to Store cards and a window of a week or less (#4175)",
+			function()
+				local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+				local RealConfig = require(Shared:WaitForChild("Config")) :: any
+				local entry = RealConfig.UpdateFeature
+				expect(entry.ends > entry.starts).to.equal(true)
+				expect(entry.ends - entry.starts <= 7 * 86400).to.equal(true)
+				local all: any = {}
+				for _, key in StoreLogic.NEWEST_PACKS do
+					all[key] = true
+				end
+				for _, key in entry.keys do
+					expect(all[key] == true or RealConfig.StoreWasPrice[key] ~= nil).to.equal(true)
+				end
+				expect(StoreLogic.UPDATE_FLAG).to.equal("updateFeature")
+			end
+		)
 
 		it("lists the cards on sale not already on Featured, biggest saving first", function()
 			local rows: { any } = {

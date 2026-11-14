@@ -8,6 +8,10 @@
 -- owned, runs 43359597703 and 43359644620 on 11-13; old and new ids in exports/icons/decor256/decor256-asset-ids.md.
 -- The Snowy Crate's twelve (snow_, Model-Agent #4139): group owned at 256, runs 43554372539 and 43555566969 on 11-14;
 -- ids in exports/icons/snowy-crate-asset-ids.md. Their catalog rows land with Tier 8 (#4135).
+-- The Water Park Crate's twelve (funfair_, Model-Agent #4182): group owned at 256, run 43594490852 on 11-14; ids in
+-- exports/icons/water-park-crate-asset-ids.md. Their catalog rows land with Tier 9 (#4181).
+-- The Castle Crate's twelve (castle_, Model-Agent #4187): group owned at 256, run 43596111302 on 11-14; ids in
+-- exports/icons/castle-crate-asset-ids.md. Their catalog rows land with Tier 10 (#4184).
 
 return {
 	-- #2486's Cafe Event reward (Model-Agent #2488), uploaded by Tools-Agent on 11-08
@@ -26,6 +30,18 @@ return {
 	balloon_bunch = "rbxassetid://136196544257918",
 	bicycle_with_basket = "rbxassetid://104969743747872",
 	bird_bath = "rbxassetid://90494301165195",
+	castle_armour_stand = "rbxassetid://140638677588956",
+	castle_banner_red = "rbxassetid://138814649009702",
+	castle_dragon_scales = "rbxassetid://116322912317117",
+	castle_drawbridge_door = "rbxassetid://116277030776234",
+	castle_feast_bench = "rbxassetid://107409907586195",
+	castle_hall_flagstones = "rbxassetid://125235450391349",
+	castle_keep_stone = "rbxassetid://71274736623728",
+	castle_portcullis_flap = "rbxassetid://81410723148501",
+	castle_round_table = "rbxassetid://123127758523598",
+	castle_royal_blue = "rbxassetid://103786064419902",
+	castle_royal_tapestry = "rbxassetid://139004412457597",
+	castle_shield_rack = "rbxassetid://140513292735256",
 	cat_tree_sign = "rbxassetid://75030055594029",
 	classic_bell_flap = "rbxassetid://133763384838765",
 	classic_bistro_set = "rbxassetid://96075540548001",
@@ -56,6 +72,18 @@ return {
 	fish_tank = "rbxassetid://95197860659567",
 	flower_box_fence = "rbxassetid://114859649168345",
 	flower_cart = "rbxassetid://93079890251884",
+	funfair_balloon_wall = "rbxassetid://81431599359553",
+	funfair_beach_chair = "rbxassetid://124007010680811",
+	funfair_boardwalk = "rbxassetid://89622797885242",
+	funfair_candy_pink = "rbxassetid://90917459757536",
+	funfair_circus_stripes = "rbxassetid://91323473376370",
+	funfair_ferris_lamp = "rbxassetid://140297229761013",
+	funfair_mini_carousel = "rbxassetid://86422311308477",
+	funfair_popcorn_yellow = "rbxassetid://115895935030191",
+	funfair_prize_shelf = "rbxassetid://84005212486238",
+	funfair_slide_flap = "rbxassetid://119380596591254",
+	funfair_ticket_gate = "rbxassetid://96952427122360",
+	funfair_wave_pool = "rbxassetid://115719596582354",
 	garden_bench = "rbxassetid://130826010993603",
 	garden_gnome_cat = "rbxassetid://74808938102286",
 	-- #3222's rare Golden drops (Animation-Engineer #3228), uploaded owned by the group on 11-11

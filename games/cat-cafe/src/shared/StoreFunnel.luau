@@ -30,7 +30,7 @@ StoreFunnel.VISITS_MAX = 30 -- Store funnels a session; a visit past it logs not
 -- #1936 (release.md section 3): a purchase prompt the client's store guard refused, reported as "<source>:<reason>"
 -- (store_guard_blocked): where the prompt came from, and no_tap (no tap in the last 2 seconds) or busy (a catch, a
 -- rescue or a cutscene). GUARD_BLOCKS_MAX are logged a session.
-StoreFunnel.GUARD_SOURCES = { "bait", "store", "cafePass" }
+StoreFunnel.GUARD_SOURCES = { "bait", "store", "cafePass", "hud_badge" } -- hud_badge #4176
 StoreFunnel.GUARD_REASONS = { "no_tap", "busy" }
 StoreFunnel.GUARD_BLOCKS_MAX = 20
 
@@ -102,7 +102,7 @@ function StoreFunnel.guardBlock(raw: unknown): (string?, string?)
 	if type(raw) ~= "string" or #raw > 32 then
 		return nil, nil
 	end
-	local source, reason = string.match(raw, "^(%a+):([%a_]+)$")
+	local source, reason = string.match(raw, "^([%a_]+):([%a_]+)$")
 	if
 		source == nil
 		or reason == nil
@@ -112,6 +112,38 @@ function StoreFunnel.guardBlock(raw: unknown): (string?, string?)
 		return nil, nil
 	end
 	return source, reason
+end
+
+-- #4176: where a purchase prompt started, as the client tags it (TelemetryReport buy_source "<source>:<id>"); a
+-- receipt or bought pass within BUY_SOURCE_SECONDS of its tag logs purchase_source with it, else "store".
+StoreFunnel.BUY_SOURCES =
+	{ "store", "hud_badge", "deal_card", "starter_suggest", "featured_new", "bait", "cafe_pass" }
+StoreFunnel.BUY_SOURCE_SECONDS = 120
+StoreFunnel.BUY_SOURCES_MAX = 60 -- tags a session; past it the rest count as "store"
+-- PassShop's guard sources to their purchase source (the guard's own names stay as they were for its event)
+local GUARD_TO_BUY: { [string]: string } = { cafePass = "cafe_pass" }
+
+-- The purchase source for a PassShop.prompt source ("store" for nil or an unknown one).
+function StoreFunnel.buySourceOf(source: string?): string
+	local mapped = if source ~= nil then GUARD_TO_BUY[source] or source else "store"
+	return if table.find(StoreFunnel.BUY_SOURCES, mapped) ~= nil then mapped else "store"
+end
+
+-- A buy_source report's value read: (source, pass or product id) when the source is known and the id is a positive
+-- whole number, else nil. The caller checks the id is one of ours (passSku or productSku).
+function StoreFunnel.buySource(raw: unknown): (string?, number?)
+	if type(raw) ~= "string" or #raw > 40 then
+		return nil, nil
+	end
+	local source, digits = string.match(raw, "^([%a_]+):(%d+)$")
+	if source == nil or digits == nil or table.find(StoreFunnel.BUY_SOURCES, source) == nil then
+		return nil, nil
+	end
+	local id = tonumber(digits)
+	if id == nil or id <= 0 or id ~= math.floor(id) then
+		return nil, nil
+	end
+	return source, id
 end
 
 function StoreFunnel.index(name: string): number

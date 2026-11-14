@@ -4289,6 +4289,33 @@ function Logic.dragonShard(i: number, count: number): Vector3
 	return Vector3.new(math.cos(a) * r, y, math.sin(a) * r).Unit
 end
 
+-- Whether the northern lights are out: at night, and through the last `evening` seconds of the day (night closes
+-- the areas, so the evening is when players see them). `left` is the seconds the phase still has, nil when unknown.
+function Logic.auroraOn(phase: unknown, left: number?, evening: number): boolean
+	if phase == "night" then
+		return true
+	end
+	return left ~= nil and left <= evening
+end
+
+-- Where the lights hang: `ahead` studs from you along the camera's look laid flat (`lookX`, `lookZ`, any length),
+-- and that flat look as a unit direction. A camera looking straight up or down has no flat look: then the spot is
+-- yours and the direction 0, 0, and the caller keeps the last one it had.
+function Logic.auroraSpot(
+	youX: number,
+	youZ: number,
+	lookX: number,
+	lookZ: number,
+	ahead: number
+): (number, number, number, number)
+	local length = math.sqrt(lookX * lookX + lookZ * lookZ)
+	if length < 0.05 then
+		return youX, youZ, 0, 0
+	end
+	local dirX, dirZ = lookX / length, lookZ / length
+	return youX + dirX * ahead, youZ + dirZ * ahead, dirX, dirZ
+end
+
 -- #4069: the northern lights over an area. `count` ribbons hung along the area's longer side (a tenth in from each
 -- end), spread evenly over `spread` of its shorter side, each `rise` studs above the one before it, bending to
 -- alternate sides and each with its own time from `seconds` (the last one repeats). `curve` is of the ribbon's

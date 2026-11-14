@@ -108,6 +108,20 @@ PENDING = [
     ("snow_log_cabin", "Log Cabin", "wallpaper"), ("snow_knit_pattern", "Knit Pattern", "wallpaper"),
     ("snow_pine_planks", "Pine Planks", "floor"), ("snow_aurora_ice", "Aurora Ice", "floor"),
     ("snow_frost_white", "Frost White", "paint"), ("snow_cocoa_brown", "Cocoa Brown", "paint"),
+    # the Water Park Crate: six modelled pieces and six styles (style_icons.PENDING)
+    ("funfair_beach_chair", "Beach Chair", "furniture"), ("funfair_mini_carousel", "Mini Carousel", "furniture"),
+    ("funfair_prize_shelf", "Prize Shelf", "decoration"), ("funfair_ferris_lamp", "Ferris Wheel Lamp", "decoration"),
+    ("funfair_ticket_gate", "Ticket Gate Door", "door"), ("funfair_slide_flap", "Slide Flap", "catflap"),
+    ("funfair_circus_stripes", "Circus Stripes", "wallpaper"), ("funfair_balloon_wall", "Balloon Wall", "wallpaper"),
+    ("funfair_boardwalk", "Boardwalk", "floor"), ("funfair_wave_pool", "Wave Pool", "floor"),
+    ("funfair_popcorn_yellow", "Popcorn Yellow", "paint"), ("funfair_candy_pink", "Candy Pink", "paint"),
+    # the Castle Crate: six modelled pieces and six styles (style_icons.PENDING), rows in #4184
+    ("castle_feast_bench", "Feast Bench", "furniture"), ("castle_round_table", "Round Table", "furniture"),
+    ("castle_shield_rack", "Shield Rack", "decoration"), ("castle_armour_stand", "Armour Stand", "decoration"),
+    ("castle_drawbridge_door", "Drawbridge Door", "door"), ("castle_portcullis_flap", "Portcullis Flap", "catflap"),
+    ("castle_keep_stone", "Keep Stone", "wallpaper"), ("castle_royal_tapestry", "Royal Tapestry", "wallpaper"),
+    ("castle_hall_flagstones", "Hall Flagstones", "floor"), ("castle_dragon_scales", "Dragon Scales", "floor"),
+    ("castle_banner_red", "Banner Red", "paint"), ("castle_royal_blue", "Royal Blue", "paint"),
 ]
 
 

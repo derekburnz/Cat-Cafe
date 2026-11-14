@@ -943,7 +943,8 @@ CASE_X = -MX - 1.6                               # the idol's glass case, by the
 # (a sitting cat at scale 0.6 fits a plinth and shows over the row in front)
 ROOMS = (("alley", "ALLEYWAY", "brick"), ("park", "PARK", "leaf_green"), ("neighbourhood", "NEIGHBOURHOOD", "shirt_blue"),
          ("woods", "WOODS", "leaf_dark"), ("sewer", "SEWER", "puddle"), ("desert", "DESERT", "terracotta"),
-         ("ruins", "RUINS", "fur_emerald"), ("snowy", "SNOWY MOUNTAIN", "eye_blue"))
+         ("ruins", "RUINS", "fur_emerald"), ("snowy", "SNOWY MOUNTAIN", "eye_blue"),
+         ("waterpark", "WATER PARK", "fish_blue"), ("castle", "CASTLE", "shirt_red"))
 EXHIBITS = 10
 PLINTH_STEP, PLINTH_W, PLINTH_H = 1.25, 0.8, 0.3   # spacing, top size, height of an exhibit plinth
 ROW_D, ROW_RISE = 0.9, 0.8                       # each row's depth and how much higher than the one in front
@@ -952,7 +953,8 @@ GX0 = MX + 0.4                                   # the wing's museum side
 GX1 = GX0 + PLAQUE_W + EXHIBITS * PLINTH_STEP + 0.5
 GZ0 = MZ0 - 1.6                                  # the first row's front, in line with the museum's platform
 GZ1 = GZ0 + len(ROOMS) * ROW_D + 0.45            # the back wall's back
-G_ROOF = FLOOR_Y + (len(ROOMS) - 1) * ROW_RISE + 2.75   # the wing's roof underside, 2.75 over the back row
+G_ROOF = FLOOR_Y + (len(ROOMS) - 1) * ROW_RISE + 3.4    # the wing's roof underside, 3.4 over the back row (2.75
+# until the tenth room: Review-QA measured 2.39 clear over the ninth row's plinths, tight for a big Mythical)
 
 
 def _museum_steps(b):

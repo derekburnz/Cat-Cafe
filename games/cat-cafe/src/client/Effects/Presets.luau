@@ -881,6 +881,35 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, -14, 0),
 		lightEmission = 0.2,
 	},
+	-- #4071 the Medieval Castle's Dragon Knight (Presets.signature): `sigEmber` the embers its circling sparks leave
+	-- behind, and `sigEmberTrail` the warm sparks that scatter low where it walks and die out. Harmless little lights,
+	-- no flame.
+	sigEmber = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 190, 90) },
+		size = { 0.26, 0.04 },
+		transparency = { 0, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 0.1, 0.3 },
+		spread = 180,
+		rate = 2,
+		acceleration = Vector3.new(0, 0.9, 0),
+		lightEmission = 0.8,
+		rotSpeed = { -60, 60 },
+	},
+	sigEmberTrail = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 150, 70), Color3.fromRGB(255, 220, 140) },
+		size = { 0.2, 0.03 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 0.6, 1.4 },
+		spread = 70,
+		rate = 2,
+		acceleration = Vector3.new(0, -1.5, 0),
+		drag = 1.5,
+		lightEmission = 0.7,
+	},
 	sigFall = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.furRose },
@@ -1513,7 +1542,7 @@ Presets.catchFlavour = {
 			gustsFrom = "Mythical",
 			gustHeight = 8,
 			gustEvery = 0.18,
-			cats = {},
+			cats = { dragon_knight = 2 }, -- a taller fanfare for the Dragon Knight
 		},
 	} :: { [string]: CatchFlavour },
 }
@@ -2897,6 +2926,52 @@ Presets.signature = {
 			seconds = 3.6,
 		},
 		arrive = { ring = 9, burst = 10, preset = "splashDrops" },
+	},
+	-- #4071 the Medieval Castle (Tier 10), the same ladder: each Epic one effect on its lit prop, the Legendary a
+	-- glint on her jewels, a slow fall of gold dust and a soft royal glow, the Mythical rising embers, circling
+	-- sparks, an ember trail, glowing eyes and a burst of sparks where it lands.
+	knight = { -- Knight Cat (Epic): a glint now and then off the gold paw crest on its shield
+		emitter = "sigGlint",
+		on = "Prop2",
+		colors = { palette.goldLight, palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+	},
+	mage = { -- Mage Cat (Epic): little stars drifting up off the lit star of its hat
+		emitter = "sigRise",
+		on = "Prop",
+		colors = { palette.sparkle, palette.aurora, palette.pastelSky },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+	},
+	queen = { -- Queen Cat (Legendary): her crown's jewels glint, gold dust falls round her, and she glows a little
+		emitter = "sigGlint",
+		on = "Prop",
+		colors = { Presets.rarity.Legendary, palette.sparkle, palette.blush },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigFall", on = "Body" },
+			{ emitter = "sigHalo", on = "Body" },
+		},
+	},
+	dragon_knight = { -- Dragon Knight (Mythical): a knight with a dragon's fire in it
+		emitter = "sigRise",
+		on = "Prop",
+		colors = { Color3.fromRGB(255, 170, 80), Color3.fromRGB(255, 96, 64), palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = {
+			{ emitter = "sigGlint", on = "Prop2" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = {
+			emitter = "sigEmber",
+			count = 5,
+			countLow = 3,
+			radius = 0.8,
+			height = 0.6,
+			tilt = 0.35,
+			seconds = 3,
+		},
+		arrive = { ring = 9, burst = 10, preset = "catchSparkle" },
 	},
 } :: { [string]: Signature }
 Presets.signatureFx = {

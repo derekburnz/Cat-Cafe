@@ -94,6 +94,54 @@ return function()
 			expect(sig.water.extras[2].moving).to.equal(true)
 		end)
 
+		it("gives the Castle's rarer cats more, each in gold on a gold cat", function()
+			local places = { Body = true, Head = true, Prop = true, Prop2 = true }
+			local function weight(spec: any): number
+				local n = 1 + #(spec.extras or {})
+				if spec.orbit ~= nil then
+					n += 1
+				end
+				if spec.arrive ~= nil then
+					n += 1
+				end
+				if spec.eyes == true then
+					n += 1
+				end
+				return n
+			end
+			local sig = Presets.signature
+			for _, catId in { "knight", "mage", "queen", "dragon_knight" } do
+				local spec = sig[catId]
+				expect(spec).to.be.ok()
+				expect(Presets.emitters[spec.emitter].rate <= 2).to.equal(true)
+				expect(places[spec.on]).to.equal(true)
+				expect(Logic.signatureColors(catId, true)).to.equal(spec.gold)
+				for _, extra in spec.extras or {} do
+					expect(Presets.emitters[extra.emitter].rate <= 2).to.equal(true)
+					expect(places[extra.on]).to.equal(true)
+				end
+			end
+			expect(weight(sig.knight)).to.equal(weight(sig.mage))
+			expect(weight(sig.knight) < weight(sig.queen)).to.equal(true)
+			expect(weight(sig.queen) < weight(sig.dragon_knight)).to.equal(true)
+			for _, catId in { "elf", "squire", "dwarf", "crumpet", "jester", "rogue" } do
+				expect(sig[catId] == nil).to.equal(true)
+			end
+			local dragon = sig.dragon_knight
+			expect(dragon.orbit.seconds >= 2).to.equal(true)
+			expect(Presets.emitters[dragon.orbit.emitter].rate <= 2).to.equal(true)
+			expect(dragon.arrive.burst <= Presets.budget.low.maxBurst).to.equal(true)
+			expect(Presets.emitters[dragon.arrive.preset]).to.be.ok()
+			expect(dragon.extras[2].moving).to.equal(true)
+			local spec = Presets.catchFlavour.areas.castle
+			expect(Logic.catchFlavour("castle", "dragon_knight", "Mythical").gusts).to.equal(
+				spec.gusts + spec.cats.dragon_knight
+			)
+			-- the same weight as the Water Park's Mythical, and no less than the Snowy one's
+			expect(weight(dragon)).to.equal(weight(sig.water))
+			expect(weight(dragon) >= weight(sig.blizzard)).to.equal(true)
+		end)
+
 		it("reads each new area's box from the Config by its own name", function()
 			local boxes = {
 				{

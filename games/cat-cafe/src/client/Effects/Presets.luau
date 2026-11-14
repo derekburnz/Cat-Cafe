@@ -634,6 +634,42 @@ Presets.emitters = {
 		drag = 0.8,
 		lightEmission = 0.1,
 	},
+	-- The new areas' still water (Effects/AreaWater, #4070 and #4071): small glints that wink on a pool's surface,
+	-- foam flecks drifting round the lazy river and the splash pad's jets spraying at their tops.
+	poolGlint = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 0.45, 0.05 },
+		transparency = { 0.2, 1 },
+		lifetime = { 0.9, 1.5 },
+		speed = { 0, 0 },
+		spread = 0,
+		rate = 3,
+		lightEmission = 0.4,
+	},
+	riverFoam = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 0.5, 0.3 },
+		transparency = { 0.45, 1 },
+		lifetime = { 2.2, 3.2 },
+		speed = { 1.6, 2.4 },
+		spread = 6,
+		rate = 2.5,
+		lightEmission = 0.15,
+	},
+	padSpray = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 0.22, 0.12 },
+		transparency = { 0.3, 1 },
+		lifetime = { 0.6, 0.9 },
+		speed = { 5, 7 },
+		spread = 28,
+		rate = 9,
+		acceleration = Vector3.new(0, -16, 0),
+		lightEmission = 0.2,
+	},
 	-- Soft sparkles rising off the guide trail's dots (Effects/TrailSparkle, #3022), recoloured to each dot.
 	trailSparkle = {
 		texture = Presets.textures.sparkle,
@@ -5496,6 +5532,71 @@ Presets.ruinsWater = {
 	ringSeconds = 1.2,
 	rippleEvery = 1.4,
 	colour = Presets.palette.milk,
+}
+
+-- The new areas' still water (Effects/AreaWater; #4070 the Water Park, #4071 the Castle's moat and well). A water
+-- piece is a Model whose name holds one of `sets` and ends `_Water` (Model-Agent's names are
+-- `<Set>_<nnn>_<Piece>_Water`, so the piece is found in the name, never by its number). Each kind, the first whose
+-- `piece` the name holds: `glint` an emitter on a thin sheet just over each flat part (the nearest `parts` of them),
+-- `flow` the same but drifting round the ring the parts make, `spray` an emitter at the top of each ball (a jet's
+-- cap), `mist` soft spray over each part, and a ring spreading on the surface every `ringEvery` seconds, `ring`
+-- studs wide. The nearest budget.waterfalls + `extra` pieces within `within` studs run, chosen every `pick`
+-- seconds. Reduce Motion drops the rings; Low performance leaves the water as built.
+export type AreaWaterKind = {
+	piece: string,
+	glint: string?,
+	flow: string?,
+	spray: string?,
+	mist: string?,
+	parts: number,
+	ringEvery: number?,
+	ring: number?,
+}
+Presets.areaWater = {
+	sets = {
+		"CatCafe_WaterPark_",
+		"CatCafe_Castle_",
+		"CatCafe_Camp_WaterPark",
+		"CatCafe_Camp_Castle",
+	},
+	suffix = "_Water",
+	within = 110,
+	pick = 1,
+	extra = 3,
+	lift = 0.06, -- studs over the surface the sheet sits
+	inner = 0.7, -- of a disc's width the sheet covers (a square inside the circle)
+	ringSeconds = 1.3,
+	ringInner = 0.3, -- of the part's shorter side: how far from its middle a ring may start
+	colour = Presets.palette.milk,
+	kinds = {
+		{ piece = "LazyRiver", flow = "riverFoam", parts = 8 },
+		{ piece = "SplashPad", spray = "padSpray", parts = 8, ringEvery = 1.6, ring = 2.4 },
+		{ piece = "SlideTower", mist = "fallMist", parts = 2, ringEvery = 1.4, ring = 3.2 },
+		{ piece = "WavePool", glint = "poolGlint", parts = 1, ringEvery = 1.1, ring = 4.5 },
+		{ piece = "KidsPool", glint = "poolGlint", parts = 1, ringEvery = 2.2, ring = 2.6 },
+		{ piece = "Moat", glint = "poolGlint", parts = 6, ringEvery = 2.6, ring = 3 },
+		{ piece = "Well", glint = "poolGlint", parts = 1, ringEvery = 3.5, ring = 1.2 },
+	} :: { AreaWaterKind },
+}
+
+-- The fairground's bulbs chase at night (Effects/BulbChase, #4070 "ride lamps chase slowly"). A `_Bulbs` Model whose
+-- name holds one of `pieces` runs a chase while it is night: every `gap`th bulb wears a brighter Neon cover `grow`
+-- times its size, and the lit ones step along the row (or round the frame) `hz` times a second, so any one bulb
+-- lights once every gap / hz seconds, well under one flash a second. The nearest `most` rows within `within`
+-- studs (`mostLite` on the lite budget), chosen every `pick` seconds; none by day, with Reduce Motion or in Low
+-- performance. `round` is how wide the bulbs must spread across their second axis, of their first, to be taken as a
+-- frame and ordered round it and not along it.
+Presets.bulbChase = {
+	pieces = { "Booth_Bulbs", "WallBoards_Bulbs", "WallHedge_Bulbs", "TicketFront_Bulbs" },
+	within = 90,
+	pick = 1.5,
+	most = 5,
+	mostLite = 2,
+	gap = 3,
+	hz = 2,
+	grow = 1.3,
+	round = 0.3,
+	on = Color3.fromRGB(255, 240, 205),
 }
 
 -- The guide trail's sparkles (#3022, Effects/TrailSparkle): every `every`th of GuideTrail's `dot` parts in the

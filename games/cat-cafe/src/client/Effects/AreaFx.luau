@@ -411,20 +411,21 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 			spec.spread,
 			spec.rise,
 			spec.curve,
-			spec.seconds
+			spec.seconds,
+			spec.curveMost
 		)
 	do
 		local ribbon: Ribbon = { bands = {}, tweens = {} }
 		for layer, colour in { spec.foot, spec.top } do
 			local lift = (layer - 1) * spec.width * (1 - spec.overlap)
-			-- a Beam bends along its attachments' X axes, so they point across the ribbon (along Z)
+			-- a Beam bends along its attachments' X axes, so they point across the ribbon
 			local from = Instance.new("Attachment")
 			from.Position = r.from - middle + Vector3.new(0, lift, 0)
-			from.Axis = Vector3.zAxis
+			from.Axis = r.across
 			from.Parent = part
 			local to = Instance.new("Attachment")
 			to.Position = r.to - middle + Vector3.new(0, lift, 0)
-			to.Axis = Vector3.zAxis
+			to.Axis = r.across
 			to.Parent = part
 			local band = Instance.new("Beam")
 			band.Name = "Ribbon"

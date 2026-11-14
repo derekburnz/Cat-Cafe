@@ -146,6 +146,7 @@ export type HUD = {
 	clockFrame: (self: HUD) -> GuiObject?, -- #3683
 	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
 	setBowlCount: (self: HUD, count: number) -> (), -- #1161: a "2" on the bowl tile with the second bowl
+	setBowlRefill: (self: HUD, on: boolean) -> (), -- #4267: the "!" for an empty bowl with food to put in
 	pressTravel: (self: HUD, destination: string) -> boolean,
 	setCannonMode: (self: HUD, on: boolean) -> (),
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
@@ -2469,6 +2470,15 @@ function HUD.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 	end)
 end
 
+-- #4267: the tile's "!" also shows while a bowl is empty and the bag holds a food to put in it (UI._bowlRefillable).
+function HUD.setBowlRefill(self: any, on: boolean)
+	if self._bowlRefill == on then
+		return
+	end
+	self._bowlRefill = on
+	self:_renderBowl()
+end
+
 -- #1161: the Second Bait Bowl's "2" on the tile; setBait gets the sooner bowl and "!" for either bowl's cat.
 function HUD.setBowlCount(self: any, count: number)
 	local badge: TextLabel = self._bowlCount
@@ -2485,8 +2495,10 @@ function HUD._renderBowl(self: any)
 	self._baitReady = ready
 	local waiting = ready or self._catWaiting == true
 	local badge: Frame = self._bowlBadge
-	if badge.Visible ~= waiting then
-		badge.Visible = waiting
+	-- #4267: an empty bowl with food to put in shows the "!" too (the tile stays its own colour)
+	local refill = not waiting and self._bowlRefill == true
+	if badge.Visible ~= (waiting or refill) then
+		badge.Visible = waiting or refill
 	end
 	local style: Button.Style = if waiting then "gold" else "secondary"
 	if style ~= self._bowlStyle then

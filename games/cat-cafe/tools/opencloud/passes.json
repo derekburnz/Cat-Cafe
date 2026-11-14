@@ -174,5 +174,13 @@
 		"regionalPricing": true,
 		"description": "A full cafe outfit: the Star Banner sign (+25% money in use), the Rocket Lamp decor (+25%), the Space Suit staff uniform (+15%) and Bubble Helmet for your cats (+15%). All four in use add +20% more: up to +100% money. Yours to keep, can't be traded.",
 		"icon": "assets/cat-cafe/exports/store/CatCafe_StorePack_Space_Icon.png"
+	},
+	{
+		"name": "Auto Bowl",
+		"config": "AutoBowlPassId",
+		"price": 19,
+		"regionalPricing": true,
+		"description": "Claims each cat as it arrives and refills your bowl with your best food. Switch it off any time.",
+		"icon": "assets/cat-cafe/exports/store/CatCafe_Pass_AutoBowl_Icon.png"
 	}
 ]

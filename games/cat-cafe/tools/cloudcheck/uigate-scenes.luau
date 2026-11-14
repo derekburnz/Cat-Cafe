@@ -1033,6 +1033,30 @@ local function baitWindow()
 	assert(window, "uigate: no Bait window")
 	return window
 end
+-- #4266: the Auto Bowl switch on, the pass made (a made-up id) and on sale at R$19; Scenes.close puts all back
+local function autoBowlOn()
+	local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+	Scenes._autoBowl = true
+	game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_autoBowl", true)
+	Config.AutoBowlPassId = 4266001
+	local prices = storePrices(true)
+	prices[4266001] = { robux = 19, forSale = true }
+	UI.store.preview(prices, {})
+end
+-- #4266: the Auto Bowl card sits under the wait chip and over the foot buttons, inside the status column
+local function assertAutoRoom(window, card)
+	local status = window:FindFirstChild("Status", true) :: GuiObject
+	local middle = status:FindFirstChild("Middle") :: GuiObject
+	local top, bottom = card.AbsolutePosition.Y, card.AbsolutePosition.Y + card.AbsoluteSize.Y
+	assert(top >= middle.AbsolutePosition.Y + middle.AbsoluteSize.Y, "uigate: the Auto Bowl card covers the wait chip")
+	for _, name in { "Refill", "Action" } do
+		local button = status:FindFirstChild(name) :: GuiObject?
+		if button and button.Visible then
+			assert(bottom <= button.AbsolutePosition.Y, "uigate: the Auto Bowl card covers " .. name)
+		end
+	end
+	assert(card.AbsolutePosition.X >= status.AbsolutePosition.X and card.AbsolutePosition.X + card.AbsoluteSize.X <= status.AbsolutePosition.X + status.AbsoluteSize.X + 0.5, "uigate: the Auto Bowl card spills out of its column")
+end
 local function assertBowlTabs(selected, title)
 	local window = baitWindow()
 	local tabs = window:FindFirstChild("Bowls", true)
@@ -4430,6 +4454,69 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 		assert(lines == 4, ("uigate: bowl 2's card has %d lines, wants a heading and 3 (#1767)"):format(lines))
+	end },
+	-- #4266 (Derek 2026-11-14): the Auto Bowl pass in the empty space over Refill: the offer with Roblox's price over
+	-- the free New cat pop-ups switch, clear of the wait chip above and the buttons below
+	{ "BaitAutoOffer", function()
+		autoBowlOn()
+		UI.bait.openPicker()
+		local window = baitWindow()
+		local card = window:FindFirstChild("AutoBowl", true) :: GuiObject
+		assert(card and card.Visible, "uigate: no Auto Bowl card in the bowl window (#4266)")
+		local buy = card:FindFirstChild("BuyAuto", true)
+		local words = buy and buy:FindFirstChild("Label", true)
+		assert(buy and (buy :: GuiObject).Visible, "uigate: the Auto Bowl offer has no price button")
+		local priced = false
+		for _, piece in (buy :: Instance):GetDescendants() do
+			if piece:IsA("TextLabel") and string.find(piece.Text, "R$19", 1, true) then
+				priced = true
+			end
+		end
+		assert(priced or (words and string.find((words :: TextLabel).Text, "R$19", 1, true)), "uigate: the Auto Bowl offer does not say R$19")
+		local popups = card:FindFirstChild("NewCatPopupsRow", true) :: GuiObject
+		assert(popups and popups.Visible, "uigate: no New cat pop-ups switch without the pass")
+		for _, name in { "AutoClaimRow", "AutoRefillRow" } do
+			local row = card:FindFirstChild(name, true) :: GuiObject
+			assert(row and not row.Visible, "uigate: " .. name .. " shows without the pass")
+		end
+		assertAutoRoom(window, card)
+	end },
+	-- #4266: with the pass, AUTO BOWL's three switches, all on; a tap turns one off and keeps it through a stale sync
+	{ "BaitAutoOwned", function()
+		autoBowlOn()
+		UI.update({ autoBowl = { owned = true } } :: any)
+		UI.bait.openPicker()
+		local window = baitWindow()
+		local card = window:FindFirstChild("AutoBowl", true) :: GuiObject
+		assert(card and card.Visible, "uigate: no Auto Bowl switches for an owner (#4266)")
+		for _, name in { "AutoClaim", "AutoRefill", "NewCatPopups" } do
+			local row = card:FindFirstChild(name .. "Row", true) :: GuiObject
+			local pill = row and row:FindFirstChild(name, true)
+			assert(row and row.Visible and pill, "uigate: no " .. name .. " switch for an owner")
+			assert(pill:GetAttribute("On") == true, "uigate: " .. name .. " starts off")
+		end
+		local offer = card:FindFirstChild("Offer", true) :: GuiObject
+		assert(not offer.Visible, "uigate: an owner still sees the Auto Bowl offer")
+		press("Bait", "AutoClaimRow.AutoClaim")
+		local pill = card:FindFirstChild("AutoClaim", true) :: Instance
+		assert(pill:GetAttribute("On") == false, "uigate: Auto claim did not turn off")
+		UI.update({ money = (UI.getState() :: any).money } :: any) -- a sync from before the press
+		assert(pill:GetAttribute("On") == false, "uigate: a stale sync flashed Auto claim back on")
+		assertAutoRoom(window, card)
+	end },
+	-- #4267: the Bowl tile's "!" while the bowl is empty and the bag holds a food; none with an empty bag
+	{ "HUDBowlRefill", function()
+		UI.bait.set(nil, 1)
+		UI.bait.set(nil, 2)
+		local hudGui = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local tile = hudGui and hudGui:FindFirstChild("Bowl", true)
+		local badge = tile and tile:FindFirstChild("Claim")
+		assert(badge and badge:IsA("GuiObject"), "uigate: no badge on the Bowl tile")
+		assert(badge.Visible, "uigate: an empty bowl with food in the bag shows no ! (#4267)")
+		local before = (UI.getState() :: any).lures
+		UI.update({ lures = {} } :: any)
+		assert(not badge.Visible, "uigate: the Bowl tile shows ! with no food to put in (#4267)")
+		UI.update({ lures = before } :: any)
 	end },
 	{ "Dealer", function()
 		UI.dealer.open()
@@ -12151,6 +12238,12 @@ function Scenes.close()
 			UIShim.fire(UIShim.eventOf(press, "Activated"))
 		end
 		Scenes._askClose = nil
+	end
+	if Scenes._autoBowl then
+		Scenes._autoBowl = nil -- #4266's scenes
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_autoBowl", nil)
+		UIShim.require("ReplicatedStorage.Shared.Config").AutoBowlPassId = 0
+		UI.update({ autoBowl = { owned = false } } :: any)
 	end
 	if Scenes._rest then
 		Scenes._rest = nil

@@ -22,6 +22,11 @@
 -- picture and its price from Roblox, and three short lines on what it gives (#1767: Derek2 found the seven-food odds
 -- table under it "way too much bloated text"; bowl 2's odds are bowl 1's, so one line says so). The screen never opens
 -- on the locked tab, so the offer only shows when the player taps it. One bowl only (nil): no tabs, as before.
+-- #4266 (Derek 2026-11-14: "add an option to turn on auto claim and auto refill for bait bowl for a game pass idea ...
+-- sell it in store aswell as the blank area of bait bowl menu near refill"): behind the `autoBowl` switch, the empty
+-- space over Refill holds the Auto Bowl pass. Without it, a small offer card with Roblox's price (hidden until Roblox
+-- answers, or off sale); with it, two switches, Auto claim and Auto refill, saved as the settings autoBowlClaim and
+-- autoBowlRefill (on until the player turns one off). A switch keeps its tap until the server agrees (#2076).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -66,6 +71,8 @@ export type Callbacks = {
 	openUpgrades: () -> (),
 	showCat: (bowl: number) -> (), -- reopens that bowl's Tame or Let go card
 	buySecond: () -> (), -- #1161: Roblox's purchase window for the Second Bait Bowl pass
+	buyAuto: (() -> ())?, -- #4266: Roblox's purchase window for the Auto Bowl pass
+	setSetting: ((key: string, on: boolean) -> ())?, -- #4266: an Auto Bowl switch, as SetSetting
 	close: () -> (),
 }
 
@@ -84,8 +91,29 @@ export type BaitBowl = {
 	selected: (self: BaitBowl) -> number,
 	openOn: (self: BaitBowl) -> (), -- on open: a bowl with a cat waiting, else an empty one that takes food, else 1
 	setNight: (self: BaitBowl, night: boolean) -> (),
+	-- #4266: the Auto Bowl pass: owned as Roblox says (PassShop; state.autoBowl is the server's word), and Roblox's
+	-- price for the offer (nil until it answers)
+	setAuto: (self: BaitBowl, owned: boolean, price: PassPrice?) -> (),
 	destroy: (self: BaitBowl) -> (),
 }
+
+local AUTO_FLAG = "autoBowl" -- shared/LiveFlags (#4266)
+-- the switches top down, their shared/Settings keys (on until turned off), names and words. Derek 2026-11-14 ("for
+-- autobowl or free foodbowl make it so it also has an option to toggle off new cat pop ups"): New cat pop-ups is free
+-- for everyone; off, a new cat tamed at the bowl is a toast in place of the big Cat found card (UI.showCatFound)
+local AUTO_ORDER = { "claim", "refill", "popups" }
+local AUTO_KEYS: { [string]: string } =
+	{ claim = "autoBowlClaim", refill = "autoBowlRefill", popups = "bowlNewCatCard" }
+local AUTO_NAMES: { [string]: string } =
+	{ claim = "AutoClaim", refill = "AutoRefill", popups = "NewCatPopups" }
+local AUTO_WORDS: { [string]: string } =
+	{ claim = "Auto claim", refill = "Auto refill", popups = "New cat pop-ups" }
+local AUTO_HOLD = 5 -- SettingsList.HOLD_SECONDS: a tap holds until the server agrees
+local AUTO_ROW = 36 -- a switch row, the tap height a mouse needs; touch Hit pads reach 44
+local AUTO_PILL_W = 64
+local AUTO_HEAD = 20
+local AUTO_PAD = 8
+local AUTO_OFFER_H = AUTO_PAD * 2 + 40 + AUTO_ROW -- the offer: picture and words, then the price
 
 local STATUS_HEIGHT = 92
 -- #1612 (Derek2 11-05: "just have it in a smaller line/image have the symbol the name the rarity of the food (remove
@@ -336,8 +364,13 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	})
 	self._refillFood.frame.Visible = false
 	self._refillLure = nil :: string? -- the food drawn beside Refill
+	self._footH = 10 -- #4266: the column's foot buttons' height, under the Auto Bowl card
+	self._autoOwned = false
+	self._autoPrice = nil :: PassPrice?
+	self._autoTaps = {} :: { [string]: { value: boolean, at: number } }
 	if self._column then
 		self:_placeColumn()
+		self:_buildAuto()
 	end
 
 	self._list = Create("ScrollingFrame", {
@@ -522,6 +555,233 @@ function BaitBowl._placeColumn(self: any)
 	-- Refill stays smaller than the action button (#3008), its food's picture beside it
 	self._refill.instance.Size = UDim2.new(1, -(20 + REFILL_ICON + 6), 0, REFILL.Y)
 	self._refillFood.frame.AnchorPoint = Vector2.new(0, 1)
+end
+
+-- #4266: the Auto Bowl card over the column's foot. Without the pass: the offer (picture, name, one line, price) over
+-- the New cat pop-ups switch, which is free. With it: AUTO BOWL over its three switches.
+function BaitBowl._buildAuto(self: any)
+	local card: Frame = Create("Frame", {
+		Name = "AutoBowl",
+		BackgroundColor3 = CARD.card,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Size = UDim2.new(1, -20, 0, 0),
+		Visible = false,
+		Parent = self._status,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+	self._autoStroke = Create(
+		"UIStroke",
+		{ Color = Theme.colors.gold, Thickness = Theme.sizes.stroke, Parent = card }
+	)
+	self._autoCard = card
+	-- the offer
+	local offer: Frame = Create("Frame", {
+		Name = "Offer",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, AUTO_OFFER_H),
+		Parent = card,
+	})
+	self._autoOffer = offer
+	local icon: TextLabel = text({
+		Name = "Icon",
+		BackgroundColor3 = Theme.colors.mintDark,
+		BackgroundTransparency = 0,
+		Position = UDim2.fromOffset(AUTO_PAD, AUTO_PAD),
+		Size = UDim2.fromOffset(40, 40),
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextSize = 24,
+		Text = "🥣",
+		Parent = offer,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = icon })
+	Outline.border(icon, 2)
+	text({
+		Name = "Name",
+		Position = UDim2.fromOffset(AUTO_PAD + 48, AUTO_PAD),
+		Size = UDim2.new(1, -(AUTO_PAD * 2 + 48), 0, 22),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		Text = "Auto Bowl",
+		Parent = offer,
+	})
+	text({
+		Name = "Line",
+		Position = UDim2.fromOffset(AUTO_PAD + 48, AUTO_PAD + 22),
+		Size = UDim2.new(1, -(AUTO_PAD * 2 + 48), 0, 18),
+		TextSize = Theme.sizes.textTiny + 1,
+		TextColor3 = CARD.subtext,
+		Text = "Claims cats, refills food",
+		Parent = offer,
+	})
+	self._autoBuy = Button.new({
+		name = "BuyAuto",
+		text = "",
+		style = "store",
+		size = UDim2.new(1, -AUTO_PAD * 2, 0, AUTO_ROW),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, 0),
+		textSize = Theme.sizes.textBody,
+		parent = offer,
+		onClick = function()
+			local buy: (() -> ())? = self._callbacks.buyAuto
+			if buy then
+				buy()
+			end
+		end,
+	})
+	self._autoHeading = text({
+		Name = "Heading",
+		Position = UDim2.fromOffset(AUTO_PAD, AUTO_PAD - 2),
+		Size = UDim2.new(1, -AUTO_PAD * 2, 0, AUTO_HEAD),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "AUTO BOWL",
+		Parent = card,
+	})
+	-- the switches, one row each: its words on the left and an ON / OFF pill on the right
+	self._autoRows = {} :: { [string]: Frame }
+	self._autoPills = {} :: { [string]: Button.Button }
+	for _, key in AUTO_ORDER do
+		local row: Frame = Create("Frame", {
+			Name = AUTO_NAMES[key] .. "Row",
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, -AUTO_PAD * 2, 0, AUTO_ROW),
+			Parent = card,
+		})
+		text({
+			Name = "Words",
+			Size = UDim2.new(1, -(AUTO_PILL_W + 4), 1, 0),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
+			Text = AUTO_WORDS[key],
+			Parent = row,
+		})
+		self._autoRows[key] = row
+		self._autoPills[key] = Button.new({
+			name = AUTO_NAMES[key],
+			text = "ON",
+			style = "primary",
+			size = UDim2.fromOffset(AUTO_PILL_W, AUTO_ROW),
+			anchorPoint = Vector2.new(1, 0),
+			position = UDim2.fromScale(1, 0),
+			textSize = Theme.sizes.textTiny + 1,
+			parent = row,
+			sound = "uiToggle",
+			shine = false,
+			onClick = function()
+				self:_tapAuto(key)
+			end,
+		})
+	end
+end
+
+-- #4266: what a switch shows: a fresh tap until the server agrees or AUTO_HOLD pass, else the saved setting (on
+-- until turned off).
+function BaitBowl._autoValue(self: any, key: string): boolean
+	local settingKey = AUTO_KEYS[key]
+	local state: Types.PlayerState? = self._state
+	local saved = state and state.settings and state.settings[settingKey]
+	local server = saved ~= false
+	local tap = self._autoTaps[settingKey]
+	if tap then
+		if tap.value == server or os.clock() - tap.at > AUTO_HOLD then
+			self._autoTaps[settingKey] = nil
+		else
+			return tap.value
+		end
+	end
+	return server
+end
+
+function BaitBowl._tapAuto(self: any, key: string)
+	local settingKey = AUTO_KEYS[key]
+	local on = not self:_autoValue(key)
+	self._autoTaps[settingKey] = { value = on, at = os.clock() }
+	self:_renderAuto()
+	task.delay(AUTO_HOLD + 0.1, function()
+		if self._autoCard and self._autoCard.Parent then
+			self:_renderAuto() -- the server never agreed (refused): show the saved value again
+		end
+	end)
+	local set: ((string, boolean) -> ())? = self._callbacks.setSetting
+	if set then
+		set(settingKey, on)
+	end
+end
+
+function BaitBowl.setAuto(self: any, owned: boolean, price: PassPrice?)
+	self._autoOwned = owned
+	self._autoPrice = price
+	self:_renderAuto()
+end
+
+-- #4266: the card over the foot buttons, shown with the switch on, a bowl and the chosen bowl taking food: the
+-- offer only while the pass is on sale with its price. It stays off where the column has no room for it.
+function BaitBowl._renderAuto(self: any)
+	local card: Frame? = self._autoCard
+	if card == nil then
+		return
+	end
+	local state: Types.PlayerState? = self._state
+	local price: PassPrice? = self._autoPrice
+	-- owned by the server's word (state.autoBowl) or Roblox's (PassShop, at once after a purchase)
+	local owned: boolean = self._autoOwned
+		or (state ~= nil and state.autoBowl ~= nil and state.autoBowl.owned)
+	local selling = not owned and price ~= nil and price.forSale and price.robux ~= nil
+	local shown = state ~= nil
+		and LiveFlags.shown(
+			AUTO_FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. AUTO_FLAG)
+		)
+		and (state.upgradeLevels.lure_bowl or 0) >= 1
+		and self:_takesFood(self._selected)
+	-- top down: the heading (owned) or the offer (on sale), then the rows
+	local keys: { string } = if owned then AUTO_ORDER else { "popups" }
+	local y = if owned then AUTO_PAD + AUTO_HEAD elseif selling then AUTO_OFFER_H + 6 else AUTO_PAD
+	local height = y + #keys * AUTO_ROW + (#keys - 1) * 4 + AUTO_PAD
+	if shown then
+		-- room between the wait chip and the foot buttons (a phone with a cat waiting may have none)
+		local scale = Scale.get()
+		local k = if scale > 0 then scale else 1
+		local middle = self._status:FindFirstChild("Middle") :: GuiObject?
+		local top = if middle
+			then (
+				middle.AbsolutePosition.Y
+				+ middle.AbsoluteSize.Y
+				- self._status.AbsolutePosition.Y
+			) / k
+			else 0
+		local room = self._status.AbsoluteSize.Y / k - self._footH - top - 2 * Theme.sizes.gap
+		shown = room >= height
+	end
+	card.Visible = shown
+	if not shown then
+		return
+	end
+	card.Size = UDim2.new(1, -20, 0, height)
+	card.Position = UDim2.new(0.5, 0, 1, -(self._footH + Theme.sizes.gap))
+	self._autoStroke.Color = if owned
+		then Theme.colors.mintDark
+		elseif selling then Theme.colors.gold
+		else CARD.cardStroke
+	self._autoOffer.Visible = selling
+	self._autoHeading.Visible = owned
+	if selling and price and price.robux then
+		self._autoBuy:setText(("R$%d"):format(price.robux :: number))
+	end
+	for key, row in self._autoRows do
+		local index = table.find(keys, key)
+		row.Visible = index ~= nil
+		if index then
+			row.Position = UDim2.fromOffset(AUTO_PAD, y + (index - 1) * (AUTO_ROW + 4))
+			local on = self:_autoValue(key)
+			local pill: Button.Button = self._autoPills[key]
+			pill:setStyle(if on then "primary" else "slate")
+			pill:setText(if on then "ON" else "OFF")
+			pill.instance:SetAttribute("On", on)
+		end
+	end
 end
 
 function BaitBowl._buildRows(self: any)
@@ -1129,6 +1389,7 @@ function BaitBowl._renderStatus(self: any)
 	end
 	self._action:setEnabled(enabled)
 	self:_renderRefill(state, action)
+	self:_renderAuto()
 end
 
 -- #3008: Refill and its food's picture. There whenever the player has a bowl and the chosen one takes food; greyed
@@ -1147,6 +1408,10 @@ function BaitBowl._renderRefill(self: any, state: Types.PlayerState, action: str
 			UDim2.new(0.5, 0, 1, if stacked and shown then -(10 + REFILL.Y + gap) else -10)
 		self._refill.instance.Position = UDim2.new(1, -10, 1, -10)
 		self._refillFood.frame.Position = UDim2.new(0, 10, 1, -10 - (REFILL.Y - REFILL_ICON) / 2)
+		self._footH = 10
+			+ (if shown then REFILL.Y else 0)
+			+ (if stacked and shown then gap else 0)
+			+ (if stacked then ACTION_H else 0)
 	end
 	if not shown then
 		self._refillFood.frame.Visible = false
@@ -1207,6 +1472,12 @@ function BaitBowl.destroy(self: any)
 	self._action:destroy()
 	self._refill:destroy()
 	self._refillFood:destroy()
+	if self._autoBuy then
+		self._autoBuy:destroy()
+		for _, pill in self._autoPills do
+			pill:destroy()
+		end
+	end
 	for _, button in self._tabButtons do
 		button:destroy()
 	end

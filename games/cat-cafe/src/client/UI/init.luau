@@ -349,6 +349,31 @@ local bowls = {
 	card = 1,
 	second = nil :: string?,
 }
+-- #4267 (Derek 2026-11-14: "show a little exclamation mark ... beside the bait bowl menu when you have food that can be
+-- refilled into it and its empty"): true while a bowl that takes food is empty, with no cat at it, and the bag holds
+-- a food. (Field, not a local: this chunk is at Luau's 200 locals.)
+function UI._bowlRefillable(s: Types.PlayerState): boolean
+	if (s.upgradeLevels.lure_bowl or 0) < 1 then
+		return false
+	end
+	local hasFood = false
+	local lures: { [string]: number } = s.lures or {}
+	for _, count in lures do
+		if count > 0 then
+			hasFood = true
+			break
+		end
+	end
+	if not hasFood then
+		return false
+	end
+	for bowl = 1, if bowls.second == "on" then 2 else 1 do
+		if bowls.views[bowl] == nil and bowls.cats[bowl] == nil then
+			return true
+		end
+	end
+	return false
+end
 local dealerScreen: Dealer.Dealer? = nil
 local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), for the range hint
 local settingsScreen: Settings.Settings? = nil -- sound switches and volumes, screen shake and the like (gear in the HUD)
@@ -625,6 +650,7 @@ local function render()
 	end
 	if hud then
 		hud:render(state)
+		hud:setBowlRefill(UI._bowlRefillable(state)) -- #4267
 	end
 	UI.campExtras.crates(state.crates) -- #2214: the "!" over the Fish Market
 	if upgrades then
@@ -1158,6 +1184,13 @@ function UI.init(config: Types.InitConfig)
 		buySecond = function()
 			local api: any = UI.bait -- defined further down
 			api.buySecond()
+		end,
+		buyAuto = function()
+			local api: any = UI.bait
+			api.buyAuto()
+		end,
+		setSetting = function(key: string, on: boolean)
+			UI.events.setSetting:Fire(key, on) -- #4266: autoBowlClaim, autoBowlRefill
 		end,
 		close = closeModal,
 	})
@@ -2406,6 +2439,13 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		if not CatFoundLogic.big(def.rarity, isNew, info) then
 			return
 		end
+		-- #4266 (Derek 2026-11-14: "an option to toggle off new cat pop ups"): with the Bowl window's New cat pop-ups
+		-- switch off (settings.bowlNewCatCard), a cat tamed at the bowl is a toast in place of the big card
+		local settings: { [string]: boolean | number | string } = state.settings or {}
+		if extra and extra.source == "bowl" and settings.bowlNewCatCard == false then
+			UI.toast(string.format("New cat: %s!", def.name), "good")
+			return
+		end
 		-- #4005: before Tier 2 a new kind below Epic is a toast; the tutorial's catches and any coat, banner or line
 		-- keep the card
 		local QuietStart =
@@ -2566,6 +2606,7 @@ local function renderBait()
 	local waiting = bowls.cats[1] ~= nil or bowls.cats[2] ~= nil
 	if hud then
 		hud:setBait(soonest, waiting)
+		hud:setBowlRefill(UI._bowlRefillable(state)) -- #4267
 		hud:setBowlCount(if bowls.second == "on" or bowls.views[2] ~= nil then 2 else 1)
 	end
 	if baitScreen then
@@ -2614,6 +2655,12 @@ do
 		if screen then
 			local id: number = Config.SecondBowlPassId
 			screen:setSecond(bowls.second, if id ~= 0 then PassShop.prices()[id] else nil)
+			-- #4266: the Auto Bowl pass's price and Roblox's word on owning it (0 until the pass is made)
+			local autoId: number = Config.AutoBowlPassId or 0
+			screen:setAuto(
+				autoId ~= 0 and PassShop.owned()[autoId] == true,
+				if autoId ~= 0 then PassShop.prices()[autoId] else nil
+			)
 		end
 	end
 	function UI.bait.setSecond(kind: string?)
@@ -2623,6 +2670,13 @@ do
 		end
 		push()
 		renderBait()
+	end
+	-- #4266: the Auto Bowl offer's price button: Roblox's purchase window; the server saves the pass
+	function UI.bait.buyAuto()
+		local id: number = Config.AutoBowlPassId or 0
+		if id ~= 0 then
+			PassShop.prompt(id, "bait")
+		end
 	end
 	-- the locked tab's buy button: Roblox's purchase window; the server turns bowl 2 on (PassService)
 	function UI.bait.buySecond()

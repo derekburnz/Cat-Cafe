@@ -5565,6 +5565,7 @@ Presets.areaWater = {
 	extra = 3,
 	lift = 0.06, -- studs over the surface the sheet sits
 	inner = 0.7, -- of a disc's width the sheet covers (a square inside the circle)
+	window = 36, -- studs: a part wider than this (the moat) gets a sheet this wide that follows you along it
 	ringSeconds = 1.3,
 	ringInner = 0.3, -- of the part's shorter side: how far from its middle a ring may start
 	colour = Presets.palette.milk,
@@ -5574,7 +5575,7 @@ Presets.areaWater = {
 		{ piece = "SlideTower", mist = "fallMist", parts = 2, ringEvery = 1.4, ring = 3.2 },
 		{ piece = "WavePool", glint = "poolGlint", parts = 1, ringEvery = 1.1, ring = 4.5 },
 		{ piece = "KidsPool", glint = "poolGlint", parts = 1, ringEvery = 2.2, ring = 2.6 },
-		{ piece = "Moat", glint = "poolGlint", parts = 6, ringEvery = 2.6, ring = 3 },
+		{ piece = "Moat", glint = "poolGlint", parts = 2, ringEvery = 2.2, ring = 3 },
 		{ piece = "Well", glint = "poolGlint", parts = 1, ringEvery = 3.5, ring = 1.2 },
 	} :: { AreaWaterKind },
 }

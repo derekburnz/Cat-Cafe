@@ -23,6 +23,9 @@ type Live = {
 	emitters: { [ParticleEmitter]: string },
 	spot: Vector3, -- where a ring may start
 	reach: number, -- how far from the spot
+	sheet: Part?, -- its sheet, when the part is wider than the window and the sheet follows you along it
+	part: BasePart,
+	top: number, -- how far over the part's middle its sheet sits
 }
 
 type Source = {
@@ -30,6 +33,7 @@ type Source = {
 	kind: Presets.AreaWaterKind,
 	fit: { BasePart }, -- the parts its kind works on
 	at: { Vector3 }, -- where each is
+	wide: { boolean }, -- whether each is wider than the window
 	centre: Vector3, -- the middle of them all (the river goes round it)
 	floor: number, -- the lowest any of them reaches
 	live: { [BasePart]: Live },
@@ -118,6 +122,47 @@ local function isDisc(part: BasePart): boolean
 	return part:IsA("Part") and (part :: Part).Shape == Enum.PartType.Cylinder
 end
 
+-- The point of a part nearest you, on its middle plane: a long strip of water (the moat) is near all along it.
+local function closest(part: BasePart): Vector3
+	local focus = Context.focus()
+	if focus == nil then
+		return part.Position
+	end
+	local half = part.Size / 2
+	local at = part.CFrame:PointToObjectSpace(focus)
+	local near: Vector3 = part.CFrame:PointToWorldSpace(
+		Vector3.new(
+			math.clamp(at.X, -half.X, half.X),
+			math.clamp(at.Y, -half.Y, half.Y),
+			math.clamp(at.Z, -half.Z, half.Z)
+		)
+	)
+	return near
+end
+
+-- Keeps a wide part's sheet under you: the window's middle is the point of the part nearest you, held far enough
+-- from the part's ends that the whole window stays over the water.
+local function follow(live: Live)
+	local sheet = live.sheet
+	if sheet == nil then
+		return
+	end
+	local part = live.part
+	local focus = Context.focus() or part.Position
+	local at = part.CFrame:PointToObjectSpace(focus)
+	local room = (part.Size - sheet.Size) / 2
+	local middle: Vector3 = part.CFrame:PointToWorldSpace(
+		Vector3.new(
+			math.clamp(at.X, -math.max(room.X, 0), math.max(room.X, 0)),
+			math.clamp(at.Y, -math.max(room.Y, 0), math.max(room.Y, 0)),
+			math.clamp(at.Z, -math.max(room.Z, 0), math.max(room.Z, 0))
+		)
+	)
+	local over = Vector3.new(middle.X, part.Position.Y + live.top, middle.Z)
+	sheet.CFrame = part.CFrame.Rotation + over
+	live.spot = over
+end
+
 local function drop(s: Source, part: BasePart)
 	local live = s.live[part]
 	if live ~= nil then
@@ -139,6 +184,7 @@ local function measure(s: Source)
 	local wantBalls = s.kind.spray ~= nil
 	table.clear(s.fit)
 	table.clear(s.at)
+	table.clear(s.wide)
 	local centre, floor = Vector3.zero, math.huge
 	for _, d in s.model:GetDescendants() do
 		if d:IsA("BasePart") then
@@ -148,6 +194,10 @@ local function measure(s: Source)
 			if fits then
 				table.insert(s.fit, part)
 				table.insert(s.at, part.Position)
+				table.insert(
+					s.wide,
+					math.max(part.Size.X, part.Size.Y, part.Size.Z) > Presets.areaWater.window
+				)
 				centre += part.Position
 				floor = math.min(floor, part.Position.Y - AreaWater.halfHeight(axisY, part.Size))
 			end
@@ -162,7 +212,9 @@ local function nearest(s: Source): ({ BasePart }, number)
 	local candidates: { Logic.Candidate<BasePart> } = {}
 	local best = math.huge
 	for i, part in s.fit do
-		local distance = Context.distance(s.at[i])
+		local distance = if s.wide[i]
+			then Context.distance(closest(part))
+			else Context.distance(s.at[i])
 		best = math.min(best, distance)
 		candidates[i] = { key = part, distance = distance }
 	end
@@ -175,7 +227,15 @@ end
 local function make(s: Source, part: BasePart)
 	local p = Presets.areaWater
 	local kind = s.kind
-	local live: Live = { made = {}, emitters = {}, spot = part.Position, reach = 0 }
+	local live: Live = {
+		made = {},
+		emitters = {},
+		spot = part.Position,
+		reach = 0,
+		sheet = nil,
+		part = part,
+		top = 0,
+	}
 	local function keep(emitter: ParticleEmitter?, name: string)
 		if emitter ~= nil then
 			live.emitters[emitter] = name
@@ -186,7 +246,8 @@ local function make(s: Source, part: BasePart)
 	local top = part.Position + Vector3.new(0, half + p.lift, 0)
 	local on = kind.glint or kind.flow
 	if on ~= nil then
-		local size = AreaWater.sheet(axisY, part.Size, isDisc(part), 0.05)
+		local whole = AreaWater.sheet(axisY, part.Size, isDisc(part), 0.05)
+		local size = whole:Min(Vector3.new(p.window, p.window, p.window))
 		local sheet = Context.effectPart("EffectsWaterSheet", size, p.colour)
 		sheet.Transparency = 1
 		sheet.CFrame = part.CFrame.Rotation + top
@@ -198,6 +259,10 @@ local function make(s: Source, part: BasePart)
 			emitter.EmissionDirection = if with then Enum.NormalId.Right else Enum.NormalId.Left
 		end
 		keep(emitter, on)
+		if size ~= whole then
+			live.sheet = sheet
+			live.top = half + p.lift
+		end
 	end
 	local spray = kind.spray
 	if spray ~= nil then
@@ -210,7 +275,8 @@ local function make(s: Source, part: BasePart)
 		local sides = { part.Size.X, part.Size.Y, part.Size.Z }
 		table.sort(sides)
 		live.spot = top
-		live.reach = sides[2] * p.ringInner
+		live.reach = math.min(sides[2], p.window) * p.ringInner
+		follow(live)
 	end
 	local mist = kind.mist
 	if mist ~= nil then
@@ -235,6 +301,7 @@ local function run(s: Source, wanted: { BasePart })
 		if not keepOn[part] then
 			drop(s, part)
 		else
+			follow(live)
 			-- a new budget reaches emitters made before it
 			for emitter, name in live.emitters do
 				Particles.switchOn(emitter, name)
@@ -279,6 +346,7 @@ local function consider(instance: Instance)
 		kind = kind,
 		fit = {},
 		at = {},
+		wide = {},
 		centre = Vector3.zero,
 		floor = 0,
 		live = {},

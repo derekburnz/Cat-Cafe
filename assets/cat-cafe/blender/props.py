@@ -2779,6 +2779,294 @@ def wave_back(ctx):
     B.box((0.05, 0.22, 0.86), (0.09, 0.09, 0.09), "fish_belly", rot=_ry(45) @ _rx(45))
 
 
+# ------------------------------------------------------------------- Tier 10 Medieval Castle (#4067, #4068) --
+def elf_hood(ctx):
+    """Elf Cat (Common): a soft green hood pushed back off its big ears, a long point drooping behind with a gold
+    bell on its tip, and a leaf-edged collar at the back of the neck."""
+    P, hw, hd = ctx.pen("head"), ctx.hw, ctx.hd
+    P.box((0, hd * 0.55, 0.035), (hw * 1.5, hd * 0.9, 0.07), "leaf_green", bevel=True)
+    P.box((0, hd + 0.03, -0.14), (hw * 1.7, 0.07, 0.36), "leaf_green")
+    at, a = Vector((0, hd * 0.75, 0.06)), 0.0
+    for r1, r2, hgt, turn in ((0.2, 0.12, 0.2, 50), (0.12, 0.05, 0.2, 60), (0.05, 0.0, 0.16, 40)):
+        R = _rx(-(a + turn / 2))
+        d = R @ Vector((0, 0, 1))
+        P.cyl(tuple(at + d * hgt / 2), r1, hgt, "leaf_green", r2=r2, rot=R, segments=8)
+        at, a = at + d * (hgt - 0.02), a + turn
+    P.ico(tuple(at + Vector((0, 0.02, -0.04))), 0.055, "rarity_legend")
+    for k in range(5):                                                   # the collar's leaf points
+        P.box((-0.3 + 0.15 * k, hd + 0.045, -0.33), (0.1, 0.06, 0.1), ("leaf_dark", "leaf_green")[k % 2], rot=_ry(45))
+
+
+def squire_shield(ctx):
+    """Squire (Common): a small wooden practice shield slung on its back, plank lines, an iron rim and boss and a
+    red stripe painted across it."""
+    P = ctx.pen("back")
+    k = ctx.back_len / 0.9
+    R = _ry(8)
+    P.cyl((0, 0.02 * k, 0.07), 0.3, 0.05, "metal", rot=R, segments=12)
+    P.cyl((0, 0.02 * k, 0.085), 0.27, 0.05, "caramel_wood", rot=R, segments=12)
+    P.box((0, 0.02 * k, 0.115), (0.5, 0.09, 0.012), "shirt_red", rot=R)
+    for x in (-0.11, 0.11):
+        P.box((x, 0.02 * k, 0.112), (0.012, 0.48, 0.01), "dark_wood", rot=R)
+    P.ico((0, 0.02 * k, 0.125), 0.06, "metal", scale=(1, 1, 0.6))
+    P.box((0, -0.3 * k, 0.03), (0.07, 0.3, 0.03), "dark_wood")            # the strap
+
+
+def dwarf_cap(ctx):
+    """Dwarf Cat (Common): a little iron cap with a nose guard and two rivets, and a braided ginger beard with two
+    plaits tied in gold rings."""
+    P, hw, hd = ctx.pen("head"), ctx.hw, ctx.hd
+    P.cyl((0, 0, 0.03), 0.3, 0.06, "fur_pewter", segments=12)
+    P.cyl((0, 0, 0.13), 0.27, 0.16, "metal", r2=0.12, segments=12)
+    P.ico((0, 0, 0.22), 0.05, "fur_pewter")
+    P.box((0, -hd - 0.012, -0.07), (0.07, 0.03, 0.22), "metal")
+    for sx in (-1, 1):
+        P.ico((sx * 0.2, -0.22, 0.05), 0.03, "fur_pewter")
+    F = ctx.pen("face")
+    beard = "fur_ginger"
+    top, bot = ctx.mouth_z - 0.07, ctx.fbot - 0.1
+    F.box((0, -0.07, (top + bot + 0.06) / 2), (0.46, 0.1, top - bot - 0.06), beard)
+    for sx in (-1, 1):
+        lo, hi = bot + 0.06, ctx.mouth_z + 0.05
+        F.box((sx * 0.3, -0.05, (lo + hi) / 2), (0.16, 0.11, hi - lo), beard)
+        for j in range(3):                                               # a plait: three stepped knots
+            F.ico((sx * 0.13, -0.085, bot + 0.02 - 0.085 * j), 0.075 - 0.01 * j, ("fur_ginger", "fur_copper")[j % 2])
+        F.cyl((sx * 0.13, -0.085, bot - 0.2), 0.045, 0.035, "rarity_legend", segments=8)
+
+
+def baker_cap(ctx):
+    """Crumpet (Common): a soft baker's cap, a white band and a puffy top flopping to one side, with a tiny crumpet
+    pinned to the band."""
+    P, hd = ctx.pen("head"), ctx.hd
+    P.cyl((0, 0, 0.05), 0.3, 0.1, "milk", segments=12)
+    P.ico((0.05, 0.02, 0.2), 0.3, "milk", scale=(1.15, 1.05, 0.6))
+    P.ico((0.2, 0.05, 0.25), 0.16, "fur_white", scale=(1.1, 1.0, 0.7))
+    P.cyl((0, -0.3, 0.05), 0.07, 0.03, "fur_golden", rot=_rx(90), segments=8)
+    P.cyl((0, -0.318, 0.05), 0.04, 0.01, "fur_custard", rot=_rx(90), segments=8)
+
+
+def jester_hat(ctx):
+    """Jester Cat (Rare): a two-point jester hat, one horn red and one gold, each drooping out with a gold bell, on a
+    scalloped band; and a bell tied on the tip of its tail (the child Model _Tail_Bell)."""
+    P = ctx.pen("head")
+    P.cyl((0, 0, 0.04), 0.3, 0.08, "milk", segments=12)
+    for k in range(6):
+        a = math.radians(60 * k + 30)
+        P.box((0.3 * math.cos(a), 0.3 * math.sin(a), 0.01), (0.1, 0.03, 0.1), ("shirt_red", "rarity_legend")[k % 2],
+              rot=_rz(math.degrees(a) + 90) @ _ry(45))
+    for sx, sw in ((-1, "shirt_red"), (1, "rarity_legend")):
+        at, a = Vector((sx * 0.1, 0, 0.07)), 20.0
+        for r1, r2, hgt, turn in ((0.17, 0.11, 0.2, 35), (0.11, 0.05, 0.2, 50), (0.05, 0.0, 0.16, 40)):
+            R = _ry(sx * (a + turn / 2))
+            d = R @ Vector((0, 0, 1))
+            P.cyl(tuple(at + d * hgt / 2), r1, hgt, sw, r2=r2, rot=R, segments=8)
+            at, a = at + d * (hgt - 0.02), a + turn
+        P.ico(tuple(at + Vector((sx * 0.03, 0, -0.04))), 0.055, "rarity_legend")
+    tip, d, th, a, b = _tail_axes(ctx)
+    T = ctx.piece("Tail_Bell", "tail", tuple(tip - d * 0.08))
+    R = Vector((0, 0, 1)).rotation_difference(d).to_matrix()
+    T.cyl(tuple(tip - d * 0.1), th * 0.62, 0.05, "shirt_red", rot=R, segments=8)
+    T.ico(tuple(tip - d * 0.1 + a * (th * 0.6 + 0.05)), 0.065, "rarity_legend")
+
+
+def rogue_hood(ctx):
+    """Rogue Cat (Rare): a dark hood up over its head with its ears through it, a short cloak collar at the neck
+    and a dagger-free belt pouch: a little coin pouch tied on its tail (the child Model _Tail_Pouch)."""
+    P, hw, hd = ctx.pen("head"), ctx.hw, ctx.hd
+    cloth, edge = "fur_soot", "fur_ink"
+    P.box((0, 0.04, 0.035), (hw * 2 + 0.1, hd * 2 + 0.02, 0.07), cloth, bevel=True)
+    P.box((0, -hd - 0.02, 0.02), (hw * 2 + 0.12, 0.07, 0.1), edge)                           # the brim over the brow
+    for sx in (-1, 1):
+        P.box((sx * (hw + 0.035), 0.06, -0.2), (0.07, hd * 2 - 0.1, 0.5), cloth)
+    P.box((0, hd + 0.035, -0.22), (hw * 2 + 0.1, 0.07, 0.56), cloth)
+    P.box((0, hd + 0.05, -0.52), (hw * 2 + 0.24, 0.1, 0.1), edge)                            # the cloak's collar
+    P.cyl((0, hd * 0.6, 0.1), 0.12, 0.1, cloth, r2=0.0, rot=_rx(-50), segments=6)            # the hood's little point
+    tip, d, th, a, b = _tail_axes(ctx)
+    T = ctx.piece("Tail_Pouch", "tail", tuple(tip - d * 0.14))
+    R = Vector((0, 0, 1)).rotation_difference(d).to_matrix()
+    T.cyl(tuple(tip - d * 0.14), th * 0.6, 0.04, "caramel_wood", rot=R, segments=8)
+    T.ico(tuple(tip - d * 0.14 + a * (th * 0.6 + 0.07)), 0.085, "caramel_wood", scale=(1, 1, 1.15))
+    T.ico(tuple(tip - d * 0.14 + a * (th * 0.6 + 0.16)), 0.03, "rarity_legend")
+
+
+def knight_helm(ctx):
+    """Knight Cat (Epic): an open-faced silver helm, a raised visor on the brow, cheek guards and a tall red plume
+    on a gold crest."""
+    P, hw, hd = ctx.pen("head"), ctx.hw, ctx.hd
+    P.box((0, 0.03, 0.05), (hw * 2 + 0.08, hd * 2 + 0.02, 0.1), "metal", bevel=True)
+    P.box((0, -hd - 0.03, 0.06), (hw * 2 + 0.02, 0.08, 0.13), "fur_silver", rot=_rx(-18))    # the visor, lifted
+    for sx in (-1, 1):
+        P.box((sx * (hw + 0.03), 0.06, -0.16), (0.06, hd * 1.5, 0.34), "metal")
+        P.ico((sx * (hw + 0.065), -0.12, 0.0), 0.035, "rarity_legend")
+    P.box((0, hd + 0.03, -0.14), (hw * 2 + 0.06, 0.06, 0.4), "metal")
+    P.box((0, 0.05, 0.13), (0.07, hd * 1.6, 0.07), "rarity_legend")                          # the crest
+    for j, (y, z, r) in enumerate(((-0.12, 0.26, 0.09), (0.02, 0.33, 0.11), (0.17, 0.3, 0.1), (0.3, 0.2, 0.08))):
+        P.ico((0, y, z), r, ("shirt_red", "bowl_red")[j % 2], scale=(0.6, 1.1, 1.2))
+
+
+def knight_shield(ctx):
+    """Knight Cat's second prop: a kite shield on its back, silver with a blue field and a gold paw crest that
+    glows (the child Model _Crest_Glow, Neon)."""
+    P = ctx.pen("back")
+    k = ctx.back_len / 0.9
+    y0 = 0.02 * k
+    P.box((0, y0 - 0.08, 0.07), (0.56, 0.42, 0.05), "metal", bevel=True)
+    P.box((0, y0 + 0.2, 0.07), (0.4, 0.4, 0.05), "metal", rot=_rz(45))
+    P.box((0, y0 - 0.08, 0.1), (0.46, 0.34, 0.012), "shirt_blue")
+    P.box((0, y0 + 0.17, 0.1), (0.32, 0.32, 0.012), "shirt_blue", rot=_rz(45))
+    G = ctx.piece("Crest_Glow", "back", (0, y0, 0.11))
+    G.box((0, y0 + 0.02, 0.112), (0.16, 0.13, 0.014), "rarity_legend")
+    for dx, dy in ((-0.11, -0.1), (-0.04, -0.15), (0.04, -0.15), (0.11, -0.1)):
+        G.box((dx, y0 + dy, 0.112), (0.05, 0.05, 0.014), "rarity_legend")
+
+
+def mage_hat(ctx):
+    """Mage Cat (Epic): a deep blue wizard hat with a wide brim, a bent tip, gold stars on it and a lit star at its
+    tip (the child Model _Star_Glow, Neon); a second lit star floats on the tip of its tail (_Tail_Star_Glow)."""
+    P = ctx.pen("head")
+    blue = "galaxy_blue"
+    P.cyl((0, 0, 0.02), 0.5, 0.04, blue, segments=14)
+    P.cyl((0, 0, 0.06), 0.3, 0.05, "rarity_legend", segments=12)
+    at, a = Vector((0, 0, 0.08)), 0.0
+    for r1, r2, hgt, turn in ((0.28, 0.17, 0.26, 10), (0.17, 0.08, 0.24, 35), (0.08, 0.0, 0.2, 45)):
+        R = _rx(-(a + turn / 2))
+        d = R @ Vector((0, 0, 1))
+        P.cyl(tuple(at + d * hgt / 2), r1, hgt, blue, r2=r2, rot=R, segments=10)
+        at, a = at + d * (hgt - 0.02), a + turn
+    for ang, z, s in ((-90, 0.2, 0.07), (-35, 0.3, 0.05), (-140, 0.33, 0.05)):
+        r = 0.28 - 0.42 * (z - 0.08) + 0.012
+        q = math.radians(ang)
+        for t in (0, 45):
+            P.box((r * math.cos(q), r * math.sin(q), z), (s, 0.02, s), "rarity_legend", rot=_rz(ang + 90) @ _ry(t))
+    S = ctx.piece("Star_Glow", "head", tuple(at))
+    for t in (0, 45):
+        S.box(tuple(at + Vector((0, 0.02, -0.02))), (0.13, 0.05, 0.13), "pastel_butter", rot=_ry(t))
+    tip, d, th, a2, b = _tail_axes(ctx)
+    T = ctx.piece("Tail_Star_Glow", "tail", tuple(tip))
+    for t in (0, 45):
+        T.box(tuple(tip + d * 0.14), (0.05, 0.17, 0.17), "pastel_butter", rot=_rx(t))
+
+
+def spell_book(ctx):
+    """Mage Cat's second prop: an open spell book riding on its back, violet covers, and pages that glow (the child
+    Model _Page_Glow, Neon) with a gold ribbon."""
+    P = ctx.pen("back")
+    k = ctx.back_len / 0.9
+    y0 = 0.04 * k
+    for sx in (-1, 1):
+        P.box((sx * 0.17, y0, 0.07), (0.34, 0.42, 0.04), "aurora_violet", rot=_ry(-sx * 12))
+    P.box((0, y0, 0.045), (0.07, 0.42, 0.05), "rarity_epic")
+    G = ctx.piece("Page_Glow", "back", (0, y0, 0.08))
+    for sx in (-1, 1):
+        G.box((sx * 0.165, y0, 0.1), (0.29, 0.36, 0.025), "pastel_butter", rot=_ry(-sx * 12))
+    P.box((0.02, y0 + 0.24, 0.085), (0.04, 0.12, 0.012), "rarity_legend")
+
+
+def queen_crown(ctx):
+    """Queen Cat (Legendary): a tall gold crown on a white fur band, five points with a pearl on each, and jewels
+    that glow round it (the child Model _Gem_Glow, Neon); a gold ring with a gem on her tail (_Tail_Ring)."""
+    P = ctx.pen("head")
+    P.cyl((0, 0, 0.04), 0.27, 0.08, "milk", segments=12)
+    P.ring((0, 0, 0.15), 0.24, 0.04, 0.16, "rarity_legend", segments=12)
+    P.cyl((0, 0, 0.1), 0.2, 0.06, "shirt_red", segments=10)                                 # the velvet inside
+    G = ctx.piece("Gem_Glow", "head", (0, 0, 0.15))
+    for k in range(5):
+        a = math.radians(72 * k - 90)
+        c, s = math.cos(a), math.sin(a)
+        P.cyl((0.22 * c, 0.22 * s, 0.31), 0.06, 0.18, "rarity_legend", r2=0.015, segments=6)
+        P.ico((0.22 * c, 0.22 * s, 0.42), 0.035, "milk")
+        G.box((0.245 * c, 0.245 * s, 0.15), (0.06, 0.03, 0.07), ("bowl_red", "eye_violet", "fish_blue")[k % 3],
+              rot=_rz(math.degrees(a) + 90))
+    tip, d, th, a2, b = _tail_axes(ctx)
+    T = ctx.piece("Tail_Ring", "tail", tuple(tip - d * 0.14))
+    R = Vector((0, 0, 1)).rotation_difference(d).to_matrix()
+    T.cyl(tuple(tip - d * 0.14), th * 0.62, 0.06, "rarity_legend", rot=R, segments=8)
+    T.ico(tuple(tip - d * 0.14 + a2 * (th * 0.62 + 0.03)), 0.05, "bowl_red")
+
+
+def queen_cape(ctx):
+    """Queen Cat's second prop: a red royal cape with a white fur collar and hem (black specks) and a gold clasp."""
+    cloth, ermine, speck = "shirt_red", "milk", "fur_black"
+    if ctx.body == "walk":
+        P, hx, hy, sx = _cape_body(ctx, cloth, ermine)
+        for x in (-0.24, -0.08, 0.08, 0.24):
+            P.box((x * sx / 0.78, -0.2 + 0.03 * (x > 0), 0.123), (0.03, 0.05, 0.012), speck)
+        R = _rx(12.7)
+        hem = Vector((0, hy + 0.29, 0.113))
+        P.box(tuple(hem), (sx + 0.24, 0.12, 0.06), ermine, rot=R)
+        for x in (-0.3, -0.1, 0.1, 0.3):
+            P.box(tuple(hem + R @ Vector((x * (sx + 0.2) / 0.8, 0.0, 0.034))), (0.03, 0.05, 0.012), speck, rot=R)
+        P.box((0, -0.3, 0.06), (0.12, 0.04, 0.12), "rarity_legend", rot=_ry(45))
+        return
+    U, a, b, n, tilt, hb, ht = _cape_body(ctx, cloth, ermine)
+    for x in (-0.24, -0.08, 0.08, 0.24):
+        U.box((x, 0.02 * (1 if x > 0 else -1), 0.143), (0.03, 0.05, 0.012), speck)
+    U.box((0, hb + 0.065, -0.875), (0.98, 0.07, 0.14), ermine)
+    for x in (-0.36, -0.12, 0.12, 0.36):
+        U.box((x, hb + 0.1, -0.875), (0.03, 0.012, 0.05), speck)
+    U.box((0, -0.08, 0.08), (0.12, 0.04, 0.12), "rarity_legend", rot=_ry(45))
+
+
+def ember_horns(ctx):
+    """Dragon Knight (Mythical): a gunmetal half helm with two swept dragon horns whose tips glow like embers (the
+    child Model _Horn_Glow, Neon), and a flame on the tip of its tail (_Tail_Ember_Glow, Neon)."""
+    P, hw, hd = ctx.pen("head"), ctx.hw, ctx.hd
+    P.box((0, 0.05, 0.04), (hw * 1.5, hd * 1.7, 0.08), "fur_soot", bevel=True)
+    P.box((0, -hd - 0.01, 0.0), (0.12, 0.04, 0.2), "fur_soot", rot=_ry(45))                  # a brow plate
+    G = ctx.piece("Horn_Glow", "head", (0, 0.1, 0.3))
+    for sx in (-1, 1):
+        at, a = Vector((sx * 0.2, 0.12, 0.06)), 15.0
+        segs = ((0.1, 0.075, 0.2, 25), (0.075, 0.05, 0.2, 35), (0.05, 0.0, 0.2, 30))
+        for j, (r1, r2, hgt, turn) in enumerate(segs):
+            R = _ry(sx * 18) @ _rx(-(a + turn / 2))
+            d = R @ Vector((0, 0, 1))
+            (G if j == 2 else P).cyl(tuple(at + d * hgt / 2), r1, hgt, ("fur_pewter", "fur_soot", "fur_orange")[j],
+                                     r2=r2, rot=R, segments=6)
+            at, a = at + d * (hgt - 0.02), a + turn
+    tip, d, th, a2, b = _tail_axes(ctx)
+    T = ctx.piece("Tail_Ember_Glow", "tail", tuple(tip))
+    R = Vector((0, 0, 1)).rotation_difference(d).to_matrix()
+    T.cyl(tuple(tip + d * 0.1), th * 0.75, 0.24, "fur_orange", r2=0.02, rot=R, segments=6)
+    T.cyl(tuple(tip + d * 0.07), th * 0.45, 0.2, "pastel_butter", r2=0.01, rot=R, segments=6)
+
+
+def dragon_armour(ctx):
+    """Dragon Knight's second prop: red dragon wings on gunmetal bones from the shoulders, and overlapping scale
+    plates down the back whose edges glow like embers (the child Model _Scale_Glow, Neon). No green: Eclipse is
+    the emerald dragon."""
+    U = ctx.pen("up")
+    if ctx.body == "sit":
+        U = Pen(U.b, tuple(Vector(U.at) + Vector((0, 0.07, 0))), U.R, U.s)
+        _sling(ctx, "fur_soot", xs=(0.0,), down=0.09)
+    lean = _rx(-30 if ctx.body == "walk" else -20)
+    tips = [(0.12, 0.42), (0.38, 0.4), (0.56, 0.22), (0.62, 0.0)]
+    edge = [(0.12, 0.42), (0.22, 0.3), (0.38, 0.4), (0.44, 0.2), (0.56, 0.22), (0.54, 0.05), (0.62, 0.0), (0.4, -0.04),
+            (0.2, -0.02)]
+    for sx in (-1, 1):
+        P = Pen(U.b, U.at, U.R @ lean, U.s * 1.45)
+        root = Vector((sx * 0.08, 0.05, 0.05))
+        P.fan(tuple(root), (0.0, 0.0), [(sx * x, z) for x, z in edge], 0.03, "bowl_red", rot=_rx(90))
+        for (x, z) in tips:
+            P.bar(tuple(root + Vector((0, -0.02, 0))), tuple(root + Vector((sx * x, -0.02, z))), 0.045, 0.04,
+                  "fur_soot", up=(0, 1, 0))
+        P.ico(tuple(root + Vector((sx * 0.12, -0.02, 0.42))), 0.035, "fur_pewter")
+    U.box((0, 0.05, 0.05), (0.3, 0.1, 0.12), "fur_soot")
+    if ctx.body == "walk":
+        sy = ctx.d["body"][1][1]
+        B = ctx.pen("back")
+        S = ctx.piece("Scale_Glow", "back", (0.0, 0.0, 0.0))
+        for k, y in enumerate((0.1, 0.22, 0.34, 0.44)):
+            w = 0.3 - 0.04 * k
+            B.box((0.0, y * sy / 0.9, 0.025), (w, 0.13, 0.05), ("fur_soot", "fur_pewter")[k % 2], rot=_rx(-14))
+            S.box((0.0, y * sy / 0.9 + 0.06, 0.012), (w * 0.8, 0.03, 0.03), "fur_orange")
+    else:
+        S = ctx.piece("Scale_Glow", "up", (0.0, 0.0, -0.2))
+        for k, z in enumerate((-0.12, -0.24, -0.35)):
+            w = 0.3 - 0.04 * k
+            U.box((0.0, 0.01, z), (w, 0.05, 0.13), ("fur_soot", "fur_pewter")[k % 2], rot=_rx(14))
+            S.box((0.0, 0.0, z - 0.065), (w * 0.8, 0.03, 0.03), "fur_orange")
+
+
 PROPS = {
     "Nebula": ("Head", orbit_ring), "Glitch": ("Head", glitch_pixels),   # #3470, Derek 2026-11-12: more unique
     "CafeGhost": ("Head", chef_hat),   # #3470
@@ -2823,6 +3111,11 @@ PROPS = {
     "Taffy": ("Head", taffy_bow), "CandyApple": ("Head", caramel_stick), "CottonCandy": ("Head", candy_puff),
     "Clown": ("Head", clown_hat), "WaterGun": ("Back", water_blaster), "Coaster": ("Head", racing_goggles),
     "Water": ("Head", wave_crown),
+    # Tier 10 Medieval Castle (#4067)
+    "Elf": ("Head", elf_hood), "Squire": ("Back", squire_shield), "Dwarf": ("Head", dwarf_cap),
+    "Crumpet": ("Head", baker_cap), "Jester": ("Head", jester_hat), "Rogue": ("Head", rogue_hood),
+    "Knight": ("Head", knight_helm), "Mage": ("Head", mage_hat), "Queen": ("Head", queen_crown),
+    "DragonKnight": ("Head", ember_horns),
     # Tier 8 Snowy Mountain
     "Flurry": ("Head", snowflake_clip), "Mitten": ("Head", mitten_clip), "HotChocolate": ("Head", marshmallow_tufts),
     "Spruce": ("Head", spruce_beanie), "SnowBoots": ("Head", bobble_hat), "Ski": ("Head", ski_goggles),
@@ -2861,6 +3154,8 @@ PROPS2 = {
     # Tier 9 Theme Park and Water Park: the Epic, Legendary and Mythical cats' second props
     "Clown": ("Back", rainbow_poms), "WaterGun": ("Head", blaster_goggles), "Coaster": ("Back", coaster_loop),
     "Water": ("Back", wave_back),
+    "Knight": ("Back", knight_shield), "Mage": ("Back", spell_book), "Queen": ("Back", queen_cape),
+    "DragonKnight": ("Back", dragon_armour),
 }
 # Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
 # rides, and their Roblox Model nests inside that prop's Model.
@@ -2886,7 +3181,11 @@ PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"
           "Pinwheel": {"Tail_Pinwheel": "Tail"}, "CandyApple": {"Tail_Caramel": "Tail"},
           "CottonCandy": {"Tail_Puff": "Tail"}, "Clown": {"Pom_Glow": "Prop"}, "WaterGun": {"Tank_Glow": "Prop"},
           "Coaster": {"Tail_Flag": "Tail", "Loop_Glow": "Prop2"},
-          "Water": {"Crest_Glow": "Prop", "Foam_Glow": "Prop2", "Bubbles_Glow": "Prop2"}}
+          "Water": {"Crest_Glow": "Prop", "Foam_Glow": "Prop2", "Bubbles_Glow": "Prop2"},
+          "Jester": {"Tail_Bell": "Tail"}, "Rogue": {"Tail_Pouch": "Tail"},
+          "Knight": {"Crest_Glow": "Prop2"}, "Mage": {"Star_Glow": "Prop", "Tail_Star_Glow": "Tail", "Page_Glow": "Prop2"},
+          "Queen": {"Gem_Glow": "Prop", "Tail_Ring": "Tail"},
+          "DragonKnight": {"Horn_Glow": "Prop", "Tail_Ember_Glow": "Tail", "Scale_Glow": "Prop2"}}
 # Extra Attachments for VFX (#1191): cat -> [(object suffix, Attachment name, frame, point in that frame)]. Frame
 # "head" is the head-top frame the Head props draw in; "chest" puts it at the middle of the chest (B, S) or body (A).
 ATTACH = {"KingCroissant": [("_Prop", "CrownTop", "head", (0.0, 0.0, CROWN_TOP)), ("_Body", "Glow", "chest", None)]}

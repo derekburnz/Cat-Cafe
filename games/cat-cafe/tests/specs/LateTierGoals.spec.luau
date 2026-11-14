@@ -31,6 +31,8 @@ return function()
 		end
 	end
 
+	local FoodOdds = require(UI:WaitForChild("Components"):WaitForChild("FoodOdds")) :: any
+
 	describe("the goals of the tiers behind a switch", function()
 		it("has a tier behind a switch", function()
 			expect(Catalog.maxTier >= LateTiers.FIRST).to.equal(true)
@@ -67,6 +69,25 @@ return function()
 				for _, goal in ReturnGoals.pick(profile(tier), NOW) do
 					expect(goal.kind).to.equal("away")
 				end
+			end)
+		end)
+
+		it("names the next area on the bowl's odds sheet only once its switch is on", function()
+			local catalog: any =
+				{ cats = Catalog.cats, lures = Catalog.lures, areas = Catalog.areas }
+			local kibble = Catalog.luresById.kibble
+			local tier = LateTiers.FIRST - 1
+			local area = Catalog.areasById[(Catalog.getTier(tier + 1) :: any).area] :: any
+			local line = ("Rank up to Tier %d to add the %s cats"):format(tier + 1, area.name)
+			with(false, function()
+				expect(
+					string.find(FoodOdds.split(catalog, kibble, tier), "Rank up to Tier", 1, true)
+				).to.equal(nil)
+			end)
+			with(true, function()
+				expect(string.find(FoodOdds.split(catalog, kibble, tier), line, 1, true)).never.to.equal(
+					nil
+				)
 			end)
 		end)
 

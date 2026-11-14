@@ -5299,8 +5299,12 @@ do
 		return TipQueue.device(UserInputService:GetLastInputType().Name, Scale.isTouch())
 	end
 
-	-- The area the next rank up opens, for rank_up's line.
+	-- The area the next rank up opens, for rank_up's line (#3997: none while its tier waits behind a live switch).
 	local function nextAreaName(): string?
+		local GoalLines = require(script.Components.GoalLines) :: any
+		if GoalLines.nextTier(currentCatalog and currentCatalog.tiers, state.tier) == nil then
+			return nil
+		end
 		for _, area in catalogAreas() do
 			if area.tier == state.tier + 1 then
 				return area.name

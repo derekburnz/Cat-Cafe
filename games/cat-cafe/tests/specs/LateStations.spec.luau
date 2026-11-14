@@ -55,27 +55,30 @@ return function()
 			expect(LateStations.tierOf(LateStations.MUSEUM)).to.equal(7)
 		end)
 
-		it("has one room per area, each its Index cats, 70 exhibits in all", function()
-			expect(#LateStations.rooms).to.equal(#Catalog.areas)
-			local total = 0
-			for _, room in LateStations.rooms do
-				expect(#room.cats).to.equal(10)
-				for _, catId in room.cats do
-					local def = Catalog.getCat(catId) :: Types.CatDef
-					expect(def.area).to.equal(room.area)
-					expect(def.exclusive).never.to.equal(true)
+		it(
+			"has one room per area, each its Index cats, 80 exhibits in all (#3997: the Snowy Mountain's ten)",
+			function()
+				expect(#LateStations.rooms).to.equal(#Catalog.areas)
+				local total = 0
+				for _, room in LateStations.rooms do
+					expect(#room.cats).to.equal(10)
+					for _, catId in room.cats do
+						local def = Catalog.getCat(catId) :: Types.CatDef
+						expect(def.area).to.equal(room.area)
+						expect(def.exclusive).never.to.equal(true)
+					end
+					total += #room.cats
 				end
-				total += #room.cats
-			end
-			expect(total).to.equal(70)
-			expect(LateStations.EXHIBITS).to.equal(70)
-			-- no shop, starter or spare cat has an exhibit
-			for _, def in Catalog.cats do
-				if def.exclusive == true or Catalog.getArea(def.area) == nil then
-					expect(LateStations.exhibitArea[def.id]).to.equal(nil)
+				expect(total).to.equal(80)
+				expect(LateStations.EXHIBITS).to.equal(80)
+				-- no shop, starter or spare cat has an exhibit
+				for _, def in Catalog.cats do
+					if def.exclusive == true or Catalog.getArea(def.area) == nil then
+						expect(LateStations.exhibitArea[def.id]).to.equal(nil)
+					end
 				end
 			end
-		end)
+		)
 
 		it("starts a new save with one free slot and an empty museum", function()
 			local profile = ProfileSchema.template(NOW)
@@ -454,7 +457,7 @@ return function()
 				expect(profile.museum.smoke).to.equal("gold")
 				expect(
 					LateStations.pickerLine(LateStations.MUSEUM, LateStations.view(profile, 7, NOW))
-				).to.equal("Relic Museum: 1/70 · 1 can be filled !") -- #3123: the starter tabby's only copy
+				).to.equal("Relic Museum: 1/80 · 1 can be filled !") -- #3123: the starter tabby's only copy
 			end)
 		end)
 	end)

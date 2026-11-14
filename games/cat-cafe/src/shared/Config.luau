@@ -473,6 +473,7 @@ local Config = {
 		sewer = 20,
 		desert = 20, -- #2651 (tier6-7-areas.md section 7): the same as every area
 		ruins = 20,
+		snowy = 20, -- #3997
 	} :: { [string]: number },
 	EventCountdownSeconds = 10800,
 	EventRepeatGiftIncomeMinutes = 10,
@@ -497,6 +498,7 @@ local Config = {
 		sewer = 30,
 		desert = 35, -- #2651 (tier6-7-areas.md section 7)
 		ruins = 40,
+		snowy = 45, -- #3997 (tier8-snowy-mountain.md section 7)
 	} :: { [string]: number },
 	PityClaimRetries = 3,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
@@ -951,7 +953,10 @@ local Config = {
 	-- a cat already in the Index, by net or rescue (never bait, so food bought with coins never turns into fish)
 	FishRepeatCatch = { Epic = 1, Legendary = 2, Mythical = 5, Secret = 20 } :: { [string]: number }, -- #2237: was 1/3/8
 	-- reaching Tier 2 to 7 (#2237: was 10/25/50/100); #2651: Tier 6 and 7 carry the climb on, 100 and 150
-	FishRankUp = { 5, 15, 30, 60, 100, 150 } :: { number },
+	-- #4061: the Ticket Booth opens with the Water Park (Snowy is Tier 8; the Water Park is taken as Tier 9)
+	TicketBoothTier = 9,
+	-- #4055 (Derek 2026-11-13 23:53 UTC): Tiers 8 to 10 pay 300 each, so the fish Store can be reached by playing
+	FishRankUp = { 5, 15, 30, 60, 100, 150, 300, 300, 300 } :: { number },
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds
 
 	-- Cafe Crates and the Golden Fish Market (F53, golden-fish.md sections 3 and 4). Pure rules in Crates.

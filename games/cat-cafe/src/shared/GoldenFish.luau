@@ -38,7 +38,7 @@ function GoldenFish.forCatch(
 	return fish
 end
 
--- Fish for reaching `tier` (2 to 5); 0 for any other tier.
+-- Fish for reaching `tier` (2 to 10, Config.FishRankUp); 0 for any other tier.
 function GoldenFish.forRankUp(tier: number): number
 	return Config.FishRankUp[tier - 1] or 0
 end

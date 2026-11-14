@@ -1,5 +1,5 @@
 --!strict
--- shared/Crates.luau and the 108 crate pieces (F53, F80 and F101, golden-fish.md sections 3, 4, 4b and 8, rescue-rally.md
+-- shared/Crates.luau and the 120 crate pieces (F53, F80 and F101, golden-fish.md sections 3, 4, 4b and 8, rescue-rally.md
 -- section 3): the rolls, the
 -- lucky twentieth, refunds, decor spots, style slots, Decor Index pages, what opens and what the Market sells, and
 -- the income they add.
@@ -21,6 +21,7 @@ return function()
 		"sewer",
 		"desert",
 		"ruins",
+		"snowy", -- #3997
 		"classic",
 		"rally",
 	}
@@ -50,11 +51,11 @@ return function()
 		end
 	end
 
-	describe("the 108 pieces (sections 4 and 4b)", function()
+	describe("the 120 pieces (sections 4 and 4b)", function()
 		it(
 			"gives each pool twelve pieces: two of each kind, a door set and a cat flap, rarities 5, 4, 1, 1, 1",
 			function()
-				expect(#Catalog.crateDecor).to.equal(108)
+				expect(#Catalog.crateDecor).to.equal(120)
 				for _, pool in ALL_POOLS do
 					local kinds: { [string]: number } = {}
 					local rarities: { [string]: number } = {}
@@ -762,6 +763,12 @@ return function()
 				flap = "ruins_keyhole_flap",
 				commonDoor = false,
 			},
+			-- #3997 (tier8-snowy-mountain.md section 6): the Snowy Mountain's Common door and Rare flap
+			snowy = {
+				door = "snow_chalet_door",
+				flap = "snow_igloo_flap",
+				commonDoor = true,
+			},
 			classic = {
 				door = "classic_paned_glass_door",
 				flap = "classic_bell_flap",
@@ -827,14 +834,14 @@ return function()
 					listed[want.flap] = true
 				end
 				local pieces = modelPieces()
-				expect(#pieces).to.equal(18)
+				expect(#pieces).to.equal(20)
 				for _, def in pieces do
 					expect(listed[def.id]).to.equal(true)
 				end
 			end
 		)
 
-		it("gives every one of the 108 pieces its own id and its own model", function()
+		it("gives every one of the 120 pieces its own id and its own model", function()
 			local ids: { [string]: boolean } = {}
 			local assets: { [string]: string } = {}
 			for _, def in Catalog.crateDecor do

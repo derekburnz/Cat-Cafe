@@ -12,9 +12,9 @@ return function()
 
 	describe("StationPerks", function()
 		it(
-			"has one perk for each tier 2 to 7, in tier order, each named with its station",
+			"has one perk for each tier 2 to 8, in tier order, each named with its station",
 			function()
-				expect(#StationPerks.LIST).to.equal(6)
+				expect(#StationPerks.LIST).to.equal(7) -- #3997: Tier 8's Cocoa Stand
 				for i, perk in StationPerks.LIST do
 					expect(perk.tier).to.equal(i + 1)
 					expect(StationPerks.get(perk.id)).to.equal(perk)
@@ -35,8 +35,10 @@ return function()
 			expect(#StationPerks.owned(1)).to.equal(0)
 			expect(#StationPerks.owned(4)).to.equal(3)
 			expect(#StationPerks.owned(7)).to.equal(6)
+			expect(#StationPerks.owned(8)).to.equal(7)
 			expect((StationPerks.nextAfter(4) :: any).id).to.equal("homing_bell")
-			expect(StationPerks.nextAfter(7)).to.equal(nil)
+			expect((StationPerks.nextAfter(7) :: any).id).to.equal("cocoa_break")
+			expect(StationPerks.nextAfter(8)).to.equal(nil)
 		end)
 
 		it("gives each perk's number only from its tier", function()

@@ -84,7 +84,8 @@
     }
    },
    "attributes": {
-    "Rojo_Id": "CatCafe_Cat_Dwarf/0"
+    "Rojo_Id": "CatCafe_Cat_Dwarf/0",
+    "GoldTone": 2
    },
    "children": [
     {
@@ -330,7 +331,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Dwarf/1"
+      "Rojo_Id": "CatCafe_Cat_Dwarf/1",
+      "GoldTone": 2
      },
      "children": [
       {
@@ -1618,7 +1620,8 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Cat_Dwarf/4"
+        "Rojo_Id": "CatCafe_Cat_Dwarf/4",
+        "GoldTone": 2
        }
       },
       {
@@ -1668,6 +1671,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 2
        }
       },
       {
@@ -1717,6 +1723,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 2
        }
       },
       {
@@ -1880,7 +1889,8 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Cat_Dwarf/5"
+        "Rojo_Id": "CatCafe_Cat_Dwarf/5",
+        "GoldTone": 2
        }
       },
       {
@@ -1930,6 +1940,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 2
        }
       },
       {
@@ -1979,6 +1992,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 2
        }
       },
       {
@@ -3240,7 +3256,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Dwarf/6"
+      "Rojo_Id": "CatCafe_Cat_Dwarf/6",
+      "GoldTone": 2
      },
      "children": [
       {
@@ -3324,6 +3341,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 2
      }
     }
    ],
@@ -3438,7 +3458,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Dwarf/7"
+      "Rojo_Id": "CatCafe_Cat_Dwarf/7",
+      "GoldTone": 2
      }
     },
     {
@@ -3488,6 +3509,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 2
      }
     }
    ],
@@ -3602,7 +3626,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Dwarf/8"
+      "Rojo_Id": "CatCafe_Cat_Dwarf/8",
+      "GoldTone": 2
      }
     },
     {
@@ -3652,6 +3677,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 2
      }
     }
    ],
@@ -3766,7 +3794,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Dwarf/9"
+      "Rojo_Id": "CatCafe_Cat_Dwarf/9",
+      "GoldTone": 2
      }
     },
     {
@@ -3816,6 +3845,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 2
      }
     }
    ],
@@ -3930,7 +3962,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Dwarf/10"
+      "Rojo_Id": "CatCafe_Cat_Dwarf/10",
+      "GoldTone": 2
      }
     },
     {
@@ -3980,6 +4013,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 2
      }
     }
    ],

@@ -66,6 +66,8 @@ Intro.SHORT_CATCH_HOLD = 3.4
 -- #4019: the back showed because the copy was still curled in the cannon's ball pose (the short intro has no
 -- landing to end it); it now stands up for the catch, so the root's own facing is right and the flip is off.
 Intro.FACE_FLIP = false
+local SHORT_CATCH_BACK = 7.6 -- studs from the catch the short intro's catch shot ends at (the full one: 6.5)
+local SHORT_CATCH_LIFT = 0.5 -- and how far over the catch point it looks, so a tall avatar's head clears the top bar
 Intro.NEXT_AFTER = 0 -- #3168: was 1.0, then 0.2; spam clicks go straight through (the screen takes one Next a shot)
 Intro.SETTLE_SECONDS = 0.3
 
@@ -715,7 +717,15 @@ function Intro.shots(
 			cuts = {
 				{
 					from = key(v(catch.X, AREA_FLOOR + 4.5, catch.Z) + side * 9, catch),
-					to = key(v(catch.X, AREA_FLOOR + 3.4, catch.Z) + side * 6.5, catch),
+					-- Review-QA's Studio look at #4091: in the short intro, where you turn to face the camera and
+					-- the shot holds on you, the push in to 6.5 studs put the top of your head under the top bar.
+					-- There it stops a stud further back and looks half a stud higher.
+					to = if short == true
+						then key(
+							v(catch.X, AREA_FLOOR + 3.4, catch.Z) + side * SHORT_CATCH_BACK,
+							catch + v(0, SHORT_CATCH_LIFT, 0)
+						)
+						else key(v(catch.X, AREA_FLOOR + 3.4, catch.Z) + side * 6.5, catch),
 					seconds = 2.5,
 				},
 			},

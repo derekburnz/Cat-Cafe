@@ -11,8 +11,9 @@
 --   haveLine(view, fish)        "5 free rolls · 2 Trait Tokens · 34 golden fish" (free rolls only while any are left)
 --   tokens(view, now)           the station's free tokens: "1 Trait Token ready" with Collect, or "Next free token in
 --                               3h 12m"
---   odds()                      the Odds list: one row per rarity with its colour and percent, and the line under it
---   ODDS_LINE, ODDS_LINES       the odds line every card shows (Traits.oddsText), whole and as two short lines
+--   odds(secret?)               the Odds list: one row per rarity with its colour, percent and "4.9%" words
+--   oddsLines(secret?)          the odds line every card shows (Traits.oddsText) as two short lines
+--   secret()                    #3908: the `secretTrait` switch as the server copied it (Secret 0.1% in the odds)
 --   cats(cats)                  the picker's list: working cats first (only their traits count), then the highest
 --                               level, best rate and uid
 --   key(list)                   changes when the list's rows would (a level, a name, a trait, a job)
@@ -26,6 +27,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
 local Traits = require(Shared:WaitForChild("Traits")) :: any
 
 local MysticPoolLogic = {}
@@ -36,16 +38,24 @@ MysticPoolLogic.NO_TRAIT_COLOR = "#9AA0A6"
 MysticPoolLogic.KEEP_OLD = "Keep old"
 MysticPoolLogic.TAKE_NEW = "Take new"
 MysticPoolLogic.EQUAL_LINE = "Each trait inside a rarity is equally likely."
-MysticPoolLogic.ODDS_LINE = Traits.oddsText() :: string
--- The same words as two short lines, for a narrow card: the rarity odds, then "Each trait inside a rarity ...".
-MysticPoolLogic.ODDS_LINES = (function(): { string }
-	local line: string = Traits.oddsText()
+
+-- #3908: whether the Secret rarity is in the rolls (the server's `secretTrait` switch, copied to ReplicatedStorage).
+-- The switch flips at a restart, so a card built once per session shows what the server rolls.
+function MysticPoolLogic.secret(): boolean
+	return ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Traits.SECRET_FLAG) == true
+end
+
+-- The odds line as two short lines, for a narrow card: the rarity odds, then "Each trait inside a rarity ...".
+-- `secret` defaults to the switch (MysticPoolLogic.secret).
+function MysticPoolLogic.oddsLines(secret: boolean?): { string }
+	local on = if secret == nil then MysticPoolLogic.secret() else secret
+	local line: string = Traits.oddsText(on)
 	local cut = string.find(line, ". ", 1, true)
 	if cut == nil then
 		return { line, "" }
 	end
 	return { string.sub(line, 1, cut - 1), string.sub(line, cut + 2) }
-end)()
+end
 
 export type Card = {
 	has: boolean,
@@ -59,7 +69,7 @@ export type Roll = { text: string, enabled: boolean, why: string? }
 
 export type Pending = { uid: string, old: Card, new: Card }
 
-export type OddsRow = { name: string, color: string, percent: number }
+export type OddsRow = { name: string, color: string, percent: number, label: string }
 
 -- What the card reads from PlayerState.traits (Types.TraitsView); every field checked, as it crosses the network.
 type View = {
@@ -234,10 +244,16 @@ function MysticPoolLogic.tokens(view: View?, now: number): (string, boolean)
 	return "Next free token soon", false
 end
 
-function MysticPoolLogic.odds(): { OddsRow }
+function MysticPoolLogic.odds(secret: boolean?): { OddsRow }
+	local on = if secret == nil then MysticPoolLogic.secret() else secret
 	local rows: { OddsRow } = {}
-	for _, rarity in Traits.RARITIES do
-		table.insert(rows, { name = rarity.name, color = rarity.color, percent = rarity.odds })
+	for _, rarity in Traits.rarities(on) do
+		table.insert(rows, {
+			name = rarity.name,
+			color = rarity.color,
+			percent = rarity.odds,
+			label = Traits.percentText(rarity.odds),
+		})
 	end
 	return rows
 end
@@ -350,10 +366,10 @@ MysticPoolLogic.SIDE_TITLE = "More rolls"
 MysticPoolLogic.SIDE_LINE = "1 Trait Token = 1 roll"
 
 -- "Common 30% · Uncommon 25% · ...", every roll's odds on one wrapped line, then the equal line's short form.
-function MysticPoolLogic.oddsLine(): string
+function MysticPoolLogic.oddsLine(secret: boolean?): string
 	local parts: { string } = {}
-	for _, row in MysticPoolLogic.odds() do
-		table.insert(parts, string.format("%s %d%%", row.name, row.percent))
+	for _, row in MysticPoolLogic.odds(secret) do
+		table.insert(parts, row.name .. " " .. row.label)
 	end
 	return "Roll odds: " .. table.concat(parts, " · ")
 end

@@ -328,7 +328,7 @@ end
 
 -- The odds, always on the card: two short lines at `top`.
 local function oddsLines(parent: Instance, top: number, z: number)
-	for index, words in MysticPoolLogic.ODDS_LINES do
+	for index, words in MysticPoolLogic.oddsLines() do
 		text({
 			Name = if index == 1 then "OddsLine" else "OddsLine" .. index,
 			Position = UDim2.fromOffset(0, top + (index - 1) * 14),
@@ -343,23 +343,28 @@ local function oddsLines(parent: Instance, top: number, z: number)
 end
 
 -- #3961 (the station menus picture): the main card's odds as six pills of the rarities' colours, "Common 30%", in two
--- rows of three, with the "equally likely" line beside them, in the two lines' place at `top`.
+-- rows of three, with the "equally likely" line beside them, in the two lines' place at `top`. #3908: with the Secret
+-- rarity on, seven pills in two rows of four across the whole width; the "equally likely" line is then on the Odds
+-- list only (its Equal line), as the pills need the room.
 local function oddsPills(parent: Instance, top: number, z: number)
+	local rows = MysticPoolLogic.odds()
+	local perRow = math.max(3, math.ceil(#rows / 2))
+	local wide = perRow > 3
 	local row: Frame = Create("Frame", {
 		Name = "OddsPills",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(0, top),
-		Size = UDim2.new(ODDS_SHARE, 0, 0, 28),
+		Size = UDim2.new(if wide then 1 else ODDS_SHARE, 0, 0, 28),
 		ZIndex = z,
 		Parent = parent,
 	}, {
 		Create("UIGridLayout", {
 			CellPadding = UDim2.fromOffset(3, 2),
-			CellSize = UDim2.new(1 / 3, -3, 0, 13),
+			CellSize = UDim2.new(1 / perRow, -3, 0, 13),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
-	for order, odds in MysticPoolLogic.odds() do
+	for order, odds in rows do
 		local color = Color3.fromHex(odds.color)
 		text({
 			Name = odds.name,
@@ -370,7 +375,7 @@ local function oddsPills(parent: Instance, top: number, z: number)
 			TextScaled = true,
 			TextColor3 = inkOn(color),
 			TextTruncate = Enum.TextTruncate.None,
-			Text = ("%s %d%%"):format(odds.name, odds.percent),
+			Text = odds.name .. " " .. odds.label,
 			ZIndex = z,
 			Parent = row,
 		}, {
@@ -384,6 +389,9 @@ local function oddsPills(parent: Instance, top: number, z: number)
 			Create("UITextSizeConstraint", { MaxTextSize = Theme.sizes.textTiny, MinTextSize = 9 }),
 		})
 	end
+	if wide then
+		return
+	end
 	text({
 		Name = "OddsNote",
 		Position = UDim2.new(ODDS_SHARE, 6, 0, top),
@@ -393,7 +401,7 @@ local function oddsPills(parent: Instance, top: number, z: number)
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = MysticPoolLogic.ODDS_LINES[#MysticPoolLogic.ODDS_LINES],
+		Text = MysticPoolLogic.oddsLines()[2],
 		ZIndex = z,
 		Parent = parent,
 	})
@@ -934,14 +942,17 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		end,
 	})
 	local rows = MysticPoolLogic.odds()
+	-- #4063 Studio: with the Secret row there are 7, so the rows close up to fit the sheet with the Equal line under
+	-- them (every odd stays in view, monetization-policy 2.1); 6 rows keep the 30 px pitch
+	local pitch = math.min(30, math.floor((contentH - buttonH - 8 - 44) / #rows))
 	for index, row in rows do
-		local top = buttonH + 8 + (index - 1) * 30
+		local top = buttonH + 8 + (index - 1) * pitch
 		local line: Frame = Create("Frame", {
 			Name = row.name,
 			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			Position = UDim2.fromOffset(0, top),
-			Size = UDim2.new(1, 0, 0, 26),
+			Size = UDim2.new(1, 0, 0, pitch - 4),
 			ZIndex = 12,
 			Parent = odds,
 		}, {
@@ -973,14 +984,14 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 			Size = UDim2.new(0, 70, 1, 0),
 			FontFace = Theme.fonts.bodyBold,
 			TextXAlignment = Enum.TextXAlignment.Right,
-			Text = string.format("%d%%", row.percent),
+			Text = row.label,
 			ZIndex = 13,
 			Parent = line,
 		})
 	end
 	text({
 		Name = "Equal",
-		Position = UDim2.fromOffset(0, buttonH + 8 + #rows * 30 + 4),
+		Position = UDim2.fromOffset(0, buttonH + 8 + #rows * pitch + 4),
 		Size = UDim2.new(1, 0, 0, 34),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,

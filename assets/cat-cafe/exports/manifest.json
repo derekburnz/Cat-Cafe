@@ -355227,7 +355227,7 @@
         "CatCafe_Snowy_Set_321_Rock",
         "CatCafe_Snowy_Set_322_Rock"
       ],
-      "triangles": 100876,
+      "triangles": 101436,
       "budget": 150000,
       "size_studs": {
         "x": 153.98,
@@ -355274,21 +355274,21 @@
             "near"
           ],
           [
-            30,
+            29.13,
             0.0,
-            -267.6,
+            -268.1,
             "near"
           ]
         ],
         "snowman": [
           [
-            -16.0,
+            -15.0,
             0.0,
             -248.2,
             "near"
           ],
           [
-            -38.0,
+            -37.0,
             0.0,
             -11.8,
             "near"
@@ -355300,19 +355300,19 @@
             "near"
           ],
           [
-            -29.41,
+            -30.16,
             0.0,
-            137.81,
+            136.51,
             "deep"
           ],
           [
-            36.19,
+            37.69,
             0.0,
             145.41,
             "deep"
           ],
           [
-            -34.7,
+            -33.2,
             0.0,
             184.15,
             "deep"
@@ -355328,13 +355328,13 @@
         ],
         "sled_run": [
           [
-            -45.8,
+            -47.21,
             0.0,
-            -262.0,
+            -261.49,
             "near"
           ],
           [
-            -38.2,
+            -36.7,
             0.0,
             -246.0,
             "near"
@@ -355350,9 +355350,9 @@
         ],
         "sled": [
           [
-            -28.0,
+            -26.85,
             0.0,
-            -233.6,
+            -234.56,
             "near"
           ]
         ],
@@ -355364,15 +355364,15 @@
             "near"
           ],
           [
-            48.6,
+            50.1,
             0.0,
             -263.2,
             "near"
           ],
           [
-            65.32,
+            66.19,
             0.0,
-            -259.2,
+            -261.54,
             "near"
           ],
           [
@@ -355400,21 +355400,21 @@
             "near"
           ],
           [
-            -53.04,
+            -52.29,
             0.0,
-            -139.2,
+            -140.5,
             "near"
           ],
           [
-            24.6,
+            26.6,
             0.0,
             -143.2,
             "near"
           ],
           [
-            66.24,
+            66.37,
             0.0,
-            -253.2,
+            -256.2,
             "near"
           ]
         ],
@@ -355450,9 +355450,9 @@
             "near"
           ],
           [
-            5.5,
+            5.07,
             1.68,
-            8.0,
+            8.25,
             "deep"
           ],
           [
@@ -355524,9 +355524,9 @@
             "near"
           ],
           [
-            -34,
+            -34.0,
             0.0,
-            -230,
+            -234.5,
             "near"
           ],
           [
@@ -355556,19 +355556,19 @@
         ],
         "hut": [
           [
-            -26.65,
+            -28.06,
             0.0,
-            -86.02,
+            -85.51,
             "near"
           ],
           [
             24.99,
             0.0,
-            -59.17,
+            -60.17,
             "near"
           ],
           [
-            24.65,
+            26.15,
             0.0,
             -93.98,
             "near"
@@ -355576,15 +355576,15 @@
         ],
         "fort": [
           [
-            -48.59,
+            -46.84,
             0.0,
-            -26.31,
+            -25.35,
             "near"
           ]
         ],
         "igloo": [
           [
-            62.58,
+            64.08,
             0.0,
             -103.8,
             "near"
@@ -355748,9 +355748,9 @@
             "deep"
           ],
           [
-            -46,
+            -41.0,
             0.0,
-            61,
+            61.0,
             "deep"
           ],
           [
@@ -355844,15 +355844,15 @@
             "deep"
           ],
           [
-            -44,
+            -43.75,
             0.0,
-            156,
+            152.01,
             "deep"
           ],
           [
-            44,
+            43.74,
             0.0,
-            154,
+            152.52,
             "deep"
           ]
         ],
@@ -356062,7 +356062,7 @@
       },
       "studio": "Tier 8, the Snowy Mountain (next-areas plan section 1, #3997). Place it at the area's centre on its floor, camp side -Z, like the Desert's set. The floor is snow right out to the walls and the lake is ice laid over the paths. Nothing invisible stands inside the area: the ridges, humps and drifts are WedgeParts that collide where they are drawn and the blockers have no _Barrier; the only _Barrier is the 30 high ring in the border's wall band, all round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. Icicles, frozen bubbles, block lines and rope are _Decor (no collision). The rescue spots (points_roblox trap_snowdrift, trap_snowman, trap_sled, trap_snow_log) carry their piece's turn.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Snowy_Set.model.json",
-      "rbx_parts": 6316,
+      "rbx_parts": 6461,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Snowy_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Snowy_Set.glb"
@@ -356075,10 +356075,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "100876/150000 tris",
+          "budget": "101436/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "49471 faces on swatch centers",
+          "uv": "49826 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.63 (want 0)",
           "centered": "footprint center x=0.02 y=0.99",
@@ -363559,19 +363559,19 @@
             "near"
           ],
           [
-            -18.4,
+            -17.9,
             0.0,
             -147.0,
             "near"
           ],
           [
-            23.6,
+            24.1,
             0.0,
             -149.0,
             "near"
           ],
           [
-            -33.6,
+            -34.1,
             0.0,
             -59.0,
             "near"
@@ -363579,11 +363579,11 @@
           [
             27.0,
             0.0,
-            -26.4,
+            -25.9,
             "near"
           ],
           [
-            -26.4,
+            -25.9,
             0.0,
             5.0,
             "deep"
@@ -364069,9 +364069,9 @@
             "deep"
           ],
           [
-            60.8,
+            60.3,
             0.0,
-            25.0,
+            25.87,
             "deep"
           ],
           [
@@ -364081,19 +364081,19 @@
             "deep"
           ],
           [
-            62.8,
+            61.93,
             0.0,
-            133.0,
+            133.5,
             "deep"
           ],
           [
-            -20.8,
+            -20.3,
             0.0,
             27.0,
             "deep"
           ],
           [
-            20.8,
+            20.3,
             0.0,
             135.0,
             "deep"
@@ -365938,9 +365938,9 @@
             "near"
           ],
           [
-            46.5,
+            44.52,
             0.0,
-            -166.0,
+            -165.75,
             "near"
           ],
           [
@@ -366432,9 +366432,9 @@
             "deep"
           ],
           [
-            38,
+            40.14,
             0.0,
-            44,
+            47.38,
             "deep"
           ],
           [
@@ -366626,15 +366626,15 @@
             "deep"
           ],
           [
-            -64,
+            -66.19,
             0.0,
-            164,
+            162.79,
             "deep"
           ],
           [
-            60,
+            58.64,
             0.0,
-            166,
+            171.33,
             "deep"
           ]
         ],
@@ -366908,7 +366908,7 @@
             "deep"
           ],
           [
-            -68.0,
+            -69.0,
             0.0,
             208.0,
             "deep"
@@ -366926,7 +366926,7 @@
             "deep"
           ],
           [
-            68.0,
+            69.0,
             0.0,
             208.0,
             "deep"

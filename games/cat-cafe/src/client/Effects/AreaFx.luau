@@ -346,10 +346,14 @@ local testHeight: number? = nil
 local testBox: any = nil
 
 local function auroraLook(middle: number)
+	-- soft ends: nothing, half way, then the middle's own value
+	local half = (1 + middle) / 2
 	local sequence = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.25, middle),
-		NumberSequenceKeypoint.new(0.75, middle),
+		NumberSequenceKeypoint.new(0.12, half),
+		NumberSequenceKeypoint.new(0.3, middle),
+		NumberSequenceKeypoint.new(0.7, middle),
+		NumberSequenceKeypoint.new(0.88, half),
 		NumberSequenceKeypoint.new(1, 1),
 	})
 	for _, ribbon in auroraRibbons do
@@ -402,6 +406,7 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 	local middle = Vector3.new(box.centre.x, height, box.centre.z)
 	part.CFrame = CFrame.new(middle)
 	local calm = Context.reducedMotion()
+	local nestMost = if Context.tier == "low" then spec.nestLow else #spec.nest
 	for _, r in
 		Logic.auroraRibbons(
 			count,
@@ -427,41 +432,44 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 			to.Position = r.to - middle + Vector3.new(0, lift, 0)
 			to.Axis = r.across
 			to.Parent = part
-			local band = Instance.new("Beam")
-			band.Name = "Ribbon"
-			band.Attachment0 = from
-			band.Attachment1 = to
-			band.FaceCamera = true
-			band.Segments = 16
-			band.Color = ColorSequence.new(colour)
-			-- the soft smoke picture, once along the band: it thins toward the band's edges and ends
-			band.Texture = Presets.textures.smoke
-			band.TextureMode = Enum.TextureMode.Stretch
-			band.TextureLength = 1
-			band.TextureSpeed = 0
-			band.LightEmission = 1
-			band.Brightness = spec.brightness
-			band.LightInfluence = 0
-			band.Width0 = spec.width
-			band.Width1 = spec.width
-			band.CurveSize0 = r.bend
-			band.CurveSize1 = r.bend -- the far end bends the other way: a slow S
-			band.Parent = part
-			table.insert(ribbon.bands, band)
-			if not calm then
-				local tween = TweenService:Create(
-					band,
-					TweenInfo.new(
-						r.seconds + (layer - 1) * 1.5,
-						Enum.EasingStyle.Sine,
-						Enum.EasingDirection.InOut,
-						-1,
-						true
-					),
-					{ CurveSize0 = -r.bend, CurveSize1 = -r.bend }
-				)
-				tween:Play()
-				table.insert(ribbon.tweens, tween)
+			-- No picture on the bands: the particle smoke picture draws as nothing on a Beam (#4085 Studio look). The
+			-- soft edge across the band comes from thinner bands laid over wider ones, their light adding up toward
+			-- the middle.
+			for n, share in spec.nest do
+				if n > nestMost then
+					break
+				end
+				local band = Instance.new("Beam")
+				band.Name = "Ribbon"
+				band.Attachment0 = from
+				band.Attachment1 = to
+				band.FaceCamera = true
+				band.Segments = 16
+				band.Color = ColorSequence.new(colour)
+				band.LightEmission = 1
+				band.LightInfluence = 0
+				band.Brightness = spec.brightness
+				band.Width0 = spec.width * share
+				band.Width1 = spec.width * share
+				band.CurveSize0 = r.bend
+				band.CurveSize1 = r.bend -- the far end bends the other way: a slow S
+				band.Parent = part
+				table.insert(ribbon.bands, band)
+				if not calm then
+					local tween = TweenService:Create(
+						band,
+						TweenInfo.new(
+							r.seconds + (layer - 1) * 1.5,
+							Enum.EasingStyle.Sine,
+							Enum.EasingDirection.InOut,
+							-1,
+							true
+						),
+						{ CurveSize0 = -r.bend, CurveSize1 = -r.bend }
+					)
+					tween:Play()
+					table.insert(ribbon.tweens, tween)
+				end
 			end
 		end
 		table.insert(auroraRibbons, ribbon)

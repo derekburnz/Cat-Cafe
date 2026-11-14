@@ -64,6 +64,7 @@ AREAS = {
     "Ruins": (70.0, 300.0, "ruins"),          # Tier 7 (#2651), 140 x 600 (ruinsset.py)
     "Snowy": (75.0, 280.0, "snowy"),          # Tier 8 (#3997), 150 x 560 (snowyset.py)
     "WaterPark": (75.0, 280.0, "funfair"),    # Tier 9 (#4066), 150 x 560 (waterparkset.py)
+    "Castle": (75.0, 280.0, "medieval"),      # Tier 10 (#4067), 150 x 560 (castleset.py)
 }
 NAMES = {"ParkF85": "CatCafe_Park_BackdropF85", "NeighbourhoodF85": "CatCafe_Neighbourhood_BackdropF85",
          "WoodsF85": "CatCafe_Woods_BackdropF85",
@@ -1125,9 +1126,144 @@ def theme_funfair(f, P):
         hot_balloon(rb, x, y, z, s, CANDY[k % 4])
 
 
+# ---------------------------------------------------------------------------------------------- medieval --
+def far_keep(rb, lit, f, x, z, s=1.0):
+    """The great keep on the skyline past the far end: a tall block with battlements, four round corner towers under
+    navy cone roofs with gold pennant balls, a taller middle tower in red, lit windows (lit at night)."""
+    y = f.gy(x, z) - 0.5
+    w, d, h = 46.0 * s, 30.0 * s, 44.0 * s
+    rb.span((x - w / 2, y, z - d / 2), (x + w / 2, y + h, z + d / 2), "concrete")
+    rb.span((x - w / 2 - 1.0, y + h, z - d / 2 - 1.0), (x + w / 2 + 1.0, y + h + 2.0 * s, z + d / 2 + 1.0), "concrete_dark")
+    n = 9
+    for k in range(n):                                                    # merlons toward the area
+        mx = x - w / 2 + (k + 0.5) * w / n
+        if k % 2 == 0:
+            rb.span((mx - w / n / 2, y + h + 2.0 * s, z - d / 2 - 1.0), (mx + w / n / 2, y + h + 5.0 * s, z - d / 2 + 2.0),
+                    "metal")
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            tx, tz, th = x + sx * w / 2, z + sz * d / 2, h + 12.0 * s
+            rb.cyl((tx, y + th / 2, tz), 7.0 * s, th, "metal", segments=10)
+            rb.cyl((tx, y + th + 1.0 * s, tz), 8.2 * s, 2.0 * s, "concrete_dark", segments=10)
+            rb.cyl((tx, y + th + 9.0 * s, tz), 8.0 * s, 14.0 * s, "pants_navy", r2=0.4 * s, segments=10)
+            rb.ball((tx, y + th + 16.6 * s, tz), 1.0 * s, "rarity_legend")
+            if sz < 0:
+                lit.span((tx - 1.2 * s, y + th * 0.62, tz - 7.2 * s), (tx + 1.2 * s, y + th * 0.62 + 4.0 * s, tz - 6.6 * s),
+                         "lamp_warm")
+    th = h + 30.0 * s                                                     # the middle tower
+    rb.span((x - 8.0 * s, y + h, z - 8.0 * s), (x + 8.0 * s, y + th, z + 8.0 * s), "concrete")
+    rb.span((x - 9.2 * s, y + th, z - 9.2 * s), (x + 9.2 * s, y + th + 2.0 * s, z + 9.2 * s), "concrete_dark")
+    rb.cyl((x, y + th + 11.0 * s, z), 10.0 * s, 18.0 * s, "shirt_red", r2=0.5 * s, segments=8)
+    rb.cyl((x, y + th + 23.0 * s, z), 0.4 * s, 7.0 * s, "rarity_legend", segments=6)
+    rb.span((x, y + th + 23.5 * s, z - 0.15), (x + 6.0 * s, y + th + 26.5 * s, z + 0.15), "rarity_legend")
+    for k in range(4):                                                    # lit windows on the front
+        wx = x - w / 2 + (k + 0.5) * w / 4
+        lit.span((wx - 1.3 * s, y + h * 0.55, z - d / 2 - 0.3), (wx + 1.3 * s, y + h * 0.55 + 4.4 * s, z - d / 2 + 0.3),
+                 "lamp_warm")
+    lit.span((x - 1.5 * s, y + h + 14.0 * s, z - 8.3 * s), (x + 1.5 * s, y + h + 19.0 * s, z - 7.7 * s), "lamp_warm")
+    rb.span((x - 5.0 * s, y, z - d / 2 - 0.4), (x + 5.0 * s, y + 13.0 * s, z - d / 2 + 0.4), "dark_wood")   # the great door
+
+
+def windmill(rb, f, x, z, s=1.0, turn=0.5):
+    """A stone windmill: a tapered cream tower on a stone foot, a tiled cap, four timber sails with cloth facing the
+    area along Z."""
+    y = f.gy(x, z) - 0.5
+    rb.cyl((x, y + 2.0 * s, z), 7.6 * s, 4.0 * s, "concrete", segments=10)
+    rb.cyl((x, y + 13.0 * s, z), 7.0 * s, 18.0 * s, "cream", r2=4.6 * s, segments=10)
+    rb.cyl((x, y + 25.0 * s, z), 5.4 * s, 6.0 * s, "terracotta", r2=0.6 * s, segments=10)
+    rb.span((x - 1.2 * s, y + 4.0 * s, z - 7.4 * s), (x + 1.2 * s, y + 8.0 * s, z - 6.2 * s), "dark_wood")
+    hub = y + 21.0 * s
+    hz = z - 6.2 * s
+    rb.cyl((x, hub, hz), 1.2 * s, 2.4 * s, "dark_wood", axis="Z", segments=8)
+    for k in range(4):
+        a = turn + math.pi * k / 2
+        ca, sa = math.cos(a), math.sin(a)
+        rb.box((x + 8.5 * s * ca, hub + 8.5 * s * sa, hz - 0.9 * s), (17.0 * s, 0.7 * s, 0.6 * s), "dark_wood", rot=_rotz(a))
+        rb.box((x + 10.5 * s * ca - 1.8 * s * sa, hub + 10.5 * s * sa + 1.8 * s * ca, hz - 1.0 * s),
+               (12.0 * s, 3.2 * s, 0.3 * s), "milk", rot=_rotz(a))
+
+
+def wizard_tower(rb, lit, f, x, z, s=1.0):
+    """A wizard's tower on a hill: a thin stone tower that leans in two steps, a jutting room under a tall crooked
+    purple hat roof with a gold star, and a glowing orb window (lit at night)."""
+    y = f.gy(x, z) - 0.5
+    rb.cyl((x, y + 11.0 * s, z), 5.0 * s, 22.0 * s, "concrete", r2=4.2 * s, segments=8)
+    rb.cyl((x + 0.8 * s, y + 30.0 * s, z), 4.2 * s, 16.0 * s, "metal", r2=3.8 * s, segments=8)
+    rb.cyl((x + 0.8 * s, y + 39.0 * s, z), 6.4 * s, 2.0 * s, "dark_wood", segments=8)
+    rb.cyl((x + 0.8 * s, y + 44.0 * s, z), 6.0 * s, 8.0 * s, "cream", segments=8)
+    rb.cyl((x + 0.8 * s, y + 48.6 * s, z), 7.6 * s, 1.2 * s, "rarity_epic", segments=8)
+    rb.cyl((x + 1.4 * s, y + 55.0 * s, z), 6.6 * s, 12.0 * s, "rarity_epic", r2=2.6 * s, segments=8)
+    rb.cyl((x + 3.0 * s, y + 64.0 * s, z), 2.6 * s, 7.0 * s, "rarity_epic", r2=0.3 * s, segments=8)
+    rb.ball((x + 3.4 * s, y + 68.4 * s, z), 1.1 * s, "rarity_legend")
+    lit.ball((x + 0.8 * s, y + 44.0 * s, z - 6.0 * s), 2.0 * s, "lamp_warm")
+    lit.span((x - 0.9 * s, y + 24.0 * s, z - 4.6 * s), (x + 0.9 * s, y + 27.5 * s, z - 4.0 * s), "lamp_warm")
+    rb.span((x - 1.2 * s, y, z - 5.2 * s), (x + 1.2 * s, y + 4.6 * s, z - 4.4 * s), "dark_wood")
+
+
+def farm_hut(rb, lit, f, x, z, s=1.0, k=0):
+    """A thatched cottage: cream walls in a dark frame, a steep straw roof, a lit window."""
+    y = f.gy(x, z) - 0.5
+    rb.span((x - 6.0 * s, y, z - 4.5 * s), (x + 6.0 * s, y + 6.0 * s, z + 4.5 * s), "cream")
+    rb.span((x - 6.2 * s, y + 5.6 * s, z - 4.7 * s), (x + 6.2 * s, y + 6.2 * s, z + 4.7 * s), "dark_wood")
+    rb.cyl((x, y + 9.4 * s, z), 7.6 * s, 6.4 * s, ("fur_golden", "fur_sand")[k % 2], r2=0.8 * s, segments=8)
+    rb.span((x - 1.0 * s, y, z - 4.7 * s), (x + 1.0 * s, y + 4.0 * s, z - 4.4 * s), "dark_wood")
+    lit.span((x + 2.6 * s, y + 2.4 * s, z - 4.7 * s), (x + 4.4 * s, y + 4.2 * s, z - 4.4 * s), "lamp_warm")
+
+
+def hay_bale(rb, f, x, z, s=1.0, leaf=None):
+    y = f.gy(x, z) - 0.3
+    rb.cyl((x, y + 1.6 * s, z), 1.6 * s, 2.6 * s, "fur_golden", axis="X", segments=10)
+
+
+def theme_medieval(f, P):
+    # green farm hills and woods round the castle, cottages and hay bales on the near ground, a windmill either
+    # side, a wizard's tower on a far hill and the great keep on the skyline past the far end
+    keep = (0.0, f.ez1 + 75.0)
+    mills = [(-(f.ex + 34.0), f.cz - 120.0, 1.0, 0.3), (f.ex + 36.0, f.cz + 60.0, 1.15, 0.9)]
+    wizard = (f.ex + 40.0, f.cz + 200.0, 1.0)
+    huts = [(-(f.ex + 30.0), f.cz + 20.0, 1.0), (-(f.ex + 44.0), f.cz + 44.0, 1.2), (f.ex + 30.0, f.cz - 150.0, 1.1),
+            (f.ex + 46.0, f.cz - 128.0, 1.0), (-(f.ex + 32.0), f.cz + 170.0, 1.1)]
+    clear = ([(keep[0], keep[1], 48.0), (wizard[0], wizard[1], 12.0)] + [(x, z, 14.0 * s) for x, z, s, _ in mills]
+             + [(x, z, 11.0 * s) for x, z, s in huts])
+
+    def taken(x, z, pad=0.0):
+        return any(math.hypot(x - cx, z - cz) < r + pad for cx, cz, r in clear)
+    near = [h for h in ring(f, 58.0, 40.0, (38.0, 26.0, 8.0, 16.0), 121)
+            if not any(_foot_in(h, (cx - r, cx + r, cz - r, cz + r)) for cx, cz, r in clear)]
+    far = ring(f, 185.0, 64.0, (64.0, 46.0, 24.0, 44.0), 122)
+    f.hills = near + far
+    for k, h in enumerate(near):
+        h.add(P["hills"], ("leaf_green", "leaf_green", "pastel_butter")[k % 3])              # a hay field now and then
+    for h in far:
+        h.add(P["far"], "leaf_dark")
+    rb, flowers, lit = P["rb"], P["flowers"], P["lit"]
+    on_hills(rb, f, near, 3, 123, 1.7)
+    on_hills(rb, f, far, 3, 124, 2.6, plant=far_tree)
+    for i, (x, z, nx, nz) in enumerate(f.around(14.0, 15.0, 125, wobble=7.0, shift=5.0)):
+        if f.out(x, z) < KEEP + 2 or taken(x, z, 3.0):
+            continue
+        r = _hash(i, 126)
+        if r < 0.4:
+            tree(rb, f, x, z, 1.1 + 0.5 * r, LEAVES[i % 3])
+        elif r < 0.6:
+            fir(rb, f, x, z, 1.0 + 0.6 * r)
+        elif r < 0.78:
+            bush(rb, f, x, z, 1.0 + r, LEAVES[(i + 1) % 3])
+        elif r < 0.9:
+            hay_bale(rb, f, x, z, 1.0 + 0.4 * r)
+        else:
+            tuft(rb, flowers, x, z, 0.7)
+    for k, (x, z, s) in enumerate(huts):
+        farm_hut(rb, lit, f, x, z, s, k)
+    for x, z, s, turn in mills:
+        windmill(rb, f, x, z, s, turn)
+    wizard_tower(rb, lit, f, *wizard)
+    far_keep(rb, lit, f, *keep)
+
+
 THEMES = {"park": theme_park, "forest": theme_forest, "houses": theme_houses, "city": theme_city, "works": theme_works,
           "desert": theme_desert, "ruins": theme_ruins, "snowy": theme_snowy,
-          "funfair": theme_funfair}
+          "funfair": theme_funfair, "medieval": theme_medieval}
 
 
 def builder(area, A, H, theme):

@@ -1,7 +1,7 @@
 """Hidden nooks (#2687 part 2, claim #2688): the little walled corner each area opens when its station unlocks, with
 one extra rescue spot inside, so ranking up opens a new place to look and not only a new menu.
 
-  CatCafe_Nook_<Area>   Park, Neighbourhood, Woods, Sewer, Desert, Ruins, Snowy, WaterPark. An 8 x 7 walled nook in the area's
+  CatCafe_Nook_<Area>   Park, Neighbourhood, Woods, Sewer, Desert, Ruins, Snowy, WaterPark, Castle. An 8 x 7 walled nook in the area's
                         theme, open at the front (-Z) through a two-leaf gate, with four stepping stones leading
                         out 10.5 studs in front of it. Pivot at the middle of the nook's floor, front -Z: stand it
                         with its back to a wall or a hedge and its stones toward the path. Footprint x -4.3 to 4.3,
@@ -32,6 +32,7 @@ import desertset
 import ruinsset
 import snowyset
 import waterparkset
+import castleset
 import woods
 from alleyway import flower_clump
 from cannon import frame_at
@@ -54,6 +55,7 @@ THEMES = {
     "Ruins": ("fur_dusty", "leaf_dark", "fur_soot", "fur_pewter", "fur_pewter", "ruins"),
     "Snowy": ("fur_white", "milk", "dark_wood", "fur_silver", "fur_mist", "snowy"),      # a snow fort (#3997)
     "WaterPark": ("milk", "shirt_red", "shirt_blue", "pastel_butter", "paving_light", "funfair"),   # a prize stall (#4066)
+    "Castle": ("concrete", "concrete_dark", "dark_wood", "fur_dusty", "treat_tan", "castle"),       # a guard post (#4067)
 }
 ATTACHMENTS = {}         # asset -> [(name, Roblox point, Roblox rotation)]
 
@@ -80,6 +82,7 @@ TRAPS = {
     "Ruins": ("stone_urn", ruinsset.trap_stone_urn, 0.4, 0),
     "Snowy": ("snowdrift", snowyset.trap_snowdrift, 0.4, 0),
     "WaterPark": ("plush_pile", waterparkset.trap_plush_nook, 0.4, 0),
+    "Castle": ("haystack", castleset.trap_hay_nook, 0.4, 0),
 }
 
 
@@ -205,6 +208,21 @@ def _theme(b, d, theme):
         b.span((2.3, 0.3, 0.68), (3.4, 0.6, 0.7), "milk")
         for k, (x, z) in enumerate(((2.6, 0.95), (3.1, 1.3), (2.85, 1.15))):
             b.ball((x, 1.0 + 0.08 * k, z), 0.24, ("pastel_butter", "cream", "pastel_butter")[k])
+
+    elif theme == "castle":
+        _castle_bits(b)
+
+
+def _castle_bits(b):
+    _cushion(b, -2.9, 2.5, "shirt_red")
+    for k in range(0, 8, 2):                                                                # merlons along the back
+        b.span((-3.9 + k * 1.0, WALL_H, BACK - 0.36), (-3.9 + k * 1.0 + 0.9, WALL_H + 0.6, BACK + 0.36), "metal")
+    b.span((2.95, 0, 2.55), (3.05, 3.4, 2.65), "dark_wood")                                 # a pennant on a pole
+    b.span((3.05, 2.6, 2.57), (3.9, 3.3, 2.63), "pants_navy")
+    b.ball((3.0, 3.5, 2.6), 0.14, "rarity_legend")
+    b.cyl((2.85, 0.6, 1.15), 0.55, 1.2, "caramel_wood", segments=10)                        # a barrel
+    for y in (0.25, 0.95):
+        b.cyl((2.85, y, 1.15), 0.58, 0.12, "fur_soot", segments=10)
 
 
 def build_nook(area):

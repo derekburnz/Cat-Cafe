@@ -5672,7 +5672,13 @@ Presets.dragonRise = {
 		push = 0.78, -- the push in on the new look: the distance by this much
 		fov = 60,
 		lapFov = 66,
-		lapEye = Vector3.new(0, 4, -30), -- the camera for the lap, from the yard centre in the Keep's frame
+		lapEye = Vector3.new(0, 8, -30), -- the camera for the lap, from the yard centre in the Keep's frame
+		-- the camera never sits inside the map: it stays `clearGap` studs in front of the first solid thing between
+		-- what it looks at and where it wants to be, at least `clearLeast` of the way out, easing back out at
+		-- `clearEase` a frame once the way is clear
+		clearGap = 1.5,
+		clearLeast = 0.25,
+		clearEase = 0.12,
 	},
 	-- the ember ball
 	ball = {

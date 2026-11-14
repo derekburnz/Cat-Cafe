@@ -24,6 +24,7 @@
 -- `dragonKeep` (shared/LiveFlags, Gameplay-Engineer's); in Studio the Workspace attribute DragonRiseTest (1 to 5)
 -- plays it in front of you with the switch off. Client only; it sends nothing.
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -718,6 +719,57 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 	local ringsLeft = 0
 	local nextRing = 0
 	local skipInput: RBXScriptConnection? = nil
+
+	-- The camera never sits inside the map (Review-QA 2026-11-14: on the lap it flew through a sign, tree trunks and
+	-- a statue). A ray from what it looks at out to where it wants to be stops at the first solid thing, and the
+	-- camera stays a little in front of it: pulled in at once, let back out slowly. Things you can see through
+	-- (barriers, glass), this scene's own parts, players, his own model, the Keep's cats and the Keep itself do not
+	-- stop it.
+	local unseen: { Instance } = { Context.folder() }
+	for _, player in Players:GetPlayers() do
+		local character: Model? = player.Character
+		if character then
+			table.insert(unseen, character)
+		end
+	end
+	local liveDragon: Model? = info.dragon
+	if liveDragon then
+		table.insert(unseen, liveDragon)
+	end
+	for _, cat in cheer do
+		table.insert(unseen, cat)
+	end
+	for _, tagged in CollectionService:GetTagged("DragonKeep") do
+		table.insert(unseen, tagged)
+	end
+	local rays = RaycastParams.new()
+	rays.FilterType = Enum.RaycastFilterType.Exclude
+	rays.FilterDescendantsInstances = unseen
+	local reach = 1 -- of the way out to where it wants to be, how far the camera is let now
+	local function clearEye(look: Vector3, eye: Vector3): Vector3
+		local way = eye - look
+		local length = way.Magnitude
+		if length < 1 then
+			return eye
+		end
+		local allowed = 1
+		for _ = 1, 4 do
+			local hit = Workspace:Raycast(look, way, rays)
+			if hit == nil then
+				break
+			end
+			local part = hit.Instance
+			if part.Transparency >= 0.9 then
+				table.insert(unseen, part)
+				rays.FilterDescendantsInstances = unseen
+			else
+				allowed = math.clamp((hit.Distance - c.clearGap) / length, c.clearLeast, 1)
+				break
+			end
+		end
+		reach = if allowed < reach then allowed else reach + (allowed - reach) * c.clearEase
+		return look + way * reach
+	end
 
 	local function finish()
 		if finished then

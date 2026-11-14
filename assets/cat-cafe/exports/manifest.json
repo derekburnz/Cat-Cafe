@@ -361413,6 +361413,616 @@
           "centered": "footprint center x=0.00 y=0.71"
         }
       }
+    },
+    {
+      "name": "CatCafe_Camp_WaterPark_TicketBooth",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_WaterPark_TicketBooth",
+        "CatCafe_Camp_WaterPark_TicketBooth_Glow",
+        "CatCafe_Camp_WaterPark_TicketBooth_Sign_Spin"
+      ],
+      "triangles": 1920,
+      "budget": 6000,
+      "size_studs": {
+        "x": 9.2,
+        "y": 5.38,
+        "z": 11.72
+      },
+      "size_roblox": [
+        9.2,
+        11.72,
+        5.38
+      ],
+      "bounds_min": [
+        -4.6,
+        -3.28,
+        0.0
+      ],
+      "bounds_max": [
+        4.6,
+        2.1,
+        11.72
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_WaterPark_TicketBooth_Sign_Spin": [
+          -0.0,
+          -0.45,
+          9.4
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_WaterPark_TicketBooth_Sign_Spin": [
+          0.0,
+          9.4,
+          -0.45
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_WaterPark_TicketBooth.model.json",
+      "rbx_parts": 137,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_WaterPark_TicketBooth.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_WaterPark_TicketBooth.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1920/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "974 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.59"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_SnorkelMask",
+      "category": "Accessory",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Accessory_SnorkelMask"
+      ],
+      "triangles": 96,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.97,
+        "y": 0.67,
+        "z": 0.79
+      },
+      "size_roblox": [
+        0.97,
+        0.79,
+        0.67
+      ],
+      "bounds_min": [
+        -0.46,
+        -0.06,
+        -0.17
+      ],
+      "bounds_max": [
+        0.51,
+        0.61,
+        0.62
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_SnorkelMask.model.json",
+      "rbx_parts": 8,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_SnorkelMask.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_SnorkelMask.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "96/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "48 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.17 (want 0)",
+          "centered": "footprint center x=0.03 y=0.28"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_SwimCap",
+      "category": "Accessory",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Accessory_SwimCap"
+      ],
+      "triangles": 244,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.95,
+        "y": 0.96,
+        "z": 0.38
+      },
+      "size_roblox": [
+        0.95,
+        0.38,
+        0.96
+      ],
+      "bounds_min": [
+        -0.47,
+        -0.48,
+        -0.02
+      ],
+      "bounds_max": [
+        0.47,
+        0.47,
+        0.36
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_SwimCap.model.json",
+      "rbx_parts": 8,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_SwimCap.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_SwimCap.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "244/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "76 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.02 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_SunVisor",
+      "category": "Accessory",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Accessory_SunVisor"
+      ],
+      "triangles": 184,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.0,
+        "y": 1.29,
+        "z": 0.15
+      },
+      "size_roblox": [
+        1.0,
+        0.15,
+        1.29
+      ],
+      "bounds_min": [
+        -0.5,
+        -0.79,
+        -0.06
+      ],
+      "bounds_max": [
+        0.5,
+        0.5,
+        0.09
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_SunVisor.model.json",
+      "rbx_parts": 18,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_SunVisor.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_SunVisor.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "184/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "84 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.06 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.15"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_StarfishShades",
+      "category": "Accessory",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Accessory_StarfishShades"
+      ],
+      "triangles": 300,
+      "budget": 600,
+      "size_studs": {
+        "x": 0.91,
+        "y": 0.66,
+        "z": 0.43
+      },
+      "size_roblox": [
+        0.91,
+        0.43,
+        0.66
+      ],
+      "bounds_min": [
+        -0.46,
+        -0.05,
+        -0.21
+      ],
+      "bounds_max": [
+        0.46,
+        0.61,
+        0.22
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_StarfishShades.model.json",
+      "rbx_parts": 17,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_StarfishShades.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_StarfishShades.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "300/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "126 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.21 (want 0)",
+          "centered": "footprint center x=0.00 y=0.28"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_FlamingoFloat",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_FlamingoFloat",
+        "CatCafe_Decor_FlamingoFloat_Water"
+      ],
+      "triangles": 404,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.8,
+        "y": 3.8,
+        "z": 2.96
+      },
+      "size_roblox": [
+        3.8,
+        2.96,
+        3.8
+      ],
+      "bounds_min": [
+        -1.9,
+        -1.9,
+        0.0
+      ],
+      "bounds_max": [
+        1.9,
+        1.9,
+        2.96
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_FlamingoFloat.model.json",
+      "rbx_parts": 17,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_FlamingoFloat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_FlamingoFloat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "404/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_SplashFountain",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_SplashFountain",
+        "CatCafe_Decor_SplashFountain_Water",
+        "CatCafe_Decor_SplashFountain_Glow"
+      ],
+      "triangles": 596,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.04,
+        "y": 4.1,
+        "z": 4.42
+      },
+      "size_roblox": [
+        4.04,
+        4.42,
+        4.1
+      ],
+      "bounds_min": [
+        -2.02,
+        -2.05,
+        0.0
+      ],
+      "bounds_max": [
+        2.02,
+        2.05,
+        4.42
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_SplashFountain.model.json",
+      "rbx_parts": 21,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_SplashFountain.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_SplashFountain.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "596/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "272 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_TicketArch",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_TicketArch",
+        "CatCafe_Decor_TicketArch_Glow"
+      ],
+      "triangles": 484,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.3,
+        "y": 0.9,
+        "z": 5.4
+      },
+      "size_roblox": [
+        4.3,
+        5.4,
+        0.9
+      ],
+      "bounds_min": [
+        -2.15,
+        -0.45,
+        0.0
+      ],
+      "bounds_max": [
+        2.15,
+        0.45,
+        5.4
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_TicketArch.model.json",
+      "rbx_parts": 36,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_TicketArch.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_TicketArch.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "484/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "332 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_WavePoolTiles",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_WavePoolTiles",
+        "CatCafe_Decor_WavePoolTiles_Water"
+      ],
+      "triangles": 492,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.0,
+        "y": 2.5,
+        "z": 1.45
+      },
+      "size_roblox": [
+        4.0,
+        1.45,
+        2.5
+      ],
+      "bounds_min": [
+        -2.0,
+        -1.25,
+        0.0
+      ],
+      "bounds_max": [
+        2.0,
+        1.25,
+        1.45
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_WavePoolTiles.model.json",
+      "rbx_parts": 39,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_WavePoolTiles.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_WavePoolTiles.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "492/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "252 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_LifeguardChair",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_LifeguardChair"
+      ],
+      "triangles": 292,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.04,
+        "y": 3.04,
+        "z": 6.25
+      },
+      "size_roblox": [
+        3.04,
+        6.25,
+        3.04
+      ],
+      "bounds_min": [
+        -2.02,
+        -1.32,
+        -0.05
+      ],
+      "bounds_max": [
+        1.02,
+        1.72,
+        6.2
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_LifeguardChair.model.json",
+      "rbx_parts": 19,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_LifeguardChair.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_LifeguardChair.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "292/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "124 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.05 (want 0)",
+          "centered": "footprint center x=-0.50 y=0.20"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_SnackHut",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_SnackHut",
+        "CatCafe_Decor_SnackHut_Glow"
+      ],
+      "triangles": 480,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.3,
+        "y": 2.5,
+        "z": 4.66
+      },
+      "size_roblox": [
+        4.3,
+        4.66,
+        2.5
+      ],
+      "bounds_min": [
+        -2.15,
+        -1.1,
+        0.0
+      ],
+      "bounds_max": [
+        2.15,
+        1.4,
+        4.66
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_SnackHut.model.json",
+      "rbx_parts": 35,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_SnackHut.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_SnackHut.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "480/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "258 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.15"
+        }
+      }
     }
   ]
 }

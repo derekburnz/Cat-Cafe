@@ -164,9 +164,9 @@ local PASSES: { PassCard } = {
 	{
 		key = "royalCat",
 		configKey = "RoyalCatPassId",
-		name = "Royal Cat",
+		name = "Royal Cat Pack", -- #4261 (Derek 2026-11-14): the Royal Cat became a pack, R$199
 		icon = "👑",
-		effect = "A cat that always earns like a Legendary from your newest area.",
+		effect = "Duchess Marzipan, who always earns like a Legendary from your newest area, and Potion Pack S.",
 		note = "Yours to keep. Can't be traded.",
 		tab = "cats",
 	},
@@ -207,22 +207,13 @@ local PASSES: { PassCard } = {
 		icon = "🏷️", -- #2015: not 🪧 (Unicode 13), drawn blank
 		effect = "Three cafe sign looks: Flower Box, Starry Night and Paw Chalkboard. Looks only.",
 	},
-	-- #1822 (Monetization's store doc §3C): the King Cat alone sits just before its bundle under Cats, so the bundle
-	-- reads as the better deal; hidden while KingCatPassId is 0
-	{
-		key = "kingCat",
-		configKey = "KingCatPassId",
-		name = "King Cat",
-		icon = "🤴",
-		effect = "A cat that always earns like a Mythical from your newest area.", -- fits a phone's card
-		note = "Yours to keep. Can't be traded.", -- as the Royal Cat's; a longer note shrank the card's text on a small phone
-		tab = "cats",
-	},
+	-- #4261 (Derek 2026-11-14: "no need to make it buyable alone"): the King Cat alone card is gone; its pass stays in
+	-- Config (KingCatPassId) so earlier buyers keep the cat, and it is off sale on Roblox
 	-- #1822: the bundle lists what it holds (shared/KingPack.contents, in its order)
 	{
 		key = "kingPack",
 		configKey = "KingPackPassId",
-		name = "King Cat Pack",
+		name = "Cat King Pack", -- #4261: was "King Cat Pack", R$299
 		icon = "🤴",
 		-- short enough to stay readable on a phone's small card (the King Cat's own card says how he earns)
 		effect = "King Croissant, Royal Crest sign, Grand look, Royal Velvet Booth, Potion Pack M.",
@@ -1139,7 +1130,6 @@ local PASS_PICKS = {
 	"signStylePack",
 	"gardenDecor",
 	"grandTheme",
-	"kingCat",
 }
 
 -- #3562: the potion packs (every card of PRODUCTS), last on Featured. They keep their place on the Potions tab.

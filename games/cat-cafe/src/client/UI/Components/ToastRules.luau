@@ -78,7 +78,8 @@ ToastRules.CUT = {
 -- cards and the world show them.
 ToastRules.KEEP = {
 	"^Thank you! ", -- ProductService: the receipt after a Robux purchase (a product, the Cafe Pass paid track)
-	"^King Cat Pack: ", -- ShopCatService: the same, for the pack's game pass
+	"^Cat King Pack: ", -- ShopCatService: the same, for the pack's game pass (#4261: was "King Cat Pack")
+	"^Royal Cat Pack: ", -- #4261 ShopCatService: the same, for the Royal Cat Pack's potions
 	"Your working cats now earn ", -- StoreLogic.outfitThanks: the same, for the outfit passes
 	"^Thanks! Your report was sent%.$", -- BugReport.Messages.sent: the report window only closes
 	"^Trade done!", -- TradeLogic.doneLine: the trade window only closes, as it does for a cancelled trade

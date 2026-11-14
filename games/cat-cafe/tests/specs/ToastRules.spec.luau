@@ -137,7 +137,8 @@ return function()
 					{
 						"Thank you! 3 Luck Potions",
 						"Thank you! The Cafe Pass paid track is yours this season",
-						"King Cat Pack: the Royal Velvet Booth, 2 Luck Potions",
+						"Cat King Pack: the Royal Velvet Booth, 2 Luck Potions",
+						"Royal Cat Pack: 3 Big Tip Potions, 1 Swift Potion, 1 Steady Potion",
 						"👕 Your working cats now earn +15%!",
 						"Thanks! Your report was sent.",
 						"Trade done!",

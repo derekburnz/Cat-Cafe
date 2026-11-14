@@ -98,13 +98,32 @@ end
 
 function VipTagService.start()
 	local function watch(player: Player)
-		player.CharacterAdded:Connect(function(character: Model)
-			-- the Head is there once the character is built; wait a moment for an avatar that loads in parts
+		local function follow(character: Model)
+			-- Review-QA (Studio): Roblox's avatar load swaps the Head part just after CharacterAdded and the tag went
+			-- with the old one, so the tag follows every new Head, and the appearance load, too
+			character.ChildAdded:Connect(function(child: Instance)
+				if child.Name == "Head" then
+					task.defer(VipTagService.refresh, player)
+				end
+			end)
 			character:WaitForChild("Head", 10)
 			VipTagService.refresh(player)
+			-- the join's pass lookup can answer after the spawn without firing `changed`: look again a few times
+			for _, after in { 2, 5, 12 } do
+				task.delay(after, function()
+					if player.Character == character then
+						VipTagService.refresh(player)
+					end
+				end)
+			end
+		end
+		player.CharacterAdded:Connect(follow)
+		player.CharacterAppearanceLoaded:Connect(function()
+			VipTagService.refresh(player)
 		end)
-		if player.Character ~= nil then
-			task.spawn(VipTagService.refresh, player)
+		local character = player.Character
+		if character ~= nil then
+			task.spawn(follow, character)
 		end
 	end
 	for _, player in Players:GetPlayers() do

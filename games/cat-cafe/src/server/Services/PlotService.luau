@@ -9,6 +9,7 @@ local CafeName = require(ReplicatedStorage.Shared.CafeName)
 local ClockService = require(script.Parent.ClockService)
 local LawnBuilder = require(script.Parent.Parent.World.LawnBuilder)
 local Net = require(script.Parent.Net)
+local PalJoin = require(ReplicatedStorage.Shared.PalJoin)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -43,12 +44,34 @@ function PlotService.world(): WorldBuilder.World
 	return world :: WorldBuilder.World
 end
 
-function PlotService.assign(player: Player): WorldBuilder.Plot?
+-- The free plot whose door is nearest `near` (#3995: a friend's door), or nil when none is free.
+local function nearestFree(near: Vector3): WorldBuilder.Plot?
+	local free: { PalJoin.Spot } = {}
+	local byIndex: { [number]: WorldBuilder.Plot } = {}
+	for _, plot in (world :: WorldBuilder.World).plots do
+		if owners[plot.index] == nil then
+			local door = plot.door.Position
+			table.insert(free, { index = plot.index, x = door.X, z = door.Z })
+			byIndex[plot.index] = plot
+		end
+	end
+	local index = PalJoin.nearest(free, near.X, near.Z)
+	return if index ~= nil then byIndex[index] else nil
+end
+
+-- Gives the player the first free plot, or with `near` (#3995: the door of the friend they joined through) the free
+-- plot whose door is nearest it.
+function PlotService.assign(player: Player, near: Vector3?): WorldBuilder.Plot?
 	local existing = plotOf[player]
 	if existing ~= nil then
 		return existing
 	end
-	for _, plot in (world :: WorldBuilder.World).plots do
+	local plots = (world :: WorldBuilder.World).plots
+	if near ~= nil then
+		local plot = nearestFree(near)
+		plots = if plot ~= nil then { plot } else plots
+	end
+	for _, plot in plots do
 		local owner: Player? = owners[plot.index]
 		if owner == nil then
 			owners[plot.index] = player

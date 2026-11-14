@@ -45,6 +45,7 @@ local LuckyCharm = require(ReplicatedStorage.Shared.LuckyCharm)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
+local PalJoin = require(ReplicatedStorage.Shared.PalJoin)
 local PalService = require(script.Parent.PalService)
 local PassService = require(script.Parent.PassService)
 local Pet = require(ReplicatedStorage.Shared.Pet)
@@ -81,6 +82,11 @@ local CafeService = {}
 -- #3694 section 3: the achievements behind a feature switch read the live switches (here, since this file sends
 -- the achievements view; QuestService and Claim all reach Quests through it)
 Quests.setFlagReader(LiveFlagService.on)
+-- #3995: a player who joins through a friend this session gets no intro by itself, and the save stays out of the intro
+-- test (the ? Tutorial tile still plays it on a tap)
+Telemetry.setIntroSkip(function(player: Player): boolean
+	return LiveFlagService.on(PalJoin.FLAG) and PalService.joinedVia(player) ~= nil
+end)
 
 -- #2697: the tutorial moved forward (player, from step, to step), from the server or the client's TutorialAdvance
 CafeService.tutorialStepped = Signal.new() :: Signal.Signal<Player, number, number>
@@ -2400,6 +2406,44 @@ local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
 	CafeService.sync(player)
 end
 
+-- #3995 (friend-join-3995.md): the door of the friend a player joined through, with the palJoin switch on, for the
+-- cafe next door; nil otherwise (the first free plot, as before).
+local function palDoor(player: Player): Vector3?
+	if not LiveFlagService.on(PalJoin.FLAG) then
+		return nil
+	end
+	local pal = PalService.joinedVia(player)
+	local palPlot = if pal ~= nil then PlotService.get(pal) else nil
+	return if palPlot ~= nil then palPlot.door.Position else nil
+end
+
+-- #3995: pal_join once, and the PalNextDoor attribute for the joiner's "Your cafe is next door." line.
+local function palJoined(player: Player, profile: Profile, plot: WorldBuilder.Plot?)
+	if not LiveFlagService.on(PalJoin.FLAG) then
+		return
+	end
+	local pal, how = PalService.joinedHow(player)
+	if pal == nil or how == nil then
+		return
+	end
+	local palPlot = PlotService.get(pal)
+	local nextDoor = plot ~= nil
+		and palPlot ~= nil
+		and PalJoin.nextDoor(
+			plot.door.Position.X,
+			plot.door.Position.Z,
+			palPlot.door.Position.X,
+			palPlot.door.Position.Z
+		)
+	player:SetAttribute(PalJoin.ATTRIBUTE, nextDoor)
+	Telemetry.custom(
+		player,
+		"pal_join",
+		1,
+		PalJoin.fields(how, profile.stats.sessions <= 1, nextDoor)
+	)
+end
+
 local function onLoaded(player: Player, profile: Profile)
 	Economy.setPals(profile, PalService.count(player)) -- F92: pals who were here before the save loaded
 	-- #2123: before anything this join changes the save (lastSeen is still the last session's), and only for a
@@ -2416,10 +2460,11 @@ local function onLoaded(player: Player, profile: Profile)
 			joinGoals[player] = goals -- Telemetry logs them as its own session starts
 		end
 	end
-	local plot = PlotService.assign(player)
+	local plot = PlotService.assign(player, palDoor(player))
 	if plot == nil then
 		Net.toast(player, "The street is full. Try another server.", "warn")
 	end
+	palJoined(player, profile, plot)
 	giveLawnGifts(player, profile) -- F91: a cafe already at Tier 2 or 3 when the lawn arrives
 	CafeService.autoEquip(player, profile) -- #1534: the best cats on the open slots
 	CafeService.refreshPlot(player)

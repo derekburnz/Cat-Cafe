@@ -169,13 +169,35 @@ return function()
 			expect(Logic.auroraOn(nil, nil, evening)).to.equal(false)
 		end)
 
+		it("keeps the northern lights' window ahead of you and inside the area", function()
+			local a = Presets.areaFx.areas.snowy.aurora :: any
+			expect(a.window >= 200 and a.window <= 400).to.equal(true)
+			expect(a.ahead < a.window / 2).to.equal(true) -- some of it is always over you
+			expect(a.glide >= 2).to.equal(true) -- a slow glide, never a jump
+			local lo, hi = -280, 280
+			-- looking up the area, down it, and across it
+			expect(Logic.auroraCentre(0, 1, lo, hi, a.window, a.ahead)).to.equal(a.ahead)
+			expect(Logic.auroraCentre(0, -1, lo, hi, a.window, a.ahead)).to.equal(-a.ahead)
+			expect(Logic.auroraCentre(0, 0.1, lo, hi, a.window, a.ahead)).to.equal(0)
+			-- at either end it stops at the area's edge
+			expect(Logic.auroraCentre(-270, -1, lo, hi, a.window, a.ahead)).to.equal(
+				lo + a.window / 2
+			)
+			expect(Logic.auroraCentre(270, 1, lo, hi, a.window, a.ahead)).to.equal(
+				hi - a.window / 2
+			)
+			-- an area shorter than the window keeps its own middle
+			expect(Logic.auroraCentre(30, 1, -100, 100, a.window, a.ahead)).to.equal(0)
+		end)
+
 		it("hangs the northern lights over the area at night, slow and inside it", function()
 			local a = Presets.areaFx.areas.snowy.aurora :: any
 			expect(#a.ribbons).to.equal(3) -- one count per budget tier, fewer as the tier drops
 			expect(a.ribbons[1] >= a.ribbons[2] and a.ribbons[2] >= a.ribbons[3]).to.equal(true)
 			expect(a.ribbons[1] <= 3).to.equal(true) -- two Beams a ribbon: six at most
 			-- soft, never a solid band: the smoke picture thins it further (#4085: 0.72 could not be seen at all)
-			expect(a.shown >= 0.5 and a.shown < 1).to.equal(true)
+			-- #4216: seen at dusk, when 0.55 to 0.62 vanished against the sky, so stronger than the night values were
+			expect(a.shown >= 0.35 and a.shown < 1).to.equal(true)
 			expect(a.brightness >= 1 and a.brightness <= 3).to.equal(true)
 			-- thinner bands over wider ones, never more than three, and even all three together stay see-through
 			expect(#a.nest >= 2 and #a.nest <= 3).to.equal(true)
@@ -186,11 +208,11 @@ return function()
 			expect(a.nestLow >= 1 and a.nestLow <= #a.nest).to.equal(true)
 			local through = 1
 			for n = 1, #a.nest do
-				expect(a.nestShown[n] >= 0.5 and a.nestShown[n] < 1).to.equal(true)
+				expect(a.nestShown[n] >= 0.35 and a.nestShown[n] < 1).to.equal(true)
 				expect(a.nestBright[n] >= 1 and a.nestBright[n] <= 2).to.equal(true)
 				through *= a.nestShown[n]
 			end
-			expect(through >= 0.15).to.equal(true)
+			expect(through >= 0.05).to.equal(true)
 			for _, seconds in a.seconds do
 				expect(seconds >= 8).to.equal(true) -- a slow sway
 			end
@@ -221,11 +243,11 @@ return function()
 					-- it bends square to its length, never more than curveMost
 					expect(math.abs(r.across:Dot(run)) < 1e-6).to.equal(true)
 					expect(math.abs(r.bend) <= a.curveMost).to.equal(true)
-					-- spread over the short side, each a little higher, well over the roofs and the pines
+					-- spread over the short side, each a little higher, over the roofs and the pines
 					local off = if alongZ then r.from.X - centre.x else r.from.Z - centre.z
 					expect(math.abs(off) < short * a.spread / 2).to.equal(true)
 					expect(r.from.Y).to.equal(a.height + (i - 1) * a.rise)
-					expect(r.from.Y >= 80).to.equal(true)
+					expect(r.from.Y >= 55).to.equal(true)
 					-- neighbours bend to opposite sides
 					expect(r.bend * (if i % 2 == 1 then 1 else -1) > 0).to.equal(true)
 					expect(r.seconds >= 8).to.equal(true)

@@ -338,7 +338,8 @@ end
 
 -- #4069: the northern lights. In the day's last minute (`auroraEvening`; night closes the areas, so nobody would
 -- see them then) and at night, while you stand in an area with an `aurora`, its ribbons hang over the
--- area: two soft bands each, on one unseen part, bending slowly from side to side. They fade in when they start and
+-- area: two soft bands each, on one unseen part, bending slowly from side to side. They run over `window` studs
+-- of the area's longer side and keep ahead of you (`ahead`, toward where the camera looks), gliding there. They fade in when they start and
 -- out when night ends or you leave.
 -- `full[i]` is band i's own middle transparency when the lights are fully shown, `base` the spec's `shown`
 type Ribbon = { bands: { Beam }, full: { number }, base: number, tweens: { Tween } }
@@ -348,6 +349,8 @@ local auroraRibbons: { Ribbon } = {}
 local auroraShown = 1 -- the transparency the bands' middles have now
 local auroraRun = 0 -- counts fades, so a newer one stops an older one
 local auroraLeaving = false -- fading out, to be dropped when the fade ends
+local auroraAlong = 0 -- where along the area's longer side the window is centred now
+local auroraGlide: Tween? = nil
 
 -- Studio only: Workspace's `AreaAuroraTest` attribute set to an area's id ("snowy") hangs its northern lights over
 -- where you stand, day or night, until it is cleared. "snowy,30" hangs them 30 studs up instead, low enough to see
@@ -402,6 +405,10 @@ local function dropAurora()
 		for _, tween in ribbon.tweens do
 			tween:Cancel()
 		end
+	end
+	if auroraGlide ~= nil then
+		auroraGlide:Cancel()
+		auroraGlide = nil
 	end
 	if aurora ~= nil then
 		aurora:Destroy()
@@ -510,6 +517,72 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 	fadeAurora(spec, spec.shown)
 end
 
+-- The window of an area's lights for where you stand and look: the area's box with its longer side cut to the
+-- spec's `window` and centred ahead of you (Logic.auroraCentre). Also whether that side is Z, and the centre on it.
+local function auroraWindow(
+	spec: Presets.AuroraSpec,
+	box: any,
+	feet: Vector3
+): (any, boolean, number)
+	local alongZ = box.size.depth > box.size.width
+	local long = if alongZ then box.size.depth else box.size.width
+	local middle = if alongZ then box.centre.z else box.centre.x
+	local camera = Workspace.CurrentCamera
+	local look = if camera ~= nil then camera.CFrame.LookVector else Vector3.zAxis
+	local along = Logic.auroraCentre(
+		if alongZ then feet.Z else feet.X,
+		if alongZ then look.Z else look.X,
+		middle - long / 2,
+		middle + long / 2,
+		spec.window,
+		spec.ahead
+	)
+	local window = math.min(long, spec.window)
+	return {
+		id = box.id,
+		centre = {
+			x = if alongZ then box.centre.x else along,
+			z = if alongZ then along else box.centre.z,
+		},
+		size = {
+			width = if alongZ then box.size.width else window,
+			depth = if alongZ then window else box.size.depth,
+		},
+	},
+		alongZ,
+		along
+end
+
+-- Glides the lights to a new centre once you have gone far enough from the old one: the whole part moves, its
+-- ribbons with it.
+local function followAurora(spec: Presets.AuroraSpec, box: any, feet: Vector3)
+	local part = aurora
+	if part == nil then
+		return
+	end
+	local _, alongZ, along = auroraWindow(spec, box, feet)
+	if math.abs(along - auroraAlong) < spec.recentre then
+		return
+	end
+	auroraAlong = along
+	local at = part.Position
+	local to = Vector3.new(if alongZ then at.X else along, at.Y, if alongZ then along else at.Z)
+	if auroraGlide ~= nil then
+		auroraGlide:Cancel()
+	end
+	if Context.reducedMotion() then
+		part.CFrame = CFrame.new(to)
+		return
+	end
+	local glide = TweenService:Create(
+		part,
+		TweenInfo.new(spec.glide, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+		{ CFrame = CFrame.new(to) }
+	)
+	auroraGlide = glide
+	glide:Play()
+end
+
 local function updateAurora(here: string?, feet: Vector3)
 	local area = here
 	if testAurora ~= nil then
@@ -544,24 +617,31 @@ local function updateAurora(here: string?, feet: Vector3)
 		end
 		return
 	end
+	local home: any = testBox
+	if home == nil then
+		for _, box in areaBoxes() do
+			if box.id == area then
+				home = box
+				break
+			end
+		end
+	end
+	if home == nil then
+		dropAurora()
+		return
+	end
 	if aurora ~= nil and auroraArea == area then
 		if auroraLeaving then -- night again, or you came back, before it had gone
 			auroraLeaving = false
 			fadeAurora(wanted, wanted.shown)
 		end
+		followAurora(wanted, home, feet)
 		return
 	end
 	dropAurora()
-	if testBox ~= nil then
-		buildAurora(area, wanted, testBox)
-		return
-	end
-	for _, box in areaBoxes() do
-		if box.id == area then
-			buildAurora(area, wanted, box)
-			return
-		end
-	end
+	local window, _, along = auroraWindow(wanted, home, feet)
+	auroraAlong = along
+	buildAurora(area, wanted, window)
 end
 
 local function step()

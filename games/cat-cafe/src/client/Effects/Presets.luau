@@ -5193,6 +5193,10 @@ export type AuroraSpec = {
 	nestShown: { number }, -- each of those bands' own transparency at the ribbon's middle
 	nestBright: { number }, -- and its Beam.Brightness
 	height: number,
+	window: number, -- studs of the area's longer side the ribbons run over, centred `ahead` of you
+	ahead: number, -- studs toward where the camera looks
+	recentre: number, -- the window moves once you are this far from where it was centred for
+	glide: number, -- seconds it takes to move
 	spread: number, -- of the area's shorter side the ribbons are spread over (over 1: the outer ones hang past its walls)
 	rise: number, -- studs each ribbon hangs above the one in front
 	width: number,
@@ -5271,7 +5275,13 @@ Presets.areaFx = {
 			footStuds = 3,
 			aurora = {
 				ribbons = { 3, 2, 2 },
-				height = 90,
+				-- #4216 Studio look: hung over the whole 560 stud area at 90 studs they sat far off behind the
+				-- mountain and the top of the screen. So a 300 stud window of them keeps ahead of you, lower.
+				height = 62,
+				window = 300,
+				ahead = 110,
+				recentre = 50,
+				glide = 4,
 				spread = 1.5,
 				rise = 12,
 				width = 46,
@@ -5282,10 +5292,12 @@ Presets.areaFx = {
 				-- #4085 Studio looks: the smoke picture drew as nothing on a Beam, a bare band at 0.4 is a solid sheet,
 				-- and three bands at 0.8 were only a haze. So no picture: three bands a colour, thinner over wider,
 				-- the thinner ones a little stronger and brighter, for a soft edge round a core line that reads.
-				shown = 0.6,
+				-- #4216: they show at dusk now (night closes the area), and against the brighter dusk sky 0.55 to 0.62
+				-- vanished, so each band is stronger.
+				shown = 0.42,
 				brightness = 1,
 				nest = { 1, 0.62, 0.3 },
-				nestShown = { 0.6, 0.62, 0.55 },
+				nestShown = { 0.42, 0.45, 0.38 },
 				nestBright = { 1, 1.5, 2 },
 				nestLow = 2,
 				fade = 3,

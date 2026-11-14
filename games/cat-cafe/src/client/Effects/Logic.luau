@@ -4298,6 +4298,25 @@ function Logic.auroraOn(phase: unknown, left: number?, evening: number): boolean
 	return left ~= nil and left <= evening
 end
 
+-- Where along the area's longer side the lights' window is centred: `ahead` studs from you toward the way the
+-- camera looks (`look`, its share along that side, any size), kept inside the area (`lo` to `hi` are the area's ends
+-- on that side, `window` the lights' length). An area shorter than the window gets its own middle.
+function Logic.auroraCentre(
+	you: number,
+	look: number,
+	lo: number,
+	hi: number,
+	window: number,
+	ahead: number
+): number
+	local half = window / 2
+	if hi - lo <= window then
+		return (lo + hi) / 2
+	end
+	local way = if look > 0.2 then 1 elseif look < -0.2 then -1 else 0
+	return math.clamp(you + way * ahead, lo + half, hi - half)
+end
+
 -- #4069: the northern lights over an area. `count` ribbons hung along the area's longer side (a tenth in from each
 -- end), spread evenly over `spread` of its shorter side, each `rise` studs above the one before it, bending to
 -- alternate sides and each with its own time from `seconds` (the last one repeats). `curve` is of the ribbon's

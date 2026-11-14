@@ -207,6 +207,35 @@ function Catching.pickBaitCat(rarity: Types.Rarity, tier: number, roll: number):
 	return Catalog.cats[1]
 end
 
+-- #4188 (Derek 2026-11-14: "build the cheaper tier 2"): the account's first bait cat is a kind `owned` (the save's
+-- collection, by cat id) does not hold yet, so the tutorial ends on its third kind, Tier 2's need. It picks the same
+-- rarity pickBaitCat would, from that rarity's open cats not owned; with all of them owned it is pickBaitCat's pick
+-- (never a lower rarity, so the first bait's Rare or better stays).
+function Catching.pickNewBaitCat(
+	rarity: Types.Rarity,
+	tier: number,
+	roll: number,
+	owned: { [string]: any }
+): Types.CatDef
+	local picked = Catching.pickBaitCat(rarity, tier, roll)
+	local list: { Types.CatDef } = {}
+	for _, def in Catalog.cats do
+		local area = Catalog.getArea(def.area)
+		if
+			def.rarity == picked.rarity
+			and area ~= nil
+			and area.tier <= tier
+			and owned[def.id] == nil
+		then
+			table.insert(list, def)
+		end
+	end
+	if #list == 0 then
+		return picked
+	end
+	return list[math.clamp(math.floor(roll * #list) + 1, 1, #list)]
+end
+
 -- #3470: the Secret cat that takes the place of a rolled `rarity`, or nil. Only a Mythical turns, Catalog.
 -- secretPerMythical of the time (`roll` in [0, 1)), and only while the `secretCats` switch is `on`; `pick` in [0, 1)
 -- chooses evenly among the Secrets it may be. So a source's Secret chance is its Mythical chance over 100, whatever

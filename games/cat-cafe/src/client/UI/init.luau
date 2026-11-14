@@ -5516,8 +5516,8 @@ do
 	end
 
 	-- #3555: for the first rank up's walk-through (Controllers/RankSpotController). `moment` says whether nothing
-	-- else is going on (no catch, rescue, carry, cutscene or flight, the UI showing) and names the open window: the
-	-- modal's, or "other" for a popup, the bait card, an ask or the gift, tip or recap card.
+	-- else is going on (no catch, rescue, carry, intro or flight, the UI showing) and names the open window: the
+	-- modal's, or "other" for a popup, the bait card, an ask, the gift, tip or recap card or a cutscene.
 	function UI.rankSpot.moment(): (boolean, string?)
 		local at = tipMoment()
 		local free = not (
@@ -5543,6 +5543,10 @@ do
 				or (cards.gift.card ~= nil and cards.gift.card:isShowing())
 				or (tipCard ~= nil and tipCard:isShowing())
 				or (cards.recap.card ~= nil and cards.recap.card:isShowing())
+				-- #4188: and a cutscene (the first bait cat's). It counts as a card, not as busy: the free seconds keep
+				-- running under it, so with Tier 2 at 3 kinds the goal card lights the moment the bait cat's card and
+				-- scene are gone, not 2 s later
+				or UI.cutscene.on
 			)
 		then
 			window = "other"
@@ -9666,6 +9670,7 @@ do
 	local events = {
 		boards = nil :: EventBoards.EventBoards?,
 		seen = nil :: EventLogic.Seen?, -- kept across rebuilds, so a respawn neither repeats the banner nor forgets the end
+		adminSeen = nil :: any, -- #4195: the same for the admin event (Effects/AdminEventLogic.Seen)
 		token = 0,
 	}
 
@@ -9778,10 +9783,32 @@ do
 				)
 			end
 		end
+		-- #4195: an admin event (Bowl Frenzy, the Admin Wheel) beside the Cafe Event: its warning card two minutes
+		-- before, its wide card as it starts, and its timer first on the event chip (Effects/AdminEventLogic)
+		local AdminEventLogic = require(script.Parent.Effects.AdminEventLogic) :: any
+		local adminView = AdminEventLogic.read(get, UI.cafeEvent.decode)
+		local adminSeen, adminBeat = AdminEventLogic.follow(events.adminSeen, adminView, now)
+		events.adminSeen = adminSeen
+		if adminBeat ~= nil and adminView ~= nil then
+			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
+			local card = if adminBeat == "start"
+				then AdminEventLogic.startBanner(adminView, now)
+				else AdminEventLogic.soonBanner(adminView, now)
+			EventBanner.show(card)
+			-- the same words as one line in the chat window, for a player who looked away
+			local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any
+			AdminEventChat.say(AdminEventLogic.chatLine(card))
+		end
 		local current = hud
 		if current then
-			local chipLines, chipKind = EventLogic.chip(view, seen, now)
-			current:setEvent(chipLines, chipKind, EventLogic.strip(view, seen, now))
+			local eventLines, eventKind = EventLogic.chip(view, seen, now)
+			local chipLines, chipKind, stripLines = AdminEventLogic.merge(
+				eventLines,
+				eventKind,
+				EventLogic.strip(view, seen, now),
+				AdminEventLogic.stripLine(adminView, now)
+			)
+			current:setEvent(chipLines, chipKind, stripLines)
 			current:setEventBoost(EventLogic.moneyBoost(view, now))
 		end
 		local boards = events.boards
@@ -9806,6 +9833,7 @@ do
 	-- the UI gate's scenes: forget the watched event, so a put-away test party is not "ended early"
 	function UI.cafeEvent.forget()
 		events.seen = nil
+		events.adminSeen = nil
 	end
 
 	function UI.cafeEvent.reset()

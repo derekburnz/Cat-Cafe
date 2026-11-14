@@ -1595,6 +1595,11 @@ Presets.motion = {
 			rubble_pile = "butt",
 			stone_urn = "butt",
 			bridge_ledge = "flip",
+			-- Tier 8, the Snowy Mountain (#4069): head first into a snowdrift, a snowy log, a snowman or under a sled
+			snowdrift = "butt",
+			snow_log = "butt",
+			snowman = "butt",
+			sled = "butt",
 		} :: { [string]: string },
 		butt = {
 			every = 2.2,
@@ -3017,6 +3022,82 @@ Presets.storeBurst = {
 		-- the Relic Museum card (#2925): an exhibit tile filled, and the tile that finished a room
 		exhibit = { colour = Presets.palette.golden, sparkles = 10, rings = 1 },
 		room = { colour = Presets.palette.golden, sparkles = 20, rings = 2 },
+	},
+}
+
+-- The Cat Fusion Observatory (#4104, fusion-observatory.md section 3; Effects/FusionFx). `gold` is the gold coat's
+-- colour and the rainbow one drifts round Presets.rainbow.hues once every `huePeriod` seconds.
+-- `swirl` (the window, on start): up to `most` tiles leave `stagger` seconds apart and take `seconds` each to spiral
+-- `turns` turns in to the centre, shrinking to `land` of their size; as they meet, `sparkles` diamonds of
+-- `sparkleSize` pixels fly `reach` of the centre's size out over `sparkleSeconds` and one ring grows from `ringFrom`
+-- to `ringTo` of it over `ringSeconds`.
+-- `burst` (the window, on collect): per coat `sparkles` diamonds round the picture over `seconds` (the rainbow's
+-- hues `hueGap` apart) and `rings` rings of `ringSeconds`, `ringGap` apart: thin outlines, and never more than one a
+-- second.
+-- `dome` (the world): the model's name ends `suffix`, its slit parts end `glow`; `paws` lights of `pawSize` studs
+-- circle at `pawRadius` of its half width and `pawHeight` of its height, a lap every `lap` seconds (`lapReady` once
+-- the cat waits), and a ready slit breathes down by `breathDip` every `breathSeconds`. `collect` sparkles, a ring
+-- `collectRing` of its width and, for a rainbow, `collectConfetti` of the confetti budget when you collect.
+-- Drawn every `rate` seconds; looked for every `lookSeconds`.
+export type FusionBurst = {
+	sparkles: number,
+	seconds: number,
+	hueGap: number,
+	rings: number,
+	ringSeconds: number,
+}
+Presets.fusion = {
+	displayOrder = 22, -- just over the window (a modal, 20), under the toasts (30)
+	gold = Presets.palette.golden,
+	huePeriod = 6,
+	acrossMin = 110, -- pixels: rings are sized as if the picture were at least this wide, so a small one still reads
+	swirl = {
+		most = 5,
+		stagger = 0.07,
+		seconds = 0.9,
+		turns = 0.75,
+		land = 0.3,
+		sparkles = 10,
+		sparkleSize = 12,
+		sparkleSeconds = 0.5,
+		sparkleStagger = 0.1,
+		reach = 0.9,
+		ringFrom = 0.4,
+		ringTo = 2.2,
+		ringSeconds = 0.8,
+	},
+	burst = {
+		size = 15,
+		stagger = 0.12,
+		reach = 0.6,
+		reachMin = 24,
+		reachMax = 90,
+		ringFrom = 0.6,
+		ringTo = 2.2,
+		ringGap = 1,
+		kinds = {
+			gold = { sparkles = 16, seconds = 0.6, hueGap = 0, rings = 2, ringSeconds = 0.9 },
+			rainbow = { sparkles = 24, seconds = 0.7, hueGap = 0.12, rings = 3, ringSeconds = 0.95 },
+		} :: { [string]: FusionBurst },
+	},
+	dome = {
+		suffix = "_FusionObservatory",
+		glow = "_Glow",
+		paws = 5,
+		pawSize = 0.45,
+		anchor = "GlowAnchor", -- Model-Agent's attachment on the dome's axis, at the ring's height (PR #4114)
+		anchorRadius = 5.75, -- studs: 1.15 of the tower's 5, clear of the telescope (4.1) and over the sign post
+		pawRadius = 1.15, -- without the anchor: of the model's half width
+		pawHeight = 0.7, -- and of its height
+		lap = 12,
+		lapReady = 6,
+		breathDip = 0.5,
+		breathSeconds = 2.4,
+		collect = 12,
+		collectRing = 1.2,
+		collectConfetti = 0.5,
+		rate = 1 / 20,
+		lookSeconds = 3,
 	},
 }
 
@@ -4754,6 +4835,32 @@ Presets.bedWalk = { fade = 0.25 }
 -- A stray of the area puffs `puff` `puffPreset` particles in `colour` where it appears and where it leaves the ground,
 -- within the budget's animRadius, at most the budget's areaPuffs in any one second (#2661). In the Ruins, falling `mistDepth` studs below the plateau puffs `mist` violet-grey
 -- mist round you once, before the server's catch moves you to the camp pad.
+-- #4069: ribbons of northern light over an area while it is night and you are in it. Each ribbon is two soft bands
+-- (`foot` colour under `top` colour) `width` studs tall, hung `height` studs over the ground along the area's longer
+-- side and spread over its shorter one, each bending `curve` of its length (at most `curveMost` studs) to one side and slowly over to the other in its
+-- `seconds` and back. Each band wears the soft smoke picture stretched once along it, so it fades out toward its
+-- edges and ends and never shows a hard stripe. They fade in and out over `fade` seconds. With Reduce Motion they hang still; none in Low
+-- performance. `ribbons` is per budget tier (high, medium, low).
+export type AuroraSpec = {
+	ribbons: { number },
+	brightness: number, -- Beam.Brightness
+	nest: { number }, -- each colour is these bands laid over each other, as shares of `width`: a soft edge
+	nestLow: number, -- how many of them on the low tier
+	nestShown: { number }, -- each of those bands' own transparency at the ribbon's middle
+	nestBright: { number }, -- and its Beam.Brightness
+	height: number,
+	spread: number, -- of the area's shorter side the ribbons are spread over (over 1: the outer ones hang past its walls)
+	rise: number, -- studs each ribbon hangs above the one in front
+	width: number,
+	overlap: number, -- of `width`, how far the top band sits over the foot band
+	curve: number,
+	curveMost: number,
+	seconds: { number },
+	shown: number, -- each band's transparency at the ribbon's middle (its ends fade to nothing)
+	fade: number,
+	foot: Color3,
+	top: Color3,
+}
 export type AreaFxSpec = {
 	air: string,
 	colour: Color3,
@@ -4768,6 +4875,7 @@ export type AreaFxSpec = {
 	footPreset: string?,
 	footColour: Color3?,
 	footStuds: number?,
+	aurora: AuroraSpec?, -- northern lights over the area at night
 }
 Presets.areaFx = {
 	pad = 40, -- the camp lies outside the floor box, and the server's mist catch reaches 40 studs past it
@@ -4815,6 +4923,29 @@ Presets.areaFx = {
 			footPreset = "dust",
 			footColour = Color3.fromRGB(246, 250, 255),
 			footStuds = 3,
+			aurora = {
+				ribbons = { 3, 2, 2 },
+				height = 90,
+				spread = 1.5,
+				rise = 12,
+				width = 46,
+				overlap = 0.45,
+				curve = 0.22,
+				curveMost = 60,
+				seconds = { 11, 14, 17 },
+				-- #4085 Studio looks: the smoke picture drew as nothing on a Beam, a bare band at 0.4 is a solid sheet,
+				-- and three bands at 0.8 were only a haze. So no picture: three bands a colour, thinner over wider,
+				-- the thinner ones a little stronger and brighter, for a soft edge round a core line that reads.
+				shown = 0.6,
+				brightness = 1,
+				nest = { 1, 0.62, 0.3 },
+				nestShown = { 0.6, 0.62, 0.55 },
+				nestBright = { 1, 1.5, 2 },
+				nestLow = 2,
+				fade = 3,
+				foot = Presets.palette.mint,
+				top = Presets.palette.aurora,
+			},
 		},
 	} :: { [string]: AreaFxSpec },
 }

@@ -31,6 +31,17 @@ EdgeShadeLogic.EDGES = {
 	{ name = "Bottom", anchor = Vector2.new(0, 1), size = Vector2.new(1, 0.26), rotation = 270 },
 } :: { Edge }
 
+-- #4016: a press counts as the skip tap only when it is short and barely moves, so a drag that turns the camera
+-- never skips. In pixels and seconds.
+EdgeShadeLogic.TAP_MOVE = 12
+EdgeShadeLogic.TAP_SECONDS = 0.45
+-- #4080: the shade's left click binding sits over the game's own (Enum.ContextActionPriority.High is 2000)
+EdgeShadeLogic.CLICK_PRIORITY = 3000
+
+function EdgeShadeLogic.isTap(moved: number, seconds: number): boolean
+	return moved <= EdgeShadeLogic.TAP_MOVE and seconds <= EdgeShadeLogic.TAP_SECONDS
+end
+
 -- The share of the screen's width and height left wholly clear in the middle.
 function EdgeShadeLogic.clear(): (number, number)
 	local wide, tall = 1, 1

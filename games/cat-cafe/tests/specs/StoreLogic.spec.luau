@@ -756,17 +756,14 @@ return function()
 			expect(find(rows, "kingCat")).to.equal(nil)
 			expect(find(rows, "kingPack").worthIds).to.equal(nil)
 		end)
-		it("adds up the parts for the worth line, only when it beats the bundle's price", function()
+		it("has no worth line now that the King Cat is not sold alone (#4261)", function()
 			local pack = find(StoreLogic.rows(config, {}, false, nil), "kingPack")
+			expect(pack.worthIds).to.equal(nil)
 			local prices = {
-				[100] = { robux = 999, forSale = true },
+				[100] = { robux = 299, forSale = true },
 				[200] = { robux = 799, forSale = true },
 				[300] = { robux = 450, forSale = true },
 			}
-			expect(StoreLogic.worthLine(pack, prices)).to.equal("Worth R$1,245")
-			prices[300] = { robux = 150, forSale = true }
-			expect(StoreLogic.worthLine(pack, prices)).to.equal(nil)
-			prices[300] = nil
 			expect(StoreLogic.worthLine(pack, prices)).to.equal(nil)
 		end)
 		it("drops the worth line once the bundle is owned", function()

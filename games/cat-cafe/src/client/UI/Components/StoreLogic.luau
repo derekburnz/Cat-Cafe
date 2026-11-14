@@ -724,15 +724,10 @@ local function passId(config: any, card: PassCard): number?
 	return if type(value) == "number" and value ~= 0 then value else nil
 end
 
--- #1822: what the King Cat Pack's worth adds up, as shared/KingPack.worthRefs: the King Cat alone pass and the Potion
--- Pack M product, both only once made (the looks-only pieces are never priced). nil while either is 0.
-local function kingWorth(config: any): { number }?
-	local cat = config.KingCatPassId
-	local ids = config.ProductIds
-	local potions = if type(ids) == "table" then ids.potion_pack_m else nil
-	if type(cat) == "number" and cat ~= 0 and type(potions) == "number" and potions ~= 0 then
-		return { cat, potions }
-	end
+-- #1822: the King Cat Pack's worth line added up the King Cat alone pass and Potion Pack M. #4261 (Review-QA): the
+-- King Cat is no longer sold alone, so a "bought apart" sum would name a price nobody can pay; the Cat King Pack has
+-- no worth line.
+local function kingWorth(_config: any): { number }?
 	return nil
 end
 

@@ -4705,7 +4705,7 @@ local PASS_DECOR: {
 			kind = "furniture",
 			description = "A deep red booth fit for a king.",
 			asset = "CatCafe_Decor_VelvetBooth",
-			pack = "King Cat Pack",
+			pack = "Cat King Pack",
 		},
 		-- #1168 row 3 (Monetization-Agent, 2026-11-06): the Garden Decor Pack pass's six pieces, owned while the pass
 		-- is (PassDecor.toGrant, given into decorOwned by ShopCatService). Model-Agent makes the models; the pass id

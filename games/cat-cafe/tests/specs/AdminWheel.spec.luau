@@ -30,6 +30,8 @@ return function()
 				traitParty = false,
 				speedRush = false,
 				secretHunt = 0,
+				fishFountain = false,
+				crateDrop = false,
 			},
 		}
 	end
@@ -183,6 +185,8 @@ return function()
 				traitParty = false,
 				speedRush = false,
 				secretHunt = 0,
+				fishFountain = false,
+				crateDrop = false,
 			}
 			expect(AdminWheel.view(redeemed, bowl, true)).to.equal(nil)
 		end)

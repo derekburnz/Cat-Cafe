@@ -59,7 +59,11 @@
 --   0, and travel as 1 in AdminEventEffects. `secretHunt` (Secret Hunt): that many Secret cats hide in this server's
 --   open areas by day, 1 to ADMIN.secretHuntMax; whoever catches one keeps it, and when all are caught everyone
 --   online gets ADMIN.huntFish golden fish (CatService). The server adds `secretFound`, the count caught so far, to
---   AdminEventEffects as it changes.
+--   AdminEventEffects as it changes. `fishFountain` (Fish Fountain): golden fish pickups land around the Town Square
+--   cannon plinth while it runs, ADMIN.fountainFish each, at most ADMIN.fountainCap a player an event; `crateDrop`
+--   (Crate Drop): by day a golden crate drops into each open area every ADMIN.crateGap seconds, and the first touch
+--   gives the toucher and every player within ADMIN.crateShareStuds a golden crate of their best area, at most
+--   ADMIN.crateCap a player an event (AdminDropService). Both are switches like traitParty.
 -- An admin record runs ADMIN.minSeconds to ADMIN.maxSeconds and never overlaps another admin record (the later one
 -- is dropped, with a note); it needs at least one admin effect. Everything waits behind the LiveFlags switch
 -- ADMIN.flag (EventService), off by default.
@@ -119,6 +123,11 @@ CafeEvents.ADMIN = {
 	traitPartyRolls = 30, -- #4197 Trait Party: free rolls an account may take in one party
 	secretHuntMax = 5, -- #4197 Secret Hunt
 	huntFish = 100, -- each player online when the last hunted cat is caught
+	fountainFish = 5, -- #4197 Fish Fountain: golden fish in each pickup
+	fountainCap = 150, -- the most one player can pick up in one fountain
+	crateGap = 30, -- #4197 Crate Drop: seconds between drops into each open area
+	crateShareStuds = 30, -- everyone this close to the crate's first touch gets one too
+	crateCap = 5, -- the most crates one player can get in one Crate Drop
 }
 -- The owner's kinds (`/admin <kind> [minutes] [now]`): each one's title, effects and length in minutes when none is given.
 CafeEvents.ADMIN_KINDS = {
@@ -130,6 +139,8 @@ CafeEvents.ADMIN_KINDS = {
 	traits = { title = "Trait Party", minutes = 10, effects = { traitParty = true } },
 	speed = { title = "Speed Rush", minutes = 10, effects = { speedRush = true } },
 	hunt = { title = "Secret Hunt", minutes = 15, effects = { secretHunt = 3 } },
+	fountain = { title = "Fish Fountain", minutes = 5, effects = { fishFountain = true } },
+	crates = { title = "Crate Drop", minutes = 5, effects = { crateDrop = true } },
 	-- the Admin Wheel (AdminWheel.luau): every player may spin it once while it is up
 	wheel = { title = "Admin Wheel", minutes = 5, effects = { wheel = true } },
 } :: {
@@ -172,6 +183,8 @@ export type AdminEffects = {
 	traitParty: boolean,
 	speedRush: boolean,
 	secretHunt: number, -- #4197: the Secret cats hiding, 0 when the record has none
+	fishFountain: boolean,
+	crateDrop: boolean,
 }
 export type AdminEvent = {
 	id: string,
@@ -358,6 +371,8 @@ local function adminActive(effects: AdminEffects): boolean
 		or effects.traitParty
 		or effects.speedRush
 		or effects.secretHunt > 0
+		or effects.fishFountain
+		or effects.crateDrop
 end
 
 -- #4195/#4197: the admin effects of `values` (a record's `effects`, or an ADMIN_KINDS row), each checked and clamped
@@ -369,7 +384,7 @@ local ADMIN_TIMES = {
 	{ key = "rainbowBoost", max = "rainbowBoostMax" },
 	{ key = "moneyStorm", max = "moneyStormMax" },
 }
-local ADMIN_SWITCHES = { "traitParty", "speedRush" }
+local ADMIN_SWITCHES = { "traitParty", "speedRush", "fishFountain", "crateDrop" }
 
 local function adminEffectsOf(
 	values: { [string]: any },

@@ -44,6 +44,8 @@ return function()
 				traits = { title = "Trait Party", data = { traitParty = 1 } },
 				speed = { title = "Speed Rush", data = { speedRush = 1 } },
 				hunt = { title = "Secret Hunt", data = { secretHunt = 3 } },
+				fountain = { title = "Fish Fountain", data = { fishFountain = 1 } },
+				crates = { title = "Crate Drop", data = { crateDrop = 1 } },
 			}
 			for kind, want in expected do
 				expect(OwnerTest.adminAsk("/admin " .. kind .. " now").kind).to.equal(kind)
@@ -105,6 +107,19 @@ return function()
 			expect(event.effects.traitParty).to.equal(false)
 			expect(event.effects.speedRush).to.equal(false)
 			expect(event.effects.secretHunt).to.equal(0)
+			expect(event.effects.fishFountain).to.equal(false)
+			expect(event.effects.crateDrop).to.equal(false)
+		end)
+
+		it("reads fishFountain and crateDrop as switches", function()
+			local event = parseOne({ fishFountain = true, crateDrop = 2 })
+			assert(event ~= nil)
+			expect(CafeEvents.adminEffectsData(event)).to.deepEqual({
+				fishFountain = 1,
+				crateDrop = 1,
+			})
+			expect(parseOne({ fishFountain = false })).to.equal(nil)
+			expect(parseOne({ crateDrop = "on" })).to.equal(nil)
 		end)
 
 		it("reads secretHunt as whole cats up to its cap", function()

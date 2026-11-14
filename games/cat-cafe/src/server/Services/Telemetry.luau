@@ -421,6 +421,8 @@ export type CustomEvent =
 	| "admin_join"
 	-- #4197 Secret Hunt: a hunt's Secret cat caught, value how many of the hunt's are caught now; the event id
 	| "secret_hunt_found"
+	-- #4197 Crate Drop: a golden crate from an admin drop, value 1; "crate" and the event id
+	| "admin_drop"
 	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
 	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
 	-- report is "none". #2791: the server logs each gift ladder step as it pays, value the account's minutes played; the

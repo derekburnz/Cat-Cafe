@@ -197,6 +197,17 @@ function EventService.setHuntFound(id: string, found: number)
 	huntFound = { id = id, found = math.max(0, math.floor(found)) }
 end
 
+-- #4197 (Fish Fountain, Crate Drop): the running admin event's id while that drop runs, else nil (AdminDropService).
+function EventService.fishFountain(): string?
+	local event = adminRunning
+	return if event ~= nil and event.effects.fishFountain then event.id else nil
+end
+
+function EventService.crateDrop(): string?
+	local event = adminRunning
+	return if event ~= nil and event.effects.crateDrop then event.id else nil
+end
+
 -- #4197 (Speed Rush): whether every player counts as wearing the Speed Shoes now.
 function EventService.speedRush(): boolean
 	local event = adminRunning

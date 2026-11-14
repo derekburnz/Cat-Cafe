@@ -1163,8 +1163,10 @@ local Config = {
 	-- first BinFirstUses rummages keep BinFirstEase's wider zone (0.35) and need the 5 hits too. Their marker runs
 	-- at the full BinBarSpeed since 2026-11-12 (Derek on the live game: "the moving marker is too slow not the same
 	-- speed as the studio version"): a new account saw 0.48 where his practised Studio save saw 0.80.
+	-- #4284 (Derek 2026-11-14: "make the rummage bin minigame slightly harder (make area to hit smaller)"): the zone
+	-- 0.22 to 0.18 (the first rummages' eased zone 0.35 to 0.29, by BinFirstEase); hits and marker speed unchanged
 	BinHits = 5,
-	BinZoneWidth = 0.22,
+	BinZoneWidth = 0.18,
 	BinBarSpeed = 0.80,
 	BinFirstEase = { zone = 1.6, speed = 1 },
 	-- #3460 (Derek 2026-11-12: "make the rummage bin rewards a bit better so people get a good starting boost

@@ -3477,6 +3477,33 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "Cannon", function()
 		UI.cannon.open()
 	end },
+	-- #4227: wild Mythical and Secret cats out now, as small bubbles on each open area's card and the Cannon button
+	{ "CannonRares", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local Logic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RareBubbleLogic") :: any
+		local decode = Logic.decode
+		local sample = { alley = { m = 2, s = 1 }, park = { m = 14, s = 0 }, snowy = { m = 1, s = 1 } }
+		Logic.decode = function(raw)
+			return if raw == "sample" then Logic.fromData(sample) else decode(raw)
+		end
+		ReplicatedStorage:SetAttribute(Logic.ATTRIBUTE, "sample")
+		UIShim.advance(0.2)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+		local park = window:FindFirstChild("park", true) :: Instance
+		local seen = false
+		for _, piece in park:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Text == "9+" and piece.Visible then
+				seen = true
+			end
+		end
+		assert(seen, "uigate: the Park card does not show 9+ Mythicals (#4227)")
+		Scenes._rareReset = function()
+			ReplicatedStorage:SetAttribute(Logic.ATTRIBUTE, nil)
+			Logic.decode = decode
+		end
+	end },
 	-- #3884: a rank up to Tier 2 since the picker last opened: the Park card keeps its lock a moment, the lock breaks
 	-- with "Unlocked!", and about 3 s later the cover is gone and the card can launch
 	{ "CannonUnlock", function()
@@ -12150,6 +12177,10 @@ function Scenes.close()
 		UI.update({ money = Scenes._parkFly } :: any)
 		Scenes._parkFly = nil
 		UI.cannon.clearFly() -- #2915's scene
+	end
+	if Scenes._rareReset ~= nil then
+		Scenes._rareReset() -- #4227's CannonRares: no bubbles again
+		Scenes._rareReset = nil
 	end
 	if Scenes._rankTier ~= nil then
 		UI.update({ tier = Scenes._rankTier } :: any) -- #2121's Tier 2 rank-up scene

@@ -323782,7 +323782,7 @@
         "CatCafe_Square_Garden_Barrier",
         "CatCafe_Square_Garden_Tops_Decor"
       ],
-      "triangles": 936,
+      "triangles": 948,
       "budget": 4000,
       "size_studs": {
         "x": 26.0,
@@ -323833,7 +323833,7 @@
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Garden.model.json",
-      "rbx_parts": 64,
+      "rbx_parts": 65,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_Garden.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_Garden.glb"
@@ -323843,10 +323843,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "936/4000 tris",
+          "budget": "948/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "636 faces on swatch centers",
+          "uv": "642 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"

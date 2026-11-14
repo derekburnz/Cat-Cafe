@@ -30,7 +30,7 @@ LoadingNews.ENTRIES = {
 		title = "3 New Worlds",
 		line = "Snowy, Water Park and Castle",
 		at = 1794772800, -- Sunday 2026-11-15 20:00 UTC
-		flags = { "tier8", "tier9" },
+		flags = { "tier8", "tier9", "tier10" }, -- LateTiers.TOGETHER: all three open at once
 		back = "BFE6FF",
 		tiles = {
 			{ emoji = "❄️", word = "Snowy", color = "EAF6FF" },

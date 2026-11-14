@@ -1128,7 +1128,22 @@ end
 -- its other products, then the potion packs, each in order. #3562: with `prices`, a card Roblox says is off sale or
 -- has no price is passed over too, so the tab never leads with "Soon" (a price still loading does not count: the
 -- card shows "..." for a moment as before). Cards passed over only come back when nothing else fills the tab.
-function StoreLogic.featured(rows: { Row }, prices: { [number]: Price }?): Featured
+-- #4175: with `lead` (StoreLogic.updateFeature's row) that card is the hero, the usual hero leads the picks and the
+-- last pick gives way, as with Today's Deal.
+function StoreLogic.featured(rows: { Row }, prices: { [number]: Price }?, lead: Row?): Featured
+	if lead ~= nil then
+		local usual = StoreLogic.featured(rows, prices)
+		local picks: { Row } = {}
+		if usual.hero ~= nil and usual.hero.key ~= lead.key then
+			table.insert(picks, usual.hero)
+		end
+		for _, pick in usual.picks do
+			if #picks < StoreLogic.PICKS and pick.key ~= lead.key then
+				table.insert(picks, pick)
+			end
+		end
+		return { hero = lead, picks = picks }
+	end
 	local byKey: { [string]: Row } = {}
 	for _, row in rows do
 		byKey[row.key] = row
@@ -1209,6 +1224,57 @@ function StoreLogic.featured(rows: { Row }, prices: { [number]: Price }?): Featu
 		take(byKey[key]) -- everything bought: the picks still show, marked Owned
 	end
 	return { hero = hero, picks = picks }
+end
+
+-- #4175: the update's own item for Featured on a big update day, or nil. `on` is the updateFeature switch. Inside
+-- Config.UpdateFeature's window (starts <= now < ends) it is the first of its keys that is a Store card the player
+-- can still buy at a known price; an owned, closed, off sale or unpriced card is never pushed. The line is "New
+-- today", or the real end day of a real sale ("Sale ends Sunday") while the card has its Sale badge. No countdown.
+StoreLogic.UPDATE_FLAG = "updateFeature"
+StoreLogic.NEW_TODAY = "New today"
+export type UpdateFeature = { row: Row, line: string }
+function StoreLogic.updateFeature(
+	rows: { Row },
+	prices: { [number]: Price }?,
+	config: any,
+	now: number,
+	on: boolean
+): UpdateFeature?
+	local entry = config.UpdateFeature
+	if
+		not on
+		or prices == nil
+		or type(entry) ~= "table"
+		or type(entry.keys) ~= "table"
+		or type(entry.starts) ~= "number"
+		or type(entry.ends) ~= "number"
+		or now < entry.starts
+		or now >= entry.ends
+	then
+		return nil
+	end
+	for _, key in entry.keys do
+		for _, row in rows do
+			local price = prices[row.passId]
+			if
+				row.key == key
+				and not row.owned
+				and row.closed ~= true
+				and price ~= nil
+				and price.forSale
+				and price.robux ~= nil
+			then
+				local sale = type(entry.saleEnds) == "string"
+					and entry.saleEnds ~= ""
+					and StoreLogic.saleWas(row, price, config, now) ~= nil
+				return {
+					row = row,
+					line = if sale then "Sale ends " .. entry.saleEnds else StoreLogic.NEW_TODAY,
+				}
+			end
+		end
+	end
+	return nil
 end
 
 -- #4026 (the approved store-v2 draft: "A Sale row names the halved items"): Featured's Sale row, the cards on sale

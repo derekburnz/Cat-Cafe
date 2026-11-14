@@ -8,12 +8,12 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Economy = require(ReplicatedStorage.Shared.Economy)
-local Guard = require(ReplicatedStorage.Shared.Guard)
 local TicketBooth = require(ReplicatedStorage.Shared.TicketBooth)
 local Traits = require(ReplicatedStorage.Shared.Traits)
 
 local CafeService = require(script.Parent.CafeService)
 local DataService = require(script.Parent.DataService)
+local Guard = require(script.Parent.Parent.Util.Guard)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)

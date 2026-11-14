@@ -474,8 +474,10 @@ end
 -- Blizzard Cat's gust again and the White Tiger Cat's frost chime. Nil for everything else, which keeps the sounds
 -- every catch already has.
 local AREA_STEPS: { [string]: string } = { snowy = "snowStep" }
-local CAT_ARRIVES: { [string]: string } = { blizzard = "snowGust" }
-local CAT_CATCHES: { [string]: string } = { blizzard = "snowGust", white_tiger = "frostChime" }
+-- #4070: the Water Cat lands and is caught with a splash (the Camp pond's, until the Water Park has its own sheet)
+local CAT_ARRIVES: { [string]: string } = { blizzard = "snowGust", water = "campSplash" }
+local CAT_CATCHES: { [string]: string } =
+	{ blizzard = "snowGust", white_tiger = "frostChime", water = "campSplash" }
 function Logic.areaCue(beat: any, area: any, catId: any): string?
 	if beat == "step" then
 		return if type(area) == "string" then AREA_STEPS[area] else nil

@@ -177,6 +177,11 @@ return function()
 			expect(Logic.areaCue("catch", "snowy", "ice")).to.equal(nil)
 			expect(Logic.areaCue("catch", "snowy", nil)).to.equal(nil)
 			expect(Logic.areaCue("roar", "snowy", "blizzard")).to.equal(nil)
+			-- #4070: the Water Cat's splash
+			expect(Logic.areaCue("arrive", nil, "water")).to.equal("campSplash")
+			expect(Logic.areaCue("catch", "waterpark", "water")).to.equal("campSplash")
+			expect(Logic.areaCue("catch", "waterpark", "coaster")).to.equal(nil)
+			expect(Cues.campSplash).to.be.ok()
 			for _, cue in { "snowStep", "snowGust", "frostChime" } do
 				expect(Cues[cue]).to.be.ok()
 			end

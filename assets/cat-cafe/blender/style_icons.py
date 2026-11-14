@@ -56,6 +56,13 @@ PENDING = [                               # (id, name, kind, (r, g, b), material
     ("snow_aurora_ice", "Aurora Ice", "floor", (120, 210, 200), "Glass"),
     ("snow_frost_white", "Frost White", "paint", (240, 244, 248), "SmoothPlastic"),
     ("snow_cocoa_brown", "Cocoa Brown", "paint", (110, 70, 45), "SmoothPlastic"),
+    # the Water Park Crate (ids as in Motion-FX-Agent's Tier 9 rows)
+    ("funfair_circus_stripes", "Circus Stripes", "wallpaper", (222, 64, 64), "Fabric"),
+    ("funfair_balloon_wall", "Balloon Wall", "wallpaper", (255, 178, 204), "Fabric"),
+    ("funfair_boardwalk", "Boardwalk", "floor", (190, 150, 105), "WoodPlanks"),
+    ("funfair_wave_pool", "Wave Pool", "floor", (90, 190, 230), "Glass"),
+    ("funfair_popcorn_yellow", "Popcorn Yellow", "paint", (250, 220, 110), "SmoothPlastic"),
+    ("funfair_candy_pink", "Candy Pink", "paint", (255, 150, 190), "SmoothPlastic"),
 ]
 
 

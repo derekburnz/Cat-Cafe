@@ -130,6 +130,7 @@ return function()
 							or key == "goldTone"
 							or key == "palJoin"
 							or key == "dailyDeal"
+							or key == "updateFeature"
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end

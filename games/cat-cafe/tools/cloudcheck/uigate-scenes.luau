@@ -7145,7 +7145,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- #3995 (Review-QA on #4153, 667x375): the friend's note while the tutorial strip and its Buy show stays clear of both
 	{ "PalJoinStrip", function()
 		local levels = { tables = 0, lure_bowl = 0, espresso = 0, net = 0, lucky_cat = 0 }
-		UI.update({ tutorialStep = 3, tier = 1, money = 850, upgradeLevels = levels } :: any)
+		-- no tier in the state: a drop to Tier 1 makes the next rank up show "The Park is open!" (CannonAfterBowl)
+		UI.update({ tutorialStep = 3, money = 850, upgradeLevels = levels } :: any)
 		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
 		task.wait(0.2)
 		UI.palJoined(4242, localUserId(), nil)

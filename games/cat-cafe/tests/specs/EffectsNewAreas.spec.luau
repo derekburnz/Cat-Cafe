@@ -183,6 +183,19 @@ return function()
 			end
 		)
 
+		it("wriggles a cat stuck in each of the Water Park's and the Castle's traps", function()
+			for _, trap in
+				{ "ball_pit", "plush_pile", "haystack", "barrel", "fallen_awning", "helmet" }
+			do
+				expect(Logic.stuckStyle(trap)).to.equal("stuckButt")
+			end
+			expect(Logic.stuckStyle("balloon_bunch")).to.equal("stuckFlip")
+			-- sitting the right way up: the plain shake, the same as a trap nobody named
+			for _, trap in { "carousel_top", "float_ring", "banner_pole" } do
+				expect(Logic.stuckStyle(trap)).to.equal(Logic.stuckStyle("no_such_trap"))
+			end
+		end)
+
 		it("reads each new area's box from the Config by its own name", function()
 			local boxes = {
 				{

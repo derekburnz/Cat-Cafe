@@ -1755,6 +1755,18 @@ Presets.motion = {
 			snow_log = "butt",
 			snowman = "butt",
 			sled = "butt",
+			-- Tier 9, the Water Park (#4070): head first into the ball pit or the prize plush pile, hanging under a
+			-- balloon bunch. On the carousel's top (carousel_top) and on a floating ring (float_ring) the cat sits
+			-- the right way up and keeps the plain shake.
+			ball_pit = "butt",
+			plush_pile = "butt",
+			balloon_bunch = "flip",
+			-- Tier 10, the Medieval Castle (#4071): head first into a haystack, a barrel, under a fallen awning or
+			-- into the helmet on its stand. Up the banner pole (banner_pole) it clings and keeps the plain shake.
+			haystack = "butt",
+			barrel = "butt",
+			fallen_awning = "butt",
+			helmet = "butt",
 		} :: { [string]: string },
 		butt = {
 			every = 2.2,

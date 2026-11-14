@@ -22,9 +22,11 @@ local AreaFx = require(script.Parent.Effects.AreaFx)
 local Beats = require(script.Beats)
 local BigTraitCut = require(script.Parent.Effects.BigTraitCut)
 local BinRoll = require(script.Parent.Effects.BinRoll)
+local CardFlip = require(script.Parent.Effects.CardFlip)
 local CatchFx = require(script.Parent.Effects.Catch)
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 local Cues = require(script.Cues)
+local DragonRise = require(script.Parent.Effects.DragonRise)
 local Effects = require(script.Parent.Effects)
 local EventBanner = require(script.Parent.Effects.EventBanner)
 local FusionFx = require(script.Parent.Effects.FusionFx)
@@ -63,6 +65,7 @@ local CATCH_AMBIENCE = 0.5
 local CATCH_DUCK_LIMIT = 30 -- seconds; a catch that never reports back still lets the music up again
 local SCENE_DUCK = 0.35 -- #3942: music level under a Mythic or Secret trait roll's whole scene
 local SCENE_DUCK_LIMIT = 16 -- seconds; Presets.bigTrait.cap, so a lost "done" still lets the music up
+local DRAGON_DUCK_LIMIT = 16 -- seconds; past the longest stage-up (12 s) and its cap
 local RIFT_DUCK_LIMIT = 34 -- seconds; past Presets.riftRun.cap and its hand back
 local DUCK_LIMIT = 8 -- seconds; a stinger that never loads (so never ends) still lets the music up again
 local LUCKY_DAY_AFTER = 3.4 -- seconds after a Lucky Day's sunrise, so its chime follows the 3.2 s sunrise sting
@@ -2393,6 +2396,43 @@ local function followRiftRun()
 	end)
 end
 
+-- #4062: the Dragon Keep's stage-up cutscene: the music ducks from "hush" to "done" (and comes back by itself after
+-- DRAGON_DUCK_LIMIT if a "done" is lost) and each beat plays its cue; the card deal's flips after it.
+local function followDragonRise()
+	local token = 0
+	DragonRise.onBeat(function(beat)
+		if beat == "hush" or beat == "done" then
+			token += 1
+			local mine = token
+			if beat == "hush" then
+				music.ducks["dragonRise"] = SCENE_DUCK
+			else
+				music.ducks["dragonRise"] = nil
+			end
+			applyDucks(music)
+			if beat == "hush" then
+				task.delay(DRAGON_DUCK_LIMIT, function()
+					if mine == token then
+						music.ducks["dragonRise"] = nil
+						applyDucks(music)
+					end
+				end)
+			end
+			return
+		end
+		local cue = Logic.dragonRiseCue(beat)
+		if cue ~= nil then
+			Audio.play(cue)
+		end
+	end)
+	CardFlip.onBeat(function(beat, _index, rarity)
+		local cue = Logic.cardFlipCue(beat, rarity)
+		if cue ~= nil then
+			Audio.play(cue)
+		end
+	end)
+end
+
 -- #3430: the pool's first walk-up cutscene, on the pool's own chimes (in 3D at the pool, the rise flat).
 local function followPoolIntro()
 	MysticIntroCut.onBeat(function(beat, step, at)
@@ -2427,6 +2467,7 @@ function Audio.start()
 	followPoolIntro()
 	followBigTrait()
 	followRiftRun()
+	followDragonRise()
 	followFusion()
 	followBinRoll()
 	followTrampoline()

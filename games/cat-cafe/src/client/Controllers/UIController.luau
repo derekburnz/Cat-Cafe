@@ -26,6 +26,7 @@ local Catching = require(Shared:WaitForChild("Catching"))
 local Clock = require(Shared:WaitForChild("Clock"))
 local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
+local DragonRise = require(script.Parent.Parent.Effects.DragonRise)
 local Effects = require(script.Parent.Parent.Effects)
 local EventBanner = require(script.Parent.Parent.Effects.EventBanner)
 local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
@@ -1559,6 +1560,8 @@ local function wireIntents()
 		end
 	end)
 	RiftRun.onHold(UI.setCutscene)
+	-- #4062: the Dragon Keep's stage-up cutscene holds them the same way
+	DragonRise.onHold(UI.setCutscene)
 	mysticPool.far = function(): boolean
 		local distance = poolDistance()
 		return distance == nil or distance > POOL_FAR_STUDS

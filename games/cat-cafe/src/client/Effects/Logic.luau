@@ -4077,6 +4077,218 @@ function Logic.riftDark(plan: RiftPlan, t: number): number
 	return into * (1 - out * 0.5)
 end
 
+-- #4062 Dragon Keep: the stage-up cutscene (Effects/DragonRise) -------------------------------------------------------
+
+-- When each part of a stage-up plays (seconds from the start). Stages 1 to 4 take Presets.dragonRise.total, stage 5
+-- (Crowned) adds a lap of the castle and a landing on the tower before its roar, and Reduce Motion gets a short soft
+-- fade with the new look and the roar.
+export type DragonPlan = {
+	stage: number,
+	reduced: boolean,
+	total: number,
+	skipAfter: number,
+	swing: number, -- the camera's swing to the Keep ends
+	curlAt: number,
+	crackAt: number, -- the ember ball cracks and the new look is there
+	unfurlEnd: number,
+	lapAt: number?, -- stage 5: the lap starts
+	landAt: number?, -- stage 5: he lands on the tower
+	roarAt: number,
+	backAt: number, -- the camera starts back to the player
+}
+
+-- The plan for a stage up to `stage` (1 Hatchling to 5 Crowned), or nil for any other stage.
+function Logic.dragonPlan(stage: number, reduced: boolean): DragonPlan?
+	local d = Presets.dragonRise
+	if type(stage) ~= "number" or stage ~= math.floor(stage) or stage < 1 or stage > #d.stages then
+		return nil
+	end
+	if reduced then
+		local r = d.reduced
+		return {
+			stage = stage,
+			reduced = true,
+			total = r.total,
+			skipAfter = d.skipAfter,
+			swing = 0,
+			curlAt = r.fadeSeconds,
+			crackAt = r.fadeSeconds,
+			unfurlEnd = r.fadeSeconds,
+			lapAt = nil,
+			landAt = nil,
+			roarAt = r.roarAt,
+			backAt = r.outAt,
+		}
+	end
+	local unfurlEnd = d.crackAt + d.unfurlSeconds
+	if stage == #d.stages then
+		local c = d.crowned
+		local lapAt = unfurlEnd + c.lapAfter
+		local landAt = lapAt + c.lapSeconds
+		return {
+			stage = stage,
+			reduced = false,
+			total = c.total,
+			skipAfter = d.skipAfter,
+			swing = d.swing,
+			curlAt = d.curlAt,
+			crackAt = d.crackAt,
+			unfurlEnd = unfurlEnd,
+			lapAt = lapAt,
+			landAt = landAt,
+			roarAt = landAt + c.roarAfter,
+			backAt = c.total - d.backSeconds,
+		}
+	end
+	return {
+		stage = stage,
+		reduced = false,
+		total = d.total,
+		skipAfter = d.skipAfter,
+		swing = d.swing,
+		curlAt = d.curlAt,
+		crackAt = d.crackAt,
+		unfurlEnd = unfurlEnd,
+		lapAt = nil,
+		landAt = nil,
+		roarAt = unfurlEnd + d.roarAfter,
+		backAt = d.total - d.backSeconds,
+	}
+end
+
+-- How curled up he is `t` seconds in, 0 (standing) to 1 (a ball): curling from curlAt, held to the crack, and the
+-- new look unfurling from the crack (it starts curled, inside the ball). Always 0 under Reduce Motion.
+function Logic.dragonCurl(plan: DragonPlan, t: number): number
+	if plan.reduced or t < plan.curlAt then
+		return 0
+	end
+	if t < plan.crackAt then
+		return Logic.smoothstep01((t - plan.curlAt) / Presets.dragonRise.curlSeconds)
+	end
+	local k = math.clamp((t - plan.crackAt) / math.max(plan.unfurlEnd - plan.crackAt, 1e-3), 0, 1)
+	local out = 1 - (1 - k) * (1 - k) * (1 - k)
+	return 1 - out
+end
+
+-- The ember ball `t` seconds in: how grown it is (0 to 1) and how hot (0 orange to 1 white-gold). Gone from the
+-- crack on, and never under Reduce Motion.
+function Logic.dragonBall(plan: DragonPlan, t: number): (number, number)
+	if plan.reduced or t >= plan.crackAt then
+		return 0, 0
+	end
+	local d = Presets.dragonRise
+	local from = plan.curlAt + d.ballFrom
+	local growTo = plan.crackAt - d.heatSeconds * 0.5
+	local grow = Logic.smoothstep01((t - from) / math.max(growTo - from, 1e-3))
+	local heat = Logic.smoothstep01((t - (plan.crackAt - d.heatSeconds)) / d.heatSeconds)
+	return grow, heat
+end
+
+-- The roar `t` seconds in, 0 to 1: quick up, held, eased off over roarSeconds.
+function Logic.dragonRoar(plan: DragonPlan, t: number): number
+	local seconds = Presets.dragonRise.roarSeconds
+	local k = t - plan.roarAt
+	if k <= 0 or k >= seconds then
+		return 0
+	end
+	if k < 0.2 then
+		return Logic.smoothstep01(k / 0.2)
+	end
+	return 1 - Logic.smoothstep01((k - (seconds - 0.4)) / 0.4)
+end
+
+-- How white the screen is `t` seconds in. A stage up: one flash at the crack and nothing else (well under once a
+-- second). Reduce Motion: a soft fade through white into the scene, and a soft one back out at the end.
+function Logic.dragonFlash(plan: DragonPlan, t: number): number
+	if plan.reduced then
+		local r = Presets.dragonRise.reduced
+		if t < r.fadeSeconds then
+			return Logic.smoothstep01(t / r.fadeSeconds)
+		elseif t < r.fadeSeconds * 2 then
+			return 1 - Logic.smoothstep01((t - r.fadeSeconds) / r.fadeSeconds)
+		end
+		local half = (plan.total - r.outAt) / 2
+		if t < r.outAt then
+			return 0
+		elseif t < r.outAt + half then
+			return Logic.smoothstep01((t - r.outAt) / half)
+		end
+		return 1 - Logic.smoothstep01((t - r.outAt - half) / half)
+	end
+	local c = Presets.dragonRise.crack
+	local k = (t - plan.crackAt) / c.flashSeconds
+	if k < 0 or k >= 1 then
+		return 0
+	end
+	-- straight up at the crack, then off
+	return c.flash * (1 - Logic.smoothstep01(k))
+end
+
+-- The joint turns for a pose, each as Vector3(pitch, yaw, roll) in radians about the joint's own axes (a model's
+-- joints line up with it: -Z its front, +Y up, +X its right). `curl` 0 to 1 curls him into a ball, `roar` 0 to 1
+-- lifts his head and opens his jaw, `spread` 0 to 1 opens the wings out of folded, `flap` (radians) beats them and
+-- `sway` (-1 to 1) swings the tail. Also how far the body drops, of his height.
+function Logic.dragonPose(
+	curl: number,
+	roar: number,
+	spread: number,
+	flap: number,
+	sway: number
+): ({ [string]: Vector3 }, number)
+	local r = Presets.dragonRise.roar
+	local fold = 1 - spread
+	local open = spread * 0.5 + flap
+	return {
+		Body = Vector3.new(-0.35 * curl + 0.12 * roar, 0, 0),
+		Neck = Vector3.new(-0.9 * curl + r.lift * 0.45 * roar, 0, 0),
+		Head = Vector3.new(-0.5 * curl + r.lift * 0.55 * roar, 0, 0),
+		Jaw = Vector3.new(-r.jaw * roar, 0, 0),
+		Tail1 = Vector3.new(0, 0.8 * curl + 0.15 * sway, 0),
+		Tail2 = Vector3.new(0, 0.9 * curl + 0.2 * sway, 0),
+		Tail3 = Vector3.new(0, 1.0 * curl + 0.25 * sway, 0),
+		WingL = Vector3.new(0, -0.9 * fold, open),
+		WingR = Vector3.new(0, 0.9 * fold, -open),
+		LegFL = Vector3.new(0.9 * curl, 0, 0),
+		LegFR = Vector3.new(0.9 * curl, 0, 0),
+		LegBL = Vector3.new(-0.9 * curl, 0, 0),
+		LegBR = Vector3.new(-0.9 * curl, 0, 0),
+	},
+		0.12 * curl
+end
+
+-- Stage 5's lap `t` seconds in: where he is from the yard centre, in the Keep's frame. He spirals up and out from
+-- the yard, flies one lap of `radius` studs at `height`, and comes down onto `tower` (where he is at landAt and
+-- after). Never below the yard.
+function Logic.dragonLap(
+	plan: DragonPlan,
+	t: number,
+	radius: number,
+	height: number,
+	tower: Vector3
+): Vector3
+	local lapAt, landAt = plan.lapAt, plan.landAt
+	if lapAt == nil or landAt == nil or t <= lapAt then
+		return Vector3.zero
+	end
+	local k = math.clamp((t - lapAt) / math.max(landAt - lapAt, 1e-3), 0, 1)
+	local rise = Logic.smoothstep01(math.min(k / 0.2, 1))
+	local a = 2 * math.pi * k
+	local circle =
+		Vector3.new(math.sin(a) * radius * rise, height * rise, math.cos(a) * radius * rise)
+	local land = Logic.smoothstep01((k - 0.75) / 0.25)
+	local at = circle:Lerp(tower, land)
+	return Vector3.new(at.X, math.max(at.Y, 0), at.Z)
+end
+
+-- The way shard `i` of `count` flies out of the cracked ball: spread evenly over the upper half and a little below
+-- (a golden-angle spiral, so the same every time). A unit vector.
+function Logic.dragonShard(i: number, count: number): Vector3
+	local y = 1 - (i - 0.5) / math.max(count, 1) * 1.2
+	local r = math.sqrt(math.max(0, 1 - y * y))
+	local a = i * 2.399963
+	return Vector3.new(math.cos(a) * r, y, math.sin(a) * r).Unit
+end
+
 -- #4069: the northern lights over an area. `count` ribbons hung along the area's longer side (a tenth in from each
 -- end), spread evenly over `spread` of its shorter side, each `rise` studs above the one before it, bending to
 -- alternate sides and each with its own time from `seconds` (the last one repeats). `curve` is of the ribbon's

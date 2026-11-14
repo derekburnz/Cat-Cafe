@@ -1214,6 +1214,18 @@ Effects/PoolBeacon, Presets.poolBeacon. A quiet way to notice the pool at its sp
 | A soft PointLight just over the liquid, in the liquid's own colour, breathing slowly (one breath every 4 s, down by about a third), and 2 slow sparkles a second drifting up off the pool in a lighter tint of that colour. Full within 30 studs, fading to nothing at 60 and off past it | the station tagged `shared/Traits.TAG`, its `_Liquid_Glow` model for the middle and colour |
 | One light and about 4 particles on screen. Reduce Motion: the light holds still, no sparkles. Low performance: the light only. Never paused for a roll | checked 5 times a second |
 
+## Dragon Keep stage up and card deal (#4062, 2026-11-14)
+| Moment | What | Budget |
+|---|---|---|
+| Stage up, stages 1 to 4 (7 s) | Bars in and windows held, the camera swings to the Keep (1.2 s), Cinder curls into an ember ball that heats from orange to white-gold, one flash at the crack with shards, the new look unfurls, a happy roar, the camera swings back | One Neon ball with a light and an ember emitter, 10 to 16 shards (half on phones), all client side |
+| What each stage adds | 1 sparks, 2 smoke rings, 3 an ember ring and a light column, 4 gold coins up the column, 5 flame confetti and side beams | Smoke rings 10 puffs each (5 on phones), coins 16 to 22 (half on phones), confetti inside the 80 piece cap |
+| Stage 5 (12 s) | One lap of the castle on beating wings (1.4 beats a second), a landing on the tower with the crown glinting, then the roar | One PivotTo per joint a frame |
+| Reduce Motion (2 s) | A soft fade to the Keep with the new look, the roar pose and the title, a soft fade back | No shake, no ball, no flying, no particles |
+| Card deal | Three cards flip one at a time 0.42 s apart, the edge in the rarity colour pulsing once; Legendary gets a glint sweep and gold rays, Mythic a slowly turning rainbow edge and rainbow rays | 12 rays (6 on phones) for 1.1 s; Reduce Motion swaps faces with no turn |
+
+Nothing flashes but the one crack. A tap skips after 1 s. A cap 3 s past the end always gives back the camera, controls, prompts and windows.
+
+
 ## Snowy Mountain (#4069, 2026-11-14)
 Derek 2026-11-13: "make the rarer ones more special". First pass, all client side and data driven, so it starts when the area's box and cats are wired.
 

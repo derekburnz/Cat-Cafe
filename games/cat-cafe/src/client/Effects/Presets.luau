@@ -6256,4 +6256,172 @@ Presets.trampoline = {
 	up = 0.35,
 }
 
+-- #4062 Dragon Keep: the stage-up cutscene (Effects/DragonRise) and the card deal's flips (Effects/CardFlip). Spec:
+-- Design-Agent/notes/ticket-booth-and-dragon-keep.md 2.5 and 2.6. Times are seconds from the start; sizes studs.
+-- Every stage plays the same shots, with more on top each stage (like the Rift Run's gates): 1 sparks, 2 smoke rings,
+-- 3 an ember ring and a light column, 4 gold coins in the column, 5 a lap of the castle and flame confetti.
+Presets.dragonRise = {
+	-- the shots (stages 1 to 4, about 7 s): the camera swings to the Keep, holds low through the curl into an ember
+	-- ball and its crack, then one slow push in on the new look and the roar; no cut faster than about 0.8 s
+	swing = 1.2, -- the camera's swing from the player's view to the Keep
+	curlAt = 1.2, -- he starts curling up
+	curlSeconds = 0.9,
+	ballFrom = 0.35, -- after curlAt, the ember ball starts growing round him
+	heatSeconds = 1.0, -- before the crack, the ball heats from orange to white-gold
+	crackAt = 3.0,
+	unfurlSeconds = 1.3, -- after the crack, the new look unfurls
+	roarAfter = 0.25, -- after the unfurl, the roar
+	roarSeconds = 1.1,
+	backSeconds = 0.8, -- the camera's swing back to the player at the end
+	total = 7,
+	skipAfter = 1, -- a tap skips after this
+	-- stage 5 (12 s): after the unfurl he flies one lap of the castle and lands on the tower, crown glinting
+	crowned = {
+		total = 12,
+		lapAfter = 0.2, -- after the unfurl
+		lapSeconds = 4.6,
+		roarAfter = 0.35, -- after landing on the tower
+		lapRadius = 26,
+		lapHeight = 16,
+		tower = Vector3.new(-14, 18, 10), -- the tower top, from the yard centre (the Keep's frame), when none is given
+		flapHz = 1.4, -- wing beats a second while flying (a motion, never a flash)
+		flap = 0.75,
+	},
+	-- Reduce Motion: a 2 s soft fade with the new look and the roar
+	reduced = { total = 2, fadeSeconds = 0.5, roarAt = 1.0, outAt = 1.5 },
+	cap = 3, -- seconds past a plan's total by which everything is given back, whatever happens
+
+	-- the stages: the stand-in's height (its own models' framing too), the title, and what each adds
+	stages = {
+		{ name = "Hatchling", height = 3.2, sparks = 16 },
+		{ name = "Whelp", height = 4.6, sparks = 22, smokeRings = 2 },
+		{ name = "Drake", height = 7.5, sparks = 30, smokeRings = 3, emberRing = 18, column = 34 },
+		{
+			name = "Elder",
+			height = 10,
+			sparks = 36,
+			smokeRings = 3,
+			emberRing = 24,
+			column = 44,
+			coins = 16,
+		},
+		{
+			name = "Crowned",
+			height = 13,
+			sparks = 44,
+			smokeRings = 4,
+			emberRing = 30,
+			column = 56,
+			coins = 22,
+			confetti = 70,
+		},
+	},
+	camera = {
+		-- from the yard centre in the Keep's frame (its -Z looks out the gate, where the camera stands): the eye
+		-- `distance` heights out and `up` heights up, looking at `lookUp` heights over the yard
+		distance = 2.4,
+		minDistance = 9,
+		up = 0.55,
+		lookUp = 0.45,
+		side = 0.35, -- a little off to one side, so he reads in three quarters
+		drift = 0.12, -- the slow drift sideways while he curls (of a height)
+		push = 0.78, -- the push in on the new look: the distance by this much
+		fov = 60,
+		lapFov = 66,
+		lapEye = Vector3.new(0, 8, -30), -- the camera for the lap, from the yard centre in the Keep's frame
+		-- the camera never sits inside the map: it stays `clearGap` studs in front of the first solid thing between
+		-- what it looks at and where it wants to be, at least `clearLeast` of the way out, easing back out at
+		-- `clearEase` a frame once the way is clear
+		clearGap = 1.5,
+		clearLeast = 0.25,
+		clearEase = 0.12,
+	},
+	-- the ember ball
+	ball = {
+		size = 1.2, -- of the bigger look's height
+		transparency = 0.35,
+		solid = 0.04, -- at its hottest (the swap under it is hidden)
+		cool = Color3.fromRGB(255, 128, 52),
+		hot = Color3.fromRGB(255, 238, 186),
+		light = 4,
+		embers = 18, -- the ember emitter's rate on it
+		rumble = 0.035, -- the shake while it heats (studs)
+	},
+	crack = {
+		flash = 0.8, -- the one white flash: up to this much, then off over flashSeconds
+		flashSeconds = 0.55,
+		shards = 10, -- plus shardsGrow a stage
+		shardsGrow = 2,
+		shardSpeed = 14,
+		shardSeconds = 0.9,
+		ring = 10, -- plus ringGrow a stage
+		ringGrow = 3,
+		shake = 0.12,
+	},
+	roar = {
+		jaw = 0.65, -- the jaw open (radians)
+		lift = 0.55, -- head up
+		hop = 0.12, -- a happy hop (of a height)
+		shake = 0.08, -- plus shakeGrow a stage
+		shakeGrow = 0.03,
+		smokeRingPuffs = 10,
+		smokeRingSeconds = 1.4,
+		coinSeconds = 1.6,
+	},
+	-- the scale colours (the stage 3 pick, and before it his pastel)
+	scales = {
+		pastel = Color3.fromRGB(255, 196, 170),
+		ruby = Color3.fromRGB(214, 62, 78),
+		sapphire = Color3.fromRGB(62, 112, 214),
+		emerald = Color3.fromRGB(52, 170, 110),
+		amethyst = Color3.fromRGB(150, 92, 208),
+	},
+	belly = Color3.fromRGB(255, 232, 196),
+	horn = Color3.fromRGB(250, 236, 210),
+	chest = Color3.fromRGB(255, 170, 70),
+	gold = Color3.fromRGB(255, 200, 70),
+	egg = Color3.fromRGB(255, 240, 220),
+	eggSpots = Color3.fromRGB(255, 196, 170),
+	flame = {
+		Color3.fromRGB(255, 120, 50),
+		Color3.fromRGB(255, 190, 70),
+		Color3.fromRGB(255, 230, 140),
+		Color3.fromRGB(240, 80, 90),
+	},
+	wordInk = Color3.fromRGB(80, 36, 20),
+	wordColour = Color3.fromRGB(255, 214, 120),
+	wordSize = 72,
+	wordSeconds = 2.2,
+	displayOrder = 40,
+
+	-- the card deal (CardFlip): one card at a time, on the Legendary word ladder's beat
+	cards = {
+		gap = 0.42,
+		shut = 0.13, -- the back narrows to nothing
+		open = 0.2, -- the front widens out, overshooting a little
+		pop = 1.07,
+		edge = 3, -- the rarity edge's thickness, pulsing once to edgePulse
+		edgePulse = 7,
+		edgeSeconds = 0.45,
+		rainbowTurn = 70, -- degrees a second the Mythic edge's rainbow turns (a slow turn, never a flash)
+		rays = 12, -- the Legendary and Mythic burst behind the card
+		raySeconds = 1.1,
+		sweepSeconds = 0.5, -- the Legendary glint across the face
+		edges = {
+			common = Color3.fromRGB(170, 170, 178),
+			rare = Color3.fromRGB(70, 140, 235),
+			epic = Color3.fromRGB(160, 90, 220),
+			legendary = Color3.fromRGB(255, 196, 60),
+			mythic = Color3.fromRGB(255, 110, 200),
+		},
+		rainbow = {
+			Color3.fromRGB(255, 96, 96),
+			Color3.fromRGB(255, 196, 70),
+			Color3.fromRGB(110, 220, 120),
+			Color3.fromRGB(80, 170, 255),
+			Color3.fromRGB(190, 110, 255),
+		},
+	},
+}
+
 return Presets

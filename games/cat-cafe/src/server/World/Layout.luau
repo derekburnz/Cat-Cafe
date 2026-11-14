@@ -315,6 +315,9 @@ Layout.plot = {
 		-- barista_3, and greeter_3's mirror turned to the door
 		barista_5 = { x = 9.25, y = 0, z = 12.0 },
 		greeter_4 = { x = -6.6, y = 0, z = -12.5, rotY = -55.7 },
+		-- #4070: the pass's new pair at Tier 9 (tier8-spots.md): by the right wall, and the fourth cat tree's top cushion
+		waiter_7 = { x = 17.75, y = 0, z = -1.75 },
+		entertainer_4 = { x = 17.25, y = 4.47, z = -14.1 },
 	} :: { [string]: Point },
 
 	-- Station furniture under a slot, for the roles that have one (Catalog.spotFurniture)
@@ -322,6 +325,7 @@ Layout.plot = {
 		entertainer_1 = { x = -17.11, y = 0, z = 9.71 },
 		entertainer_2 = { x = 17.11, y = 0, z = 9.71 },
 		entertainer_3 = { x = -11.8, y = 0, z = 10.5 }, -- #2651: Tier 7
+		entertainer_4 = { x = 16.75, y = 0, z = -14.5, rotY = 180 }, -- #4070: the pass's at Tier 9
 	} :: { [string]: Point },
 
 	decorAnchors = {

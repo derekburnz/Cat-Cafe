@@ -4082,6 +4082,7 @@ Presets.decor = {
 	desert_caravan_bench = legendary(),
 	ruins_stone_throne = legendary(),
 	snow_stone_fireplace = legendary(), -- #3997
+	funfair_mini_carousel = legendary(), -- #4070
 	classic_cat_tree_tower = legendary(),
 	rally_victory_podium = legendary(),
 	alley_midnight_sky = { look = "stars", on = "Wallpaper" },
@@ -4127,6 +4128,13 @@ Presets.decor = {
 		on = "Floor",
 		emitter = "decorGlint",
 		colors = { Color3.fromRGB(120, 230, 200), Color3.fromRGB(170, 140, 255) },
+	},
+	-- #4070: the Water Park Crate's Mythical floor, the same moving light with pool blue and foam white glints
+	funfair_wave_pool = {
+		look = "canal",
+		on = "Floor",
+		emitter = "decorGlint",
+		colors = { Color3.fromRGB(120, 205, 240), Color3.fromRGB(240, 250, 255) },
 	},
 	classic_gold_leaf = {
 		look = "goldLeaf",

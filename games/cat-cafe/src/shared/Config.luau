@@ -463,6 +463,7 @@ local Config = {
 		desert = 20, -- #2651 (tier6-7-areas.md section 7): the same as every area
 		ruins = 20,
 		snowy = 20, -- #3997
+		waterpark = 20, -- #4070
 	} :: { [string]: number },
 	EventCountdownSeconds = 10800,
 	EventRepeatGiftIncomeMinutes = 10,
@@ -488,6 +489,7 @@ local Config = {
 		desert = 35, -- #2651 (tier6-7-areas.md section 7)
 		ruins = 40,
 		snowy = 45, -- #3997 (tier8-snowy-mountain.md section 7)
+		waterpark = 50, -- #4070: five more, as each area before it
 	} :: { [string]: number },
 	PityClaimRetries = 3,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)

@@ -22,6 +22,7 @@ local PerkCardLogic = {}
 PerkCardLogic.ICON = table.freeze({
 	fresh_bait = "🧺",
 	cocoa_break = "☕", -- #3997
+	ticket_stubs = "🎟️", -- #4070
 	haggler = "🏷️",
 	lucky_line = "🎣",
 	homing_bell = "🔔",

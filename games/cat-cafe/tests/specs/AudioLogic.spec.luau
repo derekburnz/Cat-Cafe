@@ -1315,7 +1315,7 @@ return function()
 		end)
 	end)
 
-	describe("Audio.Logic Ticket Booth (#4061)", function()
+	describe("Audio.Logic Ticket Booth and Dragon Keep (#4061, #4062)", function()
 		it("hears a prize bought and stays quiet for tickets earned", function()
 			local view = { tickets = 40, spent = 100 }
 			expect(Logic.ticketPrizeBought(view, { tickets = 10, spent = 130 })).to.equal(true)
@@ -1327,6 +1327,20 @@ return function()
 			expect(Logic.ticketPrizeBought(view, { spent = "200" })).to.equal(false)
 			expect(Cues.ticketPrint).to.be.ok()
 			expect(Cues.ticketDing).to.be.ok()
+		end)
+
+		it("hears a Rekindle hand come up at the Dragon Keep, once", function()
+			local idle = { stage = 5, hands = 0 }
+			local hand = { stage = 5, hands = 1, handKind = "rekindle" }
+			expect(Logic.keepRekindled(idle, hand)).to.equal(true)
+			-- the same hand on the next sync, and a stage hand (the cutscene's)
+			expect(Logic.keepRekindled(hand, hand)).to.equal(false)
+			expect(Logic.keepRekindled(idle, { stage = 3, hands = 1, handKind = "stage" })).to.equal(
+				false
+			)
+			expect(Logic.keepRekindled(nil, hand)).to.equal(false)
+			expect(Logic.keepRekindled(hand, nil)).to.equal(false)
+			expect(Cues.rekindle).to.be.ok()
 		end)
 	end)
 

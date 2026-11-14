@@ -1727,17 +1727,23 @@ end
 
 -- #4061 the Ticket Booth, from each ProfileSync's `ticketBooth` (Logic.ticketPrizeBought), so it needs no moment: a
 -- prize bought prints its ticket, then the counter bell says it is yours. The first sync only sets the count.
+-- #4062 the Dragon Keep the same way, from `dragon` (Logic.keepRekindled): a Rekindle hand coming up plays Rekindle.
 local TICKET_DING_AFTER = 0.6
-local function followTickets()
+local function followStations()
 	local seen = false
 	local last: any = nil
+	local lastKeep: any = nil
 	onRemote("ProfileSync", function(state: any)
 		if type(state) ~= "table" then
 			return
 		end
-		local view = state.ticketBooth
+		local view, keep = state.ticketBooth, state.dragon
 		local bought = seen and Logic.ticketPrizeBought(last, view)
-		seen, last = true, view
+		local rekindled = seen and Logic.keepRekindled(lastKeep, keep)
+		seen, last, lastKeep = true, view, keep
+		if rekindled then
+			Audio.play("rekindle")
+		end
 		if bought then
 			Audio.play("ticketPrint")
 			task.delay(TICKET_DING_AFTER, function()
@@ -1806,7 +1812,7 @@ local function followServerState()
 	task.defer(followTrade)
 	task.defer(followRally)
 	task.defer(followBait)
-	task.defer(followTickets)
+	task.defer(followStations)
 	task.defer(followLateStations)
 	task.defer(followUpdateGift)
 end

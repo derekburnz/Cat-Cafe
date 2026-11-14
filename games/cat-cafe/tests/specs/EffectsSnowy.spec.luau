@@ -133,5 +133,41 @@ return function()
 			local b = Logic.orbitOffset(1, o.count, o.seconds, radius, o.tilt, o.seconds)
 			expect((a - b).Magnitude < 1e-6).to.equal(true)
 		end)
+
+		it("hangs the northern lights over the area at night, slow and inside it", function()
+			local a = Presets.areaFx.areas.snowy.aurora :: any
+			expect(#a.ribbons).to.equal(3) -- one count per budget tier, fewer as the tier drops
+			expect(a.ribbons[1] >= a.ribbons[2] and a.ribbons[2] >= a.ribbons[3]).to.equal(true)
+			expect(a.ribbons[1] <= 3).to.equal(true) -- two Beams a ribbon: six at most
+			expect(a.shown >= 0.6 and a.shown < 1).to.equal(true) -- soft, never a solid band
+			for _, seconds in a.seconds do
+				expect(seconds >= 8).to.equal(true) -- a slow sway
+			end
+			local centre = { x = 100, z = -400 }
+			local size = { width = 300, depth = 200 }
+			local ribbons = Logic.auroraRibbons(
+				a.ribbons[1],
+				centre,
+				size,
+				a.height,
+				a.rise,
+				a.curve,
+				a.seconds
+			)
+			expect(#ribbons).to.equal(a.ribbons[1])
+			for i, r in ribbons do
+				-- across the width, inside the box, level, and well over the roofs
+				expect(r.from.X > centre.x - size.width / 2 and r.from.X < centre.x).to.equal(true)
+				expect(r.to.X < centre.x + size.width / 2 and r.to.X > centre.x).to.equal(true)
+				expect(r.from.Z).to.equal(r.to.Z)
+				expect(math.abs(r.from.Z - centre.z) < size.depth / 2).to.equal(true)
+				expect(r.from.Y).to.equal(a.height + (i - 1) * a.rise)
+				expect(r.from.Y >= 80).to.equal(true)
+				-- neighbours bend to opposite sides
+				expect(r.bend * (if i % 2 == 1 then 1 else -1) > 0).to.equal(true)
+				expect(r.seconds >= 8).to.equal(true)
+			end
+			expect(#Logic.auroraRibbons(0, centre, size, 1, 1, 1, { 1 })).to.equal(0)
+		end)
 	end)
 end

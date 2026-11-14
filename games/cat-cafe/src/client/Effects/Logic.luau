@@ -4067,6 +4067,34 @@ function Logic.riftDark(plan: RiftPlan, t: number): number
 	return into * (1 - out * 0.5)
 end
 
+-- #4069: the northern lights over an area. `count` ribbons hung across the area's width (along X, a tenth in from
+-- each side), spread evenly over its depth, each `rise` studs above the one in front of it, bending to alternate
+-- sides and each with its own time from `seconds` (the last one repeats). `curve` is of the ribbon's length.
+export type AuroraRibbon = { from: Vector3, to: Vector3, bend: number, seconds: number }
+function Logic.auroraRibbons(
+	count: number,
+	centre: { x: number, z: number },
+	size: { width: number, depth: number },
+	height: number,
+	rise: number,
+	curve: number,
+	seconds: { number }
+): { AuroraRibbon }
+	local ribbons: { AuroraRibbon } = {}
+	local half = size.width * 0.4
+	for i = 1, math.max(0, math.floor(count)) do
+		local z = centre.z + ((i - 0.5) / count - 0.5) * size.depth
+		local y = height + (i - 1) * rise
+		table.insert(ribbons, {
+			from = Vector3.new(centre.x - half, y, z),
+			to = Vector3.new(centre.x + half, y, z),
+			bend = (if i % 2 == 1 then 1 else -1) * curve * half * 2,
+			seconds = seconds[math.min(i, #seconds)] or 12,
+		})
+	end
+	return ribbons
+end
+
 -- #4069: where mote `i` of `count` circling a cat is `t` seconds on, from the middle of its circle: `radius` studs
 -- out, once round every `seconds`, the circle tipped `tilt` radians so it rises on one side and dips on the other.
 -- The motes are spread evenly round it.

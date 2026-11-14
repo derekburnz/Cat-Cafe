@@ -6,10 +6,13 @@
 -- (DesertCenterX and the rest, #2655); strays from the `Stray` tag and their `Area` attribute. Listening only: no remotes, no game state. The air is off
 -- in Low performance and a fifth as thick with Reduce Motion (Presets.areaFx). In the Desert the nearest dune crests
 -- also blow a plume of sand off their tops (Presets.areaFx.dunes; none with Reduce Motion or Low performance).
+-- Over the Snowy Mountain (#4069), ribbons of northern light hang in the night sky while you are there
+-- (AuroraSpec in Presets.areaFx: still with Reduce Motion, none in Low performance).
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -323,12 +326,172 @@ local function updateDunes(area: string?, feet: Vector3)
 	end
 end
 
+-- #4069: the northern lights. While it is night and you stand in an area with an `aurora`, its ribbons hang over the
+-- area: two soft bands each, on one unseen part, bending slowly from side to side. They fade in when they start and
+-- out when night ends or you leave.
+type Ribbon = { bands: { Beam }, tweens: { Tween } }
+local aurora: Part? = nil
+local auroraArea: string? = nil
+local auroraRibbons: { Ribbon } = {}
+local auroraShown = 1 -- the transparency the bands' middles have now
+local auroraRun = 0 -- counts fades, so a newer one stops an older one
+local auroraLeaving = false -- fading out, to be dropped when the fade ends
+
+local function auroraLook(middle: number)
+	local sequence = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.25, middle),
+		NumberSequenceKeypoint.new(0.75, middle),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	for _, ribbon in auroraRibbons do
+		for _, band in ribbon.bands do
+			band.Transparency = sequence
+		end
+	end
+	auroraShown = middle
+end
+
+local function fadeAurora(spec: Presets.AuroraSpec, to: number, after: (() -> ())?)
+	auroraRun += 1
+	local run = auroraRun
+	local from = auroraShown
+	task.spawn(function()
+		local steps = 12
+		for i = 1, steps do
+			if run ~= auroraRun then
+				return
+			end
+			auroraLook(from + (to - from) * i / steps)
+			task.wait(spec.fade / steps)
+		end
+		if run == auroraRun and after ~= nil then
+			after()
+		end
+	end)
+end
+
+local function dropAurora()
+	auroraRun += 1
+	for _, ribbon in auroraRibbons do
+		for _, tween in ribbon.tweens do
+			tween:Cancel()
+		end
+	end
+	if aurora ~= nil then
+		aurora:Destroy()
+	end
+	aurora, auroraArea, auroraRibbons, auroraShown = nil, nil, {}, 1
+	auroraLeaving = false
+end
+
+local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
+	local tiers: { [string]: number } = { high = 1, medium = 2, low = 3 }
+	local count = spec.ribbons[tiers[Context.tier] or 3] or 2
+	local part = Context.effectPart("AreaAurora", Vector3.one, spec.foot)
+	part.Transparency = 1
+	local middle = Vector3.new(box.centre.x, spec.height, box.centre.z)
+	part.CFrame = CFrame.new(middle)
+	local calm = Context.reducedMotion()
+	for _, r in
+		Logic.auroraRibbons(
+			count,
+			box.centre,
+			box.size,
+			spec.height,
+			spec.rise,
+			spec.curve,
+			spec.seconds
+		)
+	do
+		local ribbon: Ribbon = { bands = {}, tweens = {} }
+		for layer, colour in { spec.foot, spec.top } do
+			local lift = (layer - 1) * spec.width * (1 - spec.overlap)
+			-- a Beam bends along its attachments' X axes, so they point across the ribbon (along Z)
+			local from = Instance.new("Attachment")
+			from.Position = r.from - middle + Vector3.new(0, lift, 0)
+			from.Axis = Vector3.zAxis
+			from.Parent = part
+			local to = Instance.new("Attachment")
+			to.Position = r.to - middle + Vector3.new(0, lift, 0)
+			to.Axis = Vector3.zAxis
+			to.Parent = part
+			local band = Instance.new("Beam")
+			band.Name = "Ribbon"
+			band.Attachment0 = from
+			band.Attachment1 = to
+			band.FaceCamera = true
+			band.Segments = 16
+			band.Color = ColorSequence.new(colour)
+			band.LightEmission = 1
+			band.LightInfluence = 0
+			band.Width0 = spec.width
+			band.Width1 = spec.width
+			band.CurveSize0 = r.bend
+			band.CurveSize1 = r.bend -- the far end bends the other way: a slow S
+			band.Parent = part
+			table.insert(ribbon.bands, band)
+			if not calm then
+				local tween = TweenService:Create(
+					band,
+					TweenInfo.new(
+						r.seconds + (layer - 1) * 1.5,
+						Enum.EasingStyle.Sine,
+						Enum.EasingDirection.InOut,
+						-1,
+						true
+					),
+					{ CurveSize0 = -r.bend, CurveSize1 = -r.bend }
+				)
+				tween:Play()
+				table.insert(ribbon.tweens, tween)
+			end
+		end
+		table.insert(auroraRibbons, ribbon)
+	end
+	part.Parent = Context.folder()
+	aurora, auroraArea = part, area
+	auroraLook(1)
+	fadeAurora(spec, spec.shown)
+end
+
+local function updateAurora(area: string?)
+	local spec = specOf(area)
+	local wanted = if spec ~= nil then spec.aurora else nil
+	if wanted == nil or area == nil or Context.lowPerformance or not Context.isNight() then
+		local old = specOf(auroraArea)
+		local was = if old ~= nil then old.aurora else nil
+		if aurora == nil or was == nil or Context.lowPerformance then
+			dropAurora()
+		elseif not auroraLeaving then
+			auroraLeaving = true
+			fadeAurora(was, 1, dropAurora)
+		end
+		return
+	end
+	if aurora ~= nil and auroraArea == area then
+		if auroraLeaving then -- night again, or you came back, before it had gone
+			auroraLeaving = false
+			fadeAurora(wanted, wanted.shown)
+		end
+		return
+	end
+	dropAurora()
+	for _, box in areaBoxes() do
+		if box.id == area then
+			buildAurora(area, wanted, box)
+			return
+		end
+	end
+end
+
 local function step()
 	local character = Players.LocalPlayer.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
 	if root == nil or not root:IsA("BasePart") then
 		dropAir()
 		dropPlumes()
+		dropAurora()
 		return
 	end
 	local feet = (root :: BasePart).Position - Vector3.new(0, 3, 0)
@@ -336,6 +499,7 @@ local function step()
 	updateAir(area, feet)
 	updateMist(area, feet)
 	updateDunes(area, feet)
+	updateAurora(area)
 	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
 	updateFeet(area, feet, humanoid :: Humanoid?)
 end

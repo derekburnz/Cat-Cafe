@@ -4754,6 +4754,24 @@ Presets.bedWalk = { fade = 0.25 }
 -- A stray of the area puffs `puff` `puffPreset` particles in `colour` where it appears and where it leaves the ground,
 -- within the budget's animRadius, at most the budget's areaPuffs in any one second (#2661). In the Ruins, falling `mistDepth` studs below the plateau puffs `mist` violet-grey
 -- mist round you once, before the server's catch moves you to the camp pad.
+-- #4069: ribbons of northern light over an area while it is night and you are in it. Each ribbon is two soft bands
+-- (`foot` colour under `top` colour) `width` studs tall, hung `height` studs over the ground across the area's width
+-- and spread over its depth, each bending `curve` of its length to one side and slowly over to the other in its
+-- `seconds` and back. They fade in and out over `fade` seconds. With Reduce Motion they hang still; none in Low
+-- performance. `ribbons` is per budget tier (high, medium, low).
+export type AuroraSpec = {
+	ribbons: { number },
+	height: number,
+	rise: number, -- studs each ribbon hangs above the one in front
+	width: number,
+	overlap: number, -- of `width`, how far the top band sits over the foot band
+	curve: number,
+	seconds: { number },
+	shown: number, -- transparency at the ribbon's middle (its ends fade to nothing)
+	fade: number,
+	foot: Color3,
+	top: Color3,
+}
 export type AreaFxSpec = {
 	air: string,
 	colour: Color3,
@@ -4768,6 +4786,7 @@ export type AreaFxSpec = {
 	footPreset: string?,
 	footColour: Color3?,
 	footStuds: number?,
+	aurora: AuroraSpec?, -- northern lights over the area at night
 }
 Presets.areaFx = {
 	pad = 40, -- the camp lies outside the floor box, and the server's mist catch reaches 40 studs past it
@@ -4815,6 +4834,19 @@ Presets.areaFx = {
 			footPreset = "dust",
 			footColour = Color3.fromRGB(246, 250, 255),
 			footStuds = 3,
+			aurora = {
+				ribbons = { 3, 2, 2 },
+				height = 120,
+				rise = 14,
+				width = 46,
+				overlap = 0.45,
+				curve = 0.22,
+				seconds = { 11, 14, 17 },
+				shown = 0.72,
+				fade = 3,
+				foot = Presets.palette.mint,
+				top = Presets.palette.aurora,
+			},
 		},
 	} :: { [string]: AreaFxSpec },
 }

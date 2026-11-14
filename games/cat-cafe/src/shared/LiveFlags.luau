@@ -160,6 +160,7 @@ LiveFlags.KEYS = {
 	"quietAway", -- #4035: food bowl cards wait while the player is out catching
 	"riftRun", -- Derek 2026-11-13: a Mythic or Secret trait roll's Rift Run cutscene (client/Effects/RiftRun); client only
 	"secretTrait", -- #3908: the Secret trait rarity (0.1%) in the Mystic Pool's rolls and odds (shared/Traits)
+	"goldTone", -- #4133: gold cats are their base model toned gold (shared/GoldTone), not the _Gold models
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -196,6 +197,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	quietAway = true,
 	riftRun = true,
 	secretTrait = true,
+	goldTone = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

@@ -431,6 +431,17 @@ local Config = {
 		cafePass = { was = 299, now = 149 },
 	} :: { [string]: { was: number, now: number } },
 	StoreSaleEnds = 1797120000,
+	-- #4175 (Derek 2026-11-14: an occasional push on big update days, at most once a week): the update's own item
+	-- leads the Store's Featured tab with the plain line "New today" from `starts` up to `ends` (os.time, UTC),
+	-- behind the updateFeature switch. `keys` are Store card keys, first one the player can still buy. `saleEnds` is
+	-- the real last day of a real sale on that item ("Sunday"), shown as "Sale ends Sunday" only while the card has
+	-- its Sale badge. No countdown, no stock counts. Nothing shows outside the window or with the switch off.
+	-- First use: the outfit packs, 2026-11-14 22:00 UTC for a day.
+	UpdateFeature = {
+		keys = { "packStylish", "packChef", "packSpace", "packWinter" },
+		starts = 1794693600,
+		ends = 1794780000,
+	} :: { keys: { string }, starts: number, ends: number, saleEnds: string? },
 	EventMinSeconds = 300,
 	EventMaxSeconds = 7200,
 	EventMoneyMax = 2,

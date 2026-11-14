@@ -130,12 +130,13 @@ return function()
 							or key == "goldTone"
 							or key == "palJoin"
 							or key == "dailyDeal"
+							or key == "updateFeature"
 							or key == "tier8" -- #3997
 							or key == "tier9" -- #4070
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(42)
+				expect(count).to.equal(43)
 				-- #3462 and #3470: new saved ids stay off until every server knows them
 				expect(LiveFlags.defaults().cartTier6).to.equal(false)
 				expect(LiveFlags.defaults().secretCats).to.equal(false)

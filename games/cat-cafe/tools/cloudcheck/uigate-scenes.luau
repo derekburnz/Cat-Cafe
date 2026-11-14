@@ -11084,6 +11084,32 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local name = (card:FindFirstChild("Name") :: TextLabel).Text
 		assert(name ~= "Today's Deal" and not owned.Visible, "uigate: the deal card stays with the switch off (#3996)")
 	end },
+	-- #4175: on a big update day (Config.UpdateFeature's window, the updateFeature switch on) the update's own item is
+	-- the hero with a plain "New today" badge and the usual hero leads the picks; no other card carries the line
+	{ "StoreNewToday", function()
+		local RS = game:GetService("ReplicatedStorage")
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local was = Config.UpdateFeature
+		Config.UpdateFeature = { keys = { "money" }, starts = 0, ends = math.huge }
+		RS:SetAttribute("LiveFlag_updateFeature", true)
+		UI.update({ dailyDeal = false } :: any)
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
+		local hero = window:FindFirstChild("hero", true) :: Frame
+		local badge = hero:FindFirstChild("Badge", true) :: TextLabel
+		local heroName = (hero:FindFirstChild("Name") :: TextLabel).Text
+		local pick = window:FindFirstChild("pick1", true) :: Frame
+		local pickName = (pick:FindFirstChild("Name") :: TextLabel).Text
+		local pickBadge = pick:FindFirstChild("Badge", true) :: TextLabel
+		Config.UpdateFeature = was
+		RS:SetAttribute("LiveFlag_updateFeature", nil)
+		assert(hero.Visible and string.find(heroName, "Money", 1, true), "uigate: the update's item is not the hero: " .. heroName .. " (#4175)")
+		assert(badge.Visible and badge.Text == "New today", "uigate: the hero's badge reads " .. tostring(badge.Text) .. " (#4175)")
+		assert(pick.Visible and pickName ~= heroName, "uigate: the update's item shows twice on Featured (#4175)")
+		assert(not (pickBadge.Visible and pickBadge.Text == "New today"), "uigate: a pick carries the New today line (#4175)")
+		assertStoreCards(true)
+	end },
 	-- #2850 (Derek2: "move the 999 pack and extra food bowl somewhere in featured"): with the Starter Bundle unbought
 	-- it is the hero, and the King Cat Pack and the Second Bait Bowl lead the picks; the hero lists the bundle's contents
 	{ "StoreStarter", function()

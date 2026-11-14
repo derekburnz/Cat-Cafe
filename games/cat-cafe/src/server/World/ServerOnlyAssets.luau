@@ -15,11 +15,23 @@ local ServerOnlyAssets = {}
 -- an optional version tag: one capital and digits (F85, V32)
 local TAG = "%u%d+"
 
-local AREAS = { "Alleyway", "Park", "Neighbourhood", "Woods", "Sewer", "Desert", "Ruins" }
+-- #4070: the Snowy Mountain's and the Water Park's too (their camps, nooks, gates and night fences; no client script
+-- looks those templates up)
+local AREAS = {
+	"Alleyway",
+	"Park",
+	"Neighbourhood",
+	"Woods",
+	"Sewer",
+	"Desert",
+	"Ruins",
+	"Snowy",
+	"WaterPark",
+}
 
 -- CatCafe_<word>_<kind>, alone or with a version tag, for any one word (an area, Town)
 local ANY_AREA_KINDS = { "Set", "Backdrop" }
--- CatCafe_<Area>_<kind>, alone or with a version tag, for the seven areas and the Alleyway's short name
+-- CatCafe_<Area>_<kind>, alone or with a version tag, for the areas and the Alleyway's short name
 local AREA_KINDS = { "Gate", "NightFence" }
 -- families where every model is a world piece: CatCafe_<stem><one word>
 local FAMILIES = { "Alley_Blocker_", "Alley_Building_" }

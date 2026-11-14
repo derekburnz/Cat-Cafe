@@ -17474,11 +17474,17 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_WaterPark/20"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_WaterPark/20",
+    "Angle": {
+     "Float64": 5.0
+    },
+    "Seconds": {
+     "Float64": 4.0
+    }
    },
    "children": [
     {
-     "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -17527,9 +17533,9 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -30.0,
-         -7.3,
-         293.0
+         0.0,
+         -6.6,
+         0.0
         ],
         "orientation": [
          [
@@ -17565,7 +17571,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -17615,7 +17621,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -17673,7 +17679,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -17731,7 +17737,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -17789,7 +17795,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -17847,7 +17853,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -17909,9 +17915,9 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       30.0,
+       0.7,
+       -293.0
       ],
       "orientation": [
        [
@@ -17933,7 +17939,7 @@
      }
     }
    },
-   "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Decor"
+   "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Swing"
   },
   {
    "className": "Model",
@@ -19826,11 +19832,17 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_WaterPark/27"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_WaterPark/27",
+    "Angle": {
+     "Float64": 5.0
+    },
+    "Seconds": {
+     "Float64": 4.0
+    }
    },
    "children": [
     {
-     "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -19879,9 +19891,9 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         30.0,
-         -7.3,
-         293.0
+         0.0,
+         -6.6,
+         0.0
         ],
         "orientation": [
          [
@@ -19917,7 +19929,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -19967,7 +19979,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -20025,7 +20037,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -20083,7 +20095,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -20141,7 +20153,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -20199,7 +20211,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -20261,9 +20273,9 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       -30.0,
+       0.7,
+       -293.0
       ],
       "orientation": [
        [
@@ -20285,7 +20297,7 @@
      }
     }
    },
-   "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Decor"
+   "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Swing"
   },
   {
    "className": "Model",
@@ -22655,11 +22667,17 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_WaterPark/33"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_WaterPark/33",
+    "Angle": {
+     "Float64": 5.0
+    },
+    "Seconds": {
+     "Float64": 4.0
+    }
    },
    "children": [
     {
-     "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -22708,9 +22726,9 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         66.0,
-         -7.3,
-         301.0
+         0.0,
+         -6.6,
+         0.0
         ],
         "orientation": [
          [
@@ -22746,7 +22764,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -22796,7 +22814,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -22854,7 +22872,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -22912,7 +22930,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -22970,7 +22988,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -23028,7 +23046,7 @@
      ]
     },
     {
-     "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Decor",
+     "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -23090,9 +23108,9 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       -66.0,
+       0.7,
+       -301.0
       ],
       "orientation": [
        [
@@ -23114,7 +23132,7 @@
      }
     }
    },
-   "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Decor"
+   "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Swing"
   },
   {
    "className": "Model",

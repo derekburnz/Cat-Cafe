@@ -1,5 +1,5 @@
 --!strict
--- #4098 (Tier 2 is a big fall for new players): the line under the goal card's "Catch new kinds of cat 2/4" that names
+-- #4098 (Tier 2 is a big fall for new players): the line under the goal card's "Catch new kinds of cat 2/3" that names
 -- what the goal opens, so Cozy Cafe reads as the goal from the second cat on. Its numbers are the catalog's, so the
 -- line is true. Pure, so the cloud specs check it.
 --   opens(tierName, narrow) -> string?   "Opens Cozy Cafe and the Park 🏆", "Opens Cozy Cafe 🏆" on a phone's card

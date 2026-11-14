@@ -33,7 +33,7 @@ RoadmapLogic.STEPS = {
 		doneText = "Your first table is open",
 	},
 	{ text = "Your first bait cat", short = "First bait cat!", reward = "+3 golden fish" },
-	{ text = "Four different cats", short = "Four cats!", reward = "+1 spin" }, -- #4098: Tier 2's need (5 before)
+	{ text = "Three different cats", short = "Three cats!", reward = "+1 spin" }, -- #4188: Tier 2's need (4 for #4098)
 	{ text = "Rank up to Tier 2", short = "Tier 2!", reward = "+5 golden fish" },
 	{ text = "Catch a cat in the Park", short = "A Park cat!", reward = "+1 Swift Potion" },
 	{ text = "A full Tier 2 cafe", short = "Full cafe!", reward = "+1 spin" },

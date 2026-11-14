@@ -11140,29 +11140,37 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.open("Store")
 		assertStoreCards(true)
 	end },
-	-- #3996 (todays-deal-3996.md section 4): Today's Deal is the hero card while it shows, with what is in it, the honest
-	-- value line, the Tomorrow line and R$25, and the usual hero leads the picks; its press asks the server
-	-- (PromptDeal), never Roblox
+	-- #3996, #4259 (Derek 11-14: "a seperate tab for todays deals"): Today's Deal has its own Deal tab with a New dot,
+	-- and its page's one card says what is in it, the honest value line, the Tomorrow line and R$25; Featured keeps
+	-- the bundles and passes. Its press asks the server (PromptDeal), never Roblox
 	{ "StoreDeal", function()
 		UI.update({ dailyDeal = { deal = 1, bought = false, tomorrow = 2 } } :: any)
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
 		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
-		local card = window:FindFirstChild("hero", true) :: Frame
-		assert(card and card.Visible, "uigate: no Today's Deal card on Featured (#3996)")
+		for _, slot in { "hero", "pick1", "pick2", "pick3" } do
+			local shown = window:FindFirstChild(slot, true)
+			local name = shown and shown:FindFirstChild("Name") :: TextLabel?
+			assert(not (name and name.Text == "Today's Deal"), "uigate: Today's Deal is still on Featured's " .. slot .. " (#4259)")
+		end
+		local tab = window:FindFirstChild("deal", true) :: GuiObject
+		assert(tab and tab.Visible, "uigate: no Deal tab on the rail (#4259)")
+		local dot = tab:FindFirstChild("NewDot", true) :: GuiObject?
+		assert(dot and dot.Visible, "uigate: the Deal tab has no New dot for a deal still to buy (#4259)")
+		press("CatCafeModals", "deal")
+		assert(not (dot :: GuiObject).Visible, "uigate: the Deal tab's dot stays after it is opened (#4259)")
+		local card = window:FindFirstChild("dealCard", true) :: Frame
+		assert(card and card.Visible and (window:FindFirstChild("DealPage", true) :: GuiObject).Visible, "uigate: no Today's Deal card on the Deal tab (#4259)")
+		assert(not (window:FindFirstChild("Featured", true) :: GuiObject).Visible, "uigate: Featured stays up under the Deal tab (#4259)")
 		assert((card:FindFirstChild("Name") :: TextLabel).Text == "Today's Deal", "uigate: the deal card's title (#3996)")
 		local effect = card:FindFirstChild("Effect") :: TextLabel
 		assert(effect.Visible and string.find(effect.Text, "5 Big Money", 1, true), "uigate: the deal card does not say what is in it: " .. effect.Text .. " (#3996)")
 		assert(string.find(effect.Text, "Tomorrow: Trait Token deal", 1, true), "uigate: no Tomorrow line: " .. effect.Text .. " (#3996)")
-		assert(string.find(effect.Text, "more than Potion Pack S", 1, true), "uigate: no value line: " .. effect.Text .. " (#3996)")
-		local pick = window:FindFirstChild("pick1", true) :: Frame
-		local pickName = (pick:FindFirstChild("Name") :: TextLabel).Text
-		assert(pick.Visible and pickName ~= "" and pickName ~= "Today's Deal", "uigate: the usual hero does not lead the picks (#3996)")
 		local sent = nil
 		local connection = UI.events.storeDeal:Connect(function(productId)
 			sent = productId
 		end)
-		press("Store", "hero.Buy")
+		press("Store", "dealCard.Buy")
 		connection:Disconnect()
 		assert(sent == "deal_1", "uigate: the deal's R$25 sent " .. tostring(sent) .. " (#3996)")
 	end },
@@ -11171,25 +11179,29 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ dailyDeal = { deal = 2, bought = false, tomorrow = 3 } } :: any)
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
+		press("CatCafeModals", "deal")
 		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
-		local effect = window:FindFirstChild("hero", true):FindFirstChild("Effect") :: TextLabel
+		local effect = window:FindFirstChild("dealCard", true):FindFirstChild("Effect") :: TextLabel
 		assert(string.find(effect.Text, "Roll odds:", 1, true), "uigate: the token deal shows no odds: " .. effect.Text .. " (#3996)")
 		assert(effect.TextFits ~= false or effect.TextTruncate == Enum.TextTruncate.None, "uigate: the token deal's odds are cut (#3996)")
 	end },
-	-- #3996: bought today, the card stays, a pick now, with "Bought today" in the button's place; switched off, no card
+	-- #3996: bought today, the card stays on the Deal tab with "Bought today" in the button's place and no New dot;
+	-- switched off, the tab goes and the Store is back on Featured
 	{ "StoreDealBought", function()
 		UI.update({ dailyDeal = { deal = 3, bought = true, tomorrow = 4 } } :: any)
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
 		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
-		local card = window:FindFirstChild("pick1", true) :: Frame
+		local tab = window:FindFirstChild("deal", true) :: GuiObject
+		assert(not (tab:FindFirstChild("NewDot", true) :: GuiObject).Visible, "uigate: a bought deal keeps the Deal tab's dot (#4259)")
+		press("CatCafeModals", "deal")
+		local card = window:FindFirstChild("dealCard", true) :: Frame
 		local owned = card:FindFirstChild("Owned") :: TextLabel
-		assert((card:FindFirstChild("Name") :: TextLabel).Text == "Today's Deal", "uigate: the bought deal is not the first pick (#3996)")
 		assert(card.Visible and owned.Visible and owned.Text == "Bought today", "uigate: the bought deal does not say so (#3996)")
 		assert(not (card:FindFirstChild("Buy") :: GuiObject).Visible, "uigate: the bought deal still has its button (#3996)")
 		UI.update({ dailyDeal = false } :: any)
-		local name = (card:FindFirstChild("Name") :: TextLabel).Text
-		assert(name ~= "Today's Deal" and not owned.Visible, "uigate: the deal card stays with the switch off (#3996)")
+		assert(not tab.Visible and not card.Visible, "uigate: the Deal tab stays with the switch off (#4259)")
+		assert((window:FindFirstChild("Featured", true) :: GuiObject).Visible, "uigate: the Store is not back on Featured once the deal is gone (#4259)")
 	end },
 	-- #4175: on a big update day (Config.UpdateFeature's window, the updateFeature switch on) the update's own item is
 	-- the hero with a plain "New today" badge and the usual hero leads the picks; no other card carries the line
@@ -11432,8 +11444,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		press("CatCafeModals", "passes")
 		assertStoreCards(false)
 	end },
-	-- #2147 (Derek2: "make the +15% earned more obvious"): the Cat Accessories and Uniform Styles cards lead their words
-	-- with a gold "+15% money" chip, under the picture and over the words; no other card has one
+	-- #2147: the Passes tab has no "+15% money" chips now that Cat Accessories and Uniform Styles are off the Store
+	-- (Derek 2026-11-14); buying one on Roblox still brings the thank-you toast
 	{ "StorePassesPerk", function()
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
@@ -11442,37 +11454,18 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("Store", true)
 		local list = window and window:FindFirstChild("List", true)
-		local chips: { [string]: boolean } = {}
 		for _, label in (list :: Instance):GetDescendants() do
 			if not (label:IsA("TextLabel") and label.Name == "Name" and label.Visible) then
 				continue
 			end
 			local card = label.Parent :: Frame
 			local perk = card:FindFirstChild("Perk", true) :: TextLabel?
-			local effect = card:FindFirstChild("Effect") :: TextLabel
 			local shown = perk ~= nil and perk.Visible
-			if label.Text == "Cat Accessories" or label.Text == "Uniform Styles" then
-				assert(shown and (perk :: TextLabel).Text == "+15% money", "uigate: the " .. label.Text .. " card has no +15% money chip (#2147)")
-				local chip = perk :: TextLabel
-				assert(chip.TextFits, "uigate: the +15% chip's words do not fit (#2147)")
-				local tile = card:FindFirstChild("Tile") :: Frame
-				if tile.AnchorPoint.Y == 0.5 then
-					-- #3572: a wide card's chip sits on the foot of its picture, clear of the words
-					local chipBottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
-					assert(chip.AbsolutePosition.X + chip.AbsoluteSize.X <= effect.AbsolutePosition.X, "uigate: the " .. label.Text .. " chip runs into the words (#3572)")
-					assert(chipBottom <= card.AbsolutePosition.Y + card.AbsoluteSize.Y, "uigate: the chip runs off the card's foot (#3572)")
-				else
-					assert(effect.AbsolutePosition.Y >= chip.AbsolutePosition.Y + chip.AbsoluteSize.Y, "uigate: the " .. label.Text .. " words sit on the chip (#2147)")
-				end
-				assert(chip.AbsolutePosition.Y >= label.AbsolutePosition.Y + label.AbsoluteSize.Y - 1, "uigate: the chip sits on the name (#2147)")
-				local cardRight = card.AbsolutePosition.X + card.AbsoluteSize.X
-				assert(chip.AbsolutePosition.X + chip.AbsoluteSize.X <= cardRight, "uigate: the chip runs off the card (#2147)")
-				chips[label.Text] = true
-			else
-				assert(not shown, "uigate: the " .. label.Text .. " card has a perk chip (#2147)")
-			end
+			-- Derek 2026-11-14: the old Cat Accessories and Uniform Styles passes are off the Store (the outfit packs
+			-- replace them); owners keep them, so the thank-you toast below still works
+			assert(label.Text ~= "Cat Accessories" and label.Text ~= "Uniform Styles", "uigate: the Store still sells " .. label.Text .. " (Derek 2026-11-14)")
+			assert(not shown, "uigate: the " .. label.Text .. " card has a perk chip (#2147)")
 		end
-		assert(chips["Cat Accessories"] and chips["Uniform Styles"], "uigate: an outfit pass card is missing (#2147)")
 		-- 7.3: the prompt says Cat Accessories was just bought: the thank-you toast (the sparkle is Animation's)
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		local PassShop = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.PassShop")

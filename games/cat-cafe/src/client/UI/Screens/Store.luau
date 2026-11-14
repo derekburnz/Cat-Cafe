@@ -127,6 +127,7 @@ local BAG_ICON = 28
 local HERO_TILE_MAX = 132
 local HERO_BUTTON_W = 150
 local HERO_MIN = 100
+local DEAL_MAX = 300 -- #4259: Today's Deal's card on its own page, no taller than this
 -- On a short page (a phone held sideways) the picks drop their descriptions, so the hero and the three picks still
 -- fit with no scrolling; each pick keeps its picture, name and price, and the tabs show the details.
 local HERO_ROOM = 150 -- the hero wants at least this much beside the picks before they keep their words
@@ -407,6 +408,22 @@ function Store.new(callbacks: Callbacks): Store
 		Text = "Nothing in the Store yet. Come back soon!",
 		Visible = false,
 		Parent = self._featured,
+	})
+
+	-- #4259: Today's Deal's own page, one big card (Store._fillDeal) from the top
+	self._dealPage = Create("Frame", {
+		Name = "DealPage",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Visible = false,
+		Parent = pages,
+	}, {
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, CARD_INSET),
+			PaddingRight = UDim.new(0, CARD_INSET),
+			PaddingTop = UDim.new(0, CARD_STROKE),
+			PaddingBottom = UDim.new(0, CARD_STROKE),
+		}),
 	})
 
 	-- Codes (#1428): Screens/Codes mounts its box here (UI.store.start)
@@ -953,7 +970,22 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?, line: string?)
 		if #images > 0 then
 			-- #2500: no old emoji flashing while the picture first loads (it shows only if the picture never comes)
 			IconArt.quietWait(entry.glyph, QUIET_SECONDS)
-			IconArt.setImages(entry.glyph, images, PICTURE_SCALE)
+			-- #4259 (Derek 11-14: "the image clips out of the box for at least winter pack"): an outfit pack's picture
+			-- is art to its edges with no clear margin, so it fills its tile exactly, with the tile's round corners
+			IconArt.setImages(entry.glyph, images, if row.pack then 1 else PICTURE_SCALE)
+			local picture = entry.glyph:FindFirstChild("IconArt")
+			if picture and picture:IsA("ImageLabel") then
+				local corner = picture:FindFirstChild("PackCorner")
+				if row.pack and corner == nil then
+					Create("UICorner", {
+						Name = "PackCorner",
+						CornerRadius = UDim.new(0, Theme.sizes.radius),
+						Parent = picture,
+					})
+				elseif not row.pack and corner then
+					corner:Destroy()
+				end
+			end
 		else
 			IconArt.setImage(entry.glyph, nil)
 			IconArt.set(entry.glyph, row.icon)
@@ -1061,6 +1093,14 @@ function Store._layout(self: any)
 		return
 	end
 	local spacing = GAP + 2 * CARD_STROKE
+	-- #4259: Today's Deal's card on its own page, as tall as its lines want and the page allows
+	local dealCard = self._cards.dealCard
+	if dealCard then
+		dealCard.frame.Size = UDim2.new(1, 0, 0, math.clamp(height, HERO_MIN, DEAL_MAX))
+		dealCard.effectMax = Theme.sizes.textBody
+		dealCard.effect.TextSize = dealCard.effectMax
+		self:_place(dealCard)
+	end
 	-- #4026: the Sale row takes its strip at the foot of Featured, only where the hero and the picks keep their words
 	local saleShown = self._saleCount > 0
 		and height - SALE_ROW_H - 2 * spacing - self._cellMin >= HERO_ROOM
@@ -1562,7 +1602,7 @@ end
 
 -- The tab the rail shows: its button gold, its page up (Featured, or the grid with that tab's cards).
 function Store.showTab(self: any, tab: string)
-	local shown = false
+	local shown = tab == StoreLogic.DEAL_TAB and self._dealShown == true -- #4259: while there is a deal
 	for _, entry in StoreLogic.tabs(self._rows) do
 		if entry.id == tab then
 			shown = true
@@ -1597,8 +1637,17 @@ function Store.showTab(self: any, tab: string)
 	local featured = self._tab == "featured"
 	local codes = self._tab == "codes"
 	local packs = self._tab == "packs"
+	local dealTab = self._tab == StoreLogic.DEAL_TAB
 	self._featured.Visible = featured
-	self._list.Visible = not featured and not codes and not packs
+	self._dealPage.Visible = dealTab
+	if dealTab then
+		self._dealLooked = true
+		local dot = self._newDots[StoreLogic.DEAL_TAB]
+		if dot then
+			dot.Visible = false
+		end
+	end
+	self._list.Visible = not featured and not codes and not packs and not dealTab
 	self._packsPage.Visible = packs
 	if not packs then
 		self:_showPack(nil)
@@ -1701,36 +1750,36 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 	-- #3562: off sale cards never lead
 	local featured = StoreLogic.featured(rows, prices, if feature then feature.row else nil)
 	local hero = self._cards.hero or self:_makeCard("hero", "hero", self._featured, 0)
-	-- #3996 (todays-deal-3996.md section 4): while Today's Deal shows it is the hero, since a pick on a phone has room
-	-- for one line and the deal's lines (the token deal's odds above all) must be on the card itself. The usual hero
-	-- leads the picks and the last pick waits for tomorrow. Once bought it needs only its name and "Bought today", so
-	-- it steps down to the first pick and the hero is the usual one again.
+	-- #4259 (Derek 11-14: "todays deal ... honestly a seperate tab for todays deals, they are not that good save that big
+	-- space for starter packs or vip"): Today's Deal has its own tab and page, bought or not; Featured keeps its hero
+	-- and picks for the bundles and passes
 	local deal = DealLogic.card(self._deal, os.time(), MysticPoolLogic.oddsLine())
 	local picks: { StoreLogic.Row } = featured.picks
-	local dealPick = deal ~= nil and deal.bought
-	if deal ~= nil and not deal.bought then
-		self:_fillDeal(hero, deal)
-		picks = {}
-		if featured.hero then
-			table.insert(picks, featured.hero)
-		end
-		for _, pick in featured.picks do
-			if #picks < StoreLogic.PICKS then
-				table.insert(picks, pick)
-			end
-		end
-	else
-		self:_fill(hero, featured.hero, lineOf(featured.hero))
-	end
+	self:_fill(hero, featured.hero, lineOf(featured.hero))
 	for index = 1, StoreLogic.PICKS do
 		local slot = "pick" .. index
 		local entry = self._cards[slot] or self:_makeCard(slot, "tile", self._picks, index)
-		if dealPick and index == 1 then
-			self:_fillDeal(entry, deal)
-		else
-			local pick = picks[if dealPick then index - 1 else index]
-			self:_fill(entry, pick, lineOf(pick))
-		end
+		local pick = picks[index]
+		self:_fill(entry, pick, lineOf(pick))
+	end
+	self._dealShown = deal ~= nil
+	local dealButton = self._railButtons[StoreLogic.DEAL_TAB]
+	if dealButton then
+		dealButton.instance.Visible = deal ~= nil
+	end
+	local dealDot = self._newDots[StoreLogic.DEAL_TAB]
+	if dealDot then
+		-- a deal still to buy that this visit has not looked at yet
+		dealDot.Visible = deal ~= nil and not deal.bought and not self._dealLooked
+	end
+	if deal ~= nil then
+		local entry = self._cards.dealCard or self:_makeCard("dealCard", "hero", self._dealPage, 0)
+		self:_fillDeal(entry, deal)
+	elseif self._cards.dealCard then
+		self:_fillDeal(self._cards.dealCard, nil)
+	end
+	if deal == nil and self._tab == StoreLogic.DEAL_TAB then
+		self._tab = "featured" -- the deal ended while its page was up
 	end
 	self._picks.Visible = #picks > 0
 	local onFeatured: { [string]: boolean } = {}

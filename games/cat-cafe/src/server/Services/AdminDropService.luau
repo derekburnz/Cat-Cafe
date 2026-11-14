@@ -111,7 +111,7 @@ local function grabFish(run: Run, fish: BasePart, player: Player)
 end
 
 local function sprayFish(run: Run, at: number)
-	local cannon = world.cannons.town
+	local cannon: Model? = world.cannons.town
 	if cannon == nil then
 		return
 	end

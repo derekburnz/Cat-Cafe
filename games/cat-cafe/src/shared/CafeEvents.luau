@@ -136,7 +136,8 @@ CafeEvents.ADMIN_KINDS = {
 	storm = { title = "Cat Storm", minutes = 10, effects = { catStorm = 10 } },
 	-- #4197 part 2 (Derek's `/admin golden|money|traits|speed|hunt`)
 	golden = { title = "Golden Hour", minutes = 15, effects = { goldBoost = 10, rainbowBoost = 5 } },
-	money = { title = "Money Storm", minutes = 10, effects = { moneyStorm = 5 } },
+	-- Derek 2026-11-14 22:09 UTC (#4325): "make it like 4x money for a little bit": 4x for 5 minutes
+	money = { title = "Money Storm", minutes = 5, effects = { moneyStorm = 4 } },
 	traits = { title = "Trait Party", minutes = 10, effects = { traitParty = true } },
 	speed = { title = "Speed Rush", minutes = 10, effects = { speedRush = true } },
 	hunt = { title = "Secret Hunt", minutes = 15, effects = { secretHunt = 3 } },

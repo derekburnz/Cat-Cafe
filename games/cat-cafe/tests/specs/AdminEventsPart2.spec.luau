@@ -40,7 +40,7 @@ return function()
 		it("are the owner's /admin golden, money, traits and speed", function()
 			local expected: { [string]: { title: string, data: { [string]: number } } } = {
 				golden = { title = "Golden Hour", data = { goldBoost = 10, rainbowBoost = 5 } },
-				money = { title = "Money Storm", data = { moneyStorm = 5 } },
+				money = { title = "Money Storm", data = { moneyStorm = 4 } }, -- Derek 22:09 UTC: 4x, 5 minutes
 				traits = { title = "Trait Party", data = { traitParty = 1 } },
 				speed = { title = "Speed Rush", data = { speedRush = 1 } },
 				hunt = { title = "Secret Hunt", data = { secretHunt = 3 } },

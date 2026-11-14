@@ -58,6 +58,8 @@ NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights",
 INVISIBLE_OBJECTS = ("_Fireflies", "_Climb", "_Barrier")   # volumes never drawn: where fireflies drift, ladders'
 # climbing trusses, the walls round a pond that keep players and cats out of the water
 BARRIER_OBJECTS = ("_Barrier",)       # invisible and always solid
+# Barriers the camera and clicks pass through: the alley blockers, and the slabs over the leaderboard boards (#4073).
+NO_QUERY_BARRIERS = ("CatCafe_Alley_Blocker_", "CatCafe_Town_LeaderboardRow")
 CLIMB_OBJECTS = ("_Climb",)           # invisible TrussParts behind a ladder's rungs, so Roblox characters climb it
 # Outdoor families (Derek 2026-10-28: "make all the models climbable not sinking through them"): their planks, rungs,
 # rails and pickets collide too, down to THIN_COLLIDE thick when at least THIN_LONG long.
@@ -317,7 +319,7 @@ def _props(p, asset, uid):
     }
     if transparency:
         props["Transparency"] = transparency
-    if BACKDROP in asset or (asset.startswith("CatCafe_Alley_Blocker_") and p["name"].endswith("_Barrier")):
+    if BACKDROP in asset or (asset.startswith(NO_QUERY_BARRIERS) and p["name"].endswith("_Barrier")):
         props["CanQuery"] = False                 # blocker barriers: the camera and clicks pass through
     if p["name"].endswith("_RingIcon_Decor"):     # #2449: flat pictures in the walk-up rings, never in the way
         props["CanQuery"] = False

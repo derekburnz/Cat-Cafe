@@ -25,6 +25,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 local Cues = require(script.Cues)
 local Effects = require(script.Parent.Effects)
 local EventBanner = require(script.Parent.Effects.EventBanner)
+local FusionFx = require(script.Parent.Effects.FusionFx)
 local Logic = require(script.Logic)
 local MysticIntroCut = require(script.Parent.Effects.MysticIntroCut)
 local MysticPool = require(script.Parent.Effects.MysticPool)
@@ -1725,6 +1726,34 @@ local function followBait()
 	end)
 end
 
+-- #4061 the Ticket Booth, from each ProfileSync's `ticketBooth` (Logic.ticketPrizeBought), so it needs no moment: a
+-- prize bought prints its ticket, then the counter bell says it is yours. The first sync only sets the count.
+-- #4062 the Dragon Keep the same way, from `dragon` (Logic.keepRekindled): a Rekindle hand coming up plays Rekindle.
+local TICKET_DING_AFTER = 0.6
+local function followStations()
+	local seen = false
+	local last: any = nil
+	local lastKeep: any = nil
+	onRemote("ProfileSync", function(state: any)
+		if type(state) ~= "table" then
+			return
+		end
+		local view, keep = state.ticketBooth, state.dragon
+		local bought = seen and Logic.ticketPrizeBought(last, view)
+		local rekindled = seen and Logic.keepRekindled(lastKeep, keep)
+		seen, last, lastKeep = true, view, keep
+		if rekindled then
+			Audio.play("rekindle")
+		end
+		if bought then
+			Audio.play("ticketPrint")
+			task.delay(TICKET_DING_AFTER, function()
+				Audio.play("ticketDing")
+			end)
+		end
+	end)
+end
+
 -- The remotes that also feed a controller's state (ProfileSync, TradeState, RallyState) are hooked only once the
 -- first ProfileSync has reached the UI (the first applySettings), when every controller is listening: a remote
 -- fired before anything listens holds its events for the first listener alone, and that must be the controller.
@@ -1784,6 +1813,7 @@ local function followServerState()
 	task.defer(followTrade)
 	task.defer(followRally)
 	task.defer(followBait)
+	task.defer(followStations)
 	task.defer(followLateStations)
 	task.defer(followUpdateGift)
 end
@@ -2296,6 +2326,16 @@ local function followBigTrait()
 	end)
 end
 
+-- #4104: the Fusion Observatory's window, flat (Logic.fusionCue).
+local function followFusion()
+	FusionFx.onBeat(function(beat, coat)
+		local cue = Logic.fusionCue(beat, coat)
+		if cue ~= nil then
+			Audio.play(cue)
+		end
+	end)
+end
+
 -- Derek 2026-11-13: the Rift Run (Effects/RiftRun): the music ducks from "hush" to "done" (capped by the cut's own
 -- cap), and each beat its sound, flat (Logic.riftRunCue): a gate the pool's step chime a note higher each tier.
 local function followRiftRun()
@@ -2360,6 +2400,7 @@ function Audio.start()
 	followPoolIntro()
 	followBigTrait()
 	followRiftRun()
+	followFusion()
 	followBinRoll()
 	followTrampoline()
 	followPetCat()

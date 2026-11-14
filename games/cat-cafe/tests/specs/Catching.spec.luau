@@ -1055,4 +1055,32 @@ return function()
 			)
 		end
 	)
+
+	describe("Catching.pickNewBaitCat (#4188)", function()
+		it(
+			"picks a kind not owned among the rarity's open cats, and falls back when all are owned",
+			function()
+				local pool: { string } = {}
+				for _, def in Catalog.cats do
+					local area = Catalog.getArea(def.area)
+					if def.rarity == "Common" and area ~= nil and area.tier <= 1 then
+						table.insert(pool, def.id)
+					end
+				end
+				expect(#pool >= 2).to.equal(true)
+				local owned: { [string]: any } = {}
+				for index = 1, #pool - 1 do
+					owned[pool[index]] = 1
+				end
+				for i = 0, 19 do
+					expect(Catching.pickNewBaitCat("Common", 1, (i + 0.5) / 20, owned).id).to.equal(
+						pool[#pool]
+					)
+				end
+				owned[pool[#pool]] = 1
+				local fallback = Catching.pickNewBaitCat("Common", 1, 0.5, owned)
+				expect(fallback.id).to.equal(Catching.pickBaitCat("Common", 1, 0.5).id)
+			end
+		)
+	end)
 end

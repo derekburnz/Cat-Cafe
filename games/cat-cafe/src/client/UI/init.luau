@@ -236,6 +236,7 @@ UI.events = {
 	-- cutscene, "source:reason" (bait, store or cafePass; no_tap or busy)
 	storeGuardBlocked = Signal.new(), -- (what)   forward as TelemetryReport("store_guard_blocked", what)
 	buySource = Signal.new(), -- (what)   #4176: forward as TelemetryReport("buy_source", what)
+	starterSuggest = Signal.new(), -- (outcome)   #4174: forward as TelemetryReport("starter_suggest", outcome)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
@@ -1532,7 +1533,12 @@ function UI.init(config: Types.InitConfig)
 		if view then
 			local dashWindow = require(script.Components.MouseDashLogic).WINDOW
 			local poolWindow = require(script.Components.MysticPoolLogic).WINDOW
-			UI.rollBusy.window = name == dashWindow or name == "Arcade" or name == poolWindow
+			-- Derek 2026-11-14 ("mute all pop ups while in store"): the Store too, so toasts wait (warnings still show),
+			-- shout-outs drop and the event and day strip steps aside until it closes
+			UI.rollBusy.window = name == dashWindow
+				or name == "Arcade"
+				or name == poolWindow
+				or name == "Store"
 			view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.on)
 		end
 		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
@@ -1740,12 +1746,35 @@ function UI.init(config: Types.InitConfig)
 				if visible and input.KeyCode == Enum.KeyCode.ButtonSelect then
 					UI.gamepadSelect()
 					return
+				elseif visible and input.KeyCode == Enum.KeyCode.ButtonB then
+					-- #4224: B goes back one step: the top card or sub page first, then the window, and with
+					-- nothing open it lets go of the selection so the sticks walk again
+					local nav = require(script.Components.GamepadNav)
+					if nav.back() then
+						return
+					elseif modalInstance:current() ~= nil then
+						if nav.on() then
+							modalInstance:back()
+						else
+							modalInstance:close()
+						end
+						return
+					end
+					local guiService = game:GetService("GuiService")
+					if nav.on() and guiService.SelectedObject ~= nil then
+						guiService.SelectedObject = nil
+						return
+					end
 				elseif
 					visible
-					and input.KeyCode == Enum.KeyCode.ButtonB
+					and (input.KeyCode == Enum.KeyCode.ButtonL1 or input.KeyCode == Enum.KeyCode.ButtonR1)
 					and modalInstance:current() ~= nil
 				then
-					modalInstance:close()
+					-- #4224: L1 / R1 switch the open window's tabs
+					require(script.Components.GamepadNav).stepTab(
+						modalInstance.container,
+						if input.KeyCode == Enum.KeyCode.ButtonR1 then 1 else -1
+					)
 					return
 				end
 				if gameProcessed or not visible then
@@ -2649,6 +2678,20 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 	end
 	local index = if bowl == 2 then 2 else 1
 	bowls.cats[index] = cat
+	-- Derek 2026-11-14 ("mute all pop ups while in store"): whichever way the card is asked for while the Store is
+	-- open (Review-QA on #4260 saw one get past UI.bait.arrived), it waits for the Store to close, like arrived
+	if modal ~= nil and modal:current() == "Store" then
+		renderBait()
+		UI.bait.whenCalm(function()
+			return bowls.cats[index] == cat
+		end, function()
+			if baitCard ~= nil and baitCard:isShowing() then
+				return
+			end
+			UI.bait.showReady(cat, index)
+		end)
+		return
+	end
 	bowls.card = index
 	if modal and modal:current() == "Bait" then
 		modal:close()
@@ -2688,6 +2731,7 @@ function UI.bait.busy(): boolean
 		or UI.bigTraitCutting() -- #3846: a Legendary or Mythic trait roll's cutscene
 		or UI.bait.away() -- #4035: out catching in an area
 		or UI.cutscene.on -- #4018: any cutscene (UI.setCutscene)
+		or (modal ~= nil and modal:current() == "Store") -- Derek 2026-11-14: no bowl cards over the Store
 end
 
 -- #4035 (Derek 2026-11-13: "remove all food bowl pop ups etc until your back in town square way too many annoying
@@ -5516,8 +5560,8 @@ do
 	end
 
 	-- #3555: for the first rank up's walk-through (Controllers/RankSpotController). `moment` says whether nothing
-	-- else is going on (no catch, rescue, carry, cutscene or flight, the UI showing) and names the open window: the
-	-- modal's, or "other" for a popup, the bait card, an ask or the gift, tip or recap card.
+	-- else is going on (no catch, rescue, carry, intro or flight, the UI showing) and names the open window: the
+	-- modal's, or "other" for a popup, the bait card, an ask, the gift, tip or recap card or a cutscene.
 	function UI.rankSpot.moment(): (boolean, string?)
 		local at = tipMoment()
 		local free = not (
@@ -5543,6 +5587,10 @@ do
 				or (cards.gift.card ~= nil and cards.gift.card:isShowing())
 				or (tipCard ~= nil and tipCard:isShowing())
 				or (cards.recap.card ~= nil and cards.recap.card:isShowing())
+				-- #4188: and a cutscene (the first bait cat's). It counts as a card, not as busy: the free seconds keep
+				-- running under it, so with Tier 2 at 3 kinds the goal card lights the moment the bait cat's card and
+				-- scene are gone, not 2 s later
+				or UI.cutscene.on
 			)
 		then
 			window = "other"
@@ -5586,6 +5634,10 @@ do
 			lookForTips()
 			local tips: any = UI.tips -- lookForAsk is set by the ask's block below
 			tips.lookForAsk()
+			local lookForStarter: (() -> ())? = tips.lookForStarter -- #4174, set by its block below
+			if lookForStarter ~= nil then
+				lookForStarter()
+			end
 		end
 		if clocks.pump >= TIP.PUMP_EVERY then
 			clocks.pump = 0
@@ -5971,6 +6023,123 @@ do
 		if card ~= nil and not card:isShowing() then
 			openAsk(card)
 		end
+	end
+end
+
+-- #4174: the Starter Bundle's one slide-in card a session (shared/StarterSuggest), behind the starterSuggest switch.
+-- It rides the ask card (its X from the first frame, its picture and line, no timer: it stays until Buy or the X) with one Buy button, only in
+-- a clear moment past its random 10 to 15 minute mark. Its own block, as the module is short of locals.
+do
+	local StarterSuggest =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterSuggest")) :: any
+	local suggest = {
+		start = os.clock(),
+		dueAt = StarterSuggest.dueAt(math.random()),
+		done = false,
+	}
+
+	local function report(outcome: string)
+		UI.events.starterSuggest:Fire(outcome)
+	end
+
+	-- Roblox's price for the bundle when it is for sale, else nil
+	local function price(): (number?, number?)
+		local id = (Config :: any).ProductIds and (Config :: any).ProductIds.starter_bundle
+		if type(id) ~= "number" or id <= 0 then
+			return nil, nil
+		end
+		local PassShop = require(script.Components.PassShop) :: any
+		local known = PassShop.prices()[id]
+		if known == nil or known.forSale ~= true or type(known.robux) ~= "number" then
+			return id, nil
+		end
+		return id, known.robux
+	end
+
+	local function open(card: AskCard.AskCard, id: number, robux: number)
+		suggest.done = true
+		local ended = false
+		local function finish(how: string)
+			if ended then
+				return
+			end
+			ended = true
+			report(how)
+		end
+		card:show({
+			title = StarterSuggest.TITLE,
+			picture = StarterSuggest.PICTURE,
+			line = StarterSuggest.LINE,
+			choices = {
+				{ id = "buy", label = StarterSuggest.buyLabel(robux), style = "primary" },
+			},
+			-- no seconds: it stays until Buy or the X (Derek 2026-11-14), with no timer bar
+			answer = function(choice: string?)
+				if choice == "buy" then
+					finish("buy")
+					local PassShop = require(script.Components.PassShop) :: any
+					PassShop.noteTap()
+					PassShop.prompt(id, StarterSuggest.SOURCE)
+				end
+			end,
+			ended = function(how: string)
+				if how == "closed" or how == "ignored" then
+					finish(how)
+				elseif how ~= "answered" then
+					finish("hidden")
+				end
+			end,
+		})
+		UI.asks.shown()
+		report("shown")
+	end
+
+	-- From the tips clock, once a second.
+	function UI.tips.lookForStarter()
+		local card = askCard
+		if suggest.done or card == nil or card:isShowing() then
+			return
+		end
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local on = LiveFlags.shown(
+			StarterSuggest.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StarterSuggest.FLAG)
+		)
+		if not on then
+			return
+		end
+		local id, robux = price()
+		local QuietStart =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+		local PassShop = require(script.Components.PassShop) :: any
+		local okBusy, busy = pcall(PassShop.busy)
+		local due = StarterSuggest.due({
+			on = on,
+			done = suggest.done,
+			played = os.clock() - suggest.start,
+			dueAt = suggest.dueAt,
+			owned = (state :: any).starterBought,
+			quietUntil = Players.LocalPlayer:GetAttribute(QuietStart.ATTRIBUTE),
+			now = Workspace:GetServerTimeNow(),
+			tutorialDone = type(state.tutorialStep) == "number" and state.tutorialStep >= 5,
+			clear = UI.tips.quiet() and not (okBusy and busy == true) and UI.asks.paced(),
+			priced = robux ~= nil,
+		})
+		if due and id ~= nil and robux ~= nil then
+			open(card, id, robux)
+		end
+	end
+
+	-- The card now, whatever the clock and the switch say (QA in Studio and the UI gate), with a stand-in price
+	-- until Roblox's is known.
+	function UI.tips.showStarter()
+		local card = askCard
+		if card == nil then
+			return
+		end
+		local id, robux = price()
+		open(card, id or 0, robux or 99)
 	end
 end
 
@@ -9666,6 +9835,7 @@ do
 	local events = {
 		boards = nil :: EventBoards.EventBoards?,
 		seen = nil :: EventLogic.Seen?, -- kept across rebuilds, so a respawn neither repeats the banner nor forgets the end
+		adminSeen = nil :: any, -- #4195: the same for the admin event (Effects/AdminEventLogic.Seen)
 		token = 0,
 	}
 
@@ -9778,10 +9948,32 @@ do
 				)
 			end
 		end
+		-- #4195: an admin event (Bowl Frenzy, the Admin Wheel) beside the Cafe Event: its warning card two minutes
+		-- before, its wide card as it starts, and its timer first on the event chip (Effects/AdminEventLogic)
+		local AdminEventLogic = require(script.Parent.Effects.AdminEventLogic) :: any
+		local adminView = AdminEventLogic.read(get, UI.cafeEvent.decode)
+		local adminSeen, adminBeat = AdminEventLogic.follow(events.adminSeen, adminView, now)
+		events.adminSeen = adminSeen
+		if adminBeat ~= nil and adminView ~= nil then
+			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
+			local card = if adminBeat == "start"
+				then AdminEventLogic.startBanner(adminView, now)
+				else AdminEventLogic.soonBanner(adminView, now)
+			EventBanner.show(card)
+			-- the same words as one line in the chat window, for a player who looked away
+			local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any
+			AdminEventChat.say(AdminEventLogic.chatLine(card))
+		end
 		local current = hud
 		if current then
-			local chipLines, chipKind = EventLogic.chip(view, seen, now)
-			current:setEvent(chipLines, chipKind, EventLogic.strip(view, seen, now))
+			local eventLines, eventKind = EventLogic.chip(view, seen, now)
+			local chipLines, chipKind, stripLines = AdminEventLogic.merge(
+				eventLines,
+				eventKind,
+				EventLogic.strip(view, seen, now),
+				AdminEventLogic.stripLine(adminView, now)
+			)
+			current:setEvent(chipLines, chipKind, stripLines)
 			current:setEventBoost(EventLogic.moneyBoost(view, now))
 		end
 		local boards = events.boards
@@ -9806,6 +9998,7 @@ do
 	-- the UI gate's scenes: forget the watched event, so a put-away test party is not "ended early"
 	function UI.cafeEvent.forget()
 		events.seen = nil
+		events.adminSeen = nil
 	end
 
 	function UI.cafeEvent.reset()

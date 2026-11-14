@@ -69,7 +69,7 @@ local function mysticIntro(station: Instance): boolean
 end
 
 local player = Players.LocalPlayer
-local POLL_SECONDS = 0.15
+local POLL_SECONDS = 0.05 -- Derek 2026-11-14: rings open at once (was 0.15, plus a 0.3 s wait in WalkUp)
 
 -- A kind of station: its tag, its prompt's name, the window (the UI's modal name) and how to open it for `model`.
 -- `only`, when given, picks which of the tag's models are this kind (#3113: one tag holds several camp stations).

@@ -1,7 +1,7 @@
 --!strict
 -- Ambient life (design v0.4 section 4): espresso steam, chimney smoke, butterflies over the flower beds by day
 -- (each wandering the whole bed, coming and going, and now and then flying over to another bed close by, so the
--- Town Square's lamp baskets share theirs; Derek 2026-10-28 17:48) and fireflies at night. Sources are found by name, the asset thread's `_Steam`, `_Chimney`, `_Flowers` and
+-- Town Square's lamp baskets share theirs; Derek 2026-10-28 17:48) and fireflies at night. Sources are found by name, the asset thread's `_Steam`, `_Chimney` (or an Attachment named `Smoke`), `_Flowers` and
 -- `_Fireflies` objects (a part, or an object Model whose parts share its name), with fallbacks for the graybox: the top of each plot's Espresso model, a spot in front of
 -- each cafe door and the street lamps. Only the nearest sources within range run, inside the device budget, and
 -- the choice is made once a second, not every frame.
@@ -126,6 +126,12 @@ local function classify(instance: Instance)
 		or (attachment and name == "Steam")
 	then
 		add("steam", instance, false)
+		return
+	end
+	-- an Attachment named just `Smoke` at a chimney's top: the Snowy lodge and the Castle's timber houses (#4069,
+	-- #4071, Model-Agent's #4212), whose chimneys are part of the house and have no piece of their own
+	if attachment and name == "Smoke" then
+		add("chimney", instance, false)
 		return
 	end
 	if not part and not instance:IsA("Model") then

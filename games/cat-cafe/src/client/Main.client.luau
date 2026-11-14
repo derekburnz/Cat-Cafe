@@ -26,6 +26,7 @@ local MuseumGalleryController = require(script.Parent.Controllers.MuseumGalleryC
 local NetSwingController = require(script.Parent.Controllers.NetSwingController)
 local ParkFirstController = require(script.Parent.Controllers.ParkFirstController)
 local ParkTrailController = require(script.Parent.Controllers.ParkTrailController)
+local PerfSuggestController = require(script.Parent.Controllers.PerfSuggestController)
 local PetController = require(script.Parent.Controllers.PetController)
 local RallyController = require(script.Parent.Controllers.RallyController)
 local RankSpotController = require(script.Parent.Controllers.RankSpotController)
@@ -70,3 +71,4 @@ SpaPoolController.start() -- #2909: your own cats soaking in the Oasis Spa pool
 StarterCatController.start() -- F96: the Bellhop Cat's stand card
 CustomerController.start()
 Effects.start()
+PerfSuggestController.start() -- #4311: the one Low performance ask on a slow touch device

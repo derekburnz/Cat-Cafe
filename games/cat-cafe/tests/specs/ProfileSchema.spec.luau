@@ -180,6 +180,7 @@ return function()
 				tradeRequests = "everyone",
 				roadmapOpen = false,
 				sessionRecap = true,
+				perfAsked = false,
 				autoEquip = true, -- #1955: on for a new account
 				catIncome = true, -- #2551
 				goalFolded = false, -- #2714
@@ -644,6 +645,7 @@ return function()
 					tradeRequests = "everyone",
 					roadmapOpen = false,
 					sessionRecap = true,
+					perfAsked = false,
 					autoEquip = false, -- #1955: a save from before Auto Equip
 					catIncome = true, -- #2551: on for a save from before it
 					goalFolded = false, -- #2714

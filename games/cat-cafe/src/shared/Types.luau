@@ -1265,6 +1265,7 @@ export type Settings = {
 	tradeRequests: string, -- F102: who may ask to trade, "everyone", "friends" or "off" (Settings.choices)
 	roadmapOpen: boolean, -- #1893: the Grand Opening strip opened into its list
 	sessionRecap: boolean, -- #1920: the session recap card after Config.RecapAfterSeconds of play
+	perfAsked: boolean, -- #4311: the Low performance ask was answered (shared/PerfSuggest)
 	autoEquip: boolean, -- #1955: Auto Equip, on for new accounts and off for saves from before it
 	catIncome: boolean, -- #2551: the rate tags over working cats (UI WorldTags), on by default
 	goalFolded: boolean, -- #2714: the HUD's goal card folded into its chip (touch), off by default

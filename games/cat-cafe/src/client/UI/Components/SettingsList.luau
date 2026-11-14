@@ -164,6 +164,7 @@ SettingsList.OTHER_KEYS = {
 	[SettingsList.TRADE_REQUESTS_KEY] = true,
 	roadmapOpen = true,
 	goalFolded = true, -- #2714: the goal card's fold tab and chip set it
+	perfAsked = true, -- #4311: the Low performance ask sets it (shared/PerfSuggest)
 	shopAlerts = true, -- #3118: still saved, but its Fresh Catch alert is gone, so no row
 	catPickSort = true, -- #3940: the Mystic Pool's Filter pop-up sets these three
 	catPickFlipped = true,

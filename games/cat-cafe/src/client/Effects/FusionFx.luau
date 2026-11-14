@@ -479,11 +479,67 @@ function FusionFx.collected(coat: string)
 	end
 end
 
+-- Studio only: Workspace attribute `FusionFxTest` = "gold" or "rainbow" shows five stand-in tiles and one centre
+-- tile, swirls them, bursts the centre a moment later and lights the dome (if it is built) for `seconds`.
+local function studioTest(coat: string)
+	local gui = ScreenFx.gui(GUI_NAME, Presets.fusion.displayOrder)
+	if gui == nil then
+		return
+	end
+	local holder = Instance.new("Frame")
+	holder.Name = "FusionFxTest"
+	holder.BackgroundTransparency = 1
+	holder.Size = UDim2.fromScale(1, 1)
+	holder.Parent = gui
+	local function tile(x: number, y: number, colour: Color3): Frame
+		local made = Instance.new("Frame")
+		made.AnchorPoint = Vector2.new(0.5, 0.5)
+		made.Position = UDim2.fromScale(x, y)
+		made.Size = UDim2.fromOffset(72, 72)
+		made.BackgroundColor3 = colour
+		made.BorderSizePixel = 0
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0.2, 0)
+		corner.Parent = made
+		made.Parent = holder
+		return made
+	end
+	local tiles: { GuiObject } = {}
+	for i = 1, 5 do
+		table.insert(tiles, tile(0.2 + i * 0.1, 0.3, Presets.palette.offwhite))
+	end
+	local centre = tile(0.5, 0.6, FusionFx.coatColour(coat, 0))
+	centre.Visible = false
+	FusionFx.set(coat, false)
+	task.wait(0.2) -- a frame or two for the tiles to take their places
+	FusionFx.swirl(tiles, centre, coat, function()
+		for _, made in tiles do
+			made.Visible = false
+		end
+		centre.Visible = true
+		task.wait(1.5)
+		FusionFx.set(coat, true)
+		FusionFx.burst(centre, coat)
+		FusionFx.collected(coat)
+		task.wait(6)
+		holder:Destroy()
+		FusionFx.set(nil, false)
+	end)
+end
+
 function FusionFx.start()
 	if started then
 		return
 	end
 	started = true
+	if RunService:IsStudio() then
+		Workspace:GetAttributeChangedSignal("FusionFxTest"):Connect(function()
+			local coat = Workspace:GetAttribute("FusionFxTest")
+			if coat == "gold" or coat == "rainbow" then
+				task.spawn(studioTest, coat)
+			end
+		end)
+	end
 	local look = 0
 	local wait = 0
 	RunService.Heartbeat:Connect(function(dt: number)

@@ -8838,6 +8838,32 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(glow, "uigate: the Bowl tile does not ring at the food step (#2697)")
 		local cats = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Cats", true)
 		assert(cats:FindFirstChild("TutorialGlow", true) == nil, "uigate: the Cats tile rings at the food step (#2697)")
+		assertArrowAt(glow.Parent :: GuiObject, "the Bowl tile")
+	end },
+	-- Review-QA 2026-11-14: with the left menu folded off the edge the food step had no Bowl tile on screen and no
+	-- arrow. A step that points into the menu slides it back out as it starts; folded again by hand, the arrow points
+	-- at the menu's arrow tab until it is open
+	{ "TutorialFoodFolded", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local fold = hud:FindFirstChild("MenuFold", true) :: GuiObject
+		local money = (UI.getState() :: any).money
+		UI.update({ tutorialStep = 5, money = 0 } :: any) -- no step and no ready rank up, so nothing else points
+		task.wait(0.1)
+		press("CatCafeHUD", "MenuFold")
+		task.wait(0.6)
+		stepFourFood()
+		task.wait(0.6)
+		local face = hud:FindFirstChild("Bowl", true):FindFirstChild("TutorialGlow", true).Parent :: GuiObject
+		assert(face.AbsolutePosition.X >= 0, ("uigate: the food step left the menu folded, Bowl at x %d"):format(face.AbsolutePosition.X))
+		assertArrowAt(face, "the Bowl tile after the menu slid out")
+		press("CatCafeHUD", "MenuFold")
+		task.wait(0.6)
+		assert(face.AbsolutePosition.X + face.AbsoluteSize.X / 2 < 0, "uigate: the menu did not fold on its tab")
+		assertArrowAt(fold, "the menu's arrow tab while the menu is folded")
+		press("CatCafeHUD", "MenuFold")
+		task.wait(0.6)
+		assertArrowAt(face, "the Bowl tile once the menu is back")
+		UI.update({ money = money } :: any)
 	end },
 	-- #3285 (Derek2: "turn off the dimming and arrow for foodbowl after they put the food inside it"): once the bowl
 	-- holds food the step waits for the cat, so the Bowl tile's ring, its arrow and the dim all go

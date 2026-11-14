@@ -2742,6 +2742,23 @@ function HUD.setMenuFolded(self: any, folded: boolean)
 	end
 	self:_placeMenuFold()
 	self:_renderFoldDot()
+	self:_placeFoldArrow()
+end
+
+-- While a tutorial step points at a menu tile and the player folded the menu away, the big arrow points at the
+-- menu's arrow tab instead, so there is always something to tap.
+function HUD._placeFoldArrow(self: any)
+	local want = self._menuAsk ~= nil and self._menuFolded == true
+	if want == (self._foldArrow == true) then
+		return
+	end
+	self._foldArrow = want
+	local tab: GuiObject = self._menuFold.instance
+	if want then
+		TutorialArrow.add(tab)
+	else
+		TutorialArrow.remove(tab)
+	end
 end
 
 function HUD.setTravelFolded(self: any, folded: boolean)
@@ -3020,6 +3037,29 @@ function HUD.render(self: any, state: Types.PlayerState)
 		TutorialHints.ask(TutorialHints.view(state, if catalog then catalog.spots else nil))
 	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, not held and asks == "job")
 	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, not held and asks == "food")
+	-- Review-QA 2026-11-14: a step that points at a menu tile (Upgrades, Cats, Bowl) with the menu folded off the edge
+	-- had no tile on screen and no arrow, only the strip's words. The folded menu slides back out once as such a step
+	-- starts; a player who folds it again keeps it folded until the next step.
+	local menuAsk: string? = nil
+	if not held then
+		if asks == "job" or asks == "food" then
+			menuAsk = asks
+		elseif
+			not holdsTable
+			and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+		then
+			menuAsk = "upgrade"
+		end
+	end
+	local askKey = if menuAsk ~= nil then `{step}:{menuAsk}` else nil
+	self._menuAsk = menuAsk
+	if askKey ~= self._menuAskKey then
+		self._menuAskKey = askKey
+		if askKey ~= nil and self._menuFolded then
+			self:setMenuFolded(false)
+		end
+	end
+	self:_placeFoldArrow()
 	-- #2912: the strip's Buy button
 	local offer = if held
 		then nil

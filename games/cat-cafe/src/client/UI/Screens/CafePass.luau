@@ -753,35 +753,41 @@ function CafePassScreen.onOpen(self: any)
 	end
 	local def: Types.PassSeasonDef? = SharedPass.seasonDef(view.season)
 	local index = PassLogic.focus(PassLogic.columns(view, def), view.level)
-	self:_scrollTo((index - 2) * (COL_W + COL_GAP))
+	self:_scrollTo((index - 2) * self:_step())
 end
 
--- #4258: the track's width and its furthest scroll, in the window's own unscaled pixels (CanvasPosition's units)
-function CafePassScreen._span(self: any): (number, number)
+-- #4258 (Review-QA in Studio at ViewScale 0.878): CanvasPosition is in on-screen pixels, as AbsoluteCanvasSize and
+-- AbsoluteWindowSize are, so the track's furthest scroll and a level's width are read in those pixels too.
+function CafePassScreen._most(self: any): number
+	local track: ScrollingFrame = self._track
+	return math.max(0, track.AbsoluteCanvasSize.X - track.AbsoluteWindowSize.X)
+end
+
+-- one level's column and the gap after it, on screen
+function CafePassScreen._step(_self: any): number
 	local scale = ViewScale.get()
-	local window = self._track.AbsoluteSize.X / (if scale > 0 then scale else 1)
-	return window, math.max(0, self._track.CanvasSize.X.Offset - window)
+	return (COL_W + COL_GAP) * (if scale > 0 then scale else 1)
 end
 
 function CafePassScreen._scrollTo(self: any, x: number)
-	local _, most = self:_span()
-	self._track.CanvasPosition = Vector2.new(math.clamp(math.floor(x + 0.5), 0, most), 0)
+	self._track.CanvasPosition = Vector2.new(math.clamp(x, 0, self:_most()), 0)
 	self:_paintArrows()
 end
 
 -- #4258: one tap of ◀ (-1) or ▶ (1) moves the track a page: as many whole levels as show, at least one, landing on a
 -- level's edge
 function CafePassScreen.page(self: any, side: number)
-	local window = self:_span()
-	local step = COL_W + COL_GAP
-	local perPage = math.max(1, math.floor((window - Outline.ROOM + COL_GAP) / step))
+	local step = self:_step()
+	local scale = step / (COL_W + COL_GAP)
+	local window = self._track.AbsoluteWindowSize.X
+	local perPage = math.max(1, math.floor((window - (Outline.ROOM - COL_GAP) * scale) / step))
 	local first = math.floor(self._track.CanvasPosition.X / step + 0.5)
 	self:_scrollTo((first + side * perPage) * step)
 end
 
 -- #4258: an arrow with nowhere to go is dimmed
 function CafePassScreen._paintArrows(self: any)
-	local _, most = self:_span()
+	local most = self:_most()
 	local x = self._track.CanvasPosition.X
 	local open = self._track.Visible
 	for side, arrow in self._arrows do

@@ -4656,19 +4656,30 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assert(at() == 0 and left:GetAttribute("CanGo") == false and right:GetAttribute("CanGo") == true,
 			("uigate: at level 1 the track sits at %.0f with ◀ %s, ▶ %s"):format(at(), tostring(left:GetAttribute("CanGo")), tostring(right:GetAttribute("CanGo"))))
+		-- Review-QA in Studio: CanvasPosition is in on-screen pixels (the UIScale does not apply to it), so a level is
+		-- 136 design px times the view's scale. This shim still scales CanvasPosition (#2360), so the on-screen checks
+		-- below run only at scale 1, where both agree
+		local scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").get()
+		local step = 136 * scale
 		press("CafePass", "PageRight")
 		local page = at()
-		assert(page >= 136 and page % 136 == 0, ("uigate: ▶ moved the track to %.0f, not a whole page of levels (#4258)"):format(page))
-		local level = window:FindFirstChild("Level" .. (page / 136 + 1), true) :: GuiObject
-		assert(level.AbsolutePosition.X >= track.AbsolutePosition.X - 0.5, "uigate: after ▶ the first level shown is cut off")
+		local levels = page / step
+		assert(page >= step - 0.01 and math.abs(levels - math.floor(levels + 0.5)) < 0.01, ("uigate: ▶ moved the track to %.1f, not a whole page of %.1f px levels (#4258)"):format(page, step))
+		if math.abs(scale - 1) < 0.001 then
+			local level = window:FindFirstChild("Level" .. (math.floor(levels + 0.5) + 1), true) :: GuiObject
+			assert(level.AbsolutePosition.X >= track.AbsolutePosition.X - 0.5, "uigate: after ▶ the first level shown is cut off")
+		end
 		press("CafePass", "PageLeft")
 		assert(at() == 0, ("uigate: ◀ took the track to %.0f, not back to level 1"):format(at()))
 		for _ = 1, 40 do
 			press("CafePass", "PageRight")
 		end
 		assert(right:GetAttribute("CanGo") == false and left:GetAttribute("CanGo") == true, "uigate: ▶ not dimmed at the end (#4258)")
-		local lastLevel = last.AbsolutePosition.X + last.AbsoluteSize.X
-		assert(lastLevel <= track.AbsolutePosition.X + track.AbsoluteSize.X + 0.5, "uigate: at the end level 30 is cut off")
+		assert(math.abs(at() - (track.AbsoluteCanvasSize.X - track.AbsoluteWindowSize.X)) < 0.5, "uigate: ▶ stopped short of the track's end (#4258)")
+		if math.abs(scale - 1) < 0.001 then
+			local lastLevel = last.AbsolutePosition.X + last.AbsoluteSize.X
+			assert(lastLevel <= track.AbsolutePosition.X + track.AbsoluteSize.X + 0.5, "uigate: at the end level 30 is cut off")
+		end
 	end },
 	-- #1646: the paid track not bought yet, with Roblox's price on the buy button, and the Store's Cafe Pass card
 	{ "CafePassBuy", function()

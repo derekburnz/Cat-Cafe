@@ -281,6 +281,30 @@ function Logic.catchPop(rarity: string): (number, number, boolean)
 	return ring, c.confetti[rarity] or 0, c.beams[rarity] == true
 end
 
+-- #4069: what a catch of a `rarity` cat (`catId`) adds in `area` on top of the rarity pop (Presets.catchFlavour):
+-- how many puffs and flakes, how wide the second ring is against the rarity's (0 for none) and how many gusts climb.
+-- Nil in an area with no flavour. Each step starts at its own rarity, so it only ever grows with rarity.
+export type CatchFlavourPlan = { puff: number, flakes: number, ringScale: number, gusts: number }
+function Logic.catchFlavour(area: unknown, catId: unknown, rarity: unknown): CatchFlavourPlan?
+	local f = Presets.catchFlavour
+	local spec: Presets.CatchFlavour? = if type(area) == "string" then f.areas[area] else nil
+	if spec == nil then
+		return nil
+	end
+	local ranks = f.ranks
+	local rank: number = if type(rarity) == "string" then ranks[rarity] or 1 else 1
+	local gusts = if rank >= ranks[spec.gustsFrom] then spec.gusts else 0
+	if type(catId) == "string" then
+		gusts += spec.cats[catId] or 0
+	end
+	return {
+		puff = spec.puff,
+		flakes = if rank >= ranks[spec.flakesFrom] then spec.flakes else 0,
+		ringScale = if rank >= ranks[spec.ringFrom] then spec.ringScale else 0,
+		gusts = gusts,
+	}
+end
+
 -- Whether `rarity` gets a Mythical's extras (the second ring, the showers, the big pull's sparkles and shockwave): a
 -- Mythical, and a Secret (#3470), which adds its own on top.
 function Logic.topTier(rarity: unknown): boolean

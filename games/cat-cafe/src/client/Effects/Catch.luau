@@ -35,7 +35,14 @@ local ScreenFx = require(script.Parent.ScreenFx)
 
 local Catch = {}
 
-type Scheduled = { model: Model, position: Vector3, ground: Vector3, rarity: string }
+type Scheduled = {
+	model: Model,
+	position: Vector3,
+	ground: Vector3,
+	rarity: string,
+	area: unknown, -- the stray's Area and CatId, for the area's own touch on the catch (#4069)
+	catId: unknown,
+}
 
 local scheduled: { [string]: Scheduled } = {}
 local rng = Random.new()
@@ -156,6 +163,42 @@ local function caught(at: Vector3, ground: Vector3, rarity: string)
 		)
 	end
 	beam(ground, rarity, colour)
+end
+
+-- #4069: the area's own touch on a catch, on top of the rarity pop (Presets.catchFlavour, Logic.catchFlavour): in
+-- the Snowy Mountain a puff of snow, flakes from Epic up, a frost ring from Legendary up and, for a Mythical, gusts
+-- of snow climbing over the cat. Rings are skipped with Reduce Motion (Particles.ring), and so are the gusts.
+local function flavour(spot: Scheduled)
+	local plan = Logic.catchFlavour(spot.area, spot.catId, spot.rarity)
+	local spec: Presets.CatchFlavour? = if type(spot.area) == "string"
+		then Presets.catchFlavour.areas[spot.area]
+		else nil
+	if plan == nil or spec == nil then
+		return
+	end
+	Particles.burst(spec.preset, spot.position, plan.puff, spec.colour)
+	if plan.flakes > 0 then
+		Particles.burst("catchSparkle", spot.position, plan.flakes, spec.colour)
+	end
+	if plan.ringScale > 0 then
+		local ring = Logic.catchPop(spot.rarity)
+		Particles.ring(
+			spot.ground,
+			spec.colour,
+			ring * plan.ringScale,
+			Presets.catchPop.ringSeconds * 1.4
+		)
+	end
+	if Context.reducedMotion() then
+		return
+	end
+	for i = 1, plan.gusts do
+		task.delay(i * spec.gustEvery, function()
+			local at = spot.ground + Vector3.new(0, spec.gustHeight * i / plan.gusts, 0)
+			Particles.burst(spec.preset, at, plan.puff, spec.colour)
+			Particles.burst("catchSparkle", at, plan.puff, Presets.palette.sparkle)
+		end)
+	end
 end
 
 -- A catch's pop for `rarity` anywhere else something of that rarity is won (a crate piece at the Market): sparkles
@@ -326,6 +369,7 @@ local function finished(spot: Scheduled, finish: string)
 	local f = Presets.catchFinish
 	task.delay(f.wrap, function()
 		wordBurst(finish)
+		flavour(spot)
 		if finish == "purrfect" then
 			purrfect(spot.position, spot.ground, spot.rarity)
 			return
@@ -379,6 +423,8 @@ function Catch.start()
 				position = topOf(model),
 				ground = bottomOf(model),
 				rarity = if type(rarity) == "string" then rarity else "Common",
+				area = model:GetAttribute("Area"),
+				catId = model:GetAttribute("CatId"),
 			}
 		end
 	end)
@@ -411,6 +457,8 @@ function Catch.start()
 						position = topOf(model),
 						ground = bottomOf(model),
 						rarity = if type(named) == "string" then named else "Common",
+						area = model:GetAttribute("Area"),
+						catId = model:GetAttribute("CatId"),
 					}
 				end
 				if spot == nil then
@@ -419,8 +467,10 @@ function Catch.start()
 				if finish ~= nil then
 					finished(spot, finish)
 				elseif Logic.isPurrfect(grades) then
+					flavour(spot)
 					purrfect(spot.position, spot.ground, spot.rarity)
 				else
+					flavour(spot)
 					caught(spot.position, spot.ground, spot.rarity)
 				end
 			elseif model ~= nil then

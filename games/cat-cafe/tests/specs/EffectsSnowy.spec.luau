@@ -79,6 +79,37 @@ return function()
 			expect(blizzard.extras[1].moving).to.equal(true)
 		end)
 
+		it("adds more snow to a catch the rarer the cat, and nothing outside the area", function()
+			expect(Logic.catchFlavour("alley", "tabby", "Mythical")).to.equal(nil)
+			expect(Logic.catchFlavour(nil, nil, nil)).to.equal(nil)
+			local spec = Presets.catchFlavour.areas.snowy
+			expect(Presets.emitters[spec.preset] ~= nil).to.equal(true)
+			local order = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
+			local last = -1
+			for _, rarity in order do
+				local plan = Logic.catchFlavour("snowy", "flurry", rarity)
+				local total = plan.puff + plan.flakes + plan.ringScale + plan.gusts
+				expect(total >= last).to.equal(true)
+				last = total
+				expect(plan.puff <= Presets.budget.low.maxBurst).to.equal(true)
+				expect(plan.flakes <= Presets.budget.low.maxBurst).to.equal(true)
+			end
+			local common = Logic.catchFlavour("snowy", "flurry", "Common")
+			expect(common.flakes == 0 and common.ringScale == 0 and common.gusts == 0).to.equal(
+				true
+			)
+			local epic = Logic.catchFlavour("snowy", "ice", "Epic")
+			expect(epic.flakes > 0 and epic.ringScale == 0).to.equal(true)
+			local legendary = Logic.catchFlavour("snowy", "white_tiger", "Legendary")
+			expect(legendary.ringScale > 1 and legendary.gusts == 0).to.equal(true)
+			local mythical = Logic.catchFlavour("snowy", "blizzard", "Mythical")
+			expect(mythical.gusts).to.equal(spec.gusts + spec.cats.blizzard)
+			-- the gusts climb slowly: one at a time, well apart
+			expect(spec.gustEvery >= 0.15).to.equal(true)
+			-- an unknown rarity is treated as a Common
+			expect(Logic.catchFlavour("snowy", nil, "Odd").flakes).to.equal(0)
+		end)
+
 		it("circles the Blizzard Cat's swirl evenly at its radius, slowly", function()
 			local o = Presets.signature.blizzard.orbit
 			expect(Presets.emitters[o.emitter] ~= nil).to.equal(true)

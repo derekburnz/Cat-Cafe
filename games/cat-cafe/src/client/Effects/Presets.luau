@@ -1381,6 +1381,46 @@ Presets.catchPop = {
 	},
 }
 
+-- #4069 (Derek 2026-11-13: "make the rarer ones more special"): a catch in an area with a flavour adds the area's
+-- own touch on top of the rarity pop, more the rarer the cat. Each step names the rarity it starts at: a `puff` of
+-- `preset` in `colour` at the cat for every catch, `flakes` sparkles from `flakesFrom` up, a second ground ring
+-- `ringScale` times the rarity's from `ringFrom` up, and from `gustsFrom` up `gusts` puffs climbing `gustHeight`
+-- studs, `gustEvery` seconds apart. A cat named in `cats` gets `gusts` more.
+export type CatchFlavour = {
+	preset: string,
+	colour: Color3,
+	puff: number,
+	flakes: number,
+	flakesFrom: string,
+	ringScale: number,
+	ringFrom: string,
+	gusts: number,
+	gustsFrom: string,
+	gustHeight: number,
+	gustEvery: number,
+	cats: { [string]: number },
+}
+Presets.catchFlavour = {
+	ranks = { Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5, Secret = 6 } :: { [string]: number },
+	areas = {
+		-- the Snowy Mountain: a puff of snow, then flakes, a frost ring, and a column of snow gusts for the rarest
+		snowy = {
+			preset = "smokePuff",
+			colour = Color3.fromRGB(236, 246, 255),
+			puff = 4,
+			flakes = 10,
+			flakesFrom = "Epic",
+			ringScale = 1.3,
+			ringFrom = "Legendary",
+			gusts = 3,
+			gustsFrom = "Mythical",
+			gustHeight = 8,
+			gustEvery = 0.18,
+			cats = { blizzard = 2 }, -- the snowstorm itself: a taller column
+		},
+	} :: { [string]: CatchFlavour },
+}
+
 -- Something you bought appears at your cafe (a table set, the espresso machine, the bait bowl, decor): a sparkle
 -- above it, a mint ring at its foot as wide as it plus `ringPad` (at most `ringMost`), a puff of dust and a few
 -- confetti. A purchase with nothing new to show (the net, a food) gives a sparkle swirl at your feet instead. A

@@ -601,6 +601,40 @@ local function tradeState(fields)
 end
 
 -- #2487: a Cafe Party on ReplicatedStorage's attributes (EventService's shape, shared/CafeEvents), painted at once
+-- #4195: an Admin Wheel event starting at `startsAt`, five minutes long, as AdminEventLogic.info gives it
+local function adminInfo(startsAt: number): any
+	return {
+		id = "gate-wheel",
+		title = "Admin Wheel",
+		startsAt = startsAt,
+		endsAt = startsAt + 300,
+		running = startsAt <= workspace:GetServerTimeNow(),
+		wheel = true,
+	}
+end
+
+-- #4195: `piece` (the admin banner or timer) is clear of the HUD's top pieces
+local function adminClear(piece: GuiObject)
+	local function rect(o: GuiObject): (Vector2, Vector2)
+		return o.AbsolutePosition, o.AbsolutePosition + o.AbsoluteSize
+	end
+	local function apart(a: GuiObject, b: GuiObject): boolean
+		local a0, a1 = rect(a)
+		local b0, b1 = rect(b)
+		return a1.X <= b0.X + 1 or b1.X <= a0.X + 1 or a1.Y <= b0.Y + 1 or b1.Y <= a0.Y + 1
+	end
+	for _, gui in UIShim.playerGui:GetChildren() do
+		if gui:IsA("ScreenGui") and gui.Enabled and gui.Name ~= "CatCafeAdminEvent" then
+			for _, name in { "Counters", "Menu", "MenuFold", "TierGoal", "Icons", "MoneyBadge", "Quests", "Luck" } do
+				local other = gui:FindFirstChild(name, true)
+				if other ~= nil and other:IsA("GuiObject") and other.Visible and other.AbsoluteSize.X > 0 then
+					assert(apart(piece, other), "uigate: the admin " .. piece.Name .. " covers " .. name .. " (#4195)")
+				end
+			end
+		end
+	end
+end
+
 local function cafeEvent(fields: { [string]: any })
 	local store = game:GetService("ReplicatedStorage")
 	local attrs: { [string]: any } = {
@@ -4707,6 +4741,67 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local maple = list:FindFirstChild("tag_maple")
 		local locked = maple and maple:FindFirstChild("Equip", true)
 		assert(maple and not (locked and (locked :: any).Visible), "uigate: a locked title shows Equip")
+	end },
+	-- #4195 (Derek 2026-11-14, admin events on update days): the 2 minute warning banner, then the HUD timer with its
+	-- Spin button, then the Admin Wheel's window, and the window once a spin has landed. Banner and timer sit top
+	-- centre clear of the HUD's top pieces.
+	{ "AdminWarn", function()
+		Scenes._admin = true
+		local t = workspace:GetServerTimeNow()
+		UI.admin.set(adminInfo(t + 120), nil)
+		local bar = UIShim.playerGui:FindFirstChild("CatCafeAdminEvent") :: ScreenGui
+		local banner = bar and bar:FindFirstChild("Banner", true) :: GuiObject
+		assert(bar and bar.Enabled and banner and banner.Visible, "uigate: no admin event warning banner (#4195)")
+		local big = banner:FindFirstChild("Big") :: TextLabel
+		assert(big.Text == "ADMIN EVENT IN 2:00" and big.TextFits, "uigate: the warning's words are wrong or cut: " .. big.Text .. " (#4195)")
+		adminClear(banner)
+	end },
+	{ "AdminTimer", function()
+		Scenes._admin = true
+		local t = workspace:GetServerTimeNow()
+		local info = adminInfo(t - 60)
+		local wheel = { eventId = info.id, spun = false, endsAt = info.endsAt }
+		UI.admin.set(info, wheel)
+		UIShim.advance(9) -- the start banner's time
+		UI.admin.set(info, wheel)
+		local bar = UIShim.playerGui:FindFirstChild("CatCafeAdminEvent") :: ScreenGui
+		local timer = bar:FindFirstChild("Timer", true) :: GuiObject
+		local banner = bar:FindFirstChild("Banner", true) :: GuiObject
+		assert(timer.Visible and not banner.Visible, "uigate: the admin timer is not up after the banner (#4195)")
+		local spin = timer:FindFirstChild("Spin", true) :: GuiObject
+		assert(spin and spin.Visible, "uigate: the admin timer has no Spin button while the wheel is up (#4195)")
+		adminClear(timer)
+	end },
+	{ "AdminWheel", function()
+		Scenes._admin = true
+		local t = workspace:GetServerTimeNow()
+		local info = adminInfo(t - 60)
+		UI.admin.set(info, { eventId = info.id, spun = false, endsAt = info.endsAt })
+		UI.admin.open()
+		assert(UI.isOpen() == "AdminWheel", "uigate: the Admin Wheel window did not open (#4195)")
+		local window = UIShim.playerGui:FindFirstChild("AdminWheel", true) :: GuiObject
+		for _, piece in window:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Visible and (piece.Name == "Name" or piece.Name == "Odds") then
+				assert(piece.TextFits, "uigate: the Admin Wheel's odds row is cut: " .. piece.Text .. " (#4195)")
+			end
+		end
+		local side = window:FindFirstChild("Side", true) :: GuiObject
+		local body = window:FindFirstChild("Body", true) :: GuiObject
+		local foot = side.AbsolutePosition.Y + side.AbsoluteSize.Y
+		assert(foot <= body.AbsolutePosition.Y + body.AbsoluteSize.Y + 1, "uigate: the Admin Wheel's Spin and line run out of the window (#4195)")
+	end },
+	{ "AdminWheelWon", function()
+		Scenes._admin = true
+		local t = workspace:GetServerTimeNow()
+		local info = adminInfo(t - 60)
+		UI.admin.set(info, { eventId = info.id, spun = false, endsAt = info.endsAt })
+		UI.admin.open()
+		UI.admin.result(2, "fish200", { "+200 golden fish" })
+		UIShim.advance(6)
+		UI.admin.set(info, { eventId = info.id, spun = true, endsAt = info.endsAt })
+		local window = UIShim.playerGui:FindFirstChild("AdminWheel", true) :: GuiObject
+		local line = window:FindFirstChild("Line", true) :: TextLabel
+		assert(line.Text == "You won +200 golden fish!", "uigate: the Admin Wheel's line after a spin: " .. line.Text .. " (#4195)")
 	end },
 	{ "Spin", function()
 		UI.spin.open()
@@ -11936,6 +12031,11 @@ function Scenes.close()
 	if Scenes._rankSpot then
 		Scenes._rankSpot = nil
 		(UI.rankSpot :: any).set("none") -- #3555's scene
+	end
+	if Scenes._admin then
+		Scenes._admin = nil
+		UI.admin.set(nil, nil) -- #4195's scenes
+		UI.close()
 	end
 	if Scenes._rest then
 		Scenes._rest = nil

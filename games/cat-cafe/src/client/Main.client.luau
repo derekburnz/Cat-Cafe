@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 ReplicatedStorage:WaitForChild("Shared")
 ReplicatedStorage:WaitForChild("Remotes")
 
+local AdminEventController = require(script.Parent.Controllers.AdminEventController)
 local AfkController = require(script.Parent.Controllers.AfkController)
 local Audio = require(script.Parent.Audio)
 local BinController = require(script.Parent.Controllers.BinController)
@@ -53,6 +54,7 @@ CannonController.start() -- F84: after the UI, whose cannon picker it opens
 ParkFirstController.start() -- #2915: the first Park landing toast and the stray ring, after the cannon
 ParkTrailController.start() -- #3554: the goal and paw trail to a first Park catch, behind parkGateTrail
 RankSpotController.start() -- #3555: the first rank up's walk-through, behind rankUpSpotlight
+AdminEventController.start() -- #4195: the admin event's banner, timer and the Admin Wheel, behind adminEvents
 CampExtrasController.start() -- F100: the camp extras' prompts, after the UI whose hooks it uses
 BinController.start() -- #3050: the Rummage Bin's prompt and look, after the UI
 GoldHutController.start() -- #1368: the Golden Pond pass's gold Fishing Hut, on its owner's client

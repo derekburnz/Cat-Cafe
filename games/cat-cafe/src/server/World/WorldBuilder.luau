@@ -194,6 +194,12 @@ local AREA_LOOKS: { [string]: AreaLook } = {
 		floorMaterial = Enum.Material.Ground,
 		wall = Color3.fromRGB(150, 145, 135),
 	},
+	-- #3997: snow under the Snowy set, grey rock at its edges
+	snowy = {
+		floor = Color3.fromRGB(236, 242, 248),
+		floorMaterial = Enum.Material.Snow,
+		wall = Color3.fromRGB(150, 156, 166),
+	},
 }
 
 local function part(

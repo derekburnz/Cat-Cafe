@@ -362023,6 +362023,4725 @@
           "centered": "footprint center x=0.00 y=0.15"
         }
       }
+    },
+    {
+      "name": "CatCafe_WaterPark_Set",
+      "category": "WaterPark",
+      "module": "waterparkset",
+      "objects": [
+        "CatCafe_WaterPark_Set",
+        "CatCafe_WaterPark_Set_000_WallTiles",
+        "CatCafe_WaterPark_Set_001_PennantTower",
+        "CatCafe_WaterPark_Set_002_WallTiles",
+        "CatCafe_WaterPark_Set_003_PennantTower",
+        "CatCafe_WaterPark_Set_004_WallTiles",
+        "CatCafe_WaterPark_Set_005_PennantTower",
+        "CatCafe_WaterPark_Set_006_WallTiles",
+        "CatCafe_WaterPark_Set_007_PennantTower",
+        "CatCafe_WaterPark_Set_008_WallTiles",
+        "CatCafe_WaterPark_Set_009_WallBoards",
+        "CatCafe_WaterPark_Set_009_WallBoards_Bulbs",
+        "CatCafe_WaterPark_Set_010_PennantTower",
+        "CatCafe_WaterPark_Set_011_WallBoards",
+        "CatCafe_WaterPark_Set_011_WallBoards_Bulbs",
+        "CatCafe_WaterPark_Set_012_PennantTower",
+        "CatCafe_WaterPark_Set_013_WallHedge",
+        "CatCafe_WaterPark_Set_013_WallHedge_Bulbs",
+        "CatCafe_WaterPark_Set_014_PennantTower",
+        "CatCafe_WaterPark_Set_015_WallBoards",
+        "CatCafe_WaterPark_Set_015_WallBoards_Bulbs",
+        "CatCafe_WaterPark_Set_016_PennantTower",
+        "CatCafe_WaterPark_Set_017_WallBoards",
+        "CatCafe_WaterPark_Set_017_WallBoards_Bulbs",
+        "CatCafe_WaterPark_Set_018_PennantTower",
+        "CatCafe_WaterPark_Set_019_WallHedge",
+        "CatCafe_WaterPark_Set_019_WallHedge_Bulbs",
+        "CatCafe_WaterPark_Set_020_PennantTower",
+        "CatCafe_WaterPark_Set_021_WallBoards",
+        "CatCafe_WaterPark_Set_021_WallBoards_Bulbs",
+        "CatCafe_WaterPark_Set_022_PennantTower",
+        "CatCafe_WaterPark_Set_023_WallHedge",
+        "CatCafe_WaterPark_Set_023_WallHedge_Bulbs",
+        "CatCafe_WaterPark_Set_024_PennantTower",
+        "CatCafe_WaterPark_Set_025_WallTiles",
+        "CatCafe_WaterPark_Set_026_PennantTower",
+        "CatCafe_WaterPark_Set_027_WallTiles",
+        "CatCafe_WaterPark_Set_028_PennantTower",
+        "CatCafe_WaterPark_Set_029_WallHedge",
+        "CatCafe_WaterPark_Set_029_WallHedge_Bulbs",
+        "CatCafe_WaterPark_Set_030_PennantTower",
+        "CatCafe_WaterPark_Set_031_WallTiles",
+        "CatCafe_WaterPark_Set_032_PennantTower",
+        "CatCafe_WaterPark_Set_033_WallTiles",
+        "CatCafe_WaterPark_Set_034_PennantTower",
+        "CatCafe_WaterPark_Set_035_WallTiles",
+        "CatCafe_WaterPark_Set_036_PennantTower",
+        "CatCafe_WaterPark_Set_037_WallTiles",
+        "CatCafe_WaterPark_Set_038_WallBoards",
+        "CatCafe_WaterPark_Set_038_WallBoards_Bulbs",
+        "CatCafe_WaterPark_Set_039_PennantTower",
+        "CatCafe_WaterPark_Set_040_WallBoards",
+        "CatCafe_WaterPark_Set_040_WallBoards_Bulbs",
+        "CatCafe_WaterPark_Set_041_PennantTower",
+        "CatCafe_WaterPark_Set_042_WallHedge",
+        "CatCafe_WaterPark_Set_042_WallHedge_Bulbs",
+        "CatCafe_WaterPark_Set_043_PennantTower",
+        "CatCafe_WaterPark_Set_044_WallBoards",
+        "CatCafe_WaterPark_Set_044_WallBoards_Bulbs",
+        "CatCafe_WaterPark_Set_045_PennantTower",
+        "CatCafe_WaterPark_Set_046_WallBoards",
+        "CatCafe_WaterPark_Set_046_WallBoards_Bulbs",
+        "CatCafe_WaterPark_Set_047_PennantTower",
+        "CatCafe_WaterPark_Set_048_WallHedge",
+        "CatCafe_WaterPark_Set_048_WallHedge_Bulbs",
+        "CatCafe_WaterPark_Set_049_PennantTower",
+        "CatCafe_WaterPark_Set_050_WallBoards",
+        "CatCafe_WaterPark_Set_050_WallBoards_Bulbs",
+        "CatCafe_WaterPark_Set_051_PennantTower",
+        "CatCafe_WaterPark_Set_052_WallHedge",
+        "CatCafe_WaterPark_Set_052_WallHedge_Bulbs",
+        "CatCafe_WaterPark_Set_053_PennantTower",
+        "CatCafe_WaterPark_Set_054_WallTiles",
+        "CatCafe_WaterPark_Set_055_PennantTower",
+        "CatCafe_WaterPark_Set_056_WallTiles",
+        "CatCafe_WaterPark_Set_057_PennantTower",
+        "CatCafe_WaterPark_Set_058_WallHedge",
+        "CatCafe_WaterPark_Set_058_WallHedge_Bulbs",
+        "CatCafe_WaterPark_Set_059_PennantTower",
+        "CatCafe_WaterPark_Set_060_WallTiles",
+        "CatCafe_WaterPark_Set_061_PennantTower",
+        "CatCafe_WaterPark_Set_062_WallTiles",
+        "CatCafe_WaterPark_Set_063_PennantTower",
+        "CatCafe_WaterPark_Set_064_WallTiles",
+        "CatCafe_WaterPark_Set_065_PennantTower",
+        "CatCafe_WaterPark_Set_066_WallTiles",
+        "CatCafe_WaterPark_Set_067_PennantTower",
+        "CatCafe_WaterPark_Set_068_PennantTower",
+        "CatCafe_WaterPark_Set_069_LowWall",
+        "CatCafe_WaterPark_Set_070_Lamp",
+        "CatCafe_WaterPark_Set_070_Lamp_Glow",
+        "CatCafe_WaterPark_Set_071_PennantTower",
+        "CatCafe_WaterPark_Set_072_PennantTower",
+        "CatCafe_WaterPark_Set_073_LowWall",
+        "CatCafe_WaterPark_Set_074_Lamp",
+        "CatCafe_WaterPark_Set_074_Lamp_Glow",
+        "CatCafe_WaterPark_Set_075_Walls_Barrier",
+        "CatCafe_WaterPark_Set_076_Booth",
+        "CatCafe_WaterPark_Set_076_Booth_Bulbs",
+        "CatCafe_WaterPark_Set_077_Booth",
+        "CatCafe_WaterPark_Set_077_Booth_Bulbs",
+        "CatCafe_WaterPark_Set_078_Lamp",
+        "CatCafe_WaterPark_Set_078_Lamp_Glow",
+        "CatCafe_WaterPark_Set_079_Lamp",
+        "CatCafe_WaterPark_Set_079_Lamp_Glow",
+        "CatCafe_WaterPark_Set_080_Booth",
+        "CatCafe_WaterPark_Set_080_Booth_Bulbs",
+        "CatCafe_WaterPark_Set_081_Booth",
+        "CatCafe_WaterPark_Set_081_Booth_Bulbs",
+        "CatCafe_WaterPark_Set_082_Lamp",
+        "CatCafe_WaterPark_Set_082_Lamp_Glow",
+        "CatCafe_WaterPark_Set_083_Lamp",
+        "CatCafe_WaterPark_Set_083_Lamp_Glow",
+        "CatCafe_WaterPark_Set_084_Booth",
+        "CatCafe_WaterPark_Set_084_Booth_Bulbs",
+        "CatCafe_WaterPark_Set_085_Booth",
+        "CatCafe_WaterPark_Set_085_Booth_Bulbs",
+        "CatCafe_WaterPark_Set_086_Lamp",
+        "CatCafe_WaterPark_Set_086_Lamp_Glow",
+        "CatCafe_WaterPark_Set_087_Lamp",
+        "CatCafe_WaterPark_Set_087_Lamp_Glow",
+        "CatCafe_WaterPark_Set_088_Booth",
+        "CatCafe_WaterPark_Set_088_Booth_Bulbs",
+        "CatCafe_WaterPark_Set_089_Booth",
+        "CatCafe_WaterPark_Set_089_Booth_Bulbs",
+        "CatCafe_WaterPark_Set_090_Lamp",
+        "CatCafe_WaterPark_Set_090_Lamp_Glow",
+        "CatCafe_WaterPark_Set_091_Lamp",
+        "CatCafe_WaterPark_Set_091_Lamp_Glow",
+        "CatCafe_WaterPark_Set_092_Booth",
+        "CatCafe_WaterPark_Set_092_Booth_Bulbs",
+        "CatCafe_WaterPark_Set_093_Booth",
+        "CatCafe_WaterPark_Set_093_Booth_Bulbs",
+        "CatCafe_WaterPark_Set_094_Lamp",
+        "CatCafe_WaterPark_Set_094_Lamp_Glow",
+        "CatCafe_WaterPark_Set_095_Lamp",
+        "CatCafe_WaterPark_Set_095_Lamp_Glow",
+        "CatCafe_WaterPark_Set_096_Booth",
+        "CatCafe_WaterPark_Set_096_Booth_Bulbs",
+        "CatCafe_WaterPark_Set_097_Booth",
+        "CatCafe_WaterPark_Set_097_Booth_Bulbs",
+        "CatCafe_WaterPark_Set_098_PrizeWall",
+        "CatCafe_WaterPark_Set_099_PrizeWall",
+        "CatCafe_WaterPark_Set_100_FoodCart",
+        "CatCafe_WaterPark_Set_101_FoodCart",
+        "CatCafe_WaterPark_Set_102_FoodCart",
+        "CatCafe_WaterPark_Set_103_FoodCart",
+        "CatCafe_WaterPark_Set_104_Bench",
+        "CatCafe_WaterPark_Set_105_Bench",
+        "CatCafe_WaterPark_Set_106_BalloonBunch",
+        "CatCafe_WaterPark_Set_106_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_107_BalloonBunch",
+        "CatCafe_WaterPark_Set_107_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_108_BalloonBunch",
+        "CatCafe_WaterPark_Set_108_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_109_TrashCan",
+        "CatCafe_WaterPark_Set_110_PrizeWall",
+        "CatCafe_WaterPark_Set_111_PrizeWall",
+        "CatCafe_WaterPark_Set_112_FoodCart",
+        "CatCafe_WaterPark_Set_113_FoodCart",
+        "CatCafe_WaterPark_Set_114_FoodCart",
+        "CatCafe_WaterPark_Set_115_FoodCart",
+        "CatCafe_WaterPark_Set_116_Bench",
+        "CatCafe_WaterPark_Set_117_Bench",
+        "CatCafe_WaterPark_Set_118_BalloonBunch",
+        "CatCafe_WaterPark_Set_118_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_119_BalloonBunch",
+        "CatCafe_WaterPark_Set_119_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_120_BalloonBunch",
+        "CatCafe_WaterPark_Set_120_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_121_TrashCan",
+        "CatCafe_WaterPark_Set_122_ParkSign",
+        "CatCafe_WaterPark_Set_123_ParkSign",
+        "CatCafe_WaterPark_Set_124_Carousel",
+        "CatCafe_WaterPark_Set_124_CarouselTurn",
+        "CatCafe_WaterPark_Set_125_Teacups",
+        "CatCafe_WaterPark_Set_125_TeacupsTurn",
+        "CatCafe_WaterPark_Set_126_FerrisWheel",
+        "CatCafe_WaterPark_Set_126_FerrisTurn",
+        "CatCafe_WaterPark_Set_127_DropTower",
+        "CatCafe_WaterPark_Set_128_CoasterArch",
+        "CatCafe_WaterPark_Set_128_CoasterArch_Decor",
+        "CatCafe_WaterPark_Set_129_Bench",
+        "CatCafe_WaterPark_Set_130_Bench",
+        "CatCafe_WaterPark_Set_131_Bench",
+        "CatCafe_WaterPark_Set_132_Bench",
+        "CatCafe_WaterPark_Set_133_Bench",
+        "CatCafe_WaterPark_Set_134_Bench",
+        "CatCafe_WaterPark_Set_135_FoodCart",
+        "CatCafe_WaterPark_Set_136_FoodCart",
+        "CatCafe_WaterPark_Set_137_FoodCart",
+        "CatCafe_WaterPark_Set_138_FoodCart",
+        "CatCafe_WaterPark_Set_139_FoodCart",
+        "CatCafe_WaterPark_Set_140_BalloonBunch",
+        "CatCafe_WaterPark_Set_140_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_141_BalloonBunch",
+        "CatCafe_WaterPark_Set_141_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_142_BalloonBunch",
+        "CatCafe_WaterPark_Set_142_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_143_BalloonBunch",
+        "CatCafe_WaterPark_Set_143_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_144_BalloonBunch",
+        "CatCafe_WaterPark_Set_144_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_145_BalloonBunch",
+        "CatCafe_WaterPark_Set_145_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_146_BalloonBunch",
+        "CatCafe_WaterPark_Set_146_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_147_Lamp",
+        "CatCafe_WaterPark_Set_147_Lamp_Glow",
+        "CatCafe_WaterPark_Set_148_Lamp",
+        "CatCafe_WaterPark_Set_148_Lamp_Glow",
+        "CatCafe_WaterPark_Set_149_Lamp",
+        "CatCafe_WaterPark_Set_149_Lamp_Glow",
+        "CatCafe_WaterPark_Set_150_Lamp",
+        "CatCafe_WaterPark_Set_150_Lamp_Glow",
+        "CatCafe_WaterPark_Set_151_Lamp",
+        "CatCafe_WaterPark_Set_151_Lamp_Glow",
+        "CatCafe_WaterPark_Set_152_Lamp",
+        "CatCafe_WaterPark_Set_152_Lamp_Glow",
+        "CatCafe_WaterPark_Set_153_Lamp",
+        "CatCafe_WaterPark_Set_153_Lamp_Glow",
+        "CatCafe_WaterPark_Set_154_Lamp",
+        "CatCafe_WaterPark_Set_154_Lamp_Glow",
+        "CatCafe_WaterPark_Set_155_Lamp",
+        "CatCafe_WaterPark_Set_155_Lamp_Glow",
+        "CatCafe_WaterPark_Set_156_Lamp",
+        "CatCafe_WaterPark_Set_156_Lamp_Glow",
+        "CatCafe_WaterPark_Set_157_TrashCan",
+        "CatCafe_WaterPark_Set_158_TrashCan",
+        "CatCafe_WaterPark_Set_159_LazyRiver",
+        "CatCafe_WaterPark_Set_159_LazyRiver_Water",
+        "CatCafe_WaterPark_Set_159_LazyRiver_Decor",
+        "CatCafe_WaterPark_Set_160_Bridge",
+        "CatCafe_WaterPark_Set_161_Bridge",
+        "CatCafe_WaterPark_Set_162_WavePool",
+        "CatCafe_WaterPark_Set_162_WavePool_Water",
+        "CatCafe_WaterPark_Set_162_WavePool_Pane",
+        "CatCafe_WaterPark_Set_162_WavePool_Decor",
+        "CatCafe_WaterPark_Set_163_SplashPad",
+        "CatCafe_WaterPark_Set_163_SplashPad_Water",
+        "CatCafe_WaterPark_Set_164_LifeguardTower",
+        "CatCafe_WaterPark_Set_165_BeachChair",
+        "CatCafe_WaterPark_Set_166_Umbrella",
+        "CatCafe_WaterPark_Set_167_BeachChair",
+        "CatCafe_WaterPark_Set_168_Umbrella",
+        "CatCafe_WaterPark_Set_169_BeachChair",
+        "CatCafe_WaterPark_Set_170_Umbrella",
+        "CatCafe_WaterPark_Set_171_BeachChair",
+        "CatCafe_WaterPark_Set_172_Umbrella",
+        "CatCafe_WaterPark_Set_173_BeachChair",
+        "CatCafe_WaterPark_Set_174_Umbrella",
+        "CatCafe_WaterPark_Set_175_BeachChair",
+        "CatCafe_WaterPark_Set_176_Umbrella",
+        "CatCafe_WaterPark_Set_177_BeachChair",
+        "CatCafe_WaterPark_Set_178_Umbrella",
+        "CatCafe_WaterPark_Set_179_BeachChair",
+        "CatCafe_WaterPark_Set_180_Umbrella",
+        "CatCafe_WaterPark_Set_181_PlanterPalm",
+        "CatCafe_WaterPark_Set_182_PlanterPalm",
+        "CatCafe_WaterPark_Set_183_PlanterPalm",
+        "CatCafe_WaterPark_Set_184_PlanterPalm",
+        "CatCafe_WaterPark_Set_185_PlanterPalm",
+        "CatCafe_WaterPark_Set_186_PlanterPalm",
+        "CatCafe_WaterPark_Set_187_RingStack",
+        "CatCafe_WaterPark_Set_188_RingStack",
+        "CatCafe_WaterPark_Set_189_RingStack",
+        "CatCafe_WaterPark_Set_190_RingStack",
+        "CatCafe_WaterPark_Set_191_BeachBall",
+        "CatCafe_WaterPark_Set_192_BeachBall",
+        "CatCafe_WaterPark_Set_193_BeachBall",
+        "CatCafe_WaterPark_Set_194_Lamp",
+        "CatCafe_WaterPark_Set_194_Lamp_Glow",
+        "CatCafe_WaterPark_Set_195_Lamp",
+        "CatCafe_WaterPark_Set_195_Lamp_Glow",
+        "CatCafe_WaterPark_Set_196_Lamp",
+        "CatCafe_WaterPark_Set_196_Lamp_Glow",
+        "CatCafe_WaterPark_Set_197_Lamp",
+        "CatCafe_WaterPark_Set_197_Lamp_Glow",
+        "CatCafe_WaterPark_Set_198_SlideTower",
+        "CatCafe_WaterPark_Set_198_SlideTower_Water",
+        "CatCafe_WaterPark_Set_199_SmallSlideTower",
+        "CatCafe_WaterPark_Set_199_SmallSlideTower_Water",
+        "CatCafe_WaterPark_Set_200_SmallSlideTower",
+        "CatCafe_WaterPark_Set_200_SmallSlideTower_Water",
+        "CatCafe_WaterPark_Set_201_KidsPool",
+        "CatCafe_WaterPark_Set_201_KidsPool_Water",
+        "CatCafe_WaterPark_Set_202_KidsPool",
+        "CatCafe_WaterPark_Set_202_KidsPool_Water",
+        "CatCafe_WaterPark_Set_203_BeachChair",
+        "CatCafe_WaterPark_Set_204_Umbrella",
+        "CatCafe_WaterPark_Set_205_BeachChair",
+        "CatCafe_WaterPark_Set_206_Umbrella",
+        "CatCafe_WaterPark_Set_207_BeachChair",
+        "CatCafe_WaterPark_Set_208_Umbrella",
+        "CatCafe_WaterPark_Set_209_BeachChair",
+        "CatCafe_WaterPark_Set_210_Umbrella",
+        "CatCafe_WaterPark_Set_211_PlanterPalm",
+        "CatCafe_WaterPark_Set_212_PlanterPalm",
+        "CatCafe_WaterPark_Set_213_PlanterPalm",
+        "CatCafe_WaterPark_Set_214_PlanterPalm",
+        "CatCafe_WaterPark_Set_215_PlanterPalm",
+        "CatCafe_WaterPark_Set_216_PlanterPalm",
+        "CatCafe_WaterPark_Set_217_BalloonBunch",
+        "CatCafe_WaterPark_Set_217_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_218_BalloonBunch",
+        "CatCafe_WaterPark_Set_218_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_219_BalloonBunch",
+        "CatCafe_WaterPark_Set_219_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_220_Lamp",
+        "CatCafe_WaterPark_Set_220_Lamp_Glow",
+        "CatCafe_WaterPark_Set_221_Lamp",
+        "CatCafe_WaterPark_Set_221_Lamp_Glow",
+        "CatCafe_WaterPark_Set_222_Lamp",
+        "CatCafe_WaterPark_Set_222_Lamp_Glow",
+        "CatCafe_WaterPark_Set_223_Lamp",
+        "CatCafe_WaterPark_Set_223_Lamp_Glow",
+        "CatCafe_WaterPark_Set_224_Lamp",
+        "CatCafe_WaterPark_Set_224_Lamp_Glow",
+        "CatCafe_WaterPark_Set_225_Lamp",
+        "CatCafe_WaterPark_Set_225_Lamp_Glow",
+        "CatCafe_WaterPark_Set_226_ParkSign",
+        "CatCafe_WaterPark_Set_227_TrapCarousel",
+        "CatCafe_WaterPark_Set_228_TrapBallPit",
+        "CatCafe_WaterPark_Set_229_TrapPlushPile",
+        "CatCafe_WaterPark_Set_230_TrapRiverRing",
+        "CatCafe_WaterPark_Set_231_TrapBalloons",
+        "CatCafe_WaterPark_Set_231_TrapBalloons_Decor",
+        "CatCafe_WaterPark_Set_232_TrapCarousel",
+        "CatCafe_WaterPark_Set_233_TrapCarousel",
+        "CatCafe_WaterPark_Set_234_TrapBallPit",
+        "CatCafe_WaterPark_Set_235_TrapBallPit",
+        "CatCafe_WaterPark_Set_236_TrapPlushPile",
+        "CatCafe_WaterPark_Set_237_TrapPlushPile",
+        "CatCafe_WaterPark_Set_238_TrapRiverRing",
+        "CatCafe_WaterPark_Set_239_TrapRiverRing",
+        "CatCafe_WaterPark_Set_240_TrapBalloons",
+        "CatCafe_WaterPark_Set_240_TrapBalloons_Decor",
+        "CatCafe_WaterPark_Set_241_TrapBalloons",
+        "CatCafe_WaterPark_Set_241_TrapBalloons_Decor",
+        "CatCafe_WaterPark_Set_242_BalloonBunch",
+        "CatCafe_WaterPark_Set_242_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_243_PlanterPalm",
+        "CatCafe_WaterPark_Set_244_TrashCan",
+        "CatCafe_WaterPark_Set_245_BalloonBunch",
+        "CatCafe_WaterPark_Set_245_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_246_PlanterPalm",
+        "CatCafe_WaterPark_Set_247_TrashCan",
+        "CatCafe_WaterPark_Set_248_PlanterPalm",
+        "CatCafe_WaterPark_Set_249_RingStack",
+        "CatCafe_WaterPark_Set_250_BeachBall",
+        "CatCafe_WaterPark_Set_251_RingStack",
+        "CatCafe_WaterPark_Set_252_BalloonBunch",
+        "CatCafe_WaterPark_Set_252_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_253_TrashCan",
+        "CatCafe_WaterPark_Set_254_BalloonBunch",
+        "CatCafe_WaterPark_Set_254_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_255_TrashCan",
+        "CatCafe_WaterPark_Set_256_BalloonBunch",
+        "CatCafe_WaterPark_Set_256_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_257_BeachBall",
+        "CatCafe_WaterPark_Set_258_PlanterPalm",
+        "CatCafe_WaterPark_Set_259_PlanterPalm",
+        "CatCafe_WaterPark_Set_260_TrashCan",
+        "CatCafe_WaterPark_Set_261_BalloonBunch",
+        "CatCafe_WaterPark_Set_261_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_262_PlanterPalm",
+        "CatCafe_WaterPark_Set_263_BeachBall",
+        "CatCafe_WaterPark_Set_264_BalloonBunch",
+        "CatCafe_WaterPark_Set_264_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_265_RingStack",
+        "CatCafe_WaterPark_Set_266_RingStack",
+        "CatCafe_WaterPark_Set_267_RingStack",
+        "CatCafe_WaterPark_Set_268_PlanterPalm",
+        "CatCafe_WaterPark_Set_269_TrashCan",
+        "CatCafe_WaterPark_Set_270_RingStack",
+        "CatCafe_WaterPark_Set_271_BeachBall",
+        "CatCafe_WaterPark_Set_272_PlanterPalm",
+        "CatCafe_WaterPark_Set_273_RingStack",
+        "CatCafe_WaterPark_Set_274_PlanterPalm",
+        "CatCafe_WaterPark_Set_275_BalloonBunch",
+        "CatCafe_WaterPark_Set_275_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_276_TrashCan",
+        "CatCafe_WaterPark_Set_277_RingStack",
+        "CatCafe_WaterPark_Set_278_PlanterPalm",
+        "CatCafe_WaterPark_Set_279_BalloonBunch",
+        "CatCafe_WaterPark_Set_279_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_280_BalloonBunch",
+        "CatCafe_WaterPark_Set_280_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_281_TrashCan",
+        "CatCafe_WaterPark_Set_282_BalloonBunch",
+        "CatCafe_WaterPark_Set_282_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_283_BalloonBunch",
+        "CatCafe_WaterPark_Set_283_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_284_PlanterPalm",
+        "CatCafe_WaterPark_Set_285_RingStack",
+        "CatCafe_WaterPark_Set_286_BeachBall",
+        "CatCafe_WaterPark_Set_287_RingStack",
+        "CatCafe_WaterPark_Set_288_BalloonBunch",
+        "CatCafe_WaterPark_Set_288_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_289_TrashCan",
+        "CatCafe_WaterPark_Set_290_PlanterPalm",
+        "CatCafe_WaterPark_Set_291_BalloonBunch",
+        "CatCafe_WaterPark_Set_291_BalloonBunch_Decor",
+        "CatCafe_WaterPark_Set_292_PlanterPalm"
+      ],
+      "triangles": 109680,
+      "budget": 150000,
+      "size_studs": {
+        "x": 151.2,
+        "y": 560.6,
+        "z": 45.03
+      },
+      "size_roblox": [
+        151.2,
+        45.03,
+        560.6
+      ],
+      "bounds_min": [
+        -75.6,
+        -280.0,
+        -0.01
+      ],
+      "bounds_max": [
+        75.6,
+        280.6,
+        45.02
+      ],
+      "pivot": "the wild part's centre on the floor, camp side -Z (areakit; Tier 9)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "booth": [
+          [
+            -13.9,
+            0.0,
+            -254.0,
+            "near"
+          ],
+          [
+            13.9,
+            0.0,
+            -254.0,
+            "near"
+          ],
+          [
+            -13.9,
+            0.0,
+            -241.0,
+            "near"
+          ],
+          [
+            13.9,
+            0.0,
+            -241.0,
+            "near"
+          ],
+          [
+            -13.9,
+            0.0,
+            -220.0,
+            "near"
+          ],
+          [
+            13.9,
+            0.0,
+            -220.0,
+            "near"
+          ],
+          [
+            -13.9,
+            0.0,
+            -207.0,
+            "near"
+          ],
+          [
+            13.9,
+            0.0,
+            -207.0,
+            "near"
+          ],
+          [
+            -13.9,
+            0.0,
+            -186.0,
+            "near"
+          ],
+          [
+            13.9,
+            0.0,
+            -186.0,
+            "near"
+          ],
+          [
+            -13.9,
+            0.0,
+            -173.0,
+            "near"
+          ],
+          [
+            13.9,
+            0.0,
+            -173.0,
+            "near"
+          ]
+        ],
+        "booth_gap": [
+          [
+            -22.0,
+            0.0,
+            -247.5,
+            "near"
+          ],
+          [
+            22.0,
+            0.0,
+            -247.5,
+            "near"
+          ],
+          [
+            -22.0,
+            0.0,
+            -230.5,
+            "near"
+          ],
+          [
+            22.0,
+            0.0,
+            -230.5,
+            "near"
+          ],
+          [
+            -22.0,
+            0.0,
+            -213.5,
+            "near"
+          ],
+          [
+            22.0,
+            0.0,
+            -213.5,
+            "near"
+          ],
+          [
+            -22.0,
+            0.0,
+            -196.5,
+            "near"
+          ],
+          [
+            22.0,
+            0.0,
+            -196.5,
+            "near"
+          ],
+          [
+            -22.0,
+            0.0,
+            -179.5,
+            "near"
+          ],
+          [
+            22.0,
+            0.0,
+            -179.5,
+            "near"
+          ]
+        ],
+        "prize_wall": [
+          [
+            -65.0,
+            0.0,
+            -247.0,
+            "near"
+          ],
+          [
+            -65.0,
+            0.0,
+            -209.0,
+            "near"
+          ],
+          [
+            65.0,
+            0.0,
+            -247.0,
+            "near"
+          ],
+          [
+            65.0,
+            0.0,
+            -209.0,
+            "near"
+          ]
+        ],
+        "food_cart": [
+          [
+            -50.0,
+            0.0,
+            -262.6,
+            "near"
+          ],
+          [
+            -50.0,
+            0.0,
+            -227.6,
+            "near"
+          ],
+          [
+            -50.0,
+            0.0,
+            -188.6,
+            "near"
+          ],
+          [
+            -50.0,
+            0.0,
+            -166.6,
+            "near"
+          ],
+          [
+            50.0,
+            0.0,
+            -262.6,
+            "near"
+          ],
+          [
+            50.0,
+            0.0,
+            -227.6,
+            "near"
+          ],
+          [
+            50.0,
+            0.0,
+            -188.6,
+            "near"
+          ],
+          [
+            50.0,
+            0.0,
+            -166.6,
+            "near"
+          ],
+          [
+            -18.4,
+            0.0,
+            -147.0,
+            "near"
+          ],
+          [
+            23.6,
+            0.0,
+            -149.0,
+            "near"
+          ],
+          [
+            -33.6,
+            0.0,
+            -59.0,
+            "near"
+          ],
+          [
+            27.0,
+            0.0,
+            -26.4,
+            "near"
+          ],
+          [
+            -26.4,
+            0.0,
+            5.0,
+            "deep"
+          ]
+        ],
+        "bench": [
+          [
+            -46.0,
+            0.0,
+            -240.0,
+            "near"
+          ],
+          [
+            -46.0,
+            0.0,
+            -200.0,
+            "near"
+          ],
+          [
+            46.0,
+            0.0,
+            -240.0,
+            "near"
+          ],
+          [
+            46.0,
+            0.0,
+            -200.0,
+            "near"
+          ],
+          [
+            -14.2,
+            0.0,
+            -140.0,
+            "near"
+          ],
+          [
+            14.2,
+            0.0,
+            -80.0,
+            "near"
+          ],
+          [
+            -14.2,
+            0.0,
+            -50.0,
+            "near"
+          ],
+          [
+            14.2,
+            0.0,
+            8.0,
+            "deep"
+          ],
+          [
+            -44.0,
+            0.0,
+            -68.2,
+            "near"
+          ],
+          [
+            44.0,
+            0.0,
+            -74.2,
+            "near"
+          ]
+        ],
+        "alley": [
+          [
+            -41.5,
+            0.0,
+            -246.0,
+            "near"
+          ],
+          [
+            -41.5,
+            0.0,
+            -206.0,
+            "near"
+          ],
+          [
+            -41.5,
+            0.0,
+            -176.0,
+            "near"
+          ],
+          [
+            41.5,
+            0.0,
+            -246.0,
+            "near"
+          ],
+          [
+            41.5,
+            0.0,
+            -206.0,
+            "near"
+          ],
+          [
+            41.5,
+            0.0,
+            -176.0,
+            "near"
+          ]
+        ],
+        "midway_end": [
+          [
+            -22.0,
+            0.0,
+            -265.0,
+            "near"
+          ],
+          [
+            -22.0,
+            0.0,
+            -160.5,
+            "near"
+          ],
+          [
+            22.0,
+            0.0,
+            -265.0,
+            "near"
+          ],
+          [
+            22.0,
+            0.0,
+            -160.5,
+            "near"
+          ]
+        ],
+        "carousel": [
+          [
+            -22.96,
+            0.0,
+            -104.53,
+            "near"
+          ],
+          [
+            -43.47,
+            0.0,
+            -94.96,
+            "near"
+          ],
+          [
+            -53.04,
+            0.0,
+            -115.47,
+            "near"
+          ],
+          [
+            -32.53,
+            0.0,
+            -125.04,
+            "near"
+          ]
+        ],
+        "teacups": [
+          [
+            45.0,
+            0.0,
+            -105.88,
+            "near"
+          ],
+          [
+            25.88,
+            0.0,
+            -111.0,
+            "near"
+          ],
+          [
+            31.0,
+            0.0,
+            -130.12,
+            "near"
+          ],
+          [
+            50.12,
+            0.0,
+            -125.0,
+            "near"
+          ]
+        ],
+        "ferris": [
+          [
+            50.0,
+            0.0,
+            -59.0,
+            "near"
+          ],
+          [
+            50.0,
+            0.0,
+            -42.0,
+            "near"
+          ],
+          [
+            50.0,
+            0.0,
+            -25.0,
+            "near"
+          ]
+        ],
+        "drop_tower": [
+          [
+            -52.0,
+            0.0,
+            -30.0,
+            "near"
+          ],
+          [
+            -60.0,
+            0.0,
+            -38.5,
+            "near"
+          ],
+          [
+            -60.0,
+            0.0,
+            -21.5,
+            "near"
+          ]
+        ],
+        "coaster_post": [
+          [
+            -57.5,
+            0.0,
+            -5.0,
+            "near"
+          ],
+          [
+            -33.5,
+            0.0,
+            -5.0,
+            "near"
+          ],
+          [
+            -9.5,
+            0.0,
+            -5.0,
+            "near"
+          ],
+          [
+            9.5,
+            0.0,
+            -5.0,
+            "near"
+          ],
+          [
+            33.5,
+            0.0,
+            -5.0,
+            "near"
+          ],
+          [
+            57.5,
+            0.0,
+            -5.0,
+            "near"
+          ]
+        ],
+        "ride_row": [
+          [
+            -60,
+            0.0,
+            -84,
+            "near"
+          ],
+          [
+            -14,
+            0.0,
+            -124,
+            "near"
+          ],
+          [
+            16,
+            0.0,
+            -146,
+            "near"
+          ],
+          [
+            62,
+            0.0,
+            -132,
+            "near"
+          ],
+          [
+            -40,
+            0.0,
+            -40,
+            "near"
+          ],
+          [
+            40,
+            0.0,
+            -22,
+            "near"
+          ],
+          [
+            -20,
+            0.0,
+            -24,
+            "near"
+          ],
+          [
+            20,
+            0.0,
+            -52,
+            "near"
+          ],
+          [
+            -62,
+            0.0,
+            -56,
+            "near"
+          ],
+          [
+            30,
+            0.0,
+            10,
+            "deep"
+          ],
+          [
+            -46,
+            0.0,
+            12,
+            "deep"
+          ]
+        ],
+        "splash_pad": [
+          [
+            -19.72,
+            0.14,
+            85.27,
+            "deep"
+          ],
+          [
+            -33.71,
+            0.14,
+            82.8,
+            "deep"
+          ],
+          [
+            -24.58,
+            0.14,
+            71.92,
+            "deep"
+          ]
+        ],
+        "wave_pool": [
+          [
+            26.0,
+            0.0,
+            64.5,
+            "deep"
+          ],
+          [
+            26.0,
+            0.0,
+            95.5,
+            "deep"
+          ],
+          [
+            9.0,
+            0.0,
+            86.0,
+            "deep"
+          ]
+        ],
+        "river_isle": [
+          [
+            -12,
+            0.0,
+            56,
+            "deep"
+          ],
+          [
+            12,
+            0.0,
+            54,
+            "deep"
+          ],
+          [
+            -12,
+            0.0,
+            106,
+            "deep"
+          ],
+          [
+            12,
+            0.0,
+            108,
+            "deep"
+          ],
+          [
+            -30,
+            0.0,
+            100,
+            "deep"
+          ],
+          [
+            -34,
+            0.0,
+            62,
+            "deep"
+          ],
+          [
+            22,
+            0.0,
+            100,
+            "deep"
+          ],
+          [
+            -12,
+            0.0,
+            80,
+            "deep"
+          ]
+        ],
+        "lifeguard": [
+          [
+            53.5,
+            0.0,
+            74.0,
+            "deep"
+          ]
+        ],
+        "beach_chair": [
+          [
+            -58.0,
+            0.0,
+            57.0,
+            "deep"
+          ],
+          [
+            -62.0,
+            0.0,
+            81.0,
+            "deep"
+          ],
+          [
+            58.0,
+            0.0,
+            37.0,
+            "deep"
+          ],
+          [
+            60.0,
+            0.0,
+            103.0,
+            "deep"
+          ],
+          [
+            -37.18,
+            0.0,
+            31.03,
+            "deep"
+          ],
+          [
+            42.82,
+            0.0,
+            26.97,
+            "deep"
+          ],
+          [
+            -46.82,
+            0.0,
+            133.03,
+            "deep"
+          ],
+          [
+            39.18,
+            0.0,
+            132.97,
+            "deep"
+          ]
+        ],
+        "palm": [
+          [
+            -60.8,
+            0.0,
+            25.0,
+            "deep"
+          ],
+          [
+            60.8,
+            0.0,
+            25.0,
+            "deep"
+          ],
+          [
+            -62.8,
+            0.0,
+            129.0,
+            "deep"
+          ],
+          [
+            62.8,
+            0.0,
+            133.0,
+            "deep"
+          ],
+          [
+            -20.8,
+            0.0,
+            27.0,
+            "deep"
+          ],
+          [
+            20.8,
+            0.0,
+            135.0,
+            "deep"
+          ]
+        ],
+        "splash_shore": [
+          [
+            -66,
+            0.0,
+            66,
+            "deep"
+          ],
+          [
+            -52,
+            0.0,
+            100,
+            "deep"
+          ],
+          [
+            52,
+            0.0,
+            122,
+            "deep"
+          ],
+          [
+            66,
+            0.0,
+            44,
+            "deep"
+          ],
+          [
+            -50,
+            0.0,
+            22,
+            "deep"
+          ],
+          [
+            44,
+            0.0,
+            140,
+            "deep"
+          ]
+        ],
+        "slide_tower": [
+          [
+            12.56,
+            0.0,
+            217.25,
+            "deep"
+          ],
+          [
+            0.0,
+            0.0,
+            224.5,
+            "deep"
+          ],
+          [
+            -12.56,
+            0.0,
+            217.25,
+            "deep"
+          ],
+          [
+            -12.56,
+            0.0,
+            202.75,
+            "deep"
+          ],
+          [
+            -0.0,
+            0.0,
+            195.5,
+            "deep"
+          ],
+          [
+            12.56,
+            0.0,
+            202.75,
+            "deep"
+          ]
+        ],
+        "small_slide": [
+          [
+            -52.0,
+            0.0,
+            234.5,
+            "deep"
+          ],
+          [
+            -45.0,
+            0.0,
+            222.0,
+            "deep"
+          ],
+          [
+            52.0,
+            0.0,
+            196.5,
+            "deep"
+          ],
+          [
+            45.0,
+            0.0,
+            184.0,
+            "deep"
+          ]
+        ],
+        "kids_pool": [
+          [
+            46.5,
+            0.0,
+            238.0,
+            "deep"
+          ],
+          [
+            56.0,
+            0.0,
+            228.5,
+            "deep"
+          ],
+          [
+            -46.5,
+            0.0,
+            176.0,
+            "deep"
+          ],
+          [
+            -56.0,
+            0.0,
+            185.5,
+            "deep"
+          ]
+        ],
+        "loop_inside": [
+          [
+            -20,
+            0.0,
+            226,
+            "deep"
+          ],
+          [
+            22,
+            0.0,
+            196,
+            "deep"
+          ],
+          [
+            -16,
+            0.0,
+            250,
+            "deep"
+          ],
+          [
+            14,
+            0.0,
+            172,
+            "deep"
+          ],
+          [
+            22,
+            0.0,
+            222,
+            "deep"
+          ],
+          [
+            -22,
+            0.0,
+            204,
+            "deep"
+          ]
+        ],
+        "tower_yard": [
+          [
+            -48,
+            0.0,
+            200,
+            "deep"
+          ],
+          [
+            48,
+            0.0,
+            216,
+            "deep"
+          ],
+          [
+            -46,
+            0.0,
+            252,
+            "deep"
+          ],
+          [
+            46,
+            0.0,
+            262,
+            "deep"
+          ],
+          [
+            -64,
+            0.0,
+            198,
+            "deep"
+          ],
+          [
+            66,
+            0.0,
+            216,
+            "deep"
+          ],
+          [
+            -30,
+            0.0,
+            268,
+            "deep"
+          ],
+          [
+            28,
+            0.0,
+            270,
+            "deep"
+          ],
+          [
+            -48,
+            0.0,
+            160,
+            "deep"
+          ],
+          [
+            46,
+            0.0,
+            164,
+            "deep"
+          ]
+        ],
+        "trap_carousel": [
+          [
+            -17.0,
+            0.3,
+            -90.0,
+            "near",
+            0
+          ],
+          [
+            58.0,
+            0.3,
+            -150.0,
+            "near",
+            0
+          ],
+          [
+            56.0,
+            0.3,
+            152.0,
+            "deep",
+            0
+          ]
+        ],
+        "trap_ball_pit": [
+          [
+            -60.0,
+            0.0,
+            112.0,
+            "deep",
+            0
+          ],
+          [
+            -62.0,
+            0.0,
+            -150.0,
+            "near",
+            0
+          ],
+          [
+            60.0,
+            0.0,
+            262.0,
+            "deep",
+            0
+          ]
+        ],
+        "trap_plush_pile": [
+          [
+            18.0,
+            0.0,
+            238.0,
+            "deep",
+            200
+          ],
+          [
+            62.0,
+            0.0,
+            -96.0,
+            "near",
+            -90
+          ],
+          [
+            -58.0,
+            0.0,
+            262.0,
+            "deep",
+            20
+          ]
+        ],
+        "trap_river_ring": [
+          [
+            62.0,
+            0.0,
+            53.0,
+            "deep",
+            0
+          ],
+          [
+            -62.0,
+            0.0,
+            40.0,
+            "deep",
+            0
+          ],
+          [
+            -60.0,
+            0.0,
+            150.0,
+            "deep",
+            0
+          ]
+        ],
+        "trap_balloons": [
+          [
+            -18.0,
+            0.0,
+            180.0,
+            "deep",
+            0
+          ],
+          [
+            30.0,
+            0.0,
+            -64.0,
+            "near",
+            0
+          ],
+          [
+            60.0,
+            0.0,
+            112.0,
+            "deep",
+            0
+          ]
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_WaterPark_Set.model.json",
+      "rbx_parts": 6680,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_WaterPark_Set.fbx",
+        "assets/cat-cafe/exports/CatCafe_WaterPark_Set.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "109680/150000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "66812 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=0.00 y=0.30",
+          "cat_spots": "155 cat spots clear of every collidable part"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_WaterPark_Gate",
+      "category": "WaterPark",
+      "module": "areas",
+      "objects": [
+        "CatCafe_WaterPark_Gate",
+        "CatCafe_WaterPark_Gate_Bars",
+        "CatCafe_WaterPark_Gate_SignBoard",
+        "CatCafe_WaterPark_Gate_Lamp_Bulb"
+      ],
+      "triangles": 2980,
+      "budget": 6000,
+      "size_studs": {
+        "x": 35.53,
+        "y": 6.01,
+        "z": 20.44
+      },
+      "size_roblox": [
+        35.53,
+        20.44,
+        6.01
+      ],
+      "bounds_min": [
+        -17.82,
+        -3.68,
+        0.0
+      ],
+      "bounds_max": [
+        17.72,
+        2.32,
+        20.44
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          10.0,
+          2.5
+        ],
+        "centre": [
+          0.0,
+          9.65,
+          -0.85
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_WaterPark_Gate.model.json",
+      "rbx_parts": 235,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_WaterPark_Gate.fbx",
+        "assets/cat-cafe/exports/CatCafe_WaterPark_Gate.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2980/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1746 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.05 y=-0.68"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_WaterPark_IndexBoard",
+      "category": "WaterPark",
+      "module": "boards",
+      "objects": [
+        "CatCafe_WaterPark_IndexBoard",
+        "CatCafe_WaterPark_IndexBoard_Screen"
+      ],
+      "triangles": 858,
+      "budget": 1500,
+      "size_studs": {
+        "x": 11.2,
+        "y": 2.1,
+        "z": 11.22
+      },
+      "size_roblox": [
+        11.2,
+        11.22,
+        2.1
+      ],
+      "bounds_min": [
+        -5.6,
+        -1.1,
+        0.0
+      ],
+      "bounds_max": [
+        5.6,
+        1.0,
+        11.22
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "area": "waterpark",
+      "screen": {
+        "part": "Screen",
+        "face": "Front (-Z)",
+        "size": [
+          8.0,
+          5.0
+        ]
+      },
+      "placement": {
+        "relative_to": "CatCafe_WaterPark_Gate",
+        "offset_roblox": [
+          -7.0,
+          0.0,
+          8.0
+        ],
+        "turn_y_deg": -20.0,
+        "use": "host:GetPivot() * CFrame.new(offset) * CFrame.Angles(0, math.rad(turn), 0)"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_WaterPark_IndexBoard.model.json",
+      "rbx_parts": 69,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_WaterPark_IndexBoard.fbx",
+        "assets/cat-cafe/exports/CatCafe_WaterPark_IndexBoard.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "858/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "489 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.05"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_WaterPark_NightFence",
+      "category": "WaterPark",
+      "module": "night",
+      "objects": [
+        "CatCafe_WaterPark_NightFence",
+        "CatCafe_WaterPark_NightFence_Moon_Bulb"
+      ],
+      "triangles": 2566,
+      "budget": 6000,
+      "size_studs": {
+        "x": 24.06,
+        "y": 0.93,
+        "z": 8.64
+      },
+      "size_roblox": [
+        24.06,
+        8.64,
+        0.93
+      ],
+      "bounds_min": [
+        -12.03,
+        -0.05,
+        0.0
+      ],
+      "bounds_max": [
+        12.03,
+        0.88,
+        8.64
+      ],
+      "pivot": "the pivot of CatCafe_WaterPark_Gate: place it there with no offset",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placement": {
+        "relative_to": "CatCafe_WaterPark_Gate",
+        "offset_roblox": [
+          0,
+          0,
+          0
+        ],
+        "turn_y_deg": 0,
+        "use": "host:GetPivot()"
+      },
+      "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_WaterPark_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_WaterPark_NightFence.model.json",
+      "rbx_parts": 273,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_WaterPark_NightFence.fbx",
+        "assets/cat-cafe/exports/CatCafe_WaterPark_NightFence.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2566/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1391 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.41"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_WaterPark",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_WaterPark",
+        "CatCafe_Prop_Crate_WaterPark_Lid"
+      ],
+      "triangles": 540,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.64,
+        "y": 2.0,
+        "z": 2.87
+      },
+      "size_roblox": [
+        2.64,
+        2.87,
+        2.0
+      ],
+      "bounds_min": [
+        -1.32,
+        -0.99,
+        0.0
+      ],
+      "bounds_max": [
+        1.32,
+        1.01,
+        2.87
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_WaterPark_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_WaterPark_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate: pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_WaterPark_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_WaterPark.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_WaterPark.model.json",
+      "rbx_parts": 41,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_WaterPark.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_WaterPark.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "540/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "270 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_WaterPark_Gold",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_WaterPark_Gold",
+        "CatCafe_Prop_Crate_WaterPark_Gold_Lid"
+      ],
+      "triangles": 540,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.64,
+        "y": 2.0,
+        "z": 2.87
+      },
+      "size_roblox": [
+        2.64,
+        2.87,
+        2.0
+      ],
+      "bounds_min": [
+        -1.32,
+        -0.99,
+        0.0
+      ],
+      "bounds_max": [
+        1.32,
+        1.01,
+        2.87
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_WaterPark_Gold_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_WaterPark_Gold_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate (golden: gold parts are Metal): pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_WaterPark_Gold_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_WaterPark_Gold.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_WaterPark_Gold.model.json",
+      "rbx_parts": 41,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "540/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "270 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Cannon_WaterPark",
+      "category": "Camp",
+      "module": "cannon",
+      "objects": [
+        "CatCafe_Camp_Cannon_WaterPark",
+        "CatCafe_Camp_Cannon_WaterPark_Turret",
+        "CatCafe_Camp_Cannon_WaterPark_Climb",
+        "CatCafe_Camp_Cannon_WaterPark_MoonCover"
+      ],
+      "triangles": 5116,
+      "budget": 6000,
+      "size_studs": {
+        "x": 7.54,
+        "y": 9.03,
+        "z": 9.55
+      },
+      "size_roblox": [
+        7.54,
+        9.55,
+        9.03
+      ],
+      "bounds_min": [
+        -3.77,
+        -4.2,
+        -0.01
+      ],
+      "bounds_max": [
+        3.77,
+        4.83,
+        9.54
+      ],
+      "pivot": "The base centre on the camp's floor; -Z toward the camp's back wall, the barrel at rest along +Z over the area. The _Turret pivot is the turntable's top centre.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Cannon_WaterPark_Turret": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_WaterPark_Climb": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_WaterPark_MoonCover": [
+          -0.0,
+          3.73,
+          8.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Cannon_WaterPark_Turret": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_WaterPark_Climb": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_WaterPark_MoonCover": [
+          0.0,
+          8.6,
+          3.73
+        ]
+      },
+      "turret": {
+        "model": "CatCafe_Camp_Cannon_WaterPark_Turret",
+        "pivot_roblox": [
+          0,
+          1.485,
+          0
+        ],
+        "rest": "barrel along +Z",
+        "turn_y_deg": {
+          "Alleyway": -135,
+          "Park": 180,
+          "Neighbourhood": 0,
+          "Woods": -90,
+          "Sewer": 90,
+          "Desert": 128.3,
+          "Ruins": 52.2,
+          "Snowy": -45.0,
+          "WaterPark": 0.0
+        },
+        "attachments": [
+          "Muzzle",
+          "Fuse",
+          "Seat"
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_WaterPark.model.json",
+      "rbx_parts": 355,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_WaterPark.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_WaterPark.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5116/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=4.83 (want 0)",
+          "centered": "footprint center x=0.00 y=0.32"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_WaterPark",
+      "category": "Camp",
+      "module": "camps",
+      "objects": [
+        "CatCafe_Camp_WaterPark",
+        "CatCafe_Camp_WaterPark_000_Basket",
+        "CatCafe_Camp_WaterPark_001_TicketFront",
+        "CatCafe_Camp_WaterPark_001_TicketFront_Bulbs",
+        "CatCafe_Camp_WaterPark_001_TicketFront_Pane",
+        "CatCafe_Camp_WaterPark_002_QueueRails",
+        "CatCafe_Camp_WaterPark_003_FoodCart",
+        "CatCafe_Camp_WaterPark_004_FoodCart",
+        "CatCafe_Camp_WaterPark_005_FoodCart",
+        "CatCafe_Camp_WaterPark_006_Bench",
+        "CatCafe_Camp_WaterPark_007_Bench",
+        "CatCafe_Camp_WaterPark_008_Bench",
+        "CatCafe_Camp_WaterPark_009_ParkSign",
+        "CatCafe_Camp_WaterPark_010_ParkSign",
+        "CatCafe_Camp_WaterPark_011_Lamp",
+        "CatCafe_Camp_WaterPark_011_Lamp_Glow",
+        "CatCafe_Camp_WaterPark_012_Lamp",
+        "CatCafe_Camp_WaterPark_012_Lamp_Glow",
+        "CatCafe_Camp_WaterPark_013_PlanterPalm",
+        "CatCafe_Camp_WaterPark_014_BalloonBunch",
+        "CatCafe_Camp_WaterPark_014_BalloonBunch_Decor",
+        "CatCafe_Camp_WaterPark_015_Lamp",
+        "CatCafe_Camp_WaterPark_015_Lamp_Glow",
+        "CatCafe_Camp_WaterPark_016_Lamp",
+        "CatCafe_Camp_WaterPark_016_Lamp_Glow",
+        "CatCafe_Camp_WaterPark_017_PlanterPalm",
+        "CatCafe_Camp_WaterPark_018_BalloonBunch",
+        "CatCafe_Camp_WaterPark_018_BalloonBunch_Decor",
+        "CatCafe_Camp_WaterPark_019_PlanterPalm",
+        "CatCafe_Camp_WaterPark_020_PlanterPalm",
+        "CatCafe_Camp_WaterPark_021_TrashCan",
+        "CatCafe_Camp_WaterPark_022_TrashCan",
+        "CatCafe_Camp_WaterPark_023_BalloonBunch",
+        "CatCafe_Camp_WaterPark_023_BalloonBunch_Decor",
+        "CatCafe_Camp_WaterPark_Barrier"
+      ],
+      "triangles": 8956,
+      "budget": 20000,
+      "size_studs": {
+        "x": 152.0,
+        "y": 32.0,
+        "z": 31.0
+      },
+      "size_roblox": [
+        152.0,
+        31.0,
+        32.0
+      ],
+      "bounds_min": [
+        -76.0,
+        -312.0,
+        -1.0
+      ],
+      "bounds_max": [
+        76.0,
+        -280.0,
+        30.0
+      ],
+      "pivot": "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "pad": [
+          [
+            0,
+            0.0,
+            -293.0
+          ]
+        ],
+        "cannon": [
+          [
+            0,
+            0.0,
+            -305.5
+          ]
+        ],
+        "basket": [
+          [
+            -11.0,
+            0.0,
+            -293.0
+          ]
+        ],
+        "index_board": [
+          [
+            -19.0,
+            0.0,
+            -282.5
+          ]
+        ]
+      },
+      "camp": {
+        "rect_roblox": [
+          -74.5,
+          -311.0,
+          74.5,
+          -281.0
+        ],
+        "gate_line_z": -281.0,
+        "opening_half_width": 12.0,
+        "pad_radius": 8.0,
+        "depth": 30.0
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_WaterPark.model.json",
+      "rbx_parts": 420,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_WaterPark.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_WaterPark.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "8956/20000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "4453 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-296.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Nook_WaterPark",
+      "category": "Nook",
+      "module": "nooks",
+      "objects": [
+        "CatCafe_Nook_WaterPark",
+        "CatCafe_Nook_WaterPark_Decor",
+        "CatCafe_Nook_WaterPark_GateL",
+        "CatCafe_Nook_WaterPark_GateR",
+        "CatCafe_Nook_WaterPark_Trap"
+      ],
+      "triangles": 1576,
+      "budget": 3000,
+      "size_studs": {
+        "x": 8.76,
+        "y": 14.88,
+        "z": 3.6
+      },
+      "size_roblox": [
+        8.76,
+        3.6,
+        14.88
+      ],
+      "bounds_min": [
+        -4.38,
+        -11.0,
+        0.0
+      ],
+      "bounds_max": [
+        4.38,
+        3.88,
+        3.6
+      ],
+      "pivot": "the middle of the nook's floor, front -Z (its gate and stepping stones); its back to a hedge or the set's edge",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Nook_WaterPark_GateL": [
+          1.5,
+          -3.5,
+          0.0
+        ],
+        "CatCafe_Nook_WaterPark_GateR": [
+          -1.5,
+          -3.5,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Nook_WaterPark_GateL": [
+          -1.5,
+          0.0,
+          -3.5
+        ],
+        "CatCafe_Nook_WaterPark_GateR": [
+          1.5,
+          0.0,
+          -3.5
+        ]
+      },
+      "studio": "#2687 hidden nook: show it (client side) once the player's tier opens the area's station, its back to the set's edge, its stones toward a path. _Decor (the floor patch, stepping stones and flowers) doesn't collide; the rest does. The gate's leaves are the child Models _GateL and _GateR, closed, pivoted on their hinges: open them by turning -100 and +100 degrees about Y. Attachments RescueSpot (the trap's place, 3 x 3 kept clear) and PathEnd (the last stone).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Nook_WaterPark.model.json",
+      "rbx_parts": 88,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Nook_WaterPark.fbx",
+        "assets/cat-cafe/exports/CatCafe_Nook_WaterPark.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1576/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1150 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-3.56"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_WaterPark_Backdrop",
+      "category": "WaterPark",
+      "module": "wildbackdrop",
+      "objects": [
+        "CatCafe_WaterPark_Backdrop",
+        "CatCafe_WaterPark_Backdrop_Ground",
+        "CatCafe_WaterPark_Backdrop_Hills",
+        "CatCafe_WaterPark_Backdrop_HillsFar",
+        "CatCafe_WaterPark_Backdrop_Flowers",
+        "CatCafe_WaterPark_Backdrop_Bulbs"
+      ],
+      "triangles": 33860,
+      "budget": 60000,
+      "size_studs": {
+        "x": 648.07,
+        "y": 1081.6,
+        "z": 292.11
+      },
+      "size_roblox": [
+        648.07,
+        292.11,
+        1081.6
+      ],
+      "bounds_min": [
+        -325.06,
+        -556.92,
+        -165.77
+      ],
+      "bounds_max": [
+        323.02,
+        524.68,
+        126.34
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_WaterPark_Backdrop.model.json",
+      "rbx_parts": 1531,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_WaterPark_Backdrop.fbx",
+        "assets/cat-cafe/exports/CatCafe_WaterPark_Backdrop.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "33860/60000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "25606 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-165.77 (want 0)",
+          "centered": "footprint center x=-1.02 y=-16.12"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Castle_Set",
+      "category": "Castle",
+      "module": "castleset",
+      "objects": [
+        "CatCafe_Castle_Set",
+        "CatCafe_Castle_Set_000_WallStone",
+        "CatCafe_Castle_Set_001_WallTurret",
+        "CatCafe_Castle_Set_002_WallStone",
+        "CatCafe_Castle_Set_003_WallTurret",
+        "CatCafe_Castle_Set_004_WallStone",
+        "CatCafe_Castle_Set_005_WallTurret",
+        "CatCafe_Castle_Set_006_WallStone",
+        "CatCafe_Castle_Set_007_WallTurret",
+        "CatCafe_Castle_Set_008_WallStone",
+        "CatCafe_Castle_Set_009_WallPalisade",
+        "CatCafe_Castle_Set_010_WallTurret",
+        "CatCafe_Castle_Set_011_WallPalisade",
+        "CatCafe_Castle_Set_012_WallTurret",
+        "CatCafe_Castle_Set_013_WallPalisade",
+        "CatCafe_Castle_Set_014_WallTurret",
+        "CatCafe_Castle_Set_015_WallPalisade",
+        "CatCafe_Castle_Set_016_WallTurret",
+        "CatCafe_Castle_Set_017_WallPalisade",
+        "CatCafe_Castle_Set_018_WallTurret",
+        "CatCafe_Castle_Set_019_WallPalisade",
+        "CatCafe_Castle_Set_020_WallTurret",
+        "CatCafe_Castle_Set_021_WallPalisade",
+        "CatCafe_Castle_Set_022_WallTurret",
+        "CatCafe_Castle_Set_023_WallStone",
+        "CatCafe_Castle_Set_024_WallTurret",
+        "CatCafe_Castle_Set_025_WallStone",
+        "CatCafe_Castle_Set_026_WallTurret",
+        "CatCafe_Castle_Set_027_WallStone",
+        "CatCafe_Castle_Set_028_WallTurret",
+        "CatCafe_Castle_Set_029_WallStone",
+        "CatCafe_Castle_Set_030_WallTurret",
+        "CatCafe_Castle_Set_031_WallStone",
+        "CatCafe_Castle_Set_032_WallTurret",
+        "CatCafe_Castle_Set_033_WallStone",
+        "CatCafe_Castle_Set_034_WallTurret",
+        "CatCafe_Castle_Set_035_WallStone",
+        "CatCafe_Castle_Set_036_WallTurret",
+        "CatCafe_Castle_Set_037_WallStone",
+        "CatCafe_Castle_Set_038_WallPalisade",
+        "CatCafe_Castle_Set_039_WallTurret",
+        "CatCafe_Castle_Set_040_WallPalisade",
+        "CatCafe_Castle_Set_041_WallTurret",
+        "CatCafe_Castle_Set_042_WallPalisade",
+        "CatCafe_Castle_Set_043_WallTurret",
+        "CatCafe_Castle_Set_044_WallPalisade",
+        "CatCafe_Castle_Set_045_WallTurret",
+        "CatCafe_Castle_Set_046_WallPalisade",
+        "CatCafe_Castle_Set_047_WallTurret",
+        "CatCafe_Castle_Set_048_WallPalisade",
+        "CatCafe_Castle_Set_049_WallTurret",
+        "CatCafe_Castle_Set_050_WallPalisade",
+        "CatCafe_Castle_Set_051_WallTurret",
+        "CatCafe_Castle_Set_052_WallStone",
+        "CatCafe_Castle_Set_053_WallTurret",
+        "CatCafe_Castle_Set_054_WallStone",
+        "CatCafe_Castle_Set_055_WallTurret",
+        "CatCafe_Castle_Set_056_WallStone",
+        "CatCafe_Castle_Set_057_WallTurret",
+        "CatCafe_Castle_Set_058_WallStone",
+        "CatCafe_Castle_Set_059_WallTurret",
+        "CatCafe_Castle_Set_060_WallStone",
+        "CatCafe_Castle_Set_061_WallTurret",
+        "CatCafe_Castle_Set_062_WallStone",
+        "CatCafe_Castle_Set_063_WallTurret",
+        "CatCafe_Castle_Set_064_WallStone",
+        "CatCafe_Castle_Set_065_WallTurret",
+        "CatCafe_Castle_Set_066_WallStone",
+        "CatCafe_Castle_Set_067_WallTurret",
+        "CatCafe_Castle_Set_068_WallTurret",
+        "CatCafe_Castle_Set_069_LowWall",
+        "CatCafe_Castle_Set_070_Torch",
+        "CatCafe_Castle_Set_070_Torch_Glow",
+        "CatCafe_Castle_Set_071_WallTurret",
+        "CatCafe_Castle_Set_072_WallTurret",
+        "CatCafe_Castle_Set_073_LowWall",
+        "CatCafe_Castle_Set_074_Torch",
+        "CatCafe_Castle_Set_074_Torch_Glow",
+        "CatCafe_Castle_Set_075_Walls_Barrier",
+        "CatCafe_Castle_Set_076_TimberHouse",
+        "CatCafe_Castle_Set_076_TimberHouse_Pane",
+        "CatCafe_Castle_Set_077_Torch",
+        "CatCafe_Castle_Set_077_Torch_Glow",
+        "CatCafe_Castle_Set_078_MarketStall",
+        "CatCafe_Castle_Set_079_Torch",
+        "CatCafe_Castle_Set_079_Torch_Glow",
+        "CatCafe_Castle_Set_080_MarketStall",
+        "CatCafe_Castle_Set_081_Torch",
+        "CatCafe_Castle_Set_081_Torch_Glow",
+        "CatCafe_Castle_Set_082_TimberHouse",
+        "CatCafe_Castle_Set_082_TimberHouse_Pane",
+        "CatCafe_Castle_Set_083_Torch",
+        "CatCafe_Castle_Set_083_Torch_Glow",
+        "CatCafe_Castle_Set_084_TimberHouse",
+        "CatCafe_Castle_Set_084_TimberHouse_Pane",
+        "CatCafe_Castle_Set_085_Torch",
+        "CatCafe_Castle_Set_085_Torch_Glow",
+        "CatCafe_Castle_Set_086_MarketStall",
+        "CatCafe_Castle_Set_087_Torch",
+        "CatCafe_Castle_Set_087_Torch_Glow",
+        "CatCafe_Castle_Set_088_MarketStall",
+        "CatCafe_Castle_Set_089_Torch",
+        "CatCafe_Castle_Set_089_Torch_Glow",
+        "CatCafe_Castle_Set_090_TimberHouse",
+        "CatCafe_Castle_Set_090_TimberHouse_Pane",
+        "CatCafe_Castle_Set_091_Torch",
+        "CatCafe_Castle_Set_091_Torch_Glow",
+        "CatCafe_Castle_Set_092_TimberHouse",
+        "CatCafe_Castle_Set_092_TimberHouse_Pane",
+        "CatCafe_Castle_Set_093_MarketStall",
+        "CatCafe_Castle_Set_094_Well",
+        "CatCafe_Castle_Set_094_Well_Water",
+        "CatCafe_Castle_Set_095_Barrels",
+        "CatCafe_Castle_Set_096_Crates",
+        "CatCafe_Castle_Set_097_Barrels",
+        "CatCafe_Castle_Set_098_Haystack",
+        "CatCafe_Castle_Set_099_Haystack",
+        "CatCafe_Castle_Set_100_HayCart",
+        "CatCafe_Castle_Set_101_Bench",
+        "CatCafe_Castle_Set_102_BannerPole",
+        "CatCafe_Castle_Set_103_Barrels",
+        "CatCafe_Castle_Set_104_Crates",
+        "CatCafe_Castle_Set_105_Barrels",
+        "CatCafe_Castle_Set_106_Haystack",
+        "CatCafe_Castle_Set_107_Haystack",
+        "CatCafe_Castle_Set_108_HayCart",
+        "CatCafe_Castle_Set_109_Bench",
+        "CatCafe_Castle_Set_110_BannerPole",
+        "CatCafe_Castle_Set_111_TiltFence",
+        "CatCafe_Castle_Set_112_JoustStand",
+        "CatCafe_Castle_Set_113_JoustStand",
+        "CatCafe_Castle_Set_114_Pavilion",
+        "CatCafe_Castle_Set_115_Pavilion",
+        "CatCafe_Castle_Set_116_ArcheryButt",
+        "CatCafe_Castle_Set_117_ArcheryButt",
+        "CatCafe_Castle_Set_118_ArcheryButt",
+        "CatCafe_Castle_Set_119_WeaponRack",
+        "CatCafe_Castle_Set_120_WeaponRack",
+        "CatCafe_Castle_Set_121_WeaponRack",
+        "CatCafe_Castle_Set_122_BannerPole",
+        "CatCafe_Castle_Set_123_BannerPole",
+        "CatCafe_Castle_Set_124_BannerPole",
+        "CatCafe_Castle_Set_125_BannerPole",
+        "CatCafe_Castle_Set_126_BannerPole",
+        "CatCafe_Castle_Set_127_BannerPole",
+        "CatCafe_Castle_Set_128_Haystack",
+        "CatCafe_Castle_Set_129_Haystack",
+        "CatCafe_Castle_Set_130_Haystack",
+        "CatCafe_Castle_Set_131_Haystack",
+        "CatCafe_Castle_Set_132_Torch",
+        "CatCafe_Castle_Set_132_Torch_Glow",
+        "CatCafe_Castle_Set_133_Torch",
+        "CatCafe_Castle_Set_133_Torch_Glow",
+        "CatCafe_Castle_Set_134_Torch",
+        "CatCafe_Castle_Set_134_Torch_Glow",
+        "CatCafe_Castle_Set_135_Torch",
+        "CatCafe_Castle_Set_135_Torch_Glow",
+        "CatCafe_Castle_Set_136_Torch",
+        "CatCafe_Castle_Set_136_Torch_Glow",
+        "CatCafe_Castle_Set_137_Torch",
+        "CatCafe_Castle_Set_137_Torch_Glow",
+        "CatCafe_Castle_Set_138_Moat",
+        "CatCafe_Castle_Set_138_Moat_Water",
+        "CatCafe_Castle_Set_139_Drawbridge",
+        "CatCafe_Castle_Set_139_Drawbridge_Decor",
+        "CatCafe_Castle_Set_140_PlankBridge",
+        "CatCafe_Castle_Set_141_CurtainWall",
+        "CatCafe_Castle_Set_142_Gatehouse",
+        "CatCafe_Castle_Set_142_Gatehouse_Glow",
+        "CatCafe_Castle_Set_143_RoundTower",
+        "CatCafe_Castle_Set_143_RoundTower_Pane",
+        "CatCafe_Castle_Set_144_RoundTower",
+        "CatCafe_Castle_Set_144_RoundTower_Pane",
+        "CatCafe_Castle_Set_145_RoundTower",
+        "CatCafe_Castle_Set_145_RoundTower_Pane",
+        "CatCafe_Castle_Set_146_RoundTower",
+        "CatCafe_Castle_Set_146_RoundTower_Pane",
+        "CatCafe_Castle_Set_147_Stables",
+        "CatCafe_Castle_Set_148_HayCart",
+        "CatCafe_Castle_Set_149_Barrels",
+        "CatCafe_Castle_Set_150_Crates",
+        "CatCafe_Castle_Set_151_Barrels",
+        "CatCafe_Castle_Set_152_Crates",
+        "CatCafe_Castle_Set_153_WeaponRack",
+        "CatCafe_Castle_Set_154_Torch",
+        "CatCafe_Castle_Set_154_Torch_Glow",
+        "CatCafe_Castle_Set_155_Torch",
+        "CatCafe_Castle_Set_155_Torch_Glow",
+        "CatCafe_Castle_Set_156_BannerPole",
+        "CatCafe_Castle_Set_157_Torch",
+        "CatCafe_Castle_Set_157_Torch_Glow",
+        "CatCafe_Castle_Set_158_Torch",
+        "CatCafe_Castle_Set_158_Torch_Glow",
+        "CatCafe_Castle_Set_159_BannerPole",
+        "CatCafe_Castle_Set_160_OldOak",
+        "CatCafe_Castle_Set_161_PracticeDummy",
+        "CatCafe_Castle_Set_162_PracticeDummy",
+        "CatCafe_Castle_Set_163_PracticeDummy",
+        "CatCafe_Castle_Set_164_PracticeDummy",
+        "CatCafe_Castle_Set_165_PracticeDummy",
+        "CatCafe_Castle_Set_166_PracticeDummy",
+        "CatCafe_Castle_Set_167_PracticeDummy",
+        "CatCafe_Castle_Set_168_Haystack",
+        "CatCafe_Castle_Set_169_Haystack",
+        "CatCafe_Castle_Set_170_Haystack",
+        "CatCafe_Castle_Set_171_Haystack",
+        "CatCafe_Castle_Set_172_Crates",
+        "CatCafe_Castle_Set_173_Barrels",
+        "CatCafe_Castle_Set_174_Crates",
+        "CatCafe_Castle_Set_175_Barrels",
+        "CatCafe_Castle_Set_176_WeaponRack",
+        "CatCafe_Castle_Set_177_ArcheryButt",
+        "CatCafe_Castle_Set_178_Bench",
+        "CatCafe_Castle_Set_179_Bench",
+        "CatCafe_Castle_Set_180_Bench",
+        "CatCafe_Castle_Set_181_Bench",
+        "CatCafe_Castle_Set_182_Torch",
+        "CatCafe_Castle_Set_182_Torch_Glow",
+        "CatCafe_Castle_Set_183_Torch",
+        "CatCafe_Castle_Set_183_Torch_Glow",
+        "CatCafe_Castle_Set_184_Torch",
+        "CatCafe_Castle_Set_184_Torch_Glow",
+        "CatCafe_Castle_Set_185_Torch",
+        "CatCafe_Castle_Set_185_Torch_Glow",
+        "CatCafe_Castle_Set_186_Torch",
+        "CatCafe_Castle_Set_186_Torch_Glow",
+        "CatCafe_Castle_Set_187_Torch",
+        "CatCafe_Castle_Set_187_Torch_Glow",
+        "CatCafe_Castle_Set_188_BannerPole",
+        "CatCafe_Castle_Set_189_BannerPole",
+        "CatCafe_Castle_Set_190_KeepWalls",
+        "CatCafe_Castle_Set_190_KeepWalls_Pane",
+        "CatCafe_Castle_Set_191_RoundTower",
+        "CatCafe_Castle_Set_191_RoundTower_Pane",
+        "CatCafe_Castle_Set_192_RoundTower",
+        "CatCafe_Castle_Set_192_RoundTower_Pane",
+        "CatCafe_Castle_Set_193_Column",
+        "CatCafe_Castle_Set_193_Column_Glow",
+        "CatCafe_Castle_Set_194_Column",
+        "CatCafe_Castle_Set_194_Column_Glow",
+        "CatCafe_Castle_Set_195_Column",
+        "CatCafe_Castle_Set_195_Column_Glow",
+        "CatCafe_Castle_Set_196_Column",
+        "CatCafe_Castle_Set_196_Column_Glow",
+        "CatCafe_Castle_Set_197_Column",
+        "CatCafe_Castle_Set_197_Column_Glow",
+        "CatCafe_Castle_Set_198_Column",
+        "CatCafe_Castle_Set_198_Column_Glow",
+        "CatCafe_Castle_Set_199_Column",
+        "CatCafe_Castle_Set_199_Column_Glow",
+        "CatCafe_Castle_Set_200_Column",
+        "CatCafe_Castle_Set_200_Column_Glow",
+        "CatCafe_Castle_Set_201_LongTable",
+        "CatCafe_Castle_Set_202_LongTable",
+        "CatCafe_Castle_Set_203_ThroneDais",
+        "CatCafe_Castle_Set_204_ArmourStand",
+        "CatCafe_Castle_Set_205_ArmourStand",
+        "CatCafe_Castle_Set_206_ArmourStand",
+        "CatCafe_Castle_Set_207_Barrels",
+        "CatCafe_Castle_Set_208_Crates",
+        "CatCafe_Castle_Set_209_Haystack",
+        "CatCafe_Castle_Set_210_Torch",
+        "CatCafe_Castle_Set_210_Torch_Glow",
+        "CatCafe_Castle_Set_211_ArmourStand",
+        "CatCafe_Castle_Set_212_ArmourStand",
+        "CatCafe_Castle_Set_213_ArmourStand",
+        "CatCafe_Castle_Set_214_Barrels",
+        "CatCafe_Castle_Set_215_Crates",
+        "CatCafe_Castle_Set_216_Haystack",
+        "CatCafe_Castle_Set_217_Torch",
+        "CatCafe_Castle_Set_217_Torch_Glow",
+        "CatCafe_Castle_Set_218_TrapHaystack",
+        "CatCafe_Castle_Set_219_TrapBarrel",
+        "CatCafe_Castle_Set_220_TrapBannerPole",
+        "CatCafe_Castle_Set_221_TrapAwning",
+        "CatCafe_Castle_Set_222_TrapHelmet",
+        "CatCafe_Castle_Set_223_TrapHaystack",
+        "CatCafe_Castle_Set_224_TrapHaystack",
+        "CatCafe_Castle_Set_225_TrapBarrel",
+        "CatCafe_Castle_Set_226_TrapBarrel",
+        "CatCafe_Castle_Set_227_TrapBannerPole",
+        "CatCafe_Castle_Set_228_TrapBannerPole",
+        "CatCafe_Castle_Set_229_TrapAwning",
+        "CatCafe_Castle_Set_230_TrapAwning",
+        "CatCafe_Castle_Set_231_TrapHelmet",
+        "CatCafe_Castle_Set_232_TrapHelmet",
+        "CatCafe_Castle_Set_233_Haystack",
+        "CatCafe_Castle_Set_234_Crates",
+        "CatCafe_Castle_Set_235_Crates",
+        "CatCafe_Castle_Set_236_Barrel",
+        "CatCafe_Castle_Set_237_Crates",
+        "CatCafe_Castle_Set_238_Barrel",
+        "CatCafe_Castle_Set_239_Haystack",
+        "CatCafe_Castle_Set_240_Barrel",
+        "CatCafe_Castle_Set_241_Crates",
+        "CatCafe_Castle_Set_242_Crates",
+        "CatCafe_Castle_Set_243_Barrel",
+        "CatCafe_Castle_Set_244_Haystack",
+        "CatCafe_Castle_Set_245_Haystack",
+        "CatCafe_Castle_Set_246_Barrel",
+        "CatCafe_Castle_Set_247_Crates",
+        "CatCafe_Castle_Set_248_Haystack",
+        "CatCafe_Castle_Set_249_Crates",
+        "CatCafe_Castle_Set_250_Crates",
+        "CatCafe_Castle_Set_251_Haystack",
+        "CatCafe_Castle_Set_252_Barrel",
+        "CatCafe_Castle_Set_253_Crates",
+        "CatCafe_Castle_Set_254_Crates",
+        "CatCafe_Castle_Set_255_Crates"
+      ],
+      "triangles": 62692,
+      "budget": 150000,
+      "size_studs": {
+        "x": 152.2,
+        "y": 561.7,
+        "z": 39.01
+      },
+      "size_roblox": [
+        152.2,
+        39.01,
+        561.7
+      ],
+      "bounds_min": [
+        -76.1,
+        -280.0,
+        -0.01
+      ],
+      "bounds_max": [
+        76.1,
+        281.7,
+        39.0
+      ],
+      "pivot": "the wild part's centre on the floor, camp side -Z (areakit; Tier 10)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "house_front": [
+          [
+            -14.6,
+            0.0,
+            -253.5,
+            "near"
+          ],
+          [
+            14.6,
+            0.0,
+            -236.5,
+            "near"
+          ],
+          [
+            -14.6,
+            0.0,
+            -209.5,
+            "near"
+          ],
+          [
+            14.6,
+            0.0,
+            -192.5,
+            "near"
+          ],
+          [
+            -14.6,
+            0.0,
+            -165.5,
+            "near"
+          ]
+        ],
+        "house_gap": [
+          [
+            -23.0,
+            0.0,
+            -245.0,
+            "near"
+          ],
+          [
+            23.0,
+            0.0,
+            -245.0,
+            "near"
+          ],
+          [
+            -23.0,
+            0.0,
+            -223.0,
+            "near"
+          ],
+          [
+            23.0,
+            0.0,
+            -223.0,
+            "near"
+          ],
+          [
+            -23.0,
+            0.0,
+            -201.0,
+            "near"
+          ],
+          [
+            23.0,
+            0.0,
+            -201.0,
+            "near"
+          ],
+          [
+            -23.0,
+            0.0,
+            -179.0,
+            "near"
+          ],
+          [
+            23.0,
+            0.0,
+            -179.0,
+            "near"
+          ]
+        ],
+        "stall_front": [
+          [
+            14.6,
+            0.0,
+            -253.5,
+            "near"
+          ],
+          [
+            -14.6,
+            0.0,
+            -236.5,
+            "near"
+          ],
+          [
+            14.6,
+            0.0,
+            -209.5,
+            "near"
+          ],
+          [
+            -14.6,
+            0.0,
+            -192.5,
+            "near"
+          ],
+          [
+            14.6,
+            0.0,
+            -165.5,
+            "near"
+          ]
+        ],
+        "well": [
+          [
+            5.2,
+            0.0,
+            -198.0,
+            "near"
+          ],
+          [
+            -5.2,
+            0.0,
+            -198.0,
+            "near"
+          ],
+          [
+            -0.0,
+            0.0,
+            -207.0,
+            "near"
+          ]
+        ],
+        "lane_yard": [
+          [
+            -51.0,
+            0.0,
+            -258.0,
+            "near"
+          ],
+          [
+            -51.0,
+            0.0,
+            -218.0,
+            "near"
+          ],
+          [
+            -51.0,
+            0.0,
+            -174.0,
+            "near"
+          ],
+          [
+            51.0,
+            0.0,
+            -258.0,
+            "near"
+          ],
+          [
+            51.0,
+            0.0,
+            -218.0,
+            "near"
+          ],
+          [
+            51.0,
+            0.0,
+            -174.0,
+            "near"
+          ]
+        ],
+        "haystack": [
+          [
+            -57.5,
+            0.0,
+            -246.0,
+            "near"
+          ],
+          [
+            -57.5,
+            0.0,
+            -202.0,
+            "near"
+          ],
+          [
+            57.5,
+            0.0,
+            -246.0,
+            "near"
+          ],
+          [
+            57.5,
+            0.0,
+            -202.0,
+            "near"
+          ],
+          [
+            -57.4,
+            0.0,
+            77.0,
+            "deep"
+          ],
+          [
+            57.4,
+            0.0,
+            151.0,
+            "deep"
+          ],
+          [
+            -39.4,
+            0.0,
+            163.0,
+            "deep"
+          ],
+          [
+            43.4,
+            0.0,
+            105.0,
+            "deep"
+          ]
+        ],
+        "hay_cart": [
+          [
+            -46.5,
+            0.0,
+            -166.0,
+            "near"
+          ],
+          [
+            46.5,
+            0.0,
+            -166.0,
+            "near"
+          ],
+          [
+            -50.0,
+            0.0,
+            26.0,
+            "deep"
+          ]
+        ],
+        "bench": [
+          [
+            -45.2,
+            0.0,
+            -234.0,
+            "near"
+          ],
+          [
+            45.2,
+            0.0,
+            -234.0,
+            "near"
+          ],
+          [
+            -30.7,
+            0.0,
+            110.0,
+            "deep"
+          ],
+          [
+            30.7,
+            0.0,
+            132.0,
+            "deep"
+          ],
+          [
+            -12.0,
+            0.0,
+            79.8,
+            "deep"
+          ],
+          [
+            12.0,
+            0.0,
+            162.2,
+            "deep"
+          ]
+        ],
+        "alley": [
+          [
+            -41.5,
+            0.0,
+            -248.0,
+            "near"
+          ],
+          [
+            -41.5,
+            0.0,
+            -206.0,
+            "near"
+          ],
+          [
+            -41.5,
+            0.0,
+            -176.0,
+            "near"
+          ],
+          [
+            41.5,
+            0.0,
+            -248.0,
+            "near"
+          ],
+          [
+            41.5,
+            0.0,
+            -206.0,
+            "near"
+          ],
+          [
+            41.5,
+            0.0,
+            -176.0,
+            "near"
+          ]
+        ],
+        "lane_end": [
+          [
+            -21.0,
+            0.0,
+            -265.0,
+            "near"
+          ],
+          [
+            -21.0,
+            0.0,
+            -158.5,
+            "near"
+          ],
+          [
+            21.0,
+            0.0,
+            -265.0,
+            "near"
+          ],
+          [
+            21.0,
+            0.0,
+            -158.5,
+            "near"
+          ]
+        ],
+        "stand": [
+          [
+            -57.0,
+            0.0,
+            -96.0,
+            "near"
+          ],
+          [
+            -57.0,
+            0.0,
+            -82.0,
+            "near"
+          ],
+          [
+            -57.0,
+            0.0,
+            -68.0,
+            "near"
+          ],
+          [
+            57.0,
+            0.0,
+            -96.0,
+            "near"
+          ],
+          [
+            57.0,
+            0.0,
+            -82.0,
+            "near"
+          ],
+          [
+            57.0,
+            0.0,
+            -68.0,
+            "near"
+          ]
+        ],
+        "stand_end": [
+          [
+            -64.0,
+            0.0,
+            -105.5,
+            "near"
+          ],
+          [
+            -64.0,
+            0.0,
+            -58.5,
+            "near"
+          ],
+          [
+            64.0,
+            0.0,
+            -105.5,
+            "near"
+          ],
+          [
+            64.0,
+            0.0,
+            -58.5,
+            "near"
+          ]
+        ],
+        "pavilion": [
+          [
+            -37.17,
+            0.0,
+            -130.79,
+            "near"
+          ],
+          [
+            -54.83,
+            0.0,
+            -137.21,
+            "near"
+          ],
+          [
+            54.83,
+            0.0,
+            -28.79,
+            "near"
+          ],
+          [
+            37.17,
+            0.0,
+            -35.21,
+            "near"
+          ]
+        ],
+        "butt": [
+          [
+            38.0,
+            0.0,
+            -109.0,
+            "near"
+          ],
+          [
+            38.0,
+            0.0,
+            -87.0,
+            "near"
+          ],
+          [
+            38.0,
+            0.0,
+            -65.0,
+            "near"
+          ],
+          [
+            46.0,
+            0.0,
+            126.0,
+            "deep"
+          ]
+        ],
+        "weapon_rack": [
+          [
+            -43.0,
+            0.0,
+            -60.0,
+            "near"
+          ],
+          [
+            20.0,
+            0.0,
+            -127.0,
+            "near"
+          ],
+          [
+            -14.0,
+            0.0,
+            -135.0,
+            "near"
+          ],
+          [
+            10.5,
+            0.0,
+            46.0,
+            "deep"
+          ],
+          [
+            -44.5,
+            0.0,
+            116.0,
+            "deep"
+          ]
+        ],
+        "field": [
+          [
+            -40,
+            0.0,
+            -100,
+            "near"
+          ],
+          [
+            -12,
+            0.0,
+            -90,
+            "near"
+          ],
+          [
+            -38,
+            0.0,
+            -76,
+            "near"
+          ],
+          [
+            -14,
+            0.0,
+            -58,
+            "near"
+          ],
+          [
+            16,
+            0.0,
+            -80,
+            "near"
+          ],
+          [
+            14,
+            0.0,
+            -104,
+            "near"
+          ],
+          [
+            48,
+            0.0,
+            -60,
+            "near"
+          ],
+          [
+            50,
+            0.0,
+            -100,
+            "near"
+          ],
+          [
+            -50,
+            0.0,
+            -84,
+            "near"
+          ],
+          [
+            24,
+            0.0,
+            -30,
+            "near"
+          ],
+          [
+            -30,
+            0.0,
+            -40,
+            "near"
+          ],
+          [
+            36,
+            0.0,
+            -128,
+            "near"
+          ],
+          [
+            -20,
+            0.0,
+            -114,
+            "near"
+          ],
+          [
+            -52,
+            0.0,
+            -24,
+            "near"
+          ]
+        ],
+        "gate_front": [
+          [
+            -26.0,
+            0.0,
+            -19.5,
+            "near"
+          ],
+          [
+            -13.0,
+            0.0,
+            -20.0,
+            "near"
+          ],
+          [
+            26.0,
+            0.0,
+            -19.5,
+            "near"
+          ],
+          [
+            13.0,
+            0.0,
+            -20.0,
+            "near"
+          ]
+        ],
+        "gatehouse": [
+          [
+            -23.5,
+            0.0,
+            21.0,
+            "deep"
+          ],
+          [
+            23.5,
+            0.0,
+            21.0,
+            "deep"
+          ]
+        ],
+        "tower_foot": [
+          [
+            -58.0,
+            0.0,
+            19.0,
+            "deep"
+          ],
+          [
+            58.0,
+            0.0,
+            19.0,
+            "deep"
+          ],
+          [
+            -34.0,
+            0.0,
+            16.5,
+            "deep"
+          ],
+          [
+            30.0,
+            0.0,
+            16.5,
+            "deep"
+          ]
+        ],
+        "postern": [
+          [
+            43.5,
+            0.0,
+            16.0,
+            "deep"
+          ],
+          [
+            56.5,
+            0.0,
+            -20.0,
+            "near"
+          ]
+        ],
+        "stables": [
+          [
+            -39.3,
+            0.0,
+            30.5,
+            "deep"
+          ],
+          [
+            -34.0,
+            0.0,
+            30.5,
+            "deep"
+          ],
+          [
+            -28.7,
+            0.0,
+            30.5,
+            "deep"
+          ],
+          [
+            -45.0,
+            0.0,
+            40.0,
+            "deep"
+          ]
+        ],
+        "ward_stores": [
+          [
+            24.2,
+            0.0,
+            29.0,
+            "deep"
+          ],
+          [
+            63.0,
+            0.0,
+            21.8,
+            "deep"
+          ],
+          [
+            -18.2,
+            0.0,
+            45.0,
+            "deep"
+          ],
+          [
+            33.14,
+            0.0,
+            55.03,
+            "deep"
+          ]
+        ],
+        "outer_ward": [
+          [
+            -18,
+            0.0,
+            28,
+            "deep"
+          ],
+          [
+            -60,
+            0.0,
+            66,
+            "deep"
+          ],
+          [
+            38,
+            0.0,
+            44,
+            "deep"
+          ],
+          [
+            62,
+            0.0,
+            40,
+            "deep"
+          ],
+          [
+            -46,
+            0.0,
+            60,
+            "deep"
+          ],
+          [
+            16,
+            0.0,
+            64,
+            "deep"
+          ],
+          [
+            -16,
+            0.0,
+            62,
+            "deep"
+          ],
+          [
+            40,
+            0.0,
+            24,
+            "deep"
+          ]
+        ],
+        "oak": [
+          [
+            6.65,
+            0.0,
+            126.65,
+            "deep"
+          ],
+          [
+            -6.65,
+            0.0,
+            126.65,
+            "deep"
+          ],
+          [
+            -6.65,
+            0.0,
+            113.35,
+            "deep"
+          ],
+          [
+            6.65,
+            0.0,
+            113.35,
+            "deep"
+          ]
+        ],
+        "dummy": [
+          [
+            -19.7,
+            0.0,
+            97.06,
+            "deep"
+          ],
+          [
+            -18.84,
+            0.0,
+            134.81,
+            "deep"
+          ],
+          [
+            19.7,
+            0.0,
+            93.06,
+            "deep"
+          ],
+          [
+            17.16,
+            0.0,
+            149.19,
+            "deep"
+          ],
+          [
+            -55.4,
+            0.0,
+            82.0,
+            "deep"
+          ],
+          [
+            57.4,
+            0.0,
+            96.0,
+            "deep"
+          ],
+          [
+            59.4,
+            0.0,
+            136.0,
+            "deep"
+          ]
+        ],
+        "yard_stores": [
+          [
+            -53.8,
+            0.0,
+            151.0,
+            "deep"
+          ],
+          [
+            57.8,
+            0.0,
+            83.0,
+            "deep"
+          ],
+          [
+            -25.0,
+            0.0,
+            71.8,
+            "deep"
+          ],
+          [
+            25.0,
+            0.0,
+            168.2,
+            "deep"
+          ]
+        ],
+        "courtyard": [
+          [
+            -14,
+            0.0,
+            120,
+            "deep"
+          ],
+          [
+            14,
+            0.0,
+            118,
+            "deep"
+          ],
+          [
+            -48,
+            0.0,
+            96,
+            "deep"
+          ],
+          [
+            -62,
+            0.0,
+            118,
+            "deep"
+          ],
+          [
+            -46,
+            0.0,
+            142,
+            "deep"
+          ],
+          [
+            46,
+            0.0,
+            150,
+            "deep"
+          ],
+          [
+            62,
+            0.0,
+            122,
+            "deep"
+          ],
+          [
+            44,
+            0.0,
+            90,
+            "deep"
+          ],
+          [
+            -20,
+            0.0,
+            158,
+            "deep"
+          ],
+          [
+            22,
+            0.0,
+            80,
+            "deep"
+          ],
+          [
+            -64,
+            0.0,
+            164,
+            "deep"
+          ],
+          [
+            60,
+            0.0,
+            166,
+            "deep"
+          ]
+        ],
+        "column": [
+          [
+            -9.6,
+            0.0,
+            194.5,
+            "deep"
+          ],
+          [
+            9.6,
+            0.0,
+            189.5,
+            "deep"
+          ],
+          [
+            -9.6,
+            0.0,
+            214.5,
+            "deep"
+          ],
+          [
+            9.6,
+            0.0,
+            209.5,
+            "deep"
+          ],
+          [
+            -9.6,
+            0.0,
+            234.5,
+            "deep"
+          ],
+          [
+            9.6,
+            0.0,
+            229.5,
+            "deep"
+          ],
+          [
+            -9.6,
+            0.0,
+            249.5,
+            "deep"
+          ],
+          [
+            9.6,
+            0.0,
+            249.5,
+            "deep"
+          ]
+        ],
+        "table": [
+          [
+            -19.0,
+            0.0,
+            206.0,
+            "deep"
+          ],
+          [
+            -19.0,
+            0.0,
+            218.0,
+            "deep"
+          ],
+          [
+            -19.0,
+            0.0,
+            230.0,
+            "deep"
+          ],
+          [
+            19.0,
+            0.0,
+            206.0,
+            "deep"
+          ],
+          [
+            19.0,
+            0.0,
+            218.0,
+            "deep"
+          ],
+          [
+            19.0,
+            0.0,
+            230.0,
+            "deep"
+          ]
+        ],
+        "table_end": [
+          [
+            -25.0,
+            0.0,
+            197.5,
+            "deep"
+          ],
+          [
+            -25.0,
+            0.0,
+            238.5,
+            "deep"
+          ],
+          [
+            25.0,
+            0.0,
+            197.5,
+            "deep"
+          ],
+          [
+            25.0,
+            0.0,
+            238.5,
+            "deep"
+          ]
+        ],
+        "throne": [
+          [
+            -15.0,
+            0.0,
+            262.0,
+            "deep"
+          ],
+          [
+            -6.0,
+            0.0,
+            255.5,
+            "deep"
+          ],
+          [
+            15.0,
+            0.0,
+            262.0,
+            "deep"
+          ],
+          [
+            6.0,
+            0.0,
+            255.5,
+            "deep"
+          ]
+        ],
+        "armour": [
+          [
+            -47.0,
+            0.0,
+            193.0,
+            "deep"
+          ],
+          [
+            -47.0,
+            0.0,
+            243.0,
+            "deep"
+          ],
+          [
+            -47.0,
+            0.0,
+            267.0,
+            "deep"
+          ],
+          [
+            47.0,
+            0.0,
+            193.0,
+            "deep"
+          ],
+          [
+            47.0,
+            0.0,
+            243.0,
+            "deep"
+          ],
+          [
+            47.0,
+            0.0,
+            267.0,
+            "deep"
+          ]
+        ],
+        "hall": [
+          [
+            -40.0,
+            0.0,
+            214.0,
+            "deep"
+          ],
+          [
+            -38.0,
+            0.0,
+            236.0,
+            "deep"
+          ],
+          [
+            -30.0,
+            0.0,
+            268.0,
+            "deep"
+          ],
+          [
+            -36.0,
+            0.0,
+            188.0,
+            "deep"
+          ],
+          [
+            40.0,
+            0.0,
+            214.0,
+            "deep"
+          ],
+          [
+            38.0,
+            0.0,
+            236.0,
+            "deep"
+          ],
+          [
+            30.0,
+            0.0,
+            268.0,
+            "deep"
+          ],
+          [
+            36.0,
+            0.0,
+            188.0,
+            "deep"
+          ]
+        ],
+        "hall_door": [
+          [
+            -14.0,
+            0.0,
+            185.0,
+            "deep"
+          ],
+          [
+            14.0,
+            0.0,
+            185.0,
+            "deep"
+          ]
+        ],
+        "side_door": [
+          [
+            -49.0,
+            0.0,
+            233.5,
+            "deep"
+          ],
+          [
+            49.0,
+            0.0,
+            233.5,
+            "deep"
+          ]
+        ],
+        "keep_strip": [
+          [
+            -62.0,
+            0.0,
+            240.0,
+            "deep"
+          ],
+          [
+            -62.0,
+            0.0,
+            258.0,
+            "deep"
+          ],
+          [
+            -68.0,
+            0.0,
+            208.0,
+            "deep"
+          ],
+          [
+            62.0,
+            0.0,
+            240.0,
+            "deep"
+          ],
+          [
+            62.0,
+            0.0,
+            258.0,
+            "deep"
+          ],
+          [
+            68.0,
+            0.0,
+            208.0,
+            "deep"
+          ]
+        ],
+        "trap_haystack": [
+          [
+            -46.0,
+            0.0,
+            -30.0,
+            "near",
+            0
+          ],
+          [
+            40.0,
+            0.0,
+            -138.0,
+            "near",
+            0
+          ],
+          [
+            -58.0,
+            0.0,
+            100.0,
+            "deep",
+            0
+          ]
+        ],
+        "trap_barrel": [
+          [
+            61.0,
+            0.9,
+            52.0,
+            "deep",
+            0
+          ],
+          [
+            -61.0,
+            0.9,
+            -150.0,
+            "near",
+            0
+          ],
+          [
+            -43.0,
+            0.9,
+            200.0,
+            "deep",
+            0
+          ]
+        ],
+        "trap_banner_pole": [
+          [
+            -54.0,
+            1.6,
+            130.0,
+            "deep",
+            0
+          ],
+          [
+            60.0,
+            1.6,
+            -20.0,
+            "near",
+            0
+          ],
+          [
+            44.0,
+            1.6,
+            196.0,
+            "deep",
+            0
+          ]
+        ],
+        "trap_awning": [
+          [
+            22.0,
+            0.0,
+            120.0,
+            "deep",
+            200
+          ],
+          [
+            22.0,
+            0.0,
+            -44.0,
+            "near",
+            30
+          ],
+          [
+            -60.0,
+            0.0,
+            54.0,
+            "deep",
+            -40
+          ]
+        ],
+        "trap_helmet": [
+          [
+            44.0,
+            2.2,
+            248.0,
+            "deep",
+            150
+          ],
+          [
+            -44.0,
+            2.2,
+            250.0,
+            "deep",
+            210
+          ],
+          [
+            60.0,
+            2.2,
+            110.0,
+            "deep",
+            90
+          ]
+        ]
+      },
+      "studio": "Tier 10, the Medieval Castle (next-areas plan section 3, #4067). Place it at the area's centre on its floor, camp side -Z, like the Snowy set. Packed earth right out to the walls, cobbles, the field's sand and the keep's flags over it. Nothing invisible stands inside the area: the only _Barrier is the 30 high ring in the border's wall band, all round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. The moat is a kerb 0.7 high (a step, not a wall) round shallow _Water; the drawbridge and the postern's plank bridge are 0.9 up with a ramp at each end. The curtain wall and the keep's walls collide; the tilt fence is a low rail to hop. Torch flames are _Glow, windows _Pane, the drawbridge's chains _Decor. The rescue spots (points_roblox trap_haystack, trap_barrel, trap_banner_pole, trap_awning, trap_helmet) carry their piece's turn.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Castle_Set.model.json",
+      "rbx_parts": 4841,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Castle_Set.fbx",
+        "assets/cat-cafe/exports/CatCafe_Castle_Set.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "62692/150000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "28231 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=0.00 y=0.85",
+          "cat_spots": "192 cat spots clear of every collidable part"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Castle_Gate",
+      "category": "Castle",
+      "module": "areas",
+      "objects": [
+        "CatCafe_Castle_Gate",
+        "CatCafe_Castle_Gate_Bars",
+        "CatCafe_Castle_Gate_SignBoard",
+        "CatCafe_Castle_Gate_Lamp_Bulb"
+      ],
+      "triangles": 3260,
+      "budget": 6000,
+      "size_studs": {
+        "x": 33.3,
+        "y": 5.65,
+        "z": 18.0
+      },
+      "size_roblox": [
+        33.3,
+        18.0,
+        5.65
+      ],
+      "bounds_min": [
+        -16.65,
+        -3.45,
+        0.0
+      ],
+      "bounds_max": [
+        16.65,
+        2.2,
+        18.0
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          10.0,
+          2.5
+        ],
+        "centre": [
+          0.0,
+          9.65,
+          -0.85
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Castle_Gate.model.json",
+      "rbx_parts": 272,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Castle_Gate.fbx",
+        "assets/cat-cafe/exports/CatCafe_Castle_Gate.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "3260/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1692 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.62"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Castle_IndexBoard",
+      "category": "Castle",
+      "module": "boards",
+      "objects": [
+        "CatCafe_Castle_IndexBoard",
+        "CatCafe_Castle_IndexBoard_Screen"
+      ],
+      "triangles": 740,
+      "budget": 1500,
+      "size_studs": {
+        "x": 11.2,
+        "y": 1.9,
+        "z": 11.75
+      },
+      "size_roblox": [
+        11.2,
+        11.75,
+        1.9
+      ],
+      "bounds_min": [
+        -5.6,
+        -0.9,
+        0.0
+      ],
+      "bounds_max": [
+        5.6,
+        1.0,
+        11.75
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "area": "castle",
+      "screen": {
+        "part": "Screen",
+        "face": "Front (-Z)",
+        "size": [
+          8.0,
+          5.0
+        ]
+      },
+      "placement": {
+        "relative_to": "CatCafe_Castle_Gate",
+        "offset_roblox": [
+          -7.0,
+          0.0,
+          8.0
+        ],
+        "turn_y_deg": -20.0,
+        "use": "host:GetPivot() * CFrame.new(offset) * CFrame.Angles(0, math.rad(turn), 0)"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Castle_IndexBoard.model.json",
+      "rbx_parts": 59,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Castle_IndexBoard.fbx",
+        "assets/cat-cafe/exports/CatCafe_Castle_IndexBoard.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "740/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "410 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.05"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Castle_NightFence",
+      "category": "Castle",
+      "module": "night",
+      "objects": [
+        "CatCafe_Castle_NightFence",
+        "CatCafe_Castle_NightFence_Moon_Bulb"
+      ],
+      "triangles": 2566,
+      "budget": 6000,
+      "size_studs": {
+        "x": 24.06,
+        "y": 0.93,
+        "z": 8.64
+      },
+      "size_roblox": [
+        24.06,
+        8.64,
+        0.93
+      ],
+      "bounds_min": [
+        -12.03,
+        -0.05,
+        0.0
+      ],
+      "bounds_max": [
+        12.03,
+        0.88,
+        8.64
+      ],
+      "pivot": "the pivot of CatCafe_Castle_Gate: place it there with no offset",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placement": {
+        "relative_to": "CatCafe_Castle_Gate",
+        "offset_roblox": [
+          0,
+          0,
+          0
+        ],
+        "turn_y_deg": 0,
+        "use": "host:GetPivot()"
+      },
+      "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Castle_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Castle_NightFence.model.json",
+      "rbx_parts": 273,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Castle_NightFence.fbx",
+        "assets/cat-cafe/exports/CatCafe_Castle_NightFence.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2566/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1391 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.41"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Castle",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Castle",
+        "CatCafe_Prop_Crate_Castle_Lid"
+      ],
+      "triangles": 848,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.6,
+        "y": 2.04,
+        "z": 2.47
+      },
+      "size_roblox": [
+        2.6,
+        2.47,
+        2.04
+      ],
+      "bounds_min": [
+        -1.3,
+        -1.03,
+        0.0
+      ],
+      "bounds_max": [
+        1.3,
+        1.01,
+        2.47
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Castle_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Castle_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate: pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Castle_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Castle.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Castle.model.json",
+      "rbx_parts": 70,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Castle.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Castle.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "848/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "434 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Castle_Gold",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Castle_Gold",
+        "CatCafe_Prop_Crate_Castle_Gold_Lid"
+      ],
+      "triangles": 848,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.6,
+        "y": 2.04,
+        "z": 2.47
+      },
+      "size_roblox": [
+        2.6,
+        2.47,
+        2.04
+      ],
+      "bounds_min": [
+        -1.3,
+        -1.03,
+        0.0
+      ],
+      "bounds_max": [
+        1.3,
+        1.01,
+        2.47
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Castle_Gold_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Castle_Gold_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate (golden: gold parts are Metal): pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Castle_Gold_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Castle_Gold.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Castle_Gold.model.json",
+      "rbx_parts": 70,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "848/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "434 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Cannon_Castle",
+      "category": "Camp",
+      "module": "cannon",
+      "objects": [
+        "CatCafe_Camp_Cannon_Castle",
+        "CatCafe_Camp_Cannon_Castle_Turret",
+        "CatCafe_Camp_Cannon_Castle_Climb",
+        "CatCafe_Camp_Cannon_Castle_MoonCover"
+      ],
+      "triangles": 5116,
+      "budget": 6000,
+      "size_studs": {
+        "x": 7.54,
+        "y": 9.03,
+        "z": 9.55
+      },
+      "size_roblox": [
+        7.54,
+        9.55,
+        9.03
+      ],
+      "bounds_min": [
+        -3.77,
+        -4.2,
+        -0.01
+      ],
+      "bounds_max": [
+        3.77,
+        4.83,
+        9.54
+      ],
+      "pivot": "The base centre on the camp's floor; -Z toward the camp's back wall, the barrel at rest along +Z over the area. The _Turret pivot is the turntable's top centre.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Cannon_Castle_Turret": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_Castle_Climb": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_Castle_MoonCover": [
+          -0.0,
+          3.73,
+          8.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Cannon_Castle_Turret": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_Castle_Climb": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_Castle_MoonCover": [
+          0.0,
+          8.6,
+          3.73
+        ]
+      },
+      "turret": {
+        "model": "CatCafe_Camp_Cannon_Castle_Turret",
+        "pivot_roblox": [
+          0,
+          1.485,
+          0
+        ],
+        "rest": "barrel along +Z",
+        "turn_y_deg": {
+          "Alleyway": -135,
+          "Park": 180,
+          "Neighbourhood": 0,
+          "Woods": -90,
+          "Sewer": 90,
+          "Desert": 128.3,
+          "Ruins": 52.2,
+          "Snowy": -45.0,
+          "WaterPark": 0.0,
+          "Castle": 0.0
+        },
+        "attachments": [
+          "Muzzle",
+          "Fuse",
+          "Seat"
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_Castle.model.json",
+      "rbx_parts": 355,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Castle.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Castle.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5116/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=4.83 (want 0)",
+          "centered": "footprint center x=0.00 y=0.32"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Castle",
+      "category": "Camp",
+      "module": "camps",
+      "objects": [
+        "CatCafe_Camp_Castle",
+        "CatCafe_Camp_Castle_000_Basket",
+        "CatCafe_Camp_Castle_001_MarketStall",
+        "CatCafe_Camp_Castle_002_MarketStall",
+        "CatCafe_Camp_Castle_003_Well",
+        "CatCafe_Camp_Castle_003_Well_Water",
+        "CatCafe_Camp_Castle_004_Pavilion",
+        "CatCafe_Camp_Castle_005_Barrels",
+        "CatCafe_Camp_Castle_006_Crates",
+        "CatCafe_Camp_Castle_007_HayCart",
+        "CatCafe_Camp_Castle_008_Haystack",
+        "CatCafe_Camp_Castle_009_Bench",
+        "CatCafe_Camp_Castle_010_Bench",
+        "CatCafe_Camp_Castle_011_PracticeDummy",
+        "CatCafe_Camp_Castle_012_ArcheryButt",
+        "CatCafe_Camp_Castle_013_WeaponRack",
+        "CatCafe_Camp_Castle_014_Torch",
+        "CatCafe_Camp_Castle_014_Torch_Glow",
+        "CatCafe_Camp_Castle_015_Torch",
+        "CatCafe_Camp_Castle_015_Torch_Glow",
+        "CatCafe_Camp_Castle_016_BannerPole",
+        "CatCafe_Camp_Castle_017_BannerPole",
+        "CatCafe_Camp_Castle_018_Torch",
+        "CatCafe_Camp_Castle_018_Torch_Glow",
+        "CatCafe_Camp_Castle_019_Torch",
+        "CatCafe_Camp_Castle_019_Torch_Glow",
+        "CatCafe_Camp_Castle_020_BannerPole",
+        "CatCafe_Camp_Castle_021_BannerPole",
+        "CatCafe_Camp_Castle_022_Barrel",
+        "CatCafe_Camp_Castle_023_Barrel",
+        "CatCafe_Camp_Castle_Barrier"
+      ],
+      "triangles": 6400,
+      "budget": 20000,
+      "size_studs": {
+        "x": 152.0,
+        "y": 32.0,
+        "z": 31.0
+      },
+      "size_roblox": [
+        152.0,
+        31.0,
+        32.0
+      ],
+      "bounds_min": [
+        -76.0,
+        -312.0,
+        -1.0
+      ],
+      "bounds_max": [
+        76.0,
+        -280.0,
+        30.0
+      ],
+      "pivot": "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "pad": [
+          [
+            0,
+            0.0,
+            -293.0
+          ]
+        ],
+        "cannon": [
+          [
+            0,
+            0.0,
+            -305.5
+          ]
+        ],
+        "basket": [
+          [
+            -11.0,
+            0.0,
+            -293.0
+          ]
+        ],
+        "index_board": [
+          [
+            -19.0,
+            0.0,
+            -282.5
+          ]
+        ]
+      },
+      "camp": {
+        "rect_roblox": [
+          -74.5,
+          -311.0,
+          74.5,
+          -281.0
+        ],
+        "gate_line_z": -281.0,
+        "opening_half_width": 12.0,
+        "pad_radius": 8.0,
+        "depth": 30.0
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Castle.model.json",
+      "rbx_parts": 351,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Castle.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Castle.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "6400/20000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2705 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-296.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Nook_Castle",
+      "category": "Nook",
+      "module": "nooks",
+      "objects": [
+        "CatCafe_Nook_Castle",
+        "CatCafe_Nook_Castle_Decor",
+        "CatCafe_Nook_Castle_GateL",
+        "CatCafe_Nook_Castle_GateR",
+        "CatCafe_Nook_Castle_Trap"
+      ],
+      "triangles": 1060,
+      "budget": 3000,
+      "size_studs": {
+        "x": 8.76,
+        "y": 14.88,
+        "z": 3.64
+      },
+      "size_roblox": [
+        8.76,
+        3.64,
+        14.88
+      ],
+      "bounds_min": [
+        -4.38,
+        -11.0,
+        0.0
+      ],
+      "bounds_max": [
+        4.38,
+        3.88,
+        3.64
+      ],
+      "pivot": "the middle of the nook's floor, front -Z (its gate and stepping stones); its back to a hedge or the set's edge",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Nook_Castle_GateL": [
+          1.5,
+          -3.5,
+          0.0
+        ],
+        "CatCafe_Nook_Castle_GateR": [
+          -1.5,
+          -3.5,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Nook_Castle_GateL": [
+          -1.5,
+          0.0,
+          -3.5
+        ],
+        "CatCafe_Nook_Castle_GateR": [
+          1.5,
+          0.0,
+          -3.5
+        ]
+      },
+      "studio": "#2687 hidden nook: show it (client side) once the player's tier opens the area's station, its back to the set's edge, its stones toward a path. _Decor (the floor patch, stepping stones and flowers) doesn't collide; the rest does. The gate's leaves are the child Models _GateL and _GateR, closed, pivoted on their hinges: open them by turning -100 and +100 degrees about Y. Attachments RescueSpot (the trap's place, 3 x 3 kept clear) and PathEnd (the last stone).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Nook_Castle.model.json",
+      "rbx_parts": 62,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Nook_Castle.fbx",
+        "assets/cat-cafe/exports/CatCafe_Nook_Castle.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1060/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "466 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-3.56"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Castle_Backdrop",
+      "category": "Castle",
+      "module": "wildbackdrop",
+      "objects": [
+        "CatCafe_Castle_Backdrop",
+        "CatCafe_Castle_Backdrop_Ground",
+        "CatCafe_Castle_Backdrop_Hills",
+        "CatCafe_Castle_Backdrop_HillsFar",
+        "CatCafe_Castle_Backdrop_Flowers",
+        "CatCafe_Castle_Backdrop_Bulbs"
+      ],
+      "triangles": 27508,
+      "budget": 60000,
+      "size_studs": {
+        "x": 645.42,
+        "y": 1088.04,
+        "z": 281.91
+      },
+      "size_roblox": [
+        645.42,
+        281.91,
+        1088.04
+      ],
+      "bounds_min": [
+        -324.48,
+        -561.1,
+        -182.01
+      ],
+      "bounds_max": [
+        320.94,
+        526.94,
+        99.9
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Castle_Backdrop.model.json",
+      "rbx_parts": 1276,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Castle_Backdrop.fbx",
+        "assets/cat-cafe/exports/CatCafe_Castle_Backdrop.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "27508/60000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "21532 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-182.01 (want 0)",
+          "centered": "footprint center x=-1.77 y=-17.08"
+        }
+      }
     }
   ]
 }

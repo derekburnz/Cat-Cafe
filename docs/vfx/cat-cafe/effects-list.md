@@ -1233,6 +1233,7 @@ Derek 2026-11-13: "make the rarer ones more special". First pass, all client sid
 |---|---|---|
 | Snowfall | Soft flakes drifting down round you in the area (`snowfall`, Rate 14, from 6 studs up) | Off in Low performance, a fifth with Reduce Motion |
 | Stray puff | A white puff where a Snowy stray appears or leaves | As the Desert and Ruins (`areaPuffs`) |
+| Northern lights | At night, while you are in the area: ribbons of soft light (mint under violet) high over it, bending slowly side to side over 11 to 17 seconds, fading in and out over 3 seconds | 3 ribbons (6 Beams of 16 segments) on high, 2 on medium and low; no particles, no lights; still with Reduce Motion, none in Low performance |
 | Snow under your feet | 3 small white puffs for every 3 studs walked on the ground | None in Low performance or with Reduce Motion |
 | Ice Cat (Epic) | A glint off its ice spikes | One signature cat's rate, split over 2 prop parts |
 | White Tiger Cat (Legendary) | Frosty breath off the head, a glint on the coat, glowing ice-blue eyes | 2 emitters, each Rate 2 or less |

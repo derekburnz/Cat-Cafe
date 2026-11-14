@@ -9,7 +9,8 @@ Golden Fish Market's shelf, open in the crate reveal and give the shop and inven
                                    (#2651: a caravan trunk with a woven band and a potted cactus on the lid), Ruins
                                    (#2651: a carved stone chest with a jade paw tablet, vines and a jade gem), Snowy
                                    (#3997: a lodge chest with snow on its lid, ice blue bands and a snowflake), WaterPark
-                                   (#4066: a prize crate with a striped lid, a swim ring and a balloon)
+                                   (#4066: a prize crate with a striped lid, a swim ring and a balloon), Castle
+                                   (#4067: a treasure chest in iron bands with a gold lock, a crown on its lid)
   CatCafe_Prop_Crate_<Pool>_Gold   the golden crate: the same crate in the three metal golds, its accents kept
 
 Each crate carries its zone's paw (paw_<zone>; Alley neon pink, Classic blush). Pivot base centre, front -Z, about
@@ -32,7 +33,8 @@ PAW = {"Alley": "neon_pink", "Park": "paw_park", "Neighbourhood": "paw_neighbour
        "Sewer": "paw_sewer", "Classic": "blush", "Rally": "rarity_legend",
        "Desert": "eye_amber", "Ruins": "fur_emerald",                  # the areas' gate trims (#2651)
        "Snowy": "eye_blue",                                             # Tier 8 (#3997)
-       "WaterPark": "shirt_red"}                                        # Tier 9 (#4066)
+       "WaterPark": "shirt_red",                                        # Tier 9 (#4066)
+       "Castle": "pants_navy"}                                          # Tier 10 (#4067)
 
 
 def _paw(b, cx, cy, z, s, swatch, depth=0.02):
@@ -548,15 +550,55 @@ def waterpark(b, lid):
     lid.ball((0.55, H + 0.98, -0.1), 0.24, "pastel_butter", scale=(1.0, 1.2, 1.0))
 
 
+def castle(b, lid):
+    """A treasure chest (#4067): dark timber boards in iron corners and bands with gold studs, the navy paw on a
+    gold shield, a gold lock, iron ring handles; on the lid iron bands, a red cushion and a little gold crown."""
+    b.span((-W + 0.06, 0.04, -D + 0.06), (W - 0.06, H - 0.02, D - 0.06), "caramel_wood")
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            b.span((min(sx * W, sx * (W - 0.18)), 0.0, min(sz * D, sz * (D - 0.18))),
+                   (max(sx * W, sx * (W - 0.18)), H, max(sz * D, sz * (D - 0.18))), "fur_soot")
+
+    def side(axis, sign):
+        half = (W if axis == "z" else D) - 0.18
+        out = (D if axis == "z" else W) - 0.06
+        _side_span(b, axis, sign, -half, half, 0.0, 0.16, out, out + 0.06, "dark_wood")        # rails
+        _side_span(b, axis, sign, -half, half, H - 0.16, H, out, out + 0.06, "dark_wood")
+        for u in (-half * 0.55, half * 0.55):                                                  # iron bands, gold studs
+            _side_span(b, axis, sign, u - 0.1, u + 0.1, 0.16, H - 0.16, out, out + 0.05, "fur_soot")
+            for y in (0.4, 0.9, 1.4):
+                _side_span(b, axis, sign, u - 0.05, u + 0.05, y, y + 0.1, out, out + 0.08, "rarity_legend")
+    _faces(side)
+    b.span((-0.34, 0.6, -(D - 0.02)), (0.34, 1.3, -(D - 0.06)), "rarity_legend")               # the shield
+    _paw(b, 0.0, 0.95, -(D - 0.02), 0.4, PAW["Castle"], depth=0.025)
+    b.span((-0.16, 1.38, -(D + 0.06)), (0.16, 1.7, -(D - 0.04)), "rarity_legend")              # the lock
+    b.span((-0.04, 1.46, -(D + 0.08)), (0.04, 1.58, -(D + 0.05)), "fur_soot")
+    for sx in (-1, 1):                                                   # iron ring handles on the ends
+        b.span((min(sx * W, sx * (W + 0.1)), 1.0, -0.3), (max(sx * W, sx * (W + 0.1)), 1.08, 0.3), "fur_soot")
+        b.span((min(sx * W, sx * (W + 0.1)), 1.08, -0.3), (max(sx * W, sx * (W + 0.1)), 1.3, -0.22), "fur_soot")
+        b.span((min(sx * W, sx * (W + 0.1)), 1.08, 0.22), (max(sx * W, sx * (W + 0.1)), 1.3, 0.3), "fur_soot")
+    lid.span((-W - 0.04, H, -D - 0.04), (W + 0.04, H + 0.08, D + 0.06), "fur_soot")
+    lid.span((-W + 0.06, H + 0.08, -D + 0.06), (W - 0.06, H + 0.2, D - 0.04), "dark_wood")
+    for x in (-W * 0.55, W * 0.55):
+        lid.span((x - 0.1, H + 0.08, -D + 0.02), (x + 0.1, H + 0.23, D), "fur_soot")
+    lid.span((-0.42, H + 0.2, -0.32), (0.42, H + 0.34, 0.32), "shirt_red")                     # the cushion
+    lid.span((-0.26, H + 0.34, -0.2), (0.26, H + 0.5, 0.2), "rarity_legend")                   # the crown
+    for k, x in enumerate((-0.2, 0.0, 0.2)):
+        lid.span((x - 0.06, H + 0.5, -0.2), (x + 0.06, H + 0.64 + 0.08 * (k == 1), 0.2), "rarity_legend")
+    lid.ball((0.0, H + 0.8, 0.0), 0.07, "shirt_red")
+
+
 POOLS = {"Alley": alley, "Park": park, "Neighbourhood": neighbourhood, "Woods": woods, "Sewer": sewer,
-         "Classic": classic, "Rally": rally, "Desert": desert, "Ruins": ruins, "Snowy": snowy, "WaterPark": waterpark}
+         "Classic": classic, "Rally": rally, "Desert": desert, "Ruins": ruins, "Snowy": snowy, "WaterPark": waterpark,
+         "Castle": castle}
 NO_GOLD = {"Rally"}           # the Rally Crate only comes from the Rally (F101): no golden twin
 # accents a golden crate keeps, so it still reads as its zone's crate
 KEEP = {"Alley": ("neon_pink",), "Park": ("bowl_red",), "Neighbourhood": ("pastel_sky", "blush", "bowl_red"),
         "Woods": ("bowl_red", "leaf_green"), "Sewer": ("bowl_red",), "Classic": ("blush", "nose_pink"),
         "Desert": ("leaf_green", "blush", "choco"), "Ruins": ("leaf_green", "leaf_dark", "fur_moss"),
         "Snowy": ("milk", "pastel_sky", "leaf_dark", "paw_woods", "shirt_red"),
-        "WaterPark": ("shirt_blue", "pastel_butter", "fur_bubblegum", "milk")}
+        "WaterPark": ("shirt_blue", "pastel_butter", "fur_bubblegum", "milk"),
+        "Castle": ("shirt_red", "pants_navy", "fur_soot")}
 
 
 def _gold(pool):

@@ -2482,6 +2482,16 @@ function Logic.spinAngle(t: number, seconds: number, offset: number): number
 	return ((t / seconds + offset) % 1) * 360
 end
 
+-- #4070 a ride's axis (Effects/Rides), from the box round its turning piece: `size` in the box's own axes, `right`
+-- and `look` the box's X and Z in the world. "up" is straight up; "thin" is the box's thinner side across the
+-- ground, which is the axle of a wheel standing on its edge.
+function Logic.rideAxis(kind: string, size: Vector3, right: Vector3, look: Vector3): Vector3
+	if kind == "thin" then
+		return if size.X <= size.Z then right.Unit else look.Unit
+	end
+	return Vector3.yAxis
+end
+
 -- How high a `_Bob` part rides, in studs, `t` seconds in: up and down by `rise`, once every `seconds`.
 function Logic.bobRise(t: number, seconds: number, rise: number, offset: number): number
 	return rise * math.sin(2 * math.pi * (t / seconds + offset))

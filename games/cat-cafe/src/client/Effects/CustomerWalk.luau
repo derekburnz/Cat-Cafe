@@ -37,9 +37,23 @@ type Rig = {
 	dirty: boolean,
 }
 
+-- Weak keys alone never free a rig: it holds its own model (Luau's weak tables are not ephemerons, so a value that
+-- points at its key keeps the pair), which is why `forget` drops it by hand when the customer goes (#3918).
 local rigs: { [Model]: Rig } = setmetatable({}, { __mode = "k" }) :: any
 local settling: { [Rig]: boolean } = {}
 local connection: RBXScriptConnection? = nil
+
+-- Lets go of a customer that is gone, with every part and frame kept for it.
+local function forget(rig: Rig)
+	settling[rig] = nil
+	if rigs[rig.model] == rig then
+		rigs[rig.model] = nil
+	end
+	table.clear(rig.parts)
+	table.clear(rig.rest)
+	table.clear(rig.kind)
+	table.clear(rig.frames)
+end
 
 local function build(model: Model): Rig
 	local c = Presets.customerWalk
@@ -89,6 +103,10 @@ local function build(model: Model): Rig
 	end
 	model.DescendantAdded:Connect(changed)
 	model.DescendantRemoving:Connect(changed)
+	-- customers are client copies that are destroyed when they leave: let go of the rig, its parts and its frames
+	model.Destroying:Once(function()
+		forget(rig)
+	end)
 	return rig
 end
 
@@ -163,7 +181,8 @@ local function settle(dt: number)
 	local now = os.clock()
 	for rig in settling do
 		if rig.model.Parent == nil then
-			settling[rig] = nil
+			-- gone without being destroyed (parented away): a fresh rig is built if it ever walks again
+			forget(rig)
 		elseif now - rig.lastStep > c.idleAfter then
 			rig.weight = math.max(0, rig.weight - dt / c.settle)
 			local pivot = rig.model:GetPivot()
@@ -187,6 +206,9 @@ function CustomerWalk.draw(model: Model, ground: CFrame, moved: number, dt: numb
 	local rig = rigs[model]
 	if Context.lowPerformance or Context.distance(ground.Position) > Context.budget.animRadius then
 		return false
+	end
+	if rig == nil and model.Parent == nil then
+		return false -- already gone: no rig for a copy that will never fire Destroying again
 	end
 	if rig == nil then
 		rig = build(model)

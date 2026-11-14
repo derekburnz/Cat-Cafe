@@ -79,6 +79,21 @@ function drawnRect(node, bare = false) {
   return { x1: x - grow, y1: y - grow, x2: x + w + grow, y2: y + h + grow };
 }
 
+// #3990: where a label's words sit: inside its UIPadding, at their measured size and alignment, without the outline.
+// A filled label's box is wider than its words (the Bait card's banner pads them clear of its X).
+function wordsRect(node) {
+  const [pl, pr, pt, pb] = node.pad || [0, 0, 0, 0];
+  const iw = Math.max(0, node.w - pl - pr);
+  const ih = Math.max(0, node.h - pt - pb);
+  const w = Math.min(iw, node.tw);
+  const h = Math.min(ih, node.th);
+  const left = node.x + pl;
+  const top = node.y + pt;
+  const x = node.tx === 'Left' ? left : node.tx === 'Right' ? left + iw - w : left + (iw - w) / 2;
+  const y = node.ty === 'Top' ? top : node.ty === 'Bottom' ? top + ih - h : top + (ih - h) / 2;
+  return { x1: x, y1: y, x2: x + w, y2: y + h };
+}
+
 export function hudTiles(nodes) {
   const byPath = new Map(nodes.map((n) => [n.path, n]));
   const tiles = [];
@@ -386,8 +401,8 @@ export function checkScene(profile, scene) {
   }
   for (const { node: text } of shown) {
     if (text.press || text.text === undefined || !/[\p{L}\p{N}]/u.test(text.text)) continue;
-    const rt = drawnRect(text, true);
-    if (!rt || hidden(text, rt)) continue;
+    const rt = wordsRect(text);
+    if (rt.x2 - rt.x1 <= 0 || rt.y2 - rt.y1 <= 0 || hidden(text, rt)) continue;
     for (const { node: button } of buttons) {
       if (button.gui !== text.gui) continue;
       if (text.path.startsWith(button.path + '/') || button.path.startsWith(text.path + '/')) continue;

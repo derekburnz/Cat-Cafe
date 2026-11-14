@@ -88,16 +88,27 @@ end
 
 -- The pal a player joined through (F92 section 5): whoever invited them, else whoever they followed in, when that
 -- player is on this server; nil otherwise.
-function PalService.joinedVia(player: Player): Player?
+local function joined(player: Player): (Player?, Pals.Link?)
 	local inviter = inviters[player] or inviterOf(player)
 	local pal = if inviter ~= nil then Players:GetPlayerByUserId(inviter) else nil
+	local how: Pals.Link = "invite"
 	if pal == nil and player.FollowUserId ~= 0 then
 		pal = Players:GetPlayerByUserId(player.FollowUserId)
+		how = "follow"
 	end
 	if pal == nil or pal == player then
-		return nil
+		return nil, nil
 	end
-	return pal
+	return pal, how
+end
+
+function PalService.joinedVia(player: Player): Player?
+	return (joined(player))
+end
+
+-- #3995: the pal a player joined through and how ("invite" or "follow"), or nil.
+function PalService.joinedHow(player: Player): (Player?, Pals.Link?)
+	return joined(player)
 end
 
 -- Whether the two are pals right now (Team Rescue doubles the helper's tip between pals).

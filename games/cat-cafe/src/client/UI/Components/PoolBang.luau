@@ -4,8 +4,10 @@
 -- a free roll left, a Trait Token banked or free tokens waiting at the station (MysticPoolLogic.bangShows). Only this
 -- player sees it (the billboard lives in their PlayerGui), within RANGE studs, bobbing unless Reduce Motion is on.
 -- It hangs from the model's BangAnchor attachment when it has one, else LIFT studs over the model's top.
---   PoolBang.new()          watches every model tagged Traits.TAG, including ones that stream in later
---   :update(traitsView)     PlayerState.traits (false or nil while the `traits` switch is off)
+--   PoolBang.new(tag?, shows?)  watches every model tagged `tag` (Traits.TAG by default), including ones that stream
+--                               in later; `shows(view)` says whether the "!" is up (MysticPoolLogic.bangShows by
+--                               default). #4272: the Cat Arcade's cabinet uses it too, with its free daily play
+--   :update(view)           PlayerState.traits for the pool (false or nil while the `traits` switch is off)
 --   :destroy()
 
 local CollectionService = game:GetService("CollectionService")
@@ -38,15 +40,17 @@ type Bang = { gui: BillboardGui, bob: Tween? }
 local PoolBang = {}
 PoolBang.__index = PoolBang
 
-function PoolBang.new(): PoolBang
+function PoolBang.new(tag: string?, shows: ((view: any) -> boolean)?): PoolBang
 	local self = setmetatable({}, PoolBang) :: any
 	self._on = false
+	self._tag = tag or Traits.TAG
+	self._shows = shows or MysticPoolLogic.bangShows
 	self._bangs = {} :: { [Instance]: Bang }
 	self._connections = {
-		CollectionService:GetInstanceAddedSignal(Traits.TAG):Connect(function(model: Instance)
+		CollectionService:GetInstanceAddedSignal(self._tag):Connect(function(model: Instance)
 			self:_set(model)
 		end),
-		CollectionService:GetInstanceRemovedSignal(Traits.TAG):Connect(function(model: Instance)
+		CollectionService:GetInstanceRemovedSignal(self._tag):Connect(function(model: Instance)
 			self:_drop(model)
 		end),
 	} :: { RBXScriptConnection }
@@ -161,12 +165,12 @@ function PoolBang._set(self: any, model: Instance)
 end
 
 function PoolBang.update(self: any, view: unknown)
-	local on = MysticPoolLogic.bangShows(if type(view) == "table" then view :: any else nil)
+	local on = self._shows(if type(view) == "table" then view :: any else nil) == true
 	if on == self._on then
 		return
 	end
 	self._on = on
-	for _, model in CollectionService:GetTagged(Traits.TAG) do
+	for _, model in CollectionService:GetTagged(self._tag) do
 		self:_set(model)
 	end
 end

@@ -17,7 +17,8 @@
 -- The steps (server tutorialStep): below 2 the first catch, 2 the first check-in with no free slot, 3 the first
 -- table, 4 the Bait bowl, food in it and (#3158) its first cat tamed or let go, 5 done. Each line keeps to about 50 characters, one line on the strip.
 -- #2912 (Nov 10 read: 21% leave between the first customer served and the second cat): step 3 with one cat asks for
--- another cat or the table ("second"), and UIController rings the nearest Alleyway stray. #3022: "one cat" is one
+-- another cat ("second"; #4097: by day the catch alone, with no Buy button), and UIController rings the nearest
+-- Alleyway stray. #3022: "one cat" is one
 -- cat caught, since every cafe also has its starter Tabby.
 -- Pure, so the cloud spec runner checks it.
 
@@ -61,11 +62,8 @@ local LINES: { [string]: Line } = {
 		touch = "Catch more cats, or tap Upgrades for a table",
 		gamepad = "Catch more cats, or buy a table in Upgrades",
 	},
-	second = {
-		keyboard = "Catch another cat, or buy a table in Upgrades (U)",
-		touch = "Catch another cat, or tap Upgrades for a table",
-		gamepad = "Catch another cat, or buy a table in Upgrades",
-	},
+	-- #4097 (Design-Agent's pick): one ask until the second cat is checked in, so no table beside it by day
+	second = "Catch another cat 🐾",
 	-- #3238: the "second" line at night, when no stray waits; kept to the strip's one line
 	secondNight = {
 		keyboard = "Strays return at sunrise, or buy a table (U)",
@@ -181,6 +179,11 @@ TutorialHints.BUY_TEXT = {
 
 export type Offer = { id: string, cost: number, text: string }
 
+-- #4097: the step asks for the second cat by day, so the strip offers nothing to buy beside it.
+function TutorialHints.holdsOffer(view: View): boolean
+	return pick(view) == "second" and view.night ~= true
+end
+
 -- What the strip's Buy button offers: the step's upgrade (`upgrade`) and its next level's cost from `upgrades` (the
 -- catalog's), only while `money` covers it. nil hides the button, so a player short of coins never meets a greyed
 -- buy; the Upgrades tile still glows.
@@ -188,8 +191,13 @@ function TutorialHints.offer(
 	step: number?,
 	levels: { [string]: number }?,
 	money: number?,
-	upgrades: { any }?
+	upgrades: { any }?,
+	view: View?
 ): Offer?
+	-- #4097: no Buy button beside "Catch another cat" by day (at night the table is the thing to do)
+	if view ~= nil and TutorialHints.holdsOffer(view) then
+		return nil
+	end
 	local id = TutorialHints.upgrade(step, levels)
 	local text = if id ~= nil then TutorialHints.BUY_TEXT[id] else nil
 	if id == nil or text == nil or type(money) ~= "number" or upgrades == nil then

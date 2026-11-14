@@ -206,6 +206,15 @@ local MONEY_W = 232
 -- #2194: the money amount takes the room of its shape with the widest digits ("$33.7M" takes "$88.8M"), so the golden
 -- fish beside it holds still while the digits tick. #2383 (Derek2 11-08: "isn't supposed to be a big gap between the
 -- money and fish"): it used to take at least 140 px, a wide gap after a short amount
+-- #4097: whether the areas are open (the Clock folder's AreasOpen; nil while it has not replicated)
+local function areasOpen(): boolean?
+	local clock = ReplicatedStorage:FindFirstChild("Clock")
+	if clock == nil then
+		return nil
+	end
+	return clock:GetAttribute("AreasOpen") ~= false
+end
+
 local function moneyShape(text: string): string
 	return (text:gsub("%d", "8"))
 end
@@ -2977,7 +2986,8 @@ function HUD.render(self: any, state: Types.PlayerState)
 			state.tutorialStep,
 			state.upgradeLevels,
 			state.money,
-			if catalog then catalog.upgrades else nil
+			if catalog then catalog.upgrades else nil,
+			TutorialHints.view(state, if catalog then catalog.spots else nil, nil, areasOpen())
 		)
 	self._stripOffer = offer
 	self:_renderStripBuy()

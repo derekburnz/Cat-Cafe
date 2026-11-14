@@ -68,7 +68,7 @@ return function()
 				)
 				-- by day, or once two cats are caught, the words are as before
 				expect(line({ step = 3, cats = 1, night = false }, "touch")).to.equal(
-					"Catch another cat, or tap Upgrades for a table"
+					"Catch another cat 🐾"
 				)
 				expect(line({ step = 3, cats = 2, night = true }, "touch")).to.equal(
 					"Tap Upgrades and buy a table: more tips per cat"
@@ -107,14 +107,10 @@ return function()
 		end)
 
 		it(
-			"asks for another cat or the table at step 3 while only one cat is caught (#2912)",
+			"asks for another cat alone at step 3 while only one cat is caught (#2912, #4097)",
 			function()
-				expect(line({ step = 3, cats = 1 }, "keyboard")).to.equal(
-					"Catch another cat, or buy a table in Upgrades (U)"
-				)
-				expect(line({ step = 3, cats = 1 }, "touch")).to.equal(
-					"Catch another cat, or tap Upgrades for a table"
-				)
+				expect(line({ step = 3, cats = 1 }, "keyboard")).to.equal("Catch another cat 🐾")
+				expect(line({ step = 3, cats = 1 }, "touch")).to.equal("Catch another cat 🐾")
 				expect(line({ step = 3, cats = 2 }, "keyboard")).to.equal(
 					"Buy a table in Upgrades (U): more tips per cat"
 				)
@@ -288,6 +284,34 @@ return function()
 				end
 				expect(TutorialHints.offer(3, {}, nil, upgrades)).to.equal(nil)
 				expect(TutorialHints.offer(3, {}, 850, nil)).to.equal(nil)
+				-- #4097: no Buy button beside the second cat by day; at night, and once two are caught, the table again
+				expect(
+					TutorialHints.offer(
+						3,
+						{ tables = 0 },
+						850,
+						upgrades,
+						{ step = 3, cats = 1 } :: any
+					)
+				).to.equal(nil)
+				expect(
+					TutorialHints.offer(
+						3,
+						{ tables = 0 },
+						850,
+						upgrades,
+						{ step = 3, cats = 1, night = true } :: any
+					) ~= nil
+				).to.equal(true)
+				expect(
+					TutorialHints.offer(
+						3,
+						{ tables = 0 },
+						850,
+						upgrades,
+						{ step = 3, cats = 2 } :: any
+					) ~= nil
+				).to.equal(true)
 				-- a level past the price list (a save from a bigger list) is no offer
 				expect(TutorialHints.offer(3, { tables = 2 }, 99999, upgrades)).to.equal(nil)
 			end

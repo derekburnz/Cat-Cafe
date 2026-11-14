@@ -88,6 +88,9 @@ Remotes.ClientToServer = {
 	-- item of Catalog.mysteryItems not owned, from its minTier, priced by the server's clock (MysteryMarket.priceOf); a
 	-- price above shownPrice (the sale ended while the window was open) is refused with "The sale just ended". 1 a
 	-- second; answered with a toast and a ProfileSync. Refused outside Studio while Config.MysteryOpen is false
+	"BuyWithFish", -- (key: string, shownPrice: number)  #4055 (shared/FishStore): a Store pass of FishStore.LIST not
+	-- owned, made, for FishStore.price golden fish; a price above shownPrice is refused. From anywhere, 1 a second, only
+	-- while the fishStore switch is on; answered with a toast and a ProfileSync (PlayerState.fishStore)
 	"PromptDeal", -- (productId: string)  #3996 (shared/DailyDeal): opens Roblox's purchase prompt for Today's Deal from
 	-- the server, only for today's deal, not yet bought today, from Tier 2 and while the dailyDeal switch is on; refused
 	-- with a toast otherwise. 1 a second

@@ -83,6 +83,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	BuyWithFish = RateLimiter.new(1, 1), -- #4055: 1 a second
 	MarkMysterySeen = RateLimiter.new(1, 2), -- #2565: one save flag
 	SetBagColours = RateLimiter.new(1, 1), -- #3699: 1 a second
+	PromptDeal = RateLimiter.new(1, 1), -- #3996
 	RedeemCode = RateLimiter.new(1, 2), -- data-model section 11d: 1 per 2 s; CodeService locks after wrong codes
 	IntroDone = RateLimiter.new(1, 1), -- intro-cutscene.md section 3: 1 a second; each call logs one event
 	SetHideCredit = RateLimiter.new(1, 1), -- #1083: 1 a second

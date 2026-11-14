@@ -42,6 +42,8 @@ GATES = {
     "desert": ("CatCafe_Desert_NightFence", "CatCafe_Desert_Gate", 24.0, 0.0),        # Tier 6 (#2651)
     "ruins": ("CatCafe_Ruins_NightFence", "CatCafe_Ruins_Gate", 24.0, 0.0),           # Tier 7 (#2651)
     "snowy": ("CatCafe_Snowy_NightFence", "CatCafe_Snowy_Gate", 24.0, 0.0),           # Tier 8 (#3997)
+    "waterpark": ("CatCafe_WaterPark_NightFence", "CatCafe_WaterPark_Gate", 24.0, 0.0),   # Tier 9 (#4066)
+    "castle": ("CatCafe_Castle_NightFence", "CatCafe_Castle_Gate", 24.0, 0.0),            # Tier 10 (#4067)
     # the arch has no Bars and hangs flower baskets in its opening, so its fence stands behind the posts and their
     # plinths (z 1.3), as wide as the arch: 36 inner plus two 2 stud posts
     "alley": ("CatCafe_Alley_NightFence", "CatCafe_Alley_ArchStreet", 40.0, 1.05),

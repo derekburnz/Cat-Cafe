@@ -1214,6 +1214,18 @@ Effects/PoolBeacon, Presets.poolBeacon. A quiet way to notice the pool at its sp
 | A soft PointLight just over the liquid, in the liquid's own colour, breathing slowly (one breath every 4 s, down by about a third), and 2 slow sparkles a second drifting up off the pool in a lighter tint of that colour. Full within 30 studs, fading to nothing at 60 and off past it | the station tagged `shared/Traits.TAG`, its `_Liquid_Glow` model for the middle and colour |
 | One light and about 4 particles on screen. Reduce Motion: the light holds still, no sparkles. Low performance: the light only. Never paused for a roll | checked 5 times a second |
 
+## Dragon Keep stage up and card deal (#4062, 2026-11-14)
+| Moment | What | Budget |
+|---|---|---|
+| Stage up, stages 1 to 4 (7 s) | Bars in and windows held, the camera swings to the Keep (1.2 s), Cinder curls into an ember ball that heats from orange to white-gold, one flash at the crack with shards, the new look unfurls, a happy roar, the camera swings back | One Neon ball with a light and an ember emitter, 10 to 16 shards (half on phones), all client side |
+| What each stage adds | 1 sparks, 2 smoke rings, 3 an ember ring and a light column, 4 gold coins up the column, 5 flame confetti and side beams | Smoke rings 10 puffs each (5 on phones), coins 16 to 22 (half on phones), confetti inside the 80 piece cap |
+| Stage 5 (12 s) | One lap of the castle on beating wings (1.4 beats a second), a landing on the tower with the crown glinting, then the roar | One PivotTo per joint a frame |
+| Reduce Motion (2 s) | A soft fade to the Keep with the new look, the roar pose and the title, a soft fade back | No shake, no ball, no flying, no particles |
+| Card deal | Three cards flip one at a time 0.42 s apart, the edge in the rarity colour pulsing once; Legendary gets a glint sweep and gold rays, Mythic a slowly turning rainbow edge and rainbow rays | 12 rays (6 on phones) for 1.1 s; Reduce Motion swaps faces with no turn |
+
+Nothing flashes but the one crack. A tap skips after 1 s. A cap 3 s past the end always gives back the camera, controls, prompts and windows.
+
+
 ## Snowy Mountain (#4069, 2026-11-14)
 Derek 2026-11-13: "make the rarer ones more special". First pass, all client side and data driven, so it starts when the area's box and cats are wired.
 
@@ -1221,9 +1233,31 @@ Derek 2026-11-13: "make the rarer ones more special". First pass, all client sid
 |---|---|---|
 | Snowfall | Soft flakes drifting down round you in the area (`snowfall`, Rate 14, from 6 studs up) | Off in Low performance, a fifth with Reduce Motion |
 | Stray puff | A white puff where a Snowy stray appears or leaves | As the Desert and Ruins (`areaPuffs`) |
+| Northern lights | At night, while you are in the area: ribbons of soft light (mint under violet) high over it, bending slowly side to side over 11 to 17 seconds, fading in and out over 3 seconds | 3 ribbons (6 Beams of 16 segments) on high, 2 on medium and low; no particles, no lights; still with Reduce Motion, none in Low performance |
 | Snow under your feet | 3 small white puffs for every 3 studs walked on the ground | None in Low performance or with Reduce Motion |
 | Ice Cat (Epic) | A glint off its ice spikes | One signature cat's rate, split over 2 prop parts |
+| Snow Leopard Cat (Epic) | A warm glint off its climber's head lamp | 1 emitter, Rate 2 or less |
+| Snow Boots Cat, Ski Cat (Rare) | A little snow kicked up behind them, only while they move; shown only in a slot no rarer cat nearby needs | 1 emitter, Rate 1.5 |
 | White Tiger Cat (Legendary) | Frosty breath off the head, a glint on the coat, glowing ice-blue eyes | 2 emitters, each Rate 2 or less |
 | Blizzard Cat (Mythical) | Falling flakes, 5 motes circling it (3 on a phone) every 3.2 s leaving flakes, a frost trail while it walks, glowing eyes, a ring and puff where it lands as a stray | 3 emitters plus the swirl sharing Rate 2; the swirl holds still with Reduce Motion |
 
-Still to do in #4069: night aurora and camp glow, Cocoa Stand steam, rescue spot motion, the Observatory, catch and reveal moments by rarity, sounds.
+Still to do in #4069: camp chimney smoke, the gate's opening moment, the Observatory telescope, commons' prop motion, the phone budget measurement once the area is built.
+
+## Water Park and Medieval Castle (#4070, #4071, 2026-11-14)
+The same ladder as the Snowy Mountain: more effect the rarer the cat. All client side and data driven, so it starts when each area's box and cats are wired.
+
+| Effect | What | Budget |
+|---|---|---|
+| Water Park air | Fine spray drifting round you, a splash where a stray comes or goes | Off in Low performance, a fifth with Reduce Motion |
+| Castle air | Slow warm motes of dust in torch gold, a gold puff where a stray comes or goes | The same |
+| Rides | The carousel (24 s a turn), the teacups (16 s) and the Ferris wheel (60 s) turn slowly, on this client only (`Rides.luau`) | The nearest 3 within 260 studs, 1 on the lite budget; still with Reduce Motion and in Low performance |
+| Castle torches | The flame on each torch post stretches, leans and flickers like the campfires, with a small warm light (brighter at night) and an ember now and then | The campfires' budget: only the nearest few flames move |
+| Rescue spots | Head first with the back end wriggling in the ball pit, the plush pile and the haystack; the plain shake where the cat sits the right way up | As every stuck cat |
+| Rares (Candy Apple, Cotton Candy, Jester, Rogue) | One small touch each: a glaze glint, sugar while it moves, a bell glint, a wisp of shadow while it moves | 1 emitter, only in a slot no rarer cat nearby needs |
+| Epics (Clown, Water Gun, Knight, Mage) | One effect on the lit prop: pom twinkles, drips off the blaster, a shield glint, rising stars | One signature cat's rate |
+| Coaster Cat (Legendary) | A glint on its lit loop, sparks off the goggles, a whoosh while it runs | 3 emitters, each Rate 2 or less |
+| Queen Cat (Legendary) | A crown glint, falling gold motes, a halo | 3 emitters, each Rate 2 or less |
+| Water Cat (Mythical) | Drips, circling bubbles, a wet trail while it walks, glowing eyes, a splash where it lands, a taller catch fountain | As the Blizzard Cat |
+| Dragon Knight Cat (Mythical) | Rising sparks, glowing eyes, a shield glint, an ember trail while it moves, circling embers, a burst where it lands, a taller catch column | As the Blizzard Cat |
+
+Still to do: water flow and slide splashes, ride lamps at night, banners, the gates' opening moments, the Ticket Booth and Throne Hall moments.

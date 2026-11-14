@@ -70,6 +70,7 @@ import townbuildings  # noqa: E402
 import decor  # noqa: E402
 import furniture  # noqa: E402
 import gold  # noqa: E402
+import goldtone  # noqa: E402
 import gates  # noqa: E402
 import items  # noqa: E402
 import lawn  # noqa: E402
@@ -947,6 +948,10 @@ def main():
         rbx_dir = os.path.join(args.rbx, riftrun.RBX_DIR) if name in riftrun.ASSETS else args.rbx   # Assets.RiftRun
         rbx_dir = os.path.join(args.rbx, dragon.RBX_DIR) if name in dragon.ASSETS else rbx_dir      # Assets.Dragon
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, rbx_dir, **extra)
+        if rbx_path and name.startswith("CatCafe_Cat_"):      # #3918: the base cat's parts say how its gold twin differs
+            pair = goldtone.twin_paths(rbx_path)
+            if pair:
+                goldtone.stamp(*pair)
         spots_ok = None
         if rbx_path and name in spot_clear.SETTLE and name in areakit.POINTS:   # cat spots out of solid props
             blo, bhi = common.bounds(objs)

@@ -41,6 +41,8 @@ export const LIMITS = {
   fonts: 2, // Fredoka One and Nunito
   topbarLeft: 184, // Roblox's menu and chat buttons sit left of TopbarInset.Min.X
   overlap: 0.25, // share of the smaller pressable covered by another
+  near: 1, // #3990: px between what two buttons draw (outlines left out: touching outlines are a look), or text under one
+  catcher: 0.2, // #3990: a pressable this share of the screen or more is a catcher or a cover (a dim, a reel), not a button
 };
 
 // gate: fails the run when new; warn: in the report only
@@ -61,10 +63,11 @@ const SKIPPED_TILES = /^CatCafeHUD\/Root\/Pop\//;
 
 // What one piece draws, or null for an empty holder: its box grown by its outline, or for a label with no fill its
 // text (a label's box is often wider than its words), grown by the text's outline.
-function drawnRect(node) {
+// `bare`: without the outlines (#3990's crowd check: outlines that touch are a look, not an overlap).
+function drawnRect(node, bare = false) {
   const filled = node.bgT !== undefined && node.bgT < 0.95;
   if (node.bs || filled || (node.image && node.imageT < 0.95)) {
-    const grow = node.bs ? node.bs[1] : 0;
+    const grow = node.bs && !bare ? node.bs[1] : 0;
     return { x1: node.x - grow, y1: node.y - grow, x2: node.x + node.w + grow, y2: node.y + node.h + grow };
   }
   if (node.text === undefined) return null;
@@ -72,7 +75,7 @@ function drawnRect(node) {
   const h = Math.min(node.h, node.th);
   const x = node.tx === 'Left' ? node.x : node.tx === 'Right' ? node.x + node.w - w : node.x + (node.w - w) / 2;
   const y = node.ty === 'Top' ? node.y : node.ty === 'Bottom' ? node.y + node.h - h : node.y + (node.h - h) / 2;
-  const grow = node.ts2 ? node.ts2[1] : 0;
+  const grow = node.ts2 && !bare ? node.ts2[1] : 0;
   return { x1: x - grow, y1: y - grow, x2: x + w + grow, y2: y + h + grow };
 }
 
@@ -301,6 +304,96 @@ export function checkScene(profile, scene) {
       if (!both) continue;
       if (area(both) > LIMITS.overlap * Math.min(area(a.rect), area(b.rect))) {
         add('overlap', b.node, `covers ${a.node.path}${label(a.node)}`);
+      }
+    }
+  }
+
+  // #3990 (Derek 2026-11-13: "the little blue detail buttons overlap other buttons, and a lot of menus are like
+  // this"): what two buttons draw (the button and its pieces, without their outlines, never the invisible Hit pad)
+  // comes closer than LIMITS.near, or a button draws over a line of words that is not its own. 'crowd' is a warning for
+  // now; the audit's fixes come first, then it joins GATED.
+  const pathed = new Map(scene.nodes.map((n) => [n.path, n]));
+  const drawnOf = new Map();
+  const drawnPress = (node) => {
+    if (drawnOf.has(node.path)) return drawnOf.get(node.path);
+    let r = drawnRect(node, true);
+    const prefix = node.path + '/';
+    for (const part of scene.nodes) {
+      if (!part.path.startsWith(prefix)) continue;
+      const rest = part.path.slice(prefix.length);
+      if (rest === 'Hit' || rest.startsWith('Hit/')) continue;
+      if (!visibleRect(part)) continue;
+      const d = drawnRect(part, true);
+      if (!d) continue;
+      r = r ? { x1: Math.min(r.x1, d.x1), y1: Math.min(r.y1, d.y1), x2: Math.max(r.x2, d.x2), y2: Math.max(r.y2, d.y2) } : d;
+    }
+    // what a list or a window clips away is not drawn
+    if (r && node.clip) r = intersect(r, { x1: node.clip[0] - 4, y1: node.clip[1] - 4, x2: node.clip[2] + 4, y2: node.clip[3] + 4 });
+    drawnOf.set(node.path, r || null);
+    return r || null;
+  };
+  // what a later, solid piece lies over whole (a sheet, a cover, a detail card) is out of sight, so it can't crowd
+  const indexOf = new Map(scene.nodes.map((n, i) => [n.path, i]));
+  const screenArea = area(screen);
+  const catcher = (n, r) => n.press && r && area(r) >= LIMITS.catcher * screenArea;
+  const covers = scene.nodes
+    .map((n, i) => ({ n, i, r: visibleRect(n) }))
+    .filter(({ n, r }) => r && ((n.bgT !== undefined && n.bgT <= 0.05 && area(r) >= 2500) || catcher(n, r)));
+  const hidden = (node, r) => {
+    if (!r) return true;
+    const at = indexOf.get(node.path) ?? -1;
+    for (const c of covers) {
+      if (c.n.gui !== node.gui || c.i === at) continue;
+      // on top: drawn later at the same ZIndex or higher, or at a higher ZIndex wherever it sits
+      const cz = c.n.z ?? 1;
+      const nz = node.z ?? 1;
+      if (!(cz > nz || (c.i > at && cz >= nz))) continue;
+      if (node.path.startsWith(c.n.path + '/')) continue;
+      if (c.r.x1 <= r.x1 + 1 && c.r.y1 <= r.y1 + 1 && c.r.x2 >= r.x2 - 1 && c.r.y2 >= r.y2 - 1) return true;
+    }
+    return false;
+  };
+  // a touch Button's pressable is its invisible Hit pad: the button is the holder it grows
+  const seen = new Set();
+  const buttons = [];
+  for (const { node } of presses) {
+    // a Components/Button presses through its Face (or its Hit pad on touch): the button is the holder of both
+    const part = node.path.match(/\/(Hit|Face)$/);
+    const owner = part ? pathed.get(node.path.slice(0, -part[0].length)) || node : node;
+    if (!owner || seen.has(owner.path) || !drawnPress(owner)) continue;
+    seen.add(owner.path);
+    if (catcher(owner, visibleRect(owner)) || hidden(owner, drawnPress(owner))) continue;
+    buttons.push({ node: owner });
+  }
+  for (let i = 0; i < buttons.length; i++) {
+    for (let j = i + 1; j < buttons.length; j++) {
+      const a = buttons[i].node;
+      const b = buttons[j].node;
+      if (a.gui !== b.gui) continue;
+      if (b.path.startsWith(a.path + '/') || a.path.startsWith(b.path + '/')) continue;
+      const ra = drawnPress(a);
+      const rb = drawnPress(b);
+      const gapX = Math.max(rb.x1 - ra.x2, ra.x1 - rb.x2);
+      const gapY = Math.max(rb.y1 - ra.y2, ra.y1 - rb.y2);
+      const gap = Math.max(gapX, gapY);
+      if (gap >= LIMITS.near) continue;
+      // one inside the other's drawn box (a badge on a card, a full-screen catcher) is 'overlap's to report
+      const both = intersect(ra, rb);
+      if (both && area(both) > 0.9 * Math.min(area(ra), area(rb))) continue;
+      const what = gap < 0 ? `overlaps ${a.path}${label(a)} by ${px(-gap)} px` : `${px(gap)} px from ${a.path}${label(a)}, needs ${LIMITS.near}`;
+      add('crowd', b, `button ${what}`);
+    }
+  }
+  for (const { node: text } of shown) {
+    if (text.press || text.text === undefined || !/[\p{L}\p{N}]/u.test(text.text)) continue;
+    const rt = drawnRect(text, true);
+    if (!rt || hidden(text, rt)) continue;
+    for (const { node: button } of buttons) {
+      if (button.gui !== text.gui) continue;
+      if (text.path.startsWith(button.path + '/') || button.path.startsWith(text.path + '/')) continue;
+      const both = intersect(rt, drawnPress(button));
+      if (both && both.w > LIMITS.near && both.h > LIMITS.near) {
+        add('crowd', text, `text ${JSON.stringify(text.text.slice(0, 24))} under ${button.path}${label(button)}`);
       }
     }
   }

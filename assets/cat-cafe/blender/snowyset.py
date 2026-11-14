@@ -542,7 +542,7 @@ def _cave(s, mat):
 # ---------------------------------------------------------------------------------------------- the summit --
 def summit(mat):
     """Summit Peak, its pivot at its base centre, its stair on the camp face (-Z): four rock tiers SUM_STEP high from
-    SUM_BASE wide, each notched at the corners, snow on every tier, a stair of 1.4 steps up the middle of the camp
+    SUM_BASE wide, each notched at the corners, snow on every tier, a stair of 0.7 steps up the middle of the camp
     face with rock walls, boulders and drifts round the foot."""
     b = Builder()
     for i in range(SUM_TIERS):
@@ -556,10 +556,10 @@ def summit(mat):
             for sy in (-1, 1):
                 b.ico((sx * (w / 2 - 2.2), sy * (w / 2 - 2.2), z + 1.0), 1.4, ROCK_DARK, subdivisions=1,
                       scale=(1.2, 1.0, 0.9))
-    for i in range(SUM_TIERS * 2):                                          # the stair, packed snow on stone
-        y = -(SUM_BASE / 2) - STAIR_OUT + 2.25 * i + 1.125
-        b.box_base((0, y, 0), (STAIR_W, 2.25, 1.4 * (i + 1)), ROCK_DARK, bevel=False)
-        b.box_base((0, y, 1.4 * (i + 1)), (STAIR_W - 0.6, 2.1, 0.12), PATH, bevel=False)
+    for i in range(SUM_TIERS * 4):                                          # the stair, packed snow on stone: 0.7
+        y = -(SUM_BASE / 2) - STAIR_OUT + 1.125 * i + 0.5625                # rises a player walks up without a jump
+        b.box_base((0, y, 0), (STAIR_W, 1.125, 0.7 * (i + 1) - 0.12), ROCK_DARK, bevel=False)
+        b.box_base((0, y, 0.7 * (i + 1) - 0.12), (STAIR_W - 0.6, 1.125, 0.12), PATH, bevel=False)
     for sx in (-1, 1):
         for i in range(SUM_TIERS):
             y = -(SUM_BASE / 2) - STAIR_OUT + 4.5 * i + 2.25

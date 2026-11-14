@@ -290369,8 +290369,8 @@
        "CFrame": {
         "position": [
          0.0,
-         0.7,
-         198.625
+         0.29,
+         198.0625
         ],
         "orientation": [
          [
@@ -290393,8 +290393,8 @@
       },
       "Size": [
        8.0,
-       1.4,
-       2.25
+       0.58,
+       1.125
       ],
       "Color": [
        0.3569,
@@ -290418,8 +290418,8 @@
        "CFrame": {
         "position": [
          0.0,
-         1.46,
-         198.625
+         0.64,
+         198.0625
         ],
         "orientation": [
          [
@@ -290443,7 +290443,7 @@
       "Size": [
        7.4,
        0.12,
-       2.1
+       1.125
       ],
       "Color": [
        0.8039,
@@ -290467,8 +290467,8 @@
        "CFrame": {
         "position": [
          0.0,
-         1.4,
-         200.875
+         0.64,
+         199.1875
         ],
         "orientation": [
          [
@@ -290491,8 +290491,8 @@
       },
       "Size": [
        8.0,
-       2.8,
-       2.25
+       1.28,
+       1.125
       ],
       "Color": [
        0.3569,
@@ -290516,8 +290516,8 @@
        "CFrame": {
         "position": [
          0.0,
-         2.86,
-         200.875
+         1.34,
+         199.1875
         ],
         "orientation": [
          [
@@ -290541,7 +290541,7 @@
       "Size": [
        7.4,
        0.12,
-       2.1
+       1.125
       ],
       "Color": [
        0.8039,
@@ -290565,8 +290565,8 @@
        "CFrame": {
         "position": [
          0.0,
-         2.1,
-         203.125
+         0.99,
+         200.3125
         ],
         "orientation": [
          [
@@ -290589,8 +290589,8 @@
       },
       "Size": [
        8.0,
-       4.2,
-       2.25
+       1.98,
+       1.125
       ],
       "Color": [
        0.3569,
@@ -290614,8 +290614,8 @@
        "CFrame": {
         "position": [
          0.0,
-         4.26,
-         203.125
+         2.04,
+         200.3125
         ],
         "orientation": [
          [
@@ -290639,7 +290639,7 @@
       "Size": [
        7.4,
        0.12,
-       2.1
+       1.125
       ],
       "Color": [
        0.8039,
@@ -290663,8 +290663,8 @@
        "CFrame": {
         "position": [
          0.0,
-         2.8,
-         205.375
+         1.34,
+         201.4375
         ],
         "orientation": [
          [
@@ -290687,8 +290687,8 @@
       },
       "Size": [
        8.0,
-       5.6,
-       2.25
+       2.68,
+       1.125
       ],
       "Color": [
        0.3569,
@@ -290712,8 +290712,8 @@
        "CFrame": {
         "position": [
          0.0,
-         5.66,
-         205.375
+         2.74,
+         201.4375
         ],
         "orientation": [
          [
@@ -290737,7 +290737,7 @@
       "Size": [
        7.4,
        0.12,
-       2.1
+       1.125
       ],
       "Color": [
        0.8039,
@@ -290761,8 +290761,8 @@
        "CFrame": {
         "position": [
          0.0,
-         3.5,
-         207.625
+         1.69,
+         202.5625
         ],
         "orientation": [
          [
@@ -290785,8 +290785,8 @@
       },
       "Size": [
        8.0,
-       7.0,
-       2.25
+       3.38,
+       1.125
       ],
       "Color": [
        0.3569,
@@ -290810,8 +290810,8 @@
        "CFrame": {
         "position": [
          0.0,
-         7.06,
-         207.625
+         3.44,
+         202.5625
         ],
         "orientation": [
          [
@@ -290835,7 +290835,7 @@
       "Size": [
        7.4,
        0.12,
-       2.1
+       1.125
       ],
       "Color": [
        0.8039,
@@ -290859,8 +290859,8 @@
        "CFrame": {
         "position": [
          0.0,
-         4.2,
-         209.875
+         2.04,
+         203.6875
         ],
         "orientation": [
          [
@@ -290883,8 +290883,8 @@
       },
       "Size": [
        8.0,
-       8.4,
-       2.25
+       4.08,
+       1.125
       ],
       "Color": [
        0.3569,
@@ -290908,8 +290908,8 @@
        "CFrame": {
         "position": [
          0.0,
-         8.46,
-         209.875
+         4.14,
+         203.6875
         ],
         "orientation": [
          [
@@ -290933,7 +290933,7 @@
       "Size": [
        7.4,
        0.12,
-       2.1
+       1.125
       ],
       "Color": [
        0.8039,
@@ -290957,8 +290957,8 @@
        "CFrame": {
         "position": [
          0.0,
-         4.9,
-         212.125
+         2.39,
+         204.8125
         ],
         "orientation": [
          [
@@ -290981,8 +290981,8 @@
       },
       "Size": [
        8.0,
-       9.8,
-       2.25
+       4.78,
+       1.125
       ],
       "Color": [
        0.3569,
@@ -291006,8 +291006,8 @@
        "CFrame": {
         "position": [
          0.0,
-         9.86,
-         212.125
+         4.84,
+         204.8125
         ],
         "orientation": [
          [
@@ -291031,7 +291031,7 @@
       "Size": [
        7.4,
        0.12,
-       2.1
+       1.125
       ],
       "Color": [
        0.8039,
@@ -291055,8 +291055,8 @@
        "CFrame": {
         "position": [
          0.0,
-         5.6,
-         214.375
+         2.74,
+         205.9375
         ],
         "orientation": [
          [
@@ -291079,8 +291079,8 @@
       },
       "Size": [
        8.0,
-       11.2,
-       2.25
+       5.48,
+       1.125
       ],
       "Color": [
        0.3569,
@@ -291104,8 +291104,8 @@
        "CFrame": {
         "position": [
          0.0,
-         11.26,
-         214.375
+         5.54,
+         205.9375
         ],
         "orientation": [
          [
@@ -291129,7 +291129,791 @@
       "Size": [
        7.4,
        0.12,
-       2.1
+       1.125
+      ],
+      "Color": [
+       0.8039,
+       0.8235,
+       0.8549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         3.09,
+         207.0625
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       8.0,
+       6.18,
+       1.125
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         6.24,
+         207.0625
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       7.4,
+       0.12,
+       1.125
+      ],
+      "Color": [
+       0.8039,
+       0.8235,
+       0.8549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         3.44,
+         208.1875
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       8.0,
+       6.88,
+       1.125
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         6.94,
+         208.1875
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       7.4,
+       0.12,
+       1.125
+      ],
+      "Color": [
+       0.8039,
+       0.8235,
+       0.8549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         3.79,
+         209.3125
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       8.0,
+       7.58,
+       1.125
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         7.64,
+         209.3125
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       7.4,
+       0.12,
+       1.125
+      ],
+      "Color": [
+       0.8039,
+       0.8235,
+       0.8549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         4.14,
+         210.4375
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       8.0,
+       8.28,
+       1.125
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         8.34,
+         210.4375
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       7.4,
+       0.12,
+       1.125
+      ],
+      "Color": [
+       0.8039,
+       0.8235,
+       0.8549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         4.49,
+         211.5625
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       8.0,
+       8.98,
+       1.125
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         9.04,
+         211.5625
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       7.4,
+       0.12,
+       1.125
+      ],
+      "Color": [
+       0.8039,
+       0.8235,
+       0.8549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         4.84,
+         212.6875
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       8.0,
+       9.68,
+       1.125
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         9.74,
+         212.6875
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       7.4,
+       0.12,
+       1.125
+      ],
+      "Color": [
+       0.8039,
+       0.8235,
+       0.8549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         5.19,
+         213.8125
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       8.0,
+       10.38,
+       1.125
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         10.44,
+         213.8125
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       7.4,
+       0.12,
+       1.125
+      ],
+      "Color": [
+       0.8039,
+       0.8235,
+       0.8549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         5.54,
+         214.9375
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       8.0,
+       11.08,
+       1.125
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_246_Summit",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         11.14,
+         214.9375
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       7.4,
+       0.12,
+       1.125
       ],
       "Color": [
        0.8039,

@@ -355227,7 +355227,7 @@
         "CatCafe_Snowy_Set_321_Rock",
         "CatCafe_Snowy_Set_322_Rock"
       ],
-      "triangles": 101436,
+      "triangles": 101628,
       "budget": 150000,
       "size_studs": {
         "x": 153.98,
@@ -356062,7 +356062,7 @@
       },
       "studio": "Tier 8, the Snowy Mountain (next-areas plan section 1, #3997). Place it at the area's centre on its floor, camp side -Z, like the Desert's set. The floor is snow right out to the walls and the lake is ice laid over the paths. Nothing invisible stands inside the area: the ridges, humps and drifts are WedgeParts that collide where they are drawn and the blockers have no _Barrier; the only _Barrier is the 30 high ring in the border's wall band, all round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. Icicles, frozen bubbles, block lines and rope are _Decor (no collision). The rescue spots (points_roblox trap_snowdrift, trap_snowman, trap_sled, trap_snow_log) carry their piece's turn.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Snowy_Set.model.json",
-      "rbx_parts": 6461,
+      "rbx_parts": 6477,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Snowy_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Snowy_Set.glb"
@@ -356075,10 +356075,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "101436/150000 tris",
+          "budget": "101628/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "49826 faces on swatch centers",
+          "uv": "49922 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.63 (want 0)",
           "centered": "footprint center x=0.02 y=0.99",

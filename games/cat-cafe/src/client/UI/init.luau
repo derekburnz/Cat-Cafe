@@ -9774,11 +9774,13 @@ do
 		events.adminSeen = adminSeen
 		if adminBeat ~= nil and adminView ~= nil then
 			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
-			EventBanner.show(
-				if adminBeat == "start"
-					then AdminEventLogic.startBanner(adminView, now)
-					else AdminEventLogic.soonBanner(adminView, now)
-			)
+			local card = if adminBeat == "start"
+				then AdminEventLogic.startBanner(adminView, now)
+				else AdminEventLogic.soonBanner(adminView, now)
+			EventBanner.show(card)
+			-- the same words as one line in the chat window, for a player who looked away
+			local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any
+			AdminEventChat.say(AdminEventLogic.chatLine(card))
 		end
 		local current = hud
 		if current then

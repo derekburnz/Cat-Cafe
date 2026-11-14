@@ -182,6 +182,29 @@ return function()
 			expect(utf8.len(cut.title) <= Presets.eventBanner.titleLength).to.equal(true)
 		end)
 
+		it("says the cards' words as one chat line, safe for rich text", function()
+			local soon = AdminEventLogic.soonBanner(view(), NOW)
+			expect(AdminEventLogic.chatLine(soon)).to.equal(
+				'<font color="#FF6B81"><b>⚡ Bowl Frenzy soon! Starts in 2:00. '
+					.. "Bait bowls lure cats 4x faster.</b></font>"
+			)
+			local odd = view({ AdminEventTitle = "<b>A & B</b>", AdminEventRunning = true })
+			local line = AdminEventLogic.chatLine(AdminEventLogic.startBanner(odd, START))
+			expect(string.find(line, "&lt;b&gt;A &amp; B&lt;/b&gt;!", 1, true) ~= nil).to.equal(
+				true
+			)
+			expect(select(2, string.gsub(line, "<b>", ""))).to.equal(1)
+			local rose = Presets.palette.neonPink
+			expect(AdminEventLogic.CHAT_COLOUR).to.equal(
+				string.format(
+					"#%02X%02X%02X",
+					math.round(rose.R * 255),
+					math.round(rose.G * 255),
+					math.round(rose.B * 255)
+				)
+			)
+		end)
+
 		it("shows a timer line before and during, and none after", function()
 			expect(AdminEventLogic.stripLine(view(), NOW + 1)).to.equal("⚡ Bowl Frenzy in 1:59")
 			local running = view({ AdminEventRunning = true })

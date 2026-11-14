@@ -12,6 +12,8 @@
 --   effectLines(view)                   one calm line per effect: "Bait bowls lure cats 4x faster"
 --   soonBanner(view, now)               Effects/EventBanner's "adminSoon" card: "Bowl Frenzy soon!", "Starts in 2:00"
 --   startBanner(view, now)              its "admin" card: "Bowl Frenzy!", the effect, "Ends in 15:00"
+--   chatLine(banner)                    the same words as one system chat line, in the cards' rose, rich text safe:
+--                                       "⚡ Bowl Frenzy soon! Starts in 2:00. Bait bowls lure cats 4x faster."
 --   stripLine(view, now)                the HUD's timer words: "⚡ Bowl Frenzy in 1:59", then "⚡ Bowl Frenzy 14:59"
 --   merge(lines, kind, strip, admin)    the Cafe Event chip's lines, kind and strip with the admin line put first
 --   clock(seconds)                      "14:59", "1:02:05"
@@ -145,6 +147,28 @@ function AdminEventLogic.startBanner(view: View, now: number): Banner
 		lines = lines,
 		badge = AdminEventLogic.badge(view),
 	}
+end
+
+AdminEventLogic.CHAT_COLOUR = "#FF6B81" -- the cards' rose (Presets.palette.neonPink)
+
+-- Rich text shows these three as themselves only when escaped; an event's title comes from the schedule.
+local function plain(text: string): string
+	local out = string.gsub(text, "&", "&amp;")
+	out = string.gsub(out, "<", "&lt;")
+	out = string.gsub(out, ">", "&gt;")
+	return out
+end
+
+function AdminEventLogic.chatLine(banner: Banner): string
+	local parts = { banner.title }
+	for _, line in banner.lines do
+		table.insert(parts, line .. ".")
+	end
+	return string.format(
+		'<font color="%s"><b>⚡ %s</b></font>',
+		AdminEventLogic.CHAT_COLOUR,
+		plain(table.concat(parts, " "))
+	)
 end
 
 function AdminEventLogic.stripLine(view: View?, now: number): string?

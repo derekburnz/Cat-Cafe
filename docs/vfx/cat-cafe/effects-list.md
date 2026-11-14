@@ -1224,6 +1224,8 @@ Derek 2026-11-13: "make the rarer ones more special". First pass, all client sid
 | Northern lights | At night, while you are in the area: ribbons of soft light (mint under violet) high over it, bending slowly side to side over 11 to 17 seconds, fading in and out over 3 seconds | 3 ribbons (6 Beams of 16 segments) on high, 2 on medium and low; no particles, no lights; still with Reduce Motion, none in Low performance |
 | Snow under your feet | 3 small white puffs for every 3 studs walked on the ground | None in Low performance or with Reduce Motion |
 | Ice Cat (Epic) | A glint off its ice spikes | One signature cat's rate, split over 2 prop parts |
+| Snow Leopard Cat (Epic) | A warm glint off its climber's head lamp | 1 emitter, Rate 2 or less |
+| Snow Boots Cat, Ski Cat (Rare) | A little snow kicked up behind them, only while they move; shown only in a slot no rarer cat nearby needs | 1 emitter, Rate 1.5 |
 | White Tiger Cat (Legendary) | Frosty breath off the head, a glint on the coat, glowing ice-blue eyes | 2 emitters, each Rate 2 or less |
 | Blizzard Cat (Mythical) | Falling flakes, 5 motes circling it (3 on a phone) every 3.2 s leaving flakes, a frost trail while it walks, glowing eyes, a ring and puff where it lands as a stray | 3 emitters plus the swirl sharing Rate 2; the swirl holds still with Reduce Motion |
 

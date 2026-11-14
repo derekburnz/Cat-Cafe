@@ -675,6 +675,7 @@ local function pick()
 		return
 	end
 	local candidates: { Logic.Candidate<Model> } = {}
+	local minor: { Logic.Candidate<Model> } = {} -- the Rares' small touches: only in slots left over
 	for model, entry in entries do
 		if model.Parent == nil then
 			dropOrbit(entry)
@@ -682,15 +683,19 @@ local function pick()
 		elseif hidden(model) then
 			switchOff(entry)
 		else
-			table.insert(
-				candidates,
-				{ key = model, distance = (model:GetPivot().Position - focus).Magnitude }
-			)
+			local candidate: Logic.Candidate<Model> =
+				{ key = model :: Model, distance = (model:GetPivot().Position - focus).Magnitude }
+			table.insert(if entry.spec.minor == true then minor else candidates, candidate)
 		end
 	end
 	local shown: { [Model]: boolean } = {}
 	for _, model in
-		Logic.nearest(candidates, Presets.signatureFx.radius, Context.budget.signatureCats)
+		Logic.nearestFirst(
+			candidates,
+			minor,
+			Presets.signatureFx.radius,
+			Context.budget.signatureCats
+		)
 	do
 		local entry: Entry? = entries[model]
 		if entry ~= nil then

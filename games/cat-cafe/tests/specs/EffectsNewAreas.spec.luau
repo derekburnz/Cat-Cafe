@@ -73,10 +73,8 @@ return function()
 			expect(weight(sig.clown)).to.equal(weight(sig.water_gun))
 			expect(weight(sig.clown) < weight(sig.coaster)).to.equal(true)
 			expect(weight(sig.coaster) < weight(sig.water)).to.equal(true)
-			-- the commons and rares have none: their props do the talking
-			for _, catId in
-				{ "popcorn", "pinwheel", "splash", "taffy", "candy_apple", "cotton_candy" }
-			do
+			-- the commons have none: their props do the talking
+			for _, catId in { "popcorn", "pinwheel", "splash", "taffy" } do
 				expect(sig[catId] == nil).to.equal(true)
 			end
 			-- the Water Cat: a slow swirl, a splash in budget, a taller fountain on its catch
@@ -93,6 +91,97 @@ return function()
 			expect(sig.coaster.extras[2].moving).to.equal(true)
 			expect(sig.water.extras[2].moving).to.equal(true)
 		end)
+
+		it("gives the Castle's rarer cats more, each in gold on a gold cat", function()
+			local places = { Body = true, Head = true, Prop = true, Prop2 = true }
+			local function weight(spec: any): number
+				local n = 1 + #(spec.extras or {})
+				if spec.orbit ~= nil then
+					n += 1
+				end
+				if spec.arrive ~= nil then
+					n += 1
+				end
+				if spec.eyes == true then
+					n += 1
+				end
+				return n
+			end
+			local sig = Presets.signature
+			for _, catId in { "knight", "mage", "queen", "dragon_knight" } do
+				local spec = sig[catId]
+				expect(spec).to.be.ok()
+				expect(Presets.emitters[spec.emitter].rate <= 2).to.equal(true)
+				expect(places[spec.on]).to.equal(true)
+				expect(Logic.signatureColors(catId, true)).to.equal(spec.gold)
+				for _, extra in spec.extras or {} do
+					expect(Presets.emitters[extra.emitter].rate <= 2).to.equal(true)
+					expect(places[extra.on]).to.equal(true)
+				end
+			end
+			expect(weight(sig.knight)).to.equal(weight(sig.mage))
+			expect(weight(sig.knight) < weight(sig.queen)).to.equal(true)
+			expect(weight(sig.queen) < weight(sig.dragon_knight)).to.equal(true)
+			for _, catId in { "elf", "squire", "dwarf", "crumpet" } do
+				expect(sig[catId] == nil).to.equal(true)
+			end
+			local dragon = sig.dragon_knight
+			expect(dragon.orbit.seconds >= 2).to.equal(true)
+			expect(Presets.emitters[dragon.orbit.emitter].rate <= 2).to.equal(true)
+			expect(dragon.arrive.burst <= Presets.budget.low.maxBurst).to.equal(true)
+			expect(Presets.emitters[dragon.arrive.preset]).to.be.ok()
+			expect(dragon.extras[2].moving).to.equal(true)
+			local spec = Presets.catchFlavour.areas.castle
+			expect(Logic.catchFlavour("castle", "dragon_knight", "Mythical").gusts).to.equal(
+				spec.gusts + spec.cats.dragon_knight
+			)
+			-- the same weight as the Water Park's Mythical, and no less than the Snowy one's
+			expect(weight(dragon)).to.equal(weight(sig.water))
+			expect(weight(dragon) >= weight(sig.blizzard)).to.equal(true)
+		end)
+
+		it(
+			"gives each area's two Rares one small touch that never takes a rarer cat's slot",
+			function()
+				local sig = Presets.signature
+				local rares = {
+					snow_boots = true,
+					ski = true,
+					candy_apple = true,
+					cotton_candy = true,
+					jester = true,
+					rogue = true,
+				}
+				for catId in rares do
+					local spec = sig[catId]
+					expect(spec ~= nil).to.equal(true)
+					expect(spec.minor).to.equal(true)
+					-- one emitter and nothing else
+					expect(spec.extras == nil and spec.orbit == nil and spec.arrive == nil).to.equal(
+						true
+					)
+					expect(spec.eyes).to.equal(nil)
+					local emitter = Presets.emitters[spec.emitter]
+					-- fainter than any Epic's glint: fewer, or only while it moves
+					expect(emitter.rate < Presets.emitters.sigGlint.rate or spec.moving == true).to.equal(
+						true
+					)
+					expect(#spec.colors > 0 and #spec.gold > 0).to.equal(true)
+				end
+				for catId, spec in sig do
+					expect(spec.minor == true).to.equal(rares[catId] == true)
+				end
+				-- a crowd of Rares close by leaves the far Mythical its slot
+				local rarer = { { key = "mythical", distance = 30 } }
+				local crowd = {}
+				for i = 1, 6 do
+					crowd[i] = { key = "rare" .. i, distance = i }
+				end
+				local keys = Logic.nearestFirst(rarer, crowd, 40, 3)
+				expect(keys[1]).to.equal("mythical")
+				expect(#keys).to.equal(3)
+			end
+		)
 
 		it("reads each new area's box from the Config by its own name", function()
 			local boxes = {

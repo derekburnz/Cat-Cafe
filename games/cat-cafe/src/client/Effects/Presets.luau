@@ -842,6 +842,35 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, -0.6, 0),
 		drag = 2,
 	},
+	-- The Rares of the new areas (`minor` in Presets.signature). `sigSnowKick`: a little snow kicked up behind the
+	-- Snow Boots Cat and the Ski Cat (#4069), sugar off the Cotton Candy Cat (#4070) and a wisp of shadow behind the
+	-- Rogue Cat (#4071), only while they move; smaller, fainter and shorter lived than the Blizzard Cat's frost
+	-- trail. `sigGlintSmall`: a glint about half as often as an Epic's, for the Candy Apple Cat's glaze and the
+	-- Jester Cat's bells.
+	sigGlintSmall = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle },
+		size = { 0.2, 0 },
+		transparency = { 0.15, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 0, 0.2 },
+		spread = 180,
+		rate = 0.8,
+		lightEmission = 0.8,
+		rotSpeed = { -60, 60 },
+	},
+	sigSnowKick = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(255, 255, 255) },
+		size = { 0.3, 0.7 },
+		transparency = { 0.65, 1 },
+		lifetime = { 0.4, 0.6 },
+		speed = { 0.2, 0.6 },
+		spread = 50,
+		rate = 1.5,
+		acceleration = Vector3.new(0, -1.2, 0),
+		drag = 2,
+	},
 	-- #4070 the Water Park's rarer cats (Presets.signature): `sigDrip` drops falling off a water blaster or a cat made
 	-- of water, `sigBubble` the bubbles the Water Cat's swirl leaves as it circles, and `sigWetTrail` the splashes
 	-- it leaves where it walks.
@@ -880,6 +909,35 @@ Presets.emitters = {
 		rate = 2,
 		acceleration = Vector3.new(0, -14, 0),
 		lightEmission = 0.2,
+	},
+	-- #4071 the Medieval Castle's Dragon Knight (Presets.signature): `sigEmber` the embers its circling sparks leave
+	-- behind, and `sigEmberTrail` the warm sparks that scatter low where it walks and die out. Harmless little lights,
+	-- no flame.
+	sigEmber = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 190, 90) },
+		size = { 0.26, 0.04 },
+		transparency = { 0, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 0.1, 0.3 },
+		spread = 180,
+		rate = 2,
+		acceleration = Vector3.new(0, 0.9, 0),
+		lightEmission = 0.8,
+		rotSpeed = { -60, 60 },
+	},
+	sigEmberTrail = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 150, 70), Color3.fromRGB(255, 220, 140) },
+		size = { 0.2, 0.03 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 0.6, 1.4 },
+		spread = 70,
+		rate = 2,
+		acceleration = Vector3.new(0, -1.5, 0),
+		drag = 1.5,
+		lightEmission = 0.7,
 	},
 	sigFall = {
 		texture = Presets.textures.sparkle,
@@ -1513,7 +1571,7 @@ Presets.catchFlavour = {
 			gustsFrom = "Mythical",
 			gustHeight = 8,
 			gustEvery = 0.18,
-			cats = {},
+			cats = { dragon_knight = 2 }, -- a taller fanfare for the Dragon Knight
 		},
 	} :: { [string]: CatchFlavour },
 }
@@ -2694,6 +2752,8 @@ export type Signature = {
 	goldEyes: Color3?,
 	moving: boolean?,
 	notes: boolean?, -- music notes float up off the prop as well (Jazz Cat, Presets.notes)
+	-- a small touch on a Rare: it only takes a slot of budget.signatureCats that no rarer cat nearby needs
+	minor: boolean?,
 	-- #4069 (Derek 2026-11-13: "make the rarer ones more special"): more on top for the rarest cats
 	extras: { SignatureExtra }?, -- more emitters, each on its own part
 	orbit: SignatureOrbit?, -- motes circling the cat, each leaving a trail of `emitter`
@@ -2812,7 +2872,7 @@ Presets.signature = {
 		colors = { palette.leaf, palette.mint, palette.goldLight },
 		gold = { palette.golden, palette.goldLight, palette.sparkle },
 	},
-	-- #4069 Snowy Mountain (Tier 8). The ladder: the Epic gets a glint, the Legendary breath, a glint and glowing
+	-- #4069 Snowy Mountain (Tier 8). The ladder: a Rare kicks up snow as it moves, an Epic gets a glint, the Legendary breath, a glint and glowing
 	-- eyes, the Mythical flakes, a circling swirl, a frost trail, glowing eyes and a gust where it lands.
 	ice = { -- Ice Cat (Epic): a glint now and then off the ice spikes along its back
 		emitter = "sigGlint",
@@ -2820,6 +2880,29 @@ Presets.signature = {
 		props = 2,
 		colors = { Color3.fromRGB(214, 240, 255), palette.offwhite },
 		gold = { palette.goldLight, palette.sparkle },
+	},
+	snow_leopard = { -- Snow Leopard Cat (Epic): a warm glint off its climber's head lamp
+		emitter = "sigGlint",
+		on = "Prop2",
+		colors = { Color3.fromRGB(255, 240, 200), palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+	},
+	-- the two Rares: no glow, only a little snow kicked up while they move, and never ahead of a rarer cat
+	snow_boots = { -- Snow Boots Cat (Rare): snow off its boots as it walks
+		emitter = "sigSnowKick",
+		on = "Body",
+		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(226, 240, 255) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
+	},
+	ski = { -- Ski Cat (Rare): a spray of snow behind its skis
+		emitter = "sigSnowKick",
+		on = "Body",
+		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(226, 240, 255) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
 	},
 	white_tiger = { -- White Tiger Cat (Legendary): frosty breath, ice-blue eyes and a soft glint on the white coat
 		emitter = "sigFrost",
@@ -2850,6 +2933,22 @@ Presets.signature = {
 	-- #4070 the Water Park (Tier 9). The same ladder: each Epic one effect on its lit prop, the Legendary a glint on
 	-- its lit loop, sparks off the goggles and a whoosh while it runs, the Mythical drips, circling bubbles, a wet
 	-- trail, glowing eyes and a splash where it lands.
+	-- the two Rares: a small touch each, never ahead of a rarer cat
+	candy_apple = { -- Candy Apple Cat (Rare): a glint now and then off its caramel glaze
+		emitter = "sigGlintSmall",
+		on = "Prop",
+		colors = { Color3.fromRGB(255, 226, 170), palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+		minor = true,
+	},
+	cotton_candy = { -- Cotton Candy Cat (Rare): a little sugar drifts off its floss as it moves
+		emitter = "sigSnowKick",
+		on = "Prop",
+		colors = { Color3.fromRGB(255, 190, 220), Color3.fromRGB(190, 226, 255) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
+	},
 	clown = { -- Clown Cat (Epic): confetti twinkles off the lit pom of its hat, in the pom colours
 		emitter = "sigGlint",
 		on = "Prop",
@@ -2897,6 +2996,68 @@ Presets.signature = {
 			seconds = 3.6,
 		},
 		arrive = { ring = 9, burst = 10, preset = "splashDrops" },
+	},
+	-- #4071 the Medieval Castle (Tier 10), the same ladder: each Epic one effect on its lit prop, the Legendary a
+	-- glint on her jewels, a slow fall of gold dust and a soft royal glow, the Mythical rising embers, circling
+	-- sparks, an ember trail, glowing eyes and a burst of sparks where it lands.
+	-- the two Rares: a small touch each, never ahead of a rarer cat
+	jester = { -- Jester Cat (Rare): a glint now and then off the gold bells of its hat
+		emitter = "sigGlintSmall",
+		on = "Prop",
+		colors = { palette.goldLight, palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+		minor = true,
+	},
+	rogue = { -- Rogue Cat (Rare): a wisp of shadow behind it as it sneaks, gone in half a second
+		emitter = "sigSnowKick",
+		on = "Body",
+		colors = { Color3.fromRGB(70, 64, 86), Color3.fromRGB(110, 100, 130) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
+	},
+	knight = { -- Knight Cat (Epic): a glint now and then off the gold paw crest on its shield
+		emitter = "sigGlint",
+		on = "Prop2",
+		colors = { palette.goldLight, palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+	},
+	mage = { -- Mage Cat (Epic): little stars drifting up off the lit star of its hat
+		emitter = "sigRise",
+		on = "Prop",
+		colors = { palette.sparkle, palette.aurora, palette.pastelSky },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+	},
+	queen = { -- Queen Cat (Legendary): her crown's jewels glint, gold dust falls round her, and she glows a little
+		emitter = "sigGlint",
+		on = "Prop",
+		colors = { Presets.rarity.Legendary, palette.sparkle, palette.blush },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigFall", on = "Body" },
+			{ emitter = "sigHalo", on = "Body" },
+		},
+	},
+	dragon_knight = { -- Dragon Knight (Mythical): a knight with a dragon's fire in it
+		emitter = "sigRise",
+		on = "Prop",
+		colors = { Color3.fromRGB(255, 170, 80), Color3.fromRGB(255, 96, 64), palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = {
+			{ emitter = "sigGlint", on = "Prop2" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = {
+			emitter = "sigEmber",
+			count = 5,
+			countLow = 3,
+			radius = 0.8,
+			height = 0.6,
+			tilt = 0.35,
+			seconds = 3,
+		},
+		arrive = { ring = 9, burst = 10, preset = "catchSparkle" },
 	},
 } :: { [string]: Signature }
 Presets.signatureFx = {

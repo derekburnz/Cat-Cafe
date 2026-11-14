@@ -301,6 +301,35 @@ ROSTER = {
     "Blizzard": dict(rarity="Mythical", fur="fur_silver", second="fish_belly", third="pastel_sky", eyes="fish_blue",
                      pattern="gradient", muzzle=None, ruff="milk", fluffy=True, glow_eyes=True, sparkle=True,
                      scale=1.25, body_scale=(1.1, 1.0, 1.08), tail_thick=0.3, nose="nose_dark"),
+    # Tier 9 Theme Park and Water Park (Derek approved cats draft 2 2026-11-13 18:54; #4066, #4068). The rarity look
+    # ladder (#4068, "make the rarer ones more special"): Common one prop; Rare a prop and a tail piece; Epic two
+    # props, one lit; Legendary two props, lit, a tail piece and 1.2x; Mythical lit all over at 1.25x.
+    "Popcorn": dict(rarity="Common", fur="fur_cream", second="pastel_butter", eyes="eye_amber", pattern="spots",
+                    muzzle="milk"),
+    "Pinwheel": dict(rarity="Common", fur="fur_apricot", second="fur_cream", eyes="eye_blue", pattern="solid",
+                     muzzle="fur_cream", tip="fur_cream"),
+    # keeps apart from the Puddle (grey solid) by its gradient and its swim ring
+    "Splash":  dict(rarity="Common", fur="fur_teal_grey", second="fish_belly", third="pastel_sky", eyes="eye_blue",
+                    pattern="gradient", muzzle="fish_belly", sprinkles=("pastel_sky",), nose="nose_dark"),
+    "Taffy":   dict(rarity="Common", fur="blush", second="milk", third="fur_strawberry", eyes="eye_green",
+                    pattern="stripes", stripes2=True, muzzle="milk"),
+    "CandyApple": dict(rarity="Rare", fur="shirt_red", second="fur_rust_red", eyes="eye_green", pattern="solid",
+                       muzzle=None, tip="leaf_green", nose="nose_dark", mark=("drop", "fur_caramel")),
+    "CottonCandy": dict(rarity="Rare", fur="fur_bubblegum", second="pastel_sky", third="pastel_sky", eyes="eye_blue",
+                        pattern="patches", muzzle="milk", fluffy=True),
+    "Clown":   dict(rarity="Epic", fur="fur_white", second="fur_bubblegum", third="pastel_sky", eyes="eye_green",
+                    pattern="patches", muzzle=None, nose="bowl_red",
+                    toes=("shirt_red", "pastel_butter", "shirt_green", "shirt_blue")),
+    "WaterGun": dict(rarity="Epic", fur="fur_peach", second="fur_blue", eyes="eye_blue", pattern="points",
+                     muzzle=None),
+    "Coaster": dict(rarity="Legendary", fur="bowl_red", second="milk", third="rarity_legend", eyes="eye_amber",
+                    pattern="stripes", stripes2=True, muzzle="milk", scale=1.2, body_scale=(1.1, 1.0, 1.05),
+                    tail_thick=0.28, mark=("star", "rarity_legend")),
+    # made of clear flowing water: sky fading to deep blue, a pale ruff, glowing eyes and bubbles for specks
+    "Water":   dict(rarity="Mythical", fur="pastel_sky", second="fish_blue", third="fur_blue", eyes="mint",
+                    pattern="gradient", muzzle=None, ruff="fish_belly", glow_eyes=True, sparkle=True,
+                    sprinkles=("milk", "fish_belly"), scale=1.25, body_scale=(1.1, 1.0, 1.08), tail_thick=0.3,
+                    nose="nose_dark", mark=("drop", "fish_belly")),
     # #3470 (secret-cats.md section 8): the first three Secret cats, the tier above Mythical. They can be gold and
     # rainbow like any cat. Nebula: a deep space coat with violet and pink clouds, stars and glowing mint eyes
     "Nebula": dict(rarity="Secret", fur="night_sky", second="aurora_violet", third="neon_pink", eyes="mint",

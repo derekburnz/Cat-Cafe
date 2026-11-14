@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local AdminWheel = require(ReplicatedStorage.Shared.AdminWheel)
 local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local Bait = require(ReplicatedStorage.Shared.Bait)
@@ -340,6 +341,12 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		giftNext = PlaytimeGifts.upcoming(profile, 2), -- #2791: the gift icon's next step and the popover's two
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
 		traits = traitsView(player, profile, now), -- #3196: the Mystic Pool card, nil while it is shut
+		-- #4195: the Admin Wheel that is up and whether this account has spun it
+		adminWheel = AdminWheel.view(
+			profile.codesRedeemed,
+			EventService.admin(),
+			LiveFlagService.on("adminEvents")
+		),
 		dailyDeal = dealView(player, profile, now), -- #3996
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916

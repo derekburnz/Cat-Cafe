@@ -350,6 +350,9 @@ export type PotionDef = {
 	-- speed of food set while it runs, inside BaitSpeedMax. `quest` marks the three quest potions, which only quests
 	-- and achievements pay (never a Mystery gift).
 	tips: number?,
+	-- #4195 (the Admin Wheel's hour of 3x money): added to every tip while it runs, outside TimedTipsMax and on top
+	-- of whatever the `tips` potions add
+	tipsOver: number?,
 	goldLuck: number?,
 	baitSpeed: number?,
 	quest: boolean?,
@@ -1496,6 +1499,9 @@ export type PlayerState = {
 	invite: InviteView?,
 	-- #3196: the Mystic Pool card; nil while the `traits` flag is off, the station is shut, or from an older server
 	traits: TraitsView?,
+	-- #4195: the Admin Wheel that is up now (AdminWheel.view): its event's id and end, and whether this account has
+	-- spun it; nil with no wheel up
+	adminWheel: { eventId: string, spun: boolean, endsAt: number }?,
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,

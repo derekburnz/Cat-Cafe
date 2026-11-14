@@ -106,6 +106,8 @@ CafeEvents.ADMIN_KINDS =
 	{
 		bowl = { title = "Bowl Frenzy", minutes = 15, effects = { bowlSpeed = 4 } },
 		storm = { title = "Cat Storm", minutes = 10, effects = { catStorm = 10 } },
+		-- the Admin Wheel (AdminWheel.luau): every player may spin it once while it is up
+		wheel = { title = "Admin Wheel", minutes = 5, effects = { wheel = true } },
 	} :: { [string]: { title: string, minutes: number, effects: { [string]: any } } }
 -- OwnerTest's presets (section 8): "full" every effect, with test showers a minute apart; "days" the stacked days
 -- only; "money" x2 only; "luck" +0.5 only; "showers" test showers only.
@@ -137,6 +139,7 @@ export type Effects = {
 export type AdminEffects = {
 	bowlSpeed: number, -- 1 when the record has none
 	catStorm: number, -- 1 when the record has none
+	wheel: boolean, -- the Admin Wheel is up (AdminWheelService: one spin an account for this event's id)
 }
 export type AdminEvent = {
 	id: string,
@@ -314,7 +317,7 @@ end
 
 -- Whether `effects` holds at least one admin effect that does something.
 local function adminActive(effects: AdminEffects): boolean
-	return effects.bowlSpeed > 1 or effects.catStorm > 1
+	return effects.bowlSpeed > 1 or effects.catStorm > 1 or effects.wheel
 end
 
 -- #4195: one admin record against the rules, or nil and why (nil and no why for one that is over).
@@ -358,9 +361,13 @@ local function adminOf(
 		end
 		return out
 	end
+	if values.wheel ~= nil and type(values.wheel) ~= "boolean" then
+		return nil, id .. ": a bad wheel"
+	end
 	local effects: AdminEffects = {
 		bowlSpeed = clamp("bowlSpeed", bowlSpeed, CafeEvents.ADMIN.bowlSpeedMax),
 		catStorm = clamp("catStorm", catStorm, CafeEvents.ADMIN.catStormMax),
+		wheel = values.wheel == true,
 	}
 	if not adminActive(effects) then
 		return nil, id .. ": no admin effect"
@@ -498,6 +505,9 @@ function CafeEvents.adminEffectsData(event: AdminEvent): { [string]: any }
 	end
 	if event.effects.catStorm > 1 then
 		out.catStorm = event.effects.catStorm
+	end
+	if event.effects.wheel then
+		out.wheel = true
 	end
 	return out
 end
@@ -811,6 +821,7 @@ function CafeEvents.adminTest(
 		effects = {
 			bowlSpeed = if type(bowlSpeed) == "number" then bowlSpeed else 1,
 			catStorm = if type(catStorm) == "number" then catStorm else 1,
+			wheel = def.effects.wheel == true,
 		},
 	}
 end

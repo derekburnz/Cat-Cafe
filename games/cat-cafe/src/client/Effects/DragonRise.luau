@@ -1230,6 +1230,7 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 				shot(tall + (new.height - tall) * push, 1 + (c.push - 1) * push, c.drift)
 		end
 		lookAt = lookAt:Lerp(wantLook, 0.2)
+		wantEye = clearEye(lookAt, wantEye)
 		local scene = CFrame.lookAt(wantEye, lookAt)
 		local frame: CFrame
 		if t < plan.swing then

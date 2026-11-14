@@ -154,8 +154,9 @@ return function()
 		function()
 			local rng = Random.new(2810)
 			for _, area in Catalog.areas do
-				-- #2651: 110 a area over seven areas, about the 800 waves of five at 160, so the batch's memory holds
-				for run = 1, 110 do
+				-- #2651: 110 a area over seven areas, about the 800 waves of five at 160, so the batch's memory holds;
+				-- #4070: the same 770 shared out over however many areas there are, since nine at 110 ran out of it
+				for run = 1, 770 // #Catalog.areas do
 					local rarities = rollWave(area, rng, run % 2 == 0)
 					local uniform = run % 2 == 0
 					local placed, waiting = wave(area.id, rarities, {}, rng)
@@ -228,7 +229,8 @@ return function()
 			local waited = 0
 			for _, area in Catalog.areas do
 				local count = #Layout.areas[area.id].spawnPoints
-				for run = 1, 85 do -- #2651: about the 600 runs of five areas at 120, over seven
+				-- #2651: about the 600 runs of five areas at 120, over seven (#4070: shared out over every area)
+				for run = 1, 595 // #Catalog.areas do
 					local held: { [number]: boolean } = {}
 					-- from a few held points up to all but one
 					local share = rng:NextNumber()

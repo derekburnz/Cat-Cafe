@@ -50,6 +50,8 @@ export type LaunchCheck = {
 	knownDestination: boolean, -- `town`, or an area with a camp
 	destinationName: string?, -- the area's name, for the tier lock's words
 	destinationTier: number?, -- the area's tier; nil for `town`
+	destinationFrom: string?, -- #4070: the only cannon that flies there (AreaDef.launchFrom); nil: any
+	destinationFromName: string?, -- that camp's area name, for the words
 	tier: number,
 	areasOpen: boolean, -- day (F66)
 	duskWarning: boolean, -- the last DuskWarningSeconds of the day (section 3a)
@@ -68,6 +70,13 @@ function Cannon.launchRefusal(check: LaunchCheck): string?
 	end
 	if not check.knownDestination or check.destination == check.cannonId then
 		return "The cannon can't fly there"
+	end
+	if check.destinationFrom ~= nil and check.destinationFrom ~= check.cannonId then
+		return string.format(
+			"%s is reached from the %s camp's cannon",
+			check.destinationName or "That area",
+			check.destinationFromName or "other"
+		)
 	end
 	if check.flying then
 		return "You're already flying"

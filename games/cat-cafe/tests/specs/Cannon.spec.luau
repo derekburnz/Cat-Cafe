@@ -26,6 +26,23 @@ return function()
 		}
 	end
 
+	describe("Cannon.launchRefusal and launchFrom (#4070)", function()
+		it("flies to a launchFrom area only from that camp's cannon", function()
+			local made = check(nil)
+			made.destination = "waterpark"
+			made.destinationName = "Water Park"
+			made.destinationTier = 9
+			made.destinationFrom = "desert"
+			made.destinationFromName = "Desert"
+			made.tier = 9
+			expect(Cannon.launchRefusal(made)).to.equal(
+				"Water Park is reached from the Desert camp's cannon"
+			)
+			made.cannonId = "desert"
+			expect(Cannon.launchRefusal(made)).to.equal(nil)
+		end)
+	end)
+
 	describe("Cannon.downRefusal", function()
 		it("refuses for TackledDownSeconds after a tackle lands, then lets go", function()
 			expect(Cannon.downRefusal(0)).to.equal(Cannon.DOWN_TEXT)

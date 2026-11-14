@@ -545,6 +545,8 @@ export type AreaDef = {
 	entryFloor: number?,
 	rescueMinStuck: number?,
 	starterRescue: boolean?,
+	-- #4070: only this camp's cannon flies here (the Water Park from the Desert camp); nil: every cannon does
+	launchFrom: string?,
 }
 
 export type SpotDef = {

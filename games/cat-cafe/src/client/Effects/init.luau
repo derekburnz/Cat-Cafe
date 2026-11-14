@@ -92,6 +92,7 @@ local Splash = require(script.Splash)
 local StationBuild = require(script.StationBuild)
 local StationMotion = require(script.StationMotion)
 local StationReveal = require(script.StationReveal)
+local StormFall = require(script.StormFall)
 local StrayCall = require(script.StrayCall)
 local StuckCall = require(script.StuckCall)
 local Tackle = require(script.Tackle)
@@ -196,6 +197,7 @@ function Effects.start()
 		ArcadeGlow.start,
 		PoolBeacon.start,
 		RuinsWater.start,
+		StormFall.start, -- #4197: a Cat Storm's strays fall out of the sky
 		TrailSparkle.start,
 		PawTrail.start,
 		GoldenFind.start,

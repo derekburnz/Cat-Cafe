@@ -634,6 +634,33 @@ Presets.emitters = {
 		drag = 0.8,
 		lightEmission = 0.1,
 	},
+	-- A Cat Storm (Effects/StormFall, #4197): the puff where a storm stray lands, and the slow sparkles that drift
+	-- down round you while the storm runs.
+	stormPuff = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.offwhite },
+		size = { 0.5, 0.1 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.5, 0.9 },
+		speed = { 4, 7 },
+		spread = 70,
+		rate = 0,
+		acceleration = Vector3.new(0, -8, 0),
+		drag = 1,
+		lightEmission = 0.5,
+	},
+	stormDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.offwhite },
+		size = { 0.3, 0.15 },
+		transparency = { 0.3, 1 },
+		lifetime = { 3, 4 },
+		speed = { 4, 6 },
+		spread = 8,
+		rate = 10,
+		lightEmission = 0.4,
+		rotSpeed = { -30, 30 },
+	},
 	-- Soft sparkles rising off the guide trail's dots (Effects/TrailSparkle, #3022), recoloured to each dot.
 	trailSparkle = {
 		texture = Presets.textures.sparkle,
@@ -3259,6 +3286,28 @@ Presets.rally = {
 	stepSparkles = 14,
 	stepSeconds = 0.8,
 	full = Color3.fromRGB(242, 193, 78),
+}
+
+-- A Cat Storm's strays fall out of the sky (Effects/StormFall, #4197). A stray the server marked `StormCat` that
+-- appears within `within` studs: a `streak` of light drops from `height` studs up over `seconds`, then a ring `ring`
+-- studs wide and `puffCount` of `puff` where it lands. At most budget.areaPuffs falls a second. While the storm
+-- runs the `drift` emitter rains slow sparkles from a `driftBox` kept `driftHeight` over you, moved every
+-- `driftEvery` seconds. `markWait`: how long a new stray is watched for the server's mark.
+Presets.stormFall = {
+	within = 140,
+	height = 60,
+	seconds = 0.55,
+	streak = Vector3.new(0.6, 7, 0.6),
+	colour = Presets.palette.goldLight,
+	ring = 5,
+	ringSeconds = 0.7,
+	puff = "stormPuff",
+	puffCount = 10,
+	drift = "stormDrift",
+	driftBox = Vector3.new(70, 1, 70),
+	driftHeight = 22,
+	driftEvery = 0.5,
+	markWait = 2,
 }
 
 -- The Rally board's marquee (F101, Model-Agent's #759: `CatCafe_Square_RallyBoard` with its 32 bulbs in the

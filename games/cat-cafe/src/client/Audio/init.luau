@@ -39,6 +39,7 @@ local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("R
 local RiftRun = require(script.Parent.Effects.RiftRun)
 local Signature = require(script.Parent.Effects.Signature)
 local Splash = require(script.Parent.Effects.Splash)
+local StormFall = require(script.Parent.Effects.StormFall)
 local Trampoline = require(script.Parent.Effects.Trampoline)
 
 local Audio = {}
@@ -2291,6 +2292,10 @@ local function followAreas()
 		if cue ~= nil then
 			Audio.play(cue, at)
 		end
+	end)
+	-- #4197: a Cat Storm's stray lands
+	StormFall.onLand(function(at)
+		Audio.play(Logic.STORM_LAND_CUE, at)
 	end)
 end
 

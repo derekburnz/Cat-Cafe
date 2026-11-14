@@ -433,6 +433,7 @@ return function()
 		PassXpPerLevel = 800,
 		-- #1624 (economy-ladder.md section 6a v2.4): the store passes
 		VipCafeBonus = 0.10,
+		VipBoostCafeBonus = 0.50,
 		CafeStyleCafeBonus = 0.50,
 		GrandCafeBonus = 1.50,
 		AccessoriesStaffMultiplier = 1.15,

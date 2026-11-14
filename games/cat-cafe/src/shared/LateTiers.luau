@@ -31,7 +31,23 @@ local function flagOn(flag: string): boolean
 		== true
 end
 
--- The highest tier the switches let a player reach now (FIRST - 1 while the first one is off), whatever the catalog holds.
+-- Derek 2026-11-14 (the 3 new worlds go live together): while TOGETHER, the late tiers open all at once, when every
+-- switch in FLAGS is on, so one switch flipped early (or one left off) never opens an area alone.
+LateTiers.TOGETHER = true
+
+-- The highest tier switches read by `on` let a player reach (FIRST - 1 while one is off), whatever the catalog holds.
+function LateTiers.throughFor(on: (flag: string) -> boolean): number
+	local tier = LateTiers.FIRST
+	while LateTiers.FLAGS[tier] ~= nil do
+		if not on(LateTiers.FLAGS[tier]) then
+			return if LateTiers.TOGETHER then LateTiers.FIRST - 1 else tier - 1
+		end
+		tier += 1
+	end
+	return math.huge
+end
+
+-- The highest tier the switches let a player reach now, or the specs' override.
 local function openThrough(): number
 	if override == true then
 		return math.huge
@@ -40,14 +56,7 @@ local function openThrough(): number
 	elseif type(override) == "number" then
 		return math.max(override, LateTiers.FIRST - 1)
 	end
-	local tier = LateTiers.FIRST
-	while LateTiers.FLAGS[tier] ~= nil do
-		if not flagOn(LateTiers.FLAGS[tier]) then
-			return tier - 1
-		end
-		tier += 1
-	end
-	return math.huge
+	return LateTiers.throughFor(flagOn)
 end
 
 -- Whether Tier 8 is open (the first switch).

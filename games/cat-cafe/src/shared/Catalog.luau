@@ -193,9 +193,11 @@ end
 
 -- #3470: a Secret cat. It belongs to no area (`area = "secret"`), so no wave, bait or rescue table and no Index page
 -- or count lists it; Catching.secret picks one in place of a rolled Mythical. Its rate here is the rarity's own, and
--- an owner's best open area multiplies it (CatStats.areaMultiplier).
-local function secret(def: Types.CatDef): Types.CatDef
+-- an owner's best open area multiplies it (CatStats.areaMultiplier). #4221: `home` is the one area whose rolled
+-- Mythicals it can take the place of (its `secretArea`); its `area` still says "secret".
+local function secret(def: Types.CatDef, home: Types.Area): Types.CatDef
 	def.area = "secret"
+	def.secretArea = home
 	return def
 end
 
@@ -1413,37 +1415,47 @@ Catalog.cats = {
 	),
 	-- #3470: the first three Secret cats (Design-Agent's names and looks; Model-Agent's CatCafe_Cat_Nebula, _Glitch
 	-- and _CafeGhost, the placeholder body until they land). The `alley` here only feeds the helper: `secret` takes
-	-- the area away.
-	secret(cat(
-		"nebula",
-		"Nebula",
-		"Secret",
-		"alley",
-		"entertainer",
-		"solid", -- a deep space coat with slow drifting stars and a faint purple glow
-		{ 38, 26, 84 },
-		"Came down with the night sky and stayed for the milk."
-	)),
-	secret(cat(
-		"glitch",
-		"Glitch",
-		"Secret",
-		"alley",
-		"barista",
-		"patches", -- teal and magenta, shimmering in little squares
-		{ 40, 200, 190 },
-		"Nobody is sure it is meant to be here."
-	)),
-	secret(cat(
-		"cafe_ghost",
-		"Cafe Ghost",
-		"Secret",
-		"alley",
-		"greeter",
-		"solid", -- pale and see-through, with a tiny chef hat
-		{ 232, 238, 248 },
-		"Has worked here longer than the cafe has."
-	)),
+	-- the area away. #4221: one Secret per area (Design-Agent's secret-per-area spec): Cafe Ghost is the Alleyway's,
+	-- Glitch the Neighbourhood's and Nebula the Snowy Mountain's.
+	secret(
+		cat(
+			"nebula",
+			"Nebula",
+			"Secret",
+			"alley",
+			"entertainer",
+			"solid", -- a deep space coat with slow drifting stars and a faint purple glow
+			{ 38, 26, 84 },
+			"Came down with the night sky and stayed for the milk."
+		),
+		"snowy"
+	),
+	secret(
+		cat(
+			"glitch",
+			"Glitch",
+			"Secret",
+			"alley",
+			"barista",
+			"patches", -- teal and magenta, shimmering in little squares
+			{ 40, 200, 190 },
+			"Nobody is sure it is meant to be here."
+		),
+		"neighbourhood"
+	),
+	secret(
+		cat(
+			"cafe_ghost",
+			"Cafe Ghost",
+			"Secret",
+			"alley",
+			"greeter",
+			"solid", -- pale and see-through, with a tiny chef hat
+			{ 232, 238, 248 },
+			"Has worked here longer than the cafe has."
+		),
+		"alley"
+	),
 } :: { Types.CatDef }
 
 -- #3470: the Secret cats, in catalog order
@@ -3994,9 +4006,11 @@ table.freeze(Catalog.indexPrizes)
 -- testers who redeemed playtest before potions existed still get them (data-model 11d). Rows can be added without
 -- new code.
 Catalog.codes = {
+	-- Derek 2026-11-14 17:40 UTC: "remove playtest code ... from description/game": both playtest codes are off
+	-- (kept so the Store's "Codes you've used" list still names them for testers who redeemed them)
 	playtest = {
 		id = "playtest",
-		active = true,
+		active = false,
 		prize = {
 			coins = 5000,
 			fish = 100, -- #2497: was 300
@@ -4008,7 +4022,7 @@ Catalog.codes = {
 	},
 	playtest2 = {
 		id = "playtest2",
-		active = true,
+		active = false,
 		prize = {
 			potions = { tip_potion = 2, lucky_potion = 2, swift_potion = 2, steady_potion = 2 },
 		},
@@ -4078,6 +4092,30 @@ Catalog.codes = {
 		id = "10likes",
 		active = true,
 		prize = { coins = 2000, coinSeconds = 600, fish = 40, potions = { lucky_potion = 1 } },
+	},
+	-- Derek 2026-11-14 17:39 UTC ("put a code up for 5000VISITS and 30LIKES"): two more thank-you codes, on as soon
+	-- as a server has them, one step above `2000visits` and `10likes`; no end.
+	["5000visits"] = {
+		id = "5000visits",
+		active = true,
+		prize = { coins = 3000, coinSeconds = 900, fish = 60, crates = { classic_crate = 2 } },
+	},
+	-- Derek 2026-11-14 17:41 UTC ("put a code out ... for UPDATE3, and UPDATE4"): the update codes for today's and
+	-- Sunday's updates, on at once, the size of `update2`; no end.
+	update3 = {
+		id = "update3",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 60, potions = { swift_potion = 2 } },
+	},
+	update4 = {
+		id = "update4",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 60, crates = { classic_crate = 2 } },
+	},
+	["30likes"] = {
+		id = "30likes",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 50, potions = { lucky_potion = 2 } },
 	},
 	update2 = {
 		id = "update2",
@@ -6158,6 +6196,9 @@ Catalog.products = {
 		prize = {
 			potions = { big_tip_potion = 10, swift_potion = 5, steady_potion = 5 },
 			moneyMultiplier = 2,
+			-- #4020: a buyer who already has 2x Money or more (a Money pass) gets these instead of the 2x (no Lucky: a Robux
+			-- item never holds odds potions, Products.ALLOWED_POTIONS)
+			moneySwap = { big_tip_potion = 10, swift_potion = 5 },
 			cats = { "sprinkles" },
 			signStyles = { "bakery_stripes" },
 		},

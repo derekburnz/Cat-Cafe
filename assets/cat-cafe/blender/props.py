@@ -2457,6 +2457,51 @@ def ice_spikes(ctx):
             U.box((0.0, 0.0, z), (0.06, f, f * 1.15), "fish_belly" if k % 2 else "pastel_sky", rot=_rx(45))
 
 
+def head_lamp(ctx):
+    """Snow Leopard Cat's second prop (Epic: one lit detail, #4068): a climber's head lamp, a red strap round the
+    head with a dark lamp housing at the brow and a warm lit lens (the child Model _Lamp_Glow, Neon)."""
+    P, w, d = ctx.pen("head"), ctx.hw, ctx.hd
+    z, hgt = -0.08, 0.07
+    for y in (d + 0.015, -(d + 0.015)):
+        P.box((0, y, z), (2 * w + 0.05, 0.04, hgt), "shirt_red")
+    for sx in (-1, 1):
+        P.box((sx * (w + 0.015), 0, z), (0.04, 2 * d + 0.06, hgt + 0.004), "shirt_red")
+    P.box((0, -(d + 0.07), z + 0.01), (0.2, 0.1, 0.15), "fur_charcoal")
+    P.box((0, -(d + 0.075), z + 0.01), (0.24, 0.05, 0.19), "fur_smoke_light")
+    G = ctx.piece("Lamp_Glow", "head", (0, -(d + 0.12), z + 0.01))
+    G.cyl((0, -(d + 0.125), z + 0.01), 0.065, 0.03, "gold_light", rot=_rx(90), segments=10)
+
+
+def frost_crown(ctx):
+    """Ice Cat's second prop (Epic: one lit detail, #4068): a crown of clear ice crystals round the head top, the
+    tall middle one lit from inside (the child Model _Crown_Glow, Neon)."""
+    P = ctx.pen("head")
+    P.ring((0, 0, 0.03), 0.3, 0.05, 0.05, "fish_belly", segments=12)
+    for k, (ang, h) in enumerate(((-90, 0.0), (-40, 0.2), (-140, 0.2), (20, 0.15), (160, 0.15), (90, 0.13))):
+        if not h:
+            continue
+        a = math.radians(ang)
+        c = (0.3 * math.cos(a), 0.3 * math.sin(a), 0.05 + h / 2)
+        P.box(c, (0.075, 0.075, h), "pastel_sky" if k % 2 else "fish_belly", rot=_rz(ang) @ _ry(-12) @ _rz(45))
+    G = ctx.piece("Crown_Glow", "head", (0, -0.3, 0.05))
+    G.box((0, -0.3, 0.2), (0.1, 0.1, 0.3), "fish_blue", rot=_rz(45))
+    G.box((0, -0.3, 0.37), (0.07, 0.07, 0.07), "pastel_sky", rot=_rz(45) @ _rx(45))
+
+
+def frost_circlet(ctx):
+    """White Tiger Cat's second prop (Legendary, #4068): a silver circlet with three points and a snowflake on each
+    side, and a big ice gem at the brow lit from inside (the child Model _Gem_Glow, Neon)."""
+    P = ctx.pen("head")
+    P.ring((0, 0, 0.03), 0.31, 0.05, 0.06, "fur_silver", segments=14)
+    for x, h in ((-0.15, 0.1), (0.15, 0.1), (0.0, 0.2)):
+        yy = -math.sqrt(max(0.0, 0.31 ** 2 - x ** 2))
+        P.box((x, yy, 0.06 + h / 2), (0.08, 0.05, h), "fur_silver", rot=_ry(45) if x == 0 else None)
+    for sx in (-1, 1):
+        _snowflake(P, (sx * 0.24, -0.2, 0.17), 0.07, "milk", w=0.025, t=0.025)
+    G = ctx.piece("Gem_Glow", "head", (0, -0.33, 0.12))
+    G.box((0, -0.34, 0.13), (0.11, 0.05, 0.11), "fish_blue", rot=_ry(45))
+
+
 def winter_cape(ctx):
     """White Tiger Cat (Legendary): a red winter cape with a soft white fur collar and hem and a sky-blue snowflake
     clasp, on hero_cape's shape like the other capes."""
@@ -2496,6 +2541,19 @@ def snow_trail(ctx):
     P.box((pts[0].x, pts[0].y, pts[0].z / 2), (0.03, 0.03, pts[0].z), "pastel_sky")      # a gust down to the coat
     for p, r in zip(pts, (0.12, 0.15, 0.11)):
         _snowflake(G, tuple(p), r, "milk", w=0.03, t=0.03)
+    # #4068 (Derek: "make the rarer ones more special"): two fans of ice shards stand out of its back like wings,
+    # clear ice with lit tips (the child Model _Wings_Glow)
+    U = ctx.pen("up")
+    W = ctx.piece("Wings_Glow", "up", (0, 0.05, 0.1))
+    for sx in (-1, 1):
+        for k, (ox, oz, ln) in enumerate(((0.62, 0.5, 1.0), (0.72, 0.22, 0.85), (0.6, -0.02, 0.65))):
+            a = Vector((sx * 0.1, 0.06 + 0.03 * k, 0.08))
+            b = a + Vector((sx * ox, 0.12, oz)) * ln
+            f = 0.78 if k < 2 else 1.0                    # the short lowest shard has no lit tip (the Sit budget)
+            U.bar(tuple(a), tuple(a + (b - a) * f), 0.07, 0.035, "fish_belly" if k % 2 else "pastel_sky",
+                  up=(0, 1, 0))
+            if k < 2:
+                W.bar(tuple(a + (b - a) * f), tuple(b), 0.05, 0.03, "fish_blue", up=(0, 1, 0))
 
 
 PROPS = {
@@ -2569,8 +2627,9 @@ PROPS2 = {
     "Birdwatch": ("Head", bluebird), "Blossom": ("Head", flower_crown),
     # #2739 batch 2
     "Tortie": ("Neck", stud_collar), "Fennec": ("Head", desert_flower),
-    # Tier 8 Snowy Mountain
+    # Tier 8 Snowy Mountain; #4068 gives the Epic and Legendary cats a lit head piece
     "Blizzard": ("Back", snow_trail),
+    "SnowLeopard": ("Head", head_lamp), "Ice": ("Head", frost_crown), "WhiteTiger": ("Head", frost_circlet),
 }
 # Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
 # rides, and their Roblox Model nests inside that prop's Model.
@@ -2590,7 +2649,8 @@ PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"
           "Nebula": {"Glow": "Prop", "Stars_Glow": "Prop2"}, "Glitch": {"Glow": "Prop", "Sprite_Glow": "Prop2"},
           # Tier 8 Snowy Mountain: tail pieces and the Blizzard's lit wind
           "HotChocolate": {"Tail_Mug": "Tail"}, "Ski": {"Tail_Scarf": "Tail"},
-          "Blizzard": {"Glow": "Prop", "Flakes_Glow": "Prop2"}}
+          "Blizzard": {"Glow": "Prop", "Flakes_Glow": "Prop2", "Wings_Glow": "Prop2"},
+          "SnowLeopard": {"Lamp_Glow": "Prop2"}, "Ice": {"Crown_Glow": "Prop2"}, "WhiteTiger": {"Gem_Glow": "Prop2"}}
 # Extra Attachments for VFX (#1191): cat -> [(object suffix, Attachment name, frame, point in that frame)]. Frame
 # "head" is the head-top frame the Head props draw in; "chest" puts it at the middle of the chest (B, S) or body (A).
 ATTACH = {"KingCroissant": [("_Prop", "CrownTop", "head", (0.0, 0.0, CROWN_TOP)), ("_Body", "Glow", "chest", None)]}

@@ -183,13 +183,11 @@ local function fitText(label: TextLabel, maxSize: number)
 end
 
 -- #3572: a wide card's words, fitted; when even the smallest size runs past its one line (a phone's narrow card),
--- they drop the worth line and stop at the line's end with "...", so nothing runs on under the price button
+-- they drop the worth line and stop at the line's end with "...", so nothing runs on under the price button.
+-- #3930: a grid card does the same in its wrapped box: the worth line goes first, then the last line that fits
+-- ends with "..."
 local function fitEffect(entry: any)
 	local effect = entry.effect :: TextLabel
-	if not entry.wide then
-		fitText(effect, entry.effectMax)
-		return
-	end
 	if effect.AbsoluteSize.X <= 0 or effect.AbsoluteSize.Y <= 0 then
 		return -- no box yet (or a card mid-pop from nothing): keep the last fit until it has one
 	end
@@ -201,7 +199,14 @@ local function fitEffect(entry: any)
 		return
 	end
 	effect.Text = entry.shortText or effect.Text
-	effect.TextWrapped = false
+	if entry.wide then
+		effect.TextWrapped = false
+	else
+		fitText(effect, entry.effectMax)
+		if effect.TextFits then
+			return
+		end
+	end
 	effect.TextTruncate = Enum.TextTruncate.AtEnd
 end
 

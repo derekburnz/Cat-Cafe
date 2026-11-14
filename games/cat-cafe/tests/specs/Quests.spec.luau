@@ -399,7 +399,7 @@ return function()
 			expect(Quests.measure(p, "secretCats")).to.equal(2)
 			-- a Secret also counts as a Mythical or better, as before
 			expect(Quests.measure(p, "mythicalCats") >= 2).to.equal(true)
-			expect((Catalog.getAchievement("a_secret3") :: any).needs).to.equal(#secrets)
+			expect((Catalog.getAchievement("a_secret3") :: any).needs).to.equal(3)
 		end)
 
 		it("keeps the new counters through a save and load", function()

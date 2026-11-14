@@ -34,8 +34,18 @@ return function()
 	end
 
 	describe("the catalog", function()
-		it("has three Secret cats of no area", function()
-			expect(#Catalog.secretCats).to.equal(3)
+		it("has ten Secret cats of no area, the first three not new", function()
+			expect(#Catalog.secretCats).to.equal(10)
+			local new = 0
+			for _, def in Catalog.secretCats do
+				if def.secretNew then
+					new += 1
+				end
+			end
+			expect(new).to.equal(7)
+			for _, id in { "nebula", "glitch", "cafe_ghost" } do
+				expect((Catalog.getCat(id) :: Types.CatDef).secretNew).to.equal(nil)
+			end
 			for _, def in Catalog.secretCats do
 				expect(def.rarity).to.equal("Secret")
 				expect(def.area).to.equal("secret")
@@ -91,8 +101,16 @@ return function()
 			expect(Catching.secret("Mythical", 0.999, 0, true)).to.equal(nil)
 		end)
 
-		it("picks the three evenly", function()
-			local list = Catalog.secretCats
+		it("picks the first three evenly while secretAreas is off (no area list)", function()
+			local list =
+				{ Catalog.getCat("nebula"), Catalog.getCat("glitch"), Catalog.getCat("cafe_ghost") }
+			expect(Catalog.secretCats[1]).to.equal(list[1])
+			expect(Catalog.secretCats[2]).to.equal(list[2])
+			expect(Catalog.secretCats[3]).to.equal(list[3])
+			for step = 0, 999 do
+				local def = Catching.secret("Mythical", 0, step / 1000, true) :: Types.CatDef
+				expect(def.secretNew).to.equal(nil)
+			end
 			expect(Catching.secret("Mythical", 0, 0, true)).to.equal(list[1])
 			expect(Catching.secret("Mythical", 0, 0.34, true)).to.equal(list[2])
 			expect(Catching.secret("Mythical", 0, 0.67, true)).to.equal(list[3])
@@ -114,6 +132,32 @@ return function()
 			expect((Catalog.getCat("cafe_ghost") :: Types.CatDef).secretArea).to.equal("alley")
 			expect((Catalog.getCat("glitch") :: Types.CatDef).secretArea).to.equal("neighbourhood")
 			expect((Catalog.getCat("nebula") :: Types.CatDef).secretArea).to.equal("snowy")
+			-- Derek 2026-11-14: the other seven, one per area
+			local homes: { [string]: string } = {
+				lucky_clover = "park",
+				moonstag = "woods",
+				ooze = "sewer",
+				djinn = "desert",
+				phoenix = "ruins",
+				abyss = "waterpark",
+				excalipurr = "castle",
+			}
+			-- Model-Agent's model names (#4250)
+			local models: { [string]: string } = {
+				lucky_clover = "CatCafe_Cat_LuckyClover",
+				moonstag = "CatCafe_Cat_Moonstag",
+				ooze = "CatCafe_Cat_Ooze",
+				djinn = "CatCafe_Cat_Djinn",
+				phoenix = "CatCafe_Cat_Phoenix",
+				abyss = "CatCafe_Cat_Abyss",
+				excalipurr = "CatCafe_Cat_Excalipurr",
+			}
+			for id, home in homes do
+				local def = Catalog.getCat(id) :: Types.CatDef
+				expect(def.secretArea).to.equal(home)
+				expect(def.secretNew).to.equal(true)
+				expect(Catalog.catModelName(id)).to.equal(models[id])
+			end
 		end)
 
 		it("gives an area's Mythical only that area's Secret", function()
@@ -130,8 +174,15 @@ return function()
 			end
 		end)
 
-		it("leaves the Mythical alone in an area with no Secret yet", function()
-			expect(Catching.secret("Mythical", 0, 0, true, { "park" })).to.equal(nil)
+		it("gives the new seven only through their own area, and nothing for no area", function()
+			for _, pick in { 0, 0.5, 0.999999 } do
+				expect(Catching.secret("Mythical", 0, pick, true, { "park" })).to.equal(
+					Catalog.getCat("lucky_clover")
+				)
+				expect(Catching.secret("Mythical", 0, pick, true, { "castle" })).to.equal(
+					Catalog.getCat("excalipurr")
+				)
+			end
 			expect(Catching.secret("Mythical", 0, 0, true, {})).to.equal(nil)
 			-- and the odds and the switch still rule an area that has one
 			expect(Catching.secret("Mythical", Catalog.secretPerMythical, 0, true, { "alley" })).to.equal(
@@ -156,10 +207,13 @@ return function()
 			local one = secretsAt(1)
 			expect(one.cafe_ghost).to.equal(true)
 			expect(one.glitch).to.equal(nil)
+			expect(one.lucky_clover).to.equal(nil)
 			expect(one.nebula).to.equal(nil)
 			local three = secretsAt(3)
 			expect(three.cafe_ghost and three.glitch).to.equal(true)
 			expect(three.nebula).to.equal(nil)
+			expect(three.lucky_clover).to.equal(true)
+			expect(three.moonstag).to.equal(nil)
 			local eight = secretsAt(8)
 			expect(eight.cafe_ghost and eight.glitch).to.equal(true)
 			-- Nebula's Snowy Mountain opens at Tier 8 once the area is in the Catalog
@@ -386,9 +440,13 @@ return function()
 			end
 		)
 
-		it("keeps the same three ids the first Secret build shipped", function()
+		it("keeps the same three ids the first Secret build shipped, and adds the seven", function()
 			-- a renamed or removed id would drop saved cats: change this list only with a migration
-			expect(secretIds() :: any).to.deepEqual(SHIPPED)
+			local ids = secretIds()
+			for _, id in SHIPPED do
+				expect(table.find(ids, id) ~= nil).to.equal(true)
+			end
+			expect(#ids).to.equal(#SHIPPED + 7)
 		end)
 	end)
 

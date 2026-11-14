@@ -192,9 +192,12 @@ end
 -- or count lists it; Catching.secret picks one in place of a rolled Mythical. Its rate here is the rarity's own, and
 -- an owner's best open area multiplies it (CatStats.areaMultiplier). #4221: `home` is the one area whose rolled
 -- Mythicals it can take the place of (its `secretArea`); its `area` still says "secret".
-local function secret(def: Types.CatDef, home: Types.Area): Types.CatDef
+-- Derek 2026-11-14 ("draft all 10"): `new` marks the seven Secrets of the one-per-area update, which only roll while
+-- the `secretAreas` switch is on (Catching.secret); with it off the first three are the only Secrets, as before.
+local function secret(def: Types.CatDef, home: Types.Area, new: boolean?): Types.CatDef
 	def.area = "secret"
 	def.secretArea = home
+	def.secretNew = new
 	return def
 end
 
@@ -1149,6 +1152,106 @@ Catalog.cats = {
 			"Has worked here longer than the cafe has."
 		),
 		"alley"
+	),
+	-- Derek 2026-11-14 ("draft all 10"): the other seven, one per area (Model-Agent's roster in cats.py, models
+	-- CatCafe_Cat_<Name>). They only roll while `secretAreas` is on.
+	secret(
+		cat(
+			"lucky_clover",
+			"Lucky Clover",
+			"Secret",
+			"alley",
+			"greeter",
+			"spots", -- an emerald coat with clover leaves and gold socks
+			{ 46, 168, 92 },
+			"Found in a patch of four-leaf clovers. Luck follows it home."
+		),
+		"park",
+		true
+	),
+	secret(
+		cat(
+			"moonstag",
+			"Moonstag",
+			"Secret",
+			"alley",
+			"entertainer",
+			"spots", -- a moonlit fawn coat with pale spots and glowing antlers
+			{ 178, 150, 122 },
+			"Only walks the woods under a full moon. Its antlers glow."
+		),
+		"woods",
+		true
+	),
+	secret(
+		cat(
+			"ooze",
+			"Ooze",
+			"Secret",
+			"alley",
+			"barista",
+			"gradient", -- glowing lime slime, darker at the paws
+			{ 150, 214, 48 },
+			"Bubbled up from the pipes. Leaves a glowing trail."
+		),
+		"sewer",
+		true
+	),
+	secret(
+		cat(
+			"djinn",
+			"Djinn",
+			"Secret",
+			"alley",
+			"waiter",
+			"gradient", -- a wine and violet coat with gold cuffs and a gold star
+			{ 122, 32, 74 },
+			"Spent a thousand years in a lamp. Its one wish is more milk."
+		),
+		"desert",
+		true
+	),
+	secret(
+		cat(
+			"phoenix",
+			"Phoenix",
+			"Secret",
+			"alley",
+			"entertainer",
+			"gradient", -- ember to gold, with a flame mane
+			{ 214, 96, 40 },
+			"Rose from the ashes of the old temple. Always warm."
+		),
+		"ruins",
+		true
+	),
+	secret(
+		cat(
+			"abyss",
+			"Abyss",
+			"Secret",
+			"alley",
+			"barista",
+			"gradient", -- deep blue with lit spots from the deep end
+			{ 32, 72, 168 },
+			"Swam up from the deepest pool. Its spots light the way."
+		),
+		"waterpark",
+		true
+	),
+	secret(
+		cat(
+			"excalipurr",
+			"Excalipurr",
+			"Secret",
+			"alley",
+			"greeter",
+			"solid", -- a lilac silver coat with a white ruff and gold socks
+			{ 186, 176, 214 },
+			"The only cat that could pull the sword from the stone."
+		),
+		"castle",
+		true
 	),
 } :: { Types.CatDef }
 
@@ -2711,7 +2814,7 @@ Catalog.achievements = {
 	{
 		id = "a_secret3",
 		name = "Secret Keeper",
-		text = "Find all three Secret cats",
+		text = "Find three Secret cats",
 		measure = "secretCats",
 		needs = 3,
 		size = "XL",

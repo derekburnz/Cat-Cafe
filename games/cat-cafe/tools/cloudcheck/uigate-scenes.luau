@@ -10905,6 +10905,125 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ cats = before.cats } :: any)
 		assert(ok, problem)
 	end },
+	-- #4104: the Fusion Observatory window: two ready fusions and an "almost" row, the confirm card's default five,
+	-- a swap, the trait to keep and the two tap Fuse, then the dome running, ready and collected, and the Coats tab
+	{ "FusionObservatory", function()
+		local before = UI.getState() :: any
+		local function make(uid, catId, level, extra)
+			local out = { uid = uid, catId = catId, variant = "base", level = level, xp = 0, charm = 50, caughtAt = 0 }
+			for key, value in extra or {} do
+				out[key] = value
+			end
+			return out
+		end
+		local cats = {
+			t1 = make("t1", "tabby", 3),
+			t2 = make("t2", "tabby", 12, { trait = { id = "bigTipper_epic" }, name = "Mochi" }),
+			t3 = make("t3", "tabby", 1),
+			t4 = make("t4", "tabby", 7, { trait = { id = "nightOwl_common" } }),
+			t5 = make("t5", "tabby", 2),
+			t6 = make("t6", "tabby", 4),
+			t7 = make("t7", "tabby", 30, { spotId = "barista_1" }),
+			x1 = make("x1", "tuxedo", 1),
+			x2 = make("x2", "tuxedo", 1),
+			x3 = make("x3", "tuxedo", 1),
+		}
+		for index = 1, 5 do
+			cats["g" .. index] = make("g" .. index, "ginger", 5 + index, { variant = "gold" })
+		end
+		local view = { goldSeconds = 600, rainbowSeconds = 3600, made = { gold = 0, rainbow = 0 } }
+		local sent = {}
+		local link = UI.events.lateStation:Connect(function(remote, a, b)
+			table.insert(sent, { remote = remote, a = a, b = b })
+		end)
+		local ok, problem = pcall(function()
+			UI.update({ cats = cats, fusion = view } :: any)
+			UI.lateStations.openFusion()
+			local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("FusionObservatory", true) :: GuiObject
+			assert(window and window.Visible, "uigate: the Fusion Observatory did not open (#4104)")
+			local function fits(holder: Instance, name: string): TextLabel
+				local label = holder:FindFirstChild(name, true) :: TextLabel
+				assert(label and label.Text ~= "" and label.TextFits, ("uigate: %s's %s %q does not fit (#4104)"):format(holder.Name, name, label and label.Text or "nil"))
+				return label
+			end
+			local dome = window:FindFirstChild("Dome", true) :: GuiObject
+			assert(fits(dome, "Title").Text == "The dome is free", "uigate: the free dome reads wrong (#4104)")
+			local list = window:FindFirstChild("Ready", true) :: GuiObject
+			local function row(index: number): GuiObject
+				return list:FindFirstChild("Row" .. index) :: GuiObject
+			end
+			assert(fits(row(1), "Count").Text == "Gold Ginger ×5", "uigate: the first row is not the rainbow fusion (#4104)")
+			assert(fits(row(2), "Count").Text == "Tabby ×6", "uigate: the Tabby row reads " .. (row(2):FindFirstChild("Count") :: TextLabel).Text .. " (#4104)")
+			assert(fits(row(3), "Count").Text == "Tuxedo ×3 · 2 more", "uigate: no almost row for the Tuxedos (#4104)")
+			assert(not (row(3):FindFirstChild("Fuse") :: GuiObject).Visible, "uigate: an almost row has a Fuse button (#4104)")
+			for index = 1, 2 do
+				local fuse = row(index):FindFirstChild("Fuse") :: GuiObject
+				local count = row(index):FindFirstChild("Count") :: GuiObject
+				assert(count.AbsolutePosition.X + count.AbsoluteSize.X <= fuse.AbsolutePosition.X + 1, "uigate: Row" .. index .. "'s count runs under Fuse (#4104)")
+				assert(fuse.AbsolutePosition.X + fuse.AbsoluteSize.X <= window.AbsolutePosition.X + window.AbsoluteSize.X, "uigate: Row" .. index .. "'s Fuse runs past the window (#4104)")
+			end
+			-- the confirm card: the default five, a swap and the two taps
+			press("FusionObservatory", "Row2.Fuse")
+			local confirm = window:FindFirstChild("Confirm", true) :: GuiObject
+			assert(confirm.Visible, "uigate: Fuse opened no confirm card (#4104)")
+			fits(confirm, "Title")
+			fits(confirm, "Result")
+			fits(confirm, "Time")
+			local copies = confirm:FindFirstChild("Copies", true) :: GuiObject
+			local ticked = 0
+			for _, cell in copies:GetChildren() do
+				if cell:IsA("GuiObject") and cell.Visible and string.match(cell.Name, "^Copy%d+$") then
+					if (cell:FindFirstChild("Check") :: GuiObject).Visible then
+						ticked += 1
+					end
+					fits(cell, "Level")
+				end
+			end
+			assert(ticked == 5, ("uigate: %d copies ticked, not 5 (#4104)"):format(ticked))
+			local result = (confirm:FindFirstChild("Result", true) :: TextLabel).Text
+			assert(string.find(result, "Lv 12", 1, true) and string.find(result, "Mochi", 1, true), "uigate: the result reads " .. result .. " (#4104)")
+			local chip = confirm:FindFirstChild("Trait1", true) :: GuiObject
+			assert(chip and chip.Visible, "uigate: no trait to keep (#4104)")
+			local goText = (confirm:FindFirstChild("FuseGo", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel)
+			press("FusionObservatory", "Copy1") -- the Lv 12 copy leads the strip: untick it
+			assert(goText.Text == "Pick 1 more", "uigate: four picked reads " .. goText.Text .. " (#4104)")
+			press("FusionObservatory", "Copy1")
+			press("FusionObservatory", "FuseGo")
+			assert(#sent == 0 and string.find(goText.Text, "Tap again", 1, true) and goText.TextFits, "uigate: the first Fuse tap did not ask, it reads " .. goText.Text .. " (#4104)")
+			press("FusionObservatory", "FuseGo")
+			assert(#sent == 1 and sent[1].remote == "StartFusion" and #sent[1].a == 5 and sent[1].b == "t2", "uigate: Tap again sent no StartFusion with five cats and Mochi's trait (#4104)")
+			-- the dome running, then ready
+			view = table.clone(view)
+			view.running = { catId = "tabby", coat = "gold", doneAt = workspace:GetServerTimeNow() + 402, level = 12, name = "Mochi" }
+			UI.update({ fusion = view } :: any)
+			UI.lateStations.render(UI.getState() :: any)
+			assert(string.find(fits(dome, "Title").Text, "Gold Mochi · ", 1, true), "uigate: the running dome reads wrong (#4104)")
+			local busyText = (row(1):FindFirstChild("Fuse"):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel)
+			assert(busyText.Text == "Dome busy" and busyText.TextFits, "uigate: Fuse reads " .. busyText.Text .. " while the dome is busy (#4104)")
+			view = table.clone(view)
+			view.ready = true
+			UI.update({ fusion = view } :: any)
+			UI.lateStations.render(UI.getState() :: any)
+			assert(fits(dome, "Title").Text == "Gold Mochi is ready", "uigate: the ready dome reads wrong (#4104)")
+			local collect = dome:FindFirstChild("Collect", true) :: GuiObject
+			assert(collect.Visible, "uigate: no Collect on a ready dome (#4104)")
+			assert(collect.AbsolutePosition.X + collect.AbsoluteSize.X <= dome.AbsolutePosition.X + dome.AbsoluteSize.X + 1, "uigate: Collect runs off the dome (#4104)")
+			press("FusionObservatory", "Collect")
+			assert(#sent == 2 and sent[2].remote == "CollectFusion", "uigate: Collect sent no CollectFusion (#4104)")
+			-- the Coats tab
+			press("FusionObservatory", "Tab_coats")
+			local coats = window:FindFirstChild("CoatsPage", true) :: GuiObject
+			assert(coats.Visible, "uigate: the Coats tab did not open (#4104)")
+			local tabby = coats:FindFirstChild("Coat_tabby") :: GuiObject
+			assert(tabby and tabby.Visible, "uigate: no Tabby on the Coats tab (#4104)")
+			fits(tabby, "Name")
+			assert((tabby:FindFirstChild("Bang") :: GuiObject).Visible, "uigate: the Tabby can fuse but has no ! (#4104)")
+			press("FusionObservatory", "Tab_fuse")
+		end)
+		link:Disconnect()
+		UI.update({ cats = before.cats } :: any)
+		assert(ok, problem)
+	end },
 	{ "Store", function()
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")

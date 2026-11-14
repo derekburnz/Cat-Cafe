@@ -7520,6 +7520,7 @@ do
 	local RelicMuseum = require(script.Screens.RelicMuseum)
 	local TicketBooth = require(script.Screens.TicketBooth) -- #4061
 	local DragonKeepScreen = require(script.Screens.DragonKeep) -- #4062
+	local FusionScreen = require(script.Screens.FusionObservatory) -- #4104
 	local SharedConfig =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 	local TAG = "LateStation" -- shared/LateStations.TAG: the placed models, with their StationId attribute
@@ -7529,6 +7530,7 @@ do
 		museum = "RelicMuseum",
 		ticketBooth = "TicketBooth",
 		dragon = "DragonKeep",
+		fusion = "FusionObservatory",
 	}
 	local late = {
 		anywhere = false, -- #3213: the open card came from the Cannon menu, so walking away does not close it
@@ -7537,6 +7539,7 @@ do
 		museum = nil :: RelicMuseum.RelicMuseum?,
 		booth = nil :: TicketBooth.TicketBooth?, -- #4061
 		keep = nil :: DragonKeepScreen.DragonKeep?, -- #4062
+		fusion = nil :: FusionScreen.FusionObservatory?, -- #4104
 	}
 
 	-- Studs from this player's character to a station's model, or nil while either is streamed out.
@@ -7698,10 +7701,32 @@ do
 				keep:closed()
 			end,
 		})
+		-- #4104: the Fusion Observatory window (PlayerState.fusion; the dome's prompt comes with its model)
+		local fusion = FusionScreen.new({
+			start = function(uids: { string }, keepTraitUid: string?)
+				send("StartFusion", uids, keepTraitUid)
+			end,
+			collect = function()
+				send("CollectFusion")
+			end,
+			close = closer(WINDOWS.fusion),
+		})
+		late.fusion = fusion
+		modalView:register(WINDOWS.fusion, {
+			frame = fusion.frame,
+			onOpen = function()
+				UI.lateStations.paintFusion(state)
+				fusion:opened()
+			end,
+			onClose = function()
+				fusion:closed()
+			end,
+		})
 		spa:render(state)
 		museum:render(state)
 		booth:setView(UI.lateStations.boothView(state))
 		UI.lateStations.paintKeep(state)
+		UI.lateStations.paintFusion(state)
 		paint()
 	end
 
@@ -7738,6 +7763,41 @@ do
 				keepBusy(playerState)
 			)
 		end
+	end
+
+	-- #4104: PlayerState.fusion, nil while the switch is off or below its tier (false from UIController)
+	function UI.lateStations.fusionView(playerState: any): any
+		local view = if playerState ~= nil then playerState.fusion else nil
+		return if type(view) == "table" then view else nil
+	end
+
+	function UI.lateStations.paintFusion(playerState: any)
+		local fusion = late.fusion
+		if fusion and playerState ~= nil then
+			fusion:setView(
+				UI.lateStations.fusionView(playerState),
+				playerState.cats,
+				keepBusy(playerState),
+				{
+					base = playerState.collection,
+					gold = playerState.goldCollection,
+					rainbow = playerState.rainbowCollection,
+				}
+			)
+		end
+	end
+
+	-- #4104: the Fusion Observatory window from anywhere (its prompt, the Cannon picker, a test), or a toast while shut
+	function UI.lateStations.openFusion()
+		local modalView = modal
+		if modalView == nil or late.fusion == nil then
+			return
+		end
+		if UI.lateStations.fusionView(state) == nil then
+			UI.toast("The Fusion Observatory opens with Snowy Mountain", "info")
+			return
+		end
+		modalView:open(WINDOWS.fusion)
 	end
 
 	-- #4062: the Dragon Keep window from anywhere (its prompt, the Cannon picker, after the stage cutscene), or a toast
@@ -7779,6 +7839,7 @@ do
 			booth:setView(UI.lateStations.boothView(playerState))
 		end
 		UI.lateStations.paintKeep(playerState)
+		UI.lateStations.paintFusion(playerState)
 		local spa = late.spa
 		if spa then
 			spa:render(playerState)
@@ -7868,6 +7929,11 @@ do
 			keep:destroy()
 		end
 		late.keep = nil
+		local fusion = late.fusion
+		if fusion then
+			fusion:destroy()
+		end
+		late.fusion = nil
 	end
 end
 

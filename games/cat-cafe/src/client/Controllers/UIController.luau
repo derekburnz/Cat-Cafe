@@ -1113,6 +1113,7 @@ local function applyState(s: Types.PlayerState)
 		-- #4061: the Ticket Booth window; false (not nil, which UI.update would skip) while off or below its tier
 		ticketBooth = s.ticketBooth or false,
 		dragon = s.dragon or false, -- #4062: the Dragon Keep window, false while off or below its tier
+		fusion = (s :: any).fusion or false, -- #4104 (typed by Gameplay-Engineer's server side): the Fusion Observatory window, false while off or below its tier
 		crates = s.crates, -- F53: unopened crates, crate luck and Market perks
 		crateLuck = s.crateLuck,
 		fishPerks = s.fishPerks,

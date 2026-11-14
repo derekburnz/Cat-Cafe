@@ -1884,6 +1884,16 @@ Catalog.potions = {
 		tips = 1,
 		shopOnly = true,
 	},
+	-- #4195: the Admin Wheel's "3x money for 1 hour". Never sold, never in a gift or a shop: the wheel starts it at
+	-- once (PotionService.give). `tipsOver` goes on top of the money potions' cap, so on its own it is 3x.
+	{
+		id = "admin_money_potion",
+		name = "Admin 3x Money",
+		minutes = 60,
+		effect = "3x money",
+		tipsOver = 2,
+		shopOnly = true,
+	},
 } :: { Types.PotionDef }
 Catalog.potionsById = {} :: { [string]: Types.PotionDef }
 for _, def in Catalog.potions do

@@ -4521,6 +4521,8 @@ Presets.potions = {
 		colour = palette.goldLight,
 	},
 	mega_tip_potion = { emitter = "potionMegaTip", on = "Body", colour = palette.golden },
+	-- #4195: the Admin Wheel's hour of 3x money glows as Mega Money until Motion-FX gives it its own
+	admin_money_potion = { emitter = "potionMegaTip", on = "Body", colour = palette.golden },
 } :: { [string]: PotionSpec }
 -- The Speed Shoes' trail (Effects/SpeedShoes): shown on wearers within `radius` studs, checked every `pickEvery`
 -- seconds; `moving` is how much of full walking input counts as on the move; the puffs start `lift` studs over the

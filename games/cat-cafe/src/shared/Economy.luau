@@ -438,22 +438,24 @@ local function paidSecondsFrom(from: number, seconds: number, clockEpoch: number
 end
 
 -- The extra paid seconds the running tip potions add to a window of `elapsed` from lastTick: each potion's `tips` over
--- the start it covers, split where each ends, the running sum capped at TimedTipsMax.
+-- the start it covers, split where each ends, the running sum capped at TimedTipsMax; a potion's `tipsOver` (#4195,
+-- the Admin Wheel's 3x money) is added outside that cap.
 local function tipBonusSeconds(
 	profile: Types.PlayerProfile,
 	elapsed: number,
 	clockEpoch: number?
 ): number
-	type Span = { seconds: number, tips: number }
+	type Span = { seconds: number, tips: number, over: number }
 	local spans: { Span } = {}
-	local total = 0
+	local total, totalOver = 0, 0
 	for _, def in Catalog.potions do
-		local tips = def.tips
-		if tips ~= nil then
+		local tips, over = def.tips or 0, def.tipsOver or 0
+		if tips > 0 or over > 0 then
 			local seconds = math.min(elapsed, Potions.left(profile, def.id, profile.lastTick))
 			if seconds > 0 then
-				table.insert(spans, { seconds = seconds, tips = tips })
+				table.insert(spans, { seconds = seconds, tips = tips, over = over })
 				total += tips
+				totalOver += over
 			end
 		end
 	end
@@ -463,7 +465,7 @@ local function tipBonusSeconds(
 	local bonus, from = 0, 0
 	for _, span in spans do
 		if span.seconds > from then
-			bonus += math.min(total, Config.TimedTipsMax) * paidSecondsFrom(
+			bonus += (math.min(total, Config.TimedTipsMax) + totalOver) * paidSecondsFrom(
 				profile.lastTick + from,
 				span.seconds - from,
 				clockEpoch
@@ -471,6 +473,7 @@ local function tipBonusSeconds(
 			from = span.seconds
 		end
 		total -= span.tips
+		totalOver -= span.over
 	end
 	return bonus
 end

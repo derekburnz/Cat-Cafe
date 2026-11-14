@@ -290,6 +290,8 @@ export type CustomEvent =
 	| "trait_roll"
 	-- #3196: Trait Tokens gained, value how many: the source (station, spin, daily_treat, quest, lost_found, code)
 	| "trait_token"
+	| "deal_bought" -- #3996: Today's Deal bought, value the deal number; the tier, "today" or "other" (a receipt for a
+	-- deal that was not that day's, still paid)
 	| "rare_customer" -- #3889: a rare customer came by chance; field: rich, mystery or collector
 	| "session_feedback_ctx"
 	| "session_feedback_where"
@@ -311,6 +313,9 @@ export type CustomEvent =
 	-- F92 (playing-together.md 6): on leave, the minutes with at least one pal on the server (how the first pal was
 	-- linked: friend, invite, follow or private; tier)
 	| "pal_time"
+	-- #3995 (friend-join-3995.md): a join through a friend with the palJoin switch on, value 1 (how: invite or follow;
+	-- new or returning; cafe next door yes or no)
+	| "pal_join"
 	-- F92 (playing-together.md 6): a rescue attempt a helper joined, as it ends (rarity, freed yes or no, pals yes or
 	-- no); the helper's tip is the economy source helper_tip
 	| "team_rescue"
@@ -836,8 +841,20 @@ end
 -- The session's answer to "does the intro play itself" is fixed here too (Review-QA on #3667): a later switch on
 -- must not start the scene mid play for a save grouped earlier.
 local introChecked: { [Player]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local introSkip: ((Player) -> boolean)? = nil
+
+-- #3995: who skips the intro this session and stays out of the test (CafeService: a player who joined through a
+-- friend, with the palJoin switch on). Set once at start.
+function Telemetry.setIntroSkip(skip: (Player) -> boolean)
+	introSkip = skip
+end
+
 function Telemetry.introJoin(player: Player, profile: Profile)
 	if introChecked[player] ~= nil then
+		return
+	end
+	if introSkip ~= nil and introSkip(player) then
+		introChecked[player] = false
 		return
 	end
 	local on = LiveFlagService.on(IntroSplit.FLAG)

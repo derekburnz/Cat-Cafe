@@ -73,6 +73,9 @@ export type CatCollection = {
 local TILE = Vector2.new(104, 128)
 local PORTRAIT = 84
 local TAB_W = 112
+-- #3990 (the UI gate's crowd check): the tabs' gap. A tab's red badge hangs about 6 px past its right edge, so with
+-- the usual gap it touched the next tab; 4 more keeps a sliver between them.
+local TAB_GAP = Theme.sizes.gap + 4
 local CLAIM_ALL_W = 150
 local CLAIM_ALL_HOLD = 3 -- seconds Claim all reads "Claiming" unless the sync clears the rewards first
 local TAB_HEIGHT = 40
@@ -271,7 +274,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, Theme.sizes.gap),
+			Padding = UDim.new(0, TAB_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
@@ -1358,7 +1361,7 @@ function CatCollection._fitTabs(self: any)
 	if shown == 0 then
 		return
 	end
-	local gap = Theme.sizes.gap
+	local gap = TAB_GAP
 	local claimW = if self._claimAll.instance.Visible then CLAIM_ALL_W + gap else 0
 	local take = claimW + gap * (shown - 1)
 	for _, tab in tabs do

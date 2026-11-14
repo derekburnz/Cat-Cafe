@@ -43,7 +43,7 @@ all, ten of them deep, every one 25 or more from every other and off the paths, 
 import math
 from itertools import pairwise
 
-from areakit import PI, Set, turned
+from areakit import PI, Set, hinge, smoke, turned
 from common import Builder
 from woodsset import _dist_seg, _strip, bl
 
@@ -448,10 +448,10 @@ def well(mat):
     return [b.finalize(N + "Well", mat), w.finalize(N + "Well_Water", mat)]
 
 
-def timber_house(mat, k=0):
+def timber_house(mat, k=0, smoking=False):
     """A timber-framed house, 14 wide and 10 deep, about 17 to its ridge (front -Y): a stone foot, cream plaster in a
     dark frame, a jettied upper floor, a steep tiled roof, a door, shuttered windows (_Pane, lit at night) and a
-    chimney. Scenery only."""
+    chimney (`smoking`: with a "Smoke" Attachment at its top). Scenery only."""
     b, p = Builder(), Builder()
     W, D = HOUSE_W, HOUSE_D
     roof = (ROOF, ROOF_DARK, "fur_brown")[k % 3]
@@ -482,7 +482,10 @@ def timber_house(mat, k=0):
         p.box_base((x, y - 0.08, z + 0.25), (2.4, 0.08, 2.1), "lamp_warm", bevel=False)
         b.box_base((x, y - 0.14, z + 0.25), (0.14, 0.06, 2.1), WOOD_DARK, bevel=False)
         b.box((x, y - 0.5, z - 0.1), (3.2, 0.9, 0.5), (RED, GREEN, NAVY)[(k + int(x > 0)) % 3], bevel=False)   # a window box
-    return [b.finalize(N + "TimberHouse", mat), p.finalize(N + "TimberHouse_Pane", mat)]
+    house = b.finalize(N + "TimberHouse", mat)
+    if smoking:
+        smoke(house, (W / 2 - 2.6, 2.0, 18.6))
+    return [house, p.finalize(N + "TimberHouse_Pane", mat)]
 
 
 def market_stall(mat, k=0):
@@ -632,13 +635,16 @@ def weapon_rack(mat):
 
 
 def banner_pole(mat, k=0, h=11.0):
-    """A banner on a tall pole with a cross bar, on a stone foot."""
+    """A banner on a tall pole with a cross bar, on a stone foot. The banner is its own object (_Swing) hung from
+    the bar, so Motion sways it."""
     b = Builder()
     b.cyl_base((0, 0, 0), 0.9, 0.5, STONE_DARK, segments=8, bevel=False)
     b.cyl_base((0, 0, 0.5), 0.18, h, WOOD_DARK, segments=6, bevel=False)
     b.ico((0, 0, h + 0.7), 0.3, GOLD, subdivisions=1)
-    _banner(b, 0, 0.3, h - 2.6, 2.6, 4.4, BANNERS[k % 4])
-    return [b.finalize(N + "BannerPole", mat)]
+    b.box((0, 0.15, h - 0.28), (0.14, 0.36, 0.14), WOOD_DARK, bevel=False)      # the arm the banner hangs from
+    c = Builder()                    # the cloth and its bar sway on the arm: the child Model ..._BannerPole_Swing
+    _banner(c, 0, 0.3, h - 2.6, 2.6, 4.4, BANNERS[k % 4])
+    return [b.finalize(N + "BannerPole", mat), hinge(c.finalize(N + "BannerPole_Swing", mat), (0, 0.3, h - 0.28))]
 
 
 def moat(mat):
@@ -1085,7 +1091,8 @@ def build_set(mat):
     for i, hz in enumerate(HOUSE_Z):
         for sx in (-1, 1):
             house = (i + (sx > 0)) % 2 == 0
-            fn = timber_house(mat, i + (sx > 0)) if house else market_stall(mat, i + (sx > 0) * 2)
+            smoking = house and i < 4                       # the first four houses' chimneys smoke (Effects' cap)
+            fn = timber_house(mat, i + (sx > 0), smoking) if house else market_stall(mat, i + (sx > 0) * 2)
             put(fn, sx * HOUSE_X, hz, 90 * sx, r=9)
             spot("house_front" if house else "stall_front", sx * (HOUSE_X - HOUSE_D / 2 - 3.4), hz + 2.5 * (-1) ** i)
             if i < 4:

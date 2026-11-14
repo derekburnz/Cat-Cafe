@@ -21,7 +21,8 @@
 -- note: not a table, a bad id or title, no end, shorter than EventMinSeconds or longer than EventMaxSeconds, already
 -- over, a bad effect, the same id twice, or overlapping an earlier-starting event. At most EventScheduleMax records
 -- are read.
---   parse(raw, now) -> ({ Event }, { string })   the valid events by startsAt, and the notes for the log
+--   parse(raw, now) -> ({ Event }, { string }, { AdminEvent })   the valid events by startsAt, the notes for the
+--                                                 log, and the admin events (below) by startsAt
 --   current(list, now) -> Event?                  the event running at `now` (startsAt <= now < endsAt)
 --   upcoming(list, now) -> Event?                 the next one to start after `now`
 --   showerTimes(event) -> { number }              when each shower cat is due, unix seconds
@@ -35,6 +36,26 @@
 --   test(preset, now, minutes) -> Event?          OwnerTest's and Studio's event in one server
 --   rewardKey(event) -> string                    the key its reward is paid under once per account
 --   reward(profile, event, now) -> (RewardKind?, boolean)   pays the reward for a secure in the window (2e)
+
+--
+-- Admin events (#4195, Derek 2026-11-14: "admin events on update days like the big games do"): a second lane in the
+-- same list. A record with `admin = true` is short, runs beside a normal event (the Admin Wheel and Bowl Frenzy sit
+-- inside the Update Party) and carries only admin effects, so the one event money slot, the forced days and the Luck
+-- stay the normal event's:
+--   { id = "frenzy-1115", title = "Bowl Frenzy", admin = true, startsAt = ..., endsAt = ...,
+--     effects = { bowlSpeed = 4 } }
+-- - `bowlSpeed`: food put in a bait bowl while it runs brings its cat that many times sooner, 1 to
+--   ADMIN.bowlSpeedMax (Bait.eventWait; BaitService).
+-- An admin record runs ADMIN.minSeconds to ADMIN.maxSeconds and never overlaps another admin record (the later one
+-- is dropped, with a note); it needs at least one admin effect. Everything waits behind the LiveFlags switch
+-- ADMIN.flag (EventService), off by default.
+--   adminCurrent(list, now) -> AdminEvent?        the admin event running at `now`
+--   adminShown(list, now) -> AdminEvent?          that one, else one starting within ADMIN.warnSeconds (the warning)
+--   adminEffectsData(event) / adminEffectsJson(event)   its effects, and as JSON the AdminEventEffects attribute
+--   adminRecord(kind, now, minutes?, skipWarning?) -> record?   the owner's `/admin <kind>`: starting
+--                                                 ADMIN.warnSeconds from now, or at once
+--   adminTest(kind, now, minutes?, skipWarning?) -> AdminEvent?   the same in one server only, starting
+--                                                 ADMIN.testWarnSeconds from now, or at once
 
 local HttpService = game:GetService("HttpService")
 
@@ -59,6 +80,29 @@ CafeEvents.ATTRIBUTES = {
 	effects = "EventEffects",
 	running = "EventRunning",
 }
+-- #4195: the admin event (running, or within ADMIN.warnSeconds of its start) as ReplicatedStorage attributes of its
+-- own, beside the normal event's; AdminEventId is "" with none
+CafeEvents.ADMIN_ATTRIBUTES = {
+	id = "AdminEventId",
+	title = "AdminEventTitle",
+	startsAt = "AdminEventStartsAt",
+	endsAt = "AdminEventEndsAt",
+	effects = "AdminEventEffects",
+	running = "AdminEventRunning",
+}
+CafeEvents.ADMIN = {
+	flag = "adminEvents", -- the LiveFlags switch
+	minSeconds = 60,
+	maxSeconds = 3600,
+	warnSeconds = 120, -- the warning banner goes up this long before the start
+	testWarnSeconds = 10, -- a test in one server: a short warning, so the banner is seen without the wait
+	bowlSpeedMax = 4,
+}
+-- The owner's kinds (`/admin <kind> [minutes] [now]`): each one's title, effects and length in minutes when none is given.
+CafeEvents.ADMIN_KINDS =
+	{
+		bowl = { title = "Bowl Frenzy", minutes = 15, effects = { bowlSpeed = 4 } },
+	} :: { [string]: { title: string, minutes: number, effects: { [string]: any } } }
 -- OwnerTest's presets (section 8): "full" every effect, with test showers a minute apart; "days" the stacked days
 -- only; "money" x2 only; "luck" +0.5 only; "showers" test showers only.
 CafeEvents.PRESETS = { "full", "days", "money", "luck", "showers" }
@@ -85,6 +129,17 @@ export type Effects = {
 	luck: number, -- 0 when the record has none
 	showers: Showers?,
 	reward: string?, -- the cosmetic id
+}
+export type AdminEffects = {
+	bowlSpeed: number, -- 1 when the record has none
+}
+export type AdminEvent = {
+	id: string,
+	title: string,
+	startsAt: number,
+	endsAt: number,
+	test: boolean, -- in one server only
+	effects: AdminEffects,
 }
 export type Event = {
 	id: string,
@@ -234,15 +289,88 @@ local function record(raw: unknown, now: number, notes: { string }): (Event?, st
 	return event, nil
 end
 
-function CafeEvents.parse(raw: unknown, now: number): ({ Event }, { string })
+-- The id, title and window every record carries, or nil and why.
+local function header(values: { [string]: any }): (string?, string?)
+	local id, title = values.id, values.title
+	if
+		type(id) ~= "string"
+		or #id < 1
+		or #id > CafeEvents.ID_MAX
+		or string.find(id, "[^a-z0-9_%-]") ~= nil
+	then
+		return nil, "a bad id"
+	end
+	local length = if type(title) == "string" then utf8.len(title) else nil
+	if length == nil or length < 1 or length > CafeEvents.TITLE_MAX then
+		return nil, id .. ": a bad title"
+	end
+	return id, nil
+end
+
+-- Whether `effects` holds at least one admin effect that does something.
+local function adminActive(effects: AdminEffects): boolean
+	return effects.bowlSpeed > 1
+end
+
+-- #4195: one admin record against the rules, or nil and why (nil and no why for one that is over).
+local function adminOf(
+	raw: { [string]: any },
+	now: number,
+	notes: { string }
+): (AdminEvent?, string?)
+	local id, bad = header(raw)
+	if id == nil then
+		return nil, bad
+	end
+	local startsAt, endsAt = whole(raw.startsAt), whole(raw.endsAt)
+	if startsAt == nil or endsAt == nil then
+		return nil, id .. ": no start or no end"
+	end
+	local seconds = endsAt - startsAt
+	if seconds < CafeEvents.ADMIN.minSeconds or seconds > CafeEvents.ADMIN.maxSeconds then
+		return nil, id .. ": shorter or longer than an admin event may be"
+	end
+	if endsAt <= now then
+		return nil, nil
+	end
+	local rawEffects = raw.effects
+	if type(rawEffects) ~= "table" then
+		return nil, id .. ": no effects"
+	end
+	local values = rawEffects :: { [string]: any }
+	local bowlSpeed = if values.bowlSpeed == nil then 1 else finite(values.bowlSpeed)
+	if bowlSpeed == nil then
+		return nil, id .. ": a bad bowlSpeed"
+	end
+	local clamped = math.clamp(bowlSpeed, 1, CafeEvents.ADMIN.bowlSpeedMax)
+	if clamped ~= bowlSpeed then
+		table.insert(notes, `{id}: bowlSpeed {bowlSpeed} clamped to {clamped}`)
+	end
+	local effects: AdminEffects = { bowlSpeed = clamped }
+	if not adminActive(effects) then
+		return nil, id .. ": no admin effect"
+	end
+	local event: AdminEvent = {
+		id = id,
+		title = raw.title :: string,
+		startsAt = startsAt,
+		endsAt = endsAt,
+		test = false,
+		effects = effects,
+	}
+	return event, nil
+end
+
+function CafeEvents.parse(raw: unknown, now: number): ({ Event }, { string }, { AdminEvent })
 	local notes: { string } = {}
 	local found: { Event } = {}
+	local admins: { AdminEvent } = {}
 	if raw == nil then
-		return found, notes
+		return found, notes, admins
 	end
 	if type(raw) ~= "table" then
 		table.insert(notes, "the schedule is not a list")
-		return found, notes
+		return found, notes, admins
 	end
 	local seen: { [string]: boolean } = {}
 	for index, item in raw :: { any } do
@@ -251,6 +379,24 @@ function CafeEvents.parse(raw: unknown, now: number): ({ Event }, { string })
 		end
 		if index > Config.EventScheduleMax then
 			table.insert(notes, string.format("record %d: past EventScheduleMax", index))
+			continue
+		end
+		if type(item) == "table" and (item :: { [string]: any }).admin == true then
+			-- #4195: the admin lane, beside the normal events
+			local admin, whyNot = adminOf(item :: { [string]: any }, now, notes)
+			if admin == nil then
+				if whyNot ~= nil then
+					table.insert(notes, string.format("record %d ignored: %s", index, whyNot))
+				end
+			elseif seen[admin.id] then
+				table.insert(
+					notes,
+					string.format("record %d ignored: %s is there twice", index, admin.id)
+				)
+			else
+				seen[admin.id] = true
+				table.insert(admins, admin)
+			end
 			continue
 		end
 		local event, why = record(item, now, notes)
@@ -284,7 +430,62 @@ function CafeEvents.parse(raw: unknown, now: number): ({ Event }, { string })
 			lastEnd = event.endsAt
 		end
 	end
-	return out, notes
+	table.sort(admins, function(a: AdminEvent, b: AdminEvent): boolean
+		if a.startsAt ~= b.startsAt then
+			return a.startsAt < b.startsAt
+		end
+		return a.id < b.id
+	end)
+	local adminOut: { AdminEvent } = {}
+	local adminEnd = -math.huge
+	for _, admin in admins do
+		if admin.startsAt < adminEnd then
+			table.insert(
+				notes,
+				string.format("%s ignored: it overlaps an earlier admin event", admin.id)
+			)
+		else
+			table.insert(adminOut, admin)
+			adminEnd = admin.endsAt
+		end
+	end
+	return out, notes, adminOut
+end
+
+function CafeEvents.adminCurrent(list: { AdminEvent }, now: number): AdminEvent?
+	for _, event in list do
+		if event.startsAt <= now and now < event.endsAt then
+			return event
+		end
+	end
+	return nil
+end
+
+-- The admin event to show: the running one, else one whose start is within ADMIN.warnSeconds (its warning).
+function CafeEvents.adminShown(list: { AdminEvent }, now: number): AdminEvent?
+	local running = CafeEvents.adminCurrent(list, now)
+	if running ~= nil then
+		return running
+	end
+	for _, event in list do
+		if event.startsAt > now and event.startsAt - now <= CafeEvents.ADMIN.warnSeconds then
+			return event
+		end
+	end
+	return nil
+end
+
+-- The admin effects that do something, as the AdminEventEffects attribute carries them.
+function CafeEvents.adminEffectsData(event: AdminEvent): { [string]: any }
+	local out: { [string]: any } = {}
+	if event.effects.bowlSpeed > 1 then
+		out.bowlSpeed = event.effects.bowlSpeed
+	end
+	return out
+end
+
+function CafeEvents.adminEffectsJson(event: AdminEvent): string
+	return HttpService:JSONEncode(CafeEvents.adminEffectsData(event))
 end
 
 function CafeEvents.current(list: { Event }, now: number): Event?
@@ -489,7 +690,8 @@ end
 --   ownerAdd(raw, record, now) -> (list?, why?)    the schedule with it added and finished records dropped; nil and
 --                                                   why when another event runs or starts inside its window, the
 --                                                   schedule is full, or the stored value is not a list
---   ownerRemove(raw, now) -> (list?, count)        the schedule without the owner's records that are not over yet
+--   ownerRemove(raw, now, admin?) -> (list?, count)   the schedule without the owner's records (normal ones, or
+--                                                   with `admin` the admin ones) that are not over yet
 CafeEvents.OWNER_PREFIX = "owner-"
 CafeEvents.OWNER_TITLE = "Cafe Party"
 CafeEvents.OWNER_SHOWER_FIRST = 120
@@ -533,6 +735,65 @@ function CafeEvents.ownerRecord(preset: string, now: number, minutes: number): {
 	}
 end
 
+-- #4195: the owner's `/admin <kind> [minutes] [now]` (ADMIN_KINDS): a record starting ADMIN.warnSeconds from `now`,
+-- so every server shows the warning first, or at once with `skipWarning`; nil for an unknown kind.
+CafeEvents.OWNER_ADMIN_PREFIX = CafeEvents.OWNER_PREFIX .. "admin-"
+
+local function adminSeconds(kind: string, minutes: number?): number
+	local asked = if minutes ~= nil and minutes == minutes
+		then minutes
+		else CafeEvents.ADMIN_KINDS[kind].minutes
+	return math.clamp(
+		math.floor(asked) * 60,
+		CafeEvents.ADMIN.minSeconds,
+		CafeEvents.ADMIN.maxSeconds
+	)
+end
+
+function CafeEvents.adminRecord(
+	kind: string,
+	now: number,
+	minutes: number?,
+	skipWarning: boolean?
+): { [string]: any }?
+	local def = CafeEvents.ADMIN_KINDS[kind]
+	if def == nil then
+		return nil
+	end
+	local startsAt = math.floor(now) + (if skipWarning then 0 else CafeEvents.ADMIN.warnSeconds)
+	return {
+		id = CafeEvents.OWNER_ADMIN_PREFIX .. tostring(startsAt),
+		title = def.title,
+		admin = true,
+		startsAt = startsAt,
+		endsAt = startsAt + adminSeconds(kind, minutes),
+		effects = table.clone(def.effects),
+	}
+end
+
+-- The same in this server only (Studio and a private server), ADMIN.testWarnSeconds from `now`.
+function CafeEvents.adminTest(
+	kind: string,
+	now: number,
+	minutes: number?,
+	skipWarning: boolean?
+): AdminEvent?
+	local def = CafeEvents.ADMIN_KINDS[kind]
+	if def == nil then
+		return nil
+	end
+	local startsAt = math.floor(now) + (if skipWarning then 0 else CafeEvents.ADMIN.testWarnSeconds)
+	local bowlSpeed = def.effects.bowlSpeed
+	return {
+		id = "test-admin-" .. kind,
+		title = def.title,
+		startsAt = startsAt,
+		endsAt = startsAt + adminSeconds(kind, minutes),
+		test = true,
+		effects = { bowlSpeed = if type(bowlSpeed) == "number" then bowlSpeed else 1 },
+	}
+end
+
 -- The stored list's records that are not over at `now`, in order; nil when the stored value is not a list.
 local function standing(raw: unknown, now: number): { any }?
 	if raw == nil then
@@ -562,7 +823,21 @@ function CafeEvents.ownerAdd(
 	if list == nil then
 		return nil, "the stored schedule is not a list; fix it from the events workflow first"
 	end
-	local events = CafeEvents.parse(list, now)
+	local events, _, admins = CafeEvents.parse(list, now)
+	if record.admin == true then
+		-- #4195: an admin event may run beside a normal one, never beside another admin event
+		for _, admin in admins do
+			if admin.startsAt < record.endsAt and record.startsAt < admin.endsAt then
+				return nil,
+					string.format(
+						"%s is running or coming until %d minutes from now (/admin stop ends one you started)",
+						admin.title,
+						math.ceil((admin.endsAt - now) / 60)
+					)
+			end
+		end
+		events = {}
+	end
 	for _, event in events do
 		if event.startsAt < record.endsAt and record.startsAt < event.endsAt then
 			if event.startsAt <= now then
@@ -588,7 +863,9 @@ function CafeEvents.ownerAdd(
 	return list, nil
 end
 
-function CafeEvents.ownerRemove(raw: unknown, now: number): ({ any }?, number)
+-- `admin` (#4195): true takes out the owner's admin records only (`/admin stop`); otherwise the owner's normal
+-- ones only (`/event stop`), so stopping a party leaves a wheel or a frenzy running and the other way round.
+function CafeEvents.ownerRemove(raw: unknown, now: number, admin: boolean?): ({ any }?, number)
 	local list = standing(raw, now)
 	if list == nil then
 		return nil, 0
@@ -597,8 +874,10 @@ function CafeEvents.ownerRemove(raw: unknown, now: number): ({ any }?, number)
 	local removed = 0
 	for _, item in list do
 		local id = if type(item) == "table" then (item :: { [string]: any }).id else nil
-		local prefix = CafeEvents.OWNER_PREFIX
-		if type(id) == "string" and string.sub(id, 1, #prefix) == prefix then
+		local prefix, adminPrefix = CafeEvents.OWNER_PREFIX, CafeEvents.OWNER_ADMIN_PREFIX
+		local mine = type(id) == "string" and string.sub(id, 1, #prefix) == prefix
+		local isAdmin = type(id) == "string" and string.sub(id, 1, #adminPrefix) == adminPrefix
+		if mine and isAdmin == (admin == true) then
 			removed += 1
 		else
 			table.insert(kept, item)

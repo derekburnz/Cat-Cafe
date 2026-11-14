@@ -168,6 +168,7 @@ LiveFlags.KEYS = {
 	"palJoin", -- #3995: a player who joins through a friend gets the cafe next door and no intro by itself (shared/PalJoin)
 	"dailyDeal", -- #3996: Today's Deal on the Store's Featured tab (shared/DailyDeal)
 	"updateFeature", -- #4175: the update's own item first on the Store's Featured tab on big update days (Config.UpdateFeature)
+	"spawnQueue", -- #4227: spawn pop-ups one at a time (UI/Components/SpawnQueue); false shows them as they come
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {

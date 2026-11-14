@@ -1898,11 +1898,14 @@ end
 
 -- The model of a crate from `area` (a zone id or "classic") in ReplicatedStorage.Assets: `CatCafe_Prop_Crate_Alley`,
 -- `CatCafe_Prop_Crate_Alley_Gold` for its golden twin (Model-Agent's crates.py). Nil for no area.
+local CRATE_POOL_NAMES: { [string]: string } = { waterpark = "WaterPark" }
 function Logic.crateModelName(area: unknown, golden: unknown): string?
 	if type(area) ~= "string" or area == "" then
 		return nil
 	end
-	local pool = string.upper(string.sub(area, 1, 1)) .. string.sub(area, 2)
+	-- #4070: a two word area's crate keeps both capitals (CatCafe_Prop_Crate_WaterPark)
+	local pool = CRATE_POOL_NAMES[area]
+		or (string.upper(string.sub(area, 1, 1)) .. string.sub(area, 2))
 	return "CatCafe_Prop_Crate_" .. pool .. (if golden == true then "_Gold" else "")
 end
 

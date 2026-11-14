@@ -3947,6 +3947,14 @@ function Catalog.getArea(id: string): Types.AreaDef?
 	return Catalog.areasById[id]
 end
 
+-- #4070: an area's id as Model-Agent's models, the crate pictures and Config.World's keys spell it: the id with a
+-- capital ("park" -> "Park"), and both capitals for a two word area ("waterpark" -> "WaterPark": CatCafe_WaterPark_Set,
+-- CatCafe_Camp_WaterPark, Crate_WaterPark, WaterParkCenterX). Also right for "classic" and "rally", the crate pools.
+local AREA_ART: { [string]: string } = { waterpark = "WaterPark" }
+function Catalog.areaArt(id: string): string
+	return AREA_ART[id] or (string.upper(string.sub(id, 1, 1)) .. string.sub(id, 2))
+end
+
 -- Cafe Crates (F53, golden-fish.md section 4): a crate per zone and the Classic Crate, each with a golden version
 -- that holds the same pieces at Epic or better odds and is never sold. A piece's chance is its rarity's odds split
 -- equally among that rarity's pieces. Every crate shows these odds before it opens (monetization-policy).

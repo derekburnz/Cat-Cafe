@@ -5308,7 +5308,7 @@ Presets.areaFx = {
 			},
 		},
 		-- #4070 the Water Park: fine spray in the air and a splash where its strays come and go. #4071 the Medieval
-		-- Castle: warm motes of dust and a gold sparkle for its strays. Their boxes are Config.World's Waterpark* and
+		-- Castle: warm motes of dust and a gold sparkle for its strays. Their boxes are Config.World's WaterPark* and
 		-- Castle* once the areas are in.
 		waterpark = {
 			air = "waterparkSpray",

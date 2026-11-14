@@ -70,6 +70,9 @@ export type AreaSpec = {
 	-- above the floor where strays walk (the Sewer's tiles).
 	set: string?,
 	setLift: number?,
+	-- #4070: the area whose camp cannon flies here, for an area too far out for the town cannon (the Water Park from
+	-- the Desert). The town cannon does not list it and the barrel's 35 degree rule leaves it out.
+	launchFrom: string?,
 	-- F85 (hometown-cannon.md section 6b): the suffix on a long area's camp, gate, night fence and backdrop models
 	-- (`CatCafe_Camp_ParkF85`, `CatCafe_Park_GateF85`, ...), which Model-Agent made with new names beside the old
 	artSuffix: string?,
@@ -152,6 +155,13 @@ Layout.setStuckPoses = {
 	-- crawled head first under the tipped sled (+Z), back end out of its open side (-Z)
 	sled = { 0, 0, -0.8, -1, 0, 0, 0, 0.9063, 0.4226, 0, 0.4226, -0.9063 },
 	snow_log = { 3.5, 0.5, 0, 0, 0, 1, 0, 1, 0, -1, 0, 0 }, -- head first into the open end (+X), as the Woods' log
+	-- Tier 9 (#4070), first fits on CatCafe_WaterPark_Set from waterparkset.py's trap notes, to refine in Studio:
+	carousel = { 0, 0, 0, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- sitting on the kiddie carousel's deck (the spot is 0.3 up), facing out (-Z)
+	-- nose first down into the balls (+Z), tail and back legs out, as the snowman's heap
+	ball_pit = { 0, 0.3, -0.3, -1, 0, 0, 0, 0.5, 0.866, 0, 0.866, -0.5 },
+	plush_pile = { 0, -0.2, -0.3, -1, 0, 0, 0, 0.5, 0.866, 0, 0.866, -0.5 }, -- the same dive into the prize plushies
+	river_ring = { 0, 0.2, 0, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- sitting in the swim ring, facing out (-Z)
+	balloons = { 0, 0.6, 0, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- holding on to the strings, just off the ground
 } :: { [string]: { number } }
 
 local W = Config.World
@@ -489,6 +499,10 @@ Layout.plot = {
 		{ id = "bed_10", x = -17.5, y = 0, z = -12.0, rotY = -90, tier = 7 }, -- front left, in front of bed_3
 		{ id = "bed_11", x = 13.7, y = 0, z = 9.0, rotY = 0, tier = 8 }, -- behind table 6, left of the right cat tree
 		{ id = "bed_12", x = -14.7, y = 0, z = 12.5, rotY = 0, tier = 8 }, -- the back left nook between the cat trees
+		-- #4070: Tier 9's two (Model-Agent's fit with the Tier 8 spots and the fourth tree; about 0.25 clear each, so
+		-- a Studio look before the switch goes on. Spare if one clashes: 17.25, 0, 12.5, rotY 0)
+		{ id = "bed_13", x = 17.5, y = 0, z = -9.0, rotY = 90, tier = 9 }, -- right side, between table 2's outer chair and decor 3
+		{ id = "bed_14", x = -17.5, y = 0, z = -9.0, rotY = -90, tier = 9 }, -- its mirror, in front of bed_10
 	} :: { BedSpot },
 }
 
@@ -2052,6 +2066,222 @@ Layout.snowy = {
 	props = {},
 } :: AreaSpec
 
+-- The Water Park (Tier 9, the next-areas plan Derek OK'd 2026-11-13; #4070): Model-Agent's CatCafe_WaterPark_Set (#4090;
+-- set space as the Desert's: the pivot at the centre on the floor, -Z toward the camp), long along world Z with its
+-- gate on the north side, toward the Desert it is reached from (`launchFrom`: the Desert camp's cannon flies there, not
+-- the town's; Gameplay-Engineer adds that launch). Its cat spots and traps are the set's manifest points_roblox
+-- (waterparkset.py), `near` on the camp half and `deep` past it, with a pool of 15 traps built into it.
+local WPX, WPZ = W.WaterParkCenterX, W.WaterParkCenterZ
+local WPGATE = WPZ + W.WaterParkDepth / 2 -- its north side, toward the Desert and the town
+local WPTURN = townTurn(WPX, WPZ, nil, WPGATE)
+Layout.waterpark = {
+	floorY = 0.1,
+	center = { x = WPX, y = 0, z = WPZ },
+	halfWidth = W.WaterParkWidth / 2,
+	halfDepth = W.WaterParkDepth / 2,
+	gateZ = WPGATE,
+	openingHalfWidth = W.CampOpeningWidth / 2,
+	set = "CatCafe_WaterPark_Set",
+	launchFrom = "desert",
+	spawnPoints = (function(): { Point }
+		local points = setPoints(WPX, WPZ, WPTURN, 0.1, {
+			{ -13.9, 0, -254 }, -- booth
+			{ 13.9, 0, -254 },
+			{ -13.9, 0, -241 },
+			{ 13.9, 0, -241 },
+			{ -13.9, 0, -220 },
+			{ 13.9, 0, -220 },
+			{ -13.9, 0, -207 },
+			{ 13.9, 0, -207 },
+			{ -13.9, 0, -186 },
+			{ 13.9, 0, -186 },
+			{ -13.9, 0, -173 },
+			{ 13.9, 0, -173 },
+			{ -22, 0, -247.5 }, -- booth gap
+			{ 22, 0, -247.5 },
+			{ -22, 0, -230.5 },
+			{ 22, 0, -230.5 },
+			{ -22, 0, -213.5 },
+			{ 22, 0, -213.5 },
+			{ -22, 0, -196.5 },
+			{ 22, 0, -196.5 },
+			{ -22, 0, -179.5 },
+			{ 22, 0, -179.5 },
+			{ -65, 0, -247 }, -- prize wall
+			{ -65, 0, -209 },
+			{ 65, 0, -247 },
+			{ 65, 0, -209 },
+			{ -50, 0, -262.6 }, -- food cart
+			{ -50, 0, -227.6 },
+			{ -50, 0, -188.6 },
+			{ -50, 0, -166.6 },
+			{ 50, 0, -262.6 },
+			{ 50, 0, -227.6 },
+			{ 50, 0, -188.6 },
+			{ 50, 0, -166.6 },
+			{ -18.4, 0, -147 },
+			{ 23.6, 0, -149 },
+			{ -33.6, 0, -59 },
+			{ 27, 0, -26.4 },
+			{ -46, 0, -240 }, -- bench
+			{ -46, 0, -200 },
+			{ 46, 0, -240 },
+			{ 46, 0, -200 },
+			{ -14.2, 0, -140 },
+			{ 14.2, 0, -80 },
+			{ -14.2, 0, -50 },
+			{ -44, 0, -68.2 },
+			{ 44, 0, -74.2 },
+			{ -41.5, 0, -246 }, -- alley
+			{ -41.5, 0, -206 },
+			{ -41.5, 0, -176 },
+			{ 41.5, 0, -246 },
+			{ 41.5, 0, -206 },
+			{ 41.5, 0, -176 },
+			{ -22, 0, -265 }, -- midway end
+			{ -22, 0, -160.5 },
+			{ 22, 0, -265 },
+			{ 22, 0, -160.5 },
+			{ -22.96, 0, -104.53 }, -- carousel
+			{ -43.47, 0, -94.96 },
+			{ -53.04, 0, -115.47 },
+			{ -32.53, 0, -125.04 },
+			{ 45, 0, -105.88 }, -- teacups
+			{ 25.88, 0, -111 },
+			{ 31, 0, -130.12 },
+			{ 50.12, 0, -125 },
+			{ 50, 0, -59 }, -- ferris
+			{ 50, 0, -42 },
+			{ 50, 0, -25 },
+			{ -52, 0, -30 }, -- drop tower
+			{ -60, 0, -38.5 },
+			{ -60, 0, -21.5 },
+			{ -57.5, 0, -5 }, -- coaster post
+			{ -33.5, 0, -5 },
+			{ -9.5, 0, -5 },
+			{ 9.5, 0, -5 },
+			{ 33.5, 0, -5 },
+			{ 57.5, 0, -5 },
+			{ -60, 0, -84 }, -- ride row
+			{ -14, 0, -124 },
+			{ 16, 0, -146 },
+			{ 62, 0, -132 },
+			{ -40, 0, -40 },
+			{ 40, 0, -22 },
+			{ -20, 0, -24 },
+			{ 20, 0, -52 },
+			{ -62, 0, -56 },
+		}, "near")
+		for _, point in
+			setPoints(WPX, WPZ, WPTURN, 0.1, {
+				{ -26.4, 0, 5 },
+				{ 14.2, 0, 8 },
+				{ 30, 0, 10 },
+				{ -46, 0, 12 },
+				{ -19.72, 0.14, 85.27 }, -- splash pad
+				{ -33.71, 0.14, 82.8 },
+				{ -24.58, 0.14, 71.92 },
+				{ 26, 0, 64.5 }, -- wave pool
+				{ 26, 0, 95.5 },
+				{ 9, 0, 86 },
+				{ -12, 0, 56 }, -- river isle
+				{ 12, 0, 54 },
+				{ -12, 0, 106 },
+				{ 12, 0, 108 },
+				{ -30, 0, 100 },
+				{ -34, 0, 62 },
+				{ 22, 0, 100 },
+				{ -12, 0, 80 },
+				{ 53.5, 0, 74 }, -- lifeguard
+				{ -58, 0, 57 }, -- beach chair
+				{ -62, 0, 81 },
+				{ 58, 0, 37 },
+				{ 60, 0, 103 },
+				{ -37.18, 0, 31.03 },
+				{ 42.82, 0, 26.97 },
+				{ -46.82, 0, 133.03 },
+				{ 39.18, 0, 132.97 },
+				{ -60.8, 0, 25 }, -- palm
+				{ 60.8, 0, 25 },
+				{ -62.8, 0, 129 },
+				{ 62.8, 0, 133 },
+				{ -20.8, 0, 27 },
+				{ 20.8, 0, 135 },
+				{ -66, 0, 66 }, -- splash shore
+				{ -52, 0, 100 },
+				{ 52, 0, 122 },
+				{ 66, 0, 44 },
+				{ -50, 0, 22 },
+				{ 44, 0, 140 },
+				{ 12.56, 0, 217.25 }, -- slide tower
+				{ 0, 0, 224.5 },
+				{ -12.56, 0, 217.25 },
+				{ -12.56, 0, 202.75 },
+				{ 0, 0, 195.5 },
+				{ 12.56, 0, 202.75 },
+				{ -52, 0, 234.5 }, -- small slide
+				{ -45, 0, 222 },
+				{ 52, 0, 196.5 },
+				{ 45, 0, 184 },
+				{ 46.5, 0, 238 }, -- kids pool
+				{ 56, 0, 228.5 },
+				{ -46.5, 0, 176 },
+				{ -56, 0, 185.5 },
+				{ -20, 0, 226 }, -- loop inside
+				{ 22, 0, 196 },
+				{ -16, 0, 250 },
+				{ 14, 0, 172 },
+				{ 22, 0, 222 },
+				{ -22, 0, 204 },
+				{ -48, 0, 200 }, -- tower yard
+				{ 48, 0, 216 },
+				{ -46, 0, 252 },
+				{ 46, 0, 262 },
+				{ -64, 0, 198 },
+				{ 66, 0, 216 },
+				{ -30, 0, 268 },
+				{ 28, 0, 270 },
+				{ -48, 0, 160 },
+				{ 46, 0, 164 },
+			}, "deep")
+		do
+			table.insert(points, point)
+		end
+		return points
+	end)(),
+	-- a kiddie carousel, a ball pit, a prize plush pile, a swim ring and a balloon bunch, four of them deep and none
+	-- within 100 studs of the camp (waterparkset.py MAIN_TRAPS)
+	rescueSpots = {
+		setTrap(WPX, WPZ, WPTURN, "carousel", { -17, 0.3, -90 }),
+		setTrap(WPX, WPZ, WPTURN, "ball_pit", { -60, 0, 112 }),
+		setTrap(WPX, WPZ, WPTURN, "plush_pile", { 18, 0, 238 }, 200),
+		setTrap(WPX, WPZ, WPTURN, "river_ring", { 62, 0, 53 }),
+		setTrap(WPX, WPZ, WPTURN, "balloons", { -18, 0, 180 }),
+	},
+	-- the spots the day's traps are picked from (RescuePick, #2240): today's five first, then the set's other ten
+	rescuePool = {
+		setTrap(WPX, WPZ, WPTURN, "carousel", { -17, 0.3, -90 }),
+		setTrap(WPX, WPZ, WPTURN, "ball_pit", { -60, 0, 112 }),
+		setTrap(WPX, WPZ, WPTURN, "plush_pile", { 18, 0, 238 }, 200),
+		setTrap(WPX, WPZ, WPTURN, "river_ring", { 62, 0, 53 }),
+		setTrap(WPX, WPZ, WPTURN, "balloons", { -18, 0, 180 }),
+		setTrap(WPX, WPZ, WPTURN, "carousel", { 58, 0.3, -150 }),
+		setTrap(WPX, WPZ, WPTURN, "carousel", { 56, 0.3, 152 }),
+		setTrap(WPX, WPZ, WPTURN, "ball_pit", { -62, 0, -150 }),
+		setTrap(WPX, WPZ, WPTURN, "ball_pit", { 60, 0, 262 }),
+		setTrap(WPX, WPZ, WPTURN, "plush_pile", { 62, 0, -96 }, -90),
+		setTrap(WPX, WPZ, WPTURN, "plush_pile", { -58, 0, 262 }, 20),
+		setTrap(WPX, WPZ, WPTURN, "river_ring", { -62, 0, 40 }),
+		setTrap(WPX, WPZ, WPTURN, "river_ring", { -60, 0, 150 }),
+		setTrap(WPX, WPZ, WPTURN, "balloons", { 30, 0, -64 }),
+		setTrap(WPX, WPZ, WPTURN, "balloons", { 60, 0, 112 }),
+	},
+	-- a first fit by the nook rules above (its back on the wall's face, its rescue spot 9 or more from every cat spot
+	-- and 25 or more from every pool trap), to be checked against the set's parts in Studio
+	nook = setNook(WPX, WPZ, WPTURN, "WaterPark", { -66.54, 0, 220 }, -90, "plush_pile", 0.4, 0),
+	props = {},
+} :: AreaSpec
+
 -- The Town Square (F76, town-layout-v3.md section 3): paved, in the middle of the street and the safe zone, with the
 -- Cat Cannon at the origin since v4 (F84, where the fountain stood) and a cross of open paving through it (the
 -- street's line north to south and a lane east to west to the side arches). The four stations stand in its quarters,
@@ -2321,7 +2551,8 @@ Layout.areas = {
 	sewer = Layout.sewer,
 	desert = Layout.desert, -- #2651: Tier 6
 	ruins = Layout.ruins, -- Tier 7
-	snowy = Layout.snowy, -- #3997: Tier 8, not in Catalog.areas yet
+	snowy = Layout.snowy, -- #3997: Tier 8
+	waterpark = Layout.waterpark, -- #4070: Tier 9
 } :: { [string]: AreaSpec }
 
 -- Camps (v4, F84, hometown-cannon.md section 4): every wild area's camp lies across its whole width in front of its

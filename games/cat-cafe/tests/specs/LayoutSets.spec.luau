@@ -960,8 +960,7 @@ return function()
 					fail("%s has no nook", id)
 					continue
 				end
-				local area = string.upper(string.sub(id, 1, 1)) .. string.sub(id, 2)
-				expect(nook.asset).to.equal("CatCafe_Nook_" .. area)
+				expect(nook.asset).to.equal("CatCafe_Nook_" .. Catalog.areaArt(id)) -- #4070: WaterPark
 				local trap = nook.trap
 				local pose = if trap.prop ~= nil
 					then Layout.stuckPoses[trap.prop]

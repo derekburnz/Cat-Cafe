@@ -55,6 +55,7 @@ return function()
 				"Desert",
 				"Ruins",
 				"Snowy",
+				"WaterPark", -- #4070
 				"Classic",
 			}
 		do
@@ -63,7 +64,7 @@ return function()
 		end
 
 		it(
-			"names one of the nineteen crate models for every crate in the Catalog, and each model once",
+			"names one of the twenty-one crate models for every crate in the Catalog, and each model once",
 			function()
 				local used: { [string]: string } = {}
 				local count = 0
@@ -75,7 +76,7 @@ return function()
 					used[name] = def.id
 					count += 1
 				end
-				expect(count).to.equal(19)
+				expect(count).to.equal(21)
 			end
 		)
 

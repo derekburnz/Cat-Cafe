@@ -136,7 +136,7 @@ return function()
 
 	describe("Catalog crates and the Golden Fish Market (F53 rows in save version 7)", function()
 		it("has a crate and a golden crate for each zone and the Classic pool", function()
-			expect(#Catalog.crates).to.equal(19) -- #3997: the Snowy Crate and its golden twin; and F101's Rally Crate, with no golden twin
+			expect(#Catalog.crates).to.equal(21) -- #3997 and #4070: the Snowy and Water Park Crates and their golden twins; and F101's Rally Crate, with no golden twin
 			for _, pool in
 				{ "alley", "park", "neighbourhood", "woods", "sewer", "desert", "ruins", "classic" }
 			do

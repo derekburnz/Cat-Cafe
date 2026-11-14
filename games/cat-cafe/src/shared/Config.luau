@@ -1581,6 +1581,14 @@ local Config = {
 		SnowyCenterZ = 1400,
 		SnowyWidth = 150,
 		SnowyDepth = 560,
+		-- The Water Park (Tier 9, the next-areas plan section 0; #4070): no diagonal round the town is free, so it lies
+		-- further out past the Desert on the same south east line and is reached from the Desert's camp cannon
+		-- (Layout.waterpark.launchFrom). Long along world Z with its camp on the north end like the Desert.
+		-- Model-Agent's CatCafe_WaterPark_Set has its walls at x +-75.6 and z +-280.
+		WaterParkCenterX = 2400,
+		WaterParkCenterZ = -2400,
+		WaterParkWidth = 150,
+		WaterParkDepth = 560,
 		-- Camps (section 4): CampDepth deep across the area's whole width; the landing pad in its middle with
 		-- seventeen spots inside LandingPadRadius, a spot free with no character within LandingClearStuds; the cannon
 		-- prompt's reach. A dropped cat within CampDropMarginStuds of a camp moves out to CampDropOutStuds past its

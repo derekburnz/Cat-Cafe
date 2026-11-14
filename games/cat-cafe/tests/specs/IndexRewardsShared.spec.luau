@@ -34,6 +34,13 @@ return function()
 	end
 
 	describe("Catalog tables (F54, golden-fish.md sections 5 and 5b)", function()
+		-- #3992: the milestones past 50 wait for the `indexTo70` switch; these specs read the whole table
+		beforeAll(function()
+			IndexRewards.setLateOpen(true)
+		end)
+		afterAll(function()
+			IndexRewards.setLateOpen(nil)
+		end)
 		it("has every milestone once, each with a track and a count", function()
 			local ids: { string } = {}
 			for _, milestone in Catalog.indexMilestones do
@@ -43,8 +50,16 @@ return function()
 				)
 				expect(milestone.needs > 0).to.equal(true)
 				local digits = tonumber(string.match(milestone.id, "%d+$"))
-				-- decor10 keeps its id but needs all twelve pieces since F80 (golden-fish.md 4b)
-				expect(digits).to.equal(if milestone.id == "decor10" then 10 else milestone.needs)
+				-- decor10 keeps its id but needs all twelve pieces since F80 (golden-fish.md 4b); #3992's last steps end
+				-- in "All" and need the whole book (70 today)
+				if string.sub(milestone.id, -3) == "All" then
+					expect(milestone.whole).to.equal(true)
+					expect(milestone.needs).to.equal(70)
+				else
+					expect(digits).to.equal(
+						if milestone.id == "decor10" then 10 else milestone.needs
+					)
+				end
 				if milestone.id == "decor10" then
 					expect(milestone.needs).to.equal(12)
 					expect(milestone.whole).to.equal(true) -- F97: the whole page, sixteen on the Classic page
@@ -70,6 +85,10 @@ return function()
 				"total40",
 				"total45",
 				"total50",
+				"total55", -- #3992: on to the whole book
+				"total60",
+				"total65",
+				"totalAll",
 				"decor5",
 				"decor10",
 				"rainbow1", -- F99 (rainbow-coat.md section 4)
@@ -77,6 +96,15 @@ return function()
 				"rainbow5",
 				"rainbow10",
 				"rainbow25",
+				"rainbow30", -- #3992
+				"rainbow35",
+				"rainbow40",
+				"rainbow45",
+				"rainbow50",
+				"rainbow55",
+				"rainbow60",
+				"rainbow65",
+				"rainbowAll",
 				"goldtotal5", -- #1772: the All Cats page's gold track
 				"goldtotal10",
 				"goldtotal15",
@@ -87,6 +115,10 @@ return function()
 				"goldtotal40",
 				"goldtotal45",
 				"goldtotal50",
+				"goldtotal55", -- #3992
+				"goldtotal60",
+				"goldtotal65",
+				"goldtotalAll",
 			})
 		end)
 
@@ -163,31 +195,34 @@ return function()
 			})
 		end)
 
-		it("gives All Cats ten milestones worth 38% faster bait, ending with Cat Master", function()
-			local all = Catalog.indexPrizes.all
-			local n = 0
-			for id, prize in pairs(all) do
-				if string.sub(id, 1, 9) ~= "goldtotal" then
-					n += 1
-					expect(string.sub(id, 1, 5)).to.equal("total")
-					expect(prize.bonus).never.to.be.ok()
-					expect(prize.goldLuck).never.to.be.ok()
+		it(
+			"gives All Cats fourteen milestones worth 50% faster bait, ending with Cat Legend (#3992)",
+			function()
+				local all = Catalog.indexPrizes.all
+				local n = 0
+				for id, prize in pairs(all) do
+					if string.sub(id, 1, 9) ~= "goldtotal" then
+						n += 1
+						expect(string.sub(id, 1, 5)).to.equal("total")
+						expect(prize.bonus).never.to.be.ok()
+						expect(prize.goldLuck).never.to.be.ok()
+					end
 				end
+				expect(n).to.equal(14)
+				expect(sum(all, "baitSpeed")).to.be.near(Config.BaitSpeedMax, 1e-9) -- #3992: was 0.38 at total50
+				expect(all.total30.crates :: any).to.deepEqual({ highest = 1 })
+				expect(all.total50 :: any).to.deepEqual({
+					fish = 75, -- #2237: was 150
+					crates = { classic_golden_crate = 2 },
+					spins = 10,
+					tag = "Cat Master",
+					baitSpeed = 0.10,
+				})
 			end
-			expect(n).to.equal(10)
-			expect(sum(all, "baitSpeed")).to.be.near(0.38, 1e-9)
-			expect(all.total30.crates :: any).to.deepEqual({ highest = 1 })
-			expect(all.total50 :: any).to.deepEqual({
-				fish = 75, -- #2237: was 150
-				crates = { classic_golden_crate = 2 },
-				spins = 10,
-				tag = "Cat Master",
-				baitSpeed = 0.10,
-			})
-		end)
+		)
 
 		it(
-			"gives All Cats a gold cats track: ten steps to 50, no luck, ending with Golden Paw (#1772)",
+			"gives All Cats a gold cats track: fourteen steps to every gold cat, no luck (#1772, #3992)",
 			function()
 				local all = Catalog.indexPrizes.all
 				local n, luck = 0, 0
@@ -199,7 +234,7 @@ return function()
 						expect(prize.baitSpeed).never.to.be.ok()
 					end
 				end
-				expect(n).to.equal(10)
+				expect(n).to.equal(14)
 				expect(luck).to.equal(0) -- the area gold tracks already reach GoldLuckMax
 				expect(all.goldtotal50 :: any).to.deepEqual({
 					fish = 125, -- #2237: was 250
@@ -289,6 +324,13 @@ return function()
 	end)
 
 	describe("Prizes", function()
+		-- #3992: the milestones past 50 wait for the `indexTo70` switch; these specs read the whole table
+		beforeAll(function()
+			IndexRewards.setLateOpen(true)
+		end)
+		afterAll(function()
+			IndexRewards.setLateOpen(nil)
+		end)
 		it("pays seconds of the day rate, never under the minimum", function()
 			expect(Prizes.coins(300, 600, 0)).to.equal(300)
 			expect(Prizes.coins(300, 600, 2)).to.equal(1200)
@@ -309,6 +351,13 @@ return function()
 	end)
 
 	describe("progress and claims", function()
+		-- #3992: the milestones past 50 wait for the `indexTo70` switch; these specs read the whole table
+		beforeAll(function()
+			IndexRewards.setLateOpen(true)
+		end)
+		afterAll(function()
+			IndexRewards.setLateOpen(nil)
+		end)
 		local function profileWith(catIds: { string }, goldIds: { string }?): any
 			local profile = ProfileSchema.template(1000)
 			for _, catId in ipairs(catIds) do
@@ -396,9 +445,77 @@ return function()
 		end)
 	end)
 	describe("All Cats, the Decor Index and the permanent bonuses (F54)", function()
+		-- #3992: the milestones past 50 wait for the `indexTo70` switch; these specs read the whole table
+		beforeAll(function()
+			IndexRewards.setLateOpen(true)
+		end)
+		afterAll(function()
+			IndexRewards.setLateOpen(nil)
+		end)
 		local function fresh(): any
 			return ProfileSchema.template(1000)
 		end
+
+		it("#3992: shows and pays nothing past 50 while the indexTo70 switch is off", function()
+			IndexRewards.setLateOpen(false)
+			local profile = fresh()
+			expect(IndexRewards.prize("all", "total55")).never.to.be.ok()
+			expect(IndexRewards.prize("rainbow", "rainbowAll")).never.to.be.ok()
+			expect(IndexRewards.prize("all", "total50")).to.be.ok()
+			expect(IndexRewards.blocker(profile, "all", "goldtotal60")).to.equal("Unknown reward")
+			expect(IndexRewards.shownPrizes().all.total55).never.to.be.ok()
+			expect(IndexRewards.shownPrizes().all.total50).to.be.ok()
+			profile.indexRewards.all = { total55 = true, totalAll = true }
+			expect(IndexRewards.totals(profile).baitSpeed).to.equal(0)
+			IndexRewards.setLateOpen(true)
+			expect(IndexRewards.shownPrizes()).to.equal(Catalog.indexPrizes)
+			expect(IndexRewards.totals(profile).baitSpeed).to.be.near(0.08, 1e-9)
+		end)
+
+		it(
+			"#3992: the All steps need every cat the book counts, all but one is not enough",
+			function()
+				local size = IndexRewards.bookSize()
+				expect(size).to.equal(70)
+				for _, pair in
+					{
+						{ "all", "totalAll" },
+						{ "all", "goldtotalAll" },
+						{ "rainbow", "rainbowAll" },
+					}
+				do
+					local milestone = assert(IndexRewards.milestone(pair[2]))
+					expect(IndexRewards.needs(pair[1], milestone)).to.equal(size)
+				end
+				-- the whole book only counts on the pages across every area
+				expect(IndexRewards.needs("alley", assert(IndexRewards.milestone("totalAll")))).to.equal(
+					70
+				)
+				local profile = fresh()
+				table.clear(profile.collection)
+				table.clear(profile.goldCollection)
+				local counted = 0
+				for _, def in Catalog.cats do
+					local one = {}
+					one[def.id] = 1000
+					if IndexRewards.progress(one, IndexRewards.ALL) == 1 then
+						counted += 1
+						profile.collection[def.id] = 1000
+						profile.goldCollection[def.id] = 1000
+						if counted == size - 1 then
+							break
+						end
+					end
+				end
+				expect(IndexRewards.blocker(profile, "all", "total65")).never.to.be.ok()
+				expect(IndexRewards.blocker(profile, "all", "totalAll")).to.equal(
+					"Find 1 more cat first"
+				)
+				expect(IndexRewards.blocker(profile, "all", "goldtotalAll")).to.equal(
+					"Find 1 more gold cat first"
+				)
+			end
+		)
 
 		it("counts different cats of every area on the All Cats page", function()
 			local profile = fresh()
@@ -461,10 +578,10 @@ return function()
 			profile.indexRewards.all = all
 			totals = IndexRewards.totals(profile)
 			expect(totals.goldLuck).to.be.near(Config.GoldLuckMax, 1e-9)
-			expect(totals.baitSpeed).to.be.near(0.38, 1e-9)
-			-- rounded to six decimals, so the UI's plain floor of 600 x (1 - baitSpeed) is 372 too (review N184)
-			expect(totals.baitSpeed).to.equal(0.38)
-			expect(math.floor(600 * (1 - totals.baitSpeed))).to.equal(372)
+			expect(totals.baitSpeed).to.be.near(0.5, 1e-9)
+			-- rounded to six decimals, so the UI's plain floor of 600 x (1 - baitSpeed) is 300 too (review N184)
+			expect(totals.baitSpeed).to.equal(0.5)
+			expect(math.floor(600 * (1 - totals.baitSpeed))).to.equal(300)
 		end)
 
 		it("lifts a gold chance by gold luck, at most to 2.5 times", function()
@@ -520,6 +637,13 @@ return function()
 	end)
 
 	describe("Index rewards and Prizes edges (QA, after F54)", function()
+		-- #3992: the milestones past 50 wait for the `indexTo70` switch; these specs read the whole table
+		beforeAll(function()
+			IndexRewards.setLateOpen(true)
+		end)
+		afterAll(function()
+			IndexRewards.setLateOpen(nil)
+		end)
 		local Client = game:GetService("StarterPlayer")
 			:WaitForChild("StarterPlayerScripts")
 			:WaitForChild("Client")
@@ -724,7 +848,7 @@ return function()
 						"gold0",
 						"gold3",
 						"total0",
-						"total55",
+						"total56",
 						"decor0",
 						"decor15",
 						"__index",
@@ -768,7 +892,7 @@ return function()
 
 		-- golden-fish.md sections 4, 5 and 5b: +7% tips a normal track, +5% a full Decor page, +30% gold
 		-- luck a gold track up to GoldLuckMax, 38% faster bait. No cap may eat a bonus a card promises.
-		it("sums the whole Index once: +94% tips, gold luck at its cap, 38% faster bait", function()
+		it("sums the whole Index once: +94% tips, gold luck at its cap, 50% faster bait", function()
 			local profile = fullProfile()
 			local sums = { bonus = 0, goldLuck = 0, baitSpeed = 0 }
 			for _, areaId in pages() do
@@ -791,7 +915,7 @@ return function()
 			-- of their Decor pages
 			expect(math.abs(totals.bonus - 0.94) < 1e-9).to.equal(true)
 			expect(math.abs(totals.goldLuck - Config.GoldLuckMax) < 1e-9).to.equal(true)
-			expect(math.abs(totals.baitSpeed - 0.38) < 1e-9).to.equal(true)
+			expect(math.abs(totals.baitSpeed - 0.5) < 1e-9).to.equal(true) -- #3992: was 0.38
 			-- the full Decor pages count through their decor10 claims only, not a second time for being full
 			expect(math.abs(Economy.cafeMultiplier(profile) - before - 0.94) < 1e-9).to.equal(true)
 			expect(
@@ -972,9 +1096,9 @@ return function()
 						local want = math.floor(base * (100 - off) / 100)
 						expect(at .. Economy.baitWaitSeconds(profile)).to.equal(at .. want)
 					end
-					expect(off).to.equal(38)
+					expect(off).to.equal(50) -- #3992: was 38
 					expect(Economy.baitWaitSeconds(profile)).to.equal(
-						if bowl == 1 then 297 else 372
+						if bowl == 1 then 240 else 300
 					)
 				end
 			end
@@ -1046,9 +1170,9 @@ return function()
 						)
 						same(milestoneId)
 					end
-					-- the full All Cats track: 3:06 by night, 2:28 with the Big Bowl
+					-- the full All Cats track (#3992, to the whole book): 2:30 by night, 2:00 with the Big Bowl
 					expect(Economy.baitWaitSeconds(profile, true)).to.equal(
-						if bowl == 1 then 148 else 186
+						if bowl == 1 then 120 else 150
 					)
 				end
 			end

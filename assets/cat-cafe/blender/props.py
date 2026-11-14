@@ -2305,6 +2305,257 @@ def error_sprite(ctx):
     P.bar((0, 0.2, 0.34), (0.0, 0.52, 0.17), 0.025, 0.025, "night_sky")
 
 
+
+# ------------------------------------------------------------------------------ Tier 8 Snowy Mountain cats --
+# Derek approved cats draft 2 (2026-11-13 18:54). Plan: /mnt/project-files/Model-Agent/areas/next-three-2026-11-13/
+# snowy-cats-model-check.md. Warm winter things only: hats, boots, a scarf, a cape; nothing cold or painful.
+
+def _snowflake(P, c, r, sw, tip=None, w=0.035, t=0.03):
+    """A flat six-armed snowflake facing the front (-Y): three bars through c in the XZ plane, small ends in `tip`."""
+    c = Vector(c)
+    for k in range(3):
+        a = math.radians(90 + 60 * k)
+        d = Vector((math.cos(a), 0.0, math.sin(a)))
+        P.bar(tuple(c - d * r), tuple(c + d * r), w, t, sw, up=(0, 1, 0))
+        if tip:
+            for e in (-1, 1):
+                P.box(tuple(c + d * r * e * 0.92), (w * 1.5, t + 0.012, w * 1.5), tip, rot=_ry(-(90 + 60 * k)))
+
+
+def snowflake_clip(ctx):
+    """Flurry (Common): a white snowflake hair clip with sky-blue tips on the right of the head."""
+    P = ctx.pen("head")
+    c = (0.26, -0.12, 0.1)
+    _snowflake(P, c, 0.15, "milk", tip="pastel_sky")
+    P.ico((c[0], c[1] - 0.012, c[2]), 0.04, "pastel_sky")
+
+
+def mitten_clip(ctx):
+    """Mitten (Common): one little red knitted mitten clipped on the right of the head, a white cuff and stripe."""
+    P = ctx.pen("head")
+    o, R = Vector((0.27, -0.1, 0.14)), _ry(-18)
+
+    def at(u, v, w):
+        return tuple(o + R @ Vector((u, v, w)))
+    P.box(at(0, 0, 0), (0.17, 0.08, 0.21), "shirt_red", rot=R, bevel=True)                 # the hand
+    P.box(at(-0.1, 0, -0.02), (0.07, 0.07, 0.1), "shirt_red", rot=R @ _ry(25), bevel=True)  # thumb
+    P.box(at(0, 0, 0.02), (0.175, 0.086, 0.035), "milk", rot=R)                            # knit stripe
+    P.box(at(0, 0, -0.13), (0.19, 0.095, 0.07), "milk", rot=R, bevel=True)                  # cuff
+
+
+def marshmallow_tufts(ctx):
+    """Hot Chocolate Cat (Common): two soft marshmallow tufts on top of its head, and the tip of its tail in a
+    little red mug with cream foam (the child Model _Tail_Mug)."""
+    P = ctx.pen("head")
+    for x, y, a in ((-0.12, 0.02, 12), (0.1, -0.06, -20)):
+        P.box((x, y, 0.06), (0.17, 0.17, 0.15), "milk", rot=_rz(a) @ _rx(8), bevel=True)
+    tip, d, th, _a, _b = _tail_axes(ctx)
+    R = Vector((0, 0, 1)).rotation_difference(d).to_matrix()
+    M = ctx.piece("Tail_Mug", "tail", tuple(tip - d * 0.1))
+    M.cyl(tuple(tip - d * 0.06), th * 0.95, 0.2, "shirt_red", rot=R, segments=10)                # the mug round the tip
+    M.cyl(tuple(tip + d * 0.045), th * 0.85, 0.03, "fur_cream", rot=R, segments=10)              # foam on top
+    M.ico(tuple(tip + d * 0.07), th * 0.4, "milk")                                               # a marshmallow
+    side = d.cross(Vector((0, 0, 1)))
+    side = (side if side.length > 1e-3 else d.cross(Vector((1, 0, 0)))).normalized()
+    M.ring(tuple(tip - d * 0.06 + side * th * 1.05), 0.06, 0.025, 0.035, "shirt_red",
+           rot=Vector((0, 0, 1)).rotation_difference(d.cross(side)).to_matrix(), segments=8)     # handle
+
+
+def spruce_beanie(ctx):
+    """Spruce (Common): a pine-green knit beanie with a ribbed band and a little spruce sprig tucked in its side."""
+    P = ctx.pen("head")
+    P.cyl((0, 0, 0.04), 0.36, 0.08, "paw_woods", segments=16)                                # ribbed band
+    for k in range(12):
+        a = 2 * math.pi * (k + 0.5) / 12
+        P.box((0.36 * math.cos(a), 0.36 * math.sin(a), 0.04), (0.03, 0.03, 0.07), "leaf_dark", rot=_rz(math.degrees(a)))
+    P.cyl((0, 0, 0.14), 0.35, 0.12, "leaf_dark", r2=0.24, segments=16)                       # crown
+    P.cyl((0, 0, 0.23), 0.24, 0.06, "leaf_dark", r2=0.12, segments=12)
+    c = Vector((0.3, -0.16, 0.12))                                                           # the sprig
+    P.bar(tuple(c), tuple(c + Vector((0.08, -0.04, 0.2))), 0.025, 0.025, "dark_wood", up=(1, 0, 0))
+    for k in range(4):
+        f = 0.05 + 0.045 * k
+        q = c + Vector((0.08, -0.04, 0.2)) * (f / 0.2)
+        for e in (-1, 1):
+            P.box(tuple(q + Vector((e * 0.04, -0.01, 0))), (0.09 - 0.012 * k, 0.03, 0.03), "leaf_green",
+                  rot=_ry(e * 35))
+
+
+def bobble_hat(ctx):
+    """Snow Boots Cat (Rare): a red knitted bobble hat with a white band and a big white bobble on top."""
+    P = ctx.pen("head")
+    P.cyl((0, 0, 0.05), 0.37, 0.1, "milk", segments=16)                                       # band
+    P.cyl((0, 0, 0.16), 0.36, 0.14, "shirt_red", r2=0.26, segments=16)
+    P.cyl((0, 0, 0.27), 0.26, 0.08, "shirt_red", r2=0.12, segments=12)
+    for k in range(6):                                                                       # knit stripe
+        a = 2 * math.pi * k / 6
+        P.box((0.31 * math.cos(a), 0.31 * math.sin(a), 0.17), (0.06, 0.05, 0.035), "milk", rot=_rz(math.degrees(a)))
+    P.sphere((0, 0, 0.38), 0.12, "milk", segments=10, rings=6)                                # the bobble
+
+
+def ski_goggles(ctx):
+    """Ski Cat (Rare): ski goggles pushed up on the brow (the Dune's sand goggles' build), a blue strap, black rims
+    and sky-blue lenses; and a red and white striped scarf wound round its tail (the child Model _Tail_Scarf)."""
+    P, w, d = ctx.pen("head"), ctx.hw, ctx.hd
+    z, hgt = -0.1, 0.08
+    P.box((0, d + 0.015, z), (2 * w + 0.05, 0.04, hgt), "shirt_blue")
+    for sx in (-1, 1):
+        P.box((sx * (w + 0.015), 0, z), (0.04, 2 * d + 0.06, hgt + 0.004), "shirt_blue")
+    P.box((0, -(d + 0.015), z), (2 * w + 0.05, 0.04, hgt), "shirt_blue")
+    R = _rx(65)
+    P.box((0, -(d + 0.06), z + 0.03), (0.56, 0.08, 0.2), "fur_black", rot=R)                  # one wide frame
+    P.box(tuple(Vector((0, -(d + 0.06), z + 0.03)) + R @ Vector((0, 0, 0.042))), (0.48, 0.06, 0.15), "pastel_sky",
+          rot=R)
+    tip, dd, th, _a, _b = _tail_axes(ctx)
+    Rt = Vector((0, 0, 1)).rotation_difference(dd).to_matrix()
+    S = ctx.piece("Tail_Scarf", "tail", tuple(tip - dd * 0.2))
+    for k, f in enumerate((0.3, 0.22, 0.14)):
+        S.cyl(tuple(tip - dd * f), th * 0.62, 0.075, "shirt_red" if k % 2 == 0 else "milk", rot=Rt, segments=8)
+    end = tip - dd * 0.22
+    S.box(tuple(end + Vector((0, 0, -th * 0.6 - 0.06))), (0.08, 0.025, 0.16), "shirt_red", rot=Rt @ _rx(10))
+    S.box(tuple(end + Vector((0, 0, -th * 0.6 - 0.15))), (0.085, 0.03, 0.03), "milk", rot=Rt @ _rx(10))
+
+
+def summit_rope(ctx):
+    """Snow Leopard Cat (Epic): a climber's rope coil on its back with a little red summit flag standing in it."""
+    P = ctx.pen("back")
+    if ctx.body == "walk":
+        P.ring((0, 0.06, 0.05), 0.2, 0.06, 0.08, "cardboard", segments=14)
+        P.ring((0, 0.06, 0.11), 0.17, 0.05, 0.05, "fur_cream", segments=14)
+        base = Vector((0.08, 0.1, 0.05))
+        top = base + Vector((0, 0.04, 0.5))
+        _strap_round(ctx, "cardboard", at_y=0.06)
+    else:
+        o = 0.08                                        # the coil's inner face B_CLEAR off the back
+        P.ring((0, -0.04, 0.05 + o), 0.2, 0.06, 0.08, "cardboard", segments=14)
+        P.ring((0, -0.04, 0.11 + o), 0.17, 0.05, 0.05, "fur_cream", segments=14)
+        base = Vector((0.08, -0.04, 0.05 + o))
+        top = base + Vector((0, -0.5, 0.05))
+        _sling(ctx, "cardboard", down=0.135)
+    P.bar(tuple(base), tuple(top), 0.03, 0.03, "dark_wood", up=(1, 0, 0))
+    up = (top - base).normalized()
+    out = Vector((1, 0, 0))
+    P.box(tuple(top - up * 0.08 + out * 0.09), (0.17, 0.02, 0.11) if ctx.body == "walk" else (0.17, 0.11, 0.02),
+          "shirt_red")
+
+
+def ice_spikes(ctx):
+    """Ice Cat (Epic): a row of clear ice crystals standing out of its back, each a long diamond half in the coat
+    (the Eclipse's spine build, frosty and not lit)."""
+    if ctx.body == "walk":
+        sy = ctx.d["body"][1][1]
+        P = ctx.pen("back")
+        for k, y in enumerate((0.0, 0.14, 0.28, 0.4)):
+            f = 0.22 - 0.03 * k
+            P.box((0.0, (y - 0.06) * sy / 0.9, 0.0), (0.06, f, f * 1.15), "fish_belly" if k % 2 else "pastel_sky",
+                  rot=_rx(45))
+        for sx in (-1, 1):
+            P.box((sx * 0.12, 0.08 * sy / 0.9, -0.01), (0.05, 0.12, 0.12), "fish_belly", rot=_rx(45) @ _ry(sx * 30))
+    else:
+        U = ctx.pen("up")
+        for k, z in enumerate((-0.1, -0.22, -0.34, -0.45)):
+            f = 0.19 - 0.025 * k
+            U.box((0.0, 0.0, z), (0.06, f, f * 1.15), "fish_belly" if k % 2 else "pastel_sky", rot=_rx(45))
+
+
+def head_lamp(ctx):
+    """Snow Leopard Cat's second prop (Epic: one lit detail, #4068): a climber's head lamp, a red strap round the
+    head with a dark lamp housing at the brow and a warm lit lens (the child Model _Lamp_Glow, Neon)."""
+    P, w, d = ctx.pen("head"), ctx.hw, ctx.hd
+    z, hgt = -0.08, 0.07
+    for y in (d + 0.015, -(d + 0.015)):
+        P.box((0, y, z), (2 * w + 0.05, 0.04, hgt), "shirt_red")
+    for sx in (-1, 1):
+        P.box((sx * (w + 0.015), 0, z), (0.04, 2 * d + 0.06, hgt + 0.004), "shirt_red")
+    P.box((0, -(d + 0.07), z + 0.01), (0.2, 0.1, 0.15), "fur_charcoal")
+    P.box((0, -(d + 0.075), z + 0.01), (0.24, 0.05, 0.19), "fur_smoke_light")
+    G = ctx.piece("Lamp_Glow", "head", (0, -(d + 0.12), z + 0.01))
+    G.cyl((0, -(d + 0.125), z + 0.01), 0.065, 0.03, "gold_light", rot=_rx(90), segments=10)
+
+
+def frost_crown(ctx):
+    """Ice Cat's second prop (Epic: one lit detail, #4068): a crown of clear ice crystals round the head top, the
+    tall middle one lit from inside (the child Model _Crown_Glow, Neon)."""
+    P = ctx.pen("head")
+    P.ring((0, 0, 0.03), 0.3, 0.05, 0.05, "fish_belly", segments=12)
+    for k, (ang, h) in enumerate(((-90, 0.0), (-40, 0.2), (-140, 0.2), (20, 0.15), (160, 0.15), (90, 0.13))):
+        if not h:
+            continue
+        a = math.radians(ang)
+        c = (0.3 * math.cos(a), 0.3 * math.sin(a), 0.05 + h / 2)
+        P.box(c, (0.075, 0.075, h), "pastel_sky" if k % 2 else "fish_belly", rot=_rz(ang) @ _ry(-12) @ _rz(45))
+    G = ctx.piece("Crown_Glow", "head", (0, -0.3, 0.05))
+    G.box((0, -0.3, 0.2), (0.1, 0.1, 0.3), "fish_blue", rot=_rz(45))
+    G.box((0, -0.3, 0.37), (0.07, 0.07, 0.07), "pastel_sky", rot=_rz(45) @ _rx(45))
+
+
+def frost_circlet(ctx):
+    """White Tiger Cat's second prop (Legendary, #4068): a silver circlet with three points and a snowflake on each
+    side, and a big ice gem at the brow lit from inside (the child Model _Gem_Glow, Neon)."""
+    P = ctx.pen("head")
+    P.ring((0, 0, 0.03), 0.31, 0.05, 0.06, "fur_silver", segments=14)
+    for x, h in ((-0.15, 0.1), (0.15, 0.1), (0.0, 0.2)):
+        yy = -math.sqrt(max(0.0, 0.31 ** 2 - x ** 2))
+        P.box((x, yy, 0.06 + h / 2), (0.08, 0.05, h), "fur_silver", rot=_ry(45) if x == 0 else None)
+    for sx in (-1, 1):
+        _snowflake(P, (sx * 0.24, -0.2, 0.17), 0.07, "milk", w=0.025, t=0.025)
+    G = ctx.piece("Gem_Glow", "head", (0, -0.33, 0.12))
+    G.box((0, -0.34, 0.13), (0.11, 0.05, 0.11), "fish_blue", rot=_ry(45))
+
+
+def winter_cape(ctx):
+    """White Tiger Cat (Legendary): a red winter cape with a soft white fur collar and hem and a sky-blue snowflake
+    clasp, on hero_cape's shape like the other capes."""
+    cloth, trim = "shirt_red", "milk"
+    if ctx.body == "walk":
+        P, hx, hy, sx = _cape_body(ctx, cloth, trim)
+        P.box((0, hy + 0.29, 0.113), (sx + 0.24, 0.12, 0.06), trim, rot=_rx(12.7))             # hem
+        _snowflake(P, (0, -0.3, 0.09), 0.07, "pastel_sky", w=0.025, t=0.025)
+        return
+    U, a, b, n, tilt, hb, ht = _cape_body(ctx, cloth, trim)
+    U.box((0, hb + 0.065, -0.875), (0.98, 0.07, 0.14), trim)                                    # hem
+    _snowflake(U, (0, -0.09, 0.08), 0.07, "pastel_sky", w=0.025, t=0.025)                       # clasp, at the front
+
+
+def snow_swirl(ctx):
+    """Blizzard Cat (Mythical): a tilted ring of glowing wind circles its head (the child Model _Glow, Neon) with
+    three snowflakes riding it, and one big snowflake stands between its ears."""
+    P, w = ctx.pen("head"), ctx.hw
+    G = ctx.piece("Glow", "head", (0, 0, 0.1))
+    tilt = _ry(-12) @ _rx(10)
+    G.ring((0, 0.02, 0.12), w + 0.2, 0.06, 0.05, "pastel_sky", rot=tilt, segments=16)
+    for ang in (30, 150, 270):
+        a = math.radians(ang)
+        at = Vector((0, 0.02, 0.12)) + tilt @ Vector(((w + 0.2) * math.cos(a), (w + 0.2) * math.sin(a), 0.0))
+        _snowflake(P, tuple(at), 0.09, "milk", w=0.03, t=0.03)
+    _snowflake(G, (0, 0.04, 0.3), 0.16, "milk", tip="fish_blue")
+
+
+def snow_trail(ctx):
+    """Blizzard Cat's second prop: flurries over its back, three snowflakes joined by thin glowing gusts (the
+    child Model _Flakes_Glow); the Effects frost trail is Motion-FX's."""
+    P = ctx.pen("back")
+    G = ctx.piece("Flakes_Glow", "back", (0, 0, 0.3))
+    pts = [Vector((-0.2, -0.2, 0.28)), Vector((0.14, 0.06, 0.42)), Vector((-0.08, 0.34, 0.32))]
+    for a, b in zip(pts, pts[1:]):
+        G.bar(tuple(a), tuple(b), 0.025, 0.025, "pastel_sky")
+    P.box((pts[0].x, pts[0].y, pts[0].z / 2), (0.03, 0.03, pts[0].z), "pastel_sky")      # a gust down to the coat
+    for p, r in zip(pts, (0.12, 0.15, 0.11)):
+        _snowflake(G, tuple(p), r, "milk", w=0.03, t=0.03)
+    # #4068 (Derek: "make the rarer ones more special"): two fans of ice shards stand out of its back like wings,
+    # clear ice with lit tips (the child Model _Wings_Glow)
+    U = ctx.pen("up")
+    W = ctx.piece("Wings_Glow", "up", (0, 0.05, 0.1))
+    for sx in (-1, 1):
+        for k, (ox, oz, ln) in enumerate(((0.62, 0.5, 1.0), (0.72, 0.22, 0.85), (0.6, -0.02, 0.65))):
+            a = Vector((sx * 0.1, 0.06 + 0.03 * k, 0.08))
+            b = a + Vector((sx * ox, 0.12, oz)) * ln
+            f = 0.78 if k < 2 else 1.0                    # the short lowest shard has no lit tip (the Sit budget)
+            U.bar(tuple(a), tuple(a + (b - a) * f), 0.07, 0.035, "fish_belly" if k % 2 else "pastel_sky",
+                  up=(0, 1, 0))
+            if k < 2:
+                W.bar(tuple(a + (b - a) * f), tuple(b), 0.05, 0.03, "fish_blue", up=(0, 1, 0))
+
+
 PROPS = {
     "Nebula": ("Head", orbit_ring), "Glitch": ("Head", glitch_pixels),   # #3470, Derek 2026-11-12: more unique
     "CafeGhost": ("Head", chef_hat),   # #3470
@@ -2344,6 +2595,11 @@ PROPS = {
     # #2739 batch 2
     "Smoke": ("Neck", knit_scarf), "Snow": ("Head", earmuffs), "Cream": ("Head", strawberry_clip),
     "Rusty": ("Head", kerchief_cap), "Soot": ("Head", flat_cap), "Puddle": ("Head", rain_hat),
+    # Tier 8 Snowy Mountain
+    "Flurry": ("Head", snowflake_clip), "Mitten": ("Head", mitten_clip), "HotChocolate": ("Head", marshmallow_tufts),
+    "Spruce": ("Head", spruce_beanie), "SnowBoots": ("Head", bobble_hat), "Ski": ("Head", ski_goggles),
+    "SnowLeopard": ("Back", summit_rope), "Ice": ("Back", ice_spikes), "WhiteTiger": ("Back", winter_cape),
+    "Blizzard": ("Head", snow_swirl),
 }
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
@@ -2371,6 +2627,9 @@ PROPS2 = {
     "Birdwatch": ("Head", bluebird), "Blossom": ("Head", flower_crown),
     # #2739 batch 2
     "Tortie": ("Neck", stud_collar), "Fennec": ("Head", desert_flower),
+    # Tier 8 Snowy Mountain; #4068 gives the Epic and Legendary cats a lit head piece
+    "Blizzard": ("Back", snow_trail),
+    "SnowLeopard": ("Head", head_lamp), "Ice": ("Head", frost_crown), "WhiteTiger": ("Head", frost_circlet),
 }
 # Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
 # rides, and their Roblox Model nests inside that prop's Model.
@@ -2387,7 +2646,11 @@ PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"
           "Bottlecap": {"Glow": "Prop"}, "Scarab": {"Glow": "Prop"}, "Mosaic": {"Glow": "Prop"},
           "Mirage": {"Tail_Glow": "Tail"},
           # #3470 the Secret cats' lit parts
-          "Nebula": {"Glow": "Prop", "Stars_Glow": "Prop2"}, "Glitch": {"Glow": "Prop", "Sprite_Glow": "Prop2"}}
+          "Nebula": {"Glow": "Prop", "Stars_Glow": "Prop2"}, "Glitch": {"Glow": "Prop", "Sprite_Glow": "Prop2"},
+          # Tier 8 Snowy Mountain: tail pieces and the Blizzard's lit wind
+          "HotChocolate": {"Tail_Mug": "Tail"}, "Ski": {"Tail_Scarf": "Tail"},
+          "Blizzard": {"Glow": "Prop", "Flakes_Glow": "Prop2", "Wings_Glow": "Prop2"},
+          "SnowLeopard": {"Lamp_Glow": "Prop2"}, "Ice": {"Crown_Glow": "Prop2"}, "WhiteTiger": {"Gem_Glow": "Prop2"}}
 # Extra Attachments for VFX (#1191): cat -> [(object suffix, Attachment name, frame, point in that frame)]. Frame
 # "head" is the head-top frame the Head props draw in; "chest" puts it at the middle of the chest (B, S) or body (A).
 ATTACH = {"KingCroissant": [("_Prop", "CrownTop", "head", (0.0, 0.0, CROWN_TOP)), ("_Body", "Glow", "chest", None)]}

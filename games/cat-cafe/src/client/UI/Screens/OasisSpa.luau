@@ -70,6 +70,8 @@ type Tile = {
 	level: TextLabel,
 	line: TextLabel,
 	action: Button.Button,
+	chip: Frame, -- #3961: the green "+3 levels ready" chip where the button sits (family look)
+	chipText: TextLabel,
 	label: string?,
 	style: string?,
 	enabled: boolean?,
@@ -165,6 +167,10 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 	self._filter = "All"
 	self._searchToken = 0
 	self._facesQueued = false
+	-- #3961: the batch 3 mock's inside (picture cards that say what each slot is, a green "+3 levels ready" chip,
+	-- chunky capital buttons, a wide COLLECT and the fish count in the title band) while the family look is on
+	local family = MenuFamily.on()
+	self._family = family
 	local buttonH = Scale.tapHeight(40, Theme.sizes.buttonDepth)
 	self._buttonH = buttonH
 	local tileH = PICTURE + 84 + buttonH
@@ -229,6 +235,12 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 			TextColor3 = CARD.subtext,
 			Parent = frame,
 		})
+		if family then
+			-- the mock's soft square behind the + and the lock
+			glyph.BackgroundTransparency = 0
+			glyph.BackgroundColor3 = CARD.caramel
+			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius), Parent = glyph })
+		end
 		local name = text({
 			Name = "Name",
 			Position = UDim2.fromOffset(6, PICTURE + 14),
@@ -267,6 +279,28 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 				self:_tilePress(slot)
 			end,
 		})
+		local chip: Frame = Create("Frame", {
+			Name = "Ready",
+			AnchorPoint = Vector2.new(0.5, 1),
+			BackgroundColor3 = Theme.colors.goodDark, -- white words read at 4.5:1 on it
+			BorderSizePixel = 0,
+			Position = UDim2.new(0.5, 0, 1, -8),
+			Size = UDim2.new(1, -16, 0, buttonH),
+			Visible = false,
+			Parent = frame,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
+		})
+		local chipText = text({
+			Name = "Words",
+			Size = UDim2.fromScale(1, 1),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall + 1,
+			TextColor3 = Theme.colors.white,
+			Parent = chip,
+		})
+		Outline.text(chipText)
 		table.insert(self._tiles, {
 			frame = frame,
 			portrait = portrait,
@@ -276,6 +310,8 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 			level = level,
 			line = line,
 			action = action,
+			chip = chip,
+			chipText = chipText,
 			label = nil,
 			style = nil,
 			enabled = nil,
@@ -286,7 +322,9 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 		name = "Collect",
 		text = "Collect",
 		style = "primary",
-		size = UDim2.fromOffset(240, buttonH + 4),
+		size = if family
+			then UDim2.new(0.7, 0, 0, buttonH + 6)
+			else UDim2.fromOffset(240, buttonH + 4),
 		anchorPoint = Vector2.new(0.5, 0),
 		position = UDim2.new(0.5, 0, 0, tileH + GAP + 2),
 		textSize = Theme.sizes.textBody + 1,
@@ -306,6 +344,45 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 		TextColor3 = PAL.text,
 		Parent = content,
 	})
+	-- #3961: the fish count as a chip in the title band, left of the X (the mock), in place of the line
+	local header = panel.body:FindFirstChild("Header") :: Frame?
+	if family and header ~= nil then
+		self._have.Visible = false
+		local pill: Frame = Create("Frame", {
+			Name = "Fish",
+			AnchorPoint = Vector2.new(1, 0.5),
+			BackgroundColor3 = Color3.fromHex("15101F"),
+			BackgroundTransparency = 0.2,
+			BorderSizePixel = 0,
+			Position = UDim2.new(1, -(panel.closeReach + 12), 0.5, 0),
+			Size = UDim2.new(0, 104, 1, -14),
+			ZIndex = 6,
+			Parent = header,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		})
+		Create("ImageLabel", {
+			Name = "Icon",
+			AnchorPoint = Vector2.new(0, 0.5),
+			BackgroundTransparency = 1,
+			Image = Theme.textures.fishCoin,
+			Position = UDim2.new(0, 6, 0.5, 0),
+			Size = UDim2.fromOffset(24, 24),
+			ScaleType = Enum.ScaleType.Fit,
+			ZIndex = 7,
+			Parent = pill,
+		})
+		self._haveChip = text({
+			Name = "Count",
+			Position = UDim2.fromOffset(32, 0),
+			Size = UDim2.new(1, -38, 1, 0),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textBody,
+			TextColor3 = Theme.colors.white,
+			ZIndex = 7,
+			Parent = pill,
+		})
+	end
 	text({
 		Name = "Note",
 		Position = UDim2.fromOffset(0, tileH + GAP + buttonH + 34),
@@ -884,11 +961,29 @@ function OasisSpa._paint(self: any)
 		end
 		tile.line.Text = if row.kind == "empty" then "Room for one more cat" else row.line
 		tile.line.TextColor3 = if row.ready then CARD.good else CARD.subtext
+		local words = if self._family then LateStationsLogic.spaCardText(row) else nil
+		if words ~= nil then
+			if words.title ~= nil then
+				tile.name.Text = words.title
+			end
+			tile.level.Text = words.sub
+			tile.level.TextColor3 = CARD.text
+			tile.line.Text = words.foot
+			tile.line.TextColor3 = CARD.subtext
+		end
+		local chipWords: string = if words ~= nil and words.chip ~= nil then words.chip else ""
+		tile.chip.Visible = chipWords ~= ""
+		if tile.chipText.Text ~= chipWords then
+			tile.chipText.Text = chipWords
+		end
+		local family = self._family
 		local label, style, enabled, show = "", "primary", false, true
 		if row.kind == "cat" then
-			label, style, enabled, show = "Take out", "ghost", not self._pending, not row.ready
+			label, style, enabled, show =
+				if family then "TAKE OUT" else "Take out", "ghost", not self._pending, not row.ready
 		elseif row.kind == "empty" then
-			label, style, enabled = "Add a cat", "primary", not self._pending
+			label, style, enabled =
+				if family then "ADD A CAT" else "Add a cat", "primary", not self._pending
 		else
 			local price = row.price or 0
 			label, style = tostring(price), "gold"
@@ -913,9 +1008,16 @@ function OasisSpa._paint(self: any)
 		end
 	end
 	local levels = LateStationsLogic.spaReady(self._spa, self._cats, now())
-	self._collect:setText(if self._pending then "..." else LateStationsLogic.collectText(levels))
+	local collect = LateStationsLogic.collectText(levels)
+	self._collect:setText(
+		if self._pending then "..." elseif self._family then collect:upper() else collect
+	)
 	self._collect:setEnabled(levels > 0 and not self._pending)
 	self._have.Text = ("You have %s golden fish"):format(ShortNumber.format(self._fish))
+	local haveChip: TextLabel? = self._haveChip
+	if haveChip ~= nil then
+		haveChip.Text = ShortNumber.format(self._fish)
+	end
 end
 
 function OasisSpa.setView(self: any, spa: SharedTypes.SpaView?)

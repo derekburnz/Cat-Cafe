@@ -66,7 +66,9 @@ local CARD_W = 400
 local TITLE_H = 26
 local TITLE_TEXT = Theme.sizes.textLarge - 2
 local CHOICE_TEXT = Theme.sizes.textBody
-local TITLE_RIGHT = 0 -- room kept at the title's right end for the X hanging over the corner
+-- Studio 2026-11-13 (the invite card's X sat over the word "they"): the X hangs over the card's top right corner, so
+-- the title's right end keeps its reach clear; set once the X is made
+local TITLE_RIGHT = 0
 local CHOICE_H = 44
 local PAD = 10
 local GAP = 8
@@ -169,6 +171,8 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 			self:hide("closed")
 		end,
 	})
+	-- how far the X (centred 6 in from the right edge, with its outline) reaches over the title's line, past PAD
+	self._titleInset = math.max(0, math.ceil(6 + wide / 2 + Button.OUTLINE + 2 - PAD))
 	self._row = Create("Frame", {
 		Name = "Choices",
 		BackgroundTransparency = 1,
@@ -234,7 +238,8 @@ function AskCard._setLines(self: any, lines: number, rows: number?)
 	self._rows = if two then 2 else 1
 	local titleH = if lines >= 2 then TITLE_H * 2 - 2 else TITLE_H
 	self._title.TextWrapped = lines >= 2
-	self._title.Size = UDim2.new(1, -2 * PAD - TITLE_RIGHT, 0, titleH)
+	local inset: number = self._titleInset or 0
+	self._title.Size = UDim2.new(1, -2 * PAD - inset - TITLE_RIGHT, 0, titleH)
 	self._row.Position = UDim2.fromOffset(PAD, PAD + titleH + 6)
 	self._row2.Position = UDim2.fromOffset(PAD, PAD + titleH + 6 + self._choiceH + GAP)
 	self._row2.Visible = two

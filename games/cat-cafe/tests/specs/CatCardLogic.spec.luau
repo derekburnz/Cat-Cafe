@@ -73,8 +73,9 @@ return function()
 			for _, def in Traits.LIST do
 				local title, lines = CatCardLogic.trait({ id = def.id })
 				expect(title).to.be.ok()
-				local hex = def.rarity.color:gsub("^#", "")
-				expect(title:find('<font color="#' .. hex .. '">●</font> ', 1, true)).to.equal(1)
+				local hex = CatCardLogic.strong(def.rarity.color) -- #3950: bold, deepened
+				expect(title:find('<b><font color="#' .. hex .. '">● ', 1, true)).to.equal(1)
+				expect(title:sub(-11)).to.equal("</font></b>")
 				expect(title:find(def.rarity.name .. " " .. def.name, 1, true)).to.be.ok()
 				expect(#lines).to.equal(#def.effects)
 				for _, line in lines do

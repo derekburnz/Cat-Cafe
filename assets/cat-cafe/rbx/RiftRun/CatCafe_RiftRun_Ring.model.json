@@ -1,0 +1,5964 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_RiftRun_Ring/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       15.8,
+       -1.3
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     23.6,
+     23.6
+    ],
+    "Color": [
+     0.1216,
+     0.1647,
+     0.2667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       1.3,
+       0.0,
+       15.8
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_RiftRun_Ring/0"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       13.5313,
+       17.9432,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.1564,
+        -0.9877,
+        0.0
+       ],
+       [
+        0.9877,
+        -0.1564,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       12.2068,
+       22.0197,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.454,
+        -0.891,
+        0.0
+       ],
+       [
+        0.891,
+        -0.454,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       9.6874,
+       25.4874,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       6.2197,
+       28.0068,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.891,
+        -0.454,
+        0.0
+       ],
+       [
+        0.454,
+        -0.891,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       2.1432,
+       29.3313,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.9877,
+        -0.1564,
+        0.0
+       ],
+       [
+        0.1564,
+        -0.9877,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -2.1432,
+       29.3313,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.9877,
+        0.1564,
+        0.0
+       ],
+       [
+        -0.1564,
+        -0.9877,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -6.2197,
+       28.0068,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.891,
+        0.454,
+        0.0
+       ],
+       [
+        -0.454,
+        -0.891,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -9.6874,
+       25.4874,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        -0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -12.2068,
+       22.0197,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.454,
+        0.891,
+        0.0
+       ],
+       [
+        -0.891,
+        -0.454,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -13.5313,
+       17.9432,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.1564,
+        0.9877,
+        0.0
+       ],
+       [
+        -0.9877,
+        -0.1564,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -13.5313,
+       13.6568,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.1564,
+        0.9877,
+        0.0
+       ],
+       [
+        -0.9877,
+        0.1564,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -12.2068,
+       9.5803,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.454,
+        0.891,
+        0.0
+       ],
+       [
+        -0.891,
+        0.454,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -9.6874,
+       6.1126,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -6.2197,
+       3.5932,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.891,
+        0.454,
+        0.0
+       ],
+       [
+        -0.454,
+        0.891,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -2.1432,
+       2.2687,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.9877,
+        0.1564,
+        0.0
+       ],
+       [
+        -0.1564,
+        0.9877,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       2.1432,
+       2.2687,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.9877,
+        -0.1564,
+        0.0
+       ],
+       [
+        0.1564,
+        0.9877,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       6.2197,
+       3.5932,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.891,
+        -0.454,
+        0.0
+       ],
+       [
+        0.454,
+        0.891,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       9.6874,
+       6.1126,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       12.2068,
+       9.5803,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.454,
+        -0.891,
+        0.0
+       ],
+       [
+        0.891,
+        0.454,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       13.5313,
+       13.6568,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.1564,
+        -0.9877,
+        0.0
+       ],
+       [
+        0.9877,
+        0.1564,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.424,
+     2.6,
+     2.4
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       14.6672,
+       18.1231,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.1564,
+        -0.9877,
+        0.0
+       ],
+       [
+        0.9877,
+        -0.1564,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       13.2314,
+       22.5418,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.454,
+        -0.891,
+        0.0
+       ],
+       [
+        0.891,
+        -0.454,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       10.5005,
+       26.3005,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       6.7418,
+       29.0314,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.891,
+        -0.454,
+        0.0
+       ],
+       [
+        0.454,
+        -0.891,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       2.3231,
+       30.4672,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.9877,
+        -0.1564,
+        0.0
+       ],
+       [
+        0.1564,
+        -0.9877,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -2.3231,
+       30.4672,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.9877,
+        0.1564,
+        0.0
+       ],
+       [
+        -0.1564,
+        -0.9877,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -6.7418,
+       29.0314,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.891,
+        0.454,
+        0.0
+       ],
+       [
+        -0.454,
+        -0.891,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -10.5005,
+       26.3005,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        -0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -13.2314,
+       22.5418,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.454,
+        0.891,
+        0.0
+       ],
+       [
+        -0.891,
+        -0.454,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -14.6672,
+       18.1231,
+       0.0
+      ],
+      "orientation": [
+       [
+        -0.1564,
+        0.9877,
+        0.0
+       ],
+       [
+        -0.9877,
+        -0.1564,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -14.6672,
+       13.4769,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.1564,
+        0.9877,
+        0.0
+       ],
+       [
+        -0.9877,
+        0.1564,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -13.2314,
+       9.0582,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.454,
+        0.891,
+        0.0
+       ],
+       [
+        -0.891,
+        0.454,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -10.5005,
+       5.2995,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -6.7418,
+       2.5686,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.891,
+        0.454,
+        0.0
+       ],
+       [
+        -0.454,
+        0.891,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -2.3231,
+       1.1328,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.9877,
+        0.1564,
+        0.0
+       ],
+       [
+        -0.1564,
+        0.9877,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       2.3231,
+       1.1328,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.9877,
+        -0.1564,
+        0.0
+       ],
+       [
+        0.1564,
+        0.9877,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       6.7418,
+       2.5686,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.891,
+        -0.454,
+        0.0
+       ],
+       [
+        0.454,
+        0.891,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       10.5005,
+       5.2995,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       13.2314,
+       9.0582,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.454,
+        -0.891,
+        0.0
+       ],
+       [
+        0.891,
+        0.454,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       14.6672,
+       13.4769,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.1564,
+        -0.9877,
+        0.0
+       ],
+       [
+        0.9877,
+        0.1564,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.7853,
+     0.4,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     9.0,
+     1.2,
+     4.6
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.5,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     5.4,
+     1.0,
+     3.4
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       14.4171,
+       25.8949,
+       -0.5
+      ],
+      "orientation": [
+       [
+        0.5736,
+        -0.8192,
+        0.0
+       ],
+       [
+        0.8192,
+        0.5736,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.2,
+     2.16,
+     1.2
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -15.242,
+       24.6,
+       -0.2
+      ],
+      "orientation": [
+       [
+        -0.9848,
+        -0.1736,
+        0.0
+       ],
+       [
+        0.1736,
+        -0.9848,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.0,
+     1.8,
+     1.0
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -14.4171,
+       5.7051,
+       0.1
+      ],
+      "orientation": [
+       [
+        -0.5736,
+        0.8192,
+        0.0
+       ],
+       [
+        -0.8192,
+        -0.5736,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.8,
+     1.44,
+     0.8
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_RiftRun_Ring",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       13.4824,
+       4.4869,
+       0.4
+      ],
+      "orientation": [
+       [
+        0.9397,
+        0.342,
+        0.0
+       ],
+       [
+        -0.342,
+        0.9397,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.9,
+     1.62,
+     0.9
+    ],
+    "Color": [
+     0.1765,
+     0.1373,
+     0.4314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_RiftRun_Ring/1"
+   },
+   "children": [
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         7.3051,
+         6.2798,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.7934,
+          -0.6088,
+          0.0
+         ],
+         [
+          0.6088,
+          0.7934,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -9.6184,
+         -0.535,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.7934,
+          0.6088,
+          0.0
+         ],
+         [
+          -0.6088,
+          0.7934,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_RiftRun_Ring/1"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         11.8973,
+         17.3663,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.1305,
+          -0.9914,
+          0.0
+         ],
+         [
+          0.9914,
+          -0.1305,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         11.0866,
+         20.3922,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.3827,
+          -0.9239,
+          0.0
+         ],
+         [
+          0.9239,
+          -0.3827,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         9.5202,
+         23.1051,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.6088,
+          -0.7934,
+          0.0
+         ],
+         [
+          0.7934,
+          -0.6088,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         7.3051,
+         25.3202,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.7934,
+          -0.6088,
+          0.0
+         ],
+         [
+          0.6088,
+          -0.7934,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         4.5922,
+         26.8866,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.9239,
+          -0.3827,
+          0.0
+         ],
+         [
+          0.3827,
+          -0.9239,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.5663,
+         27.6973,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.9914,
+          -0.1305,
+          0.0
+         ],
+         [
+          0.1305,
+          -0.9914,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.5663,
+         27.6973,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.9914,
+          0.1305,
+          0.0
+         ],
+         [
+          -0.1305,
+          -0.9914,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -4.5922,
+         26.8866,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.9239,
+          0.3827,
+          0.0
+         ],
+         [
+          -0.3827,
+          -0.9239,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -7.3051,
+         25.3202,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.7934,
+          0.6088,
+          0.0
+         ],
+         [
+          -0.6088,
+          -0.7934,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -9.5202,
+         23.1051,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.6088,
+          0.7934,
+          0.0
+         ],
+         [
+          -0.7934,
+          -0.6088,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -11.0866,
+         20.3922,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.3827,
+          0.9239,
+          0.0
+         ],
+         [
+          -0.9239,
+          -0.3827,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -11.8973,
+         17.3663,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.1305,
+          0.9914,
+          0.0
+         ],
+         [
+          -0.9914,
+          -0.1305,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -11.8973,
+         14.2337,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.1305,
+          0.9914,
+          0.0
+         ],
+         [
+          -0.9914,
+          0.1305,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -11.0866,
+         11.2078,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.3827,
+          0.9239,
+          0.0
+         ],
+         [
+          -0.9239,
+          0.3827,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -9.5202,
+         8.4949,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.6088,
+          0.7934,
+          0.0
+         ],
+         [
+          -0.7934,
+          0.6088,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -7.3051,
+         6.2798,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.7934,
+          0.6088,
+          0.0
+         ],
+         [
+          -0.6088,
+          0.7934,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -4.5922,
+         4.7134,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.9239,
+          0.3827,
+          0.0
+         ],
+         [
+          -0.3827,
+          0.9239,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.5663,
+         3.9027,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.9914,
+          0.1305,
+          0.0
+         ],
+         [
+          -0.1305,
+          0.9914,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.5663,
+         3.9027,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.9914,
+          -0.1305,
+          0.0
+         ],
+         [
+          0.1305,
+          0.9914,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         4.5922,
+         4.7134,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.9239,
+          -0.3827,
+          0.0
+         ],
+         [
+          0.3827,
+          0.9239,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         9.5202,
+         8.4949,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.6088,
+          -0.7934,
+          0.0
+         ],
+         [
+          0.7934,
+          0.6088,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         11.0866,
+         11.2078,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.3827,
+          -0.9239,
+          0.0
+         ],
+         [
+          0.9239,
+          0.3827,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         11.8973,
+         14.2337,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.1305,
+          -0.9914,
+          0.0
+         ],
+         [
+          0.9914,
+          0.1305,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.2616,
+       0.8,
+       2.6
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         10.4102,
+         17.1705,
+         -0.4
+        ],
+        "orientation": [
+         [
+          -0.1305,
+          -0.9914,
+          0.0
+         ],
+         [
+          0.9914,
+          -0.1305,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         9.7007,
+         19.8182,
+         -0.4
+        ],
+        "orientation": [
+         [
+          -0.3827,
+          -0.9239,
+          0.0
+         ],
+         [
+          0.9239,
+          -0.3827,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         8.3302,
+         22.192,
+         -0.4
+        ],
+        "orientation": [
+         [
+          -0.6088,
+          -0.7934,
+          0.0
+         ],
+         [
+          0.7934,
+          -0.6088,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         6.392,
+         24.1302,
+         -0.4
+        ],
+        "orientation": [
+         [
+          -0.7934,
+          -0.6088,
+          0.0
+         ],
+         [
+          0.6088,
+          -0.7934,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         4.0182,
+         25.5007,
+         -0.4
+        ],
+        "orientation": [
+         [
+          -0.9239,
+          -0.3827,
+          0.0
+         ],
+         [
+          0.3827,
+          -0.9239,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.3705,
+         26.2102,
+         -0.4
+        ],
+        "orientation": [
+         [
+          -0.9914,
+          -0.1305,
+          0.0
+         ],
+         [
+          0.1305,
+          -0.9914,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.3705,
+         26.2102,
+         -0.4
+        ],
+        "orientation": [
+         [
+          -0.9914,
+          0.1305,
+          0.0
+         ],
+         [
+          -0.1305,
+          -0.9914,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -4.0182,
+         25.5007,
+         -0.4
+        ],
+        "orientation": [
+         [
+          -0.9239,
+          0.3827,
+          0.0
+         ],
+         [
+          -0.3827,
+          -0.9239,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.392,
+         24.1302,
+         -0.4
+        ],
+        "orientation": [
+         [
+          -0.7934,
+          0.6088,
+          0.0
+         ],
+         [
+          -0.6088,
+          -0.7934,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -8.3302,
+         22.192,
+         -0.4
+        ],
+        "orientation": [
+         [
+          -0.6088,
+          0.7934,
+          0.0
+         ],
+         [
+          -0.7934,
+          -0.6088,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -9.7007,
+         19.8182,
+         -0.4
+        ],
+        "orientation": [
+         [
+          -0.3827,
+          0.9239,
+          0.0
+         ],
+         [
+          -0.9239,
+          -0.3827,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -10.4102,
+         17.1705,
+         -0.4
+        ],
+        "orientation": [
+         [
+          -0.1305,
+          0.9914,
+          0.0
+         ],
+         [
+          -0.9914,
+          -0.1305,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -10.4102,
+         14.4295,
+         -0.4
+        ],
+        "orientation": [
+         [
+          0.1305,
+          0.9914,
+          0.0
+         ],
+         [
+          -0.9914,
+          0.1305,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -9.7007,
+         11.7818,
+         -0.4
+        ],
+        "orientation": [
+         [
+          0.3827,
+          0.9239,
+          0.0
+         ],
+         [
+          -0.9239,
+          0.3827,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -8.3302,
+         9.408,
+         -0.4
+        ],
+        "orientation": [
+         [
+          0.6088,
+          0.7934,
+          0.0
+         ],
+         [
+          -0.7934,
+          0.6088,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.392,
+         7.4698,
+         -0.4
+        ],
+        "orientation": [
+         [
+          0.7934,
+          0.6088,
+          0.0
+         ],
+         [
+          -0.6088,
+          0.7934,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -4.0182,
+         6.0993,
+         -0.4
+        ],
+        "orientation": [
+         [
+          0.9239,
+          0.3827,
+          0.0
+         ],
+         [
+          -0.3827,
+          0.9239,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.3705,
+         5.3898,
+         -0.4
+        ],
+        "orientation": [
+         [
+          0.9914,
+          0.1305,
+          0.0
+         ],
+         [
+          -0.1305,
+          0.9914,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.3705,
+         5.3898,
+         -0.4
+        ],
+        "orientation": [
+         [
+          0.9914,
+          -0.1305,
+          0.0
+         ],
+         [
+          0.1305,
+          0.9914,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         4.0182,
+         6.0993,
+         -0.4
+        ],
+        "orientation": [
+         [
+          0.9239,
+          -0.3827,
+          0.0
+         ],
+         [
+          0.3827,
+          0.9239,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         6.392,
+         7.4698,
+         -0.4
+        ],
+        "orientation": [
+         [
+          0.7934,
+          -0.6088,
+          0.0
+         ],
+         [
+          0.6088,
+          0.7934,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         8.3302,
+         9.408,
+         -0.4
+        ],
+        "orientation": [
+         [
+          0.6088,
+          -0.7934,
+          0.0
+         ],
+         [
+          0.7934,
+          0.6088,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         9.7007,
+         11.7818,
+         -0.4
+        ],
+        "orientation": [
+         [
+          0.3827,
+          -0.9239,
+          0.0
+         ],
+         [
+          0.9239,
+          0.3827,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         10.4102,
+         14.4295,
+         -0.4
+        ],
+        "orientation": [
+         [
+          0.1305,
+          -0.9914,
+          0.0
+         ],
+         [
+          0.9914,
+          0.1305,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8689,
+       0.5,
+       0.6
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         8.6917,
+         17.1766,
+         -0.9
+        ],
+        "orientation": [
+         [
+          -0.1564,
+          -0.9877,
+          0.0
+         ],
+         [
+          0.9877,
+          -0.1564,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         7.8409,
+         19.7951,
+         -0.9
+        ],
+        "orientation": [
+         [
+          -0.454,
+          -0.891,
+          0.0
+         ],
+         [
+          0.891,
+          -0.454,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         6.2225,
+         22.0225,
+         -0.9
+        ],
+        "orientation": [
+         [
+          -0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         3.9951,
+         23.6409,
+         -0.9
+        ],
+        "orientation": [
+         [
+          -0.891,
+          -0.454,
+          0.0
+         ],
+         [
+          0.454,
+          -0.891,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.3766,
+         24.4917,
+         -0.9
+        ],
+        "orientation": [
+         [
+          -0.9877,
+          -0.1564,
+          0.0
+         ],
+         [
+          0.1564,
+          -0.9877,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.3766,
+         24.4917,
+         -0.9
+        ],
+        "orientation": [
+         [
+          -0.9877,
+          0.1564,
+          0.0
+         ],
+         [
+          -0.1564,
+          -0.9877,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -3.9951,
+         23.6409,
+         -0.9
+        ],
+        "orientation": [
+         [
+          -0.891,
+          0.454,
+          0.0
+         ],
+         [
+          -0.454,
+          -0.891,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.2225,
+         22.0225,
+         -0.9
+        ],
+        "orientation": [
+         [
+          -0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          -0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -7.8409,
+         19.7951,
+         -0.9
+        ],
+        "orientation": [
+         [
+          -0.454,
+          0.891,
+          0.0
+         ],
+         [
+          -0.891,
+          -0.454,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -8.6917,
+         17.1766,
+         -0.9
+        ],
+        "orientation": [
+         [
+          -0.1564,
+          0.9877,
+          0.0
+         ],
+         [
+          -0.9877,
+          -0.1564,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -8.6917,
+         14.4234,
+         -0.9
+        ],
+        "orientation": [
+         [
+          0.1564,
+          0.9877,
+          0.0
+         ],
+         [
+          -0.9877,
+          0.1564,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -7.8409,
+         11.8049,
+         -0.9
+        ],
+        "orientation": [
+         [
+          0.454,
+          0.891,
+          0.0
+         ],
+         [
+          -0.891,
+          0.454,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.2225,
+         9.5775,
+         -0.9
+        ],
+        "orientation": [
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          -0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -3.9951,
+         7.9591,
+         -0.9
+        ],
+        "orientation": [
+         [
+          0.891,
+          0.454,
+          0.0
+         ],
+         [
+          -0.454,
+          0.891,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.3766,
+         7.1083,
+         -0.9
+        ],
+        "orientation": [
+         [
+          0.9877,
+          0.1564,
+          0.0
+         ],
+         [
+          -0.1564,
+          0.9877,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.3766,
+         7.1083,
+         -0.9
+        ],
+        "orientation": [
+         [
+          0.9877,
+          -0.1564,
+          0.0
+         ],
+         [
+          0.1564,
+          0.9877,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         3.9951,
+         7.9591,
+         -0.9
+        ],
+        "orientation": [
+         [
+          0.891,
+          -0.454,
+          0.0
+         ],
+         [
+          0.454,
+          0.891,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         6.2225,
+         9.5775,
+         -0.9
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         7.8409,
+         11.8049,
+         -0.9
+        ],
+        "orientation": [
+         [
+          0.454,
+          -0.891,
+          0.0
+         ],
+         [
+          0.891,
+          0.454,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         8.6917,
+         14.4234,
+         -0.9
+        ],
+        "orientation": [
+         [
+          0.1564,
+          -0.9877,
+          0.0
+         ],
+         [
+          0.9877,
+          0.1564,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8846,
+       0.4,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.3686,
+       0.4941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         15.5704,
+         26.2949,
+         0.6
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       0.3,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -16.4614,
+         25.0,
+         0.6
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       0.3,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -15.5704,
+         6.1051,
+         0.6
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       0.3,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_RiftRun_Ring_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         14.561,
+         4.8869,
+         0.6
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       0.3,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_RiftRun_Ring_Glow"
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

@@ -180,7 +180,9 @@ return function()
 			expect(OwnerTest.bubbleSeconds(string.rep("a", 60))).to.be.near(13.5, 1e-9)
 			expect(OwnerTest.bubbleSeconds(string.rep("a", OwnerTest.SHOUT_MAX))).to.equal(20)
 			expect(OwnerTest.bubbleSeconds(string.rep("a", 500))).to.equal(OwnerTest.BUBBLE_MAX)
-			expect(OwnerTest.BUBBLE_MAX <= OwnerTest.SHOUT_GAP_SECONDS).to.equal(true)
+			-- #3913: the next shout can come no sooner than the shortest bubble is gone
+			expect(OwnerTest.SHOUT_GAP_SECONDS >= OwnerTest.BUBBLE_SECONDS).to.equal(true)
+			expect(OwnerTest.SHOUT_GAP_SECONDS).to.equal(10)
 		end)
 
 		it("shows a shout as OWNER over the quoted message, on its own remote (#3301)", function()

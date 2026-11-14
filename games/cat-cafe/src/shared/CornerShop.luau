@@ -28,7 +28,7 @@ local DAY = 86400
 
 -- #1281: a bait food can't be bought past this many held (section 1b's LureMax). A stack already above it (from
 -- prizes) stays; it just can't grow by buying.
-CornerShop.LURE_MAX = 99
+CornerShop.LURE_MAX = 999 -- #4024 (Derek 2026-11-13): was 99
 
 -- The most of a row a window can stock (day-cart.md section 2: 1, 2 or 3).
 CornerShop.MOST = #Config.DayCartQtyOdds
@@ -75,7 +75,7 @@ export type ItemAmount = { itemId: string, amount: number }
 -- it from the `cartTier6` switch (CornerShopService): a save drops a food or potion id an older server build does not
 -- know, so nothing new is sold while one may still run. Shut, its rows are left out of `view` and refused by
 -- `buyBlocker`. Its rows roll after every other row's, so the rest of the cart's stock is the same with or without
--- them, and Buy all never takes them (a press there should not spend billions).
+-- them. Buy all takes them only while the shelf is open (#3915), and its confirm card shows the total first.
 CornerShop.TOP_SHELF_FLAG = "cartTier6"
 local topShelfOpen = false
 function CornerShop.setTopShelf(open: boolean)
@@ -328,8 +328,9 @@ function CornerShop.planAll(
 	local rows: { Entry } = {}
 	for place, item in CornerShop.stock(window) do
 		local row = Catalog.getCornerShopRow(item.itemId)
-		-- #3462: never a top shelf row, open or shut
-		if row ~= nil and row.kind == kind and row.topShelf ~= true then
+		-- #3915 (Derek: "make day buy all work with the new items also"): the top shelf's rows too while it is open;
+		-- never while it is shut (#3462). The confirm card shows the plan's total before anything is bought.
+		if row ~= nil and row.kind == kind and not shut(row) then
 			table.insert(rows, { row = row, price = CornerShop.priceOf(row, tier), place = place })
 		end
 	end

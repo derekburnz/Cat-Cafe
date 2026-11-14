@@ -50,6 +50,7 @@ export type Panel = {
 	closeReach: number,
 	headerHeight: number,
 	setTitle: (self: Panel, title: string, subtitle: string?) -> (),
+	closeTarget: (self: Panel) -> GuiObject?,
 	destroy: (self: Panel) -> (),
 }
 
@@ -345,6 +346,12 @@ function Panel.new(props: Props): Panel
 		frame.Parent = props.parent
 	end
 	return self :: Panel
+end
+
+-- #3880: the X's button, for a tutorial glow on it (nil for a panel with no X).
+function Panel.closeTarget(self: any): GuiObject?
+	local close = self._close
+	return if close ~= nil then close.instance else nil
 end
 
 function Panel.setTitle(self: any, title: string, subtitle: string?)

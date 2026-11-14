@@ -65,7 +65,7 @@
 	},
 	{
 		"name": "20 Trait Tokens",
-		"id": 0,
+		"id": 3730879829,
 		"config": "ProductIds.trait_tokens_20",
 		"price": 99,
 		"regionalPricing": false,
@@ -73,7 +73,7 @@
 	},
 	{
 		"name": "50 Trait Tokens",
-		"id": 0,
+		"id": 3730879833,
 		"config": "ProductIds.trait_tokens_50",
 		"price": 199,
 		"regionalPricing": false,

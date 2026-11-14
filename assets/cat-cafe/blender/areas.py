@@ -7,6 +7,9 @@ see-through barrier and a sign board, the way simulator zone gates work, themed 
   CatCafe_Sewer_Gate           24 wide, east back alley's outer wall (94, 0), turned 90
   CatCafe_Desert_Gate          24 wide, Tier 6 (#2651): the Desert's camp opening
   CatCafe_Ruins_Gate           24 wide, Tier 7 (#2651): the Ruins' camp opening
+  CatCafe_Snowy_Gate           24 wide, Tier 8 (#3997): the Snowy Mountain's camp opening
+  CatCafe_WaterPark_Gate       24 wide, Tier 9 (#4066): the Water Park's camp opening
+  CatCafe_Castle_Gate          24 wide, Tier 10 (#4067): the Medieval Castle's camp opening
 
 The Park and Neighbourhood openings follow the street (town-layout-v3.md: StreetHalfWidth 16); the Woods and Sewer
 openings are SideGateHalfWidth 12 either side of z 0 (section 7, v3.1).
@@ -29,7 +32,7 @@ import math
 
 from alleyway import bar, flower_clump, label, lantern
 from common import RB, text_width
-from plot import TRIM, rot_y
+from plot import TRIM, rot_y, rot_z
 
 BARS_TOP = 12.0
 PILLAR = 2.6
@@ -395,6 +398,165 @@ def build_ruins_gate(mat):
     return _gate("CatCafe_Ruins_Gate", mat, 24.0, "fur_emerald", "fur_golden", _ruins)
 
 
+# ------------------------------------------------------------------------------------------- snowy --
+def _snow_pine(b, x, z, h):
+    """A small snowy pine beside a pillar, stepped like the area's: a trunk, three tiers, snow on each step."""
+    b.cyl((x, h * 0.45, z), 0.18, h * 0.9, "fur_brown", segments=8)
+    for i, (y, r) in enumerate(((0.16, 0.34), (0.38, 0.26), (0.58, 0.17))):
+        b.cyl((x, h * y + h * 0.1, z), r * h, h * 0.2, ("leaf_dark", "paw_woods")[i % 2], segments=8)
+        b.cyl((x, h * y + h * 0.215, z), r * h * 0.8, h * 0.03, "milk", segments=8)
+    b.cyl((x, h * 0.85, z), 0.07 * h, 0.1 * h, "milk", segments=8)
+
+
+def _snowy(b, lamps, flowers, half):
+    for s in (-1, 1):                                  # timber posts on grey stone, snow on every top
+        x0, x1, cx = _pillar_x(s, half)
+        b.span((x0 - 0.3, 0, -FRONT - 0.3), (x1 + 0.3, 1.6, BACK + 0.3), "concrete")
+        b.span((x0 - 0.35, 1.6, -FRONT - 0.35), (x1 + 0.35, 1.8, BACK + 0.35), "milk")
+        b.span((x0, 1.8, -FRONT), (x1, 13.0, BACK), "fur_brown")
+        for y in (3.6, 6.2, 8.8, 11.4):                                                     # log courses
+            b.span((x0 - 0.06, y, -FRONT - 0.06), (x1 + 0.06, y + 0.14, BACK + 0.06), "dark_wood")
+        b.span((x0 - 0.3, 13.0, -FRONT - 0.3), (x1 + 0.3, 13.5, BACK + 0.3), "dark_wood")
+        b.span((x0 - 0.2, 13.5, -FRONT - 0.2), (x1 + 0.2, 13.9, BACK + 0.2), "milk")
+        lantern(b, lamps, cx, 13.9, (BACK - FRONT) / 2, 0.8)
+        _snow_pine(b, s * (half + PILLAR + 1.6), -3.0, 6.0)                                # off the wall line
+        b.ball((cx + s * 0.6, 0.0, -2.2), 1.3, "milk", scale=(1.4, 0.4, 0.7))             # drift, clear of the wall
+    reach = half + PILLAR + 0.3
+    b.cyl((0, 12.75, 0), 0.75, 2 * reach, "fur_brown", axis="X", segments=12)            # the log lintel
+    b.span((-reach + 0.3, 13.4, -0.55), (reach - 0.3, 13.7, 0.55), "milk")                 # snow along it
+    for x in range(-int(half) + 2, int(half) - 1, 2):                                      # icicles off its front
+        ln = (0.6, 1.0, 0.8, 1.3)[(x // 2) % 4]
+        b.span((x - 0.1, 12.0 - ln, -0.76), (x + 0.1, 12.0, -0.6), "pastel_sky")
+    px = 0.45
+    text = "SNOWY MOUNTAIN"
+    bw = text_width(text, px) + 2.4
+    b.span((-bw / 2, 13.7, -0.22), (bw / 2, 16.2, 0.22), "shirt_red")                      # name plate
+    for (ya, yb) in ((13.7, 13.88), (16.02, 16.2)):
+        b.span((-bw / 2 - 0.06, ya, -0.27), (bw / 2 + 0.06, yb, 0.27), "eye_blue")
+    b.span((-bw / 2 - 0.1, 16.2, -0.35), (bw / 2 + 0.1, 16.45, 0.35), "milk")
+    _title(b, text, 14.8 - 2.5 * px, px, -0.22, 0.22, "offwhite")
+    for k in range(3):                                                                     # a snowflake on top
+        b.box((0, 18.2, 0), (0.32, 3.0, 0.24), "eye_blue", rot=rot_z(60 * k))
+        for sgn in (-1, 1):
+            a = math.radians(60 * k + 90)
+            tx, ty = sgn * 1.0 * math.cos(a), 18.2 + sgn * 1.0 * math.sin(a)
+            b.box((tx, ty, 0), (0.22, 0.8, 0.2), "pastel_sky", rot=rot_z(60 * k + 45 * sgn))
+    b.span((-0.2, 16.45, -0.12), (0.2, 16.75, 0.12), "fur_brown")
+    return 12.0
+
+
+# --------------------------------------------------------------------------------------- water park --
+def _waterpark(b, lamps, flowers, half):
+    for s in (-1, 1):                                  # candy striped towers on blue feet, a cone roof and a ball
+        x0, x1, cx = _pillar_x(s, half)
+        b.span((x0 - 0.3, 0, -FRONT - 0.3), (x1 + 0.3, 1.2, BACK + 0.3), "shirt_blue")
+        for k in range(6):
+            b.span((x0, 1.2 + 1.95 * k, -FRONT), (x1, 1.2 + 1.95 * (k + 1), BACK), ("milk", "shirt_red")[k % 2])
+        b.span((x0 - 0.3, 12.9, -FRONT - 0.3), (x1 + 0.3, 13.4, BACK + 0.3), "rarity_legend")
+        cz = (BACK - FRONT) / 2
+        b.cyl((cx, 14.6, cz), 2.1, 2.4, "shirt_blue", r2=0.3, segments=10)
+        lantern(b, lamps, cx, 15.7, cz, 0.7)
+        for k, (dx, dy) in enumerate(((0.0, 0.0), (0.9, -1.1), (-0.8, -1.3))):                # balloons off the wall line
+            b.ball((s * (half + PILLAR + 1.6) + dx, 7.4 + dy, -3.0), 0.8,
+                   ("shirt_red", "pastel_butter", "shirt_blue")[(k + (s > 0)) % 3], scale=(1.0, 1.2, 1.0))
+        b.span((s * (half + PILLAR + 1.6) - 0.05, 0.6, -3.05), (s * (half + PILLAR + 1.6) + 0.05, 6.4, -2.95), "milk")
+        b.span((s * (half + PILLAR + 1.6) - 0.45, 0, -3.45), (s * (half + PILLAR + 1.6) + 0.45, 0.6, -2.55), "shirt_red")
+    reach = half + PILLAR + 0.3
+    b.span((-reach, 12.2, -0.9), (reach, 13.0, 0.9), "rarity_legend")                       # the beam
+    inner = half - INSET
+    n = 12                                                                                 # striped valance
+    w = 2 * inner / n
+    for k in range(n):
+        x = -inner + k * w
+        y0 = 11.3 if k % 2 == 0 else 11.6
+        b.span((x, y0, -1.12), (x + w, 12.2, -0.92), "shirt_red" if k % 2 == 0 else "milk")
+    for k in range(13):                                                                    # bulbs along the beam
+        lamps.ball((-inner + 0.9 + k * (2 * inner - 1.8) / 12, 13.25, -0.95), 0.26, "lamp_warm")
+    px = 0.45
+    text = "WATER PARK"
+    bw = text_width(text, px) + 2.4
+    b.span((-bw / 2, 13.5, -0.22), (bw / 2, 16.0, 0.22), "shirt_blue")                      # name plate
+    for (ya, yb) in ((13.5, 13.68), (15.82, 16.0)):
+        b.span((-bw / 2 - 0.06, ya, -0.27), (bw / 2 + 0.06, yb, 0.27), "rarity_legend")
+    _title(b, text, 14.6 - 2.5 * px, px, -0.22, 0.22, "offwhite")
+    for k in range(8):                                                                     # a little wheel on top
+        b.box((0, 18.3, 0), (0.16, 3.6, 0.14), "milk", rot=rot_z(22.5 * k))
+    for k in range(8):
+        a = math.radians(45 * k)
+        b.ball((1.8 * math.cos(a), 18.3 + 1.8 * math.sin(a), 0), 0.34,
+               ("shirt_red", "pastel_butter", "shirt_blue", "leaf_green")[k % 4])
+    b.cyl((0, 18.3, 0), 0.45, 0.4, "rarity_legend", axis="Z", segments=10)
+    b.span((-0.2, 16.0, -0.12), (0.2, 16.6, 0.12), "rarity_legend")
+    return 12.0
+
+
+# ------------------------------------------------------------------------------------------- castle --
+def _castle(b, lamps, flowers, half):
+    for s in (-1, 1):                                  # grey stone towers with merlons and a navy cone roof
+        x0, x1, cx = _pillar_x(s, half)
+        cz = (BACK - FRONT) / 2
+        b.span((x0 - 0.3, 0, -FRONT - 0.3), (x1 + 0.3, 1.4, BACK + 0.3), "concrete_dark")
+        b.span((x0, 1.4, -FRONT), (x1, 12.4, BACK), "concrete")
+        for y in (4.2, 7.0, 9.8):                                                           # stone courses
+            b.span((x0 - 0.05, y, -FRONT - 0.05), (x1 + 0.05, y + 0.12, BACK + 0.05), "concrete_dark")
+        b.span((x0 - 0.4, 12.4, -FRONT - 0.4), (x1 + 0.4, 13.0, BACK + 0.4), "concrete_dark")
+        for dx in (-1, 1):                                                                  # merlons on the corners
+            for dz in (-1, 1):
+                mx, mz = cx + dx * (PILLAR / 2 + 0.05), cz + dz * ((FRONT + BACK) / 2 + 0.05)
+                b.span((mx - 0.4, 13.0, mz - 0.4), (mx + 0.4, 13.8, mz + 0.4), "metal")
+        b.cyl((cx, 14.7, cz), 1.5, 3.4, "pants_navy", r2=0.15, segments=10)
+        lantern(b, lamps, cx, 16.4, cz, 0.6)
+        b.span((cx - 0.9, 5.6, -FRONT - 0.1), (cx + 0.9, 9.6, -FRONT - 0.02), ("shirt_red", "pants_navy")[s > 0])   # banner
+        b.span((cx - 1.1, 9.6, -FRONT - 0.16), (cx + 1.1, 9.84, -FRONT - 0.02), "rarity_legend")
+        b.box((cx, 7.8, -FRONT - 0.13), (0.8, 0.8, 0.06), "rarity_legend", rot=rot_z(45))
+        px_ = s * (half + PILLAR + 1.6)                                                     # a torch off the wall line
+        b.span((px_ - 0.45, 0, -3.45), (px_ + 0.45, 0.6, -2.55), "concrete_dark")
+        b.span((px_ - 0.12, 0.6, -3.12), (px_ + 0.12, 5.2, -2.88), "dark_wood")
+        b.span((px_ - 0.3, 5.2, -3.3), (px_ + 0.3, 5.6, -2.7), "fur_soot")
+        lamps.ball((px_, 5.95, -3.0), 0.36, "lamp_warm", scale=(1.0, 1.4, 1.0))
+    reach = half + PILLAR + 0.3
+    b.span((-reach, 11.6, -0.9), (reach, 13.0, 0.9), "concrete")                             # the stone lintel
+    b.span((-reach, 11.4, -1.0), (reach, 11.6, 1.0), "concrete_dark")
+    inner = half - INSET
+    n = 16                                                                                 # merlons along it
+    w = 2 * inner / n
+    for k in range(0, n, 2):
+        b.span((-inner + k * w + 0.1, 13.0, -0.9), (-inner + (k + 1) * w - 0.1, 13.5, -0.5), "metal")
+    for k in range(13):                                                                    # the portcullis' teeth
+        x = -inner + 0.9 + k * (2 * inner - 1.8) / 12
+        b.span((x - 0.14, 10.4, -0.14), (x + 0.14, 11.4, 0.14), "fur_soot")
+        b.box((x, 10.36, 0), (0.28, 0.28, 0.24), "fur_soot", rot=rot_z(45))
+    b.span((-inner, 10.9, -0.1), (inner, 11.1, 0.1), "fur_soot")
+    px = 0.34
+    text = "MEDIEVAL CASTLE"
+    bw = text_width(text, px) + 2.4
+    b.span((-bw / 2, 13.5, -0.22), (bw / 2, 16.0, 0.22), "pants_navy")                      # name plate
+    for (ya, yb) in ((13.5, 13.68), (15.82, 16.0)):
+        b.span((-bw / 2 - 0.06, ya, -0.27), (bw / 2 + 0.06, yb, 0.27), "rarity_legend")
+    _title(b, text, 14.6 - 2.5 * px, px, -0.22, 0.22, "offwhite")
+    b.span((-1.3, 16.0, -0.2), (1.3, 16.7, 0.2), "rarity_legend")                           # a gold crown on top
+    for k, x in enumerate((-1.1, -0.55, 0.0, 0.55, 1.1)):
+        b.span((x - 0.2, 16.7, -0.2), (x + 0.2, 17.3 + 0.3 * (k % 2 == 0), 0.2), "rarity_legend")
+        b.ball((x, 17.5 + 0.3 * (k % 2 == 0), 0), 0.2, ("shirt_red", "milk")[k % 2])
+    b.span((-1.3, 16.2, -0.24), (1.3, 16.4, 0.24), "shirt_red")
+    return 12.0
+
+
+def build_castle_gate(mat):
+    """Tier 10: the Medieval Castle's 24 stud opening (the camp opening, as every area since F85)."""
+    return _gate("CatCafe_Castle_Gate", mat, 24.0, "pants_navy", "concrete_dark", _castle)
+
+
+def build_waterpark_gate(mat):
+    """Tier 9: the Water Park's 24 stud opening (the camp opening, as every area since F85)."""
+    return _gate("CatCafe_WaterPark_Gate", mat, 24.0, "shirt_red", "shirt_blue", _waterpark)
+
+
+def build_snowy_gate(mat):
+    """Tier 8: the Snowy Mountain's 24 stud opening (the camp opening, as every area since F85)."""
+    return _gate("CatCafe_Snowy_Gate", mat, 24.0, "eye_blue", "shirt_red", _snowy)
+
+
 ASSETS = {
     "CatCafe_Park_Gate": (build_park_gate, 6000),
     "CatCafe_Park_GateF85": (build_park_gate_f85, 6000),
@@ -404,4 +566,7 @@ ASSETS = {
     "CatCafe_Sewer_Gate": (build_sewer_gate, 6000),
     "CatCafe_Desert_Gate": (build_desert_gate, 6000),
     "CatCafe_Ruins_Gate": (build_ruins_gate, 6000),
+    "CatCafe_Snowy_Gate": (build_snowy_gate, 6000),
+    "CatCafe_WaterPark_Gate": (build_waterpark_gate, 6000),
+    "CatCafe_Castle_Gate": (build_castle_gate, 6000),
 }

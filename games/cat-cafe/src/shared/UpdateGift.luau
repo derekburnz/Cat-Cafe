@@ -43,6 +43,7 @@ export type Gift = {
 	spins: number,
 	crates: { [string]: number }?,
 	to: number?,
+	traitTokens: number?, -- Config.Giveaways only: Trait Tokens banked for the Mystic Pool (PlaytimeGiftService)
 }
 
 -- The gift that pays at `now` and the gift whose "a gift is coming" notice may show: `nextGift` for both once its

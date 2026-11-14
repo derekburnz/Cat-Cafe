@@ -7,7 +7,10 @@ Golden Fish Market's shelf, open in the crate reveal and give the shop and inven
                                    (the cafe's own crate with a ribbon), Rally (F101: a navy kit crate with a
                                    red team stripe, a gold star and a chequered lid; no golden twin), Desert
                                    (#2651: a caravan trunk with a woven band and a potted cactus on the lid), Ruins
-                                   (#2651: a carved stone chest with a jade paw tablet, vines and a jade gem)
+                                   (#2651: a carved stone chest with a jade paw tablet, vines and a jade gem), Snowy
+                                   (#3997: a lodge chest with snow on its lid, ice blue bands and a snowflake), WaterPark
+                                   (#4066: a prize crate with a striped lid, a swim ring and a balloon), Castle
+                                   (#4067: a treasure chest in iron bands with a gold lock, a crown on its lid)
   CatCafe_Prop_Crate_<Pool>_Gold   the golden crate: the same crate in the three metal golds, its accents kept
 
 Each crate carries its zone's paw (paw_<zone>; Alley neon pink, Classic blush). Pivot base centre, front -Z, about
@@ -28,7 +31,10 @@ HINGE = (0.0, H, D + 0.06)       # the lid turns about the back top edge
 
 PAW = {"Alley": "neon_pink", "Park": "paw_park", "Neighbourhood": "paw_neighbourhood", "Woods": "paw_woods",
        "Sewer": "paw_sewer", "Classic": "blush", "Rally": "rarity_legend",
-       "Desert": "eye_amber", "Ruins": "fur_emerald"}                  # the areas' gate trims (#2651)
+       "Desert": "eye_amber", "Ruins": "fur_emerald",                  # the areas' gate trims (#2651)
+       "Snowy": "eye_blue",                                             # Tier 8 (#3997)
+       "WaterPark": "shirt_red",                                        # Tier 9 (#4066)
+       "Castle": "pants_navy"}                                          # Tier 10 (#4067)
 
 
 def _paw(b, cx, cy, z, s, swatch, depth=0.02):
@@ -467,13 +473,132 @@ def ruins(b, lid):
                      ("leaf_green", "fur_moss", "leaf_dark")[k])
 
 
+def snowy(b, lid):
+    """A lodge chest (#3997): warm boards in dark wood corners and rails, an ice blue band with a red stripe round it,
+    the ice blue paw on a cream tag, rope handles; on the lid snow heaped on top, icicles along the front edge, a
+    snowflake standing on it and a tiny snowy pine."""
+    b.span((-W + 0.06, 0.04, -D + 0.06), (W - 0.06, H - 0.02, D - 0.06), "caramel_wood")
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            b.span((min(sx * W, sx * (W - 0.18)), 0.0, min(sz * D, sz * (D - 0.18))),
+                   (max(sx * W, sx * (W - 0.18)), H, max(sz * D, sz * (D - 0.18))), "dark_wood")
+
+    def side(axis, sign):
+        half = (W if axis == "z" else D) - 0.18
+        out = (D if axis == "z" else W) - 0.06
+        _side_span(b, axis, sign, -half, half, 0.0, 0.16, out, out + 0.06, "dark_wood")        # rails
+        _side_span(b, axis, sign, -half, half, H - 0.16, H, out, out + 0.06, "dark_wood")
+        _side_span(b, axis, sign, -half, half, 0.62, 0.98, out, out + 0.04, "pastel_sky")      # the ice band
+        _side_span(b, axis, sign, -half, half, 0.76, 0.84, out, out + 0.05, "shirt_red")       # its stripe
+        for y in (0.4, 1.2):                                             # board lines
+            _side_span(b, axis, sign, -half, half, y - 0.015, y + 0.015, out, out + 0.01, "fur_brown")
+    _faces(side)
+    b.span((-0.3, 1.02, -(D - 0.02)), (0.3, 1.45, -(D - 0.06)), "cream")                       # the tag
+    _paw(b, 0.0, 1.22, -(D - 0.02), 0.4, PAW["Snowy"], depth=0.025)
+    for sx in (-1, 1):                                                   # rope handles on the ends
+        b.span((min(sx * W, sx * (W + 0.12)), 1.1, -0.35), (max(sx * W, sx * (W + 0.12)), 1.18, 0.35), "fur_sand")
+    # lid: a dark rim, the boards, snow heaped on top, icicles off the front, the snowflake, the pine
+    lid.span((-W - 0.04, H, -D - 0.04), (W + 0.04, H + 0.08, D + 0.06), "dark_wood")
+    lid.span((-W + 0.06, H + 0.08, -D + 0.06), (W - 0.06, H + 0.2, D - 0.04), "caramel_wood")
+    lid.span((-W + 0.14, H + 0.2, -D + 0.14), (W - 0.14, H + 0.3, D - 0.12), "milk")
+    lid.ball((-0.5, H + 0.3, 0.2), 0.38, "milk", scale=(1.4, 0.45, 1.1))
+    for k in range(6):
+        x = -W + 0.25 + k * (2 * W - 0.5) / 5
+        ln = (0.12, 0.2, 0.15, 0.24, 0.14, 0.18)[k]
+        lid.span((x - 0.03, H - ln, -D - 0.06), (x + 0.03, H, -D - 0.03), "pastel_sky")
+    for k in range(3):                                                   # the snowflake, standing
+        lid.box((0.35, H + 0.62, -0.1), (0.06, 0.6, 0.05), "eye_blue", rot=rot_z(60 * k))
+    lid.span((0.32, H + 0.3, -0.13), (0.38, H + 0.34, -0.07), "eye_blue")
+    px, pz = -0.55, 0.35                                                 # the tiny pine
+    lid.cyl((px, H + 0.42, pz), 0.05, 0.24, "fur_brown", segments=6)
+    for i, (y, r) in enumerate(((0.5, 0.2), (0.66, 0.15), (0.8, 0.1))):
+        lid.cyl((px, H + y, pz), r, 0.12, ("leaf_dark", "paw_woods")[i % 2], segments=8)
+        lid.cyl((px, H + y + 0.07, pz), r * 0.8, 0.02, "milk", segments=8)
+
+
+def waterpark(b, lid):
+    """A prize crate (#4066): cream boards in red corners and gold rails, a blue band with a butter stripe round it,
+    the red paw on a cream ticket, rope handles; on the lid red and cream stripes, a little swim ring and a balloon
+    on a stick."""
+    b.span((-W + 0.06, 0.04, -D + 0.06), (W - 0.06, H - 0.02, D - 0.06), "milk")
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            b.span((min(sx * W, sx * (W - 0.18)), 0.0, min(sz * D, sz * (D - 0.18))),
+                   (max(sx * W, sx * (W - 0.18)), H, max(sz * D, sz * (D - 0.18))), "shirt_red")
+
+    def side(axis, sign):
+        half = (W if axis == "z" else D) - 0.18
+        out = (D if axis == "z" else W) - 0.06
+        _side_span(b, axis, sign, -half, half, 0.0, 0.16, out, out + 0.06, "rarity_legend")     # rails
+        _side_span(b, axis, sign, -half, half, H - 0.16, H, out, out + 0.06, "rarity_legend")
+        _side_span(b, axis, sign, -half, half, 0.62, 0.98, out, out + 0.04, "shirt_blue")      # the band
+        _side_span(b, axis, sign, -half, half, 0.76, 0.84, out, out + 0.05, "pastel_butter")   # its stripe
+    _faces(side)
+    b.span((-0.3, 1.02, -(D - 0.02)), (0.3, 1.45, -(D - 0.06)), "cream")                       # the ticket
+    _paw(b, 0.0, 1.22, -(D - 0.02), 0.4, PAW["WaterPark"], depth=0.025)
+    for sx in (-1, 1):                                                   # rope handles on the ends
+        b.span((min(sx * W, sx * (W + 0.12)), 1.1, -0.35), (max(sx * W, sx * (W + 0.12)), 1.18, 0.35), "fur_sand")
+    lid.span((-W - 0.04, H, -D - 0.04), (W + 0.04, H + 0.08, D + 0.06), "rarity_legend")
+    n = 6
+    w = (2 * W - 0.12) / n
+    for k in range(n):                                                   # the striped top
+        lid.span((-W + 0.06 + k * w, H + 0.08, -D + 0.06), (-W + 0.06 + (k + 1) * w, H + 0.2 + 0.004 * (k % 2),
+                 D - 0.04), ("shirt_red", "milk")[k % 2])
+    lid.cyl((-0.5, H + 0.28, 0.1), 0.38, 0.16, "fur_bubblegum", segments=10)                   # a swim ring
+    lid.cyl((-0.5, H + 0.3, 0.1), 0.17, 0.16, "milk", segments=8)
+    lid.span((0.52, H + 0.2, -0.13), (0.58, H + 0.8, -0.07), "milk")                           # a balloon on a stick
+    lid.ball((0.55, H + 0.98, -0.1), 0.24, "pastel_butter", scale=(1.0, 1.2, 1.0))
+
+
+def castle(b, lid):
+    """A treasure chest (#4067): dark timber boards in iron corners and bands with gold studs, the navy paw on a
+    gold shield, a gold lock, iron ring handles; on the lid iron bands, a red cushion and a little gold crown."""
+    b.span((-W + 0.06, 0.04, -D + 0.06), (W - 0.06, H - 0.02, D - 0.06), "caramel_wood")
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            b.span((min(sx * W, sx * (W - 0.18)), 0.0, min(sz * D, sz * (D - 0.18))),
+                   (max(sx * W, sx * (W - 0.18)), H, max(sz * D, sz * (D - 0.18))), "fur_soot")
+
+    def side(axis, sign):
+        half = (W if axis == "z" else D) - 0.18
+        out = (D if axis == "z" else W) - 0.06
+        _side_span(b, axis, sign, -half, half, 0.0, 0.16, out, out + 0.06, "dark_wood")        # rails
+        _side_span(b, axis, sign, -half, half, H - 0.16, H, out, out + 0.06, "dark_wood")
+        for u in (-half * 0.55, half * 0.55):                                                  # iron bands, gold studs
+            _side_span(b, axis, sign, u - 0.1, u + 0.1, 0.16, H - 0.16, out, out + 0.05, "fur_soot")
+            for y in (0.4, 0.9, 1.4):
+                _side_span(b, axis, sign, u - 0.05, u + 0.05, y, y + 0.1, out, out + 0.08, "rarity_legend")
+    _faces(side)
+    b.span((-0.34, 0.6, -(D - 0.02)), (0.34, 1.3, -(D - 0.06)), "rarity_legend")               # the shield
+    _paw(b, 0.0, 0.95, -(D - 0.02), 0.4, PAW["Castle"], depth=0.025)
+    b.span((-0.16, 1.38, -(D + 0.06)), (0.16, 1.7, -(D - 0.04)), "rarity_legend")              # the lock
+    b.span((-0.04, 1.46, -(D + 0.08)), (0.04, 1.58, -(D + 0.05)), "fur_soot")
+    for sx in (-1, 1):                                                   # iron ring handles on the ends
+        b.span((min(sx * W, sx * (W + 0.1)), 1.0, -0.3), (max(sx * W, sx * (W + 0.1)), 1.08, 0.3), "fur_soot")
+        b.span((min(sx * W, sx * (W + 0.1)), 1.08, -0.3), (max(sx * W, sx * (W + 0.1)), 1.3, -0.22), "fur_soot")
+        b.span((min(sx * W, sx * (W + 0.1)), 1.08, 0.22), (max(sx * W, sx * (W + 0.1)), 1.3, 0.3), "fur_soot")
+    lid.span((-W - 0.04, H, -D - 0.04), (W + 0.04, H + 0.08, D + 0.06), "fur_soot")
+    lid.span((-W + 0.06, H + 0.08, -D + 0.06), (W - 0.06, H + 0.2, D - 0.04), "dark_wood")
+    for x in (-W * 0.55, W * 0.55):
+        lid.span((x - 0.1, H + 0.08, -D + 0.02), (x + 0.1, H + 0.23, D), "fur_soot")
+    lid.span((-0.42, H + 0.2, -0.32), (0.42, H + 0.34, 0.32), "shirt_red")                     # the cushion
+    lid.span((-0.26, H + 0.34, -0.2), (0.26, H + 0.5, 0.2), "rarity_legend")                   # the crown
+    for k, x in enumerate((-0.2, 0.0, 0.2)):
+        lid.span((x - 0.06, H + 0.5, -0.2), (x + 0.06, H + 0.64 + 0.08 * (k == 1), 0.2), "rarity_legend")
+    lid.ball((0.0, H + 0.8, 0.0), 0.07, "shirt_red")
+
+
 POOLS = {"Alley": alley, "Park": park, "Neighbourhood": neighbourhood, "Woods": woods, "Sewer": sewer,
-         "Classic": classic, "Rally": rally, "Desert": desert, "Ruins": ruins}
+         "Classic": classic, "Rally": rally, "Desert": desert, "Ruins": ruins, "Snowy": snowy, "WaterPark": waterpark,
+         "Castle": castle}
 NO_GOLD = {"Rally"}           # the Rally Crate only comes from the Rally (F101): no golden twin
 # accents a golden crate keeps, so it still reads as its zone's crate
 KEEP = {"Alley": ("neon_pink",), "Park": ("bowl_red",), "Neighbourhood": ("pastel_sky", "blush", "bowl_red"),
         "Woods": ("bowl_red", "leaf_green"), "Sewer": ("bowl_red",), "Classic": ("blush", "nose_pink"),
-        "Desert": ("leaf_green", "blush", "choco"), "Ruins": ("leaf_green", "leaf_dark", "fur_moss")}
+        "Desert": ("leaf_green", "blush", "choco"), "Ruins": ("leaf_green", "leaf_dark", "fur_moss"),
+        "Snowy": ("milk", "pastel_sky", "leaf_dark", "paw_woods", "shirt_red"),
+        "WaterPark": ("shirt_blue", "pastel_butter", "fur_bubblegum", "milk"),
+        "Castle": ("shirt_red", "pants_navy", "fur_soot")}
 
 
 def _gold(pool):

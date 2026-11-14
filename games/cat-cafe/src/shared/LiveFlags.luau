@@ -98,6 +98,13 @@
 -- - `traitBundles` (#3864): the Trait Token bundles (20 and 50, developer products) on the Mystic Pool card once the
 --   free rolls are used. It starts OFF (OFF_BY_DEFAULT); off, no offer shows (a receipt still pays, since Roblox
 --   took the Robux).
+-- - `storeRework` (#3572): the Store as in Model-Agent's OK'd mock: Cats above Passes on the rail, each tab cheapest
+--   first, two columns of cards with the picture at the left and the price button under the words
+--   (client/UI/Screens/Store). It starts OFF (OFF_BY_DEFAULT); read by the client alone, once when the Store is built.
+-- - `quietStart` (#4005): a new player's first 15 minutes of play on the account (shared/QuietStart) hide other players'
+--   pop ups, refuse trade requests to them and hold the extra tips and cards. It starts OFF (OFF_BY_DEFAULT).
+-- - `quietAway` (#4035): while a player's net is out in a catching area, the food bowl cards wait until they are
+--   back (town, a cafe or a camp; client/UI UI.bait.busy). Client only. It starts OFF (OFF_BY_DEFAULT).
 -- - `rareCustomers` (#3889): each customer walking into an open cafe has a chance to be a rich customer, a Mystery
 --   Visitor or the Cat Collector (shared/RareCustomers, RareCustomerService), sitting at any open table, in place of
 --   their three timers. It starts OFF (OFF_BY_DEFAULT); off, the timers run as before.
@@ -150,6 +157,12 @@ LiveFlags.KEYS = {
 	"fxLite", -- #3794: phones and graphics quality 1 to 3 run the lighter effects budget; false goes back to today's
 	"picnicTreats",
 	"traitBundles", -- #3864: the Trait Token bundles at the Mystic Pool
+	"storeRework", -- #3572: the reworked Store layout
+	"indexTo70", -- #3992: the Index's All Cats tracks past 50 and Rainbow track past 25 (shared/IndexRewards.lateOpen)
+	"quietStart", -- #4005: a new player's first 15 minutes without other players' pop ups (shared/QuietStart)
+	"quietAway", -- #4035: food bowl cards wait while the player is out catching
+	"riftRun", -- Derek 2026-11-13: a Mythic or Secret trait roll's Rift Run cutscene (client/Effects/RiftRun); client only
+	"secretTrait", -- #3908: the Secret trait rarity (0.1%) in the Mystic Pool's rolls and odds (shared/Traits)
 	"rareCustomers", -- #3889: rare customers by a chance per arriving customer, at any table
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -181,6 +194,12 @@ LiveFlags.OFF_BY_DEFAULT = {
 	returnGift = true,
 	picnicTreats = true,
 	traitBundles = true,
+	storeRework = true,
+	indexTo70 = true,
+	quietStart = true,
+	quietAway = true,
+	riftRun = true,
+	secretTrait = true,
 	rareCustomers = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

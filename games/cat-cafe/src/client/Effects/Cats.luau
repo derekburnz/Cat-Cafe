@@ -295,7 +295,9 @@ end
 -- (Derek 2026-10-27). Every client works it out the same from the server clock and the cat's Uid. A seated cat
 -- never loafs (the loaf is the walking body's).
 function Cats.isLoafing(model: Model): boolean
-	return model:GetAttribute("Napping") == true
+	-- #3923: off for resting cats, they stay asleep (Presets.motion.loaf.resting)
+	return Presets.motion.loaf.resting == true
+		and model:GetAttribute("Napping") == true
 		and not hidden(model)
 		and not isWorking(model)
 		and not Context.isNight()

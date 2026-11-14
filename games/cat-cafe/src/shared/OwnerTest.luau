@@ -118,13 +118,15 @@ end
 OwnerTest.TOPIC = "CatCafeOwner"
 OwnerTest.EVENT_MINUTES = 10
 OwnerTest.SHOUT_MAX = 120
-OwnerTest.SHOUT_GAP_SECONDS = 20
+-- #3913 (Derek 2026-11-13: "lower the shout cooldown"): 20 to 10, the shortest a bubble stays up; a newer shout
+-- takes over the bubble on screen (Screens/OwnerShout), so a short one is always read in full
+OwnerTest.SHOUT_GAP_SECONDS = 10
 -- #3301 (Derek2: "make the /shout make a quick bubble with OWNER "whatever messege I put" on screen"): the bubble's
 -- title and its quoted line (Screens/OwnerShout)
 OwnerTest.BUBBLE_TITLE = "OWNER"
 -- #3872 (Derek 2026-11-13: "/shout works but it does not stay long enough for people to read"): the bubble stays
 -- BUBBLE_BASE seconds plus one for every BUBBLE_CHARS_PER_SECOND characters, from BUBBLE_SECONDS to BUBBLE_MAX
--- (a full SHOUT_MAX shout gets the whole SHOUT_GAP_SECONDS)
+-- (a full SHOUT_MAX shout gets the whole BUBBLE_MAX)
 OwnerTest.BUBBLE_SECONDS = 10 -- the least, even for "hi"
 OwnerTest.BUBBLE_MAX = 20
 OwnerTest.BUBBLE_BASE = 6

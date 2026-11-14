@@ -40,6 +40,9 @@ import alley
 import alleyway
 import desertset as ds
 import ruinsset as rs
+import snowyset as sn
+import waterparkset as wp
+import castleset as cs
 import neighbourhood as nb
 import park
 import sewer as sw
@@ -86,6 +89,18 @@ AREAS = {
     # Tier 7 (section 5): Broken Gate Camp across the south end of the 140 x 600 Ruins
     "Ruins": dict(W=140.0, D=600.0, half=12.0, ground=rs.EARTH, path=rs.SANDSTONE_LIGHT, wall=rs.STONE,
                   top=rs.STONE_LIGHT, trim="fur_emerald", theme="Ruins"),
+    # Tier 8 (next-areas plan section 1, #3997): the Cocoa Lodge camp across the -Z end of the 150 x 560 Snowy
+    # Mountain, a log wall with snow along its top
+    "Snowy": dict(W=150.0, D=560.0, half=12.0, ground=sn.SNOW, path=sn.PATH, wall=sn.WOOD, top=sn.SNOW,
+                  trim="eye_blue", theme="Snowy"),
+    # Tier 9 (next-areas plan section 2, #4066): the Ticket Gate camp across the -Z end of the 150 x 560 Water Park,
+    # a cream board fence under a red rail on asphalt
+    "WaterPark": dict(W=150.0, D=560.0, half=12.0, ground=wp.ASPHALT, path=wp.PATH, wall=wp.MILK, top=wp.RED,
+                      trim="shirt_red", theme="WaterPark"),
+    # Tier 10 (next-areas plan section 3, #4067): the Village Gate camp across the -Z end of the 150 x 560 Medieval
+    # Castle, a timber palisade under a dark rail on packed earth
+    "Castle": dict(W=150.0, D=560.0, half=12.0, ground=cs.EARTH, path=cs.SAND, wall=cs.WOOD, top=cs.WOOD_DARK,
+                   trim="pants_navy", theme="Castle"),
 }
 CAMPS = {}               # asset -> the manifest's camp entry
 ATTACHMENTS = {}         # asset -> [(object suffix, name, Roblox point, Roblox rotation)]
@@ -141,7 +156,7 @@ def _wall(g, bar, x0, z0, x1, z1, look):
     if look.get("theme") == "Park":                                      # a stone base under a clipped hedge
         g.span((x0, 0, z0), (x1, 1.2, z1), wall)
         g.span((x0 + 0.05, 1.2, z0 + 0.05), (x1 - 0.05, WALL_H, z1 - 0.05), top)
-    elif look.get("theme") == "Woods":                                    # planks, a capping rail
+    elif look.get("theme") in ("Woods", "Snowy"):                         # planks (logs), a capping rail (snow)
         g.span((x0 + 0.1, 0, z0 + 0.1), (x1 - 0.1, WALL_H - 0.3, z1 - 0.1), wall)
         g.span((x0, WALL_H - 0.3, z0), (x1, WALL_H, z1), top)
     else:                                                                 # brick under a coping
@@ -190,7 +205,7 @@ def build_camp(area):
             for sx in (1, -1):
                 x0, x1 = sorted((sx * (half + 0.2), sx * (W / 2 - 0.5)))
                 _wall(g, bar, x0, G, x1, near, look)
-        if look.get("theme") == "Woods":
+        if look.get("theme") in ("Woods", "Snowy"):
             _posts(g, -W / 2 + 1, B, W / 2 - 1, B, 6.0, (0, 1))
             for sx in (1, -1):
                 _posts(g, sx * (W / 2 - 0.5), B + 2, sx * (W / 2 - 0.5), near - 1, 6.0, (-sx, 0))
@@ -340,6 +355,78 @@ def _theme(s, mat, area, G, B, W, half):
         s.put(rs.gargoyle(mat), 33.0, G - 25.5, 0)          # #3469: off the Relic Museum's radius 8 ring (was 24)
         for (x, z, k) in ((-62.0, G - 10.0, 1.0), (60.0, G - 9.0, 1.2), (-30.0, B + 2.0, 0.9), (38.0, B + 2.5, 1.1)):
             s.put(rs.rubble(mat, k), x, z, (x * 7) % 360)
+
+    elif AREAS[area].get("theme") == "Snowy":
+        # the Cocoa Lodge camp (plan 1b): the lodge's front against the back wall east, a fire pit in a ring of log
+        # benches west, a ski rack beside the cannon, lamps by the cannon and the way out, snowy pines in the back
+        # corners, a snowman and a sled. Clear of the pad, the basket, the paths, the Index Board (-19, 1.5 in) and
+        # the camp extra's spot (20, 3.5 in, its radius 8 ring), where the Cocoa Stand will stand.
+        s.put(sn.lodge_front(mat), 45.0, B + 2.6, 180)
+        fx, fz = -42.0, G - 16.0
+        s.put(sn.fire_pit(mat), fx, fz, 0)
+        for k in range(4):
+            a = math.radians(45 + 90 * k)
+            s.put(sn.bench(mat), fx + 4.2 * math.cos(a), fz + 4.2 * math.sin(a), 90 - math.degrees(a))
+        s.put(sn.ski_rack(mat), 11.5, B + 3.0, 0)
+        for sx in (1, -1):
+            s.put(sn.lamp(mat), sx * 9, cz, 0)
+            s.put(sn.lamp(mat), sx * (W / 2 - 3), G - 2.5, 0)
+            s.put(sn.pine(mat, 12.0), sx * (W / 2 - 5), B + 5, 0)
+        s.put(sn.pine(mat, 10.0), -24.0, B + 4.5, 30)
+        s.put(sn.snowman(mat, 0), -58.0, G - 6.0, 200)
+        s.put(sn.sled(mat), 62.0, G - 14.0, 70)
+        s.put(sn.snowball_pile(mat), -64.0, G - 24.0, 0)
+
+    elif AREAS[area].get("theme") == "WaterPark":
+        # the Ticket Gate camp (plan 2b): the ticket windows' front against the back wall west with a rope queue
+        # before it, food carts and benches east, balloons, palms in pots and park lamps. Clear of the pad, the
+        # basket, the paths, the Index Board (-19, 1.5 in) and the camp extra's spot (20, 3.5 in, its radius 8
+        # ring), where the Ticket Booth stands.
+        s.put(wp.ticket_front(mat), -45.0, B + 2.6, 180)
+        s.put(wp.queue_rails(mat), -45.0, B + 12.5, 0)
+        s.put(wp.food_cart(mat, "popcorn"), 44.0, B + 4.5, 180)
+        s.put(wp.food_cart(mat, "cotton"), 54.0, B + 4.5, 180)
+        s.put(wp.food_cart(mat, "ice"), 64.0, B + 5.0, 150)
+        for k, x in enumerate((40.0, 50.0, 60.0)):
+            s.put(wp.bench(mat), x, G - 9.0, 0)
+        s.put(wp.park_sign(mat, 0), 14.5, G - 3.0, 0)
+        s.put(wp.park_sign(mat, 1), -30.0, G - 4.0, 0)
+        for sx in (1, -1):
+            s.put(wp.lamp(mat), sx * 9, cz, 0)
+            s.put(wp.lamp(mat), sx * (W / 2 - 3), G - 2.5, 0)
+            s.put(wp.planter_palm(mat, 9.0), sx * (W / 2 - 5), B + 5, 0)
+            s.put(wp.balloon_bunch(mat, 0 if sx > 0 else 1), sx * 30.0, G - 12.0, 0)
+        s.put(wp.planter_palm(mat, 7.5), -24.0, B + 4.5, 30)
+        s.put(wp.planter_palm(mat, 7.5), 34.0, B + 4.5, 0)
+        s.put(wp.trash_can(mat, 0), 36.0, G - 9.0, 0)
+        s.put(wp.trash_can(mat, 1), -60.0, G - 6.0, 0)
+        s.put(wp.balloon_bunch(mat, 1), -66.0, G - 20.0, 0)
+
+    elif AREAS[area].get("theme") == "Castle":
+        # the Village Gate camp (plan 3b): two market stalls against the back wall west with a well by them, a
+        # knight's pavilion, a hay cart and stores east, banners, torches and a practice corner. Clear of the pad,
+        # the basket, the paths, the Index Board (-19, 1.5 in) and the camp extra's spot (20, 3.5 in, its radius 8
+        # ring), where the Dragon Keep stands.
+        s.put(cs.market_stall(mat, 0), -43.0, B + 6.5, 180)
+        s.put(cs.market_stall(mat, 1), -59.0, B + 6.5, 180)
+        s.put(cs.well(mat), -27.0, B + 6.0, 0)
+        s.put(cs.pavilion(mat, 1), 54.0, B + 9.0, 180)
+        s.put(cs.barrels(mat, 0), 38.0, B + 4.5, 0)
+        s.put(cs.crate_stack(mat, 1), 67.0, B + 5.0, 0)
+        s.put(cs.hay_cart(mat), 40.0, G - 9.0, 20)
+        s.put(cs.haystack(mat, 0.8), 64.0, G - 10.0, 0)
+        s.put(cs.bench(mat), 52.0, G - 8.0, 0)
+        s.put(cs.bench(mat), -32.0, G - 9.0, 0)
+        s.put(cs.practice_dummy(mat, 0), -58.0, G - 7.0, 30)
+        s.put(cs.archery_butt(mat), -66.0, G - 20.0, 90)
+        s.put(cs.weapon_rack(mat), -46.0, G - 8.0, 0)
+        for sx in (1, -1):
+            s.put(cs.torch_post(mat), sx * 9, cz, 0)
+            s.put(cs.torch_post(mat), sx * (W / 2 - 3), G - 2.5, 0)
+            s.put(cs.banner_pole(mat, 0 if sx > 0 else 1), sx * (W / 2 - 5), B + 5, 180)
+            s.put(cs.banner_pole(mat, 2 if sx > 0 else 3), sx * 30.0, G - 12.0, 180)
+        s.put(cs.barrel(mat, 1), -14.5, G - 3.0, 0)
+        s.put(cs.barrel(mat, 0), 34.0, G - 4.0, 0)
 
 
 def rbx_attachments(name):

@@ -61,9 +61,23 @@ local function rebudget()
 end
 
 function Context.init()
-	Context.device = Logic.tier(UserInputService.TouchEnabled, UserInputService.KeyboardEnabled)
+	local function retier()
+		Context.device = Logic.tier(
+			UserInputService.TouchEnabled,
+			UserInputService.KeyboardEnabled,
+			UserInputService.MouseEnabled
+		)
+	end
+	retier()
 	Context.console = GuiService:IsTenFootInterface()
 	rebudget()
+	-- #3918: a keyboard case or a mouse can be attached mid session; the tier follows within a second
+	for _, name in { "KeyboardEnabled", "MouseEnabled", "TouchEnabled" } do
+		UserInputService:GetPropertyChangedSignal(name):Connect(function()
+			retier()
+			rebudget()
+		end)
+	end
 	-- #3794: the switch and the graphics quality can change mid session; effects pick the budget up within a second
 	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. LITE_FLAG)
 		:Connect(rebudget)
@@ -107,8 +121,17 @@ function Context.isNight(): boolean
 	return clock ~= nil and clock:GetAttribute("Phase") == "night"
 end
 
--- The player's Reduce Motion setting: no camera shake or flashes, fewer confetti pieces.
+-- The player's Reduce Motion setting: no camera shake or flashes, fewer confetti pieces. In Studio only, the
+-- Workspace attribute `ReduceMotionTest` = true turns it on too, so a playtest can check the still version of an
+-- effect without changing a Roblox account setting (Review-QA, #4105). It does nothing in the live game.
+local studioKnown, studio = pcall(function(): boolean
+	return RunService:IsStudio()
+end)
+local IN_STUDIO = studioKnown and studio == true
 function Context.reducedMotion(): boolean
+	if IN_STUDIO and Workspace:GetAttribute("ReduceMotionTest") == true then
+		return true
+	end
 	return GuiService.ReducedMotionEnabled
 end
 

@@ -11,6 +11,18 @@ return function()
 	local first = Traits.LIST[1]
 	local last = Traits.LIST[#Traits.LIST]
 
+	describe("MysticPoolLogic.canSkip (#3943)", function()
+		it("lets a tap skip below Mythic and never for Mythic or Secret", function()
+			expect(MysticPoolLogic.canSkip("mythic")).to.equal(false)
+			expect(MysticPoolLogic.canSkip("secret")).to.equal(false)
+			for _, rarity in Traits.RARITIES do
+				if rarity.id ~= "mythic" and rarity.id ~= "secret" then
+					expect(MysticPoolLogic.canSkip(rarity.id)).to.equal(true)
+				end
+			end
+		end)
+	end)
+
 	describe("MysticPoolLogic.card", function()
 		it("shows a plain card for no trait or one it does not know", function()
 			for _, value in { nil, {}, { id = 3 }, { id = "no_such_trait" } } :: { any } do
@@ -154,16 +166,32 @@ return function()
 
 	describe("MysticPoolLogic.odds", function()
 		it("lists every rarity with its percent, adding up to 100", function()
-			local rows = MysticPoolLogic.odds()
-			expect(#rows).to.equal(#Traits.RARITIES)
-			local total = 0
-			for index, row in rows do
-				expect(row.name).to.equal(Traits.RARITIES[index].name)
-				expect(row.color).to.equal(Traits.RARITIES[index].color)
-				total += row.percent
+			for _, secret in { false, true } do
+				local rows = MysticPoolLogic.odds(secret)
+				local want = Traits.rarities(secret)
+				expect(#rows).to.equal(if secret then 7 else 6)
+				local total = 0
+				for index, row in rows do
+					expect(row.name).to.equal(want[index].name)
+					expect(row.color).to.equal(want[index].color)
+					expect(row.label).to.equal(Traits.percentText(want[index].odds))
+					total += row.percent
+				end
+				expect(math.abs(total - 100) < 1e-9).to.equal(true)
+				expect(MysticPoolLogic.oddsLines(secret)[2]:find("equally likely", 1, true)).to.be.ok()
 			end
-			expect(total).to.equal(100)
-			expect(MysticPoolLogic.ODDS_LINE:find("equally likely", 1, true)).to.be.ok()
+			expect(MysticPoolLogic.oddsLines(true)[1]).to.equal(
+				"Common 30%, Uncommon 25%, Rare 18%, Epic 12%, Legendary 10%, Mythic 4.9%, Secret 0.1%"
+			)
+			expect(MysticPoolLogic.oddsLine(true)).to.equal(
+				"Roll odds: Common 30% · Uncommon 25% · Rare 18% · Epic 12% · Legendary 10% · Mythic 4.9% · Secret 0.1%"
+			)
+		end)
+
+		it("reads the Secret switch the server copied, off when missing (#3908)", function()
+			expect(MysticPoolLogic.secret()).to.equal(false)
+			expect(#MysticPoolLogic.odds()).to.equal(6)
+			expect(#MysticPoolLogic.odds(true)).to.equal(7)
 		end)
 
 		it("never uses near-miss words on its buttons", function()
@@ -298,6 +326,10 @@ return function()
 			expect(list[1].id).to.equal(11)
 			expect(list[1].label).to.equal("20 Tokens · R$99")
 			expect(list[2].label).to.equal("50 Tokens · R$199")
+			-- #3948: the picture cards' words
+			expect(list[1].tokens).to.equal(20)
+			expect(list[1].price).to.equal("R$99")
+			expect(list[2].rolls).to.equal("50 rolls")
 		end)
 		it(
 			"offers nothing while free rolls are left, a choice waits, or it was seen this session",
@@ -344,13 +376,30 @@ return function()
 			expect(#one).to.equal(1)
 			expect(one[1].product).to.equal("trait_tokens_50")
 		end)
+		it("hangs the red ! over the pool while a roll waits (#3936)", function()
+			expect(MysticPoolLogic.bangShows(nil)).to.equal(false)
+			expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 0, held = 0 })).to.equal(
+				false
+			)
+			expect(MysticPoolLogic.bangShows({ tokens = 10, freeLeft = 0, held = 0 })).to.equal(
+				true
+			)
+			expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 2, held = 0 })).to.equal(true)
+			expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 0, held = 1 })).to.equal(true)
+			expect(MysticPoolLogic.bangShows({ tokens = 3, pending = { uid = "a", id = "b" } })).to.equal(
+				false
+			)
+			expect(MysticPoolLogic.bangShows({ tokens = -4, freeLeft = 0 / 0 } :: any)).to.equal(
+				false
+			)
+		end)
 		it("shows every roll's odds, summing to 100 (monetization-policy 2.1)", function()
 			local sum = 0
 			for _, row in MysticPoolLogic.odds() do
 				sum += row.percent
 			end
 			expect(sum).to.equal(100)
-			expect(#MysticPoolLogic.ODDS_LINES >= 1).to.equal(true)
+			expect(#MysticPoolLogic.oddsLines() >= 1).to.equal(true)
 		end)
 	end)
 end

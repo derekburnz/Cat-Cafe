@@ -20,6 +20,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -84,8 +85,8 @@ end
 
 -- #3198: whether a first flight into `destination` may land at `beside`, the spot next to its waiting stray. The
 -- Alleyway's first flight lands beside the beginner's stray wherever it waits (#2913: the alley is open floor from
--- its camp's line on). Any other area's only inside its camp's fence or in the open gateway (Cannon.inCampReach):
--- the spot beside a Park stray was behind the camp's fence.
+-- its camp's line on). Any other area's only inside its camp, behind the SAFE ZONE stripe (Cannon.inCampReach):
+-- the spot beside a Park stray was behind the camp's fence (#3198), or past the stripe in the gateway (#3886).
 local function besideInReach(destination: string, beside: Vector3): boolean
 	local camp = Layout.camps[destination]
 	if camp == nil or destination == Cannon.OPEN_AREA then
@@ -206,6 +207,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	flyer:SetAttribute("CannonHeading", heading)
 	Net.fire(player, "CannonLaunch", destination, now)
 	Telemetry.custom(player, "cannon_launch", 1, { cannonId, destination })
+	profile.stats.cannonFlights += 1 -- #3618: the Liftoff badge
 	if
 		pass
 		and destination ~= Cannon.TOWN
@@ -305,10 +307,16 @@ end
 -- up to Cannon.HOME_WAIT_SECONDS, and then moves only a character that still stands at the spawn. The landing's
 -- position goes in the player's Cannon.HOME_ATTRIBUTE so their client can put the camera behind them.
 local function homeArrival(player: Player, character: Model)
-	local deadline = os.clock() + Cannon.HOME_WAIT_SECONDS
+	local started = os.clock()
 	local profile = DataService.get(player)
 	while profile == nil or PlotService.get(player) == nil do
-		if os.clock() >= deadline or player.Parent ~= Players or player.Character ~= character then
+		-- a rest's rejoin waits longer: its save comes once the old server lets go of it (Cannon.homeWaitSeconds)
+		local limit = Cannon.homeWaitSeconds(player:GetAttribute(AfkCafe.REJOIN_ATTRIBUTE) == true)
+		if
+			os.clock() - started >= limit
+			or player.Parent ~= Players
+			or player.Character ~= character
+		then
 			return
 		end
 		task.wait(0.25)

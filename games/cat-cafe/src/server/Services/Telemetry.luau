@@ -30,6 +30,7 @@ local Workspace = game:GetService("Workspace")
 local ArcadeFunnel = require(ReplicatedStorage.Shared.ArcadeFunnel)
 local CafePass = require(ReplicatedStorage.Shared.CafePass)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local Catching = require(ReplicatedStorage.Shared.Catching)
 local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -41,6 +42,7 @@ local FieldText = require(script.Parent.Parent.Util.FieldText)
 local FirstFive = require(ReplicatedStorage.Shared.FirstFive)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local IntroModeService = require(script.Parent.IntroModeService)
 local IntroSplit = require(ReplicatedStorage.Shared.IntroSplit)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
@@ -56,6 +58,7 @@ local PassService = require(script.Parent.PassService)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local RarityFunnel = require(ReplicatedStorage.Shared.RarityFunnel)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SessionFeedback = require(ReplicatedStorage.Shared.SessionFeedback)
@@ -163,7 +166,7 @@ export type CustomEvent =
 	| "spin"
 	| "crate_opened"
 	| "mystery_buy" -- #2565: value fish before; item, week slot, tier
-	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id
+	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id (#4049: then the kind)
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
 	| "intro_skip" -- #3773: a first play skipped; value the whole seconds watched; version:shot, device
@@ -603,6 +606,7 @@ type Session = {
 	introShot: number, -- #3098 P1b: the furthest intro shot the client reported this session (0 none)
 	stepClock: { [string]: number }, -- #3530: os.clock() when a step_gap step was reached this session
 	areasCaught: { [string]: boolean }?, -- #3695: the areas with a catch, for the clean funnel (nil until joined is logged)
+	rarityStep: number?, -- #3876: rarity_v1 steps logged this session (nil until joined is logged)
 }
 
 -- #2916: one next goal shown: where ("recap" or "join") and os.time() it was shown
@@ -838,8 +842,27 @@ function Telemetry.introJoin(player: Player, profile: Profile)
 	end
 	local on = LiveFlagService.on(IntroSplit.FLAG)
 	local state = profile.telemetry
-	local joins = IntroSplit.joins(on, profile.stats.sessions, profile.introSeen, state.introGroup)
-	local group = if joins then IntroSplit.group(player.UserId) else state.introGroup
+	-- #4001: a new save takes its arm from a Creator Hub Experiment's introMode when there is one (a short wait for
+	-- the config read, new saves only), else the older split by account number
+	local mode: string? = nil
+	if IntroSplit.joins(true, profile.stats.sessions, profile.introSeen, state.introGroup) then
+		mode = IntroSplit.fromMode(IntroModeService.get(player))
+		if introChecked[player] ~= nil then
+			return -- another caller decided while this one waited
+		end
+	end
+	local test = IntroSplit.fromMode(IntroModeService.studioMode()) -- Studio only (IntroModeService.studioMode)
+	if test ~= nil then
+		mode = test
+	end
+	local joins = test ~= nil
+		or IntroSplit.joins(
+			on or mode ~= nil,
+			profile.stats.sessions,
+			profile.introSeen,
+			state.introGroup
+		)
+	local group = if joins then mode or IntroSplit.group(player.UserId) else state.introGroup
 	introChecked[player] = IntroSplit.plays(group, on, Config.IntroAutoPlay)
 	if joins then
 		state.introGroup = group
@@ -851,6 +874,13 @@ end
 function Telemetry.introPlays(player: Player, profile: Profile): boolean
 	Telemetry.introJoin(player, profile)
 	return introChecked[player] == true
+end
+
+-- #4001: whether this save's intro is the short one (its group is the Experiment's "short" arm).
+function Telemetry.introShort(profile: Profile): boolean
+	-- compared here, not through an IntroSplit helper: one more function there trips the test VM fault in
+	-- IndexRewardsShared.spec (tools/cloudcheck/README.md)
+	return profile.telemetry.introGroup == IntroSplit.SHORT
 end
 
 -- #3695: the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS), one run per player with the user id as its
@@ -1277,6 +1307,40 @@ local function logFirstHour(player: Player, profile: Profile)
 	end
 end
 
+-- #3876: the rarity_v1 funnel (shared/RarityFunnel), one run per player with the user id as its session: every step
+-- up to the best rarity in the save's Index not yet logged this session. A new session logs its steps again, which
+-- the report counts once a player (FunnelUserTotalCount); no save field is needed. Only with the `secretCats` switch.
+local function logRarity(player: Player, profile: Profile)
+	local session = sessions[player]
+	if
+		session == nil
+		or session.rarityStep == nil
+		or not LiveFlagService.on(Catching.SECRET_FLAG)
+	then
+		return
+	end
+	local logged = session.rarityStep :: number
+	if logged >= #RarityFunnel.STEPS then
+		return
+	end
+	for _, step in RarityFunnel.due(logged, RarityFunnel.best(profile.collection)) do
+		session.rarityStep = step
+		local name = RarityFunnel.STEPS[step]
+		local fields = grouped(profile, {}) -- #3666
+		remember(player, "funnel", RarityFunnel.NAME .. " " .. name, step, fields)
+		send(player, "funnel " .. RarityFunnel.NAME, function()
+			AnalyticsService:LogFunnelStepEvent(
+				player,
+				RarityFunnel.NAME,
+				tostring(player.UserId),
+				step,
+				name,
+				customFields(fields)
+			)
+		end)
+	end
+end
+
 -- #2796 (retention-ideas.md 5c): the pity_v1 funnel, one run per player per pity cat (`key`, the cat's claim key):
 -- 1 pity_seen (the player came within PITY_SEEN_STUDS of it), 2 pity_catch_started, 3 pity_caught (the claim won).
 -- Fields: the kind (Legendary or Mythical), the area and the player's minutes played on the account as a band.
@@ -1520,6 +1584,7 @@ end
 
 function Telemetry.collected(player: Player, profile: Profile, def: Types.CatDef)
 	goalsCheck(player, profile) -- #2916
+	logRarity(player, profile) -- #3876
 	if def.area == "spare" or def.area == "secret" then
 		return -- #3470: a Secret cat is on no area's Index page
 	end
@@ -1910,6 +1975,8 @@ local function logJoined(player: Player)
 	session.areasCaught = areasCaught
 	Telemetry.onboarding(player, profile, "joined", { session.source })
 	logFirstHour(player, profile)
+	session.rarityStep = 0 -- #3876
+	logRarity(player, profile)
 	if session.returnedNextDay then
 		Telemetry.onboarding(player, profile, "returned_next_day")
 	end
@@ -2761,6 +2828,7 @@ local function watchOnboarding(player: Player, session: Session)
 	end
 	if session.joinLogged then
 		logFirstHour(player, profile)
+		logRarity(player, profile) -- #3876: a cat from a trade or a switch turned on mid session
 	end
 	watchFirstFive(player, session, profile)
 	if not Onboarding.reached(profile.telemetry, "first_move") then

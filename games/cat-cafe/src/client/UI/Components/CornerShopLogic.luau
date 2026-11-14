@@ -257,6 +257,17 @@ local function units(plan: { CornerShop.PlanItem }): number
 	return n
 end
 
+-- #3915: whether the view shows any top shelf row (the server leaves them out while the shelf is shut).
+function CornerShopLogic.topShelfShown(stock: SharedTypes.CornerShopStock): boolean
+	for _, item in stock.stock do
+		local row = Catalog.cornerShopById[item.itemId]
+		if row ~= nil and row.topShelf == true then
+			return true
+		end
+	end
+	return false
+end
+
 -- #2593: what Buy all on the `kind` section ("potion", "food" or "bait") takes for `coins`, or nil when nothing fits.
 -- The same CornerShop.planAll the server runs (BuyCornerShopAll), so the card shows what it buys.
 function CornerShopLogic.buyAll(
@@ -270,6 +281,9 @@ function CornerShopLogic.buyAll(
 		return nil
 	end
 	local state = CornerShopLogic.stateFromView(stock)
+	-- #3915: the server's Buy all takes the top shelf while it is open, and the view sends its rows only then, so the
+	-- card plans with the shelf open exactly when one of its rows is shown
+	CornerShop.setTopShelf(CornerShopLogic.topShelfShown(stock))
 	local plan, total = CornerShop.planAll(state, stock.window, kind, tier, coins, held)
 	local count = units(plan)
 	if count == 0 then

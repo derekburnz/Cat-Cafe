@@ -138,6 +138,8 @@ local LUCKY_EVERY: number = Config.CrateLuckyEvery or 20
 -- once, so this only runs out on a lagging server; 6 s lets a slow answer land first. A result after the wait still
 -- plays its reveal (result() does not check the wait).
 local PENDING_SECONDS = 6
+-- #3991: the longest a queued Open may wait: its turn behind an open in flight and the spam limit after it
+local QUEUE_MAX_SECONDS = PENDING_SECONDS + 4
 -- #2577: after a wait runs out with no answer, the button reads "Try again" this long
 local RETRY_SECONDS = 3
 -- #2290: a Buy waits this long after it is sent; its answer (a sync) ends the wait sooner, and a
@@ -150,6 +152,14 @@ local REVEAL_SECONDS = 2
 local CARD = Vector2.new(228, 252) -- 32 px wider so "Buy 5x · 180" fits half a card (#1818)
 local CRATE_BUTTON_H = 42 -- Open and Buy 5: a 37 px face over the lip, a mouse's 36 px tap (#1051)
 local CRATE_BUTTON_GAP = 6
+-- #3961: the family look's crate buttons (batch 1 mock): chunkier, upper case, a sky ODDS pill
+-- (read when used, not when this module loads: the switch arrives after the first require)
+local function word(value: string): string
+	return if MenuFamily.on() then string.upper(value) else value
+end
+local function buttonText(): number
+	return if MenuFamily.on() then Theme.sizes.textSmall + 1 else Theme.sizes.textSmall
+end
 -- #1818: short of fish, a buy button still reads its price; a press flashes "Need N more" this long instead of
 -- sending, then the price comes back (no greyed "Need N more fish" buttons sitting there)
 local SHORT_FLASH_SECONDS = 1.2
@@ -476,20 +486,47 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 	self:_buildSummary(panel.body)
 
 	-- four times a second the range check; once a second the pending presses
+	-- #3991 (Derek 2026-11-13: "sometimes crate opening gets stuck"): the waits run out first and each step is
+	-- guarded, so a failure anywhere in a refresh can never leave the Open buttons on "..." for good
 	local rangeClock, clock = 0, 0
+	local warned = false
+	local function guarded(step: () -> ())
+		local ok, problem = pcall(step :: any)
+		if not ok and not warned then
+			warned = true
+			warn("[FishMarket] " .. tostring(problem))
+		end
+	end
 	self._tick = RunService.Heartbeat:Connect(function(dt: number)
 		rangeClock += dt
 		if rangeClock >= 0.25 then
 			rangeClock = 0
-			self:_checkRange()
-			if self:_expirePending() then
-				self:_refresh() -- #2290: a wait that ran out frees its button within a quarter second
+			local expired = false
+			guarded(function()
+				expired = self:_expirePending()
+			end)
+			guarded(function()
+				self:_checkRange()
+			end)
+			if expired then
+				guarded(function()
+					self:_refresh() -- #2290: a wait that ran out frees its button within a quarter second
+				end)
 			end
 		end
 		clock += dt
 		if clock >= 1 then
 			clock = 0
-			self:_refresh()
+			guarded(function()
+				self:_refresh()
+			end)
+		end
+	end)
+	-- #3991: opening the window drops a press still queued from before, so its buttons start fresh
+	self.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if self.frame.Visible and self._queued ~= nil then
+			self._queued = nil
+			self._queuedAt = nil
 		end
 	end)
 	return self :: FishMarket
@@ -1402,8 +1439,8 @@ function FishMarket._build(self: any)
 		})
 		local odds = Button.new({
 			name = "Odds",
-			text = "Odds",
-			style = "ghost",
+			text = word("Odds"),
+			style = if MenuFamily.on() then "sky" else "ghost",
 			size = UDim2.new(1, -16, 0, ODDS_H),
 			position = UDim2.fromOffset(8, ODDS_Y),
 			textSize = Theme.sizes.textSmall,
@@ -1415,13 +1452,13 @@ function FishMarket._build(self: any)
 		local flash: { [string]: number } = {}
 		local open = Button.new({
 			name = "Open",
-			text = "Open",
+			text = word("Open"),
 			-- #1818: no fish mark on the half-width buttons; the price line above says golden fish
 			style = "primary",
 			size = UDim2.new(1, -16, 0, CRATE_BUTTON_H),
 			anchorPoint = Vector2.new(0, 1),
 			position = UDim2.new(0, 8, 1, -8),
-			textSize = Theme.sizes.textSmall,
+			textSize = buttonText(),
 			parent = frame,
 			onClick = function()
 				if self:_short(crate, crate.price) then
@@ -1434,12 +1471,12 @@ function FishMarket._build(self: any)
 		-- Buy 5 beside Open (#1818): banks five, the player opens them one at a time with the reel (#1051)
 		local bundle = Button.new({
 			name = "Buy5",
-			text = "Buy 5",
+			text = word("Buy 5"),
 			style = "gold",
 			size = UDim2.new(0.5, -(8 + CRATE_BUTTON_GAP / 2), 0, CRATE_BUTTON_H),
 			anchorPoint = Vector2.new(1, 1),
 			position = UDim2.new(1, -8, 1, -8),
-			textSize = Theme.sizes.textSmall,
+			textSize = buttonText(),
 			parent = frame,
 			onClick = function()
 				if self:_short(nil, BUNDLE_PRICE) then
@@ -1610,6 +1647,13 @@ function FishMarket._expirePending(self: any): boolean
 		self._callbacks.toast("That didn't go through. Try again!", "warn") -- #3080: a refusal, so it shows
 		self:_flushQueued()
 	end
+	-- #3991: a queued press that has waited longer than any answer could take is dropped, so it never holds "..."
+	local queuedAt: number? = self._queuedAt
+	if self._queued ~= nil and queuedAt ~= nil and now - queuedAt > QUEUE_MAX_SECONDS then
+		self._queued = nil
+		self._queuedAt = nil
+		any = true
+	end
 	return any
 end
 
@@ -1671,6 +1715,7 @@ function FishMarket._open(self: any, crate: Types.CrateDef)
 		-- reads "..." instead of every Open on the tab
 		if self._queued == nil then
 			self._queued = crate.id
+			self._queuedAt = os.clock()
 			self:_flushQueued()
 		end
 		self:_refresh()
@@ -1892,7 +1937,9 @@ function FishMarket._refresh(self: any)
 			entry.open:setEnabled(false)
 		elseif count > 0 then
 			entry.line.Text = ("You have %s"):format(Format.commas(count))
-			entry.open:setText(if pending then "..." elseif retry then "Try again" else "Open")
+			entry.open:setText(
+				if pending then "..." elseif retry then "Try again" else word("Open")
+			)
 			entry.open:setStyle("primary")
 			entry.open:setEnabled(not pending)
 		elseif not open then
@@ -1908,6 +1955,7 @@ function FishMarket._refresh(self: any)
 					then "..."
 					elseif flashing then MarketLogic.needShort(price - fish)
 					elseif retry then "Try again"
+					elseif MenuFamily.on() then ("BUY 1 · %s"):format(Format.short(price))
 					else ("Buy 1x · %s"):format(Format.short(price))
 			)
 			entry.open:setStyle(if flashing then "secondary" else "gold")
@@ -1933,7 +1981,7 @@ function FishMarket._refresh(self: any)
 				if waiting
 					then "..."
 					elseif flashing then MarketLogic.needShort(bundlePrice - fish)
-					else ("Buy %dx · %s"):format(
+					else (if MenuFamily.on() then "BUY %d · %s" else "Buy %dx · %s"):format(
 						BUNDLE_COUNT :: number,
 						Format.short(bundlePrice)
 					)

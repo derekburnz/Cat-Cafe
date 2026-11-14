@@ -128,6 +128,7 @@ local function onBuy(player: Player, rawItemId: unknown, rawShown: unknown)
 		CatService.wearBackpack(player) -- #2719: on their back at once
 	end
 	CatService.refreshSpeed(player) -- #3535: the Speed Shoes count on the carry in hand
+	CatService.keepShoes(player) -- #4050: on their feet at once
 	Telemetry.fishSink(player, profile, price, "Shop", "mystery_" .. item.id)
 	Telemetry.custom(player, "mystery_buy", fishBefore, {
 		item.id,
@@ -149,32 +150,41 @@ end
 
 -- #3699 (shared/BagColours): the Backpack's owner picks its two colours. Two ids of BagColours.LIST and nothing
 -- else; free, from anywhere, as often as the rate limit allows. Refused quietly with the switch off, without the
--- Backpack or for an unknown id (the window never sends those).
-local function onBagColours(player: Player, rawMain: unknown, rawTrim: unknown)
+-- Backpack or for an unknown id (the window never sends those). #4049: with kind "shoes", the Speed Shoes' two
+-- (BagColours.SHOE_LIST, profile.shoeColours) the same way.
+local function onBagColours(player: Player, rawMain: unknown, rawTrim: unknown, rawKind: unknown)
 	local main, trim = Guard.id(rawMain), Guard.id(rawTrim)
+	local kind = if rawKind == "shoes" then "shoes" else "bag"
+	local info = BagColours.info(kind)
 	local profile = DataService.get(player)
 	if
 		main == nil
 		or trim == nil
 		or profile == nil
 		or not LiveFlagService.on(BagColours.FLAG)
-		or not BagColours.valid(main)
-		or not BagColours.valid(trim)
+		or not BagColours.valid(main, kind)
+		or not BagColours.valid(trim, kind)
 	then
 		return
 	end
-	if not MysteryMarket.owns(profile, BagColours.ITEM) then
-		Net.toast(player, BagColours.WORDS.locked, "warn")
+	if not MysteryMarket.owns(profile, info.item) then
+		Net.toast(player, info.locked, "warn")
 		return
 	end
-	local picks = BagColours.sanitize({ main = main, trim = trim })
-	local before = BagColours.picks(profile.bagColours)
+	local saved = if kind == "shoes" then profile.shoeColours else profile.bagColours
+	local before = BagColours.picks(saved, kind)
 	if before.main == main and before.trim == trim then
 		return
 	end
-	profile.bagColours = picks
-	CatService.tintBackpack(player)
-	Telemetry.custom(player, "bag_colours", 1, { main, trim })
+	local picks = BagColours.sanitize({ main = main, trim = trim }, kind)
+	if kind == "shoes" then
+		profile.shoeColours = picks
+		CatService.tintShoes(player)
+	else
+		profile.bagColours = picks
+		CatService.tintBackpack(player)
+	end
+	Telemetry.custom(player, "bag_colours", 1, { main, trim, kind }) -- #4049: the kind third
 	CafeService.sync(player)
 end
 

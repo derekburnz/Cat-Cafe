@@ -11,8 +11,9 @@
 --   haveLine(view, fish)        "5 free rolls · 2 Trait Tokens · 34 golden fish" (free rolls only while any are left)
 --   tokens(view, now)           the station's free tokens: "1 Trait Token ready" with Collect, or "Next free token in
 --                               3h 12m"
---   odds()                      the Odds list: one row per rarity with its colour and percent, and the line under it
---   ODDS_LINE, ODDS_LINES       the odds line every card shows (Traits.oddsText), whole and as two short lines
+--   odds(secret?)               the Odds list: one row per rarity with its colour, percent and "4.9%" words
+--   oddsLines(secret?)          the odds line every card shows (Traits.oddsText) as two short lines
+--   secret()                    #3908: the `secretTrait` switch as the server copied it (Secret 0.1% in the odds)
 --   cats(cats)                  the picker's list: working cats first (only their traits count), then the highest
 --                               level, best rate and uid
 --   key(list)                   changes when the list's rows would (a level, a name, a trait, a job)
@@ -26,6 +27,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
 local Traits = require(Shared:WaitForChild("Traits")) :: any
 
 local MysticPoolLogic = {}
@@ -36,16 +38,24 @@ MysticPoolLogic.NO_TRAIT_COLOR = "#9AA0A6"
 MysticPoolLogic.KEEP_OLD = "Keep old"
 MysticPoolLogic.TAKE_NEW = "Take new"
 MysticPoolLogic.EQUAL_LINE = "Each trait inside a rarity is equally likely."
-MysticPoolLogic.ODDS_LINE = Traits.oddsText() :: string
--- The same words as two short lines, for a narrow card: the rarity odds, then "Each trait inside a rarity ...".
-MysticPoolLogic.ODDS_LINES = (function(): { string }
-	local line: string = Traits.oddsText()
+
+-- #3908: whether the Secret rarity is in the rolls (the server's `secretTrait` switch, copied to ReplicatedStorage).
+-- The switch flips at a restart, so a card built once per session shows what the server rolls.
+function MysticPoolLogic.secret(): boolean
+	return ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Traits.SECRET_FLAG) == true
+end
+
+-- The odds line as two short lines, for a narrow card: the rarity odds, then "Each trait inside a rarity ...".
+-- `secret` defaults to the switch (MysticPoolLogic.secret).
+function MysticPoolLogic.oddsLines(secret: boolean?): { string }
+	local on = if secret == nil then MysticPoolLogic.secret() else secret
+	local line: string = Traits.oddsText(on)
 	local cut = string.find(line, ". ", 1, true)
 	if cut == nil then
 		return { line, "" }
 	end
 	return { string.sub(line, 1, cut - 1), string.sub(line, cut + 2) }
-end)()
+end
 
 export type Card = {
 	has: boolean,
@@ -59,7 +69,7 @@ export type Roll = { text: string, enabled: boolean, why: string? }
 
 export type Pending = { uid: string, old: Card, new: Card }
 
-export type OddsRow = { name: string, color: string, percent: number }
+export type OddsRow = { name: string, color: string, percent: number, label: string }
 
 -- What the card reads from PlayerState.traits (Types.TraitsView); every field checked, as it crosses the network.
 type View = {
@@ -209,6 +219,15 @@ function MysticPoolLogic.pickerLine(
 	}
 end
 
+-- #3936: whether the red "!" hangs over the pool (Components/PoolBang): a free roll left, a Trait Token banked or
+-- free tokens waiting at the station, and no Keep old / Take new choice waiting. False while the pool is shut.
+function MysticPoolLogic.bangShows(view: View?): boolean
+	if view == nil or view.pending ~= nil then
+		return false
+	end
+	return whole(view.freeLeft) > 0 or whole(view.tokens) > 0 or whole(view.held) > 0
+end
+
 -- The station's free tokens: the line, and whether Collect has something to take. `now` is the server's time.
 function MysticPoolLogic.tokens(view: View?, now: number): (string, boolean)
 	if view == nil then
@@ -225,10 +244,16 @@ function MysticPoolLogic.tokens(view: View?, now: number): (string, boolean)
 	return "Next free token soon", false
 end
 
-function MysticPoolLogic.odds(): { OddsRow }
+function MysticPoolLogic.odds(secret: boolean?): { OddsRow }
+	local on = if secret == nil then MysticPoolLogic.secret() else secret
 	local rows: { OddsRow } = {}
-	for _, rarity in Traits.RARITIES do
-		table.insert(rows, { name = rarity.name, color = rarity.color, percent = rarity.odds })
+	for _, rarity in Traits.rarities(on) do
+		table.insert(rows, {
+			name = rarity.name,
+			color = rarity.color,
+			percent = rarity.odds,
+			label = Traits.percentText(rarity.odds),
+		})
 	end
 	return rows
 end
@@ -320,6 +345,14 @@ function MysticPoolLogic.rarityId(id: string): string
 	return if def ~= nil then def.rarity.id else Traits.RARITIES[1].id
 end
 
+-- #3943 (Derek 2026-11-13: "not let people skip mythic + scenes"): a Mythic or Secret roll's scene plays to the end;
+-- a tap skips only the lower rarities. Closing the card or walking away still ends any scene.
+MysticPoolLogic.NO_SKIP = { mythic = true, secret = true } :: { [string]: boolean }
+
+function MysticPoolLogic.canSkip(rarity: string): boolean
+	return MysticPoolLogic.NO_SKIP[rarity] ~= true
+end
+
 -- #3864 (Derek 2026-11-13): the Trait Token bundles, offered on the card once the free rolls are used. A roll from a
 -- bought token is a paid random item (monetization-policy section 2), so the offer carries the full odds, plain words
 -- and a "No thanks" that holds for the session; it never shows unless the server says `bundles` (the traitBundles
@@ -328,8 +361,32 @@ MysticPoolLogic.OFFER_TITLE = "More rolls with Trait Tokens"
 MysticPoolLogic.OFFER_LINE =
 	"One Trait Token is one roll. A cat never gets worse: keep the old trait or take the new."
 MysticPoolLogic.OFFER_NO = "No thanks"
+-- #4006: the side panel's words
+MysticPoolLogic.SIDE_TITLE = "More rolls"
+MysticPoolLogic.SIDE_LINE = "1 Trait Token = 1 roll"
 
-export type Bundle = { product: string, id: number, label: string }
+-- "Common 30% · Uncommon 25% · ...", every roll's odds on one wrapped line, then the equal line's short form.
+function MysticPoolLogic.oddsLine(secret: boolean?): string
+	local parts: { string } = {}
+	for _, row in MysticPoolLogic.odds(secret) do
+		table.insert(parts, row.name .. " " .. row.label)
+	end
+	return "Roll odds: " .. table.concat(parts, " · ")
+end
+
+-- #3948: `tokens` and `price` ("R$99") for the bundle's picture card, `rolls` its plain fact ("50 rolls")
+export type Bundle = {
+	product: string,
+	id: number,
+	label: string,
+	tokens: number,
+	price: string,
+	rolls: string,
+}
+
+-- #3948: the Trait Token picture's uploaded image (docs/growth/store-art/trait-tokens/trait-token-alpha.png, uploaded
+-- 2026-11-13 as an Image, not the Decal); nil would draw the token in code
+MysticPoolLogic.TOKEN_IMAGE = "rbxassetid://127573010759024" :: string?
 
 -- The bundles to offer now, or nil: `view` the card's numbers, `ids` Config.ProductIds, `seen` true once the offer
 -- has shown (or been declined) this session. Only made products (an id) are offered.
@@ -348,6 +405,9 @@ function MysticPoolLogic.bundles(view: View?, ids: { [string]: any }?, seen: boo
 				product = bundle.product,
 				id = id,
 				label = string.format("%d Tokens · R$%d", bundle.tokens, bundle.robux),
+				tokens = bundle.tokens,
+				price = string.format("R$%d", bundle.robux),
+				rolls = string.format("%d rolls", bundle.tokens),
 			})
 		end
 	end

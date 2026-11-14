@@ -30,6 +30,87 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- Friday 2026-11-13 22:00 UTC update (#3523): the switches turned on after the restart. The two player ideas carry
+	-- their IdeaCredits_v1 ids (added 22:05 UTC with idea-credits.yml add-player at place version 632).
+	{
+		id = "speed_shoes",
+		date = "2026-11-13",
+		icon = "new",
+		text = "New Speed Shoes",
+	},
+	{
+		id = "secret_cats",
+		date = "2026-11-13",
+		icon = "cat",
+		text = "Secret cats are out there",
+		creditId = "c14",
+	},
+	{
+		id = "pet_a_cat",
+		date = "2026-11-13",
+		icon = "new",
+		text = "Pet the cats in your cafe",
+		creditId = "c15",
+	},
+	{
+		id = "picnic_treats",
+		date = "2026-11-13",
+		icon = "new",
+		text = "Picnic Treats: pick 1 of 3",
+	},
+	{
+		id = "index_to_every_cat",
+		date = "2026-11-13",
+		icon = "new",
+		text = "Index rewards up to 70 cats",
+	},
+	{
+		id = "backpack_colours",
+		date = "2026-11-13",
+		icon = "look",
+		text = "Pick your backpack colour",
+	},
+	-- #2718 refresh (11-13 14:20 UTC, Model-Agent): live changes since #3817 (about 37 merges). Lighter models and
+	-- 256 px pictures for phones (#3791, #3809, #3812, #3831, #3832, #3833), menus built after start-up (#3722),
+	-- Mouse Dash windows and clock (#3853), the Mystic Pool's Legendary and Mythic roll scene (#3849) and its pointer
+	-- (#3822), short-phone fits (#3518, #3848, #3816). Switches still off (picnicTreats, returnGift, fxLite,
+	-- traitBundles, Friday's) get their rows when they go on.
+	{
+		id = "lighter_on_phones",
+		date = "2026-11-13",
+		icon = "faster",
+		text = "Smoother on phones",
+	},
+	{
+		id = "faster_game_start",
+		date = "2026-11-13",
+		icon = "faster",
+		text = "Faster game start",
+	},
+	{
+		id = "mouse_dash_longer",
+		date = "2026-11-13",
+		icon = "fix",
+		text = "Mouse Dash: easier, longer",
+	},
+	{
+		id = "big_trait_roll_scene",
+		date = "2026-11-13",
+		icon = "look",
+		text = "Big trait rolls get a scene",
+	},
+	{
+		id = "mystic_pool_glow",
+		date = "2026-11-13",
+		icon = "look",
+		text = "Glow points to Mystic Pool",
+	},
+	{
+		id = "fits_small_phones",
+		date = "2026-11-13",
+		icon = "fix",
+		text = "Fits small phones better",
+	},
 	-- #2718 refresh (11-13 05:30 UTC, Growth-Agent): live changes since #3778 that the board did not name. Start with a
 	-- table (#3679, new servers from about 04:00 UTC), catch reach on touch (touchCatchReach on 03:34 UTC), Park gate
 	-- paw trail (parkGateTrail on 03:37 UTC), bright intro Skip (#3795). Friday rows (Speed Shoes, Secret cats, pet a

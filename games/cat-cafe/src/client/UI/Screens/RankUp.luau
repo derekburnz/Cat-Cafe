@@ -87,6 +87,26 @@ local PERKS_GAP = 14 -- #2839: on touch, the space between the Perks button and 
 local PERKS_TOUCH_WIDE = 92 -- #2857 (Derek2: "perks button ... too big"): a narrower face on touch
 local CLOSE_OVERHANG = 10 -- Components/Panel's: how far the touch X sticks out past the window's right edge
 
+-- #3961: the family look (batch 1 mock): each need on a cream card with its picture and a tick once met, and what the
+-- tier opens as cream cards with a picture each, in place of the plain lines
+local NEED_ICONS: { string } = { "💰", "🐱", "⭐" }
+local OPENS_ICONS: { { string } } = {
+	{ "^Opens the", "🗺️" },
+	{ "role slots", "🪑" },
+	{ "^Money", "💰" },
+	{ "^Upgrade", "⬆️" },
+	{ "^New decor", "🪴" },
+}
+
+local function opensIcon(line: string): string
+	for _, pair in OPENS_ICONS do
+		if string.find(line, pair[1]) then
+			return pair[2]
+		end
+	end
+	return "✨"
+end
+
 local RARITY_WORDS: { [number]: string } = { "One", "Two", "Three", "Four", "Five" }
 
 local function findTier(tiers: { Types.TierDef }, tier: number): Types.TierDef?
@@ -334,8 +354,37 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		Visible = false,
 		Parent = content,
 	})
+	self._family = MenuFamily.on()
+	self._opensCards = {} :: { Frame }
+	-- #3961: what opens as cards, where the family look has them (the plain lines stay hidden then)
+	self._opensList = Create("ScrollingFrame", {
+		Name = "OpensCards",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(0, OPENS_TOP + 22),
+		Size = UDim2.new(1, 0, 0, 84),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollBarThickness = 4,
+		ScrollBarImageColor3 = PAL.caramel,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		Visible = self._family,
+		Parent = content,
+	}, {
+		Create("UIListLayout", {
+			Padding = UDim.new(0, 4),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+		Create("UIPadding", { -- room for the cards' outlines
+			PaddingLeft = UDim.new(0, 2),
+			PaddingRight = UDim.new(0, 6),
+			PaddingTop = UDim.new(0, 2),
+			PaddingBottom = UDim.new(0, 2),
+		}),
+	})
 	self._opens = text({
 		Name = "Opens",
+		Visible = not self._family,
 		Position = UDim2.fromOffset(0, OPENS_TOP + 22),
 		Size = UDim2.new(1, 0, 0, 84),
 		TextWrapped = true,
@@ -460,8 +509,15 @@ function RankUp._fit(self: any)
 		self._teaser.Position = UDim2.new(x, UDim.new(0, 22))
 		self._teaser.Size = UDim2.new(right, UDim.new(0, TEASER_WIDE))
 		self._opens.Position = UDim2.new(x, UDim.new(0, 22 + TEASER_WIDE + 2))
-		self._opens.Size =
-			UDim2.new(right, UDim.new(1, -(22 + TEASER_WIDE + 2 + BUTTON.Y + Theme.sizes.gap)))
+		-- Review-QA's Studio pass 2026-11-13: on a short screen the last row sat under the button (its lip and
+		-- touch pad stand taller than BUTTON.Y), so the list now ends above the button's full height
+		local buttonTall = math.max(BUTTON.Y + Theme.sizes.buttonDepth, button.AbsoluteSize.Y)
+		self._opens.Size = UDim2.new(
+			right,
+			UDim.new(1, -(22 + TEASER_WIDE + 2 + buttonTall + Theme.sizes.gap + 6))
+		)
+		self._opensList.Position = self._opens.Position
+		self._opensList.Size = self._opens.Size
 		button.Position = UDim2.new(LEFT + (1 - LEFT) / 2, half / 2, 1, 0)
 	else
 		self._opensLabel.Position = UDim2.fromOffset(0, OPENS_TOP)
@@ -470,6 +526,8 @@ function RankUp._fit(self: any)
 		self._teaser.Size = UDim2.new(1, 0, 0, TEASER_TALL)
 		self._opens.Position = UDim2.fromOffset(0, OPENS_TOP + 22 + TEASER_TALL + 2)
 		self._opens.Size = UDim2.new(1, 0, 0, 84)
+		self._opensList.Position = self._opens.Position
+		self._opensList.Size = self._opens.Size
 		button.Position = UDim2.new(0.5, 0, 1, 0)
 	end
 end
@@ -493,10 +551,29 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 			Thickness = Theme.sizes.stroke,
 		}),
 	})
+	local family = self._family
+	local left = 14
+	if family then
+		-- #3961: the need's picture on the left
+		local tile: TextLabel = text({
+			Name = "Picture",
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.new(0, 8, 0.5, -2),
+			Size = UDim2.fromOffset(30, 30),
+			BackgroundTransparency = 0,
+			BackgroundColor3 = CARD.line,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextSize = 18,
+			Text = NEED_ICONS[index] or "✨",
+			Parent = row,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = tile })
+		left = 46
+	end
 	text({
 		Name = "Label",
-		Position = UDim2.fromOffset(14, 0),
-		Size = UDim2.new(1, -190, 1, -6),
+		Position = UDim2.fromOffset(left, 0),
+		Size = UDim2.new(1, -(left + 176), 1, -6),
 		FontFace = Theme.fonts.bodyBold,
 		TextColor3 = CARD.text,
 		Text = item.label,
@@ -511,15 +588,27 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 		FontFace = Theme.fonts.display,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		TextColor3 = if item.met then CARD.good else CARD.warn,
-		Text = item.status,
+		Text = if family and item.met then "✓" else item.status,
 		Parent = row,
 	})
+	if family and item.met then
+		-- #3961: a met need's tick in a green circle, as in the mock
+		local tick = row:FindFirstChild("Status") :: TextLabel
+		tick.AnchorPoint = Vector2.new(1, 0.5)
+		tick.Position = UDim2.new(1, -10, 0.5, -2)
+		tick.Size = UDim2.fromOffset(28, 28)
+		tick.BackgroundTransparency = 0
+		tick.BackgroundColor3 = Theme.colors.good
+		tick.TextColor3 = Theme.colors.white
+		tick.TextXAlignment = Enum.TextXAlignment.Center
+		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = tick })
+	end
 	local track: Frame = Create("Frame", {
 		Name = "Track",
 		BackgroundColor3 = CARD.line,
 		BorderSizePixel = 0,
-		Position = UDim2.new(0, 14, 1, -9),
-		Size = UDim2.new(1, -28, 0, 4),
+		Position = UDim2.new(0, left, 1, -9),
+		Size = UDim2.new(1, -(left + 14), 0, 4),
 		Parent = row,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Create("Frame", {
@@ -556,6 +645,7 @@ function RankUp.render(self: any, state: Types.PlayerState)
 		self._opensLabel.Visible = false
 		self._teaser.Visible = false
 		self._opens.Text = ""
+		self:_fillOpens({})
 		self._button.instance.Visible = false
 		return
 	end
@@ -570,14 +660,69 @@ function RankUp.render(self: any, state: Types.PlayerState)
 	self._teaser.Text = teaser or ""
 	self._teaser.Visible = teaser ~= nil
 	self._opens.Text = table.concat(progress.opens, "\n")
+	self:_fillOpens(if self._family then progress.opens else {})
 	self._button.instance.Visible = true
 	-- #2915: a ready rank up wins over "Fly to the Park"
 	local fly: string? = if progress.ready then nil else self._fly
 	self._flying = fly ~= nil
 	self._button:setEnabled(progress.ready or fly ~= nil)
 	self._button:setText(
-		if progress.ready then "Rank up  ·  " .. Format.money(nextTier.cost) else fly or "Not yet"
+		if progress.ready
+			then (if self._family then "RANK UP  ·  " else "Rank up  ·  ") .. Format.money(
+				nextTier.cost
+			)
+			else fly or "Not yet"
 	)
+end
+
+-- #3961: one cream card per line of what the tier opens, its picture on the left
+function RankUp._fillOpens(self: any, lines: { string })
+	for _, card in self._opensCards :: { Frame } do
+		card:Destroy()
+	end
+	table.clear(self._opensCards)
+	for index, line in lines do
+		local card: Frame = Create("Frame", {
+			Name = "Open" .. index,
+			BackgroundColor3 = CARD.card,
+			BorderSizePixel = 0,
+			AutomaticSize = Enum.AutomaticSize.Y,
+			Size = UDim2.new(1, 0, 0, 30),
+			LayoutOrder = index,
+			Parent = self._opensList,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+			Create("UIStroke", { Color = CARD.cardStroke, Thickness = 1 }),
+		})
+		text({
+			Name = "Picture",
+			Position = UDim2.fromOffset(6, 3),
+			Size = UDim2.fromOffset(24, 24),
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextSize = 16,
+			Text = opensIcon(line),
+			Parent = card,
+		})
+		local words = text({
+			Name = "Line",
+			Position = UDim2.fromOffset(36, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			Size = UDim2.new(1, -42, 0, 30),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = CARD.text,
+			TextWrapped = true,
+			TextTruncate = Enum.TextTruncate.None,
+			Text = line,
+			Parent = card,
+		})
+		Create("UIPadding", {
+			PaddingTop = UDim.new(0, 6),
+			PaddingBottom = UDim.new(0, 6),
+			Parent = words,
+		})
+		table.insert(self._opensCards, card)
+	end
 end
 
 function RankUp.setFly(self: any, text: string?)

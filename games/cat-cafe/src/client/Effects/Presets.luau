@@ -548,6 +548,65 @@ Presets.emitters = {
 		lightEmission = 0.5,
 		rotSpeed = { -180, 180 },
 	},
+	-- The Rift Run (Effects/RiftRun): the rift's swirl of light, the warp stars rushing past the camera, a meteor's
+	-- fire trail and the sparks where it lands
+	riftSwirl = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Color3.fromRGB(255, 220, 245),
+			Color3.fromRGB(255, 120, 200),
+			Color3.fromRGB(150, 110, 255),
+		},
+		size = { 1.2, 0 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.8, 1.4 },
+		speed = { 3, 7 },
+		spread = 180,
+		rate = 40,
+		drag = 2,
+		lightEmission = 1,
+		rotSpeed = { -90, 90 },
+	},
+	riftStreak = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(210, 190, 255) },
+		size = { 0.25, 0.05 },
+		transparency = { 0.2, 1 },
+		lifetime = { 0.25, 0.4 },
+		speed = { 50, 70 },
+		spread = 35,
+		rate = 0,
+		lightEmission = 1,
+	},
+	riftMeteorFire = {
+		texture = Presets.textures.smoke,
+		colors = {
+			Color3.fromRGB(255, 230, 150),
+			Color3.fromRGB(255, 130, 60),
+			Color3.fromRGB(110, 50, 60),
+		},
+		size = { 2.6, 0.4 },
+		transparency = { 0.05, 1 },
+		lifetime = { 0.35, 0.6 },
+		speed = { 0, 1 },
+		spread = 180,
+		rate = 70,
+		lightEmission = 1,
+		rotSpeed = { -120, 120 },
+	},
+	riftSpark = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 240, 180), Color3.fromRGB(255, 140, 60) },
+		size = { 0.7, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.4, 0.8 },
+		speed = { 10, 18 },
+		spread = 70,
+		rate = 0,
+		acceleration = Vector3.new(0, -30, 0),
+		drag = 1,
+		lightEmission = 1,
+	},
 	-- The Ruins' falling water (Effects/RuinsWater): pale streaks sliding down a waterfall's or a fountain's sheet,
 	-- emitted through the sheet part itself, so the sheet reads as running water.
 	fallStreaks = {
@@ -701,6 +760,59 @@ Presets.emitters = {
 		drag = 0.4,
 		lightEmission = 0.7,
 		rotSpeed = { -45, 45 },
+	},
+	-- #4069 Snowy Mountain. `snowfall` is the area's air: soft flakes drifting down round you, with a little sideways
+	-- drift, fading before they pile up. The three sig* ones are its rarer cats' (Presets.signature): `sigFrost` a
+	-- puff of frosty breath off the White Tiger Cat's head, `sigSnowflake` the flakes the Blizzard Cat's swirl leaves
+	-- behind as it circles, and `sigFrostTrail` the frost it leaves where it walks.
+	snowfall = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(226, 240, 255) },
+		size = { 0.22, 0.16 },
+		transparency = { 0.15, 1 },
+		lifetime = { 3, 4.5 },
+		speed = { 0.4, 1.2 },
+		spread = 180,
+		rate = 14,
+		acceleration = Vector3.new(0.6, -1.6, 0.3),
+		drag = 0.5,
+		rotSpeed = { -40, 40 },
+	},
+	sigFrost = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(236, 246, 255) },
+		size = { 0.25, 0.9 },
+		transparency = { 0.55, 1 },
+		lifetime = { 0.9, 1.4 },
+		speed = { 0.5, 1 },
+		spread = 25,
+		rate = 0.8,
+		acceleration = Vector3.new(0, 0.3, 0),
+		drag = 1.2,
+	},
+	sigSnowflake = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 255, 255) },
+		size = { 0.3, 0.05 },
+		transparency = { 0, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 0, 0.15 },
+		spread = 180,
+		rate = 2,
+		lightEmission = 0.6,
+		rotSpeed = { -90, 90 },
+	},
+	sigFrostTrail = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(214, 236, 255), Color3.fromRGB(255, 255, 255) },
+		size = { 0.5, 1.1 },
+		transparency = { 0.5, 1 },
+		lifetime = { 0.9, 1.3 },
+		speed = { 0.1, 0.4 },
+		spread = 70,
+		rate = 2,
+		acceleration = Vector3.new(0, -0.6, 0),
+		drag = 2,
 	},
 	sigFall = {
 		texture = Presets.textures.sparkle,
@@ -1269,6 +1381,46 @@ Presets.catchPop = {
 	},
 }
 
+-- #4069 (Derek 2026-11-13: "make the rarer ones more special"): a catch in an area with a flavour adds the area's
+-- own touch on top of the rarity pop, more the rarer the cat. Each step names the rarity it starts at: a `puff` of
+-- `preset` in `colour` at the cat for every catch, `flakes` sparkles from `flakesFrom` up, a second ground ring
+-- `ringScale` times the rarity's from `ringFrom` up, and from `gustsFrom` up `gusts` puffs climbing `gustHeight`
+-- studs, `gustEvery` seconds apart. A cat named in `cats` gets `gusts` more.
+export type CatchFlavour = {
+	preset: string,
+	colour: Color3,
+	puff: number,
+	flakes: number,
+	flakesFrom: string,
+	ringScale: number,
+	ringFrom: string,
+	gusts: number,
+	gustsFrom: string,
+	gustHeight: number,
+	gustEvery: number,
+	cats: { [string]: number },
+}
+Presets.catchFlavour = {
+	ranks = { Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5, Secret = 6 } :: { [string]: number },
+	areas = {
+		-- the Snowy Mountain: a puff of snow, then flakes, a frost ring, and a column of snow gusts for the rarest
+		snowy = {
+			preset = "smokePuff",
+			colour = Color3.fromRGB(236, 246, 255),
+			puff = 4,
+			flakes = 10,
+			flakesFrom = "Epic",
+			ringScale = 1.3,
+			ringFrom = "Legendary",
+			gusts = 3,
+			gustsFrom = "Mythical",
+			gustHeight = 8,
+			gustEvery = 0.18,
+			cats = { blizzard = 2 }, -- the snowstorm itself: a taller column
+		},
+	} :: { [string]: CatchFlavour },
+}
+
 -- Something you bought appears at your cafe (a table set, the espresso machine, the bait bowl, decor): a sparkle
 -- above it, a mint ring at its foot as wide as it plus `ringPad` (at most `ringMost`), a puff of dust and a few
 -- confetti. A purchase with nothing new to show (the net, a food) gives a sparkle swirl at your feet instead. A
@@ -1489,6 +1641,10 @@ Presets.motion = {
 		seconds = 4.2,
 		every = 75,
 		hold = 24,
+		-- #3923 (Derek 2026-11-13: "sometimes the cats randomly sit up when you move around cafe even when resting
+		-- should just be asleep"): a resting cafe cat no longer sits up; it naps the whole rest. A cat in a
+		-- player's arms still loafs awake. true brings the sit-ups back.
+		resting = false,
 	},
 	-- A sitting cat (the _Sit body, PR #259) washing a paw now and then (Derek 2026-10-27: the paw-up sit is a
 	-- lick), the way a walking cat loafs: `hold` seconds of every `every`, by day, eyes half shut. The paw stays up
@@ -2436,7 +2592,24 @@ export type Signature = {
 	goldEyes: Color3?,
 	moving: boolean?,
 	notes: boolean?, -- music notes float up off the prop as well (Jazz Cat, Presets.notes)
+	-- #4069 (Derek 2026-11-13: "make the rarer ones more special"): more on top for the rarest cats
+	extras: { SignatureExtra }?, -- more emitters, each on its own part
+	orbit: SignatureOrbit?, -- motes circling the cat, each leaving a trail of `emitter`
+	arrive: SignatureArrive?, -- a gust where it appears (a stray landing, a cat set down)
 }
+export type SignatureExtra = { emitter: string, on: string, moving: boolean? }
+-- `count` motes (`countLow` on the low tier) circle the body `radius` of its widest side out and `height` of its
+-- height up, tilted `tilt` radians, once every `seconds`. They hold still with Reduce Motion.
+export type SignatureOrbit = {
+	emitter: string,
+	count: number,
+	countLow: number,
+	radius: number,
+	height: number,
+	tilt: number,
+	seconds: number,
+}
+export type SignatureArrive = { ring: number, burst: number, preset: string }
 
 local palette = Presets.palette
 Presets.signature = {
@@ -2536,6 +2709,41 @@ Presets.signature = {
 		on = "Head",
 		colors = { palette.leaf, palette.mint, palette.goldLight },
 		gold = { palette.golden, palette.goldLight, palette.sparkle },
+	},
+	-- #4069 Snowy Mountain (Tier 8). The ladder: the Epic gets a glint, the Legendary breath, a glint and glowing
+	-- eyes, the Mythical flakes, a circling swirl, a frost trail, glowing eyes and a gust where it lands.
+	ice = { -- Ice Cat (Epic): a glint now and then off the ice spikes along its back
+		emitter = "sigGlint",
+		on = "Prop",
+		props = 2,
+		colors = { Color3.fromRGB(214, 240, 255), palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+	},
+	white_tiger = { -- White Tiger Cat (Legendary): frosty breath, ice-blue eyes and a soft glint on the white coat
+		emitter = "sigFrost",
+		on = "Head",
+		colors = { Color3.fromRGB(236, 246, 255), palette.offwhite },
+		gold = { palette.goldLight, palette.offwhite },
+		eyes = true,
+		extras = { { emitter = "sigGlint", on = "Body" } },
+	},
+	blizzard = { -- Blizzard Cat (Mythical): a living snowstorm
+		emitter = "sigFall",
+		on = "Body",
+		colors = { palette.offwhite, Color3.fromRGB(196, 226, 255), palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = { { emitter = "sigFrostTrail", on = "Body", moving = true } },
+		orbit = {
+			emitter = "sigSnowflake",
+			count = 5,
+			countLow = 3,
+			radius = 0.75,
+			height = 0.55,
+			tilt = 0.3,
+			seconds = 3.2,
+		},
+		arrive = { ring = 9, burst = 10, preset = "smokePuff" },
 	},
 } :: { [string]: Signature }
 Presets.signatureFx = {
@@ -2809,6 +3017,82 @@ Presets.storeBurst = {
 		-- the Relic Museum card (#2925): an exhibit tile filled, and the tile that finished a room
 		exhibit = { colour = Presets.palette.golden, sparkles = 10, rings = 1 },
 		room = { colour = Presets.palette.golden, sparkles = 20, rings = 2 },
+	},
+}
+
+-- The Cat Fusion Observatory (#4104, fusion-observatory.md section 3; Effects/FusionFx). `gold` is the gold coat's
+-- colour and the rainbow one drifts round Presets.rainbow.hues once every `huePeriod` seconds.
+-- `swirl` (the window, on start): up to `most` tiles leave `stagger` seconds apart and take `seconds` each to spiral
+-- `turns` turns in to the centre, shrinking to `land` of their size; as they meet, `sparkles` diamonds of
+-- `sparkleSize` pixels fly `reach` of the centre's size out over `sparkleSeconds` and one ring grows from `ringFrom`
+-- to `ringTo` of it over `ringSeconds`.
+-- `burst` (the window, on collect): per coat `sparkles` diamonds round the picture over `seconds` (the rainbow's
+-- hues `hueGap` apart) and `rings` rings of `ringSeconds`, `ringGap` apart: thin outlines, and never more than one a
+-- second.
+-- `dome` (the world): the model's name ends `suffix`, its slit parts end `glow`; `paws` lights of `pawSize` studs
+-- circle at `pawRadius` of its half width and `pawHeight` of its height, a lap every `lap` seconds (`lapReady` once
+-- the cat waits), and a ready slit breathes down by `breathDip` every `breathSeconds`. `collect` sparkles, a ring
+-- `collectRing` of its width and, for a rainbow, `collectConfetti` of the confetti budget when you collect.
+-- Drawn every `rate` seconds; looked for every `lookSeconds`.
+export type FusionBurst = {
+	sparkles: number,
+	seconds: number,
+	hueGap: number,
+	rings: number,
+	ringSeconds: number,
+}
+Presets.fusion = {
+	displayOrder = 22, -- just over the window (a modal, 20), under the toasts (30)
+	gold = Presets.palette.golden,
+	huePeriod = 6,
+	acrossMin = 110, -- pixels: rings are sized as if the picture were at least this wide, so a small one still reads
+	swirl = {
+		most = 5,
+		stagger = 0.07,
+		seconds = 0.9,
+		turns = 0.75,
+		land = 0.3,
+		sparkles = 10,
+		sparkleSize = 12,
+		sparkleSeconds = 0.5,
+		sparkleStagger = 0.1,
+		reach = 0.9,
+		ringFrom = 0.4,
+		ringTo = 2.2,
+		ringSeconds = 0.8,
+	},
+	burst = {
+		size = 15,
+		stagger = 0.12,
+		reach = 0.6,
+		reachMin = 24,
+		reachMax = 90,
+		ringFrom = 0.6,
+		ringTo = 2.2,
+		ringGap = 1,
+		kinds = {
+			gold = { sparkles = 16, seconds = 0.6, hueGap = 0, rings = 2, ringSeconds = 0.9 },
+			rainbow = { sparkles = 24, seconds = 0.7, hueGap = 0.12, rings = 3, ringSeconds = 0.95 },
+		} :: { [string]: FusionBurst },
+	},
+	dome = {
+		suffix = "_FusionObservatory",
+		glow = "_Glow",
+		paws = 5,
+		pawSize = 0.45,
+		anchor = "GlowAnchor", -- Model-Agent's attachment on the dome's axis, at the ring's height (PR #4114)
+		anchorRadius = 5.75, -- studs: 1.15 of the tower's 5, clear of the telescope (4.1) and over the sign post
+		pawRadius = 1.15, -- without the anchor: of the model's half width
+		pawHeight = 0.7, -- and of its height
+		lap = 12,
+		lapReady = 6,
+		breathDip = 0.5,
+		breathSeconds = 2.4,
+		collect = 12,
+		collectRing = 1.2,
+		collectConfetti = 0.5,
+		rate = 1 / 20,
+		lookSeconds = 3,
 	},
 }
 
@@ -3864,6 +4148,7 @@ Presets.cannon = {
 		sewer = Color3.fromRGB(96, 116, 158),
 		desert = Color3.fromRGB(232, 205, 150), -- Tier 6 (#2657): sand
 		ruins = Color3.fromRGB(80, 160, 120), -- Tier 7 (#2657): jade
+		snowy = Color3.fromRGB(214, 236, 255), -- Tier 8 (#4069): ice blue
 	} :: { [string]: Color3 },
 }
 
@@ -4553,6 +4838,12 @@ export type AreaFxSpec = {
 	mist: number?,
 	mistColour: Color3?,
 	mistDepth: number?,
+	lift: number?, -- the air box's centre over your feet, where the area's own differs (snow falls from higher)
+	-- #4069: a little puff of `footPreset` in `footColour` at your feet for every `footStuds` you walk on the ground
+	footPuff: number?,
+	footPreset: string?,
+	footColour: Color3?,
+	footStuds: number?,
 }
 Presets.areaFx = {
 	pad = 40, -- the camp lies outside the floor box, and the server's mist catch reaches 40 studs past it
@@ -4587,6 +4878,19 @@ Presets.areaFx = {
 			mist = 10,
 			mistColour = Color3.fromRGB(196, 186, 210),
 			mistDepth = 12,
+		},
+		-- #4069 Snowy Mountain (Tier 8): snow drifting down round you, a white puff where its strays come and go and
+		-- small snow puffs under your feet as you walk. The area's box is Config.World's Snowy* once the area is in.
+		snowy = {
+			air = "snowfall",
+			colour = Color3.fromRGB(240, 248, 255),
+			puffPreset = "smokePuff",
+			puff = 6,
+			lift = 6,
+			footPuff = 3,
+			footPreset = "dust",
+			footColour = Color3.fromRGB(246, 250, 255),
+			footStuds = 3,
 		},
 	} :: { [string]: AreaFxSpec },
 }
@@ -4805,6 +5109,7 @@ Presets.binRoll = {
 	laps = 2,
 	first = 0.067,
 	last = 0.45,
+	slow = 4, -- #3903: the last ticks that slow down, all inside the final run to the prize (no near miss)
 	rattle = 4,
 	rattleHz = 7,
 	good = 0.15,
@@ -4826,6 +5131,23 @@ Presets.binRoll = {
 	reveal = 0.45, -- seconds a fixed prize's reveal takes (no roll)
 	-- the prize's hop from the bin to the player
 	hop = { seconds = 0.55, height = 3, size = 0.7, sparkles = 4 },
+	-- #3885 (Derek 2026-11-13: "show a quick animation of the item popping out of the bin into your hands"): with the
+	-- prize's picture the hop is the picture itself. It pops `rise` studs up out of the bin growing from `from` to its
+	-- full `size` (studs wide) over the first `popShare` of `seconds`, then arcs `height` studs over to the hands and
+	-- ends at `catch` of its size, with `sparkles` at the pop and again at the catch.
+	prize = {
+		seconds = 1.1,
+		popShare = 0.4,
+		rise = 2.5,
+		height = 2,
+		size = 2.2,
+		from = 0.3,
+		catch = 0.6,
+		sparkles = 6,
+		-- Review-QA's Studio look: the catch's few sparkles did not read, so the hands get a bigger burst and a ring
+		catchSparkles = 16,
+		catchRing = 4, -- studs wide
+	},
 	-- The lid on a win (#3612): still for a common prize, a hop for a good one, flies up turning and fades for the
 	-- best. The lid is the model's closed look (its child Model named with `lidSuffix`); a model without one (the
 	-- Yard Sale stall) just skips this.
@@ -4916,6 +5238,15 @@ Presets.mysticPool = {
 	popUp = 0.45, -- seconds it pops back out
 	popHeight = 3, -- studs over the liquid it pops to
 	showCat = 1.6, -- seconds it floats there over the card before fading
+	-- #3942: in a Mythic or Secret roll's whole scene the cat then rises up the pillar to `liftHeight` studs, turning
+	-- `liftTurns` times as it goes, over the scene's `lift` seconds (Presets.bigTrait.scenes), and floats there
+	liftHeight = 9,
+	liftTurns = 2,
+	-- the Rift Run's hand back (Effects/RiftRun, MysticPool.roll's landing): the cat falls `landHeight` studs into
+	-- the pool over `landDrop` seconds and stays under `landHold` before it pops out
+	landHeight = 26,
+	landDrop = 0.55,
+	landHold = 0.35,
 	fadeBack = 1.5, -- seconds the liquid takes to go back to its rest colour
 	startFront = 1.2, -- studs in front of the pool's middle the cat starts, on the liquid's surface
 	sparkles = 14, -- the float's sparkle burst
@@ -4984,8 +5315,62 @@ Presets.mysticIntro = {
 -- vfx/sound before the menu pops up"): a Legendary or Mythic roll at the pool. Seconds, studs and pixels. The camera
 -- spot is Presets.mysticIntro's (back, up, swings). Nothing blinks: the rays turn slowly and the title grows in once.
 Presets.bigTrait = {
-	rarities = { legendary = true, mythic = true }, -- shared/Traits.RARITIES ids that get the cutscene
-	titles = { legendary = "LEGENDARY TRAIT!", mythic = "MYTHIC TRAIT!" },
+	rarities = { legendary = true, mythic = true, secret = true }, -- shared/Traits.RARITIES ids that get the cutscene
+	titles = { legendary = "LEGENDARY TRAIT!", mythic = "MYTHIC TRAIT!", secret = "SECRET TRAIT!" },
+	-- #3908 (Derek 2026-11-13: "make secret and mythic trait rolls have crazy animations and vfx"): each rarity's
+	-- size of big moment. `big` and `screenSeconds` are seconds; `beams` light columns `beamHeight` studs high, in a
+	-- circle `beamSpread` studs wide; `rings` ground rings `ringGap` seconds apart; `stars` and `confetti` before
+	-- the device budget's cap; `rays` on the screen; `shake` studs (off with Screen shake or Reduce Motion); `dim`
+	-- how dark the screen goes behind the title (0 none). The other numbers below are the Legendary's and shared.
+	sizes = {
+		-- Derek 2026-11-13 ("make legendary a smaller one less underwhelming"): two gold rings, more stars and
+		-- confetti, and longer, for the RARE, EPIC, LEGENDARY words before the title (`ladder`), each with a ring
+		legendary = {
+			big = 3.6,
+			screenSeconds = 2.6,
+			beams = 1,
+			beamHeight = 26,
+			rings = 2,
+			stars = 32,
+			confetti = 56,
+			rays = 10,
+			shake = 0,
+			dim = 0,
+		},
+		mythic = {
+			big = 4.0,
+			screenSeconds = 2.4,
+			beams = 3,
+			beamHeight = 30,
+			rings = 2,
+			stars = 36,
+			confetti = 60,
+			rays = 14,
+			shake = 0.06,
+			dim = 0.2,
+		},
+		secret = {
+			big = 5.4,
+			screenSeconds = 3,
+			beams = 5,
+			beamHeight = 40,
+			rings = 3,
+			stars = 48,
+			confetti = 80,
+			rays = 18,
+			shake = 0.1,
+			dim = 0.45,
+		},
+	},
+	beamSpread = 5,
+	ringGap = 0.35,
+	-- the Secret rarity's look until shared/Traits gives it a colour: the Secret cats' starlight on a dark sky
+	secretColour = Color3.fromRGB(226, 214, 255),
+	secretColours = {
+		Color3.fromRGB(226, 214, 255),
+		Color3.fromRGB(120, 92, 200),
+		Color3.fromRGB(255, 255, 255),
+	},
 	swingIn = 0.9, -- the camera over to the pool as the roll starts
 	swingOut = 0.7, -- and back once the big moment is over
 	skipOut = 0.25, -- back after a skip
@@ -5010,6 +5395,233 @@ Presets.bigTrait = {
 	displayOrder = 22, -- over the card's edge shade (21) and its "Tap to skip"
 	cap = 16, -- controls always come back by now
 	tvSafe = 0.05,
+	-- #3942 (Derek 2026-11-13: "should give them a whole scene animation"): a Mythic or Secret roll at the pool is a
+	-- whole scene, not just the card's moment. With the camera held: letterbox bars `bars` of the screen's height
+	-- each, the world dimmed by `dim` (ColorCorrection brightness) and greyed by `saturation` toward `tint`, all
+	-- following the camera's swing in and out, and the camera turning `orbit` degrees round the pool over
+	-- `orbitSeconds`. At the big moment `spiral` sparkle pops climb the pillar over `spiralSeconds`; a Secret also
+	-- draws a cat of `constellation` stars in the sky, `skyHeight` studs over the pool and `skyScale` studs a unit,
+	-- one star every `starGap` seconds. Audio ducks the music for the scene. Reduce Motion: none of it.
+	scenes = {
+		-- Derek 2026-11-13: a small scene for a Legendary too: thin bars, a warm tint, a short turn round the pool, a
+		-- spiral up the pillar and the cat hopping up spinning to `liftHeight` studs
+		legendary = {
+			bars = 0.07,
+			dim = 0.05,
+			saturation = -0.05,
+			tint = Color3.fromRGB(255, 240, 208),
+			orbit = 16,
+			orbitSeconds = 5,
+			spiral = 6,
+			spiralSeconds = 1,
+			lift = 1,
+			liftHeight = 5.5,
+			constellation = false,
+		},
+		mythic = {
+			bars = 0.1,
+			dim = 0.15,
+			saturation = -0.25,
+			tint = Color3.fromRGB(255, 226, 240),
+			orbit = 30,
+			orbitSeconds = 6,
+			spiral = 8,
+			spiralSeconds = 1.6,
+			lift = 1.6,
+			constellation = false,
+		},
+		secret = {
+			bars = 0.12,
+			dim = 0.3,
+			saturation = -0.4,
+			tint = Color3.fromRGB(206, 200, 255),
+			orbit = 45,
+			orbitSeconds = 7.5,
+			spiral = 12,
+			spiralSeconds = 2,
+			lift = 2.2,
+			constellation = true,
+		},
+	},
+	skyHeight = 30,
+	skyScale = 4,
+	starGap = 0.12,
+	starSparkles = 4,
+	spiralRadius = 2.2,
+	spiralHeight = 18,
+	-- #3942: another player's Mythic or Secret roll seen from nearby (BigTraitCut.watchPool): within `seenRadius`
+	-- studs, `seenDelay` seconds after the server's mark (about when the roller's pillar goes up), and only while
+	-- the mark is under `seenFresh` seconds old
+	-- Derek 2026-11-13: a Legendary's word ladder before its title, one word every `ladderGap` seconds (well under
+	-- three a second), each in its tier's colour
+	ladder = { "rare", "epic", "legendary" },
+	ladderGap = 0.42,
+	ladderWords = { rare = "RARE", epic = "EPIC", legendary = "LEGENDARY" },
+	ladderSize = 40,
+	seenRadius = 160,
+	seenDelay = 4,
+	seenFresh = 10,
+}
+
+-- The Rift Run (Derek 2026-11-13: "like a whole cutscene with the cat you have ... A rift opens and your cat jumps
+-- through it running away while dodging meteors ... flash Common/Flash uncommon/flash rare ... with increasing
+-- vfx/animation for each tier"; storyboard OK'd 20:09 UTC): a Mythic or Secret trait roll cuts to the Rift Realm, a
+-- floating stone path in a violet sky, built on this client far off the map at `origin`. The rolled cat lands on the
+-- path, runs it toward the rift while meteors fall beside it (it hops aside; nothing ever hits it), passes one gate a
+-- tier, Common up to the rolled one, each with a bigger burst, word and sound than the last, and leaps through the
+-- rift as it tears open. A pink then white flash takes it back to the pool (Effects/BigTraitCut's big moment and the
+-- card). Seconds on the cutscene's own clock from its start; studs from the path's start, along -Z.
+-- Model-Agent's kit (ReplicatedStorage.Assets.RiftRun, CatCafe_RiftRun_*) is used when it is there; otherwise the
+-- same pieces are drawn here in the same sizes. Nothing flashes faster than about once a second; Reduce Motion skips
+-- it all (the pool's own calm reveal plays). Switch `riftRun` (shared/LiveFlags).
+Presets.riftRun = {
+	origin = Vector3.new(6000, 1600, 6000), -- the path's start, on its walking top
+	tiers = { "common", "uncommon", "rare", "epic", "legendary", "mythic", "secret" }, -- a gate each, in order
+	words = {
+		common = "COMMON",
+		uncommon = "UNCOMMON",
+		rare = "RARE",
+		epic = "EPIC",
+		legendary = "LEGENDARY",
+		mythic = "MYTHIC",
+		secret = "SECRET",
+	},
+	pathLength = 120,
+	pathWidth = 10,
+	tileLength = 5,
+	gateFirst = 20, -- the first gate this far along, the rest `gateGap` apart
+	gateGap = 15,
+	gateWidth = 12, -- inside
+	gateHeight = 14,
+	ringBeyond = 12, -- the rift's ring this far past the path's end, upright
+	ringDiameter = 30,
+	ringLift = 15, -- its middle this high over the path's top
+	-- the open: white over the pool, then the cut to the realm and the white fading off it
+	flareIn = 0.45,
+	flareOut = 0.55,
+	dropAt = 0.6, -- the cat falls onto the path's start
+	dropSeconds = 0.35,
+	dropHeight = 7,
+	runStart = 1.5,
+	firstGateAt = 3,
+	gateGaps = { 1.15, 1.05, 1, 0.95, 0.9 }, -- seconds from each gate to the next, Common to Mythic: faster and faster
+	darkGap = 2.4, -- a Secret: from the Mythic gate to the white Secret gate, through the dark
+	darkIn = 0.7, -- the realm going black after the Mythic gate
+	leapFrom = 117, -- the leap starts here
+	endSpeed = 18, -- studs a second from the last gate to the leap
+	leapSeconds = 1.45, -- off the path's end up into the rift, slowed right down
+	leapArc = 5, -- studs over the straight line at the leap's top
+	pinkAt = 0.55, -- of the leap: the pink flash starts
+	whiteAt = 0.92, -- and is all white
+	backOut = 0.6, -- back at the pool, the white fading off
+	-- dodging: the cat hops aside to a new lane `dodges` seconds after it starts running, and a meteor lands in the
+	-- lane it left `meteorLead` seconds later, just beside it
+	laneWidth = 2.8,
+	dodges = { 0.9, 2, 3.05, 4, 4.9, 5.75 },
+	lanes = { -1, 1, 0, -1, 1, 0 },
+	dodgeSeconds = 0.32,
+	dodgeHop = 1.4,
+	meteorLead = 0.3,
+	meteorFall = 0.85,
+	meteorFrom = Vector3.new(12, 46, -34), -- where it falls from, from where it lands (X mirrored every other one)
+	meteorAhead = 2.5, -- lands this far ahead of the cat
+	meteorSize = 3.6,
+	meteorStay = 1.4, -- the rock sinks and fades after landing
+	meteorSparks = 18,
+	meteorShake = 0.05,
+	-- the camera: low behind the cat, the field of view opening as it speeds up
+	camera = {
+		back = 6,
+		up = 4,
+		ahead = 9,
+		lookUp = 1.4,
+		fov = 70,
+		fovEnd = 82,
+		fovKick = 2.5, -- more each gate, easing off over kickSeconds
+		kickSeconds = 0.45,
+		follow = 9, -- how fast it catches up with the cat
+		introEye = Vector3.new(-13, 8, 15), -- the first wide shot, from the path's start
+		introLook = Vector3.new(0, 4, -45),
+		leapEye = Vector3.new(5, 3, 10), -- from the leap's start, as the cat flies up
+	},
+	-- each gate as the cat passes: its arch flares, a shockwave ring, sparkles and the tier's word, all growing
+	gateSparkles = 10,
+	gateSparklesGrow = 6,
+	shockFrom = 4,
+	shockTo = 13,
+	shockGrow = 2.5,
+	shockSeconds = 0.55,
+	gateFlare = 0.35, -- the arch white, back to its colour
+	wordSize = 44,
+	wordGrow = 5,
+	wordSeconds = 0.85,
+	wordInk = Color3.fromRGB(40, 22, 60),
+	confettiFrom = 5, -- gates from this tier up throw confetti
+	beamsFrom = 6, -- and from this one two light columns
+	-- the realm's look
+	sky = {
+		-- Neon glows brighter than its colour (Review-QA on #4029 read the first sky as pale pink), so these are dark
+		Color3.fromRGB(8, 4, 22), -- top
+		Color3.fromRGB(18, 8, 42),
+		Color3.fromRGB(36, 12, 66),
+		Color3.fromRGB(70, 22, 92),
+		Color3.fromRGB(128, 48, 108), -- the horizon's glow
+		Color3.fromRGB(44, 14, 64),
+		Color3.fromRGB(12, 6, 26), -- under
+	},
+	skyHalf = 120, -- the sky's walls this far to either side
+	skyAhead = 230, -- and ahead
+	skyBehind = 50,
+	skyUp = 130,
+	skyDown = 90,
+	stars = { high = 110, low = 45 },
+	starColour = Color3.fromRGB(255, 244, 255),
+	nebula = {
+		{ at = Vector3.new(-30, 40, -200), size = 70, colour = Color3.fromRGB(255, 90, 170) },
+		{ at = Vector3.new(40, 25, -190), size = 55, colour = Color3.fromRGB(120, 90, 255) },
+		{ at = Vector3.new(0, 70, -205), size = 80, colour = Color3.fromRGB(80, 160, 255) },
+	},
+	nebulaSeen = 0.82, -- transparency
+	stone = { Color3.fromRGB(88, 78, 120), Color3.fromRGB(76, 68, 106) },
+	edge = Color3.fromRGB(176, 120, 255),
+	rock = Color3.fromRGB(46, 36, 66),
+	crystal = { Color3.fromRGB(120, 220, 255), Color3.fromRGB(255, 120, 210) },
+	islands = {
+		{ at = Vector3.new(-26, -6, -30), size = 16 },
+		{ at = Vector3.new(30, 4, -62), size = 24 },
+		{ at = Vector3.new(-34, 10, -96), size = 10 },
+		{ at = Vector3.new(26, -10, -118), size = 16 },
+	},
+	islandBob = 0.8, -- studs, slowly
+	ringColour = Color3.fromRGB(255, 110, 190),
+	ringCore = Color3.fromRGB(255, 214, 240),
+	ringSegments = 28,
+	ringOpen = 0.18, -- how open the rift is as the run starts (a slit), opening fully as the leap nears
+	ringTear = 1.2, -- seconds before the leap it tears the rest of the way open
+	grade = {
+		tint = Color3.fromRGB(236, 222, 255),
+		brightness = -0.02,
+		contrast = 0.12,
+		saturation = 0.1,
+	},
+	dark = { brightness = -0.32, saturation = -0.6, tint = Color3.fromRGB(200, 196, 255) },
+	secretColour = Color3.fromRGB(240, 236, 255),
+	-- a Secret's cat of stars (Logic.CAT_CONSTELLATION), drawn in the dark `starCatBeyond` studs past the white gate,
+	-- its middle `starCatHeight` over the path, `starCatScale` studs a unit, so the low camera sees it framed in the
+	-- gate; a star every `starCatGap` seconds (Review-QA on #4029: one every 0.12 s left it half drawn)
+	-- Review-QA on #4029 (follow up): a little lower so the ears clear the low camera's top edge, and a warm gold
+	-- ink a touch bigger so the stars stand out from the pale rift instead of fading into it (Neon washes a light
+	-- colour toward white, so the gold is deep; 4.5 keeps the ears clear on a phone too)
+	starCatHeight = 4.5,
+	starCatBeyond = 10,
+	starCatScale = 3,
+	starCatGap = 0.05,
+	starCatSize = 2.1,
+	starCatColour = Color3.fromRGB(255, 165, 40),
+	flashPink = Color3.fromRGB(255, 120, 200),
+	displayOrder = 40, -- over every window, the bars and the title
+	cap = 30, -- everything is back by now, whatever happens
+	streaks = 18, -- speed streaks a second round the camera at the end speed
 }
 
 -- #3419 (the update party's banner, Effects/EventBanner): a cream and gold card at the top middle of the screen for

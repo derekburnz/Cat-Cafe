@@ -137,7 +137,7 @@ return function()
 			expect(byKey(BoostList.rows(Catalog, state(), NOW, 0)).pals).to.equal(nil)
 			expect(byKey(BoostList.rows(Catalog, state(), NOW)).pals).to.equal(nil)
 			local one = byKey(BoostList.rows(Catalog, state(), NOW, 1))
-			expect(one.pals.name).to.equal("Pals (1)")
+			expect(one.pals.name).to.equal("Friend bonus (1)")
 			expect(one.pals.value).to.equal("+10%")
 			expect(one.total.value).to.equal("x1.1")
 			-- a full potion share and two pals: the pals still add, as Economy.tipMultiplier adds them past the cap
@@ -184,6 +184,29 @@ return function()
 				expect(owned.total.amount).to.be.near(1.6 * 1.3225 * 2, 1e-9)
 			end
 		)
+
+		it("shows a running event's money as its own row, in the total (#3935)", function()
+			local none = byKey(BoostList.rows(Catalog, state(), NOW))
+			expect(none.event).to.equal(nil)
+			local party = byKey(
+				BoostList.rows(
+					Catalog,
+					state(),
+					NOW,
+					nil,
+					nil,
+					{ name = "Update Party", money = 2 }
+				)
+			)
+			expect(party.event.name).to.equal("Update Party")
+			expect(party.event.value).to.equal("x2")
+			expect(party.total.amount).to.be.near(none.total.amount * 2, 1e-9)
+			-- never above the server's cap
+			local big = byKey(
+				BoostList.rows(Catalog, state(), NOW, nil, nil, { name = "Party", money = 9 })
+			)
+			expect(big.event.amount).to.equal(require(Shared:WaitForChild("Config")).EventMoneyMax)
+		end)
 
 		it(
 			"names the one outfit pass owned, and keeps one row when it can't tell which (#2147)",

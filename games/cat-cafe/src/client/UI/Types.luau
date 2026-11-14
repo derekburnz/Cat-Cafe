@@ -377,6 +377,7 @@ export type PartialState = {
 	mysteryOpen: boolean?, -- #2574: BuyMystery is taken (else every button reads "Soon")
 	-- #3699: the Backpack's colour picks; false or nil for the built colours
 	bagColours: ({ main: string, trim: string } | boolean)?,
+	shoeColours: ({ main: string, trim: string } | boolean)?, -- #4049
 	signStyles: { string }?, -- #1625
 	signStyle: string?, -- #1625
 	looks: SharedTypes.LooksView?, -- #1624

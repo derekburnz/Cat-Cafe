@@ -40,6 +40,7 @@ local GlobalCatchService = require(script.Parent.Services.GlobalCatchService)
 local GrandOpeningService = require(script.Parent.Services.GrandOpeningService)
 local IdeaCreditsService = require(script.Parent.Services.IdeaCreditsService)
 local IndexRewardService = require(script.Parent.Services.IndexRewardService)
+local IntroModeService = require(script.Parent.Services.IntroModeService)
 local IntroService = require(script.Parent.Services.IntroService)
 local InviteService = require(script.Parent.Services.InviteService)
 local LateStationService = require(script.Parent.Services.LateStationService)
@@ -63,6 +64,7 @@ local PlotService = require(script.Parent.Services.PlotService)
 local PotionService = require(script.Parent.Services.PotionService)
 local ProductService = require(script.Parent.Services.ProductService)
 local QuestService = require(script.Parent.Services.QuestService)
+local QuietStartService = require(script.Parent.Services.QuietStartService)
 local RallyService = require(script.Parent.Services.RallyService)
 local RankSpotService = require(script.Parent.Services.RankSpotService)
 local RareCatsTabService = require(script.Parent.Services.RareCatsTabService)
@@ -130,6 +132,7 @@ RareCustomerService.start() -- #3889: after the three it sends visits to
 QuestService.start() -- F73: after the services whose counters its quests read
 PotionService.start()
 ShoveService.start()
+QuietStartService.start() -- #4005: a new player's quiet start, before DataService (onLoaded)
 NameService.start()
 TipJarService.start()
 DailyTreatService.start()
@@ -150,6 +153,7 @@ RareMomentService.start() -- F89: the toast clock
 GlobalCatchService.start() -- #2203: rare catches from other servers, as chat lines
 RareCatsTabService.start() -- #3053: the chat's Rare Cats tab, behind the rareCatsTab switch (off)
 IntroService.start()
+IntroModeService.start() -- #4001: the short intro test arm, read as each player joins
 TipService.start() -- F87: context tips and feedback; before DataService so its onLoaded sees every join
 BugReportService.start(world)
 IdeaCreditsService.start() -- #1083: the Thank You board's credits

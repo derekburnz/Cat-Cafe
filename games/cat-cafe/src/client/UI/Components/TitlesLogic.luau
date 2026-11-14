@@ -4,7 +4,8 @@
 -- player has, then the rest greyed out with where they come from. Equip sends PassSetTag, which the server checks
 -- against ChatTags.choices, so this only draws. Kept pure so the cloud tests can load it.
 --
---   rows(view)        the tab's rows, in order: { id, text, color, how, owned, equipped }
+--   rows(view)        the tab's rows, in order: { id, text, color, how, owned, equipped }; owned and locked each
+--                     rarest first (RAREST)
 --   HOW               title id -> where it comes from, for the greyed rows
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -41,6 +42,35 @@ local HOW: { [string]: string } = {
 table.freeze(HOW)
 TitlesLogic.HOW = HOW
 
+-- Derek 2026-11-13 ("sort titles in backpack section to sort rarest first so that leaderboards players can see
+-- their good titles first"): the tab's order, rarest first. The leaderboard places (three players each), then the
+-- big achievements hardest first, then the event and season rewards, then the bought ones. A title missing here
+-- (a new ChatTags id) goes after these, in ChatTags.ORDER.
+TitlesLogic.RAREST = table.freeze({
+	"rank_1",
+	"rank_2",
+	"rank_3",
+	"title_cat_legend",
+	"title_devoted",
+	"title_steady_hands",
+	"title_week_champion",
+	"title_gold_rush",
+	"tag_grand_opener",
+	"tag_maple",
+	"supporter",
+	"vip",
+}) :: { string }
+
+local function rarestOrder(): { string }
+	local order: { string } = table.clone(TitlesLogic.RAREST)
+	for _, id in ChatTags.ORDER do
+		if not table.find(order, id) then
+			table.insert(order, id)
+		end
+	end
+	return order
+end
+
 -- The rows for the last CafePassState (`tags` the ones the player may show, `tagShown` the one their name shows).
 function TitlesLogic.rows(view: Types.CafePassView?): { Row }
 	local have: { [string]: boolean } = {}
@@ -66,7 +96,7 @@ function TitlesLogic.rows(view: Types.CafePassView?): { Row }
 		},
 	}
 	local locked: { Row } = {}
-	for _, id in ChatTags.ORDER do
+	for _, id in rarestOrder() do
 		local tag = ChatTags.TAGS[id]
 		if tag ~= nil then
 			local row: Row = {

@@ -13,6 +13,7 @@
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local Economy = require(script.Parent.Economy)
+local LateTiers = require(script.Parent.LateTiers)
 local Types = require(script.Parent.Types)
 
 local ReturnGoals = {}
@@ -45,7 +46,8 @@ end
 function ReturnGoals.pick(profile: Types.PlayerProfile, now: number): { Goal }
 	local goals: { Goal } = {}
 	local nextTier = Catalog.getTier(Economy.tier(profile) + 1)
-	if nextTier ~= nil then
+	-- #3997: a tier behind its live switch (shared/LateTiers) is not a goal until its area opens
+	if nextTier ~= nil and LateTiers.tierOpen(nextTier.tier) then
 		local cats = Economy.rankUpCatCount(profile.collection)
 		if cats < nextTier.distinctCats then
 			table.insert(goals, {

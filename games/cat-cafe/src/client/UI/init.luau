@@ -5301,8 +5301,12 @@ do
 		return TipQueue.device(UserInputService:GetLastInputType().Name, Scale.isTouch())
 	end
 
-	-- The area the next rank up opens, for rank_up's line.
+	-- The area the next rank up opens, for rank_up's line (#3997: none while its tier waits behind a live switch).
 	local function nextAreaName(): string?
+		local GoalLines = require(script.Components.GoalLines) :: any
+		if GoalLines.nextTier(currentCatalog and currentCatalog.tiers, state.tier) == nil then
+			return nil
+		end
 		for _, area in catalogAreas() do
 			if area.tier == state.tier + 1 then
 				return area.name
@@ -9604,10 +9608,11 @@ local function recapLines(view: { [string]: any }): { string }
 	local catalog = currentCatalog
 	local nextTier: string? = nil
 	if catalog and catalog.tiers and state.tier then
-		for _, tier in catalog.tiers :: { any } do
-			if tier.tier == state.tier + 1 and type(tier.name) == "string" then
-				nextTier = tier.name
-			end
+		-- #3997: nil while the next tier waits behind its live switch
+		local GoalLines = require(script.Components.GoalLines) :: any
+		local def = GoalLines.nextTier(catalog.tiers, state.tier)
+		if def and type(def.name) == "string" then
+			nextTier = def.name
 		end
 	end
 	local readyAt: { number } = {}

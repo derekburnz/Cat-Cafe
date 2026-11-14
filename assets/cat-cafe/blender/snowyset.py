@@ -968,7 +968,7 @@ def lodge_front(mat):
 
 
 def fire_pit(mat):
-    """A fire pit: a ring of stones round crossed logs and a soft fire (_Glow, Neon day and night, no smoke)."""
+    """A fire pit: a ring of stones round crossed logs and a soft fire (_Campfire_Glow, Neon day and night, no smoke)."""
     b, glow = Builder(), Builder()
     for k in range(10):
         a = 2 * PI * k / 10
@@ -977,9 +977,11 @@ def fire_pit(mat):
     for k in range(3):
         b.cyl((0, 0, 0.3 + 0.05 * k), 0.16, 1.9, WOOD_DARK, segments=6, bevel=False,
               rot=Matrix.Rotation(k * PI / 3, 3, "Z") @ Matrix.Rotation(PI / 2, 3, "Y"))
-    glow.cyl_base((0, 0, 0.35), 0.7, 0.6, "fur_marmalade", segments=10, radius2=0.35)
-    glow.cyl_base((0, 0, 0.9), 0.35, 0.55, "pastel_butter", segments=8, radius2=0.08)
-    return [b.finalize(N + "FirePit", mat), glow.finalize(N + "FirePit_Glow", mat)]
+    # three tongues, the Woods campfire's shape, so Effects/Campfire flickers it (it looks for `_Campfire_Glow`)
+    glow.cyl_base((0, 0, 0.35), 0.7, 1.3, "fur_marmalade", segments=6, radius2=0.05, bevel=False)
+    glow.cyl_base((0.22, 0.1, 0.36), 0.4, 0.95, "pastel_butter", segments=6, radius2=0.02, bevel=False)
+    glow.cyl_base((-0.26, -0.18, 0.37), 0.36, 0.85, "fur_ginger", segments=6, radius2=0.02, bevel=False)
+    return [b.finalize(N + "FirePit", mat), glow.finalize(N + "FirePit_Campfire_Glow", mat)]
 
 
 def ski_rack(mat):

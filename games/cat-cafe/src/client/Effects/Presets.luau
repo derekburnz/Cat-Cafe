@@ -2900,6 +2900,7 @@ Presets.fusion = {
 	displayOrder = 22, -- just over the window (a modal, 20), under the toasts (30)
 	gold = Presets.palette.golden,
 	huePeriod = 6,
+	acrossMin = 110, -- pixels: rings are sized as if the picture were at least this wide, so a small one still reads
 	swirl = {
 		most = 5,
 		stagger = 0.07,
@@ -2912,21 +2913,21 @@ Presets.fusion = {
 		sparkleStagger = 0.1,
 		reach = 0.9,
 		ringFrom = 0.4,
-		ringTo = 1.5,
-		ringSeconds = 0.55,
+		ringTo = 2.2,
+		ringSeconds = 0.8,
 	},
 	burst = {
-		size = 12,
+		size = 15,
 		stagger = 0.12,
 		reach = 0.6,
 		reachMin = 24,
 		reachMax = 90,
 		ringFrom = 0.6,
-		ringTo = 1.5,
+		ringTo = 2.2,
 		ringGap = 1,
 		kinds = {
-			gold = { sparkles = 16, seconds = 0.5, hueGap = 0, rings = 2, ringSeconds = 0.55 },
-			rainbow = { sparkles = 24, seconds = 0.6, hueGap = 0.12, rings = 3, ringSeconds = 0.7 },
+			gold = { sparkles = 16, seconds = 0.6, hueGap = 0, rings = 2, ringSeconds = 0.9 },
+			rainbow = { sparkles = 24, seconds = 0.7, hueGap = 0.12, rings = 3, ringSeconds = 0.95 },
 		} :: { [string]: FusionBurst },
 	},
 	dome = {
@@ -2934,8 +2935,10 @@ Presets.fusion = {
 		glow = "_Glow",
 		paws = 5,
 		pawSize = 0.45,
-		pawRadius = 1.15,
-		pawHeight = 0.7,
+		anchor = "GlowAnchor", -- Model-Agent's attachment on the dome's axis, at the ring's height (PR #4114)
+		anchorRadius = 5.75, -- studs: 1.15 of the tower's 5, clear of the telescope (4.1) and over the sign post
+		pawRadius = 1.15, -- without the anchor: of the model's half width
+		pawHeight = 0.7, -- and of its height
 		lap = 12,
 		lapReady = 6,
 		breathDip = 0.5,

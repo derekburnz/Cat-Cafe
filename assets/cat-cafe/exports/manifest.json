@@ -340184,7 +340184,7 @@
         "CatCafe_Camp_Snowy_001_LodgeFront",
         "CatCafe_Camp_Snowy_001_LodgeFront_Pane",
         "CatCafe_Camp_Snowy_002_FirePit",
-        "CatCafe_Camp_Snowy_002_FirePit_Glow",
+        "CatCafe_Camp_Snowy_002_FirePit_Campfire_Glow",
         "CatCafe_Camp_Snowy_003_Bench",
         "CatCafe_Camp_Snowy_004_Bench",
         "CatCafe_Camp_Snowy_005_Bench",
@@ -340206,7 +340206,7 @@
         "CatCafe_Camp_Snowy_017_SnowballPile",
         "CatCafe_Camp_Snowy_Barrier"
       ],
-      "triangles": 7636,
+      "triangles": 7504,
       "budget": 20000,
       "size_studs": {
         "x": 152.0,
@@ -340273,7 +340273,7 @@
         "depth": 30.0
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Snowy.model.json",
-      "rbx_parts": 321,
+      "rbx_parts": 324,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Snowy.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Snowy.glb"
@@ -340286,10 +340286,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "7636/20000 tris",
+          "budget": "7504/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "3695 faces on swatch centers",
+          "uv": "3607 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-296.00"
@@ -359704,6 +359704,2323 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Castle_DragonKeep",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Castle_DragonKeep",
+        "CatCafe_Camp_Castle_DragonKeep_Gold",
+        "CatCafe_Camp_Castle_DragonKeep_Gold_Glow",
+        "CatCafe_Camp_Castle_DragonKeep_Flame",
+        "CatCafe_Camp_Castle_DragonKeep_Cushion"
+      ],
+      "triangles": 2388,
+      "budget": 6000,
+      "size_studs": {
+        "x": 15.08,
+        "y": 15.04,
+        "z": 7.05
+      },
+      "size_roblox": [
+        15.08,
+        7.05,
+        15.04
+      ],
+      "bounds_min": [
+        -7.54,
+        -7.5,
+        0.0
+      ],
+      "bounds_max": [
+        7.54,
+        7.54,
+        7.05
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Castle_DragonKeep_Cushion": [
+          -0.0,
+          0.0,
+          0.77
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Castle_DragonKeep_Cushion": [
+          0.0,
+          0.77,
+          0.0
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Castle_DragonKeep.model.json",
+      "rbx_parts": 175,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Castle_DragonKeep.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Castle_DragonKeep.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2388/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1008 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.02"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Dragon_Hatchling",
+      "category": "Dragon",
+      "module": "dragon",
+      "objects": [
+        "CatCafe_Dragon_Hatchling",
+        "CatCafe_Dragon_Hatchling_Body_Scale",
+        "CatCafe_Dragon_Hatchling_Chest_Glow",
+        "CatCafe_Dragon_Hatchling_Neck",
+        "CatCafe_Dragon_Hatchling_Neck_Scale",
+        "CatCafe_Dragon_Hatchling_Head",
+        "CatCafe_Dragon_Hatchling_Head_Scale",
+        "CatCafe_Dragon_Hatchling_Jaw",
+        "CatCafe_Dragon_Hatchling_Jaw_Scale",
+        "CatCafe_Dragon_Hatchling_Tail1",
+        "CatCafe_Dragon_Hatchling_Tail1_Scale",
+        "CatCafe_Dragon_Hatchling_Tail2",
+        "CatCafe_Dragon_Hatchling_Tail2_Scale",
+        "CatCafe_Dragon_Hatchling_Tail3",
+        "CatCafe_Dragon_Hatchling_Tail3_Scale",
+        "CatCafe_Dragon_Hatchling_LegFL",
+        "CatCafe_Dragon_Hatchling_LegFL_Scale",
+        "CatCafe_Dragon_Hatchling_LegFR",
+        "CatCafe_Dragon_Hatchling_LegFR_Scale",
+        "CatCafe_Dragon_Hatchling_LegBL",
+        "CatCafe_Dragon_Hatchling_LegBL_Scale",
+        "CatCafe_Dragon_Hatchling_LegBR",
+        "CatCafe_Dragon_Hatchling_LegBR_Scale"
+      ],
+      "triangles": 660,
+      "budget": 4000,
+      "size_studs": {
+        "x": 1.0,
+        "y": 4.2,
+        "z": 1.89
+      },
+      "size_roblox": [
+        1.0,
+        1.89,
+        4.2
+      ],
+      "bounds_min": [
+        -0.5,
+        -1.8,
+        0.0
+      ],
+      "bounds_max": [
+        0.5,
+        2.4,
+        1.89
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Dragon_Hatchling_Chest_Glow": [
+          0.0,
+          -0.75,
+          0.63
+        ],
+        "CatCafe_Dragon_Hatchling_Neck": [
+          -0.0,
+          -0.57,
+          0.9
+        ],
+        "CatCafe_Dragon_Hatchling_Neck_Scale": [
+          -0.0,
+          -0.57,
+          0.9
+        ],
+        "CatCafe_Dragon_Hatchling_Head": [
+          -0.0,
+          -0.7,
+          1.08
+        ],
+        "CatCafe_Dragon_Hatchling_Head_Scale": [
+          -0.0,
+          -0.7,
+          1.08
+        ],
+        "CatCafe_Dragon_Hatchling_Jaw": [
+          -0.0,
+          -1.22,
+          1.1
+        ],
+        "CatCafe_Dragon_Hatchling_Jaw_Scale": [
+          -0.0,
+          -1.22,
+          1.1
+        ],
+        "CatCafe_Dragon_Hatchling_Tail1": [
+          -0.0,
+          0.63,
+          0.72
+        ],
+        "CatCafe_Dragon_Hatchling_Tail1_Scale": [
+          -0.0,
+          0.63,
+          0.72
+        ],
+        "CatCafe_Dragon_Hatchling_Tail2": [
+          -0.0,
+          1.17,
+          0.67
+        ],
+        "CatCafe_Dragon_Hatchling_Tail2_Scale": [
+          -0.0,
+          1.17,
+          0.67
+        ],
+        "CatCafe_Dragon_Hatchling_Tail3": [
+          -0.0,
+          1.66,
+          0.61
+        ],
+        "CatCafe_Dragon_Hatchling_Tail3_Scale": [
+          -0.0,
+          1.66,
+          0.61
+        ],
+        "CatCafe_Dragon_Hatchling_LegFL": [
+          -0.34,
+          -0.41,
+          0.43
+        ],
+        "CatCafe_Dragon_Hatchling_LegFL_Scale": [
+          -0.34,
+          -0.41,
+          0.43
+        ],
+        "CatCafe_Dragon_Hatchling_LegFR": [
+          0.34,
+          -0.41,
+          0.43
+        ],
+        "CatCafe_Dragon_Hatchling_LegFR_Scale": [
+          0.34,
+          -0.41,
+          0.43
+        ],
+        "CatCafe_Dragon_Hatchling_LegBL": [
+          -0.34,
+          0.41,
+          0.43
+        ],
+        "CatCafe_Dragon_Hatchling_LegBL_Scale": [
+          -0.34,
+          0.41,
+          0.43
+        ],
+        "CatCafe_Dragon_Hatchling_LegBR": [
+          0.34,
+          0.41,
+          0.43
+        ],
+        "CatCafe_Dragon_Hatchling_LegBR_Scale": [
+          0.34,
+          0.41,
+          0.43
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Dragon_Hatchling_Chest_Glow": [
+          0.0,
+          0.63,
+          -0.75
+        ],
+        "CatCafe_Dragon_Hatchling_Neck": [
+          0.0,
+          0.9,
+          -0.57
+        ],
+        "CatCafe_Dragon_Hatchling_Neck_Scale": [
+          0.0,
+          0.9,
+          -0.57
+        ],
+        "CatCafe_Dragon_Hatchling_Head": [
+          0.0,
+          1.08,
+          -0.7
+        ],
+        "CatCafe_Dragon_Hatchling_Head_Scale": [
+          0.0,
+          1.08,
+          -0.7
+        ],
+        "CatCafe_Dragon_Hatchling_Jaw": [
+          0.0,
+          1.1,
+          -1.22
+        ],
+        "CatCafe_Dragon_Hatchling_Jaw_Scale": [
+          0.0,
+          1.1,
+          -1.22
+        ],
+        "CatCafe_Dragon_Hatchling_Tail1": [
+          0.0,
+          0.72,
+          0.63
+        ],
+        "CatCafe_Dragon_Hatchling_Tail1_Scale": [
+          0.0,
+          0.72,
+          0.63
+        ],
+        "CatCafe_Dragon_Hatchling_Tail2": [
+          0.0,
+          0.67,
+          1.17
+        ],
+        "CatCafe_Dragon_Hatchling_Tail2_Scale": [
+          0.0,
+          0.67,
+          1.17
+        ],
+        "CatCafe_Dragon_Hatchling_Tail3": [
+          0.0,
+          0.61,
+          1.66
+        ],
+        "CatCafe_Dragon_Hatchling_Tail3_Scale": [
+          0.0,
+          0.61,
+          1.66
+        ],
+        "CatCafe_Dragon_Hatchling_LegFL": [
+          0.34,
+          0.43,
+          -0.41
+        ],
+        "CatCafe_Dragon_Hatchling_LegFL_Scale": [
+          0.34,
+          0.43,
+          -0.41
+        ],
+        "CatCafe_Dragon_Hatchling_LegFR": [
+          -0.34,
+          0.43,
+          -0.41
+        ],
+        "CatCafe_Dragon_Hatchling_LegFR_Scale": [
+          -0.34,
+          0.43,
+          -0.41
+        ],
+        "CatCafe_Dragon_Hatchling_LegBL": [
+          0.34,
+          0.43,
+          0.41
+        ],
+        "CatCafe_Dragon_Hatchling_LegBL_Scale": [
+          0.34,
+          0.43,
+          0.41
+        ],
+        "CatCafe_Dragon_Hatchling_LegBR": [
+          -0.34,
+          0.43,
+          0.41
+        ],
+        "CatCafe_Dragon_Hatchling_LegBR_Scale": [
+          -0.34,
+          0.43,
+          0.41
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/Dragon/CatCafe_Dragon_Hatchling.model.json",
+      "rbx_parts": 55,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Dragon_Hatchling.fbx",
+        "assets/cat-cafe/exports/CatCafe_Dragon_Hatchling.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "660/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "330 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.30"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Dragon_Whelp",
+      "category": "Dragon",
+      "module": "dragon",
+      "objects": [
+        "CatCafe_Dragon_Whelp",
+        "CatCafe_Dragon_Whelp_Body_Scale",
+        "CatCafe_Dragon_Whelp_Chest_Glow",
+        "CatCafe_Dragon_Whelp_Neck",
+        "CatCafe_Dragon_Whelp_Neck_Scale",
+        "CatCafe_Dragon_Whelp_Head",
+        "CatCafe_Dragon_Whelp_Head_Scale",
+        "CatCafe_Dragon_Whelp_Jaw",
+        "CatCafe_Dragon_Whelp_Jaw_Scale",
+        "CatCafe_Dragon_Whelp_Tail1",
+        "CatCafe_Dragon_Whelp_Tail1_Scale",
+        "CatCafe_Dragon_Whelp_Tail2",
+        "CatCafe_Dragon_Whelp_Tail2_Scale",
+        "CatCafe_Dragon_Whelp_Tail3",
+        "CatCafe_Dragon_Whelp_Tail3_Scale",
+        "CatCafe_Dragon_Whelp_LegFL",
+        "CatCafe_Dragon_Whelp_LegFL_Scale",
+        "CatCafe_Dragon_Whelp_LegFR",
+        "CatCafe_Dragon_Whelp_LegFR_Scale",
+        "CatCafe_Dragon_Whelp_LegBL",
+        "CatCafe_Dragon_Whelp_LegBL_Scale",
+        "CatCafe_Dragon_Whelp_LegBR",
+        "CatCafe_Dragon_Whelp_LegBR_Scale",
+        "CatCafe_Dragon_Whelp_WingL",
+        "CatCafe_Dragon_Whelp_WingL_Scale",
+        "CatCafe_Dragon_Whelp_WingR",
+        "CatCafe_Dragon_Whelp_WingR_Scale"
+      ],
+      "triangles": 720,
+      "budget": 4000,
+      "size_studs": {
+        "x": 3.41,
+        "y": 5.99,
+        "z": 2.86
+      },
+      "size_roblox": [
+        3.41,
+        2.86,
+        5.99
+      ],
+      "bounds_min": [
+        -1.7,
+        -2.53,
+        0.0
+      ],
+      "bounds_max": [
+        1.7,
+        3.46,
+        2.86
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Dragon_Whelp_Chest_Glow": [
+          0.0,
+          -1.08,
+          0.91
+        ],
+        "CatCafe_Dragon_Whelp_Neck": [
+          -0.0,
+          -0.82,
+          1.29
+        ],
+        "CatCafe_Dragon_Whelp_Neck_Scale": [
+          -0.0,
+          -0.82,
+          1.29
+        ],
+        "CatCafe_Dragon_Whelp_Head": [
+          -0.0,
+          -1.12,
+          1.72
+        ],
+        "CatCafe_Dragon_Whelp_Head_Scale": [
+          -0.0,
+          -1.12,
+          1.72
+        ],
+        "CatCafe_Dragon_Whelp_Jaw": [
+          -0.0,
+          -1.78,
+          1.75
+        ],
+        "CatCafe_Dragon_Whelp_Jaw_Scale": [
+          -0.0,
+          -1.78,
+          1.75
+        ],
+        "CatCafe_Dragon_Whelp_Tail1": [
+          -0.0,
+          0.91,
+          1.04
+        ],
+        "CatCafe_Dragon_Whelp_Tail1_Scale": [
+          -0.0,
+          0.91,
+          1.04
+        ],
+        "CatCafe_Dragon_Whelp_Tail2": [
+          -0.0,
+          1.69,
+          0.96
+        ],
+        "CatCafe_Dragon_Whelp_Tail2_Scale": [
+          -0.0,
+          1.69,
+          0.96
+        ],
+        "CatCafe_Dragon_Whelp_Tail3": [
+          -0.0,
+          2.4,
+          0.88
+        ],
+        "CatCafe_Dragon_Whelp_Tail3_Scale": [
+          -0.0,
+          2.4,
+          0.88
+        ],
+        "CatCafe_Dragon_Whelp_LegFL": [
+          -0.49,
+          -0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_LegFL_Scale": [
+          -0.49,
+          -0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_LegFR": [
+          0.49,
+          -0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_LegFR_Scale": [
+          0.49,
+          -0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_LegBL": [
+          -0.49,
+          0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_LegBL_Scale": [
+          -0.49,
+          0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_LegBR": [
+          0.49,
+          0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_LegBR_Scale": [
+          0.49,
+          0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_WingL": [
+          -0.4,
+          -0.35,
+          1.51
+        ],
+        "CatCafe_Dragon_Whelp_WingL_Scale": [
+          -0.4,
+          -0.35,
+          1.51
+        ],
+        "CatCafe_Dragon_Whelp_WingR": [
+          0.4,
+          -0.35,
+          1.51
+        ],
+        "CatCafe_Dragon_Whelp_WingR_Scale": [
+          0.4,
+          -0.35,
+          1.51
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Dragon_Whelp_Chest_Glow": [
+          0.0,
+          0.91,
+          -1.08
+        ],
+        "CatCafe_Dragon_Whelp_Neck": [
+          0.0,
+          1.29,
+          -0.82
+        ],
+        "CatCafe_Dragon_Whelp_Neck_Scale": [
+          0.0,
+          1.29,
+          -0.82
+        ],
+        "CatCafe_Dragon_Whelp_Head": [
+          0.0,
+          1.72,
+          -1.12
+        ],
+        "CatCafe_Dragon_Whelp_Head_Scale": [
+          0.0,
+          1.72,
+          -1.12
+        ],
+        "CatCafe_Dragon_Whelp_Jaw": [
+          0.0,
+          1.75,
+          -1.78
+        ],
+        "CatCafe_Dragon_Whelp_Jaw_Scale": [
+          0.0,
+          1.75,
+          -1.78
+        ],
+        "CatCafe_Dragon_Whelp_Tail1": [
+          0.0,
+          1.04,
+          0.91
+        ],
+        "CatCafe_Dragon_Whelp_Tail1_Scale": [
+          0.0,
+          1.04,
+          0.91
+        ],
+        "CatCafe_Dragon_Whelp_Tail2": [
+          0.0,
+          0.96,
+          1.69
+        ],
+        "CatCafe_Dragon_Whelp_Tail2_Scale": [
+          0.0,
+          0.96,
+          1.69
+        ],
+        "CatCafe_Dragon_Whelp_Tail3": [
+          0.0,
+          0.88,
+          2.4
+        ],
+        "CatCafe_Dragon_Whelp_Tail3_Scale": [
+          0.0,
+          0.88,
+          2.4
+        ],
+        "CatCafe_Dragon_Whelp_LegFL": [
+          0.49,
+          0.62,
+          -0.58
+        ],
+        "CatCafe_Dragon_Whelp_LegFL_Scale": [
+          0.49,
+          0.62,
+          -0.58
+        ],
+        "CatCafe_Dragon_Whelp_LegFR": [
+          -0.49,
+          0.62,
+          -0.58
+        ],
+        "CatCafe_Dragon_Whelp_LegFR_Scale": [
+          -0.49,
+          0.62,
+          -0.58
+        ],
+        "CatCafe_Dragon_Whelp_LegBL": [
+          0.49,
+          0.62,
+          0.58
+        ],
+        "CatCafe_Dragon_Whelp_LegBL_Scale": [
+          0.49,
+          0.62,
+          0.58
+        ],
+        "CatCafe_Dragon_Whelp_LegBR": [
+          -0.49,
+          0.62,
+          0.58
+        ],
+        "CatCafe_Dragon_Whelp_LegBR_Scale": [
+          -0.49,
+          0.62,
+          0.58
+        ],
+        "CatCafe_Dragon_Whelp_WingL": [
+          0.4,
+          1.51,
+          -0.35
+        ],
+        "CatCafe_Dragon_Whelp_WingL_Scale": [
+          0.4,
+          1.51,
+          -0.35
+        ],
+        "CatCafe_Dragon_Whelp_WingR": [
+          -0.4,
+          1.51,
+          -0.35
+        ],
+        "CatCafe_Dragon_Whelp_WingR_Scale": [
+          -0.4,
+          1.51,
+          -0.35
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/Dragon/CatCafe_Dragon_Whelp.model.json",
+      "rbx_parts": 60,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Dragon_Whelp.fbx",
+        "assets/cat-cafe/exports/CatCafe_Dragon_Whelp.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "720/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "360 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.47"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Dragon_Drake",
+      "category": "Dragon",
+      "module": "dragon",
+      "objects": [
+        "CatCafe_Dragon_Drake",
+        "CatCafe_Dragon_Drake_Body_Scale",
+        "CatCafe_Dragon_Drake_Chest_Glow",
+        "CatCafe_Dragon_Drake_Neck",
+        "CatCafe_Dragon_Drake_Neck_Scale",
+        "CatCafe_Dragon_Drake_Head",
+        "CatCafe_Dragon_Drake_Head_Scale",
+        "CatCafe_Dragon_Drake_Jaw",
+        "CatCafe_Dragon_Drake_Jaw_Scale",
+        "CatCafe_Dragon_Drake_Tail1",
+        "CatCafe_Dragon_Drake_Tail1_Scale",
+        "CatCafe_Dragon_Drake_Tail2",
+        "CatCafe_Dragon_Drake_Tail2_Scale",
+        "CatCafe_Dragon_Drake_Tail3",
+        "CatCafe_Dragon_Drake_Tail3_Scale",
+        "CatCafe_Dragon_Drake_LegFL",
+        "CatCafe_Dragon_Drake_LegFL_Scale",
+        "CatCafe_Dragon_Drake_LegFR",
+        "CatCafe_Dragon_Drake_LegFR_Scale",
+        "CatCafe_Dragon_Drake_LegBL",
+        "CatCafe_Dragon_Drake_LegBL_Scale",
+        "CatCafe_Dragon_Drake_LegBR",
+        "CatCafe_Dragon_Drake_LegBR_Scale",
+        "CatCafe_Dragon_Drake_WingL",
+        "CatCafe_Dragon_Drake_WingL_Scale",
+        "CatCafe_Dragon_Drake_WingR",
+        "CatCafe_Dragon_Drake_WingR_Scale"
+      ],
+      "triangles": 852,
+      "budget": 4000,
+      "size_studs": {
+        "x": 6.39,
+        "y": 8.23,
+        "z": 4.04
+      },
+      "size_roblox": [
+        6.39,
+        4.04,
+        8.23
+      ],
+      "bounds_min": [
+        -3.19,
+        -3.44,
+        0.0
+      ],
+      "bounds_max": [
+        3.19,
+        4.79,
+        4.04
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Dragon_Drake_Chest_Glow": [
+          0.0,
+          -1.49,
+          1.26
+        ],
+        "CatCafe_Dragon_Drake_Neck": [
+          -0.0,
+          -1.13,
+          1.79
+        ],
+        "CatCafe_Dragon_Drake_Neck_Scale": [
+          -0.0,
+          -1.13,
+          1.79
+        ],
+        "CatCafe_Dragon_Drake_Head": [
+          -0.0,
+          -1.75,
+          2.68
+        ],
+        "CatCafe_Dragon_Drake_Head_Scale": [
+          -0.0,
+          -1.75,
+          2.68
+        ],
+        "CatCafe_Dragon_Drake_Jaw": [
+          -0.0,
+          -2.55,
+          2.71
+        ],
+        "CatCafe_Dragon_Drake_Jaw_Scale": [
+          -0.0,
+          -2.55,
+          2.71
+        ],
+        "CatCafe_Dragon_Drake_Tail1": [
+          -0.0,
+          1.26,
+          1.44
+        ],
+        "CatCafe_Dragon_Drake_Tail1_Scale": [
+          -0.0,
+          1.26,
+          1.44
+        ],
+        "CatCafe_Dragon_Drake_Tail2": [
+          -0.0,
+          2.34,
+          1.33
+        ],
+        "CatCafe_Dragon_Drake_Tail2_Scale": [
+          -0.0,
+          2.34,
+          1.33
+        ],
+        "CatCafe_Dragon_Drake_Tail3": [
+          -0.0,
+          3.33,
+          1.22
+        ],
+        "CatCafe_Dragon_Drake_Tail3_Scale": [
+          -0.0,
+          3.33,
+          1.22
+        ],
+        "CatCafe_Dragon_Drake_LegFL": [
+          -0.68,
+          -0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_LegFL_Scale": [
+          -0.68,
+          -0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_LegFR": [
+          0.68,
+          -0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_LegFR_Scale": [
+          0.68,
+          -0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_LegBL": [
+          -0.68,
+          0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_LegBL_Scale": [
+          -0.68,
+          0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_LegBR": [
+          0.68,
+          0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_LegBR_Scale": [
+          0.68,
+          0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_WingL": [
+          -0.55,
+          -0.49,
+          2.09
+        ],
+        "CatCafe_Dragon_Drake_WingL_Scale": [
+          -0.55,
+          -0.49,
+          2.09
+        ],
+        "CatCafe_Dragon_Drake_WingR": [
+          0.55,
+          -0.49,
+          2.09
+        ],
+        "CatCafe_Dragon_Drake_WingR_Scale": [
+          0.55,
+          -0.49,
+          2.09
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Dragon_Drake_Chest_Glow": [
+          0.0,
+          1.26,
+          -1.49
+        ],
+        "CatCafe_Dragon_Drake_Neck": [
+          0.0,
+          1.79,
+          -1.13
+        ],
+        "CatCafe_Dragon_Drake_Neck_Scale": [
+          0.0,
+          1.79,
+          -1.13
+        ],
+        "CatCafe_Dragon_Drake_Head": [
+          0.0,
+          2.68,
+          -1.75
+        ],
+        "CatCafe_Dragon_Drake_Head_Scale": [
+          0.0,
+          2.68,
+          -1.75
+        ],
+        "CatCafe_Dragon_Drake_Jaw": [
+          0.0,
+          2.71,
+          -2.55
+        ],
+        "CatCafe_Dragon_Drake_Jaw_Scale": [
+          0.0,
+          2.71,
+          -2.55
+        ],
+        "CatCafe_Dragon_Drake_Tail1": [
+          0.0,
+          1.44,
+          1.26
+        ],
+        "CatCafe_Dragon_Drake_Tail1_Scale": [
+          0.0,
+          1.44,
+          1.26
+        ],
+        "CatCafe_Dragon_Drake_Tail2": [
+          0.0,
+          1.33,
+          2.34
+        ],
+        "CatCafe_Dragon_Drake_Tail2_Scale": [
+          0.0,
+          1.33,
+          2.34
+        ],
+        "CatCafe_Dragon_Drake_Tail3": [
+          0.0,
+          1.22,
+          3.33
+        ],
+        "CatCafe_Dragon_Drake_Tail3_Scale": [
+          0.0,
+          1.22,
+          3.33
+        ],
+        "CatCafe_Dragon_Drake_LegFL": [
+          0.68,
+          0.86,
+          -0.81
+        ],
+        "CatCafe_Dragon_Drake_LegFL_Scale": [
+          0.68,
+          0.86,
+          -0.81
+        ],
+        "CatCafe_Dragon_Drake_LegFR": [
+          -0.68,
+          0.86,
+          -0.81
+        ],
+        "CatCafe_Dragon_Drake_LegFR_Scale": [
+          -0.68,
+          0.86,
+          -0.81
+        ],
+        "CatCafe_Dragon_Drake_LegBL": [
+          0.68,
+          0.86,
+          0.81
+        ],
+        "CatCafe_Dragon_Drake_LegBL_Scale": [
+          0.68,
+          0.86,
+          0.81
+        ],
+        "CatCafe_Dragon_Drake_LegBR": [
+          -0.68,
+          0.86,
+          0.81
+        ],
+        "CatCafe_Dragon_Drake_LegBR_Scale": [
+          -0.68,
+          0.86,
+          0.81
+        ],
+        "CatCafe_Dragon_Drake_WingL": [
+          0.55,
+          2.09,
+          -0.49
+        ],
+        "CatCafe_Dragon_Drake_WingL_Scale": [
+          0.55,
+          2.09,
+          -0.49
+        ],
+        "CatCafe_Dragon_Drake_WingR": [
+          -0.55,
+          2.09,
+          -0.49
+        ],
+        "CatCafe_Dragon_Drake_WingR_Scale": [
+          -0.55,
+          2.09,
+          -0.49
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/Dragon/CatCafe_Dragon_Drake.model.json",
+      "rbx_parts": 71,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Dragon_Drake.fbx",
+        "assets/cat-cafe/exports/CatCafe_Dragon_Drake.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "852/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "426 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.68"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Dragon_Elder",
+      "category": "Dragon",
+      "module": "dragon",
+      "objects": [
+        "CatCafe_Dragon_Elder",
+        "CatCafe_Dragon_Elder_Body_Scale",
+        "CatCafe_Dragon_Elder_Chest_Glow",
+        "CatCafe_Dragon_Elder_Neck",
+        "CatCafe_Dragon_Elder_Neck_Scale",
+        "CatCafe_Dragon_Elder_Head",
+        "CatCafe_Dragon_Elder_Head_Scale",
+        "CatCafe_Dragon_Elder_Jaw",
+        "CatCafe_Dragon_Elder_Jaw_Scale",
+        "CatCafe_Dragon_Elder_Tail1",
+        "CatCafe_Dragon_Elder_Tail1_Scale",
+        "CatCafe_Dragon_Elder_Tail2",
+        "CatCafe_Dragon_Elder_Tail2_Scale",
+        "CatCafe_Dragon_Elder_Tail3",
+        "CatCafe_Dragon_Elder_Tail3_Scale",
+        "CatCafe_Dragon_Elder_LegFL",
+        "CatCafe_Dragon_Elder_LegFL_Scale",
+        "CatCafe_Dragon_Elder_LegFR",
+        "CatCafe_Dragon_Elder_LegFR_Scale",
+        "CatCafe_Dragon_Elder_LegBL",
+        "CatCafe_Dragon_Elder_LegBL_Scale",
+        "CatCafe_Dragon_Elder_LegBR",
+        "CatCafe_Dragon_Elder_LegBR_Scale",
+        "CatCafe_Dragon_Elder_WingL",
+        "CatCafe_Dragon_Elder_WingL_Scale",
+        "CatCafe_Dragon_Elder_WingR",
+        "CatCafe_Dragon_Elder_WingR_Scale"
+      ],
+      "triangles": 984,
+      "budget": 4000,
+      "size_studs": {
+        "x": 8.21,
+        "y": 10.45,
+        "z": 5.89
+      },
+      "size_roblox": [
+        8.21,
+        5.89,
+        10.45
+      ],
+      "bounds_min": [
+        -4.11,
+        -4.6,
+        0.0
+      ],
+      "bounds_max": [
+        4.11,
+        5.86,
+        5.89
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Dragon_Elder_Chest_Glow": [
+          0.0,
+          -1.83,
+          1.54
+        ],
+        "CatCafe_Dragon_Elder_Neck": [
+          -0.0,
+          -1.39,
+          2.19
+        ],
+        "CatCafe_Dragon_Elder_Neck_Scale": [
+          -0.0,
+          -1.39,
+          2.19
+        ],
+        "CatCafe_Dragon_Elder_Head": [
+          -0.0,
+          -2.65,
+          3.99
+        ],
+        "CatCafe_Dragon_Elder_Head_Scale": [
+          -0.0,
+          -2.65,
+          3.99
+        ],
+        "CatCafe_Dragon_Elder_Jaw": [
+          -0.0,
+          -3.57,
+          4.03
+        ],
+        "CatCafe_Dragon_Elder_Jaw_Scale": [
+          -0.0,
+          -3.57,
+          4.03
+        ],
+        "CatCafe_Dragon_Elder_Tail1": [
+          -0.0,
+          1.54,
+          1.76
+        ],
+        "CatCafe_Dragon_Elder_Tail1_Scale": [
+          -0.0,
+          1.54,
+          1.76
+        ],
+        "CatCafe_Dragon_Elder_Tail2": [
+          -0.0,
+          2.86,
+          1.63
+        ],
+        "CatCafe_Dragon_Elder_Tail2_Scale": [
+          -0.0,
+          2.86,
+          1.63
+        ],
+        "CatCafe_Dragon_Elder_Tail3": [
+          -0.0,
+          4.07,
+          1.5
+        ],
+        "CatCafe_Dragon_Elder_Tail3_Scale": [
+          -0.0,
+          4.07,
+          1.5
+        ],
+        "CatCafe_Dragon_Elder_LegFL": [
+          -0.82,
+          -0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_LegFL_Scale": [
+          -0.82,
+          -0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_LegFR": [
+          0.82,
+          -0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_LegFR_Scale": [
+          0.82,
+          -0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_LegBL": [
+          -0.82,
+          0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_LegBL_Scale": [
+          -0.82,
+          0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_LegBR": [
+          0.82,
+          0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_LegBR_Scale": [
+          0.82,
+          0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_WingL": [
+          -0.67,
+          -0.59,
+          2.55
+        ],
+        "CatCafe_Dragon_Elder_WingL_Scale": [
+          -0.67,
+          -0.59,
+          2.55
+        ],
+        "CatCafe_Dragon_Elder_WingR": [
+          0.67,
+          -0.59,
+          2.55
+        ],
+        "CatCafe_Dragon_Elder_WingR_Scale": [
+          0.67,
+          -0.59,
+          2.55
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Dragon_Elder_Chest_Glow": [
+          0.0,
+          1.54,
+          -1.83
+        ],
+        "CatCafe_Dragon_Elder_Neck": [
+          0.0,
+          2.19,
+          -1.39
+        ],
+        "CatCafe_Dragon_Elder_Neck_Scale": [
+          0.0,
+          2.19,
+          -1.39
+        ],
+        "CatCafe_Dragon_Elder_Head": [
+          0.0,
+          3.99,
+          -2.65
+        ],
+        "CatCafe_Dragon_Elder_Head_Scale": [
+          0.0,
+          3.99,
+          -2.65
+        ],
+        "CatCafe_Dragon_Elder_Jaw": [
+          0.0,
+          4.03,
+          -3.57
+        ],
+        "CatCafe_Dragon_Elder_Jaw_Scale": [
+          0.0,
+          4.03,
+          -3.57
+        ],
+        "CatCafe_Dragon_Elder_Tail1": [
+          0.0,
+          1.76,
+          1.54
+        ],
+        "CatCafe_Dragon_Elder_Tail1_Scale": [
+          0.0,
+          1.76,
+          1.54
+        ],
+        "CatCafe_Dragon_Elder_Tail2": [
+          0.0,
+          1.63,
+          2.86
+        ],
+        "CatCafe_Dragon_Elder_Tail2_Scale": [
+          0.0,
+          1.63,
+          2.86
+        ],
+        "CatCafe_Dragon_Elder_Tail3": [
+          0.0,
+          1.5,
+          4.07
+        ],
+        "CatCafe_Dragon_Elder_Tail3_Scale": [
+          0.0,
+          1.5,
+          4.07
+        ],
+        "CatCafe_Dragon_Elder_LegFL": [
+          0.82,
+          1.06,
+          -0.99
+        ],
+        "CatCafe_Dragon_Elder_LegFL_Scale": [
+          0.82,
+          1.06,
+          -0.99
+        ],
+        "CatCafe_Dragon_Elder_LegFR": [
+          -0.82,
+          1.06,
+          -0.99
+        ],
+        "CatCafe_Dragon_Elder_LegFR_Scale": [
+          -0.82,
+          1.06,
+          -0.99
+        ],
+        "CatCafe_Dragon_Elder_LegBL": [
+          0.82,
+          1.06,
+          0.99
+        ],
+        "CatCafe_Dragon_Elder_LegBL_Scale": [
+          0.82,
+          1.06,
+          0.99
+        ],
+        "CatCafe_Dragon_Elder_LegBR": [
+          -0.82,
+          1.06,
+          0.99
+        ],
+        "CatCafe_Dragon_Elder_LegBR_Scale": [
+          -0.82,
+          1.06,
+          0.99
+        ],
+        "CatCafe_Dragon_Elder_WingL": [
+          0.67,
+          2.55,
+          -0.59
+        ],
+        "CatCafe_Dragon_Elder_WingL_Scale": [
+          0.67,
+          2.55,
+          -0.59
+        ],
+        "CatCafe_Dragon_Elder_WingR": [
+          -0.67,
+          2.55,
+          -0.59
+        ],
+        "CatCafe_Dragon_Elder_WingR_Scale": [
+          -0.67,
+          2.55,
+          -0.59
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/Dragon/CatCafe_Dragon_Elder.model.json",
+      "rbx_parts": 82,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Dragon_Elder.fbx",
+        "assets/cat-cafe/exports/CatCafe_Dragon_Elder.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "984/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "492 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.63"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Dragon_Crowned",
+      "category": "Dragon",
+      "module": "dragon",
+      "objects": [
+        "CatCafe_Dragon_Crowned",
+        "CatCafe_Dragon_Crowned_Body_Scale",
+        "CatCafe_Dragon_Crowned_Chest_Glow",
+        "CatCafe_Dragon_Crowned_Neck",
+        "CatCafe_Dragon_Crowned_Neck_Scale",
+        "CatCafe_Dragon_Crowned_Head",
+        "CatCafe_Dragon_Crowned_Head_Scale",
+        "CatCafe_Dragon_Crowned_Crown_Glow",
+        "CatCafe_Dragon_Crowned_Jaw",
+        "CatCafe_Dragon_Crowned_Jaw_Scale",
+        "CatCafe_Dragon_Crowned_Tail1",
+        "CatCafe_Dragon_Crowned_Tail1_Scale",
+        "CatCafe_Dragon_Crowned_Tail2",
+        "CatCafe_Dragon_Crowned_Tail2_Scale",
+        "CatCafe_Dragon_Crowned_Tail3",
+        "CatCafe_Dragon_Crowned_Tail3_Scale",
+        "CatCafe_Dragon_Crowned_LegFL",
+        "CatCafe_Dragon_Crowned_LegFL_Scale",
+        "CatCafe_Dragon_Crowned_LegFR",
+        "CatCafe_Dragon_Crowned_LegFR_Scale",
+        "CatCafe_Dragon_Crowned_LegBL",
+        "CatCafe_Dragon_Crowned_LegBL_Scale",
+        "CatCafe_Dragon_Crowned_LegBR",
+        "CatCafe_Dragon_Crowned_LegBR_Scale",
+        "CatCafe_Dragon_Crowned_WingL",
+        "CatCafe_Dragon_Crowned_WingL_Scale",
+        "CatCafe_Dragon_Crowned_WingR",
+        "CatCafe_Dragon_Crowned_WingR_Scale"
+      ],
+      "triangles": 1284,
+      "budget": 4000,
+      "size_studs": {
+        "x": 10.67,
+        "y": 12.43,
+        "z": 7.52
+      },
+      "size_roblox": [
+        10.67,
+        7.52,
+        12.43
+      ],
+      "bounds_min": [
+        -5.34,
+        -5.51,
+        0.0
+      ],
+      "bounds_max": [
+        5.34,
+        6.92,
+        7.52
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Dragon_Crowned_Chest_Glow": [
+          0.0,
+          -2.16,
+          1.82
+        ],
+        "CatCafe_Dragon_Crowned_Neck": [
+          -0.0,
+          -1.64,
+          2.59
+        ],
+        "CatCafe_Dragon_Crowned_Neck_Scale": [
+          -0.0,
+          -1.64,
+          2.59
+        ],
+        "CatCafe_Dragon_Crowned_Head": [
+          -0.0,
+          -3.2,
+          4.83
+        ],
+        "CatCafe_Dragon_Crowned_Head_Scale": [
+          -0.0,
+          -3.2,
+          4.83
+        ],
+        "CatCafe_Dragon_Crowned_Crown_Glow": [
+          0.0,
+          -3.81,
+          7.24
+        ],
+        "CatCafe_Dragon_Crowned_Jaw": [
+          -0.0,
+          -4.29,
+          4.87
+        ],
+        "CatCafe_Dragon_Crowned_Jaw_Scale": [
+          -0.0,
+          -4.29,
+          4.87
+        ],
+        "CatCafe_Dragon_Crowned_Tail1": [
+          -0.0,
+          1.82,
+          2.08
+        ],
+        "CatCafe_Dragon_Crowned_Tail1_Scale": [
+          -0.0,
+          1.82,
+          2.08
+        ],
+        "CatCafe_Dragon_Crowned_Tail2": [
+          -0.0,
+          3.38,
+          1.92
+        ],
+        "CatCafe_Dragon_Crowned_Tail2_Scale": [
+          -0.0,
+          3.38,
+          1.92
+        ],
+        "CatCafe_Dragon_Crowned_Tail3": [
+          -0.0,
+          4.81,
+          1.77
+        ],
+        "CatCafe_Dragon_Crowned_Tail3_Scale": [
+          -0.0,
+          4.81,
+          1.77
+        ],
+        "CatCafe_Dragon_Crowned_LegFL": [
+          -0.98,
+          -1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_LegFL_Scale": [
+          -0.98,
+          -1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_LegFR": [
+          0.98,
+          -1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_LegFR_Scale": [
+          0.98,
+          -1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_LegBL": [
+          -0.98,
+          1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_LegBL_Scale": [
+          -0.98,
+          1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_LegBR": [
+          0.98,
+          1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_LegBR_Scale": [
+          0.98,
+          1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_WingL": [
+          -0.79,
+          -0.7,
+          3.02
+        ],
+        "CatCafe_Dragon_Crowned_WingL_Scale": [
+          -0.79,
+          -0.7,
+          3.02
+        ],
+        "CatCafe_Dragon_Crowned_WingR": [
+          0.79,
+          -0.7,
+          3.02
+        ],
+        "CatCafe_Dragon_Crowned_WingR_Scale": [
+          0.79,
+          -0.7,
+          3.02
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Dragon_Crowned_Chest_Glow": [
+          0.0,
+          1.82,
+          -2.16
+        ],
+        "CatCafe_Dragon_Crowned_Neck": [
+          0.0,
+          2.59,
+          -1.64
+        ],
+        "CatCafe_Dragon_Crowned_Neck_Scale": [
+          0.0,
+          2.59,
+          -1.64
+        ],
+        "CatCafe_Dragon_Crowned_Head": [
+          0.0,
+          4.83,
+          -3.2
+        ],
+        "CatCafe_Dragon_Crowned_Head_Scale": [
+          0.0,
+          4.83,
+          -3.2
+        ],
+        "CatCafe_Dragon_Crowned_Crown_Glow": [
+          0.0,
+          7.24,
+          -3.81
+        ],
+        "CatCafe_Dragon_Crowned_Jaw": [
+          0.0,
+          4.87,
+          -4.29
+        ],
+        "CatCafe_Dragon_Crowned_Jaw_Scale": [
+          0.0,
+          4.87,
+          -4.29
+        ],
+        "CatCafe_Dragon_Crowned_Tail1": [
+          0.0,
+          2.08,
+          1.82
+        ],
+        "CatCafe_Dragon_Crowned_Tail1_Scale": [
+          0.0,
+          2.08,
+          1.82
+        ],
+        "CatCafe_Dragon_Crowned_Tail2": [
+          0.0,
+          1.92,
+          3.38
+        ],
+        "CatCafe_Dragon_Crowned_Tail2_Scale": [
+          0.0,
+          1.92,
+          3.38
+        ],
+        "CatCafe_Dragon_Crowned_Tail3": [
+          0.0,
+          1.77,
+          4.81
+        ],
+        "CatCafe_Dragon_Crowned_Tail3_Scale": [
+          0.0,
+          1.77,
+          4.81
+        ],
+        "CatCafe_Dragon_Crowned_LegFL": [
+          0.98,
+          1.25,
+          -1.17
+        ],
+        "CatCafe_Dragon_Crowned_LegFL_Scale": [
+          0.98,
+          1.25,
+          -1.17
+        ],
+        "CatCafe_Dragon_Crowned_LegFR": [
+          -0.98,
+          1.25,
+          -1.17
+        ],
+        "CatCafe_Dragon_Crowned_LegFR_Scale": [
+          -0.98,
+          1.25,
+          -1.17
+        ],
+        "CatCafe_Dragon_Crowned_LegBL": [
+          0.98,
+          1.25,
+          1.17
+        ],
+        "CatCafe_Dragon_Crowned_LegBL_Scale": [
+          0.98,
+          1.25,
+          1.17
+        ],
+        "CatCafe_Dragon_Crowned_LegBR": [
+          -0.98,
+          1.25,
+          1.17
+        ],
+        "CatCafe_Dragon_Crowned_LegBR_Scale": [
+          -0.98,
+          1.25,
+          1.17
+        ],
+        "CatCafe_Dragon_Crowned_WingL": [
+          0.79,
+          3.02,
+          -0.7
+        ],
+        "CatCafe_Dragon_Crowned_WingL_Scale": [
+          0.79,
+          3.02,
+          -0.7
+        ],
+        "CatCafe_Dragon_Crowned_WingR": [
+          -0.79,
+          3.02,
+          -0.7
+        ],
+        "CatCafe_Dragon_Crowned_WingR_Scale": [
+          -0.79,
+          3.02,
+          -0.7
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/Dragon/CatCafe_Dragon_Crowned.model.json",
+      "rbx_parts": 107,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Dragon_Crowned.fbx",
+        "assets/cat-cafe/exports/CatCafe_Dragon_Crowned.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1284/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "642 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.71"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_WaterPark_TicketBooth",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_WaterPark_TicketBooth",
+        "CatCafe_Camp_WaterPark_TicketBooth_Glow",
+        "CatCafe_Camp_WaterPark_TicketBooth_Sign_Spin"
+      ],
+      "triangles": 1920,
+      "budget": 6000,
+      "size_studs": {
+        "x": 9.2,
+        "y": 5.38,
+        "z": 11.72
+      },
+      "size_roblox": [
+        9.2,
+        11.72,
+        5.38
+      ],
+      "bounds_min": [
+        -4.6,
+        -3.28,
+        0.0
+      ],
+      "bounds_max": [
+        4.6,
+        2.1,
+        11.72
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_WaterPark_TicketBooth_Sign_Spin": [
+          -0.0,
+          -0.45,
+          9.4
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_WaterPark_TicketBooth_Sign_Spin": [
+          0.0,
+          9.4,
+          -0.45
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_WaterPark_TicketBooth.model.json",
+      "rbx_parts": 137,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_WaterPark_TicketBooth.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_WaterPark_TicketBooth.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1920/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "974 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.59"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_SnorkelMask",
+      "category": "Accessory",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Accessory_SnorkelMask"
+      ],
+      "triangles": 96,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.97,
+        "y": 0.67,
+        "z": 0.79
+      },
+      "size_roblox": [
+        0.97,
+        0.79,
+        0.67
+      ],
+      "bounds_min": [
+        -0.46,
+        -0.06,
+        -0.17
+      ],
+      "bounds_max": [
+        0.51,
+        0.61,
+        0.62
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_SnorkelMask.model.json",
+      "rbx_parts": 8,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_SnorkelMask.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_SnorkelMask.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "96/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "48 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.17 (want 0)",
+          "centered": "footprint center x=0.03 y=0.28"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_SwimCap",
+      "category": "Accessory",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Accessory_SwimCap"
+      ],
+      "triangles": 244,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.95,
+        "y": 0.96,
+        "z": 0.38
+      },
+      "size_roblox": [
+        0.95,
+        0.38,
+        0.96
+      ],
+      "bounds_min": [
+        -0.47,
+        -0.48,
+        -0.02
+      ],
+      "bounds_max": [
+        0.47,
+        0.47,
+        0.36
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_SwimCap.model.json",
+      "rbx_parts": 8,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_SwimCap.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_SwimCap.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "244/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "76 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.02 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_SunVisor",
+      "category": "Accessory",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Accessory_SunVisor"
+      ],
+      "triangles": 184,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.0,
+        "y": 1.29,
+        "z": 0.15
+      },
+      "size_roblox": [
+        1.0,
+        0.15,
+        1.29
+      ],
+      "bounds_min": [
+        -0.5,
+        -0.79,
+        -0.06
+      ],
+      "bounds_max": [
+        0.5,
+        0.5,
+        0.09
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_SunVisor.model.json",
+      "rbx_parts": 18,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_SunVisor.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_SunVisor.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "184/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "84 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.06 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.15"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_StarfishShades",
+      "category": "Accessory",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Accessory_StarfishShades"
+      ],
+      "triangles": 300,
+      "budget": 600,
+      "size_studs": {
+        "x": 0.91,
+        "y": 0.66,
+        "z": 0.43
+      },
+      "size_roblox": [
+        0.91,
+        0.43,
+        0.66
+      ],
+      "bounds_min": [
+        -0.46,
+        -0.05,
+        -0.21
+      ],
+      "bounds_max": [
+        0.46,
+        0.61,
+        0.22
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_StarfishShades.model.json",
+      "rbx_parts": 17,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_StarfishShades.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_StarfishShades.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "300/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "126 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.21 (want 0)",
+          "centered": "footprint center x=0.00 y=0.28"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_FlamingoFloat",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_FlamingoFloat",
+        "CatCafe_Decor_FlamingoFloat_Water"
+      ],
+      "triangles": 404,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.8,
+        "y": 3.8,
+        "z": 2.96
+      },
+      "size_roblox": [
+        3.8,
+        2.96,
+        3.8
+      ],
+      "bounds_min": [
+        -1.9,
+        -1.9,
+        0.0
+      ],
+      "bounds_max": [
+        1.9,
+        1.9,
+        2.96
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_FlamingoFloat.model.json",
+      "rbx_parts": 17,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_FlamingoFloat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_FlamingoFloat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "404/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_SplashFountain",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_SplashFountain",
+        "CatCafe_Decor_SplashFountain_Water",
+        "CatCafe_Decor_SplashFountain_Glow"
+      ],
+      "triangles": 596,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.04,
+        "y": 4.1,
+        "z": 4.42
+      },
+      "size_roblox": [
+        4.04,
+        4.42,
+        4.1
+      ],
+      "bounds_min": [
+        -2.02,
+        -2.05,
+        0.0
+      ],
+      "bounds_max": [
+        2.02,
+        2.05,
+        4.42
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_SplashFountain.model.json",
+      "rbx_parts": 21,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_SplashFountain.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_SplashFountain.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "596/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "272 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_TicketArch",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_TicketArch",
+        "CatCafe_Decor_TicketArch_Glow"
+      ],
+      "triangles": 484,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.3,
+        "y": 0.9,
+        "z": 5.4
+      },
+      "size_roblox": [
+        4.3,
+        5.4,
+        0.9
+      ],
+      "bounds_min": [
+        -2.15,
+        -0.45,
+        0.0
+      ],
+      "bounds_max": [
+        2.15,
+        0.45,
+        5.4
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_TicketArch.model.json",
+      "rbx_parts": 36,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_TicketArch.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_TicketArch.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "484/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "332 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_WavePoolTiles",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_WavePoolTiles",
+        "CatCafe_Decor_WavePoolTiles_Water"
+      ],
+      "triangles": 492,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.0,
+        "y": 2.5,
+        "z": 1.45
+      },
+      "size_roblox": [
+        4.0,
+        1.45,
+        2.5
+      ],
+      "bounds_min": [
+        -2.0,
+        -1.25,
+        0.0
+      ],
+      "bounds_max": [
+        2.0,
+        1.25,
+        1.45
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_WavePoolTiles.model.json",
+      "rbx_parts": 39,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_WavePoolTiles.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_WavePoolTiles.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "492/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "252 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_LifeguardChair",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_LifeguardChair"
+      ],
+      "triangles": 292,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.04,
+        "y": 3.04,
+        "z": 6.25
+      },
+      "size_roblox": [
+        3.04,
+        6.25,
+        3.04
+      ],
+      "bounds_min": [
+        -2.02,
+        -1.32,
+        -0.05
+      ],
+      "bounds_max": [
+        1.02,
+        1.72,
+        6.2
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_LifeguardChair.model.json",
+      "rbx_parts": 19,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_LifeguardChair.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_LifeguardChair.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "292/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "124 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.05 (want 0)",
+          "centered": "footprint center x=-0.50 y=0.20"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_SnackHut",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_SnackHut",
+        "CatCafe_Decor_SnackHut_Glow"
+      ],
+      "triangles": 480,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.3,
+        "y": 2.5,
+        "z": 4.66
+      },
+      "size_roblox": [
+        4.3,
+        4.66,
+        2.5
+      ],
+      "bounds_min": [
+        -2.15,
+        -1.1,
+        0.0
+      ],
+      "bounds_max": [
+        2.15,
+        1.4,
+        4.66
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_SnackHut.model.json",
+      "rbx_parts": 35,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_SnackHut.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_SnackHut.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "480/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "258 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.15"
         }
       }
     }

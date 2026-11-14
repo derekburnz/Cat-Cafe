@@ -437,6 +437,8 @@ local BANNER_PAD_Y = 4
 -- side by side, a name and its time left each, BANNER_ITEM_GAP apart; a tap on any opens the card with the rest
 local BANNER_ITEM_GAP = 10
 local BANNER_MOST = 3
+local BANNER_GUESS_W = 200 -- design px for a piece not yet measured in the strip (HUD._fitBanner)
+local BANNER_SPARE = 8 -- design px a dropped piece needs past its own width to come back
 local DAY_CARD_Z = 20
 -- The top right column (icon row, clock, tips line, tier and goal) is this wide at most. The HUD keeps clear of
 -- Roblox's top bar, which left a tall empty band over that column (Derek 2026-10-27); when the bar's free stretch
@@ -2613,8 +2615,9 @@ function HUD._applyFocus(self: any)
 		self._buffs:setFocus(false)
 		return
 	end
+	local lines: { GuiObject } = self._bannerLines
 	for child in hidden do
-		if child.Parent == root then
+		if child.Parent == root or table.find(lines, child) ~= nil then
 			child.Visible = true
 		end
 	end
@@ -3682,26 +3685,10 @@ function HUD.setEvent(self: any, lines: { string }?, kind: string?, strip: { str
 	-- #2539 (Laptop-Tester): not tied to the clock, which the small HUD hides until tutorial step 5, so a new player
 	-- sees the event too
 	nextLine.Text = if words ~= nil and words[2] ~= nil then words[2] else ""
-	local showLine = text ~= nil
-	local showNext = showLine and nextLine.Text ~= ""
-	-- #2860 (Derek2: the event "flashes and shows during catching minigames when it should be hidden"): its countdown
-	-- repaints every second, so mid-catch it stays down and is only noted for the catch's end (HUD._applyFocus)
-	if self._catching then
-		local hidden: { [GuiObject]: boolean } = self._focusHidden
-		if showLine then
-			hidden[line] = true
-		else
-			hidden[line] = nil
-		end
-		if showNext then
-			hidden[nextLine] = true
-		else
-			hidden[nextLine] = nil
-		end
-		showLine, showNext = false, false
-	end
-	line.Visible = showLine
-	nextLine.Visible = showNext
+	-- #2860: mid-catch the whole strip stays down (_paintBanner), so its lines keep their own state and all come back
+	-- together at the catch's end (Review-QA 2026-11-13: hiding the line itself left the strip a piece short for 1 s)
+	line.Visible = text ~= nil
+	nextLine.Visible = line.Visible and nextLine.Text ~= ""
 	self:_layoutRight()
 end
 
@@ -3841,8 +3828,26 @@ function HUD._placeTopMiddle(self: any)
 	self._clock.Position = UDim2.new(0.5, 0, 0, clockTop)
 	local bannerTop = clockTop + CLOCK_H + 2
 	self._banner.Position = UDim2.new(0.5, 0, 0, bannerTop)
-	self._dayCard.AnchorPoint = Vector2.new(0.5, 0)
-	self._dayCard.Position = UDim2.new(0.5, 0, 0, bannerTop + self:_bannerHeight() + 4)
+	-- Review-QA 2026-11-13 (a small PC window): the card opens centred, but never over the left menu
+	local scale = Scale.get()
+	local width = if scale > 0 then self._root.AbsoluteSize.X / scale else 0
+	local left = math.max(width / 2 - DAY_CARD_W / 2, self:_leftClear())
+	self._dayCard.AnchorPoint = Vector2.new(0, 0)
+	self._dayCard.Position =
+		UDim2.fromOffset(math.floor(left), math.floor(bannerTop + self:_bannerHeight() + 4))
+	self:_queueFit()
+end
+
+-- the strip's fit, once its words are measured (a frame on)
+function HUD._queueFit(self: any)
+	if self._fitQueued then
+		return
+	end
+	self._fitQueued = true
+	task.defer(function()
+		self._fitQueued = false
+		self:_fitBanner()
+	end)
 end
 
 -- #2885: the banner's height from its shown lines (its automatic size can lag a frame behind a change).
@@ -3913,6 +3918,9 @@ function HUD._paintBanner(self: any)
 	if not shown then
 		self._dayCard.Visible = false
 	end
+	if most < math.min(#wanted, BANNER_MOST) then
+		self:_queueFit() -- a dropped piece looks for its way back (HUD._fitBanner)
+	end
 	-- Derek 2026-11-13: through a catch, a rescue or the Rummage Bin's roll it stays down. A repaint mid-catch (the
 	-- event's countdown ticks each second) used to set it back, and the catch's focus hid it again: the flash.
 	if self._catching or next(self._bannerHold) ~= nil then
@@ -3982,21 +3990,16 @@ function HUD._placeBanner(self: any)
 	end
 	left = math.max(left, self:_leftClear()) -- clear of the menu grid and its arrow tab
 	banner.Position = UDim2.fromOffset(math.floor(left), math.floor(top))
-	if not self._fitQueued then
-		self._fitQueued = true
-		task.defer(function()
-			self._fitQueued = false
-			self:_fitBanner()
-		end)
-	end
+	self:_queueFit()
 	self._dayCard.AnchorPoint = Vector2.new(0, 0)
 	self._dayCard.Position =
 		UDim2.fromOffset(math.floor(left), math.floor(top + self:_bannerHeight() + 4))
 end
 
--- Derek 2026-11-13 (touch): the strip stops short of what sits to its right on its own height (the top right icons,
--- the goal card and its tab). Once its words are measured, a strip that runs into one drops its last piece (the card
--- a tap opens still has it) until it fits or one is left.
+-- Derek 2026-11-13: the strip stops short of what sits beside it on its own height (the top right icons, the goal card
+-- and its tab, on a PC the left menu too, as it is centred there). Once its words are measured, a strip that runs into
+-- one drops its last piece (the card a tap opens still has it) until it fits or one is left. Review-QA 2026-11-13:
+-- by the room it really has, on a PC as on touch, so a small PC window fits too.
 function HUD._fitBanner(self: any)
 	local banner: Frame? = self._banner
 	if self._gone or banner == nil or not banner.Visible then
@@ -4004,8 +4007,19 @@ function HUD._fitBanner(self: any)
 	end
 	local root: Frame = self._root
 	local at, size = banner.AbsolutePosition, banner.AbsoluteSize
-	local right = at.X + size.X
-	local room = math.huge
+	local middle = at.X + size.X / 2
+	local whole = root.AbsoluteSize
+	-- a window that changed size gets the whole room again, and fits from there
+	if self._fitWidth ~= whole.X then
+		self._fitWidth = whole.X
+		if self._bannerFit < BANNER_MOST then
+			self._bannerFit = BANNER_MOST
+			self:_paintBanner()
+			self:_layoutRight()
+			return
+		end
+	end
+	local room, floor = math.huge, -math.huge
 	for _, child in root:GetChildren() do
 		if
 			child ~= banner
@@ -4015,19 +4029,55 @@ function HUD._fitBanner(self: any)
 		then
 			local piece = child :: GuiObject
 			local pAt, pSize = piece.AbsolutePosition, piece.AbsoluteSize
-			local beside = pAt.X > at.X + size.X / 2 and pSize.X > 0 and pSize.Y > 0
+			-- a holder as big as half the screen is a layer, not a piece in the strip's way
+			local piecelike = pSize.X > 0
+				and pSize.Y > 0
+				and pSize.X < whole.X / 2
+				and pSize.Y < whole.Y * 0.6
 			local level = pAt.Y < at.Y + size.Y and pAt.Y + pSize.Y > at.Y
-			if beside and level then
-				room = math.min(room, pAt.X)
+			if piecelike and level then
+				if pAt.X > middle then
+					room = math.min(room, pAt.X)
+				elseif not TOUCH and pAt.X + pSize.X < middle then
+					floor = math.max(floor, pAt.X + pSize.X)
+				end
 			end
 		end
 	end
-	room -= Theme.sizes.gap * Scale.get()
-	local inStrip = math.min(#self:_bannerShown(), BANNER_MOST, self._bannerFit)
-	if right > room and inStrip > 1 then
+	local scale = Scale.get()
+	local gap = Theme.sizes.gap * scale
+	local shown = self:_bannerShown()
+	local inStrip = math.min(#shown, BANNER_MOST, self._bannerFit)
+	-- each piece's width while it is in the strip, so a dropped one can be measured for its way back
+	local widths: { [GuiObject]: number } = self._pieceW or {}
+	self._pieceW = widths
+	for _, line in shown do
+		if line.Parent == banner then
+			widths[line] = line.AbsoluteSize.X
+		end
+	end
+	local right = at.X + size.X
+	if (right > room - gap or at.X < floor + gap) and inStrip > 1 then
 		self._bannerFit = inStrip - 1
 		self:_paintBanner()
-		self:_placeBanner()
+		self:_layoutRight()
+		return
+	end
+	-- Review-QA 2026-11-13: a piece dropped for something that has since gone (a "Triple Day!" banner, a smaller
+	-- window) comes back once there is room for it again, with a little to spare so it never flickers in and out
+	local nextPiece = shown[inStrip + 1]
+	if nextPiece == nil or inStrip >= BANNER_MOST then
+		return
+	end
+	local need = (widths[nextPiece] or BANNER_GUESS_W * scale)
+		+ (BANNER_ITEM_GAP + BANNER_SPARE) * scale
+	local grows = if TOUCH
+		then right + need <= room - gap
+		else right + need / 2 <= room - gap and at.X - need / 2 >= floor + gap
+	if grows then
+		self._bannerFit = inStrip + 1
+		self:_paintBanner()
+		self:_layoutRight()
 	end
 end
 

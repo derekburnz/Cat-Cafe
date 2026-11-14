@@ -6,7 +6,8 @@
 -- to a player past the tutorial, never to one who already answered Roblox's prompt (Going or Not going), and nothing
 -- is locked behind it. Both Roblox calls fail quietly where they are not offered.
 --   EventRsvp.due(id, startsAt, now) -> boolean   pure: an Event is set and has not started
---   EventRsvp.next(list, now) -> id?, startsAt?   pure: the first listed Event that has not started
+--   EventRsvp.next(list, now) -> id?, startsAt?, title?   pure: the first listed Event that has not started, and its
+--                                                  own ask words when the entry has them (#4026)
 --   EventRsvp.window(played) -> boolean            pure: the session is 3 to 10 minutes old (#3450)
 --   EventRsvp.status(id) -> string?                "none", "going" or "not_going", nil when Roblox cannot say
 --   EventRsvp.prompt(id) -> string?                Roblox's Notify Me prompt; its answer as status says, nil on failure
@@ -38,19 +39,22 @@ end
 
 -- The Event to ask about: of the listed ones (Config.UpdateEvents) the first to start that has not started yet, so
 -- the ask moves on to the next Event by itself when one begins. nil when none is left.
-function EventRsvp.next(list: unknown, now: number): (string?, number?)
-	local id: string?, startsAt: number? = nil, nil
+function EventRsvp.next(list: unknown, now: number): (string?, number?, string?)
+	local id: string?, startsAt: number?, title: string? = nil, nil, nil
 	if type(list) ~= "table" then
-		return nil, nil
+		return nil, nil, nil
 	end
 	for _, entry in list :: { any } do
 		if type(entry) == "table" and EventRsvp.due(entry.id, entry.startsAt, now) then
 			if startsAt == nil or entry.startsAt < startsAt then
 				id, startsAt = entry.id, entry.startsAt
+				title = if type(entry.title) == "string" and entry.title ~= ""
+					then entry.title
+					else nil
 			end
 		end
 	end
-	return id, startsAt
+	return id, startsAt, title
 end
 
 function EventRsvp.window(played: number): boolean

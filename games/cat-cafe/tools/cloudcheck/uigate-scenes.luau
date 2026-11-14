@@ -2330,7 +2330,36 @@ local SCENES = {
 		end
 		-- #3178: on a PC the clock and banner are at the top middle, where toasts stack; a toast keeps clear of them
 		if not UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
-			press("CatCafeHUD", "LuckyDay.Tap") -- the day card open under the banner, the lowest of the three
+			-- Review-QA 2026-11-13: a piece dropped for something beside the strip comes back once it has gone
+			local function pieces(): number
+				local n = 0
+				for _, child in banner:GetChildren() do
+					if child:IsA("GuiObject") and child.Visible and child.Name ~= "Ring" then
+						n += 1
+					end
+				end
+				return n
+			end
+			local before = pieces()
+			local block = Instance.new("Frame")
+			-- (a small window's strip already holds one piece, with none to drop)
+			block.Name = "GateBlock"
+			block.Size = UDim2.fromOffset(40, banner.AbsoluteSize.Y)
+			block.Position = UDim2.fromOffset(banner.AbsolutePosition.X + banner.AbsoluteSize.X * 0.8 - hud.Root.AbsolutePosition.X, banner.AbsolutePosition.Y - hud.Root.AbsolutePosition.Y)
+			block.Parent = if before > 1 then hud.Root else nil
+			for _ = 1, 4 do
+				UI.update({ luck = 2.5, luckSources = { { id = "statue", value = 1.5 } } })
+				UIShim.advance(0.3)
+			end
+			assert(before == 1 or pieces() < before, ("uigate: the strip kept %d pieces beside a piece in its way (#2885)"):format(pieces()))
+			block:Destroy()
+			for _ = 1, 4 do
+				UI.update({ luck = 2.5, luckSources = { { id = "statue", value = 1.5 } } })
+				UIShim.advance(0.3)
+			end
+			assert(pieces() == before, ("uigate: the strip came back with %d of its %d pieces once the way was clear (#2885)"):format(pieces(), before))
+			-- the day card open under the banner, the lowest of the three (the event's piece is always in the strip)
+			press("CatCafeHUD", "EventChip.Tap")
 			local dayCard = hud:FindFirstChild("DayCard", true) :: GuiObject
 			assert(dayCard and dayCard.Visible, "uigate: the day card did not open (#3178)")
 			UI.toast("Welcome back! +$12,345 while you were away", "info") -- the stack places itself again
@@ -4652,7 +4681,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ goldenFish = 1200, mystery = { backpack = true, long_net = true }, mysterySeen = true, mysteryOpen = false } :: any)
 		UI.mystery.open()
 	end },
-	-- #3699: the owned Backpack's button reads "Colours" with the switch bagColours on, and opens the picker in
+	-- #3699: the owned Backpack's button reads "Edit" (#4049, was "Colours") with the switch bagColours on, and opens the picker in
 	-- Juniper's window: Mint for the bag and Gold for the trim tapped, Save sends SetBagColours once
 	{ "BagColourPicker", function()
 		local before: any = UI.getState()
@@ -4666,11 +4695,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(window, "uigate: no Mystery Market window (#3699)")
 		local open: any = nil
 		for _, item in window:GetDescendants() do
-			if item:IsA("TextLabel") and item.Text == "Colours" then
+			if item:IsA("TextLabel") and item.Text == "Edit" then
 				open = item
 			end
 		end
-		assert(open, "uigate: the owned Backpack's button does not read Colours (#3699)")
+		assert(open, "uigate: the owned Backpack's button does not read Edit (#3699)")
 		local holder: any = open.Parent
 		while holder and holder.Name ~= "Buy" do
 			holder = holder.Parent
@@ -4718,6 +4747,76 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(#sent == 1 and sent[1] == "mint/honey", "uigate: Save should send the two picks once (#3699), got " .. table.concat(sent, ","))
 		UI.update({ bagColours = { main = "mint", trim = "honey" } } :: any)
 		RS:SetAttribute("LiveFlag_bagColours", nil)
+	end },
+	-- #4049: the owned Speed Shoes' button reads "Edit" with the switch bagColours on, and opens the picker in
+	-- Juniper's window: Mint for the bag and Gold for the trim tapped, Save sends SetBagColours once
+	{ "ShoeColourPicker", function()
+		local before: any = UI.getState()
+		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
+		local RS = game:GetService("ReplicatedStorage")
+		RS:SetAttribute("LiveFlag_bagColours", true)
+		RS:SetAttribute("LiveFlag_speedShoes", true) -- the shelf shows the shoes only with their switch on
+		UI.update({ goldenFish = 1200, mystery = { speed_shoes = true }, mysterySeen = true, mysteryOpen = true, shoeColours = false } :: any)
+		UI.mystery.open()
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("MysteryMarket", true)
+		assert(window, "uigate: no Mystery Market window (#3699)")
+		local open: any = nil
+		for _, item in window:GetDescendants() do
+			if item:IsA("TextLabel") and item.Text == "Edit" then
+				open = item
+			end
+		end
+		assert(open, "uigate: the owned Backpack's button does not read Edit (#3699)")
+		local holder: any = open.Parent
+		while holder and holder.Name ~= "Buy" do
+			holder = holder.Parent
+		end
+		assert(holder, "uigate: the Colours label is not on a Buy button (#3699)")
+		local function tap(target: any, what: string)
+			assert(target, "uigate: no " .. what .. " (#3699)")
+			local button = nil
+			if target:IsA("GuiButton") and target.Interactable ~= false then
+				button = target
+			else
+				for _, piece in target:GetDescendants() do
+					if piece:IsA("GuiButton") and piece.Interactable ~= false then
+						button = piece
+						break
+					end
+				end
+			end
+			assert(button, "uigate: " .. what .. " has no button (#3699)")
+			UIShim.fire(UIShim.eventOf(button, "Activated"))
+		end
+		tap(holder, "Colours button")
+		local picker = window:FindFirstChild("BagColours", true)
+		assert(picker and picker.Visible, "uigate: Colours did not open the picker (#3699)")
+		local sent: { string } = {}
+		local listening = UI.events.setBagColours:Connect(function(main: string, trim: string, kind: string?)
+			table.insert(sent, main .. "/" .. trim .. "/" .. tostring(kind))
+		end)
+		local bag = picker:FindFirstChild("main", true)
+		local trim = picker:FindFirstChild("trim", true)
+		assert(bag and trim, "uigate: the picker has no Bag and Trim grids (#3699)")
+		tap(bag:FindFirstChild("Swatch_navy"), "Navy swatch")
+		assert(bag:FindFirstChild("Swatch_teal") and not bag:FindFirstChild("Swatch_rose"), "uigate: the shoes have their own twelve (#4049)")
+		-- a short screen shows one block at a time behind Bag and Trim tabs; a tall one shows both
+		local trimTab = picker:FindFirstChild("Tab_trim", true)
+		if trimTab ~= nil then
+			assert(bag.Visible and not trim.Visible, "uigate: a short screen should open on the Bag block alone (#3699)")
+			tap(trimTab, "Trim tab")
+			assert(trim.Visible and not bag.Visible, "uigate: the Trim tab did not show the Trim block (#3699)")
+		else
+			assert(bag.Visible and trim.Visible, "uigate: a tall screen shows both blocks (#3699)")
+		end
+		tap(trim:FindFirstChild("Swatch_honey"), "Honey swatch")
+		tap(picker:FindFirstChild("Save", true), "Save")
+		listening:Disconnect()
+		assert(#sent == 1 and sent[1] == "navy/honey/shoes", "uigate: Save should send the two picks once (#3699), got " .. table.concat(sent, ","))
+		UI.update({ shoeColours = { main = "navy", trim = "honey" } } :: any)
+		RS:SetAttribute("LiveFlag_bagColours", nil)
+		RS:SetAttribute("LiveFlag_speedShoes", nil)
 	end },
 	-- #2614: a Super gift waits on your plot: the HUD's gold line under the clock column; opening it shows the
 	-- "Super gift!" card with the top area's crate and its 15 golden fish
@@ -10134,11 +10233,18 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		for _ = 1, 3 do
 			UIShim.advance(1.1)
 			UI.cafeEvent.tick()
-			assert(not chip.Visible and not (nextLine and nextLine.Visible), "uigate: the Cafe Event chip showed mid-catch on its tick (#2860)")
+			-- the whole strip stays down mid-catch, so its pieces keep their own state for the catch's end
+			local strip = chip:FindFirstAncestor("StatusBanner") :: GuiObject?
+			local down = strip ~= nil and not strip.Visible
+			assert(down or (not chip.Visible and not (nextLine and nextLine.Visible)), "uigate: the Cafe Event chip showed mid-catch on its tick (#2860)")
 		end
 		UI.catch.hideCircles()
 		UI.catch.hide()
 		UIShim.advance(0.5)
+		-- Review-QA 2026-11-13: the whole strip at once, before the next tick (it once came back a piece short for 1 s)
+		local strip = chip:FindFirstAncestor("StatusBanner") :: GuiObject?
+		assert(strip == nil or strip.Visible, "uigate: the strip did not come back after the catch (#2860)")
+		assert(chip.Visible and (nextLine == nil or nextLine.Visible), "uigate: the strip came back a piece short after the catch (#2860)")
 		UI.cafeEvent.tick()
 		assert(chip.Visible and (nextLine == nil or nextLine.Visible), "uigate: the Cafe Event chip did not come back after the catch (#2860)")
 	end },

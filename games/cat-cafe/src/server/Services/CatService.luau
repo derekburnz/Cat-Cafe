@@ -1540,6 +1540,26 @@ local function wearBackpack(player: Player)
 	end
 end
 
+-- #4049: the worn Speed Shoes in their owner's two colour picks (the built colours with the switch off or nothing
+-- picked). The server colours the parts, so every player sees them.
+local function tintShoes(player: Player, worn: Instance?)
+	local character = player.Character
+	local folder = worn
+		or (if character ~= nil then character:FindFirstChild(SpeedShoes.WORN) else nil)
+	local profile = DataService.get(player)
+	if folder == nil or profile == nil then
+		return
+	end
+	BagColours.tint(
+		folder,
+		BagColours.picks(
+			if LiveFlagService.on(BagColours.FLAG) then profile.shoeColours else nil,
+			"shoes"
+		),
+		"shoes"
+	)
+end
+
 -- #4050: the Speed Shoes' owner wears them (SpeedShoes.wear) while the switch is on, at spawn, after the buy and
 -- whenever they came off (keepBackpack's check); every player sees them. Without them, or with the switch off, none.
 local function keepShoes(player: Player)
@@ -1562,6 +1582,7 @@ local function keepShoes(player: Player)
 	if want and AssetRegistry.has(SpeedShoes.ASSET) then
 		local folder = SpeedShoes.wear(AssetRegistry.clone(SpeedShoes.ASSET), character)
 		if folder ~= nil then
+			tintShoes(player, folder) -- #4049
 			folder.Parent = character
 		end
 	end
@@ -3640,6 +3661,10 @@ end
 -- #2719: puts the Backpack on the player's character now (MysteryMarketService, right after the buy).
 function CatService.keepShoes(player: Player)
 	keepShoes(player)
+end
+
+function CatService.tintShoes(player: Player)
+	tintShoes(player)
 end
 
 function CatService.wearBackpack(player: Player)

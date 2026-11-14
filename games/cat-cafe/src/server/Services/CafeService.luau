@@ -291,6 +291,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		mystery = profile.mystery, -- #2565
 		mysterySeen = profile.mysterySeen,
 		bagColours = profile.bagColours, -- #3699
+		shoeColours = profile.shoeColours, -- #4049
 		mysteryOpen = Config.MysteryOpen or RunService:IsStudio(),
 		fishStore = if LiveFlagService.on(FishStore.FLAG) then FishStore.view(profile) else nil, -- #4055
 		goldLuck = totals.goldLuck,

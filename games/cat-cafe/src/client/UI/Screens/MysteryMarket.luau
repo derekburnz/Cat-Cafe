@@ -61,7 +61,7 @@ export type Callbacks = {
 	-- #3699: whether the switch bagColours is on, and Save on the colour picker (SetBagColours). With either left
 	-- out the owned Backpack's button stays "Owned"
 	colours: (() -> boolean)?,
-	saveColours: ((main: string, trim: string) -> ())?,
+	saveColours: ((main: string, trim: string, kind: string?) -> ())?,
 }
 
 export type MysteryMarket = {
@@ -543,7 +543,8 @@ function MysteryMarketScreen._buildLines(self: any, rows: { MysteryLogic.Row })
 end
 
 -- The button's words and whether it can be pressed, with a buy out showing "...".
--- #3699: an owned Backpack's button opens the colour picker (`colours`: the switch is on).
+-- #3699: an owned Backpack's button opens the colour picker (`colours`: the switch is on). #4049: the Speed Shoes'
+-- too, and the words are "Edit".
 local function paintButton(
 	button: Button.Button,
 	row: MysteryLogic.Row,
@@ -552,11 +553,11 @@ local function paintButton(
 	colours: boolean
 ): (string, boolean)
 	local fish: TextLabel? = button.icon
-	if colours and row.owned and row.id == BagColours.ITEM then
+	if colours and row.owned and BagColours.kindOf(row.id) ~= nil then
 		if fish then
 			fish.Visible = false
 		end
-		return BagColours.WORDS.open, true
+		return BagColours.EDIT, true
 	end
 	local label = if pending then "..." else row.button
 	if fish then
@@ -622,7 +623,9 @@ function MysteryMarketScreen._paint(self: any)
 		end
 		line.note.Text = row.note or ""
 		line.note.TextColor3 = if row.owned then CARD.good else CARD.gold
-		local faded = if row.owned and not (colours and row.id == BagColours.ITEM) then 0.4 else 0
+		local faded = if row.owned and not (colours and BagColours.kindOf(row.id) ~= nil)
+			then 0.4
+			else 0
 		line.name.TextTransparency = faded
 		line.text.TextTransparency = faded
 	end
@@ -636,15 +639,15 @@ function MysteryMarketScreen._colours(self: any): boolean
 end
 
 -- #3699: the colour picker in place of the shelf, and back. The picker is built on its first open.
-function MysteryMarketScreen._showPicker(self: any, shown: boolean)
+function MysteryMarketScreen._showPicker(self: any, shown: boolean, kind: string?)
 	local picker: any = self._picker
 	if shown then
 		if picker == nil then
 			picker = BagColourPicker.new(self._panel.content, {
-				save = function(main: string, trim: string)
+				save = function(main: string, trim: string, pickedKind: string)
 					local save = (self._callbacks :: Callbacks).saveColours
 					if save ~= nil then
-						save(main, trim)
+						save(main, trim, pickedKind)
 					end
 				end,
 				back = function()
@@ -654,8 +657,12 @@ function MysteryMarketScreen._showPicker(self: any, shown: boolean)
 			self._picker = picker
 		end
 		local current: any = self._state
-		local saved = if current ~= nil then current.bagColours else nil
-		picker:open(if type(saved) == "table" then saved else nil)
+		local shoes = kind == "shoes"
+		local saved = if current == nil
+			then nil
+			elseif shoes then current.shoeColours
+			else current.bagColours
+		picker:open(if type(saved) == "table" then saved else nil, if shoes then "shoes" else "bag")
 	elseif picker ~= nil then
 		picker:close()
 	end
@@ -673,8 +680,9 @@ function MysteryMarketScreen._press(self: any, itemId: string?)
 		table.insert(rows, view.featured)
 	end
 	for _, row in rows do
-		if row.id == itemId and row.owned and itemId == BagColours.ITEM and self:_colours() then
-			self:_showPicker(true)
+		local kind = BagColours.kindOf(itemId)
+		if row.id == itemId and row.owned and kind ~= nil and self:_colours() then
+			self:_showPicker(true, kind)
 			return
 		end
 		if row.id == itemId and row.enabled then
@@ -704,7 +712,9 @@ function MysteryMarketScreen.render(self: any, state: Types.PlayerState)
 	self:_paint()
 	local picker: BagColourPicker.BagColourPicker? = self._picker
 	if picker ~= nil then
-		local saved = (state :: any).bagColours
+		local saved = if (picker :: any)._kind == "shoes" -- #4049
+			then (state :: any).shoeColours
+			else (state :: any).bagColours
 		picker:saved(if type(saved) == "table" then saved else nil) -- #3699: answers a Save that was out
 	end
 end

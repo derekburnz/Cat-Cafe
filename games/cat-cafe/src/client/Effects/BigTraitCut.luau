@@ -74,14 +74,14 @@ function BigTraitCut.wanted(rarity: string): boolean
 	return Logic.bigTraitRoll(rarity)
 end
 
--- #3942: seconds the rolled cat rises up the pillar in a Mythic or Secret roll's whole scene (for MysticPool.roll),
--- 0 for any other rarity or with Reduce Motion.
-function BigTraitCut.liftFor(rarity: string): number
+-- #3942: seconds the rolled cat rises up the pillar in a roll's whole scene (for MysticPool.roll), 0 for a rarity
+-- with none or with Reduce Motion, and the studs it rises to (nil: the pool's own).
+function BigTraitCut.liftFor(rarity: string): (number, number?)
 	local scene = Logic.bigTraitScene(rarity)
 	if scene == nil or Context.reducedMotion() then
-		return 0
+		return 0, nil
 	end
-	return scene.lift
+	return scene.lift, scene.liftHeight
 end
 
 -- Whether the camera is held by the cutscene now.
@@ -408,6 +408,86 @@ local function sceneBurst(scene: Logic.BigTraitScene, surface: Vector3, colour: 
 	end
 end
 
+-- Derek 2026-11-13 ("make legendary a smaller one less underwhelming"): a Legendary's words RARE, EPIC and
+-- LEGENDARY pop in one after another (Presets.bigTrait.ladder, `ladderGap` apart), each in its tier's colour with a
+-- ring of that colour at the pool, the last staying a moment. Returns the seconds until the title.
+local function ladder(surface: Vector3): number
+	local b = Presets.bigTrait
+	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	local tiers: { string } = b.ladder
+	local total = #tiers * b.ladderGap
+	if playerGui == nil then
+		return total
+	end
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "EffectsBigTraitLadder"
+	gui.ResetOnSpawn = false
+	gui.IgnoreGuiInset = true
+	gui.DisplayOrder = b.displayOrder
+	gui.Parent = playerGui
+	for i, tier in tiers do
+		task.delay((i - 1) * b.ladderGap, function()
+			if gui.Parent == nil then
+				return
+			end
+			local colour = colourFor(tier)
+			Particles.ring(
+				surface + Vector3.new(0, 0.2 + i * 0.4, 0),
+				colour,
+				b.ringDiameter * (0.6 + 0.25 * i),
+				0.7
+			)
+			Particles.burst("catchSparkle", surface + Vector3.new(0, 2 + i, 0), 8 + 4 * i, colour)
+			local word = Instance.new("TextLabel")
+			word.Name = "Word"
+			word.BackgroundTransparency = 1
+			word.AnchorPoint = Vector2.new(0.5, 0.5)
+			word.Position = UDim2.fromScale(0.5, 0.3)
+			word.Size = UDim2.new(0.9, 0, 0, b.ladderSize + 16)
+			word.FontFace = FONT
+			word.Text = (b.ladderWords :: { [string]: string })[tier] or string.upper(tier)
+			word.TextColor3 = colour
+			word.TextScaled = true
+			local size = Instance.new("UITextSizeConstraint")
+			size.MaxTextSize = b.ladderSize + 8 * (i - 1)
+			size.MinTextSize = 20
+			size.Parent = word
+			local ink = Instance.new("UIStroke")
+			ink.Color = b.titleInk
+			ink.Thickness = 3
+			ink.Parent = word
+			local scale = Instance.new("UIScale")
+			scale.Scale = b.popFrom
+			scale.Parent = word
+			for _, old in gui:GetChildren() do
+				old:Destroy()
+			end
+			word.Parent = gui
+			local began = os.clock()
+			local pop: RBXScriptConnection
+			pop = RunService.RenderStepped:Connect(function()
+				local t = os.clock() - began
+				if word.Parent == nil then
+					pop:Disconnect()
+					return
+				end
+				scale.Scale = Logic.bigTraitPop(t)
+				local fade = Logic.smoothstep01((t - (b.ladderGap - 0.12)) / 0.12)
+				word.TextTransparency = fade
+				ink.Transparency = fade
+				if t >= b.ladderGap then
+					pop:Disconnect()
+					word:Destroy()
+				end
+			end)
+		end)
+	end
+	task.delay(total + 0.1, function()
+		gui:Destroy()
+	end)
+	return total
+end
+
 -- Near the pool: see the top of this file. `roll(reveal)` starts the pool's own roll with `reveal` as its onReveal
 -- and returns the roll's skip. Returns the skip for the whole cutscene.
 function BigTraitCut.atPool(
@@ -437,6 +517,7 @@ function BigTraitCut.atPool(
 	local finished = false
 	local skipping = false
 	local bigAt: number? = nil -- when the big moment began
+	local titleAt: number? = nil -- when the title shows (after a Legendary's word ladder)
 	local outFrom: number? = nil -- when the swing back began
 	local outWeight = 1
 	local w = 0
@@ -496,6 +577,20 @@ function BigTraitCut.atPool(
 		if scene ~= nil then
 			sceneBurst(scene, rig.surface, colourFor(rarity))
 		end
+		if rarity == "legendary" and not Context.reducedMotion() then
+			-- Derek 2026-11-13: RARE, EPIC, LEGENDARY climb in first, each with a gold ring, then the title
+			local wait = ladder(rig.surface)
+			titleAt = os.clock() + wait
+			task.delay(wait, function()
+				if finished or skipping then
+					return
+				end
+				gui, draw = overlay(rarity, false)
+				beat("fanfare", rarity)
+			end)
+			return
+		end
+		titleAt = bigAt
 		gui, draw = overlay(rarity, false)
 		beat("fanfare", rarity)
 	end
@@ -539,7 +634,10 @@ function BigTraitCut.atPool(
 		end
 		local at = bigAt
 		if at ~= nil then
-			draw(now - at)
+			local shownAt = titleAt
+			if shownAt ~= nil and now >= shownAt then
+				draw(now - shownAt)
+			end
 			if
 				now - at
 				>= (if Context.reducedMotion() then b.still else Logic.bigTraitSize(rarity).big)
@@ -568,7 +666,7 @@ function BigTraitCut.atPool(
 			-- as the cat rises up the pillar the camera tilts up to half its height, so it stays in frame
 			local raisedAt: number? = bigAt
 			local tilt = if raisedAt ~= nil
-				then Presets.mysticPool.liftHeight * 0.5 * Logic.smoothstep01(
+				then (circling.liftHeight or Presets.mysticPool.liftHeight) * 0.5 * Logic.smoothstep01(
 					(now - raisedAt) / math.max(circling.lift, 0.1)
 				)
 				else 0
@@ -624,7 +722,7 @@ local function seenRoll(station: Model)
 		return
 	end
 	local scene = Logic.bigTraitScene(rarity)
-	if scene == nil then
+	if scene == nil or rarity == "legendary" then -- another's Legendary stays theirs
 		return
 	end
 	local character = Players.LocalPlayer.Character

@@ -128,7 +128,7 @@ local PASSES: { PassCard } = {
 		configKey = "VipPassId",
 		name = "VIP",
 		icon = "⭐",
-		effect = "+10% money, a VIP chat tag and a gold VIP plate on your cafe sign.",
+		effect = "+50% money, a VIP tag over your head, a VIP chat tag and a gold VIP plate on your cafe sign.",
 	},
 	{
 		key = "accessories",

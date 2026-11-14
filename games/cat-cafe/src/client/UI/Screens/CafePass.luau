@@ -11,6 +11,11 @@
 -- Before the paid track is bought, a gold "Paid track R$299" button sits in the top strip with Roblox's price read at
 -- runtime (setBuy); it hides once bought, while the price loads and while the product is off sale, and says nothing
 -- else (no timer, no "last chance"). The tag picker comes later. Rules: Components/PassLogic.
+-- #4258 (Derek 2026-11-14: "scrolling on the cafe pass does not work if you touch and scroll for touch screen and just
+-- snaps you back and the bar for scrolling is wayyyy too small on pc also just add an arrow on the right an left to
+-- click to move you through the pass and remove the bar on bottom"): no scroll bar; a big ◀ and ▶ either side of the
+-- track move it a page of levels at a time, dimmed at the ends. The canvas is as wide as its columns (set here, not
+-- AutomaticCanvasSize, which read wrong under the view's UIScale) and does not spring back, so a drag stays put.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -85,7 +90,10 @@ local GAP = Theme.sizes.gap
 local SIDE_W = 56 -- the "Free" and "Paid" words left of the track
 local COL_W = 128
 local COL_GAP = 8
-local TRACK_PAD = 8 -- under the cards, for the scroll bar
+local TRACK_PAD = 8 -- under the cards, room for their outlines
+local ARROW_W = 44 -- #4258: the ◀ and ▶ either side of the track
+local ARROW_H = 76
+local ARROW_GAP = 6
 local LEVEL_H = 22
 local SLOT_MAX = 134 -- a card's height when the track has room
 local SLOT_MIN = 92 -- and its least, on a short phone
@@ -325,12 +333,12 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 		Name = "Track",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(SIDE_W, trackY),
-		Size = UDim2.new(1, -SIDE_W, 1, -(trackY + FOOT_H)),
+		Position = UDim2.fromOffset(SIDE_W + ARROW_W + ARROW_GAP, trackY),
+		Size = UDim2.new(1, -(SIDE_W + 2 * (ARROW_W + ARROW_GAP)), 1, -(trackY + FOOT_H)),
 		CanvasSize = UDim2.new(),
-		AutomaticCanvasSize = Enum.AutomaticSize.X,
-		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = PAL.caramel,
+		AutomaticCanvasSize = Enum.AutomaticSize.None, -- #4258: _layout sets the width from the columns
+		ScrollBarThickness = 0, -- #4258: no bar; the arrows and a drag move the track
+		ElasticBehavior = Enum.ElasticBehavior.Never, -- #4258: a drag stays where it is let go
 		ScrollingDirection = Enum.ScrollingDirection.X,
 		Parent = content,
 	}, {
@@ -346,6 +354,29 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 			{ PaddingLeft = UDim.new(0, Outline.ROOM), PaddingRight = UDim.new(0, 6) }
 		),
 	})
+	-- #4258: ◀ and ▶ either side of the track, a page of levels per tap
+	self._arrows = {}
+	for _, side in { -1, 1 } do
+		local arrow = Button.new({
+			name = if side < 0 then "PageLeft" else "PageRight",
+			text = if side < 0 then "◀" else "▶",
+			style = "gold",
+			size = UDim2.fromOffset(ARROW_W, ARROW_H),
+			anchorPoint = Vector2.new(if side < 0 then 0 else 1, 0.5),
+			position = if side < 0
+				then UDim2.fromOffset(SIDE_W, trackY)
+				else UDim2.new(1, 0, 0, trackY),
+			textSize = Theme.sizes.textBody + 6,
+			parent = content,
+			onClick = function()
+				self:page(side)
+			end,
+		})
+		self._arrows[side] = arrow
+	end
+	self._moved = self._track:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+		self:_paintArrows()
+	end)
 	self._foot = text({
 		Name = "Later",
 		AnchorPoint = Vector2.new(0, 1),
@@ -392,6 +423,18 @@ function CafePassScreen._layout(self: any)
 	self._freeWord.Size = UDim2.fromOffset(SIDE_W - 6, slotH)
 	self._paidWord.Position = UDim2.fromOffset(0, LEVEL_H + slotH + COL_GAP)
 	self._paidWord.Size = UDim2.fromOffset(SIDE_W - 6, slotH)
+	-- #4258: the canvas just as wide as the columns, and the arrows centred on the cards
+	local count = #self._columns
+	self._track.CanvasSize = UDim2.fromOffset(
+		if count > 0 then Outline.ROOM + count * COL_W + (count - 1) * COL_GAP + 6 else 0,
+		0
+	)
+	local middle = LEVEL_H + slotH + math.floor(COL_GAP / 2)
+	local trackY = self._track.Position.Y.Offset
+	for side, arrow in self._arrows do
+		arrow.instance.Position =
+			UDim2.new(if side < 0 then 0 else 1, if side < 0 then SIDE_W else 0, 0, trackY + middle)
+	end
 	for _, column: Column in self._columns do
 		column.frame.Size = UDim2.fromOffset(COL_W, LEVEL_H + slotH * 2 + COL_GAP)
 		local free = column.free
@@ -400,6 +443,7 @@ function CafePassScreen._layout(self: any)
 		end
 		self:_place(column.paid, LEVEL_H + slotH + COL_GAP)
 	end
+	self:_paintArrows()
 end
 
 -- One card at `y`, its picture sized to what is left over its name and Claim.
@@ -709,8 +753,43 @@ function CafePassScreen.onOpen(self: any)
 	end
 	local def: Types.PassSeasonDef? = SharedPass.seasonDef(view.season)
 	local index = PassLogic.focus(PassLogic.columns(view, def), view.level)
-	local x = math.max(0, (index - 2) * (COL_W + COL_GAP))
-	self._track.CanvasPosition = Vector2.new(x, 0)
+	self:_scrollTo((index - 2) * (COL_W + COL_GAP))
+end
+
+-- #4258: the track's width and its furthest scroll, in the window's own unscaled pixels (CanvasPosition's units)
+function CafePassScreen._span(self: any): (number, number)
+	local scale = ViewScale.get()
+	local window = self._track.AbsoluteSize.X / (if scale > 0 then scale else 1)
+	return window, math.max(0, self._track.CanvasSize.X.Offset - window)
+end
+
+function CafePassScreen._scrollTo(self: any, x: number)
+	local _, most = self:_span()
+	self._track.CanvasPosition = Vector2.new(math.clamp(math.floor(x + 0.5), 0, most), 0)
+	self:_paintArrows()
+end
+
+-- #4258: one tap of ◀ (-1) or ▶ (1) moves the track a page: as many whole levels as show, at least one, landing on a
+-- level's edge
+function CafePassScreen.page(self: any, side: number)
+	local window = self:_span()
+	local step = COL_W + COL_GAP
+	local perPage = math.max(1, math.floor((window - Outline.ROOM + COL_GAP) / step))
+	local first = math.floor(self._track.CanvasPosition.X / step + 0.5)
+	self:_scrollTo((first + side * perPage) * step)
+end
+
+-- #4258: an arrow with nowhere to go is dimmed
+function CafePassScreen._paintArrows(self: any)
+	local _, most = self:_span()
+	local x = self._track.CanvasPosition.X
+	local open = self._track.Visible
+	for side, arrow in self._arrows do
+		arrow.instance.Visible = open
+		local go = if side < 0 then x > 0.5 else x < most - 0.5
+		arrow:setEnabled(go)
+		arrow.instance:SetAttribute("CanGo", go)
+	end
 end
 
 local function paintSlot(slot: Slot, cell: PassLogic.Cell?, pending: boolean)
@@ -738,6 +817,7 @@ function CafePassScreen._refresh(self: any)
 	self._track.Visible = open
 	self._side.Visible = open
 	self._foot.Visible = open
+	self:_paintArrows()
 	-- Derek2 11-11: titles are picked in the Bag's Titles tab now, so the pass's Chat tag button stays hidden
 	self._tag.instance.Visible = false
 	if view == nil or not open then
@@ -800,6 +880,10 @@ end
 function CafePassScreen.destroy(self: any)
 	self._sized:Disconnect()
 	self._scaled:Disconnect()
+	self._moved:Disconnect()
+	for _, arrow in self._arrows do
+		arrow:destroy()
+	end
 	self:_clearColumns()
 	self._claimAll:destroy()
 	self._buy:destroy()

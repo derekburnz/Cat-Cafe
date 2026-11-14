@@ -4626,6 +4626,50 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 	end },
+	-- #4258 (Derek 2026-11-14: "remove the bar on bottom", "add an arrow on the right an left to click to move you
+	-- through the pass", touch drags "just snap you back"): no scroll bar; ◀ and ▶ either side of the track page through
+	-- the levels, dimmed at the ends; the canvas is just as wide as its thirty columns, and a drag does not spring back
+	{ "CafePassArrows", function()
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 1, xp = 0, xpPerLevel = 800,
+			levels = 30, paid = false, claimedFree = {}, claimedPaid = {}, claimable = 0, items = {} })
+		UI.pass.open()
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("CafePass", true) :: GuiObject
+		local track = window:FindFirstChild("Track", true) :: ScrollingFrame
+		local left = window:FindFirstChild("PageLeft", true) :: GuiObject
+		local right = window:FindFirstChild("PageRight", true) :: GuiObject
+		assert(track and left and right and left.Visible and right.Visible, "uigate: the Cafe Pass has no ◀ ▶ arrows (#4258)")
+		assert(track.ScrollBarThickness == 0, "uigate: the Cafe Pass track still shows a scroll bar (#4258)")
+		assert(track.ElasticBehavior == Enum.ElasticBehavior.Never, "uigate: the Cafe Pass track springs back on a drag (#4258)")
+		-- the arrows sit outside the track, either side, not over the cards
+		assert(left.AbsolutePosition.X + left.AbsoluteSize.X <= track.AbsolutePosition.X + 0.5, "uigate: ◀ overlaps the track")
+		assert(right.AbsolutePosition.X >= track.AbsolutePosition.X + track.AbsoluteSize.X - 0.5, "uigate: ▶ overlaps the track")
+		-- the canvas ends just after level 30's cards
+		local last = window:FindFirstChild("Level30", true) :: GuiObject
+		assert(track.CanvasPosition.X == 0, "uigate: at level 1 the track is scrolled")
+		local canvasEnd = track.AbsolutePosition.X + track.AbsoluteCanvasSize.X
+		local lastEnd = last.AbsolutePosition.X + last.AbsoluteSize.X
+		assert(lastEnd <= canvasEnd + 0.5 and lastEnd >= canvasEnd - 20,
+			("uigate: level 30 ends at %.0f, the canvas at %.0f (#4258)"):format(lastEnd, canvasEnd))
+		local function at(): number
+			return track.CanvasPosition.X
+		end
+		assert(at() == 0 and left:GetAttribute("CanGo") == false and right:GetAttribute("CanGo") == true,
+			("uigate: at level 1 the track sits at %.0f with ◀ %s, ▶ %s"):format(at(), tostring(left:GetAttribute("CanGo")), tostring(right:GetAttribute("CanGo"))))
+		press("CafePass", "PageRight")
+		local page = at()
+		assert(page >= 136 and page % 136 == 0, ("uigate: ▶ moved the track to %.0f, not a whole page of levels (#4258)"):format(page))
+		local level = window:FindFirstChild("Level" .. (page / 136 + 1), true) :: GuiObject
+		assert(level.AbsolutePosition.X >= track.AbsolutePosition.X - 0.5, "uigate: after ▶ the first level shown is cut off")
+		press("CafePass", "PageLeft")
+		assert(at() == 0, ("uigate: ◀ took the track to %.0f, not back to level 1"):format(at()))
+		for _ = 1, 40 do
+			press("CafePass", "PageRight")
+		end
+		assert(right:GetAttribute("CanGo") == false and left:GetAttribute("CanGo") == true, "uigate: ▶ not dimmed at the end (#4258)")
+		local lastLevel = last.AbsolutePosition.X + last.AbsoluteSize.X
+		assert(lastLevel <= track.AbsolutePosition.X + track.AbsoluteSize.X + 0.5, "uigate: at the end level 30 is cut off")
+	end },
 	-- #1646: the paid track not bought yet, with Roblox's price on the buy button, and the Store's Cafe Pass card
 	{ "CafePassBuy", function()
 		UI.store.preview({ [3728336202] = { robux = 299, forSale = true } }, {})

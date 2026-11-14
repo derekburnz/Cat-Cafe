@@ -124,7 +124,7 @@ return function()
 					RestartNotice.ADMIN_LAUNCHES[3]
 				expect(os.date("!%Y-%m-%d %H:%M", saturday)).to.equal("2026-11-14 22:00")
 				expect(os.date("!%Y-%m-%d %H:%M", sunday)).to.equal("2026-11-15 20:00")
-				expect(os.date("!%Y-%m-%d %H:%M", secrets)).to.equal("2026-11-21 20:00")
+				expect(os.date("!%Y-%m-%d %H:%M", secrets)).to.equal("2026-11-16 03:30")
 				expect(RestartNotice.text(600, saturday - 600)).to.equal(
 					"A quick update is coming in 10 minutes, then ADMIN EVENTS: 2x money, Golden Hour and cat showers! Keep playing, your cafe is saved."
 				)

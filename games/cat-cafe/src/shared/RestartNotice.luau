@@ -82,16 +82,16 @@ local LAUNCH_BEFORE, LAUNCH_AFTER = 3600, 1800
 -- Saturday 2026-11-14 22:00 UTC and Sunday 2026-11-15 20:00 UTC update restarts are followed by an admin event block
 -- (2x money, the lucky, golden and rainbow days as Golden Hour, Mythical and rainbow Legendary showers), so their
 -- warnings name it instead of the party line.
--- Saturday 2026-11-21 20:00 UTC (the 10 Secret cats update, Growth-Agent's secrets-update-event-plan) joins them.
+-- Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, the 10 Secret cats update; Derek moved it from Nov 21) too.
 -- Wednesday 2026-11-18 20:00 UTC (the controls and devices update, Growth-Agent's devices-update-event-plan) too.
-RestartNotice.ADMIN_LAUNCHES = { 1794693600, 1794772800, 1795291200, 1795032000 }
+RestartNotice.ADMIN_LAUNCHES = { 1794693600, 1794772800, 1794799800, 1795032000 }
 RestartNotice.ADMIN_LINE = "then ADMIN EVENTS: 2x money, Golden Hour and cat showers!"
 RestartNotice.ADMIN_AFTER = "ADMIN EVENTS: 2x money, Golden Hour and cat showers!"
 -- A launch whose update has its own headline says it first (Growth-Agent's copy, 2026-11-14): { line, at zero }.
 -- One not listed here uses ADMIN_LINE and ADMIN_AFTER.
 RestartNotice.ADMIN_WORDS = {
 	[1794772800] = { "then 3 NEW WORLDS and ADMIN EVENTS!", "3 NEW WORLDS and ADMIN EVENTS!" },
-	[1795291200] = { "then 10 SECRET CATS and ADMIN EVENTS!", "10 SECRET CATS and ADMIN EVENTS!" },
+	[1794799800] = { "then 10 SECRET CATS and ADMIN EVENTS!", "10 SECRET CATS and ADMIN EVENTS!" },
 	[1795032000] = { "then better controls and ADMIN EVENTS!", "better controls and ADMIN EVENTS!" },
 } :: { [number]: { string } }
 

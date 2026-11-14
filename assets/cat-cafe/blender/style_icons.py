@@ -49,6 +49,20 @@ PENDING = [                               # (id, name, kind, (r, g, b), material
     ("ruins_jade_inlay", "Jade Inlay", "floor", (80, 160, 120), "Marble"),
     ("ruins_moss_stone", "Moss Stone", "paint", (120, 130, 110), "SmoothPlastic"),
     ("ruins_glyph_gold", "Glyph Gold", "paint", (232, 190, 80), "SmoothPlastic"),
+    # the Snowy Crate (tier8-snowy-mountain.md section 6); colours as in Gameplay-Engineer's rows on #4135
+    ("snow_log_cabin", "Log Cabin", "wallpaper", (150, 105, 70), "Wood"),
+    ("snow_knit_pattern", "Knit Pattern", "wallpaper", (200, 70, 70), "Fabric"),
+    ("snow_pine_planks", "Pine Planks", "floor", (205, 170, 120), "WoodPlanks"),
+    ("snow_aurora_ice", "Aurora Ice", "floor", (120, 210, 200), "Glass"),
+    ("snow_frost_white", "Frost White", "paint", (240, 244, 248), "SmoothPlastic"),
+    ("snow_cocoa_brown", "Cocoa Brown", "paint", (110, 70, 45), "SmoothPlastic"),
+    # the Water Park Crate (ids as in Motion-FX-Agent's Tier 9 rows)
+    ("funfair_circus_stripes", "Circus Stripes", "wallpaper", (222, 64, 64), "Fabric"),
+    ("funfair_balloon_wall", "Balloon Wall", "wallpaper", (255, 178, 204), "Fabric"),
+    ("funfair_boardwalk", "Boardwalk", "floor", (190, 150, 105), "WoodPlanks"),
+    ("funfair_wave_pool", "Wave Pool", "floor", (90, 190, 230), "Glass"),
+    ("funfair_popcorn_yellow", "Popcorn Yellow", "paint", (250, 220, 110), "SmoothPlastic"),
+    ("funfair_candy_pink", "Candy Pink", "paint", (255, 150, 190), "SmoothPlastic"),
 ]
 
 

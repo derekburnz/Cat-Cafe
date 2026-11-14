@@ -8983,7 +8983,7 @@ do
 				hud:setStoreNew(screen:hasNew())
 			end
 		end
-		-- #1606: the money pass badge beside the HUD's money ("2x" to "4x", or "Get 2x" while the 2x pass is on sale)
+		-- #1606: the money pass button beside the HUD's money: the next rung up while it is on sale (2x, then 3x, then 4x)
 		if hud then
 			local boosts = (state :: any).passBoosts
 			local multiplier = if type(boosts) == "table" then boosts.money else nil
@@ -9028,14 +9028,15 @@ do
 			return
 		end
 		local screen = Store.new({
-			buy = function(passId: number)
+			buy = function(passId: number, source: string?)
 				-- #1888: the funnel's buy_pressed, the first buy of a visit
 				local key = "buy:" .. tostring(passId)
 				if not shop.reported[key] then
 					shop.reported[key] = true
 					UI.events.storeReport:Fire("store_buy", passId)
 				end
-				PassShop.prompt(passId, "store")
+				-- #4175: "featured_new" from the update's own card on Featured
+				PassShop.prompt(passId, source or "store")
 			end,
 			-- #3996: the server checks Today's Deal and opens Roblox's prompt itself
 			deal = function(productId: string)

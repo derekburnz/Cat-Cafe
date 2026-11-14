@@ -263,6 +263,78 @@
     "model": "CatCafe_Lawn_FlowerCart",
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_flower_cart.png"
   },
+  "funfair_balloon_wall": {
+    "name": "Balloon Wall",
+    "kind": "wallpaper",
+    "model": "CatCafe_Style_BalloonWall",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_balloon_wall.png"
+  },
+  "funfair_beach_chair": {
+    "name": "Beach Chair",
+    "kind": "furniture",
+    "model": "CatCafe_Decor_BeachChair",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_beach_chair.png"
+  },
+  "funfair_boardwalk": {
+    "name": "Boardwalk",
+    "kind": "floor",
+    "model": "CatCafe_Style_Boardwalk",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_boardwalk.png"
+  },
+  "funfair_candy_pink": {
+    "name": "Candy Pink",
+    "kind": "paint",
+    "model": "CatCafe_Style_CandyPink",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_candy_pink.png"
+  },
+  "funfair_circus_stripes": {
+    "name": "Circus Stripes",
+    "kind": "wallpaper",
+    "model": "CatCafe_Style_CircusStripes",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_circus_stripes.png"
+  },
+  "funfair_ferris_lamp": {
+    "name": "Ferris Wheel Lamp",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_FerrisWheelLamp",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_ferris_lamp.png"
+  },
+  "funfair_mini_carousel": {
+    "name": "Mini Carousel",
+    "kind": "furniture",
+    "model": "CatCafe_Decor_MiniCarousel",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_mini_carousel.png"
+  },
+  "funfair_popcorn_yellow": {
+    "name": "Popcorn Yellow",
+    "kind": "paint",
+    "model": "CatCafe_Style_PopcornYellow",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_popcorn_yellow.png"
+  },
+  "funfair_prize_shelf": {
+    "name": "Prize Shelf",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_PrizeShelf",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_prize_shelf.png"
+  },
+  "funfair_slide_flap": {
+    "name": "Slide Flap",
+    "kind": "catflap",
+    "model": "CatCafe_CatFlap_Slide",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_slide_flap.png"
+  },
+  "funfair_ticket_gate": {
+    "name": "Ticket Gate Door",
+    "kind": "door",
+    "model": "CatCafe_Door_TicketGate_Front",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_ticket_gate.png"
+  },
+  "funfair_wave_pool": {
+    "name": "Wave Pool",
+    "kind": "floor",
+    "model": "CatCafe_Style_WavePool",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_wave_pool.png"
+  },
   "garden_bench": {
     "name": "Garden Bench",
     "kind": "lawn",
@@ -748,6 +820,78 @@
     "kind": "decoration",
     "model": "CatCafe_Decor_RubberDuckRow",
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_sewer_rubber_duck_row.png"
+  },
+  "snow_aurora_ice": {
+    "name": "Aurora Ice",
+    "kind": "floor",
+    "model": "CatCafe_Style_AuroraIce",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_aurora_ice.png"
+  },
+  "snow_chalet_door": {
+    "name": "Chalet Door",
+    "kind": "door",
+    "model": "CatCafe_Door_Chalet_Front",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_chalet_door.png"
+  },
+  "snow_cocoa_brown": {
+    "name": "Cocoa Brown",
+    "kind": "paint",
+    "model": "CatCafe_Style_CocoaBrown",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_cocoa_brown.png"
+  },
+  "snow_fireside_rug": {
+    "name": "Fireside Rug",
+    "kind": "furniture",
+    "model": "CatCafe_Decor_FiresideRug",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_fireside_rug.png"
+  },
+  "snow_frost_white": {
+    "name": "Frost White",
+    "kind": "paint",
+    "model": "CatCafe_Style_FrostWhite",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_frost_white.png"
+  },
+  "snow_igloo_flap": {
+    "name": "Igloo Flap",
+    "kind": "catflap",
+    "model": "CatCafe_CatFlap_Igloo",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_igloo_flap.png"
+  },
+  "snow_knit_pattern": {
+    "name": "Knit Pattern",
+    "kind": "wallpaper",
+    "model": "CatCafe_Style_KnitPattern",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_knit_pattern.png"
+  },
+  "snow_log_cabin": {
+    "name": "Log Cabin",
+    "kind": "wallpaper",
+    "model": "CatCafe_Style_LogCabin",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_log_cabin.png"
+  },
+  "snow_pine_planks": {
+    "name": "Pine Planks",
+    "kind": "floor",
+    "model": "CatCafe_Style_PinePlanks",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_pine_planks.png"
+  },
+  "snow_sled_shelf": {
+    "name": "Sled Shelf",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_SledShelf",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_sled_shelf.png"
+  },
+  "snow_snow_globe": {
+    "name": "Giant Snow Globe",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_GiantSnowGlobe",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_snow_globe.png"
+  },
+  "snow_stone_fireplace": {
+    "name": "Stone Fireplace",
+    "kind": "furniture",
+    "model": "CatCafe_Decor_StoneFireplace",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_stone_fireplace.png"
   },
   "stepping_stones": {
     "name": "Stepping Stones",

@@ -11,6 +11,8 @@ day and night), water `_Water`, clear jars and bubbles the glass swatch, and a w
   Classic        _BistroSet (R), _VelvetBooth (E), _HangingPlants (R), _CatTreeTower (L)
   Desert         _CushionPile (C), _CaravanBench (L), _LanternPalm (R), _OasisFountain (E, a normal decor spot)
   Ruins          _PillarTable (C), _StoneThrone (L), _BrazierPair (R), _GargoyleStatue (E, a normal decor spot)
+  Snowy          _FiresideRug (C), _StoneFireplace (L), _SledShelf (R), _GiantSnowGlobe (E, a normal decor spot)
+  Water Park     _BeachChair (C), _MiniCarousel (L), _PrizeShelf (R), _FerrisLamp (E, a normal decor spot)
 
 The names come from Catalog.luau CRATE_PIECES: CatCafe_Decor_ and the piece name without spaces.
 """
@@ -1563,6 +1565,410 @@ def build_gargoyle_statue(mat):
     return [b.finalize("CatCafe_Decor_GargoyleStatue", mat)]
 
 
+# Snowy Mountain (tier8-snowy-mountain.md section 6) --------------------------------------------------------------
+SNOW, ICE, PINE = "fur_white", "pastel_sky", "leaf_dark"
+
+
+def _snowflake(b, x, y, z, r, sw, flat=False):
+    """A six-armed snowflake r across: three thin bars, standing in the XY plane or lying flat on y."""
+    for k in range(3):
+        if flat:
+            b.box((x, y, z), (2 * r, 0.02, r * 0.22), sw, rot=rot_y(60 * k))
+        else:
+            b.box((x, y, z), (2 * r, r * 0.22, 0.02), sw, rot=rot_z(60 * k))
+
+
+def _little_pine(b, x, y, z, s):
+    """A small pine in three tiers with snow on its tip."""
+    b.cyl((x, y + 0.1 * s, z), 0.07 * s, 0.2 * s, "dark_wood", segments=6)
+    for k, (r, h) in enumerate(((0.42, 0.45), (0.33, 0.4), (0.22, 0.36))):
+        b.cyl((x, y + (0.38 + 0.27 * k) * s, z), r * s, h * s, PINE, r2=0.04 * s, segments=8)
+    b.cyl((x, y + 1.12 * s, z), 0.09 * s, 0.14 * s, SNOW, r2=0.02 * s, segments=6)
+
+
+def _mug(b, x, y, z, sw, steam=True):
+    """A cocoa mug standing on y: a handle to +X, cocoa and a marshmallow in it."""
+    b.cyl((x, y + 0.13, z), 0.13, 0.26, sw, segments=10)
+    b.cyl((x, y + 0.262, z), 0.105, 0.01, "choco", segments=10)
+    b.span((x + 0.12, y + 0.07, z - 0.025), (x + 0.21, y + 0.2, z + 0.025), sw)
+    if steam:
+        b.span((x - 0.05, y + 0.265, z - 0.04), (x + 0.03, y + 0.31, z + 0.04), SNOW)
+
+
+def build_fireside_rug(mat):
+    """A knitted red rug with a cream snowflake band and tasselled ends, two floor cushions, a folded blanket and a
+    cocoa mug on a little tray. Common, Snowy Mountain."""
+    b = RB()
+    b.span((-1.9, 0.0, -1.1), (1.9, 0.07, 1.1), "shirt_red")
+    for sz in (-1, 1):                                                                       # cream border bands
+        z0, z1 = sorted((sz * 0.78, sz * 0.92))
+        b.span((-1.9, 0.07, z0), (1.9, 0.085, z1), "cream")
+    for k in range(5):                                                                       # snowflakes down the middle
+        _snowflake(b, -1.4 + 0.7 * k, 0.08, 0.0, 0.22, "cream", flat=True)
+    for sx in (-1, 1):                                                                       # tassels
+        for k in range(8):
+            z = -0.98 + 0.28 * k
+            x0, x1 = sorted((sx * 1.9, sx * 2.08))
+            b.span((x0, 0.0, z - 0.05), (x1, 0.05, z + 0.05), "cream")
+    b.box((-1.05, 0.21, 0.4), (0.95, 0.28, 0.95), ICE, rot=rot_y(12))                        # cushions
+    b.box((-1.05, 0.36, 0.4), (0.3, 0.03, 0.3), SNOW, rot=rot_y(57))
+    b.box((-0.2, 0.2, 0.62), (0.8, 0.26, 0.8), PINE, rot=rot_y(-18))
+    b.span((0.75, 0.07, 0.25), (1.6, 0.25, 0.9), "cream")                                    # folded blanket
+    b.span((0.75, 0.25, 0.25), (1.6, 0.4, 0.9), "shirt_red")
+    b.span((0.74, 0.3, 0.24), (1.61, 0.34, 0.91), "cream")
+    b.cyl((0.6, 0.1, -0.45), 0.42, 0.06, "caramel_wood", segments=12)                        # tray
+    _mug(b, 0.5, 0.13, -0.45, "fur_white")
+    b.box((0.78, 0.155, -0.38), (0.16, 0.05, 0.16), "treat_tan", rot=rot_y(30))              # a biscuit
+    return [b.finalize("CatCafe_Decor_FiresideRug", mat)]
+
+
+def build_stone_fireplace(mat):
+    """A fieldstone fireplace: a hearth slab, a stone surround with a paw keystone over the arch, a timber mantel
+    with three stockings, two candles and a small pine, a chimney breast with a snowflake wreath, snow along the
+    mantel, logs stacked at the side and a fire in the grate (`_Glow`) whose flames flicker (`_Fire_Bob`).
+    Legendary, Snowy Mountain."""
+    name = "CatCafe_Decor_StoneFireplace"
+    b, glow, bob, flame = RB(), RB(), RB(), RB()
+    b.span((-1.95, 0.0, -1.2), (1.95, 0.22, 0.9), "fur_soot")                                # hearth
+    for sx in (-1, 1):                                                                       # the jambs
+        x0, x1 = sorted((sx * 0.85, sx * 1.75))
+        b.span((x0, 0.22, -0.55), (x1, 2.3, 0.9), "fur_pewter")
+        for k, (y, w) in enumerate(((0.55, 0.5), (1.05, 0.36), (1.5, 0.56), (1.95, 0.4))):   # stones standing proud
+            cx = sx * (1.3 + (0.12 if k % 2 else -0.1))
+            b.span((cx - w / 2, y - 0.17, -0.6), (cx + w / 2, y + 0.17, -0.55), "fur_dusty")
+    b.span((-1.75, 2.3, -0.55), (1.75, 2.95, 0.9), "fur_pewter")                             # the lintel
+    for k in range(7):                                                                       # arch stones
+        a = math.radians(180 * (k + 0.5) / 7)
+        b.box((0.95 * math.cos(a), 1.75 + 0.62 * math.sin(a), -0.575), (0.3, 0.36, 0.06),
+              ("fur_dusty", "fur_ash")[k % 2], rot=rot_z(math.degrees(a) - 90))
+    b.span((-0.2, 2.42, -0.64), (0.2, 2.86, -0.55), "fur_golden")                            # keystone with a paw
+    b.span((-0.08, 2.5, -0.66), (0.08, 2.62, -0.64), "fur_soot")
+    for dx in (-0.1, 0.0, 0.1):
+        b.span((dx - 0.035, 2.67, -0.66), (dx + 0.035, 2.74, -0.64), "fur_soot")
+    b.span((-0.85, 0.22, 0.6), (0.85, 2.3, 0.9), "fur_soot")                                 # firebox back and floor
+    b.span((-0.85, 0.22, -0.5), (0.85, 0.3, 0.6), "fur_soot")
+    b.span((-2.0, 2.95, -0.85), (2.0, 3.15, 0.9), "dark_wood")                               # mantel
+    b.span((-1.9, 2.83, -0.75), (1.9, 2.95, 0.9), "caramel_wood")
+    for x, sw in ((-1.2, "shirt_red"), (-0.7, PINE), (1.2, "shirt_red")):                   # stockings
+        b.span((x - 0.14, 2.25, -0.83), (x + 0.14, 2.86, -0.75), sw)
+        b.span((x - 0.14, 2.25, -0.83), (x + 0.36, 2.45, -0.75), sw)
+        b.span((x - 0.17, 2.7, -0.85), (x + 0.17, 2.88, -0.75), SNOW)
+    b.span((-1.85, 3.15, -0.5), (-0.9, 3.21, 0.9), SNOW)                                     # snow on the mantel
+    b.span((1.0, 3.15, -0.4), (1.85, 3.2, 0.9), SNOW)
+    _little_pine(b, 1.45, 3.15, -0.2, 0.7)
+    for x in (-1.55, -1.2):                                                                  # candles
+        h = 0.5 if x < -1.3 else 0.34
+        b.cyl((x, 3.15 + h / 2, -0.35), 0.08, h, "cream", segments=8)
+        glow.cyl((x, 3.15 + h + 0.09, -0.35), 0.045, 0.18, "lamp_warm", r2=0.01, segments=6)
+    _mug(b, -0.3, 3.15, -0.35, "pastel_sky", steam=False)
+    b.span((-1.35, 3.15, 0.1), (1.35, 5.3, 0.9), "fur_pewter")                               # chimney breast
+    for k, (x, y, w, h) in enumerate(((-0.8, 3.6, 0.6, 0.34), (0.75, 3.75, 0.5, 0.3), (-0.9, 4.75, 0.5, 0.3),
+                                      (0.85, 4.6, 0.56, 0.34), (0.0, 5.02, 0.6, 0.26))):
+        b.span((x - w / 2, y - h / 2, 0.05), (x + w / 2, y + h / 2, 0.1), ("fur_dusty", "fur_ash")[k % 2])
+    b.span((-1.45, 5.3, 0.0), (1.45, 5.48, 0.9), "fur_dusty")
+    b.span((-1.4, 5.48, 0.05), (1.4, 5.56, 0.9), SNOW)
+    _ring_front(b, (0.0, 4.2, 0.02), 0.5, 0.16, 0.12, PINE)                                  # wreath
+    _snowflake(b, 0.0, 4.2, 0.03, 0.3, ICE)
+    b.span((-0.16, 3.62, -0.06), (0.16, 3.78, 0.04), "shirt_red")                            # its bow
+    for k in range(6):
+        a = math.radians(30 + 60 * k)
+        b.box((0.5 * math.cos(a), 4.2 + 0.5 * math.sin(a), -0.07), (0.08, 0.08, 0.06), "shirt_red")
+    for k, (x, y) in enumerate(((1.48, 0.38), (1.82, 0.38), (1.65, 0.66))):                 # log stack on the hearth
+        b.cyl((x, y, -0.9), 0.16, 0.6, "fur_bramble", axis="Z", segments=8)
+        b.cyl((x, y, -1.2), 0.12, 0.02, "treat_tan", axis="Z", segments=8)
+    for sx in (-1, 1):                                                                       # grate and logs
+        b.span((sx * 0.6 - 0.04, 0.3, -0.35), (sx * 0.6 + 0.04, 0.62, 0.35), "fur_black")
+    b.span((-0.66, 0.42, -0.3), (0.66, 0.48, -0.24), "fur_black")
+    b.cyl((0.0, 0.62, -0.05), 0.15, 1.1, "fur_bramble", axis="X", segments=8)
+    b.cyl((0.0, 0.62, 0.25), 0.15, 1.0, "dark_wood", axis="X", segments=8)
+    b.cyl((0.0, 0.86, 0.1), 0.14, 0.9, "fur_bramble", axis="X", segments=8)
+    glow.ball((0.0, 0.52, 0.1), 0.5, "eye_amber", scale=(1.0, 0.22, 0.7))                    # embers
+    fire = (0.0, 1.0, 0.1)
+    for dx, dz, r, h, sw in ((0.0, 0.0, 0.3, 0.95, "eye_amber"), (-0.3, 0.05, 0.2, 0.6, "eye_amber"),
+                             (0.3, -0.03, 0.2, 0.66, "eye_amber"), (0.0, -0.06, 0.17, 0.6, "lamp_warm"),
+                             (-0.16, 0.1, 0.1, 0.4, "lamp_warm"), (0.18, 0.08, 0.1, 0.36, "lamp_warm")):
+        flame.cyl((dx, h / 2 - 0.1, dz), r, h, sw, r2=0.02, segments=8)
+    for dx, dy in ((-0.38, 0.75), (0.3, 0.9), (0.05, 1.05)):                                # sparks ride the flames
+        bob.box((dx, dy, 0.0), (0.05, 0.05, 0.05), "rarity_legend", rot=rot_z(45))
+    return [b.finalize(name, mat), glow.finalize(name + "_Glow", mat),
+            bob.finalize(name + "_Fire_Bob", mat, location=fire),
+            flame.finalize(name + "_Fire_Glow", mat, location=fire)]
+
+
+def build_sled_shelf(mat):
+    """An old wooden sled stood on end as a shelf: two red runners, its slats the back, three shelves with a cocoa
+    mug, a small pine in a pot, a pair of ice skates on a peg, a lantern on top (`_Glow`) and snow on the runner
+    tips. Rare, Snowy Mountain."""
+    name = "CatCafe_Decor_SledShelf"
+    b, glow = RB(), RB()
+    for sx in (-1, 1):                                                                       # runners
+        x0, x1 = sorted((sx * 1.05, sx * 1.2))
+        b.span((x0, 0.0, -0.45), (x1, 3.7, -0.3), "shirt_red")
+        b.span((x0, 0.0, -0.3), (x1, 0.14, 0.4), "shirt_red")
+        b.box((sx * 1.125, 3.85, -0.2), (0.15, 0.5, 0.15), "shirt_red", rot=Matrix.Rotation(math.radians(-40), 3, "X"))
+        b.box((sx * 1.125, 4.02, 0.08), (0.15, 0.15, 0.4), "shirt_red")
+        b.span((x0 - 0.02, 4.1, -0.1), (x1 + 0.02, 4.17, 0.3), SNOW)
+        b.span((x0, 0.14, 0.25), (x1, 3.6, 0.4), "caramel_wood")                             # the deck's side rails
+    for k in range(5):                                                                       # slats: the back
+        x = -0.8 + 0.4 * k
+        b.span((x - 0.17, 0.2, 0.28), (x + 0.17, 3.55, 0.36), ("caramel_wood", "treat_tan")[k % 2])
+    for y in (0.9, 1.95, 3.0):                                                               # shelves
+        b.span((-1.05, y, -0.4), (1.05, y + 0.1, 0.3), "dark_wood")
+    b.span((-1.2, 0.0, 0.3), (1.2, 0.14, 0.4), "dark_wood")
+    _mug(b, -0.6, 1.0, -0.1, "fur_white")                                                    # bottom shelf
+    _mug(b, -0.2, 1.0, 0.0, "pastel_sky", steam=False)
+    b.span((0.3, 1.0, -0.25), (0.9, 1.3, 0.15), "pastel_sky")                                # a tin with a snowflake
+    _snowflake(b, 0.6, 1.15, -0.26, 0.12, SNOW)
+    b.cyl((0.5, 2.19, -0.05), 0.2, 0.28, "terracotta", r2=0.25, segments=8)                  # middle: pine in a pot
+    _little_pine(b, 0.5, 2.3, -0.05, 0.6)
+    for k in range(3):                                                                       # and books
+        b.span((-0.85 + 0.2 * k, 2.05, -0.2), (-0.68 + 0.2 * k, 2.6 - 0.07 * k, 0.2),
+               ("shirt_red", "cream", PINE)[k])
+    lx = -0.45                                                                               # top: lantern
+    b.span((lx - 0.2, 3.1, -0.25), (lx + 0.2, 3.16, 0.15), "fur_black")
+    for dx in (-0.17, 0.17):
+        for dz in (-0.22, 0.12):
+            b.span((lx + dx - 0.02, 3.16, -0.05 + dz - 0.02), (lx + dx + 0.02, 3.6, -0.05 + dz + 0.02), "fur_black")
+    b.span((lx - 0.22, 3.6, -0.27), (lx + 0.22, 3.67, 0.17), "fur_black")
+    b.span((lx - 0.06, 3.67, -0.11), (lx + 0.06, 3.76, 0.01), "fur_black")
+    glow.span((lx - 0.1, 3.18, -0.15), (lx + 0.1, 3.5, 0.05), "lamp_warm")
+    b.ball((0.5, 3.3, -0.05), 0.2, SNOW)                                                     # a snowball cat
+    b.ball((0.5, 3.6, -0.05), 0.15, SNOW)
+    for sx in (-1, 1):
+        b.b.pyramid(RB.p(0.5 + sx * 0.08, 3.72, -0.05), 0.09, 0.1, SNOW)
+        b.span((0.5 + sx * 0.06 - 0.02, 3.61, -0.2), (0.5 + sx * 0.06 + 0.02, 3.65, -0.18), "fur_black")
+    b.span((1.2, 2.6, -0.15), (1.42, 2.66, -0.09), "dark_wood")                              # peg and skates
+    for k, z in enumerate((-0.2, -0.04)):
+        b.span((1.28 + 0.06 * k, 2.05, z - 0.02), (1.3 + 0.06 * k, 2.6, z + 0.02), "cream")
+        b.span((1.22, 1.75, z - 0.06), (1.42, 2.08, z + 0.06), "fur_white")
+        b.span((1.22, 1.75, z - 0.34), (1.42, 1.9, z - 0.06), "fur_white")
+        b.span((1.3, 1.66, z - 0.4), (1.34, 1.75, z + 0.08), "metal")
+    return [b.finalize(name, mat), glow.finalize(name + "_Glow", mat)]
+
+
+def build_giant_snow_globe(mat):
+    """A snow globe as tall as a cat tree: a round timber base with a brass band and a wind-up key, a clear dome
+    (`_Glass`) over a snowy hill with a pine, a little cabin with a lit window (`_Glow`) and a snow cat, and
+    snowflakes that drift round inside (`_Spin`). Epic, Snowy Mountain."""
+    name = "CatCafe_Decor_GiantSnowGlobe"
+    b, glass, glow, spin = RB(), RB(), RB(), RB()
+    b.cyl((0, 0.15, 0), 1.3, 0.3, "dark_wood", segments=16)                                  # base
+    b.cyl((0, 0.55, 0), 1.18, 0.5, "caramel_wood", segments=16)
+    b.cyl((0, 0.84, 0), 1.24, 0.1, "brass", segments=16)
+    b.span((-0.5, 0.42, -1.2), (0.5, 0.7, -1.17), "brass")                                   # name plate with a paw
+    b.span((-0.09, 0.5, -1.22), (0.09, 0.6, -1.2), "dark_wood")
+    for dx in (-0.11, 0.0, 0.11):
+        b.span((dx - 0.035, 0.62, -1.22), (dx + 0.035, 0.67, -1.2), "dark_wood")
+    b.cyl((1.28, 0.55, 0), 0.05, 0.3, "brass", axis="X", segments=8)                         # key
+    b.span((1.4, 0.37, -0.04), (1.46, 0.73, 0.04), "brass")
+    c = (0.0, 2.0, 0.0)
+    glass.ball(c, 1.32, "glass")
+    b.ball((0, 0.98, 0), 1.05, SNOW, scale=(1.0, 0.36, 1.0))                                 # the hill
+    b.ball((-0.35, 1.15, 0.25), 0.5, SNOW, scale=(1.0, 0.5, 1.0))
+    _little_pine(b, -0.5, 1.3, 0.2, 0.95)
+    _little_pine(b, 0.62, 1.2, 0.45, 0.6)
+    b.span((0.1, 1.25, -0.1), (0.75, 1.7, 0.4), "caramel_wood")                              # cabin
+    for y in (1.36, 1.5, 1.64):
+        b.span((0.09, y - 0.012, -0.11), (0.76, y + 0.012, 0.41), "dark_wood")
+    for s, sx in ((-28, 0.24), (28, 0.61)):
+        b.box((sx, 1.8, 0.15), (0.48, 0.07, 0.62), SNOW, rot=rot_z(-s))
+    b.span((0.33, 1.7, -0.08), (0.52, 1.8, 0.38), "caramel_wood")
+    b.span((0.56, 1.82, 0.2), (0.68, 2.08, 0.32), "fur_pewter")                              # chimney
+    b.span((0.3, 1.25, -0.12), (0.46, 1.52, -0.1), "shirt_red")                              # door
+    glow.span((0.54, 1.4, -0.12), (0.68, 1.54, -0.1), "lamp_warm")                           # lit window
+    b.ball((-0.1, 1.42, -0.55), 0.17, SNOW)                                                  # snow cat
+    b.ball((-0.1, 1.67, -0.55), 0.13, SNOW)
+    for sx in (-1, 1):
+        b.b.pyramid(RB.p(-0.1 + sx * 0.07, 1.77, -0.55), 0.08, 0.09, SNOW)
+        b.span((-0.1 + sx * 0.05 - 0.015, 1.68, -0.68), (-0.1 + sx * 0.05 + 0.015, 1.71, -0.66), "fur_black")
+    b.span((-0.2, 1.54, -0.68), (0.0, 1.59, -0.42), "shirt_red")                             # its scarf
+    for k in range(14):                                                                      # flakes, about the dome's middle
+        a = math.radians(360 * k / 14 * 5 % 360 + 11 * k)
+        y = -0.55 + 1.45 * ((k * 5) % 14) / 13
+        rr = min(0.95, math.sqrt(max(0.05, 1.15 ** 2 - y ** 2)) - 0.12) * (0.55 + 0.45 * ((k * 3) % 5) / 4)
+        spin.box((rr * math.cos(a), y, rr * math.sin(a)), (0.07, 0.07, 0.07), SNOW, rot=rot_y(15 * k))
+    return [b.finalize(name, mat), glass.finalize(name + "_Glass", mat), glow.finalize(name + "_Glow", mat),
+            spin.finalize(name + "_Spin", mat, location=c)]
+
+
+# Water Park (the Water Park Crate, Tier 9) ------------------------------------------------------------------------
+RED, WHITE, AQUA, SUN, PINKY = "shirt_red", "offwhite", "pastel_sky", "pastel_butter", "fur_bubblegum"
+
+
+def _beach_ball(b, x, y, z, r):
+    """A beach ball resting on y: a white ball with coloured caps and a band."""
+    b.ball((x, y + r, z), r, WHITE)
+    b.ball((x, y + r * 1.55, z), r * 0.62, RED, scale=(1.0, 0.5, 1.0))
+    b.ball((x, y + r * 0.45, z), r * 0.62, "shirt_blue", scale=(1.0, 0.5, 1.0))
+    b.cyl((x, y + r, z), r * 1.01, r * 0.22, SUN, segments=12)
+
+
+def _plush(b, x, y, z, s, sw, face="fur_ink"):
+    """A round plush cat sitting on y, facing the front: body, head, ears, eyes."""
+    b.ball((x, y + 0.2 * s, z), 0.22 * s, sw)
+    b.ball((x, y + 0.5 * s, z), 0.19 * s, sw)
+    for sx in (-1, 1):
+        b.b.pyramid(RB.p(x + sx * 0.11 * s, y + 0.66 * s, z), 0.11 * s, 0.12 * s, sw)
+        b.span((x + sx * 0.07 * s - 0.018 * s, y + 0.5 * s, z - 0.2 * s),
+               (x + sx * 0.07 * s + 0.018 * s, y + 0.55 * s, z - 0.17 * s), face)
+
+
+def build_beach_chair(mat):
+    """A striped deck lounger on a sandy mat with a towel over its back, a side table with a lemonade and a paper
+    parasol in it, a beach ball and a pair of flip flops. Common, Water Park."""
+    b = RB()
+    b.span((-1.9, 0.0, -1.1), (1.9, 0.06, 1.1), "paving_sand")                               # the mat
+    for sx in (-1, 1):                                                                       # lounger frame
+        z = sx * 0.55
+        b.span((-1.5, 0.06, z - 0.05), (0.75, 0.16, z + 0.05), "caramel_wood")
+        b.span((-1.5, 0.16, z - 0.05), (0.2, 0.5, z + 0.05), "caramel_wood")
+        _rod(b, (0.15, 0.45, z), (1.05, 1.55, z), 0.1, "caramel_wood")
+        _rod(b, (0.75, 0.1, z), (0.75, 0.95, z), 0.09, "caramel_wood")
+    for k in range(6):                                                                       # the seat's stripes
+        x0 = -1.45 + 0.27 * k
+        b.span((x0, 0.5, -0.5), (x0 + 0.27, 0.56, 0.5), (RED, WHITE)[k % 2])
+    for k in range(5):                                                                       # the back's, leaning
+        t0, t1 = k / 5, (k + 1) / 5
+        cx, cy = 0.17 + 0.9 * (t0 + t1) / 2, 0.55 + 1.08 * (t0 + t1) / 2
+        b.box((cx, cy, 0.0), (0.3, 0.06, 1.0), (WHITE, RED)[k % 2], rot=rot_z(50.2))
+    b.box((0.98, 1.56, 0.0), (0.5, 0.07, 0.8), AQUA, rot=rot_z(50.2))                        # a towel over the top
+    b.span((1.08, 0.95, -0.4), (1.16, 1.5, 0.4), AQUA)
+    b.cyl((-1.1, 0.33, -0.82), 0.3, 0.06, WHITE, segments=10)                                # side table
+    b.cyl((-1.1, 0.18, -0.82), 0.05, 0.26, "metal", segments=6)
+    b.cyl((-1.1, 0.07, -0.82), 0.2, 0.03, "metal", segments=10)
+    b.cyl((-1.15, 0.5, -0.82), 0.09, 0.28, SUN, segments=8)                                  # lemonade
+    b.cyl((-1.15, 0.645, -0.82), 0.075, 0.01, WHITE, segments=8)
+    _rod(b, (-1.12, 0.5, -0.8), (-1.0, 0.86, -0.76), 0.02, "caramel_wood")                   # its parasol
+    b.cyl((-1.0, 0.88, -0.76), 0.17, 0.08, PINKY, r2=0.01, segments=8)
+    _beach_ball(b, 1.35, 0.06, -0.7, 0.32)
+    for k, z in enumerate((-0.92, -0.68)):                                                   # flip flops
+        b.box((-0.2 + 0.1 * k, 0.085, z), (0.42, 0.05, 0.18), SUN, rot=rot_y(12))
+        b.box((-0.1 + 0.1 * k, 0.12, z), (0.05, 0.03, 0.18), RED, rot=rot_y(12))
+    return [b.finalize("CatCafe_Decor_BeachChair", mat)]
+
+
+def build_mini_carousel(mat):
+    """A carousel a cat could ride: a round red and gold deck, a mirrored centre drum, a striped tent top with a
+    pennant and a ring of bulbs (`_Glow`), and four plush cats on brass poles that go round (`_Spin`).
+    Legendary, Water Park."""
+    name = "CatCafe_Decor_MiniCarousel"
+    b, glow, spin = RB(), RB(), RB()
+    b.cyl((0, 0.12, 0), 1.25, 0.24, RED, segments=16)                                        # deck
+    b.cyl((0, 0.27, 0), 1.2, 0.06, "brass", segments=16)
+    b.cyl((0, 0.33, 0), 1.12, 0.06, WHITE, segments=16)
+    b.cyl((0, 1.7, 0), 0.34, 2.7, WHITE, segments=10)                                        # centre drum
+    for k in range(5):
+        a = math.radians(72 * k)
+        b.box((0.34 * math.cos(a), 1.5, 0.34 * math.sin(a)), (0.05, 1.5, 0.3), "pastel_sky", rot=rot_y(-72 * k + 90))
+    b.cyl((0, 0.72, 0), 0.4, 0.1, "brass", segments=10)
+    b.cyl((0, 2.6, 0), 0.4, 0.1, "brass", segments=10)
+    top = 3.05                                                                               # the tent top
+    b.cyl((0, top + 0.12, 0), 1.3, 0.24, RED, segments=16)
+    for k in range(16):                                                                      # scalloped valance
+        a = math.radians(22.5 * k)
+        b.box((1.3 * math.cos(a), top - 0.06, 1.3 * math.sin(a)), (0.06, 0.22, 0.42), (WHITE, SUN)[k % 2],
+              rot=rot_y(-22.5 * k))
+    b.cyl((0, top + 0.72, 0), 1.3, 0.96, WHITE, r2=0.12, segments=16)
+    for k in range(8):                                                                       # red stripes up the cone
+        a = math.radians(45 * k)
+        _rod(b, (1.24 * math.cos(a), top + 0.27, 1.24 * math.sin(a)),
+             (0.14 * math.cos(a), top + 1.2, 0.14 * math.sin(a)), 0.2, RED)
+    b.cyl((0, top + 1.3, 0), 0.05, 0.4, "brass", segments=6)
+    b.ball((0, top + 1.24, 0), 0.13, "brass")
+    b.span((0.02, top + 1.36, -0.01), (0.42, top + 1.5, 0.01), PINKY)                        # pennant
+    for k in range(12):                                                                      # bulbs
+        a = math.radians(30 * k + 15)
+        glow.ball((1.36 * math.cos(a), top + 0.14, 1.36 * math.sin(a)), 0.07, "lamp_warm")
+    c = (0.0, 0.36, 0.0)                                                                     # what turns: the riders
+    spin.cyl((0, 0.02, 0), 1.05, 0.04, SUN, segments=16)
+    for k, sw in enumerate((PINKY, "pastel_lilac", "mint", "fur_peach")):
+        a = math.radians(90 * k + 45)
+        x, z = 0.78 * math.cos(a), 0.78 * math.sin(a)
+        lift = 0.55 + 0.22 * (k % 2)
+        spin.cyl((x, 1.33, z), 0.035, 2.66, "brass", segments=6)
+        _plush(spin, x, lift, z, 0.9, sw)
+        spin.box((x, lift + 0.2, z), (0.3, 0.07, 0.42), RED)                                 # a saddle cloth
+    return [b.finalize(name, mat), glow.finalize(name + "_Glow", mat), spin.finalize(name + "_Spin", mat, location=c)]
+
+
+def build_prize_shelf(mat):
+    """A prize stall's back wall: three shelves of plush cats, a ring toss bottle row and a rubber duck, a red and
+    white awning with a row of bulbs (`_Glow`) and a ticket roll on the counter. Rare, Water Park."""
+    name = "CatCafe_Decor_PrizeShelf"
+    b, glow = RB(), RB()
+    b.span((-1.7, 0.0, -0.5), (1.7, 0.9, 0.5), RED)                                          # counter
+    for k in range(7):
+        x0 = -1.7 + 0.486 * k
+        if k % 2:
+            b.span((x0, 0.05, -0.52), (x0 + 0.486, 0.85, -0.5), WHITE)
+    b.span((-1.8, 0.9, -0.6), (1.8, 1.0, 0.5), "caramel_wood")
+    b.span((-1.7, 1.0, 0.3), (1.7, 3.6, 0.5), "pastel_sky")                                  # back board
+    for sx in (-1, 1):
+        x0, x1 = sorted((sx * 1.58, sx * 1.7))
+        b.span((x0, 1.0, -0.45), (x1, 3.6, 0.5), "caramel_wood")
+    for y in (1.85, 2.7):                                                                    # shelves
+        b.span((-1.6, y, -0.35), (1.6, y + 0.08, 0.3), "caramel_wood")
+    for k, sw in enumerate((PINKY, "mint", SUN, "pastel_lilac")):                           # plush on the counter
+        _plush(b, -1.2 + 0.8 * k, 1.0, -0.05, 0.85 + 0.1 * (k % 2), sw)
+    for k, sw in enumerate(("fur_peach", "pastel_lilac", PINKY)):                           # middle shelf
+        _plush(b, -1.05 + 0.75 * k, 1.93, 0.0, 0.8, sw)
+    _beach_ball(b, 1.2, 1.93, 0.0, 0.26)
+    for k in range(4):                                                                       # top shelf: ring toss bottles
+        x = -1.2 + 0.36 * k
+        b.cyl((x, 2.96, 0.0), 0.1, 0.36, ("mint", "pastel_sky")[k % 2], segments=8)
+        b.cyl((x, 3.22, 0.0), 0.045, 0.16, WHITE, segments=6)
+    _ring_flat(b, (-0.84, 3.2, 0.0), 0.16, 0.05, 0.05, RED)
+    b.ball((0.75, 2.93, 0.0), 0.2, SUN, scale=(1.0, 0.75, 1.2))                              # rubber duck
+    b.ball((0.75, 3.14, -0.1), 0.13, SUN)
+    b.span((0.69, 3.1, -0.3), (0.81, 3.15, -0.2), "eye_amber")
+    b.cyl((-1.3, 1.1, -0.38), 0.14, 0.12, SUN, axis="Z", segments=10)                        # ticket roll
+    b.span((-1.3, 1.0, -0.44), (-0.9, 1.02, -0.32), SUN)
+    for k in range(8):                                                                       # awning
+        x0 = -1.9 + 0.475 * k
+        b.box((x0 + 0.2375, 3.85, -0.3), (0.475, 0.07, 1.75), (RED, WHITE)[k % 2], rot=rot_x(-22))
+        b.span((x0, 3.32, -1.14), (x0 + 0.475, 3.54, -1.08), (WHITE, RED)[k % 2])
+    b.span((-1.9, 3.6, 0.3), (1.9, 4.25, 0.5), RED)
+    for k in range(7):                                                                       # bulbs under the awning's lip
+        glow.ball((-1.5 + 0.5 * k, 3.26, -1.1), 0.075, "lamp_warm")
+    return [b.finalize(name, mat), glow.finalize(name + "_Glow", mat)]
+
+
+def build_ferris_lamp(mat):
+    """A table top Ferris wheel that is a lamp: a striped drum base, two A frames, and a wheel of eight round paper
+    lantern cars (`_Spin_Glow`) on spokes that turns slowly (`_Spin`), a star on the hub. Epic, Water Park."""
+    name = "CatCafe_Decor_FerrisWheelLamp"
+    b, spin, glow = RB(), RB(), RB()
+    b.cyl((0, 0.2, 0), 1.2, 0.4, RED, segments=16)                                           # base
+    b.cyl((0, 0.43, 0), 1.25, 0.06, "brass", segments=16)
+    for k in range(8):
+        a = math.radians(45 * k)
+        b.box((1.2 * math.cos(a), 0.2, 1.2 * math.sin(a)), (0.05, 0.36, 0.44), WHITE, rot=rot_y(-45 * k))
+    hub = (0.0, 2.55, 0.0)
+    for sz in (-1, 1):                                                                       # A frames
+        z = sz * 0.42
+        for sx in (-1, 1):
+            _rod(b, (sx * 0.85, 0.46, z), (0.0, hub[1] + 0.05, z), 0.12, "pastel_sky")
+        b.span((-0.5, 1.2, z - 0.05), (0.5, 1.3, z + 0.05), "pastel_sky")
+    b.cyl(hub, 0.09, 1.0, "brass", axis="Z", segments=8)                                     # axle
+    r = 1.55
+    for sz in (-1, 1):                                                                       # the wheel: two rims and spokes
+        z = sz * 0.24
+        spin.b.ring(RB.p(0.0, 0.0, z), r, 0.1, 0.07, WHITE, segments=16, bevel=False, rot=(math.pi / 2, "X"))
+        for k in range(4):
+            spin.box((0.0, 0.0, z), (2 * r - 0.1, 0.05, 0.05), ("brass", RED)[k % 2], rot=rot_z(45 * k))
+    spin.cyl((0, 0, -0.32), 0.26, 0.06, SUN, axis="Z", segments=5)                           # the hub's star
+    spin.cyl((0, 0, 0), 0.2, 0.56, RED, axis="Z", segments=10)
+    for k, sw in enumerate(("lamp_warm", "neon_pink", "lamp_warm", "pastel_sky") * 2):        # lantern cars
+        a = math.radians(45 * k + 22.5)
+        x, y = r * math.cos(a), r * math.sin(a)
+        spin.cyl((x, y, 0), 0.04, 0.5, "brass", axis="Z", segments=6)
+        glow.ball((x, y, 0), 0.2, sw)
+        spin.cyl((x, y, -0.2), 0.12, 0.03, "brass", axis="Z", segments=8)
+        spin.cyl((x, y, 0.2), 0.12, 0.03, "brass", axis="Z", segments=8)
+    return [b.finalize(name, mat), spin.finalize(name + "_Spin", mat, location=hub),
+            glow.finalize(name + "_Spin_Glow", mat, location=hub)]
+
+
 # F89 2c moving parts (VFX-Agent drives them): a child Model ending _Swing swings about its pivot's Z axis, _Spin turns
 # about its Y axis, _Bob rises and falls; a light inside one is a nested _Glow that moves with it. Each moving Model
 # carries its own numbers as attributes (Angle in degrees, Rise in studs, Seconds per cycle; Effects defaults to 2 s).
@@ -1583,6 +1989,12 @@ MOVING = {
                                    "model_attributes": {"_Swing": {"Angle": _f(9), "Seconds": _f(2.6)}}},
     "CatCafe_Decor_StoneThrone": {"nest": {"_Glow": "_Bob"},
                                   "model_attributes": {"_Bob": {"Rise": _f(0.12), "Seconds": _f(2.4)}}},
+    "CatCafe_Decor_StoneFireplace": {"nest": {"_Fire_Glow": "_Fire_Bob"},
+                                     "model_attributes": {"_Fire_Bob": {"Rise": _f(0.07), "Seconds": _f(0.9)}}},
+    "CatCafe_Decor_GiantSnowGlobe": {"model_attributes": {"_Spin": {"Seconds": _f(14)}}},
+    "CatCafe_Decor_MiniCarousel": {"model_attributes": {"_Spin": {"Seconds": _f(9)}}},
+    "CatCafe_Decor_FerrisWheelLamp": {"nest": {"_Spin_Glow": "_Spin"}, "model_attributes": {"_Spin": {"Seconds": _f(16)}},
+                                 "pivot_turns": {"_Spin": Matrix.Rotation(math.radians(-90), 3, "X")}},
 }
 
 ASSETS = {
@@ -1616,4 +2028,12 @@ ASSETS = {
     "CatCafe_Decor_StoneThrone": (build_stone_throne, 3000),
     "CatCafe_Decor_BrazierPair": (build_brazier_pair, 1800),
     "CatCafe_Decor_GargoyleStatue": (build_gargoyle_statue, 1800),
+    "CatCafe_Decor_FiresideRug": (build_fireside_rug, 1500),
+    "CatCafe_Decor_StoneFireplace": (build_stone_fireplace, 3000),
+    "CatCafe_Decor_SledShelf": (build_sled_shelf, 1800),
+    "CatCafe_Decor_GiantSnowGlobe": (build_giant_snow_globe, 1800),
+    "CatCafe_Decor_BeachChair": (build_beach_chair, 1500),
+    "CatCafe_Decor_MiniCarousel": (build_mini_carousel, 3000),
+    "CatCafe_Decor_PrizeShelf": (build_prize_shelf, 1800),
+    "CatCafe_Decor_FerrisWheelLamp": (build_ferris_lamp, 1800),
 }

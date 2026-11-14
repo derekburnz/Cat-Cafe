@@ -122,7 +122,7 @@ local Config = {
 		helpingPaw = 905647581887639,
 		firstTrade = 428728625137987,
 		purrfectStreak = 4111238237174459,
-		partyGuest = 4328065554528969, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e); made 2026-11-11 (#1957)
+		-- #4282: partyGuest (4328065554528969, "Cafe Party Guest") removed by Derek 2026-11-14; disabled on Roblox
 		metOwner = 1802984077324671, -- #3324: "Met the Owner", for being in a server with the owner; made 2026-11-11 (badges.yml)
 		-- #3618 (badges-order.md): the six new badges, 0 until badges.yml makes them (5 a day, free only)
 		firstHome = 3818992250915779, -- Home Sweet Home (made 2026-11-13)

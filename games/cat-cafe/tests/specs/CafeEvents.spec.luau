@@ -555,7 +555,7 @@ return function()
 				expect(firstBadge).to.equal(true)
 				expect(profile.decorOwned.Decor_PartyBunting).to.equal(true)
 				expect(profile.eventRewards.Decor_PartyBunting).to.equal(NOW)
-				expect(table.find(Badges.earned(profile), "partyGuest")).to.be.ok()
+				expect(table.find(Badges.earned(profile), "partyGuest")).to.equal(nil) -- #4282: the badge is gone
 				-- a second secure in the same event pays nothing
 				expect((CafeEvents.reward(profile, event, NOW + 10))).to.equal(nil)
 				-- the piece comes back at a later event: owned already, so the coin gift
@@ -582,7 +582,7 @@ return function()
 				odd.effects.reward = "Decor_NoSuchPiece"
 				expect((CafeEvents.reward(profile, odd, NOW))).to.equal("badge")
 				expect(profile.decorOwned.Decor_NoSuchPiece).to.equal(nil)
-				expect(table.find(Badges.earned(profile), "partyGuest")).to.be.ok()
+				expect(table.find(Badges.earned(profile), "partyGuest")).to.equal(nil) -- #4282: the badge is gone
 			end
 		)
 

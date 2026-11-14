@@ -49,7 +49,8 @@ local function nearestFree(near: Vector3): WorldBuilder.Plot?
 	local free: { PalJoin.Spot } = {}
 	local byIndex: { [number]: WorldBuilder.Plot } = {}
 	for _, plot in (world :: WorldBuilder.World).plots do
-		if owners[plot.index] == nil then
+		local owner: Player? = owners[plot.index]
+		if owner == nil then
 			local door = plot.door.Position
 			table.insert(free, { index = plot.index, x = door.X, z = door.Z })
 			byIndex[plot.index] = plot

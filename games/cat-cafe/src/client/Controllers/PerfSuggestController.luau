@@ -23,7 +23,9 @@ local PerfSuggestController = {}
 
 local TITLE = "Game running slow?"
 local SETTLE = 0.8 -- seconds of calm before the card slides in (as UI.bait.SETTLE)
-local LINE = "Low performance mode makes it smoother on this device."
+-- Design-Agent's words (#4311); the Settings row reads "Smooth mode" (#4322), the saved key stays lowPerformance
+local LINE = "Smooth mode makes it run better on this device. Your cats stay just as cute."
+local TOAST = "Smooth mode is on. Turn it off any time in Settings."
 
 local function report(outcome: string)
 	Net.fire("TelemetryReport", PerfSuggest.TELEMETRY, outcome)
@@ -46,6 +48,7 @@ local function ask(): boolean
 		done = true
 		if turnOn then
 			ui.events.setSetting:Fire("lowPerformance", true)
+			ui.toast(TOAST)
 		end
 		ui.events.setSetting:Fire(PerfSuggest.ASKED_KEY, true)
 		report(outcome)

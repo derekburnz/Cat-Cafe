@@ -16,7 +16,8 @@
 --   startBanner(view, now)              its "admin" card: "Bowl Frenzy!", the effect, "Ends in 15:00"
 --   chatLine(banner)                    the same words as one system chat line, in the cards' rose, rich text safe:
 --                                       "⚡ Bowl Frenzy soon! Starts in 2:00. Bait bowls lure cats 4x faster."
---   stripLine(view, now)                the HUD's timer words: "⚡ Bowl Frenzy in 1:59", then "⚡ Bowl Frenzy 14:59"
+--   stripLine(view, now)                the HUD's timer words before the start: "⚡ Bowl Frenzy in 1:59"; none while
+--                                       it runs, when Effects/AdminFlash's strip is the one readout (#4325)
 --   merge(lines, kind, strip, admin)    the Cafe Event chip's lines, kind and strip with the admin line put first
 --   airOf(view)                         which of Presets.adminAir's drifts the event hangs round you, or nil
 --   clock(seconds)                      "14:59", "1:02:05"
@@ -265,7 +266,9 @@ function AdminEventLogic.stripLine(view: View?, now: number): string?
 		return nil
 	end
 	if AdminEventLogic.runs(view, now) then
-		return string.format("⚡ %s %s", view.title, AdminEventLogic.clock(view.endsAt - now))
+		-- #4325: while it runs, Effects/AdminFlash's strip is the one readout on the screen (Derek 2026-11-14 22:54:
+		-- "the ui is still on the screen too much in the events"), so the chip says nothing of it
+		return nil
 	end
 	if now < view.startsAt then
 		return string.format("⚡ %s in %s", view.title, AdminEventLogic.clock(view.startsAt - now))

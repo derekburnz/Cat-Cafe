@@ -19,6 +19,7 @@ local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Crates = require(ReplicatedStorage.Shared.Crates)
+local DailyDeal = require(ReplicatedStorage.Shared.DailyDeal)
 local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
 local DecorBest = require(ReplicatedStorage.Shared.DecorBest)
@@ -46,6 +47,7 @@ local LuckyCharm = require(ReplicatedStorage.Shared.LuckyCharm)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
+local PalJoin = require(ReplicatedStorage.Shared.PalJoin)
 local PalService = require(script.Parent.PalService)
 local PassService = require(script.Parent.PassService)
 local Pet = require(ReplicatedStorage.Shared.Pet)
@@ -82,6 +84,11 @@ local CafeService = {}
 -- #3694 section 3: the achievements behind a feature switch read the live switches (here, since this file sends
 -- the achievements view; QuestService and Claim all reach Quests through it)
 Quests.setFlagReader(LiveFlagService.on)
+-- #3995: a player who joins through a friend this session gets no intro by itself, and the save stays out of the intro
+-- test (the ? Tutorial tile still plays it on a tap)
+Telemetry.setIntroSkip(function(player: Player): boolean
+	return LiveFlagService.on(PalJoin.FLAG) and PalService.joinedVia(player) ~= nil
+end)
 
 -- #2697: the tutorial moved forward (player, from step, to step), from the server or the client's TutorialAdvance
 CafeService.tutorialStepped = Signal.new() :: Signal.Signal<Player, number, number>
@@ -252,6 +259,34 @@ local function traitsView(player: Player, profile: Profile, now: number): Types.
 	return view
 end
 
+-- #3996: whether Today's Deal may be the token deal for this player: the token bundles may be offered (the
+-- traitBundles switch on and the policy read and not restricting paid random items) and the bank has room
+function CafeService.dealTokensOk(player: Player, profile: Profile): boolean
+	local policy = DataService.policy(player)
+	local tokens = Catalog.getProduct("deal_2")
+	return LiveFlagService.on(Traits.BUNDLE_FLAG)
+		and policy ~= nil
+		and policy.ArePaidRandomItemsRestricted == false
+		and DailyDeal.roomFor(
+			profile.traits.tokens,
+			if tokens ~= nil then tokens.prize.traitTokens or 0 else 0,
+			Traits.TOKEN_MAX
+		)
+end
+
+-- #3996: PlayerState.dailyDeal, false while the dailyDeal switch is off
+local function dealView(player: Player, profile: Profile, now: number): Types.DailyDealView | false
+	if not LiveFlagService.on(DailyDeal.FLAG) then
+		return false
+	end
+	return DailyDeal.view(
+		profile,
+		now,
+		CafeService.dealTokensOk(player, profile),
+		Economy.tier(profile)
+	)
+end
+
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
 	-- #3666: a new save joins the intro test before its first sync says whether the intro plays itself; the answer
 	-- holds for the session
@@ -307,6 +342,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		giftNext = PlaytimeGifts.upcoming(profile, 2), -- #2791: the gift icon's next step and the popover's two
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
 		traits = traitsView(player, profile, now), -- #3196: the Mystic Pool card, nil while it is shut
+		dailyDeal = dealView(player, profile, now), -- #3996
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile), -- #3022
@@ -2402,6 +2438,44 @@ local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
 	CafeService.sync(player)
 end
 
+-- #3995 (friend-join-3995.md): the door of the friend a player joined through, with the palJoin switch on, for the
+-- cafe next door; nil otherwise (the first free plot, as before).
+local function palDoor(player: Player): Vector3?
+	if not LiveFlagService.on(PalJoin.FLAG) then
+		return nil
+	end
+	local pal = PalService.joinedVia(player)
+	local palPlot = if pal ~= nil then PlotService.get(pal) else nil
+	return if palPlot ~= nil then palPlot.door.Position else nil
+end
+
+-- #3995: pal_join once, and the PalNextDoor attribute for the joiner's "Your cafe is next door." line.
+local function palJoined(player: Player, profile: Profile, plot: WorldBuilder.Plot?)
+	if not LiveFlagService.on(PalJoin.FLAG) then
+		return
+	end
+	local pal, how = PalService.joinedHow(player)
+	if pal == nil or how == nil then
+		return
+	end
+	local palPlot = PlotService.get(pal)
+	local nextDoor = plot ~= nil
+		and palPlot ~= nil
+		and PalJoin.nextDoor(
+			plot.door.Position.X,
+			plot.door.Position.Z,
+			palPlot.door.Position.X,
+			palPlot.door.Position.Z
+		)
+	player:SetAttribute(PalJoin.ATTRIBUTE, nextDoor)
+	Telemetry.custom(
+		player,
+		"pal_join",
+		1,
+		PalJoin.fields(how, profile.stats.sessions <= 1, nextDoor)
+	)
+end
+
 local function onLoaded(player: Player, profile: Profile)
 	Economy.setPals(profile, PalService.count(player)) -- F92: pals who were here before the save loaded
 	-- #2123: before anything this join changes the save (lastSeen is still the last session's), and only for a
@@ -2418,10 +2492,11 @@ local function onLoaded(player: Player, profile: Profile)
 			joinGoals[player] = goals -- Telemetry logs them as its own session starts
 		end
 	end
-	local plot = PlotService.assign(player)
+	local plot = PlotService.assign(player, palDoor(player))
 	if plot == nil then
 		Net.toast(player, "The street is full. Try another server.", "warn")
 	end
+	palJoined(player, profile, plot)
 	giveLawnGifts(player, profile) -- F91: a cafe already at Tier 2 or 3 when the lawn arrives
 	CafeService.autoEquip(player, profile) -- #1534: the best cats on the open slots
 	CafeService.refreshPlot(player)

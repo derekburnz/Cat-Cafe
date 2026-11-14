@@ -83,6 +83,24 @@ return function()
 	end)
 
 	-- QA (UI PR #173): the rows against Catalog.spots at every tier, empty and full.
+	describe("StaffSlots.nextLine (#4028)", function()
+		it("counts the slots the next tier opens, or nil", function()
+			local row: any = {
+				nextTier = 5,
+				slots = {
+					{ spotId = "a", kind = "working", tier = 1 },
+					{ spotId = "b", kind = "locked", tier = 5 },
+					{ spotId = "c", kind = "locked", tier = 5 },
+					{ spotId = "d", kind = "locked", tier = 6 },
+					{ spotId = "e", kind = "locked", tier = 5, hidden = true },
+				},
+			}
+			expect(StaffSlots.nextLine(row)).to.equal("+2 at Tier 5")
+			row.nextTier = nil
+			expect(StaffSlots.nextLine(row)).to.equal(nil)
+		end)
+	end)
+
 	describe("QA edges", function()
 		-- One row at `tier` with no cats: slots in tier order, locked above the tier, counts and summary agree.
 		local function checkRow(row: any, tier: number, seen: { [string]: boolean })

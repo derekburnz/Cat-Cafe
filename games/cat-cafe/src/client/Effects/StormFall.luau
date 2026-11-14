@@ -1,7 +1,8 @@
 --!strict
 -- A Cat Storm's strays fall out of the sky (#4197, admin events). The server drops extra strays while the storm runs
 -- and marks each with the `StormCat` attribute (shared/CatStorm). Where one appears near you a streak of light drops
--- onto the spot from high above, a ring spreads and sparkles puff as it lands, and whoever listens hears it
+-- onto the spot from high above while the stray stays unseen on this client, then it is there, a ring spreads and
+-- sparkles puff as it lands, and whoever listens hears it
 -- (StormFall.onLand: Audio plays the landing). While the storm runs, slow sparkles drift down round you so the
 -- whole area reads as under it. Reduce Motion and Low performance keep only the small puff: no streak, no ring, no
 -- drift. A Secret cat lands the same way as any other; nothing here shows what the stray is.
@@ -69,6 +70,40 @@ local function land(at: Vector3)
 	end
 end
 
+-- Hides a stray on this client only while its streak falls, so it reads as arriving with the streak and not as
+-- standing there waiting for it: its parts and decals unseen, its floating labels (NEW, the mood) off. A stray's
+-- parts arrive over a few frames after its Model does (Review-QA, #4211: 17 to 22 of about 57 were there at once),
+-- so the ones that come during the fall are hidden as they come. Returns the function that shows it all again.
+local function hide(model: Model): () -> ()
+	local hidden: { Instance } = {}
+	local labels: { BillboardGui } = {}
+	local function take(d: Instance)
+		if d:IsA("BasePart") or d:IsA("Decal") then
+			(d :: any).LocalTransparencyModifier = 1
+			table.insert(hidden, d)
+		elseif d:IsA("BillboardGui") then
+			local label = d :: BillboardGui
+			if label.Enabled then
+				label.Enabled = false
+				table.insert(labels, label)
+			end
+		end
+	end
+	local added = model.DescendantAdded:Connect(take)
+	for _, d in model:GetDescendants() do
+		take(d)
+	end
+	return function()
+		added:Disconnect()
+		for _, d in hidden do
+			(d :: any).LocalTransparencyModifier = 0
+		end
+		for _, label in labels do
+			label.Enabled = true
+		end
+	end
+end
+
 local function fall(model: Model)
 	local p = Presets.stormFall
 	if model.Parent == nil or model:FindFirstChildWhichIsA("BasePart", true) == nil then
@@ -101,7 +136,11 @@ local function fall(model: Model)
 		Transparency = 0.6,
 	}):Play()
 	Debris:AddItem(streak, p.seconds + 0.05)
-	task.delay(p.seconds, land, at)
+	local show = hide(model)
+	task.delay(p.seconds, function()
+		show()
+		land(at)
+	end)
 end
 
 local function consider(instance: Instance)
@@ -157,7 +196,8 @@ end
 local function tickDrift()
 	local p = Presets.stormFall
 	local focus = Context.focus()
-	if focus == nil or not StormFall.drifts(stormOn(), still()) then
+	-- no strays fall at night, so the drift rests then too
+	if focus == nil or not StormFall.drifts(stormOn() and not Context.isNight(), still()) then
 		stopDrift()
 		return
 	end

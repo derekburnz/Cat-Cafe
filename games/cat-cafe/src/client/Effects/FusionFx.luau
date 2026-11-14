@@ -160,12 +160,13 @@ function FusionFx.swirl(tiles: { GuiObject }, centre: GuiObject, coat: string, o
 		end
 	end
 	local gui = ScreenFx.gui(GUI_NAME, Presets.fusion.displayOrder)
-	if gui == nil or not ScreenFx.shown(centre) then
+	-- the centre may still be hidden (a result picture that shows only once the tiles meet): placed is enough
+	if gui == nil or not ScreenFx.placed(centre) then
 		done()
 		return
 	end
 	local middle = ScreenFx.centre(gui, centre)
-	local across = math.max(centre.AbsoluteSize.X, centre.AbsoluteSize.Y)
+	local across = math.max(centre.AbsoluteSize.X, centre.AbsoluteSize.Y, Presets.fusion.acrossMin)
 	if Context.reducedMotion() then
 		meet(gui, middle, across, coat, true)
 		done()
@@ -288,7 +289,7 @@ function FusionFx.burst(target: GuiObject, coat: string)
 		return
 	end
 	local middle = ScreenFx.centre(gui, target)
-	local across = math.max(size.X, size.Y)
+	local across = math.max(size.X, size.Y, Presets.fusion.acrossMin)
 	for ring = 1, k.rings do
 		task.delay((ring - 1) * s.ringGap, function()
 			if gui.Parent ~= nil then
@@ -537,7 +538,7 @@ local function studioTest(coat: string)
 		FusionFx.set(coat, true)
 		FusionFx.burst(centre, coat)
 		FusionFx.collected(coat)
-		task.wait(6)
+		task.wait(3.5)
 		holder:Destroy()
 		FusionFx.set(nil, false)
 	end)

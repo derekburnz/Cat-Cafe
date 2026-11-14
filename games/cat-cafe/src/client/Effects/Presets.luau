@@ -2900,6 +2900,7 @@ Presets.fusion = {
 	displayOrder = 22, -- just over the window (a modal, 20), under the toasts (30)
 	gold = Presets.palette.golden,
 	huePeriod = 6,
+	acrossMin = 110, -- pixels: rings are sized as if the picture were at least this wide, so a small one still reads
 	swirl = {
 		most = 5,
 		stagger = 0.07,
@@ -2912,21 +2913,21 @@ Presets.fusion = {
 		sparkleStagger = 0.1,
 		reach = 0.9,
 		ringFrom = 0.4,
-		ringTo = 1.5,
-		ringSeconds = 0.55,
+		ringTo = 2.2,
+		ringSeconds = 0.8,
 	},
 	burst = {
-		size = 12,
+		size = 15,
 		stagger = 0.12,
 		reach = 0.6,
 		reachMin = 24,
 		reachMax = 90,
 		ringFrom = 0.6,
-		ringTo = 1.5,
+		ringTo = 2.2,
 		ringGap = 1,
 		kinds = {
-			gold = { sparkles = 16, seconds = 0.5, hueGap = 0, rings = 2, ringSeconds = 0.55 },
-			rainbow = { sparkles = 24, seconds = 0.6, hueGap = 0.12, rings = 3, ringSeconds = 0.7 },
+			gold = { sparkles = 16, seconds = 0.6, hueGap = 0, rings = 2, ringSeconds = 0.9 },
+			rainbow = { sparkles = 24, seconds = 0.7, hueGap = 0.12, rings = 3, ringSeconds = 0.95 },
 		} :: { [string]: FusionBurst },
 	},
 	dome = {

@@ -156,6 +156,7 @@ export type HUD = {
 	bottomTop: (self: HUD) -> number,
 	tackleTop: (self: HUD) -> number, -- #3119: where the Tackle bar's foot sits (under the Drop off touch)
 	toastAvoid: (self: HUD) -> { Types.Box }, -- #2338: what the toasts keep clear of
+	edgeAvoid: (self: HUD) -> { Types.Box }, -- #4152: what the tutorial's edge arrow keeps clear of, in screen px
 	setCatching: (self: HUD, active: boolean) -> (),
 	roadmapStep: (self: HUD, n: number) -> (),
 	setCatchStreak: (self: HUD, streak: number) -> (),
@@ -3452,6 +3453,43 @@ end
 -- lines by their words, which sit right-aligned in wider boxes), the chips over the counters and the corner tiles over
 -- the bottom right. Measured, so a folded menu or a hidden card counts as
 -- nothing; none while the HUD is hidden.
+-- #4152: the same pieces as toastAvoid, in the screen's own pixels with the top inset counted (the tutorial's edge
+-- arrow draws in a ScreenGui that ignores the inset), so the arrow keeps off the money pill and the menu.
+function HUD.edgeAvoid(self: any): { Types.Box }
+	local scale = Scale.get()
+	local out: { Types.Box } = {}
+	if scale <= 0 then
+		return out
+	end
+	local origin = self._root.AbsolutePosition
+	if not self.screenGui.IgnoreGuiInset then
+		local inset = GuiService:GetGuiInset()
+		origin += inset
+	end
+	for _, box in self:toastAvoid() do
+		table.insert(out, {
+			x0 = origin.X + box.x0 * scale,
+			y0 = origin.Y + box.y0 * scale,
+			x1 = origin.X + box.x1 * scale,
+			y1 = origin.Y + box.y1 * scale,
+		})
+	end
+	-- and on every device the counters (the money pill and its coin) and the travel row, which the toasts don't need
+	local shift = origin - self._root.AbsolutePosition
+	for _, piece in { self._counters, self._travelRow } :: { GuiObject } do
+		if piece.Visible and piece.AbsoluteSize.X > 0 then
+			local at = piece.AbsolutePosition + shift
+			table.insert(out, {
+				x0 = at.X,
+				y0 = at.Y,
+				x1 = at.X + piece.AbsoluteSize.X,
+				y1 = at.Y + piece.AbsoluteSize.Y,
+			})
+		end
+	end
+	return out
+end
+
 function HUD.toastAvoid(self: any): { Types.Box }
 	local scale = Scale.get()
 	local boxes: { Types.Box } = {}

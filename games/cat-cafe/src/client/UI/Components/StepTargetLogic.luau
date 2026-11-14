@@ -5,6 +5,8 @@
 --                                                      (x, y in px, Z its depth, below 0 behind the camera); nil while
 --                                                      the target is on screen, else the arrow's centre kept whole
 --                                                      inside the screen and its rotation toward the target
+--   clear(place, arrow, boxes, screen, margin?) -> Placement   #4152: the edge arrow slid along its edge until it keeps
+--                                                      clear of `boxes` (the HUD's pieces, screen px), when it can
 --   rotation(direction) -> number                      the arrow is drawn pointing down; this turns it to `direction`
 --   small(size) -> boolean                             a model this size is one thing (a bowl, a cannon), not a whole
 --                                                      cafe or area, so the Highlight goes round all of it
@@ -61,6 +63,73 @@ function StepTargetLogic.edge(
 	end
 	local at = centre + direction * stretch
 	return { x = at.X, y = at.Y, rotation = StepTargetLogic.rotation(direction) }
+end
+
+StepTargetLogic.CLEAR = 4 -- #4152: px kept between the edge arrow and a HUD piece
+
+export type Box = { x0: number, y0: number, x1: number, y1: number }
+
+-- #4152 (Review-QA, 667x375: the arrow sat on the money pill's coin): the arrow keeps to its edge and its rotation, and
+-- slides along that edge (up or down on a side, left or right on the top or bottom) to the nearer spot clear of any
+-- box it lies over, inside the screen. Where no spot is clear it stays where `edge` put it.
+function StepTargetLogic.clear(
+	place: Placement,
+	arrow: number,
+	boxes: { Box },
+	screen: Vector2,
+	margin: number?
+): Placement
+	local gap = margin or StepTargetLogic.MARGIN
+	local half = arrow / 2
+	local pad = StepTargetLogic.CLEAR
+	local x, y = place.x, place.y
+	local onSide = math.min(x, screen.X - x) <= math.min(y, screen.Y - y)
+	local function over(px: number, py: number): Box?
+		for _, box in boxes do
+			if
+				px + half + pad > box.x0
+				and px - half - pad < box.x1
+				and py + half + pad > box.y0
+				and py - half - pad < box.y1
+			then
+				return box
+			end
+		end
+		return nil
+	end
+	for _ = 1, #boxes + 1 do
+		local box = over(x, y)
+		if box == nil then
+			return { x = x, y = y, rotation = place.rotation }
+		end
+		local at = if onSide then y else x
+		local before = (if onSide then box.y0 else box.x0) - half - pad
+		local after = (if onSide then box.y1 else box.x1) + half + pad
+		local lo = gap + half
+		local hi = (if onSide then screen.Y else screen.X) - gap - half
+		local best: number? = nil
+		for _, spot in { before, after } do
+			if
+				spot >= lo
+				and spot <= hi
+				and (best == nil or math.abs(spot - at) < math.abs(best - at))
+			then
+				best = spot
+			end
+		end
+		if best == nil then
+			break
+		end
+		if onSide then
+			y = best
+		else
+			x = best
+		end
+	end
+	if over(x, y) ~= nil then
+		return place
+	end
+	return { x = x, y = y, rotation = place.rotation }
 end
 
 function StepTargetLogic.small(size: Vector3): boolean

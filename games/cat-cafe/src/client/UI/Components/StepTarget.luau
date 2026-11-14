@@ -29,6 +29,13 @@ local TutorialArrow = require(script.Parent.TutorialArrow)
 local TutorialGlow = require(script.Parent.TutorialGlow)
 
 local StepTarget = {}
+
+-- #4152: the HUD's pieces in screen px (UI.init sets it once the HUD is built), which the edge arrow keeps clear of
+local avoid: (() -> { StepTargetLogic.Box })? = nil
+
+function StepTarget.setAvoid(boxes: (() -> { StepTargetLogic.Box })?)
+	avoid = boxes
+end
 StepTarget.__index = StepTarget
 
 StepTarget.NAME = "CatCafeStepTarget"
@@ -178,6 +185,10 @@ function StepTarget._place(self: any)
 	if place == nil then
 		arrow.Visible = false
 		return
+	end
+	local boxes = avoid
+	if boxes ~= nil then
+		place = StepTargetLogic.clear(place, px, boxes(), camera.ViewportSize)
 	end
 	arrow.Size = UDim2.fromOffset(px, px)
 	arrow.Position = UDim2.fromOffset(place.x, place.y)

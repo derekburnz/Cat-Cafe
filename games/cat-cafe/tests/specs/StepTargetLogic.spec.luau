@@ -64,4 +64,47 @@ return function()
 			expect(StepTargetLogic.small(Vector3.new(80, 30, 60))).to.equal(false)
 		end)
 	end)
+	describe("StepTargetLogic.clear (#4152)", function()
+		local screen = Vector2.new(667, 375)
+		it(
+			"slides an arrow on a side edge up or down, off a HUD piece, keeping its turn",
+			function()
+				local place = { x = 44, y = 300, rotation = 90 }
+				local moved = StepTargetLogic.clear(
+					place,
+					64,
+					{ { x0 = 0, y0 = 280, x1 = 120, y1 = 330 } },
+					screen
+				)
+				expect(moved.x).to.equal(44)
+				expect(moved.rotation).to.equal(90)
+				expect(moved.y + 32 <= 280 or moved.y - 32 >= 330).to.equal(true)
+			end
+		)
+		it("slides an arrow on the top or bottom sideways", function()
+			local place = { x = 300, y = 44, rotation = 180 }
+			local moved = StepTargetLogic.clear(
+				place,
+				64,
+				{ { x0 = 260, y0 = 0, x1 = 420, y1 = 60 } },
+				screen
+			)
+			expect(moved.y).to.equal(44)
+			expect(moved.x + 32 <= 260 or moved.x - 32 >= 420).to.equal(true)
+		end)
+		it("leaves a clear arrow alone, and stays put where no spot is clear", function()
+			local place = { x = 44, y = 200, rotation = 90 }
+			local same = StepTargetLogic.clear(
+				place,
+				64,
+				{ { x0 = 300, y0 = 0, x1 = 400, y1 = 40 } },
+				screen
+			)
+			expect(same.x).to.equal(44)
+			expect(same.y).to.equal(200)
+			local blocked =
+				StepTargetLogic.clear(place, 64, { { x0 = 0, y0 = 0, x1 = 120, y1 = 375 } }, screen)
+			expect(blocked.y).to.equal(200)
+		end)
+	end)
 end

@@ -36,6 +36,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog"))
+local GoldTone = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("GoldTone"))
 local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
 
 local Context = require(script.Parent.Context)
@@ -679,14 +680,18 @@ local function makeCat(catId: string?, gold: boolean?): Model?
 	if assets == nil then
 		return nil
 	end
-	local names = { Catalog.catModelName(catId) }
+	local names, tone = { Catalog.catModelName(catId) }, false
 	if gold == true then
-		table.insert(names, 1, Catalog.goldModelName(catId))
+		-- #4133: gold from the base model once the goldTone switch is on
+		names, tone = GoldTone.names(Catalog.goldModelName(catId), Catalog.catModelName(catId))
 	end
 	for _, name in names do
 		local found = assets:FindFirstChild(name)
 		if found ~= nil and found:IsA("Model") then
 			local copy = (found :: Model):Clone() :: Model
+			if tone then
+				GoldTone.apply(copy)
+			end
 			copy.Name = "RiftRunCat"
 			copy:SetAttribute("CatId", catId)
 			copy:SetAttribute("Gold", gold == true)

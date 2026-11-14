@@ -73,5 +73,43 @@ return function()
 				expect(StoreFunnel.GUARD_BLOCKS_MAX).to.equal(20)
 			end
 		)
+
+		it(
+			"reads a buy source tag as a known source and a whole id, and nothing else (#4176)",
+			function()
+				for _, source in StoreFunnel.BUY_SOURCES do
+					local from, id = StoreFunnel.buySource(source .. ":3731165229")
+					expect(from).to.equal(source)
+					expect(id).to.equal(3731165229)
+				end
+				for _, bad in
+					{
+						"store",
+						"store:",
+						":12",
+						"shop:12",
+						"store:-3",
+						"store:1.5",
+						"store:0",
+						"store:12:1",
+						7,
+						"",
+					}
+				do
+					local from, id = StoreFunnel.buySource(bad)
+					expect(from).to.equal(nil)
+					expect(id).to.equal(nil)
+				end
+				expect(StoreFunnel.buySource("hud_badge:" .. string.rep("9", 40))).to.equal(nil)
+			end
+		)
+
+		it("maps PassShop's prompt sources to purchase sources (#4176)", function()
+			expect(StoreFunnel.buySourceOf(nil)).to.equal("store")
+			expect(StoreFunnel.buySourceOf("store")).to.equal("store")
+			expect(StoreFunnel.buySourceOf("cafePass")).to.equal("cafe_pass")
+			expect(StoreFunnel.buySourceOf("hud_badge")).to.equal("hud_badge")
+			expect(StoreFunnel.buySourceOf("somewhere")).to.equal("store")
+		end)
 	end)
 end

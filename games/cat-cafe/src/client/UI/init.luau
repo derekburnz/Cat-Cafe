@@ -235,6 +235,7 @@ UI.events = {
 	-- #1936 (release.md section 3), analytics only: a purchase prompt refused with no tap or during a catch, rescue or
 	-- cutscene, "source:reason" (bait, store or cafePass; no_tap or busy)
 	storeGuardBlocked = Signal.new(), -- (what)   forward as TelemetryReport("store_guard_blocked", what)
+	buySource = Signal.new(), -- (what)   #4176: forward as TelemetryReport("buy_source", what)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
@@ -8782,6 +8783,7 @@ do
 		playedAt = 0,
 		quietUntil = nil :: number?,
 		blocked = nil :: Signal.Connection?,
+		prompting = nil :: Signal.Connection?, -- #4176
 	}
 
 	-- #1936 (release.md section 3): under 30 minutes of total play the money badge has no price and does not pulse
@@ -8998,6 +9000,12 @@ do
 		shop.blocked = PassShop.blocked:Connect(function(source: string, reason: string)
 			UI.events.storeGuardBlocked:Fire(source .. ":" .. reason)
 		end)
+		-- #4176: where the prompt started, so the receipt's purchase_source can say it
+		shop.prompting = PassShop.prompting:Connect(function(source: string, id: number)
+			local funnel: any =
+				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StoreFunnel"))
+			UI.events.buySource:Fire(funnel.buySourceOf(source) .. ":" .. tostring(id))
+		end)
 		PassShop.start(StoreLogic.passIds(Config), StoreLogic.productIds(Config))
 		refresh()
 	end
@@ -9066,6 +9074,10 @@ do
 		if shop.blocked then
 			shop.blocked:Disconnect()
 			shop.blocked = nil
+		end
+		if shop.prompting then
+			shop.prompting:Disconnect()
+			shop.prompting = nil
 		end
 		shop.quietUntil = nil
 		if shop.supporter then

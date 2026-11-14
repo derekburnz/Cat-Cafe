@@ -242,7 +242,8 @@ end
 -- Luck did to the odds, and every other rarity keeps its chance.
 -- #4221: `areas` lists the areas the Mythical was rolled for (a wild stray's or a trap's one area, a bait bowl's
 -- open areas), and only those areas' own Secrets (`secretArea`) can turn up. No Secret lives there: nil, and the
--- Mythical stays. Left out, every Secret can (the old rule). The services pass it only while `secretAreas` is on.
+-- Mythical stays. Left out, every Secret but the seven `secretNew` ones can (the old rule). The services pass it only
+-- while `secretAreas` is on.
 Catching.SECRET_FLAG = "secretCats"
 Catching.SECRET_AREAS_FLAG = "secretAreas"
 Catching.SECRET_NAME = "???" -- a wild Secret stray's name on its tag and catch header until it is caught
@@ -258,8 +259,15 @@ function Catching.secret(
 	if not on or rarity ~= "Mythical" or roll >= Catalog.secretPerMythical then
 		return nil
 	end
-	local list: { Types.CatDef } = Catalog.secretCats
-	if areas ~= nil then
+	local list: { Types.CatDef } = {}
+	if areas == nil then
+		-- the old rule: any of the first three (the seven new ones wait for `secretAreas`)
+		for _, def in Catalog.secretCats do
+			if not def.secretNew then
+				table.insert(list, def)
+			end
+		end
+	else
 		local open: { [string]: boolean } = {}
 		for _, id in areas do
 			open[id] = true

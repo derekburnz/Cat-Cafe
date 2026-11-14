@@ -14,6 +14,8 @@ export type Area =
 	| "desert"
 	| "ruins"
 	| "snowy"
+	| "waterpark"
+	| "castle"
 -- A cat's area: one of the eight (#3997: the Snowy Mountain's not open yet), the spare pool of cats an area-themed
 -- cat replaced (data-model 3d, F78), or "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
 -- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.
@@ -146,6 +148,8 @@ export type CatDef = {
 	color: { number }, -- {r, g, b} 0..255 for the placeholder body
 	-- #4221: a Secret cat's home area (its `area` stays "secret"): it only takes the place of a Mythical rolled there
 	secretArea: Area?,
+	-- Derek 2026-11-14: one of the seven Secrets of the one-per-area update; it only rolls while `secretAreas` is on
+	secretNew: boolean?,
 }
 
 export type UpgradeDef = {

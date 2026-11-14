@@ -161,6 +161,7 @@ LiveFlags.KEYS = {
 	"indexTo70", -- #3992: the Index's All Cats tracks past 50 and Rainbow track past 25 (shared/IndexRewards.lateOpen)
 	"quietStart", -- #4005: a new player's first 15 minutes without other players' pop ups (shared/QuietStart)
 	"quietAway", -- #4035: food bowl cards wait while the player is out catching
+	"fishStore", -- #4055: Store passes for golden fish (shared/FishStore); on after the save version 49 restart
 	"riftRun", -- Derek 2026-11-13: a Mythic or Secret trait roll's Rift Run cutscene (client/Effects/RiftRun); client only
 	"secretTrait", -- #3908: the Secret trait rarity (0.1%) in the Mystic Pool's rolls and odds (shared/Traits)
 	"rareCustomers", -- #3889: rare customers by a chance per arriving customer, at any table
@@ -201,6 +202,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	indexTo70 = true,
 	quietStart = true,
 	quietAway = true,
+	fishStore = true,
 	riftRun = true,
 	secretTrait = true,
 	rareCustomers = true,

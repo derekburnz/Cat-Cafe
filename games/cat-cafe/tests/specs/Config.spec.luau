@@ -685,7 +685,7 @@ return function()
 				Mythical = 5,
 				Secret = 20, -- #3470
 			})
-			expect(Config.FishRankUp :: any).to.deepEqual({ 5, 15, 30, 60, 100, 150 }) -- #2651: Tiers 6 and 7
+			expect(Config.FishRankUp :: any).to.deepEqual({ 5, 15, 30, 60, 100, 150, 300, 300, 300 }) -- #2651: Tiers 6 and 7; #4055: 8 to 10
 		end)
 
 		it(

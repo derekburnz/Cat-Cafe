@@ -70,7 +70,7 @@ return function()
 		)
 
 		it(
-			"gives every pass piece a rarity up to Epic, its bonus and no crate or Index place (#2006)",
+			"gives every pass piece a rarity up to Epic (the outfit packs Legendary), its bonus and no crate or Index place (#2006)",
 			function()
 				local inPool: { [string]: boolean } = {}
 				for _, crate in Catalog.crates do
@@ -78,7 +78,8 @@ return function()
 						inPool[id] = true
 					end
 				end
-				local count = { Common = 0, Rare = 0, Epic = 0 } :: { [string]: number }
+				local count =
+					{ Common = 0, Rare = 0, Epic = 0, Legendary = 0 } :: { [string]: number }
 				for _, def in Catalog.passDecor do
 					local rarity = def.rarity :: string
 					expect(count[rarity]).to.be.ok()
@@ -86,7 +87,13 @@ return function()
 					if def.source == "pass" then
 						count[rarity] += 1
 					end
-					expect(def.bonus).to.equal(Config.CratePieceBonus[rarity])
+					-- #4026: the outfit packs' pieces are Legendary at +25%
+					expect(def.bonus).to.equal(
+						if def.passKey ~= nil
+								and string.match(def.id, "^decor_pack_") ~= nil
+							then 0.25
+							else Config.CratePieceBonus[rarity]
+					)
 					expect(def.bonus > 0).to.equal(true)
 					expect(def.effect).to.equal(
 						string.format("+%d%% money while in use", math.floor(def.bonus * 100 + 0.5))
@@ -98,6 +105,7 @@ return function()
 				expect(count.Common).to.equal(3)
 				expect(count.Rare).to.equal(6)
 				expect(count.Epic).to.equal(6)
+				expect(count.Legendary).to.equal(4) -- #4026: one per outfit pack
 				expect((Catalog.getDecor("decor_royal_velvet_booth") :: any).rarity).to.equal(
 					"Epic"
 				)

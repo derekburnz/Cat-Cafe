@@ -109,10 +109,11 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 48 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 49 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(48) -- #3196: cat traits
-			expect(profile.version).to.equal(48)
+			expect(ProfileSchema.VERSION).to.equal(49) -- #4055: passes bought with golden fish
+			expect(profile.version).to.equal(49)
+			expect(next(profile.fishBought)).to.equal(nil)
 			-- #2565 (version 44): no Mystery Market item yet
 			expect(next(profile.mystery)).never.to.be.ok()
 			expect(profile.mysterySeen).to.equal(false)
@@ -356,8 +357,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 49 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 50 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 49 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 48 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 47 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 45 })).to.equal(false)

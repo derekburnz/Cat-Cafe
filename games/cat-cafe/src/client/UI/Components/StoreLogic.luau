@@ -105,6 +105,8 @@ local function commas(value: number): string
 	end
 end
 
+StoreLogic.commas = commas
+
 local MONEY_ICON = "💰"
 local NAP_ICON = "😴"
 
@@ -1277,6 +1279,94 @@ function StoreLogic.justBought(seen: Seen, rows: { Row }): ({ string }, Seen)
 		end
 	end
 	return bought, now
+end
+
+-- #4055 (Derek's OK of the golden fish plan, 2026-11-13 23:53 UTC): the Store's Robux / Fish switch. A card's row key
+-- to its shared/FishStore key, for the passes that can also be bought with golden fish. Every other card, the 2x, 3x
+-- and 4x Money passes above all, reads "Robux only" in fish mode, and a tap on it goes back to Robux prices.
+StoreLogic.FISH_KEYS = {
+	packStylish = "stylishPack",
+	packWinter = "winterPack",
+	packChef = "chefPack",
+	packSpace = "spacePack",
+	accessories = "accessories",
+	uniforms = "uniforms",
+	cafeStyle = "cafeStyle",
+	grandTheme = "grand",
+	gardenDecor = "gardenDecor",
+	signStylePack = "signStyles",
+} :: { [string]: string }
+
+-- PlayerState.fishStore's rows (FishStore.view)
+export type FishRow = { key: string, fish: number, bought: boolean, made: boolean }
+
+-- What a card's button does in fish mode: "buy" (the first tap arms it, the second buys), "robux" (back to Robux
+-- prices) or "none".
+export type FishButton = {
+	text: string,
+	style: string,
+	enabled: boolean,
+	action: string,
+	progress: number?, -- 0 to 1: the fish saved toward the price, while short of it (the thin bar over the button)
+}
+
+-- A fish price's words: "🐟 4,950" (the fish glyph draws as the golden fish picture on a Button)
+function StoreLogic.fishText(fish: number): string
+	return "🐟 " .. commas(fish)
+end
+
+-- The fish view's rows by their FishStore key.
+function StoreLogic.fishByKey(list: { FishRow }?): { [string]: FishRow }
+	local out: { [string]: FishRow } = {}
+	local rows: { FishRow } = list or {} -- one type, for the CI luau-lsp
+	for _, item in rows do
+		if type(item) == "table" and type(item.key) == "string" then
+			out[item.key] = item
+		end
+	end
+	return out
+end
+
+-- A card's button in fish mode. `fishRow` is its FishStore row (nil: Robux only), `have` the player's golden fish,
+-- `armed` whether its first tap is waiting for the second. Plain: the price, no timers, nothing struck out.
+function StoreLogic.fishButton(
+	row: Row,
+	fishRow: FishRow?,
+	have: number,
+	armed: boolean
+): FishButton
+	if row.owned or (fishRow ~= nil and fishRow.bought) then
+		return { text = "Yours", style = "ghost", enabled = false, action = "none" }
+	end
+	if fishRow == nil then
+		return { text = "Robux only", style = "ghost", enabled = true, action = "robux" }
+	end
+	if not fishRow.made then
+		return { text = "Coming soon", style = "ghost", enabled = false, action = "none" }
+	end
+	if have < fishRow.fish then
+		return {
+			text = StoreLogic.fishText(fishRow.fish),
+			style = "ghost",
+			enabled = false,
+			action = "none",
+			progress = math.clamp(have / math.max(fishRow.fish, 1), 0, 1),
+		}
+	end
+	if armed then
+		return {
+			text = "Buy? " .. StoreLogic.fishText(fishRow.fish),
+			style = "primary",
+			enabled = true,
+			action = "buy",
+		}
+	end
+	return {
+		text = StoreLogic.fishText(fishRow.fish),
+		style = "gold",
+		enabled = true,
+		action = "buy",
+	}
 end
 
 return StoreLogic

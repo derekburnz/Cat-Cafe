@@ -8114,14 +8114,89 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local jumpAt = NetButtonPlace.jump(viewport)
 		local inset = game:GetService("GuiService"):GetGuiInset()
 		local x0, y0 = grab.AbsolutePosition.X + inset.X, grab.AbsolutePosition.Y + inset.Y
-		assert(math.abs(x0 - netAt.X) <= 2 and math.abs(y0 - netAt.Y) <= 2, ("uigate: the RESCUE button is at %d,%d, not the Net button's %d,%d (#2409)"):format(x0, y0, netAt.X, netAt.Y))
-		assert(math.abs(grab.AbsoluteSize.X - netSize) <= 2, "uigate: the RESCUE button is not the Net button's size (#2409)")
+		-- #4307: a quarter bigger than the Net button, on its right edge and middle
+		local grabSize = grab.AbsoluteSize.X
+		local right, middle = x0 + grabSize, y0 + grabSize / 2
+		assert(math.abs(right - (netAt.X + netSize)) <= 2 and math.abs(middle - (netAt.Y + netSize / 2)) <= 2, ("uigate: the RESCUE button ends at %d,%d, not the Net button's %d,%d (#2409, #4307)"):format(right, middle, netAt.X + netSize, netAt.Y + netSize / 2))
+		assert(math.abs(grabSize - math.floor(netSize * 1.25 + 0.5)) <= 2, ("uigate: the RESCUE button is %d px, not a quarter over the Net button's %d (#4307)"):format(grabSize, netSize))
 		local jumpSize = select(2, NetButtonPlace.jump(viewport))
 		local gx2, gy2 = x0 + grab.AbsoluteSize.X, y0 + grab.AbsoluteSize.Y
 		local jumpClear = gx2 <= jumpAt.X + 0.5 or jumpAt.X + jumpSize <= x0 + 0.5 or gy2 <= jumpAt.Y + 0.5 or jumpAt.Y + jumpSize <= y0 + 0.5
 		assert(jumpClear, "uigate: the RESCUE button runs onto the jump button (#2409)")
 		assert(label.TextFits, "uigate: RESCUE does not fit its button (#2409)")
 		UI.net.setEnabled(false)
+	end },
+	-- #4307 (Derek 2026-11-14: "if a phone player or tablet player is beside the cat prompt them to click the catch
+	-- button with the arrow pointing to it until they do"): on touch a "Tap to catch!" bubble and the gold arrow point at
+	-- the CATCH button from its left, clear of the card and the jump button, and the button pulses; a quick tap starts
+	-- the hold and finishes it by itself; after that first press the nudge never comes back this session
+	{ "CatchNudgeTouch", function()
+		UI.catch.resetNudge()
+		UI.catch.show({ strayId = "gate_nudge", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Common", holdDuration = 0.5, touch = true } :: any)
+		UIShim.advance(0.3)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeCatch") :: ScreenGui
+		local grab = gui:FindFirstChild("Grab", true) :: TextButton
+		local nudge = gui:FindFirstChild("CatchNudge", true) :: Frame
+		assert(grab.Visible and nudge and nudge.Visible, "uigate: no Tap to catch! nudge beside the CATCH button (#4307)")
+		local bubble = nudge:FindFirstChild("Bubble") :: TextLabel
+		assert(bubble.Text == "Tap to catch!", "uigate: the nudge reads " .. bubble.Text .. " (#4307)")
+		assert(bubble.TextFits, "uigate: Tap to catch! does not fit its bubble (#4307)")
+		local arrow = nudge:FindFirstChild("Arrow", true) :: Frame
+		local ax = arrow.AbsolutePosition.X + arrow.AbsoluteSize.X
+		assert(ax <= grab.AbsolutePosition.X + 2, "uigate: the nudge's arrow runs onto the CATCH button (#4307)")
+		local ay = arrow.AbsolutePosition.Y + arrow.AbsoluteSize.Y / 2
+		local gy = grab.AbsolutePosition.Y + grab.AbsoluteSize.Y / 2
+		assert(math.abs(ay - gy) <= 3, ("uigate: the nudge's arrow is at y %d, the CATCH button's middle at %d (#4307)"):format(ay, gy))
+		assert(bubble.AbsolutePosition.X >= 0, "uigate: the Tap to catch! bubble runs off the screen's left (#4307)")
+		local card = gui:FindFirstChild("Card", true) :: Frame
+		local bx, by = bubble.AbsolutePosition.X, bubble.AbsolutePosition.Y
+		local cx, cy = card.AbsolutePosition.X, card.AbsolutePosition.Y
+		local clearOfCard = bx >= cx + card.AbsoluteSize.X or by >= cy + card.AbsoluteSize.Y or by + bubble.AbsoluteSize.Y <= cy or bx + bubble.AbsoluteSize.X <= cx
+		assert(clearOfCard, "uigate: the Tap to catch! bubble lies on the catch card (#4307)")
+		local ripple = gui:FindFirstChild("Ripple", true) :: Frame
+		assert(ripple and ripple.Visible, "uigate: the CATCH button has no gold ripple while the nudge shows (#4307)")
+		-- a quick tap: the hold runs to its end by itself, then lets go
+		local down = { UserInputType = Enum.UserInputType.Touch, Position = Vector3.new(0, 0, 0) }
+		UIShim.fire(UIShim.eventOf(grab, "InputBegan"), down)
+		UIShim.fire(UIShim.eventOf(grab, "InputEnded"), down)
+		assert(not nudge.Visible, "uigate: the nudge stays after the first tap (#4307)")
+		assert(not ripple.Visible, "uigate: the ripple stays after the first tap (#4307)")
+		UIShim.advance(0.7)
+		UI.catch.hide()
+		UI.catch.show({ strayId = "gate_nudge2", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Common", holdDuration = 0.5, touch = true } :: any)
+		UIShim.advance(0.3)
+		assert(not nudge.Visible, "uigate: the nudge came back after the player tapped once (#4307)")
+		UI.catch.resetNudge()
+		UIShim.advance(0.1)
+	end },
+	-- #4307 (Derek: "for console players make it show what button to swing on screen if its not obvious"): on a gamepad
+	-- the card's key cap gets the arrow from above and the bubble names the button, "Hold X to catch!"
+	{ "CatchNudgePad", function()
+		local UserInputService = game:GetService("UserInputService")
+		local changed = UIShim.eventOf(UserInputService, "LastInputTypeChanged")
+		UI.catch.resetNudge()
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		UIShim.fire(changed, Enum.UserInputType.Gamepad1)
+		UI.catch.show({ strayId = "gate_nudgepad", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Common", holdDuration = 0.5, keyCode = Enum.KeyCode.E, gamepadKeyCode = Enum.KeyCode.ButtonX } :: any)
+		UIShim.advance(0.4)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeCatch") :: ScreenGui
+		local nudge = gui:FindFirstChild("CatchNudge", true) :: Frame
+		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			-- a touch screen keeps its CATCH button (Components/TouchPrompt), so the nudge points there
+			UIShim.setLastInput(nil)
+			return
+		end
+		assert(nudge and nudge.Visible, "uigate: no button nudge on a gamepad (#4307)")
+		local bubble = nudge:FindFirstChild("Bubble") :: TextLabel
+		assert(bubble.Text == "Hold X to catch!", "uigate: the gamepad nudge reads " .. bubble.Text .. " (#4307)")
+		local key = gui:FindFirstChild("Key", true) :: Frame
+		local arrow = nudge:FindFirstChild("Arrow", true) :: Frame
+		local acx = arrow.AbsolutePosition.X + arrow.AbsoluteSize.X / 2
+		local kcx = key.AbsolutePosition.X + key.AbsoluteSize.X / 2
+		assert(math.abs(acx - kcx) <= 3, "uigate: the gamepad nudge's arrow is not over the X key cap (#4307)")
+		assert(arrow.AbsolutePosition.Y + arrow.AbsoluteSize.Y <= key.AbsolutePosition.Y + 2, "uigate: the gamepad nudge's arrow lies on the key cap (#4307)")
+		-- back to the default input for the scenes after (the card keeps its paint for the picture)
+		UIShim.setLastInput(nil)
 	end },
 	{ "CatchPromptCatch", function()
 		UI.catch.show({

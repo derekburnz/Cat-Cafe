@@ -4126,6 +4126,14 @@ do
 		activeInfo = nil
 	end
 
+	-- #4307: the "Tap to catch!" nudge (Screens/CatchPrompt) shows until the first press this session; the gate's
+	-- scenes put it back
+	function UI.catch.resetNudge()
+		if catch then
+			catch:resetNudge()
+		end
+	end
+
 	function UI.catch.getActivePrompt(): ProximityPrompt?
 		return activePrompt
 	end

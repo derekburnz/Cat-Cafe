@@ -323778,9 +323778,10 @@
       "module": "square",
       "objects": [
         "CatCafe_Square_Garden",
-        "CatCafe_Square_Garden_Flowers"
+        "CatCafe_Square_Garden_Flowers",
+        "CatCafe_Square_Garden_Barrier"
       ],
-      "triangles": 912,
+      "triangles": 936,
       "budget": 4000,
       "size_studs": {
         "x": 26.0,
@@ -323831,7 +323832,7 @@
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Garden.model.json",
-      "rbx_parts": 62,
+      "rbx_parts": 64,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_Garden.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_Garden.glb"
@@ -323841,10 +323842,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "912/4000 tris",
+          "budget": "936/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "624 faces on swatch centers",
+          "uv": "636 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -323857,9 +323858,10 @@
       "module": "square",
       "objects": [
         "CatCafe_Square_GardenMid",
-        "CatCafe_Square_GardenMid_Flowers"
+        "CatCafe_Square_GardenMid_Flowers",
+        "CatCafe_Square_GardenMid_Barrier"
       ],
-      "triangles": 728,
+      "triangles": 740,
       "budget": 3000,
       "size_studs": {
         "x": 18.0,
@@ -323898,7 +323900,7 @@
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_GardenMid.model.json",
-      "rbx_parts": 45,
+      "rbx_parts": 46,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_GardenMid.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_GardenMid.glb"
@@ -323908,10 +323910,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "728/3000 tris",
+          "budget": "740/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "410 faces on swatch centers",
+          "uv": "416 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -323926,9 +323928,10 @@
       "module": "square",
       "objects": [
         "CatCafe_Square_GardenEnd",
-        "CatCafe_Square_GardenEnd_Flowers"
+        "CatCafe_Square_GardenEnd_Flowers",
+        "CatCafe_Square_GardenEnd_Barrier"
       ],
-      "triangles": 1264,
+      "triangles": 1300,
       "budget": 3000,
       "size_studs": {
         "x": 34.0,
@@ -323979,7 +323982,7 @@
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_GardenEnd.model.json",
-      "rbx_parts": 87,
+      "rbx_parts": 90,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_GardenEnd.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_GardenEnd.glb"
@@ -323989,10 +323992,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "1264/3000 tris",
+          "budget": "1300/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "844 faces on swatch centers",
+          "uv": "862 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -366740,6 +366743,258 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-182.01 (want 0)",
           "centered": "footprint center x=-1.77 y=-17.08"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Snowy_FusionObservatory",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Snowy_FusionObservatory",
+        "CatCafe_Camp_Snowy_FusionObservatory_Slit_Glow",
+        "CatCafe_Camp_Snowy_FusionObservatory_Bulb"
+      ],
+      "triangles": 2192,
+      "budget": 6000,
+      "size_studs": {
+        "x": 15.33,
+        "y": 13.02,
+        "z": 11.09
+      },
+      "size_roblox": [
+        15.33,
+        11.09,
+        13.02
+      ],
+      "bounds_min": [
+        -6.21,
+        -6.5,
+        -0.7
+      ],
+      "bounds_max": [
+        9.12,
+        6.52,
+        10.39
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Snowy_FusionObservatory.model.json",
+      "rbx_parts": 140,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Snowy_FusionObservatory.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Snowy_FusionObservatory.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "2192/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1022 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.70 (want 0)",
+          "centered": "footprint center x=1.45 y=0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Furniture_WallPerch_Greeter",
+      "category": "Furniture",
+      "module": "wallperch",
+      "objects": [
+        "CatCafe_Furniture_WallPerch_Greeter",
+        "CatCafe_Furniture_WallPerch_Greeter_Bell"
+      ],
+      "triangles": 732,
+      "budget": 1200,
+      "size_studs": {
+        "x": 4.07,
+        "y": 2.07,
+        "z": 3.9
+      },
+      "size_roblox": [
+        4.07,
+        3.9,
+        2.07
+      ],
+      "bounds_min": [
+        -2.37,
+        -2.07,
+        -2.3
+      ],
+      "bounds_max": [
+        1.7,
+        0.0,
+        1.6
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Furniture_WallPerch_Greeter_Bell": [
+          -2.05,
+          -1.2,
+          1.45
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Furniture_WallPerch_Greeter_Bell": [
+          2.05,
+          1.45,
+          -1.2
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Furniture_WallPerch_Greeter.model.json",
+      "rbx_parts": 53,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_WallPerch_Greeter.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_WallPerch_Greeter.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "732/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "348 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-2.30 (want 0)",
+          "centered": "footprint center x=-0.34 y=-1.03"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Furniture_WallPerch_Barista",
+      "category": "Furniture",
+      "module": "wallperch",
+      "objects": [
+        "CatCafe_Furniture_WallPerch_Barista"
+      ],
+      "triangles": 652,
+      "budget": 1200,
+      "size_studs": {
+        "x": 3.4,
+        "y": 2.07,
+        "z": 4.4
+      },
+      "size_roblox": [
+        3.4,
+        4.4,
+        2.07
+      ],
+      "bounds_min": [
+        -1.7,
+        -2.07,
+        -2.3
+      ],
+      "bounds_max": [
+        1.7,
+        0.0,
+        2.1
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Furniture_WallPerch_Barista.model.json",
+      "rbx_parts": 41,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_WallPerch_Barista.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_WallPerch_Barista.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "652/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "286 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-2.30 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.03"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Furniture_WallPerch_Entertainer",
+      "category": "Furniture",
+      "module": "wallperch",
+      "objects": [
+        "CatCafe_Furniture_WallPerch_Entertainer",
+        "CatCafe_Furniture_WallPerch_Entertainer_Toy"
+      ],
+      "triangles": 548,
+      "budget": 1200,
+      "size_studs": {
+        "x": 3.93,
+        "y": 2.07,
+        "z": 4.1
+      },
+      "size_roblox": [
+        3.93,
+        4.1,
+        2.07
+      ],
+      "bounds_min": [
+        -1.7,
+        -2.07,
+        -2.3
+      ],
+      "bounds_max": [
+        2.23,
+        0.0,
+        1.8
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Furniture_WallPerch_Entertainer_Toy": [
+          2.05,
+          -1.4,
+          1.65
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Furniture_WallPerch_Entertainer_Toy": [
+          -2.05,
+          1.65,
+          -1.4
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Furniture_WallPerch_Entertainer.model.json",
+      "rbx_parts": 37,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_WallPerch_Entertainer.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_WallPerch_Entertainer.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "548/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "272 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-2.30 (want 0)",
+          "centered": "footprint center x=0.26 y=-1.03"
         }
       }
     }

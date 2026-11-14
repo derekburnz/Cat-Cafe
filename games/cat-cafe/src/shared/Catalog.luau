@@ -1301,8 +1301,8 @@ Catalog.tiers = {
 	{
 		tier = 2,
 		name = "Cozy Cafe",
-		cost = 13500, -- #3195 (Design-Agent: nights 45 s give more daytime; holds Tier 2 near 8.5 min): 12,000 before; #2915 (Design-Agent: Tier 2 at a 9 to 12 min median; Pace's 4 catches a day had coins at 14.8 min against the 5th cat at 5.5, so the coins were the gate): 22,000 before; #2683 (Derek2 2026-11-09: Tiers 2 to 5 "significantly easier"): 30,000 before; #1499 (economy-ladder 3 v3.1, dearer bait): 28,000 for #1452, 13,500 for #1162, 10,000 before
-		distinctCats = 5,
+		cost = 7500, -- #4098 (Derek 2026-11-14: "Tier 2 is another huge fall off"; Design-Agent's Pace runs: the focused player 9.7 to 5.4 min, the buy-everything player 10.3 to 8.3, below 7,500 barely helps): 13,500 before; #3195 (Design-Agent: nights 45 s give more daytime; holds Tier 2 near 8.5 min): 12,000 before; #2915 (Design-Agent: Tier 2 at a 9 to 12 min median; Pace's 4 catches a day had coins at 14.8 min against the 5th cat at 5.5, so the coins were the gate): 22,000 before; #2683 (Derek2 2026-11-09: Tiers 2 to 5 "significantly easier"): 30,000 before; #1499 (economy-ladder 3 v3.1, dearer bait): 28,000 for #1452, 13,500 for #1162, 10,000 before
+		distinctCats = 4, -- #4098: 5 before
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",

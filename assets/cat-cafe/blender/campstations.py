@@ -57,6 +57,16 @@ its prompt card and a BangAnchor 2 studs over its sign for the owner's red "!" (
                                       up), BangAnchor (2 over the sign), GlowAnchor (under the awning), Steam (the
                                       pot's mouth). It sells nothing: it gives Warm Paws.
 
+  CatCafe_Camp_Snowy_FusionObservatory (fusion-observatory.md section 3, #4104) a round stone tower about 10 wide
+                                      under a white dome split front to back by a brass slit, a short brass
+                                      telescope out of the slit, snow on the ledge, a door with a lantern, star
+                                      windows and a FUSION OBSERVATORY board on a log post. It stands on Summit Peak.
+                                      `_Slit_Glow` is the slit's lit strip (Neon; Effects recolours every `_Glow`
+                                      part to the coat's colour while a fusion runs); `_Bulb` (the lantern and the
+                                      star windows) is always lit and is left alone. Attachments: PromptAnchor (the
+                                      door, 1.5 up), BangAnchor (2 over the sign), GlowAnchor (the dome's middle, 70%
+                                      of the height up, where the paw lights circle at 1.15 times the half width).
+
 Every model: pivot at the base centre on the camp's ground, front -Z, no turn of its own, placed where its camp extra
 stands (Layout.campExtras, the area's set space) so Gameplay only swaps the asset name.
 """
@@ -1497,6 +1507,85 @@ MOVING = {YARD: {"model_attributes": {"_Sign_Swing": {"Angle": {"Float64": SIGN_
           BOOTH: {"pivot_turns": {"_Spin": Matrix.Rotation(math.radians(-90), 3, "X")}}}
 
 
+# ------------------------------------------------------------------------------------ the Fusion Observatory --
+OBS = "CatCafe_Camp_Snowy_FusionObservatory"
+OBS_R, OBS_WALL, OBS_DOME = 5.0, 4.2, 4.7                      # the tower: radius, wall top, the dome's radius
+OBS_TOP = OBS_WALL + 0.5 + OBS_DOME                            # the dome's crown
+
+
+def _obs_arc(b, r, a0, a1, n, width, thick, swatch):
+    """A band over the dome along the front to back meridian, from a0 to a1 degrees up from the front (-Z) horizon."""
+    y0 = OBS_WALL + 0.5
+    seg = math.radians(a1 - a0) / n * r + 0.06
+    for k in range(n):
+        a = a0 + (a1 - a0) * (k + 0.5) / n
+        ar = math.radians(a)
+        b.box((0, y0 + r * math.sin(ar), -r * math.cos(ar)), (width, seg, thick), swatch, rot=rot_x(a))
+
+
+def build_fusion_observatory(mat):
+    b, glow, bulb = RB(), RB(), RB()
+    R, W = OBS_R, OBS_WALL
+    # the tower: a dark foot, grey stone in two courses, a pale ledge with snow on it
+    b.cyl((0, 0.35, 0), R + 0.35, 0.7, "concrete_dark", segments=16)
+    b.cyl((0, 0.7 + (W - 0.7) / 2, 0), R, W - 0.7, "concrete", segments=16)
+    b.cyl((0, 2.4, 0), R + 0.06, 0.14, "concrete_dark", segments=16)
+    b.cyl((0, W + 0.2, 0), R + 0.3, 0.4, "fur_pewter", segments=16)
+    b.cyl((0, W + 0.47, 0), R + 0.34, 0.14, "milk", segments=16)                              # snow on the ledge
+    # the dome: white, in five rings up to a brass cap
+    y0, D = W + 0.5, OBS_DOME
+    n = 7
+    for k in range(n):
+        a0, a1 = math.radians(90.0 * k / n), math.radians(90.0 * (k + 1) / n)
+        r0, r1 = D * math.cos(a0), max(D * math.cos(a1), 0.5)
+        h = D * (math.sin(a1) - math.sin(a0))
+        b.cyl((0, y0 + D * math.sin(a0) + h / 2, 0), r0, h, ("milk", "offwhite")[k % 2], r2=r1, segments=16)
+    b.cyl((0, y0 + 0.12, 0), D + 0.12, 0.24, "brass", segments=16)                            # the dome's brass ring
+    # the slit: a brass frame from the front horizon over the crown, the lit strip in it
+    _obs_arc(b, D + 0.0, 5.0, 119.0, 9, 1.6, 0.3, "brass")
+    _obs_arc(glow, D + 0.1, 8.0, 116.0, 9, 1.0, 0.3, "pastel_butter")
+    # the telescope out of the slit, short enough to stay inside the paw lights' circle (1.15 R)
+    ta = math.radians(52.0)
+    for (d, w, ln, sw) in ((D + 0.5, 0.75, 2.6, "brass"), (D + 1.9, 0.95, 0.5, "gold_dark"), (D - 0.6, 1.05, 0.5, "gold_dark")):
+        b.box((0, y0 + d * math.sin(ta), -d * math.cos(ta)), (w, ln, w), sw, rot=rot_x(52.0 - 90.0))
+    # the door, two steps, a lantern over it
+    b.span((-1.1, 0.7, -R - 0.12), (1.1, 3.5, -R + 0.3), "dark_wood")
+    b.span((-0.9, 0.7, -R - 0.2), (0.9, 3.3, -R - 0.1), "caramel_wood")
+    b.span((-0.06, 0.7, -R - 0.24), (0.06, 3.3, -R - 0.18), "dark_wood")
+    b.ball((0.55, 1.95, -R - 0.26), 0.12, "brass")
+    b.span((-1.3, 3.5, -R - 0.3), (1.3, 3.75, -R + 0.3), "fur_pewter")
+    b.span((-1.35, 3.75, -R - 0.34), (1.35, 3.87, -R + 0.3), "milk")
+    b.span((-1.6, 0.0, -R - 1.5), (1.6, 0.35, -R + 0.2), "fur_pewter")
+    b.span((-1.3, 0.35, -R - 0.9), (1.3, 0.7, -R + 0.2), "fur_pewter")
+    b.span((1.5, 2.9, -R - 0.5), (1.62, 3.0, -R + 0.1), "dark_wood")                           # the lantern's arm
+    b.span((1.4, 2.25, -R - 0.62), (1.72, 2.3, -R - 0.3), "dark_wood")
+    b.span((1.4, 2.85, -R - 0.62), (1.72, 2.9, -R - 0.3), "dark_wood")
+    bulb.span((1.44, 2.3, -R - 0.58), (1.68, 2.85, -R - 0.34), "lamp_warm")
+    # star windows round the wall and a snowdrift or two at its foot
+    for k, deg in enumerate((-40.0, 40.0, 130.0, 180.0, 230.0)):
+        a = math.radians(deg - 90.0)
+        x, z = (R + 0.02) * math.cos(a), (R + 0.02) * math.sin(a)
+        Rm = rot_y(-(deg - 90.0) + 90.0)
+        b.box((x, 3.0, z), (1.0, 1.0, 0.16), "dark_wood", rot=Rm @ rot_z(45))
+        bulb.box((x * 1.012, 3.0, z * 1.012), (0.72, 0.72, 0.16), "lamp_warm", rot=Rm @ rot_z(45))
+    for (x, z, s) in ((-4.6, 2.6, 1.0), (4.4, 3.0, 1.2), (3.9, -3.6, 0.8), (-0.4, 5.3, 1.1)):
+        b.ball((x, 0.0, z), 1.3 * s, "milk", scale=(1.3, 0.45, 1.0))
+    # the sign on a log post, left of the door, outside the lights' circle and under it
+    sx_, sz_ = -6.9, -3.6
+    b.cyl((sx_, 1.7, sz_), 0.22, 3.4, "fur_brown", segments=8)
+    hw, s0, s1 = 2.1, 3.4, 4.9
+    b.span((sx_ - hw, s0, sz_ - 0.12), (sx_ + hw, s1, sz_ + 0.12), "dark_wood")
+    b.span((sx_ - hw + 0.12, s0 + 0.12, sz_ - 0.15), (sx_ + hw - 0.12, s1 - 0.12, sz_ - 0.12), "pants_navy")
+    _label_front(b, "FUSION", sx_, s0 + 0.8, sz_ - 0.15, 0.09, 0.04, "pastel_butter")
+    _label_front(b, "OBSERVATORY", sx_, s0 + 0.22, sz_ - 0.15, 0.065, 0.04, "offwhite")
+    b.span((sx_ - hw - 0.12, s1, sz_ - 0.22), (sx_ + hw + 0.12, s1 + 0.22, sz_ + 0.22), "milk")
+    b.box((sx_, s1 + 0.75, sz_), (0.7, 0.7, 0.14), "rarity_legend", rot=rot_z(45))               # a gold star on it
+    _anchor(OBS, "PromptAnchor", (0.0, 1.5 + 0.7, -R - 1.6))
+    _anchor(OBS, "BangAnchor", (sx_, s1 + 1.25 + 2.0, sz_))
+    _anchor(OBS, "GlowAnchor", (0.0, 0.7 * OBS_TOP, 0.0))
+    return [b.finalize(OBS, mat), glow.finalize(OBS + "_Slit_Glow", mat), bulb.finalize(OBS + "_Bulb", mat)]
+
+
 def rbx_attachments(name):
     seen = {}
     for n, p in ATTACHMENTS.get(name, []):
@@ -1517,4 +1606,5 @@ ASSETS = {
     COCOA: (build_cocoa_stand, 6000),
     KEEP: (build_dragon_keep, 6000),
     BOOTH: (build_ticket_booth, 6000),
+    OBS: (build_fusion_observatory, 6000),
 }

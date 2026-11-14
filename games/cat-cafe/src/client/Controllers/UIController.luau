@@ -2573,6 +2573,11 @@ local function wireServerEvents()
 	Net.on("OwnerShout", function(text: string)
 		(UI :: any).ownerShout(text)
 	end)
+	-- #4227: a queued spawn line's sting plays as it shows, not as it arrives
+	local hooks: any = UI
+	hooks.onAnnounceShown = function(text: string, rarity: string?)
+		Moments.Announce:Fire(text, rarity)
+	end
 	Net.on("Announce", function(text: string, rarity: string?)
 		-- #2399: the sting plays only with a shout-out that shows; UI.announce says false when it drops one (it said
 		-- nothing before #2426, which counts as shown)

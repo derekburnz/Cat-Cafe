@@ -2334,9 +2334,73 @@ function UI.setCutscene(on: boolean)
 		board:holdBanner("roll", on)
 	end
 end
+-- #4227 (Derek 2026-11-14, from a player's suggestion): spawn lines wait in a line (Components/SpawnQueue) and show
+-- one at a time for SpawnQueue.SHOW seconds, merged when several of a rarity are out in one area, "+N" saying how
+-- many wait. Through a cutscene, Mouse Dash or the Mystic Pool they wait instead of dropping. The sting plays as
+-- each one shows (UI.onAnnounceShown, set by UIController). The `spawnQueue` switch off: spawn lines go as before.
+UI.spawns = {
+	queue = nil :: any,
+	until_ = 0,
+	pumping = false,
+} :: any
+UI.onAnnounceShown = nil :: ((string, string?) -> ())?
+function UI.spawns.on(): boolean
+	local SpawnQueue = require(script.Components.SpawnQueue) :: any
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	return LiveFlags.shown(
+		SpawnQueue.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SpawnQueue.FLAG)
+	)
+end
+function UI.spawns.pump()
+	local SpawnQueue = require(script.Components.SpawnQueue) :: any
+	local ToastRules = require(script.Components.ToastRules)
+	local spawns = UI.spawns
+	if spawns.pumping or spawns.queue == nil then
+		return
+	end
+	spawns.pumping = true
+	task.spawn(function()
+		while SpawnQueue.waiting(spawns.queue, os.clock()) > 0 do
+			local now = os.clock()
+			local view = toasts
+			if now < spawns.until_ or UI.cutscene.on or view == nil or view:isBusy() then
+				task.wait(0.5)
+			else
+				local text, rarity = SpawnQueue.take(spawns.queue, now)
+				if
+					text ~= nil
+					and ToastRules.announce(rarity, now, UI.shoutout.at, Scale.isTouch())
+				then
+					local more = SpawnQueue.waiting(spawns.queue, now)
+					if rarity ~= nil then
+						UI.shoutout.at = now
+					end
+					view:announce(if more > 0 then ("%s  +%d"):format(text, more) else text, rarity)
+					spawns.until_ = now + SpawnQueue.SHOW
+					local shown = UI.onAnnounceShown
+					if shown ~= nil then
+						shown(text, rarity)
+					end
+				end
+			end
+		end
+		spawns.pumping = false
+	end)
+end
+
 function UI.announce(text: string, rarity: string?): boolean
 	local ToastRules = require(script.Components.ToastRules)
 	local now = os.clock()
+	local SpawnQueue = require(script.Components.SpawnQueue) :: any
+	if SpawnQueue.isSpawn(text) and UI.spawns.on() then
+		local spawns = UI.spawns
+		spawns.queue = spawns.queue or SpawnQueue.new()
+		SpawnQueue.push(spawns.queue, text, rarity, now)
+		UI.spawns.pump()
+		return false -- its sting plays as it shows (UI.onAnnounceShown)
+	end
 	local cut = UI.cutscene
 	if cut.on then
 		table.insert(cut.queue, { text = text, rarity = rarity })

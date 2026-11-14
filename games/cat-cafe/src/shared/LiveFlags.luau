@@ -172,6 +172,7 @@ LiveFlags.KEYS = {
 	"dailyDeal", -- #3996: Today's Deal on the Store's Featured tab (shared/DailyDeal)
 	"updateFeature", -- #4175: the update's own item first on the Store's Featured tab on big update days (Config.UpdateFeature)
 	"adminEvents", -- #4195: admin events (Bowl Frenzy, the Admin Wheel) from the events schedule (shared/CafeEvents)
+	"spawnQueue", -- #4227: spawn pop-ups one at a time (UI/Components/SpawnQueue); false shows them as they come
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {

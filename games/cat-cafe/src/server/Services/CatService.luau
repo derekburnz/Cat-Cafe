@@ -6,6 +6,7 @@
 -- chase and odds live here.
 
 local CollectionService = game:GetService("CollectionService")
+local HttpService = game:GetService("HttpService")
 local PathfindingService = game:GetService("PathfindingService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +14,7 @@ local RunService = game:GetService("RunService")
 local StarterPlayer = game:GetService("StarterPlayer")
 local Workspace = game:GetService("Workspace")
 
+local AreaRares = require(ReplicatedStorage.Shared.AreaRares)
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local Badges = require(ReplicatedStorage.Shared.Badges)
 local BagColours = require(ReplicatedStorage.Shared.BagColours)
@@ -503,6 +505,27 @@ end
 
 -- `catcher` is the player who just caught it, nil when it leaves. A knocked-loose cat logs who ended up with it
 -- (drop_outcome, F16): against the catcher, or its old carrier when nobody caught it.
+-- #4227: the wild Mythicals and Secrets out in each area, in ReplicatedStorage's AreaRares attribute for the Cannon
+-- picker's and the HUD Cannon button's bubbles. Rewritten after each spawn and despawn, only when it changed.
+local areaRaresText = ""
+local function writeAreaRares()
+	local rows: { AreaRares.Row } = {}
+	for _, stray in strays do
+		if stray.alive then
+			table.insert(rows, {
+				area = stray.area,
+				rarity = stray.def.rarity :: string,
+				wild = stray.drop == nil and stray.beginner == nil,
+			})
+		end
+	end
+	local text = HttpService:JSONEncode(AreaRares.count(rows))
+	if text ~= areaRaresText then
+		areaRaresText = text
+		ReplicatedStorage:SetAttribute(AreaRares.ATTRIBUTE, text)
+	end
+end
+
 local function despawn(stray: Stray, catcher: Player?)
 	if not stray.alive then
 		return
@@ -522,6 +545,7 @@ local function despawn(stray: Stray, catcher: Player?)
 		end
 	end
 	strays[stray.id] = nil
+	writeAreaRares()
 	if stray.def.rarity == Catalog.SECRET then
 		SecretBeacons.clear(stray.id)
 		-- #3470: gone with nobody holding it (dusk, or a Dropped one nobody picked up)
@@ -741,6 +765,7 @@ local function spawnStray(
 		alive = true,
 	}
 	strays[id] = stray
+	writeAreaRares()
 	if def.rarity == Catalog.SECRET then
 		-- #3470: its sky beam shows from anywhere (Effects)
 		SecretBeacons.set(id, areaId, position)

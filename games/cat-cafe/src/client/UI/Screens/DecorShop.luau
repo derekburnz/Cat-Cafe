@@ -98,6 +98,17 @@ local TOTAL_HEIGHT = 28 -- #1751: "Plants: 3 in use  ·  Decor spots 5 / 8", the
 local LAWN_CHIP = "Front lawn" -- F91: the chip that shows the Front lawn tab (the filter key)
 local LAWN_TEXT = "Lawn" -- its words on the chip, short so the row is roomier (#964)
 local STYLE_CHIP = "Style" -- #1624: the chip that shows the Style tab
+-- #4278 (Derek 2026-11-14: "add little symbols beside these buttons on the top row of decor ... make sure style is
+-- where outfits/things being is obvious", "maybe honestly move it infront of lawn"): a symbol before each chip's word,
+-- the Style chip a shirt, and Style second, right after All
+local CHIP_ICONS: { [string]: string } = {
+	All = "🏠",
+	Style = "👕",
+	FrontLawn = "🌳",
+	Plants = "🪴",
+	Floor = "🪵",
+	Walls = "🧱",
+}
 -- Placeholder art colour per category until the asset thread delivers images.
 local CATEGORY_COLORS: { [string]: Color3 } = {
 	Plants = Color3.fromHex("5FB85A"),
@@ -482,8 +493,12 @@ function DecorShop._build(self: any)
 	self._grid.Position = UDim2.fromOffset(0, gridTop)
 	self._grid.Size = UDim2.new(1, 0, 1, -gridTop)
 
-	-- chips (#1120): All, Lawn while the lawn is live, then Plants, Floor and Walls when the catalog has a piece for them
+	-- chips (#1120): All, Lawn while the lawn is live, then Plants, Floor and Walls when the catalog has a piece for them.
+	-- #4278: Style right after All
 	local categories = { "All" }
+	if self._styleTab then
+		table.insert(categories, STYLE_CHIP) -- #1624: shown while the player owns a style to pick
+	end
 	if #LawnLogic.pieces() > 0 then
 		table.insert(categories, LAWN_CHIP) -- F91: shown while the lawn is live
 	end
@@ -496,14 +511,12 @@ function DecorShop._build(self: any)
 			table.insert(categories, chip)
 		end
 	end
-	if self._styleTab then
-		table.insert(categories, STYLE_CHIP) -- #1624: shown while the player owns a style to pick
-	end
 	for index, category in categories do
 		local lawn = category == LAWN_CHIP
 		local button = Button.new({
 			name = if lawn then "FrontLawn" else category,
 			text = if lawn then LAWN_TEXT else category,
+			icon = CHIP_ICONS[if lawn then "FrontLawn" else category],
 			style = "ghost",
 			-- a share of the row (widths from _layoutChips), so Button measures its corners from the height
 			size = UDim2.new(1, 0, 0, self._chipHeight),

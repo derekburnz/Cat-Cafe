@@ -43,12 +43,23 @@ local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
+local SecretPage = require(script.Parent.SecretPage)
+local SecretTabLogic = require(script.Parent.Parent.Components.SecretTabLogic)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+
+-- #4221: the Secret tab and one Secret per area, while the `secretAreas` switch is on
+local function secretAreasOn(): boolean
+	return LiveFlags.shown(
+		SecretTabLogic.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SecretTabLogic.FLAG)
+	) == true
+end
 
 export type Callbacks = {
 	claimIndexReward: (areaId: string, milestoneId: string) -> (),
@@ -58,7 +69,8 @@ export type Callbacks = {
 
 -- "Index" is the Cats tab (the name init and the Index Boards already use). The Top tab (F98 leaderboards) went on
 -- 2026-11-03 (Derek: "no need to put "top" inside index"); the town's boards still show them.
-export type Tab = "Index" | "Gold" | "Rainbow" | "Decor"
+-- #4221: "Secret" while the `secretAreas` switch is on (Screens/SecretPage)
+export type Tab = "Index" | "Gold" | "Rainbow" | "Secret" | "Decor"
 
 export type CatCollection = {
 	frame: Frame,
@@ -303,6 +315,9 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._rainbowTab, self._rainbowBadge, self._rainbowBadgeCount =
 		tabButton("RainbowTab", "Rainbow", "🌈", 3, "Rainbow")
 	self._rainbowTab.instance.Visible = false -- until the catalog has the Rainbow track
+	self._secretTab, self._secretBadge, self._secretBadgeCount =
+		tabButton("SecretTab", SecretTabLogic.TAB, "✨", 4, "Secret")
+	self._secretTab.instance.Visible = false -- #4221: while the secretAreas switch is on
 	self._decorTab, self._decorBadge, self._decorBadgeCount =
 		tabButton("DecorTab", "Decor", Theme.icons.decor, 5, "Decor")
 	self._decorTab.instance.Visible = false
@@ -423,6 +438,17 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		Parent = panel.content,
 	})
 	self._decorIndex = DecorIndex.new(self._decor, { claim = callbacks.claimIndexReward })
+
+	-- #4221: the Secret tab, one card per area
+	self._secretPage = SecretPage.new(
+		panel.content,
+		UDim2.fromOffset(0, indexTop),
+		UDim2.new(1, 0, 1, -indexTop),
+		function(def: Types.CatDef)
+			self._selected = def.id
+			self:_showDetail()
+		end
+	)
 
 	self:_buildDetail(panel.content)
 	self:_paintTabs()
@@ -555,10 +581,12 @@ function CatCollection._paintTabs(self: any)
 	self._goldTab:setStyle(if tab == "Gold" then "gold" else "ghost")
 	self._rainbowTab:setStyle(if tab == "Rainbow" then "gold" else "ghost")
 	self._decorTab:setStyle(if tab == "Decor" then "gold" else "ghost")
+	self._secretTab:setStyle(if tab == "Secret" then "gold" else "ghost")
 	-- every tab on the dark page since #1028 (the Decor Index draws from Theme.dark too)
 	self._panel.body.BackgroundColor3 = Theme.index.body
 	self._book.Visible = tab == "Index" or tab == "Gold" or tab == "Rainbow"
 	self._decor.Visible = tab == "Decor"
+	self._secretPage.frame.Visible = tab == "Secret"
 end
 
 function CatCollection.showTab(self: any, tab: Tab)
@@ -1031,7 +1059,7 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 		end
 	end
 	-- #3470: the Secret page only for a player who has found one, with nothing to claim and no total
-	local secretArea = IndexBook.secret(catalog, state, kind)
+	local secretArea = if secretAreasOn() then nil else IndexBook.secret(catalog, state, kind)
 	local secretPage = self._sections[IndexBook.SECRET]
 	if secretArea and secretPage then
 		shown[IndexBook.SECRET] = true
@@ -1084,7 +1112,8 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 		local def: Types.CatDef = cell.def
 		local isFound = found[catId] == true
 		if def.area == IndexBook.SECRET then
-			cell.frame.Visible = isFound -- #3470: a Secret cat not yet found has no tile at all
+			-- #3470: a Secret cat not yet found has no tile at all; #4221: none at all with the Secret tab
+			cell.frame.Visible = isFound and secretArea ~= nil
 			if not isFound then
 				continue
 			end
@@ -1324,8 +1353,25 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 	self:_syncClaimAll()
 	self:_renderPerks(state)
 
+	-- #4221: the Secret tab comes and goes with its switch
+	local secretOn = secretAreasOn()
+	if self._secretTab.instance.Visible ~= secretOn then
+		self._secretTab.instance.Visible = secretOn
+		if not secretOn and self._tab == "Secret" then
+			self._tab = "Index"
+			self:_paintTabs()
+		end
+		self:_fitTabs()
+	end
 	if self._tab == "Decor" then
 		self._decorIndex:render(state)
+	elseif self._tab == "Secret" then
+		if catalog then
+			self._secretPage:render(SecretTabLogic.cards(catalog, state))
+		end
+		if self._selected and self._cover.Visible then
+			self:_showDetail()
+		end
 	else
 		self:_renderBook(state)
 		if self._selected and self._cover.Visible then
@@ -1351,7 +1397,8 @@ end
 -- #3961 (Derek 2026-11-13: "easy to navigate on phone and pc"): the shown tabs share the row left of Claim all, as
 -- the Bag's and Settings' do, at least TAB_W each; the row's own UIListLayout keeps them in order
 function CatCollection._fitTabs(self: any)
-	local tabs = { self._indexTab, self._goldTab, self._rainbowTab, self._decorTab }
+	local tabs =
+		{ self._indexTab, self._goldTab, self._rainbowTab, self._secretTab, self._decorTab }
 	local shown = 0
 	for _, tab in tabs do
 		if tab.instance.Visible then
@@ -1507,6 +1554,8 @@ function CatCollection.destroy(self: any)
 	self._goldTab:destroy()
 	self._rainbowTab:destroy()
 	self._decorTab:destroy()
+	self._secretTab:destroy()
+	self._secretPage:destroy()
 	self._panel:destroy()
 end
 

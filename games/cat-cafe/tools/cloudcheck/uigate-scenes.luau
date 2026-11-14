@@ -6028,6 +6028,42 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		press("Collection", "IndexTab")
 		assert(title.Text ~= "Gold cats", "uigate: the Cats tab's line still reads Gold cats (#1772)")
 	end },
+	-- #4221: the Secret tab (secretAreas on): one card per area, Cafe Ghost found in gold, Glitch hidden in an open
+	-- area, the areas with no Secret yet "Coming soon"; the old Secret page is gone from the Cats tab
+	{ "IndexSecretTab", function()
+		local RS = game:GetService("ReplicatedStorage")
+		RS:SetAttribute("LiveFlag_secretAreas", true)
+		UI.update({
+			tier = 3,
+			collection = { cafe_ghost = 1 },
+			catsOwned = {},
+			goldCollection = { cafe_ghost = 1 },
+		} :: any)
+		UI.open("Collection")
+		press("Collection", "SecretTab")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true)
+		local page = window and window:FindFirstChild("Secret", true)
+		assert(page and page:IsA("ScrollingFrame") and page.Visible, "uigate: no Secret tab page (#4221)")
+		local ghost = page:FindFirstChild("alley", true)
+		local nameLabel = ghost and ghost:FindFirstChild("Name")
+		assert(nameLabel and nameLabel.Text == "Cafe Ghost", "uigate: the Alleyway card reads " .. tostring(nameLabel and nameLabel.Text))
+		local park = page:FindFirstChild("park", true)
+		local parkName = park and park:FindFirstChild("Name")
+		assert(parkName and parkName.Text == "Coming soon", "uigate: the Park card reads " .. tostring(parkName and parkName.Text))
+		local count = page:FindFirstChild("Count", true)
+		assert(count and string.find(count.Text, "^1 / %d+ found$") ~= nil, "uigate: the Secret count reads " .. tostring(count and count.Text))
+		-- Review-QA in Studio: a bad property on the first card stopped the rest; every area has its card, and a
+		-- locked area's shape is faint on the portrait's ViewportFrame
+		local Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog") :: any
+		for _, area in Catalog.areas do
+			local card = page:FindFirstChild(area.id, true) :: GuiObject?
+			assert(card ~= nil and card.Visible, "uigate: no Secret card for " .. area.id .. " (#4221)")
+		end
+		local view = ghost:FindFirstChild("View", true)
+		assert(view ~= nil and view:IsA("ViewportFrame") and view.ImageTransparency == 0, "uigate: the found Secret's portrait is faint (#4221)")
+		RS:SetAttribute("LiveFlag_secretAreas", nil)
+	end },
 	-- F99 section 3: the Index's Rainbow tab, the Rainbow cats line with its strip open on "Reward ready", rainbow
 	-- tiles on turning borders
 	{ "IndexRainbow", function()

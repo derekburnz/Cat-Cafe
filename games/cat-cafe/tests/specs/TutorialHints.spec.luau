@@ -302,4 +302,25 @@ return function()
 			)
 		end)
 	end)
+	describe("TutorialHints.lineFor (#4151)", function()
+		it("gives the controller's strip lines with no letter key on touch or a pad", function()
+			for _, id in { "job", "more", "second", "secondNight", "table", "bowl", "food" } do
+				for _, device in { "touch", "gamepad" } do
+					local line = TutorialHints.lineFor(id, device)
+					expect(type(line)).to.equal("string")
+					expect(string.match(line, "%(%u%)")).to.equal(nil)
+				end
+			end
+			expect(TutorialHints.lineFor("secondNight", "touch")).to.equal(
+				"Strays return at sunrise, or tap Upgrades"
+			)
+			expect(TutorialHints.lineFor("more", "keyboard")).to.equal(
+				"Catch more cats, or buy a table in Upgrades (U)"
+			)
+			expect(TutorialHints.lineFor("waiting", "touch")).to.equal(
+				"A cat is on its way to your bowl"
+			)
+			expect(TutorialHints.lineFor("nope", "touch")).to.equal(nil)
+		end)
+	end)
 end

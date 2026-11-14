@@ -853,13 +853,15 @@ end
 
 -- #1606 (Derek2 11-05: "shows 2x money on your screen somewhere near your money always and replaces itself with
 -- 3x/4x if bought"): the badge beside the HUD's money. The highest money pass owned (Roblox's answer in `owned`, or
--- the server's PlayerState.passBoosts.money as `serverMultiplier`) reads "2x", "3x" or "4x"; with none, "Get 2x"
--- while the 2x pass is on sale (a tap opens the Store), else no badge.
--- price: #1759, the not-owned badge's line under its pill, "Only R$5" (nil once owned or with no price yet)
+-- the server's PlayerState.passBoosts.money as `serverMultiplier`) sets the rung; the badge offers the next rung up
+-- ("2x Money", then "3x Money", then "4x Money", Derek 2026-11-14) while that pass is on sale. With the top rung owned,
+-- or the next one off sale, it is owned ("2x" to "4x", which the HUD does not show, #3052); with none owned and the 2x
+-- pass off sale, no badge.
+-- price: #1759, the for-sale badge's price chip from the next rung's live price (nil while quiet or with no price yet)
 -- quiet: #1936 (release.md section 3), the first 30 minutes of play: a plain "x2" with no price that holds still, and
 -- a tap still opens the Store
--- id: #2353 (Derek2 11-07: "just prompt them to buy it for robux not open shop"), the 2x pass a tap on the X2 Cash
--- pill buys straight away; nil while owned or quiet, so those taps work as before
+-- id: #2353 (Derek2 11-07: "just prompt them to buy it for robux not open shop"), the pass a tap on the button buys
+-- straight away (the next rung up); nil while owned or quiet, so those taps work as before
 export type MoneyBadge = {
 	text: string,
 	owned: boolean,
@@ -884,22 +886,35 @@ function StoreLogic.moneyBadge(
 			top = math.max(top, rung.multiplier)
 		end
 	end
-	if top > 1 then
+	-- Derek 2026-11-14 12:09 UTC ("make 2x change to 3x after 2x bought and to 4x after 3x bought"): the button offers
+	-- the next rung up, each with its own live price, and goes once the top rung is owned
+	local nextRung = nil
+	for _, rung in ladder do
+		if rung.multiplier > top then
+			nextRung = rung
+			break
+		end
+	end
+	local price = if nextRung ~= nil then prices[nextRung.id] else nil
+	-- #1936: the quiet first 30 minutes hold back the offer; an owner stays owned there
+	if quiet and top > 1 then
 		return { text = ("%dx"):format(top), owned = true }
 	end
-	local first = ladder[1]
-	local price = if first ~= nil then prices[first.id] else nil
-	if price ~= nil and price.forSale and quiet then
-		return { text = ("x%d"):format(first.multiplier), owned = false, quiet = true }
-	end
-	if price ~= nil and price.forSale then
-		-- #1759 (Derek2 11-06: "more in your face then that slight 2x"): the HUD's rainbow buy button
+	if nextRung ~= nil and price ~= nil and price.forSale then
+		if quiet then
+			return { text = ("x%d"):format(nextRung.multiplier), owned = false, quiet = true }
+		end
+		-- #1759 (Derek2 11-06: "more in your face then that slight 2x"): the HUD's green buy button
 		return {
-			text = ("X%d Cash"):format(first.multiplier),
+			text = ("%dx Money"):format(nextRung.multiplier), -- Derek 2026-11-14: the pass's own name
 			owned = false,
-			price = if price.robux ~= nil then ("Only R$%d"):format(price.robux :: number) else nil,
-			id = first.id,
+			price = if price.robux ~= nil then ("R$%d"):format(price.robux :: number) else nil, -- no "Only" (2026-11-14)
+			id = nextRung.id,
 		}
+	end
+	if top > 1 then
+		-- #3052: the HUD shows nothing for this; the boosts card has the row
+		return { text = ("%dx"):format(top), owned = true }
 	end
 	return nil
 end

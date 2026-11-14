@@ -48,7 +48,7 @@ return function()
 			"gives 10 Trait Tokens at 15:33 and 100 golden fish at 15:35 UTC on 2026-11-13, until 16:30",
 			function()
 				local tokens, fish = Config.Giveaways[1], Config.Giveaways[2]
-				expect(#Config.Giveaways).to.equal(2)
+				expect(#Config.Giveaways).to.equal(3)
 				expect(os.date("!%Y-%m-%d %H:%M", tokens.from)).to.equal("2026-11-13 15:33")
 				expect(os.date("!%Y-%m-%d %H:%M", fish.from)).to.equal("2026-11-13 15:35")
 				expect(os.date("!%H:%M", tokens.to :: number)).to.equal("16:30")
@@ -71,6 +71,27 @@ return function()
 					false
 				)
 				expect(UpdateGift.due({}, fish, fish.to :: number)).to.equal(false)
+			end
+		)
+
+		it(
+			"gives 10 Trait Tokens to Sunday's players from 20:03 UTC on 2026-11-15 to midnight Toronto",
+			function()
+				local sunday = Config.Giveaways[3]
+				expect(sunday.id).to.equal("2026-11-15-tokens")
+				expect(os.date("!%Y-%m-%d %H:%M", sunday.from)).to.equal("2026-11-15 20:03")
+				expect(os.date("!%Y-%m-%d %H:%M", sunday.to :: number)).to.equal("2026-11-16 05:00")
+				expect(sunday.traitTokens).to.equal(10)
+				expect(sunday.fish + sunday.spins).to.equal(0)
+				local keys = {}
+				for _, gift in Config.Giveaways do
+					local key = UpdateGift.key(gift.id)
+					expect(keys[key]).to.equal(nil)
+					keys[key] = true
+				end
+				expect(UpdateGift.due({}, sunday, sunday.from - 1)).to.equal(false)
+				expect(UpdateGift.due({}, sunday, sunday.from)).to.equal(true)
+				expect(UpdateGift.due({}, sunday, sunday.to :: number)).to.equal(false)
 			end
 		)
 

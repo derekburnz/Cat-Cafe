@@ -399,7 +399,7 @@ function GamepadNav.stepTab(root: Instance, step: number): boolean
 		-- a window that rebuilds or re-picks its tab row on a switch: land on the new tab once it has
 		task.defer(function()
 			local _, now = GamepadNav.tabs(root)
-			local tab = now[index]
+			local tab: GuiButton? = now[index]
 			if tab ~= nil and GuiService.SelectedObject ~= tab then
 				GamepadNav.select(tab)
 			end

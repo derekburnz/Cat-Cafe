@@ -173,6 +173,43 @@ local Cues: { [string]: Cue } = {
 		seconds = 91.429, -- 32 bars at 84 BPM
 		sections = 4,
 	}, -- "Glyph Halls" (the Ruins, Tier 7)
+	-- #4069, #4070, #4071: the next three areas' songs share a second sheet (synth/music.py, AREAS2). They play as the
+	-- Desert's and the Ruins' do, once the zone is named Snowy, Waterpark or Castle (Logic.areaSongFor).
+	sheetMusicAreas2 = {
+		ids = {},
+		group = "Music",
+		volume = 0.3,
+	}, -- stereo, 251.6 s: Lantern Peaks, Splash Parade, Banner Hall with 0.5 s of silence between
+	musicAreaSnowy = {
+		ids = {},
+		sheet = "sheetMusicAreas2",
+		region = { 0.000, 96.000 },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 96.000, -- 32 bars at 80 BPM
+		sections = 4,
+	}, -- "Lantern Peaks" (the Snowy Mountain, Tier 8)
+	musicAreaWaterpark = {
+		ids = {},
+		sheet = "sheetMusicAreas2",
+		region = { 96.500, 167.611 },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 71.111, -- 32 bars at 108 BPM
+		sections = 4,
+	}, -- "Splash Parade" (the Water Park)
+	musicAreaCastle = {
+		ids = {},
+		sheet = "sheetMusicAreas2",
+		region = { 168.111, 251.589 },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 83.478, -- 32 bars at 92 BPM
+		sections = 4,
+	}, -- "Banner Hall" (the Medieval Castle)
 	-- 2026-11-05 (#1541, Derek): the tutorial plays its own calm song instead of the day and night songs, from the intro
 	-- cutscene and through the first tutorial steps, until it is skipped or done. Uploaded by upload-audio run
 	-- 42068848366.
@@ -1533,6 +1570,135 @@ local Cues: { [string]: Cue } = {
 		minGap = 0.3,
 		range = 30,
 	}, -- the coin bag dropped in the till: a cloth thump and a muffled jingle
+	-- #4062 the Dragon Keep's stage-up cutscene and card rewards, #4061 the Ticket Booth and #4069 the Snowy
+	-- Mountain: fourteen sounds on one sheet (synth/synth.py, parts in sheet-parts/sfx).
+	sheetKeep = {
+		ids = {},
+		group = "Sfx",
+		volume = 1,
+	}, -- mono, 19.72 s
+	dragonRumble = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 0.000, 1.400 },
+		group = "Sfx",
+		volume = 0.6,
+		minGap = 1,
+		duck = true,
+	}, -- Cinder curls into a ball of light
+	dragonCrack = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 1.900, 2.700 },
+		group = "Sfx",
+		volume = 0.6,
+		minGap = 0.5,
+	}, -- the ball cracks open
+	dragonChirp = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 3.200, 3.800 },
+		group = "Sfx",
+		volume = 0.6,
+		minGap = 0.5,
+	}, -- a hatchling's or a whelp's roar (stages 1 and 2)
+	dragonRoar = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 4.300, 5.450 },
+		group = "Sfx",
+		volume = 0.65,
+		minGap = 0.5,
+	}, -- a drake's or an elder's roar (stages 3 and 4)
+	dragonRoarGrand = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 5.950, 7.950 },
+		group = "Sfx",
+		volume = 0.7,
+		minGap = 1,
+		duck = true,
+	}, -- Crowned Cinder's roar (stage 5)
+	dragonWing = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 8.450, 8.950 },
+		group = "Sfx",
+		volume = 0.5,
+		pitch = { 0.94, 1.06 },
+		minGap = 0.3,
+	}, -- one wing beat on the victory lap
+	cardFlip = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 9.450, 9.670 },
+		group = "Sfx",
+		volume = 0.5,
+		pitch = { 0.96, 1.04 },
+		voices = 3,
+	}, -- a reward card turns over
+	cardRare = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 10.170, 11.120 },
+		group = "Sfx",
+		volume = 0.55,
+		voices = 2,
+		minGap = 0.3,
+	}, -- a rare card shows its face
+	rekindle = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 11.620, 12.620 },
+		group = "Sfx",
+		volume = 0.6,
+		minGap = 0.5,
+		range = 60,
+	}, -- Rekindle at the Dragon Keep
+	ticketPrint = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 13.120, 13.820 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 0.3,
+		range = 50,
+	}, -- the Ticket Booth prints a ticket
+	ticketDing = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 14.320, 15.120 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 0.3,
+	}, -- a ticket is yours
+	snowStep = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 15.620, 15.820 },
+		group = "Sfx",
+		volume = 0.3,
+		pitch = { 0.88, 1.12 },
+		minGap = 0.2,
+	}, -- your step in the Snowy Mountain's snow
+	snowGust = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 16.320, 17.820 },
+		group = "Sfx",
+		volume = 0.55,
+		minGap = 1,
+		range = 70,
+	}, -- the Blizzard Cat arrives or is caught
+	frostChime = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 18.320, 19.720 },
+		group = "Sfx",
+		volume = 0.55,
+		minGap = 1,
+		range = 60,
+	}, -- the White Tiger Cat's own cue
 	tipSweep = { -- the tipPile file: coins scooped off a table into the Waiter's bag (your own cafe)
 		ids = { "rbxassetid://131455934857825" },
 		group = "Sfx",

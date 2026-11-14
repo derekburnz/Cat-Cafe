@@ -18,7 +18,8 @@
 -- Nothing here can be tapped and no object is active, so it covers no button; all of it draws over the HUD and under
 -- every window, and while a window is open (AdminFlash.quietWhen, which the UI's owner sets) nothing takes the middle
 -- of the screen at all: no dim, no 3, 2, 1, no splash, no end card, and the strip carries the start by itself. It
--- hides while a cutscene has the screen. Reduce Motion: the
+-- hides while a cutscene has the screen. The start banner card (EventBanner's "admin") is skipped while the splash can
+-- show, since it says the same and would cover it; with a window open the card shows as before. Reduce Motion: the
 -- cards show and hold still (no pop, no swell, no sparkles). Low performance: no sparkles. It counts down only the
 -- event's own start and end, and sells nothing.
 -- Sound: AdminFlash.onBeat's "tick" (each of 3, 2, 1), "start", "last" (the last minute begins) and "over".
@@ -34,6 +35,7 @@ local Workspace = game:GetService("Workspace")
 local AdminEventLogic = require(script.Parent.AdminEventLogic)
 local AdminFlashLogic = require(script.Parent.AdminFlashLogic)
 local Context = require(script.Parent.Context)
+local EventBanner = require(script.Parent.EventBanner)
 local Net = require(script.Parent.Parent.Net)
 local Presets = require(script.Parent.Presets)
 local ScreenFx = require(script.Parent.ScreenFx)
@@ -526,6 +528,10 @@ function AdminFlash.start()
 			earned = AdminFlashLogic.earned(earned, money, value)
 		end
 		money = value
+	end)
+	-- the splash says what the start card says, and the card would cover it: no start card while the splash can show
+	EventBanner.skipWhen("admin", function(): boolean
+		return not quiet()
 	end)
 	RunService.RenderStepped:Connect(frame)
 end

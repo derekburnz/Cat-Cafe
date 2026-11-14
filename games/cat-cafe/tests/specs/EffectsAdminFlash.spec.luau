@@ -167,6 +167,19 @@ return function()
 			expect(Flash.countsMoney(nil)).to.equal(false)
 		end)
 
+		it("lets the splash stand in for the start card", function()
+			local EventBanner = require(Effects:WaitForChild("EventBanner")) :: any
+			local card = AdminEventLogic.startBanner(view({ moneyStorm = 4 }), NOW)
+			expect(EventBanner.plan(card)).to.be.ok()
+			EventBanner.skipWhen("admin", function(): boolean
+				return true
+			end)
+			expect(EventBanner.show(card)).to.equal(false)
+			EventBanner.skipWhen("admin", function(): boolean
+				return false
+			end)
+		end)
+
 		it("writes money with commas", function()
 			expect(Flash.money(0, "$")).to.equal("+$0")
 			expect(Flash.money(999, "$")).to.equal("+$999")

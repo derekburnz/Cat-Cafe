@@ -4298,23 +4298,22 @@ function Logic.auroraOn(phase: unknown, left: number?, evening: number): boolean
 	return left ~= nil and left <= evening
 end
 
--- Where along the area's longer side the lights' window is centred: `ahead` studs from you toward the way the
--- camera looks (`look`, its share along that side, any size), kept inside the area (`lo` to `hi` are the area's ends
--- on that side, `window` the lights' length). An area shorter than the window gets its own middle.
-function Logic.auroraCentre(
-	you: number,
-	look: number,
-	lo: number,
-	hi: number,
-	window: number,
+-- Where the lights hang: `ahead` studs from you along the camera's look laid flat (`lookX`, `lookZ`, any length),
+-- and that flat look as a unit direction. A camera looking straight up or down has no flat look: then the spot is
+-- yours and the direction 0, 0, and the caller keeps the last one it had.
+function Logic.auroraSpot(
+	youX: number,
+	youZ: number,
+	lookX: number,
+	lookZ: number,
 	ahead: number
-): number
-	local half = window / 2
-	if hi - lo <= window then
-		return (lo + hi) / 2
+): (number, number, number, number)
+	local length = math.sqrt(lookX * lookX + lookZ * lookZ)
+	if length < 0.05 then
+		return youX, youZ, 0, 0
 	end
-	local way = if look > 0.2 then 1 elseif look < -0.2 then -1 else 0
-	return math.clamp(you + way * ahead, lo + half, hi - half)
+	local dirX, dirZ = lookX / length, lookZ / length
+	return youX + dirX * ahead, youZ + dirZ * ahead, dirX, dirZ
 end
 
 -- #4069: the northern lights over an area. `count` ribbons hung along the area's longer side (a tenth in from each

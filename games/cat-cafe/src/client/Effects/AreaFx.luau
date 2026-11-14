@@ -338,8 +338,8 @@ end
 
 -- #4069: the northern lights. In the day's last minute (`auroraEvening`; night closes the areas, so nobody would
 -- see them then) and at night, while you stand in an area with an `aurora`, its ribbons hang over the
--- area: two soft bands each, on one unseen part, bending slowly from side to side. They run over `window` studs
--- of the area's longer side and keep ahead of you (`ahead`, toward where the camera looks), gliding there. They fade in when they start and
+-- area: two soft bands each, on one unseen part, bending slowly from side to side. They hang `ahead` studs out
+-- the way the camera looks, across that look, and glide to stay there as you walk or turn. They fade in when they start and
 -- out when night ends or you leave.
 -- `full[i]` is band i's own middle transparency when the lights are fully shown, `base` the spec's `shown`
 type Ribbon = { bands: { Beam }, full: { number }, base: number, tweens: { Tween } }
@@ -349,7 +349,8 @@ local auroraRibbons: { Ribbon } = {}
 local auroraShown = 1 -- the transparency the bands' middles have now
 local auroraRun = 0 -- counts fades, so a newer one stops an older one
 local auroraLeaving = false -- fading out, to be dropped when the fade ends
-local auroraAlong = 0 -- where along the area's longer side the window is centred now
+local auroraAt = Vector3.zero -- where the lights were last sent
+local auroraDir = Vector3.zAxis -- the flat way you looked then
 local auroraGlide: Tween? = nil
 
 -- Studio only: Workspace's `AreaAuroraTest` attribute set to an area's id ("snowy") hangs its northern lights over
@@ -357,7 +358,6 @@ local auroraGlide: Tween? = nil
 -- without tilting the camera.
 local testAurora: string? = nil
 local testHeight: number? = nil
-local testBox: any = nil
 
 local function auroraLook(middle: number)
 	for _, ribbon in auroraRibbons do
@@ -417,14 +417,16 @@ local function dropAurora()
 	auroraLeaving = false
 end
 
-local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
+local function buildAurora(area: string, spec: Presets.AuroraSpec, place: CFrame)
 	local tiers: { [string]: number } = { high = 1, medium = 2, low = 3 }
 	local count = spec.ribbons[tiers[Context.tier] or 3] or 2
 	local part = Context.effectPart("AreaAurora", Vector3.one, spec.foot)
 	part.Transparency = 1
-	local height = testHeight or spec.height
-	local middle = Vector3.new(box.centre.x, height, box.centre.z)
-	part.CFrame = CFrame.new(middle)
+	-- the ribbons are laid out about the part's own middle, `window` across and `deep` front to back, so the
+	-- part's place and facing set where they hang
+	local middle = Vector3.zero
+	local box = { centre = { x = 0, z = 0 }, size = { width = spec.window, depth = spec.deep } }
+	part.CFrame = place
 	local calm = Context.reducedMotion()
 	local nestMost = if Context.tier == "low" then spec.nestLow else #spec.nest
 	for _, r in
@@ -432,7 +434,7 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 			count,
 			box.centre,
 			box.size,
-			height,
+			0,
 			spec.spread,
 			spec.rise,
 			spec.curve,
@@ -517,69 +519,47 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 	fadeAurora(spec, spec.shown)
 end
 
--- The window of an area's lights for where you stand and look: `deep` studs of the area's longer side, centred
--- ahead of you (Logic.auroraCentre), and `window` studs across it, so the ribbons hang across your view with their
--- broad faces toward you (#4216: run along the area they were seen end on, as slivers). Also whether that side is Z, and the centre on it.
-local function auroraWindow(
-	spec: Presets.AuroraSpec,
-	box: any,
-	feet: Vector3
-): (any, boolean, number)
-	local alongZ = box.size.depth > box.size.width
-	local long = if alongZ then box.size.depth else box.size.width
-	local middle = if alongZ then box.centre.z else box.centre.x
+-- Where the lights hang for where you stand and look: `ahead` studs out along the camera's flat look (the last one
+-- known when it looks straight down), turned so the ribbons run across that look with their broad faces toward
+-- you. #4216: hung by the area's own sides they were end on, or behind you, from wherever the cannon set you down.
+local function auroraPlace(spec: Presets.AuroraSpec, feet: Vector3): CFrame
 	local camera = Workspace.CurrentCamera
 	local look = if camera ~= nil then camera.CFrame.LookVector else Vector3.zAxis
-	local along = Logic.auroraCentre(
-		if alongZ then feet.Z else feet.X,
-		if alongZ then look.Z else look.X,
-		middle - long / 2,
-		middle + long / 2,
-		spec.deep,
-		spec.ahead
-	)
-	-- `deep` along the way you travel, `window` across it: the ribbons run the longer side, so across your view
-	local deep = math.min(long, spec.deep)
-	return {
-		id = box.id,
-		centre = {
-			x = if alongZ then box.centre.x else along,
-			z = if alongZ then along else box.centre.z,
-		},
-		size = {
-			width = if alongZ then spec.window else deep,
-			depth = if alongZ then deep else spec.window,
-		},
-	},
-		alongZ,
-		along
+	local x, z, dirX, dirZ = Logic.auroraSpot(feet.X, feet.Z, look.X, look.Z, spec.ahead)
+	if dirX == 0 and dirZ == 0 then
+		dirX, dirZ = auroraDir.X, auroraDir.Z
+		x, z = feet.X + dirX * spec.ahead, feet.Z + dirZ * spec.ahead
+	end
+	auroraDir = Vector3.new(dirX, 0, dirZ)
+	local at = Vector3.new(x, feet.Y + (testHeight or spec.height), z)
+	return CFrame.lookAt(at, at + auroraDir)
 end
 
--- Glides the lights to a new centre once you have gone far enough from the old one: the whole part moves, its
--- ribbons with it.
-local function followAurora(spec: Presets.AuroraSpec, box: any, feet: Vector3)
+-- Glides the lights to their new place once it is far enough from the old one (you walked on, or turned the
+-- camera): the whole part moves and turns, its ribbons with it.
+local function followAurora(spec: Presets.AuroraSpec, feet: Vector3)
 	local part = aurora
 	if part == nil then
 		return
 	end
-	local _, alongZ, along = auroraWindow(spec, box, feet)
-	if math.abs(along - auroraAlong) < spec.recentre then
+	local was = auroraDir
+	local to = auroraPlace(spec, feet)
+	if (to.Position - auroraAt).Magnitude < spec.recentre then
+		auroraDir = was -- not moving: keep the way they face
 		return
 	end
-	auroraAlong = along
-	local at = part.Position
-	local to = Vector3.new(if alongZ then at.X else along, at.Y, if alongZ then along else at.Z)
+	auroraAt = to.Position
 	if auroraGlide ~= nil then
 		auroraGlide:Cancel()
 	end
 	if Context.reducedMotion() then
-		part.CFrame = CFrame.new(to)
+		part.CFrame = to
 		return
 	end
 	local glide = TweenService:Create(
 		part,
 		TweenInfo.new(spec.glide, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
-		{ CFrame = CFrame.new(to) }
+		{ CFrame = to }
 	)
 	auroraGlide = glide
 	glide:Play()
@@ -589,13 +569,6 @@ local function updateAurora(here: string?, feet: Vector3)
 	local area = here
 	if testAurora ~= nil then
 		area = testAurora
-		if testBox == nil then
-			testBox = {
-				id = testAurora,
-				centre = { x = feet.X, z = feet.Z },
-				size = { width = 300, depth = 200 },
-			}
-		end
 	end
 	local spec = specOf(area)
 	local wanted = if spec ~= nil then spec.aurora else nil
@@ -619,31 +592,18 @@ local function updateAurora(here: string?, feet: Vector3)
 		end
 		return
 	end
-	local home: any = testBox
-	if home == nil then
-		for _, box in areaBoxes() do
-			if box.id == area then
-				home = box
-				break
-			end
-		end
-	end
-	if home == nil then
-		dropAurora()
-		return
-	end
 	if aurora ~= nil and auroraArea == area then
 		if auroraLeaving then -- night again, or you came back, before it had gone
 			auroraLeaving = false
 			fadeAurora(wanted, wanted.shown)
 		end
-		followAurora(wanted, home, feet)
+		followAurora(wanted, feet)
 		return
 	end
 	dropAurora()
-	local window, _, along = auroraWindow(wanted, home, feet)
-	auroraAlong = along
-	buildAurora(area, wanted, window)
+	local place = auroraPlace(wanted, feet)
+	auroraAt = place.Position
+	buildAurora(area, wanted, place)
 end
 
 local function step()
@@ -685,7 +645,6 @@ function AreaFx.start()
 			local parts = if type(value) == "string" then string.split(value, ",") else {}
 			testAurora = if parts[1] ~= nil and parts[1] ~= "" then parts[1] else nil
 			testHeight = tonumber(parts[2] or "")
-			testBox = nil
 			if testAurora == nil and aurora ~= nil and was ~= nil then
 				auroraLeaving = true -- cleared: fade out as it does when night ends
 				fadeAurora(was, 1, dropAurora)

@@ -170,20 +170,35 @@ return function()
 		end)
 
 		it(
-			"hangs the northern lights across your view, ahead of you and inside the area",
+			"hangs the northern lights across the way the camera looks, in its upper view",
 			function()
 				local a = Presets.areaFx.areas.snowy.aurora :: any
 				expect(a.window >= 200 and a.window <= 400).to.equal(true)
-				expect(a.deep < a.window).to.equal(true) -- so the ribbons run across, not along
+				expect(a.deep < a.window).to.equal(true) -- so the ribbons run across, not front to back
 				expect(a.glide >= 2).to.equal(true) -- a slow glide, never a jump
-				-- the Snowy Mountain (150 across, 560 deep), you at its landing end looking up it
-				local along = Logic.auroraCentre(-250, 1, -280, 280, a.deep, a.ahead)
-				expect(along).to.equal(-250 + a.ahead)
+				expect(a.recentre >= 60).to.equal(true) -- a small turn of the camera does not move them
+				-- the spot is `ahead` out along the flat look, whatever the look's length or tilt
+				local x, z, dirX, dirZ = Logic.auroraSpot(10, -20, 3, 0, a.ahead)
+				expect(x).to.equal(10 + a.ahead)
+				expect(z).to.equal(-20)
+				expect(dirX).to.equal(1)
+				expect(dirZ).to.equal(0)
+				x, z, dirX, dirZ = Logic.auroraSpot(0, 0, -0.6, 0.8, 100)
+				expect(x).to.be.near(-60, 1e-6)
+				expect(z).to.be.near(80, 1e-6)
+				expect(dirX * dirX + dirZ * dirZ).to.be.near(1, 1e-6)
+				-- looking straight down: no flat look, the caller keeps its last one
+				x, z, dirX, dirZ = Logic.auroraSpot(5, 6, 0.01, -0.02, a.ahead)
+				expect(x).to.equal(5)
+				expect(z).to.equal(6)
+				expect(dirX).to.equal(0)
+				expect(dirZ).to.equal(0)
+				-- laid out about the part's own middle: side to side, each 6 to 16 degrees up from your feet
 				local ribbons = Logic.auroraRibbons(
 					a.ribbons[1],
-					{ x = 0, z = along },
+					{ x = 0, z = 0 },
 					{ width = a.window, depth = a.deep },
-					a.height,
+					0,
 					a.spread,
 					a.rise,
 					a.curve,
@@ -192,30 +207,15 @@ return function()
 				)
 				for _, r in ribbons do
 					local run = r.to - r.from
-					-- side to side across the way you look, its middle straight ahead
 					expect(math.abs(run.Z) < 1e-6).to.equal(true)
 					expect(math.abs(run.X) >= 200).to.equal(true)
 					expect(math.abs(r.from.X + r.to.X) < 1e-6).to.equal(true)
-					-- 60 studs or more ahead, and 8 to 25 degrees up: inside what the default camera shows
-					local ahead = r.from.Z - -250
-					expect(ahead >= 60).to.equal(true)
-					local up = math.deg(math.atan2(r.from.Y, ahead))
-					expect(up >= 8 and up <= 25).to.equal(true)
+					expect(math.abs(r.from.Z) <= a.deep / 2).to.equal(true)
+					for _, out in { a.ahead - r.from.Z, a.ahead + r.from.Z } do
+						local up = math.deg(math.atan2(a.height + r.from.Y, out))
+						expect(up >= 6 and up <= 16).to.equal(true)
+					end
 				end
-				local lo, hi = -400, 400
-				-- looking up the area, down it, and across it
-				expect(Logic.auroraCentre(0, 1, lo, hi, a.deep, a.ahead)).to.equal(a.ahead)
-				expect(Logic.auroraCentre(0, -1, lo, hi, a.deep, a.ahead)).to.equal(-a.ahead)
-				expect(Logic.auroraCentre(0, 0.1, lo, hi, a.deep, a.ahead)).to.equal(0)
-				-- at either end it stops at the area's edge
-				expect(Logic.auroraCentre(-390, -1, lo, hi, a.deep, a.ahead)).to.equal(
-					lo + a.deep / 2
-				)
-				expect(Logic.auroraCentre(390, 1, lo, hi, a.deep, a.ahead)).to.equal(
-					hi - a.deep / 2
-				)
-				-- an area shorter than the window keeps its own middle
-				expect(Logic.auroraCentre(30, 1, -50, 50, a.deep, a.ahead)).to.equal(0)
 			end
 		)
 
@@ -276,7 +276,6 @@ return function()
 					local off = if alongZ then r.from.X - centre.x else r.from.Z - centre.z
 					expect(math.abs(off) < short * a.spread / 2).to.equal(true)
 					expect(r.from.Y).to.equal(a.height + (i - 1) * a.rise)
-					expect(r.from.Y >= 30).to.equal(true)
 					-- neighbours bend to opposite sides
 					expect(r.bend * (if i % 2 == 1 then 1 else -1) > 0).to.equal(true)
 					expect(r.seconds >= 8).to.equal(true)

@@ -819,6 +819,16 @@ local Cues: { [string]: Cue } = {
 		range = 60,
 		voices = 2,
 	},
+	-- #4197: a Cat Storm's stray lands (Effects/StormFall.onLand): the cannon's landing, lighter and higher
+	stormLand = {
+		ids = { "rbxassetid://103029343434588" },
+		group = "Sfx",
+		volume = 0.4,
+		pitch = { 1.25, 1.45 },
+		minGap = 0.4,
+		range = 50,
+		voices = 2,
+	},
 	cloudHop = {
 		ids = { "rbxassetid://76704372473776" },
 		group = "Sfx",

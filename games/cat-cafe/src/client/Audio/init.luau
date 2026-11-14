@@ -40,6 +40,7 @@ local RiftRun = require(script.Parent.Effects.RiftRun)
 local Signature = require(script.Parent.Effects.Signature)
 local Splash = require(script.Parent.Effects.Splash)
 local StormFall = require(script.Parent.Effects.StormFall)
+local TradeUnlock = require(script.Parent.Effects.TradeUnlock)
 local Trampoline = require(script.Parent.Effects.Trampoline)
 
 local Audio = {}
@@ -2456,6 +2457,14 @@ local function followPoolIntro()
 	end)
 end
 
+-- #4280: "Trading unlocked!" (Effects/TradeUnlock): the lock springs open on the gift chime and the icon lands on
+-- the Trade tile with the badge blip, both flat.
+local function followTradeUnlock()
+	TradeUnlock.onBeat(function(beat)
+		Audio.play(if beat == "open" then "uiGiftReady" else "uiBadge")
+	end)
+end
+
 function Audio.start()
 	if started then
 		return
@@ -2478,6 +2487,7 @@ function Audio.start()
 	followPool()
 	followAreas()
 	followPoolIntro()
+	followTradeUnlock()
 	followBigTrait()
 	followRiftRun()
 	followDragonRise()

@@ -44,15 +44,17 @@ function Potions.running(profile: Types.PlayerProfile, potionId: string, now: nu
 end
 
 -- The running potions' share on top of tips at `now` (income, the tip piles and rich visitors): 1 plus every running
--- potion's `tips` (the Tip Potion's TipPotionBonus, F73's Big Tip Potion's 0.5), together at most TimedTipsMax.
+-- potion's `tips` (the Tip Potion's TipPotionBonus, F73's Big Tip Potion's 0.5), together at most TimedTipsMax, plus
+-- every running potion's `tipsOver` (#4195), which no cap holds.
 function Potions.tipMultiplier(profile: Types.PlayerProfile, now: number): number
-	local bonus = 0
+	local bonus, over = 0, 0
 	for _, def in Catalog.potions do
-		if def.tips ~= nil and Potions.running(profile, def.id, now) then
-			bonus += def.tips
+		if (def.tips ~= nil or def.tipsOver ~= nil) and Potions.running(profile, def.id, now) then
+			bonus += def.tips or 0
+			over += def.tipsOver or 0 -- #4195: the Admin Wheel's 3x money, outside the cap
 		end
 	end
-	return 1 + math.min(bonus, Config.TimedTipsMax)
+	return 1 + math.min(bonus, Config.TimedTipsMax) + over
 end
 
 -- F73: the gold luck the running potions add at `now` (a Gold Rush Potion's 0.25), on top of the Index's.

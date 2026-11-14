@@ -76,6 +76,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local AdminWheelService = require(script.Parent.AdminWheelService)
 local Bait = require(ReplicatedStorage.Shared.Bait)
 local BinService = require(script.Parent.BinService)
 local BugReportService = require(script.Parent.BugReportService)
@@ -458,6 +459,14 @@ function Debug.spinSlice(player: (Player | number | string)?, slice: number?): n
 	guard()
 	local p = resolve(player)
 	return SpinService.debugForceSlice(p, if slice ~= nil then math.floor(slice) else nil)
+end
+
+-- #4195: makes the player's next Admin Wheel spin land on the prize `prizeId` (shared/AdminWheel.PRIZES: "rerolls20",
+-- "fish200", "crates5", "potions", "money3x", "mythical", "mega", "secret"), or random again with nil. Start a
+-- wheel with `/admin wheel now` first. Returns the prize set.
+function Debug.adminWheelPrize(player: (Player | number | string)?, prizeId: string?): string?
+	guard()
+	return AdminWheelService.debugForce(resolve(player), prizeId)
 end
 
 -- Sets the Daily Treat card to `stamp` stamps (0 to 7) with a stamp due now, as if the last claim was yesterday

@@ -770,8 +770,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- #2334 (Derek2: "the gold fish and money should be side by side in bottom left and the 2x cash ... should be to
 	-- the right of both of those"): the row is the money, the golden fish, then the money badge.
 	-- #1606: the money pass badge right of the two counters (setMoneyBadge): "2x" to "4x" in gold once a money pass is owned
-	-- (a tap opens the boosts card, as the money does), or while none is a green "2x Money" button with its price on it
-	-- (Derek 2026-11-14; was a rainbow "X2 Cash" pill with "Only R$5" under it, #1759). Hidden until the Store knows.
+	-- (a tap opens the boosts card, as the money does), or a green button for the next rung up with its price on it
+	-- ("2x Money", then "3x Money", then "4x Money", Derek 2026-11-14; was a rainbow "X2 Cash" pill with "Only R$5"
+	-- under it, #1759). Hidden until the Store knows, and once 4x is owned.
 	-- the tap area is the counters' height and at least as wide (a finger's 44 px on a phone); the pill sits inside it
 	-- Derek 2026-11-14: for sale, the button is a green face (Theme.button.primary top to bottom, the Face gradient on a
 	-- white background, as Components/Button does, since a UIGradient multiplies the colour under it) with the words and

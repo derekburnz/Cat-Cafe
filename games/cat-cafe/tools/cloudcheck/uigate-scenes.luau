@@ -10957,6 +10957,35 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(pill.Text == "x2", "uigate: the quiet money badge reads " .. tostring(pill.Text) .. " (#1936)")
 		assert(not price.Visible, "uigate: the quiet money badge shows a price (#1936)")
 	end },
+	-- Derek 2026-11-14 12:09 UTC ("make 2x change to 3x after 2x bought and to 4x after 3x bought"): the button offers
+	-- the next rung up with its own live price, the words and the price fitting and the button on screen
+	{ "HUDMoneyBadgeNext", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local ids = Config.MoneyPassIds
+		local prices = storePrices(true)
+		prices[ids[2]] = { robux = 25, forSale = true }
+		prices[ids[3]] = { robux = 59, forSale = true }
+		prices[ids[4]] = { robux = 99, forSale = true }
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local badge = hud:FindFirstChild("MoneyBadge", true) :: GuiObject
+		local pill = badge:FindFirstChild("Pill") :: TextLabel
+		local price = badge:FindFirstChild("Price") :: TextLabel
+		local view = workspace.CurrentCamera.ViewportSize
+		local inset = game:GetService("GuiService"):GetGuiInset()
+		for _, step in { { owned = {}, text = "2x Money", price = "R$25" }, { owned = { [ids[2]] = true }, text = "3x Money", price = "R$59" }, { owned = { [ids[3]] = true }, text = "4x Money", price = "R$99" } } do
+			UI.store.preview(prices, step.owned)
+			UIShim.advance(1 / 60)
+			assert(badge.Visible, "uigate: no money button before " .. step.text .. " (Derek 2026-11-14)")
+			assert(pill.Text == step.text and pill.TextFits, "uigate: the money button reads " .. pill.Text .. ", not " .. step.text .. " (Derek 2026-11-14)")
+			assert(price.Visible and price.Text == step.price and price.TextFits, "uigate: the " .. step.text .. " price reads " .. price.Text .. " (Derek 2026-11-14)")
+			assert(badge.AbsolutePosition.X + inset.X >= 0 and badge.AbsolutePosition.X + badge.AbsoluteSize.X + inset.X <= view.X, "uigate: the " .. step.text .. " button runs off screen (Derek 2026-11-14)")
+		end
+		UI.store.preview(prices, { [ids[4]] = true })
+		UIShim.advance(1 / 60)
+		assert(not badge.Visible, "uigate: the money button stays with 4x owned (Derek 2026-11-14)")
+		UI.store.preview(storePrices(true), {})
+		UIShim.advance(1 / 60)
+	end },
 	{ "HUDMoneyBadgeOwned", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[4]] = true })

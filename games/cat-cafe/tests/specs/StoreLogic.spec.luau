@@ -37,15 +37,44 @@ return function()
 	describe("StoreLogic.moneyBadge (#1606)", function()
 		local onSale = { [200] = { robux = 5, forSale = true } }
 
-		it("shows the highest money pass owned", function()
-			local badge = StoreLogic.moneyBadge(CONFIG, { [200] = true, [400] = true }, onSale)
-			expect(badge.text).to.equal("4x")
-			expect(badge.owned).to.equal(true)
-			expect(StoreLogic.moneyBadge(CONFIG, { [300] = true }, {}).text).to.equal("3x")
-			-- the server's PlayerState.passBoosts.money counts too
-			expect(StoreLogic.moneyBadge(CONFIG, {}, {}, 2).text).to.equal("2x")
-			expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, {}, 4).text).to.equal("4x")
-			expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, 1).text).to.equal("2x Money")
+		it(
+			"is owned once the top rung is owned or the next is off sale (#3052 hides it)",
+			function()
+				local badge = StoreLogic.moneyBadge(CONFIG, { [200] = true, [400] = true }, onSale)
+				expect(badge.text).to.equal("4x")
+				expect(badge.owned).to.equal(true)
+				expect(StoreLogic.moneyBadge(CONFIG, { [300] = true }, {}).text).to.equal("3x")
+				-- the server's PlayerState.passBoosts.money counts too
+				expect(StoreLogic.moneyBadge(CONFIG, {}, {}, 2).text).to.equal("2x")
+				expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, {}, 4).text).to.equal("4x")
+				expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, 1).text).to.equal("2x Money")
+			end
+		)
+
+		it("offers the next rung up with its own price (Derek 2026-11-14)", function()
+			local ladder = {
+				[200] = { robux = 25, forSale = true },
+				[300] = { robux = 59, forSale = true },
+				[400] = { robux = 99, forSale = true },
+			}
+			local first = StoreLogic.moneyBadge(CONFIG, {}, ladder)
+			expect(first.text).to.equal("2x Money")
+			expect(first.price).to.equal("R$25")
+			expect(first.id).to.equal(200)
+			local second = StoreLogic.moneyBadge(CONFIG, { [200] = true }, ladder)
+			expect(second.text).to.equal("3x Money")
+			expect(second.price).to.equal("R$59")
+			expect(second.id).to.equal(300)
+			expect(second.owned).to.equal(false)
+			local third = StoreLogic.moneyBadge(CONFIG, { [300] = true }, ladder)
+			expect(third.text).to.equal("4x Money")
+			expect(third.price).to.equal("R$99")
+			expect(third.id).to.equal(400)
+			-- the server's word counts as owned
+			expect(StoreLogic.moneyBadge(CONFIG, {}, ladder, 2).id).to.equal(300)
+			-- 4x owned: nothing left to offer
+			expect(StoreLogic.moneyBadge(CONFIG, { [400] = true }, ladder).owned).to.equal(true)
+			expect(StoreLogic.moneyBadge(CONFIG, {}, ladder, 4).id).to.equal(nil)
 		end)
 
 		it(

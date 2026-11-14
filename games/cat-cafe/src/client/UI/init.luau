@@ -8859,7 +8859,7 @@ do
 				hud:setStoreNew(screen:hasNew())
 			end
 		end
-		-- #1606: the money pass badge beside the HUD's money ("2x" to "4x", or "Get 2x" while the 2x pass is on sale)
+		-- #1606: the money pass button beside the HUD's money: the next rung up while it is on sale (2x, then 3x, then 4x)
 		if hud then
 			local boosts = (state :: any).passBoosts
 			local multiplier = if type(boosts) == "table" then boosts.money else nil

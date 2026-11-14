@@ -2875,6 +2875,79 @@ Presets.storeBurst = {
 	},
 }
 
+-- The Cat Fusion Observatory (#4104, fusion-observatory.md section 3; Effects/FusionFx). `gold` is the gold coat's
+-- colour and the rainbow one drifts round Presets.rainbow.hues once every `huePeriod` seconds.
+-- `swirl` (the window, on start): up to `most` tiles leave `stagger` seconds apart and take `seconds` each to spiral
+-- `turns` turns in to the centre, shrinking to `land` of their size; as they meet, `sparkles` diamonds of
+-- `sparkleSize` pixels fly `reach` of the centre's size out over `sparkleSeconds` and one ring grows from `ringFrom`
+-- to `ringTo` of it over `ringSeconds`.
+-- `burst` (the window, on collect): per coat `sparkles` diamonds round the picture over `seconds` (the rainbow's
+-- hues `hueGap` apart) and `rings` rings of `ringSeconds`, `ringGap` apart: thin outlines, and never more than one a
+-- second.
+-- `dome` (the world): the model's name ends `suffix`, its slit parts end `glow`; `paws` lights of `pawSize` studs
+-- circle at `pawRadius` of its half width and `pawHeight` of its height, a lap every `lap` seconds (`lapReady` once
+-- the cat waits), and a ready slit breathes down by `breathDip` every `breathSeconds`. `collect` sparkles, a ring
+-- `collectRing` of its width and, for a rainbow, `collectConfetti` of the confetti budget when you collect.
+-- Drawn every `rate` seconds; looked for every `lookSeconds`.
+export type FusionBurst = {
+	sparkles: number,
+	seconds: number,
+	hueGap: number,
+	rings: number,
+	ringSeconds: number,
+}
+Presets.fusion = {
+	displayOrder = 22, -- just over the window (a modal, 20), under the toasts (30)
+	gold = Presets.palette.golden,
+	huePeriod = 6,
+	swirl = {
+		most = 5,
+		stagger = 0.07,
+		seconds = 0.9,
+		turns = 0.75,
+		land = 0.3,
+		sparkles = 10,
+		sparkleSize = 12,
+		sparkleSeconds = 0.5,
+		sparkleStagger = 0.1,
+		reach = 0.9,
+		ringFrom = 0.4,
+		ringTo = 1.5,
+		ringSeconds = 0.55,
+	},
+	burst = {
+		size = 12,
+		stagger = 0.12,
+		reach = 0.6,
+		reachMin = 24,
+		reachMax = 90,
+		ringFrom = 0.6,
+		ringTo = 1.5,
+		ringGap = 1,
+		kinds = {
+			gold = { sparkles = 16, seconds = 0.5, hueGap = 0, rings = 2, ringSeconds = 0.55 },
+			rainbow = { sparkles = 24, seconds = 0.6, hueGap = 0.12, rings = 3, ringSeconds = 0.7 },
+		} :: { [string]: FusionBurst },
+	},
+	dome = {
+		suffix = "_FusionObservatory",
+		glow = "_Glow",
+		paws = 5,
+		pawSize = 0.45,
+		pawRadius = 1.15,
+		pawHeight = 0.7,
+		lap = 12,
+		lapReady = 6,
+		breathDip = 0.5,
+		breathSeconds = 2.4,
+		collect = 12,
+		collectRing = 1.2,
+		collectConfetti = 0.5,
+		rate = 1 / 20,
+		lookSeconds = 3,
+	},
+}
+
 -- The arcade cabinet's idle glow (#3062; Effects/ArcadeGlow): its `screen` part drifts through `colours`, one every
 -- `step` seconds, and `emitter` sparkles rise `lift` studs over its top, within `within` studs.
 -- The Mystic Pool's quiet pointer (#3821, Effects/PoolBeacon): a PointLight `lift` studs over the liquid, `range`

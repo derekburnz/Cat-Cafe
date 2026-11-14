@@ -274,6 +274,36 @@ return function()
 		end)
 	end)
 
+	describe("Bowl Frenzy runs every bowl's clock faster (#4338)", function()
+		it("a bowl inside the window needs a quarter of its wait at 4x", function()
+			expect(Bait.frenzyLeft(600, 4, 900)).to.equal(150)
+			expect(Bait.frenzyLeft(400, 4, 100)).to.equal(100)
+		end)
+
+		it("a bowl past the window runs the window at 4x and the rest at 1x", function()
+			-- 15 min frenzy covers 60 normal minutes; 90 to go means 15 min fast plus 30 min after
+			expect(Bait.frenzyLeft(5400, 4, 900)).to.equal(900 + 1800)
+		end)
+
+		it("changes nothing with no speed, no window or nothing left", function()
+			expect(Bait.frenzyLeft(600, 1, 900)).to.equal(600)
+			expect(Bait.frenzyLeft(600, 4, 0)).to.equal(600)
+			expect(Bait.frenzyLeft(0, 4, 900)).to.equal(0)
+			expect(Bait.frenzyLeft(600, 0 / 0, 900)).to.equal(600)
+		end)
+
+		it("the shown timer is the normal seconds left, the inverse of frenzyLeft", function()
+			for _, wait in { 30, 600, 3600, 5400 } do
+				for _, window in { 60, 900 } do
+					local real = Bait.frenzyLeft(wait, 4, window)
+					expect(math.abs(Bait.frenzyShown(real, 4, window) - wait) < 1e-6).to.equal(true)
+					expect(real <= wait).to.equal(true)
+				end
+			end
+			expect(Bait.frenzyShown(100, 1, 900)).to.equal(100)
+		end)
+	end)
+
 	describe("Bowl Frenzy's bait wait", function()
 		it("divides the wait, in whole seconds", function()
 			expect(Bait.eventWait(600, 4)).to.equal(150)

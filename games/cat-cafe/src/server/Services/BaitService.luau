@@ -50,6 +50,8 @@ local CHOICES = { "tame", "letgo" }
 local rng = Random.new()
 -- placedAt of the bait whose arrival this player has been sent, by bowl
 local shownArrival: { [Player]: { [number]: number } } = {}
+-- #4338: "<bowl>:<event id>" for each filling bowl Bowl Frenzy has already sped this session (frenzyBowls)
+local frenzySped: { [Player]: { [string]: boolean } } = {}
 -- #3161: placedAt of the first bait whose cat was put at the bowl early (Bait.catOutAt), by bowl
 local shownEarly: { [Player]: { [number]: number } } = {}
 -- the second bowl's state last drawn and sent (#1161), so a pass bought in game, or one whose lookup failed at join
@@ -190,9 +192,19 @@ local function useLure(
 	-- server hop or sunrise never moves it
 	local night = ClockService.phase() == "night"
 	-- #1895: the account's first bait comes within 2 minutes (luresUsed counts up below)
-	-- #4195: Bowl Frenzy (an admin event's bowlSpeed) running now divides the wait, fixed in readyAt like the rest
+	-- #4195, #4338 (Derek 2026-11-14: "make it so the current ones also tick down 4x faster and have that be the
+	-- event"): Bowl Frenzy runs the bowl's clock bowlSpeed times faster until it ends (Bait.frenzyLeft), the same as
+	-- for a bowl that was already filling (frenzyBowls), fixed in readyAt like the rest
+	local admin = EventService.admin()
+	local frenzyWindow = if admin ~= nil then admin.endsAt - now else 0
 	local wait = Bait.firstWait(
-		Bait.eventWait(Economy.baitWaitSeconds(profile, night, now), EventService.bowlSpeed()),
+		math.ceil(
+			Bait.frenzyLeft(
+				Economy.baitWaitSeconds(profile, night, now),
+				EventService.bowlSpeed(),
+				frenzyWindow
+			)
+		),
 		profile.stats.luresUsed
 	)
 	-- F73: a Gold Rush Potion's luck and a Quick Bait Potion's speed running now are fixed in with the Index's
@@ -398,6 +410,40 @@ local function wowArrived(
 	end
 end
 
+-- #4338 (Derek 2026-11-14: "the 4x time boost for foodbowl doesn't actually make the time tick down 4x faster"):
+-- food put in during Bowl Frenzy already waits wait / speed (useLure), but a bowl that was filling when it began kept
+-- its time. Now such a bowl's clock runs `speed` times faster for the rest of the frenzy (Bait.frenzyLeft), once per
+-- bowl and event, at the frenzy's start or the player's first pass in it (a join mid frenzy). The mark is kept in
+-- this server only, so a hop mid frenzy can speed it again, which only brings the cat sooner. Returns whether a
+-- bowl changed.
+local function frenzyBowls(player: Player, profile: Types.PlayerProfile, now: number): boolean
+	local event = EventService.admin()
+	local speed = EventService.bowlSpeed()
+	if event == nil or speed <= 1 or now >= event.endsAt then
+		return false
+	end
+	local sped = frenzySped[player]
+	if sped == nil then
+		sped = {}
+		frenzySped[player] = sped
+	end
+	local changed = false
+	for bowl = 1, Bait.BOWLS do
+		local bait = Bait.stateOf(profile, bowl)
+		local key = string.format("%d:%s", bowl, event.id)
+		if bait ~= nil and bait.readyAt ~= nil and not sped[key] then
+			sped[key] = true
+			local left = (bait.readyAt :: number) - now
+			-- food put in during the frenzy already has its share (useLure)
+			if bait.placedAt < event.startsAt and left > 0 then
+				bait.readyAt = now + math.ceil(Bait.frenzyLeft(left, speed, event.endsAt - now))
+				changed = true
+			end
+		end
+	end
+	return changed
+end
+
 -- Within a second of a cat arriving, put it at the bowl and send the bowl state that names it. A rejoin is
 -- caught on the first pass after load as well.
 local function checkArrivals()
@@ -413,7 +459,7 @@ local function checkArrivals()
 			shown = {}
 			shownArrival[player] = shown
 		end
-		local changed = false
+		local changed = frenzyBowls(player, profile, now) -- #4338
 		local after: { () -> () } = {}
 		for bowl = 1, Bait.BOWLS do
 			local bait = Bait.stateOf(profile, bowl)
@@ -496,6 +542,7 @@ function BaitService.start()
 		shownArrival[player] = nil
 		shownEarly[player] = nil
 		shownSecond[player] = nil
+		frenzySped[player] = nil
 	end)
 	task.spawn(function()
 		while true do

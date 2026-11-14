@@ -166,6 +166,26 @@ return function()
 			end
 		)
 
+		it("plays the Fusion Observatory's chime and the right fanfare for the coat", function()
+			expect(Logic.fusionCue("start", "gold")).to.equal("fusionStart")
+			expect(Logic.fusionCue("start", "rainbow")).to.equal("fusionStart")
+			expect(Logic.fusionCue("meet", "gold")).to.equal(nil)
+			expect(Logic.fusionCue("collect", "gold")).to.equal("fusionCollect")
+			expect(Logic.fusionCue("collect", "rainbow")).to.equal("fusionCollectRainbow")
+			expect(Logic.fusionCue("collect", nil)).to.equal("fusionCollect")
+			expect(Logic.fusionCue(nil, nil)).to.equal(nil)
+			for _, id in { "fusionStart", "fusionCollect", "fusionCollectRainbow" } do
+				expect(Cues[id].sheet).to.equal("sheetFusion")
+				expect(Cues[id].region[2] > Cues[id].region[1]).to.equal(true)
+			end
+			-- the rainbow one is the longer
+			local function seconds(id: string): number
+				return Cues[id].region[2] - Cues[id].region[1]
+			end
+			expect(seconds("fusionCollectRainbow") > seconds("fusionCollect")).to.equal(true)
+			expect(#Cues.sheetFusion.ids).to.equal(1)
+		end)
+
 		it(
 			"has the next three areas' songs and the Keep sheet's sounds ready for their upload",
 			function()

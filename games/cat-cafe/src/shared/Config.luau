@@ -807,6 +807,12 @@ local Config = {
 	CollectorEveryMax = 400, -- #2272: was 840
 	CollectorStaySeconds = 180,
 	VisitRetrySeconds = 15, -- #1135: a visitor whose timer ran out while the cafe was not ready tries again this often
+	-- #3889 (Derek 2026-11-13: "make it a % chance per customer walking in instead of it being a set time"): with
+	-- the rareCustomers switch on, each open cafe gets a customer every RareCustomerSeconds (the street's own pace,
+	-- World.CustomerSpawnSeconds) and each one is a rare customer at RareChance (shared/RareCustomers), in place of
+	-- the three timers above. The chances keep today's averages: 6 / 480 rich, 6 / 1250 Mystery, 6 / 300 Collector.
+	RareCustomerSeconds = 6,
+	RareChance = { rich = 0.0125, mystery = 0.005, collector = 0.02 },
 	-- #3470: a Secret is worth four Mythicals in a trade's value check (as its income); the Collector never asks for one
 	CollectorValue = {
 		Common = 1,
@@ -1555,6 +1561,14 @@ local Config = {
 		RuinsCenterZ = 1400,
 		RuinsWidth = 140,
 		RuinsDepth = 600,
+		-- The Snowy Mountain (Tier 8, the next-areas plan Derek OK'd 2026-11-13; #3997): on the last free diagonal, the
+		-- town's north west, long along world Z with its camp on the south (town) end like the Ruins. Model-Agent's
+		-- CatCafe_Snowy_Set has its walls at x +-75 and z +-280. Layout.snowy only: nothing builds it until
+		-- Catalog.areas lists it.
+		SnowyCenterX = -1400,
+		SnowyCenterZ = 1400,
+		SnowyWidth = 150,
+		SnowyDepth = 560,
 		-- Camps (section 4): CampDepth deep across the area's whole width; the landing pad in its middle with
 		-- seventeen spots inside LandingPadRadius, a spot free with no character within LandingClearStuds; the cannon
 		-- prompt's reach. A dropped cat within CampDropMarginStuds of a camp moves out to CampDropOutStuds past its

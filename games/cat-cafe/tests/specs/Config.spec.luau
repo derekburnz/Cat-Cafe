@@ -166,6 +166,7 @@ return function()
 		MysteryStaySeconds = 120,
 		MysteryGiftKeepSeconds = 900, -- #2614 (was 600)
 		MysteryRareStreak = 4,
+		RareCustomerSeconds = 6, -- #3889: one street customer every 6 s, each a rare one at RareChance
 		PotionMaxMinutes = 1440, -- F95 (economy-ladder.md section 6b): potions stack to 24 hours
 		-- quests and achievements and their potions (F73, quests.md section 6)
 		TimedTipsMax = 1.0,
@@ -587,6 +588,7 @@ return function()
 				MoneyPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				ExtraSlotPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				ProductIds = true, -- #1182: a table of developer product ids, checked in Products.spec
+				RareChance = true, -- #3889: a table, checked in Economy.spec
 				SeasonStarts = true, -- #1645: a list of UTC dates, checked in CafePass.spec
 				VipPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				CatAccessoriesPassId = true, -- #1197: an off-sale placeholder pass id, checked below

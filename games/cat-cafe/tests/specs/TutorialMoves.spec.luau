@@ -54,8 +54,17 @@ return function()
 			).to.equal(false)
 		end)
 
-		it("stands the cannon move inside the cannon's range", function()
-			expect(TutorialMoves.CANNON_STUDS < 10).to.equal(true)
-		end)
+		it(
+			"stands the cannon move in front of the cannon, outside its ring and range (#4097)",
+			function()
+				local Config = require(Shared.Config) :: any
+				local WalkUp = require(Shared.WalkUp) :: any
+				local range = Config.World.TownCannonRangeStuds
+				expect(TutorialMoves.CANNON_STUDS > range - WalkUp.EDGE_SLACK).to.equal(true)
+				expect(TutorialMoves.CANNON_STUDS > range).to.equal(true)
+				-- near enough that the cannon is right in front of them
+				expect(TutorialMoves.CANNON_STUDS <= range + 5).to.equal(true)
+			end
+		)
 	end)
 end

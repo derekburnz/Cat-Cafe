@@ -1923,6 +1923,7 @@ return function()
 					sewer = { 1, 0 },
 					desert = { 1, -1 }, -- #2651: the free diagonals (tier6-7-areas.md section 2)
 					ruins = { 1, 1 },
+					snowy = { -1, 1 }, -- #3997: the last free diagonal
 				} :: { [string]: { number } }
 				local town: Rect = {
 					x1 = -W.TownGroundWidth / 2,
@@ -1966,6 +1967,7 @@ return function()
 					sewer = { W.SewerCenterX - W.SewerDepth / 2, 0, 90 }, -- F85: its depth along X too
 					desert = { W.DesertCenterX, W.DesertCenterZ + W.DesertDepth / 2, 180 }, -- #2651: its north end
 					ruins = { W.RuinsCenterX, W.RuinsCenterZ - W.RuinsDepth / 2, 0 }, -- #2651: its south end
+					snowy = { W.SnowyCenterX, W.SnowyCenterZ - W.SnowyDepth / 2, 0 }, -- #3997: its south end
 				} :: { [string]: { number } }
 				for id, spec in Layout.areas do
 					local x, z = Layout.gatePosition(spec)
@@ -2027,7 +2029,7 @@ return function()
 				expect(dot).to.be.near(1, 1e-9)
 				table.insert(aims, Layout.cannonAim(id))
 			end
-			expect(#aims).to.equal(7)
+			expect(#aims).to.equal(8) -- #3997: the Snowy Mountain's too
 			-- every destination at least 35 degrees from every other, so the barrel visibly turns (section 2 says about 38;
 			-- the Ruins pad sits 37.8 from the Sewer)
 			for i, a in aims do
@@ -2130,6 +2132,52 @@ return function()
 						)
 						if math.sqrt(dx * dx + dz * dz) < 500 then
 							fail("the %s is too close to the %s", id, other)
+						end
+					end
+				end
+			end
+		)
+
+		it(
+			"lays out the Snowy Mountain on the north west diagonal from its set's spots, not built yet (#3997)",
+			function()
+				local spec = Layout.areas.snowy
+				expect(spec).to.be.ok()
+				expect(spec.set).to.equal("CatCafe_Snowy_Set")
+				expect(Catalog.getArea("snowy")).to.equal(nil)
+				expect(Layout.camps.snowy).to.be.ok()
+				expect(#spec.spawnPoints).to.equal(105)
+				expect(#spec.rescueSpots).to.equal(5)
+				expect(#(spec.rescuePool :: { any })).to.equal(15)
+				expect(spec.center.x < 0 and spec.center.z > 0).to.equal(true)
+				expect(spec.halfDepth > spec.halfWidth).to.equal(true)
+				expect((spec.gateZ :: number) < spec.center.z).to.equal(true)
+				expect(Layout.cannonAim("snowy")).to.be.near(-51.7, 1)
+				local pad = Layout.camps.snowy.pad
+				local out = math.sqrt(pad.x ^ 2 + pad.z ^ 2)
+				expect(out > 1700 and out < 1900).to.equal(true)
+				local counts: { [string]: number } = {}
+				for _, point in spec.spawnPoints do
+					counts[point.zone :: string] = (counts[point.zone :: string] or 0) + 1
+					expect(math.abs(point.x - spec.center.x) < spec.halfWidth).to.equal(true)
+					expect(math.abs(point.z - spec.center.z) < spec.halfDepth).to.equal(true)
+				end
+				expect(counts.near).to.equal(51)
+				expect(counts.deep).to.equal(54)
+				-- four of the five deep, none within 100 studs of the camp, every pool trap 8 from every cat spot
+				local deep = 0
+				for _, trap in spec.rescueSpots do
+					if trap.z > spec.center.z then
+						deep += 1
+					end
+					expect(trap.z - (spec.gateZ :: number) > 100).to.equal(true)
+				end
+				expect(deep).to.equal(4)
+				for i, trap in spec.rescuePool :: { any } do
+					expect(Layout.setStuckPoses[trap.trap]).to.be.ok()
+					for _, point in spec.spawnPoints do
+						if math.sqrt((trap.x - point.x) ^ 2 + (trap.z - point.z) ^ 2) < 8 then
+							fail("snowy pool trap %d is within 8 of a cat spot", i)
 						end
 					end
 				end

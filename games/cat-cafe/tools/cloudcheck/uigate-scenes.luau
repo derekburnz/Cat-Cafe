@@ -11432,8 +11432,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		press("CatCafeModals", "passes")
 		assertStoreCards(false)
 	end },
-	-- #2147 (Derek2: "make the +15% earned more obvious"): the Cat Accessories and Uniform Styles cards lead their words
-	-- with a gold "+15% money" chip, under the picture and over the words; no other card has one
+	-- #2147: the Passes tab has no "+15% money" chips now that Cat Accessories and Uniform Styles are off the Store
+	-- (Derek 2026-11-14); buying one on Roblox still brings the thank-you toast
 	{ "StorePassesPerk", function()
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
@@ -11442,37 +11442,18 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("Store", true)
 		local list = window and window:FindFirstChild("List", true)
-		local chips: { [string]: boolean } = {}
 		for _, label in (list :: Instance):GetDescendants() do
 			if not (label:IsA("TextLabel") and label.Name == "Name" and label.Visible) then
 				continue
 			end
 			local card = label.Parent :: Frame
 			local perk = card:FindFirstChild("Perk", true) :: TextLabel?
-			local effect = card:FindFirstChild("Effect") :: TextLabel
 			local shown = perk ~= nil and perk.Visible
-			if label.Text == "Cat Accessories" or label.Text == "Uniform Styles" then
-				assert(shown and (perk :: TextLabel).Text == "+15% money", "uigate: the " .. label.Text .. " card has no +15% money chip (#2147)")
-				local chip = perk :: TextLabel
-				assert(chip.TextFits, "uigate: the +15% chip's words do not fit (#2147)")
-				local tile = card:FindFirstChild("Tile") :: Frame
-				if tile.AnchorPoint.Y == 0.5 then
-					-- #3572: a wide card's chip sits on the foot of its picture, clear of the words
-					local chipBottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
-					assert(chip.AbsolutePosition.X + chip.AbsoluteSize.X <= effect.AbsolutePosition.X, "uigate: the " .. label.Text .. " chip runs into the words (#3572)")
-					assert(chipBottom <= card.AbsolutePosition.Y + card.AbsoluteSize.Y, "uigate: the chip runs off the card's foot (#3572)")
-				else
-					assert(effect.AbsolutePosition.Y >= chip.AbsolutePosition.Y + chip.AbsoluteSize.Y, "uigate: the " .. label.Text .. " words sit on the chip (#2147)")
-				end
-				assert(chip.AbsolutePosition.Y >= label.AbsolutePosition.Y + label.AbsoluteSize.Y - 1, "uigate: the chip sits on the name (#2147)")
-				local cardRight = card.AbsolutePosition.X + card.AbsoluteSize.X
-				assert(chip.AbsolutePosition.X + chip.AbsoluteSize.X <= cardRight, "uigate: the chip runs off the card (#2147)")
-				chips[label.Text] = true
-			else
-				assert(not shown, "uigate: the " .. label.Text .. " card has a perk chip (#2147)")
-			end
+			-- Derek 2026-11-14: the old Cat Accessories and Uniform Styles passes are off the Store (the outfit packs
+			-- replace them); owners keep them, so the thank-you toast below still works
+			assert(label.Text ~= "Cat Accessories" and label.Text ~= "Uniform Styles", "uigate: the Store still sells " .. label.Text .. " (Derek 2026-11-14)")
+			assert(not shown, "uigate: the " .. label.Text .. " card has a perk chip (#2147)")
 		end
-		assert(chips["Cat Accessories"] and chips["Uniform Styles"], "uigate: an outfit pass card is missing (#2147)")
 		-- 7.3: the prompt says Cat Accessories was just bought: the thank-you toast (the sparkle is Animation's)
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		local PassShop = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.PassShop")

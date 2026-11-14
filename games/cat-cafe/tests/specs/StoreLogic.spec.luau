@@ -1199,15 +1199,84 @@ return function()
 		end)
 
 		it("puts the newest pack still to buy beside 2x Money on Featured", function()
-			local config =
-				{ MoneyPassIds = { [2] = 11 }, WinterPackPassId = 78, StylishPackPassId = 77 }
+			-- Derek 2026-11-14: the newest pack to buy is the hero; the next one sits beside 2x Money
+			local config = {
+				MoneyPassIds = { [2] = 11 },
+				WinterPackPassId = 78,
+				StylishPackPassId = 77,
+				ChefPackPassId = 79,
+			}
 			local rows = StoreLogic.rows(config, {})
 			local featured = StoreLogic.featured(rows, nil)
+			expect(featured.hero.key).to.equal("packWinter")
 			expect(featured.picks[1].key).to.equal("money")
-			expect(featured.picks[2].key).to.equal("packWinter")
+			expect(featured.picks[2].key).to.equal("packStylish")
 			local owned = StoreLogic.rows(config, { [78] = true })
-			expect(StoreLogic.featured(owned, nil).picks[2].key).to.equal("packStylish")
+			expect(StoreLogic.featured(owned, nil).hero.key).to.equal("packStylish")
+			expect(StoreLogic.featured(owned, nil).picks[2].key).to.equal("packChef")
 		end)
+
+		it(
+			"leads Featured with the Starter Bundle, then the newest pack, then the Royal Cat (Derek 2026-11-14)",
+			function()
+				local rows: { any } = {
+					{
+						key = "starterBundle",
+						name = "Starter Bundle",
+						passId = 1,
+						tab = "cats",
+						owned = false,
+					},
+					{
+						key = "royalCat",
+						name = "Royal Cat",
+						passId = 2,
+						tab = "cats",
+						owned = false,
+					},
+					{
+						key = "packStylish",
+						name = "Stylish Pack",
+						passId = 3,
+						tab = "packs",
+						owned = false,
+					},
+					{
+						key = "packWinter",
+						name = "Winter Pack",
+						passId = 4,
+						tab = "packs",
+						owned = false,
+					},
+				}
+				expect(StoreLogic.featured(rows, nil).hero.key).to.equal("starterBundle")
+				rows[1].owned = true
+				expect(StoreLogic.featured(rows, nil).hero.key).to.equal("packWinter")
+				rows[4].owned = true
+				expect(StoreLogic.featured(rows, nil).hero.key).to.equal("packStylish")
+				rows[3].owned = true
+				expect(StoreLogic.featured(rows, nil).hero.key).to.equal("royalCat")
+				rows[2].owned = true
+				expect(StoreLogic.featured(rows, nil).hero.key).to.equal("starterBundle") -- all bought: Yours
+			end
+		)
+
+		it(
+			"leaves the old Cat Accessories and Uniform Styles passes off the Store (Derek 2026-11-14)",
+			function()
+				local config =
+					{ CatAccessoriesPassId = 21, UniformStylesPassId = 22, CafeStylePassId = 23 }
+				for _, owned in { {}, { [21] = true, [22] = true } } do
+					local keys: { [string]: boolean } = {}
+					for _, row in StoreLogic.rows(config, owned) do
+						keys[row.key] = true
+					end
+					expect(keys.accessories).to.equal(nil)
+					expect(keys.uniforms).to.equal(nil)
+					expect(keys.cafeStyle).to.equal(true)
+				end
+			end
+		)
 
 		it(
 			"leads Featured with the update's own item only inside its window, with the switch on (#4175)",

@@ -9,7 +9,17 @@ return function()
 	local Prizes = require(ReplicatedStorage.Shared.Prizes)
 	local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 
-	local AREAS = { "alley", "park", "neighbourhood", "woods", "sewer", "desert", "ruins" } -- #2651: Tier 6 and 7
+	local AREAS = {
+		"alley",
+		"park",
+		"neighbourhood",
+		"woods",
+		"sewer",
+		"desert",
+		"ruins",
+		"snowy",
+		"waterpark",
+	} -- #2651: Tier 6 and 7; #3997; #4070
 	-- rally: F101; desert and ruins: #2651
 	local POOLS = {
 		"alley",
@@ -19,6 +29,8 @@ return function()
 		"sewer",
 		"desert",
 		"ruins",
+		"snowy", -- #3997
+		"waterpark", -- #4070
 		"classic",
 		"rally",
 	}
@@ -51,10 +63,10 @@ return function()
 				expect(milestone.needs > 0).to.equal(true)
 				local digits = tonumber(string.match(milestone.id, "%d+$"))
 				-- decor10 keeps its id but needs all twelve pieces since F80 (golden-fish.md 4b); #3992's last steps end
-				-- in "All" and need the whole book (70 today)
+				-- in "All" and need the whole book (90 with Tier 9's Water Park, #4070)
 				if string.sub(milestone.id, -3) == "All" then
 					expect(milestone.whole).to.equal(true)
-					expect(milestone.needs).to.equal(70)
+					expect(milestone.needs).to.equal(90)
 				else
 					expect(digits).to.equal(
 						if milestone.id == "decor10" then 10 else milestone.needs
@@ -143,7 +155,10 @@ return function()
 						)
 					).to.be.near(0.07, 1e-9)
 					-- #2651 (tier6-7-areas.md 7b): the first five pages already reach GoldLuckMax, so the Desert and Ruins add none
-					local late = table.find({ "desert", "ruins" }, areaId :: string) ~= nil
+					local late = table.find(
+						{ "desert", "ruins", "snowy", "waterpark" },
+						areaId :: string
+					) ~= nil
 					expect(sum(prizes, "goldLuck")).to.be.near(if late then 0 else 0.30, 1e-9)
 					expect(sum(prizes, "baitSpeed")).to.equal(0)
 					expect(prizes.gold10.tag).to.equal(
@@ -260,7 +275,7 @@ return function()
 		)
 
 		it(
-			"has no page beyond the areas, All Cats, the nine Decor Index pages and Rainbow",
+			"has no page beyond the areas, All Cats, the eleven Decor Index pages and Rainbow",
 			function()
 				for pageId in pairs(Catalog.indexPrizes) do
 					local known = table.find(AREAS, pageId) ~= nil
@@ -344,7 +359,8 @@ return function()
 			for _, area in Catalog.areas do
 				expect(Prizes.crateFor(Prizes.HIGHEST, area.tier)).to.equal(area.id .. "_crate")
 			end
-			expect(Prizes.crateFor(Prizes.HIGHEST, 99)).to.equal("ruins_crate")
+			expect(Prizes.crateFor(Prizes.HIGHEST, 99)).to.equal("waterpark_crate")
+			expect(Prizes.crateFor(Prizes.HIGHEST, 8)).to.equal("snowy_crate")
 			expect(Prizes.crateFor("classic_golden_crate", 1)).to.equal("classic_golden_crate")
 			expect(Prizes.crateFor("nope", 3)).never.to.be.ok()
 		end)
@@ -476,7 +492,7 @@ return function()
 			"#3992: the All steps need every cat the book counts, all but one is not enough",
 			function()
 				local size = IndexRewards.bookSize()
-				expect(size).to.equal(70)
+				expect(size).to.equal(90)
 				for _, pair in
 					{
 						{ "all", "totalAll" },
@@ -489,7 +505,7 @@ return function()
 				end
 				-- the whole book only counts on the pages across every area
 				expect(IndexRewards.needs("alley", assert(IndexRewards.milestone("totalAll")))).to.equal(
-					70
+					90
 				)
 				local profile = fresh()
 				table.clear(profile.collection)
@@ -892,37 +908,43 @@ return function()
 
 		-- golden-fish.md sections 4, 5 and 5b: +7% tips a normal track, +5% a full Decor page, +30% gold
 		-- luck a gold track up to GoldLuckMax, 38% faster bait. No cap may eat a bonus a card promises.
-		it("sums the whole Index once: +94% tips, gold luck at its cap, 50% faster bait", function()
-			local profile = fullProfile()
-			local sums = { bonus = 0, goldLuck = 0, baitSpeed = 0 }
-			for _, areaId in pages() do
-				for _, prize in pairs(Catalog.indexPrizes[areaId]) do
-					sums.bonus += prize.bonus or 0
-					sums.goldLuck += prize.goldLuck or 0
-					sums.baitSpeed += prize.baitSpeed or 0
+		it(
+			"sums the whole Index once: +118% tips, gold luck at its cap, 50% faster bait",
+			function()
+				local profile = fullProfile()
+				local sums = { bonus = 0, goldLuck = 0, baitSpeed = 0 }
+				for _, areaId in pages() do
+					for _, prize in pairs(Catalog.indexPrizes[areaId]) do
+						sums.bonus += prize.bonus or 0
+						sums.goldLuck += prize.goldLuck or 0
+						sums.baitSpeed += prize.baitSpeed or 0
+					end
 				end
-			end
-			expect(sums.goldLuck <= Config.GoldLuckMax + 1e-9).to.equal(true)
-			expect(sums.baitSpeed <= Config.BaitSpeedMax + 1e-9).to.equal(true)
-			local before = Economy.cafeMultiplier(profile)
-			for _, areaId in pages() do
-				for _, milestoneId in milestonesOf(areaId) do
-					claim(profile, areaId, milestoneId)
+				expect(sums.goldLuck <= Config.GoldLuckMax + 1e-9).to.equal(true)
+				expect(sums.baitSpeed <= Config.BaitSpeedMax + 1e-9).to.equal(true)
+				local before = Economy.cafeMultiplier(profile)
+				for _, areaId in pages() do
+					for _, milestoneId in milestonesOf(areaId) do
+						claim(profile, areaId, milestoneId)
+					end
 				end
+				local totals = IndexRewards.totals(profile)
+				-- +5% more from F101's Rally page; #2651: +7% from each of the Desert's and the Ruins' pages and +5% from each
+				-- of their Decor pages; #3997 and #4070: the same +12% from the Snowy Mountain's and from the Water Park's
+				expect(math.abs(totals.bonus - 1.18) < 1e-9).to.equal(true)
+				expect(math.abs(totals.goldLuck - Config.GoldLuckMax) < 1e-9).to.equal(true)
+				expect(math.abs(totals.baitSpeed - 0.5) < 1e-9).to.equal(true) -- #3992: was 0.38
+				-- the full Decor pages count through their decor10 claims only, not a second time for being full
+				expect(math.abs(Economy.cafeMultiplier(profile) - before - 1.18) < 1e-9).to.equal(
+					true
+				)
+				expect(
+					math.abs(
+						IndexRewards.goldChance(Config.GoldChanceBait, totals.goldLuck) - 0.125
+					) < 1e-9
+				).to.equal(true)
 			end
-			local totals = IndexRewards.totals(profile)
-			-- +5% more from F101's Rally page; #2651: +7% from each of the Desert's and the Ruins' pages and +5% from each
-			-- of their Decor pages
-			expect(math.abs(totals.bonus - 0.94) < 1e-9).to.equal(true)
-			expect(math.abs(totals.goldLuck - Config.GoldLuckMax) < 1e-9).to.equal(true)
-			expect(math.abs(totals.baitSpeed - 0.5) < 1e-9).to.equal(true) -- #3992: was 0.38
-			-- the full Decor pages count through their decor10 claims only, not a second time for being full
-			expect(math.abs(Economy.cafeMultiplier(profile) - before - 0.94) < 1e-9).to.equal(true)
-			expect(
-				math.abs(IndexRewards.goldChance(Config.GoldChanceBait, totals.goldLuck) - 0.125)
-					< 1e-9
-			).to.equal(true)
-		end)
+		)
 
 		-- The Collection header's "Forever" pills read the UI's IndexRewards.totals (UI PR #332), and the
 		-- server rolls and pays with the shared one; any set of claims must give the same three numbers.

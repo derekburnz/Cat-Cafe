@@ -64,6 +64,7 @@ local HttpService = game:GetService("HttpService")
 local Catalog = require(script.Parent.Catalog)
 local Catching = require(script.Parent.Catching)
 local Config = require(script.Parent.Config)
+local LateTiers = require(script.Parent.LateTiers)
 local Types = require(script.Parent.Types)
 
 local CafeEvents = {}
@@ -573,15 +574,18 @@ end
 
 -- The area a roll in [0, 1) lands on, by EventShowerAreaWeights in Catalog.areas order (equal: 20 each).
 function CafeEvents.showerAreaFor(r: number): string
-	local weights = Config.EventShowerAreaWeights
+	-- #3997: an area behind the `tier8` switch (shared/LateTiers) weighs nothing until it opens
+	local function weightOf(areaId: string): number
+		return if LateTiers.areaOpen(areaId) then Config.EventShowerAreaWeights[areaId] or 0 else 0
+	end
 	local total = 0
 	for _, area in Catalog.areas do
-		total += weights[area.id] or 0
+		total += weightOf(area.id)
 	end
 	local point = math.clamp(r, 0, 1) * total
 	local last = Catalog.areas[1].id
 	for _, area in Catalog.areas do
-		local weight = weights[area.id] or 0
+		local weight = weightOf(area.id)
 		if weight > 0 then
 			last = area.id
 			if point < weight then

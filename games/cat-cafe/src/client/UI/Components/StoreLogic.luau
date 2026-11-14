@@ -416,6 +416,7 @@ export type ProductPrize = {
 	cats: { string }?, -- #1625: the Starter Bundle's Sprinkles
 	signStyles: { string }?, -- #1625: the Starter Bundle's Bakery Stripes
 	moneyMultiplier: number?, -- #2850: the Starter Bundle's 2x Money for good
+	moneySwap: { [string]: number }?, -- #4020: the potions in its place for a buyer who already has that much
 }
 -- The running Cafe Pass season for its card: its number, its name, whether its paid track is bought, and the paid
 -- track's contents in words (PassLogic.paidContents).
@@ -617,7 +618,9 @@ local function productRows(config: any, view: ShopView?): { Row }
 end
 
 -- The Starter Bundle's row while it can be bought, else nil.
-local function starterRow(config: any, view: ShopView?): Row?
+-- #4020: `moneyTop` is the highest Money pass owned (1 with none); at the bundle's multiplier or more the card says the
+-- swap potions come instead of the 2x, as the server pays them (Products.prizeFor).
+local function starterRow(config: any, view: ShopView?, moneyTop: number): Row?
 	local id = productId(config, STARTER)
 	if id == nil or view == nil or view.starterBought ~= false then
 		return nil
@@ -634,9 +637,27 @@ local function starterRow(config: any, view: ShopView?): Row?
 	end
 	-- #1625: the exact contents on the card (monetization policy): the cat and sign style, then the potions
 	local effect = STARTER.effect
-	local extras = StoreLogic.extras(def.prize, view.catNames)
+	local prize: ProductPrize = def.prize
+	local swap = prize.moneySwap
+	local multiplier = prize.moneyMultiplier
+	local swapped = swap ~= nil
+		and next(swap) ~= nil
+		and multiplier ~= nil
+		and moneyTop >= multiplier
+	local extras = StoreLogic.extras(
+		if swapped
+			then { potions = prize.potions, cats = prize.cats, signStyles = prize.signStyles }
+			else prize,
+		view.catNames
+	)
 	if extras then
 		effect ..= "\n" .. extras
+	end
+	if swapped and swap ~= nil then
+		effect ..= ("\nYou own %dx Money, so instead: %s"):format(
+			moneyTop,
+			StoreLogic.contentsLine(swap, view.potionNames)
+		)
 	end
 	-- #2850: the potions on one line, so the bigger bundle still fits the Featured hero on a phone
 	local potions = def.prize.potions
@@ -917,6 +938,12 @@ function StoreLogic.rows(
 ): { Row }
 	local rows: { Row } = {}
 	local ladder = rungs(config)
+	local moneyTop = 1 -- #4020: for the Starter Bundle's swap line
+	for _, rung in ladder do
+		if owned[rung.id] then
+			moneyTop = math.max(moneyTop, rung.multiplier)
+		end
+	end
 	if #ladder > 0 then
 		local top = 1
 		for _, rung in ladder do
@@ -984,7 +1011,7 @@ function StoreLogic.rows(
 			for _, row in productRows(config, view) do
 				table.insert(rows, row)
 			end
-			local starter = starterRow(config, view)
+			local starter = starterRow(config, view, moneyTop)
 			if starter then
 				table.insert(rows, starter)
 			end

@@ -357,6 +357,32 @@ return function()
 					.. "\nSprinkles the cat, Bakery Stripes sign style"
 					.. "\n10x Big Money, 5x Swift potions" -- #2850: one line, so the bigger bundle fits the hero
 			)
+			-- #4020: with a Money pass owned the 2x line gives way to the swap potions, as the server pays them
+			full.products[#full.products].prize.moneyMultiplier = 2
+			full.products[#full.products].prize.moneySwap =
+				{ big_tip_potion = 10, swift_potion = 5 }
+			local plain = StoreLogic.tabRows(StoreLogic.rows(config, {}, nil, full), "cats")[1]
+			expect(string.find(plain.effect, "2x Money for good", 1, true) ~= nil).to.equal(true)
+			expect(string.find(plain.effect, "instead", 1, true)).to.equal(nil)
+			for multiplier, passId in config.MoneyPassIds do
+				local swapped = StoreLogic.tabRows(
+					StoreLogic.rows(config, { [passId] = true }, nil, full),
+					"cats"
+				)[1]
+				expect(string.find(swapped.effect, "2x Money for good", 1, true)).to.equal(nil)
+				expect(
+					string.find(
+						swapped.effect,
+						("You own %dx Money, so instead: 10x Big Money, 5x Swift potions"):format(
+							multiplier
+						),
+						1,
+						true
+					) ~= nil
+				).to.equal(true)
+			end
+			full.products[#full.products].prize.moneyMultiplier = nil
+			full.products[#full.products].prize.moneySwap = nil
 			-- a cat or style with no name yet still reads as words
 			expect(StoreLogic.extras({
 				potions = {},

@@ -5305,6 +5305,9 @@ Catalog.products = {
 		prize = {
 			potions = { big_tip_potion = 10, swift_potion = 5, steady_potion = 5 },
 			moneyMultiplier = 2,
+			-- #4020: a buyer who already has 2x Money or more (a Money pass) gets these instead of the 2x (no Lucky: a Robux
+			-- item never holds odds potions, Products.ALLOWED_POTIONS)
+			moneySwap = { big_tip_potion = 10, swift_potion = 5 },
 			cats = { "sprinkles" },
 			signStyles = { "bakery_stripes" },
 		},

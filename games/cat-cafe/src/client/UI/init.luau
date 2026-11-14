@@ -9712,6 +9712,25 @@ function UI.perks.unlock(perkId: string)
 	end)
 end
 
+-- #4280 (Derek 2026-11-14: "encourage trading by showing an unlock with a lock falling off of it animation on hitting
+-- Tier 3 (make sure its not overtop any other animations)"): the HUD's Trade tile, where Effects/TradeUnlock's icon
+-- flies, and whether the screen is calm enough for it: no window, roll, cutscene, catch, rescue or carry (UI.bait.busy),
+-- and no perk card up, the same holds as the "Unlocked!" card.
+function UI.tradeTile(): GuiObject?
+	local view: any = hud
+	local tile = if view ~= nil then view._tradeTile else nil
+	return if tile ~= nil then tile.instance else nil
+end
+
+function UI.calmForMoment(): boolean
+	local card: any = UI.perks.card
+	return (modal == nil or modal:current() == nil)
+		and not UI.rollBusy.on
+		and not UI.cutscene.on
+		and not UI.bait.busy()
+		and not (card ~= nil and card:isShowing())
+end
+
 UI.gift = {
 	card = nil :: any,
 	queue = {} :: { { kind: string, paid: { string }? } },

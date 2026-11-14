@@ -155,6 +155,14 @@ return function()
 				expect(RestartNotice.text(0, devices)).to.equal(
 					"Updating now. Join again for better controls and ADMIN EVENTS! Your cafe is saved."
 				)
+				local rift = RestartNotice.ADMIN_LAUNCHES[5]
+				expect(os.date("!%Y-%m-%d %H:%M", rift)).to.equal("2026-11-17 20:00")
+				expect(RestartNotice.text(600, rift - 600)).to.equal(
+					"A quick update is coming in 10 minutes, then RIFT RUN and ADMIN EVENTS! Keep playing, your cafe is saved."
+				)
+				expect(RestartNotice.text(0, rift)).to.equal(
+					"Updating now. Join again for RIFT RUN and ADMIN EVENTS! Your cafe is saved."
+				)
 				for _, now in
 					{
 						saturday - 3601,

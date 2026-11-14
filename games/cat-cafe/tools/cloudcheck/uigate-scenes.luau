@@ -11903,6 +11903,29 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(not string.find(big.Text, "2x", 1, true), "uigate: the resting banner names 2x in a 2x party (#3701)")
 		UI.rest.banner("resting", true, 0)
 	end },
+	-- #4174: the Starter Bundle's one slide-in card: its title and its one Buy button fit, its X is there from the
+	-- first frame, and it slides away by itself after 6 seconds, said once as "ignored"
+	{ "StarterSuggest", function()
+		local said = {}
+		local connection = UI.events.starterSuggest:Connect(function(outcome)
+			table.insert(said, outcome)
+		end)
+		UIShim.advance(2.5)
+		UI.tips.showStarter()
+		UIShim.advance(0.4)
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local title = ask:FindFirstChild("Title", true)
+		assert(title.Text == "Starter Bundle: a head start for your cafe", "uigate: the Starter card reads " .. title.Text .. " (#4174)")
+		assert(title.TextFits, "uigate: the Starter card's title does not fit (#4174)")
+		local buy = ask:FindFirstChild("Choice_buy", true)
+		assert(buy, "uigate: the Starter card has no Buy button (#4174)")
+		local label = buy:FindFirstChildWhichIsA("TextLabel", true)
+		assert(label == nil or label.TextFits, "uigate: the Starter card's Buy words do not fit (#4174)")
+		assert(said[1] == "shown", "uigate: the Starter card did not report shown (#4174)")
+		UIShim.advance(7)
+		assert(said[2] == "ignored", "uigate: the Starter card did not slide away by itself as ignored (#4174)")
+		connection:Disconnect()
+	end },
 }
 
 Scenes.names = {}

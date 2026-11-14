@@ -71,22 +71,36 @@ local function land(at: Vector3)
 end
 
 -- Hides a stray on this client only while its streak falls, so it reads as arriving with the streak and not as
--- standing there waiting for it. Returns what was hidden, for `show`. Parts that stream in later are left as they
--- are.
-local function hide(model: Model): { Instance }
+-- standing there waiting for it: its parts and decals unseen, its floating labels (NEW, the mood) off. A stray's
+-- parts arrive over a few frames after its Model does (Review-QA, #4211: 17 to 22 of about 57 were there at once),
+-- so the ones that come during the fall are hidden as they come. Returns the function that shows it all again.
+local function hide(model: Model): () -> ()
 	local hidden: { Instance } = {}
-	for _, d in model:GetDescendants() do
+	local labels: { BillboardGui } = {}
+	local function take(d: Instance)
 		if d:IsA("BasePart") or d:IsA("Decal") then
 			(d :: any).LocalTransparencyModifier = 1
 			table.insert(hidden, d)
+		elseif d:IsA("BillboardGui") then
+			local label = d :: BillboardGui
+			if label.Enabled then
+				label.Enabled = false
+				table.insert(labels, label)
+			end
 		end
 	end
-	return hidden
-end
-
-local function show(hidden: { Instance })
-	for _, d in hidden do
-		(d :: any).LocalTransparencyModifier = 0
+	local added = model.DescendantAdded:Connect(take)
+	for _, d in model:GetDescendants() do
+		take(d)
+	end
+	return function()
+		added:Disconnect()
+		for _, d in hidden do
+			(d :: any).LocalTransparencyModifier = 0
+		end
+		for _, label in labels do
+			label.Enabled = true
+		end
 	end
 end
 
@@ -122,9 +136,9 @@ local function fall(model: Model)
 		Transparency = 0.6,
 	}):Play()
 	Debris:AddItem(streak, p.seconds + 0.05)
-	local hidden = hide(model)
+	local show = hide(model)
 	task.delay(p.seconds, function()
-		show(hidden)
+		show()
 		land(at)
 	end)
 end
@@ -182,7 +196,8 @@ end
 local function tickDrift()
 	local p = Presets.stormFall
 	local focus = Context.focus()
-	if focus == nil or not StormFall.drifts(stormOn(), still()) then
+	-- no strays fall at night, so the drift rests then too
+	if focus == nil or not StormFall.drifts(stormOn() and not Context.isNight(), still()) then
 		stopDrift()
 		return
 	end

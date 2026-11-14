@@ -727,7 +727,6 @@ function Trade._buildPicker(self: any, picks: Frame)
 	self._pickerButtonH = buttonH
 	local picker: Frame = Create("Frame", {
 		Name = "CratePicker",
-		Active = true, -- #3990: a tap on the picker never reaches the crate rows under it
 		BackgroundColor3 = PAL.panel,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 1),
@@ -741,6 +740,17 @@ function Trade._buildPicker(self: any, picks: Frame)
 		Create("UIStroke", { Color = Theme.colors.gold, Thickness = Theme.sizes.stroke }),
 	})
 	self._picker = picker
+	-- #3990: a blank button under the picker's own words and buttons, so a tap between them never reaches the crate
+	-- rows under it (a Frame lets taps through, even with Active)
+	Create("TextButton", {
+		Name = "Sink",
+		AutoButtonColor = false,
+		BackgroundTransparency = 1,
+		Text = "",
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 10,
+		Parent = picker,
+	})
 	self._pickerTitle = text({
 		Name = "Title",
 		Position = UDim2.fromOffset(GAP, 2),

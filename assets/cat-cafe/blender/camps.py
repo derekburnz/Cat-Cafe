@@ -42,6 +42,7 @@ import desertset as ds
 import ruinsset as rs
 import snowyset as sn
 import waterparkset as wp
+import castleset as cs
 import neighbourhood as nb
 import park
 import sewer as sw
@@ -96,6 +97,10 @@ AREAS = {
     # a cream board fence under a red rail on asphalt
     "WaterPark": dict(W=150.0, D=560.0, half=12.0, ground=wp.ASPHALT, path=wp.PATH, wall=wp.MILK, top=wp.RED,
                       trim="shirt_red", theme="WaterPark"),
+    # Tier 10 (next-areas plan section 3, #4067): the Village Gate camp across the -Z end of the 150 x 560 Medieval
+    # Castle, a timber palisade under a dark rail on packed earth
+    "Castle": dict(W=150.0, D=560.0, half=12.0, ground=cs.EARTH, path=cs.SAND, wall=cs.WOOD, top=cs.WOOD_DARK,
+                   trim="pants_navy", theme="Castle"),
 }
 CAMPS = {}               # asset -> the manifest's camp entry
 ATTACHMENTS = {}         # asset -> [(object suffix, name, Roblox point, Roblox rotation)]
@@ -396,6 +401,32 @@ def _theme(s, mat, area, G, B, W, half):
         s.put(wp.trash_can(mat, 0), 36.0, G - 9.0, 0)
         s.put(wp.trash_can(mat, 1), -60.0, G - 6.0, 0)
         s.put(wp.balloon_bunch(mat, 1), -66.0, G - 20.0, 0)
+
+    elif AREAS[area].get("theme") == "Castle":
+        # the Village Gate camp (plan 3b): two market stalls against the back wall west with a well by them, a
+        # knight's pavilion, a hay cart and stores east, banners, torches and a practice corner. Clear of the pad,
+        # the basket, the paths, the Index Board (-19, 1.5 in) and the camp extra's spot (20, 3.5 in, its radius 8
+        # ring), where the Dragon Keep stands.
+        s.put(cs.market_stall(mat, 0), -43.0, B + 6.5, 180)
+        s.put(cs.market_stall(mat, 1), -59.0, B + 6.5, 180)
+        s.put(cs.well(mat), -27.0, B + 6.0, 0)
+        s.put(cs.pavilion(mat, 1), 54.0, B + 9.0, 180)
+        s.put(cs.barrels(mat, 0), 38.0, B + 4.5, 0)
+        s.put(cs.crate_stack(mat, 1), 67.0, B + 5.0, 0)
+        s.put(cs.hay_cart(mat), 40.0, G - 9.0, 20)
+        s.put(cs.haystack(mat, 0.8), 64.0, G - 10.0, 0)
+        s.put(cs.bench(mat), 52.0, G - 8.0, 0)
+        s.put(cs.bench(mat), -32.0, G - 9.0, 0)
+        s.put(cs.practice_dummy(mat, 0), -58.0, G - 7.0, 30)
+        s.put(cs.archery_butt(mat), -66.0, G - 20.0, 90)
+        s.put(cs.weapon_rack(mat), -46.0, G - 8.0, 0)
+        for sx in (1, -1):
+            s.put(cs.torch_post(mat), sx * 9, cz, 0)
+            s.put(cs.torch_post(mat), sx * (W / 2 - 3), G - 2.5, 0)
+            s.put(cs.banner_pole(mat, 0 if sx > 0 else 1), sx * (W / 2 - 5), B + 5, 180)
+            s.put(cs.banner_pole(mat, 2 if sx > 0 else 3), sx * 30.0, G - 12.0, 180)
+        s.put(cs.barrel(mat, 1), -14.5, G - 3.0, 0)
+        s.put(cs.barrel(mat, 0), 34.0, G - 4.0, 0)
 
 
 def rbx_attachments(name):

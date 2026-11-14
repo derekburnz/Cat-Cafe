@@ -670,14 +670,16 @@ return function()
 			-- #2895 (Derek2: "lower the 3-6 tier costs", then 50/30/10% off for Tiers 5/6/7): 600,000, 24M, 700M, 8B and 60B before
 			-- #3111 (Derek2: "lower the different cats requirement a little bit between 3-7"): 11, 28, 42 and 52 before at
 			-- Tiers 3, 5, 6 and 7; Tier 4 stays 22, any cut there fails Pace's 2 hour floor for 4x Money
+			-- #4320 (Derek 2026-11-14 21:41 UTC: lower every tier for money and cats): 150,000, 4M, 90M, 1.25B and 12.5B,
+			-- and 8, 17, 20, 30, 38 before
 			-- #4189 (Derek 2026-11-14: into the next areas sooner): 520,000, 16.8M, 390M, 5.6B and 54B, and 10, 22, 26, 38
 			-- and 47 kinds before; the 4x Money 2 hour floor is dropped
-			{ "Busy Cafe", 150000, 8, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 2 } },
-			{ "Famous Cafe", 4000000, 17, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 2 } },
-			{ "Grand Cafe", 90000000, 20, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			{ "Busy Cafe", 110000, 6, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 2 } },
+			{ "Famous Cafe", 2600000, 13, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 2 } },
+			{ "Grand Cafe", 45000000, 14, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 			-- #2651 (tier6-7-areas.md sections 1 and 7b), QA-Planner's Pace fit
-			{ "Sunstone Cafe", 1250000000, 30, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
-			{ "Wonder Cafe", 12500000000, 38, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
+			{ "Sunstone Cafe", 625000000, 21, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
+			{ "Wonder Cafe", 6250000000, 27, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
 		}
 
 		it("has seven tiers matching the table", function()

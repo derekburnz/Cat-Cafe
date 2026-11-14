@@ -15,6 +15,7 @@ export type Area = SharedTypes.Area
 export type SpotType = SharedTypes.SpotType -- v0.3: the same as Role; a role slot is still a spot in code
 export type Role = SharedTypes.Role
 export type CatchMethod = SharedTypes.CatchMethod
+export type TicketBoothView = SharedTypes.TicketBoothView -- #4061
 export type ClockPhase = "day" | "night" -- Clock folder attribute Phase (data-model section 9)
 -- the net (closing circles), a stuck cat (the rescue hold), or a dropped cat anyone can pick up with the hold and no
 -- circles (v0.8 F56, v0.10 F67: its model or prompt has PickUp = true)

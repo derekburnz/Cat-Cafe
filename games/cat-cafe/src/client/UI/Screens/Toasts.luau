@@ -25,6 +25,8 @@
 -- #3132 (Derek2: the Collector's message "to show a face of the cat and rarity and not cut off the name make the msg
 -- shorter and easier to see"): cat(card) is a short banner in the same stack: the cat's face, a small title and under
 -- it one rich line that shrinks, then wraps onto a second row, so a name is never cut. A tap runs card.onTap.
+-- #3995 (friend-join-3995.md 4 and 5): the same banner with a player's Roblox headshot in the disc (card.headshot) is
+-- the friend join note; card.tapCloses puts it away on a tap and card.wait (an open menu) holds it back until clear.
 
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CoatWords =
@@ -49,6 +51,9 @@ export type CatCard = {
 	line: string, -- rich text: the name and the rarity in its colour
 	seconds: number?,
 	onTap: (() -> ())?,
+	headshot: string?, -- #3995: a player's headshot (rbxthumb) in the disc in place of the cat
+	tapCloses: boolean?, -- #3995: a tap puts the banner away
+	wait: (() -> boolean)?, -- #3995: true holds the banner back (a menu is open), a second at a time
 }
 
 export type Toasts = {
@@ -347,7 +352,7 @@ end
 -- #3132: the cat banner. One at a time; a new one replaces the last. While a camera cut holds the toasts or a catch
 -- runs it waits, a second at a time, and gives up after CAT_WAIT_TRIES.
 function Toasts.cat(self: any, card: CatCard, tries: number?)
-	if self._held or self._focus then
+	if self._held or self._focus or (card.wait ~= nil and card.wait()) then
 		local waited = (tries or 0) + 1
 		if waited <= CAT_WAIT_TRIES then
 			task.delay(1, function()
@@ -366,7 +371,7 @@ function Toasts.cat(self: any, card: CatCard, tries: number?)
 	self._lastAt = os.clock()
 	local height = CAT_PAD * 2 + CAT_TITLE_H + CAT_LINE_H
 	local toast: TextButton = Create("TextButton", {
-		Name = "CatToast",
+		Name = if card.headshot ~= nil then "PalNote" else "CatToast",
 		AutoButtonColor = false,
 		BackgroundColor3 = KIND_COLORS.info,
 		BackgroundTransparency = 1,
@@ -390,15 +395,29 @@ function Toasts.cat(self: any, card: CatCard, tries: number?)
 	Outline.border(
 		disc,
 		Theme.sizes.outline,
-		Theme.rarityColor(if card.def then card.def.rarity else nil)
+		if card.headshot ~= nil
+			then Theme.colors.gold
+			else Theme.rarityColor(if card.def then card.def.rarity else nil)
 	)
-	local portrait = CatPortrait.new({
-		parent = disc,
-		size = UDim2.fromScale(1, 1),
-		still = true,
-		head = true,
-	})
-	portrait:set(card.def, card.shiny == true)
+	local portrait: CatPortrait.CatPortrait? = nil
+	if card.headshot ~= nil then
+		Create("ImageLabel", {
+			Name = "Headshot",
+			BackgroundTransparency = 1,
+			Size = UDim2.fromScale(1, 1),
+			Image = card.headshot,
+			Parent = disc,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	else
+		local made = CatPortrait.new({
+			parent = disc,
+			size = UDim2.fromScale(1, 1),
+			still = true,
+			head = true,
+		})
+		made:set(card.def, card.shiny == true)
+		portrait = made
+	end
 	local left = CAT_PAD + 2 + CAT_FACE + 10
 	local title: TextLabel = Create("TextLabel", {
 		Name = "Title",
@@ -440,11 +459,17 @@ function Toasts.cat(self: any, card: CatCard, tries: number?)
 		if card.onTap then
 			card.onTap()
 		end
+		if card.tapCloses then
+			toast:Destroy()
+		end
 	end)
 	-- pushed off the stack by newer toasts, replaced or timed out: one clean-up
 	toast.Destroying:Once(function()
 		tapped:Disconnect()
-		portrait:destroy()
+		local made = portrait
+		if made ~= nil then
+			made:destroy()
+		end
 		local index = table.find(self._alive, toast)
 		if index then
 			table.remove(self._alive, index)

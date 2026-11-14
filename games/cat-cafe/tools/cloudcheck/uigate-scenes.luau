@@ -7089,6 +7089,23 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "PalArrived", function()
 		UI.palArrived(4242, firstArea())
 	end },
+	-- #3995 (friend-join-3995.md 4): the joiner's note, the friend's headshot and "Your cafe is next door." (palJoin)
+	{ "PalJoinNote", function()
+		UI.palJoined(localUserId(), 4242, true)
+		local note = UIShim.playerGui:FindFirstChild("PalNote", true)
+		assert(note ~= nil, "uigate: no join note (#3995)")
+		local line = note:FindFirstChild("Line") :: TextLabel
+		assert(line ~= nil and line.Text == "Your cafe is next door.", "uigate: the joiner's note has no next door line (#3995)")
+		assert(note:FindFirstChild("Headshot", true) ~= nil, "uigate: the join note has no headshot (#3995)")
+	end },
+	-- #3995 (5): the friend's note, "<name> joined you! They're at your front door."
+	{ "PalJoinFriend", function()
+		UI.palJoined(4242, localUserId(), nil)
+		local note = UIShim.playerGui:FindFirstChild("PalNote", true)
+		assert(note ~= nil, "uigate: no friend note (#3995)")
+		local line = note:FindFirstChild("Line") :: TextLabel
+		assert(line ~= nil and line.Text == "They're at your front door.", "uigate: the friend's note is wrong (#3995)")
+	end },
 	-- F84: the name card in the clouds at the top centre, held so the scene catches it (Derek 2026-11-03: the flying
 	-- character shows below it)
 	{ "CannonFlightCard", function()

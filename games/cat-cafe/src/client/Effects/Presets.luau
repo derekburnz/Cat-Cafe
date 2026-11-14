@@ -5193,7 +5193,8 @@ export type AuroraSpec = {
 	nestShown: { number }, -- each of those bands' own transparency at the ribbon's middle
 	nestBright: { number }, -- and its Beam.Brightness
 	height: number,
-	window: number, -- studs of the area's longer side the ribbons run over, centred `ahead` of you
+	window: number, -- studs across your way the ribbons' box is wide: they run over 0.8 of it, side to side
+	deep: number, -- studs of the area's longer side the ribbons are spread over, centred `ahead` of you
 	ahead: number, -- studs toward where the camera looks
 	recentre: number, -- the window moves once you are this far from where it was centred for
 	glide: number, -- seconds it takes to move
@@ -5279,12 +5280,15 @@ Presets.areaFx = {
 				-- mountain and the top of the screen. So a window of them keeps ahead of you, lower. Second look: at
 				-- 62 studs they were still above what the default camera shows (it looks a little down, and the top
 				-- HUD bar covers the rest), so they hang low and further out: 10 to 20 degrees up from where you stand.
+				-- Third look: run along the area they were end on to you, thin slivers with faded tips. So they hang
+				-- across the way you look, side to side, at about 90, 150 and 210 studs ahead.
 				height = 36,
-				window = 320,
+				window = 300,
+				deep = 120,
 				ahead = 150,
 				recentre = 50,
 				glide = 4,
-				spread = 1.5,
+				spread = 1,
 				rise = 6,
 				width = 46,
 				overlap = 0.45,

@@ -517,8 +517,9 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 	fadeAurora(spec, spec.shown)
 end
 
--- The window of an area's lights for where you stand and look: the area's box with its longer side cut to the
--- spec's `window` and centred ahead of you (Logic.auroraCentre). Also whether that side is Z, and the centre on it.
+-- The window of an area's lights for where you stand and look: `deep` studs of the area's longer side, centred
+-- ahead of you (Logic.auroraCentre), and `window` studs across it, so the ribbons hang across your view with their
+-- broad faces toward you (#4216: run along the area they were seen end on, as slivers). Also whether that side is Z, and the centre on it.
 local function auroraWindow(
 	spec: Presets.AuroraSpec,
 	box: any,
@@ -534,10 +535,11 @@ local function auroraWindow(
 		if alongZ then look.Z else look.X,
 		middle - long / 2,
 		middle + long / 2,
-		spec.window,
+		spec.deep,
 		spec.ahead
 	)
-	local window = math.min(long, spec.window)
+	-- `deep` along the way you travel, `window` across it: the ribbons run the longer side, so across your view
+	local deep = math.min(long, spec.deep)
 	return {
 		id = box.id,
 		centre = {
@@ -545,8 +547,8 @@ local function auroraWindow(
 			z = if alongZ then along else box.centre.z,
 		},
 		size = {
-			width = if alongZ then box.size.width else window,
-			depth = if alongZ then window else box.size.depth,
+			width = if alongZ then spec.window else deep,
+			depth = if alongZ then deep else spec.window,
 		},
 	},
 		alongZ,

@@ -169,31 +169,55 @@ return function()
 			expect(Logic.auroraOn(nil, nil, evening)).to.equal(false)
 		end)
 
-		it("keeps the northern lights' window ahead of you and inside the area", function()
-			local a = Presets.areaFx.areas.snowy.aurora :: any
-			expect(a.window >= 200 and a.window <= 400).to.equal(true)
-			expect(a.ahead < a.window / 2).to.equal(true) -- some of it is always over you
-			-- the strong middle of a ribbon (30 to 70% of its length) sits 10 to 25 degrees up from where you stand
-			local near = a.ahead - a.window * 0.8 * 0.2
-			local far = a.ahead + a.window * 0.8 * 0.2
-			expect(math.deg(math.atan2(a.height, near)) <= 25).to.equal(true)
-			expect(math.deg(math.atan2(a.height, far)) >= 8).to.equal(true)
-			expect(a.glide >= 2).to.equal(true) -- a slow glide, never a jump
-			local lo, hi = -400, 400
-			-- looking up the area, down it, and across it
-			expect(Logic.auroraCentre(0, 1, lo, hi, a.window, a.ahead)).to.equal(a.ahead)
-			expect(Logic.auroraCentre(0, -1, lo, hi, a.window, a.ahead)).to.equal(-a.ahead)
-			expect(Logic.auroraCentre(0, 0.1, lo, hi, a.window, a.ahead)).to.equal(0)
-			-- at either end it stops at the area's edge
-			expect(Logic.auroraCentre(-390, -1, lo, hi, a.window, a.ahead)).to.equal(
-				lo + a.window / 2
-			)
-			expect(Logic.auroraCentre(390, 1, lo, hi, a.window, a.ahead)).to.equal(
-				hi - a.window / 2
-			)
-			-- an area shorter than the window keeps its own middle
-			expect(Logic.auroraCentre(30, 1, -100, 100, a.window, a.ahead)).to.equal(0)
-		end)
+		it(
+			"hangs the northern lights across your view, ahead of you and inside the area",
+			function()
+				local a = Presets.areaFx.areas.snowy.aurora :: any
+				expect(a.window >= 200 and a.window <= 400).to.equal(true)
+				expect(a.deep < a.window).to.equal(true) -- so the ribbons run across, not along
+				expect(a.glide >= 2).to.equal(true) -- a slow glide, never a jump
+				-- the Snowy Mountain (150 across, 560 deep), you at its landing end looking up it
+				local along = Logic.auroraCentre(-250, 1, -280, 280, a.deep, a.ahead)
+				expect(along).to.equal(-250 + a.ahead)
+				local ribbons = Logic.auroraRibbons(
+					a.ribbons[1],
+					{ x = 0, z = along },
+					{ width = a.window, depth = a.deep },
+					a.height,
+					a.spread,
+					a.rise,
+					a.curve,
+					a.seconds,
+					a.curveMost
+				)
+				for _, r in ribbons do
+					local run = r.to - r.from
+					-- side to side across the way you look, its middle straight ahead
+					expect(math.abs(run.Z) < 1e-6).to.equal(true)
+					expect(math.abs(run.X) >= 200).to.equal(true)
+					expect(math.abs(r.from.X + r.to.X) < 1e-6).to.equal(true)
+					-- 60 studs or more ahead, and 8 to 25 degrees up: inside what the default camera shows
+					local ahead = r.from.Z - -250
+					expect(ahead >= 60).to.equal(true)
+					local up = math.deg(math.atan2(r.from.Y, ahead))
+					expect(up >= 8 and up <= 25).to.equal(true)
+				end
+				local lo, hi = -400, 400
+				-- looking up the area, down it, and across it
+				expect(Logic.auroraCentre(0, 1, lo, hi, a.deep, a.ahead)).to.equal(a.ahead)
+				expect(Logic.auroraCentre(0, -1, lo, hi, a.deep, a.ahead)).to.equal(-a.ahead)
+				expect(Logic.auroraCentre(0, 0.1, lo, hi, a.deep, a.ahead)).to.equal(0)
+				-- at either end it stops at the area's edge
+				expect(Logic.auroraCentre(-390, -1, lo, hi, a.deep, a.ahead)).to.equal(
+					lo + a.deep / 2
+				)
+				expect(Logic.auroraCentre(390, 1, lo, hi, a.deep, a.ahead)).to.equal(
+					hi - a.deep / 2
+				)
+				-- an area shorter than the window keeps its own middle
+				expect(Logic.auroraCentre(30, 1, -50, 50, a.deep, a.ahead)).to.equal(0)
+			end
+		)
 
 		it("hangs the northern lights over the area at night, slow and inside it", function()
 			local a = Presets.areaFx.areas.snowy.aurora :: any

@@ -17,6 +17,7 @@
 -- Wiring and file map: README.md next to this file.
 
 local AdminAir = require(script.AdminAir)
+local AdminDrops = require(script.AdminDrops)
 local Ambient = require(script.Ambient)
 local ArcadeGlow = require(script.ArcadeGlow)
 local AreaFx = require(script.AreaFx)
@@ -200,6 +201,7 @@ function Effects.start()
 		RuinsWater.start,
 		StormFall.start, -- #4197: a Cat Storm's strays fall out of the sky
 		AdminAir.start, -- #4197: Golden Hour's gold motes and Money Storm's coin glints round you
+		AdminDrops.start, -- #4197: Fish Fountain's fish arc out, Crate Drop's crates come down by parachute
 		TrailSparkle.start,
 		PawTrail.start,
 		GoldenFind.start,

@@ -3326,6 +3326,39 @@ Presets.adminAir = {
 	every = 0.5,
 }
 
+-- #4197 (Effects/AdminDrops): the stand-ins that fly in what an admin event drops, for drops within `within` studs.
+-- Fish Fountain: a `blob` arcs from the plinth to its fish in `seconds`, `rise` studs high at the middle, then
+-- `splashCount` glints. Crate Drop: a `box` under a `canopy` on `cord` studs of line comes down from `height` over
+-- the `seconds` before the server's LandsAt, leaning up to `swayDegrees` each way every `swaySeconds`, then a ring
+-- and a puff.
+Presets.adminDrops = {
+	within = 160,
+	fish = {
+		seconds = 0.8,
+		rise = 9,
+		blob = Vector3.new(1.1, 1.1, 1.1),
+		colour = Presets.palette.golden,
+		splash = "coinGlint",
+		splashCount = 6,
+	},
+	crate = {
+		seconds = 3,
+		height = 45,
+		box = Vector3.new(3, 3, 3),
+		colour = Presets.palette.golden,
+		canopy = Vector3.new(8, 3.2, 8),
+		canopyColour = Presets.palette.neonPink,
+		cord = 5,
+		cordColour = Presets.palette.offwhite,
+		swayDegrees = 6,
+		swaySeconds = 1.6,
+		ring = 7,
+		ringSeconds = 0.5,
+		puff = "stormPuff",
+		puffCount = 10,
+	},
+}
+
 -- The Rally board's marquee (F101, Model-Agent's #759: `CatCafe_Square_RallyBoard` with its 32 bulbs in the
 -- `_Bulbs` Model round the face). While a Rally runs, every `gap`th bulb glows and the lit ones run round the frame
 -- clockwise at `hz` steps a second, `burstHz` for `burstSeconds` after each point anyone scores; each step of the bar

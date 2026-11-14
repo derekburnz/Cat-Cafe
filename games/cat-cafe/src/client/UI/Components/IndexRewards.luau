@@ -262,6 +262,11 @@ function IndexRewards.claimable(catalog: Catalog, state: State): ({ [string]: nu
 	local total = 0
 	local rewards: { [string]: { [string]: Prize } } = catalog.indexPrizes or {}
 	for areaId in rewards do
+		-- #4064: a page out of view (the Rally page while the Rally is off) never counts toward the "!"
+		local pool = DecorPieces.poolOf(areaId)
+		if pool ~= nil and DecorPieces.hidden(pool) then
+			continue
+		end
 		local ready = 0
 		for _, view in IndexRewards.views(catalog, state, areaId) do
 			if view.state == "ready" then

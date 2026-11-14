@@ -11,6 +11,9 @@
 -- piece's PrimaryPart. A piece only turns once every part of it is here and anchored; if a part streams in or the
 -- server moves it after that, it goes back to where it was built and is read again.
 --
+-- The turning pieces do not collide on this client (they could not carry a player, and would shove one): players
+-- stand on the ride's still deck.
+--
 -- Budgets: the nearest `most` rides within `radius` studs turn, one on a device with no decor motion (phones on the
 -- lite budget), at the budget's update rate and never faster than `hz`. Reduce Motion and Low performance leave
 -- every ride still. A ride that stops stays where it is, so nothing snaps back in view. Numbers in Presets.rides.
@@ -136,6 +139,15 @@ local function reset(ride: Ride)
 	ride.moving = false
 end
 
+-- A piece that turns on this client only cannot carry anyone, and would shove or trap a player it swept into. So
+-- on this client its parts never collide, whether or not it is turning here: you walk through the horses and cups
+-- and stand on the ride's still deck under them.
+local function passThrough(instance: Instance)
+	if instance:IsA("BasePart") then
+		(instance :: BasePart).CanCollide = false
+	end
+end
+
 local function consider(instance: Instance)
 	if not instance:IsA("Model") or rides[instance :: Model] ~= nil then
 		return
@@ -161,10 +173,16 @@ local function consider(instance: Instance)
 	rides[model] = ride
 	-- a part arriving after the ride was read stands where the server built it, not where the ride has turned to
 	ride.added = model.DescendantAdded:Connect(function(descendant: Instance)
-		if ride.bound and descendant:IsA("BasePart") then
-			reset(ride)
+		if descendant:IsA("BasePart") then
+			passThrough(descendant)
+			if ride.bound then
+				reset(ride)
+			end
 		end
 	end)
+	for _, descendant in model:GetDescendants() do
+		passThrough(descendant)
+	end
 end
 
 -- How many rides may turn at once on this device.

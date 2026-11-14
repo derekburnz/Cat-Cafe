@@ -4831,6 +4831,13 @@ function HUD._togglePop(self: any, kind: string)
 	pop.Visible = true
 	Tween.popIn(pop, 0.9)
 	Sound.play("uiClick")
+	-- #4224 (Review-QA controller pass): on a controller the list takes the selection, on Gifts or Daily treat when
+	-- it has them (the countdown rows only close it), and B closes it
+	local main = self._popRows.Gifts or self._popRows.Daily
+	self._popPad = GamepadNav.card("hudList", pop, function(): boolean?
+		self:_closePop()
+		return nil
+	end, if main ~= nil then main.face else nil)
 end
 
 -- The open list's rows say what they say now (the gift countdown ticks while it is open).
@@ -4845,6 +4852,11 @@ function HUD._fillPop(self: any)
 end
 
 function HUD._closePop(self: any)
+	local pad: (() -> ())? = self._popPad
+	self._popPad = nil
+	if pad ~= nil then
+		pad()
+	end
 	self._popFor = nil
 	self._pop.Visible = false
 	for _, button in self._popRows do

@@ -35,6 +35,13 @@ end
 
 -- names of buttons (or of the Button frame round their Face) a window's first selection skips: its X, and the arrow tabs that fold HUD rows
 local SKIP: { [string]: boolean } = { Close = true, MenuFold = true, TravelFold = true }
+-- #4224 (Review-QA controller pass): a button (or the Button frame round its Face) with this attribute is not a
+-- window's first selection while another button is there, like Potions' "Use all potions" over the potions' own Use
+GamepadNav.NOT_FIRST = "PadNotFirst"
+-- #4224 (Review-QA controller pass): the frames that hold a window's tabs for L1 / R1. Most windows name theirs Tabs;
+-- the Store's tab column is Rail, the Decor chips' row Chips and the Bait Bowl's two bowls Bowls
+GamepadNav.TAB_ROWS =
+	table.freeze({ Tabs = true, Rail = true, Chips = true, Bowls = true }) :: { [string]: boolean }
 local ROW = 12 -- pixels: buttons whose tops are this close count as one row, read left to right
 
 local GAMEPADS: { [Enum.UserInputType]: boolean } = {
@@ -121,13 +128,22 @@ end
 -- the tabs; a window of only tabs lands on its first tab.
 function GamepadNav.first(root: Instance): GuiButton?
 	local buttons = GamepadNav.buttons(root)
+	local function notFirst(button: GuiButton): boolean
+		local parent = button.Parent
+		return button:GetAttribute(GamepadNav.NOT_FIRST) == true
+			or (parent ~= nil and parent:GetAttribute(GamepadNav.NOT_FIRST) == true)
+	end
+	local fallback: GuiButton? = nil
 	for _, button in buttons do
 		local tabs = button:FindFirstAncestor("Tabs")
 		if tabs == nil or not tabs:IsDescendantOf(root) then
-			return button
+			if not notFirst(button) then
+				return button
+			end
+			fallback = fallback or button
 		end
 	end
-	return buttons[1]
+	return fallback or buttons[1]
 end
 
 -- Selects `target` when it still shows (GamepadNav.shown), else clears the selection, so the engine is never handed a
@@ -262,7 +278,7 @@ function GamepadNav.tabs(root: Instance): (Instance?, { GuiButton })
 	local rows: { GuiObject } = {}
 	for _, descendant in root:GetDescendants() do
 		if
-			descendant.Name == "Tabs"
+			GamepadNav.TAB_ROWS[descendant.Name] == true
 			and descendant:IsA("GuiObject")
 			and GamepadNav.shown(descendant)
 		then

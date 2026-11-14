@@ -2604,6 +2604,37 @@ local SCENES = {
 		end
 		assert(labels.Select and labels.Back and labels.Tabs, "uigate: the hints miss Select, Back or Tabs in the Index (#4224): " .. table.concat(seen, ","))
 	end },
+	-- #4224 (Review-QA controller pass): L1 / R1 find the Store's rail and the Decor chips as tab rows, and Potions
+	-- does not land on "Use all potions" first
+	{ "GamepadTabRows", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local GuiService = game:GetService("GuiService")
+		local Nav = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.GamepadNav") :: any
+		Scenes._padReset = function()
+			ReplicatedStorage:SetAttribute("LiveFlag_padControls", nil)
+			UIShim.setLastInput(nil)
+			GuiService.SelectedObject = nil
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", true)
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals") :: any
+		local container = modals:FindFirstChild("Container", true)
+		for _, name in { "Store", "Decor" } do
+			UI.open(name)
+			UIShim.advance(0.4)
+			local row, tabs = Nav.tabs(container)
+			assert(row ~= nil and #tabs >= 2, "uigate: L1 / R1 find no tab row in " .. name .. " (#4224)")
+			UI.close()
+			UIShim.advance(0.4)
+		end
+		UI.open("Potions")
+		UIShim.advance(0.4)
+		local first = Nav.first(container)
+		assert(
+			first == nil or (first.Name ~= "UseAllPotions" and (first.Parent :: Instance).Name ~= "UseAllPotions"),
+			"uigate: Potions lands on Use all potions first (#4224)"
+		)
+	end },
 	-- #3839 (84 "Setting GuiService.SelectedObject to invalid GuiObject" a day): a button whose ScreenGui was taken out of
 	-- PlayerGui keeps Enabled and Visible, and the engine refuses it; GamepadNav.select and restore leave it alone
 	{ "GamepadSelectDetached", function()

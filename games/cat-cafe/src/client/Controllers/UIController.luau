@@ -636,7 +636,7 @@ local function refreshTutorial(s: Types.PlayerState)
 			local stray = nearestAlleyStray()
 			showTutorial(
 				s,
-				deviceLine("second", "Catch another cat, or buy a table in Upgrades"),
+				deviceLine("second", "Catch another cat 🐾"), -- #4097: one ask by day
 				stray or tutorialStrayPoint(),
 				"Catch another cat"
 			)

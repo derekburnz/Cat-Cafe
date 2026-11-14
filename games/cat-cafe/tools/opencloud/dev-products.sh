@@ -16,7 +16,9 @@
 #   dev-products.sh list [file]                every product: id, name, price, on or off sale, and its Config line
 #   dev-products.sh create [file]              make each product in the file that is missing (file: products.json)
 #   dev-products.sh set <id or name> change... change one product. Changes: price=N, forSale=true|false,
-#                                              regional=true|false, icon=<.png or .jpg path from the repo root>
+#                                              regional=true|false, icon=<.png or .jpg path from the repo root>,
+#                                              fromFile=<key>: the name and description of products.json's entry
+#                                              with config ProductIds.<key> (#4238: Today's Deal's new contents)
 # Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -295,8 +297,22 @@ set_product() {
 			image_args "$value"
 			args+=("${image[@]}")
 			;;
+		fromFile=*)
+			[[ $value =~ ^[a-z0-9_]+$ ]] || {
+				echo "fromFile needs a Config key such as deal_1, got: $value" >&2
+				exit 2
+			}
+			local entry
+			entry=$(jq -c --arg cfg "ProductIds.$value" 'first(.[] | select(.config == $cfg)) // empty' "$HERE/products.json")
+			[ -n "$entry" ] || {
+				echo "products.json has no entry with config ProductIds.$value" >&2
+				exit 2
+			}
+			args+=(--form-string "name=$(jq -r '.name' <<<"$entry")")
+			args+=(--form-string "description=$(jq -r '.description // ""' <<<"$entry")")
+			;;
 		*)
-			echo "unknown change: $change (use price=N, forSale=true|false, regional=true|false or icon=<path>)" >&2
+			echo "unknown change: $change (use price=N, forSale=true|false, regional=true|false, icon=<path> or fromFile=<key>)" >&2
 			exit 2
 			;;
 		esac

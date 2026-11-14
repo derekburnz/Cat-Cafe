@@ -273,6 +273,13 @@ function CafeService.dealTokensOk(player: Player, profile: Profile): boolean
 		)
 end
 
+-- #4238: whether Today's Deal may be a golden crate deal for this player: a golden crate opens to a decor piece by
+-- odds, so it is a paid random item, offered only where the policy was read and does not restrict them
+function CafeService.dealCratesOk(player: Player): boolean
+	local policy = DataService.policy(player)
+	return policy ~= nil and policy.ArePaidRandomItemsRestricted == false
+end
+
 -- #3996: PlayerState.dailyDeal, false while the dailyDeal switch is off
 local function dealView(player: Player, profile: Profile, now: number): Types.DailyDealView | false
 	if not LiveFlagService.on(DailyDeal.FLAG) then
@@ -282,7 +289,8 @@ local function dealView(player: Player, profile: Profile, now: number): Types.Da
 		profile,
 		now,
 		CafeService.dealTokensOk(player, profile),
-		Economy.tier(profile)
+		Economy.tier(profile),
+		CafeService.dealCratesOk(player)
 	)
 end
 

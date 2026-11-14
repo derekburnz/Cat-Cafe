@@ -191,7 +191,13 @@ function StepTarget._place(self: any)
 	if boxes ~= nil then
 		-- Review-QA on #4158 (667x375): turned and bobbing, the drawn arrow (its head glyph overflows the frame) reaches
 		-- about 1.5 times its size from its centre, past its own square
-		place = StepTargetLogic.clear(place, px, boxes(), camera.ViewportSize, nil, px * EDGE_REACH)
+		local clear =
+			StepTargetLogic.clear(place, px, boxes(), camera.ViewportSize, nil, px * EDGE_REACH)
+		if clear == nil then
+			arrow.Visible = false -- no spot on this edge is clear of the HUD (a short phone)
+			return
+		end
+		place = clear
 	end
 	arrow.Size = UDim2.fromOffset(px, px)
 	arrow.Position = UDim2.fromOffset(place.x, place.y)

@@ -102,21 +102,16 @@ return function()
 			expect(reached.y + 72 <= 330).to.equal(true)
 			expect(reached.rotation).to.equal(63)
 		end)
-		it(
-			"keeps at least the square clear where the whole reach has no room (Review-QA on #4158)",
-			function()
-				-- 110 px between two HUD pieces: too short for a 72 px reach each way, room for the 48 px square
-				local place = { x = 36, y = 160, rotation = 63 }
-				local pieces = {
-					{ x0 = 0, y0 = 0, x1 = 200, y1 = 150 },
-					{ x0 = 0, y0 = 260, x1 = 200, y1 = 375 },
-				}
-				local kept = StepTargetLogic.clear(place, 48, pieces, screen, nil, 72)
-				expect(kept.y - 24 >= 150).to.equal(true)
-				expect(kept.y + 24 <= 260).to.equal(true)
-			end
-		)
-		it("leaves a clear arrow alone, and stays put where no spot is clear", function()
+		it("shows no arrow where the whole reach has no room (Review-QA on #4158)", function()
+			-- 110 px between two HUD pieces: too short for a 72 px reach each way
+			local place = { x = 36, y = 160, rotation = 63 }
+			local pieces = {
+				{ x0 = 0, y0 = 0, x1 = 200, y1 = 150 },
+				{ x0 = 0, y0 = 260, x1 = 200, y1 = 375 },
+			}
+			expect(StepTargetLogic.clear(place, 48, pieces, screen, nil, 72)).to.equal(nil)
+		end)
+		it("leaves a clear arrow alone, and gives none where no spot is clear", function()
 			local place = { x = 44, y = 200, rotation = 90 }
 			local same = StepTargetLogic.clear(
 				place,
@@ -124,11 +119,12 @@ return function()
 				{ { x0 = 300, y0 = 0, x1 = 400, y1 = 40 } },
 				screen
 			)
-			expect(same.x).to.equal(44)
-			expect(same.y).to.equal(200)
+			local kept = same :: any
+			expect(kept.x).to.equal(44)
+			expect(kept.y).to.equal(200)
 			local blocked =
 				StepTargetLogic.clear(place, 64, { { x0 = 0, y0 = 0, x1 = 120, y1 = 375 } }, screen)
-			expect(blocked.y).to.equal(200)
+			expect(blocked).to.equal(nil)
 		end)
 	end)
 end

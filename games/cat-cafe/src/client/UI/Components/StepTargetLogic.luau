@@ -72,8 +72,7 @@ export type Box = { x0: number, y0: number, x1: number, y1: number }
 
 -- #4152 (Review-QA, 667x375: the arrow sat on the money pill's coin): the arrow keeps to its edge and its rotation, and
 -- slides along that edge (up or down on a side, left or right on the top or bottom) to the nearer spot clear of any
--- box it lies over, inside the screen. Where the arrow's whole reach finds no clear spot, its own square is kept clear;
--- where nothing is clear it stays where `edge` put it.
+-- box it lies over, inside the screen, or nil where no spot along that edge is clear of its whole reach.
 function StepTargetLogic.clear(
 	place: Placement,
 	arrow: number,
@@ -81,7 +80,7 @@ function StepTargetLogic.clear(
 	screen: Vector2,
 	margin: number?,
 	reach: number?
-): Placement
+): Placement?
 	local gap = margin or StepTargetLogic.MARGIN
 	local pad = StepTargetLogic.CLEAR
 	local onSide = math.min(place.x, screen.X - place.x) <= math.min(place.y, screen.Y - place.y)
@@ -132,13 +131,9 @@ function StepTargetLogic.clear(
 		end
 		return if over(x, y) == nil then { x = x, y = y, rotation = place.rotation } else nil
 	end
-	-- the drawn arrow's whole reach first; on a short screen with no room for that, at least its own square
-	local whole = slide(reach or arrow / 2)
-	if whole ~= nil then
-		return whole
-	end
-	local square = if reach ~= nil then slide(arrow / 2) else nil
-	return if square ~= nil then square else place
+	-- Review-QA on #4158 (667x375): where no spot is clear there is no arrow at all (nil): the strip's words and the
+	-- stray's ring still lead the way, and an arrow over the money is worse than none
+	return slide(reach or arrow / 2)
 end
 
 function StepTargetLogic.small(size: Vector3): boolean

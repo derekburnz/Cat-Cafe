@@ -169,6 +169,7 @@ UI.events = {
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
 	storeSeen = Signal.new(), -- (tab)   a Store tab with a New dot opened: forward as MarkStoreSeen (#1823 §4)
+	storeDeal = Signal.new(), -- (productId)   #3996: Today's Deal's R$25 pressed: forward as PromptDeal
 	-- (kind, value)   #1888 the Store funnel: "store_tab" (a tab id, once a visit) or "store_buy" (the pass or product
 	-- id, once a visit), forward as TelemetryReport(kind, value) after the visit's store_opened
 	storeReport = Signal.new(),
@@ -8748,6 +8749,7 @@ do
 			if up and list then
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
+				screen:setDeal((state :: any).dailyDeal) -- #3996
 				screen:render(list, PassShop.prices())
 			end
 			if hud then
@@ -8808,6 +8810,10 @@ do
 				end
 				PassShop.prompt(passId, "store")
 			end,
+			-- #3996: the server checks Today's Deal and opens Roblox's prompt itself
+			deal = function(productId: string)
+				UI.events.storeDeal:Fire(productId)
+			end,
 			tabShown = function(tab: string)
 				local key = "tab:" .. tab
 				if not shop.reported[key] then
@@ -8850,6 +8856,7 @@ do
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
+				screen:setDeal((state :: any).dailyDeal) -- #3996
 				screen:render(rows(), PassShop.prices())
 				PassShop.refresh() -- a price changed in the Creator Hub shows without a rejoin
 			end,

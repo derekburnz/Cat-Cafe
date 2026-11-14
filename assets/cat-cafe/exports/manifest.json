@@ -339740,7 +339740,7 @@
         "CatCafe_Camp_Snowy_001_LodgeFront",
         "CatCafe_Camp_Snowy_001_LodgeFront_Pane",
         "CatCafe_Camp_Snowy_002_FirePit",
-        "CatCafe_Camp_Snowy_002_FirePit_Glow",
+        "CatCafe_Camp_Snowy_002_FirePit_Campfire_Glow",
         "CatCafe_Camp_Snowy_003_Bench",
         "CatCafe_Camp_Snowy_004_Bench",
         "CatCafe_Camp_Snowy_005_Bench",
@@ -339762,7 +339762,7 @@
         "CatCafe_Camp_Snowy_017_SnowballPile",
         "CatCafe_Camp_Snowy_Barrier"
       ],
-      "triangles": 7636,
+      "triangles": 7504,
       "budget": 20000,
       "size_studs": {
         "x": 152.0,
@@ -339829,7 +339829,7 @@
         "depth": 30.0
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Snowy.model.json",
-      "rbx_parts": 321,
+      "rbx_parts": 324,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Snowy.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Snowy.glb"
@@ -339842,10 +339842,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "7636/20000 tris",
+          "budget": "7504/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "3695 faces on swatch centers",
+          "uv": "3607 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-296.00"

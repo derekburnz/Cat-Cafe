@@ -1130,7 +1130,9 @@ return function()
 					)
 				end
 			end
-			expect(Catalog.tiers[2].cost >= 5000).to.equal(true)
+			-- #4188 (Derek 2026-11-14): Tier 2 right after the tutorial, about what the focused player holds then (5,000
+			-- floor before); Pace's "Tier 2 right after the tutorial" checks it is not free either
+			expect(Catalog.tiers[2].cost >= 1000).to.equal(true)
 		end)
 	end)
 	describe("rank up (F24, section 5b)", function()
@@ -1213,17 +1215,15 @@ return function()
 		end)
 
 		it(
-			"Tier 1 to 2: 4 different cats and 7,500 coins (#4098; 13,500 and 5 for #3195, 12,000 for #2915, 22,000 for #2683, 30,000 for #1499), the starter Tabby counts",
+			"Tier 1 to 2: 3 different cats and 1,500 coins (#4188; 7,500 and 4 for #4098, 13,500 and 5 for #3195, 12,000 for #2915, 22,000 for #2683, 30,000 for #1499), the starter Tabby counts",
 			function()
 				local p = freshProfile()
-				p.coins = 7500
-				for _, id in { "ginger", "tuxedo" } do
-					p.collection[id] = 1000
-				end
-				expect(Economy.rankUpBlocker(p)).to.equal("Needs 4 different cats (you have 3)")
-				p.collection.smoke = 1000
+				p.coins = 1500
+				p.collection.ginger = 1000
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 3 different cats (you have 2)")
+				p.collection.tuxedo = 1000
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
-				p.coins = 7499
+				p.coins = 1499
 				expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
 			end
 		)
@@ -1273,8 +1273,8 @@ return function()
 		it(
 			"reasons come in the order a player works through them: cats, then the rarity, then coins",
 			function()
-				expect(Economy.rankUpBlocker(profileWith(2, 9, nil, nil, 0))).to.equal(
-					"Needs 10 different cats (you have 9)" -- #3111: Tier 3 needs 10 (11 before)
+				expect(Economy.rankUpBlocker(profileWith(2, 7, nil, nil, 0))).to.equal(
+					"Needs 8 different cats (you have 7)" -- #4189: Tier 3 needs 8 (10 before; 11 before #3111)
 				)
 				expect(Economy.rankUpBlocker(profileWith(2, 11, nil, nil, 0))).to.equal(
 					"Needs one cat, Epic or better"
@@ -1374,7 +1374,7 @@ return function()
 				local p = freshProfile()
 				p.tier = damaged
 				p.coins = 1e9
-				expect(Economy.rankUpBlocker(p)).to.equal("Needs 4 different cats (you have 1)")
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 3 different cats (you have 1)") -- #4188: 4 before
 			end
 		end)
 

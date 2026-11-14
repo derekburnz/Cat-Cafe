@@ -111,6 +111,11 @@ return function()
 			expect(DragonKeep.giveBlocker(profile, 10, { "zz" }, false, true)).to.equal(
 				DragonKeep.Messages.notOwned
 			)
+			profile.cats.c = profile.cats.a
+			profile.traits.pending = { uid = "a", id = "x" }
+			expect(DragonKeep.giveBlocker(profile, 10, { "a" }, false, true)).to.equal(
+				DragonKeep.Messages.pending
+			)
 		end)
 
 		it("plans repeats without gold, working or the last copy", function()

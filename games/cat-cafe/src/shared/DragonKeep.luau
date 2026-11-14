@@ -618,6 +618,7 @@ DragonKeep.Messages = {
 	inTrade = "Finish your trade first",
 	lastCat = "Keep at least one cat",
 	confirm = "Confirm the special cats first",
+	pending = "Choose that cat's new trait first",
 }
 
 -- Why the cats `uids` cannot all move in, or nil. `trading` an open trade or offer. `confirmed` the player's yes to a
@@ -650,6 +651,11 @@ function DragonKeep.giveBlocker(
 			end
 			if CatStats.atSpa(profile, uid) then
 				return DragonKeep.Messages.atSpa
+			end
+			-- Review-QA on #4089: a paid Mystic Pool re-roll waiting on this cat is never lost
+			local pending = profile.traits.pending
+			if pending ~= nil and pending.uid == uid then
+				return DragonKeep.Messages.pending
 			end
 			if not confirmed and DragonKeep.special(instance) then
 				return DragonKeep.Messages.confirm

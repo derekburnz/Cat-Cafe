@@ -1936,7 +1936,7 @@ def build_prize_shelf(mat):
 def build_ferris_lamp(mat):
     """A table top Ferris wheel that is a lamp: a striped drum base, two A frames, and a wheel of eight round paper
     lantern cars (`_Spin_Glow`) on spokes that turns slowly (`_Spin`), a star on the hub. Epic, Water Park."""
-    name = "CatCafe_Decor_FerrisLamp"
+    name = "CatCafe_Decor_FerrisWheelLamp"
     b, spin, glow = RB(), RB(), RB()
     b.cyl((0, 0.2, 0), 1.2, 0.4, RED, segments=16)                                           # base
     b.cyl((0, 0.43, 0), 1.25, 0.06, "brass", segments=16)
@@ -1993,7 +1993,7 @@ MOVING = {
                                      "model_attributes": {"_Fire_Bob": {"Rise": _f(0.07), "Seconds": _f(0.9)}}},
     "CatCafe_Decor_GiantSnowGlobe": {"model_attributes": {"_Spin": {"Seconds": _f(14)}}},
     "CatCafe_Decor_MiniCarousel": {"model_attributes": {"_Spin": {"Seconds": _f(9)}}},
-    "CatCafe_Decor_FerrisLamp": {"nest": {"_Spin_Glow": "_Spin"}, "model_attributes": {"_Spin": {"Seconds": _f(16)}},
+    "CatCafe_Decor_FerrisWheelLamp": {"nest": {"_Spin_Glow": "_Spin"}, "model_attributes": {"_Spin": {"Seconds": _f(16)}},
                                  "pivot_turns": {"_Spin": Matrix.Rotation(math.radians(-90), 3, "X")}},
 }
 
@@ -2035,5 +2035,5 @@ ASSETS = {
     "CatCafe_Decor_BeachChair": (build_beach_chair, 1500),
     "CatCafe_Decor_MiniCarousel": (build_mini_carousel, 3000),
     "CatCafe_Decor_PrizeShelf": (build_prize_shelf, 1800),
-    "CatCafe_Decor_FerrisLamp": (build_ferris_lamp, 1800),
+    "CatCafe_Decor_FerrisWheelLamp": (build_ferris_lamp, 1800),
 }

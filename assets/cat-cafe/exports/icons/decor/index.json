@@ -294,9 +294,9 @@
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_circus_stripes.png"
   },
   "funfair_ferris_lamp": {
-    "name": "Ferris Lamp",
+    "name": "Ferris Wheel Lamp",
     "kind": "decoration",
-    "model": "CatCafe_Decor_FerrisLamp",
+    "model": "CatCafe_Decor_FerrisWheelLamp",
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_ferris_lamp.png"
   },
   "funfair_mini_carousel": {

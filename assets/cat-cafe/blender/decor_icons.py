@@ -110,7 +110,7 @@ PENDING = [
     ("snow_frost_white", "Frost White", "paint"), ("snow_cocoa_brown", "Cocoa Brown", "paint"),
     # the Water Park Crate: six modelled pieces and six styles (style_icons.PENDING)
     ("funfair_beach_chair", "Beach Chair", "furniture"), ("funfair_mini_carousel", "Mini Carousel", "furniture"),
-    ("funfair_prize_shelf", "Prize Shelf", "decoration"), ("funfair_ferris_lamp", "Ferris Lamp", "decoration"),
+    ("funfair_prize_shelf", "Prize Shelf", "decoration"), ("funfair_ferris_lamp", "Ferris Wheel Lamp", "decoration"),
     ("funfair_ticket_gate", "Ticket Gate Door", "door"), ("funfair_slide_flap", "Slide Flap", "catflap"),
     ("funfair_circus_stripes", "Circus Stripes", "wallpaper"), ("funfair_balloon_wall", "Balloon Wall", "wallpaper"),
     ("funfair_boardwalk", "Boardwalk", "floor"), ("funfair_wave_pool", "Wave Pool", "floor"),

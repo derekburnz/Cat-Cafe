@@ -1,12 +1,12 @@
 {
  "className": "Model",
  "attributes": {
-  "Rojo_Target_PrimaryPart": "CatCafe_Decor_FerrisLamp/0",
+  "Rojo_Target_PrimaryPart": "CatCafe_Decor_FerrisWheelLamp/0",
   "PartBuilt": true
  },
  "children": [
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -81,11 +81,11 @@
     }
    },
    "attributes": {
-    "Rojo_Id": "CatCafe_Decor_FerrisLamp/0"
+    "Rojo_Id": "CatCafe_Decor_FerrisWheelLamp/0"
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -135,7 +135,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -184,7 +184,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -233,7 +233,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -282,7 +282,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -331,7 +331,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -380,7 +380,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -429,7 +429,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -478,7 +478,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -527,7 +527,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -576,7 +576,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -625,7 +625,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -674,7 +674,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -723,7 +723,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -772,7 +772,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -821,7 +821,7 @@
    }
   },
   {
-   "name": "CatCafe_Decor_FerrisLamp",
+   "name": "CatCafe_Decor_FerrisWheelLamp",
    "className": "Part",
    "properties": {
     "CFrame": {
@@ -873,14 +873,14 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Decor_FerrisLamp/1",
+    "Rojo_Target_PrimaryPart": "CatCafe_Decor_FerrisWheelLamp/1",
     "Seconds": {
      "Float64": 16.0
     }
    },
    "children": [
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -955,11 +955,11 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Decor_FerrisLamp/1"
+      "Rojo_Id": "CatCafe_Decor_FerrisWheelLamp/1"
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1008,7 +1008,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1057,7 +1057,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1106,7 +1106,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1155,7 +1155,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1204,7 +1204,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1253,7 +1253,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1302,7 +1302,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1351,7 +1351,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1400,7 +1400,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1449,7 +1449,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1498,7 +1498,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1547,7 +1547,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1596,7 +1596,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1645,7 +1645,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1694,7 +1694,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1743,7 +1743,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1792,7 +1792,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1841,7 +1841,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1890,7 +1890,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1939,7 +1939,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1988,7 +1988,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2037,7 +2037,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2086,7 +2086,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2135,7 +2135,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2184,7 +2184,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2233,7 +2233,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2282,7 +2282,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2331,7 +2331,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2380,7 +2380,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2429,7 +2429,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2478,7 +2478,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2527,7 +2527,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2576,7 +2576,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2625,7 +2625,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2674,7 +2674,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2723,7 +2723,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2772,7 +2772,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2821,7 +2821,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2870,7 +2870,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2919,7 +2919,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2969,7 +2969,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3019,7 +3019,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3069,7 +3069,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3119,7 +3119,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3169,7 +3169,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3219,7 +3219,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3269,7 +3269,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3319,7 +3319,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3369,7 +3369,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3419,7 +3419,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3469,7 +3469,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3519,7 +3519,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3569,7 +3569,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3619,7 +3619,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3669,7 +3669,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3719,7 +3719,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3769,7 +3769,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3819,7 +3819,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3869,7 +3869,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3919,7 +3919,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -3969,7 +3969,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -4019,7 +4019,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -4069,7 +4069,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -4119,7 +4119,7 @@
      }
     },
     {
-     "name": "CatCafe_Decor_FerrisLamp_Spin",
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -4171,11 +4171,11 @@
     {
      "className": "Model",
      "attributes": {
-      "Rojo_Target_PrimaryPart": "CatCafe_Decor_FerrisLamp/2"
+      "Rojo_Target_PrimaryPart": "CatCafe_Decor_FerrisWheelLamp/2"
      },
      "children": [
       {
-       "name": "CatCafe_Decor_FerrisLamp_Spin_Glow",
+       "name": "CatCafe_Decor_FerrisWheelLamp_Spin_Glow",
        "className": "Part",
        "properties": {
         "CFrame": {
@@ -4250,11 +4250,11 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Decor_FerrisLamp/2"
+        "Rojo_Id": "CatCafe_Decor_FerrisWheelLamp/2"
        }
       },
       {
-       "name": "CatCafe_Decor_FerrisLamp_Spin_Glow",
+       "name": "CatCafe_Decor_FerrisWheelLamp_Spin_Glow",
        "className": "Part",
        "properties": {
         "CFrame": {
@@ -4304,7 +4304,7 @@
        }
       },
       {
-       "name": "CatCafe_Decor_FerrisLamp_Spin_Glow",
+       "name": "CatCafe_Decor_FerrisWheelLamp_Spin_Glow",
        "className": "Part",
        "properties": {
         "CFrame": {
@@ -4354,7 +4354,7 @@
        }
       },
       {
-       "name": "CatCafe_Decor_FerrisLamp_Spin_Glow",
+       "name": "CatCafe_Decor_FerrisWheelLamp_Spin_Glow",
        "className": "Part",
        "properties": {
         "CFrame": {
@@ -4404,7 +4404,7 @@
        }
       },
       {
-       "name": "CatCafe_Decor_FerrisLamp_Spin_Glow",
+       "name": "CatCafe_Decor_FerrisWheelLamp_Spin_Glow",
        "className": "Part",
        "properties": {
         "CFrame": {
@@ -4454,7 +4454,7 @@
        }
       },
       {
-       "name": "CatCafe_Decor_FerrisLamp_Spin_Glow",
+       "name": "CatCafe_Decor_FerrisWheelLamp_Spin_Glow",
        "className": "Part",
        "properties": {
         "CFrame": {
@@ -4504,7 +4504,7 @@
        }
       },
       {
-       "name": "CatCafe_Decor_FerrisLamp_Spin_Glow",
+       "name": "CatCafe_Decor_FerrisWheelLamp_Spin_Glow",
        "className": "Part",
        "properties": {
         "CFrame": {
@@ -4554,7 +4554,7 @@
        }
       },
       {
-       "name": "CatCafe_Decor_FerrisLamp_Spin_Glow",
+       "name": "CatCafe_Decor_FerrisWheelLamp_Spin_Glow",
        "className": "Part",
        "properties": {
         "CFrame": {
@@ -4632,7 +4632,7 @@
        }
       }
      },
-     "name": "CatCafe_Decor_FerrisLamp_Spin_Glow"
+     "name": "CatCafe_Decor_FerrisWheelLamp_Spin_Glow"
     }
    ],
    "properties": {
@@ -4663,7 +4663,7 @@
      }
     }
    },
-   "name": "CatCafe_Decor_FerrisLamp_Spin"
+   "name": "CatCafe_Decor_FerrisWheelLamp_Spin"
   }
  ],
  "properties": {

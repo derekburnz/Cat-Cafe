@@ -433640,13 +433640,13 @@
       }
     },
     {
-      "name": "CatCafe_Decor_FerrisLamp",
+      "name": "CatCafe_Decor_FerrisWheelLamp",
       "category": "Decor",
       "module": "crate_decor",
       "objects": [
-        "CatCafe_Decor_FerrisLamp",
-        "CatCafe_Decor_FerrisLamp_Spin",
-        "CatCafe_Decor_FerrisLamp_Spin_Glow"
+        "CatCafe_Decor_FerrisWheelLamp",
+        "CatCafe_Decor_FerrisWheelLamp_Spin",
+        "CatCafe_Decor_FerrisWheelLamp_Spin_Glow"
       ],
       "triangles": 1488,
       "budget": 1800,
@@ -433673,35 +433673,35 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
-        "CatCafe_Decor_FerrisLamp_Spin": [
+        "CatCafe_Decor_FerrisWheelLamp_Spin": [
           -0.0,
           0.0,
           2.55
         ],
-        "CatCafe_Decor_FerrisLamp_Spin_Glow": [
+        "CatCafe_Decor_FerrisWheelLamp_Spin_Glow": [
           -0.0,
           0.0,
           2.55
         ]
       },
       "part_pivots_roblox": {
-        "CatCafe_Decor_FerrisLamp_Spin": [
+        "CatCafe_Decor_FerrisWheelLamp_Spin": [
           0.0,
           2.55,
           0.0
         ],
-        "CatCafe_Decor_FerrisLamp_Spin_Glow": [
+        "CatCafe_Decor_FerrisWheelLamp_Spin_Glow": [
           0.0,
           2.55,
           0.0
         ]
       },
       "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_FerrisLamp.model.json",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_FerrisWheelLamp.model.json",
       "rbx_parts": 91,
       "files": [
-        "assets/cat-cafe/exports/CatCafe_Decor_FerrisLamp.fbx",
-        "assets/cat-cafe/exports/CatCafe_Decor_FerrisLamp.glb"
+        "assets/cat-cafe/exports/CatCafe_Decor_FerrisWheelLamp.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_FerrisWheelLamp.glb"
       ],
       "gates": {
         "pass": true,

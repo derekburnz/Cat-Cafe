@@ -45,6 +45,10 @@
 -- - `secretCats` (#3470): Secret cats, the rarity above Mythical. It starts OFF (OFF_BY_DEFAULT): off, nothing rolls
 --   Secret anywhere. Switch it on only once no server older than the publish that added them is running, since an
 --   older server's save check drops a cat id it does not know.
+-- - `secretAreas` (#4221): one Secret per area (Catalog's `secretArea`). It starts OFF (OFF_BY_DEFAULT): off, a
+--   Secret comes from any area as before; on, a wild stray's or trap's Mythical turns only into its area's Secret and
+--   a bait bowl's into one of its open areas' Secrets, and an area with none keeps its Mythical. The Index's Secret
+--   tab reads the same switch. Its own update day (Saturday 2026-11-21 20:00 UTC).
 -- - `luckyCharm` (#3298): the Golden Fish Market's Lucky Charm perk (shared/LuckyCharm). It starts OFF
 --   (OFF_BY_DEFAULT): off hides the row, refuses a buy and adds no Luck. Switch it on only once no server older than
 --   the publish that added the row is running, since an older server's save check drops a perk id it does not know.
@@ -108,6 +112,9 @@
 -- - `rareCustomers` (#3889): each customer walking into an open cafe has a chance to be a rich customer, a Mystery
 --   Visitor or the Cat Collector (shared/RareCustomers, RareCustomerService), sitting at any open table, in place of
 --   their three timers. It starts OFF (OFF_BY_DEFAULT); off, the timers run as before.
+-- - `adminEvents` (#4195): admin events from the events schedule's `admin = true` records (shared/CafeEvents; Bowl
+--   Frenzy's faster bait bowls, EventService.bowlSpeed). It starts OFF (OFF_BY_DEFAULT); off, EventService shows and
+--   runs none, and one running ends at the next second.
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -120,6 +127,7 @@ LiveFlags.STORE = "CatCafe_Flags"
 --   never rescued (RescueService), back to one cat a day there.
 LiveFlags.KEYS = {
 	"codes",
+	"vipBoost", -- #4235: VIP pays +50% and shows a tag over the owner's head (Economy.vipBoost, Services/VipTagService)
 	"rally",
 	"tradeCrates",
 	"tradeFish",
@@ -172,7 +180,11 @@ LiveFlags.KEYS = {
 	"goldTone", -- #4133: gold cats are their base model toned gold (shared/GoldTone), not the _Gold models
 	"palJoin", -- #3995: a player who joins through a friend gets the cafe next door and no intro by itself (shared/PalJoin)
 	"dailyDeal", -- #3996: Today's Deal on the Store's Featured tab (shared/DailyDeal)
+	"starterSuggest", -- #4174: the Starter Bundle's one slide-in card a session after 10 to 15 minutes (shared/StarterSuggest)
 	"updateFeature", -- #4175: the update's own item first on the Store's Featured tab on big update days (Config.UpdateFeature)
+	"adminEvents", -- #4195: admin events (Bowl Frenzy, the Admin Wheel) from the events schedule (shared/CafeEvents)
+	"secretAreas", -- #4221: one Secret per area; a rolled Mythical turns only into its own area's Secret (Catching.secret)
+	"padControls", -- #4224: B back one step, L1/R1 tabs and pop-ups taking focus on a gamepad (UI/Components/GamepadNav)
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -218,7 +230,11 @@ LiveFlags.OFF_BY_DEFAULT = {
 	goldTone = true,
 	palJoin = true,
 	dailyDeal = true,
+	starterSuggest = true,
 	updateFeature = true,
+	adminEvents = true,
+	secretAreas = true,
+	padControls = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

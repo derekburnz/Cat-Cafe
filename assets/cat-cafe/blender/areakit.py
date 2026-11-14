@@ -11,14 +11,55 @@ CFrame.Angles(0, math.rad(rot_y), 0), so 90 turns a piece's front from -Z to -X.
 import math
 
 import bpy
-from mathutils import Matrix
+from mathutils import Matrix, Vector
 
 import common
 
 PI = math.pi
 POINTS = {}         # set name -> {label: [(x, y, z), ...]} in area space; build_all writes it into the manifest
 SUFFIXES = ("_Pane", "_Bulb", "_Bulbs", "_Glass", "_Water", "_Glow", "_Flowers", "_Decor", "_Lights", "_Tube", "_Climb",
-            "_Barrier")
+            "_Barrier", "_Swing")
+
+# Cloth and balloons that sway (Motion-FX 2026-11-14, for the three new areas): a piece builder returns the moving
+# part as its own object named <Piece>_Swing with `hinge(ob, at)` saying where it hangs from. Set.put moves that
+# object's origin onto the hinge, so its child Model's pivot is the hinge and client/Effects/Motion swings it about
+# the pivot's Z axis. SWING turns each kind's pivot so Z is the axis it should swing about and gives its numbers;
+# build_all passes it to the export of every set and camp in SWING_ASSETS. The parts never collide (rbx_export).
+_UP = Matrix.Rotation(math.radians(-90), 3, "X")       # pivot Z straight up: a flag flaps about its mast
+_ARM = Matrix.Rotation(math.radians(90), 3, "Y")       # pivot Z along the set's x axis: a banner swings off its bar
+
+
+def _f(v):
+    return {"Float64": float(v)}
+
+
+SWING = {
+    "pivot_turns": {"_BannerPole_Swing": _ARM, "_SummitFlag_Swing": _UP, "_PennantTower_Swing": _UP},
+    "model_attributes": {
+        "_BannerPole_Swing": {"Angle": _f(6), "Seconds": _f(3.5)},
+        "_SummitFlag_Swing": {"Angle": _f(8), "Seconds": _f(2.5)},
+        "_PennantTower_Swing": {"Angle": _f(4), "Seconds": _f(3)},
+        "_BalloonBunch_Swing": {"Angle": _f(5), "Seconds": _f(4)},
+    },
+}
+SWING_ASSETS = ("CatCafe_Snowy_Set", "CatCafe_WaterPark_Set", "CatCafe_Castle_Set", "CatCafe_Camp_WaterPark",
+                "CatCafe_Camp_Castle")
+
+
+def hinge(ob, at):
+    """Mark where a _Swing object hangs from, in the piece's own Blender coordinates. Returns the object."""
+    ob["hinge"] = tuple(float(v) for v in at)
+    return ob
+
+
+SMOKE = {}                               # asset -> [(object name, "Smoke", Blender asset-space 4x4)], filled by Set.put
+
+
+def smoke(ob, at):
+    """Mark a chimney's top, in the piece's own Blender coordinates: Set.put turns it into an Attachment named
+    "Smoke" in the object's biggest part (Effects hangs a slow smoke there). Returns the object."""
+    ob["smoke"] = tuple(float(v) for v in at)
+    return ob
 
 
 def rx(d):
@@ -108,10 +149,22 @@ class Set:
         for ob in objs:
             ob.matrix_world = M @ ob.matrix_world
             common.bake_transform(ob)
+            if "hinge" in ob.keys():         # a _Swing: its origin, and so its Model's pivot, goes onto its hinge
+                loc = M @ Vector(ob["hinge"])
+                T = Matrix.Translation(-loc)
+                ob.data.transform(T)
+                common.PRIMS[ob.data.name] = [(k, T @ m, sw, ex) for k, m, sw, ex in
+                                              common.PRIMS.get(ob.data.name, [])]
+                ob.location = loc
+                del ob["hinge"]
             base = ob.name.split(".")[0]
             suffix = next((s for s in SUFFIXES if base.endswith(s)), "")
             piece = base[:len(base) - len(suffix)].split("_", 2)[-1]
             ob.name = f"{self.name}_{self.count:03d}_{piece}{suffix}"
+            if "smoke" in ob.keys():
+                SMOKE.setdefault(self.name, []).append(
+                    (ob.name, "Smoke", Matrix.Translation(M @ Vector(ob["smoke"]))))
+                del ob["smoke"]
             self.objs.append(ob)
         self.count += 1
         return objs

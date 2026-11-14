@@ -233,32 +233,22 @@ return function()
 		end)
 	end)
 
-	describe("the wait before a window opens (#3448)", function()
+	describe("when a window opens (#3448, instant since 2026-11-14)", function()
 		local wait = WalkUp.DWELL_SECONDS
 
-		it("opens only after DWELL_SECONDS inside the ring", function()
+		-- Derek 2026-11-14 (top priority): no wait, the first look inside the ring opens the window
+		it("opens on the first look inside the ring", function()
+			expect(wait).to.equal(0)
 			local state = WalkUp.new()
 			WalkUp.step(state, { at("spin", 20, "Spin") }, false, nil, 10)
-			expect((WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 10.15))).to.equal(nil)
-			expect((WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 10.3))).to.equal(nil)
-			expect((WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 10.15 + wait))).to.equal(
+			expect((WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 10.05))).to.equal(
 				"spin"
 			)
 			-- once per step in
 			expect((WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 12))).to.equal(nil)
-		end)
-
-		it("opens nothing for a player who walks straight through", function()
-			local state = WalkUp.new()
-			WalkUp.step(state, { at("spin", 20, "Spin") }, false, nil, 0)
-			WalkUp.step(state, { at("spin", 7, "Spin") }, false, nil, 0.15)
-			-- out past the ring and its LEAVE_EXTRA before the wait is over
-			expect((WalkUp.step(state, { at("spin", 12, "Spin") }, false, nil, 0.3))).to.equal(nil)
-			expect((WalkUp.step(state, { at("spin", 20, "Spin") }, false, nil, 5))).to.equal(nil)
-			-- and the wait starts again on the next step in
-			WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 6)
-			expect((WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 6.1))).to.equal(nil)
-			expect((WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 6.05 + wait))).to.equal(
+			-- and again after stepping out and back in
+			WalkUp.step(state, { at("spin", 20, "Spin") }, false, nil, 13)
+			expect((WalkUp.step(state, { at("spin", 5, "Spin") }, false, nil, 13.05))).to.equal(
 				"spin"
 			)
 		end)
@@ -266,7 +256,6 @@ return function()
 		it("keeps a window closed by hand closed until the player steps out and back in", function()
 			local state = WalkUp.new()
 			WalkUp.step(state, { at("market", 20, "Market") }, false, nil, 0)
-			WalkUp.step(state, { at("market", 3, "Market") }, false, nil, 1)
 			expect((WalkUp.step(state, { at("market", 3, "Market") }, false, nil, 1 + wait))).to.equal(
 				"market"
 			)
@@ -277,7 +266,6 @@ return function()
 				)
 			end
 			WalkUp.step(state, { at("market", 20, "Market") }, false, nil, 7)
-			WalkUp.step(state, { at("market", 3, "Market") }, false, nil, 8)
 			expect((WalkUp.step(state, { at("market", 3, "Market") }, false, nil, 8 + wait))).to.equal(
 				"market"
 			)
@@ -298,7 +286,6 @@ return function()
 			local far = { at("spin", 30, "Spin"), at("arcade", 30, "Arcade") }
 			WalkUp.step(state, far, false, nil, 0)
 			local both = { at("spin", 5, "Spin"), at("arcade", 3, "Arcade") }
-			WalkUp.step(state, both, false, nil, 1)
 			expect((WalkUp.step(state, both, false, nil, 1 + wait))).to.equal("arcade")
 			expect((WalkUp.step(state, both, false, "Arcade", 2))).to.equal(nil)
 		end)

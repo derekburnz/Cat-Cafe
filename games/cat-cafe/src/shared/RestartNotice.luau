@@ -78,9 +78,45 @@ RestartNotice.LAUNCH_LINE = "then a 1-hour party and a gift!"
 -- #3535: the Friday 2026-11-13 update (22:00 UTC) has the same party and a gift of its own, so the same words
 RestartNotice.LAUNCHES = { RestartNotice.LAUNCH_AT, 1794607200 }
 local LAUNCH_BEFORE, LAUNCH_AFTER = 3600, 1800
+-- #4195 (Derek 2026-11-14: "announce admin abuse events in coming after update before you restart servers"): the
+-- Saturday 2026-11-14 22:00 UTC and Sunday 2026-11-15 20:00 UTC update restarts are followed by an admin event block
+-- (2x money, the lucky, golden and rainbow days as Golden Hour, Mythical and rainbow Legendary showers), so their
+-- warnings name it instead of the party line.
+-- Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, the 10 Secret cats update; Derek moved it from Nov 21) too.
+-- Wednesday 2026-11-18 20:00 UTC (the controls and devices update, Growth-Agent's devices-update-event-plan) too.
+-- Derek 2026-11-14 17:59 UTC: Rift Run moves to Sunday 2026-11-15 01:00 UTC (Saturday 8 PM ET) and the Golden Fish
+-- Store to Sunday 2026-11-15 22:00 UTC (Sunday 5 PM ET), each a switch flip with a restart and admin events after.
+-- Rift Run may instead go at 03:30 UTC (Saturday 10:30 PM ET); both times are listed, and only the restart that
+-- really runs shows its words.
+RestartNotice.ADMIN_LAUNCHES =
+	{ 1794693600, 1794772800, 1794799800, 1795032000, 1794704400, 1794780000, 1794713400 }
+RestartNotice.ADMIN_LINE = "then ADMIN EVENTS: 2x money, Golden Hour and cat showers!"
+RestartNotice.ADMIN_AFTER = "ADMIN EVENTS: 2x money, Golden Hour and cat showers!"
+-- A launch whose update has its own headline says it first (Growth-Agent's copy, 2026-11-14): { line, at zero }.
+-- One not listed here uses ADMIN_LINE and ADMIN_AFTER.
+RestartNotice.ADMIN_WORDS = {
+	[1794772800] = { "then 3 NEW WORLDS and ADMIN EVENTS!", "3 NEW WORLDS and ADMIN EVENTS!" },
+	[1794799800] = { "then 10 SECRET CATS and ADMIN EVENTS!", "10 SECRET CATS and ADMIN EVENTS!" },
+	[1795032000] = { "then better controls and ADMIN EVENTS!", "better controls and ADMIN EVENTS!" },
+	[1794704400] = { "then RIFT RUN and ADMIN EVENTS!", "RIFT RUN and ADMIN EVENTS!" },
+	[1794713400] = { "then RIFT RUN and ADMIN EVENTS!", "RIFT RUN and ADMIN EVENTS!" },
+	[1794780000] = {
+		"then the GOLDEN FISH STORE and ADMIN EVENTS!",
+		"the GOLDEN FISH STORE and ADMIN EVENTS!",
+	},
+} :: { [number]: { string } }
 
 -- the promise a warning shown at `now` ends on, and what the event is called at zero
 local function promise(now: number?): (string, string)
+	for _, at in RestartNotice.ADMIN_LAUNCHES do
+		if now ~= nil and now >= at - LAUNCH_BEFORE and now <= at + LAUNCH_AFTER then
+			local words = RestartNotice.ADMIN_WORDS[at]
+			if words ~= nil then
+				return words[1], words[2]
+			end
+			return RestartNotice.ADMIN_LINE, RestartNotice.ADMIN_AFTER
+		end
+	end
 	for _, at in RestartNotice.LAUNCHES do
 		if now ~= nil and now >= at - LAUNCH_BEFORE and now <= at + LAUNCH_AFTER then
 			return RestartNotice.LAUNCH_LINE, "a 1-hour party and a gift!"

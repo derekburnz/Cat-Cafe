@@ -192,9 +192,11 @@ end
 
 -- #3470: a Secret cat. It belongs to no area (`area = "secret"`), so no wave, bait or rescue table and no Index page
 -- or count lists it; Catching.secret picks one in place of a rolled Mythical. Its rate here is the rarity's own, and
--- an owner's best open area multiplies it (CatStats.areaMultiplier).
-local function secret(def: Types.CatDef): Types.CatDef
+-- an owner's best open area multiplies it (CatStats.areaMultiplier). #4221: `home` is the one area whose rolled
+-- Mythicals it can take the place of (its `secretArea`); its `area` still says "secret".
+local function secret(def: Types.CatDef, home: Types.Area): Types.CatDef
 	def.area = "secret"
+	def.secretArea = home
 	return def
 end
 
@@ -1311,37 +1313,47 @@ Catalog.cats = {
 	),
 	-- #3470: the first three Secret cats (Design-Agent's names and looks; Model-Agent's CatCafe_Cat_Nebula, _Glitch
 	-- and _CafeGhost, the placeholder body until they land). The `alley` here only feeds the helper: `secret` takes
-	-- the area away.
-	secret(cat(
-		"nebula",
-		"Nebula",
-		"Secret",
-		"alley",
-		"entertainer",
-		"solid", -- a deep space coat with slow drifting stars and a faint purple glow
-		{ 38, 26, 84 },
-		"Came down with the night sky and stayed for the milk."
-	)),
-	secret(cat(
-		"glitch",
-		"Glitch",
-		"Secret",
-		"alley",
-		"barista",
-		"patches", -- teal and magenta, shimmering in little squares
-		{ 40, 200, 190 },
-		"Nobody is sure it is meant to be here."
-	)),
-	secret(cat(
-		"cafe_ghost",
-		"Cafe Ghost",
-		"Secret",
-		"alley",
-		"greeter",
-		"solid", -- pale and see-through, with a tiny chef hat
-		{ 232, 238, 248 },
-		"Has worked here longer than the cafe has."
-	)),
+	-- the area away. #4221: one Secret per area (Design-Agent's secret-per-area spec): Cafe Ghost is the Alleyway's,
+	-- Glitch the Neighbourhood's and Nebula the Snowy Mountain's.
+	secret(
+		cat(
+			"nebula",
+			"Nebula",
+			"Secret",
+			"alley",
+			"entertainer",
+			"solid", -- a deep space coat with slow drifting stars and a faint purple glow
+			{ 38, 26, 84 },
+			"Came down with the night sky and stayed for the milk."
+		),
+		"snowy"
+	),
+	secret(
+		cat(
+			"glitch",
+			"Glitch",
+			"Secret",
+			"alley",
+			"barista",
+			"patches", -- teal and magenta, shimmering in little squares
+			{ 40, 200, 190 },
+			"Nobody is sure it is meant to be here."
+		),
+		"neighbourhood"
+	),
+	secret(
+		cat(
+			"cafe_ghost",
+			"Cafe Ghost",
+			"Secret",
+			"alley",
+			"greeter",
+			"solid", -- pale and see-through, with a tiny chef hat
+			{ 232, 238, 248 },
+			"Has worked here longer than the cafe has."
+		),
+		"alley"
+	),
 } :: { Types.CatDef }
 
 -- #3470: the Secret cats, in catalog order
@@ -1514,8 +1526,8 @@ Catalog.tiers = {
 	{
 		tier = 2,
 		name = "Cozy Cafe",
-		cost = 7500, -- #4098 (Derek 2026-11-14: "Tier 2 is another huge fall off"; Design-Agent's Pace runs: the focused player 9.7 to 5.4 min, the buy-everything player 10.3 to 8.3, below 7,500 barely helps): 13,500 before; #3195 (Design-Agent: nights 45 s give more daytime; holds Tier 2 near 8.5 min): 12,000 before; #2915 (Design-Agent: Tier 2 at a 9 to 12 min median; Pace's 4 catches a day had coins at 14.8 min against the 5th cat at 5.5, so the coins were the gate): 22,000 before; #2683 (Derek2 2026-11-09: Tiers 2 to 5 "significantly easier"): 30,000 before; #1499 (economy-ladder 3 v3.1, dearer bait): 28,000 for #1452, 13,500 for #1162, 10,000 before
-		distinctCats = 4, -- #4098: 5 before
+		cost = 1500, -- #4188 (Derek 2026-11-14: "build the cheaper tier 2 we need to get them into the next area's asap"; Pace's focused player holds about 1,660 at 150 s of play, 30 s after the tutorial's bait cat at about 120 s): 7,500 before; #4098 (Derek 2026-11-14: "Tier 2 is another huge fall off"; Design-Agent's Pace runs: the focused player 9.7 to 5.4 min, the buy-everything player 10.3 to 8.3, below 7,500 barely helps): 13,500 before; #3195 (Design-Agent: nights 45 s give more daytime; holds Tier 2 near 8.5 min): 12,000 before; #2915 (Design-Agent: Tier 2 at a 9 to 12 min median; Pace's 4 catches a day had coins at 14.8 min against the 5th cat at 5.5, so the coins were the gate): 22,000 before; #2683 (Derek2 2026-11-09: Tiers 2 to 5 "significantly easier"): 30,000 before; #1499 (economy-ladder 3 v3.1, dearer bait): 28,000 for #1452, 13,500 for #1162, 10,000 before
+		distinctCats = 3, -- #4188: the tutorial cat, the second cat and the bait cat (always a new kind); 4 for #4098, 5 before
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",
@@ -1528,8 +1540,8 @@ Catalog.tiers = {
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 520000, -- #3195 + #3204 (Design-Agent: nights 45 s and the Tier 2 caps brought Tier 3 to 27.7 min; 520,000 gives about 30, and 560,000 only 1.2 min more): 420,000 before; #2895 (Derek2 2026-11-10: "lower the 3-6 tier costs", 30% off): 600,000 before; #2683: 1,240,000 before; #2559 (Derek2 2026-11-09: "increase tier 2 to tier 3 by 35%"): 920,000 before; #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
-		distinctCats = 10, -- #3111 (Derek2 2026-11-10: "lower the different cats requirement a little bit between 3-7"): 11 before; #2683: 13 before; #2230: 12 before
+		cost = 150000, -- #4189 (Derek 2026-11-14: "we need to get them into the next area's asap", "lower for right now by a decent bit", then "its fine to make less hours of play": Tier 3 near 12 min): 300,000 at first, 520,000 before; #3195 + #3204 (Design-Agent: nights 45 s and the Tier 2 caps brought Tier 3 to 27.7 min; 520,000 gives about 30, and 560,000 only 1.2 min more): 420,000 before; #2895 (Derek2 2026-11-10: "lower the 3-6 tier costs", 30% off): 600,000 before; #2683: 1,240,000 before; #2559 (Derek2 2026-11-09: "increase tier 2 to tier 3 by 35%"): 920,000 before; #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
+		distinctCats = 8, -- #4189: 10 before; #3111 (Derek2 2026-11-10: "lower the different cats requirement a little bit between 3-7"): 11 before; #2683: 13 before; #2230: 12 before
 		needsRarity = "Epic",
 		needsRarityCount = 1,
 		slots = 6,
@@ -1540,8 +1552,8 @@ Catalog.tiers = {
 	{
 		tier = 4,
 		name = "Famous Cafe",
-		cost = 16800000, -- #2895 (30% off): 24,000,000 before; #2683: 48,000,000 before; #2559 (Derek2 2026-11-09: "lower the Tier 3 to tier 4 jump by about 70%"): 160,000,000 before; #2496 (Derek2: "more money"; Design 160M, Pace Tier 4 5 h 15): 90,000,000 before; #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
-		distinctCats = 22, -- #3111: stays 22 (21 or 20 puts Tier 5 under Pace's 2 hour floor for 4x Money); #2683: 25 before; #2230: 20 before
+		cost = 4000000, -- #4189: 8,000,000 at first, 16,800,000 before; #2895 (30% off): 24,000,000 before; #2683: 48,000,000 before; #2559 (Derek2 2026-11-09: "lower the Tier 3 to tier 4 jump by about 70%"): 160,000,000 before; #2496 (Derek2: "more money"; Design 160M, Pace Tier 4 5 h 15): 90,000,000 before; #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
+		distinctCats = 17, -- #4189 (the 4x Money 2 hour floor is dropped): 22 before; #3111: stays 22 (21 or 20 puts Tier 5 under Pace's 2 hour floor for 4x Money); #2683: 25 before; #2230: 20 before
 		needsRarity = "Mythical", -- #2496 (Derek2: "requires at least 1 mythic"): Legendary before
 		needsRarityCount = 1,
 		slots = 8,
@@ -1552,8 +1564,8 @@ Catalog.tiers = {
 	{
 		tier = 5,
 		name = "Grand Cafe",
-		cost = 390000000, -- #3360 (money bags wait 3 min and stack, so fewer are missed; keeps the 4x Money floor of 2 h): 370,000,000 before; #3195 (Design-Agent: keeps the 4x Money Tier 5 floor of 2 h with 45 s nights): 350,000,000 before; #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
-		distinctCats = 26, -- #3111: 28 before; #2683: 33 before; #2230: 30 before
+		cost = 90000000, -- #4189: 180,000,000 at first, 390,000,000 before; #3360 (money bags wait 3 min and stack, so fewer are missed; keeps the 4x Money floor of 2 h): 370,000,000 before; #3195 (Design-Agent: keeps the 4x Money Tier 5 floor of 2 h with 45 s nights): 350,000,000 before; #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
+		distinctCats = 20, -- #4189: 26 before; #3111: 28 before; #2683: 33 before; #2230: 30 before
 		needsRarity = "Legendary",
 		needsRarityCount = 2,
 		slots = 10,
@@ -1567,8 +1579,8 @@ Catalog.tiers = {
 	{
 		tier = 6,
 		name = "Sunstone Cafe",
-		cost = 5600000000, -- #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
-		distinctCats = 38, -- #3111: 42 before
+		cost = 1250000000, -- #4189: 2,500,000,000 at first, 5,600,000,000 before; #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
+		distinctCats = 30, -- #4189: 38 before; #3111: 42 before
 		needsRarity = "Mythical",
 		needsRarityCount = 2,
 		slots = 12,
@@ -1579,8 +1591,8 @@ Catalog.tiers = {
 	{
 		tier = 7,
 		name = "Wonder Cafe",
-		cost = 54000000000, -- #2895 (10% off): 60,000,000,000 before
-		distinctCats = 47, -- #3111: 52 before
+		cost = 12500000000, -- #4189: 25,000,000,000 at first, 54,000,000,000 before; #2895 (10% off): 60,000,000,000 before
+		distinctCats = 38, -- #4189: 47 before; #3111: 52 before
 		needsRarity = "Mythical",
 		needsRarityCount = 3,
 		slots = 14,
@@ -3829,9 +3841,11 @@ table.freeze(Catalog.indexPrizes)
 -- testers who redeemed playtest before potions existed still get them (data-model 11d). Rows can be added without
 -- new code.
 Catalog.codes = {
+	-- Derek 2026-11-14 17:40 UTC: "remove playtest code ... from description/game": both playtest codes are off
+	-- (kept so the Store's "Codes you've used" list still names them for testers who redeemed them)
 	playtest = {
 		id = "playtest",
-		active = true,
+		active = false,
 		prize = {
 			coins = 5000,
 			fish = 100, -- #2497: was 300
@@ -3843,7 +3857,7 @@ Catalog.codes = {
 	},
 	playtest2 = {
 		id = "playtest2",
-		active = true,
+		active = false,
 		prize = {
 			potions = { tip_potion = 2, lucky_potion = 2, swift_potion = 2, steady_potion = 2 },
 		},
@@ -3913,6 +3927,30 @@ Catalog.codes = {
 		id = "10likes",
 		active = true,
 		prize = { coins = 2000, coinSeconds = 600, fish = 40, potions = { lucky_potion = 1 } },
+	},
+	-- Derek 2026-11-14 17:39 UTC ("put a code up for 5000VISITS and 30LIKES"): two more thank-you codes, on as soon
+	-- as a server has them, one step above `2000visits` and `10likes`; no end.
+	["5000visits"] = {
+		id = "5000visits",
+		active = true,
+		prize = { coins = 3000, coinSeconds = 900, fish = 60, crates = { classic_crate = 2 } },
+	},
+	-- Derek 2026-11-14 17:41 UTC ("put a code out ... for UPDATE3, and UPDATE4"): the update codes for today's and
+	-- Sunday's updates, on at once, the size of `update2`; no end.
+	update3 = {
+		id = "update3",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 60, potions = { swift_potion = 2 } },
+	},
+	update4 = {
+		id = "update4",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 60, crates = { classic_crate = 2 } },
+	},
+	["30likes"] = {
+		id = "30likes",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 50, potions = { lucky_potion = 2 } },
 	},
 	update2 = {
 		id = "update2",
@@ -5893,6 +5931,9 @@ Catalog.products = {
 		prize = {
 			potions = { big_tip_potion = 10, swift_potion = 5, steady_potion = 5 },
 			moneyMultiplier = 2,
+			-- #4020: a buyer who already has 2x Money or more (a Money pass) gets these instead of the 2x (no Lucky: a Robux
+			-- item never holds odds potions, Products.ALLOWED_POTIONS)
+			moneySwap = { big_tip_potion = 10, swift_potion = 5 },
 			cats = { "sprinkles" },
 			signStyles = { "bakery_stripes" },
 		},

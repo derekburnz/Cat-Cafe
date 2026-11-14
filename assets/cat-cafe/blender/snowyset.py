@@ -51,7 +51,7 @@ from itertools import pairwise
 
 from mathutils import Matrix, Vector
 
-from areakit import PI, Set, gable, turned
+from areakit import PI, Set, gable, hinge, smoke, turned
 from common import Builder
 from desertset import _hip_ends, dune_piece
 from woodsset import _dist_seg, _path, bl
@@ -80,6 +80,9 @@ RIDGE_A_Z, ISLE_A = -222.0, [(-60.0, -12.0), (14.0, 58.0)]
 RIDGE_B_Z, ISLE_B = -165.0, [(-IN_X, -30.0), (-6.0, 40.0)]
 RIDGE_C_Z, ISLE_C = 164.0, [(-62.0, -14.0), (16.0, 60.0)]
 RIDGE_TOP = 9.2                          # over a jump (7.2) and the plan's 9
+# Derek 2026-11-14: "make the hills at least for snowy mountain area at the start much less tall and annoying". The two
+# ridges by the camp are low rolls a player walks straight over; the one before the summit is lower too.
+RIDGE_LOW, RIDGE_MID = 3.2, 5.0
 RIDGE_WIND, RIDGE_LEE = 10.0, 6.0        # a ridge's windward slope (toward the camp) and its back, at RIDGE_TOP
 
 LAKE = (0.0, -68.0)
@@ -348,8 +351,8 @@ def _walls(s, mat):
 
 
 # -------------------------------------------------------------------------------------------- the blockers --
-def _ridge(s, mat, z, runs, seed=0):
-    """A snowbank ridge (runs, x0 to x1) RIDGE_TOP high with snowy pines along its crest: banks end to end, each with
+def _ridge(s, mat, z, runs, seed=0, top=RIDGE_TOP):
+    """A snowbank ridge (runs, x0 to x1) `top` high with snowy pines along its crest: banks end to end, each with
     a long windward slope toward the camp and a shaded back, the crest wandering and the heights rolling, the ends
     stepping down into the snow. Every piece collides where it is drawn, so a player can climb over a ridge or walk
     round its end."""
@@ -362,7 +365,7 @@ def _ridge(s, mat, z, runs, seed=0):
         for i in range(n):
             j = i + 3 * k + seed
             c = a0 + (i + 0.5) * step
-            h = RIDGE_TOP - 0.4 * (j % 3)                      # 8.4 to 9.2 at the crest, the pines over it
+            h = top * (1 - 0.045 * (j % 3))                    # the crest rolls a little, the pines over it
             ln = step + 2.4
             hip = 0.7
             if abs(c) + ln / 2 + hip * h > IN_X:
@@ -377,12 +380,12 @@ def _ridge(s, mat, z, runs, seed=0):
             if abs(abs(e) - IN_X) < 1:
                 continue
             for (t, hh, ln, dz) in ((3.0, 0.6, 6.0, 0.6), (6.5, 0.3, 4.0, 1.4)):
-                if near_trail(e + sgn * (t + ln / 2 + 0.7 * RIDGE_TOP * hh), z + dz) < TRAIL_W / 2 + 1.0:
+                if near_trail(e + sgn * (t + ln / 2 + 0.7 * top * hh), z + dz) < TRAIL_W / 2 + 1.0:
                     break
-                dune_piece(b, e + sgn * t, z + dz, ln, RIDGE_TOP * hh, 0.0, sw=SNOW, sw_lee=SNOW_SHADE)
+                dune_piece(b, e + sgn * t, z + dz, ln, top * hh, 0.0, sw=SNOW, sw_lee=SNOW_SHADE)
     s.put([b.finalize(N + "Ridge", mat)], 0, 0, 0)
     for (x, zc, h, j) in crest:
-        s.put(pine(mat, 6.0 + 1.5 * (j % 3), "PineRidge"), x, zc, (j * 47) % 360, y=h - 1.1)
+        s.put(pine(mat, 6.0 + 1.5 * (j % 3), "PineRidge"), x, zc, (j * 47) % 360, y=h - min(1.1, 0.25 * h))
 
 
 def _hump(s, mat, x, z, w=TRAIL_W + 4.0):
@@ -539,7 +542,7 @@ def _cave(s, mat):
 # ---------------------------------------------------------------------------------------------- the summit --
 def summit(mat):
     """Summit Peak, its pivot at its base centre, its stair on the camp face (-Z): four rock tiers SUM_STEP high from
-    SUM_BASE wide, each notched at the corners, snow on every tier, a stair of 1.4 steps up the middle of the camp
+    SUM_BASE wide, each notched at the corners, snow on every tier, a stair of 0.7 steps up the middle of the camp
     face with rock walls, boulders and drifts round the foot."""
     b = Builder()
     for i in range(SUM_TIERS):
@@ -553,10 +556,10 @@ def summit(mat):
             for sy in (-1, 1):
                 b.ico((sx * (w / 2 - 2.2), sy * (w / 2 - 2.2), z + 1.0), 1.4, ROCK_DARK, subdivisions=1,
                       scale=(1.2, 1.0, 0.9))
-    for i in range(SUM_TIERS * 2):                                          # the stair, packed snow on stone
-        y = -(SUM_BASE / 2) - STAIR_OUT + 2.25 * i + 1.125
-        b.box_base((0, y, 0), (STAIR_W, 2.25, 1.4 * (i + 1)), ROCK_DARK, bevel=False)
-        b.box_base((0, y, 1.4 * (i + 1)), (STAIR_W - 0.6, 2.1, 0.12), PATH, bevel=False)
+    for i in range(SUM_TIERS * 4):                                          # the stair, packed snow on stone: 0.7
+        y = -(SUM_BASE / 2) - STAIR_OUT + 1.125 * i + 0.5625                # rises a player walks up without a jump
+        b.box_base((0, y, 0), (STAIR_W, 1.125, 0.7 * (i + 1) - 0.12), ROCK_DARK, bevel=False)
+        b.box_base((0, y, 0.7 * (i + 1) - 0.12), (STAIR_W - 0.6, 1.125, 0.12), PATH, bevel=False)
     for sx in (-1, 1):
         for i in range(SUM_TIERS):
             y = -(SUM_BASE / 2) - STAIR_OUT + 4.5 * i + 2.25
@@ -579,9 +582,10 @@ def summit_flag(mat):
     b.cyl_base((0, 0, 2.5), 0.4, 0.15, SNOW, segments=8, bevel=False)
     b.cyl_base((0, 0, 2.5), 0.1, 7.0, "metal", segments=8, bevel=False)
     b.ico((0, 0, 9.6), 0.22, "rarity_legend", subdivisions=1)
+    f = Builder()                    # the pennant flaps about the mast: the child Model ..._SummitFlag_Swing
     for i, sw in enumerate(FLAGS):
-        b.box((-0.6 - 0.62 * i, 0, 8.8 - 0.04 * i), (0.6, 0.06, 1.4 - 0.22 * i), sw, bevel=False)
-    return [b.finalize(N + "SummitFlag", mat)]
+        f.box((-0.6 - 0.62 * i, 0, 8.8 - 0.04 * i), (0.6, 0.06, 1.4 - 0.22 * i), sw, bevel=False)
+    return [b.finalize(N + "SummitFlag", mat), hinge(f.finalize(N + "SummitFlag_Swing", mat), (-0.1, 0, 8.8))]
 
 
 def observatory(mat):
@@ -964,7 +968,8 @@ def lodge_front(mat):
     b.box_base((-(W / 2 - 2.2), D / 2 - 1.0, 0), (2.4, 2.2, H + 6.4), ROCK_LIGHT, bevel=False)
     b.box_base((-(W / 2 - 2.2), D / 2 - 1.0, H + 6.4), (2.8, 2.6, 0.4), ROCK_DARK, bevel=False)
     b.box_base((-(W / 2 - 2.2), D / 2 - 1.0, H + 6.8), (2.2, 2.0, 0.2), SNOW, bevel=False)
-    return [b.finalize(N + "LodgeFront", mat), panes.finalize(N + "LodgeFront_Pane", mat)]
+    front = smoke(b.finalize(N + "LodgeFront", mat), (-(W / 2 - 2.2), D / 2 - 1.0, H + 7.0))
+    return [front, panes.finalize(N + "LodgeFront_Pane", mat)]
 
 
 def fire_pit(mat):
@@ -1012,9 +1017,9 @@ def build_set(mat):
         return s.put(fn, x, z, rot, y)
 
     _walls(s, mat)
-    _ridge(s, mat, RIDGE_A_Z, ISLE_A, 0)
-    _ridge(s, mat, RIDGE_B_Z, ISLE_B, 1)
-    _ridge(s, mat, RIDGE_C_Z, ISLE_C, 2)
+    _ridge(s, mat, RIDGE_A_Z, ISLE_A, 0, RIDGE_LOW)
+    _ridge(s, mat, RIDGE_B_Z, ISLE_B, 1, RIDGE_LOW)
+    _ridge(s, mat, RIDGE_C_Z, ISLE_C, 2, RIDGE_MID)
     for (x, z) in ((0, -244), (-18, -170), (60, -176), (0, 150)):
         _hump(s, mat, x, z)
         keep.append((x, z, 9))

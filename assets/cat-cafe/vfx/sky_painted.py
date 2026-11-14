@@ -9,6 +9,9 @@ so the box has no seam. Below the horizon it is the same haze as blender/sky.py,
 
 Roblox draws the sun, moon and stars itself and dims the box at night. Upload each face once with the upload-image
 workflow and put the ids in ../rbx/CatCafe_Sky.model.json.
+
+Uploaded 2026-11-14 (upload-image run 43632374622): Ft 85863910961763, Rt 129750069371131, Bk 100239654249371,
+Lf 135577689870619, Up 110183354231085. Dn stays blender/sky.py's 128781484125436.
 """
 
 import math

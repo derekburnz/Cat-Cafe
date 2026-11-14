@@ -387,7 +387,9 @@ StoreLogic.PRODUCTS = PRODUCTS
 local STARTER: ProductCard = {
 	key = "starterBundle",
 	productKey = "starter_bundle",
-	effect = "A head start for a new cafe. Once per player.",
+	-- Derek 2026-11-14: say that Sprinkles is as good as an Epic from the best area unlocked (an exclusive cat earns like
+	-- its rarity from the newest area, CatStats.areaMultiplier)
+	effect = "Sprinkles always earns like an Epic from your newest area. Once per player.",
 }
 StoreLogic.STARTER = STARTER
 

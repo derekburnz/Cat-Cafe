@@ -895,7 +895,13 @@ local function spawnAt(
 	local secret = if beginner == nil
 			and rarity == "Mythical"
 			and LiveFlagService.on(Catching.SECRET_FLAG)
-		then Catching.secret(rarity, rng:NextNumber(), rng:NextNumber(), true)
+		then Catching.secret(
+			rarity,
+			rng:NextNumber(),
+			rng:NextNumber(),
+			true,
+			if LiveFlagService.on(Catching.SECRET_AREAS_FLAG) then { areaId } else nil
+		)
 		else nil
 	local def = secret or Catching.pickCat(rarity, areaId, rng:NextNumber())
 	local point = area.spawnPoints[pointIndex]

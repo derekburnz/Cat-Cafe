@@ -52,7 +52,7 @@ return function()
 		it("names the Grand Opening's next step while it runs", function()
 			local state = { tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true } } }
 			expect(RecapLogic.next(state, "Cozy Cafe")).to.equal(
-				"Grand Opening 2/8: Five different cats"
+				"Grand Opening 2/8: Four different cats"
 			)
 		end)
 

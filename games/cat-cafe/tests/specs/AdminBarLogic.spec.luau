@@ -20,6 +20,9 @@ return function()
 	local JSON: { [string]: any } = {
 		['{"wheel":true}'] = { wheel = true },
 		['{"bowlSpeed":4}'] = { bowlSpeed = 4 },
+		['{"secretHunt":3,"secretFound":1}'] = { secretHunt = 3, secretFound = 1 },
+		['{"secretHunt":3,"secretFound":9}'] = { secretHunt = 3, secretFound = 9 },
+		['{"moneyStorm":5,"line":"Rain of coins"}'] = { moneyStorm = 5, line = "Rain of coins" },
 	}
 	local function decode(raw: string): unknown
 		local known = JSON[raw]
@@ -124,6 +127,81 @@ return function()
 			)
 			expect(won.line).to.equal("You won +200 golden fish!")
 		end)
+
+		it(
+			"words every part 2 event from its effects, with the server's own line first (#4197)",
+			function()
+				expect(Logic.line({ goldBoost = 10, rainbowBoost = 5 })).to.equal(
+					"Gold coats 10x, rainbow 5x on every catch"
+				)
+				expect(Logic.line({ goldBoost = 10 })).to.equal("Gold coats 10x on every catch")
+				expect(Logic.line({ catStorm = 10 })).to.equal(
+					"Strays rain in every area, Mythical 10x"
+				)
+				expect(Logic.line({ moneyStorm = 5 })).to.equal("5x cafe money for everyone")
+				expect(Logic.line({ traitParty = true })).to.equal(
+					"Trait rolls are free, with extra rarity luck"
+				)
+				expect(Logic.line({ secretHunt = 3 })).to.equal(
+					"Find the 3 hidden Secret cats and keep them"
+				)
+				expect(Logic.line({ secretHunt = 1 })).to.equal(
+					"Find the hidden Secret cat and keep it"
+				)
+				expect(Logic.line({ fishFountain = 1 })).to.equal(
+					"The Town Square fountain sprays golden fish"
+				)
+				expect(Logic.line({ crateDrop = true })).to.equal(
+					"Golden crates drop into every area"
+				)
+				expect(Logic.line({ speedRush = 1 })).to.equal(
+					"Speed Shoes for all, cannons fly 2x as far"
+				)
+				expect(Logic.line({ moneyStorm = 1 })).to.equal(nil) -- no multiplier, no line
+				expect(Logic.line({ moneyStorm = 5, line = "Rain of coins" })).to.equal(
+					"Rain of coins"
+				)
+				expect(Logic.line({ moneyStorm = 5, line = string.rep("x", Logic.LINE_MAX + 1) })).to.equal(
+					"5x cafe money for everyone"
+				)
+				expect(Logic.line({})).to.equal(nil)
+				expect(Logic.line({ crateDrop = 0 })).to.equal(nil) -- 0 is off
+				expect(Logic.line({ speedRush = "yes" })).to.equal(nil)
+				for _, data in
+					{
+						{ wheel = true },
+						{ bowlSpeed = 4 },
+						{ catStorm = 10 },
+						{ goldBoost = 10, rainbowBoost = 5 },
+						{ moneyStorm = 5 },
+						{ traitParty = true },
+						{ secretHunt = 3 },
+						{ fishFountain = 1 },
+						{ crateDrop = true },
+						{ speedRush = 1 },
+					}
+				do
+					expect(#(Logic.line(data) :: string) <= Logic.LINE_MAX).to.equal(true)
+				end
+			end
+		)
+
+		it(
+			"puts the server's line on the banner and a Secret Hunt's count on the timer (#4197)",
+			function()
+				local storm = info('{"moneyStorm":5,"line":"Rain of coins"}')
+				expect(Logic.view(storm, 900, nil).sub).to.equal("Rain of coins")
+				local hunt = info('{"secretHunt":3,"secretFound":1}', true)
+				expect(hunt.total).to.equal(3)
+				expect(hunt.found).to.equal(1)
+				local live = Logic.view(hunt, 1100, nil)
+				expect(live.pill).to.equal("Admin Wheel 1/3")
+				expect(live.sub).to.equal("Find the 3 hidden Secret cats and keep them")
+				expect(Logic.view(hunt, 900, nil).pill).to.equal("Admin Wheel in") -- no count before it starts
+				expect(info('{"secretHunt":3,"secretFound":9}').found).to.equal(3)
+				expect(Logic.view(info("{not json"), 900, nil).sub).to.equal("Admin Wheel")
+			end
+		)
 
 		it("has one slice look for each wheel prize", function()
 			expect(#Logic.SLICES).to.equal(#AdminWheel.PRIZES)

@@ -4772,6 +4772,50 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(spin and spin.Visible, "uigate: the admin timer has no Spin button while the wheel is up (#4195)")
 		adminClear(timer)
 	end },
+	{ "AdminLines", function()
+		-- #4197: every event's title and line fit the banner, and a Secret Hunt's count fits the timer
+		Scenes._admin = true
+		local Logic = require(game:GetService("StarterPlayer").StarterPlayerScripts.Client.UI.Components.AdminBarLogic) :: any
+		local kinds = {
+			{ "Bowl Frenzy", { bowlSpeed = 4 } },
+			{ "Cat Storm", { catStorm = 10 } },
+			{ "Golden Hour", { goldBoost = 10, rainbowBoost = 5 } },
+			{ "Money Storm", { moneyStorm = 5 } },
+			{ "Trait Party", { traitParty = 1 } },
+			{ "Secret Hunt", { secretHunt = 3, secretFound = 2 } },
+			{ "Fish Fountain", { fishFountain = 1 } },
+			{ "Crate Drop", { crateDrop = 1 } },
+			{ "Speed Rush", { speedRush = 1 } },
+		}
+		local bar = UIShim.playerGui:FindFirstChild("CatCafeAdminEvent") :: ScreenGui
+		for n, kind in kinds do
+			local t = workspace:GetServerTimeNow()
+			local info = adminInfo(t - 60)
+			info.id = "gate-kind-" .. n
+			info.title = kind[1]
+			info.wheel = false
+			info.line = Logic.line(kind[2])
+			info.total = kind[2].secretHunt
+			info.found = kind[2].secretFound
+			UI.admin.set(info, nil)
+			local banner = bar:FindFirstChild("Banner", true) :: GuiObject
+			local big = banner:FindFirstChild("Big") :: TextLabel
+			local sub = banner:FindFirstChild("Sub") :: TextLabel
+			assert(banner.Visible and big.TextFits and sub.TextFits, "uigate: the " .. kind[1] .. " banner is cut: " .. big.Text .. " / " .. sub.Text .. " (#4197)")
+			adminClear(banner)
+			UIShim.advance(9)
+			UI.admin.set(info, nil)
+			local timer = bar:FindFirstChild("Timer", true) :: GuiObject
+			for _, label in timer:GetChildren() do
+				if label:IsA("TextLabel") then
+					assert(label.TextFits, "uigate: the " .. kind[1] .. " timer is cut: " .. label.Text .. " (#4197)")
+				end
+			end
+			adminClear(timer)
+		end
+		local words = bar:FindFirstChild("Timer", true):FindFirstChild("Words") :: TextLabel
+		assert(words.Text == "Speed Rush", "uigate: the timer's words are wrong: " .. words.Text .. " (#4197)")
+	end },
 	{ "AdminWheel", function()
 		Scenes._admin = true
 		local t = workspace:GetServerTimeNow()

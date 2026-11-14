@@ -2189,6 +2189,43 @@ local SCENES = {
 		local gap = (close :: GuiObject).AbsolutePosition.X - (shown.AbsolutePosition.X + shown.AbsoluteSize.X)
 		assert(gap >= 8, ("uigate: the Perks button is %d px from the X (#2839)"):format(gap))
 	end },
+	-- #4292 (Derek 11-14: the white rows under "New station" flash on and off): a state push that changes nothing on
+	-- the card (money ticking) keeps the same rows and "It opens" cards, not new ones drawn a frame late
+	{ "RankUpSteady", function()
+		UI.open("RankUp")
+		UIShim.advance(0.1)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local root = modals and modals:FindFirstChild("Root")
+		local container = root and root:FindFirstChild("Container")
+		local window = container and container:FindFirstChild("RankUp") :: Instance
+		assert(window, "uigate: no Rank up window (#4292)")
+		local function pieces(): { Instance }
+			local found = {}
+			local list = window:FindFirstChild("Requirements", true)
+			local cards = window:FindFirstChild("OpensCards", true)
+			for _, holder in { list, cards } do
+				if holder then
+					for _, child in holder:GetChildren() do
+						if child:IsA("Frame") then
+							table.insert(found, child)
+						end
+					end
+				end
+			end
+			return found
+		end
+		local before = pieces()
+		assert(#before > 0, "uigate: the Rank up window shows no rows (#4292)")
+		UI.update({} :: any) -- a push that changes nothing on the card, as a money tick past the needs does
+		UIShim.advance(0.1)
+		UI.update({} :: any)
+		UIShim.advance(0.1)
+		local after = pieces()
+		assert(#after == #before, ("uigate: the Rank up rows went from %d to %d on a state push (#4292)"):format(#before, #after))
+		for _, piece in before do
+			assert(piece.Parent ~= nil and table.find(after, piece), ("uigate: Rank up row %s was drawn again on a state push, so it flashes (#4292)"):format(piece.Name))
+		end
+	end },
 	{ "RankUpTier2", function()
 		-- #2121: the Tier 1 card lists all five upgrade caps, Bait Bowl among them; the line still fits. The level is not
 		-- pinned (#3204 moved the Tier 2 caps), only that the line is there

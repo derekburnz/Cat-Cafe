@@ -1699,6 +1699,39 @@ local Cues: { [string]: Cue } = {
 		minGap = 1,
 		range = 60,
 	}, -- the White Tiger Cat's own cue
+	-- #4104 the Cat Fusion Observatory: the window's start chime and the two collect fanfares on one sheet
+	-- (synth/synth.py, parts in sheet-parts/sfx). All flat.
+	sheetFusion = {
+		ids = { "rbxassetid://140007046935787" },
+		group = "Sfx",
+		volume = 1,
+	}, -- mono, 6.8 s; uploaded by upload-audio run 43542283313 (group)
+	fusionStart = {
+		ids = {},
+		sheet = "sheetFusion",
+		region = { 0.000, 1.900 },
+		group = "Sfx",
+		volume = 0.55,
+		minGap = 1,
+	}, -- five cats go into the dome: five notes climbing, then a shimmer as they become one
+	fusionCollect = {
+		ids = {},
+		sheet = "sheetFusion",
+		region = { 2.400, 3.700 },
+		group = "Sfx",
+		volume = 0.6,
+		minGap = 1,
+		duck = true,
+	}, -- a gold cat comes out: a bright "ta-da"
+	fusionCollectRainbow = {
+		ids = {},
+		sheet = "sheetFusion",
+		region = { 4.200, 6.800 },
+		group = "Sfx",
+		volume = 0.65,
+		minGap = 1,
+		duck = true,
+	}, -- a rainbow cat comes out: the "ta-da", six notes running up and a wider chord
 	tipSweep = { -- the tipPile file: coins scooped off a table into the Waiter's bag (your own cafe)
 		ids = { "rbxassetid://131455934857825" },
 		group = "Sfx",

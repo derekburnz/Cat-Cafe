@@ -3435,7 +3435,7 @@ end
 
 -- The Mystic Pool (#3314, trait-station.md section 1a): the rarity ids its liquid steps through, lowest first, the
 -- same ids and order as shared/Traits.RARITIES (EffectsMysticPool.spec checks).
-Logic.POOL_RARITIES = { "common", "uncommon", "rare", "epic", "legendary", "mythic" }
+Logic.POOL_RARITIES = { "common", "uncommon", "rare", "epic", "legendary", "mythic", "secret" } -- #3908: Secret
 
 -- The colours the pool shows for a roll of `rarity`, grey first, one step per rarity up to it and never past it: a
 -- common stays grey, a rare goes grey, green, blue. An unknown rarity shows grey only.
@@ -3456,7 +3456,7 @@ function Logic.poolSeconds(rarity: string): number
 	local p = Presets.mysticPool
 	local steps = Logic.poolSteps(rarity)
 	local n = #steps
-	if steps[n] == "mythic" then
+	if steps[n] == "mythic" or steps[n] == "secret" then -- #3908: a Secret ends on the same flash and shimmer
 		return (n - 1) * p.step + p.mythicHold
 	end
 	return n * p.step + p.hold
@@ -3471,7 +3471,7 @@ function Logic.poolAt(rarity: string, t: number): (number, number, boolean)
 	local n = #steps
 	local i = math.clamp(math.floor(math.max(t, 0) / p.step) + 1, 1, n)
 	local into = math.max(t, 0) - (i - 1) * p.step
-	local blend = if steps[i] == "mythic" then p.flash else p.blend
+	local blend = if steps[i] == "mythic" or steps[i] == "secret" then p.flash else p.blend
 	local k = if i == 1 then 1 else math.clamp(into / blend, 0, 1)
 	return i, k, t >= Logic.poolSeconds(rarity)
 end

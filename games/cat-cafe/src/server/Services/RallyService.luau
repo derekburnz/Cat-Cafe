@@ -137,8 +137,14 @@ end
 -- Starts or ends the Rally as the clock (or RallyForce) says, and keeps its times; true when anything changed.
 local function update(now: number): boolean
 	-- #2119: the live switch `rally` set false ends a running Rally and keeps the next from starting
-	local active = Rally.isActive(now, force()) and LiveFlagService.on("rally")
+	local on = LiveFlagService.on("rally")
+	local active = Rally.isActive(now, force()) and on
 	local endsAt, startsAt = Rally.endsAt(now, force()), Rally.startsAt(now)
+	if not on then
+		-- #4064 (Derek 2026-11-13: "turn the rally event off"): no times either, so no client counts down to a
+		-- Rally that will not come (RallyLogic.soon) and the banner and board stay away
+		endsAt, startsAt = 0, 0
+	end
 	local moved = endsAt ~= bar.endsAt or startsAt ~= bar.startsAt
 	bar.endsAt, bar.startsAt = endsAt, startsAt
 	if active and bar.active and Rally.weekend(now) ~= bar.weekend then

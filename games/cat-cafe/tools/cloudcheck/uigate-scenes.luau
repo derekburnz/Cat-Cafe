@@ -904,12 +904,10 @@ local function assertStoreCards(featured)
 				"uigate: Store card " .. card.Name .. "'s description runs out of the card or under its button (#1221)"
 			)
 			-- #3572: the box can sit clear of the button while its words run on past it (a wide card's one line
-			-- pushed down by its chip), so on a wide card (the rework's, its picture centred at the left) the drawn
+			-- pushed down by its chip, #3930 a grid card's lines at the smallest size), so on a list card the drawn
 			-- words must end above the button too
-			local tile = card:FindFirstChild("Tile")
-			local wide = not featured and tile ~= nil and tile:IsA("GuiObject") and tile.AnchorPoint.Y == 0.5
 			local besideButton = effect.AbsolutePosition.X + effect.AbsoluteSize.X <= buy.AbsolutePosition.X + 0.5
-			if wide and effect.Visible and not besideButton then
+			if not featured and effect.Visible and not besideButton then
 				local drawnBottom = effect.AbsolutePosition.Y + effect.TextBounds.Y
 				assert(
 					drawnBottom <= buy.AbsolutePosition.Y + 0.5,
@@ -1926,14 +1924,11 @@ local SCENES = {
 		if SettingsList.isKey(SettingsList.AUTO_EQUIP_KEY) then
 			local switch = UIShim.playerGui:FindFirstChild("AutoEquip", true)
 			assert(switch and switch.Visible, "uigate: no Auto Equip switch in the Cats window (#1955)")
+			-- #4028: the switch is the AUTO pill inside Equip Best, green while on (its On attribute)
 			local function shows(): string
-				for _, inst in (switch :: Instance):GetDescendants() do
-					if (inst:IsA("TextLabel") or inst:IsA("TextButton")) and string.find(inst.Text, "Auto Equip", 1, true) then
-						return inst.Text
-					end
-				end
-				return (switch :: any).Text
+				return if (switch :: Instance):GetAttribute("On") == true then "Auto Equip: On" else "Auto Equip: Off"
 			end
+			assert((switch :: Instance):FindFirstAncestor("EquipBest") ~= nil, "uigate: the AUTO switch is not inside Equip Best (#4028)")
 			assert(shows() == "Auto Equip: On", "uigate: the switch shows " .. shows() .. " with the setting on")
 			-- #2076: a sync sent before the server applied the press keeps the old value; the switch keeps the press
 			local function sync(on: boolean)
@@ -1950,6 +1945,87 @@ local SCENES = {
 			sync(true) -- a later change from elsewhere (Settings) shows at once
 			assert(shows() == "Auto Equip: On", "uigate: the switch ignored a real change after the press settled")
 		end
+	end },
+	-- #4028 (Derek 2026-11-13: "good for cats menu top"): one equal column per role with its green count and faces, no
+	-- locked squares; Sort opens a pop-up with the orders, and Unequip All there asks a second tap
+	{ "CatsSortMenu", function()
+		UI.open("Cats")
+		task.wait(0.1)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals.Root.Container:FindFirstChild("Cats") :: GuiObject
+		local crew = window:FindFirstChild("Crew", true) :: GuiObject
+		local roles = crew and crew:FindFirstChild("Roles") :: GuiObject
+		assert(roles and not roles:IsA("ScrollingFrame"), "uigate: the team strip still scrolls (#4028)")
+		local columns = {}
+		for _, column in roles:GetChildren() do
+			if column:IsA("Frame") then
+				table.insert(columns, column)
+				local count = column:FindFirstChild("Count") :: TextLabel
+				assert(count and count.Text:match("^%d+/%d+$"), "uigate: the " .. column.Name .. " column has no 2/4 count (#4028)")
+				local right = column.AbsolutePosition.X + column.AbsoluteSize.X
+				assert(right <= roles.AbsolutePosition.X + roles.AbsoluteSize.X + 1, "uigate: the " .. column.Name .. " column runs off the strip (#4028)")
+				for _, face in (column:FindFirstChild("Slots") :: Instance):GetChildren() do
+					if face:IsA("GuiObject") and face.Visible then
+						local faceRight = face.AbsolutePosition.X + face.AbsoluteSize.X
+						assert(faceRight <= right + 1, "uigate: a face spills out of the " .. column.Name .. " column (#4028)")
+					end
+				end
+			end
+		end
+		assert(#columns >= 4, ("uigate: %d role columns, wanted every role (#4028)"):format(#columns))
+		local menu = window:FindFirstChild("SortMenu", true) :: GuiObject
+		assert(menu and not menu.Visible, "uigate: the Sort pop-up shows before Sort is pressed (#4028)")
+		press("Cats", "Sort")
+		assert(menu.Visible, "uigate: Sort did not open its pop-up (#4028)")
+		UIShim.advance(0.1) -- it flips upward a frame on where it would run past the panel's foot
+		local holder = menu.Parent :: GuiObject
+		local menuBottom = menu.AbsolutePosition.Y + menu.AbsoluteSize.Y
+		assert(menuBottom <= holder.AbsolutePosition.Y + holder.AbsoluteSize.Y + 1, ("uigate: the Sort pop-up runs past the panel's foot (Review-QA, #4028): menu %d..%d, panel %d..%d %s"):format(menu.AbsolutePosition.Y, menuBottom, holder.AbsolutePosition.Y, holder.AbsolutePosition.Y + holder.AbsoluteSize.Y, holder.Name))
+		assert(menu.AbsolutePosition.Y >= holder.AbsolutePosition.Y - 1, "uigate: the Sort pop-up runs past the panel's top (#4028)")
+		press("Cats", "UnequipAll")
+		local unequip = menu:FindFirstChild("UnequipAll", true) :: Instance
+		local asks = false
+		for _, piece in unequip:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Text:find("Tap again", 1, true) then
+				asks = true
+			end
+		end
+		assert(asks and menu.Visible, "uigate: Unequip All did not ask for a second tap (#4028)")
+		press("Cats", "SortRarity")
+		assert(not menu.Visible, "uigate: picking an order did not close the pop-up (#4028)")
+		local sort = window:FindFirstChild("Sort", true) :: Instance
+		local reads = false
+		for _, piece in sort:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Text:find("Rarity", 1, true) then
+				reads = true
+			end
+		end
+		assert(reads, "uigate: Sort does not read Rarity after picking it (#4028)")
+		press("Cats", "Sort")
+		press("Cats", "SortBest")
+		-- Review-QA 2026-11-14: a working cat's face shows that cat (nothing over it takes its input away)
+		local hit: GuiButton? = nil
+		for _, column in columns do
+			for _, face in (column:FindFirstChild("Slots") :: Instance):GetChildren() do
+				local glyph = face:FindFirstChild("Glyph") :: TextLabel?
+				local pad = face:FindFirstChild("Hit") :: GuiButton?
+				if face:IsA("GuiObject") and face.Visible and glyph and glyph.Text == "" and pad and hit == nil then
+					hit = pad
+				end
+			end
+		end
+		assert(hit, "uigate: no working cat face in the roles row (#4028)")
+		local piece: Instance? = hit
+		while piece ~= nil and piece ~= window do
+			assert(not (piece:IsA("GuiObject") and (piece :: GuiObject).Interactable == false), "uigate: " .. piece.Name .. " blocks the face's tap (Review-QA, #4028)")
+			piece = piece.Parent
+		end
+		UIShim.fire(UIShim.eventOf(hit, "Activated"))
+		task.wait(0.1)
+		for _, label in window:GetDescendants() do
+			assert(not (label:IsA("TextLabel") and label.Visible and label.Text == "Tap a cat to see it."), "uigate: tapping a working face did not show the cat (Review-QA, #4028)")
+		end
+		UI.close()
 	end },
 	-- #2047 (Derek2: "with the extra slots it doesn't show all the working cats on the top"): a Tier 5 cafe with Grand
 	-- Cafe and the Extra Slot pass works all 12 slots, the two pass-only waiter slots too, and the crew strip shows 12
@@ -2651,10 +2727,13 @@ local SCENES = {
 		assert(name.Text == "Golden Whiskers", "uigate: the trait card reads " .. name.Text .. " (#3196)")
 		local effects = window:FindFirstChild("Trait", true):FindFirstChild("Effect2")
 		assert(effects.Text ~= "", "uigate: a Legendary trait shows one effect only (#3196)")
-		-- #3961: the main card's odds are six rarity pills
+		-- #3961: the main card's odds are six rarity pills; #3908: seven with the secretTrait switch on, Mythic 4.9%
+		local secretOn = game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_secretTrait") == true
 		local pills = window:FindFirstChild("OddsPills", true)
 		local mythic = pills and pills:FindFirstChild("Mythic") :: TextLabel?
-		assert(pills and pills.Visible and mythic and mythic.Text == "Mythic 5%", "uigate: the odds pills are not on the card (#3196, #3961)")
+		local secret = pills and pills:FindFirstChild("Secret") :: TextLabel?
+		assert(pills and pills.Visible and mythic and mythic.Text == (if secretOn then "Mythic 4.9%" else "Mythic 5%"), "uigate: the odds pills are not on the card (#3196, #3961)")
+		assert((secret ~= nil) == secretOn and (secret == nil or secret.Text == "Secret 0.1%"), "uigate: the Secret pill shows only with its switch on (#3908)")
 		local roll = window:FindFirstChild("Roll", true):FindFirstChildWhichIsA("TextLabel", true)
 		assert(roll.Text == "Re-roll · 1 Trait Token", "uigate: Roll reads " .. roll.Text .. " (#3196)")
 		local tokens = window:FindFirstChild("Tokens", true)
@@ -2907,8 +2986,17 @@ local SCENES = {
 		press("MysticPool", "Odds")
 		local list = window:FindFirstChild("OddsList", true)
 		assert(list.Visible, "uigate: Odds did not open the list (#3196)")
-		assert(list.Mythic.Percent.Text == "5%" and list.Common.Percent.Text == "30%" and list.Epic.Percent.Text == "12%", "uigate: the odds list reads wrong (#3196)")
+		local secretOn = game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_secretTrait") == true
+		assert(list.Mythic.Percent.Text == (if secretOn then "4.9%" else "5%") and list.Common.Percent.Text == "30%" and list.Epic.Percent.Text == "12%", "uigate: the odds list reads wrong (#3196)")
 		assert(list.Equal.Text:find("equally likely", 1, true), "uigate: the odds list lacks the equal line (#3196)")
+		-- #4063 Studio: every row and the Equal line sit inside the sheet, the Secret row too with its switch on
+		local secretRow = list:FindFirstChild("Secret")
+		assert((secretRow ~= nil) == secretOn and (secretRow == nil or secretRow.Percent.Text == "0.1%"), "uigate: the Secret odds row shows only with its switch on (#4063)")
+		local bottom = list.AbsolutePosition.Y + list.AbsoluteSize.Y
+		for _, item in { list.Equal, secretRow or list.Mythic } do
+			local itemBottom = item.AbsolutePosition.Y + item.AbsoluteSize.Y
+			assert(itemBottom <= bottom + 1, ("uigate: %s is cut %d px under the odds sheet (#4063)"):format(item.Name, itemBottom - bottom))
+		end
 	end },
 	-- #3864: the Trait Token offer once the free rolls are used: both bundles with their prices, the full odds, a
 	-- No thanks that hides it, and once a session only
@@ -6090,6 +6178,40 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			warnedPill.AbsolutePosition.X >= -0.5 and warnedPill.AbsolutePosition.X + warnedPill.AbsoluteSize.X <= view.X + 0.5,
 			"uigate: the restart warning's pill runs off screen (#3205)"
 		)
+	end },
+	-- #4018: while a cutscene plays (UI.setCutscene) toasts and shout-outs wait and come out in order afterwards, and
+	-- the food bowl cards wait too
+	{ "CutsceneHold", function()
+		UIShim.advance(6) -- earlier scenes' toasts gone
+		local shout = "Someone tamed a Mythical Gate Cat!"
+		local saved = "Cutscene gate note"
+		local function showing(text: string): boolean
+			for _, label in UIShim.playerGui:GetDescendants() do
+				if label:IsA("TextLabel") and label.Name == "Text" and label.Visible and label.Text == text then
+					local gui = label:FindFirstAncestorWhichIsA("ScreenGui")
+					return gui == nil or gui.Enabled
+				end
+			end
+			return false
+		end
+		UI.setCutscene(true)
+		assert(UI.bait.busy(), "uigate: the food bowl cards do not wait through a cutscene (#4018)")
+		UI.announce(shout, "Mythical")
+		UI.toast(saved, "info")
+		for _ = 1, 6 do
+			UIShim.advance(0.5)
+			assert(not showing(shout), "uigate: a shout-out showed mid-cutscene (#4018)")
+			assert(not showing(saved), "uigate: a toast showed mid-cutscene (#4018)")
+		end
+		UI.setCutscene(false)
+		local seenShout, seenSaved = false, false
+		for _ = 1, 20 do
+			UIShim.advance(0.25)
+			seenShout = seenShout or showing(shout)
+			seenSaved = seenSaved or showing(saved)
+		end
+		assert(seenShout, "uigate: the shout-out did not come out after the cutscene (#4018)")
+		assert(seenSaved, "uigate: the toast did not come out after the cutscene (#4018)")
 	end },
 	-- #2729 (Derek2: "big claims of index and quests cap at one line and put …"; "remove all the extra ones"): a long
 	-- Index claim is one row ending in "…", no reward chips under it; a cut nudge never shows; a long warning wraps

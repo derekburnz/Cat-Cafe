@@ -404,7 +404,7 @@ function GamepadNav.stepTab(root: Instance, step: number): boolean
 		task.defer(function()
 			local _, now = GamepadNav.tabs(root)
 			local tab: GuiButton? = now[index]
-			if tab ~= nil and not rawequal(GuiService.SelectedObject, tab) then
+			if tab ~= nil and GuiService.SelectedObject ~= tab then
 				GamepadNav.select(tab)
 			end
 		end)

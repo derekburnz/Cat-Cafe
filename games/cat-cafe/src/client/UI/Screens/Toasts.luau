@@ -245,7 +245,11 @@ function Toasts.show(
 	-- warn covers can't afford, not allowed and bumps: the gentle bonk; everything else the small pop
 	-- Review-QA on #3854: a toast that will wait (held, mid-catch or a busy window) makes no sound now
 	local waits = kind ~= "warn"
-		and (self._held or self._busy or (self._focus and string.sub(text, 1, 9) ~= "Try again"))
+		and (
+			self._held
+			or (self._busy and not ToastRules.purchase(text))
+			or (self._focus and string.sub(text, 1, 9) ~= "Try again")
+		)
 	if not quiet and not waits then
 		Sound.play(if kind == "warn" then "uiError" else "uiToast")
 	end
@@ -532,7 +536,8 @@ function Toasts._push(
 		and fill ~= KIND_COLORS.warn
 		and string.sub(text, 1, 9) ~= "Try again"
 	-- Derek 2026-11-13: none but a warning while Mouse Dash or the Mystic Pool's card is open (setBusy)
-	local busyWait = self._busy and fill ~= KIND_COLORS.warn
+	-- Review-QA on #4260: a purchase's confirmation still shows (ToastRules.purchase)
+	local busyWait = self._busy and fill ~= KIND_COLORS.warn and not ToastRules.purchase(text)
 	if self._held or focusWait or busyWait then
 		for _, waiting in self._queue do
 			if waiting.text == text and prize == nil then

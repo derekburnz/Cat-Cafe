@@ -732,11 +732,11 @@ return function()
 			{ "Sunstone Cafe", 1250000000, 30, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
 			{ "Wonder Cafe", 12500000000, 38, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
 			-- #3997 (tier8-snowy-mountain.md section 1, draft numbers)
-			{ "Summit Cafe", 520000000000, 56, "Mythical", 4, 16, 2.75, "snowy", { 6, 8, 3 } },
+			{ "Summit Cafe", 120000000000, 56, "Mythical", 4, 16, 2.75, "snowy", { 6, 8, 3 } },
 			-- #4070 (draft numbers on Tier 8's pattern)
 			{
 				"Funfair Cafe",
-				5000000000000,
+				1200000000000,
 				65,
 				"Mythical",
 				5,
@@ -748,7 +748,7 @@ return function()
 			-- #4184 (draft numbers on the same pattern)
 			{
 				"Royal Cafe",
-				48000000000000,
+				11500000000000,
 				74,
 				"Mythical",
 				6,

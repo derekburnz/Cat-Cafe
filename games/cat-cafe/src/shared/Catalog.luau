@@ -1705,7 +1705,7 @@ Catalog.tiers = {
 	{
 		tier = 8,
 		name = "Summit Cafe",
-		cost = 520000000000,
+		cost = 120000000000, -- #4192: 520,000,000,000 before, the same 9.6x step on #4189's Tier 7
 		distinctCats = 56,
 		needsRarity = "Mythical",
 		needsRarityCount = 4,
@@ -1719,7 +1719,7 @@ Catalog.tiers = {
 	{
 		tier = 9,
 		name = "Funfair Cafe",
-		cost = 5000000000000,
+		cost = 1200000000000, -- #4192: 5,000,000,000,000 before
 		distinctCats = 65,
 		needsRarity = "Mythical",
 		needsRarityCount = 5,
@@ -1733,7 +1733,7 @@ Catalog.tiers = {
 	{
 		tier = 10,
 		name = "Royal Cafe",
-		cost = 48000000000000,
+		cost = 11500000000000, -- #4192: 48,000,000,000,000 before
 		distinctCats = 74,
 		needsRarity = "Mythical",
 		needsRarityCount = 6,

@@ -1220,6 +1220,52 @@ return function()
 		)
 	end)
 
+	-- #4192 (Derek 2026-11-14: the three new areas open together; Tiers 3 to 7 were cut by #4189, so Tiers 8 to 10 came
+	-- down with them, each still about 9.6 times the one before): 120B, 1.2T and 11.5T. The first Pace run of the late
+	-- tiers (four runs, every late tier open): Tier 7 at 7 h 41, then 6 h 35 to Tier 8, 11 h 49 to Tier 9 and 21 h 32
+	-- to Tier 10, so each wait is a little under twice the last, as from Tier 5 on (1 h 00, 2 h 07, 3 h 32). Before, at
+	-- 520B, 5T and 48T, tier8-snowy-mountain.md's draft had 12 to 15 h after Tier 7 for Tier 8 alone and no test.
+	-- Two runs only, since one run to Tier 10 is about 47 hours of play: they give 7 h 31, 11 h 49 and 23 h 13.
+	describe("Tiers 8 to 10 on the money ladder (#4192)", function()
+		it(
+			"takes 4.5 to 9.5 hours from Tier 7 to Tier 8, 8 to 17 on to Tier 9 and 14 to 30 on to Tier 10 (#4192: the draft was 12 to 15 for Tier 8, untested)",
+			function()
+				local LateTiers = require(Shared.LateTiers)
+				local limit = 200 * HOUR
+				LateTiers.setOpen(true)
+				local ok, list =
+					pcall(runs, { catches = 4, target = 10, limit = limit, long = true }, 2)
+				LateTiers.setOpen(nil)
+				if not ok then
+					error(list)
+				end
+				local bands = { [8] = { 4.5, 9.5 }, [9] = { 8, 17 }, [10] = { 14, 30 } }
+				local parts, bad = {}, {}
+				for tier = 8, 10 do
+					local function gap(run: Run): number?
+						local a, b = run.tierAt[tier - 1], run.tierAt[tier]
+						return if a ~= nil and b ~= nil then b - a else nil
+					end
+					local wait = quantile(list :: { Run }, gap, 0.5, limit)
+					local text = string.format(
+						"Tier %d at %s (+%s)",
+						tier,
+						clock(quantile(list :: { Run }, tierAt(tier), 0.5, limit)),
+						clock(wait)
+					)
+					table.insert(parts, text)
+					if wait < bands[tier][1] * HOUR or wait > bands[tier][2] * HOUR then
+						table.insert(bad, text)
+					end
+				end
+				print("[Pace #4192] " .. table.concat(parts, ", "))
+				if #bad > 0 then
+					error("late tier outside its band: " .. table.concat(bad, ", "))
+				end
+			end
+		)
+	end)
+
 	-- #1159 (stray top-ups) and #1165 (the friends boost): the pace with both on. The catchers here set out back to back
 	-- (12 catches a day is more trips than a 300 s day holds, so a trip starts the moment the last one is home) and the
 	-- top-ups come at their fastest, so these are the loop script's quickest hunters; a profile that fails names by how

@@ -188,11 +188,17 @@ function StepTarget._place(self: any)
 		return
 	end
 	local boxes = avoid
-	if boxes ~= nil then
+	if boxes == nil then
+		arrow:SetAttribute("ClearResult", "skipped") -- debug for Studio checks (#4158)
+	else
 		-- Review-QA on #4158 (667x375): turned and bobbing, the drawn arrow (its head glyph overflows the frame) reaches
 		-- about 1.5 times its size from its centre, past its own square
-		local clear =
-			StepTargetLogic.clear(place, px, boxes(), camera.ViewportSize, nil, px * EDGE_REACH)
+		local list = boxes()
+		local clear, how =
+			StepTargetLogic.clear(place, px, list, camera.ViewportSize, nil, px * EDGE_REACH)
+		-- debug for Studio checks (#4158): how many HUD boxes it kept clear of, and which way it found a spot
+		arrow:SetAttribute("AvoidCount", #list)
+		arrow:SetAttribute("ClearResult", how)
 		if clear == nil then
 			arrow.Visible = false -- no spot on this edge is clear of the HUD (a short phone)
 			return

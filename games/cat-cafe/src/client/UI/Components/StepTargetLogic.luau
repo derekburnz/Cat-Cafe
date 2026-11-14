@@ -80,7 +80,7 @@ function StepTargetLogic.clear(
 	screen: Vector2,
 	margin: number?,
 	reach: number?
-): Placement?
+): (Placement?, string)
 	local gap = margin or StepTargetLogic.MARGIN
 	local pad = StepTargetLogic.CLEAR
 	local onSide = math.min(place.x, screen.X - place.x) <= math.min(place.y, screen.Y - place.y)
@@ -135,10 +135,14 @@ function StepTargetLogic.clear(
 	-- #4158 (667x375): where neither is clear there is no arrow at all (nil): the strip's words and the stray's ring
 	-- still lead the way, and an arrow over the money is worse than none
 	local whole = slide(reach or arrow / 2)
-	if whole ~= nil or reach == nil then
-		return whole
+	if whole ~= nil then
+		return whole, "reach"
 	end
-	return slide(arrow / 2)
+	if reach == nil then
+		return nil, "none"
+	end
+	local square = slide(arrow / 2)
+	return square, if square ~= nil then "square" else "none"
 end
 
 function StepTargetLogic.small(size: Vector3): boolean

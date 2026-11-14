@@ -977,10 +977,10 @@ return function()
 						"Garden Swing Seat",
 					}
 				do
-					expect(string.find(row.effect, name, 1, true)).to.be.ok()
+					expect(string.find(StoreLogic.infoText(row), name, 1, true)).to.be.ok()
 				end
 				-- #2006: every piece adds money now, nothing reads "Looks only"
-				expect(string.find(row.effect, "Looks only", 1, true)).to.equal(nil)
+				expect(string.find(StoreLogic.infoText(row), "Looks only", 1, true)).to.equal(nil)
 			end
 		)
 		it(
@@ -995,7 +995,7 @@ return function()
 				expect(row.tab).to.equal("cats")
 				expect(row.passId).to.equal(77)
 				expect(row.owned).to.equal(false)
-				expect(string.find(row.effect, "two baits", 1, true)).to.be.ok()
+				expect(string.find(row.effect, "Two baits", 1, true)).to.be.ok()
 				local bought = find(
 					StoreLogic.rows({ SecondBowlPassId = 77 }, { [77] = true }, nil, view),
 					"secondBowl"
@@ -1049,7 +1049,7 @@ return function()
 			expect(row).to.be.ok()
 			expect(row.passId).to.equal(66)
 			for _, name in { "Flower Box", "Starry Night", "Paw Chalkboard", "Looks only" } do
-				expect(row.effect:find(name, 1, true)).to.be.ok()
+				expect(StoreLogic.infoText(row):find(name, 1, true)).to.be.ok()
 			end
 			expect(row.owned).to.equal(false)
 			expect(find(StoreLogic.rows(config, { [66] = true }, nil, nil), "signStylePack").owned).to.equal(
@@ -1068,7 +1068,7 @@ return function()
 			local row = find(StoreLogic.rows(config, {}, nil, nil), "signStylePack")
 			for _, style in SignStyles.LIST do
 				if style.passKey == "SignStylePackPassId" then
-					expect(row.effect:find(style.name, 1, true)).to.be.ok()
+					expect(StoreLogic.infoText(row):find(style.name, 1, true)).to.be.ok()
 				end
 			end
 		end)
@@ -1082,6 +1082,34 @@ return function()
 		end)
 	end)
 
+	describe("the i on every card (#4277)", function()
+		it("gives every pass a short line and a sheet with more in it", function()
+			for _, card in StoreLogic.PASSES do
+				local row: any =
+					{ key = card.key, name = card.name, effect = card.effect, pack = card.pack }
+				local lines = StoreLogic.infoLines(row)
+				expect(#lines > 0).to.equal(true)
+				if card.pack == nil and not card.retired then
+					expect(StoreLogic.INFO[card.key] ~= nil).to.equal(true)
+					expect(#card.effect <= 40).to.equal(true) -- one short line, in bigger words
+				end
+			end
+			local products: { any } = { StoreLogic.STARTER, StoreLogic.THANK_YOU }
+			for _, product in products do
+				local row: any = { key = product.key, name = "x", effect = product.effect }
+				expect(#StoreLogic.infoLines(row) > 0).to.equal(true)
+			end
+			-- a card with no entry shows its own lines, one a row
+			local nap: any = {
+				key = "longNap",
+				name = "Long Nap",
+				effect = "Away money at 100%.\nWithout it: 50%.",
+			}
+			expect(#StoreLogic.infoLines(nap)).to.equal(2)
+			expect(StoreLogic.infoText(nap)).to.equal("Away money at 100%.\nWithout it: 50%.")
+		end)
+	end)
+
 	describe("the reworked Store (#3572, storeRework)", function()
 		it("puts Cats above Passes on the rail with the rework on, as before without", function()
 			local ids = {}
@@ -1089,8 +1117,8 @@ return function()
 				table.insert(ids, tab.id)
 			end
 			expect(table.concat(ids, ",")).to.equal(
-				"featured,packs,cats,passes,potions,cafePass,codes"
-			) -- #4026: Packs under Featured
+				"featured,deal,packs,cats,passes,potions,cafePass,codes"
+			) -- #4026: Packs under Featured; #4259: Today's Deal's tab right under it
 			expect(StoreLogic.railTabs(false)).to.equal(StoreLogic.TABS)
 			expect(#StoreLogic.railTabs(true)).to.equal(#StoreLogic.TABS)
 		end)
@@ -1199,15 +1227,84 @@ return function()
 		end)
 
 		it("puts the newest pack still to buy beside 2x Money on Featured", function()
-			local config =
-				{ MoneyPassIds = { [2] = 11 }, WinterPackPassId = 78, StylishPackPassId = 77 }
+			-- Derek 2026-11-14: the newest pack to buy is the hero; the next one sits beside 2x Money
+			local config = {
+				MoneyPassIds = { [2] = 11 },
+				WinterPackPassId = 78,
+				StylishPackPassId = 77,
+				ChefPackPassId = 79,
+			}
 			local rows = StoreLogic.rows(config, {})
 			local featured = StoreLogic.featured(rows, nil)
+			expect(featured.hero.key).to.equal("packWinter")
 			expect(featured.picks[1].key).to.equal("money")
-			expect(featured.picks[2].key).to.equal("packWinter")
+			expect(featured.picks[2].key).to.equal("packStylish")
 			local owned = StoreLogic.rows(config, { [78] = true })
-			expect(StoreLogic.featured(owned, nil).picks[2].key).to.equal("packStylish")
+			expect(StoreLogic.featured(owned, nil).hero.key).to.equal("packStylish")
+			expect(StoreLogic.featured(owned, nil).picks[2].key).to.equal("packChef")
 		end)
+
+		it(
+			"leads Featured with the Starter Bundle, then the newest pack, then the Royal Cat (Derek 2026-11-14)",
+			function()
+				local rows: { any } = {
+					{
+						key = "starterBundle",
+						name = "Starter Bundle",
+						passId = 1,
+						tab = "cats",
+						owned = false,
+					},
+					{
+						key = "royalCat",
+						name = "Royal Cat",
+						passId = 2,
+						tab = "cats",
+						owned = false,
+					},
+					{
+						key = "packStylish",
+						name = "Stylish Pack",
+						passId = 3,
+						tab = "packs",
+						owned = false,
+					},
+					{
+						key = "packWinter",
+						name = "Winter Pack",
+						passId = 4,
+						tab = "packs",
+						owned = false,
+					},
+				}
+				expect(StoreLogic.featured(rows, nil).hero.key).to.equal("starterBundle")
+				rows[1].owned = true
+				expect(StoreLogic.featured(rows, nil).hero.key).to.equal("packWinter")
+				rows[4].owned = true
+				expect(StoreLogic.featured(rows, nil).hero.key).to.equal("packStylish")
+				rows[3].owned = true
+				expect(StoreLogic.featured(rows, nil).hero.key).to.equal("royalCat")
+				rows[2].owned = true
+				expect(StoreLogic.featured(rows, nil).hero.key).to.equal("starterBundle") -- all bought: Yours
+			end
+		)
+
+		it(
+			"leaves the old Cat Accessories and Uniform Styles passes off the Store (Derek 2026-11-14)",
+			function()
+				local config =
+					{ CatAccessoriesPassId = 21, UniformStylesPassId = 22, CafeStylePassId = 23 }
+				for _, owned in { {}, { [21] = true, [22] = true } } do
+					local keys: { [string]: boolean } = {}
+					for _, row in StoreLogic.rows(config, owned) do
+						keys[row.key] = true
+					end
+					expect(keys.accessories).to.equal(nil)
+					expect(keys.uniforms).to.equal(nil)
+					expect(keys.cafeStyle).to.equal(true)
+				end
+			end
+		)
 
 		it(
 			"leads Featured with the update's own item only inside its window, with the switch on (#4175)",

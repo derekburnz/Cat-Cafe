@@ -363580,6 +363580,676 @@
       }
     },
     {
+      "name": "CatCafe_WaterPark_Gate",
+      "category": "WaterPark",
+      "module": "areas",
+      "objects": [
+        "CatCafe_WaterPark_Gate",
+        "CatCafe_WaterPark_Gate_Bars",
+        "CatCafe_WaterPark_Gate_SignBoard",
+        "CatCafe_WaterPark_Gate_Lamp_Bulb"
+      ],
+      "triangles": 2980,
+      "budget": 6000,
+      "size_studs": {
+        "x": 35.53,
+        "y": 6.01,
+        "z": 20.44
+      },
+      "size_roblox": [
+        35.53,
+        20.44,
+        6.01
+      ],
+      "bounds_min": [
+        -17.82,
+        -3.68,
+        0.0
+      ],
+      "bounds_max": [
+        17.72,
+        2.32,
+        20.44
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          10.0,
+          2.5
+        ],
+        "centre": [
+          0.0,
+          9.65,
+          -0.85
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_WaterPark_Gate.model.json",
+      "rbx_parts": 235,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_WaterPark_Gate.fbx",
+        "assets/cat-cafe/exports/CatCafe_WaterPark_Gate.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2980/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1746 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.05 y=-0.68"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_WaterPark_IndexBoard",
+      "category": "WaterPark",
+      "module": "boards",
+      "objects": [
+        "CatCafe_WaterPark_IndexBoard",
+        "CatCafe_WaterPark_IndexBoard_Screen"
+      ],
+      "triangles": 858,
+      "budget": 1500,
+      "size_studs": {
+        "x": 11.2,
+        "y": 2.1,
+        "z": 11.22
+      },
+      "size_roblox": [
+        11.2,
+        11.22,
+        2.1
+      ],
+      "bounds_min": [
+        -5.6,
+        -1.1,
+        0.0
+      ],
+      "bounds_max": [
+        5.6,
+        1.0,
+        11.22
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "area": "waterpark",
+      "screen": {
+        "part": "Screen",
+        "face": "Front (-Z)",
+        "size": [
+          8.0,
+          5.0
+        ]
+      },
+      "placement": {
+        "relative_to": "CatCafe_WaterPark_Gate",
+        "offset_roblox": [
+          -7.0,
+          0.0,
+          8.0
+        ],
+        "turn_y_deg": -20.0,
+        "use": "host:GetPivot() * CFrame.new(offset) * CFrame.Angles(0, math.rad(turn), 0)"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_WaterPark_IndexBoard.model.json",
+      "rbx_parts": 69,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_WaterPark_IndexBoard.fbx",
+        "assets/cat-cafe/exports/CatCafe_WaterPark_IndexBoard.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "858/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "489 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.05"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_WaterPark_NightFence",
+      "category": "WaterPark",
+      "module": "night",
+      "objects": [
+        "CatCafe_WaterPark_NightFence",
+        "CatCafe_WaterPark_NightFence_Moon_Bulb"
+      ],
+      "triangles": 2566,
+      "budget": 6000,
+      "size_studs": {
+        "x": 24.06,
+        "y": 0.93,
+        "z": 8.64
+      },
+      "size_roblox": [
+        24.06,
+        8.64,
+        0.93
+      ],
+      "bounds_min": [
+        -12.03,
+        -0.05,
+        0.0
+      ],
+      "bounds_max": [
+        12.03,
+        0.88,
+        8.64
+      ],
+      "pivot": "the pivot of CatCafe_WaterPark_Gate: place it there with no offset",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placement": {
+        "relative_to": "CatCafe_WaterPark_Gate",
+        "offset_roblox": [
+          0,
+          0,
+          0
+        ],
+        "turn_y_deg": 0,
+        "use": "host:GetPivot()"
+      },
+      "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_WaterPark_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_WaterPark_NightFence.model.json",
+      "rbx_parts": 273,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_WaterPark_NightFence.fbx",
+        "assets/cat-cafe/exports/CatCafe_WaterPark_NightFence.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2566/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1391 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.41"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_WaterPark",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_WaterPark",
+        "CatCafe_Prop_Crate_WaterPark_Lid"
+      ],
+      "triangles": 540,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.64,
+        "y": 2.0,
+        "z": 2.87
+      },
+      "size_roblox": [
+        2.64,
+        2.87,
+        2.0
+      ],
+      "bounds_min": [
+        -1.32,
+        -0.99,
+        0.0
+      ],
+      "bounds_max": [
+        1.32,
+        1.01,
+        2.87
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_WaterPark_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_WaterPark_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate: pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_WaterPark_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_WaterPark.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_WaterPark.model.json",
+      "rbx_parts": 41,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_WaterPark.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_WaterPark.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "540/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "270 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_WaterPark_Gold",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_WaterPark_Gold",
+        "CatCafe_Prop_Crate_WaterPark_Gold_Lid"
+      ],
+      "triangles": 540,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.64,
+        "y": 2.0,
+        "z": 2.87
+      },
+      "size_roblox": [
+        2.64,
+        2.87,
+        2.0
+      ],
+      "bounds_min": [
+        -1.32,
+        -0.99,
+        0.0
+      ],
+      "bounds_max": [
+        1.32,
+        1.01,
+        2.87
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_WaterPark_Gold_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_WaterPark_Gold_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate (golden: gold parts are Metal): pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_WaterPark_Gold_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_WaterPark_Gold.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_WaterPark_Gold.model.json",
+      "rbx_parts": 41,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "540/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "270 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Cannon_WaterPark",
+      "category": "Camp",
+      "module": "cannon",
+      "objects": [
+        "CatCafe_Camp_Cannon_WaterPark",
+        "CatCafe_Camp_Cannon_WaterPark_Turret",
+        "CatCafe_Camp_Cannon_WaterPark_Climb",
+        "CatCafe_Camp_Cannon_WaterPark_MoonCover"
+      ],
+      "triangles": 5116,
+      "budget": 6000,
+      "size_studs": {
+        "x": 7.54,
+        "y": 9.03,
+        "z": 9.55
+      },
+      "size_roblox": [
+        7.54,
+        9.55,
+        9.03
+      ],
+      "bounds_min": [
+        -3.77,
+        -4.2,
+        -0.01
+      ],
+      "bounds_max": [
+        3.77,
+        4.83,
+        9.54
+      ],
+      "pivot": "The base centre on the camp's floor; -Z toward the camp's back wall, the barrel at rest along +Z over the area. The _Turret pivot is the turntable's top centre.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Cannon_WaterPark_Turret": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_WaterPark_Climb": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_WaterPark_MoonCover": [
+          -0.0,
+          3.73,
+          8.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Cannon_WaterPark_Turret": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_WaterPark_Climb": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_WaterPark_MoonCover": [
+          0.0,
+          8.6,
+          3.73
+        ]
+      },
+      "turret": {
+        "model": "CatCafe_Camp_Cannon_WaterPark_Turret",
+        "pivot_roblox": [
+          0,
+          1.485,
+          0
+        ],
+        "rest": "barrel along +Z",
+        "turn_y_deg": {
+          "Alleyway": -135,
+          "Park": 180,
+          "Neighbourhood": 0,
+          "Woods": -90,
+          "Sewer": 90,
+          "Desert": 128.3,
+          "Ruins": 52.2,
+          "Snowy": -45.0,
+          "WaterPark": 0.0
+        },
+        "attachments": [
+          "Muzzle",
+          "Fuse",
+          "Seat"
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_WaterPark.model.json",
+      "rbx_parts": 355,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_WaterPark.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_WaterPark.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5116/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=4.83 (want 0)",
+          "centered": "footprint center x=0.00 y=0.32"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_WaterPark",
+      "category": "Camp",
+      "module": "camps",
+      "objects": [
+        "CatCafe_Camp_WaterPark",
+        "CatCafe_Camp_WaterPark_000_Basket",
+        "CatCafe_Camp_WaterPark_001_TicketFront",
+        "CatCafe_Camp_WaterPark_001_TicketFront_Bulbs",
+        "CatCafe_Camp_WaterPark_001_TicketFront_Pane",
+        "CatCafe_Camp_WaterPark_002_QueueRails",
+        "CatCafe_Camp_WaterPark_003_FoodCart",
+        "CatCafe_Camp_WaterPark_004_FoodCart",
+        "CatCafe_Camp_WaterPark_005_FoodCart",
+        "CatCafe_Camp_WaterPark_006_Bench",
+        "CatCafe_Camp_WaterPark_007_Bench",
+        "CatCafe_Camp_WaterPark_008_Bench",
+        "CatCafe_Camp_WaterPark_009_ParkSign",
+        "CatCafe_Camp_WaterPark_010_ParkSign",
+        "CatCafe_Camp_WaterPark_011_Lamp",
+        "CatCafe_Camp_WaterPark_011_Lamp_Glow",
+        "CatCafe_Camp_WaterPark_012_Lamp",
+        "CatCafe_Camp_WaterPark_012_Lamp_Glow",
+        "CatCafe_Camp_WaterPark_013_PlanterPalm",
+        "CatCafe_Camp_WaterPark_014_BalloonBunch",
+        "CatCafe_Camp_WaterPark_014_BalloonBunch_Decor",
+        "CatCafe_Camp_WaterPark_015_Lamp",
+        "CatCafe_Camp_WaterPark_015_Lamp_Glow",
+        "CatCafe_Camp_WaterPark_016_Lamp",
+        "CatCafe_Camp_WaterPark_016_Lamp_Glow",
+        "CatCafe_Camp_WaterPark_017_PlanterPalm",
+        "CatCafe_Camp_WaterPark_018_BalloonBunch",
+        "CatCafe_Camp_WaterPark_018_BalloonBunch_Decor",
+        "CatCafe_Camp_WaterPark_019_PlanterPalm",
+        "CatCafe_Camp_WaterPark_020_PlanterPalm",
+        "CatCafe_Camp_WaterPark_021_TrashCan",
+        "CatCafe_Camp_WaterPark_022_TrashCan",
+        "CatCafe_Camp_WaterPark_023_BalloonBunch",
+        "CatCafe_Camp_WaterPark_023_BalloonBunch_Decor",
+        "CatCafe_Camp_WaterPark_Barrier"
+      ],
+      "triangles": 8956,
+      "budget": 20000,
+      "size_studs": {
+        "x": 152.0,
+        "y": 32.0,
+        "z": 31.0
+      },
+      "size_roblox": [
+        152.0,
+        31.0,
+        32.0
+      ],
+      "bounds_min": [
+        -76.0,
+        -312.0,
+        -1.0
+      ],
+      "bounds_max": [
+        76.0,
+        -280.0,
+        30.0
+      ],
+      "pivot": "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "pad": [
+          [
+            0,
+            0.0,
+            -293.0
+          ]
+        ],
+        "cannon": [
+          [
+            0,
+            0.0,
+            -305.5
+          ]
+        ],
+        "basket": [
+          [
+            -11.0,
+            0.0,
+            -293.0
+          ]
+        ],
+        "index_board": [
+          [
+            -19.0,
+            0.0,
+            -282.5
+          ]
+        ]
+      },
+      "camp": {
+        "rect_roblox": [
+          -74.5,
+          -311.0,
+          74.5,
+          -281.0
+        ],
+        "gate_line_z": -281.0,
+        "opening_half_width": 12.0,
+        "pad_radius": 8.0,
+        "depth": 30.0
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_WaterPark.model.json",
+      "rbx_parts": 420,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_WaterPark.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_WaterPark.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "8956/20000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "4453 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-296.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Nook_WaterPark",
+      "category": "Nook",
+      "module": "nooks",
+      "objects": [
+        "CatCafe_Nook_WaterPark",
+        "CatCafe_Nook_WaterPark_Decor",
+        "CatCafe_Nook_WaterPark_GateL",
+        "CatCafe_Nook_WaterPark_GateR",
+        "CatCafe_Nook_WaterPark_Trap"
+      ],
+      "triangles": 1576,
+      "budget": 3000,
+      "size_studs": {
+        "x": 8.76,
+        "y": 14.88,
+        "z": 3.6
+      },
+      "size_roblox": [
+        8.76,
+        3.6,
+        14.88
+      ],
+      "bounds_min": [
+        -4.38,
+        -11.0,
+        0.0
+      ],
+      "bounds_max": [
+        4.38,
+        3.88,
+        3.6
+      ],
+      "pivot": "the middle of the nook's floor, front -Z (its gate and stepping stones); its back to a hedge or the set's edge",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Nook_WaterPark_GateL": [
+          1.5,
+          -3.5,
+          0.0
+        ],
+        "CatCafe_Nook_WaterPark_GateR": [
+          -1.5,
+          -3.5,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Nook_WaterPark_GateL": [
+          -1.5,
+          0.0,
+          -3.5
+        ],
+        "CatCafe_Nook_WaterPark_GateR": [
+          1.5,
+          0.0,
+          -3.5
+        ]
+      },
+      "studio": "#2687 hidden nook: show it (client side) once the player's tier opens the area's station, its back to the set's edge, its stones toward a path. _Decor (the floor patch, stepping stones and flowers) doesn't collide; the rest does. The gate's leaves are the child Models _GateL and _GateR, closed, pivoted on their hinges: open them by turning -100 and +100 degrees about Y. Attachments RescueSpot (the trap's place, 3 x 3 kept clear) and PathEnd (the last stone).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Nook_WaterPark.model.json",
+      "rbx_parts": 88,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Nook_WaterPark.fbx",
+        "assets/cat-cafe/exports/CatCafe_Nook_WaterPark.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1576/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1150 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-3.56"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Cat_Popcorn",
       "category": "Cat",
       "module": "cats",

@@ -8,6 +8,7 @@ see-through barrier and a sign board, the way simulator zone gates work, themed 
   CatCafe_Desert_Gate          24 wide, Tier 6 (#2651): the Desert's camp opening
   CatCafe_Ruins_Gate           24 wide, Tier 7 (#2651): the Ruins' camp opening
   CatCafe_Snowy_Gate           24 wide, Tier 8 (#3997): the Snowy Mountain's camp opening
+  CatCafe_WaterPark_Gate       24 wide, Tier 9 (#4066): the Water Park's camp opening
 
 The Park and Neighbourhood openings follow the street (town-layout-v3.md: StreetHalfWidth 16); the Woods and Sewer
 openings are SideGateHalfWidth 12 either side of z 0 (section 7, v3.1).
@@ -443,6 +444,56 @@ def _snowy(b, lamps, flowers, half):
     return 12.0
 
 
+# --------------------------------------------------------------------------------------- water park --
+def _waterpark(b, lamps, flowers, half):
+    for s in (-1, 1):                                  # candy striped towers on blue feet, a cone roof and a ball
+        x0, x1, cx = _pillar_x(s, half)
+        b.span((x0 - 0.3, 0, -FRONT - 0.3), (x1 + 0.3, 1.2, BACK + 0.3), "shirt_blue")
+        for k in range(6):
+            b.span((x0, 1.2 + 1.95 * k, -FRONT), (x1, 1.2 + 1.95 * (k + 1), BACK), ("milk", "shirt_red")[k % 2])
+        b.span((x0 - 0.3, 12.9, -FRONT - 0.3), (x1 + 0.3, 13.4, BACK + 0.3), "rarity_legend")
+        cz = (BACK - FRONT) / 2
+        b.cyl((cx, 14.6, cz), 2.1, 2.4, "shirt_blue", r2=0.3, segments=10)
+        lantern(b, lamps, cx, 15.7, cz, 0.7)
+        for k, (dx, dy) in enumerate(((0.0, 0.0), (0.9, -1.1), (-0.8, -1.3))):                # balloons off the wall line
+            b.ball((s * (half + PILLAR + 1.6) + dx, 7.4 + dy, -3.0), 0.8,
+                   ("shirt_red", "pastel_butter", "shirt_blue")[(k + (s > 0)) % 3], scale=(1.0, 1.2, 1.0))
+        b.span((s * (half + PILLAR + 1.6) - 0.05, 0.6, -3.05), (s * (half + PILLAR + 1.6) + 0.05, 6.4, -2.95), "milk")
+        b.span((s * (half + PILLAR + 1.6) - 0.45, 0, -3.45), (s * (half + PILLAR + 1.6) + 0.45, 0.6, -2.55), "shirt_red")
+    reach = half + PILLAR + 0.3
+    b.span((-reach, 12.2, -0.9), (reach, 13.0, 0.9), "rarity_legend")                       # the beam
+    inner = half - INSET
+    n = 12                                                                                 # striped valance
+    w = 2 * inner / n
+    for k in range(n):
+        x = -inner + k * w
+        y0 = 11.3 if k % 2 == 0 else 11.6
+        b.span((x, y0, -1.12), (x + w, 12.2, -0.92), "shirt_red" if k % 2 == 0 else "milk")
+    for k in range(13):                                                                    # bulbs along the beam
+        lamps.ball((-inner + 0.9 + k * (2 * inner - 1.8) / 12, 13.25, -0.95), 0.26, "lamp_warm")
+    px = 0.45
+    text = "WATER PARK"
+    bw = text_width(text, px) + 2.4
+    b.span((-bw / 2, 13.5, -0.22), (bw / 2, 16.0, 0.22), "shirt_blue")                      # name plate
+    for (ya, yb) in ((13.5, 13.68), (15.82, 16.0)):
+        b.span((-bw / 2 - 0.06, ya, -0.27), (bw / 2 + 0.06, yb, 0.27), "rarity_legend")
+    _title(b, text, 14.6 - 2.5 * px, px, -0.22, 0.22, "offwhite")
+    for k in range(8):                                                                     # a little wheel on top
+        b.box((0, 18.3, 0), (0.16, 3.6, 0.14), "milk", rot=rot_z(22.5 * k))
+    for k in range(8):
+        a = math.radians(45 * k)
+        b.ball((1.8 * math.cos(a), 18.3 + 1.8 * math.sin(a), 0), 0.34,
+               ("shirt_red", "pastel_butter", "shirt_blue", "leaf_green")[k % 4])
+    b.cyl((0, 18.3, 0), 0.45, 0.4, "rarity_legend", axis="Z", segments=10)
+    b.span((-0.2, 16.0, -0.12), (0.2, 16.6, 0.12), "rarity_legend")
+    return 12.0
+
+
+def build_waterpark_gate(mat):
+    """Tier 9: the Water Park's 24 stud opening (the camp opening, as every area since F85)."""
+    return _gate("CatCafe_WaterPark_Gate", mat, 24.0, "shirt_red", "shirt_blue", _waterpark)
+
+
 def build_snowy_gate(mat):
     """Tier 8: the Snowy Mountain's 24 stud opening (the camp opening, as every area since F85)."""
     return _gate("CatCafe_Snowy_Gate", mat, 24.0, "eye_blue", "shirt_red", _snowy)
@@ -458,4 +509,5 @@ ASSETS = {
     "CatCafe_Desert_Gate": (build_desert_gate, 6000),
     "CatCafe_Ruins_Gate": (build_ruins_gate, 6000),
     "CatCafe_Snowy_Gate": (build_snowy_gate, 6000),
+    "CatCafe_WaterPark_Gate": (build_waterpark_gate, 6000),
 }

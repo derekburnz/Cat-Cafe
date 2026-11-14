@@ -103,6 +103,8 @@ export type CustomEvent =
 	| "afk_start"
 	| "afk_end"
 	| "afk_pay"
+	-- #4197: an admin Cat Storm ended, value the strays it dropped that were not Mythical; field: its Mythicals
+	| "storm_strays"
 	| "afk_rejoin" -- #3602: a resting player was sent back into the game ahead of the idle disconnect (value 1)
 	-- #2792: a new account's first rich customer, Mystery Visitor or Cat Collector: the kind ("rich", "mystery",
 	-- "collector") and "arrived" (value the account's seconds of play), or how it ended, "claimed" or "missed" (value

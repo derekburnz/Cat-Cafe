@@ -100,6 +100,76 @@ return function()
 			expect(Catching.secret("Mythical", 0, 1, true)).to.equal(list[3])
 		end)
 
+		-- #4221: one Secret per area
+		it("gives each Secret one home area, and no two the same", function()
+			local seen: { [string]: string } = {}
+			for _, def in Catalog.secretCats do
+				expect(def.area).to.equal("secret")
+				local home = def.secretArea
+				expect(home ~= nil).to.equal(true)
+				-- (a home area that is not in the game yet, like the Snowy Mountain before Sunday, just rolls nothing)
+				expect(seen[home :: string]).to.equal(nil)
+				seen[home :: string] = def.id
+			end
+			expect((Catalog.getCat("cafe_ghost") :: Types.CatDef).secretArea).to.equal("alley")
+			expect((Catalog.getCat("glitch") :: Types.CatDef).secretArea).to.equal("neighbourhood")
+			expect((Catalog.getCat("nebula") :: Types.CatDef).secretArea).to.equal("snowy")
+		end)
+
+		it("gives an area's Mythical only that area's Secret", function()
+			for _, pick in { 0, 0.5, 0.999999 } do
+				expect(Catching.secret("Mythical", 0, pick, true, { "alley" })).to.equal(
+					Catalog.getCat("cafe_ghost")
+				)
+				expect(Catching.secret("Mythical", 0, pick, true, { "neighbourhood" })).to.equal(
+					Catalog.getCat("glitch")
+				)
+				expect(Catching.secret("Mythical", 0, pick, true, { "snowy" })).to.equal(
+					Catalog.getCat("nebula")
+				)
+			end
+		end)
+
+		it("leaves the Mythical alone in an area with no Secret yet", function()
+			expect(Catching.secret("Mythical", 0, 0, true, { "park" })).to.equal(nil)
+			expect(Catching.secret("Mythical", 0, 0, true, {})).to.equal(nil)
+			-- and the odds and the switch still rule an area that has one
+			expect(Catching.secret("Mythical", Catalog.secretPerMythical, 0, true, { "alley" })).to.equal(
+				nil
+			)
+			expect(Catching.secret("Mythical", 0, 0, false, { "alley" })).to.equal(nil)
+			expect(Catching.secret("Legendary", 0, 0, true, { "alley" })).to.equal(nil)
+		end)
+
+		it("gives a bait bowl the Secrets of the areas its tier opens, evenly", function()
+			local function secretsAt(tier: number): { [string]: boolean }
+				local got: { [string]: boolean } = {}
+				for step = 0, 99 do
+					local def =
+						Catching.secret("Mythical", 0, step / 100, true, Catching.baitAreas(tier))
+					if def ~= nil then
+						got[def.id] = true
+					end
+				end
+				return got
+			end
+			local one = secretsAt(1)
+			expect(one.cafe_ghost).to.equal(true)
+			expect(one.glitch).to.equal(nil)
+			expect(one.nebula).to.equal(nil)
+			local three = secretsAt(3)
+			expect(three.cafe_ghost and three.glitch).to.equal(true)
+			expect(three.nebula).to.equal(nil)
+			local eight = secretsAt(8)
+			expect(eight.cafe_ghost and eight.glitch).to.equal(true)
+			-- Nebula's Snowy Mountain opens at Tier 8 once the area is in the Catalog
+			expect(eight.nebula).to.equal(if Catalog.getArea("snowy") ~= nil then true else nil)
+			-- the bowl's areas are the ones pickBaitCat draws from
+			for _, id in Catching.baitAreas(3) do
+				expect((Catalog.getArea(id) :: Types.AreaDef).tier <= 3).to.equal(true)
+			end
+		end)
+
 		it("takes a hundredth of the Mythical share and moves no other rarity", function()
 			-- the same seed with the switch off and on: the rarity rolls are the same numbers, so every rarity but
 			-- Mythical has exactly the same count, and Mythical plus Secret is the old Mythical

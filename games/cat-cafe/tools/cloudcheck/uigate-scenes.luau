@@ -904,12 +904,10 @@ local function assertStoreCards(featured)
 				"uigate: Store card " .. card.Name .. "'s description runs out of the card or under its button (#1221)"
 			)
 			-- #3572: the box can sit clear of the button while its words run on past it (a wide card's one line
-			-- pushed down by its chip), so on a wide card (the rework's, its picture centred at the left) the drawn
+			-- pushed down by its chip, #3930 a grid card's lines at the smallest size), so on a list card the drawn
 			-- words must end above the button too
-			local tile = card:FindFirstChild("Tile")
-			local wide = not featured and tile ~= nil and tile:IsA("GuiObject") and tile.AnchorPoint.Y == 0.5
 			local besideButton = effect.AbsolutePosition.X + effect.AbsoluteSize.X <= buy.AbsolutePosition.X + 0.5
-			if wide and effect.Visible and not besideButton then
+			if not featured and effect.Visible and not besideButton then
 				local drawnBottom = effect.AbsolutePosition.Y + effect.TextBounds.Y
 				assert(
 					drawnBottom <= buy.AbsolutePosition.Y + 0.5,
@@ -2651,10 +2649,13 @@ local SCENES = {
 		assert(name.Text == "Golden Whiskers", "uigate: the trait card reads " .. name.Text .. " (#3196)")
 		local effects = window:FindFirstChild("Trait", true):FindFirstChild("Effect2")
 		assert(effects.Text ~= "", "uigate: a Legendary trait shows one effect only (#3196)")
-		-- #3961: the main card's odds are six rarity pills
+		-- #3961: the main card's odds are six rarity pills; #3908: seven with the secretTrait switch on, Mythic 4.9%
+		local secretOn = game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_secretTrait") == true
 		local pills = window:FindFirstChild("OddsPills", true)
 		local mythic = pills and pills:FindFirstChild("Mythic") :: TextLabel?
-		assert(pills and pills.Visible and mythic and mythic.Text == "Mythic 5%", "uigate: the odds pills are not on the card (#3196, #3961)")
+		local secret = pills and pills:FindFirstChild("Secret") :: TextLabel?
+		assert(pills and pills.Visible and mythic and mythic.Text == (if secretOn then "Mythic 4.9%" else "Mythic 5%"), "uigate: the odds pills are not on the card (#3196, #3961)")
+		assert((secret ~= nil) == secretOn and (secret == nil or secret.Text == "Secret 0.1%"), "uigate: the Secret pill shows only with its switch on (#3908)")
 		local roll = window:FindFirstChild("Roll", true):FindFirstChildWhichIsA("TextLabel", true)
 		assert(roll.Text == "Re-roll · 1 Trait Token", "uigate: Roll reads " .. roll.Text .. " (#3196)")
 		local tokens = window:FindFirstChild("Tokens", true)
@@ -2907,8 +2908,17 @@ local SCENES = {
 		press("MysticPool", "Odds")
 		local list = window:FindFirstChild("OddsList", true)
 		assert(list.Visible, "uigate: Odds did not open the list (#3196)")
-		assert(list.Mythic.Percent.Text == "5%" and list.Common.Percent.Text == "30%" and list.Epic.Percent.Text == "12%", "uigate: the odds list reads wrong (#3196)")
+		local secretOn = game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_secretTrait") == true
+		assert(list.Mythic.Percent.Text == (if secretOn then "4.9%" else "5%") and list.Common.Percent.Text == "30%" and list.Epic.Percent.Text == "12%", "uigate: the odds list reads wrong (#3196)")
 		assert(list.Equal.Text:find("equally likely", 1, true), "uigate: the odds list lacks the equal line (#3196)")
+		-- #4063 Studio: every row and the Equal line sit inside the sheet, the Secret row too with its switch on
+		local secretRow = list:FindFirstChild("Secret")
+		assert((secretRow ~= nil) == secretOn and (secretRow == nil or secretRow.Percent.Text == "0.1%"), "uigate: the Secret odds row shows only with its switch on (#4063)")
+		local bottom = list.AbsolutePosition.Y + list.AbsoluteSize.Y
+		for _, item in { list.Equal, secretRow or list.Mythic } do
+			local itemBottom = item.AbsolutePosition.Y + item.AbsoluteSize.Y
+			assert(itemBottom <= bottom + 1, ("uigate: %s is cut %d px under the odds sheet (#4063)"):format(item.Name, itemBottom - bottom))
+		end
 	end },
 	-- #3864: the Trait Token offer once the free rolls are used: both bundles with their prices, the full odds, a
 	-- No thanks that hides it, and once a session only

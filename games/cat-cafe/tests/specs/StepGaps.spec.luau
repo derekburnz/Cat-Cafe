@@ -111,6 +111,7 @@ return function()
 			expect(fields[3]).to.equal("t3_kinds")
 			expect(StepGaps.quitNeedFields(0, 1, 1, "ready", 7)[3]).to.equal("t7_ready")
 			expect(StepGaps.quitNeedFields(0, 1, 1, "nonsense", 4)[3]).to.equal("t4_ready")
+			expect(StepGaps.quitNeedFields(0, 1, 1, "closed", 8)[3]).to.equal("t8_closed")
 		end)
 	end)
 

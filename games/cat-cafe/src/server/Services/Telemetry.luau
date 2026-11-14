@@ -2717,7 +2717,8 @@ local function onRelease(player: Player, profile: Profile)
 			elseif
 				not Economy.canAfford(profile, nextDef.cost) and blocker == "Not enough coins"
 			then "coins"
-			else "rarity"
+			elseif string.sub(blocker, 1, 6) == "Needs " then "rarity"
+			else "closed" -- review: a tier held back by its switch, not by the player
 		Telemetry.custom(
 			player,
 			"quit_have",

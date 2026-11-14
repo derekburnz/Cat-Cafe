@@ -119,7 +119,7 @@ end
 -- #4189: quit_have past Tier 1 (Tier 1 keeps the fields above). The kinds still short of the next tier ("0", "1-2",
 -- "3-5", "6+"), coins as a share of its cost (coinShare), and the first need missing with the tier it is for,
 -- "t<next>_<kinds|rarity|coins|ready>" ("ready": every need met).
-StepGaps.NEEDS = { "kinds", "rarity", "coins", "ready" }
+StepGaps.NEEDS = { "kinds", "rarity", "coins", "ready", "closed" } -- closed: the next tier is held by its switch
 
 function StepGaps.short(missing: number): string
 	local n = if missing ~= missing then 0 else math.max(0, math.floor(missing))

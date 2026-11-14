@@ -68,7 +68,7 @@ return function()
 				)
 				-- by day, or once two cats are caught, the words are as before
 				expect(line({ step = 3, cats = 1, night = false }, "touch")).to.equal(
-					"Catch another cat, or tap Upgrades for a table"
+					"Catch another cat 🐾"
 				)
 				expect(line({ step = 3, cats = 2, night = true }, "touch")).to.equal(
 					"Tap Upgrades and buy a table: more tips per cat"
@@ -107,14 +107,10 @@ return function()
 		end)
 
 		it(
-			"asks for another cat or the table at step 3 while only one cat is caught (#2912)",
+			"asks for another cat alone at step 3 while only one cat is caught (#2912, #4097)",
 			function()
-				expect(line({ step = 3, cats = 1 }, "keyboard")).to.equal(
-					"Catch another cat, or buy a table in Upgrades (U)"
-				)
-				expect(line({ step = 3, cats = 1 }, "touch")).to.equal(
-					"Catch another cat, or tap Upgrades for a table"
-				)
+				expect(line({ step = 3, cats = 1 }, "keyboard")).to.equal("Catch another cat 🐾")
+				expect(line({ step = 3, cats = 1 }, "touch")).to.equal("Catch another cat 🐾")
 				expect(line({ step = 3, cats = 2 }, "keyboard")).to.equal(
 					"Buy a table in Upgrades (U): more tips per cat"
 				)
@@ -288,6 +284,47 @@ return function()
 				end
 				expect(TutorialHints.offer(3, {}, nil, upgrades)).to.equal(nil)
 				expect(TutorialHints.offer(3, {}, 850, nil)).to.equal(nil)
+				-- #4097: no Buy button beside the second cat by day; at night, and once two are caught, the table again
+				expect(
+					TutorialHints.offer(
+						3,
+						{ tables = 0 },
+						850,
+						upgrades,
+						{ step = 3, cats = 1 } :: any
+					)
+				).to.equal(nil)
+				expect(
+					TutorialHints.offer(
+						3,
+						{ tables = 0 },
+						850,
+						upgrades,
+						{ step = 3, cats = 1, night = true } :: any
+					) ~= nil
+				).to.equal(true)
+				expect(
+					TutorialHints.offer(
+						3,
+						{ tables = 0 },
+						850,
+						upgrades,
+						{ step = 3, cats = 2 } :: any
+					) ~= nil
+				).to.equal(true)
+				-- the UI's own state shape: no stats, only secondCatDone (Review-QA on #4150)
+				local uiState =
+					{ tutorialStep = 3, upgradeLevels = { tables = 0 }, secondCatDone = false }
+				local dayView = TutorialHints.view(uiState, {}, "touch", true)
+				expect(TutorialHints.holdsOffer(dayView)).to.equal(true)
+				expect(TutorialHints.offer(3, { tables = 0 }, 850, upgrades, dayView)).to.equal(nil)
+				expect(TutorialHints.line(dayView)).to.equal("Catch another cat 🐾")
+				local nightView = TutorialHints.view(uiState, {}, "touch", false)
+				expect(TutorialHints.holdsOffer(nightView)).to.equal(false)
+				uiState.secondCatDone = true
+				expect(TutorialHints.holdsOffer(TutorialHints.view(uiState, {}, "touch", true))).to.equal(
+					false
+				)
 				-- a level past the price list (a save from a bigger list) is no offer
 				expect(TutorialHints.offer(3, { tables = 2 }, 99999, upgrades)).to.equal(nil)
 			end
@@ -300,6 +337,27 @@ return function()
 			expect(TutorialHints.ask(TutorialHints.view(state({ tutorialStep = false }), spots))).to.equal(
 				nil
 			)
+		end)
+	end)
+	describe("TutorialHints.lineFor (#4151)", function()
+		it("gives the controller's strip lines with no letter key on touch or a pad", function()
+			for _, id in { "job", "more", "second", "secondNight", "table", "bowl", "food" } do
+				for _, device in { "touch", "gamepad" } do
+					local line = TutorialHints.lineFor(id, device)
+					expect(type(line)).to.equal("string")
+					expect(string.match(line, "%(%u%)")).to.equal(nil)
+				end
+			end
+			expect(TutorialHints.lineFor("secondNight", "touch")).to.equal(
+				"Strays return at sunrise, or tap Upgrades"
+			)
+			expect(TutorialHints.lineFor("more", "keyboard")).to.equal(
+				"Catch more cats, or buy a table in Upgrades (U)"
+			)
+			expect(TutorialHints.lineFor("waiting", "touch")).to.equal(
+				"A cat is on its way to your bowl"
+			)
+			expect(TutorialHints.lineFor("nope", "touch")).to.equal(nil)
 		end)
 	end)
 end

@@ -26,6 +26,7 @@ local Catching = require(Shared:WaitForChild("Catching"))
 local Clock = require(Shared:WaitForChild("Clock"))
 local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
+local DragonRise = require(script.Parent.Parent.Effects.DragonRise)
 local Effects = require(script.Parent.Parent.Effects)
 local EventBanner = require(script.Parent.Parent.Effects.EventBanner)
 local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
@@ -43,6 +44,7 @@ local Net = require(script.Parent.Parent.Net)
 local NewKind = require(Shared:WaitForChild("NewKind"))
 local NewKindEconomy = require(Shared:WaitForChild("Economy"))
 local RareMoments = require(Shared:WaitForChild("RareMoments"))
+local RiftRun = require(script.Parent.Parent.Effects.RiftRun)
 local SecondCat = require(Shared:WaitForChild("SecondCat"))
 local Settings = require(Shared:WaitForChild("Settings"))
 local ShortNumber = require(Shared:WaitForChild("ShortNumber"))
@@ -345,6 +347,22 @@ local function circleVerb(): string
 	return "click"
 end
 
+-- #4151: the strip's own lines on the device the player used last, from TutorialHints' keyboard, touch and gamepad
+-- versions, so a phone reads "tap Upgrades" and never a letter key. `fallback` only if the id is unknown.
+local function deviceLine(id: string, fallback: string): string
+	local TutorialHints = require(script.Parent.Parent.UI.Components.TutorialHints) :: any
+	local last = UserInputService:GetLastInputType().Name
+	local device = if last:sub(1, 7) == "Gamepad"
+		then "gamepad"
+		elseif
+			last == "Touch"
+			or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+		then "touch"
+		else "keyboard"
+	local line: unknown = TutorialHints.lineFor(id, device)
+	return if type(line) == "string" and line ~= "" then line else fallback
+end
+
 local function swingHint(): string
 	local net: any = (UI :: any).net
 	local hint: unknown = if net ~= nil then net.hint else nil
@@ -546,6 +564,45 @@ end
 local CARRY_SETTLE = 0.6
 local tutorialCarry = { was = false, endedAt = -math.huge }
 
+-- #3995 (friend-join-3995.md 6, palJoin switch): a new player who joined through a friend and got the cafe next door
+-- reads "Your cafe is next to Sam's: step inside 🐾" as the strip's first line, with the trail to their own door,
+-- until they first stand inside it; then the tutorial goes on as normal. `pal` is the friend's user id.
+local palJoin = { pal = 0, nextDoor = false, entered = false, watching = false }
+local PAL_JOIN_WAIT = 5 -- seconds the joiner's note waits for the server's PalNextDoor attribute
+local PAL_JOIN_CHECK = 0.5 -- seconds between the "inside your cafe yet?" checks
+
+-- Whether this player's character stands inside their own cafe (over its Floor, under the roof).
+local function insideOwnCafe(): boolean
+	local plot = ownPlot()
+	local floor = if plot ~= nil then plot:FindFirstChild("Floor") else nil
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if floor == nil or not floor:IsA("BasePart") or root == nil or not root:IsA("BasePart") then
+		return false
+	end
+	local offset = (floor :: BasePart).CFrame:PointToObjectSpace((root :: BasePart).Position)
+	local half = (floor :: BasePart).Size / 2
+	return math.abs(offset.X) <= half.X
+		and math.abs(offset.Z) <= half.Z
+		and offset.Y >= -2
+		and offset.Y <= 14
+end
+
+-- The strip's next-door line while it applies (true), else false and the usual first line shows.
+local function palJoinLine(s: Types.PlayerState): boolean
+	if not palJoin.nextDoor or palJoin.entered or s.tutorialStep >= 2 then
+		return false
+	end
+	local PalsLogic = require(script.Parent.Parent.UI.Components.PalsLogic) :: any
+	local pal = Players:GetPlayerByUserId(palJoin.pal)
+	UI.tutorial.show(
+		PalsLogic.nextDoorLine(if pal ~= nil then pal.DisplayName else nil),
+		UIController.ownDoor(),
+		"Your cafe"
+	)
+	return true
+end
+
 local function refreshTutorial(s: Types.PlayerState)
 	if tutorialWatch.connection ~= nil then
 		tutorialWatch.connection:Disconnect()
@@ -585,6 +642,9 @@ local function refreshTutorial(s: Types.PlayerState)
 	if s.tutorialStep >= 2 and s.tutorialStep <= 4 then
 		reportStep("next_goal_shown")
 	end
+	if s.tutorialStep < 2 and palJoinLine(s) then
+		return
+	end
 	if s.tutorialStep < 2 then
 		showTutorial(
 			s,
@@ -600,12 +660,12 @@ local function refreshTutorial(s: Types.PlayerState)
 		if hasRestingCatAndFreeSpot(s) then
 			showTutorial(
 				s,
-				"Open the Collection (C) and give your new cat a role",
+				deviceLine("job", "Open Cats and give your new cat a job"),
 				restingCat(),
 				"Cat"
 			)
 		else
-			showTutorial(s, "Catch more cats in the alley, or buy a table in Upgrades (U)")
+			showTutorial(s, deviceLine("more", "Catch more cats, or buy a table in Upgrades"))
 		end
 	elseif s.tutorialStep == 3 then
 		-- #2912: with one cat, ring the nearest Alleyway stray (or where the tutorial stray waits) as well as the table;
@@ -614,12 +674,12 @@ local function refreshTutorial(s: Types.PlayerState)
 		if not SecondCat.done(s.stats) and areasShut() then
 			-- #3238: at night the strays are gone and the server picks the waiting one at sunrise, so say so and
 			-- point at the table instead of an empty alley
-			showTutorial(s, "Strays return at sunrise 🌅, or buy a table in Upgrades (U)")
+			showTutorial(s, deviceLine("secondNight", "Strays return at sunrise, or open Upgrades"))
 		elseif not SecondCat.done(s.stats) then -- #3160, #3551: the bowl's cat never ends it
 			local stray = nearestAlleyStray()
 			showTutorial(
 				s,
-				"Catch another cat, or buy a table in Upgrades (U)",
+				deviceLine("second", "Catch another cat 🐾"), -- #4097: one ask by day
 				stray or tutorialStrayPoint(),
 				"Catch another cat"
 			)
@@ -634,13 +694,13 @@ local function refreshTutorial(s: Types.PlayerState)
 				end)
 			end
 		else
-			showTutorial(s, "Buy your first table in Upgrades (U): more money from every cat")
+			showTutorial(s, deviceLine("table", "Open Upgrades and buy a table: more tips per cat"))
 		end
 	elseif s.tutorialStep == 4 then
 		-- gdd "The first ten minutes" beat 4: the bowl, then food in it (BaitService finishes the tutorial)
 		-- (the HUD strip shows about 50 characters on one line, reviewer N94)
 		if (s.upgradeLevels.lure_bowl or 0) < 1 then
-			showTutorial(s, "Buy the Bait bowl in Upgrades (U)")
+			showTutorial(s, deviceLine("bowl", "Open Upgrades and buy the Bait bowl"))
 		elseif s.bait ~= nil then
 			-- #3158: the first bait holds step 4 until its cat is tamed or let go (the line is TutorialHints'
 			-- "waiting", then "arrived")
@@ -648,7 +708,7 @@ local function refreshTutorial(s: Types.PlayerState)
 		else
 			showTutorial(
 				s,
-				"Put Kibble in your bowl on the back step (F)",
+				deviceLine("food", "Put Kibble in your bowl on the back step"),
 				UIController.ownBaitBowl(),
 				"Bowl"
 			)
@@ -714,6 +774,76 @@ local function refreshTutorial(s: Types.PlayerState)
 	else
 		UI.tutorial.hide()
 	end
+end
+
+-- #3995: watches for the joiner's first step inside their own cafe, then puts the strip back to the tutorial's own
+-- first line. Gives up once the tutorial has moved past its first steps.
+local function watchPalJoin()
+	if palJoin.watching then
+		return
+	end
+	palJoin.watching = true
+	task.spawn(function()
+		while not palJoin.entered do
+			task.wait(PAL_JOIN_CHECK)
+			local current = state
+			if current ~= nil and current.tutorialStep >= 2 then
+				break
+			end
+			if insideOwnCafe() then
+				palJoin.entered = true
+				local now = state
+				if now ~= nil then
+					refreshTutorial(now)
+				end
+			end
+		end
+		palJoin.watching = false
+	end)
+end
+
+-- #3995 (friend-join-3995.md 4 to 6): PalArrived with the palJoin switch on. The joiner's note waits a moment for the
+-- server's PalNextDoor attribute (it is set once the save and the plot are in), then shows; a new joiner next door
+-- gets the strip's next-door line. The friend gets their note at once.
+function UIController.palJoined(joinerId: number, palId: number)
+	if joinerId ~= player.UserId and palId ~= player.UserId then
+		return
+	end
+	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+	local PalJoin = require(Shared:WaitForChild("PalJoin")) :: any
+	local key: string = PalJoin.FLAG
+	if
+		not LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
+	then
+		return
+	end
+	local hook: unknown = (UI :: any).palJoined
+	if type(hook) ~= "function" then
+		return
+	end
+	local show = hook :: (number, number, boolean?) -> ()
+	if palId == player.UserId then
+		show(joinerId, palId, nil)
+		return
+	end
+	task.spawn(function()
+		local attribute: string = PalJoin.ATTRIBUTE
+		local started = os.clock()
+		while player:GetAttribute(attribute) == nil and os.clock() - started < PAL_JOIN_WAIT do
+			task.wait(0.25)
+		end
+		local nextDoor = player:GetAttribute(attribute) == true
+		show(joinerId, palId, nextDoor)
+		if nextDoor then
+			palJoin.pal = palId
+			palJoin.nextDoor = true
+			local now = state
+			if now ~= nil then
+				refreshTutorial(now)
+			end
+			watchPalJoin()
+		end
+	end)
 end
 
 -- Role changes since the last sync, for the sounds (sound list: place and unplace): a cat newly in a role or moved
@@ -865,6 +995,7 @@ local function refreshBowlPrompt(
 			prompt = made
 		end
 		local shown = prompt :: ProximityPrompt
+		shown.Enabled = not (UI :: any).cutscene.on -- #4018: hidden while a cutscene plays
 		shown.ActionText = if baitCat(bait) ~= nil
 			then "See the cat"
 			elseif bait ~= nil then "Check"
@@ -1142,12 +1273,14 @@ local function applyState(s: Types.PlayerState)
 		-- #2555: the free Bellhop Cat's stand "!" (#2501) and its speech bubble show only while this is false
 		starterCatClaimed = s.starterCatClaimed,
 		storeSeen = s.storeSeen, -- #1823 §4: the Store tabs' New dots
+		dailyDeal = s.dailyDeal or false, -- #3996: Today's Deal on the Store's Featured tab
 		-- #2574: Juniper's Mystery Market: the items owned, the cart's "!" until the first visit, and whether buys are
 		-- taken yet
 		mystery = s.mystery,
 		mysterySeen = s.mysterySeen,
 		mysteryOpen = s.mysteryOpen,
 		bagColours = s.bagColours or false, -- #3699: false for the built colours, as UI.update skips a nil
+		shoeColours = s.shoeColours or false, -- #4049, the same way
 		signStyles = s.signStyles, -- #1625: the Style tab's sign row
 		-- #2007: "" for the plain sign, as UI.update skips a nil and the old pick stayed gold
 		signStyle = s.signStyle or "",
@@ -1273,6 +1406,12 @@ local function wireIntents()
 	end)
 	-- #1823 §4: a Store tab with a New dot opened; the server saves its version (known tabs only). The server takes
 	-- two a second, so tabs tapped faster than that wait their turn here instead of being dropped.
+	-- #3996: Today's Deal's R$25: the server checks it is today's, not bought yet, and opens the prompt (1 a second)
+	UI.events.storeDeal:Connect(function(productId: string)
+		if type(productId) == "string" then
+			Net.fire("PromptDeal", productId)
+		end
+	end)
 	local seenQueue: { string } = {}
 	local seenSending = false
 	UI.events.storeSeen:Connect(function(tab: string)
@@ -1323,8 +1462,8 @@ local function wireIntents()
 	end
 	-- #3699: Save on the Backpack's colour picker; the server checks both ids and that the Backpack is owned
 	if looseEvents.setBagColours ~= nil then
-		looseEvents.setBagColours:Connect(function(main: string, trim: string)
-			Net.fire("SetBagColours", main, trim)
+		looseEvents.setBagColours:Connect(function(main: string, trim: string, kind: string?)
+			Net.fire("SetBagColours", main, trim, kind) -- #4049: kind "shoes" for the Speed Shoes
 		end)
 	end
 	-- #2593: Buy all on a Day Cart section; the server plans from its own state and answers with CornerShopStock
@@ -1527,7 +1666,21 @@ local function wireIntents()
 		return (station:GetPivot().Position - root.Position).Magnitude
 	end
 	local mysticPool: any = (UI :: any).mysticPool
-	mysticPool.cutting = BigTraitCut.playing -- #3846: the bait and gift cards wait while it plays
+	mysticPool.cutting = function(): boolean -- #3846: the bait and gift cards wait while it plays
+		return BigTraitCut.playing() or RiftRun.playing()
+	end
+	-- the Rift Run (Effects/RiftRun): toasts and shout-outs wait through it and the bowl, tip, ask, first visit and
+	-- Unlocked cards hold (UI.setCutscene, #4018); the own bait bowls' prompts are hidden until it ends (from #4077)
+	table.insert((UI :: any).cutscene.hooks, function(on: boolean)
+		for _, prompt in bowlPrompts do
+			if prompt ~= nil and prompt.Parent ~= nil then
+				prompt.Enabled = not on
+			end
+		end
+	end)
+	RiftRun.onHold(UI.setCutscene)
+	-- #4062: the Dragon Keep's stage-up cutscene holds them the same way
+	DragonRise.onHold(UI.setCutscene)
 	mysticPool.far = function(): boolean
 		local distance = poolDistance()
 		return distance == nil or distance > POOL_FAR_STUDS
@@ -1548,10 +1701,61 @@ local function wireIntents()
 		local pool = station :: Model
 		if big then
 			return BigTraitCut.atPool(pool, rarity, function(reveal: () -> ()): () -> ()
-				return MysticPool.roll(pool, asset, rarity, reveal, BigTraitCut.liftFor(rarity))
+				local lift, height = BigTraitCut.liftFor(rarity)
+				return MysticPool.roll(pool, asset, rarity, reveal, lift, false, height)
 			end, onReveal)
 		end
 		return MysticPool.roll(pool, asset, rarity, onReveal)
+	end
+	-- Derek 2026-11-13: a Mythic or Secret roll first runs the Rift Run with the rolled cat, then lands back in the
+	-- pool for the big moment (or, far from the pool, the screen's) and the card
+	local playPool: (uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())? =
+		mysticPool.play
+	mysticPool.play = function(uid: string, rarity: string, onReveal: () -> ()): (() -> ())?
+		if not RiftRun.wanted(rarity) then
+			return playPool(uid, rarity, onReveal)
+		end
+		local state: any = UIController.state
+		local cat = if state ~= nil and type(state.cats) == "table" then state.cats[uid] else nil
+		local catId: string? = if type(cat) == "table" and type(cat.catId) == "string"
+			then cat.catId
+			else nil
+		local gold = type(cat) == "table" and cat.gold == true
+		return RiftRun.play(
+			rarity,
+			{ catId = catId, gold = gold },
+			function(reveal: () -> ()): (() -> ())?
+				local station = poolStation()
+				local distance = poolDistance()
+				if station == nil or distance == nil or distance > POOL_SEEN_STUDS then
+					return BigTraitCut.screen(rarity, reveal)
+				end
+				local pool = station :: Model
+				local asset: string? = if catId ~= nil
+					then Catalog.sitModelName(Catalog.catModelName(catId :: string))
+					else nil
+				return BigTraitCut.atPool(pool, rarity, function(landed: () -> ()): () -> ()
+					local lift, height = BigTraitCut.liftFor(rarity)
+					return MysticPool.roll(pool, asset, rarity, landed, lift, true, height)
+				end, reveal)
+			end,
+			onReveal
+		)
+	end
+	-- Studio only: the Workspace attribute RiftRunTest ("mythic" or "secret") plays the Rift Run with this player's
+	-- first cat, as if that roll had come, so it can be watched without rolling one (Review-QA)
+	if RunService:IsStudio() then
+		Workspace:GetAttributeChangedSignal("RiftRunTest"):Connect(function()
+			local rarity = RiftRun.testRarity()
+			local state: any = UIController.state
+			if rarity == nil or state == nil or type(state.cats) ~= "table" then
+				return
+			end
+			local uid = next(state.cats)
+			if type(uid) == "string" then
+				mysticPool.play(uid, rarity, function() end)
+			end
+		end)
 	end
 	UI.events.rollTrait:Connect(function(uid: string)
 		Net.fire("RollTrait", uid)
@@ -2193,7 +2397,7 @@ local function reportRsvp(kind: string)
 	Net.fire("TelemetryReport", "event_rsvp", kind)
 end
 local function offerEvent()
-	local id, startsAt = EventRsvp.next(Config.UpdateEvents, os.time())
+	local id, startsAt, words = EventRsvp.next(Config.UpdateEvents, os.time())
 	if
 		eventAsk.asked
 		or state == nil
@@ -2219,7 +2423,7 @@ local function offerEvent()
 		local card: any = if asks ~= nil then asks.card else nil
 		local shown = type(card) == "function"
 			and (card :: (any) -> unknown)({
-					title = EventRsvp.title(at, os.time()),
+					title = words or EventRsvp.title(at, os.time()),
 					choices = {
 						{ id = "remind", label = EventRsvp.REMIND, style = "primary" },
 						{ id = "later", label = EventRsvp.LATER, style = "ghost" },
@@ -2451,6 +2655,7 @@ local function wireServerEvents()
 	-- the glowing travel button), else a toast when the pal is out in an area.
 	Net.on("PalArrived", function(joinerId: number, palId: number, palArea: string?)
 		Moments.PalArrived:Fire(joinerId, palId)
+		UIController.palJoined(joinerId, palId)
 		if joinerId ~= player.UserId then
 			return
 		end

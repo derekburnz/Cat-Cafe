@@ -6,7 +6,8 @@
   "Scale": {
    "Float64": 1.2
   },
-  "PropSlot": "Back"
+  "PropSlot": "Back",
+  "PropSlot2": "Head"
  },
  "children": [
   {
@@ -84,7 +85,8 @@
     }
    },
    "attributes": {
-    "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/0"
+    "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/0",
+    "GoldTone": 1
    },
    "children": [
     {
@@ -296,6 +298,9 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
    }
   },
   {
@@ -345,6 +350,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
    }
   },
   {
@@ -394,6 +402,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
    }
   },
   {
@@ -443,6 +454,9 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -492,6 +506,9 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -541,6 +558,9 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -590,6 +610,9 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -639,6 +662,9 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -722,7 +748,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/1"
+      "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/1",
+      "GoldTone": 1
      },
      "children": [
       {
@@ -1126,6 +1153,9 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 3
      }
     },
     {
@@ -1137,7 +1167,7 @@
         "position": [
          0.0,
          1.9266,
-         -0.2166
+         -0.2268
         ],
         "orientation": [
          [
@@ -1161,7 +1191,7 @@
       "Size": [
        0.0912,
        0.0684,
-       0.5736
+       0.5532
       ],
       "Color": [
        0.1686,
@@ -1175,6 +1205,9 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 3
      }
     },
     {
@@ -1224,6 +1257,9 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 3
      }
     },
     {
@@ -2321,7 +2357,8 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/4"
+        "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/4",
+        "GoldTone": 1
        }
       },
       {
@@ -2371,6 +2408,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 1
        }
       },
       {
@@ -2420,6 +2460,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 1
        }
       },
       {
@@ -2431,7 +2474,7 @@
           "position": [
            -0.3405,
            1.9836,
-           -0.3444
+           -0.3283
           ],
           "orientation": [
            [
@@ -2455,7 +2498,7 @@
         "Size": [
          0.1231,
          0.13,
-         0.0665
+         0.0342
         ],
         "Color": [
          0.8784,
@@ -2583,7 +2626,8 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/5"
+        "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/5",
+        "GoldTone": 1
        }
       },
       {
@@ -2633,6 +2677,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 1
        }
       },
       {
@@ -2682,6 +2729,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 1
        }
       },
       {
@@ -2693,7 +2743,7 @@
           "position": [
            0.3405,
            1.9836,
-           -0.3444
+           -0.3283
           ],
           "orientation": [
            [
@@ -2717,7 +2767,7 @@
         "Size": [
          0.1231,
          0.13,
-         0.0665
+         0.0342
         ],
         "Color": [
          0.8784,
@@ -2763,6 +2813,1382 @@
       }
      },
      "name": "CatCafe_Cat_WhiteTiger_Sit_EarR"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_WhiteTiger_Sit/10"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           2.0976,
+           -0.627
+          ],
+          "orientation": [
+           [
+            0.7071,
+            -0.7071,
+            0.0
+           ],
+           [
+            0.7071,
+            0.7071,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0912,
+         0.228,
+         0.057
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.661,
+           -0.661,
+           0.513
+          ],
+          "orientation": [
+           [
+            0.7071,
+            0.7071,
+            0.0
+           ],
+           [
+            -0.7071,
+            0.7071,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/10",
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3168,
+           1.9494,
+           -0.2013
+          ],
+          "orientation": [
+           [
+            0.9749,
+            0.0,
+            0.2225
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.2225,
+            0.0,
+            0.9749
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0684,
+         0.1699
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.254,
+           1.9494,
+           -0.071
+          ],
+          "orientation": [
+           [
+            0.7818,
+            0.0,
+            0.6235
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.6235,
+            0.0,
+            0.7818
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0684,
+         0.1699
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.141,
+           1.9494,
+           0.0191
+          ],
+          "orientation": [
+           [
+            0.4339,
+            0.0,
+            0.901
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.901,
+            0.0,
+            0.4339
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0684,
+         0.1699
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.9494,
+           0.0513
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0684,
+         0.1699
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.141,
+           1.9494,
+           0.0191
+          ],
+          "orientation": [
+           [
+            -0.4339,
+            0.0,
+            0.901
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.901,
+            0.0,
+            -0.4339
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0684,
+         0.1699
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.254,
+           1.9494,
+           -0.071
+          ],
+          "orientation": [
+           [
+            -0.7818,
+            0.0,
+            0.6235
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.6235,
+            0.0,
+            -0.7818
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0684,
+         0.1699
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3168,
+           1.9494,
+           -0.2013
+          ],
+          "orientation": [
+           [
+            -0.9749,
+            0.0,
+            0.2225
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.2225,
+            0.0,
+            -0.9749
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0684,
+         0.1699
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3168,
+           1.9494,
+           -0.3459
+          ],
+          "orientation": [
+           [
+            -0.9749,
+            0.0,
+            -0.2225
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.2225,
+            0.0,
+            -0.9749
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0684,
+         0.1699
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.254,
+           1.9494,
+           -0.4762
+          ],
+          "orientation": [
+           [
+            -0.7818,
+            0.0,
+            -0.6235
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.6235,
+            0.0,
+            -0.7818
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0684,
+         0.1699
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.141,
+           1.9494,
+           -0.5663
+          ],
+          "orientation": [
+           [
+            -0.4339,
+            0.0,
+            -0.901
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.901,
+            0.0,
+            -0.4339
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0684,
+         0.1699
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.9494,
+           -0.5985
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0684,
+         0.1699
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.141,
+           1.9494,
+           -0.5663
+          ],
+          "orientation": [
+           [
+            0.4339,
+            0.0,
+            -0.901
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.901,
+            0.0,
+            0.4339
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0684,
+         0.1699
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.254,
+           1.9494,
+           -0.4762
+          ],
+          "orientation": [
+           [
+            0.7818,
+            0.0,
+            -0.6235
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.6235,
+            0.0,
+            0.7818
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0684,
+         0.1699
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3168,
+           1.9494,
+           -0.3459
+          ],
+          "orientation": [
+           [
+            0.9749,
+            0.0,
+            -0.2225
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.2225,
+            0.0,
+            0.9749
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0684,
+         0.1699
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.171,
+           2.0406,
+           -0.5829
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0912,
+         0.114,
+         0.057
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.171,
+           2.0406,
+           -0.5829
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0912,
+         0.114,
+         0.057
+        ],
+        "Color": [
+         0.8039,
+         0.8235,
+         0.8549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2736,
+           2.109,
+           -0.5016
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.1596
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2736,
+           2.109,
+           -0.5016
+          ],
+          "orientation": [
+           [
+            -0.5,
+            0.0,
+            0.866
+           ],
+           [
+            0.866,
+            0.0,
+            0.5
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.1596
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2736,
+           2.109,
+           -0.5016
+          ],
+          "orientation": [
+           [
+            0.5,
+            0.0,
+            0.866
+           ],
+           [
+            0.866,
+            0.0,
+            -0.5
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.1596
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2736,
+           2.109,
+           -0.5016
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.1596
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2736,
+           2.109,
+           -0.5016
+          ],
+          "orientation": [
+           [
+            -0.5,
+            0.0,
+            0.866
+           ],
+           [
+            0.866,
+            0.0,
+            0.5
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.1596
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2736,
+           2.109,
+           -0.5016
+          ],
+          "orientation": [
+           [
+            0.5,
+            0.0,
+            0.866
+           ],
+           [
+            0.866,
+            0.0,
+            -0.5
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.1596
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Cat_WhiteTiger_Sit/11"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Cat_WhiteTiger_Sit_Gem_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.0081,
+             2.0553,
+             -0.6612
+            ],
+            "orientation": [
+             [
+              0.7071,
+              -0.7071,
+              0.0
+             ],
+             [
+              0.7071,
+              0.7071,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1025,
+           0.1254,
+           0.057
+          ],
+          "Color": [
+           0.4314,
+           0.7569,
+           1.0
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0034,
+             -0.0081,
+             0.0114
+            ],
+            "orientation": [
+             [
+              0.7071,
+              0.7071,
+              0.0
+             ],
+             [
+              -0.7071,
+              0.7071,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/11",
+          "Follows": "Head"
+         }
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           2.052,
+           -0.6498
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Cat_WhiteTiger_Sit_Gem_Glow"
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         1.1628,
+         -0.114
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_WhiteTiger_Sit_Prop2"
     }
    ],
    "properties": {
@@ -2876,7 +4302,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/6"
+      "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/6",
+      "GoldTone": 3
      },
      "children": [
       {
@@ -2960,6 +4387,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
      }
     },
     {
@@ -3009,6 +4439,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
      }
     }
    ],
@@ -3123,7 +4556,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/7"
+      "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/7",
+      "GoldTone": 1
      }
     },
     {
@@ -3173,6 +4607,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
      }
     }
    ],
@@ -3287,7 +4724,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/8"
+      "Rojo_Id": "CatCafe_Cat_WhiteTiger_Sit/8",
+      "GoldTone": 1
      }
     },
     {
@@ -3337,6 +4775,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
      }
     }
    ],

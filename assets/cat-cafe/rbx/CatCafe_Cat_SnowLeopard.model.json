@@ -6,7 +6,8 @@
   "Scale": {
    "Float64": 1.0
   },
-  "PropSlot": "Back"
+  "PropSlot": "Back",
+  "PropSlot2": "Head"
  },
  "children": [
   {
@@ -84,7 +85,8 @@
     }
    },
    "attributes": {
-    "Rojo_Id": "CatCafe_Cat_SnowLeopard/0"
+    "Rojo_Id": "CatCafe_Cat_SnowLeopard/0",
+    "GoldTone": 1
    },
    "children": [
     {
@@ -168,6 +170,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -217,6 +222,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -266,6 +274,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -315,6 +326,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -364,6 +378,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -413,6 +430,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -462,6 +482,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -511,6 +534,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -560,6 +586,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -609,6 +638,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -658,6 +690,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -707,6 +742,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -756,6 +794,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -805,6 +846,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -854,6 +898,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -903,6 +950,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -952,6 +1002,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -1001,6 +1054,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -1050,6 +1106,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -1099,6 +1158,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -1148,6 +1210,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -1197,6 +1262,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -1246,6 +1314,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -1295,6 +1366,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -1344,6 +1418,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -1393,6 +1470,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -1442,6 +1522,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -1491,6 +1574,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -1540,6 +1626,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 3
    }
   },
   {
@@ -1589,6 +1678,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 2
    }
   },
   {
@@ -1638,6 +1730,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
    }
   },
   {
@@ -1721,7 +1816,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_SnowLeopard/1"
+      "Rojo_Id": "CatCafe_Cat_SnowLeopard/1",
+      "GoldTone": 1
      },
      "children": [
       {
@@ -2157,6 +2253,15 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldColor": {
+       "Color3": [
+        0.1686,
+        0.1686,
+        0.2078
+       ]
+      }
      }
     },
     {
@@ -3058,7 +3163,8 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Cat_SnowLeopard/4"
+        "Rojo_Id": "CatCafe_Cat_SnowLeopard/4",
+        "GoldTone": 1
        }
       },
       {
@@ -3108,6 +3214,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 1
        }
       },
       {
@@ -3157,6 +3266,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 1
        }
       },
       {
@@ -3320,7 +3432,8 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Cat_SnowLeopard/5"
+        "Rojo_Id": "CatCafe_Cat_SnowLeopard/5",
+        "GoldTone": 1
        }
       },
       {
@@ -3370,6 +3483,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 1
        }
       },
       {
@@ -3419,6 +3535,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 1
        }
       },
       {
@@ -3500,6 +3619,499 @@
       }
      },
      "name": "CatCafe_Cat_SnowLeopard_EarR"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_SnowLeopard/12"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_SnowLeopard_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.5139,
+           -0.9961
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2174,
+         0.163,
+         0.1087
+        ],
+        "Color": [
+         0.2902,
+         0.3098,
+         0.3451
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.6639,
+           0.6961
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_SnowLeopard/12",
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SnowLeopard_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.503,
+           -0.1037
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         1.0543,
+         0.0761,
+         0.0435
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SnowLeopard_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.503,
+           -0.9363
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         1.0543,
+         0.0761,
+         0.0435
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SnowLeopard_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.5163,
+           1.503,
+           -0.52
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0435,
+         0.0804,
+         0.8652
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SnowLeopard_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.5163,
+           1.503,
+           -0.52
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0435,
+         0.0804,
+         0.8652
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_SnowLeopard_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.5139,
+           -1.0015
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2609,
+         0.2065,
+         0.0543
+        ],
+        "Color": [
+         0.5412,
+         0.5608,
+         0.6
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Cat_SnowLeopard/13"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Cat_SnowLeopard_Lamp_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.5139,
+             -1.0559
+            ],
+            "orientation": [
+             [
+              0.0,
+              -1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ],
+             [
+              -1.0,
+              0.0,
+              0.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0326,
+           0.1413,
+           0.1413
+          ],
+          "Color": [
+           0.9843,
+           0.8941,
+           0.6039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Cylinder",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             -0.0054,
+             0.0,
+             0.0
+            ],
+            "orientation": [
+             [
+              0.0,
+              0.0,
+              -1.0
+             ],
+             [
+              -1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Cat_SnowLeopard/13",
+          "Follows": "Head"
+         }
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           1.5139,
+           -1.0504
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Cat_SnowLeopard_Lamp_Glow"
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.85,
+         -0.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_SnowLeopard_Prop2"
     }
    ],
    "properties": {
@@ -3613,7 +4225,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_SnowLeopard/6"
+      "Rojo_Id": "CatCafe_Cat_SnowLeopard/6",
+      "GoldTone": 1
      },
      "children": [
       {
@@ -3697,6 +4310,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 3
      }
     }
    ],
@@ -3811,7 +4427,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_SnowLeopard/7"
+      "Rojo_Id": "CatCafe_Cat_SnowLeopard/7",
+      "GoldTone": 1
      }
     },
     {
@@ -3861,6 +4478,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
      }
     }
    ],
@@ -3975,7 +4595,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_SnowLeopard/8"
+      "Rojo_Id": "CatCafe_Cat_SnowLeopard/8",
+      "GoldTone": 1
      }
     },
     {
@@ -4025,6 +4646,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
      }
     }
    ],
@@ -4139,7 +4763,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_SnowLeopard/9"
+      "Rojo_Id": "CatCafe_Cat_SnowLeopard/9",
+      "GoldTone": 1
      }
     },
     {
@@ -4189,6 +4814,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
      }
     }
    ],
@@ -4303,7 +4931,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_SnowLeopard/10"
+      "Rojo_Id": "CatCafe_Cat_SnowLeopard/10",
+      "GoldTone": 1
      }
     },
     {
@@ -4353,6 +4982,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
      }
     }
    ],

@@ -1,0 +1,5261 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_Dragon_Drake",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.72,
+       -0.036
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.2312,
+     0.18,
+     2.43
+    ],
+    "Color": [
+     0.9725,
+     0.8941,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.72,
+       0.036
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Dragon_Drake/0"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Drake",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.26,
+       -1.404
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.197,
+     0.9072,
+     0.144
+    ],
+    "Color": [
+     0.9725,
+     0.8941,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Drake",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.376,
+       -0.81
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     0.288,
+     0.288
+    ],
+    "Color": [
+     0.9843,
+     0.9412,
+     0.8235
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Drake",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.394,
+       -0.18
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     0.324,
+     0.288
+    ],
+    "Color": [
+     0.9843,
+     0.9412,
+     0.8235
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Drake",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.412,
+       0.45
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     0.36,
+     0.288
+    ],
+    "Color": [
+     0.9843,
+     0.9412,
+     0.8235
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Drake",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.394,
+       1.08
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     0.324,
+     0.288
+    ],
+    "Color": [
+     0.9843,
+     0.9412,
+     0.8235
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Drake",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.972,
+       1.44,
+       -0.81
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.072,
+     0.54,
+     0.648
+    ],
+    "Color": [
+     0.9725,
+     0.8941,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Drake",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.972,
+       1.44,
+       0.81
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.072,
+     0.54,
+     0.648
+    ],
+    "Color": [
+     0.9725,
+     0.8941,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Drake",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.972,
+       1.44,
+       -0.81
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.072,
+     0.54,
+     0.648
+    ],
+    "Color": [
+     0.9725,
+     0.8941,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Drake",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.972,
+       1.44,
+       0.81
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.072,
+     0.54,
+     0.648
+    ],
+    "Color": [
+     0.9725,
+     0.8941,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/1"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Drake_Body_Scale",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.404,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.71,
+       1.296,
+       2.7
+      ],
+      "Color": [
+       0.851,
+       0.2824,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -1.404,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Drake/1"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Drake_Body_Scale",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.494,
+         -0.09
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.926,
+       0.7776,
+       1.674
+      ],
+      "Color": [
+       0.851,
+       0.2824,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Drake_Body_Scale",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.052,
+         0.09
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.026,
+       0.216,
+       2.16
+      ],
+      "Color": [
+       0.851,
+       0.2824,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Drake_Body_Scale"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/2"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Drake_Chest_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.26,
+         -1.503
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.756,
+       0.6048,
+       0.09
+      ],
+      "Color": [
+       0.9137,
+       0.6353,
+       0.2941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0,
+         0.009
+        ],
+        "orientation": [
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          -0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Drake/2"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       1.26,
+       -1.494
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Drake_Chest_Glow"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/3"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Drake_Neck",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.0191,
+         -1.8217
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8192,
+          0.5736
+         ],
+         [
+          0.0,
+          -0.5736,
+          0.8192
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.558,
+       1.26,
+       0.144
+      ],
+      "Color": [
+       0.9725,
+       0.8941,
+       0.7451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.5799,
+         0.4335
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8192,
+          -0.5736
+         ],
+         [
+          0.0,
+          0.5736,
+          0.8192
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Drake/3"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/4"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Drake_Neck_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           2.2351,
+           -1.4437
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.8192,
+            0.5736
+           ],
+           [
+            0.0,
+            -0.5736,
+            0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.9,
+         1.62,
+         0.9
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.54,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.8192,
+            -0.5736
+           ],
+           [
+            0.0,
+            0.5736,
+            0.8192
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Drake/4"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         1.7928,
+         -1.134
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Drake_Neck_Scale"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/5"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Drake_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.4432,
+           3.7548,
+           -1.6423
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.1836,
+            0.8637,
+            -0.4695
+           ],
+           [
+            0.0976,
+            0.4592,
+            0.8829
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1881,
+         0.513,
+         0.1881
+        ],
+        "Color": [
+         0.9843,
+         0.9412,
+         0.8235
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.2249,
+           -1.0736,
+           0.4076
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.1836,
+            0.0976
+           ],
+           [
+            -0.2079,
+            0.8637,
+            0.4592
+           ],
+           [
+            0.0,
+            -0.4695,
+            0.8829
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Drake/5"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.4959,
+           3.1597,
+           -2.6717
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.342,
+         0.3933,
+         0.0513
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.4617,
+           3.1392,
+           -2.6923
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1881,
+         0.2565,
+         0.0513
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2216,
+           3.1392,
+           -3.2668
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1026,
+         0.0684,
+         0.1026
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.6498,
+           2.9853,
+           -2.2921
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0684,
+         0.171,
+         0.2394
+        ],
+        "Color": [
+         0.9098,
+         0.6275,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.4959,
+           3.1597,
+           -2.6717
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.342,
+         0.3933,
+         0.0513
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.4617,
+           3.1392,
+           -2.6923
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1881,
+         0.2565,
+         0.0513
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2216,
+           3.1392,
+           -3.2668
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1026,
+         0.0684,
+         0.1026
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.6498,
+           2.9853,
+           -2.2921
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0684,
+         0.171,
+         0.2394
+        ],
+        "Color": [
+         0.9098,
+         0.6275,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.4432,
+           3.7548,
+           -1.6423
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.1836,
+            0.8637,
+            -0.4695
+           ],
+           [
+            -0.0976,
+            0.4592,
+            0.8829
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1881,
+         0.513,
+         0.1881
+        ],
+        "Color": [
+         0.9843,
+         0.9412,
+         0.8235
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/6"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Dragon_Drake_Head_Scale",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             3.0366,
+             -2.0527
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           1.2312,
+           1.026,
+           1.197
+          ],
+          "Color": [
+           0.851,
+           0.2824,
+           0.2314
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0,
+             -0.3591,
+             0.2992
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Dragon_Drake/6"
+         }
+        },
+        {
+         "name": "CatCafe_Dragon_Drake_Head_Scale",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             2.9135,
+             -3.0103
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.8618,
+           0.4309,
+           0.855
+          ],
+          "Color": [
+           0.851,
+           0.2824,
+           0.2314
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         }
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           2.6775,
+           -1.7535
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Dragon_Drake_Head_Scale"
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/7"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Dragon_Drake_Jaw",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             2.7168,
+             -2.9334
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.4925,
+           0.0513,
+           0.5985
+          ],
+          "Color": [
+           0.8784,
+           0.4784,
+           0.549
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0,
+             -0.0085,
+             0.3847
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Dragon_Drake/7"
+         }
+        },
+        {
+         "name": "CatCafe_Dragon_Drake_Jaw",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.2955,
+             2.7681,
+             -3.2497
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1026,
+           0.1368,
+           0.1026
+          ],
+          "Color": [
+           1.0,
+           1.0,
+           1.0
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         }
+        },
+        {
+         "name": "CatCafe_Dragon_Drake_Jaw",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.2955,
+             2.7681,
+             -3.2497
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1026,
+           0.1368,
+           0.1026
+          ],
+          "Color": [
+           1.0,
+           1.0,
+           1.0
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         }
+        },
+        {
+         "className": "Model",
+         "attributes": {
+          "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/8"
+         },
+         "children": [
+          {
+           "name": "CatCafe_Dragon_Drake_Jaw_Scale",
+           "className": "Part",
+           "properties": {
+            "CFrame": {
+             "CFrame": {
+              "position": [
+               0.0,
+               2.6057,
+               -2.9334
+              ],
+              "orientation": [
+               [
+                1.0,
+                0.0,
+                0.0
+               ],
+               [
+                0.0,
+                1.0,
+                0.0
+               ],
+               [
+                0.0,
+                0.0,
+                1.0
+               ]
+              ]
+             }
+            },
+            "Size": [
+             0.7633,
+             0.1881,
+             0.8123
+            ],
+            "Color": [
+             0.851,
+             0.2824,
+             0.2314
+            ],
+            "Material": "SmoothPlastic",
+            "Anchored": true,
+            "CanCollide": false,
+            "CanTouch": false,
+            "CastShadow": true,
+            "TopSurface": "Smooth",
+            "BottomSurface": "Smooth",
+            "PivotOffset": {
+             "CFrame": {
+              "position": [
+               0.0,
+               0.1026,
+               0.3847
+              ],
+              "orientation": [
+               [
+                1.0,
+                0.0,
+                0.0
+               ],
+               [
+                0.0,
+                1.0,
+                0.0
+               ],
+               [
+                0.0,
+                0.0,
+                1.0
+               ]
+              ]
+             }
+            }
+           },
+           "attributes": {
+            "Rojo_Id": "CatCafe_Dragon_Drake/8"
+           }
+          }
+         ],
+         "properties": {
+          "WorldPivotData": {
+           "OptionalCFrame": {
+            "position": [
+             0.0,
+             2.7083,
+             -2.5486
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "name": "CatCafe_Dragon_Drake_Jaw_Scale"
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           2.7083,
+           -2.5486
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Dragon_Drake_Jaw"
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         2.6775,
+         -1.7535
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Drake_Head"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       1.7928,
+       -1.134
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Drake_Neck"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/9"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Drake_Tail1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.908,
+         1.8
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9511,
+          0.309
+         ],
+         [
+          0.0,
+          -0.309,
+          0.9511
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.144,
+       0.216,
+       0.252
+      ],
+      "Color": [
+       0.9843,
+       0.9412,
+       0.8235
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.2782,
+         -0.6582
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9511,
+          -0.309
+         ],
+         [
+          0.0,
+          0.309,
+          0.9511
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Drake/9"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/10"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Drake_Tail1_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.44,
+           1.8
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.756,
+         0.756,
+         1.188
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0,
+           -0.54
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Drake/10"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         1.44,
+         1.26
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Drake_Tail1_Scale"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/11"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Drake_Tail2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.692,
+           2.835
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9511,
+            0.309
+           ],
+           [
+            0.0,
+            -0.309,
+            0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.144,
+         0.216,
+         0.252
+        ],
+        "Color": [
+         0.9843,
+         0.9412,
+         0.8235
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.1894,
+           -0.582
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9511,
+            -0.309
+           ],
+           [
+            0.0,
+            0.309,
+            0.9511
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Drake/11"
+       }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/12"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Dragon_Drake_Tail2_Scale",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.332,
+             2.835
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.54,
+           0.54,
+           1.098
+          ],
+          "Color": [
+           0.851,
+           0.2824,
+           0.2314
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0,
+             0.0,
+             -0.495
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Dragon_Drake/12"
+         }
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           1.332,
+           2.34
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Dragon_Drake_Tail2_Scale"
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/13"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Dragon_Drake_Tail3",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.224,
+             4.41
+            ],
+            "orientation": [
+             [
+              0.7071,
+              0.0,
+              0.7071
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              -0.7071,
+              0.0,
+              0.7071
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.54,
+           0.144,
+           0.54
+          ],
+          "Color": [
+           0.9843,
+           0.9412,
+           0.8235
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.7637,
+             0.0,
+             -0.7637
+            ],
+            "orientation": [
+             [
+              0.7071,
+              0.0,
+              -0.7071
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.7071,
+              0.0,
+              0.7071
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Dragon_Drake/13"
+         }
+        },
+        {
+         "name": "CatCafe_Dragon_Drake_Tail3",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.476,
+             3.78
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9511,
+              0.309
+             ],
+             [
+              0.0,
+              -0.309,
+              0.9511
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.144,
+           0.216,
+           0.252
+          ],
+          "Color": [
+           0.9843,
+           0.9412,
+           0.8235
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         }
+        },
+        {
+         "className": "Model",
+         "attributes": {
+          "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/14"
+         },
+         "children": [
+          {
+           "name": "CatCafe_Dragon_Drake_Tail3_Scale",
+           "className": "Part",
+           "properties": {
+            "CFrame": {
+             "CFrame": {
+              "position": [
+               0.0,
+               1.224,
+               3.78
+              ],
+              "orientation": [
+               [
+                1.0,
+                0.0,
+                0.0
+               ],
+               [
+                0.0,
+                1.0,
+                0.0
+               ],
+               [
+                0.0,
+                0.0,
+                1.0
+               ]
+              ]
+             }
+            },
+            "Size": [
+             0.324,
+             0.324,
+             1.008
+            ],
+            "Color": [
+             0.851,
+             0.2824,
+             0.2314
+            ],
+            "Material": "SmoothPlastic",
+            "Anchored": true,
+            "CanCollide": false,
+            "CanTouch": false,
+            "CastShadow": true,
+            "TopSurface": "Smooth",
+            "BottomSurface": "Smooth",
+            "PivotOffset": {
+             "CFrame": {
+              "position": [
+               0.0,
+               0.0,
+               -0.45
+              ],
+              "orientation": [
+               [
+                1.0,
+                0.0,
+                0.0
+               ],
+               [
+                0.0,
+                1.0,
+                0.0
+               ],
+               [
+                0.0,
+                0.0,
+                1.0
+               ]
+              ]
+             }
+            }
+           },
+           "attributes": {
+            "Rojo_Id": "CatCafe_Dragon_Drake/14"
+           }
+          }
+         ],
+         "properties": {
+          "WorldPivotData": {
+           "OptionalCFrame": {
+            "position": [
+             0.0,
+             1.224,
+             3.33
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "name": "CatCafe_Dragon_Drake_Tail3_Scale"
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           1.224,
+           3.33
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Dragon_Drake_Tail3"
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         1.332,
+         2.34
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Drake_Tail2"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       1.44,
+       1.26
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Drake_Tail1"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/15"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Drake_LegFL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.495,
+         0.072,
+         -1.3752
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.126,
+       0.144,
+       0.144
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.18,
+         0.792,
+         0.5652
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Drake/15"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Drake_LegFL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.855,
+         0.072,
+         -1.3752
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.126,
+       0.144,
+       0.144
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/16"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Drake_LegFL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.675,
+           0.468,
+           -0.81
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.54,
+         0.936,
+         0.594
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.396,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Drake/16"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_LegFL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.675,
+           0.108,
+           -0.954
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.567,
+         0.216,
+         0.81
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.675,
+         0.864,
+         -0.81
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Drake_LegFL_Scale"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.675,
+       0.864,
+       -0.81
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Drake_LegFL"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/17"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Drake_LegFR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.855,
+         0.072,
+         -1.3752
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.126,
+       0.144,
+       0.144
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.18,
+         0.792,
+         0.5652
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Drake/17"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Drake_LegFR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.495,
+         0.072,
+         -1.3752
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.126,
+       0.144,
+       0.144
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/18"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Drake_LegFR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.675,
+           0.468,
+           -0.81
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.54,
+         0.936,
+         0.594
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.396,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Drake/18"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_LegFR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.675,
+           0.108,
+           -0.954
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.567,
+         0.216,
+         0.81
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.675,
+         0.864,
+         -0.81
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Drake_LegFR_Scale"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.675,
+       0.864,
+       -0.81
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Drake_LegFR"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/19"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Drake_LegBL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.495,
+         0.072,
+         0.1886
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.126,
+       0.144,
+       0.144
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.18,
+         0.792,
+         0.6214
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Drake/19"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Drake_LegBL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.855,
+         0.072,
+         0.1886
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.126,
+       0.144,
+       0.144
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/20"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Drake_LegBL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.675,
+           0.468,
+           0.81
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.612,
+         0.936,
+         0.6732
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.396,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Drake/20"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_LegBL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.675,
+           0.108,
+           0.666
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.6426,
+         0.216,
+         0.918
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.675,
+         0.864,
+         0.81
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Drake_LegBL_Scale"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.675,
+       0.864,
+       0.81
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Drake_LegBL"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/21"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Drake_LegBR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.855,
+         0.072,
+         0.1886
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.126,
+       0.144,
+       0.144
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.18,
+         0.792,
+         0.6214
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Drake/21"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Drake_LegBR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.495,
+         0.072,
+         0.1886
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.126,
+       0.144,
+       0.144
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/22"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Drake_LegBR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.675,
+           0.468,
+           0.81
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.612,
+         0.936,
+         0.6732
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.396,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Drake/22"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_LegBR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.675,
+           0.108,
+           0.666
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.6426,
+         0.216,
+         0.918
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.675,
+         0.864,
+         0.81
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Drake_LegBR_Scale"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.675,
+       0.864,
+       0.81
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Drake_LegBR"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/23"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Drake_WingL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.7989,
+         2.5577,
+         0.567
+        ],
+        "orientation": [
+         [
+          0.9272,
+          -0.3746,
+          0.0
+         ],
+         [
+          0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.918,
+       0.072,
+       2.106
+      ],
+      "Color": [
+       0.949,
+       0.7216,
+       0.5412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -1.3365,
+         0.0334,
+         -1.053
+        ],
+        "orientation": [
+         [
+          0.9272,
+          0.3746,
+          0.0
+         ],
+         [
+          -0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Drake/23"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Drake_WingL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.9728,
+         2.2239,
+         0.189
+        ],
+        "orientation": [
+         [
+          0.9272,
+          -0.3746,
+          0.0
+         ],
+         [
+          0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.918,
+       0.072,
+       1.35
+      ],
+      "Color": [
+       0.949,
+       0.7216,
+       0.5412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Drake_WingL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.625,
+         2.8915,
+         0.324
+        ],
+        "orientation": [
+         [
+          0.9272,
+          -0.3746,
+          0.0
+         ],
+         [
+          0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.918,
+       0.072,
+       1.62
+      ],
+      "Color": [
+       0.949,
+       0.7216,
+       0.5412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Drake_WingL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         3.0552,
+         3.1599,
+         -0.486
+        ],
+        "orientation": [
+         [
+          0.9272,
+          -0.3746,
+          0.0
+         ],
+         [
+          0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.162,
+       0.3848,
+       0.162
+      ],
+      "Color": [
+       0.9843,
+       0.9412,
+       0.8235
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/24"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Drake_WingL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.7989,
+           2.5937,
+           -0.486
+          ],
+          "orientation": [
+           [
+            0.9272,
+            -0.3746,
+            0.0
+           ],
+           [
+            0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         2.7,
+         0.216,
+         0.252
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -1.35,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9272,
+            0.3746,
+            0.0
+           ],
+           [
+            -0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Drake/24"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_WingL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.4183,
+           2.2779,
+           0.189
+          ],
+          "orientation": [
+           [
+            0.9272,
+            -0.3746,
+            0.0
+           ],
+           [
+            0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.108,
+         0.126,
+         1.35
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_WingL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           2.2444,
+           2.6117,
+           0.567
+          ],
+          "orientation": [
+           [
+            0.9272,
+            -0.3746,
+            0.0
+           ],
+           [
+            0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.108,
+         0.126,
+         2.106
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_WingL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           3.0705,
+           2.9455,
+           0.324
+          ],
+          "orientation": [
+           [
+            0.9272,
+            -0.3746,
+            0.0
+           ],
+           [
+            0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.108,
+         0.126,
+         1.62
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.5472,
+         2.088,
+         -0.486
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Drake_WingL_Scale"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.5472,
+       2.088,
+       -0.486
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Drake_WingL"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/25"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Drake_WingR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.7989,
+         2.5577,
+         0.567
+        ],
+        "orientation": [
+         [
+          0.9272,
+          0.3746,
+          0.0
+         ],
+         [
+          -0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.918,
+       0.072,
+       2.106
+      ],
+      "Color": [
+       0.949,
+       0.7216,
+       0.5412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         1.3365,
+         0.0334,
+         -1.053
+        ],
+        "orientation": [
+         [
+          0.9272,
+          -0.3746,
+          0.0
+         ],
+         [
+          0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Drake/25"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Drake_WingR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.9728,
+         2.2239,
+         0.189
+        ],
+        "orientation": [
+         [
+          0.9272,
+          0.3746,
+          0.0
+         ],
+         [
+          -0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.918,
+       0.072,
+       1.35
+      ],
+      "Color": [
+       0.949,
+       0.7216,
+       0.5412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Drake_WingR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -2.625,
+         2.8915,
+         0.324
+        ],
+        "orientation": [
+         [
+          0.9272,
+          0.3746,
+          0.0
+         ],
+         [
+          -0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.918,
+       0.072,
+       1.62
+      ],
+      "Color": [
+       0.949,
+       0.7216,
+       0.5412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Drake_WingR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -3.0552,
+         3.1599,
+         -0.486
+        ],
+        "orientation": [
+         [
+          0.9272,
+          0.3746,
+          0.0
+         ],
+         [
+          -0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.162,
+       0.3848,
+       0.162
+      ],
+      "Color": [
+       0.9843,
+       0.9412,
+       0.8235
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Drake/26"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Drake_WingR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.7989,
+           2.5937,
+           -0.486
+          ],
+          "orientation": [
+           [
+            0.9272,
+            0.3746,
+            0.0
+           ],
+           [
+            -0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         2.7,
+         0.216,
+         0.252
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           1.35,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9272,
+            -0.3746,
+            0.0
+           ],
+           [
+            0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Drake/26"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_WingR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.4183,
+           2.2779,
+           0.189
+          ],
+          "orientation": [
+           [
+            0.9272,
+            0.3746,
+            0.0
+           ],
+           [
+            -0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.108,
+         0.126,
+         1.35
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_WingR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -2.2444,
+           2.6117,
+           0.567
+          ],
+          "orientation": [
+           [
+            0.9272,
+            0.3746,
+            0.0
+           ],
+           [
+            -0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.108,
+         0.126,
+         2.106
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Drake_WingR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -3.0705,
+           2.9455,
+           0.324
+          ],
+          "orientation": [
+           [
+            0.9272,
+            0.3746,
+            0.0
+           ],
+           [
+            -0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.108,
+         0.126,
+         1.62
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.5472,
+         2.088,
+         -0.486
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Drake_WingR_Scale"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.5472,
+       2.088,
+       -0.486
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Drake_WingR"
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

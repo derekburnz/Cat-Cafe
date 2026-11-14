@@ -56,6 +56,9 @@ The clock is 5 minutes of day and 90 s of night (data-model section 9, v0.9). Mu
 | `musicJukeboxStarlightPurr` "Starlight Purr" | Jukebox Pass pick (as above) | 2D | 58 s loop, 16 bars | dreamy | wide strings, vibraphone arpeggios, glockenspiel stars, a very low cat purr, flute tune | 66 BPM, F major | P2 |
 | `musicAreaDesert` "Sunstone Caravan" | the Desert (Tier 6, #2662 for #2651): plays in place of the cafe music (shuffle, jukebox pick and rotation) while you are in the Desert zone, two sections at a time with rests; leaving waits 4 s before the cafe music comes back; the tutorial song still comes first | 2D | 87 s loop, 32 bars | warm and wandering, sunlit sand and starry dunes | plucked oud-like ostinato, hand drums, shaker, flute tune, marimba answer, strings, glockenspiel glints | 88 BPM, D minor (Dm C Bb A) | P2 |
 | `musicAreaRuins` "Glyph Halls" | the Ruins (Tier 7, #2662 for #2651): as above, in the Ruins zone | 2D | 91 s loop, 32 bars | mysterious but friendly, old stone and glowing glyphs | marimba arpeggios, low strings, glyph chimes (music box), rim and hand drum, vibraphone tune, flute | 84 BPM, E minor | P2 |
+| `musicAreaSnowy` "Lantern Peaks" | the Snowy Mountain (Tier 8, #4069): as above, in the Snowy zone | 2D | 96 s loop, 32 bars | cozy and still, lamps in falling snow, the northern lights overhead | music box arpeggios, soft strings, quiet bass, small sleigh bells, vibraphone tune, flute, glockenspiel | 80 BPM, G major (G Em C D) | P2 |
+| `musicAreaWaterpark` "Splash Parade" | the Water Park (#4070): as above, in the Waterpark zone | 2D | 71 s loop, 32 bars | sunny and bouncy, slides and splashes | off-beat marimba, walking bass, kick and claps, shaker, glockenspiel drops, marimba and flute tune | 108 BPM, C major (C F G C) | P2 |
+| `musicAreaCastle` "Banner Hall" | the Medieval Castle (#4071): as above, in the Castle zone | 2D | 83 s loop, 32 bars | a stately court dance, friendly not grim | plucked lute, hand drum, tambourine bells, recorder-like flute tune, low strings, glockenspiel | 92 BPM, D minor (Dm C Dm A) | P2 |
 | `tutorialStepDone` | a tutorial step is done (`tutorialStep` rises while the tile is on); reuses the Rank Ready chime's file (#1541) | 2D | 0.6 s | the soft rising chime | | P2 |
 | `stingDusk` "Night Shift" | NightStart (F66: the areas close) | 3.2 s | the lamps come on, the sign turns to the moon, the gates latch for the night | descending vibraphone run into a cozy chord, a soft lamp click, a wooden latch (synthesized, until a composed one) | | P1 |
 | `stingDawn` "Fresh Pot" | DayStart (F66: the sunrise wave, the areas open) | 3.2 s | morning, the sun sign, fresh cats | rising glockenspiel, one shop bell, a warm swell (synthesized, until a composed one) | | P1 |
@@ -476,3 +479,29 @@ The Late sheet holds all of these. It's mono and every sound plays flat; they're
 | `purr` (reused, looped at the bowl) | the first bait cutscene's cat eats at your bowl (moment `FirstBaitEat(position, seconds)` from Effects/FirstBaitCut) | the eating beat, 2.5 s by default, at most 5 s | content, soft | P2 |
 
 The cat's arrival (`baitArrive`) and the food going into the bowl already sound through ProfileSync, so the cutscene adds only the purr.
+
+## The Dragon Keep, the Ticket Booth and the Snowy Mountain (#4062, #4061, #4069, 2026-11-14)
+
+The Keep sheet holds all of these. It's mono. The cutscene and card sounds play flat; the snow step, the gust, the frost chime, Rekindle and the ticket printer play in the world.
+
+| cue | when | length | feel | P |
+|---|---|---|---|---|
+| `dragonRumble` | the stage-up cutscene's curl: Cinder turns into a ball of light | 1.4 s | a low warm rumble that swells and settles, a soft shimmer rising over it | P2 |
+| `dragonCrack` | the ball cracks open | 0.8 s | three bright ticks like a shell splitting, a whoosh of light, one glass note | P2 |
+| `dragonChirp` | the roar at stages 1 and 2 (Hatchling, Whelp) | 0.6 s | a squeaky little "rawr" that breaks upward, more kitten than dragon | P2 |
+| `dragonRoar` | the roar at stages 3 and 4 (Drake, Elder) | 1.15 s | a proud rolled "RAWR" with some chest, still friendly | P2 |
+| `dragonRoarGrand` | the roar at stage 5 (Crowned), after the victory lap | 2.0 s | the big roar, then a bright three note call on gold bells | P2 |
+| `dragonWing` | each wing beat on the stage 5 victory lap | 0.5 s | a soft wide whoomp of air | P3 |
+| `cardFlip` | a reward card turns over | 0.22 s | a quick paper flick and a tiny tap | P2 |
+| `cardRare` | a rare card shows its face | 0.95 s | a short rising sparkle and a warm two note chime | P2 |
+| `rekindle` | a Rekindle hand comes up at the Dragon Keep (Audio follows ProfileSync's `dragon.handKind`) | 1.0 s | air drawn in, a soft "foomp" of flame, a few crackles | P2 |
+| `ticketPrint` | you buy a Ticket Booth prize: the booth prints its ticket (Audio follows ProfileSync's `ticketBooth.spent`) | 0.7 s | soft printer chatter and the paper tearing off | P2 |
+| `ticketDing` | 0.6 s after the print: the prize is yours | 0.8 s | a bright two note counter bell, like a fairground booth | P2 |
+| `snowStep` | your steps in the Snowy Mountain | 0.2 s | a soft dry crunch; the pitch varies a little each step | P3 |
+| `snowGust` | the Blizzard Cat (Mythical) lands or is caught | 1.5 s | a gust that swells and whistles past, icy glints falling out of it | P2 |
+| `frostChime` | the White Tiger Cat (Legendary) is caught or revealed | 1.4 s | three cold glass notes falling like icicles, one low warm note under them | P2 |
+| `fusionStart` | five cats go into the Fusion Observatory's dome (#4104) | 1.9 s | five glass notes climbing, one for each cat, then a soft shimmer as they become one | P2 |
+| `fusionCollect` | a gold cat is collected from the dome | 1.3 s | a bright "ta-da": a pickup note and a warm major chord | P2 |
+| `fusionCollectRainbow` | a rainbow cat is collected from the dome | 2.6 s | the "ta-da", six notes running up (one for each colour) and a wider chord held under them | P2 |
+
+Nothing here is loud or scary: the roars are a cat's voice pitched down with a rolled growl. The area songs for the three new areas are in section 3.

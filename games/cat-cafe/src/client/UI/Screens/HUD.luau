@@ -49,6 +49,8 @@ local Button = require(script.Parent.Parent.Components.Button)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
+local FeedbackCallout = require(script.Parent.Parent.Components.FeedbackCallout)
+local FeedbackCalloutLogic = require(script.Parent.Parent.Components.FeedbackCalloutLogic)
 local FirstBait = require(script.Parent.Parent.Components.FirstBait)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -57,6 +59,7 @@ local GiftLadderLogic = require(script.Parent.Parent.Components.GiftLadderLogic)
 local GiftLogic = require(script.Parent.Parent.Components.GiftLogic)
 local GoalCard = require(script.Parent.GoalCard)
 local GoalFold = require(script.Parent.Parent.Components.GoalFold)
+local GoalLines = require(script.Parent.Parent.Components.GoalLines) -- #4098
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexHints = require(script.Parent.Parent.Components.IndexHints)
@@ -109,6 +112,7 @@ export type Callbacks = {
 	replayIntro: () -> (), -- the Tutorial tile (F72)
 	hideTutorialButton: () -> (), -- the Tutorial tile's red ×
 	openFeedback: () -> (), -- the Feedback tile: the Feedback window on its Idea chip
+	openIdea: (() -> ())?, -- #3883: the map theme bubble: the Feedback window on its Idea page (nil: openFeedback)
 	setSetting: ((key: string, value: boolean) -> ())?, -- #1893: the Grand Opening strip saves roadmapOpen
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
@@ -119,6 +123,7 @@ export type HUD = {
 	screenGui: ScreenGui,
 	setCatalog: (self: HUD, catalog: Types.Catalog) -> (),
 	render: (self: HUD, state: Types.PlayerState) -> (),
+	showCallout: (self: HUD) -> (), -- #3883: the map theme bubble now (the UI gate's picture)
 	goalSeen: (self: HUD) -> (), -- #2331: the rank up card opened, so the goal card's ready pulse and arrow stop
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
@@ -151,6 +156,7 @@ export type HUD = {
 	bottomTop: (self: HUD) -> number,
 	tackleTop: (self: HUD) -> number, -- #3119: where the Tackle bar's foot sits (under the Drop off touch)
 	toastAvoid: (self: HUD) -> { Types.Box }, -- #2338: what the toasts keep clear of
+	edgeAvoid: (self: HUD) -> { Types.Box }, -- #4152: what the tutorial's edge arrow keeps clear of, in screen px
 	setCatching: (self: HUD, active: boolean) -> (),
 	roadmapStep: (self: HUD, n: number) -> (),
 	setCatchStreak: (self: HUD, streak: number) -> (),
@@ -201,6 +207,15 @@ local MONEY_W = 232
 -- #2194: the money amount takes the room of its shape with the widest digits ("$33.7M" takes "$88.8M"), so the golden
 -- fish beside it holds still while the digits tick. #2383 (Derek2 11-08: "isn't supposed to be a big gap between the
 -- money and fish"): it used to take at least 140 px, a wide gap after a short amount
+-- #4097: whether the areas are open (the Clock folder's AreasOpen; nil while it has not replicated)
+local function areasOpen(): boolean?
+	local clock = ReplicatedStorage:FindFirstChild("Clock")
+	if clock == nil then
+		return nil
+	end
+	return clock:GetAttribute("AreasOpen") ~= false
+end
+
 local function moneyShape(text: string): string
 	return (text:gsub("%d", "8"))
 end
@@ -437,6 +452,8 @@ local BANNER_PAD_Y = 4
 -- side by side, a name and its time left each, BANNER_ITEM_GAP apart; a tap on any opens the card with the rest
 local BANNER_ITEM_GAP = 10
 local BANNER_MOST = 3
+local BANNER_GUESS_W = 200 -- design px for a piece not yet measured in the strip (HUD._fitBanner)
+local BANNER_SPARE = 8 -- design px a dropped piece needs past its own width to come back
 local DAY_CARD_Z = 20
 -- The top right column (icon row, clock, tips line, tier and goal) is this wide at most. The HUD keeps clear of
 -- Roblox's top bar, which left a tall empty band over that column (Derek 2026-10-27); when the bar's free stretch
@@ -1057,6 +1074,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 	})
 	table.insert(self._buttons, self._feedbackTile)
+	self._calloutDoneAt = nil :: number?
+	self._calloutStep = nil :: number?
 	-- Menu (Derek 2026-11-02, fewer buttons): Settings and Invite behind one gear. Once Invite is unlocked a press
 	-- opens the short list; before that it opens Settings.
 	self._menuTile = Button.new({
@@ -2348,6 +2367,19 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 	self:_paintKeys()
+	-- #3883: the map theme bubble under the Feedback tile (FeedbackCalloutLogic says when), made last so it
+	-- draws over the goal card
+	self._callout = FeedbackCallout.new(root, self._feedbackTile.instance, function()
+		self:_calloutAway()
+		local openIdea = callbacks.openIdea
+		if openIdea ~= nil then
+			openIdea()
+		else
+			callbacks.openFeedback()
+		end
+	end, function()
+		self:_calloutAway()
+	end, self._goal.frame)
 	return self :: HUD
 end
 
@@ -2613,8 +2645,9 @@ function HUD._applyFocus(self: any)
 		self._buffs:setFocus(false)
 		return
 	end
+	local lines: { GuiObject } = self._bannerLines
 	for child in hidden do
-		if child.Parent == root then
+		if child.Parent == root or table.find(lines, child) ~= nil then
 			child.Visible = true
 		end
 	end
@@ -2877,10 +2910,52 @@ function HUD.setCatalog(self: any, catalog: Types.Catalog)
 	self._luck:setCatalog(catalog)
 end
 
+-- #3883: once a join, FeedbackCalloutLogic.WAIT_SECONDS after the tutorial is done (or after the join for a player
+-- done before), the map theme bubble shows under the Feedback tile for SHOW_SECONDS
+local calloutShown = false -- once a join, whatever happens to the HUD
+
+function HUD._calloutWatch(self: any, step: number)
+	self._calloutStep = step
+	if calloutShown or self._calloutDoneAt ~= nil or step < TUTORIAL_DONE then
+		return
+	end
+	local doneAt = os.clock()
+	self._calloutDoneAt = doneAt
+	task.delay(FeedbackCalloutLogic.WAIT_SECONDS, function()
+		if
+			self._gone
+			or not FeedbackCalloutLogic.due(self._calloutStep, doneAt, os.clock(), calloutShown)
+		then
+			return
+		end
+		self:showCallout()
+	end)
+end
+
+-- Shows the bubble now (the UI gate's picture calls this too) and puts it away after SHOW_SECONDS.
+function HUD.showCallout(self: any)
+	if not self._feedbackTile.instance.Visible then
+		return
+	end
+	calloutShown = true
+	self._callout:show()
+	task.delay(FeedbackCalloutLogic.SHOW_SECONDS, function()
+		if not self._gone then
+			self._callout:hide()
+		end
+	end)
+end
+
+function HUD._calloutAway(self: any)
+	calloutShown = true
+	self._callout:hide()
+end
+
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
 	-- #2211: the tutorial's last step done just now (not a player who finished it before this join): the × pulses
 	local step = state.tutorialStep or TUTORIAL_DONE
+	self:_calloutWatch(step)
 	local before: number? = self._stepBefore
 	self._stepBefore = step
 	if before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE then
@@ -2896,9 +2971,15 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- on the square alone: round the whole tile it covered the "Upgrades" label under it (device pass 2026-11-07)
 	-- #2759: none of the step rings while a fresh save's intro is on its way (holdTutorial)
 	local held = self._tutorialHeld == true
+	-- #4097: while the step asks for the second cat by day, nothing points at the table (no glow, no Buy button)
+	local stepView =
+		TutorialHints.view(state, if catalog then catalog.spots else nil, nil, areasOpen())
+	local holdsTable = TutorialHints.holdsOffer(stepView)
 	TutorialGlow.set(
 		self._upgradesTile.face,
-		not held and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+		not held
+			and not holdsTable
+			and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
 	)
 	-- #2697: the Cats tile while the step asks for a job, the Bowl tile while it asks for food in the bowl
 	local asks =
@@ -2912,7 +2993,8 @@ function HUD.render(self: any, state: Types.PlayerState)
 			state.tutorialStep,
 			state.upgradeLevels,
 			state.money,
-			if catalog then catalog.upgrades else nil
+			if catalog then catalog.upgrades else nil,
+			stepView
 		)
 	self._stripOffer = offer
 	self:_renderStripBuy()
@@ -2979,6 +3061,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- #3022: from the first customer served until the second cat, the card's goal is "Catch a 2nd cat"
 	-- (Components/SecondCatGoal); its preview lines show once, for PREVIEW_SECONDS
 	local nextTier = if tierProgress then tierProgress.nextTier else nil
+	self._nextTierName = if nextTier then nextTier.name else nil -- #4098: the new kinds goal names what it opens
 	local second =
 		SecondCatGoal.view(state, TOUCH, if nextTier then nextTier.name else nil, self._areasOpen)
 	local started = second ~= nil and self._second == nil
@@ -3386,6 +3469,42 @@ end
 -- lines by their words, which sit right-aligned in wider boxes), the chips over the counters and the corner tiles over
 -- the bottom right. Measured, so a folded menu or a hidden card counts as
 -- nothing; none while the HUD is hidden.
+-- #4152: the same pieces as toastAvoid, in the screen's own pixels with the top inset counted (the tutorial's edge
+-- arrow draws in a ScreenGui that ignores the inset), so the arrow keeps off the money pill and the menu.
+function HUD.edgeAvoid(self: any): { Types.Box }
+	local scale = Scale.get()
+	local out: { Types.Box } = {}
+	if scale <= 0 then
+		return out
+	end
+	-- The arrow is placed in viewport space (WorldToViewportPoint, in an IgnoreGuiInset gui), but AbsolutePosition is
+	-- always measured from under the top inset, whatever the gui's IgnoreGuiInset (Review-QA in Studio, 667x375: the
+	-- arrow and the counters both draw 58 px below their AbsolutePosition), so every box adds the inset
+	local inset = GuiService:GetGuiInset()
+	local origin = self._root.AbsolutePosition + inset
+	for _, box in self:toastAvoid() do
+		table.insert(out, {
+			x0 = origin.X + box.x0 * scale,
+			y0 = origin.Y + box.y0 * scale,
+			x1 = origin.X + box.x1 * scale,
+			y1 = origin.Y + box.y1 * scale,
+		})
+	end
+	-- and on every device the counters (the money pill and its coin) and the travel row, which the toasts don't need
+	for _, piece in { self._counters, self._travelRow } :: { GuiObject } do
+		if piece.Visible and piece.AbsoluteSize.X > 0 then
+			local at = piece.AbsolutePosition + inset
+			table.insert(out, {
+				x0 = at.X,
+				y0 = at.Y,
+				x1 = at.X + piece.AbsoluteSize.X,
+				y1 = at.Y + piece.AbsoluteSize.Y,
+			})
+		end
+	end
+	return out
+end
+
 function HUD.toastAvoid(self: any): { Types.Box }
 	local scale = Scale.get()
 	local boxes: { Types.Box } = {}
@@ -3682,26 +3801,10 @@ function HUD.setEvent(self: any, lines: { string }?, kind: string?, strip: { str
 	-- #2539 (Laptop-Tester): not tied to the clock, which the small HUD hides until tutorial step 5, so a new player
 	-- sees the event too
 	nextLine.Text = if words ~= nil and words[2] ~= nil then words[2] else ""
-	local showLine = text ~= nil
-	local showNext = showLine and nextLine.Text ~= ""
-	-- #2860 (Derek2: the event "flashes and shows during catching minigames when it should be hidden"): its countdown
-	-- repaints every second, so mid-catch it stays down and is only noted for the catch's end (HUD._applyFocus)
-	if self._catching then
-		local hidden: { [GuiObject]: boolean } = self._focusHidden
-		if showLine then
-			hidden[line] = true
-		else
-			hidden[line] = nil
-		end
-		if showNext then
-			hidden[nextLine] = true
-		else
-			hidden[nextLine] = nil
-		end
-		showLine, showNext = false, false
-	end
-	line.Visible = showLine
-	nextLine.Visible = showNext
+	-- #2860: mid-catch the whole strip stays down (_paintBanner), so its lines keep their own state and all come back
+	-- together at the catch's end (Review-QA 2026-11-13: hiding the line itself left the strip a piece short for 1 s)
+	line.Visible = text ~= nil
+	nextLine.Visible = line.Visible and nextLine.Text ~= ""
 	self:_layoutRight()
 end
 
@@ -3825,6 +3928,10 @@ function HUD._layoutRight(self: any)
 	roadmap.Position = UDim2.new(1, -MARGIN, 0, stripTop)
 	if roadmap.Visible then
 		lineTop += self._roadmap:closedHeight() + Theme.sizes.gap
+		if self._roadmapOpen == true then
+			-- #3990: the open steps list ran down over the spin and gift lines (a PC); they move under it
+			lineTop = math.max(lineTop, stripTop + lift + roadmap.Size.Y.Offset + Theme.sizes.gap)
+		end
 	end
 	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
 	local giftTop = if self._spinLine.Visible then lineTop + SPIN_LINE_H + 2 else lineTop
@@ -3841,8 +3948,26 @@ function HUD._placeTopMiddle(self: any)
 	self._clock.Position = UDim2.new(0.5, 0, 0, clockTop)
 	local bannerTop = clockTop + CLOCK_H + 2
 	self._banner.Position = UDim2.new(0.5, 0, 0, bannerTop)
-	self._dayCard.AnchorPoint = Vector2.new(0.5, 0)
-	self._dayCard.Position = UDim2.new(0.5, 0, 0, bannerTop + self:_bannerHeight() + 4)
+	-- Review-QA 2026-11-13 (a small PC window): the card opens centred, but never over the left menu
+	local scale = Scale.get()
+	local width = if scale > 0 then self._root.AbsoluteSize.X / scale else 0
+	local left = math.max(width / 2 - DAY_CARD_W / 2, self:_leftClear())
+	self._dayCard.AnchorPoint = Vector2.new(0, 0)
+	self._dayCard.Position =
+		UDim2.fromOffset(math.floor(left), math.floor(bannerTop + self:_bannerHeight() + 4))
+	self:_queueFit()
+end
+
+-- the strip's fit, once its words are measured (a frame on)
+function HUD._queueFit(self: any)
+	if self._fitQueued then
+		return
+	end
+	self._fitQueued = true
+	task.defer(function()
+		self._fitQueued = false
+		self:_fitBanner()
+	end)
 end
 
 -- #2885: the banner's height from its shown lines (its automatic size can lag a frame behind a change).
@@ -3913,6 +4038,9 @@ function HUD._paintBanner(self: any)
 	if not shown then
 		self._dayCard.Visible = false
 	end
+	if most < math.min(#wanted, BANNER_MOST) then
+		self:_queueFit() -- a dropped piece looks for its way back (HUD._fitBanner)
+	end
 	-- Derek 2026-11-13: through a catch, a rescue or the Rummage Bin's roll it stays down. A repaint mid-catch (the
 	-- event's countdown ticks each second) used to set it back, and the catch's focus hid it again: the flash.
 	if self._catching or next(self._bannerHold) ~= nil then
@@ -3982,21 +4110,16 @@ function HUD._placeBanner(self: any)
 	end
 	left = math.max(left, self:_leftClear()) -- clear of the menu grid and its arrow tab
 	banner.Position = UDim2.fromOffset(math.floor(left), math.floor(top))
-	if not self._fitQueued then
-		self._fitQueued = true
-		task.defer(function()
-			self._fitQueued = false
-			self:_fitBanner()
-		end)
-	end
+	self:_queueFit()
 	self._dayCard.AnchorPoint = Vector2.new(0, 0)
 	self._dayCard.Position =
 		UDim2.fromOffset(math.floor(left), math.floor(top + self:_bannerHeight() + 4))
 end
 
--- Derek 2026-11-13 (touch): the strip stops short of what sits to its right on its own height (the top right icons,
--- the goal card and its tab). Once its words are measured, a strip that runs into one drops its last piece (the card
--- a tap opens still has it) until it fits or one is left.
+-- Derek 2026-11-13: the strip stops short of what sits beside it on its own height (the top right icons, the goal card
+-- and its tab, on a PC the left menu too, as it is centred there). Once its words are measured, a strip that runs into
+-- one drops its last piece (the card a tap opens still has it) until it fits or one is left. Review-QA 2026-11-13:
+-- by the room it really has, on a PC as on touch, so a small PC window fits too.
 function HUD._fitBanner(self: any)
 	local banner: Frame? = self._banner
 	if self._gone or banner == nil or not banner.Visible then
@@ -4004,8 +4127,19 @@ function HUD._fitBanner(self: any)
 	end
 	local root: Frame = self._root
 	local at, size = banner.AbsolutePosition, banner.AbsoluteSize
-	local right = at.X + size.X
-	local room = math.huge
+	local middle = at.X + size.X / 2
+	local whole = root.AbsoluteSize
+	-- a window that changed size gets the whole room again, and fits from there
+	if self._fitWidth ~= whole.X then
+		self._fitWidth = whole.X
+		if self._bannerFit < BANNER_MOST then
+			self._bannerFit = BANNER_MOST
+			self:_paintBanner()
+			self:_layoutRight()
+			return
+		end
+	end
+	local room, floor = math.huge, -math.huge
 	for _, child in root:GetChildren() do
 		if
 			child ~= banner
@@ -4015,19 +4149,55 @@ function HUD._fitBanner(self: any)
 		then
 			local piece = child :: GuiObject
 			local pAt, pSize = piece.AbsolutePosition, piece.AbsoluteSize
-			local beside = pAt.X > at.X + size.X / 2 and pSize.X > 0 and pSize.Y > 0
+			-- a holder as big as half the screen is a layer, not a piece in the strip's way
+			local piecelike = pSize.X > 0
+				and pSize.Y > 0
+				and pSize.X < whole.X / 2
+				and pSize.Y < whole.Y * 0.6
 			local level = pAt.Y < at.Y + size.Y and pAt.Y + pSize.Y > at.Y
-			if beside and level then
-				room = math.min(room, pAt.X)
+			if piecelike and level then
+				if pAt.X > middle then
+					room = math.min(room, pAt.X)
+				elseif not TOUCH and pAt.X + pSize.X < middle then
+					floor = math.max(floor, pAt.X + pSize.X)
+				end
 			end
 		end
 	end
-	room -= Theme.sizes.gap * Scale.get()
-	local inStrip = math.min(#self:_bannerShown(), BANNER_MOST, self._bannerFit)
-	if right > room and inStrip > 1 then
+	local scale = Scale.get()
+	local gap = Theme.sizes.gap * scale
+	local shown = self:_bannerShown()
+	local inStrip = math.min(#shown, BANNER_MOST, self._bannerFit)
+	-- each piece's width while it is in the strip, so a dropped one can be measured for its way back
+	local widths: { [GuiObject]: number } = self._pieceW or {}
+	self._pieceW = widths
+	for _, line in shown do
+		if line.Parent == banner then
+			widths[line] = line.AbsoluteSize.X
+		end
+	end
+	local right = at.X + size.X
+	if (right > room - gap or at.X < floor + gap) and inStrip > 1 then
 		self._bannerFit = inStrip - 1
 		self:_paintBanner()
-		self:_placeBanner()
+		self:_layoutRight()
+		return
+	end
+	-- Review-QA 2026-11-13: a piece dropped for something that has since gone (a "Triple Day!" banner, a smaller
+	-- window) comes back once there is room for it again, with a little to spare so it never flickers in and out
+	local nextPiece = shown[inStrip + 1]
+	if nextPiece == nil or inStrip >= BANNER_MOST then
+		return
+	end
+	local need = (widths[nextPiece] or BANNER_GUESS_W * scale)
+		+ (BANNER_ITEM_GAP + BANNER_SPARE) * scale
+	local grows = if TOUCH
+		then right + need <= room - gap
+		else right + need / 2 <= room - gap and at.X - need / 2 >= floor + gap
+	if grows then
+		self._bannerFit = inStrip + 1
+		self:_paintBanner()
+		self:_layoutRight()
 	end
 end
 
@@ -4435,12 +4605,15 @@ function HUD._tradeLockedNote(self: any)
 	local scale = math.max(Scale.get(), 0.01)
 	local x = (tile.AbsolutePosition.X + tile.AbsoluteSize.X / 2 - root.AbsolutePosition.X) / scale
 	local y = (tile.AbsolutePosition.Y + tile.AbsoluteSize.Y - root.AbsolutePosition.Y) / scale + 4
-	local note: TextLabel = Create("TextLabel", {
+	-- #3990 (Review-QA on a PC): a button, so a tap on the note never reaches the goal card's Rank up under it (a
+	-- label lets taps through, even with Active)
+	local note: TextButton = Create("TextButton", {
 		Name = "LockedNote",
+		AutoButtonColor = false,
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromOffset(x, y),
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 26),
+		Size = UDim2.fromOffset(0, Scale.tapHeight(36)), -- a full tap height, now that it is a button
 		BackgroundColor3 = Theme.colors.ink,
 		BackgroundTransparency = 0.1,
 		FontFace = Theme.fonts.display,
@@ -5430,7 +5603,9 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 		local newKind = if state ~= nil then state.newKindGoal else nil
 		if state ~= nil and type(newKind) == "number" and state.carrying == nil then
 			local title = NewKind.title(newKind, TOUCH)
-			return { title = title, lines = {}, chip = title }
+			-- #4098: Tier 2 reads as the goal from the second cat on, with the name of what it opens under the count
+			local opens = GoalLines.opens(self._nextTierName, TOUCH)
+			return { title = title, lines = if opens then { opens } else {}, chip = title }
 		end
 		return nil
 	end
@@ -5475,6 +5650,7 @@ end
 
 function HUD.destroy(self: any)
 	self._gone = true -- #3022: the second cat goal's timers stop here
+	self._callout:destroy()
 	self:_stopClock()
 	local shine: Tween? = self._storeShine
 	if shine then

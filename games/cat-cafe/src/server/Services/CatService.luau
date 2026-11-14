@@ -178,6 +178,10 @@ local lastRainbowToastAt: number? = nil -- os.clock() of this server's last rain
 local inRescue: (Player) -> boolean = function(_player: Player): boolean
 	return false
 end
+-- #4128 follow-up: the words a refusal uses while that check is true ("Finish the Rummage Bin first" on the bin's bar)
+local rescueText: (Player) -> string = function(_player: Player): string
+	return "Finish this rescue first"
+end
 
 local MAX_CIRCLES = Circles.maxCircles() -- #1884: the most circles any schedule holds; bounds the CatchPress index
 
@@ -1540,6 +1544,26 @@ local function wearBackpack(player: Player)
 	end
 end
 
+-- #4049: the worn Speed Shoes in their owner's two colour picks (the built colours with the switch off or nothing
+-- picked). The server colours the parts, so every player sees them.
+local function tintShoes(player: Player, worn: Instance?)
+	local character = player.Character
+	local folder = worn
+		or (if character ~= nil then character:FindFirstChild(SpeedShoes.WORN) else nil)
+	local profile = DataService.get(player)
+	if folder == nil or profile == nil then
+		return
+	end
+	BagColours.tint(
+		folder,
+		BagColours.picks(
+			if LiveFlagService.on(BagColours.FLAG) then profile.shoeColours else nil,
+			"shoes"
+		),
+		"shoes"
+	)
+end
+
 -- #4050: the Speed Shoes' owner wears them (SpeedShoes.wear) while the switch is on, at spawn, after the buy and
 -- whenever they came off (keepBackpack's check); every player sees them. Without them, or with the switch off, none.
 local function keepShoes(player: Player)
@@ -1562,6 +1586,7 @@ local function keepShoes(player: Player)
 	if want and AssetRegistry.has(SpeedShoes.ASSET) then
 		local folder = SpeedShoes.wear(AssetRegistry.clone(SpeedShoes.ASSET), character)
 		if folder ~= nil then
+			tintShoes(player, folder) -- #4049
 			folder.Parent = character
 		end
 	end
@@ -2235,7 +2260,7 @@ function startCatch(
 		return "Check in the cat you are carrying first"
 	end
 	if inRescue(player) then
-		return "Finish this rescue first"
+		return rescueText(player)
 	end
 	if inFlight(player) then
 		return "Land first"
@@ -3642,6 +3667,10 @@ function CatService.keepShoes(player: Player)
 	keepShoes(player)
 end
 
+function CatService.tintShoes(player: Player)
+	tintShoes(player)
+end
+
 function CatService.wearBackpack(player: Player)
 	wearBackpack(player)
 end
@@ -3733,8 +3762,11 @@ function CatService.startCarry(
 end
 
 -- RescueService registers how to tell whether a player's rescue attempt is running.
-function CatService.setRescueCheck(check: (Player) -> boolean)
+function CatService.setRescueCheck(check: (Player) -> boolean, text: ((Player) -> string)?)
 	inRescue = check
+	if text ~= nil then
+		rescueText = text
+	end
 end
 
 -- Where strays and stuck cats live in the world (Workspace.World.Strays).
@@ -3760,7 +3792,7 @@ function CatService.busyReason(player: Player, hopOk: boolean?): string?
 		return "Finish this catch first"
 	end
 	if inRescue(player) then
-		return "Finish this rescue first"
+		return rescueText(player)
 	end
 	return nil
 end

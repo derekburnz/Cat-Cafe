@@ -35,13 +35,13 @@ end
 
 -- names of buttons (or of the Button frame round their Face) a window's first selection skips: its X, and the arrow tabs that fold HUD rows
 local SKIP: { [string]: boolean } = { Close = true, MenuFold = true, TravelFold = true }
--- #4224 (Review-QA controller pass): a button (or the Button frame round its Face) with this attribute is not a
--- window's first selection while another button is there, like Potions' "Use all potions" over the potions' own Use
-GamepadNav.NOT_FIRST = "PadNotFirst"
--- #4224 (Review-QA controller pass): the frames that hold a window's tabs for L1 / R1. Most windows name theirs Tabs;
--- the Store's tab column is Rail, the Decor chips' row Chips and the Bait Bowl's two bowls Bowls
-GamepadNav.TAB_ROWS =
-	table.freeze({ Tabs = true, Rail = true, Chips = true, Bowls = true }) :: { [string]: boolean }
+-- #4224: the frames that hold a window's tab row (a tabbed window's Tabs, the Store's Rail, the Bait Bowl's Bowls,
+-- the Decor shop's Chips): L1/R1 step through them, and a window's first selection lands below them
+local TAB_ROWS: { [string]: boolean } = { Tabs = true, Rail = true, Bowls = true, Chips = true }
+-- #4224 (Review-QA's controller pass): buttons a window's first selection passes over when it has another, so a
+-- habit A never spends every potion ("Use all potions", Use all) or collects a station strip in place of Launch
+local SKIP_FIRST: { [string]: boolean } =
+	{ UseAllPotions = true, DrinkAll = true, UseAll = true, Collect = true }
 local ROW = 12 -- pixels: buttons whose tops are this close count as one row, read left to right
 
 local GAMEPADS: { [Enum.UserInputType]: boolean } = {
@@ -128,16 +128,20 @@ end
 -- the tabs; a window of only tabs lands on its first tab.
 function GamepadNav.first(root: Instance): GuiButton?
 	local buttons = GamepadNav.buttons(root)
-	local function notFirst(button: GuiButton): boolean
-		local parent = button.Parent
-		return button:GetAttribute(GamepadNav.NOT_FIRST) == true
-			or (parent ~= nil and parent:GetAttribute(GamepadNav.NOT_FIRST) == true)
-	end
 	local fallback: GuiButton? = nil
 	for _, button in buttons do
-		local tabs = button:FindFirstAncestor("Tabs")
-		if tabs == nil or not tabs:IsDescendantOf(root) then
-			if not notFirst(button) then
+		local onTabs = false
+		local at: Instance? = button.Parent
+		while at ~= nil and at ~= root do
+			if TAB_ROWS[at.Name] then
+				onTabs = true
+				break
+			end
+			at = at.Parent
+		end
+		if not onTabs then
+			local face = if button.Parent ~= nil then (button.Parent :: Instance).Name else ""
+			if not (SKIP_FIRST[button.Name] or SKIP_FIRST[face]) then
 				return button
 			end
 			fallback = fallback or button
@@ -232,22 +236,29 @@ function GamepadNav.card(
 	GamepadNav.pushBack(id, frame, close)
 	local before: GuiObject? = nil
 	local took = false
+	local done = false
 	if GamepadNav.isGamepad() then
-		-- a frame later, once the card has laid out and shows
+		-- a frame later, once the card has laid out and shows, and a few times more while it slides in (Review-QA:
+		-- the invite card's first try could miss)
 		task.defer(function()
-			if not GamepadNav.shown(frame) then
-				return
-			end
-			local target = if main ~= nil and GamepadNav.shown(main)
-				then main
-				else GamepadNav.first(frame)
-			if target ~= nil then
-				before = GuiService.SelectedObject
-				took = GamepadNav.select(target)
+			for _ = 1, 6 do
+				if done then
+					return
+				end
+				local target = if main ~= nil and GamepadNav.shown(main)
+					then main
+					else GamepadNav.first(frame)
+				if target ~= nil and GamepadNav.shown(target) then
+					before = GuiService.SelectedObject
+					took = GamepadNav.select(target)
+					if took then
+						return
+					end
+				end
+				task.wait(0.1)
 			end
 		end)
 	end
-	local done = false
 	return function()
 		if done then
 			return
@@ -278,7 +289,7 @@ function GamepadNav.tabs(root: Instance): (Instance?, { GuiButton })
 	local rows: { GuiObject } = {}
 	for _, descendant in root:GetDescendants() do
 		if
-			GamepadNav.TAB_ROWS[descendant.Name] == true
+			TAB_ROWS[descendant.Name]
 			and descendant:IsA("GuiObject")
 			and GamepadNav.shown(descendant)
 		then
@@ -339,6 +350,14 @@ function GamepadNav.stepTab(root: Instance, step: number): boolean
 	end
 	if onRow then
 		GamepadNav.select(target)
+		-- a window that rebuilds or re-picks its tab row on a switch: land on the new tab once it has
+		task.defer(function()
+			local _, now = GamepadNav.tabs(root)
+			local tab = now[index]
+			if tab ~= nil and GuiService.SelectedObject ~= tab then
+				GamepadNav.select(tab)
+			end
+		end)
 	else
 		task.defer(function()
 			local now = GuiService.SelectedObject

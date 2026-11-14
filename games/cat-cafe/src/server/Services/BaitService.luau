@@ -156,8 +156,11 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	-- server hop or sunrise never moves it
 	local night = ClockService.phase() == "night"
 	-- #1895: the account's first bait comes within 2 minutes (luresUsed counts up below)
-	local wait =
-		Bait.firstWait(Economy.baitWaitSeconds(profile, night, now), profile.stats.luresUsed)
+	-- #4195: Bowl Frenzy (an admin event's bowlSpeed) running now divides the wait, fixed in readyAt like the rest
+	local wait = Bait.firstWait(
+		Bait.eventWait(Economy.baitWaitSeconds(profile, night, now), EventService.bowlSpeed()),
+		profile.stats.luresUsed
+	)
 	-- F73: a Gold Rush Potion's luck and a Quick Bait Potion's speed running now are fixed in with the Index's
 	local kinds = ClockService.dayKinds() -- #1572: a Golden or Rainbow Day lifts the chances fixed in now
 	local goldChance = Potions.baitGoldChance(

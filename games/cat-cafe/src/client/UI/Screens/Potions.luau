@@ -322,8 +322,6 @@ function Potions.new(callbacks: Callbacks): Potions
 			self:_askAll()
 		end,
 	})
-	-- #4224: a controller lands on a potion's own Use first, not on spending every potion
-	self._allButton.instance:SetAttribute("PadNotFirst", true)
 	-- its confirm card, over the window
 	self._allAsk = Create("TextButton", {
 		Name = "UseAllConfirm",

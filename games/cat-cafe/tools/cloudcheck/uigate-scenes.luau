@@ -12049,7 +12049,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(0.4)
 		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 		local title = ask:FindFirstChild("Title", true)
-		assert(title.Text == "Get the Starter Bundle", "uigate: the Starter card reads " .. title.Text .. " (#4174)")
+		assert(title.Text == "Starter Bundle", "uigate: the Starter card reads " .. title.Text .. " (#4174)")
 		assert(title.TextFits, "uigate: the Starter card's title does not fit (#4174)")
 		local buy = ask:FindFirstChild("Choice_buy", true)
 		assert(buy, "uigate: the Starter card has no Buy button (#4174)")
@@ -12061,7 +12061,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local picture = ask:FindFirstChild("Picture", true) :: GuiObject
 		assert(picture and picture.Visible and picture.AbsoluteSize.X >= 56, "uigate: the Starter card has no picture (#4174)")
 		local line = ask:FindFirstChild("Line", true) :: TextLabel
-		assert(line and line.Visible and line.Text == "Epic cat Sprinkles, 2x Money and 20 potions" and line.TextFits, "uigate: the Starter card's line does not fit (#4174)")
+		-- the line shows on tablets and PC; a phone's card leaves it out (#4194)
+		assert(line and line.Text == "Epic cat Sprinkles, 2x Money and 20 potions" and (not line.Visible or line.TextFits), "uigate: the Starter card's line does not fit (#4174)")
 		UIShim.advance(30)
 		local holder = ask:FindFirstChild("Holder", true) :: GuiObject
 		assert(holder.Visible and said[2] == nil, "uigate: the Starter card went away by itself (#4174)")

@@ -22,7 +22,7 @@ StarterSuggest.TELEMETRY = "starter_suggest" -- TelemetryReport name; values OUT
 -- shown, then one of: closed (the X), ignored (kept for old reports; it no longer runs out), buy (Buy pressed),
 -- hidden (something took the card)
 StarterSuggest.OUTCOMES = { "shown", "closed", "ignored", "buy", "hidden" }
-StarterSuggest.TITLE = "Get the Starter Bundle" -- one line: two reached over the menu tab on a small phone
+StarterSuggest.TITLE = "Starter Bundle" -- Design-Agent: beside the picture on a phone only the short title fits
 
 -- The session second the card is due at, for a roll in [0, 1).
 function StarterSuggest.dueAt(roll: number): number

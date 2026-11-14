@@ -328,6 +328,12 @@ end
 
 -- The odds, always on the card: two short lines at `top`.
 local function oddsLines(parent: Instance, top: number, z: number)
+	-- drawn again when the Secret switch flips (MysticPoolLogic.secretChanged): the old lines go first
+	for _, child in parent:GetChildren() do
+		if string.sub(child.Name, 1, 8) == "OddsLine" then
+			child:Destroy()
+		end
+	end
 	for index, words in MysticPoolLogic.oddsLines() do
 		text({
 			Name = if index == 1 then "OddsLine" else "OddsLine" .. index,
@@ -347,6 +353,12 @@ end
 -- rarity on, seven pills in two rows of four across the whole width; the "equally likely" line is then on the Odds
 -- list only (its Equal line), as the pills need the room.
 local function oddsPills(parent: Instance, top: number, z: number)
+	for _, name in { "OddsPills", "OddsNote" } do
+		local old = parent:FindFirstChild(name)
+		if old then
+			old:Destroy()
+		end
+	end
 	local rows = MysticPoolLogic.odds()
 	local perRow = math.max(3, math.ceil(#rows / 2))
 	local wide = perRow > 3
@@ -604,7 +616,15 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		TextColor3 = PAL.text,
 		Parent = content,
 	})
-	oddsPills(content, if short then lineTop else lineTop + 18, 1)
+	-- the pills sit in their own layer, made here, so drawing them again (secretChanged) keeps them under the sheets
+	local pillsLayer: Frame = Create("Frame", {
+		Name = "OddsLayer",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 1,
+		Parent = content,
+	})
+	oddsPills(pillsLayer, if short then lineTop else lineTop + 18, 1)
 	-- the station's free tokens
 	self._tokens = text({
 		Name = "Tokens",
@@ -941,66 +961,83 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 			odds.Visible = false
 		end,
 	})
-	local rows = MysticPoolLogic.odds()
-	-- #4063 Studio: with the Secret row there are 7, so the rows close up to fit the sheet with the Equal line under
-	-- them (every odd stays in view, monetization-policy 2.1); 6 rows keep the 30 px pitch
-	local pitch = math.min(30, math.floor((contentH - buttonH - 8 - 44) / #rows))
-	for index, row in rows do
-		local top = buttonH + 8 + (index - 1) * pitch
-		local line: Frame = Create("Frame", {
-			Name = row.name,
-			BackgroundColor3 = CARD.card,
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(0, top),
-			Size = UDim2.new(1, 0, 0, pitch - 4),
+	-- the rows and the Equal line, drawn again when the Secret switch flips (old rows carry the OddsRow attribute)
+	local function oddsRows()
+		for _, child in odds:GetChildren() do
+			if child:GetAttribute("OddsRow") then
+				child:Destroy()
+			end
+		end
+		local rows = MysticPoolLogic.odds()
+		-- #4063 Studio: with the Secret row there are 7, so the rows close up to fit the sheet with the Equal line under
+		-- them (every odd stays in view, monetization-policy 2.1); 6 rows keep the 30 px pitch
+		local pitch = math.min(30, math.floor((contentH - buttonH - 8 - 44) / #rows))
+		for index, row in rows do
+			local top = buttonH + 8 + (index - 1) * pitch
+			local line: Frame = Create("Frame", {
+				Name = row.name,
+				BackgroundColor3 = CARD.card,
+				BorderSizePixel = 0,
+				Position = UDim2.fromOffset(0, top),
+				Size = UDim2.new(1, 0, 0, pitch - 4),
+				ZIndex = 12,
+				Parent = odds,
+			}, {
+				Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+				Create("Frame", {
+					Name = "Dot",
+					AnchorPoint = Vector2.new(0, 0.5),
+					BackgroundColor3 = Color3.fromHex(row.color),
+					BorderSizePixel = 0,
+					Position = UDim2.new(0, 10, 0.5, 0),
+					Size = UDim2.fromOffset(14, 14),
+					ZIndex = 13,
+				}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
+			})
+			line:SetAttribute("OddsRow", true)
+			text({
+				Name = "Name",
+				Position = UDim2.fromOffset(34, 0),
+				Size = UDim2.new(1, -110, 1, 0),
+				FontFace = Theme.fonts.bodyBold,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				Text = row.name,
+				ZIndex = 13,
+				Parent = line,
+			})
+			text({
+				Name = "Percent",
+				AnchorPoint = Vector2.new(1, 0),
+				Position = UDim2.new(1, -12, 0, 0),
+				Size = UDim2.new(0, 70, 1, 0),
+				FontFace = Theme.fonts.bodyBold,
+				TextXAlignment = Enum.TextXAlignment.Right,
+				Text = row.label,
+				ZIndex = 13,
+				Parent = line,
+			})
+		end
+		local equal = text({
+			Name = "Equal",
+			Position = UDim2.fromOffset(0, buttonH + 8 + #rows * pitch + 4),
+			Size = UDim2.new(1, 0, 0, 34),
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = PAL.subtext,
+			TextWrapped = true,
+			TextTruncate = Enum.TextTruncate.None,
+			Text = MysticPoolLogic.EQUAL_LINE .. " Rolls cost golden fish or Trait Tokens.",
 			ZIndex = 12,
 			Parent = odds,
-		}, {
-			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
-			Create("Frame", {
-				Name = "Dot",
-				AnchorPoint = Vector2.new(0, 0.5),
-				BackgroundColor3 = Color3.fromHex(row.color),
-				BorderSizePixel = 0,
-				Position = UDim2.new(0, 10, 0.5, 0),
-				Size = UDim2.fromOffset(14, 14),
-				ZIndex = 13,
-			}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
 		})
-		text({
-			Name = "Name",
-			Position = UDim2.fromOffset(34, 0),
-			Size = UDim2.new(1, -110, 1, 0),
-			FontFace = Theme.fonts.bodyBold,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			Text = row.name,
-			ZIndex = 13,
-			Parent = line,
-		})
-		text({
-			Name = "Percent",
-			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.new(1, -12, 0, 0),
-			Size = UDim2.new(0, 70, 1, 0),
-			FontFace = Theme.fonts.bodyBold,
-			TextXAlignment = Enum.TextXAlignment.Right,
-			Text = row.label,
-			ZIndex = 13,
-			Parent = line,
-		})
+		equal:SetAttribute("OddsRow", true)
 	end
-	text({
-		Name = "Equal",
-		Position = UDim2.fromOffset(0, buttonH + 8 + #rows * pitch + 4),
-		Size = UDim2.new(1, 0, 0, 34),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
-		TextWrapped = true,
-		TextTruncate = Enum.TextTruncate.None,
-		Text = MysticPoolLogic.EQUAL_LINE .. " Rolls cost golden fish or Trait Tokens.",
-		ZIndex = 12,
-		Parent = odds,
-	})
+	oddsRows()
+	-- #4314 follow-up: Secret 0.1% shows (or goes) on every odds display as soon as the switch flips
+	self._secretChanged = MysticPoolLogic.secretChanged(function()
+		oddsPills(pillsLayer, if short then lineTop else lineTop + 18, 1)
+		oddsLines(choice, 30 + cardH + GAP + buttonH + 4 + 6, 9)
+		oddsRows()
+	end)
 
 	-- #4006 (Derek 2026-11-13: "instead of making this the pop up when opening mystic pool have the back open up on the
 	-- side of screen prompting people to buy it until they click a small X"): the Trait Token offer is a slim cream
@@ -1957,6 +1994,7 @@ function MysticPool.destroy(self: any)
 	self:_stopPlay()
 	self:_clearRows()
 	self._searchChanged:Disconnect()
+	self._secretChanged:Disconnect()
 	self._scrolled:Disconnect()
 	self._skipPressed:Disconnect()
 	for _, chip: Button.Button in self._sorts do

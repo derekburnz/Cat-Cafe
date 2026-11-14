@@ -18,6 +18,7 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Config = require(Shared:WaitForChild("Config"))
+local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Shove = require(Shared:WaitForChild("Shove"))
@@ -110,6 +111,17 @@ local function inOpenArea(): boolean
 	if
 		character:GetAttribute("Launching") == true
 		or character:GetAttribute("CloudHopAt") ~= nil
+	then
+		return false
+	end
+	-- Review-QA's first 5 minutes on a phone (2026-11-14): a player who has not checked in a first cat cannot tackle
+	-- (Shove.tackleRefusal's newcomer line), so the button stays away and never covers the tutorial cat or takes its tap
+	if
+		(state.tutorialStep or 0) < Config.TutorialGuaranteedStrayStep
+		and LiveFlags.shown(
+			"deviceFixes",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "deviceFixes")
+		)
 	then
 		return false
 	end

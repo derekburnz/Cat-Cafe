@@ -173,4 +173,42 @@ return function()
 			expect((model :: any).P3.Color).to.equal(BagColours.BUILT.trim[1])
 		end)
 	end)
+
+	describe("shoes (#4049)", function()
+		it("has its own twelve with teal and mint as the built picks", function()
+			expect(#BagColours.SHOE_LIST).to.equal(12)
+			expect(BagColours.info("shoes").item).to.equal("speed_shoes")
+			expect(BagColours.kindOf("speed_shoes")).to.equal("shoes")
+			expect(BagColours.kindOf("backpack")).to.equal("bag")
+			expect(BagColours.kindOf("long_net")).to.equal(nil)
+			expect(BagColours.valid("teal", "shoes")).to.equal(true)
+			expect(BagColours.valid("teal")).to.equal(false)
+			expect(BagColours.valid("rose", "shoes")).to.equal(false)
+			local picks = BagColours.picks(nil, "shoes")
+			expect(picks.main).to.equal("teal")
+			expect(picks.trim).to.equal("mint")
+		end)
+
+		it("keeps nothing for the built picks and refuses the bag's own ids", function()
+			expect(BagColours.sanitize({ main = "teal", trim = "mint" }, "shoes")).to.equal(nil)
+			expect(BagColours.sanitize({ main = "rose", trim = "mint" }, "shoes")).to.equal(nil)
+			local kept = BagColours.sanitize({ main = "navy", trim = "honey" }, "shoes")
+			expect(kept and kept.main).to.equal("navy")
+		end)
+
+		it("knows the teal upper and mint trim, and leaves the sole", function()
+			expect(BagColours.slotOf(Color3.fromHex("1FA58F"), "shoes")).to.equal("main")
+			expect(BagColours.slotOf(Color3.fromHex("8FD3C1"), "shoes")).to.equal("trim")
+			expect(BagColours.slotOf(Color3.fromHex("FFF9F2"), "shoes")).to.equal(nil)
+			expect(BagColours.slotOf(Color3.fromHex("9479BE"), "shoes")).to.equal(nil)
+			local navy = BagColours.row("navy")
+			expect(
+				BagColours.colorFor(
+					Color3.fromHex("1FA58F"),
+					{ main = "navy", trim = "mint" },
+					"shoes"
+				)
+			).to.equal(navy and navy.color)
+		end)
+	end)
 end

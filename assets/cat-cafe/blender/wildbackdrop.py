@@ -26,6 +26,8 @@ Built against Config.World's v4 (F84) sizes; each F85 long rectangle gets its ow
 (CatCafe_Park_BackdropF85 round the 120 x 310 Park, CatCafe_Neighbourhood_BackdropF85 round the 180 x 430 Neighbourhood,
 CatCafe_Woods_BackdropF85 round the 160 x 490 Woods). Tier 6 and 7 (#2651): CatCafe_Desert_Backdrop in dunes, mesas and
 a far pyramid on sand, CatCafe_Ruins_Backdrop in jungle hills, grey cliffs, broken columns and a far temple on earth.
+Tier 8 (#3997): CatCafe_Snowy_Backdrop in snow drifts and snowy firs under a ring of snow-capped grey mountains, a
+frozen pond outside the west wall and one great peak past the summit end.
 """
 
 import math
@@ -58,6 +60,7 @@ AREAS = {
     "SewerF85": (60.0, 285.0, "works"),       # F85's long Sewer, 120 x 570 (sewerf85.py)
     "Desert": (75.0, 280.0, "desert"),        # Tier 6 (#2651), 150 x 560 (desertset.py)
     "Ruins": (70.0, 300.0, "ruins"),          # Tier 7 (#2651), 140 x 600 (ruinsset.py)
+    "Snowy": (75.0, 280.0, "snowy"),          # Tier 8 (#3997), 150 x 560 (snowyset.py)
 }
 NAMES = {"ParkF85": "CatCafe_Park_BackdropF85", "NeighbourhoodF85": "CatCafe_Neighbourhood_BackdropF85",
          "WoodsF85": "CatCafe_Woods_BackdropF85",
@@ -942,8 +945,79 @@ def theme_ruins(f, P):
         rb.span((x - 7.6, TOP + 22.0, tz - 7.6), (x + 7.6, TOP + 23.5, tz + 7.6), "fur_dusty")
 
 
+# ------------------------------------------------------------------------------------------------- snowy --
+SNOW_RGB = (240, 244, 248)                     # the Snowy Mountain's plate and drifts (milk, as Snow)
+DRIFT_RGB = (226, 233, 241)                    # the near drifts, a touch blue so their shapes read
+PEAK_RGB = (128, 138, 152)                     # the far mountains' rock (concrete), snow-capped
+
+
+def snow_fir(rb, f, x, z, s=1.0, leaf="leaf_dark"):
+    """A fir in snow: the fir's trunk and three tiers, a white cap on each tier."""
+    fir(rb, f, x, z, s, leaf)
+    y = f.gy(x, z) - 0.3 * s
+    for r, h in ((2.2, 4.9), (1.5, 7.1), (0.8, 8.8)):
+        rb.ball((x, y + h * s, z), r * s, "milk", scale=(1.0, 0.45, 1.0))
+
+
+def snow_rock(rb, f, x, z, s=1.0, leaf=None):
+    """A grey boulder with snow on its top."""
+    y = f.gy(x, z)
+    rb.ball((x, y + 0.6 * s, z), 2.2 * s, "concrete", scale=(1.3, 0.75, 1.0))
+    rb.ball((x, y + 1.7 * s, z), 1.9 * s, "milk", scale=(1.2, 0.35, 0.9))
+
+
+def frozen_pond(rb, f, cx, cz, r):
+    """A round frozen pond on the snow outside the wall: a ring of snow, the ice in two blues, a few firs."""
+    y = f.gy(cx, cz)
+    rb.cyl((cx, y + 0.05, cz), r + 2.0, 0.3, "milk", segments=20)
+    rb.cyl((cx, y + 0.12, cz), r, 0.3, "pastel_sky", segments=20)
+    rb.cyl((cx + r * 0.2, y + 0.18, cz - r * 0.15), r * 0.45, 0.3, "fish_belly", segments=14)
+    for k in range(5):
+        a = 2 * math.pi * (k + 0.3) / 5
+        snow_fir(rb, f, cx + (r + 6.0) * math.cos(a), cz + (r + 6.0) * math.sin(a), 1.4 + 0.3 * (k % 2))
+
+
+def _snow_caps(f, P, hills, over, k=0.34):
+    """A snow cap on every hill rising over `over`, sunk into its top like the Woods' caps."""
+    for h in hills:
+        if h.rise > over:
+            P["snow"].b.ico(RB.p(h.x, h.b * 0.86 - h.rise * Hill.SINK, h.z), 1.0, "offwhite", subdivisions=2,
+                            scale=(h.a * k, h.c * k, h.b * 0.17), rot=(h.turn, "Z"))
+
+
+def theme_snowy(f, P):
+    # snow to the horizon, no grass: low drifts by the walls, snowy firs in two belts, grey peaks with snow caps
+    # behind, a frozen pond outside the west wall and one great peak past the summit end
+    near = ring(f, 50.0, 40.0, (36.0, 24.0, 3.5, 8.0), 91)
+    far = ring(f, 210.0, 88.0, (80.0, 56.0, 55.0, 110.0), 92, corner=180.0)
+    great = Hill(0.0, f.ez1 + 175.0, 120.0, 95.0, 160.0, 0.0)
+    f.hills = near + far + [great]
+    for h in near:
+        h.add(P["hills"], "milk")
+    for h in far + [great]:
+        h.add(P["far"], "concrete")
+    _snow_caps(f, P, far, 50.0)
+    _snow_caps(f, P, [great], 0.0, k=0.42)
+    rb = P["rb"]
+    pond = (-(f.ex + 46.0), f.cz - 70.0, 18.0)
+    leaves = ("leaf_dark", "paw_woods")
+    for i, (x, z, nx, nz) in enumerate(f.around(10.0, 13.0, 93, wobble=3.0, shift=4.0)):
+        if f.out(x, z) < KEEP + 3 or math.hypot(x - pond[0], z - pond[1]) < pond[2] + 10.0:
+            continue
+        if _hash(i, 94) < 0.8:
+            snow_fir(rb, f, x, z, 1.5 + 0.4 * _hash(i, 95), leaves[i % 2])
+        else:
+            snow_rock(rb, f, x, z, 1.0 + 0.6 * _hash(i, 96))
+    for i, (x, z, nx, nz) in enumerate(f.around(27.0, 17.0, 97, wobble=5.0, shift=6.0)):
+        if f.out(x, z) < KEEP + 3 or math.hypot(x - pond[0], z - pond[1]) < pond[2] + 10.0:
+            continue
+        snow_fir(rb, f, x, z, 1.9 + 0.5 * _hash(i, 98), leaves[(i + 1) % 2])
+    on_hills(rb, f, near, 2, 99, 2.0, plant=snow_fir, leaves=leaves)
+    frozen_pond(rb, f, *pond)
+
+
 THEMES = {"park": theme_park, "forest": theme_forest, "houses": theme_houses, "city": theme_city, "works": theme_works,
-          "desert": theme_desert, "ruins": theme_ruins}
+          "desert": theme_desert, "ruins": theme_ruins, "snowy": theme_snowy}
 
 
 def builder(area, A, H, theme):
@@ -960,6 +1034,10 @@ def builder(area, A, H, theme):
         _look(n + "_Ground", EARTH_RGB, "Ground")
         _look(n + "_Hills", STONY_RGB, "Ground")
         _look(n + "_HillsFar", CLIFF_RGB, "Rock")
+    elif theme == "snowy":                      # #3997: snow to the horizon, grey rock peaks with snow caps
+        _look(n + "_Ground", SNOW_RGB, "Snow")
+        _look(n + "_Hills", DRIFT_RGB, "Snow")
+        _look(n + "_HillsFar", PEAK_RGB, "Rock")
     _look(n + "_Snow", (240, 244, 248), "Snow")
     _look(n + "_Road", ASPHALT_RGB if theme != "works" else (150, 150, 150), "Asphalt" if theme != "works" else "Concrete")
 
@@ -967,7 +1045,7 @@ def builder(area, A, H, theme):
         f = Frame(A, H)
         P = {k: RB() for k in ("rb", "ground", "hills", "far", "flowers", "lit", "road", "snow")}
         THEMES[theme](f, P)
-        swatch = {"desert": "fur_oat", "ruins": "paving_grout"}.get(theme, "fur_charcoal" if city else "leaf_green")
+        swatch = {"desert": "fur_oat", "ruins": "paving_grout", "snowy": "milk"}.get(theme, "fur_charcoal" if city else "leaf_green")
         ground(f, P["ground"], swatch)                                         # after the rings: it ends under them
         objs = [P["rb"].finalize(n, mat), P["ground"].finalize(n + "_Ground", mat)]
         for key, suffix in (("hills", "_Hills"), ("far", "_HillsFar"), ("flowers", "_Flowers"), ("lit", "_Bulbs"),

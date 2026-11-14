@@ -113,12 +113,12 @@ local Config = {
 		partyGuest = 4328065554528969, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e); made 2026-11-11 (#1957)
 		metOwner = 1802984077324671, -- #3324: "Met the Owner", for being in a server with the owner; made 2026-11-11 (badges.yml)
 		-- #3618 (badges-order.md): the six new badges, 0 until badges.yml makes them (5 a day, free only)
-		firstHome = 0,
-		firstUpgrade = 0,
-		firstFlight = 0,
-		cornerCafe = 0,
-		sunstoneCafe = 0,
-		wonderCafe = 0,
+		firstHome = 3818992250915779, -- Home Sweet Home (made 2026-11-13)
+		firstUpgrade = 708647132528539, -- Fixing Up
+		firstFlight = 771736196964132, -- Liftoff
+		cornerCafe = 4089080696855068, -- Corner Cafe
+		sunstoneCafe = 3966771842573409, -- Sunstone Cafe
+		wonderCafe = 0, -- tomorrow: five free badges a day
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).
@@ -724,7 +724,14 @@ local Config = {
 	UpdateEvents = {
 		{ id = "4470282858327573133", startsAt = 1794583800 }, -- "New Station Menus", 2026-11-13 15:30 UTC
 		{ id = "5904084271926215257", startsAt = 1794607200 }, -- "Speed Shoes + Secrets", 2026-11-13 22:00 UTC
-	} :: { { id: string, startsAt: number } },
+		-- #4026 (Derek 2026-11-13 23:12 UTC: "yes to update everything"): "Cat Outfit Packs!", 2026-11-14 22:00 UTC,
+		-- with its own words on the ask
+		{
+			id = "4733999329807827538",
+			startsAt = 1794693600,
+			title = "🔔 Next update Saturday: Cat Outfit Packs! Want a reminder when it lands?",
+		},
+	} :: { { id: string, startsAt: number, title: string? } },
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,

@@ -32,8 +32,17 @@ export type View = {
 	statusKind: string?,
 }
 
+-- Review-QA 2026-11-13: never "in 0:00": a cat out says so, and a spawn due this second (or a server timer just past)
+-- reads "any moment now!" until the next count starts
 local function countdown(t: number, kind: Pity.Kind): string
+	local known = Pity.known(kind)
+	if known ~= nil and known.live then
+		return kind .. " cat out now!"
+	end
 	local at = Pity.nextAt(t, kind)
+	if at - t < 1 then
+		return kind .. " cat: any moment now!"
+	end
 	return ("%s cat in %s"):format(kind, Pity.countdownText(at - t))
 end
 

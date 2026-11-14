@@ -548,6 +548,65 @@ Presets.emitters = {
 		lightEmission = 0.5,
 		rotSpeed = { -180, 180 },
 	},
+	-- The Rift Run (Effects/RiftRun): the rift's swirl of light, the warp stars rushing past the camera, a meteor's
+	-- fire trail and the sparks where it lands
+	riftSwirl = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Color3.fromRGB(255, 220, 245),
+			Color3.fromRGB(255, 120, 200),
+			Color3.fromRGB(150, 110, 255),
+		},
+		size = { 1.2, 0 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.8, 1.4 },
+		speed = { 3, 7 },
+		spread = 180,
+		rate = 40,
+		drag = 2,
+		lightEmission = 1,
+		rotSpeed = { -90, 90 },
+	},
+	riftStreak = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(210, 190, 255) },
+		size = { 0.25, 0.05 },
+		transparency = { 0.2, 1 },
+		lifetime = { 0.25, 0.4 },
+		speed = { 50, 70 },
+		spread = 35,
+		rate = 0,
+		lightEmission = 1,
+	},
+	riftMeteorFire = {
+		texture = Presets.textures.smoke,
+		colors = {
+			Color3.fromRGB(255, 230, 150),
+			Color3.fromRGB(255, 130, 60),
+			Color3.fromRGB(110, 50, 60),
+		},
+		size = { 2.6, 0.4 },
+		transparency = { 0.05, 1 },
+		lifetime = { 0.35, 0.6 },
+		speed = { 0, 1 },
+		spread = 180,
+		rate = 70,
+		lightEmission = 1,
+		rotSpeed = { -120, 120 },
+	},
+	riftSpark = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 240, 180), Color3.fromRGB(255, 140, 60) },
+		size = { 0.7, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.4, 0.8 },
+		speed = { 10, 18 },
+		spread = 70,
+		rate = 0,
+		acceleration = Vector3.new(0, -30, 0),
+		drag = 1,
+		lightEmission = 1,
+	},
 	-- The Ruins' falling water (Effects/RuinsWater): pale streaks sliding down a waterfall's or a fountain's sheet,
 	-- emitted through the sheet part itself, so the sheet reads as running water.
 	fallStreaks = {
@@ -4942,6 +5001,11 @@ Presets.mysticPool = {
 	-- `liftTurns` times as it goes, over the scene's `lift` seconds (Presets.bigTrait.scenes), and floats there
 	liftHeight = 9,
 	liftTurns = 2,
+	-- the Rift Run's hand back (Effects/RiftRun, MysticPool.roll's landing): the cat falls `landHeight` studs into
+	-- the pool over `landDrop` seconds and stays under `landHold` before it pops out
+	landHeight = 26,
+	landDrop = 0.55,
+	landHold = 0.35,
 	fadeBack = 1.5, -- seconds the liquid takes to go back to its rest colour
 	startFront = 1.2, -- studs in front of the pool's middle the cat starts, on the liquid's surface
 	sparkles = 14, -- the float's sparkle burst
@@ -5018,14 +5082,16 @@ Presets.bigTrait = {
 	-- the device budget's cap; `rays` on the screen; `shake` studs (off with Screen shake or Reduce Motion); `dim`
 	-- how dark the screen goes behind the title (0 none). The other numbers below are the Legendary's and shared.
 	sizes = {
+		-- Derek 2026-11-13 ("make legendary a smaller one less underwhelming"): two gold rings, more stars and
+		-- confetti, and longer, for the RARE, EPIC, LEGENDARY words before the title (`ladder`), each with a ring
 		legendary = {
-			big = 2.2,
-			screenSeconds = 1.8,
+			big = 3.6,
+			screenSeconds = 2.6,
 			beams = 1,
-			beamHeight = 22,
-			rings = 1,
-			stars = 24,
-			confetti = 40,
+			beamHeight = 26,
+			rings = 2,
+			stars = 32,
+			confetti = 56,
 			rays = 10,
 			shake = 0,
 			dim = 0,
@@ -5096,6 +5162,21 @@ Presets.bigTrait = {
 	-- draws a cat of `constellation` stars in the sky, `skyHeight` studs over the pool and `skyScale` studs a unit,
 	-- one star every `starGap` seconds. Audio ducks the music for the scene. Reduce Motion: none of it.
 	scenes = {
+		-- Derek 2026-11-13: a small scene for a Legendary too: thin bars, a warm tint, a short turn round the pool, a
+		-- spiral up the pillar and the cat hopping up spinning to `liftHeight` studs
+		legendary = {
+			bars = 0.07,
+			dim = 0.05,
+			saturation = -0.05,
+			tint = Color3.fromRGB(255, 240, 208),
+			orbit = 16,
+			orbitSeconds = 5,
+			spiral = 6,
+			spiralSeconds = 1,
+			lift = 1,
+			liftHeight = 5.5,
+			constellation = false,
+		},
 		mythic = {
 			bars = 0.1,
 			dim = 0.15,
@@ -5130,9 +5211,176 @@ Presets.bigTrait = {
 	-- #3942: another player's Mythic or Secret roll seen from nearby (BigTraitCut.watchPool): within `seenRadius`
 	-- studs, `seenDelay` seconds after the server's mark (about when the roller's pillar goes up), and only while
 	-- the mark is under `seenFresh` seconds old
+	-- Derek 2026-11-13: a Legendary's word ladder before its title, one word every `ladderGap` seconds (well under
+	-- three a second), each in its tier's colour
+	ladder = { "rare", "epic", "legendary" },
+	ladderGap = 0.42,
+	ladderWords = { rare = "RARE", epic = "EPIC", legendary = "LEGENDARY" },
+	ladderSize = 40,
 	seenRadius = 160,
 	seenDelay = 4,
 	seenFresh = 10,
+}
+
+-- The Rift Run (Derek 2026-11-13: "like a whole cutscene with the cat you have ... A rift opens and your cat jumps
+-- through it running away while dodging meteors ... flash Common/Flash uncommon/flash rare ... with increasing
+-- vfx/animation for each tier"; storyboard OK'd 20:09 UTC): a Mythic or Secret trait roll cuts to the Rift Realm, a
+-- floating stone path in a violet sky, built on this client far off the map at `origin`. The rolled cat lands on the
+-- path, runs it toward the rift while meteors fall beside it (it hops aside; nothing ever hits it), passes one gate a
+-- tier, Common up to the rolled one, each with a bigger burst, word and sound than the last, and leaps through the
+-- rift as it tears open. A pink then white flash takes it back to the pool (Effects/BigTraitCut's big moment and the
+-- card). Seconds on the cutscene's own clock from its start; studs from the path's start, along -Z.
+-- Model-Agent's kit (ReplicatedStorage.Assets.RiftRun, CatCafe_RiftRun_*) is used when it is there; otherwise the
+-- same pieces are drawn here in the same sizes. Nothing flashes faster than about once a second; Reduce Motion skips
+-- it all (the pool's own calm reveal plays). Switch `riftRun` (shared/LiveFlags).
+Presets.riftRun = {
+	origin = Vector3.new(6000, 1600, 6000), -- the path's start, on its walking top
+	tiers = { "common", "uncommon", "rare", "epic", "legendary", "mythic", "secret" }, -- a gate each, in order
+	words = {
+		common = "COMMON",
+		uncommon = "UNCOMMON",
+		rare = "RARE",
+		epic = "EPIC",
+		legendary = "LEGENDARY",
+		mythic = "MYTHIC",
+		secret = "SECRET",
+	},
+	pathLength = 120,
+	pathWidth = 10,
+	tileLength = 5,
+	gateFirst = 20, -- the first gate this far along, the rest `gateGap` apart
+	gateGap = 15,
+	gateWidth = 12, -- inside
+	gateHeight = 14,
+	ringBeyond = 12, -- the rift's ring this far past the path's end, upright
+	ringDiameter = 30,
+	ringLift = 15, -- its middle this high over the path's top
+	-- the open: white over the pool, then the cut to the realm and the white fading off it
+	flareIn = 0.45,
+	flareOut = 0.55,
+	dropAt = 0.6, -- the cat falls onto the path's start
+	dropSeconds = 0.35,
+	dropHeight = 7,
+	runStart = 1.5,
+	firstGateAt = 3,
+	gateGaps = { 1.15, 1.05, 1, 0.95, 0.9 }, -- seconds from each gate to the next, Common to Mythic: faster and faster
+	darkGap = 2.4, -- a Secret: from the Mythic gate to the white Secret gate, through the dark
+	darkIn = 0.7, -- the realm going black after the Mythic gate
+	leapFrom = 117, -- the leap starts here
+	endSpeed = 18, -- studs a second from the last gate to the leap
+	leapSeconds = 1.45, -- off the path's end up into the rift, slowed right down
+	leapArc = 5, -- studs over the straight line at the leap's top
+	pinkAt = 0.55, -- of the leap: the pink flash starts
+	whiteAt = 0.92, -- and is all white
+	backOut = 0.6, -- back at the pool, the white fading off
+	-- dodging: the cat hops aside to a new lane `dodges` seconds after it starts running, and a meteor lands in the
+	-- lane it left `meteorLead` seconds later, just beside it
+	laneWidth = 2.8,
+	dodges = { 0.9, 2, 3.05, 4, 4.9, 5.75 },
+	lanes = { -1, 1, 0, -1, 1, 0 },
+	dodgeSeconds = 0.32,
+	dodgeHop = 1.4,
+	meteorLead = 0.3,
+	meteorFall = 0.85,
+	meteorFrom = Vector3.new(12, 46, -34), -- where it falls from, from where it lands (X mirrored every other one)
+	meteorAhead = 2.5, -- lands this far ahead of the cat
+	meteorSize = 3.6,
+	meteorStay = 1.4, -- the rock sinks and fades after landing
+	meteorSparks = 18,
+	meteorShake = 0.05,
+	-- the camera: low behind the cat, the field of view opening as it speeds up
+	camera = {
+		back = 6,
+		up = 4,
+		ahead = 9,
+		lookUp = 1.4,
+		fov = 70,
+		fovEnd = 82,
+		fovKick = 2.5, -- more each gate, easing off over kickSeconds
+		kickSeconds = 0.45,
+		follow = 9, -- how fast it catches up with the cat
+		introEye = Vector3.new(-13, 8, 15), -- the first wide shot, from the path's start
+		introLook = Vector3.new(0, 4, -45),
+		leapEye = Vector3.new(5, 3, 10), -- from the leap's start, as the cat flies up
+	},
+	-- each gate as the cat passes: its arch flares, a shockwave ring, sparkles and the tier's word, all growing
+	gateSparkles = 10,
+	gateSparklesGrow = 6,
+	shockFrom = 4,
+	shockTo = 13,
+	shockGrow = 2.5,
+	shockSeconds = 0.55,
+	gateFlare = 0.35, -- the arch white, back to its colour
+	wordSize = 44,
+	wordGrow = 5,
+	wordSeconds = 0.85,
+	wordInk = Color3.fromRGB(40, 22, 60),
+	confettiFrom = 5, -- gates from this tier up throw confetti
+	beamsFrom = 6, -- and from this one two light columns
+	-- the realm's look
+	sky = {
+		-- Neon glows brighter than its colour (Review-QA on #4029 read the first sky as pale pink), so these are dark
+		Color3.fromRGB(8, 4, 22), -- top
+		Color3.fromRGB(18, 8, 42),
+		Color3.fromRGB(36, 12, 66),
+		Color3.fromRGB(70, 22, 92),
+		Color3.fromRGB(128, 48, 108), -- the horizon's glow
+		Color3.fromRGB(44, 14, 64),
+		Color3.fromRGB(12, 6, 26), -- under
+	},
+	skyHalf = 120, -- the sky's walls this far to either side
+	skyAhead = 230, -- and ahead
+	skyBehind = 50,
+	skyUp = 130,
+	skyDown = 90,
+	stars = { high = 110, low = 45 },
+	starColour = Color3.fromRGB(255, 244, 255),
+	nebula = {
+		{ at = Vector3.new(-30, 40, -200), size = 70, colour = Color3.fromRGB(255, 90, 170) },
+		{ at = Vector3.new(40, 25, -190), size = 55, colour = Color3.fromRGB(120, 90, 255) },
+		{ at = Vector3.new(0, 70, -205), size = 80, colour = Color3.fromRGB(80, 160, 255) },
+	},
+	nebulaSeen = 0.82, -- transparency
+	stone = { Color3.fromRGB(88, 78, 120), Color3.fromRGB(76, 68, 106) },
+	edge = Color3.fromRGB(176, 120, 255),
+	rock = Color3.fromRGB(46, 36, 66),
+	crystal = { Color3.fromRGB(120, 220, 255), Color3.fromRGB(255, 120, 210) },
+	islands = {
+		{ at = Vector3.new(-26, -6, -30), size = 16 },
+		{ at = Vector3.new(30, 4, -62), size = 24 },
+		{ at = Vector3.new(-34, 10, -96), size = 10 },
+		{ at = Vector3.new(26, -10, -118), size = 16 },
+	},
+	islandBob = 0.8, -- studs, slowly
+	ringColour = Color3.fromRGB(255, 110, 190),
+	ringCore = Color3.fromRGB(255, 214, 240),
+	ringSegments = 28,
+	ringOpen = 0.18, -- how open the rift is as the run starts (a slit), opening fully as the leap nears
+	ringTear = 1.2, -- seconds before the leap it tears the rest of the way open
+	grade = {
+		tint = Color3.fromRGB(236, 222, 255),
+		brightness = -0.02,
+		contrast = 0.12,
+		saturation = 0.1,
+	},
+	dark = { brightness = -0.32, saturation = -0.6, tint = Color3.fromRGB(200, 196, 255) },
+	secretColour = Color3.fromRGB(240, 236, 255),
+	-- a Secret's cat of stars (Logic.CAT_CONSTELLATION), drawn in the dark `starCatBeyond` studs past the white gate,
+	-- its middle `starCatHeight` over the path, `starCatScale` studs a unit, so the low camera sees it framed in the
+	-- gate; a star every `starCatGap` seconds (Review-QA on #4029: one every 0.12 s left it half drawn)
+	-- Review-QA on #4029 (follow up): a little lower so the ears clear the low camera's top edge, and a warm gold
+	-- ink a touch bigger so the stars stand out from the pale rift instead of fading into it (Neon washes a light
+	-- colour toward white, so the gold is deep; 4.5 keeps the ears clear on a phone too)
+	starCatHeight = 4.5,
+	starCatBeyond = 10,
+	starCatScale = 3,
+	starCatGap = 0.05,
+	starCatSize = 2.1,
+	starCatColour = Color3.fromRGB(255, 165, 40),
+	flashPink = Color3.fromRGB(255, 120, 200),
+	displayOrder = 40, -- over every window, the bars and the title
+	cap = 30, -- everything is back by now, whatever happens
+	streaks = 18, -- speed streaks a second round the camera at the end speed
 }
 
 -- #3419 (the update party's banner, Effects/EventBanner): a cream and gold card at the top middle of the screen for

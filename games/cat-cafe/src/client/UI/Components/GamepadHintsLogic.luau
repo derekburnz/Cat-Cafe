@@ -9,6 +9,7 @@
 --   window     a window is open
 --   tabs       the open window shows a tab row (L1 / R1 step it)
 --   selecting  a button outside a window is selected (the HUD's menu grid)
+--   card       a card or drop-down list B closes shows (GamepadNav.hasBack)
 
 export type Key = "A" | "B" | "L1" | "R1" | "Select"
 export type Hint = { keys: { Key }, label: string }
@@ -18,6 +19,7 @@ export type View = {
 	window: boolean,
 	tabs: boolean,
 	selecting: boolean,
+	card: boolean?,
 }
 
 local GamepadHintsLogic = {}
@@ -56,7 +58,10 @@ function GamepadHintsLogic.keys(view: View): { Hint }
 	elseif view.selecting then
 		return {
 			{ keys = { "A" }, label = GamepadHintsLogic.SELECT },
-			{ keys = { "B" }, label = GamepadHintsLogic.WALK },
+			{
+				keys = { "B" },
+				label = if view.card then GamepadHintsLogic.BACK else GamepadHintsLogic.WALK,
+			},
 		}
 	end
 	return { { keys = { "Select" }, label = GamepadHintsLogic.MENU } }

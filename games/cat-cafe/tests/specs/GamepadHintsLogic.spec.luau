@@ -37,6 +37,12 @@ return function()
 			expect(words(Logic.keys(view({ selecting = true })))).to.equal("A Select, B Walk")
 		end)
 
+		it("says B goes back over a drop-down list or card", function()
+			expect(words(Logic.keys(view({ selecting = true, card = true })))).to.equal(
+				"A Select, B Back"
+			)
+		end)
+
 		it("adds the tab buttons only when the window has tabs", function()
 			expect(words(Logic.keys(view({ window = true })))).to.equal("A Select, B Back")
 			expect(words(Logic.keys(view({ window = true, tabs = true, selecting = true })))).to.equal(

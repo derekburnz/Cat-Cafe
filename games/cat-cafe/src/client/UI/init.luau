@@ -6023,7 +6023,7 @@ do
 		EVERY = 0.25,
 	}
 	-- the controller's last state and the line it was given, so a switch of input can say it again
-	local hinted: { state: any, text: string?, device: TipQueue.Device? } = {}
+	local hinted: { state: any, text: string?, device: TipQueue.Device?, recheck: boolean? } = {}
 	local stall = { step = -1, seconds = 0, pulses = 0, asked = false, clock = 0 }
 
 	-- #3865: the strip follows a new input only once it has held a moment (TipQueue.settle)
@@ -6056,13 +6056,23 @@ do
 	end
 
 	-- The strip says its line again when the input changes (a pad picked up, a tap on a touch laptop).
-	local function followInput()
+	local followInput: () -> ()
+	function followInput()
 		local s = hinted.state
 		if s == nil or hinted.text == nil or tutorialText ~= hinted.text then
 			return
 		end
 		local device: TipQueue.Device = inputDevice()
 		if device == hinted.device then
+			-- #4224 (Review-QA: a pad kept the "(F)" line): a new device counts only once it has held for
+			-- TipQueue.SETTLE_SECONDS, and no input change may come after it to ask again, so look once more then
+			if settle.candidate ~= nil and not hinted.recheck then
+				hinted.recheck = true
+				task.delay(TipQueue.SETTLE_SECONDS + 0.1, function()
+					hinted.recheck = false
+					followInput()
+				end)
+			end
 			return
 		end
 		hinted.device = device

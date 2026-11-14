@@ -155,6 +155,7 @@ function GamepadHints.refresh(self: any)
 			window = window,
 			tabs = tabs,
 			selecting = GuiService.SelectedObject ~= nil,
+			card = GamepadNav.hasBack(),
 		})
 	local words = {}
 	for _, hint in list do
@@ -202,13 +203,14 @@ function GamepadHints.refresh(self: any)
 			Parent = item,
 		})
 	end
-	-- over a window: along the bottom, under it; with none open: along the top, clear of the HUD's bottom row
+	-- over a window: along the bottom, under it; with none open: at the right edge below the goal card (Review-QA: at
+	-- the top it covered the tip cards, at the bottom the travel row)
 	if window then
 		self._strip.AnchorPoint = Vector2.new(0.5, 1)
 		self._strip.Position = UDim2.new(0.5, 0, 1, -BOTTOM)
 	else
-		self._strip.AnchorPoint = Vector2.new(0.5, 0)
-		self._strip.Position = UDim2.new(0.5, 0, 0, BOTTOM)
+		self._strip.AnchorPoint = Vector2.new(1, 0.5)
+		self._strip.Position = UDim2.new(1, -BOTTOM, 0.62, 0)
 	end
 	self.screenGui.Enabled = #list > 0
 end

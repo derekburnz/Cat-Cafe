@@ -2604,6 +2604,29 @@ local SCENES = {
 		end
 		assert(labels.Select and labels.Back and labels.Tabs, "uigate: the hints miss Select, Back or Tabs in the Index (#4224): " .. table.concat(seen, ","))
 	end },
+	-- #4224 (Review-QA in Studio): with nothing open the strip sits at the right edge, clear of the tip cards at the top
+	-- and the travel row at the bottom
+	{ "GamepadHintsHUD", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local GuiService = game:GetService("GuiService")
+		Scenes._padReset = function()
+			ReplicatedStorage:SetAttribute("LiveFlag_padControls", nil)
+			UIShim.setLastInput(nil)
+			GuiService.SelectedObject = nil
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", true)
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		UI.open("Upgrades")
+		UIShim.advance(0.3)
+		UI.close()
+		UIShim.advance(0.4)
+		GuiService.SelectedObject = nil
+		UIShim.advance(0.2)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafePadHints") :: ScreenGui
+		local strip = gui and gui:FindFirstChild("Strip", true) :: Frame?
+		assert(gui.Enabled and strip ~= nil, "uigate: no controller hint with nothing open (#4224)")
+		assert(strip.AnchorPoint.X == 1, "uigate: the controller hint with nothing open is not at the right edge (#4224)")
+	end },
 	-- #4224 (Review-QA controller pass): L1 / R1 find the Store's rail and the Decor chips as tab rows, and Potions
 	-- does not land on "Use all potions" first
 	{ "GamepadTabRows", function()

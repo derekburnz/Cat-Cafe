@@ -166,6 +166,34 @@ return function()
 			end
 		)
 
+		it("plays the Snowy Mountain's own sounds off the effects' beats", function()
+			expect(Logic.areaCue("step", "snowy", nil)).to.equal("snowStep")
+			expect(Logic.areaCue("step", "desert", nil)).to.equal(nil)
+			expect(Logic.areaCue("step", nil, nil)).to.equal(nil)
+			expect(Logic.areaCue("arrive", nil, "blizzard")).to.equal("snowGust")
+			expect(Logic.areaCue("arrive", nil, "white_tiger")).to.equal(nil)
+			expect(Logic.areaCue("catch", "snowy", "blizzard")).to.equal("snowGust")
+			expect(Logic.areaCue("catch", "snowy", "white_tiger")).to.equal("frostChime")
+			expect(Logic.areaCue("catch", "snowy", "ice")).to.equal(nil)
+			expect(Logic.areaCue("catch", "snowy", nil)).to.equal(nil)
+			expect(Logic.areaCue("roar", "snowy", "blizzard")).to.equal(nil)
+			-- #4070: the Water Cat's splash
+			expect(Logic.areaCue("arrive", nil, "water")).to.equal("campSplash")
+			expect(Logic.areaCue("catch", "waterpark", "water")).to.equal("campSplash")
+			expect(Logic.areaCue("catch", "waterpark", "coaster")).to.equal(nil)
+			expect(Cues.campSplash).to.be.ok()
+			-- #4071: the Dragon Knight lands and is caught with a little roar
+			expect(Logic.areaCue("arrive", nil, "dragon_knight")).to.equal("dragonChirp")
+			expect(Logic.areaCue("catch", "castle", "dragon_knight")).to.equal("dragonChirp")
+			expect(Cues.dragonChirp).to.be.ok()
+			for _, cue in { "snowStep", "snowGust", "frostChime" } do
+				expect(Cues[cue]).to.be.ok()
+			end
+			-- steps come often: quiet, never stacking
+			expect(Cues.snowStep.volume <= 0.35).to.equal(true)
+			expect(Cues.snowStep.minGap >= 0.2).to.equal(true)
+		end)
+
 		it("plays the Fusion Observatory's chime and the right fanfare for the coat", function()
 			expect(Logic.fusionCue("start", "gold")).to.equal("fusionStart")
 			expect(Logic.fusionCue("start", "rainbow")).to.equal("fusionStart")
@@ -1332,6 +1360,35 @@ return function()
 			do
 				expect(Cues[name] ~= nil and Cues[name].sheet == "sheetMoments").to.equal(true)
 			end
+		end)
+	end)
+
+	describe("Audio.Logic Ticket Booth and Dragon Keep (#4061, #4062)", function()
+		it("hears a prize bought and stays quiet for tickets earned", function()
+			local view = { tickets = 40, spent = 100 }
+			expect(Logic.ticketPrizeBought(view, { tickets = 10, spent = 130 })).to.equal(true)
+			-- a catch adds tickets and spends none
+			expect(Logic.ticketPrizeBought(view, { tickets = 43, spent = 100 })).to.equal(false)
+			-- the switch coming on or going off, and junk
+			expect(Logic.ticketPrizeBought(nil, view)).to.equal(false)
+			expect(Logic.ticketPrizeBought(view, nil)).to.equal(false)
+			expect(Logic.ticketPrizeBought(view, { spent = "200" })).to.equal(false)
+			expect(Cues.ticketPrint).to.be.ok()
+			expect(Cues.ticketDing).to.be.ok()
+		end)
+
+		it("hears a Rekindle hand come up at the Dragon Keep, once", function()
+			local idle = { stage = 5, hands = 0 }
+			local hand = { stage = 5, hands = 1, handKind = "rekindle" }
+			expect(Logic.keepRekindled(idle, hand)).to.equal(true)
+			-- the same hand on the next sync, and a stage hand (the cutscene's)
+			expect(Logic.keepRekindled(hand, hand)).to.equal(false)
+			expect(Logic.keepRekindled(idle, { stage = 3, hands = 1, handKind = "stage" })).to.equal(
+				false
+			)
+			expect(Logic.keepRekindled(nil, hand)).to.equal(false)
+			expect(Logic.keepRekindled(hand, nil)).to.equal(false)
+			expect(Cues.rekindle).to.be.ok()
 		end)
 	end)
 

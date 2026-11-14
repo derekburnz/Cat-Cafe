@@ -25,6 +25,8 @@
 -- #3132 (Derek2: the Collector's message "to show a face of the cat and rarity and not cut off the name make the msg
 -- shorter and easier to see"): cat(card) is a short banner in the same stack: the cat's face, a small title and under
 -- it one rich line that shrinks, then wraps onto a second row, so a name is never cut. A tap runs card.onTap.
+-- #3995 (friend-join-3995.md 4 and 5): the same banner with a player's Roblox headshot in the disc (card.headshot) is
+-- the friend join note; card.tapCloses puts it away on a tap and card.wait (an open menu) holds it back until clear.
 
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CoatWords =
@@ -49,6 +51,9 @@ export type CatCard = {
 	line: string, -- rich text: the name and the rarity in its colour
 	seconds: number?,
 	onTap: (() -> ())?,
+	headshot: string?, -- #3995: a player's headshot (rbxthumb) in the disc in place of the cat
+	tapCloses: boolean?, -- #3995: a tap puts the banner away
+	wait: (() -> boolean)?, -- #3995: true holds the banner back (a menu is open), a second at a time
 }
 
 export type Toasts = {
@@ -96,6 +101,7 @@ local CHIP_H = 28
 local CAT_LIFETIME = 3 -- #3132
 local CAT_FACE = 40
 local CAT_TITLE_H = 16
+local PAL_TITLE_H = 20 -- #3995: the join note's title, one size up so its words keep their spaces on a small phone
 local CAT_LINE_H = 38 -- two rows of textSmall
 local CAT_TEXT_W = 230
 local CAT_PAD = 7
@@ -314,6 +320,23 @@ function Toasts.spot(boxes: { Types.Box }, width: number, pill: number): (number
 	return middle, top
 end
 
+-- #3995: whether a piece `height` design pixels tall fits under the toasts already up, above the HUD's bottom.
+function Toasts._fits(self: any, height: number): boolean
+	local scale = Scale.get()
+	local size = self._root.AbsoluteSize / (if scale > 0 then scale else 1)
+	local boxes: (() -> { Types.Box })? = self._boxes
+	local _, top = Toasts.spot(if boxes then boxes() else {}, size.X, PILL_MAX)
+	local floor: (() -> number)? = self._floor
+	local bottom = size.Y + (if floor then floor() else -EDGE)
+	local used = 0
+	for _, live in self._alive do
+		if live ~= self._catToast then
+			used += live.AbsoluteSize.Y / (if scale > 0 then scale else 1) + STACK_GAP
+		end
+	end
+	return top + used + height <= bottom
+end
+
 function Toasts._place(self: any)
 	local scale = Scale.get()
 	local size = self._root.AbsoluteSize / (if scale > 0 then scale else 1)
@@ -347,7 +370,12 @@ end
 -- #3132: the cat banner. One at a time; a new one replaces the last. While a camera cut holds the toasts or a catch
 -- runs it waits, a second at a time, and gives up after CAT_WAIT_TRIES.
 function Toasts.cat(self: any, card: CatCard, tries: number?)
-	if self._held or self._focus then
+	local titleH = if card.headshot ~= nil then PAL_TITLE_H else CAT_TITLE_H
+	local height = CAT_PAD * 2 + titleH + CAT_LINE_H
+	-- #3995 (Review-QA on #4153, 667x375): a join note waits too while the stack has no room for it over the HUD's
+	-- bottom (the tutorial strip and its Buy), so it never lies over them
+	local cramped = card.wait ~= nil and not self:_fits(height)
+	if self._held or self._focus or cramped or (card.wait ~= nil and card.wait()) then
 		local waited = (tries or 0) + 1
 		if waited <= CAT_WAIT_TRIES then
 			task.delay(1, function()
@@ -364,9 +392,8 @@ function Toasts.cat(self: any, card: CatCard, tries: number?)
 	end
 	self._order += 1
 	self._lastAt = os.clock()
-	local height = CAT_PAD * 2 + CAT_TITLE_H + CAT_LINE_H
 	local toast: TextButton = Create("TextButton", {
-		Name = "CatToast",
+		Name = if card.headshot ~= nil then "PalNote" else "CatToast",
 		AutoButtonColor = false,
 		BackgroundColor3 = KIND_COLORS.info,
 		BackgroundTransparency = 1,
@@ -390,23 +417,39 @@ function Toasts.cat(self: any, card: CatCard, tries: number?)
 	Outline.border(
 		disc,
 		Theme.sizes.outline,
-		Theme.rarityColor(if card.def then card.def.rarity else nil)
+		if card.headshot ~= nil
+			then Theme.colors.gold
+			else Theme.rarityColor(if card.def then card.def.rarity else nil)
 	)
-	local portrait = CatPortrait.new({
-		parent = disc,
-		size = UDim2.fromScale(1, 1),
-		still = true,
-		head = true,
-	})
-	portrait:set(card.def, card.shiny == true)
+	local portrait: CatPortrait.CatPortrait? = nil
+	if card.headshot ~= nil then
+		Create("ImageLabel", {
+			Name = "Headshot",
+			BackgroundTransparency = 1,
+			Size = UDim2.fromScale(1, 1),
+			Image = card.headshot,
+			Parent = disc,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	else
+		local made = CatPortrait.new({
+			parent = disc,
+			size = UDim2.fromScale(1, 1),
+			still = true,
+			head = true,
+		})
+		made:set(card.def, card.shiny == true)
+		portrait = made
+	end
 	local left = CAT_PAD + 2 + CAT_FACE + 10
 	local title: TextLabel = Create("TextLabel", {
 		Name = "Title",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(left, CAT_PAD),
-		Size = UDim2.fromOffset(CAT_TEXT_W, CAT_TITLE_H),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textSmall,
+		Size = UDim2.fromOffset(CAT_TEXT_W, titleH),
+		-- #3995 (Review-QA on #4153): the display font's narrow space all but vanished on a phone, so a join note's
+		-- title is in the bold body font
+		FontFace = if card.headshot ~= nil then Theme.fonts.bodyBold else Theme.fonts.display,
+		TextSize = if card.headshot ~= nil then Theme.sizes.textBody else Theme.sizes.textSmall,
 		TextColor3 = Theme.colors.gold,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = card.title,
@@ -416,7 +459,7 @@ function Toasts.cat(self: any, card: CatCard, tries: number?)
 	local line: TextLabel = Create("TextLabel", {
 		Name = "Line",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(left, CAT_PAD + CAT_TITLE_H),
+		Position = UDim2.fromOffset(left, CAT_PAD + titleH),
 		Size = UDim2.fromOffset(CAT_TEXT_W, CAT_LINE_H),
 		FontFace = Theme.fonts.display,
 		RichText = true,
@@ -440,11 +483,17 @@ function Toasts.cat(self: any, card: CatCard, tries: number?)
 		if card.onTap then
 			card.onTap()
 		end
+		if card.tapCloses then
+			toast:Destroy()
+		end
 	end)
 	-- pushed off the stack by newer toasts, replaced or timed out: one clean-up
 	toast.Destroying:Once(function()
 		tapped:Disconnect()
-		portrait:destroy()
+		local made = portrait
+		if made ~= nil then
+			made:destroy()
+		end
 		local index = table.find(self._alive, toast)
 		if index then
 			table.remove(self._alive, index)

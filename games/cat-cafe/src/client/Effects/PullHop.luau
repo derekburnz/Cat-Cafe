@@ -14,6 +14,7 @@ local RunService = game:GetService("RunService")
 
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Context = require(script.Parent.Context)
+local GoldTone = require(ReplicatedStorage.Shared.GoldTone)
 local Logic = require(script.Parent.Logic)
 local Pose = require(script.Parent.Pose)
 local Presets = require(script.Parent.Presets)
@@ -33,22 +34,23 @@ type Hop = {
 local hops: { [number]: Hop } = {} -- by the securing player's UserId: a new pull replaces theirs
 local started = false
 
-local function template(catId: string, gold: boolean): Model?
+-- The cat's model, and whether the copy made from it must be toned gold (GoldTone.apply, #4133).
+local function template(catId: string, gold: boolean): (Model?, boolean)
 	local folder = ReplicatedStorage:FindFirstChild("Assets")
 	if folder == nil then
-		return nil
+		return nil, false
 	end
-	local names = { Catalog.catModelName(catId) }
+	local names, tone = { Catalog.catModelName(catId) }, false
 	if gold then
-		table.insert(names, 1, Catalog.goldModelName(catId))
+		names, tone = GoldTone.names(Catalog.goldModelName(catId), Catalog.catModelName(catId))
 	end
 	for _, name in names do
 		local found = folder:FindFirstChild(name)
 		if found ~= nil and found:IsA("Model") then
-			return found :: Model
+			return found :: Model, tone
 		end
 	end
-	return nil
+	return nil, false
 end
 
 local function setFade(parts: { BasePart }, k: number)
@@ -90,7 +92,7 @@ local function secured(
 	if player ~= Players.LocalPlayer and Context.distance(at) > Presets.bigPull.within then
 		return
 	end
-	local source = template(catId, shiny)
+	local source, tone = template(catId, shiny)
 	if source == nil then
 		return
 	end
@@ -102,6 +104,9 @@ local function secured(
 	local floor = CFrame.lookAt(ground, Vector3.new(at.X, ground.Y, at.Z))
 	finish(userId)
 	local copy = (source :: Model):Clone() :: Model
+	if tone then
+		GoldTone.apply(copy)
+	end
 	copy.Name = "SecuredHop"
 	copy:SetAttribute("CatId", catId)
 	copy:SetAttribute("Gold", shiny)

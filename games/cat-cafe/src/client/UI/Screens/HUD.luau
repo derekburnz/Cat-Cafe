@@ -127,6 +127,7 @@ export type HUD = {
 	screenGui: ScreenGui,
 	setCatalog: (self: HUD, catalog: Types.Catalog) -> (),
 	render: (self: HUD, state: Types.PlayerState) -> (),
+	bindAfk: (self: HUD, afk: any) -> (), -- #4346: UI.afk for the AFK tile
 	showCallout: (self: HUD) -> (), -- #3883: the map theme bubble now (the UI gate's picture)
 	goalSeen: (self: HUD) -> (), -- #2331: the rank up card opened, so the goal card's ready pulse and arrow stop
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
@@ -196,6 +197,9 @@ export type HUD = {
 	palArrived: (self: HUD, palUserId: number, text: string?) -> (),
 	destroy: (self: HUD) -> (),
 }
+
+local AFK_ICON = "💤" -- #4346: the AFK tile's glyph (a sleeping cat's Zs)
+local AFK_ON = "AFK ON" -- the tile's words while the mode is on
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -1161,6 +1165,32 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			Parent = mailDot,
 		})
 	end
+	-- #4346 (Derek 2026-11-14: "add an afk button on the top right maybe on top of where the feedback button was
+	-- before"): the AFK tile, left of the Feedback place, while UI.afk says it shows (the afkButton and afkCafe
+	-- switches; HUD.bindAfk). A tap asks the server for AFK mode on or off: home, 2x rest at once, and the rejoin
+	-- before Roblox's idle kick keeps it. Purple with "AFK" while off, gold with "AFK ON" while on. With it
+	-- showing, Feedback moves into the Menu list (_feedbackInMenu), so the row keeps its width.
+	self._afk = nil :: any -- UI.afk (Controllers/AfkController), once bound
+	self._afkTile = Button.new({
+		name = "AFK",
+		text = "AFK",
+		icon = AFK_ICON,
+		layout = "clean",
+		textSize = ICON_TEXT,
+		style = "purple",
+		size = UDim2.fromOffset(ICON, ICON_H),
+		layoutOrder = 3,
+		parent = icons,
+		sound = "uiToggle",
+		onClick = function()
+			local afk = self._afk
+			if afk ~= nil then
+				afk.toggle()
+			end
+		end,
+	})
+	self._afkTile.instance.Visible = false
+	table.insert(self._buttons, self._afkTile)
 	self._calloutDoneAt = nil :: number?
 	self._calloutStep = nil :: number?
 	-- Menu (Derek 2026-11-02, fewer buttons): Settings and Invite behind one gear. Once Invite is unlocked a press
@@ -3033,7 +3063,7 @@ end
 -- Shows the bubble now (the UI gate's picture calls this too) and puts it away after SHOW_SECONDS.
 function HUD.showCallout(self: any)
 	-- #4249: under the Menu tile while the Mailbox has the Feedback tile's place (Feedback is in the Menu list)
-	local tile: GuiObject = if self:_mailOn()
+	local tile: GuiObject = if self:_feedbackInMenu()
 		then self._menuTile.instance
 		else self._feedbackTile.instance
 	if not tile.Visible then
@@ -3267,10 +3297,12 @@ function HUD._applyUnlocks(self: any)
 	self:_renderRewards()
 	local mailTile: Button.Button? = self._mailTile
 	local mailOn = self:_mailOn()
-	self._feedbackTile.instance.Visible = self:_open("feedback") and not mailOn
+	self._feedbackTile.instance.Visible = self:_open("feedback") and not self:_feedbackInMenu()
 	if mailTile ~= nil then
 		mailTile.instance.Visible = mailOn and self:_open("feedback") -- #4249: the Mailbox opens when Feedback would
 	end
+	-- #4346: the AFK tile opens when Feedback would, while its switches are on
+	self._afkTile.instance.Visible = self:_afkOn() and self:_open("feedback")
 	-- #2710 (Derek2: "maybe just move potions to bag for mobile and remove that button entirely"): on touch the Bag
 	-- pill holds the potions (its Potions tab), and the one potion chip takes the tile's place while any run
 	self._potionsTile.instance.Visible = self:_open("potions") and not TOUCH
@@ -3310,6 +3342,7 @@ function HUD._unlockTarget(self: any, key: HudUnlocks.Key): (GuiObject?, boolean
 				elseif key == "gifts" or key == "daily" then self._rewards
 				elseif key == "feedback" then (if self:_mailOn()
 					then self._mailTile
+					elseif self:_afkOn() then self._afkTile
 					else self._feedbackTile)
 				elseif key == "invite" then self._menuTile
 				elseif key == "potions" then (if TOUCH
@@ -4764,8 +4797,45 @@ function HUD._mailOn(self: any): boolean
 		)
 end
 
+-- #4346: true while the AFK tile shows (UI.afk bound and its switches on)
+function HUD._afkOn(self: any): boolean
+	local afk = self._afk
+	return afk ~= nil and afk.shown() == true
+end
+
+-- #4249, #4346: Feedback sits in the Menu list (not its own tile) while the Mailbox or the AFK tile shows
+function HUD._feedbackInMenu(self: any): boolean
+	return self:_mailOn() or self:_afkOn()
+end
+
+-- #4346: UI.afk from Controllers/AfkController (shown, on, toggle, changed): the AFK tile shows and follows it.
+function HUD.bindAfk(self: any, afk: any)
+	if afk == nil or self._afk == afk then
+		return
+	end
+	self._afk = afk
+	afk.changed(function()
+		if self._gone then
+			return
+		end
+		self:_applyUnlocks()
+		self:_paintAfk()
+	end)
+	self:_applyUnlocks()
+	self:_paintAfk()
+end
+
+-- #4346: purple "AFK" while off, gold "AFK ON" while on (the tile's On attribute for the UI gate).
+function HUD._paintAfk(self: any)
+	local afk = self._afk
+	local on = afk ~= nil and afk.on() == true
+	self._afkTile:setStyle(if on then "gold" else "purple")
+	self._afkTile:setText(if on then AFK_ON else "AFK")
+	self._afkTile.instance:SetAttribute("On", on)
+end
+
 function HUD._pressMenu(self: any)
-	if self:_open("invite") or self:_mailOn() then -- #4249: the list holds Feedback with the Mailbox on
+	if self:_open("invite") or self:_feedbackInMenu() then -- #4249, #4346: the list holds Feedback then
 		self:_togglePop("menu")
 	else
 		self._callbacks.openScreen("Settings")
@@ -4841,8 +4911,8 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 				end,
 			})
 		end
-		-- #4249: Feedback's place while the Mailbox has its tile
-		if self:_mailOn() then
+		-- #4249, #4346: Feedback's place while the Mailbox or the AFK tile shows
+		if self:_feedbackInMenu() then
 			table.insert(rows, {
 				id = "Feedback",
 				icon = Theme.icons.feedback,

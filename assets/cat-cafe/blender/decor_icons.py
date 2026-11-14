@@ -101,6 +101,11 @@ PENDING = [
     ("ruins_pillar_table", "Pillar Table", "furniture"), ("ruins_stone_throne", "Stone Throne", "furniture"),
     ("ruins_brazier_pair", "Brazier Pair", "decoration"), ("ruins_gargoyle_statue", "Gargoyle Statue", "decoration"),
     ("ruins_temple_gate_door", "Temple Gate Door", "door"), ("ruins_keyhole_flap", "Keyhole Flap", "catflap"),
+    # the Snowy Crate's six modelled pieces (tier8-snowy-mountain.md section 6); its six styles are drawn once their
+    # catalog rows exist, since a style's colours are read from the catalog
+    ("snow_fireside_rug", "Fireside Rug", "furniture"), ("snow_stone_fireplace", "Stone Fireplace", "furniture"),
+    ("snow_sled_shelf", "Sled Shelf", "decoration"), ("snow_snow_globe", "Giant Snow Globe", "decoration"),
+    ("snow_chalet_door", "Chalet Door", "door"), ("snow_igloo_flap", "Igloo Flap", "catflap"),
 ]
 
 

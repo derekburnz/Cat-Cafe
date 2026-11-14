@@ -75,7 +75,7 @@ return function()
 
 	describe("GoldenFish.forRankUp", function()
 		it(
-			"pays 5, 15, 30, 60, 100 and 150 for Tiers 2 to 7 and nothing else (#2237, #2651)",
+			"pays 5, 15, 30, 60, 100 and 150 for Tiers 2 to 7, 300 for 8 to 10 and nothing else (#2237, #2651, #4055)",
 			function()
 				expect(GoldenFish.forRankUp(1)).to.equal(0)
 				expect(GoldenFish.forRankUp(2)).to.equal(5)
@@ -84,7 +84,9 @@ return function()
 				expect(GoldenFish.forRankUp(5)).to.equal(60)
 				expect(GoldenFish.forRankUp(6)).to.equal(100)
 				expect(GoldenFish.forRankUp(7)).to.equal(150)
-				expect(GoldenFish.forRankUp(8)).to.equal(0)
+				expect(GoldenFish.forRankUp(8)).to.equal(300)
+				expect(GoldenFish.forRankUp(10)).to.equal(300)
+				expect(GoldenFish.forRankUp(11)).to.equal(0)
 			end
 		)
 	end)

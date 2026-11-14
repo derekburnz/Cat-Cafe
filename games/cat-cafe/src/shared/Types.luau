@@ -1339,6 +1339,9 @@ export type PlayerProfile = {
 	-- (the "!" over the cart until then). New fields with defaults: the shelf opens with a VERSION bump (MysteryOpen).
 	mystery: { [string]: boolean },
 	mysterySeen: boolean,
+	-- #4055 (save version 49, shared/FishStore): the Store passes bought with golden fish (FishStore key -> true); each
+	-- counts as owning that pass (PassService.addBought)
+	fishBought: { [string]: boolean },
 	-- #3699 (shared/BagColours): the Backpack's two colour picks, nil while both are the built ones. No VERSION bump:
 	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
 	bagColours: { main: string, trim: string }?,
@@ -1456,6 +1459,8 @@ export type PlayerState = {
 	mysterySeen: boolean,
 	bagColours: { main: string, trim: string }?, -- #3699: the Backpack's colour picks, nil for the built ones
 	mysteryOpen: boolean, -- BuyMystery is taken here (Config.MysteryOpen, or Studio)
+	-- #4055: the Store's golden fish prices (FishStore.view), nil while the fishStore switch is off
+	fishStore: { { key: string, fish: number, bought: boolean, made: boolean } }?,
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
 	baitSpeed: number, -- F54: the All Cats track's summed bait speed, capped at BaitSpeedMax

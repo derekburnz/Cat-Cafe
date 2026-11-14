@@ -25,6 +25,7 @@ local DecorBest = require(ReplicatedStorage.Shared.DecorBest)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local EventService = require(script.Parent.EventService)
+local FishStore = require(ReplicatedStorage.Shared.FishStore)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -291,6 +292,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		mysterySeen = profile.mysterySeen,
 		bagColours = profile.bagColours, -- #3699
 		mysteryOpen = Config.MysteryOpen or RunService:IsStudio(),
+		fishStore = if LiveFlagService.on(FishStore.FLAG) then FishStore.view(profile) else nil, -- #4055
 		goldLuck = totals.goldLuck,
 		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line
 		baitSpeed = totals.baitSpeed,

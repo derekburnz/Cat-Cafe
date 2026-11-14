@@ -158,6 +158,7 @@ LiveFlags.KEYS = {
 	"indexTo70", -- #3992: the Index's All Cats tracks past 50 and Rainbow track past 25 (shared/IndexRewards.lateOpen)
 	"quietStart", -- #4005: a new player's first 15 minutes without other players' pop ups (shared/QuietStart)
 	"quietAway", -- #4035: food bowl cards wait while the player is out catching
+	"fishStore", -- #4055: Store passes for golden fish (shared/FishStore); on after the save version 49 restart
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -192,6 +193,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	indexTo70 = true,
 	quietStart = true,
 	quietAway = true,
+	fishStore = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

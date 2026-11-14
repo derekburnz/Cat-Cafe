@@ -916,7 +916,8 @@ local Config = {
 	-- a cat already in the Index, by net or rescue (never bait, so food bought with coins never turns into fish)
 	FishRepeatCatch = { Epic = 1, Legendary = 2, Mythical = 5, Secret = 20 } :: { [string]: number }, -- #2237: was 1/3/8
 	-- reaching Tier 2 to 7 (#2237: was 10/25/50/100); #2651: Tier 6 and 7 carry the climb on, 100 and 150
-	FishRankUp = { 5, 15, 30, 60, 100, 150 } :: { number },
+	-- #4055 (Derek 2026-11-13 23:53 UTC): Tiers 8 to 10 pay 300 each, so the fish Store can be reached by playing
+	FishRankUp = { 5, 15, 30, 60, 100, 150, 300, 300, 300 } :: { number },
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds
 
 	-- Cafe Crates and the Golden Fish Market (F53, golden-fish.md sections 3 and 4). Pure rules in Crates.

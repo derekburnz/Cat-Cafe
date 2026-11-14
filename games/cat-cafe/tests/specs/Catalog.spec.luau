@@ -679,7 +679,7 @@ return function()
 		local expected: { { any } } = {
 			{ "Corner Cafe", 0, 0, nil, nil, 2, 1.00, "alley", { 2, 2, 1 } },
 			-- #3204: Tables 4, Espresso 3 and Net 1 at Tier 2 (were 5, 4 and 2); Net 2 at Tier 3 and Net 3 at Tier 5
-			{ "Cozy Cafe", 13500, 5, nil, nil, 4, 1.25, "park", { 4, 3, 1 } },
+			{ "Cozy Cafe", 7500, 4, nil, nil, 4, 1.25, "park", { 4, 3, 1 } }, -- #4098
 			-- economy-ladder.md section 3 v3.1 (#1452, more wild cats; #1499 Tier 2 30,000): 30,000, 700,000, 60M and 2B;
 			-- #1896 (first-hour.md 4): Tier 3 900,000
 			-- #2895 (Derek2: "lower the 3-6 tier costs", then 50/30/10% off for Tiers 5/6/7): 600,000, 24M, 700M, 8B and 60B before

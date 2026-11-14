@@ -105,6 +105,9 @@
 --   pop ups, refuse trade requests to them and hold the extra tips and cards. It starts OFF (OFF_BY_DEFAULT).
 -- - `quietAway` (#4035): while a player's net is out in a catching area, the food bowl cards wait until they are
 --   back (town, a cafe or a camp; client/UI UI.bait.busy). Client only. It starts OFF (OFF_BY_DEFAULT).
+-- - `rareCustomers` (#3889): each customer walking into an open cafe has a chance to be a rich customer, a Mystery
+--   Visitor or the Cat Collector (shared/RareCustomers, RareCustomerService), sitting at any open table, in place of
+--   their three timers. It starts OFF (OFF_BY_DEFAULT); off, the timers run as before.
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -164,6 +167,10 @@ LiveFlags.KEYS = {
 	"riftRun", -- Derek 2026-11-13: a Mythic or Secret trait roll's Rift Run cutscene (client/Effects/RiftRun); client only
 	"secretTrait", -- #3908: the Secret trait rarity (0.1%) in the Mystic Pool's rolls and odds (shared/Traits)
 	"tier8", -- #3997: Tier 8 and the Snowy Mountain (shared/LateTiers); on once the area is built, after a restart
+	"rareCustomers", -- #3889: rare customers by a chance per arriving customer, at any table
+	"goldTone", -- #4133: gold cats are their base model toned gold (shared/GoldTone), not the _Gold models
+	"palJoin", -- #3995: a player who joins through a friend gets the cafe next door and no intro by itself (shared/PalJoin)
+	"dailyDeal", -- #3996: Today's Deal on the Store's Featured tab (shared/DailyDeal)
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -204,6 +211,10 @@ LiveFlags.OFF_BY_DEFAULT = {
 	riftRun = true,
 	secretTrait = true,
 	tier8 = true,
+	rareCustomers = true,
+	goldTone = true,
+	palJoin = true,
+	dailyDeal = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

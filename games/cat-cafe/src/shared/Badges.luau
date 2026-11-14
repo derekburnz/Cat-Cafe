@@ -69,6 +69,8 @@ local function boughtUpgrade(profile: Profile): boolean
 		local start = if def ~= nil then def.startLevel else 0
 		if upgradeId == "tables" then
 			start = math.max(start, Config.StartTables)
+		elseif upgradeId == "lure_bowl" then
+			start = math.max(start, Config.StartBowls) -- #4097: the Bait bowl is open from the start too
 		end
 		if level > start then
 			return true

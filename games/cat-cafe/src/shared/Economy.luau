@@ -172,10 +172,10 @@ function Economy.richRate(profile: Types.PlayerProfile): number
 	if passes.grand == true then
 		rate += Config.GrandRichRate
 	end
-	return rate + Economy.traitBonus(profile, "richRate") -- #3871: Rich Friend and the combos that hold it
+	return rate + Economy.traitBonus(profile, "rareCustomer") -- #3871, #3889: Crowd Pleaser and the combos with it
 end
 
--- #3871: a cafe-wide trait effect (bowl luck, speed, rich visitor rate) from the cats in a staff slot, the best
+-- #3871: a cafe-wide trait effect (bowl luck, speed, rare customer chance) from the cats in a staff slot, the best
 -- Traits.KINDS[kind].best of them, at most its cap (Traits.cafeBonus). 0 for none.
 function Economy.traitBonus(profile: Types.PlayerProfile, kind: Traits.Kind): number
 	local working: { Traits.Trait } = {}

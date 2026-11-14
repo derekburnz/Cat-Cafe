@@ -647,6 +647,18 @@ Presets.emitters = {
 		rate = 5,
 		lightEmission = 0.8,
 	},
+	-- the Castle Well's: its water is a few studs across, so smaller and fewer glints than a pool's
+	wellGlint = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 0.5, 0.1 },
+		transparency = { 0, 1 },
+		lifetime = { 1, 1.6 },
+		speed = { 0, 0 },
+		spread = 0,
+		rate = 2,
+		lightEmission = 0.8,
+	},
 	riverFoam = {
 		texture = Presets.textures.smoke,
 		colors = { Presets.palette.milk, Presets.palette.pastelSky },
@@ -5704,7 +5716,7 @@ Presets.areaWater = {
 		{ piece = "WavePool", glint = "poolGlint", parts = 1, ringEvery = 1.1, ring = 4.5 },
 		{ piece = "KidsPool", glint = "poolGlint", parts = 1, ringEvery = 2.2, ring = 2.6 },
 		{ piece = "Moat", glint = "poolGlint", parts = 2, ringEvery = 2.2, ring = 3 },
-		{ piece = "Well", glint = "poolGlint", parts = 1, ringEvery = 3.5, ring = 1.2 },
+		{ piece = "Well", glint = "wellGlint", parts = 1, ringEvery = 3.5, ring = 1.2 },
 	} :: { AreaWaterKind },
 }
 

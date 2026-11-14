@@ -875,14 +875,12 @@ function Telemetry.introJoin(player: Player, profile: Profile)
 	end
 	local on = LiveFlagService.on(IntroSplit.FLAG)
 	local state = profile.telemetry
-	-- #4001: a new save takes its arm from a Creator Hub Experiment's introMode when there is one (a short wait for
-	-- the config read, new saves only), else the older split by account number
+	-- #4252, #4001 ended (Derek 2026-11-14 18:07 UTC: "switch the entire game to be the short intro so no more of the full
+	-- intro or no intro"): every new save takes the short arm, so the short intro plays itself on its first join. The
+	-- Creator Hub Experiment's introMode is no longer read here; the group is still saved and logged as before.
 	local mode: string? = nil
 	if IntroSplit.joins(true, profile.stats.sessions, profile.introSeen, state.introGroup) then
-		mode = IntroSplit.fromMode(IntroModeService.get(player))
-		if introChecked[player] ~= nil then
-			return -- another caller decided while this one waited
-		end
+		mode = IntroSplit.SHORT
 	end
 	local test = IntroSplit.fromMode(IntroModeService.studioMode()) -- Studio only (IntroModeService.studioMode)
 	if test ~= nil then
@@ -909,11 +907,10 @@ function Telemetry.introPlays(player: Player, profile: Profile): boolean
 	return introChecked[player] == true
 end
 
--- #4001: whether this save's intro is the short one (its group is the Experiment's "short" arm).
-function Telemetry.introShort(profile: Profile): boolean
-	-- compared here, not through an IntroSplit helper: one more function there trips the test VM fault in
-	-- IndexRewardsShared.spec (tools/cloudcheck/README.md)
-	return profile.telemetry.introGroup == IntroSplit.SHORT
+-- #4001: whether this save's intro is the short one. Since the test ended (Derek 2026-11-14) it is for every save,
+-- whatever group the test put it in, so nobody plays the full intro again.
+function Telemetry.introShort(_profile: Profile): boolean
+	return true
 end
 
 -- #3695: the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS), one run per player with the user id as its

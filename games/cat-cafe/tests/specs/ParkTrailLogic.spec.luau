@@ -16,6 +16,12 @@ return function()
 			expect(ParkTrailLogic.due(true, 1, false)).to.equal(false)
 			expect(ParkTrailLogic.due(true, nil, false)).to.equal(false)
 			expect(ParkTrailLogic.due(true, 2, true)).to.equal(false)
+			-- #3893: reaching the Park ends it
+			expect(ParkTrailLogic.due(true, 2, false, true)).to.equal(false)
+			expect(ParkTrailLogic.due(true, 2, false, false)).to.equal(true)
+			expect(ParkTrailLogic.reached(false, false)).to.equal(false)
+			expect(ParkTrailLogic.reached(true, false)).to.equal(true)
+			expect(ParkTrailLogic.reached(false, true)).to.equal(true)
 		end)
 	end)
 

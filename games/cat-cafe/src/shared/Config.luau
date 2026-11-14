@@ -806,6 +806,12 @@ local Config = {
 	CollectorEveryMax = 400, -- #2272: was 840
 	CollectorStaySeconds = 180,
 	VisitRetrySeconds = 15, -- #1135: a visitor whose timer ran out while the cafe was not ready tries again this often
+	-- #3889 (Derek 2026-11-13: "make it a % chance per customer walking in instead of it being a set time"): with
+	-- the rareCustomers switch on, each open cafe gets a customer every RareCustomerSeconds (the street's own pace,
+	-- World.CustomerSpawnSeconds) and each one is a rare customer at RareChance (shared/RareCustomers), in place of
+	-- the three timers above. The chances keep today's averages: 6 / 480 rich, 6 / 1250 Mystery, 6 / 300 Collector.
+	RareCustomerSeconds = 6,
+	RareChance = { rich = 0.0125, mystery = 0.005, collector = 0.02 },
 	-- #3470: a Secret is worth four Mythicals in a trade's value check (as its income); the Collector never asks for one
 	CollectorValue = {
 		Common = 1,

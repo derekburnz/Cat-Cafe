@@ -99,9 +99,12 @@ function RescueBang.refresh(self: any)
 			if gui.Adornee ~= anchor then
 				gui.Adornee = anchor
 			end
+			local was = gui.Enabled
 			gui.Enabled = anchor ~= nil
 			if words ~= nil and bang.line.Text ~= words then
 				bang.line.Text = words
+			elseif anchor ~= nil and not was and words ~= nil then
+				MarketBang.relayout(bang.line, words) -- #4328
 			end
 			if anchor == nil then
 				self:_still(bang)

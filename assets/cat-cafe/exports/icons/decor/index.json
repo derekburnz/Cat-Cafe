@@ -263,6 +263,78 @@
     "model": "CatCafe_Lawn_FlowerCart",
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_flower_cart.png"
   },
+  "funfair_balloon_wall": {
+    "name": "Balloon Wall",
+    "kind": "wallpaper",
+    "model": "CatCafe_Style_BalloonWall",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_balloon_wall.png"
+  },
+  "funfair_beach_chair": {
+    "name": "Beach Chair",
+    "kind": "furniture",
+    "model": "CatCafe_Decor_BeachChair",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_beach_chair.png"
+  },
+  "funfair_boardwalk": {
+    "name": "Boardwalk",
+    "kind": "floor",
+    "model": "CatCafe_Style_Boardwalk",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_boardwalk.png"
+  },
+  "funfair_candy_pink": {
+    "name": "Candy Pink",
+    "kind": "paint",
+    "model": "CatCafe_Style_CandyPink",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_candy_pink.png"
+  },
+  "funfair_circus_stripes": {
+    "name": "Circus Stripes",
+    "kind": "wallpaper",
+    "model": "CatCafe_Style_CircusStripes",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_circus_stripes.png"
+  },
+  "funfair_ferris_lamp": {
+    "name": "Ferris Wheel Lamp",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_FerrisWheelLamp",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_ferris_lamp.png"
+  },
+  "funfair_mini_carousel": {
+    "name": "Mini Carousel",
+    "kind": "furniture",
+    "model": "CatCafe_Decor_MiniCarousel",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_mini_carousel.png"
+  },
+  "funfair_popcorn_yellow": {
+    "name": "Popcorn Yellow",
+    "kind": "paint",
+    "model": "CatCafe_Style_PopcornYellow",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_popcorn_yellow.png"
+  },
+  "funfair_prize_shelf": {
+    "name": "Prize Shelf",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_PrizeShelf",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_prize_shelf.png"
+  },
+  "funfair_slide_flap": {
+    "name": "Slide Flap",
+    "kind": "catflap",
+    "model": "CatCafe_CatFlap_Slide",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_slide_flap.png"
+  },
+  "funfair_ticket_gate": {
+    "name": "Ticket Gate Door",
+    "kind": "door",
+    "model": "CatCafe_Door_TicketGate_Front",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_ticket_gate.png"
+  },
+  "funfair_wave_pool": {
+    "name": "Wave Pool",
+    "kind": "floor",
+    "model": "CatCafe_Style_WavePool",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_funfair_wave_pool.png"
+  },
   "garden_bench": {
     "name": "Garden Bench",
     "kind": "lawn",

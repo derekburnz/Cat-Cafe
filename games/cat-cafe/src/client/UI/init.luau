@@ -7519,18 +7519,24 @@ do
 	local OasisSpa = require(script.Screens.OasisSpa)
 	local RelicMuseum = require(script.Screens.RelicMuseum)
 	local TicketBooth = require(script.Screens.TicketBooth) -- #4061
+	local DragonKeepScreen = require(script.Screens.DragonKeep) -- #4062
 	local SharedConfig =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 	local TAG = "LateStation" -- shared/LateStations.TAG: the placed models, with their StationId attribute
 	local FAR_STUDS: number = (SharedConfig.CampExtraRangeStuds or 8) + 8
-	local WINDOWS: { [string]: string } =
-		{ spa = "OasisSpa", museum = "RelicMuseum", ticketBooth = "TicketBooth" }
+	local WINDOWS: { [string]: string } = {
+		spa = "OasisSpa",
+		museum = "RelicMuseum",
+		ticketBooth = "TicketBooth",
+		dragon = "DragonKeep",
+	}
 	local late = {
 		anywhere = false, -- #3213: the open card came from the Cannon menu, so walking away does not close it
 		state = nil :: any,
 		spa = nil :: OasisSpa.OasisSpa?,
 		museum = nil :: RelicMuseum.RelicMuseum?,
 		booth = nil :: TicketBooth.TicketBooth?, -- #4061
+		keep = nil :: DragonKeepScreen.DragonKeep?, -- #4062
 	}
 
 	-- Studs from this player's character to a station's model, or nil while either is streamed out.
@@ -7662,10 +7668,90 @@ do
 				booth:closed()
 			end,
 		})
+		-- #4062: the Dragon Keep window (PlayerState.dragon; the Keep's prompt comes with its model)
+		local keep = DragonKeepScreen.new({
+			give = function(uids: { string }, confirmed: boolean)
+				send("GiveToKeep", uids, confirmed)
+			end,
+			pick = function(index: number, slot: number?)
+				send("PickDragonCard", index, slot)
+			end,
+			keep = function()
+				send("KeepCards")
+			end,
+			slot = function(cardId: string, slot: number)
+				send("SlotDragonCard", cardId, slot)
+			end,
+			colour = function(colour: string)
+				send("SetDragonColour", colour)
+			end,
+			close = closer(WINDOWS.dragon),
+		})
+		late.keep = keep
+		modalView:register(WINDOWS.dragon, {
+			frame = keep.frame,
+			onOpen = function()
+				UI.lateStations.paintKeep(state)
+				keep:opened()
+			end,
+			onClose = function()
+				keep:closed()
+			end,
+		})
 		spa:render(state)
 		museum:render(state)
 		booth:setView(UI.lateStations.boothView(state))
+		UI.lateStations.paintKeep(state)
 		paint()
+	end
+
+	-- #4062: the cats that can't move in now: soaking at the Oasis Spa, or waiting on a Mystic Pool choice
+	local function keepBusy(playerState: any): { [string]: boolean }
+		local busy: { [string]: boolean } = {}
+		local current = late.state
+		local spaView = if current ~= nil then current.spa else nil
+		for _, soak in (if type(spaView) == "table" then spaView.soaking or {} else {}) do
+			if type(soak) == "table" and type(soak.uid) == "string" then
+				busy[soak.uid] = true
+			end
+		end
+		local pool = if playerState ~= nil then playerState.traits else nil
+		local pending = if type(pool) == "table" then pool.pending else nil
+		if type(pending) == "table" and type(pending.uid) == "string" then
+			busy[pending.uid] = true
+		end
+		return busy
+	end
+
+	-- #4062: PlayerState.dragon, nil while the switch is off or below its tier (false from UIController)
+	function UI.lateStations.keepView(playerState: any): any
+		local view = if playerState ~= nil then playerState.dragon else nil
+		return if type(view) == "table" then view else nil
+	end
+
+	function UI.lateStations.paintKeep(playerState: any)
+		local keep = late.keep
+		if keep and playerState ~= nil then
+			keep:setView(
+				UI.lateStations.keepView(playerState),
+				playerState.cats,
+				keepBusy(playerState)
+			)
+		end
+	end
+
+	-- #4062: the Dragon Keep window from anywhere (its prompt, the Cannon picker, after the stage cutscene), or a toast
+	-- while it is shut
+	function UI.lateStations.openKeep()
+		local modalView = modal
+		if modalView == nil or late.keep == nil then
+			return
+		end
+		if UI.lateStations.keepView(state) == nil then
+			UI.toast("The Dragon Keep opens with the Castle", "info")
+			return
+		end
+		modalView:open(WINDOWS.dragon)
 	end
 
 	-- #4061: PlayerState.ticketBooth, nil while the switch is off or below its tier (false from UIController)
@@ -7692,6 +7778,7 @@ do
 		if booth then
 			booth:setView(UI.lateStations.boothView(playerState))
 		end
+		UI.lateStations.paintKeep(playerState)
 		local spa = late.spa
 		if spa then
 			spa:render(playerState)
@@ -7776,6 +7863,11 @@ do
 			booth:destroy()
 		end
 		late.booth = nil
+		local keep = late.keep
+		if keep then
+			keep:destroy()
+		end
+		late.keep = nil
 	end
 end
 

@@ -1112,6 +1112,7 @@ local function applyState(s: Types.PlayerState)
 		goldenFish = s.goldenFish, -- F52: the HUD's fish counter
 		-- #4061: the Ticket Booth window; false (not nil, which UI.update would skip) while off or below its tier
 		ticketBooth = s.ticketBooth or false,
+		dragon = s.dragon or false, -- #4062: the Dragon Keep window, false while off or below its tier
 		crates = s.crates, -- F53: unopened crates, crate luck and Market perks
 		crateLuck = s.crateLuck,
 		fishPerks = s.fishPerks,

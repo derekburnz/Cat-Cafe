@@ -58,6 +58,7 @@ local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StrayTopUp = require(ReplicatedStorage.Shared.StrayTopUp)
 local SwiftPaws = require(ReplicatedStorage.Shared.SwiftPaws)
 local Telemetry = require(script.Parent.Telemetry)
+local TouchReach = require(ReplicatedStorage.Shared.TouchReach)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -2414,7 +2415,11 @@ function startCatch(
 		-- #2913 follow-up: a little wider for a player's first few catches by hand
 		else Circles.scaled(
 			Circles.windowsFor(netLevel, stray.def.rarity, stray.area, stray.variant),
-			Circles.earlyScale(SecondCat.caught(profile.stats))
+			-- #4299: or wider on a phone or tablet, whichever is wider
+			math.max(
+				Circles.earlyScale(SecondCat.caught(profile.stats)),
+				Circles.touchScale(Telemetry.device(player), LiveFlagService.on(TouchReach.FLAG))
+			)
 		)
 	-- #2920: a player's very first catch holds its ring on the target until the press
 	-- #3662: the first catch by hand, which a bowl cat in the cafe no longer uses up

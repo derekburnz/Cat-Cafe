@@ -643,6 +643,7 @@ return function()
 				UpdateFeature = true, -- #4175: checked in StoreLogic.spec
 				EarlyCatchCount = true, -- #2913 follow-up: checked in Circles.spec
 				EarlyCatchWindowScale = true, -- #2913 follow-up: checked in Circles.spec and S24 here
+				TouchCatchWindowScale = true, -- #4299: checked in Circles.spec and S24 here
 				AfkCafeSeconds = true, -- #3573: checked in AfkCafe.spec
 				AutoRejoinSeconds = true, -- #3602: checked in AfkCafe.spec
 				AfkCafeMoney = true, -- #3573: checked in AfkCafe.spec
@@ -826,7 +827,10 @@ return function()
 					end
 					widest = math.max(
 						widest,
-						row.good * rarity.catchWindow * Config.EarlyCatchWindowScale * area
+						row.good
+							* rarity.catchWindow
+							* math.max(Config.EarlyCatchWindowScale, Config.TouchCatchWindowScale) -- #4299
+							* area
 					)
 				end
 			end

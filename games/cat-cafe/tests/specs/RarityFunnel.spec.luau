@@ -24,9 +24,7 @@ return function()
 		it("reads the best rarity off the Index", function()
 			expect(RarityFunnel.best({})).to.equal(0)
 			expect(RarityFunnel.best({ [firstOf("Common")] = 1 })).to.equal(1)
-			expect(RarityFunnel.best({ [firstOf("Common")] = 1, [firstOf("Epic")] = 2 })).to.equal(
-				3
-			)
+			expect(RarityFunnel.best({ [firstOf("Common")] = 1, [firstOf("Epic")] = 2 })).to.equal(3)
 			expect(RarityFunnel.best({ [firstOf("Secret")] = 1 })).to.equal(6)
 			expect(RarityFunnel.best({ not_a_cat = 1 })).to.equal(0)
 		end)

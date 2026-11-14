@@ -152,13 +152,16 @@ return function()
 		it("leaves out one behind a switch until the server sends it (#3694 section 3)", function()
 			local gated: any = table.clone(catalog :: any)
 			gated.achievements = table.clone(gated.achievements)
-			table.insert(gated.achievements, {
-				id = "a_traits10",
-				name = "Pool Regular",
-				needs = 10,
-				size = "M",
-				flag = "traits",
-			})
+			table.insert(
+				gated.achievements,
+				{
+					id = "a_traits10",
+					name = "Pool Regular",
+					needs = 10,
+					size = "M",
+					flag = "traits",
+				}
+			)
 			expect(#QuestLogic.achievementRows(gated, nil)).to.equal(4)
 			expect(
 				#QuestLogic.achievementRows(gated, { a_rare1 = { progress = 1, claimed = false } })
@@ -186,35 +189,30 @@ return function()
 
 	describe("QuestLogic.hoursText (#3694)", function()
 		it("counts play time in whole hours, rounded down", function()
-			local devoted: any =
-				{ id = "a_hours100", measure = "playtimeSeconds", needs = 180000, size = "XL" }
+			local devoted: any = { id = "a_hours100", measure = "playtimeSeconds", needs = 180000, size = "XL" }
 			expect(QuestLogic.hoursText(devoted, 97153)).to.equal("26/50 hours")
 			expect(QuestLogic.hoursText(devoted, 0)).to.equal("0/50 hours")
 			expect(QuestLogic.hoursText(devoted, 999999)).to.equal("50/50 hours")
-			local first: any =
-				{ id = "a_hours1", measure = "playtimeSeconds", needs = 3600, size = "S" }
+			local first: any = { id = "a_hours1", measure = "playtimeSeconds", needs = 3600, size = "S" }
 			expect(QuestLogic.hoursText(first, 3599)).to.equal("0/1 hour")
 			expect(QuestLogic.hoursText(first, 3600)).to.equal("1/1 hour")
 		end)
 
 		it("counts resting time in hours too", function()
-			local napper: any =
-				{ id = "a_rest1h", measure = "restSeconds", needs = 3600, size = "M" }
+			local napper: any = { id = "a_rest1h", measure = "restSeconds", needs = 3600, size = "M" }
 			expect(QuestLogic.hoursText(napper, 1800)).to.equal("0/1 hour")
 			expect(QuestLogic.hoursText(napper, 3700)).to.equal("1/1 hour")
 		end)
 
 		it("leaves every other count alone", function()
-			local catches: any =
-				{ id = "a_catch100", measure = "catsCaught", needs = 100, size = "M" }
+			local catches: any = { id = "a_catch100", measure = "catsCaught", needs = 100, size = "M" }
 			expect(QuestLogic.hoursText(catches, 40)).to.equal(nil)
 		end)
 	end)
 
 	describe("the achievement list (#3694)", function()
 		local ReplicatedStorage = game:GetService("ReplicatedStorage")
-		local Catalog =
-			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+		local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
 		local function find(id: string): any
 			for _, def in Catalog.achievements do
 				if def.id == id then

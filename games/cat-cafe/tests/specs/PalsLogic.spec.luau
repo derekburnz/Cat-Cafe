@@ -129,13 +129,7 @@ return function()
 			local joinedTitle, joinedLine = PalsLogic.joinedNote("Sam", true)
 			local arrivedTitle, arrivedLine = PalsLogic.arrivedNote("Mia")
 			for _, line in
-				{
-					joinedTitle,
-					joinedLine,
-					arrivedTitle,
-					arrivedLine,
-					PalsLogic.nextDoorLine("Sam"),
-				}
+				{ joinedTitle, joinedLine, arrivedTitle, arrivedLine, PalsLogic.nextDoorLine("Sam") }
 			do
 				expect(string.find(line, "%", 1, true)).to.equal(nil)
 				expect(string.find(string.lower(line), "bonus", 1, true)).to.equal(nil)

@@ -611,8 +611,9 @@ return function()
 			end
 
 			it(
-				"VIP, Cafe Style and Grand Cafe add into cafeMultiplier, +0.10, +0.50 and +1.50",
+				"VIP, Cafe Style and Grand Cafe add into cafeMultiplier, +0.10, +0.50 and +1.50 (vipBoost off)",
 				function()
+					Economy.setVipBoost(false)
 					local p = working()
 					local base = Economy.cafeMultiplier(p)
 					Economy.setPasses(p, with({ vip = true }))
@@ -620,8 +621,20 @@ return function()
 					Economy.setPasses(p, with({ vip = true, cafeStyle = true, grand = true }))
 					expect(Economy.passCafeBonus(p)).to.be.near(2.10, 1e-9)
 					expect(Economy.cafeMultiplier(p)).to.be.near(base + 2.10, 1e-9)
+					Economy.setVipBoost(nil)
 				end
 			)
+
+			it("#4235: with vipBoost on (the default) VIP adds +0.50 money", function()
+				Economy.setVipBoost(true)
+				local p = working()
+				local base = Economy.cafeMultiplier(p)
+				Economy.setPasses(p, with({ vip = true }))
+				expect(Economy.cafeMultiplier(p)).to.be.near(base + 0.50, 1e-9)
+				expect(Economy.passCafeBonus(p)).to.be.near(0.50, 1e-9)
+				Economy.setVipBoost(nil)
+				expect(Economy.vipBoost()).to.equal(true) -- no attribute: on unless switched off
+			end)
 
 			it(
 				"Accessories and Uniforms each multiply the working cats by 1.15, x1.3225 together",

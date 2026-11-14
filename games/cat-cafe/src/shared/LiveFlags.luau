@@ -123,6 +123,7 @@ LiveFlags.STORE = "CatCafe_Flags"
 --   never rescued (RescueService), back to one cat a day there.
 LiveFlags.KEYS = {
 	"codes",
+	"vipBoost", -- #4235: VIP pays +50% and shows a tag over the owner's head (Economy.vipBoost, Services/VipTagService)
 	"rally",
 	"tradeCrates",
 	"tradeFish",

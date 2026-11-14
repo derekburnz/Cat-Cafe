@@ -53,6 +53,7 @@ export type Callbacks = {
 	skip: (shot: number) -> (), -- Skip or gamepad B, once per play
 	ended: (replay: boolean) -> (), -- the end began (finish, or the Skip fallback): bring the HUD back
 	nextShot: ((shot: number) -> ())?, -- #2182: Next, a tap, Space, Enter or gamepad A, once a shot
+	waitEnded: ((seconds: number) -> ())?, -- #4314: the loading screen slid away after `seconds` up
 }
 
 export type Intro = {
@@ -682,6 +683,10 @@ function Intro.waiting(self: any, on: boolean)
 	if not show then
 		self._raceAt = nil
 		self:_waitSet(LoadingCount.FULL)
+		local ended = self._callbacks.waitEnded
+		if ended ~= nil then
+			ended(os.clock() - self._waitBegan)
+		end
 		local out = Tween.to(cover, WAIT_OUT, { Position = UDim2.fromScale(0, -1) })
 		self._waitOut = out
 		out.Completed:Once(function()

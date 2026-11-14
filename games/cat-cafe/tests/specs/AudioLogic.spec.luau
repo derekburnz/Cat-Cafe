@@ -166,6 +166,26 @@ return function()
 			end
 		)
 
+		it("plays the Fusion Observatory's chime and the right fanfare for the coat", function()
+			expect(Logic.fusionCue("start", "gold")).to.equal("fusionStart")
+			expect(Logic.fusionCue("start", "rainbow")).to.equal("fusionStart")
+			expect(Logic.fusionCue("meet", "gold")).to.equal(nil)
+			expect(Logic.fusionCue("collect", "gold")).to.equal("fusionCollect")
+			expect(Logic.fusionCue("collect", "rainbow")).to.equal("fusionCollectRainbow")
+			expect(Logic.fusionCue("collect", nil)).to.equal("fusionCollect")
+			expect(Logic.fusionCue(nil, nil)).to.equal(nil)
+			for _, id in { "fusionStart", "fusionCollect", "fusionCollectRainbow" } do
+				expect(Cues[id].sheet).to.equal("sheetFusion")
+				expect(Cues[id].region[2] > Cues[id].region[1]).to.equal(true)
+			end
+			-- the rainbow one is the longer
+			local function seconds(id: string): number
+				return Cues[id].region[2] - Cues[id].region[1]
+			end
+			expect(seconds("fusionCollectRainbow") > seconds("fusionCollect")).to.equal(true)
+			expect(#Cues.sheetFusion.ids).to.equal(1)
+		end)
+
 		it(
 			"has the next three areas' songs and the Keep sheet's sounds ready for their upload",
 			function()
@@ -1312,6 +1332,35 @@ return function()
 			do
 				expect(Cues[name] ~= nil and Cues[name].sheet == "sheetMoments").to.equal(true)
 			end
+		end)
+	end)
+
+	describe("Audio.Logic Ticket Booth and Dragon Keep (#4061, #4062)", function()
+		it("hears a prize bought and stays quiet for tickets earned", function()
+			local view = { tickets = 40, spent = 100 }
+			expect(Logic.ticketPrizeBought(view, { tickets = 10, spent = 130 })).to.equal(true)
+			-- a catch adds tickets and spends none
+			expect(Logic.ticketPrizeBought(view, { tickets = 43, spent = 100 })).to.equal(false)
+			-- the switch coming on or going off, and junk
+			expect(Logic.ticketPrizeBought(nil, view)).to.equal(false)
+			expect(Logic.ticketPrizeBought(view, nil)).to.equal(false)
+			expect(Logic.ticketPrizeBought(view, { spent = "200" })).to.equal(false)
+			expect(Cues.ticketPrint).to.be.ok()
+			expect(Cues.ticketDing).to.be.ok()
+		end)
+
+		it("hears a Rekindle hand come up at the Dragon Keep, once", function()
+			local idle = { stage = 5, hands = 0 }
+			local hand = { stage = 5, hands = 1, handKind = "rekindle" }
+			expect(Logic.keepRekindled(idle, hand)).to.equal(true)
+			-- the same hand on the next sync, and a stage hand (the cutscene's)
+			expect(Logic.keepRekindled(hand, hand)).to.equal(false)
+			expect(Logic.keepRekindled(idle, { stage = 3, hands = 1, handKind = "stage" })).to.equal(
+				false
+			)
+			expect(Logic.keepRekindled(nil, hand)).to.equal(false)
+			expect(Logic.keepRekindled(hand, nil)).to.equal(false)
+			expect(Cues.rekindle).to.be.ok()
 		end)
 	end)
 

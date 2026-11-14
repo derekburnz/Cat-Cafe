@@ -6,6 +6,7 @@
 --                               boost to a chance says LUCK ("x10 MYTHICAL LUCK"), never ten times the cats
 --   stay(view)                  why to stay, in one short line: "Stay and cash in!"
 --   lasting(view)               "for 10 minutes", "for 90 seconds"
+--   countsMoney(view)           whether it is a money event: only those show what the player earned
 --   lookOf(view)                which of Presets.adminFlash.looks the world takes while it runs
 --   rainOf(view)                which of Presets.adminAir.kinds falls round you while it runs
 --   step(view, now, seenAt, p)  what the screen shows now: the 3, 2, 1 before the start, the name splash, the strip,
@@ -27,6 +28,7 @@ export type Kind = {
 	stay: string,
 	look: string,
 	rain: string,
+	money: boolean?, -- a money event: only these show what the player earned (Derek 2026-11-14 22:55)
 }
 export type Spec = {
 	countFrom: number, -- the 3, 2, 1 begins this many seconds before the start
@@ -52,6 +54,7 @@ AdminFlashLogic.KINDS = {
 		stay = "Stay and cash in!",
 		look = "gold",
 		rain = "moneyStorm",
+		money = true,
 	},
 	{
 		name = "goldBoost",
@@ -165,6 +168,13 @@ end
 function AdminFlashLogic.stay(view: View): string
 	local row = AdminFlashLogic.kindOf(view)
 	return if row ~= nil then row.stay else AdminFlashLogic.DEFAULT_STAY
+end
+
+-- Whether the event is about money, so the strip and the end card say what the player earned. Derek 2026-11-14
+-- 22:55: "no need for the money showing on the events not related to money".
+function AdminFlashLogic.countsMoney(view: View?): boolean
+	local row = AdminFlashLogic.kindOf(view)
+	return row ~= nil and row.money == true
 end
 
 function AdminFlashLogic.lookOf(view: View?): string?

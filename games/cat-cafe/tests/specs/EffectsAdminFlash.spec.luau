@@ -67,6 +67,7 @@ return function()
 				local preset = Presets.adminAir.kinds[row.rain]
 				expect(preset).to.be.ok()
 				expect(Presets.emitters[preset]).to.be.ok()
+				expect(Presets.emitters[preset].rate <= 15).to.equal(true) -- thin: never money all over the screen
 			end
 			expect(p.looks[Flash.DEFAULT_LOOK]).to.be.ok()
 			expect(Flash.lookOf(nil)).never.to.be.ok()
@@ -155,6 +156,15 @@ return function()
 			total = Flash.earned(total, 300, 340)
 			expect(total).to.equal(540)
 			expect(Flash.earned(total, nil, 9000)).to.equal(540) -- the first reading only sets the base
+		end)
+
+		it("counts money only in a money event", function()
+			expect(Flash.countsMoney(view({ moneyStorm = 4 }))).to.equal(true)
+			expect(Flash.countsMoney(view({ bowlSpeed = 4 }))).to.equal(false)
+			expect(Flash.countsMoney(view({ catStorm = 10 }))).to.equal(false)
+			expect(Flash.countsMoney(view({ goldBoost = 10 }))).to.equal(false)
+			expect(Flash.countsMoney(view({}))).to.equal(false)
+			expect(Flash.countsMoney(nil)).to.equal(false)
 		end)
 
 		it("writes money with commas", function()

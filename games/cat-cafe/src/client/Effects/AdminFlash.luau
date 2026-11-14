@@ -6,8 +6,11 @@
 --   2. as it starts (or as a late joiner first sees it): its name, the reward in big plain words and why to stay,
 --      over a band in the event's colour with a sparkle burst, for about three seconds;
 --   3. while it runs: the world takes the event's colour (a ColorCorrectionEffect of this client's own, eased in and
---      out), and a big strip under the top bar says the reward and the time left, with "You earned +$12,340 this
---      event" under it counting up as the player's money comes in;
+--      out), and ONE small strip under the top bar says the reward, the time left and, once there is any, what the
+--      player has earned ("x4 MONEY" over "4:12 left   +$12,340"; the amount only in a money event, Derek 22:55:
+--      "no need for the money showing on the events not related to money"). Derek 2026-11-14 22:54: "the ui is still on the
+--      screen too much in the events and the intro can [be] over the top ... but the money amount everywhere on
+--      screen is too much": the splash stays loud, and after it this strip is all that is left on the screen;
 --   4. its last minute: the strip turns red and swells slowly (once a second, far under the flashing limit);
 --   5. as it ends: a card with what the player earned.
 -- Effects/AdminAir rains the event's motes round the player the whole time (AdminFlashLogic.rainOf).
@@ -63,7 +66,6 @@ type Parts = {
 	stripScale: UIScale,
 	big: TextLabel,
 	left: TextLabel,
-	earn: TextLabel,
 	over: Frame,
 	overTitle: TextLabel,
 	overLine: TextLabel,
@@ -82,6 +84,7 @@ local wasLast = false
 local money: number? = nil -- the last ProfileSync's money
 local earned = 0
 local earnedShown = 0
+local countsMoney = false -- the event this client is showing is a money event
 local overUntil = 0 -- os.clock until which the end card shows
 local look: string? = nil
 local tint: ColorCorrectionEffect? = nil
@@ -255,11 +258,7 @@ local function build(): Parts?
 	left.Position = UDim2.fromScale(0.5, 0.79)
 	left.Size = UDim2.fromScale(0.92, 0.32)
 	left.Visible = true
-	local earn = label("Earned", low, p.earnSize * s, WHITE)
-	earn.AnchorPoint = Vector2.new(0.5, 0)
-	earn.Position = UDim2.new(0.5, 0, p.stripY, (p.stripHeight + 8) * s)
-	earn.Size = UDim2.fromOffset(p.stripWidth * s * 1.5, p.earnSize * s * 1.4)
-	earn.RichText = true
+	left.RichText = true
 
 	local over = Instance.new("Frame")
 	over.Name = "Over"
@@ -297,7 +296,6 @@ local function build(): Parts?
 		stripScale = stripScale,
 		big = big,
 		left = left,
-		earn = earn,
 		over = over,
 		overTitle = overTitle,
 		overLine = overLine,
@@ -386,7 +384,7 @@ local function endEvent(made: Parts)
 	if shownId ~= nil then
 		overUntil = os.clock() + p.overSeconds
 		made.overTitle.Text = string.upper(shownTitle) .. " OVER"
-		made.overLine.Text = if earned >= 1
+		made.overLine.Text = if countsMoney and earned >= 1
 			then "You earned " .. moneyText(earned)
 			else "Thanks for playing!"
 		beat("over")
@@ -411,7 +409,6 @@ local function frame()
 		local idle = parts
 		if idle ~= nil and (idle.dim.Visible or idle.strip.Visible or idle.over.Visible) then
 			idle.dim.Visible, idle.strip.Visible, idle.over.Visible = false, false, false
-			idle.earn.Visible = false
 		end
 		return
 	end
@@ -427,6 +424,7 @@ local function frame()
 	if running and current ~= nil and shownId == nil then
 		shownId, seenAt, shownTitle = current.id, now, current.title
 		earned, earnedShown = 0, 0
+		countsMoney = AdminFlashLogic.countsMoney(current)
 		overUntil = 0
 		beat("start")
 		local spec = p.looks[AdminFlashLogic.lookOf(current) or ""]
@@ -495,18 +493,17 @@ local function frame()
 			then ColorSequence.new(p.lastTop, p.lastBottom)
 			else ColorSequence.new(spec.top, spec.bottom)
 		made.big.Text = AdminFlashLogic.headline(current)
-		made.left.Text = AdminEventLogic.clock(step.left) .. (if last then " LEFT!" else " left")
-		made.stripScale.Scale = if last and not still
-			then AdminFlashLogic.pulse(step.left, p.pulseHz, p.pulse)
-			else 1
 		earnedShown += (earned - earnedShown) * math.min(1, p.earnEase)
 		if earned - earnedShown < 1 then
 			earnedShown = earned
 		end
-		made.earn.Visible = earned >= 1
-		made.earn.Text = "You earned " .. moneyText(earnedShown) .. " this event"
-	else
-		made.earn.Visible = false
+		-- one small line: the time left, and what this player has earned once there is any
+		made.left.Text = AdminEventLogic.clock(step.left)
+			.. (if last then " LEFT!" else " left")
+			.. (if countsMoney and earned >= 1 then "   " .. moneyText(earnedShown) else "")
+		made.stripScale.Scale = if last and not still
+			then AdminFlashLogic.pulse(step.left, p.pulseHz, p.pulse)
+			else 1
 	end
 
 	made.over.Visible = clock < overUntil and not middle and not calm

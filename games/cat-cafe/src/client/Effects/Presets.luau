@@ -719,7 +719,7 @@ Presets.emitters = {
 		lifetime = { 3.5, 4.5 },
 		speed = { 3, 5 },
 		spread = 8,
-		rate = 18,
+		rate = 10,
 		lightEmission = 0.6,
 		rotSpeed = { -40, 40 },
 	},
@@ -731,11 +731,12 @@ Presets.emitters = {
 		lifetime = { 2.2, 3 },
 		speed = { 9, 12 },
 		spread = 8,
-		rate = 28,
+		rate = 14,
 		lightEmission = 0.5,
 		rotSpeed = { -200, 200 },
 	},
-	-- #4325: every admin event rains something (AdminFlashLogic.rainOf), each in its look's colours
+	-- #4325: every admin event rains something (AdminFlashLogic.rainOf), each in its look's colours, and thinly:
+	-- Derek 2026-11-14 22:54, "the money amount everywhere on screen is too much"
 	adminRoseDrift = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.neonPink, Presets.palette.furRose },
@@ -744,7 +745,7 @@ Presets.emitters = {
 		lifetime = { 2.6, 3.4 },
 		speed = { 6, 9 },
 		spread = 8,
-		rate = 22,
+		rate = 11,
 		lightEmission = 0.5,
 		rotSpeed = { -120, 120 },
 	},
@@ -756,7 +757,7 @@ Presets.emitters = {
 		lifetime = { 2, 2.8 },
 		speed = { 10, 14 },
 		spread = 8,
-		rate = 22,
+		rate = 11,
 		lightEmission = 0.5,
 		rotSpeed = { -60, 60 },
 	},
@@ -768,7 +769,7 @@ Presets.emitters = {
 		lifetime = { 2.6, 3.4 },
 		speed = { 6, 9 },
 		spread = 8,
-		rate = 22,
+		rate = 11,
 		lightEmission = 0.5,
 		rotSpeed = { -160, 160 },
 	},
@@ -780,7 +781,7 @@ Presets.emitters = {
 		lifetime = { 3, 4 },
 		speed = { 4, 6 },
 		spread = 8,
-		rate = 18,
+		rate = 9,
 		lightEmission = 0.6,
 		rotSpeed = { -60, 60 },
 	},
@@ -792,7 +793,7 @@ Presets.emitters = {
 		lifetime = { 2.6, 3.4 },
 		speed = { 6, 9 },
 		spread = 8,
-		rate = 20,
+		rate = 10,
 		lightEmission = 0.5,
 		rotSpeed = { -120, 120 },
 	},
@@ -804,7 +805,7 @@ Presets.emitters = {
 		lifetime = { 1.8, 2.4 },
 		speed = { 12, 16 },
 		spread = 8,
-		rate = 22,
+		rate = 11,
 		lightEmission = 0.5,
 		rotSpeed = { -90, 90 },
 	},
@@ -3458,7 +3459,7 @@ Presets.stormFall = {
 }
 
 -- #4197 (Effects/AdminAir): the drift an admin event hangs round you while it runs, by its effect's name. Since #4325
--- every event has one (AdminFlashLogic.rainOf) and they fall thicker. One emitter on an unseen `box` held `height`
+-- every event has one (AdminFlashLogic.rainOf), all of them thin. One emitter on an unseen `box` held `height`
 -- studs over the camera's focus, looked at every `every` seconds. None with Reduce Motion or in Low performance.
 Presets.adminAir = {
 	kinds = {
@@ -3493,7 +3494,7 @@ Presets.adminFlash = {
 	stripAfter = 6.5,
 	lastSeconds = 60,
 	lastMinEvent = 180,
-	overSeconds = 4,
+	overSeconds = 2.5,
 	readEvery = 0.25,
 	tintSeconds = 2,
 	designHeight = 720,
@@ -3511,11 +3512,10 @@ Presets.adminFlash = {
 	splashPop = 0.4,
 	popSeconds = 0.25,
 	stripY = 0.17,
-	stripWidth = 300,
-	stripHeight = 78,
-	stripBig = 34,
-	stripSmall = 19,
-	earnSize = 22,
+	stripWidth = 220,
+	stripHeight = 56,
+	stripBig = 25,
+	stripSmall = 15,
 	earnEase = 0.12,
 	pulseHz = 1,
 	pulse = 0.08,

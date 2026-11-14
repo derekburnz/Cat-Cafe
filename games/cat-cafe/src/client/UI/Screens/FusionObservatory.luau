@@ -489,6 +489,11 @@ function FusionObservatory._paintFuse(self: any)
 	local view = self._view
 	local now = workspace:GetServerTimeNow()
 	local dome = FusionLogic.dome(view, now)
+	-- a fusion that finishes while the Coats tab is up brings the Fuse tab back, so Collect is seen (Review-QA)
+	if dome.state == "ready" and self._domeState == "running" and self._tab == "coats" then
+		self:showTab("fuse")
+	end
+	self._domeState = dome.state
 	self._domeTitle.Text = dome.title
 	self._domeLine.Text = dome.line
 	self._domeFill.Size = UDim2.fromScale(dome.share, 1)

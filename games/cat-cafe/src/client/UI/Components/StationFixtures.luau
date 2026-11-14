@@ -129,8 +129,7 @@ local function fusion(which: string, now: number, cats: { [string]: any }?): { [
 	if which == "fusionrun" then
 		view.running = { catId = catId, coat = "gold", doneAt = now + 402, level = 12 }
 	elseif which == "fusiondone" then
-		view.running =
-			{ catId = catId, coat = "rainbow", doneAt = now - 5, level = 34, name = "Mochi" }
+		view.running = { catId = catId, coat = "rainbow", doneAt = now - 5, level = 34 }
 		view.ready = true
 	end
 	return { fusion = view, cats = made }

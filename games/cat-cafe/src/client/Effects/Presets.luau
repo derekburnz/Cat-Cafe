@@ -1755,6 +1755,13 @@ Presets.motion = {
 			snow_log = "butt",
 			snowman = "butt",
 			sled = "butt",
+			-- Tier 9, the Water Park (#4070) and Tier 10, the Medieval Castle (#4071), by the names of Model-Agent's
+			-- spots (trap_ball_pit and so on). Head first with the back end out where the piece has a hollow to dive
+			-- into: the ball pit, the prize plush pile and the haystack. In the rest the cat sits the right way up
+			-- (carousel, river_ring, balloons, barrel, banner_pole, awning, helmet) and keeps the plain shake.
+			ball_pit = "butt",
+			plush_pile = "butt",
+			haystack = "butt",
 		} :: { [string]: string },
 		butt = {
 			every = 2.2,
@@ -3600,6 +3607,27 @@ Presets.decorMotion = {
 	pick = 1, -- seconds between choosing which parts move
 }
 
+-- #4070 the Water Park's rides (Effects/Rides): each turning piece of the area set is a Model named ending with a key
+-- of `kinds`, and turns once every `seconds` about the middle of its own box: `axis` "up" straight up (the carousel,
+-- the teacups), "thin" along the box's thin side (the Ferris wheel, about its hub). All slow: the fastest rim, the
+-- carousel's, moves about 3.5 studs a second. The nearest `most` within `radius` studs turn (`mostLite` where the
+-- budget has no decor motion), chosen every `pick` seconds, stepped at the budget's rate but never above `hz`;
+-- a step never covers more than `longest` seconds. Reduce Motion and Low performance hold them all still.
+export type Ride = { axis: "up" | "thin", seconds: number }
+Presets.rides = {
+	kinds = {
+		CarouselTurn = { axis = "up", seconds = 24 },
+		TeacupsTurn = { axis = "up", seconds = 16 },
+		FerrisTurn = { axis = "thin", seconds = 60 },
+	} :: { [string]: Ride },
+	radius = 260,
+	most = 3,
+	mostLite = 1,
+	hz = 30,
+	longest = 0.25,
+	pick = 1,
+}
+
 -- The net swing (F93, catch-rework.md sections 1 and 5): a whoosh trail off the net's hoop over the downswing, from
 -- `from` to `to` seconds into the smack (it lands at netSmack.land), each piece fading over `lifetime`. The trail's
 -- edges are the hoop and a point `inner` of the way out from the grip, so it sweeps a fan like a swung racket. Only
@@ -4548,7 +4576,15 @@ Presets.introCut = {
 -- out of step with the others. Warm embers drift up off it with a small pop of them now and then, and a warm light
 -- flickers with the flame, brighter at night. With Reduce Motion the flame moves `still` as much. The nearest
 -- `campfires` (budget) within ambientRadius run; the rest stand as modelled.
+-- `kinds`: what burns, by the end of the flame Model's name, each with the reach of its light in studs, how bright
+-- it is against `brightness`, the embers in a pop and how far over the flame's base they leave from. A torch (#4071)
+-- is a smaller flame up on a post.
+export type FlameKind = { range: number, bright: number, pop: number, emberHeight: number }
 Presets.campfire = {
+	kinds = {
+		_Campfire_Glow = { range = 14, bright = 1, pop = 5, emberHeight = 1.2 },
+		_Torch_Glow = { range = 10, bright = 0.8, pop = 2, emberHeight = 0.9 },
+	} :: { [string]: FlameKind },
 	stretch = 0.2, -- of the modelled height, either way
 	lean = 9, -- degrees at the tip
 	hz = { 1.7, 2.9, 4.3 }, -- the three waves each tongue's motion is made of
@@ -4557,13 +4593,10 @@ Presets.campfire = {
 	brighten = 0.2, -- how far the flicker lifts each disc's colour toward `hot`
 	hot = Presets.palette.lampWarm,
 	light = Color3.fromRGB(255, 176, 102),
-	range = 14, -- studs
 	brightness = 1.1,
 	flicker = 0.35, -- of the brightness, either way
 	night = 1.6, -- times the brightness at night
-	emberHeight = 1.2, -- studs over the flame's base the embers leave from
 	popEvery = { 2.5, 5 }, -- seconds between pops
-	pop = 5, -- embers in a pop
 }
 
 -- A cat checked in at a camp (F84 section 4): it hops out of its carrier's arms in an arc `hopHeight` studs high

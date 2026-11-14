@@ -42,6 +42,58 @@ return function()
 			end)
 		end
 
+		it("gives the Water Park's rarer cats more, each in gold on a gold cat", function()
+			local places = { Body = true, Head = true, Prop = true, Prop2 = true }
+			local function weight(spec: any): number
+				local n = 1 + #(spec.extras or {})
+				if spec.orbit ~= nil then
+					n += 1
+				end
+				if spec.arrive ~= nil then
+					n += 1
+				end
+				if spec.eyes == true then
+					n += 1
+				end
+				return n
+			end
+			local sig = Presets.signature
+			for _, catId in { "clown", "water_gun", "coaster", "water" } do
+				local spec = sig[catId]
+				expect(spec).to.be.ok()
+				expect(Presets.emitters[spec.emitter].rate <= 2).to.equal(true)
+				expect(places[spec.on]).to.equal(true)
+				expect(Logic.signatureColors(catId, true)).to.equal(spec.gold)
+				for _, extra in spec.extras or {} do
+					expect(Presets.emitters[extra.emitter].rate <= 2).to.equal(true)
+					expect(places[extra.on]).to.equal(true)
+				end
+			end
+			-- Epic < Legendary < Mythical, and the two Epics match
+			expect(weight(sig.clown)).to.equal(weight(sig.water_gun))
+			expect(weight(sig.clown) < weight(sig.coaster)).to.equal(true)
+			expect(weight(sig.coaster) < weight(sig.water)).to.equal(true)
+			-- the commons and rares have none: their props do the talking
+			for _, catId in
+				{ "popcorn", "pinwheel", "splash", "taffy", "candy_apple", "cotton_candy" }
+			do
+				expect(sig[catId] == nil).to.equal(true)
+			end
+			-- the Water Cat: a slow swirl, a splash in budget, a taller fountain on its catch
+			local water = sig.water
+			expect(water.orbit.seconds >= 2).to.equal(true)
+			expect(Presets.emitters[water.orbit.emitter].rate <= 2).to.equal(true)
+			expect(water.arrive.burst <= Presets.budget.low.maxBurst).to.equal(true)
+			expect(Presets.emitters[water.arrive.preset]).to.be.ok()
+			local spec = Presets.catchFlavour.areas.waterpark
+			expect(Logic.catchFlavour("waterpark", "water", "Mythical").gusts).to.equal(
+				spec.gusts + spec.cats.water
+			)
+			-- the whoosh and the wet trail only while the cat moves
+			expect(sig.coaster.extras[2].moving).to.equal(true)
+			expect(sig.water.extras[2].moving).to.equal(true)
+		end)
+
 		it("reads each new area's box from the Config by its own name", function()
 			local boxes = {
 				{

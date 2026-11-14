@@ -842,6 +842,45 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, -0.6, 0),
 		drag = 2,
 	},
+	-- #4070 the Water Park's rarer cats (Presets.signature): `sigDrip` drops falling off a water blaster or a cat made
+	-- of water, `sigBubble` the bubbles the Water Cat's swirl leaves as it circles, and `sigWetTrail` the splashes
+	-- it leaves where it walks.
+	sigDrip = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(170, 226, 250) },
+		size = { 0.13, 0.05 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 0.2, 0.6 },
+		spread = 40,
+		rate = 1.6,
+		acceleration = Vector3.new(0, -9, 0),
+		lightEmission = 0.3,
+	},
+	sigBubble = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 255, 255) },
+		size = { 0.22, 0.3 },
+		transparency = { 0.2, 1 },
+		lifetime = { 0.6, 0.9 },
+		speed = { 0.1, 0.3 },
+		spread = 180,
+		rate = 2,
+		acceleration = Vector3.new(0, 0.8, 0),
+		lightEmission = 0.5,
+	},
+	sigWetTrail = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(150, 220, 250), Color3.fromRGB(255, 255, 255) },
+		size = { 0.18, 0.06 },
+		transparency = { 0.2, 1 },
+		lifetime = { 0.4, 0.6 },
+		speed = { 1.5, 3 },
+		spread = 60,
+		rate = 2,
+		acceleration = Vector3.new(0, -14, 0),
+		lightEmission = 0.2,
+	},
 	sigFall = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.furRose },
@@ -1459,7 +1498,7 @@ Presets.catchFlavour = {
 			gustsFrom = "Mythical",
 			gustHeight = 7,
 			gustEvery = 0.15,
-			cats = {},
+			cats = { water = 2 }, -- the water itself: a taller fountain
 		},
 		-- #4071 the Medieval Castle: gold sparkles, more of them, a gold ring, and a rising fanfare of sparkles
 		castle = {
@@ -2807,6 +2846,57 @@ Presets.signature = {
 			seconds = 3.2,
 		},
 		arrive = { ring = 9, burst = 10, preset = "smokePuff" },
+	},
+	-- #4070 the Water Park (Tier 9). The same ladder: each Epic one effect on its lit prop, the Legendary a glint on
+	-- its lit loop, sparks off the goggles and a whoosh while it runs, the Mythical drips, circling bubbles, a wet
+	-- trail, glowing eyes and a splash where it lands.
+	clown = { -- Clown Cat (Epic): confetti twinkles off the lit pom of its hat, in the pom colours
+		emitter = "sigGlint",
+		on = "Prop",
+		colors = {
+			palette.shirtRed,
+			palette.shirtBlue,
+			Color3.fromRGB(255, 226, 120),
+			palette.neonPink,
+		},
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+	},
+	water_gun = { -- Water Gun Cat (Epic): drops falling off the water blaster on its back
+		emitter = "sigDrip",
+		on = "Prop",
+		colors = { Color3.fromRGB(170, 226, 250), palette.offwhite },
+		gold = { palette.goldLight, palette.golden },
+	},
+	coaster = { -- Coaster Cat (Legendary): the lit loop glints, sparks lift off, and it leaves a whoosh at speed
+		emitter = "sigGlint",
+		on = "Prop2",
+		colors = { Presets.rarity.Legendary, palette.sparkle, palette.shirtRed },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigRise", on = "Body" },
+			{ emitter = "sigWhoosh", on = "Body", moving = true },
+		},
+	},
+	water = { -- Water Cat (Mythical): a cat of living water
+		emitter = "sigDrip",
+		on = "Body",
+		colors = { Color3.fromRGB(170, 226, 250), palette.offwhite, palette.mint },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = {
+			{ emitter = "sigGlint", on = "Prop" },
+			{ emitter = "sigWetTrail", on = "Body", moving = true },
+		},
+		orbit = {
+			emitter = "sigBubble",
+			count = 5,
+			countLow = 3,
+			radius = 0.8,
+			height = 0.5,
+			tilt = -0.25,
+			seconds = 3.6,
+		},
+		arrive = { ring = 9, burst = 10, preset = "splashDrops" },
 	},
 } :: { [string]: Signature }
 Presets.signatureFx = {

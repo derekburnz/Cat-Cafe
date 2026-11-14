@@ -36,6 +36,7 @@ local EventService = require(script.Parent.Services.EventService)
 local FallCatchService = require(script.Parent.Services.FallCatchService)
 local FeedService = require(script.Parent.Services.FeedService)
 local FishMarketService = require(script.Parent.Services.FishMarketService)
+local FishStoreService = require(script.Parent.Services.FishStoreService)
 local GlobalCatchService = require(script.Parent.Services.GlobalCatchService)
 local GrandOpeningService = require(script.Parent.Services.GrandOpeningService)
 local IdeaCreditsService = require(script.Parent.Services.IdeaCreditsService)
@@ -81,6 +82,7 @@ local SpinService = require(script.Parent.Services.SpinService)
 local StarterCatService = require(script.Parent.Services.StarterCatService)
 local StuckGoalService = require(script.Parent.Services.StuckGoalService)
 local Telemetry = require(script.Parent.Services.Telemetry)
+local TicketBoothService = require(script.Parent.Services.TicketBoothService)
 local TipJarService = require(script.Parent.Services.TipJarService)
 local TipPileService = require(script.Parent.Services.TipPileService)
 local TipService = require(script.Parent.Services.TipService)
@@ -143,6 +145,8 @@ FishMarketService.start()
 TraitService.start() -- #3196: the Mystic Pool, refused while the `traits` switch is off
 MysticPoolStationService.start() -- #3196: the pool stands in the Picnic Basket's place while the switch is on
 MysteryMarketService.start() -- #2565: Juniper's Mystery Market
+FishStoreService.start() -- #4055: Store passes for golden fish
+TicketBoothService.start() -- #4061: the Water Park's Ticket Booth
 CornerShopService.start() -- #1052: the coins-only Corner Shop
 FeedService.start() -- #1181: cat food from the Bag (FeedCat)
 LiveFlagService.start() -- #2119: the live switches (codes, rally) from CatCafe_Flags

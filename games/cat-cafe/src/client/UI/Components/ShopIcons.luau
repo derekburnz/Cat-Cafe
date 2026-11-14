@@ -131,6 +131,8 @@ local IDS: { [string]: string } = {
 	Icon_Clean_HoneyCream = "rbxassetid://101594576071338",
 	Icon_Clean_CometTreat = "rbxassetid://130150324251209",
 	Icon_Clean_Spin = "rbxassetid://92256242473029",
+	Icon_Clean_TipJar = "rbxassetid://88738180093821", -- #4046: the Tip Jar quest's picture (🫙 draws blank on Roblox)
+	Icon_Clean_TipPile = "rbxassetid://120928045593770", -- #4046: the tip piles quest's (🪙 draws blank too)
 	Icon_Clean_Kibble = "rbxassetid://73553280032864", -- its own bowl of kibble (run 41851955780, 11-04)
 	-- #1176: Model-Agent's HUD button pictures (#1185; upload run 41891138375, 11-04), the HUD's tiles prefer them
 	Icon_Hud_Store = "rbxassetid://93922915271593",
@@ -279,8 +281,19 @@ local IDS: { [string]: string } = {
 	Icon_StoreTab_Cats = "rbxassetid://136977692053739",
 	Icon_StoreTab_Potions = "rbxassetid://110723659646530",
 	Icon_StoreTab_Codes = "rbxassetid://126780860250721",
+	Icon_StoreTab_Packs = "rbxassetid://125330764207763", -- #4026: the Winter Pack's icon
 	-- the Store's card pictures, one per pass and product, by ShopIcons.store (#1762: the redrawn set, Tools-Agent 11-06;
 	-- #2578: eight passes redrawn on clear backgrounds, upload run 42665652455, 11-09)
+	-- #4026: the outfit packs' pass icons (512) and their 2:1 store art, cats close up in the pack (Model-Agent, 21:00
+	-- UTC 2026-11-13, moderation passed)
+	Icon_Store_PackStylish = "rbxassetid://108944643960006",
+	Icon_Store_PackWinter = "rbxassetid://125330764207763",
+	Icon_Store_PackChef = "rbxassetid://112087743532356",
+	Icon_Store_PackSpace = "rbxassetid://108635017155209",
+	Icon_Store_PackStylishArt = "rbxassetid://104257781959891",
+	Icon_Store_PackWinterArt = "rbxassetid://124937928622829",
+	Icon_Store_PackChefArt = "rbxassetid://114389016087315",
+	Icon_Store_PackSpaceArt = "rbxassetid://130035950104996",
 	Icon_Store_Money2x = "rbxassetid://106785644491188",
 	Icon_Store_Money3x = "rbxassetid://124737817716796",
 	Icon_Store_Money4x = "rbxassetid://103246165862005",
@@ -567,6 +580,11 @@ end
 
 -- A Store sidebar tab's picture by its StoreLogic.TABS id (#1674): "featured", "passes", "cats", "potions" and "codes"
 -- have their own; the Cafe Pass tab uses its Store card's medal. Nil for any other tab (its emoji stays).
+-- #4026: an outfit pack's 2:1 store art (cats close up in the pack), by its Row key ("packWinter")
+function ShopIcons.packArt(key: string): string?
+	return IDS["Icon_Store_" .. key:sub(1, 1):upper() .. key:sub(2) .. "Art"]
+end
+
 function ShopIcons.storeTab(id: string): string?
 	if id == "cafePass" then
 		return IDS.Icon_Store_CafePass

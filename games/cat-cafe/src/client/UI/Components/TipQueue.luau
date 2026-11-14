@@ -74,6 +74,7 @@ local CARD: { [string]: Line } = {
 	favorite_ask = "Favorite Catch a Cat Cafe to find it fast next time", -- F96, starter-cat.md section 3
 	-- #2915: ParkFirstController shows it as a toast (the same words); this keeps every tip worded
 	park_first = "Strays wait near the camp 🐾",
+	pet = "Petting gives that cat 2x money for 1 hour. One cat at a time!", -- Derek 2026-11-13
 }
 
 -- A camera cut's caption, said while the camera shows the place (section 3's table).
@@ -105,6 +106,7 @@ local ICONS: { [string]: string } = {
 	like_ask = "👍",
 	favorite_ask = "⭐",
 	park_first = "🐾", -- #2915
+	pet = "💗", -- Derek 2026-11-13: the heart the petted cat's money tag wears (shared/Pet.HEART)
 }
 
 function TipQueue.device(lastInput: string, touch: boolean): Device

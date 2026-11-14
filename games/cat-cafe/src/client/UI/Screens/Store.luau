@@ -25,6 +25,7 @@ local Config = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
 ) :: any
 local Create = require(script.Parent.Parent.Components.Create)
+local FitText = require(script.Parent.Parent.Components.FitText)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local LiveFlags =
 	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("LiveFlags"))
@@ -122,6 +123,26 @@ local HERO_MIN = 100
 -- On a short page (a phone held sideways) the picks drop their descriptions, so the hero and the three picks still
 -- fit with no scrolling; each pick keeps its picture, name and price, and the tabs show the details.
 local HERO_ROOM = 150 -- the hero wants at least this much beside the picks before they keep their words
+
+-- #4026: an outfit pack's card on the Packs tab: its 2:1 art across the top with the white i at its corner, then the
+-- name, the gold "Up to +100% money" chip, the short line and the price button
+local PACK_PAD = 8
+local PACK_NAME_H = 24
+local PACK_LINE_H = 32 -- two small lines
+local PACK_INFO = 36 -- the white i (and the sheet's X), a thumb's tap on touch
+local PACK_MIN_W = 300 -- a pack card no narrower than this, else one a row
+-- the art: the lower 352 of the 1024 x 512 render, where the cats sit close up (the sign's top is cut)
+local ART_RECT_OFFSET = Vector2.new(0, 160)
+local ART_RECT_SIZE = Vector2.new(1024, 352)
+local ART_RATIO = ART_RECT_SIZE.X / ART_RECT_SIZE.Y
+local PACK_SHEET_W = 460
+local PACK_LINE_ROW = 30
+local SHEET_PAD = 12
+local SHEET_TITLE_H = 30
+local SHEET_HOOK_H = 20
+local SALE_ROW_H = 26 -- #4026: Featured's Sale row under the picks
+local SALE_MOST = 3
+local INK = Color3.fromHex("2C1642") -- the family kit's ink, the i's letter and ring
 
 local PRELOAD_AFTER = 3 -- #2500: seconds after the Store is built (at join) before its pictures are fetched
 local PRELOAD_BATCH = 8 -- pictures asked for at once
@@ -331,6 +352,39 @@ function Store.new(callbacks: Callbacks): Store
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	-- #4026 (the approved store-v2 draft): the Sale row names the halved cards and their prices, under the picks. Words
+	-- only: the old price is on each card's own Sale badge, and there is no timer
+	self._saleRow = Create("Frame", {
+		Name = "SaleRow",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.fromScale(0, 1),
+		Size = UDim2.new(1, 0, 0, SALE_ROW_H),
+		Visible = false,
+		Parent = self._featured,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	local saleTitle = text({
+		Name = "Title",
+		Size = UDim2.fromOffset(0, SALE_ROW_H),
+		AutomaticSize = Enum.AutomaticSize.X,
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.gold,
+		TextTruncate = Enum.TextTruncate.None,
+		Text = "On sale",
+		LayoutOrder = 0,
+		Parent = self._saleRow,
+	})
+	MenuFamily.outline(saleTitle)
+	self._saleKey = ""
+	self._saleCount = 0
 	self._empty = text({
 		Name = "Empty",
 		Size = UDim2.new(1, 0, 0, 60),
@@ -356,6 +410,37 @@ function Store.new(callbacks: Callbacks): Store
 			PaddingTop = UDim.new(0, GAP),
 		}),
 	})
+
+	-- #4026: the Packs tab, its own page of art cards (Store._packCard), and the white i's breakdown sheet
+	self._packCards = {} :: { [string]: any }
+	self._packGrid = Create("UIGridLayout", {
+		CellPadding = UDim2.fromOffset(GAP + 2 * CARD_STROKE, GAP + 2 * CARD_STROKE),
+		CellSize = UDim2.fromOffset(PACK_MIN_W, 300),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	})
+	self._packsPage = Create("ScrollingFrame", {
+		Name = "PacksPage",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollBarThickness = SCROLL_BAR,
+		VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar,
+		ScrollBarImageColor3 = PAL.caramel,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		Visible = false,
+		Parent = pages,
+	}, {
+		self._packGrid,
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, CARD_INSET),
+			PaddingRight = UDim.new(0, CARD_INSET),
+			PaddingTop = UDim.new(0, CARD_STROKE),
+			PaddingBottom = UDim.new(0, CARD_STROKE),
+		}),
+	})
+	self:_packSheet(pages)
 
 	-- every other tab: one grid, showing the cards of the tab picked
 	self._grid = Create("UIGridLayout", {
@@ -878,6 +963,13 @@ function Store._layout(self: any)
 		return
 	end
 	local spacing = GAP + 2 * CARD_STROKE
+	-- #4026: the Sale row takes its strip at the foot of Featured, only where the hero and the picks keep their words
+	local saleShown = self._saleCount > 0
+		and height - SALE_ROW_H - 2 * spacing - self._cellMin >= HERO_ROOM
+	self._saleRow.Visible = saleShown
+	local saleH = if saleShown then SALE_ROW_H + spacing else 0
+	self._picks.Position = UDim2.new(0, 0, 1, -saleH)
+	height -= saleH
 	-- Featured: the picks as tall as a grid card needs, the hero takes the rest (never under HERO_MIN); on a short
 	-- page the picks drop their words first
 	local compact = height - spacing - self._cellMin < HERO_ROOM
@@ -914,6 +1006,460 @@ function Store._layout(self: any)
 		then math.clamp(math.floor((height - 2 * spacing) / 3), self._wideMin, WIDE_MAX)
 		else math.clamp(math.floor((height - spacing) / 2), self._cellMin, CELL_MAX)
 	self._grid.CellSize = UDim2.fromOffset(cellW, cellH)
+	-- #4026: pack cards two a row where each keeps PACK_MIN_W, else one; the art is the lower part of the 2:1 render
+	-- (the cats close up), ART_RATIO wide
+	local packColumns = if width - SCROLL_BAR >= 2 * PACK_MIN_W + spacing then 2 else 1
+	local packW = math.floor((width - SCROLL_BAR - (packColumns - 1) * spacing) / packColumns)
+	local artH = math.floor((packW - 2 * PACK_PAD) / ART_RATIO)
+	local packH = PACK_PAD
+		+ artH
+		+ 4
+		+ PACK_NAME_H
+		+ PACK_LINE_H
+		+ 4
+		+ self._actionHeight
+		+ PACK_PAD
+	self._packGrid.CellSize = UDim2.fromOffset(packW, packH)
+	for _, entry in self._packCards do
+		entry.art.Size = UDim2.new(1, -2 * PACK_PAD, 0, artH)
+		local y = PACK_PAD + artH + 4
+		entry.name.Position = UDim2.fromOffset(PACK_PAD + 2, y)
+		entry.effect.Position = UDim2.fromOffset(PACK_PAD + 2, y + PACK_NAME_H)
+	end
+	self:_placePackSheet(height)
+end
+
+-- #4026: the Sale row's chips, one per card on sale ("Royal Cat R$299"), rebuilt only when the list changes
+function Store._fillSale(self: any, list: { StoreLogic.SaleEntry })
+	local parts: { string } = {}
+	for _, entry in list do
+		table.insert(parts, entry.key .. "=" .. entry.robux)
+	end
+	local key = table.concat(parts, ",")
+	self._saleCount = #list
+	if key == self._saleKey then
+		return
+	end
+	self._saleKey = key
+	for _, child in self._saleRow:GetChildren() do
+		if child:IsA("TextLabel") and child.Name ~= "Title" then
+			child:Destroy()
+		end
+	end
+	for index, entry in list do
+		local chip = text({
+			Name = "Sale_" .. entry.key,
+			Size = UDim2.fromOffset(0, SALE_ROW_H - 4),
+			AutomaticSize = Enum.AutomaticSize.X,
+			BackgroundTransparency = 0,
+			BackgroundColor3 = CARD.card,
+			TextSize = Theme.sizes.textSmall,
+			TextTruncate = Enum.TextTruncate.None,
+			RichText = true,
+			Text = ("%s  <b>R$%d</b>"):format(entry.name, entry.robux),
+			LayoutOrder = index,
+			Parent = self._saleRow,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = chip })
+		Create("UIStroke", {
+			Color = Theme.colors.redDark,
+			Thickness = 1.5,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Parent = chip,
+		})
+		Create(
+			"UIPadding",
+			{ PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8), Parent = chip }
+		)
+	end
+end
+
+-- #4026: one outfit pack's card (Store._fillPack fills it), as the approved draft: the art with the gold "Up to +100%
+-- money" chip on its top left and the white i on its top right, then the name, one short line and the price button
+-- (or "Yours" once owned)
+function Store._packCard(self: any, key: string): any
+	local card: Frame = Create("Frame", {
+		Name = "Pack_" .. key,
+		BackgroundColor3 = CARD.goldCard,
+		BorderSizePixel = 0,
+		Parent = self._packsPage,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = Theme.colors.gold, Thickness = CARD_STROKE }),
+	})
+	local art: ImageLabel = Create("ImageLabel", {
+		Name = "Art",
+		Position = UDim2.fromOffset(PACK_PAD, PACK_PAD),
+		Size = UDim2.new(1, -2 * PACK_PAD, 0, 100),
+		BackgroundColor3 = CARD.card,
+		BorderSizePixel = 0,
+		ImageRectOffset = ART_RECT_OFFSET,
+		ImageRectSize = ART_RECT_SIZE,
+		Parent = card,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius - 2) }),
+		Create("UIStroke", { Color = Theme.colors.goldDark, Thickness = 2 }),
+	})
+	-- the white i: a white disc with an ink ring and letter, a thumb's tap on a touch screen
+	local infoSize = Scale.tapHeight(PACK_INFO)
+	local info: TextButton = Create("TextButton", {
+		Name = "Info",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -4, 0, 4),
+		Size = UDim2.fromOffset(infoSize, infoSize),
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		BorderSizePixel = 0,
+		AutoButtonColor = true,
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = INK,
+		Text = "i",
+		ZIndex = 3,
+		Parent = art,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create(
+			"UIStroke",
+			{ Color = INK, Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }
+		),
+	})
+	local perk = text({
+		Name = "Perk",
+		Position = UDim2.fromOffset(6, 6),
+		Size = UDim2.fromOffset(0, PERK_H),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Theme.colors.gold,
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PERK_BROWN,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None,
+		ZIndex = 3,
+		Parent = art,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = perk })
+	Create("UIStroke", {
+		Color = Theme.colors.goldDark,
+		Thickness = 1.5,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Parent = perk,
+	})
+	Create(
+		"UIPadding",
+		{ PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8), Parent = perk }
+	)
+	local name = text({
+		Name = "Name",
+		Size = UDim2.new(1, -2 * PACK_PAD - 4, 0, PACK_NAME_H),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 4,
+		Parent = card,
+	})
+	MenuFamily.outline(name)
+	local effect = text({
+		Name = "Effect",
+		Size = UDim2.new(1, -2 * PACK_PAD - 4, 0, PACK_LINE_H),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = CARD.subtext,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		Parent = card,
+	})
+	local buttonSize = UDim2.new(1, -2 * PACK_PAD, 0, self._actionHeight)
+	local buttonPosition = UDim2.new(0.5, 0, 1, -PACK_PAD)
+	local owned = text({
+		Name = "Owned",
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = buttonPosition,
+		Size = buttonSize,
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = CARD.good,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "✓ Yours",
+		Visible = false,
+		Parent = card,
+	})
+	MenuFamily.outline(owned)
+	local entry: any = {
+		frame = card,
+		art = art,
+		info = info,
+		name = name,
+		perk = perk,
+		effect = effect,
+		owned = owned,
+		passId = 0,
+		rowKey = key,
+		key = key,
+	}
+	entry.button = Button.new({
+		name = "Buy",
+		text = "...",
+		style = "ghost",
+		size = buttonSize,
+		anchorPoint = Vector2.new(0.5, 1),
+		position = buttonPosition,
+		textSize = Theme.sizes.textBody,
+		enabled = false,
+		parent = card,
+		onClick = function()
+			if entry.passId ~= 0 then
+				StoreMotion.press(entry.frame :: any)
+				self._callbacks.buy(entry.passId)
+			end
+		end,
+	})
+	info.Activated:Connect(function()
+		self:_showPack(entry.rowKey)
+	end)
+	effect:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		fitText(effect, Theme.sizes.textSmall)
+	end)
+	self._packCards[key] = entry
+	self:_layout()
+	return entry
+end
+
+function Store._fillPack(self: any, entry: any, row: StoreLogic.Row)
+	entry.row = row
+	entry.passId = row.passId
+	entry.name.Text = row.name
+	entry.perk.Text = row.perk or ""
+	entry.perk.Visible = row.perk ~= nil
+	entry.effect.Text = string.match(row.effect, "^[^\n]+") or row.effect
+	fitText(entry.effect, Theme.sizes.textSmall)
+	local art = ShopIcons.packArt(row.key) or ""
+	if entry.art.Image ~= art then
+		entry.art.Image = art
+	end
+	local button = StoreLogic.button(row, self._prices[row.passId])
+	entry.button:setText(button.text)
+	entry.button:setStyle(button.style :: any)
+	entry.button:setEnabled(button.enabled)
+	entry.button.instance.Visible = not row.owned
+	entry.owned.Visible = row.owned
+	if self._packShown == row.key then
+		self:_showPack(row.key) -- the open sheet follows a price or Owned change
+	end
+end
+
+-- #4026: the white i's sheet over the Packs page, as the approved draft: the pack's name and hook with an X, each
+-- piece with where it goes and its bonus, the set bonus, the total, and the price button. Plain facts: no timers,
+-- no struck-out prices.
+function Store._packSheet(self: any, pages: Frame)
+	local shade: TextButton = Create("TextButton", {
+		Name = "PackInfo",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Color3.new(0, 0, 0),
+		BackgroundTransparency = 0.45,
+		BorderSizePixel = 0,
+		AutoButtonColor = false,
+		Text = "",
+		Visible = false,
+		ZIndex = 20,
+		Parent = pages,
+	})
+	shade.Activated:Connect(function()
+		self:_showPack(nil)
+	end)
+	local sheet: Frame = Create("Frame", {
+		Name = "Sheet",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.new(1, -2 * CARD_INSET, 1, -2 * CARD_STROKE),
+		BackgroundColor3 = CARD.card,
+		BorderSizePixel = 0,
+		Active = true, -- a tap on the sheet itself stays on it (only the shade round it closes)
+		ZIndex = 21,
+		Parent = shade,
+	}, {
+		Create("UISizeConstraint", { MaxSize = Vector2.new(PACK_SHEET_W, math.huge) }),
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = Theme.colors.gold, Thickness = CARD_STROKE }),
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, SHEET_PAD),
+			PaddingRight = UDim.new(0, SHEET_PAD),
+			PaddingTop = UDim.new(0, SHEET_PAD),
+			PaddingBottom = UDim.new(0, SHEET_PAD),
+		}),
+	})
+	local closeSize = Scale.tapHeight(PACK_INFO)
+	local title = text({
+		Name = "Title",
+		Size = UDim2.new(1, -(closeSize + 6), 0, SHEET_TITLE_H),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		ZIndex = 22,
+		Parent = sheet,
+	})
+	MenuFamily.outline(title)
+	local close = Button.new({
+		name = "Close",
+		text = "X",
+		style = "close",
+		size = UDim2.fromOffset(closeSize, closeSize),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.fromScale(1, 0),
+		textSize = Theme.sizes.textBody,
+		zIndex = 22,
+		parent = sheet,
+		onClick = function()
+			self:_showPack(nil)
+		end,
+	})
+	local hook = text({
+		Name = "Hook",
+		Position = UDim2.fromOffset(0, SHEET_TITLE_H),
+		Size = UDim2.new(1, -(closeSize + 6), 0, SHEET_HOOK_H),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = CARD.subtext,
+		ZIndex = 22,
+		Parent = sheet,
+	})
+	FitText.shrink(hook)
+	local lines: Frame = Create("Frame", {
+		Name = "Lines",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(0, SHEET_TITLE_H + SHEET_HOOK_H + 4),
+		Size = UDim2.new(1, 0, 0, 0),
+		ZIndex = 22,
+		Parent = sheet,
+	}, {
+		Create(
+			"UIListLayout",
+			{ Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder }
+		),
+	})
+	local buy = Button.new({
+		name = "Buy",
+		text = "...",
+		style = "ghost",
+		size = UDim2.new(1, 0, 0, self._actionHeight),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.fromScale(0.5, 1),
+		textSize = Theme.sizes.textBody,
+		enabled = false,
+		zIndex = 22,
+		parent = sheet,
+		onClick = function()
+			local info = self._packInfo
+			if info and info.passId ~= 0 then
+				self._callbacks.buy(info.passId)
+			end
+		end,
+	})
+	self._packInfo = {
+		shade = shade,
+		sheet = sheet,
+		title = title,
+		hook = hook,
+		lines = lines,
+		close = close,
+		buy = buy,
+		passId = 0,
+		rowH = PACK_LINE_ROW,
+	}
+end
+
+-- #4026: the sheet's rows fit the page: as tall as PACK_LINE_ROW, shorter on a short page (never under 20), and the
+-- hook line goes first when even that does not fit
+function Store._placePackSheet(self: any, pageH: number)
+	local info = self._packInfo
+	if info == nil then
+		return
+	end
+	local count = 6 -- four pieces, the set and the total
+	local fixed = 2 * SHEET_PAD + SHEET_TITLE_H + 4 + 6 + self._actionHeight
+	local rowH =
+		math.floor((pageH - 2 * CARD_STROKE - fixed - SHEET_HOOK_H - (count - 1) * 2) / count)
+	local hookShown = rowH >= 22
+	if not hookShown then
+		rowH = math.floor((pageH - 2 * CARD_STROKE - fixed - (count - 1) * 2) / count)
+	end
+	rowH = math.clamp(rowH, 20, PACK_LINE_ROW)
+	info.rowH = rowH
+	info.hook.Visible = hookShown
+	info.lines.Position =
+		UDim2.fromOffset(0, SHEET_TITLE_H + (if hookShown then SHEET_HOOK_H else 0) + 4)
+	info.lines.Size = UDim2.new(1, 0, 0, count * rowH + (count - 1) * 2)
+	for _, child in info.lines:GetChildren() do
+		if child:IsA("Frame") then
+			child.Size = UDim2.new(1, 0, 0, rowH)
+		end
+	end
+end
+
+-- #4026: opens the white i's sheet for a pack card (its Row key, "packWinter"), or closes it (nil)
+function Store._showPack(self: any, key: string?)
+	local info = self._packInfo
+	if info == nil then
+		return
+	end
+	local entry = if key then self._packCards[key] else nil
+	local row: StoreLogic.Row? = entry and entry.row
+	local pack = if row and row.pack then StoreLogic.PACKS[row.pack] else nil
+	info.shade.Visible = pack ~= nil
+	self._packShown = if pack then key else nil
+	if pack == nil or row == nil or row.pack == nil then
+		info.passId = 0
+		return
+	end
+	info.passId = row.passId
+	info.title.Text = pack.title
+	info.hook.Text = string.match(row.effect, "^[^\n]+") or row.effect
+	local button = StoreLogic.button(row, self._prices[row.passId])
+	info.buy:setText(if row.owned then "✓ Yours" else button.text)
+	info.buy:setStyle(if row.owned then "ghost" else button.style :: any)
+	info.buy:setEnabled(button.enabled and not row.owned)
+	for _, child in info.lines:GetChildren() do
+		if child:IsA("Frame") then
+			child:Destroy()
+		end
+	end
+	local list = StoreLogic.packLines(row.pack)
+	for index, line in list do
+		local last = index == #list
+		local rowFrame: Frame = Create("Frame", {
+			Name = "Line" .. index,
+			BackgroundTransparency = 0,
+			BackgroundColor3 = if last then CARD.goldCard else Color3.new(1, 1, 1),
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 0, 0, info.rowH),
+			LayoutOrder = index,
+			ZIndex = 22,
+			Parent = info.lines,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, 6) }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
+		})
+		local left = text({
+			Name = "Piece",
+			Size = UDim2.new(0.68, 0, 1, 0),
+			FontFace = if last then Theme.fonts.display else Theme.fonts.body,
+			TextSize = Theme.sizes.textSmall + (if last then 2 else 0),
+			Text = line.left,
+			ZIndex = 23,
+			Parent = rowFrame,
+		})
+		FitText.shrink(left)
+		local right = text({
+			Name = "Bonus",
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.fromScale(1, 0),
+			Size = UDim2.new(0.32, 0, 1, 0),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall + (if last then 2 else 0),
+			TextColor3 = CARD.good,
+			TextXAlignment = Enum.TextXAlignment.Right,
+			Text = line.right,
+			ZIndex = 23,
+			Parent = rowFrame,
+		})
+		FitText.shrink(right)
+	end
 end
 
 -- The tab the rail shows: its button gold, its page up (Featured, or the grid with that tab's cards).
@@ -952,8 +1498,13 @@ function Store.showTab(self: any, tab: string)
 	end
 	local featured = self._tab == "featured"
 	local codes = self._tab == "codes"
+	local packs = self._tab == "packs"
 	self._featured.Visible = featured
-	self._list.Visible = not featured and not codes
+	self._list.Visible = not featured and not codes and not packs
+	self._packsPage.Visible = packs
+	if not packs then
+		self:_showPack(nil)
+	end
 	self:_placeBag()
 	self.codesPage.Visible = codes
 	local onCodes: ((boolean) -> ())? = self._callbacks.codes
@@ -970,6 +1521,7 @@ function Store.showTab(self: any, tab: string)
 	-- scrolled list back up (#1605, Derek2 11-05), so the same tab keeps its place
 	if not featured and not codes and was ~= self._tab then
 		self._list.CanvasPosition = Vector2.zero
+		self._packsPage.CanvasPosition = Vector2.zero
 	end
 end
 
@@ -1010,6 +1562,7 @@ function Store.closed(self: any)
 	end
 	self._tab = "featured"
 	self._fresh = true
+	self:_showPack(nil)
 end
 
 function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: StoreLogic.Price })
@@ -1041,6 +1594,14 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 		self:_fill(entry, featured.picks[index])
 	end
 	self._picks.Visible = #featured.picks > 0
+	local onFeatured: { [string]: boolean } = {}
+	if featured.hero then
+		onFeatured[featured.hero.key] = true
+	end
+	for _, pick in featured.picks do
+		onFeatured[pick.key] = true
+	end
+	self:_fillSale(StoreLogic.saleList(rows, prices, Config, os.time(), SALE_MOST, onFeatured))
 	self._empty.Visible = #rows == 0
 	-- the grid: a card per row, kept for the next render
 	local shown: { [string]: boolean } = {}
@@ -1048,7 +1609,23 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 	local gridRows: { StoreLogic.Row } = if self._rework
 		then StoreLogic.cheapestFirst(rows, prices)
 		else rows
+	local packOrder = 0
+	for _, row in rows do
+		if row.pack ~= nil then
+			packOrder += 1
+			local entry = self._packCards[row.key] or self:_packCard(row.key)
+			entry.frame.LayoutOrder = packOrder
+			self:_fillPack(entry, row)
+			shown["pack:" .. row.key] = true
+		end
+	end
+	for key, entry in self._packCards do
+		entry.frame.Visible = shown["pack:" .. key] == true
+	end
 	for order, row in gridRows do
+		if row.pack ~= nil then
+			continue -- #4026: the Packs tab draws its own cards
+		end
 		local slot = "grid:" .. row.key
 		local entry = self._cards[slot] or self:_makeCard(slot, "tile", self._list, order)
 		entry.frame.LayoutOrder = order
@@ -1094,6 +1671,13 @@ function Store.destroy(self: any)
 	end
 	for _, button in self._railButtons do
 		button:destroy()
+	end
+	for _, entry in self._packCards do
+		entry.button:destroy()
+	end
+	if self._packInfo then
+		self._packInfo.close:destroy()
+		self._packInfo.buy:destroy()
 	end
 	self._panel:destroy()
 end

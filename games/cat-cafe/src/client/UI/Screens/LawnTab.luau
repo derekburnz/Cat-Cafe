@@ -43,7 +43,6 @@ local CARD_WIDTH = 164 -- the inside decor's cards
 local CARD_TOP = 152
 local TOTAL_HEIGHT = 28 -- "Lawn: 6 out, +18% money"
 local HEADING_HEIGHT = 26 -- #2081: "Big spots · 2"
-local FOOTER_GLYPH = 56
 
 local GLYPH = "🌷" -- a lawn piece with no model in Assets yet
 local PATH_GLYPH = "🧱"
@@ -125,50 +124,7 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks?): LawnTab
 		Outline.listPadding(10), -- #2294: room for the cards' outlines
 	})
 	self._sections = {} :: { [string]: any }
-	local more = self:_cells("More", 100000)
-
-	-- the last cell: where lawn pieces are sold, like the decor grid's "Find more in crates"
-	local footer: Frame = Create("Frame", {
-		Name = "FindMore",
-		BackgroundColor3 = PAL.card,
-		BorderSizePixel = 0,
-		Parent = more,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
-	})
-	text({
-		Name = "Glyph",
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, 18),
-		Size = UDim2.fromOffset(FOOTER_GLYPH, FOOTER_GLYPH),
-		TextScaled = true,
-		TextXAlignment = Enum.TextXAlignment.Center,
-		Text = GLYPH,
-		Parent = footer,
-	})
-	text({
-		Name = "Title",
-		Position = UDim2.fromOffset(10, FOOTER_GLYPH + 26),
-		Size = UDim2.new(1, -20, 0, 22),
-		FontFace = Theme.fonts.display,
-		TextXAlignment = Enum.TextXAlignment.Center,
-		Text = LawnLogic.SHOP_TITLE,
-		TextScaled = true,
-		Parent = footer,
-	})
-	text({
-		Name = "Where",
-		Position = UDim2.fromOffset(10, FOOTER_GLYPH + 50),
-		Size = UDim2.new(1, -20, 0, 44), -- room for the line to wrap to three lines at full size
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
-		TextXAlignment = Enum.TextXAlignment.Center,
-		TextYAlignment = Enum.TextYAlignment.Top,
-		TextWrapped = true,
-		Text = LawnLogic.SHOP_WHERE,
-		Parent = footer,
-	})
+	-- Derek 2026-11-13: no "Find more lawn decor" card; it named the old Yard Sale shop, which sells crates now
 
 	return self :: LawnTab
 end

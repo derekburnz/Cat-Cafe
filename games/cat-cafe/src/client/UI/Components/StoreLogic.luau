@@ -28,6 +28,7 @@ export type Row = {
 	worthIds: { number }?,
 	perk: string?, -- #2147: a gold chip over the words, "+15% money" (the two outfit passes)
 	closed: boolean?, -- #2129: not offered right now (the Cafe Pass in the last minutes of a season)
+	pack: string?, -- #4026: an outfit pack's StoreLogic.PACKS key, for its art card and its white i breakdown
 }
 
 -- The Store's left rail, top to bottom (#1425). Featured and Codes (#1428, the code box) always show; another tab
@@ -35,6 +36,7 @@ export type Row = {
 export type Tab = { id: string, name: string, icon: string, always: boolean? }
 StoreLogic.TABS = {
 	{ id = "featured", name = "Featured", icon = "⭐", always = true },
+	{ id = "packs", name = "Packs", icon = "🎁" }, -- #4026: the outfit packs, under Featured
 	{ id = "passes", name = "Passes", icon = "🎟️" },
 	{ id = "cats", name = "Cats", icon = "🐱" },
 	{ id = "potions", name = "Potions", icon = "🧪" },
@@ -45,7 +47,7 @@ StoreLogic.TABS = {
 -- #3572 (Derek's OK of Model-Agent's mock, 2026-11-12 13:10 UTC): the reworked Store, behind the `storeRework`
 -- switch, puts Cats above Passes on the rail.
 StoreLogic.REWORK_FLAG = "storeRework"
-StoreLogic.REWORK_RAIL = { "featured", "cats", "passes", "potions", "cafePass", "codes" }
+StoreLogic.REWORK_RAIL = { "featured", "packs", "cats", "passes", "potions", "cafePass", "codes" }
 
 -- The rail's tabs in their order: TABS, or with the rework on REWORK_RAIL's order.
 function StoreLogic.railTabs(rework: boolean): { Tab }
@@ -68,6 +70,7 @@ end
 StoreLogic.SUBTITLE_DEFAULT = "Help your cafe grow"
 local SUBTITLES: { [string]: string } = {
 	featured = "Prices are in Robux.", -- Featured can show potion packs, which are used up
+	packs = "Packs are yours to keep. Prices are in Robux.",
 	cats = "Passes are yours to keep. Prices are in Robux.",
 	passes = "Passes are yours to keep. Prices are in Robux.",
 	potions = "Potions are used from your Bag. Prices are in Robux.",
@@ -117,6 +120,7 @@ export type PassCard = {
 	note: string?,
 	tab: string?, -- default "passes"
 	perk: string?, -- #2147 (store-pass-looks.md 7): the card's gold chip
+	pack: string?, -- #4026: the StoreLogic.PACKS key of an outfit pack
 }
 local PASSES: { PassCard } = {
 	{
@@ -225,8 +229,141 @@ local PASSES: { PassCard } = {
 		note = "Yours to keep. Can't be traded.",
 		tab = "cats",
 	},
+	-- #4026 (Derek 2026-11-13, his OK of store-v2-draft.png at 20:13 UTC): the four outfit packs on their own tab, each
+	-- a full outfit plus decor at R$99; hidden while their ids are 0 (Gameplay-Engineer makes the passes)
+	{
+		key = "packStylish",
+		configKey = "StylishPackPassId",
+		name = "Stylish Pack",
+		icon = "🕶️",
+		effect = "Turn your cafe into a night club: sharp suits, cool shades and a disco ball.",
+		note = "Yours to keep.",
+		tab = "packs",
+		perk = "Up to +100% money",
+		pack = "stylish",
+	},
+	{
+		key = "packWinter",
+		configKey = "WinterPackPassId",
+		name = "Winter Pack",
+		icon = "❄️",
+		effect = "A cosy snow day: warm coats, bobble hats and a cocoa stand.",
+		note = "Yours to keep.",
+		tab = "packs",
+		perk = "Up to +100% money",
+		pack = "winter",
+	},
+	{
+		key = "packChef",
+		configKey = "ChefPackPassId",
+		name = "Chef Pack",
+		icon = "🧁",
+		effect = "Run a real bakery: chef whites, chef hats and a pastry case.",
+		note = "Yours to keep.",
+		tab = "packs",
+		perk = "Up to +100% money",
+		pack = "chef",
+	},
+	{
+		key = "packSpace",
+		configKey = "SpacePackPassId",
+		name = "Space Pack",
+		icon = "🚀",
+		effect = "Blast off: space suits, bubble helmets and a rocket lamp.",
+		note = "Yours to keep.",
+		tab = "packs",
+		perk = "Up to +100% money",
+		pack = "space",
+	},
 }
 StoreLogic.PASSES = PASSES
+
+-- #4026: what each outfit pack holds, for its white i breakdown. Every piece adds money while it is in use (decor
+-- +25%, a wearable +15%) and the whole set in use adds SET_BONUS more, so a pack reads "Up to +100% money".
+-- Gameplay-Engineer's server code applies the bonuses; these are the words.
+export type PackPiece = { name: string, place: string, bonus: number }
+export type Pack = { title: string, pieces: { PackPiece } }
+StoreLogic.PACK_DECOR = 25
+StoreLogic.PACK_WEAR = 15
+StoreLogic.SET_BONUS = 20
+local DECOR, WEAR = StoreLogic.PACK_DECOR, StoreLogic.PACK_WEAR
+StoreLogic.PACKS = {
+	stylish = {
+		title = "Stylish Pack",
+		pieces = {
+			{ name = "Club Banner", place = "Cafe sign", bonus = DECOR },
+			{ name = "Disco Ball", place = "Cafe decor", bonus = DECOR },
+			{ name = "Club Suit", place = "Staff uniform", bonus = WEAR },
+			{ name = "Cool Shades", place = "For your cats", bonus = WEAR },
+		},
+	},
+	winter = {
+		title = "Winter Pack",
+		pieces = {
+			{ name = "Snowy Banner", place = "Cafe sign", bonus = DECOR },
+			{ name = "Cocoa Stand", place = "Cafe decor", bonus = DECOR },
+			{ name = "Winter Coat", place = "Staff uniform", bonus = WEAR },
+			{ name = "Bobble Hat", place = "For your cats", bonus = WEAR },
+		},
+	},
+	chef = {
+		title = "Chef Pack",
+		pieces = {
+			{ name = "Bakery Banner", place = "Cafe sign", bonus = DECOR },
+			{ name = "Pastry Case", place = "Cafe decor", bonus = DECOR },
+			{ name = "Chef Whites", place = "Staff uniform", bonus = WEAR },
+			{ name = "Chef Hat", place = "For your cats", bonus = WEAR },
+		},
+	},
+	space = {
+		title = "Space Pack",
+		pieces = {
+			{ name = "Star Banner", place = "Cafe sign", bonus = DECOR },
+			{ name = "Rocket Lamp", place = "Cafe decor", bonus = DECOR },
+			{ name = "Space Suit", place = "Staff uniform", bonus = WEAR },
+			{ name = "Bubble Helmet", place = "For your cats", bonus = WEAR },
+		},
+	},
+} :: { [string]: Pack }
+
+-- A pack's whole bonus with every piece and the set in use: 100 for each of the four.
+function StoreLogic.packTotal(key: string): number
+	local pack = StoreLogic.PACKS[key]
+	if pack == nil then
+		return 0
+	end
+	local total = StoreLogic.SET_BONUS
+	for _, piece in pack.pieces do
+		total += piece.bonus
+	end
+	return total
+end
+
+export type PackLine = { left: string, right: string }
+-- The white i sheet's lines, top to bottom: each piece and where it goes, then the set, then the total. Plain facts:
+-- no timers, no struck-out prices.
+function StoreLogic.packLines(key: string): { PackLine }
+	local pack = StoreLogic.PACKS[key]
+	if pack == nil then
+		return {}
+	end
+	local lines: { PackLine } = {}
+	for _, piece in pack.pieces do
+		table.insert(lines, {
+			left = piece.name .. " · " .. piece.place,
+			right = ("+%d%% money"):format(piece.bonus),
+		})
+	end
+	table.insert(
+		lines,
+		{ left = "All four in use", right = ("+%d%% money"):format(StoreLogic.SET_BONUS) }
+	)
+	table.insert(
+		lines,
+		{ left = "Total", right = ("+%d%% money"):format(StoreLogic.packTotal(key)) }
+	)
+	return lines
+end
 -- #2147 (store-pass-looks.md 7.3): the toast right after an outfit pass is bought, with its pass's symbol
 StoreLogic.OUTFIT_THANKS = "Your working cats now earn +15%!"
 function StoreLogic.outfitThanks(which: string): string
@@ -871,6 +1008,7 @@ function StoreLogic.rows(
 				owned = owned[id] == true,
 				tab = card.tab or "passes",
 				perk = card.perk,
+				pack = card.pack,
 				worthIds = if card.key == "kingPack" then kingWorth(config) else nil,
 			})
 		end
@@ -948,6 +1086,9 @@ local PICK_ORDER =
 	{ "money", "royalCat", "kingPack", "secondBowl", "extraSlot", "vip", "longNap", "cafePass" }
 -- Then the passes the player keeps that are mostly looks (#2303, Monetization-Agent's order). Any other pass comes
 -- next, then any other product; the potion packs fill a pick only once nothing else can be bought.
+-- #4026: the outfit packs, newest first (Winter goes with the Snowy Mountain update); the first one still to buy is
+-- Featured's second pick
+StoreLogic.NEWEST_PACKS = { "packWinter", "packStylish", "packChef", "packSpace" }
 local PASS_PICKS = {
 	"accessories",
 	"cafeStyle",
@@ -1017,6 +1158,16 @@ function StoreLogic.featured(rows: { Row }, prices: { [number]: Price }?): Featu
 		if row and buyable(row) then
 			take(row)
 		end
+		if key == "money" then
+			-- #4026 (the approved store-v2 draft): the newest outfit pack still to buy sits beside 2x Money
+			for _, packKey in StoreLogic.NEWEST_PACKS do
+				local pack = byKey[packKey]
+				if pack and buyable(pack) then
+					take(pack)
+					break
+				end
+			end
+		end
 	end
 	for _, key in PASS_PICKS do
 		local row = byKey[key]
@@ -1043,6 +1194,46 @@ function StoreLogic.featured(rows: { Row }, prices: { [number]: Price }?): Featu
 		take(byKey[key]) -- everything bought: the picks still show, marked Owned
 	end
 	return { hero = hero, picks = picks }
+end
+
+-- #4026 (the approved store-v2 draft: "A Sale row names the halved items"): Featured's Sale row, the cards on sale
+-- right now (StoreLogic.saleWas) that can still be bought and are not already on Featured, biggest saving first and
+-- at most `most`. The row names each with its price; the old price stays on the card's own Sale badge.
+export type SaleEntry = { key: string, name: string, robux: number, tab: string }
+function StoreLogic.saleList(
+	rows: { Row },
+	prices: { [number]: Price }?,
+	config: any,
+	now: number,
+	most: number,
+	skip: { [string]: boolean }? -- the cards already on Featured, which show their own Sale badge
+): { SaleEntry }
+	local list: { SaleEntry } = {}
+	local saving: { [string]: number } = {}
+	if prices == nil then
+		return list
+	end
+	for _, row in rows do
+		local price = prices[row.passId]
+		local was = StoreLogic.saleWas(row, price, config, now)
+		if was and price and price.robux and not (skip and skip[row.key]) then
+			saving[row.key] = was - price.robux
+			table.insert(
+				list,
+				{ key = row.key, name = row.name, robux = price.robux, tab = row.tab }
+			)
+		end
+	end
+	table.sort(list, function(a, b)
+		if saving[a.key] ~= saving[b.key] then
+			return saving[a.key] > saving[b.key]
+		end
+		return a.key < b.key
+	end)
+	while #list > most do
+		table.remove(list)
+	end
+	return list
 end
 
 -- A card's button: Owned, "..." while the price loads, Soon while off sale, else the price in Robux.

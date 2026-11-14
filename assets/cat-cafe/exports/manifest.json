@@ -358210,35 +358210,139 @@
       "objects": [
         "CatCafe_Town_ArcadeCabinet",
         "CatCafe_Town_ArcadeCabinet_Screen",
-        "CatCafe_Town_ArcadeCabinet_Glow"
+        "CatCafe_Town_ArcadeCabinet_Glow",
+        "CatCafe_Town_ArcadeCabinet_Cat_Body",
+        "CatCafe_Town_ArcadeCabinet_Cat_Head",
+        "CatCafe_Town_ArcadeCabinet_Cat_Eye1",
+        "CatCafe_Town_ArcadeCabinet_Cat_Eye2",
+        "CatCafe_Town_ArcadeCabinet_Cat_EarL",
+        "CatCafe_Town_ArcadeCabinet_Cat_EarR",
+        "CatCafe_Town_ArcadeCabinet_Cat_Tail",
+        "CatCafe_Town_ArcadeCabinet_Cat_LegF1",
+        "CatCafe_Town_ArcadeCabinet_Cat_LegF2",
+        "CatCafe_Town_ArcadeCabinet_Cat_Prop"
       ],
-      "triangles": 1396,
-      "budget": 4000,
+      "triangles": 4128,
+      "budget": 6500,
       "size_studs": {
-        "x": 3.7,
-        "y": 3.14,
+        "x": 11.2,
+        "y": 5.0,
         "z": 7.9
       },
       "size_roblox": [
-        3.7,
+        11.2,
         7.9,
-        3.14
+        5.0
       ],
       "bounds_min": [
-        -1.85,
-        -1.83,
+        -5.6,
+        -2.9,
         0.0
       ],
       "bounds_max": [
-        1.85,
-        1.31,
+        5.6,
+        2.1,
         7.9
       ],
       "pivot": "the base centre on the Town Square's paving, the screen and the control panel (-Z) toward the players; placed by Gameplay (#3062)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Town_ArcadeCabinet_Cat_Body": [
+          -3.65,
+          -0.1,
+          1.15
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_Head": [
+          -3.65,
+          -0.24,
+          2.56
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_Eye1": [
+          -3.35,
+          -0.95,
+          2.89
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_Eye2": [
+          -3.95,
+          -0.95,
+          2.89
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_EarL": [
+          -3.26,
+          -0.35,
+          3.42
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_EarR": [
+          -4.04,
+          -0.35,
+          3.42
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_Tail": [
+          -3.37,
+          0.5,
+          1.3
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_LegF1": [
+          -3.42,
+          -0.51,
+          2.0
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_LegF2": [
+          -3.88,
+          -0.51,
+          2.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Town_ArcadeCabinet_Cat_Body": [
+          3.65,
+          1.15,
+          -0.1
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_Head": [
+          3.65,
+          2.56,
+          -0.24
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_Eye1": [
+          3.35,
+          2.89,
+          -0.95
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_Eye2": [
+          3.95,
+          2.89,
+          -0.95
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_EarL": [
+          3.26,
+          3.42,
+          -0.35
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_EarR": [
+          4.04,
+          3.42,
+          -0.35
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_Tail": [
+          3.37,
+          1.3,
+          0.5
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_LegF1": [
+          3.42,
+          2.0,
+          -0.51
+        ],
+        "CatCafe_Town_ArcadeCabinet_Cat_LegF2": [
+          3.88,
+          2.0,
+          -0.51
+        ]
+      },
       "studio": "#3062: the Cat Arcade cabinet (Circle Streak), 7.9 tall: a teal upright cabinet with cream sides, a red paw button, a joystick, a coin door with a gold slot and a fish, and cat ears on the marquee. _Screen is the 2.4 x 1.9 Screen part (night blue, for a SurfaceGui and the idle glow); _Glow holds the marquee's CAT ARCADE letters (Neon, for the idle pulse). Attachments PromptAnchor (in front of the panel, 1.5 up: the Play prompt), SlotAnchor (the coin slot, for the fish drop), ScreenAnchor and BangAnchor. The cabinet collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_ArcadeCabinet.model.json",
-      "rbx_parts": 96,
+      "rbx_parts": 221,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Town_ArcadeCabinet.fbx",
         "assets/cat-cafe/exports/CatCafe_Town_ArcadeCabinet.glb"
@@ -358250,13 +358354,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1396/4000 tris",
+          "budget": "4128/6500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "646 faces on swatch centers",
+          "uv": "2028 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.26"
+          "centered": "footprint center x=0.00 y=-0.40"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Town_ArcadeCabinet.png",

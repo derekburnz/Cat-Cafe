@@ -245,8 +245,8 @@ return function()
 				expect(challenge.paws).to.equal(3)
 				expect(challenge.zoneWidth).to.be.near(Config.BinZoneWidth, 1e-9)
 				expect(challenge.speed).to.be.near(Config.BinBarSpeed, 1e-9)
-				-- #3458: 0.22 and 0.80 (0.42 and 0.64 before), whatever the rescue bars are set to
-				expect(Config.BinZoneWidth).to.equal(0.22)
+				-- #3458: 0.22 and 0.80 (0.42 and 0.64 before), whatever the rescue bars are set to; #4284: 0.18
+				expect(Config.BinZoneWidth).to.equal(0.18)
 				expect(Config.BinBarSpeed).to.equal(0.80)
 				-- the marker never waits inside the first zone
 				for seed = 1, 40 do
@@ -276,7 +276,7 @@ return function()
 			)
 			expect((early.zoneWidth :: number) <= 1).to.equal(true)
 			expect(early.hitsNeeded).to.equal(5) -- #3458: the easy first rummages need the 5 hits too
-			expect(early.zoneWidth).to.be.near(0.352, 1e-9)
+			expect(early.zoneWidth).to.be.near(0.288, 1e-9) -- #4284: 0.18 x 1.6 (0.352 at 0.22)
 			expect(early.speed).to.be.near(0.80, 1e-9)
 		end)
 

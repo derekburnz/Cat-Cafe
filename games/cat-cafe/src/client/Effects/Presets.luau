@@ -4546,6 +4546,8 @@ Presets.potions = {
 		colour = palette.goldLight,
 	},
 	mega_tip_potion = { emitter = "potionMegaTip", on = "Body", colour = palette.golden },
+	-- #4195: the Admin Wheel's hour of 3x money glows as Mega Money until Motion-FX gives it its own
+	admin_money_potion = { emitter = "potionMegaTip", on = "Body", colour = palette.golden },
 } :: { [string]: PotionSpec }
 -- The Speed Shoes' trail (Effects/SpeedShoes): shown on wearers within `radius` studs, checked every `pickEvery`
 -- seconds; `moving` is how much of full walking input counts as on the move; the puffs start `lift` studs over the
@@ -6686,6 +6688,57 @@ Presets.dragonRise = {
 			Color3.fromRGB(190, 110, 255),
 		},
 	},
+}
+
+-- "Trading unlocked!" (#4280, Effects/TradeUnlock; Derek 2026-11-14: "an unlock with a lock falling off of it
+-- animation on hitting Tier 3"). On the screen's upper middle, taking no taps: the Trade icon pops in over `popIn`
+-- with a closed padlock on it; from `wiggleAt` the lock wiggles `wiggles` times through `wiggle` degrees over
+-- `wiggleSeconds` (2.4 a second, under the 3 a second limit); at `openAt` it springs open with a hop of `hop` of its
+-- size, `sparkles` gold diamonds and a ring; from `fallAt` it falls off (`gravity` and `drift` in icon sizes a second,
+-- `spin` degrees a second) and fades over `fallSeconds`. The words show from `openAt`. At `flyAt` the icon flies over
+-- `fly` seconds to the HUD's Trade tile, shrinking to `land` of its size, and the tile gets `landSparkles` and a
+-- ring; with no tile on screen it fades there instead. `size` is the icon's share of the screen's shorter side,
+-- between `sizeMin` and `sizeMax` pixels, and it sits `high` of the way down the screen.
+-- Reduce Motion: no pop, wiggle, fall or flight; the closed lock gives way to the open one at `stillOpen`, the
+-- words hold and everything fades from `stillEnd` over `fade`.
+Presets.tradeUnlock = {
+	displayOrder = 22, -- over a window (20), under the toasts (30)
+	size = 0.2,
+	sizeMin = 72,
+	sizeMax = 132,
+	high = 0.3,
+	lock = 0.62, -- the padlock's size against the icon's
+	popIn = 0.3,
+	wiggleAt = 0.4,
+	wiggleSeconds = 1.25,
+	wiggles = 3,
+	wiggle = 14,
+	openAt = 1.75,
+	hop = 0.18,
+	fallAt = 2.1,
+	fallSeconds = 0.7,
+	gravity = 9,
+	drift = 0.7,
+	spin = 220,
+	flyAt = 4.1,
+	fly = 0.55,
+	land = 0.4,
+	lift = 0.12,
+	fade = 0.3,
+	stillOpen = 0.8,
+	stillEnd = 3.6,
+	sparkles = 14,
+	landSparkles = 10,
+	sparkle = { size = 12, seconds = 0.55, reach = 90, stagger = 0.1 },
+	ringSeconds = 0.5,
+	title = "Trading unlocked!",
+	line = "Swap cats with other players",
+	titleSize = 30,
+	lineSize = 18,
+	gold = Presets.palette.golden,
+	tradeImage = "rbxassetid://83738164568639", -- Icon_Clean_Trade (the UI's ShopIcons)
+	lockImage = "rbxassetid://126676730576646", -- Icon_Clean_Lock
+	openImage = "rbxassetid://96025123745905", -- Icon_Clean_Unlock
 }
 
 return Presets

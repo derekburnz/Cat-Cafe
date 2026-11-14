@@ -15,7 +15,7 @@
 --   hint(view)  the cannon hint over the HUD, or nil
 -- Pure, no Theme, so the cloud spec runner can load it.
 
-export type AreaLike = { id: string, name: string, tier: number }
+export type AreaLike = { id: string, name: string, tier: number, launchFrom: string? } -- launchFrom #4070
 export type Destination = { id: string, name: string, tier: number, locked: boolean? }
 export type ButtonState = "launch" | "carrying" | "dusk" | "night" | "locked"
 export type CardPhase = "waiting" | "in" | "wobble" | "out" | "gone"
@@ -71,6 +71,11 @@ CannonLogic.CARD_GONE = 2.6
 CannonLogic.CHOSEN_IN = 0
 CannonLogic.CHOSEN_HOLD = 2.5
 
+-- #4070: whether `cannonId` flies to `area` at all: an area with launchFrom is reached from that camp's cannon only.
+local function flies(area: AreaLike, cannonId: string): boolean
+	return area.launchFrom == nil or area.launchFrom == cannonId
+end
+
 -- The cards `cannonId`'s picker shows a player at `tier`: every area the tier has opened, in tier order (catalog
 -- order within a tier), and from a camp's cannon Town Square first and never the camp's own area.
 function CannonLogic.destinations(
@@ -81,7 +86,12 @@ function CannonLogic.destinations(
 	local list: { Destination } = {}
 	local order: { [string]: number } = {}
 	for index, area in areas do
-		if area.tier <= tier and area.id ~= cannonId and area.id ~= CannonLogic.TOWN then
+		if
+			area.tier <= tier
+			and area.id ~= cannonId
+			and area.id ~= CannonLogic.TOWN
+			and flies(area, cannonId)
+		then
 			table.insert(list, { id = area.id, name = area.name, tier = area.tier })
 			order[area.id] = index
 		end
@@ -106,7 +116,12 @@ function CannonLogic.cards(areas: { AreaLike }, tier: number, cannonId: string):
 	local locked: { Destination } = {}
 	local order: { [string]: number } = {}
 	for index, area in areas do
-		if area.tier > tier and area.id ~= cannonId and area.id ~= CannonLogic.TOWN then
+		if
+			area.tier > tier
+			and area.id ~= cannonId
+			and area.id ~= CannonLogic.TOWN
+			and flies(area, cannonId)
+		then
 			table.insert(
 				locked,
 				{ id = area.id, name = area.name, tier = area.tier, locked = true }

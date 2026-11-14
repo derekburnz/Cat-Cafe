@@ -122,7 +122,7 @@ local Config = {
 		helpingPaw = 905647581887639,
 		firstTrade = 428728625137987,
 		purrfectStreak = 4111238237174459,
-		partyGuest = 4328065554528969, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e); made 2026-11-11 (#1957)
+		-- #4282: partyGuest (4328065554528969, "Cafe Party Guest") removed by Derek 2026-11-14; disabled on Roblox
 		metOwner = 1802984077324671, -- #3324: "Met the Owner", for being in a server with the owner; made 2026-11-11 (badges.yml)
 		-- #3618 (badges-order.md): the six new badges, 0 until badges.yml makes them (5 a day, free only)
 		firstHome = 3818992250915779, -- Home Sweet Home (made 2026-11-13)
@@ -424,10 +424,9 @@ local Config = {
 		extraSlot = { was = 149, now = 75 },
 		uniforms = { was = 149, now = 75 },
 		cafeStyle = { was = 249, now = 125 },
-		royalCat = { was = 599, now = 299 },
-		kingCat = { was = 799, now = 399 },
+		royalCat = { was = 599, now = 199 }, -- #4261: the Royal Cat Pack at R$199 (Derek 2026-11-14)
 		grandTheme = { was = 799, now = 399 },
-		kingPack = { was = 999, now = 499 },
+		kingPack = { was = 999, now = 299 }, -- #4261: the Cat King Pack at R$299; the King Cat is no longer sold alone
 		thankYou = { was = 25, now = 13 },
 		cafePass = { was = 299, now = 149 },
 	} :: { [string]: { was: number, now: number } },
@@ -1172,8 +1171,10 @@ local Config = {
 	-- first BinFirstUses rummages keep BinFirstEase's wider zone (0.35) and need the 5 hits too. Their marker runs
 	-- at the full BinBarSpeed since 2026-11-12 (Derek on the live game: "the moving marker is too slow not the same
 	-- speed as the studio version"): a new account saw 0.48 where his practised Studio save saw 0.80.
+	-- #4284 (Derek 2026-11-14: "make the rummage bin minigame slightly harder (make area to hit smaller)"): the zone
+	-- 0.22 to 0.18 (the first rummages' eased zone 0.35 to 0.29, by BinFirstEase); hits and marker speed unchanged
 	BinHits = 5,
-	BinZoneWidth = 0.22,
+	BinZoneWidth = 0.18,
 	BinBarSpeed = 0.80,
 	BinFirstEase = { zone = 1.6, speed = 1 },
 	-- #3460 (Derek 2026-11-12: "make the rummage bin rewards a bit better so people get a good starting boost

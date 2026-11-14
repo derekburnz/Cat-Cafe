@@ -2277,6 +2277,16 @@ Catalog.potions = {
 		tips = 1,
 		shopOnly = true,
 	},
+	-- #4195: the Admin Wheel's "3x money for 1 hour". Never sold, never in a gift or a shop: the wheel starts it at
+	-- once (PotionService.give). `tipsOver` goes on top of the money potions' cap, so on its own it is 3x.
+	{
+		id = "admin_money_potion",
+		name = "Admin 3x Money",
+		minutes = 60,
+		effect = "3x money",
+		tipsOver = 2,
+		shopOnly = true,
+	},
 } :: { Types.PotionDef }
 Catalog.potionsById = {} :: { [string]: Types.PotionDef }
 for _, def in Catalog.potions do
@@ -3513,6 +3523,7 @@ Catalog.areas = {
 		rescueSpots = 5, -- the carousel top, a ball pit, a prize plush pile, a river ring and a balloon bunch
 		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 },
 		incomeMultiplier = AREA_INCOME.waterpark,
+		launchFrom = "desert", -- #4070: flown to from the Desert camp's cannon only (Layout.waterpark.launchFrom)
 	},
 	-- #4184: Model-Agent's CatCafe_Castle_Set (#4108: 192 cat spots and a pool of 15 rescue spots; five traps a day as
 	-- in every area)
@@ -5542,7 +5553,7 @@ local PASS_DECOR: {
 			kind = "furniture",
 			description = "A deep red booth fit for a king.",
 			asset = "CatCafe_Decor_VelvetBooth",
-			pack = "King Cat Pack",
+			pack = "Cat King Pack",
 		},
 		-- #1168 row 3 (Monetization-Agent, 2026-11-06): the Garden Decor Pack pass's six pieces, owned while the pass
 		-- is (PassDecor.toGrant, given into decorOwned by ShopCatService). Model-Agent makes the models; the pass id

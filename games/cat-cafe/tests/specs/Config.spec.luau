@@ -10,7 +10,7 @@ return function()
 
 	local expected: { [string]: any } = {
 		ServerPlayers = 8,
-		StartCoins = 850, -- #1796: was 50
+		StartCoins = 250, -- #4097: was 850 (#1796: was 50)
 		FavoriteMultiplier = 1.5,
 		TableBonus = 0.10,
 		EspressoBonus = 0.15,

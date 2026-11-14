@@ -6,6 +6,7 @@ return function()
 	local Catalog = require(Shared.Catalog)
 	local Config = require(Shared.Config)
 	local Economy = require(Shared.Economy)
+	local ProfileSchema = require(Shared.ProfileSchema)
 
 	-- A fresh version 3 profile per data-model section 14, built by hand so these tests do not depend on
 	-- ProfileSchema.template (which has its own spec).
@@ -1006,11 +1007,14 @@ return function()
 	end)
 
 	describe("features.md section 8: the ten minute loop in numbers (v0.3)", function()
-		it("step 1: $850 (#1796, was $50) and 1.5 per second with the Tabby as Barista", function()
-			local p = freshProfile()
-			expect(p.coins).to.equal(850)
-			expect(Economy.incomePerSecond(p)).to.be.near(1.5)
-		end)
+		it(
+			"step 1: $250 (#4097, was $850; #1796, was $50) and 1.5 per second with the Tabby as Barista",
+			function()
+				local p = freshProfile()
+				expect(p.coins).to.equal(250)
+				expect(Economy.incomePerSecond(p)).to.be.near(1.5)
+			end
+		)
 
 		it(
 			"step 4: a caught Common as Waiter raises the rate to 2.5, or 3.0 if it loves waiting",
@@ -1050,14 +1054,15 @@ return function()
 		)
 
 		it(
-			"a new save buys the first table, the Bait bowl and Kibble straight away (#1796)",
+			"a new save has its first table, Bait bowl and Kibble without buying (#3660, #4097; #1796 bought them)",
 			function()
-				-- tutorial steps 3 and 4 ask for them in a row, so none of them waits on coins
-				local p = freshProfile(0)
-				local spend = Catalog.upgradesById.tables.costs[1]
-					+ Catalog.upgradesById.lure_bowl.costs[1]
-					+ Economy.foodPrice("kibble", Economy.tier(p))
-				expect(p.coins >= spend).to.equal(true)
+				-- the tutorial asks for no purchase, so it never waits on coins; the start coins are what was left after
+				-- the old buys (850 - 600 for the bowl, the table and Kibble given)
+				local p = ProfileSchema.template(0)
+				expect(Economy.level(p, "tables") >= 1).to.equal(true)
+				expect(Economy.level(p, "lure_bowl") >= 1).to.equal(true)
+				expect(p.lures.kibble).to.equal(1)
+				expect(p.coins).to.equal(850 - Catalog.upgradesById.lure_bowl.costs[1])
 			end
 		)
 

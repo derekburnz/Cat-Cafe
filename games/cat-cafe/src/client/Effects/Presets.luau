@@ -842,6 +842,20 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, -0.6, 0),
 		drag = 2,
 	},
+	-- #4069 the Snowy Rares (Snow Boots Cat, Ski Cat): a little snow kicked up behind them, only while they move.
+	-- Smaller, fainter and shorter lived than the Blizzard Cat's frost trail.
+	sigSnowKick = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(255, 255, 255) },
+		size = { 0.3, 0.7 },
+		transparency = { 0.65, 1 },
+		lifetime = { 0.4, 0.6 },
+		speed = { 0.2, 0.6 },
+		spread = 50,
+		rate = 1.5,
+		acceleration = Vector3.new(0, -1.2, 0),
+		drag = 2,
+	},
 	-- #4070 the Water Park's rarer cats (Presets.signature): `sigDrip` drops falling off a water blaster or a cat made
 	-- of water, `sigBubble` the bubbles the Water Cat's swirl leaves as it circles, and `sigWetTrail` the splashes
 	-- it leaves where it walks.
@@ -2723,6 +2737,8 @@ export type Signature = {
 	goldEyes: Color3?,
 	moving: boolean?,
 	notes: boolean?, -- music notes float up off the prop as well (Jazz Cat, Presets.notes)
+	-- a small touch on a Rare: it only takes a slot of budget.signatureCats that no rarer cat nearby needs
+	minor: boolean?,
 	-- #4069 (Derek 2026-11-13: "make the rarer ones more special"): more on top for the rarest cats
 	extras: { SignatureExtra }?, -- more emitters, each on its own part
 	orbit: SignatureOrbit?, -- motes circling the cat, each leaving a trail of `emitter`
@@ -2841,7 +2857,7 @@ Presets.signature = {
 		colors = { palette.leaf, palette.mint, palette.goldLight },
 		gold = { palette.golden, palette.goldLight, palette.sparkle },
 	},
-	-- #4069 Snowy Mountain (Tier 8). The ladder: the Epic gets a glint, the Legendary breath, a glint and glowing
+	-- #4069 Snowy Mountain (Tier 8). The ladder: a Rare kicks up snow as it moves, an Epic gets a glint, the Legendary breath, a glint and glowing
 	-- eyes, the Mythical flakes, a circling swirl, a frost trail, glowing eyes and a gust where it lands.
 	ice = { -- Ice Cat (Epic): a glint now and then off the ice spikes along its back
 		emitter = "sigGlint",
@@ -2849,6 +2865,29 @@ Presets.signature = {
 		props = 2,
 		colors = { Color3.fromRGB(214, 240, 255), palette.offwhite },
 		gold = { palette.goldLight, palette.sparkle },
+	},
+	snow_leopard = { -- Snow Leopard Cat (Epic): a warm glint off its climber's head lamp
+		emitter = "sigGlint",
+		on = "Prop2",
+		colors = { Color3.fromRGB(255, 240, 200), palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+	},
+	-- the two Rares: no glow, only a little snow kicked up while they move, and never ahead of a rarer cat
+	snow_boots = { -- Snow Boots Cat (Rare): snow off its boots as it walks
+		emitter = "sigSnowKick",
+		on = "Body",
+		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(226, 240, 255) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
+	},
+	ski = { -- Ski Cat (Rare): a spray of snow behind its skis
+		emitter = "sigSnowKick",
+		on = "Body",
+		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(226, 240, 255) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
 	},
 	white_tiger = { -- White Tiger Cat (Legendary): frosty breath, ice-blue eyes and a soft glint on the white coat
 		emitter = "sigFrost",

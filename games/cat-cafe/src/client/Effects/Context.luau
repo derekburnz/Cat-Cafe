@@ -124,7 +124,10 @@ end
 -- The player's Reduce Motion setting: no camera shake or flashes, fewer confetti pieces. In Studio only, the
 -- Workspace attribute `ReduceMotionTest` = true turns it on too, so a playtest can check the still version of an
 -- effect without changing a Roblox account setting (Review-QA, #4105). It does nothing in the live game.
-local IN_STUDIO = RunService:IsStudio()
+local studioKnown, studio = pcall(function(): boolean
+	return RunService:IsStudio()
+end)
+local IN_STUDIO = studioKnown and studio == true
 function Context.reducedMotion(): boolean
 	if IN_STUDIO and Workspace:GetAttribute("ReduceMotionTest") == true then
 		return true

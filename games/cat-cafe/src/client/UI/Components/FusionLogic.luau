@@ -108,7 +108,8 @@ function FusionLogic.groups(
 	busy: { [string]: boolean }?
 ): ({ Group }, { Group })
 	local byKey: { [string]: Group } = {}
-	for uid, instance in cats or {} do
+	local all: { [string]: any } = cats or {} -- one type, for the CI luau-lsp
+	for uid, instance in all do
 		local coat = coatOf(instance)
 		local nextCoat = FusionLogic.NEXT[coat]
 		local def = Catalog.getCat(instance.catId)
@@ -349,14 +350,16 @@ function FusionLogic.coatTrack(
 	ready: { Group }?
 ): { Track }
 	local owned: { [string]: { [string]: number } } = {}
-	for _, instance in cats or {} do
+	local all: { [string]: any } = cats or {} -- one type, for the CI luau-lsp
+	for _, instance in all do
 		local per = owned[instance.catId] or {}
 		local coat = coatOf(instance)
 		per[coat] = (per[coat] or 0) + 1
 		owned[instance.catId] = per
 	end
 	local fusable: { [string]: boolean } = {}
-	for _, group in ready or {} do
+	local groups: { Group } = ready or {}
+	for _, group in groups do
 		fusable[group.catId] = true
 	end
 	local out: { Track } = {}

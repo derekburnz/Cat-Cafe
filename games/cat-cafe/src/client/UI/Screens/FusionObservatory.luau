@@ -151,6 +151,38 @@ local function paintEdge(stroke: UIStroke, coat: string?)
 	end
 end
 
+-- Makes a tile and everything in it see-through but keeps its place, so the row doesn't jump; the returned function
+-- puts every value back. For the swirl, which flies copies of the tiles (Motion-FX, #4105).
+local function hideTiles(tiles: { GuiObject }): () -> ()
+	local saved: { { item: any, prop: string, value: any } } = {}
+	local function save(item: any, prop: string, value: any)
+		table.insert(saved, { item = item, prop = prop, value = item[prop] })
+		item[prop] = value
+	end
+	for _, tile in tiles do
+		for _, item in { tile :: Instance, table.unpack(tile:GetDescendants()) } do
+			if item:IsA("GuiObject") then
+				save(item, "BackgroundTransparency", 1)
+				if item:IsA("TextLabel") or item:IsA("TextButton") or item:IsA("TextBox") then
+					save(item, "TextTransparency", 1)
+				elseif item:IsA("ImageLabel") or item:IsA("ImageButton") then
+					save(item, "ImageTransparency", 1)
+				elseif item:IsA("ViewportFrame") then
+					save(item, "ImageTransparency", 1)
+				end
+			elseif item:IsA("UIStroke") then
+				save(item, "Enabled", false)
+			end
+		end
+	end
+	return function()
+		for _, entry in saved do
+			entry.item[entry.prop] = entry.value
+		end
+		table.clear(saved)
+	end
+end
+
 -- Motion-FX's Effects/FusionFx (#4105) when it is there: swirl(tiles, centre, coat, onDone?) and burst(target, coat)
 local function fusionFx(): any
 	local client: Instance = script.Parent.Parent.Parent :: Instance
@@ -1132,16 +1164,23 @@ function FusionObservatory._fuse(self: any)
 		end
 	end
 	local closed = false
+	local restore: (() -> ())? = nil
 	local function close()
 		if not closed then
 			closed = true
 			self:_closeConfirm()
+			if restore then
+				restore() -- the card is shut by now, so the tiles are ready for the next fusion
+			end
 		end
 	end
 	if fx and type(fx.swirl) == "function" and #tiles > 0 then
 		self._fuseButton:setEnabled(false)
 		local ok = pcall(fx.swirl, tiles, self._dome, group.next, close)
 		if ok then
+			if not closed then
+				restore = hideTiles(tiles) -- the swirl has its copies; the five originals go see-through in the same frame
+			end
 			task.delay(3, close) -- never left open if the effect stops early
 			return
 		end

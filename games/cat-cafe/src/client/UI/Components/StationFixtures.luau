@@ -75,12 +75,13 @@ end
 local function fusionCats(cats: { [string]: any }?): ({ [string]: any }, string)
 	local kinds: { string } = {}
 	local uids: { string } = {}
-	for uid in cats or {} do
+	local all: { [string]: any } = cats or {} -- one type, for the CI luau-lsp
+	for uid in all do
 		table.insert(uids, uid)
 	end
 	table.sort(uids)
 	for _, uid in uids do
-		local catId = (cats :: any)[uid].catId
+		local catId = all[uid].catId
 		if type(catId) == "string" and not table.find(kinds, catId) then
 			table.insert(kinds, catId)
 		end

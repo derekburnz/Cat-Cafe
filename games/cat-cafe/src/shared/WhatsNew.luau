@@ -30,6 +30,46 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #2718 refresh (11-14 11:50 UTC, 59 merges since #3927): the onboarding fixes Derek OK'd 02:37 UTC (#4097, #4098),
+	-- the Relic Museum's new inside (#4138), the Rummage Bin minigame fix (#4128), the pop-up cards (#4092) and the
+	-- phone fixes (#4151, #4152, #3990). Still behind switches (rare customers, friend joins, Today's Deal, gold tone):
+	-- rows when they open.
+	{
+		id = "free_bait_bowl",
+		date = "2026-11-14",
+		icon = "new",
+		text = "Start with a free Bait bowl",
+	},
+	{
+		id = "tier2_sooner",
+		date = "2026-11-14",
+		icon = "faster",
+		text = "Tier 2 opens sooner",
+	},
+	{
+		id = "museum_halls",
+		date = "2026-11-14",
+		icon = "look",
+		text = "Relic Museum: hall tabs",
+	},
+	{
+		id = "rummage_walk",
+		date = "2026-11-14",
+		icon = "fix",
+		text = "Rummage Bin waits for you",
+	},
+	{
+		id = "popup_cards",
+		date = "2026-11-14",
+		icon = "look",
+		text = "Easier to see pop-up cards",
+	},
+	{
+		id = "phone_tips",
+		date = "2026-11-14",
+		icon = "fix",
+		text = "Clearer tips on phones",
+	},
 	-- #3927 refresh (11-14 02:50 UTC): live since the Friday rows. The Cats menu's new top bar (#4028) and turning the
 	-- camera through a trait roll (#4016); the station menus' one look went on with the 15:30 UTC update (#3558).
 	-- Behind switches or tiers still (Snowy Mountain, the late stations, the Secret trait): rows when they open.

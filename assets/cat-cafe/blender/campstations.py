@@ -938,12 +938,12 @@ DOOR_X, DOOR_Y = 1.3, 4.2                        # the door's half width and top
 COL_X, COL_Z = 3.7, -1.9                         # the two columns
 STONE_M, STONE_ML, JADE, GOLD = "fur_caramel", "paving_tan", "fur_emerald", "gold_light"
 CASE_X = -MX - 1.6                               # the idol's glass case, by the steps on the -X side (#2908)
-# #2908: the exhibit gallery, a roofed wing on the +X side: seven stepped rows, one per room in Catalog.areas order
-# (front row the Alleyway, back row the Ruins), ten plinths a row, where the owner's client stands the cats given
+# #2908: the exhibit gallery, a roofed wing on the +X side: eight stepped rows, one per room in Catalog.areas order
+# (front row the Alleyway, back row the Snowy Mountain, added with its crate), ten plinths a row, where the owner's client stands the cats given
 # (a sitting cat at scale 0.6 fits a plinth and shows over the row in front)
 ROOMS = (("alley", "ALLEYWAY", "brick"), ("park", "PARK", "leaf_green"), ("neighbourhood", "NEIGHBOURHOOD", "shirt_blue"),
          ("woods", "WOODS", "leaf_dark"), ("sewer", "SEWER", "puddle"), ("desert", "DESERT", "terracotta"),
-         ("ruins", "RUINS", "fur_emerald"))
+         ("ruins", "RUINS", "fur_emerald"), ("snowy", "SNOWY MOUNTAIN", "eye_blue"))
 EXHIBITS = 10
 PLINTH_STEP, PLINTH_W, PLINTH_H = 1.25, 0.8, 0.3   # spacing, top size, height of an exhibit plinth
 ROW_D, ROW_RISE = 0.9, 0.8                       # each row's depth and how much higher than the one in front
@@ -952,7 +952,7 @@ GX0 = MX + 0.4                                   # the wing's museum side
 GX1 = GX0 + PLAQUE_W + EXHIBITS * PLINTH_STEP + 0.5
 GZ0 = MZ0 - 1.6                                  # the first row's front, in line with the museum's platform
 GZ1 = GZ0 + len(ROOMS) * ROW_D + 0.45            # the back wall's back
-G_ROOF = 8.6                                     # the wing's roof underside
+G_ROOF = FLOOR_Y + (len(ROOMS) - 1) * ROW_RISE + 2.75   # the wing's roof underside, 2.75 over the back row
 
 
 def _museum_steps(b):

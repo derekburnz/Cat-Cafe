@@ -417,7 +417,14 @@ function GamepadNav.stepTab(root: Instance, step: number): boolean
 				or not GamepadNav.shown(now)
 				or now:IsDescendantOf(row)
 			then
-				GamepadNav.select(GamepadNav.first(root))
+				-- a page with no buttons of its own (the Bag's Cat Food and Bait rows) gives a tab back: then the ring
+				-- sits on the tab just opened, not the first one
+				local pick: GuiObject? = GamepadNav.first(root)
+				if pick == nil or pick:IsDescendantOf(row) then
+					local _, again = GamepadNav.tabs(root)
+					pick = again[index] or target
+				end
+				GamepadNav.select(pick)
 			end
 		end
 		task.defer(follow)

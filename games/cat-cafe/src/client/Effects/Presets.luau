@@ -639,13 +639,13 @@ Presets.emitters = {
 	poolGlint = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.milk, Presets.palette.pastelSky },
-		size = { 0.45, 0.05 },
-		transparency = { 0.2, 1 },
-		lifetime = { 0.9, 1.5 },
+		size = { 1.1, 0.15 }, -- big enough to read from a standing camera (Review-QA, #4206: 0.45 was lost)
+		transparency = { 0, 1 },
+		lifetime = { 1, 1.6 },
 		speed = { 0, 0 },
 		spread = 0,
-		rate = 3,
-		lightEmission = 0.4,
+		rate = 5,
+		lightEmission = 0.8,
 	},
 	riverFoam = {
 		texture = Presets.textures.smoke,
@@ -5581,10 +5581,10 @@ Presets.areaWater = {
 }
 
 -- The fairground's bulbs chase at night (Effects/BulbChase, #4070 "ride lamps chase slowly"). A `_Bulbs` Model whose
--- name holds one of `pieces` runs a chase while it is night: every `gap`th bulb wears a brighter Neon cover `grow`
+-- name holds one of `pieces` runs a chase, by day and by night: every `gap`th bulb wears a brighter Neon cover `grow`
 -- times its size, and the lit ones step along the row (or round the frame) `hz` times a second, so any one bulb
 -- lights once every gap / hz seconds, well under one flash a second. The nearest `most` rows within `within`
--- studs (`mostLite` on the lite budget), chosen every `pick` seconds; none by day, with Reduce Motion or in Low
+-- studs (`mostLite` on the lite budget), chosen every `pick` seconds; `hzDay` steps a second by day; none with Reduce Motion or in Low
 -- performance. `round` is how wide the bulbs must spread across their second axis, of their first, to be taken as a
 -- frame and ordered round it and not along it.
 Presets.bulbChase = {
@@ -5595,6 +5595,7 @@ Presets.bulbChase = {
 	mostLite = 2,
 	gap = 3,
 	hz = 2,
+	hzDay = 1, -- by day, when the bulbs are not glowing themselves
 	grow = 1.3,
 	round = 0.3,
 	on = Color3.fromRGB(255, 240, 205),

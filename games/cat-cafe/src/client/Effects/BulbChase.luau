@@ -1,10 +1,12 @@
 --!strict
--- The fairground's bulbs chase at night (#4070: "ride lamps chase slowly"). Model-Agent's booths, wall boards,
--- hedges and the camp's ticket front each carry their bulbs in a `_Bulbs` Model; WorldController already makes them
--- glow at night. While it is night, on the rows nearest you, every few bulbs wears a brighter cover and the lit ones
--- step along the row (round the frame, where the bulbs ring one), a couple of steps a second, so any one bulb lights
--- well under once a second. The bulbs themselves are never changed: the covers are this client's own parts, taken
--- away by day. None with Reduce Motion or in Low performance. Listening only. Numbers in Presets.bulbChase.
+-- The fairground's bulbs chase (#4070: "ride lamps chase slowly"). Model-Agent's booths, wall boards, hedges and the
+-- camp's ticket front each carry their bulbs in a `_Bulbs` Model. On the rows nearest you, every few bulbs wears a
+-- brighter cover and the lit ones step along the row (round the frame, where the bulbs ring one), so any one bulb
+-- lights well under once a second. It runs by day too, at half the pace: the areas close at night and everyone is
+-- sent home, so a chase kept for the night would never be seen in the Water Park (Review-QA, #4206). At night
+-- WorldController makes the bulbs themselves glow and the chase runs over that. The bulbs are never changed: the
+-- covers are this client's own parts. None with Reduce Motion or in Low performance. Listening only. Numbers in
+-- Presets.bulbChase.
 
 local Workspace = game:GetService("Workspace")
 
@@ -137,7 +139,7 @@ local function step(row: Row, now: number)
 	if count == 0 then
 		return
 	end
-	local at = math.floor((now + row.offset) * o.hz)
+	local at = math.floor((now + row.offset) * (if Context.isNight() then o.hz else o.hzDay))
 	for k, cover in row.covers do
 		local bulb = row.bulbs[BulbChase.lit(k, at, count)]
 		if bulb.Parent ~= nil then
@@ -166,7 +168,7 @@ local chosen: { [Row]: boolean } = {}
 local function pick()
 	local o = Presets.bulbChase
 	table.clear(chosen)
-	local still = not Context.isNight() or Context.reducedMotion() or Context.lowPerformance
+	local still = Context.reducedMotion() or Context.lowPerformance
 	local candidates: { Logic.Candidate<Row> } = {}
 	for model, row in rows do
 		if not model:IsDescendantOf(Workspace) then

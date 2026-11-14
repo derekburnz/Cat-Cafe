@@ -132,6 +132,7 @@ return function()
 			end
 			-- a bulb lights once every gap / hz seconds
 			expect(c.gap / c.hz >= 1).to.equal(true)
+			expect(c.hzDay <= c.hz).to.equal(true) -- slower by day
 			expect(c.mostLite <= c.most).to.equal(true)
 		end)
 	end)

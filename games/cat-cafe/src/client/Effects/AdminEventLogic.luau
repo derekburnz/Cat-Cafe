@@ -96,6 +96,11 @@ function AdminEventLogic.read(get: (name: string) -> any, decode: (json: string)
 				extra = map
 			end
 		end
+		-- Secret Hunt's count so far: the server rewrites the effects as each one is found
+		local found = finite(effects.secretFound)
+		if extra ~= nil and extra.secretHunt ~= nil and found ~= nil and found > 0 then
+			extra.secretFound = math.min(math.floor(found), extra.secretHunt)
+		end
 	end
 	return {
 		id = id,
@@ -181,6 +186,10 @@ function AdminEventLogic.effectLines(view: View): { string }
 			local value = extra[row.name]
 			if value ~= nil then
 				local line = row.line
+				local found = extra.secretFound
+				if row.name == "secretHunt" and found ~= nil and found >= 1 then
+					line = string.format("%d of %s Secret cats found", found, "%s")
+				end
 				if string.find(line, "%s", 1, true) ~= nil then
 					line = string.format(line, times(value))
 				end

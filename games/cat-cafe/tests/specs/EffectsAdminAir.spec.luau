@@ -53,6 +53,13 @@ return function()
 				"3 Secret cats are hiding"
 			)
 			expect(AdminEventLogic.badge(view({ secretHunt = 3 }))).to.equal("!")
+			expect(AdminEventLogic.effectLines(view({ secretHunt = 3, secretFound = 2 }))[1]).to.equal(
+				"2 of 3 Secret cats found"
+			)
+			expect(AdminEventLogic.effectLines(view({ secretHunt = 3, secretFound = 9 }))[1]).to.equal(
+				"3 of 3 Secret cats found"
+			)
+			expect(view({ secretFound = 2 }).extra).never.to.be.ok()
 			for _, row in AdminEventLogic.EXTRA do
 				local got = AdminEventLogic.effectLines(view({ [row.name] = 2 }))
 				expect(#got).to.equal(1)

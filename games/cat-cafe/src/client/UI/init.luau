@@ -9602,10 +9602,11 @@ local function recapLines(view: { [string]: any }): { string }
 	local catalog = currentCatalog
 	local nextTier: string? = nil
 	if catalog and catalog.tiers and state.tier then
-		for _, tier in catalog.tiers :: { any } do
-			if tier.tier == state.tier + 1 and type(tier.name) == "string" then
-				nextTier = tier.name
-			end
+		-- #3997: nil while the next tier waits behind its live switch
+		local GoalLines = require(script.Components.GoalLines) :: any
+		local def = GoalLines.nextTier(catalog.tiers, state.tier)
+		if def and type(def.name) == "string" then
+			nextTier = def.name
 		end
 	end
 	local readyAt: { number } = {}

@@ -364250,6 +364250,66 @@
       }
     },
     {
+      "name": "CatCafe_WaterPark_Backdrop",
+      "category": "WaterPark",
+      "module": "wildbackdrop",
+      "objects": [
+        "CatCafe_WaterPark_Backdrop",
+        "CatCafe_WaterPark_Backdrop_Ground",
+        "CatCafe_WaterPark_Backdrop_Hills",
+        "CatCafe_WaterPark_Backdrop_HillsFar",
+        "CatCafe_WaterPark_Backdrop_Flowers",
+        "CatCafe_WaterPark_Backdrop_Bulbs"
+      ],
+      "triangles": 33860,
+      "budget": 60000,
+      "size_studs": {
+        "x": 648.07,
+        "y": 1081.6,
+        "z": 292.11
+      },
+      "size_roblox": [
+        648.07,
+        292.11,
+        1081.6
+      ],
+      "bounds_min": [
+        -325.06,
+        -556.92,
+        -165.77
+      ],
+      "bounds_max": [
+        323.02,
+        524.68,
+        126.34
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_WaterPark_Backdrop.model.json",
+      "rbx_parts": 1531,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_WaterPark_Backdrop.fbx",
+        "assets/cat-cafe/exports/CatCafe_WaterPark_Backdrop.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "33860/60000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "25606 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-165.77 (want 0)",
+          "centered": "footprint center x=-1.02 y=-16.12"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Cat_Popcorn",
       "category": "Cat",
       "module": "cats",

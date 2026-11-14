@@ -475,8 +475,13 @@ function MysticIntroCut.play(
 					local under = rig.surface - Vector3.new(0, tall + 0.5, 0)
 					local over = rig.surface + Vector3.new(0, p.riseHeight, 0)
 					local at = under:Lerp(over, k) + Vector3.new(0, 0.12 * math.sin(r * 4), 0)
-					-- it looks out of the pool's front, as the rolled cat does, turning a little as it comes up
-					local facing = station:GetPivot().Rotation * CFrame.Angles(0, math.pi, 0)
+					-- it looks at this cutscene's camera, as the rolled cat does (Derek 2026-11-14: "shows the cat
+					-- coming out of it backwards"), turning a little as it comes up; the pool's front only when the
+					-- camera is straight overhead
+					local yaw = Logic.facePoint(at, eye)
+					local facing = if yaw ~= nil
+						then CFrame.Angles(0, yaw, 0)
+						else station:GetPivot().Rotation * CFrame.Angles(0, math.pi, 0)
 					shape:PivotTo(
 						CFrame.new(at)
 							* facing

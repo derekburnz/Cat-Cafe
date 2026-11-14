@@ -74,16 +74,17 @@ return function()
 		)
 
 		it(
-			"asks about Sunday's 3 New Worlds 10 minutes after tonight's update, then Wednesday, then Nov 21",
+			"asks about Sunday's 3 New Worlds 10 minutes after tonight's update, then the Secrets, then Wednesday",
 			function()
 				expect(EventRsvp.next(Config.UpdateEvents, 1794693600 + 300)).to.equal(nil)
 				local sunday = EventRsvp.next(Config.UpdateEvents, 1794693600 + 600)
 				expect(sunday).to.equal("8139939288161845916")
 				expect((EventRsvp.next(Config.UpdateEvents, 1794772800 + 600))).to.equal(
-					"6810389993696133776"
-				)
-				expect((EventRsvp.next(Config.UpdateEvents, 1795032000 + 600))).to.equal(
 					"8700676156604678758"
+				)
+				expect((EventRsvp.next(Config.UpdateEvents, 1794799800 + 300))).to.equal(nil)
+				expect((EventRsvp.next(Config.UpdateEvents, 1794799800 + 600))).to.equal(
+					"6810389993696133776"
 				)
 			end
 		)

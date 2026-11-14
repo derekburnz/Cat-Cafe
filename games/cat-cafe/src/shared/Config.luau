@@ -768,8 +768,8 @@ local Config = {
 		},
 		{
 			id = "8700676156604678758",
-			startsAt = 1795291200, -- "10 Secret Cats", Saturday 2026-11-21 20:00 UTC
-			title = "🔔 Next update Saturday: 10 SECRET CATS! Want a reminder when it lands?",
+			startsAt = 1794799800, -- "10 Secret Cats", Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, Derek 17:40 UTC)
+			title = "🔔 Next update: 10 SECRET CATS! Want a reminder when it lands?",
 		},
 	} :: { { id: string, startsAt: number, title: string? } },
 	TutorialShrinkSeconds = 1.6,

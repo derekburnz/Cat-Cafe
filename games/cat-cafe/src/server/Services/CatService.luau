@@ -883,7 +883,8 @@ local function spawnAt(
 	areaId: string,
 	pointIndex: number,
 	rarity: Types.Rarity,
-	beginner: number?
+	beginner: number?,
+	owned: { [string]: any }? -- #4188: a beginner's collection, so their tutorial stray is a kind they lack
 ): Stray
 	local area = world.areas[areaId]
 	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the `secretCats` switch is on (never a beginner's
@@ -895,7 +896,12 @@ local function spawnAt(
 			and LiveFlagService.on(Catching.SECRET_FLAG)
 		then Catching.secret(rarity, rng:NextNumber(), rng:NextNumber(), true)
 		else nil
-	local def = secret or Catching.pickCat(rarity, areaId, rng:NextNumber())
+	local def = secret
+		or (
+			if owned ~= nil
+				then Catching.pickNewCat(rarity, areaId, rng:NextNumber(), owned)
+				else Catching.pickCat(rarity, areaId, rng:NextNumber())
+		)
 	local point = area.spawnPoints[pointIndex]
 	local stray = spawnStray(def, areaId, point.Position, pointIndex, nil, nil, nil, beginner)
 	if secret ~= nil then
@@ -982,6 +988,21 @@ local function tutorialTick()
 				and not stray.returning
 				and (stray.lockedBy == 0 or lockExpired(stray))
 			then
+				if
+					profile.collection[stray.def.id] ~= nil
+					and profile.collection[Catching.pickNewCat(
+							"Common",
+							TUTORIAL_AREA,
+							0.5,
+							profile.collection
+						).id]
+						== nil
+				then
+					-- #4188: a kind this beginner already has (a stray left at the point from before) goes, and the next
+					-- tick brings one they lack in its place
+					despawn(stray)
+					continue
+				end
 				reserve(stray, player.UserId)
 			end
 			-- funnel steps first_stray_in_view and near_stray (easy-start.md section 5)
@@ -996,7 +1017,8 @@ local function tutorialTick()
 				end
 			end
 		elseif strayId == nil then
-			spawnAt(TUTORIAL_AREA, own, "Common", player.UserId)
+			-- #4188: a kind the beginner lacks, so the tutorial ends on three kinds (the starter, this one, the bait cat)
+			spawnAt(TUTORIAL_AREA, own, "Common", player.UserId, profile.collection)
 		end
 	end
 	local leaving: { Stray } = {}

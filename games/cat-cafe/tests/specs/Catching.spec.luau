@@ -1081,4 +1081,27 @@ return function()
 			end
 		)
 	end)
+
+	describe("Catching.pickNewCat (#4188 follow-up)", function()
+		it(
+			"picks an area's cat of the rarity not owned, and falls back when all are owned",
+			function()
+				local pool = Catching.candidates("Common", "alley")
+				expect(#pool >= 2).to.equal(true)
+				local owned: { [string]: any } = {}
+				for index = 1, #pool - 1 do
+					owned[pool[index].id] = 1
+				end
+				for i = 0, 19 do
+					expect(Catching.pickNewCat("Common", "alley", (i + 0.5) / 20, owned).id).to.equal(
+						pool[#pool].id
+					)
+				end
+				owned[pool[#pool].id] = 1
+				expect(Catching.pickNewCat("Common", "alley", 0.5, owned).id).to.equal(
+					Catching.pickCat("Common", "alley", 0.5).id
+				)
+			end
+		)
+	end)
 end

@@ -2633,7 +2633,28 @@ do
 end
 
 -- Opens the Bait bowl screen: the bowl's state and every food with its odds, Use and Buy.
+-- Review-QA's first 5 minutes on a tablet (2026-11-14): a bowl's walk-up ring right after the first check-in opened
+-- this under the new cat's card, so with a card up it waits for the card (up to 20 s) and opens once it has gone.
 function UI.bait.openPicker()
+	local cards = popups
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local fixes = LiveFlags.shown(
+		"deviceFixes",
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "deviceFixes")
+	)
+	if fixes and cards ~= nil and cards:isShowing() then
+		task.spawn(function()
+			local waited = 0
+			while waited < 20 and cards:isShowing() do
+				waited += task.wait(0.25)
+			end
+			if modal and modal:current() == nil and not cards:isShowing() then
+				modal:open("Bait")
+			end
+		end)
+		return
+	end
 	if modal then
 		modal:open("Bait")
 	end

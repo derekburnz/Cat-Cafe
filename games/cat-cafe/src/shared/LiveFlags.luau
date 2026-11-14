@@ -172,6 +172,7 @@ LiveFlags.KEYS = {
 	"dailyDeal", -- #3996: Today's Deal on the Store's Featured tab (shared/DailyDeal)
 	"updateFeature", -- #4175: the update's own item first on the Store's Featured tab on big update days (Config.UpdateFeature)
 	"adminEvents", -- #4195: admin events (Bowl Frenzy, the Admin Wheel) from the events schedule (shared/CafeEvents)
+	"deviceFixes", -- the Wed 2026-11-18 phone and tablet first 5 minutes fixes (no Tackle before the first check-in, ...)
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -214,6 +215,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	dailyDeal = true,
 	updateFeature = true,
 	adminEvents = true,
+	deviceFixes = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

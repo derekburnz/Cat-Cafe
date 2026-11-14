@@ -209,9 +209,13 @@ end
 
 -- #3470: the Secret cat that takes the place of a rolled `rarity`, or nil. Only a Mythical turns, Catalog.
 -- secretPerMythical of the time (`roll` in [0, 1)), and only while the `secretCats` switch is `on`; `pick` in [0, 1)
--- chooses evenly among Catalog.secretCats. So a source's Secret chance is its Mythical chance over 100, whatever Luck
--- did to the odds, and every other rarity keeps its chance.
+-- chooses evenly among the Secrets it may be. So a source's Secret chance is its Mythical chance over 100, whatever
+-- Luck did to the odds, and every other rarity keeps its chance.
+-- #4221: `areas` lists the areas the Mythical was rolled for (a wild stray's or a trap's one area, a bait bowl's
+-- open areas), and only those areas' own Secrets (`secretArea`) can turn up. No Secret lives there: nil, and the
+-- Mythical stays. Left out, every Secret can (the old rule). The services pass it only while `secretAreas` is on.
 Catching.SECRET_FLAG = "secretCats"
+Catching.SECRET_AREAS_FLAG = "secretAreas"
 Catching.SECRET_NAME = "???" -- a wild Secret stray's name on its tag and catch header until it is caught
 -- the ReplicatedStorage folder of live Secret strays' spots (the server's SecretBeacons; Effects reads it)
 Catching.SECRET_BEACONS = "SecretBeacons"
@@ -219,13 +223,42 @@ function Catching.secret(
 	rarity: Types.Rarity,
 	roll: number,
 	pick: number,
-	on: boolean
+	on: boolean,
+	areas: { string }?
 ): Types.CatDef?
-	local list = Catalog.secretCats
-	if not on or rarity ~= "Mythical" or #list == 0 or roll >= Catalog.secretPerMythical then
+	if not on or rarity ~= "Mythical" or roll >= Catalog.secretPerMythical then
+		return nil
+	end
+	local list: { Types.CatDef } = Catalog.secretCats
+	if areas ~= nil then
+		local open: { [string]: boolean } = {}
+		for _, id in areas do
+			open[id] = true
+		end
+		local mine: { Types.CatDef } = {}
+		for _, def in Catalog.secretCats do
+			local home = def.secretArea
+			if home ~= nil and open[home] then
+				table.insert(mine, def)
+			end
+		end
+		list = mine
+	end
+	if #list == 0 then
 		return nil
 	end
 	return list[math.clamp(math.floor(pick * #list) + 1, 1, #list)]
+end
+
+-- #4221: the areas a bait bowl rolls for at `tier`: every area that tier opens (the same areas pickBaitCat draws from)
+function Catching.baitAreas(tier: number): { string }
+	local list: { string } = {}
+	for _, area in Catalog.areas do
+		if area.tier <= tier then
+			table.insert(list, area.id)
+		end
+	end
+	return list
 end
 
 function Catching.rarityAtLeast(rarity: Types.Rarity, minimum: string): boolean

@@ -190,9 +190,11 @@ end
 
 -- #3470: a Secret cat. It belongs to no area (`area = "secret"`), so no wave, bait or rescue table and no Index page
 -- or count lists it; Catching.secret picks one in place of a rolled Mythical. Its rate here is the rarity's own, and
--- an owner's best open area multiplies it (CatStats.areaMultiplier).
-local function secret(def: Types.CatDef): Types.CatDef
+-- an owner's best open area multiplies it (CatStats.areaMultiplier). #4221: `home` is the one area whose rolled
+-- Mythicals it can take the place of (its `secretArea`); its `area` still says "secret".
+local function secret(def: Types.CatDef, home: Types.Area): Types.CatDef
 	def.area = "secret"
+	def.secretArea = home
 	return def
 end
 
@@ -1107,37 +1109,47 @@ Catalog.cats = {
 	),
 	-- #3470: the first three Secret cats (Design-Agent's names and looks; Model-Agent's CatCafe_Cat_Nebula, _Glitch
 	-- and _CafeGhost, the placeholder body until they land). The `alley` here only feeds the helper: `secret` takes
-	-- the area away.
-	secret(cat(
-		"nebula",
-		"Nebula",
-		"Secret",
-		"alley",
-		"entertainer",
-		"solid", -- a deep space coat with slow drifting stars and a faint purple glow
-		{ 38, 26, 84 },
-		"Came down with the night sky and stayed for the milk."
-	)),
-	secret(cat(
-		"glitch",
-		"Glitch",
-		"Secret",
-		"alley",
-		"barista",
-		"patches", -- teal and magenta, shimmering in little squares
-		{ 40, 200, 190 },
-		"Nobody is sure it is meant to be here."
-	)),
-	secret(cat(
-		"cafe_ghost",
-		"Cafe Ghost",
-		"Secret",
-		"alley",
-		"greeter",
-		"solid", -- pale and see-through, with a tiny chef hat
-		{ 232, 238, 248 },
-		"Has worked here longer than the cafe has."
-	)),
+	-- the area away. #4221: one Secret per area (Design-Agent's secret-per-area spec): Cafe Ghost is the Alleyway's,
+	-- Glitch the Neighbourhood's and Nebula the Snowy Mountain's.
+	secret(
+		cat(
+			"nebula",
+			"Nebula",
+			"Secret",
+			"alley",
+			"entertainer",
+			"solid", -- a deep space coat with slow drifting stars and a faint purple glow
+			{ 38, 26, 84 },
+			"Came down with the night sky and stayed for the milk."
+		),
+		"snowy"
+	),
+	secret(
+		cat(
+			"glitch",
+			"Glitch",
+			"Secret",
+			"alley",
+			"barista",
+			"patches", -- teal and magenta, shimmering in little squares
+			{ 40, 200, 190 },
+			"Nobody is sure it is meant to be here."
+		),
+		"neighbourhood"
+	),
+	secret(
+		cat(
+			"cafe_ghost",
+			"Cafe Ghost",
+			"Secret",
+			"alley",
+			"greeter",
+			"solid", -- pale and see-through, with a tiny chef hat
+			{ 232, 238, 248 },
+			"Has worked here longer than the cafe has."
+		),
+		"alley"
+	),
 } :: { Types.CatDef }
 
 -- #3470: the Secret cats, in catalog order

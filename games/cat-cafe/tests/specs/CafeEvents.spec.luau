@@ -9,6 +9,7 @@ return function()
 	local Catalog = require(Shared.Catalog)
 	local Config = require(Shared.Config)
 	local Economy = require(Shared.Economy)
+	local LateTiers = require(Shared.LateTiers)
 	local ProfileSchema = require(Shared.ProfileSchema)
 
 	local NOW = 1800000000
@@ -303,16 +304,22 @@ return function()
 
 		it("land on every area about equally (EventShowerAreaWeights, 20 each)", function()
 			local counts: { [string]: number } = {}
-			for i = 1, 500 do
+			LateTiers.setOpen(true) -- #3997: the Snowy Mountain too
+			local rolls = 100 * #Catalog.areas -- 100 expected an area, eight areas since Tier 8
+			for i = 1, rolls do
 				local event = CafeEvents.parse({ raw({ id = "e" .. i }) }, NOW)[1]
 				local area = CafeEvents.showerPick(event, 1).areaId
 				counts[area] = (counts[area] or 0) + 1
 			end
 			for _, area in Catalog.areas do
-				expect((counts[area.id] or 0) >= 60).to.equal(true) -- 100 expected of 500
+				expect((counts[area.id] or 0) >= 60).to.equal(true)
 			end
 			expect(CafeEvents.showerAreaFor(0)).to.equal(Catalog.areas[1].id)
 			expect(CafeEvents.showerAreaFor(0.999)).to.equal(Catalog.areas[#Catalog.areas].id)
+			-- and never the Snowy Mountain while the tier8 switch is off
+			LateTiers.setOpen(false)
+			expect(CafeEvents.showerAreaFor(0.999)).to.equal("ruins")
+			LateTiers.setOpen(nil)
 		end)
 
 		it("announce as the spec words it", function()

@@ -1533,7 +1533,12 @@ function UI.init(config: Types.InitConfig)
 		if view then
 			local dashWindow = require(script.Components.MouseDashLogic).WINDOW
 			local poolWindow = require(script.Components.MysticPoolLogic).WINDOW
-			UI.rollBusy.window = name == dashWindow or name == "Arcade" or name == poolWindow
+			-- Derek 2026-11-14 ("mute all pop ups while in store"): the Store too, so toasts wait (warnings still show),
+			-- shout-outs drop and the event and day strip steps aside until it closes
+			UI.rollBusy.window = name == dashWindow
+				or name == "Arcade"
+				or name == poolWindow
+				or name == "Store"
 			view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.on)
 		end
 		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
@@ -2689,6 +2694,7 @@ function UI.bait.busy(): boolean
 		or UI.bigTraitCutting() -- #3846: a Legendary or Mythic trait roll's cutscene
 		or UI.bait.away() -- #4035: out catching in an area
 		or UI.cutscene.on -- #4018: any cutscene (UI.setCutscene)
+		or (modal ~= nil and modal:current() == "Store") -- Derek 2026-11-14: no bowl cards over the Store
 end
 
 -- #4035 (Derek 2026-11-13: "remove all food bowl pop ups etc until your back in town square way too many annoying

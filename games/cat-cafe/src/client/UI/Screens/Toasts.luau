@@ -446,7 +446,9 @@ function Toasts.cat(self: any, card: CatCard, tries: number?)
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(left, CAT_PAD),
 		Size = UDim2.fromOffset(CAT_TEXT_W, titleH),
-		FontFace = Theme.fonts.display,
+		-- #3995 (Review-QA on #4153): the display font's narrow space all but vanished on a phone, so a join note's
+		-- title is in the bold body font
+		FontFace = if card.headshot ~= nil then Theme.fonts.bodyBold else Theme.fonts.display,
 		TextSize = if card.headshot ~= nil then Theme.sizes.textBody else Theme.sizes.textSmall,
 		TextColor3 = Theme.colors.gold,
 		TextXAlignment = Enum.TextXAlignment.Left,

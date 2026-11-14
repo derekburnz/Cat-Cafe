@@ -338,6 +338,13 @@ local auroraShown = 1 -- the transparency the bands' middles have now
 local auroraRun = 0 -- counts fades, so a newer one stops an older one
 local auroraLeaving = false -- fading out, to be dropped when the fade ends
 
+-- Studio only: Workspace's `AreaAuroraTest` attribute set to an area's id ("snowy") hangs its northern lights over
+-- where you stand, day or night, until it is cleared. "snowy,30" hangs them 30 studs up instead, low enough to see
+-- without tilting the camera.
+local testAurora: string? = nil
+local testHeight: number? = nil
+local testBox: any = nil
+
 local function auroraLook(middle: number)
 	local sequence = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1),
@@ -462,13 +469,6 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 	auroraLook(1)
 	fadeAurora(spec, spec.shown)
 end
-
--- Studio only: Workspace's `AreaAuroraTest` attribute set to an area's id ("snowy") hangs its northern lights over
--- where you stand, day or night, until it is cleared. "snowy,30" hangs them 30 studs up instead, low enough to see
--- without tilting the camera.
-local testAurora: string? = nil
-local testHeight: number? = nil
-local testBox: any = nil
 
 local function updateAurora(here: string?, feet: Vector3)
 	local area = here

@@ -1747,7 +1747,11 @@ function UI.init(config: Types.InitConfig)
 					if nav.back() then
 						return
 					elseif modalInstance:current() ~= nil then
-						modalInstance:close()
+						if nav.on() then
+							modalInstance:back()
+						else
+							modalInstance:close()
+						end
 						return
 					end
 					local guiService = game:GetService("GuiService")

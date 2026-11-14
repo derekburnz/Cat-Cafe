@@ -18,9 +18,11 @@ local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local AreaFx = require(script.Parent.Effects.AreaFx)
 local Beats = require(script.Beats)
 local BigTraitCut = require(script.Parent.Effects.BigTraitCut)
 local BinRoll = require(script.Parent.Effects.BinRoll)
+local CatchFx = require(script.Parent.Effects.Catch)
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 local Cues = require(script.Cues)
 local Effects = require(script.Parent.Effects)
@@ -32,6 +34,7 @@ local PetCat = require(script.Parent.Effects.PetCat)
 local Rally = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Rally"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local RiftRun = require(script.Parent.Effects.RiftRun)
+local Signature = require(script.Parent.Effects.Signature)
 local Splash = require(script.Parent.Effects.Splash)
 local Trampoline = require(script.Parent.Effects.Trampoline)
 
@@ -2235,6 +2238,29 @@ local function followPool()
 	end)
 end
 
+-- #4069: the new areas' own sounds, in 3D where they happen: your steps in the snow, the Blizzard Cat's gust where
+-- it lands and when it is caught, the White Tiger Cat's chime on its catch.
+local function followAreas()
+	AreaFx.onStep(function(area, at)
+		local cue = Logic.areaCue("step", area, nil)
+		if cue ~= nil then
+			Audio.play(cue, at)
+		end
+	end)
+	Signature.onArrive(function(catId, at)
+		local cue = Logic.areaCue("arrive", nil, catId)
+		if cue ~= nil then
+			Audio.play(cue, at)
+		end
+	end)
+	CatchFx.onFlavour(function(area, catId, _rarity, at)
+		local cue = Logic.areaCue("catch", area, catId)
+		if cue ~= nil then
+			Audio.play(cue, at)
+		end
+	end)
+end
+
 -- #3690: this player's bounce on the trampoline, in 3D at the mat.
 local function followTrampoline()
 	Trampoline.onBounce(function(mat)
@@ -2357,6 +2383,7 @@ function Audio.start()
 	followShopCats()
 	followBeats()
 	followPool()
+	followAreas()
 	followPoolIntro()
 	followBigTrait()
 	followRiftRun()

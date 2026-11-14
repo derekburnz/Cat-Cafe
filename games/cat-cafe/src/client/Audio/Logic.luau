@@ -469,6 +469,24 @@ function Logic.poolCue(beat: any, step: any): (string?, number?)
 	return nil, nil
 end
 
+-- #4069: the new areas' own sounds, off the effects' beats. `beat` "step" is your step in an area (snow crunches in
+-- the Snowy Mountain), "arrive" a cat's gust where it lands (the Blizzard Cat's), "catch" a catch there: the
+-- Blizzard Cat's gust again and the White Tiger Cat's frost chime. Nil for everything else, which keeps the sounds
+-- every catch already has.
+local AREA_STEPS: { [string]: string } = { snowy = "snowStep" }
+local CAT_ARRIVES: { [string]: string } = { blizzard = "snowGust" }
+local CAT_CATCHES: { [string]: string } = { blizzard = "snowGust", white_tiger = "frostChime" }
+function Logic.areaCue(beat: any, area: any, catId: any): string?
+	if beat == "step" then
+		return if type(area) == "string" then AREA_STEPS[area] else nil
+	elseif beat == "arrive" then
+		return if type(catId) == "string" then CAT_ARRIVES[catId] else nil
+	elseif beat == "catch" then
+		return if type(catId) == "string" then CAT_CATCHES[catId] else nil
+	end
+	return nil
+end
+
 -- #3846: a Legendary or Mythic trait roll's cutscene (Effects/BigTraitCut.onBeat): the fanfare lands with the big
 -- moment, the Mythical jingle for a Mythic, else the Legendary one. Flat, like the reveal.
 function Logic.bigTraitCue(beat: any, rarity: any): string?

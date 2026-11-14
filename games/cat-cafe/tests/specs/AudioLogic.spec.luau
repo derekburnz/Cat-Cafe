@@ -166,6 +166,25 @@ return function()
 			end
 		)
 
+		it("plays the Snowy Mountain's own sounds off the effects' beats", function()
+			expect(Logic.areaCue("step", "snowy", nil)).to.equal("snowStep")
+			expect(Logic.areaCue("step", "desert", nil)).to.equal(nil)
+			expect(Logic.areaCue("step", nil, nil)).to.equal(nil)
+			expect(Logic.areaCue("arrive", nil, "blizzard")).to.equal("snowGust")
+			expect(Logic.areaCue("arrive", nil, "white_tiger")).to.equal(nil)
+			expect(Logic.areaCue("catch", "snowy", "blizzard")).to.equal("snowGust")
+			expect(Logic.areaCue("catch", "snowy", "white_tiger")).to.equal("frostChime")
+			expect(Logic.areaCue("catch", "snowy", "ice")).to.equal(nil)
+			expect(Logic.areaCue("catch", "snowy", nil)).to.equal(nil)
+			expect(Logic.areaCue("roar", "snowy", "blizzard")).to.equal(nil)
+			for _, cue in { "snowStep", "snowGust", "frostChime" } do
+				expect(Cues[cue]).to.be.ok()
+			end
+			-- steps come often: quiet, never stacking
+			expect(Cues.snowStep.volume <= 0.35).to.equal(true)
+			expect(Cues.snowStep.minGap >= 0.2).to.equal(true)
+		end)
+
 		it(
 			"has the next three areas' songs and the Keep sheet's sounds ready for their upload",
 			function()

@@ -569,7 +569,7 @@ function DragonKeep.sanitize(raw: unknown): Types.DragonSave
 				table.insert(out.napping, {
 					id = entry.id,
 					variant = if entry.variant == "gold" or entry.variant == "rainbow"
-						then entry.variant
+						then entry.variant :: string
 						else nil,
 				})
 			end
@@ -743,7 +743,7 @@ local function addNapper(save: Types.DragonSave, instance: Types.CatInstance)
 	table.insert(save.napping, {
 		id = instance.catId,
 		variant = if instance.variant == "gold" or instance.variant == "rainbow"
-			then instance.variant
+			then instance.variant :: string
 			else nil,
 	})
 	local coat = { rainbow = 2, gold = 1 } :: { [string]: number }
@@ -835,7 +835,8 @@ function DragonKeep.deal(save: Types.DragonSave, kind: string, roll: () -> numbe
 	local taken: { [string]: boolean } = {}
 	local function left(rarity: string): { Card }
 		local out: { Card } = {}
-		for _, card in cardsByRarity[rarity] or {} do
+		local cards: { Card } = cardsByRarity[rarity] or {}
+		for _, card in cards do
 			if save.binder[card.id] ~= true and not taken[card.id] then
 				table.insert(out, card)
 			end

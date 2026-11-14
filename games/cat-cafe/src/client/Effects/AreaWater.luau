@@ -17,21 +17,27 @@ local Presets = require(script.Parent.Presets)
 
 local AreaWater = {}
 
+-- One part of a piece with its water running.
+type Live = {
+	made: { Instance },
+	emitters: { [ParticleEmitter]: string },
+	spot: Vector3, -- where a ring may start
+	reach: number, -- how far from the spot
+}
+
 type Source = {
 	model: Model,
 	kind: Presets.AreaWaterKind,
-	on: boolean,
-	made: { Instance },
-	emitters: { [ParticleEmitter]: string },
-	spots: { Vector3 }, -- where a ring may start: the top of each running part
-	reach: { number }, -- how far from each spot it may start
-	madeAt: Vector3?, -- where you stood when its parts were chosen
+	fit: { BasePart }, -- the parts its kind works on
+	at: { Vector3 }, -- where each is
+	centre: Vector3, -- the middle of them all (the river goes round it)
+	floor: number, -- the lowest any of them reaches
+	live: { [BasePart]: Live },
 	nextRing: number,
 }
 
 local sources: { [Instance]: Source } = {}
 local started = false
-local REBUILD = 14 -- studs you walk before a long piece chooses its parts again
 
 -- The kind of water a Model's name marks, or nil: it holds one of the sets, ends with the suffix and holds a piece.
 function AreaWater.kindOf(name: string): Presets.AreaWaterKind?
@@ -112,145 +118,152 @@ local function isDisc(part: BasePart): boolean
 	return part:IsA("Part") and (part :: Part).Shape == Enum.PartType.Cylinder
 end
 
-local function stop(s: Source)
-	for _, instance in s.made do
-		instance:Destroy()
+local function drop(s: Source, part: BasePart)
+	local live = s.live[part]
+	if live ~= nil then
+		for _, instance in live.made do
+			instance:Destroy()
+		end
+		s.live[part] = nil
 	end
-	table.clear(s.made)
-	table.clear(s.emitters)
-	table.clear(s.spots)
-	table.clear(s.reach)
-	s.on = false
-	s.madeAt = nil
 end
 
--- The parts of a piece its kind works on, nearest you first, at most kind.parts of them.
-local function chosen(s: Source): { BasePart }
+local function stop(s: Source)
+	for part in s.live do
+		drop(s, part)
+	end
+end
+
+-- The parts of a piece its kind works on, read once: the water never moves.
+local function measure(s: Source)
 	local wantBalls = s.kind.spray ~= nil
-	local candidates: { Logic.Candidate<BasePart> } = {}
+	table.clear(s.fit)
+	table.clear(s.at)
+	local centre, floor = Vector3.zero, math.huge
 	for _, d in s.model:GetDescendants() do
 		if d:IsA("BasePart") then
 			local part = d :: BasePart
-			local fits = if wantBalls
-				then isBall(part)
-				else AreaWater.isFlat(axesUp(part), part.Size)
+			local axisY = axesUp(part)
+			local fits = if wantBalls then isBall(part) else AreaWater.isFlat(axisY, part.Size)
 			if fits then
-				table.insert(candidates, { key = part, distance = Context.distance(part.Position) })
+				table.insert(s.fit, part)
+				table.insert(s.at, part.Position)
+				centre += part.Position
+				floor = math.min(floor, part.Position.Y - AreaWater.halfHeight(axisY, part.Size))
 			end
 		end
 	end
-	return Logic.nearest(candidates, math.huge, s.kind.parts)
+	s.centre = if #s.fit > 0 then centre / #s.fit else centre
+	s.floor = floor
 end
 
-local function keep(s: Source, emitter: ParticleEmitter?, name: string)
-	if emitter ~= nil then
-		s.emitters[emitter] = name
+-- The parts nearest you, at most kind.parts of them, and how near the nearest is.
+local function nearest(s: Source): ({ BasePart }, number)
+	local candidates: { Logic.Candidate<BasePart> } = {}
+	local best = math.huge
+	for i, part in s.fit do
+		local distance = Context.distance(s.at[i])
+		best = math.min(best, distance)
+		candidates[i] = { key = part, distance = distance }
 	end
+	if #s.fit <= s.kind.parts then
+		return s.fit, best
+	end
+	return Logic.nearest(candidates, math.huge, s.kind.parts), best
 end
 
-local function build(s: Source)
+local function make(s: Source, part: BasePart)
 	local p = Presets.areaWater
 	local kind = s.kind
-	local parts = chosen(s)
-	local centre = Vector3.zero
-	local all = 0
-	for _, d in s.model:GetDescendants() do
-		if d:IsA("BasePart") then
-			centre += (d :: BasePart).Position
-			all += 1
+	local live: Live = { made = {}, emitters = {}, spot = part.Position, reach = 0 }
+	local function keep(emitter: ParticleEmitter?, name: string)
+		if emitter ~= nil then
+			live.emitters[emitter] = name
 		end
 	end
-	if all > 0 then
-		centre /= all
+	local axisY = axesUp(part)
+	local half = AreaWater.halfHeight(axisY, part.Size)
+	local top = part.Position + Vector3.new(0, half + p.lift, 0)
+	local on = kind.glint or kind.flow
+	if on ~= nil then
+		local size = AreaWater.sheet(axisY, part.Size, isDisc(part), 0.05)
+		local sheet = Context.effectPart("EffectsWaterSheet", size, p.colour)
+		sheet.Transparency = 1
+		sheet.CFrame = part.CFrame.Rotation + top
+		sheet.Parent = Context.folder()
+		table.insert(live.made, sheet)
+		local emitter = Particles.attach(on, sheet)
+		if emitter ~= nil and kind.flow ~= nil then
+			local with = AreaWater.withFlow(part.Position, s.centre, part.CFrame.RightVector)
+			emitter.EmissionDirection = if with then Enum.NormalId.Right else Enum.NormalId.Left
+		end
+		keep(emitter, on)
 	end
-	local floor = math.huge
-	for _, part in parts do
-		local axisY = axesUp(part)
-		local half = AreaWater.halfHeight(axisY, part.Size)
-		floor = math.min(floor, part.Position.Y - half)
-		local top = part.Position + Vector3.new(0, half + p.lift, 0)
-		local on = kind.glint or kind.flow
-		if on ~= nil then
-			local size = AreaWater.sheet(axisY, part.Size, isDisc(part), 0.05)
-			local sheet = Context.effectPart("EffectsWaterSheet", size, p.colour)
-			sheet.Transparency = 1
-			sheet.CFrame = part.CFrame.Rotation + top
-			sheet.Parent = Context.folder()
-			table.insert(s.made, sheet)
-			local emitter = Particles.attach(on, sheet)
-			if emitter ~= nil and kind.flow ~= nil then
-				emitter.EmissionDirection = if AreaWater.withFlow(
-						part.Position,
-						centre,
-						part.CFrame.RightVector
-					)
-					then Enum.NormalId.Right
-					else Enum.NormalId.Left
-			end
-			keep(s, emitter, on)
-		end
-		local spray = kind.spray
-		if spray ~= nil then
-			local holder = Particles.anchor("EffectsWaterSpray", top)
-			table.insert(s.made, holder)
-			keep(s, Particles.attach(spray, holder), spray)
-		end
-		local mist = kind.mist
-		if mist ~= nil then
-			local holder = Particles.anchor("EffectsWaterMist", top)
-			table.insert(s.made, holder)
-			keep(s, Particles.attach(mist, holder), mist)
-		end
-		if kind.spray == nil then
-			local sides = { part.Size.X, part.Size.Y, part.Size.Z }
-			table.sort(sides)
-			table.insert(s.spots, top)
-			table.insert(s.reach, sides[2] * p.ringInner)
-		end
-	end
-	if kind.spray ~= nil then
+	local spray = kind.spray
+	if spray ~= nil then
+		local holder = Particles.anchor("EffectsWaterSpray", top)
+		table.insert(live.made, holder)
+		keep(Particles.attach(spray, holder), spray)
 		-- a jet's ring spreads on the pad under it, not up at its cap
-		for _, part in parts do
-			table.insert(s.spots, Vector3.new(part.Position.X, floor + p.lift, part.Position.Z))
-			table.insert(s.reach, 0)
-		end
+		live.spot = Vector3.new(part.Position.X, s.floor + p.lift, part.Position.Z)
+	else
+		local sides = { part.Size.X, part.Size.Y, part.Size.Z }
+		table.sort(sides)
+		live.spot = top
+		live.reach = sides[2] * p.ringInner
 	end
-	s.madeAt = Context.focus()
-	s.on = true
-	s.nextRing = os.clock() + math.random() * (kind.ringEvery or 1)
+	local mist = kind.mist
+	if mist ~= nil then
+		local holder = Particles.anchor("EffectsWaterMist", top)
+		table.insert(live.made, holder)
+		keep(Particles.attach(mist, holder), mist)
+	end
+	s.live[part] = live
 end
 
-local function run(s: Source)
-	if s.on then
-		-- a long piece follows you along it
-		local at, from = Context.focus(), s.madeAt
-		if at ~= nil and from ~= nil and (at - from).Magnitude > REBUILD then
-			stop(s)
+-- Runs the water on the parts nearest you, leaving alone the ones already running: walking along the river, only
+-- the part you leave behind stops and the one ahead starts.
+local function run(s: Source, wanted: { BasePart })
+	local keepOn: { [BasePart]: boolean } = {}
+	for _, part in wanted do
+		keepOn[part] = true
+		if s.live[part] == nil and part.Parent ~= nil then
+			make(s, part)
 		end
 	end
-	if not s.on then
-		build(s)
-	end
-	-- a new budget reaches emitters made before it
-	for emitter, name in s.emitters do
-		Particles.switchOn(emitter, name)
+	for part, live in s.live do
+		if not keepOn[part] then
+			drop(s, part)
+		else
+			-- a new budget reaches emitters made before it
+			for emitter, name in live.emitters do
+				Particles.switchOn(emitter, name)
+			end
+		end
 	end
 end
 
 local function ring(s: Source, now: number)
 	local every, size = s.kind.ringEvery, s.kind.ring
-	if every == nil or size == nil or now < s.nextRing or #s.spots == 0 then
+	if every == nil or size == nil or now < s.nextRing then
 		return
 	end
 	s.nextRing = now + every * (0.8 + math.random() * 0.4)
 	if Context.reducedMotion() then
 		return
 	end
+	local spots: { Live } = {}
+	for _, live in s.live do
+		table.insert(spots, live)
+	end
+	if #spots == 0 then
+		return
+	end
 	local p = Presets.areaWater
-	local i = math.random(1, #s.spots)
-	local reach = s.reach[i]
-	local offset = Vector3.new((math.random() * 2 - 1) * reach, 0, (math.random() * 2 - 1) * reach)
-	Particles.ring(s.spots[i] + offset, p.colour, size, p.ringSeconds)
+	local live = spots[math.random(1, #spots)]
+	local offset =
+		Vector3.new((math.random() * 2 - 1) * live.reach, 0, (math.random() * 2 - 1) * live.reach)
+	Particles.ring(live.spot + offset, p.colour, size, p.ringSeconds)
 end
 
 local function consider(instance: Instance)
@@ -258,57 +271,48 @@ local function consider(instance: Instance)
 		return
 	end
 	local kind = AreaWater.kindOf(instance.Name)
-	if kind == nil or instance:FindFirstChildWhichIsA("BasePart", true) == nil then
+	if kind == nil then
 		return
 	end
-	sources[instance] = {
+	local s: Source = {
 		model = instance :: Model,
 		kind = kind,
-		on = false,
-		made = {},
-		emitters = {},
-		spots = {},
-		reach = {},
-		madeAt = nil,
-		nextRing = 0,
+		fit = {},
+		at = {},
+		centre = Vector3.zero,
+		floor = 0,
+		live = {},
+		nextRing = os.clock() + math.random() * (kind.ringEvery or 1),
 	}
-end
-
--- The nearest point of a piece, for choosing between pieces: its nearest part, since the lazy river rings the park.
-local function distanceTo(s: Source): number
-	local best = math.huge
-	for _, d in s.model:GetDescendants() do
-		if d:IsA("BasePart") then
-			best = math.min(best, Context.distance((d :: BasePart).Position))
-		end
-	end
-	return best
+	measure(s)
+	sources[instance] = s
 end
 
 local function pick()
 	local p = Presets.areaWater
 	local candidates: { Logic.Candidate<Source> } = {}
+	local wanted: { [Source]: { BasePart } } = {}
 	for model, s in sources do
 		if not model:IsDescendantOf(Workspace) then
 			stop(s)
 			sources[model] = nil
-		else
-			table.insert(candidates, { key = s, distance = distanceTo(s) })
+		elseif #s.fit > 0 and not Context.lowPerformance then
+			local parts, distance = nearest(s)
+			wanted[s] = parts
+			table.insert(candidates, { key = s, distance = distance })
 		end
 	end
 	local running: { [Source]: boolean } = {}
-	if not Context.lowPerformance then
-		local most = Context.budget.waterfalls + p.extra
-		for _, s in Logic.nearest(candidates, p.within, most) do
-			running[s] = true
-			run(s)
-		end
+	local most = Context.budget.waterfalls + p.extra
+	for _, s in Logic.nearest(candidates, p.within, most) do
+		running[s] = true
+		run(s, wanted[s])
 	end
 	local now = os.clock()
 	for _, s in sources do
 		if running[s] then
 			ring(s, now)
-		elseif s.on then
+		elseif next(s.live) ~= nil then
 			stop(s)
 		end
 	end
@@ -323,17 +327,18 @@ function AreaWater.start()
 		consider(descendant)
 	end
 	Workspace.DescendantAdded:Connect(function(descendant: Instance)
-		-- the water's parts stream in after its Model, so take a known piece again as they arrive
-		local parent = descendant.Parent
-		local known: Source? = if parent ~= nil then sources[parent] else nil
-		if descendant:IsA("BasePart") and parent ~= nil then
+		if descendant:IsA("Model") then
+			if AreaWater.kindOf(descendant.Name) ~= nil then
+				task.defer(consider, descendant)
+			end
+		elseif descendant:IsA("BasePart") then
+			-- the water's parts stream in after its Model: measure a known piece again as they arrive
+			local parent = descendant.Parent
+			local known: Source? = if parent ~= nil then sources[parent] else nil
 			if known ~= nil then
 				stop(known)
-			else
-				task.defer(consider, parent)
+				task.defer(measure, known)
 			end
-		elseif descendant:IsA("Model") then
-			task.defer(consider, descendant)
 		end
 	end)
 	task.spawn(function()

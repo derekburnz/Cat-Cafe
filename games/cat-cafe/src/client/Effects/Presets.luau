@@ -4820,19 +4820,20 @@ Presets.bedWalk = { fade = 0.25 }
 -- within the budget's animRadius, at most the budget's areaPuffs in any one second (#2661). In the Ruins, falling `mistDepth` studs below the plateau puffs `mist` violet-grey
 -- mist round you once, before the server's catch moves you to the camp pad.
 -- #4069: ribbons of northern light over an area while it is night and you are in it. Each ribbon is two soft bands
--- (`foot` colour under `top` colour) `width` studs tall, hung `height` studs over the ground across the area's width
--- and spread over its depth, each bending `curve` of its length to one side and slowly over to the other in its
+-- (`foot` colour under `top` colour) `width` studs tall, hung `height` studs over the ground along the area's longer
+-- side and spread over its shorter one, each bending `curve` of its length (at most `curveMost` studs) to one side and slowly over to the other in its
 -- `seconds` and back. Each band wears the soft smoke picture stretched once along it, so it fades out toward its
 -- edges and ends and never shows a hard stripe. They fade in and out over `fade` seconds. With Reduce Motion they hang still; none in Low
 -- performance. `ribbons` is per budget tier (high, medium, low).
 export type AuroraSpec = {
 	ribbons: { number },
 	height: number,
-	spread: number, -- of the area's depth the ribbons are spread over (over 1: the outer ones hang past its walls)
+	spread: number, -- of the area's shorter side the ribbons are spread over (over 1: the outer ones hang past its walls)
 	rise: number, -- studs each ribbon hangs above the one in front
 	width: number,
 	overlap: number, -- of `width`, how far the top band sits over the foot band
 	curve: number,
+	curveMost: number,
 	seconds: { number },
 	shown: number, -- transparency at the ribbon's middle (its ends fade to nothing)
 	fade: number,
@@ -4909,6 +4910,7 @@ Presets.areaFx = {
 				width = 46,
 				overlap = 0.45,
 				curve = 0.22,
+				curveMost = 60,
 				seconds = { 11, 14, 17 },
 				shown = 0.72,
 				fade = 3,

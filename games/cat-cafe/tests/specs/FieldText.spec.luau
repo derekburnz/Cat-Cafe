@@ -27,5 +27,10 @@ return function()
 		it("cuts a long value to MAX", function()
 			expect(#FieldText.clean(string.rep("x", 300))).to.equal(FieldText.MAX)
 		end)
+
+		it("stays inside Roblox's 50 character limit for a custom field", function()
+			expect(FieldText.MAX <= 50).to.equal(true)
+			expect(#FieldText.clean(string.rep("ab ", 40)) <= 50).to.equal(true)
+		end)
 	end)
 end

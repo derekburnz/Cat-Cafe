@@ -1614,6 +1614,10 @@ function UI.init(config: Types.InitConfig)
 			return hudInstance:bottomTop()
 		end
 	)
+	-- #4152: the tutorial's edge arrow keeps off the HUD (the money pill, the menu column, the goal card)
+	require(script.Components.StepTarget).setAvoid(function()
+		return hudInstance:edgeAvoid()
+	end)
 	popups = Popups.new(parent)
 	-- #2157 (Desktop-Tester on #2128): a replay waits before the intro hides the UI (for the camp to stream in then;
 	-- since #3109 for the loading screen's run to 100), so the window it was asked from stayed up about 1.5 s, and a Welcome back card that was up or

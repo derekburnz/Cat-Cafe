@@ -169,6 +169,10 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 			and (destination == Cannon.TOWN or area ~= nil),
 		destinationName = if area ~= nil then area.name else nil,
 		destinationTier = if area ~= nil then area.tier else nil,
+		destinationFrom = if area ~= nil then area.launchFrom else nil, -- #4070
+		destinationFromName = if area ~= nil and area.launchFrom ~= nil
+			then (Catalog.getArea(area.launchFrom) or area).name
+			else nil,
 		tier = Economy.tier(profile),
 		areasOpen = NightPass.open(ClockService.areasOpen(), pass),
 		duskWarning = not pass

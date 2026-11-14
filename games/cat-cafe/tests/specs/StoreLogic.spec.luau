@@ -737,19 +737,14 @@ return function()
 			end
 			return nil
 		end
-		it("shows the King Cat alone just before its bundle, under Cats", function()
+		-- #4261 (Derek 2026-11-14: "no need to make it buyable alone"): the King Cat is sold only in the Cat King Pack
+		it("never shows the King Cat alone; the Cat King Pack stays under Cats", function()
 			local rows = StoreLogic.rows(config, {}, false, nil)
-			local cat, pack
-			for index, row in rows do
-				if row.key == "kingCat" then
-					cat = index
-				elseif row.key == "kingPack" then
-					pack = index
-				end
-			end
-			expect(cat).to.be.ok()
-			expect(pack).to.equal(cat + 1)
-			expect(rows[cat].tab).to.equal("cats")
+			expect(find(rows, "kingCat")).to.equal(nil)
+			expect(find(rows, "kingPack").tab).to.equal("cats")
+			rows = StoreLogic.rows({ KingPackPassId = 100, RoyalCatPassId = 400 }, {}, false, nil)
+			expect(find(rows, "kingPack").name).to.equal("Cat King Pack")
+			expect(find(rows, "royalCat").name).to.equal("Royal Cat Pack")
 		end)
 		it("hides the King Cat alone while its pass is not made", function()
 			local rows = StoreLogic.rows(
@@ -761,17 +756,14 @@ return function()
 			expect(find(rows, "kingCat")).to.equal(nil)
 			expect(find(rows, "kingPack").worthIds).to.equal(nil)
 		end)
-		it("adds up the parts for the worth line, only when it beats the bundle's price", function()
+		it("has no worth line now that the King Cat is not sold alone (#4261)", function()
 			local pack = find(StoreLogic.rows(config, {}, false, nil), "kingPack")
+			expect(pack.worthIds).to.equal(nil)
 			local prices = {
-				[100] = { robux = 999, forSale = true },
+				[100] = { robux = 299, forSale = true },
 				[200] = { robux = 799, forSale = true },
 				[300] = { robux = 450, forSale = true },
 			}
-			expect(StoreLogic.worthLine(pack, prices)).to.equal("Worth R$1,245")
-			prices[300] = { robux = 150, forSale = true }
-			expect(StoreLogic.worthLine(pack, prices)).to.equal(nil)
-			prices[300] = nil
 			expect(StoreLogic.worthLine(pack, prices)).to.equal(nil)
 		end)
 		it("drops the worth line once the bundle is owned", function()
@@ -825,17 +817,17 @@ return function()
 			local before = Config.StoreSaleEnds - 1
 
 			it("shows the true old price at the sale price or lower", function()
-				local half = { robux = 499, forSale = true }
+				local half = { robux = 299, forSale = true }
 				expect(StoreLogic.saleWas(card("kingPack"), half, Config, before)).to.equal(999)
 				expect(StoreLogic.saleBadge(999)).to.equal("SALE  was <s>R$999</s>")
-				for _, robux in { 450, 498 } do
+				for _, robux in { 250, 298 } do
 					local price = { robux = robux, forSale = true }
 					expect(StoreLogic.saleWas(card("kingPack"), price, Config, before)).to.equal(
 						999
 					)
 				end
 				-- above the sale price (a regional price, a price that went up): no badge
-				for _, robux in { 500, 998, 999, 1200 } do
+				for _, robux in { 300, 998, 999, 1200 } do
 					local price = { robux = robux, forSale = true }
 					expect(StoreLogic.saleWas(card("kingPack"), price, Config, before)).to.equal(
 						nil
@@ -845,7 +837,7 @@ return function()
 				expect(
 					StoreLogic.saleWas(
 						card("kingPack"),
-						{ robux = 499, forSale = false },
+						{ robux = 299, forSale = false },
 						Config,
 						before
 					)
@@ -856,7 +848,7 @@ return function()
 			end)
 
 			it("comes off after 30 days and never shows on an item that was selling", function()
-				local half = { robux = 499, forSale = true }
+				local half = { robux = 299, forSale = true }
 				expect(StoreLogic.saleWas(card("kingPack"), half, Config, Config.StoreSaleEnds)).to.equal(
 					nil
 				)
@@ -883,11 +875,16 @@ return function()
 				"lists the Store cards of Derek's fifteen items, each at half within half a Robux",
 				function()
 					local count = 0
-					for _, entry in Config.StoreWasPrice do
+					for key, entry in Config.StoreWasPrice do
 						count += 1
+						if key == "royalCat" or key == "kingPack" then
+							continue -- #4261: Derek's own prices, R$199 and R$299
+						end
 						expect(math.abs(entry.was / 2 - entry.now) <= 0.5).to.equal(true)
 					end
-					expect(count).to.equal(9) -- the Golden Pond pass has no Store card; the potion packs left the Store
+					expect(Config.StoreWasPrice.royalCat.now).to.equal(199)
+					expect(Config.StoreWasPrice.kingPack.now).to.equal(299)
+					expect(count).to.equal(8) -- the Golden Pond pass has no Store card; the potion packs left the Store
 					-- every key is a card the Store can show
 					local cards: { [string]: boolean } = {
 						[StoreLogic.STARTER.key] = true,

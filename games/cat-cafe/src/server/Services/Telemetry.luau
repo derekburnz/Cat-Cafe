@@ -129,6 +129,7 @@ export type CustomEvent =
 	| "rescue_refill" -- #3049: a starter trap refilled for a first-timer; fields: area, players waiting
 	| "bait_rolled"
 	| "bait_resolved"
+	| "auto_bowl" -- #4266: the Auto Bowl pass tamed or refilled a bowl ("claim" or "refill", the bowl)
 	| "gold_found"
 	| "rainbow_found" -- F99 (rainbow-coat.md section 5): rarity, net, bait or rescue, first of the cat yes or no
 	| "rally_step" -- F101 (rescue-rally.md section 5): value the players in the server; the step (25, 50, 100), lap, paid
@@ -169,6 +170,11 @@ export type CustomEvent =
 	| "spin"
 	| "crate_opened"
 	| "mystery_buy" -- #2565: value fish before; item, week slot, tier
+	| "fishstore_buy" -- #4055: value fish before; FishStore key, tier
+	| "ticket_buy" -- #4061: value tickets before; prize id, tier
+	| "dragon_give" -- #4062: value cats moved in; Warmth, stage after
+	| "dragon_stage" -- #4062: value the stage reached; tier
+	| "dragon_card" -- #4062: value the stage; card id, "stage" or "rekindle"
 	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id (#4049: then the kind)
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"

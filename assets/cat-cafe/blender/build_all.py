@@ -931,7 +931,8 @@ def main():
         if name in menu.ATTACHMENTS:              # F90: the tray's Item spot, the oven's DoorGlow
             extra = {"attachments": menu.rbx_attachments(name)}
         if name == arcadecabinet.NAME:            # #3062: the Play prompt, the coin slot and the screen
-            extra = {"attachments": arcadecabinet.attachments()}
+            extra = {"attachments": arcadecabinet.attachments(), "nest": arcadecabinet.NEST,
+                     "part_attributes": arcadecabinet.FOLLOWS}   # #4272: the mouse cat's ears ride his head
         if name in campstations.ASSETS:           # #1319: PromptAnchor, BangAnchor, and GlowAnchor / Steam
             extra = {"attachments": campstations.rbx_attachments(name), **campstations.MOVING.get(name, {})}
         if name in townsfolk.ASSETS:              # #2687: the hat rides the Head Model

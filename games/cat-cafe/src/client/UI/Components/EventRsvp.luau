@@ -24,6 +24,8 @@ local EventRsvp = {}
 EventRsvp.REMIND = "Remind me"
 EventRsvp.LATER = "Not now"
 EventRsvp.ASK_SECONDS = 20
+-- Derek 2026-11-14: show Roblox's own Join Event card at once (no "Remind me" card first), at a random safe moment
+EventRsvp.DIRECT = true
 EventRsvp.SOON_SECONDS = 12 * 3600 -- an Event this close is "today"
 -- #3450 (Derek 2026-11-12: "prompt them 3-10minutes into the game"): the ask comes only in this part of a session,
 -- counted in seconds since the player's game started.

@@ -2200,8 +2200,15 @@ UI.shoutout = { at = nil :: number? }
 -- Review-QA on #4002 (Studio): after Give up the rich customer's card came up half a second later over the board's
 -- next roll (the pad starts the next try by itself). The cards (not the toasts) also wait CALM seconds after a roll
 -- or its bar ends: `held()`.
-UI.rollBusy = { on = false, window = false, offAt = nil :: number?, CALM = 5 }
+-- Review-QA (b9e3f2523, Studio): the card then came over the bin's result board once the bar and the calm were past.
+-- `board` is BinController's: true while a Rummage Bin board is up for this player (they stand at the bin), and the
+-- cards wait the whole time it is, then CALM more.
+UI.rollBusy = { on = false, window = false, board = false, offAt = nil :: number?, CALM = 5 }
 function UI.rollBusy.held(): boolean
+	if UI.rollBusy.board then
+		UI.rollBusy.offAt = os.clock()
+		return true
+	end
 	-- Review-QA (ea186f64): the roll's show ends when the bar comes, so the bar (and the board after it) count too:
 	-- while a bar is up the calm starts again
 	local rescue: any = (UI :: any).rescue

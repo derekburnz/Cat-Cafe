@@ -283,6 +283,7 @@ local popHold = 0 -- os.clock() before which the board stays hidden
 local function boardRefresh()
 	local on = rollOn()
 	local view: RollBoardLogic.View? = nil
+	local anyShown = false
 	for model, prompt in models do
 		-- #3861 (Review-QA: the board overlapped the bar's title card): it steps away while the bar runs
 		local shown = on
@@ -311,6 +312,12 @@ local function boardRefresh()
 		if found.gui.Enabled ~= shown then
 			found.gui.Enabled = shown
 		end
+		anyShown = anyShown or shown
+	end
+	-- Review-QA on #4002: the ask cards wait while a board is up (UI.rollBusy.held)
+	local busy: any = (UI :: any).rollBusy
+	if busy ~= nil then
+		busy.board = anyShown
 	end
 end
 

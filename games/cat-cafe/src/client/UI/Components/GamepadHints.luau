@@ -146,13 +146,16 @@ function GamepadHints.refresh(self: any)
 		local row = GamepadNav.tabs(modal.container)
 		tabs = row ~= nil
 	end
-	local list = GamepadHintsLogic.keys({
-		gamepad = GamepadNav.isGamepad(),
-		on = GamepadNav.on(),
-		window = window,
-		tabs = tabs,
-		selecting = GuiService.SelectedObject ~= nil,
-	})
+	-- a short screen's window reaches 8 px from the bottom (Modal), so there the strip stays away while one is open
+	local list = if window and Scale.isShort()
+		then {}
+		else GamepadHintsLogic.keys({
+			gamepad = GamepadNav.isGamepad(),
+			on = GamepadNav.on(),
+			window = window,
+			tabs = tabs,
+			selecting = GuiService.SelectedObject ~= nil,
+		})
 	local words = {}
 	for _, hint in list do
 		table.insert(words, table.concat(hint.keys, "+") .. ":" .. hint.label)

@@ -2585,6 +2585,12 @@ local SCENES = {
 		UI.open("Collection")
 		UIShim.advance(0.4)
 		local gui = UIShim.playerGui:FindFirstChild("CatCafePadHints") :: ScreenGui
+		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale") :: any
+		if Scale.isShort() then
+			-- a short screen's window reaches the bottom edge, so the strip stays away while it is open
+			assert(gui ~= nil and not gui.Enabled, "uigate: controller hints over a short screen's window (#4224)")
+			return
+		end
 		assert(gui ~= nil and gui.Enabled, "uigate: no controller hints over an open window (#4224)")
 		local labels: { [string]: boolean } = {}
 		for _, piece in gui:GetDescendants() do

@@ -4377,4 +4377,98 @@ function Logic.orbitOffset(
 	return Vector3.new(math.cos(a) * radius, z * math.sin(tilt), z * math.cos(tilt))
 end
 
+-- "Trading unlocked!" (Effects/TradeUnlock, Presets.tradeUnlock): where the moment is `t` seconds in. `scale` is the
+-- Trade icon's size (0 to a little over 1), `tilt` the padlock's wiggle in degrees, `open` whether the padlock has
+-- sprung open, `hop` how far up it has hopped (in its own sizes), `fallX`, `fallY` and `fallSpin` how far it has
+-- fallen (icon sizes, degrees), `lockShown` and `shown` how solid the padlock and everything else are (0 to 1),
+-- `words` how solid the words are, `fly` how far the icon is along its flight to the Trade tile (0 to 1) and `done`
+-- when it is over. `still` (Reduce Motion): nothing moves; the lock gives way to the open one and it all fades.
+export type TradeUnlockSpec = {
+	popIn: number,
+	wiggleAt: number,
+	wiggleSeconds: number,
+	wiggles: number,
+	wiggle: number,
+	openAt: number,
+	hop: number,
+	fallAt: number,
+	fallSeconds: number,
+	gravity: number,
+	drift: number,
+	spin: number,
+	flyAt: number,
+	fly: number,
+	fade: number,
+	stillOpen: number,
+	stillEnd: number,
+}
+export type TradeUnlockFrame = {
+	scale: number,
+	tilt: number,
+	open: boolean,
+	hop: number,
+	fallX: number,
+	fallY: number,
+	fallSpin: number,
+	lockShown: number,
+	shown: number,
+	words: number,
+	fly: number,
+	done: boolean,
+}
+
+function Logic.tradeUnlock(t: number, p: TradeUnlockSpec, still: boolean): TradeUnlockFrame
+	local frame: TradeUnlockFrame = {
+		scale = 1,
+		tilt = 0,
+		open = false,
+		hop = 0,
+		fallX = 0,
+		fallY = 0,
+		fallSpin = 0,
+		lockShown = 1,
+		shown = 1,
+		words = 0,
+		fly = 0,
+		done = false,
+	}
+	local fade = math.max(p.fade, 1e-6)
+	if still then
+		frame.open = t >= p.stillOpen
+		local since = t - p.stillOpen
+		frame.words = math.clamp(since / fade, 0, 1)
+		frame.shown = math.clamp(t / fade, 0, 1) * (1 - math.clamp((t - p.stillEnd) / fade, 0, 1))
+		frame.done = t >= p.stillEnd + fade
+		return frame
+	end
+	frame.scale = if t < p.popIn
+		then math.max(0, Logic.easeOutBack(t / math.max(p.popIn, 1e-6)))
+		else 1
+	local w = (t - p.wiggleAt) / math.max(p.wiggleSeconds, 1e-6)
+	if w > 0 and w < 1 then
+		-- whole swings side to side, ending upright
+		frame.tilt = p.wiggle * math.sin(2 * math.pi * p.wiggles * w)
+	end
+	frame.open = t >= p.openAt
+	if frame.open then
+		local up = math.clamp((t - p.openAt) / math.max(p.fallAt - p.openAt, 1e-6), 0, 1)
+		frame.hop = p.hop * math.sin(math.pi * math.min(up * 1.5, 1)) -- up and back down before it falls
+		frame.words = math.clamp((t - p.openAt) / fade, 0, 1)
+	end
+	local f = t - p.fallAt
+	if f > 0 then
+		frame.fallX = p.drift * f
+		frame.fallY = 0.5 * p.gravity * f * f
+		frame.fallSpin = p.spin * f
+		frame.lockShown = 1 - math.clamp(f / math.max(p.fallSeconds, 1e-6), 0, 1)
+	end
+	local g = t - p.flyAt
+	if g > 0 then
+		frame.fly = Logic.easeInOut(g / math.max(p.fly, 1e-6))
+		frame.words = 1 - math.clamp(g / fade, 0, 1)
+	end
+	frame.done = t >= p.flyAt + p.fly
+	return frame
+end
+
 return Logic

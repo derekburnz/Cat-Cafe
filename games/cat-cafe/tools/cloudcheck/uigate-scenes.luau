@@ -1576,6 +1576,27 @@ local SCENES = {
 			},
 		})
 		UI.open("Decor")
+		-- #4278: each chip leads with its symbol, and Style sits right after All
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Decor", true)
+		local chips = {}
+		for _, name in { "All", "Style", "FrontLawn", "Plants", "Floor", "Walls" } do
+			local chip = window:FindFirstChild(name, true) :: GuiObject?
+			if chip and chip.Visible then
+				local words = ""
+				for _, piece in chip:GetDescendants() do
+					if piece:IsA("TextLabel") then
+						words ..= piece.Text .. "|"
+					end
+				end
+				local symbol = ({ All = "🏠", Style = "👕", FrontLawn = "🌳", Plants = "🌿", Floor = "⬜", Walls = "🧱" })[name]
+				assert(string.find(words, symbol, 1, true), "uigate: the " .. name .. " chip has no symbol (#4278): " .. words)
+				table.insert(chips, chip)
+			end
+		end
+		table.sort(chips, function(a, b)
+			return a.AbsolutePosition.X < b.AbsolutePosition.X
+		end)
+		assert(#chips >= 2 and chips[1].Name == "All" and chips[2].Name == "Style", "uigate: Style is not right after All (#4278)")
 		press("Decor", "Style")
 		assertEquipBestInHeader("the Style tab")
 	end },
@@ -2167,6 +2188,43 @@ local SCENES = {
 		assert(top >= headerTop - 1 and bottom <= headerBottom + 1, ("uigate: the Perks button (%d-%d) runs out of the header (%d-%d) (#2839)"):format(top, bottom, headerTop, headerBottom))
 		local gap = (close :: GuiObject).AbsolutePosition.X - (shown.AbsolutePosition.X + shown.AbsoluteSize.X)
 		assert(gap >= 8, ("uigate: the Perks button is %d px from the X (#2839)"):format(gap))
+	end },
+	-- #4292 (Derek 11-14: the white rows under "New station" flash on and off): a state push that changes nothing on
+	-- the card (money ticking) keeps the same rows and "It opens" cards, not new ones drawn a frame late
+	{ "RankUpSteady", function()
+		UI.open("RankUp")
+		UIShim.advance(0.1)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local root = modals and modals:FindFirstChild("Root")
+		local container = root and root:FindFirstChild("Container")
+		local window = container and container:FindFirstChild("RankUp") :: Instance
+		assert(window, "uigate: no Rank up window (#4292)")
+		local function pieces(): { Instance }
+			local found = {}
+			local list = window:FindFirstChild("Requirements", true)
+			local cards = window:FindFirstChild("OpensCards", true)
+			for _, holder in { list, cards } do
+				if holder then
+					for _, child in holder:GetChildren() do
+						if child:IsA("Frame") then
+							table.insert(found, child)
+						end
+					end
+				end
+			end
+			return found
+		end
+		local before = pieces()
+		assert(#before > 0, "uigate: the Rank up window shows no rows (#4292)")
+		UI.update({} :: any) -- a push that changes nothing on the card, as a money tick past the needs does
+		UIShim.advance(0.1)
+		UI.update({} :: any)
+		UIShim.advance(0.1)
+		local after = pieces()
+		assert(#after == #before, ("uigate: the Rank up rows went from %d to %d on a state push (#4292)"):format(#before, #after))
+		for _, piece in before do
+			assert(piece.Parent ~= nil and table.find(after, piece), ("uigate: Rank up row %s was drawn again on a state push, so it flashes (#4292)"):format(piece.Name))
+		end
 	end },
 	{ "RankUpTier2", function()
 		-- #2121: the Tier 1 card lists all five upgrade caps, Bait Bowl among them; the line still fits. The level is not
@@ -4670,6 +4728,61 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			if (d:IsA("ImageLabel") or d:IsA("ImageButton")) and string.find(d.Image, "76162414943592", 1, true) then
 				error("uigate: " .. d:GetFullName() .. " still draws the ? mystery box (#2089)")
 			end
+		end
+	end },
+	-- #4258 (Derek 2026-11-14: "remove the bar on bottom", "add an arrow on the right an left to click to move you
+	-- through the pass", touch drags "just snap you back"): no scroll bar; ◀ and ▶ either side of the track page through
+	-- the levels, dimmed at the ends; the canvas is just as wide as its thirty columns, and a drag does not spring back
+	{ "CafePassArrows", function()
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 1, xp = 0, xpPerLevel = 800,
+			levels = 30, paid = false, claimedFree = {}, claimedPaid = {}, claimable = 0, items = {} })
+		UI.pass.open()
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("CafePass", true) :: GuiObject
+		local track = window:FindFirstChild("Track", true) :: ScrollingFrame
+		local left = window:FindFirstChild("PageLeft", true) :: GuiObject
+		local right = window:FindFirstChild("PageRight", true) :: GuiObject
+		assert(track and left and right and left.Visible and right.Visible, "uigate: the Cafe Pass has no ◀ ▶ arrows (#4258)")
+		assert(track.ScrollBarThickness == 0, "uigate: the Cafe Pass track still shows a scroll bar (#4258)")
+		assert(track.ElasticBehavior == Enum.ElasticBehavior.Never, "uigate: the Cafe Pass track springs back on a drag (#4258)")
+		-- the arrows sit outside the track, either side, not over the cards
+		assert(left.AbsolutePosition.X + left.AbsoluteSize.X <= track.AbsolutePosition.X + 0.5, "uigate: ◀ overlaps the track")
+		assert(right.AbsolutePosition.X >= track.AbsolutePosition.X + track.AbsoluteSize.X - 0.5, "uigate: ▶ overlaps the track")
+		-- the canvas ends just after level 30's cards
+		local last = window:FindFirstChild("Level30", true) :: GuiObject
+		assert(track.CanvasPosition.X == 0, "uigate: at level 1 the track is scrolled")
+		local canvasEnd = track.AbsolutePosition.X + track.AbsoluteCanvasSize.X
+		local lastEnd = last.AbsolutePosition.X + last.AbsoluteSize.X
+		assert(lastEnd <= canvasEnd + 0.5 and lastEnd >= canvasEnd - 20,
+			("uigate: level 30 ends at %.0f, the canvas at %.0f (#4258)"):format(lastEnd, canvasEnd))
+		local function at(): number
+			return track.CanvasPosition.X
+		end
+		assert(at() == 0 and left:GetAttribute("CanGo") == false and right:GetAttribute("CanGo") == true,
+			("uigate: at level 1 the track sits at %.0f with ◀ %s, ▶ %s"):format(at(), tostring(left:GetAttribute("CanGo")), tostring(right:GetAttribute("CanGo"))))
+		-- Review-QA in Studio: CanvasPosition is in on-screen pixels (the UIScale does not apply to it), so a level is
+		-- 136 design px times the view's scale. This shim still scales CanvasPosition (#2360), so the on-screen checks
+		-- below run only at scale 1, where both agree
+		local scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").get()
+		local step = 136 * scale
+		press("CafePass", "PageRight")
+		local page = at()
+		local levels = page / step
+		assert(page >= step - 0.01 and math.abs(levels - math.floor(levels + 0.5)) < 0.01, ("uigate: ▶ moved the track to %.1f, not a whole page of %.1f px levels (#4258)"):format(page, step))
+		if math.abs(scale - 1) < 0.001 then
+			local level = window:FindFirstChild("Level" .. (math.floor(levels + 0.5) + 1), true) :: GuiObject
+			assert(level.AbsolutePosition.X >= track.AbsolutePosition.X - 0.5, "uigate: after ▶ the first level shown is cut off")
+		end
+		press("CafePass", "PageLeft")
+		assert(at() == 0, ("uigate: ◀ took the track to %.0f, not back to level 1"):format(at()))
+		for _ = 1, 40 do
+			press("CafePass", "PageRight")
+		end
+		assert(right:GetAttribute("CanGo") == false and left:GetAttribute("CanGo") == true, "uigate: ▶ not dimmed at the end (#4258)")
+		assert(math.abs(at() - (track.AbsoluteCanvasSize.X - track.AbsoluteWindowSize.X)) < 0.5, "uigate: ▶ stopped short of the track's end (#4258)")
+		if math.abs(scale - 1) < 0.001 then
+			local lastLevel = last.AbsolutePosition.X + last.AbsoluteSize.X
+			assert(lastLevel <= track.AbsolutePosition.X + track.AbsoluteSize.X + 0.5, "uigate: at the end level 30 is cut off")
 		end
 	end },
 	-- #1646: the paid track not bought yet, with Roblox's price on the buy button, and the Store's Cafe Pass card
@@ -11264,7 +11377,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assertStoreCards(true)
 	end },
 	-- #2850 (Derek2: "move the 999 pack and extra food bowl somewhere in featured"): with the Starter Bundle unbought
-	-- it is the hero, and the King Cat Pack and the Second Bait Bowl lead the picks; the hero lists the bundle's contents
+	-- it is the hero, and the Cat King Pack and the Second Bait Bowl lead the picks; the hero lists the bundle's contents
 	{ "StoreStarter", function()
 		UI.update({ starterBought = false } :: any)
 		UI.store.preview(storePrices(true), {})
@@ -11278,7 +11391,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				names[label.Text] = true
 			end
 		end
-		for _, name in { "Starter Bundle", "King Cat Pack", "Second Bait Bowl" } do
+		for _, name in { "Starter Bundle", "Cat King Pack", "Second Bait Bowl" } do
 			assert(names[name], "uigate: Featured does not show " .. name .. " (#2850)")
 		end
 	end },

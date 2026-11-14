@@ -38,12 +38,18 @@ return function()
 			expect(at).to.equal(1000)
 		end)
 
-		it("moves on to the next Event once one starts, and asks nothing after the last", function()
-			local id, at = EventRsvp.next(list, 1000)
-			expect(id).to.equal("222")
-			expect(at).to.equal(2000)
-			expect(EventRsvp.next(list, 2000)).to.equal(nil)
-		end)
+		it(
+			"moves on to the next Event 10 minutes after one starts, and asks nothing after the last",
+			function()
+				-- Derek 2026-11-14: the next update's ask waits QUIET_AFTER_SECONDS after an update went out
+				expect(EventRsvp.next(list, 1000)).to.equal(nil)
+				expect(EventRsvp.next(list, 1000 + EventRsvp.QUIET_AFTER_SECONDS - 1)).to.equal(nil)
+				local id, at = EventRsvp.next(list, 1000 + EventRsvp.QUIET_AFTER_SECONDS)
+				expect(id).to.equal("222")
+				expect(at).to.equal(2000)
+				expect(EventRsvp.next(list, 2000 + EventRsvp.QUIET_AFTER_SECONDS)).to.equal(nil)
+			end
+		)
 
 		it("gives an Event's own ask words when its entry has them (#4026)", function()
 			local worded = {
@@ -52,7 +58,7 @@ return function()
 			}
 			local _, _, words = EventRsvp.next(worded, 0)
 			expect(words).to.equal("Packs!")
-			local id, _, none = EventRsvp.next(worded, 3000)
+			local id, _, none = EventRsvp.next(worded, 3000 + EventRsvp.QUIET_AFTER_SECONDS)
 			expect(id).to.equal("444")
 			expect(none).to.equal(nil)
 		end)
@@ -64,6 +70,30 @@ return function()
 				expect(id).to.equal("4733999329807827538")
 				expect(at).to.equal(1794693600)
 				expect(type(words)).to.equal("string")
+			end
+		)
+
+		it(
+			"asks about Rift Run 10 minutes after tonight's update, then 3 New Worlds, the Fish Store, the Secrets and Wednesday",
+			function()
+				expect(EventRsvp.next(Config.UpdateEvents, 1794693600 + 300)).to.equal(nil)
+				local sunday = EventRsvp.next(Config.UpdateEvents, 1794693600 + 600)
+				-- Derek 17:59 UTC: Rift Run tonight, then 3 New Worlds, then the Golden Fish Store, then the Secrets
+				expect(sunday).to.equal("3176510604057903700")
+				expect((EventRsvp.next(Config.UpdateEvents, 1794704400 + 300))).to.equal(nil)
+				expect((EventRsvp.next(Config.UpdateEvents, 1794704400 + 600))).to.equal(
+					"8139939288161845916"
+				)
+				expect((EventRsvp.next(Config.UpdateEvents, 1794772800 + 600))).to.equal(
+					"8042541751075996433"
+				)
+				expect((EventRsvp.next(Config.UpdateEvents, 1794780000 + 600))).to.equal(
+					"8700676156604678758"
+				)
+				expect((EventRsvp.next(Config.UpdateEvents, 1794799800 + 300))).to.equal(nil)
+				expect((EventRsvp.next(Config.UpdateEvents, 1794799800 + 600))).to.equal(
+					"6810389993696133776"
+				)
 			end
 		)
 

@@ -969,8 +969,10 @@ return function()
 					expect(line:sub(1, 2)).to.equal("A ")
 					expect(line:sub(-1)).to.equal("!")
 					expect(line:find("gold ", 1, true) ~= nil).to.equal(variant == "gold")
+					-- #3997: the area's own name is not a cat's ("Snowy Mountain" holds the Alley's Snow)
+					local rest = line:gsub(area.name, "", 1)
 					for _, def in Catalog.cats do
-						if line:find(def.name, 1, true) ~= nil then
+						if rest:find(def.name, 1, true) ~= nil then
 							error(string.format("%q names the cat %s", line, def.name))
 						end
 					end

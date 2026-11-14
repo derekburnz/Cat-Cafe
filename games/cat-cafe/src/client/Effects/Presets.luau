@@ -634,6 +634,54 @@ Presets.emitters = {
 		drag = 0.8,
 		lightEmission = 0.1,
 	},
+	-- The new areas' still water (Effects/AreaWater, #4070 and #4071): small glints that wink on a pool's surface,
+	-- foam flecks drifting round the lazy river and the splash pad's jets spraying at their tops.
+	poolGlint = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 1.1, 0.15 }, -- big enough to read from a standing camera (Review-QA, #4206: 0.45 was lost)
+		transparency = { 0, 1 },
+		lifetime = { 1, 1.6 },
+		speed = { 0, 0 },
+		spread = 0,
+		rate = 5,
+		lightEmission = 0.8,
+	},
+	-- the Castle Well's: its water is a few studs across, so smaller and fewer glints than a pool's
+	wellGlint = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 0.5, 0.1 },
+		transparency = { 0, 1 },
+		lifetime = { 1, 1.6 },
+		speed = { 0, 0 },
+		spread = 0,
+		rate = 2,
+		lightEmission = 0.8,
+	},
+	riverFoam = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 0.5, 0.3 },
+		transparency = { 0.45, 1 },
+		lifetime = { 2.2, 3.2 },
+		speed = { 1.6, 2.4 },
+		spread = 6,
+		rate = 2.5,
+		lightEmission = 0.15,
+	},
+	padSpray = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 0.22, 0.12 },
+		transparency = { 0.3, 1 },
+		lifetime = { 0.6, 0.9 },
+		speed = { 5, 7 },
+		spread = 28,
+		rate = 9,
+		acceleration = Vector3.new(0, -16, 0),
+		lightEmission = 0.2,
+	},
 	-- A Cat Storm (Effects/StormFall, #4197): the puff where a storm stray lands, and the slow sparkles that drift
 	-- down round you while the storm runs.
 	stormPuff = {
@@ -4186,6 +4234,8 @@ Presets.decor = {
 	sewer_bathtub_sofa = legendary(),
 	desert_caravan_bench = legendary(),
 	ruins_stone_throne = legendary(),
+	snow_stone_fireplace = legendary(), -- #3997
+	funfair_mini_carousel = legendary(), -- #4070
 	classic_cat_tree_tower = legendary(),
 	rally_victory_podium = legendary(),
 	alley_midnight_sky = { look = "stars", on = "Wallpaper" },
@@ -4224,6 +4274,20 @@ Presets.decor = {
 		on = "Floor",
 		emitter = "decorGlint",
 		colors = { Color3.fromRGB(232, 190, 80), Color3.fromRGB(80, 160, 120) },
+	},
+	-- #3997: the Snowy Crate's Mythical floor, the same light under clear ice with the northern lights' glints
+	snow_aurora_ice = {
+		look = "canal",
+		on = "Floor",
+		emitter = "decorGlint",
+		colors = { Color3.fromRGB(120, 230, 200), Color3.fromRGB(170, 140, 255) },
+	},
+	-- #4070: the Water Park Crate's Mythical floor, the same moving light with pool blue and foam white glints
+	funfair_wave_pool = {
+		look = "canal",
+		on = "Floor",
+		emitter = "decorGlint",
+		colors = { Color3.fromRGB(120, 205, 240), Color3.fromRGB(240, 250, 255) },
 	},
 	classic_gold_leaf = {
 		look = "goldLeaf",
@@ -5420,7 +5484,7 @@ Presets.areaFx = {
 			},
 		},
 		-- #4070 the Water Park: fine spray in the air and a splash where its strays come and go. #4071 the Medieval
-		-- Castle: warm motes of dust and a gold sparkle for its strays. Their boxes are Config.World's Waterpark* and
+		-- Castle: warm motes of dust and a gold sparkle for its strays. Their boxes are Config.World's WaterPark* and
 		-- Castle* once the areas are in.
 		waterpark = {
 			air = "waterparkSpray",
@@ -5624,6 +5688,73 @@ Presets.ruinsWater = {
 	ringSeconds = 1.2,
 	rippleEvery = 1.4,
 	colour = Presets.palette.milk,
+}
+
+-- The new areas' still water (Effects/AreaWater; #4070 the Water Park, #4071 the Castle's moat and well). A water
+-- piece is a Model whose name holds one of `sets` and ends `_Water` (Model-Agent's names are
+-- `<Set>_<nnn>_<Piece>_Water`, so the piece is found in the name, never by its number). Each kind, the first whose
+-- `piece` the name holds: `glint` an emitter on a thin sheet just over each flat part (the nearest `parts` of them),
+-- `flow` the same but drifting round the ring the parts make, `spray` an emitter at the top of each ball (a jet's
+-- cap), `mist` soft spray over each part, and a ring spreading on the surface every `ringEvery` seconds, `ring`
+-- studs wide. The nearest budget.waterfalls + `extra` pieces within `within` studs run, chosen every `pick`
+-- seconds. Reduce Motion drops the rings; Low performance leaves the water as built.
+export type AreaWaterKind = {
+	piece: string,
+	glint: string?,
+	flow: string?,
+	spray: string?,
+	mist: string?,
+	parts: number,
+	ringEvery: number?,
+	ring: number?,
+}
+Presets.areaWater = {
+	sets = {
+		"CatCafe_WaterPark_",
+		"CatCafe_Castle_",
+		"CatCafe_Camp_WaterPark",
+		"CatCafe_Camp_Castle",
+	},
+	suffix = "_Water",
+	within = 110,
+	pick = 1,
+	extra = 3,
+	lift = 0.06, -- studs over the surface the sheet sits
+	inner = 0.7, -- of a disc's width the sheet covers (a square inside the circle)
+	window = 36, -- studs: a part wider than this (the moat) gets a sheet this wide that follows you along it
+	ringSeconds = 1.3,
+	ringInner = 0.3, -- of the part's shorter side: how far from its middle a ring may start
+	colour = Presets.palette.milk,
+	kinds = {
+		{ piece = "LazyRiver", flow = "riverFoam", parts = 8 },
+		{ piece = "SplashPad", spray = "padSpray", parts = 8, ringEvery = 1.6, ring = 2.4 },
+		{ piece = "SlideTower", mist = "fallMist", parts = 2, ringEvery = 1.4, ring = 3.2 },
+		{ piece = "WavePool", glint = "poolGlint", parts = 1, ringEvery = 1.1, ring = 4.5 },
+		{ piece = "KidsPool", glint = "poolGlint", parts = 1, ringEvery = 2.2, ring = 2.6 },
+		{ piece = "Moat", glint = "poolGlint", parts = 2, ringEvery = 2.2, ring = 3 },
+		{ piece = "Well", glint = "wellGlint", parts = 1, ringEvery = 3.5, ring = 1.2 },
+	} :: { AreaWaterKind },
+}
+
+-- The fairground's bulbs chase at night (Effects/BulbChase, #4070 "ride lamps chase slowly"). A `_Bulbs` Model whose
+-- name holds one of `pieces` runs a chase, by day and by night: every `gap`th bulb wears a brighter Neon cover `grow`
+-- times its size, and the lit ones step along the row (or round the frame) `hz` times a second, so any one bulb
+-- lights once every gap / hz seconds, well under one flash a second. The nearest `most` rows within `within`
+-- studs (`mostLite` on the lite budget), chosen every `pick` seconds; `hzDay` steps a second by day; none with Reduce Motion or in Low
+-- performance. `round` is how wide the bulbs must spread across their second axis, of their first, to be taken as a
+-- frame and ordered round it and not along it.
+Presets.bulbChase = {
+	pieces = { "Booth_Bulbs", "WallBoards_Bulbs", "WallHedge_Bulbs", "TicketFront_Bulbs" },
+	within = 90,
+	pick = 1.5,
+	most = 5,
+	mostLite = 2,
+	gap = 3,
+	hz = 2,
+	hzDay = 1, -- by day, when the bulbs are not glowing themselves
+	grow = 1.3,
+	round = 0.3,
+	on = Color3.fromRGB(255, 240, 205),
 }
 
 -- The guide trail's sparkles (#3022, Effects/TrailSparkle): every `every`th of GuideTrail's `dot` parts in the
@@ -6149,18 +6280,6 @@ Presets.riftRun = {
 	},
 	dark = { brightness = -0.32, saturation = -0.6, tint = Color3.fromRGB(200, 196, 255) },
 	secretColour = Color3.fromRGB(240, 236, 255),
-	-- a Secret's cat of stars (Logic.CAT_CONSTELLATION), drawn in the dark `starCatBeyond` studs past the white gate,
-	-- its middle `starCatHeight` over the path, `starCatScale` studs a unit, so the low camera sees it framed in the
-	-- gate; a star every `starCatGap` seconds (Review-QA on #4029: one every 0.12 s left it half drawn)
-	-- Review-QA on #4029 (follow up): a little lower so the ears clear the low camera's top edge, and a warm gold
-	-- ink a touch bigger so the stars stand out from the pale rift instead of fading into it (Neon washes a light
-	-- colour toward white, so the gold is deep; 4.5 keeps the ears clear on a phone too)
-	starCatHeight = 4.5,
-	starCatBeyond = 10,
-	starCatScale = 3,
-	starCatGap = 0.05,
-	starCatSize = 2.1,
-	starCatColour = Color3.fromRGB(255, 165, 40),
 	flashPink = Color3.fromRGB(255, 120, 200),
 	displayOrder = 40, -- over every window, the bars and the title
 	cap = 30, -- everything is back by now, whatever happens
@@ -6558,6 +6677,57 @@ Presets.dragonRise = {
 			Color3.fromRGB(190, 110, 255),
 		},
 	},
+}
+
+-- "Trading unlocked!" (#4280, Effects/TradeUnlock; Derek 2026-11-14: "an unlock with a lock falling off of it
+-- animation on hitting Tier 3"). On the screen's upper middle, taking no taps: the Trade icon pops in over `popIn`
+-- with a closed padlock on it; from `wiggleAt` the lock wiggles `wiggles` times through `wiggle` degrees over
+-- `wiggleSeconds` (2.4 a second, under the 3 a second limit); at `openAt` it springs open with a hop of `hop` of its
+-- size, `sparkles` gold diamonds and a ring; from `fallAt` it falls off (`gravity` and `drift` in icon sizes a second,
+-- `spin` degrees a second) and fades over `fallSeconds`. The words show from `openAt`. At `flyAt` the icon flies over
+-- `fly` seconds to the HUD's Trade tile, shrinking to `land` of its size, and the tile gets `landSparkles` and a
+-- ring; with no tile on screen it fades there instead. `size` is the icon's share of the screen's shorter side,
+-- between `sizeMin` and `sizeMax` pixels, and it sits `high` of the way down the screen.
+-- Reduce Motion: no pop, wiggle, fall or flight; the closed lock gives way to the open one at `stillOpen`, the
+-- words hold and everything fades from `stillEnd` over `fade`.
+Presets.tradeUnlock = {
+	displayOrder = 22, -- over a window (20), under the toasts (30)
+	size = 0.2,
+	sizeMin = 72,
+	sizeMax = 132,
+	high = 0.3,
+	lock = 0.62, -- the padlock's size against the icon's
+	popIn = 0.3,
+	wiggleAt = 0.4,
+	wiggleSeconds = 1.25,
+	wiggles = 3,
+	wiggle = 14,
+	openAt = 1.75,
+	hop = 0.18,
+	fallAt = 2.1,
+	fallSeconds = 0.7,
+	gravity = 9,
+	drift = 0.7,
+	spin = 220,
+	flyAt = 4.1,
+	fly = 0.55,
+	land = 0.4,
+	lift = 0.12,
+	fade = 0.3,
+	stillOpen = 0.8,
+	stillEnd = 3.6,
+	sparkles = 14,
+	landSparkles = 10,
+	sparkle = { size = 12, seconds = 0.55, reach = 90, stagger = 0.1 },
+	ringSeconds = 0.5,
+	title = "Trading unlocked!",
+	line = "Swap cats with other players",
+	titleSize = 30,
+	lineSize = 18,
+	gold = Presets.palette.golden,
+	tradeImage = "rbxassetid://83738164568639", -- Icon_Clean_Trade (the UI's ShopIcons)
+	lockImage = "rbxassetid://126676730576646", -- Icon_Clean_Lock
+	openImage = "rbxassetid://96025123745905", -- Icon_Clean_Unlock
 }
 
 return Presets

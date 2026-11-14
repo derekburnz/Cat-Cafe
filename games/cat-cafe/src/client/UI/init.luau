@@ -1533,7 +1533,12 @@ function UI.init(config: Types.InitConfig)
 		if view then
 			local dashWindow = require(script.Components.MouseDashLogic).WINDOW
 			local poolWindow = require(script.Components.MysticPoolLogic).WINDOW
-			UI.rollBusy.window = name == dashWindow or name == "Arcade" or name == poolWindow
+			-- Derek 2026-11-14 ("mute all pop ups while in store"): the Store too, so toasts wait (warnings still show),
+			-- shout-outs drop and the event and day strip steps aside until it closes
+			UI.rollBusy.window = name == dashWindow
+				or name == "Arcade"
+				or name == poolWindow
+				or name == "Store"
 			view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.on)
 		end
 		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
@@ -1741,12 +1746,35 @@ function UI.init(config: Types.InitConfig)
 				if visible and input.KeyCode == Enum.KeyCode.ButtonSelect then
 					UI.gamepadSelect()
 					return
+				elseif visible and input.KeyCode == Enum.KeyCode.ButtonB then
+					-- #4224: B goes back one step: the top card or sub page first, then the window, and with
+					-- nothing open it lets go of the selection so the sticks walk again
+					local nav = require(script.Components.GamepadNav)
+					if nav.back() then
+						return
+					elseif modalInstance:current() ~= nil then
+						if nav.on() then
+							modalInstance:back()
+						else
+							modalInstance:close()
+						end
+						return
+					end
+					local guiService = game:GetService("GuiService")
+					if nav.on() and guiService.SelectedObject ~= nil then
+						guiService.SelectedObject = nil
+						return
+					end
 				elseif
 					visible
-					and input.KeyCode == Enum.KeyCode.ButtonB
+					and (input.KeyCode == Enum.KeyCode.ButtonL1 or input.KeyCode == Enum.KeyCode.ButtonR1)
 					and modalInstance:current() ~= nil
 				then
-					modalInstance:close()
+					-- #4224: L1 / R1 switch the open window's tabs
+					require(script.Components.GamepadNav).stepTab(
+						modalInstance.container,
+						if input.KeyCode == Enum.KeyCode.ButtonR1 then 1 else -1
+					)
 					return
 				end
 				if gameProcessed or not visible then
@@ -2716,6 +2744,20 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 	end
 	local index = if bowl == 2 then 2 else 1
 	bowls.cats[index] = cat
+	-- Derek 2026-11-14 ("mute all pop ups while in store"): whichever way the card is asked for while the Store is
+	-- open (Review-QA on #4260 saw one get past UI.bait.arrived), it waits for the Store to close, like arrived
+	if modal ~= nil and modal:current() == "Store" then
+		renderBait()
+		UI.bait.whenCalm(function()
+			return bowls.cats[index] == cat
+		end, function()
+			if baitCard ~= nil and baitCard:isShowing() then
+				return
+			end
+			UI.bait.showReady(cat, index)
+		end)
+		return
+	end
 	bowls.card = index
 	if modal and modal:current() == "Bait" then
 		modal:close()
@@ -2755,6 +2797,7 @@ function UI.bait.busy(): boolean
 		or UI.bigTraitCutting() -- #3846: a Legendary or Mythic trait roll's cutscene
 		or UI.bait.away() -- #4035: out catching in an area
 		or UI.cutscene.on -- #4018: any cutscene (UI.setCutscene)
+		or (modal ~= nil and modal:current() == "Store") -- Derek 2026-11-14: no bowl cards over the Store
 end
 
 -- #4035 (Derek 2026-11-13: "remove all food bowl pop ups etc until your back in town square way too many annoying
@@ -9753,6 +9796,25 @@ function UI.perks.unlock(perkId: string)
 			end
 		end
 	end)
+end
+
+-- #4280 (Derek 2026-11-14: "encourage trading by showing an unlock with a lock falling off of it animation on hitting
+-- Tier 3 (make sure its not overtop any other animations)"): the HUD's Trade tile, where Effects/TradeUnlock's icon
+-- flies, and whether the screen is calm enough for it: no window, roll, cutscene, catch, rescue or carry (UI.bait.busy),
+-- and no perk card up, the same holds as the "Unlocked!" card.
+function UI.tradeTile(): GuiObject?
+	local view: any = hud
+	local tile = if view ~= nil then view._tradeTile else nil
+	return if tile ~= nil then tile.instance else nil
+end
+
+function UI.calmForMoment(): boolean
+	local card: any = UI.perks.card
+	return (modal == nil or modal:current() == nil)
+		and not UI.rollBusy.on
+		and not UI.cutscene.on
+		and not UI.bait.busy()
+		and not (card ~= nil and card:isShowing())
 end
 
 UI.gift = {

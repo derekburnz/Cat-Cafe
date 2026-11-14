@@ -17,7 +17,7 @@ return function()
 	end
 
 	-- six plain Tabbies (one working), four Tuxedos, five gold Gingers and two rainbow Smokes
-	local function sample()
+	local function sample(): { [string]: any }
 		return {
 			t1 = cat("tabby", 3),
 			t2 = cat("tabby", 12, { trait = { id = "bigTipper_epic" }, name = "Mochi" }),

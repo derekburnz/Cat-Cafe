@@ -293,6 +293,11 @@ local Config = {
 	-- never trusts; the widest band stays under CircleGapMin (Config.spec S24).
 	EarlyCatchCount = 5,
 	EarlyCatchWindowScale = 1.3,
+	-- #4299 (Nov 13 read: a cat bolts on 19% of phone and tablet catches, 13% with a mouse or controller): a player whose
+	-- client reports a phone or tablet is judged with bands TouchCatchWindowScale times as wide, behind the live switch
+	-- touchCatchReach. Not multiplied with EarlyCatchWindowScale: the wider of the two wins, so S24 still holds. A
+	-- spoofed "phone" only gets these touch bands, the same as any real phone player.
+	TouchCatchWindowScale = 1.3,
 	-- The net swing (F93, catch-rework.md section 1): one SwingNet per NetSwingCooldown. NetSmackDelay after it
 	-- arrives, when the net lands, the server looks for the nearest free stray within NetReachStuds plus
 	-- NetSlackStuds of the root and within NetArcDegrees either side of its facing. A swing that hits nothing makes

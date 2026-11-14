@@ -7840,8 +7840,20 @@ do
 					Workspace:GetServerTimeNow(),
 					if current ~= nil then current.cats else nil
 				)
+				local wasTest = late.test ~= nil
 				late.test = views
 				UI.lateStations.render(state)
+				local modalView = modal
+				if views == nil and wasTest and modalView ~= nil then
+					local open = modalView:current()
+					if
+						open == WINDOWS.ticketBooth
+						or open == WINDOWS.dragon
+						or open == WINDOWS.fusion
+					then
+						modalView:close() -- "" ends the look check: the made-up window goes too
+					end
+				end
 				if stationId == "ticketBooth" then
 					UI.lateStations.openBooth()
 				elseif stationId == "dragon" then

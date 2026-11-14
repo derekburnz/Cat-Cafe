@@ -8906,14 +8906,15 @@ do
 			return
 		end
 		local screen = Store.new({
-			buy = function(passId: number)
+			buy = function(passId: number, source: string?)
 				-- #1888: the funnel's buy_pressed, the first buy of a visit
 				local key = "buy:" .. tostring(passId)
 				if not shop.reported[key] then
 					shop.reported[key] = true
 					UI.events.storeReport:Fire("store_buy", passId)
 				end
-				PassShop.prompt(passId, "store")
+				-- #4175: "featured_new" from the update's own card on Featured
+				PassShop.prompt(passId, source or "store")
 			end,
 			-- #3996: the server checks Today's Deal and opens Roblox's prompt itself
 			deal = function(productId: string)

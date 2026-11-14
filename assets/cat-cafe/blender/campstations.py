@@ -943,7 +943,8 @@ CASE_X = -MX - 1.6                               # the idol's glass case, by the
 # (a sitting cat at scale 0.6 fits a plinth and shows over the row in front)
 ROOMS = (("alley", "ALLEYWAY", "brick"), ("park", "PARK", "leaf_green"), ("neighbourhood", "NEIGHBOURHOOD", "shirt_blue"),
          ("woods", "WOODS", "leaf_dark"), ("sewer", "SEWER", "puddle"), ("desert", "DESERT", "terracotta"),
-         ("ruins", "RUINS", "fur_emerald"), ("snowy", "SNOWY MOUNTAIN", "eye_blue"))
+         ("ruins", "RUINS", "fur_emerald"), ("snowy", "SNOWY MOUNTAIN", "eye_blue"),
+         ("waterpark", "WATER PARK", "fish_blue"))
 EXHIBITS = 10
 PLINTH_STEP, PLINTH_W, PLINTH_H = 1.25, 0.8, 0.3   # spacing, top size, height of an exhibit plinth
 ROW_D, ROW_RISE = 0.9, 0.8                       # each row's depth and how much higher than the one in front

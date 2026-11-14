@@ -1934,6 +1934,10 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	local instance = if uid then cats[uid] else nil
 	-- the phone sheet shows only with a cat picked, and steps aside while Assign waits for a "+"
 	self._detail.Visible = not self._compact or (instance ~= nil and not self._placing)
+	-- #3990 (the UI gate's crowd check): the phone sheet lies over the whole grid, and a frame lets taps through to
+	-- the buttons under it, so a tap on the sheet's empty space picked the cat beneath. The grid hides while it shows
+	-- (its scroll is kept) and comes back with Back or Assign.
+	self._grid.Visible = not (self._compact and self._detail.Visible)
 	self._detailBody.Visible = instance ~= nil
 	self._detailEmpty.Visible = instance == nil
 	if not instance then

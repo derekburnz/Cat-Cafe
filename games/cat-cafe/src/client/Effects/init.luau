@@ -45,6 +45,7 @@ local DoorSign = require(script.DoorSign)
 local Equip = require(script.Equip)
 local FirstBaitCut = require(script.FirstBaitCut)
 local Fish = require(script.Fish)
+local FusionFx = require(script.FusionFx)
 local GoldenFind = require(script.GoldenFind)
 local GrandOpening = require(script.GrandOpening)
 local HoldPulse = require(script.HoldPulse)
@@ -185,6 +186,7 @@ function Effects.start()
 		CampGlow.start,
 		AreaFx.start,
 		LateStationFx.start,
+		FusionFx.start, -- #4104: the Fusion Observatory dome's glow and paw lights
 		MuseumPlaques.start,
 		StationMotion.start,
 		Rides.start,

@@ -1729,6 +1729,34 @@ local function followBait()
 	end)
 end
 
+-- #4061 the Ticket Booth, from each ProfileSync's `ticketBooth` (Logic.ticketPrizeBought), so it needs no moment: a
+-- prize bought prints its ticket, then the counter bell says it is yours. The first sync only sets the count.
+-- #4062 the Dragon Keep the same way, from `dragon` (Logic.keepRekindled): a Rekindle hand coming up plays Rekindle.
+local TICKET_DING_AFTER = 0.6
+local function followStations()
+	local seen = false
+	local last: any = nil
+	local lastKeep: any = nil
+	onRemote("ProfileSync", function(state: any)
+		if type(state) ~= "table" then
+			return
+		end
+		local view, keep = state.ticketBooth, state.dragon
+		local bought = seen and Logic.ticketPrizeBought(last, view)
+		local rekindled = seen and Logic.keepRekindled(lastKeep, keep)
+		seen, last, lastKeep = true, view, keep
+		if rekindled then
+			Audio.play("rekindle")
+		end
+		if bought then
+			Audio.play("ticketPrint")
+			task.delay(TICKET_DING_AFTER, function()
+				Audio.play("ticketDing")
+			end)
+		end
+	end)
+end
+
 -- The remotes that also feed a controller's state (ProfileSync, TradeState, RallyState) are hooked only once the
 -- first ProfileSync has reached the UI (the first applySettings), when every controller is listening: a remote
 -- fired before anything listens holds its events for the first listener alone, and that must be the controller.
@@ -1788,6 +1816,7 @@ local function followServerState()
 	task.defer(followTrade)
 	task.defer(followRally)
 	task.defer(followBait)
+	task.defer(followStations)
 	task.defer(followLateStations)
 	task.defer(followUpdateGift)
 end

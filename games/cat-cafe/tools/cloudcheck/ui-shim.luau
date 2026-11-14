@@ -2373,6 +2373,13 @@ function UIShim.snapshot()
 						table.insert(fields, '"tw":' .. num(tw))
 						table.insert(fields, '"th":' .. num(th))
 						table.insert(fields, '"tx":' .. jsonString(enumName(rawProp(child, "TextXAlignment"))))
+						if pl + pr + pt + pb > 0 then
+							-- #3990: where the words can go inside a padded label, for the crowd check
+							table.insert(
+								fields,
+								'"pad":[' .. table.concat({ num(pl), num(pr), num(pt), num(pb) }, ",") .. "]"
+							)
+						end
 						if rawProp(child, "TextScaled") then
 							table.insert(fields, '"scaled":true')
 						end

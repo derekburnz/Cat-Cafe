@@ -27,6 +27,7 @@ local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLogic)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local MysticPoolLogic = require(script.Parent.Parent.Components.MysticPoolLogic)
@@ -588,6 +589,11 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		parent = content,
 		onClick = function()
 			self._oddsSheet.Visible = true
+			GamepadNav.pushBack("mysticOdds", self._oddsSheet, function()
+				self._oddsSheet.Visible = false
+				self:_refocus()
+				return true
+			end)
 		end,
 	})
 	local lineTop = rollTop + rowH + space
@@ -1309,11 +1315,18 @@ function MysticPool._showPicker(self: any, show: boolean)
 	self._picker.Visible = show
 	self:_fit(show)
 	if not show then
+		GamepadNav.popBack("mysticPicker")
 		self:_showMenu(false)
 		self:_clearRows()
 		self:_save()
 		return
 	end
+	-- Review-QA's controller pass: B steps back out of the cat list to the pool card, not out of the whole pool
+	GamepadNav.pushBack("mysticPicker", self._picker, function()
+		self:_showPicker(false)
+		self:_refocus()
+		return true
+	end)
 	self._search.Text = ""
 	self._query = ""
 	self._searchToken += 1
@@ -1329,8 +1342,24 @@ function MysticPool._showMenu(self: any, show: boolean)
 	self._menu.Visible = show
 	self:_paintFilterButton()
 	if not show then
+		GamepadNav.popBack("mysticMenu")
 		self:_save()
+	else
+		GamepadNav.pushBack("mysticMenu", self._menu, function()
+			self:_showMenu(false)
+			self:_refocus()
+			return true
+		end)
 	end
+end
+
+-- After B closes a sheet on a gamepad, the selection lands on the first button still showing in the pool.
+function MysticPool._refocus(self: any)
+	task.defer(function()
+		if self.frame ~= nil and GamepadNav.shown(self.frame) then
+			GamepadNav.focus(self.frame)
+		end
+	end)
 end
 
 -- #3940: the Sort and Show chips go to the save once the pop-up or the list closes, only what changed (SetSetting is

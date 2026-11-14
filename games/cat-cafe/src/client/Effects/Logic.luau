@@ -4067,10 +4067,17 @@ function Logic.riftDark(plan: RiftPlan, t: number): number
 	return into * (1 - out * 0.5)
 end
 
--- #4069: the northern lights over an area. `count` ribbons hung across the area's width (along X, a tenth in from
--- each side), spread evenly over `spread` of its depth, each `rise` studs above the one in front of it, bending to alternate
--- sides and each with its own time from `seconds` (the last one repeats). `curve` is of the ribbon's length.
-export type AuroraRibbon = { from: Vector3, to: Vector3, bend: number, seconds: number }
+-- #4069: the northern lights over an area. `count` ribbons hung along the area's longer side (a tenth in from each
+-- end), spread evenly over `spread` of its shorter side, each `rise` studs above the one before it, bending to
+-- alternate sides and each with its own time from `seconds` (the last one repeats). `curve` is of the ribbon's
+-- length, at most `curveMost` studs. `across` is the flat way a ribbon bends (square to its length).
+export type AuroraRibbon = {
+	from: Vector3,
+	to: Vector3,
+	across: Vector3,
+	bend: number,
+	seconds: number,
+}
 function Logic.auroraRibbons(
 	count: number,
 	centre: { x: number, z: number },
@@ -4079,17 +4086,26 @@ function Logic.auroraRibbons(
 	spread: number,
 	rise: number,
 	curve: number,
-	seconds: { number }
+	seconds: { number },
+	curveMost: number?
 ): { AuroraRibbon }
 	local ribbons: { AuroraRibbon } = {}
-	local half = size.width * 0.4
+	local alongZ = size.depth > size.width
+	local long = if alongZ then size.depth else size.width
+	local short = if alongZ then size.width else size.depth
+	local half = long * 0.4
+	local along = if alongZ then Vector3.zAxis else Vector3.xAxis
+	local across = if alongZ then Vector3.xAxis else Vector3.zAxis
+	local middle = Vector3.new(centre.x, 0, centre.z)
 	for i = 1, math.max(0, math.floor(count)) do
-		local z = centre.z + ((i - 0.5) / count - 0.5) * size.depth * spread
-		local y = height + (i - 1) * rise
+		local side = ((i - 0.5) / count - 0.5) * short * spread
+		local at = middle + across * side + Vector3.new(0, height + (i - 1) * rise, 0)
 		table.insert(ribbons, {
-			from = Vector3.new(centre.x - half, y, z),
-			to = Vector3.new(centre.x + half, y, z),
-			bend = (if i % 2 == 1 then 1 else -1) * curve * half * 2,
+			from = at - along * half,
+			to = at + along * half,
+			across = across,
+			bend = (if i % 2 == 1 then 1 else -1)
+				* math.min(curve * half * 2, curveMost or math.huge),
 			seconds = seconds[math.min(i, #seconds)] or 12,
 		})
 	end

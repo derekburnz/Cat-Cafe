@@ -150,31 +150,45 @@ return function()
 				expect(seconds >= 8).to.equal(true) -- a slow sway
 			end
 			local centre = { x = 100, z = -400 }
-			local size = { width = 300, depth = 200 }
-			local ribbons = Logic.auroraRibbons(
-				a.ribbons[1],
-				centre,
-				size,
-				a.height,
-				a.spread,
-				a.rise,
-				a.curve,
-				a.seconds
-			)
-			expect(#ribbons).to.equal(a.ribbons[1])
-			for i, r in ribbons do
-				-- across the width, inside the box, level, and well over the roofs
-				expect(r.from.X > centre.x - size.width / 2 and r.from.X < centre.x).to.equal(true)
-				expect(r.to.X < centre.x + size.width / 2 and r.to.X > centre.x).to.equal(true)
-				expect(r.from.Z).to.equal(r.to.Z)
-				expect(math.abs(r.from.Z - centre.z) < size.depth * a.spread / 2).to.equal(true)
-				expect(r.from.Y).to.equal(a.height + (i - 1) * a.rise)
-				expect(r.from.Y >= 80).to.equal(true) -- over the roofs and the pines
-				-- neighbours bend to opposite sides
-				expect(r.bend * (if i % 2 == 1 then 1 else -1) > 0).to.equal(true)
-				expect(r.seconds >= 8).to.equal(true)
+			-- a wide area and a long one (the Snowy Mountain is 150 across and 560 deep): the ribbons run the long way
+			for _, size in { { width = 300, depth = 200 }, { width = 150, depth = 560 } } do
+				local alongZ = size.depth > size.width
+				local long = if alongZ then size.depth else size.width
+				local short = if alongZ then size.width else size.depth
+				local ribbons = Logic.auroraRibbons(
+					a.ribbons[1],
+					centre,
+					size,
+					a.height,
+					a.spread,
+					a.rise,
+					a.curve,
+					a.seconds,
+					a.curveMost
+				)
+				expect(#ribbons).to.equal(a.ribbons[1])
+				for i, r in ribbons do
+					local run = r.to - r.from
+					-- level, along the long side, inside the box end to end
+					expect(run.Y).to.equal(0)
+					expect(math.abs(run.Magnitude - long * 0.8) < 1e-6).to.equal(true)
+					expect(math.abs(if alongZ then run.X else run.Z) < 1e-6).to.equal(true)
+					-- it bends square to its length, never more than curveMost
+					expect(math.abs(r.across:Dot(run)) < 1e-6).to.equal(true)
+					expect(math.abs(r.bend) <= a.curveMost).to.equal(true)
+					-- spread over the short side, each a little higher, well over the roofs and the pines
+					local off = if alongZ then r.from.X - centre.x else r.from.Z - centre.z
+					expect(math.abs(off) < short * a.spread / 2).to.equal(true)
+					expect(r.from.Y).to.equal(a.height + (i - 1) * a.rise)
+					expect(r.from.Y >= 80).to.equal(true)
+					-- neighbours bend to opposite sides
+					expect(r.bend * (if i % 2 == 1 then 1 else -1) > 0).to.equal(true)
+					expect(r.seconds >= 8).to.equal(true)
+				end
 			end
-			expect(#Logic.auroraRibbons(0, centre, size, 1, 1, 1, 1, { 1 })).to.equal(0)
+			expect(#Logic.auroraRibbons(0, centre, { width = 1, depth = 1 }, 1, 1, 1, 1, { 1 })).to.equal(
+				0
+			)
 		end)
 	end)
 end

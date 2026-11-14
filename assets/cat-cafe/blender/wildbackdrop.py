@@ -27,12 +27,14 @@ Built against Config.World's v4 (F84) sizes; each F85 long rectangle gets its ow
 CatCafe_Woods_BackdropF85 round the 160 x 490 Woods). Tier 6 and 7 (#2651): CatCafe_Desert_Backdrop in dunes, mesas and
 a far pyramid on sand, CatCafe_Ruins_Backdrop in jungle hills, grey cliffs, broken columns and a far temple on earth.
 Tier 8 (#3997): CatCafe_Snowy_Backdrop in snow drifts and snowy firs under a ring of snow-capped grey mountains, a
-frozen pond outside the west wall and one great peak past the summit end.
+frozen pond outside the west wall and one great peak past the summit end. Tier 9 (#4066): CatCafe_WaterPark_Backdrop in
+green hills with palms, striped big tops either side, hot-air balloons over the hills and a great wheel past the far
+end, its bulbs lit at night.
 """
 
 import math
 
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
 import rbx_export
 from alleyway import flower_clump
@@ -61,6 +63,7 @@ AREAS = {
     "Desert": (75.0, 280.0, "desert"),        # Tier 6 (#2651), 150 x 560 (desertset.py)
     "Ruins": (70.0, 300.0, "ruins"),          # Tier 7 (#2651), 140 x 600 (ruinsset.py)
     "Snowy": (75.0, 280.0, "snowy"),          # Tier 8 (#3997), 150 x 560 (snowyset.py)
+    "WaterPark": (75.0, 280.0, "funfair"),    # Tier 9 (#4066), 150 x 560 (waterparkset.py)
 }
 NAMES = {"ParkF85": "CatCafe_Park_BackdropF85", "NeighbourhoodF85": "CatCafe_Neighbourhood_BackdropF85",
          "WoodsF85": "CatCafe_Woods_BackdropF85",
@@ -1016,8 +1019,115 @@ def theme_snowy(f, P):
     frozen_pond(rb, f, *pond)
 
 
+# ----------------------------------------------------------------------------------------------- funfair --
+CANDY = ("shirt_red", "shirt_blue", "pastel_butter", "leaf_green")
+
+
+def big_top(rb, f, x, z, s=1.0, col="shirt_red"):
+    """A striped circus tent: a drum in stripes, a cone roof in two rings, a pole and a pennant."""
+    y = f.gy(x, z) - 0.5
+    n = 12
+    for k in range(n):
+        a = 2 * math.pi * (k + 0.5) / n
+        rb.box((x + 10.2 * s * math.cos(a), y + 4.0 * s, z + 10.2 * s * math.sin(a)), (5.6 * s, 8.0 * s, 0.6),
+               (col, "milk")[k % 2], rot=_roty(math.pi / 2 - a))
+    rb.cyl((x, y + 4.0 * s, z), 10.0 * s, 8.0 * s, "milk", segments=n)
+    rb.cyl((x, y + 8.4 * s, z), 11.4 * s, 0.9 * s, col, segments=n)
+    rb.cyl((x, y + 12.3 * s, z), 11.0 * s, 7.0 * s, "milk", r2=4.4 * s, segments=n)
+    rb.cyl((x, y + 18.0 * s, z), 4.4 * s, 4.6 * s, col, r2=0.5 * s, segments=n)
+    rb.cyl((x, y + 22.3 * s, z), 0.3 * s, 4.2 * s, "rarity_legend", segments=6)
+    rb.span((x, y + 22.9 * s, z - 0.1), (x + 3.0 * s, y + 24.3 * s, z + 0.1), col)
+
+
+def hot_balloon(rb, x, y, z, s, col, col2="milk"):
+    """A hot-air balloon in the sky: a striped envelope, a skirt and a basket."""
+    for k, (dy, r) in enumerate(((0.0, 0.62), (2.6, 0.92), (5.4, 1.0), (8.2, 0.86), (10.4, 0.55))):
+        rb.cyl((x, y + (6.0 + dy) * s, z), 6.0 * r * s, 2.9 * s, (col, col2)[k % 2], segments=12)
+    rb.cyl((x, y + 3.6 * s, z), 2.4 * s, 2.0 * s, col, r2=3.6 * s, segments=12)
+    rb.span((x - 1.2 * s, y, z - 1.2 * s), (x + 1.2 * s, y + 1.8 * s, z + 1.2 * s), "caramel_wood")
+    for sx in (-1, 1):
+        rb.span((x + sx * 1.1 * s - 0.08, y + 1.8 * s, z - 0.08), (x + sx * 1.1 * s + 0.08, y + 2.8 * s, z + 0.08),
+                "dark_wood")
+
+
+def great_wheel(rb, lit, f, x, z, R=46.0):
+    """A great observation wheel past the far end, facing the area (its plane along X): two legs, a rim of spokes,
+    sixteen cabins in the candy colours and a bulb on each (lit at night)."""
+    y = f.gy(x, z) - 0.5
+    hub = y + R + 9.0
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            rb.box((x + sx * 10.0, y + (R + 9.0) / 2, z + sz * 3.0), (2.2, math.hypot(R + 9.0, 20.0), 2.2), "milk",
+                   rot=_rotz(sx * math.atan2(10.0, (R + 9.0) / 2) * 0.5))
+    rb.cyl((x, hub, z), 3.4, 8.0, "rarity_legend", axis="Z", segments=12)
+    n = 16
+    for k in range(n // 2):
+        rb.box((x, hub, z), (1.0, 2 * R, 0.8), "milk", rot=_rotz(math.pi * k / (n // 2)))
+    seg = 2 * R * math.sin(math.pi / n)
+    for k in range(n):
+        a = 2 * math.pi * (k + 0.5) / n
+        rb.box((x + R * math.cos(math.pi / n) * math.cos(a), hub + R * math.cos(math.pi / n) * math.sin(a), z),
+               (1.4, seg + 0.6, 1.4), ("shirt_red", "milk")[k % 2], rot=_rotz(a))
+        a = 2 * math.pi * k / n
+        cx, cy = x + R * math.cos(a), hub + R * math.sin(a)
+        rb.span((cx - 2.6, cy - 5.6, z - 2.2), (cx + 2.6, cy - 1.6, z + 2.2), CANDY[k % 4])
+        rb.span((cx - 3.0, cy - 1.6, z - 2.6), (cx + 3.0, cy - 0.9, z + 2.6), "milk")
+        lit.ball((cx, cy, z - 1.0), 1.1, "lamp_warm")
+
+
+def _roty(a):
+    return Matrix.Rotation(a, 3, "Y")
+
+
+def _rotz(a):
+    return Matrix.Rotation(a, 3, "Z")
+
+
+def theme_funfair(f, P):
+    # green hills and parkland with palms round the park, big tops either side, balloons over the hills, the great
+    # wheel past the far end
+    wheel = (0.0, f.ez1 + 60.0)
+    tents = [(-(f.ex + 30.0), f.cz - 150.0, 1.0, "shirt_red"), (f.ex + 32.0, f.cz - 40.0, 1.15, "shirt_blue"),
+             (-(f.ex + 34.0), f.cz + 70.0, 1.2, "shirt_red"), (f.ex + 30.0, f.cz + 190.0, 1.0, "shirt_blue")]
+    clear = [(wheel[0], wheel[1], 52.0)] + [(x, z, 15.0 * s + 6.0) for x, z, s, _ in tents]
+
+    def taken(x, z, pad=0.0):
+        return any(math.hypot(x - cx, z - cz) < r + pad for cx, cz, r in clear)
+    near = [h for h in ring(f, 56.0, 40.0, (38.0, 26.0, 8.0, 16.0), 111)
+            if not any(_foot_in(h, (cx - r, cx + r, cz - r, cz + r)) for cx, cz, r in clear)]
+    far = ring(f, 185.0, 64.0, (60.0, 44.0, 22.0, 40.0), 112)
+    f.hills = near + far
+    for h in near:
+        h.add(P["hills"], "leaf_green")
+    for h in far:
+        h.add(P["far"], "leaf_green")
+    rb, flowers, lit = P["rb"], P["flowers"], P["lit"]
+    on_hills(rb, f, near, 3, 113, 1.7)
+    on_hills(rb, f, far, 2, 114, 2.6, plant=far_tree)
+    for i, (x, z, nx, nz) in enumerate(f.around(14.0, 15.0, 115, wobble=7.0, shift=5.0)):
+        if f.out(x, z) < KEEP + 2 or taken(x, z, 3.0):
+            continue
+        r = _hash(i, 116)
+        if r < 0.45:
+            palm(rb, f, x, z, 1.0 + 0.4 * r)
+        elif r < 0.7:
+            tree(rb, f, x, z, 1.1 + 0.5 * r, LEAVES[i % 3])
+        elif r < 0.9:
+            bush(rb, f, x, z, 1.0 + r, LEAVES[(i + 1) % 3])
+        else:
+            tuft(rb, flowers, x, z, 0.7)
+    for x, z, s, col in tents:
+        big_top(rb, f, x, z, s, col)
+    great_wheel(rb, lit, f, *wheel)
+    for k, (x, y, z, s) in enumerate(((-(f.ex + 95.0), 62.0, f.cz - 60.0, 1.5), (f.ex + 110.0, 78.0, f.cz + 110.0, 1.8),
+                                      (f.ex + 80.0, 55.0, f.cz - 190.0, 1.3), (-(f.ex + 120.0), 86.0, f.cz + 200.0, 1.9),
+                                      (-60.0, 96.0, f.ez1 + 150.0, 1.7))):
+        hot_balloon(rb, x, y, z, s, CANDY[k % 4])
+
+
 THEMES = {"park": theme_park, "forest": theme_forest, "houses": theme_houses, "city": theme_city, "works": theme_works,
-          "desert": theme_desert, "ruins": theme_ruins, "snowy": theme_snowy}
+          "desert": theme_desert, "ruins": theme_ruins, "snowy": theme_snowy,
+          "funfair": theme_funfair}
 
 
 def builder(area, A, H, theme):

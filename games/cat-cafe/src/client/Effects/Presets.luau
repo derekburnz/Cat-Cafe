@@ -3663,6 +3663,7 @@ Presets.decor = {
 	sewer_bathtub_sofa = legendary(),
 	desert_caravan_bench = legendary(),
 	ruins_stone_throne = legendary(),
+	snowy_stone_fireplace = legendary(), -- #3997
 	classic_cat_tree_tower = legendary(),
 	rally_victory_podium = legendary(),
 	alley_midnight_sky = { look = "stars", on = "Wallpaper" },
@@ -3701,6 +3702,13 @@ Presets.decor = {
 		on = "Floor",
 		emitter = "decorGlint",
 		colors = { Color3.fromRGB(232, 190, 80), Color3.fromRGB(80, 160, 120) },
+	},
+	-- #3997: the Snowy Crate's Mythical floor, the same light under clear ice with the northern lights' glints
+	snowy_aurora_ice = {
+		look = "canal",
+		on = "Floor",
+		emitter = "decorGlint",
+		colors = { Color3.fromRGB(120, 230, 200), Color3.fromRGB(170, 140, 255) },
 	},
 	classic_gold_leaf = {
 		look = "goldLeaf",

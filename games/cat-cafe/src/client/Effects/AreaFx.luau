@@ -195,18 +195,21 @@ local function updateMist(area: string?, feet: Vector3)
 end
 
 -- #4069: a little puff under your feet for every `footStuds` you walk on the ground in an area with one (snow in
--- the Snowy Mountain). None in Low performance or with Reduce Motion.
+-- the Snowy Mountain), and a step for whoever listens (AreaFx.onStep). No puff in Low performance or with Reduce
+-- Motion.
 local footAt: Vector3? = nil
+
+-- Who wants to know about a step (Audio plays the area's step sound on it): `area` and where the feet are.
+local stepListeners: { (area: string, at: Vector3) -> () } = {}
+
+function AreaFx.onStep(listener: (area: string, at: Vector3) -> ())
+	table.insert(stepListeners, listener)
+end
+
 local function updateFeet(area: string?, feet: Vector3, humanoid: Humanoid?)
 	local spec = specOf(area)
 	local count = if spec ~= nil then spec.footPuff else nil
-	if
-		spec == nil
-		or count == nil
-		or humanoid == nil
-		or Context.lowPerformance
-		or Context.reducedMotion()
-	then
+	if spec == nil or area == nil or count == nil or humanoid == nil then
 		footAt = nil
 		return
 	end
@@ -221,7 +224,13 @@ local function updateFeet(area: string?, feet: Vector3, humanoid: Humanoid?)
 	end
 	footAt = feet
 	if humanoid.FloorMaterial ~= Enum.Material.Air then
-		Particles.burst(spec.footPreset or "dust", feet, count, spec.footColour or spec.colour)
+		-- the puff is a picture, so it goes with Low performance and Reduce Motion; the step is still heard
+		if not Context.lowPerformance and not Context.reducedMotion() then
+			Particles.burst(spec.footPreset or "dust", feet, count, spec.footColour or spec.colour)
+		end
+		for _, listener in stepListeners do
+			task.spawn(listener, area, feet)
+		end
 	end
 end
 

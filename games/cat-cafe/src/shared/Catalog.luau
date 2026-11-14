@@ -5339,6 +5339,28 @@ Catalog.products = {
 		name = "50 Trait Tokens",
 		prize = { potions = {}, traitTokens = 50 },
 	},
+	-- #3996 (todays-deal-3996.md section 2): Today's Deal, R$25 each, one a UTC day (shared/DailyDeal). Fixed contents;
+	-- deal 2's tokens are offered only where the token bundles may be.
+	{
+		id = "deal_1",
+		name = "Today's Deal: Big Money",
+		prize = { potions = { big_tip_potion = 5, swift_potion = 2 } },
+	},
+	{
+		id = "deal_2",
+		name = "Today's Deal: Trait Tokens",
+		prize = { potions = {}, traitTokens = 7 },
+	},
+	{
+		id = "deal_3",
+		name = "Today's Deal: Steady Paw",
+		prize = { potions = { steady_potion = 10, big_tip_potion = 2 } },
+	},
+	{
+		id = "deal_4",
+		name = "Today's Deal: Potion Mix",
+		prize = { potions = { big_tip_potion = 4, swift_potion = 1, steady_potion = 2 } },
+	},
 } :: { Types.ProductDef }
 Catalog.productsById = {} :: { [string]: Types.ProductDef }
 for _, product in Catalog.products do

@@ -88,6 +88,9 @@ Remotes.ClientToServer = {
 	-- item of Catalog.mysteryItems not owned, from its minTier, priced by the server's clock (MysteryMarket.priceOf); a
 	-- price above shownPrice (the sale ended while the window was open) is refused with "The sale just ended". 1 a
 	-- second; answered with a toast and a ProfileSync. Refused outside Studio while Config.MysteryOpen is false
+	"PromptDeal", -- (productId: string)  #3996 (shared/DailyDeal): opens Roblox's purchase prompt for Today's Deal from
+	-- the server, only for today's deal, not yet bought today, from Tier 2 and while the dailyDeal switch is on; refused
+	-- with a toast otherwise. 1 a second
 	"MarkMysterySeen", -- ()  #2565: the player opened Juniper's window; sets profile.mysterySeen (the cart's "!")
 	"SetBagColours", -- (main: string, trim: string, kind: string?)  #3699: the Backpack's owner picks its two colours,
 	-- each an id of BagColours.LIST and nothing else; free, from anywhere, behind the switch bagColours; 1 a second;

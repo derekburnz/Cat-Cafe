@@ -10,7 +10,7 @@ return function()
 
 	local expected: { [string]: any } = {
 		ServerPlayers = 8,
-		StartCoins = 850, -- #1796: was 50
+		StartCoins = 250, -- #4097: was 850 (#1796: was 50)
 		FavoriteMultiplier = 1.5,
 		TableBonus = 0.10,
 		EspressoBonus = 0.15,
@@ -537,6 +537,7 @@ return function()
 				LureReserveSeconds = true,
 				IntroAutoPlay = true, -- false since #3162, checked below
 				StartTables = true, -- #3660
+				StartBowls = true, -- #4097
 				MysteryOpen = true, -- #2565: the Mystery Market buy switch, checked in MysteryMarket.spec
 				MysteryEpoch = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				MysteryRotateSeconds = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)

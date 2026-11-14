@@ -164,7 +164,9 @@ LiveFlags.KEYS = {
 	"riftRun", -- Derek 2026-11-13: a Mythic or Secret trait roll's Rift Run cutscene (client/Effects/RiftRun); client only
 	"secretTrait", -- #3908: the Secret trait rarity (0.1%) in the Mystic Pool's rolls and odds (shared/Traits)
 	"rareCustomers", -- #3889: rare customers by a chance per arriving customer, at any table
+	"goldTone", -- #4133: gold cats are their base model toned gold (shared/GoldTone), not the _Gold models
 	"palJoin", -- #3995: a player who joins through a friend gets the cafe next door and no intro by itself (shared/PalJoin)
+	"dailyDeal", -- #3996: Today's Deal on the Store's Featured tab (shared/DailyDeal)
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -202,7 +204,9 @@ LiveFlags.OFF_BY_DEFAULT = {
 	riftRun = true,
 	secretTrait = true,
 	rareCustomers = true,
+	goldTone = true,
 	palJoin = true,
+	dailyDeal = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

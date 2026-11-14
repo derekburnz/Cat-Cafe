@@ -155,6 +155,7 @@ LiveFlags.KEYS = {
 	"newKindTag",
 	"parkGateTrail",
 	"touchCatchReach",
+	"nearLights", -- #4311: at night only the nearest Light objects are on (shared/NightLights); on by default
 	"rankUpSpotlight",
 	"bagColours",
 	"menuFamily",

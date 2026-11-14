@@ -1533,7 +1533,12 @@ function UI.init(config: Types.InitConfig)
 		if view then
 			local dashWindow = require(script.Components.MouseDashLogic).WINDOW
 			local poolWindow = require(script.Components.MysticPoolLogic).WINDOW
-			UI.rollBusy.window = name == dashWindow or name == "Arcade" or name == poolWindow
+			-- Derek 2026-11-14 ("mute all pop ups while in store"): the Store too, so toasts wait (warnings still show),
+			-- shout-outs drop and the event and day strip steps aside until it closes
+			UI.rollBusy.window = name == dashWindow
+				or name == "Arcade"
+				or name == poolWindow
+				or name == "Store"
 			view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.on)
 		end
 		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
@@ -2673,6 +2678,20 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 	end
 	local index = if bowl == 2 then 2 else 1
 	bowls.cats[index] = cat
+	-- Derek 2026-11-14 ("mute all pop ups while in store"): whichever way the card is asked for while the Store is
+	-- open (Review-QA on #4260 saw one get past UI.bait.arrived), it waits for the Store to close, like arrived
+	if modal ~= nil and modal:current() == "Store" then
+		renderBait()
+		UI.bait.whenCalm(function()
+			return bowls.cats[index] == cat
+		end, function()
+			if baitCard ~= nil and baitCard:isShowing() then
+				return
+			end
+			UI.bait.showReady(cat, index)
+		end)
+		return
+	end
 	bowls.card = index
 	if modal and modal:current() == "Bait" then
 		modal:close()
@@ -2712,6 +2731,7 @@ function UI.bait.busy(): boolean
 		or UI.bigTraitCutting() -- #3846: a Legendary or Mythic trait roll's cutscene
 		or UI.bait.away() -- #4035: out catching in an area
 		or UI.cutscene.on -- #4018: any cutscene (UI.setCutscene)
+		or (modal ~= nil and modal:current() == "Store") -- Derek 2026-11-14: no bowl cards over the Store
 end
 
 -- #4035 (Derek 2026-11-13: "remove all food bowl pop ups etc until your back in town square way too many annoying

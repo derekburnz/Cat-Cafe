@@ -49,8 +49,6 @@ local Button = require(script.Parent.Parent.Components.Button)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
-local FeedbackCallout = require(script.Parent.Parent.Components.FeedbackCallout)
-local FeedbackCalloutLogic = require(script.Parent.Parent.Components.FeedbackCalloutLogic)
 local FirstBait = require(script.Parent.Parent.Components.FirstBait)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -112,7 +110,6 @@ export type Callbacks = {
 	replayIntro: () -> (), -- the Tutorial tile (F72)
 	hideTutorialButton: () -> (), -- the Tutorial tile's red ×
 	openFeedback: () -> (), -- the Feedback tile: the Feedback window on its Idea chip
-	openIdea: (() -> ())?, -- #3883: the map theme bubble: the Feedback window on its Idea page (nil: openFeedback)
 	setSetting: ((key: string, value: boolean) -> ())?, -- #1893: the Grand Opening strip saves roadmapOpen
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
@@ -123,7 +120,6 @@ export type HUD = {
 	screenGui: ScreenGui,
 	setCatalog: (self: HUD, catalog: Types.Catalog) -> (),
 	render: (self: HUD, state: Types.PlayerState) -> (),
-	showCallout: (self: HUD) -> (), -- #3883: the map theme bubble now (the UI gate's picture)
 	goalSeen: (self: HUD) -> (), -- #2331: the rank up card opened, so the goal card's ready pulse and arrow stop
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
@@ -1108,8 +1104,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 	})
 	table.insert(self._buttons, self._feedbackTile)
-	self._calloutDoneAt = nil :: number?
-	self._calloutStep = nil :: number?
 	-- Menu (Derek 2026-11-02, fewer buttons): Settings and Invite behind one gear. Once Invite is unlocked a press
 	-- opens the short list; before that it opens Settings.
 	self._menuTile = Button.new({
@@ -2401,19 +2395,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 	self:_paintKeys()
-	-- #3883: the map theme bubble under the Feedback tile (FeedbackCalloutLogic says when), made last so it
-	-- draws over the goal card
-	self._callout = FeedbackCallout.new(root, self._feedbackTile.instance, function()
-		self:_calloutAway()
-		local openIdea = callbacks.openIdea
-		if openIdea ~= nil then
-			openIdea()
-		else
-			callbacks.openFeedback()
-		end
-	end, function()
-		self:_calloutAway()
-	end, self._goal.frame)
 	return self :: HUD
 end
 
@@ -2944,52 +2925,10 @@ function HUD.setCatalog(self: any, catalog: Types.Catalog)
 	self._luck:setCatalog(catalog)
 end
 
--- #3883: once a join, FeedbackCalloutLogic.WAIT_SECONDS after the tutorial is done (or after the join for a player
--- done before), the map theme bubble shows under the Feedback tile for SHOW_SECONDS
-local calloutShown = false -- once a join, whatever happens to the HUD
-
-function HUD._calloutWatch(self: any, step: number)
-	self._calloutStep = step
-	if calloutShown or self._calloutDoneAt ~= nil or step < TUTORIAL_DONE then
-		return
-	end
-	local doneAt = os.clock()
-	self._calloutDoneAt = doneAt
-	task.delay(FeedbackCalloutLogic.WAIT_SECONDS, function()
-		if
-			self._gone
-			or not FeedbackCalloutLogic.due(self._calloutStep, doneAt, os.clock(), calloutShown)
-		then
-			return
-		end
-		self:showCallout()
-	end)
-end
-
--- Shows the bubble now (the UI gate's picture calls this too) and puts it away after SHOW_SECONDS.
-function HUD.showCallout(self: any)
-	if not self._feedbackTile.instance.Visible then
-		return
-	end
-	calloutShown = true
-	self._callout:show()
-	task.delay(FeedbackCalloutLogic.SHOW_SECONDS, function()
-		if not self._gone then
-			self._callout:hide()
-		end
-	end)
-end
-
-function HUD._calloutAway(self: any)
-	calloutShown = true
-	self._callout:hide()
-end
-
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
 	-- #2211: the tutorial's last step done just now (not a player who finished it before this join): the × pulses
 	local step = state.tutorialStep or TUTORIAL_DONE
-	self:_calloutWatch(step)
 	local before: number? = self._stepBefore
 	self._stepBefore = step
 	if before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE then
@@ -5707,7 +5646,6 @@ end
 
 function HUD.destroy(self: any)
 	self._gone = true -- #3022: the second cat goal's timers stop here
-	self._callout:destroy()
 	self:_stopClock()
 	local shine: Tween? = self._storeShine
 	if shine then

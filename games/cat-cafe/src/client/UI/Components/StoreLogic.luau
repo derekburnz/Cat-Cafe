@@ -121,6 +121,7 @@ export type PassCard = {
 	tab: string?, -- default "passes"
 	perk: string?, -- #2147 (store-pass-looks.md 7): the card's gold chip
 	pack: string?, -- #4026: the StoreLogic.PACKS key of an outfit pack
+	retired: boolean?, -- off the Store's shelves (no card); owners keep what it gives
 }
 local PASSES: { PassCard } = {
 	{
@@ -138,6 +139,9 @@ local PASSES: { PassCard } = {
 		-- #2147: the words Derek2 approved 2026-11-07 (store-pass-looks.md 7)
 		effect = "Dress your cats in bows, glasses and more. A dressed cat earns +15%. Yours to keep.",
 		perk = "+15% money",
+		-- Derek 2026-11-14 19:43 UTC ("take the old accessory and outfit bundles out of the in game store for now
+		-- since the new outfit packs pretty much replace it"): no card; it stays on sale on Roblox, owners keep it
+		retired = true,
 	},
 	{
 		key = "uniforms",
@@ -146,6 +150,7 @@ local PASSES: { PassCard } = {
 		icon = "👕",
 		effect = "New uniform styles for every job: +15% money.",
 		perk = "+15% money",
+		retired = true, -- Derek 2026-11-14, as Cat Accessories
 	},
 	{
 		key = "extraSlot",
@@ -1041,7 +1046,7 @@ function StoreLogic.rows(
 				table.insert(rows, thanks)
 			end
 		end
-		local id = passId(config, card)
+		local id = if card.retired then nil else passId(config, card)
 		if id then
 			table.insert(rows, {
 				key = card.key,
@@ -1122,7 +1127,12 @@ StoreLogic.PICKS = 3
 -- #3562 (Derek: "should focus on cats bundles 2x money being cheap", "never show potion bundles unless they are only
 -- thing left"). The hero, first one that can be bought: the Starter Bundle (the cat bundle for a new cafe), the
 -- Royal Cat, the King Cat Pack, the running season's Cafe Pass, the Grand Cafe Theme. Earlier orders: #1425, #1823.
-local HERO_ORDER = { "starterBundle", "royalCat", "kingPack", "cafePass", "grandTheme" }
+-- Derek 2026-11-14 19:43 UTC ("move the outfit packs into one of the featured slots, go with whatever you think will
+-- sell best"): the newest outfit pack still to buy (NEWEST_PACK, StoreLogic.NEWEST_PACKS) comes right after the
+-- Starter Bundle, so a new cafe still sees the bundle first and everyone past it sees a pack as the big card.
+local NEWEST_PACK = "newestPack"
+local HERO_ORDER =
+	{ "starterBundle", NEWEST_PACK, "royalCat", "kingPack", "cafePass", "grandTheme" }
 -- The three picks, left to right, first three that can be bought and are not the hero: the money ladder's next rung
 -- (2x Money is the cheapest thing in the Store), the cat bundles, then what brings more cats
 -- (Second Bait Bowl, Extra Slot), VIP, Long Nap and the Cafe Pass. Earlier orders: #1823 §1, #2850.
@@ -1134,7 +1144,6 @@ local PICK_ORDER =
 -- Featured's second pick
 StoreLogic.NEWEST_PACKS = { "packWinter", "packStylish", "packChef", "packSpace" }
 local PASS_PICKS = {
-	"accessories",
 	"cafeStyle",
 	"signStylePack",
 	"gardenDecor",
@@ -1184,9 +1193,22 @@ function StoreLogic.featured(rows: { Row }, prices: { [number]: Price }?, lead: 
 		local price: Price? = if prices then prices[row.passId] else nil
 		return price == nil or (price.forSale and price.robux ~= nil)
 	end
+	-- a HERO_ORDER key's row: NEWEST_PACK is the newest outfit pack still to buy (any pack with `any`)
+	local function heroRow(key: string, any: boolean): Row?
+		if key ~= NEWEST_PACK then
+			return byKey[key]
+		end
+		for _, packKey in StoreLogic.NEWEST_PACKS do
+			local pack = byKey[packKey]
+			if pack and (any or buyable(pack)) then
+				return pack
+			end
+		end
+		return nil
+	end
 	local hero: Row? = nil
 	for _, key in HERO_ORDER do
-		local row = byKey[key]
+		local row = heroRow(key, false)
 		if row and buyable(row) then
 			hero = row
 			break
@@ -1195,8 +1217,9 @@ function StoreLogic.featured(rows: { Row }, prices: { [number]: Price }?, lead: 
 	if hero == nil then
 		-- #2072: everything is bought, so the hero still shows the first card of the order, marked Yours
 		for _, key in HERO_ORDER do
-			if byKey[key] then
-				hero = byKey[key]
+			local row = heroRow(key, true)
+			if row then
+				hero = row
 				break
 			end
 		end

@@ -15,6 +15,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local CafeWalk = require(script.Parent.CafeWalk)
 local Context = require(script.Parent.Context)
@@ -32,6 +33,18 @@ type Entry = {
 	gold: boolean?, -- the colours the emitters wear now
 	lastAt: Vector3?, -- where the cat stood at the last choice, for a `moving` effect
 	nextNote: number,
+	extras: { ParticleEmitter }, -- #4069: one per spec.extras, by index
+	orbit: Orbit?,
+}
+
+-- #4069: the motes circling a cat (spec.orbit): attachments on its body, moved round it every frame while shown.
+type Orbit = {
+	body: BasePart,
+	anchors: { Attachment },
+	emitters: { ParticleEmitter },
+	radius: number,
+	lift: number,
+	on: boolean,
 }
 
 -- A music note on its way up: `from` is where it left the saxophone.
@@ -54,6 +67,8 @@ local watched: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local waiting: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local eyeColour: { [BasePart]: Color3 } = setmetatable({}, { __mode = "k" }) :: any
 local notes: { Note } = {}
+local orbits: { [Orbit]: Presets.SignatureOrbit } = {}
+local orbitLoop: RBXScriptConnection? = nil
 local noteLoop: RBXScriptConnection? = nil
 local noteCount = 0 -- notes made, so every other one is a pair
 local started = false
@@ -184,7 +199,31 @@ local function lightEyes(model: Model, entry: Entry)
 	end
 end
 
-local function consider(instance: Instance)
+-- #4069: the gust where a cat with `arrive` lands (a stray appearing): a ring on the ground and a puff, in its
+-- colours, when it is near enough to be seen moving.
+local function gust(model: Model, spec: Presets.Signature)
+	local arrive = spec.arrive
+	if arrive == nil then
+		return
+	end
+	task.defer(function()
+		if model.Parent == nil or model:FindFirstChildWhichIsA("BasePart", true) == nil then
+			return
+		end
+		local frame, size = model:GetBoundingBox()
+		local at = frame.Position - Vector3.new(0, size.Y / 2 - 0.2, 0)
+		if Context.distance(at) > Context.budget.animRadius then
+			return
+		end
+		local colors = Logic.signatureColors(model:GetAttribute("CatId"), isGold(model))
+			or spec.colors
+		Particles.ring(at, colors[1], arrive.ring, 0.6)
+		Particles.burst(arrive.preset, at + Vector3.new(0, 0.4, 0), arrive.burst, colors[1])
+	end)
+end
+
+-- `landed`: the cat has just appeared in the world (a stray), so one with a gust shows it.
+local function consider(instance: Instance, landed: boolean?)
 	if not instance:IsA("Model") then
 		return
 	end
@@ -201,16 +240,27 @@ local function consider(instance: Instance)
 		waiting[model] = true
 		model:GetAttributeChangedSignal("CatId"):Once(function()
 			waiting[model] = nil
-			consider(model)
+			consider(model, landed)
 		end)
 	end
 	if spec == nil then
 		return
 	end
-	local entry: Entry =
-		{ spec = spec, emitters = {}, stopgap = false, gold = nil, lastAt = nil, nextNote = 0 }
+	local entry: Entry = {
+		spec = spec,
+		emitters = {},
+		stopgap = false,
+		gold = nil,
+		lastAt = nil,
+		nextNote = 0,
+		extras = {},
+		orbit = nil,
+	}
 	entries[model] = entry
 	lightEyes(model, entry)
+	if landed == true then
+		gust(model, spec)
+	end
 	if watched[model] then
 		return -- the same model back after it left the world: its connections are still there
 	end
@@ -269,6 +319,158 @@ end
 local function switchOff(entry: Entry)
 	for _, emitter in entry.emitters do
 		emitter.Enabled = false
+	end
+	for _, emitter in entry.extras do
+		emitter.Enabled = false
+	end
+	local orbit = entry.orbit
+	if orbit ~= nil and orbit.on then
+		orbit.on = false
+		for _, emitter in orbit.emitters do
+			emitter.Enabled = false
+		end
+	end
+end
+
+-- The circling motes (#4069) --------------------------------------------------------------------------------
+
+local function dropOrbit(entry: Entry)
+	local orbit = entry.orbit
+	if orbit == nil then
+		return
+	end
+	entry.orbit = nil
+	orbits[orbit] = nil
+	for _, anchor in orbit.anchors do
+		anchor:Destroy()
+	end
+end
+
+local function placeOrbit(orbit: Orbit, o: Presets.SignatureOrbit, t: number)
+	for i, anchor in orbit.anchors do
+		anchor.Position = Logic.orbitOffset(i, #orbit.anchors, t, orbit.radius, o.tilt, o.seconds)
+			+ Vector3.new(0, orbit.lift, 0)
+	end
+end
+
+local function stepOrbits()
+	local t = os.clock()
+	local any = false
+	for orbit, o in orbits do
+		if orbit.body.Parent == nil then
+			orbits[orbit] = nil
+		elseif orbit.on then
+			any = true
+			placeOrbit(orbit, o, t)
+		end
+	end
+	if not any and orbitLoop ~= nil then
+		orbitLoop:Disconnect()
+		orbitLoop = nil
+	end
+end
+
+-- A cat's circling motes, made on its body the first time (or again once the body streamed out and back) and set
+-- going. With Reduce Motion they hold still where they are, each still giving off its flakes.
+local function showOrbit(model: Model, entry: Entry, colors: { Color3 }, repaint: boolean)
+	local o = entry.spec.orbit
+	if o == nil then
+		return
+	end
+	local body = partNamed(model, "Body") or model.PrimaryPart
+	if body == nil then
+		return
+	end
+	local orbit = entry.orbit
+	if orbit == nil or orbit.body ~= body or not orbit.body:IsDescendantOf(model) then
+		dropOrbit(entry)
+		local preset: Presets.EmitterPreset? = Presets.emitters[o.emitter]
+		if preset == nil then
+			return
+		end
+		local _, size = model:GetBoundingBox()
+		local count = if Context.tier == "low" or Context.lite then o.countLow else o.count
+		local made: Orbit = {
+			body = body,
+			anchors = {},
+			emitters = {},
+			radius = math.max(size.X, size.Z) * o.radius,
+			lift = size.Y * (o.height - 0.5),
+			on = false,
+		}
+		for _ = 1, count do
+			local anchor = Instance.new("Attachment")
+			anchor.Name = "SignatureOrbit"
+			anchor.Parent = body
+			local emitter = Particles.make(preset)
+			emitter.Name = "Signature"
+			Particles.paint(emitter, colors)
+			emitter.Parent = anchor
+			table.insert(made.anchors, anchor)
+			table.insert(made.emitters, emitter)
+		end
+		placeOrbit(made, o, 0)
+		entry.orbit = made
+		orbit = made
+	elseif repaint then
+		for _, emitter in orbit.emitters do
+			Particles.paint(emitter, colors)
+		end
+	end
+	local shown = orbit :: Orbit
+	shown.on = true
+	orbits[shown] = o
+	for _, emitter in shown.emitters do
+		Particles.switchOn(emitter, o.emitter)
+		emitter.Rate /= #shown.emitters -- the motes share one cat's rate
+	end
+	if Context.reducedMotion() then
+		return -- held still
+	end
+	if orbitLoop == nil then
+		orbitLoop = RunService.PreRender:Connect(stepOrbits)
+	end
+end
+
+-- A cat's extra emitters (spec.extras), each made on its own part the first time and on unless it only runs while
+-- the cat moves and it stood still.
+local function showExtras(
+	model: Model,
+	entry: Entry,
+	colors: { Color3 },
+	repaint: boolean,
+	moved: boolean
+)
+	local list = entry.spec.extras
+	if list == nil then
+		return
+	end
+	for i, extra in list do
+		local emitter: ParticleEmitter? = entry.extras[i]
+		if emitter == nil or not emitter:IsDescendantOf(model) then
+			if emitter ~= nil then
+				emitter:Destroy()
+			end
+			local preset: Presets.EmitterPreset? = Presets.emitters[extra.emitter]
+			local part = partNamed(model, extra.on) or model.PrimaryPart
+			if preset == nil or part == nil then
+				continue
+			end
+			local fresh = Particles.make(preset)
+			fresh.Name = "SignatureExtra"
+			Particles.paint(fresh, colors)
+			fresh.Parent = part
+			entry.extras[i] = fresh
+			emitter = fresh
+		elseif repaint then
+			Particles.paint(emitter, colors)
+		end
+		local made = emitter :: ParticleEmitter
+		if extra.moving == true and not moved then
+			made.Enabled = false
+		else
+			Particles.switchOn(made, extra.emitter)
+		end
 	end
 end
 
@@ -429,7 +631,8 @@ local function show(model: Model, entry: Entry, at: Vector3)
 	end
 	local gold = isGold(model)
 	local colors = Logic.signatureColors(model:GetAttribute("CatId"), gold) or spec.colors
-	if entry.gold ~= gold then
+	local repaint = entry.gold ~= gold
+	if repaint then
 		for _, emitter in entry.emitters do
 			Particles.paint(emitter, colors)
 		end
@@ -437,13 +640,13 @@ local function show(model: Model, entry: Entry, at: Vector3)
 	end
 	local lastAt = entry.lastAt
 	entry.lastAt = at
-	if spec.moving == true then
-		local moved = lastAt ~= nil and (at - lastAt).Magnitude >= Presets.signatureFx.movedStuds
-		if not moved then
-			switchOff(entry)
-			return
-		end
+	local moved = lastAt ~= nil and (at - lastAt).Magnitude >= Presets.signatureFx.movedStuds
+	if spec.moving == true and not moved then
+		switchOff(entry)
+		return
 	end
+	showExtras(model, entry, colors, repaint, moved)
+	showOrbit(model, entry, colors, repaint)
 	for _, emitter in entry.emitters do
 		Particles.switchOn(emitter, spec.emitter)
 		emitter.Rate /= #entry.emitters -- a prop's parts share one cat's rate
@@ -461,6 +664,7 @@ local function pick()
 	local candidates: { Logic.Candidate<Model> } = {}
 	for model, entry in entries do
 		if model.Parent == nil then
+			dropOrbit(entry)
 			entries[model] = nil
 		elseif hidden(model) then
 			switchOff(entry)
@@ -498,7 +702,11 @@ function Signature.start()
 		for _, instance in CollectionService:GetTagged(tag) do
 			consider(instance)
 		end
-		CollectionService:GetInstanceAddedSignal(tag):Connect(consider)
+		local stray = tag == "Stray"
+		CollectionService:GetInstanceAddedSignal(tag):Connect(function(instance: Instance)
+			-- a stray appearing in the world has just landed (#4069: a Blizzard Cat's gust)
+			consider(instance, stray and instance:IsDescendantOf(Workspace))
+		end)
 	end
 	for _, plot in CollectionService:GetTagged("Plot") do
 		watchPlot(plot)

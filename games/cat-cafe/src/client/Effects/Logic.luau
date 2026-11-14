@@ -4043,4 +4043,20 @@ function Logic.riftDark(plan: RiftPlan, t: number): number
 	return into * (1 - out * 0.5)
 end
 
+-- #4069: where mote `i` of `count` circling a cat is `t` seconds on, from the middle of its circle: `radius` studs
+-- out, once round every `seconds`, the circle tipped `tilt` radians so it rises on one side and dips on the other.
+-- The motes are spread evenly round it.
+function Logic.orbitOffset(
+	i: number,
+	count: number,
+	t: number,
+	radius: number,
+	tilt: number,
+	seconds: number
+): Vector3
+	local a = 2 * math.pi * (t / math.max(seconds, 1e-3) + (i - 1) / math.max(count, 1))
+	local z = math.sin(a) * radius
+	return Vector3.new(math.cos(a) * radius, z * math.sin(tilt), z * math.cos(tilt))
+end
+
 return Logic

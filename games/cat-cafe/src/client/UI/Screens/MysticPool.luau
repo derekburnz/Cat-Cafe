@@ -942,14 +942,17 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		end,
 	})
 	local rows = MysticPoolLogic.odds()
+	-- #4063 Studio: with the Secret row there are 7, so the rows close up to fit the sheet with the Equal line under
+	-- them (every odd stays in view, monetization-policy 2.1); 6 rows keep the 30 px pitch
+	local pitch = math.min(30, math.floor((contentH - buttonH - 8 - 44) / #rows))
 	for index, row in rows do
-		local top = buttonH + 8 + (index - 1) * 30
+		local top = buttonH + 8 + (index - 1) * pitch
 		local line: Frame = Create("Frame", {
 			Name = row.name,
 			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			Position = UDim2.fromOffset(0, top),
-			Size = UDim2.new(1, 0, 0, 26),
+			Size = UDim2.new(1, 0, 0, pitch - 4),
 			ZIndex = 12,
 			Parent = odds,
 		}, {
@@ -988,7 +991,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	end
 	text({
 		Name = "Equal",
-		Position = UDim2.fromOffset(0, buttonH + 8 + #rows * 30 + 4),
+		Position = UDim2.fromOffset(0, buttonH + 8 + #rows * pitch + 4),
 		Size = UDim2.new(1, 0, 0, 34),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,

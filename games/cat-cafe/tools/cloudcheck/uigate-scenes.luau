@@ -2834,8 +2834,17 @@ local SCENES = {
 		press("MysticPool", "Odds")
 		local list = window:FindFirstChild("OddsList", true)
 		assert(list.Visible, "uigate: Odds did not open the list (#3196)")
-		assert(list.Mythic.Percent.Text == "5%" and list.Common.Percent.Text == "30%" and list.Epic.Percent.Text == "12%", "uigate: the odds list reads wrong (#3196)")
+		local secretOn = game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_secretTrait") == true
+		assert(list.Mythic.Percent.Text == (if secretOn then "4.9%" else "5%") and list.Common.Percent.Text == "30%" and list.Epic.Percent.Text == "12%", "uigate: the odds list reads wrong (#3196)")
 		assert(list.Equal.Text:find("equally likely", 1, true), "uigate: the odds list lacks the equal line (#3196)")
+		-- #4063 Studio: every row and the Equal line sit inside the sheet, the Secret row too with its switch on
+		local secretRow = list:FindFirstChild("Secret")
+		assert((secretRow ~= nil) == secretOn and (secretRow == nil or secretRow.Percent.Text == "0.1%"), "uigate: the Secret odds row shows only with its switch on (#4063)")
+		local bottom = list.AbsolutePosition.Y + list.AbsoluteSize.Y
+		for _, item in { list.Equal, secretRow or list.Mythic } do
+			local itemBottom = item.AbsolutePosition.Y + item.AbsoluteSize.Y
+			assert(itemBottom <= bottom + 1, ("uigate: %s is cut %d px under the odds sheet (#4063)"):format(item.Name, itemBottom - bottom))
+		end
 	end },
 	-- #3864: the Trait Token offer once the free rolls are used: both bundles with their prices, the full odds, a
 	-- No thanks that hides it, and once a session only

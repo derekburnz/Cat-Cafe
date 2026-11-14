@@ -196,8 +196,10 @@ function AdminEventLogic.merge(
 		return lines, kind, strip
 	end
 	local card = { admin }
-	for _, line in lines or {} do
-		table.insert(card, line)
+	if lines ~= nil then
+		for _, line in lines do
+			table.insert(card, line)
+		end
 	end
 	local short = { admin }
 	local first = if strip ~= nil and strip[1] ~= nil

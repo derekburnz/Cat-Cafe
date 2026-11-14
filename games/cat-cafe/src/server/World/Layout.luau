@@ -311,6 +311,10 @@ Layout.plot = {
 		greeter_3 = { x = 6.6, y = 0, z = -12.5, rotY = 55.7 },
 		entertainer_3 = { x = -12.3, y = 4.47, z = 10.1 }, -- the third cat tree's top cushion
 		waiter_6 = { x = 9.2, y = 0, z = 9.2 },
+		-- #3997: the pass's new pair at Tier 8 (Model-Agent's fit, tier8-spots.md): beside the oven right of
+		-- barista_3, and greeter_3's mirror turned to the door
+		barista_5 = { x = 9.25, y = 0, z = 12.0 },
+		greeter_4 = { x = -6.6, y = 0, z = -12.5, rotY = -55.7 },
 	} :: { [string]: Point },
 
 	-- Station furniture under a slot, for the roles that have one (Catalog.spotFurniture)

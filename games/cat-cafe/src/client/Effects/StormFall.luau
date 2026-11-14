@@ -1,7 +1,8 @@
 --!strict
 -- A Cat Storm's strays fall out of the sky (#4197, admin events). The server drops extra strays while the storm runs
 -- and marks each with the `StormCat` attribute (shared/CatStorm). Where one appears near you a streak of light drops
--- onto the spot from high above, a ring spreads and sparkles puff as it lands, and whoever listens hears it
+-- onto the spot from high above while the stray stays unseen on this client, then it is there, a ring spreads and
+-- sparkles puff as it lands, and whoever listens hears it
 -- (StormFall.onLand: Audio plays the landing). While the storm runs, slow sparkles drift down round you so the
 -- whole area reads as under it. Reduce Motion and Low performance keep only the small puff: no streak, no ring, no
 -- drift. A Secret cat lands the same way as any other; nothing here shows what the stray is.
@@ -69,6 +70,26 @@ local function land(at: Vector3)
 	end
 end
 
+-- Hides a stray on this client only while its streak falls, so it reads as arriving with the streak and not as
+-- standing there waiting for it. Returns what was hidden, for `show`. Parts that stream in later are left as they
+-- are.
+local function hide(model: Model): { Instance }
+	local hidden: { Instance } = {}
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") or d:IsA("Decal") then
+			(d :: any).LocalTransparencyModifier = 1
+			table.insert(hidden, d)
+		end
+	end
+	return hidden
+end
+
+local function show(hidden: { Instance })
+	for _, d in hidden do
+		(d :: any).LocalTransparencyModifier = 0
+	end
+end
+
 local function fall(model: Model)
 	local p = Presets.stormFall
 	if model.Parent == nil or model:FindFirstChildWhichIsA("BasePart", true) == nil then
@@ -101,7 +122,11 @@ local function fall(model: Model)
 		Transparency = 0.6,
 	}):Play()
 	Debris:AddItem(streak, p.seconds + 0.05)
-	task.delay(p.seconds, land, at)
+	local hidden = hide(model)
+	task.delay(p.seconds, function()
+		show(hidden)
+		land(at)
+	end)
 end
 
 local function consider(instance: Instance)

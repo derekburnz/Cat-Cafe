@@ -95,4 +95,45 @@ return function()
 			)
 		end)
 	end)
+	describe("PalsLogic join notes (#3995)", function()
+		it(
+			"tells the joiner who they joined, and that the cafe is next door only when it is",
+			function()
+				local title, line = PalsLogic.joinedNote("Sam", true)
+				expect(title).to.equal("You joined Sam!")
+				expect(line).to.equal("Your cafe is next door.")
+				title, line = PalsLogic.joinedNote("Sam", false)
+				expect(title).to.equal("Playing together")
+				expect(line).to.equal("You joined Sam!")
+				title, line = PalsLogic.joinedNote(nil, nil)
+				expect(line).to.equal("You joined your friend!")
+			end
+		)
+
+		it("tells the friend where the joiner is", function()
+			local title, line = PalsLogic.arrivedNote("Mia")
+			expect(title).to.equal("Mia joined you!")
+			expect(line).to.equal("They're at your front door.")
+			title = PalsLogic.arrivedNote(nil)
+			expect(title).to.equal("A friend joined you!")
+		end)
+
+		it("cuts a long name as the cafe sign does, and never names a bonus", function()
+			expect(PalsLogic.nextDoorLine("Sam")).to.equal(
+				"Your cafe is next to Sam's: step inside 🐾"
+			)
+			expect(PalsLogic.nextDoorLine("Abcdefghijklmnop")).to.equal(
+				"Your cafe is next to Abcdefghijkl's: step inside 🐾"
+			)
+			expect(PalsLogic.nextDoorLine("")).to.equal("Your cafe is next door: step inside 🐾")
+			local joinedTitle, joinedLine = PalsLogic.joinedNote("Sam", true)
+			local arrivedTitle, arrivedLine = PalsLogic.arrivedNote("Mia")
+			for _, line in
+				{ joinedTitle, joinedLine, arrivedTitle, arrivedLine, PalsLogic.nextDoorLine("Sam") }
+			do
+				expect(string.find(line, "%", 1, true)).to.equal(nil)
+				expect(string.find(string.lower(line), "bonus", 1, true)).to.equal(nil)
+			end
+		end)
+	end)
 end

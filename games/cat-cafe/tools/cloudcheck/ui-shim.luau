@@ -1442,6 +1442,14 @@ local function computed(self, key)
 		local size = renderedTextSize(self, iw, ih, box.k)
 		local tw, th = textExtent(self, size, if rawProp(self, "TextWrapped") then iw else nil)
 		if key == "TextBounds" then
+			local truncate = enumName(rawProp(self, "TextTruncate"))
+			if truncate ~= nil and truncate ~= "None" then
+				-- #3930: Roblox draws only the lines that fit and ends the last with "...", so the drawn words stop
+				-- inside the box (at least one line)
+				local lineH = size * (rawProp(self, "LineHeight") or 1)
+				th = math.min(th, math.max(lineH, math.floor((ih + 0.5) / lineH) * lineH))
+				tw = math.min(tw, iw)
+			end
 			return Vector2.new(tw, th)
 		end
 		return tw <= iw + 0.5 and th <= ih + 0.5
@@ -2365,6 +2373,13 @@ function UIShim.snapshot()
 						table.insert(fields, '"tw":' .. num(tw))
 						table.insert(fields, '"th":' .. num(th))
 						table.insert(fields, '"tx":' .. jsonString(enumName(rawProp(child, "TextXAlignment"))))
+						if pl + pr + pt + pb > 0 then
+							-- #3990: where the words can go inside a padded label, for the crowd check
+							table.insert(
+								fields,
+								'"pad":[' .. table.concat({ num(pl), num(pr), num(pt), num(pb) }, ",") .. "]"
+							)
+						end
 						if rawProp(child, "TextScaled") then
 							table.insert(fields, '"scaled":true')
 						end

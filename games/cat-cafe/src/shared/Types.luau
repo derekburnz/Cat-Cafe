@@ -5,9 +5,17 @@
 -- #3470: "Secret" is a cat rarity above Mythical. No odds table lists it (Types.LureOdds and Catalog.rarityOrder
 -- keep the five): a rolled Mythical turns Secret at Catalog.secretPerMythical while the `secretCats` switch is on.
 export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical" | "Secret"
-export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer" | "desert" | "ruins"
--- A cat's area: one of the seven, the spare pool of cats an area-themed cat replaced (data-model 3d, F78), or
--- "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
+export type Area =
+	"alley"
+	| "park"
+	| "neighbourhood"
+	| "woods"
+	| "sewer"
+	| "desert"
+	| "ruins"
+	| "snowy"
+-- A cat's area: one of the eight (#3997: the Snowy Mountain's not open yet), the spare pool of cats an area-themed
+-- cat replaced (data-model 3d, F78), or "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
 -- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.
 export type CatArea = Area | "spare" | "exclusive" | "secret"
 -- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
@@ -627,6 +635,9 @@ export type TraitPending = { uid: string, id: string, paid: string? } -- paid: f
 
 -- #3196: PlayerState.traits, the Mystic Pool card's numbers (nil while the `traits` flag is off or the station is
 -- shut for the tier). `nextAt` is the next free token in server time, nil while the station holds TOKEN_HOLD.
+-- #3996 (shared/DailyDeal): PlayerState.dailyDeal
+export type DailyDealView = { deal: number, bought: boolean, tomorrow: number }
+
 export type TraitsView = {
 	tokens: number,
 	freeLeft: number,
@@ -1375,6 +1386,9 @@ export type PlayerProfile = {
 	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
 	bagColours: { main: string, trim: string }?,
 	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' picks, the same way
+	-- #3996 (shared/DailyDeal): the UTC day the player last bought Today's Deal, nil for never. No VERSION bump: an
+	-- older server dropping it only lets the same day's deal be bought once more, which pays as normal.
+	dealDay: number?,
 	-- #2792 (shared/FirstVisits): the special visitors met once ("rich", "mystery", "collector" -> true). No VERSION
 	-- bump: an older server dropping it only matters inside the first FirstVisitWindowSeconds of play.
 	firstVisits: { [string]: boolean },
@@ -1489,6 +1503,9 @@ export type PlayerState = {
 	mysterySeen: boolean,
 	bagColours: { main: string, trim: string }?, -- #3699: the Backpack's colour picks, nil for the built ones
 	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' colour picks, nil for the built ones
+	-- #3996: Today's Deal (DailyDeal.view): today's deal number, bought today, tomorrow's; false below Tier 2 or while
+	-- the dailyDeal switch is off
+	dailyDeal: DailyDealView | false,
 	mysteryOpen: boolean, -- BuyMystery is taken here (Config.MysteryOpen, or Studio)
 	-- #4055: the Store's golden fish prices (FishStore.view), nil while the fishStore switch is off
 	fishStore: { { key: string, fish: number, bought: boolean, made: boolean } }?,

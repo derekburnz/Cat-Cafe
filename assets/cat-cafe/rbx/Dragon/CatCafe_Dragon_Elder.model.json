@@ -1,0 +1,5800 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_Dragon_Elder",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.88,
+       -0.044
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.5048,
+     0.22,
+     2.97
+    ],
+    "Color": [
+     0.9725,
+     0.8941,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.88,
+       0.044
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Dragon_Elder/0"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Elder",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.54,
+       -1.716
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.463,
+     1.1088,
+     0.176
+    ],
+    "Color": [
+     0.9725,
+     0.8941,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Elder",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.893,
+       -0.99
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.22,
+     0.33,
+     0.352
+    ],
+    "Color": [
+     0.9843,
+     0.9412,
+     0.8235
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Elder",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.915,
+       -0.4125
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.22,
+     0.374,
+     0.352
+    ],
+    "Color": [
+     0.9843,
+     0.9412,
+     0.8235
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Elder",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.937,
+       0.165
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.22,
+     0.418,
+     0.352
+    ],
+    "Color": [
+     0.9843,
+     0.9412,
+     0.8235
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Elder",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.937,
+       0.7425
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.22,
+     0.418,
+     0.352
+    ],
+    "Color": [
+     0.9843,
+     0.9412,
+     0.8235
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Elder",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.915,
+       1.32
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.22,
+     0.374,
+     0.352
+    ],
+    "Color": [
+     0.9843,
+     0.9412,
+     0.8235
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Elder",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.188,
+       1.76,
+       -0.99
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.088,
+     0.66,
+     0.792
+    ],
+    "Color": [
+     0.9725,
+     0.8941,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Elder",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.188,
+       1.76,
+       0.99
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.088,
+     0.66,
+     0.792
+    ],
+    "Color": [
+     0.9725,
+     0.8941,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Elder",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.188,
+       1.76,
+       -0.99
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.088,
+     0.66,
+     0.792
+    ],
+    "Color": [
+     0.9725,
+     0.8941,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Dragon_Elder",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.188,
+       1.76,
+       0.99
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.088,
+     0.66,
+     0.792
+    ],
+    "Color": [
+     0.9725,
+     0.8941,
+     0.7451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/1"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Elder_Body_Scale",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.716,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.09,
+       1.584,
+       3.3
+      ],
+      "Color": [
+       0.851,
+       0.2824,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -1.716,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Elder/1"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Elder_Body_Scale",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.826,
+         -0.11
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.354,
+       0.9504,
+       2.046
+      ],
+      "Color": [
+       0.851,
+       0.2824,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Elder_Body_Scale",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.508,
+         0.11
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.254,
+       0.264,
+       2.64
+      ],
+      "Color": [
+       0.851,
+       0.2824,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Elder_Body_Scale"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/2"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Elder_Chest_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.54,
+         -1.837
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.924,
+       0.7392,
+       0.11
+      ],
+      "Color": [
+       0.9137,
+       0.6353,
+       0.2941
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0,
+         0.011
+        ],
+        "orientation": [
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          -0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Elder/2"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       1.54,
+       -1.826
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Elder_Chest_Glow"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/3"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Elder_Neck",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.8283,
+         -2.4789
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8192,
+          0.5736
+         ],
+         [
+          0.0,
+          -0.5736,
+          0.8192
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.682,
+       2.42,
+       0.176
+      ],
+      "Color": [
+       0.9725,
+       0.8941,
+       0.7451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -1.1487,
+         0.5299
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8192,
+          -0.5736
+         ],
+         [
+          0.0,
+          0.5736,
+          0.8192
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Elder/3"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/4"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Elder_Neck_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           3.0923,
+           -2.0169
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.8192,
+            0.5736
+           ],
+           [
+            0.0,
+            -0.5736,
+            0.8192
+           ]
+          ]
+         }
+        },
+        "Size": [
+         1.1,
+         2.86,
+         1.1
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -1.1,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.8192,
+            -0.5736
+           ],
+           [
+            0.0,
+            0.5736,
+            0.8192
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Elder/4"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         2.1912,
+         -1.386
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Elder_Neck_Scale"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/5"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           5.3991,
+           -2.5786
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.8829,
+            -0.4695
+           ],
+           [
+            0.0,
+            0.4695,
+            0.8829
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2178,
+         0.99,
+         0.2178
+        ],
+        "Color": [
+         0.9843,
+         0.9412,
+         0.8235
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -1.2738,
+           0.5988
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.8829,
+            0.4695
+           ],
+           [
+            0.0,
+            -0.4695,
+            0.8829
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Elder/5"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.5881,
+           4.5517,
+           -3.7111
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.3564,
+         0.4099,
+         0.0594
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.5524,
+           4.5279,
+           -3.7349
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.196,
+         0.2673,
+         0.0594
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2566,
+           4.5279,
+           -4.4002
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1188,
+         0.0792,
+         0.1188
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.7524,
+           4.3497,
+           -3.2716
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0792,
+         0.198,
+         0.2772
+        ],
+        "Color": [
+         0.9098,
+         0.6275,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.5881,
+           4.5517,
+           -3.7111
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.3564,
+         0.4099,
+         0.0594
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.5524,
+           4.5279,
+           -3.7349
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.196,
+         0.2673,
+         0.0594
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2566,
+           4.5279,
+           -4.4002
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1188,
+         0.0792,
+         0.1188
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.7524,
+           4.3497,
+           -3.2716
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0792,
+         0.198,
+         0.2772
+        ],
+        "Color": [
+         0.9098,
+         0.6275,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.5132,
+           5.2407,
+           -2.5192
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.1836,
+            0.8637,
+            -0.4695
+           ],
+           [
+            0.0976,
+            0.4592,
+            0.8829
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2178,
+         0.594,
+         0.2178
+        ],
+        "Color": [
+         0.9843,
+         0.9412,
+         0.8235
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.5132,
+           5.2407,
+           -2.5192
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.1836,
+            0.8637,
+            -0.4695
+           ],
+           [
+            -0.0976,
+            0.4592,
+            0.8829
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2178,
+         0.594,
+         0.2178
+        ],
+        "Color": [
+         0.9843,
+         0.9412,
+         0.8235
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2823,
+           5.3358,
+           -2.5459
+          ],
+          "orientation": [
+           [
+            0.9934,
+            -0.1149,
+            0.0
+           ],
+           [
+            0.1015,
+            0.8771,
+            -0.4695
+           ],
+           [
+            0.054,
+            0.4664,
+            0.8829
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2178,
+         0.8316,
+         0.2178
+        ],
+        "Color": [
+         0.9843,
+         0.9412,
+         0.8235
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2823,
+           5.3358,
+           -2.5459
+          ],
+          "orientation": [
+           [
+            0.9934,
+            0.1149,
+            0.0
+           ],
+           [
+            -0.1015,
+            0.8771,
+            -0.4695
+           ],
+           [
+            -0.054,
+            0.4664,
+            0.8829
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2178,
+         0.8316,
+         0.2178
+        ],
+        "Color": [
+         0.9843,
+         0.9412,
+         0.8235
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.8118,
+           4.6863,
+           -2.5231
+          ],
+          "orientation": [
+           [
+            0.8829,
+            0.0,
+            0.4695
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.4695,
+            0.0,
+            0.8829
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.099,
+         0.198,
+         0.6732
+        ],
+        "Color": [
+         0.949,
+         0.7216,
+         0.5412
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.8118,
+           4.4091,
+           -2.5231
+          ],
+          "orientation": [
+           [
+            0.8829,
+            0.0,
+            0.4695
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.4695,
+            0.0,
+            0.8829
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.099,
+         0.198,
+         0.5544
+        ],
+        "Color": [
+         0.949,
+         0.7216,
+         0.5412
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.8118,
+           4.1319,
+           -2.5231
+          ],
+          "orientation": [
+           [
+            0.8829,
+            0.0,
+            0.4695
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.4695,
+            0.0,
+            0.8829
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.099,
+         0.198,
+         0.4356
+        ],
+        "Color": [
+         0.949,
+         0.7216,
+         0.5412
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.8118,
+           4.6863,
+           -2.5231
+          ],
+          "orientation": [
+           [
+            0.8829,
+            0.0,
+            -0.4695
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.4695,
+            0.0,
+            0.8829
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.099,
+         0.198,
+         0.6732
+        ],
+        "Color": [
+         0.949,
+         0.7216,
+         0.5412
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.8118,
+           4.4091,
+           -2.5231
+          ],
+          "orientation": [
+           [
+            0.8829,
+            0.0,
+            -0.4695
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.4695,
+            0.0,
+            0.8829
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.099,
+         0.198,
+         0.5544
+        ],
+        "Color": [
+         0.949,
+         0.7216,
+         0.5412
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_Head",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.8118,
+           4.1319,
+           -2.5231
+          ],
+          "orientation": [
+           [
+            0.8829,
+            0.0,
+            -0.4695
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.4695,
+            0.0,
+            0.8829
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.099,
+         0.198,
+         0.4356
+        ],
+        "Color": [
+         0.949,
+         0.7216,
+         0.5412
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/6"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Dragon_Elder_Head_Scale",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             4.4091,
+             -2.9944
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           1.4256,
+           1.188,
+           1.386
+          ],
+          "Color": [
+           0.851,
+           0.2824,
+           0.2314
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0,
+             -0.4158,
+             0.3465
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Dragon_Elder/6"
+         }
+        },
+        {
+         "name": "CatCafe_Dragon_Elder_Head_Scale",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             4.2666,
+             -4.1032
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.9979,
+           0.499,
+           0.99
+          ],
+          "Color": [
+           0.851,
+           0.2824,
+           0.2314
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         }
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           3.9933,
+           -2.6479
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Dragon_Elder_Head_Scale"
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/7"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Dragon_Elder_Jaw",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             4.0389,
+             -4.0141
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.5702,
+           0.0594,
+           0.693
+          ],
+          "Color": [
+           0.8784,
+           0.4784,
+           0.549
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0,
+             -0.0099,
+             0.4455
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Dragon_Elder/7"
+         }
+        },
+        {
+         "name": "CatCafe_Dragon_Elder_Jaw",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             3.6924,
+             -3.8656
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9397,
+              0.342
+             ],
+             [
+              0.0,
+              -0.342,
+              0.9397
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.198,
+           0.3168,
+           0.198
+          ],
+          "Color": [
+           0.9843,
+           0.9412,
+           0.8235
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         }
+        },
+        {
+         "name": "CatCafe_Dragon_Elder_Jaw",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.3421,
+             4.0983,
+             -4.3804
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1188,
+           0.1584,
+           0.1188
+          ],
+          "Color": [
+           1.0,
+           1.0,
+           1.0
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         }
+        },
+        {
+         "name": "CatCafe_Dragon_Elder_Jaw",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.3421,
+             4.0983,
+             -4.3804
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1188,
+           0.1584,
+           0.1188
+          ],
+          "Color": [
+           1.0,
+           1.0,
+           1.0
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         }
+        },
+        {
+         "className": "Model",
+         "attributes": {
+          "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/8"
+         },
+         "children": [
+          {
+           "name": "CatCafe_Dragon_Elder_Jaw_Scale",
+           "className": "Part",
+           "properties": {
+            "CFrame": {
+             "CFrame": {
+              "position": [
+               0.0,
+               3.9102,
+               -4.0141
+              ],
+              "orientation": [
+               [
+                1.0,
+                0.0,
+                0.0
+               ],
+               [
+                0.0,
+                1.0,
+                0.0
+               ],
+               [
+                0.0,
+                0.0,
+                1.0
+               ]
+              ]
+             }
+            },
+            "Size": [
+             0.8839,
+             0.2178,
+             0.9405
+            ],
+            "Color": [
+             0.851,
+             0.2824,
+             0.2314
+            ],
+            "Material": "SmoothPlastic",
+            "Anchored": true,
+            "CanCollide": false,
+            "CanTouch": false,
+            "CastShadow": true,
+            "TopSurface": "Smooth",
+            "BottomSurface": "Smooth",
+            "PivotOffset": {
+             "CFrame": {
+              "position": [
+               0.0,
+               0.1188,
+               0.4455
+              ],
+              "orientation": [
+               [
+                1.0,
+                0.0,
+                0.0
+               ],
+               [
+                0.0,
+                1.0,
+                0.0
+               ],
+               [
+                0.0,
+                0.0,
+                1.0
+               ]
+              ]
+             }
+            }
+           },
+           "attributes": {
+            "Rojo_Id": "CatCafe_Dragon_Elder/8"
+           }
+          }
+         ],
+         "properties": {
+          "WorldPivotData": {
+           "OptionalCFrame": {
+            "position": [
+             0.0,
+             4.029,
+             -3.5686
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "name": "CatCafe_Dragon_Elder_Jaw_Scale"
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           4.029,
+           -3.5686
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Dragon_Elder_Jaw"
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         3.9933,
+         -2.6479
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Elder_Head"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       2.1912,
+       -1.386
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Elder_Neck"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/9"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Elder_Tail1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.332,
+         2.2
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9511,
+          0.309
+         ],
+         [
+          0.0,
+          -0.309,
+          0.9511
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.176,
+       0.264,
+       0.308
+      ],
+      "Color": [
+       0.9843,
+       0.9412,
+       0.8235
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.3401,
+         -0.8045
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9511,
+          -0.309
+         ],
+         [
+          0.0,
+          0.309,
+          0.9511
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Elder/9"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/10"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Elder_Tail1_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.76,
+           2.2
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.924,
+         0.924,
+         1.452
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0,
+           -0.66
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Elder/10"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         1.76,
+         1.54
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Elder_Tail1_Scale"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/11"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Elder_Tail2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           2.068,
+           3.465
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9511,
+            0.309
+           ],
+           [
+            0.0,
+            -0.309,
+            0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.176,
+         0.264,
+         0.308
+        ],
+        "Color": [
+         0.9843,
+         0.9412,
+         0.8235
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.2315,
+           -0.7114
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9511,
+            -0.309
+           ],
+           [
+            0.0,
+            0.309,
+            0.9511
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Elder/11"
+       }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/12"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Dragon_Elder_Tail2_Scale",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.628,
+             3.465
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.66,
+           0.66,
+           1.342
+          ],
+          "Color": [
+           0.851,
+           0.2824,
+           0.2314
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0,
+             0.0,
+             -0.605
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Dragon_Elder/12"
+         }
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           1.628,
+           2.86
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Dragon_Elder_Tail2_Scale"
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/13"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Dragon_Elder_Tail3",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.496,
+             5.39
+            ],
+            "orientation": [
+             [
+              0.7071,
+              0.0,
+              0.7071
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              -0.7071,
+              0.0,
+              0.7071
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.66,
+           0.176,
+           0.66
+          ],
+          "Color": [
+           0.9843,
+           0.9412,
+           0.8235
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.9334,
+             0.0,
+             -0.9334
+            ],
+            "orientation": [
+             [
+              0.7071,
+              0.0,
+              -0.7071
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.7071,
+              0.0,
+              0.7071
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Dragon_Elder/13"
+         }
+        },
+        {
+         "name": "CatCafe_Dragon_Elder_Tail3",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.804,
+             4.62
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9511,
+              0.309
+             ],
+             [
+              0.0,
+              -0.309,
+              0.9511
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.176,
+           0.264,
+           0.308
+          ],
+          "Color": [
+           0.9843,
+           0.9412,
+           0.8235
+          ],
+          "Material": "SmoothPlastic",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         }
+        },
+        {
+         "className": "Model",
+         "attributes": {
+          "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/14"
+         },
+         "children": [
+          {
+           "name": "CatCafe_Dragon_Elder_Tail3_Scale",
+           "className": "Part",
+           "properties": {
+            "CFrame": {
+             "CFrame": {
+              "position": [
+               0.0,
+               1.496,
+               4.62
+              ],
+              "orientation": [
+               [
+                1.0,
+                0.0,
+                0.0
+               ],
+               [
+                0.0,
+                1.0,
+                0.0
+               ],
+               [
+                0.0,
+                0.0,
+                1.0
+               ]
+              ]
+             }
+            },
+            "Size": [
+             0.396,
+             0.396,
+             1.232
+            ],
+            "Color": [
+             0.851,
+             0.2824,
+             0.2314
+            ],
+            "Material": "SmoothPlastic",
+            "Anchored": true,
+            "CanCollide": false,
+            "CanTouch": false,
+            "CastShadow": true,
+            "TopSurface": "Smooth",
+            "BottomSurface": "Smooth",
+            "PivotOffset": {
+             "CFrame": {
+              "position": [
+               0.0,
+               0.0,
+               -0.55
+              ],
+              "orientation": [
+               [
+                1.0,
+                0.0,
+                0.0
+               ],
+               [
+                0.0,
+                1.0,
+                0.0
+               ],
+               [
+                0.0,
+                0.0,
+                1.0
+               ]
+              ]
+             }
+            }
+           },
+           "attributes": {
+            "Rojo_Id": "CatCafe_Dragon_Elder/14"
+           }
+          }
+         ],
+         "properties": {
+          "WorldPivotData": {
+           "OptionalCFrame": {
+            "position": [
+             0.0,
+             1.496,
+             4.07
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "name": "CatCafe_Dragon_Elder_Tail3_Scale"
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           1.496,
+           4.07
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Dragon_Elder_Tail3"
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         1.628,
+         2.86
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Elder_Tail2"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       1.76,
+       1.54
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Elder_Tail1"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/15"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Elder_LegFL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.605,
+         0.088,
+         -1.6808
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.154,
+       0.176,
+       0.176
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.22,
+         0.968,
+         0.6908
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Elder/15"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Elder_LegFL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.045,
+         0.088,
+         -1.6808
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.154,
+       0.176,
+       0.176
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/16"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Elder_LegFL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.825,
+           0.572,
+           -0.99
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.66,
+         1.144,
+         0.726
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.484,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Elder/16"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_LegFL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.825,
+           0.132,
+           -1.166
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.693,
+         0.264,
+         0.99
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.825,
+         1.056,
+         -0.99
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Elder_LegFL_Scale"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.825,
+       1.056,
+       -0.99
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Elder_LegFL"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/17"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Elder_LegFR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.045,
+         0.088,
+         -1.6808
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.154,
+       0.176,
+       0.176
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.22,
+         0.968,
+         0.6908
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Elder/17"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Elder_LegFR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.605,
+         0.088,
+         -1.6808
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.154,
+       0.176,
+       0.176
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/18"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Elder_LegFR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.825,
+           0.572,
+           -0.99
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.66,
+         1.144,
+         0.726
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.484,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Elder/18"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_LegFR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.825,
+           0.132,
+           -1.166
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.693,
+         0.264,
+         0.99
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.825,
+         1.056,
+         -0.99
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Elder_LegFR_Scale"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.825,
+       1.056,
+       -0.99
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Elder_LegFR"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/19"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Elder_LegBL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.605,
+         0.088,
+         0.2306
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.154,
+       0.176,
+       0.176
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.22,
+         0.968,
+         0.7594
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Elder/19"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Elder_LegBL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.045,
+         0.088,
+         0.2306
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.154,
+       0.176,
+       0.176
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/20"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Elder_LegBL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.825,
+           0.572,
+           0.99
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.748,
+         1.144,
+         0.8228
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.484,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Elder/20"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_LegBL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.825,
+           0.132,
+           0.814
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.7854,
+         0.264,
+         1.122
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.825,
+         1.056,
+         0.99
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Elder_LegBL_Scale"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.825,
+       1.056,
+       0.99
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Elder_LegBL"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/21"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Elder_LegBR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.045,
+         0.088,
+         0.2306
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.154,
+       0.176,
+       0.176
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.22,
+         0.968,
+         0.7594
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Elder/21"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Elder_LegBR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.605,
+         0.088,
+         0.2306
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.154,
+       0.176,
+       0.176
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/22"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Elder_LegBR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.825,
+           0.572,
+           0.99
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.748,
+         1.144,
+         0.8228
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.484,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Elder/22"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_LegBR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.825,
+           0.132,
+           0.814
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.7854,
+         0.264,
+         1.122
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.825,
+         1.056,
+         0.99
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Elder_LegBR_Scale"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.825,
+       1.056,
+       0.99
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Elder_LegBR"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/23"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Elder_WingL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.3006,
+         3.1673,
+         0.7788
+        ],
+        "orientation": [
+         [
+          0.9272,
+          -0.3746,
+          0.0
+         ],
+         [
+          0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.1968,
+       0.088,
+       2.7456
+      ],
+      "Color": [
+       0.949,
+       0.7216,
+       0.5412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -1.7435,
+         0.0408,
+         -1.3728
+        ],
+        "orientation": [
+         [
+          0.9272,
+          0.3746,
+          0.0
+         ],
+         [
+          -0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Elder/23"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Elder_WingL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.2236,
+         2.7322,
+         0.286
+        ],
+        "orientation": [
+         [
+          0.9272,
+          -0.3746,
+          0.0
+         ],
+         [
+          0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.1968,
+       0.088,
+       1.76
+      ],
+      "Color": [
+       0.949,
+       0.7216,
+       0.5412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Elder_WingL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         3.3777,
+         3.6025,
+         0.462
+        ],
+        "orientation": [
+         [
+          0.9272,
+          -0.3746,
+          0.0
+         ],
+         [
+          0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.1968,
+       0.088,
+       2.112
+      ],
+      "Color": [
+       0.949,
+       0.7216,
+       0.5412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Elder_WingL",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         3.9369,
+         3.9477,
+         -0.594
+        ],
+        "orientation": [
+         [
+          0.9272,
+          -0.3746,
+          0.0
+         ],
+         [
+          0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.198,
+       0.4636,
+       0.198
+      ],
+      "Color": [
+       0.9843,
+       0.9412,
+       0.8235
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/24"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Elder_WingL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           2.3006,
+           3.2113,
+           -0.594
+          ],
+          "orientation": [
+           [
+            0.9272,
+            -0.3746,
+            0.0
+           ],
+           [
+            0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         3.52,
+         0.264,
+         0.308
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -1.76,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9272,
+            0.3746,
+            0.0
+           ],
+           [
+            -0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Elder/24"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_WingL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.8044,
+           2.7982,
+           0.286
+          ],
+          "orientation": [
+           [
+            0.9272,
+            -0.3746,
+            0.0
+           ],
+           [
+            0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.132,
+         0.154,
+         1.76
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_WingL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           2.8814,
+           3.2333,
+           0.7788
+          ],
+          "orientation": [
+           [
+            0.9272,
+            -0.3746,
+            0.0
+           ],
+           [
+            0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.132,
+         0.154,
+         2.7456
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_WingL_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           3.9585,
+           3.6685,
+           0.462
+          ],
+          "orientation": [
+           [
+            0.9272,
+            -0.3746,
+            0.0
+           ],
+           [
+            0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.132,
+         0.154,
+         2.112
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.6688,
+         2.552,
+         -0.594
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Elder_WingL_Scale"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.6688,
+       2.552,
+       -0.594
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Elder_WingL"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/25"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Dragon_Elder_WingR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -2.3006,
+         3.1673,
+         0.7788
+        ],
+        "orientation": [
+         [
+          0.9272,
+          0.3746,
+          0.0
+         ],
+         [
+          -0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.1968,
+       0.088,
+       2.7456
+      ],
+      "Color": [
+       0.949,
+       0.7216,
+       0.5412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         1.7435,
+         0.0408,
+         -1.3728
+        ],
+        "orientation": [
+         [
+          0.9272,
+          -0.3746,
+          0.0
+         ],
+         [
+          0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Dragon_Elder/25"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Elder_WingR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.2236,
+         2.7322,
+         0.286
+        ],
+        "orientation": [
+         [
+          0.9272,
+          0.3746,
+          0.0
+         ],
+         [
+          -0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.1968,
+       0.088,
+       1.76
+      ],
+      "Color": [
+       0.949,
+       0.7216,
+       0.5412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Elder_WingR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -3.3777,
+         3.6025,
+         0.462
+        ],
+        "orientation": [
+         [
+          0.9272,
+          0.3746,
+          0.0
+         ],
+         [
+          -0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.1968,
+       0.088,
+       2.112
+      ],
+      "Color": [
+       0.949,
+       0.7216,
+       0.5412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Dragon_Elder_WingR",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -3.9369,
+         3.9477,
+         -0.594
+        ],
+        "orientation": [
+         [
+          0.9272,
+          0.3746,
+          0.0
+         ],
+         [
+          -0.3746,
+          0.9272,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.198,
+       0.4636,
+       0.198
+      ],
+      "Color": [
+       0.9843,
+       0.9412,
+       0.8235
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Dragon_Elder/26"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Dragon_Elder_WingR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -2.3006,
+           3.2113,
+           -0.594
+          ],
+          "orientation": [
+           [
+            0.9272,
+            0.3746,
+            0.0
+           ],
+           [
+            -0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         3.52,
+         0.264,
+         0.308
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           1.76,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9272,
+            -0.3746,
+            0.0
+           ],
+           [
+            0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Dragon_Elder/26"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_WingR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.8044,
+           2.7982,
+           0.286
+          ],
+          "orientation": [
+           [
+            0.9272,
+            0.3746,
+            0.0
+           ],
+           [
+            -0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.132,
+         0.154,
+         1.76
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_WingR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -2.8814,
+           3.2333,
+           0.7788
+          ],
+          "orientation": [
+           [
+            0.9272,
+            0.3746,
+            0.0
+           ],
+           [
+            -0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.132,
+         0.154,
+         2.7456
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Dragon_Elder_WingR_Scale",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -3.9585,
+           3.6685,
+           0.462
+          ],
+          "orientation": [
+           [
+            0.9272,
+            0.3746,
+            0.0
+           ],
+           [
+            -0.3746,
+            0.9272,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.132,
+         0.154,
+         2.112
+        ],
+        "Color": [
+         0.851,
+         0.2824,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.6688,
+         2.552,
+         -0.594
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Dragon_Elder_WingR_Scale"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.6688,
+       2.552,
+       -0.594
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Dragon_Elder_WingR"
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

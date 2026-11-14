@@ -177,6 +177,7 @@ function Modal.open(self: any, name: string)
 	end
 	self._closing = nil
 	self._tucked = nil
+	self._backdrop.Active = true -- #4016: a tuck left it off
 	self._current = name
 	self.screenGui.Enabled = true
 	self:_dim(Theme.modal.backdropTransparency)
@@ -210,6 +211,7 @@ function Modal.close(self: any)
 	local frame = screen.frame
 	self._closing = frame
 	self._tucked = nil
+	self._backdrop.Active = true -- #4016: a tuck left it off
 	self._current = nil
 	Sound.play("uiClose")
 	self:_dim(1)
@@ -256,9 +258,13 @@ function Modal.tuck(self: any, name: string, away: boolean)
 		end
 		self._tucked = name
 		screen.frame.Visible = false
+		-- #4016 (Derek: "move the screen with right click during trait normal animations"): the clear backdrop no
+		-- longer takes the input, so a right click drag or a touch drag turns the camera while the window is away
+		self._backdrop.Active = false
 		self:_dim(1)
 	elseif self._tucked == name then
 		self._tucked = nil
+		self._backdrop.Active = true
 		screen.frame.Visible = true
 		self:_dim(Theme.modal.backdropTransparency)
 		Tween.popIn(screen.frame)

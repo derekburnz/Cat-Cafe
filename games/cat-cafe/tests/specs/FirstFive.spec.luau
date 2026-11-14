@@ -72,11 +72,11 @@ return function()
 		end)
 
 		it(
-			"is the bait bowl straight away for a new save, which starts with its table (#3660)",
+			"has no buy due for a new save, which starts with its table and Bait bowl (#3660, #4097)",
 			function()
 				local telemetry = ProfileSchema.template(100).telemetry
 				telemetry.onboardingStep = Onboarding.index("first_customer_served")
-				expect(FirstFive.nextBuy(telemetry)).to.equal("lure_bowl")
+				expect(FirstFive.nextBuy(telemetry)).to.equal(nil)
 			end
 		)
 

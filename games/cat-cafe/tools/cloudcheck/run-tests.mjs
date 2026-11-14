@@ -266,6 +266,11 @@ try {
           `  [VM] ${name} failed ${result.failed} test(s) at optimization level ${DEFAULT_OPT} but passes whole at 0 and 1:`
         );
         for (const failure of result.failures) console.log(`       ${failure.path}: ${failure.message.split('\n')[0]}`);
+        if (process.env.GITHUB_ACTIONS) {
+          // Shown on the pull request's checks page, so a forgiven failure is not only deep in the log
+          const names = result.failures.map((failure) => failure.path).join('; ');
+          console.log(`::warning title=Spec forgiven as a test VM fault::${name}: ${names}`.replace(/[\r\n]+/g, ' '));
+        }
         result.passed += result.failed;
         result.failed = 0;
         result.failures = [];

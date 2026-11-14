@@ -336,7 +336,8 @@ local function updateDunes(area: string?, feet: Vector3)
 	end
 end
 
--- #4069: the northern lights. While it is night and you stand in an area with an `aurora`, its ribbons hang over the
+-- #4069: the northern lights. In the day's last minute (`auroraEvening`; night closes the areas, so nobody would
+-- see them then) and at night, while you stand in an area with an `aurora`, its ribbons hang over the
 -- area: two soft bands each, on one unseen part, bending slowly from side to side. They fade in when they start and
 -- out when night ends or you leave.
 -- `full[i]` is band i's own middle transparency when the lights are fully shown, `base` the spec's `shown`
@@ -523,7 +524,15 @@ local function updateAurora(here: string?, feet: Vector3)
 	end
 	local spec = specOf(area)
 	local wanted = if spec ~= nil then spec.aurora else nil
-	local night = Context.isNight() or testAurora ~= nil
+	local clock = ReplicatedStorage:FindFirstChild("Clock")
+	local phase = if clock ~= nil then clock:GetAttribute("Phase") else nil
+	local endsAt = if clock ~= nil then clock:GetAttribute("PhaseEndsAt") else nil
+	local left: number? = if type(endsAt) == "number"
+		then endsAt - Workspace:GetServerTimeNow()
+		else nil
+	-- the areas close at night and send everyone home, so the lights also hang through the day's last stretch,
+	-- when the sky has turned to dusk and players are still there to see them
+	local night = testAurora ~= nil or Logic.auroraOn(phase, left, Presets.areaFx.auroraEvening)
 	if wanted == nil or area == nil or Context.lowPerformance or not night then
 		local old = specOf(auroraArea)
 		local was = if old ~= nil then old.aurora else nil

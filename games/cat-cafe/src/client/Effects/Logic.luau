@@ -4289,6 +4289,15 @@ function Logic.dragonShard(i: number, count: number): Vector3
 	return Vector3.new(math.cos(a) * r, y, math.sin(a) * r).Unit
 end
 
+-- Whether the northern lights are out: at night, and through the last `evening` seconds of the day (night closes
+-- the areas, so the evening is when players see them). `left` is the seconds the phase still has, nil when unknown.
+function Logic.auroraOn(phase: unknown, left: number?, evening: number): boolean
+	if phase == "night" then
+		return true
+	end
+	return left ~= nil and left <= evening
+end
+
 -- #4069: the northern lights over an area. `count` ribbons hung along the area's longer side (a tenth in from each
 -- end), spread evenly over `spread` of its shorter side, each `rise` studs above the one before it, bending to
 -- alternate sides and each with its own time from `seconds` (the last one repeats). `curve` is of the ribbon's

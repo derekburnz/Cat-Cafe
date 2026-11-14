@@ -157,6 +157,18 @@ return function()
 			end
 		end)
 
+		it("shows the northern lights through the day's last stretch and the night", function()
+			local evening = Presets.areaFx.auroraEvening
+			expect(evening >= 30 and evening <= 120).to.equal(true)
+			expect(Logic.auroraOn("night", nil, evening)).to.equal(true)
+			expect(Logic.auroraOn("night", 40, evening)).to.equal(true)
+			expect(Logic.auroraOn("day", evening, evening)).to.equal(true)
+			expect(Logic.auroraOn("day", 5, evening)).to.equal(true)
+			expect(Logic.auroraOn("day", evening + 1, evening)).to.equal(false)
+			expect(Logic.auroraOn("day", nil, evening)).to.equal(false)
+			expect(Logic.auroraOn(nil, nil, evening)).to.equal(false)
+		end)
+
 		it("hangs the northern lights over the area at night, slow and inside it", function()
 			local a = Presets.areaFx.areas.snowy.aurora :: any
 			expect(#a.ribbons).to.equal(3) -- one count per budget tier, fewer as the tier drops

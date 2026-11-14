@@ -749,11 +749,23 @@
     "model": "CatCafe_Decor_RubberDuckRow",
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_sewer_rubber_duck_row.png"
   },
+  "snow_aurora_ice": {
+    "name": "Aurora Ice",
+    "kind": "floor",
+    "model": "CatCafe_Style_AuroraIce",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_aurora_ice.png"
+  },
   "snow_chalet_door": {
     "name": "Chalet Door",
     "kind": "door",
     "model": "CatCafe_Door_Chalet_Front",
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_chalet_door.png"
+  },
+  "snow_cocoa_brown": {
+    "name": "Cocoa Brown",
+    "kind": "paint",
+    "model": "CatCafe_Style_CocoaBrown",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_cocoa_brown.png"
   },
   "snow_fireside_rug": {
     "name": "Fireside Rug",
@@ -761,11 +773,35 @@
     "model": "CatCafe_Decor_FiresideRug",
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_fireside_rug.png"
   },
+  "snow_frost_white": {
+    "name": "Frost White",
+    "kind": "paint",
+    "model": "CatCafe_Style_FrostWhite",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_frost_white.png"
+  },
   "snow_igloo_flap": {
     "name": "Igloo Flap",
     "kind": "catflap",
     "model": "CatCafe_CatFlap_Igloo",
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_igloo_flap.png"
+  },
+  "snow_knit_pattern": {
+    "name": "Knit Pattern",
+    "kind": "wallpaper",
+    "model": "CatCafe_Style_KnitPattern",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_knit_pattern.png"
+  },
+  "snow_log_cabin": {
+    "name": "Log Cabin",
+    "kind": "wallpaper",
+    "model": "CatCafe_Style_LogCabin",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_log_cabin.png"
+  },
+  "snow_pine_planks": {
+    "name": "Pine Planks",
+    "kind": "floor",
+    "model": "CatCafe_Style_PinePlanks",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_pine_planks.png"
   },
   "snow_sled_shelf": {
     "name": "Sled Shelf",

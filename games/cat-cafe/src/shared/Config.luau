@@ -118,7 +118,7 @@ local Config = {
 		firstFlight = 771736196964132, -- Liftoff
 		cornerCafe = 4089080696855068, -- Corner Cafe
 		sunstoneCafe = 3966771842573409, -- Sunstone Cafe
-		wonderCafe = 0, -- tomorrow: five free badges a day
+		wonderCafe = 383838983462242, -- Wonder Cafe (made 2026-11-14, free)
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).

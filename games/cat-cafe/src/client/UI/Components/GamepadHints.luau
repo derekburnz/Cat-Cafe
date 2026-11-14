@@ -147,7 +147,7 @@ function GamepadHints.refresh(self: any)
 		tabs = row ~= nil
 	end
 	-- a short screen's window reaches 8 px from the bottom (Modal), so there the strip stays away while one is open
-	local list = if window and Scale.isShort()
+	local list: { GamepadHintsLogic.Hint } = if window and Scale.isShort()
 		then {}
 		else GamepadHintsLogic.keys({
 			gamepad = GamepadNav.isGamepad(),
@@ -188,7 +188,7 @@ function GamepadHints.refresh(self: any)
 			Parent = item,
 		})
 		for order, button in hint.keys do
-			cap(button, order).Parent = item
+			cap(button :: GamepadHintsLogic.Key, order).Parent = item
 		end
 		Create("TextLabel", {
 			Name = "Label",

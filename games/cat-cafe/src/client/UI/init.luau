@@ -91,6 +91,7 @@ local WorldTags = require(script.Screens.WorldTags)
 
 local UI = {}
 UI.together = {} -- F92 playing together, filled at the end of the file
+UI._padHints = nil :: any -- #4224: the controller hint strip (Components/GamepadHints), made in UI.init
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.lateStations = {} -- #2651 part 4 the Oasis Spa and Relic Museum cards, filled at the end of the file
 UI.mysticPool = {} -- #3196 the Mystic Pool's card (traits), filled at the end of the file

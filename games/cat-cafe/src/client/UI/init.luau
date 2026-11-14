@@ -1504,7 +1504,7 @@ function UI.init(config: Types.InitConfig)
 			local dashWindow = require(script.Components.MouseDashLogic).WINDOW
 			local poolWindow = require(script.Components.MysticPoolLogic).WINDOW
 			UI.rollBusy.window = name == dashWindow or name == "Arcade" or name == poolWindow
-			view:setBusy(UI.rollBusy.window or UI.rollBusy.on)
+			view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.on)
 		end
 		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
 		hudInstance:holdBanner("window", UI.rollBusy.window)
@@ -2218,7 +2218,43 @@ function UI.setRollBusy(on: boolean)
 	UI.rollBusy.on = on
 	local view = toasts
 	if view then
-		view:setBusy(UI.rollBusy.window or on)
+		view:setBusy(UI.rollBusy.window or on or UI.cutscene.on)
+	end
+end
+-- #4018 (Derek OK'd the Mythic and up trait pull cutscene, 2026-11-13: every banner and pop-up muted while it plays,
+-- the food bowl's above all): while a cutscene runs (Motion-FX's scenes call UI.setCutscene), toasts wait in the toast
+-- view's busy queue, shout-outs wait here (the last CUTSCENE_KEEP, in order) and come out one by one afterwards, and
+-- the food bowl cards (UI.bait.busy), tips, ask and first visit cards (tipMoment) and the "Unlocked!" card wait too.
+-- The scene hides the HUD itself.
+UI.cutscene =
+	{ on = false, queue = {} :: { { text: string, rarity: string? } }, KEEP = 3, GAP = 1.5 }
+function UI.setCutscene(on: boolean)
+	local cut = UI.cutscene
+	if cut.on == on then
+		return
+	end
+	cut.on = on
+	local view = toasts
+	if view then
+		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or on)
+	end
+	-- the event strip steps aside too (HUD.holdBanner, #4032)
+	local strip: any = hud
+	local hold: any = if strip ~= nil then strip.holdBanner else nil
+	if hold ~= nil then
+		hold(strip, "cutscene", on)
+	end
+	if on then
+		return
+	end
+	local waiting = cut.queue
+	cut.queue = {}
+	for index, item in waiting do
+		task.delay((index - 1) * cut.GAP, function()
+			if not UI.cutscene.on then
+				UI.announce(item.text, item.rarity)
+			end
+		end)
 	end
 	-- Derek 2026-11-13: the event and day strip stays down through the roll too
 	local board = hud
@@ -2229,6 +2265,14 @@ end
 function UI.announce(text: string, rarity: string?): boolean
 	local ToastRules = require(script.Components.ToastRules)
 	local now = os.clock()
+	local cut = UI.cutscene
+	if cut.on then
+		table.insert(cut.queue, { text = text, rarity = rarity })
+		if #cut.queue > cut.KEEP then
+			table.remove(cut.queue, 1)
+		end
+		return false
+	end
 	-- Derek 2026-11-13: dropped, sting and all, while Mouse Dash or the Mystic Pool is open (Toasts.setBusy)
 	local view = toasts
 	if view and view:isBusy() then
@@ -2571,6 +2615,7 @@ function UI.bait.busy(): boolean
 		or (UI.bait.cutting ~= nil and (UI.bait.cutting :: () -> boolean)()) -- #2946: the first bait's cutscene
 		or UI.bigTraitCutting() -- #3846: a Legendary or Mythic trait roll's cutscene
 		or UI.bait.away() -- #4035: out catching in an area
+		or UI.cutscene.on -- #4018: any cutscene (UI.setCutscene)
 end
 
 -- #4035 (Derek 2026-11-13: "remove all food bowl pop ups etc until your back in town square way too many annoying
@@ -5132,6 +5177,7 @@ do
 			intro = UI.intro.playing(),
 			flying = os.clock() < tipsHeldUntil,
 			window = (modal ~= nil and modal:current() ~= nil)
+				or UI.cutscene.on -- #4018: tips, ask and first visit cards wait through a cutscene
 				or (popups ~= nil and popups:isShowing())
 				or (baitCard ~= nil and baitCard:isShowing())
 				or (askCard ~= nil and askCard:isShowing()),
@@ -9305,7 +9351,7 @@ function UI.perks.unlock(perkId: string)
 		-- Review-QA's Studio pass 2026-11-13: the "Unlocked! Haggler" card came up over a Rummage Bin roll, which
 		-- is not a window; a roll or its reveal (UI.rollBusy) holds the card as a window does
 		local function blocked(): boolean
-			return (windows ~= nil and windows:current() ~= nil) or UI.rollBusy.on
+			return (windows ~= nil and windows:current() ~= nil) or UI.rollBusy.on or UI.cutscene.on
 		end
 		while UI.perks.token == token and blocked() and waited < UI.perks.WINDOW_WAIT_SECONDS do
 			waited += task.wait(0.5)

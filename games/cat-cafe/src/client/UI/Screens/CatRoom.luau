@@ -90,13 +90,26 @@ local GAP = Theme.sizes.gap
 -- #2675: a 44 px face on the smallest phone scale too, now that seven tiers of role slots fill the strip (it scrolls)
 local SQUARE = Scale.tapHeight(Theme.sizes.touchMin)
 local NAME_TAP = math.max(36, SQUARE) -- the name's tap area (#3924), the mouse or touch minimum, over name and breed
-local CREW_LABEL = 16
-local CREW_H = CREW_LABEL + 4 + SQUARE + 8
+-- #4028: the team strip's role columns: the name row, the faces (at most SQUARE, smaller to fit a narrow column; a
+-- face's Hit pad keeps the tap a finger's), then the "+2 at Tier 5" line
+local CREW_PAD = 6
+local CREW_NAME_H = 20
+local CREW_NOTE_H = 14
+local CREW_FACE_MIN = 26
+local CREW_FACE_GAP = 6
+local CREW_FACE_TOP = 4 + CREW_NAME_H + 4
+local CREW_H = 2 * CREW_PAD + CREW_FACE_TOP + SQUARE + 2 + CREW_NOTE_H
+local FACE_TAP = Scale.tapHeight(36) -- a face's tap pad: 36 px with a mouse, a finger's 44 on touch
 local TOOL_H = Scale.tapHeight(Theme.sizes.touchMin) -- #3056: 44 px on a tablet too (its PC layout at 0.8 scale)
-local SEARCH_W = 116 -- 180 before #3647: the Sort button took the room
-local CHIP_W = 96
-local SORT_W = 96 -- #3647: the Sort button, after the filters
-local ACTION_W = 124
+local SEARCH_MIN = 110 -- #4028: the search box takes what the bar leaves, never less
+local SEG_W = 300 -- the All / Working / Resting switch
+local SEG_PAD = 4
+local SORT_W = 112 -- #3647: Sort, now a pop-up
+local SORT_MENU_W = 160
+local EQUIP_W = 196 -- Equip Best with its AUTO switch inside
+local AUTO_W = 56
+local CONFIRM_SECONDS = 3 -- Unequip All asks a second tap within this
+local COUNT_W = 40 -- a role's green "2/4"
 local DETAIL_W = 236
 local DETAIL_ART = 64
 local CARD = Vector2.new(104, 134)
@@ -220,55 +233,259 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	self._compact = false -- the phone layout (_layout)
 	self.frame = parent
 
-	-- crew strip: the role slots, scrolling sideways if a later catalog adds more
+	-- #4028 (Derek 2026-11-13: "good for cats menu top", draft cats-top-draft.png): the team strip is one equal column
+	-- per role, so all four fit on any screen without scrolling. Each column has the role's icon and name, a green
+	-- "2/4" (working / open slots), the faces of the cats working there and a ring per free slot, then one small line
+	-- for what opens next ("+2 at Tier 5"); locked slots take no room. _layoutCrew sizes the faces to the column.
 	local crew = card({
 		Name = "Crew",
 		Size = UDim2.new(1, 0, 0, CREW_H),
 		Parent = parent,
 	})
-	self._crew = Create("ScrollingFrame", {
+	local roles: Frame = Create("Frame", {
 		Name = "Roles",
 		BackgroundTransparency = 1,
-		BorderSizePixel = 0,
 		Size = UDim2.fromScale(1, 1),
-		CanvasSize = UDim2.new(),
-		AutomaticCanvasSize = Enum.AutomaticSize.X,
-		ScrollBarThickness = 4,
-		ScrollBarImageColor3 = PAL.caramel,
-		ScrollingDirection = Enum.ScrollingDirection.X,
-		Selectable = false, -- #2965 leftover, as the grid below
 		Parent = crew,
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, 18),
+			Padding = UDim.new(0, GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 		Create("UIPadding", {
-			PaddingLeft = UDim.new(0, 10),
-			PaddingRight = UDim.new(0, 10),
-			PaddingTop = UDim.new(0, 4),
+			PaddingLeft = UDim.new(0, CREW_PAD),
+			PaddingRight = UDim.new(0, CREW_PAD),
+			PaddingTop = UDim.new(0, CREW_PAD),
+			PaddingBottom = UDim.new(0, CREW_PAD),
 		}),
 	})
+	self._crew = roles
+	table.insert(
+		self._connections,
+		roles:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			self:_layoutCrew()
+		end)
+	)
 
-	-- #1955 (auto-equip.md): the Auto Equip switch at the crew strip's right end, over Equip Best. On, the server runs
-	-- Equip Best by itself when a better cat comes; it never moves a locked cat or one placed by hand in the last 10
-	-- minutes. The roles scroll in the room left of it.
+	-- #4028: one bar under the strip: search (with the count), All / Working / Resting as one switch, Sort (a pop-up
+	-- with the orders and Unequip All behind a confirm) and Equip Best with its AUTO switch inside
+	local toolTop = CREW_H + GAP
+	local toolbar: Frame = Create("Frame", {
+		Name = "Toolbar",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(0, toolTop),
+		Size = UDim2.new(1, 0, 0, TOOL_H),
+		Parent = parent,
+	})
+	self._toolbar = toolbar
+	local fixedW = SEG_W + SORT_W + EQUIP_W + 3 * GAP
+	local search: TextBox = Create("TextBox", {
+		Name = "Search",
+		BackgroundColor3 = PAL.card,
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, -fixedW, 0, TOOL_H),
+		ClearTextOnFocus = false,
+		FontFace = Theme.fonts.body,
+		TextSize = Theme.sizes.textSmall + 1,
+		TextColor3 = PAL.text,
+		PlaceholderColor3 = PAL.subtext,
+		PlaceholderText = "🔍 Search cats",
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Text = "",
+		Parent = toolbar,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
+		Create("UISizeConstraint", { MinSize = Vector2.new(SEARCH_MIN, 0) }),
+	})
+	Outline.border(search, Theme.sizes.stroke, PAL.cardStroke)
+	self._search = search
+	table.insert(
+		self._connections,
+		search:GetPropertyChangedSignal("Text"):Connect(function()
+			self._query = search.Text
+			self:_refresh()
+		end)
+	)
+
+	-- the three filters as one switch: a dark track with the picked one in gold
+	local seg: Frame = Create("Frame", {
+		Name = "Filters",
+		BackgroundColor3 = PAL.panel,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -(SORT_W + EQUIP_W + 2 * GAP), 0, 0),
+		Size = UDim2.fromOffset(SEG_W, TOOL_H),
+		Parent = toolbar,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+	})
+	Outline.border(seg, Theme.sizes.stroke, PAL.cardStroke)
+	self._chips = {} :: { [string]: any }
+	local chipW = math.floor((SEG_W - 2 * SEG_PAD) / #FILTERS)
+	for index, filter in FILTERS do
+		self._chips[filter] = Button.new({
+			name = filter,
+			text = filter,
+			style = if filter == "All" then "gold" else "ghost",
+			size = UDim2.fromOffset(chipW, TOOL_H - 2 * SEG_PAD),
+			position = UDim2.fromOffset(SEG_PAD + (index - 1) * chipW, SEG_PAD),
+			textSize = Theme.sizes.textSmall,
+			parent = seg,
+			sound = "uiTab",
+			shine = false,
+			onClick = function()
+				self._filter = filter
+				self:_refresh()
+			end,
+		})
+	end
+
+	-- #3647: the orders (Best, Rarity, Level), now in a pop-up under Sort with Unequip All at its foot
+	self._sortButton = Button.new({
+		name = "Sort",
+		text = "Sort: Best ▼",
+		style = "ghost",
+		size = UDim2.fromOffset(SORT_W, TOOL_H),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -(EQUIP_W + GAP), 0, 0),
+		textSize = Theme.sizes.textSmall,
+		parent = toolbar,
+		sound = "uiTab",
+		onClick = function()
+			self:_showSortMenu(not self._sortMenu.Visible)
+		end,
+	})
+	local menu: Frame = Create("Frame", {
+		Name = "SortMenu",
+		BackgroundColor3 = PAL.panel,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -(EQUIP_W + GAP), 0, toolTop + TOOL_H + 4),
+		Size = UDim2.fromOffset(SORT_MENU_W, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Visible = false,
+		ZIndex = 20,
+		Parent = parent,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+		Create("UIPadding", {
+			PaddingTop = UDim.new(0, 6),
+			PaddingBottom = UDim.new(0, 6),
+			PaddingLeft = UDim.new(0, 6),
+			PaddingRight = UDim.new(0, 6),
+		}),
+		Create(
+			"UIListLayout",
+			{ Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }
+		),
+	})
+	Outline.border(menu, Theme.sizes.stroke, PAL.cardStroke)
+	self._sortMenu = menu
+	self._sortChoices = {} :: { [string]: any }
+	for index, sort in CatRoomList.SORTS do
+		local choice = Button.new({
+			name = "Sort" .. sort,
+			text = sort,
+			style = "ghost",
+			size = UDim2.new(1, 0, 0, TOOL_H),
+			textSize = Theme.sizes.textSmall,
+			parent = menu,
+			zIndex = 21,
+			sound = "uiTab",
+			onClick = function()
+				self._sort = sort
+				self:_showSortMenu(false)
+				self:_refresh()
+			end,
+		})
+		choice.instance.LayoutOrder = index
+		self._sortChoices[sort] = choice
+	end
+	-- Unequip All: every working cat rests (the UnequipAll remote, one sync), on a second tap within CONFIRM_SECONDS
+	self._unequipAll = Button.new({
+		name = "UnequipAll",
+		text = "Unequip All",
+		style = "danger",
+		size = UDim2.new(1, 0, 0, TOOL_H),
+		textSize = Theme.sizes.textSmall,
+		parent = menu,
+		zIndex = 21,
+		onClick = function()
+			if not self._unequipAsk then
+				self._unequipAsk = true
+				self._unequipAll:setText("Tap again: all rest")
+				task.delay(CONFIRM_SECONDS, function()
+					if self._unequipAsk and not self._gone then
+						self._unequipAsk = false
+						self._unequipAll:setText("Unequip All")
+					end
+				end)
+				return
+			end
+			self._unequipAsk = false
+			self._unequipAll:setText("Unequip All")
+			self._placing = false
+			self:_showSortMenu(false)
+			self._callbacks.unequipAll()
+		end,
+	})
+	self._unequipAll.instance.LayoutOrder = #CatRoomList.SORTS + 1
+	self._unequipAsk = false
+
+	-- Equip Best: the server fills the open slots with the highest-rated cats; its AUTO switch (#1955, auto-equip.md)
+	-- sits inside it on the right: on, the server runs Equip Best by itself when a better cat comes, never moving a
+	-- locked cat or one placed by hand in the last 10 minutes
+	self._equipBest = Button.new({
+		name = "EquipBest",
+		text = "Equip Best",
+		icon = Theme.icons.equipBest,
+		image = ShopIcons.clean("EquipBest"), -- the clean sparkles (#1136)
+		style = "gold",
+		size = UDim2.fromOffset(EQUIP_W, TOOL_H),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, 0, 0, 0),
+		textSize = Theme.sizes.textSmall,
+		parent = toolbar,
+		onClick = function()
+			self._callbacks.equipBest()
+		end,
+	})
 	self._autoOn = false
 	self._autoTaps = {} -- #2076: the pressed value, held as Settings holds a tap (SettingsList.shown)
 	local setAuto = callbacks.setAutoEquip
 	if setAuto ~= nil and SettingsList.isKey(SettingsList.AUTO_EQUIP_KEY) then
-		self._crew.Size = UDim2.new(1, -(ACTION_W + 20), 1, 0) -- #3989: a clear gap before the switch
+		-- the words make room for the switch on the button's right
+		local label = self._equipBest.label
+		label.Size = UDim2.new(
+			label.Size.X.Scale,
+			label.Size.X.Offset - AUTO_W,
+			label.Size.Y.Scale,
+			label.Size.Y.Offset
+		)
+		local row = self._equipBest.face:FindFirstChild("Row")
+		if row and row:IsA("GuiObject") then
+			row.Size = UDim2.new(
+				row.Size.X.Scale,
+				row.Size.X.Offset - AUTO_W,
+				row.Size.Y.Scale,
+				row.Size.Y.Offset
+			)
+		end
 		self._auto = Button.new({
 			name = "AutoEquip",
-			text = "Auto Equip: Off",
-			style = "ghost",
-			size = UDim2.fromOffset(ACTION_W, TOOL_H),
+			text = "AUTO",
+			style = "slate",
+			size = UDim2.fromOffset(AUTO_W, TOOL_H - 8), -- 36 px with a mouse; on touch its Hit pad reaches 44
 			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -6, 0.5, 0),
-			textSize = Theme.sizes.textSmall,
-			parent = crew,
+			position = UDim2.new(1, -8, 0.5, 0),
+			textSize = Theme.sizes.textTiny,
+			parent = self._equipBest.instance,
+			zIndex = 5,
 			sound = "uiToggle",
+			shine = false,
 			onClick = function()
 				local on = not self._autoOn
 				self._autoOn = on
@@ -286,110 +503,6 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 			end,
 		})
 	end
-
-	-- toolbar: search, filters, then Unequip All and Equip Best on the right
-	local toolTop = CREW_H + GAP
-	local toolbar: Frame = Create("Frame", {
-		Name = "Toolbar",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, toolTop),
-		Size = UDim2.new(1, 0, 0, TOOL_H),
-		Parent = parent,
-	})
-	local search: TextBox = Create("TextBox", {
-		Name = "Search",
-		BackgroundColor3 = PAL.card,
-		BorderSizePixel = 0,
-		Size = UDim2.fromOffset(SEARCH_W, TOOL_H),
-		ClearTextOnFocus = false,
-		FontFace = Theme.fonts.body,
-		TextSize = Theme.sizes.textSmall + 1,
-		TextColor3 = PAL.text,
-		PlaceholderColor3 = PAL.subtext,
-		PlaceholderText = "🔍 Search cats",
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextTruncate = Enum.TextTruncate.AtEnd,
-		Text = "",
-		Parent = toolbar,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
-	})
-	Outline.border(search, Theme.sizes.stroke, PAL.cardStroke)
-	self._search = search
-	table.insert(
-		self._connections,
-		search:GetPropertyChangedSignal("Text"):Connect(function()
-			self._query = search.Text
-			self:_refresh()
-		end)
-	)
-
-	self._chips = {} :: { [string]: any }
-	for index, filter in FILTERS do
-		self._chips[filter] = Button.new({
-			name = filter,
-			text = filter,
-			style = if filter == "All" then "gold" else "ghost",
-			size = UDim2.fromOffset(CHIP_W, TOOL_H),
-			position = UDim2.fromOffset(SEARCH_W + GAP + (index - 1) * (CHIP_W + GAP), 0),
-			textSize = Theme.sizes.textSmall,
-			parent = toolbar,
-			sound = "uiTab",
-			onClick = function()
-				self._filter = filter
-				self:_refresh()
-			end,
-		})
-	end
-
-	-- #3647 (Derek 2026-11-12): one button steps the order round Best, Rarity and Level
-	self._sortButton = Button.new({
-		name = "Sort",
-		text = "Sort: Best",
-		style = "ghost",
-		size = UDim2.fromOffset(SORT_W, TOOL_H),
-		position = UDim2.fromOffset(SEARCH_W + GAP + #FILTERS * (CHIP_W + GAP), 0),
-		textSize = Theme.sizes.textSmall,
-		parent = toolbar,
-		sound = "uiTab",
-		onClick = function()
-			self._sort = CatRoomList.nextSort(self._sort)
-			self:_refresh()
-		end,
-	})
-
-	-- Equip best: the server fills the open slots with the highest-rated cats (cat stats thread)
-	self._equipBest = Button.new({
-		name = "EquipBest",
-		text = "Equip Best",
-		icon = Theme.icons.equipBest,
-		image = ShopIcons.clean("EquipBest"), -- the clean sparkles (#1136)
-		style = "gold",
-		size = UDim2.fromOffset(ACTION_W, TOOL_H),
-		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, 0, 0, 0),
-		textSize = Theme.sizes.textSmall,
-		parent = toolbar,
-		onClick = function()
-			self._callbacks.equipBest()
-		end,
-	})
-	-- Unequip all: every working cat rests (the engineer's UnequipAll remote, one sync)
-	self._unequipAll = Button.new({
-		name = "UnequipAll",
-		text = "Unequip All",
-		style = "ghost",
-		size = UDim2.fromOffset(ACTION_W, TOOL_H),
-		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, -(ACTION_W + GAP), 0, 0),
-		textSize = Theme.sizes.textSmall,
-		parent = toolbar,
-		onClick = function()
-			self._placing = false
-			self._callbacks.unequipAll()
-		end,
-	})
 
 	-- body: the grid on the left, the picked cat on the right
 	local bodyTop = toolTop + TOOL_H + GAP
@@ -812,55 +925,86 @@ function CatRoom._buildCrew(self: any)
 		return
 	end
 	assert(catalog, "catalog")
-	for index, row in StaffSlots.rows(catalog.allSpots or catalog.spots or {}, 1, nil) do
+	local rows = StaffSlots.rows(catalog.allSpots or catalog.spots or {}, 1, nil)
+	for index, row in rows do
+		-- #4028: the role's column, one share of the strip's width (_layoutCrew)
 		local group: Frame = Create("Frame", {
 			Name = row.role,
-			BackgroundTransparency = 1,
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, CREW_LABEL + 4 + SQUARE),
+			BackgroundColor3 = PAL.card,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1 / #rows, -math.ceil(GAP * (#rows - 1) / #rows), 1, 0),
 			LayoutOrder = index,
 			Parent = self._crew,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		})
+		Outline.border(group, Theme.sizes.stroke, PAL.cardStroke)
 		local label = text({
 			Name = "Role",
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, CREW_LABEL),
+			Position = UDim2.fromOffset(8, 4),
+			Size = UDim2.new(1, -(8 + COUNT_W + 8), 0, CREW_NAME_H),
 			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textSmall,
-			TextTruncate = Enum.TextTruncate.None,
+			TextSize = Theme.sizes.textBody,
 			Text = (Theme.roleIcons[row.role] or "") .. " " .. row.name,
 			Parent = group,
 		})
+		FitText.shrink(label)
+		local count = text({
+			Name = "Count",
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, -6, 0, 4),
+			Size = UDim2.fromOffset(COUNT_W, CREW_NAME_H),
+			BackgroundTransparency = 0,
+			BackgroundColor3 = Theme.colors.good,
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = Theme.colors.white,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextTruncate = Enum.TextTruncate.None,
+			Parent = group,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = count })
 		local squaresFrame: Frame = Create("Frame", {
 			Name = "Slots",
 			BackgroundTransparency = 1,
-			Position = UDim2.fromOffset(0, CREW_LABEL + 4),
-			Size = UDim2.fromOffset(0, SQUARE),
-			AutomaticSize = Enum.AutomaticSize.X, -- a hidden pass-only square takes no room (#1624)
-			Parent = group,
+			Position = UDim2.fromOffset(8, CREW_FACE_TOP),
+			Size = UDim2.new(1, -16, 0, SQUARE),
 		}, {
 			Create("UIListLayout", {
 				FillDirection = Enum.FillDirection.Horizontal,
-				Padding = UDim.new(0, 6),
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+				Padding = UDim.new(0, CREW_FACE_GAP),
 				SortOrder = Enum.SortOrder.LayoutOrder,
 			}),
 		})
+		squaresFrame.Parent = group
+		local note = text({
+			Name = "Next",
+			AnchorPoint = Vector2.new(0, 1),
+			Position = UDim2.new(0, 8, 1, -2),
+			Size = UDim2.new(1, -16, 0, CREW_NOTE_H),
+			TextSize = Theme.sizes.textTiny,
+			TextColor3 = PAL.subtext,
+			Parent = group,
+		})
 		local squares = {}
 		for slotIndex, slot in row.slots do
+			-- the face itself takes no input; its Hit pad (a finger's 44 px on touch) does
 			local button: TextButton = Create("TextButton", {
 				Name = slot.spotId,
 				Text = "",
 				AutoButtonColor = false,
+				Interactable = false,
 				BackgroundColor3 = Theme.colors.disabled,
 				BorderSizePixel = 0,
 				Size = UDim2.fromOffset(SQUARE, SQUARE),
 				LayoutOrder = slotIndex,
 				Parent = squaresFrame,
-			}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }) })
+			}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 			local border = Outline.border(button, Theme.sizes.stroke)
 			local portrait = CatPortrait.new({
 				parent = button,
-				size = UDim2.fromOffset(SQUARE - 4, SQUARE - 4),
+				size = UDim2.new(1, -4, 1, -4),
 				anchorPoint = Vector2.new(0.5, 0.5),
 				position = UDim2.fromScale(0.5, 0.5),
 				still = true,
@@ -878,44 +1022,82 @@ function CatRoom._buildCrew(self: any)
 				Parent = button,
 			})
 			Outline.text(glyph, 1.5)
-			local tierTag = text({
-				Name = "Tier",
-				AnchorPoint = Vector2.new(1, 1),
-				Position = UDim2.new(1, -2, 1, 0),
-				Size = UDim2.fromOffset(SQUARE, 14),
-				FontFace = Theme.fonts.display,
-				TextSize = Theme.sizes.textTiny,
-				TextColor3 = Theme.colors.white,
-				TextXAlignment = Enum.TextXAlignment.Right,
-				TextTruncate = Enum.TextTruncate.None,
-				ZIndex = 3,
+			local hit: TextButton = Create("TextButton", {
+				Name = "Hit",
+				Text = "",
+				AutoButtonColor = false,
+				BackgroundTransparency = 1,
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.fromScale(0.5, 0.5),
+				Size = UDim2.fromOffset(FACE_TAP, FACE_TAP),
+				ZIndex = 4,
 				Parent = button,
 			})
-			Outline.text(tierTag, 1)
 			local square = {
 				spotId = slot.spotId,
 				tier = slot.tier,
 				button = button,
+				hit = hit,
 				border = border,
 				portrait = portrait,
 				glyph = glyph,
-				tierTag = tierTag,
 				kind = "locked",
 				uid = nil :: string?,
 				shownUid = nil :: string?,
 			}
 			table.insert(
 				self._connections,
-				button.Activated:Connect(function()
+				hit.Activated:Connect(function()
 					self:_pressSquare(square)
 				end)
 			)
 			table.insert(squares, square)
 		end
-		table.insert(
-			self._roles,
-			{ role = row.role, name = row.name, frame = group, label = label, squares = squares }
-		)
+		table.insert(self._roles, {
+			role = row.role,
+			name = row.name,
+			frame = group,
+			label = label,
+			count = count,
+			note = note,
+			slotsFrame = squaresFrame,
+			squares = squares,
+		})
+	end
+	self:_layoutCrew()
+end
+
+-- #4028: each column's faces as big as SQUARE, smaller where its shown slots (working and free) would not fit the
+-- column; the tap pads stay a finger's. The pads of two small faces may meet; the top one takes the tap.
+function CatRoom._layoutCrew(self: any)
+	local scale = Scale.get()
+	if scale <= 0 then
+		return
+	end
+	for _, role in self._roles do
+		local width = role.slotsFrame.AbsoluteSize.X / scale
+		if width <= 0 then
+			continue
+		end
+		local shown = 0
+		for _, square in role.squares do
+			if square.button.Visible then
+				shown += 1
+			end
+		end
+		local side = SQUARE
+		if shown > 0 then
+			side = math.clamp(
+				math.floor((width - (shown - 1) * CREW_FACE_GAP) / shown),
+				CREW_FACE_MIN,
+				SQUARE
+			)
+		end
+		for _, square in role.squares do
+			square.button.Size = UDim2.fromOffset(side, side)
+			local pad = math.max(side, FACE_TAP)
+			square.hit.Size = UDim2.fromOffset(pad, pad)
+		end
 	end
 end
 
@@ -1061,13 +1243,13 @@ end
 
 -- The phone layout or the wide one, from the room the window has (design px, Scale.get()).
 -- #3961: as many CARD-wide columns as fit, each widened to share the leftover room (the outline padding stays).
--- The window's own scale is read off the search box (SEARCH_W design px), since a window can be drawn smaller than
+-- The window's own scale is read off the Sort button (SORT_W design px), since a window can be drawn smaller than
 -- Scale.get() when it fits a small screen.
 function CatRoom._fitGrid(self: any)
 	local grid: ScrollingFrame = self._grid
 	local layout = grid:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout?
-	local search: TextBox = self._search
-	local scale = search.AbsoluteSize.X / SEARCH_W
+	local sort: Frame = self._sortButton.instance
+	local scale = sort.AbsoluteSize.X / SORT_W
 	if layout == nil or scale <= 0 or grid.AbsoluteSize.X <= 0 then
 		return
 	end
@@ -1230,8 +1412,18 @@ function CatRoom._openRename(self: any)
 	self._rename:open(uid, instance.name, if def then def.name else instance.catId)
 end
 
+-- #4028: the Sort pop-up, open or shut (shut also drops a half-asked Unequip All)
+function CatRoom._showSortMenu(self: any, open: boolean)
+	self._sortMenu.Visible = open
+	if not open and self._unequipAsk then
+		self._unequipAsk = false
+		self._unequipAll:setText("Unequip All")
+	end
+end
+
 -- Cancels a half-done pick or rename and closes the food tiles (the tab was switched or the window closed).
 function CatRoom.reset(self: any)
+	self:_showSortMenu(false)
 	self._placing = false
 	self._feedOpen = false
 	self._notice = nil
@@ -1251,8 +1443,9 @@ function CatRoom._paintAuto(self: any)
 	if auto == nil then
 		return
 	end
-	auto:setText(if self._autoOn then "Auto Equip: On" else "Auto Equip: Off")
-	auto:setStyle(if self._autoOn then "gold" else "ghost")
+	-- #4028: a green AUTO while on, grey while off, inside Equip Best
+	auto:setStyle(if self._autoOn then "primary" else "slate")
+	auto.instance:SetAttribute("On", self._autoOn)
 end
 
 function CatRoom.render(self: any, state: Types.PlayerState)
@@ -1279,8 +1472,12 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 		chip:setText(("%s %d"):format(filter, countOf[filter] or 0))
 		chip:setStyle(if filter == self._filter then "gold" else "ghost")
 	end
-	self._sortButton:setText("Sort: " .. self._sort)
+	self._sortButton:setText("Sort: " .. self._sort .. " ▼")
 	self._sortButton:setStyle(if self._sort == "Best" then "ghost" else "gold")
+	for sort, choice in self._sortChoices do
+		choice:setStyle(if sort == self._sort then "gold" else "ghost")
+	end
+	self._search.PlaceholderText = ("🔍 Search %d cats"):format(counts.all)
 	self._equipBest:setEnabled(counts.all > 0)
 	-- #2697: while the tutorial asks for a job, Equip Best rings (one press puts the new cat to work)
 	local catalog: Types.Catalog? = self._catalog
@@ -1415,8 +1612,13 @@ function CatRoom._renderCrew(
 		role.label.Text = (Theme.roleIcons[row.role] or "")
 			.. " "
 			.. row.name
-			.. (if loves then "  ★ 1.5x" else "")
+			.. (if loves then " ★" else "")
 		role.label.TextColor3 = if loves then PAL.caramel else PAL.text
+		-- #4028: working / open slots, and what the next tier opens
+		local slotsOpen = row.working + row.open
+		role.count.Text = ("%d/%d"):format(row.working, slotsOpen)
+		role.count.Visible = slotsOpen > 0
+		role.note.Text = StaffSlots.nextLine(row) or ""
 		for slotIndex, slot in row.slots do
 			local square = role.squares[slotIndex]
 			if not square then
@@ -1424,7 +1626,8 @@ function CatRoom._renderCrew(
 			end
 			square.kind = slot.kind
 			square.uid = slot.catUid
-			square.button.Visible = not slot.hidden
+			-- #4028: a locked slot takes no room; the role's line says what opens next
+			square.button.Visible = not slot.hidden and slot.kind ~= "locked"
 			local instance = if slot.catUid then cats[slot.catUid] else nil
 			local color = Theme.colors.disabled
 			local glyph = Theme.icons.lock
@@ -1450,7 +1653,6 @@ function CatRoom._renderCrew(
 			square.glyph.TextSize = if slot.kind == "open"
 				then Theme.sizes.textLarge
 				else Theme.sizes.textBody
-			square.tierTag.Text = if slot.kind == "locked" then "T" .. slot.tier else ""
 			-- Assign rings the free slots in gold; the picked cat's own slot gets the sky ring of its card
 			local ringed = self._placing and slot.kind == "open"
 			local mine = selected ~= nil and slot.catUid == selected
@@ -1461,6 +1663,7 @@ function CatRoom._renderCrew(
 			square.border.Thickness = if ringed or mine then 4 else Theme.sizes.stroke
 		end
 	end
+	self:_layoutCrew()
 end
 
 -- #2418: the picked cat's food tiles (#1181's Feed, redrawn): one square per food the Bag holds, its glyph or

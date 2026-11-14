@@ -107,7 +107,7 @@ return function()
 					"Quick update in 30 seconds, then a 1-hour party and a gift! Your cafe is saved."
 				)
 				for _, now in
-					{ at - 3601, at + 1801, at - 86400, friday + 1801, friday + 2 * 86400 }
+					{ at - 3601, at + 1801, at - 86400, friday + 1801, friday + 3 * 86400 }
 				do
 					expect(RestartNotice.text(600, now)).to.equal(RestartNotice.text(600))
 					expect(RestartNotice.text(0, now)).to.equal(RestartNotice.text(0))
@@ -115,24 +115,85 @@ return function()
 			end
 		)
 
-		it("names the admin events around the 2026-11-14 and 2026-11-15 updates (#4195)", function()
-			local saturday, sunday =
-				RestartNotice.ADMIN_LAUNCHES[1], RestartNotice.ADMIN_LAUNCHES[2]
-			expect(os.date("!%Y-%m-%d %H:%M", saturday)).to.equal("2026-11-14 22:00")
-			expect(os.date("!%Y-%m-%d %H:%M", sunday)).to.equal("2026-11-15 20:00")
-			expect(RestartNotice.text(600, saturday - 600)).to.equal(
-				"A quick update is coming in 10 minutes, then ADMIN EVENTS: 2x money, Golden Hour and cat showers! Keep playing, your cafe is saved."
-			)
-			expect(RestartNotice.text(30, sunday - 30)).to.equal(
-				"Quick update in 30 seconds, then ADMIN EVENTS: 2x money, Golden Hour and cat showers! Your cafe is saved."
-			)
-			expect(RestartNotice.text(0, saturday)).to.equal(
-				"Updating now. Join again for ADMIN EVENTS: 2x money, Golden Hour and cat showers! Your cafe is saved."
-			)
-			for _, now in { saturday - 3601, saturday + 1801, sunday + 1801 } do
-				expect(RestartNotice.text(600, now)).to.equal(RestartNotice.text(600))
+		it(
+			"names the admin events around the 2026-11-14, 2026-11-15 and 2026-11-21 updates (#4195)",
+			function()
+				local saturday, sunday, secrets =
+					RestartNotice.ADMIN_LAUNCHES[1],
+					RestartNotice.ADMIN_LAUNCHES[2],
+					RestartNotice.ADMIN_LAUNCHES[3]
+				expect(os.date("!%Y-%m-%d %H:%M", saturday)).to.equal("2026-11-14 22:00")
+				expect(os.date("!%Y-%m-%d %H:%M", sunday)).to.equal("2026-11-15 20:00")
+				expect(os.date("!%Y-%m-%d %H:%M", secrets)).to.equal("2026-11-16 03:30")
+				expect(RestartNotice.text(600, saturday - 600)).to.equal(
+					"A quick update is coming in 10 minutes, then ADMIN EVENTS: 2x money, Golden Hour and cat showers! Keep playing, your cafe is saved."
+				)
+				expect(RestartNotice.text(0, saturday)).to.equal(
+					"Updating now. Join again for ADMIN EVENTS: 2x money, Golden Hour and cat showers! Your cafe is saved."
+				)
+				-- Sunday's three areas and the Secrets update lead with their own headline
+				expect(RestartNotice.text(600, sunday - 600)).to.equal(
+					"A quick update is coming in 10 minutes, then 3 NEW WORLDS and ADMIN EVENTS! Keep playing, your cafe is saved."
+				)
+				expect(RestartNotice.text(30, sunday - 30)).to.equal(
+					"Quick update in 30 seconds, then 3 NEW WORLDS and ADMIN EVENTS! Your cafe is saved."
+				)
+				expect(RestartNotice.text(0, sunday)).to.equal(
+					"Updating now. Join again for 3 NEW WORLDS and ADMIN EVENTS! Your cafe is saved."
+				)
+				expect(RestartNotice.text(600, secrets - 600)).to.equal(
+					"A quick update is coming in 10 minutes, then 10 SECRET CATS and ADMIN EVENTS! Keep playing, your cafe is saved."
+				)
+				expect(RestartNotice.text(0, secrets)).to.equal(
+					"Updating now. Join again for 10 SECRET CATS and ADMIN EVENTS! Your cafe is saved."
+				)
+				local devices = RestartNotice.ADMIN_LAUNCHES[4]
+				expect(os.date("!%Y-%m-%d %H:%M", devices)).to.equal("2026-11-18 20:00")
+				expect(RestartNotice.text(600, devices - 600)).to.equal(
+					"A quick update is coming in 10 minutes, then better controls and ADMIN EVENTS! Keep playing, your cafe is saved."
+				)
+				expect(RestartNotice.text(0, devices)).to.equal(
+					"Updating now. Join again for better controls and ADMIN EVENTS! Your cafe is saved."
+				)
+				-- Derek 2026-11-14 17:59 UTC: Rift Run tonight and the Golden Fish Store on Sunday afternoon
+				local rift, fish = RestartNotice.ADMIN_LAUNCHES[5], RestartNotice.ADMIN_LAUNCHES[6]
+				expect(os.date("!%Y-%m-%d %H:%M", rift)).to.equal("2026-11-15 01:00")
+				expect(os.date("!%Y-%m-%d %H:%M", fish)).to.equal("2026-11-15 22:00")
+				-- Rift Run's other possible time, Saturday 10:30 PM ET
+				local late = RestartNotice.ADMIN_LAUNCHES[7]
+				expect(os.date("!%Y-%m-%d %H:%M", late)).to.equal("2026-11-15 03:30")
+				expect(RestartNotice.text(0, late)).to.equal(
+					"Updating now. Join again for RIFT RUN and ADMIN EVENTS! Your cafe is saved."
+				)
+				expect(RestartNotice.text(600, rift - 600)).to.equal(
+					"A quick update is coming in 10 minutes, then RIFT RUN and ADMIN EVENTS! Keep playing, your cafe is saved."
+				)
+				expect(RestartNotice.text(0, rift)).to.equal(
+					"Updating now. Join again for RIFT RUN and ADMIN EVENTS! Your cafe is saved."
+				)
+				expect(RestartNotice.text(600, fish - 600)).to.equal(
+					"A quick update is coming in 10 minutes, then the GOLDEN FISH STORE and ADMIN EVENTS! Keep playing, your cafe is saved."
+				)
+				expect(RestartNotice.text(0, fish)).to.equal(
+					"Updating now. Join again for the GOLDEN FISH STORE and ADMIN EVENTS! Your cafe is saved."
+				)
+				-- tonight's 22:00 warning still says its own words, not Rift Run's
+				expect(RestartNotice.text(0, saturday)).to.equal(
+					"Updating now. Join again for ADMIN EVENTS: 2x money, Golden Hour and cat showers! Your cafe is saved."
+				)
+				for _, now in
+					{
+						saturday - 3601,
+						saturday + 1801,
+						sunday + 1801,
+						secrets - 3601,
+						secrets + 1801,
+					}
+				do
+					expect(RestartNotice.text(600, now)).to.equal(RestartNotice.text(600))
+				end
 			end
-		end)
+		)
 
 		it("never says the word restart, which read as a warning to leave (#2720)", function()
 			for _, seconds in { 600, 300, 120, 60, 30, 10, 0 } do

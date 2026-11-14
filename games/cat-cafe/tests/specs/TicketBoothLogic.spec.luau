@@ -1,0 +1,66 @@
+--!strict
+-- UI/Components/TicketBoothLogic.luau: the Ticket Booth window's prize cards (#4061).
+return function()
+	local Client =
+		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
+	local Logic = require(
+		Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("TicketBoothLogic")
+	) :: any
+
+	local function row(price: number, left: number?, per: string?, blocker: string?)
+		return { id = "x", name = "X", line = "A line", price = price, left = left, per = per, blocker = blocker }
+	end
+
+	describe("TicketBoothLogic.card", function()
+		it("buys at once under 1,000 tickets", function()
+			local card = Logic.card(row(300, 4, "day"), 3240, false)
+			expect(card.action).to.equal("buy")
+			expect(card.button).to.equal("BUY")
+			expect(card.chip).to.equal("4 left today")
+			expect(card.progress).to.equal(nil)
+		end)
+		it("asks for a second tap at 1,000 and over", function()
+			expect(Logic.card(row(1200), 3240, false).action).to.equal("arm")
+			local armed = Logic.card(row(1200), 3240, true)
+			expect(armed.action).to.equal("buy")
+			expect(armed.button).to.equal("Tap again")
+		end)
+		it("saves up with a bar while short", function()
+			local card = Logic.card(row(8000, 1, "once", "Not enough tickets yet"), 2000, false)
+			expect(card.button).to.equal("SAVE UP")
+			expect(card.enabled).to.equal(false)
+			expect(card.progress).to.equal(0.25)
+			expect(card.saved).to.equal("2,000 / 8,000")
+		end)
+		it("says when a limit comes back", function()
+			expect(Logic.card(row(300, 0, "day"), 9999, false).chip).to.equal("Back tomorrow")
+			expect(Logic.card(row(700, 0, "week"), 9999, false).chip).to.equal("Back Monday")
+			local once = Logic.card(row(8000, 0, "once"), 9999, false)
+			expect(once.button).to.equal("Yours")
+			expect(once.enabled).to.equal(false)
+			expect(Logic.card(row(700, 2, "week"), 9999, false).chip).to.equal("2 left this week")
+		end)
+		it("shows the server's other reasons with BUY off", function()
+			local card = Logic.card(row(700, 3, "week", "Your token bank is full"), 9999, false)
+			expect(card.chip).to.equal("Your token bank is full")
+			expect(card.enabled).to.equal(false)
+		end)
+		it("shows the prize's line when it has no limit", function()
+			expect(Logic.card(row(800), 9999, false).chip).to.equal("A line")
+		end)
+	end)
+
+	describe("TicketBoothLogic.rushLine", function()
+		it("counts the rush down in minutes, then says when it is back", function()
+			expect(Logic.rushLine(1000 + 2520, true, 1000)).to.equal("Ticket Rush: x2 tickets for 42 min")
+			expect(Logic.rushLine(nil, true, 1000)).to.equal("Ticket Rush is back tomorrow")
+			expect(Logic.rushLine(nil, false, 1000)).to.equal("Ticket Rush: x2 tickets for an hour from your next catch")
+		end)
+	end)
+
+	describe("TicketBoothLogic.ticketText", function()
+		it("groups the thousands", function()
+			expect(Logic.ticketText(3240)).to.equal("🎟️ 3,240")
+		end)
+	end)
+end

@@ -32,6 +32,13 @@ local REMOTES: { [string]: boolean } = {
 	SpaBuySlot = true,
 	MuseumDonate = true,
 	MuseumFill = true, -- #3130
+	BuyTicketPrize = true, -- #4061: the Ticket Booth's BUY (prize id)
+	-- #4062: the Dragon Keep window
+	GiveToKeep = true,
+	PickDragonCard = true,
+	KeepCards = true,
+	SlotDragonCard = true,
+	SetDragonColour = true,
 }
 
 local tracked: { [ProximityPrompt]: boolean } = {}

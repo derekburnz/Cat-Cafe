@@ -10,8 +10,10 @@ local Config = require(script.Parent.Config)
 local CornerShop = require(script.Parent.CornerShop)
 local CozyCafe = require(script.Parent.CozyCafe)
 local DailyTreat = require(script.Parent.DailyTreat)
+local DragonKeep = require(script.Parent.DragonKeep)
 local EquipBest = require(script.Parent.EquipBest)
 local FirstVisits = require(script.Parent.FirstVisits)
+local FishStore = require(script.Parent.FishStore)
 local FreshCatch = require(script.Parent.FreshCatch)
 local GrandOpening = require(script.Parent.GrandOpening)
 local IntroSplit = require(script.Parent.IntroSplit)
@@ -31,6 +33,7 @@ local SignStyles = require(script.Parent.SignStyles)
 local Spin = require(script.Parent.Spin)
 local StarterCat = require(script.Parent.StarterCat)
 local StoreTabs = require(script.Parent.StoreTabs)
+local TicketBooth = require(script.Parent.TicketBooth)
 local Tips = require(script.Parent.Tips)
 local Trade = require(script.Parent.Trade)
 local Traits = require(script.Parent.Traits)
@@ -168,7 +171,12 @@ local ProfileSchema = {}
 -- and the tokens, and could give the free rolls again. It ships with a publish that restarts the servers (Derek's
 -- yes at the time); the `traits` flag opens the station after it. A save from before it has no traits, no tokens and
 -- every free roll still to use.
-ProfileSchema.VERSION = 48
+-- Version 49 adds fishBought (#4055, shared/FishStore: the Store passes bought with golden fish), tickets (#4061,
+-- shared/TicketBooth: the Ticket Booth's tickets and limits) and dragon (#4062, shared/DragonKeep: Cinder, his cards
+-- and the cats moved in): an older server would drop them and the player would lose a pass paid for with fish,
+-- tickets or Cinder. It ships with a publish that restarts the servers; the `fishStore`, `ticketBooth` and
+-- `dragonKeep` switches open them after it.
+ProfileSchema.VERSION = 49
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -316,6 +324,9 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		fishPerks = {},
 		mystery = {},
 		mysterySeen = false,
+		fishBought = {}, -- #4055
+		tickets = TicketBooth.fresh(), -- #4061
+		dragon = DragonKeep.fresh(), -- #4062
 		firstVisits = {},
 		codesRedeemed = {},
 		introSeen = false,
@@ -1017,6 +1028,12 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- #2565: the Mystery Market's owned items and its first visit; a save without them owns none, not yet seen
 	profile.mystery = MysteryMarket.sanitize(raw.mystery)
 	profile.mysterySeen = raw.mysterySeen == true
+	-- #4055 (version 49): the passes bought with golden fish; an older save bought none
+	profile.fishBought = FishStore.sanitize(raw.fishBought)
+	-- #4061 (version 49): the Ticket Booth; an older save has no tickets
+	profile.tickets = TicketBooth.sanitize(raw.tickets)
+	-- #4062 (version 49): the Dragon Keep; an older save has no dragon
+	profile.dragon = DragonKeep.sanitize(raw.dragon)
 	-- #3699: the Backpack's colour picks (no version: see Types.PlayerProfile.bagColours)
 	profile.bagColours = BagColours.sanitize(raw.bagColours)
 	profile.shoeColours = BagColours.sanitize(raw.shoeColours, "shoes") -- #4049, the same way

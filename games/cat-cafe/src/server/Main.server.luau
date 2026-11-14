@@ -7,6 +7,7 @@ local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
+local AdminWheelService = require(script.Parent.Services.AdminWheelService)
 local AfkCafeService = require(script.Parent.Services.AfkCafeService)
 local ArcadeCabinetService = require(script.Parent.Services.ArcadeCabinetService)
 local ArcadeService = require(script.Parent.Services.ArcadeService)
@@ -139,6 +140,7 @@ DailyTreatService.start()
 IndexRewardService.start()
 ClaimAllService.start() -- Claim all in the Quests window, the Index and the Tip Jar
 SpinService.start()
+AdminWheelService.start() -- #4195: the Admin Wheel's one spin an event
 FishMarketService.start()
 TraitService.start() -- #3196: the Mystic Pool, refused while the `traits` switch is off
 MysticPoolStationService.start() -- #3196: the pool stands in the Picnic Basket's place while the switch is on

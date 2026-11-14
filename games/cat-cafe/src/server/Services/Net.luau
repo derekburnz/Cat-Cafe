@@ -72,6 +72,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClaimTipJar = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimIndexReward = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	SpinAll = RateLimiter.new(1, 1), -- #1078: 1 a second (and the spin cooldown)
+	AdminWheelSpin = RateLimiter.new(1, 1), -- #4195: one spin an event; AdminWheelService refuses the rest
 	SpinWheel = RateLimiter.new(2, 1), -- SpinService also holds each player to SpinCooldownSeconds between spins
 	-- #1146: a flood guard only; FishMarketService refuses an open while one is in flight or within
 	-- CrateOpenCooldownSeconds (0.3 s) of the last, so Quick open and Buy 5's crates one by one go through

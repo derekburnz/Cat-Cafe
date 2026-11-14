@@ -186,6 +186,27 @@ local function onLoaded(player: Player, profile: Types.PlayerProfile)
 	end
 end
 
+-- #4195 (the Admin Wheel's 3x money): starts one `potionId` for the player at once, as if drunk from the bag. The
+-- time so far is paid at the old multipliers first. When its timer has no room (PotionMaxMinutes) the potion stays
+-- in the bag instead, to drink later; returns whether it is running. The caller syncs.
+function PotionService.give(player: Player, profile: Types.PlayerProfile, potionId: string): boolean
+	local def = Catalog.getPotion(potionId)
+	if def == nil then
+		return false
+	end
+	local now = os.time()
+	Economy.settle(profile, now, ClockService.epoch())
+	profile.potions[def.id] = (profile.potions[def.id] or 0) + 1
+	if not Potions.use(profile, def.id, now) then
+		return false
+	end
+	if drank(player, def.id) == Potions.SWIFT then
+		CatService.refreshSpeed(player)
+	end
+	showActive(player)
+	return true
+end
+
 function PotionService.start()
 	Net.on("UsePotion", onUsePotion)
 	Net.on("UsePotionAll", onUsePotionAll) -- #3326

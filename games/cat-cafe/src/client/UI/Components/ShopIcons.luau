@@ -498,6 +498,7 @@ local POTION_STAND_INS: { [string]: string } = {
 	big_lucky_potion = "lucky_potion",
 	big_gold_rush_potion = "gold_rush_potion",
 	mega_tip_potion = "big_tip_potion",
+	admin_money_potion = "big_tip_potion", -- #4195: the Admin Wheel's 3x money
 }
 
 function ShopIcons.potionAll(potionId: string?): { string }

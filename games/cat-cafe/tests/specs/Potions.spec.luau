@@ -47,6 +47,7 @@ return function()
 					"big_lucky_potion",
 					"big_gold_rush_potion",
 					"mega_tip_potion",
+					"admin_money_potion", -- #4195: the Admin Wheel's 3x money
 				})
 				expect(minutes).to.deepEqual({
 					tip_potion = 10,
@@ -65,6 +66,7 @@ return function()
 					big_lucky_potion = 30,
 					big_gold_rush_potion = 30,
 					mega_tip_potion = 30,
+					admin_money_potion = 60,
 				})
 				expect(Catalog.getPotion("nope")).never.to.be.ok()
 			end
@@ -349,6 +351,38 @@ return function()
 				expect(p.buffs.big_tip_potion).to.equal(nil)
 			end
 		)
+
+		it("#4195: the Admin Wheel's 3x money goes on top of the money potions' cap", function()
+			local def = Catalog.getPotion("admin_money_potion") :: any
+			expect(def.tipsOver).to.equal(2)
+			expect(def.tips).never.to.be.ok()
+			expect(def.shopOnly).to.equal(true) -- never a Mystery gift
+			for _, other in Catalog.potions do
+				if other.id ~= def.id then
+					expect((other :: any).tipsOver).never.to.be.ok()
+				end
+			end
+			local p = fresh(1000)
+			p.buffs.admin_money_potion = 60
+			expect(Potions.tipMultiplier(p, 1000)).to.be.near(3)
+			p.buffs.mega_tip_potion = 60
+			p.buffs.big_tip_potion = 60
+			expect(Potions.tipMultiplier(p, 1000)).to.be.near(1 + Config.TimedTipsMax + 2)
+			expect(Potions.tipMultiplier(p, 1061)).to.equal(1)
+			-- settle pays it over the part of the window it covers, beside a capped money potion
+			p = fresh(1000)
+			p.buffs.admin_money_potion = 4 -- 4 of the 10 s get +200%
+			p.buffs.mega_tip_potion = 6 -- 6 of the 10 s get +100%
+			local rate = Economy.incomePerSecond(p)
+			local earned = Economy.settle(p, 1010)
+			expect(earned).to.be.near(rate * (10 + 4 * 2 + 6 * 1))
+			expect(p.buffs.admin_money_potion).to.equal(nil)
+			-- an hour of it from one drink
+			p = fresh(1000)
+			p.potions.admin_money_potion = 1
+			expect(Potions.use(p, "admin_money_potion", 1000)).to.equal(true)
+			expect(Potions.left(p, "admin_money_potion", 1000)).to.equal(3600)
+		end)
 
 		it(
 			"settle pays the Tip Potion's share only over the part of the window it covers",

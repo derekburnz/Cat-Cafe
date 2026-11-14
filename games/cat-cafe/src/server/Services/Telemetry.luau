@@ -408,6 +408,9 @@ export type CustomEvent =
 	-- #2486: a Cafe Event's reward paid for a secure (or to everyone at an early end); the event id, and "first" for
 	-- the account's first event reward (the badge's), else "again"
 	| "event_reward"
+	-- #4195: an Admin Wheel spin, value 1; the prize id (AdminWheel.PRIZES), the player's tier and the event id.
+	-- Never for a test event
+	| "admin_wheel"
 	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
 	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
 	-- report is "none". #2791: the server logs each gift ladder step as it pays, value the account's minutes played; the

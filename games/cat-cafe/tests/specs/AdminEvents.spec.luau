@@ -303,6 +303,67 @@ return function()
 		end)
 	end)
 
+	describe("the Admin Wheel's admin effect", function()
+		local function wheel(overrides: { [string]: any }?): { [string]: any }
+			local out =
+				frenzy({ id = "wheel-1115", title = "Admin Wheel", effects = { wheel = true } })
+			for key, value in overrides or {} do
+				out[key] = value
+			end
+			return out
+		end
+
+		it("is an admin kind the owner's /admin starts with no parser change", function()
+			local kind = CafeEvents.ADMIN_KINDS.wheel
+			expect(kind.title).to.equal("Admin Wheel")
+			expect(kind.effects).to.deepEqual({ wheel = true })
+			local ask = OwnerTest.adminAsk("/admin wheel now")
+			expect(ask.kind).to.equal("wheel")
+			local record = CafeEvents.adminRecord("wheel", NOW, nil, true) :: { [string]: any }
+			expect(record.effects).to.deepEqual({ wheel = true })
+			expect(record.endsAt - record.startsAt).to.equal(kind.minutes * 60)
+			local events, notes, admins = CafeEvents.parse({ record }, NOW)
+			expect(#events).to.equal(0)
+			expect(#notes).to.equal(0)
+			expect(admins[1].effects.wheel).to.equal(true)
+			expect(admins[1].effects.bowlSpeed).to.equal(1)
+			expect(CafeEvents.adminCurrent(admins, NOW)).to.equal(admins[1])
+		end)
+
+		it("is read from a schedule record, alone or with Bowl Frenzy's speed", function()
+			local _, notes, admins = CafeEvents.parse({ wheel() }, NOW)
+			expect(#notes).to.equal(0)
+			expect(admins[1].effects).to.deepEqual({ bowlSpeed = 1, wheel = true })
+			expect(CafeEvents.adminEffectsData(admins[1])).to.deepEqual({ wheel = true })
+			_, notes, admins =
+				CafeEvents.parse({ wheel({ effects = { wheel = true, bowlSpeed = 4 } }) }, NOW)
+			expect(#notes).to.equal(0)
+			expect(CafeEvents.adminEffectsData(admins[1])).to.deepEqual({
+				bowlSpeed = 4,
+				wheel = true,
+			})
+			-- Bowl Frenzy has no wheel
+			_, _, admins = CafeEvents.parse({ frenzy() }, NOW)
+			expect(admins[1].effects.wheel).to.equal(false)
+		end)
+
+		it("drops a record whose wheel is no boolean, or is off with nothing else", function()
+			for _, effects in { { wheel = "yes" }, { wheel = 1 }, { wheel = false } } do
+				local _, notes, admins = CafeEvents.parse({ wheel({ effects = effects }) }, NOW)
+				expect(#admins).to.equal(0)
+				expect(#notes).to.equal(1)
+			end
+		end)
+
+		it("runs as a test in one server", function()
+			local event = CafeEvents.adminTest("wheel", NOW, nil, true) :: CafeEvents.AdminEvent
+			expect(event.test).to.equal(true)
+			expect(event.effects).to.deepEqual({ bowlSpeed = 1, wheel = true })
+			local bowl = CafeEvents.adminTest("bowl", NOW, 2, true) :: CafeEvents.AdminEvent
+			expect(bowl.effects.wheel).to.equal(false)
+		end)
+	end)
+
 	describe("the adminEvents switch", function()
 		it("is off until the store holds an explicit true", function()
 			expect(ADMIN.flag).to.equal("adminEvents")

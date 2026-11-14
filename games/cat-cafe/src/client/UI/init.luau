@@ -2210,12 +2210,36 @@ end
 UI.shoutout = { at = nil :: number? }
 -- Review-QA on #3904: a shout-out slid across the Rummage Bin's board mid-roll. While a roll or reveal plays
 -- (BinController) the pop-ups wait, as on a busy window (Toasts.setBusy); `window` is the open window's own part.
-UI.rollBusy = { on = false, window = false }
+-- Review-QA on #4002 (Studio): after Give up the rich customer's card came up half a second later over the board's
+-- next roll (the pad starts the next try by itself). The cards (not the toasts) also wait CALM seconds after a roll
+-- or its bar ends: `held()`.
+-- Review-QA (b9e3f2523, Studio): the card then came over the bin's result board once the bar and the calm were past.
+-- `board` is BinController's: true while a Rummage Bin board is up for this player (they stand at the bin), and the
+-- cards wait the whole time it is, then CALM more.
+UI.rollBusy = { on = false, window = false, board = false, offAt = nil :: number?, CALM = 5 }
+function UI.rollBusy.held(): boolean
+	if UI.rollBusy.board then
+		UI.rollBusy.offAt = os.clock()
+		return true
+	end
+	-- Review-QA (ea186f64): the roll's show ends when the bar comes, so the bar (and the board after it) count too:
+	-- while a bar is up the calm starts again
+	local rescue: any = (UI :: any).rescue
+	if rescue ~= nil and rescue.isActive() then
+		UI.rollBusy.offAt = os.clock()
+		return true
+	end
+	local offAt = UI.rollBusy.offAt
+	return UI.rollBusy.on or (offAt ~= nil and os.clock() - offAt < UI.rollBusy.CALM)
+end
 function UI.setRollBusy(on: boolean)
 	if UI.rollBusy.on == on then
 		return
 	end
 	UI.rollBusy.on = on
+	if not on then
+		UI.rollBusy.offAt = os.clock()
+	end
 	local view = toasts
 	if view then
 		view:setBusy(UI.rollBusy.window or on)
@@ -4185,6 +4209,9 @@ do
 	-- at the trap (the server makes them wait RescueSelfRetrySeconds before the next try).
 	local function endRescue(success: boolean)
 		rescueTarget = nil
+		-- Review-QA Studio on #4002: the bar's result ("MISS", "Try again!") clears here, so the pop-ups' 5 s calm
+		-- starts now, even when nothing asked UI.rollBusy.held() while the bar was up
+		UI.rollBusy.offAt = os.clock()
 		rescueOnCircle = false
 		if hud then
 			hud:setCatching(false)
@@ -5496,6 +5523,11 @@ do
 		if card == nil or not initialized or card:isShowing() or not (news or pace.paced()) then
 			return false -- #2880: too soon after the last ask, or too early in the session; offered again later
 		end
+		-- Review-QA (Studio, 667x375): the rich customer's card came up over a Rummage Bin roll and covered Give up;
+		-- no ask card while a roll or its reveal plays (UI.rollBusy)
+		if UI.rollBusy.held() then
+			return false
+		end
 		card:show(ask)
 		if not news then
 			pace.shown()
@@ -5997,10 +6029,12 @@ do
 	local function busy(): boolean
 		local cards: any = UI
 		local perkCard = cards.perks.card
-		return FirstVisitLogic.yields(
-			if modal ~= nil then modal:current() else nil,
-			perkCard ~= nil and perkCard:isShowing()
-		)
+		-- a roll or its reveal (UI.rollBusy) takes the screen as a window does
+		return UI.rollBusy.held()
+			or FirstVisitLogic.yields(
+				if modal ~= nil then modal:current() else nil,
+				perkCard ~= nil and perkCard:isShowing()
+			)
 	end
 
 	local function present(token: number, away: () -> boolean)

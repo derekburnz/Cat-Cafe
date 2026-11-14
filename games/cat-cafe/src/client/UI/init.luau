@@ -2208,7 +2208,7 @@ end
 UI.shoutout = { at = nil :: number? }
 -- Review-QA on #3904: a shout-out slid across the Rummage Bin's board mid-roll. While a roll or reveal plays
 -- (BinController) the pop-ups wait, as on a busy window (Toasts.setBusy); `window` is the open window's own part.
-UI.rollBusy = { on = false, window = false }
+UI.rollBusy = { on = false, window = false, cutscene = false, hooks = {} :: { any } }
 function UI.setRollBusy(on: boolean)
 	if UI.rollBusy.on == on then
 		return
@@ -2217,6 +2217,27 @@ function UI.setRollBusy(on: boolean)
 	local view = toasts
 	if view then
 		view:setBusy(UI.rollBusy.window or on)
+	end
+end
+-- #4018 (Derek OK'd Motion-FX's Mythic and up trait roll storyboard, 2026-11-13): while a whole-screen cutscene plays
+-- (Effects/RiftRun) nothing pops over it. Toasts and shout-outs wait in the toast view's held queue and come out in
+-- order after it (setHeld, not setBusy, which drops shout-outs); tip, ask, first visit and perk cards
+-- wait (tipMoment counts it as the intro); `hooks` are told too, so UIController hides the own bait bowls' prompts.
+-- The scene hides the HUD itself.
+-- (kept on UI.rollBusy: one more table on UI tips the CI type check over its inference limit for this file)
+function UI.setCutscene(on: boolean)
+	local busy: any = UI.rollBusy
+	if busy.cutscene == on then
+		return
+	end
+	busy.cutscene = on
+	local view = toasts
+	if view then
+		local tips: any = UI.tips -- filled further down the file
+		view:setHeld(on or (tips ~= nil and tips.staged == true))
+	end
+	for _, hook in busy.hooks do
+		task.spawn(hook, on)
 	end
 end
 function UI.announce(text: string, rarity: string?): boolean
@@ -5122,7 +5143,7 @@ do
 			catching = UI.catch.circlesActive(),
 			rescuing = UI.rescue.isActive(),
 			carrying = hud ~= nil and hud:isCarrying(),
-			intro = UI.intro.playing(),
+			intro = UI.intro.playing() or UI.rollBusy.cutscene, -- #4018: tip, ask and first visit cards wait for a cutscene
 			flying = os.clock() < tipsHeldUntil,
 			window = (modal ~= nil and modal:current() ~= nil)
 				or (popups ~= nil and popups:isShowing())
@@ -5473,7 +5494,13 @@ do
 	function UI.asks.card(ask: any, news: boolean?): boolean
 		local card = askCard
 		local pace: any = UI.asks -- #2880: paced and shown are set further down the file
-		if card == nil or not initialized or card:isShowing() or not (news or pace.paced()) then
+		if
+			card == nil
+			or not initialized
+			or card:isShowing()
+			or not (news or pace.paced())
+			or UI.rollBusy.cutscene -- #4018
+		then
 			return false -- #2880: too soon after the last ask, or too early in the session; offered again later
 		end
 		card:show(ask)
@@ -5522,7 +5549,7 @@ do
 		end
 		UI.tips.staged = on
 		if toasts then
-			toasts:setHeld(on)
+			toasts:setHeld(on or UI.rollBusy.cutscene) -- #4018: a cutscene still running keeps its hold
 		end
 		if popups then
 			popups:setHeld(on)
@@ -9285,7 +9312,9 @@ function UI.perks.unlock(perkId: string)
 		-- Review-QA's Studio pass 2026-11-13: the "Unlocked! Haggler" card came up over a Rummage Bin roll, which
 		-- is not a window; a roll or its reveal (UI.rollBusy) holds the card as a window does
 		local function blocked(): boolean
-			return (windows ~= nil and windows:current() ~= nil) or UI.rollBusy.on
+			return (windows ~= nil and windows:current() ~= nil)
+				or UI.rollBusy.on
+				or UI.rollBusy.cutscene -- #4018
 		end
 		while UI.perks.token == token and blocked() and waited < UI.perks.WINDOW_WAIT_SECONDS do
 			waited += task.wait(0.5)

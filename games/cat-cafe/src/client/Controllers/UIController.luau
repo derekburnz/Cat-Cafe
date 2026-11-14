@@ -866,6 +866,7 @@ local function refreshBowlPrompt(
 			prompt = made
 		end
 		local shown = prompt :: ProximityPrompt
+		shown.Enabled = not (UI.rollBusy :: any).cutscene -- #4018: hidden while a cutscene plays
 		shown.ActionText = if baitCat(bait) ~= nil
 			then "See the cat"
 			elseif bait ~= nil then "Check"
@@ -1532,16 +1533,16 @@ local function wireIntents()
 	mysticPool.cutting = function(): boolean -- #3846: the bait and gift cards wait while it plays
 		return BigTraitCut.playing() or RiftRun.playing()
 	end
-	-- the Rift Run (Effects/RiftRun): pop-ups, toasts and shout-outs wait through it (UI.setCutscene once #4018 has
-	-- it, which also holds the food bowl's and the tip cards)
-	RiftRun.onHold(function(on: boolean)
-		local setCutscene: ((on: boolean) -> ())? = (UI :: any).setCutscene
-		if setCutscene ~= nil then
-			setCutscene(on)
-		else
-			UI.setRollBusy(on)
+	-- the Rift Run (Effects/RiftRun): toasts and shout-outs wait through it and the tip, ask and first visit cards
+	-- hold (UI.setCutscene, #4018); the own bait bowls' prompts are hidden until it ends
+	table.insert((UI.rollBusy :: any).hooks, function(on: boolean)
+		for _, prompt in bowlPrompts do
+			if prompt ~= nil and prompt.Parent ~= nil then
+				prompt.Enabled = not on
+			end
 		end
 	end)
+	RiftRun.onHold(UI.setCutscene)
 	mysticPool.far = function(): boolean
 		local distance = poolDistance()
 		return distance == nil or distance > POOL_FAR_STUDS

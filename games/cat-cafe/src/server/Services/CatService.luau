@@ -31,6 +31,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EventRewardService = require(script.Parent.EventRewardService)
 local EventService = require(script.Parent.EventService)
+local FreeCatch = require(ReplicatedStorage.Shared.FreeCatch)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local HeldCat = require(ReplicatedStorage.Shared.HeldCat)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
@@ -2093,6 +2094,14 @@ end
 -- their first check-in, a beginner's catch on any free stray, not only their own tutorial stray, is the tutorial's
 -- one slow circle with doubled bands, and a Miss only brings the circle back.
 -- #3022: so is the catch of the stray that waits for a player's second cat (shared/SecondCat), for that player.
+local function freeCatch(player: Player, profile: Types.PlayerProfile): boolean
+	return FreeCatch.applies(
+		LiveFlagService.on(FreeCatch.FLAG),
+		Telemetry.device(player),
+		Economy.tier(profile)
+	)
+end
+
 local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: Stray): boolean
 	if stray.waitsFor == player.UserId and SecondCat.waiting(profile) then
 		return true
@@ -2104,6 +2113,10 @@ local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: St
 	-- Only on a plain stray of SecondCat.MAX_RARITY or below (SecondCat.easyFirst), so it never hands a new save a
 	-- Legendary, Mythical, Secret, gold or rainbow cat.
 	if SecondCat.easyFirst(profile.stats, stray.def.rarity, stray.variant) then
+		return true
+	end
+	-- Derek 2026-11-14 (#4307): every catch on a phone, tablet or console below Tier 2 (shared/FreeCatch)
+	if freeCatch(player, profile) then
 		return true
 	end
 	-- #3181: another beginner's tutorial stray too, now that anyone may catch one
@@ -2418,7 +2431,10 @@ function startCatch(
 		)
 	-- #2920: a player's very first catch holds its ring on the target until the press
 	-- #3662: the first catch by hand, which a bowl cat in the cafe no longer uses up
-	local hold = tutorial and Config.CatchHoldFirstRing and SecondCat.caught(profile.stats) == 0
+	-- Derek 2026-11-14: and every free catch on a phone, tablet or console below Tier 2 (shared/FreeCatch)
+	local hold = tutorial
+		and Config.CatchHoldFirstRing
+		and (SecondCat.caught(profile.stats) == 0 or freeCatch(player, profile))
 	local circles = if tutorial
 		then Circles.tutorialSchedule(now, roll, hold)
 		else Circles.schedule(stray.def.rarity, netLevel, now, roll, stray.area) -- #3140: quicker late on

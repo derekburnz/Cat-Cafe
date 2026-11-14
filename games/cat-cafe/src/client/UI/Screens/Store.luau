@@ -1600,7 +1600,7 @@ function Store._showInfo(self: any, row: StoreLogic.Row?)
 	if info == nil then
 		return
 	end
-	local lines = if row then StoreLogic.infoLines(row) else {}
+	local lines: { StoreLogic.PackLine } = if row then StoreLogic.infoLines(row) else {}
 	local shown = row ~= nil and #lines > 0
 	info.shade.Visible = shown
 	self._packShown = if shown and row then row.key else nil

@@ -276,6 +276,10 @@ function Intro.camp(area: string): Camp?
 		-- #2651: the Ruins' camp on its south end (toward the town), no turn like the Neighbourhood
 		ox, oz, turn, opening =
 			W.RuinsCenterX, W.RuinsCenterZ - W.RuinsDepth / 2, 0, W.CampOpeningWidth / 2
+	elseif area == "snowy" then
+		-- #3997: the Snowy Mountain's camp on its south side (toward the town), no turn like the Ruins
+		ox, oz, turn, opening =
+			W.SnowyCenterX, W.SnowyCenterZ - W.SnowyDepth / 2, 0, W.CampOpeningWidth / 2
 	else
 		return nil
 	end

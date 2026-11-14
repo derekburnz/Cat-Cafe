@@ -165,9 +165,11 @@ local function hideTiles(tiles: { GuiObject }): () -> ()
 				save(item, "BackgroundTransparency", 1)
 				if item:IsA("TextLabel") or item:IsA("TextButton") or item:IsA("TextBox") then
 					save(item, "TextTransparency", 1)
-				elseif item:IsA("ImageLabel") or item:IsA("ImageButton") then
-					save(item, "ImageTransparency", 1)
-				elseif item:IsA("ViewportFrame") then
+				elseif
+					item:IsA("ImageLabel")
+					or item:IsA("ImageButton")
+					or item:IsA("ViewportFrame")
+				then
 					save(item, "ImageTransparency", 1)
 				end
 			elseif item:IsA("UIStroke") then
@@ -193,15 +195,6 @@ local function fusionFx(): any
 	end
 	local ok, fx = pcall(require, module)
 	return if ok and type(fx) == "table" then fx else nil
-end
-
-local function coatTag(coat: string): string
-	if coat == "gold" then
-		return "✨ Gold"
-	elseif coat == "rainbow" then
-		return "🌈 Rainbow"
-	end
-	return "Normal"
 end
 
 function FusionObservatory.new(callbacks: Callbacks): FusionObservatory

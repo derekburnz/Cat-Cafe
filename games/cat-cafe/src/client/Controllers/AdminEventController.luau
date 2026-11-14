@@ -9,7 +9,7 @@ local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
-local AdminEventLogic = require(script.Parent.Parent.UI.Components.AdminEventLogic)
+local AdminBarLogic = require(script.Parent.Parent.UI.Components.AdminBarLogic)
 local CafeEvents = require(Shared:WaitForChild("CafeEvents"))
 local Net = require(script.Parent.Parent.Net)
 local UI = require(script.Parent.Parent.UI)
@@ -27,7 +27,7 @@ local function decode(raw: string): unknown
 end
 
 local function tick()
-	local info = AdminEventLogic.info(read, CafeEvents.ADMIN_ATTRIBUTES :: any, decode)
+	local info = AdminBarLogic.info(read, CafeEvents.ADMIN_ATTRIBUTES :: any, decode)
 	local state: any = UI.getState()
 	local wheel: any = if type(state) == "table" then state.adminWheel else nil
 	if

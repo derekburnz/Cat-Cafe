@@ -5,19 +5,22 @@
 --   when the event starts ("ADMIN WHEEL NOW!"), with what it does under them;
 -- - the timer, a slim cocoa pill the rest of the time: "Admin Wheel in 1:42", then "Admin Wheel 4:12 left", with a
 --   green Spin button while the wheel is up and this account has not spun it (it opens the wheel's window).
--- Words from Components/AdminEventLogic. It never covers a catch: while a catch or rescue runs it steps aside
--- (setBusy). Nothing here is sold.
+-- Words from Components/AdminBarLogic. It never covers a catch: while a catch or rescue runs it steps aside
+-- (setBusy). Nothing here is sold. It is the one banner and timer for an admin event: with it up, UI.cafeEvent.tick
+-- skips Effects/EventBanner's admin cards and the admin line on the Cafe Event chip (#4202), and this bar plays their
+-- two sounds; the chat line stays.
 
-local AdminEventLogic = require(script.Parent.Parent.Components.AdminEventLogic)
+local AdminBarLogic = require(script.Parent.Parent.Components.AdminBarLogic)
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
+local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type AdminEventBar = {
 	screenGui: ScreenGui,
-	set: (self: AdminEventBar, view: AdminEventLogic.View?, now: number) -> (),
+	set: (self: AdminEventBar, view: AdminBarLogic.View?, now: number) -> (),
 	setBusy: (self: AdminEventBar, busy: boolean) -> (),
 	destroy: (self: AdminEventBar) -> (),
 }
@@ -46,7 +49,7 @@ function AdminEventBar.new(
 	local self = setmetatable({}, AdminEventBar) :: any
 	self._avoid = avoid
 	self._busy = false
-	self._view = nil :: AdminEventLogic.View?
+	self._view = nil :: AdminBarLogic.View?
 	self._bannerKey = nil :: string?
 	self._bannerUntil = 0
 	local screenGui: ScreenGui = Create("ScreenGui", {
@@ -220,20 +223,22 @@ function AdminEventBar._clearTop(self: any, piece: Frame, height: number): numbe
 	return top
 end
 
--- The view now (AdminEventLogic.view), every half second or so; nil puts both away.
-function AdminEventBar.set(self: any, view: AdminEventLogic.View?, now: number)
+-- The view now (AdminBarLogic.view), every half second or so; nil puts both away.
+function AdminEventBar.set(self: any, view: AdminBarLogic.View?, now: number)
 	self._view = view
 	self._now = now
 	if view ~= nil and view.key ~= self._bannerKey then
 		-- a new step (the warning, the start): the big banner comes up for a while
 		self._bannerKey = view.key
-		self._bannerUntil = now + AdminEventLogic.BANNER_SECONDS
+		self._bannerUntil = now + AdminBarLogic.BANNER_SECONDS
+		-- the cues Effects/EventBanner played for these steps before this bar took them over (#4202)
+		Sound.play(if view.phase == "soon" then "uiGiftReady" else "stationReveal")
 	end
 	self:_paint(now)
 end
 
 function AdminEventBar._paint(self: any, now: number)
-	local view: AdminEventLogic.View? = self._view
+	local view: AdminBarLogic.View? = self._view
 	local shown = view ~= nil and not self._busy
 	self.screenGui.Enabled = shown
 	if view == nil or not shown then

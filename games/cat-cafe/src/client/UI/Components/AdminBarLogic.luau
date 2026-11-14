@@ -11,9 +11,9 @@
 --   wheelView(wheel?, now) -> WheelView  the window's Spin button and line
 --   SLICES                             each wheel slice's short words and colour, in AdminWheel.PRIZES order
 
-local AdminEventLogic = {}
+local AdminBarLogic = {}
 
-AdminEventLogic.BANNER_SECONDS = 8
+AdminBarLogic.BANNER_SECONDS = 8
 
 export type Info = {
 	id: string,
@@ -44,7 +44,7 @@ export type WheelView = {
 }
 
 -- The slices' short words (the window's list has the full names from AdminWheel.PRIZES) and colours, wheel order.
-AdminEventLogic.SLICES = table.freeze({
+AdminBarLogic.SLICES = table.freeze({
 	{ short = "20 rerolls", color = Color3.fromHex("FFC94D") },
 	{ short = "200 fish", color = Color3.fromHex("5CC8FF") },
 	{ short = "5 crates", color = Color3.fromHex("F2679E") },
@@ -56,7 +56,7 @@ AdminEventLogic.SLICES = table.freeze({
 })
 
 -- `read(name)` gives one attribute (ReplicatedStorage:GetAttribute). `names` is CafeEvents.ADMIN_ATTRIBUTES.
-function AdminEventLogic.info(
+function AdminBarLogic.info(
 	read: (string) -> unknown,
 	names: { [string]: string },
 	decode: (string) -> unknown
@@ -93,7 +93,7 @@ function AdminEventLogic.info(
 	}
 end
 
-function AdminEventLogic.clock(seconds: number): string
+function AdminBarLogic.clock(seconds: number): string
 	local whole = math.max(0, math.ceil(seconds))
 	return ("%d:%02d"):format(whole // 60, whole % 60)
 end
@@ -110,12 +110,12 @@ local function what(info: Info): string
 end
 
 -- `wheel` is PlayerState.adminWheel. Nil once the event is over.
-function AdminEventLogic.view(info: Info?, now: number, wheel: Wheel?): View?
+function AdminBarLogic.view(info: Info?, now: number, wheel: Wheel?): View?
 	if info == nil or now >= info.endsAt then
 		return nil
 	end
 	if now < info.startsAt then
-		local left = AdminEventLogic.clock(info.startsAt - now)
+		local left = AdminBarLogic.clock(info.startsAt - now)
 		return {
 			phase = "soon",
 			big = "ADMIN EVENT IN " .. left,
@@ -132,7 +132,7 @@ function AdminEventLogic.view(info: Info?, now: number, wheel: Wheel?): View?
 		big = string.upper(info.title) .. " NOW!",
 		sub = what(info),
 		pill = info.title,
-		time = AdminEventLogic.clock(info.endsAt - now) .. " left",
+		time = AdminBarLogic.clock(info.endsAt - now) .. " left",
 		spin = canSpin,
 		key = info.id .. ":live",
 	}
@@ -140,7 +140,7 @@ end
 
 -- The window's Spin button and the line under it. `spinning` while the wheel turns; `won` the prize's words once
 -- it lands.
-function AdminEventLogic.wheelView(
+function AdminBarLogic.wheelView(
 	wheel: Wheel?,
 	now: number,
 	spinning: boolean,
@@ -170,8 +170,8 @@ function AdminEventLogic.wheelView(
 		button = "SPIN (free)",
 		enabled = true,
 		line = "Free for everyone online. Nothing to buy. Ends in "
-			.. AdminEventLogic.clock(wheel.endsAt - now),
+			.. AdminBarLogic.clock(wheel.endsAt - now),
 	}
 end
 
-return AdminEventLogic
+return AdminBarLogic

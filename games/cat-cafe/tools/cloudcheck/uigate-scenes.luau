@@ -601,7 +601,7 @@ local function tradeState(fields)
 end
 
 -- #2487: a Cafe Party on ReplicatedStorage's attributes (EventService's shape, shared/CafeEvents), painted at once
--- #4195: an Admin Wheel event starting at `startsAt`, five minutes long, as AdminEventLogic.info gives it
+-- #4195: an Admin Wheel event starting at `startsAt`, five minutes long, as AdminBarLogic.info gives it
 local function adminInfo(startsAt: number): any
 	return {
 		id = "gate-wheel",
@@ -10698,6 +10698,39 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assert(banners == 1, ("uigate: %d Cafe Party banners, not 1 (#2487)"):format(banners))
 	end },
+	-- #4195: an admin event (Bowl Frenzy) beside the running party. The admin bar (Screens/AdminEventBar) is its one
+	-- timer, so the Cafe Event strip stays the party's and shows no second admin timer (#4202 hands it over)
+	{ "AdminEventRunning", function()
+		local t = workspace:GetServerTimeNow()
+		local store = game:GetService("ReplicatedStorage")
+		Scenes._cafeEvent = true
+		Scenes._admin = true
+		UIShim.advance(4) -- earlier scenes' toasts gone
+		store:SetAttribute("AdminEventId", "frenzy-gate")
+		store:SetAttribute("AdminEventTitle", "Bowl Frenzy")
+		store:SetAttribute("AdminEventStartsAt", t - 20)
+		store:SetAttribute("AdminEventEndsAt", t + 880)
+		store:SetAttribute("AdminEventEffects", "")
+		store:SetAttribute("AdminEventRunning", true)
+		assert(UI.admin.hasBar(), "uigate: no admin bar to carry the admin event's timer (#4195)")
+		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
+		local chip = assertEventChip(2)
+		assert(chip.Text:find("Bowl Frenzy", 1, true) == nil and chip.Text:find("Cafe Party 1:59:", 1, true) ~= nil, "uigate: the strip reads " .. chip.Text .. ": a second admin timer beside the admin bar's (#4195)")
+		local info = adminInfo(t - 20)
+		info.id, info.title, info.wheel, info.bowlSpeed, info.endsAt = "frenzy-gate", "Bowl Frenzy", false, 4, t + 880
+		UI.admin.set(info, nil)
+		UIShim.advance(9)
+		UI.admin.set(info, nil)
+		local timer = UIShim.playerGui:FindFirstChild("CatCafeAdminEvent"):FindFirstChild("Timer", true) :: GuiObject
+		local words = timer:FindFirstChild("Words") :: TextLabel
+		assert(timer.Visible and words.Text == "Bowl Frenzy", "uigate: the admin bar's timer is not up for Bowl Frenzy (#4195)")
+		-- the admin event over: the strip is still the party's
+		store:SetAttribute("AdminEventId", "")
+		store:SetAttribute("AdminEventRunning", false)
+		UI.cafeEvent.tick()
+		chip = assertEventChip(2)
+		assert(chip.Text:find("Cafe Party 1:59:", 1, true) ~= nil, "uigate: the strip did not stay the party's after the admin event: " .. chip.Text .. " (#4195)")
+	end },
 	-- #2487: the Town Square board's face while the party runs, its words drawn on a 10 x 7.5 stud face
 	{ "CafeEventBoard", function()
 		local t = workspace:GetServerTimeNow()
@@ -10795,7 +10828,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "HUDStore", function()
 		UI.store.preview(storePrices(true), {})
 	end },
-	-- #1606: the money pass badge beside the money: the rainbow "X2 Cash / Only R$5" (#1759) with no money pass and the
+	-- #1606: the money pass badge beside the money: the green "2x Money" button with its price (2026-11-14) with no money pass and the
 	-- 2x on sale; once owned, nothing (#3052: the boosts card has the pass's row)
 	-- #2334 (Derek2: "the gold fish and money should be side by side in bottom left and the 2x cash ... should be to the
 	-- right of both of those"): left to right the money, the golden fish, then the badge, none touching
@@ -11052,6 +11085,35 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(pill.Text == "x2", "uigate: the quiet money badge reads " .. tostring(pill.Text) .. " (#1936)")
 		assert(not price.Visible, "uigate: the quiet money badge shows a price (#1936)")
 	end },
+	-- Derek 2026-11-14 12:09 UTC ("make 2x change to 3x after 2x bought and to 4x after 3x bought"): the button offers
+	-- the next rung up with its own live price, the words and the price fitting and the button on screen
+	{ "HUDMoneyBadgeNext", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local ids = Config.MoneyPassIds
+		local prices = storePrices(true)
+		prices[ids[2]] = { robux = 25, forSale = true }
+		prices[ids[3]] = { robux = 59, forSale = true }
+		prices[ids[4]] = { robux = 99, forSale = true }
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local badge = hud:FindFirstChild("MoneyBadge", true) :: GuiObject
+		local pill = badge:FindFirstChild("Pill") :: TextLabel
+		local price = badge:FindFirstChild("Price") :: TextLabel
+		local view = workspace.CurrentCamera.ViewportSize
+		local inset = game:GetService("GuiService"):GetGuiInset()
+		for _, step in { { owned = {}, text = "2x Money", price = "R$25" }, { owned = { [ids[2]] = true }, text = "3x Money", price = "R$59" }, { owned = { [ids[3]] = true }, text = "4x Money", price = "R$99" } } do
+			UI.store.preview(prices, step.owned)
+			UIShim.advance(1 / 60)
+			assert(badge.Visible, "uigate: no money button before " .. step.text .. " (Derek 2026-11-14)")
+			assert(pill.Text == step.text and pill.TextFits, "uigate: the money button reads " .. pill.Text .. ", not " .. step.text .. " (Derek 2026-11-14)")
+			assert(price.Visible and price.Text == step.price and price.TextFits, "uigate: the " .. step.text .. " price reads " .. price.Text .. " (Derek 2026-11-14)")
+			assert(badge.AbsolutePosition.X + inset.X >= 0 and badge.AbsolutePosition.X + badge.AbsoluteSize.X + inset.X <= view.X, "uigate: the " .. step.text .. " button runs off screen (Derek 2026-11-14)")
+		end
+		UI.store.preview(prices, { [ids[4]] = true })
+		UIShim.advance(1 / 60)
+		assert(not badge.Visible, "uigate: the money button stays with 4x owned (Derek 2026-11-14)")
+		UI.store.preview(storePrices(true), {})
+		UIShim.advance(1 / 60)
+	end },
 	{ "HUDMoneyBadgeOwned", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[4]] = true })
@@ -11149,6 +11211,32 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ dailyDeal = false } :: any)
 		local name = (card:FindFirstChild("Name") :: TextLabel).Text
 		assert(name ~= "Today's Deal" and not owned.Visible, "uigate: the deal card stays with the switch off (#3996)")
+	end },
+	-- #4175: on a big update day (Config.UpdateFeature's window, the updateFeature switch on) the update's own item is
+	-- the hero with a plain "New today" badge and the usual hero leads the picks; no other card carries the line
+	{ "StoreNewToday", function()
+		local RS = game:GetService("ReplicatedStorage")
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local was = Config.UpdateFeature
+		Config.UpdateFeature = { keys = { "money" }, starts = 0, ends = math.huge }
+		RS:SetAttribute("LiveFlag_updateFeature", true)
+		UI.update({ dailyDeal = false } :: any)
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
+		local hero = window:FindFirstChild("hero", true) :: Frame
+		local badge = hero:FindFirstChild("Badge", true) :: TextLabel
+		local heroName = (hero:FindFirstChild("Name") :: TextLabel).Text
+		local pick = window:FindFirstChild("pick1", true) :: Frame
+		local pickName = (pick:FindFirstChild("Name") :: TextLabel).Text
+		local pickBadge = pick:FindFirstChild("Badge", true) :: TextLabel
+		Config.UpdateFeature = was
+		RS:SetAttribute("LiveFlag_updateFeature", nil)
+		assert(hero.Visible and string.find(heroName, "Money", 1, true), "uigate: the update's item is not the hero: " .. heroName .. " (#4175)")
+		assert(badge.Visible and badge.Text == "New today", "uigate: the hero's badge reads " .. tostring(badge.Text) .. " (#4175)")
+		assert(pick.Visible and pickName ~= heroName, "uigate: the update's item shows twice on Featured (#4175)")
+		assert(not (pickBadge.Visible and pickBadge.Text == "New today"), "uigate: a pick carries the New today line (#4175)")
+		assertStoreCards(true)
 	end },
 	-- #2850 (Derek2: "move the 999 pack and extra food bowl somewhere in featured"): with the Starter Bundle unbought
 	-- it is the hero, and the King Cat Pack and the Second Bait Bowl lead the picks; the hero lists the bundle's contents
@@ -12146,6 +12234,7 @@ function Scenes.close()
 	if Scenes._cafeEvent then
 		Scenes._cafeEvent = nil
 		game:GetService("ReplicatedStorage"):SetAttribute("EventId", "") -- #2487: the party put away
+		game:GetService("ReplicatedStorage"):SetAttribute("AdminEventId", "") -- #4195
 		UI.cafeEvent.forget()
 		UI.cafeEvent.tick()
 	end

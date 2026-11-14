@@ -15,7 +15,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
-local AdminEventLogic = require(script.Parent.Parent.Components.AdminEventLogic)
+local AdminBarLogic = require(script.Parent.Parent.Components.AdminBarLogic)
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
@@ -36,7 +36,7 @@ export type Callbacks = {
 
 export type AdminWheel = {
 	frame: Frame,
-	setWheel: (self: AdminWheel, wheel: AdminEventLogic.Wheel?) -> (),
+	setWheel: (self: AdminWheel, wheel: AdminBarLogic.Wheel?) -> (),
 	result: (self: AdminWheel, slice: number, prizeId: string, paid: { string }) -> (),
 	refresh: (self: AdminWheel) -> (),
 	isOpen: (self: AdminWheel) -> boolean,
@@ -100,7 +100,7 @@ end
 function AdminWheel.new(callbacks: Callbacks): AdminWheel
 	local self = setmetatable({}, AdminWheel) :: any
 	self._callbacks = callbacks
-	self._wheel = nil :: AdminEventLogic.Wheel?
+	self._wheel = nil :: AdminBarLogic.Wheel?
 	self._spinning = false
 	self._won = nil :: string?
 	self._angle = 0
@@ -228,7 +228,7 @@ function AdminWheel.new(callbacks: Callbacks): AdminWheel
 		}),
 	})
 	for index, prize in prizes() do
-		local slice = AdminEventLogic.SLICES[index]
+		local slice = AdminBarLogic.SLICES[index]
 		local row: Frame = Create("Frame", {
 			Name = "Row_" .. prize.id,
 			BackgroundColor3 = CARD.card,
@@ -320,7 +320,7 @@ function AdminWheel._buildSlices(self: any)
 	for index, prize in prizes() do
 		local size = all[index]
 		local centre = SpinLogic.centre(all, index)
-		local slice = AdminEventLogic.SLICES[index]
+		local slice = AdminBarLogic.SLICES[index]
 		local color = if slice then slice.color else Theme.colors.gold
 		local steps = math.max(2, math.ceil(size / WEDGE_STEP))
 		local step = size / steps
@@ -397,7 +397,7 @@ function AdminWheel._buildSlices(self: any)
 end
 
 function AdminWheel._press(self: any)
-	local view = AdminEventLogic.wheelView(
+	local view = AdminBarLogic.wheelView(
 		self._wheel,
 		Workspace:GetServerTimeNow(),
 		self._spinning,
@@ -423,7 +423,7 @@ function AdminWheel.isOpen(self: any): boolean
 end
 
 -- PlayerState.adminWheel.
-function AdminWheel.setWheel(self: any, wheel: AdminEventLogic.Wheel?)
+function AdminWheel.setWheel(self: any, wheel: AdminBarLogic.Wheel?)
 	local before = self._wheel
 	self._wheel = wheel
 	if wheel == nil or (before ~= nil and before.eventId ~= wheel.eventId) then
@@ -480,7 +480,7 @@ end
 
 -- The button and the line, now (the window's clock ticks it each second while open).
 function AdminWheel.refresh(self: any)
-	local view = AdminEventLogic.wheelView(
+	local view = AdminBarLogic.wheelView(
 		self._wheel,
 		Workspace:GetServerTimeNow(),
 		self._spinning,

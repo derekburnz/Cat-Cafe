@@ -50,8 +50,6 @@ local CHOICES = { "tame", "letgo" }
 local rng = Random.new()
 -- placedAt of the bait whose arrival this player has been sent, by bowl
 local shownArrival: { [Player]: { [number]: number } } = {}
--- #4338: "<bowl>:<event id>" for each filling bowl Bowl Frenzy has already sped this session (frenzyBowls)
-local frenzySped: { [Player]: { [string]: boolean } } = {}
 -- #3161: placedAt of the first bait whose cat was put at the bowl early (Bait.catOutAt), by bowl
 local shownEarly: { [Player]: { [number]: number } } = {}
 -- the second bowl's state last drawn and sent (#1161), so a pass bought in game, or one whose lookup failed at join
@@ -413,26 +411,20 @@ end
 -- #4338 (Derek 2026-11-14: "the 4x time boost for foodbowl doesn't actually make the time tick down 4x faster"):
 -- food put in during Bowl Frenzy already waits wait / speed (useLure), but a bowl that was filling when it began kept
 -- its time. Now such a bowl's clock runs `speed` times faster for the rest of the frenzy (Bait.frenzyLeft), once per
--- bowl and event, at the frenzy's start or the player's first pass in it (a join mid frenzy). The mark is kept in
--- this server only, so a hop mid frenzy can speed it again, which only brings the cat sooner. Returns whether a
--- bowl changed.
-local function frenzyBowls(player: Player, profile: Types.PlayerProfile, now: number): boolean
+-- bowl and event, at the frenzy's start or the player's first pass in it (a join mid frenzy). The bowl keeps the
+-- event's id in its saved state (BaitState.frenzy), so a server hop mid frenzy never speeds it twice. Returns
+-- whether a bowl changed.
+local function frenzyBowls(profile: Types.PlayerProfile, now: number): boolean
 	local event = EventService.admin()
 	local speed = EventService.bowlSpeed()
 	if event == nil or speed <= 1 or now >= event.endsAt then
 		return false
 	end
-	local sped = frenzySped[player]
-	if sped == nil then
-		sped = {}
-		frenzySped[player] = sped
-	end
 	local changed = false
 	for bowl = 1, Bait.BOWLS do
 		local bait = Bait.stateOf(profile, bowl)
-		local key = string.format("%d:%s", bowl, event.id)
-		if bait ~= nil and bait.readyAt ~= nil and not sped[key] then
-			sped[key] = true
+		if bait ~= nil and bait.readyAt ~= nil and bait.frenzy ~= event.id then
+			bait.frenzy = event.id
 			local left = (bait.readyAt :: number) - now
 			-- food put in during the frenzy already has its share (useLure)
 			if bait.placedAt < event.startsAt and left > 0 then
@@ -459,7 +451,7 @@ local function checkArrivals()
 			shown = {}
 			shownArrival[player] = shown
 		end
-		local changed = frenzyBowls(player, profile, now) -- #4338
+		local changed = frenzyBowls(profile, now) -- #4338
 		local after: { () -> () } = {}
 		for bowl = 1, Bait.BOWLS do
 			local bait = Bait.stateOf(profile, bowl)
@@ -542,7 +534,6 @@ function BaitService.start()
 		shownArrival[player] = nil
 		shownEarly[player] = nil
 		shownSecond[player] = nil
-		frenzySped[player] = nil
 	end)
 	task.spawn(function()
 		while true do

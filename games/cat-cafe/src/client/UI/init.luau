@@ -2226,14 +2226,23 @@ end
 -- view's busy queue, shout-outs wait here (the last CUTSCENE_KEEP, in order) and come out one by one afterwards, and
 -- the food bowl cards (UI.bait.busy), tips, ask and first visit cards (tipMoment) and the "Unlocked!" card wait too.
 -- The scene hides the HUD itself.
-UI.cutscene =
-	{ on = false, queue = {} :: { { text: string, rarity: string? } }, KEEP = 3, GAP = 1.5 }
+-- `hooks`: callers that hide their own pieces too (UIController's bait bowl prompts, from #4077)
+UI.cutscene = {
+	on = false,
+	queue = {} :: { { text: string, rarity: string? } },
+	hooks = {} :: { (on: boolean) -> () },
+	KEEP = 3,
+	GAP = 1.5,
+}
 function UI.setCutscene(on: boolean)
 	local cut = UI.cutscene
 	if cut.on == on then
 		return
 	end
 	cut.on = on
+	for _, hook in cut.hooks do
+		task.spawn(hook, on)
+	end
 	local view = toasts
 	if view then
 		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or on)

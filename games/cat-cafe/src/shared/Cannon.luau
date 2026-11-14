@@ -11,7 +11,13 @@ local Cooldown = require(script.Parent.Cooldown)
 local Cannon = {}
 
 Cannon.TOWN = "town" -- the Town Square cannon's id, and the destination that lands at its foot
-Cannon.RANGE_SLACK = 2 -- studs on top of CannonRangeStuds, as for every check on a client-owned position
+-- Studs on top of CannonRangeStuds for a client-owned position. #4343 (Derek 2026-11-14: "sometimes when in circle it
+-- says get closer to cannon"): 2 to 4, as the camp stations' checks (CampExtraService), since a player at the ring's
+-- rim with the window still open (WalkUp.LEAVE_EXTRA) is already at the range, and the server sees them late.
+Cannon.RANGE_SLACK = 4
+-- #4343: the reach is measured flat, like the ring on the floor, so a cannon's pivot high on its plinth or turret never
+-- puts a player standing in the ring out of reach; a root more than this above or below the pivot is not at it.
+Cannon.MAX_RISE = 12
 Cannon.CARRY_TEXT = "Bring your cat to the camp first"
 Cannon.DUSK_TEXT = "Night is coming. The areas close soon."
 Cannon.OFF_PAD_STEP = 2 -- studs between the points tried off a full pad
@@ -30,6 +36,17 @@ function Cannon.range(cannonId: string?): number
 	return if cannonId == Cannon.TOWN
 		then Config.World.TownCannonRangeStuds
 		else Config.World.CannonRangeStuds
+end
+
+-- #4343: how far `root` (a character's root) is from the cannon whose pivot is at `pivot`, flat as the ring lies on
+-- the floor, or nil when it is more than MAX_RISE above or below it (a roof, a ledge). LaunchCannon and the client's
+-- nearest cannon both measure with it.
+function Cannon.reach(root: Vector3, pivot: Vector3): number?
+	if math.abs(root.Y - pivot.Y) > Cannon.MAX_RISE then
+		return nil
+	end
+	local dx, dz = root.X - pivot.X, root.Z - pivot.Z
+	return math.sqrt(dx * dx + dz * dz)
 end
 
 -- The refusal for a player a tackle knocked down within TackledDownSeconds, or nil. LaunchCannon uses it, and so do
@@ -55,7 +72,7 @@ export type LaunchCheck = {
 	tier: number,
 	areasOpen: boolean, -- day (F66)
 	duskWarning: boolean, -- the last DuskWarningSeconds of the day (section 3a)
-	distance: number?, -- from the caller's root to the cannon's pivot; nil without a character
+	distance: number?, -- Cannon.reach from the caller's root to the cannon's pivot; nil without a character or off it
 	carrying: boolean,
 	busy: boolean, -- holds a catch or rescue lock
 	flying: boolean, -- already in a flight or a cloud hop

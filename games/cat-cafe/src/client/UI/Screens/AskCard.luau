@@ -63,10 +63,15 @@ export type AskCard = {
 }
 
 local CARD_W = 400
-local TITLE_H = 26
-local TITLE_TEXT = Theme.sizes.textLarge - 2
+-- #3891 (Derek 2026-11-13: "make the ui for pop ups like this easier to see"): the title sits on a gold band in
+-- white with a dark outline, a size bigger, and the card has a soft shadow under it
+local TITLE_H = 30
+local TITLE_TEXT = Theme.sizes.textLarge
+local SHADOW = 6 -- px the shadow drops under the card
 local CHOICE_TEXT = Theme.sizes.textBody
-local TITLE_RIGHT = 0 -- room kept at the title's right end for the X hanging over the corner
+-- Studio 2026-11-13 (the invite card's X sat over the word "they"): the X hangs over the card's top right corner, so
+-- the title's right end keeps its reach clear; set once the X is made
+local TITLE_RIGHT = 0
 local CHOICE_H = 44
 local PAD = 10
 local GAP = 8
@@ -109,7 +114,7 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 	-- width, title and padding; the buttons keep a finger's height (Scale.tapHeight)
 	if Scale.isPhone() then
 		CARD_W, TITLE_H, TITLE_TEXT, CHOICE_TEXT, PAD =
-			340, 22, Theme.sizes.textBody + 1, Theme.sizes.textSmall, 7
+			340, 26, Theme.sizes.textBody + 2, Theme.sizes.textSmall, 7
 		TITLE_RIGHT = 26
 	end
 	local choiceH = Scale.tapHeight(CHOICE_H, Theme.sizes.buttonDepth)
@@ -126,6 +131,19 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 		Parent = root,
 	})
 	self._holder = holder
+	-- #3891: a soft dark shadow under the card, so it lifts off the world behind it
+	Create("Frame", {
+		Name = "Shadow",
+		BackgroundColor3 = Color3.new(0, 0, 0),
+		BackgroundTransparency = 0.55,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(0, SHADOW),
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 0,
+		Parent = holder,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 4) }),
+	})
 	local card: Frame = Create("Frame", {
 		Name = "Card",
 		BackgroundColor3 = Theme.modal.panel,
@@ -136,8 +154,16 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 4) }),
 	})
-	Outline.border(card, Theme.sizes.outline + 1)
+	Outline.border(card, Theme.sizes.outline + 2)
 	self._card = card
+	-- #3891: the gold band behind the title (the card's rounded top clips it)
+	self._band = Create("Frame", {
+		Name = "Band",
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, PAD + TITLE_H + 3),
+		Parent = card,
+	})
 	self._title = Create("TextLabel", {
 		Name = "Title",
 		BackgroundTransparency = 1,
@@ -145,10 +171,11 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 		Size = UDim2.new(1, -2 * PAD - TITLE_RIGHT, 0, TITLE_H),
 		FontFace = Theme.fonts.display,
 		TextSize = TITLE_TEXT,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = Theme.colors.white,
 		Text = "",
 		Parent = card,
 	})
+	Outline.text(self._title, 2)
 	-- the X: a finger wide on a touch screen (Scale.tapHeight), in the close red every window uses
 	local touch = Scale.isTouch()
 	local side = if touch then Theme.sizes.touchMin else 36 -- the UI gate's desktop minimum
@@ -169,6 +196,8 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 			self:hide("closed")
 		end,
 	})
+	-- how far the X (centred 6 in from the right edge, with its outline) reaches over the title's line, past PAD
+	self._titleInset = math.max(0, math.ceil(6 + wide / 2 + Button.OUTLINE + 2 - PAD))
 	self._row = Create("Frame", {
 		Name = "Choices",
 		BackgroundTransparency = 1,
@@ -234,7 +263,9 @@ function AskCard._setLines(self: any, lines: number, rows: number?)
 	self._rows = if two then 2 else 1
 	local titleH = if lines >= 2 then TITLE_H * 2 - 2 else TITLE_H
 	self._title.TextWrapped = lines >= 2
-	self._title.Size = UDim2.new(1, -2 * PAD - TITLE_RIGHT, 0, titleH)
+	local inset: number = self._titleInset or 0
+	self._title.Size = UDim2.new(1, -2 * PAD - inset - TITLE_RIGHT, 0, titleH)
+	self._band.Size = UDim2.new(1, 0, 0, PAD + titleH + 3)
 	self._row.Position = UDim2.fromOffset(PAD, PAD + titleH + 6)
 	self._row2.Position = UDim2.fromOffset(PAD, PAD + titleH + 6 + self._choiceH + GAP)
 	self._row2.Visible = two

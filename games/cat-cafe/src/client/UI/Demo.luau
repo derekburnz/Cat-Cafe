@@ -396,9 +396,6 @@ local DEMO_BAIT_SECONDS = 20
 -- the night dealer's stock window, short so one restock shows each night (the server restocks once a night since F94)
 local DEMO_DEALER_WINDOW = 20
 
-local SELL_VALUE: { [string]: number } =
-	{ Common = 25, Rare = 150, Epic = 600, Legendary = 3000, Mythical = 12000 }
-
 function Demo.run(UI: any): () -> ()
 	local running = true
 	local nextUid = 1
@@ -1103,18 +1100,6 @@ function Demo.run(UI: any): () -> ()
 		local instance = profile.cats[catUid]
 		if instance then
 			instance.spotId = nil
-			push()
-		end
-	end)
-	connections[#connections + 1] = UI.events.sellCat:Connect(function(catUid: string)
-		local instance = profile.cats[catUid]
-		if instance and instance.locked then
-			UI.toast("That cat is locked. Unlock it to sell it.", "warn") -- the server refuses it too (F62)
-		elseif instance then
-			local def = catById[instance.catId]
-			profile.cats[catUid] = nil
-			profile.money += SELL_VALUE[def.rarity] or 0
-			UI.toast(("Sold %s for $%d"):format(def.name, SELL_VALUE[def.rarity] or 0), "good")
 			push()
 		end
 	end)

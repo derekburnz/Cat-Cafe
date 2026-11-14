@@ -175,6 +175,18 @@ local KINDS: { Kind } = {
 			UI.campExtras.openYardSale(nil)
 		end,
 	},
+	-- #3955: the Lost and Found's ring opens its card (it used to claim silently on the step)
+	{
+		tag = CampExtras.TAG,
+		prompt = CampExtras.PROMPT,
+		window = "LostFound",
+		only = function(model: Instance)
+			return model:GetAttribute("ExtraId") == "lostFound"
+		end,
+		open = function()
+			UI.campExtras.openLostFound()
+		end,
+	},
 	-- #3715: with Picnic Treats on, the Picnic Basket has a card too: its ring opens the pick card
 	{
 		tag = CampExtras.TAG,

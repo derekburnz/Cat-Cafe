@@ -41,6 +41,33 @@ Intro.CAMP_WAIT = 2.5
 -- 0.8 + 0.32 s a word, a fifth off the 1.0 + 0.4 s every caption-bound hold had (about 31 s down to 25 s).
 Intro.CAPTION_BASE = 0.8
 Intro.CAPTION_PER_WORD = 0.32
+
+-- #4001 (Derek 2026-11-13: the short intro and its 50/50 test; Design-Agent's cut on the issue): the short intro is
+-- three shots to the eye, today's 1, 3 and 4 as one (the catch and the carry under one caption) and 5, read at the
+-- pre-#2626 pace of 1.0 + 0.4 s a word. Its intro_cutscene version is SHORT_VERSION. In the catch the character turns
+-- to the camera with the cat in its arms (Derek 19:27 UTC) over FACE_CAMERA_SECONDS once the cat has hopped in.
+Intro.SHORT_VERSION = 11
+Intro.SHORT_BASE = 1.0
+Intro.SHORT_PER_WORD = 0.4
+Intro.SHORT_CAPTIONS = {
+	[1] = "Fly the Cat Cannon to catch cats!",
+	[3] = "Tap the circles, then carry it to camp!",
+	[4] = "Tap the circles, then carry it to camp!",
+	[5] = "Give cats a job to earn money!",
+} :: { [number]: string }
+-- the dot each kept shot lights (the catch and the carry share one)
+Intro.SHORT_DOTS = { [1] = 1, [3] = 2, [4] = 2, [5] = 3 } :: { [number]: number }
+Intro.SHORT_DOT_COUNT = 3
+Intro.FACE_CAMERA_SECONDS = 0.4
+-- Review-QA (Studio, 2026-11-13): the turn needs time on screen. The short catch holds until this far in, about a
+-- second and a half of you facing the camera with the cat in your arms before the carry.
+Intro.SHORT_CATCH_HOLD = 3.4
+-- Review-QA (Studio, f9293840): facing the camera by the root showed the back, so the turn aimed the other way.
+-- #4019: the back showed because the copy was still curled in the cannon's ball pose (the short intro has no
+-- landing to end it); it now stands up for the catch, so the root's own facing is right and the flip is off.
+Intro.FACE_FLIP = false
+local SHORT_CATCH_BACK = 7.6 -- studs from the catch the short intro's catch shot ends at (the full one: 6.5)
+local SHORT_CATCH_LIFT = 0.5 -- and how far over the catch point it looks, so a tall avatar's head clears the top bar
 Intro.NEXT_AFTER = 0 -- #3168: was 1.0, then 0.2; spam clicks go straight through (the screen takes one Next a shot)
 Intro.SETTLE_SECONDS = 0.3
 
@@ -251,6 +278,10 @@ function Intro.camp(area: string): Camp?
 		-- #2651: the Ruins' camp on its south end (toward the town), no turn like the Neighbourhood
 		ox, oz, turn, opening =
 			W.RuinsCenterX, W.RuinsCenterZ - W.RuinsDepth / 2, 0, W.CampOpeningWidth / 2
+	elseif area == "snowy" then
+		-- #3997: the Snowy Mountain's camp on its south side (toward the town), no turn like the Ruins
+		ox, oz, turn, opening =
+			W.SnowyCenterX, W.SnowyCenterZ - W.SnowyDepth / 2, 0, W.CampOpeningWidth / 2
 	else
 		return nil
 	end
@@ -544,6 +575,11 @@ function Intro.hold(seconds: number, caption: string): number
 	return math.max(seconds, Intro.CAPTION_BASE + Intro.CAPTION_PER_WORD * Intro.words(caption))
 end
 
+-- #4001: a short intro caption's reading time, 1.0 s plus 0.4 s a word.
+function Intro.shortHold(caption: string): number
+	return Intro.SHORT_BASE + Intro.SHORT_PER_WORD * Intro.words(caption)
+end
+
 -- #2182: the time on the shot's camera moves `t` seconds into a shot. Up to SETTLE_SECONDS before its moves end it is
 -- `t`; from there it slows evenly to a stop at the moves' end, SETTLE_SECONDS after it, and stays there through the
 -- rest of the hold. A shot with no time to spare keeps its moves as they were.
@@ -574,7 +610,12 @@ end
 
 -- The nine shots for this plot. `codesCat` is false until a Codes Cat station stands in the Workspace (F65);
 -- `alleyStreamed` false leaves out the shots at the Alleyway's camp (3 and 4) and holds shot 2 in the clouds.
-function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { Shot }
+function Intro.shots(
+	plot: Plot,
+	codesCat: boolean,
+	alleyStreamed: boolean?,
+	short: boolean?
+): { Shot }
 	local px, pz, s = plot.x, plot.z, plot.side
 	local camp = alleyCamp()
 	local P, g, u, r = camp.pad, camp.wayOut, camp.u, camp.r
@@ -680,7 +721,15 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 			cuts = {
 				{
 					from = key(v(catch.X, AREA_FLOOR + 4.5, catch.Z) + side * 9, catch),
-					to = key(v(catch.X, AREA_FLOOR + 3.4, catch.Z) + side * 6.5, catch),
+					-- Review-QA's Studio look at #4091: in the short intro, where you turn to face the camera and
+					-- the shot holds on you, the push in to 6.5 studs put the top of your head under the top bar.
+					-- There it stops a stud further back and looks half a stud higher.
+					to = if short == true
+						then key(
+							v(catch.X, AREA_FLOOR + 3.4, catch.Z) + side * SHORT_CATCH_BACK,
+							catch + v(0, SHORT_CATCH_LIFT, 0)
+						)
+						else key(v(catch.X, AREA_FLOOR + 3.4, catch.Z) + side * 6.5, catch),
 					seconds = 2.5,
 				},
 			},
@@ -775,9 +824,23 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 	local shots: { Shot } = {}
 	local at = 0
 	for _, shot in all do
-		if streamed or not shot.camp then
+		local shortCaption = Intro.SHORT_CAPTIONS[shot.index]
+		if (streamed or not shot.camp) and (short ~= true or shortCaption ~= nil) then
 			shot.starts = at
-			shot.hold = Intro.hold(shot.seconds, shot.caption)
+			if short == true then
+				shot.caption = shortCaption :: string
+				-- the catch and the carry share one caption: the pair holds its reading time between them
+				shot.hold = if shot.index == 3
+					then math.max(
+						shot.seconds,
+						Intro.SHORT_CATCH_HOLD,
+						Intro.shortHold(shot.caption) - all[4].seconds
+					)
+					elseif shot.index == 4 then shot.seconds
+					else math.max(shot.seconds, Intro.shortHold(shot.caption))
+			else
+				shot.hold = Intro.hold(shot.seconds, shot.caption)
+			end
 			at += shot.seconds
 			table.insert(shots, shot)
 		end

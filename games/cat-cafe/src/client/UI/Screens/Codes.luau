@@ -457,13 +457,34 @@ function Codes._renderUsed(self: any)
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		})
+		-- #3961: the family look (Codes Cat mock): a green tick before each used code, the code upper case
+		local family = MenuFamily.on()
+		local codeLeft = 10
+		if family then
+			local tick: TextLabel = text({
+				Name = "Tick",
+				AnchorPoint = Vector2.new(0, 0.5),
+				Position = UDim2.new(0, 8, 0.5, 0),
+				Size = UDim2.fromOffset(24, 24),
+				BackgroundTransparency = 0,
+				BackgroundColor3 = Theme.colors.good,
+				FontFace = Theme.fonts.display,
+				TextSize = Theme.sizes.textSmall,
+				TextColor3 = Theme.colors.white,
+				TextXAlignment = Enum.TextXAlignment.Center,
+				Text = "✓",
+				Parent = frame,
+			})
+			Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = tick })
+			codeLeft = 40
+		end
 		text({
 			Name = "Code",
-			Position = UDim2.fromOffset(10, 0),
-			Size = UDim2.new(0.34, -10, 1, 0),
+			Position = UDim2.fromOffset(codeLeft, 0),
+			Size = UDim2.new(0.34, -codeLeft, 1, 0),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody,
-			Text = entry.code,
+			Text = if family then string.upper(entry.code) else entry.code,
 			Parent = frame,
 		})
 		text({
@@ -526,7 +547,12 @@ end
 -- The answer in place (#1714): ok a green card with the prize in it, a refusal one calm line, nil hides it.
 function Codes._setAnswer(self: any, ok: boolean?, message: string?, prize: Types.IndexPrize?)
 	self._failed = ok == false
-	self._answer.Text = message or ""
+	-- #3961: the family look's redeemed card leads with a tick, upper case
+	self._answer.Text = if ok
+			and message ~= nil
+			and MenuFamily.on()
+		then "✓ " .. string.upper(message)
+		else message or ""
 	self._answer.TextColor3 = if ok then Theme.colors.white else CARD.subtext
 	self._result.BackgroundTransparency = if ok then 0 else 1
 	self._result.Visible = (message or "") ~= ""
@@ -543,7 +569,9 @@ end
 
 function Codes._refresh(self: any)
 	self._box.TextEditable = not self._pending
-	self._redeem:setText(if self._pending then "..." else "Redeem")
+	self._redeem:setText(
+		if self._pending then "..." elseif MenuFamily.on() then "REDEEM" else "Redeem"
+	)
 	local ready = not self._pending and not self:_resting()
 	self._redeem:setEnabled(ready and CodeEntry.canRedeem(self._box.Text))
 end

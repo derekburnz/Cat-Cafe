@@ -1,6 +1,6 @@
 """Index Boards (areas-and-stations B4, F50): a noticeboard at each area's entry, inside the gate, styled to the
 area: brick for the Alleyway, wood for the Park and the Woods, cork for the Neighbourhood, tin for the Sewer,
-sandstone under an awning for the Desert, carved stone for the Ruins.
+sandstone under an awning for the Desert, carved stone for the Ruins, a snowy ski-trail sign for the Snowy Mountain.
 Laid out in Roblox axes through common.RB, front -Z, sizes in studs.
 
   CatCafe_<Area>_IndexBoard          posts, frame, back, header with "INDEX" and the area's trim (collides)
@@ -10,7 +10,7 @@ Laid out in Roblox axes through common.RB, front -Z, sizes in studs.
 
 Pivot at the base centre, front (-Z) toward the player. The root Model carries the IndexBoard tag, an Area
 attribute (alley, park, neighbourhood, woods, sewer,
-desert, ruins) and ModelStreamingMode Atomic, so the Screen streams in with
+desert, ruins, snowy) and ModelStreamingMode Atomic, so the Screen streams in with
 the board (reviewer S37). PLACEMENT gives each board's spot in the frame of the gate or arch it stands behind
 (x across, y up, z into the area, studs, turn about Y): inside the opening on the right of the path as you walk in,
 turned a little toward it. A locked area's board shows through the gate's bars as a teaser.
@@ -44,6 +44,9 @@ STYLES = {
     "sewer": ("CatCafe_Sewer_IndexBoard", "metal", "concrete_dark", "concrete_dark", "eye_green", "cream"),
     "desert": ("CatCafe_Desert_IndexBoard", "fur_caramel", "fur_latte", "terracotta", "offwhite", "cream"),
     "ruins": ("CatCafe_Ruins_IndexBoard", "fur_pewter", "fur_soot", "fur_soot", "fur_golden", "cream"),
+    "snowy": ("CatCafe_Snowy_IndexBoard", "dark_wood", "fur_brown", "shirt_red", "offwhite", "cream"),
+    "waterpark": ("CatCafe_WaterPark_IndexBoard", "shirt_blue", "shirt_blue", "shirt_red", "offwhite", "cream"),
+    "castle": ("CatCafe_Castle_IndexBoard", "dark_wood", "caramel_wood", "pants_navy", "offwhite", "cream"),
 }
 
 # Each board's spot in its gate's or arch's own frame: (x, y, z, turn about Y in degrees). The openings are 24
@@ -56,6 +59,9 @@ PLACEMENT = {
     "sewer": ("CatCafe_Sewer_Gate", (-10.0, 0.0, 8.0, -20.0)),
     "desert": ("CatCafe_Desert_Gate", (-7.0, 0.0, 8.0, -20.0)),
     "ruins": ("CatCafe_Ruins_Gate", (-7.0, 0.0, 8.0, -20.0)),
+    "snowy": ("CatCafe_Snowy_Gate", (-7.0, 0.0, 8.0, -20.0)),
+    "waterpark": ("CatCafe_WaterPark_Gate", (-7.0, 0.0, 8.0, -20.0)),
+    "castle": ("CatCafe_Castle_Gate", (-7.0, 0.0, 8.0, -20.0)),
 }
 
 
@@ -224,8 +230,94 @@ def _ruins(b, screen, st):
     b.box((HX + 1.9, 0.3, -1.0), (0.8, 0.6, 0.6), "fur_dusty", rot=_rot(25, "Y"))         # a fallen block
 
 
+def _snowy(b, screen, st):
+    """A ski-trail sign: log posts on stone with snow caps, a peaked roof with snow and icicles, the trail marks
+    (green circle, blue square, black diamond) down the right post."""
+    _board(b, screen, *st)
+    roof = TOP + 0.25
+    for s in (-1, 1):
+        x0, x1 = sorted((s * (HX - 0.05), s * (HX + 0.8)))
+        b.span((x0 - 0.15, 0, -0.55), (x1 + 0.15, 0.45, 0.75), "concrete")
+        b.span((x0, 0.44, -0.4), (x1, roof, 0.6), "fur_brown")
+        for y in (1.5, 3.6, 5.7):
+            b.span((x0 - 0.05, y, -0.45), (x1 + 0.05, y + 0.12, 0.65), "dark_wood")
+    hw = HX + 1.1
+    b.span((-hw, roof, -0.7), (hw, roof + 0.3, 0.9), "dark_wood")                         # beam
+    for s in (-1, 1):                                                                    # the roof, two slabs
+        b.box((s * hw / 2, roof + 0.95, 0.1), (hw + 0.5, 0.25, 2.0), "shirt_red", rot=_rot(-s * 22, "Z"))
+        b.box((s * hw / 2, roof + 1.17, 0.1), (hw + 0.2, 0.18, 1.9), "milk", rot=_rot(-s * 22, "Z"))
+    for k in range(7):                                                                   # icicles off the beam
+        x = -hw + 0.8 + k * (2 * hw - 1.6) / 6
+        ln = (0.35, 0.6, 0.45, 0.7)[k % 4]
+        b.span((x - 0.06, roof - ln, -0.72), (x + 0.06, roof, -0.62), "pastel_sky")
+    cx = HX + 0.375                                                                       # trail marks, right post
+    b.cyl((cx, 1.9, -0.47), 0.24, 0.06, "shirt_green", axis="Z", segments=12)
+    b.span((cx - 0.2, 2.5, -0.5), (cx + 0.2, 2.9, -0.44), "shirt_blue")
+    b.box((cx, 3.35, -0.47), (0.32, 0.32, 0.06), "fur_black", rot=_rot(45, "Z"))
+    for x in (-HX + 0.9, HX - 0.9):
+        _paw(b, x, HY + HEAD / 2, -0.15, "eye_blue")
+    for s in (-1, 1):                                                                    # snow on the post tops
+        x0, x1 = sorted((s * (HX - 0.05), s * (HX + 0.8)))
+        b.span((x0 - 0.05, roof + 0.3, -0.45), (x1 + 0.05, roof + 0.42, 0.65), "milk")
+
+
+def _waterpark(b, screen, st):
+    """A funfair board (#4066): candy striped posts on blue feet with gold balls, a striped awning with a scalloped
+    edge over it and a row of coloured balls along the header."""
+    _board(b, screen, *st)
+    roof = TOP + 0.25
+    for s in (-1, 1):
+        x0, x1 = sorted((s * (HX - 0.05), s * (HX + 0.8)))
+        b.span((x0 - 0.15, 0, -0.55), (x1 + 0.15, 0.45, 0.75), "shirt_blue")
+        n = 6
+        for k in range(n):
+            b.span((x0, 0.44 + k * (roof - 0.44) / n, -0.4), (x1, 0.45 + (k + 1) * (roof - 0.44) / n, 0.6),
+                   ("milk", "shirt_red")[k % 2])
+        b.ball(((x0 + x1) / 2, roof + 0.95, 0.1), 0.42, "rarity_legend")
+    hw = HX + 1.1
+    b.span((-hw, roof, -0.7), (hw, roof + 0.3, 0.9), "rarity_legend")                      # beam
+    n = 10
+    w = 2 * (hw - 0.9) / n
+    for k in range(n):                                                                   # the awning's stripes
+        x = -hw + 0.9 + k * w
+        b.span((x, roof + 0.3, -1.1), (x + w, roof + 0.55, 1.0), ("shirt_red", "milk")[k % 2])
+        b.span((x + 0.04, roof - (0.45 if k % 2 == 0 else 0.25), -1.1), (x + w - 0.04, roof + 0.3, -0.98),
+               ("shirt_red", "milk")[k % 2])
+    for k, x in enumerate((-HX + 0.7, -HX + 1.3, HX - 1.3, HX - 0.7)):
+        b.ball((x, HY + HEAD / 2, -0.17), 0.18, ("pastel_butter", "shirt_blue", "leaf_green", "pastel_butter")[k])
+
+
+def _castle(b, screen, st):
+    """A herald's board (#4067): grey stone posts with merlons, a dark timber beam with a little tiled roof over it,
+    a red and a navy pennant and a gold crown in the middle."""
+    _board(b, screen, *st)
+    roof = TOP + 0.25
+    for s in (-1, 1):
+        x0, x1 = sorted((s * (HX - 0.05), s * (HX + 0.8)))
+        b.span((x0 - 0.15, 0, -0.55), (x1 + 0.15, 0.45, 0.75), "concrete_dark")
+        b.span((x0, 0.45, -0.4), (x1, roof, 0.6), "concrete")
+        for y in (roof * 0.35, roof * 0.68):
+            b.span((x0 - 0.04, y, -0.44), (x1 + 0.04, y + 0.1, 0.64), "concrete_dark")
+        for dz in (-0.3, 0.5):                                                             # merlons
+            b.span((x0, roof + 0.3, dz - 0.14), (x0 + 0.3, roof + 0.75, dz + 0.14), "metal")
+            b.span((x1 - 0.3, roof + 0.3, dz - 0.14), (x1, roof + 0.75, dz + 0.14), "metal")
+        b.span((s * (HX - 0.9) - 0.04, roof + 0.55, 0.06), (s * (HX - 0.9) + 0.04, roof + 1.9, 0.14), "dark_wood")   # pennant
+        px0, px1 = sorted((s * (HX - 0.9), s * (HX - 1.9)))
+        b.span((px0, roof + 1.35, 0.07), (px1, roof + 1.85, 0.13), ("shirt_red", "pants_navy")[s > 0])
+    hw = HX + 1.1
+    b.span((-hw, roof, -0.7), (hw, roof + 0.3, 0.9), "dark_wood")                          # beam
+    b.span((-hw + 1.2, roof + 0.3, -0.9), (hw - 1.2, roof + 0.55, 1.0), "terracotta")      # its tiled roof
+    b.span((-hw + 1.6, roof + 0.55, -0.5), (hw - 1.6, roof + 0.75, 0.7), "brick")
+    b.span((-0.5, roof + 0.75, -0.1), (0.5, roof + 1.0, 0.3), "rarity_legend")             # the crown
+    for k, x in enumerate((-0.4, 0.0, 0.4)):
+        b.span((x - 0.1, roof + 1.0, -0.1), (x + 0.1, roof + 1.25 + 0.12 * (k == 1), 0.3), "rarity_legend")
+    for k, x in enumerate((-HX + 0.7, -HX + 1.3, HX - 1.3, HX - 0.7)):
+        b.ball((x, HY + HEAD / 2, -0.17), 0.18, ("rarity_legend", "shirt_red", "shirt_red", "rarity_legend")[k])
+
+
 BUILD = {"alley": _alley, "park": _park, "neighbourhood": _neighbourhood, "woods": _woods, "sewer": _sewer,
-         "desert": _desert, "ruins": _ruins}
+         "desert": _desert, "ruins": _ruins, "snowy": _snowy, "waterpark": _waterpark,
+         "castle": _castle}
 
 
 def build(area, mat):

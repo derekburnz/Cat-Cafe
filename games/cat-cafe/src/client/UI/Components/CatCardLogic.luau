@@ -31,6 +31,14 @@ end
 -- #3196: a cat's Mystic Pool trait for its card: the title in rich text, a dot in the rarity's colour before
 -- "Rare Big Tipper", and one line per effect ("+12% this cat's income"). Nil and no lines for no trait or an id this
 -- client does not know (a newer server's).
+-- #3950: a rarity's "#RRGGBB" deepened a third of the way toward the cards' cocoa ink, as hex without "#"
+local INK = Color3.fromRGB(64, 40, 28)
+function CatCardLogic.strong(color: string): string
+	local ok, parsed = pcall(Color3.fromHex, color)
+	local base = if ok then parsed else Color3.fromRGB(150, 150, 150)
+	return base:Lerp(INK, 0.33):ToHex():upper()
+end
+
 function CatCardLogic.trait(trait: { id: string }?): (string?, { string })
 	if type(trait) ~= "table" or type(trait.id) ~= "string" then
 		return nil, {}
@@ -39,8 +47,11 @@ function CatCardLogic.trait(trait: { id: string }?): (string?, { string })
 	if def == nil then
 		return nil, {}
 	end
-	local hex = tostring(def.rarity.color):gsub("^#", "")
-	local title = string.format('<font color="#%s">●</font> %s', hex, Traits.fullTitle(trait))
+	-- #3950 (Derek 2026-11-13: "the trait doesn't show rarity very well ... maybe bold it and make it stronger
+	-- colored"): the dot and the whole title bold, in the rarity's colour deepened (CatCardLogic.strong) to read on cream
+	local hex = CatCardLogic.strong(tostring(def.rarity.color))
+	local title =
+		string.format('<b><font color="#%s">● %s</font></b>', hex, Traits.fullTitle(trait))
 	return title, Traits.effectLines(trait)
 end
 

@@ -12,6 +12,7 @@
 --                                     ("⏳ Cafe Party in 2:59" from T-3h), "running" (gold, "⏳ Cafe Party · ends in
 --                                     1:59:40" and "next shower 9:12" on a second line) or "ended" ("Cafe Party ended
 --                                     early")
+--   strip(view, seen, now)            the status strip's short words: "⏳ Cafe Party 1:59:40", "Shower 9:12"
 --   banner(view, endsAt)              "Cafe Party! x2 cafe earnings and rare cat showers until 17:00"
 --   board(view, seen, now, at)        the Town Square board's heading, its second line and the effect lines
 --   lines(effects)                    one line per effect: "x2 cafe earnings", "8 rare cat showers", "Lucky, Golden
@@ -299,10 +300,15 @@ end
 
 function EventLogic.chip(view: View?, seen: Seen?, now: number): ({ string }?, ChipKind?)
 	if view ~= nil and running(view, now) then
+		-- #3935 (Derek: "the 2x money event running I believe works but doesn't show anywhere"): the money it pays
+		local money = if view.effects.money > 1
+			then " · x" .. number(view.effects.money) .. " money"
+			else ""
 		local first = string.format(
-			"%s %s · ends in %s",
+			"%s %s%s · ends in %s",
 			EventLogic.ICON,
 			view.title,
+			money,
 			EventLogic.clock(view.endsAt - now)
 		)
 		local shower = EventLogic.nextShower(view, now)
@@ -324,6 +330,35 @@ function EventLogic.chip(view: View?, seen: Seen?, now: number): ({ string }?, C
 		end
 	end
 	return nil, nil
+end
+
+-- Derek 2026-11-13 ("stretch it long not downward ... narrow it down to 3 days Event timeleft and if clicked it
+-- shows the more details"): the status strip's short words, a name and its time left each, while chip's full lines
+-- go in the card a tap opens: "⏳ Cafe Party 1:59:40" and "Shower 9:40" while it runs; otherwise chip's own line
+function EventLogic.strip(view: View?, seen: Seen?, now: number): { string }?
+	if view ~= nil and running(view, now) then
+		local first = string.format(
+			"%s %s %s",
+			EventLogic.ICON,
+			view.title,
+			EventLogic.clock(view.endsAt - now)
+		)
+		local shower = EventLogic.nextShower(view, now)
+		if shower ~= nil then
+			return { first, "Shower " .. EventLogic.clock(shower) }
+		end
+		return { first }
+	end
+	local lines = EventLogic.chip(view, seen, now)
+	return lines
+end
+
+-- #3935: the running event's money for the boosts card (Components/BoostList), nil when none runs or it pays x1
+function EventLogic.moneyBoost(view: View?, now: number): { name: string, money: number }?
+	if view == nil or not running(view, now) or view.effects.money <= 1 then
+		return nil
+	end
+	return { name = view.title, money = view.effects.money }
 end
 
 -- the start banner's headline: the event's two biggest effects

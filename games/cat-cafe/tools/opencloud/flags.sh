@@ -56,7 +56,17 @@
 #                 no entry keeps the Money Potion basket
 #   traitBundles  true offers the Trait Token bundles (20 and 50, Robux) on the Mystic Pool card once the free rolls
 #                 are used (#3864); only after the products exist and QA
+#   storeRework   true shows the reworked Store (#3572): Cats above Passes, cheapest first, two columns of cards
+#                 with the picture at the left; client only, read when the Store is built at join
 #                 "New kind!" line and the five cats pointer (#3529); client and telemetry only, after review and QA
+#   indexTo70     true shows and pays the Index milestones past 50 and the Rainbow track past 25 (#3992); on
+#                 only with a restart publish, as an older server drops a claim it does not know
+#   quietStart    true hides other players' pop ups and the extra tips and cards in a new player's first 15 minutes
+#                 (#4005); after the restart that carries it
+#   quietAway     true holds the food bowl cards while a player is out catching, until they are back (#4035); client
+#                 only
+#   riftRun       true plays the Rift Run cutscene for a Mythic or Secret trait roll (Effects/RiftRun); client
+#                 only, safe at any time
 #   menuFamily    true gives every dark window the station menu family's look (#3558); client only, a window
 #                 open at the change keeps its look until it is opened again
 #   speedShoes    true puts the Speed Shoes on the Mystery Market shelf and counts their carry speed (#3535);
@@ -78,10 +88,10 @@
 # Usage:  tools/opencloud/flags.sh show
 #         tools/opencloud/flags.sh set trading true|false
 #         tools/opencloud/flags.sh set tradeMinTier <0-99>
-#         tools/opencloud/flags.sh set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours|menuFamily|speedShoes|petCats|returnGift|stuckCall|fxLite|picnicTreats|traitBundles true|false
-#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours|menuFamily|speedShoes|petCats|returnGift|stuckCall|fxLite|picnicTreats|traitBundles
+#         tools/opencloud/flags.sh set <any LiveFlags.KEYS switch> true|false
+#         tools/opencloud/flags.sh clear trading|tradeMinTier|<any LiveFlags.KEYS switch>
 # clear writes the text "config" for trading and tradeMinTier, which TradeVault reads as unset (trading on, Config's
-# minimum tier), true for codes, rally, tradeCrates, awayNotes, starterRefill, swiftPaws, alleyBin, arcade, circleStreak, stuckCall and fxLite, and false for tradeFish, nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, bagColours, menuFamily, speedShoes, petCats, returnGift, picnicTreats and traitBundles (their default), so no key needs delete
+# minimum tier), and each switch's default for the rest (false for those in LiveFlags.OFF_BY_DEFAULT, true otherwise), so no key needs delete
 # permission. Every change reads both keys back. Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -91,8 +101,27 @@ STORE=CatCafe_Flags # TradeVault.FLAGS
 entries=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores/$STORE/entries
 
 usage() {
-	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours|menuFamily|speedShoes|petCats|returnGift|stuckCall|fxLite|picnicTreats|traitBundles true|false | clear trading|tradeMinTier|codes|rally|tradeCrates|awayNotes|starterRefill|swiftPaws|alleyBin|arcade|circleStreak|tradeFish|nightCatch|loadingScreen|goldenDrops|traits|swiftPaws5|mouseDash|cartTier6|secretCats|luckyCharm|rareCatsTab|afkCafe|autoRejoin|binRoll|yardSaleRoll|introSplit|newKindTag|parkGateTrail|touchCatchReach|rankUpSpotlight|bagColours|menuFamily|speedShoes|petCats|returnGift|stuckCall|fxLite|picnicTreats|traitBundles" >&2
+	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set <switch> true|false | clear trading|tradeMinTier|<switch>" >&2
+	echo "switches (src/shared/LiveFlags.luau KEYS): ${KEYS[*]}" >&2
 	exit 2
+}
+
+# #4141: the switches come from LiveFlags.luau itself (KEYS, and OFF_BY_DEFAULT for the ones that start off), so a new
+# switch can be set the moment it merges, with no list here to keep in step. LIVEFLAGS points at the file.
+LIVEFLAGS=${LIVEFLAGS:-$(dirname "$0")/../../src/shared/LiveFlags.luau}
+[ -f "$LIVEFLAGS" ] || { echo "LiveFlags.luau not found at $LIVEFLAGS" >&2; exit 1; }
+mapfile -t KEYS < <(awk '/^LiveFlags.KEYS = \{/{on=1;next} on&&/^\}/{exit} on' "$LIVEFLAGS" | grep -o '^[[:space:]]*"[A-Za-z0-9]*"' | tr -d ' \t"')
+mapfile -t OFF_KEYS < <(awk '/^LiveFlags.OFF_BY_DEFAULT = \{/{on=1;next} on&&/^\}/{exit} on' "$LIVEFLAGS" | grep -o '^[[:space:]]*[A-Za-z0-9]* = true' | awk '{print $1}')
+[ "${#KEYS[@]}" -gt 0 ] || { echo "no switches read from $LIVEFLAGS" >&2; exit 1; }
+is_key() {
+	local k
+	for k in "${KEYS[@]}"; do [ "$k" = "$1" ] && return 0; done
+	return 1
+}
+starts_off() {
+	local k
+	for k in "${OFF_KEYS[@]}"; do [ "$k" = "$1" ] && return 0; done
+	return 1
 }
 
 reply=$(mktemp)
@@ -176,6 +205,11 @@ show_key() {
 	speedShoes) if [ "$raw" = true ]; then meaning="Speed Shoes ON in every server"; else meaning="Speed Shoes off (its default)"; fi ;;
 	picnicTreats) if [ "$raw" = true ]; then meaning="Picnic Treats (pick one of three) ON in every server"; else meaning="Picnic Treats off (its default: the Money Potion basket)"; fi ;;
 	traitBundles) if [ "$raw" = true ]; then meaning="Trait Token bundles offered at the Mystic Pool"; else meaning="Trait Token bundles off (its default)"; fi ;;
+	storeRework) if [ "$raw" = true ]; then meaning="the reworked Store layout"; else meaning="the Store as before (its default)"; fi ;;
+	indexTo70) if [ "$raw" = true ]; then meaning="the Index milestones up to every cat"; else meaning="the Index milestones up to 50 (its default)"; fi ;;
+	quietStart) if [ "$raw" = true ]; then meaning="Quiet start for new players ON"; else meaning="Quiet start off (its default)"; fi ;;
+	quietAway) if [ "$raw" = true ]; then meaning="Food bowl cards wait while out catching ON"; else meaning="Food bowl cards show anywhere (its default)"; fi ;;
+	riftRun) if [ "$raw" = true ]; then meaning="the Rift Run cutscene for Mythic and Secret trait rolls"; else meaning="the pool's own trait cutscene (its default)"; fi ;;
 	circleStreak) if [ "$raw" = false ]; then meaning="Circle Streak VAULTED in every server (no new games)"; else meaning="Circle Streak on"; fi ;;
 	tradeMinTier)
 		if [[ $raw =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
@@ -183,6 +217,11 @@ show_key() {
 		else
 			meaning="Config.TradeMinTier"
 		fi
+		;;
+	*)
+		if starts_off "$key"; then
+			if [ "$raw" = true ]; then meaning="ON in every server"; else meaning="off (its default)"; fi
+		elif [ "$raw" = false ]; then meaning="OFF in every server"; else meaning="on"; fi
 		;;
 	esac
 	echo "$key = $raw ($meaning)"
@@ -194,44 +233,10 @@ show() {
 	[ -z "${GITHUB_STEP_SUMMARY:-}" ] || echo "### $STORE" >>"$GITHUB_STEP_SUMMARY"
 	show_key trading
 	show_key tradeMinTier
-	show_key codes
-	show_key rally
-	show_key tradeCrates
-	show_key awayNotes
-	show_key starterRefill
-	show_key swiftPaws
-	show_key alleyBin
-	show_key arcade
-	show_key tradeFish
-	show_key nightCatch
-	show_key loadingScreen
-	show_key goldenDrops
-	show_key traits
-	show_key swiftPaws5
-	show_key mouseDash
-	show_key circleStreak
-	show_key cartTier6
-	show_key secretCats
-	show_key luckyCharm
-	show_key rareCatsTab
-	show_key afkCafe
-	show_key autoRejoin
-	show_key binRoll
-	show_key yardSaleRoll
-	show_key introSplit
-	show_key newKindTag
-	show_key parkGateTrail
-	show_key touchCatchReach
-	show_key rankUpSpotlight
-	show_key bagColours
-	show_key menuFamily
-	show_key speedShoes
-	show_key petCats
-	show_key returnGift
-	show_key stuckCall
-	show_key fxLite
-	show_key picnicTreats
-	show_key traitBundles
+	local key
+	for key in "${KEYS[@]}"; do
+		show_key "$key"
+	done
 }
 
 # write key json-value
@@ -251,9 +256,9 @@ show)
 set)
 	[ $# -eq 3 ] || usage
 	case "$2" in
-	trading | codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | newKindTag | parkGateTrail | touchCatchReach | rankUpSpotlight | bagColours | menuFamily | speedShoes | petCats | returnGift | stuckCall | fxLite | picnicTreats | traitBundles) [[ $3 == true || $3 == false ]] || usage ;;
+	trading) [[ $3 == true || $3 == false ]] || usage ;;
 	tradeMinTier) [[ $3 =~ ^[0-9]{1,2}$ ]] || usage ;;
-	*) usage ;;
+	*) is_key "$2" && [[ $3 == true || $3 == false ]] || usage ;;
 	esac
 	write "$2" "$3"
 	;;
@@ -261,9 +266,10 @@ clear)
 	[ $# -eq 2 ] || usage
 	case "$2" in
 	trading | tradeMinTier) write "$2" '"config"' ;;
-	codes | rally | tradeCrates | awayNotes | starterRefill | swiftPaws | alleyBin | arcade | circleStreak | stuckCall | fxLite) write "$2" true ;;
-	tradeFish | nightCatch | loadingScreen | goldenDrops | traits | swiftPaws5 | mouseDash | cartTier6 | secretCats | luckyCharm | rareCatsTab | afkCafe | autoRejoin | binRoll | yardSaleRoll | introSplit | newKindTag | parkGateTrail | touchCatchReach | rankUpSpotlight | bagColours | menuFamily | speedShoes | petCats | returnGift | picnicTreats | traitBundles) write "$2" false ;;
-	*) usage ;;
+	*)
+		is_key "$2" || usage
+		if starts_off "$2"; then write "$2" false; else write "$2" true; fi
+		;;
 	esac
 	;;
 *) usage ;;

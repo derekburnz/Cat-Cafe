@@ -469,13 +469,118 @@ function Logic.poolCue(beat: any, step: any): (string?, number?)
 	return nil, nil
 end
 
+-- #4069: the new areas' own sounds, off the effects' beats. `beat` "step" is your step in an area (snow crunches in
+-- the Snowy Mountain), "arrive" a cat's gust where it lands (the Blizzard Cat's), "catch" a catch there: the
+-- Blizzard Cat's gust again and the White Tiger Cat's frost chime. Nil for everything else, which keeps the sounds
+-- every catch already has.
+local AREA_STEPS: { [string]: string } = { snowy = "snowStep" }
+-- #4070: the Water Cat lands and is caught with a splash (the Camp pond's, until the Water Park has its own sheet)
+-- #4071: the Dragon Knight lands and is caught with a little dragon's roar (the Dragon Keep hatchling's)
+local CAT_ARRIVES: { [string]: string } =
+	{ blizzard = "snowGust", water = "campSplash", dragon_knight = "dragonChirp" }
+local CAT_CATCHES: { [string]: string } = {
+	blizzard = "snowGust",
+	white_tiger = "frostChime",
+	water = "campSplash",
+	dragon_knight = "dragonChirp",
+}
+function Logic.areaCue(beat: any, area: any, catId: any): string?
+	if beat == "step" then
+		return if type(area) == "string" then AREA_STEPS[area] else nil
+	elseif beat == "arrive" then
+		return if type(catId) == "string" then CAT_ARRIVES[catId] else nil
+	elseif beat == "catch" then
+		return if type(catId) == "string" then CAT_CATCHES[catId] else nil
+	end
+	return nil
+end
+
+-- #4104: the Cat Fusion Observatory's window (Effects/FusionFx.onBeat), flat: the chime as the five tiles leave, and
+-- on Collect the "ta-da", the longer one for a rainbow. The tiles meeting has no sound of its own: the chime's last
+-- note lands there.
+function Logic.fusionCue(beat: any, coat: any): string?
+	if beat == "start" then
+		return "fusionStart"
+	elseif beat == "collect" then
+		return if coat == "rainbow" then "fusionCollectRainbow" else "fusionCollect"
+	end
+	return nil
+end
+
 -- #3846: a Legendary or Mythic trait roll's cutscene (Effects/BigTraitCut.onBeat): the fanfare lands with the big
 -- moment, the Mythical jingle for a Mythic, else the Legendary one. Flat, like the reveal.
 function Logic.bigTraitCue(beat: any, rarity: any): string?
 	if beat ~= "fanfare" then
 		return nil
 	end
-	return if rarity == "mythic" then "jingleMythical" else "jingleLegendary"
+	-- #3908: a Secret trait gets the Mythical sting too, the biggest the game has
+	return if rarity == "mythic" or rarity == "secret" then "jingleMythical" else "jingleLegendary"
+end
+
+-- Derek 2026-11-13: the Rift Run's beats (Effects/RiftRun.onBeat), flat. A gate is the pool's step chime one note up
+-- the scale each tier (`step` 1 Common up to 5 Legendary), the Mythic gate the pool's Mythic flash and the Secret
+-- one the Secret jingle; the white over the pool a poof, the landing a soft drop, a meteor the cannon's landing
+-- thump, the dark the Secret shimmer, the rift tearing open the gate's opening and the leap the cannon's launch.
+-- The fanfare is BigTraitCut's, after.
+function Logic.riftRunCue(beat: any, step: any, tier: any): (string?, number?)
+	if beat == "gate" then
+		if tier == "secret" then
+			return "jingleSecret", nil
+		elseif tier == "mythic" then
+			return "poolMythic", nil
+		end
+		return "poolStep", if type(step) == "number" then math.clamp(math.floor(step), 1, 5) else 1
+	end
+	local cues: { [string]: string } = {
+		flare = "travelPoof",
+		land = "catDrop",
+		meteor = "cannonLand",
+		dark = "secretNear",
+		tear = "gateOpen",
+		leap = "cannonLaunch",
+	}
+	return if type(beat) == "string" then cues[beat] else nil, nil
+end
+
+-- #4062: the Dragon Keep's stage-up cutscene (Effects/DragonRise.onBeat) and the card deal (Effects/CardFlip.onBeat)
+-- on the Keep sheet's own sounds: the swing a whoosh, the curl the dragon's rumble, the crack its shell, the lap a
+-- wing beat and its landing a thump, and the roar by stage: a chirp for the Hatchling and the Whelp (1 and 2), the
+-- proud roar for the Drake and the Elder (3 and 4), the grand one with its bell call for Crowned (5). The second
+-- value is a cue to play `Logic.DRAGON_FANFARE_AFTER` seconds later: the rank-up jingle under stages 1 to 4 (the
+-- grand roar carries its own). A card's flip is its paper flick; a rare face its chime, a Legendary or Mythic face
+-- its rarity's jingle.
+Logic.DRAGON_FANFARE_AFTER = 0.7
+function Logic.dragonRiseCue(beat: any, stage: any): (string?, string?)
+	if beat == "roar" then
+		local n = if type(stage) == "number" then stage else 1
+		if n >= 5 then
+			return "dragonRoarGrand", nil
+		end
+		return if n >= 3 then "dragonRoar" else "dragonChirp", "jingleRankUp"
+	end
+	local cues: { [string]: string } = {
+		swing = "travelPoof",
+		curl = "dragonRumble",
+		crack = "dragonCrack",
+		lap = "dragonWing",
+		land = "cannonLand",
+	}
+	return if type(beat) == "string" then cues[beat] else nil, nil
+end
+
+function Logic.cardFlipCue(beat: any, rarity: any): string?
+	if beat == "flip" then
+		return "cardFlip"
+	elseif beat == "rare" then
+		local name = if type(rarity) == "string" then string.lower(rarity) else ""
+		if name == "mythic" or name == "mythical" or name == "secret" then
+			return "jingleMythical"
+		elseif name == "legendary" then
+			return "jingleLegendary"
+		end
+		return "cardRare"
+	end
+	return nil
 end
 
 -- #3430: the Mystic Pool's first walk-up cutscene (Effects/MysticIntroCut.onBeat) plays the pool's own chimes,
@@ -709,6 +814,27 @@ function Logic.rallyFrom(before: { lap: number, points: number }?, lap: any, act
 		return before.points
 	end
 	return if lap > before.lap then 0 else nil
+end
+
+-- #4061 the Ticket Booth between two ProfileSyncs: `before` and `after` are the syncs' `ticketBooth` views (nil
+-- while the switch is off or the tier is not reached). True when a prize was bought: tickets spent went up. Earning
+-- tickets is silent, since they come with every catch and the catch has its own sounds.
+function Logic.ticketPrizeBought(before: any, after: any): boolean
+	if type(before) ~= "table" or type(after) ~= "table" then
+		return false
+	end
+	local was, now = before.spent, after.spent
+	return type(was) == "number" and type(now) == "number" and now > was
+end
+
+-- #4062 the Dragon Keep between two ProfileSyncs: `before` and `after` are the syncs' `dragon` views (nil while the
+-- switch is off). True when a Rekindle hand has just come up: the hand showing is a "rekindle" one and was not
+-- before. A stage hand is the cutscene's (Effects/DragonRise), with its own sounds.
+function Logic.keepRekindled(before: any, after: any): boolean
+	if type(before) ~= "table" or type(after) ~= "table" then
+		return false
+	end
+	return after.handKind == "rekindle" and before.handKind ~= "rekindle"
 end
 
 -- The bait bowl (F28) between two ProfileSyncs: `before` and `after` are the syncs' `bait` (nil for an empty bowl)

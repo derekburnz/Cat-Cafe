@@ -15,6 +15,7 @@ local CampExtrasLogic = require(script.Parent.Parent.Components.CampExtrasLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
+local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local RollBoard = require(script.Parent.Parent.Components.RollBoard)
 local RollBoardLogic = require(script.Parent.Parent.Components.RollBoardLogic)
@@ -57,26 +58,30 @@ type Card = {
 	crateId: string,
 	frame: Frame,
 	icon: ItemIcon.ItemIcon,
+	tile: Frame,
+	status: TextLabel, -- #3953: "Free today" / "Taken"
 	name: TextLabel,
 	market: TextLabel,
 	buy: Button.Button,
-	odds: Button.Button, -- #1051: turns the card to its odds and back
-	oddsSheet: Frame,
-	oddsLabel: string,
 	label: string,
 	enabled: boolean?,
+	bought: boolean?,
 }
 
-local MAX_SIZE = Vector2.new(480, 310)
-local CARD_W = 200
+local MAX_SIZE = Vector2.new(560, 310) -- #3953: wider (was 480), room for the pick's side card
 local CARD_GAP = 14
 local PICTURE = 76
-local ODDS_H = 42 -- the Odds button: a 37 px face over the lip, a mouse's 36 px tap (as the Market's Open)
+local TILE = 116 -- #3953: the crate's picture tile on the wide card
+local STATUS_H = 22 -- the "Free today" pill
+local PILL_H = 20 -- an odds pill
+local FREE_TODAY = "FREE TODAY"
+local TAKEN = "TAKEN"
 local SUBTITLE = "A free crate every day" -- #1051
 local PICK_NOTE = "Crates you win open free at the Golden Fish Market"
 local TAKE_NOTE = "Taken crates open free at the Golden Fish Market"
 local PICK_GAP = 10
 local PICK_BUTTON = "Lucky pick"
+local PICK_TILE = 64 -- #3953: the picture on the pick's side card
 local LANDED_SECONDS = 1.5 -- the light stays on the won row this long
 local PENDING_SECONDS = 5 -- a buy with no answer lets the button go again after this long
 local GAP = Theme.sizes.gap
@@ -86,7 +91,13 @@ local Workspace = game:GetService("Workspace")
 local YardSale = {}
 YardSale.__index = YardSale
 
-local function text(props: { [string]: any }): TextLabel
+-- Ink words on a light fill (gold, sky), white on a deep one, as the Mystic Pool's trait pills (#3950)
+local function inkOn(fill: Color3): Color3
+	local lum = 0.2126 * fill.R + 0.7152 * fill.G + 0.0722 * fill.B
+	return if lum > 0.45 then Theme.colors.ink else Theme.colors.white
+end
+
+local function text(props: { [string]: any }, children: { Instance }?): TextLabel
 	local merged: { [string]: any } = {
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
@@ -99,7 +110,7 @@ local function text(props: { [string]: any }): TextLabel
 	for key, value in props do
 		merged[key] = value
 	end
-	return Create("TextLabel", merged)
+	return Create("TextLabel", merged, children)
 end
 
 function YardSale.new(callbacks: Callbacks): YardSale
@@ -185,19 +196,69 @@ function YardSale.new(callbacks: Callbacks): YardSale
 	board.frame.AnchorPoint = Vector2.zero
 	board.frame.Position = UDim2.new()
 	self._board = board
+	-- #3953: the side is a cream card as the crate card: the Yard Sale's picture on a gold tile with a "FREE" pill,
+	-- the line in ink (white words sat on the dark body before and could not be read), the wide Lucky pick button
 	local side: Frame = Create("Frame", {
 		Name = "Side",
-		BackgroundTransparency = 1,
+		BackgroundColor3 = CARD.card,
+		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromScale(1, 0),
-		Size = UDim2.new(1, -(RollBoard.WIDTH + 12 + PICK_GAP), 1, 0),
+		Position = UDim2.new(1, -3, 0, 3),
+		Size = UDim2.new(1, -(RollBoard.WIDTH + 12 + PICK_GAP + 3), 1, -6),
 		Parent = self._pickFrame,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
+	local pickTile: Frame = Create("Frame", {
+		Name = "Tile",
+		AnchorPoint = Vector2.new(0.5, 0),
+		BackgroundColor3 = CARD.goldCard,
+		BorderSizePixel = 0,
+		Position = UDim2.new(0.5, 0, 0, 8),
+		Size = UDim2.fromOffset(PICK_TILE, PICK_TILE),
+		Parent = side,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = CARD.cardStroke, Thickness = 2 }),
+	})
+	self._pickIcon = ItemIcon.new({
+		parent = pickTile,
+		size = UDim2.fromOffset(PICK_TILE - 10, PICK_TILE - 10),
+		anchorPoint = Vector2.new(0.5, 0.5),
+		position = UDim2.fromScale(0.5, 0.5),
+	})
+	self._pickIcon:set(nil, Theme.icons.crate, "Rare", ShopIcons.hud("YardSale"))
+	local free: TextLabel = text({
+		Name = "Free",
+		AutomaticSize = Enum.AutomaticSize.X,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Theme.colors.goodDark,
+		Position = UDim2.new(0.5, 0, 0, 8 + PICK_TILE),
+		Size = UDim2.fromOffset(0, STATUS_H),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textTiny + 1,
+		TextColor3 = Theme.colors.white,
+		TextTruncate = Enum.TextTruncate.None,
+		Text = "FREE",
+		ZIndex = 2,
+		Parent = side,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
+		Create("UIStroke", {
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Color = CARD.cardStroke,
+			Thickness = 2,
+		}),
+	})
+	Outline.text(free, 1)
+	self._pickFree = free
 	self._pickLine = text({
 		Name = "Line",
-		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.new(0, 0, 0.5, -(self._buyH / 2 + 6)),
-		Size = UDim2.new(1, 0, 0, 36),
+		Position = UDim2.fromOffset(8, 8 + PICK_TILE + STATUS_H / 2 + 2),
+		Size = UDim2.new(1, -16, 1, -(8 + PICK_TILE + STATUS_H / 2 + 2 + self._buyH + 12)),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
 		TextWrapped = true,
@@ -210,10 +271,10 @@ function YardSale.new(callbacks: Callbacks): YardSale
 		name = "LuckyPick",
 		text = PICK_BUTTON,
 		style = "primary",
-		size = UDim2.new(1, 0, 0, self._buyH),
-		anchorPoint = Vector2.new(0.5, 0.5),
-		position = UDim2.fromScale(0.5, 0.5),
-		textSize = Theme.sizes.textBody,
+		size = UDim2.new(1, -16, 0, self._buyH),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -8),
+		textSize = Theme.sizes.textBody + 2,
 		parent = side,
 		onClick = function()
 			self:_pressPick()
@@ -255,15 +316,19 @@ function YardSale._clear(self: any)
 	for _, card: Card in self._cards do
 		card.icon:destroy()
 		card.buy:destroy()
-		card.odds:destroy()
 		card.frame:Destroy()
 	end
 	table.clear(self._cards)
 end
 
--- One card per crate in today's stock; rebuilt when the stock's crates change (a new day, a rank up).
+-- One card per crate in today's stock; rebuilt when the stock's crates change (a new day, a rank up). #3953: a wide
+-- picture card as the station menus mock: the crate's picture on a gold tile at the left with a "Free today"
+-- (or "Taken") pill on the tile's edge; at the right the crate's name in the display font, the Market's price and the crate's odds as coloured
+-- rarity pills, always in view (the take is free but the crate is random: monetization-policy section 2); the wide
+-- Take button along the bottom.
 function YardSale._build(self: any, rows: { CampExtrasLogic.YardRow })
 	self:_clear()
+	local count = math.max(#rows, 1)
 	for index, row in rows do
 		local crateId = row.crateId
 		local crate = self:_crate(crateId)
@@ -272,17 +337,35 @@ function YardSale._build(self: any, rows: { CampExtrasLogic.YardRow })
 			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
 			LayoutOrder = index,
-			Size = UDim2.fromOffset(CARD_W, self._cardH),
+			Size = UDim2.new(
+				1 / count,
+				-math.floor(CARD_GAP * (count - 1) / count),
+				0,
+				self._cardH
+			),
 			Parent = self._row,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 			Create("UIStroke", { Color = CARD.cardStroke, Thickness = Theme.sizes.stroke }),
 		})
+		local top = self._cardH - self._buyH - 8 -- the room over the Take button
+		local tileSize = math.min(TILE, top - 8 - math.ceil(STATUS_H / 2) - 4)
+		local tile: Frame = Create("Frame", {
+			Name = "Tile",
+			BackgroundColor3 = CARD.goldCard,
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(10, 8),
+			Size = UDim2.fromOffset(tileSize, tileSize),
+			Parent = frame,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+			Create("UIStroke", { Color = CARD.cardStroke, Thickness = 2 }),
+		})
 		local icon = ItemIcon.new({
-			parent = frame,
-			size = UDim2.fromOffset(PICTURE, PICTURE),
-			anchorPoint = Vector2.new(0.5, 0),
-			position = UDim2.new(0.5, 0, 0, 8),
+			parent = tile,
+			size = UDim2.fromOffset(tileSize - 12, tileSize - 12),
+			anchorPoint = Vector2.new(0.5, 0.5),
+			position = UDim2.fromScale(0.5, 0.5),
 		})
 		icon:set(
 			if crate ~= nil then (crate :: any).asset or ShopIcons.crateModel(crateId) else nil,
@@ -290,86 +373,109 @@ function YardSale._build(self: any, rows: { CampExtrasLogic.YardRow })
 			if crate ~= nil and crate.golden then "Legendary" else "Rare",
 			ShopIcons.crate(crateId)
 		)
+		-- "Free today" / "Taken" on the tile's bottom edge
+		local status: TextLabel = text({
+			Name = "Status",
+			AutomaticSize = Enum.AutomaticSize.X,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromOffset(10 + math.floor(tileSize / 2), 8 + tileSize),
+			ZIndex = 2,
+			BackgroundTransparency = 0,
+			BackgroundColor3 = Theme.colors.goodDark,
+			Size = UDim2.fromOffset(0, STATUS_H),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textTiny + 1,
+			TextColor3 = Theme.colors.white,
+			TextTruncate = Enum.TextTruncate.None,
+			Text = FREE_TODAY,
+			Parent = frame,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
+			Create("UIStroke", {
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Color = CARD.cardStroke,
+				Thickness = 2,
+			}),
+		})
+		Outline.text(status, 1)
+		local left = 10 + tileSize + 12
+		local info: Frame = Create("Frame", {
+			Name = "Info",
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(left, 8),
+			Size = UDim2.new(1, -(left + 10), 0, top - 8),
+			Parent = frame,
+		})
 		local name = text({
 			Name = "Name",
-			Position = UDim2.fromOffset(6, PICTURE + 14),
-			Size = UDim2.new(1, -12, 0, 22),
+			Size = UDim2.new(1, 0, 0, 28),
 			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textBody + 1,
+			TextSize = Theme.sizes.textTitle - 2,
+			TextXAlignment = Enum.TextXAlignment.Left,
 			Text = if crate ~= nil then crate.name else crateId,
-			Parent = frame,
+			Parent = info,
 		})
 		local marketPrice: number? = if crate ~= nil then crate.price else nil
 		local market = text({
 			Name = "Market",
-			Position = UDim2.fromOffset(6, PICTURE + 36),
-			Size = UDim2.new(1, -12, 0, 18),
+			Position = UDim2.fromOffset(0, 28),
+			Size = UDim2.new(1, 0, 0, 18),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
 			TextColor3 = CARD.subtext,
-			Text = if marketPrice ~= nil then ("%d at the Market"):format(marketPrice) else "",
-			Parent = frame,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Text = if marketPrice ~= nil
+				then ("%d golden fish at the Market"):format(marketPrice)
+				else "",
+			Parent = info,
 		})
-		-- the crate's rarity table over the picture and name, under the Odds and Take buttons (#1051)
-		local sheet: Frame = Create("Frame", {
-			Name = "OddsSheet",
-			BackgroundColor3 = CARD.card,
-			BorderSizePixel = 0,
-			Size = UDim2.new(1, 0, 1, -(self._buyH + 8)),
-			Visible = false,
-			ZIndex = 2,
-			Parent = frame,
+		-- the odds as pills, two to a row (#3953; #1051's Odds sheet folded into the card)
+		local pills: Frame = Create("Frame", {
+			Name = "Odds",
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(0, 50),
+			Size = UDim2.new(1, 0, 0, PILL_H * 3 + 8),
+			Parent = info,
 		}, {
-			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			Create("UIPadding", {
-				PaddingTop = UDim.new(0, ODDS_H + 10),
-				PaddingLeft = UDim.new(0, 14),
-				PaddingRight = UDim.new(0, 14),
-			}),
-			Create("UIListLayout", {
-				Padding = UDim.new(0, 1),
+			Create("UIGridLayout", {
+				CellPadding = UDim2.fromOffset(4, 4),
+				CellSize = UDim2.new(0.5, -2, 0, PILL_H),
 				SortOrder = Enum.SortOrder.LayoutOrder,
 			}),
 		})
 		local odds: { [string]: number }? = if crate ~= nil then crate.odds else nil
 		for order, line in CampExtrasLogic.yardOddsLines(odds) do
-			local rarityLine = text({
+			local fill = Theme.rarityColor(line.rarity)
+			local pill: TextLabel = text({
 				Name = line.rarity,
 				LayoutOrder = order,
-				Size = UDim2.new(1, 0, 0, 16), -- five rows fit between the Odds and Take buttons
+				BackgroundTransparency = 0,
+				BackgroundColor3 = fill,
 				FontFace = Theme.fonts.bodyBold,
-				TextSize = Theme.sizes.textSmall,
-				TextColor3 = Theme.rarityColor(line.rarity),
-				TextXAlignment = Enum.TextXAlignment.Left,
-				Text = line.rarity,
-				ZIndex = 2,
-				Parent = sheet,
+				TextScaled = true,
+				TextColor3 = inkOn(fill),
+				TextTruncate = Enum.TextTruncate.None,
+				Text = string.upper(line.rarity) .. " " .. line.text,
+				Parent = pills,
+			}, {
+				Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+				Create(
+					"UIPadding",
+					{ PaddingLeft = UDim.new(0, 5), PaddingRight = UDim.new(0, 5) }
+				),
+				Create("UIStroke", {
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+					Color = CARD.cardStroke,
+					Thickness = 2,
+				}),
+				Create(
+					"UITextSizeConstraint",
+					{ MaxTextSize = Theme.sizes.textTiny, MinTextSize = 9 }
+				),
 			})
-			text({
-				Name = "Chance",
-				Size = UDim2.fromScale(1, 1),
-				FontFace = Theme.fonts.bodyBold,
-				TextSize = Theme.sizes.textSmall,
-				TextXAlignment = Enum.TextXAlignment.Right,
-				Text = line.text,
-				ZIndex = 2,
-				Parent = rarityLine,
-			})
+			pill.Name = line.rarity
 		end
-		local oddsButton = Button.new({
-			name = "Odds",
-			text = "Odds",
-			style = "ghost",
-			size = UDim2.fromOffset(56, ODDS_H),
-			position = UDim2.fromOffset(6, 6),
-			textSize = Theme.sizes.textSmall,
-			parent = frame,
-			onClick = function()
-				sheet.Visible = not sheet.Visible
-				self:_paint()
-			end,
-		})
-		oddsButton.instance.ZIndex = 3
 		local buy = Button.new({
 			name = "Buy",
 			text = tostring(row.price),
@@ -378,7 +484,7 @@ function YardSale._build(self: any, rows: { CampExtrasLogic.YardRow })
 			size = UDim2.new(1, -16, 0, self._buyH),
 			anchorPoint = Vector2.new(0.5, 1),
 			position = UDim2.new(0.5, 0, 1, -8),
-			textSize = Theme.sizes.textBody + 1,
+			textSize = Theme.sizes.textBody + 2,
 			parent = frame,
 			onClick = function()
 				self:_press(crateId)
@@ -388,14 +494,14 @@ function YardSale._build(self: any, rows: { CampExtrasLogic.YardRow })
 			crateId = crateId,
 			frame = frame,
 			icon = icon,
+			tile = tile,
+			status = status,
 			name = name,
 			market = market,
 			buy = buy,
-			odds = oddsButton,
-			oddsSheet = sheet,
-			oddsLabel = "Odds",
 			label = tostring(row.price),
 			enabled = nil,
+			bought = nil,
 		})
 	end
 end
@@ -483,6 +589,9 @@ function YardSale._paintPick(self: any): boolean
 		self._pickEnabled = enabled
 		self._pickButton:setEnabled(enabled)
 	end
+	local free: TextLabel = self._pickFree
+	free.Text = if waiting then "SOON" else "FREE"
+	free.BackgroundColor3 = if waiting then Theme.colors.disabledDark else Theme.colors.goodDark
 	self._pickLine.Text = if self._rolling
 		then RollBoardLogic.YARD_ROLLING
 		elseif waiting then made.line
@@ -603,14 +712,20 @@ function YardSale._paint(self: any)
 			card.enabled = enabled
 			card.buy:setEnabled(enabled)
 		end
-		local oddsText = if card.oddsSheet.Visible then "Back" else "Odds"
-		if card.oddsLabel ~= oddsText then
-			card.oddsLabel = oddsText
-			card.odds:setText(oddsText)
+		if card.bought ~= row.bought then
+			card.bought = row.bought
+			card.status.Text = if row.bought
+				then TAKEN
+				elseif row.price > 0 then "TODAY"
+				else FREE_TODAY
+			card.status.BackgroundColor3 = if row.bought
+				then Theme.colors.disabledDark
+				else Theme.colors.goodDark
+			local faded = if row.bought then 0.5 else 0
+			card.name.TextTransparency = faded
+			card.market.TextTransparency = faded
+			card.tile.BackgroundTransparency = faded
 		end
-		local faded = if row.bought then 0.5 else 0
-		card.name.TextTransparency = faded
-		card.market.TextTransparency = faded
 	end
 	-- No stock counts or restock clocks in shop windows (#1190, the friend 11-04); the server's stock rules are unchanged.
 	self._have.Text = ("You have %s golden fish"):format(ShortNumber.format(self._fish))
@@ -688,6 +803,7 @@ function YardSale.destroy(self: any)
 	self._tick += 1
 	self._rollToken += 1
 	self._pickButton:destroy()
+	self._pickIcon:destroy()
 	self._board:destroy()
 	self:_clear()
 	self._panel:destroy()

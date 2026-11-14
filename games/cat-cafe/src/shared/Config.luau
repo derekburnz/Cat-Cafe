@@ -6,11 +6,17 @@
 local Config = {
 	ServerPlayers = 8,
 	-- #1796 (Derek2 11-06: the tutorial asks for a table and then the Bait bowl, and $50 covered neither): the first
-	-- table, the Bait bowl and its Kibble ($150 + $600 + $100), so tutorial steps 3 and 4 never wait on coins
-	StartCoins = 850,
+	-- table, the Bait bowl and its Kibble ($150 + $600 + $100), so tutorial steps 3 and 4 never wait on coins. #4097:
+	-- 850 to 250 now the table (#3660), the bowl and its Kibble are given: what a new player had left after buying the
+	-- bowl, so the money after the tutorial is as before
+	StartCoins = 250,
 	-- #3660 (Derek 2026-11-12: "make the players start with one table upgrade done and remove it from tutorial
 	-- steps"): the Tables level a new save starts at. Saves made before keep what they have
 	StartTables = 1,
+	-- #4097 (Derek 2026-11-14: "just have them click use the kibble show the cutscene, then claim the cat"): the Bait
+	-- bowl level a new save starts at, with one Kibble in the Bag, so the tutorial goes from the first job straight to
+	-- putting the Kibble in. Saves made before keep what they have
+	StartBowls = 1,
 
 	-- Income (data-model section 11)
 	FavoriteMultiplier = 1.5,
@@ -51,6 +57,11 @@ local Config = {
 	GardenDecorPackPassId = 2075342357, -- #1168 row 3: six looks-only decor pieces (R$149); made off sale by Tools-Agent 2026-11-06
 	GoldenPondPassId = 2071704337, -- #1232
 	SecondBowlPassId = 2072132265, -- #1161
+	-- #4026: the four outfit packs (R$99 each); 0 until Gameplay-Engineer makes the passes, and their cards stay hidden
+	StylishPackPassId = 0,
+	WinterPackPassId = 0,
+	ChefPackPassId = 0,
+	SpacePackPassId = 0,
 	-- #1624 (economy-ladder.md section 6a v2.4): what the five store passes give. VIP, Cafe Style and Grand Cafe add
 	-- into cafeMultiplier like tables and decor; Cat Accessories and Uniform Styles each multiply every working cat's
 	-- rate; Cafe Style and Grand Cafe add to how often rich visitors come (x(1 + 0.25 + 1.0) with both).
@@ -81,6 +92,11 @@ local Config = {
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 		trait_tokens_20 = 3730879829, -- #3864: 20 Trait Tokens, R$99; made with dev-products.yml, then its id goes here
 		trait_tokens_50 = 3730879833, -- #3864: 50 Trait Tokens, R$199
+		-- #3996: Today's Deal, R$25 each, regional pricing off; 0 until dev-products.yml makes them (products.json)
+		deal_1 = 0,
+		deal_2 = 0,
+		deal_3 = 0,
+		deal_4 = 0,
 	} :: { [string]: number },
 	-- #1934 (release.md section 1): the Roblox badge id of each badge in shared/Badges, by key; a 0 is not made yet
 	-- and is never awarded. Made 5 a day in Creator Hub, in Badges.LIST order, by Tools-Agent or Derek.
@@ -107,6 +123,13 @@ local Config = {
 		purrfectStreak = 4111238237174459,
 		partyGuest = 4328065554528969, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e); made 2026-11-11 (#1957)
 		metOwner = 1802984077324671, -- #3324: "Met the Owner", for being in a server with the owner; made 2026-11-11 (badges.yml)
+		-- #3618 (badges-order.md): the six new badges, 0 until badges.yml makes them (5 a day, free only)
+		firstHome = 3818992250915779, -- Home Sweet Home (made 2026-11-13)
+		firstUpgrade = 708647132528539, -- Fixing Up
+		firstFlight = 771736196964132, -- Liftoff
+		cornerCafe = 4089080696855068, -- Corner Cafe
+		sunstoneCafe = 3966771842573409, -- Sunstone Cafe
+		wonderCafe = 383838983462242, -- Wonder Cafe (made 2026-11-14, free)
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).
@@ -392,7 +415,7 @@ local Config = {
 	-- #3572 (Derek 2026-11-12: "make the prizes of anything not being bought yet half'd", "put a sale badge on it"): the
 	-- Store's Sale badge, by Store card key. `was` is the real Robux price the item had on 2026-11-12 and `now` the
 	-- half price Derek OK'd. Roblox only tells the game today's price, so the card shows the badge and the struck old
-	-- price only while Roblox's price is exactly `now` (a player whose regional price differs sees the plain price),
+	-- price while Roblox's price is `now` or lower (#3594 follow up, 2026-11-13: unsold items go a little below half),
 	-- and only before StoreSaleEnds (os.time: 2026-12-13 00:00 UTC, 30 days on; never shown to players, no countdown).
 	-- After that the half price is simply the price. Every key is a Store card (StoreLogic.spec checks); the Golden
 	-- Pond pass (99 to 49) is sold at the camp pond, not on a Store card, so it is not here.
@@ -404,11 +427,6 @@ local Config = {
 		kingCat = { was = 799, now = 399 },
 		grandTheme = { was = 799, now = 399 },
 		kingPack = { was = 999, now = 499 },
-		potionXS = { was = 10, now = 5 },
-		potionS = { was = 25, now = 13 },
-		potionM = { was = 49, now = 25 },
-		potionL = { was = 99, now = 49 },
-		steadyPaw = { was = 25, now = 13 },
 		thankYou = { was = 25, now = 13 },
 		cafePass = { was = 299, now = 149 },
 	} :: { [string]: { was: number, now: number } },
@@ -717,7 +735,14 @@ local Config = {
 	UpdateEvents = {
 		{ id = "4470282858327573133", startsAt = 1794583800 }, -- "New Station Menus", 2026-11-13 15:30 UTC
 		{ id = "5904084271926215257", startsAt = 1794607200 }, -- "Speed Shoes + Secrets", 2026-11-13 22:00 UTC
-	} :: { { id: string, startsAt: number } },
+		-- #4026 (Derek 2026-11-13 23:12 UTC: "yes to update everything"): "Cat Outfit Packs!", 2026-11-14 22:00 UTC,
+		-- with its own words on the ask
+		{
+			id = "4733999329807827538",
+			startsAt = 1794693600,
+			title = "🔔 Next update Saturday: Cat Outfit Packs! Want a reminder when it lands?",
+		},
+	} :: { { id: string, startsAt: number, title: string? } },
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,
@@ -787,6 +812,12 @@ local Config = {
 	CollectorEveryMax = 400, -- #2272: was 840
 	CollectorStaySeconds = 180,
 	VisitRetrySeconds = 15, -- #1135: a visitor whose timer ran out while the cafe was not ready tries again this often
+	-- #3889 (Derek 2026-11-13: "make it a % chance per customer walking in instead of it being a set time"): with
+	-- the rareCustomers switch on, each open cafe gets a customer every RareCustomerSeconds (the street's own pace,
+	-- World.CustomerSpawnSeconds) and each one is a rare customer at RareChance (shared/RareCustomers), in place of
+	-- the three timers above. The chances keep today's averages: 6 / 480 rich, 6 / 1250 Mystery, 6 / 300 Collector.
+	RareCustomerSeconds = 6,
+	RareChance = { rich = 0.0125, mystery = 0.005, collector = 0.02 },
 	-- #3470: a Secret is worth four Mythicals in a trade's value check (as its income); the Collector never asks for one
 	CollectorValue = {
 		Common = 1,
@@ -1535,6 +1566,14 @@ local Config = {
 		RuinsCenterZ = 1400,
 		RuinsWidth = 140,
 		RuinsDepth = 600,
+		-- The Snowy Mountain (Tier 8, the next-areas plan Derek OK'd 2026-11-13; #3997): on the last free diagonal, the
+		-- town's north west, long along world Z with its camp on the south (town) end like the Ruins. Model-Agent's
+		-- CatCafe_Snowy_Set has its walls at x +-75 and z +-280. Layout.snowy only: nothing builds it until
+		-- Catalog.areas lists it.
+		SnowyCenterX = -1400,
+		SnowyCenterZ = 1400,
+		SnowyWidth = 150,
+		SnowyDepth = 560,
 		-- Camps (section 4): CampDepth deep across the area's whole width; the landing pad in its middle with
 		-- seventeen spots inside LandingPadRadius, a spot free with no character within LandingClearStuds; the cannon
 		-- prompt's reach. A dropped cat within CampDropMarginStuds of a camp moves out to CampDropOutStuds past its

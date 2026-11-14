@@ -283,6 +283,7 @@ local popHold = 0 -- os.clock() before which the board stays hidden
 local function boardRefresh()
 	local on = rollOn()
 	local view: RollBoardLogic.View? = nil
+	local anyShown = false
 	for model, prompt in models do
 		-- #3861 (Review-QA: the board overlapped the bar's title card): it steps away while the bar runs
 		local shown = on
@@ -311,12 +312,23 @@ local function boardRefresh()
 		if found.gui.Enabled ~= shown then
 			found.gui.Enabled = shown
 		end
+		anyShown = anyShown or shown
+	end
+	-- Review-QA on #4002: the ask cards wait while a board is up (UI.rollBusy.held)
+	local busy: any = (UI :: any).rollBusy
+	if busy ~= nil then
+		-- Review-QA Studio on #4002: the calm starts when the board goes down, even if nothing asked held() meanwhile
+		if busy.board and not anyShown then
+			busy.offAt = os.clock()
+		end
+		busy.board = anyShown
 	end
 end
 
 -- #3683: from the usual walk up angle the board's title reached under the HUD's day clock. Each frame a board is
 -- up, it comes down just enough to clear the clock (RollBoardLogic.sizeOffsetY); one screen point a board.
 local CLOCK_GAP = 6 -- px between the clock and the board's top
+local SHORT_SCREEN = 500 -- viewport px tall; below it the board clears the clock's line across the whole screen
 local function boardPlace()
 	local camera = Workspace.CurrentCamera
 	if camera == nil then
@@ -336,6 +348,9 @@ local function boardPlace()
 		end
 		local point, onScreen =
 			camera:WorldToViewportPoint((part :: BasePart).Position + gui.StudsOffsetWorldSpace)
+		-- Review-QA's Studio pass 2026-11-13: on a short screen (667 x 375) the board's top went under the HUD's
+		-- top row beside the clock. There the clock's bottom is a line across the whole screen, not only over it.
+		local short = camera.ViewportSize.Y < SHORT_SCREEN
 		local y = if onScreen
 			then RollBoardLogic.sizeOffsetY(
 				point.X,
@@ -343,8 +358,8 @@ local function boardPlace()
 				gui.AbsoluteSize.X,
 				gui.AbsoluteSize.Y,
 				if bottom ~= nil then bottom + CLOCK_GAP else nil,
-				left,
-				right
+				if short then nil else left,
+				if short then nil else right
 			)
 			else 0.5
 		if math.abs(gui.SizeOffset.Y - y) > 0.005 then

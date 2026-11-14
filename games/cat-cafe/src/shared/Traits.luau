@@ -6,17 +6,19 @@
 -- rolls come from a passed function, so the specs are deterministic.
 --
 -- Each cat holds one trait at a time, saved as `{ id }`; the id carries its rarity and effects (LIST). A roll picks
--- the rarity first at RARITIES' odds (Common 30, Uncommon 25, Rare 18, Epic 12, Legendary 10, Mythic 5), then one trait of that
--- rarity evenly. Common, Uncommon, Rare and Epic hold the same six one-effect traits, stronger at each rarity, and Epic
+-- the rarity first at RARITIES' odds (Common 30, Uncommon 25, Rare 18, Epic 12, Legendary 10, Mythic 4.9, Secret 0.1; while
+-- the `secretTrait` switch is off, Mythic 5 and no Secret: Traits.rarities), then one trait of that rarity evenly. Common, Uncommon, Rare and Epic hold the same six one-effect traits, stronger at each rarity, and Epic
 -- two two-effect traits of its own (Derek 2026-11-12: "add an epic tier and some traits"); Legendary
--- holds four two-effect traits and Mythic three three-effect traits. The first trait and every re-roll cost the same:
+-- holds four two-effect traits and Mythic three three-effect traits. #3908 (Derek 2026-11-13: "a trait thats 0.1%
+-- secret rarity that is crazy op like everything trait-wise combined at the highest stat amount"): Secret holds one,
+-- Eclipse, with all six effects, each at the highest amount any other trait gives. The first trait and every re-roll cost the same:
 -- a free starter roll while any are left (FREE_ROLLS, counted up in `traitFreeRollsUsed` so a missing field never
 -- grants them again), else one Trait Token, else COST_FISH golden fish. After a re-roll the player keeps the old trait
 -- or takes the new one, so a cat never gets worse.
 --
--- Effects (KINDS): income, night income and XP work on their own cat only. Bowl luck, speed and rich visitor rate work
+-- Effects (KINDS): income, night income and XP work on their own cat only. Bowl luck, speed and rare customer chance work
 -- cafe wide, only from cats in a staff slot, only the best `best` of them and at most `cap` (bowl luck 3 and 0.36,
--- speed 1 and 2.5 studs/s, rich rate 2 and 0.40); a combo's effect counts like the single trait with the same effect.
+-- speed 1 and 2.5 studs/s, rare customer chance 2 and 0.40); a combo's effect counts like the single trait with the same effect.
 -- So a cafe full of one trait can't run away and no paid perk is undercut (spec section 5).
 --
 -- Trait Tokens are never traded or gifted, and golden fish are earned only. #3864 (Derek 2026-11-13): tokens are sold
@@ -32,6 +34,9 @@ local Types = require(script.Parent.Types)
 local Traits = {}
 
 Traits.FLAG = "traits"
+-- #3908: the Secret rarity in the rolls and on every odds list. Off (LiveFlags.OFF_BY_DEFAULT): Mythic 5% and no
+-- Secret, as before. Switch it at a restart, so every card a player has open shows the odds the server rolls.
+Traits.SECRET_FLAG = "secretTrait"
 Traits.NAME = "Mystic Pool"
 Traits.KEEPER = "Sage Sorrel"
 -- #3715 (Derek 2026-11-12: "move this station into spawn so more people see it"): the pool stands in the Town Square
@@ -42,9 +47,15 @@ Traits.OPEN_TIER = 1
 -- the switch is on): its model, its CollectionService tag and its prompt's name.
 Traits.STATION_MODEL = "CatCafe_Camp_Park_MysticPool"
 Traits.TAG = "MysticPool"
+-- #3942: a Mythic or better roll marks the station (TraitService.announce) so every client near it sees the pillar
+Traits.ROLL_BY_ATTRIBUTE = "BigRollBy" -- the roller's UserId
+Traits.ROLL_RARITY_ATTRIBUTE = "BigRollRarity" -- the rolled trait's rarity id
+Traits.ROLL_AT_ATTRIBUTE = "BigRollAt" -- server time, set last
 Traits.PROMPT = "MysticPoolPrompt"
 Traits.FREE_ROLLS = 5 -- Derek2 2026-11-11: once per player, used before tokens and fish
-Traits.COST_FISH = 10 -- the first trait and every re-roll (Derek2 2026-11-10 23:59: "make re-rolls the same cost")
+-- the first trait and every re-roll (Derek2 2026-11-10 23:59: "make re-rolls the same cost"); #4006 (Derek 2026-11-13:
+-- "up the amount for trait rerolls to 20 or 25 gold fish per reroll"): 20, was 10
+Traits.COST_FISH = 20
 Traits.COST_TOKENS = 1
 Traits.TOKEN_EVERY_SECONDS = 12 * 3600 -- the station's free token, on its own timer
 Traits.TOKEN_HOLD = 2
@@ -59,13 +70,13 @@ Traits.BUNDLES = table.freeze({
 
 export type Trait = { id: string }
 
-export type Kind = "income" | "nightIncome" | "xp" | "bowlLuck" | "speed" | "richRate"
+export type Kind = "income" | "nightIncome" | "xp" | "bowlLuck" | "speed" | "rareCustomer"
 
 export type Rarity = {
 	id: string,
 	name: string,
-	rank: number, -- 1 Common to 6 Mythic (Epic is 4 since 2026-11-12; Legendary and Mythic moved up one)
-	odds: number, -- percent of rolls
+	rank: number, -- 1 Common to 7 Secret (Epic is 4 since 2026-11-12; Legendary and Mythic moved up one)
+	odds: number, -- percent of rolls, in tenths at most (Secret 0.1)
 	color: string, -- hex, the pool's and the card's colour (Color3.fromHex on the client)
 }
 
@@ -89,16 +100,48 @@ Traits.RARITIES = {
 	-- Epic (Derek 2026-11-12, with the odds re-split around it): the Epic cat rarity's purple (Theme.rarity.Epic)
 	{ id = "epic", name = "Epic", rank = 4, odds = 12, color = "#C07CFF" },
 	{ id = "legendary", name = "Legendary", rank = 5, odds = 10, color = "#F4C430" },
-	{ id = "mythic", name = "Mythic", rank = 6, odds = 5, color = "#FF5E7E" },
+	-- #3908: Mythic gives its 0.1 to Secret while the switch is on (MYTHIC_ALONE is its odds while it is off)
+	{ id = "mythic", name = "Mythic", rank = 6, odds = 4.9, color = "#FF5E7E" },
+	-- #3908: the Secret cats' pale starlight (GlobalCatch, Effects/Presets.bigTrait.secretColour); their own near
+	-- black cannot be read on a card
+	{ id = "secret", name = "Secret", rank = 7, odds = 0.1, color = "#E2D6FF" },
 } :: { Rarity }
+local MYTHIC_ALONE = 5
 
-local COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, MYTHIC =
+local COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, MYTHIC, SECRET =
 	Traits.RARITIES[1],
 	Traits.RARITIES[2],
 	Traits.RARITIES[3],
 	Traits.RARITIES[4],
 	Traits.RARITIES[5],
-	Traits.RARITIES[6]
+	Traits.RARITIES[6],
+	Traits.RARITIES[7]
+
+-- The rarities a roll can land on, with the odds it uses: all seven while `secret` (the `secretTrait` switch) is on,
+-- else the first six with Mythic at MYTHIC_ALONE. Either way they add up to 100.
+local WITHOUT_SECRET: { Rarity } = {}
+for _, rarity in Traits.RARITIES do
+	if rarity == MYTHIC then
+		local alone = table.clone(rarity)
+		alone.odds = MYTHIC_ALONE
+		table.insert(WITHOUT_SECRET, alone)
+	elseif rarity ~= SECRET then
+		table.insert(WITHOUT_SECRET, rarity)
+	end
+end
+
+function Traits.rarities(secret: boolean?): { Rarity }
+	return if secret == true then Traits.RARITIES else WITHOUT_SECRET
+end
+
+-- "30%", "4.9%", "0.1%": a rarity's odds as the cards print them.
+function Traits.percentText(odds: number): string
+	local tenths = math.floor(odds * 10 + 0.5)
+	if tenths % 10 == 0 then
+		return string.format("%d%%", tenths // 10)
+	end
+	return string.format("%d.%d%%", tenths // 10, tenths % 10)
+end
 
 -- Spec section 2d: how each effect is counted. `cafe` effects count only the best `best` working cats, at most `cap`.
 -- `what` is the card's words; "studs" amounts are studs a second, the rest fractions (0.05 is +5%).
@@ -115,7 +158,15 @@ Traits.KINDS = {
 	xp = { cafe = false, best = 1, cap = math.huge, what = "this cat's XP", studs = false },
 	bowlLuck = { cafe = true, best = 3, cap = 0.50, what = "bait bowl luck", studs = false },
 	speed = { cafe = true, best = 1, cap = 2.5, what = "walk and carry speed", studs = true },
-	richRate = { cafe = true, best = 2, cap = 0.40, what = "rich visitor rate", studs = false },
+	-- #3889 (Derek 2026-11-13: "change traits that are rich customer buffs to be just rare customer chance increase"):
+	-- was richRate, rich visitors only; now every rare customer: rich, Mystery gift and the Cat Collector
+	rareCustomer = {
+		cafe = true,
+		best = 2,
+		cap = 0.40,
+		what = "rare customer chance",
+		studs = false,
+	},
 } :: { [Kind]: KindInfo }
 
 local function e(kind: Kind, amount: number): Effect
@@ -158,8 +209,8 @@ local SINGLES: { { id: string, name: string, kind: Kind, amounts: { number } } }
 	{ id = "quickPaws", name = "Quick Paws", kind = "speed", amounts = { 0.3, 0.5, 0.7, 1.2 } },
 	{
 		id = "richFriend",
-		name = "Rich Friend",
-		kind = "richRate",
+		name = "Crowd Pleaser", -- #3889: was Rich Friend (the id stays, saves keep it)
+		kind = "rareCustomer",
 		amounts = { 0.02, 0.03, 0.04, 0.08 },
 	},
 }
@@ -190,7 +241,12 @@ table.insert(
 -- Spec section 2b: Legendary, two effects.
 table.insert(
 	list,
-	def("goldenWhiskers", "Golden Whiskers", LEGENDARY, { e("income", 0.45), e("richRate", 0.15) })
+	def(
+		"goldenWhiskers",
+		"Golden Whiskers",
+		LEGENDARY,
+		{ e("income", 0.45), e("rareCustomer", 0.15) }
+	)
 )
 table.insert(
 	list,
@@ -213,7 +269,7 @@ table.insert(
 		"cosmicFortune",
 		"Cosmic Fortune",
 		MYTHIC,
-		{ e("income", 1.0), e("bowlLuck", 0.25), e("richRate", 0.25) }
+		{ e("income", 1.0), e("bowlLuck", 0.25), e("rareCustomer", 0.25) }
 	)
 )
 table.insert(
@@ -228,6 +284,21 @@ table.insert(
 table.insert(
 	list,
 	def("starSage", "Star Sage", MYTHIC, { e("xp", 2.5), e("income", 0.75), e("bowlLuck", 0.20) })
+)
+-- #3908: Secret, every effect kind at the highest amount any trait above gives it (income Cosmic Fortune's 1.0, night
+-- income and speed Eternal Night's 1.5 and 2.5, XP Star Sage's 2.5, bowl luck and rare customer chance Cosmic Fortune's 0.25).
+-- The cafe-wide three still count under KINDS' best and cap, so a cafe of Eclipse cats is no stronger than a cafe of
+-- the best Mythics; what it adds is one cat with all of them at once.
+table.insert(
+	list,
+	def("eclipse", "Eclipse", SECRET, {
+		e("income", 1.0),
+		e("nightIncome", 1.5),
+		e("xp", 2.5),
+		e("bowlLuck", 0.25),
+		e("speed", 2.5),
+		e("rareCustomer", 0.25),
+	})
 )
 Traits.LIST = list
 
@@ -271,7 +342,7 @@ function Traits.rarity(trait: Trait?): Rarity?
 	return if entry then entry.rarity else nil
 end
 
--- 0 for no trait, else 1 (Common) to 6 (Mythic): a trait's weight in a trade's value check.
+-- 0 for no trait, else 1 (Common) to 7 (Secret): a trait's weight in a trade's value check.
 function Traits.rank(trait: Trait?): number
 	local rarity = Traits.rarity(trait)
 	return if rarity then rarity.rank else 0
@@ -321,27 +392,32 @@ function Traits.effectLines(trait: Trait): { string }
 	return lines
 end
 
--- The odds line every card shows, and the Odds button's list.
-function Traits.oddsText(): string
+-- The odds line every card shows, and the Odds button's list; `secret` is the `secretTrait` switch.
+function Traits.oddsText(secret: boolean?): string
 	local parts: { string } = {}
-	for _, rarity in Traits.RARITIES do
-		table.insert(parts, string.format("%s %d%%", rarity.name, rarity.odds))
+	for _, rarity in Traits.rarities(secret) do
+		table.insert(parts, rarity.name .. " " .. Traits.percentText(rarity.odds))
 	end
 	return table.concat(parts, ", ") .. ". Each trait inside a rarity is equally likely."
 end
 
 -- One roll: the rarity first, then a trait of that rarity evenly. `random(n)` returns a whole number from 1 to n
--- (Random:NextInteger(1, n) on the server).
-function Traits.roll(random: (number) -> number): Trait
+-- (Random:NextInteger(1, n) on the server). The rarity is picked in tenths of a percent (1 to 1000), so Secret's 0.1
+-- is one number in a thousand. `secret` is the `secretTrait` switch (Traits.rarities).
+function Traits.roll(random: (number) -> number, secret: boolean?): Trait
+	local rarities = Traits.rarities(secret)
+	local function tenths(rarity: Rarity): number
+		return math.floor(rarity.odds * 10 + 0.5)
+	end
 	local total = 0
-	for _, rarity in Traits.RARITIES do
-		total += rarity.odds
+	for _, rarity in rarities do
+		total += tenths(rarity)
 	end
 	local pick = math.clamp(random(total), 1, total)
-	local chosen = Traits.RARITIES[#Traits.RARITIES]
+	local chosen = rarities[#rarities]
 	local run = 0
-	for _, rarity in Traits.RARITIES do
-		run += rarity.odds
+	for _, rarity in rarities do
+		run += tenths(rarity)
 		if pick <= run then
 			chosen = rarity
 			break
@@ -364,12 +440,25 @@ function Traits.poolSteps(trait: Trait): { string }
 	return steps
 end
 
--- The server-wide line for a Mythic roll (display names only), nil for any other rarity.
+-- The server-wide line for a Mythic or Secret roll (display names only), nil for any other rarity. #3908: the same
+-- words go to the chat here and on the other servers (TraitService.announce, GlobalCatchService).
 function Traits.announceText(displayName: string, trait: Trait): string?
 	if Traits.rank(trait) < MYTHIC.rank then
 		return nil
 	end
-	return string.format("%s's cat got a Mythic trait!", displayName)
+	local rarity = Traits.rarity(trait) :: Rarity
+	return string.format("%s's cat got a %s trait!", displayName, rarity.name)
+end
+
+-- #3908: the cat rarity whose colour and channel a big roll's chat line uses (GlobalCatch.COLORS), nil below Mythic.
+function Traits.chatRarity(trait: Trait): string?
+	local rank = Traits.rank(trait)
+	if rank >= SECRET.rank then
+		return "Secret"
+	elseif rank >= MYTHIC.rank then
+		return "Mythical"
+	end
+	return nil
 end
 
 -- How a roll is paid: a free starter roll while any are left, else a token, else golden fish, else nil (refused).

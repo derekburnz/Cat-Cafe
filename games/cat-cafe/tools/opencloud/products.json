@@ -78,5 +78,33 @@
 		"price": 199,
 		"regionalPricing": false,
 		"description": "50 Trait Tokens for the Mystic Pool. One token is one trait roll; the odds are shown on the pool before you buy."
+	},
+	{
+		"name": "Today's Deal: Big Money",
+		"config": "ProductIds.deal_1",
+		"price": 25,
+		"regionalPricing": false,
+		"description": "5 Big Money Potions and 2 Swift Potions. Today's Deal in the Store; a new deal comes each day."
+	},
+	{
+		"name": "Today's Deal: Trait Tokens",
+		"config": "ProductIds.deal_2",
+		"price": 25,
+		"regionalPricing": false,
+		"description": "7 Trait Tokens for the Mystic Pool. One token is one trait roll; the odds are shown on the pool before you spend one."
+	},
+	{
+		"name": "Today's Deal: Steady Paw",
+		"config": "ProductIds.deal_3",
+		"price": 25,
+		"regionalPricing": false,
+		"description": "10 Steady Paw Potions and 2 Big Money Potions. Today's Deal in the Store; a new deal comes each day."
+	},
+	{
+		"name": "Today's Deal: Potion Mix",
+		"config": "ProductIds.deal_4",
+		"price": 25,
+		"regionalPricing": false,
+		"description": "4 Big Money, 1 Swift and 2 Steady Paw Potions. Today's Deal in the Store; a new deal comes each day."
 	}
 ]

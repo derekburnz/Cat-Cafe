@@ -15,15 +15,17 @@
 --                                 of the two Roblox says are owned).
 --                                 "Outfit passes x1.15" (#1624) when the split can't be told
 --   Money pass            x2      the Money pass (passBoosts.money)
+--   Update Party          x2      #3935: a running Cafe Event's money (EventLogic.moneyBoost), only while it runs
 --   Money Potion          +25%    each running potion with `tips`, all together at most Config.TimedTipsMax
---   Pals (2)              +15%    F92: shared Pals.bonus while pals are on the server (only then, so a solo player
+--   Friend bonus (2)      +15%    F92: shared Pals.bonus while pals are on the server (only then, so a solo player
 --                                 never sees a missing bonus), added to the potions as Economy.tipMultiplier does
---   All together          x4.3    (1 + the cafe's percents) x tier x outfits x Money pass x (1 + potions + pals), as
+--   All together          x4.3    (1 + the cafe's percents) x tier x outfits x Money pass x event x (1 + potions + pals), as
 --                                 the server's Economy.incomePerSecond multiplies them
 -- A source at 0 stays on the list in grey ("+0%"), so a player sees what else could lift it. The passes are the
 -- exception: their rows show only once owned, so the money card never advertises a Robux purchase.
---   rows(catalog, state, now, pals?, outfits?) -> { Row }   `pals`: how many pals PalsChanged last named;
---                                 `outfits`: { accessories, uniforms } owned, from PassShop (#2147)
+--   rows(catalog, state, now, pals?, outfits?, event?) -> { Row }   `pals`: how many pals PalsChanged last named;
+--                                 `outfits`: { accessories, uniforms } owned, from PassShop (#2147); `event`: the
+--                                 running event's { name, money } (#3935)
 --   percent(0.25) -> "+25%", times(1.5) -> "x1.5"
 -- Pure, so the cloud spec runner checks it.
 
@@ -171,12 +173,17 @@ local function outfitSplit(staff: number, outfits: Outfits?): { typeof(OUTFITS[1
 	return if matches(both) then both else nil
 end
 
+-- #3935: a running Cafe Event's money, as the server's Economy.moneyFor multiplies it (at most EventMoneyMax)
+export type EventBoost = { name: string, money: number }
+local EVENT_MONEY_MAX: number = Config.EventMoneyMax or 2
+
 function BoostList.rows(
 	catalog: Types.Catalog?,
 	state: Types.PlayerState,
 	now: number,
 	pals: number?,
-	outfits: Outfits?
+	outfits: Outfits?,
+	event: EventBoost?
 ): { Row }
 	local rows: { Row } = {}
 	local tables = level(catalog, state, "tables")
@@ -255,8 +262,11 @@ function BoostList.rows(
 	local moneyPass: number = if type(boosts) == "table" and type(boosts.money) == "number"
 		then boosts.money
 		else 1
-	if moneyPass > 1 then
-		times("moneyPass", "Money pass", moneyPass)
+	local eventMoney = if event ~= nil and type(event.money) == "number"
+		then math.clamp(event.money, 1, EVENT_MONEY_MAX)
+		else 1
+	if event ~= nil and eventMoney > 1 then
+		times("event", event.name, eventMoney)
 	end
 
 	-- the running tip potions, each its own row, the sum capped as the server caps it
@@ -294,10 +304,21 @@ function BoostList.rows(
 	if palCount >= 1 then
 		local share: number = Pals.bonus(palCount)
 		tips += share
-		add(rows, "pals", ("Pals (%d)"):format(palCount), share)
+		add(rows, "pals", ("Friend bonus (%d)"):format(palCount), share)
 	end
 
-	local total = cafe * tierTimes * math.max(staff, 1) * math.max(moneyPass, 1) * (1 + tips)
+	-- #4033 (Derek 2026-11-13: "apply the multiplier after all the others"): the Money pass multiplies everything above
+	-- it, so its row sits last, over All together
+	if moneyPass > 1 then
+		times("moneyPass", "Money pass (x all)", moneyPass)
+	end
+
+	local total = cafe
+		* tierTimes
+		* math.max(staff, 1)
+		* math.max(moneyPass, 1)
+		* eventMoney
+		* (1 + tips)
 	table.insert(rows, {
 		key = "total",
 		name = "All together",

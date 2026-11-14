@@ -6,6 +6,9 @@ return function()
 	local EventRsvp = require(
 		Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("EventRsvp")
 	) :: any
+	local Config = require(
+		game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
+	) :: any
 
 	describe("EventRsvp.due", function()
 		it("is due before the Event starts", function()
@@ -42,6 +45,28 @@ return function()
 			expect(EventRsvp.next(list, 2000)).to.equal(nil)
 		end)
 
+		it("gives an Event's own ask words when its entry has them (#4026)", function()
+			local worded = {
+				{ id = "333", startsAt = 3000, title = "Packs!" },
+				{ id = "444", startsAt = 4000 },
+			}
+			local _, _, words = EventRsvp.next(worded, 0)
+			expect(words).to.equal("Packs!")
+			local id, _, none = EventRsvp.next(worded, 3000)
+			expect(id).to.equal("444")
+			expect(none).to.equal(nil)
+		end)
+
+		it(
+			"lists the Cat Outfit Packs Event for Saturday 22:00 UTC with its own words (#4026)",
+			function()
+				local id, at, words = EventRsvp.next(Config.UpdateEvents, 1794650000)
+				expect(id).to.equal("4733999329807827538")
+				expect(at).to.equal(1794693600)
+				expect(type(words)).to.equal("string")
+			end
+		)
+
 		it("asks nothing for an empty or broken list", function()
 			expect(EventRsvp.next({}, 0)).to.equal(nil)
 			expect(EventRsvp.next(nil, 0)).to.equal(nil)
@@ -51,9 +76,6 @@ return function()
 		end)
 
 		it("has Config's Events as ids with starts", function()
-			local Config = require(
-				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
-			) :: any
 			for _, entry in Config.UpdateEvents do
 				expect(EventRsvp.due(entry.id, entry.startsAt, 0)).to.equal(true)
 			end

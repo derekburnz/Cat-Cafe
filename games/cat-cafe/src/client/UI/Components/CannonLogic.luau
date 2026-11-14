@@ -250,4 +250,31 @@ function CannonLogic.hint(view: HintView): string?
 	return text
 end
 
+-- #3884 (Derek 2026-11-13: "when unlocking the tier 2 and park it should show a quick 3 second unlock cutscene in the
+-- cannon menu of the locks breaking off"): the areas a rank up from tier `from` to tier `to` opened, in tier order
+-- (catalog order within a tier), whose cards play the lock breaking. None when the tier did not go up.
+function CannonLogic.unlocked(areas: { AreaLike }, from: number, to: number): { string }
+	type Found = { id: string, tier: number, index: number }
+	local found: { Found } = {}
+	if to <= from then
+		return {}
+	end
+	for index, area in areas do
+		if area.tier > from and area.tier <= to and area.id ~= CannonLogic.TOWN then
+			table.insert(found, { id = area.id, tier = area.tier, index = index })
+		end
+	end
+	table.sort(found, function(a: Found, b: Found): boolean
+		if a.tier ~= b.tier then
+			return a.tier < b.tier
+		end
+		return a.index < b.index
+	end)
+	local ids: { string } = {}
+	for _, entry in found do
+		table.insert(ids, entry.id)
+	end
+	return ids
+end
+
 return CannonLogic

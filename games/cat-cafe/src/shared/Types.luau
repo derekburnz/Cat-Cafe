@@ -5,9 +5,17 @@
 -- #3470: "Secret" is a cat rarity above Mythical. No odds table lists it (Types.LureOdds and Catalog.rarityOrder
 -- keep the five): a rolled Mythical turns Secret at Catalog.secretPerMythical while the `secretCats` switch is on.
 export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical" | "Secret"
-export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer" | "desert" | "ruins"
--- A cat's area: one of the seven, the spare pool of cats an area-themed cat replaced (data-model 3d, F78), or
--- "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
+export type Area =
+	"alley"
+	| "park"
+	| "neighbourhood"
+	| "woods"
+	| "sewer"
+	| "desert"
+	| "ruins"
+	| "snowy"
+-- A cat's area: one of the eight (#3997: the Snowy Mountain's not open yet), the spare pool of cats an area-themed
+-- cat replaced (data-model 3d, F78), or "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
 -- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.
 export type CatArea = Area | "spare" | "exclusive" | "secret"
 -- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
@@ -208,6 +216,8 @@ export type IndexMilestone = {
 	-- F97: every piece of the Decor page, whatever its size (decor10: sixteen on the Classic page, twelve elsewhere);
 	-- `needs` is then the least it asks
 	whole: boolean?,
+	-- #3992: shown and paid only while the `indexTo70` switch is on (shared/IndexRewards.lateOpen)
+	late: boolean?,
 }
 
 -- What one Index milestone pays (golden-fish.md section 8), any of it. `coins` is the minimum and `coinSeconds`
@@ -597,6 +607,9 @@ export type TraitPending = { uid: string, id: string, paid: string? } -- paid: f
 
 -- #3196: PlayerState.traits, the Mystic Pool card's numbers (nil while the `traits` flag is off or the station is
 -- shut for the tier). `nextAt` is the next free token in server time, nil while the station holds TOKEN_HOLD.
+-- #3996 (shared/DailyDeal): PlayerState.dailyDeal
+export type DailyDealView = { deal: number, bought: boolean, tomorrow: number }
+
 export type TraitsView = {
 	tokens: number,
 	freeLeft: number,
@@ -688,6 +701,7 @@ export type Stats = {
 	dashRuns: number,
 	goldenCratesOpened: number,
 	restSeconds: number,
+	cannonFlights: number, -- #3618: cannon flights taken, for the Liftoff badge
 }
 
 export type WeekPlay = { week: number, seconds: number }
@@ -1249,6 +1263,9 @@ export type Settings = {
 	autoEquip: boolean, -- #1955: Auto Equip, on for new accounts and off for saves from before it
 	catIncome: boolean, -- #2551: the rate tags over working cats (UI WorldTags), on by default
 	goalFolded: boolean, -- #2714: the HUD's goal card folded into its chip (touch), off by default
+	catPickSort: string, -- #3940: the pick-a-cat list's Sort ("Money", "Level" or "Rarity")
+	catPickFlipped: boolean, -- #3940: that Sort turned round
+	catPickShow: string, -- #3940: the Show chips that are on ("Working,No trait"; "" for All)
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
@@ -1336,6 +1353,10 @@ export type PlayerProfile = {
 	-- #3699 (shared/BagColours): the Backpack's two colour picks, nil while both are the built ones. No VERSION bump:
 	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
 	bagColours: { main: string, trim: string }?,
+	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' picks, the same way
+	-- #3996 (shared/DailyDeal): the UTC day the player last bought Today's Deal, nil for never. No VERSION bump: an
+	-- older server dropping it only lets the same day's deal be bought once more, which pays as normal.
+	dealDay: number?,
 	-- #2792 (shared/FirstVisits): the special visitors met once ("rich", "mystery", "collector" -> true). No VERSION
 	-- bump: an older server dropping it only matters inside the first FirstVisitWindowSeconds of play.
 	firstVisits: { [string]: boolean },
@@ -1449,6 +1470,10 @@ export type PlayerState = {
 	mystery: { [string]: boolean }, -- #2565
 	mysterySeen: boolean,
 	bagColours: { main: string, trim: string }?, -- #3699: the Backpack's colour picks, nil for the built ones
+	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' colour picks, nil for the built ones
+	-- #3996: Today's Deal (DailyDeal.view): today's deal number, bought today, tomorrow's; false below Tier 2 or while
+	-- the dailyDeal switch is off
+	dailyDeal: DailyDealView | false,
 	mysteryOpen: boolean, -- BuyMystery is taken here (Config.MysteryOpen, or Studio)
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
@@ -1484,6 +1509,9 @@ export type PlayerState = {
 	-- #3666: whether the intro plays itself for this player (IntroSplit.plays); nil from an older server, which
 	-- reads as Config.IntroAutoPlay
 	introAuto: boolean?,
+	-- #4001: the save is in the short intro test's "short" arm (shared/IntroSplit.SHORT): its first play is the short
+	-- intro; nil or false plays the long one there (a replay is always the short one)
+	introShort: boolean?,
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
 	catFood: { [string]: number }, -- #1181: food id -> count in the Bag
 	hideCredit: boolean, -- #1083: true while the player keeps their name off the Thank You board (SetHideCredit)

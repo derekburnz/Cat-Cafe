@@ -7,7 +7,7 @@
 --
 --   tier  station          perk          what it does                                   read by
 --   2     Picnic Basket    Fresh Bait    bait cats arrive 10% sooner (adds to baitSpeed)  Economy.baitWaitSeconds
---   3     Yard Sale        Haggler       +10% coins when you sell a cat                  CafeService SellCat, SellExtras
+--   3     Yard Sale        Haggler       rich customers' money bags pay 10% more         RichTipService (bag amount)
 --   4     Fish Pond        Lucky Line    +1 golden fish on a new cat type's first catch  CafeService check-in
 --   5     Lost and Found   Homing Bell   your own dropped cats walk home twice as fast   CatService walkHome
 --   6     Oasis Spa        Warm Paws     rescue zones 10% wider                          RescueService (Rescue)
@@ -38,7 +38,8 @@ StationPerks.LIST = table.freeze({
 		tier = 3,
 		station = "Yard Sale",
 		name = "Haggler",
-		text = "+10% coins when you sell a cat",
+		-- 2026-11-13: was "+10% coins when you sell a cat"; cats are not sold any more (Derek: "remove sell from game")
+		text = "Rich customers' money bags pay 10% more",
 	}),
 	table.freeze({
 		id = "lucky_line",
@@ -71,7 +72,7 @@ StationPerks.LIST = table.freeze({
 } :: { Perk })
 
 StationPerks.BAIT_SPEED = 0.10 -- Fresh Bait: added to the Index's and potions' baitSpeed
-StationPerks.SELL_MULTIPLIER = 1.10 -- Haggler
+StationPerks.RICH_BAG_MULTIPLIER = 1.10 -- Haggler
 StationPerks.FIRST_CATCH_FISH = 1 -- Lucky Line
 StationPerks.HOMING_SPEED = 2 -- Homing Bell: times Config.DropReturnWalkSpeed
 StationPerks.RESCUE_ZONE_SCALE = 1.10 -- Warm Paws: times Config.RescueZoneWidth
@@ -127,10 +128,10 @@ function StationPerks.baitSpeed(tier: number?): number
 	return if StationPerks.has(tier, "fresh_bait") then StationPerks.BAIT_SPEED else 0
 end
 
--- What selling a cat worth `value` pays at `tier`, a whole number.
-function StationPerks.sellValue(value: number, tier: number?): number
+-- What a rich customer's money bag worth `value` pays at `tier`, a whole number (Haggler from Tier 3).
+function StationPerks.richBag(value: number, tier: number?): number
 	if StationPerks.has(tier, "haggler") then
-		return math.floor(value * StationPerks.SELL_MULTIPLIER + 0.5)
+		return math.floor(value * StationPerks.RICH_BAG_MULTIPLIER + 0.5)
 	end
 	return value
 end

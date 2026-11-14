@@ -22,6 +22,7 @@ local AreaFx = require(script.AreaFx)
 local BaitCrumbs = require(script.BaitCrumbs)
 local BedWalk = require(script.BedWalk)
 local Bellhop = require(script.Bellhop)
+local BigTraitCut = require(script.BigTraitCut)
 local CafeWalk = require(script.CafeWalk)
 local CampCollect = require(script.CampCollect)
 local CampExtras = require(script.CampExtras)
@@ -44,6 +45,7 @@ local DoorSign = require(script.DoorSign)
 local Equip = require(script.Equip)
 local FirstBaitCut = require(script.FirstBaitCut)
 local Fish = require(script.Fish)
+local FusionFx = require(script.FusionFx)
 local GoldenFind = require(script.GoldenFind)
 local GrandOpening = require(script.GrandOpening)
 local HoldPulse = require(script.HoldPulse)
@@ -76,6 +78,7 @@ local Rainbow = require(script.Rainbow)
 local Rally = require(script.Rally)
 local Rarity = require(script.Rarity)
 local Rescue = require(script.Rescue)
+local Rides = require(script.Rides)
 local RuinsWater = require(script.RuinsWater)
 local SecretGlow = require(script.SecretGlow)
 local SecretStray = require(script.SecretStray)
@@ -149,6 +152,7 @@ function Effects.start()
 		Rarity.start,
 		SecretStray.start,
 		SecretGlow.start,
+		BigTraitCut.watchPool, -- #3942: other players' big trait rolls, seen from nearby
 		Splash.start,
 		Rescue.start,
 		StuckCall.start,
@@ -182,8 +186,10 @@ function Effects.start()
 		CampGlow.start,
 		AreaFx.start,
 		LateStationFx.start,
+		FusionFx.start, -- #4104: the Fusion Observatory dome's glow and paw lights
 		MuseumPlaques.start,
 		StationMotion.start,
+		Rides.start,
 		HoldPulse.start,
 		BaitCrumbs.start,
 		WaitingCat.start,

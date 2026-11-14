@@ -30,6 +30,67 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #3927 refresh (11-14 02:50 UTC): live since the Friday rows. The Cats menu's new top bar (#4028) and turning the
+	-- camera through a trait roll (#4016); the station menus' one look went on with the 15:30 UTC update (#3558).
+	-- Behind switches or tiers still (Snowy Mountain, the late stations, the Secret trait): rows when they open.
+	{
+		id = "cats_menu_bar",
+		date = "2026-11-14",
+		icon = "look",
+		text = "Cats menu: search and sort",
+	},
+	{
+		id = "pool_camera",
+		date = "2026-11-14",
+		icon = "new",
+		text = "Turn the camera at the Pool",
+	},
+	{
+		id = "station_menus",
+		date = "2026-11-13",
+		icon = "look",
+		text = "One new look for every menu",
+	},
+	-- Friday 2026-11-13 22:00 UTC update (#3523): the switches turned on after the restart. The two player ideas carry
+	-- their IdeaCredits_v1 ids (added 22:05 UTC with idea-credits.yml add-player at place version 632).
+	{
+		id = "speed_shoes",
+		date = "2026-11-13",
+		icon = "new",
+		text = "New Speed Shoes",
+	},
+	{
+		id = "secret_cats",
+		date = "2026-11-13",
+		icon = "cat",
+		text = "Secret cats are out there",
+		creditId = "c14",
+	},
+	{
+		id = "pet_a_cat",
+		date = "2026-11-13",
+		icon = "new",
+		text = "Pet the cats in your cafe",
+		creditId = "c15",
+	},
+	{
+		id = "picnic_treats",
+		date = "2026-11-13",
+		icon = "new",
+		text = "Picnic Treats: pick 1 of 3",
+	},
+	{
+		id = "index_to_every_cat",
+		date = "2026-11-13",
+		icon = "new",
+		text = "Index rewards up to 70 cats",
+	},
+	{
+		id = "backpack_colours",
+		date = "2026-11-13",
+		icon = "look",
+		text = "Pick your backpack colour",
+	},
 	-- #2718 refresh (11-13 14:20 UTC, Model-Agent): live changes since #3817 (about 37 merges). Lighter models and
 	-- 256 px pictures for phones (#3791, #3809, #3812, #3831, #3832, #3833), menus built after start-up (#3722),
 	-- Mouse Dash windows and clock (#3853), the Mystic Pool's Legendary and Mythic roll scene (#3849) and its pointer

@@ -69,6 +69,10 @@ local Tail = {
 	device = "keyboard" :: any,
 	show = nil :: ((index: number) -> ())?,
 	stop = nil :: ((played: boolean) -> ())?,
+	-- #4001: the lesson's first dot follows the intro's own dots (Intro.SHOTS, or the short intro's three)
+	base = Intro.SHOTS,
+	-- #4001: the sync says this save's first play is the short intro (the test's "short" arm); replays always are
+	introShort = false,
 }
 
 local player = Players.LocalPlayer
@@ -135,6 +139,7 @@ type TownCannon = {
 
 type Run = {
 	replay: boolean,
+	short: boolean, -- #4001: the short intro (shared/Intro.SHORT_CAPTIONS): three shots to the eye
 	started: number, -- os.clock() when the play began, for IntroDone's seconds watched (#3773)
 	shotStarted: number, -- os.clock() when the showing shot began (#2182: each shot runs for its hold, or to Next)
 	shots: { Intro.Shot },
@@ -161,6 +166,7 @@ type Run = {
 	demoName: string,
 	demoParent: Instance?,
 	hopFrom: CFrame?, -- where the demo cat's hop into your arms starts
+	faceFrom: Vector3?, -- #4001: which way you faced as the turn to the camera began
 	held: boolean, -- the demo cat rides in your arms (a HeldCat of your copy)
 	basket: Model?, -- the Alleyway camp's carrier basket
 	nearDemo: { Model }, -- real strays hidden round the catch and the run for shots 3 and 4
@@ -1085,7 +1091,13 @@ local function enterShot(r: Run, position: number)
 	end
 
 	-- #2182: the hold fills the caption's read bar (UI-Engineer's fourth argument; the UI ignores it until then)
-	(UI.intro :: any).setShot(shot.index, deviceCaption(shot.caption), nil, shot.hold)
+	-- #4001: the short intro lights its own three dots (the catch and the carry share the second)
+	(UI.intro :: any).setShot(
+		if r.short then Intro.SHORT_DOTS[shot.index] or 1 else shot.index,
+		deviceCaption(shot.caption),
+		nil,
+		shot.hold
+	)
 	Moments.IntroShot:Fire(shot.index)
 	Net.fire("TelemetryReport", "intro_shot", shot.index) -- #3098: quit_scene's shot and first_scene (analytics only)
 end
@@ -1123,7 +1135,7 @@ local function lateStream(r: Run)
 		end
 		-- #2961: in at the start but gone again (streamed back out): the clouds fallback, not an empty sky
 		r.alleyStreamed = false
-		r.shots = Intro.shots(r.plot, hasCodesCat(), false)
+		r.shots = Intro.shots(r.plot, hasCodesCat(), false, r.short)
 		if r.demo ~= nil then
 			(r.demo :: Model):Destroy()
 			r.demo = nil
@@ -1131,7 +1143,7 @@ local function lateStream(r: Run)
 		return
 	end
 	r.alleyStreamed = true
-	r.shots = Intro.shots(r.plot, hasCodesCat(), true)
+	r.shots = Intro.shots(r.plot, hasCodesCat(), true, r.short)
 	if r.demo == nil then
 		local strayAt, catchAt = Intro.strayPoint(), Intro.catchSpot()
 		r.demo =
@@ -1250,6 +1262,63 @@ local function stageCatch(r: Run, t: number)
 		end
 		return
 	end
+	-- #4019: the flight's landing (shot 2) is what ends the cannon pose, and the short intro leaves shot 2 out, so
+	-- your copy stood through the catch and the carry still curled in the barrel's ball: head straight down, its
+	-- back to whatever its root faced, the cat hidden in its lap. A copy that has not landed stands up here.
+	if not r.done.uncurl then
+		r.done.uncurl = true
+		if you.model:GetAttribute("StagedFlight") ~= "land" then
+			you.model:SetAttribute("StagedFlight", nil)
+		end
+	end
+	-- #4001 (Derek 2026-11-13: "your character holding cat is facing camera so they can see it being held"): in the
+	-- short intro you turn to the camera as the cat hops in (the hop follows your arms) and keep facing it, cat in
+	-- your arms, through the rest of the shot. Review-QA's Studio run: turning only after the landing left a few
+	-- frames before the cut, so the turn now starts with the hop and the shot holds longer (Intro.SHORT_CATCH_HOLD).
+	local camera = Workspace.CurrentCamera
+	if r.short and camera ~= nil and t >= Intro.HOP_FROM then
+		local spot = Intro.catchSpot()
+		if not r.done.faced then
+			if r.faceFrom == nil then
+				r.faceFrom = toward(spot, Intro.strayPoint())
+			end
+			local k = math.clamp((t - Intro.HOP_FROM) / Intro.FACE_CAMERA_SECONDS, 0, 1)
+			-- Review-QA (Studio, 38026c96): read from the live camera the turn ended with your back to it, so the way
+			-- to the camera now comes from the shot's own last camera key (the side view, square to the catch line)
+			local current = r.shots[r.shot]
+			local last = if current ~= nil and #current.cuts > 0
+				then current.cuts[#current.cuts].to
+				else nil
+			local camWay =
+				toward(spot, if last ~= nil then last.position else camera.CFrame.Position)
+			-- Review-QA (Studio, f9293840): with the root's LookVector on the camera the picture still showed the
+			-- back, so the turn aimed the other way (Intro.FACE_FLIP). #4019 found why (the leftover ball pose, see
+			-- above), so the flip is off and the root faces the camera again (the head's look is printed to check)
+			if Intro.FACE_FLIP then
+				camWay = -camWay
+			end
+			if RunService:IsStudio() and k >= 1 then
+				print(
+					`[Intro] face: you {spot} way {camWay} camera {camera.CFrame.Position} key {if last
+							~= nil
+						then last.position
+						else "none"} look {you.root.CFrame.LookVector} head {(function(): any
+						local head = you.model:FindFirstChild("Head")
+						return if head ~= nil and head:IsA("BasePart")
+							then head.CFrame.LookVector
+							else "none"
+					end)()}`
+				)
+			end
+			turnYou(you, spot, r.faceFrom :: Vector3, camWay, k)
+			if k >= 1 then
+				r.done.faced = true
+				r.faceFrom = camWay -- where the carry's turn starts from
+			end
+		elseif r.faceFrom ~= nil then
+			placeYou(you, spot, r.faceFrom :: Vector3) -- every frame, so nothing turns you back
+		end
+	end
 	if r.demo == nil or r.held or t < Intro.HOP_FROM then
 		return
 	end
@@ -1293,7 +1362,12 @@ local function stageRun(r: Run, t: number)
 		turnYou(
 			you,
 			path[1],
-			toward(path[1], Intro.strayPoint()),
+			-- #4001: from facing the camera, in the short intro
+			if r.short
+					and r.done.faced
+					and r.faceFrom ~= nil
+				then r.faceFrom :: Vector3
+				else toward(path[1], Intro.strayPoint()),
 			toward(path[1], path[2]),
 			t / Intro.TURN_SECONDS
 		)
@@ -2069,7 +2143,7 @@ Tail.show = function(index: number)
 	local caption = Tail.lines[index]
 	local hold = Tail.Logic.hold(caption)
 	local screen: any = UI.intro
-	screen.setShot(Intro.SHOTS + index, caption, nil, hold)
+	screen.setShot(Tail.base + index, caption, nil, hold)
 	UI.intro.tackleCue(
 		if index == Tail.Logic.CUE_SHOT then Tail.Logic.cueKey(Tail.device) else nil,
 		TackleStage.LUNGE_AT
@@ -2163,7 +2237,8 @@ function IntroController.play(replay: boolean)
 	local cameraWas = if Workspace.CurrentCamera ~= nil
 		then (Workspace.CurrentCamera :: Camera).CameraType
 		else Enum.CameraType.Custom
-	local first = Intro.shots(Intro.plot(state.plotIndex), hasCodesCat(), false)[1]
+	local short = replay or Tail.introShort -- #4001: a replay always plays the short intro (Design-Agent on the issue)
+	local first = Intro.shots(Intro.plot(state.plotIndex), hasCodesCat(), false, short)[1]
 	if first ~= nil and first.cuts[1] ~= nil then
 		park(first.cuts[1].from)
 	end
@@ -2193,9 +2268,10 @@ function IntroController.play(replay: boolean)
 	local camera = Workspace.CurrentCamera
 	local r: Run = {
 		replay = replay,
+		short = short,
 		started = os.clock(),
 		shotStarted = os.clock(),
-		shots = Intro.shots(plot, hasCodesCat(), alleyStreamed),
+		shots = Intro.shots(plot, hasCodesCat(), alleyStreamed, short),
 		plot = plot,
 		camp = camp,
 		alleyStreamed = alleyStreamed,
@@ -2219,6 +2295,7 @@ function IntroController.play(replay: boolean)
 		demoName = "",
 		demoParent = nil,
 		hopFrom = nil,
+		faceFrom = nil,
 		held = false,
 		basket = nil,
 		nearDemo = {},
@@ -2237,6 +2314,7 @@ function IntroController.play(replay: boolean)
 		tail = tailWanted(),
 	}
 	run = r
+	Tail.base = if short then Intro.SHORT_DOT_COUNT else Intro.SHOTS
 	parked = false -- the run has the camera now; finish() hands it back as Custom
 	unbindPark()
 	-- #2961: keep asking for the camp's ground until the cut to shot 5, so it streams in late on a slow phone (the
@@ -2281,7 +2359,11 @@ function IntroController.play(replay: boolean)
 	UI.intro.start({
 		skipAfter = if replay then 0 else Intro.SKIP_AFTER,
 		replay = replay,
-		shots = if r.tail then Intro.SHOTS + TackleStage.SHOTS else nil, -- #2495: the lesson's steps last
+		-- #2495: the lesson's steps last; #4001: the short intro has three dots
+		shots = if r.tail
+			then Tail.base + TackleStage.SHOTS
+			elseif short then Intro.SHORT_DOT_COUNT
+			else nil,
 	})
 	Moments.IntroStart:Fire(replay)
 	-- at Camera priority, under Effects/Cannon's BOOM shake at Camera + 1
@@ -2304,6 +2386,7 @@ function IntroController.start()
 		end)
 	end
 	Net.on("ProfileSync", function(s: Types.PlayerState)
+		Tail.introShort = s.introShort == true -- #4001
 		if
 			(if s.introAuto ~= nil then s.introAuto else Config.IntroAutoPlay) -- #3666
 			and not firstStarted

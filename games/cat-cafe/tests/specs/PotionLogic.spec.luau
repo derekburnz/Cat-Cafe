@@ -91,6 +91,30 @@ return function()
 			expect(base.buffs.tip_potion).to.equal(NOW + 60)
 		end)
 
+		it("counts only potions Use can drink now for the Potions button (#3937)", function()
+			local max = PotionLogic.MAX_MINUTES * 60
+			local usable, held = PotionLogic.drinkable(
+				nil,
+				state({ tip_potion = 3, lucky_potion = 16, swift_potion = 0 }, {
+					tip_potion = NOW + max - 10 * 60, -- room for one more: Use is on for all 3
+					lucky_potion = NOW + max - 60, -- Full: none of the 16 count
+				}),
+				NOW
+			)
+			expect(usable).to.equal(3)
+			expect(held).to.equal(19)
+			usable, held = PotionLogic.drinkable(
+				nil,
+				state({ lucky_potion = 2 }, { lucky_potion = NOW + max }),
+				NOW
+			)
+			expect(usable).to.equal(0)
+			expect(held).to.equal(2)
+			usable, held = PotionLogic.drinkable(nil, state(nil, nil), NOW)
+			expect(usable).to.equal(0)
+			expect(held).to.equal(0)
+		end)
+
 		it("lets Use take a potion only with one in the bag and room under the cap", function()
 			local max = PotionLogic.MAX_MINUTES * 60
 			local rows = PotionLogic.rows(

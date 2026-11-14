@@ -61,6 +61,12 @@ local TAP = "👆" -- the key cap on touch, where there is no key to name
 -- height, right on the dealer's cat (Derek 2026-10-28: "make the night dealer text popup be out of the cats face so
 -- they can see it"), so its pill goes above the 6.35 stud cart. A prompt's own PillLift attribute (studs) wins.
 local LIFT: { [string]: number } = { DealerPrompt = 3 }
+-- Derek 2026-11-13 ("the text for petting takes up too much of the screen and has that big obnoxious black border
+-- make it smaller"): these prompts get a small pill, SMALL of the size, with a thin soft edge in place of the thick
+-- outline. A prompt's own PillSmall attribute (true) does the same.
+local SMALL_PROMPTS: { [string]: boolean } = { PetPrompt = true }
+local SMALL = 0.62
+local SMALL_TOUCH = 0.8
 
 local ActionPill = {}
 ActionPill.__index = ActionPill
@@ -111,6 +117,14 @@ local function build(
 	local keyText = if touch then TAP else PromptKey.label(inputType.Name, keyName)
 	-- a note makes the billboard taller below the pill, so the pill itself stays where it was
 	local height = if note then HEIGHT + NOTE_H * 2 else HEIGHT
+	local small = SMALL_PROMPTS[prompt.Name] == true or prompt:GetAttribute("PillSmall") == true
+	-- on touch the pill is the button, so it keeps a thumb's height (0.8 of 54 is 43)
+	local k = if small then (if touch then SMALL_TOUCH else SMALL) else 1
+	local pillH = math.floor(PILL_HEIGHT * k + 0.5)
+	local keySize = math.floor(KEY * k + 0.5)
+	if small then
+		height = math.floor(height * k + 0.5)
+	end
 
 	local ownLift = prompt:GetAttribute("PillLift")
 	local lift = if type(ownLift) == "number" and ownLift == ownLift
@@ -133,7 +147,7 @@ local function build(
 		Name = "Pill",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(0, PILL_HEIGHT),
+		Size = UDim2.fromOffset(0, pillH),
 		AutomaticSize = Enum.AutomaticSize.X,
 		AutoButtonColor = false,
 		Selectable = false,
@@ -144,18 +158,30 @@ local function build(
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		Create("UIPadding", {
-			PaddingLeft = UDim.new(0, (PILL_HEIGHT - KEY) / 2),
-			PaddingRight = UDim.new(0, 20),
+			PaddingLeft = UDim.new(0, (pillH - keySize) / 2),
+			PaddingRight = UDim.new(0, math.floor(20 * k)),
 		}),
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 			SortOrder = Enum.SortOrder.LayoutOrder,
-			Padding = UDim.new(0, 10),
+			Padding = UDim.new(0, math.floor(10 * k)),
 		}),
 	})
-	Outline.border(body)
-	Outline.shade(body)
+	if small then
+		-- a thin soft edge, so the pill reads over the cafe without a heavy black ring
+		body.BackgroundTransparency = 0.15
+		Create("UIStroke", {
+			Color = Theme.colors.white,
+			Transparency = 0.6,
+			Thickness = 1.5,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Parent = body,
+		})
+	else
+		Outline.border(body)
+		Outline.shade(body)
+	end
 	local scale: UIScale = Create("UIScale", { Scale = 1, Parent = body })
 
 	-- Key cap: a light key with a gold fill that rises over a hold
@@ -165,12 +191,12 @@ local function build(
 		BackgroundColor3 = Theme.colors.paper,
 		BorderSizePixel = 0,
 		ClipsDescendants = true,
-		Size = UDim2.fromOffset(PromptKey.width(keyText, KEY), KEY),
+		Size = UDim2.fromOffset(PromptKey.width(keyText, keySize), keySize),
 		Parent = body,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 	})
-	Outline.border(cap, 2)
+	Outline.border(cap, if small then 1 else 2)
 	local fill: Frame = Create("Frame", {
 		Name = "Fill",
 		AnchorPoint = Vector2.new(0, 1),
@@ -189,7 +215,10 @@ local function build(
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 2,
 		FontFace = Theme.fonts.display,
-		TextSize = if utf8.len(keyText) == 1 then Theme.sizes.textLarge else Theme.sizes.textSmall,
+		TextSize = math.floor(
+			(if utf8.len(keyText) == 1 then Theme.sizes.textLarge else Theme.sizes.textSmall) * k
+				+ 0.5
+		),
 		TextColor3 = Theme.colors.ink,
 		Text = keyText,
 		Parent = cap,
@@ -200,7 +229,7 @@ local function build(
 		Name = "Text",
 		LayoutOrder = 2,
 		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(0, PILL_HEIGHT - 8),
+		Size = UDim2.fromOffset(0, pillH - math.floor(8 * k)),
 		AutomaticSize = Enum.AutomaticSize.X,
 		Parent = body,
 	}, {
@@ -214,10 +243,10 @@ local function build(
 		Name = "Object",
 		LayoutOrder = 1,
 		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(0, 16),
+		Size = UDim2.fromOffset(0, math.floor(16 * k + 0.5)),
 		AutomaticSize = Enum.AutomaticSize.X,
 		FontFace = Theme.fonts.bodyBold,
-		TextSize = Theme.sizes.textSmall,
+		TextSize = math.max(10, math.floor(Theme.sizes.textSmall * k + 0.5)),
 		TextColor3 = Theme.hud.subtext,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = column,
@@ -226,21 +255,21 @@ local function build(
 		Name = "Action",
 		LayoutOrder = 2,
 		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(0, 26),
+		Size = UDim2.fromOffset(0, math.floor(26 * k + 0.5)),
 		AutomaticSize = Enum.AutomaticSize.X,
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
+		TextSize = math.floor(Theme.sizes.textLarge * k + 0.5),
 		TextColor3 = Theme.hud.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = column,
 	})
-	Outline.text(action)
+	Outline.text(action, if small then 1 else nil)
 	if note then
 		local line: TextLabel = Create("TextLabel", {
 			Name = "Note",
 			BackgroundTransparency = 1,
 			AnchorPoint = Vector2.new(0.5, 0),
-			Position = UDim2.new(0.5, 0, 0.5, PILL_HEIGHT / 2 + 4),
+			Position = UDim2.new(0.5, 0, 0.5, pillH / 2 + 4),
 			-- wider than the billboard, which does not clip, so a long line such as the gift's chances fits
 			-- #3050: a note of two lines (the Rummage Bin's chances) fills the room the taller billboard leaves
 			Size = UDim2.fromOffset(

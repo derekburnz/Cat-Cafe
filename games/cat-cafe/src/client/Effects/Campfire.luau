@@ -7,7 +7,11 @@
 -- Only the nearest campfires within the budget's range move; the others stand as modelled, and every disc goes back
 -- to its modelled place, size and colour when its fire stops.
 --
--- Source: Models under Workspace.World whose name ends `_Campfire_Glow` (their parts share the name). The parts are
+-- #4071: the Medieval Castle's torches burn the same way. Their flame is a `_Torch_Glow` model, two cones of three
+-- stacked Neon discs over the iron basket, read as one tongue, with a smaller light and fewer embers
+-- (Presets.campfire.kinds). They share the campfires' budget, so only the nearest few flames of either kind move.
+--
+-- Source: Models under Workspace.World whose name ends `_Campfire_Glow` or `_Torch_Glow` (their parts share the name). The parts are
 -- the server's, placed once by the area set and never moved after; a part found away from where this client last
 -- put it (checked every step while the fire moves, every second while it stands) has been moved or streamed again,
 -- so the fire is read again, and a flame whose parts have not streamed in yet is tried again every second. Numbers
@@ -45,9 +49,9 @@ type Fire = {
 	holder: Attachment?,
 	light: PointLight?,
 	nextPop: number, -- os.clock()
+	kind: Presets.FlameKind, -- a campfire's or a torch's light and embers
 }
 
-local SUFFIX = "_Campfire_Glow"
 local TICK_SECONDS = 1
 
 local fires: { [Model]: Fire } = {}
@@ -56,9 +60,22 @@ local rng = Random.new()
 local lastStep = 0
 local started = false
 
-local function isFlame(instance: Instance): boolean
+-- A campfire's or a torch's numbers, by the end of the flame Model's name; nil for anything else.
+local function kindOf(instance: Instance): Presets.FlameKind?
+	if not instance:IsA("Model") then
+		return nil
+	end
 	local name = instance.Name
-	return instance:IsA("Model") and #name >= #SUFFIX and name:sub(-#SUFFIX) == SUFFIX
+	for suffix, kind in Presets.campfire.kinds do
+		if #name >= #suffix and name:sub(-#suffix) == suffix then
+			return kind
+		end
+	end
+	return nil
+end
+
+local function isFlame(instance: Instance): boolean
+	return kindOf(instance) ~= nil
 end
 
 local function axisOf(part: BasePart): number
@@ -92,6 +109,7 @@ local function bind(model: Model): Fire?
 		holder = nil,
 		light = nil,
 		nextPop = 0,
+		kind = kindOf(model) or Presets.campfire.kinds._Campfire_Glow,
 	}
 	local middle = Vector3.zero
 	local shift = rng:NextNumber(0, 2 * math.pi) -- so two fires never flicker together
@@ -177,11 +195,13 @@ end
 local function switchOn(fire: Fire)
 	local c = Presets.campfire
 	fire.on = true
-	local holder = Particles.anchor("EffectsCampfire", fire.base + Vector3.new(0, c.emberHeight, 0))
+	local kind = fire.kind
+	local holder =
+		Particles.anchor("EffectsCampfire", fire.base + Vector3.new(0, kind.emberHeight, 0))
 	local light = Instance.new("PointLight")
 	light.Color = c.light
-	light.Range = c.range
-	light.Brightness = c.brightness
+	light.Range = kind.range
+	light.Brightness = c.brightness * kind.bright
 	light.Shadows = false
 	light.Parent = holder
 	Particles.attach("ember", holder)
@@ -234,11 +254,12 @@ local function step()
 		local light = fire.light
 		if light ~= nil then
 			local flicker = flickers / math.max(1, #fire.tongues)
-			light.Brightness = glow * (1 + c.flicker * (flicker * 2 - 1))
+			light.Brightness = glow * fire.kind.bright * (1 + c.flicker * (flicker * 2 - 1))
 		end
 		if now >= fire.nextPop then
 			fire.nextPop = now + rng:NextNumber(c.popEvery[1], c.popEvery[2])
-			Particles.burst("ember", fire.base + Vector3.new(0, c.emberHeight, 0), c.pop)
+			local kind = fire.kind
+			Particles.burst("ember", fire.base + Vector3.new(0, kind.emberHeight, 0), kind.pop)
 		end
 	end
 end

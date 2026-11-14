@@ -20,6 +20,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -206,6 +207,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	flyer:SetAttribute("CannonHeading", heading)
 	Net.fire(player, "CannonLaunch", destination, now)
 	Telemetry.custom(player, "cannon_launch", 1, { cannonId, destination })
+	profile.stats.cannonFlights += 1 -- #3618: the Liftoff badge
 	if
 		pass
 		and destination ~= Cannon.TOWN
@@ -305,10 +307,16 @@ end
 -- up to Cannon.HOME_WAIT_SECONDS, and then moves only a character that still stands at the spawn. The landing's
 -- position goes in the player's Cannon.HOME_ATTRIBUTE so their client can put the camera behind them.
 local function homeArrival(player: Player, character: Model)
-	local deadline = os.clock() + Cannon.HOME_WAIT_SECONDS
+	local started = os.clock()
 	local profile = DataService.get(player)
 	while profile == nil or PlotService.get(player) == nil do
-		if os.clock() >= deadline or player.Parent ~= Players or player.Character ~= character then
+		-- a rest's rejoin waits longer: its save comes once the old server lets go of it (Cannon.homeWaitSeconds)
+		local limit = Cannon.homeWaitSeconds(player:GetAttribute(AfkCafe.REJOIN_ATTRIBUTE) == true)
+		if
+			os.clock() - started >= limit
+			or player.Parent ~= Players
+			or player.Character ~= character
+		then
 			return
 		end
 		task.wait(0.25)

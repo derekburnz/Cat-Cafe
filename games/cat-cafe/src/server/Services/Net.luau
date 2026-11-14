@@ -82,6 +82,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	BuyMystery = RateLimiter.new(1, 1), -- #2565 (mystery-market.md section 5): 1 a second
 	MarkMysterySeen = RateLimiter.new(1, 2), -- #2565: one save flag
 	SetBagColours = RateLimiter.new(1, 1), -- #3699: 1 a second
+	PromptDeal = RateLimiter.new(1, 1), -- #3996
 	RedeemCode = RateLimiter.new(1, 2), -- data-model section 11d: 1 per 2 s; CodeService locks after wrong codes
 	IntroDone = RateLimiter.new(1, 1), -- intro-cutscene.md section 3: 1 a second; each call logs one event
 	SetHideCredit = RateLimiter.new(1, 1), -- #1083: 1 a second
@@ -103,7 +104,11 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SendFeedback = RateLimiter.new(1, 10), -- F87: 1 per 10 s; TipService also holds FeedbackSessionLimit a session
 	SessionFeedback = RateLimiter.new(1, 30), -- #3272: 1 per 30 s; TipService also holds it to once a UTC day
 	ClaimStarterCat = RateLimiter.new(1, 2), -- F96 (starter-cat.md section 4): 1 per 2 s
-	CollectCampExtra = RateLimiter.new(1, 1), -- F100 (camp-extras.md section 4): 1 a second
+	-- F100 (camp-extras.md section 4) was 1 a second for every station together. #3993 (Derek 2026-11-13: "sometimes
+	-- the claiming fish pond from cannon menu doesnt work"): the Cat Cannon menu has a Collect per station, so a
+	-- Picnic Basket then a Fish Pond inside a second dropped the pond's with no answer. 4 a second; each call is
+	-- still checked (held > 0) in CampExtraService and each card rests 2 s after its own press.
+	CollectCampExtra = RateLimiter.new(4, 1),
 	-- #2651 part 4 (late-stations.md section 3): 1 a second each. #3299: the live log showed drops on the Spa and the
 	-- Museum, where a player fills slots or donates relics with quick taps one after another and a dropped tap just
 	-- does nothing; 3 a second for those (each call is checked in LateStationService as before). Buying a slot stays 1.

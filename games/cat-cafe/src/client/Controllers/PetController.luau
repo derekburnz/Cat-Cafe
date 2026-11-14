@@ -23,6 +23,10 @@ local CAT_TAG = "WorkingCat"
 local TUTORIAL_DONE = 5 -- the tutorial's last step
 local REACH_UNDER = 2 -- studs the prompt's reach stays inside the server's range
 local NOTE_SECONDS = 20 -- how often a happy cat's note is brought up to date
+-- Derek 2026-11-13 ("make the pet bubble disappear after clicking so you can see animation especially on phone"): a
+-- pressed Pet pill steps away for the reach, the strokes and the hearts (Effects/PetCat, about 3 s), and past the
+-- press cooldown, then comes back
+local HIDE_AFTER_PRESS = 4
 
 local prompts: { [Instance]: ProximityPrompt } = {}
 local lastPress = 0
@@ -99,6 +103,12 @@ local function refresh(cat: Instance)
 		made.MaxActivationDistance = Config.PetRangeStuds - REACH_UNDER
 		made.Triggered:Connect(function()
 			press(cat)
+			made.Enabled = false
+			task.delay(math.max(HIDE_AFTER_PRESS, Config.PetCooldownSeconds), function()
+				if made.Parent ~= nil then
+					made.Enabled = true
+				end
+			end)
 		end)
 		made.Parent = part
 		prompts[cat] = made

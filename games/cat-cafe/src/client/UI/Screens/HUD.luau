@@ -28,8 +28,8 @@
 -- gold "New!" on its button for NEW_SECONDS.
 -- Laid out in design pixels under one UIScale from Scale.bind.
 --
--- F92 (playing-together.md sections 2 and 5): the pal chip (Screens/PalChip) closes the potion timers' row while pals
--- are on the server, the boosts card gets their "Pals (2)" row, Invite sends Roblox's invite with this player's name
+-- F92 (playing-together.md sections 2 and 5): while pals are on the server the boosts card gets their "Friend bonus
+-- (2)" row (no chip on the HUD since 2026-11-13), Invite sends Roblox's invite with this player's name
 -- in its launch data (Components/Invite), and a joiner whose pal is out in an area sees "Sam is in the Park" over the
 -- glowing Cannon (Screens/PalMarker).
 --
@@ -49,6 +49,8 @@ local Button = require(script.Parent.Parent.Components.Button)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
+local FeedbackCallout = require(script.Parent.Parent.Components.FeedbackCallout)
+local FeedbackCalloutLogic = require(script.Parent.Parent.Components.FeedbackCalloutLogic)
 local FirstBait = require(script.Parent.Parent.Components.FirstBait)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -57,6 +59,7 @@ local GiftLadderLogic = require(script.Parent.Parent.Components.GiftLadderLogic)
 local GiftLogic = require(script.Parent.Parent.Components.GiftLogic)
 local GoalCard = require(script.Parent.GoalCard)
 local GoalFold = require(script.Parent.Parent.Components.GoalFold)
+local GoalLines = require(script.Parent.Parent.Components.GoalLines) -- #4098
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexHints = require(script.Parent.Parent.Components.IndexHints)
@@ -64,15 +67,14 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Invite = require(script.Parent.Parent.Components.Invite)
 local LuckChip = require(script.Parent.LuckChip)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
-local MenuFit = require(script.Parent.Parent.Components.MenuFit)
 local MoneyFlash = require(script.Parent.Parent.Components.MoneyFlash)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
-local PalChip = require(script.Parent.PalChip)
 local PalMarker = require(script.Parent.PalMarker)
 local PassShop = require(script.Parent.Parent.Components.PassShop)
 local PityLogic = require(script.Parent.Parent.Components.PityLogic)
+local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local PromptKey = require(script.Parent.Parent.Components.PromptKey)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
@@ -110,6 +112,7 @@ export type Callbacks = {
 	replayIntro: () -> (), -- the Tutorial tile (F72)
 	hideTutorialButton: () -> (), -- the Tutorial tile's red ×
 	openFeedback: () -> (), -- the Feedback tile: the Feedback window on its Idea chip
+	openIdea: (() -> ())?, -- #3883: the map theme bubble: the Feedback window on its Idea page (nil: openFeedback)
 	setSetting: ((key: string, value: boolean) -> ())?, -- #1893: the Grand Opening strip saves roadmapOpen
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
@@ -120,6 +123,7 @@ export type HUD = {
 	screenGui: ScreenGui,
 	setCatalog: (self: HUD, catalog: Types.Catalog) -> (),
 	render: (self: HUD, state: Types.PlayerState) -> (),
+	showCallout: (self: HUD) -> (), -- #3883: the map theme bubble now (the UI gate's picture)
 	goalSeen: (self: HUD) -> (), -- #2331: the rank up card opened, so the goal card's ready pulse and arrow stop
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
@@ -129,7 +133,9 @@ export type HUD = {
 	-- F101: "🏁 Rescue Rally in 5h 20m" under the clock in the last hours before a Rally, nil hides it
 	setRallySoon: (self: HUD, line: string?) -> (),
 	setGift: (self: HUD, tier: string?) -> (), -- #2614: a Mystery gift waits on your plot in this wrap, or nil
-	setEvent: (self: HUD, lines: { string }?, kind: string?) -> (),
+	setEvent: (self: HUD, lines: { string }?, kind: string?, strip: { string }?) -> (),
+	holdBanner: (self: HUD, reason: string, on: boolean) -> (),
+	setEventBoost: (self: HUD, boost: BoostList.EventBoost?) -> (),
 	-- F101: the potion timers' row (with the Luck and pal chips), which the Rally banner keeps clear of on a phone
 	buffRow: (self: HUD) -> GuiObject,
 	counterRow: (self: HUD) -> GuiObject, -- #2393: the money and golden fish (top middle on touch)
@@ -150,6 +156,7 @@ export type HUD = {
 	bottomTop: (self: HUD) -> number,
 	tackleTop: (self: HUD) -> number, -- #3119: where the Tackle bar's foot sits (under the Drop off touch)
 	toastAvoid: (self: HUD) -> { Types.Box }, -- #2338: what the toasts keep clear of
+	edgeAvoid: (self: HUD) -> { Types.Box }, -- #4152: what the tutorial's edge arrow keeps clear of, in screen px
 	setCatching: (self: HUD, active: boolean) -> (),
 	roadmapStep: (self: HUD, n: number) -> (),
 	setCatchStreak: (self: HUD, streak: number) -> (),
@@ -164,7 +171,6 @@ export type HUD = {
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	setGiftLadder: (self: HUD, rows: { GiftLadderLogic.Row }?) -> (), -- #2791
 	setCozy: (self: HUD, line: string?, ready: boolean) -> (), -- #2798
-	setArcade: (self: HUD, on: boolean) -> (), -- #3062: the Menu list's Arcade row
 	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
 	setStoreNew: (self: HUD, shown: boolean) -> (),
@@ -190,6 +196,7 @@ export type HUD = {
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local NewKind = require(Shared:WaitForChild("NewKind")) -- #3529: the goal card's "Catch new kinds of cat"
+local Pals = require(Shared:WaitForChild("Pals")) :: any -- #3954: the Menu's Invite row names the pal tip bonus
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel")) -- #1888: where a Store open came from
 local StuckGoal = require(Shared:WaitForChild("StuckGoal")) -- #2912: the goal card's "Free a stuck cat"
 
@@ -200,6 +207,15 @@ local MONEY_W = 232
 -- #2194: the money amount takes the room of its shape with the widest digits ("$33.7M" takes "$88.8M"), so the golden
 -- fish beside it holds still while the digits tick. #2383 (Derek2 11-08: "isn't supposed to be a big gap between the
 -- money and fish"): it used to take at least 140 px, a wide gap after a short amount
+-- #4097: whether the areas are open (the Clock folder's AreasOpen; nil while it has not replicated)
+local function areasOpen(): boolean?
+	local clock = ReplicatedStorage:FindFirstChild("Clock")
+	if clock == nil then
+		return nil
+	end
+	return clock:GetAttribute("AreasOpen") ~= false
+end
+
 local function moneyShape(text: string): string
 	return (text:gsub("%d", "8"))
 end
@@ -302,75 +318,9 @@ local function rowGap(foot: number): number
 end
 local ROW_GAP = rowGap(FOOT_REACH) -- between the rows (17 on a PC, 20 on touch)
 local STORE_GAP = rowGap(GLOW_REACH + STORE_HOVER) -- under the wide Store tile, over the grid (23)
--- #3033 (Laptop-Tester, live 494: "the chat window covers the top left Store tile"): the bottom of Roblox's chat
--- window in pixels from the top of `root`, when it is on and reaches over the left column's first `columnW` pixels;
--- nil otherwise (touch, no TextChatService window, or one placed elsewhere). Roblox terms: TextChatService's
--- ChatWindowConfiguration reports where the chat window is drawn (AbsolutePosition, AbsoluteSize).
-local function chatWindow(): Instance?
-	local ok, service = pcall(function(): Instance?
-		return game:GetService("TextChatService")
-	end)
-	if not ok or service == nil then
-		return nil
-	end
-	return (service :: Instance):FindFirstChildOfClass("ChatWindowConfiguration")
-end
-
--- #3686: the box under the chat window (TextChatService's ChatInputBarConfiguration)
-local function chatInputBar(): Instance?
-	local ok, service = pcall(function(): Instance?
-		return game:GetService("TextChatService")
-	end)
-	if not ok or service == nil then
-		return nil
-	end
-	return (service :: Instance):FindFirstChildOfClass("ChatInputBarConfiguration")
-end
-
--- #3686: false once the player has closed the chat with the top bar's chat button (StarterGui's "ChatActive" core
--- value); true when Roblox cannot say
-local function chatActive(): boolean
-	local ok, active = pcall(function(): any
-		return game:GetService("StarterGui"):GetCore("ChatActive")
-	end)
-	return not (ok and active == false)
-end
-
-local function chatBottom(root: GuiObject, columnW: number): number?
-	local config: any = chatWindow()
-	if config == nil or config.Enabled ~= true then
-		return nil
-	end
-	local okPos, at = pcall(function(): Vector2
-		return config.AbsolutePosition
-	end)
-	local okSize, size = pcall(function(): Vector2
-		return config.AbsoluteSize
-	end)
-	if not okPos or not okSize or typeof(at) ~= "Vector2" or typeof(size) ~= "Vector2" then
-		return nil
-	end
-	local left = (at :: Vector2).X - root.AbsolutePosition.X
-	if size.X <= 0 or size.Y <= 0 or left > columnW then
-		return nil
-	end
-	if not chatActive() then
-		return nil -- #3686: the player closed the chat from Roblox's top bar
-	end
-	local bottom = (at :: Vector2).Y + (size :: Vector2).Y
-	-- #3686 (Review-QA, Studio 11-12: the window ended at 208 px and the box under it at 253): the box the player
-	-- types in sits under the window and takes clicks too
-	local bar: any = chatInputBar()
-	if bar ~= nil and bar.Enabled == true then
-		local okBar, barBottom = pcall(function(): number
-			return bar.AbsolutePosition.Y + bar.AbsoluteSize.Y
-		end)
-		if okBar and type(barBottom) == "number" then
-			bottom = math.max(bottom, barBottom)
-		end
-	end
-	return bottom - root.AbsolutePosition.Y
-end
+-- #3033 and #3686 moved the column under Roblox's chat window on a computer. Derek 2026-11-13: "when chat is open it
+-- also pushes the buttons down maybe make it so the chat doesn't effect it and just goes over top": the column stays
+-- where it is and the chat draws over it.
 
 local function menuWidth(columns: number): number
 	return columns * MENU_TILE + (columns - 1) * MENU_GAP
@@ -495,9 +445,15 @@ local LUCKY_CLOVER = 18 -- #1258: the luck chip's circle in front of that line
 local LUCKY_GAP = 8 -- #2084: between that circle and the first letter (#2416: clear of the words' outline too)
 local DAY_CARD_W = 300 -- #1572: the day line's card
 local BANNER_RING = 2.5 -- #2885: the status banner's ring
-local BANNER_PAD_X = 10
+local BANNER_PAD_X = 8
 local BANNER_PAD_Y = 4
-local BANNER_GAP = 2 -- between its lines
+-- Derek 2026-11-13 ("stretch it long not downward it's taking up a lot of screen maybe narrow it down to 3 days Event
+-- timeleft and if clicked it shows the more details"): the banner is one thin strip of at most BANNER_MOST pieces
+-- side by side, a name and its time left each, BANNER_ITEM_GAP apart; a tap on any opens the card with the rest
+local BANNER_ITEM_GAP = 10
+local BANNER_MOST = 3
+local BANNER_GUESS_W = 200 -- design px for a piece not yet measured in the strip (HUD._fitBanner)
+local BANNER_SPARE = 8 -- design px a dropped piece needs past its own width to come back
 local DAY_CARD_Z = 20
 -- The top right column (icon row, clock, tips line, tier and goal) is this wide at most. The HUD keeps clear of
 -- Roblox's top bar, which left a tall empty band over that column (Derek 2026-10-27); when the bar's free stretch
@@ -1118,6 +1074,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 	})
 	table.insert(self._buttons, self._feedbackTile)
+	self._calloutDoneAt = nil :: number?
+	self._calloutStep = nil :: number?
 	-- Menu (Derek 2026-11-02, fewer buttons): Settings and Invite behind one gear. Once Invite is unlocked a press
 	-- opens the short list; before that it opens Settings.
 	self._menuTile = Button.new({
@@ -1353,6 +1311,24 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			{ Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }
 		),
 	})
+	-- Derek 2026-11-13: the strip's details at the card's top, the event's full lines and the Rally's (_renderCardTop)
+	self._dayEvent = Create("TextLabel", {
+		Name = "EventLines",
+		LayoutOrder = 0,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextWrapped = true,
+		Text = "",
+		Visible = false,
+		ZIndex = DAY_CARD_Z + 1,
+		Parent = self._dayCard,
+	})
+	self._eventCard = nil :: string?
 	-- #1572 (luck-and-rare-moments.md 1h): under the day kinds, the pity sign's lines, ticking while the card is open
 	self._dayPity = Create("TextLabel", {
 		Name = "Pity",
@@ -1461,17 +1437,21 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			PaddingRight = UDim.new(0, BANNER_PAD_X),
 		}),
 		Create("UIListLayout", {
-			FillDirection = Enum.FillDirection.Vertical,
-			HorizontalAlignment = if TOUCH
-				then Enum.HorizontalAlignment.Left
-				else Enum.HorizontalAlignment.Center, -- #3178: centred under the clock at the top middle
-			Padding = UDim.new(0, BANNER_GAP),
+			FillDirection = Enum.FillDirection.Horizontal, -- Derek 2026-11-13: one long strip, not a stack
+			HorizontalAlignment = Enum.HorizontalAlignment.Left,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, BANNER_ITEM_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
 	self._banner = banner
+	self._bannerHold = {} :: { [string]: true } -- why the strip steps aside (holdBanner)
+	-- the event, the day kinds, the event's next shower, then the Rally: the first BANNER_MOST that show
+	-- (_paintBanner), fewer where a narrow phone's top right icons leave less room (_fitBanner)
 	local bannerLines: { GuiObject } =
-		{ luckyRow, self._rallyLine, self._eventLine, self._eventNext }
+		{ self._eventLine, luckyRow, self._eventNext, self._rallyLine }
+	self._bannerFit = BANNER_MOST
+	self._bannerWanted = ""
 	self._bannerLines = bannerLines
 	for order, bannerLine in bannerLines do
 		bannerLine.AnchorPoint = Vector2.new(0, 0)
@@ -1483,6 +1463,23 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			text.AutomaticSize = Enum.AutomaticSize.X
 			text.TextTruncate = Enum.TextTruncate.None
 			text.TextXAlignment = Enum.TextXAlignment.Left
+			-- a finger-tall tap over the piece and half the gaps beside it opens the card (the day line has its own)
+			local tap: TextButton = Create("TextButton", {
+				Name = "Tap",
+				Text = "",
+				BackgroundTransparency = 1,
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.fromScale(0.5, 0.5),
+				Size = UDim2.new(1, BANNER_ITEM_GAP, 0, Scale.tapHeight(Theme.sizes.touchMin)),
+				ZIndex = text.ZIndex + 1,
+				Parent = text,
+			})
+			table.insert(
+				self._connections,
+				tap.Activated:Connect(function()
+					self:_toggleDayCard()
+				end)
+			)
 		end
 		bannerLine.Parent = banner
 		table.insert(
@@ -2318,24 +2315,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			self:_hideBoosts()
 		end
 	)
-	-- F92: the pal chip closes the potion timers' row; a tap opens the boosts card with the pals' row
-	-- #3052 (Derek2 11-10: "sometimes ui still gets pushed down when friends join move the friend join bonuses and make
-	-- it smaller"): on touch it is not in that row (a pal joining made the row too wide for the top bar, and the Luck
-	-- chip, the money badge and the status banner all dropped a line). It is a small label in the clock's own line,
-	-- left of the sun: the clock is right-aligned, so the chip grows into free space and nothing is laid out from it
+	-- F92: the pals' bonus is a row of the boosts card a tap on the money opens. Derek 2026-11-13 ("the friend bonus is
+	-- the reason maybe move that to just be in money breakdown area ... and don't put a line anywhere"): there is no
+	-- pal chip on the HUD any more (it widened the bottom row on a PC and broke the left side).
 	self._palIds = {} :: { number }
-	self._pals = PalChip.new(
-		if TOUCH then self._clock else self._buffs.frame,
-		function(shown: boolean)
-			if not TOUCH then
-				self._buffs:setLead(shown, "pals")
-			end
-		end,
-		function()
-			self:_toggleBoosts()
-		end,
-		TOUCH
-	)
 	self._palMarker = PalMarker.new()
 	-- #3052 (Derek2 11-10: "if 4x money is bought just add it to money breakdown no need for a symbol"): an owned money
 	-- pass has no chip or tag in the HUD (#1962's gold "💰 Cash x2" chip, #2447's small tag after the amount); its
@@ -2360,39 +2343,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- pair; the layouts wait for this flag, then run once here
 	self._built = true
 	self:_layoutMenu()
-	-- #3033: and Roblox's chat window, which can sit over the Store tile on a computer
-	local chat: any = if TOUCH then nil else chatWindow()
-	if chat ~= nil then
-		-- #3686: and the box under it
-		for _, config: any in { chat, chatInputBar() } do
-			for _, property in { "AbsolutePosition", "AbsoluteSize", "Enabled" } do
-				local okSignal, signal = pcall(function(): RBXScriptSignal
-					return config:GetPropertyChangedSignal(property)
-				end)
-				if okSignal then
-					table.insert(
-						self._connections,
-						signal:Connect(function()
-							self:_layoutMenu()
-						end)
-					)
-				end
-			end
-		end
-		-- #3686: Roblox has no signal for the top bar's chat button, so the menu looks once a second and moves when
-		-- the chat was opened or closed
-		local was = chatActive()
-		task.spawn(function()
-			while not self._gone do
-				task.wait(1)
-				local now = chatActive()
-				if now ~= was and not self._gone then
-					was = now
-					self:_layoutMenu()
-				end
-			end
-		end)
-	end
 	-- the left side follows the screen's size (a phone turned, a window resized)
 	table.insert(
 		self._connections,
@@ -2417,6 +2367,19 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 	self:_paintKeys()
+	-- #3883: the map theme bubble under the Feedback tile (FeedbackCalloutLogic says when), made last so it
+	-- draws over the goal card
+	self._callout = FeedbackCallout.new(root, self._feedbackTile.instance, function()
+		self:_calloutAway()
+		local openIdea = callbacks.openIdea
+		if openIdea ~= nil then
+			openIdea()
+		else
+			callbacks.openFeedback()
+		end
+	end, function()
+		self:_calloutAway()
+	end, self._goal.frame)
 	return self :: HUD
 end
 
@@ -2682,8 +2645,9 @@ function HUD._applyFocus(self: any)
 		self._buffs:setFocus(false)
 		return
 	end
+	local lines: { GuiObject } = self._bannerLines
 	for child in hidden do
-		if child.Parent == root then
+		if child.Parent == root or table.find(lines, child) ~= nil then
 			child.Visible = true
 		end
 	end
@@ -2946,10 +2910,52 @@ function HUD.setCatalog(self: any, catalog: Types.Catalog)
 	self._luck:setCatalog(catalog)
 end
 
+-- #3883: once a join, FeedbackCalloutLogic.WAIT_SECONDS after the tutorial is done (or after the join for a player
+-- done before), the map theme bubble shows under the Feedback tile for SHOW_SECONDS
+local calloutShown = false -- once a join, whatever happens to the HUD
+
+function HUD._calloutWatch(self: any, step: number)
+	self._calloutStep = step
+	if calloutShown or self._calloutDoneAt ~= nil or step < TUTORIAL_DONE then
+		return
+	end
+	local doneAt = os.clock()
+	self._calloutDoneAt = doneAt
+	task.delay(FeedbackCalloutLogic.WAIT_SECONDS, function()
+		if
+			self._gone
+			or not FeedbackCalloutLogic.due(self._calloutStep, doneAt, os.clock(), calloutShown)
+		then
+			return
+		end
+		self:showCallout()
+	end)
+end
+
+-- Shows the bubble now (the UI gate's picture calls this too) and puts it away after SHOW_SECONDS.
+function HUD.showCallout(self: any)
+	if not self._feedbackTile.instance.Visible then
+		return
+	end
+	calloutShown = true
+	self._callout:show()
+	task.delay(FeedbackCalloutLogic.SHOW_SECONDS, function()
+		if not self._gone then
+			self._callout:hide()
+		end
+	end)
+end
+
+function HUD._calloutAway(self: any)
+	calloutShown = true
+	self._callout:hide()
+end
+
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
 	-- #2211: the tutorial's last step done just now (not a player who finished it before this join): the × pulses
 	local step = state.tutorialStep or TUTORIAL_DONE
+	self:_calloutWatch(step)
 	local before: number? = self._stepBefore
 	self._stepBefore = step
 	if before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE then
@@ -2965,9 +2971,15 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- on the square alone: round the whole tile it covered the "Upgrades" label under it (device pass 2026-11-07)
 	-- #2759: none of the step rings while a fresh save's intro is on its way (holdTutorial)
 	local held = self._tutorialHeld == true
+	-- #4097: while the step asks for the second cat by day, nothing points at the table (no glow, no Buy button)
+	local stepView =
+		TutorialHints.view(state, if catalog then catalog.spots else nil, nil, areasOpen())
+	local holdsTable = TutorialHints.holdsOffer(stepView)
 	TutorialGlow.set(
 		self._upgradesTile.face,
-		not held and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+		not held
+			and not holdsTable
+			and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
 	)
 	-- #2697: the Cats tile while the step asks for a job, the Bowl tile while it asks for food in the bowl
 	local asks =
@@ -2981,7 +2993,8 @@ function HUD.render(self: any, state: Types.PlayerState)
 			state.tutorialStep,
 			state.upgradeLevels,
 			state.money,
-			if catalog then catalog.upgrades else nil
+			if catalog then catalog.upgrades else nil,
+			stepView
 		)
 	self._stripOffer = offer
 	self:_renderStripBuy()
@@ -3021,14 +3034,8 @@ function HUD.render(self: any, state: Types.PlayerState)
 	if self._boosts.Visible then
 		self:_renderBoosts()
 	end
-	local potions = 0
-	local bag: { [string]: number } = state.potions or {}
-	for _, count in bag do
-		potions += math.max(0, count)
-	end
-	self._potionCount.Text = tostring(potions)
-	self._potionCount.Visible = potions > 0
 	self._state = state
+	self:_renderPotionCount()
 	self._carryState = state.carrying ~= nil
 	self:setPacked(self._packed) -- #2731
 	self:_renderTravel()
@@ -3054,6 +3061,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- #3022: from the first customer served until the second cat, the card's goal is "Catch a 2nd cat"
 	-- (Components/SecondCatGoal); its preview lines show once, for PREVIEW_SECONDS
 	local nextTier = if tierProgress then tierProgress.nextTier else nil
+	self._nextTierName = if nextTier then nextTier.name else nil -- #4098: the new kinds goal names what it opens
 	local second =
 		SecondCatGoal.view(state, TOUCH, if nextTier then nextTier.name else nil, self._areasOpen)
 	local started = second ~= nil and self._second == nil
@@ -3461,6 +3469,42 @@ end
 -- lines by their words, which sit right-aligned in wider boxes), the chips over the counters and the corner tiles over
 -- the bottom right. Measured, so a folded menu or a hidden card counts as
 -- nothing; none while the HUD is hidden.
+-- #4152: the same pieces as toastAvoid, in the screen's own pixels with the top inset counted (the tutorial's edge
+-- arrow draws in a ScreenGui that ignores the inset), so the arrow keeps off the money pill and the menu.
+function HUD.edgeAvoid(self: any): { Types.Box }
+	local scale = Scale.get()
+	local out: { Types.Box } = {}
+	if scale <= 0 then
+		return out
+	end
+	-- The arrow is placed in viewport space (WorldToViewportPoint, in an IgnoreGuiInset gui), but AbsolutePosition is
+	-- always measured from under the top inset, whatever the gui's IgnoreGuiInset (Review-QA in Studio, 667x375: the
+	-- arrow and the counters both draw 58 px below their AbsolutePosition), so every box adds the inset
+	local inset = GuiService:GetGuiInset()
+	local origin = self._root.AbsolutePosition + inset
+	for _, box in self:toastAvoid() do
+		table.insert(out, {
+			x0 = origin.X + box.x0 * scale,
+			y0 = origin.Y + box.y0 * scale,
+			x1 = origin.X + box.x1 * scale,
+			y1 = origin.Y + box.y1 * scale,
+		})
+	end
+	-- and on every device the counters (the money pill and its coin) and the travel row, which the toasts don't need
+	for _, piece in { self._counters, self._travelRow } :: { GuiObject } do
+		if piece.Visible and piece.AbsoluteSize.X > 0 then
+			local at = piece.AbsolutePosition + inset
+			table.insert(out, {
+				x0 = at.X,
+				y0 = at.Y,
+				x1 = at.X + piece.AbsoluteSize.X,
+				y1 = at.Y + piece.AbsoluteSize.Y,
+			})
+		end
+	end
+	return out
+end
+
 function HUD.toastAvoid(self: any): { Types.Box }
 	local scale = Scale.get()
 	local boxes: { Types.Box } = {}
@@ -3620,14 +3664,29 @@ function HUD._renderLuckyLine(self: any)
 	self._luckyClover.Visible = view ~= nil and view.luckyDay == true
 	self._luckyLine.Visible = line ~= nil and self._clock.Visible
 	self._luckyRow.Visible = self._luckyLine.Visible
-	if not self._luckyLine.Visible then
-		self._dayCard.Visible = false
+	-- Derek 2026-11-13: the card opens from any piece of the strip, so it keeps open without the day line
+	self._dayCardText.Visible = self._luckyLine.Visible
+end
+
+-- Derek 2026-11-13: the card's top lines, the running event's full words ("Cafe Party · x2 money · ends in 1:59:40",
+-- "next shower 9:12") and the Rally's countdown
+function HUD._renderCardTop(self: any)
+	local parts: { string } = {}
+	local event: string? = self._eventCard
+	if event ~= nil then
+		table.insert(parts, event)
 	end
+	if self._rallySoon ~= nil then
+		table.insert(parts, "🏁 " .. self._rallySoon)
+	end
+	local label: TextLabel = self._dayEvent
+	label.Text = table.concat(parts, "\n")
+	label.Visible = #parts > 0
 end
 
 -- #1572: the day line's card, open or shut.
 function HUD._toggleDayCard(self: any)
-	self._dayCard.Visible = not self._dayCard.Visible and self._luckyLine.Visible
+	self._dayCard.Visible = not self._dayCard.Visible and self._banner.Visible
 	if not self._dayCard.Visible then
 		return
 	end
@@ -3663,6 +3722,7 @@ function HUD.setRallySoon(self: any, line: string?)
 	self._rallySoon = line
 	self._rallyLine.Text = if line ~= nil then "🏁 " .. line else ""
 	self._rallyLine.Visible = line ~= nil and self._clock.Visible
+	self:_renderCardTop()
 	self:_layoutRight()
 end
 
@@ -3709,41 +3769,42 @@ function HUD.setRest(self: any, resting: boolean, doubled: boolean?)
 	chip:set(resting, doubled)
 end
 
+-- #3935: the running event's money for the boosts card (EventLogic.moneyBoost), nil when none
+function HUD.setEventBoost(self: any, boost: BoostList.EventBoost?)
+	local old: BoostList.EventBoost? = self._eventBoost
+	local same = if old == nil or boost == nil
+		then old == boost
+		else old.name == boost.name and old.money == boost.money
+	if same then
+		return
+	end
+	self._eventBoost = boost
+	self:_renderBoosts()
+end
+
 -- #2487: the Cafe Event chip's lines (EventLogic.chip), nil to hide it; kind "running" paints it gold.
-function HUD.setEvent(self: any, lines: { string }?, kind: string?)
+function HUD.setEvent(self: any, lines: { string }?, kind: string?, strip: { string }?)
 	local text = if lines ~= nil and #lines > 0 then table.concat(lines, "\n") else nil
 	local key = if text ~= nil then (kind or "") .. "|" .. text else nil
 	if key == self._event then
 		return
 	end
 	self._event = key
+	self._eventCard = text
+	self:_renderCardTop()
+	-- Derek 2026-11-13: the strip's short words (EventLogic.strip), the full lines in the card
+	local words: { string }? = if strip ~= nil and #strip > 0 then strip else lines
 	local line: TextLabel = self._eventLine
 	local nextLine: TextLabel = self._eventNext
-	line.Text = if lines ~= nil and lines[1] ~= nil then lines[1] else ""
+	line.Text = if words ~= nil and words[1] ~= nil then words[1] else ""
 	line.TextColor3 = if kind == "running" then Theme.colors.gold else Theme.colors.white
 	-- #2539 (Laptop-Tester): not tied to the clock, which the small HUD hides until tutorial step 5, so a new player
 	-- sees the event too
-	nextLine.Text = if lines ~= nil and lines[2] ~= nil then lines[2] else ""
-	local showLine = text ~= nil
-	local showNext = showLine and nextLine.Text ~= ""
-	-- #2860 (Derek2: the event "flashes and shows during catching minigames when it should be hidden"): its countdown
-	-- repaints every second, so mid-catch it stays down and is only noted for the catch's end (HUD._applyFocus)
-	if self._catching then
-		local hidden: { [GuiObject]: boolean } = self._focusHidden
-		if showLine then
-			hidden[line] = true
-		else
-			hidden[line] = nil
-		end
-		if showNext then
-			hidden[nextLine] = true
-		else
-			hidden[nextLine] = nil
-		end
-		showLine, showNext = false, false
-	end
-	line.Visible = showLine
-	nextLine.Visible = showNext
+	nextLine.Text = if words ~= nil and words[2] ~= nil then words[2] else ""
+	-- #2860: mid-catch the whole strip stays down (_paintBanner), so its lines keep their own state and all come back
+	-- together at the catch's end (Review-QA 2026-11-13: hiding the line itself left the strip a piece short for 1 s)
+	line.Visible = text ~= nil
+	nextLine.Visible = line.Visible and nextLine.Text ~= ""
 	self:_layoutRight()
 end
 
@@ -3867,6 +3928,10 @@ function HUD._layoutRight(self: any)
 	roadmap.Position = UDim2.new(1, -MARGIN, 0, stripTop)
 	if roadmap.Visible then
 		lineTop += self._roadmap:closedHeight() + Theme.sizes.gap
+		if self._roadmapOpen == true then
+			-- #3990: the open steps list ran down over the spin and gift lines (a PC); they move under it
+			lineTop = math.max(lineTop, stripTop + lift + roadmap.Size.Y.Offset + Theme.sizes.gap)
+		end
 	end
 	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
 	local giftTop = if self._spinLine.Visible then lineTop + SPIN_LINE_H + 2 else lineTop
@@ -3883,22 +3948,61 @@ function HUD._placeTopMiddle(self: any)
 	self._clock.Position = UDim2.new(0.5, 0, 0, clockTop)
 	local bannerTop = clockTop + CLOCK_H + 2
 	self._banner.Position = UDim2.new(0.5, 0, 0, bannerTop)
-	self._dayCard.AnchorPoint = Vector2.new(0.5, 0)
-	self._dayCard.Position = UDim2.new(0.5, 0, 0, bannerTop + self:_bannerHeight() + 4)
+	-- Review-QA 2026-11-13 (a small PC window): the card opens centred, but never over the left menu
+	local scale = Scale.get()
+	local width = if scale > 0 then self._root.AbsoluteSize.X / scale else 0
+	local left = math.max(width / 2 - DAY_CARD_W / 2, self:_leftClear())
+	self._dayCard.AnchorPoint = Vector2.new(0, 0)
+	self._dayCard.Position =
+		UDim2.fromOffset(math.floor(left), math.floor(bannerTop + self:_bannerHeight() + 4))
+	self:_queueFit()
+end
+
+-- the strip's fit, once its words are measured (a frame on)
+function HUD._queueFit(self: any)
+	if self._fitQueued then
+		return
+	end
+	self._fitQueued = true
+	task.defer(function()
+		self._fitQueued = false
+		self:_fitBanner()
+	end)
 end
 
 -- #2885: the banner's height from its shown lines (its automatic size can lag a frame behind a change).
 function HUD._bannerHeight(self: any): number
-	local shown = 0
-	for _, line in self._bannerLines :: { GuiObject } do
-		if line.Visible and (line ~= self._luckyRow or self._luckyLine.Visible) then
-			shown += 1
-		end
-	end
-	if shown == 0 then
+	if #self:_bannerShown() == 0 then
 		return 0
 	end
-	return BANNER_PAD_Y * 2 + shown * NIGHT_LINE + (shown - 1) * BANNER_GAP
+	return BANNER_PAD_Y * 2 + NIGHT_LINE -- Derek 2026-11-13: one row
+end
+
+-- the strip's pieces that want to show, in order (the first BANNER_MOST go in it)
+function HUD._bannerShown(self: any): { GuiObject }
+	local shown: { GuiObject } = {}
+	for _, line in self._bannerLines :: { GuiObject } do
+		if line.Visible and (line ~= self._luckyRow or self._luckyLine.Visible) then
+			table.insert(shown, line)
+		end
+	end
+	return shown
+end
+
+-- Derek 2026-11-13 ("random flashes of the ui during catch minigames and rummage minigames ... shouldn't show at
+-- all"): the strip steps aside while `reason` holds (the Rummage Bin's roll, the arcade or the Mystic Pool open), as
+-- it does through a catch or rescue (HUD._applyFocus)
+function HUD.holdBanner(self: any, reason: string, on: boolean)
+	local hold: { [string]: true } = self._bannerHold
+	if (hold[reason] == true) == on then
+		return
+	end
+	if on then
+		hold[reason] = true
+	else
+		hold[reason] = nil
+	end
+	self:_layoutRight()
 end
 
 -- #2885: shown while any line is, ringed in the moment's colour: the Cafe Event's (gold while it runs), else the
@@ -3910,7 +4014,43 @@ function HUD._paintBanner(self: any)
 	end
 	local event: TextLabel = self._eventLine
 	local lucky = self._luckyRow.Visible and self._luckyLine.Visible
-	local shown = self:_bannerHeight() > 0
+	-- the first BANNER_MOST pieces in the strip; one past them waits out of it (its card line still says it)
+	local wanted = self:_bannerShown()
+	local names: { string } = {}
+	for _, line in wanted do
+		table.insert(names, line.Name)
+	end
+	local signature = table.concat(names, ",")
+	if signature ~= self._bannerWanted then
+		self._bannerWanted = signature
+		self._bannerFit = BANNER_MOST -- a new set of pieces gets the whole room again
+	end
+	local most = math.min(BANNER_MOST, self._bannerFit)
+	for _, line in self._bannerLines :: { GuiObject } do
+		local index = table.find(wanted, line)
+		local inStrip = index == nil or index <= most
+		local parent: Instance? = if inStrip then banner else nil
+		if line.Parent ~= parent then
+			line.Parent = parent
+		end
+	end
+	local shown = #wanted > 0
+	if not shown then
+		self._dayCard.Visible = false
+	end
+	if most < math.min(#wanted, BANNER_MOST) then
+		self:_queueFit() -- a dropped piece looks for its way back (HUD._fitBanner)
+	end
+	-- Derek 2026-11-13: through a catch, a rescue or the Rummage Bin's roll it stays down. A repaint mid-catch (the
+	-- event's countdown ticks each second) used to set it back, and the catch's focus hid it again: the flash.
+	if self._catching or next(self._bannerHold) ~= nil then
+		if self._catching then
+			self._focusHidden[banner] = if shown then true else nil
+		end
+		banner.Visible = false
+		self._dayCard.Visible = false
+		return
+	end
 	local ring = banner:FindFirstChild("Ring") :: UIStroke?
 	if ring then
 		ring.Color = if event.Visible
@@ -3970,9 +4110,95 @@ function HUD._placeBanner(self: any)
 	end
 	left = math.max(left, self:_leftClear()) -- clear of the menu grid and its arrow tab
 	banner.Position = UDim2.fromOffset(math.floor(left), math.floor(top))
+	self:_queueFit()
 	self._dayCard.AnchorPoint = Vector2.new(0, 0)
 	self._dayCard.Position =
 		UDim2.fromOffset(math.floor(left), math.floor(top + self:_bannerHeight() + 4))
+end
+
+-- Derek 2026-11-13: the strip stops short of what sits beside it on its own height (the top right icons, the goal card
+-- and its tab, on a PC the left menu too, as it is centred there). Once its words are measured, a strip that runs into
+-- one drops its last piece (the card a tap opens still has it) until it fits or one is left. Review-QA 2026-11-13:
+-- by the room it really has, on a PC as on touch, so a small PC window fits too.
+function HUD._fitBanner(self: any)
+	local banner: Frame? = self._banner
+	if self._gone or banner == nil or not banner.Visible then
+		return
+	end
+	local root: Frame = self._root
+	local at, size = banner.AbsolutePosition, banner.AbsoluteSize
+	local middle = at.X + size.X / 2
+	local whole = root.AbsoluteSize
+	-- a window that changed size gets the whole room again, and fits from there
+	if self._fitWidth ~= whole.X then
+		self._fitWidth = whole.X
+		if self._bannerFit < BANNER_MOST then
+			self._bannerFit = BANNER_MOST
+			self:_paintBanner()
+			self:_layoutRight()
+			return
+		end
+	end
+	local room, floor = math.huge, -math.huge
+	for _, child in root:GetChildren() do
+		if
+			child ~= banner
+			and child ~= self._dayCard
+			and child:IsA("GuiObject")
+			and child.Visible
+		then
+			local piece = child :: GuiObject
+			local pAt, pSize = piece.AbsolutePosition, piece.AbsoluteSize
+			-- a holder as big as half the screen is a layer, not a piece in the strip's way
+			local piecelike = pSize.X > 0
+				and pSize.Y > 0
+				and pSize.X < whole.X / 2
+				and pSize.Y < whole.Y * 0.6
+			local level = pAt.Y < at.Y + size.Y and pAt.Y + pSize.Y > at.Y
+			if piecelike and level then
+				if pAt.X > middle then
+					room = math.min(room, pAt.X)
+				elseif not TOUCH and pAt.X + pSize.X < middle then
+					floor = math.max(floor, pAt.X + pSize.X)
+				end
+			end
+		end
+	end
+	local scale = Scale.get()
+	local gap = Theme.sizes.gap * scale
+	local shown = self:_bannerShown()
+	local inStrip = math.min(#shown, BANNER_MOST, self._bannerFit)
+	-- each piece's width while it is in the strip, so a dropped one can be measured for its way back
+	local widths: { [GuiObject]: number } = self._pieceW or {}
+	self._pieceW = widths
+	for _, line in shown do
+		if line.Parent == banner then
+			widths[line] = line.AbsoluteSize.X
+		end
+	end
+	local right = at.X + size.X
+	if (right > room - gap or at.X < floor + gap) and inStrip > 1 then
+		self._bannerFit = inStrip - 1
+		self:_paintBanner()
+		self:_layoutRight()
+		return
+	end
+	-- Review-QA 2026-11-13: a piece dropped for something that has since gone (a "Triple Day!" banner, a smaller
+	-- window) comes back once there is room for it again, with a little to spare so it never flickers in and out
+	local nextPiece = shown[inStrip + 1]
+	if nextPiece == nil or inStrip >= BANNER_MOST then
+		return
+	end
+	local need = (widths[nextPiece] or BANNER_GUESS_W * scale)
+		+ (BANNER_ITEM_GAP + BANNER_SPARE) * scale
+	local grows = if TOUCH
+		then right + need <= room - gap
+		else right + need / 2 <= room - gap and at.X - need / 2 >= floor + gap
+	if grows then
+		self._bannerFit = inStrip + 1
+		self:_paintBanner()
+		self:_layoutRight()
+	end
 end
 
 -- #2614: a Mystery gift waits on this player's plot in the `tier` wrap ("common", "rare", "super"), or nil when none
@@ -4379,12 +4605,15 @@ function HUD._tradeLockedNote(self: any)
 	local scale = math.max(Scale.get(), 0.01)
 	local x = (tile.AbsolutePosition.X + tile.AbsoluteSize.X / 2 - root.AbsolutePosition.X) / scale
 	local y = (tile.AbsolutePosition.Y + tile.AbsoluteSize.Y - root.AbsolutePosition.Y) / scale + 4
-	local note: TextLabel = Create("TextLabel", {
+	-- #3990 (Review-QA on a PC): a button, so a tap on the note never reaches the goal card's Rank up under it (a
+	-- label lets taps through, even with Active)
+	local note: TextButton = Create("TextButton", {
 		Name = "LockedNote",
+		AutoButtonColor = false,
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromOffset(x, y),
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 26),
+		Size = UDim2.fromOffset(0, Scale.tapHeight(36)), -- a full tap height, now that it is a button
 		BackgroundColor3 = Theme.colors.ink,
 		BackgroundTransparency = 0.1,
 		FontFace = Theme.fonts.display,
@@ -4406,10 +4635,11 @@ function HUD._tradeLockedNote(self: any)
 	end)
 end
 
--- The Menu tile's press: the list (Settings, the Cat Arcade, Invite) once Invite is unlocked or the arcade is on,
--- else Settings at once.
+-- The Menu tile's press: the list (Settings, Invite) once Invite is unlocked, else Settings at once. Derek
+-- 2026-11-13 ("remove the old cat arcade icon from settings"): the list has no Cat Arcade row (#3062's); the arcade
+-- opens at its cabinet.
 function HUD._pressMenu(self: any)
-	if self:_open("invite") or self._arcadeOn ~= false then
+	if self:_open("invite") then
 		self:_togglePop("menu")
 	else
 		self._callbacks.openScreen("Settings")
@@ -4475,17 +4705,6 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 				callbacks.openScreen("Settings")
 			end,
 		})
-		-- #3062: the Cat Arcade from anywhere ("can play when bored"), unless its live switch is off
-		if self._arcadeOn ~= false then
-			table.insert(rows, {
-				id = "Arcade",
-				icon = "🕹️",
-				style = "purple" :: Button.Style,
-				press = function()
-					callbacks.openScreen("Arcade")
-				end,
-			})
-		end
 		if self:_open("invite") then
 			table.insert(rows, {
 				id = "Invite",
@@ -4519,9 +4738,8 @@ function HUD._popText(self: any, id: string): string
 		local row: GiftLadderLogic.Row? = (self._ladder or {})[tonumber(string.sub(id, 7)) or 0]
 		return if row then GiftLadderLogic.line(row) else "Gift"
 	elseif id == "Invite" then
-		return "Invite friends"
-	elseif id == "Arcade" then
-		return "Cat Arcade"
+		-- #3954: the row names the pal tip bonus (shared Pals.bonus), so the Menu says why to invite
+		return ("Invite: +%d%% tips"):format(math.floor((Pals.bonus(1) :: number) * 100 + 0.5))
 	end
 	return id
 end
@@ -4641,11 +4859,6 @@ end
 -- The gold Store tile at the top of the left menu (Derek 2026-11-02: "store still needs to be added"): shown with
 -- the function that opens the Store window, hidden with nil. init's Store block calls it as soon as the window exists,
 -- passes on sale or not (#1167); hidden, the grid closes up (review N341: moved here).
--- #3062: the `arcade` live switch, for the Menu list's Arcade row.
-function HUD.setArcade(self: any, on: boolean)
-	self._arcadeOn = on
-end
-
 function HUD.setStore(self: any, open: (() -> ())?)
 	self._storeOpen = open
 	local tile: Button.Button = self._storeTile
@@ -4941,6 +5154,7 @@ local BOOST_GLYPH: { [string]: string } = {
 	outfit_accessories = "🎀", -- #2147: each outfit pass by name
 	outfit_uniforms = "👕",
 	moneyPass = "💰",
+	event = "🎉", -- #3935: a running Cafe Event's money
 }
 local function boostPicture(key: string): string?
 	if key == "tables" then
@@ -4977,8 +5191,14 @@ function HUD._renderBoosts(self: any)
 		accessories = ownedPasses[Config.CatAccessoriesPassId or 0] == true,
 		uniforms = ownedPasses[Config.UniformStylesPassId or 0] == true,
 	}
-	local rows =
-		BoostList.rows(self._catalog, state, Workspace:GetServerTimeNow(), #self._palIds, outfits)
+	local rows = BoostList.rows(
+		self._catalog,
+		state,
+		Workspace:GetServerTimeNow(),
+		#self._palIds,
+		outfits,
+		self._eventBoost
+	)
 	local said: { string } = {}
 	for _, row in rows do
 		table.insert(
@@ -5163,28 +5383,6 @@ function HUD._layoutMenu(self: any)
 			columns += 1
 		end
 	end
-	-- #3686 (Review-QA, Studio 11-12: "clicks on Store did nothing while the chat was open"): on a computer the chat
-	-- window lies over the top of the column, and on most screens the column did not fit under it, so it stayed
-	-- (#3033 only moved a column that fitted). Now a column that does not fit under the chat takes more tiles a
-	-- row until it does, with the arrow tab beside it as on a short screen.
-	local chatTop: number? = nil
-	if not TOUCH and scale > 0 then
-		local under = chatBottom(self._root, (MARGIN + MENU_W) * scale)
-		if under ~= nil then
-			chatTop = math.ceil(under / scale) + gap
-		end
-	end
-	if chatTop ~= nil then
-		local fitsAsIs = roomy
-			and chatTop + gridH(columns) + foldUnder <= bandBottom - (buffsH + BUFFS_GAP)
-		if not fitsAsIs then
-			local wider = MenuFit.underChat(chatTop, bandBottom, columns, MENU_COLUMNS_MAX, gridH)
-			if wider ~= nil then
-				columns = wider
-				roomy = false
-			end
-		end
-	end
 	local rows = math.ceil(shown / columns)
 	local spaces = math.max(0, rows - 1)
 	self._menuLayout.FillDirectionMaxCells = columns
@@ -5204,11 +5402,6 @@ function HUD._layoutMenu(self: any)
 	local block = storeH + menuH + (if roomy then foldUnder else 0)
 	-- a short screen (a phone) keeps the grid up at the top, clear of Roblox's thumbstick in the bottom left
 	self._menuTop = if roomy then MARGIN + math.max(0, math.floor((band - block) / 2)) else MARGIN
-	-- #3033: on a computer, the column starts under Roblox's chat window when that covers it and the column still
-	-- fits above the counters; else it stays where it was
-	if chatTop ~= nil and chatTop > self._menuTop and chatTop + block <= bandBottom then
-		self._menuTop = chatTop
-	end
 	self._gridTop = self._menuTop + storeH
 	self._foldBeside = not roomy
 	-- the luck, potion and pal chips stay just over the counters on a short screen too, when they fit under the grid
@@ -5367,7 +5560,6 @@ end
 -- their faces and the bonus; an open boosts card gets their row; a marker for a pal who left goes.
 function HUD.setPals(self: any, userIds: { number })
 	self._palIds = table.clone(userIds)
-	self._pals:set(userIds)
 	if self._boosts.Visible then
 		self:_renderBoosts()
 	end
@@ -5411,7 +5603,9 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 		local newKind = if state ~= nil then state.newKindGoal else nil
 		if state ~= nil and type(newKind) == "number" and state.carrying == nil then
 			local title = NewKind.title(newKind, TOUCH)
-			return { title = title, lines = {}, chip = title }
+			-- #4098: Tier 2 reads as the goal from the second cat on, with the name of what it opens under the count
+			local opens = GoalLines.opens(self._nextTierName, TOUCH)
+			return { title = title, lines = if opens then { opens } else {}, chip = title }
 		end
 		return nil
 	end
@@ -5434,8 +5628,29 @@ function HUD._startSecond(self: any)
 	self._secondRun = (self._secondRun or 0) + 1
 end
 
+-- The Potions pill's count (#3937): only potions that can be drunk now, hidden at none. While some wait behind a Full
+-- timer it looks again every POTION_RECHECK seconds, since that timer running down makes them drinkable.
+local POTION_RECHECK = 5
+function HUD._renderPotionCount(self: any)
+	local state: Types.PlayerState? = self._state
+	if state == nil or self._potionCount.Parent == nil then
+		return
+	end
+	local usable, held = PotionLogic.drinkable(self._catalog, state, Workspace:GetServerTimeNow())
+	self._potionCount.Text = tostring(usable)
+	self._potionCount.Visible = usable > 0
+	if held > usable and not self._potionRecheck then
+		self._potionRecheck = true
+		task.delay(POTION_RECHECK, function()
+			self._potionRecheck = false
+			self:_renderPotionCount()
+		end)
+	end
+end
+
 function HUD.destroy(self: any)
 	self._gone = true -- #3022: the second cat goal's timers stop here
+	self._callout:destroy()
 	self:_stopClock()
 	local shine: Tween? = self._storeShine
 	if shine then
@@ -5464,7 +5679,6 @@ function HUD.destroy(self: any)
 	self._goal:destroy()
 	self._luck:destroy()
 	self._palMarker:destroy()
-	self._pals:destroy()
 	self._buffs:destroy()
 	self._scaleConnection:Disconnect()
 	Scale.unbind(self._uiScale)

@@ -178,6 +178,10 @@ local lastRainbowToastAt: number? = nil -- os.clock() of this server's last rain
 local inRescue: (Player) -> boolean = function(_player: Player): boolean
 	return false
 end
+-- #4128 follow-up: the words a refusal uses while that check is true ("Finish the Rummage Bin first" on the bin's bar)
+local rescueText: (Player) -> string = function(_player: Player): string
+	return "Finish this rescue first"
+end
 
 local MAX_CIRCLES = Circles.maxCircles() -- #1884: the most circles any schedule holds; bounds the CatchPress index
 
@@ -1540,6 +1544,58 @@ local function wearBackpack(player: Player)
 	end
 end
 
+-- #4049: the worn Speed Shoes in their owner's two colour picks (the built colours with the switch off or nothing
+-- picked). The server colours the parts, so every player sees them.
+local function tintShoes(player: Player, worn: Instance?)
+	local character = player.Character
+	local folder = worn
+		or (if character ~= nil then character:FindFirstChild(SpeedShoes.WORN) else nil)
+	local profile = DataService.get(player)
+	if folder == nil or profile == nil then
+		return
+	end
+	BagColours.tint(
+		folder,
+		BagColours.picks(
+			if LiveFlagService.on(BagColours.FLAG) then profile.shoeColours else nil,
+			"shoes"
+		),
+		"shoes"
+	)
+end
+
+-- #4050: the Speed Shoes' owner wears them (SpeedShoes.wear) while the switch is on, at spawn, after the buy and
+-- whenever they came off (keepBackpack's check); every player sees them. Without them, or with the switch off, none.
+local function keepShoes(player: Player)
+	local character = player.Character
+	if character == nil or character.Parent == nil then
+		return
+	end
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if humanoid == nil or humanoid.Health <= 0 then
+		return
+	end
+	local want = LiveFlagService.on(SpeedShoes.FLAG) and SpeedShoes.owns(DataService.get(player))
+	local old = character:FindFirstChild(SpeedShoes.WORN)
+	if old ~= nil and want and SpeedShoes.onFeet(old, character) then
+		return
+	end
+	if old ~= nil then
+		old:Destroy()
+	end
+	if want and AssetRegistry.has(SpeedShoes.ASSET) then
+		local folder = SpeedShoes.wear(AssetRegistry.clone(SpeedShoes.ASSET), character)
+		if folder ~= nil then
+			tintShoes(player, folder) -- #4049
+			folder.Parent = character
+		end
+	end
+	local on = if want and character:FindFirstChild(SpeedShoes.WORN) ~= nil then true else nil
+	if character:GetAttribute("SpeedShoes") ~= on then
+		character:SetAttribute("SpeedShoes", on)
+	end
+end
+
 -- #2565: the packed cat's model on the back, and the character attribute PackedCatId for the clients. #2719: in the
 -- worn pack with only its head out.
 local function attachPacked(player: Player, carry: Carry)
@@ -2204,7 +2260,7 @@ function startCatch(
 		return "Check in the cat you are carrying first"
 	end
 	if inRescue(player) then
-		return "Finish this rescue first"
+		return rescueText(player)
 	end
 	if inFlight(player) then
 		return "Land first"
@@ -3268,6 +3324,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	-- no Backpack yet; put it on once the save is in (a no-op without a character, or with the pack already worn)
 	DataService.onLoaded:Connect(function(player: Player)
 		wearBackpack(player)
+		keepShoes(player) -- #4050
 	end)
 
 	-- #2856: the pack stays on. Again once the avatar's appearance is in (it can rebuild the torso), and a light
@@ -3279,6 +3336,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 				local ok, err = pcall(function()
 					keepBackpack(player)
 					keepHeld(player) -- #3165
+					keepShoes(player) -- #4050
 				end)
 				if not ok then
 					warn("[CatService] keepBackpack: " .. tostring(err))
@@ -3292,6 +3350,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			task.wait(0.1)
 			keepBackpack(player)
 			keepHeld(player) -- #3165: a carry kept through a respawn went on before the appearance was in
+			keepShoes(player) -- #4050
 		end)
 		player.CharacterAdded:Connect(function(character)
 			local body = character:WaitForChild("Humanoid", 10)
@@ -3324,6 +3383,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 				end
 			end
 			wearBackpack(player) -- #2719
+			keepShoes(player) -- #4050
 			local pack = packed[player]
 			if pack ~= nil then
 				attachPacked(player, pack) -- #2565
@@ -3603,6 +3663,14 @@ end
 
 -- #2565: the packed cat's id, or nil.
 -- #2719: puts the Backpack on the player's character now (MysteryMarketService, right after the buy).
+function CatService.keepShoes(player: Player)
+	keepShoes(player)
+end
+
+function CatService.tintShoes(player: Player)
+	tintShoes(player)
+end
+
 function CatService.wearBackpack(player: Player)
 	wearBackpack(player)
 end
@@ -3694,8 +3762,11 @@ function CatService.startCarry(
 end
 
 -- RescueService registers how to tell whether a player's rescue attempt is running.
-function CatService.setRescueCheck(check: (Player) -> boolean)
+function CatService.setRescueCheck(check: (Player) -> boolean, text: ((Player) -> string)?)
 	inRescue = check
+	if text ~= nil then
+		rescueText = text
+	end
 end
 
 -- Where strays and stuck cats live in the world (Workspace.World.Strays).
@@ -3721,7 +3792,7 @@ function CatService.busyReason(player: Player, hopOk: boolean?): string?
 		return "Finish this catch first"
 	end
 	if inRescue(player) then
-		return "Finish this rescue first"
+		return rescueText(player)
 	end
 	return nil
 end

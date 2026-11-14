@@ -67,6 +67,13 @@ local CHIP_HEIGHT = 46
 -- #2675: a page tab is never narrower than this (design px), so "Neighbourhood" keeps a 9 px name on a phone; with
 -- more pages than fit, the row scrolls sideways
 local TAB_MIN = 100
+-- #3931 (Derek 2026-11-13: "the decor menu side gets cut off for the new areas"): when the tabs would go under TAB_MIN
+-- in one row they wrap into rows of equal tabs, up to TAB_ROWS, each at least TAB_WRAP_MIN, so every area shows
+local TAB_ROWS = 3
+local TAB_WRAP_MIN = 84
+-- #3931 (Review-QA): on a short screen (a phone held sideways) the rows of tabs left no decor in view, so there the
+-- tabs stand in a column down the left side, RAIL_W wide, scrolling when they do not fit, with the page beside them
+local RAIL_W = 112
 local TAB_PAD = 3 -- room for a tab's outline inside the clipping row
 local TAB_BADGE = 4 -- and more above and right of the tabs for a page's red count badge, which sits over the corner
 local TAB_BAR = 4 -- the row's scroll bar, under the tabs
@@ -74,6 +81,7 @@ local PROGRESS_HEIGHT = 28
 local RALLY_POOL = "rally" -- shared Catalog.RALLY_POOL: the Rescue Rally's own crate, never sold (F101)
 local RALLY_SOURCE = "From the Rescue Rally, every weekend"
 local RALLY_LOCKED = "Rally Crate"
+local RALLY_TAB_SHORT = "Rally (weekends)" -- #3931: the Rally tab in the short screen's column, with RALLY_SOURCE's news
 local FULL_MILESTONE = "decor10" -- the whole page's milestone (all 12 since F80), whose claim puts on the gold frame
 
 local DecorIndex = {}
@@ -146,14 +154,19 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 			PaddingRight = UDim.new(0, TAB_PAD + TAB_BADGE),
 			PaddingTop = UDim.new(0, TAB_PAD + TAB_BADGE),
 		}),
-		Create("UIListLayout", {
+		Create("UIGridLayout", {
+			Name = "Tabs",
 			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, gap),
+			CellPadding = UDim2.fromOffset(gap, gap),
+			CellSize = UDim2.fromOffset(TAB_MIN, chipHeight),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	self._tabGrid = self._chipBar:FindFirstChild("Tabs") :: UIGridLayout
+	self._tabRows = 1
 
-	self._resized = self._chipBar:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+	self._rail = false
+	self._resized = self.frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		self:_sizeTabs()
 	end)
 
@@ -166,6 +179,7 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 		Size = UDim2.new(1, 0, 0, PROGRESS_HEIGHT),
 		Parent = self.frame,
 	})
+	self._progress = progress
 	self._progressName = text({
 		Name = "Page",
 		Size = UDim2.new(0, 190, 1, 0),
@@ -200,6 +214,7 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 		Size = UDim2.new(0, 124, 1, 0),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody,
+		TextColor3 = PAL.text, -- #3982: on the window's body (cocoa), not on a cream card
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Parent = progress,
 	})
@@ -419,21 +434,66 @@ function DecorIndex._buildPage(self: any, pool: string)
 	end
 end
 
--- Each page tab gets an equal share of the row, or TAB_MIN when that share is narrower (the row then scrolls).
+-- Each page tab gets an equal share of its row. One row while that share is at least TAB_MIN, else the fewest rows
+-- (up to TAB_ROWS) whose share is at least TAB_WRAP_MIN (#3931); only past TAB_ROWS does the row scroll. The
+-- completion line and the page move down under the rows. On a short screen, where rows would leave no decor in
+-- view, more than one row becomes the left column (RAIL_W) instead, the page beside it (the completion line hides there: the open tab shows the page's count).
 function DecorIndex._sizeTabs(self: any)
 	local count = #self._chips
 	if count == 0 then
 		return
 	end
 	local gap = Theme.sizes.gap
-	local width = self._chipBar.AbsoluteSize.X / math.max(Scale.get(), 0.01)
-		- TAB_PAD * 2
-		- TAB_BADGE
-	local share = math.floor((width - gap * (count - 1)) / count)
-	local tab = math.max(TAB_MIN, share)
-	for _, chip: Chip in self._chips do
-		chip.frame.Size = UDim2.new(0, tab, 0, self._chipHeight)
+	local width = self.frame.AbsoluteSize.X / math.max(Scale.get(), 0.01) - TAB_PAD * 2 - TAB_BADGE
+	local rows, tab = TAB_ROWS, TAB_WRAP_MIN
+	for tryRows = 1, TAB_ROWS do
+		local perRow = math.ceil(count / tryRows)
+		local share = math.floor((width - gap * (perRow - 1)) / perRow)
+		if share >= (if tryRows == 1 then TAB_MIN else TAB_WRAP_MIN) then
+			rows, tab = tryRows, share
+			break
+		end
 	end
+	local rail = rows > 1 and Scale.isShort()
+	if rail then
+		tab = RAIL_W
+	end
+	local chipHeight = self._chipHeight
+	local grid: UIGridLayout = self._tabGrid
+	grid.CellSize = UDim2.fromOffset(tab, chipHeight)
+	for _, chip: Chip in self._chips do
+		chip.frame.Size = UDim2.new(0, tab, 0, chipHeight)
+	end
+	if rows == self._tabRows and rail == self._rail and self._laidOut then
+		return
+	end
+	self._tabRows = rows
+	self._rail = rail
+	self._laidOut = true
+	local bar: ScrollingFrame = self._chipBar
+	if rail then
+		local railWidth = RAIL_W + TAB_PAD * 2 + TAB_BADGE + TAB_BAR
+		bar.Size = UDim2.new(0, railWidth, 1, 0)
+		bar.AutomaticCanvasSize = Enum.AutomaticSize.Y
+		bar.ScrollingDirection = Enum.ScrollingDirection.Y
+		bar.CanvasPosition = Vector2.zero
+		-- the completion line goes: the open tab in the column already shows the page's "3 / 12"
+		local left = railWidth + gap
+		self._progress.Visible = false
+		self._page.Position = UDim2.fromOffset(left, 0)
+		self._page.Size = UDim2.new(1, -left, 1, 0)
+		return
+	end
+	local barHeight = rows * chipHeight + (rows - 1) * gap + TAB_PAD * 2 + TAB_BADGE + TAB_BAR
+	bar.Size = UDim2.new(1, 0, 0, barHeight)
+	bar.AutomaticCanvasSize = Enum.AutomaticSize.X
+	bar.ScrollingDirection = Enum.ScrollingDirection.X
+	local progressTop = barHeight + gap
+	self._progress.Visible = true
+	self._progress.Position = UDim2.fromOffset(0, progressTop)
+	local pageTop = progressTop + PROGRESS_HEIGHT + gap
+	self._page.Position = UDim2.fromOffset(0, pageTop)
+	self._page.Size = UDim2.new(1, 0, 1, -pageTop)
 end
 
 function DecorIndex._buildCell(self: any, def: Types.DecorDef, order: number): Cell
@@ -500,6 +560,9 @@ function DecorIndex.render(self: any, state: Types.PlayerState)
 		chip.frame.BackgroundColor3 = if selected then chip.color else CARD.card
 		chip.border.Color = if selected then Theme.colors.outline else CARD.cardStroke
 		chip.label.TextColor3 = if selected then Theme.colors.white else CARD.text
+		chip.label.Text = if self._rail and chip.pool == RALLY_POOL
+			then RALLY_TAB_SHORT
+			else chip.name
 		chip.count.Text = if have >= all and all > 0
 			then "Complete!"
 			else ("%d / %d"):format(have, all)
@@ -537,7 +600,9 @@ function DecorIndex.render(self: any, state: Types.PlayerState)
 		self:_buildPage(open)
 	end
 	local rally = open == RALLY_POOL
-	self._source.Visible = rally
+	-- #3931: beside the short screen's tab column the line would push the Rally's pieces out of view; the Rally tab
+	-- says "weekends" there instead
+	self._source.Visible = rally and not self._rail
 	local shown = 0
 	for pool, cells in self._cells do
 		local onPage = pool == open

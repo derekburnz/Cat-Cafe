@@ -73,6 +73,7 @@ export type SlotRow = {
 	full: boolean, -- earning no more (24 hours in, or the top level reached)
 	line: string, -- "First level in 42m", "+3 levels · next in 12m", "+24 levels · full", "Empty", "100 fish"
 	price: number?, -- "buy" and "shut": the slot's golden fish price
+	nextIn: number?, -- "cat" and not full: seconds until its next (or first) level
 }
 
 export type Exhibit = {
@@ -148,12 +149,15 @@ local function soakRow(
 	local top = level ~= nil and level + levels >= Config.CatMaxLevel
 	local full = now >= fullAt or levels >= Config.SpaMaxHours or top
 	local line
+	local nextIn: number? = nil
 	if levels <= 0 then
+		nextIn = doneAt - now
 		line = "First level in " .. format(doneAt - now)
 	elseif full then
 		line = string.format("+%s · full", plural(levels, "level"))
 	else
 		local nextAt = at + (math.floor((now - at) / Config.SpaSeconds) + 1) * Config.SpaSeconds
+		nextIn = nextAt - now
 		line = string.format("+%s · next in %s", plural(levels, "level"), format(nextAt - now))
 	end
 	return {
@@ -166,6 +170,7 @@ local function soakRow(
 		ready = levels > 0,
 		full = full,
 		line = line,
+		nextIn = nextIn,
 	}
 end
 
@@ -227,6 +232,51 @@ function LateStationsLogic.spaReady(
 		end
 	end
 	return levels, count
+end
+
+-- #3961: the words on a slot's picture card in the family look (the batch 3 mock): its heading, the line under it,
+-- the small line at the foot and the green "+3 levels ready" chip (nil when nothing waits). A cat's heading is its
+-- name, which the card fills in, so `title` is nil for it.
+export type SpaCardText = { title: string?, sub: string, foot: string, chip: string? }
+
+function LateStationsLogic.spaCardText(row: SlotRow): SpaCardText
+	if row.kind == "cat" then
+		local sub = if row.level ~= nil
+			then string.format("Level %d, soaking", row.level)
+			else "Soaking"
+		local foot = if row.full
+			then "Full, collect to soak again"
+			elseif row.nextIn ~= nil and row.levels > 0 then "Next level in " .. format(
+				row.nextIn
+			)
+			elseif row.nextIn ~= nil then "First level in " .. format(row.nextIn)
+			else ""
+		return {
+			title = nil,
+			sub = sub,
+			foot = foot,
+			chip = if row.ready
+				then string.format("+%s ready", plural(row.levels, "level"))
+				else nil,
+		}
+	elseif row.kind == "empty" then
+		return {
+			title = string.format("Slot %d is empty", row.slot),
+			sub = "Room for a cat",
+			foot = "",
+		}
+	elseif row.kind == "buy" then
+		return {
+			title = string.format("Slot %d", row.slot),
+			sub = string.format("Open it to rest %d cats", row.slot),
+			foot = "",
+		}
+	end
+	return {
+		title = string.format("Slot %d", row.slot),
+		sub = string.format("Open slot %d first", row.slot - 1),
+		foot = "",
+	}
 end
 
 function LateStationsLogic.collectText(levels: number): string

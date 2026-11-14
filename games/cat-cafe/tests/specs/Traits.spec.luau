@@ -22,27 +22,85 @@ return function()
 	end
 
 	describe("the rarities and traits (spec sections 2 and 3)", function()
-		it("has six rarities at 30 / 25 / 18 / 12 / 10 / 5 with the pool's colours", function()
-			local seen: { any } = {}
-			local total = 0
-			for i, rarity in Traits.RARITIES do
-				expect(rarity.rank).to.equal(i)
-				total += rarity.odds
-				table.insert(seen, { rarity.name, rarity.odds, rarity.color })
+		it(
+			"has seven rarities at 30 / 25 / 18 / 12 / 10 / 4.9 / 0.1 with the pool's colours",
+			function()
+				local seen: { any } = {}
+				local total = 0
+				for i, rarity in Traits.RARITIES do
+					expect(rarity.rank).to.equal(i)
+					total += rarity.odds
+					table.insert(seen, { rarity.name, rarity.odds, rarity.color })
+				end
+				expect(math.abs(total - 100) < 1e-9).to.equal(true)
+				expect(seen :: any).to.deepEqual({
+					{ "Common", 30, "#9AA0A6" },
+					{ "Uncommon", 25, "#4CAF50" },
+					{ "Rare", 18, "#3F8FE0" },
+					{ "Epic", 12, "#C07CFF" },
+					{ "Legendary", 10, "#F4C430" },
+					{ "Mythic", 4.9, "#FF5E7E" },
+					{ "Secret", 0.1, "#E2D6FF" },
+				})
 			end
-			expect(total).to.equal(100)
-			expect(seen :: any).to.deepEqual({
-				{ "Common", 30, "#9AA0A6" },
-				{ "Uncommon", 25, "#4CAF50" },
-				{ "Rare", 18, "#3F8FE0" },
-				{ "Epic", 12, "#C07CFF" },
-				{ "Legendary", 10, "#F4C430" },
-				{ "Mythic", 5, "#FF5E7E" },
-			})
+		)
+
+		it(
+			"rolls without Secret while its switch is off: Mythic 5 and six rarities (#3908)",
+			function()
+				expect(Traits.SECRET_FLAG).to.equal("secretTrait")
+				local off = Traits.rarities(false)
+				expect(#off).to.equal(6)
+				expect(off[6].id).to.equal("mythic")
+				expect(off[6].odds).to.equal(5)
+				expect(Traits.rarities() :: any).to.equal(off)
+				expect(Traits.rarities(true) :: any).to.equal(Traits.RARITIES)
+				-- the shared row is never changed by the copy
+				expect(Traits.RARITIES[6].odds).to.equal(4.9)
+				local total = 0
+				for _, rarity in off do
+					total += rarity.odds
+				end
+				expect(total).to.equal(100)
+			end
+		)
+
+		it("prints odds as whole percents or tenths", function()
+			expect(Traits.percentText(30)).to.equal("30%")
+			expect(Traits.percentText(4.9)).to.equal("4.9%")
+			expect(Traits.percentText(0.1)).to.equal("0.1%")
+			expect(Traits.percentText(5)).to.equal("5%")
 		end)
 
 		it(
-			"holds 6 traits at each of Common, Uncommon and Rare, 8 Epic, 4 Legendary and 3 Mythic",
+			"gives Eclipse every effect at the highest amount any other trait has (#3908)",
+			function()
+				local eclipse = Traits.get("eclipse")
+				expect(eclipse).to.be.ok()
+				expect((eclipse :: any).rarity.id).to.equal("secret")
+				expect(Traits.ofRarity("secret")[1]).to.equal(eclipse)
+				for kind in Traits.KINDS do
+					local best = 0
+					for _, def in Traits.LIST do
+						if def.id ~= "eclipse" then
+							best = math.max(best, Traits.amount({ id = def.id }, kind))
+						end
+					end
+					expect(Traits.amount({ id = "eclipse" }, kind)).to.equal(best)
+				end
+				-- the cafe-wide ones still stop at their caps, however many Eclipse cats work
+				local five =
+					{ t("eclipse"), t("eclipse"), t("eclipse"), t("eclipse"), t("eclipse") }
+				for kind, info in Traits.KINDS do
+					if info.cafe then
+						expect(Traits.cafeBonus(five, kind) <= info.cap).to.equal(true)
+					end
+				end
+			end
+		)
+
+		it(
+			"holds 6 traits at each of Common, Uncommon and Rare, 8 Epic, 4 Legendary, 3 Mythic and 1 Secret",
 			function()
 				expect(#Traits.ofRarity("common")).to.equal(6)
 				expect(#Traits.ofRarity("uncommon")).to.equal(6)
@@ -50,7 +108,8 @@ return function()
 				expect(#Traits.ofRarity("epic")).to.equal(8)
 				expect(#Traits.ofRarity("legendary")).to.equal(4)
 				expect(#Traits.ofRarity("mythic")).to.equal(3)
-				expect(#Traits.LIST).to.equal(33)
+				expect(#Traits.ofRarity("secret")).to.equal(1)
+				expect(#Traits.LIST).to.equal(34)
 				for _, def in Traits.LIST do
 					expect(Traits.get(def.id)).to.equal(def)
 					-- one effect up to Rare and on Epic's six singles, two on Epic's own pair and Legendary, three on Mythic
@@ -59,6 +118,7 @@ return function()
 						elseif def.rarity.id == "epic" then (if string.find(def.id, "_epic")
 							then 1
 							else 2)
+						elseif def.rarity.id == "secret" then 6
 						else def.rarity.rank - 3
 					expect(#def.effects).to.equal(want)
 				end
@@ -76,7 +136,7 @@ return function()
 			check("fastLearner", "xp", { 0.10, 0.15, 0.22, 0.40 })
 			check("luckyBowl", "bowlLuck", { 0.02, 0.03, 0.04, 0.08 })
 			check("quickPaws", "speed", { 0.3, 0.5, 0.7, 1.2 })
-			check("richFriend", "richRate", { 0.02, 0.03, 0.04, 0.08 })
+			check("richFriend", "rareCustomer", { 0.02, 0.03, 0.04, 0.08 })
 			-- Epic's own pair (Derek 2026-11-12), each effect under the same effect in a Legendary
 			expect(Traits.amount(t("treasureNose"), "income")).to.be.near(0.20)
 			expect(Traits.amount(t("treasureNose"), "bowlLuck")).to.be.near(0.08)
@@ -95,11 +155,11 @@ return function()
 				end
 				expect(got :: any).to.deepEqual(effects)
 			end
-			check("goldenWhiskers", "legendary", { income = 0.45, richRate = 0.15 })
+			check("goldenWhiskers", "legendary", { income = 0.45, rareCustomer = 0.15 })
 			check("moonlitHunter", "legendary", { nightIncome = 0.75, bowlLuck = 0.15 })
 			check("prodigy", "legendary", { xp = 0.75, income = 0.30 })
 			check("lightningTail", "legendary", { speed = 2.0, xp = 0.50 })
-			check("cosmicFortune", "mythic", { income = 1.0, bowlLuck = 0.25, richRate = 0.25 })
+			check("cosmicFortune", "mythic", { income = 1.0, bowlLuck = 0.25, rareCustomer = 0.25 })
 			check("eternalNight", "mythic", { nightIncome = 1.5, xp = 1.5, speed = 2.5 })
 			check("starSage", "mythic", { xp = 2.5, income = 0.75, bowlLuck = 0.20 })
 		end)
@@ -153,25 +213,38 @@ return function()
 			expect(Traits.rank(t("nightSprinter"))).to.equal(4)
 			expect(Traits.rank(t("prodigy"))).to.equal(5)
 			expect(Traits.rank(t("starSage"))).to.equal(6)
+			expect(Traits.rank(t("eclipse"))).to.equal(7)
 		end)
 	end)
 
 	describe("the roll (spec sections 2 and 3)", function()
 		it("picks the rarity first, then a trait of it evenly", function()
 			expect(Traits.roll(answers({ 1, 1 })) :: any).to.deepEqual(t("bigTipper_common"))
-			expect(Traits.roll(answers({ 30, 6 })) :: any).to.deepEqual(t("richFriend_common"))
-			expect(Traits.roll(answers({ 31, 2 })) :: any).to.deepEqual(t("nightOwl_uncommon"))
-			expect(Traits.roll(answers({ 55, 3 })) :: any).to.deepEqual(t("fastLearner_uncommon"))
-			expect(Traits.roll(answers({ 56, 5 })) :: any).to.deepEqual(t("quickPaws_rare"))
-			expect(Traits.roll(answers({ 73, 4 })) :: any).to.deepEqual(t("luckyBowl_rare"))
-			expect(Traits.roll(answers({ 74, 1 })) :: any).to.deepEqual(t("bigTipper_epic"))
-			expect(Traits.roll(answers({ 85, 8 })) :: any).to.deepEqual(t("nightSprinter"))
-			expect(Traits.roll(answers({ 86, 1 })) :: any).to.deepEqual(t("goldenWhiskers"))
-			expect(Traits.roll(answers({ 95, 4 })) :: any).to.deepEqual(t("lightningTail"))
-			expect(Traits.roll(answers({ 96, 3 })) :: any).to.deepEqual(t("starSage"))
+			expect(Traits.roll(answers({ 300, 6 })) :: any).to.deepEqual(t("richFriend_common"))
+			expect(Traits.roll(answers({ 301, 2 })) :: any).to.deepEqual(t("nightOwl_uncommon"))
+			expect(Traits.roll(answers({ 550, 3 })) :: any).to.deepEqual(t("fastLearner_uncommon"))
+			expect(Traits.roll(answers({ 560, 5 })) :: any).to.deepEqual(t("quickPaws_rare"))
+			expect(Traits.roll(answers({ 730, 4 })) :: any).to.deepEqual(t("luckyBowl_rare"))
+			expect(Traits.roll(answers({ 740, 1 })) :: any).to.deepEqual(t("bigTipper_epic"))
+			expect(Traits.roll(answers({ 850, 8 })) :: any).to.deepEqual(t("nightSprinter"))
+			expect(Traits.roll(answers({ 860, 1 })) :: any).to.deepEqual(t("goldenWhiskers"))
+			expect(Traits.roll(answers({ 950, 4 })) :: any).to.deepEqual(t("lightningTail"))
+			expect(Traits.roll(answers({ 951, 3 })) :: any).to.deepEqual(t("starSage"))
 			-- out-of-range answers are clamped, never a missing trait
-			expect(Traits.roll(answers({ 999, 99 })) :: any).to.deepEqual(t("starSage"))
+			expect(Traits.roll(answers({ 9999, 99 })) :: any).to.deepEqual(t("starSage"))
 			expect(Traits.roll(answers({ -5, 0 })) :: any).to.deepEqual(t("bigTipper_common"))
+		end)
+
+		it("rolls Secret on one number in a thousand while its switch is on (#3908)", function()
+			expect(Traits.roll(answers({ 999, 3 }), true) :: any).to.deepEqual(t("starSage"))
+			expect(Traits.roll(answers({ 1000, 1 }), true) :: any).to.deepEqual(t("eclipse"))
+			expect(Traits.roll(answers({ 1000, 3 }), false) :: any).to.deepEqual(t("starSage"))
+			local asked: { number } = {}
+			Traits.roll(function(n: number): number
+				table.insert(asked, n)
+				return 1
+			end, true)
+			expect(asked[1]).to.equal(1000)
 		end)
 
 		it("lands near the printed odds over many rolls (QA check 9)", function()
@@ -201,6 +274,9 @@ return function()
 			expect(Traits.oddsText()).to.equal(
 				"Common 30%, Uncommon 25%, Rare 18%, Epic 12%, Legendary 10%, Mythic 5%. Each trait inside a rarity is equally likely."
 			)
+			expect(Traits.oddsText(true)).to.equal(
+				"Common 30%, Uncommon 25%, Rare 18%, Epic 12%, Legendary 10%, Mythic 4.9%, Secret 0.1%. Each trait inside a rarity is equally likely."
+			)
 		end)
 
 		it(
@@ -215,6 +291,7 @@ return function()
 				expect(#Traits.poolSteps(t("treasureNose"))).to.equal(4)
 				expect(#Traits.poolSteps(t("prodigy"))).to.equal(5)
 				expect(#Traits.poolSteps(t("cosmicFortune"))).to.equal(6)
+				expect(#Traits.poolSteps(t("eclipse"))).to.equal(7)
 			end
 		)
 
@@ -222,6 +299,12 @@ return function()
 			expect(Traits.announceText("Mochi", t("starSage"))).to.equal(
 				"Mochi's cat got a Mythic trait!"
 			)
+			expect(Traits.announceText("Mochi", t("eclipse"))).to.equal(
+				"Mochi's cat got a Secret trait!"
+			)
+			expect(Traits.chatRarity(t("starSage"))).to.equal("Mythical")
+			expect(Traits.chatRarity(t("eclipse"))).to.equal("Secret")
+			expect(Traits.chatRarity(t("prodigy"))).to.equal(nil)
 			expect(Traits.announceText("Mochi", t("prodigy"))).to.equal(nil)
 			expect(Traits.announceText("Mochi", t("bigTipper_rare"))).to.equal(nil)
 		end)
@@ -229,16 +312,16 @@ return function()
 
 	describe("paying for a roll", function()
 		it(
-			"uses the 5 free starter rolls first, then a token, then 10 golden fish, else refuses",
+			"uses the 5 free starter rolls first, then a token, then 20 golden fish, else refuses",
 			function()
 				expect(Traits.FREE_ROLLS).to.equal(5)
-				expect(Traits.COST_FISH).to.equal(10)
+				expect(Traits.COST_FISH).to.equal(20) -- #4006
 				expect(Traits.payment(0, 3, 100)).to.equal("free")
 				expect(Traits.payment(4, 0, 0)).to.equal("free")
 				expect(Traits.payment(5, 1, 100)).to.equal("token")
-				expect(Traits.payment(5, 0, 10)).to.equal("fish")
-				expect(Traits.payment(5, 0, 9)).to.equal(nil) -- QA check 5: 9 fish and no token is refused
-				expect(Traits.payment(99, 0, 9)).to.equal(nil)
+				expect(Traits.payment(5, 0, 20)).to.equal("fish")
+				expect(Traits.payment(5, 0, 19)).to.equal(nil) -- QA check 5: one fish short and no token is refused
+				expect(Traits.payment(99, 0, 19)).to.equal(nil)
 			end
 		)
 
@@ -246,7 +329,7 @@ return function()
 			expect(Traits.rollText(0, 0, false)).to.equal("Free roll (5 left)")
 			expect(Traits.rollText(4, 2, true)).to.equal("Free roll (1 left)")
 			expect(Traits.rollText(5, 2, false)).to.equal("Roll · 1 Trait Token")
-			expect(Traits.rollText(5, 0, true)).to.equal("Re-roll · 10 golden fish")
+			expect(Traits.rollText(5, 0, true)).to.equal("Re-roll · 20 golden fish")
 			expect(Traits.freeLeft(7)).to.equal(0)
 			expect(Traits.freeLeft(-3)).to.equal(5)
 		end)
@@ -291,12 +374,12 @@ return function()
 				expect(Traits.cafeBonus({ t("quickPaws_common"), t("lightningTail") }, "speed")).to.be.near(
 					2.0
 				)
-				-- rich rate: the best 2, at most 40%
-				expect(Traits.cafeBonus(mythic, "richRate")).to.be.near(0.40)
+				-- rare customer chance: the best 2, at most 40%
+				expect(Traits.cafeBonus(mythic, "rareCustomer")).to.be.near(0.40)
 				expect(
 					Traits.cafeBonus(
 						{ t("richFriend_rare"), t("goldenWhiskers"), t("richFriend_common") },
-						"richRate"
+						"rareCustomer"
 					)
 				).to.be.near(0.19)
 				-- per-cat effects count nothing cafe wide
@@ -311,8 +394,8 @@ return function()
 			expect(Traits.KINDS.bowlLuck.cap).to.equal(0.50)
 			expect(Traits.KINDS.speed.best).to.equal(1)
 			expect(Traits.KINDS.speed.cap).to.equal(2.5)
-			expect(Traits.KINDS.richRate.best).to.equal(2)
-			expect(Traits.KINDS.richRate.cap).to.equal(0.40)
+			expect(Traits.KINDS.rareCustomer.best).to.equal(2)
+			expect(Traits.KINDS.rareCustomer.cap).to.equal(0.40)
 			-- no trait's own amount beats its kind's cap
 			for _, def in Traits.LIST do
 				for _, effect in def.effects do
@@ -355,14 +438,14 @@ return function()
 					expect(fish).to.equal(0)
 				end
 				expect(save.freeUsed).to.equal(5)
-				expect((Traits.pay(save, 9))).to.equal(nil) -- QA check 5
+				expect((Traits.pay(save, Traits.COST_FISH - 1))).to.equal(nil) -- QA check 5
 				expect(save.freeUsed).to.equal(5)
 				Traits.give(save, 1)
 				expect((Traits.pay(save, 0))).to.equal("token")
 				expect(save.tokens).to.equal(0)
-				local how, fish = Traits.pay(save, 10)
+				local how, fish = Traits.pay(save, Traits.COST_FISH)
 				expect(how).to.equal("fish")
-				expect(fish).to.equal(10)
+				expect(fish).to.equal(Traits.COST_FISH)
 				Traits.refund(save, "token")
 				expect(save.tokens).to.equal(1)
 				Traits.refund(save, "free")

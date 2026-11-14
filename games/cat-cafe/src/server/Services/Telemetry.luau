@@ -42,6 +42,7 @@ local FieldText = require(script.Parent.Parent.Util.FieldText)
 local FirstFive = require(ReplicatedStorage.Shared.FirstFive)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local IntroModeService = require(script.Parent.IntroModeService)
 local IntroSplit = require(ReplicatedStorage.Shared.IntroSplit)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
@@ -165,7 +166,7 @@ export type CustomEvent =
 	| "spin"
 	| "crate_opened"
 	| "mystery_buy" -- #2565: value fish before; item, week slot, tier
-	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id
+	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id (#4049: then the kind)
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
 	| "intro_skip" -- #3773: a first play skipped; value the whole seconds watched; version:shot, device
@@ -289,6 +290,9 @@ export type CustomEvent =
 	| "trait_roll"
 	-- #3196: Trait Tokens gained, value how many: the source (station, spin, daily_treat, quest, lost_found, code)
 	| "trait_token"
+	| "deal_bought" -- #3996: Today's Deal bought, value the deal number; the tier, "today" or "other" (a receipt for a
+	-- deal that was not that day's, still paid)
+	| "rare_customer" -- #3889: a rare customer came by chance; field: rich, mystery or collector
 	| "session_feedback_ctx"
 	| "session_feedback_where"
 	-- #2681: the like ask ("Having fun? A thumbs up") shown, value 1; tier, minutes played bucket, device
@@ -309,6 +313,9 @@ export type CustomEvent =
 	-- F92 (playing-together.md 6): on leave, the minutes with at least one pal on the server (how the first pal was
 	-- linked: friend, invite, follow or private; tier)
 	| "pal_time"
+	-- #3995 (friend-join-3995.md): a join through a friend with the palJoin switch on, value 1 (how: invite or follow;
+	-- new or returning; cafe next door yes or no)
+	| "pal_join"
 	-- F92 (playing-together.md 6): a rescue attempt a helper joined, as it ends (rarity, freed yes or no, pals yes or
 	-- no); the helper's tip is the economy source helper_tip
 	| "team_rescue"
@@ -834,14 +841,45 @@ end
 -- The session's answer to "does the intro play itself" is fixed here too (Review-QA on #3667): a later switch on
 -- must not start the scene mid play for a save grouped earlier.
 local introChecked: { [Player]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local introSkip: ((Player) -> boolean)? = nil
+
+-- #3995: who skips the intro this session and stays out of the test (CafeService: a player who joined through a
+-- friend, with the palJoin switch on). Set once at start.
+function Telemetry.setIntroSkip(skip: (Player) -> boolean)
+	introSkip = skip
+end
+
 function Telemetry.introJoin(player: Player, profile: Profile)
 	if introChecked[player] ~= nil then
 		return
 	end
+	if introSkip ~= nil and introSkip(player) then
+		introChecked[player] = false
+		return
+	end
 	local on = LiveFlagService.on(IntroSplit.FLAG)
 	local state = profile.telemetry
-	local joins = IntroSplit.joins(on, profile.stats.sessions, profile.introSeen, state.introGroup)
-	local group = if joins then IntroSplit.group(player.UserId) else state.introGroup
+	-- #4001: a new save takes its arm from a Creator Hub Experiment's introMode when there is one (a short wait for
+	-- the config read, new saves only), else the older split by account number
+	local mode: string? = nil
+	if IntroSplit.joins(true, profile.stats.sessions, profile.introSeen, state.introGroup) then
+		mode = IntroSplit.fromMode(IntroModeService.get(player))
+		if introChecked[player] ~= nil then
+			return -- another caller decided while this one waited
+		end
+	end
+	local test = IntroSplit.fromMode(IntroModeService.studioMode()) -- Studio only (IntroModeService.studioMode)
+	if test ~= nil then
+		mode = test
+	end
+	local joins = test ~= nil
+		or IntroSplit.joins(
+			on or mode ~= nil,
+			profile.stats.sessions,
+			profile.introSeen,
+			state.introGroup
+		)
+	local group = if joins then mode or IntroSplit.group(player.UserId) else state.introGroup
 	introChecked[player] = IntroSplit.plays(group, on, Config.IntroAutoPlay)
 	if joins then
 		state.introGroup = group
@@ -853,6 +891,13 @@ end
 function Telemetry.introPlays(player: Player, profile: Profile): boolean
 	Telemetry.introJoin(player, profile)
 	return introChecked[player] == true
+end
+
+-- #4001: whether this save's intro is the short one (its group is the Experiment's "short" arm).
+function Telemetry.introShort(profile: Profile): boolean
+	-- compared here, not through an IntroSplit helper: one more function there trips the test VM fault in
+	-- IndexRewardsShared.spec (tools/cloudcheck/README.md)
+	return profile.telemetry.introGroup == IntroSplit.SHORT
 end
 
 -- #3695: the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS), one run per player with the user id as its
@@ -2512,11 +2557,15 @@ local CAFE_REACH = 32 -- studs from the player's own plot's pivot that count as 
 
 -- Where the player's character stands as they leave, for quit_point: "cafe" by their own cafe, an area id on an
 -- area's floor, "town" anywhere else, "none" with no character.
-local function whereOf(player: Player): string
+-- #4097: where each player last stood (whereOf with a character), for the leave events. A leaving player's character
+-- is gone by the time their save is released, so every quit_state and quit_point read "none" (Nov 13: 31 of 33 rows).
+local lastWhere: { [Player]: string } = {}
+
+local function whereNow(player: Player): string?
 	local character = player.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
 	if root == nil or not root:IsA("BasePart") then
-		return "none"
+		return nil
 	end
 	local at = (root :: BasePart).Position
 	for _, plot in CollectionService:GetTagged("Plot") do
@@ -2552,6 +2601,16 @@ local function whereOf(player: Player): string
 		end
 	end
 	return "town"
+end
+
+-- Where the player stands now, else where they last stood (lastWhere), else "none".
+local function whereOf(player: Player): string
+	local now = whereNow(player)
+	if now ~= nil then
+		lastWhere[player] = now
+		return now
+	end
+	return lastWhere[player] or "none"
 end
 
 -- #2774: the account's first bait cat came `seconds` after the food went in; where the player was (cafe, an area id or
@@ -2712,6 +2771,7 @@ local function onRelease(player: Player, profile: Profile)
 		})
 	end
 	sessions[player] = nil
+	lastWhere[player] = nil
 	pendingPasses[player] = nil
 end
 
@@ -2838,6 +2898,21 @@ end
 function Telemetry.start()
 	DataService.onLoaded:Connect(onLoaded)
 	DataService.beforeRelease(onRelease)
+	-- #4097: note where a character stood as it goes (a leave removes it before the save's release)
+	local function watchCharacter(player: Player)
+		player.CharacterRemoving:Connect(function()
+			whereOf(player)
+		end)
+	end
+	Players.PlayerAdded:Connect(watchCharacter)
+	for _, player in Players:GetPlayers() do
+		watchCharacter(player)
+	end
+	Players.PlayerRemoving:Connect(function(player: Player)
+		task.delay(120, function() -- long after the save's release, which reads it
+			lastWhere[player] = nil
+		end)
+	end)
 	Net.on("TelemetryReport", onReport)
 	-- #2910: StationOpened(window, how) from WalkUpController, a count only
 	Net.on("StationOpened", function(player: Player, window: unknown, how: unknown)

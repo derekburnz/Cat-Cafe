@@ -16,6 +16,12 @@
 -- question that lists them (LateStationsLogic.fillPlan and fillAsk). The server checks every rule again and toasts a finished
 -- room ("Desert Hall complete! +5% tips forever"). Nothing is sold for Robux. Words and rules in
 -- Components/LateStationsLogic.
+-- #3961 (Model-Agent's batch 3 mock, station-menus-batch3-3558.png): the arrows became a row of hall tabs
+-- ("Alleyway 2/10", gold for the hall shown, a tick once finished; it scrolls sideways when the halls don't fit),
+-- with a chunky Auto fill at its end. Each exhibit is a picture card: a green tick and "On show" once given, a green
+-- "Give a copy" chip while a copy can be given (the card's Copies attribute says how many), else "Not found yet" or
+-- "You have 0". The footer is a dark pill with the count and, beside it, the note or what a finished hall gives.
+-- Looks only.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -65,20 +71,27 @@ type Tile = {
 	loaded: string?,
 	name: TextLabel,
 	line: TextLabel,
-	dot: Frame,
+	chip: Frame,
+	check: Frame,
 	connection: RBXScriptConnection,
 }
 
-local MAX_SIZE = Vector2.new(600, 430)
+type HallTab = { area: string, button: Button.Button }
+
+local MAX_SIZE = Vector2.new(600, 386) -- #3961: two full rows of TILE_H and the one line footer, no gap under them
 local COLUMNS = 5
 local TILE_H = 112
 local PICTURE = 60
 local PENDING_SECONDS = 2.5
 local SEND_GAP = 1.1 -- #3124: the server's MuseumDonate limit is one a second
 local FILL_GAP = 2.1 -- #3130: MuseumFill's is one per 2 s
-local FOOT_H = 62
+local FOOT_H = 22 -- #3961: one line (the note, else what a finished hall gives); the count sits under the hall's name
+local NAME_H = 16
+local LINE_H = 14
 local FILL_W = 104
 local ROW_H = 52
+local CHIP_H = 16 -- #3961: the green "Give a copy" chip
+local TAB_MIN_W, TAB_MAX_W = 96, 190 -- a hall tab sized to its words
 local GAP = Theme.sizes.gap
 
 local RelicMuseum = {}
@@ -102,6 +115,13 @@ end
 
 -- A page over the card's content (a list, a question): a little past its edges, so the tiles' outlines don't show.
 -- `z` lifts a question over a list.
+-- #3961: a cat's name as big as its tile allows (Garbage Bag Cat was cut to "arbage Bag Ca" on a phone): the bold
+-- font runs a little over half its size a letter
+local function nameSize(name: string, width: number): number
+	local fit = math.floor(width / (math.max(1, utf8.len(name) or #name) * 0.56))
+	return math.clamp(fit, Theme.sizes.textTiny, Theme.sizes.textSmall)
+end
+
 local function sheet(name: string, parent: Instance, z: number?): Frame
 	return Create("Frame", {
 		Name = name,
@@ -162,69 +182,61 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 	self.frame = panel.frame
 	local content = panel.content
 
-	-- the room's title between its arrows
-	self._prev = Button.new({
-		name = "Prev",
-		text = "‹",
-		style = "ghost",
-		size = UDim2.fromOffset(56, buttonH),
-		textSize = Theme.sizes.textLarge,
-		parent = content,
-		onClick = function()
-			self:_turn(-1)
-		end,
+	-- #3961 (mock): a row of hall tabs, one per hall, scrolling sideways when they don't all fit, and Auto fill at
+	-- its end. The tabs are made in _paint, once the halls are known.
+	self._halls = Create("ScrollingFrame", {
+		Name = "Halls",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, -(FILL_W + GAP), 0, buttonH + 8),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.X,
+		ScrollBarThickness = 0,
+		ScrollingDirection = Enum.ScrollingDirection.X,
+		ElasticBehavior = Enum.ElasticBehavior.Never,
+		Parent = content,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+		}),
+		-- room for the tabs' outlines inside the row's clip
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, 4),
+			PaddingRight = UDim.new(0, 4),
+			PaddingTop = UDim.new(0, 4),
+			PaddingBottom = UDim.new(0, 4),
+		}),
 	})
-	self._next = Button.new({
-		name = "Next",
-		text = "›",
-		style = "ghost",
-		size = UDim2.fromOffset(56, buttonH),
-		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, 0, 0, 0),
-		textSize = Theme.sizes.textLarge,
-		parent = content,
-		onClick = function()
-			self:_turn(1)
-		end,
-	})
+	self._tabs = {} :: { HallTab }
 	self._fillButton = Button.new({
 		name = "AutoFill",
 		text = "Auto fill",
 		style = "primary",
 		size = UDim2.fromOffset(FILL_W, buttonH),
 		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, -64, 0, 0),
-		textSize = Theme.sizes.textSmall,
+		position = UDim2.new(1, 0, 0, 4),
+		textSize = Theme.sizes.textSmall + 1,
 		parent = content,
 		onClick = function()
 			self:_askFill()
 		end,
 	})
-	self._title = text({
-		Name = "Room",
-		Position = UDim2.fromOffset(64, 0),
-		Size = UDim2.new(1, -(128 + FILL_W + 8), 0, buttonH),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
-		TextColor3 = PAL.text,
-		Parent = content,
-	})
 
 	-- #3123: two rows of five placed by hand (a UIGridLayout's five cells and four gaps could round past the width
-	-- and wrap at four), in a scroller between the arrows and the footer
-	local grid: ScrollingFrame = Create("ScrollingFrame", {
+	-- and wrap at four). #3961 (Derek: cells cut off on a phone): the two rows share the room between the tabs and
+	-- the footer, each half of it (up to TILE_H), and the pictures shrink to fit, so nothing scrolls or is cut
+	local grid: Frame = Create("Frame", {
 		Name = "Exhibits",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(0, buttonH + GAP),
-		Size = UDim2.new(1, 0, 1, -(buttonH + GAP * 2 + FOOT_H)),
-		CanvasSize = UDim2.fromOffset(0, TILE_H * 2 + GAP + 8),
-		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = PAL.caramel,
-		ScrollingDirection = Enum.ScrollingDirection.Y,
-		VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar,
+		Position = UDim2.fromOffset(0, buttonH + 8 + GAP),
+		Size = UDim2.new(1, 0, 1, -(buttonH + 8 + GAP * 2 + FOOT_H)),
 		Parent = content,
 	}, {
+		Create("UISizeConstraint", { MaxSize = Vector2.new(math.huge, TILE_H * 2 + GAP + 6) }),
 		-- room for the tiles' outlines inside the scroller's clip
 		Create("UIPadding", {
 			PaddingLeft = UDim.new(0, 3),
@@ -241,12 +253,12 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 			AutoButtonColor = false,
 			BackgroundColor3 = CARD.card,
 			BorderSizePixel = 0,
-			Size = UDim2.new(1 / COLUMNS, -GAP * (COLUMNS - 1) / COLUMNS, 0, TILE_H),
+			Size = UDim2.new(1 / COLUMNS, -GAP * (COLUMNS - 1) / COLUMNS, 0.5, -GAP / 2),
 			Position = UDim2.new(
 				((index - 1) % COLUMNS) / COLUMNS,
 				((index - 1) % COLUMNS) * GAP / COLUMNS,
-				0,
-				(math.ceil(index / COLUMNS) - 1) * (TILE_H + GAP)
+				(math.ceil(index / COLUMNS) - 1) * 0.5,
+				(math.ceil(index / COLUMNS) - 1) * GAP / 2
 			),
 			Parent = grid,
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
@@ -256,50 +268,100 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			Parent = frame,
 		})
+		-- the picture takes what the two lines under it leave, square and at most PICTURE
 		local portrait = CatPortrait.new({
 			parent = frame,
-			size = UDim2.fromOffset(PICTURE, PICTURE),
+			size = UDim2.new(1, -8, 1, -(NAME_H + LINE_H + 10)),
 			anchorPoint = Vector2.new(0.5, 0),
-			position = UDim2.new(0.5, 0, 0, 6),
+			position = UDim2.new(0.5, 0, 0, 4),
 			still = true,
 		})
+		Create("UIAspectRatioConstraint", { AspectRatio = 1, Parent = portrait.frame })
+		Create(
+			"UISizeConstraint",
+			{ MaxSize = Vector2.new(PICTURE, PICTURE), Parent = portrait.frame }
+		)
 		local name = text({
 			Name = "Name",
-			Position = UDim2.fromOffset(4, PICTURE + 10),
-			Size = UDim2.new(1, -8, 0, 18),
+			Position = UDim2.new(0, 3, 1, -(NAME_H + LINE_H + 4)),
+			Size = UDim2.new(1, -6, 0, NAME_H),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
 			Parent = frame,
 		})
 		local line = text({
 			Name = "Line",
-			Position = UDim2.fromOffset(4, PICTURE + 28),
-			Size = UDim2.new(1, -8, 0, 16),
+			Position = UDim2.new(0, 3, 1, -(LINE_H + 4)),
+			Size = UDim2.new(1, -6, 0, LINE_H),
 			TextSize = Theme.sizes.textTiny,
 			TextColor3 = CARD.subtext,
 			Parent = frame,
 		})
-		local dot: Frame = Create("Frame", {
-			Name = "Dot",
+		-- #3961 (mock): a green "Give a copy" chip in the line's place while a copy can be given
+		local chip: Frame = Create("Frame", {
+			Name = "GiveChip",
+			BackgroundColor3 = Theme.colors.good,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(0.5, 0, 1, -(CHIP_H + 2)),
+			Size = UDim2.new(1, -10, 0, CHIP_H),
+			Visible = false,
+			ZIndex = 3,
+			Parent = frame,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIStroke", {
+				Color = Theme.colors.ink,
+				Thickness = 1.5,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			}),
+		})
+		local chipText = text({
+			Name = "Text",
+			Size = UDim2.fromScale(1, 1),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textTiny,
+			TextColor3 = Color3.new(1, 1, 1),
+			Text = "Give a copy",
+			ZIndex = 4,
+			Parent = chip,
+		})
+		Create(
+			"UITextSizeConstraint",
+			{ MaxTextSize = Theme.sizes.textTiny, MinTextSize = 9, Parent = chipText }
+		)
+		chipText.TextScaled = true
+		Outline.text(chipText, 1)
+		-- a green tick in the corner once the exhibit is on show
+		local check: Frame = Create("Frame", {
+			Name = "Check",
 			BackgroundColor3 = Theme.colors.good,
 			BorderSizePixel = 0,
 			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.new(1, -10, 0, 10),
+			Position = UDim2.new(1, -11, 0, 11),
 			Size = UDim2.fromOffset(20, 20),
 			Visible = false,
 			ZIndex = 3,
 			Parent = frame,
-		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-		local mark = text({
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIStroke", {
+				Color = Color3.new(1, 1, 1),
+				Thickness = 1.5,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			}),
+		})
+		local tick = text({
 			Name = "Mark",
 			Size = UDim2.fromScale(1, 1),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textSmall,
-			Text = "!",
+			TextColor3 = Color3.new(1, 1, 1),
+			Text = "✓",
 			ZIndex = 4,
-			Parent = dot,
+			Parent = check,
 		})
-		Outline.text(mark, 1.5)
+		Outline.text(tick, 1)
 		local connection = frame.Activated:Connect(function()
 			self:_tilePress(index)
 		end)
@@ -310,35 +372,49 @@ function RelicMuseum.new(callbacks: Callbacks): RelicMuseum
 			loaded = nil,
 			name = name,
 			line = line,
-			dot = dot,
+			chip = chip,
+			check = check,
 			connection = connection,
 		})
 	end
-	-- the footer keeps its own strip at the bottom (#3123: it sat over a third row)
-	self._noteLabel = text({
-		Name = "Note",
+	-- the footer keeps its own strip at the bottom (#3123: it sat over a third row). #3961 (mock): the museum's count
+	-- in a dark pill at the left, the note or what a finished hall gives beside it
+	local countPill: Frame = Create("Frame", {
+		Name = "CountPill",
+		BackgroundColor3 = PAL.card,
+		BorderSizePixel = 0,
 		Position = UDim2.new(0, 0, 1, -FOOT_H),
-		Size = UDim2.new(1, 0, 0, 18),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
+		Size = UDim2.new(0.42, 0, 0, FOOT_H),
 		Parent = content,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIStroke", {
+			Color = PAL.caramel,
+			Thickness = 1.5,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		}),
 	})
 	self._count = text({
 		Name = "Count",
-		Position = UDim2.new(0, 0, 1, -FOOT_H + 20),
-		Size = UDim2.new(1, 0, 0, 22),
+		Position = UDim2.fromOffset(8, 0),
+		Size = UDim2.new(1, -16, 1, 0),
 		FontFace = Theme.fonts.bodyBold,
-		TextSize = Theme.sizes.textBody,
+		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.text,
-		Parent = content,
+		TextScaled = true,
+		Parent = countPill,
 	})
-	text({
-		Name = "RoomBonus",
-		Position = UDim2.new(0, 0, 1, -FOOT_H + 42),
-		Size = UDim2.new(1, 0, 0, 18),
-		TextSize = Theme.sizes.textTiny,
-		TextColor3 = PAL.gold,
-		Text = LateStationsLogic.roomBonusText(),
+	Create(
+		"UITextSizeConstraint",
+		{ MaxTextSize = Theme.sizes.textSmall, MinTextSize = 10, Parent = self._count }
+	)
+	self._noteLabel = text({
+		Name = "Note",
+		Position = UDim2.new(0.42, GAP, 1, -FOOT_H),
+		Size = UDim2.new(0.58, -GAP, 0, FOOT_H),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
 		Parent = content,
 	})
 
@@ -461,14 +537,83 @@ function RelicMuseum._rooms(self: any): { LateStationsLogic.RoomRow }
 	return LateStationsLogic.rooms(self._museum, self._cats, self._spa)
 end
 
-function RelicMuseum._turn(self: any, by: number)
-	local count = #self:_rooms()
-	if count == 0 then
+-- Shows hall `index` (a tab press).
+function RelicMuseum._select(self: any, index: number)
+	if self._pending or index == self._room then
 		return
 	end
-	self._room = ((self._room - 1 + by) % count) + 1
+	self._room = index
 	self._note = nil
 	self:_paint()
+end
+
+-- #3961: one tab per hall, made again only when the halls change; "Alleyway 2/10", a tick once finished.
+function RelicMuseum._paintTabs(self: any, rooms: { LateStationsLogic.RoomRow })
+	local same = #rooms == #self._tabs
+	if same then
+		for index, room in rooms do
+			if self._tabs[index].area ~= room.area then
+				same = false
+			end
+		end
+	end
+	if not same then
+		for _, tab: HallTab in self._tabs do
+			tab.button:destroy()
+		end
+		table.clear(self._tabs)
+		for index, room in rooms do
+			local button = Button.new({
+				name = "Hall_" .. room.area,
+				text = room.name,
+				style = "ghost",
+				size = UDim2.fromOffset(TAB_MIN_W, self._buttonH),
+				textSize = Theme.sizes.textSmall,
+				layoutOrder = index,
+				parent = self._halls,
+				onClick = function()
+					self:_select(index)
+				end,
+			})
+			table.insert(self._tabs, { area = room.area, button = button })
+		end
+	end
+	for index, room in rooms do
+		local tab: HallTab = self._tabs[index]
+		local words = string.format(
+			"%s %d/%d%s",
+			room.name,
+			room.filled,
+			#room.exhibits,
+			if room.done then " ✓" else ""
+		)
+		tab.button:setText(words)
+		tab.button:setStyle(if index == self._room then "gold" else "ghost")
+		tab.button:setEnabled(not self._pending)
+		local width = math.clamp(24 + (utf8.len(words) or #words) * 8, TAB_MIN_W, TAB_MAX_W)
+		tab.button.instance.Size = UDim2.fromOffset(width, self._buttonH)
+	end
+end
+
+-- Scrolls the tab row so the hall shown is in view.
+function RelicMuseum._showTab(self: any)
+	local tab: HallTab? = self._tabs[self._room]
+	if tab == nil then
+		return
+	end
+	local halls: ScrollingFrame = self._halls
+	local left = tab.button.instance.AbsolutePosition.X
+		- halls.AbsolutePosition.X
+		+ halls.CanvasPosition.X
+	local right = left + tab.button.instance.AbsoluteSize.X
+	local view = halls.AbsoluteSize.X
+	local x = halls.CanvasPosition.X
+	if left < x then
+		x = left - 2
+	elseif right > x + view then
+		x = right - view + 2
+	end
+	halls.CanvasPosition = Vector2.new(math.max(0, x), 0)
 end
 
 function RelicMuseum._exhibit(self: any, index: number): LateStationsLogic.Exhibit?
@@ -719,14 +864,7 @@ function RelicMuseum._paint(self: any)
 	if room == nil then
 		return
 	end
-	self._title.Text = string.format(
-		"%s Hall %d/%d%s",
-		room.name,
-		room.filled,
-		#room.exhibits,
-		if room.done then " ✓" else ""
-	)
-	self._title.TextColor3 = if room.done then PAL.gold else PAL.text
+	self:_paintTabs(rooms)
 	for index, tile: Tile in self._tiles do
 		local exhibit = room.exhibits[index]
 		tile.frame.Visible = exhibit ~= nil
@@ -742,13 +880,18 @@ function RelicMuseum._paint(self: any)
 		-- a cat found at least once is named, as in the Index; its picture stays a silhouette until given
 		local found = exhibit.coat ~= nil or exhibit.have > 0 or self._found[exhibit.catId] ~= nil
 		tile.name.Text = if found then exhibit.name else "???"
-		tile.line.Text = exhibit.line
+		tile.name.TextSize = nameSize(tile.name.Text, tile.name.AbsoluteSize.X)
+		-- #3961 (mock): "On show" with a tick once given, the Give a copy chip while one can be, else why not
 		local canGive = exhibit.coat == nil and #exhibit.give > 0
-		tile.line.TextColor3 = if exhibit.coat ~= nil
-			then CARD.gold
-			elseif canGive then CARD.good
-			else CARD.subtext
-		tile.dot.Visible = canGive
+		tile.line.Text = if exhibit.coat ~= nil
+			then "On show"
+			elseif found then exhibit.line
+			else "Not found yet"
+		tile.line.TextColor3 = if exhibit.coat ~= nil then CARD.good else CARD.subtext
+		tile.line.Visible = not canGive
+		tile.chip.Visible = canGive
+		tile.check.Visible = exhibit.coat ~= nil
+		tile.frame:SetAttribute("Copies", exhibit.have)
 		tile.stroke.Color = if exhibit.coat == "gold"
 			then Theme.colors.gold
 			elseif exhibit.coat == "rainbow" then Theme.colors.rainbowChip
@@ -761,19 +904,21 @@ function RelicMuseum._paint(self: any)
 	local museum = self._museum
 	local count = if museum ~= nil then museum.count else 0
 	local total = if museum ~= nil then museum.total else 0
+	local bonus = if museum ~= nil then museum.bonus or 0 else 0 -- "+10% tips" (bonusText without "forever")
 	self._count.Text = string.format(
-		"%d/%d exhibits · %s",
+		"%d of %d exhibits · +%d%% tips",
 		count,
 		total,
-		LateStationsLogic.bonusText(if museum ~= nil then museum.bonus else 0)
+		math.floor(bonus * 100 + 0.5)
 	)
-	self._noteLabel.Text = if self._pending
+	-- #3961: one footer line: the note, else the hint while a copy can be given, else what a finished hall gives
+	local note = if self._pending
 		then "Giving..."
 		else (self._note or if room.canFill > 0
-			then "Tap an exhibit with a ! to give a copy"
-			else "Give a copy of a cat to fill its exhibit")
-	self._prev:setEnabled(not self._pending)
-	self._next:setEnabled(not self._pending)
+			then "Tap Give a copy to fill an exhibit"
+			else nil)
+	self._noteLabel.Text = note or LateStationsLogic.roomBonusText()
+	self._noteLabel.TextColor3 = if note ~= nil then PAL.subtext else PAL.gold
 	self._fillButton.instance.Visible = (self._callbacks :: Callbacks).fill ~= nil
 	self._fillButton:setEnabled(not self._pending and room.canFill > 0)
 end
@@ -824,6 +969,7 @@ function RelicMuseum.opened(self: any)
 	self:_showConfirm(nil)
 	self:_pickRoom()
 	self:_paint()
+	self:_showTab()
 	task.spawn(function()
 		while self._open and self._tick == tick do
 			task.wait(1)
@@ -861,6 +1007,7 @@ function RelicMuseum.given(self: any, catId: string, room: string?)
 				self._room = index
 				self._note = nil
 				self:_paint()
+				self:_showTab()
 				local tile: Tile? = self._tiles[slot]
 				if tile ~= nil then
 					pcall(StoreBurst.play, tile.frame, if room ~= nil then "room" else "exhibit")
@@ -879,8 +1026,9 @@ function RelicMuseum.destroy(self: any)
 		tile.connection:Disconnect()
 		tile.portrait:destroy()
 	end
-	self._prev:destroy()
-	self._next:destroy()
+	for _, tab: HallTab in self._tabs do
+		tab.button:destroy()
+	end
 	self._fillButton:destroy()
 	self._back:destroy()
 	self._giveIt:destroy()

@@ -160,12 +160,11 @@ return function()
 				tables = Config.StartTables, -- #3660: one table is open from the start
 				espresso = 1,
 				net = 0,
-				lure_bowl = 0,
+				lure_bowl = Config.StartBowls, -- #4097: and the Bait bowl
 				lucky_cat = 0,
 			})
-			expect(count(profile.decorOwned) + count(profile.decorPlaced) + count(profile.lures)).to.equal(
-				0
-			)
+			expect(count(profile.decorOwned) + count(profile.decorPlaced)).to.equal(0)
+			expect(profile.lures :: any).to.deepEqual({ kibble = 1 }) -- #4097: the first bowl's Kibble
 			expect(profile.tutorialStep).to.equal(0)
 			expect(profile.settings :: any).to.deepEqual({
 				music = true,
@@ -184,6 +183,9 @@ return function()
 				autoEquip = true, -- #1955: on for a new account
 				catIncome = true, -- #2551
 				goalFolded = false, -- #2714
+				catPickSort = "Money", -- #3940
+				catPickFlipped = false,
+				catPickShow = "",
 			})
 		end)
 
@@ -240,7 +242,7 @@ return function()
 			function()
 				expect(ProfileSchema.template(0).telemetry :: any).to.deepEqual({
 					onboardingStep = 0,
-					achieved = Onboarding.startAchieved(Config.StartTables), -- #3660: starts with a table
+					achieved = Onboarding.startAchieved(Config.StartTables, Config.StartBowls), -- #3660, #4097
 					funnel = 6,
 					firstDay = 0,
 					introStep = 0,
@@ -645,6 +647,9 @@ return function()
 					autoEquip = false, -- #1955: a save from before Auto Equip
 					catIncome = true, -- #2551: on for a save from before it
 					goalFolded = false, -- #2714
+					catPickSort = "Money", -- #3940
+					catPickFlipped = false,
+					catPickShow = "",
 				})
 				-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
 				expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })

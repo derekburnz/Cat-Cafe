@@ -16,26 +16,45 @@ return function()
 		return out
 	end
 
-	it("lists Off, then the owned titles, then the rest", function()
+	it("lists Off, then the owned titles, then the rest, each rarest first", function()
 		local rows = TitlesLogic.rows({ tags = { "tag_maple" }, tagShown = "tag_maple" } :: any)
 		expect(ids(rows) :: any).to.deepEqual({
 			ChatTags.OFF,
 			"tag_maple",
-			"vip",
-			"supporter",
-			"tag_grand_opener",
-			"title_cat_legend", -- #3694
-			"title_steady_hands",
-			"title_devoted",
-			"title_week_champion",
-			"title_gold_rush",
 			"rank_1", -- #3333
 			"rank_2",
 			"rank_3",
+			"title_cat_legend", -- #3694
+			"title_devoted",
+			"title_steady_hands",
+			"title_week_champion",
+			"title_gold_rush",
+			"tag_grand_opener",
+			"supporter",
+			"vip",
 		})
 		expect(rows[2].owned and rows[2].equipped).to.equal(true)
 		expect(rows[1].equipped).to.equal(false)
 		expect(rows[3].owned).to.equal(false)
+	end)
+
+	it("puts a leaderboard player's place first among their titles (Derek 2026-11-13)", function()
+		local rows = TitlesLogic.rows(
+			{ tags = { "vip", "title_gold_rush", "rank_2" }, tagShown = "vip" } :: any
+		)
+		expect(rows[2].id).to.equal("rank_2")
+		expect(rows[3].id).to.equal("title_gold_rush")
+		expect(rows[4].id).to.equal("vip")
+		expect(rows[5].owned).to.equal(false)
+	end)
+
+	it("orders every title, and only real ones", function()
+		for _, id in ChatTags.ORDER do
+			expect(table.find(TitlesLogic.RAREST, id) ~= nil).to.equal(true)
+		end
+		for _, id in TitlesLogic.RAREST do
+			expect(ChatTags.TAGS[id] ~= nil).to.equal(true)
+		end
 	end)
 
 	it("marks Off equipped when no title shows", function()

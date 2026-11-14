@@ -436,3 +436,30 @@ Object.assign(window.ICONS, {
     <circle ${S} stroke-width="3.5" cx="51" cy="44" r="5" fill="#4fc3ff"/>
     <path d="M12 52 H52" stroke="#7a52d6" stroke-width="2.6" stroke-linecap="round"/>`,
 });
+// #4046 quests: the two quest pictures whose emoji (🪙 and 🫙, after Unicode 12) Roblox draws blank
+Object.assign(window.ICONS, {
+  // Tip piles: the coin stack a customer leaves on the table, three coins high with one leaning on it
+  tipPile: `<ellipse cx="30" cy="56" rx="24" ry="5" fill="${O}" opacity=".18"/>
+    <ellipse ${S} cx="28" cy="50" rx="20" ry="7" fill="#e7a812"/>
+    <path ${S} fill="#ffd23f" d="M8 50 V45 A20 7 0 0 1 48 45 V50 A20 7 0 0 1 8 50 Z"/>
+    <path ${S} fill="#ffd23f" d="M10 40 V35 A20 7 0 0 1 50 35 V40 A20 7 0 0 1 10 40 Z"/>
+    <path ${S} fill="#ffd23f" d="M7 30 V25 A20 7 0 0 1 47 25 V30 A20 7 0 0 1 7 30 Z"/>
+    <ellipse ${S} cx="27" cy="25" rx="20" ry="7" fill="#ffe27a"/>
+    <ellipse cx="27" cy="25" rx="12" ry="3.8" fill="none" stroke="#e7a812" stroke-width="2.6"/>
+    <path d="M14 48 V50 M22 49.5 V52 M34 49.5 V52 M42 48 V50 M16 38 V40 M24 39.5 V42 M36 39.5 V42 M44 38 V40" stroke="#e7a812" stroke-width="2.2" stroke-linecap="round"/>
+    <circle ${S} cx="52" cy="24" r="10" fill="#ffd23f"/>
+    <circle cx="52" cy="24" r="5.6" fill="none" stroke="#e7a812" stroke-width="2.4"/>
+    <path fill="#fff" stroke="${O}" stroke-width="2" stroke-linejoin="round" d="M50 4 L51.6 8.4 L56 10 L51.6 11.6 L50 16 L48.4 11.6 L44 10 L48.4 8.4 Z"/>`,
+  // the Tip Jar: a glass jar of coins with a wooden lid and a paw print label
+  tipJar: `<rect ${S} x="18" y="4" width="28" height="9" rx="3" fill="#c97f45"/>
+    <path d="M21 8.5 H43" stroke="#e8a66a" stroke-width="2.4" stroke-linecap="round"/>
+    <path ${S} fill="#dff3ff" d="M20 13 H44 V17 Q54 21 54 32 V52 Q54 60 46 60 H18 Q10 60 10 52 V32 Q10 21 20 17 Z"/>
+    <path fill="#ffd23f" stroke="${O}" stroke-width="3" stroke-linejoin="round" d="M12.5 42 Q20 37 26 40 Q32 36 38 40 Q45 37 51.5 42 V52 Q51.5 57.5 46 57.5 H18 Q12.5 57.5 12.5 52 Z"/>
+    <path d="M18 47 Q22 45 26 47 M30 50 Q34 48 38 50 M41 46 Q45 44 48 46" stroke="#e7a812" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <circle cx="23" cy="37" r="4.4" fill="#ffd23f" stroke="${O}" stroke-width="2.6"/>
+    <rect x="22" y="23" width="20" height="13" rx="3" fill="#fff" stroke="${O}" stroke-width="2.6"/>
+    <circle cx="32" cy="31.6" r="2.6" fill="#ff8fb3"/>
+    <circle cx="27.6" cy="27.8" r="1.4" fill="#ff8fb3"/><circle cx="30.6" cy="26.3" r="1.4" fill="#ff8fb3"/>
+    <circle cx="33.6" cy="26.3" r="1.4" fill="#ff8fb3"/><circle cx="36.6" cy="27.8" r="1.4" fill="#ff8fb3"/>
+    <path d="M16 24 Q14 34 15 46" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round" opacity=".9"/>`,
+});

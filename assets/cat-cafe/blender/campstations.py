@@ -49,6 +49,23 @@ its prompt card and a BangAnchor 2 studs over its sign for the owner's red "!" (
                                       glass case (`_Glass`) holding a little gold cat idol with jade eyes. Attachments:
                                       PromptAnchor (the rope, 1.5 up), BangAnchor (2 over the sign), SparkleAnchor (the
                                       idol).
+  CatCafe_Camp_Snowy_CocoaStand      (tier8-snowy-mountain.md section 5, #3997) a little log cocoa hut on a plank deck:
+                                      a log back wall and sides, a counter with a red front, a red and white striped
+                                      awning with snow on top and icicles, a red cocoa pot on a warmer (`_Glow`) with
+                                      four mugs of cocoa and marshmallows, a HOT COCOA board on a log post, a snowy
+                                      pine and a stack of logs. Attachments: PromptAnchor (the counter's front, 1.5
+                                      up), BangAnchor (2 over the sign), GlowAnchor (under the awning), Steam (the
+                                      pot's mouth). It sells nothing: it gives Warm Paws.
+
+  CatCafe_Camp_Snowy_FusionObservatory (fusion-observatory.md section 3, #4104) a round stone tower about 10 wide
+                                      under a white dome split front to back by a brass slit, a short brass
+                                      telescope out of the slit, snow on the ledge, a door with a lantern, star
+                                      windows and a FUSION OBSERVATORY board on a log post. It stands on Summit Peak.
+                                      `_Slit_Glow` is the slit's lit strip (Neon; Effects recolours every `_Glow`
+                                      part to the coat's colour while a fusion runs); `_Bulb` (the lantern and the
+                                      star windows) is always lit and is left alone. Attachments: PromptAnchor (the
+                                      door, 1.5 up), BangAnchor (2 over the sign), GlowAnchor (the dome's middle, 70%
+                                      of the height up, where the paw lights circle at 1.15 times the half width).
 
 Every model: pivot at the base centre on the camp's ground, front -Z, no turn of its own, placed where its camp extra
 stands (Layout.campExtras, the area's set space) so Gameplay only swaps the asset name.
@@ -61,7 +78,7 @@ from mathutils import Matrix, Vector
 from cannon import frame_at
 from campextras import gold_fish
 from common import RB, text_width
-from plot import rot_x
+from plot import rot_x, rot_y, rot_z
 
 ATTACHMENTS = {}        # asset -> [(name, Roblox point)]
 WOOD, DARK = "caramel_wood", "dark_wood"
@@ -1162,8 +1179,411 @@ def build_rummage_bin(mat):
     return [b.finalize(BIN, mat), ready.finalize(BIN + "_Ready", mat), empty.finalize(BIN + "_Empty", mat)]
 
 
+# ------------------------------------------------------------------------------------------- cocoa stand --
+# tier8-snowy-mountain.md section 5: the Snowy camp's Cocoa Stand, free every 2 hours, gives Warm Paws. About 9 x 6,
+# inside the camp extra's radius 8 ring.
+COCOA = "CatCafe_Camp_Snowy_CocoaStand"
+CD_X, CD_Z0, CD_Z1, CD_Y = 4.6, -2.6, 3.0, 0.3            # the plank deck: half width, front, back, top
+HUT_X, HUT_Z0, HUT_Z1 = 3.5, -0.6, 2.5                    # the log walls: half width, the sides' front, the back
+CTR_Y, CTR_Z0, CTR_Z1 = 2.4, -1.35, -0.35                 # the counter: top, front, back
+AWN_TILT, AWN_C, AWN_D = -14.0, (0.0, 4.95, 0.55), 4.8     # the awning: tilt (back up), centre, depth
+LOG, LOG_DARK = "fur_brown", "dark_wood"
+
+
+def _cocoa_deck(b):
+    b.span((-CD_X, 0, CD_Z0), (CD_X, CD_Y, CD_Z1), LOG_DARK)
+    for k in range(9):                                                    # planks, a hair proud of the deck
+        x0 = -CD_X + 2 * CD_X * k / 9
+        b.span((x0 + 0.04, CD_Y, CD_Z0 + 0.04), (x0 + 2 * CD_X / 9 - 0.04, CD_Y + 0.03, CD_Z1 - 0.04), WOOD)
+    for (x, z, w) in ((-CD_X + 0.6, CD_Z1 - 0.6, 1.4), (CD_X - 0.7, CD_Z0 + 0.5, 1.2), (CD_X - 0.5, CD_Z1 - 0.4, 1.0)):
+        b.ball((x, CD_Y + 0.05, z), w * 0.6, "milk", scale=(1.2, 0.35, 1.0))       # snow drifts on the corners
+
+
+def _cocoa_hut(b):
+    """Log walls: the back wall and two sides of round logs, ends crossing at the corners, a snow line on top."""
+    n, r = 9, 0.26
+    for i in range(n):
+        y = CD_Y + r + i * 2 * r * 0.96
+        b.cyl((0, y, HUT_Z1), r, 2 * HUT_X + 0.7, (LOG, "fur_hazel")[i % 2], axis="X", segments=8)
+        if i < n - 1:
+            for sx in (-1, 1):
+                b.cyl((sx * HUT_X, y + r * 0.96, (HUT_Z0 + HUT_Z1) / 2 - 0.1), r, HUT_Z1 - HUT_Z0 + 0.6,
+                      (LOG, "fur_hazel")[(i + 1) % 2], axis="Z", segments=8)
+    top = CD_Y + r + (n - 1) * 2 * r * 0.96
+    b.span((-HUT_X - 0.3, top + r * 0.6, HUT_Z1 - 0.32), (HUT_X + 0.3, top + r + 0.18, HUT_Z1 + 0.32), "milk")
+    b.span((-HUT_X + 0.4, CD_Y + 2.6, HUT_Z1 - 0.3), (HUT_X - 0.4, CD_Y + 3.6, HUT_Z1 - 0.26), "cream")   # a shelf back
+    b.span((-HUT_X + 0.4, CD_Y + 2.5, HUT_Z1 - 0.62), (HUT_X - 0.4, CD_Y + 2.62, HUT_Z1 - 0.3), LOG_DARK)  # the shelf
+    for k, sw in enumerate(("shirt_red", "milk", "eye_blue", "leaf_green", "shirt_red", "pastel_butter")):
+        b.cyl((-2.5 + k * 1.0, CD_Y + 2.84, HUT_Z1 - 0.46), 0.17, 0.44, sw, segments=8)      # spare mugs, upturned
+
+
+def _cocoa_counter(b):
+    b.span((-HUT_X + 0.2, CD_Y, CTR_Z0), (HUT_X - 0.2, CTR_Y - 0.15, CTR_Z1), WOOD)
+    b.span((-HUT_X + 0.5, CD_Y + 0.4, CTR_Z0 - 0.04), (HUT_X - 0.5, CTR_Y - 0.55, CTR_Z0), "shirt_red")   # its front
+    for k in range(5):                                                    # little white snowflake dots on it
+        x = -2.4 + k * 1.2
+        b.span((x - 0.18, CD_Y + 1.05, CTR_Z0 - 0.07), (x + 0.18, CD_Y + 1.15, CTR_Z0 - 0.04), "milk")
+        b.span((x - 0.05, CD_Y + 0.92, CTR_Z0 - 0.07), (x + 0.05, CD_Y + 1.28, CTR_Z0 - 0.04), "milk")
+    b.span((-HUT_X, CTR_Y - 0.15, CTR_Z0 - 0.15), (HUT_X, CTR_Y, CTR_Z1 + 0.1), LOG_DARK)              # the top
+
+
+def _cocoa_awning(b):
+    """A red and white striped awning over the counter on two log posts, tilted back up, snow on it and icicles."""
+    R = rot_x(AWN_TILT)
+    c = Vector(AWN_C)
+    n, w = 8, (2 * HUT_X + 0.9) / 8
+    for k in range(n):
+        x = -(2 * HUT_X + 0.9) / 2 + w * (k + 0.5)
+        b.box(tuple(c + R @ Vector((x, 0, 0))), (w + 0.002, 0.12, AWN_D), ("shirt_red", "milk")[k % 2], rot=R)
+    b.box(tuple(c + R @ Vector((0, 0.15, AWN_D * 0.22))), (2 * HUT_X + 0.7, 0.18, AWN_D * 0.5), "milk", rot=R)  # snow
+    for k, (x, d) in enumerate(((-2.6, 0.9), (0.4, 1.3), (2.9, 0.7))):          # drifts of it reaching down the front
+        b.box(tuple(c + R @ Vector((x, 0.14, -AWN_D * 0.05 - d / 2))), (1.6 - 0.3 * k, 0.16, d), "milk", rot=R)
+    front = c + R @ Vector((0, 0, -AWN_D / 2))
+    for k in range(n):                                                    # its scalloped front, a flap a stripe
+        x = -(2 * HUT_X + 0.9) / 2 + w * (k + 0.5)
+        b.span((x - w / 2 + 0.03, front.y - 0.42, front.z - 0.08), (x + w / 2 - 0.03, front.y + 0.02, front.z - 0.02),
+               ("shirt_red", "milk")[k % 2])
+    for k in range(6):                                                    # icicles under the flap
+        x = -3.0 + k * 1.2 + 0.3 * (k % 2)
+        h = 0.35 + 0.2 * (k % 3)
+        b.span((x - 0.07, front.y - 0.42 - h, front.z - 0.09), (x + 0.07, front.y - 0.4, front.z - 0.01), "pastel_sky")
+    for sx in (-1, 1):                                                    # the posts
+        b.cyl((sx * (HUT_X + 0.15), (CD_Y + front.y) / 2, front.z + 0.25), 0.16, front.y - CD_Y, LOG, segments=8)
+    return front
+
+
+def _cocoa_pot(b, glow):
+    """A big red cocoa pot with a white rim on a round warmer (lit), a ladle in it, cocoa inside."""
+    x, z = 2.1, -0.85
+    glow.cyl((x, CTR_Y + 0.06, z), 0.52, 0.12, "eye_amber", segments=12)
+    b.cyl((x, CTR_Y + 0.02, z), 0.6, 0.04, "concrete", segments=12)
+    b.cyl((x, CTR_Y + 0.66, z), 0.5, 1.0, "shirt_red", r2=0.56, segments=12)
+    b.cyl((x, CTR_Y + 1.18, z), 0.6, 0.08, "milk", segments=12)
+    b.cyl((x, CTR_Y + 1.13, z), 0.5, 0.04, "choco", segments=12)
+    for sx in (-1, 1):
+        b.span((x + sx * 0.56, CTR_Y + 0.85, z - 0.08), (x + sx * 0.7, CTR_Y + 0.95, z + 0.08), "milk")   # handles
+    b.box((x - 0.15, CTR_Y + 1.45, z + 0.15), (0.06, 0.9, 0.06), "metal", rot=rot_x(18))               # the ladle
+    _anchor(COCOA, "Steam", (x, CTR_Y + 1.25, z))
+
+
+def _cocoa_mugs(b):
+    for k, sw in enumerate(("milk", "eye_blue", "leaf_green", "pastel_butter")):
+        x, z = -2.6 + k * 0.85, -0.85 + 0.12 * (k % 2)
+        b.cyl((x, CTR_Y + 0.2, z), 0.2, 0.4, sw, segments=10)
+        b.cyl((x, CTR_Y + 0.39, z), 0.165, 0.03, "choco", segments=10)
+        b.span((x + 0.19, CTR_Y + 0.1, z - 0.04), (x + 0.3, CTR_Y + 0.3, z + 0.04), sw)                  # handle
+        b.span((x - 0.07, CTR_Y + 0.39, z - 0.05), (x + 0.05, CTR_Y + 0.48, z + 0.07), "offwhite")       # marshmallow
+
+
+def _cocoa_sign(b, x, z):
+    """HOT COCOA on a cream board on a log post with a snowy cap. Returns the board's top."""
+    b.cyl((x, CD_Y + 1.7, z), 0.22, 3.4, LOG, segments=8)
+    hw, y0, y1 = 1.55, CD_Y + 3.4, CD_Y + 4.8
+    b.span((x - hw, y0, z - 0.12), (x + hw, y1, z + 0.12), LOG_DARK)
+    b.span((x - hw + 0.12, y0 + 0.12, z - 0.15), (x + hw - 0.12, y1 - 0.12, z - 0.12), "cream")
+    _label_front(b, "HOT", x, y0 + 0.75, z - 0.15, 0.09, 0.04, "shirt_red")
+    _label_front(b, "COCOA", x, y0 + 0.2, z - 0.15, 0.09, 0.04, "choco")
+    b.span((x - hw - 0.12, y1, z - 0.22), (x + hw + 0.12, y1 + 0.22, z + 0.22), "milk")                  # snow on it
+    return (x, y1 + 0.22, z)
+
+
+def _cocoa_pine(b, x, z):
+    b.cyl((x, CD_Y + 0.5, z), 0.2, 1.0, LOG, segments=6)
+    for i, (r, y) in enumerate(((1.0, 1.4), (0.75, 2.3), (0.45, 3.1))):
+        b.cyl((x, CD_Y + y, z), r, 1.0, "leaf_dark", r2=r * 0.35, segments=8)
+        b.cyl((x, CD_Y + y + 0.38, z), r * 0.55, 0.22, "milk", r2=r * 0.3, segments=8)
+
+
+def _cocoa_logs(b, x, z):
+    for i, (dx, dy) in enumerate(((-0.3, 0.0), (0.3, 0.0), (0.0, 0.5))):
+        b.cyl((x + dx, CD_Y + 0.26 + dy, z), 0.26, 1.3, (LOG, "fur_hazel", LOG)[i], axis="Z", segments=8)
+    b.ball((x, CD_Y + 1.0, z), 0.4, "milk", scale=(1.3, 0.35, 1.6))
+
+
+def build_cocoa_stand(mat):
+    b, glow = RB(), RB()
+    _cocoa_deck(b)
+    _cocoa_hut(b)
+    _cocoa_counter(b)
+    _cocoa_pot(b, glow)
+    _cocoa_mugs(b)
+    _cocoa_awning(b)
+    top = _cocoa_sign(b, -CD_X + 0.4, CD_Z0 + 0.45)
+    _cocoa_pine(b, CD_X - 0.55, 1.2)
+    _cocoa_logs(b, CD_X - 0.6, -1.6)
+    _anchor(COCOA, "PromptAnchor", (0.0, 1.5, CTR_Z0 - 1.0))
+    _anchor(COCOA, "BangAnchor", (top[0], top[1] + 2.0, top[2]))
+    _anchor(COCOA, "GlowAnchor", (0.0, CTR_Y + 1.6, -0.6))
+    return [b.finalize(COCOA, mat), glow.finalize(COCOA + "_Glow", mat)]
+
+
+# ------------------------------------------------------------------------------------------- the Dragon Keep --
+KEEP = "CatCafe_Camp_Castle_DragonKeep"
+KEEP_R, KEEP_WALL_H, KEEP_FLOOR = 7.0, 1.7, 0.3                # the yard: radius, wall height, paving top
+KEEP_GATE = 44.0                                              # the gate's opening, degrees round the front (-Z)
+STONE, STONE_DARK, STONE_LIGHT = "concrete", "concrete_dark", "fur_pewter"
+
+
+def build_dragon_keep(mat):
+    """#4062 (ticket-booth-and-dragon-keep.md 2.10): a round stone keep yard 14 across. A low wall with merlons rings
+    it, open at the front (-Z) under a gate arch with a banner; a crescent of gold lies round the back, with the
+    dragon's spot in the middle (Attachment DragonSpot) and a cushion for the Hatchling (`_Cushion`, pivot at its top
+    centre; hide it from stage 2). Four torches burn on the wall (`_Flame`, Neon). The gold is `_Gold` (and its
+    jewels `_Gold_Glow`), so the pile can be shown fuller as he grows. Attachments: PromptAnchor (the gate, 1.5 up),
+    BangAnchor (2 over the arch), DragonSpot (the yard's middle, on the paving), CatSpot1 to CatSpot12 (where the
+    cats that moved in nap, round the gold)."""
+    b, gold_, glow, flame, cush = RB(), RB(), RB(), RB(), RB()
+    b.cyl((0, KEEP_FLOOR / 2, 0), KEEP_R + 0.5, KEEP_FLOOR, STONE_DARK, segments=20)
+    b.cyl((0, KEEP_FLOOR + 0.02, 0), KEEP_R - 0.7, 0.04, "paving_tan", segments=20)
+    b.cyl((0, KEEP_FLOOR + 0.05, 0), 3.2, 0.04, "paving_light", segments=16)        # the dragon's round
+    n = 20
+    for k in range(n):                                                             # the wall, open at the gate
+        a = 360.0 * (k + 0.5) / n - 90.0                                           # -90 is the front
+        if abs(((a + 90 + 180) % 360) - 180) < KEEP_GATE / 2:
+            continue
+        ar = math.radians(a)
+        x, z = KEEP_R * math.cos(ar), KEEP_R * math.sin(ar)
+        seg = 2 * math.pi * KEEP_R / n
+        R = rot_y(-a + 90)
+        b.box((x, KEEP_FLOOR + KEEP_WALL_H / 2, z), (seg + 0.1, KEEP_WALL_H, 0.9), (STONE, STONE_LIGHT)[k % 2], rot=R)
+        b.box((x, KEEP_FLOOR + KEEP_WALL_H + 0.3, z), (seg * 0.5, 0.6, 0.9), STONE_LIGHT, rot=R)      # merlon
+        b.box((x * 0.985, KEEP_FLOOR + 0.25, z * 0.985), (seg * 0.6, 0.5, 1.1), "fur_moss" if k % 3 == 0 else STONE_DARK,
+              rot=R)                                                               # footing, mossy here and there
+    gx = KEEP_R * math.sin(math.radians(KEEP_GATE / 2)) + 0.5                       # the gate posts
+    gz = -KEEP_R * math.cos(math.radians(KEEP_GATE / 2))
+    top = KEEP_FLOOR + 4.6
+    for sx in (-1, 1):
+        b.box((sx * gx, KEEP_FLOOR + 2.3, gz), (1.5, 4.6, 1.5), STONE)
+        b.box((sx * gx, top + 0.25, gz), (1.9, 0.5, 1.9), STONE_LIGHT)
+        for (dx, dz) in ((-0.65, -0.65), (0.65, -0.65), (-0.65, 0.65), (0.65, 0.65)):
+            b.box((sx * gx + dx, top + 0.75, gz + dz), (0.5, 0.5, 0.5), STONE_LIGHT)
+        b.cyl((sx * gx, top + 1.5, gz), 0.75, 1.3, "royal_berry", r2=0.05, segments=8)   # a little roof
+    for k in range(7):                                                             # the arch between them
+        a = math.radians(180.0 * (k + 0.5) / 7)
+        b.box((gx * math.cos(a) * 0.86, KEEP_FLOOR + 3.4 + 1.3 * math.sin(a), gz), (gx * 0.5, 0.7, 1.1),
+              (STONE_LIGHT, STONE)[k % 2], rot=rot_z(math.degrees(a) + 90))
+    b.box((0, KEEP_FLOOR + 3.55, gz - 0.6), (1.5, 1.7, 0.08), "royal_berry")         # the banner
+    b.box((0, KEEP_FLOOR + 3.7, gz - 0.66), (0.7, 0.7, 0.06), "gold_mid", rot=rot_z(45))
+    b.box((0, KEEP_FLOOR + 4.45, gz - 0.6), (1.8, 0.14, 0.14), "dark_wood")
+    # the gold: a crescent of heaps round the back, coins spilling toward the middle
+    heaps = ((-4.0, 1.6, 1.5, 1.2), (-2.6, 3.6, 1.9, 1.7), (0.0, 4.6, 2.3, 2.2), (2.6, 3.6, 1.9, 1.6),
+             (4.0, 1.6, 1.5, 1.1), (-1.3, 4.9, 1.4, 1.3), (1.4, 5.0, 1.4, 1.2))
+    for k, (x, z, r, h) in enumerate(heaps):
+        gold_.cyl((x, KEEP_FLOOR + h * 0.3, z), r, h * 0.6, "gold_mid", r2=r * 0.62, segments=10)
+        gold_.cyl((x, KEEP_FLOOR + h * 0.8, z), r * 0.62, h * 0.4, "gold_light", r2=r * 0.2, segments=8)
+    for k in range(18):                                                            # loose coins
+        a = math.radians(20 + k * 23.0)
+        r = 3.4 + (k * 37 % 10) * 0.12
+        if math.sin(a) < -0.2:
+            continue
+        gold_.cyl((r * math.cos(a), KEEP_FLOOR + 0.1, r * math.sin(a)), 0.22, 0.07, ("gold_light", "gold_dark")[k % 2],
+                  segments=8)
+    for k, (x, y, z, sw) in enumerate(((-2.4, 2.0, 3.5, "rarity_mythic"), (0.3, 2.55, 4.5, "fish_blue"),
+                                       (2.7, 1.95, 3.4, "eye_green"), (-3.9, 1.5, 1.7, "rarity_epic"),
+                                       (4.0, 1.4, 1.5, "fish_blue"), (1.2, 1.5, 5.2, "rarity_mythic"))):
+        glow.box((x, KEEP_FLOOR + y - 0.3, z), (0.4, 0.4, 0.4), sw, rot=rot_x(45) @ rot_z(45))
+    gold_.box((-0.9, KEEP_FLOOR + 1.95, 4.2), (0.9, 0.7, 0.7), "dark_wood", rot=rot_y(20))          # a half-buried chest
+    gold_.box((-0.9, KEEP_FLOOR + 2.32, 4.2), (0.96, 0.12, 0.76), "brass", rot=rot_y(20))
+    gold_.cyl((2.0, KEEP_FLOOR + 1.75, 4.6), 0.4, 0.5, "gold_dark", r2=0.25, segments=8)             # a goblet
+    # the Hatchling's cushion, in front of the gold
+    cush.box((0, -0.2, 0), (2.1, 0.4, 2.1), "royal_berry")
+    cush.box((0, -0.03, 0), (1.7, 0.08, 1.7), "blush")
+    for (dx, dz) in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
+        cush.box((dx * 1.05, -0.2, dz * 1.05), (0.22, 0.22, 0.22), "gold_mid", rot=rot_y(45))
+    # torches on the wall
+    for a in (-35.0, 35.0, 145.0, 215.0):
+        ar = math.radians(a)
+        x, z = (KEEP_R - 0.75) * math.cos(ar), (KEEP_R - 0.75) * math.sin(ar)
+        b.box((x, KEEP_FLOOR + 1.5, z), (0.18, 3.0, 0.18), "dark_wood")
+        b.cyl((x, KEEP_FLOOR + 3.05, z), 0.3, 0.3, "fur_gunmetal", r2=0.2, segments=8)
+        flame.box((x, KEEP_FLOOR + 3.45, z), (0.34, 0.5, 0.34), "fur_orange", rot=rot_y(45))
+        flame.box((x, KEEP_FLOOR + 3.8, z), (0.2, 0.36, 0.2), "sparkle", rot=rot_y(45))
+    _anchor(KEEP, "PromptAnchor", (0.0, KEEP_FLOOR + 1.5, gz - 1.2))
+    _anchor(KEEP, "BangAnchor", (0.0, KEEP_FLOOR + 7.0, gz))
+    _anchor(KEEP, "DragonSpot", (0.0, KEEP_FLOOR + 0.07, 0.0))
+    spots = [(5.3, d) for d in (200, 220, 240, 300, 320, 340, 180, 0)] + [(3.9, d) for d in (205, 335, 250, 290)]
+    for k, (r, deg) in enumerate(spots):                                           # the cats' nap spots
+        a = math.radians(deg)
+        _anchor(KEEP, "CatSpot%d" % (k + 1), (r * math.cos(a), KEEP_FLOOR + 0.07, r * math.sin(a)))
+    return [b.finalize(KEEP, mat), gold_.finalize(KEEP + "_Gold", mat), glow.finalize(KEEP + "_Gold_Glow", mat),
+            flame.finalize(KEEP + "_Flame", mat),
+            cush.finalize(KEEP + "_Cushion", mat, location=(0.0, KEEP_FLOOR + 0.47, 0.0))]
+
+
+# ------------------------------------------------------------------------------------------ the Ticket Booth --
+BOOTH = "CatCafe_Camp_WaterPark_TicketBooth"
+TB_X, TB_Z0, TB_Z1, TB_H = 4.0, -1.6, 1.6, 5.2                 # the kiosk: half width, front, back, wall top
+TB_SIGN_Y, TB_SIGN_R = 9.4, 2.3                               # the ticket wheel sign: hub height, radius
+
+
+def build_ticket_booth(mat):
+    """#4061 (ticket-booth-and-dragon-keep.md 1.5): a red and white striped kiosk 8 wide on a blue deck, a round
+    ticket window in its front (-Z) with a counter under it and prize plushies hanging inside, a scalloped awning,
+    and a big ticket wheel sign on the roof. The sign is `_Sign_Spin`, one Model pivoted at its hub with the pivot's Y
+    axis to the front, so Effects spins it like every _Spin; it is for looks only. `_Glow` is the bulbs round the
+    window and on the sign's post (Neon). Attachments: PromptAnchor (the window's counter, 1.5 up), BangAnchor (2
+    over the sign)."""
+    b, glow, spin = RB(), RB(), RB()
+    b.span((-TB_X - 0.6, 0, TB_Z0 - 1.4), (TB_X + 0.6, 0.3, TB_Z1 + 0.5), "shirt_blue")          # the deck
+    b.span((-TB_X - 0.4, 0.3, TB_Z0 - 1.2), (TB_X + 0.4, 0.34, TB_Z1 + 0.3), "pastel_sky")
+    n = 8
+    for k in range(n):                                                                         # striped walls
+        x0 = -TB_X + 2 * TB_X * k / n
+        sw = ("shirt_red", "milk")[k % 2]
+        if k in (3, 4):                                                                        # the window's column
+            b.span((x0, 0.3, TB_Z0), (x0 + 2 * TB_X / n, 1.9, TB_Z0 + 0.3), sw)
+            b.span((x0, 4.3, TB_Z0), (x0 + 2 * TB_X / n, TB_H, TB_Z0 + 0.3), sw)
+        else:
+            b.span((x0, 0.3, TB_Z0), (x0 + 2 * TB_X / n, TB_H, TB_Z0 + 0.3), sw)
+        b.span((x0, 0.3, TB_Z1 - 0.3), (x0 + 2 * TB_X / n, TB_H, TB_Z1), sw)
+    for sx in (-1, 1):
+        for k in range(4):
+            z0 = TB_Z0 + 0.3 + (TB_Z1 - TB_Z0 - 0.6) * k / 4
+            b.span((sx * TB_X - (0.3 if sx > 0 else 0), 0.3, z0), (sx * TB_X + (0.3 if sx < 0 else 0), TB_H,
+                                                                 z0 + (TB_Z1 - TB_Z0 - 0.6) / 4),
+                   ("milk", "shirt_red")[k % 2])
+    b.span((-TB_X + 0.3, 0.3, TB_Z0 + 0.3), (TB_X - 0.3, 0.5, TB_Z1 - 0.3), "dark_wood")         # the floor inside
+    b.span((-0.95, 1.9, TB_Z0 + 0.32), (0.95, 4.3, TB_Z0 + 0.4), "night_sky")                   # the dark inside
+    for k in range(12):                                                                        # the round window's rim
+        a = math.radians(30.0 * k + 15)
+        b.box((1.25 * math.cos(a), 3.1 + 1.25 * math.sin(a), TB_Z0 - 0.06), (0.72, 0.3, 0.2), "gold_mid",
+              rot=rot_z(30.0 * k + 15 + 90))
+        if k % 2 == 0:
+            glow.ball((1.62 * math.cos(a), 3.1 + 1.62 * math.sin(a), TB_Z0 - 0.1), 0.14, "sparkle")
+    b.span((-1.7, 1.75, TB_Z0 - 0.75), (1.7, 1.95, TB_Z0 + 0.1), "caramel_wood")                # the counter
+    b.span((-1.5, 1.2, TB_Z0 - 0.5), (-1.3, 1.75, TB_Z0), "dark_wood")
+    b.span((1.3, 1.2, TB_Z0 - 0.5), (1.5, 1.75, TB_Z0), "dark_wood")
+    b.span((0.5, 1.95, TB_Z0 - 0.6), (1.2, 2.12, TB_Z0 - 0.2), "pastel_butter")                 # a roll of tickets
+    b.cyl((0.85, 2.3, TB_Z0 - 0.4), 0.2, 0.3, "pastel_butter", axis="X", segments=8)
+    # prize plushies hanging in the window: a cat, a fish and a star
+    b.span((-0.72, 3.3, TB_Z0 + 0.05), (-0.28, 3.7, TB_Z0 + 0.3), "fur_orange")
+    for sx in (-1, 1):
+        b.box((-0.5 + sx * 0.15, 3.76, TB_Z0 + 0.17), (0.12, 0.14, 0.12), "fur_orange")
+    b.span((-0.6, 3.05, TB_Z0 + 0.1), (-0.4, 3.3, TB_Z0 + 0.26), "fur_cream")
+    b.box((0.0, 3.3, TB_Z0 + 0.17), (0.5, 0.26, 0.16), "fish_blue")
+    b.box((0.3, 3.3, TB_Z0 + 0.17), (0.2, 0.2, 0.12), "fish_blue", rot=rot_z(45))
+    b.box((0.55, 3.55, TB_Z0 + 0.17), (0.3, 0.3, 0.14), "rarity_legend", rot=rot_z(45))
+    for x in (-0.5, 0.0, 0.55):
+        b.span((x - 0.02, 3.72, TB_Z0 + 0.15), (x + 0.02, 4.3, TB_Z0 + 0.19), "milk")
+    # the roof and the scalloped awning over the front
+    b.span((-TB_X - 0.3, TB_H, TB_Z0 - 0.3), (TB_X + 0.3, TB_H + 0.35, TB_Z1 + 0.3), "shirt_blue")
+    b.span((-TB_X + 0.4, TB_H + 0.35, TB_Z0 + 0.4), (TB_X - 0.4, TB_H + 0.7, TB_Z1 - 0.4), "pastel_sky")
+    for k in range(n):
+        x0 = -TB_X - 0.3 + (2 * TB_X + 0.6) * k / n
+        w = (2 * TB_X + 0.6) / n
+        sw = ("milk", "shirt_red")[k % 2]
+        b.box((x0 + w / 2, TB_H - 0.25, TB_Z0 - 0.95), (w, 0.12, 1.5), sw, rot=rot_x(-20))
+        b.cyl((x0 + w / 2, TB_H - 0.6, TB_Z0 - 1.62), w / 2, 0.1, sw, axis="Z", segments=8)      # the scallop
+    # the sign: a post, and the ticket wheel that spins on it
+    b.span((-0.25, TB_H + 0.7, -0.25), (0.25, TB_SIGN_Y, 0.25), "dark_wood")
+    b.span((-1.6, TB_H + 0.7, -0.5), (1.6, TB_H + 1.5, -0.3), "milk")                           # TICKETS board
+    b.text("TICKETS", (1.4, TB_H + 0.85, -0.5), 0.1, 0.05, "shirt_red", right=(-1, 0, 0))   # read from the front
+    for sx in (-1, 1):
+        glow.ball((sx * 1.75, TB_H + 1.1, -0.4), 0.16, "sparkle")
+    hub = (0.0, TB_SIGN_Y, -0.45)
+    spin.cyl((0, 0, 0), TB_SIGN_R, 0.2, "milk", axis="Z", segments=16)
+    spin.cyl((0, 0, -0.06), TB_SIGN_R - 0.3, 0.2, "shirt_red", axis="Z", segments=16)
+    spin.cyl((0, 0, -0.14), 0.4, 0.2, "gold_mid", axis="Z", segments=10)
+    for k in range(8):                                                                         # eight tickets round it
+        a = 45.0 * k
+        ar = math.radians(a)
+        r = TB_SIGN_R - 1.05
+        spin.box((r * math.cos(ar), r * math.sin(ar), -0.19), (1.0, 0.55, 0.08), ("pastel_butter", "milk")[k % 2],
+                 rot=rot_z(a))
+        spin.box((r * math.cos(ar), r * math.sin(ar), -0.24), (0.3, 0.3, 0.06), ("shirt_red", "shirt_blue")[k % 2],
+                 rot=rot_z(a + 45))
+        spin.box((TB_SIGN_R * math.cos(ar + 0.39), TB_SIGN_R * math.sin(ar + 0.39), 0.0), (0.3, 0.3, 0.24), "gold_mid",
+                 rot=rot_z(a + 22.5))
+    _anchor(BOOTH, "PromptAnchor", (0.0, 1.5 + 0.3, TB_Z0 - 1.3))
+    _anchor(BOOTH, "BangAnchor", (0.0, TB_SIGN_Y + TB_SIGN_R + 2.0, -0.45))
+    return [b.finalize(BOOTH, mat), glow.finalize(BOOTH + "_Glow", mat),
+            spin.finalize(BOOTH + "_Sign_Spin", mat, location=hub)]
+
+
 # #1800: the moving child Models' own numbers for Effects/Motion (rbx_export model_attributes), by asset
-MOVING = {YARD: {"model_attributes": {"_Sign_Swing": {"Angle": {"Float64": SIGN_ANGLE}}}}}
+MOVING = {YARD: {"model_attributes": {"_Sign_Swing": {"Angle": {"Float64": SIGN_ANGLE}}}},
+          KEEP: {"nest": {"_Gold_Glow": "_Gold"}},   # #4062: the jewels ride the gold
+          # #4061: the ticket wheel faces the front, so its _Spin pivot's Y axis is turned onto -Z
+          BOOTH: {"pivot_turns": {"_Spin": Matrix.Rotation(math.radians(-90), 3, "X")}}}
+
+
+# ------------------------------------------------------------------------------------ the Fusion Observatory --
+OBS = "CatCafe_Camp_Snowy_FusionObservatory"
+OBS_R, OBS_WALL, OBS_DOME = 5.0, 4.2, 4.7                      # the tower: radius, wall top, the dome's radius
+OBS_TOP = OBS_WALL + 0.5 + OBS_DOME                            # the dome's crown
+
+
+def _obs_arc(b, r, a0, a1, n, width, thick, swatch):
+    """A band over the dome along the front to back meridian, from a0 to a1 degrees up from the front (-Z) horizon."""
+    y0 = OBS_WALL + 0.5
+    seg = math.radians(a1 - a0) / n * r + 0.06
+    for k in range(n):
+        a = a0 + (a1 - a0) * (k + 0.5) / n
+        ar = math.radians(a)
+        b.box((0, y0 + r * math.sin(ar), -r * math.cos(ar)), (width, seg, thick), swatch, rot=rot_x(a))
+
+
+def build_fusion_observatory(mat):
+    b, glow, bulb = RB(), RB(), RB()
+    R, W = OBS_R, OBS_WALL
+    # the tower: a dark foot, grey stone in two courses, a pale ledge with snow on it
+    b.cyl((0, 0.35, 0), R + 0.35, 0.7, "concrete_dark", segments=16)
+    b.cyl((0, 0.7 + (W - 0.7) / 2, 0), R, W - 0.7, "concrete", segments=16)
+    b.cyl((0, 2.4, 0), R + 0.06, 0.14, "concrete_dark", segments=16)
+    b.cyl((0, W + 0.2, 0), R + 0.3, 0.4, "fur_pewter", segments=16)
+    b.cyl((0, W + 0.47, 0), R + 0.34, 0.14, "milk", segments=16)                              # snow on the ledge
+    # the dome: white, in five rings up to a brass cap
+    y0, D = W + 0.5, OBS_DOME
+    n = 7
+    for k in range(n):
+        a0, a1 = math.radians(90.0 * k / n), math.radians(90.0 * (k + 1) / n)
+        r0, r1 = D * math.cos(a0), max(D * math.cos(a1), 0.5)
+        h = D * (math.sin(a1) - math.sin(a0))
+        b.cyl((0, y0 + D * math.sin(a0) + h / 2, 0), r0, h, ("milk", "offwhite")[k % 2], r2=r1, segments=16)
+    b.cyl((0, y0 + 0.12, 0), D + 0.12, 0.24, "brass", segments=16)                            # the dome's brass ring
+    # the slit: a brass frame from the front horizon over the crown, the lit strip in it
+    _obs_arc(b, D + 0.0, 5.0, 119.0, 9, 1.6, 0.3, "brass")
+    _obs_arc(glow, D + 0.1, 8.0, 116.0, 9, 1.0, 0.3, "pastel_butter")
+    # the telescope out of the slit, short enough to stay inside the paw lights' circle (1.15 R)
+    ta = math.radians(52.0)
+    for (d, w, ln, sw) in ((D + 0.5, 0.75, 2.6, "brass"), (D + 1.9, 0.95, 0.5, "gold_dark"), (D - 0.6, 1.05, 0.5, "gold_dark")):
+        b.box((0, y0 + d * math.sin(ta), -d * math.cos(ta)), (w, ln, w), sw, rot=rot_x(52.0 - 90.0))
+    # the door, two steps, a lantern over it
+    b.span((-1.1, 0.7, -R - 0.12), (1.1, 3.5, -R + 0.3), "dark_wood")
+    b.span((-0.9, 0.7, -R - 0.2), (0.9, 3.3, -R - 0.1), "caramel_wood")
+    b.span((-0.06, 0.7, -R - 0.24), (0.06, 3.3, -R - 0.18), "dark_wood")
+    b.ball((0.55, 1.95, -R - 0.26), 0.12, "brass")
+    b.span((-1.3, 3.5, -R - 0.3), (1.3, 3.75, -R + 0.3), "fur_pewter")
+    b.span((-1.35, 3.75, -R - 0.34), (1.35, 3.87, -R + 0.3), "milk")
+    b.span((-1.6, 0.0, -R - 1.5), (1.6, 0.35, -R + 0.2), "fur_pewter")
+    b.span((-1.3, 0.35, -R - 0.9), (1.3, 0.7, -R + 0.2), "fur_pewter")
+    b.span((1.5, 2.9, -R - 0.5), (1.62, 3.0, -R + 0.1), "dark_wood")                           # the lantern's arm
+    b.span((1.4, 2.25, -R - 0.62), (1.72, 2.3, -R - 0.3), "dark_wood")
+    b.span((1.4, 2.85, -R - 0.62), (1.72, 2.9, -R - 0.3), "dark_wood")
+    bulb.span((1.44, 2.3, -R - 0.58), (1.68, 2.85, -R - 0.34), "lamp_warm")
+    # star windows round the wall and a snowdrift or two at its foot
+    for k, deg in enumerate((-40.0, 40.0, 130.0, 180.0, 230.0)):
+        a = math.radians(deg - 90.0)
+        x, z = (R + 0.02) * math.cos(a), (R + 0.02) * math.sin(a)
+        Rm = rot_y(-(deg - 90.0) + 90.0)
+        b.box((x, 3.0, z), (1.0, 1.0, 0.16), "dark_wood", rot=Rm @ rot_z(45))
+        bulb.box((x * 1.012, 3.0, z * 1.012), (0.72, 0.72, 0.16), "lamp_warm", rot=Rm @ rot_z(45))
+    for (x, z, s) in ((-4.6, 2.6, 1.0), (4.4, 3.0, 1.2), (3.9, -3.6, 0.8), (-0.4, 5.3, 1.1)):
+        b.ball((x, 0.0, z), 1.3 * s, "milk", scale=(1.3, 0.45, 1.0))
+    # the sign on a log post, left of the door, outside the lights' circle and under it
+    sx_, sz_ = -6.9, -3.6
+    b.cyl((sx_, 1.7, sz_), 0.22, 3.4, "fur_brown", segments=8)
+    hw, s0, s1 = 2.1, 3.4, 4.9
+    b.span((sx_ - hw, s0, sz_ - 0.12), (sx_ + hw, s1, sz_ + 0.12), "dark_wood")
+    b.span((sx_ - hw + 0.12, s0 + 0.12, sz_ - 0.15), (sx_ + hw - 0.12, s1 - 0.12, sz_ - 0.12), "pants_navy")
+    _label_front(b, "FUSION", sx_, s0 + 0.8, sz_ - 0.15, 0.09, 0.04, "pastel_butter")
+    _label_front(b, "OBSERVATORY", sx_, s0 + 0.22, sz_ - 0.15, 0.065, 0.04, "offwhite")
+    b.span((sx_ - hw - 0.12, s1, sz_ - 0.22), (sx_ + hw + 0.12, s1 + 0.22, sz_ + 0.22), "milk")
+    b.box((sx_, s1 + 0.75, sz_), (0.7, 0.7, 0.14), "rarity_legend", rot=rot_z(45))               # a gold star on it
+    _anchor(OBS, "PromptAnchor", (0.0, 1.5 + 0.7, -R - 1.6))
+    _anchor(OBS, "BangAnchor", (sx_, s1 + 1.25 + 2.0, sz_))
+    _anchor(OBS, "GlowAnchor", (0.0, 0.7 * OBS_TOP, 0.0))
+    return [b.finalize(OBS, mat), glow.finalize(OBS + "_Slit_Glow", mat), bulb.finalize(OBS + "_Bulb", mat)]
 
 
 def rbx_attachments(name):
@@ -1183,4 +1603,8 @@ ASSETS = {
     SPA_TOWEL: (build_spa_towel, 200),
     MUSEUM: (build_relic_museum, 12000),
     BIN: (build_rummage_bin, 2500),
+    COCOA: (build_cocoa_stand, 6000),
+    KEEP: (build_dragon_keep, 6000),
+    BOOTH: (build_ticket_booth, 6000),
+    OBS: (build_fusion_observatory, 6000),
 }

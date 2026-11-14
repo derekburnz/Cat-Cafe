@@ -43,7 +43,8 @@ from common import Builder, scale_mesh
 # model carries a BubbleAnchor), lids (half-closed eyes: a lid in the fur over the top of each eye, a calm gaze); #2584: ear_k (ears that much bigger), glyphs (rows of carved glyphs in the second colour between bands of the
 # third along the flanks) and tiles (mosaic tiles in the second and third colours and cream on the flanks, back and
 # crown), both built as geometry so they hold in gold; #2739 (the Cat Makeovers): mark ((shape, colour or colours)): a
-# forehead mark from MARKS. Themed cats wear a prop, some two (props.py).
+# forehead mark from MARKS; Tier 8: rosettes (each spot a ring round a third-colour middle), cuff (a fur band round each
+# leg above the paw, a snow boot's top). Themed cats wear a prop, some two (props.py).
 ROSTER = {
     "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white",
                     # the Cat Makeovers (#2739); the forehead M came off (Derek2 11-09: "random symbols ... just remove it")
@@ -270,6 +271,92 @@ ROSTER = {
     "JadeGuardian": dict(rarity="Mythical", fur="fur_emerald", second="leaf_dark", third="paw_woods", eyes="gold_light",
                          pattern="gradient", muzzle=None, nose="nose_dark", glow_eyes=True, scale=1.15,
                          body_scale=(1.05, 1.0, 1.05), ruff="fur_golden", tip="fur_golden"),
+    # Tier 8 Snowy Mountain (Derek approved cats draft 2 2026-11-13 18:54; Model-Agent/areas/next-three-2026-11-13/
+    # snowy-cats-model-check.md). Each keeps clear of the look-alikes: Flurry of the Snow Cat, Spruce of the Brownie,
+    # Mitten of Socks and the Munchkin. Every one wears a prop (props.py); nothing cold or painful shows on them.
+    "Flurry":  dict(rarity="Common", fur="pearl", second="fur_silver", eyes="eye_amber", pattern="solid", muzzle=None,
+                    sprinkles=("fur_silver",)),
+    "Mitten":  dict(rarity="Common", fur="metal", second="fur_white", eyes="eye_green", pattern="solid",
+                    muzzle="fur_white", socks="fur_white", tip="fur_white"),
+    "HotChocolate": dict(rarity="Common", fur="hair_brown", second="fur_seal", eyes="eye_amber", pattern="solid",
+                         muzzle="fur_cream", nose="nose_brick"),
+    "Spruce":  dict(rarity="Common", fur="bronze", second="fur_seal", eyes="eye_green", pattern="stripes",
+                    muzzle="fur_cream", nose="nose_dark"),
+    # four snow boots: dark boots (the socks) with a white fur cuff round each leg above them (cuff)
+    "SnowBoots": dict(rarity="Rare", fur="caramel_wood", second="fur_cream", eyes="eye_blue", pattern="solid",
+                      muzzle="fur_cream", socks="dark_wood", cuff="milk"),
+    "Ski":     dict(rarity="Rare", fur="fur_orange_dark", second="fur_russet", eyes="eye_green", pattern="solid",
+                    muzzle="fur_white", nose="nose_brick"),
+    # rosettes: each spot a dark ring round a lighter centre (the third colour)
+    "SnowLeopard": dict(rarity="Epic", fur="fish_belly", second="fur_charcoal", third="fur_smoke_light",
+                        eyes="eye_green", pattern="spots", rosettes=True, muzzle="milk", tip="fur_charcoal",
+                        tail_thick=0.3, nose="nose_dark"),
+    # clear ice fading to blue, frosted paws, frost specks for its shine (still, so Reduce Motion is fine)
+    "Ice":     dict(rarity="Epic", fur="glass", second="pastel_sky", third="fish_blue", eyes="fish_blue",
+                    pattern="gradient", muzzle=None, socks="fish_belly", sparkle=True, nose="nose_dark"),
+    "WhiteTiger": dict(rarity="Legendary", fur="offwhite", second="fur_black", eyes="eye_blue", pattern="stripes",
+                       muzzle=None, nose="nose_pink", scale=1.2, body_scale=(1.1, 1.0, 1.05), tail_thick=0.28,
+                       mark=("m", "fur_black")),
+    # a swirl of snow: silver fading to icy blue, a white ruff, glowing ice eyes and a dense frost field
+    "Blizzard": dict(rarity="Mythical", fur="fur_silver", second="fish_belly", third="pastel_sky", eyes="fish_blue",
+                     pattern="gradient", muzzle=None, ruff="milk", fluffy=True, glow_eyes=True, sparkle=True,
+                     scale=1.25, body_scale=(1.1, 1.0, 1.08), tail_thick=0.3, nose="nose_dark"),
+    # Tier 9 Theme Park and Water Park (Derek approved cats draft 2 2026-11-13 18:54; #4066, #4068). The rarity look
+    # ladder (#4068, "make the rarer ones more special"): Common one prop; Rare a prop and a tail piece; Epic two
+    # props, one lit; Legendary two props, lit, a tail piece and 1.2x; Mythical lit all over at 1.25x.
+    "Popcorn": dict(rarity="Common", fur="fur_cream", second="pastel_butter", eyes="eye_amber", pattern="spots",
+                    muzzle="milk"),
+    "Pinwheel": dict(rarity="Common", fur="fur_apricot", second="fur_cream", eyes="eye_blue", pattern="solid",
+                     muzzle="fur_cream", tip="fur_cream"),
+    # keeps apart from the Puddle (grey solid) by its gradient and its swim ring
+    "Splash":  dict(rarity="Common", fur="fur_teal_grey", second="fish_belly", third="pastel_sky", eyes="eye_blue",
+                    pattern="gradient", muzzle="fish_belly", sprinkles=("pastel_sky",), nose="nose_dark"),
+    "Taffy":   dict(rarity="Common", fur="blush", second="milk", third="fur_strawberry", eyes="eye_green",
+                    pattern="stripes", stripes2=True, muzzle="milk"),
+    "CandyApple": dict(rarity="Rare", fur="shirt_red", second="fur_rust_red", eyes="eye_green", pattern="solid",
+                       muzzle=None, tip="leaf_green", nose="nose_dark", mark=("drop", "fur_caramel")),
+    "CottonCandy": dict(rarity="Rare", fur="fur_bubblegum", second="pastel_sky", third="pastel_sky", eyes="eye_blue",
+                        pattern="patches", muzzle="milk", fluffy=True),
+    "Clown":   dict(rarity="Epic", fur="fur_white", second="fur_bubblegum", third="pastel_sky", eyes="eye_green",
+                    pattern="patches", muzzle=None, nose="bowl_red",
+                    toes=("shirt_red", "pastel_butter", "shirt_green", "shirt_blue")),
+    "WaterGun": dict(rarity="Epic", fur="fur_peach", second="fur_blue", eyes="eye_blue", pattern="points",
+                     muzzle=None),
+    "Coaster": dict(rarity="Legendary", fur="bowl_red", second="milk", third="rarity_legend", eyes="eye_amber",
+                    pattern="stripes", stripes2=True, muzzle="milk", scale=1.2, body_scale=(1.1, 1.0, 1.05),
+                    tail_thick=0.28, mark=("star", "rarity_legend")),
+    # made of clear flowing water: sky fading to deep blue, a pale ruff, glowing eyes and bubbles for specks
+    "Water":   dict(rarity="Mythical", fur="pastel_sky", second="fish_blue", third="fur_blue", eyes="mint",
+                    pattern="gradient", muzzle=None, ruff="fish_belly", glow_eyes=True, sparkle=True,
+                    sprinkles=("milk", "fish_belly"), scale=1.25, body_scale=(1.1, 1.0, 1.08), tail_thick=0.3,
+                    nose="nose_dark", mark=("drop", "fish_belly")),
+    # Tier 10 Medieval Castle (cats draft 2, #4067, #4068), on the same rarity look ladder
+    "Elf":     dict(rarity="Common", fur="fur_oat", second="fur_vanilla", eyes="eye_green", pattern="solid",
+                    muzzle="fur_vanilla", ear_k=1.3),
+    "Squire":  dict(rarity="Common", fur="treat_tan", second="fur_seal", eyes="eye_amber", pattern="patches",
+                    muzzle="fur_cream"),
+    "Dwarf":   dict(rarity="Common", fur="fur_copper", second="fur_ginger", eyes="eye_blue", pattern="solid",
+                    muzzle=None, short_legs=True, body_scale=(1.15, 1.0, 1.05), nose="nose_dark"),
+    "Crumpet": dict(rarity="Common", fur="fur_golden", second="fur_toffee", third="fur_toffee", eyes="eye_amber",
+                    pattern="gradient", muzzle="fur_custard"),
+    "Jester":  dict(rarity="Rare", fur="shirt_red", second="rarity_legend", third="rarity_legend", eyes="eye_green",
+                    pattern="patches", muzzle="milk", mark=("star", "rarity_legend"),
+                    toes=("rarity_legend", "shirt_red", "rarity_legend", "shirt_red")),
+    "Rogue":   dict(rarity="Rare", fur="pants_navy", second="fur_ink", eyes="eye_chartreuse", pattern="points",
+                    muzzle=None, lids=True, nose="nose_dark"),
+    "Knight":  dict(rarity="Epic", fur="fur_silver", second="metal", eyes="eye_blue", pattern="points",
+                    muzzle="fur_white", socks="metal"),
+    # keeps apart from Midnight (night sky, a plain wizard hat): a blue to violet fade, a wide starry brim, a book
+    "Mage":    dict(rarity="Epic", fur="galaxy_blue", second="aurora_violet", third="aurora_violet", eyes="sparkle",
+                    pattern="gradient", muzzle=None, sparkle=True, nose="nose_dark"),
+    "Queen":   dict(rarity="Legendary", fur="fur_cream", second="fur_custard", eyes="eye_violet", pattern="patches",
+                    muzzle="milk", ruff="milk", fluffy=True, scale=1.2, body_scale=(1.1, 1.0, 1.05), tail_thick=0.28,
+                    mark=("heart", "rarity_legend")),
+    # keeps apart from Eclipse (the emerald dragon with mint spines): gunmetal and red, lit ember scales, no green
+    "DragonKnight": dict(rarity="Mythical", fur="fur_gunmetal", second="shirt_red", eyes="eye_amber",
+                         pattern="stripes", stripes2=True, muzzle=None, glow_eyes=True, tip="bowl_red", scale=1.3,
+                         body_scale=(1.12, 1.0, 1.08), tail_thick=0.32, nose="nose_dark",
+                         mark=("m", "bowl_red")),
     # #3470 (secret-cats.md section 8): the first three Secret cats, the tier above Mythical. They can be gold and
     # rainbow like any cat. Nebula: a deep space coat with violet and pink clouds, stars and glowing mint eyes
     "Nebula": dict(rarity="Secret", fur="night_sky", second="aurora_violet", third="neon_pink", eyes="mint",
@@ -284,7 +371,7 @@ ROSTER = {
                       muzzle=None, glow_eyes=True, lids=True, curl=True, short_legs=True),
 }
 
-COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze")
+COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze", "cuff")
 
 
 def has_gold(name):
@@ -726,6 +813,8 @@ def _leg(c, hip_z, w, paw, paw_y=-0.01, toe=None, rock=None):
     b.box_base((0, paw_y, -hip_z), paw, c["paw"])
     if toe:
         _toe(b, (0, paw_y, -hip_z), paw, toe)
+    if c.get("cuff"):                                   # a snow boot's fur top: a soft band round the leg on the boot
+        b.box_base((0, 0, -hip_z + paw[2] - 0.02), (w + 0.07, w + 0.07, 0.09), c["cuff"])
     return b
 
 
@@ -781,6 +870,14 @@ def _coat_extras(b, spec, c, centre, size, sides=True, front=True, top=True):
                 b.box((side * (hx + 0.01), y0 + y * sy / 0.95, z0 + z), (0.04, 0.12, 0.04), cols[i % len(cols)], bevel=False,
                       rot=_rot(a, "X"))
                 i += 1
+
+
+def _spot(b, spec, c, at, size, rot=None):
+    """One spot in the second colour; on a rosettes coat (the Snow Leopard) its middle in the third colour, half
+    its size and 0.01 proud of it on both faces, so the spot reads as a dark ring."""
+    b.box(at, size, c["second"], bevel=False, rot=rot)
+    if spec.get("rosettes"):
+        b.box(at, tuple(v + 0.02 if v <= 0.05 else v * 0.5 for v in size), c["third"], bevel=False, rot=rot)
 
 
 def _stripe(spec, c, i):
@@ -1040,11 +1137,16 @@ def _body_a(spec, c, d):
         b.box((-0.16, y0 - 0.18, top + 0.01), (0.28, 0.32, 0.04), c["second"], bevel=False)
     elif pat == "spots":                                # leafy: each spot a leaf, a long diamond
         top_rot, side_rot, ls = (_rot(45, "Z"), _rot(45, "X"), 0.13) if spec.get("leafy") else (None, None, 0.16)
-        for (x, y) in ((0.15, 0.2), (-0.18, -0.15), (0.2, -0.3), (-0.1, 0.35)):
-            b.box((x, y0 + y, top + 0.01), (ls, ls * (1.6 if top_rot else 1), 0.04), c["second"], bevel=False, rot=top_rot)
-        for (side, y, z) in ((-1, 0.2, 0.06), (-1, -0.2, -0.06), (1, 0.0, 0.04), (1, 0.32, -0.08)):
-            b.box((side * (hx + 0.01), y0 + y, z0 + z), (0.04, ls * (1.6 if side_rot else 1), ls), c["second"], bevel=False,
-                  rot=side_rot)
+        tops, sides_ = [(0.15, 0.2), (-0.18, -0.15), (0.2, -0.3), (-0.1, 0.35)], [(-1, 0.2, 0.06), (-1, -0.2, -0.06),
+                                                                              (1, 0.0, 0.04), (1, 0.32, -0.08)]
+        if spec.get("rosettes"):                        # a snow leopard is covered in them: more, a little bigger
+            ls = 0.18
+            tops += [(-0.22, 0.12), (0.12, -0.05), (-0.05, -0.38), (0.22, 0.42)]
+            sides_ += [(-1, 0.0, -0.02), (1, -0.25, 0.0), (1, 0.17, 0.1)]
+        for (x, y) in tops:
+            _spot(b, spec, c, (x, y0 + y, top + 0.01), (ls, ls * (1.6 if top_rot else 1), 0.04), top_rot)
+        for (side, y, z) in sides_:
+            _spot(b, spec, c, (side * (hx + 0.01), y0 + y, z0 + z), (0.04, ls * (1.6 if side_rot else 1), ls), side_rot)
     elif pat == "gradient":                             # front to back: fur, second, third
         b.box((0, y0 + 0.04, z0), (sx + 0.03, sy * 0.3, sz + 0.03), c["second"], bevel=False)
         b.box((0, y0 + hy * 0.66, z0), (sx + 0.04, sy * 0.36, sz + 0.04), c["third"], bevel=False)
@@ -1109,11 +1211,11 @@ def _body_b(spec, c, d):
         top_rot, side_rot, ls = (_rot(45, "Z"), _rot(45, "X"), 0.13) if spec.get("leafy") else (None, None, 0.16)
         lw = ls * (1.6 if top_rot else 1)
         for (side, y, z) in ((-1, 0.25, 0.3), (-1, 0.0, 0.18), (1, 0.08, 0.36), (1, 0.34, 0.2)):
-            b.box((side * (hsx / 2 + 0.01), y, z), (0.04, lw, ls), c["second"], bevel=False, rot=side_rot)
+            _spot(b, spec, c, (side * (hsx / 2 + 0.01), y, z), (0.04, lw, ls), side_rot)
         for (x, y) in ((0.16, 0.36), (-0.2, 0.3)):
-            b.box((x, y, htop + 0.01), (ls, lw, 0.04), c["second"], bevel=False, rot=top_rot)
+            _spot(b, spec, c, (x, y, htop + 0.01), (ls, lw, 0.04), top_rot)
         for side in (-1, 1):
-            b.box((side * (csx / 2 + 0.01), cy0, 0.86), (0.04, lw, ls), c["second"], bevel=False, rot=side_rot)
+            _spot(b, spec, c, (side * (csx / 2 + 0.01), cy0, 0.86), (0.04, lw, ls), side_rot)
     elif pat == "gradient":                             # chest in the fur, haunches in second, the rump in third
         b.box_base((0, hy0 - 0.02, 0.005), (hsx + 0.03, hsy * 0.62, hsz + 0.01), c["second"], bevel=False)   # off the floor
         b.box_base((0, hy0 + hsy * 0.36, 0.008), (hsx + 0.04, hsy * 0.3, hsz + 0.012), c["third"], bevel=False)
@@ -1175,7 +1277,7 @@ def _body_s(spec, c, d):
         top_rot, side_rot, ls = (_rot(45, "Z"), _rot(45, "X"), 0.13) if spec.get("leafy") else (None, None, 0.16)
         lw = ls * (1.6 if top_rot else 1)
         for (side, y, z) in ((-1, cy0 + 0.1, 0.86), (-1, cy0 - 0.1, 0.56), (1, cy0 - 0.06, 0.86), (1, cy0 + 0.1, 0.6)):
-            b.box((side * (csx / 2 + 0.01), y, z), (0.04, lw, ls), c["second"], bevel=False, rot=side_rot)
+            _spot(b, spec, c, (side * (csx / 2 + 0.01), y, z), (0.04, lw, ls), side_rot)
     elif pat == "gradient":                             # the chest in the fur, its lower part second, the bottom third
         b.box_base((0, cy0, bottom - 0.015), (csx + 0.03, csy + 0.03, 0.3), c["second"], bevel=False)
         b.box_base((0, cy0, bottom - 0.02), (csx + 0.04, csy + 0.04, 0.13), c["third"], bevel=False)
@@ -1211,7 +1313,7 @@ def _arm(c, side, toe=None):
     b = Builder()
     b.box_base((0, 0, S_PAW_Z + 0.02), (0.15, 0.16, 0.04 - S_PAW_Z), c["leg"])     # ends inside the paw
     paw = (0.18, 0.19, 0.13)
-    b.box((0, -0.01, S_PAW_Z), paw, c["paw"])
+    b.box((0, -0.01, S_PAW_Z), paw, c["fur"] if c.get("cuff") else c["paw"])     # boots are for feet, not hands
     if toe:
         _toe(b, (0, -0.01, S_PAW_Z - paw[2] / 2), paw, toe)
     return b

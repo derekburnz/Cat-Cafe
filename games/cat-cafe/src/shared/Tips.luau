@@ -55,6 +55,9 @@ Tips.LIST = table.freeze({
 	-- #2915 (Design-Agent): the account's first Park landing, "Strays wait near the camp", shown by the client (and
 	-- its 90 s soft ring on the nearest stray), saved by TipSeen like every tip
 	tip("park_first", "card", "client"),
+	-- Derek 2026-11-13 ("when someone pets give a context tutorial little pop up guide that shows petting =2x money for
+	-- that cat for an hour and can only do one at once"): after the account's first pet of its own cat (#3651)
+	tip("pet", "card", "client"),
 } :: { TipDef })
 
 -- The offline card gets its line ("Your cats earned while you were away!") after this long away (section 3).
@@ -149,10 +152,12 @@ export type Moment = { duskWarning: boolean, night: boolean }
 function Tips.due(profile: Types.PlayerProfile, moment: Moment): { string }
 	local tier = Economy.tier(profile)
 	local now: { [string]: boolean } = {
-		-- Derek's example: food and a bowl, and nothing in the bowl
-		bowl = Economy.level(profile, "lure_bowl") >= 1 and profile.bait == nil and anyCount(
-			profile.lures
-		),
+		-- Derek's example: food and a bowl, and nothing in the bowl. New saves start with a bowl and a Kibble
+		-- (Config.StartBowls, #4125) and the tutorial's bowl step teaches it, so the cut waits until that step is past.
+		bowl = profile.tutorialStep >= 5
+			and Economy.level(profile, "lure_bowl") >= 1
+			and profile.bait == nil
+			and anyCount(profile.lures),
 		night = moment.duskWarning,
 		rank_up = tier == 1 and Economy.rankUpBlocker(profile) == nil,
 		golden_fish = profile.goldenFish > 0,

@@ -1433,6 +1433,15 @@ function MouseDash._tap(self: any, index: number)
 		return
 	end
 	self._callbacks.tap(run, self._index, index)
+	-- #3951 (Derek 2026-11-13: "the smacking ... feels delayed now, it used to feel instant"): a mouse that is up
+	-- shows its bopped picture and goes down at once, not after the server's answer comes back. The server still
+	-- judges the tap: the points, the "+1" and the catch sparkle wait for MouseDashJudged.
+	local kind = hole.kind
+	local art = if kind ~= nil and kind ~= "kitten" then MouseDashLogic.ART[kind] else nil
+	if art ~= nil and now() < hole.downAt then
+		setCell(hole.animalArt, art.hit)
+		hole.downAt = math.min(hole.downAt, now() + HIT_SECONDS)
+	end
 end
 
 function MouseDash._float(_self: any, hole: Hole, words: string, color: Color3)

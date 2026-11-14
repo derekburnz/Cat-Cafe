@@ -424,23 +424,54 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 			PaddingRight = UDim.new(0, SIDE_PAD + 6),
 		}),
 	})
-	-- the spins count, one big line: "Spins: 3" (#1816 v3; the badge and the free-spin chip are gone)
-	self._spinsLabel = text({
-		Name = "Spins",
-		LayoutOrder = 1,
-		Size = UDim2.new(1, 0, 0, COUNT_HEIGHT),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge + 8,
-		TextXAlignment = Enum.TextXAlignment.Center,
-		TextTruncate = Enum.TextTruncate.None,
-		Parent = side,
-	})
-	MenuFamily.outline(self._spinsLabel, 2)
+	-- #3961 (Derek: "the spin the wheel is still on the old menu"): in the family look the count is a violet chip
+	-- ("3 SPINS"), Spin the big green button, Use all gold and Odds blue, all the side's width (batch 2 mock)
+	local family = MenuFamily.on()
+	self._family = family
+	if family then
+		local chip: Frame = Create("Frame", {
+			Name = "SpinsChip",
+			LayoutOrder = 1,
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, 36),
+			BackgroundColor3 = PAL.panel,
+			Parent = side,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIStroke", { Color = PAL.cardStroke, Thickness = 2 }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14) }),
+		})
+		self._spinsLabel = text({
+			Name = "Spins",
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromScale(0, 1),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textLarge,
+			TextColor3 = Theme.colors.white,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextTruncate = Enum.TextTruncate.None,
+			Parent = chip,
+		})
+		Outline.text(self._spinsLabel)
+	else
+		-- the spins count, one big line: "Spins: 3" (#1816 v3; the badge and the free-spin chip are gone)
+		self._spinsLabel = text({
+			Name = "Spins",
+			LayoutOrder = 1,
+			Size = UDim2.new(1, 0, 0, COUNT_HEIGHT),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textLarge + 8,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextTruncate = Enum.TextTruncate.None,
+			Parent = side,
+		})
+		MenuFamily.outline(self._spinsLabel, 2)
+	end
 	self._button = Button.new({
 		name = "Spin",
-		text = "Spin!",
+		text = if family then "SPIN!" else "Spin!",
 		icon = Theme.icons.spin,
-		style = "gold",
+		style = if family then "primary" else "gold",
 		size = UDim2.new(1, 0, 0, Scale.tapHeight(SPIN_HEIGHT, Theme.sizes.buttonDepth)),
 		textSize = Theme.sizes.textLarge + 2,
 		layoutOrder = 3,
@@ -450,14 +481,18 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		end,
 	})
 	-- #1816 v3: Use all (2 or more spins) and Odds are small text buttons under Spin; Spin is the only big button
-	local linkH = Scale.tapHeight(LINK_HEIGHT, 0)
+	local linkH = if family
+		then Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
+		else Scale.tapHeight(LINK_HEIGHT, 0)
+	local linkW = if family then UDim.new(1, 0) else UDim.new(0.8, 0)
+	local linkText = if family then Theme.sizes.textBody + 2 else Theme.sizes.textBody
 	self._allPending = nil :: number? -- os.clock() of a Use all press still waiting for SpinAllResult
 	self._allButton = Button.new({
 		name = "UseAll",
 		text = "Use all",
-		style = "ghost",
-		size = UDim2.new(0.8, 0, 0, linkH),
-		textSize = Theme.sizes.textBody,
+		style = if family then "gold" else "ghost",
+		size = UDim2.new(linkW.Scale, linkW.Offset, 0, linkH),
+		textSize = linkText,
 		layoutOrder = 4,
 		parent = side,
 		onClick = function()
@@ -467,10 +502,10 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 	self._allButton.instance.Visible = false
 	self._oddsButton = Button.new({
 		name = "Odds",
-		text = "Odds",
-		style = "ghost",
-		size = UDim2.new(0.8, 0, 0, linkH),
-		textSize = Theme.sizes.textBody,
+		text = if family then "ODDS" else "Odds",
+		style = if family then "sky" else "ghost",
+		size = UDim2.new(linkW.Scale, linkW.Offset, 0, linkH),
+		textSize = linkText,
 		layoutOrder = 7,
 		parent = side,
 		onClick = function()
@@ -1427,6 +1462,7 @@ function SpinWheel._refresh(self: any)
 	local chain = self._chain
 	self._spinsLabel.Text = if chain
 		then SpinLogic.chainText(math.max(1, chain.next - 1), #chain.rolls)
+		elseif self._family then (if spins == 1 then "1 SPIN" else ("%d SPINS"):format(spins))
 		else ("Spins: %d"):format(spins)
 
 	local turn: Turn? = self._turn
@@ -1443,8 +1479,10 @@ function SpinWheel._refresh(self: any)
 		spins = spins,
 		rows = #self._rows,
 	})
-	self._button:setText(button.text)
-	self._button:setStyle(if button.skip then "secondary" else "gold")
+	self._button:setText(if self._family then string.upper(button.text) else button.text)
+	self._button:setStyle(
+		if button.skip then "secondary" elseif self._family then "primary" else "gold"
+	)
 	self._button:setEnabled(button.enabled)
 	-- Use all (#1078): two or more spins, not while a spin turns or waits
 	local allPending = self._allPending ~= nil and os.clock() - self._allPending < PENDING_SECONDS
@@ -1458,7 +1496,10 @@ function SpinWheel._refresh(self: any)
 	end
 	local showAll = self._callbacks.spinAll ~= nil and spins > 1
 	all.instance.Visible = showAll
-	all:setText(if allPending then "..." else SpinLogic.allText(spins, (Config :: any).SpinAllMax))
+	local allText = SpinLogic.allText(spins, (Config :: any).SpinAllMax)
+	all:setText(
+		if allPending then "..." elseif self._family then string.upper(allText) else allText
+	)
 	all:setEnabled(not allPending and turn == nil and self._pressedAt == nil)
 end
 

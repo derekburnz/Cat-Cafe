@@ -3477,6 +3477,25 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "Cannon", function()
 		UI.cannon.open()
 	end },
+	-- #4227: three spawn lines at once show one at a time: the first with a "+2" badge and its drain bar
+	{ "SpawnQueueBadge", function()
+		UIShim.advance(31) -- earlier scenes' shout-out gap and queue are past
+		UI.announce("A Mythical cat appeared in the Park!", "Mythical")
+		UI.announce("A Mythical cat appeared in the Woods!", "Mythical")
+		UI.announce("A Secret cat is somewhere in the Sewer!", "Secret")
+		UIShim.advance(0.6)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeToasts", true) or UIShim.playerGui
+		local badge, drain = nil, nil
+		for _, piece in gui:GetDescendants() do
+			if piece.Name == "More" and piece:IsA("TextLabel") then
+				badge = piece
+			elseif piece.Name == "Drain" then
+				drain = piece
+			end
+		end
+		assert(drain ~= nil, "uigate: the spawn line has no drain bar (#4227)")
+		assert(badge ~= nil and badge.Text == "+2", "uigate: the spawn line's badge does not say +2 (#4227)")
+	end },
 	-- #4227: wild Mythical and Secret cats out now, as small bubbles on each open area's card and the Cannon button
 	{ "CannonRares", function()
 		local ReplicatedStorage = game:GetService("ReplicatedStorage")

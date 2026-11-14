@@ -2361,7 +2361,9 @@ function UI.spawns.pump()
 		return
 	end
 	spawns.pumping = true
-	task.spawn(function()
+	-- deferred, so a burst that lands in one frame (a new day, a storm) is all in the line before the first shows:
+	-- it can merge, and the first one's "+N" counts the rest
+	task.defer(function()
 		while SpawnQueue.waiting(spawns.queue, os.clock()) > 0 do
 			local now = os.clock()
 			local view = toasts
@@ -2377,7 +2379,7 @@ function UI.spawns.pump()
 					if rarity ~= nil then
 						UI.shoutout.at = now
 					end
-					view:announce(if more > 0 then ("%s  +%d"):format(text, more) else text, rarity)
+					view:announce(text, rarity, more) -- its "+N" badge and drain bar (Toasts.announce)
 					spawns.until_ = now + SpawnQueue.SHOW
 					local shown = UI.onAnnounceShown
 					if shown ~= nil then

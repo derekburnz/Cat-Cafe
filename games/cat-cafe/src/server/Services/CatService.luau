@@ -1564,6 +1564,18 @@ local function huntTick()
 	then
 		return
 	end
+	-- #4221: with secretAreas on each area hides only its own Secret, so the hunt picks among the open areas that
+	-- have one and spawns that area's Secret there
+	local perArea = LiveFlagService.on(Catching.SECRET_AREAS_FLAG)
+	local own: { [string]: { Types.CatDef } } = {}
+	for _, secretDef in Catalog.secretCats do
+		local home = secretDef.secretArea
+		if home ~= nil then
+			local list = own[home] or {}
+			table.insert(list, secretDef)
+			own[home] = list
+		end
+	end
 	local open: { string } = {}
 	local seen: { [string]: boolean } = {}
 	for _, player in DataService.loadedPlayers() do
@@ -1575,6 +1587,7 @@ local function huntTick()
 					tier >= areaDef.tier
 					and not seen[areaDef.id]
 					and world.areas[areaDef.id] ~= nil
+					and (not perArea or own[areaDef.id] ~= nil)
 				then
 					seen[areaDef.id] = true
 					table.insert(open, areaDef.id)
@@ -1590,7 +1603,8 @@ local function huntTick()
 	if point == nil then
 		return -- that area is full; another next second
 	end
-	local def = Catalog.secretCats[rng:NextInteger(1, #Catalog.secretCats)]
+	local choices: { Types.CatDef } = if perArea then own[areaId] else Catalog.secretCats
+	local def = choices[rng:NextInteger(1, #choices)]
 	local stray = spawnStray(def, areaId, world.areas[areaId].spawnPoints[point].Position, point)
 	stray.model:SetAttribute(HUNT_ATTRIBUTE, true)
 	running.ids[stray.id] = true

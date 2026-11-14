@@ -174,6 +174,7 @@ LiveFlags.KEYS = {
 	"goldTone", -- #4133: gold cats are their base model toned gold (shared/GoldTone), not the _Gold models
 	"palJoin", -- #3995: a player who joins through a friend gets the cafe next door and no intro by itself (shared/PalJoin)
 	"dailyDeal", -- #3996: Today's Deal on the Store's Featured tab (shared/DailyDeal)
+	"starterSuggest", -- #4174: the Starter Bundle's one slide-in card a session after 10 to 15 minutes (shared/StarterSuggest)
 	"updateFeature", -- #4175: the update's own item first on the Store's Featured tab on big update days (Config.UpdateFeature)
 	"adminEvents", -- #4195: admin events (Bowl Frenzy, the Admin Wheel) from the events schedule (shared/CafeEvents)
 	"secretAreas", -- #4221: one Secret per area; a rolled Mythical turns only into its own area's Secret (Catching.secret)
@@ -217,6 +218,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	goldTone = true,
 	palJoin = true,
 	dailyDeal = true,
+	starterSuggest = true,
 	updateFeature = true,
 	adminEvents = true,
 	secretAreas = true,

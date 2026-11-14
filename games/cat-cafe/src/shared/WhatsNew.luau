@@ -30,6 +30,14 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- Sunday update (2026-11-15 20:00 UTC, Growth-Agent's row): Snowy Mountain, Water Park and Medieval Castle open
+	-- at Tiers 8, 9 and 10. Merge only once that update is live (main publishes on merge).
+	{
+		id = "three_new_worlds",
+		date = "2026-11-15",
+		icon = "new",
+		text = "3 new worlds: Tiers 8 to 10",
+	},
 	-- #2718 refresh (11-14 11:50 UTC, 59 merges since #3927): the onboarding fixes Derek OK'd 02:37 UTC (#4097, #4098),
 	-- the Relic Museum's new inside (#4138), the Rummage Bin minigame fix (#4128), the pop-up cards (#4092) and the
 	-- phone fixes (#4151, #4152, #3990). Still behind switches (rare customers, friend joins, Today's Deal, gold tone):

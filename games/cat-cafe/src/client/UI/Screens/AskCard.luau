@@ -40,7 +40,7 @@ export type Choice = {
 
 export type Ask = {
 	title: string,
-	choices: { Choice }, -- two or three
+	choices: { Choice }, -- one (#4174: a centred button), two or three
 	seconds: number, -- how long it stays with no answer
 	thanks: string?, -- said for THANKS_SECONDS after a press, in place of the title; nil slides away at once
 	lines: number?, -- F92: 2 wraps a long title onto two lines and makes the card that much taller; 1 by default
@@ -73,6 +73,7 @@ local CHOICE_TEXT = Theme.sizes.textBody
 -- the title's right end keeps its reach clear; set once the X is made
 local TITLE_RIGHT = 0
 local CHOICE_H = 44
+local LONE_WIDTH = 0.6 -- #4174: a one-button ask's button, of the row's width
 local PAD = 10
 local GAP = 8
 local BAR_H = 5
@@ -207,6 +208,7 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center, -- #4174: a lone button sits in the middle
 			Padding = UDim.new(0, GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
@@ -222,6 +224,7 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center, -- #4174: a lone button sits in the middle
 			Padding = UDim.new(0, GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
@@ -287,6 +290,9 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 	end
 	table.clear(self._buttons)
 	local top = if self._rows >= 2 then math.floor(#choices / 2) else #choices
+	-- #4174 (the Starter Bundle card, Derek: no UI issues on any device): an ask with one button keeps it a button,
+	-- LONE_WIDTH of the row in the middle with its words a size bigger, not a full width slab with small words
+	local lone = #choices == 1
 	for index, choice in choices do
 		local id = choice.id
 		local upper = index <= top
@@ -302,8 +308,10 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 					then ShopIcons.clean(Theme.cleanGlyphs[choice.icon] or "")
 					else nil,
 				style = choice.style or "ghost",
-				textSize = CHOICE_TEXT,
-				size = UDim2.new(1 / count, -GAP * (count - 1) / count, 1, 0),
+				textSize = if lone then CHOICE_TEXT + 4 else CHOICE_TEXT,
+				size = if lone
+					then UDim2.fromScale(LONE_WIDTH, 1)
+					else UDim2.new(1 / count, -GAP * (count - 1) / count, 1, 0),
 				layoutOrder = index,
 				parent = if upper then self._row else self._row2,
 				sound = "uiToggle",

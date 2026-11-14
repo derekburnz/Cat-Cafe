@@ -57,11 +57,11 @@ local Config = {
 	GardenDecorPackPassId = 2075342357, -- #1168 row 3: six looks-only decor pieces (R$149); made off sale by Tools-Agent 2026-11-06
 	GoldenPondPassId = 2071704337, -- #1232
 	SecondBowlPassId = 2072132265, -- #1161
-	-- #4026: the four outfit packs (R$99 each); 0 until Gameplay-Engineer makes the passes, and their cards stay hidden
-	StylishPackPassId = 0,
-	WinterPackPassId = 0,
-	ChefPackPassId = 0,
-	SpacePackPassId = 0,
+	-- #4026: the four outfit packs (R$99 each); made off sale with game-passes.yml 2026-11-13, on sale with this
+	StylishPackPassId = 2087936654,
+	WinterPackPassId = 2089766669,
+	ChefPackPassId = 2089430670,
+	SpacePackPassId = 2088794660,
 	-- #1624 (economy-ladder.md section 6a v2.4): what the five store passes give. VIP, Cafe Style and Grand Cafe add
 	-- into cafeMultiplier like tables and decor; Cat Accessories and Uniform Styles each multiply every working cat's
 	-- rate; Cafe Style and Grand Cafe add to how often rich visitors come (x(1 + 0.25 + 1.0) with both).
@@ -92,11 +92,11 @@ local Config = {
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 		trait_tokens_20 = 3730879829, -- #3864: 20 Trait Tokens, R$99; made with dev-products.yml, then its id goes here
 		trait_tokens_50 = 3730879833, -- #3864: 50 Trait Tokens, R$199
-		-- #3996: Today's Deal, R$25 each, regional pricing off; 0 until dev-products.yml makes them (products.json)
-		deal_1 = 0,
-		deal_2 = 0,
-		deal_3 = 0,
-		deal_4 = 0,
+		-- #3996: Today's Deal, R$25 each, regional pricing off; made with dev-products.yml 2026-11-14 (products.json)
+		deal_1 = 3731165229, -- Big Money
+		deal_2 = 3731165237, -- Trait Tokens
+		deal_3 = 3731165246, -- Steady Paw
+		deal_4 = 3731165258, -- Potion Mix
 	} :: { [string]: number },
 	-- #1934 (release.md section 1): the Roblox badge id of each badge in shared/Badges, by key; a 0 is not made yet
 	-- and is never awarded. Made 5 a day in Creator Hub, in Badges.LIST order, by Tools-Agent or Derek.
@@ -431,6 +431,17 @@ local Config = {
 		cafePass = { was = 299, now = 149 },
 	} :: { [string]: { was: number, now: number } },
 	StoreSaleEnds = 1797120000,
+	-- #4175 (Derek 2026-11-14: an occasional push on big update days, at most once a week): the update's own item
+	-- leads the Store's Featured tab with the plain line "New today" from `starts` up to `ends` (os.time, UTC),
+	-- behind the updateFeature switch. `keys` are Store card keys, first one the player can still buy. `saleEnds` is
+	-- the real last day of a real sale on that item ("Sunday"), shown as "Sale ends Sunday" only while the card has
+	-- its Sale badge. No countdown, no stock counts. Nothing shows outside the window or with the switch off.
+	-- First use: the outfit packs, 2026-11-14 22:00 UTC for a day.
+	UpdateFeature = {
+		keys = { "packStylish", "packChef", "packSpace", "packWinter" },
+		starts = 1794693600,
+		ends = 1794780000,
+	} :: { keys: { string }, starts: number, ends: number, saleEnds: string? },
 	EventMinSeconds = 300,
 	EventMaxSeconds = 7200,
 	EventMoneyMax = 2,
@@ -1374,6 +1385,16 @@ local Config = {
 			traitTokens = 10,
 		},
 		{ id = "2026-11-13-fish", from = 1794584100, to = 1794587400, fish = 100, spins = 0 },
+		-- Growth's weekend plan (Derek yes 2026-11-13 23:49 UTC): 10 free trait rerolls for everyone who plays on
+		-- Sunday 2026-11-15 from the Rift Run update, 3 minutes after its 20:00 UTC restart, to midnight Toronto time
+		{
+			id = "2026-11-15-tokens",
+			from = 1794772980,
+			to = 1794805200,
+			fish = 0,
+			spins = 0,
+			traitTokens = 10,
+		},
 	} :: {
 		{
 			id: string,

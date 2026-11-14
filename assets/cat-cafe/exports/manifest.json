@@ -323779,9 +323779,10 @@
       "objects": [
         "CatCafe_Square_Garden",
         "CatCafe_Square_Garden_Flowers",
-        "CatCafe_Square_Garden_Barrier"
+        "CatCafe_Square_Garden_Barrier",
+        "CatCafe_Square_Garden_Tops_Decor"
       ],
-      "triangles": 936,
+      "triangles": 948,
       "budget": 4000,
       "size_studs": {
         "x": 26.0,
@@ -323832,7 +323833,7 @@
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Garden.model.json",
-      "rbx_parts": 64,
+      "rbx_parts": 65,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_Garden.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_Garden.glb"
@@ -323842,10 +323843,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "936/4000 tris",
+          "budget": "948/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "636 faces on swatch centers",
+          "uv": "642 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -323859,7 +323860,8 @@
       "objects": [
         "CatCafe_Square_GardenMid",
         "CatCafe_Square_GardenMid_Flowers",
-        "CatCafe_Square_GardenMid_Barrier"
+        "CatCafe_Square_GardenMid_Barrier",
+        "CatCafe_Square_GardenMid_Tops_Decor"
       ],
       "triangles": 740,
       "budget": 3000,
@@ -323929,7 +323931,8 @@
       "objects": [
         "CatCafe_Square_GardenEnd",
         "CatCafe_Square_GardenEnd_Flowers",
-        "CatCafe_Square_GardenEnd_Barrier"
+        "CatCafe_Square_GardenEnd_Barrier",
+        "CatCafe_Square_GardenEnd_Tops_Decor"
       ],
       "triangles": 1300,
       "budget": 3000,
@@ -343201,6 +343204,7 @@
         "CatCafe_Town_LeaderboardRow",
         "CatCafe_Town_LeaderboardRow_Flowers",
         "CatCafe_Town_LeaderboardRow_Lamp_Bulb",
+        "CatCafe_Town_LeaderboardRow_Barrier",
         "CatCafe_Town_LeaderboardRow_Index",
         "CatCafe_Town_LeaderboardRow_Index_Screen",
         "CatCafe_Town_LeaderboardRow_Playtime",
@@ -343208,7 +343212,7 @@
         "CatCafe_Town_LeaderboardRow_Money",
         "CatCafe_Town_LeaderboardRow_Money_Screen"
       ],
-      "triangles": 4616,
+      "triangles": 4652,
       "budget": 8000,
       "size_studs": {
         "x": 23.78,
@@ -343297,7 +343301,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_LeaderboardRow.model.json",
-      "rbx_parts": 297,
+      "rbx_parts": 300,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Town_LeaderboardRow.fbx",
         "assets/cat-cafe/exports/CatCafe_Town_LeaderboardRow.glb"
@@ -343307,10 +343311,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "4616/8000 tris",
+          "budget": "4652/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2586 faces on swatch centers",
+          "uv": "2604 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"

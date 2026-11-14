@@ -2,8 +2,8 @@
 -- #4174 (Derek 2026-11-14: suggest the Starter Bundle on screen once after 10 to 15 minutes of play, with no UI
 -- issues on any device; Growth-Agent's monetization-and-home-recs-2026-11-14.md). Behind the `starterSuggest` switch.
 --   * Once a session, at a random moment MIN_SECONDS to MAX_SECONDS into it, the slide-in card (Screens/AskCard)
---     names the Starter Bundle with its live Robux price and one Buy button; its X shows from the first frame and it
---     slides away by itself after SHOW_SECONDS.
+--     names the Starter Bundle with its picture, a line, its live Robux price and one Buy button; its X shows from the
+--     first frame and it stays until Buy or the X (Derek 2026-11-14: "stays forever on screen until X"), no timer.
 --   * Never for a player who owns it, inside the account's quiet start (shared/QuietStart.ATTRIBUTE), before the
 --     tutorial's end, or while anything else is over the screen (a catch, a rescue, a cutscene, a window, an ask, a
 --     toast); it waits for a clear moment until the session ends.
@@ -15,10 +15,12 @@ local StarterSuggest = {}
 StarterSuggest.FLAG = "starterSuggest"
 StarterSuggest.MIN_SECONDS = 600
 StarterSuggest.MAX_SECONDS = 900
-StarterSuggest.SHOW_SECONDS = 6
+StarterSuggest.PICTURE = "rbxassetid://125781962090599" -- Design-Agent's card art (#4194)
+StarterSuggest.LINE = "Epic cat Sprinkles, 2x Money and 20 potions" -- fits every phone (Design-Agent)
 StarterSuggest.SOURCE = "starter_suggest" -- PassShop.prompt's source, so purchase_source counts its buys (#4176)
 StarterSuggest.TELEMETRY = "starter_suggest" -- TelemetryReport name; values OUTCOMES
--- shown, then one of: closed (the X), ignored (it ran out), buy (Buy pressed), hidden (something took the card)
+-- shown, then one of: closed (the X), ignored (kept for old reports; it no longer runs out), buy (Buy pressed),
+-- hidden (something took the card)
 StarterSuggest.OUTCOMES = { "shown", "closed", "ignored", "buy", "hidden" }
 StarterSuggest.TITLE = "Get the Starter Bundle" -- one line: two reached over the menu tab on a small phone
 

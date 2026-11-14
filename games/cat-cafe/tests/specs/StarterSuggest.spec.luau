@@ -30,7 +30,7 @@ return function()
 			expect(StarterSuggest.dueAt(0.9999)).to.equal(899)
 			expect(StarterSuggest.dueAt(-1)).to.equal(600)
 			expect(StarterSuggest.dueAt(2)).to.equal(900)
-			expect(StarterSuggest.SHOW_SECONDS).to.equal(6)
+			expect(StarterSuggest.PICTURE).to.equal("rbxassetid://125781962090599")
 		end)
 
 		it("shows once a clear moment comes after its time", function()

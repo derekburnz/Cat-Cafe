@@ -5980,7 +5980,7 @@ do
 end
 
 -- #4174: the Starter Bundle's one slide-in card a session (shared/StarterSuggest), behind the starterSuggest switch.
--- It rides the ask card (its X from the first frame, its bar draining over SHOW_SECONDS) with one Buy button, only in
+-- It rides the ask card (its X from the first frame, its picture and line, no timer: it stays until Buy or the X) with one Buy button, only in
 -- a clear moment past its random 10 to 15 minute mark. Its own block, as the module is short of locals.
 do
 	local StarterSuggest =
@@ -6021,11 +6021,12 @@ do
 		end
 		card:show({
 			title = StarterSuggest.TITLE,
-			bar = false, -- review: a draining bar on a paid offer reads as a countdown (monetization-policy)
+			picture = StarterSuggest.PICTURE,
+			line = StarterSuggest.LINE,
 			choices = {
 				{ id = "buy", label = StarterSuggest.buyLabel(robux), style = "primary" },
 			},
-			seconds = StarterSuggest.SHOW_SECONDS,
+			-- no seconds: it stays until Buy or the X (Derek 2026-11-14), with no timer bar
 			answer = function(choice: string?)
 				if choice == "buy" then
 					finish("buy")

@@ -4209,6 +4209,9 @@ do
 	-- at the trap (the server makes them wait RescueSelfRetrySeconds before the next try).
 	local function endRescue(success: boolean)
 		rescueTarget = nil
+		-- Review-QA Studio on #4002: the bar's result ("MISS", "Try again!") clears here, so the pop-ups' 5 s calm
+		-- starts now, even when nothing asked UI.rollBusy.held() while the bar was up
+		UI.rollBusy.offAt = os.clock()
 		rescueOnCircle = false
 		if hud then
 			hud:setCatching(false)

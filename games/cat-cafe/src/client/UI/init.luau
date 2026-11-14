@@ -1751,7 +1751,7 @@ function UI.init(config: Types.InitConfig)
 						return
 					end
 					local guiService = game:GetService("GuiService")
-					if guiService.SelectedObject ~= nil then
+					if nav.on() and guiService.SelectedObject ~= nil then
 						guiService.SelectedObject = nil
 						return
 					end

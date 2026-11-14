@@ -11,6 +11,7 @@
 -- Only on gamepad input: a mouse, keyboard or touch player never sees a selection appear.
 
 local GuiService = game:GetService("GuiService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
 local Button = require(script.Parent.Button)
@@ -19,6 +20,18 @@ local GamepadTabs = require(script.Parent.GamepadTabs)
 local Theme = require(script.Parent.Parent.Theme)
 
 local GamepadNav = {}
+
+-- #4224: the console controls (B back one step, L1/R1 tabs, pop-ups taking focus) wait for their own update day
+-- (Wed 2026-11-25) behind this switch; off, B and the cards work as before
+GamepadNav.FLAG = "padControls"
+function GamepadNav.on(): boolean
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	return LiveFlags.shown(
+		GamepadNav.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. GamepadNav.FLAG)
+	)
+end
 
 -- names of buttons (or of the Button frame round their Face) a window's first selection skips: its X, and the arrow tabs that fold HUD rows
 local SKIP: { [string]: boolean } = { Close = true, MenuFold = true, TravelFold = true }
@@ -173,6 +186,9 @@ end
 -- Closes the top pushed card that still shows and returns true; a card that has gone without popping is dropped.
 -- False when none shows (B then closes the window, or lets go of the selection).
 function GamepadNav.back(): boolean
+	if not GamepadNav.on() then
+		return false
+	end
 	while #backs > 0 do
 		local top = table.remove(backs) :: Back
 		if GamepadNav.shown(top.frame) then
@@ -194,6 +210,9 @@ function GamepadNav.card(
 	close: () -> boolean?,
 	main: GuiObject?
 ): () -> ()
+	if not GamepadNav.on() then
+		return function() end
+	end
 	GamepadNav.pushBack(id, frame, close)
 	local before: GuiObject? = nil
 	local took = false
@@ -281,6 +300,9 @@ end
 -- Presses the tab `step` away in the window under `root`. A selection on the tab row follows to the new tab; one
 -- that the switch hid lands on the window's first button. Returns whether a tab was pressed.
 function GamepadNav.stepTab(root: Instance, step: number): boolean
+	if not GamepadNav.on() then
+		return false
+	end
 	local row, tabs = GamepadNav.tabs(root)
 	if row == nil then
 		return false

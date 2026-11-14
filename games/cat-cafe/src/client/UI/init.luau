@@ -3136,6 +3136,11 @@ function UI.arcade.state(view: any)
 	if arcadeScreen and type(view) == "table" then
 		arcadeScreen:setState(view)
 	end
+	local bang: any = (UI :: any).arcadeBang -- filled with Mouse Dash, later in the file
+	if type(view) == "table" and type(bang) == "table" then
+		bang.classic = view
+		bang.refresh()
+	end
 end
 
 -- The `arcade` live switch: off greys Play (a game running finishes). `row` was the Settings list's Arcade row,
@@ -3143,6 +3148,11 @@ end
 function UI.arcade.setOn(on: boolean, _row: boolean?)
 	if arcadeScreen then
 		arcadeScreen:setOn(on)
+	end
+	local bang: any = (UI :: any).arcadeBang -- #4272: no "!" while the arcade is switched off
+	if type(bang) == "table" then
+		bang.on = on
+		bang.refresh()
 	end
 end
 
@@ -8242,6 +8252,18 @@ end
 do
 	local MouseDash = require(script.Screens.MouseDash)
 	local MouseDashLogic = require(script.Components.MouseDashLogic)
+	-- #4272 (Derek 2026-11-14: "put an exclamation mark above the arcade when you have your free daily play"): the
+	-- camp stations' red "!" (Components/PoolBang) on the cabinet's BangAnchor while today's free play is unused, from
+	-- MouseDashState while Mouse Dash is the arcade's game, else ArcadeState
+	local ArcadeShared =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Arcade")) :: any
+	local arcadeBang = {
+		bang = nil :: any,
+		classic = nil :: any,
+		on = true, -- the `arcade` switch (UI.arcade.setOn)
+		refresh = function() end,
+	}
+	(UI :: any).arcadeBang = arcadeBang
 	local dash = {
 		screen = nil :: MouseDash.MouseDash?,
 		view = nil :: any,
@@ -8308,6 +8330,23 @@ do
 		return dash.on and dash.screen ~= nil
 	end
 
+	arcadeBang.refresh = function()
+		if arcadeBang.bang == nil then
+			arcadeBang.bang = require(script.Components.PoolBang).new(
+				ArcadeShared.TAG,
+				function(view: any): boolean
+					return type(view) == "table" and view.free == true and view.loaded ~= false
+				end
+			)
+		end
+		arcadeBang.bang:update(
+			if not arcadeBang.on
+				then nil
+				elseif UI.mouseDash.isMain() then dash.view
+				else arcadeBang.classic
+		)
+	end
+
 	function UI.mouseDash.open()
 		local modalView = modal
 		if
@@ -8324,6 +8363,7 @@ do
 		dash.on = on
 		dash.circle = circle
 		apply()
+		arcadeBang.refresh()
 	end
 
 	function UI.mouseDash.render(playerState: Types.PlayerState)
@@ -8342,6 +8382,7 @@ do
 		if screen then
 			screen:setState(view)
 		end
+		arcadeBang.refresh()
 	end
 
 	function UI.mouseDash.began(run: number, hearts: number, firstAt: number, endsAt: number?)

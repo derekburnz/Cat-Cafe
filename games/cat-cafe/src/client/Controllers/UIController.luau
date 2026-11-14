@@ -2705,14 +2705,18 @@ local function wireServerEvents()
 			)
 		end
 	)
-	Net.on("CatCaught", function(catId: string, isNew: boolean, variant: string?)
+	Net.on("CatCaught", function(catId: string, isNew: boolean, variant: string?, source: string?)
 		-- F99: the coat comes with the catch, so the card says RAINBOW or GOLD without looking for the new cat
 		local extra: UITypes.CatFoundExtra? = nil
-		if pendingCharmGain > 0 or variant ~= nil then
+		local fromBowl = source == "bowl" -- #4266: tamed at a bait bowl (the Tame tap or the Auto Bowl pass)
+		if pendingCharmGain > 0 or variant ~= nil or fromBowl then
 			local info: UITypes.CatFoundExtra = {}
 			info.charmGain = if pendingCharmGain > 0 then pendingCharmGain else nil
 			info.shiny = if variant ~= nil then variant == "gold" else nil
 			info.rainbow = if variant ~= nil then variant == "rainbow" else nil
+			if fromBowl then
+				(info :: any).source = "bowl" -- UI.showCatFound: a toast instead with settings.bowlNewCatCard off
+			end
 			extra = info
 		end
 		pendingCharmGain = 0

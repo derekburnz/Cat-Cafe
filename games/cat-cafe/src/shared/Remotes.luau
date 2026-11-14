@@ -264,8 +264,8 @@ Remotes.ServerToClient = {
 	-- { Types.CrateSummary }, gaveFish: number, gotFish: number)  the swap happened (the decor lists since #1574, the
 	-- crate lists since #2745, the golden fish amounts since #2745 section 1d)
 	"TradeEnded", -- (tradeId: string, reason: string)  ended with nothing moved, in words ("Sam left")
-	"CatCaught", -- (catId: string, isNew: boolean, variant: string)  variant "base", "gold" or "rainbow" (F99), for the
-	-- Cat found card's coat
+	"CatCaught", -- (catId: string, isNew: boolean, variant: string, source: string?)  variant "base", "gold" or
+	-- "rainbow" (F99), for the Cat found card's coat; source "bowl" for a cat tamed at a bait bowl (#4266)
 	"OfflineEarnings", -- (amount: number, seconds: number)
 	"Toast", -- (text: string, kind: "info" | "good" | "warn")
 	"Announce", -- (text: string, rarity: Types.Rarity?)  fired to everyone; rarity on a rare catch. F89: a Legendary

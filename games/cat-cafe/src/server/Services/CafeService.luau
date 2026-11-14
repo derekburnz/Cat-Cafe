@@ -11,6 +11,7 @@ local Workspace = game:GetService("Workspace")
 
 local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
+local AutoBowl = require(ReplicatedStorage.Shared.AutoBowl)
 local Bait = require(ReplicatedStorage.Shared.Bait)
 local Bedtime = require(ReplicatedStorage.Shared.Bedtime)
 local CatPose = require(script.Parent.Parent.World.CatPose)
@@ -312,6 +313,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		bait = baitView(profile, now, 1),
 		bait2 = baitView(profile, now, 2), -- #1161: sent while food is in it, even after the pass went, so it can be emptied
 		secondBowl = CafeService.secondBowl(player, profile),
+		autoBowl = { owned = PassService.owns(player, AutoBowl.passId()) }, -- #4266
 		cats = CafeService.catViews(player, profile),
 		collection = profile.collection,
 		goldCollection = profile.goldCollection,
@@ -2426,6 +2428,13 @@ local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
 	local value = Settings.clean(rawKey, rawValue)
 	local profile = profileFor(player)
 	if profile == nil or value == nil then
+		return
+	end
+	-- #4266: the Auto Bowl switches change only for a pass owner
+	if
+		(rawKey == AutoBowl.KEYS.claim or rawKey == AutoBowl.KEYS.refill)
+		and not PassService.owns(player, AutoBowl.passId())
+	then
 		return
 	end
 	local settings = profile.settings :: any

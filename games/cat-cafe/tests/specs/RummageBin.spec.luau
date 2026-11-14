@@ -39,7 +39,7 @@ return function()
 
 		it("is not in the player's save", function()
 			expect((ProfileSchema.template(T) :: any).bin).to.equal(nil)
-			expect(ProfileSchema.VERSION).to.equal(48) -- #3196 traits moved the save on; the bin still adds no field
+			expect(ProfileSchema.VERSION).to.equal(49) -- #3196 traits and #4055 fishBought moved the save on; the bin still adds no field
 		end)
 
 		it(

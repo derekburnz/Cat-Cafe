@@ -72,7 +72,7 @@ export type Box = { x0: number, y0: number, x1: number, y1: number }
 
 -- #4152 (Review-QA, 667x375: the arrow sat on the money pill's coin): the arrow keeps to its edge and its rotation, and
 -- slides along that edge (up or down on a side, left or right on the top or bottom) to the nearer spot clear of any
--- box it lies over, inside the screen, or nil where no spot along that edge is clear of its whole reach.
+-- box it lies over, inside the screen: clear of its whole reach, else of its square, else nil.
 function StepTargetLogic.clear(
 	place: Placement,
 	arrow: number,
@@ -131,9 +131,14 @@ function StepTargetLogic.clear(
 		end
 		return if over(x, y) == nil then { x = x, y = y, rotation = place.rotation } else nil
 	end
-	-- Review-QA on #4158 (667x375): where no spot is clear there is no arrow at all (nil): the strip's words and the
-	-- stray's ring still lead the way, and an arrow over the money is worse than none
-	return slide(reach or arrow / 2)
+	-- the drawn arrow's whole reach first, then its own square (a PC's left edge has room only for that). Review-QA on
+	-- #4158 (667x375): where neither is clear there is no arrow at all (nil): the strip's words and the stray's ring
+	-- still lead the way, and an arrow over the money is worse than none
+	local whole = slide(reach or arrow / 2)
+	if whole ~= nil or reach == nil then
+		return whole
+	end
+	return slide(arrow / 2)
 end
 
 function StepTargetLogic.small(size: Vector3): boolean

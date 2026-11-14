@@ -146,6 +146,8 @@ export type CatDef = {
 	description: string,
 	pattern: string,
 	color: { number }, -- {r, g, b} 0..255 for the placeholder body
+	-- #4221: a Secret cat's home area (its `area` stays "secret"): it only takes the place of a Mythical rolled there
+	secretArea: Area?,
 }
 
 export type UpgradeDef = {
@@ -240,6 +242,9 @@ export type ProductDef = {
 		cats: { string }?,
 		signStyles: { string }?,
 		moneyMultiplier: number?,
+		-- #4020: potions given in place of moneyMultiplier to a buyer whose money pass already gives that much or more
+		-- (Products.prizeFor), so the bundle is never worth less to them
+		moneySwap: { [string]: number }?,
 		-- #3864: Trait Tokens for the Mystic Pool (the token bundles). A token buys a trait roll, so these make the
 		-- roll a paid random item: the offer shows the roll's odds and is hidden where paid random items are restricted
 		traitTokens: number?,

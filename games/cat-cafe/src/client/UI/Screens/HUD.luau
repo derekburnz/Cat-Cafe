@@ -4831,6 +4831,11 @@ function HUD._togglePop(self: any, kind: string)
 	pop.Visible = true
 	Tween.popIn(pop, 0.9)
 	Sound.play("uiClick")
+	-- #4224 (console): on a gamepad the list takes the selection on its first row, and B closes it
+	self._popNav = GamepadNav.card("hudPop", pop, function(): boolean?
+		self:_closePop()
+		return nil
+	end)
 end
 
 -- The open list's rows say what they say now (the gift countdown ticks while it is open).
@@ -4847,6 +4852,11 @@ end
 function HUD._closePop(self: any)
 	self._popFor = nil
 	self._pop.Visible = false
+	local popNav: (() -> ())? = self._popNav
+	self._popNav = nil
+	if popNav ~= nil then
+		popNav()
+	end
 	for _, button in self._popRows do
 		button:destroy()
 	end

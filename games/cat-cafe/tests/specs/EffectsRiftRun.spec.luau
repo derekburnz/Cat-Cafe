@@ -186,13 +186,8 @@ return function()
 			expect(Logic.riftDark(x, x.darkAt)).to.equal(0)
 			local deep = Logic.riftDark(x, x.darkAt + 0.25 + r.darkIn)
 			expect(deep > 0.99).to.equal(true)
-			-- the star cat is all drawn well before the white Secret gate, and inside the gate's frame
-			expect(0.25 + #Logic.CAT_CONSTELLATION * r.starCatGap < r.darkGap - 1).to.equal(true)
-			for _, point in Logic.CAT_CONSTELLATION do
-				local y = r.starCatHeight + point.Y * r.starCatScale
-				expect(y > 0 and y < r.gateHeight).to.equal(true)
-				expect(math.abs(point.X * r.starCatScale) < r.gateWidth / 2).to.equal(true)
-			end
+			-- Derek 2026-11-14: no cat of stars in the dark past the gate
+			expect(r.starCatSize).never.to.be.ok()
 			-- the white Secret gate lifts the dark half way
 			expect(math.abs(Logic.riftDark(x, x.gateAt[7] + 1) - 0.5) < 1e-6).to.equal(true)
 		end)

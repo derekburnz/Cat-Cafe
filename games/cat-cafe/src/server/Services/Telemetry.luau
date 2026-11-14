@@ -62,6 +62,7 @@ local RarityFunnel = require(ReplicatedStorage.Shared.RarityFunnel)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SessionFeedback = require(ReplicatedStorage.Shared.SessionFeedback)
+local StarterSuggest = require(ReplicatedStorage.Shared.StarterSuggest)
 local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
 local StepGaps = require(ReplicatedStorage.Shared.StepGaps)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
@@ -103,6 +104,8 @@ export type CustomEvent =
 	| "afk_start"
 	| "afk_end"
 	| "afk_pay"
+	-- #4197: an admin Cat Storm ended, value the strays it dropped that were not Mythical; field: its Mythicals
+	| "storm_strays"
 	| "afk_rejoin" -- #3602: a resting player was sent back into the game ahead of the idle disconnect (value 1)
 	-- #2792: a new account's first rich customer, Mystery Visitor or Cat Collector: the kind ("rich", "mystery",
 	-- "collector") and "arrived" (value the account's seconds of play), or how it ended, "claimed" or "missed" (value
@@ -228,7 +231,9 @@ export type CustomEvent =
 	-- known); the gap, the bucket (under_15s, 15_60s, 60_120s, over_120s, earlier_visit or no_start)
 	| "step_gap"
 	-- #3530: beside quit_state, value the session's seconds; kinds of cat ("0" to "5"), coins as a share of Tier 2's
-	-- cost (under_25, 25_50, 50_75, 75_plus), ready or not_ready (Tier 2's needs met: rank_up_ready_quit)
+	-- cost (under_25, 25_50, 50_75, 75_plus), ready or not_ready (Tier 2's needs met: rank_up_ready_quit). #4189: past
+	-- Tier 1, the kinds short of the next tier (0, 1-2, 3-5, 6+), the coin share of its cost, and "t<next>_<need>",
+	-- the first need missing (kinds, rarity, coins) or ready
 	| "quit_have"
 	-- #3098 (shared/FirstFive, below Tier 2): a step became possible, value the account's seconds of play; the step
 	-- (table_afford, bowl_afford, second_stray_up), kind (coins or stray), device
@@ -405,6 +410,9 @@ export type CustomEvent =
 	-- #4176: a pass or product bought, value 1; its sku, where its prompt started (StoreFunnel.BUY_SOURCES, "store"
 	-- when no tag came within StoreFunnel.BUY_SOURCE_SECONDS) and the device
 	| "purchase_source"
+	-- #4174: the Starter Bundle's slide-in card, value 1; shown, closed, ignored, buy or hidden (each once a session),
+	-- the device and tier
+	| "starter_suggest"
 	-- #2486 (live-events.md section 7): a player in a running Cafe Event (joined during it, or in the server as it
 	-- started), value 1; the event id, the Experience Event id the join came through ("" for none), the join source
 	| "event_join"
@@ -470,6 +478,7 @@ local REPORTS = {
 	"index_hint_tap", -- #1919: the goal card's hint opened the Index, a Catalog area id or "none"
 	"store_guard_blocked", -- #1936: a purchase prompt the guard refused, "<source>:<reason>"
 	"buy_source", -- #4176: a purchase prompt about to open, "<source>:<pass or product id>" (StoreFunnel.BUY_SOURCES)
+	"starter_suggest", -- #4174: the Starter Bundle card's shown or how it ended (StarterSuggest.OUTCOMES)
 	"playtime_gift", -- #1947: a gift card's button, "<like|fav>:<like|favourite|close>"
 	"client_error", -- #2681: the client logged its first error line this session (value true)
 	"feedback_outcome", -- #2694: how a slide-in faces ask ended, "<answered|closed|ignored>:<early|late>"
@@ -599,6 +608,7 @@ type Session = {
 	guardBlocks: number, -- #1936: store_guard_blocked events logged this session (StoreFunnel.GUARD_BLOCKS_MAX)
 	buySources: { [string]: { source: string, at: number } }, -- #4176: the last tagged source by sku (os.clock)
 	buySourceTags: number, -- #4176: buy_source tags taken this session (StoreFunnel.BUY_SOURCES_MAX)
+	starterSuggest: { [string]: boolean }, -- #4174: starter_suggest outcomes logged this session
 	giftButtons: { [string]: boolean }, -- #1947: playtime_gift logged this session, by gift kind
 	clientError: boolean, -- #2681: the client reported an error line this session (client_error)
 	feedbackRun: string?, -- #2681: the feedback_v1 run of a slide-in ask shown and not answered yet
@@ -870,14 +880,12 @@ function Telemetry.introJoin(player: Player, profile: Profile)
 	end
 	local on = LiveFlagService.on(IntroSplit.FLAG)
 	local state = profile.telemetry
-	-- #4001: a new save takes its arm from a Creator Hub Experiment's introMode when there is one (a short wait for
-	-- the config read, new saves only), else the older split by account number
+	-- #4252, #4001 ended (Derek 2026-11-14 18:07 UTC: "switch the entire game to be the short intro so no more of the full
+	-- intro or no intro"): every new save takes the short arm, so the short intro plays itself on its first join. The
+	-- Creator Hub Experiment's introMode is no longer read here; the group is still saved and logged as before.
 	local mode: string? = nil
 	if IntroSplit.joins(true, profile.stats.sessions, profile.introSeen, state.introGroup) then
-		mode = IntroSplit.fromMode(IntroModeService.get(player))
-		if introChecked[player] ~= nil then
-			return -- another caller decided while this one waited
-		end
+		mode = IntroSplit.SHORT
 	end
 	local test = IntroSplit.fromMode(IntroModeService.studioMode()) -- Studio only (IntroModeService.studioMode)
 	if test ~= nil then
@@ -904,11 +912,10 @@ function Telemetry.introPlays(player: Player, profile: Profile): boolean
 	return introChecked[player] == true
 end
 
--- #4001: whether this save's intro is the short one (its group is the Experiment's "short" arm).
-function Telemetry.introShort(profile: Profile): boolean
-	-- compared here, not through an IntroSplit helper: one more function there trips the test VM fault in
-	-- IndexRewardsShared.spec (tools/cloudcheck/README.md)
-	return profile.telemetry.introGroup == IntroSplit.SHORT
+-- #4001: whether this save's intro is the short one. Since the test ended (Derek 2026-11-14) it is for every save,
+-- whatever group the test put it in, so nobody plays the full intro again.
+function Telemetry.introShort(_profile: Profile): boolean
+	return true
 end
 
 -- #3695: the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS), one run per player with the user id as its
@@ -2331,6 +2338,17 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if source ~= nil and sku ~= nil then
 			Telemetry.buySource(player, sku :: string, source :: string)
 		end
+	elseif name == "starter_suggest" then
+		local outcome = Guard.oneOf(rawValue, StarterSuggest.OUTCOMES)
+		if outcome ~= nil and not session.starterSuggest[outcome] then
+			session.starterSuggest[outcome] = true
+			Telemetry.custom(
+				player,
+				"starter_suggest",
+				1,
+				{ outcome, session.device or "unknown", tierText(profile) }
+			)
+		end
 	elseif name == "store_buy" then
 		local passSku = StoreFunnel.passSku(rawValue)
 		local sku = passSku or StoreFunnel.productSku(rawValue)
@@ -2489,6 +2507,7 @@ local function onLoaded(player: Player, profile: Profile)
 		guardBlocks = 0,
 		buySources = {},
 		buySourceTags = 0,
+		starterSuggest = {},
 		giftButtons = {},
 		clientError = false,
 		feedbackRun = nil,
@@ -2747,6 +2766,32 @@ local function onRelease(player: Player, profile: Profile)
 				profile,
 				session,
 				bucket(played, { 60, 180, 600 }, { "0-60s", "61-180s", "3-10m", "10m+" })
+			)
+		)
+	end
+	-- #4189: past Tier 1, what a leaver still lacked for the next tier: kinds short, coins, the first need missing
+	local nextDef = Catalog.getTier(Economy.tier(profile) + 1)
+	if Economy.tier(profile) >= 2 and nextDef ~= nil then
+		local kinds = Economy.rankUpCatCount(profile.collection)
+		local blocker = Economy.rankUpBlocker(profile)
+		local need = if blocker == nil
+			then "ready"
+			elseif kinds < nextDef.distinctCats then "kinds"
+			elseif
+				not Economy.canAfford(profile, nextDef.cost) and blocker == "Not enough coins"
+			then "coins"
+			elseif string.sub(blocker, 1, 6) == "Needs " then "rarity"
+			else "closed" -- review: a tier held back by its switch, not by the player
+		Telemetry.custom(
+			player,
+			"quit_have",
+			played,
+			StepGaps.quitNeedFields(
+				nextDef.distinctCats - kinds,
+				profile.coins,
+				nextDef.cost,
+				need,
+				nextDef.tier
 			)
 		)
 	end

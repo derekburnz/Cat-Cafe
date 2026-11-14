@@ -765,8 +765,8 @@ return function()
 			},
 			-- #3997 (tier8-snowy-mountain.md section 6): the Snowy Mountain's Common door and Rare flap
 			snowy = {
-				door = "snowy_chalet_door",
-				flap = "snowy_igloo_flap",
+				door = "snow_chalet_door",
+				flap = "snow_igloo_flap",
 				commonDoor = true,
 			},
 			classic = {

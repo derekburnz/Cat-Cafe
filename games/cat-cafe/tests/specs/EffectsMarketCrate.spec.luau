@@ -42,17 +42,28 @@ return function()
 
 	describe("Effects crate on the counter edges (QA)", function()
 		-- the twelve crate models in assets/cat-cafe/rbx (Model-Agent's crates.py, asset PR #524) and F101's Rally
-		-- Crate (#766), which has no golden twin; the Desert and Ruins crates and their golden twins since #2651
+		-- Crate (#766), which has no golden twin; the Desert and Ruins crates and their golden twins since #2651, the
+		-- Snowy pair since #3997
 		local MODELS = { CatCafe_Prop_Crate_Rally = true }
 		for _, pool in
-			{ "Alley", "Park", "Neighbourhood", "Woods", "Sewer", "Desert", "Ruins", "Classic" }
+			{
+				"Alley",
+				"Park",
+				"Neighbourhood",
+				"Woods",
+				"Sewer",
+				"Desert",
+				"Ruins",
+				"Snowy",
+				"Classic",
+			}
 		do
 			MODELS["CatCafe_Prop_Crate_" .. pool] = true
 			MODELS["CatCafe_Prop_Crate_" .. pool .. "_Gold"] = true
 		end
 
 		it(
-			"names one of the seventeen crate models for every crate in the Catalog, and each model once",
+			"names one of the nineteen crate models for every crate in the Catalog, and each model once",
 			function()
 				local used: { [string]: string } = {}
 				local count = 0
@@ -64,7 +75,7 @@ return function()
 					used[name] = def.id
 					count += 1
 				end
-				expect(count).to.equal(17)
+				expect(count).to.equal(19)
 			end
 		)
 

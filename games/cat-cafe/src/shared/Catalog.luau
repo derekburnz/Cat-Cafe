@@ -4509,7 +4509,7 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 	-- #3997 (tier8-snowy-mountain.md section 6): the Snowy Crate's twelve
 	snowy = {
 		{
-			id = "snowy_log_cabin",
+			id = "snow_log_cabin",
 			name = "Log Cabin",
 			kind = "wallpaper",
 			rarity = "Common",
@@ -4518,7 +4518,7 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			description = "Warm round logs, like a cabin in the pines.",
 		},
 		{
-			id = "snowy_knit_pattern",
+			id = "snow_knit_pattern",
 			name = "Knit Pattern",
 			kind = "wallpaper",
 			rarity = "Rare",
@@ -4527,7 +4527,7 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			description = "A cosy knitted pattern of snowflakes and paws.",
 		},
 		{
-			id = "snowy_pine_planks",
+			id = "snow_pine_planks",
 			name = "Pine Planks",
 			kind = "floor",
 			rarity = "Common",
@@ -4536,7 +4536,7 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			description = "Pale pine boards that creak just a little.",
 		},
 		{
-			id = "snowy_aurora_ice",
+			id = "snow_aurora_ice",
 			name = "Aurora Ice",
 			kind = "floor",
 			rarity = "Mythical",
@@ -4545,7 +4545,7 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			description = "Clear ice with the northern lights glowing under it.",
 		},
 		{
-			id = "snowy_frost_white",
+			id = "snow_frost_white",
 			name = "Frost White",
 			kind = "paint",
 			rarity = "Common",
@@ -4554,7 +4554,7 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			description = "Crisp white like fresh snow.",
 		},
 		{
-			id = "snowy_cocoa_brown",
+			id = "snow_cocoa_brown",
 			name = "Cocoa Brown",
 			kind = "paint",
 			rarity = "Rare",
@@ -4563,42 +4563,42 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			description = "Rich brown like a mug of cocoa.",
 		},
 		{
-			id = "snowy_fireside_rug",
+			id = "snow_fireside_rug",
 			name = "Fireside Rug",
 			kind = "furniture",
 			rarity = "Common",
 			description = "A thick round rug for warming paws.",
 		},
 		{
-			id = "snowy_stone_fireplace",
+			id = "snow_stone_fireplace",
 			name = "Stone Fireplace",
 			kind = "furniture",
 			rarity = "Legendary",
 			description = "A big stone fireplace with a cosy glow.",
 		},
 		{
-			id = "snowy_sled_shelf",
+			id = "snow_sled_shelf",
 			name = "Sled Shelf",
 			kind = "decoration",
 			rarity = "Rare",
 			description = "An old wooden sled hung up as a shelf.",
 		},
 		{
-			id = "snowy_snow_globe",
+			id = "snow_snow_globe",
 			name = "Giant Snow Globe",
 			kind = "decoration",
 			rarity = "Epic",
 			description = "A snow globe big enough for a cat to curl up in.",
 		},
 		{
-			id = "snowy_chalet_door",
+			id = "snow_chalet_door",
 			name = "Chalet Door",
 			kind = "door",
 			rarity = "Common",
 			description = "A wooden chalet door with a heart cut out.",
 		},
 		{
-			id = "snowy_igloo_flap",
+			id = "snow_igloo_flap",
 			name = "Igloo Flap",
 			kind = "catflap",
 			rarity = "Rare",

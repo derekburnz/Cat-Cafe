@@ -8330,6 +8330,52 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- #2702 (Derek2 11-09: "make the tutorial cutscene skip button more obvious maybe one quick flash on the bottom right
 	-- when its ready" and "fix the black bar on the top of screen for mobile so it just shows the dots"): as Skip's bar
 	-- fills it flashes once with a gold ring spreading out; on touch there is no top bar and the dots sit near the top
+	-- Review-QA's Studio run (2026-11-14): the event and day strip waits out the intro, and comes back after it
+	{ "IntroHoldsBanner", function()
+		local t = workspace:GetServerTimeNow()
+		local clock = Instance.new("Folder")
+		clock.Name = "Clock"
+		clock:SetAttribute("Phase", "day")
+		clock:SetAttribute("PhaseEndsAt", t + 190)
+		clock:SetAttribute("AreasOpen", true)
+		clock:SetAttribute("Day", 4)
+		clock:SetAttribute("LuckyDay", true)
+		clock:SetAttribute("GoldenDay", true)
+		UI.clock.bind(clock)
+		UIShim.advance(0.5)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local banner = hud:FindFirstChild("StatusBanner", true) :: Frame
+		local function shown(): boolean
+			local item: Instance? = banner
+			while item ~= nil and item ~= UIShim.playerGui do
+				if item:IsA("GuiObject") and not item.Visible then
+					return false
+				end
+				if item:IsA("ScreenGui") and not item.Enabled then
+					return false
+				end
+				item = item.Parent
+			end
+			return true
+		end
+		assert(banner and shown(), "uigate: no day strip before the intro (#4032)")
+		local titles = UIShim.playerGui:FindFirstChild("CatCafeAreaTitle", true)
+		UI.luckyDay("warning", "Rare cats are twice as likely from sunrise", { lucky = true, golden = true })
+		UIShim.advance(0.5)
+		local holder = titles and titles:FindFirstChild("Card", true) :: Frame?
+		assert(holder and holder.Visible, "uigate: no Lucky Day banner before the intro (#1572)")
+		UI.intro.start({ skipAfter = 5 })
+		UI.intro.setShot(1, "Fly the Cat Cannon to catch stray cats!", nil, 4.2)
+		UIShim.advance(1)
+		assert(not shown(), "uigate: the day strip shows over the intro (Review-QA, 2026-11-14)")
+		assert(not (holder :: Frame).Visible, "uigate: the Lucky Day banner stayed over the intro (Review-QA, 2026-11-14)")
+		UI.luckyDay("warning", "Rare cats are twice as likely from sunrise", { lucky = true })
+		UIShim.advance(0.5)
+		assert(not (holder :: Frame).Visible, "uigate: a Lucky Day banner came up over the intro (Review-QA, 2026-11-14)")
+		UI.intro.finish()
+		UIShim.advance(2)
+		assert(shown(), "uigate: the day strip did not come back after the intro")
+	end },
 	{ "IntroSkipFlash", function()
 		UI.intro.start({ skipAfter = 5 })
 		UI.intro.setShot(2, "Fly the Cat Cannon to catch stray cats!", nil, 4.2)

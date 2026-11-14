@@ -495,6 +495,18 @@ function Logic.areaCue(beat: any, area: any, catId: any): string?
 	return nil
 end
 
+-- #4104: the Cat Fusion Observatory's window (Effects/FusionFx.onBeat), flat: the chime as the five tiles leave, and
+-- on Collect the "ta-da", the longer one for a rainbow. The tiles meeting has no sound of its own: the chime's last
+-- note lands there.
+function Logic.fusionCue(beat: any, coat: any): string?
+	if beat == "start" then
+		return "fusionStart"
+	elseif beat == "collect" then
+		return if coat == "rainbow" then "fusionCollectRainbow" else "fusionCollect"
+	end
+	return nil
+end
+
 -- #3846: a Legendary or Mythic trait roll's cutscene (Effects/BigTraitCut.onBeat): the fanfare lands with the big
 -- moment, the Mythical jingle for a Mythic, else the Legendary one. Flat, like the reveal.
 function Logic.bigTraitCue(beat: any, rarity: any): string?

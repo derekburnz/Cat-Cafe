@@ -27,6 +27,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 local Cues = require(script.Cues)
 local Effects = require(script.Parent.Effects)
 local EventBanner = require(script.Parent.Effects.EventBanner)
+local FusionFx = require(script.Parent.Effects.FusionFx)
 local Logic = require(script.Logic)
 local MysticIntroCut = require(script.Parent.Effects.MysticIntroCut)
 local MysticPool = require(script.Parent.Effects.MysticPool)
@@ -2322,6 +2323,16 @@ local function followBigTrait()
 	end)
 end
 
+-- #4104: the Fusion Observatory's window, flat (Logic.fusionCue).
+local function followFusion()
+	FusionFx.onBeat(function(beat, coat)
+		local cue = Logic.fusionCue(beat, coat)
+		if cue ~= nil then
+			Audio.play(cue)
+		end
+	end)
+end
+
 -- Derek 2026-11-13: the Rift Run (Effects/RiftRun): the music ducks from "hush" to "done" (capped by the cut's own
 -- cap), and each beat its sound, flat (Logic.riftRunCue): a gate the pool's step chime a note higher each tier.
 local function followRiftRun()
@@ -2387,6 +2398,7 @@ function Audio.start()
 	followPoolIntro()
 	followBigTrait()
 	followRiftRun()
+	followFusion()
 	followBinRoll()
 	followTrampoline()
 	followPetCat()

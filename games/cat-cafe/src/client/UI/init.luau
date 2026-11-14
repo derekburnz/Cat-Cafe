@@ -7520,6 +7520,7 @@ do
 	local RelicMuseum = require(script.Screens.RelicMuseum)
 	local TicketBooth = require(script.Screens.TicketBooth) -- #4061
 	local DragonKeepScreen = require(script.Screens.DragonKeep) -- #4062
+	local StationFixtures = require(script.Components.StationFixtures) -- Studio only (#4103)
 	local SharedConfig =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 	local TAG = "LateStation" -- shared/LateStations.TAG: the placed models, with their StationId attribute
@@ -7537,7 +7538,19 @@ do
 		museum = nil :: RelicMuseum.RelicMuseum?,
 		booth = nil :: TicketBooth.TicketBooth?, -- #4061
 		keep = nil :: DragonKeepScreen.DragonKeep?, -- #4062
+		test = nil :: { [string]: any }?, -- Studio only: StationFixtures views in place of PlayerState's (#4103)
+		testLink = nil :: RBXScriptConnection?,
 	}
+
+	-- Studio only: a made-up view from the Workspace attribute StationTest, else PlayerState's own field.
+	local function stationView(playerState: any, field: string): any
+		local test = late.test
+		local view = if test ~= nil and test[field] ~= nil
+			then test[field]
+			elseif playerState ~= nil then playerState[field]
+			else nil
+		return if type(view) == "table" then view else nil
+	end
 
 	-- Studs from this player's character to a station's model, or nil while either is streamed out.
 	local function distance(stationId: string): number?
@@ -7703,6 +7716,25 @@ do
 		booth:setView(UI.lateStations.boothView(state))
 		UI.lateStations.paintKeep(state)
 		paint()
+		-- Studio only (Review-QA, #4103): Workspace attribute StationTest "booth", "keep" or "keephand" opens that window
+		-- with StationFixtures' view, so its look can be checked before its tier exists in the test place; "" clears it.
+		-- Presses still go to the server, which refuses them below the tier.
+		if RunService:IsStudio() then
+			late.testLink = Workspace:GetAttributeChangedSignal("StationTest"):Connect(function()
+				local which = Workspace:GetAttribute("StationTest")
+				local views, stationId = StationFixtures.views(
+					if type(which) == "string" then which else "",
+					Workspace:GetServerTimeNow()
+				)
+				late.test = views
+				UI.lateStations.render(state)
+				if stationId == "ticketBooth" then
+					UI.lateStations.openBooth()
+				elseif stationId == "dragon" then
+					UI.lateStations.openKeep()
+				end
+			end)
+		end
 	end
 
 	-- #4062: the cats that can't move in now: soaking at the Oasis Spa, or waiting on a Mystic Pool choice
@@ -7725,8 +7757,7 @@ do
 
 	-- #4062: PlayerState.dragon, nil while the switch is off or below its tier (false from UIController)
 	function UI.lateStations.keepView(playerState: any): any
-		local view = if playerState ~= nil then playerState.dragon else nil
-		return if type(view) == "table" then view else nil
+		return stationView(playerState, "dragon")
 	end
 
 	function UI.lateStations.paintKeep(playerState: any)
@@ -7756,8 +7787,7 @@ do
 
 	-- #4061: PlayerState.ticketBooth, nil while the switch is off or below its tier (false from UIController)
 	function UI.lateStations.boothView(playerState: any): Types.TicketBoothView?
-		local view = if playerState ~= nil then playerState.ticketBooth else nil
-		return if type(view) == "table" then view else nil
+		return stationView(playerState, "ticketBooth")
 	end
 
 	-- #4061: the Ticket Booth window from anywhere (its prompt, the Cannon picker, a test), or a toast while it is shut
@@ -7868,6 +7898,11 @@ do
 			keep:destroy()
 		end
 		late.keep = nil
+		local testLink = late.testLink
+		if testLink then
+			testLink:Disconnect()
+		end
+		late.testLink = nil
 	end
 end
 

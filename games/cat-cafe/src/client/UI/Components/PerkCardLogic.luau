@@ -13,12 +13,17 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local StationPerks =
 	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationPerks")) :: any
+-- #3997: a perk of a tier behind the `tier8` switch is not teased until the switch is on
+local LateTiers = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LateTiers")) :: any
 
 local PerkCardLogic = {}
 
 -- each station's picture, by perk id
 PerkCardLogic.ICON = table.freeze({
 	fresh_bait = "🧺",
+	cocoa_break = "☕", -- #3997
+	ticket_stubs = "🎟️", -- #4070
+	dragon_warmth = "🐉", -- #4184
 	haggler = "🏷️",
 	lucky_line = "🎣",
 	homing_bell = "🔔",
@@ -107,7 +112,7 @@ function PerkCardLogic.list(tier: number?, pool: boolean?): { Row }
 		})
 	end
 	local nextPerk: Perk? = StationPerks.nextAfter(tier)
-	if nextPerk then
+	if nextPerk and LateTiers.tierOpen(nextPerk.tier) then
 		table.insert(rows, {
 			id = nextPerk.id,
 			icon = PerkCardLogic.LOCK,
@@ -122,7 +127,7 @@ end
 -- The rank up window's teaser for what the next tier's station brings, or nil when it brings none.
 function PerkCardLogic.teaser(tier: number?, pool: boolean?): string?
 	local perk: Perk? = StationPerks.at((tier or 1) + 1)
-	if perk == nil then
+	if perk == nil or not LateTiers.tierOpen(perk.tier) then
 		return nil
 	end
 	local swapped = pool == true and perk.id == PerkCardLogic.POOL_PERK

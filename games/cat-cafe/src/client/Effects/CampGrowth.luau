@@ -51,7 +51,7 @@ end
 
 -- "park" -> "Park", the way the camp's art is named.
 local function artName(area: string): string
-	return string.upper(string.sub(area, 1, 1)) .. string.sub(area, 2)
+	return (Catalog :: any).areaArt(area) -- #4070: WaterPark
 end
 
 -- The townsfolk cat for seat `n` (1 to 3) at `area`'s camp: its own, then the next camps' (Logic.folkAt).

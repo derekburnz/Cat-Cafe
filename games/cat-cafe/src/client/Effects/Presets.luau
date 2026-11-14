@@ -4234,6 +4234,9 @@ Presets.decor = {
 	sewer_bathtub_sofa = legendary(),
 	desert_caravan_bench = legendary(),
 	ruins_stone_throne = legendary(),
+	snow_stone_fireplace = legendary(), -- #3997
+	funfair_mini_carousel = legendary(), -- #4070
+	castle_round_table = legendary(), -- #4184
 	classic_cat_tree_tower = legendary(),
 	rally_victory_podium = legendary(),
 	alley_midnight_sky = { look = "stars", on = "Wallpaper" },
@@ -4272,6 +4275,28 @@ Presets.decor = {
 		on = "Floor",
 		emitter = "decorGlint",
 		colors = { Color3.fromRGB(232, 190, 80), Color3.fromRGB(80, 160, 120) },
+	},
+	-- #3997: the Snowy Crate's Mythical floor, the same light under clear ice with the northern lights' glints
+	snow_aurora_ice = {
+		look = "canal",
+		on = "Floor",
+		emitter = "decorGlint",
+		colors = { Color3.fromRGB(120, 230, 200), Color3.fromRGB(170, 140, 255) },
+	},
+	-- #4070: the Water Park Crate's Mythical floor, the same moving light with pool blue and foam white glints
+	funfair_wave_pool = {
+		look = "canal",
+		on = "Floor",
+		emitter = "decorGlint",
+		colors = { Color3.fromRGB(120, 205, 240), Color3.fromRGB(240, 250, 255) },
+	},
+	-- #4184: the Castle Crate's Mythical floor, the same moving light with ember orange and gold glints (a first
+	-- pick by Model-Agent for Motion-FX to tune)
+	castle_dragon_scales = {
+		look = "canal",
+		on = "Floor",
+		emitter = "decorGlint",
+		colors = { Color3.fromRGB(255, 140, 60), Color3.fromRGB(255, 214, 120) },
 	},
 	classic_gold_leaf = {
 		look = "goldLeaf",
@@ -5468,7 +5493,7 @@ Presets.areaFx = {
 			},
 		},
 		-- #4070 the Water Park: fine spray in the air and a splash where its strays come and go. #4071 the Medieval
-		-- Castle: warm motes of dust and a gold sparkle for its strays. Their boxes are Config.World's Waterpark* and
+		-- Castle: warm motes of dust and a gold sparkle for its strays. Their boxes are Config.World's WaterPark* and
 		-- Castle* once the areas are in.
 		waterpark = {
 			air = "waterparkSpray",

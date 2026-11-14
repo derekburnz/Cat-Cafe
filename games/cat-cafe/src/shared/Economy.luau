@@ -8,6 +8,7 @@ local Catching = require(script.Parent.Catching)
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
 local IndexRewards = require(script.Parent.IndexRewards)
+local LateTiers = require(script.Parent.LateTiers)
 local Lawn = require(script.Parent.Lawn)
 local LiveFlags = require(script.Parent.LiveFlags)
 local Pals = require(script.Parent.Pals)
@@ -803,8 +804,10 @@ end
 -- order a player works through them: cats, the rarity, then coins.
 function Economy.rankUpBlocker(profile: Types.PlayerProfile): string?
 	local nextTier = Catalog.getTier(Economy.tier(profile) + 1)
-	if nextTier == nil then
-		return "Your cafe is already a " .. (Catalog.getTier(Catalog.maxTier) :: Types.TierDef).name
+	-- #3997: a tier behind the `tier8` switch (shared/LateTiers) is not there yet
+	if nextTier == nil or not LateTiers.tierOpen(nextTier.tier) then
+		local top = math.max(Economy.tier(profile), LateTiers.topTier())
+		return "Your cafe is already a " .. (Catalog.getTier(top) :: Types.TierDef).name
 	end
 	local cats = Economy.rankUpCatCount(profile.collection)
 	if cats < nextTier.distinctCats then

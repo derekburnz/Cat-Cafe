@@ -75,7 +75,7 @@ return function()
 
 	describe("GoldenFish.forRankUp", function()
 		it(
-			"pays 5, 15, 30, 60, 100 and 150 for Tiers 2 to 7 and nothing else (#2237, #2651)",
+			"pays 5, 15, 30, 60, 100 and 150 for Tiers 2 to 7, 300 for 8 to 10 and nothing else (#2237, #2651, #4055)",
 			function()
 				expect(GoldenFish.forRankUp(1)).to.equal(0)
 				expect(GoldenFish.forRankUp(2)).to.equal(5)
@@ -84,7 +84,9 @@ return function()
 				expect(GoldenFish.forRankUp(5)).to.equal(60)
 				expect(GoldenFish.forRankUp(6)).to.equal(100)
 				expect(GoldenFish.forRankUp(7)).to.equal(150)
-				expect(GoldenFish.forRankUp(8)).to.equal(0)
+				expect(GoldenFish.forRankUp(8)).to.equal(300)
+				expect(GoldenFish.forRankUp(10)).to.equal(300)
+				expect(GoldenFish.forRankUp(11)).to.equal(0)
 			end
 		)
 	end)
@@ -134,7 +136,7 @@ return function()
 
 	describe("Catalog crates and the Golden Fish Market (F53 rows in save version 7)", function()
 		it("has a crate and a golden crate for each zone and the Classic pool", function()
-			expect(#Catalog.crates).to.equal(17) -- and F101's Rally Crate, with no golden twin
+			expect(#Catalog.crates).to.equal(23) -- #3997, #4070 and #4184: the Snowy, Water Park and Castle Crates and their golden twins; and F101's Rally Crate, with no golden twin
 			for _, pool in
 				{ "alley", "park", "neighbourhood", "woods", "sewer", "desert", "ruins", "classic" }
 			do

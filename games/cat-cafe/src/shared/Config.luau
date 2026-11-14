@@ -474,6 +474,9 @@ local Config = {
 		sewer = 20,
 		desert = 20, -- #2651 (tier6-7-areas.md section 7): the same as every area
 		ruins = 20,
+		snowy = 20, -- #3997
+		waterpark = 20, -- #4070
+		castle = 20, -- #4184
 	} :: { [string]: number },
 	EventCountdownSeconds = 10800,
 	EventRepeatGiftIncomeMinutes = 10,
@@ -498,6 +501,9 @@ local Config = {
 		sewer = 30,
 		desert = 35, -- #2651 (tier6-7-areas.md section 7)
 		ruins = 40,
+		snowy = 45, -- #3997 (tier8-snowy-mountain.md section 7)
+		waterpark = 50, -- #4070: five more, as each area before it
+		castle = 55, -- #4184
 	} :: { [string]: number },
 	PityClaimRetries = 3,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
@@ -981,7 +987,10 @@ local Config = {
 	-- a cat already in the Index, by net or rescue (never bait, so food bought with coins never turns into fish)
 	FishRepeatCatch = { Epic = 1, Legendary = 2, Mythical = 5, Secret = 20 } :: { [string]: number }, -- #2237: was 1/3/8
 	-- reaching Tier 2 to 7 (#2237: was 10/25/50/100); #2651: Tier 6 and 7 carry the climb on, 100 and 150
-	FishRankUp = { 5, 15, 30, 60, 100, 150 } :: { number },
+	-- #4061: the Ticket Booth opens with the Water Park (Snowy is Tier 8; the Water Park is taken as Tier 9)
+	TicketBoothTier = 9,
+	-- #4055 (Derek 2026-11-13 23:53 UTC): Tiers 8 to 10 pay 300 each, so the fish Store can be reached by playing
+	FishRankUp = { 5, 15, 30, 60, 100, 150, 300, 300, 300 } :: { number },
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds
 
 	-- Cafe Crates and the Golden Fish Market (F53, golden-fish.md sections 3 and 4). Pure rules in Crates.
@@ -1625,6 +1634,22 @@ local Config = {
 		SnowyCenterZ = 1400,
 		SnowyWidth = 150,
 		SnowyDepth = 560,
+		-- The Water Park (Tier 9, the next-areas plan section 0; #4070): no diagonal round the town is free, so it lies
+		-- further out past the Desert on the same south east line and is reached from the Desert's camp cannon
+		-- (Layout.waterpark.launchFrom). Long along world Z with its camp on the north end like the Desert.
+		-- Model-Agent's CatCafe_WaterPark_Set has its walls at x +-75.6 and z +-280.
+		WaterParkCenterX = 2400,
+		WaterParkCenterZ = -2400,
+		WaterParkWidth = 150,
+		WaterParkDepth = 560,
+		-- The Medieval Castle (Tier 10, the next-areas plan section 0; #4184): the Water Park's mirror on the north east
+		-- line, further out past the Ruins and reached from the Ruins' camp cannon (Layout.castle.launchFrom). Long
+		-- along world Z with its camp on the south end like the Ruins. Model-Agent's CatCafe_Castle_Set has its walls
+		-- at x +-76.1 and z +-280.
+		CastleCenterX = 2400,
+		CastleCenterZ = 2400,
+		CastleWidth = 150,
+		CastleDepth = 560,
 		-- Camps (section 4): CampDepth deep across the area's whole width; the landing pad in its middle with
 		-- seventeen spots inside LandingPadRadius, a spot free with no character within LandingClearStuds; the cannon
 		-- prompt's reach. A dropped cat within CampDropMarginStuds of a camp moves out to CampDropOutStuds past its

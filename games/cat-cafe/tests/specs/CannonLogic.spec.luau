@@ -98,7 +98,10 @@ return function()
 			expect(CannonLogic.moreToOpen(Catalog.areas, 1)).to.equal(true)
 			expect(CannonLogic.moreToOpen(Catalog.areas, 4)).to.equal(true)
 			expect(CannonLogic.moreToOpen(Catalog.areas, 5)).to.equal(true) -- #2651: the Desert and the Ruins
-			expect(CannonLogic.moreToOpen(Catalog.areas, 7)).to.equal(false)
+			expect(CannonLogic.moreToOpen(Catalog.areas, 7)).to.equal(true) -- #3997: the Snowy Mountain
+			expect(CannonLogic.moreToOpen(Catalog.areas, 8)).to.equal(true) -- #4070: the Water Park
+			expect(CannonLogic.moreToOpen(Catalog.areas, 9)).to.equal(true) -- #4184: the Medieval Castle
+			expect(CannonLogic.moreToOpen(Catalog.areas, 10)).to.equal(false)
 		end)
 	end)
 

@@ -52,6 +52,15 @@ local IDS: { [string]: string } = {
 	Crate_Desert_Gold = "rbxassetid://94504392823331",
 	Crate_Ruins = "rbxassetid://118466907555386",
 	Crate_Ruins_Gold = "rbxassetid://131280595657141",
+	-- Tier 8 Snowy Mountain (#3997, Model-Agent's 256 store pictures, group owned)
+	Crate_Snowy = "rbxassetid://111252121844431",
+	Crate_Snowy_Gold = "rbxassetid://77415248022047",
+	-- Tier 9 Water Park (#4070, Model-Agent's 256 store pictures, group owned)
+	Crate_WaterPark = "rbxassetid://131949222748155",
+	Crate_WaterPark_Gold = "rbxassetid://85963054237364",
+	-- Tier 10 Medieval Castle (#4184, Model-Agent's 256 store pictures, group owned)
+	Crate_Castle = "rbxassetid://86599176060723",
+	Crate_Castle_Gold = "rbxassetid://89340633875692",
 	Crate_Classic = "rbxassetid://72888217681662",
 	Crate_Classic_Gold = "rbxassetid://115785859034580",
 	Crate_Rally = "rbxassetid://94810600062208", -- F101 Rally Crate (Model-Agent #766), banked only and no golden twin
@@ -471,7 +480,7 @@ local function cratePool(crateId: string?): (string?, boolean)
 	if area == nil then
 		return nil, false
 	end
-	return pascal(area), golden ~= nil
+	return (Catalog :: any).areaArt(area), golden ~= nil -- #4070: Crate_WaterPark
 end
 
 function ShopIcons.crate(crateId: string?): string?

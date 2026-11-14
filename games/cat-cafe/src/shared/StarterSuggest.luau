@@ -20,7 +20,7 @@ StarterSuggest.SOURCE = "starter_suggest" -- PassShop.prompt's source, so purcha
 StarterSuggest.TELEMETRY = "starter_suggest" -- TelemetryReport name; values OUTCOMES
 -- shown, then one of: closed (the X), ignored (it ran out), buy (Buy pressed), hidden (something took the card)
 StarterSuggest.OUTCOMES = { "shown", "closed", "ignored", "buy", "hidden" }
-StarterSuggest.TITLE = "Starter Bundle: a head start for your cafe"
+StarterSuggest.TITLE = "Get the Starter Bundle" -- one line: two reached over the menu tab on a small phone
 
 -- The session second the card is due at, for a roll in [0, 1).
 function StarterSuggest.dueAt(roll: number): number
@@ -59,7 +59,7 @@ end
 
 -- The Buy button's words for a price in Robux.
 function StarterSuggest.buyLabel(robux: number): string
-	return "Buy  R$ " .. tostring(math.floor(robux))
+	return "Buy R$" .. tostring(math.floor(robux)) -- as the money button writes R$25
 end
 
 return StarterSuggest

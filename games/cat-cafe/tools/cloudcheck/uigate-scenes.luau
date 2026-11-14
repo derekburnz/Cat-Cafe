@@ -11915,7 +11915,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(0.4)
 		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 		local title = ask:FindFirstChild("Title", true)
-		assert(title.Text == "Starter Bundle: a head start for your cafe", "uigate: the Starter card reads " .. title.Text .. " (#4174)")
+		assert(title.Text == "Get the Starter Bundle", "uigate: the Starter card reads " .. title.Text .. " (#4174)")
 		assert(title.TextFits, "uigate: the Starter card's title does not fit (#4174)")
 		local buy = ask:FindFirstChild("Choice_buy", true)
 		assert(buy, "uigate: the Starter card has no Buy button (#4174)")
@@ -11927,6 +11927,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(7)
 		assert(said[2] == "ignored", "uigate: the Starter card did not slide away by itself as ignored (#4174)")
 		connection:Disconnect()
+	end },
+	-- #4174: the same card left on screen, so the gate's pictures show it on every device
+	{ "StarterSuggestShown", function()
+		UIShim.advance(2.5)
+		UI.tips.showStarter()
+		UIShim.advance(0.6)
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		assert(ask:FindFirstChild("Title", true).TextFits, "uigate: the Starter card's title does not fit (#4174)")
 	end },
 }
 

@@ -57,8 +57,8 @@ return function()
 		end)
 
 		it("says the live price on its one button", function()
-			expect(StarterSuggest.buyLabel(99)).to.equal("Buy  R$ 99")
-			expect(StarterSuggest.buyLabel(149.7)).to.equal("Buy  R$ 149")
+			expect(StarterSuggest.buyLabel(99)).to.equal("Buy R$99")
+			expect(StarterSuggest.buyLabel(149.7)).to.equal("Buy R$149")
 		end)
 	end)
 end

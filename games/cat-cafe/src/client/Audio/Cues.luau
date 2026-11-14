@@ -176,10 +176,10 @@ local Cues: { [string]: Cue } = {
 	-- #4069, #4070, #4071: the next three areas' songs share a second sheet (synth/music.py, AREAS2). They play as the
 	-- Desert's and the Ruins' do, once the zone is named Snowy, Waterpark or Castle (Logic.areaSongFor).
 	sheetMusicAreas2 = {
-		ids = {},
+		ids = { "rbxassetid://100447562609103" },
 		group = "Music",
 		volume = 0.3,
-	}, -- stereo, 251.6 s: Lantern Peaks, Splash Parade, Banner Hall with 0.5 s of silence between
+	}, -- stereo, 251.6 s: Lantern Peaks, Splash Parade, Banner Hall, 0.5 s apart; upload-audio run 43536256900 (group)
 	musicAreaSnowy = {
 		ids = {},
 		sheet = "sheetMusicAreas2",
@@ -1573,10 +1573,10 @@ local Cues: { [string]: Cue } = {
 	-- #4062 the Dragon Keep's stage-up cutscene and card rewards, #4061 the Ticket Booth and #4069 the Snowy
 	-- Mountain: fourteen sounds on one sheet (synth/synth.py, parts in sheet-parts/sfx).
 	sheetKeep = {
-		ids = {},
+		ids = { "rbxassetid://140610027563096" },
 		group = "Sfx",
 		volume = 1,
-	}, -- mono, 19.72 s
+	}, -- mono, 19.72 s; uploaded by upload-audio run 43536256900 (group)
 	dragonRumble = {
 		ids = {},
 		sheet = "sheetKeep",

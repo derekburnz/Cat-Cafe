@@ -948,6 +948,10 @@ def main():
             extra = {"attachments": wallperch.rbx_attachments(name)}
         if name in dragon.ASSETS:                 # #4062: the joint chain, each joint's scales inside it
             extra = {"nest": dragon.NEST}
+        if name in areakit.SWING_ASSETS:          # banners, flags, pennants and balloons that sway (areakit.SWING)
+            extra = {**extra, **areakit.SWING}
+        if name in areakit.SMOKE:                 # chimney tops: an Attachment named "Smoke" for Effects
+            extra = {**extra, "attachments": [*extra.get("attachments", ()), *areakit.SMOKE[name]]}
         rbx_dir = os.path.join(args.rbx, riftrun.RBX_DIR) if name in riftrun.ASSETS else args.rbx   # Assets.RiftRun
         rbx_dir = os.path.join(args.rbx, dragon.RBX_DIR) if name in dragon.ASSETS else rbx_dir      # Assets.Dragon
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, rbx_dir, **extra)

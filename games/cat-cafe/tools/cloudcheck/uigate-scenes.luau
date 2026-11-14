@@ -9238,18 +9238,18 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(0.1)
 		assert(title.Text == expected, "uigate: the stuck cat goal did not come back (#2912)")
 	end },
-	-- #3529: while four different cats is the goal (#4098: five before) the card reads "Catch new kinds of cat 3/4", and the catch card
-	-- says "New kind! 3/4 for Cozy Cafe" for a kind the player has never owned
+	-- #3529: while three different cats is the goal (#4188: four before, #4098: five) the card reads "Catch new kinds of cat 2/3", and the catch card
+	-- says "New kind! 2/3 for Cozy Cafe" for a kind the player has never owned
 	{ "NewKindGoal", function()
 		local before: any = UI.getState()
 		Scenes._secondCat = Scenes._secondCat or { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }
-		UI.update({ tier = 1, tutorialStep = 5, money = 120, secondCat = false, stuckGoal = false, newKindGoal = 3 } :: any)
+		UI.update({ tier = 1, tutorialStep = 5, money = 120, secondCat = false, stuckGoal = false, newKindGoal = 2 } :: any)
 		UIShim.advance(0.1)
 		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
 		assert(goal.Visible, "uigate: no goal card for new kinds (#3529)")
 		local title = goal:FindFirstChild("Title") :: TextLabel
-		local expected = "Catch new kinds of cat 🐾 3/4"
-		if title.Text == "New kinds of cat 🐾 3/4" then
+		local expected = "Catch new kinds of cat 🐾 2/3"
+		if title.Text == "New kinds of cat 🐾 2/3" then
 			expected = title.Text -- the phone's narrower card
 		end
 		assert(title.Visible and title.Text == expected, "uigate: the new kinds goal reads " .. title.Text .. " (#3529)")
@@ -9268,7 +9268,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ newKindGoal = false } :: any)
 		UIShim.advance(0.1)
 		assert(title.Text ~= expected, "uigate: the goal card still asks for new kinds after it (#3529)")
-		UI.update({ newKindGoal = 3 } :: any) -- back for the picture
+		UI.update({ newKindGoal = 2 } :: any) -- back for the picture
 		UIShim.advance(0.1)
 		-- the catch card's line
 		UI.catch.show({ strayId = "gate_new", catId = Catalog.cats[2].id, catName = "Mochi", rarity = "Rare", newKind = "New kind! 3/5 for Cozy Cafe" } :: any)

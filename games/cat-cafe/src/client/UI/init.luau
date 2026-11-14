@@ -9653,6 +9653,7 @@ do
 	local events = {
 		boards = nil :: EventBoards.EventBoards?,
 		seen = nil :: EventLogic.Seen?, -- kept across rebuilds, so a respawn neither repeats the banner nor forgets the end
+		adminSeen = nil :: any, -- #4195: the same for the admin event (Effects/AdminEventLogic.Seen)
 		token = 0,
 	}
 
@@ -9765,10 +9766,30 @@ do
 				)
 			end
 		end
+		-- #4195: an admin event (Bowl Frenzy, the Admin Wheel) beside the Cafe Event: its warning card two minutes
+		-- before, its wide card as it starts, and its timer first on the event chip (Effects/AdminEventLogic)
+		local AdminEventLogic = require(script.Parent.Effects.AdminEventLogic) :: any
+		local adminView = AdminEventLogic.read(get, UI.cafeEvent.decode)
+		local adminSeen, adminBeat = AdminEventLogic.follow(events.adminSeen, adminView, now)
+		events.adminSeen = adminSeen
+		if adminBeat ~= nil and adminView ~= nil then
+			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
+			EventBanner.show(
+				if adminBeat == "start"
+					then AdminEventLogic.startBanner(adminView, now)
+					else AdminEventLogic.soonBanner(adminView, now)
+			)
+		end
 		local current = hud
 		if current then
-			local chipLines, chipKind = EventLogic.chip(view, seen, now)
-			current:setEvent(chipLines, chipKind, EventLogic.strip(view, seen, now))
+			local eventLines, eventKind = EventLogic.chip(view, seen, now)
+			local chipLines, chipKind, stripLines = AdminEventLogic.merge(
+				eventLines,
+				eventKind,
+				EventLogic.strip(view, seen, now),
+				AdminEventLogic.stripLine(adminView, now)
+			)
+			current:setEvent(chipLines, chipKind, stripLines)
 			current:setEventBoost(EventLogic.moneyBoost(view, now))
 		end
 		local boards = events.boards
@@ -9793,6 +9814,7 @@ do
 	-- the UI gate's scenes: forget the watched event, so a put-away test party is not "ended early"
 	function UI.cafeEvent.forget()
 		events.seen = nil
+		events.adminSeen = nil
 	end
 
 	function UI.cafeEvent.reset()

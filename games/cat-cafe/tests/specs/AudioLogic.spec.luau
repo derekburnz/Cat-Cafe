@@ -1315,6 +1315,21 @@ return function()
 		end)
 	end)
 
+	describe("Audio.Logic Ticket Booth (#4061)", function()
+		it("hears a prize bought and stays quiet for tickets earned", function()
+			local view = { tickets = 40, spent = 100 }
+			expect(Logic.ticketPrizeBought(view, { tickets = 10, spent = 130 })).to.equal(true)
+			-- a catch adds tickets and spends none
+			expect(Logic.ticketPrizeBought(view, { tickets = 43, spent = 100 })).to.equal(false)
+			-- the switch coming on or going off, and junk
+			expect(Logic.ticketPrizeBought(nil, view)).to.equal(false)
+			expect(Logic.ticketPrizeBought(view, nil)).to.equal(false)
+			expect(Logic.ticketPrizeBought(view, { spent = "200" })).to.equal(false)
+			expect(Cues.ticketPrint).to.be.ok()
+			expect(Cues.ticketDing).to.be.ok()
+		end)
+	end)
+
 	describe("Audio.Logic bait bowl (F28)", function()
 		local food = { lureId = "tuna", placedAt = 100, readyAt = 700 }
 		local waiting =

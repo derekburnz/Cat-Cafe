@@ -495,8 +495,8 @@ The Keep sheet holds all of these. It's mono. The cutscene and card sounds play 
 | `cardFlip` | a reward card turns over | 0.22 s | a quick paper flick and a tiny tap | P2 |
 | `cardRare` | a rare card shows its face | 0.95 s | a short rising sparkle and a warm two note chime | P2 |
 | `rekindle` | Rekindle at the Dragon Keep | 1.0 s | air drawn in, a soft "foomp" of flame, a few crackles | P2 |
-| `ticketPrint` | the Ticket Booth prints a ticket | 0.7 s | soft printer chatter and the paper tearing off | P2 |
-| `ticketDing` | the ticket is yours | 0.8 s | a bright two note counter bell, like a fairground booth | P2 |
+| `ticketPrint` | you buy a Ticket Booth prize: the booth prints its ticket (Audio follows ProfileSync's `ticketBooth.spent`) | 0.7 s | soft printer chatter and the paper tearing off | P2 |
+| `ticketDing` | 0.6 s after the print: the prize is yours | 0.8 s | a bright two note counter bell, like a fairground booth | P2 |
 | `snowStep` | your steps in the Snowy Mountain | 0.2 s | a soft dry crunch; the pitch varies a little each step | P3 |
 | `snowGust` | the Blizzard Cat (Mythical) lands or is caught | 1.5 s | a gust that swells and whistles past, icy glints falling out of it | P2 |
 | `frostChime` | the White Tiger Cat (Legendary) is caught or revealed | 1.4 s | three cold glass notes falling like icicles, one low warm note under them | P2 |

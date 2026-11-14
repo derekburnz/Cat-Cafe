@@ -1588,7 +1588,7 @@ local SCENES = {
 						words ..= piece.Text .. "|"
 					end
 				end
-				local symbol = ({ All = "🏠", Style = "👕", FrontLawn = "🌳", Plants = "🪴", Floor = "🪵", Walls = "🧱" })[name]
+				local symbol = ({ All = "🏠", Style = "👕", FrontLawn = "🌳", Plants = "🌿", Floor = "⬜", Walls = "🧱" })[name]
 				assert(string.find(words, symbol, 1, true), "uigate: the " .. name .. " chip has no symbol (#4278): " .. words)
 				table.insert(chips, chip)
 			end

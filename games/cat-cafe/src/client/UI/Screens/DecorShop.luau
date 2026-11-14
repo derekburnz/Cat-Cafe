@@ -105,8 +105,8 @@ local CHIP_ICONS: { [string]: string } = {
 	All = "🏠",
 	Style = "👕",
 	FrontLawn = "🌳",
-	Plants = "🪴",
-	Floor = "🪵",
+	Plants = "🌿", -- #2015: no Unicode 12+ emoji (they draw blank in Roblox's font)
+	Floor = "⬜",
 	Walls = "🧱",
 }
 -- Placeholder art colour per category until the asset thread delivers images.

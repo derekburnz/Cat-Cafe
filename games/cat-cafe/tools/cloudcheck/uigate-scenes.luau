@@ -4779,13 +4779,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local kinds = {
 			{ "Bowl Frenzy", { bowlSpeed = 4 } },
 			{ "Cat Storm", { catStorm = 10 } },
-			{ "Golden Hour", { golden = 10, rainbow = 5 } },
-			{ "Money Storm", { money = 5 } },
-			{ "Trait Party", { traitFree = true } },
-			{ "Secret Hunt", { hunt = 3, found = 2 } },
-			{ "Fish Fountain", { fountain = true } },
-			{ "Crate Drop", { crates = true } },
-			{ "Speed Rush", { speed = true } },
+			{ "Golden Hour", { goldBoost = 10, rainbowBoost = 5 } },
+			{ "Money Storm", { moneyStorm = 5 } },
+			{ "Trait Party", { traitParty = 1 } },
+			{ "Secret Hunt", { secretHunt = 3, secretFound = 2 } },
+			{ "Fish Fountain", { fishFountain = 1 } },
+			{ "Crate Drop", { crateDrop = 1 } },
+			{ "Speed Rush", { speedRush = 1 } },
 		}
 		local bar = UIShim.playerGui:FindFirstChild("CatCafeAdminEvent") :: ScreenGui
 		for n, kind in kinds do
@@ -4795,8 +4795,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			info.title = kind[1]
 			info.wheel = false
 			info.line = Logic.line(kind[2])
-			info.total = kind[2].hunt
-			info.found = kind[2].found
+			info.total = kind[2].secretHunt
+			info.found = kind[2].secretFound
 			UI.admin.set(info, nil)
 			local banner = bar:FindFirstChild("Banner", true) :: GuiObject
 			local big = banner:FindFirstChild("Big") :: TextLabel

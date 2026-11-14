@@ -14,8 +14,10 @@
 --   LINE_MAX                           the longest banner line that fits the banner on every screen
 -- #4197 (part 2): the banner's line comes from the effects (AdminEventEffects), so a new event kind needs no UI
 -- change: a `line` the server writes wins, else the first effect key below that is set (wheel, bowlSpeed, catStorm,
--- golden and rainbow, money, traitFree, hunt, fountain, crates, speed), else the title. A Secret Hunt's `hunt` (cats
--- hidden) and `found` (cats found so far; the server writes the attribute again as it changes) add "1/3" to the timer.
+-- goldBoost and rainbowBoost, moneyStorm, traitParty, secretHunt, fishFountain, crateDrop, speedRush: the names agreed
+-- with Gameplay-Engineer and Motion-FX, Effects/AdminEventLogic.EXTRA), else the title. A multiplier counts above 1,
+-- the others when true or above 0. A Secret Hunt's `secretHunt` (cats hidden) and `secretFound` (found so far; the
+-- server writes the attribute again as it changes) add "1/3" to the timer.
 
 local AdminBarLogic = {}
 
@@ -81,6 +83,12 @@ local function times(value: unknown): string?
 	return ("%dx"):format(math.floor(value))
 end
 
+-- An on/off effect (#4197): true, or a number above 0.
+local function on(value: unknown): boolean
+	return value == true
+		or (type(value) == "number" and value == value and value > 0 and value < math.huge)
+end
+
 -- The banner's line for each effect key, in order: the first key the effects set gives the line.
 local LINES: { { key: string, say: (any, { [string]: any }) -> string? } } = {
 	{
@@ -104,9 +112,9 @@ local LINES: { { key: string, say: (any, { [string]: any }) -> string? } } = {
 		end,
 	},
 	{
-		key = "golden",
+		key = "goldBoost",
 		say = function(v, data)
-			local gold, rainbow = times(v), times(data.rainbow)
+			local gold, rainbow = times(v), times(data.rainbowBoost)
 			if gold and rainbow then
 				return ("Gold coats %s, rainbow %s on every catch"):format(gold, rainbow)
 			end
@@ -114,20 +122,20 @@ local LINES: { { key: string, say: (any, { [string]: any }) -> string? } } = {
 		end,
 	},
 	{
-		key = "money",
+		key = "moneyStorm",
 		say = function(v)
 			local x = times(v)
 			return if x then ("%s cafe money for everyone"):format(x) else nil
 		end,
 	},
 	{
-		key = "traitFree",
+		key = "traitParty",
 		say = function(v)
-			return if v == true then "Trait rolls are free, with extra rarity luck" else nil
+			return if on(v) then "Trait rolls are free, with extra rarity luck" else nil
 		end,
 	},
 	{
-		key = "hunt",
+		key = "secretHunt",
 		say = function(v)
 			local n = whole(v)
 			if n == nil or n < 1 then
@@ -139,21 +147,21 @@ local LINES: { { key: string, say: (any, { [string]: any }) -> string? } } = {
 		end,
 	},
 	{
-		key = "fountain",
+		key = "fishFountain",
 		say = function(v)
-			return if v == true then "The Town Square fountain sprays golden fish" else nil
+			return if on(v) then "The Town Square fountain sprays golden fish" else nil
 		end,
 	},
 	{
-		key = "crates",
+		key = "crateDrop",
 		say = function(v)
-			return if v == true then "Golden crates drop into every area" else nil
+			return if on(v) then "Golden crates drop into every area" else nil
 		end,
 	},
 	{
-		key = "speed",
+		key = "speedRush",
 		say = function(v)
-			return if v == true then "Speed Shoes for all, cannons fly 2x as far" else nil
+			return if on(v) then "Speed Shoes for all, cannons fly 2x as far" else nil
 		end,
 	},
 }
@@ -202,10 +210,10 @@ function AdminBarLogic.info(
 				bowlSpeed = data.bowlSpeed
 			end
 			line = AdminBarLogic.line(data)
-			local hidden = whole(data.hunt)
+			local hidden = whole(data.secretHunt)
 			if hidden ~= nil and hidden > 0 then
 				total = hidden
-				found = math.min(whole(data.found) or 0, hidden)
+				found = math.min(whole(data.secretFound) or 0, hidden)
 			end
 		end
 	end

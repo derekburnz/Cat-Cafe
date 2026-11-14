@@ -2266,6 +2266,172 @@ def mouse_heart() -> np.ndarray:
     return finish(fade_tail(mix(d, *rise, (top, 0.24)), 0.3), -8)
 
 
+# --- the Dragon Keep, the Ticket Booth and the Snowy Mountain (#4062, #4061, #4069) -------------
+
+
+def dragon_voice(length: float, f0: float, f_peak: float, f_end: float, growl: float, seed: int) -> np.ndarray:
+    """A small dragon's voice: the cat voice an octave or two down with a rolled growl and a breath of air over it,
+    friendly, never a monster. `growl` (0 to 1) is how much roll there is."""
+    voice = cat_voice(length, f0, f_peak, f_end, growl, seed)
+    low = glide(length, f0 / 2, f_end / 2, length) * np.sin(np.pi * seconds(length) / length) ** 0.7 * 0.5
+    air = bandpass(noise(length, seed + 1), sweep(length, 700, 1800), 0.8)
+    air = air / np.max(np.abs(air)) * np.sin(np.pi * seconds(length) / length) ** 1.5 * 0.22
+    return voice * 0.8 + low + air
+
+
+def dragon_rumble() -> np.ndarray:
+    """The Dragon Keep's stage-up (#4062): Cinder curls into a ball of light. A low, warm rumble that swells and
+    settles, with a soft rising shimmer over it. Sits under the cutscene's first second."""
+    d = 1.4
+    t = seconds(d)
+    swell = np.sin(np.pi * np.clip(t / d, 0, 1)) ** 1.2
+    low = (np.sin(2 * np.pi * 62 * t) + 0.6 * np.sin(2 * np.pi * 93 * t)) * (1 + 0.3 * np.sin(2 * np.pi * 7 * t))
+    rub = bandpass(noise(d, 4201), 180, 0.7)
+    shimmer = bandpass(noise(d, 4202), sweep(d, 1500, 5200), 5.0)
+    shimmer = shimmer / np.max(np.abs(shimmer)) * (t / d) ** 2 * 0.2
+    return finish(fade_tail((low * 0.5 + rub / np.max(np.abs(rub)) * 0.35) * swell + shimmer, 0.25), -7)
+
+
+def dragon_crack() -> np.ndarray:
+    """The ball of light cracks open (#4062): three quick bright ticks like a shell splitting, then a soft whoosh of
+    light and one glass note. Short, so the roar that follows is clear."""
+    d = 0.8
+    ticks = [(bandpass(noise(0.03, 4210 + i), f, 2.0) * envelope(0.03, 0.0005, 0.006) * a, at)
+             for i, (f, at, a) in enumerate(((3200, 0.0, 0.5), (4100, 0.07, 0.6), (5200, 0.12, 0.8)))]
+    burst = bandpass(noise(0.45, 4215), sweep(0.45, 900, 4800), 1.0)
+    burst = burst / np.max(np.abs(burst)) * envelope(0.45, 0.02, 0.12) * 0.4
+    ting = bell(0.6, note("E6"), GLOCK) * 0.4
+    return finish(fade_tail(mix(d, *ticks, (burst, 0.14), (ting, 0.16)), 0.2), -6)
+
+
+def dragon_chirp() -> np.ndarray:
+    """A hatchling's or a whelp's roar (#4062, stages 1 and 2): a squeaky little "rawr" that breaks upward at the
+    end, more kitten than dragon."""
+    d = 0.6
+    voice = dragon_voice(0.45, 330, 560, 420, 0.5, 4221)
+    squeak = cat_voice(0.14, 600, 900, 820, 0.0, 4222) * 0.5
+    return finish(fade_tail(mix(d, (voice, 0.0), (squeak, 0.4)), 0.08), -7)
+
+
+def dragon_roar() -> np.ndarray:
+    """A drake's or an elder's roar (#4062, stages 3 and 4): a proud, rolled "RAWR" with some chest to it, still a
+    friendly dragon. About a second, in time with the roar pose."""
+    d = 1.15
+    voice = dragon_voice(1.0, 150, 250, 120, 0.9, 4231)
+    chest = glide(1.0, 80, 58, 0.8) * np.sin(np.pi * seconds(1.0) / 1.0) * 0.4
+    return finish(fade_tail(mix(d, (voice, 0.0), (chest, 0.0)), 0.2), -5)
+
+
+def dragon_roar_grand() -> np.ndarray:
+    """Crowned Cinder's roar (#4062, stage 5): the big roar, then a bright three note brass-like call on bells over
+    its tail, for the victory lap's landing."""
+    d = 2.0
+    voice = dragon_voice(1.2, 130, 230, 100, 1.0, 4241)
+    chest = glide(1.2, 72, 50, 1.0) * np.sin(np.pi * seconds(1.2) / 1.2) * 0.45
+    call = [(bell(d - at, note(n), GOLD, attack=0.002) * a, at)
+            for n, at, a in (("D5", 0.75, 0.5), ("A5", 0.9, 0.5), ("D6", 1.05, 0.6), ("F#6", 1.05, 0.35))]
+    return finish(fade_tail(mix(d, (voice, 0.0), (chest, 0.0), *call), 0.5), -4)
+
+
+def dragon_wing() -> np.ndarray:
+    """One beat of a dragon's wings (#4062): a soft, wide whoomp of air, down and then up."""
+    d = 0.5
+    down = bandpass(noise(0.3, 4251), sweep(0.3, 900, 260), 0.8) * envelope(0.3, 0.05, 0.09)
+    up = bandpass(noise(0.2, 4252), sweep(0.2, 300, 700), 0.8) * envelope(0.2, 0.06, 0.05) * 0.4
+    thump = glide(0.2, 110, 70, 0.1) * envelope(0.2, 0.02, 0.06) * 0.35
+    return finish(fade_tail(mix(d, (down / np.max(np.abs(down)), 0.0), (thump, 0.02),
+                                (up / np.max(np.abs(up)) * 0.4, 0.28)), 0.1), -9)
+
+
+def card_flip() -> np.ndarray:
+    """A reward card turns over (#4062, the Dragon Keep's card rewards): a quick paper flick and a tiny tap as it
+    lands face up. The game plays it once per card."""
+    d = 0.22
+    flick = swish(0.12, 1800, 4200, 4261)
+    tap = bell(0.08, 880.0, MARIMBA) * 0.35
+    return finish(fade_tail(mix(d, (flick / np.max(np.abs(flick)) * 0.7, 0.0), (tap, 0.11)), 0.05), -9)
+
+
+def card_rare() -> np.ndarray:
+    """A rare card shows its face (#4062): a short rising sparkle and a warm two note chime, small enough to play
+    once for each rare card in a row."""
+    d = 0.95
+    rise = [(bell(0.3, f, ((1.0, 1.0, 0.06), (2.0, 0.2, 0.03))) * 0.22, 0.04 * i)
+            for i, f in enumerate((1568.0, 1975.5, 2349.3, 2637.0))]
+    chime = [(bell(d - at, note(n), VIBES) * a, at) for n, at, a in (("G5", 0.16, 0.55), ("D6", 0.26, 0.6))]
+    return finish(fade_tail(mix(d, *rise, *chime), 0.3), -6)
+
+
+def rekindle() -> np.ndarray:
+    """Rekindle at the Dragon Keep (#4062): the fire takes again. A breath of air drawn in, a soft "foomp" of flame
+    and a few crackles after it."""
+    d = 1.0
+    draw = bandpass(noise(0.35, 4271), sweep(0.35, 500, 1600), 1.0)
+    draw *= np.minimum(seconds(0.35) / 0.008, 1) * (0.3 + 0.7 * (seconds(0.35) / 0.35) ** 2)  # heard at once
+    foomp = glide(0.3, 180, 80, 0.15) * envelope(0.3, 0.01, 0.08) * 0.7
+    flame = bandpass(noise(0.6, 4272), sweep(0.6, 1400, 500), 0.7)
+    flame = flame / np.max(np.abs(flame)) * envelope(0.6, 0.02, 0.18) * 0.5
+    rng = np.random.default_rng(4273)
+    crackles = [(bandpass(noise(0.02, 4274 + i), float(rng.uniform(2500, 5000)), 2.0)
+                 * envelope(0.02, 0.0005, 0.004) * 0.35, 0.45 + float(rng.uniform(0, 0.45))) for i in range(6)]
+    return finish(fade_tail(mix(d, (draw / np.max(np.abs(draw)) * 0.3, 0.0), (foomp, 0.33), (flame, 0.33),
+                                *crackles), 0.2), -7)
+
+
+def ticket_print() -> np.ndarray:
+    """The Ticket Booth prints a ticket (#4061): a quick run of soft printer chatter and the paper tearing off."""
+    d = 0.7
+    chatter = [(bandpass(noise(0.025, 4281 + i), 2400 + 150 * (i % 3), 3.0) * envelope(0.025, 0.001, 0.006) * 0.5,
+                0.04 * i) for i in range(10)]
+    hum = glide(0.42, 190, 210, 0.4) * envelope(0.42, 0.02, 0.3) * 0.12
+    tear = swish(0.16, 3000, 6000, 4295)
+    return finish(fade_tail(mix(d, *chatter, (hum, 0.0), (tear / np.max(np.abs(tear)) * 0.6, 0.46)), 0.08), -9)
+
+
+def ticket_ding() -> np.ndarray:
+    """A ticket is yours (#4061): a bright two note counter bell, like a fairground booth."""
+    d = 0.8
+    first = bell(d, note("E6"), GLOCK) * 0.7
+    second = bell(d - 0.11, note("A6"), GLOCK) * 0.8
+    return finish(fade_tail(mix(d, (first, 0.0), (second, 0.11)), 0.25), -7)
+
+
+def snow_step() -> np.ndarray:
+    """A step in the Snowy Mountain's snow (#4069): a soft, dry crunch, two grains of it. The game varies its pitch
+    a little each step."""
+    d = 0.2
+    press = bandpass(noise(0.11, 4301), sweep(0.11, 1500, 800), 1.1) * envelope(0.11, 0.006, 0.03)
+    squeak = bandpass(noise(0.08, 4302), 2600, 2.5) * envelope(0.08, 0.004, 0.02) * 0.4
+    thump = glide(0.06, 150, 100, 0.04) * envelope(0.06, 0.002, 0.018) * 0.3
+    return finish(fade_tail(mix(d, (press / np.max(np.abs(press)), 0.0), (thump, 0.0),
+                                (squeak / np.max(np.abs(squeak)) * 0.4, 0.05)), 0.05), -12)
+
+
+def snow_gust() -> np.ndarray:
+    """The Blizzard Cat arrives or is caught (#4069): a gust of wind that swells and whistles past, with a few icy
+    glints falling out of it."""
+    d = 1.5
+    t = seconds(d)
+    swell = np.sin(np.pi * np.clip(t / 1.2, 0, 1)) ** 1.5
+    wind = bandpass(noise(d, 4311), 500 + 900 * swell, 1.2)
+    whistle = bandpass(noise(d, 4312), 1700 + 1100 * swell, 9.0)
+    glints = [(bell(0.3, f, ((1.0, 1.0, 0.07), (2.0, 0.2, 0.03))) * 0.14, 0.7 + 0.09 * i)
+              for i, f in enumerate((4186.0, 3520.0, 3136.0, 2637.0))]
+    body = wind / np.max(np.abs(wind)) * swell * 0.7 + whistle / np.max(np.abs(whistle)) * swell * 0.2
+    return finish(fade_tail(mix(d, (body, 0.0), *glints), 0.3), -8)
+
+
+def frost_chime() -> np.ndarray:
+    """The White Tiger Cat's own cue (#4069): three cold, clear glass notes falling like icicles, then one low warm
+    note under them, proud and calm."""
+    d = 1.4
+    ice = [(bell(d - at, note(n), GLOCK) * a, at)
+           for n, at, a in (("B6", 0.0, 0.5), ("F#6", 0.12, 0.5), ("D6", 0.24, 0.55))]
+    warm = bell(d - 0.36, note("G4"), VIBES) * 0.5
+    air = bandpass(noise(0.5, 4321), sweep(0.5, 6000, 3000), 3.0) * envelope(0.5, 0.05, 0.15)
+    return finish(fade_tail(mix(d, *ice, (warm, 0.36), (air / np.max(np.abs(air)) * 0.12, 0.0)), 0.4), -7)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -2431,6 +2597,20 @@ SOUNDS = {
     "MouseMrow": ("sheet-parts/sfx", "Sfx", mouse_mrow),
     "MouseThud": ("sheet-parts/sfx", "Sfx", mouse_thud),
     "MouseHeart": ("sheet-parts/sfx", "Sfx", mouse_heart),
+    "DragonRumble": ("sheet-parts/sfx", "Sfx", dragon_rumble),
+    "DragonCrack": ("sheet-parts/sfx", "Sfx", dragon_crack),
+    "DragonChirp": ("sheet-parts/sfx", "Sfx", dragon_chirp),
+    "DragonRoar": ("sheet-parts/sfx", "Sfx", dragon_roar),
+    "DragonRoarGrand": ("sheet-parts/sfx", "Sfx", dragon_roar_grand),
+    "DragonWing": ("sheet-parts/sfx", "Sfx", dragon_wing),
+    "CardFlip": ("sheet-parts/sfx", "Sfx", card_flip),
+    "CardRare": ("sheet-parts/sfx", "Sfx", card_rare),
+    "Rekindle": ("sheet-parts/sfx", "Sfx", rekindle),
+    "TicketPrint": ("sheet-parts/sfx", "Sfx", ticket_print),
+    "TicketDing": ("sheet-parts/sfx", "Sfx", ticket_ding),
+    "SnowStep": ("sheet-parts/sfx", "Sfx", snow_step),
+    "SnowGust": ("sheet-parts/sfx", "Sfx", snow_gust),
+    "FrostChime": ("sheet-parts/sfx", "Sfx", frost_chime),
 }
 
 # Sound sheets (2026-11-01). Roblox lets an account that is not ID verified upload 100 sounds in 30 days, and the
@@ -2466,6 +2646,11 @@ SHEETS = {
     # F28's bait bowl foods and the welcome back claim (#983, 2026-11-03), mono: the foods play in 3D, the claim flat
     "Bait": (1, ("FoodKibble", "FoodTuna", "FoodSalmon", "FoodSardines", "FoodCaviar", "FoodMoonMilk", "FoodStarTreat",
                  "OfflineClaim")),
+    # the Dragon Keep's stage-up cutscene and card rewards, the Ticket Booth and the Snowy Mountain (2026-11-14,
+    # #4062, #4061, #4069), mono: the cutscene and the cards play flat, the steps and the gust in 3D
+    "Keep": (1, ("DragonRumble", "DragonCrack", "DragonChirp", "DragonRoar", "DragonRoarGrand", "DragonWing",
+                 "CardFlip", "CardRare", "Rekindle", "TicketPrint", "TicketDing", "SnowStep", "SnowGust",
+                 "FrostChime")),
 }
 
 

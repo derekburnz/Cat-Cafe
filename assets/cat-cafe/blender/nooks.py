@@ -1,7 +1,7 @@
 """Hidden nooks (#2687 part 2, claim #2688): the little walled corner each area opens when its station unlocks, with
 one extra rescue spot inside, so ranking up opens a new place to look and not only a new menu.
 
-  CatCafe_Nook_<Area>   Park, Neighbourhood, Woods, Sewer, Desert, Ruins, Snowy. An 8 x 7 walled nook in the area's
+  CatCafe_Nook_<Area>   Park, Neighbourhood, Woods, Sewer, Desert, Ruins, Snowy, WaterPark. An 8 x 7 walled nook in the area's
                         theme, open at the front (-Z) through a two-leaf gate, with four stepping stones leading
                         out 10.5 studs in front of it. Pivot at the middle of the nook's floor, front -Z: stand it
                         with its back to a wall or a hedge and its stones toward the path. Footprint x -4.3 to 4.3,
@@ -31,6 +31,7 @@ import common
 import desertset
 import ruinsset
 import snowyset
+import waterparkset
 import woods
 from alleyway import flower_clump
 from cannon import frame_at
@@ -52,6 +53,7 @@ THEMES = {
     "Desert": ("terracotta", "paving_tan", "dark_wood", "paving_tan", "paving_sand", "desert"),
     "Ruins": ("fur_dusty", "leaf_dark", "fur_soot", "fur_pewter", "fur_pewter", "ruins"),
     "Snowy": ("fur_white", "milk", "dark_wood", "fur_silver", "fur_mist", "snowy"),      # a snow fort (#3997)
+    "WaterPark": ("milk", "shirt_red", "shirt_blue", "pastel_butter", "paving_light", "funfair"),   # a prize stall (#4066)
 }
 ATTACHMENTS = {}         # asset -> [(name, Roblox point, Roblox rotation)]
 
@@ -77,6 +79,7 @@ TRAPS = {
     "Desert": ("clay_urn", desertset.trap_clay_urn, -0.3, -90),
     "Ruins": ("stone_urn", ruinsset.trap_stone_urn, 0.4, 0),
     "Snowy": ("snowdrift", snowyset.trap_snowdrift, 0.4, 0),
+    "WaterPark": ("plush_pile", waterparkset.trap_plush_nook, 0.4, 0),
 }
 
 
@@ -190,6 +193,18 @@ def _theme(b, d, theme):
         b.cyl((2.8, 1.33, 2.4), 0.3, 0.08, "shirt_red", segments=10)
         b.ball((2.9, 0.25, 1.2), 0.25, "milk")                                                  # snowballs
         b.ball((3.3, 0.25, 1.5), 0.25, "fur_white")
+
+    elif theme == "funfair":
+        _cushion(b, -2.9, 2.5, "shirt_red")
+        for k in range(8):                                                                      # a striped top rail
+            b.span((-3.9 + k * 1.0, WALL_H, BACK - 0.36), (-3.9 + k * 1.0 + 0.9, WALL_H + 0.3, BACK + 0.36),
+                   ("shirt_red", "milk")[k % 2])
+        b.span((2.95, 0, 2.55), (3.05, 2.6, 2.65), "milk")                                      # a balloon on a stick
+        b.ball((3.0, 3.0, 2.6), 0.5, "pastel_butter", scale=(1.0, 1.2, 1.0))
+        b.span((2.3, 0, 0.7), (3.4, 0.9, 1.6), "shirt_red")                                     # a popcorn tub
+        b.span((2.3, 0.3, 0.68), (3.4, 0.6, 0.7), "milk")
+        for k, (x, z) in enumerate(((2.6, 0.95), (3.1, 1.3), (2.85, 1.15))):
+            b.ball((x, 1.0 + 0.08 * k, z), 0.24, ("pastel_butter", "cream", "pastel_butter")[k])
 
 
 def build_nook(area):

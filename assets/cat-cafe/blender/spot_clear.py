@@ -31,7 +31,7 @@ TRAP_GAP = 6.0          # and this far from every rescue spot
 EDGE = 6.0              # and this far inside the set's footprint
 MARGIN = 0.4           # a moved spot's box is this much wider all round, so it stands clear rather than touching
 SUPPORT = 0.2           # a spot above the floor needs a collidable top within this of its height under it
-SETTLE = ("CatCafe_Desert_Set", "CatCafe_Ruins_Set", "CatCafe_Snowy_Set")
+SETTLE = ("CatCafe_Desert_Set", "CatCafe_Ruins_Set", "CatCafe_Snowy_Set", "CatCafe_WaterPark_Set")
 
 
 def _walk(node, out):

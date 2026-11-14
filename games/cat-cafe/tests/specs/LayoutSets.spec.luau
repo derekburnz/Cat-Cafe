@@ -381,7 +381,7 @@ return function()
 		it(
 			"adds two beds a tier from Tier 3 and two for the extra slots (#2047), so every working slot sleeps",
 			function()
-				expect(#plot.beds).to.equal(12) -- #2651: four more for Tier 7 and its extra slots
+				expect(#plot.beds).to.equal(14) -- #2651: four more for Tier 7 and its extra slots; #4070: Tier 9's two
 				for n, bed in plot.beds do
 					expect(bed.id).to.equal("bed_" .. n)
 					expect(bed.tier).to.equal(2 + math.ceil(n / 2))

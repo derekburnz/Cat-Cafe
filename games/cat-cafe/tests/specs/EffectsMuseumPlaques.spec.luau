@@ -43,10 +43,10 @@ return function()
 		end)
 
 		it(
-			"has a plaque name for each of the eight rooms, and a room counts only when every exhibit is in",
+			"has a plaque name for each of the nine rooms, and a room counts only when every exhibit is in",
 			function()
 				local p = Presets.museumPlaques
-				expect(#LateStations.rooms).to.equal(8) -- #3997: the Snowy Mountain's room
+				expect(#LateStations.rooms).to.equal(9) -- #3997: the Snowy Mountain's room; #4070: the Water Park's
 				local seen: { [string]: boolean } = {}
 				for _, room in LateStations.rooms do
 					local name = "CatCafe_Camp_Ruins_RelicMuseum" .. p.suffix .. room.area

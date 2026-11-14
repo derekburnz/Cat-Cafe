@@ -910,8 +910,15 @@ return function()
 			end
 		)
 
-		it("clamps the tier to 1 to 8 and levels to each upgrade's range", function()
-			for _, case in ipairs({ { 0, 1 }, { 8, 8 }, { 9, 8 }, { "2", 1 }, { 2.5, 2 } }) do
+		it("clamps the tier to 1 to 9 and levels to each upgrade's range", function()
+			for _, case in ipairs({
+				{ 0, 1 },
+				{ 8, 8 },
+				{ 9, 9 },
+				{ 10, 9 },
+				{ "2", 1 },
+				{ 2.5, 2 },
+			}) do
 				local raw = v3Save()
 				raw.tier = case[1]
 				expect(ProfileSchema.migrate(raw, 500).tier).to.equal(case[2])

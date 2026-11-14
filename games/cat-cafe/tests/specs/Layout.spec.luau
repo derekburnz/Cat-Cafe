@@ -781,7 +781,11 @@ return function()
 			expect(Layout.bedsOpen(6, 2)).to.equal(10)
 			expect(Layout.bedsOpen(7, 0)).to.equal(10)
 			expect(Layout.bedsOpen(7, 2)).to.equal(12)
-			expect(Layout.bedsOpen(7, 3)).to.equal(#Layout.plot.beds)
+			expect(Layout.bedsOpen(7, 3)).to.equal(13)
+			-- #3997 and #4070: Tier 8's 12 and Tier 9's 14, the last of them
+			expect(Layout.bedsOpen(8, 0)).to.equal(12)
+			expect(Layout.bedsOpen(9, 0)).to.equal(14)
+			expect(Layout.bedsOpen(9, 2)).to.equal(#Layout.plot.beds)
 		end)
 
 		it("keeps the beds in tier order, so the first ones are the tier's", function()
@@ -1924,6 +1928,7 @@ return function()
 					desert = { 1, -1 }, -- #2651: the free diagonals (tier6-7-areas.md section 2)
 					ruins = { 1, 1 },
 					snowy = { -1, 1 }, -- #3997: the last free diagonal
+					waterpark = { 1, -1 }, -- #4070: no diagonal left, so further out past the Desert on its line
 				} :: { [string]: { number } }
 				local town: Rect = {
 					x1 = -W.TownGroundWidth / 2,
@@ -1968,6 +1973,12 @@ return function()
 					desert = { W.DesertCenterX, W.DesertCenterZ + W.DesertDepth / 2, 180 }, -- #2651: its north end
 					ruins = { W.RuinsCenterX, W.RuinsCenterZ - W.RuinsDepth / 2, 0 }, -- #2651: its south end
 					snowy = { W.SnowyCenterX, W.SnowyCenterZ - W.SnowyDepth / 2, 0 }, -- #3997: its south end
+					-- #4070: its north end, toward the Desert
+					waterpark = {
+						W.WaterParkCenterX,
+						W.WaterParkCenterZ + W.WaterParkDepth / 2,
+						180,
+					},
 				} :: { [string]: { number } }
 				for id, spec in Layout.areas do
 					local x, z = Layout.gatePosition(spec)
@@ -2027,9 +2038,13 @@ return function()
 				-- the barrel rests along +Z; turned by aim it points along (sin, cos)
 				local dot = (math.sin(aim) * pad.x + math.cos(aim) * pad.z) / out
 				expect(dot).to.be.near(1, 1e-9)
-				table.insert(aims, Layout.cannonAim(id))
+				-- #4070: an area another camp's cannon flies to (launchFrom) is not on the town barrel's list
+				if Layout.areas[id].launchFrom == nil then
+					table.insert(aims, Layout.cannonAim(id))
+				end
 			end
-			expect(#aims).to.equal(8) -- #3997: the Snowy Mountain's too
+			expect(#aims).to.equal(8) -- #3997: the Snowy Mountain's too; #4070: not the Water Park's
+			expect(Layout.areas.waterpark.launchFrom).to.equal("desert")
 			-- every destination at least 35 degrees from every other, so the barrel visibly turns (section 2 says about 38;
 			-- the Ruins pad sits 37.8 from the Sewer)
 			for i, a in aims do
@@ -2132,6 +2147,54 @@ return function()
 						)
 						if math.sqrt(dx * dx + dz * dz) < 500 then
 							fail("the %s is too close to the %s", id, other)
+						end
+					end
+				end
+			end
+		)
+
+		it(
+			"lays out the Water Park past the Desert from its set's spots, launched from the Desert camp (#4070)",
+			function()
+				local spec = Layout.areas.waterpark
+				expect(spec).to.be.ok()
+				expect(spec.set).to.equal("CatCafe_WaterPark_Set")
+				expect(spec.launchFrom).to.equal("desert")
+				expect((Catalog.getArea("waterpark") :: any).tier).to.equal(9)
+				expect(Layout.camps.waterpark).to.be.ok()
+				expect(#spec.spawnPoints).to.equal(155)
+				expect(#spec.rescueSpots).to.equal(5)
+				expect(#(spec.rescuePool :: { any })).to.equal(15)
+				-- further out than the Desert on the same line, its gate on the side facing it
+				local desert = Layout.areas.desert
+				expect(spec.center.x > desert.center.x and spec.center.z < desert.center.z).to.equal(
+					true
+				)
+				expect(spec.halfDepth > spec.halfWidth).to.equal(true)
+				expect((spec.gateZ :: number) > spec.center.z).to.equal(true)
+				local counts: { [string]: number } = {}
+				for _, point in spec.spawnPoints do
+					counts[point.zone :: string] = (counts[point.zone :: string] or 0) + 1
+					expect(math.abs(point.x - spec.center.x) < spec.halfWidth).to.equal(true)
+					expect(math.abs(point.z - spec.center.z) < spec.halfDepth).to.equal(true)
+				end
+				expect(counts.near).to.equal(86)
+				expect(counts.deep).to.equal(69)
+				-- four of the five deep (the far side from the gate), none within 100 studs of the camp, every pool trap 8
+				-- from every cat spot
+				local deep = 0
+				for _, trap in spec.rescueSpots do
+					if trap.z < spec.center.z then
+						deep += 1
+					end
+					expect((spec.gateZ :: number) - trap.z > 100).to.equal(true)
+				end
+				expect(deep).to.equal(4)
+				for i, trap in spec.rescuePool :: { any } do
+					expect(Layout.setStuckPoses[trap.trap]).to.be.ok()
+					for _, point in spec.spawnPoints do
+						if math.sqrt((trap.x - point.x) ^ 2 + (trap.z - point.z) ^ 2) < 8 then
+							fail("water park pool trap %d is within 8 of a cat spot", i)
 						end
 					end
 				end

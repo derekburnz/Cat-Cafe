@@ -2423,7 +2423,21 @@ local function offerEvent()
 	eventAsk.asked = true
 	local eventId, at = id :: string, startsAt :: number
 	task.spawn(function()
-		while not quiet() do
+		-- Derek 2026-11-14 ("just have this pop up when in safezone randomly not make them say notify me first"): a
+		-- random moment in the window, then only in a safe place (town, a cafe or a camp, not out in an area's wild
+		-- part: UI.bait.away) at a quiet moment with no window open
+		task.wait(
+			math.random()
+				* math.max(0, EventRsvp.UNTIL_SECONDS - 60 - (os.clock() - eventAsk.started))
+		)
+		local function safe(): boolean
+			local bait: any = (UI :: any).bait
+			local away = bait ~= nil
+				and type(bait.away) == "function"
+				and (bait.away :: () -> unknown)() == true
+			return quiet() and not away and UI.isOpen() == nil
+		end
+		while not safe() do
 			task.wait(1)
 			if not EventRsvp.window(os.clock() - eventAsk.started) then
 				return -- no quiet moment by minute 10: not this session
@@ -2431,6 +2445,12 @@ local function offerEvent()
 		end
 		if EventRsvp.status(eventId) ~= "none" or not EventRsvp.due(eventId, at, os.time()) then
 			return -- answered before (or Roblox cannot say), or it has started
+		end
+		if EventRsvp.DIRECT then
+			-- straight to Roblox's own Join Event card, no in-game ask first
+			reportRsvp("shown")
+			reportRsvp(EventRsvp.prompt(eventId) or "failed")
+			return
 		end
 		local asks: any = (UI :: any).asks
 		local card: any = if asks ~= nil then asks.card else nil

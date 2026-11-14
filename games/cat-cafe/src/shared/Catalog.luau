@@ -3503,9 +3503,11 @@ table.freeze(Catalog.indexPrizes)
 -- testers who redeemed playtest before potions existed still get them (data-model 11d). Rows can be added without
 -- new code.
 Catalog.codes = {
+	-- Derek 2026-11-14 17:40 UTC: "remove playtest code ... from description/game": both playtest codes are off
+	-- (kept so the Store's "Codes you've used" list still names them for testers who redeemed them)
 	playtest = {
 		id = "playtest",
-		active = true,
+		active = false,
 		prize = {
 			coins = 5000,
 			fish = 100, -- #2497: was 300
@@ -3517,7 +3519,7 @@ Catalog.codes = {
 	},
 	playtest2 = {
 		id = "playtest2",
-		active = true,
+		active = false,
 		prize = {
 			potions = { tip_potion = 2, lucky_potion = 2, swift_potion = 2, steady_potion = 2 },
 		},
@@ -3587,6 +3589,30 @@ Catalog.codes = {
 		id = "10likes",
 		active = true,
 		prize = { coins = 2000, coinSeconds = 600, fish = 40, potions = { lucky_potion = 1 } },
+	},
+	-- Derek 2026-11-14 17:39 UTC ("put a code up for 5000VISITS and 30LIKES"): two more thank-you codes, on as soon
+	-- as a server has them, one step above `2000visits` and `10likes`; no end.
+	["5000visits"] = {
+		id = "5000visits",
+		active = true,
+		prize = { coins = 3000, coinSeconds = 900, fish = 60, crates = { classic_crate = 2 } },
+	},
+	-- Derek 2026-11-14 17:41 UTC ("put a code out ... for UPDATE3, and UPDATE4"): the update codes for today's and
+	-- Sunday's updates, on at once, the size of `update2`; no end.
+	update3 = {
+		id = "update3",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 60, potions = { swift_potion = 2 } },
+	},
+	update4 = {
+		id = "update4",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 60, crates = { classic_crate = 2 } },
+	},
+	["30likes"] = {
+		id = "30likes",
+		active = true,
+		prize = { coins = 2500, coinSeconds = 900, fish = 50, potions = { lucky_potion = 2 } },
 	},
 	update2 = {
 		id = "update2",

@@ -761,6 +761,59 @@ Presets.emitters = {
 		lightEmission = 0.7,
 		rotSpeed = { -45, 45 },
 	},
+	-- #4069 Snowy Mountain. `snowfall` is the area's air: soft flakes drifting down round you, with a little sideways
+	-- drift, fading before they pile up. The three sig* ones are its rarer cats' (Presets.signature): `sigFrost` a
+	-- puff of frosty breath off the White Tiger Cat's head, `sigSnowflake` the flakes the Blizzard Cat's swirl leaves
+	-- behind as it circles, and `sigFrostTrail` the frost it leaves where it walks.
+	snowfall = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(226, 240, 255) },
+		size = { 0.22, 0.16 },
+		transparency = { 0.15, 1 },
+		lifetime = { 3, 4.5 },
+		speed = { 0.4, 1.2 },
+		spread = 180,
+		rate = 14,
+		acceleration = Vector3.new(0.6, -1.6, 0.3),
+		drag = 0.5,
+		rotSpeed = { -40, 40 },
+	},
+	sigFrost = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(236, 246, 255) },
+		size = { 0.25, 0.9 },
+		transparency = { 0.55, 1 },
+		lifetime = { 0.9, 1.4 },
+		speed = { 0.5, 1 },
+		spread = 25,
+		rate = 0.8,
+		acceleration = Vector3.new(0, 0.3, 0),
+		drag = 1.2,
+	},
+	sigSnowflake = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 255, 255) },
+		size = { 0.3, 0.05 },
+		transparency = { 0, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 0, 0.15 },
+		spread = 180,
+		rate = 2,
+		lightEmission = 0.6,
+		rotSpeed = { -90, 90 },
+	},
+	sigFrostTrail = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(214, 236, 255), Color3.fromRGB(255, 255, 255) },
+		size = { 0.5, 1.1 },
+		transparency = { 0.5, 1 },
+		lifetime = { 0.9, 1.3 },
+		speed = { 0.1, 0.4 },
+		spread = 70,
+		rate = 2,
+		acceleration = Vector3.new(0, -0.6, 0),
+		drag = 2,
+	},
 	sigFall = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.furRose },
@@ -1326,6 +1379,46 @@ Presets.catchPop = {
 		third = { after = 0.34, scale = 1.85, seconds = 0.9 },
 		bursts = 5,
 	},
+}
+
+-- #4069 (Derek 2026-11-13: "make the rarer ones more special"): a catch in an area with a flavour adds the area's
+-- own touch on top of the rarity pop, more the rarer the cat. Each step names the rarity it starts at: a `puff` of
+-- `preset` in `colour` at the cat for every catch, `flakes` sparkles from `flakesFrom` up, a second ground ring
+-- `ringScale` times the rarity's from `ringFrom` up, and from `gustsFrom` up `gusts` puffs climbing `gustHeight`
+-- studs, `gustEvery` seconds apart. A cat named in `cats` gets `gusts` more.
+export type CatchFlavour = {
+	preset: string,
+	colour: Color3,
+	puff: number,
+	flakes: number,
+	flakesFrom: string,
+	ringScale: number,
+	ringFrom: string,
+	gusts: number,
+	gustsFrom: string,
+	gustHeight: number,
+	gustEvery: number,
+	cats: { [string]: number },
+}
+Presets.catchFlavour = {
+	ranks = { Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5, Secret = 6 } :: { [string]: number },
+	areas = {
+		-- the Snowy Mountain: a puff of snow, then flakes, a frost ring, and a column of snow gusts for the rarest
+		snowy = {
+			preset = "smokePuff",
+			colour = Color3.fromRGB(236, 246, 255),
+			puff = 4,
+			flakes = 10,
+			flakesFrom = "Epic",
+			ringScale = 1.3,
+			ringFrom = "Legendary",
+			gusts = 3,
+			gustsFrom = "Mythical",
+			gustHeight = 8,
+			gustEvery = 0.18,
+			cats = { blizzard = 2 }, -- the snowstorm itself: a taller column
+		},
+	} :: { [string]: CatchFlavour },
 }
 
 -- Something you bought appears at your cafe (a table set, the espresso machine, the bait bowl, decor): a sparkle
@@ -2499,7 +2592,24 @@ export type Signature = {
 	goldEyes: Color3?,
 	moving: boolean?,
 	notes: boolean?, -- music notes float up off the prop as well (Jazz Cat, Presets.notes)
+	-- #4069 (Derek 2026-11-13: "make the rarer ones more special"): more on top for the rarest cats
+	extras: { SignatureExtra }?, -- more emitters, each on its own part
+	orbit: SignatureOrbit?, -- motes circling the cat, each leaving a trail of `emitter`
+	arrive: SignatureArrive?, -- a gust where it appears (a stray landing, a cat set down)
 }
+export type SignatureExtra = { emitter: string, on: string, moving: boolean? }
+-- `count` motes (`countLow` on the low tier) circle the body `radius` of its widest side out and `height` of its
+-- height up, tilted `tilt` radians, once every `seconds`. They hold still with Reduce Motion.
+export type SignatureOrbit = {
+	emitter: string,
+	count: number,
+	countLow: number,
+	radius: number,
+	height: number,
+	tilt: number,
+	seconds: number,
+}
+export type SignatureArrive = { ring: number, burst: number, preset: string }
 
 local palette = Presets.palette
 Presets.signature = {
@@ -2599,6 +2709,41 @@ Presets.signature = {
 		on = "Head",
 		colors = { palette.leaf, palette.mint, palette.goldLight },
 		gold = { palette.golden, palette.goldLight, palette.sparkle },
+	},
+	-- #4069 Snowy Mountain (Tier 8). The ladder: the Epic gets a glint, the Legendary breath, a glint and glowing
+	-- eyes, the Mythical flakes, a circling swirl, a frost trail, glowing eyes and a gust where it lands.
+	ice = { -- Ice Cat (Epic): a glint now and then off the ice spikes along its back
+		emitter = "sigGlint",
+		on = "Prop",
+		props = 2,
+		colors = { Color3.fromRGB(214, 240, 255), palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+	},
+	white_tiger = { -- White Tiger Cat (Legendary): frosty breath, ice-blue eyes and a soft glint on the white coat
+		emitter = "sigFrost",
+		on = "Head",
+		colors = { Color3.fromRGB(236, 246, 255), palette.offwhite },
+		gold = { palette.goldLight, palette.offwhite },
+		eyes = true,
+		extras = { { emitter = "sigGlint", on = "Body" } },
+	},
+	blizzard = { -- Blizzard Cat (Mythical): a living snowstorm
+		emitter = "sigFall",
+		on = "Body",
+		colors = { palette.offwhite, Color3.fromRGB(196, 226, 255), palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = { { emitter = "sigFrostTrail", on = "Body", moving = true } },
+		orbit = {
+			emitter = "sigSnowflake",
+			count = 5,
+			countLow = 3,
+			radius = 0.75,
+			height = 0.55,
+			tilt = 0.3,
+			seconds = 3.2,
+		},
+		arrive = { ring = 9, burst = 10, preset = "smokePuff" },
 	},
 } :: { [string]: Signature }
 Presets.signatureFx = {
@@ -3927,6 +4072,7 @@ Presets.cannon = {
 		sewer = Color3.fromRGB(96, 116, 158),
 		desert = Color3.fromRGB(232, 205, 150), -- Tier 6 (#2657): sand
 		ruins = Color3.fromRGB(80, 160, 120), -- Tier 7 (#2657): jade
+		snowy = Color3.fromRGB(214, 236, 255), -- Tier 8 (#4069): ice blue
 	} :: { [string]: Color3 },
 }
 
@@ -4616,6 +4762,12 @@ export type AreaFxSpec = {
 	mist: number?,
 	mistColour: Color3?,
 	mistDepth: number?,
+	lift: number?, -- the air box's centre over your feet, where the area's own differs (snow falls from higher)
+	-- #4069: a little puff of `footPreset` in `footColour` at your feet for every `footStuds` you walk on the ground
+	footPuff: number?,
+	footPreset: string?,
+	footColour: Color3?,
+	footStuds: number?,
 }
 Presets.areaFx = {
 	pad = 40, -- the camp lies outside the floor box, and the server's mist catch reaches 40 studs past it
@@ -4650,6 +4802,19 @@ Presets.areaFx = {
 			mist = 10,
 			mistColour = Color3.fromRGB(196, 186, 210),
 			mistDepth = 12,
+		},
+		-- #4069 Snowy Mountain (Tier 8): snow drifting down round you, a white puff where its strays come and go and
+		-- small snow puffs under your feet as you walk. The area's box is Config.World's Snowy* once the area is in.
+		snowy = {
+			air = "snowfall",
+			colour = Color3.fromRGB(240, 248, 255),
+			puffPreset = "smokePuff",
+			puff = 6,
+			lift = 6,
+			footPuff = 3,
+			footPreset = "dust",
+			footColour = Color3.fromRGB(246, 250, 255),
+			footStuds = 3,
 		},
 	} :: { [string]: AreaFxSpec },
 }

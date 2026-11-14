@@ -860,6 +860,9 @@ fieldEvents=(
 	"quit_scene|CustomField1,CustomField3|CustomEventCountUser|Leavers below Tier 2 by scene and seconds bucket"
 	"first_scene|CustomField1|CustomEventAvgValue|Average seconds from join to the first intro shot, by device (minus step_time loaded = still wait)"
 	"first_scene|CustomField1,CustomField3|CustomEventCountUser|Players by device and wait before the first intro shot"
+	"client_boot|CustomField1|CustomEventAvgValue|Average seconds from join to the first save on the client, by device (#4307)"
+	"client_boot|CustomField1,CustomField2|CustomEventCountUser|Players by device and Roblox load time (join to first script line)"
+	"client_boot|CustomField1,CustomField3|CustomEventCountUser|Players by device and UI build / save wait"
 )
 say "### Event fields"
 say ""

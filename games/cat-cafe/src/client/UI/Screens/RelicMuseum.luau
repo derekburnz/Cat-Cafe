@@ -904,17 +904,12 @@ function RelicMuseum._paint(self: any)
 	local museum = self._museum
 	local count = if museum ~= nil then museum.count else 0
 	local total = if museum ~= nil then museum.total else 0
+	local bonus = if museum ~= nil then museum.bonus or 0 else 0 -- "+10% tips" (bonusText without "forever")
 	self._count.Text = string.format(
-		"%d of %d exhibits · %s",
+		"%d of %d exhibits · +%d%% tips",
 		count,
 		total,
-		(
-			string.gsub(
-				LateStationsLogic.bonusText(if museum ~= nil then museum.bonus else 0),
-				" forever$",
-				""
-			)
-		)
+		math.floor(bonus * 100 + 0.5)
 	)
 	-- #3961: one footer line: the note, else the hint while a copy can be given, else what a finished hall gives
 	local note = if self._pending

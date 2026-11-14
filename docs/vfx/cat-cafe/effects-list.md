@@ -1239,6 +1239,7 @@ The same ladder as the Snowy Mountain: more effect the rarer the cat. All client
 | Water Park air | Fine spray drifting round you, a splash where a stray comes or goes | Off in Low performance, a fifth with Reduce Motion |
 | Castle air | Slow warm motes of dust in torch gold, a gold puff where a stray comes or goes | The same |
 | Rides | The carousel (24 s a turn), the teacups (16 s) and the Ferris wheel (60 s) turn slowly, on this client only (`Rides.luau`) | The nearest 3 within 260 studs, 1 on the lite budget; still with Reduce Motion and in Low performance |
+| Castle torches | The flame on each torch post stretches, leans and flickers like the campfires, with a small warm light (brighter at night) and an ember now and then | The campfires' budget: only the nearest few flames move |
 | Rescue spots | Head first with the back end wriggling in the ball pit, the plush pile and the haystack; the plain shake where the cat sits the right way up | As every stuck cat |
 | Rares (Candy Apple, Cotton Candy, Jester, Rogue) | One small touch each: a glaze glint, sugar while it moves, a bell glint, a wisp of shadow while it moves | 1 emitter, only in a slot no rarer cat nearby needs |
 | Epics (Clown, Water Gun, Knight, Mage) | One effect on the lit prop: pom twinkles, drips off the blaster, a shield glint, rising stars | One signature cat's rate |
@@ -1247,4 +1248,4 @@ The same ladder as the Snowy Mountain: more effect the rarer the cat. All client
 | Water Cat (Mythical) | Drips, circling bubbles, a wet trail while it walks, glowing eyes, a splash where it lands, a taller catch fountain | As the Blizzard Cat |
 | Dragon Knight Cat (Mythical) | Rising sparks, glowing eyes, a shield glint, an ember trail while it moves, circling embers, a burst where it lands, a taller catch column | As the Blizzard Cat |
 
-Still to do: water flow and slide splashes, ride lamps at night, torch flames and banners, the gates' opening moments, the Ticket Booth and Throne Hall moments.
+Still to do: water flow and slide splashes, ride lamps at night, banners, the gates' opening moments, the Ticket Booth and Throne Hall moments.

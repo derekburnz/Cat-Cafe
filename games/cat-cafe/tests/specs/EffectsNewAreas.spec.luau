@@ -222,6 +222,24 @@ return function()
 			)
 		end)
 
+		it("burns the Castle's torches as a smaller campfire", function()
+			local kinds = Presets.campfire.kinds
+			local fire, torch = kinds._Campfire_Glow, kinds._Torch_Glow
+			expect(fire ~= nil and torch ~= nil).to.equal(true)
+			expect(torch.range < fire.range).to.equal(true)
+			expect(torch.bright <= fire.bright).to.equal(true)
+			expect(torch.pop < fire.pop and torch.pop <= Presets.budget.low.maxBurst).to.equal(true)
+			-- the torch's six discs stand on one spot: one tongue, lowest disc first
+			local points = {}
+			for i, y in { 6.82, 7.25, 7.68, 6.75, 7.05, 7.35 } do
+				points[i] = Vector3.new(9, y, -305.5)
+			end
+			local tongues = Logic.flameTongues(points, Presets.campfire.gap)
+			expect(#tongues).to.equal(1)
+			expect(#tongues[1]).to.equal(6)
+			expect(tongues[1][1]).to.equal(4)
+		end)
+
 		it("reads each new area's box from the Config by its own name", function()
 			local boxes = {
 				{

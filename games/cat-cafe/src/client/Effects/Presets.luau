@@ -4500,7 +4500,15 @@ Presets.introCut = {
 -- out of step with the others. Warm embers drift up off it with a small pop of them now and then, and a warm light
 -- flickers with the flame, brighter at night. With Reduce Motion the flame moves `still` as much. The nearest
 -- `campfires` (budget) within ambientRadius run; the rest stand as modelled.
+-- `kinds`: what burns, by the end of the flame Model's name, each with the reach of its light in studs, how bright
+-- it is against `brightness`, the embers in a pop and how far over the flame's base they leave from. A torch (#4071)
+-- is a smaller flame up on a post.
+export type FlameKind = { range: number, bright: number, pop: number, emberHeight: number }
 Presets.campfire = {
+	kinds = {
+		_Campfire_Glow = { range = 14, bright = 1, pop = 5, emberHeight = 1.2 },
+		_Torch_Glow = { range = 10, bright = 0.8, pop = 2, emberHeight = 0.9 },
+	} :: { [string]: FlameKind },
 	stretch = 0.2, -- of the modelled height, either way
 	lean = 9, -- degrees at the tip
 	hz = { 1.7, 2.9, 4.3 }, -- the three waves each tongue's motion is made of
@@ -4509,13 +4517,10 @@ Presets.campfire = {
 	brighten = 0.2, -- how far the flicker lifts each disc's colour toward `hot`
 	hot = Presets.palette.lampWarm,
 	light = Color3.fromRGB(255, 176, 102),
-	range = 14, -- studs
 	brightness = 1.1,
 	flicker = 0.35, -- of the brightness, either way
 	night = 1.6, -- times the brightness at night
-	emberHeight = 1.2, -- studs over the flame's base the embers leave from
 	popEvery = { 2.5, 5 }, -- seconds between pops
-	pop = 5, -- embers in a pop
 }
 
 -- A cat checked in at a camp (F84 section 4): it hops out of its carrier's arms in an arc `hopHeight` studs high

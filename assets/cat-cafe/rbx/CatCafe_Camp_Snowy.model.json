@@ -8186,14 +8186,14 @@
    },
    "children": [
     {
-     "name": "CatCafe_Camp_Snowy_002_FirePit_Glow",
+     "name": "CatCafe_Camp_Snowy_002_FirePit_Campfire_Glow",
      "className": "Part",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
          -42.0,
-         0.45,
+         0.5667,
          -297.0
         ],
         "orientation": [
@@ -8216,9 +8216,9 @@
        }
       },
       "Size": [
-       0.2,
-       1.2833,
-       1.2833
+       0.4333,
+       1.1833,
+       1.1833
       ],
       "Color": [
        0.8824,
@@ -8236,7 +8236,7 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -0.45,
+         -0.5667,
          -42.0,
          297.0
         ],
@@ -8265,14 +8265,14 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Snowy_002_FirePit_Glow",
+     "name": "CatCafe_Camp_Snowy_002_FirePit_Campfire_Glow",
      "className": "Part",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
          -42.0,
-         0.65,
+         1.0,
          -297.0
         ],
         "orientation": [
@@ -8295,9 +8295,9 @@
        }
       },
       "Size": [
-       0.2,
-       1.05,
-       1.05
+       0.4333,
+       0.75,
+       0.75
       ],
       "Color": [
        0.8824,
@@ -8315,14 +8315,14 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Snowy_002_FirePit_Glow",
+     "name": "CatCafe_Camp_Snowy_002_FirePit_Campfire_Glow",
      "className": "Part",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
          -42.0,
-         0.85,
+         1.4333,
          -297.0
         ],
         "orientation": [
@@ -8345,9 +8345,9 @@
        }
       },
       "Size": [
-       0.2,
-       0.8167,
-       0.8167
+       0.4333,
+       0.3167,
+       0.3167
       ],
       "Color": [
        0.8824,
@@ -8358,22 +8358,22 @@
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
-      "CastShadow": true,
+      "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Shape": "Cylinder"
      }
     },
     {
-     "name": "CatCafe_Camp_Snowy_002_FirePit_Glow",
+     "name": "CatCafe_Camp_Snowy_002_FirePit_Campfire_Glow",
      "className": "Part",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
-         -42.0,
-         0.9917,
-         -297.0
+         -42.22,
+         0.5183,
+         -296.9
         ],
         "orientation": [
          [
@@ -8395,9 +8395,9 @@
        }
       },
       "Size": [
-       0.1833,
-       0.61,
-       0.61
+       0.3167,
+       0.6733,
+       0.6733
       ],
       "Color": [
        0.9647,
@@ -8415,15 +8415,15 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Snowy_002_FirePit_Glow",
+     "name": "CatCafe_Camp_Snowy_002_FirePit_Campfire_Glow",
      "className": "Part",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
-         -42.0,
-         1.175,
-         -297.0
+         -42.22,
+         0.835,
+         -296.9
         ],
         "orientation": [
          [
@@ -8445,9 +8445,9 @@
        }
       },
       "Size": [
-       0.1833,
-       0.43,
-       0.43
+       0.3167,
+       0.42,
+       0.42
       ],
       "Color": [
        0.9647,
@@ -8465,15 +8465,15 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Snowy_002_FirePit_Glow",
+     "name": "CatCafe_Camp_Snowy_002_FirePit_Campfire_Glow",
      "className": "Part",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
-         -42.0,
-         1.3583,
-         -297.0
+         -42.22,
+         1.1517,
+         -296.9
         ],
         "orientation": [
          [
@@ -8495,14 +8495,164 @@
        }
       },
       "Size": [
-       0.1833,
-       0.25,
-       0.25
+       0.3167,
+       0.1667,
+       0.1667
       ],
       "Color": [
        0.9647,
        0.8745,
        0.6275
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Snowy_002_FirePit_Campfire_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -41.74,
+         0.5117,
+         -297.18
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2833,
+       0.6067,
+       0.6067
+      ],
+      "Color": [
+       0.851,
+       0.4,
+       0.1804
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Snowy_002_FirePit_Campfire_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -41.74,
+         0.795,
+         -297.18
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2833,
+       0.38,
+       0.38
+      ],
+      "Color": [
+       0.851,
+       0.4,
+       0.1804
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Camp_Snowy_002_FirePit_Campfire_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -41.74,
+         1.0917,
+         -297.18
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.31,
+       0.1533,
+       0.1533
+      ],
+      "Color": [
+       0.851,
+       0.4,
+       0.1804
       ],
       "Material": "Neon",
       "Anchored": true,
@@ -8543,7 +8693,7 @@
      }
     }
    },
-   "name": "CatCafe_Camp_Snowy_002_FirePit_Glow"
+   "name": "CatCafe_Camp_Snowy_002_FirePit_Campfire_Glow"
   },
   {
    "className": "Model",

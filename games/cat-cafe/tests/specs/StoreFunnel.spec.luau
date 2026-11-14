@@ -82,7 +82,7 @@ return function()
 					expect(from).to.equal(source)
 					expect(id).to.equal(3731165229)
 				end
-				for _, bad in
+				for _, bad: unknown in
 					{
 						"store",
 						"store:",
@@ -94,7 +94,7 @@ return function()
 						"store:12:1",
 						7,
 						"",
-					}
+					} :: { unknown }
 				do
 					local from, id = StoreFunnel.buySource(bad)
 					expect(from).to.equal(nil)

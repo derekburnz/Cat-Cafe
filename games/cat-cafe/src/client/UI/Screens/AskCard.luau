@@ -382,10 +382,11 @@ function AskCard.show(self: any, ask: Ask)
 	if navDone ~= nil then
 		navDone()
 	end
-	self._navDone = GamepadNav.card("askCard", card, function()
+	self._navDone = GamepadNav.card("askCard", card, function(): boolean?
 		if self._showing then
 			self:hide("closed")
 		end
+		return nil
 	end)
 	local bar: Frame = self._bar
 	local old: Tween? = self._drain

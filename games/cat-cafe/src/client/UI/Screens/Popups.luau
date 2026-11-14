@@ -583,8 +583,9 @@ function Popups._open(self: any, card: Frame)
 	if navDone ~= nil then
 		navDone()
 	end
-	self._navDone = GamepadNav.card("popup", card, function()
+	self._navDone = GamepadNav.card("popup", card, function(): boolean?
 		Button.press(GamepadNav.first(card))
+		return nil
 	end)
 	return self._token
 end

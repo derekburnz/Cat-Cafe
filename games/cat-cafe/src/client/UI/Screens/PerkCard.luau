@@ -283,8 +283,9 @@ function PerkCard._open(self: any)
 	self._card.Visible = true
 	-- #4224 (console): on a gamepad the card takes the selection on OK, and B closes it as OK does
 	if self._navDone == nil then
-		self._navDone = GamepadNav.card("perkCard", self._card, function()
+		self._navDone = GamepadNav.card("perkCard", self._card, function(): boolean?
 			self:hide()
+			return nil
 		end, self._button.face)
 	end
 	if GuiService.ReducedMotionEnabled then

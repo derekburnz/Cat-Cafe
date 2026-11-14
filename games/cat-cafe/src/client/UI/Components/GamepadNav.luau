@@ -153,10 +153,11 @@ end
 -- over everything (an ask card, a confirm, the Index detail card) pushes how to close it here while it shows, and B
 -- closes the top one that still shows before it closes the window (init.luau). `id` names it, so pushing again
 -- moves it to the top and pop takes it out wherever it is.
-type Back = { id: string, frame: GuiObject, close: () -> () }
+-- A close that returns false keeps the card (it cannot close now, like the first bowl's card), and B stops there.
+type Back = { id: string, frame: GuiObject, close: () -> boolean? }
 local backs: { Back } = {}
 
-function GamepadNav.pushBack(id: string, frame: GuiObject, close: () -> ())
+function GamepadNav.pushBack(id: string, frame: GuiObject, close: () -> boolean?)
 	GamepadNav.popBack(id)
 	table.insert(backs, { id = id, frame = frame, close = close })
 end
@@ -175,7 +176,9 @@ function GamepadNav.back(): boolean
 	while #backs > 0 do
 		local top = table.remove(backs) :: Back
 		if GamepadNav.shown(top.frame) then
-			top.close()
+			if top.close() == false then
+				table.insert(backs, top)
+			end
 			return true
 		end
 	end
@@ -185,7 +188,12 @@ end
 -- #4224: a pop-up card as it shows: on a gamepad it takes the selection on its main button (`main`, else its first
 -- useful button; never its X) and B closes it through `close`. Returns the function to call as it hides, which
 -- pops it and gives the selection back when the card had taken it.
-function GamepadNav.card(id: string, frame: GuiObject, close: () -> (), main: GuiObject?): () -> ()
+function GamepadNav.card(
+	id: string,
+	frame: GuiObject,
+	close: () -> boolean?,
+	main: GuiObject?
+): () -> ()
 	GamepadNav.pushBack(id, frame, close)
 	local before: GuiObject? = nil
 	local took = false

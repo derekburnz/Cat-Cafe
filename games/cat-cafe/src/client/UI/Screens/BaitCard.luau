@@ -437,10 +437,12 @@ function BaitCard.show(
 		Tween.popIn(self._card, 0.8)
 		-- #4224 (console): on a gamepad the card takes the selection on Tame, and B closes it as its X does (never
 		-- on the first bowl's card, which has no X)
-		self._navDone = GamepadNav.card("baitCard", self._card, function()
-			if self._close.instance.Visible then
-				self:hide()
+		self._navDone = GamepadNav.card("baitCard", self._card, function(): boolean
+			if not self._close.instance.Visible then
+				return false -- the first bowl's card has no X: B stays on it
 			end
+			self:hide()
+			return true
 		end, self._tame.face)
 	end
 end

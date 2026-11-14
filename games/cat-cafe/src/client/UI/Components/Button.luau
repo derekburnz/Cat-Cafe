@@ -552,7 +552,16 @@ function Button.new(props: Props): Button
 		end
 	end
 	self._activate = activate
+	-- the value holds the key (self.instance holds target), so the weak key alone never lets go: destroy and the
+	-- target's own Destroying (a row that goes with its parent) take the entry out
+	self._target = target
 	BY_TARGET[target] = self
+	table.insert(
+		self._connections,
+		target.Destroying:Connect(function()
+			BY_TARGET[target] = nil
+		end)
+	)
 	table.insert(self._connections, target.Activated:Connect(activate))
 
 	if props.parent then
@@ -597,6 +606,7 @@ function Button.styleOf(target: Instance?): Style?
 end
 
 function Button.destroy(self: any)
+	BY_TARGET[self._target] = nil
 	for _, connection in self._connections do
 		connection:Disconnect()
 	end

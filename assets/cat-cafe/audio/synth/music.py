@@ -874,10 +874,160 @@ def area_ruins(tmp: Path) -> np.ndarray:
                   "pad": (pad, -29, 0.45), "chimes": (chimes, -31, 0.5), "kit": (kit, -34, 0.15)}, 802, tmp)
 
 
+def sleigh(seed: int, velocity: float = 1.0) -> np.ndarray:
+    """A soft shake of small bells: a short burst of very high noise with a few ringing partials."""
+    t = seconds(0.22)
+    ring = sum(np.sin(2 * np.pi * f * t) for f in (5200.0, 6350.0, 7900.0)) / 3 * np.exp(-t / 0.05)
+    return (noise_hit(seed, 0.22, 6000, 12000, 0.002, 0.035) * 0.6 + ring * 0.25) * velocity
+
+
+def area_snowy(tmp: Path) -> np.ndarray:
+    """Lantern Peaks: G major, 80 BPM. A music box walks slow arpeggios (G Em C D, then G Bm C D) over soft strings
+    and a quiet bass, like lamps in falling snow; a vibraphone sings the tune with small bells on the off-beats; a
+    flute takes it; the vibraphone again with a glockenspiel an octave up, the northern lights overhead."""
+    s = Song(80, 4, seed=83)
+    bars = [  # bass root, the chord the music box walks
+        ("G2", "G3 B3 D4 G4"), ("E2", "E3 G3 B3 E4"), ("C2", "C3 E3 G3 C4"), ("D2", "D3 F#3 A3 D4"),
+        ("G2", "G3 B3 D4 G4"), ("B1", "B2 D3 F#3 B3"), ("C2", "C3 E3 G3 C4"), ("D2", "D3 F#3 A3 D4"),
+    ]
+    tune = melody("0 0 2 D4; 0 2 1 B3; 0 3 1 D4; 1 0 3 E4; 1 3 1 D4;"
+                  "2 0 1.5 C4; 2 1.5 0.5 D4; 2 2 2 E4; 3 0 4 D4;"
+                  "4 0 2 B3; 4 2 1 D4; 4 3 1 G4; 5 0 3 F#4; 5 3 1 D4;"
+                  "6 0 1.5 E4; 6 1.5 0.5 D4; 6 2 2 C4; 7 0 2 A3; 7 2 2 F#3")
+    box, bass, lead, pad, bells = s.stem(), s.stem(), s.stem(), s.stem(), s.stem()
+    for bar in range(BARS):
+        root, voicing = bars[bar % 8]
+        section = bar // 8
+        notes = chord(voicing)
+        for k, i in enumerate((0, 1, 2, 3, 2, 1, 2, 1)):
+            s.put(box, music_box(notes[i] * 2) * (0.8 if k % 4 == 0 else 0.5), bar, k * 0.5,
+                  pan=-0.3 + 0.15 * i, loose=0.004)
+        s.put(bass, upright(3.0, note(root), 0.5), bar, 0.0)
+        s.put(pad, strings(4 * s.beat, notes[:3], 830 + bar), bar, 0.0, loose=0)
+        if section >= 1:
+            for k in (1, 3, 5, 7):
+                s.put(bells, sleigh(8600 + bar * 8 + k, 0.9 if k in (3, 7) else 0.6), bar, k * 0.5, pan=0.35)
+        for b, beat, length, f in tune:
+            if b != bar % 8:
+                continue
+            if section in (1, 3):
+                s.put(lead, vibraphone(length * s.beat * 0.9, f * 4), bar, beat, pan=0.1)
+                if section == 3:
+                    s.put(lead, glock(f * 8) * 0.25, bar, beat, pan=0.3)
+            elif section == 2:
+                s.put(lead, flute(length * s.beat * 0.92, f * 4, bar * 10 + int(beat * 2)), bar, beat, pan=0.05)
+        if section == 0 and bar % 2 == 1:  # before the tune: two high notes answer the music box
+            for k, i in enumerate((3, 2)):
+                s.put(lead, glock(notes[i] * 4) * 0.3, bar, 2.0 + k, pan=0.3)
+    return blend({"lead": (lead, -20, 0.4), "box": (box, -24, 0.35), "bass": (bass, -28, 0.05),
+                  "pad": (pad, -28, 0.5), "bells": (bells, -36, 0.2)}, 803, tmp)
+
+
+def area_waterpark(tmp: Path) -> np.ndarray:
+    """Splash Parade: C major, 108 BPM. A sunny bounce: a marimba plays off the beat over a walking bass, a kick
+    and claps (C F G C, then Am F G G); glockenspiel drops splash before the tune; a marimba plays it; a flute
+    takes it; then both, with the glockenspiel an octave up."""
+    s = Song(108, 4, seed=84)
+    bars = [
+        ("C2", "C3 E3 G3 C4"), ("F2", "F3 A3 C4 F4"), ("G2", "G3 B3 D4 G4"), ("C2", "C3 E3 G3 C4"),
+        ("A1", "A2 C3 E3 A3"), ("F2", "F3 A3 C4 F4"), ("G2", "G3 B3 D4 G4"), ("G2", "G3 B3 D4 F4"),
+    ]
+    tune = melody("0 0 1 E4; 0 1 0.5 G4; 0 1.5 1.5 C5; 0 3 1 G4; 1 0 1 A4; 1 1 1 C5; 1 2 2 A4;"
+                  "2 0 1 B4; 2 1 0.5 D5; 2 1.5 1.5 B4; 2 3 1 G4; 3 0 3 C5; 3 3 1 G4;"
+                  "4 0 1 A4; 4 1 0.5 C5; 4 1.5 1.5 E5; 4 3 1 C5; 5 0 1 A4; 5 1 1 F4; 5 2 2 A4;"
+                  "6 0 1 G4; 6 1 1 B4; 6 2 1 D5; 6 3 1 B4; 7 0 2 D5; 7 2 2 G4")
+    comp, bass, lead, drops, kit = s.stem(), s.stem(), s.stem(), s.stem(), s.stem()
+    rng = np.random.default_rng(8400)
+    for bar in range(BARS):
+        root, voicing = bars[bar % 8]
+        section = bar // 8
+        notes = chord(voicing)
+        for k in (1, 3, 5, 7):  # the chord, off the beat
+            for i in (1, 2, 3):
+                s.put(comp, marimba(notes[i], 0.5 if k in (3, 7) else 0.4), bar, k * 0.5, pan=-0.35 + 0.1 * i,
+                      loose=0.004)
+        low = note(root)
+        for beat, f, v in ((0.0, low, 0.75), (1.5, low * 1.5, 0.5), (2.0, low * 2, 0.6), (3.0, low * 1.5, 0.55)):
+            s.put(bass, upright(0.5, f, v), bar, beat, pan=-0.05)
+        soft = 0.6 if section == 0 else 1.0
+        for beat in (0, 2):
+            s.put(kit, kick() * 0.7 * soft, bar, beat)
+        for beat in (1, 3):
+            s.put(kit, clap(8700 + bar * 4 + beat) * 0.5 * soft, bar, beat, pan=0.2)
+        for k in range(8):
+            s.put(kit, noise_hit(8800 + bar * 8 + k, 0.08, 5000, 11000, 0.008, 0.025), bar, k * 0.5, pan=-0.4,
+                  gain=0.3 if k % 2 else 0.18)
+        if section == 0 or bar % 8 == 7:  # splashes: a few high drops
+            for k in range(3):
+                if rng.random() < 0.7:
+                    s.put(drops, glock(notes[int(rng.integers(1, 4))] * 4) * 0.3, bar,
+                          float(rng.choice([0.5, 1.0, 2.5, 3.0, 3.5])), pan=float(rng.uniform(-0.6, 0.6)))
+        for b, beat, length, f in tune:
+            if b != bar % 8:
+                continue
+            if section in (1, 3):
+                s.put(lead, marimba(f * 2, 0.9), bar, beat, pan=0.15)
+            if section in (2, 3):
+                s.put(lead, flute(length * s.beat * 0.9, f * 2, bar * 10 + int(beat * 2)) * (0.7 if section == 3 else 1),
+                      bar, beat, pan=-0.05)
+            if section == 3:
+                s.put(lead, glock(f * 4) * 0.18, bar, beat, pan=0.35)
+    return blend({"lead": (lead, -20, 0.25), "comp": (comp, -25, 0.2), "bass": (bass, -26, 0.05),
+                  "drops": (drops, -30, 0.5), "kit": (kit, -30, 0.12)}, 804, tmp)
+
+
+def area_castle(tmp: Path) -> np.ndarray:
+    """Banner Hall: D minor, 92 BPM. A stately court dance, friendly not grim: a lute plucks the steps (Dm C Dm A,
+    then F C Bb A) with a hand drum and a tambourine; a flute like a recorder plays the tune; the lute answers
+    over low strings; the flute again with a glockenspiel, banners up."""
+    s = Song(92, 4, seed=85)
+    bars = [
+        ("D2", "D3 A3 D4 F4"), ("C2", "C3 G3 C4 E4"), ("D2", "D3 A3 D4 F4"), ("A1", "A2 E3 A3 C#4"),
+        ("F2", "F3 A3 C4 F4"), ("C2", "C3 G3 C4 E4"), ("Bb1", "Bb2 D3 F3 Bb3"), ("A1", "A2 E3 A3 C#4"),
+    ]
+    tune = melody("0 0 1 D4; 0 1 1 F4; 0 2 2 A4; 1 0 1 G4; 1 1 1 E4; 1 2 2 C4;"
+                  "2 0 1 D4; 2 1 1 F4; 2 2 1 A4; 2 3 1 D5; 3 0 3 C#5; 3 3 1 A4;"
+                  "4 0 1.5 C5; 4 1.5 0.5 A4; 4 2 2 F4; 5 0 1 G4; 5 1 1 E4; 5 2 2 G4;"
+                  "6 0 1 F4; 6 1 1 D4; 6 2 1 F4; 6 3 1 Bb4; 7 0 2 A4; 7 2 2 E4")
+    lute, bass, lead, pad, kit = s.stem(), s.stem(), s.stem(), s.stem(), s.stem()
+    for bar in range(BARS):
+        root, voicing = bars[bar % 8]
+        section = bar // 8
+        notes = chord(voicing)
+        for k, i in enumerate((0, 2, 3, 2, 1, 2, 3, 2)):
+            s.put(lute, pluck(0.35, notes[i], 8900 + bar * 16 + k, bright=0.55, ring=1.1)
+                  * (0.85 if k % 4 == 0 else 0.55), bar, k * 0.5, pan=-0.3 + 0.1 * i, loose=0.005)
+        s.put(bass, upright(1.8, note(root), 0.65), bar, 0.0, pan=-0.05)
+        s.put(bass, upright(0.8, note(root) * 1.5, 0.45), bar, 2.0, pan=-0.05)
+        soft = 0.6 if section == 0 else 1.0
+        for beat, f, v in ((0.0, 150, 0.8), (1.5, 220, 0.45), (2.0, 150, 0.6), (3.0, 220, 0.55)):
+            s.put(kit, hand_drum(9000 + bar * 8 + int(beat * 2), f, v * soft), bar, beat, pan=0.2)
+        for beat in (1, 3):
+            s.put(kit, sleigh(9100 + bar * 4 + beat, 0.7 * soft), bar, beat, pan=-0.35)
+        if section in (2, 3):
+            s.put(pad, strings(4 * s.beat, notes[:3], 840 + bar), bar, 0.0, loose=0)
+        for b, beat, length, f in tune:
+            if b != bar % 8:
+                continue
+            if section in (1, 3):
+                s.put(lead, flute(length * s.beat * 0.9, f * 2, bar * 10 + int(beat * 2)), bar, beat, pan=0.1)
+                if section == 3:
+                    s.put(lead, glock(f * 4) * 0.2, bar, beat, pan=0.35)
+            elif section == 2:
+                s.put(lead, pluck(length * s.beat, f * 2, 9200 + bar * 16 + int(beat * 2), bright=0.7, ring=1.8),
+                      bar, beat, pan=0.15)
+        if bar % 8 == 7:  # a short call up into the next phrase
+            for k, name in enumerate(("A4", "C#5", "E5", "A5")):
+                s.put(lead, marimba(note(name), 0.35), bar, 2.0 + 0.5 * k, pan=0.3)
+    return blend({"lead": (lead, -20, 0.3), "lute": (lute, -23, 0.2), "bass": (bass, -27, 0.05),
+                  "pad": (pad, -30, 0.45), "kit": (kit, -31, 0.15)}, 805, tmp)
+
+
 SONGS = {"DayA": day_a, "DayB": day_b, "NightA": night_a, "DayC": day_c, "DayD": day_d, "NightB": night_b,
          "Tutorial": tutorial, "JukeboxRainyWindow": jukebox_rainy_window,
          "JukeboxCatnapWaltz": jukebox_catnap_waltz, "JukeboxBakeryBounce": jukebox_bakery_bounce,
-         "JukeboxStarlightPurr": jukebox_starlight_purr, "AreaDesert": area_desert, "AreaRuins": area_ruins}
+         "JukeboxStarlightPurr": jukebox_starlight_purr, "AreaDesert": area_desert, "AreaRuins": area_ruins,
+         "AreaSnowy": area_snowy, "AreaWaterpark": area_waterpark, "AreaCastle": area_castle}
 
 # The music sheet (#980, 2026-11-03). Audio uploads were used up (100 a month until an account is ID verified), so the
 # three songs Derek approved on 2026-11-03 share one upload: each renders on its own to sheet-parts/music/ (gated
@@ -889,6 +1039,8 @@ SHEET = ("DayC", "DayD", "NightB")
 JUKEBOX = ("JukeboxRainyWindow", "JukeboxCatnapWaltz", "JukeboxBakeryBounce", "JukeboxStarlightPurr")
 # The area songs (#2651) share one upload too: sheets/CatCafe_Sheet_MusicAreas.ogg.
 AREAS = ("AreaDesert", "AreaRuins")
+# The next three areas' songs (#4069, #4070, #4071) share a second one: sheets/CatCafe_Sheet_MusicAreas2.ogg.
+AREAS2 = ("AreaSnowy", "AreaWaterpark", "AreaCastle")
 SHEET_GAP = 0.5
 
 
@@ -953,7 +1105,7 @@ def main() -> int:
             rendered[name] = x
             wav = tmp / f"{name}.wav"
             write_wav(wav, x)
-            folder = "sheet-parts/music" if name in SHEET or name in JUKEBOX or name in AREAS else "music"
+            folder = "sheet-parts/music" if name in SHEET or name in JUKEBOX or name in AREAS or name in AREAS2 else "music"
             out = ROOT / folder / f"CatCafe_Music_{name}.ogg"
             encode(wav, out, ["-c:a", "libvorbis", "-q:a", "5"])
             print(f"music: {out.relative_to(ROOT.parents[2]).as_posix()}  {len(x) / SR:.1f} s")
@@ -963,6 +1115,8 @@ def main() -> int:
             write_sheet(rendered, tmp, JUKEBOX, "MusicJukebox", "sheetMusicJukebox")
         if any(name in rendered for name in AREAS):
             write_sheet(rendered, tmp, AREAS, "MusicAreas", "sheetMusicAreas")
+        if any(name in rendered for name in AREAS2):
+            write_sheet(rendered, tmp, AREAS2, "MusicAreas2", "sheetMusicAreas2")
         if args.preview:
             folder = Path(args.preview)
             folder.mkdir(parents=True, exist_ok=True)

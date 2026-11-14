@@ -5,7 +5,7 @@
 -- samples the frames and shows the ask.
 --   WINDOW_SECONDS, LOW_FPS, WINDOWS, SKIP_SECONDS, ASKED_KEY, TELEMETRY, OUTCOMES
 --   step(run, fps, counted)   adds one window's frames a second to `run` (a count of slow windows in a row) and
---                             returns the new run; a window not `counted` (a cutscene, a catch) leaves it as it is
+--                             returns the new run; a window not `counted` (a cutscene, the intro) leaves it as it is
 --   due(run, elapsed, touch, lowPerformance, asked)   whether to ask now
 
 local PerfSuggest = {}

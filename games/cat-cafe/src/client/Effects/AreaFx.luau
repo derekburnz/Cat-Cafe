@@ -12,6 +12,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
@@ -455,10 +456,27 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 	fadeAurora(spec, spec.shown)
 end
 
-local function updateAurora(area: string?)
+-- Studio only: Workspace's `AreaAuroraTest` attribute set to an area's id ("snowy") hangs its northern lights over
+-- where you stand, day or night, until it is cleared.
+local testAurora: string? = nil
+local testBox: any = nil
+
+local function updateAurora(here: string?, feet: Vector3)
+	local area = here
+	if testAurora ~= nil then
+		area = testAurora
+		if testBox == nil then
+			testBox = {
+				id = testAurora,
+				centre = { x = feet.X, z = feet.Z },
+				size = { width = 300, depth = 200 },
+			}
+		end
+	end
 	local spec = specOf(area)
 	local wanted = if spec ~= nil then spec.aurora else nil
-	if wanted == nil or area == nil or Context.lowPerformance or not Context.isNight() then
+	local night = Context.isNight() or testAurora ~= nil
+	if wanted == nil or area == nil or Context.lowPerformance or not night then
 		local old = specOf(auroraArea)
 		local was = if old ~= nil then old.aurora else nil
 		if aurora == nil or was == nil or Context.lowPerformance then
@@ -477,6 +495,10 @@ local function updateAurora(area: string?)
 		return
 	end
 	dropAurora()
+	if testBox ~= nil then
+		buildAurora(area, wanted, testBox)
+		return
+	end
 	for _, box in areaBoxes() do
 		if box.id == area then
 			buildAurora(area, wanted, box)
@@ -499,7 +521,7 @@ local function step()
 	updateAir(area, feet)
 	updateMist(area, feet)
 	updateDunes(area, feet)
-	updateAurora(area)
+	updateAurora(area, feet)
 	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
 	updateFeet(area, feet, humanoid :: Humanoid?)
 end
@@ -516,6 +538,14 @@ function AreaFx.start()
 		strayAdded(instance)
 	end)
 	CollectionService:GetInstanceRemovedSignal("Stray"):Connect(strayRemoved)
+	if RunService:IsStudio() then
+		Workspace:GetAttributeChangedSignal("AreaAuroraTest"):Connect(function()
+			local value = Workspace:GetAttribute("AreaAuroraTest")
+			testAurora = if type(value) == "string" and value ~= "" then value else nil
+			testBox = nil
+			dropAurora()
+		end)
+	end
 	task.spawn(function()
 		while true do
 			step()

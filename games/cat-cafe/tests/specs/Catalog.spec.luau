@@ -664,18 +664,20 @@ return function()
 		local expected: { { any } } = {
 			{ "Corner Cafe", 0, 0, nil, nil, 2, 1.00, "alley", { 2, 2, 1 } },
 			-- #3204: Tables 4, Espresso 3 and Net 1 at Tier 2 (were 5, 4 and 2); Net 2 at Tier 3 and Net 3 at Tier 5
-			{ "Cozy Cafe", 7500, 4, nil, nil, 4, 1.25, "park", { 4, 3, 1 } }, -- #4098
+			{ "Cozy Cafe", 1500, 3, nil, nil, 4, 1.25, "park", { 4, 3, 1 } }, -- #4188 (7,500 and 4 for #4098)
 			-- economy-ladder.md section 3 v3.1 (#1452, more wild cats; #1499 Tier 2 30,000): 30,000, 700,000, 60M and 2B;
 			-- #1896 (first-hour.md 4): Tier 3 900,000
 			-- #2895 (Derek2: "lower the 3-6 tier costs", then 50/30/10% off for Tiers 5/6/7): 600,000, 24M, 700M, 8B and 60B before
 			-- #3111 (Derek2: "lower the different cats requirement a little bit between 3-7"): 11, 28, 42 and 52 before at
 			-- Tiers 3, 5, 6 and 7; Tier 4 stays 22, any cut there fails Pace's 2 hour floor for 4x Money
-			{ "Busy Cafe", 520000, 10, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 2 } },
-			{ "Famous Cafe", 16800000, 22, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 2 } },
-			{ "Grand Cafe", 390000000, 26, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			-- #4189 (Derek 2026-11-14: into the next areas sooner): 520,000, 16.8M, 390M, 5.6B and 54B, and 10, 22, 26, 38
+			-- and 47 kinds before; the 4x Money 2 hour floor is dropped
+			{ "Busy Cafe", 150000, 8, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 2 } },
+			{ "Famous Cafe", 4000000, 17, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 2 } },
+			{ "Grand Cafe", 90000000, 20, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 			-- #2651 (tier6-7-areas.md sections 1 and 7b), QA-Planner's Pace fit
-			{ "Sunstone Cafe", 5600000000, 38, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
-			{ "Wonder Cafe", 54000000000, 47, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
+			{ "Sunstone Cafe", 1250000000, 30, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
+			{ "Wonder Cafe", 12500000000, 38, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
 		}
 
 		it("has seven tiers matching the table", function()

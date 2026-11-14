@@ -147,7 +147,16 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	if secret ~= nil then
 		Telemetry.custom(player, "secret_spawn", 1, { "bowl", "bait" })
 	end
-	local def = secret or Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
+	-- #4188: the account's first food brings a kind the player has not met (the tutorial's third kind, Tier 2's need)
+	local def = secret
+		or if profile.stats.luresUsed == 0
+			then Catching.pickNewBaitCat(
+				rarity,
+				Economy.tier(profile),
+				rng:NextNumber(),
+				profile.collection
+			)
+			else Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
 	-- the player's own gold luck, rainbow luck (F99) and bait speed, fixed now (F54): a later claim never moves a
 	-- filling bowl. A Lucky Potion running now doubles the gold chance (F64), never the rainbow one.
 	local totals = IndexRewards.totals(profile)
@@ -156,8 +165,11 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	-- server hop or sunrise never moves it
 	local night = ClockService.phase() == "night"
 	-- #1895: the account's first bait comes within 2 minutes (luresUsed counts up below)
-	local wait =
-		Bait.firstWait(Economy.baitWaitSeconds(profile, night, now), profile.stats.luresUsed)
+	-- #4195: Bowl Frenzy (an admin event's bowlSpeed) running now divides the wait, fixed in readyAt like the rest
+	local wait = Bait.firstWait(
+		Bait.eventWait(Economy.baitWaitSeconds(profile, night, now), EventService.bowlSpeed()),
+		profile.stats.luresUsed
+	)
 	-- F73: a Gold Rush Potion's luck and a Quick Bait Potion's speed running now are fixed in with the Index's
 	local kinds = ClockService.dayKinds() -- #1572: a Golden or Rainbow Day lifts the chances fixed in now
 	local goldChance = Potions.baitGoldChance(

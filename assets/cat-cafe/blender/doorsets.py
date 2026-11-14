@@ -686,8 +686,50 @@ class TicketGate:
         L.span(b, hu - 0.4, hu + 0.05, hy - 0.06, hy + 0.06, L.inn - 0.12, L.inn, self.BRASS)
         L.knuckles(b, (0.95, (y0 + y1) / 2, y1 - 0.6), 0.07 if L.back else 0.06, self.BRASS)
 
+
+class Drawbridge:
+    """Medieval Castle (Common, the Castle Crate): a drawbridge door of heavy oak planks with two iron bands and
+    round studs, a small barred window, a chain down from each top corner to a ring, and an iron ring pull."""
+    NAME, SILL, TRIM, SIGN = "Drawbridge", "concrete_dark", "concrete", dict(z=0.1, cu=2.925)
+    BODY, DARK, IRON, STUD = "caramel_wood", "dark_wood", "fur_gunmetal", "fur_silver"
+
+    def leaf(self, L, b, g):
+        w, y0, y1 = L.w, L.y0, L.y1
+        cu = w / 2
+        ww = 0.6 if L.back else 0.45
+        win = (cu - ww, cu + ww, y1 - 2.05, y1 - 1.1)
+        L.body(b, [win], self.BODY)
+        o = L.out
+        for n0, n1 in L.faces(0.04):                                # the window's iron frame
+            L.outline(b, win[0] - 0.1, win[1] + 0.1, win[2] - 0.1, win[3] + 0.1, 0.1, n0, n1, self.IRON)
+        L.glass(g, win)
+        bars = 3 if L.back else 2                                   # its bars
+        for k in range(1, bars + 1):
+            u = win[0] + k * (win[1] - win[0]) / (bars + 1)
+            L.span(b, u - 0.035, u + 0.035, win[2], win[3], L.mid - 0.05, L.mid + 0.05, self.IRON)
+        low = (ZONE[2] + 0.1) if L.back else (y0 + 0.1)             # the planks' joints, clear of a back leaf's flap
+        n = max(3, round(w / 0.6))
+        for k in range(1, n):
+            u = k * w / n
+            top = (win[2] - 0.14) if win[0] - 0.12 < u < win[1] + 0.12 else (y1 - 0.1)
+            L.span(b, u - 0.02, u + 0.02, low, top, o, o + 0.012, self.DARK)
+        for y in (low + 0.5, y1 - 0.62):                            # two iron bands with studs
+            L.span(b, 0.0, w - 0.08, y - 0.13, y + 0.13, o, o + 0.04, self.IRON)
+            for k in range(n):
+                L.cyl(b, (k + 0.5) * w / n, y, o + 0.05, 0.06, 0.03, self.STUD, segments=6)
+        ring = (w - 0.55, 3.45)                                     # the chain's ring and the pull
+        L.bar(b, (0.25, y1 - 0.2), (ring[0], ring[1] + 0.3), 0.06, o + 0.05, o + 0.09, self.IRON)
+        for k in range(5):                                          # links along the chain
+            t = (k + 0.5) / 5
+            L.box(b, 0.25 + t * (ring[0] - 0.25), y1 - 0.2 + t * (ring[1] + 0.3 - (y1 - 0.2)), o + 0.1, 0.12, 0.12,
+                  0.03, self.STUD, deg=45)
+        L.ring(b, ring[0], ring[1], o + 0.04, o + 0.1, 0.24, 0.16, self.IRON)
+        L.cyl(b, ring[0], ring[1] + 0.26, o + 0.06, 0.09, 0.12, self.STUD, segments=6)
+        L.span(b, ring[0] - 0.2, ring[0] + 0.2, ring[1] - 0.06, ring[1] + 0.06, L.inn - 0.12, L.inn, self.IRON)
+        L.knuckles(b, (0.95, (y0 + y1) / 2, y1 - 0.6), 0.07 if L.back else 0.06, self.IRON)
+
 SETS = (FireEscape(), GardenGate(), FrontPorch(), LogCabin(), PortholeHatch(), PanedGlass(), Medal(), ArchGate(),
-        TempleGate(), Chalet(), TicketGate())
+        TempleGate(), Chalet(), TicketGate(), Drawbridge())
 
 
 def build_front(style, mat):
@@ -992,12 +1034,43 @@ def build_flap_slide(mat):
         p.cyl((x, -RP + y, -0.045), 0.085, 0.03, "offwhite", axis="Z", segments=8)
     return [f.finalize(name, mat), p.finalize(name + "_Flap", mat, location=FLAP_HINGE)]
 
+
+def build_flap_portcullis(mat):
+    """Medieval Castle (Rare, the Castle Crate): a little castle gate, a frame of grey stone blocks with a keystone
+    and two battlement teeth on top, and the flap an iron portcullis: a dark plate with a grid of bars and spikes
+    along its foot."""
+    name = "CatCafe_CatFlap_Portcullis"
+    f, p = RB(), RB()
+    _rect_frame(f, "concrete", 0.26, 0.12, 0.05)
+    x0, x1, y1 = -FX - 0.26, FX + 0.26, FY1 + 0.26
+    for k in range(4):                                          # block joints up each side
+        y = FY0 + 0.1 + k * (FY1 - FY0) / 4
+        for x in (x0, FX):
+            f.span((x + 0.02, y, -0.135), (x + 0.24, y + 0.04, -0.12), "concrete_dark")
+    f.span((-0.22, FY1 + 0.02, -0.2), (0.22, y1 + 0.08, -0.005), "concrete_dark")                # keystone
+    for x in (x0, x1 - 0.4):                                    # battlement teeth
+        f.span((x, y1, -0.12), (x + 0.4, y1 + 0.26, -0.005), "concrete")
+    h = FY1 - FY0
+    _panel(p, "dark_wood")
+    for k in range(5):                                          # upright bars, pointed at the foot
+        x = (-FX + 0.03) + (k + 0.5) * (2 * FX - 0.06) / 5
+        p.span((x - 0.05, -h + 0.14, -0.07), (x + 0.05, -0.04, -0.03), "fur_gunmetal")
+        p.box((x, -h + 0.14, -0.05), (0.1, 0.1, 0.04), "fur_gunmetal", rot=rot_z(45))
+    for y in (-h + 0.5, -h + 1.0, -h + 1.5):                    # cross bars and rivets
+        if y < -0.1:
+            p.span((-FX + 0.05, y - 0.04, -0.085), (FX - 0.05, y + 0.04, -0.07), "fur_gunmetal")
+            for k in range(5):
+                x = (-FX + 0.03) + (k + 0.5) * (2 * FX - 0.06) / 5
+                p.cyl((x, y, -0.09), 0.035, 0.02, "fur_silver", axis="Z", segments=6)
+    return [f.finalize(name, mat), p.finalize(name + "_Flap", mat, location=FLAP_HINGE)]
+
 NEST = {"_LeafL_Glass": "_LeafL", "_LeafR_Glass": "_LeafR", "_Leaf_Glass": "_Leaf", "_Sign": "_Leaf",
         "_Sign_Bulb": "_Leaf", "_Flap_Bulb": "_Flap"}
 FLAPS = {"Plain": build_flap_plain, "NeonPaw": build_flap_neon_paw, "Birdhouse": build_flap_birdhouse,
          "MailSlot": build_flap_mail_slot, "TreeStump": build_flap_tree_stump, "PipeRing": build_flap_pipe_ring,
          "Bell": build_flap_bell, "FinishLine": build_flap_finish_line, "SunDisc": build_flap_sun_disc,
-         "Keyhole": build_flap_keyhole, "Igloo": build_flap_igloo, "Slide": build_flap_slide}
+         "Keyhole": build_flap_keyhole, "Igloo": build_flap_igloo, "Slide": build_flap_slide,
+         "Portcullis": build_flap_portcullis}
 
 ASSETS = {}
 for _s in SETS:

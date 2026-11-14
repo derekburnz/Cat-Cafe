@@ -1034,6 +1034,10 @@ local function baitWindow()
 	return window
 end
 -- #4266: the Auto Bowl switch on, the pass made (a made-up id) and on sale at R$19; Scenes.close puts all back
+-- #4266: the menu family look is on (the Auto Bowl card is part of its bowl column)
+local function familyLook(): boolean
+	return UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily").on()
+end
 local function autoBowlOn()
 	local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 	Scenes._autoBowl = true
@@ -4458,6 +4462,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- #4266 (Derek 2026-11-14): the Auto Bowl pass in the empty space over Refill: the offer with Roblox's price over
 	-- the free New cat pop-ups switch, clear of the wait chip above and the buttons below
 	{ "BaitAutoOffer", function()
+		if not familyLook() then
+			return -- the card lives in the family look's status column (live since #3961); the old look has no room
+		end
 		autoBowlOn()
 		UI.bait.openPicker()
 		local window = baitWindow()
@@ -4483,6 +4490,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	-- #4266: with the pass, AUTO BOWL's three switches, all on; a tap turns one off and keeps it through a stale sync
 	{ "BaitAutoOwned", function()
+		if not familyLook() then
+			return -- the card lives in the family look's status column (live since #3961); the old look has no room
+		end
 		autoBowlOn()
 		UI.update({ autoBowl = { owned = true } } :: any)
 		UI.bait.openPicker()

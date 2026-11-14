@@ -484,6 +484,7 @@ local CAT_CATCHES: { [string]: string } = {
 	water = "campSplash",
 	dragon_knight = "dragonChirp",
 }
+Logic.STORM_LAND_CUE = "stormLand" -- #4197: a Cat Storm's stray lands (Effects/StormFall)
 function Logic.areaCue(beat: any, area: any, catId: any): string?
 	if beat == "step" then
 		return if type(area) == "string" then AREA_STEPS[area] else nil

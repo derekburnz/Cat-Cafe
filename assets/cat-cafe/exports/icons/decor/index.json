@@ -89,6 +89,78 @@
     "model": "CatCafe_Lawn_BirdBath",
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_bird_bath.png"
   },
+  "castle_armour_stand": {
+    "name": "Armour Stand",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_ArmourStand",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_castle_armour_stand.png"
+  },
+  "castle_banner_red": {
+    "name": "Banner Red",
+    "kind": "paint",
+    "model": "CatCafe_Style_BannerRed",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_castle_banner_red.png"
+  },
+  "castle_dragon_scales": {
+    "name": "Dragon Scales",
+    "kind": "floor",
+    "model": "CatCafe_Style_DragonScales",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_castle_dragon_scales.png"
+  },
+  "castle_drawbridge_door": {
+    "name": "Drawbridge Door",
+    "kind": "door",
+    "model": "CatCafe_Door_Drawbridge_Front",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_castle_drawbridge_door.png"
+  },
+  "castle_feast_bench": {
+    "name": "Feast Bench",
+    "kind": "furniture",
+    "model": "CatCafe_Decor_FeastBench",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_castle_feast_bench.png"
+  },
+  "castle_hall_flagstones": {
+    "name": "Hall Flagstones",
+    "kind": "floor",
+    "model": "CatCafe_Style_HallFlagstones",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_castle_hall_flagstones.png"
+  },
+  "castle_keep_stone": {
+    "name": "Keep Stone",
+    "kind": "wallpaper",
+    "model": "CatCafe_Style_KeepStone",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_castle_keep_stone.png"
+  },
+  "castle_portcullis_flap": {
+    "name": "Portcullis Flap",
+    "kind": "catflap",
+    "model": "CatCafe_CatFlap_Portcullis",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_castle_portcullis_flap.png"
+  },
+  "castle_round_table": {
+    "name": "Round Table",
+    "kind": "furniture",
+    "model": "CatCafe_Decor_RoundTable",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_castle_round_table.png"
+  },
+  "castle_royal_blue": {
+    "name": "Royal Blue",
+    "kind": "paint",
+    "model": "CatCafe_Style_RoyalBlue",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_castle_royal_blue.png"
+  },
+  "castle_royal_tapestry": {
+    "name": "Royal Tapestry",
+    "kind": "wallpaper",
+    "model": "CatCafe_Style_RoyalTapestry",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_castle_royal_tapestry.png"
+  },
+  "castle_shield_rack": {
+    "name": "Shield Rack",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_ShieldRack",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_castle_shield_rack.png"
+  },
   "cat_tree_sign": {
     "name": "Cat Tree Sign",
     "kind": "lawn",

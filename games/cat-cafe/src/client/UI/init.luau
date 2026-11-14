@@ -236,6 +236,7 @@ UI.events = {
 	-- cutscene, "source:reason" (bait, store or cafePass; no_tap or busy)
 	storeGuardBlocked = Signal.new(), -- (what)   forward as TelemetryReport("store_guard_blocked", what)
 	buySource = Signal.new(), -- (what)   #4176: forward as TelemetryReport("buy_source", what)
+	starterSuggest = Signal.new(), -- (outcome)   #4174: forward as TelemetryReport("starter_suggest", outcome)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
@@ -1210,7 +1211,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		close = closeModal,
 		openFeedback = function()
-			UI.bugReport.open()
+			-- #4289 (Derek 11-14: "just make it immediately go to feedback"): Settings opens the write box on the
+			-- Idea chip, with no faces first; the HUD tile keeps the faces (F87)
+			UI.bugReport.open("idea", "none")
 		end,
 		-- F102: the Trading section, saved as settings.tradeRequests through SetSetting (Gameplay 2026-11-02)
 		setTradeRequests = function(mode: string)
@@ -1532,7 +1535,12 @@ function UI.init(config: Types.InitConfig)
 		if view then
 			local dashWindow = require(script.Components.MouseDashLogic).WINDOW
 			local poolWindow = require(script.Components.MysticPoolLogic).WINDOW
-			UI.rollBusy.window = name == dashWindow or name == "Arcade" or name == poolWindow
+			-- Derek 2026-11-14 ("mute all pop ups while in store"): the Store too, so toasts wait (warnings still show),
+			-- shout-outs drop and the event and day strip steps aside until it closes
+			UI.rollBusy.window = name == dashWindow
+				or name == "Arcade"
+				or name == poolWindow
+				or name == "Store"
 			view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.on)
 		end
 		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
@@ -1741,12 +1749,35 @@ function UI.init(config: Types.InitConfig)
 				if visible and input.KeyCode == Enum.KeyCode.ButtonSelect then
 					UI.gamepadSelect()
 					return
+				elseif visible and input.KeyCode == Enum.KeyCode.ButtonB then
+					-- #4224: B goes back one step: the top card or sub page first, then the window, and with
+					-- nothing open it lets go of the selection so the sticks walk again
+					local nav = require(script.Components.GamepadNav)
+					if nav.back() then
+						return
+					elseif modalInstance:current() ~= nil then
+						if nav.on() then
+							modalInstance:back()
+						else
+							modalInstance:close()
+						end
+						return
+					end
+					local guiService = game:GetService("GuiService")
+					if nav.on() and guiService.SelectedObject ~= nil then
+						guiService.SelectedObject = nil
+						return
+					end
 				elseif
 					visible
-					and input.KeyCode == Enum.KeyCode.ButtonB
+					and (input.KeyCode == Enum.KeyCode.ButtonL1 or input.KeyCode == Enum.KeyCode.ButtonR1)
 					and modalInstance:current() ~= nil
 				then
-					modalInstance:close()
+					-- #4224: L1 / R1 switch the open window's tabs
+					require(script.Components.GamepadNav).stepTab(
+						modalInstance.container,
+						if input.KeyCode == Enum.KeyCode.ButtonR1 then 1 else -1
+					)
 					return
 				end
 				if gameProcessed or not visible then
@@ -2651,6 +2682,20 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 	end
 	local index = if bowl == 2 then 2 else 1
 	bowls.cats[index] = cat
+	-- Derek 2026-11-14 ("mute all pop ups while in store"): whichever way the card is asked for while the Store is
+	-- open (Review-QA on #4260 saw one get past UI.bait.arrived), it waits for the Store to close, like arrived
+	if modal ~= nil and modal:current() == "Store" then
+		renderBait()
+		UI.bait.whenCalm(function()
+			return bowls.cats[index] == cat
+		end, function()
+			if baitCard ~= nil and baitCard:isShowing() then
+				return
+			end
+			UI.bait.showReady(cat, index)
+		end)
+		return
+	end
 	bowls.card = index
 	if modal and modal:current() == "Bait" then
 		modal:close()
@@ -2690,6 +2735,7 @@ function UI.bait.busy(): boolean
 		or UI.bigTraitCutting() -- #3846: a Legendary or Mythic trait roll's cutscene
 		or UI.bait.away() -- #4035: out catching in an area
 		or UI.cutscene.on -- #4018: any cutscene (UI.setCutscene)
+		or (modal ~= nil and modal:current() == "Store") -- Derek 2026-11-14: no bowl cards over the Store
 end
 
 -- #4035 (Derek 2026-11-13: "remove all food bowl pop ups etc until your back in town square way too many annoying
@@ -3094,6 +3140,11 @@ function UI.arcade.state(view: any)
 	if arcadeScreen and type(view) == "table" then
 		arcadeScreen:setState(view)
 	end
+	local bang: any = (UI :: any).arcadeBang -- filled with Mouse Dash, later in the file
+	if type(view) == "table" and type(bang) == "table" then
+		bang.classic = view
+		bang.refresh()
+	end
 end
 
 -- The `arcade` live switch: off greys Play (a game running finishes). `row` was the Settings list's Arcade row,
@@ -3101,6 +3152,11 @@ end
 function UI.arcade.setOn(on: boolean, _row: boolean?)
 	if arcadeScreen then
 		arcadeScreen:setOn(on)
+	end
+	local bang: any = (UI :: any).arcadeBang -- #4272: no "!" while the arcade is switched off
+	if type(bang) == "table" then
+		bang.on = on
+		bang.refresh()
 	end
 end
 
@@ -5247,8 +5303,12 @@ do
 		return TipQueue.device(UserInputService:GetLastInputType().Name, Scale.isTouch())
 	end
 
-	-- The area the next rank up opens, for rank_up's line.
+	-- The area the next rank up opens, for rank_up's line (#3997: none while its tier waits behind a live switch).
 	local function nextAreaName(): string?
+		local GoalLines = require(script.Components.GoalLines) :: any
+		if GoalLines.nextTier(currentCatalog and currentCatalog.tiers, state.tier) == nil then
+			return nil
+		end
 		for _, area in catalogAreas() do
 			if area.tier == state.tier + 1 then
 				return area.name
@@ -5518,8 +5578,8 @@ do
 	end
 
 	-- #3555: for the first rank up's walk-through (Controllers/RankSpotController). `moment` says whether nothing
-	-- else is going on (no catch, rescue, carry, cutscene or flight, the UI showing) and names the open window: the
-	-- modal's, or "other" for a popup, the bait card, an ask or the gift, tip or recap card.
+	-- else is going on (no catch, rescue, carry, intro or flight, the UI showing) and names the open window: the
+	-- modal's, or "other" for a popup, the bait card, an ask, the gift, tip or recap card or a cutscene.
 	function UI.rankSpot.moment(): (boolean, string?)
 		local at = tipMoment()
 		local free = not (
@@ -5545,6 +5605,10 @@ do
 				or (cards.gift.card ~= nil and cards.gift.card:isShowing())
 				or (tipCard ~= nil and tipCard:isShowing())
 				or (cards.recap.card ~= nil and cards.recap.card:isShowing())
+				-- #4188: and a cutscene (the first bait cat's). It counts as a card, not as busy: the free seconds keep
+				-- running under it, so with Tier 2 at 3 kinds the goal card lights the moment the bait cat's card and
+				-- scene are gone, not 2 s later
+				or UI.cutscene.on
 			)
 		then
 			window = "other"
@@ -5588,6 +5652,10 @@ do
 			lookForTips()
 			local tips: any = UI.tips -- lookForAsk is set by the ask's block below
 			tips.lookForAsk()
+			local lookForStarter: (() -> ())? = tips.lookForStarter -- #4174, set by its block below
+			if lookForStarter ~= nil then
+				lookForStarter()
+			end
 		end
 		if clocks.pump >= TIP.PUMP_EVERY then
 			clocks.pump = 0
@@ -5973,6 +6041,123 @@ do
 		if card ~= nil and not card:isShowing() then
 			openAsk(card)
 		end
+	end
+end
+
+-- #4174: the Starter Bundle's one slide-in card a session (shared/StarterSuggest), behind the starterSuggest switch.
+-- It rides the ask card (its X from the first frame, its picture and line, no timer: it stays until Buy or the X) with one Buy button, only in
+-- a clear moment past its random 10 to 15 minute mark. Its own block, as the module is short of locals.
+do
+	local StarterSuggest =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterSuggest")) :: any
+	local suggest = {
+		start = os.clock(),
+		dueAt = StarterSuggest.dueAt(math.random()),
+		done = false,
+	}
+
+	local function report(outcome: string)
+		UI.events.starterSuggest:Fire(outcome)
+	end
+
+	-- Roblox's price for the bundle when it is for sale, else nil
+	local function price(): (number?, number?)
+		local id = (Config :: any).ProductIds and (Config :: any).ProductIds.starter_bundle
+		if type(id) ~= "number" or id <= 0 then
+			return nil, nil
+		end
+		local PassShop = require(script.Components.PassShop) :: any
+		local known = PassShop.prices()[id]
+		if known == nil or known.forSale ~= true or type(known.robux) ~= "number" then
+			return id, nil
+		end
+		return id, known.robux
+	end
+
+	local function open(card: AskCard.AskCard, id: number, robux: number)
+		suggest.done = true
+		local ended = false
+		local function finish(how: string)
+			if ended then
+				return
+			end
+			ended = true
+			report(how)
+		end
+		card:show({
+			title = StarterSuggest.TITLE,
+			picture = StarterSuggest.PICTURE,
+			line = StarterSuggest.LINE,
+			choices = {
+				{ id = "buy", label = StarterSuggest.buyLabel(robux), style = "primary" },
+			},
+			-- no seconds: it stays until Buy or the X (Derek 2026-11-14), with no timer bar
+			answer = function(choice: string?)
+				if choice == "buy" then
+					finish("buy")
+					local PassShop = require(script.Components.PassShop) :: any
+					PassShop.noteTap()
+					PassShop.prompt(id, StarterSuggest.SOURCE)
+				end
+			end,
+			ended = function(how: string)
+				if how == "closed" or how == "ignored" then
+					finish(how)
+				elseif how ~= "answered" then
+					finish("hidden")
+				end
+			end,
+		})
+		UI.asks.shown()
+		report("shown")
+	end
+
+	-- From the tips clock, once a second.
+	function UI.tips.lookForStarter()
+		local card = askCard
+		if suggest.done or card == nil or card:isShowing() then
+			return
+		end
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local on = LiveFlags.shown(
+			StarterSuggest.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StarterSuggest.FLAG)
+		)
+		if not on then
+			return
+		end
+		local id, robux = price()
+		local QuietStart =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+		local PassShop = require(script.Components.PassShop) :: any
+		local okBusy, busy = pcall(PassShop.busy)
+		local due = StarterSuggest.due({
+			on = on,
+			done = suggest.done,
+			played = os.clock() - suggest.start,
+			dueAt = suggest.dueAt,
+			owned = (state :: any).starterBought,
+			quietUntil = Players.LocalPlayer:GetAttribute(QuietStart.ATTRIBUTE),
+			now = Workspace:GetServerTimeNow(),
+			tutorialDone = type(state.tutorialStep) == "number" and state.tutorialStep >= 5,
+			clear = UI.tips.quiet() and not (okBusy and busy == true) and UI.asks.paced(),
+			priced = robux ~= nil,
+		})
+		if due and id ~= nil and robux ~= nil then
+			open(card, id, robux)
+		end
+	end
+
+	-- The card now, whatever the clock and the switch say (QA in Studio and the UI gate), with a stand-in price
+	-- until Roblox's is known.
+	function UI.tips.showStarter()
+		local card = askCard
+		if card == nil then
+			return
+		end
+		local id, robux = price()
+		open(card, id or 0, robux or 99)
 	end
 end
 
@@ -8075,6 +8260,18 @@ end
 do
 	local MouseDash = require(script.Screens.MouseDash)
 	local MouseDashLogic = require(script.Components.MouseDashLogic)
+	-- #4272 (Derek 2026-11-14: "put an exclamation mark above the arcade when you have your free daily play"): the
+	-- camp stations' red "!" (Components/PoolBang) on the cabinet's BangAnchor while today's free play is unused, from
+	-- MouseDashState while Mouse Dash is the arcade's game, else ArcadeState
+	local ArcadeShared =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Arcade")) :: any
+	local arcadeBang = {
+		bang = nil :: any,
+		classic = nil :: any,
+		on = true, -- the `arcade` switch (UI.arcade.setOn)
+		refresh = function() end,
+	}
+	(UI :: any).arcadeBang = arcadeBang
 	local dash = {
 		screen = nil :: MouseDash.MouseDash?,
 		view = nil :: any,
@@ -8141,6 +8338,23 @@ do
 		return dash.on and dash.screen ~= nil
 	end
 
+	arcadeBang.refresh = function()
+		if arcadeBang.bang == nil then
+			arcadeBang.bang = require(script.Components.PoolBang).new(
+				ArcadeShared.TAG,
+				function(view: any): boolean
+					return type(view) == "table" and view.free == true and view.loaded ~= false
+				end
+			)
+		end
+		arcadeBang.bang:update(
+			if not arcadeBang.on
+				then nil
+				elseif UI.mouseDash.isMain() then dash.view
+				else arcadeBang.classic
+		)
+	end
+
 	function UI.mouseDash.open()
 		local modalView = modal
 		if
@@ -8157,6 +8371,7 @@ do
 		dash.on = on
 		dash.circle = circle
 		apply()
+		arcadeBang.refresh()
 	end
 
 	function UI.mouseDash.render(playerState: Types.PlayerState)
@@ -8175,6 +8390,7 @@ do
 		if screen then
 			screen:setState(view)
 		end
+		arcadeBang.refresh()
 	end
 
 	function UI.mouseDash.began(run: number, hearts: number, firstAt: number, endsAt: number?)
@@ -9540,10 +9756,11 @@ local function recapLines(view: { [string]: any }): { string }
 	local catalog = currentCatalog
 	local nextTier: string? = nil
 	if catalog and catalog.tiers and state.tier then
-		for _, tier in catalog.tiers :: { any } do
-			if tier.tier == state.tier + 1 and type(tier.name) == "string" then
-				nextTier = tier.name
-			end
+		-- #3997: nil while the next tier waits behind its live switch
+		local GoalLines = require(script.Components.GoalLines) :: any
+		local def = GoalLines.nextTier(catalog.tiers, state.tier)
+		if def and type(def.name) == "string" then
+			nextTier = def.name
 		end
 	end
 	local readyAt: { number } = {}
@@ -9709,6 +9926,25 @@ function UI.perks.unlock(perkId: string)
 			end
 		end
 	end)
+end
+
+-- #4280 (Derek 2026-11-14: "encourage trading by showing an unlock with a lock falling off of it animation on hitting
+-- Tier 3 (make sure its not overtop any other animations)"): the HUD's Trade tile, where Effects/TradeUnlock's icon
+-- flies, and whether the screen is calm enough for it: no window, roll, cutscene, catch, rescue or carry (UI.bait.busy),
+-- and no perk card up, the same holds as the "Unlocked!" card.
+function UI.tradeTile(): GuiObject?
+	local view: any = hud
+	local tile = if view ~= nil then view._tradeTile else nil
+	return if tile ~= nil then tile.instance else nil
+end
+
+function UI.calmForMoment(): boolean
+	local card: any = UI.perks.card
+	return (modal == nil or modal:current() == nil)
+		and not UI.rollBusy.on
+		and not UI.cutscene.on
+		and not UI.bait.busy()
+		and not (card ~= nil and card:isShowing())
 end
 
 UI.gift = {

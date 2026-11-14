@@ -76,9 +76,32 @@ ToastRules.CUT = {
 -- the only word the player gets that something they paid for or sent really landed, and the one call to come
 -- home. A catch, a claim, a reward, a drop, a level up, a placed piece and the like say nothing: the counters, the
 -- cards and the world show them.
+-- Derek 2026-11-14 ("mute all pop ups while in store"), Review-QA on #4260: the purchase confirmations a busy window
+-- (the Store above all) still lets through, so a buyer always sees that what they paid for landed.
+ToastRules.PURCHASE = {
+	"^Thank you! ", -- ProductService's receipt (products, deals, the Cafe Pass paid track)
+	"^King Cat Pack: ", -- ShopCatService, the pack's game pass (its old name)
+	"^Cat King Pack: ", -- #4261: ShopCatService, the Cat King Pack
+	"^Royal Cat Pack: ", -- #4261: ShopCatService, the Royal Cat Pack
+	"Your working cats now earn ", -- the outfit passes
+	"^New piece: ", -- FishMarket crates
+	" again: %+",
+	"^Opened %d+ crates: ",
+}
+
+function ToastRules.purchase(text: string): boolean
+	for _, pattern in ToastRules.PURCHASE do
+		if string.find(text, pattern) ~= nil then
+			return true
+		end
+	end
+	return false
+end
+
 ToastRules.KEEP = {
 	"^Thank you! ", -- ProductService: the receipt after a Robux purchase (a product, the Cafe Pass paid track)
-	"^King Cat Pack: ", -- ShopCatService: the same, for the pack's game pass
+	"^Cat King Pack: ", -- ShopCatService: the same, for the pack's game pass (#4261: was "King Cat Pack")
+	"^Royal Cat Pack: ", -- #4261 ShopCatService: the same, for the Royal Cat Pack's potions
 	"Your working cats now earn ", -- StoreLogic.outfitThanks: the same, for the outfit passes
 	"^Thanks! Your report was sent%.$", -- BugReport.Messages.sent: the report window only closes
 	"^Trade done!", -- TradeLogic.doneLine: the trade window only closes, as it does for a cancelled trade

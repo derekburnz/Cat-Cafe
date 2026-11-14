@@ -102,7 +102,8 @@ function ProductService.give(
 	sku: string,
 	thanks: string
 ): Grant.Result
-	local give, first = Products.prizeFor(profile, product)
+	-- #4020: a buyer with a Money pass already at the bundle's 2x or more gets its swap potions instead
+	local give, first = Products.prizeFor(profile, product, Economy.passes(profile).money)
 	local paid: { string } = {}
 	local catsBefore = catCount(profile)
 	local result = Grant.run({

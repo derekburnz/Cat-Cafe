@@ -6,6 +6,7 @@ return function()
 	local Catalog = require(Shared.Catalog)
 	local Config = require(Shared.Config)
 	local Economy = require(Shared.Economy)
+	local LateTiers = require(Shared.LateTiers)
 	local ProfileSchema = require(Shared.ProfileSchema)
 
 	-- A fresh version 3 profile per data-model section 14, built by hand so these tests do not depend on
@@ -77,7 +78,7 @@ return function()
 	end)
 
 	describe("tier and tierMultiplier (section 5b)", function()
-		it("reads the saved tier, 1 for a missing or damaged one, clamped to 1 to 7", function()
+		it("reads the saved tier, 1 for a missing or damaged one, clamped to 1 to 9", function()
 			local p = freshProfile()
 			expect(Economy.tier(p)).to.equal(1)
 			for _, case in ipairs({
@@ -88,7 +89,9 @@ return function()
 				{ 2.7, 2 },
 				{ 5, 5 },
 				{ 7, 7 }, -- #2651
-				{ 9, 7 },
+				{ 8, 8 }, -- #3997
+				{ 9, 9 }, -- #4070
+				{ 10, 9 },
 			}) do
 				p.tier = case[1]
 				expect(Economy.tier(p)).to.equal(case[2])
@@ -611,8 +614,9 @@ return function()
 			end
 
 			it(
-				"VIP, Cafe Style and Grand Cafe add into cafeMultiplier, +0.10, +0.50 and +1.50",
+				"VIP, Cafe Style and Grand Cafe add into cafeMultiplier, +0.10, +0.50 and +1.50 (vipBoost off)",
 				function()
+					Economy.setVipBoost(false)
 					local p = working()
 					local base = Economy.cafeMultiplier(p)
 					Economy.setPasses(p, with({ vip = true }))
@@ -620,8 +624,20 @@ return function()
 					Economy.setPasses(p, with({ vip = true, cafeStyle = true, grand = true }))
 					expect(Economy.passCafeBonus(p)).to.be.near(2.10, 1e-9)
 					expect(Economy.cafeMultiplier(p)).to.be.near(base + 2.10, 1e-9)
+					Economy.setVipBoost(nil)
 				end
 			)
+
+			it("#4235: with vipBoost on (the default) VIP adds +0.50 money", function()
+				Economy.setVipBoost(true)
+				local p = working()
+				local base = Economy.cafeMultiplier(p)
+				Economy.setPasses(p, with({ vip = true }))
+				expect(Economy.cafeMultiplier(p)).to.be.near(base + 0.50, 1e-9)
+				expect(Economy.passCafeBonus(p)).to.be.near(0.50, 1e-9)
+				Economy.setVipBoost(nil)
+				expect(Economy.vipBoost()).to.equal(true) -- no attribute: on unless switched off
+			end)
 
 			it(
 				"Accessories and Uniforms each multiply the working cats by 1.15, x1.3225 together",
@@ -689,7 +705,7 @@ return function()
 				expect(Catalog.openSlotCount(1, 2)).to.equal(4)
 				expect(Catalog.openSlotCount(5, 0)).to.equal(10)
 				expect(Catalog.openSlotCount(5, 2)).to.equal(12)
-				expect(Catalog.openSlotCount(5, 9)).to.equal(#Catalog.allSpots)
+				expect(Catalog.openSlotCount(5, 12)).to.equal(#Catalog.allSpots) -- 20 since #4070
 				expect(Catalog.openSlotCount(1, -3)).to.equal(2)
 				expect(Catalog.slotIsOpen("nope", 5, 2)).to.equal(false)
 			end)
@@ -834,10 +850,10 @@ return function()
 			end
 		)
 
-		it("at Tier 7 everything can go to its max level and then says Already maxed", function()
+		it("at Tier 9 everything can go to its max level and then says Already maxed", function()
 			local p = freshProfile()
-			p.tier = 7 -- #2651
-			p.coins = 1e10 -- the Lucky Cat 7 is 1,700,000,000 (#2651)
+			p.tier = 9 -- #2651; #3997; #4070
+			p.coins = 1e12 -- the Lucky Cat 9 is 135,000,000,000 (#4070)
 			for _, def in ipairs(Catalog.upgrades) do
 				p.upgradeLevels[def.id] = def.maxLevel - 1
 				expect(Economy.upgradeBlocker(p, def.id)).never.to.be.ok()
@@ -1126,7 +1142,9 @@ return function()
 					)
 				end
 			end
-			expect(Catalog.tiers[2].cost >= 5000).to.equal(true)
+			-- #4188 (Derek 2026-11-14): Tier 2 right after the tutorial, about what the focused player holds then (5,000
+			-- floor before); Pace's "Tier 2 right after the tutorial" checks it is not free either
+			expect(Catalog.tiers[2].cost >= 1000).to.equal(true)
 		end)
 	end)
 	describe("rank up (F24, section 5b)", function()
@@ -1209,17 +1227,15 @@ return function()
 		end)
 
 		it(
-			"Tier 1 to 2: 4 different cats and 7,500 coins (#4098; 13,500 and 5 for #3195, 12,000 for #2915, 22,000 for #2683, 30,000 for #1499), the starter Tabby counts",
+			"Tier 1 to 2: 3 different cats and 1,500 coins (#4188; 7,500 and 4 for #4098, 13,500 and 5 for #3195, 12,000 for #2915, 22,000 for #2683, 30,000 for #1499), the starter Tabby counts",
 			function()
 				local p = freshProfile()
-				p.coins = 7500
-				for _, id in { "ginger", "tuxedo" } do
-					p.collection[id] = 1000
-				end
-				expect(Economy.rankUpBlocker(p)).to.equal("Needs 4 different cats (you have 3)")
-				p.collection.smoke = 1000
+				p.coins = 1500
+				p.collection.ginger = 1000
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 3 different cats (you have 2)")
+				p.collection.tuxedo = 1000
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
-				p.coins = 7499
+				p.coins = 1499
 				expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
 			end
 		)
@@ -1269,8 +1285,8 @@ return function()
 		it(
 			"reasons come in the order a player works through them: cats, then the rarity, then coins",
 			function()
-				expect(Economy.rankUpBlocker(profileWith(2, 9, nil, nil, 0))).to.equal(
-					"Needs 10 different cats (you have 9)" -- #3111: Tier 3 needs 10 (11 before)
+				expect(Economy.rankUpBlocker(profileWith(2, 7, nil, nil, 0))).to.equal(
+					"Needs 8 different cats (you have 7)" -- #4189: Tier 3 needs 8 (10 before; 11 before #3111)
 				)
 				expect(Economy.rankUpBlocker(profileWith(2, 11, nil, nil, 0))).to.equal(
 					"Needs one cat, Epic or better"
@@ -1284,6 +1300,7 @@ return function()
 		it(
 			"every tier step passes at exactly its minimum and fails one cat or one coin short",
 			function()
+				LateTiers.setOpen(true) -- #3997: Tier 8 too
 				for from = 1, Catalog.maxTier - 1 do
 					local nextTier = Catalog.getTier(from + 1)
 					assert(nextTier)
@@ -1308,14 +1325,45 @@ return function()
 						expect(short).never.to.equal("Not enough coins")
 					end
 				end
+				LateTiers.setOpen(nil)
 			end
 		)
 
-		it("at Tier 7 there is nothing left, whatever the coins", function()
-			local p = profileWith(7, 60, "Mythical", 5) -- #2651: Tier 7 is the top
-			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Wonder Cafe")
+		it(
+			"at Tier 7 there is nothing left while the tier8 switch is off, whatever the coins",
+			function()
+				LateTiers.setOpen(false)
+				local p = profileWith(7, 60, "Mythical", 5, 1e13) -- #2651: Tier 7 is the top until #3997's switch
+				expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Wonder Cafe")
+				LateTiers.setOpen(true)
+				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
+				LateTiers.setOpen(nil)
+			end
+		)
+
+		it(
+			"at Tier 8 there is nothing left while the tier9 switch is off, whatever the coins (#3997, #4070)",
+			function()
+				LateTiers.setOpen(8) -- tier8 on, tier9 off
+				local p = profileWith(8, 70, "Mythical", 6, 1e14)
+				expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Summit Cafe")
+				LateTiers.setOpen(true)
+				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
+				-- and tier9 alone opens nothing: Tier 7 stays the top until tier8 is on
+				LateTiers.setOpen(false)
+				expect(LateTiers.topTier()).to.equal(7)
+				expect(LateTiers.tierOpen(9)).to.equal(false)
+				LateTiers.setOpen(nil)
+			end
+		)
+
+		it("at Tier 9 there is nothing left, whatever the coins (#4070)", function()
+			LateTiers.setOpen(true)
+			local p = profileWith(9, 70, "Mythical", 6)
+			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Funfair Cafe")
 			p.tier = 99 -- clamped like Economy.tier
-			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Wonder Cafe")
+			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Funfair Cafe")
+			LateTiers.setOpen(nil)
 		end)
 
 		it("a damaged tier reads the way Economy.tier does (0 and 1.5 are Tier 1)", function()
@@ -1323,7 +1371,7 @@ return function()
 				local p = freshProfile()
 				p.tier = damaged
 				p.coins = 1e9
-				expect(Economy.rankUpBlocker(p)).to.equal("Needs 4 different cats (you have 1)")
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 3 different cats (you have 1)") -- #4188: 4 before
 			end
 		end)
 

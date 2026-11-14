@@ -38,6 +38,8 @@ return function()
 	local function decode(json: string): any
 		if json == "bowl4" then
 			return { bowlSpeed = 4 }
+		elseif json == "storm10" then
+			return { catStorm = 10 }
 		elseif json == "empty" then
 			return {}
 		elseif json == "odd" then
@@ -59,6 +61,7 @@ return function()
 				endsAt = END,
 				running = false,
 				bowlSpeed = 4,
+				catStorm = 1,
 			})
 			expect(view({ AdminEventRunning = true }).running).to.equal(true)
 		end)
@@ -152,6 +155,28 @@ return function()
 			)
 			expect(AdminEventLogic.badge(view())).to.equal("4x")
 			expect(AdminEventLogic.badge(view({ AdminEventEffects = "empty" }))).to.equal("!")
+		end)
+
+		it("words a Cat Storm in three lines the card has room for", function()
+			local storm = view({ AdminEventTitle = "Cat Storm", AdminEventEffects = "storm10" })
+			expect(storm.catStorm).to.equal(10)
+			expect(storm.bowlSpeed).to.equal(1)
+			expect(AdminEventLogic.effectLines(storm)).to.deepEqual({
+				"Strays rain in every area",
+				"Mythical cats 10x as likely",
+			})
+			expect(AdminEventLogic.badge(storm)).to.equal("10x")
+			for _, banner: any in
+				{
+					AdminEventLogic.soonBanner(storm, NOW),
+					AdminEventLogic.startBanner(storm, START),
+				} :: { any }
+			do
+				expect(#banner.lines).to.equal(Presets.eventBanner.maxLines)
+				local plan = EventBanner.plan(banner)
+				expect(plan.lines).to.deepEqual(banner.lines)
+				expect(plan.badge).to.equal("10x" == banner.badge and "10x" or "!")
+			end
 		end)
 
 		it("writes a warning card and a start card the banner takes whole", function()

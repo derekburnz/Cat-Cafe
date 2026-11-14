@@ -97,8 +97,12 @@ return function()
 				expect(TipQueue.settle(settle, now, step * 0.25)).to.equal("touch")
 			end
 			expect(TipQueue.settle(settle, "keyboard", 10)).to.equal("touch")
-			expect(TipQueue.settle(settle, "keyboard", 10 + TipQueue.SETTLE_SECONDS - 0.1)).to.equal("touch")
-			expect(TipQueue.settle(settle, "keyboard", 10 + TipQueue.SETTLE_SECONDS)).to.equal("keyboard")
+			expect(TipQueue.settle(settle, "keyboard", 10 + TipQueue.SETTLE_SECONDS - 0.1)).to.equal(
+				"touch"
+			)
+			expect(TipQueue.settle(settle, "keyboard", 10 + TipQueue.SETTLE_SECONDS)).to.equal(
+				"keyboard"
+			)
 			expect(TipQueue.settle(settle, "keyboard", 20)).to.equal("keyboard")
 		end)
 	end)

@@ -773,13 +773,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- (a tap opens the boosts card, as the money does), or while none is a green "2x Money" button with its price on it
 	-- (Derek 2026-11-14; was a rainbow "X2 Cash" pill with "Only R$5" under it, #1759). Hidden until the Store knows.
 	-- the tap area is the counters' height and at least as wide (a finger's 44 px on a phone); the pill sits inside it
-	-- Derek 2026-11-14: for sale, the button is a green face with a darker lip (Theme.button.primary) and the words and
+	-- Derek 2026-11-14: for sale, the button is a green face (Theme.button.primary top to bottom, the Face gradient on a
+	-- white background, as Components/Button does, since a UIGradient multiplies the colour under it) with the words and
 	-- the price chip side by side on it; owned or quiet, it is bare words as before
 	local badge: TextButton = Create("TextButton", {
 		Name = "MoneyBadge",
 		AutoButtonColor = false,
 		BackgroundTransparency = 1,
-		BackgroundColor3 = Theme.button.primary.bottom,
+		BackgroundColor3 = Theme.colors.white,
 		Text = "",
 		Size = UDim2.fromOffset(0, counterH),
 		AutomaticSize = Enum.AutomaticSize.X,

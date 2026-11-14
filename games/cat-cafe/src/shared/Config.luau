@@ -756,9 +756,15 @@ local Config = {
 		-- Derek 2026-11-14 16:23 UTC: each update prompts for the next one from 10 minutes after the last
 		-- (EventRsvp.QUIET_AFTER_SECONDS) until it starts. Growth-Agent's update run sheet.
 		{
-			id = "3176510604057903700",
+			id = "8139939288161845916",
 			startsAt = 1794772800, -- "3 New Worlds", Sunday 2026-11-15 20:00 UTC
 			title = "🔔 Next update Sunday: 3 NEW WORLDS! Want a reminder when it lands?",
+		},
+		-- Derek 2026-11-14 16:52 UTC: Rift Run is its own update, Tuesday 2026-11-17 20:00 UTC
+		{
+			id = "3176510604057903700",
+			startsAt = 1794945600, -- "Rift Run", Tuesday 2026-11-17 20:00 UTC
+			title = "🔔 Next update Tuesday: RIFT RUN! Want a reminder when it lands?",
 		},
 		{
 			id = "6810389993696133776",

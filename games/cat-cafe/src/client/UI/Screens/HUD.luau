@@ -3461,9 +3461,11 @@ function HUD.edgeAvoid(self: any): { Types.Box }
 	if scale <= 0 then
 		return out
 	end
-	-- AbsolutePosition is already the space the arrow's own frame is placed in (Review-QA in Studio, 667x375: the
-	-- arrow and the counters both read 58 px above where they draw), so no inset shift: one put every box 58 px low
-	local origin = self._root.AbsolutePosition
+	-- The arrow is placed in viewport space (WorldToViewportPoint, in an IgnoreGuiInset gui), but AbsolutePosition is
+	-- always measured from under the top inset, whatever the gui's IgnoreGuiInset (Review-QA in Studio, 667x375: the
+	-- arrow and the counters both draw 58 px below their AbsolutePosition), so every box adds the inset
+	local inset = GuiService:GetGuiInset()
+	local origin = self._root.AbsolutePosition + inset
 	for _, box in self:toastAvoid() do
 		table.insert(out, {
 			x0 = origin.X + box.x0 * scale,
@@ -3475,7 +3477,7 @@ function HUD.edgeAvoid(self: any): { Types.Box }
 	-- and on every device the counters (the money pill and its coin) and the travel row, which the toasts don't need
 	for _, piece in { self._counters, self._travelRow } :: { GuiObject } do
 		if piece.Visible and piece.AbsoluteSize.X > 0 then
-			local at = piece.AbsolutePosition
+			local at = piece.AbsolutePosition + inset
 			table.insert(out, {
 				x0 = at.X,
 				y0 = at.Y,

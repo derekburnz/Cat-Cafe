@@ -199,6 +199,7 @@ function StepTarget._place(self: any)
 		-- debug for Studio checks (#4158): how many HUD boxes it kept clear of, and which way it found a spot
 		arrow:SetAttribute("AvoidCount", #list)
 		arrow:SetAttribute("ClearResult", how)
+		arrow:SetAttribute("PosY", if clear ~= nil then clear.y else place.y)
 		if clear == nil then
 			arrow.Visible = false -- no spot on this edge is clear of the HUD (a short phone)
 			return

@@ -40,8 +40,9 @@ local SKIP: { [string]: boolean } = { Close = true, MenuFold = true, TravelFold 
 local TAB_ROWS: { [string]: boolean } = { Tabs = true, Rail = true, Bowls = true, Chips = true }
 -- #4224 (Review-QA's controller pass): buttons a window's first selection passes over when it has another, so a
 -- habit A never spends every potion ("Use all potions", Use all) or collects a station strip in place of Launch
+-- (#4224 retest: and the Bait Bowl's Refill, so the first A is the tutorial's Kibble Use)
 local SKIP_FIRST: { [string]: boolean } =
-	{ UseAllPotions = true, DrinkAll = true, UseAll = true, Collect = true }
+	{ UseAllPotions = true, DrinkAll = true, UseAll = true, Collect = true, Refill = true }
 local ROW = 12 -- pixels: buttons whose tops are this close count as one row, read left to right
 
 local GAMEPADS: { [Enum.UserInputType]: boolean } = {
@@ -129,6 +130,7 @@ end
 function GamepadNav.first(root: Instance): GuiButton?
 	local buttons = GamepadNav.buttons(root)
 	local fallback: GuiButton? = nil
+	local tabFallback: GuiButton? = nil
 	for _, button in buttons do
 		local onTabs = false
 		local at: Instance? = button.Parent
@@ -139,7 +141,9 @@ function GamepadNav.first(root: Instance): GuiButton?
 			end
 			at = at.Parent
 		end
-		if not onTabs then
+		if onTabs then
+			tabFallback = tabFallback or button
+		elseif not GamepadNav.costsRobux(button) then
 			local face = if button.Parent ~= nil then (button.Parent :: Instance).Name else ""
 			if not (SKIP_FIRST[button.Name] or SKIP_FIRST[face]) then
 				return button
@@ -147,7 +151,30 @@ function GamepadNav.first(root: Instance): GuiButton?
 			fallback = fallback or button
 		end
 	end
-	return fallback or buttons[1]
+	-- a page of only Robux buttons (the Store's Featured) starts on its tab row, never on a price
+	return fallback or tabFallback or nil
+end
+
+-- #4224 retest: true when `button` shows a Robux price ("R$25" on its face or a label in it, or a price still loading
+-- as "..."), so a habit A on a
+-- window's first selection never opens Roblox's purchase prompt
+function GamepadNav.costsRobux(button: GuiButton): boolean
+	local function priced(object: Instance): boolean
+		return (object:IsA("TextButton") or object:IsA("TextLabel"))
+			and (
+				string.find((object :: TextLabel).Text, "R$", 1, true) ~= nil
+				or (object :: TextLabel).Text == "..."
+			)
+	end
+	if priced(button) then
+		return true
+	end
+	for _, descendant in button:GetDescendants() do
+		if priced(descendant) then
+			return true
+		end
+	end
+	return false
 end
 
 -- Selects `target` when it still shows (GamepadNav.shown), else clears the selection, so the engine is never handed a
@@ -275,6 +302,19 @@ function GamepadNav.card(
 			)
 		then
 			GamepadNav.restore(before)
+			-- #4224 retest: Roblox's own B lets go of the selection after the card's close ran (the Rewards list
+			-- came back with no ring); hand it back once more when nothing holds it a moment later
+			local function again()
+				if
+					before ~= nil
+					and GuiService.SelectedObject == nil
+					and GamepadNav.isGamepad()
+				then
+					GamepadNav.restore(before)
+				end
+			end
+			task.defer(again)
+			task.delay(0.05, again)
 		end
 	end
 end
@@ -359,12 +399,25 @@ function GamepadNav.stepTab(root: Instance, step: number): boolean
 			end
 		end)
 	else
-		task.defer(function()
+		-- #4224 retest: the switch hides the list the selection sat in, and the engine moves the ring to the nearest
+		-- button left (the old tab); land on the new tab's first item instead, once it has been built
+		local function follow()
 			local now = GuiService.SelectedObject
-			if now ~= nil and not GamepadNav.shown(now) then
+			if
+				selected ~= nil
+				and not GamepadNav.shown(selected)
+				and (
+					now == nil
+					or now == selected
+					or not GamepadNav.shown(now)
+					or now:IsDescendantOf(row)
+				)
+			then
 				GamepadNav.select(GamepadNav.first(root))
 			end
-		end)
+		end
+		task.defer(follow)
+		task.delay(0.1, follow)
 	end
 	return true
 end

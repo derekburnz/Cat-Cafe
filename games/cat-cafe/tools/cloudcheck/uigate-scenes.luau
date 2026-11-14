@@ -7202,6 +7202,45 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.asks.skipPace() -- #2880
 		UI.asks.show("invite_ask")
 	end },
+	-- #4174 (Derek 2026-11-14: "make sure it has a good art for the pop up", and it "stays forever on screen until X"):
+	-- an ask with a picture and a line has the picture on the left, the line and its one button beside it, all fitting;
+	-- with no seconds it has no draining bar and is still up half a minute later
+	{ "AskPicture", function()
+		UI.asks.skipPace()
+		local ended = nil
+		local shown = UI.asks.card({
+			title = "Get the Starter Bundle",
+			line = "Epic cat Sprinkles, 2x Money and 20 potions",
+			picture = "rbxassetid://95362407964835",
+			choices = { { id = "buy", label = "Buy R$99", style = "primary" } },
+			answer = function() end,
+			ended = function(how)
+				ended = how
+			end,
+		})
+		assert(shown, "uigate: the picture ask did not show (#4174)")
+		UIShim.advance(30)
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local holder = ask:FindFirstChild("Holder", true) :: Frame
+		assert(holder.Visible and ended == nil, "uigate: the ask with no seconds went away by itself (#4174)")
+		local picture = holder:FindFirstChild("Picture", true) :: Frame
+		local line = holder:FindFirstChild("Line", true) :: TextLabel
+		local title = holder:FindFirstChild("Title", true) :: TextLabel
+		local buy = holder:FindFirstChild("Choice_buy", true) :: GuiObject
+		local track = holder:FindFirstChild("Track", true) :: GuiObject
+		assert(picture.Visible and picture.AbsoluteSize.X >= 56, "uigate: the ask's picture is missing or small (#4174)")
+		assert(line.Visible and line.TextFits, "uigate: the ask's line does not fit: " .. line.Text .. " (#4174)")
+		assert(title.TextFits, "uigate: the ask's title does not fit (#4174)")
+		local label = buy:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel
+		assert(label == nil or label.TextFits, "uigate: the ask's Buy words do not fit (#4174)")
+		assert(not track.Visible, "uigate: an ask with no seconds still has its draining bar (#4174)")
+		-- the line and the button sit right of the picture, inside the card
+		local right = picture.AbsolutePosition.X + picture.AbsoluteSize.X
+		assert(line.AbsolutePosition.X >= right and buy.AbsolutePosition.X >= right, "uigate: the line or button is over the picture (#4174)")
+		local card = holder:FindFirstChild("Card") :: GuiObject
+		local bottom = card.AbsolutePosition.Y + card.AbsoluteSize.Y
+		assert(picture.AbsolutePosition.Y + picture.AbsoluteSize.Y <= bottom and buy.AbsolutePosition.Y + buy.AbsoluteSize.Y <= bottom, "uigate: the picture or button runs out of the card (#4174)")
+	end },
 	-- #2766: the update Event's Notify Me ask on the slide-in card, its two lines and two buttons
 	{ "EventAsk", function()
 		local EventRsvp = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.EventRsvp")

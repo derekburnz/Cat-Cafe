@@ -11,6 +11,10 @@ local Config = {
 	-- #3660 (Derek 2026-11-12: "make the players start with one table upgrade done and remove it from tutorial
 	-- steps"): the Tables level a new save starts at. Saves made before keep what they have
 	StartTables = 1,
+	-- #4097 (Derek 2026-11-14: "just have them click use the kibble show the cutscene, then claim the cat"): the Bait
+	-- bowl level a new save starts at, with one Kibble in the Bag, so the tutorial goes from the first job straight to
+	-- putting the Kibble in. Saves made before keep what they have
+	StartBowls = 1,
 
 	-- Income (data-model section 11)
 	FavoriteMultiplier = 1.5,

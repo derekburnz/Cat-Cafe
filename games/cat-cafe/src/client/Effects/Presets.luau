@@ -4917,6 +4917,11 @@ Presets.bedWalk = { fade = 0.25 }
 -- performance. `ribbons` is per budget tier (high, medium, low).
 export type AuroraSpec = {
 	ribbons: { number },
+	brightness: number, -- Beam.Brightness
+	nest: { number }, -- each colour is these bands laid over each other, as shares of `width`: a soft edge
+	nestLow: number, -- how many of them on the low tier
+	nestShown: { number }, -- each of those bands' own transparency at the ribbon's middle
+	nestBright: { number }, -- and its Beam.Brightness
 	height: number,
 	spread: number, -- of the area's shorter side the ribbons are spread over (over 1: the outer ones hang past its walls)
 	rise: number, -- studs each ribbon hangs above the one in front
@@ -4925,7 +4930,7 @@ export type AuroraSpec = {
 	curve: number,
 	curveMost: number,
 	seconds: { number },
-	shown: number, -- transparency at the ribbon's middle (its ends fade to nothing)
+	shown: number, -- each band's transparency at the ribbon's middle (its ends fade to nothing)
 	fade: number,
 	foot: Color3,
 	top: Color3,
@@ -5002,7 +5007,15 @@ Presets.areaFx = {
 				curve = 0.22,
 				curveMost = 60,
 				seconds = { 11, 14, 17 },
-				shown = 0.72,
+				-- #4085 Studio looks: the smoke picture drew as nothing on a Beam, a bare band at 0.4 is a solid sheet,
+				-- and three bands at 0.8 were only a haze. So no picture: three bands a colour, thinner over wider,
+				-- the thinner ones a little stronger and brighter, for a soft edge round a core line that reads.
+				shown = 0.6,
+				brightness = 1,
+				nest = { 1, 0.62, 0.3 },
+				nestShown = { 0.6, 0.62, 0.55 },
+				nestBright = { 1, 1.5, 2 },
+				nestLow = 2,
 				fade = 3,
 				foot = Presets.palette.mint,
 				top = Presets.palette.aurora,

@@ -12065,6 +12065,45 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(not string.find(big.Text, "2x", 1, true), "uigate: the resting banner names 2x in a 2x party (#3701)")
 		UI.rest.banner("resting", true, 0)
 	end },
+	-- #4174: the Starter Bundle's one slide-in card: its title and its one Buy button fit, its X is there from the
+	-- first frame, its picture and line fit, and it stays up with no timer bar (Derek 2026-11-14: until the X)
+	{ "StarterSuggest", function()
+		local said = {}
+		local connection = UI.events.starterSuggest:Connect(function(outcome)
+			table.insert(said, outcome)
+		end)
+		UIShim.advance(2.5)
+		UI.tips.showStarter()
+		UIShim.advance(0.4)
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local title = ask:FindFirstChild("Title", true)
+		assert(title.Text == "Starter Bundle", "uigate: the Starter card reads " .. title.Text .. " (#4174)")
+		assert(title.TextFits, "uigate: the Starter card's title does not fit (#4174)")
+		local buy = ask:FindFirstChild("Choice_buy", true)
+		assert(buy, "uigate: the Starter card has no Buy button (#4174)")
+		local label = buy:FindFirstChildWhichIsA("TextLabel", true)
+		assert(label == nil or label.TextFits, "uigate: the Starter card's Buy words do not fit (#4174)")
+		assert(said[1] == "shown", "uigate: the Starter card did not report shown (#4174)")
+		local track = ask:FindFirstChild("Track", true) :: GuiObject
+		assert(track and not track.Visible, "uigate: the Starter card shows a draining bar, which reads as a countdown (#4174)")
+		local picture = ask:FindFirstChild("Picture", true) :: GuiObject
+		assert(picture and picture.Visible and picture.AbsoluteSize.X >= 56, "uigate: the Starter card has no picture (#4174)")
+		local line = ask:FindFirstChild("Line", true) :: TextLabel
+		-- the line shows on tablets and PC; a phone's card leaves it out (#4194)
+		assert(line and line.Text == "Epic cat Sprinkles, 2x Money and 20 potions" and (not line.Visible or line.TextFits), "uigate: the Starter card's line does not fit (#4174)")
+		UIShim.advance(30)
+		local holder = ask:FindFirstChild("Holder", true) :: GuiObject
+		assert(holder.Visible and said[2] == nil, "uigate: the Starter card went away by itself (#4174)")
+		connection:Disconnect()
+	end },
+	-- #4174: the same card left on screen, so the gate's pictures show it on every device
+	{ "StarterSuggestShown", function()
+		UIShim.advance(2.5)
+		UI.tips.showStarter()
+		UIShim.advance(0.6)
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		assert(ask:FindFirstChild("Title", true).TextFits, "uigate: the Starter card's title does not fit (#4174)")
+	end },
 }
 
 Scenes.names = {}

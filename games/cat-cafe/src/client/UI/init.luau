@@ -236,6 +236,7 @@ UI.events = {
 	-- cutscene, "source:reason" (bait, store or cafePass; no_tap or busy)
 	storeGuardBlocked = Signal.new(), -- (what)   forward as TelemetryReport("store_guard_blocked", what)
 	buySource = Signal.new(), -- (what)   #4176: forward as TelemetryReport("buy_source", what)
+	starterSuggest = Signal.new(), -- (outcome)   #4174: forward as TelemetryReport("starter_suggest", outcome)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
@@ -5613,6 +5614,10 @@ do
 			lookForTips()
 			local tips: any = UI.tips -- lookForAsk is set by the ask's block below
 			tips.lookForAsk()
+			local lookForStarter: (() -> ())? = tips.lookForStarter -- #4174, set by its block below
+			if lookForStarter ~= nil then
+				lookForStarter()
+			end
 		end
 		if clocks.pump >= TIP.PUMP_EVERY then
 			clocks.pump = 0
@@ -5998,6 +6003,123 @@ do
 		if card ~= nil and not card:isShowing() then
 			openAsk(card)
 		end
+	end
+end
+
+-- #4174: the Starter Bundle's one slide-in card a session (shared/StarterSuggest), behind the starterSuggest switch.
+-- It rides the ask card (its X from the first frame, its picture and line, no timer: it stays until Buy or the X) with one Buy button, only in
+-- a clear moment past its random 10 to 15 minute mark. Its own block, as the module is short of locals.
+do
+	local StarterSuggest =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterSuggest")) :: any
+	local suggest = {
+		start = os.clock(),
+		dueAt = StarterSuggest.dueAt(math.random()),
+		done = false,
+	}
+
+	local function report(outcome: string)
+		UI.events.starterSuggest:Fire(outcome)
+	end
+
+	-- Roblox's price for the bundle when it is for sale, else nil
+	local function price(): (number?, number?)
+		local id = (Config :: any).ProductIds and (Config :: any).ProductIds.starter_bundle
+		if type(id) ~= "number" or id <= 0 then
+			return nil, nil
+		end
+		local PassShop = require(script.Components.PassShop) :: any
+		local known = PassShop.prices()[id]
+		if known == nil or known.forSale ~= true or type(known.robux) ~= "number" then
+			return id, nil
+		end
+		return id, known.robux
+	end
+
+	local function open(card: AskCard.AskCard, id: number, robux: number)
+		suggest.done = true
+		local ended = false
+		local function finish(how: string)
+			if ended then
+				return
+			end
+			ended = true
+			report(how)
+		end
+		card:show({
+			title = StarterSuggest.TITLE,
+			picture = StarterSuggest.PICTURE,
+			line = StarterSuggest.LINE,
+			choices = {
+				{ id = "buy", label = StarterSuggest.buyLabel(robux), style = "primary" },
+			},
+			-- no seconds: it stays until Buy or the X (Derek 2026-11-14), with no timer bar
+			answer = function(choice: string?)
+				if choice == "buy" then
+					finish("buy")
+					local PassShop = require(script.Components.PassShop) :: any
+					PassShop.noteTap()
+					PassShop.prompt(id, StarterSuggest.SOURCE)
+				end
+			end,
+			ended = function(how: string)
+				if how == "closed" or how == "ignored" then
+					finish(how)
+				elseif how ~= "answered" then
+					finish("hidden")
+				end
+			end,
+		})
+		UI.asks.shown()
+		report("shown")
+	end
+
+	-- From the tips clock, once a second.
+	function UI.tips.lookForStarter()
+		local card = askCard
+		if suggest.done or card == nil or card:isShowing() then
+			return
+		end
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local on = LiveFlags.shown(
+			StarterSuggest.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StarterSuggest.FLAG)
+		)
+		if not on then
+			return
+		end
+		local id, robux = price()
+		local QuietStart =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+		local PassShop = require(script.Components.PassShop) :: any
+		local okBusy, busy = pcall(PassShop.busy)
+		local due = StarterSuggest.due({
+			on = on,
+			done = suggest.done,
+			played = os.clock() - suggest.start,
+			dueAt = suggest.dueAt,
+			owned = (state :: any).starterBought,
+			quietUntil = Players.LocalPlayer:GetAttribute(QuietStart.ATTRIBUTE),
+			now = Workspace:GetServerTimeNow(),
+			tutorialDone = type(state.tutorialStep) == "number" and state.tutorialStep >= 5,
+			clear = UI.tips.quiet() and not (okBusy and busy == true) and UI.asks.paced(),
+			priced = robux ~= nil,
+		})
+		if due and id ~= nil and robux ~= nil then
+			open(card, id, robux)
+		end
+	end
+
+	-- The card now, whatever the clock and the switch say (QA in Studio and the UI gate), with a stand-in price
+	-- until Roblox's is known.
+	function UI.tips.showStarter()
+		local card = askCard
+		if card == nil then
+			return
+		end
+		local id, robux = price()
+		open(card, id or 0, robux or 99)
 	end
 end
 

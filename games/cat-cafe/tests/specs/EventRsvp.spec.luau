@@ -74,12 +74,20 @@ return function()
 		)
 
 		it(
-			"asks about Sunday's 3 New Worlds 10 minutes after tonight's update, then the Secrets, then Wednesday",
+			"asks about Rift Run 10 minutes after tonight's update, then 3 New Worlds, the Fish Store, the Secrets and Wednesday",
 			function()
 				expect(EventRsvp.next(Config.UpdateEvents, 1794693600 + 300)).to.equal(nil)
 				local sunday = EventRsvp.next(Config.UpdateEvents, 1794693600 + 600)
-				expect(sunday).to.equal("8139939288161845916")
+				-- Derek 17:59 UTC: Rift Run tonight, then 3 New Worlds, then the Golden Fish Store, then the Secrets
+				expect(sunday).to.equal("3176510604057903700")
+				expect((EventRsvp.next(Config.UpdateEvents, 1794704400 + 300))).to.equal(nil)
+				expect((EventRsvp.next(Config.UpdateEvents, 1794704400 + 600))).to.equal(
+					"8139939288161845916"
+				)
 				expect((EventRsvp.next(Config.UpdateEvents, 1794772800 + 600))).to.equal(
+					"8042541751075996433"
+				)
+				expect((EventRsvp.next(Config.UpdateEvents, 1794780000 + 600))).to.equal(
 					"8700676156604678758"
 				)
 				expect((EventRsvp.next(Config.UpdateEvents, 1794799800 + 300))).to.equal(nil)

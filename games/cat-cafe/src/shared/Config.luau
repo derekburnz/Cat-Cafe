@@ -760,7 +760,18 @@ local Config = {
 			startsAt = 1794772800, -- "3 New Worlds", Sunday 2026-11-15 20:00 UTC
 			title = "🔔 Next update Sunday: 3 NEW WORLDS! Want a reminder when it lands?",
 		},
-		-- (Rift Run ships in the same Sunday update with its own Event card; one ask covers both, Derek 17:01 UTC)
+		-- Derek 2026-11-14 17:59 UTC: Rift Run moves to tonight, Sunday 2026-11-15 01:00 UTC (Saturday 8 PM ET, the busier
+		-- hour), and the Golden Fish Store to Sunday 2026-11-15 22:00 UTC (5 PM ET), each with its own ask
+		{
+			id = "3176510604057903700",
+			startsAt = 1794704400, -- "Rift Run", Sunday 2026-11-15 01:00 UTC
+			title = "🔔 Next update tonight: RIFT RUN! Want a reminder when it lands?",
+		},
+		{
+			id = "8042541751075996433",
+			startsAt = 1794780000, -- "Golden Fish Store", Sunday 2026-11-15 22:00 UTC
+			title = "🔔 Next update Sunday: the GOLDEN FISH STORE! Want a reminder when it lands?",
+		},
 		{
 			id = "6810389993696133776",
 			startsAt = 1795032000, -- "Better on Every Device", Wednesday 2026-11-18 20:00 UTC

@@ -3048,16 +3048,32 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.lateStations.open("museum")
 		assert(UI.isOpen() == "RelicMuseum", "uigate: the museum's prompt opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#2651)")
 		local window = lateWindow("RelicMuseum")
-		local title = window:FindFirstChild("Room", true)
-		assert(string.match(title.Text, "Hall 2/10$"), "uigate: the room reads " .. title.Text .. " (#2651)")
-		local dots = 0
+		-- #3961 (mock): the hall shown is the gold tab, its words the hall's count
+		local halls = window:FindFirstChild("Halls", true) :: ScrollingFrame
+		local shown = nil
+		for _, tab in halls:GetChildren() do
+			if tab:IsA("GuiObject") and string.match(tab.Name, "^Hall_") then
+				for _, label in tab:GetDescendants() do
+					if label:IsA("TextLabel") and string.match(label.Text, " 2/10$") then
+						shown = label.Text
+					end
+				end
+			end
+		end
+		assert(shown ~= nil, "uigate: no hall tab reads 2/10 (#2651, #3961)")
+		local chips, checks = 0, 0
 		for _, piece in window:GetDescendants() do
-			if piece.Name == "Dot" and piece:IsA("GuiObject") and piece.Visible then
-				dots += 1
+			if piece:IsA("GuiObject") and piece.Visible and piece.Parent and (piece.Parent :: GuiObject).Visible then
+				if piece.Name == "GiveChip" then
+					chips += 1
+				elseif piece.Name == "Check" then
+					checks += 1
+				end
 			end
 		end
 		-- #3123: a cat's only copy can be given too, so every owned cat of the room shows one, gate_4's among them
-		assert(dots >= 1, "uigate: " .. dots .. " exhibits show a ! (#2651)")
+		assert(chips >= 1, "uigate: " .. chips .. " exhibits show Give a copy (#2651, #3961)")
+		assert(checks == 2, "uigate: " .. checks .. " exhibits show the on show tick, not 2 (#3961)")
 		-- #3961 (Derek: names clipped, cells cut off): both rows sit whole above the footer, nothing scrolls
 		local note = window:FindFirstChild("Note", true)
 		for index = 1, 10 do
@@ -3077,11 +3093,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local window = lateWindow("RelicMuseum")
 		local tile = nil -- gate_4's exhibit: its copy and the three spares (#3123: the only-copy tiles show a ! too)
 		for _, piece in window:GetDescendants() do
-			if piece.Name == "Line" and piece:IsA("TextLabel") and piece.Text == "You have 4" then
-				tile = piece.Parent
+			if piece.Name == "GiveChip" and piece:IsA("Frame") and piece.Visible then
+				local cell = piece.Parent :: Instance
+				if cell:GetAttribute("Copies") == 4 then
+					tile = cell
+				end
 			end
 		end
-		assert(tile, "uigate: no exhibit reads You have 4 (#2651)")
+		assert(tile, "uigate: no exhibit with 4 copies shows Give a copy (#2651, #3961)")
 		press("RelicMuseum", tile.Name)
 		local give = window:FindFirstChild("Give", true)
 		assert(give and give.Visible, "uigate: the exhibit did not list its copies (#2651)")
@@ -7377,7 +7396,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(4) -- earlier scenes' toasts and results gone
 		local before: { [Instance]: boolean } = {}
 		for _, child in root:GetChildren() do
-			if child:IsA("GuiObject") then
+			-- the Feedback callout (#3883) comes and goes on its own clock (a wait after the tutorial, then a few
+			-- seconds up), so in a long shard it can turn up or go mid-scene; it is not part of the catch's HUD
+			if child:IsA("GuiObject") and child.Name ~= "FeedbackCallout" then
 				before[child] = child.Visible
 			end
 		end

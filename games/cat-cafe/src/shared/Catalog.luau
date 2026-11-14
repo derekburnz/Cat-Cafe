@@ -1717,8 +1717,8 @@ Catalog.tiers = {
 	{
 		tier = 8,
 		name = "Summit Cafe",
-		cost = 42000000000, -- #4192 (Pace: about 4 to 5 h after Tier 7): 520,000,000,000 before
-		distinctCats = 47, -- #4192: 56 before, drafted when Tier 7 asked 47; the step of 9 kinds is kept on #4189's 38
+		cost = 21000000000, -- #4320 (Tiers 3 to 7 were halved, so Tier 8 follows): 42,000,000,000 before; #4192 (Pace: about 4 to 5 h after Tier 7): 520,000,000,000 before
+		distinctCats = 36, -- #4320: 47 before, the step of 9 kinds is kept on Tier 7's 27; #4192: 56 before
 		needsRarity = "Mythical",
 		needsRarityCount = 4,
 		slots = 16,
@@ -1731,8 +1731,8 @@ Catalog.tiers = {
 	{
 		tier = 9,
 		name = "Funfair Cafe",
-		cost = 500000000000, -- #4192 (Pace: about 6 to 7 h after Tier 8): 5,000,000,000,000 before
-		distinctCats = 56, -- #4192: 65 before
+		cost = 250000000000, -- #4320: 500,000,000,000 before; #4192 (Pace: about 6 to 7 h after Tier 8): 5,000,000,000,000 before
+		distinctCats = 45, -- #4320: 56 before; #4192: 65 before
 		needsRarity = "Mythical",
 		needsRarityCount = 5,
 		slots = 18,
@@ -1745,8 +1745,8 @@ Catalog.tiers = {
 	{
 		tier = 10,
 		name = "Royal Cafe",
-		cost = 3000000000000, -- #4192 (Pace: about 8 to 10 h after Tier 9): 48,000,000,000,000 before
-		distinctCats = 65, -- #4192: 74 before
+		cost = 1500000000000, -- #4320: 3,000,000,000,000 before; #4192 (Pace: about 8 to 10 h after Tier 9): 48,000,000,000,000 before
+		distinctCats = 54, -- #4320: 65 before; #4192: 74 before
 		needsRarity = "Mythical",
 		needsRarityCount = 6,
 		slots = 20,
@@ -1802,9 +1802,9 @@ Catalog.upgrades = {
 			6000000,
 			200000000,
 			1300000000,
-			4200000000, -- #4192: levels 8 to 10 keep their share of the tier's cost (12B, 115B and 1.1T before)
-			50000000000,
-			300000000000,
+			2100000000, -- #4320: levels 8 to 10 halved with their tiers (4.2B, 50B and 300B before); #4192: they keep their share of the tier's cost (12B, 115B and 1.1T before)
+			25000000000,
+			150000000000,
 		}, -- #1896 re-fit with Catch v3: Espresso 4 700,000 before
 		startLevel = 1,
 	},
@@ -1847,9 +1847,9 @@ Catalog.upgrades = {
 			80000000,
 			250000000,
 			1700000000,
-			5000000000, -- #4192: levels 8 to 10 keep their share of the tier's cost (14B, 135B and 1.3T before)
-			58000000000,
-			350000000000,
+			2500000000, -- #4320: levels 8 to 10 halved with their tiers (5B, 58B and 350B before); #4192: they keep their share of the tier's cost (14B, 135B and 1.3T before)
+			29000000000,
+			175000000000,
 		},
 		startLevel = 0,
 	},

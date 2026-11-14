@@ -1236,10 +1236,13 @@ return function()
 	-- late tier open: at 120B, 1.2T and 11.5T (the old 9.6x steps, 56, 65 and 74 kinds) 7 h 31, 11 h 49 and 23 h 13;
 	-- at 75B, 650B and 4.6T 5 h 44, 7 h 18 and 11 h 22; as set 3 h 53, 6 h 28 and 7 h 51. Before, at 520B, 5T and 48T,
 	-- tier8-snowy-mountain.md's draft had 12 to 15 h after Tier 7 for Tier 8 alone and no test.
-	-- Two runs only, since one run to Tier 10 is about 26 hours of play.
+	-- #4320 (Derek 2026-11-14 21:41 UTC: "lower all tier requirements for money and different cats now"): Tiers 3 to 7
+	-- were about halved, so Tiers 8 to 10 follow at 21B, 250B and 1.5T, asking 36, 45 and 54 kinds (the step of 9 on
+	-- Tier 7's 27): 2 h 27, 3 h 40 and 6 h 09 between tiers, Tier 10 at 21 h 36.
+	-- Two runs only, since one run to Tier 10 is about 22 hours of play.
 	describe("Tiers 8 to 10 on the money ladder (#4192)", function()
 		it(
-			"takes 2.5 to 5.5 hours from Tier 7 to Tier 8, 4.5 to 9 on to Tier 9 and 5.5 to 11 on to Tier 10 (#4192: the draft was 12 to 15 for Tier 8, untested)",
+			"takes 1.5 to 4 hours from Tier 7 to Tier 8, 2.5 to 6 on to Tier 9 and 4 to 9 on to Tier 10 (#4320: was 2.5 to 5.5, 4.5 to 9 and 5.5 to 11; #4192: the draft was 12 to 15 for Tier 8, untested)",
 			function()
 				local LateTiers = require(Shared.LateTiers)
 				local limit = 200 * HOUR
@@ -1250,7 +1253,7 @@ return function()
 				if not ok then
 					error(list)
 				end
-				local bands = { [8] = { 2.5, 5.5 }, [9] = { 4.5, 9 }, [10] = { 5.5, 11 } }
+				local bands = { [8] = { 1.5, 4 }, [9] = { 2.5, 6 }, [10] = { 4, 9 } }
 				local parts, bad = {}, {}
 				for tier = 8, 10 do
 					local function gap(run: Run): number?

@@ -8095,6 +8095,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the walk-through ending this session
 	-- (step 4, the bowl, to 5) puts "Hop in the cannon to catch more cats!" on the tutorial strip, with the arrow
 	{ "CannonAfterBowl", function()
+		UI.parkTrail.reach(true) -- a player who has been to the Park: the Park line (#3893) would come first otherwise
 		UI.cannon.setWild(nil)
 		UI.update({ tutorialStep = 4, tier = 2 } :: any)
 		UI.update({ tutorialStep = 5 } :: any)
@@ -8112,6 +8113,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		)
 		UI.cannon.wrapUp.on = false -- as a flight clears it, so later scenes keep their own lines
 		UI.update({ tutorialStep = 9 } :: any)
+		UI.parkTrail.reach(false)
 	end },
 	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
 	-- the intro's screen: four captions with four dots, the read bar and Next, no Skip; it ends by itself and saves
@@ -8915,6 +8917,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ tutorialStep = 9 } :: any)
 		UIShim.advance(0.1)
 		assert(strip() == UI.parkTrail.STRIP, "uigate: the wrap-up hint took the Park line's place, the strip reads " .. strip() .. " (#3893)")
+		-- with the paw trail switched off (no goal) the line stays, without naming the paws (Review-QA's PC run)
+		UI.parkTrail.set(nil, nil)
+		UIShim.advance(0.1)
+		assert(strip() == UI.parkTrail.STRIP_PLAIN, "uigate: with the trail off the strip reads " .. strip() .. " (#3893)")
 		UI.cannon.wrapUp.on = false
 		UI.parkTrail.reach(true)
 		UI.parkTrail.set(nil, nil)

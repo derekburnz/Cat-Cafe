@@ -201,6 +201,13 @@ end
 
 -- #4069: the gust where a cat with `arrive` lands (a stray appearing): a ring on the ground and a puff, in its
 -- colours, when it is near enough to be seen moving.
+-- Who wants to know about a gust (Audio plays the cat's arrival sound on it): the cat's id and where it landed.
+local arriveListeners: { (catId: string, at: Vector3) -> () } = {}
+
+function Signature.onArrive(listener: (catId: string, at: Vector3) -> ())
+	table.insert(arriveListeners, listener)
+end
+
 local function gust(model: Model, spec: Presets.Signature)
 	local arrive = spec.arrive
 	if arrive == nil then
@@ -219,6 +226,12 @@ local function gust(model: Model, spec: Presets.Signature)
 			or spec.colors
 		Particles.ring(at, colors[1], arrive.ring, 0.6)
 		Particles.burst(arrive.preset, at + Vector3.new(0, 0.4, 0), arrive.burst, colors[1])
+		local catId = model:GetAttribute("CatId")
+		if type(catId) == "string" then
+			for _, listener in arriveListeners do
+				task.spawn(listener, catId, at)
+			end
+		end
 	end)
 end
 

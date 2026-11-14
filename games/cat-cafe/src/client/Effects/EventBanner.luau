@@ -12,6 +12,10 @@
 --   "secretSpawn"  a Secret cat has just appeared in an area (#3545): the night strip and, for a badge, a plain
 --               black cat head with a "?" on a starlight disc. It is the same head every time and is drawn from
 --               plain shapes, never from a model, so it gives away none of the three cats.
+--   "adminSoon" an admin event is two minutes away (#4195): a rose strip and a "!" badge, a few sparkles
+--   "admin"     an admin event starts (Bowl Frenzy, the Admin Wheel): the same rose strip on a card as wide as the
+--               screen allows (Presets.eventBanner.adminWidthScale, adminMaxWidth), the caller's `badge` ("4x"), a
+--               shine and confetti
 --   EventBanner.show({ kind = "party", title = "Update Party!", lines = { "x2 cafe earnings until 6:00 PM" } })
 --   EventBanner.onShown(function(kind) ... end)   called as a banner starts to drop in (Audio plays its sound there)
 -- The caller owns the words (Design-Agent's, #3420 section 5); this only trims them to fit. Banners wait their turn:
@@ -36,21 +40,30 @@ local ScreenFx = require(script.Parent.ScreenFx)
 
 local EventBanner = {}
 
-export type Kind = "party" | "giftSoon" | "gift" | "secrets" | "secretSpawn"
--- `cats`: the "secrets" card's cat ids when the caller names them; nil draws every Secret cat
+export type Kind = "party" | "giftSoon" | "gift" | "secrets" | "secretSpawn" | "adminSoon" | "admin"
+-- `cats`: the "secrets" card's cat ids when the caller names them; nil draws every Secret cat.
+-- `badge`: the admin cards' round badge, at most Presets.eventBanner.badgeLength characters ("!" with none)
 export type Plan = {
 	kind: Kind,
 	title: string,
 	lines: { string },
 	seconds: number,
 	cats: { string }?,
+	badge: string?,
 }
 
 local FONT_ID = "rbxasset://fonts/families/FredokaOne.json"
 local GUI_NAME = "EffectsEventBanner"
 
-local KINDS: { [any]: boolean } =
-	{ party = true, giftSoon = true, gift = true, secrets = true, secretSpawn = true }
+local KINDS: { [any]: boolean } = {
+	party = true,
+	giftSoon = true,
+	gift = true,
+	secrets = true,
+	secretSpawn = true,
+	adminSoon = true,
+	admin = true,
+}
 
 local rng = Random.new()
 local waiting: { Plan } = {}
@@ -119,12 +132,18 @@ function EventBanner.plan(spec: any): Plan?
 		end
 		cats = named
 	end
+	local badge: string? = nil
+	if (kind == "admin" or kind == "adminSoon") and type(spec.badge) == "string" then
+		local short = fit(spec.badge, p.badgeLength)
+		badge = if short ~= "" then short else nil
+	end
 	return {
 		kind = kind :: Kind,
 		title = title,
 		lines = lines,
 		seconds = seconds,
 		cats = cats,
+		badge = badge,
 	}
 end
 
@@ -192,7 +211,11 @@ function EventBanner.counts(
 		return 0, 0
 	end
 	local p = Presets.eventBanner
-	local confetti = if kind == "party" or kind == "gift" then p.confetti else p.confettiSoon
+	local confetti = if kind == "party"
+			or kind == "gift"
+			or kind == "admin"
+		then p.confetti
+		else p.confettiSoon
 	local fish = if kind == "gift" then p.fish else 0
 	if lowPerformance then
 		return math.ceil(confetti / 2), math.ceil(fish / 2)
@@ -411,18 +434,20 @@ local function build(gui: ScreenGui, plan: Plan): (CanvasGroup, UIGradient?)
 	local p = Presets.eventBanner
 	local spawn = plan.kind == "secretSpawn"
 	local secret = plan.kind == "secrets" or spawn
+	local admin = plan.kind == "admin" or plan.kind == "adminSoon"
+	local wide = plan.kind == "admin" -- #4195: the start of an admin event runs the screen's width
 	local height = EventBanner.height(plan.kind, #plan.lines)
 	local card = Instance.new("CanvasGroup")
 	card.Name = "Card"
 	card.AnchorPoint = Vector2.new(0.5, 0)
 	card.BackgroundColor3 = p.card
 	card.BorderSizePixel = 0
-	card.Size = UDim2.new(p.widthScale, 0, 0, height)
+	card.Size = UDim2.new(if wide then p.adminWidthScale else p.widthScale, 0, 0, height)
 	card.Position = UDim2.new(0.5, 0, 0, GuiService:GetGuiInset().Y + p.top)
 	card.ZIndex = 2 -- over the confetti and the fish, which come out from behind it
 	round(card, UDim.new(0, p.corner))
 	local widest = Instance.new("UISizeConstraint")
-	widest.MaxSize = Vector2.new(p.maxWidth, math.huge)
+	widest.MaxSize = Vector2.new(if wide then p.adminMaxWidth else p.maxWidth, math.huge)
 	widest.Parent = card
 	local outline = Instance.new("UIStroke")
 	outline.Color = p.outline
@@ -438,6 +463,7 @@ local function build(gui: ScreenGui, plan: Plan): (CanvasGroup, UIGradient?)
 	local gold = Instance.new("UIGradient")
 	gold.Color = if secret
 		then ColorSequence.new(p.nightTop, p.nightBottom)
+		elseif admin then ColorSequence.new(p.adminTop, p.adminBottom)
 		else ColorSequence.new(p.stripTop, p.stripBottom)
 	gold.Rotation = 90
 	gold.Parent = strip
@@ -448,7 +474,11 @@ local function build(gui: ScreenGui, plan: Plan): (CanvasGroup, UIGradient?)
 	local badge = Instance.new("Frame")
 	badge.Name = "Badge"
 	badge.AnchorPoint = Vector2.new(0, 0.5)
-	badge.BackgroundColor3 = if spawn then p.spawnBadge elseif secret then p.secretBadge else p.badge
+	badge.BackgroundColor3 = if spawn
+		then p.spawnBadge
+		elseif secret then p.secretBadge
+		elseif admin then p.adminBadge
+		else p.badge
 	badge.BorderSizePixel = 0
 	badge.Position = UDim2.fromOffset(p.pad, words / 2)
 	badge.Size = UDim2.fromOffset(p.badgeSize, p.badgeSize)
@@ -485,8 +515,9 @@ local function build(gui: ScreenGui, plan: Plan): (CanvasGroup, UIGradient?)
 		mark.Position = UDim2.fromScale(0.25, 0.39)
 		mark.TextXAlignment = Enum.TextXAlignment.Center
 		mark.ZIndex = 2
-	elseif plan.kind == "party" or secret then
-		local times = label(badge, "Times", if secret then "?" else "x2", 30, p.badgeText)
+	elseif plan.kind == "party" or secret or admin then
+		local mark = if secret then "?" elseif admin then plan.badge or "!" else "x2"
+		local times = label(badge, "Times", mark, if #mark > 2 then 22 else 30, p.badgeText)
 		times.Size = UDim2.fromScale(0.7, 0.7)
 		times.Position = UDim2.fromScale(0.15, 0.15)
 		times.TextXAlignment = Enum.TextXAlignment.Center

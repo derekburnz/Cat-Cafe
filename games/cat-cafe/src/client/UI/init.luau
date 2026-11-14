@@ -461,12 +461,14 @@ function applyTutorial()
 	-- hint, so it gives way to the Park line too; the arrow stays on the cannon, the way to the Park)
 	local cards: any = UI -- UI.parkTrail is built further down
 	local park = cards.parkTrail
+	-- The Park opens at Tier 2; `reached` comes from ParkTrailController whatever the parkGateTrail switch says (Review-
+	-- QA's PC run: with the switch off no goal came, so the line never showed). The paws are only named when they show.
 	if
 		(text == nil or hint == CannonLogic.WRAP_UP_HINT)
-		and park.goal ~= nil
+		and (state.tier or 1) >= 2
 		and not park.reached
 	then
-		text = park.STRIP
+		text = if park.goal ~= nil then park.STRIP else park.STRIP_PLAIN
 	end
 	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides. #3893
 	-- (Derek 2026-11-13: "still show the tips all the way up to going to park"): and only once the Park is reached
@@ -3586,6 +3588,7 @@ UI.parkTrail = {
 	tutorial = false, -- a tutorial target has the trail
 	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
 	STRIP = "Visit the Park: follow the paws to a cannon 🐾", -- #3893: the strip's line while the walk is on
+	STRIP_PLAIN = "Visit the Park: hop in a cannon to fly there 🐾", -- the same with the paw trail switched off
 }
 
 -- #3893: ParkTrailController says when the first steps are done, up to the Park; the tutorial X's hold on the

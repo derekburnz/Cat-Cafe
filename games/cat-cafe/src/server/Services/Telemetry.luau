@@ -171,6 +171,8 @@ export type CustomEvent =
 	| "dragon_give" -- #4062: value cats moved in; Warmth, stage after
 	| "dragon_stage" -- #4062: value the stage reached; tier
 	| "dragon_card" -- #4062: value the stage; card id, "stage" or "rekindle"
+	| "fusion_start" -- #4104: value 1; the coat it makes, the rarity
+	| "fusion_collect" -- #4104: value 1; the coat, the rarity, "first" or "repeat" for the coat in the Index
 	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id (#4049: then the kind)
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"

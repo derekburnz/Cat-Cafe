@@ -27,6 +27,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local EventService = require(script.Parent.EventService)
 local FishStore = require(ReplicatedStorage.Shared.FishStore)
+local Fusion = require(ReplicatedStorage.Shared.Fusion)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -304,6 +305,9 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 				and DragonKeep.open(Economy.tier(profile))
 			then DragonKeep.view(profile.dragon)
 			else nil, -- #4062
+		fusion = if LiveFlagService.on(Fusion.FLAG) and Fusion.open(Economy.tier(profile))
+			then Fusion.view(profile.fusion, now, Fusion.hasElderLore(profile))
+			else nil, -- #4104
 		goldLuck = totals.goldLuck,
 		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line
 		baitSpeed = totals.baitSpeed,
@@ -1403,6 +1407,11 @@ function CafeService.sync(player: Player)
 end
 
 -- Mutations used by other services -----------------------------------------------------------------------
+
+-- #4104: also the Fusion Observatory's result (FusionService)
+function CafeService.newUid(): string
+	return CatStats.uidFromGuid(HttpService:GenerateGUID(false))
+end
 
 local function newUid(): string
 	return CatStats.uidFromGuid(HttpService:GenerateGUID(false))

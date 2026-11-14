@@ -612,6 +612,37 @@ export type DragonSave = {
 	colour: string?,
 	napping: { { id: string, variant: string? } },
 }
+-- #4104 (save version 50, shared/Fusion): the Fusion Observatory's dome. `running` the fusion under way, holding the
+-- result's cat, coat, level, XP, charm, name and trait (the five copies left the save at its start); `made` counts.
+export type FusionRunning = {
+	catId: string,
+	coat: string, -- "gold" or "rainbow"
+	startedAt: number,
+	doneAt: number,
+	level: number,
+	xp: number,
+	charm: number,
+	name: string?,
+	trait: TraitData?,
+}
+export type FusionSave = {
+	running: FusionRunning?,
+	made: { gold: number, rainbow: number },
+}
+export type FusionView = {
+	running: {
+		catId: string,
+		coat: string,
+		doneAt: number,
+		level: number,
+		name: string?,
+		trait: { id: string, rarity: string }?,
+	}?,
+	ready: boolean,
+	goldSeconds: number,
+	rainbowSeconds: number,
+	made: { gold: number, rainbow: number },
+}
 export type DragonView = {
 	warmth: number,
 	stage: number,
@@ -1413,6 +1444,7 @@ export type PlayerProfile = {
 	fishBought: { [string]: boolean },
 	tickets: TicketSave, -- #4061 (save version 49): the Ticket Booth
 	dragon: DragonSave, -- #4062 (save version 49): the Dragon Keep
+	fusion: FusionSave, -- #4104 (save version 50): the Fusion Observatory
 	-- #3699 (shared/BagColours): the Backpack's two colour picks, nil while both are the built ones. No VERSION bump:
 	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
 	bagColours: { main: string, trim: string }?,
@@ -1536,6 +1568,7 @@ export type PlayerState = {
 	fishStore: { { key: string, fish: number, bought: boolean, made: boolean } }?,
 	ticketBooth: TicketBoothView?, -- #4061: nil while the ticketBooth switch is off or below TicketBoothTier
 	dragon: DragonView?, -- #4062: nil while the dragonKeep switch is off or below the Castle's tier
+	fusion: FusionView?, -- #4104: nil while the fusion switch is off or below FusionTier
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
 	baitSpeed: number, -- F54: the All Cats track's summed bait speed, capped at BaitSpeedMax

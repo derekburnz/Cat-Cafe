@@ -983,7 +983,7 @@ end
 
 -- #3996: Today's Deal on the hero card (nil hides it): the deal's picture, "Today's Deal", what is in it, the value line, the
 -- Tomorrow line and the plain change line, and the R$25 button; once bought the button goes and the card says so.
-function Store._fillDeal(self: any, entry: any, card: DealLogic.Card?)
+function Store._fillDeal(_self: any, entry: any, card: DealLogic.Card?)
 	entry.dealProduct = nil
 	if card == nil then
 		entry.frame.Visible = false

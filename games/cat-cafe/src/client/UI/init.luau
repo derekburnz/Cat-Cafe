@@ -515,6 +515,9 @@ local function introEnded(replay: boolean)
 	if popups then
 		popups:setHeld(false) -- on only if a card waits; never the bare dimmed backdrop
 	end
+	if hud then
+		hud:holdBanner("intro", false)
+	end
 	applyTutorial()
 	if not replay and not introGlowed then
 		introGlowed = true
@@ -3415,6 +3418,13 @@ function UI.intro.start(options: Types.IntroOptions?)
 	if popups then
 		popups:setHeld(true)
 	end
+	-- Review-QA's Studio run: the event and day strip ("Lucky Day! Golden Day!", "+50% Luck") stays off the intro
+	if hud then
+		hud:holdBanner("intro", true)
+	end
+	if areaTitle then
+		areaTitle:clear() -- a day banner already up goes; the day banners wait out the intro (UI.intro.playing)
+	end
 	if tutorialMarker then
 		tutorialMarker:hide()
 	end
@@ -4802,6 +4812,7 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 		and phase == "day"
 		and areaTitle
 		and not (toasts and toasts:isBusy())
+		and not UI.intro.playing()
 	then
 		areaTitle:banner(
 			"sunrise",
@@ -4996,7 +5007,11 @@ function UI.clock.bind(clock: Instance)
 			local title, line = LuckLogic.dayBanner(view)
 			if title then
 				task.delay(SUNRISE_HOLD + 0.4, function()
-					if areaTitle and not (toasts and toasts:isBusy()) then
+					if
+						areaTitle
+						and not (toasts and toasts:isBusy())
+						and not UI.intro.playing()
+					then
 						areaTitle:banner("lucky_day", title, line, Theme.colors.gold, 4)
 					end
 				end)
@@ -5049,7 +5064,12 @@ function UI.luckyDay(
 		if type(coming) == "table" then
 			title, said = (require(script.Components.LuckLogic) :: any).warnBanner(coming)
 		end
-		if areaTitle and title ~= nil and not (toasts and toasts:isBusy()) then
+		if
+			areaTitle
+			and title ~= nil
+			and not (toasts and toasts:isBusy())
+			and not UI.intro.playing()
+		then
 			areaTitle:banner("lucky_warning", title, said or line, Theme.colors.gold, 4)
 		end
 		return

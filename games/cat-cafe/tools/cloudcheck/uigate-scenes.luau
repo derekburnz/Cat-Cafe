@@ -10700,7 +10700,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "HUDStore", function()
 		UI.store.preview(storePrices(true), {})
 	end },
-	-- #1606: the money pass badge beside the money: the rainbow "X2 Cash / Only R$5" (#1759) with no money pass and the
+	-- #1606: the money pass badge beside the money: the green "2x Money" button with its price (2026-11-14) with no money pass and the
 	-- 2x on sale; once owned, nothing (#3052: the boosts card has the pass's row)
 	-- #2334 (Derek2: "the gold fish and money should be side by side in bottom left and the 2x cash ... should be to the
 	-- right of both of those"): left to right the money, the golden fish, then the badge, none touching

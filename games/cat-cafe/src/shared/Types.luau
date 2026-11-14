@@ -5,7 +5,7 @@
 -- #3470: "Secret" is a cat rarity above Mythical. No odds table lists it (Types.LureOdds and Catalog.rarityOrder
 -- keep the five): a rolled Mythical turns Secret at Catalog.secretPerMythical while the `secretCats` switch is on.
 export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical" | "Secret"
-export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer" | "desert" | "ruins"
+export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer" | "desert" | "ruins" | "snowy"
 -- A cat's area: one of the seven, the spare pool of cats an area-themed cat replaced (data-model 3d, F78), or
 -- "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
 -- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.

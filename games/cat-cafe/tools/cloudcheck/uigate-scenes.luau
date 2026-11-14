@@ -7396,7 +7396,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(4) -- earlier scenes' toasts and results gone
 		local before: { [Instance]: boolean } = {}
 		for _, child in root:GetChildren() do
-			if child:IsA("GuiObject") then
+			-- the Feedback callout (#3883) comes and goes on its own clock (a wait after the tutorial, then a few
+			-- seconds up), so in a long shard it can turn up or go mid-scene; it is not part of the catch's HUD
+			if child:IsA("GuiObject") and child.Name ~= "FeedbackCallout" then
 				before[child] = child.Visible
 			end
 		end

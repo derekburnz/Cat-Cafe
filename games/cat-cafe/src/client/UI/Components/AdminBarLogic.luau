@@ -7,13 +7,20 @@
 --   BANNER_SECONDS                     how long the big banner stays at the warning and at the start
 --   info(read) -> Info?                the attributes as one table (nil with no admin event shown)
 --   clock(seconds) -> string           "2:00", "0:09"
+--   line(effects) -> string?           the banner's line for decoded effects (see #4197 below)
 --   view(info?, now, wheel?) -> View?  what the banner and the timer say now
 --   wheelView(wheel?, now) -> WheelView  the window's Spin button and line
 --   SLICES                             each wheel slice's short words and colour, in AdminWheel.PRIZES order
+--   LINE_MAX                           the longest banner line that fits the banner on every screen
+-- #4197 (part 2): the banner's line comes from the effects (AdminEventEffects), so a new event kind needs no UI
+-- change: a `line` the server writes wins, else the first effect key below that is set (wheel, bowlSpeed, catStorm,
+-- golden and rainbow, money, traitFree, hunt, fountain, crates, speed), else the title. A Secret Hunt's `hunt` (cats
+-- hidden) and `found` (cats found so far; the server writes the attribute again as it changes) add "1/3" to the timer.
 
 local AdminBarLogic = {}
 
 AdminBarLogic.BANNER_SECONDS = 8
+AdminBarLogic.LINE_MAX = 46
 
 export type Info = {
 	id: string,
@@ -23,6 +30,9 @@ export type Info = {
 	running: boolean,
 	wheel: boolean,
 	bowlSpeed: number?,
+	line: string?, -- what the event does, for the banner (nil: the title)
+	found: number?, -- a Secret Hunt: cats found so far
+	total: number?, -- a Secret Hunt: cats hidden
 }
 
 export type Wheel = { eventId: string, spun: boolean, endsAt: number }
@@ -55,6 +65,117 @@ AdminBarLogic.SLICES = table.freeze({
 	{ short = "Secret", color = Color3.fromHex("1E1430") },
 })
 
+-- A whole number 0 or more, or nil.
+local function whole(value: unknown): number?
+	if type(value) ~= "number" or value ~= value or value < 0 or value > 1e6 then
+		return nil
+	end
+	return math.floor(value)
+end
+
+-- A multiplier over 1, as "5x" (nil when it is not one).
+local function times(value: unknown): string?
+	if type(value) ~= "number" or value ~= value or value <= 1 or value > 100 then
+		return nil
+	end
+	return ("%dx"):format(math.floor(value))
+end
+
+-- The banner's line for each effect key, in order: the first key the effects set gives the line.
+local LINES: { { key: string, say: (any, { [string]: any }) -> string? } } = {
+	{
+		key = "wheel",
+		say = function(v)
+			return if v == true then "One free spin on the Admin Wheel for everyone" else nil
+		end,
+	},
+	{
+		key = "bowlSpeed",
+		say = function(v)
+			local x = times(v)
+			return if x then ("Bait bowls bring cats %s faster"):format(x) else nil
+		end,
+	},
+	{
+		key = "catStorm",
+		say = function(v)
+			local x = times(v)
+			return if x then ("Strays rain in every area, Mythical %s"):format(x) else nil
+		end,
+	},
+	{
+		key = "golden",
+		say = function(v, data)
+			local gold, rainbow = times(v), times(data.rainbow)
+			if gold and rainbow then
+				return ("Gold coats %s, rainbow %s on every catch"):format(gold, rainbow)
+			end
+			return if gold then ("Gold coats %s on every catch"):format(gold) else nil
+		end,
+	},
+	{
+		key = "money",
+		say = function(v)
+			local x = times(v)
+			return if x then ("%s cafe money for everyone"):format(x) else nil
+		end,
+	},
+	{
+		key = "traitFree",
+		say = function(v)
+			return if v == true then "Trait rolls are free, with extra rarity luck" else nil
+		end,
+	},
+	{
+		key = "hunt",
+		say = function(v)
+			local n = whole(v)
+			if n == nil or n < 1 then
+				return nil
+			end
+			return if n == 1
+				then "Find the hidden Secret cat and keep it"
+				else ("Find the %d hidden Secret cats and keep them"):format(n)
+		end,
+	},
+	{
+		key = "fountain",
+		say = function(v)
+			return if v == true then "The Town Square fountain sprays golden fish" else nil
+		end,
+	},
+	{
+		key = "crates",
+		say = function(v)
+			return if v == true then "Golden crates drop into every area" else nil
+		end,
+	},
+	{
+		key = "speed",
+		say = function(v)
+			return if v == true then "Speed Shoes for all, cannons fly 2x as far" else nil
+		end,
+	},
+}
+
+-- What the event does, from its decoded effects: the server's own `line`, else the first known effect's words.
+function AdminBarLogic.line(data: { [string]: any }): string?
+	local own = data.line
+	if type(own) == "string" and own ~= "" and #own <= AdminBarLogic.LINE_MAX then
+		return own
+	end
+	for _, entry in LINES do
+		local value = data[entry.key]
+		if value ~= nil then
+			local words = entry.say(value, data)
+			if words ~= nil then
+				return words
+			end
+		end
+	end
+	return nil
+end
+
 -- `read(name)` gives one attribute (ReplicatedStorage:GetAttribute). `names` is CafeEvents.ADMIN_ATTRIBUTES.
 function AdminBarLogic.info(
 	read: (string) -> unknown,
@@ -70,7 +191,7 @@ function AdminBarLogic.info(
 		return nil
 	end
 	local title = read(names.title)
-	local wheel, bowlSpeed = false, nil
+	local wheel, bowlSpeed, line, found, total = false, nil, nil, nil, nil
 	local raw = read(names.effects)
 	if type(raw) == "string" and raw ~= "" then
 		local ok, effects = pcall(decode, raw)
@@ -79,6 +200,12 @@ function AdminBarLogic.info(
 			wheel = data.wheel == true
 			if type(data.bowlSpeed) == "number" and data.bowlSpeed > 1 then
 				bowlSpeed = data.bowlSpeed
+			end
+			line = AdminBarLogic.line(data)
+			local hidden = whole(data.hunt)
+			if hidden ~= nil and hidden > 0 then
+				total = hidden
+				found = math.min(whole(data.found) or 0, hidden)
 			end
 		end
 	end
@@ -90,6 +217,9 @@ function AdminBarLogic.info(
 		running = read(names.running) == true,
 		wheel = wheel,
 		bowlSpeed = bowlSpeed,
+		line = line,
+		found = found,
+		total = total,
 	}
 end
 
@@ -100,11 +230,16 @@ end
 
 -- What the event does, in one line for the banner.
 local function what(info: Info): string
-	if info.wheel then
-		return "One free spin on the Admin Wheel for everyone"
+	if info.line ~= nil then
+		return info.line
 	end
-	if info.bowlSpeed ~= nil then
-		return ("Bait bowls bring cats %dx faster"):format(math.floor(info.bowlSpeed))
+	return AdminBarLogic.line({ wheel = info.wheel, bowlSpeed = info.bowlSpeed }) or info.title
+end
+
+-- The timer's words while it runs: the title, and a Secret Hunt's "1/3".
+local function pillLive(info: Info): string
+	if info.total ~= nil then
+		return ("%s %d/%d"):format(info.title, info.found or 0, info.total)
 	end
 	return info.title
 end
@@ -131,7 +266,7 @@ function AdminBarLogic.view(info: Info?, now: number, wheel: Wheel?): View?
 		phase = "live",
 		big = string.upper(info.title) .. " NOW!",
 		sub = what(info),
-		pill = info.title,
+		pill = pillLive(info),
 		time = AdminBarLogic.clock(info.endsAt - now) .. " left",
 		spin = canSpin,
 		key = info.id .. ":live",

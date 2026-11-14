@@ -536,7 +536,7 @@ def _tree(b, x, z, wall):
 
 
 def build_garden(mat):
-    b, flowers, wall = RB(), RB(), RB()
+    b, flowers, wall, caps = RB(), RB(), RB(), RB()   # caps: the hedge's rounded top, walk-through (#4073)
     hw, hd = GARDEN_W / 2, GARDEN_D / 2
     k_ = 0.5                                                                                   # kerb width
     b.span((-hw, 0, -hd), (hw, 0.65, -hd + k_), "brick")                                       # front kerb
@@ -548,7 +548,7 @@ def build_garden(mat):
     b.span((-hw + k_, 0.5, hd - 2.3), (hw - k_, 2.1, hd - 0.02), "leaf_dark")                 # hedge, to the wall
     for k in range(5):                                                                         # its rounded top
         x = -hw + 2.6 + k * (GARDEN_W - 5.2) / 4
-        b.ball((x, 2.1, hd - 1.4), 1.0, "leaf_dark", scale=(1.6, 0.55, 0.9))
+        caps.ball((x, 2.1, hd - 1.4), 1.0, "leaf_dark", scale=(1.6, 0.55, 0.9))
     for x in (-8.0, 8.0):
         _tree(b, x, 1.0, wall)
     # topiary cat in the middle, sitting, looking at the square
@@ -563,7 +563,8 @@ def build_garden(mat):
     for x in (-3.4, 3.4):                                                                      # small bushes
         b.ball((x, 0.95, 0.45), 0.8, "leaf_dark")                                              # on the hedge
     return [b.finalize("CatCafe_Square_Garden", mat), flowers.finalize("CatCafe_Square_Garden_Flowers", mat),
-            wall.finalize("CatCafe_Square_Garden_Barrier", mat)]
+            wall.finalize("CatCafe_Square_Garden_Barrier", mat),
+            caps.finalize("CatCafe_Square_Garden_Tops_Decor", mat)]
 
 
 GARDEN_MID_W = 17.0                                   # the gap between the two gardens each side (z -8.5 to 8.5)
@@ -574,7 +575,7 @@ def build_garden_mid(mat):
     Same depth, kerb, grass, hedge and flowers as CatCafe_Square_Garden. Its ends are open: the gardens' end kerbs
     close them, and the hedge runs on over those kerbs to meet the gardens' hedges, so each side reads as one long bed.
     Placed like a garden: x +-64, z 0, front (-Z) toward the square (rotY 90 east, -90 west)."""
-    b, flowers, wall = RB(), RB(), RB()
+    b, flowers, wall, caps = RB(), RB(), RB(), RB()   # caps: the hedge's rounded top, walk-through (#4073)
     hw, hd = GARDEN_MID_W / 2, GARDEN_D / 2
     k_ = 0.5
     b.span((-hw, 0, -hd), (hw, 0.65, -hd + k_), "brick")                                       # front kerb
@@ -584,7 +585,7 @@ def build_garden_mid(mat):
     b.span((-hw, 0.5, hd - 2.3), (hw, 0.65, hd - k_), "leaf_dark")                             # and down to the grass
     for k in range(4):                                                                         # its rounded top
         x = -hw + 2.2 + k * (GARDEN_MID_W - 4.4) / 3
-        b.ball((x, 2.1, hd - 1.4), 1.0, "leaf_dark", scale=(1.6, 0.55, 0.9))
+        caps.ball((x, 2.1, hd - 1.4), 1.0, "leaf_dark", scale=(1.6, 0.55, 0.9))
     # a stone bird bath in the middle, a little cat-ear rim, with a bird on it
     b.cyl((0, 0.6, 0.2), 0.75, 0.2, "concrete", segments=12)                                   # foot, on the grass
     b.cyl((0, 1.45, 0.2), 0.28, 1.5, "concrete", segments=10)                                  # stem
@@ -602,7 +603,8 @@ def build_garden_mid(mat):
         x = -hw + 1.4 + k * (GARDEN_MID_W - 2.8) / 5
         flower_clump(flowers, x, 0.5, -hd + 1.4, n=4, spread=0.45)
     return [b.finalize("CatCafe_Square_GardenMid", mat), flowers.finalize("CatCafe_Square_GardenMid_Flowers", mat),
-            wall.finalize("CatCafe_Square_GardenMid_Barrier", mat)]
+            wall.finalize("CatCafe_Square_GardenMid_Barrier", mat),
+            caps.finalize("CatCafe_Square_GardenMid_Tops_Decor", mat)]
 
 
 GARDEN_Z = GARDEN_MID_W / 2 + GARDEN_W / 2            # 21.5: the gardens' middles, z either side of the lane
@@ -615,7 +617,7 @@ def build_garden_end(mat):
     42.5). Kerbs all round (its inner end kerb meets the garden's), grass, the hedge along the back, one tree in the
     middle, a bush either side and flowers along the front. Placed like a garden: x +-64, z +-44, front (-Z)
     toward the square (rotY 90 east, -90 west)."""
-    b, flowers, wall = RB(), RB(), RB()
+    b, flowers, wall, caps = RB(), RB(), RB(), RB()   # caps: the hedge's rounded top, walk-through (#4073)
     hw, hd = GARDEN_END_W / 2, GARDEN_D / 2
     k_ = 0.5
     b.span((-hw, 0, -hd), (hw, 0.65, -hd + k_), "brick")                                       # front kerb
@@ -628,7 +630,7 @@ def build_garden_end(mat):
     tops = max(2, round(GARDEN_END_W / 4.8))                                                  # #3070: by its length
     for k in range(tops):                                                                      # its rounded top
         x = -hw + 2.4 + k * (GARDEN_END_W - 4.8) / (tops - 1)
-        b.ball((x, 2.1, hd - 1.4), 1.0, "leaf_dark", scale=(1.6, 0.55, 0.9))
+        caps.ball((x, 2.1, hd - 1.4), 1.0, "leaf_dark", scale=(1.6, 0.55, 0.9))
     trees = max(1, round(GARDEN_END_W / 10))                                                   # 2 at 19, 3 at 34
     step = GARDEN_END_W / trees
     for k in range(trees):
@@ -640,7 +642,8 @@ def build_garden_end(mat):
         x = -hw + 1.5 + k * (GARDEN_END_W - 3.0) / (n - 1)
         flower_clump(flowers, x, 0.5, -hd + 1.4, n=4, spread=0.45)
     return [b.finalize("CatCafe_Square_GardenEnd", mat), flowers.finalize("CatCafe_Square_GardenEnd_Flowers", mat),
-            wall.finalize("CatCafe_Square_GardenEnd_Barrier", mat)]
+            wall.finalize("CatCafe_Square_GardenEnd_Barrier", mat),
+            caps.finalize("CatCafe_Square_GardenEnd_Tops_Decor", mat)]
 
 
 ASSETS = {

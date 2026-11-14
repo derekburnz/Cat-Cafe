@@ -2,6 +2,7 @@
 -- Cat Cafe client bootstrap: sound channels first, then the UI (it needs the catalog), world touches, cosmetic
 -- customers and the effects that read them.
 
+local bootAt = os.clock() -- #4307: client_boot's start (TelemetryReport boot_ui and boot_sync)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 ReplicatedStorage:WaitForChild("Shared")
@@ -42,6 +43,26 @@ local WorldController = require(script.Parent.Controllers.WorldController)
 Audio.start()
 Audio.bindMoments(Moments :: any)
 UIController.start()
+do
+	-- #4307: how long the UI build and the wait for the save take on this device (analytics only)
+	local Net = require(script.Parent.Net)
+	Net.fire("TelemetryReport", "boot_ui", math.min(os.clock() - bootAt, 300))
+	local function synced()
+		Net.fire("TelemetryReport", "boot_sync", math.min(os.clock() - bootAt, 300))
+	end
+	if UIController.state ~= nil then
+		synced() -- the save came while the UI was being built
+	else
+		local first: RBXScriptConnection? = nil
+		first = Net.on("ProfileSync", function()
+			if first ~= nil then
+				first:Disconnect()
+				first = nil
+				synced()
+			end
+		end)
+	end
+end
 WorldController.start()
 DoorController.start()
 IntroController.start() -- after the UI and the world controller, whose hooks it uses

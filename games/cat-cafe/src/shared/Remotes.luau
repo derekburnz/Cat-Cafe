@@ -94,6 +94,14 @@ Remotes.ClientToServer = {
 	"BuyTicketPrize", -- (prizeId: string)  #4061 (shared/TicketBooth): a prize of TicketBooth.PRIZES under its limit, for
 	-- its price in tickets, from TicketBoothTier and only while the ticketBooth switch is on. 1 a second; answered with a
 	-- toast and a ProfileSync (PlayerState.ticketBooth)
+	"GiveToKeep", -- (uids: { string }, confirmed: boolean)  #4062 (shared/DragonKeep): at most GIVE_MAX of the player's
+	-- cats move into the Dragon Keep (DragonKeep.giveBlocker: not locked, at the spa or in a trade, never the last cat;
+	-- `confirmed` true for a gold, rainbow or Legendary and better one). Refused whole on any bad cat. 1 a second
+	"PickDragonCard", -- (index: number, slot: number?)  #4062: card `index` (1 to 3) of the hand showing; a stage hand
+	-- fills the new slot, a Rekindle hand replaces `slot` or (nil) goes to the binder. 2 a second
+	"KeepCards", -- ()  #4062: a Rekindle hand's "Keep my cards", DragonKeep.KEEP_FISH golden fish. 1 a second
+	"SlotDragonCard", -- (cardId: string, slot: number)  #4062: a binder card into an open slot, free. 4 a second
+	"SetDragonColour", -- (colour: string)  #4062: one of DragonKeep.COLOURS from stage 3, free. 1 a second
 	"MarkMysterySeen", -- ()  #2565: the player opened Juniper's window; sets profile.mysterySeen (the cart's "!")
 	"SetBagColours", -- (main: string, trim: string, kind: string?)  #3699: the Backpack's owner picks its two colours,
 	-- each an id of BagColours.LIST and nothing else; free, from anywhere, behind the switch bagColours; 1 a second;
@@ -378,6 +386,7 @@ Remotes.ServerToClient = {
 	"CafePassState", -- (state: Types.CafePassView)  #1645: the Pass screen, at join and after each claim or season roll
 	"CampExtrasState", -- (state: Types.CampExtrasState)  F100: each camp extra's open, held, nextAt and the Yard
 	-- Sale's stock today, on join and whenever it changes (a fill, a new UTC day, a rank up, a collect or a buy)
+	"DragonStage", -- (stage: number)  #4062: Cinder reached `stage` (the rise cutscene, then the card deal)
 	"LateStationsState", -- (state: Types.LateStationsState)  #2651 part 4: the Oasis Spa's slots and the Relic Museum's
 	-- exhibits, on join and whenever it changes (a cat in or out, a slot finishing, a donation, a rank up)
 	"LateStationResult", -- (stationId: string, ok: boolean, detail: { [string]: any })  #2651 part 4: the answer to a

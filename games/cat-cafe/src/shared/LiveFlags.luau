@@ -159,6 +159,7 @@ LiveFlags.KEYS = {
 	"quietStart", -- #4005: a new player's first 15 minutes without other players' pop ups (shared/QuietStart)
 	"quietAway", -- #4035: food bowl cards wait while the player is out catching
 	"fishStore", -- #4055: Store passes for golden fish (shared/FishStore); on after the save version 49 restart
+	"dragonKeep", -- #4062: the Dragon Keep (shared/DragonKeep); on after the version 49 restart
 	"ticketBooth", -- #4061: the Ticket Booth's tickets and prizes (shared/TicketBooth); on after the version 49 restart
 	"riftRun", -- Derek 2026-11-13: a Mythic or Secret trait roll's Rift Run cutscene (client/Effects/RiftRun); client only
 }
@@ -197,6 +198,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	quietAway = true,
 	fishStore = true,
 	ticketBooth = true,
+	dragonKeep = true,
 	riftRun = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

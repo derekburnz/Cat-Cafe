@@ -22,6 +22,7 @@ local Crates = require(ReplicatedStorage.Shared.Crates)
 local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
 local DecorBest = require(ReplicatedStorage.Shared.DecorBest)
+local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local EventService = require(script.Parent.EventService)
@@ -299,6 +300,10 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 				and TicketBooth.open(Economy.tier(profile))
 			then TicketBooth.view(profile.tickets, now)
 			else nil, -- #4061
+		dragon = if LiveFlagService.on(DragonKeep.FLAG)
+				and DragonKeep.open(Economy.tier(profile))
+			then DragonKeep.view(profile.dragon)
+			else nil, -- #4062
 		goldLuck = totals.goldLuck,
 		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line
 		baitSpeed = totals.baitSpeed,

@@ -38,6 +38,7 @@ local FeedService = require(script.Parent.Services.FeedService)
 local FishMarketService = require(script.Parent.Services.FishMarketService)
 local FishStoreService = require(script.Parent.Services.FishStoreService)
 local TicketBoothService = require(script.Parent.Services.TicketBoothService)
+local DragonKeepService = require(script.Parent.Services.DragonKeepService)
 local GlobalCatchService = require(script.Parent.Services.GlobalCatchService)
 local GrandOpeningService = require(script.Parent.Services.GrandOpeningService)
 local IdeaCreditsService = require(script.Parent.Services.IdeaCreditsService)
@@ -145,6 +146,7 @@ MysticPoolStationService.start() -- #3196: the pool stands in the Picnic Basket'
 MysteryMarketService.start() -- #2565: Juniper's Mystery Market
 FishStoreService.start() -- #4055: Store passes for golden fish
 TicketBoothService.start() -- #4061: the Water Park's Ticket Booth
+DragonKeepService.start() -- #4062: the Castle's Dragon Keep
 CornerShopService.start() -- #1052: the coins-only Corner Shop
 FeedService.start() -- #1181: cat food from the Bag (FeedCat)
 LiveFlagService.start() -- #2119: the live switches (codes, rally) from CatCafe_Flags

@@ -137,7 +137,8 @@ return function()
 					{
 						"Thank you! 3 Luck Potions",
 						"Thank you! The Cafe Pass paid track is yours this season",
-						"King Cat Pack: the Royal Velvet Booth, 2 Luck Potions",
+						"Cat King Pack: the Royal Velvet Booth, 2 Luck Potions",
+						"Royal Cat Pack: 3 Big Tip Potions, 1 Swift Potion, 1 Steady Potion",
 						"👕 Your working cats now earn +15%!",
 						"Thanks! Your report was sent.",
 						"Trade done!",
@@ -205,6 +206,8 @@ return function()
 		it("lets purchase confirmations through a busy window, and nothing else", function()
 			expect(ToastRules.purchase("Thank you! You got 4 Big Money potions")).to.equal(true)
 			expect(ToastRules.purchase("King Cat Pack: King Croissant is yours")).to.equal(true)
+			expect(ToastRules.purchase("Cat King Pack: the Royal Velvet Booth")).to.equal(true)
+			expect(ToastRules.purchase("Royal Cat Pack: 3 Lucky Potions")).to.equal(true)
 			expect(ToastRules.purchase("Opened 3 crates: Lantern, Rug and Bench")).to.equal(true)
 			expect(ToastRules.purchase("Sam caught a Mythical Moonpaw!")).to.equal(false)
 			expect(ToastRules.purchase("Your bait cat is here!")).to.equal(false)

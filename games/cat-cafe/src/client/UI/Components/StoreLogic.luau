@@ -164,9 +164,9 @@ local PASSES: { PassCard } = {
 	{
 		key = "royalCat",
 		configKey = "RoyalCatPassId",
-		name = "Royal Cat",
+		name = "Royal Cat Pack", -- #4261 (Derek 2026-11-14): the Royal Cat became a pack, R$199
 		icon = "👑",
-		effect = "A cat that always earns like a Legendary from your newest area.",
+		effect = "Duchess Marzipan, who always earns like a Legendary from your newest area, and Potion Pack S.",
 		note = "Yours to keep. Can't be traded.",
 		tab = "cats",
 	},
@@ -207,22 +207,13 @@ local PASSES: { PassCard } = {
 		icon = "🏷️", -- #2015: not 🪧 (Unicode 13), drawn blank
 		effect = "Three cafe sign looks: Flower Box, Starry Night and Paw Chalkboard. Looks only.",
 	},
-	-- #1822 (Monetization's store doc §3C): the King Cat alone sits just before its bundle under Cats, so the bundle
-	-- reads as the better deal; hidden while KingCatPassId is 0
-	{
-		key = "kingCat",
-		configKey = "KingCatPassId",
-		name = "King Cat",
-		icon = "🤴",
-		effect = "A cat that always earns like a Mythical from your newest area.", -- fits a phone's card
-		note = "Yours to keep. Can't be traded.", -- as the Royal Cat's; a longer note shrank the card's text on a small phone
-		tab = "cats",
-	},
+	-- #4261 (Derek 2026-11-14: "no need to make it buyable alone"): the King Cat alone card is gone; its pass stays in
+	-- Config (KingCatPassId) so earlier buyers keep the cat, and it is off sale on Roblox
 	-- #1822: the bundle lists what it holds (shared/KingPack.contents, in its order)
 	{
 		key = "kingPack",
 		configKey = "KingPackPassId",
-		name = "King Cat Pack",
+		name = "Cat King Pack", -- #4261: was "King Cat Pack", R$299
 		icon = "🤴",
 		-- short enough to stay readable on a phone's small card (the King Cat's own card says how he earns)
 		effect = "King Croissant, Royal Crest sign, Grand look, Royal Velvet Booth, Potion Pack M.",
@@ -733,15 +724,10 @@ local function passId(config: any, card: PassCard): number?
 	return if type(value) == "number" and value ~= 0 then value else nil
 end
 
--- #1822: what the King Cat Pack's worth adds up, as shared/KingPack.worthRefs: the King Cat alone pass and the Potion
--- Pack M product, both only once made (the looks-only pieces are never priced). nil while either is 0.
-local function kingWorth(config: any): { number }?
-	local cat = config.KingCatPassId
-	local ids = config.ProductIds
-	local potions = if type(ids) == "table" then ids.potion_pack_m else nil
-	if type(cat) == "number" and cat ~= 0 and type(potions) == "number" and potions ~= 0 then
-		return { cat, potions }
-	end
+-- #1822: the King Cat Pack's worth line added up the King Cat alone pass and Potion Pack M. #4261 (Review-QA): the
+-- King Cat is no longer sold alone, so a "bought apart" sum would name a price nobody can pay; the Cat King Pack has
+-- no worth line.
+local function kingWorth(_config: any): { number }?
 	return nil
 end
 
@@ -1139,7 +1125,6 @@ local PASS_PICKS = {
 	"signStylePack",
 	"gardenDecor",
 	"grandTheme",
-	"kingCat",
 }
 
 -- #3562: the potion packs (every card of PRODUCTS), last on Featured. They keep their place on the Potions tab.

@@ -424,10 +424,9 @@ local Config = {
 		extraSlot = { was = 149, now = 75 },
 		uniforms = { was = 149, now = 75 },
 		cafeStyle = { was = 249, now = 125 },
-		royalCat = { was = 599, now = 299 },
-		kingCat = { was = 799, now = 399 },
+		royalCat = { was = 599, now = 199 }, -- #4261: the Royal Cat Pack at R$199 (Derek 2026-11-14)
 		grandTheme = { was = 799, now = 399 },
-		kingPack = { was = 999, now = 499 },
+		kingPack = { was = 999, now = 299 }, -- #4261: the Cat King Pack at R$299; the King Cat is no longer sold alone
 		thankYou = { was = 25, now = 13 },
 		cafePass = { was = 299, now = 149 },
 	} :: { [string]: { was: number, now: number } },

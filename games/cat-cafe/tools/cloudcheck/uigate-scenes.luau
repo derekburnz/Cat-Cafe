@@ -11331,7 +11331,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assertStoreCards(true)
 	end },
 	-- #2850 (Derek2: "move the 999 pack and extra food bowl somewhere in featured"): with the Starter Bundle unbought
-	-- it is the hero, and the King Cat Pack and the Second Bait Bowl lead the picks; the hero lists the bundle's contents
+	-- it is the hero, and the Cat King Pack and the Second Bait Bowl lead the picks; the hero lists the bundle's contents
 	{ "StoreStarter", function()
 		UI.update({ starterBought = false } :: any)
 		UI.store.preview(storePrices(true), {})
@@ -11345,7 +11345,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				names[label.Text] = true
 			end
 		end
-		for _, name in { "Starter Bundle", "King Cat Pack", "Second Bait Bowl" } do
+		for _, name in { "Starter Bundle", "Cat King Pack", "Second Bait Bowl" } do
 			assert(names[name], "uigate: Featured does not show " .. name .. " (#2850)")
 		end
 	end },

@@ -5516,8 +5516,8 @@ do
 	end
 
 	-- #3555: for the first rank up's walk-through (Controllers/RankSpotController). `moment` says whether nothing
-	-- else is going on (no catch, rescue, carry, cutscene or flight, the UI showing) and names the open window: the
-	-- modal's, or "other" for a popup, the bait card, an ask or the gift, tip or recap card.
+	-- else is going on (no catch, rescue, carry, intro or flight, the UI showing) and names the open window: the
+	-- modal's, or "other" for a popup, the bait card, an ask, the gift, tip or recap card or a cutscene.
 	function UI.rankSpot.moment(): (boolean, string?)
 		local at = tipMoment()
 		local free = not (
@@ -5543,6 +5543,10 @@ do
 				or (cards.gift.card ~= nil and cards.gift.card:isShowing())
 				or (tipCard ~= nil and tipCard:isShowing())
 				or (cards.recap.card ~= nil and cards.recap.card:isShowing())
+				-- #4188: and a cutscene (the first bait cat's). It counts as a card, not as busy: the free seconds keep
+				-- running under it, so with Tier 2 at 3 kinds the goal card lights the moment the bait cat's card and
+				-- scene are gone, not 2 s later
+				or UI.cutscene.on
 			)
 		then
 			window = "other"

@@ -142,5 +142,37 @@
 		"price": 99,
 		"regionalPricing": true,
 		"description": "Four extra songs for your cafe jukebox, and your pick is saved. Yours to keep, can't be traded."
+	},
+	{
+		"name": "Stylish Pack",
+		"config": "StylishPackPassId",
+		"price": 99,
+		"regionalPricing": true,
+		"description": "A full cafe outfit: the Club Banner sign (+25% money in use), the Disco Ball decor (+25%), the Club Suit staff uniform (+15%) and Cool Shades for your cats (+15%). All four in use add +20% more: up to +100% money. Yours to keep, can't be traded.",
+		"icon": "assets/cat-cafe/exports/store/CatCafe_StorePack_Stylish_Icon.png"
+	},
+	{
+		"name": "Winter Pack",
+		"config": "WinterPackPassId",
+		"price": 99,
+		"regionalPricing": true,
+		"description": "A full cafe outfit: the Snowy Banner sign (+25% money in use), the Cocoa Stand decor (+25%), the Winter Coat staff uniform (+15%) and Bobble Hat for your cats (+15%). All four in use add +20% more: up to +100% money. Yours to keep, can't be traded.",
+		"icon": "assets/cat-cafe/exports/store/CatCafe_StorePack_Winter_Icon.png"
+	},
+	{
+		"name": "Chef Pack",
+		"config": "ChefPackPassId",
+		"price": 99,
+		"regionalPricing": true,
+		"description": "A full cafe outfit: the Bakery Banner sign (+25% money in use), the Pastry Case decor (+25%), the Chef Whites staff uniform (+15%) and Chef Hat for your cats (+15%). All four in use add +20% more: up to +100% money. Yours to keep, can't be traded.",
+		"icon": "assets/cat-cafe/exports/store/CatCafe_StorePack_Chef_Icon.png"
+	},
+	{
+		"name": "Space Pack",
+		"config": "SpacePackPassId",
+		"price": 99,
+		"regionalPricing": true,
+		"description": "A full cafe outfit: the Star Banner sign (+25% money in use), the Rocket Lamp decor (+25%), the Space Suit staff uniform (+15%) and Bubble Helmet for your cats (+15%). All four in use add +20% more: up to +100% money. Yours to keep, can't be traded.",
+		"icon": "assets/cat-cafe/exports/store/CatCafe_StorePack_Space_Icon.png"
 	}
 ]

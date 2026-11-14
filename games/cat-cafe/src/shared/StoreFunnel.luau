@@ -30,7 +30,7 @@ StoreFunnel.VISITS_MAX = 30 -- Store funnels a session; a visit past it logs not
 -- #1936 (release.md section 3): a purchase prompt the client's store guard refused, reported as "<source>:<reason>"
 -- (store_guard_blocked): where the prompt came from, and no_tap (no tap in the last 2 seconds) or busy (a catch, a
 -- rescue or a cutscene). GUARD_BLOCKS_MAX are logged a session.
-StoreFunnel.GUARD_SOURCES = { "bait", "store", "cafePass" }
+StoreFunnel.GUARD_SOURCES = { "bait", "store", "cafePass", "hud_badge" } -- hud_badge #4176
 StoreFunnel.GUARD_REASONS = { "no_tap", "busy" }
 StoreFunnel.GUARD_BLOCKS_MAX = 20
 
@@ -102,7 +102,7 @@ function StoreFunnel.guardBlock(raw: unknown): (string?, string?)
 	if type(raw) ~= "string" or #raw > 32 then
 		return nil, nil
 	end
-	local source, reason = string.match(raw, "^(%a+):([%a_]+)$")
+	local source, reason = string.match(raw, "^([%a_]+):([%a_]+)$")
 	if
 		source == nil
 		or reason == nil

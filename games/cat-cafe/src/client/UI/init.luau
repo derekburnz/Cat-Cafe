@@ -874,7 +874,7 @@ function UI.init(config: Types.InitConfig)
 		-- #2353: the X2 Cash pill opens Roblox's window for the 2x pass, through the Store's tap guard (#1936)
 		buyPass = function(id: number)
 			local PassShop = require(script.Components.PassShop)
-			PassShop.prompt(id, "store")
+			PassShop.prompt(id, "hud_badge") -- #4176: purchase_source tells these from Store buys
 		end,
 		-- #1919: the goal card's nudge opens the Index on the newest open area with the most cats to find
 		openIndexAt = function(areaId: string?)

@@ -65,7 +65,7 @@ return function()
 				expect(seen[i]).to.equal(true)
 			end
 			expect(last).to.equal(6)
-			expect(p.steps).to.equal(#Traits.RARITIES)
+			expect(p.steps).to.equal(#Traits.rarities(false)) -- #3908: the intro walks the six, never hints at Secret
 			-- each colour is fully in before the next starts
 			expect(p.blend < p.step).to.equal(true)
 			local _, settled = Logic.mysticIntroSwirl(p.step * p.steps + 1)

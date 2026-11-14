@@ -14,6 +14,8 @@
 --                 for a role with no slot open yet; "All 3 working" when nothing is free or locked.
 --   initial(name)  the first letter of a cat's name for its slot square, a whole code point (reviewer S55: names
 --                  may start with an accent, kana or an emoji), upper-cased when it is ASCII.
+--   nextLine(row) -> string?  the Cats window's role card (#4028): how many slots its next tier opens, "+2 at Tier 5",
+--                 nil when nothing more opens (pass-only slots stay out)
 -- Pure, no Theme, so the cloud spec runner can load it.
 
 local Types = require(script.Parent.Parent.Types)
@@ -159,6 +161,23 @@ function StaffSlots.rows(
 		end
 	end
 	return rows
+end
+
+function StaffSlots.nextLine(row: Row): string?
+	local tier = row.nextTier
+	if tier == nil then
+		return nil
+	end
+	local count = 0
+	for _, slot in row.slots do
+		if slot.kind == "locked" and not slot.hidden and slot.tier == tier then
+			count += 1
+		end
+	end
+	if count == 0 then
+		return nil
+	end
+	return ("+%d at Tier %d"):format(count, tier)
 end
 
 return StaffSlots

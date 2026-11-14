@@ -166,6 +166,53 @@ return function()
 			end
 		)
 
+		it(
+			"has the next three areas' songs and the Keep sheet's sounds ready for their upload",
+			function()
+				local has = only({ "musicAreaSnowy", "musicAreaWaterpark", "musicAreaCastle" })
+				expect(Logic.areaSongFor("Snowy", has)).to.equal("musicAreaSnowy")
+				expect(Logic.areaSongFor("Waterpark", has)).to.equal("musicAreaWaterpark")
+				expect(Logic.areaSongFor("Castle", has)).to.equal("musicAreaCastle")
+				local last = -1
+				for _, id in { "musicAreaSnowy", "musicAreaWaterpark", "musicAreaCastle" } do
+					local cue = Cues[id]
+					expect(cue.sheet).to.equal("sheetMusicAreas2")
+					expect(cue.sections).to.equal(4)
+					expect(math.abs(cue.seconds - (cue.region[2] - cue.region[1])) < 0.01).to.equal(
+						true
+					)
+					expect(cue.region[1] > last).to.equal(true) -- one after another, never overlapping
+					last = cue.region[2]
+				end
+				expect(Cues.sheetMusicAreas2.group).to.equal("Music")
+				last = -1
+				for _, id in
+					{
+						"dragonRumble",
+						"dragonCrack",
+						"dragonChirp",
+						"dragonRoar",
+						"dragonRoarGrand",
+						"dragonWing",
+						"cardFlip",
+						"cardRare",
+						"rekindle",
+						"ticketPrint",
+						"ticketDing",
+						"snowStep",
+						"snowGust",
+						"frostChime",
+					}
+				do
+					local cue = Cues[id]
+					expect(cue.sheet).to.equal("sheetKeep")
+					expect(cue.region[1] > last and cue.region[2] > cue.region[1]).to.equal(true)
+					expect(cue.volume <= 0.7).to.equal(true)
+					last = cue.region[2]
+				end
+			end
+		)
+
 		it("gives each area song four sections like the day and night songs", function()
 			for _, id in { "musicAreaDesert", "musicAreaRuins" } do
 				local cue = Cues[id]

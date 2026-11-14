@@ -52,6 +52,7 @@ local RareMomentService = require(script.Parent.RareMomentService)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
 local SecretBeacons = require(script.Parent.SecretBeacons)
+local SecretCalm = require(ReplicatedStorage.Shared.SecretCalm)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local SpeedShoes = require(ReplicatedStorage.Shared.SpeedShoes)
 local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
@@ -119,6 +120,7 @@ type Stray = {
 	mood: Types.CatMood,
 	curiousAt: number?,
 	skittishAt: number?,
+	secretHops: { [number]: number }, -- #4255 follow-up: a Secret's hops away from each player (by UserId), SecretCalm
 	walk: number, -- bumped by every walk that starts, so an older walk stops where it is
 	alive: boolean,
 }
@@ -196,6 +198,16 @@ local function rootPosition(player: Player): Vector3?
 		return root.Position
 	end
 	return nil
+end
+
+-- #4255 follow-up: how fast the player's root moves (zero without a character), for SecretCalm.running
+local function rootVelocity(player: Player): Vector3
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root ~= nil and root:IsA("BasePart") then
+		return root.AssemblyLinearVelocity
+	end
+	return Vector3.zero
 end
 
 local function withinRange(player: Player, position: Vector3, range: number): boolean
@@ -739,6 +751,7 @@ local function spawnStray(
 		recaught = false,
 		beginner = beginner,
 		mood = mood,
+		secretHops = {},
 		walk = 0,
 		alive = true,
 	}
@@ -2616,6 +2629,17 @@ local function swingable(stray: Stray, player: Player, now: number): boolean
 	return stray.lockedBy == 0 or stray.lockedBy == player.UserId or lockExpired(stray)
 end
 
+-- #4255 follow-up (SecretCalm rule 1): whether a stray may hop away from `player`; only a Secret is capped.
+local function secretMayHop(stray: Stray, player: Player): boolean
+	return stray.def.rarity ~= Catalog.SECRET or SecretCalm.mayHop(stray.secretHops[player.UserId])
+end
+
+local function countSecretHop(stray: Stray, player: Player)
+	if stray.def.rarity == Catalog.SECRET then
+		stray.secretHops[player.UserId] = (stray.secretHops[player.UserId] or 0) + 1
+	end
+end
+
 -- Free strays for a near miss: swingable, not Dropped (a dropped cat stays where it fell, F67) and not mid-walk home.
 local function hoppable(stray: Stray, player: Player, now: number): boolean
 	return swingable(stray, player, now)
@@ -2738,8 +2762,13 @@ local function landSwing(player: Player)
 		started = true -- #2341: it landed on a stuck cat; RescueService answers as for its prompt
 	elseif near > 0 and NetSwing.missHops(profile.tutorialStep) then
 		for _, other in strays do
-			if hoppable(other, player, now) and NetSwing.nearMiss(origin, other.body.Position) then
+			if
+				hoppable(other, player, now)
+				and NetSwing.nearMiss(origin, other.body.Position)
+				and secretMayHop(other, player)
+			then
 				hop(other, player)
+				countSecretHop(other, player)
 			end
 		end
 	end
@@ -3341,8 +3370,20 @@ local function skittish(stray: Stray, player: Player, root: Vector3, now: number
 	if profile == nil or not Moods.canStartle(profile.tutorialStep) then
 		return false
 	end
+	-- #4255 follow-up (SecretCalm): a Secret startles once a visit, only at a player running at it, never mid-swing
+	if stray.def.rarity == Catalog.SECRET then
+		local last = lastSwing[player]
+		if
+			not secretMayHop(stray, player)
+			or not SecretCalm.running(rootVelocity(player))
+			or SecretCalm.swinging(if last ~= nil then now - last else nil)
+		then
+			return false
+		end
+	end
 	stray.skittishAt = now
 	hop(stray, player, Config.SkittishHopStuds)
+	countSecretHop(stray, player)
 	return true
 end
 

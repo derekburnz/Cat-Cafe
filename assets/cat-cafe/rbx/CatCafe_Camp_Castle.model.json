@@ -15814,6 +15814,98 @@
        "CFrame": {
         "position": [
          70.0,
+         10.72,
+         -306.15
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Castle_016_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/21",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Castle_016_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         70.0,
          8.4,
          -306.24
         ],
@@ -15852,11 +15944,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Castle/21"
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_016_BannerPole",
+     "name": "CatCafe_Camp_Castle_016_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -15897,7 +16018,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -15905,7 +16026,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_016_BannerPole",
+     "name": "CatCafe_Camp_Castle_016_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -15954,7 +16075,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_016_BannerPole",
+     "name": "CatCafe_Camp_Castle_016_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -16003,7 +16124,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_016_BannerPole",
+     "name": "CatCafe_Camp_Castle_016_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -16056,36 +16177,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       70.0,
+       10.72,
+       -306.3
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Camp_Castle_016_BannerPole"
+   "name": "CatCafe_Camp_Castle_016_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/21"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/22"
    },
    "children": [
     {
@@ -16164,7 +16285,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Castle/21"
+      "Rojo_Id": "CatCafe_Camp_Castle/22"
      }
     },
     {
@@ -16275,6 +16396,98 @@
        "CFrame": {
         "position": [
          30.0,
+         10.72,
+         -293.15
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Castle_017_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/23",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Castle_017_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         30.0,
          8.4,
          -293.24
         ],
@@ -16313,11 +16526,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Castle/23"
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_017_BannerPole",
+     "name": "CatCafe_Camp_Castle_017_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -16358,7 +16600,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -16366,7 +16608,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_017_BannerPole",
+     "name": "CatCafe_Camp_Castle_017_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -16415,7 +16657,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_017_BannerPole",
+     "name": "CatCafe_Camp_Castle_017_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -16464,7 +16706,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_017_BannerPole",
+     "name": "CatCafe_Camp_Castle_017_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -16517,36 +16759,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       30.0,
+       10.72,
+       -293.3
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Camp_Castle_017_BannerPole"
+   "name": "CatCafe_Camp_Castle_017_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/22"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/24"
    },
    "children": [
     {
@@ -16624,7 +16866,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Castle/22"
+      "Rojo_Id": "CatCafe_Camp_Castle/24"
      }
     },
     {
@@ -16810,7 +17052,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/23"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/25"
    },
    "children": [
     {
@@ -16889,7 +17131,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Castle/23"
+      "Rojo_Id": "CatCafe_Camp_Castle/25"
      }
     },
     {
@@ -17176,7 +17418,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/24"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/26"
    },
    "children": [
     {
@@ -17254,7 +17496,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Castle/24"
+      "Rojo_Id": "CatCafe_Camp_Castle/26"
      }
     },
     {
@@ -17440,7 +17682,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/25"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/27"
    },
    "children": [
     {
@@ -17519,7 +17761,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Castle/25"
+      "Rojo_Id": "CatCafe_Camp_Castle/27"
      }
     },
     {
@@ -17806,7 +18048,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/26"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/28"
    },
    "children": [
     {
@@ -17885,7 +18127,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Castle/26"
+      "Rojo_Id": "CatCafe_Camp_Castle/28"
      }
     },
     {
@@ -17996,6 +18238,98 @@
        "CFrame": {
         "position": [
          -70.0,
+         10.72,
+         -306.15
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Castle_020_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/29",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Castle_020_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -70.0,
          8.4,
          -306.24
         ],
@@ -18034,11 +18368,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Castle/29"
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_020_BannerPole",
+     "name": "CatCafe_Camp_Castle_020_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -18079,7 +18442,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -18087,7 +18450,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_020_BannerPole",
+     "name": "CatCafe_Camp_Castle_020_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -18136,7 +18499,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_020_BannerPole",
+     "name": "CatCafe_Camp_Castle_020_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -18185,7 +18548,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_020_BannerPole",
+     "name": "CatCafe_Camp_Castle_020_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -18238,36 +18601,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       -70.0,
+       10.72,
+       -306.3
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Camp_Castle_020_BannerPole"
+   "name": "CatCafe_Camp_Castle_020_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/27"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/30"
    },
    "children": [
     {
@@ -18346,7 +18709,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Castle/27"
+      "Rojo_Id": "CatCafe_Camp_Castle/30"
      }
     },
     {
@@ -18457,6 +18820,98 @@
        "CFrame": {
         "position": [
          -30.0,
+         10.72,
+         -293.15
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Camp_Castle_021_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/31",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Camp_Castle_021_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -30.0,
          8.4,
          -293.24
         ],
@@ -18495,11 +18950,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Camp_Castle/31"
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_021_BannerPole",
+     "name": "CatCafe_Camp_Castle_021_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -18540,7 +19024,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -18548,7 +19032,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_021_BannerPole",
+     "name": "CatCafe_Camp_Castle_021_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -18597,7 +19081,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_021_BannerPole",
+     "name": "CatCafe_Camp_Castle_021_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -18646,7 +19130,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Castle_021_BannerPole",
+     "name": "CatCafe_Camp_Castle_021_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -18699,36 +19183,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       -30.0,
+       10.72,
+       -293.3
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Camp_Castle_021_BannerPole"
+   "name": "CatCafe_Camp_Castle_021_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/28"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/32"
    },
    "children": [
     {
@@ -18807,7 +19291,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Castle/28"
+      "Rojo_Id": "CatCafe_Camp_Castle/32"
      }
     },
     {
@@ -18994,7 +19478,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/29"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/33"
    },
    "children": [
     {
@@ -19073,7 +19557,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Castle/29"
+      "Rojo_Id": "CatCafe_Camp_Castle/33"
      }
     },
     {
@@ -19260,7 +19744,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/30"
+    "Rojo_Target_PrimaryPart": "CatCafe_Camp_Castle/34"
    },
    "children": [
     {
@@ -19339,7 +19823,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Camp_Castle/30"
+      "Rojo_Id": "CatCafe_Camp_Castle/34"
      }
     },
     {

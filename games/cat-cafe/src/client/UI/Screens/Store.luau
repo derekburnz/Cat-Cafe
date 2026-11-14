@@ -25,11 +25,13 @@ local Config = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
 ) :: any
 local Create = require(script.Parent.Parent.Components.Create)
+local DealLogic = require(script.Parent.Parent.Components.DealLogic)
 local FitText = require(script.Parent.Parent.Components.FitText)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local LiveFlags =
 	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("LiveFlags"))
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
+local MysticPoolLogic = require(script.Parent.Parent.Components.MysticPoolLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
@@ -48,6 +50,8 @@ export type Callbacks = {
 	seen: ((tab: string) -> ())?,
 	-- #1888: every tab shown, the first on open included (the Store funnel's tab_viewed)
 	tabShown: ((tab: string) -> ())?,
+	-- #3996: Today's Deal's R$25 pressed: the server checks it and opens Roblox's prompt (PromptDeal)
+	deal: ((productId: string) -> ())?,
 }
 
 -- the dark window palette (#1028), in place of Theme.modal
@@ -65,6 +69,8 @@ export type Store = {
 	showTab: (self: Store, tab: string) -> (),
 	setBag: (self: Store, bag: { StoreLogic.BagEntry }) -> (),
 	setNew: (self: Store, tabs: { [string]: true }) -> (),
+	-- #3996: PlayerState.dailyDeal (false or nil: no card); the next render shows it
+	setDeal: (self: Store, view: any) -> (),
 	hasNew: (self: Store) -> boolean,
 	tab: (self: Store) -> string,
 	closed: (self: Store) -> (),
@@ -183,13 +189,11 @@ local function fitText(label: TextLabel, maxSize: number)
 end
 
 -- #3572: a wide card's words, fitted; when even the smallest size runs past its one line (a phone's narrow card),
--- they drop the worth line and stop at the line's end with "...", so nothing runs on under the price button
+-- they drop the worth line and stop at the line's end with "...", so nothing runs on under the price button.
+-- #3930: a grid card does the same in its wrapped box: the worth line goes first, then the last line that fits
+-- ends with "..."
 local function fitEffect(entry: any)
 	local effect = entry.effect :: TextLabel
-	if not entry.wide then
-		fitText(effect, entry.effectMax)
-		return
-	end
 	if effect.AbsoluteSize.X <= 0 or effect.AbsoluteSize.Y <= 0 then
 		return -- no box yet (or a card mid-pop from nothing): keep the last fit until it has one
 	end
@@ -201,7 +205,14 @@ local function fitEffect(entry: any)
 		return
 	end
 	effect.Text = entry.shortText or effect.Text
-	effect.TextWrapped = false
+	if entry.wide then
+		effect.TextWrapped = false
+	else
+		fitText(effect, entry.effectMax)
+		if effect.TextFits then
+			return
+		end
+	end
 	effect.TextTruncate = Enum.TextTruncate.AtEnd
 end
 
@@ -226,6 +237,7 @@ function Store.new(callbacks: Callbacks): Store
 	self._marked = {} :: { [string]: true } -- the tabs sent as seen this session, until the server's word comes back
 	self._tab = "featured"
 	self._rows = {} :: { StoreLogic.Row }
+	self._deal = nil :: any -- #3996: PlayerState.dailyDeal
 	self._seen = {} :: StoreLogic.Seen -- #1823: each card's pass and Owned at the last render, for the thank-you burst
 	-- #1870: true until the first render after the window opens; that render only notes what is owned, so a pass
 	-- bought while the Store was shut doesn't pop and burst on opening (and the cards are measured at rest)
@@ -788,7 +800,15 @@ function Store._makeCard(
 		enabled = false,
 		parent = card,
 		onClick = function()
-			if entry.passId ~= 0 then
+			local deal = entry.dealProduct
+			if deal ~= nil then
+				-- #3996: the server checks today's deal and opens the prompt itself
+				StoreMotion.press(entry.frame :: any)
+				local press = (self._callbacks :: Callbacks).deal
+				if press ~= nil then
+					press(deal)
+				end
+			elseif entry.passId ~= 0 then
 				-- #1823: the card dips with the tap (the Buy button already dips through its own UIScale, so
 				-- StoreMotion moves the card rather than fight that tween)
 				StoreMotion.press(entry.frame :: any) -- press takes a GuiButton; it only scales the object
@@ -872,6 +892,8 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	end
 	entry.frame.Visible = true
 	entry.passId = row.passId
+	entry.dealProduct = nil -- #3996: the hero was Today's Deal
+	entry.owned.Text = "✓ Yours"
 	entry.rowKey = row.key -- #1823: the thank-you burst finds a bought row's cards by this
 	entry.name.Text = row.name
 	-- #1822: a bundle adds its "Worth R$X bought apart" line once every part's price is in
@@ -951,6 +973,76 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	if (entry.saleLow == true) ~= low then
 		entry.saleLow = low
 		self:_place(entry)
+	end
+end
+
+-- #3996: PlayerState.dailyDeal for the next render (false or nil: no card).
+function Store.setDeal(self: any, view: any)
+	self._deal = if type(view) == "table" then view else nil
+end
+
+-- #3996: Today's Deal on the hero card (nil hides it): the deal's picture, "Today's Deal", what is in it, the value line, the
+-- Tomorrow line and the plain change line, and the R$25 button; once bought the button goes and the card says so.
+function Store._fillDeal(_self: any, entry: any, card: DealLogic.Card?)
+	entry.dealProduct = nil
+	if card == nil then
+		entry.frame.Visible = false
+		entry.key = ""
+		return
+	end
+	entry.frame.Visible = true
+	entry.passId = 0
+	entry.rowKey = ""
+	entry.name.Text = card.title
+	entry.fullText = card.full
+	entry.shortText = card.short
+	entry.effect.Text = card.full
+	entry.perk.Visible = false
+	entry.badge.Visible = false
+	entry.dim.Visible = false
+	fitEffect(entry)
+	local art = "deal:" .. card.kind .. ":" .. (card.potion or "")
+	if entry.key ~= art then
+		entry.key = art
+		local images: { string } = {}
+		if card.kind == "token" then
+			local token = MysticPoolLogic.TOKEN_IMAGE
+			if token ~= nil then
+				table.insert(images, token)
+			end
+		else
+			for _, image in ShopIcons.potionAll(card.potion) do
+				table.insert(images, image)
+			end
+			local flask = ShopIcons.hud("Potion")
+			if flask ~= nil then
+				table.insert(images, flask)
+			end
+		end
+		entry.glyph.Text = if card.kind == "token" then "🪙" else "🧪"
+		local padding = entry.glyph:FindFirstChildOfClass("UIPadding")
+		local inset = if #images > 0 then 0 else GLYPH_PAD
+		if padding then
+			padding.PaddingTop = UDim.new(inset, 0)
+			padding.PaddingBottom = UDim.new(inset, 0)
+		end
+		if #images > 0 then
+			IconArt.quietWait(entry.glyph, QUIET_SECONDS)
+			IconArt.setImages(entry.glyph, images, PICTURE_SCALE)
+		else
+			IconArt.setImage(entry.glyph, nil)
+			IconArt.set(entry.glyph, entry.glyph.Text)
+		end
+	end
+	entry.button.instance.Visible = not card.bought
+	entry.owned.Visible = card.bought
+	if card.bought then
+		entry.owned.Text = DealLogic.BOUGHT
+	else
+		entry.dealProduct = card.product
+		entry.button:setText(card.price)
+		entry.button:setStyle("store")
+		entry.button:setEnabled(true)
 	end
 end
 
@@ -1587,18 +1679,42 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 	-- Featured
 	local featured = StoreLogic.featured(rows, prices) -- #3562: off sale cards never lead
 	local hero = self._cards.hero or self:_makeCard("hero", "hero", self._featured, 0)
-	self:_fill(hero, featured.hero)
+	-- #3996 (todays-deal-3996.md section 4): while Today's Deal shows it is the hero, since a pick on a phone has room
+	-- for one line and the deal's lines (the token deal's odds above all) must be on the card itself. The usual hero
+	-- leads the picks and the last pick waits for tomorrow. Once bought it needs only its name and "Bought today", so
+	-- it steps down to the first pick and the hero is the usual one again.
+	local deal = DealLogic.card(self._deal, os.time(), MysticPoolLogic.oddsLine())
+	local picks: { StoreLogic.Row } = featured.picks
+	local dealPick = deal ~= nil and deal.bought
+	if deal ~= nil and not deal.bought then
+		self:_fillDeal(hero, deal)
+		picks = {}
+		if featured.hero then
+			table.insert(picks, featured.hero)
+		end
+		for _, pick in featured.picks do
+			if #picks < StoreLogic.PICKS then
+				table.insert(picks, pick)
+			end
+		end
+	else
+		self:_fill(hero, featured.hero)
+	end
 	for index = 1, StoreLogic.PICKS do
 		local slot = "pick" .. index
 		local entry = self._cards[slot] or self:_makeCard(slot, "tile", self._picks, index)
-		self:_fill(entry, featured.picks[index])
+		if dealPick and index == 1 then
+			self:_fillDeal(entry, deal)
+		else
+			self:_fill(entry, picks[if dealPick then index - 1 else index])
+		end
 	end
-	self._picks.Visible = #featured.picks > 0
+	self._picks.Visible = #picks > 0
 	local onFeatured: { [string]: boolean } = {}
 	if featured.hero then
 		onFeatured[featured.hero.key] = true
 	end
-	for _, pick in featured.picks do
+	for _, pick in picks do
 		onFeatured[pick.key] = true
 	end
 	self:_fillSale(StoreLogic.saleList(rows, prices, Config, os.time(), SALE_MOST, onFeatured))

@@ -20,13 +20,32 @@ IntroModeService.WAIT_SECONDS = 2
 local modes: { [Player]: string } = {}
 local pending: { [Player]: boolean } = {}
 
+-- #4074: GetValue warns "Config value not found for key" for a key the player's config does not hold, and that was
+-- every join (89 in the error report) while no Experiment holds introMode. So while no read has found the key, only
+-- one join per RECHECK_SECONDS is read (a probe, at most one warning per server per hour) and the rest get nil. Once a
+-- read finds it (the Experiment is live, through its arms or a base value), every join is read again. The probe is a
+-- per-player read on purpose: an Experiment may set the key only in its arms, which the experience-wide config lacks.
+IntroModeService.RECHECK_SECONDS = 3600
+local keyLive = false
+local nextProbeAt = 0
+
 local function fetch(player: Player)
+	if not keyLive then
+		local now = os.clock()
+		if now < nextProbeAt then
+			return -- no read has found the key yet: nil, the save's older split
+		end
+		nextProbeAt = now + IntroModeService.RECHECK_SECONDS -- set before the yield, so only one probe runs
+	end
 	pending[player] = true
 	local ok, value = pcall(function()
 		local snapshot = (game:GetService("ConfigService") :: any):GetConfigForPlayerAsync(player)
 		return snapshot:GetValue(IntroModeService.KEY)
 	end)
 	pending[player] = nil
+	if ok and value ~= nil then
+		keyLive = true
+	end
 	if ok and type(value) == "string" and player.Parent ~= nil then
 		modes[player] = value
 	end

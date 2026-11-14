@@ -144,6 +144,14 @@ Layout.setStuckPoses = {
 	stone_urn = { 0, 2.7, -0.6, -1, 0, 0, 0, 0, 1, 0, 1, 0 }, -- nose down into the upright urn, back end out of its mouth
 	-- on its back on the bridge stub, head hanging over the edge toward the gap (-Z)
 	bridge_ledge = { 0, 0.94, -0.45, -1, 0, 0, 0, -1, 0, 0, 0, 1 },
+	-- Tier 8 (#3997), first fits on CatCafe_Snowy_Set from snowyset.py's trap notes, for Motion-FX to refine in Studio:
+	-- sunk to the chest in the drift ring, its face out of it (-Z)
+	snowdrift = { 0, -0.5, 0, -1, 0, 0, 0, 1, 0, 0, 0, -1 },
+	-- nose first down into the heap at the snowman's feet (+Z, toward the snowman), tail and back legs out
+	snowman = { 0, -0.3, -0.3, -1, 0, 0, 0, 0.5, 0.866, 0, 0.866, -0.5 },
+	-- crawled head first under the tipped sled (+Z), back end out of its open side (-Z)
+	sled = { 0, 0, -0.8, -1, 0, 0, 0, 0.9063, 0.4226, 0, 0.4226, -0.9063 },
+	snow_log = { 3.5, 0.5, 0, 0, 0, 1, 0, 1, 0, -1, 0, 0 }, -- head first into the open end (+X), as the Woods' log
 } :: { [string]: { number } }
 
 local W = Config.World
@@ -1871,6 +1879,171 @@ Layout.ruins = {
 	props = {},
 } :: AreaSpec
 
+-- The Snowy Mountain (Tier 8, the next-areas plan Derek OK'd 2026-11-13; #3997): Model-Agent's CatCafe_Snowy_Set (set
+-- space as the Ruins': the pivot at the centre on the floor, -Z toward the camp and the town), long along world Z
+-- with its gate on the south side. Its cat spots and traps are the set's manifest points_roblox (snowyset.py), `near`
+-- on the camp half and `deep` past it, with a pool of 15 traps built into it. Not in Catalog.areas yet, so nothing
+-- builds or opens it. The set's lane spot at (-46, 61) is left out: the snowy log's trap stands on it (#3997).
+local SNX, SNZ = W.SnowyCenterX, W.SnowyCenterZ
+local SNGATE = SNZ - W.SnowyDepth / 2 -- its south side, toward the town
+local SNTURN = townTurn(SNX, SNZ, nil, SNGATE)
+Layout.snowy = {
+	floorY = 0.1,
+	center = { x = SNX, y = 0, z = SNZ },
+	halfWidth = W.SnowyWidth / 2,
+	halfDepth = W.SnowyDepth / 2,
+	gateZ = SNGATE,
+	openingHalfWidth = W.CampOpeningWidth / 2,
+	set = "CatCafe_Snowy_Set",
+	spawnPoints = (function(): { Point }
+		local points = setPoints(SNX, SNZ, SNTURN, 0.1, {
+			{ -26, 0, -263.6 }, -- bench
+			{ 30, 0, -267.6 },
+			{ -16, 0, -248.2 }, -- snowman
+			{ -38, 0, -11.8 },
+			{ 38, 0, -124.2 },
+			{ 22, 0, -253.4 }, -- snowballs
+			{ -45.8, 0, -262 }, -- sled run
+			{ -38.2, 0, -246 },
+			{ -60, 0, -257.4 }, -- ramp
+			{ -28, 0, -233.6 }, -- sled
+			{ -57.04, 0, -245.2 }, -- pine
+			{ 48.6, 0, -263.2 },
+			{ 65.32, 0, -259.2 },
+			{ -21.4, 0, -207.2 },
+			{ 32.96, 0, -207.2 },
+			{ -45.76, 0, -187.2 },
+			{ 44.6, 0, -187.2 },
+			{ -53.04, 0, -139.2 },
+			{ 24.6, 0, -143.2 },
+			{ 66.24, 0, -253.2 },
+			{ -8, 1.6, -228 }, -- rock
+			{ 52, 1.6, -256 },
+			{ -40, 1.6, -196 },
+			{ 10, 1.6, -150 },
+			{ -30, 1.6, -142 },
+			{ -56, 0, -234 }, -- slope
+			{ 36, 0, -232 },
+			{ -34, 0, -230 },
+			{ 16, 0, -188 },
+			{ -6, 0, -182 },
+			{ -44, 0, -150 },
+			{ 30, 0, -156 },
+			{ -26.65, 0, -86.02 }, -- hut
+			{ 24.99, 0, -59.17 },
+			{ 24.65, 0, -93.98 },
+			{ -48.59, 0, -26.31 }, -- fort
+			{ 62.58, 0, -103.8 }, -- igloo
+			{ -36, 0.14, -60 }, -- lake
+			{ 34, 0.14, -82 },
+			{ -10, 0.14, -48 },
+			{ 14, 0.14, -36 },
+			{ -30, 0.14, -96 },
+			{ 38, 0.14, -40 },
+			{ -4, 0.14, -92 },
+			{ -60, 0, -96 }, -- shore
+			{ 62, 0, -60 },
+			{ -56, 0, -116 },
+			{ 54, 0, -20 },
+			{ -24, 0, -20 },
+			{ 24, 0, -118 },
+			{ 6.4, 0, -10 }, -- cave
+		}, "near")
+		for _, point in
+			setPoints(SNX, SNZ, SNTURN, 0.1, {
+				{ -29.41, 0, 137.81 }, -- snowman
+				{ 36.19, 0, 145.41 },
+				{ -34.7, 0, 184.15 },
+				{ 5.5, 1.68, 8 }, -- rock
+				{ 5, 1.96, 74 },
+				{ 5, 1.54, 134 },
+				{ 64, 1.82, 64 },
+				{ -59.75, 1.68, 30 },
+				{ -52, 1.8, 140 },
+				{ 54, 1.8, 136 },
+				{ 26, 1.8, 186 },
+				{ -60, 1.8, 196 },
+				{ 60, 1.8, 196 },
+				{ -6.4, 0, 20 }, -- cave
+				{ -6.4, 0, 56 },
+				{ -6.4, 0, 90 },
+				{ -6.4, 0, 126 },
+				{ 6.4, 0, 24 },
+				{ 6.4, 0, 60 },
+				{ 6.4, 0, 94 },
+				{ -34, 0, 4 }, -- lane
+				{ 34, 0, 60 },
+				{ -34, 0, 92 },
+				{ 34, 0, 120 },
+				{ 48, 0, 28 },
+				{ -46, 0, 26 },
+				{ 48, 0, 100 },
+				{ -59.75, 0, 10 }, -- side passage
+				{ -65.75, 0, 44 },
+				{ -65.75, 0, 84 },
+				{ -65.75, 0, 116 },
+				{ 65, 0, 12 }, -- east strip
+				{ 65, 0, 50 },
+				{ 65, 0, 96 },
+				{ -14, 0, 140 }, -- summit path
+				{ 18, 0, 136 },
+				{ -20, 0, 188 },
+				{ 40, 0, 188 },
+				{ -44, 0, 156 },
+				{ 44, 0, 154 },
+				{ -20.5, 2.98, 204.25 }, -- summit tier
+				{ 20.5, 2.98, 204.25 },
+				{ -16, 5.78, 208.75 },
+				{ 16, 5.78, 208.75 },
+				{ -11.5, 8.58, 213.25 },
+				{ 11.5, 8.58, 213.25 },
+				{ -9, 11.38, 221 }, -- summit top
+				{ 3, 11.38, 220.5 },
+				{ -9, 11.38, 238 },
+				{ -50, 0, 230 }, -- summit foot
+				{ 52, 0, 252 },
+				{ -34, 0, 266 },
+				{ 40, 0, 206 },
+				{ -62, 0, 214 },
+			}, "deep")
+		do
+			table.insert(points, point)
+		end
+		return points
+	end)(),
+	-- two snowdrifts, a snowman's heap, a tipped sled and a snowy log, four of them deep and none within 100 studs of
+	-- the camp (snowyset.py MAIN_TRAPS)
+	rescueSpots = {
+		setTrap(SNX, SNZ, SNTURN, "snowdrift", { -60, 0, -152 }),
+		setTrap(SNX, SNZ, SNTURN, "snowdrift", { 48, 0, 182 }),
+		setTrap(SNX, SNZ, SNTURN, "snowman", { -44, 0, 214 }, 30),
+		setTrap(SNX, SNZ, SNTURN, "sled", { 64, 0, 80 }, -90),
+		setTrap(SNX, SNZ, SNTURN, "snow_log", { -47, 0, 61 }),
+	},
+	-- the spots the day's traps are picked from (RescuePick, #2240): today's five first, then the set's other ten
+	rescuePool = {
+		setTrap(SNX, SNZ, SNTURN, "snowdrift", { -60, 0, -152 }),
+		setTrap(SNX, SNZ, SNTURN, "snowdrift", { 48, 0, 182 }),
+		setTrap(SNX, SNZ, SNTURN, "snowman", { -44, 0, 214 }, 30),
+		setTrap(SNX, SNZ, SNTURN, "sled", { 64, 0, 80 }, -90),
+		setTrap(SNX, SNZ, SNTURN, "snow_log", { -47, 0, 61 }),
+		setTrap(SNX, SNZ, SNTURN, "snowdrift", { -40, 0, -130 }),
+		setTrap(SNX, SNZ, SNTURN, "snowdrift", { 44, 0, -18 }),
+		setTrap(SNX, SNZ, SNTURN, "snowdrift", { -20, 0, 146 }),
+		setTrap(SNX, SNZ, SNTURN, "snowman", { 62, 0, -126 }, -90),
+		setTrap(SNX, SNZ, SNTURN, "snowman", { 40, 0, 252 }, 160),
+		setTrap(SNX, SNZ, SNTURN, "sled", { -62, 0, -64 }, 90),
+		setTrap(SNX, SNZ, SNTURN, "sled", { 60, 0, 222 }, -120),
+		setTrap(SNX, SNZ, SNTURN, "snow_log", { -46, 0, 95 }),
+		setTrap(SNX, SNZ, SNTURN, "snow_log", { 64, 0, 34 }, -90),
+		setTrap(SNX, SNZ, SNTURN, "snow_log", { -58, 0, 250 }, 30),
+	},
+	-- a first fit by the nook rules above (its back on the east wall's face at x 71.5, by the Summit Path's boulders),
+	-- to be checked against the set's parts in Studio
+	nook = setNook(SNX, SNZ, SNTURN, "Snowy", { 66.54, 0, 152 }, 90, "snowdrift", 0.4, 0),
+	props = {},
+} :: AreaSpec
+
 -- The Town Square (F76, town-layout-v3.md section 3): paved, in the middle of the street and the safe zone, with the
 -- Cat Cannon at the origin since v4 (F84, where the fountain stood) and a cross of open paving through it (the
 -- street's line north to south and a lane east to west to the side arches). The four stations stand in its quarters,
@@ -2140,6 +2313,7 @@ Layout.areas = {
 	sewer = Layout.sewer,
 	desert = Layout.desert, -- #2651: Tier 6
 	ruins = Layout.ruins, -- Tier 7
+	snowy = Layout.snowy, -- #3997: Tier 8, not in Catalog.areas yet
 } :: { [string]: AreaSpec }
 
 -- Camps (v4, F84, hometown-cannon.md section 4): every wild area's camp lies across its whole width in front of its

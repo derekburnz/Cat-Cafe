@@ -102,6 +102,9 @@ Remotes.ClientToServer = {
 	"KeepCards", -- ()  #4062: a Rekindle hand's "Keep my cards", DragonKeep.KEEP_FISH golden fish. 1 a second
 	"SlotDragonCard", -- (cardId: string, slot: number)  #4062: a binder card into an open slot, free. 4 a second
 	"SetDragonColour", -- (colour: string)  #4062: one of DragonKeep.COLOURS from stage 3, free. 1 a second
+	"PromptDeal", -- (productId: string)  #3996 (shared/DailyDeal): opens Roblox's purchase prompt for Today's Deal from
+	-- the server, only for today's deal, not yet bought today, from Tier 2 and while the dailyDeal switch is on; refused
+	-- with a toast otherwise. 1 a second
 	"MarkMysterySeen", -- ()  #2565: the player opened Juniper's window; sets profile.mysterySeen (the cart's "!")
 	"SetBagColours", -- (main: string, trim: string, kind: string?)  #3699: the Backpack's owner picks its two colours,
 	-- each an id of BagColours.LIST and nothing else; free, from anywhere, behind the switch bagColours; 1 a second;

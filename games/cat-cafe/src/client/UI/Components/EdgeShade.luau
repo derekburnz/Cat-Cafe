@@ -2,13 +2,14 @@
 -- A soft dark shade round the edges of the screen while something in the world has the player's eye (#3702, Derek
 -- 2026-11-12: "put a little shade around the outsides of screen until animation of pool is done"). Four black
 -- strips, one per edge, each fading to clear toward the middle through a UIGradient: no texture. The middle of the
--- screen stays clear. A tap anywhere (or a gamepad's A or B) calls `onTap`, and an optional small hint sits at the
+-- screen stays clear. A tap anywhere that is not a drag (or a gamepad's A or B) calls `onTap`, and an optional small hint sits at the
 -- bottom ("Tap to skip").
 --   EdgeShade.show(parent, hint, onTap)   shows it; returns the function that lifts it (safe to call twice)
 -- It fades in and out over FADE seconds, or appears at once with Roblox's Reduce Motion. Numbers in EdgeShadeLogic.
 
 local ContextActionService = game:GetService("ContextActionService")
 local GuiService = game:GetService("GuiService")
+local UserInputService = game:GetService("UserInputService")
 
 local Create = require(script.Parent.Create)
 local EdgeShadeLogic = require(script.Parent.EdgeShadeLogic)
@@ -18,6 +19,7 @@ local Tween = require(script.Parent.Tween)
 local EdgeShade = {}
 
 local ACTION = "CatCafeEdgeShadeSkip"
+local CLICK_ACTION = "CatCafeEdgeShadeClick" -- #4080: the left click, sunk while the shade is up
 local FADE = TweenInfo.new(EdgeShadeLogic.FADE, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
 function EdgeShade.show(parent: Instance, hint: string?, onTap: (() -> ())?): () -> ()
@@ -87,15 +89,57 @@ function EdgeShade.show(parent: Instance, hint: string?, onTap: (() -> ())?): ()
 			onTap()
 		end
 	end
-	local catcher: TextButton = Create("TextButton", {
-		Name = "Tap",
-		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
-		Text = "",
-		ZIndex = 2,
-		Parent = gui,
-	})
-	catcher.Activated:Connect(tap)
+	-- #4016 (Derek: "move the screen with right click during trait normal animations"): no full-screen button, which
+	-- took every click and touch from the camera. A press that ends near where it began, soon, and that no GUI took,
+	-- is the tap (EdgeShadeLogic.isTap); a right click drag or a touch drag turns the camera as usual.
+	local downs: { [InputObject]: { at: Vector3, time: number } } = {}
+	local function down(input: InputObject)
+		downs[input] = { at = input.Position, time = os.clock() }
+	end
+	local function up(input: InputObject)
+		local was = downs[input]
+		downs[input] = nil
+		if
+			was ~= nil
+			and EdgeShadeLogic.isTap((input.Position - was.at).Magnitude, os.clock() - was.time)
+		then
+			tap()
+		end
+	end
+	-- Review-QA on #4080: the left click is bound and sunk at a high priority while the shade is up, so it never
+	-- also reaches the world behind (a net swing, a click detector). The HUD's buttons still take their own clicks
+	-- first. Touch is only watched, never sunk: the camera's touch drag reads the same touches, and a touch in the
+	-- world does nothing on its own (the net has its own button there).
+	ContextActionService:BindActionAtPriority(
+		CLICK_ACTION,
+		function(
+			_name: string,
+			state: Enum.UserInputState,
+			input: InputObject
+		): Enum.ContextActionResult
+			if state == Enum.UserInputState.Begin then
+				down(input)
+			elseif state == Enum.UserInputState.End then
+				up(input)
+			end
+			return Enum.ContextActionResult.Sink
+		end,
+		false,
+		EdgeShadeLogic.CLICK_PRIORITY,
+		Enum.UserInputType.MouseButton1
+	)
+	local began = UserInputService.InputBegan:Connect(
+		function(input: InputObject, processed: boolean)
+			if not processed and input.UserInputType == Enum.UserInputType.Touch then
+				down(input)
+			end
+		end
+	)
+	local ended = UserInputService.InputEnded:Connect(function(input: InputObject)
+		if input.UserInputType == Enum.UserInputType.Touch then
+			up(input)
+		end
+	end)
 	ContextActionService:BindAction(
 		ACTION,
 		function(_name: string, state: Enum.UserInputState): Enum.ContextActionResult
@@ -114,8 +158,10 @@ function EdgeShade.show(parent: Instance, hint: string?, onTap: (() -> ())?): ()
 		end
 		lifted = true
 		ContextActionService:UnbindAction(ACTION)
-		catcher.Active = false
-		catcher.Visible = false
+		ContextActionService:UnbindAction(CLICK_ACTION)
+		began:Disconnect()
+		ended:Disconnect()
+		table.clear(downs)
 		if still then
 			gui:Destroy()
 			return

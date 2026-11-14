@@ -166,6 +166,101 @@ return function()
 			end
 		)
 
+		it("plays the Snowy Mountain's own sounds off the effects' beats", function()
+			expect(Logic.areaCue("step", "snowy", nil)).to.equal("snowStep")
+			expect(Logic.areaCue("step", "desert", nil)).to.equal(nil)
+			expect(Logic.areaCue("step", nil, nil)).to.equal(nil)
+			expect(Logic.areaCue("arrive", nil, "blizzard")).to.equal("snowGust")
+			expect(Logic.areaCue("arrive", nil, "white_tiger")).to.equal(nil)
+			expect(Logic.areaCue("catch", "snowy", "blizzard")).to.equal("snowGust")
+			expect(Logic.areaCue("catch", "snowy", "white_tiger")).to.equal("frostChime")
+			expect(Logic.areaCue("catch", "snowy", "ice")).to.equal(nil)
+			expect(Logic.areaCue("catch", "snowy", nil)).to.equal(nil)
+			expect(Logic.areaCue("roar", "snowy", "blizzard")).to.equal(nil)
+			-- #4070: the Water Cat's splash
+			expect(Logic.areaCue("arrive", nil, "water")).to.equal("campSplash")
+			expect(Logic.areaCue("catch", "waterpark", "water")).to.equal("campSplash")
+			expect(Logic.areaCue("catch", "waterpark", "coaster")).to.equal(nil)
+			expect(Cues.campSplash).to.be.ok()
+			-- #4071: the Dragon Knight lands and is caught with a little roar
+			expect(Logic.areaCue("arrive", nil, "dragon_knight")).to.equal("dragonChirp")
+			expect(Logic.areaCue("catch", "castle", "dragon_knight")).to.equal("dragonChirp")
+			expect(Cues.dragonChirp).to.be.ok()
+			for _, cue in { "snowStep", "snowGust", "frostChime" } do
+				expect(Cues[cue]).to.be.ok()
+			end
+			-- steps come often: quiet, never stacking
+			expect(Cues.snowStep.volume <= 0.35).to.equal(true)
+			expect(Cues.snowStep.minGap >= 0.2).to.equal(true)
+		end)
+
+		it("plays the Fusion Observatory's chime and the right fanfare for the coat", function()
+			expect(Logic.fusionCue("start", "gold")).to.equal("fusionStart")
+			expect(Logic.fusionCue("start", "rainbow")).to.equal("fusionStart")
+			expect(Logic.fusionCue("meet", "gold")).to.equal(nil)
+			expect(Logic.fusionCue("collect", "gold")).to.equal("fusionCollect")
+			expect(Logic.fusionCue("collect", "rainbow")).to.equal("fusionCollectRainbow")
+			expect(Logic.fusionCue("collect", nil)).to.equal("fusionCollect")
+			expect(Logic.fusionCue(nil, nil)).to.equal(nil)
+			for _, id in { "fusionStart", "fusionCollect", "fusionCollectRainbow" } do
+				expect(Cues[id].sheet).to.equal("sheetFusion")
+				expect(Cues[id].region[2] > Cues[id].region[1]).to.equal(true)
+			end
+			-- the rainbow one is the longer
+			local function seconds(id: string): number
+				return Cues[id].region[2] - Cues[id].region[1]
+			end
+			expect(seconds("fusionCollectRainbow") > seconds("fusionCollect")).to.equal(true)
+			expect(#Cues.sheetFusion.ids).to.equal(1)
+		end)
+
+		it(
+			"has the next three areas' songs and the Keep sheet's sounds ready for their upload",
+			function()
+				local has = only({ "musicAreaSnowy", "musicAreaWaterpark", "musicAreaCastle" })
+				expect(Logic.areaSongFor("Snowy", has)).to.equal("musicAreaSnowy")
+				expect(Logic.areaSongFor("Waterpark", has)).to.equal("musicAreaWaterpark")
+				expect(Logic.areaSongFor("Castle", has)).to.equal("musicAreaCastle")
+				local last = -1
+				for _, id in { "musicAreaSnowy", "musicAreaWaterpark", "musicAreaCastle" } do
+					local cue = Cues[id]
+					expect(cue.sheet).to.equal("sheetMusicAreas2")
+					expect(cue.sections).to.equal(4)
+					expect(math.abs(cue.seconds - (cue.region[2] - cue.region[1])) < 0.01).to.equal(
+						true
+					)
+					expect(cue.region[1] > last).to.equal(true) -- one after another, never overlapping
+					last = cue.region[2]
+				end
+				expect(Cues.sheetMusicAreas2.group).to.equal("Music")
+				last = -1
+				for _, id in
+					{
+						"dragonRumble",
+						"dragonCrack",
+						"dragonChirp",
+						"dragonRoar",
+						"dragonRoarGrand",
+						"dragonWing",
+						"cardFlip",
+						"cardRare",
+						"rekindle",
+						"ticketPrint",
+						"ticketDing",
+						"snowStep",
+						"snowGust",
+						"frostChime",
+					}
+				do
+					local cue = Cues[id]
+					expect(cue.sheet).to.equal("sheetKeep")
+					expect(cue.region[1] > last and cue.region[2] > cue.region[1]).to.equal(true)
+					expect(cue.volume <= 0.7).to.equal(true)
+					last = cue.region[2]
+				end
+			end
+		)
+
 		it("gives each area song four sections like the day and night songs", function()
 			for _, id in { "musicAreaDesert", "musicAreaRuins" } do
 				local cue = Cues[id]
@@ -1265,6 +1360,35 @@ return function()
 			do
 				expect(Cues[name] ~= nil and Cues[name].sheet == "sheetMoments").to.equal(true)
 			end
+		end)
+	end)
+
+	describe("Audio.Logic Ticket Booth and Dragon Keep (#4061, #4062)", function()
+		it("hears a prize bought and stays quiet for tickets earned", function()
+			local view = { tickets = 40, spent = 100 }
+			expect(Logic.ticketPrizeBought(view, { tickets = 10, spent = 130 })).to.equal(true)
+			-- a catch adds tickets and spends none
+			expect(Logic.ticketPrizeBought(view, { tickets = 43, spent = 100 })).to.equal(false)
+			-- the switch coming on or going off, and junk
+			expect(Logic.ticketPrizeBought(nil, view)).to.equal(false)
+			expect(Logic.ticketPrizeBought(view, nil)).to.equal(false)
+			expect(Logic.ticketPrizeBought(view, { spent = "200" })).to.equal(false)
+			expect(Cues.ticketPrint).to.be.ok()
+			expect(Cues.ticketDing).to.be.ok()
+		end)
+
+		it("hears a Rekindle hand come up at the Dragon Keep, once", function()
+			local idle = { stage = 5, hands = 0 }
+			local hand = { stage = 5, hands = 1, handKind = "rekindle" }
+			expect(Logic.keepRekindled(idle, hand)).to.equal(true)
+			-- the same hand on the next sync, and a stage hand (the cutscene's)
+			expect(Logic.keepRekindled(hand, hand)).to.equal(false)
+			expect(Logic.keepRekindled(idle, { stage = 3, hands = 1, handKind = "stage" })).to.equal(
+				false
+			)
+			expect(Logic.keepRekindled(nil, hand)).to.equal(false)
+			expect(Logic.keepRekindled(hand, nil)).to.equal(false)
+			expect(Cues.rekindle).to.be.ok()
 		end)
 	end)
 

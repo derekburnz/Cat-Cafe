@@ -70,6 +70,7 @@ import townbuildings  # noqa: E402
 import decor  # noqa: E402
 import furniture  # noqa: E402
 import gold  # noqa: E402
+import goldtone  # noqa: E402
 import gates  # noqa: E402
 import items  # noqa: E402
 import lawn  # noqa: E402
@@ -77,6 +78,7 @@ import style_icons  # noqa: E402
 import neighbourhood  # noqa: E402
 import night  # noqa: E402
 import doors  # noqa: E402
+import dragon  # noqa: E402
 import doorsets  # noqa: E402
 import market  # noqa: E402
 import daycart  # noqa: E402
@@ -85,6 +87,8 @@ import mysteryitems  # noqa: E402
 import desertset  # noqa: E402
 import ruinsset  # noqa: E402
 import snowyset  # noqa: E402
+import waterparkset  # noqa: E402
+import castleset  # noqa: E402
 import gardendecor  # noqa: E402
 import grandopening  # noqa: E402
 import gardennursery  # noqa: E402
@@ -112,6 +116,8 @@ import riftrun  # noqa: E402
 import rbx_export  # noqa: E402
 import spot_clear  # noqa: E402
 import storepacks  # noqa: E402
+import waterparkshelf  # noqa: E402
+import wallperch  # noqa: E402
 import seasondecor  # noqa: E402
 import sewer  # noqa: E402
 import themes  # noqa: E402
@@ -130,8 +136,9 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
-           mysterymarket, mysteryitems, desertset, ruinsset, snowyset, campgrowth, townsfolk, nooks, feedbackstand,
-           arcadecabinet, mysticpool, moneybag, riftrun, storepacks]
+           mysterymarket, mysteryitems, desertset, ruinsset, snowyset, waterparkset, castleset, campgrowth, townsfolk, nooks, feedbackstand,
+           arcadecabinet, mysticpool, moneybag, riftrun, storepacks, dragon,
+           waterparkshelf, wallperch]
 
 PIVOT_NOTES = {
     **{n: "at its feet on the floor, front -Z" for n in townsfolk.ASSETS},
@@ -216,6 +223,8 @@ PIVOT_NOTES = {
     "CatCafe_Sewer_SetF85": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
     "CatCafe_Desert_Set": "the wild part's centre on the floor, camp side -Z (areakit; Tier 6)",
     "CatCafe_Snowy_Set": "the wild part's centre on the floor, camp side -Z (areakit; Tier 8)",
+    "CatCafe_WaterPark_Set": "the wild part's centre on the floor, camp side -Z (areakit; Tier 9)",
+    "CatCafe_Castle_Set": "the wild part's centre on the floor, camp side -Z (areakit; Tier 10)",
     "CatCafe_Ruins_Set": "the wild part's centre on the floor, camp side -Z (areakit; Tier 7)",
     "CatCafe_Woods_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Sewer_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
@@ -585,6 +594,26 @@ STUDIO_NOTES[snowyset.NAME] = (
     "round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. Icicles, frozen bubbles, block "
     "lines and rope are _Decor (no collision). The rescue spots (points_roblox trap_snowdrift, trap_snowman, trap_sled, "
     "trap_snow_log) carry their piece's turn.")
+STUDIO_NOTES[castleset.NAME] = (
+    "Tier 10, the Medieval Castle (next-areas plan section 3, #4067). Place it at the area's centre on its floor, "
+    "camp side -Z, like the Snowy set. Packed earth right out to the walls, cobbles, the field's sand and the keep's "
+    "flags over it. Nothing invisible stands inside the area: the only _Barrier is the 30 high ring in the border's "
+    "wall band, all round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. The moat is a kerb "
+    "0.7 high (a step, not a wall) round shallow _Water; the drawbridge and the postern's plank bridge are 0.9 up with "
+    "a ramp at each end. The curtain wall and the keep's walls collide; the tilt fence is a low rail to hop. Torch "
+    "flames are _Glow, windows _Pane, the drawbridge's chains _Decor. The rescue spots (points_roblox trap_haystack, "
+    "trap_barrel, trap_banner_pole, trap_awning, trap_helmet) carry their piece's turn.")
+STUDIO_NOTES[waterparkset.NAME] = (
+    "Tier 9, the Theme Park and Water Park (next-areas plan section 2, #4066). Place it at the area's centre on its "
+    "floor, camp side -Z, like the Snowy set. Asphalt to z 20 and blue tiles from there on, right out to the walls. "
+    "Nothing invisible stands inside the area: the only _Barrier is the 30 high ring in the border's wall band, all "
+    "round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. The lazy river is a kerb 0.7 high "
+    "(a step, not a wall) round _Water; the spine crosses it on two plank bridges 1.15 up with a ramp at each end. "
+    "The coaster's track, the balloons and the wave crests are _Decor (no collision), the pool's glass is _Pane. "
+    "Turning pieces for Motion-FX, each its own Model: ..._CarouselTurn about a vertical axis at (-38, -110), "
+    "..._TeacupsTurn about a vertical axis at (38, -118), ..._FerrisTurn about the x axis through its hub at "
+    "(59, 24, -42). The rescue spots (points_roblox trap_carousel, trap_ball_pit, trap_plush_pile, trap_river_ring, "
+    "trap_balloons) carry their piece's turn; trap_carousel's spot is 0.3 up, on its deck.")
 STUDIO_NOTES["CatCafe_NPC_MysteryVisitor"] = (
     "F64 Mystery Visitor: the client pivots it at a MysteryTable chair's seat on the floor, looking at the table, and "
     "tags it MysteryVisitor. A sitting cat (scale 1.3) with the usual hinged pieces (Head, Eye1, Eye2, EarL, EarR, "
@@ -915,8 +944,17 @@ def main():
             extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about
             extra = {"attachments": luckycat.hinge_attachments(name)}
+        if name in wallperch.ASSETS:              # the cat's Seat on the shelf
+            extra = {"attachments": wallperch.rbx_attachments(name)}
+        if name in dragon.ASSETS:                 # #4062: the joint chain, each joint's scales inside it
+            extra = {"nest": dragon.NEST}
         rbx_dir = os.path.join(args.rbx, riftrun.RBX_DIR) if name in riftrun.ASSETS else args.rbx   # Assets.RiftRun
+        rbx_dir = os.path.join(args.rbx, dragon.RBX_DIR) if name in dragon.ASSETS else rbx_dir      # Assets.Dragon
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, rbx_dir, **extra)
+        if rbx_path and name.startswith("CatCafe_Cat_"):      # #3918: the base cat's parts say how its gold twin differs
+            pair = goldtone.twin_paths(rbx_path)
+            if pair:
+                goldtone.stamp(*pair)
         spots_ok = None
         if rbx_path and name in spot_clear.SETTLE and name in areakit.POINTS:   # cat spots out of solid props
             blo, bhi = common.bounds(objs)

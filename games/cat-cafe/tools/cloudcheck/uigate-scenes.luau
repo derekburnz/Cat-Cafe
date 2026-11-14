@@ -10629,6 +10629,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.cafeEvent.tick()
 		chip = assertEventChip(2)
 		assert(chip.Text:find("Cafe Party 1:59:", 1, true) ~= nil, "uigate: the strip did not go back to the party after the admin event: " .. chip.Text .. " (#4195)")
+		UIShim.advance(12) -- the admin event's start card (Effects/EventBanner) slides away before the next scene
 	end },
 	-- #2487: the Town Square board's face while the party runs, its words drawn on a 10 x 7.5 stud face
 	{ "CafeEventBoard", function()

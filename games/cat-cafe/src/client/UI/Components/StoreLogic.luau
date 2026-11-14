@@ -34,8 +34,12 @@ export type Row = {
 -- The Store's left rail, top to bottom (#1425). Featured and Codes (#1428, the code box) always show; another tab
 -- only while it has a card.
 export type Tab = { id: string, name: string, icon: string, always: boolean? }
+StoreLogic.DEAL_TAB = "deal"
 StoreLogic.TABS = {
 	{ id = "featured", name = "Featured", icon = "⭐", always = true },
+	-- #4259 (Derek 11-14: "a seperate tab for todays deals"): Today's Deal on its own page, while there is one (the
+	-- Store shows it from PlayerState.dailyDeal, not from a row, so StoreLogic.tabs never lists it)
+	{ id = StoreLogic.DEAL_TAB, name = "Deal", icon = "🏷️" },
 	{ id = "packs", name = "Packs", icon = "🎁" }, -- #4026: the outfit packs, under Featured
 	{ id = "passes", name = "Passes", icon = "🎟️" },
 	{ id = "cats", name = "Cats", icon = "🐱" },
@@ -47,7 +51,8 @@ StoreLogic.TABS = {
 -- #3572 (Derek's OK of Model-Agent's mock, 2026-11-12 13:10 UTC): the reworked Store, behind the `storeRework`
 -- switch, puts Cats above Passes on the rail.
 StoreLogic.REWORK_FLAG = "storeRework"
-StoreLogic.REWORK_RAIL = { "featured", "packs", "cats", "passes", "potions", "cafePass", "codes" }
+StoreLogic.REWORK_RAIL =
+	{ "featured", StoreLogic.DEAL_TAB, "packs", "cats", "passes", "potions", "cafePass", "codes" }
 
 -- The rail's tabs in their order: TABS, or with the rework on REWORK_RAIL's order.
 function StoreLogic.railTabs(rework: boolean): { Tab }
@@ -70,6 +75,7 @@ end
 StoreLogic.SUBTITLE_DEFAULT = "Help your cafe grow"
 local SUBTITLES: { [string]: string } = {
 	featured = "Prices are in Robux.", -- Featured can show potion packs, which are used up
+	deal = "A new deal every day. Prices are in Robux.",
 	packs = "Packs are yours to keep. Prices are in Robux.",
 	cats = "Passes are yours to keep. Prices are in Robux.",
 	passes = "Passes are yours to keep. Prices are in Robux.",

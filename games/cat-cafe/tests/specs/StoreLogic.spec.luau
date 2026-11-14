@@ -1089,8 +1089,8 @@ return function()
 				table.insert(ids, tab.id)
 			end
 			expect(table.concat(ids, ",")).to.equal(
-				"featured,packs,cats,passes,potions,cafePass,codes"
-			) -- #4026: Packs under Featured
+				"featured,deal,packs,cats,passes,potions,cafePass,codes"
+			) -- #4026: Packs under Featured; #4259: Today's Deal's tab right under it
 			expect(StoreLogic.railTabs(false)).to.equal(StoreLogic.TABS)
 			expect(#StoreLogic.railTabs(true)).to.equal(#StoreLogic.TABS)
 		end)

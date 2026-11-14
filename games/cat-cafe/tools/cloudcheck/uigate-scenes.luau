@@ -11140,29 +11140,37 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.open("Store")
 		assertStoreCards(true)
 	end },
-	-- #3996 (todays-deal-3996.md section 4): Today's Deal is the hero card while it shows, with what is in it, the honest
-	-- value line, the Tomorrow line and R$25, and the usual hero leads the picks; its press asks the server
-	-- (PromptDeal), never Roblox
+	-- #3996, #4259 (Derek 11-14: "a seperate tab for todays deals"): Today's Deal has its own Deal tab with a New dot,
+	-- and its page's one card says what is in it, the honest value line, the Tomorrow line and R$25; Featured keeps
+	-- the bundles and passes. Its press asks the server (PromptDeal), never Roblox
 	{ "StoreDeal", function()
 		UI.update({ dailyDeal = { deal = 1, bought = false, tomorrow = 2 } } :: any)
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
 		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
-		local card = window:FindFirstChild("hero", true) :: Frame
-		assert(card and card.Visible, "uigate: no Today's Deal card on Featured (#3996)")
+		for _, slot in { "hero", "pick1", "pick2", "pick3" } do
+			local shown = window:FindFirstChild(slot, true)
+			local name = shown and shown:FindFirstChild("Name") :: TextLabel?
+			assert(not (name and name.Text == "Today's Deal"), "uigate: Today's Deal is still on Featured's " .. slot .. " (#4259)")
+		end
+		local tab = window:FindFirstChild("deal", true) :: GuiObject
+		assert(tab and tab.Visible, "uigate: no Deal tab on the rail (#4259)")
+		local dot = tab:FindFirstChild("NewDot", true) :: GuiObject?
+		assert(dot and dot.Visible, "uigate: the Deal tab has no New dot for a deal still to buy (#4259)")
+		press("CatCafeModals", "deal")
+		assert(not (dot :: GuiObject).Visible, "uigate: the Deal tab's dot stays after it is opened (#4259)")
+		local card = window:FindFirstChild("dealCard", true) :: Frame
+		assert(card and card.Visible and (window:FindFirstChild("DealPage", true) :: GuiObject).Visible, "uigate: no Today's Deal card on the Deal tab (#4259)")
+		assert(not (window:FindFirstChild("Featured", true) :: GuiObject).Visible, "uigate: Featured stays up under the Deal tab (#4259)")
 		assert((card:FindFirstChild("Name") :: TextLabel).Text == "Today's Deal", "uigate: the deal card's title (#3996)")
 		local effect = card:FindFirstChild("Effect") :: TextLabel
 		assert(effect.Visible and string.find(effect.Text, "5 Big Money", 1, true), "uigate: the deal card does not say what is in it: " .. effect.Text .. " (#3996)")
 		assert(string.find(effect.Text, "Tomorrow: Trait Token deal", 1, true), "uigate: no Tomorrow line: " .. effect.Text .. " (#3996)")
-		assert(string.find(effect.Text, "more than Potion Pack S", 1, true), "uigate: no value line: " .. effect.Text .. " (#3996)")
-		local pick = window:FindFirstChild("pick1", true) :: Frame
-		local pickName = (pick:FindFirstChild("Name") :: TextLabel).Text
-		assert(pick.Visible and pickName ~= "" and pickName ~= "Today's Deal", "uigate: the usual hero does not lead the picks (#3996)")
 		local sent = nil
 		local connection = UI.events.storeDeal:Connect(function(productId)
 			sent = productId
 		end)
-		press("Store", "hero.Buy")
+		press("Store", "dealCard.Buy")
 		connection:Disconnect()
 		assert(sent == "deal_1", "uigate: the deal's R$25 sent " .. tostring(sent) .. " (#3996)")
 	end },
@@ -11171,25 +11179,29 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ dailyDeal = { deal = 2, bought = false, tomorrow = 3 } } :: any)
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
+		press("CatCafeModals", "deal")
 		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
-		local effect = window:FindFirstChild("hero", true):FindFirstChild("Effect") :: TextLabel
+		local effect = window:FindFirstChild("dealCard", true):FindFirstChild("Effect") :: TextLabel
 		assert(string.find(effect.Text, "Roll odds:", 1, true), "uigate: the token deal shows no odds: " .. effect.Text .. " (#3996)")
 		assert(effect.TextFits ~= false or effect.TextTruncate == Enum.TextTruncate.None, "uigate: the token deal's odds are cut (#3996)")
 	end },
-	-- #3996: bought today, the card stays, a pick now, with "Bought today" in the button's place; switched off, no card
+	-- #3996: bought today, the card stays on the Deal tab with "Bought today" in the button's place and no New dot;
+	-- switched off, the tab goes and the Store is back on Featured
 	{ "StoreDealBought", function()
 		UI.update({ dailyDeal = { deal = 3, bought = true, tomorrow = 4 } } :: any)
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
 		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
-		local card = window:FindFirstChild("pick1", true) :: Frame
+		local tab = window:FindFirstChild("deal", true) :: GuiObject
+		assert(not (tab:FindFirstChild("NewDot", true) :: GuiObject).Visible, "uigate: a bought deal keeps the Deal tab's dot (#4259)")
+		press("CatCafeModals", "deal")
+		local card = window:FindFirstChild("dealCard", true) :: Frame
 		local owned = card:FindFirstChild("Owned") :: TextLabel
-		assert((card:FindFirstChild("Name") :: TextLabel).Text == "Today's Deal", "uigate: the bought deal is not the first pick (#3996)")
 		assert(card.Visible and owned.Visible and owned.Text == "Bought today", "uigate: the bought deal does not say so (#3996)")
 		assert(not (card:FindFirstChild("Buy") :: GuiObject).Visible, "uigate: the bought deal still has its button (#3996)")
 		UI.update({ dailyDeal = false } :: any)
-		local name = (card:FindFirstChild("Name") :: TextLabel).Text
-		assert(name ~= "Today's Deal" and not owned.Visible, "uigate: the deal card stays with the switch off (#3996)")
+		assert(not tab.Visible and not card.Visible, "uigate: the Deal tab stays with the switch off (#4259)")
+		assert((window:FindFirstChild("Featured", true) :: GuiObject).Visible, "uigate: the Store is not back on Featured once the deal is gone (#4259)")
 	end },
 	-- #4175: on a big update day (Config.UpdateFeature's window, the updateFeature switch on) the update's own item is
 	-- the hero with a plain "New today" badge and the usual hero leads the picks; no other card carries the line

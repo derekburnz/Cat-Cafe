@@ -1733,6 +1733,8 @@ function UI.init(config: Types.InitConfig)
 	if config.keybinds ~= false then
 		-- #2872 (console): the selection ring, and Select starts on the menu grid instead of Roblox's own pick
 		UI.gamepadStart(parent)
+		-- #4224: which buttons do what, on a controller (a field, not a local: this chunk is at Luau's 200 locals)
+		UI._padHints = require(script.Components.GamepadHints).new(parent, modalInstance)
 		table.insert(
 			connections,
 			UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
@@ -2084,6 +2086,10 @@ function UI.destroy()
 	UI.newKind.stop()
 	if catCard then
 		catCard:destroy()
+	end
+	if UI._padHints then
+		UI._padHints:destroy()
+		UI._padHints = nil
 	end
 	if actionPills then
 		actionPills:destroy()

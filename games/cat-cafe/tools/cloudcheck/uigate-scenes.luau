@@ -2570,6 +2570,34 @@ local SCENES = {
 		assert(GuiService.SelectedObject == nil, "uigate: Select again did not let go (#2872)")
 		UIShim.setLastInput(nil)
 	end },
+	-- #4224: on a controller with the padControls switch on, a strip along the bottom says what A, B and LB / RB do
+	-- in the open window (the Index has tabs), and it hides off the controller
+	{ "GamepadHints", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local GuiService = game:GetService("GuiService")
+		Scenes._padReset = function()
+			ReplicatedStorage:SetAttribute("LiveFlag_padControls", nil)
+			UIShim.setLastInput(nil)
+			GuiService.SelectedObject = nil
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", true)
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		UI.open("Collection")
+		UIShim.advance(0.4)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafePadHints") :: ScreenGui
+		assert(gui ~= nil and gui.Enabled, "uigate: no controller hints over an open window (#4224)")
+		local labels: { [string]: boolean } = {}
+		for _, piece in gui:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Name == "Label" then
+				labels[piece.Text] = true
+			end
+		end
+		local seen = {}
+		for word in labels do
+			table.insert(seen, word)
+		end
+		assert(labels.Select and labels.Back and labels.Tabs, "uigate: the hints miss Select, Back or Tabs in the Index (#4224): " .. table.concat(seen, ","))
+	end },
 	-- #3839 (84 "Setting GuiService.SelectedObject to invalid GuiObject" a day): a button whose ScreenGui was taken out of
 	-- PlayerGui keeps Enabled and Visible, and the engine refuses it; GamepadNav.select and restore leave it alone
 	{ "GamepadSelectDetached", function()
@@ -12150,6 +12178,10 @@ function Scenes.close()
 		UI.update({ money = Scenes._parkFly } :: any)
 		Scenes._parkFly = nil
 		UI.cannon.clearFly() -- #2915's scene
+	end
+	if Scenes._padReset ~= nil then
+		Scenes._padReset() -- #4224's GamepadHints: off the controller again
+		Scenes._padReset = nil
 	end
 	if Scenes._rankTier ~= nil then
 		UI.update({ tier = Scenes._rankTier } :: any) -- #2121's Tier 2 rank-up scene

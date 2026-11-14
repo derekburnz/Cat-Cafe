@@ -2239,10 +2239,8 @@ function UI.setCutscene(on: boolean)
 		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or on)
 	end
 	-- the event strip steps aside too (HUD.holdBanner, #4032)
-	local strip: any = hud
-	local hold: any = if strip ~= nil then strip.holdBanner else nil
-	if hold ~= nil then
-		hold(strip, "cutscene", on)
+	if hud ~= nil then
+		hud:holdBanner("cutscene", on)
 	end
 	if on then
 		return

@@ -917,10 +917,12 @@ def build_tier(n, mat):
         for k in range(6):
             x = bd0 - 1.0 + k * (bd1 - bd0 + 2.0) / 5
             b.span((x - 0.1, 8.58, BACK + 0.8), (x + 0.1, 8.85, BACK + 4.6), beam)   # 0.02 into the beams
-        for x in (bd0 - 2.2, bd1 + 2.2):
-            for z in (BACK + 4.0, BACK + 8.0):
-                b.span((x - 0.7, 0, z - 0.7), (x + 0.7, 1.0, z + 0.7), "terracotta")
-                b.ball((x, 1.5, z), 0.8, "leaf_green")
+        # #4335: the bowl side's front planter stood in the first bait bowl's walk-up ring (centre about z 22.9,
+        # radius 2.2), so it moves out beside the back one, clear of the ring
+        planters = ((bd0 - 2.2, BACK + 4.0), (bd0 - 2.2, BACK + 8.0), (bd1 + 2.2, BACK + 8.0), (bd1 + 4.4, BACK + 8.0))
+        for (x, z) in planters:
+            b.span((x - 0.7, 0, z - 0.7), (x + 0.7, 1.0, z + 0.7), "terracotta")
+            b.ball((x, 1.5, z), 0.8, "leaf_green")
         bulbs = RB()
         _string_lights(b, bulbs, bd0 - 1.0, bd1 + 1.0, 8.4, BACK + 4.2, 0.8, 6, r=0.13)
         extra = [glass.finalize(name + "_Glass", mat), water.finalize(name + "_Water", mat),

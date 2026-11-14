@@ -8,6 +8,9 @@
 --     the roll at once; a cat with one keeps it and the roll waits in the save (`pending`) for ChooseTrait.
 --   ChooseTrait(takeNew): the waiting re-roll goes on its cat (true) or is dropped (false), so a cat never gets worse.
 --   CollectTraitTokens(): the station's free tokens (one each 12 h, holding 2) go to the bank.
+-- #4197 (Trait Party, an admin event): while it runs a roll costs nothing (paid "party"), up to
+-- CafeEvents.ADMIN.traitPartyRolls rolls an account an event; past that the roll is paid as usual. The odds stay the
+-- pool's own, so the odds the pool shows stay true.
 -- Each answers with one sync (PlayerState.traits and the cats' traits). Logs trait_roll and trait_token. Nothing here
 -- is sold: tokens come only from play, and golden fish are earned only.
 
@@ -19,6 +22,7 @@ local Workspace = game:GetService("Workspace")
 local CafeService = require(script.Parent.CafeService)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local EventService = require(script.Parent.EventService)
 local GlobalCatchService = require(script.Parent.GlobalCatchService)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -120,16 +124,21 @@ local function onRoll(player: Player, rawUid: unknown)
 		refuse(player, "Pick Keep old or Take new first")
 		return
 	end
-	-- checked and spent in one step, before the roll (no yield between)
-	local how, fish = Traits.pay(save, profile.goldenFish)
-	if how == nil then
+	-- checked and spent in one step, before the roll (no yield between); a Trait Party roll costs nothing
+	local party = EventService.takePartyRoll(player)
+	local paid: string?, fish = "party", 0
+	if not party then
+		paid, fish = Traits.pay(save, profile.goldenFish)
+	end
+	if paid == nil then
 		refuse(player, string.format("You need a Trait Token or %d golden fish", Traits.COST_FISH))
 		return
 	end
+	local how: string = tostring(paid)
 	if fish > 0 then
 		local frozen = TradeService.fishSpendBlocker(player) -- #2745: fish offered in an open trade stay put
 		if frozen ~= nil or not GoldenFish.trySpend(profile, fish) then
-			Traits.refund(save, how :: Traits.Payment)
+			Traits.refund(save, how :: any)
 			refuse(player, frozen or "Not enough golden fish")
 			return
 		end
@@ -217,6 +226,17 @@ function TraitService.start()
 	Net.on("RollTrait", onRoll)
 	Net.on("ChooseTrait", onChoose)
 	Net.on("CollectTraitTokens", onCollect)
+	-- #4197: a Trait Party starts or ends: every Mystic Pool's Roll button follows (PlayerState.traits.party)
+	local partying = EventService.traitParty()
+	EventService.adminChanged:Connect(function()
+		local now = EventService.traitParty()
+		if now ~= partying then
+			partying = now
+			for _, player in Players:GetPlayers() do
+				CafeService.sync(player)
+			end
+		end
+	end)
 end
 
 return TraitService

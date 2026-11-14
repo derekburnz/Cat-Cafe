@@ -72,6 +72,41 @@ return function()
 			expect(roll.enabled).to.equal(true)
 		end)
 
+		it(
+			"is free in a Trait Party, before the starter rolls, with nothing to pay (#4197)",
+			function()
+				local roll = MysticPoolLogic.roll(
+					{ tokens = 0, freeLeft = 0, held = 0, party = 12 },
+					true,
+					0
+				)
+				expect(roll.text).to.equal(MysticPoolLogic.PARTY_TEXT)
+				expect(roll.enabled).to.equal(true)
+				roll = MysticPoolLogic.roll(
+					{ tokens = 0, freeLeft = 3, held = 0, party = 1 },
+					false,
+					0
+				)
+				expect(roll.text).to.equal(MysticPoolLogic.PARTY_TEXT)
+				-- the party's rolls used up (party nil): paid as usual
+				roll = MysticPoolLogic.roll({ tokens = 0, freeLeft = 0, held = 0 }, false, 0)
+				expect(roll.enabled).to.equal(false)
+				-- a waiting choice still comes first
+				roll = MysticPoolLogic.roll(
+					{
+						tokens = 0,
+						freeLeft = 0,
+						held = 0,
+						party = 5,
+						pending = { uid = "c1", id = first.id },
+					} :: any,
+					true,
+					0
+				)
+				expect(roll.enabled).to.equal(false)
+			end
+		)
+
 		it("rests with one golden fish too few and no token (QA check 5)", function()
 			local roll = MysticPoolLogic.roll(
 				{ tokens = 0, freeLeft = 0, held = 0 },

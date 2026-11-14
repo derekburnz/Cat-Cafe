@@ -26,13 +26,16 @@ end
 -- The carry walk speed for `profile`: `baseCarry` is the carry speed without the shoes and `walk` the player's own
 -- walk speed with no cat, both with the same boosts counted (Swift Paws; the Swift Potion is added on top of either
 -- by the caller, so it cancels out). Without the shoes, or while the switch is off, `baseCarry` as it is.
+-- #4197 (Speed Rush, an admin event): `lent` gives everyone the shoes' bonus while it runs, owned or not, switch or not
+-- (nothing is saved, so an older server's save check has nothing to drop).
 function SpeedShoes.carry(
 	baseCarry: number,
 	walk: number,
 	profile: Types.PlayerProfile?,
-	on: boolean
+	on: boolean,
+	lent: boolean?
 ): number
-	if not on or not SpeedShoes.owns(profile) then
+	if lent ~= true and (not on or not SpeedShoes.owns(profile)) then
 		return baseCarry
 	end
 	return math.max(baseCarry, math.min(baseCarry + Config.SpeedShoesCarryBonus, walk - 1))

@@ -485,6 +485,20 @@ function Economy.eventMoney(): number
 	return eventMoney
 end
 
+-- #4197 (Money Storm, an admin event): every player's cafe pay is at least this many times while it runs, in place of
+-- the event money slot and the rest's 2x when larger (Economy.moneyFor), never on top of them. 1 with none; the
+-- server's EventService sets it, at most CafeEvents.ADMIN.moneyStormMax.
+local adminMoney = 1
+
+function Economy.setAdminMoney(multiplier: number, high: number)
+	adminMoney =
+		math.clamp(if multiplier == multiplier then multiplier else 1, 1, math.max(1, high))
+end
+
+function Economy.adminMoney(): number
+	return adminMoney
+end
+
 -- #2486 (live-events.md section 7, event_money): the coins the event's multiplier added to each player's cafe
 -- income, tips, rich tips and Tip Jar since EventService last took them.
 local eventExtraByProfile: { [Types.PlayerProfile]: number } = setmetatable({}, { __mode = "k" }) :: any
@@ -547,12 +561,13 @@ function Economy.petRate(profile: Types.PlayerProfile, at: number): number
 	return Economy.incomePerSecond(profile) * Economy.catRate(cat, profile.tier) / total
 end
 
--- The money multiplier on this profile's cafe pay right now: the event's, or the rest's when larger.
+-- The money multiplier on this profile's cafe pay right now: the event's, or the rest's when larger, or Money
+-- Storm's when that is larger still.
 function Economy.moneyFor(profile: Types.PlayerProfile): number
-	if resting[profile] ~= true then
-		return eventMoney
-	end
-	return math.clamp(math.max(eventMoney, Config.AfkCafeMoney), 1, Config.EventMoneyMax)
+	local slot = if resting[profile] ~= true
+		then eventMoney
+		else math.clamp(math.max(eventMoney, Config.AfkCafeMoney), 1, Config.EventMoneyMax)
+	return math.max(slot, adminMoney) -- #4197: Money Storm when it is larger
 end
 
 -- The coins the cafe paid while the profile rested since the last call (the whole pay, not only the rest's share),

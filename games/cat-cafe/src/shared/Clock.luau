@@ -153,14 +153,40 @@ function Clock.nextLuckyDay(day: number): number
 	return from + 200
 end
 
--- The gold chance `chance` on a day of `kinds`: x GoldenDayGoldMultiplier on a Golden Day.
-function Clock.goldChance(chance: number, kinds: DayKinds?): number
-	return if kinds ~= nil and kinds.golden then chance * Config.GoldenDayGoldMultiplier else chance
+-- #4197 (Golden Hour, an admin event): every gold and rainbow chance times these while it runs, day or night, each
+-- boosted chance at most `coatCap`. The server's EventService sets them (setAdminCoats); 1 with none.
+local adminGold, adminRainbow, coatCap = 1, 1, 1
+
+function Clock.setAdminCoats(gold: number, rainbow: number, cap: number)
+	local function factor(value: number): number
+		return if value == value and value > 1 and value < math.huge then value else 1
+	end
+	adminGold, adminRainbow = factor(gold), factor(rainbow)
+	coatCap = if cap == cap and cap > 0 then math.min(cap, 1) else 1
 end
 
--- The rainbow chance `chance` on a day of `kinds`: x RainbowDayMultiplier on a Rainbow Day (rainbow luck on top).
+local function boosted(chance: number, factor: number): number
+	if factor <= 1 then
+		return chance
+	end
+	return math.max(chance, math.min(chance * factor, coatCap))
+end
+
+-- The gold chance `chance` on a day of `kinds`: x GoldenDayGoldMultiplier on a Golden Day, and x Golden Hour's.
+function Clock.goldChance(chance: number, kinds: DayKinds?): number
+	local day = if kinds ~= nil and kinds.golden
+		then chance * Config.GoldenDayGoldMultiplier
+		else chance
+	return boosted(day, adminGold)
+end
+
+-- The rainbow chance `chance` on a day of `kinds`: x RainbowDayMultiplier on a Rainbow Day (rainbow luck on top),
+-- and x Golden Hour's rainbow boost.
 function Clock.rainbowChance(chance: number, kinds: DayKinds?): number
-	return if kinds ~= nil and kinds.rainbow then chance * Config.RainbowDayMultiplier else chance
+	local day = if kinds ~= nil and kinds.rainbow
+		then chance * Config.RainbowDayMultiplier
+		else chance
+	return boosted(day, adminRainbow)
 end
 
 -- #2184 (Derek2, 2026-11-07: a friend joined a fresh server at night; "make it start at day"): a new server opens by

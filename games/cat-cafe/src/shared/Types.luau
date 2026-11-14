@@ -622,6 +622,8 @@ export type TraitsView = {
 	-- #3864: whether the Trait Token bundles may be offered to this player (the traitBundles switch on, and their
 	-- policy read and not restricting paid random items); nil or false hides the offer
 	bundles: boolean?,
+	-- #4197: the free Trait Party rolls left while an admin Trait Party runs; nil with none
+	party: number?,
 }
 
 export type PassBoostsView = { cafe: number, staff: number, rich: number, money: number }

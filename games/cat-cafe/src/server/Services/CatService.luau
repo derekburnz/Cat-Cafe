@@ -400,7 +400,8 @@ local function carrySpeed(player: Player): number
 		Config.CarryWalkSpeed + paws,
 		Config.NormalWalkSpeed + paws,
 		DataService.get(player),
-		LiveFlagService.on(SpeedShoes.FLAG)
+		LiveFlagService.on(SpeedShoes.FLAG),
+		EventService.speedRush() -- #4197: Speed Rush lends everyone the shoes
 	)
 end
 
@@ -1658,6 +1659,7 @@ end
 
 -- #4050: the Speed Shoes' owner wears them (SpeedShoes.wear) while the switch is on, at spawn, after the buy and
 -- whenever they came off (keepBackpack's check); every player sees them. Without them, or with the switch off, none.
+-- #4197: while Speed Rush runs everyone wears a pair, put on and taken off at its start and end (CatService.start).
 local function keepShoes(player: Player)
 	local character = player.Character
 	if character == nil or character.Parent == nil then
@@ -1667,7 +1669,8 @@ local function keepShoes(player: Player)
 	if humanoid == nil or humanoid.Health <= 0 then
 		return
 	end
-	local want = LiveFlagService.on(SpeedShoes.FLAG) and SpeedShoes.owns(DataService.get(player))
+	local want = (LiveFlagService.on(SpeedShoes.FLAG) and SpeedShoes.owns(DataService.get(player)))
+		or EventService.speedRush()
 	local old = character:FindFirstChild(SpeedShoes.WORN)
 	if old ~= nil and want and SpeedShoes.onFeet(old, character) then
 		return
@@ -3417,6 +3420,25 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	DataService.onLoaded:Connect(function(player: Player)
 		wearBackpack(player)
 		keepShoes(player) -- #4050
+	end)
+
+	-- #4197: Speed Rush starts or ends: everyone's shoes and carry speed follow at once
+	local rushing = EventService.speedRush()
+	EventService.adminChanged:Connect(function()
+		local now = EventService.speedRush()
+		if now == rushing then
+			return
+		end
+		rushing = now
+		for _, player in Players:GetPlayers() do
+			local ok, err = pcall(function()
+				keepShoes(player)
+				CatService.refreshSpeed(player)
+			end)
+			if not ok then
+				warn("[CatService] speed rush: " .. tostring(err))
+			end
+		end
 	end)
 
 	-- #2856: the pack stays on. Again once the avatar's appearance is in (it can rebuild the torso), and a light

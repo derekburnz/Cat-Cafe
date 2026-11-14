@@ -256,6 +256,8 @@ local function traitsView(player: Player, profile: Profile, now: number): Types.
 	view.bundles = LiveFlagService.on(Traits.BUNDLE_FLAG)
 		and policy ~= nil
 		and policy.ArePaidRandomItemsRestricted == false
+	local party = EventService.partyLeft(player) -- #4197 Trait Party
+	view.party = if party > 0 then party else nil
 	return view
 end
 

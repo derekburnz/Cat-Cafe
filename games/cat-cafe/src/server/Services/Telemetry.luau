@@ -416,6 +416,9 @@ export type CustomEvent =
 	-- #4195: an Admin Wheel spin, value 1; the prize id (AdminWheel.PRIZES), the player's tier and the event id.
 	-- Never for a test event
 	| "admin_wheel"
+	-- #4197: a player was online in a running admin event, once per event, value 1; the event id and its title (Golden
+	-- Hour, Money Storm ...). Never for a test event
+	| "admin_join"
 	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
 	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
 	-- report is "none". #2791: the server logs each gift ladder step as it pays, value the account's minutes played; the

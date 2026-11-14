@@ -38,6 +38,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local CafeEvents = require(ReplicatedStorage.Shared.CafeEvents)
+local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
@@ -63,6 +64,8 @@ local running: CafeEvents.Event? = nil
 local failing = false
 local lastNotes = ""
 local joined: { [Player]: boolean } = {} -- event_join logged for the running event
+-- #4197: admin_join logged for each player, by the admin event's id
+local adminJoined: { [Player]: string } = setmetatable({}, { __mode = "k" }) :: any
 local ended: CafeEvents.Event? = nil -- the last event that ended here, and when (server time), for recent()
 local endedAt = 0
 local adminSchedule: { CafeEvents.AdminEvent } = {} -- #4195
@@ -138,6 +141,47 @@ function EventService.catStorm(): (number?, number?, number?)
 		return nil, nil, nil
 	end
 	return event.effects.catStorm, event.startsAt, event.endsAt
+end
+
+-- #4197 (Trait Party): the running admin event's id while its free Mystic Pool rolls are on, else nil.
+function EventService.traitParty(): string?
+	local event = adminRunning
+	return if event ~= nil and event.effects.traitParty then event.id else nil
+end
+
+-- #4197 (Trait Party): each player's free rolls taken in the running party (its id and the count), this server only.
+local partyRolls: { [Player]: { id: string, used: number } } = setmetatable({}, { __mode = "k" }) :: any
+
+-- The free party rolls `player` has left now, 0 with no Trait Party.
+function EventService.partyLeft(player: Player): number
+	local id = EventService.traitParty()
+	if id == nil then
+		return 0
+	end
+	local mine = partyRolls[player]
+	local used = if mine ~= nil and mine.id == id then mine.used else 0
+	return math.max(0, CafeEvents.ADMIN.traitPartyRolls - used)
+end
+
+-- Whether `player`'s next Mystic Pool roll is a free party roll; counts it when it is (TraitService, before paying).
+function EventService.takePartyRoll(player: Player): boolean
+	local id = EventService.traitParty()
+	if id == nil or EventService.partyLeft(player) <= 0 then
+		return false
+	end
+	local mine = partyRolls[player]
+	if mine == nil or mine.id ~= id then
+		mine = { id = id, used = 0 }
+		partyRolls[player] = mine
+	end
+	mine.used += 1
+	return true
+end
+
+-- #4197 (Speed Rush): whether every player counts as wearing the Speed Shoes now.
+function EventService.speedRush(): boolean
+	local event = adminRunning
+	return event ~= nil and event.effects.speedRush
 end
 
 local function daysText(event: CafeEvents.Event): string
@@ -222,6 +266,26 @@ local function applyAdmin(at: number)
 			and CafeEvents.adminEffectsJson(was) == CafeEvents.adminEffectsJson(event)
 		)
 	adminRunning = event
+	-- #4197: Golden Hour's coat boosts and Money Storm's pay floor follow the running admin event
+	local effects = if event ~= nil then event.effects else nil
+	Clock.setAdminCoats(
+		if effects ~= nil then effects.goldBoost else 1,
+		if effects ~= nil then effects.rainbowBoost else 1,
+		CafeEvents.ADMIN.coatChanceMax
+	)
+	Economy.setAdminMoney(
+		if effects ~= nil then effects.moneyStorm else 1,
+		CafeEvents.ADMIN.moneyStormMax
+	)
+	-- #4197 analytics: admin_join once per player in each running admin event (not for a test), with its title
+	if event ~= nil and not event.test then
+		for _, player in DataService.loadedPlayers() do
+			if adminJoined[player] ~= event.id then
+				adminJoined[player] = event.id
+				Telemetry.custom(player, "admin_join", 1, { event.id, event.title })
+			end
+		end
+	end
 	if same then
 		return
 	end

@@ -587,7 +587,7 @@ function Traits.sanitizeSave(value: any, now: number, cats: { [string]: boolean 
 		local trait = Traits.sanitize(pending)
 		if trait ~= nil then
 			local paid: string? = pending.paid
-			if paid ~= "free" and paid ~= "token" and paid ~= "fish" then
+			if paid ~= "free" and paid ~= "token" and paid ~= "fish" and paid ~= "party" then -- #4197 Trait Party
 				paid = nil
 			end
 			local kept: Types.TraitPending = { uid = pending.uid, id = trait.id, paid = paid }

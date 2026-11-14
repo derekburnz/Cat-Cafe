@@ -79,6 +79,7 @@ type View = {
 	nextAt: number?,
 	pending: { uid: string?, id: string? }?,
 	bundles: boolean?, -- #3864: the server's word that the token bundles may be offered
+	party: number?, -- #4197: free Trait Party rolls left while one runs
 }
 
 local function whole(value: any): number
@@ -124,6 +125,8 @@ function MysticPoolLogic.card(trait: any): Card
 	}
 end
 
+MysticPoolLogic.PARTY_TEXT = "Free party roll"
+
 -- The Roll button for the picked cat. `fish` is the player's golden fish.
 function MysticPoolLogic.roll(view: View?, hasTrait: boolean, fish: number): Roll
 	if view == nil then
@@ -134,6 +137,10 @@ function MysticPoolLogic.roll(view: View?, hasTrait: boolean, fish: number): Rol
 	local text = Traits.rollText(Traits.FREE_ROLLS - freeLeft, tokens, hasTrait)
 	if view.pending ~= nil then
 		return { text = text, enabled = false, why = "Pick Keep old or Take new first" }
+	end
+	-- #4197: a Trait Party roll costs nothing (the server counts them, ADMIN.traitPartyRolls an event)
+	if whole(view.party) > 0 then
+		return { text = MysticPoolLogic.PARTY_TEXT, enabled = true }
 	end
 	if Traits.payment(Traits.FREE_ROLLS - freeLeft, tokens, whole(fish)) == nil then
 		return {

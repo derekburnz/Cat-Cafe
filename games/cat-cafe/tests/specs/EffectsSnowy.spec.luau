@@ -69,9 +69,26 @@ return function()
 			-- Epic < Legendary < Mythical
 			expect(weight(ice) < weight(tiger)).to.equal(true)
 			expect(weight(tiger) < weight(blizzard)).to.equal(true)
-			-- the commons and rares have none: their props do the talking
-			for _, catId in { "flurry", "mitten", "hot_chocolate", "spruce", "snow_boots", "ski" } do
+			-- the second Epic matches the first
+			local leopard = Presets.signature.snow_leopard
+			expect(weight(leopard)).to.equal(weight(ice))
+			expect(Presets.emitters[leopard.emitter] ~= nil and PLACES[leopard.on]).to.equal(true)
+			-- the commons have none: their props do the talking
+			for _, catId in { "flurry", "mitten", "hot_chocolate", "spruce" } do
 				expect(Presets.signature[catId] == nil).to.equal(true)
+			end
+			-- the Rares: one faint emitter, only while they move, and only in a slot no rarer cat needs
+			for _, catId in { "snow_boots", "ski" } do
+				local rare = Presets.signature[catId]
+				expect(weight(rare)).to.equal(1)
+				expect(rare.moving).to.equal(true)
+				expect(rare.minor).to.equal(true)
+				expect(rare.eyes).to.equal(nil)
+				local kick = Presets.emitters[rare.emitter]
+				expect(kick.rate < Presets.emitters.sigFrostTrail.rate).to.equal(true)
+				expect(kick.transparency[1] > Presets.emitters.sigFrostTrail.transparency[1]).to.equal(
+					true
+				)
 			end
 			expect(blizzard.arrive.burst <= Presets.budget.low.maxBurst).to.equal(true)
 			expect(Presets.emitters[blizzard.arrive.preset] ~= nil).to.equal(true)

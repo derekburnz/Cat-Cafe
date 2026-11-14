@@ -761,6 +761,34 @@ Presets.emitters = {
 		lightEmission = 0.7,
 		rotSpeed = { -45, 45 },
 	},
+	-- #4070 the Water Park's air: fine spray off the slides and pools, small bright drops that lift a little and
+	-- fall, catching the light. #4071 the Medieval Castle's air: slow warm motes of dust in torch and banner gold.
+	waterparkSpray = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(170, 226, 250) },
+		size = { 0.16, 0.08 },
+		transparency = { 0.25, 1 },
+		lifetime = { 1.4, 2.2 },
+		speed = { 0.8, 2 },
+		spread = 70,
+		rate = 9,
+		acceleration = Vector3.new(0.4, -2.2, 0.2),
+		drag = 0.4,
+		lightEmission = 0.3,
+	},
+	castleMotes = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(255, 226, 150), Color3.fromRGB(226, 170, 96) },
+		size = { 0.14, 0.08 },
+		transparency = { 0.4, 1 },
+		lifetime = { 3.5, 5 },
+		speed = { 0.15, 0.5 },
+		spread = 180,
+		rate = 7,
+		acceleration = Vector3.new(0.2, 0.12, 0.1),
+		drag = 0.4,
+		lightEmission = 0.25,
+	},
 	-- #4069 Snowy Mountain. `snowfall` is the area's air: soft flakes drifting down round you, with a little sideways
 	-- drift, fading before they pile up. The three sig* ones are its rarer cats' (Presets.signature): `sigFrost` a
 	-- puff of frosty breath off the White Tiger Cat's head, `sigSnowflake` the flakes the Blizzard Cat's swirl leaves
@@ -813,6 +841,103 @@ Presets.emitters = {
 		rate = 2,
 		acceleration = Vector3.new(0, -0.6, 0),
 		drag = 2,
+	},
+	-- The Rares of the new areas (`minor` in Presets.signature). `sigSnowKick`: a little snow kicked up behind the
+	-- Snow Boots Cat and the Ski Cat (#4069), sugar off the Cotton Candy Cat (#4070) and a wisp of shadow behind the
+	-- Rogue Cat (#4071), only while they move; smaller, fainter and shorter lived than the Blizzard Cat's frost
+	-- trail. `sigGlintSmall`: a glint about half as often as an Epic's, for the Candy Apple Cat's glaze and the
+	-- Jester Cat's bells.
+	sigGlintSmall = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle },
+		size = { 0.2, 0 },
+		transparency = { 0.15, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 0, 0.2 },
+		spread = 180,
+		rate = 0.8,
+		lightEmission = 0.8,
+		rotSpeed = { -60, 60 },
+	},
+	sigSnowKick = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(255, 255, 255) },
+		size = { 0.3, 0.7 },
+		transparency = { 0.65, 1 },
+		lifetime = { 0.4, 0.6 },
+		speed = { 0.2, 0.6 },
+		spread = 50,
+		rate = 1.5,
+		acceleration = Vector3.new(0, -1.2, 0),
+		drag = 2,
+	},
+	-- #4070 the Water Park's rarer cats (Presets.signature): `sigDrip` drops falling off a water blaster or a cat made
+	-- of water, `sigBubble` the bubbles the Water Cat's swirl leaves as it circles, and `sigWetTrail` the splashes
+	-- it leaves where it walks.
+	sigDrip = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(170, 226, 250) },
+		size = { 0.13, 0.05 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 0.2, 0.6 },
+		spread = 40,
+		rate = 1.6,
+		acceleration = Vector3.new(0, -9, 0),
+		lightEmission = 0.3,
+	},
+	sigBubble = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 255, 255) },
+		size = { 0.22, 0.3 },
+		transparency = { 0.2, 1 },
+		lifetime = { 0.6, 0.9 },
+		speed = { 0.1, 0.3 },
+		spread = 180,
+		rate = 2,
+		acceleration = Vector3.new(0, 0.8, 0),
+		lightEmission = 0.5,
+	},
+	sigWetTrail = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(150, 220, 250), Color3.fromRGB(255, 255, 255) },
+		size = { 0.18, 0.06 },
+		transparency = { 0.2, 1 },
+		lifetime = { 0.4, 0.6 },
+		speed = { 1.5, 3 },
+		spread = 60,
+		rate = 2,
+		acceleration = Vector3.new(0, -14, 0),
+		lightEmission = 0.2,
+	},
+	-- #4071 the Medieval Castle's Dragon Knight (Presets.signature): `sigEmber` the embers its circling sparks leave
+	-- behind, and `sigEmberTrail` the warm sparks that scatter low where it walks and die out. Harmless little lights,
+	-- no flame.
+	sigEmber = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 190, 90) },
+		size = { 0.26, 0.04 },
+		transparency = { 0, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 0.1, 0.3 },
+		spread = 180,
+		rate = 2,
+		acceleration = Vector3.new(0, 0.9, 0),
+		lightEmission = 0.8,
+		rotSpeed = { -60, 60 },
+	},
+	sigEmberTrail = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 150, 70), Color3.fromRGB(255, 220, 140) },
+		size = { 0.2, 0.03 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 0.6, 1.4 },
+		spread = 70,
+		rate = 2,
+		acceleration = Vector3.new(0, -1.5, 0),
+		drag = 1.5,
+		lightEmission = 0.7,
 	},
 	sigFall = {
 		texture = Presets.textures.sparkle,
@@ -1418,6 +1543,36 @@ Presets.catchFlavour = {
 			gustEvery = 0.18,
 			cats = { blizzard = 2 }, -- the snowstorm itself: a taller column
 		},
+		-- #4070 the Water Park: a splash, then bright drops, a ripple ring, and a little fountain for the rarest
+		waterpark = {
+			preset = "splashDrops",
+			colour = Color3.fromRGB(150, 220, 250),
+			puff = 6,
+			flakes = 10,
+			flakesFrom = "Epic",
+			ringScale = 1.3,
+			ringFrom = "Legendary",
+			gusts = 3,
+			gustsFrom = "Mythical",
+			gustHeight = 7,
+			gustEvery = 0.15,
+			cats = { water = 2 }, -- the water itself: a taller fountain
+		},
+		-- #4071 the Medieval Castle: gold sparkles, more of them, a gold ring, and a rising fanfare of sparkles
+		castle = {
+			preset = "catchSparkle",
+			colour = Color3.fromRGB(255, 214, 120),
+			puff = 6,
+			flakes = 12,
+			flakesFrom = "Epic",
+			ringScale = 1.3,
+			ringFrom = "Legendary",
+			gusts = 3,
+			gustsFrom = "Mythical",
+			gustHeight = 8,
+			gustEvery = 0.18,
+			cats = { dragon_knight = 2 }, -- a taller fanfare for the Dragon Knight
+		},
 	} :: { [string]: CatchFlavour },
 }
 
@@ -1600,6 +1755,13 @@ Presets.motion = {
 			snow_log = "butt",
 			snowman = "butt",
 			sled = "butt",
+			-- Tier 9, the Water Park (#4070) and Tier 10, the Medieval Castle (#4071), by the names of Model-Agent's
+			-- spots (trap_ball_pit and so on). Head first with the back end out where the piece has a hollow to dive
+			-- into: the ball pit, the prize plush pile and the haystack. In the rest the cat sits the right way up
+			-- (carousel, river_ring, balloons, barrel, banner_pole, awning, helmet) and keeps the plain shake.
+			ball_pit = "butt",
+			plush_pile = "butt",
+			haystack = "butt",
 		} :: { [string]: string },
 		butt = {
 			every = 2.2,
@@ -2597,6 +2759,8 @@ export type Signature = {
 	goldEyes: Color3?,
 	moving: boolean?,
 	notes: boolean?, -- music notes float up off the prop as well (Jazz Cat, Presets.notes)
+	-- a small touch on a Rare: it only takes a slot of budget.signatureCats that no rarer cat nearby needs
+	minor: boolean?,
 	-- #4069 (Derek 2026-11-13: "make the rarer ones more special"): more on top for the rarest cats
 	extras: { SignatureExtra }?, -- more emitters, each on its own part
 	orbit: SignatureOrbit?, -- motes circling the cat, each leaving a trail of `emitter`
@@ -2715,7 +2879,7 @@ Presets.signature = {
 		colors = { palette.leaf, palette.mint, palette.goldLight },
 		gold = { palette.golden, palette.goldLight, palette.sparkle },
 	},
-	-- #4069 Snowy Mountain (Tier 8). The ladder: the Epic gets a glint, the Legendary breath, a glint and glowing
+	-- #4069 Snowy Mountain (Tier 8). The ladder: a Rare kicks up snow as it moves, an Epic gets a glint, the Legendary breath, a glint and glowing
 	-- eyes, the Mythical flakes, a circling swirl, a frost trail, glowing eyes and a gust where it lands.
 	ice = { -- Ice Cat (Epic): a glint now and then off the ice spikes along its back
 		emitter = "sigGlint",
@@ -2723,6 +2887,29 @@ Presets.signature = {
 		props = 2,
 		colors = { Color3.fromRGB(214, 240, 255), palette.offwhite },
 		gold = { palette.goldLight, palette.sparkle },
+	},
+	snow_leopard = { -- Snow Leopard Cat (Epic): a warm glint off its climber's head lamp
+		emitter = "sigGlint",
+		on = "Prop2",
+		colors = { Color3.fromRGB(255, 240, 200), palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+	},
+	-- the two Rares: no glow, only a little snow kicked up while they move, and never ahead of a rarer cat
+	snow_boots = { -- Snow Boots Cat (Rare): snow off its boots as it walks
+		emitter = "sigSnowKick",
+		on = "Body",
+		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(226, 240, 255) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
+	},
+	ski = { -- Ski Cat (Rare): a spray of snow behind its skis
+		emitter = "sigSnowKick",
+		on = "Body",
+		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(226, 240, 255) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
 	},
 	white_tiger = { -- White Tiger Cat (Legendary): frosty breath, ice-blue eyes and a soft glint on the white coat
 		emitter = "sigFrost",
@@ -2749,6 +2936,135 @@ Presets.signature = {
 			seconds = 3.2,
 		},
 		arrive = { ring = 9, burst = 10, preset = "smokePuff" },
+	},
+	-- #4070 the Water Park (Tier 9). The same ladder: each Epic one effect on its lit prop, the Legendary a glint on
+	-- its lit loop, sparks off the goggles and a whoosh while it runs, the Mythical drips, circling bubbles, a wet
+	-- trail, glowing eyes and a splash where it lands.
+	-- the two Rares: a small touch each, never ahead of a rarer cat
+	candy_apple = { -- Candy Apple Cat (Rare): a glint now and then off its caramel glaze
+		emitter = "sigGlintSmall",
+		on = "Prop",
+		colors = { Color3.fromRGB(255, 226, 170), palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+		minor = true,
+	},
+	cotton_candy = { -- Cotton Candy Cat (Rare): a little sugar drifts off its floss as it moves
+		emitter = "sigSnowKick",
+		on = "Prop",
+		colors = { Color3.fromRGB(255, 190, 220), Color3.fromRGB(190, 226, 255) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
+	},
+	clown = { -- Clown Cat (Epic): confetti twinkles off the lit pom of its hat, in the pom colours
+		emitter = "sigGlint",
+		on = "Prop",
+		colors = {
+			palette.shirtRed,
+			palette.shirtBlue,
+			Color3.fromRGB(255, 226, 120),
+			palette.neonPink,
+		},
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+	},
+	water_gun = { -- Water Gun Cat (Epic): drops falling off the water blaster on its back
+		emitter = "sigDrip",
+		on = "Prop",
+		colors = { Color3.fromRGB(170, 226, 250), palette.offwhite },
+		gold = { palette.goldLight, palette.golden },
+	},
+	coaster = { -- Coaster Cat (Legendary): the lit loop glints, sparks lift off, and it leaves a whoosh at speed
+		emitter = "sigGlint",
+		on = "Prop2",
+		colors = { Presets.rarity.Legendary, palette.sparkle, palette.shirtRed },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigRise", on = "Body" },
+			{ emitter = "sigWhoosh", on = "Body", moving = true },
+		},
+	},
+	water = { -- Water Cat (Mythical): a cat of living water
+		emitter = "sigDrip",
+		on = "Body",
+		colors = { Color3.fromRGB(170, 226, 250), palette.offwhite, palette.mint },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = {
+			{ emitter = "sigGlint", on = "Prop" },
+			{ emitter = "sigWetTrail", on = "Body", moving = true },
+		},
+		orbit = {
+			emitter = "sigBubble",
+			count = 5,
+			countLow = 3,
+			radius = 0.8,
+			height = 0.5,
+			tilt = -0.25,
+			seconds = 3.6,
+		},
+		arrive = { ring = 9, burst = 10, preset = "splashDrops" },
+	},
+	-- #4071 the Medieval Castle (Tier 10), the same ladder: each Epic one effect on its lit prop, the Legendary a
+	-- glint on her jewels, a slow fall of gold dust and a soft royal glow, the Mythical rising embers, circling
+	-- sparks, an ember trail, glowing eyes and a burst of sparks where it lands.
+	-- the two Rares: a small touch each, never ahead of a rarer cat
+	jester = { -- Jester Cat (Rare): a glint now and then off the gold bells of its hat
+		emitter = "sigGlintSmall",
+		on = "Prop",
+		colors = { palette.goldLight, palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+		minor = true,
+	},
+	rogue = { -- Rogue Cat (Rare): a wisp of shadow behind it as it sneaks, gone in half a second
+		emitter = "sigSnowKick",
+		on = "Body",
+		colors = { Color3.fromRGB(70, 64, 86), Color3.fromRGB(110, 100, 130) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
+	},
+	knight = { -- Knight Cat (Epic): a glint now and then off the gold paw crest on its shield
+		emitter = "sigGlint",
+		on = "Prop2",
+		colors = { palette.goldLight, palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+	},
+	mage = { -- Mage Cat (Epic): little stars drifting up off the lit star of its hat
+		emitter = "sigRise",
+		on = "Prop",
+		colors = { palette.sparkle, palette.aurora, palette.pastelSky },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+	},
+	queen = { -- Queen Cat (Legendary): her crown's jewels glint, gold dust falls round her, and she glows a little
+		emitter = "sigGlint",
+		on = "Prop",
+		colors = { Presets.rarity.Legendary, palette.sparkle, palette.blush },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigFall", on = "Body" },
+			{ emitter = "sigHalo", on = "Body" },
+		},
+	},
+	dragon_knight = { -- Dragon Knight (Mythical): a knight with a dragon's fire in it
+		emitter = "sigRise",
+		on = "Prop",
+		colors = { Color3.fromRGB(255, 170, 80), Color3.fromRGB(255, 96, 64), palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = {
+			{ emitter = "sigGlint", on = "Prop2" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = {
+			emitter = "sigEmber",
+			count = 5,
+			countLow = 3,
+			radius = 0.8,
+			height = 0.6,
+			tilt = 0.35,
+			seconds = 3,
+		},
+		arrive = { ring = 9, burst = 10, preset = "catchSparkle" },
 	},
 } :: { [string]: Signature }
 Presets.signatureFx = {
@@ -3289,6 +3605,27 @@ Presets.decorMotion = {
 	seconds = { default = 2, least = 0.3, most = 30 },
 	rise = { default = 0.08, least = 0, most = 1 },
 	pick = 1, -- seconds between choosing which parts move
+}
+
+-- #4070 the Water Park's rides (Effects/Rides): each turning piece of the area set is a Model named ending with a key
+-- of `kinds`, and turns once every `seconds` about the middle of its own box: `axis` "up" straight up (the carousel,
+-- the teacups), "thin" along the box's thin side (the Ferris wheel, about its hub). All slow: the fastest rim, the
+-- carousel's, moves about 3.5 studs a second. The nearest `most` within `radius` studs turn (`mostLite` where the
+-- budget has no decor motion), chosen every `pick` seconds, stepped at the budget's rate but never above `hz`;
+-- a step never covers more than `longest` seconds. Reduce Motion and Low performance hold them all still.
+export type Ride = { axis: "up" | "thin", seconds: number }
+Presets.rides = {
+	kinds = {
+		CarouselTurn = { axis = "up", seconds = 24 },
+		TeacupsTurn = { axis = "up", seconds = 16 },
+		FerrisTurn = { axis = "thin", seconds = 60 },
+	} :: { [string]: Ride },
+	radius = 260,
+	most = 3,
+	mostLite = 1,
+	hz = 30,
+	longest = 0.25,
+	pick = 1,
 }
 
 -- The net swing (F93, catch-rework.md sections 1 and 5): a whoosh trail off the net's hoop over the downswing, from
@@ -4154,6 +4491,8 @@ Presets.cannon = {
 		desert = Color3.fromRGB(232, 205, 150), -- Tier 6 (#2657): sand
 		ruins = Color3.fromRGB(80, 160, 120), -- Tier 7 (#2657): jade
 		snowy = Color3.fromRGB(214, 236, 255), -- Tier 8 (#4069): ice blue
+		waterpark = Color3.fromRGB(120, 205, 240), -- #4070: pool blue
+		castle = Color3.fromRGB(255, 214, 120), -- #4071: banner gold
 	} :: { [string]: Color3 },
 }
 
@@ -4237,7 +4576,15 @@ Presets.introCut = {
 -- out of step with the others. Warm embers drift up off it with a small pop of them now and then, and a warm light
 -- flickers with the flame, brighter at night. With Reduce Motion the flame moves `still` as much. The nearest
 -- `campfires` (budget) within ambientRadius run; the rest stand as modelled.
+-- `kinds`: what burns, by the end of the flame Model's name, each with the reach of its light in studs, how bright
+-- it is against `brightness`, the embers in a pop and how far over the flame's base they leave from. A torch (#4071)
+-- is a smaller flame up on a post.
+export type FlameKind = { range: number, bright: number, pop: number, emberHeight: number }
 Presets.campfire = {
+	kinds = {
+		_Campfire_Glow = { range = 14, bright = 1, pop = 5, emberHeight = 1.2 },
+		_Torch_Glow = { range = 10, bright = 0.8, pop = 2, emberHeight = 0.9 },
+	} :: { [string]: FlameKind },
 	stretch = 0.2, -- of the modelled height, either way
 	lean = 9, -- degrees at the tip
 	hz = { 1.7, 2.9, 4.3 }, -- the three waves each tongue's motion is made of
@@ -4246,13 +4593,10 @@ Presets.campfire = {
 	brighten = 0.2, -- how far the flicker lifts each disc's colour toward `hot`
 	hot = Presets.palette.lampWarm,
 	light = Color3.fromRGB(255, 176, 102),
-	range = 14, -- studs
 	brightness = 1.1,
 	flicker = 0.35, -- of the brightness, either way
 	night = 1.6, -- times the brightness at night
-	emberHeight = 1.2, -- studs over the flame's base the embers leave from
 	popEvery = { 2.5, 5 }, -- seconds between pops
-	pop = 5, -- embers in a pop
 }
 
 -- A cat checked in at a camp (F84 section 4): it hops out of its carrier's arms in an arc `hopHeight` studs high
@@ -4946,6 +5290,22 @@ Presets.areaFx = {
 				foot = Presets.palette.mint,
 				top = Presets.palette.aurora,
 			},
+		},
+		-- #4070 the Water Park: fine spray in the air and a splash where its strays come and go. #4071 the Medieval
+		-- Castle: warm motes of dust and a gold sparkle for its strays. Their boxes are Config.World's Waterpark* and
+		-- Castle* once the areas are in.
+		waterpark = {
+			air = "waterparkSpray",
+			colour = Color3.fromRGB(150, 220, 250),
+			puffPreset = "splashDrops",
+			puff = 6,
+			lift = 4,
+		},
+		castle = {
+			air = "castleMotes",
+			colour = Color3.fromRGB(255, 214, 120),
+			puffPreset = "catchSparkle",
+			puff = 6,
 		},
 	} :: { [string]: AreaFxSpec },
 }

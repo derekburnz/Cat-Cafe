@@ -78,6 +78,7 @@ local Rainbow = require(script.Rainbow)
 local Rally = require(script.Rally)
 local Rarity = require(script.Rarity)
 local Rescue = require(script.Rescue)
+local Rides = require(script.Rides)
 local RuinsWater = require(script.RuinsWater)
 local SecretGlow = require(script.SecretGlow)
 local SecretStray = require(script.SecretStray)
@@ -188,6 +189,7 @@ function Effects.start()
 		FusionFx.start, -- #4104: the Fusion Observatory dome's glow and paw lights
 		MuseumPlaques.start,
 		StationMotion.start,
+		Rides.start,
 		HoldPulse.start,
 		BaitCrumbs.start,
 		WaitingCat.start,

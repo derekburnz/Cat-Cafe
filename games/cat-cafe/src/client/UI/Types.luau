@@ -372,6 +372,8 @@ export type PartialState = {
 	starterBought: boolean?, -- #1625
 	starterCatClaimed: boolean?, -- #2555: the Bellhop Cat taken home; false shows its stand's "!" and bubble
 	storeSeen: { [string]: number }?, -- #1823 §4: Store tab id -> the tab version last opened (shared/StoreTabs)
+	-- #3996 (shared/DailyDeal.view): today's deal, bought today and tomorrow's; false below Tier 2 or switch off
+	dailyDeal: { deal: number, bought: boolean, tomorrow: number } | false | nil,
 	mystery: { [string]: boolean }?, -- #2574: Mystery Market items owned
 	mysterySeen: boolean?, -- #2574: false shows the "!" over Juniper's cart
 	mysteryOpen: boolean?, -- #2574: BuyMystery is taken (else every button reads "Soon")

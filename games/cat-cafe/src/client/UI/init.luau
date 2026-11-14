@@ -169,6 +169,7 @@ UI.events = {
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
 	storeSeen = Signal.new(), -- (tab)   a Store tab with a New dot opened: forward as MarkStoreSeen (#1823 §4)
+	storeDeal = Signal.new(), -- (productId)   #3996: Today's Deal's R$25 pressed: forward as PromptDeal
 	-- (kind, value)   #1888 the Store funnel: "store_tab" (a tab id, once a visit) or "store_buy" (the pass or product
 	-- id, once a visit), forward as TelemetryReport(kind, value) after the visit's store_opened
 	storeReport = Signal.new(),
@@ -461,12 +462,14 @@ function applyTutorial()
 	-- hint, so it gives way to the Park line too; the arrow stays on the cannon, the way to the Park)
 	local cards: any = UI -- UI.parkTrail is built further down
 	local park = cards.parkTrail
+	-- The Park opens at Tier 2; `reached` comes from ParkTrailController whatever the parkGateTrail switch says (Review-
+	-- QA's PC run: with the switch off no goal came, so the line never showed). The paws are only named when they show.
 	if
 		(text == nil or hint == CannonLogic.WRAP_UP_HINT)
-		and park.goal ~= nil
+		and (state.tier or 1) >= 2
 		and not park.reached
 	then
-		text = park.STRIP
+		text = if park.goal ~= nil then park.STRIP else park.STRIP_PLAIN
 	end
 	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides. #3893
 	-- (Derek 2026-11-13: "still show the tips all the way up to going to park"): and only once the Park is reached
@@ -1612,6 +1615,10 @@ function UI.init(config: Types.InitConfig)
 			return hudInstance:bottomTop()
 		end
 	)
+	-- #4152: the tutorial's edge arrow keeps off the HUD (the money pill, the menu column, the goal card)
+	require(script.Components.StepTarget).setAvoid(function()
+		return hudInstance:edgeAvoid()
+	end)
 	popups = Popups.new(parent)
 	-- #2157 (Desktop-Tester on #2128): a replay waits before the intro hides the UI (for the camp to stream in then;
 	-- since #3109 for the loading screen's run to 100), so the window it was asked from stayed up about 1.5 s, and a Welcome back card that was up or
@@ -3586,6 +3593,7 @@ UI.parkTrail = {
 	tutorial = false, -- a tutorial target has the trail
 	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
 	STRIP = "Visit the Park: follow the paws to a cannon 🐾", -- #3893: the strip's line while the walk is on
+	STRIP_PLAIN = "Visit the Park: hop in a cannon to fly there 🐾", -- the same with the paw trail switched off
 }
 
 -- #3893: ParkTrailController says when the first steps are done, up to the Park; the tutorial X's hold on the
@@ -6799,6 +6807,39 @@ do
 		end
 	end
 
+	-- #3995 (friend-join-3995.md 4 and 5, palJoin switch): the join notes. The joiner reads "You joined Sam!" over
+	-- "Your cafe is next door." when it is, the friend "Mia joined you!" over "They're at your front door.", each on the
+	-- small banner with the other player's headshot, 6 s, one tap puts it away, held back while a menu is open. No
+	-- bonus words (Derek 2026-11-13).
+	function UI.palJoined(joinerUserId: number, palUserId: number, nextDoor: boolean?)
+		local shown = toasts
+		if type(joinerUserId) ~= "number" or type(palUserId) ~= "number" or shown == nil then
+			return
+		end
+		local me = Players.LocalPlayer.UserId
+		if joinerUserId ~= me and palUserId ~= me then
+			return
+		end
+		local joiner = joinerUserId == me
+		local other: number = if joiner then palUserId else joinerUserId
+		local title: string, line: string
+		if joiner then
+			title, line = PalsLogic.joinedNote(nameOf(palUserId), nextDoor)
+		else
+			title, line = PalsLogic.arrivedNote(nameOf(joinerUserId))
+		end
+		shown:cat({
+			title = title,
+			line = line,
+			headshot = PalsLogic.headshot(other),
+			seconds = PalsLogic.NOTE_SECONDS,
+			tapCloses = true,
+			wait = function()
+				return UI.isOpen() ~= nil
+			end,
+		})
+	end
+
 	-- TeamRescue on both players' screens: the pop with both faces, the helper's tip in the helper's line.
 	function UI.teamRescue(rescuerUserId: number, helperUserId: number, coins: number)
 		if type(rescuerUserId) ~= "number" or type(helperUserId) ~= "number" then
@@ -8811,6 +8852,7 @@ do
 			if up and list then
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
+				screen:setDeal((state :: any).dailyDeal) -- #3996
 				screen:render(list, PassShop.prices())
 			end
 			if hud then
@@ -8871,6 +8913,10 @@ do
 				end
 				PassShop.prompt(passId, "store")
 			end,
+			-- #3996: the server checks Today's Deal and opens Roblox's prompt itself
+			deal = function(productId: string)
+				UI.events.storeDeal:Fire(productId)
+			end,
 			tabShown = function(tab: string)
 				local key = "tab:" .. tab
 				if not shop.reported[key] then
@@ -8913,6 +8959,7 @@ do
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
+				screen:setDeal((state :: any).dailyDeal) -- #3996
 				screen:render(rows(), PassShop.prices())
 				PassShop.refresh() -- a price changed in the Creator Hub shows without a rejoin
 			end,

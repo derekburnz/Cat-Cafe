@@ -138,6 +138,8 @@ local PACK_PAD = 8
 local PACK_NAME_H = 24
 local PACK_LINE_H = 32 -- two small lines
 local PACK_INFO = 36 -- the white i (and the sheet's X), a thumb's tap on touch
+local INFO_FACE = 24 -- #4277: the white i on every other card's picture
+local INFO_TAP_MOUSE = 36 -- its invisible pad with a mouse (a finger's is bigger)
 local PACK_MIN_W = 300 -- a pack card no narrower than this, else one a row
 -- the art: the lower 352 of the 1024 x 512 render, where the cats sit close up (the sign's top is cut)
 local ART_RECT_OFFSET = Vector2.new(0, 160)
@@ -470,7 +472,6 @@ function Store.new(callbacks: Callbacks): Store
 			PaddingBottom = UDim.new(0, CARD_STROKE),
 		}),
 	})
-	self:_packSheet(pages)
 
 	-- every other tab: one grid, showing the cards of the tab picked
 	self._grid = Create("UIGridLayout", {
@@ -541,6 +542,9 @@ function Store.new(callbacks: Callbacks): Store
 		MenuFamily.outline(title)
 		self._bagStrip = strip
 	end
+
+	-- #4277: the white i's sheet, made last so it sits over every page (its i is on every card now, not only the packs)
+	self:_packSheet(pages)
 
 	self._sizeChanged = pages:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		self:_layout()
@@ -696,7 +700,9 @@ function Store._makeCard(
 	MenuFamily.outline(name)
 	local effect = text({
 		Name = "Effect",
-		TextSize = if hero then Theme.sizes.textBody else Theme.sizes.textSmall,
+		-- #4277 (Derek 11-14: "briefer description with bigger but easy to read text"): every card's line at body size
+		-- (fitText still shrinks a long one to fit)
+		TextSize = Theme.sizes.textBody,
 		TextColor3 = CARD.subtext,
 		TextWrapped = true,
 		TextYAlignment = Enum.TextYAlignment.Top,
@@ -791,10 +797,48 @@ function Store._makeCard(
 		"UIPadding",
 		{ PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8), Parent = perk }
 	)
+	-- #4277: the white i on the picture's top right corner, as on the pack cards: the whole story in the sheet. On
+	-- touch its invisible pad reaches a finger's 44 px around the small face
+	local infoTap = math.max(INFO_TAP_MOUSE, Scale.tapHeight(INFO_FACE))
+	local info: TextButton = Create("TextButton", {
+		Name = "Info",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -4, 0, 4),
+		Size = UDim2.fromOffset(infoTap, infoTap),
+		BackgroundTransparency = 1,
+		AutoButtonColor = false,
+		Text = "",
+		Visible = false,
+		ZIndex = 4,
+		Parent = tile,
+	})
+	local infoFace = text({
+		Name = "Face",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(INFO_FACE, INFO_FACE),
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = INK,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "i",
+		ZIndex = 4,
+		Parent = info,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = infoFace })
+	Create("UIStroke", {
+		Color = INK,
+		Thickness = 2,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Parent = infoFace,
+	})
 	local entry: any = {
 		frame = card,
 		look = look,
 		wide = wide,
+		info = info,
 		perk = perk,
 		tile = tile,
 		glyph = glyph,
@@ -834,6 +878,11 @@ function Store._makeCard(
 			end
 		end,
 	})
+	info.Activated:Connect(function()
+		if entry.row ~= nil then
+			self:_showInfo(entry.row)
+		end
+	end)
 	-- a new box (the window or the page resized): fit the words again
 	effect:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		fitEffect(entry)
@@ -905,6 +954,11 @@ end
 -- tagged "featured_new".
 function Store._fill(self: any, entry: any, row: StoreLogic.Row?, line: string?)
 	entry.source = if row ~= nil and line ~= nil then "featured_new" else nil
+	entry.row = row -- #4277: the white i's sheet reads it
+	entry.info.Visible = row ~= nil
+	if row ~= nil and self._packShown == row.key then
+		self:_showInfo(row) -- the open sheet follows a price or Owned change
+	end
 	if row == nil then
 		entry.frame.Visible = false
 		entry.passId = 0
@@ -1023,6 +1077,8 @@ end
 -- Tomorrow line and the plain change line, and the R$25 button; once bought the button goes and the card says so.
 function Store._fillDeal(_self: any, entry: any, card: DealLogic.Card?)
 	entry.dealProduct = nil
+	entry.row = nil
+	entry.info.Visible = false -- the deal's card holds all its lines
 	if card == nil then
 		entry.frame.Visible = false
 		entry.key = ""
@@ -1509,7 +1565,8 @@ function Store._placePackSheet(self: any, pageH: number)
 	if info == nil then
 		return
 	end
-	local count = 6 -- four pieces, the set and the total
+	self._sheetPageH = pageH
+	local count = math.max(info.count or 6, 1) -- #4277: the sheet's lines (a pack: four pieces, the set and the total)
 	local fixed = 2 * SHEET_PAD + SHEET_TITLE_H + 4 + 6 + self._actionHeight
 	local rowH =
 		math.floor((pageH - 2 * CARD_STROKE - fixed - SHEET_HOOK_H - (count - 1) * 2) / count)
@@ -1532,21 +1589,28 @@ end
 
 -- #4026: opens the white i's sheet for a pack card (its Row key, "packWinter"), or closes it (nil)
 function Store._showPack(self: any, key: string?)
+	local entry = if key then self._packCards[key] else nil
+	self:_showInfo(entry and entry.row)
+end
+
+-- #4026, #4277: opens the white i's sheet for any Store row (a pack's pieces, set and total; another card's lines from
+-- StoreLogic.infoLines), or closes it (nil)
+function Store._showInfo(self: any, row: StoreLogic.Row?)
 	local info = self._packInfo
 	if info == nil then
 		return
 	end
-	local entry = if key then self._packCards[key] else nil
-	local row: StoreLogic.Row? = entry and entry.row
-	local pack = if row and row.pack then StoreLogic.PACKS[row.pack] else nil
-	info.shade.Visible = pack ~= nil
-	self._packShown = if pack then key else nil
-	if pack == nil or row == nil or row.pack == nil then
+	local lines = if row then StoreLogic.infoLines(row) else {}
+	local shown = row ~= nil and #lines > 0
+	info.shade.Visible = shown
+	self._packShown = if shown and row then row.key else nil
+	if not shown or row == nil then
 		info.passId = 0
 		return
 	end
+	local pack = if row.pack then StoreLogic.PACKS[row.pack] else nil
 	info.passId = row.passId
-	info.title.Text = pack.title
+	info.title.Text = if pack then pack.title else row.name
 	info.hook.Text = string.match(row.effect, "^[^\n]+") or row.effect
 	local button = StoreLogic.button(row, self._prices[row.passId])
 	info.buy:setText(if row.owned then "✓ Yours" else button.text)
@@ -1557,9 +1621,10 @@ function Store._showPack(self: any, key: string?)
 			child:Destroy()
 		end
 	end
-	local list = StoreLogic.packLines(row.pack)
-	for index, line in list do
-		local last = index == #list
+	info.count = #lines
+	self:_placePackSheet(self._sheetPageH or 0)
+	for index, line in lines do
+		local last = pack ~= nil and index == #lines -- a pack's Total, in gold
 		local rowFrame: Frame = Create("Frame", {
 			Name = "Line" .. index,
 			BackgroundTransparency = 0,
@@ -1573,9 +1638,10 @@ function Store._showPack(self: any, key: string?)
 			Create("UICorner", { CornerRadius = UDim.new(0, 6) }),
 			Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
 		})
+		local plain = line.right == ""
 		local left = text({
 			Name = "Piece",
-			Size = UDim2.new(0.68, 0, 1, 0),
+			Size = UDim2.new(if plain then 1 elseif pack then 0.68 else 0.6, 0, 1, 0),
 			FontFace = if last then Theme.fonts.display else Theme.fonts.body,
 			TextSize = Theme.sizes.textSmall + (if last then 2 else 0),
 			Text = line.left,
@@ -1583,20 +1649,22 @@ function Store._showPack(self: any, key: string?)
 			Parent = rowFrame,
 		})
 		FitText.shrink(left)
-		local right = text({
-			Name = "Bonus",
-			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.fromScale(1, 0),
-			Size = UDim2.new(0.32, 0, 1, 0),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textSmall + (if last then 2 else 0),
-			TextColor3 = CARD.good,
-			TextXAlignment = Enum.TextXAlignment.Right,
-			Text = line.right,
-			ZIndex = 23,
-			Parent = rowFrame,
-		})
-		FitText.shrink(right)
+		if not plain then
+			local right = text({
+				Name = "Bonus",
+				AnchorPoint = Vector2.new(1, 0),
+				Position = UDim2.fromScale(1, 0),
+				Size = UDim2.new(if pack then 0.32 else 0.4, 0, 1, 0),
+				FontFace = Theme.fonts.display,
+				TextSize = Theme.sizes.textSmall + (if last then 2 else 0),
+				TextColor3 = CARD.good,
+				TextXAlignment = Enum.TextXAlignment.Right,
+				Text = line.right,
+				ZIndex = 23,
+				Parent = rowFrame,
+			})
+			FitText.shrink(right)
+		end
 	end
 end
 
@@ -1649,8 +1717,8 @@ function Store.showTab(self: any, tab: string)
 	end
 	self._list.Visible = not featured and not codes and not packs and not dealTab
 	self._packsPage.Visible = packs
-	if not packs then
-		self:_showPack(nil)
+	if was ~= self._tab then
+		self:_showInfo(nil) -- #4277: a sheet opened from any tab closes with it
 	end
 	self:_placeBag()
 	self.codesPage.Visible = codes

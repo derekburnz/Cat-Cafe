@@ -977,10 +977,10 @@ return function()
 						"Garden Swing Seat",
 					}
 				do
-					expect(string.find(row.effect, name, 1, true)).to.be.ok()
+					expect(string.find(StoreLogic.infoText(row), name, 1, true)).to.be.ok()
 				end
 				-- #2006: every piece adds money now, nothing reads "Looks only"
-				expect(string.find(row.effect, "Looks only", 1, true)).to.equal(nil)
+				expect(string.find(StoreLogic.infoText(row), "Looks only", 1, true)).to.equal(nil)
 			end
 		)
 		it(
@@ -995,7 +995,7 @@ return function()
 				expect(row.tab).to.equal("cats")
 				expect(row.passId).to.equal(77)
 				expect(row.owned).to.equal(false)
-				expect(string.find(row.effect, "two baits", 1, true)).to.be.ok()
+				expect(string.find(row.effect, "Two baits", 1, true)).to.be.ok()
 				local bought = find(
 					StoreLogic.rows({ SecondBowlPassId = 77 }, { [77] = true }, nil, view),
 					"secondBowl"
@@ -1049,7 +1049,7 @@ return function()
 			expect(row).to.be.ok()
 			expect(row.passId).to.equal(66)
 			for _, name in { "Flower Box", "Starry Night", "Paw Chalkboard", "Looks only" } do
-				expect(row.effect:find(name, 1, true)).to.be.ok()
+				expect(StoreLogic.infoText(row):find(name, 1, true)).to.be.ok()
 			end
 			expect(row.owned).to.equal(false)
 			expect(find(StoreLogic.rows(config, { [66] = true }, nil, nil), "signStylePack").owned).to.equal(
@@ -1068,7 +1068,7 @@ return function()
 			local row = find(StoreLogic.rows(config, {}, nil, nil), "signStylePack")
 			for _, style in SignStyles.LIST do
 				if style.passKey == "SignStylePackPassId" then
-					expect(row.effect:find(style.name, 1, true)).to.be.ok()
+					expect(StoreLogic.infoText(row):find(style.name, 1, true)).to.be.ok()
 				end
 			end
 		end)
@@ -1079,6 +1079,33 @@ return function()
 				expect(row.key).never.to.equal("jukebox")
 				expect(row.name:find("Jukebox", 1, true)).to.equal(nil)
 			end
+		end)
+	end)
+
+	describe("the i on every card (#4277)", function()
+		it("gives every pass a short line and a sheet with more in it", function()
+			for _, card in StoreLogic.PASSES do
+				local row: any =
+					{ key = card.key, name = card.name, effect = card.effect, pack = card.pack }
+				local lines = StoreLogic.infoLines(row)
+				expect(#lines > 0).to.equal(true)
+				if card.pack == nil and not card.retired then
+					expect(StoreLogic.INFO[card.key] ~= nil).to.equal(true)
+					expect(#card.effect <= 40).to.equal(true) -- one short line, in bigger words
+				end
+			end
+			for _, product in { StoreLogic.STARTER, StoreLogic.THANK_YOU } do
+				local row: any = { key = product.key, name = "x", effect = product.effect }
+				expect(#StoreLogic.infoLines(row) > 0).to.equal(true)
+			end
+			-- a card with no entry shows its own lines, one a row
+			local nap: any = {
+				key = "longNap",
+				name = "Long Nap",
+				effect = "Away money at 100%.\nWithout it: 50%.",
+			}
+			expect(#StoreLogic.infoLines(nap)).to.equal(2)
+			expect(StoreLogic.infoText(nap)).to.equal("Away money at 100%.\nWithout it: 50%.")
 		end)
 	end)
 

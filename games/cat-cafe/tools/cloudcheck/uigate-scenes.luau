@@ -11140,6 +11140,57 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.open("Store")
 		assertStoreCards(true)
 	end },
+	-- #4277 (Derek 11-14: "info button ... for all of them"): every card on Featured and the Passes tab has its white i,
+	-- and the i opens the sheet with the card's name, its lines and the price; the X closes it
+	{ "StoreInfo", function()
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
+		local sheet = window:FindFirstChild("PackInfo", true) :: GuiObject
+		local function checkCards(where: string)
+			local count = 0
+			for _, card in window:GetDescendants() do
+				if card:IsA("Frame") and card:FindFirstChild("Tile") and card.Visible and card.AbsoluteSize.X > 0 then
+					local name = card:FindFirstChild("Name") :: TextLabel?
+					if name and name.Text ~= "" and name.Text ~= "Today's Deal" then
+						local info = card:FindFirstChild("Info", true) :: GuiObject?
+						assert(info and info.Visible, "uigate: the " .. name.Text .. " card on " .. where .. " has no i (#4277)")
+						count += 1
+					end
+				end
+			end
+			assert(count > 0, "uigate: no cards on " .. where .. " (#4277)")
+		end
+		checkCards("Featured")
+		local pick = window:FindFirstChild("pick1", true) :: Frame
+		local pickName = (pick:FindFirstChild("Name") :: TextLabel).Text
+		press("Store", "pick1.Info")
+		assert(sheet.Visible, "uigate: the i did not open the sheet (#4277)")
+		local title = sheet:FindFirstChild("Title", true) :: TextLabel
+		assert(title.Text == pickName, "uigate: the sheet says " .. title.Text .. ", not " .. pickName .. " (#4277)")
+		local lines = 0
+		for _, line in (sheet:FindFirstChild("Lines", true) :: Instance):GetChildren() do
+			if line:IsA("Frame") then
+				lines += 1
+				local piece = line:FindFirstChild("Piece") :: TextLabel
+				assert(piece.Text ~= "" and piece.TextFits ~= false, "uigate: a sheet line is cut: " .. piece.Text .. " (#4277)")
+			end
+		end
+		assert(lines > 0, "uigate: the sheet has no lines (#4277)")
+		press("Store", "PackInfo.Close")
+		assert(not sheet.Visible, "uigate: the X did not close the sheet (#4277)")
+		press("CatCafeModals", "passes")
+		checkCards("Passes")
+	end },
+	-- #4277: the VIP card's sheet left open, for the picture and the sheet's own fit checks
+	{ "StoreInfoSheet", function()
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		press("CatCafeModals", "passes")
+		press("Store", "grid:vip.Info")
+		local sheet = UIShim.playerGui:FindFirstChild("PackInfo", true) :: GuiObject
+		assert(sheet and sheet.Visible, "uigate: the VIP i opened no sheet (#4277)")
+	end },
 	-- #3996, #4259 (Derek 11-14: "a seperate tab for todays deals"): Today's Deal has its own Deal tab with a New dot,
 	-- and its page's one card says what is in it, the honest value line, the Tomorrow line and R$25; Featured keeps
 	-- the bundles and passes. Its press asks the server (PromptDeal), never Roblox

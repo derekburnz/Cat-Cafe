@@ -71,6 +71,11 @@ return function()
 				cafe_pass = {}, -- #1626: everything comes from the paid track's levels
 				trait_tokens_20 = {}, -- #3864: Trait Tokens only
 				trait_tokens_50 = {},
+				-- #3996: Today's Deal (todays-deal-3996.md section 2)
+				deal_1 = { big_tip_potion = 5, swift_potion = 2 },
+				deal_2 = {}, -- 7 Trait Tokens
+				deal_3 = { steady_potion = 10, big_tip_potion = 2 },
+				deal_4 = { big_tip_potion = 4, swift_potion = 1, steady_potion = 2 },
 			}
 			-- #1625: besides potions only the Starter Bundle's named cat and sign style, never anything random
 			local extras = { cats = true, signStyles = true, moneyMultiplier = true } -- #2850: a fixed 2x, not random
@@ -84,7 +89,10 @@ return function()
 							or (product.id == "starter_bundle" and extras[key] == true)
 							or (
 								key == "traitTokens"
-								and string.sub(product.id, 1, 13) == "trait_tokens_"
+								and (
+									string.sub(product.id, 1, 13) == "trait_tokens_"
+									or product.id == "deal_2"
+								)
 							)
 					).to.equal(true)
 				end

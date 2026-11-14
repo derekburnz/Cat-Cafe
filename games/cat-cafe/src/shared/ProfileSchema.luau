@@ -9,6 +9,7 @@ local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local CornerShop = require(script.Parent.CornerShop)
 local CozyCafe = require(script.Parent.CozyCafe)
+local DailyDeal = require(script.Parent.DailyDeal)
 local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
 local FirstVisits = require(script.Parent.FirstVisits)
@@ -1019,6 +1020,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.mysterySeen = raw.mysterySeen == true
 	-- #3699: the Backpack's colour picks (no version: see Types.PlayerProfile.bagColours)
 	profile.bagColours = BagColours.sanitize(raw.bagColours)
+	profile.dealDay = DailyDeal.sanitizeDay(raw.dealDay) -- #3996 (no version: see Types.PlayerProfile.dealDay)
 	profile.shoeColours = BagColours.sanitize(raw.shoeColours, "shoes") -- #4049, the same way
 	-- #2792: the special visitors met once (no version: see Types.PlayerProfile.firstVisits)
 	profile.firstVisits = FirstVisits.sanitize(raw.firstVisits)

@@ -290,6 +290,8 @@ export type CustomEvent =
 	| "trait_roll"
 	-- #3196: Trait Tokens gained, value how many: the source (station, spin, daily_treat, quest, lost_found, code)
 	| "trait_token"
+	| "deal_bought" -- #3996: Today's Deal bought, value the deal number; the tier, "today" or "other" (a receipt for a
+	-- deal that was not that day's, still paid)
 	| "session_feedback_ctx"
 	| "session_feedback_where"
 	-- #2681: the like ask ("Having fun? A thumbs up") shown, value 1; tier, minutes played bucket, device

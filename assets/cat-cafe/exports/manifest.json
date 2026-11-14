@@ -349772,19 +349772,20 @@
         "CatCafe_Camp_Ruins_RelicMuseum_Plaque_sewer",
         "CatCafe_Camp_Ruins_RelicMuseum_Plaque_desert",
         "CatCafe_Camp_Ruins_RelicMuseum_Plaque_ruins",
-        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_snowy"
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_snowy",
+        "CatCafe_Camp_Ruins_RelicMuseum_Plaque_waterpark"
       ],
-      "triangles": 7416,
+      "triangles": 8148,
       "budget": 12000,
       "size_studs": {
         "x": 28.96,
-        "y": 10.25,
-        "z": 10.35
+        "y": 11.15,
+        "z": 11.15
       },
       "size_roblox": [
         28.96,
-        10.35,
-        10.25
+        11.15,
+        11.15
       ],
       "bounds_min": [
         -21.7,
@@ -349793,14 +349794,14 @@
       ],
       "bounds_max": [
         7.26,
-        5.25,
-        10.35
+        6.15,
+        11.15
       ],
       "pivot": "the base centre on the camp's ground, front -Z, no turn; the Ruins camp's station spot (Layout.campExtras.ruins, Ruins set space)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "late-stations.md section 2: the Relic Museum, the Ruins camp's station. _Glass is the case round the gold cat idol (see-through). Attachments PromptAnchor (the velvet rope, 1.5 up), BangAnchor (2 over the RELIC MUSEUM sign) and SparkleAnchor (the idol). Everything else collides and can be climbed.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Ruins_RelicMuseum.model.json",
-      "rbx_parts": 585,
+      "rbx_parts": 646,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Ruins_RelicMuseum.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Ruins_RelicMuseum.glb"
@@ -349812,13 +349813,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "7416/12000 tris",
+          "budget": "8148/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "3629 faces on swatch centers",
+          "uv": "3995 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=-7.22 y=0.12"
+          "centered": "footprint center x=-7.22 y=0.58"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Ruins_RelicMuseum.png",
@@ -433446,6 +433447,863 @@
       "files": [
         "assets/cat-cafe/exports/CatCafe_Style_CocoaBrown.fbx",
         "assets/cat-cafe/exports/CatCafe_Style_CocoaBrown.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "216/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "78 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.46 y=-0.19"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_BeachChair",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_BeachChair"
+      ],
+      "triangles": 594,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.8,
+        "y": 2.22,
+        "z": 1.77
+      },
+      "size_roblox": [
+        3.8,
+        1.77,
+        2.22
+      ],
+      "bounds_min": [
+        -1.9,
+        -1.12,
+        0.0
+      ],
+      "bounds_max": [
+        1.9,
+        1.1,
+        1.77
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_BeachChair.model.json",
+      "rbx_parts": 39,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_BeachChair.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_BeachChair.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "594/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "293 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_MiniCarousel",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_MiniCarousel",
+        "CatCafe_Decor_MiniCarousel_Glow",
+        "CatCafe_Decor_MiniCarousel_Spin"
+      ],
+      "triangles": 1526,
+      "budget": 3000,
+      "size_studs": {
+        "x": 2.75,
+        "y": 2.75,
+        "z": 4.55
+      },
+      "size_roblox": [
+        2.75,
+        4.55,
+        2.75
+      ],
+      "bounds_min": [
+        -1.38,
+        -1.37,
+        0.0
+      ],
+      "bounds_max": [
+        1.38,
+        1.37,
+        4.55
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Decor_MiniCarousel_Spin": [
+          -0.0,
+          0.0,
+          0.36
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Decor_MiniCarousel_Spin": [
+          0.0,
+          0.36,
+          0.0
+        ]
+      },
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_MiniCarousel.model.json",
+      "rbx_parts": 103,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_MiniCarousel.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_MiniCarousel.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1526/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "895 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_PrizeShelf",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_PrizeShelf",
+        "CatCafe_Decor_PrizeShelf_Glow"
+      ],
+      "triangles": 1460,
+      "budget": 1800,
+      "size_studs": {
+        "x": 3.8,
+        "y": 1.69,
+        "z": 4.25
+      },
+      "size_roblox": [
+        3.8,
+        4.25,
+        1.69
+      ],
+      "bounds_min": [
+        -1.9,
+        -1.16,
+        0.0
+      ],
+      "bounds_max": [
+        1.9,
+        0.52,
+        4.25
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PrizeShelf.model.json",
+      "rbx_parts": 133,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_PrizeShelf.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_PrizeShelf.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1460/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "980 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.32"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_FerrisWheelLamp",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_FerrisWheelLamp",
+        "CatCafe_Decor_FerrisWheelLamp_Spin",
+        "CatCafe_Decor_FerrisWheelLamp_Spin_Glow"
+      ],
+      "triangles": 1488,
+      "budget": 1800,
+      "size_studs": {
+        "x": 3.22,
+        "y": 2.5,
+        "z": 4.18
+      },
+      "size_roblox": [
+        3.22,
+        4.18,
+        2.5
+      ],
+      "bounds_min": [
+        -1.61,
+        -1.25,
+        0.0
+      ],
+      "bounds_max": [
+        1.61,
+        1.25,
+        4.18
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Decor_FerrisWheelLamp_Spin": [
+          -0.0,
+          0.0,
+          2.55
+        ],
+        "CatCafe_Decor_FerrisWheelLamp_Spin_Glow": [
+          -0.0,
+          0.0,
+          2.55
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Decor_FerrisWheelLamp_Spin": [
+          0.0,
+          2.55,
+          0.0
+        ],
+        "CatCafe_Decor_FerrisWheelLamp_Spin_Glow": [
+          0.0,
+          2.55,
+          0.0
+        ]
+      },
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_FerrisWheelLamp.model.json",
+      "rbx_parts": 91,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_FerrisWheelLamp.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_FerrisWheelLamp.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1488/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "709 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Door_TicketGate_Front",
+      "category": "Door",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Door_TicketGate_Front",
+        "CatCafe_Door_TicketGate_Front_LeafL",
+        "CatCafe_Door_TicketGate_Front_LeafL_Glass",
+        "CatCafe_Door_TicketGate_Front_LeafR",
+        "CatCafe_Door_TicketGate_Front_LeafR_Glass"
+      ],
+      "triangles": 1056,
+      "budget": 4000,
+      "size_studs": {
+        "x": 6.96,
+        "y": 1.09,
+        "z": 7.33
+      },
+      "size_roblox": [
+        6.96,
+        7.33,
+        1.09
+      ],
+      "bounds_min": [
+        -3.48,
+        -1.0,
+        0.0
+      ],
+      "bounds_max": [
+        3.48,
+        0.09,
+        7.33
+      ],
+      "pivot": "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Door_TicketGate_Front_LeafL": [
+          3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_TicketGate_Front_LeafL_Glass": [
+          3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_TicketGate_Front_LeafR": [
+          -3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_TicketGate_Front_LeafR_Glass": [
+          -3.4,
+          -0.03,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Door_TicketGate_Front_LeafL": [
+          -3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_TicketGate_Front_LeafL_Glass": [
+          -3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_TicketGate_Front_LeafR": [
+          3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_TicketGate_Front_LeafR_Glass": [
+          3.4,
+          0.0,
+          -0.03
+        ]
+      },
+      "studio": "F80 door set, front half, in place of the cafe's own front door. The child Models _LeafL and _LeafR are pivoted on their hinges: -90 (LeafL) or +90 (LeafR) about Y swings them in. _Glass parts are Glass 0.45. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_TicketGate_Front.model.json",
+      "rbx_parts": 81,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Door_TicketGate_Front.fbx",
+        "assets/cat-cafe/exports/CatCafe_Door_TicketGate_Front.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1056/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "504 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.45"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Door_TicketGate_Back",
+      "category": "Door",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Door_TicketGate_Back",
+        "CatCafe_Door_TicketGate_Back_Leaf",
+        "CatCafe_Door_TicketGate_Back_Leaf_Glass",
+        "CatCafe_Door_TicketGate_Back_Sign",
+        "CatCafe_Door_TicketGate_Back_Sign_Bulb"
+      ],
+      "triangles": 1848,
+      "budget": 4000,
+      "size_studs": {
+        "x": 6.9,
+        "y": 1.3,
+        "z": 7.95
+      },
+      "size_roblox": [
+        6.9,
+        7.95,
+        1.3
+      ],
+      "bounds_min": [
+        -3.45,
+        -0.48,
+        0.0
+      ],
+      "bounds_max": [
+        3.45,
+        0.82,
+        7.95
+      ],
+      "pivot": "the foot of the back doorway, plot (-8, 0, 14.5) turned 180; the yard is -Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Door_TicketGate_Back_Leaf": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_TicketGate_Back_Leaf_Glass": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_TicketGate_Back_Sign": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_TicketGate_Back_Sign_Bulb": [
+          -2.88,
+          -0.22,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Door_TicketGate_Back_Leaf": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_TicketGate_Back_Leaf_Glass": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_TicketGate_Back_Sign": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_TicketGate_Back_Sign_Bulb": [
+          2.88,
+          0.0,
+          -0.22
+        ]
+      },
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_TicketGate_Back.model.json",
+      "rbx_parts": 157,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Door_TicketGate_Back.fbx",
+        "assets/cat-cafe/exports/CatCafe_Door_TicketGate_Back.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1848/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "912 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.17"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_CatFlap_Slide",
+      "category": "CatFlap",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_CatFlap_Slide",
+        "CatCafe_CatFlap_Slide_Flap"
+      ],
+      "triangles": 924,
+      "budget": 1600,
+      "size_studs": {
+        "x": 3.41,
+        "y": 0.76,
+        "z": 2.53
+      },
+      "size_roblox": [
+        3.41,
+        2.53,
+        0.76
+      ],
+      "bounds_min": [
+        -1.71,
+        -0.4,
+        0.02
+      ],
+      "bounds_max": [
+        1.7,
+        0.36,
+        2.54
+      ],
+      "pivot": "a back leaf's CatFlap Attachment (the foot of the leaf's yard face, mid-door); the yard is -Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_CatFlap_Slide_Flap": [
+          -0.0,
+          0.15,
+          2.13
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_CatFlap_Slide_Flap": [
+          0.0,
+          2.13,
+          0.15
+        ]
+      },
+      "studio": "F80 cat flap: the frame on both faces of the leaf and its lining; ride the leaf. The child Model _Flap turns about its pivot's X (the top hinge) as a cat goes through. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_Slide.model.json",
+      "rbx_parts": 67,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_CatFlap_Slide.fbx",
+        "assets/cat-cafe/exports/CatCafe_CatFlap_Slide.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "924/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "408 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.02 (want 0)",
+          "centered": "footprint center x=-0.00 y=-0.02"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Style_CircusStripes",
+      "category": "Style",
+      "module": "style_icons",
+      "objects": [
+        "CatCafe_Style_CircusStripes",
+        "CatCafe_Style_CircusStripes_Swatch"
+      ],
+      "triangles": 84,
+      "budget": 400,
+      "size_studs": {
+        "x": 2.72,
+        "y": 0.36,
+        "z": 3.2
+      },
+      "size_roblox": [
+        2.72,
+        3.2,
+        0.36
+      ],
+      "bounds_min": [
+        -1.36,
+        -0.12,
+        0.0
+      ],
+      "bounds_max": [
+        1.36,
+        0.24,
+        3.2
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Style_CircusStripes.model.json",
+      "rbx_parts": 7,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Style_CircusStripes.fbx",
+        "assets/cat-cafe/exports/CatCafe_Style_CircusStripes.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "84/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "42 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.06"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Style_BalloonWall",
+      "category": "Style",
+      "module": "style_icons",
+      "objects": [
+        "CatCafe_Style_BalloonWall",
+        "CatCafe_Style_BalloonWall_Swatch"
+      ],
+      "triangles": 84,
+      "budget": 400,
+      "size_studs": {
+        "x": 2.72,
+        "y": 0.36,
+        "z": 3.2
+      },
+      "size_roblox": [
+        2.72,
+        3.2,
+        0.36
+      ],
+      "bounds_min": [
+        -1.36,
+        -0.12,
+        0.0
+      ],
+      "bounds_max": [
+        1.36,
+        0.24,
+        3.2
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Style_BalloonWall.model.json",
+      "rbx_parts": 7,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Style_BalloonWall.fbx",
+        "assets/cat-cafe/exports/CatCafe_Style_BalloonWall.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "84/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "42 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.06"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Style_Boardwalk",
+      "category": "Style",
+      "module": "style_icons",
+      "objects": [
+        "CatCafe_Style_Boardwalk",
+        "CatCafe_Style_Boardwalk_Swatch"
+      ],
+      "triangles": 112,
+      "budget": 400,
+      "size_studs": {
+        "x": 2.72,
+        "y": 2.66,
+        "z": 0.7
+      },
+      "size_roblox": [
+        2.72,
+        0.7,
+        2.66
+      ],
+      "bounds_min": [
+        -1.36,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        1.36,
+        1.36,
+        0.7
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Style_Boardwalk.model.json",
+      "rbx_parts": 5,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Style_Boardwalk.fbx",
+        "assets/cat-cafe/exports/CatCafe_Style_Boardwalk.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "112/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "40 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.03"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Style_WavePool",
+      "category": "Style",
+      "module": "style_icons",
+      "objects": [
+        "CatCafe_Style_WavePool",
+        "CatCafe_Style_WavePool_Swatch"
+      ],
+      "triangles": 112,
+      "budget": 400,
+      "size_studs": {
+        "x": 2.72,
+        "y": 2.66,
+        "z": 0.7
+      },
+      "size_roblox": [
+        2.72,
+        0.7,
+        2.66
+      ],
+      "bounds_min": [
+        -1.36,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        1.36,
+        1.36,
+        0.7
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Style_WavePool.model.json",
+      "rbx_parts": 5,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Style_WavePool.fbx",
+        "assets/cat-cafe/exports/CatCafe_Style_WavePool.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "112/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "40 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.03"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Style_PopcornYellow",
+      "category": "Style",
+      "module": "style_icons",
+      "objects": [
+        "CatCafe_Style_PopcornYellow",
+        "CatCafe_Style_PopcornYellow_Swatch"
+      ],
+      "triangles": 216,
+      "budget": 400,
+      "size_studs": {
+        "x": 2.17,
+        "y": 1.67,
+        "z": 1.14
+      },
+      "size_roblox": [
+        2.17,
+        1.14,
+        1.67
+      ],
+      "bounds_min": [
+        -1.55,
+        -1.03,
+        0.0
+      ],
+      "bounds_max": [
+        0.62,
+        0.64,
+        1.14
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Style_PopcornYellow.model.json",
+      "rbx_parts": 8,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Style_PopcornYellow.fbx",
+        "assets/cat-cafe/exports/CatCafe_Style_PopcornYellow.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "216/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "78 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.46 y=-0.19"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Style_CandyPink",
+      "category": "Style",
+      "module": "style_icons",
+      "objects": [
+        "CatCafe_Style_CandyPink",
+        "CatCafe_Style_CandyPink_Swatch"
+      ],
+      "triangles": 216,
+      "budget": 400,
+      "size_studs": {
+        "x": 2.17,
+        "y": 1.67,
+        "z": 1.14
+      },
+      "size_roblox": [
+        2.17,
+        1.14,
+        1.67
+      ],
+      "bounds_min": [
+        -1.55,
+        -1.03,
+        0.0
+      ],
+      "bounds_max": [
+        0.62,
+        0.64,
+        1.14
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Style_CandyPink.model.json",
+      "rbx_parts": 8,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Style_CandyPink.fbx",
+        "assets/cat-cafe/exports/CatCafe_Style_CandyPink.glb"
       ],
       "gates": {
         "pass": true,

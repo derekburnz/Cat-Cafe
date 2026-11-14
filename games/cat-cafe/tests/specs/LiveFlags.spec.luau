@@ -130,6 +130,7 @@ return function()
 							or key == "goldTone"
 							or key == "palJoin"
 							or key == "dailyDeal"
+							or key == "updateFeature"
 							or key == "tier8" -- #3997
 							or key == "tier9" -- #4070
 					).to.equal(true)

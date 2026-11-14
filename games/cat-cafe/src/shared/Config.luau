@@ -1552,6 +1552,14 @@ local Config = {
 		RuinsCenterZ = 1400,
 		RuinsWidth = 140,
 		RuinsDepth = 600,
+		-- The Snowy Mountain (Tier 8, the next-areas plan Derek OK'd 2026-11-13; #3997): on the last free diagonal, the
+		-- town's north west, long along world Z with its camp on the south (town) end like the Ruins. Model-Agent's
+		-- CatCafe_Snowy_Set has its walls at x +-75 and z +-280. Layout.snowy only: nothing builds it until
+		-- Catalog.areas lists it.
+		SnowyCenterX = -1400,
+		SnowyCenterZ = 1400,
+		SnowyWidth = 150,
+		SnowyDepth = 560,
 		-- Camps (section 4): CampDepth deep across the area's whole width; the landing pad in its middle with
 		-- seventeen spots inside LandingPadRadius, a spot free with no character within LandingClearStuds; the cannon
 		-- prompt's reach. A dropped cat within CampDropMarginStuds of a camp moves out to CampDropOutStuds past its

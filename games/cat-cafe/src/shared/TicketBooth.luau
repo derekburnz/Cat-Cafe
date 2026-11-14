@@ -256,7 +256,7 @@ function TicketBooth.view(save: Types.TicketSave, now: number): Types.TicketBoot
 			line = prize.line,
 			price = prize.price,
 			left = TicketBooth.left(save, prize, now),
-			per = if prize.limit ~= nil then prize.limit.per else nil,
+			per = if prize.limit ~= nil then prize.limit.per :: string else nil,
 			blocker = TicketBooth.blocker(save, prize, now),
 		})
 	end

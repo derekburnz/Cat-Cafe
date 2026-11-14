@@ -195,9 +195,21 @@ function DecorPieces.areaOf(pool: string): string
 end
 
 -- The Decor Index's pools in Market order: each plain crate's pool, then any pool only the pieces name.
+-- #4064 (Derek 2026-11-13: "turn the rally event off ... and clear leftover index for rally also"): while the live
+-- switch `rally` is off (the server's copy on ReplicatedStorage reads false), the Rally page is not in the Index.
+-- Owned Rally pieces stay owned and placed, and a claimed page bonus still counts; only the page is out of view.
+DecorPieces.RALLY_POOL = "rally"
+function DecorPieces.hidden(pool: string): boolean
+	return pool == DecorPieces.RALLY_POOL
+		and game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_rally") == false
+end
+
 function DecorPieces.pools(catalog: Types.Catalog): { string }
 	local list: { string } = {}
 	local seen: { [string]: boolean } = {}
+	if DecorPieces.hidden(DecorPieces.RALLY_POOL) then
+		seen[DecorPieces.RALLY_POOL] = true
+	end
 	local crates: { Types.CrateDef } = catalog.crates or {}
 	for _, crate in crates do
 		if not crate.golden and not seen[crate.area] then

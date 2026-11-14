@@ -91,6 +91,9 @@ Remotes.ClientToServer = {
 	"BuyWithFish", -- (key: string, shownPrice: number)  #4055 (shared/FishStore): a Store pass of FishStore.LIST not
 	-- owned, made, for FishStore.price golden fish; a price above shownPrice is refused. From anywhere, 1 a second, only
 	-- while the fishStore switch is on; answered with a toast and a ProfileSync (PlayerState.fishStore)
+	"BuyTicketPrize", -- (prizeId: string)  #4061 (shared/TicketBooth): a prize of TicketBooth.PRIZES under its limit, for
+	-- its price in tickets, from TicketBoothTier and only while the ticketBooth switch is on. 1 a second; answered with a
+	-- toast and a ProfileSync (PlayerState.ticketBooth)
 	"MarkMysterySeen", -- ()  #2565: the player opened Juniper's window; sets profile.mysterySeen (the cart's "!")
 	"SetBagColours", -- (main: string, trim: string, kind: string?)  #3699: the Backpack's owner picks its two colours,
 	-- each an id of BagColours.LIST and nothing else; free, from anywhere, behind the switch bagColours; 1 a second;

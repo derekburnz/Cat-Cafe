@@ -167,6 +167,7 @@ export type CustomEvent =
 	| "crate_opened"
 	| "mystery_buy" -- #2565: value fish before; item, week slot, tier
 	| "fishstore_buy" -- #4055: value fish before; FishStore key, tier
+	| "ticket_buy" -- #4061: value tickets before; prize id, tier
 	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id (#4049: then the kind)
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"

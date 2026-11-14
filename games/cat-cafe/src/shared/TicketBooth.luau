@@ -263,7 +263,9 @@ function TicketBooth.view(save: Types.TicketSave, now: number): Types.TicketBoot
 	return {
 		tickets = save.have,
 		spent = save.spent,
-		rushEndsAt = if TicketBooth.rushOn(save, now) then save.rushAt + TicketBooth.RUSH_SECONDS else nil,
+		rushEndsAt = if TicketBooth.rushOn(save, now)
+			then save.rushAt + TicketBooth.RUSH_SECONDS
+			else nil,
 		rushUsedToday = TicketBooth.dayOf(save.rushAt) == TicketBooth.dayOf(now),
 		weekEndsAt = TicketBooth.weekEndsAt(now),
 		prizes = rows,

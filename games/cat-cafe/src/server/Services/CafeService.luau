@@ -68,8 +68,8 @@ local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StoreTabs = require(ReplicatedStorage.Shared.StoreTabs)
 local StuckGoal = require(ReplicatedStorage.Shared.StuckGoal)
 local Telemetry = require(script.Parent.Telemetry)
-local TipService = require(script.Parent.TipService)
 local TicketBooth = require(ReplicatedStorage.Shared.TicketBooth)
+local TipService = require(script.Parent.TipService)
 local Trade = require(ReplicatedStorage.Shared.Trade)
 local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -295,7 +295,8 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		shoeColours = profile.shoeColours, -- #4049
 		mysteryOpen = Config.MysteryOpen or RunService:IsStudio(),
 		fishStore = if LiveFlagService.on(FishStore.FLAG) then FishStore.view(profile) else nil, -- #4055
-		ticketBooth = if LiveFlagService.on(TicketBooth.FLAG) and TicketBooth.open(Economy.tier(profile))
+		ticketBooth = if LiveFlagService.on(TicketBooth.FLAG)
+				and TicketBooth.open(Economy.tier(profile))
 			then TicketBooth.view(profile.tickets, now)
 			else nil, -- #4061
 		goldLuck = totals.goldLuck,

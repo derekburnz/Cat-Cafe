@@ -1530,10 +1530,11 @@ Catalog.upgrades = {
 		id = "espresso",
 		name = "Espresso machine",
 		description = "Better coffee, more money from every cat",
-		maxLevel = 7,
+		maxLevel = 8,
 		-- F95: level 4 four times, 5 (Tier 4) 7.5 times; #1896 (first-hour.md 4): level 4 700,000 (was 400,000), now Tier 2
 		-- #2651 (tier6-7-areas.md 7b): levels 6 and 7 at Tier 6 and 7, scaled with the tiers' Pace fit
-		costs = { 0, 2000, 15000, 550000, 6000000, 200000000, 1300000000 }, -- #1896 re-fit with Catch v3: Espresso 4 700,000 before
+		-- #3997 (tier8-snowy-mountain.md section 1): level 8 at Tier 8, about 2.3% of its cost
+		costs = { 0, 2000, 15000, 550000, 6000000, 200000000, 1300000000, 12000000000 }, -- #1896 re-fit with Catch v3: Espresso 4 700,000 before
 		startLevel = 1,
 	},
 	{
@@ -1561,11 +1562,12 @@ Catalog.upgrades = {
 		id = "lucky_cat", -- F88 (luck-and-rare-moments.md 1a): the statue by the front door, shared/Luck
 		name = "Lucky Cat",
 		description = "A beckoning cat by your front door. Each level adds +10% Luck: rarer bait cats and crate finds",
-		maxLevel = 7,
+		maxLevel = 8,
 		-- level n needs Tier n, but level 3 comes at Tier 2 (#1896 follow-up, a buy inside the Tier 3 save, fitted to
 		-- minute 32 at 300,000; 600,000 before); levels 4 and 5 at economy-ladder.md section 4's prices; #2651 (tier6-7-
 		-- areas.md 7b): 6 and 7 at Tier 6 and 7, scaled with the tiers' Pace fit
-		costs = { 2000, 20000, 300000, 8000000, 80000000, 250000000, 1700000000 },
+		-- #3997: level 8 at Tier 8, about 2.7% of its cost
+		costs = { 2000, 20000, 300000, 8000000, 80000000, 250000000, 1700000000, 14000000000 },
 		startLevel = 0,
 	},
 } :: { Types.UpgradeDef }
@@ -3250,13 +3252,13 @@ Catalog.indexMilestones = {
 	{ id = "total45", track = "normal", needs = 45 },
 	{ id = "total50", track = "normal", needs = 50 },
 	-- #3992 (Derek: "add more index rewards for rainbow /gold up to 70"; Design-Agent's table on the issue): every All
-	-- Cats track runs to the whole book. The last step is `whole`, so it needs every cat the book counts (70 today)
+	-- Cats track runs to the whole book. The last step is `whole`, so it needs every cat the book counts (80 with Tier 8, #3997)
 	-- and moves up when an area adds cats. `late`: nothing shows or pays until the `indexTo70` switch is on, which waits
 	-- for the restart, as an older server's save check drops a claim id it does not know (shared/IndexRewards).
 	{ id = "total55", track = "normal", needs = 55, late = true },
 	{ id = "total60", track = "normal", needs = 60, late = true },
 	{ id = "total65", track = "normal", needs = 65, late = true },
-	{ id = "totalAll", track = "normal", needs = 70, whole = true, late = true },
+	{ id = "totalAll", track = "normal", needs = 80, whole = true, late = true },
 	{ id = "decor5", track = "decor", needs = 5 },
 	-- every piece of the page: 12 since F80 (golden-fish.md 4b), and 16 on the Classic page since F97 (`whole`)
 	{ id = "decor10", track = "decor", needs = 12, whole = true },
@@ -3275,7 +3277,7 @@ Catalog.indexMilestones = {
 	{ id = "rainbow55", track = "rainbow", needs = 55, late = true },
 	{ id = "rainbow60", track = "rainbow", needs = 60, late = true },
 	{ id = "rainbow65", track = "rainbow", needs = 65, late = true },
-	{ id = "rainbowAll", track = "rainbow", needs = 70, whole = true, late = true },
+	{ id = "rainbowAll", track = "rainbow", needs = 80, whole = true, late = true },
 	-- #1772 (Derek2: "Gold cats X / 50" like the Rainbow cats): the gold track on the All Cats page, different gold
 	-- cats across every area (profile.goldCollection), next to total5 to total50
 	{ id = "goldtotal5", track = "gold", needs = 5 },
@@ -3292,7 +3294,7 @@ Catalog.indexMilestones = {
 	{ id = "goldtotal55", track = "gold", needs = 55, late = true },
 	{ id = "goldtotal60", track = "gold", needs = 60, late = true },
 	{ id = "goldtotal65", track = "gold", needs = 65, late = true },
-	{ id = "goldtotalAll", track = "gold", needs = 70, whole = true, late = true },
+	{ id = "goldtotalAll", track = "gold", needs = 80, whole = true, late = true },
 } :: { Types.IndexMilestone }
 
 -- What each milestone pays per page (golden-fish.md sections 4, 5 and 5b). Everything is free and only the server
@@ -3479,6 +3481,27 @@ Catalog.indexPrizes = {
 			tag = "Ruins Gold Master",
 		},
 	},
+	snowy = { -- #3997 (tier8-snowy-mountain.md section 6): the Ruins' coins times 3; no goldLuck (capped)
+		cats3 = { coins = 810000, coinSeconds = 300, fish = 25 },
+		cats6 = { crates = { snowy_crate = 1 }, lures = { star_treat = 2 }, bonus = 0.02 },
+		cats10 = {
+			crates = { snowy_crate = 2, snowy_golden_crate = 1 },
+			fish = 65,
+			bonus = 0.05,
+		},
+		gold1 = { fish = 25, crates = { snowy_crate = 1 } },
+		gold2 = { coins = 2700000, coinSeconds = 450, fish = 35 },
+		gold4 = { crates = { snowy_golden_crate = 1 }, fish = 55 },
+		gold6 = { coins = 5400000, coinSeconds = 900, fish = 70 },
+		gold8 = { crates = { snowy_golden_crate = 1 }, fish = 90 },
+		gold10 = {
+			coins = 13500000,
+			coinSeconds = 1800,
+			crates = { snowy_golden_crate = 2 },
+			fish = 165,
+			tag = "Snowy Mountain Gold Master",
+		},
+	},
 	all = {
 		total5 = { fish = 5, spins = 1, baitSpeed = 0.02 },
 		total10 = { fish = 10, crates = { classic_crate = 1 }, baitSpeed = 0.02 },
@@ -3560,6 +3583,10 @@ Catalog.indexPrizes = {
 		decor10 = { bonus = Config.DecorIndexBonus },
 	},
 	decor_ruins = {
+		decor5 = { fish = Config.DecorIndexHalfFish },
+		decor10 = { bonus = Config.DecorIndexBonus },
+	},
+	decor_snowy = { -- #3997
 		decor5 = { fish = Config.DecorIndexHalfFish },
 		decor10 = { bonus = Config.DecorIndexBonus },
 	},
@@ -3759,6 +3786,7 @@ local CRATE_POOLS: { { area: string, name: string, sold: boolean?, golden: boole
 	{ area = "sewer", name = "Sewer" },
 	{ area = "desert", name = "Desert" }, -- #2651 (tier6-7-areas.md 7b)
 	{ area = "ruins", name = "Ruins" },
+	{ area = "snowy", name = "Snowy" }, -- #3997 (tier8-snowy-mountain.md section 6)
 	{ area = "classic", name = "Classic" },
 	{ area = "rally", name = "Rally", sold = false, golden = false },
 }
@@ -4476,6 +4504,105 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			kind = "catflap",
 			rarity = "Common",
 			description = "The flap in a keyhole-shaped arch.",
+		},
+	},
+	-- #3997 (tier8-snowy-mountain.md section 6): the Snowy Crate's twelve
+	snowy = {
+		{
+			id = "snowy_log_cabin",
+			name = "Log Cabin",
+			kind = "wallpaper",
+			rarity = "Common",
+			color = Color3.fromRGB(150, 105, 70),
+			material = Enum.Material.Wood,
+			description = "Warm round logs, like a cabin in the pines.",
+		},
+		{
+			id = "snowy_knit_pattern",
+			name = "Knit Pattern",
+			kind = "wallpaper",
+			rarity = "Rare",
+			color = Color3.fromRGB(200, 70, 70),
+			material = Enum.Material.Fabric,
+			description = "A cosy knitted pattern of snowflakes and paws.",
+		},
+		{
+			id = "snowy_pine_planks",
+			name = "Pine Planks",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(205, 170, 120),
+			material = Enum.Material.WoodPlanks,
+			description = "Pale pine boards that creak just a little.",
+		},
+		{
+			id = "snowy_aurora_ice",
+			name = "Aurora Ice",
+			kind = "floor",
+			rarity = "Mythical",
+			color = Color3.fromRGB(120, 210, 200),
+			material = Enum.Material.Glass,
+			description = "Clear ice with the northern lights glowing under it.",
+		},
+		{
+			id = "snowy_frost_white",
+			name = "Frost White",
+			kind = "paint",
+			rarity = "Common",
+			color = Color3.fromRGB(240, 244, 248),
+			material = Enum.Material.SmoothPlastic,
+			description = "Crisp white like fresh snow.",
+		},
+		{
+			id = "snowy_cocoa_brown",
+			name = "Cocoa Brown",
+			kind = "paint",
+			rarity = "Rare",
+			color = Color3.fromRGB(110, 70, 45),
+			material = Enum.Material.SmoothPlastic,
+			description = "Rich brown like a mug of cocoa.",
+		},
+		{
+			id = "snowy_fireside_rug",
+			name = "Fireside Rug",
+			kind = "furniture",
+			rarity = "Common",
+			description = "A thick round rug for warming paws.",
+		},
+		{
+			id = "snowy_stone_fireplace",
+			name = "Stone Fireplace",
+			kind = "furniture",
+			rarity = "Legendary",
+			description = "A big stone fireplace with a cosy glow.",
+		},
+		{
+			id = "snowy_sled_shelf",
+			name = "Sled Shelf",
+			kind = "decoration",
+			rarity = "Rare",
+			description = "An old wooden sled hung up as a shelf.",
+		},
+		{
+			id = "snowy_snow_globe",
+			name = "Giant Snow Globe",
+			kind = "decoration",
+			rarity = "Epic",
+			description = "A snow globe big enough for a cat to curl up in.",
+		},
+		{
+			id = "snowy_chalet_door",
+			name = "Chalet Door",
+			kind = "door",
+			rarity = "Common",
+			description = "A wooden chalet door with a heart cut out.",
+		},
+		{
+			id = "snowy_igloo_flap",
+			name = "Igloo Flap",
+			kind = "catflap",
+			rarity = "Rare",
+			description = "The flap in a little igloo arch.",
 		},
 	},
 	classic = {

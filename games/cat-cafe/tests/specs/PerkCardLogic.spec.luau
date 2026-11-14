@@ -9,6 +9,9 @@ return function()
 	local StationPerks = require(
 		game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("StationPerks")
 	) :: any
+	local LateTiers = require(
+		game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("LateTiers")
+	) :: any
 
 	describe("PerkCardLogic.ICON", function()
 		it("has a picture for every station perk", function()
@@ -84,7 +87,7 @@ return function()
 		end)
 
 		it("has no locked row once every perk is owned", function()
-			local rows = PerkCardLogic.list(7)
+			local rows = PerkCardLogic.list(8) -- #3997: Tier 8's Cocoa Stand
 			expect(#rows).to.equal(#StationPerks.LIST)
 			for _, row in rows do
 				expect(row.owned).to.equal(true)
@@ -100,7 +103,17 @@ return function()
 		end)
 
 		it("is nil at the top tier", function()
+			expect(PerkCardLogic.teaser(8)).to.equal(nil)
+		end)
+
+		it("keeps Tier 8's Cocoa Stand back until the tier8 switch is on (#3997)", function()
+			LateTiers.setOpen(false)
 			expect(PerkCardLogic.teaser(7)).to.equal(nil)
+			expect(#PerkCardLogic.list(7)).to.equal(#StationPerks.LIST - 1)
+			LateTiers.setOpen(true)
+			expect(PerkCardLogic.teaser(7):find("Cocoa Stand", 1, true)).to.be.ok()
+			expect(#PerkCardLogic.list(7)).to.equal(#StationPerks.LIST)
+			LateTiers.setOpen(nil)
 		end)
 	end)
 end

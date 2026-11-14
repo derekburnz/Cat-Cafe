@@ -2139,12 +2139,12 @@ return function()
 		)
 
 		it(
-			"lays out the Snowy Mountain on the north west diagonal from its set's spots, not built yet (#3997)",
+			"lays out the Snowy Mountain on the north west diagonal from its set's spots (#3997)",
 			function()
 				local spec = Layout.areas.snowy
 				expect(spec).to.be.ok()
 				expect(spec.set).to.equal("CatCafe_Snowy_Set")
-				expect(Catalog.getArea("snowy")).to.equal(nil)
+				expect((Catalog.getArea("snowy") :: any).tier).to.equal(8)
 				expect(Layout.camps.snowy).to.be.ok()
 				expect(#spec.spawnPoints).to.equal(105)
 				expect(#spec.rescueSpots).to.equal(5)

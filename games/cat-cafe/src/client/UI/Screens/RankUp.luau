@@ -285,6 +285,8 @@ function RankUp.new(callbacks: Callbacks): RankUp
 	local self = setmetatable({}, RankUp) :: any
 	self._catalog = nil :: Types.Catalog?
 	self._rows = {} :: { Frame }
+	self._rowsKey = nil :: string? -- #4292: what the drawn rows say
+	self._opensKey = nil :: string? -- #4292: what the drawn "It opens" cards say
 
 	local panel = Panel.new({
 		dark = true, -- #1028
@@ -633,12 +635,35 @@ function RankUp.render(self: any, state: Types.PlayerState)
 		"Rank up",
 		("Tier %d%s"):format(progress.tier, if current then "  ·  " .. current.name else "")
 	)
-	for _, row in self._rows :: { Frame } do
-		row:Destroy()
-	end
-	table.clear(self._rows)
-
 	local nextTier = progress.nextTier
+	-- #4292 (Derek 11-14: "those bottom white bubbles flash on and off"): render runs on every state push (money
+	-- ticks), and it threw the rows and the "It opens" cards away and drew them again each time. The cards size
+	-- themselves a frame later, so they blinked. Now they are drawn again only when what they say changes.
+	local rowsKey = ""
+	if nextTier then
+		local parts = {}
+		for _, item in progress.requirements do
+			table.insert(
+				parts,
+				("%s|%s|%s|%.3f"):format(item.label, item.status, tostring(item.met), item.fraction)
+			)
+		end
+		rowsKey = table.concat(parts, "\n")
+	end
+	if rowsKey ~= self._rowsKey then
+		self._rowsKey = rowsKey
+		for _, row in self._rows :: { Frame } do
+			row:Destroy()
+		end
+		table.clear(self._rows)
+		if nextTier then
+			for index, item in progress.requirements do
+				local row: Frame = self:_row(index, item)
+				table.insert(self._rows, row)
+			end
+		end
+	end
+
 	if not nextTier then
 		self._nextTitle.Text = if current then current.name else "Top tier"
 		self._needsLabel.Text = "You reached the top tier. Every area and role slot is open."
@@ -651,10 +676,6 @@ function RankUp.render(self: any, state: Types.PlayerState)
 	end
 	self._nextTitle.Text = ("Next: Tier %d  ·  %s"):format(nextTier.tier, nextTier.name)
 	self._needsLabel.Text = "To rank up you need"
-	for index, item in progress.requirements do
-		local row: Frame = self:_row(index, item)
-		table.insert(self._rows, row)
-	end
 	self._opensLabel.Visible = true
 	local teaser = PerkCardLogic.teaser(progress.tier, PerkCardLogic.poolStands())
 	self._teaser.Text = teaser or ""
@@ -677,6 +698,11 @@ end
 
 -- #3961: one cream card per line of what the tier opens, its picture on the left
 function RankUp._fillOpens(self: any, lines: { string })
+	local key = table.concat(lines, "\n")
+	if key == self._opensKey then
+		return -- #4292: the same cards are already there
+	end
+	self._opensKey = key
 	for _, card in self._opensCards :: { Frame } do
 		card:Destroy()
 	end

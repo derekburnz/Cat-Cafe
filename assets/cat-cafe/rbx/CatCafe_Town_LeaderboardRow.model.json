@@ -2502,6 +2502,7 @@
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
       "Transparency": 1.0,
+      "CanQuery": false,
       "PivotOffset": {
        "CFrame": {
         "position": [
@@ -2580,7 +2581,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 1.0
+      "Transparency": 1.0,
+      "CanQuery": false
      }
     },
     {
@@ -2630,7 +2632,8 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 1.0
+      "Transparency": 1.0,
+      "CanQuery": false
      }
     }
    ],

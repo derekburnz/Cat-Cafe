@@ -749,6 +749,42 @@
     "model": "CatCafe_Decor_RubberDuckRow",
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_sewer_rubber_duck_row.png"
   },
+  "snow_chalet_door": {
+    "name": "Chalet Door",
+    "kind": "door",
+    "model": "CatCafe_Door_Chalet_Front",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_chalet_door.png"
+  },
+  "snow_fireside_rug": {
+    "name": "Fireside Rug",
+    "kind": "furniture",
+    "model": "CatCafe_Decor_FiresideRug",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_fireside_rug.png"
+  },
+  "snow_igloo_flap": {
+    "name": "Igloo Flap",
+    "kind": "catflap",
+    "model": "CatCafe_CatFlap_Igloo",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_igloo_flap.png"
+  },
+  "snow_sled_shelf": {
+    "name": "Sled Shelf",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_SledShelf",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_sled_shelf.png"
+  },
+  "snow_snow_globe": {
+    "name": "Giant Snow Globe",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_GiantSnowGlobe",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_snow_globe.png"
+  },
+  "snow_stone_fireplace": {
+    "name": "Stone Fireplace",
+    "kind": "furniture",
+    "model": "CatCafe_Decor_StoneFireplace",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_snow_stone_fireplace.png"
+  },
   "stepping_stones": {
     "name": "Stepping Stones",
     "kind": "lawn_path",

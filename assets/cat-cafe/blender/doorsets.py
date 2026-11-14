@@ -6,6 +6,7 @@ also"). A door set restyles the cafe's front and back doors together; a cat flap
   CatCafe_CatFlap_<Name>        a cat flap for the CatFlap attachment of any back door, the cafe's own included
   CatCafe_CatFlap_Plain         the cafe's own flap on its own, for a door set in use with no flap
   #2651 adds the Desert's ArchGate set and SunDisc flap and the Ruins' TempleGate set and Keyhole flap.
+  The Snowy Crate (tier8-snowy-mountain.md section 6) adds the Chalet set and the Igloo flap.
 
 Pivots are where CafeService.refreshDoors puts each model, facing out (-Z):
   _Front   the foot of the front doorway on the wall's inside face, plot (0, 0, -14); the street is -Z
@@ -605,8 +606,49 @@ class TempleGate:
         L.span(b, hu - 0.4, hu + 0.05, hy - 0.06, hy + 0.06, L.inn - 0.12, L.inn, self.CARVE)
         L.knuckles(b, (0.95, (y0 + y1) / 2, y1 - 0.6), 0.09 if L.back else 0.07, self.JOINT)
 
+class Chalet:
+    """Snowy Mountain (Common, tier8-snowy-mountain.md section 6): a pine green chalet door with a cream border, a
+    small four-pane window with snow on its sill, a carved snowflake under it and a red heart latch plate."""
+    NAME, SILL, TRIM, SIGN = "Chalet", "dark_wood", "caramel_wood", dict(z=0.1, cu=2.925)
+    BODY, EDGE, SNOW, RED, IRON = "leaf_dark", "cream", "fur_white", "shirt_red", "fur_black"
+
+    def leaf(self, L, b, g):
+        w, y0, y1 = L.w, L.y0, L.y1
+        cu = w / 2
+        ww = 0.75 if L.back else 0.55
+        win = (cu - ww, cu + ww, y1 - 2.35, y1 - 1.05)
+        L.body(b, [win], self.BODY)
+        for n0, n1 in L.faces(0.04):                                # the cream border and the window's frame
+            L.outline(b, 0.12, w - 0.12, y0 + 0.12, y1 - 0.12, 0.14, n0, n1, self.EDGE, L.gap())
+            L.outline(b, win[0] - 0.1, win[1] + 0.1, win[2] - 0.1, win[3] + 0.1, 0.1, n0, n1, self.EDGE)
+        L.glass(g, win)
+        L.span(b, cu - 0.03, cu + 0.03, win[2], win[3], L.mid - 0.04, L.mid + 0.04, self.EDGE)    # its cross bars
+        L.span(b, win[0], win[1], (win[2] + win[3]) / 2 - 0.03, (win[2] + win[3]) / 2 + 0.03, L.mid - 0.04,
+               L.mid + 0.04, self.EDGE)
+        o = L.out
+        L.span(b, win[0] - 0.2, win[1] + 0.2, win[2] - 0.2, win[2] - 0.1, o, o + 0.14, self.EDGE)   # the sill
+        L.span(b, win[0] - 0.18, win[1] + 0.18, win[2] - 0.1, win[2] - 0.03, o, o + 0.13, self.SNOW)   # snow on it
+        L.span(b, win[0] - 0.14, win[1] + 0.14, win[3] + 0.1, win[3] + 0.17, o, o + 0.07, self.SNOW)   # and on the frame
+        fy = win[2] - 0.85                                          # the carved snowflake
+        for k in range(3):
+            L.box(b, cu, fy, o + 0.02, 0.8, 0.09, 0.04, self.SNOW, deg=60 * k)
+        for k in range(6):
+            a = math.radians(60 * k)
+            L.box(b, cu + 0.3 * math.cos(a), fy + 0.3 * math.sin(a), o + 0.02, 0.07, 0.24, 0.04, self.SNOW,
+                  deg=60 * k)
+        for y in (y0 + 0.5, y1 - 0.45):                             # iron strap hinges, outside
+            L.span(b, 0.0, 0.3, y - 0.06, y + 0.06, o, o + 0.03, self.IRON)
+        hu, hy = w - 0.5, 3.4                                       # a heart latch plate and an iron pull
+        for s in (-1, 1):
+            L.box(b, hu + s * 0.08, hy + 0.08, o + 0.015, 0.2, 0.2, 0.03, self.RED, deg=45)
+        L.box(b, hu, hy - 0.04, o + 0.015, 0.22, 0.22, 0.03, self.RED, deg=45)
+        L.span(b, hu - 0.04, hu + 0.04, hy - 0.5, hy - 0.2, o, o + 0.14, self.IRON)
+        L.span(b, hu - 0.04, hu + 0.04, hy - 0.5, hy - 0.42, o, o + 0.2, self.IRON)
+        L.span(b, hu - 0.4, hu + 0.05, hy - 0.06, hy + 0.06, L.inn - 0.12, L.inn, self.IRON)
+        L.knuckles(b, (0.95, (y0 + y1) / 2, y1 - 0.6), 0.07 if L.back else 0.06, self.IRON)
+
 SETS = (FireEscape(), GardenGate(), FrontPorch(), LogCabin(), PortholeHatch(), PanedGlass(), Medal(), ArchGate(),
-        TempleGate())
+        TempleGate(), Chalet())
 
 
 def build_front(style, mat):
@@ -866,12 +908,36 @@ def build_flap_keyhole(mat):
     p.box((0, -RP - 0.12, -0.045), (0.16, 0.42, 0.03), "fur_emerald")
     return [f.finalize(name, mat), p.finalize(name + "_Flap", mat, location=FLAP_HINGE)]
 
+def build_flap_igloo(mat):
+    """Snowy Mountain (Rare, tier8-snowy-mountain.md section 6): the flap in an igloo's mouth, a ring of snow blocks
+    with ice blue joints standing out from the door, snow heaped on top and at its foot; an ice panel with a paw."""
+    name = "CatCafe_CatFlap_Igloo"
+    f, p = RB(), RB()
+    _round_frame(f, [], ("fur_white", 0.34), 0.06, "fur_white")
+    for r_out, r_in, z0, z1, sw in ((RO, 1.06, -0.3, -0.005, "fur_white"), (1.06, RI, -0.36, -0.01, "pastel_sky")):
+        f.b.ring(RB.p(0.0, RC, (z0 + z1) / 2), r_out, r_out - r_in, z1 - z0, sw, segments=12, bevel=False,
+                 rot=(math.pi / 2, "X"))
+    for k in range(7):                                          # the blocks' joints, round the top half
+        a = 180.0 * (k + 0.5) / 7
+        rad = math.radians(a)
+        f.box((1.16 * math.cos(rad), RC + 1.16 * math.sin(rad), -0.29), (0.2, 0.06, 0.05), "pastel_sky",
+              rot=rot_z(a))
+    f.span((-0.55, RC + RO - 0.03, -0.34), (0.55, RC + RO + 0.1, -0.01), "fur_white")          # snow on top
+    f.span((-0.28, RC + RO + 0.1, -0.28), (0.3, RC + RO + 0.17, -0.01), "fur_white")
+    for x, h in ((-0.4, 0.16), (-0.1, 0.24), (0.25, 0.14)):     # icicles under the snow, clear of the hole
+        f.box((x, RC + RO - 0.03 - h / 2, -0.4), (0.07, h, 0.05), "pastel_sky")
+    _round_panel(p, "pastel_sky")
+    p.cyl((0, -RP - 0.12, -0.045), 0.24, 0.03, "fur_white", axis="Z", segments=10)             # the paw's pad
+    for x, y in ((-0.3, 0.14), (-0.1, 0.3), (0.1, 0.3), (0.3, 0.14)):
+        p.cyl((x, -RP + y, -0.045), 0.085, 0.03, "fur_white", axis="Z", segments=8)
+    return [f.finalize(name, mat), p.finalize(name + "_Flap", mat, location=FLAP_HINGE)]
+
 NEST = {"_LeafL_Glass": "_LeafL", "_LeafR_Glass": "_LeafR", "_Leaf_Glass": "_Leaf", "_Sign": "_Leaf",
         "_Sign_Bulb": "_Leaf", "_Flap_Bulb": "_Flap"}
 FLAPS = {"Plain": build_flap_plain, "NeonPaw": build_flap_neon_paw, "Birdhouse": build_flap_birdhouse,
          "MailSlot": build_flap_mail_slot, "TreeStump": build_flap_tree_stump, "PipeRing": build_flap_pipe_ring,
          "Bell": build_flap_bell, "FinishLine": build_flap_finish_line, "SunDisc": build_flap_sun_disc,
-         "Keyhole": build_flap_keyhole}
+         "Keyhole": build_flap_keyhole, "Igloo": build_flap_igloo}
 
 ASSETS = {}
 for _s in SETS:

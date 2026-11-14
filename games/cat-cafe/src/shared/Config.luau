@@ -66,6 +66,7 @@ local Config = {
 	-- into cafeMultiplier like tables and decor; Cat Accessories and Uniform Styles each multiply every working cat's
 	-- rate; Cafe Style and Grand Cafe add to how often rich visitors come (x(1 + 0.25 + 1.0) with both).
 	VipCafeBonus = 0.10,
+	VipBoostCafeBonus = 0.50, -- #4235 (Derek 2026-11-14): VIP's bonus while the vipBoost switch is on (Economy.vipBoost)
 	CafeStyleCafeBonus = 0.50,
 	GrandCafeBonus = 1.50,
 	AccessoriesStaffMultiplier = 1.15,
@@ -121,7 +122,7 @@ local Config = {
 		helpingPaw = 905647581887639,
 		firstTrade = 428728625137987,
 		purrfectStreak = 4111238237174459,
-		partyGuest = 4328065554528969, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e); made 2026-11-11 (#1957)
+		-- #4282: partyGuest (4328065554528969, "Cafe Party Guest") removed by Derek 2026-11-14; disabled on Roblox
 		metOwner = 1802984077324671, -- #3324: "Met the Owner", for being in a server with the owner; made 2026-11-11 (badges.yml)
 		-- #3618 (badges-order.md): the six new badges, 0 until badges.yml makes them (5 a day, free only)
 		firstHome = 3818992250915779, -- Home Sweet Home (made 2026-11-13)
@@ -423,10 +424,9 @@ local Config = {
 		extraSlot = { was = 149, now = 75 },
 		uniforms = { was = 149, now = 75 },
 		cafeStyle = { was = 249, now = 125 },
-		royalCat = { was = 599, now = 299 },
-		kingCat = { was = 799, now = 399 },
+		royalCat = { was = 599, now = 199 }, -- #4261: the Royal Cat Pack at R$199 (Derek 2026-11-14)
 		grandTheme = { was = 799, now = 399 },
-		kingPack = { was = 999, now = 499 },
+		kingPack = { was = 999, now = 299 }, -- #4261: the Cat King Pack at R$299; the King Cat is no longer sold alone
 		thankYou = { was = 25, now = 13 },
 		cafePass = { was = 299, now = 149 },
 	} :: { [string]: { was: number, now: number } },
@@ -758,6 +758,35 @@ local Config = {
 			id = "4733999329807827538",
 			startsAt = 1794693600,
 			title = "🔔 Next update Saturday: Cat Outfit Packs! Want a reminder when it lands?",
+		},
+		-- Derek 2026-11-14 16:23 UTC: each update prompts for the next one from 10 minutes after the last
+		-- (EventRsvp.QUIET_AFTER_SECONDS) until it starts. Growth-Agent's update run sheet.
+		{
+			id = "8139939288161845916",
+			startsAt = 1794772800, -- "3 New Worlds", Sunday 2026-11-15 20:00 UTC
+			title = "🔔 Next update Sunday: 3 NEW WORLDS! Want a reminder when it lands?",
+		},
+		-- Derek 2026-11-14 17:59 UTC: Rift Run moves to tonight, Sunday 2026-11-15 01:00 UTC (Saturday 8 PM ET, the busier
+		-- hour), and the Golden Fish Store to Sunday 2026-11-15 22:00 UTC (5 PM ET), each with its own ask
+		{
+			id = "3176510604057903700",
+			startsAt = 1794704400, -- "Rift Run", Sunday 2026-11-15 01:00 UTC
+			title = "🔔 Next update tonight: RIFT RUN! Want a reminder when it lands?",
+		},
+		{
+			id = "8042541751075996433",
+			startsAt = 1794780000, -- "Golden Fish Store", Sunday 2026-11-15 22:00 UTC
+			title = "🔔 Next update Sunday: the GOLDEN FISH STORE! Want a reminder when it lands?",
+		},
+		{
+			id = "6810389993696133776",
+			startsAt = 1795032000, -- "Better on Every Device", Wednesday 2026-11-18 20:00 UTC
+			title = "🔔 Next update Wednesday: better controls on every device! Want a reminder?",
+		},
+		{
+			id = "8700676156604678758",
+			startsAt = 1794799800, -- "10 Secret Cats", Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, Derek 17:40 UTC)
+			title = "🔔 Next update: 10 SECRET CATS! Want a reminder when it lands?",
 		},
 	} :: { { id: string, startsAt: number, title: string? } },
 	TutorialShrinkSeconds = 1.6,
@@ -1142,8 +1171,10 @@ local Config = {
 	-- first BinFirstUses rummages keep BinFirstEase's wider zone (0.35) and need the 5 hits too. Their marker runs
 	-- at the full BinBarSpeed since 2026-11-12 (Derek on the live game: "the moving marker is too slow not the same
 	-- speed as the studio version"): a new account saw 0.48 where his practised Studio save saw 0.80.
+	-- #4284 (Derek 2026-11-14: "make the rummage bin minigame slightly harder (make area to hit smaller)"): the zone
+	-- 0.22 to 0.18 (the first rummages' eased zone 0.35 to 0.29, by BinFirstEase); hits and marker speed unchanged
 	BinHits = 5,
-	BinZoneWidth = 0.22,
+	BinZoneWidth = 0.18,
 	BinBarSpeed = 0.80,
 	BinFirstEase = { zone = 1.6, speed = 1 },
 	-- #3460 (Derek 2026-11-12: "make the rummage bin rewards a bit better so people get a good starting boost

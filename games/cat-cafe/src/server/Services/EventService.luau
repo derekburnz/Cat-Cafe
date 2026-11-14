@@ -19,6 +19,15 @@
 -- the server as it started), and event_money, the coins its multiplier added for each player (Economy.noteEventExtra),
 -- at its end or their leave.
 --
+-- #4195, admin events (shared/CafeEvents, the `admin = true` records): a second lane beside the normal event, behind
+-- the LiveFlags switch `adminEvents` (off: none shows or runs). ReplicatedStorage carries the one running, or from
+-- CafeEvents.ADMIN.warnSeconds before its start the one coming, as AdminEventId, AdminEventTitle, AdminEventStartsAt,
+-- AdminEventEndsAt, AdminEventEffects and AdminEventRunning (CafeEvents.ADMIN_ATTRIBUTES; the client's warning
+-- banner, start banner and timer). `EventService.admin()` is the running one, `adminChanged` fires when it changes,
+-- and `EventService.bowlSpeed()` is Bowl Frenzy's factor for BaitService (1 with none). `/admin bowl [minutes] [now]`
+-- from an owner writes one for every server (ownerAdmin), or in Studio and a private server runs it there
+-- (startAdminTest); `/admin stop` ends the owner's (ownerAdminStop).
+--
 -- Roblox terms: a DataStore keeps values by key across servers; GetAsync with UseCache false skips the 4 second
 -- read cache, so a new schedule is seen at the next check.
 
@@ -33,6 +42,7 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Signal = require(ReplicatedStorage.Shared.Signal)
 local Telemetry = require(script.Parent.Telemetry)
 
@@ -42,6 +52,8 @@ local EventService = {}
 EventService.changed = Signal.new() :: Signal.Signal<CafeEvents.Event?>
 -- Fires just before the effects change, so CafeService settles every cafe at the old rate.
 EventService.changing = Signal.new() :: Signal.Signal<nil>
+-- #4195: fires (admin event or nil) when the running admin event changes.
+EventService.adminChanged = Signal.new() :: Signal.Signal<CafeEvents.AdminEvent?>
 
 local SUFFIX = if RunService:IsStudio() then "_dev" else ""
 
@@ -53,6 +65,10 @@ local lastNotes = ""
 local joined: { [Player]: boolean } = {} -- event_join logged for the running event
 local ended: CafeEvents.Event? = nil -- the last event that ended here, and when (server time), for recent()
 local endedAt = 0
+local adminSchedule: { CafeEvents.AdminEvent } = {} -- #4195
+local adminTest: CafeEvents.AdminEvent? = nil -- startTest's, in this server only
+local adminRunning: CafeEvents.AdminEvent? = nil
+local adminPublished = "" -- what the Admin* attributes carry now, as one string
 local RECENT_SECONDS = 300 -- a shower due by its end at night still spawns at the next sunrise (nights are 45 s)
 
 local function now(): number
@@ -103,6 +119,27 @@ function EventService.endsAt(): number?
 	return if event ~= nil then event.endsAt else nil
 end
 
+-- #4195: the running admin event, or nil.
+function EventService.admin(): CafeEvents.AdminEvent?
+	return adminRunning
+end
+
+-- #4195 (Bowl Frenzy): how many times sooner food put in a bait bowl now brings its cat, 1 with no admin event.
+function EventService.bowlSpeed(): number
+	local event = adminRunning
+	return if event ~= nil then event.effects.bowlSpeed else 1
+end
+
+-- #4195 (Cat Storm): the running admin event's storm (its boost and its window), nil with none. CatService drops
+-- the storm's strays (shared/CatStorm).
+function EventService.catStorm(): (number?, number?, number?)
+	local event = adminRunning
+	if event == nil or event.effects.catStorm <= 1 then
+		return nil, nil, nil
+	end
+	return event.effects.catStorm, event.startsAt, event.endsAt
+end
+
 local function daysText(event: CafeEvents.Event): string
 	local out: { string } = {}
 	for _, kind in CafeEvents.DAY_KINDS do
@@ -127,6 +164,81 @@ local function publish(at: number)
 		if shown ~= nil then CafeEvents.effectsJson(shown) else ""
 	)
 	ReplicatedStorage:SetAttribute(names.running, event ~= nil)
+end
+
+-- #4195: the admin events this server may show at `at`: its own test first, then the schedule's; none with the
+-- switch off.
+local function adminList(at: number): { CafeEvents.AdminEvent }
+	if not LiveFlagService.on(CafeEvents.ADMIN.flag) then
+		return {}
+	end
+	local own = adminTest
+	if own ~= nil then
+		if at < own.endsAt then
+			return { own }
+		end
+		adminTest = nil
+	end
+	return adminSchedule
+end
+
+-- #4195: the admin lane's second: which one runs, which one shows (the warning before a start), the attributes when
+-- either changed, and adminChanged when the running one did.
+local function applyAdmin(at: number)
+	local list = adminList(at)
+	local event = CafeEvents.adminCurrent(list, at)
+	local shown = event or CafeEvents.adminShown(list, at)
+	local text = if shown ~= nil
+		then string.format(
+			"%s|%s|%d|%d|%s|%s",
+			shown.id,
+			shown.title,
+			shown.startsAt,
+			shown.endsAt,
+			CafeEvents.adminEffectsJson(shown),
+			tostring(event ~= nil)
+		)
+		else ""
+	if text ~= adminPublished then
+		adminPublished = text
+		local names = CafeEvents.ADMIN_ATTRIBUTES
+		ReplicatedStorage:SetAttribute(names.id, if shown ~= nil then shown.id else "")
+		ReplicatedStorage:SetAttribute(names.title, if shown ~= nil then shown.title else "")
+		ReplicatedStorage:SetAttribute(names.startsAt, if shown ~= nil then shown.startsAt else 0)
+		ReplicatedStorage:SetAttribute(names.endsAt, if shown ~= nil then shown.endsAt else 0)
+		ReplicatedStorage:SetAttribute(
+			names.effects,
+			if shown ~= nil then CafeEvents.adminEffectsJson(shown) else ""
+		)
+		ReplicatedStorage:SetAttribute(names.running, event ~= nil)
+	end
+	local was = adminRunning
+	local same = (was == nil and event == nil)
+		or (
+			was ~= nil
+			and event ~= nil
+			and was.id == event.id
+			and was.endsAt == event.endsAt
+			and CafeEvents.adminEffectsJson(was) == CafeEvents.adminEffectsJson(event)
+		)
+	adminRunning = event
+	if same then
+		return
+	end
+	if event ~= nil then
+		print(
+			string.format(
+				"[EventService] admin event %s running until %d%s: %s",
+				event.id,
+				event.endsAt,
+				if event.test then " (test, this server only)" else "",
+				CafeEvents.adminEffectsJson(event)
+			)
+		)
+	elseif was ~= nil then
+		print(string.format("[EventService] admin event %s ended", was.id))
+	end
+	EventService.adminChanged:Fire(event)
 end
 
 -- event_money for one player: what the running event's money added for them since the last take.
@@ -226,7 +338,7 @@ local function read()
 	end
 	failing = false
 	local notes: { string }
-	schedule, notes = CafeEvents.parse(raw, now())
+	schedule, notes, adminSchedule = CafeEvents.parse(raw, now())
 	local text = table.concat(notes, "; ")
 	if text ~= lastNotes then
 		lastNotes = text
@@ -246,6 +358,7 @@ function EventService.start()
 		joined[player] = nil
 	end)
 	publish(now())
+	applyAdmin(now()) -- the Admin* attributes exist from the start
 	task.spawn(function()
 		while true do
 			read()
@@ -255,6 +368,7 @@ function EventService.start()
 	task.spawn(function()
 		while true do
 			apply(now())
+			applyAdmin(now())
 			task.wait(1)
 		end
 	end)
@@ -281,6 +395,7 @@ end
 function EventService.refresh()
 	read()
 	apply(now())
+	applyAdmin(now())
 end
 
 -- The schedule in the store, changed by `change` (pure; nil keeps it as it is). False when the store did not answer.
@@ -335,7 +450,7 @@ function EventService.ownerStop(): (string, boolean)
 	end
 	local removed = 0
 	local ok = rewrite(function(raw: unknown): { any }?
-		local list, count = CafeEvents.ownerRemove(raw, now())
+		local list, count = CafeEvents.ownerRemove(raw, now(), false)
 		removed = count
 		return if count > 0 then list else nil
 	end)
@@ -348,6 +463,115 @@ function EventService.ownerStop(): (string, boolean)
 	end
 	EventService.refresh()
 	return "your event ended on all servers", true
+end
+
+local function adminKinds(): string
+	local kinds: { string } = {}
+	for kind in CafeEvents.ADMIN_KINDS do
+		table.insert(kinds, kind)
+	end
+	table.sort(kinds)
+	return table.concat(kinds, ", ")
+end
+
+local function adminOff(): string?
+	return if LiveFlagService.on(CafeEvents.ADMIN.flag)
+		then nil
+		else "admin events are switched off (the adminEvents switch)"
+end
+
+-- #4195: `/admin <kind> [minutes] [now]` in Studio or a private server: the admin event in this server only, after
+-- a short warning (none with `skipWarning`); "stop" ends it. Writes nothing to the store. Returns its line.
+function EventService.startAdminTest(kind: string, minutes: number?, skipWarning: boolean?): string
+	if kind == "stop" then
+		adminTest = nil
+		applyAdmin(now())
+		return "test admin event ended"
+	end
+	local off = adminOff()
+	if off ~= nil then
+		return off
+	end
+	local event = CafeEvents.adminTest(kind, now(), minutes, skipWarning)
+	if event == nil then
+		return "no such admin event: " .. adminKinds() .. ", or stop"
+	end
+	adminTest = event
+	applyAdmin(now())
+	return string.format(
+		"%s from %d until %d",
+		event.id,
+		math.floor(event.startsAt),
+		math.floor(event.endsAt)
+	)
+end
+
+-- #4195 (Derek 2026-11-14: owner chat commands to start each admin event himself): `/admin <kind> [minutes] [now]`
+-- in a live server writes an admin record into the schedule, so every server shows the 2 minute warning and then
+-- runs it by the shared clock, beside a Cafe Party if one runs. The caller (OwnerTestService) has checked the owner.
+-- Returns the line for the owner's toast and whether the schedule changed.
+function EventService.ownerAdmin(
+	kind: string,
+	minutes: number?,
+	skipWarning: boolean?
+): (string, boolean)
+	local off = adminOff()
+	if off ~= nil then
+		return off, false
+	end
+	local record = CafeEvents.adminRecord(kind, now(), minutes, skipWarning)
+	if record == nil then
+		return "no such admin event: " .. adminKinds() .. ", or stop", false
+	end
+	if not live() then
+		return "the events store is off in this place", false
+	end
+	local why: string? = nil
+	local ok = rewrite(function(raw: unknown): { any }?
+		local list, refusal = CafeEvents.ownerAdd(raw, record, now())
+		why = refusal
+		return list
+	end)
+	if not ok then
+		return "the events store did not answer; nothing started", false
+	end
+	if why ~= nil then
+		return why, false
+	end
+	EventService.refresh()
+	print(string.format("[EventService] owner admin event %s written to the schedule", record.id))
+	local length = (record.endsAt - record.startsAt) // 60
+	if skipWarning then
+		return string.format("%s started on all servers for %d minutes", record.title, length), true
+	end
+	return string.format(
+		"%s starts on all servers in %d minutes, for %d minutes",
+		record.title,
+		CafeEvents.ADMIN.warnSeconds // 60,
+		length
+	),
+		true
+end
+
+-- #4195: `/admin stop` in a live server: the owner's admin records come out of the schedule, running or coming.
+function EventService.ownerAdminStop(): (string, boolean)
+	if not live() then
+		return "the events store is off in this place", false
+	end
+	local removed = 0
+	local ok = rewrite(function(raw: unknown): { any }?
+		local list, count = CafeEvents.ownerRemove(raw, now(), true)
+		removed = count
+		return if count > 0 then list else nil
+	end)
+	if not ok then
+		return "the events store did not answer; nothing changed", false
+	end
+	if removed == 0 then
+		return "no admin event of yours is running or coming", false
+	end
+	EventService.refresh()
+	return "your admin event ended on all servers", true
 end
 
 return EventService

@@ -16,13 +16,16 @@
 -- .claude/skills/animation-vfx/SKILL.md.
 -- Wiring and file map: README.md next to this file.
 
+local AdminAir = require(script.AdminAir)
 local Ambient = require(script.Ambient)
 local ArcadeGlow = require(script.ArcadeGlow)
 local AreaFx = require(script.AreaFx)
+local AreaWater = require(script.AreaWater)
 local BaitCrumbs = require(script.BaitCrumbs)
 local BedWalk = require(script.BedWalk)
 local Bellhop = require(script.Bellhop)
 local BigTraitCut = require(script.BigTraitCut)
+local BulbChase = require(script.BulbChase)
 local CafeWalk = require(script.CafeWalk)
 local CampCollect = require(script.CampCollect)
 local CampExtras = require(script.CampExtras)
@@ -92,6 +95,7 @@ local Splash = require(script.Splash)
 local StationBuild = require(script.StationBuild)
 local StationMotion = require(script.StationMotion)
 local StationReveal = require(script.StationReveal)
+local StormFall = require(script.StormFall)
 local StrayCall = require(script.StrayCall)
 local StuckCall = require(script.StuckCall)
 local Tackle = require(script.Tackle)
@@ -196,6 +200,10 @@ function Effects.start()
 		ArcadeGlow.start,
 		PoolBeacon.start,
 		RuinsWater.start,
+		AreaWater.start, -- #4070, #4071: the Water Park's pools and river, the Castle's moat and well
+		BulbChase.start, -- #4070: the fairground's bulbs chase at night
+		StormFall.start, -- #4197: a Cat Storm's strays fall out of the sky
+		AdminAir.start, -- #4197: Golden Hour's gold motes and Money Storm's coin glints round you
 		TrailSparkle.start,
 		PawTrail.start,
 		GoldenFind.start,

@@ -10,6 +10,7 @@ local Config = require(script.Parent.Config)
 local IndexRewards = require(script.Parent.IndexRewards)
 local LateTiers = require(script.Parent.LateTiers)
 local Lawn = require(script.Parent.Lawn)
+local LiveFlags = require(script.Parent.LiveFlags)
 local Pals = require(script.Parent.Pals)
 local Pet = require(script.Parent.Pet)
 local Potions = require(script.Parent.Potions)
@@ -119,12 +120,28 @@ function Economy.passMultiplier(profile: Types.PlayerProfile): number
 	return best
 end
 
+-- #4235 (Derek 2026-11-14, priority): VIP pays +50% (Config.VipBoostCafeBonus) in place of +10% and shows a tag over
+-- the owner's head (Services/VipTagService), behind the `vipBoost` switch, on unless switched off. Read from the
+-- switch's ReplicatedStorage attribute, which LiveFlagService sets on the server for both sides; specs set it here.
+Economy.VIP_BOOST_FLAG = "vipBoost"
+local vipBoostOverride: boolean? = nil
+function Economy.setVipBoost(on: boolean?)
+	vipBoostOverride = on
+end
+function Economy.vipBoost(): boolean
+	if vipBoostOverride ~= nil then
+		return vipBoostOverride
+	end
+	return game:GetService("ReplicatedStorage")
+		:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Economy.VIP_BOOST_FLAG) ~= false
+end
+
 -- #1624 (economy-ladder.md section 6a): what VIP, Cafe Style and Grand Cafe add into cafeMultiplier, 0 without them.
 function Economy.passCafeBonus(profile: Types.PlayerProfile): number
 	local passes = Economy.passes(profile)
 	local bonus = 0
 	if passes.vip == true then
-		bonus += Config.VipCafeBonus
+		bonus += if Economy.vipBoost() then Config.VipBoostCafeBonus else Config.VipCafeBonus
 	end
 	if passes.cafeStyle == true then
 		bonus += Config.CafeStyleCafeBonus
@@ -422,22 +439,24 @@ local function paidSecondsFrom(from: number, seconds: number, clockEpoch: number
 end
 
 -- The extra paid seconds the running tip potions add to a window of `elapsed` from lastTick: each potion's `tips` over
--- the start it covers, split where each ends, the running sum capped at TimedTipsMax.
+-- the start it covers, split where each ends, the running sum capped at TimedTipsMax; a potion's `tipsOver` (#4195,
+-- the Admin Wheel's 3x money) is added outside that cap.
 local function tipBonusSeconds(
 	profile: Types.PlayerProfile,
 	elapsed: number,
 	clockEpoch: number?
 ): number
-	type Span = { seconds: number, tips: number }
+	type Span = { seconds: number, tips: number, over: number }
 	local spans: { Span } = {}
-	local total = 0
+	local total, totalOver = 0, 0
 	for _, def in Catalog.potions do
-		local tips = def.tips
-		if tips ~= nil then
+		local tips, over = def.tips or 0, def.tipsOver or 0
+		if tips > 0 or over > 0 then
 			local seconds = math.min(elapsed, Potions.left(profile, def.id, profile.lastTick))
 			if seconds > 0 then
-				table.insert(spans, { seconds = seconds, tips = tips })
+				table.insert(spans, { seconds = seconds, tips = tips, over = over })
 				total += tips
+				totalOver += over
 			end
 		end
 	end
@@ -447,7 +466,7 @@ local function tipBonusSeconds(
 	local bonus, from = 0, 0
 	for _, span in spans do
 		if span.seconds > from then
-			bonus += math.min(total, Config.TimedTipsMax) * paidSecondsFrom(
+			bonus += (math.min(total, Config.TimedTipsMax) + totalOver) * paidSecondsFrom(
 				profile.lastTick + from,
 				span.seconds - from,
 				clockEpoch
@@ -455,6 +474,7 @@ local function tipBonusSeconds(
 			from = span.seconds
 		end
 		total -= span.tips
+		totalOver -= span.over
 	end
 	return bonus
 end

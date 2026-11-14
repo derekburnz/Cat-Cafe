@@ -359,7 +359,7 @@ return function()
 		BinFirstRepeatSeconds = 180,
 		BinCooldownSeconds = 900,
 		BinMissRetrySeconds = 10,
-		BinZoneWidth = 0.22, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed; #3458: 0.42 before
+		BinZoneWidth = 0.18, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed; #3458: 0.42 before; #4284: 0.22 before
 		BinBarSpeed = 0.80, -- #3458: 0.64 before
 		BinHits = 5, -- #3458: the bin's own hit count
 		BinPadRadius = 4, -- #3608: the pad in front of the bin
@@ -433,6 +433,7 @@ return function()
 		PassXpPerLevel = 800,
 		-- #1624 (economy-ladder.md section 6a v2.4): the store passes
 		VipCafeBonus = 0.10,
+		VipBoostCafeBonus = 0.50,
 		CafeStyleCafeBonus = 0.50,
 		GrandCafeBonus = 1.50,
 		AccessoriesStaffMultiplier = 1.15,

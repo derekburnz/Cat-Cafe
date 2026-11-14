@@ -45,6 +45,10 @@
 -- - `secretCats` (#3470): Secret cats, the rarity above Mythical. It starts OFF (OFF_BY_DEFAULT): off, nothing rolls
 --   Secret anywhere. Switch it on only once no server older than the publish that added them is running, since an
 --   older server's save check drops a cat id it does not know.
+-- - `secretAreas` (#4221): one Secret per area (Catalog's `secretArea`). It starts OFF (OFF_BY_DEFAULT): off, a
+--   Secret comes from any area as before; on, a wild stray's or trap's Mythical turns only into its area's Secret and
+--   a bait bowl's into one of its open areas' Secrets, and an area with none keeps its Mythical. The Index's Secret
+--   tab reads the same switch. Its own update day (Saturday 2026-11-21 20:00 UTC).
 -- - `luckyCharm` (#3298): the Golden Fish Market's Lucky Charm perk (shared/LuckyCharm). It starts OFF
 --   (OFF_BY_DEFAULT): off hides the row, refuses a buy and adds no Luck. Switch it on only once no server older than
 --   the publish that added the row is running, since an older server's save check drops a perk id it does not know.
@@ -172,6 +176,7 @@ LiveFlags.KEYS = {
 	"dailyDeal", -- #3996: Today's Deal on the Store's Featured tab (shared/DailyDeal)
 	"updateFeature", -- #4175: the update's own item first on the Store's Featured tab on big update days (Config.UpdateFeature)
 	"adminEvents", -- #4195: admin events (Bowl Frenzy, the Admin Wheel) from the events schedule (shared/CafeEvents)
+	"secretAreas", -- #4221: one Secret per area; a rolled Mythical turns only into its own area's Secret (Catching.secret)
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -214,6 +219,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	dailyDeal = true,
 	updateFeature = true,
 	adminEvents = true,
+	secretAreas = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to

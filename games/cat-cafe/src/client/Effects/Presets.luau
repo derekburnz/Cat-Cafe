@@ -670,6 +670,59 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, -16, 0),
 		lightEmission = 0.2,
 	},
+	-- A Cat Storm (Effects/StormFall, #4197): the puff where a storm stray lands, and the slow sparkles that drift
+	-- down round you while the storm runs.
+	stormPuff = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.offwhite },
+		size = { 0.5, 0.1 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.5, 0.9 },
+		speed = { 4, 7 },
+		spread = 70,
+		rate = 0,
+		acceleration = Vector3.new(0, -8, 0),
+		drag = 1,
+		lightEmission = 0.5,
+	},
+	stormDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.offwhite },
+		size = { 0.3, 0.15 },
+		transparency = { 0.3, 1 },
+		lifetime = { 3, 4 },
+		speed = { 4, 6 },
+		spread = 8,
+		rate = 10,
+		lightEmission = 0.4,
+		rotSpeed = { -30, 30 },
+	},
+	-- #4197 admin events' air (Effects/AdminAir): Golden Hour's slow gold motes and Money Storm's quicker coin
+	-- glints, falling round you while the event runs.
+	goldHourDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.golden, Presets.palette.goldLight },
+		size = { 0.4, 0.15 },
+		transparency = { 0.25, 1 },
+		lifetime = { 4, 5 },
+		speed = { 2.5, 4 },
+		spread = 10,
+		rate = 8,
+		lightEmission = 0.6,
+		rotSpeed = { -20, 20 },
+	},
+	moneyStormDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden },
+		size = { 0.55, 0.3 },
+		transparency = { 0.1, 0.8 },
+		lifetime = { 2.2, 3 },
+		speed = { 8, 11 },
+		spread = 6,
+		rate = 12,
+		lightEmission = 0.5,
+		rotSpeed = { -200, 200 },
+	},
 	-- Soft sparkles rising off the guide trail's dots (Effects/TrailSparkle, #3022), recoloured to each dot.
 	trailSparkle = {
 		texture = Presets.textures.sparkle,
@@ -3295,6 +3348,38 @@ Presets.rally = {
 	stepSparkles = 14,
 	stepSeconds = 0.8,
 	full = Color3.fromRGB(242, 193, 78),
+}
+
+-- A Cat Storm's strays fall out of the sky (Effects/StormFall, #4197). A stray the server marked `StormCat` that
+-- appears within `within` studs: a `streak` of light drops from `height` studs up over `seconds`, then a ring `ring`
+-- studs wide and `puffCount` of `puff` where it lands. At most budget.areaPuffs falls a second. While the storm
+-- runs the `drift` emitter rains slow sparkles from a `driftBox` kept `driftHeight` over you, moved every
+-- `driftEvery` seconds. `markWait`: how long a new stray is watched for the server's mark.
+Presets.stormFall = {
+	within = 140,
+	height = 60,
+	seconds = 0.55,
+	streak = Vector3.new(0.6, 7, 0.6),
+	colour = Presets.palette.goldLight,
+	ring = 5,
+	ringSeconds = 0.7,
+	puff = "stormPuff",
+	puffCount = 10,
+	drift = "stormDrift",
+	driftBox = Vector3.new(70, 1, 70),
+	driftHeight = 22,
+	driftEvery = 0.5,
+	markWait = 2,
+}
+
+-- #4197 (Effects/AdminAir): the drift an admin event hangs round you while it runs, by its effect's name
+-- (AdminEventLogic.AIR). One emitter on an unseen `box` held `height` studs over the camera's focus, looked at every
+-- `every` seconds. None with Reduce Motion or in Low performance.
+Presets.adminAir = {
+	kinds = { goldBoost = "goldHourDrift", moneyStorm = "moneyStormDrift" } :: { [string]: string },
+	box = Vector3.new(70, 1, 70),
+	height = 22,
+	every = 0.5,
 }
 
 -- The Rally board's marquee (F101, Model-Agent's #759: `CatCafe_Square_RallyBoard` with its 32 bulbs in the
@@ -6191,6 +6276,14 @@ Presets.eventBanner = {
 	lineText = Color3.fromRGB(74, 52, 38),
 	badge = Presets.palette.neonPink,
 	badgeText = Presets.palette.milk,
+	-- #4195 the admin event cards: a rose strip, a gold badge of at most `badgeLength` characters, and the start
+	-- card as wide as the screen allows
+	badgeLength = 3,
+	adminTop = Color3.fromRGB(255, 150, 170),
+	adminBottom = Presets.palette.neonPink,
+	adminBadge = Presets.palette.golden,
+	adminWidthScale = 0.98,
+	adminMaxWidth = 900,
 	fishImage = "rbxassetid://101061912700342", -- CatCafe_Icon_GoldenFish (the UI's Theme.textures.fishCoin)
 	-- the motion
 	dropSeconds = 0.45,

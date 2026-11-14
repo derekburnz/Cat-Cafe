@@ -19,6 +19,7 @@ local Tween = require(script.Parent.Tween)
 local EdgeShade = {}
 
 local ACTION = "CatCafeEdgeShadeSkip"
+local CLICK_ACTION = "CatCafeEdgeShadeClick" -- #4080: the left click, sunk while the shade is up
 local FADE = TweenInfo.new(EdgeShadeLogic.FADE, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
 function EdgeShade.show(parent: Instance, hint: string?, onTap: (() -> ())?): () -> ()
@@ -89,29 +90,54 @@ function EdgeShade.show(parent: Instance, hint: string?, onTap: (() -> ())?): ()
 		end
 	end
 	-- #4016 (Derek: "move the screen with right click during trait normal animations"): no full-screen button, which
-	-- took every click and touch from the camera. A left click or a touch that ends near where it began, soon, and
-	-- that no GUI took, is the tap; a right click drag or a touch drag turns the camera as usual.
+	-- took every click and touch from the camera. A press that ends near where it began, soon, and that no GUI took,
+	-- is the tap (EdgeShadeLogic.isTap); a right click drag or a touch drag turns the camera as usual.
 	local downs: { [InputObject]: { at: Vector3, time: number } } = {}
+	local function down(input: InputObject)
+		downs[input] = { at = input.Position, time = os.clock() }
+	end
+	local function up(input: InputObject)
+		local was = downs[input]
+		downs[input] = nil
+		if
+			was ~= nil
+			and EdgeShadeLogic.isTap((input.Position - was.at).Magnitude, os.clock() - was.time)
+		then
+			tap()
+		end
+	end
+	-- Review-QA on #4080: the left click is bound and sunk at a high priority while the shade is up, so it never
+	-- also reaches the world behind (a net swing, a click detector). The HUD's buttons still take their own clicks
+	-- first. Touch is only watched, never sunk: the camera's touch drag reads the same touches, and a touch in the
+	-- world does nothing on its own (the net has its own button there).
+	ContextActionService:BindActionAtPriority(
+		CLICK_ACTION,
+		function(
+			_name: string,
+			state: Enum.UserInputState,
+			input: InputObject
+		): Enum.ContextActionResult
+			if state == Enum.UserInputState.Begin then
+				down(input)
+			elseif state == Enum.UserInputState.End then
+				up(input)
+			end
+			return Enum.ContextActionResult.Sink
+		end,
+		false,
+		EdgeShadeLogic.CLICK_PRIORITY,
+		Enum.UserInputType.MouseButton1
+	)
 	local began = UserInputService.InputBegan:Connect(
 		function(input: InputObject, processed: boolean)
-			local kind = input.UserInputType
-			if
-				processed
-				or (kind ~= Enum.UserInputType.MouseButton1 and kind ~= Enum.UserInputType.Touch)
-			then
-				return
+			if not processed and input.UserInputType == Enum.UserInputType.Touch then
+				down(input)
 			end
-			downs[input] = { at = input.Position, time = os.clock() }
 		end
 	)
 	local ended = UserInputService.InputEnded:Connect(function(input: InputObject)
-		local down = downs[input]
-		downs[input] = nil
-		if down == nil then
-			return
-		end
-		if EdgeShadeLogic.isTap((input.Position - down.at).Magnitude, os.clock() - down.time) then
-			tap()
+		if input.UserInputType == Enum.UserInputType.Touch then
+			up(input)
 		end
 	end)
 	ContextActionService:BindAction(
@@ -132,6 +158,7 @@ function EdgeShade.show(parent: Instance, hint: string?, onTap: (() -> ())?): ()
 		end
 		lifted = true
 		ContextActionService:UnbindAction(ACTION)
+		ContextActionService:UnbindAction(CLICK_ACTION)
 		began:Disconnect()
 		ended:Disconnect()
 		table.clear(downs)

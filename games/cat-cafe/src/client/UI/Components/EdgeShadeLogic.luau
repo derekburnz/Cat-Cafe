@@ -35,6 +35,8 @@ EdgeShadeLogic.EDGES = {
 -- never skips. In pixels and seconds.
 EdgeShadeLogic.TAP_MOVE = 12
 EdgeShadeLogic.TAP_SECONDS = 0.45
+-- #4080: the shade's left click binding sits over the game's own (Enum.ContextActionPriority.High is 2000)
+EdgeShadeLogic.CLICK_PRIORITY = 3000
 
 function EdgeShadeLogic.isTap(moved: number, seconds: number): boolean
 	return moved <= EdgeShadeLogic.TAP_MOVE and seconds <= EdgeShadeLogic.TAP_SECONDS

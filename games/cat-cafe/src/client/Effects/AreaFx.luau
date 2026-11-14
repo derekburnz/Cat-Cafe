@@ -400,6 +400,7 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 			box.centre,
 			box.size,
 			spec.height,
+			spec.spread,
 			spec.rise,
 			spec.curve,
 			spec.seconds
@@ -424,6 +425,11 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 			band.FaceCamera = true
 			band.Segments = 16
 			band.Color = ColorSequence.new(colour)
+			-- the soft smoke picture, once along the band: it thins toward the band's edges and ends
+			band.Texture = Presets.textures.smoke
+			band.TextureMode = Enum.TextureMode.Stretch
+			band.TextureLength = 1
+			band.TextureSpeed = 0
 			band.LightEmission = 1
 			band.LightInfluence = 0
 			band.Width0 = spec.width
@@ -541,9 +547,16 @@ function AreaFx.start()
 	if RunService:IsStudio() then
 		Workspace:GetAttributeChangedSignal("AreaAuroraTest"):Connect(function()
 			local value = Workspace:GetAttribute("AreaAuroraTest")
+			local old = specOf(auroraArea)
+			local was = if old ~= nil then old.aurora else nil
 			testAurora = if type(value) == "string" and value ~= "" then value else nil
 			testBox = nil
-			dropAurora()
+			if testAurora == nil and aurora ~= nil and was ~= nil then
+				auroraLeaving = true -- cleared: fade out as it does when night ends
+				fadeAurora(was, 1, dropAurora)
+			else
+				dropAurora()
+			end
 		end)
 	end
 	task.spawn(function()

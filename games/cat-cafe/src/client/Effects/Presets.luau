@@ -4757,11 +4757,13 @@ Presets.bedWalk = { fade = 0.25 }
 -- #4069: ribbons of northern light over an area while it is night and you are in it. Each ribbon is two soft bands
 -- (`foot` colour under `top` colour) `width` studs tall, hung `height` studs over the ground across the area's width
 -- and spread over its depth, each bending `curve` of its length to one side and slowly over to the other in its
--- `seconds` and back. They fade in and out over `fade` seconds. With Reduce Motion they hang still; none in Low
+-- `seconds` and back. Each band wears the soft smoke picture stretched once along it, so it fades out toward its
+-- edges and ends and never shows a hard stripe. They fade in and out over `fade` seconds. With Reduce Motion they hang still; none in Low
 -- performance. `ribbons` is per budget tier (high, medium, low).
 export type AuroraSpec = {
 	ribbons: { number },
 	height: number,
+	spread: number, -- of the area's depth the ribbons are spread over (over 1: the outer ones hang past its walls)
 	rise: number, -- studs each ribbon hangs above the one in front
 	width: number,
 	overlap: number, -- of `width`, how far the top band sits over the foot band
@@ -4836,8 +4838,9 @@ Presets.areaFx = {
 			footStuds = 3,
 			aurora = {
 				ribbons = { 3, 2, 2 },
-				height = 120,
-				rise = 14,
+				height = 90,
+				spread = 1.5,
+				rise = 12,
 				width = 46,
 				overlap = 0.45,
 				curve = 0.22,

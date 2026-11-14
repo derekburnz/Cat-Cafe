@@ -150,6 +150,7 @@ return function()
 				centre,
 				size,
 				a.height,
+				a.spread,
 				a.rise,
 				a.curve,
 				a.seconds
@@ -160,14 +161,14 @@ return function()
 				expect(r.from.X > centre.x - size.width / 2 and r.from.X < centre.x).to.equal(true)
 				expect(r.to.X < centre.x + size.width / 2 and r.to.X > centre.x).to.equal(true)
 				expect(r.from.Z).to.equal(r.to.Z)
-				expect(math.abs(r.from.Z - centre.z) < size.depth / 2).to.equal(true)
+				expect(math.abs(r.from.Z - centre.z) < size.depth * a.spread / 2).to.equal(true)
 				expect(r.from.Y).to.equal(a.height + (i - 1) * a.rise)
-				expect(r.from.Y >= 80).to.equal(true)
+				expect(r.from.Y >= 80).to.equal(true) -- over the roofs and the pines
 				-- neighbours bend to opposite sides
 				expect(r.bend * (if i % 2 == 1 then 1 else -1) > 0).to.equal(true)
 				expect(r.seconds >= 8).to.equal(true)
 			end
-			expect(#Logic.auroraRibbons(0, centre, size, 1, 1, 1, { 1 })).to.equal(0)
+			expect(#Logic.auroraRibbons(0, centre, size, 1, 1, 1, 1, { 1 })).to.equal(0)
 		end)
 	end)
 end

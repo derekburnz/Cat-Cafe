@@ -4068,7 +4068,7 @@ function Logic.riftDark(plan: RiftPlan, t: number): number
 end
 
 -- #4069: the northern lights over an area. `count` ribbons hung across the area's width (along X, a tenth in from
--- each side), spread evenly over its depth, each `rise` studs above the one in front of it, bending to alternate
+-- each side), spread evenly over `spread` of its depth, each `rise` studs above the one in front of it, bending to alternate
 -- sides and each with its own time from `seconds` (the last one repeats). `curve` is of the ribbon's length.
 export type AuroraRibbon = { from: Vector3, to: Vector3, bend: number, seconds: number }
 function Logic.auroraRibbons(
@@ -4076,6 +4076,7 @@ function Logic.auroraRibbons(
 	centre: { x: number, z: number },
 	size: { width: number, depth: number },
 	height: number,
+	spread: number,
 	rise: number,
 	curve: number,
 	seconds: { number }
@@ -4083,7 +4084,7 @@ function Logic.auroraRibbons(
 	local ribbons: { AuroraRibbon } = {}
 	local half = size.width * 0.4
 	for i = 1, math.max(0, math.floor(count)) do
-		local z = centre.z + ((i - 0.5) / count - 0.5) * size.depth
+		local z = centre.z + ((i - 0.5) / count - 0.5) * size.depth * spread
 		local y = height + (i - 1) * rise
 		table.insert(ribbons, {
 			from = Vector3.new(centre.x - half, y, z),

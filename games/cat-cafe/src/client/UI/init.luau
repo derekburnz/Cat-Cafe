@@ -455,6 +455,12 @@ function applyTutorial()
 	if hint ~= nil then
 		text, target, label = hint, cannonPart, "Cannon"
 	end
+	-- #3893 (Review-QA's Studio run, 2026-11-14): after the Park's "is open" hint has had its time, the walk to the Park
+	-- keeps a line on the strip, at home, in the square and in the Alley, until the Park is reached
+	local park: any = UI.parkTrail -- built further down (typed any: it is read here before its table)
+	if text == nil and park.goal ~= nil and not park.reached then
+		text = park.STRIP
+	end
 	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides. #3893
 	-- (Derek 2026-11-13: "still show the tips all the way up to going to park"): and only once the Park is reached
 	if
@@ -904,9 +910,12 @@ function UI.init(config: Types.InitConfig)
 				settingsScreen:set(SettingsList.TUTORIAL_KEY, false)
 			end
 			UI.toast(
+				-- Review-QA's Studio run (2026-11-14): short enough for a 667 px phone's toast
 				if (state.tutorialStep or math.huge) < CannonLogic.WALKTHROUGH_STEP
-						or not UI.parkTrail.reached
-					then "Tips hidden. Your first steps up to the Park still show. Turn tips on in Settings."
+					then "Tips hidden. Your first steps still show."
+					elseif
+						not UI.parkTrail.reached
+					then "Tips hidden. The way to the Park still shows."
 					else "Tutorial and tips hidden. Turn them on in Settings.",
 				"info"
 			)
@@ -3483,6 +3492,7 @@ UI.parkTrail = {
 	goal = nil :: string?,
 	tutorial = false, -- a tutorial target has the trail
 	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
+	STRIP = "Visit the Park: follow the paws to a cannon 🐾", -- #3893: the strip's line while the walk is on
 }
 
 -- #3893: ParkTrailController says when the first steps are done, up to the Park; the tutorial X's hold on the
@@ -3519,6 +3529,7 @@ function UI.parkTrail.set(target: BasePart?, goal: string?)
 	if UI.parkTrail.goal ~= goal and hud ~= nil then
 		UI.parkTrail.goal = goal
 		hud:setParkGoal(goal)
+		applyTutorial() -- #3893: the strip's Park line comes and goes with the walk
 	end
 	if changed and not UI.parkTrail.tutorial then
 		UI.parkTrail.apply(nil)

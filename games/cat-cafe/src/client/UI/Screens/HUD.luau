@@ -2368,7 +2368,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end
 	end, function()
 		self:_calloutAway()
-	end)
+	end, self._goal.frame)
 	return self :: HUD
 end
 

@@ -3,8 +3,10 @@
 -- top edge, so the bubble hangs just under it with its point up at the tile, its right edge in line with the tile's
 -- (the icon row is at the screen's right). It sits on the HUD's root over the goal card (which is under the icon row)
 -- and follows the tile. It pops in and bobs gently; a tap on it calls `onOpen`, its X `onClose`. When it shows is
--- FeedbackCalloutLogic's; this only draws it.
---   FeedbackCallout.new(root, tile, onOpen, onClose)  built hidden on `root` (the HUD's scaled root)
+-- FeedbackCalloutLogic's; this only draws it. Review-QA's Studio run (2026-11-14): under the tile it covered the goal
+-- card's title for its 20 s, so with `avoid` (the goal card) showing it moves left of it, its point at its top right
+-- corner, up toward the icon row.
+--   FeedbackCallout.new(root, tile, onOpen, onClose, avoid?)  built hidden on `root` (the HUD's scaled root)
 --   :show() / :hide()                                  :hide() is safe to call twice
 
 local GuiService = game:GetService("GuiService")
@@ -24,6 +26,7 @@ local DROP = 8 -- px between the tile's bottom and the point's tip
 local RIGHT = 4 -- px the bubble's right edge sits past the tile's
 local BOB = 3 -- px up and down
 local CLOSE = if Scale.isTouch() then 30 else 36 -- the UI gate's mouse minimum; on touch Button's pad reaches 44
+local CLEAR = math.ceil(CLOSE / 2) + 6 -- px between the bubble and the goal card it steps aside from: its X hangs out
 local BOB_INFO = TweenInfo.new(1.1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
 
 export type FeedbackCallout = {
@@ -40,11 +43,13 @@ function FeedbackCallout.new(
 	root: GuiObject,
 	tile: GuiObject,
 	onOpen: () -> (),
-	onClose: () -> ()
+	onClose: () -> (),
+	avoid: GuiObject?
 ): FeedbackCallout
 	local self = setmetatable({}, FeedbackCallout) :: any
 	self._root = root
 	self._tile = tile
+	self._avoid = avoid
 	self._at = Vector2.zero
 	local top = DROP + POINT
 	local frame: Frame = Create("Frame", {
@@ -74,7 +79,9 @@ function FeedbackCallout.new(
 	Outline.border(bubble, 3, Theme.colors.gold)
 	-- the point: a small square turned 45 degrees under the tile's middle, half of it behind the bubble
 	local tileW = tile.Size.X.Offset
-	Create("Frame", {
+	self._pointUnder = UDim2.new(1, -(RIGHT + math.floor(tileW / 2)), 0, top + 1)
+	self._pointCorner = UDim2.new(1, -18, 0, top + 1)
+	self._point = Create("Frame", {
 		Name = "Point",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundColor3 = Theme.colors.paper,
@@ -124,7 +131,8 @@ function FeedbackCallout.new(
 	return self :: FeedbackCallout
 end
 
--- Where the bubble's top right goes, in the root's design px: under the tile's bottom right, RIGHT px past it.
+-- Where the bubble's top right goes, in the root's design px: under the tile's bottom right, RIGHT px past it, or
+-- left of the goal card (`avoid`) when it would cover it.
 function FeedbackCallout._place(self: any, bob: number)
 	local root: GuiObject = self._root
 	local tile: GuiObject = self._tile
@@ -132,8 +140,25 @@ function FeedbackCallout._place(self: any, bob: number)
 	local scale = math.max(if uiScale ~= nil then uiScale.Scale else 1, 0.01)
 	local corner = tile.AbsolutePosition + Vector2.new(tile.AbsoluteSize.X, tile.AbsoluteSize.Y)
 	local at = (corner - root.AbsolutePosition) / scale
+	local x = at.X + RIGHT
+	local frame: Frame = self.frame
+	local height = frame.Size.Y.Offset
+	local avoid: GuiObject? = self._avoid
+	local aside = false
+	if avoid ~= nil and avoid.Visible and avoid.AbsoluteSize.X > 0 then
+		local left = (avoid.AbsolutePosition.X - root.AbsolutePosition.X) / scale
+		local top = (avoid.AbsolutePosition.Y - root.AbsolutePosition.Y) / scale
+		local bottom = top + avoid.AbsoluteSize.Y / scale
+		local right = left + avoid.AbsoluteSize.X / scale
+		local overlaps = x - WIDTH < right and x > left and at.Y < bottom and at.Y + height > top
+		if overlaps then
+			x = left - CLEAR
+			aside = true
+		end
+	end
+	self._point.Position = if aside then self._pointCorner else self._pointUnder
 	self._at = at
-	return UDim2.fromOffset(math.floor(at.X + RIGHT), math.floor(at.Y + bob))
+	return UDim2.fromOffset(math.floor(x), math.floor(at.Y + bob))
 end
 
 function FeedbackCallout.show(self: any)

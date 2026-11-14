@@ -4472,10 +4472,19 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local words = bubble:FindFirstChild("Words", true)
 		assert(words.Text:find("map theme", 1, true), "uigate: the bubble reads " .. words.Text .. " (#3883)")
 		assert(words.TextFits ~= false, "uigate: the bubble's words do not fit (#3883)")
+		-- Review-QA's Studio run (2026-11-14): never over the goal card; under the tile only when that is clear
+		local goal = playerGui:FindFirstChild("TierGoal", true) :: GuiObject?
+		local covers = false
+		if goal and goal.Visible then
+			local gx, gy = goal.AbsolutePosition.X, goal.AbsolutePosition.Y
+			covers = x < gx + goal.AbsoluteSize.X and x + bubble.AbsoluteSize.X > gx and y < gy + goal.AbsoluteSize.Y and y + bubble.AbsoluteSize.Y > gy
+		end
+		assert(not covers, "uigate: the map theme bubble covers the goal card (#3883)")
 		local point = bubble:FindFirstChild("Point")
 		local middle = tile.AbsolutePosition.X + tile.AbsoluteSize.X / 2
 		local pointMiddle = point.AbsolutePosition.X + point.AbsoluteSize.X / 2
-		assert(math.abs(middle - pointMiddle) <= 8, ("uigate: the point is %d px off the tile's middle (#3883)"):format(pointMiddle - middle))
+		local aside = x + bubble.AbsoluteSize.X < tile.AbsolutePosition.X + tile.AbsoluteSize.X - 8
+		assert(aside or math.abs(middle - pointMiddle) <= 8, ("uigate: the point is %d px off the tile's middle (#3883)"):format(pointMiddle - middle))
 	end },
 	{ "FeedbackCalloutClose", function()
 		UI.update({ tutorialStep = 5 } :: any)
@@ -8684,6 +8693,40 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(title.Text == tierTitle, "uigate: the goal card kept the Park goal, it reads " .. title.Text .. " (#3554)")
 		UI.parkTrail.set(nil, "Visit the Park 🐾") -- the picture
 		UIShim.advance(0.1)
+	end },
+	-- #3893 (Review-QA's Studio run, 2026-11-14): at Tier 2 on the way to the Park the strip keeps "Visit the Park" once
+	-- the Park's "is open" hint has gone, and the tutorial's X does not take it away until the Park is reached
+	{ "ParkStripAfterX", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD", true) :: Instance
+		local function strip(): string
+			for _, piece in hud:GetDescendants() do
+				if piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Visible then
+					return piece.Text
+				end
+			end
+			return ""
+		end
+		UI.tutorial.hide()
+		UI.update({ tutorialStep = 9, tier = 2 } :: any)
+		UI.parkTrail.reach(false)
+		UI.parkTrail.set(nil, "Visit the Park 🐾")
+		UIShim.advance(0.1)
+		assert(strip() == UI.parkTrail.STRIP, "uigate: on the way to the Park the strip reads " .. strip() .. " (#3893)")
+		-- the Tutorial tile's red X (its Hide button, the Cross's grandparent)
+		local cross = hud:FindFirstChild("Cross", true) :: Instance
+		local hide = assert(cross.Parent and cross.Parent.Parent, "uigate: no Tutorial X (#3893)") :: GuiButton
+		UIShim.fire(UIShim.eventOf(hide, "Activated"))
+		UIShim.advance(0.1)
+		assert(strip() == UI.parkTrail.STRIP, "uigate: the tips X took the Park line away, the strip reads " .. strip() .. " (#3893)")
+		UI.parkTrail.reach(true)
+		UI.parkTrail.set(nil, nil)
+		UIShim.advance(0.1)
+		assert(strip() == "", "uigate: the strip kept " .. strip() .. " after the Park was reached (#3893)")
+		-- back as it was: tips on, as other scenes expect
+		UI.parkTrail.reach(false)
+		local settings = table.clone((UI.getState() :: any).settings or {})
+		settings.tutorialButton = true
+		UI.update({ settings = settings } :: any)
 	end },
 	-- #3558: one menu look for a whole session. The switch flipping after the UI was built changes nothing here, so no
 	-- window can end up with cream cards under white words; the flip reaches a player at their next join.

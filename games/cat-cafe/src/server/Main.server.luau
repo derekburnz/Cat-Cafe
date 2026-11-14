@@ -89,6 +89,7 @@ local TradeService = require(script.Parent.Services.TradeService)
 local TraitService = require(script.Parent.Services.TraitService)
 local TravelService = require(script.Parent.Services.TravelService)
 local TutorialMoveService = require(script.Parent.Services.TutorialMoveService)
+local VipTagService = require(script.Parent.Services.VipTagService)
 local WorldBuilder = require(script.Parent.World.WorldBuilder)
 
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -160,6 +161,7 @@ TipService.start() -- F87: context tips and feedback; before DataService so its 
 BugReportService.start(world)
 IdeaCreditsService.start() -- #1083: the Thank You board's credits
 PassService.start() -- F95: purchases in game; DataService checks owned passes at each join
+VipTagService.start() -- #4235: the gold VIP tag over a VIP owner's head
 ProductService.start() -- #1182: developer product receipts (ProcessReceipt)
 OwnerTestService.start() -- #1770: owner test mode (OwnerGrant, the OwnerTest attribute)
 PalService.start() -- F92: pals; before Telemetry so pal_time goes out before its leave work

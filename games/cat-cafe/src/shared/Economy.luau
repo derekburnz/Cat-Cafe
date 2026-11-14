@@ -9,6 +9,7 @@ local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
 local IndexRewards = require(script.Parent.IndexRewards)
 local Lawn = require(script.Parent.Lawn)
+local LiveFlags = require(script.Parent.LiveFlags)
 local Pals = require(script.Parent.Pals)
 local Pet = require(script.Parent.Pet)
 local Potions = require(script.Parent.Potions)
@@ -118,12 +119,28 @@ function Economy.passMultiplier(profile: Types.PlayerProfile): number
 	return best
 end
 
+-- #4235 (Derek 2026-11-14, priority): VIP pays +50% (Config.VipBoostCafeBonus) in place of +10% and shows a tag over
+-- the owner's head (Services/VipTagService), behind the `vipBoost` switch, on unless switched off. Read from the
+-- switch's ReplicatedStorage attribute, which LiveFlagService sets on the server for both sides; specs set it here.
+Economy.VIP_BOOST_FLAG = "vipBoost"
+local vipBoostOverride: boolean? = nil
+function Economy.setVipBoost(on: boolean?)
+	vipBoostOverride = on
+end
+function Economy.vipBoost(): boolean
+	if vipBoostOverride ~= nil then
+		return vipBoostOverride
+	end
+	return game:GetService("ReplicatedStorage")
+		:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Economy.VIP_BOOST_FLAG) ~= false
+end
+
 -- #1624 (economy-ladder.md section 6a): what VIP, Cafe Style and Grand Cafe add into cafeMultiplier, 0 without them.
 function Economy.passCafeBonus(profile: Types.PlayerProfile): number
 	local passes = Economy.passes(profile)
 	local bonus = 0
 	if passes.vip == true then
-		bonus += Config.VipCafeBonus
+		bonus += if Economy.vipBoost() then Config.VipBoostCafeBonus else Config.VipCafeBonus
 	end
 	if passes.cafeStyle == true then
 		bonus += Config.CafeStyleCafeBonus

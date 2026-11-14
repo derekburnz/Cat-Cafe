@@ -333,7 +333,7 @@ return function()
 		it("is read from a schedule record, alone or with Bowl Frenzy's speed", function()
 			local _, notes, admins = CafeEvents.parse({ wheel() }, NOW)
 			expect(#notes).to.equal(0)
-			expect(admins[1].effects).to.deepEqual({ bowlSpeed = 1, wheel = true })
+			expect(admins[1].effects).to.deepEqual({ bowlSpeed = 1, catStorm = 1, wheel = true })
 			expect(CafeEvents.adminEffectsData(admins[1])).to.deepEqual({ wheel = true })
 			_, notes, admins =
 				CafeEvents.parse({ wheel({ effects = { wheel = true, bowlSpeed = 4 } }) }, NOW)
@@ -358,9 +358,55 @@ return function()
 		it("runs as a test in one server", function()
 			local event = CafeEvents.adminTest("wheel", NOW, nil, true) :: CafeEvents.AdminEvent
 			expect(event.test).to.equal(true)
-			expect(event.effects).to.deepEqual({ bowlSpeed = 1, wheel = true })
+			expect(event.effects).to.deepEqual({ bowlSpeed = 1, catStorm = 1, wheel = true })
 			local bowl = CafeEvents.adminTest("bowl", NOW, 2, true) :: CafeEvents.AdminEvent
 			expect(bowl.effects.wheel).to.equal(false)
+		end)
+	end)
+
+	describe("Cat Storm's record", function()
+		it("carries catStorm, clamped to its cap, and drops a bad one", function()
+			local storm =
+				frenzy({ id = "storm-1115", title = "Cat Storm", effects = { catStorm = 10 } })
+			local events, notes, admins = CafeEvents.parse({ storm }, NOW)
+			expect(#events).to.equal(0)
+			expect(#notes).to.equal(0)
+			expect(admins[1].effects.catStorm).to.equal(10)
+			expect(admins[1].effects.bowlSpeed).to.equal(1)
+			expect(CafeEvents.adminEffectsData(admins[1])).to.deepEqual({ catStorm = 10 })
+			events, notes, admins =
+				CafeEvents.parse({ frenzy({ effects = { catStorm = 500 } }) }, NOW)
+			expect(admins[1].effects.catStorm).to.equal(ADMIN.catStormMax)
+			expect(#notes).to.equal(1)
+			for _, bad in { "10", 0 / 0, math.huge, {} } do
+				events, notes, admins =
+					CafeEvents.parse({ frenzy({ effects = { catStorm = bad } }) }, NOW)
+				expect(#admins).to.equal(0)
+				expect(#notes).to.equal(1)
+			end
+			-- a frenzy has no storm in it
+			events, notes, admins = CafeEvents.parse({ frenzy() }, NOW)
+			expect(admins[1].effects.catStorm).to.equal(1)
+			expect(CafeEvents.adminEffectsData(admins[1])).to.deepEqual({ bowlSpeed = 4 })
+		end)
+
+		it("is the owner's /admin storm: ten minutes, ten times", function()
+			local record = CafeEvents.adminRecord("storm", NOW, nil) :: { [string]: any }
+			expect(record.title).to.equal("Cat Storm")
+			expect(record.endsAt - record.startsAt).to.equal(600)
+			expect(record.effects).to.deepEqual({ catStorm = 10 })
+			local _, notes, admins = CafeEvents.parse({ record }, NOW)
+			expect(#notes).to.equal(0)
+			expect(admins[1].effects.catStorm).to.equal(10)
+			local test = CafeEvents.adminTest("storm", NOW, 2) :: CafeEvents.AdminEvent
+			expect(test.effects.catStorm).to.equal(10)
+			expect(test.effects.bowlSpeed).to.equal(1)
+			expect(OwnerTest.adminAsk("/admin storm 10 now")).to.deepEqual({
+				stop = false,
+				kind = "storm",
+				minutes = 10,
+				now = true,
+			})
 		end)
 	end)
 

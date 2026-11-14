@@ -336,7 +336,8 @@ function TicketBooth._paint(self: any)
 		then TicketBoothLogic.rushLine(view.rushEndsAt, view.rushUsedToday, now)
 		else ""
 	local shown: { [string]: boolean } = {}
-	for order, row in (if view then view.prizes else {}) do
+	local prizes: { any } = if view then view.prizes else {} -- one type, for the CI luau-lsp
+	for order, row in prizes do
 		local entry = self:_card(row.id, order)
 		shown[row.id] = true
 		entry.frame.Visible = true

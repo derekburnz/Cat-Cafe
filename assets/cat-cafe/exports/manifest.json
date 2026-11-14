@@ -148045,27 +148045,29 @@
         "CatCafe_Cat_SnowLeopard_LegF2",
         "CatCafe_Cat_SnowLeopard_LegB1",
         "CatCafe_Cat_SnowLeopard_LegB2",
-        "CatCafe_Cat_SnowLeopard_Prop"
+        "CatCafe_Cat_SnowLeopard_Prop",
+        "CatCafe_Cat_SnowLeopard_Prop2",
+        "CatCafe_Cat_SnowLeopard_Lamp_Glow"
       ],
-      "triangles": 1336,
-      "budget": 1500,
+      "triangles": 1444,
+      "budget": 1800,
       "size_studs": {
-        "x": 1.0,
-        "y": 2.01,
+        "x": 1.08,
+        "y": 2.09,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.08,
         1.86,
-        2.01
+        2.09
       ],
       "bounds_min": [
-        -0.5,
-        -0.99,
+        -0.54,
+        -1.07,
         -0.0
       ],
       "bounds_max": [
-        0.5,
+        0.54,
         1.02,
         1.86
       ],
@@ -148547,6 +148549,25 @@
           "CatCafe_Cat_SnowLeopard_Prop"
         ]
       },
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_SnowLeopard_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Lamp_Glow": {
+          "object": "CatCafe_Cat_SnowLeopard_Lamp_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.51,
+            -1.05
+          ]
+        }
+      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -148559,9 +148580,9 @@
           0.0
         ]
       },
-      "studio": "Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "studio": "Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Lamp_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_SnowLeopard.model.json",
-      "rbx_parts": 99,
+      "rbx_parts": 106,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_SnowLeopard.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_SnowLeopard.glb"
@@ -148571,13 +148592,13 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "1336/1500 tris",
+          "budget": "1444/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "720 faces on swatch centers",
+          "uv": "768 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.01"
+          "centered": "footprint center x=0.00 y=-0.03"
         }
       }
     },
@@ -148595,23 +148616,25 @@
         "CatCafe_Cat_SnowLeopard_Sit_Tail",
         "CatCafe_Cat_SnowLeopard_Sit_LegF1",
         "CatCafe_Cat_SnowLeopard_Sit_LegF2",
-        "CatCafe_Cat_SnowLeopard_Sit_Prop"
+        "CatCafe_Cat_SnowLeopard_Sit_Prop",
+        "CatCafe_Cat_SnowLeopard_Sit_Prop2",
+        "CatCafe_Cat_SnowLeopard_Sit_Lamp_Glow"
       ],
-      "triangles": 1180,
-      "budget": 1500,
+      "triangles": 1288,
+      "budget": 1800,
       "size_studs": {
-        "x": 1.26,
-        "y": 1.27,
+        "x": 1.3,
+        "y": 1.33,
         "z": 1.85
       },
       "size_roblox": [
-        1.26,
+        1.3,
         1.85,
-        1.27
+        1.33
       ],
       "bounds_min": [
-        -0.44,
-        -0.65,
+        -0.47,
+        -0.71,
         0.0
       ],
       "bounds_max": [
@@ -149077,9 +149100,28 @@
           "CatCafe_Cat_SnowLeopard_Sit_Prop"
         ]
       },
-      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_SnowLeopard for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_SnowLeopard_Sit_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Lamp_Glow": {
+          "object": "CatCafe_Cat_SnowLeopard_Sit_Lamp_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.53,
+            -0.69
+          ]
+        }
+      },
+      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_SnowLeopard for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Lamp_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_SnowLeopard_Sit.model.json",
-      "rbx_parts": 86,
+      "rbx_parts": 93,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_SnowLeopard_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_SnowLeopard_Sit.glb"
@@ -149091,13 +149133,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1180/1500 tris",
+          "budget": "1288/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "642 faces on swatch centers",
+          "uv": "690 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.19 y=-0.01"
+          "centered": "footprint center x=0.18 y=-0.05"
         }
       }
     },
@@ -149120,23 +149162,25 @@
         "CatCafe_Cat_SnowLeopard_Work_Held_Barista",
         "CatCafe_Cat_SnowLeopard_Work_Held_Waiter",
         "CatCafe_Cat_SnowLeopard_Work_Held_Entertainer",
-        "CatCafe_Cat_SnowLeopard_Work_Prop"
+        "CatCafe_Cat_SnowLeopard_Work_Prop",
+        "CatCafe_Cat_SnowLeopard_Work_Prop2",
+        "CatCafe_Cat_SnowLeopard_Work_Lamp_Glow"
       ],
-      "triangles": 1712,
+      "triangles": 1820,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
-        "y": 1.64,
+        "y": 1.72,
         "z": 1.93
       },
       "size_roblox": [
         1.53,
         1.93,
-        1.64
+        1.72
       ],
       "bounds_min": [
         -0.69,
-        -0.7,
+        -0.78,
         0.0
       ],
       "bounds_max": [
@@ -149622,9 +149666,28 @@
           "CatCafe_Cat_SnowLeopard_Work_Prop"
         ]
       },
-      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_SnowLeopard_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_SnowLeopard_Work_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Lamp_Glow": {
+          "object": "CatCafe_Cat_SnowLeopard_Work_Lamp_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.6,
+            -0.76
+          ]
+        }
+      },
+      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_SnowLeopard_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Lamp_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_SnowLeopard_Work.model.json",
-      "rbx_parts": 96,
+      "rbx_parts": 103,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_SnowLeopard_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_SnowLeopard_Work.glb"
@@ -149636,13 +149699,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1712/2400 tris",
+          "budget": "1820/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "906 faces on swatch centers",
+          "uv": "954 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.12"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -149662,18 +149725,20 @@
         "CatCafe_Cat_Ice_LegF2",
         "CatCafe_Cat_Ice_LegB1",
         "CatCafe_Cat_Ice_LegB2",
-        "CatCafe_Cat_Ice_Prop"
+        "CatCafe_Cat_Ice_Prop",
+        "CatCafe_Cat_Ice_Prop2",
+        "CatCafe_Cat_Ice_Crown_Glow"
       ],
-      "triangles": 836,
-      "budget": 1500,
+      "triangles": 1016,
+      "budget": 1800,
       "size_studs": {
         "x": 1.03,
         "y": 1.97,
-        "z": 1.86
+        "z": 2.05
       },
       "size_roblox": [
         1.03,
-        1.86,
+        2.05,
         1.97
       ],
       "bounds_min": [
@@ -149684,7 +149749,7 @@
       "bounds_max": [
         0.51,
         0.98,
-        1.86
+        2.05
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -150160,6 +150225,25 @@
           "CatCafe_Cat_Ice_Prop"
         ]
       },
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Ice_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Crown_Glow": {
+          "object": "CatCafe_Cat_Ice_Crown_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.64,
+            -0.85
+          ]
+        }
+      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -150172,9 +150256,9 @@
           0.0
         ]
       },
-      "studio": "Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "studio": "Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Crown_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ice.model.json",
-      "rbx_parts": 48,
+      "rbx_parts": 67,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Ice.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Ice.glb"
@@ -150184,10 +150268,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "836/1500 tris",
+          "budget": "1016/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "470 faces on swatch centers",
+          "uv": "560 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.00"
@@ -150208,18 +150292,20 @@
         "CatCafe_Cat_Ice_Sit_Tail",
         "CatCafe_Cat_Ice_Sit_LegF1",
         "CatCafe_Cat_Ice_Sit_LegF2",
-        "CatCafe_Cat_Ice_Sit_Prop"
+        "CatCafe_Cat_Ice_Sit_Prop",
+        "CatCafe_Cat_Ice_Sit_Prop2",
+        "CatCafe_Cat_Ice_Sit_Crown_Glow"
       ],
-      "triangles": 848,
-      "budget": 1500,
+      "triangles": 1028,
+      "budget": 1800,
       "size_studs": {
         "x": 1.25,
         "y": 1.24,
-        "z": 1.85
+        "z": 1.99
       },
       "size_roblox": [
         1.25,
-        1.85,
+        1.99,
         1.24
       ],
       "bounds_min": [
@@ -150230,7 +150316,7 @@
       "bounds_max": [
         0.8,
         0.6,
-        1.85
+        1.99
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -150686,9 +150772,28 @@
           "CatCafe_Cat_Ice_Sit_Prop"
         ]
       },
-      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Ice for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Ice_Sit_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Crown_Glow": {
+          "object": "CatCafe_Cat_Ice_Sit_Crown_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.64,
+            -0.51
+          ]
+        }
+      },
+      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Ice for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Crown_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ice_Sit.model.json",
-      "rbx_parts": 49,
+      "rbx_parts": 68,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Ice_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Ice_Sit.glb"
@@ -150700,10 +150805,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "848/1500 tris",
+          "budget": "1028/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "476 faces on swatch centers",
+          "uv": "566 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.18 y=-0.02"
@@ -150729,18 +150834,20 @@
         "CatCafe_Cat_Ice_Work_Held_Barista",
         "CatCafe_Cat_Ice_Work_Held_Waiter",
         "CatCafe_Cat_Ice_Work_Held_Entertainer",
-        "CatCafe_Cat_Ice_Work_Prop"
+        "CatCafe_Cat_Ice_Work_Prop",
+        "CatCafe_Cat_Ice_Work_Prop2",
+        "CatCafe_Cat_Ice_Work_Crown_Glow"
       ],
-      "triangles": 1416,
+      "triangles": 1596,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
         "y": 1.62,
-        "z": 1.93
+        "z": 2.11
       },
       "size_roblox": [
         1.53,
-        1.93,
+        2.11,
         1.62
       ],
       "bounds_min": [
@@ -150751,7 +150858,7 @@
       "bounds_max": [
         0.85,
         0.91,
-        1.93
+        2.11
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -151227,9 +151334,28 @@
           "CatCafe_Cat_Ice_Work_Prop"
         ]
       },
-      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Ice_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Ice_Work_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Crown_Glow": {
+          "object": "CatCafe_Cat_Ice_Work_Crown_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.72,
+            -0.57
+          ]
+        }
+      },
+      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Ice_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Crown_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ice_Work.model.json",
-      "rbx_parts": 62,
+      "rbx_parts": 81,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Ice_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Ice_Work.glb"
@@ -151241,10 +151367,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1416/2400 tris",
+          "budget": "1596/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "758 faces on swatch centers",
+          "uv": "848 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -151267,18 +151393,20 @@
         "CatCafe_Cat_WhiteTiger_LegF2",
         "CatCafe_Cat_WhiteTiger_LegB1",
         "CatCafe_Cat_WhiteTiger_LegB2",
-        "CatCafe_Cat_WhiteTiger_Prop"
+        "CatCafe_Cat_WhiteTiger_Prop",
+        "CatCafe_Cat_WhiteTiger_Prop2",
+        "CatCafe_Cat_WhiteTiger_Gem_Glow"
       ],
-      "triangles": 896,
-      "budget": 1500,
+      "triangles": 1128,
+      "budget": 1800,
       "size_studs": {
         "x": 1.51,
         "y": 2.4,
-        "z": 2.26
+        "z": 2.28
       },
       "size_roblox": [
         1.51,
-        2.26,
+        2.28,
         2.4
       ],
       "bounds_min": [
@@ -151289,7 +151417,7 @@
       "bounds_max": [
         0.75,
         1.21,
-        2.26
+        2.28
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -151757,6 +151885,25 @@
           "CatCafe_Cat_WhiteTiger_Prop"
         ]
       },
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_WhiteTiger_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Gem_Glow": {
+          "object": "CatCafe_Cat_WhiteTiger_Gem_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            2.1,
+            -1.05
+          ]
+        }
+      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -151769,9 +151916,9 @@
           0.0
         ]
       },
-      "studio": "Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "studio": "Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Gem_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_WhiteTiger.model.json",
-      "rbx_parts": 53,
+      "rbx_parts": 77,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_WhiteTiger.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_WhiteTiger.glb"
@@ -151781,10 +151928,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "896/1500 tris",
+          "budget": "1128/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "500 faces on swatch centers",
+          "uv": "616 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.01"
@@ -151805,10 +151952,12 @@
         "CatCafe_Cat_WhiteTiger_Sit_Tail",
         "CatCafe_Cat_WhiteTiger_Sit_LegF1",
         "CatCafe_Cat_WhiteTiger_Sit_LegF2",
-        "CatCafe_Cat_WhiteTiger_Sit_Prop"
+        "CatCafe_Cat_WhiteTiger_Sit_Prop",
+        "CatCafe_Cat_WhiteTiger_Sit_Prop2",
+        "CatCafe_Cat_WhiteTiger_Sit_Gem_Glow"
       ],
-      "triangles": 908,
-      "budget": 1500,
+      "triangles": 1140,
+      "budget": 1800,
       "size_studs": {
         "x": 1.57,
         "y": 1.52,
@@ -152275,9 +152424,28 @@
           "CatCafe_Cat_WhiteTiger_Sit_Prop"
         ]
       },
-      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_WhiteTiger for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_WhiteTiger_Sit_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Gem_Glow": {
+          "object": "CatCafe_Cat_WhiteTiger_Sit_Gem_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            2.05,
+            -0.65
+          ]
+        }
+      },
+      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_WhiteTiger for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Gem_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_WhiteTiger_Sit.model.json",
-      "rbx_parts": 54,
+      "rbx_parts": 78,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_WhiteTiger_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_WhiteTiger_Sit.glb"
@@ -152289,10 +152457,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "908/1500 tris",
+          "budget": "1140/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "506 faces on swatch centers",
+          "uv": "622 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.23 y=-0.02"
@@ -152318,18 +152486,20 @@
         "CatCafe_Cat_WhiteTiger_Work_Held_Barista",
         "CatCafe_Cat_WhiteTiger_Work_Held_Waiter",
         "CatCafe_Cat_WhiteTiger_Work_Held_Entertainer",
-        "CatCafe_Cat_WhiteTiger_Work_Prop"
+        "CatCafe_Cat_WhiteTiger_Work_Prop",
+        "CatCafe_Cat_WhiteTiger_Work_Prop2",
+        "CatCafe_Cat_WhiteTiger_Work_Gem_Glow"
       ],
-      "triangles": 1512,
+      "triangles": 1744,
       "budget": 2400,
       "size_studs": {
         "x": 1.84,
         "y": 1.97,
-        "z": 2.31
+        "z": 2.33
       },
       "size_roblox": [
         1.84,
-        2.31,
+        2.33,
         1.97
       ],
       "bounds_min": [
@@ -152340,7 +152510,7 @@
       "bounds_max": [
         1.02,
         1.12,
-        2.31
+        2.33
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -152808,9 +152978,28 @@
           "CatCafe_Cat_WhiteTiger_Work_Prop"
         ]
       },
-      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_WhiteTiger_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_WhiteTiger_Work_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Gem_Glow": {
+          "object": "CatCafe_Cat_WhiteTiger_Work_Gem_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            2.16,
+            -0.72
+          ]
+        }
+      },
+      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_WhiteTiger_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Gem_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_WhiteTiger_Work.model.json",
-      "rbx_parts": 70,
+      "rbx_parts": 94,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_WhiteTiger_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_WhiteTiger_Work.glb"
@@ -152822,10 +153011,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1512/2400 tris",
+          "budget": "1744/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "806 faces on swatch centers",
+          "uv": "922 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.10 y=0.14"
@@ -152851,27 +153040,28 @@
         "CatCafe_Cat_Blizzard_Prop",
         "CatCafe_Cat_Blizzard_Glow",
         "CatCafe_Cat_Blizzard_Prop2",
-        "CatCafe_Cat_Blizzard_Flakes_Glow"
+        "CatCafe_Cat_Blizzard_Flakes_Glow",
+        "CatCafe_Cat_Blizzard_Wings_Glow"
       ],
-      "triangles": 1520,
+      "triangles": 1640,
       "budget": 1800,
       "size_studs": {
-        "x": 1.78,
+        "x": 1.84,
         "y": 2.8,
         "z": 2.69
       },
       "size_roblox": [
-        1.78,
+        1.84,
         2.69,
         2.8
       ],
       "bounds_min": [
-        -0.89,
+        -0.92,
         -1.53,
         -0.0
       ],
       "bounds_max": [
-        0.88,
+        0.92,
         1.27,
         2.69
       ],
@@ -153376,6 +153566,16 @@
             1.57,
             0.15
           ]
+        },
+        "Wings_Glow": {
+          "object": "CatCafe_Cat_Blizzard_Wings_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            1.32,
+            -0.05
+          ]
         }
       },
       "pose_lifts_roblox": {
@@ -153390,9 +153590,9 @@
           0.0
         ]
       },
-      "studio": "Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Flakes_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
+      "studio": "Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Flakes_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Wings_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blizzard.model.json",
-      "rbx_parts": 97,
+      "rbx_parts": 107,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Blizzard.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Blizzard.glb"
@@ -153404,13 +153604,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1520/1800 tris",
+          "budget": "1640/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "836 faces on swatch centers",
+          "uv": "896 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=-0.00 y=-0.13"
+          "centered": "footprint center x=0.00 y=-0.13"
         }
       }
     },
@@ -153431,22 +153631,23 @@
         "CatCafe_Cat_Blizzard_Sit_Prop",
         "CatCafe_Cat_Blizzard_Sit_Glow",
         "CatCafe_Cat_Blizzard_Sit_Prop2",
-        "CatCafe_Cat_Blizzard_Sit_Flakes_Glow"
+        "CatCafe_Cat_Blizzard_Sit_Flakes_Glow",
+        "CatCafe_Cat_Blizzard_Sit_Wings_Glow"
       ],
-      "triangles": 1668,
+      "triangles": 1788,
       "budget": 1800,
       "size_studs": {
-        "x": 1.84,
+        "x": 1.93,
         "y": 1.98,
         "z": 2.56
       },
       "size_roblox": [
-        1.84,
+        1.93,
         2.56,
         1.98
       ],
       "bounds_min": [
-        -0.78,
+        -0.88,
         -1.05,
         0.0
       ],
@@ -153936,11 +154137,21 @@
             0.95,
             0.61
           ]
+        },
+        "Wings_Glow": {
+          "object": "CatCafe_Cat_Blizzard_Sit_Wings_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            1.28,
+            0.31
+          ]
         }
       },
-      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Blizzard for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Flakes_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
+      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Blizzard for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Flakes_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Wings_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blizzard_Sit.model.json",
-      "rbx_parts": 104,
+      "rbx_parts": 114,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Blizzard_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Blizzard_Sit.glb"
@@ -153952,13 +154163,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1668/1800 tris",
+          "budget": "1788/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "918 faces on swatch centers",
+          "uv": "978 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.14 y=-0.06"
+          "centered": "footprint center x=0.09 y=-0.06"
         }
       }
     },
@@ -153984,22 +154195,23 @@
         "CatCafe_Cat_Blizzard_Work_Prop",
         "CatCafe_Cat_Blizzard_Work_Glow",
         "CatCafe_Cat_Blizzard_Work_Prop2",
-        "CatCafe_Cat_Blizzard_Work_Flakes_Glow"
+        "CatCafe_Cat_Blizzard_Work_Flakes_Glow",
+        "CatCafe_Cat_Blizzard_Work_Wings_Glow"
       ],
-      "triangles": 2112,
+      "triangles": 2232,
       "budget": 2400,
       "size_studs": {
-        "x": 1.92,
+        "x": 1.94,
         "y": 2.33,
         "z": 2.7
       },
       "size_roblox": [
-        1.92,
+        1.94,
         2.7,
         2.33
       ],
       "bounds_min": [
-        -0.86,
+        -0.88,
         -1.15,
         0.0
       ],
@@ -154509,11 +154721,21 @@
             0.95,
             0.61
           ]
+        },
+        "Wings_Glow": {
+          "object": "CatCafe_Cat_Blizzard_Work_Wings_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            1.28,
+            0.31
+          ]
         }
       },
-      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Blizzard_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Flakes_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
+      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Blizzard_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Flakes_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Wings_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blizzard_Work.model.json",
-      "rbx_parts": 112,
+      "rbx_parts": 122,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Blizzard_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Blizzard_Work.glb"
@@ -154525,13 +154747,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "2112/2400 tris",
+          "budget": "2232/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1130 faces on swatch centers",
+          "uv": "1190 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.10 y=0.01"
+          "centered": "footprint center x=0.09 y=0.01"
         }
       }
     },
@@ -297546,27 +297768,29 @@
         "CatCafe_Cat_SnowLeopard_Gold_LegF2",
         "CatCafe_Cat_SnowLeopard_Gold_LegB1",
         "CatCafe_Cat_SnowLeopard_Gold_LegB2",
-        "CatCafe_Cat_SnowLeopard_Gold_Prop"
+        "CatCafe_Cat_SnowLeopard_Gold_Prop",
+        "CatCafe_Cat_SnowLeopard_Gold_Prop2",
+        "CatCafe_Cat_SnowLeopard_Gold_Lamp_Glow"
       ],
-      "triangles": 1312,
-      "budget": 1500,
+      "triangles": 1420,
+      "budget": 1800,
       "size_studs": {
-        "x": 1.0,
-        "y": 2.01,
+        "x": 1.08,
+        "y": 2.09,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.08,
         1.86,
-        2.01
+        2.09
       ],
       "bounds_min": [
-        -0.5,
-        -0.99,
+        -0.54,
+        -1.07,
         -0.0
       ],
       "bounds_max": [
-        0.5,
+        0.54,
         1.02,
         1.86
       ],
@@ -298048,6 +298272,25 @@
           "CatCafe_Cat_SnowLeopard_Gold_Prop"
         ]
       },
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_SnowLeopard_Gold_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Lamp_Glow": {
+          "object": "CatCafe_Cat_SnowLeopard_Gold_Lamp_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.51,
+            -1.05
+          ]
+        }
+      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -298060,21 +298303,21 @@
           0.0
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_SnowLeopard when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "studio": "F42: clone this instead of CatCafe_Cat_SnowLeopard when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Lamp_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_SnowLeopard_Gold.model.json",
-      "rbx_parts": 97,
+      "rbx_parts": 104,
       "gates": {
         "pass": true,
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "1312/1500 tris",
+          "budget": "1420/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "708 faces on swatch centers",
+          "uv": "756 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.01"
+          "centered": "footprint center x=0.00 y=-0.03"
         }
       }
     },
@@ -298092,23 +298335,25 @@
         "CatCafe_Cat_SnowLeopard_Gold_Sit_Tail",
         "CatCafe_Cat_SnowLeopard_Gold_Sit_LegF1",
         "CatCafe_Cat_SnowLeopard_Gold_Sit_LegF2",
-        "CatCafe_Cat_SnowLeopard_Gold_Sit_Prop"
+        "CatCafe_Cat_SnowLeopard_Gold_Sit_Prop",
+        "CatCafe_Cat_SnowLeopard_Gold_Sit_Prop2",
+        "CatCafe_Cat_SnowLeopard_Gold_Sit_Lamp_Glow"
       ],
-      "triangles": 1156,
-      "budget": 1500,
+      "triangles": 1264,
+      "budget": 1800,
       "size_studs": {
-        "x": 1.26,
-        "y": 1.27,
+        "x": 1.3,
+        "y": 1.33,
         "z": 1.85
       },
       "size_roblox": [
-        1.26,
+        1.3,
         1.85,
-        1.27
+        1.33
       ],
       "bounds_min": [
-        -0.44,
-        -0.65,
+        -0.47,
+        -0.71,
         0.0
       ],
       "bounds_max": [
@@ -298574,9 +298819,28 @@
           "CatCafe_Cat_SnowLeopard_Gold_Sit_Prop"
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_SnowLeopard_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_SnowLeopard_Gold_Sit_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Lamp_Glow": {
+          "object": "CatCafe_Cat_SnowLeopard_Gold_Sit_Lamp_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.53,
+            -0.69
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_SnowLeopard_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Lamp_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_SnowLeopard_Gold_Sit.model.json",
-      "rbx_parts": 84,
+      "rbx_parts": 91,
       "gates": {
         "pass": true,
         "failed": [],
@@ -298584,13 +298848,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1156/1500 tris",
+          "budget": "1264/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "630 faces on swatch centers",
+          "uv": "678 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.19 y=-0.01"
+          "centered": "footprint center x=0.18 y=-0.05"
         }
       }
     },
@@ -298613,23 +298877,25 @@
         "CatCafe_Cat_SnowLeopard_Gold_Work_Held_Barista",
         "CatCafe_Cat_SnowLeopard_Gold_Work_Held_Waiter",
         "CatCafe_Cat_SnowLeopard_Gold_Work_Held_Entertainer",
-        "CatCafe_Cat_SnowLeopard_Gold_Work_Prop"
+        "CatCafe_Cat_SnowLeopard_Gold_Work_Prop",
+        "CatCafe_Cat_SnowLeopard_Gold_Work_Prop2",
+        "CatCafe_Cat_SnowLeopard_Gold_Work_Lamp_Glow"
       ],
-      "triangles": 1688,
+      "triangles": 1796,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
-        "y": 1.64,
+        "y": 1.72,
         "z": 1.93
       },
       "size_roblox": [
         1.53,
         1.93,
-        1.64
+        1.72
       ],
       "bounds_min": [
         -0.69,
-        -0.7,
+        -0.78,
         0.0
       ],
       "bounds_max": [
@@ -299115,9 +299381,28 @@
           "CatCafe_Cat_SnowLeopard_Gold_Work_Prop"
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_SnowLeopard_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_SnowLeopard_Gold_Work_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Lamp_Glow": {
+          "object": "CatCafe_Cat_SnowLeopard_Gold_Work_Lamp_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.6,
+            -0.76
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_SnowLeopard_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Lamp_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_SnowLeopard_Gold_Work.model.json",
-      "rbx_parts": 94,
+      "rbx_parts": 101,
       "gates": {
         "pass": true,
         "failed": [],
@@ -299125,13 +299410,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1688/2400 tris",
+          "budget": "1796/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "894 faces on swatch centers",
+          "uv": "942 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.12"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -299151,18 +299436,20 @@
         "CatCafe_Cat_Ice_Gold_LegF2",
         "CatCafe_Cat_Ice_Gold_LegB1",
         "CatCafe_Cat_Ice_Gold_LegB2",
-        "CatCafe_Cat_Ice_Gold_Prop"
+        "CatCafe_Cat_Ice_Gold_Prop",
+        "CatCafe_Cat_Ice_Gold_Prop2",
+        "CatCafe_Cat_Ice_Gold_Crown_Glow"
       ],
-      "triangles": 836,
-      "budget": 1500,
+      "triangles": 1016,
+      "budget": 1800,
       "size_studs": {
         "x": 1.03,
         "y": 1.97,
-        "z": 1.86
+        "z": 2.05
       },
       "size_roblox": [
         1.03,
-        1.86,
+        2.05,
         1.97
       ],
       "bounds_min": [
@@ -299173,7 +299460,7 @@
       "bounds_max": [
         0.51,
         0.98,
-        1.86
+        2.05
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -299649,6 +299936,25 @@
           "CatCafe_Cat_Ice_Gold_Prop"
         ]
       },
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Ice_Gold_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Crown_Glow": {
+          "object": "CatCafe_Cat_Ice_Gold_Crown_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.64,
+            -0.85
+          ]
+        }
+      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -299661,18 +299967,18 @@
           0.0
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Ice when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "studio": "F42: clone this instead of CatCafe_Cat_Ice when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Crown_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ice_Gold.model.json",
-      "rbx_parts": 48,
+      "rbx_parts": 67,
       "gates": {
         "pass": true,
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "836/1500 tris",
+          "budget": "1016/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "470 faces on swatch centers",
+          "uv": "560 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.00"
@@ -299693,18 +299999,20 @@
         "CatCafe_Cat_Ice_Gold_Sit_Tail",
         "CatCafe_Cat_Ice_Gold_Sit_LegF1",
         "CatCafe_Cat_Ice_Gold_Sit_LegF2",
-        "CatCafe_Cat_Ice_Gold_Sit_Prop"
+        "CatCafe_Cat_Ice_Gold_Sit_Prop",
+        "CatCafe_Cat_Ice_Gold_Sit_Prop2",
+        "CatCafe_Cat_Ice_Gold_Sit_Crown_Glow"
       ],
-      "triangles": 848,
-      "budget": 1500,
+      "triangles": 1028,
+      "budget": 1800,
       "size_studs": {
         "x": 1.25,
         "y": 1.24,
-        "z": 1.85
+        "z": 1.99
       },
       "size_roblox": [
         1.25,
-        1.85,
+        1.99,
         1.24
       ],
       "bounds_min": [
@@ -299715,7 +300023,7 @@
       "bounds_max": [
         0.8,
         0.6,
-        1.85
+        1.99
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -300171,9 +300479,28 @@
           "CatCafe_Cat_Ice_Gold_Sit_Prop"
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Ice_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Ice_Gold_Sit_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Crown_Glow": {
+          "object": "CatCafe_Cat_Ice_Gold_Sit_Crown_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.64,
+            -0.51
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Ice_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Crown_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ice_Gold_Sit.model.json",
-      "rbx_parts": 49,
+      "rbx_parts": 68,
       "gates": {
         "pass": true,
         "failed": [],
@@ -300181,10 +300508,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "848/1500 tris",
+          "budget": "1028/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "476 faces on swatch centers",
+          "uv": "566 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.18 y=-0.02"
@@ -300210,18 +300537,20 @@
         "CatCafe_Cat_Ice_Gold_Work_Held_Barista",
         "CatCafe_Cat_Ice_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Ice_Gold_Work_Held_Entertainer",
-        "CatCafe_Cat_Ice_Gold_Work_Prop"
+        "CatCafe_Cat_Ice_Gold_Work_Prop",
+        "CatCafe_Cat_Ice_Gold_Work_Prop2",
+        "CatCafe_Cat_Ice_Gold_Work_Crown_Glow"
       ],
-      "triangles": 1416,
+      "triangles": 1596,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
         "y": 1.62,
-        "z": 1.93
+        "z": 2.11
       },
       "size_roblox": [
         1.53,
-        1.93,
+        2.11,
         1.62
       ],
       "bounds_min": [
@@ -300232,7 +300561,7 @@
       "bounds_max": [
         0.85,
         0.91,
-        1.93
+        2.11
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -300708,9 +301037,28 @@
           "CatCafe_Cat_Ice_Gold_Work_Prop"
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Ice_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_Ice_Gold_Work_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Crown_Glow": {
+          "object": "CatCafe_Cat_Ice_Gold_Work_Crown_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            1.72,
+            -0.57
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Ice_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Crown_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ice_Gold_Work.model.json",
-      "rbx_parts": 62,
+      "rbx_parts": 81,
       "gates": {
         "pass": true,
         "failed": [],
@@ -300718,10 +301066,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1416/2400 tris",
+          "budget": "1596/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "758 faces on swatch centers",
+          "uv": "848 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -300744,18 +301092,20 @@
         "CatCafe_Cat_WhiteTiger_Gold_LegF2",
         "CatCafe_Cat_WhiteTiger_Gold_LegB1",
         "CatCafe_Cat_WhiteTiger_Gold_LegB2",
-        "CatCafe_Cat_WhiteTiger_Gold_Prop"
+        "CatCafe_Cat_WhiteTiger_Gold_Prop",
+        "CatCafe_Cat_WhiteTiger_Gold_Prop2",
+        "CatCafe_Cat_WhiteTiger_Gold_Gem_Glow"
       ],
-      "triangles": 896,
-      "budget": 1500,
+      "triangles": 1128,
+      "budget": 1800,
       "size_studs": {
         "x": 1.51,
         "y": 2.4,
-        "z": 2.26
+        "z": 2.28
       },
       "size_roblox": [
         1.51,
-        2.26,
+        2.28,
         2.4
       ],
       "bounds_min": [
@@ -300766,7 +301116,7 @@
       "bounds_max": [
         0.75,
         1.21,
-        2.26
+        2.28
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -301234,6 +301584,25 @@
           "CatCafe_Cat_WhiteTiger_Gold_Prop"
         ]
       },
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_WhiteTiger_Gold_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Gem_Glow": {
+          "object": "CatCafe_Cat_WhiteTiger_Gold_Gem_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            2.1,
+            -1.05
+          ]
+        }
+      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -301246,18 +301615,18 @@
           0.0
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_WhiteTiger when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "studio": "F42: clone this instead of CatCafe_Cat_WhiteTiger when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Gem_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_WhiteTiger_Gold.model.json",
-      "rbx_parts": 53,
+      "rbx_parts": 77,
       "gates": {
         "pass": true,
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "896/1500 tris",
+          "budget": "1128/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "500 faces on swatch centers",
+          "uv": "616 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.01"
@@ -301278,10 +301647,12 @@
         "CatCafe_Cat_WhiteTiger_Gold_Sit_Tail",
         "CatCafe_Cat_WhiteTiger_Gold_Sit_LegF1",
         "CatCafe_Cat_WhiteTiger_Gold_Sit_LegF2",
-        "CatCafe_Cat_WhiteTiger_Gold_Sit_Prop"
+        "CatCafe_Cat_WhiteTiger_Gold_Sit_Prop",
+        "CatCafe_Cat_WhiteTiger_Gold_Sit_Prop2",
+        "CatCafe_Cat_WhiteTiger_Gold_Sit_Gem_Glow"
       ],
-      "triangles": 908,
-      "budget": 1500,
+      "triangles": 1140,
+      "budget": 1800,
       "size_studs": {
         "x": 1.57,
         "y": 1.52,
@@ -301748,9 +302119,28 @@
           "CatCafe_Cat_WhiteTiger_Gold_Sit_Prop"
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_WhiteTiger_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_WhiteTiger_Gold_Sit_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Gem_Glow": {
+          "object": "CatCafe_Cat_WhiteTiger_Gold_Sit_Gem_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            2.05,
+            -0.65
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_WhiteTiger_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Gem_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_WhiteTiger_Gold_Sit.model.json",
-      "rbx_parts": 54,
+      "rbx_parts": 78,
       "gates": {
         "pass": true,
         "failed": [],
@@ -301758,10 +302148,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "908/1500 tris",
+          "budget": "1140/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "506 faces on swatch centers",
+          "uv": "622 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.23 y=-0.02"
@@ -301787,18 +302177,20 @@
         "CatCafe_Cat_WhiteTiger_Gold_Work_Held_Barista",
         "CatCafe_Cat_WhiteTiger_Gold_Work_Held_Waiter",
         "CatCafe_Cat_WhiteTiger_Gold_Work_Held_Entertainer",
-        "CatCafe_Cat_WhiteTiger_Gold_Work_Prop"
+        "CatCafe_Cat_WhiteTiger_Gold_Work_Prop",
+        "CatCafe_Cat_WhiteTiger_Gold_Work_Prop2",
+        "CatCafe_Cat_WhiteTiger_Gold_Work_Gem_Glow"
       ],
-      "triangles": 1512,
+      "triangles": 1744,
       "budget": 2400,
       "size_studs": {
         "x": 1.84,
         "y": 1.97,
-        "z": 2.31
+        "z": 2.33
       },
       "size_roblox": [
         1.84,
-        2.31,
+        2.33,
         1.97
       ],
       "bounds_min": [
@@ -301809,7 +302201,7 @@
       "bounds_max": [
         1.02,
         1.12,
-        2.31
+        2.33
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -302277,9 +302669,28 @@
           "CatCafe_Cat_WhiteTiger_Gold_Work_Prop"
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_WhiteTiger_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "prop2": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_WhiteTiger_Gold_Work_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Gem_Glow": {
+          "object": "CatCafe_Cat_WhiteTiger_Gold_Work_Gem_Glow",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            2.16,
+            -0.72
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_WhiteTiger_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. Second prop: the Head prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Head, so the role piece in that slot stays off too (F71). The child Model <name>_Gem_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_WhiteTiger_Gold_Work.model.json",
-      "rbx_parts": 70,
+      "rbx_parts": 94,
       "gates": {
         "pass": true,
         "failed": [],
@@ -302287,10 +302698,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1512/2400 tris",
+          "budget": "1744/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "806 faces on swatch centers",
+          "uv": "922 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.10 y=0.14"
@@ -302316,27 +302727,28 @@
         "CatCafe_Cat_Blizzard_Gold_Prop",
         "CatCafe_Cat_Blizzard_Gold_Glow",
         "CatCafe_Cat_Blizzard_Gold_Prop2",
-        "CatCafe_Cat_Blizzard_Gold_Flakes_Glow"
+        "CatCafe_Cat_Blizzard_Gold_Flakes_Glow",
+        "CatCafe_Cat_Blizzard_Gold_Wings_Glow"
       ],
-      "triangles": 1520,
+      "triangles": 1640,
       "budget": 1800,
       "size_studs": {
-        "x": 1.78,
+        "x": 1.84,
         "y": 2.8,
         "z": 2.69
       },
       "size_roblox": [
-        1.78,
+        1.84,
         2.69,
         2.8
       ],
       "bounds_min": [
-        -0.89,
+        -0.92,
         -1.53,
         -0.0
       ],
       "bounds_max": [
-        0.88,
+        0.92,
         1.27,
         2.69
       ],
@@ -302841,6 +303253,16 @@
             1.57,
             0.15
           ]
+        },
+        "Wings_Glow": {
+          "object": "CatCafe_Cat_Blizzard_Gold_Wings_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            1.32,
+            -0.05
+          ]
         }
       },
       "pose_lifts_roblox": {
@@ -302855,9 +303277,9 @@
           0.0
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Blizzard when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Flakes_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
+      "studio": "F42: clone this instead of CatCafe_Cat_Blizzard when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Flakes_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Wings_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blizzard_Gold.model.json",
-      "rbx_parts": 97,
+      "rbx_parts": 107,
       "gates": {
         "pass": true,
         "failed": [],
@@ -302865,13 +303287,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1520/1800 tris",
+          "budget": "1640/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "836 faces on swatch centers",
+          "uv": "896 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=-0.00 y=-0.13"
+          "centered": "footprint center x=0.00 y=-0.13"
         }
       }
     },
@@ -302892,22 +303314,23 @@
         "CatCafe_Cat_Blizzard_Gold_Sit_Prop",
         "CatCafe_Cat_Blizzard_Gold_Sit_Glow",
         "CatCafe_Cat_Blizzard_Gold_Sit_Prop2",
-        "CatCafe_Cat_Blizzard_Gold_Sit_Flakes_Glow"
+        "CatCafe_Cat_Blizzard_Gold_Sit_Flakes_Glow",
+        "CatCafe_Cat_Blizzard_Gold_Sit_Wings_Glow"
       ],
-      "triangles": 1668,
+      "triangles": 1788,
       "budget": 1800,
       "size_studs": {
-        "x": 1.84,
+        "x": 1.93,
         "y": 1.98,
         "z": 2.56
       },
       "size_roblox": [
-        1.84,
+        1.93,
         2.56,
         1.98
       ],
       "bounds_min": [
-        -0.78,
+        -0.88,
         -1.05,
         0.0
       ],
@@ -303397,11 +303820,21 @@
             0.95,
             0.61
           ]
+        },
+        "Wings_Glow": {
+          "object": "CatCafe_Cat_Blizzard_Gold_Sit_Wings_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            1.28,
+            0.31
+          ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Blizzard_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Flakes_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
+      "studio": "F42: clone this instead of CatCafe_Cat_Blizzard_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Flakes_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Wings_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blizzard_Gold_Sit.model.json",
-      "rbx_parts": 104,
+      "rbx_parts": 114,
       "gates": {
         "pass": true,
         "failed": [],
@@ -303409,13 +303842,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1668/1800 tris",
+          "budget": "1788/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "918 faces on swatch centers",
+          "uv": "978 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.14 y=-0.06"
+          "centered": "footprint center x=0.09 y=-0.06"
         }
       }
     },
@@ -303441,22 +303874,23 @@
         "CatCafe_Cat_Blizzard_Gold_Work_Prop",
         "CatCafe_Cat_Blizzard_Gold_Work_Glow",
         "CatCafe_Cat_Blizzard_Gold_Work_Prop2",
-        "CatCafe_Cat_Blizzard_Gold_Work_Flakes_Glow"
+        "CatCafe_Cat_Blizzard_Gold_Work_Flakes_Glow",
+        "CatCafe_Cat_Blizzard_Gold_Work_Wings_Glow"
       ],
-      "triangles": 2112,
+      "triangles": 2232,
       "budget": 2400,
       "size_studs": {
-        "x": 1.92,
+        "x": 1.94,
         "y": 2.33,
         "z": 2.7
       },
       "size_roblox": [
-        1.92,
+        1.94,
         2.7,
         2.33
       ],
       "bounds_min": [
-        -0.86,
+        -0.88,
         -1.15,
         0.0
       ],
@@ -303966,11 +304400,21 @@
             0.95,
             0.61
           ]
+        },
+        "Wings_Glow": {
+          "object": "CatCafe_Cat_Blizzard_Gold_Work_Wings_Glow",
+          "inside": "Prop2",
+          "follows": "Body",
+          "pivot_roblox": [
+            0.0,
+            1.28,
+            0.31
+          ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Blizzard_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Flakes_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
+      "studio": "F42: clone this instead of CatCafe_Cat_Blizzard_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71). The child Model <name>_Glow hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Flakes_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Wings_Glow hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blizzard_Gold_Work.model.json",
-      "rbx_parts": 112,
+      "rbx_parts": 122,
       "gates": {
         "pass": true,
         "failed": [],
@@ -303978,13 +304422,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "2112/2400 tris",
+          "budget": "2232/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1130 faces on swatch centers",
+          "uv": "1190 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.10 y=0.01"
+          "centered": "footprint center x=0.09 y=0.01"
         }
       }
     },
@@ -339740,7 +340184,7 @@
         "CatCafe_Camp_Snowy_001_LodgeFront",
         "CatCafe_Camp_Snowy_001_LodgeFront_Pane",
         "CatCafe_Camp_Snowy_002_FirePit",
-        "CatCafe_Camp_Snowy_002_FirePit_Glow",
+        "CatCafe_Camp_Snowy_002_FirePit_Campfire_Glow",
         "CatCafe_Camp_Snowy_003_Bench",
         "CatCafe_Camp_Snowy_004_Bench",
         "CatCafe_Camp_Snowy_005_Bench",
@@ -339762,7 +340206,7 @@
         "CatCafe_Camp_Snowy_017_SnowballPile",
         "CatCafe_Camp_Snowy_Barrier"
       ],
-      "triangles": 7636,
+      "triangles": 7504,
       "budget": 20000,
       "size_studs": {
         "x": 152.0,
@@ -339829,7 +340273,7 @@
         "depth": 30.0
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Snowy.model.json",
-      "rbx_parts": 321,
+      "rbx_parts": 324,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Snowy.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Snowy.glb"
@@ -339842,10 +340286,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "7636/20000 tris",
+          "budget": "7504/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "3695 faces on swatch centers",
+          "uv": "3607 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-296.00"
@@ -346483,6 +346927,65 @@
           "centered": "footprint center x=0.00 y=0.03"
         }
       }
+    },
+    {
+      "name": "CatCafe_Sign_VipPlate",
+      "category": "Sign",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Sign_VipPlate"
+      ],
+      "triangles": 412,
+      "budget": 600,
+      "size_studs": {
+        "x": 3.0,
+        "y": 0.22,
+        "z": 0.8
+      },
+      "size_roblox": [
+        3.0,
+        0.8,
+        0.22
+      ],
+      "bounds_min": [
+        -1.5,
+        -18.76,
+        13.05
+      ],
+      "bounds_max": [
+        1.5,
+        -18.54,
+        13.85
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sign_VipPlate.model.json",
+      "rbx_parts": 13,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.fbx",
+        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.glb"
+      ],
+      "gates": {
+        "pass": false,
+        "failed": [
+          "naming"
+        ],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "412/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "142 faces on swatch centers",
+          "naming": "bad asset name",
+          "pivot": "floor at z=13.05 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.65"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sign_VipPlate.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Sign_VipPlate.png"
     },
     {
       "name": "CatCafe_Style_MirageGlass",
@@ -356417,65 +356920,6 @@
       }
     },
     {
-      "name": "CatCafe_Sign_VipPlate",
-      "category": "Sign",
-      "module": "signstyles",
-      "objects": [
-        "CatCafe_Sign_VipPlate"
-      ],
-      "triangles": 412,
-      "budget": 600,
-      "size_studs": {
-        "x": 3.0,
-        "y": 0.22,
-        "z": 0.8
-      },
-      "size_roblox": [
-        3.0,
-        0.8,
-        0.22
-      ],
-      "bounds_min": [
-        -1.5,
-        -18.76,
-        13.05
-      ],
-      "bounds_max": [
-        1.5,
-        -18.54,
-        13.85
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sign_VipPlate.model.json",
-      "rbx_parts": 13,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.fbx",
-        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.glb"
-      ],
-      "gates": {
-        "pass": false,
-        "failed": [
-          "naming"
-        ],
-        "warnings": [
-          "pivot",
-          "centered"
-        ],
-        "checks": {
-          "budget": "412/600 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "142 faces on swatch centers",
-          "naming": "bad asset name",
-          "pivot": "floor at z=13.05 (want 0)",
-          "centered": "footprint center x=0.00 y=-18.65"
-        }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sign_VipPlate.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Sign_VipPlate.png"
-    },
-    {
       "name": "CatCafe_NPC_Townsfolk_Trader",
       "category": "NPC",
       "module": "townsfolk",
@@ -357905,662 +358349,6 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_MoneyBag.png"
     },
     {
-      "name": "CatCafe_Accessory_CoolShades",
-      "category": "Accessory",
-      "module": "storepacks",
-      "objects": [
-        "CatCafe_Accessory_CoolShades"
-      ],
-      "triangles": 132,
-      "budget": 300,
-      "size_studs": {
-        "x": 0.91,
-        "y": 0.66,
-        "z": 0.25
-      },
-      "size_roblox": [
-        0.91,
-        0.25,
-        0.66
-      ],
-      "bounds_min": [
-        -0.46,
-        -0.05,
-        -0.13
-      ],
-      "bounds_max": [
-        0.46,
-        0.61,
-        0.12
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_CoolShades.model.json",
-      "rbx_parts": 11,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Accessory_CoolShades.fbx",
-        "assets/cat-cafe/exports/CatCafe_Accessory_CoolShades.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [
-          "pivot",
-          "centered"
-        ],
-        "checks": {
-          "budget": "132/300 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "66 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.13 (want 0)",
-          "centered": "footprint center x=0.00 y=0.28"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Accessory_WinterBobble",
-      "category": "Accessory",
-      "module": "storepacks",
-      "objects": [
-        "CatCafe_Accessory_WinterBobble"
-      ],
-      "triangles": 396,
-      "budget": 500,
-      "size_studs": {
-        "x": 0.74,
-        "y": 0.74,
-        "z": 0.52
-      },
-      "size_roblox": [
-        0.74,
-        0.52,
-        0.74
-      ],
-      "bounds_min": [
-        -0.37,
-        -0.37,
-        0.0
-      ],
-      "bounds_max": [
-        0.37,
-        0.37,
-        0.52
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_WinterBobble.model.json",
-      "rbx_parts": 18,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Accessory_WinterBobble.fbx",
-        "assets/cat-cafe/exports/CatCafe_Accessory_WinterBobble.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [],
-        "checks": {
-          "budget": "396/500 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "176 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Accessory_PackChefHat",
-      "category": "Accessory",
-      "module": "storepacks",
-      "objects": [
-        "CatCafe_Accessory_PackChefHat"
-      ],
-      "triangles": 256,
-      "budget": 500,
-      "size_studs": {
-        "x": 0.6,
-        "y": 0.62,
-        "z": 0.56
-      },
-      "size_roblox": [
-        0.6,
-        0.56,
-        0.62
-      ],
-      "bounds_min": [
-        -0.3,
-        -0.31,
-        0.0
-      ],
-      "bounds_max": [
-        0.3,
-        0.31,
-        0.56
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_PackChefHat.model.json",
-      "rbx_parts": 9,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Accessory_PackChefHat.fbx",
-        "assets/cat-cafe/exports/CatCafe_Accessory_PackChefHat.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [],
-        "checks": {
-          "budget": "256/500 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "148 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Accessory_BubbleHelmet",
-      "category": "Accessory",
-      "module": "storepacks",
-      "objects": [
-        "CatCafe_Accessory_BubbleHelmet"
-      ],
-      "triangles": 392,
-      "budget": 600,
-      "size_studs": {
-        "x": 1.52,
-        "y": 1.26,
-        "z": 1.5
-      },
-      "size_roblox": [
-        1.52,
-        1.5,
-        1.26
-      ],
-      "bounds_min": [
-        -0.76,
-        -0.63,
-        -0.94
-      ],
-      "bounds_max": [
-        0.76,
-        0.63,
-        0.56
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_BubbleHelmet.model.json",
-      "rbx_parts": 7,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Accessory_BubbleHelmet.fbx",
-        "assets/cat-cafe/exports/CatCafe_Accessory_BubbleHelmet.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [
-          "pivot"
-        ],
-        "checks": {
-          "budget": "392/600 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "196 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.94 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Plot_SignClubBanner",
-      "category": "Plot",
-      "module": "storepacks",
-      "objects": [
-        "CatCafe_Plot_SignClubBanner",
-        "CatCafe_Plot_SignClubBanner_SignBoard",
-        "CatCafe_Plot_SignClubBanner_Frame",
-        "CatCafe_Plot_SignClubBanner_Glow"
-      ],
-      "triangles": 424,
-      "budget": 3000,
-      "size_studs": {
-        "x": 16.8,
-        "y": 1.28,
-        "z": 6.35
-      },
-      "size_roblox": [
-        16.8,
-        6.35,
-        1.28
-      ],
-      "bounds_min": [
-        -8.4,
-        -19.34,
-        13.0
-      ],
-      "bounds_max": [
-        8.4,
-        -18.06,
-        19.35
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignClubBanner.model.json",
-      "rbx_parts": 32,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Plot_SignClubBanner.fbx",
-        "assets/cat-cafe/exports/CatCafe_Plot_SignClubBanner.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [
-          "pivot",
-          "centered"
-        ],
-        "checks": {
-          "budget": "424/3000 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "214 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=13.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-18.70"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Plot_SignSnowyBanner",
-      "category": "Plot",
-      "module": "storepacks",
-      "objects": [
-        "CatCafe_Plot_SignSnowyBanner",
-        "CatCafe_Plot_SignSnowyBanner_SignBoard",
-        "CatCafe_Plot_SignSnowyBanner_Frame"
-      ],
-      "triangles": 648,
-      "budget": 3000,
-      "size_studs": {
-        "x": 18.1,
-        "y": 0.59,
-        "z": 7.43
-      },
-      "size_roblox": [
-        18.1,
-        7.43,
-        0.59
-      ],
-      "bounds_min": [
-        -9.05,
-        -18.81,
-        12.22
-      ],
-      "bounds_max": [
-        9.05,
-        -18.22,
-        19.64
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignSnowyBanner.model.json",
-      "rbx_parts": 52,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Plot_SignSnowyBanner.fbx",
-        "assets/cat-cafe/exports/CatCafe_Plot_SignSnowyBanner.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [
-          "pivot",
-          "centered"
-        ],
-        "checks": {
-          "budget": "648/3000 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "354 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=12.22 (want 0)",
-          "centered": "footprint center x=0.00 y=-18.52"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Plot_SignBakeryBanner",
-      "category": "Plot",
-      "module": "storepacks",
-      "objects": [
-        "CatCafe_Plot_SignBakeryBanner",
-        "CatCafe_Plot_SignBakeryBanner_SignBoard",
-        "CatCafe_Plot_SignBakeryBanner_Frame"
-      ],
-      "triangles": 820,
-      "budget": 3000,
-      "size_studs": {
-        "x": 16.8,
-        "y": 1.16,
-        "z": 7.16
-      },
-      "size_roblox": [
-        16.8,
-        7.16,
-        1.16
-      ],
-      "bounds_min": [
-        -8.4,
-        -19.18,
-        12.0
-      ],
-      "bounds_max": [
-        8.4,
-        -18.02,
-        19.16
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignBakeryBanner.model.json",
-      "rbx_parts": 85,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Plot_SignBakeryBanner.fbx",
-        "assets/cat-cafe/exports/CatCafe_Plot_SignBakeryBanner.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [
-          "pivot",
-          "centered"
-        ],
-        "checks": {
-          "budget": "820/3000 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "421 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=12.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-18.60"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Plot_SignStarBanner",
-      "category": "Plot",
-      "module": "storepacks",
-      "objects": [
-        "CatCafe_Plot_SignStarBanner",
-        "CatCafe_Plot_SignStarBanner_SignBoard",
-        "CatCafe_Plot_SignStarBanner_Frame",
-        "CatCafe_Plot_SignStarBanner_Glow"
-      ],
-      "triangles": 728,
-      "budget": 3000,
-      "size_studs": {
-        "x": 18.15,
-        "y": 1.36,
-        "z": 7.3
-      },
-      "size_roblox": [
-        18.15,
-        7.3,
-        1.36
-      ],
-      "bounds_min": [
-        -9.75,
-        -19.48,
-        13.0
-      ],
-      "bounds_max": [
-        8.4,
-        -18.12,
-        20.3
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignStarBanner.model.json",
-      "rbx_parts": 76,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Plot_SignStarBanner.fbx",
-        "assets/cat-cafe/exports/CatCafe_Plot_SignStarBanner.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [
-          "pivot",
-          "centered"
-        ],
-        "checks": {
-          "budget": "728/3000 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "341 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=13.00 (want 0)",
-          "centered": "footprint center x=-0.68 y=-18.80"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Decor_DiscoBall",
-      "category": "Decor",
-      "module": "storepacks",
-      "objects": [
-        "CatCafe_Decor_DiscoBall",
-        "CatCafe_Decor_DiscoBall_Glow"
-      ],
-      "triangles": 872,
-      "budget": 3000,
-      "size_studs": {
-        "x": 2.34,
-        "y": 2.4,
-        "z": 4.64
-      },
-      "size_roblox": [
-        2.34,
-        4.64,
-        2.4
-      ],
-      "bounds_min": [
-        -1.17,
-        -1.2,
-        0.0
-      ],
-      "bounds_max": [
-        1.17,
-        1.2,
-        4.64
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_DiscoBall.model.json",
-      "rbx_parts": 56,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Decor_DiscoBall.fbx",
-        "assets/cat-cafe/exports/CatCafe_Decor_DiscoBall.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [],
-        "checks": {
-          "budget": "872/3000 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "398 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Decor_CocoaStand",
-      "category": "Decor",
-      "module": "storepacks",
-      "objects": [
-        "CatCafe_Decor_CocoaStand",
-        "CatCafe_Decor_CocoaStand_Glow"
-      ],
-      "triangles": 758,
-      "budget": 3000,
-      "size_studs": {
-        "x": 3.8,
-        "y": 2.18,
-        "z": 4.15
-      },
-      "size_roblox": [
-        3.8,
-        4.15,
-        2.18
-      ],
-      "bounds_min": [
-        -1.9,
-        -1.18,
-        0.0
-      ],
-      "bounds_max": [
-        1.9,
-        1.0,
-        4.15
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_CocoaStand.model.json",
-      "rbx_parts": 49,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Decor_CocoaStand.fbx",
-        "assets/cat-cafe/exports/CatCafe_Decor_CocoaStand.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [
-          "centered"
-        ],
-        "checks": {
-          "budget": "758/3000 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "331 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.09"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Decor_PastryCase",
-      "category": "Decor",
-      "module": "storepacks",
-      "objects": [
-        "CatCafe_Decor_PastryCase"
-      ],
-      "triangles": 600,
-      "budget": 3000,
-      "size_studs": {
-        "x": 3.8,
-        "y": 2.1,
-        "z": 3.2
-      },
-      "size_roblox": [
-        3.8,
-        3.2,
-        2.1
-      ],
-      "bounds_min": [
-        -1.9,
-        -1.05,
-        0.0
-      ],
-      "bounds_max": [
-        1.9,
-        1.05,
-        3.2
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PastryCase.model.json",
-      "rbx_parts": 38,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Decor_PastryCase.fbx",
-        "assets/cat-cafe/exports/CatCafe_Decor_PastryCase.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [],
-        "checks": {
-          "budget": "600/3000 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "348 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Decor_RocketLamp",
-      "category": "Decor",
-      "module": "storepacks",
-      "objects": [
-        "CatCafe_Decor_RocketLamp",
-        "CatCafe_Decor_RocketLamp_Glow"
-      ],
-      "triangles": 548,
-      "budget": 3000,
-      "size_studs": {
-        "x": 2.6,
-        "y": 2.6,
-        "z": 5.4
-      },
-      "size_roblox": [
-        2.6,
-        5.4,
-        2.6
-      ],
-      "bounds_min": [
-        -1.3,
-        -1.3,
-        0.0
-      ],
-      "bounds_max": [
-        1.3,
-        1.3,
-        5.4
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_RocketLamp.model.json",
-      "rbx_parts": 26,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Decor_RocketLamp.fbx",
-        "assets/cat-cafe/exports/CatCafe_Decor_RocketLamp.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [],
-        "checks": {
-          "budget": "548/3000 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "197 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
-        }
-      }
-    },
-    {
       "name": "CatCafe_RiftRun_Path",
       "category": "RiftRun",
       "module": "riftrun",
@@ -359260,6 +359048,2979 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.56 (want 0)",
           "centered": "footprint center x=0.00 y=0.13"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_CoolShades",
+      "category": "Accessory",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Accessory_CoolShades"
+      ],
+      "triangles": 132,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.91,
+        "y": 0.66,
+        "z": 0.25
+      },
+      "size_roblox": [
+        0.91,
+        0.25,
+        0.66
+      ],
+      "bounds_min": [
+        -0.46,
+        -0.05,
+        -0.13
+      ],
+      "bounds_max": [
+        0.46,
+        0.61,
+        0.12
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_CoolShades.model.json",
+      "rbx_parts": 11,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_CoolShades.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_CoolShades.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "132/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "66 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.13 (want 0)",
+          "centered": "footprint center x=0.00 y=0.28"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_WinterBobble",
+      "category": "Accessory",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Accessory_WinterBobble"
+      ],
+      "triangles": 396,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.74,
+        "y": 0.74,
+        "z": 0.52
+      },
+      "size_roblox": [
+        0.74,
+        0.52,
+        0.74
+      ],
+      "bounds_min": [
+        -0.37,
+        -0.37,
+        0.0
+      ],
+      "bounds_max": [
+        0.37,
+        0.37,
+        0.52
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_WinterBobble.model.json",
+      "rbx_parts": 18,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_WinterBobble.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_WinterBobble.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "396/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "176 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_PackChefHat",
+      "category": "Accessory",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Accessory_PackChefHat"
+      ],
+      "triangles": 256,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.6,
+        "y": 0.62,
+        "z": 0.56
+      },
+      "size_roblox": [
+        0.6,
+        0.56,
+        0.62
+      ],
+      "bounds_min": [
+        -0.3,
+        -0.31,
+        0.0
+      ],
+      "bounds_max": [
+        0.3,
+        0.31,
+        0.56
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_PackChefHat.model.json",
+      "rbx_parts": 9,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_PackChefHat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_PackChefHat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "256/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "148 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_BubbleHelmet",
+      "category": "Accessory",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Accessory_BubbleHelmet"
+      ],
+      "triangles": 392,
+      "budget": 600,
+      "size_studs": {
+        "x": 1.52,
+        "y": 1.26,
+        "z": 1.5
+      },
+      "size_roblox": [
+        1.52,
+        1.5,
+        1.26
+      ],
+      "bounds_min": [
+        -0.76,
+        -0.63,
+        -0.94
+      ],
+      "bounds_max": [
+        0.76,
+        0.63,
+        0.56
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_BubbleHelmet.model.json",
+      "rbx_parts": 7,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_BubbleHelmet.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_BubbleHelmet.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "392/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "196 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.94 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_SignClubBanner",
+      "category": "Plot",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Plot_SignClubBanner",
+        "CatCafe_Plot_SignClubBanner_SignBoard",
+        "CatCafe_Plot_SignClubBanner_Frame",
+        "CatCafe_Plot_SignClubBanner_Glow"
+      ],
+      "triangles": 424,
+      "budget": 3000,
+      "size_studs": {
+        "x": 16.8,
+        "y": 1.28,
+        "z": 6.35
+      },
+      "size_roblox": [
+        16.8,
+        6.35,
+        1.28
+      ],
+      "bounds_min": [
+        -8.4,
+        -19.34,
+        13.0
+      ],
+      "bounds_max": [
+        8.4,
+        -18.06,
+        19.35
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignClubBanner.model.json",
+      "rbx_parts": 32,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignClubBanner.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignClubBanner.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "424/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "214 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=13.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.70"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_SignSnowyBanner",
+      "category": "Plot",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Plot_SignSnowyBanner",
+        "CatCafe_Plot_SignSnowyBanner_SignBoard",
+        "CatCafe_Plot_SignSnowyBanner_Frame"
+      ],
+      "triangles": 648,
+      "budget": 3000,
+      "size_studs": {
+        "x": 18.1,
+        "y": 0.59,
+        "z": 7.43
+      },
+      "size_roblox": [
+        18.1,
+        7.43,
+        0.59
+      ],
+      "bounds_min": [
+        -9.05,
+        -18.81,
+        12.22
+      ],
+      "bounds_max": [
+        9.05,
+        -18.22,
+        19.64
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignSnowyBanner.model.json",
+      "rbx_parts": 52,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignSnowyBanner.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignSnowyBanner.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "648/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "354 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=12.22 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.52"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_SignBakeryBanner",
+      "category": "Plot",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Plot_SignBakeryBanner",
+        "CatCafe_Plot_SignBakeryBanner_SignBoard",
+        "CatCafe_Plot_SignBakeryBanner_Frame"
+      ],
+      "triangles": 820,
+      "budget": 3000,
+      "size_studs": {
+        "x": 16.8,
+        "y": 1.16,
+        "z": 7.16
+      },
+      "size_roblox": [
+        16.8,
+        7.16,
+        1.16
+      ],
+      "bounds_min": [
+        -8.4,
+        -19.18,
+        12.0
+      ],
+      "bounds_max": [
+        8.4,
+        -18.02,
+        19.16
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignBakeryBanner.model.json",
+      "rbx_parts": 85,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignBakeryBanner.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignBakeryBanner.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "820/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "421 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=12.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.60"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_SignStarBanner",
+      "category": "Plot",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Plot_SignStarBanner",
+        "CatCafe_Plot_SignStarBanner_SignBoard",
+        "CatCafe_Plot_SignStarBanner_Frame",
+        "CatCafe_Plot_SignStarBanner_Glow"
+      ],
+      "triangles": 728,
+      "budget": 3000,
+      "size_studs": {
+        "x": 18.15,
+        "y": 1.36,
+        "z": 7.3
+      },
+      "size_roblox": [
+        18.15,
+        7.3,
+        1.36
+      ],
+      "bounds_min": [
+        -9.75,
+        -19.48,
+        13.0
+      ],
+      "bounds_max": [
+        8.4,
+        -18.12,
+        20.3
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignStarBanner.model.json",
+      "rbx_parts": 76,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignStarBanner.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignStarBanner.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "728/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "341 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=13.00 (want 0)",
+          "centered": "footprint center x=-0.68 y=-18.80"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_DiscoBall",
+      "category": "Decor",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Decor_DiscoBall",
+        "CatCafe_Decor_DiscoBall_Glow"
+      ],
+      "triangles": 872,
+      "budget": 3000,
+      "size_studs": {
+        "x": 2.34,
+        "y": 2.4,
+        "z": 4.64
+      },
+      "size_roblox": [
+        2.34,
+        4.64,
+        2.4
+      ],
+      "bounds_min": [
+        -1.17,
+        -1.2,
+        0.0
+      ],
+      "bounds_max": [
+        1.17,
+        1.2,
+        4.64
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_DiscoBall.model.json",
+      "rbx_parts": 56,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_DiscoBall.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_DiscoBall.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "872/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "398 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_CocoaStand",
+      "category": "Decor",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Decor_CocoaStand",
+        "CatCafe_Decor_CocoaStand_Glow"
+      ],
+      "triangles": 758,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.8,
+        "y": 2.18,
+        "z": 4.15
+      },
+      "size_roblox": [
+        3.8,
+        4.15,
+        2.18
+      ],
+      "bounds_min": [
+        -1.9,
+        -1.18,
+        0.0
+      ],
+      "bounds_max": [
+        1.9,
+        1.0,
+        4.15
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_CocoaStand.model.json",
+      "rbx_parts": 49,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_CocoaStand.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_CocoaStand.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "758/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "331 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.09"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_PastryCase",
+      "category": "Decor",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Decor_PastryCase"
+      ],
+      "triangles": 600,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.8,
+        "y": 2.1,
+        "z": 3.2
+      },
+      "size_roblox": [
+        3.8,
+        3.2,
+        2.1
+      ],
+      "bounds_min": [
+        -1.9,
+        -1.05,
+        0.0
+      ],
+      "bounds_max": [
+        1.9,
+        1.05,
+        3.2
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PastryCase.model.json",
+      "rbx_parts": 38,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_PastryCase.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_PastryCase.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "600/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "348 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_RocketLamp",
+      "category": "Decor",
+      "module": "storepacks",
+      "objects": [
+        "CatCafe_Decor_RocketLamp",
+        "CatCafe_Decor_RocketLamp_Glow"
+      ],
+      "triangles": 548,
+      "budget": 3000,
+      "size_studs": {
+        "x": 2.6,
+        "y": 2.6,
+        "z": 5.4
+      },
+      "size_roblox": [
+        2.6,
+        5.4,
+        2.6
+      ],
+      "bounds_min": [
+        -1.3,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        1.3,
+        1.3,
+        5.4
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_RocketLamp.model.json",
+      "rbx_parts": 26,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_RocketLamp.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_RocketLamp.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "548/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "197 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Castle_DragonKeep",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Castle_DragonKeep",
+        "CatCafe_Camp_Castle_DragonKeep_Gold",
+        "CatCafe_Camp_Castle_DragonKeep_Gold_Glow",
+        "CatCafe_Camp_Castle_DragonKeep_Flame",
+        "CatCafe_Camp_Castle_DragonKeep_Cushion"
+      ],
+      "triangles": 2388,
+      "budget": 6000,
+      "size_studs": {
+        "x": 15.08,
+        "y": 15.04,
+        "z": 7.05
+      },
+      "size_roblox": [
+        15.08,
+        7.05,
+        15.04
+      ],
+      "bounds_min": [
+        -7.54,
+        -7.5,
+        0.0
+      ],
+      "bounds_max": [
+        7.54,
+        7.54,
+        7.05
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Castle_DragonKeep_Cushion": [
+          -0.0,
+          0.0,
+          0.77
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Castle_DragonKeep_Cushion": [
+          0.0,
+          0.77,
+          0.0
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Castle_DragonKeep.model.json",
+      "rbx_parts": 175,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Castle_DragonKeep.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Castle_DragonKeep.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2388/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1008 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.02"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Dragon_Hatchling",
+      "category": "Dragon",
+      "module": "dragon",
+      "objects": [
+        "CatCafe_Dragon_Hatchling",
+        "CatCafe_Dragon_Hatchling_Body_Scale",
+        "CatCafe_Dragon_Hatchling_Chest_Glow",
+        "CatCafe_Dragon_Hatchling_Neck",
+        "CatCafe_Dragon_Hatchling_Neck_Scale",
+        "CatCafe_Dragon_Hatchling_Head",
+        "CatCafe_Dragon_Hatchling_Head_Scale",
+        "CatCafe_Dragon_Hatchling_Jaw",
+        "CatCafe_Dragon_Hatchling_Jaw_Scale",
+        "CatCafe_Dragon_Hatchling_Tail1",
+        "CatCafe_Dragon_Hatchling_Tail1_Scale",
+        "CatCafe_Dragon_Hatchling_Tail2",
+        "CatCafe_Dragon_Hatchling_Tail2_Scale",
+        "CatCafe_Dragon_Hatchling_Tail3",
+        "CatCafe_Dragon_Hatchling_Tail3_Scale",
+        "CatCafe_Dragon_Hatchling_LegFL",
+        "CatCafe_Dragon_Hatchling_LegFL_Scale",
+        "CatCafe_Dragon_Hatchling_LegFR",
+        "CatCafe_Dragon_Hatchling_LegFR_Scale",
+        "CatCafe_Dragon_Hatchling_LegBL",
+        "CatCafe_Dragon_Hatchling_LegBL_Scale",
+        "CatCafe_Dragon_Hatchling_LegBR",
+        "CatCafe_Dragon_Hatchling_LegBR_Scale"
+      ],
+      "triangles": 660,
+      "budget": 4000,
+      "size_studs": {
+        "x": 1.0,
+        "y": 4.2,
+        "z": 1.89
+      },
+      "size_roblox": [
+        1.0,
+        1.89,
+        4.2
+      ],
+      "bounds_min": [
+        -0.5,
+        -1.8,
+        0.0
+      ],
+      "bounds_max": [
+        0.5,
+        2.4,
+        1.89
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Dragon_Hatchling_Chest_Glow": [
+          0.0,
+          -0.75,
+          0.63
+        ],
+        "CatCafe_Dragon_Hatchling_Neck": [
+          -0.0,
+          -0.57,
+          0.9
+        ],
+        "CatCafe_Dragon_Hatchling_Neck_Scale": [
+          -0.0,
+          -0.57,
+          0.9
+        ],
+        "CatCafe_Dragon_Hatchling_Head": [
+          -0.0,
+          -0.7,
+          1.08
+        ],
+        "CatCafe_Dragon_Hatchling_Head_Scale": [
+          -0.0,
+          -0.7,
+          1.08
+        ],
+        "CatCafe_Dragon_Hatchling_Jaw": [
+          -0.0,
+          -1.22,
+          1.1
+        ],
+        "CatCafe_Dragon_Hatchling_Jaw_Scale": [
+          -0.0,
+          -1.22,
+          1.1
+        ],
+        "CatCafe_Dragon_Hatchling_Tail1": [
+          -0.0,
+          0.63,
+          0.72
+        ],
+        "CatCafe_Dragon_Hatchling_Tail1_Scale": [
+          -0.0,
+          0.63,
+          0.72
+        ],
+        "CatCafe_Dragon_Hatchling_Tail2": [
+          -0.0,
+          1.17,
+          0.67
+        ],
+        "CatCafe_Dragon_Hatchling_Tail2_Scale": [
+          -0.0,
+          1.17,
+          0.67
+        ],
+        "CatCafe_Dragon_Hatchling_Tail3": [
+          -0.0,
+          1.66,
+          0.61
+        ],
+        "CatCafe_Dragon_Hatchling_Tail3_Scale": [
+          -0.0,
+          1.66,
+          0.61
+        ],
+        "CatCafe_Dragon_Hatchling_LegFL": [
+          -0.34,
+          -0.41,
+          0.43
+        ],
+        "CatCafe_Dragon_Hatchling_LegFL_Scale": [
+          -0.34,
+          -0.41,
+          0.43
+        ],
+        "CatCafe_Dragon_Hatchling_LegFR": [
+          0.34,
+          -0.41,
+          0.43
+        ],
+        "CatCafe_Dragon_Hatchling_LegFR_Scale": [
+          0.34,
+          -0.41,
+          0.43
+        ],
+        "CatCafe_Dragon_Hatchling_LegBL": [
+          -0.34,
+          0.41,
+          0.43
+        ],
+        "CatCafe_Dragon_Hatchling_LegBL_Scale": [
+          -0.34,
+          0.41,
+          0.43
+        ],
+        "CatCafe_Dragon_Hatchling_LegBR": [
+          0.34,
+          0.41,
+          0.43
+        ],
+        "CatCafe_Dragon_Hatchling_LegBR_Scale": [
+          0.34,
+          0.41,
+          0.43
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Dragon_Hatchling_Chest_Glow": [
+          0.0,
+          0.63,
+          -0.75
+        ],
+        "CatCafe_Dragon_Hatchling_Neck": [
+          0.0,
+          0.9,
+          -0.57
+        ],
+        "CatCafe_Dragon_Hatchling_Neck_Scale": [
+          0.0,
+          0.9,
+          -0.57
+        ],
+        "CatCafe_Dragon_Hatchling_Head": [
+          0.0,
+          1.08,
+          -0.7
+        ],
+        "CatCafe_Dragon_Hatchling_Head_Scale": [
+          0.0,
+          1.08,
+          -0.7
+        ],
+        "CatCafe_Dragon_Hatchling_Jaw": [
+          0.0,
+          1.1,
+          -1.22
+        ],
+        "CatCafe_Dragon_Hatchling_Jaw_Scale": [
+          0.0,
+          1.1,
+          -1.22
+        ],
+        "CatCafe_Dragon_Hatchling_Tail1": [
+          0.0,
+          0.72,
+          0.63
+        ],
+        "CatCafe_Dragon_Hatchling_Tail1_Scale": [
+          0.0,
+          0.72,
+          0.63
+        ],
+        "CatCafe_Dragon_Hatchling_Tail2": [
+          0.0,
+          0.67,
+          1.17
+        ],
+        "CatCafe_Dragon_Hatchling_Tail2_Scale": [
+          0.0,
+          0.67,
+          1.17
+        ],
+        "CatCafe_Dragon_Hatchling_Tail3": [
+          0.0,
+          0.61,
+          1.66
+        ],
+        "CatCafe_Dragon_Hatchling_Tail3_Scale": [
+          0.0,
+          0.61,
+          1.66
+        ],
+        "CatCafe_Dragon_Hatchling_LegFL": [
+          0.34,
+          0.43,
+          -0.41
+        ],
+        "CatCafe_Dragon_Hatchling_LegFL_Scale": [
+          0.34,
+          0.43,
+          -0.41
+        ],
+        "CatCafe_Dragon_Hatchling_LegFR": [
+          -0.34,
+          0.43,
+          -0.41
+        ],
+        "CatCafe_Dragon_Hatchling_LegFR_Scale": [
+          -0.34,
+          0.43,
+          -0.41
+        ],
+        "CatCafe_Dragon_Hatchling_LegBL": [
+          0.34,
+          0.43,
+          0.41
+        ],
+        "CatCafe_Dragon_Hatchling_LegBL_Scale": [
+          0.34,
+          0.43,
+          0.41
+        ],
+        "CatCafe_Dragon_Hatchling_LegBR": [
+          -0.34,
+          0.43,
+          0.41
+        ],
+        "CatCafe_Dragon_Hatchling_LegBR_Scale": [
+          -0.34,
+          0.43,
+          0.41
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/Dragon/CatCafe_Dragon_Hatchling.model.json",
+      "rbx_parts": 55,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Dragon_Hatchling.fbx",
+        "assets/cat-cafe/exports/CatCafe_Dragon_Hatchling.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "660/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "330 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.30"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Dragon_Whelp",
+      "category": "Dragon",
+      "module": "dragon",
+      "objects": [
+        "CatCafe_Dragon_Whelp",
+        "CatCafe_Dragon_Whelp_Body_Scale",
+        "CatCafe_Dragon_Whelp_Chest_Glow",
+        "CatCafe_Dragon_Whelp_Neck",
+        "CatCafe_Dragon_Whelp_Neck_Scale",
+        "CatCafe_Dragon_Whelp_Head",
+        "CatCafe_Dragon_Whelp_Head_Scale",
+        "CatCafe_Dragon_Whelp_Jaw",
+        "CatCafe_Dragon_Whelp_Jaw_Scale",
+        "CatCafe_Dragon_Whelp_Tail1",
+        "CatCafe_Dragon_Whelp_Tail1_Scale",
+        "CatCafe_Dragon_Whelp_Tail2",
+        "CatCafe_Dragon_Whelp_Tail2_Scale",
+        "CatCafe_Dragon_Whelp_Tail3",
+        "CatCafe_Dragon_Whelp_Tail3_Scale",
+        "CatCafe_Dragon_Whelp_LegFL",
+        "CatCafe_Dragon_Whelp_LegFL_Scale",
+        "CatCafe_Dragon_Whelp_LegFR",
+        "CatCafe_Dragon_Whelp_LegFR_Scale",
+        "CatCafe_Dragon_Whelp_LegBL",
+        "CatCafe_Dragon_Whelp_LegBL_Scale",
+        "CatCafe_Dragon_Whelp_LegBR",
+        "CatCafe_Dragon_Whelp_LegBR_Scale",
+        "CatCafe_Dragon_Whelp_WingL",
+        "CatCafe_Dragon_Whelp_WingL_Scale",
+        "CatCafe_Dragon_Whelp_WingR",
+        "CatCafe_Dragon_Whelp_WingR_Scale"
+      ],
+      "triangles": 720,
+      "budget": 4000,
+      "size_studs": {
+        "x": 3.41,
+        "y": 5.99,
+        "z": 2.86
+      },
+      "size_roblox": [
+        3.41,
+        2.86,
+        5.99
+      ],
+      "bounds_min": [
+        -1.7,
+        -2.53,
+        0.0
+      ],
+      "bounds_max": [
+        1.7,
+        3.46,
+        2.86
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Dragon_Whelp_Chest_Glow": [
+          0.0,
+          -1.08,
+          0.91
+        ],
+        "CatCafe_Dragon_Whelp_Neck": [
+          -0.0,
+          -0.82,
+          1.29
+        ],
+        "CatCafe_Dragon_Whelp_Neck_Scale": [
+          -0.0,
+          -0.82,
+          1.29
+        ],
+        "CatCafe_Dragon_Whelp_Head": [
+          -0.0,
+          -1.12,
+          1.72
+        ],
+        "CatCafe_Dragon_Whelp_Head_Scale": [
+          -0.0,
+          -1.12,
+          1.72
+        ],
+        "CatCafe_Dragon_Whelp_Jaw": [
+          -0.0,
+          -1.78,
+          1.75
+        ],
+        "CatCafe_Dragon_Whelp_Jaw_Scale": [
+          -0.0,
+          -1.78,
+          1.75
+        ],
+        "CatCafe_Dragon_Whelp_Tail1": [
+          -0.0,
+          0.91,
+          1.04
+        ],
+        "CatCafe_Dragon_Whelp_Tail1_Scale": [
+          -0.0,
+          0.91,
+          1.04
+        ],
+        "CatCafe_Dragon_Whelp_Tail2": [
+          -0.0,
+          1.69,
+          0.96
+        ],
+        "CatCafe_Dragon_Whelp_Tail2_Scale": [
+          -0.0,
+          1.69,
+          0.96
+        ],
+        "CatCafe_Dragon_Whelp_Tail3": [
+          -0.0,
+          2.4,
+          0.88
+        ],
+        "CatCafe_Dragon_Whelp_Tail3_Scale": [
+          -0.0,
+          2.4,
+          0.88
+        ],
+        "CatCafe_Dragon_Whelp_LegFL": [
+          -0.49,
+          -0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_LegFL_Scale": [
+          -0.49,
+          -0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_LegFR": [
+          0.49,
+          -0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_LegFR_Scale": [
+          0.49,
+          -0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_LegBL": [
+          -0.49,
+          0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_LegBL_Scale": [
+          -0.49,
+          0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_LegBR": [
+          0.49,
+          0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_LegBR_Scale": [
+          0.49,
+          0.58,
+          0.62
+        ],
+        "CatCafe_Dragon_Whelp_WingL": [
+          -0.4,
+          -0.35,
+          1.51
+        ],
+        "CatCafe_Dragon_Whelp_WingL_Scale": [
+          -0.4,
+          -0.35,
+          1.51
+        ],
+        "CatCafe_Dragon_Whelp_WingR": [
+          0.4,
+          -0.35,
+          1.51
+        ],
+        "CatCafe_Dragon_Whelp_WingR_Scale": [
+          0.4,
+          -0.35,
+          1.51
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Dragon_Whelp_Chest_Glow": [
+          0.0,
+          0.91,
+          -1.08
+        ],
+        "CatCafe_Dragon_Whelp_Neck": [
+          0.0,
+          1.29,
+          -0.82
+        ],
+        "CatCafe_Dragon_Whelp_Neck_Scale": [
+          0.0,
+          1.29,
+          -0.82
+        ],
+        "CatCafe_Dragon_Whelp_Head": [
+          0.0,
+          1.72,
+          -1.12
+        ],
+        "CatCafe_Dragon_Whelp_Head_Scale": [
+          0.0,
+          1.72,
+          -1.12
+        ],
+        "CatCafe_Dragon_Whelp_Jaw": [
+          0.0,
+          1.75,
+          -1.78
+        ],
+        "CatCafe_Dragon_Whelp_Jaw_Scale": [
+          0.0,
+          1.75,
+          -1.78
+        ],
+        "CatCafe_Dragon_Whelp_Tail1": [
+          0.0,
+          1.04,
+          0.91
+        ],
+        "CatCafe_Dragon_Whelp_Tail1_Scale": [
+          0.0,
+          1.04,
+          0.91
+        ],
+        "CatCafe_Dragon_Whelp_Tail2": [
+          0.0,
+          0.96,
+          1.69
+        ],
+        "CatCafe_Dragon_Whelp_Tail2_Scale": [
+          0.0,
+          0.96,
+          1.69
+        ],
+        "CatCafe_Dragon_Whelp_Tail3": [
+          0.0,
+          0.88,
+          2.4
+        ],
+        "CatCafe_Dragon_Whelp_Tail3_Scale": [
+          0.0,
+          0.88,
+          2.4
+        ],
+        "CatCafe_Dragon_Whelp_LegFL": [
+          0.49,
+          0.62,
+          -0.58
+        ],
+        "CatCafe_Dragon_Whelp_LegFL_Scale": [
+          0.49,
+          0.62,
+          -0.58
+        ],
+        "CatCafe_Dragon_Whelp_LegFR": [
+          -0.49,
+          0.62,
+          -0.58
+        ],
+        "CatCafe_Dragon_Whelp_LegFR_Scale": [
+          -0.49,
+          0.62,
+          -0.58
+        ],
+        "CatCafe_Dragon_Whelp_LegBL": [
+          0.49,
+          0.62,
+          0.58
+        ],
+        "CatCafe_Dragon_Whelp_LegBL_Scale": [
+          0.49,
+          0.62,
+          0.58
+        ],
+        "CatCafe_Dragon_Whelp_LegBR": [
+          -0.49,
+          0.62,
+          0.58
+        ],
+        "CatCafe_Dragon_Whelp_LegBR_Scale": [
+          -0.49,
+          0.62,
+          0.58
+        ],
+        "CatCafe_Dragon_Whelp_WingL": [
+          0.4,
+          1.51,
+          -0.35
+        ],
+        "CatCafe_Dragon_Whelp_WingL_Scale": [
+          0.4,
+          1.51,
+          -0.35
+        ],
+        "CatCafe_Dragon_Whelp_WingR": [
+          -0.4,
+          1.51,
+          -0.35
+        ],
+        "CatCafe_Dragon_Whelp_WingR_Scale": [
+          -0.4,
+          1.51,
+          -0.35
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/Dragon/CatCafe_Dragon_Whelp.model.json",
+      "rbx_parts": 60,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Dragon_Whelp.fbx",
+        "assets/cat-cafe/exports/CatCafe_Dragon_Whelp.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "720/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "360 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.47"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Dragon_Drake",
+      "category": "Dragon",
+      "module": "dragon",
+      "objects": [
+        "CatCafe_Dragon_Drake",
+        "CatCafe_Dragon_Drake_Body_Scale",
+        "CatCafe_Dragon_Drake_Chest_Glow",
+        "CatCafe_Dragon_Drake_Neck",
+        "CatCafe_Dragon_Drake_Neck_Scale",
+        "CatCafe_Dragon_Drake_Head",
+        "CatCafe_Dragon_Drake_Head_Scale",
+        "CatCafe_Dragon_Drake_Jaw",
+        "CatCafe_Dragon_Drake_Jaw_Scale",
+        "CatCafe_Dragon_Drake_Tail1",
+        "CatCafe_Dragon_Drake_Tail1_Scale",
+        "CatCafe_Dragon_Drake_Tail2",
+        "CatCafe_Dragon_Drake_Tail2_Scale",
+        "CatCafe_Dragon_Drake_Tail3",
+        "CatCafe_Dragon_Drake_Tail3_Scale",
+        "CatCafe_Dragon_Drake_LegFL",
+        "CatCafe_Dragon_Drake_LegFL_Scale",
+        "CatCafe_Dragon_Drake_LegFR",
+        "CatCafe_Dragon_Drake_LegFR_Scale",
+        "CatCafe_Dragon_Drake_LegBL",
+        "CatCafe_Dragon_Drake_LegBL_Scale",
+        "CatCafe_Dragon_Drake_LegBR",
+        "CatCafe_Dragon_Drake_LegBR_Scale",
+        "CatCafe_Dragon_Drake_WingL",
+        "CatCafe_Dragon_Drake_WingL_Scale",
+        "CatCafe_Dragon_Drake_WingR",
+        "CatCafe_Dragon_Drake_WingR_Scale"
+      ],
+      "triangles": 852,
+      "budget": 4000,
+      "size_studs": {
+        "x": 6.39,
+        "y": 8.23,
+        "z": 4.04
+      },
+      "size_roblox": [
+        6.39,
+        4.04,
+        8.23
+      ],
+      "bounds_min": [
+        -3.19,
+        -3.44,
+        0.0
+      ],
+      "bounds_max": [
+        3.19,
+        4.79,
+        4.04
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Dragon_Drake_Chest_Glow": [
+          0.0,
+          -1.49,
+          1.26
+        ],
+        "CatCafe_Dragon_Drake_Neck": [
+          -0.0,
+          -1.13,
+          1.79
+        ],
+        "CatCafe_Dragon_Drake_Neck_Scale": [
+          -0.0,
+          -1.13,
+          1.79
+        ],
+        "CatCafe_Dragon_Drake_Head": [
+          -0.0,
+          -1.75,
+          2.68
+        ],
+        "CatCafe_Dragon_Drake_Head_Scale": [
+          -0.0,
+          -1.75,
+          2.68
+        ],
+        "CatCafe_Dragon_Drake_Jaw": [
+          -0.0,
+          -2.55,
+          2.71
+        ],
+        "CatCafe_Dragon_Drake_Jaw_Scale": [
+          -0.0,
+          -2.55,
+          2.71
+        ],
+        "CatCafe_Dragon_Drake_Tail1": [
+          -0.0,
+          1.26,
+          1.44
+        ],
+        "CatCafe_Dragon_Drake_Tail1_Scale": [
+          -0.0,
+          1.26,
+          1.44
+        ],
+        "CatCafe_Dragon_Drake_Tail2": [
+          -0.0,
+          2.34,
+          1.33
+        ],
+        "CatCafe_Dragon_Drake_Tail2_Scale": [
+          -0.0,
+          2.34,
+          1.33
+        ],
+        "CatCafe_Dragon_Drake_Tail3": [
+          -0.0,
+          3.33,
+          1.22
+        ],
+        "CatCafe_Dragon_Drake_Tail3_Scale": [
+          -0.0,
+          3.33,
+          1.22
+        ],
+        "CatCafe_Dragon_Drake_LegFL": [
+          -0.68,
+          -0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_LegFL_Scale": [
+          -0.68,
+          -0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_LegFR": [
+          0.68,
+          -0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_LegFR_Scale": [
+          0.68,
+          -0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_LegBL": [
+          -0.68,
+          0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_LegBL_Scale": [
+          -0.68,
+          0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_LegBR": [
+          0.68,
+          0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_LegBR_Scale": [
+          0.68,
+          0.81,
+          0.86
+        ],
+        "CatCafe_Dragon_Drake_WingL": [
+          -0.55,
+          -0.49,
+          2.09
+        ],
+        "CatCafe_Dragon_Drake_WingL_Scale": [
+          -0.55,
+          -0.49,
+          2.09
+        ],
+        "CatCafe_Dragon_Drake_WingR": [
+          0.55,
+          -0.49,
+          2.09
+        ],
+        "CatCafe_Dragon_Drake_WingR_Scale": [
+          0.55,
+          -0.49,
+          2.09
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Dragon_Drake_Chest_Glow": [
+          0.0,
+          1.26,
+          -1.49
+        ],
+        "CatCafe_Dragon_Drake_Neck": [
+          0.0,
+          1.79,
+          -1.13
+        ],
+        "CatCafe_Dragon_Drake_Neck_Scale": [
+          0.0,
+          1.79,
+          -1.13
+        ],
+        "CatCafe_Dragon_Drake_Head": [
+          0.0,
+          2.68,
+          -1.75
+        ],
+        "CatCafe_Dragon_Drake_Head_Scale": [
+          0.0,
+          2.68,
+          -1.75
+        ],
+        "CatCafe_Dragon_Drake_Jaw": [
+          0.0,
+          2.71,
+          -2.55
+        ],
+        "CatCafe_Dragon_Drake_Jaw_Scale": [
+          0.0,
+          2.71,
+          -2.55
+        ],
+        "CatCafe_Dragon_Drake_Tail1": [
+          0.0,
+          1.44,
+          1.26
+        ],
+        "CatCafe_Dragon_Drake_Tail1_Scale": [
+          0.0,
+          1.44,
+          1.26
+        ],
+        "CatCafe_Dragon_Drake_Tail2": [
+          0.0,
+          1.33,
+          2.34
+        ],
+        "CatCafe_Dragon_Drake_Tail2_Scale": [
+          0.0,
+          1.33,
+          2.34
+        ],
+        "CatCafe_Dragon_Drake_Tail3": [
+          0.0,
+          1.22,
+          3.33
+        ],
+        "CatCafe_Dragon_Drake_Tail3_Scale": [
+          0.0,
+          1.22,
+          3.33
+        ],
+        "CatCafe_Dragon_Drake_LegFL": [
+          0.68,
+          0.86,
+          -0.81
+        ],
+        "CatCafe_Dragon_Drake_LegFL_Scale": [
+          0.68,
+          0.86,
+          -0.81
+        ],
+        "CatCafe_Dragon_Drake_LegFR": [
+          -0.68,
+          0.86,
+          -0.81
+        ],
+        "CatCafe_Dragon_Drake_LegFR_Scale": [
+          -0.68,
+          0.86,
+          -0.81
+        ],
+        "CatCafe_Dragon_Drake_LegBL": [
+          0.68,
+          0.86,
+          0.81
+        ],
+        "CatCafe_Dragon_Drake_LegBL_Scale": [
+          0.68,
+          0.86,
+          0.81
+        ],
+        "CatCafe_Dragon_Drake_LegBR": [
+          -0.68,
+          0.86,
+          0.81
+        ],
+        "CatCafe_Dragon_Drake_LegBR_Scale": [
+          -0.68,
+          0.86,
+          0.81
+        ],
+        "CatCafe_Dragon_Drake_WingL": [
+          0.55,
+          2.09,
+          -0.49
+        ],
+        "CatCafe_Dragon_Drake_WingL_Scale": [
+          0.55,
+          2.09,
+          -0.49
+        ],
+        "CatCafe_Dragon_Drake_WingR": [
+          -0.55,
+          2.09,
+          -0.49
+        ],
+        "CatCafe_Dragon_Drake_WingR_Scale": [
+          -0.55,
+          2.09,
+          -0.49
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/Dragon/CatCafe_Dragon_Drake.model.json",
+      "rbx_parts": 71,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Dragon_Drake.fbx",
+        "assets/cat-cafe/exports/CatCafe_Dragon_Drake.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "852/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "426 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.68"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Dragon_Elder",
+      "category": "Dragon",
+      "module": "dragon",
+      "objects": [
+        "CatCafe_Dragon_Elder",
+        "CatCafe_Dragon_Elder_Body_Scale",
+        "CatCafe_Dragon_Elder_Chest_Glow",
+        "CatCafe_Dragon_Elder_Neck",
+        "CatCafe_Dragon_Elder_Neck_Scale",
+        "CatCafe_Dragon_Elder_Head",
+        "CatCafe_Dragon_Elder_Head_Scale",
+        "CatCafe_Dragon_Elder_Jaw",
+        "CatCafe_Dragon_Elder_Jaw_Scale",
+        "CatCafe_Dragon_Elder_Tail1",
+        "CatCafe_Dragon_Elder_Tail1_Scale",
+        "CatCafe_Dragon_Elder_Tail2",
+        "CatCafe_Dragon_Elder_Tail2_Scale",
+        "CatCafe_Dragon_Elder_Tail3",
+        "CatCafe_Dragon_Elder_Tail3_Scale",
+        "CatCafe_Dragon_Elder_LegFL",
+        "CatCafe_Dragon_Elder_LegFL_Scale",
+        "CatCafe_Dragon_Elder_LegFR",
+        "CatCafe_Dragon_Elder_LegFR_Scale",
+        "CatCafe_Dragon_Elder_LegBL",
+        "CatCafe_Dragon_Elder_LegBL_Scale",
+        "CatCafe_Dragon_Elder_LegBR",
+        "CatCafe_Dragon_Elder_LegBR_Scale",
+        "CatCafe_Dragon_Elder_WingL",
+        "CatCafe_Dragon_Elder_WingL_Scale",
+        "CatCafe_Dragon_Elder_WingR",
+        "CatCafe_Dragon_Elder_WingR_Scale"
+      ],
+      "triangles": 984,
+      "budget": 4000,
+      "size_studs": {
+        "x": 8.21,
+        "y": 10.45,
+        "z": 5.89
+      },
+      "size_roblox": [
+        8.21,
+        5.89,
+        10.45
+      ],
+      "bounds_min": [
+        -4.11,
+        -4.6,
+        0.0
+      ],
+      "bounds_max": [
+        4.11,
+        5.86,
+        5.89
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Dragon_Elder_Chest_Glow": [
+          0.0,
+          -1.83,
+          1.54
+        ],
+        "CatCafe_Dragon_Elder_Neck": [
+          -0.0,
+          -1.39,
+          2.19
+        ],
+        "CatCafe_Dragon_Elder_Neck_Scale": [
+          -0.0,
+          -1.39,
+          2.19
+        ],
+        "CatCafe_Dragon_Elder_Head": [
+          -0.0,
+          -2.65,
+          3.99
+        ],
+        "CatCafe_Dragon_Elder_Head_Scale": [
+          -0.0,
+          -2.65,
+          3.99
+        ],
+        "CatCafe_Dragon_Elder_Jaw": [
+          -0.0,
+          -3.57,
+          4.03
+        ],
+        "CatCafe_Dragon_Elder_Jaw_Scale": [
+          -0.0,
+          -3.57,
+          4.03
+        ],
+        "CatCafe_Dragon_Elder_Tail1": [
+          -0.0,
+          1.54,
+          1.76
+        ],
+        "CatCafe_Dragon_Elder_Tail1_Scale": [
+          -0.0,
+          1.54,
+          1.76
+        ],
+        "CatCafe_Dragon_Elder_Tail2": [
+          -0.0,
+          2.86,
+          1.63
+        ],
+        "CatCafe_Dragon_Elder_Tail2_Scale": [
+          -0.0,
+          2.86,
+          1.63
+        ],
+        "CatCafe_Dragon_Elder_Tail3": [
+          -0.0,
+          4.07,
+          1.5
+        ],
+        "CatCafe_Dragon_Elder_Tail3_Scale": [
+          -0.0,
+          4.07,
+          1.5
+        ],
+        "CatCafe_Dragon_Elder_LegFL": [
+          -0.82,
+          -0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_LegFL_Scale": [
+          -0.82,
+          -0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_LegFR": [
+          0.82,
+          -0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_LegFR_Scale": [
+          0.82,
+          -0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_LegBL": [
+          -0.82,
+          0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_LegBL_Scale": [
+          -0.82,
+          0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_LegBR": [
+          0.82,
+          0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_LegBR_Scale": [
+          0.82,
+          0.99,
+          1.06
+        ],
+        "CatCafe_Dragon_Elder_WingL": [
+          -0.67,
+          -0.59,
+          2.55
+        ],
+        "CatCafe_Dragon_Elder_WingL_Scale": [
+          -0.67,
+          -0.59,
+          2.55
+        ],
+        "CatCafe_Dragon_Elder_WingR": [
+          0.67,
+          -0.59,
+          2.55
+        ],
+        "CatCafe_Dragon_Elder_WingR_Scale": [
+          0.67,
+          -0.59,
+          2.55
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Dragon_Elder_Chest_Glow": [
+          0.0,
+          1.54,
+          -1.83
+        ],
+        "CatCafe_Dragon_Elder_Neck": [
+          0.0,
+          2.19,
+          -1.39
+        ],
+        "CatCafe_Dragon_Elder_Neck_Scale": [
+          0.0,
+          2.19,
+          -1.39
+        ],
+        "CatCafe_Dragon_Elder_Head": [
+          0.0,
+          3.99,
+          -2.65
+        ],
+        "CatCafe_Dragon_Elder_Head_Scale": [
+          0.0,
+          3.99,
+          -2.65
+        ],
+        "CatCafe_Dragon_Elder_Jaw": [
+          0.0,
+          4.03,
+          -3.57
+        ],
+        "CatCafe_Dragon_Elder_Jaw_Scale": [
+          0.0,
+          4.03,
+          -3.57
+        ],
+        "CatCafe_Dragon_Elder_Tail1": [
+          0.0,
+          1.76,
+          1.54
+        ],
+        "CatCafe_Dragon_Elder_Tail1_Scale": [
+          0.0,
+          1.76,
+          1.54
+        ],
+        "CatCafe_Dragon_Elder_Tail2": [
+          0.0,
+          1.63,
+          2.86
+        ],
+        "CatCafe_Dragon_Elder_Tail2_Scale": [
+          0.0,
+          1.63,
+          2.86
+        ],
+        "CatCafe_Dragon_Elder_Tail3": [
+          0.0,
+          1.5,
+          4.07
+        ],
+        "CatCafe_Dragon_Elder_Tail3_Scale": [
+          0.0,
+          1.5,
+          4.07
+        ],
+        "CatCafe_Dragon_Elder_LegFL": [
+          0.82,
+          1.06,
+          -0.99
+        ],
+        "CatCafe_Dragon_Elder_LegFL_Scale": [
+          0.82,
+          1.06,
+          -0.99
+        ],
+        "CatCafe_Dragon_Elder_LegFR": [
+          -0.82,
+          1.06,
+          -0.99
+        ],
+        "CatCafe_Dragon_Elder_LegFR_Scale": [
+          -0.82,
+          1.06,
+          -0.99
+        ],
+        "CatCafe_Dragon_Elder_LegBL": [
+          0.82,
+          1.06,
+          0.99
+        ],
+        "CatCafe_Dragon_Elder_LegBL_Scale": [
+          0.82,
+          1.06,
+          0.99
+        ],
+        "CatCafe_Dragon_Elder_LegBR": [
+          -0.82,
+          1.06,
+          0.99
+        ],
+        "CatCafe_Dragon_Elder_LegBR_Scale": [
+          -0.82,
+          1.06,
+          0.99
+        ],
+        "CatCafe_Dragon_Elder_WingL": [
+          0.67,
+          2.55,
+          -0.59
+        ],
+        "CatCafe_Dragon_Elder_WingL_Scale": [
+          0.67,
+          2.55,
+          -0.59
+        ],
+        "CatCafe_Dragon_Elder_WingR": [
+          -0.67,
+          2.55,
+          -0.59
+        ],
+        "CatCafe_Dragon_Elder_WingR_Scale": [
+          -0.67,
+          2.55,
+          -0.59
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/Dragon/CatCafe_Dragon_Elder.model.json",
+      "rbx_parts": 82,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Dragon_Elder.fbx",
+        "assets/cat-cafe/exports/CatCafe_Dragon_Elder.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "984/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "492 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.63"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Dragon_Crowned",
+      "category": "Dragon",
+      "module": "dragon",
+      "objects": [
+        "CatCafe_Dragon_Crowned",
+        "CatCafe_Dragon_Crowned_Body_Scale",
+        "CatCafe_Dragon_Crowned_Chest_Glow",
+        "CatCafe_Dragon_Crowned_Neck",
+        "CatCafe_Dragon_Crowned_Neck_Scale",
+        "CatCafe_Dragon_Crowned_Head",
+        "CatCafe_Dragon_Crowned_Head_Scale",
+        "CatCafe_Dragon_Crowned_Crown_Glow",
+        "CatCafe_Dragon_Crowned_Jaw",
+        "CatCafe_Dragon_Crowned_Jaw_Scale",
+        "CatCafe_Dragon_Crowned_Tail1",
+        "CatCafe_Dragon_Crowned_Tail1_Scale",
+        "CatCafe_Dragon_Crowned_Tail2",
+        "CatCafe_Dragon_Crowned_Tail2_Scale",
+        "CatCafe_Dragon_Crowned_Tail3",
+        "CatCafe_Dragon_Crowned_Tail3_Scale",
+        "CatCafe_Dragon_Crowned_LegFL",
+        "CatCafe_Dragon_Crowned_LegFL_Scale",
+        "CatCafe_Dragon_Crowned_LegFR",
+        "CatCafe_Dragon_Crowned_LegFR_Scale",
+        "CatCafe_Dragon_Crowned_LegBL",
+        "CatCafe_Dragon_Crowned_LegBL_Scale",
+        "CatCafe_Dragon_Crowned_LegBR",
+        "CatCafe_Dragon_Crowned_LegBR_Scale",
+        "CatCafe_Dragon_Crowned_WingL",
+        "CatCafe_Dragon_Crowned_WingL_Scale",
+        "CatCafe_Dragon_Crowned_WingR",
+        "CatCafe_Dragon_Crowned_WingR_Scale"
+      ],
+      "triangles": 1284,
+      "budget": 4000,
+      "size_studs": {
+        "x": 10.67,
+        "y": 12.43,
+        "z": 7.52
+      },
+      "size_roblox": [
+        10.67,
+        7.52,
+        12.43
+      ],
+      "bounds_min": [
+        -5.34,
+        -5.51,
+        0.0
+      ],
+      "bounds_max": [
+        5.34,
+        6.92,
+        7.52
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Dragon_Crowned_Chest_Glow": [
+          0.0,
+          -2.16,
+          1.82
+        ],
+        "CatCafe_Dragon_Crowned_Neck": [
+          -0.0,
+          -1.64,
+          2.59
+        ],
+        "CatCafe_Dragon_Crowned_Neck_Scale": [
+          -0.0,
+          -1.64,
+          2.59
+        ],
+        "CatCafe_Dragon_Crowned_Head": [
+          -0.0,
+          -3.2,
+          4.83
+        ],
+        "CatCafe_Dragon_Crowned_Head_Scale": [
+          -0.0,
+          -3.2,
+          4.83
+        ],
+        "CatCafe_Dragon_Crowned_Crown_Glow": [
+          0.0,
+          -3.81,
+          7.24
+        ],
+        "CatCafe_Dragon_Crowned_Jaw": [
+          -0.0,
+          -4.29,
+          4.87
+        ],
+        "CatCafe_Dragon_Crowned_Jaw_Scale": [
+          -0.0,
+          -4.29,
+          4.87
+        ],
+        "CatCafe_Dragon_Crowned_Tail1": [
+          -0.0,
+          1.82,
+          2.08
+        ],
+        "CatCafe_Dragon_Crowned_Tail1_Scale": [
+          -0.0,
+          1.82,
+          2.08
+        ],
+        "CatCafe_Dragon_Crowned_Tail2": [
+          -0.0,
+          3.38,
+          1.92
+        ],
+        "CatCafe_Dragon_Crowned_Tail2_Scale": [
+          -0.0,
+          3.38,
+          1.92
+        ],
+        "CatCafe_Dragon_Crowned_Tail3": [
+          -0.0,
+          4.81,
+          1.77
+        ],
+        "CatCafe_Dragon_Crowned_Tail3_Scale": [
+          -0.0,
+          4.81,
+          1.77
+        ],
+        "CatCafe_Dragon_Crowned_LegFL": [
+          -0.98,
+          -1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_LegFL_Scale": [
+          -0.98,
+          -1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_LegFR": [
+          0.98,
+          -1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_LegFR_Scale": [
+          0.98,
+          -1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_LegBL": [
+          -0.98,
+          1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_LegBL_Scale": [
+          -0.98,
+          1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_LegBR": [
+          0.98,
+          1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_LegBR_Scale": [
+          0.98,
+          1.17,
+          1.25
+        ],
+        "CatCafe_Dragon_Crowned_WingL": [
+          -0.79,
+          -0.7,
+          3.02
+        ],
+        "CatCafe_Dragon_Crowned_WingL_Scale": [
+          -0.79,
+          -0.7,
+          3.02
+        ],
+        "CatCafe_Dragon_Crowned_WingR": [
+          0.79,
+          -0.7,
+          3.02
+        ],
+        "CatCafe_Dragon_Crowned_WingR_Scale": [
+          0.79,
+          -0.7,
+          3.02
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Dragon_Crowned_Chest_Glow": [
+          0.0,
+          1.82,
+          -2.16
+        ],
+        "CatCafe_Dragon_Crowned_Neck": [
+          0.0,
+          2.59,
+          -1.64
+        ],
+        "CatCafe_Dragon_Crowned_Neck_Scale": [
+          0.0,
+          2.59,
+          -1.64
+        ],
+        "CatCafe_Dragon_Crowned_Head": [
+          0.0,
+          4.83,
+          -3.2
+        ],
+        "CatCafe_Dragon_Crowned_Head_Scale": [
+          0.0,
+          4.83,
+          -3.2
+        ],
+        "CatCafe_Dragon_Crowned_Crown_Glow": [
+          0.0,
+          7.24,
+          -3.81
+        ],
+        "CatCafe_Dragon_Crowned_Jaw": [
+          0.0,
+          4.87,
+          -4.29
+        ],
+        "CatCafe_Dragon_Crowned_Jaw_Scale": [
+          0.0,
+          4.87,
+          -4.29
+        ],
+        "CatCafe_Dragon_Crowned_Tail1": [
+          0.0,
+          2.08,
+          1.82
+        ],
+        "CatCafe_Dragon_Crowned_Tail1_Scale": [
+          0.0,
+          2.08,
+          1.82
+        ],
+        "CatCafe_Dragon_Crowned_Tail2": [
+          0.0,
+          1.92,
+          3.38
+        ],
+        "CatCafe_Dragon_Crowned_Tail2_Scale": [
+          0.0,
+          1.92,
+          3.38
+        ],
+        "CatCafe_Dragon_Crowned_Tail3": [
+          0.0,
+          1.77,
+          4.81
+        ],
+        "CatCafe_Dragon_Crowned_Tail3_Scale": [
+          0.0,
+          1.77,
+          4.81
+        ],
+        "CatCafe_Dragon_Crowned_LegFL": [
+          0.98,
+          1.25,
+          -1.17
+        ],
+        "CatCafe_Dragon_Crowned_LegFL_Scale": [
+          0.98,
+          1.25,
+          -1.17
+        ],
+        "CatCafe_Dragon_Crowned_LegFR": [
+          -0.98,
+          1.25,
+          -1.17
+        ],
+        "CatCafe_Dragon_Crowned_LegFR_Scale": [
+          -0.98,
+          1.25,
+          -1.17
+        ],
+        "CatCafe_Dragon_Crowned_LegBL": [
+          0.98,
+          1.25,
+          1.17
+        ],
+        "CatCafe_Dragon_Crowned_LegBL_Scale": [
+          0.98,
+          1.25,
+          1.17
+        ],
+        "CatCafe_Dragon_Crowned_LegBR": [
+          -0.98,
+          1.25,
+          1.17
+        ],
+        "CatCafe_Dragon_Crowned_LegBR_Scale": [
+          -0.98,
+          1.25,
+          1.17
+        ],
+        "CatCafe_Dragon_Crowned_WingL": [
+          0.79,
+          3.02,
+          -0.7
+        ],
+        "CatCafe_Dragon_Crowned_WingL_Scale": [
+          0.79,
+          3.02,
+          -0.7
+        ],
+        "CatCafe_Dragon_Crowned_WingR": [
+          -0.79,
+          3.02,
+          -0.7
+        ],
+        "CatCafe_Dragon_Crowned_WingR_Scale": [
+          -0.79,
+          3.02,
+          -0.7
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/Dragon/CatCafe_Dragon_Crowned.model.json",
+      "rbx_parts": 107,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Dragon_Crowned.fbx",
+        "assets/cat-cafe/exports/CatCafe_Dragon_Crowned.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1284/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "642 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.71"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_WaterPark_TicketBooth",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_WaterPark_TicketBooth",
+        "CatCafe_Camp_WaterPark_TicketBooth_Glow",
+        "CatCafe_Camp_WaterPark_TicketBooth_Sign_Spin"
+      ],
+      "triangles": 1920,
+      "budget": 6000,
+      "size_studs": {
+        "x": 9.2,
+        "y": 5.38,
+        "z": 11.72
+      },
+      "size_roblox": [
+        9.2,
+        11.72,
+        5.38
+      ],
+      "bounds_min": [
+        -4.6,
+        -3.28,
+        0.0
+      ],
+      "bounds_max": [
+        4.6,
+        2.1,
+        11.72
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_WaterPark_TicketBooth_Sign_Spin": [
+          -0.0,
+          -0.45,
+          9.4
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_WaterPark_TicketBooth_Sign_Spin": [
+          0.0,
+          9.4,
+          -0.45
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_WaterPark_TicketBooth.model.json",
+      "rbx_parts": 137,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_WaterPark_TicketBooth.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_WaterPark_TicketBooth.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1920/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "974 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.59"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_SnorkelMask",
+      "category": "Accessory",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Accessory_SnorkelMask"
+      ],
+      "triangles": 96,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.97,
+        "y": 0.67,
+        "z": 0.79
+      },
+      "size_roblox": [
+        0.97,
+        0.79,
+        0.67
+      ],
+      "bounds_min": [
+        -0.46,
+        -0.06,
+        -0.17
+      ],
+      "bounds_max": [
+        0.51,
+        0.61,
+        0.62
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_SnorkelMask.model.json",
+      "rbx_parts": 8,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_SnorkelMask.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_SnorkelMask.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "96/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "48 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.17 (want 0)",
+          "centered": "footprint center x=0.03 y=0.28"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_SwimCap",
+      "category": "Accessory",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Accessory_SwimCap"
+      ],
+      "triangles": 244,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.95,
+        "y": 0.96,
+        "z": 0.38
+      },
+      "size_roblox": [
+        0.95,
+        0.38,
+        0.96
+      ],
+      "bounds_min": [
+        -0.47,
+        -0.48,
+        -0.02
+      ],
+      "bounds_max": [
+        0.47,
+        0.47,
+        0.36
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_SwimCap.model.json",
+      "rbx_parts": 8,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_SwimCap.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_SwimCap.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "244/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "76 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.02 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_SunVisor",
+      "category": "Accessory",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Accessory_SunVisor"
+      ],
+      "triangles": 184,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.0,
+        "y": 1.29,
+        "z": 0.15
+      },
+      "size_roblox": [
+        1.0,
+        0.15,
+        1.29
+      ],
+      "bounds_min": [
+        -0.5,
+        -0.79,
+        -0.06
+      ],
+      "bounds_max": [
+        0.5,
+        0.5,
+        0.09
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_SunVisor.model.json",
+      "rbx_parts": 18,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_SunVisor.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_SunVisor.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "184/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "84 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.06 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.15"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_StarfishShades",
+      "category": "Accessory",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Accessory_StarfishShades"
+      ],
+      "triangles": 300,
+      "budget": 600,
+      "size_studs": {
+        "x": 0.91,
+        "y": 0.66,
+        "z": 0.43
+      },
+      "size_roblox": [
+        0.91,
+        0.43,
+        0.66
+      ],
+      "bounds_min": [
+        -0.46,
+        -0.05,
+        -0.21
+      ],
+      "bounds_max": [
+        0.46,
+        0.61,
+        0.22
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_StarfishShades.model.json",
+      "rbx_parts": 17,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_StarfishShades.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_StarfishShades.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "300/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "126 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.21 (want 0)",
+          "centered": "footprint center x=0.00 y=0.28"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_FlamingoFloat",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_FlamingoFloat",
+        "CatCafe_Decor_FlamingoFloat_Water"
+      ],
+      "triangles": 404,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.8,
+        "y": 3.8,
+        "z": 2.96
+      },
+      "size_roblox": [
+        3.8,
+        2.96,
+        3.8
+      ],
+      "bounds_min": [
+        -1.9,
+        -1.9,
+        0.0
+      ],
+      "bounds_max": [
+        1.9,
+        1.9,
+        2.96
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_FlamingoFloat.model.json",
+      "rbx_parts": 17,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_FlamingoFloat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_FlamingoFloat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "404/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_SplashFountain",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_SplashFountain",
+        "CatCafe_Decor_SplashFountain_Water",
+        "CatCafe_Decor_SplashFountain_Glow"
+      ],
+      "triangles": 596,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.04,
+        "y": 4.1,
+        "z": 4.42
+      },
+      "size_roblox": [
+        4.04,
+        4.42,
+        4.1
+      ],
+      "bounds_min": [
+        -2.02,
+        -2.05,
+        0.0
+      ],
+      "bounds_max": [
+        2.02,
+        2.05,
+        4.42
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_SplashFountain.model.json",
+      "rbx_parts": 21,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_SplashFountain.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_SplashFountain.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "596/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "272 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_TicketArch",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_TicketArch",
+        "CatCafe_Decor_TicketArch_Glow"
+      ],
+      "triangles": 484,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.3,
+        "y": 0.9,
+        "z": 5.4
+      },
+      "size_roblox": [
+        4.3,
+        5.4,
+        0.9
+      ],
+      "bounds_min": [
+        -2.15,
+        -0.45,
+        0.0
+      ],
+      "bounds_max": [
+        2.15,
+        0.45,
+        5.4
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_TicketArch.model.json",
+      "rbx_parts": 36,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_TicketArch.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_TicketArch.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "484/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "332 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_WavePoolTiles",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_WavePoolTiles",
+        "CatCafe_Decor_WavePoolTiles_Water"
+      ],
+      "triangles": 492,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.0,
+        "y": 2.5,
+        "z": 1.45
+      },
+      "size_roblox": [
+        4.0,
+        1.45,
+        2.5
+      ],
+      "bounds_min": [
+        -2.0,
+        -1.25,
+        0.0
+      ],
+      "bounds_max": [
+        2.0,
+        1.25,
+        1.45
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_WavePoolTiles.model.json",
+      "rbx_parts": 39,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_WavePoolTiles.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_WavePoolTiles.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "492/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "252 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_LifeguardChair",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_LifeguardChair"
+      ],
+      "triangles": 292,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.04,
+        "y": 3.04,
+        "z": 6.25
+      },
+      "size_roblox": [
+        3.04,
+        6.25,
+        3.04
+      ],
+      "bounds_min": [
+        -2.02,
+        -1.32,
+        -0.05
+      ],
+      "bounds_max": [
+        1.02,
+        1.72,
+        6.2
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_LifeguardChair.model.json",
+      "rbx_parts": 19,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_LifeguardChair.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_LifeguardChair.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "292/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "124 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.05 (want 0)",
+          "centered": "footprint center x=-0.50 y=0.20"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_SnackHut",
+      "category": "Decor",
+      "module": "waterparkshelf",
+      "objects": [
+        "CatCafe_Decor_SnackHut",
+        "CatCafe_Decor_SnackHut_Glow"
+      ],
+      "triangles": 480,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.3,
+        "y": 2.5,
+        "z": 4.66
+      },
+      "size_roblox": [
+        4.3,
+        4.66,
+        2.5
+      ],
+      "bounds_min": [
+        -2.15,
+        -1.1,
+        0.0
+      ],
+      "bounds_max": [
+        2.15,
+        1.4,
+        4.66
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_SnackHut.model.json",
+      "rbx_parts": 35,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_SnackHut.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_SnackHut.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "480/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "258 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.15"
         }
       }
     }

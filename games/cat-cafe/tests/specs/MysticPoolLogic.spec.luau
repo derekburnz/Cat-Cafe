@@ -166,16 +166,32 @@ return function()
 
 	describe("MysticPoolLogic.odds", function()
 		it("lists every rarity with its percent, adding up to 100", function()
-			local rows = MysticPoolLogic.odds()
-			expect(#rows).to.equal(#Traits.RARITIES)
-			local total = 0
-			for index, row in rows do
-				expect(row.name).to.equal(Traits.RARITIES[index].name)
-				expect(row.color).to.equal(Traits.RARITIES[index].color)
-				total += row.percent
+			for _, secret in { false, true } do
+				local rows = MysticPoolLogic.odds(secret)
+				local want = Traits.rarities(secret)
+				expect(#rows).to.equal(if secret then 7 else 6)
+				local total = 0
+				for index, row in rows do
+					expect(row.name).to.equal(want[index].name)
+					expect(row.color).to.equal(want[index].color)
+					expect(row.label).to.equal(Traits.percentText(want[index].odds))
+					total += row.percent
+				end
+				expect(math.abs(total - 100) < 1e-9).to.equal(true)
+				expect(MysticPoolLogic.oddsLines(secret)[2]:find("equally likely", 1, true)).to.be.ok()
 			end
-			expect(total).to.equal(100)
-			expect(MysticPoolLogic.ODDS_LINE:find("equally likely", 1, true)).to.be.ok()
+			expect(MysticPoolLogic.oddsLines(true)[1]).to.equal(
+				"Common 30%, Uncommon 25%, Rare 18%, Epic 12%, Legendary 10%, Mythic 4.9%, Secret 0.1%"
+			)
+			expect(MysticPoolLogic.oddsLine(true)).to.equal(
+				"Roll odds: Common 30% · Uncommon 25% · Rare 18% · Epic 12% · Legendary 10% · Mythic 4.9% · Secret 0.1%"
+			)
+		end)
+
+		it("reads the Secret switch the server copied, off when missing (#3908)", function()
+			expect(MysticPoolLogic.secret()).to.equal(false)
+			expect(#MysticPoolLogic.odds()).to.equal(6)
+			expect(#MysticPoolLogic.odds(true)).to.equal(7)
 		end)
 
 		it("never uses near-miss words on its buttons", function()
@@ -383,7 +399,7 @@ return function()
 				sum += row.percent
 			end
 			expect(sum).to.equal(100)
-			expect(#MysticPoolLogic.ODDS_LINES >= 1).to.equal(true)
+			expect(#MysticPoolLogic.oddsLines() >= 1).to.equal(true)
 		end)
 	end)
 end

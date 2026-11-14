@@ -153,7 +153,7 @@ function AdminWheelService.debugForce(player: Player, prizeId: string?): string?
 		return nil
 	end
 	assert(RunService:IsStudio(), "Studio only")
-	assert(AdminWheel.get(prizeId) ~= nil, "no such prize")
+	assert((AdminWheel.get(prizeId)) ~= nil, "no such prize")
 	forcedPrize[player] = prizeId
 	return prizeId
 end

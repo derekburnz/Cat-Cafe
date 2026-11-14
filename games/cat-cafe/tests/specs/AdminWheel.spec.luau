@@ -32,7 +32,7 @@ return function()
 				odds[prize.id] = prize.weight
 				sum += prize.weight
 				expect(#prize.name > 0).to.equal(true)
-				expect(AdminWheel.get(prize.id)).to.equal(prize)
+				expect((AdminWheel.get(prize.id))).to.equal(prize)
 			end
 			expect(sum).to.equal(100)
 			expect(odds).to.deepEqual({
@@ -45,12 +45,12 @@ return function()
 				mega = 6,
 				secret = 2,
 			})
-			expect(AdminWheel.get("nope")).to.equal(nil)
+			expect((AdminWheel.get("nope"))).to.equal(nil)
 		end)
 
 		it("pay what they say, in things the game already pays", function()
 			local function of(id: string): any
-				return AdminWheel.get(id)
+				return (AdminWheel.get(id))
 			end
 			expect(of("rerolls20").tokens).to.equal(20)
 			expect(of("fish200").prize).to.deepEqual({ fish = 200 })
@@ -90,11 +90,11 @@ return function()
 			for _, prize in AdminWheel.PRIZES do
 				expect(counts[prize.id]).to.equal(prize.weight * steps / 100)
 			end
-			expect(AdminWheel.pick(0)).to.equal(AdminWheel.PRIZES[1])
-			expect(AdminWheel.pick(0.999999)).to.equal(AdminWheel.PRIZES[#AdminWheel.PRIZES])
+			expect((AdminWheel.pick(0))).to.equal(AdminWheel.PRIZES[1])
+			expect((AdminWheel.pick(0.999999))).to.equal(AdminWheel.PRIZES[#AdminWheel.PRIZES])
 			-- a roll outside [0, 1) never errors
-			expect(AdminWheel.pick(1)).to.equal(AdminWheel.PRIZES[#AdminWheel.PRIZES])
-			expect(AdminWheel.pick(-1)).to.equal(AdminWheel.PRIZES[1])
+			expect((AdminWheel.pick(1))).to.equal(AdminWheel.PRIZES[#AdminWheel.PRIZES])
+			expect((AdminWheel.pick(-1))).to.equal(AdminWheel.PRIZES[1])
 		end)
 	end)
 
@@ -169,8 +169,8 @@ return function()
 	end)
 
 	describe("the cat slices", function()
-		local mythical = AdminWheel.get("mythical") :: AdminWheel.Prize
-		local secret = AdminWheel.get("secret") :: AdminWheel.Prize
+		local mythical = (AdminWheel.get("mythical")) :: AdminWheel.Prize
+		local secret = (AdminWheel.get("secret")) :: AdminWheel.Prize
 
 		it("give a Mythical of the newest area the player has opened", function()
 			local topTier = 0

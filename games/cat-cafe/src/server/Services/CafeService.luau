@@ -19,6 +19,7 @@ local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Crates = require(ReplicatedStorage.Shared.Crates)
+local DailyDeal = require(ReplicatedStorage.Shared.DailyDeal)
 local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
 local DecorBest = require(ReplicatedStorage.Shared.DecorBest)
@@ -257,6 +258,34 @@ local function traitsView(player: Player, profile: Profile, now: number): Types.
 	return view
 end
 
+-- #3996: whether Today's Deal may be the token deal for this player: the token bundles may be offered (the
+-- traitBundles switch on and the policy read and not restricting paid random items) and the bank has room
+function CafeService.dealTokensOk(player: Player, profile: Profile): boolean
+	local policy = DataService.policy(player)
+	local tokens = Catalog.getProduct("deal_2")
+	return LiveFlagService.on(Traits.BUNDLE_FLAG)
+		and policy ~= nil
+		and policy.ArePaidRandomItemsRestricted == false
+		and DailyDeal.roomFor(
+			profile.traits.tokens,
+			if tokens ~= nil then tokens.prize.traitTokens or 0 else 0,
+			Traits.TOKEN_MAX
+		)
+end
+
+-- #3996: PlayerState.dailyDeal, false while the dailyDeal switch is off
+local function dealView(player: Player, profile: Profile, now: number): Types.DailyDealView | false
+	if not LiveFlagService.on(DailyDeal.FLAG) then
+		return false
+	end
+	return DailyDeal.view(
+		profile,
+		now,
+		CafeService.dealTokensOk(player, profile),
+		Economy.tier(profile)
+	)
+end
+
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
 	-- #3666: a new save joins the intro test before its first sync says whether the intro plays itself; the answer
 	-- holds for the session
@@ -311,6 +340,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		giftNext = PlaytimeGifts.upcoming(profile, 2), -- #2791: the gift icon's next step and the popover's two
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
 		traits = traitsView(player, profile, now), -- #3196: the Mystic Pool card, nil while it is shut
+		dailyDeal = dealView(player, profile, now), -- #3996
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile), -- #3022

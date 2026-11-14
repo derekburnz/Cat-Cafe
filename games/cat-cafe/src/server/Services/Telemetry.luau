@@ -290,6 +290,8 @@ export type CustomEvent =
 	| "trait_roll"
 	-- #3196: Trait Tokens gained, value how many: the source (station, spin, daily_treat, quest, lost_found, code)
 	| "trait_token"
+	| "deal_bought" -- #3996: Today's Deal bought, value the deal number; the tier, "today" or "other" (a receipt for a
+	-- deal that was not that day's, still paid)
 	| "rare_customer" -- #3889: a rare customer came by chance; field: rich, mystery or collector
 	| "session_feedback_ctx"
 	| "session_feedback_where"

@@ -28,9 +28,14 @@ local CafePassService = require(script.Parent.CafePassService)
 local CafeService = require(script.Parent.CafeService)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local Config = require(ReplicatedStorage.Shared.Config)
+local DailyDeal = require(ReplicatedStorage.Shared.DailyDeal)
 local DataService = require(script.Parent.DataService)
+local Economy = require(ReplicatedStorage.Shared.Economy)
 local Grant = require(ReplicatedStorage.Shared.Grant)
+local Guard = require(script.Parent.Parent.Util.Guard)
 local IdeaCreditsService = require(script.Parent.IdeaCreditsService)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local Products = require(ReplicatedStorage.Shared.Products)
@@ -255,6 +260,27 @@ function ProductService.processReceipt(receipt: { [string]: any }): Enum.Product
 			return Enum.ProductPurchaseDecision.NotProcessedYet
 		end
 		Telemetry.productBought(player, profile, receipt.ProductId, receipt.CurrencySpent) -- #1888
+		-- #3996: Today's Deal is marked bought for the receipt's UTC day; a deal that was not that day's is still paid
+		local deal = DailyDeal.ofProduct(product.id)
+		if deal ~= nil then
+			local day = DailyDeal.dayOf(os.time())
+			profile.dealDay = day
+			local today = DailyDeal.dealFor(day, CafeService.dealTokensOk(player, profile))
+				== deal.n
+			if not today then
+				warn(
+					"[ProductService] a Today's Deal receipt for a deal that was not today's:",
+					product.id
+				)
+			end
+			Telemetry.custom(
+				player,
+				"deal_bought",
+				deal.n,
+				{ "T" .. tostring(Economy.tier(profile)), if today then "today" else "other" }
+			)
+			CafeService.sync(player)
+		end
 	end
 	if saveHolding(player, purchaseId) then
 		return Enum.ProductPurchaseDecision.PurchaseGranted
@@ -262,7 +288,35 @@ function ProductService.processReceipt(receipt: { [string]: any }): Enum.Product
 	return Enum.ProductPurchaseDecision.NotProcessedYet
 end
 
+-- #3996: Today's Deal's Buy button. The server checks it is today's deal, not bought today, from Tier 2 and with the
+-- switch on, then opens Roblox's own prompt; the receipt pays it (above).
+local function onPromptDeal(player: Player, rawProduct: unknown)
+	local productId = Guard.id(rawProduct)
+	local profile = DataService.get(player)
+	if profile == nil or productId == nil or not LiveFlagService.on(DailyDeal.FLAG) then
+		return
+	end
+	local blocker = DailyDeal.promptBlocker(
+		profile,
+		os.time(),
+		CafeService.dealTokensOk(player, profile),
+		Economy.tier(profile),
+		productId
+	)
+	local id = Config.ProductIds[productId]
+	if blocker == nil and (id == nil or id == 0) then
+		blocker = "Today's Deal is not on sale yet"
+	end
+	if blocker ~= nil then
+		Net.fire(player, "Toast", blocker, "warn")
+		CafeService.sync(player)
+		return
+	end
+	MarketplaceService:PromptProductPurchase(player, id)
+end
+
 function ProductService.start()
+	Net.on("PromptDeal", onPromptDeal)
 	MarketplaceService.ProcessReceipt = function(receipt: any): Enum.ProductPurchaseDecision
 		local ok, decision = pcall(ProductService.processReceipt, receipt)
 		if ok then

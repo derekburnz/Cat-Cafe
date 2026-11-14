@@ -92,6 +92,11 @@ local Config = {
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 		trait_tokens_20 = 3730879829, -- #3864: 20 Trait Tokens, R$99; made with dev-products.yml, then its id goes here
 		trait_tokens_50 = 3730879833, -- #3864: 50 Trait Tokens, R$199
+		-- #3996: Today's Deal, R$25 each, regional pricing off; 0 until dev-products.yml makes them (products.json)
+		deal_1 = 0,
+		deal_2 = 0,
+		deal_3 = 0,
+		deal_4 = 0,
 	} :: { [string]: number },
 	-- #1934 (release.md section 1): the Roblox badge id of each badge in shared/Badges, by key; a 0 is not made yet
 	-- and is never awarded. Made 5 a day in Creator Hub, in Badges.LIST order, by Tools-Agent or Derek.

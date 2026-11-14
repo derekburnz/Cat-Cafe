@@ -1740,12 +1740,31 @@ function UI.init(config: Types.InitConfig)
 				if visible and input.KeyCode == Enum.KeyCode.ButtonSelect then
 					UI.gamepadSelect()
 					return
+				elseif visible and input.KeyCode == Enum.KeyCode.ButtonB then
+					-- #4224: B goes back one step: the top card or sub page first, then the window, and with
+					-- nothing open it lets go of the selection so the sticks walk again
+					local nav = require(script.Components.GamepadNav)
+					if nav.back() then
+						return
+					elseif modalInstance:current() ~= nil then
+						modalInstance:close()
+						return
+					end
+					local guiService = game:GetService("GuiService")
+					if guiService.SelectedObject ~= nil then
+						guiService.SelectedObject = nil
+						return
+					end
 				elseif
 					visible
-					and input.KeyCode == Enum.KeyCode.ButtonB
+					and (input.KeyCode == Enum.KeyCode.ButtonL1 or input.KeyCode == Enum.KeyCode.ButtonR1)
 					and modalInstance:current() ~= nil
 				then
-					modalInstance:close()
+					-- #4224: L1 / R1 switch the open window's tabs
+					require(script.Components.GamepadNav).stepTab(
+						modalInstance.container,
+						if input.KeyCode == Enum.KeyCode.ButtonR1 then 1 else -1
+					)
 					return
 				end
 				if gameProcessed or not visible then

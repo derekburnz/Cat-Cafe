@@ -13,7 +13,9 @@
 local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
 
+local Button = require(script.Parent.Button)
 local Create = require(script.Parent.Create)
+local GamepadTabs = require(script.Parent.GamepadTabs)
 local Theme = require(script.Parent.Parent.Theme)
 
 local GamepadNav = {}
@@ -145,6 +147,161 @@ end
 -- Gives the selection back to `before` when it still shows, else clears it (the sticks walk again).
 function GamepadNav.restore(before: GuiObject?)
 	GamepadNav.select(before)
+end
+
+-- #4224 (console controls, from player feedback): B goes back one step. A card or a window's sub page that shows
+-- over everything (an ask card, a confirm, the Index detail card) pushes how to close it here while it shows, and B
+-- closes the top one that still shows before it closes the window (init.luau). `id` names it, so pushing again
+-- moves it to the top and pop takes it out wherever it is.
+type Back = { id: string, frame: GuiObject, close: () -> () }
+local backs: { Back } = {}
+
+function GamepadNav.pushBack(id: string, frame: GuiObject, close: () -> ())
+	GamepadNav.popBack(id)
+	table.insert(backs, { id = id, frame = frame, close = close })
+end
+
+function GamepadNav.popBack(id: string)
+	for index = #backs, 1, -1 do
+		if backs[index].id == id then
+			table.remove(backs, index)
+		end
+	end
+end
+
+-- Closes the top pushed card that still shows and returns true; a card that has gone without popping is dropped.
+-- False when none shows (B then closes the window, or lets go of the selection).
+function GamepadNav.back(): boolean
+	while #backs > 0 do
+		local top = table.remove(backs) :: Back
+		if GamepadNav.shown(top.frame) then
+			top.close()
+			return true
+		end
+	end
+	return false
+end
+
+-- #4224: a pop-up card as it shows: on a gamepad it takes the selection on its main button (`main`, else its first
+-- useful button; never its X) and B closes it through `close`. Returns the function to call as it hides, which
+-- pops it and gives the selection back when the card had taken it.
+function GamepadNav.card(id: string, frame: GuiObject, close: () -> (), main: GuiObject?): () -> ()
+	GamepadNav.pushBack(id, frame, close)
+	local before: GuiObject? = nil
+	local took = false
+	if GamepadNav.isGamepad() then
+		-- a frame later, once the card has laid out and shows
+		task.defer(function()
+			if not GamepadNav.shown(frame) then
+				return
+			end
+			local target = if main ~= nil and GamepadNav.shown(main)
+				then main
+				else GamepadNav.first(frame)
+			if target ~= nil then
+				before = GuiService.SelectedObject
+				took = GamepadNav.select(target)
+			end
+		end)
+	end
+	local done = false
+	return function()
+		if done then
+			return
+		end
+		done = true
+		GamepadNav.popBack(id)
+		local selected = GuiService.SelectedObject
+		if
+			took
+			and (
+				selected == nil
+				or selected:IsDescendantOf(frame)
+				or not GamepadNav.shown(selected)
+			)
+		then
+			GamepadNav.restore(before)
+		end
+	end
+end
+
+-- #4224: L1 / R1 step through a window's tabs. The tab row is the first frame named Tabs under `root` that shows
+-- (every tabbed window builds one), its tabs are its Buttons in reading order, and the open tab is the one not in
+-- the "ghost" style (each window draws the open tab gold or primary and the rest ghost).
+GamepadNav.tabIndex = GamepadTabs.index
+
+-- The tab row under `root` and its tabs in reading order, or nil when it shows no row of two or more.
+function GamepadNav.tabs(root: Instance): (Instance?, { GuiButton })
+	local rows: { GuiObject } = {}
+	for _, descendant in root:GetDescendants() do
+		if
+			descendant.Name == "Tabs"
+			and descendant:IsA("GuiObject")
+			and GamepadNav.shown(descendant)
+		then
+			table.insert(rows, descendant :: GuiObject)
+		end
+	end
+	table.sort(rows, function(a: GuiObject, b: GuiObject): boolean
+		return a.AbsolutePosition.Y < b.AbsolutePosition.Y
+	end)
+	for _, row in rows do
+		local tabs: { GuiButton } = {}
+		for _, descendant in row:GetDescendants() do
+			if
+				descendant:IsA("GuiButton")
+				and Button.styleOf(descendant) ~= nil
+				and GamepadNav.shown(descendant)
+			then
+				table.insert(tabs, descendant :: GuiButton)
+			end
+		end
+		if #tabs >= 2 then
+			table.sort(tabs, function(a: GuiButton, b: GuiButton): boolean
+				local ay, by = a.AbsolutePosition.Y, b.AbsolutePosition.Y
+				if math.abs(ay - by) > ROW then
+					return ay < by
+				end
+				return a.AbsolutePosition.X < b.AbsolutePosition.X
+			end)
+			return row, tabs
+		end
+	end
+	return nil, {}
+end
+
+-- Presses the tab `step` away in the window under `root`. A selection on the tab row follows to the new tab; one
+-- that the switch hid lands on the window's first button. Returns whether a tab was pressed.
+function GamepadNav.stepTab(root: Instance, step: number): boolean
+	local row, tabs = GamepadNav.tabs(root)
+	if row == nil then
+		return false
+	end
+	local styles: { string? } = {}
+	for index, tab in tabs do
+		styles[index] = Button.styleOf(tab)
+	end
+	local index = GamepadNav.tabIndex(styles, step)
+	if index == nil then
+		return false
+	end
+	local target = tabs[index]
+	local selected = GuiService.SelectedObject
+	local onRow = selected ~= nil and selected:IsDescendantOf(row)
+	if not Button.press(target) then
+		return false
+	end
+	if onRow then
+		GamepadNav.select(target)
+	else
+		task.defer(function()
+			local now = GuiService.SelectedObject
+			if now ~= nil and not GamepadNav.shown(now) then
+				GamepadNav.select(GamepadNav.first(root))
+			end
+		end)
+	end
+	return true
 end
 
 -- The selection ring: an outer sky-blue stroke and a white inner line, over the selected button's whole size.

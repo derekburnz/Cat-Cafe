@@ -15,6 +15,7 @@ local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
@@ -434,6 +435,13 @@ function BaitCard.show(
 	if not wasShowing then
 		Sound.play("uiOpen")
 		Tween.popIn(self._card, 0.8)
+		-- #4224 (console): on a gamepad the card takes the selection on Tame, and B closes it as its X does (never
+		-- on the first bowl's card, which has no X)
+		self._navDone = GamepadNav.card("baitCard", self._card, function()
+			if self._close.instance.Visible then
+				self:hide()
+			end
+		end, self._tame.face)
 	end
 end
 
@@ -518,6 +526,11 @@ function BaitCard.hide(self: any)
 	self._token += 1
 	local token = self._token
 	self._pending = false
+	local navDone: (() -> ())? = self._navDone
+	self._navDone = nil
+	if navDone ~= nil then
+		navDone()
+	end
 	TutorialGlow.set(self._tame.instance, false) -- #3815: the arrow goes with the card
 	Sound.play("uiClose")
 	Tween.popOut(self._card, function()

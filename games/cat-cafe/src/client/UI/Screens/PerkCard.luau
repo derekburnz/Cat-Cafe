@@ -15,6 +15,7 @@ local TweenService = game:GetService("TweenService")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PerkCardLogic = require(script.Parent.Parent.Components.PerkCardLogic)
@@ -280,6 +281,12 @@ end
 function PerkCard._open(self: any)
 	self:_layout()
 	self._card.Visible = true
+	-- #4224 (console): on a gamepad the card takes the selection on OK, and B closes it as OK does
+	if self._navDone == nil then
+		self._navDone = GamepadNav.card("perkCard", self._card, function()
+			self:hide()
+		end, self._button.face)
+	end
 	if GuiService.ReducedMotionEnabled then
 		self._pop.Scale = 1
 	else
@@ -329,6 +336,11 @@ end
 
 function PerkCard.hide(self: any)
 	self._card.Visible = false
+	local navDone: (() -> ())? = self._navDone
+	self._navDone = nil
+	if navDone ~= nil then
+		navDone()
+	end
 end
 
 function PerkCard.isShowing(self: any): boolean

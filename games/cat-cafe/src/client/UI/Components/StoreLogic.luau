@@ -1318,7 +1318,8 @@ end
 -- The fish view's rows by their FishStore key.
 function StoreLogic.fishByKey(list: { FishRow }?): { [string]: FishRow }
 	local out: { [string]: FishRow } = {}
-	for _, item in list or {} do
+	local rows: { FishRow } = list or {} -- one type, for the CI luau-lsp
+	for _, item in rows do
 		if type(item) == "table" and type(item.key) == "string" then
 			out[item.key] = item
 		end

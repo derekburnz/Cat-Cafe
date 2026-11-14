@@ -1211,7 +1211,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		close = closeModal,
 		openFeedback = function()
-			UI.bugReport.open()
+			-- #4289 (Derek 11-14: "just make it immediately go to feedback"): Settings opens the write box on the
+			-- Idea chip, with no faces first; the HUD tile keeps the faces (F87)
+			UI.bugReport.open("idea", "none")
 		end,
 		-- F102: the Trading section, saved as settings.tradeRequests through SetSetting (Gameplay 2026-11-02)
 		setTradeRequests = function(mode: string)

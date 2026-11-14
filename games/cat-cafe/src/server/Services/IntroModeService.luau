@@ -20,7 +20,25 @@ IntroModeService.WAIT_SECONDS = 2
 local modes: { [Player]: string } = {}
 local pending: { [Player]: boolean } = {}
 
+-- #4074: GetValue warns "Config value not found for key" for a key the experience's config does not hold, and that was
+-- every join (89 in the error report) while no Experiment holds introMode. So the server reads the experience-wide
+-- config first, once at start and then every RECHECK_SECONDS, and reads players' own configs only while the key is
+-- there: at most one such warning per server per check, and none once the Experiment is live.
+IntroModeService.RECHECK_SECONDS = 3600
+local keyLive = false
+
+local function checkKey()
+	local ok, value = pcall(function()
+		local snapshot = (game:GetService("ConfigService") :: any):GetConfigAsync()
+		return snapshot:GetValue(IntroModeService.KEY)
+	end)
+	keyLive = ok and value ~= nil
+end
+
 local function fetch(player: Player)
+	if not keyLive then
+		return -- no Experiment holds the key: every player has nil, the save's older split
+	end
 	pending[player] = true
 	local ok, value = pcall(function()
 		local snapshot = (game:GetService("ConfigService") :: any):GetConfigForPlayerAsync(player)
@@ -56,6 +74,13 @@ function IntroModeService.studioMode(): string?
 end
 
 function IntroModeService.start()
+	checkKey()
+	task.spawn(function()
+		while true do
+			task.wait(IntroModeService.RECHECK_SECONDS)
+			checkKey()
+		end
+	end)
 	Players.PlayerAdded:Connect(fetch)
 	for _, player in Players:GetPlayers() do
 		task.spawn(fetch, player)

@@ -16,6 +16,7 @@
 -- .claude/skills/animation-vfx/SKILL.md.
 -- Wiring and file map: README.md next to this file.
 
+local AdminAir = require(script.AdminAir)
 local Ambient = require(script.Ambient)
 local ArcadeGlow = require(script.ArcadeGlow)
 local AreaFx = require(script.AreaFx)
@@ -198,6 +199,7 @@ function Effects.start()
 		PoolBeacon.start,
 		RuinsWater.start,
 		StormFall.start, -- #4197: a Cat Storm's strays fall out of the sky
+		AdminAir.start, -- #4197: Golden Hour's gold motes and Money Storm's coin glints round you
 		TrailSparkle.start,
 		PawTrail.start,
 		GoldenFind.start,

@@ -661,6 +661,32 @@ Presets.emitters = {
 		lightEmission = 0.4,
 		rotSpeed = { -30, 30 },
 	},
+	-- #4197 admin events' air (Effects/AdminAir): Golden Hour's slow gold motes and Money Storm's quicker coin
+	-- glints, falling round you while the event runs.
+	goldHourDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.golden, Presets.palette.goldLight },
+		size = { 0.4, 0.15 },
+		transparency = { 0.25, 1 },
+		lifetime = { 4, 5 },
+		speed = { 2.5, 4 },
+		spread = 10,
+		rate = 8,
+		lightEmission = 0.6,
+		rotSpeed = { -20, 20 },
+	},
+	moneyStormDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden },
+		size = { 0.55, 0.3 },
+		transparency = { 0.1, 0.8 },
+		lifetime = { 2.2, 3 },
+		speed = { 8, 11 },
+		spread = 6,
+		rate = 12,
+		lightEmission = 0.5,
+		rotSpeed = { -200, 200 },
+	},
 	-- Soft sparkles rising off the guide trail's dots (Effects/TrailSparkle, #3022), recoloured to each dot.
 	trailSparkle = {
 		texture = Presets.textures.sparkle,
@@ -3288,6 +3314,16 @@ Presets.stormFall = {
 	driftHeight = 22,
 	driftEvery = 0.5,
 	markWait = 2,
+}
+
+-- #4197 (Effects/AdminAir): the drift an admin event hangs round you while it runs, by its effect's name
+-- (AdminEventLogic.AIR). One emitter on an unseen `box` held `height` studs over the camera's focus, looked at every
+-- `every` seconds. None with Reduce Motion or in Low performance.
+Presets.adminAir = {
+	kinds = { goldBoost = "goldHourDrift", moneyStorm = "moneyStormDrift" } :: { [string]: string },
+	box = Vector3.new(70, 1, 70),
+	height = 22,
+	every = 0.5,
 }
 
 -- The Rally board's marquee (F101, Model-Agent's #759: `CatCafe_Square_RallyBoard` with its 32 bulbs in the

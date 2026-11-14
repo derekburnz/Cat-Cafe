@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(ReplicatedStorage.Shared.Guard)
 local TicketBooth = require(ReplicatedStorage.Shared.TicketBooth)
+local Traits = require(ReplicatedStorage.Shared.Traits)
 
 local CafeService = require(script.Parent.CafeService)
 local DataService = require(script.Parent.DataService)
@@ -38,6 +39,13 @@ local function onBuy(player: Player, rawId: unknown)
 	local now = os.time()
 	local save = profile.tickets
 	local reason = TicketBooth.blocker(save, prize, now)
+	if
+		reason == nil
+		and prize.tokens ~= nil
+		and profile.traits.tokens + prize.tokens > Traits.TOKEN_MAX
+	then
+		reason = "Your token bank is full" -- Review-QA on #4088: never spend tickets on tokens that do not fit
+	end
 	if reason ~= nil then
 		Net.toast(player, reason, "warn")
 		CafeService.sync(player)
@@ -46,7 +54,7 @@ local function onBuy(player: Player, rawId: unknown)
 	local before = save.have
 	TicketBooth.spend(save, prize, now)
 	if prize.tokens ~= nil then
-		profile.traits.tokens += prize.tokens
+		Traits.give(profile.traits, prize.tokens)
 	end
 	if prize.prize ~= nil then
 		Payout.pay(player, profile, prize.prize, "ticket_booth")

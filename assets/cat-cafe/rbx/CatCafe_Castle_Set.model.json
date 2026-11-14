@@ -102783,7 +102783,41 @@
      },
      "attributes": {
       "Rojo_Id": "CatCafe_Castle_Set/79"
-     }
+     },
+     "children": [
+      {
+       "name": "Smoke",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -4.4,
+           14.5,
+           2.0
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Castle_Set_076_TimberHouse",
@@ -110341,7 +110375,41 @@
      },
      "attributes": {
       "Rojo_Id": "CatCafe_Castle_Set/89"
-     }
+     },
+     "children": [
+      {
+       "name": "Smoke",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -4.4,
+           14.5,
+           2.0
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Castle_Set_082_TimberHouse",
@@ -113063,7 +113131,41 @@
      },
      "attributes": {
       "Rojo_Id": "CatCafe_Castle_Set/93"
-     }
+     },
+     "children": [
+      {
+       "name": "Smoke",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -4.4,
+           14.5,
+           2.0
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Castle_Set_084_TimberHouse",
@@ -120669,7 +120771,41 @@
      },
      "attributes": {
       "Rojo_Id": "CatCafe_Castle_Set/103"
-     }
+     },
+     "children": [
+      {
+       "name": "Smoke",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -4.4,
+           14.5,
+           2.0
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Castle_Set_090_TimberHouse",
@@ -132429,6 +132565,98 @@
        "CFrame": {
         "position": [
          -9.0,
+         10.72,
+         -271.85
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Castle_Set_102_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/120",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Castle_Set_102_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -9.0,
          8.4,
          -271.76
         ],
@@ -132467,11 +132695,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Castle_Set/120"
      }
     },
     {
-     "name": "CatCafe_Castle_Set_102_BannerPole",
+     "name": "CatCafe_Castle_Set_102_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -132520,7 +132777,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_102_BannerPole",
+     "name": "CatCafe_Castle_Set_102_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -132569,7 +132826,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_102_BannerPole",
+     "name": "CatCafe_Castle_Set_102_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -132618,7 +132875,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_102_BannerPole",
+     "name": "CatCafe_Castle_Set_102_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -132671,36 +132928,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       -9.0,
+       10.72,
+       -271.7
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Castle_Set_102_BannerPole"
+   "name": "CatCafe_Castle_Set_102_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/120"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/121"
    },
    "children": [
     {
@@ -132779,7 +133036,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/120"
+      "Rojo_Id": "CatCafe_Castle_Set/121"
      }
     },
     {
@@ -133216,7 +133473,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/121"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/122"
    },
    "children": [
     {
@@ -133294,7 +133551,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/121"
+      "Rojo_Id": "CatCafe_Castle_Set/122"
      }
     },
     {
@@ -133576,7 +133833,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/122"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/123"
    },
    "children": [
     {
@@ -133655,7 +133912,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/122"
+      "Rojo_Id": "CatCafe_Castle_Set/123"
      }
     },
     {
@@ -134092,7 +134349,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/123"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/124"
    },
    "children": [
     {
@@ -134171,7 +134428,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/123"
+      "Rojo_Id": "CatCafe_Castle_Set/124"
      }
     },
     {
@@ -134603,7 +134860,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/124"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/125"
    },
    "children": [
     {
@@ -134682,7 +134939,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/124"
+      "Rojo_Id": "CatCafe_Castle_Set/125"
      }
     },
     {
@@ -135114,7 +135371,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/125"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/126"
    },
    "children": [
     {
@@ -135192,7 +135449,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/125"
+      "Rojo_Id": "CatCafe_Castle_Set/126"
      },
      "children": [
       {
@@ -135732,7 +135989,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/126"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/127"
    },
    "children": [
     {
@@ -135810,7 +136067,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/126"
+      "Rojo_Id": "CatCafe_Castle_Set/127"
      }
     },
     {
@@ -135945,7 +136202,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/127"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/128"
    },
    "children": [
     {
@@ -136024,7 +136281,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/127"
+      "Rojo_Id": "CatCafe_Castle_Set/128"
      }
     },
     {
@@ -136135,6 +136392,98 @@
        "CFrame": {
         "position": [
          9.0,
+         10.72,
+         -271.85
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Castle_Set_110_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/129",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Castle_Set_110_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         9.0,
          8.4,
          -271.76
         ],
@@ -136173,11 +136522,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Castle_Set/129"
      }
     },
     {
-     "name": "CatCafe_Castle_Set_110_BannerPole",
+     "name": "CatCafe_Castle_Set_110_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -136226,7 +136604,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_110_BannerPole",
+     "name": "CatCafe_Castle_Set_110_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -136275,7 +136653,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_110_BannerPole",
+     "name": "CatCafe_Castle_Set_110_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -136324,7 +136702,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_110_BannerPole",
+     "name": "CatCafe_Castle_Set_110_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -136377,36 +136755,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       9.0,
+       10.72,
+       -271.7
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Castle_Set_110_BannerPole"
+   "name": "CatCafe_Castle_Set_110_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/128"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/130"
    },
    "children": [
     {
@@ -136484,7 +136862,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/128"
+      "Rojo_Id": "CatCafe_Castle_Set/130"
      }
     },
     {
@@ -138334,7 +138712,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/129"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/131"
    },
    "children": [
     {
@@ -138412,7 +138790,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/129"
+      "Rojo_Id": "CatCafe_Castle_Set/131"
      }
     },
     {
@@ -140801,7 +141179,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/130"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/132"
    },
    "children": [
     {
@@ -140879,7 +141257,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/130"
+      "Rojo_Id": "CatCafe_Castle_Set/132"
      }
     },
     {
@@ -143268,7 +143646,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/131"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/133"
    },
    "children": [
     {
@@ -143347,7 +143725,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/131"
+      "Rojo_Id": "CatCafe_Castle_Set/133"
      }
     },
     {
@@ -144420,7 +144798,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/132"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/134"
    },
    "children": [
     {
@@ -144499,7 +144877,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/132"
+      "Rojo_Id": "CatCafe_Castle_Set/134"
      }
     },
     {
@@ -145572,7 +145950,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/133"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/135"
    },
    "children": [
     {
@@ -145651,7 +146029,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/133"
+      "Rojo_Id": "CatCafe_Castle_Set/135"
      }
     },
     {
@@ -146035,7 +146413,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/134"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/136"
    },
    "children": [
     {
@@ -146114,7 +146492,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/134"
+      "Rojo_Id": "CatCafe_Castle_Set/136"
      }
     },
     {
@@ -146498,7 +146876,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/135"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/137"
    },
    "children": [
     {
@@ -146577,7 +146955,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/135"
+      "Rojo_Id": "CatCafe_Castle_Set/137"
      }
     },
     {
@@ -146961,7 +147339,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/136"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/138"
    },
    "children": [
     {
@@ -147039,7 +147417,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/136"
+      "Rojo_Id": "CatCafe_Castle_Set/138"
      }
     },
     {
@@ -147815,7 +148193,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/137"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/139"
    },
    "children": [
     {
@@ -147893,7 +148271,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/137"
+      "Rojo_Id": "CatCafe_Castle_Set/139"
      }
     },
     {
@@ -148669,7 +149047,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/138"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/140"
    },
    "children": [
     {
@@ -148747,7 +149125,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/138"
+      "Rojo_Id": "CatCafe_Castle_Set/140"
      }
     },
     {
@@ -149523,7 +149901,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/139"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/141"
    },
    "children": [
     {
@@ -149602,7 +149980,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/139"
+      "Rojo_Id": "CatCafe_Castle_Set/141"
      }
     },
     {
@@ -149713,6 +150091,98 @@
        "CFrame": {
         "position": [
          -54.0,
+         10.72,
+         -111.85
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Castle_Set_122_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/142",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Castle_Set_122_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.0,
          8.4,
          -111.76
         ],
@@ -149751,11 +150221,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Castle_Set/142"
      }
     },
     {
-     "name": "CatCafe_Castle_Set_122_BannerPole",
+     "name": "CatCafe_Castle_Set_122_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -149804,7 +150303,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_122_BannerPole",
+     "name": "CatCafe_Castle_Set_122_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -149853,7 +150352,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_122_BannerPole",
+     "name": "CatCafe_Castle_Set_122_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -149902,7 +150401,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_122_BannerPole",
+     "name": "CatCafe_Castle_Set_122_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -149955,36 +150454,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       -54.0,
+       10.72,
+       -111.7
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Castle_Set_122_BannerPole"
+   "name": "CatCafe_Castle_Set_122_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/140"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/143"
    },
    "children": [
     {
@@ -150063,7 +150562,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/140"
+      "Rojo_Id": "CatCafe_Castle_Set/143"
      }
     },
     {
@@ -150174,6 +150673,98 @@
        "CFrame": {
         "position": [
          54.0,
+         10.72,
+         -123.85
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Castle_Set_123_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/144",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Castle_Set_123_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.0,
          8.4,
          -123.76
         ],
@@ -150212,11 +150803,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Castle_Set/144"
      }
     },
     {
-     "name": "CatCafe_Castle_Set_123_BannerPole",
+     "name": "CatCafe_Castle_Set_123_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -150265,7 +150885,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_123_BannerPole",
+     "name": "CatCafe_Castle_Set_123_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -150314,7 +150934,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_123_BannerPole",
+     "name": "CatCafe_Castle_Set_123_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -150363,7 +150983,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_123_BannerPole",
+     "name": "CatCafe_Castle_Set_123_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -150416,36 +151036,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       54.0,
+       10.72,
+       -123.7
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Castle_Set_123_BannerPole"
+   "name": "CatCafe_Castle_Set_123_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/141"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/145"
    },
    "children": [
     {
@@ -150524,7 +151144,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/141"
+      "Rojo_Id": "CatCafe_Castle_Set/145"
      }
     },
     {
@@ -150635,6 +151255,98 @@
        "CFrame": {
         "position": [
          -16.0,
+         10.72,
+         -24.15
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Castle_Set_124_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/146",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Castle_Set_124_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -16.0,
          8.4,
          -24.24
         ],
@@ -150673,11 +151385,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Castle_Set/146"
      }
     },
     {
-     "name": "CatCafe_Castle_Set_124_BannerPole",
+     "name": "CatCafe_Castle_Set_124_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -150726,7 +151467,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_124_BannerPole",
+     "name": "CatCafe_Castle_Set_124_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -150775,7 +151516,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_124_BannerPole",
+     "name": "CatCafe_Castle_Set_124_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -150824,7 +151565,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_124_BannerPole",
+     "name": "CatCafe_Castle_Set_124_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -150877,36 +151618,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       -16.0,
+       10.72,
+       -24.3
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Castle_Set_124_BannerPole"
+   "name": "CatCafe_Castle_Set_124_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/142"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/147"
    },
    "children": [
     {
@@ -150985,7 +151726,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/142"
+      "Rojo_Id": "CatCafe_Castle_Set/147"
      }
     },
     {
@@ -151096,6 +151837,98 @@
        "CFrame": {
         "position": [
          16.0,
+         10.72,
+         -141.85
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Castle_Set_125_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/148",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Castle_Set_125_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         16.0,
          8.4,
          -141.76
         ],
@@ -151134,11 +151967,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Castle_Set/148"
      }
     },
     {
-     "name": "CatCafe_Castle_Set_125_BannerPole",
+     "name": "CatCafe_Castle_Set_125_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -151187,7 +152049,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_125_BannerPole",
+     "name": "CatCafe_Castle_Set_125_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -151236,7 +152098,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_125_BannerPole",
+     "name": "CatCafe_Castle_Set_125_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -151285,7 +152147,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_125_BannerPole",
+     "name": "CatCafe_Castle_Set_125_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -151338,36 +152200,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       16.0,
+       10.72,
+       -141.7
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Castle_Set_125_BannerPole"
+   "name": "CatCafe_Castle_Set_125_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/143"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/149"
    },
    "children": [
     {
@@ -151446,7 +152308,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/143"
+      "Rojo_Id": "CatCafe_Castle_Set/149"
      }
     },
     {
@@ -151557,6 +152419,98 @@
        "CFrame": {
         "position": [
          -56.0,
+         10.72,
+         -52.15
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Castle_Set_126_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/150",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Castle_Set_126_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -56.0,
          8.4,
          -52.24
         ],
@@ -151595,11 +152549,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Castle_Set/150"
      }
     },
     {
-     "name": "CatCafe_Castle_Set_126_BannerPole",
+     "name": "CatCafe_Castle_Set_126_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -151648,7 +152631,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_126_BannerPole",
+     "name": "CatCafe_Castle_Set_126_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -151697,7 +152680,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_126_BannerPole",
+     "name": "CatCafe_Castle_Set_126_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -151746,7 +152729,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_126_BannerPole",
+     "name": "CatCafe_Castle_Set_126_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -151799,36 +152782,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       -56.0,
+       10.72,
+       -52.3
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Castle_Set_126_BannerPole"
+   "name": "CatCafe_Castle_Set_126_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/144"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/151"
    },
    "children": [
     {
@@ -151907,7 +152890,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/144"
+      "Rojo_Id": "CatCafe_Castle_Set/151"
      }
     },
     {
@@ -152018,6 +153001,98 @@
        "CFrame": {
         "position": [
          14.0,
+         10.72,
+         -22.15
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Castle_Set_127_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/152",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Castle_Set_127_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         14.0,
          8.4,
          -22.24
         ],
@@ -152056,11 +153131,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Castle_Set/152"
      }
     },
     {
-     "name": "CatCafe_Castle_Set_127_BannerPole",
+     "name": "CatCafe_Castle_Set_127_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -152109,7 +153213,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_127_BannerPole",
+     "name": "CatCafe_Castle_Set_127_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -152158,7 +153262,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_127_BannerPole",
+     "name": "CatCafe_Castle_Set_127_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -152207,7 +153311,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_127_BannerPole",
+     "name": "CatCafe_Castle_Set_127_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -152260,36 +153364,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       14.0,
+       10.72,
+       -22.3
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Castle_Set_127_BannerPole"
+   "name": "CatCafe_Castle_Set_127_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/145"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/153"
    },
    "children": [
     {
@@ -152368,7 +153472,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/145"
+      "Rojo_Id": "CatCafe_Castle_Set/153"
      }
     },
     {
@@ -152800,7 +153904,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/146"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/154"
    },
    "children": [
     {
@@ -152879,7 +153983,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/146"
+      "Rojo_Id": "CatCafe_Castle_Set/154"
      }
     },
     {
@@ -153311,7 +154415,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/147"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/155"
    },
    "children": [
     {
@@ -153390,7 +154494,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/147"
+      "Rojo_Id": "CatCafe_Castle_Set/155"
      }
     },
     {
@@ -153822,7 +154926,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/148"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/156"
    },
    "children": [
     {
@@ -153901,7 +155005,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/148"
+      "Rojo_Id": "CatCafe_Castle_Set/156"
      }
     },
     {
@@ -154333,7 +155437,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/149"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/157"
    },
    "children": [
     {
@@ -154411,7 +155515,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/149"
+      "Rojo_Id": "CatCafe_Castle_Set/157"
      }
     },
     {
@@ -154597,7 +155701,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/150"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/158"
    },
    "children": [
     {
@@ -154676,7 +155780,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/150"
+      "Rojo_Id": "CatCafe_Castle_Set/158"
      }
     },
     {
@@ -154963,7 +156067,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/151"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/159"
    },
    "children": [
     {
@@ -155041,7 +156145,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/151"
+      "Rojo_Id": "CatCafe_Castle_Set/159"
      }
     },
     {
@@ -155227,7 +156331,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/152"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/160"
    },
    "children": [
     {
@@ -155306,7 +156410,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/152"
+      "Rojo_Id": "CatCafe_Castle_Set/160"
      }
     },
     {
@@ -155593,7 +156697,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/153"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/161"
    },
    "children": [
     {
@@ -155671,7 +156775,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/153"
+      "Rojo_Id": "CatCafe_Castle_Set/161"
      }
     },
     {
@@ -155857,7 +156961,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/154"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/162"
    },
    "children": [
     {
@@ -155936,7 +157040,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/154"
+      "Rojo_Id": "CatCafe_Castle_Set/162"
      }
     },
     {
@@ -156223,7 +157327,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/155"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/163"
    },
    "children": [
     {
@@ -156301,7 +157405,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/155"
+      "Rojo_Id": "CatCafe_Castle_Set/163"
      }
     },
     {
@@ -156487,7 +157591,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/156"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/164"
    },
    "children": [
     {
@@ -156566,7 +157670,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/156"
+      "Rojo_Id": "CatCafe_Castle_Set/164"
      }
     },
     {
@@ -156853,7 +157957,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/157"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/165"
    },
    "children": [
     {
@@ -156931,7 +158035,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/157"
+      "Rojo_Id": "CatCafe_Castle_Set/165"
      }
     },
     {
@@ -157117,7 +158221,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/158"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/166"
    },
    "children": [
     {
@@ -157196,7 +158300,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/158"
+      "Rojo_Id": "CatCafe_Castle_Set/166"
      }
     },
     {
@@ -157483,7 +158587,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/159"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/167"
    },
    "children": [
     {
@@ -157561,7 +158665,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/159"
+      "Rojo_Id": "CatCafe_Castle_Set/167"
      }
     },
     {
@@ -157747,7 +158851,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/160"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/168"
    },
    "children": [
     {
@@ -157826,7 +158930,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/160"
+      "Rojo_Id": "CatCafe_Castle_Set/168"
      }
     },
     {
@@ -158113,7 +159217,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/161"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/169"
    },
    "children": [
     {
@@ -158192,7 +159296,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/161"
+      "Rojo_Id": "CatCafe_Castle_Set/169"
      }
     },
     {
@@ -158677,7 +159781,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/162"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/170"
    },
    "children": [
     {
@@ -158756,7 +159860,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/162"
+      "Rojo_Id": "CatCafe_Castle_Set/170"
      }
     }
    ],
@@ -158793,7 +159897,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/163"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/171"
    },
    "children": [
     {
@@ -158871,7 +159975,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/163"
+      "Rojo_Id": "CatCafe_Castle_Set/171"
      }
     },
     {
@@ -159496,7 +160600,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/164"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/172"
    },
    "children": [
     {
@@ -159574,7 +160678,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/164"
+      "Rojo_Id": "CatCafe_Castle_Set/172"
      }
     },
     {
@@ -159660,7 +160764,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/165"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/173"
    },
    "children": [
     {
@@ -159738,7 +160842,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/165"
+      "Rojo_Id": "CatCafe_Castle_Set/173"
      }
     },
     {
@@ -160363,7 +161467,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/166"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/174"
    },
    "children": [
     {
@@ -160441,7 +161545,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/166"
+      "Rojo_Id": "CatCafe_Castle_Set/174"
      }
     },
     {
@@ -165623,7 +166727,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/167"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/175"
    },
    "children": [
     {
@@ -165701,7 +166805,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/167"
+      "Rojo_Id": "CatCafe_Castle_Set/175"
      }
     },
     {
@@ -169983,7 +171087,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/168"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/176"
    },
    "children": [
     {
@@ -170062,7 +171166,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/168"
+      "Rojo_Id": "CatCafe_Castle_Set/176"
      }
     },
     {
@@ -170649,7 +171753,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/169"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/177"
    },
    "children": [
     {
@@ -170728,7 +171832,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/169"
+      "Rojo_Id": "CatCafe_Castle_Set/177"
      }
     },
     {
@@ -171851,7 +172955,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/170"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/178"
    },
    "children": [
     {
@@ -171929,7 +173033,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/170"
+      "Rojo_Id": "CatCafe_Castle_Set/178"
      }
     }
    ],
@@ -171966,7 +173070,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/171"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/179"
    },
    "children": [
     {
@@ -172045,7 +173149,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/171"
+      "Rojo_Id": "CatCafe_Castle_Set/179"
      }
     },
     {
@@ -173168,7 +174272,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/172"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/180"
    },
    "children": [
     {
@@ -173246,7 +174350,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/172"
+      "Rojo_Id": "CatCafe_Castle_Set/180"
      }
     }
    ],
@@ -173283,7 +174387,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/173"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/181"
    },
    "children": [
     {
@@ -173362,7 +174466,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/173"
+      "Rojo_Id": "CatCafe_Castle_Set/181"
      }
     },
     {
@@ -174485,7 +175589,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/174"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/182"
    },
    "children": [
     {
@@ -174563,7 +175667,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/174"
+      "Rojo_Id": "CatCafe_Castle_Set/182"
      }
     }
    ],
@@ -174600,7 +175704,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/175"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/183"
    },
    "children": [
     {
@@ -174679,7 +175783,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/175"
+      "Rojo_Id": "CatCafe_Castle_Set/183"
      }
     },
     {
@@ -175802,7 +176906,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/176"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/184"
    },
    "children": [
     {
@@ -175880,7 +176984,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/176"
+      "Rojo_Id": "CatCafe_Castle_Set/184"
      }
     }
    ],
@@ -175917,7 +177021,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/177"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/185"
    },
    "children": [
     {
@@ -175995,7 +177099,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/177"
+      "Rojo_Id": "CatCafe_Castle_Set/185"
      }
     },
     {
@@ -176669,7 +177773,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/178"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/186"
    },
    "children": [
     {
@@ -176747,7 +177851,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/178"
+      "Rojo_Id": "CatCafe_Castle_Set/186"
      },
      "children": [
       {
@@ -177287,7 +178391,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/179"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/187"
    },
    "children": [
     {
@@ -177366,7 +178470,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/179"
+      "Rojo_Id": "CatCafe_Castle_Set/187"
      }
     },
     {
@@ -177803,7 +178907,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/180"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/188"
    },
    "children": [
     {
@@ -177881,7 +178985,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/180"
+      "Rojo_Id": "CatCafe_Castle_Set/188"
      }
     },
     {
@@ -178163,7 +179267,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/181"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/189"
    },
    "children": [
     {
@@ -178242,7 +179346,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/181"
+      "Rojo_Id": "CatCafe_Castle_Set/189"
      }
     },
     {
@@ -178679,7 +179783,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/182"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/190"
    },
    "children": [
     {
@@ -178757,7 +179861,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/182"
+      "Rojo_Id": "CatCafe_Castle_Set/190"
      }
     },
     {
@@ -179039,7 +180143,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/183"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/191"
    },
    "children": [
     {
@@ -179117,7 +180221,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/183"
+      "Rojo_Id": "CatCafe_Castle_Set/191"
      }
     },
     {
@@ -179893,7 +180997,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/184"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/192"
    },
    "children": [
     {
@@ -179971,7 +181075,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/184"
+      "Rojo_Id": "CatCafe_Castle_Set/192"
      }
     },
     {
@@ -180157,7 +181261,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/185"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/193"
    },
    "children": [
     {
@@ -180236,7 +181340,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/185"
+      "Rojo_Id": "CatCafe_Castle_Set/193"
      }
     },
     {
@@ -180523,7 +181627,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/186"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/194"
    },
    "children": [
     {
@@ -180601,7 +181705,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/186"
+      "Rojo_Id": "CatCafe_Castle_Set/194"
      }
     },
     {
@@ -180787,7 +181891,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/187"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/195"
    },
    "children": [
     {
@@ -180866,7 +181970,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/187"
+      "Rojo_Id": "CatCafe_Castle_Set/195"
      }
     },
     {
@@ -181153,7 +182257,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/188"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/196"
    },
    "children": [
     {
@@ -181232,7 +182336,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/188"
+      "Rojo_Id": "CatCafe_Castle_Set/196"
      }
     },
     {
@@ -181343,6 +182447,98 @@
        "CFrame": {
         "position": [
          -9.6,
+         10.72,
+         -22.15
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Castle_Set_156_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/197",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Castle_Set_156_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -9.6,
          8.4,
          -22.24
         ],
@@ -181381,11 +182577,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Castle_Set/197"
      }
     },
     {
-     "name": "CatCafe_Castle_Set_156_BannerPole",
+     "name": "CatCafe_Castle_Set_156_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -181434,7 +182659,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_156_BannerPole",
+     "name": "CatCafe_Castle_Set_156_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -181483,7 +182708,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_156_BannerPole",
+     "name": "CatCafe_Castle_Set_156_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -181532,7 +182757,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_156_BannerPole",
+     "name": "CatCafe_Castle_Set_156_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -181585,36 +182810,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       -9.6,
+       10.72,
+       -22.3
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Castle_Set_156_BannerPole"
+   "name": "CatCafe_Castle_Set_156_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/189"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/198"
    },
    "children": [
     {
@@ -181692,7 +182917,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/189"
+      "Rojo_Id": "CatCafe_Castle_Set/198"
      }
     },
     {
@@ -181878,7 +183103,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/190"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/199"
    },
    "children": [
     {
@@ -181957,7 +183182,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/190"
+      "Rojo_Id": "CatCafe_Castle_Set/199"
      }
     },
     {
@@ -182244,7 +183469,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/191"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/200"
    },
    "children": [
     {
@@ -182322,7 +183547,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/191"
+      "Rojo_Id": "CatCafe_Castle_Set/200"
      }
     },
     {
@@ -182508,7 +183733,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/192"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/201"
    },
    "children": [
     {
@@ -182587,7 +183812,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/192"
+      "Rojo_Id": "CatCafe_Castle_Set/201"
      }
     },
     {
@@ -182874,7 +184099,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/193"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/202"
    },
    "children": [
     {
@@ -182953,7 +184178,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/193"
+      "Rojo_Id": "CatCafe_Castle_Set/202"
      }
     },
     {
@@ -183064,6 +184289,98 @@
        "CFrame": {
         "position": [
          9.6,
+         10.72,
+         -22.15
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Castle_Set_159_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/203",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Castle_Set_159_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         9.6,
          8.4,
          -22.24
         ],
@@ -183102,11 +184419,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Castle_Set/203"
      }
     },
     {
-     "name": "CatCafe_Castle_Set_159_BannerPole",
+     "name": "CatCafe_Castle_Set_159_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -183155,7 +184501,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_159_BannerPole",
+     "name": "CatCafe_Castle_Set_159_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -183204,7 +184550,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_159_BannerPole",
+     "name": "CatCafe_Castle_Set_159_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -183253,7 +184599,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_159_BannerPole",
+     "name": "CatCafe_Castle_Set_159_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -183306,36 +184652,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       9.6,
+       10.72,
+       -22.3
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Castle_Set_159_BannerPole"
+   "name": "CatCafe_Castle_Set_159_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/194"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/204"
    },
    "children": [
     {
@@ -183413,7 +184759,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/194"
+      "Rojo_Id": "CatCafe_Castle_Set/204"
      },
      "children": [
       {
@@ -184527,7 +185873,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/195"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/205"
    },
    "children": [
     {
@@ -184606,7 +185952,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/195"
+      "Rojo_Id": "CatCafe_Castle_Set/205"
      }
     },
     {
@@ -184988,7 +186334,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/196"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/206"
    },
    "children": [
     {
@@ -185067,7 +186413,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/196"
+      "Rojo_Id": "CatCafe_Castle_Set/206"
      }
     },
     {
@@ -185449,7 +186795,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/197"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/207"
    },
    "children": [
     {
@@ -185528,7 +186874,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/197"
+      "Rojo_Id": "CatCafe_Castle_Set/207"
      }
     },
     {
@@ -185910,7 +187256,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/198"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/208"
    },
    "children": [
     {
@@ -185989,7 +187335,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/198"
+      "Rojo_Id": "CatCafe_Castle_Set/208"
      }
     },
     {
@@ -186371,7 +187717,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/199"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/209"
    },
    "children": [
     {
@@ -186450,7 +187796,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/199"
+      "Rojo_Id": "CatCafe_Castle_Set/209"
      }
     },
     {
@@ -186832,7 +188178,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/200"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/210"
    },
    "children": [
     {
@@ -186911,7 +188257,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/200"
+      "Rojo_Id": "CatCafe_Castle_Set/210"
      }
     },
     {
@@ -187293,7 +188639,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/201"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/211"
    },
    "children": [
     {
@@ -187372,7 +188718,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/201"
+      "Rojo_Id": "CatCafe_Castle_Set/211"
      }
     },
     {
@@ -187754,7 +189100,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/202"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/212"
    },
    "children": [
     {
@@ -187833,7 +189179,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/202"
+      "Rojo_Id": "CatCafe_Castle_Set/212"
      }
     },
     {
@@ -188265,7 +189611,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/203"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/213"
    },
    "children": [
     {
@@ -188344,7 +189690,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/203"
+      "Rojo_Id": "CatCafe_Castle_Set/213"
      }
     },
     {
@@ -188776,7 +190122,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/204"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/214"
    },
    "children": [
     {
@@ -188855,7 +190201,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/204"
+      "Rojo_Id": "CatCafe_Castle_Set/214"
      }
     },
     {
@@ -189287,7 +190633,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/205"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/215"
    },
    "children": [
     {
@@ -189366,7 +190712,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/205"
+      "Rojo_Id": "CatCafe_Castle_Set/215"
      }
     },
     {
@@ -189798,7 +191144,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/206"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/216"
    },
    "children": [
     {
@@ -189876,7 +191222,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/206"
+      "Rojo_Id": "CatCafe_Castle_Set/216"
      }
     },
     {
@@ -190158,7 +191504,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/207"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/217"
    },
    "children": [
     {
@@ -190237,7 +191583,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/207"
+      "Rojo_Id": "CatCafe_Castle_Set/217"
      }
     },
     {
@@ -190674,7 +192020,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/208"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/218"
    },
    "children": [
     {
@@ -190752,7 +192098,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/208"
+      "Rojo_Id": "CatCafe_Castle_Set/218"
      }
     },
     {
@@ -191034,7 +192380,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/209"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/219"
    },
    "children": [
     {
@@ -191113,7 +192459,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/209"
+      "Rojo_Id": "CatCafe_Castle_Set/219"
      }
     },
     {
@@ -191550,7 +192896,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/210"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/220"
    },
    "children": [
     {
@@ -191628,7 +192974,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/210"
+      "Rojo_Id": "CatCafe_Castle_Set/220"
      }
     },
     {
@@ -192404,7 +193750,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/211"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/221"
    },
    "children": [
     {
@@ -192483,7 +193829,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/211"
+      "Rojo_Id": "CatCafe_Castle_Set/221"
      }
     },
     {
@@ -192867,7 +194213,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/212"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/222"
    },
    "children": [
     {
@@ -192945,7 +194291,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/212"
+      "Rojo_Id": "CatCafe_Castle_Set/222"
      }
     },
     {
@@ -193080,7 +194426,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/213"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/223"
    },
    "children": [
     {
@@ -193158,7 +194504,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/213"
+      "Rojo_Id": "CatCafe_Castle_Set/223"
      }
     },
     {
@@ -193293,7 +194639,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/214"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/224"
    },
    "children": [
     {
@@ -193371,7 +194717,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/214"
+      "Rojo_Id": "CatCafe_Castle_Set/224"
      }
     },
     {
@@ -193506,7 +194852,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/215"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/225"
    },
    "children": [
     {
@@ -193584,7 +194930,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/215"
+      "Rojo_Id": "CatCafe_Castle_Set/225"
      }
     },
     {
@@ -193719,7 +195065,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/216"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/226"
    },
    "children": [
     {
@@ -193797,7 +195143,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/216"
+      "Rojo_Id": "CatCafe_Castle_Set/226"
      }
     },
     {
@@ -193983,7 +195329,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/217"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/227"
    },
    "children": [
     {
@@ -194062,7 +195408,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/217"
+      "Rojo_Id": "CatCafe_Castle_Set/227"
      }
     },
     {
@@ -194349,7 +195695,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/218"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/228"
    },
    "children": [
     {
@@ -194427,7 +195773,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/218"
+      "Rojo_Id": "CatCafe_Castle_Set/228"
      }
     },
     {
@@ -194613,7 +195959,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/219"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/229"
    },
    "children": [
     {
@@ -194692,7 +196038,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/219"
+      "Rojo_Id": "CatCafe_Castle_Set/229"
      }
     },
     {
@@ -194979,7 +196325,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/220"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/230"
    },
    "children": [
     {
@@ -195057,7 +196403,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/220"
+      "Rojo_Id": "CatCafe_Castle_Set/230"
      }
     },
     {
@@ -195243,7 +196589,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/221"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/231"
    },
    "children": [
     {
@@ -195322,7 +196668,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/221"
+      "Rojo_Id": "CatCafe_Castle_Set/231"
      }
     },
     {
@@ -195609,7 +196955,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/222"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/232"
    },
    "children": [
     {
@@ -195687,7 +197033,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/222"
+      "Rojo_Id": "CatCafe_Castle_Set/232"
      }
     },
     {
@@ -195873,7 +197219,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/223"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/233"
    },
    "children": [
     {
@@ -195952,7 +197298,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/223"
+      "Rojo_Id": "CatCafe_Castle_Set/233"
      }
     },
     {
@@ -196239,7 +197585,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/224"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/234"
    },
    "children": [
     {
@@ -196317,7 +197663,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/224"
+      "Rojo_Id": "CatCafe_Castle_Set/234"
      }
     },
     {
@@ -196503,7 +197849,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/225"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/235"
    },
    "children": [
     {
@@ -196582,7 +197928,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/225"
+      "Rojo_Id": "CatCafe_Castle_Set/235"
      }
     },
     {
@@ -196869,7 +198215,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/226"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/236"
    },
    "children": [
     {
@@ -196947,7 +198293,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/226"
+      "Rojo_Id": "CatCafe_Castle_Set/236"
      }
     },
     {
@@ -197133,7 +198479,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/227"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/237"
    },
    "children": [
     {
@@ -197212,7 +198558,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/227"
+      "Rojo_Id": "CatCafe_Castle_Set/237"
      }
     },
     {
@@ -197499,7 +198845,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/228"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/238"
    },
    "children": [
     {
@@ -197578,7 +198924,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/228"
+      "Rojo_Id": "CatCafe_Castle_Set/238"
      }
     },
     {
@@ -197689,6 +199035,98 @@
        "CFrame": {
         "position": [
          -8.5,
+         10.72,
+         171.85
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Castle_Set_188_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/239",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Castle_Set_188_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -8.5,
          8.4,
          171.76
         ],
@@ -197727,11 +199165,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Castle_Set/239"
      }
     },
     {
-     "name": "CatCafe_Castle_Set_188_BannerPole",
+     "name": "CatCafe_Castle_Set_188_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -197780,7 +199247,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_188_BannerPole",
+     "name": "CatCafe_Castle_Set_188_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -197829,7 +199296,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_188_BannerPole",
+     "name": "CatCafe_Castle_Set_188_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -197878,7 +199345,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_188_BannerPole",
+     "name": "CatCafe_Castle_Set_188_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -197931,36 +199398,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       -8.5,
+       10.72,
+       171.7
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Castle_Set_188_BannerPole"
+   "name": "CatCafe_Castle_Set_188_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/229"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/240"
    },
    "children": [
     {
@@ -198039,7 +199506,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/229"
+      "Rojo_Id": "CatCafe_Castle_Set/240"
      }
     },
     {
@@ -198150,6 +199617,98 @@
        "CFrame": {
         "position": [
          8.5,
+         10.72,
+         171.85
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.36
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Castle_Set_189_BannerPole"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/241",
+    "Angle": {
+     "Float64": 6.0
+    },
+    "Seconds": {
+     "Float64": 3.5
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Castle_Set_189_BannerPole_Swing",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         8.5,
          8.4,
          171.76
         ],
@@ -198188,11 +199747,40 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.32,
+         0.06
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Castle_Set/241"
      }
     },
     {
-     "name": "CatCafe_Castle_Set_189_BannerPole",
+     "name": "CatCafe_Castle_Set_189_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -198241,7 +199829,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_189_BannerPole",
+     "name": "CatCafe_Castle_Set_189_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -198290,7 +199878,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_189_BannerPole",
+     "name": "CatCafe_Castle_Set_189_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -198339,7 +199927,7 @@
      }
     },
     {
-     "name": "CatCafe_Castle_Set_189_BannerPole",
+     "name": "CatCafe_Castle_Set_189_BannerPole_Swing",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -198392,36 +199980,36 @@
     "WorldPivotData": {
      "OptionalCFrame": {
       "position": [
-       0.0,
-       0.0,
-       0.0
+       8.5,
+       10.72,
+       171.7
       ],
       "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
        [
         0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     }
    },
-   "name": "CatCafe_Castle_Set_189_BannerPole"
+   "name": "CatCafe_Castle_Set_189_BannerPole_Swing"
   },
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/230"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/242"
    },
    "children": [
     {
@@ -198499,7 +200087,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/230"
+      "Rojo_Id": "CatCafe_Castle_Set/242"
      }
     },
     {
@@ -206817,7 +208405,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/231"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/243"
    },
    "children": [
     {
@@ -206895,7 +208483,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/231"
+      "Rojo_Id": "CatCafe_Castle_Set/243"
      }
     },
     {
@@ -207275,7 +208863,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/232"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/244"
    },
    "children": [
     {
@@ -207354,7 +208942,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/232"
+      "Rojo_Id": "CatCafe_Castle_Set/244"
      }
     },
     {
@@ -208477,7 +210065,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/233"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/245"
    },
    "children": [
     {
@@ -208555,7 +210143,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/233"
+      "Rojo_Id": "CatCafe_Castle_Set/245"
      }
     }
    ],
@@ -208592,7 +210180,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/234"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/246"
    },
    "children": [
     {
@@ -208671,7 +210259,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/234"
+      "Rojo_Id": "CatCafe_Castle_Set/246"
      }
     },
     {
@@ -209794,7 +211382,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/235"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/247"
    },
    "children": [
     {
@@ -209872,7 +211460,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/235"
+      "Rojo_Id": "CatCafe_Castle_Set/247"
      }
     }
    ],
@@ -209909,7 +211497,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/236"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/248"
    },
    "children": [
     {
@@ -209988,7 +211576,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/236"
+      "Rojo_Id": "CatCafe_Castle_Set/248"
      }
     },
     {
@@ -210517,7 +212105,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/237"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/249"
    },
    "children": [
     {
@@ -210596,7 +212184,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/237"
+      "Rojo_Id": "CatCafe_Castle_Set/249"
      }
     },
     {
@@ -210883,7 +212471,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/238"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/250"
    },
    "children": [
     {
@@ -210962,7 +212550,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/238"
+      "Rojo_Id": "CatCafe_Castle_Set/250"
      }
     },
     {
@@ -211491,7 +213079,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/239"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/251"
    },
    "children": [
     {
@@ -211570,7 +213158,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/239"
+      "Rojo_Id": "CatCafe_Castle_Set/251"
      }
     },
     {
@@ -211857,7 +213445,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/240"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/252"
    },
    "children": [
     {
@@ -211936,7 +213524,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/240"
+      "Rojo_Id": "CatCafe_Castle_Set/252"
      }
     },
     {
@@ -212465,7 +214053,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/241"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/253"
    },
    "children": [
     {
@@ -212544,7 +214132,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/241"
+      "Rojo_Id": "CatCafe_Castle_Set/253"
      }
     },
     {
@@ -212831,7 +214419,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/242"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/254"
    },
    "children": [
     {
@@ -212910,7 +214498,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/242"
+      "Rojo_Id": "CatCafe_Castle_Set/254"
      }
     },
     {
@@ -213439,7 +215027,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/243"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/255"
    },
    "children": [
     {
@@ -213518,7 +215106,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/243"
+      "Rojo_Id": "CatCafe_Castle_Set/255"
      }
     },
     {
@@ -213805,7 +215393,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/244"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/256"
    },
    "children": [
     {
@@ -213884,7 +215472,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/244"
+      "Rojo_Id": "CatCafe_Castle_Set/256"
      }
     },
     {
@@ -214413,7 +216001,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/245"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/257"
    },
    "children": [
     {
@@ -214492,7 +216080,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/245"
+      "Rojo_Id": "CatCafe_Castle_Set/257"
      }
     },
     {
@@ -214779,7 +216367,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/246"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/258"
    },
    "children": [
     {
@@ -214858,7 +216446,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/246"
+      "Rojo_Id": "CatCafe_Castle_Set/258"
      }
     },
     {
@@ -215387,7 +216975,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/247"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/259"
    },
    "children": [
     {
@@ -215466,7 +217054,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/247"
+      "Rojo_Id": "CatCafe_Castle_Set/259"
      }
     },
     {
@@ -215753,7 +217341,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/248"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/260"
    },
    "children": [
     {
@@ -215832,7 +217420,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/248"
+      "Rojo_Id": "CatCafe_Castle_Set/260"
      }
     },
     {
@@ -216361,7 +217949,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/249"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/261"
    },
    "children": [
     {
@@ -216440,7 +218028,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/249"
+      "Rojo_Id": "CatCafe_Castle_Set/261"
      }
     },
     {
@@ -216727,7 +218315,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/250"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/262"
    },
    "children": [
     {
@@ -216806,7 +218394,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/250"
+      "Rojo_Id": "CatCafe_Castle_Set/262"
      }
     },
     {
@@ -217335,7 +218923,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/251"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/263"
    },
    "children": [
     {
@@ -217414,7 +219002,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/251"
+      "Rojo_Id": "CatCafe_Castle_Set/263"
      }
     },
     {
@@ -217701,7 +219289,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/252"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/264"
    },
    "children": [
     {
@@ -217779,7 +219367,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/252"
+      "Rojo_Id": "CatCafe_Castle_Set/264"
      }
     },
     {
@@ -222327,7 +223915,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/253"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/265"
    },
    "children": [
     {
@@ -222405,7 +223993,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/253"
+      "Rojo_Id": "CatCafe_Castle_Set/265"
      }
     },
     {
@@ -226953,7 +228541,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/254"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/266"
    },
    "children": [
     {
@@ -227031,7 +228619,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/254"
+      "Rojo_Id": "CatCafe_Castle_Set/266"
      }
     },
     {
@@ -228841,7 +230429,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/255"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/267"
    },
    "children": [
     {
@@ -228919,7 +230507,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/255"
+      "Rojo_Id": "CatCafe_Castle_Set/267"
      }
     },
     {
@@ -229409,7 +230997,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/256"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/268"
    },
    "children": [
     {
@@ -229487,7 +231075,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/256"
+      "Rojo_Id": "CatCafe_Castle_Set/268"
      }
     },
     {
@@ -229977,7 +231565,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/257"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/269"
    },
    "children": [
     {
@@ -230055,7 +231643,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/257"
+      "Rojo_Id": "CatCafe_Castle_Set/269"
      }
     },
     {
@@ -230545,7 +232133,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/258"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/270"
    },
    "children": [
     {
@@ -230624,7 +232212,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/258"
+      "Rojo_Id": "CatCafe_Castle_Set/270"
      }
     },
     {
@@ -231061,7 +232649,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/259"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/271"
    },
    "children": [
     {
@@ -231139,7 +232727,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/259"
+      "Rojo_Id": "CatCafe_Castle_Set/271"
      }
     },
     {
@@ -231421,7 +233009,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/260"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/272"
    },
    "children": [
     {
@@ -231500,7 +233088,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/260"
+      "Rojo_Id": "CatCafe_Castle_Set/272"
      }
     },
     {
@@ -231932,7 +233520,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/261"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/273"
    },
    "children": [
     {
@@ -232010,7 +233598,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/261"
+      "Rojo_Id": "CatCafe_Castle_Set/273"
      }
     },
     {
@@ -232196,7 +233784,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/262"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/274"
    },
    "children": [
     {
@@ -232275,7 +233863,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/262"
+      "Rojo_Id": "CatCafe_Castle_Set/274"
      }
     },
     {
@@ -232562,7 +234150,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/263"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/275"
    },
    "children": [
     {
@@ -232640,7 +234228,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/263"
+      "Rojo_Id": "CatCafe_Castle_Set/275"
      }
     },
     {
@@ -233130,7 +234718,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/264"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/276"
    },
    "children": [
     {
@@ -233208,7 +234796,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/264"
+      "Rojo_Id": "CatCafe_Castle_Set/276"
      }
     },
     {
@@ -233698,7 +235286,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/265"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/277"
    },
    "children": [
     {
@@ -233776,7 +235364,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/265"
+      "Rojo_Id": "CatCafe_Castle_Set/277"
      }
     },
     {
@@ -234266,7 +235854,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/266"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/278"
    },
    "children": [
     {
@@ -234345,7 +235933,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/266"
+      "Rojo_Id": "CatCafe_Castle_Set/278"
      }
     },
     {
@@ -234782,7 +236370,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/267"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/279"
    },
    "children": [
     {
@@ -234860,7 +236448,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/267"
+      "Rojo_Id": "CatCafe_Castle_Set/279"
      }
     },
     {
@@ -235142,7 +236730,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/268"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/280"
    },
    "children": [
     {
@@ -235221,7 +236809,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/268"
+      "Rojo_Id": "CatCafe_Castle_Set/280"
      }
     },
     {
@@ -235653,7 +237241,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/269"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/281"
    },
    "children": [
     {
@@ -235731,7 +237319,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/269"
+      "Rojo_Id": "CatCafe_Castle_Set/281"
      }
     },
     {
@@ -235917,7 +237505,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/270"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/282"
    },
    "children": [
     {
@@ -235996,7 +237584,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/270"
+      "Rojo_Id": "CatCafe_Castle_Set/282"
      }
     },
     {
@@ -236283,7 +237871,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/271"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/283"
    },
    "children": [
     {
@@ -236361,7 +237949,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/271"
+      "Rojo_Id": "CatCafe_Castle_Set/283"
      }
     },
     {
@@ -237869,7 +239457,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/272"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/284"
    },
    "children": [
     {
@@ -237948,7 +239536,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/272"
+      "Rojo_Id": "CatCafe_Castle_Set/284"
      }
     },
     {
@@ -239799,7 +241387,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/273"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/285"
    },
    "children": [
     {
@@ -239878,7 +241466,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/273"
+      "Rojo_Id": "CatCafe_Castle_Set/285"
      }
     },
     {
@@ -240114,7 +241702,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/274"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/286"
    },
    "children": [
     {
@@ -240193,7 +241781,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/274"
+      "Rojo_Id": "CatCafe_Castle_Set/286"
      }
     },
     {
@@ -240769,7 +242357,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/275"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/287"
    },
    "children": [
     {
@@ -240847,7 +242435,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/275"
+      "Rojo_Id": "CatCafe_Castle_Set/287"
      }
     },
     {
@@ -241285,7 +242873,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/276"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/288"
    },
    "children": [
     {
@@ -241363,7 +242951,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/276"
+      "Rojo_Id": "CatCafe_Castle_Set/288"
      }
     },
     {
@@ -242871,7 +244459,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/277"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/289"
    },
    "children": [
     {
@@ -242949,7 +244537,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/277"
+      "Rojo_Id": "CatCafe_Castle_Set/289"
      }
     },
     {
@@ -244457,7 +246045,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/278"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/290"
    },
    "children": [
     {
@@ -244536,7 +246124,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/278"
+      "Rojo_Id": "CatCafe_Castle_Set/290"
      }
     },
     {
@@ -246387,7 +247975,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/279"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/291"
    },
    "children": [
     {
@@ -246466,7 +248054,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/279"
+      "Rojo_Id": "CatCafe_Castle_Set/291"
      }
     },
     {
@@ -248317,7 +249905,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/280"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/292"
    },
    "children": [
     {
@@ -248396,7 +249984,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/280"
+      "Rojo_Id": "CatCafe_Castle_Set/292"
      }
     },
     {
@@ -248632,7 +250220,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/281"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/293"
    },
    "children": [
     {
@@ -248711,7 +250299,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/281"
+      "Rojo_Id": "CatCafe_Castle_Set/293"
      }
     },
     {
@@ -248947,7 +250535,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/282"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/294"
    },
    "children": [
     {
@@ -249026,7 +250614,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/282"
+      "Rojo_Id": "CatCafe_Castle_Set/294"
      }
     },
     {
@@ -249602,7 +251190,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/283"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/295"
    },
    "children": [
     {
@@ -249681,7 +251269,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/283"
+      "Rojo_Id": "CatCafe_Castle_Set/295"
      }
     },
     {
@@ -250257,7 +251845,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/284"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/296"
    },
    "children": [
     {
@@ -250335,7 +251923,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/284"
+      "Rojo_Id": "CatCafe_Castle_Set/296"
      }
     },
     {
@@ -250773,7 +252361,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/285"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/297"
    },
    "children": [
     {
@@ -250851,7 +252439,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/285"
+      "Rojo_Id": "CatCafe_Castle_Set/297"
      }
     },
     {
@@ -251289,7 +252877,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/286"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/298"
    },
    "children": [
     {
@@ -251368,7 +252956,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/286"
+      "Rojo_Id": "CatCafe_Castle_Set/298"
      }
     },
     {
@@ -251800,7 +253388,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/287"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/299"
    },
    "children": [
     {
@@ -251878,7 +253466,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/287"
+      "Rojo_Id": "CatCafe_Castle_Set/299"
      }
     },
     {
@@ -252160,7 +253748,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/288"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/300"
    },
    "children": [
     {
@@ -252238,7 +253826,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/288"
+      "Rojo_Id": "CatCafe_Castle_Set/300"
      }
     },
     {
@@ -252520,7 +254108,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/289"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/301"
    },
    "children": [
     {
@@ -252599,7 +254187,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/289"
+      "Rojo_Id": "CatCafe_Castle_Set/301"
      }
     },
     {
@@ -252786,7 +254374,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/290"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/302"
    },
    "children": [
     {
@@ -252864,7 +254452,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/290"
+      "Rojo_Id": "CatCafe_Castle_Set/302"
      }
     },
     {
@@ -253146,7 +254734,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/291"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/303"
    },
    "children": [
     {
@@ -253225,7 +254813,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/291"
+      "Rojo_Id": "CatCafe_Castle_Set/303"
      }
     },
     {
@@ -253412,7 +255000,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/292"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/304"
    },
    "children": [
     {
@@ -253491,7 +255079,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/292"
+      "Rojo_Id": "CatCafe_Castle_Set/304"
      }
     },
     {
@@ -253923,7 +255511,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/293"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/305"
    },
    "children": [
     {
@@ -254002,7 +255590,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/293"
+      "Rojo_Id": "CatCafe_Castle_Set/305"
      }
     },
     {
@@ -254189,7 +255777,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/294"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/306"
    },
    "children": [
     {
@@ -254267,7 +255855,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/294"
+      "Rojo_Id": "CatCafe_Castle_Set/306"
      }
     },
     {
@@ -254549,7 +256137,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/295"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/307"
    },
    "children": [
     {
@@ -254627,7 +256215,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/295"
+      "Rojo_Id": "CatCafe_Castle_Set/307"
      }
     },
     {
@@ -254909,7 +256497,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/296"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/308"
    },
    "children": [
     {
@@ -254988,7 +256576,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/296"
+      "Rojo_Id": "CatCafe_Castle_Set/308"
      }
     },
     {
@@ -255175,7 +256763,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/297"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/309"
    },
    "children": [
     {
@@ -255254,7 +256842,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/297"
+      "Rojo_Id": "CatCafe_Castle_Set/309"
      }
     },
     {
@@ -255686,7 +257274,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/298"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/310"
    },
    "children": [
     {
@@ -255765,7 +257353,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/298"
+      "Rojo_Id": "CatCafe_Castle_Set/310"
      }
     },
     {
@@ -256197,7 +257785,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/299"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/311"
    },
    "children": [
     {
@@ -256276,7 +257864,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/299"
+      "Rojo_Id": "CatCafe_Castle_Set/311"
      }
     },
     {
@@ -256463,7 +258051,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/300"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/312"
    },
    "children": [
     {
@@ -256541,7 +258129,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/300"
+      "Rojo_Id": "CatCafe_Castle_Set/312"
      }
     },
     {
@@ -256823,7 +258411,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/301"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/313"
    },
    "children": [
     {
@@ -256902,7 +258490,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/301"
+      "Rojo_Id": "CatCafe_Castle_Set/313"
      }
     },
     {
@@ -257334,7 +258922,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/302"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/314"
    },
    "children": [
     {
@@ -257412,7 +259000,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/302"
+      "Rojo_Id": "CatCafe_Castle_Set/314"
      }
     },
     {
@@ -257694,7 +259282,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/303"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/315"
    },
    "children": [
     {
@@ -257772,7 +259360,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/303"
+      "Rojo_Id": "CatCafe_Castle_Set/315"
      }
     },
     {
@@ -258054,7 +259642,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/304"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/316"
    },
    "children": [
     {
@@ -258133,7 +259721,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/304"
+      "Rojo_Id": "CatCafe_Castle_Set/316"
      }
     },
     {
@@ -258565,7 +260153,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/305"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/317"
    },
    "children": [
     {
@@ -258644,7 +260232,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/305"
+      "Rojo_Id": "CatCafe_Castle_Set/317"
      }
     },
     {
@@ -258831,7 +260419,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/306"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/318"
    },
    "children": [
     {
@@ -258909,7 +260497,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/306"
+      "Rojo_Id": "CatCafe_Castle_Set/318"
      }
     },
     {
@@ -259191,7 +260779,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/307"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/319"
    },
    "children": [
     {
@@ -259269,7 +260857,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/307"
+      "Rojo_Id": "CatCafe_Castle_Set/319"
      }
     },
     {
@@ -259551,7 +261139,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/308"
+    "Rojo_Target_PrimaryPart": "CatCafe_Castle_Set/320"
    },
    "children": [
     {
@@ -259629,7 +261217,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Castle_Set/308"
+      "Rojo_Id": "CatCafe_Castle_Set/320"
      }
     },
     {

@@ -634,6 +634,59 @@ Presets.emitters = {
 		drag = 0.8,
 		lightEmission = 0.1,
 	},
+	-- A Cat Storm (Effects/StormFall, #4197): the puff where a storm stray lands, and the slow sparkles that drift
+	-- down round you while the storm runs.
+	stormPuff = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.offwhite },
+		size = { 0.5, 0.1 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.5, 0.9 },
+		speed = { 4, 7 },
+		spread = 70,
+		rate = 0,
+		acceleration = Vector3.new(0, -8, 0),
+		drag = 1,
+		lightEmission = 0.5,
+	},
+	stormDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.offwhite },
+		size = { 0.3, 0.15 },
+		transparency = { 0.3, 1 },
+		lifetime = { 3, 4 },
+		speed = { 4, 6 },
+		spread = 8,
+		rate = 10,
+		lightEmission = 0.4,
+		rotSpeed = { -30, 30 },
+	},
+	-- #4197 admin events' air (Effects/AdminAir): Golden Hour's slow gold motes and Money Storm's quicker coin
+	-- glints, falling round you while the event runs.
+	goldHourDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.golden, Presets.palette.goldLight },
+		size = { 0.4, 0.15 },
+		transparency = { 0.25, 1 },
+		lifetime = { 4, 5 },
+		speed = { 2.5, 4 },
+		spread = 10,
+		rate = 8,
+		lightEmission = 0.6,
+		rotSpeed = { -20, 20 },
+	},
+	moneyStormDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden },
+		size = { 0.55, 0.3 },
+		transparency = { 0.1, 0.8 },
+		lifetime = { 2.2, 3 },
+		speed = { 8, 11 },
+		spread = 6,
+		rate = 12,
+		lightEmission = 0.5,
+		rotSpeed = { -200, 200 },
+	},
 	-- Soft sparkles rising off the guide trail's dots (Effects/TrailSparkle, #3022), recoloured to each dot.
 	trailSparkle = {
 		texture = Presets.textures.sparkle,
@@ -3261,6 +3314,38 @@ Presets.rally = {
 	full = Color3.fromRGB(242, 193, 78),
 }
 
+-- A Cat Storm's strays fall out of the sky (Effects/StormFall, #4197). A stray the server marked `StormCat` that
+-- appears within `within` studs: a `streak` of light drops from `height` studs up over `seconds`, then a ring `ring`
+-- studs wide and `puffCount` of `puff` where it lands. At most budget.areaPuffs falls a second. While the storm
+-- runs the `drift` emitter rains slow sparkles from a `driftBox` kept `driftHeight` over you, moved every
+-- `driftEvery` seconds. `markWait`: how long a new stray is watched for the server's mark.
+Presets.stormFall = {
+	within = 140,
+	height = 60,
+	seconds = 0.55,
+	streak = Vector3.new(0.6, 7, 0.6),
+	colour = Presets.palette.goldLight,
+	ring = 5,
+	ringSeconds = 0.7,
+	puff = "stormPuff",
+	puffCount = 10,
+	drift = "stormDrift",
+	driftBox = Vector3.new(70, 1, 70),
+	driftHeight = 22,
+	driftEvery = 0.5,
+	markWait = 2,
+}
+
+-- #4197 (Effects/AdminAir): the drift an admin event hangs round you while it runs, by its effect's name
+-- (AdminEventLogic.AIR). One emitter on an unseen `box` held `height` studs over the camera's focus, looked at every
+-- `every` seconds. None with Reduce Motion or in Low performance.
+Presets.adminAir = {
+	kinds = { goldBoost = "goldHourDrift", moneyStorm = "moneyStormDrift" } :: { [string]: string },
+	box = Vector3.new(70, 1, 70),
+	height = 22,
+	every = 0.5,
+}
+
 -- The Rally board's marquee (F101, Model-Agent's #759: `CatCafe_Square_RallyBoard` with its 32 bulbs in the
 -- `_Bulbs` Model round the face). While a Rally runs, every `gap`th bulb glows and the lit ones run round the frame
 -- clockwise at `hz` steps a second, `burstHz` for `burstSeconds` after each point anyone scores; each step of the bar
@@ -5213,6 +5298,11 @@ export type AuroraSpec = {
 	nestShown: { number }, -- each of those bands' own transparency at the ribbon's middle
 	nestBright: { number }, -- and its Beam.Brightness
 	height: number,
+	window: number, -- studs across your look the ribbons' box is wide: they run over 0.8 of it, side to side
+	deep: number, -- studs front to back the ribbons are spread over, centred `ahead` of you
+	ahead: number, -- studs out the way the camera looks, laid flat
+	recentre: number, -- the window moves once you are this far from where it was centred for
+	glide: number, -- seconds it takes to move
 	spread: number, -- of the area's shorter side the ribbons are spread over (over 1: the outer ones hang past its walls)
 	rise: number, -- studs each ribbon hangs above the one in front
 	width: number,
@@ -5259,6 +5349,8 @@ Presets.areaFx = {
 		scanSeconds = 10,
 		emitter = "duneSand",
 	},
+	-- the northern lights also hang through this many last seconds of the day: night closes the areas
+	auroraEvening = 60,
 	areas = {
 		desert = {
 			air = "desertSand",
@@ -5289,10 +5381,24 @@ Presets.areaFx = {
 			footStuds = 3,
 			aurora = {
 				ribbons = { 3, 2, 2 },
-				height = 90,
-				spread = 1.5,
-				rise = 12,
-				width = 46,
+				-- #4216 Studio look: hung over the whole 560 stud area at 90 studs they sat far off behind the
+				-- mountain and the top of the screen. So a window of them keeps ahead of you, lower. Second look: at
+				-- 62 studs they were still above what the default camera shows (it looks a little down, and the top
+				-- HUD bar covers the rest), so they hang low and further out: 10 to 20 degrees up from where you stand.
+				-- Third look: run along the area they were end on to you, thin slivers with faded tips. So they hang
+				-- across the way you look, side to side, at about 90, 150 and 210 studs ahead.
+				-- Fourth look: the camera at the landing looks along the area's short side, so nothing hung by the
+				-- area's sides is sure to be in view. They hang from the camera's own look now, 15 to 30 studs over
+				-- your feet: 6 to 14 degrees up, the upper third of the screen.
+				height = 20,
+				window = 300,
+				deep = 80,
+				ahead = 150,
+				recentre = 90,
+				glide = 4,
+				spread = 1,
+				rise = 4,
+				width = 30,
 				overlap = 0.45,
 				curve = 0.22,
 				curveMost = 60,
@@ -5300,10 +5406,12 @@ Presets.areaFx = {
 				-- #4085 Studio looks: the smoke picture drew as nothing on a Beam, a bare band at 0.4 is a solid sheet,
 				-- and three bands at 0.8 were only a haze. So no picture: three bands a colour, thinner over wider,
 				-- the thinner ones a little stronger and brighter, for a soft edge round a core line that reads.
-				shown = 0.6,
+				-- #4216: they show at dusk now (night closes the area), and against the brighter dusk sky 0.55 to 0.62
+				-- vanished, so each band is stronger.
+				shown = 0.42,
 				brightness = 1,
 				nest = { 1, 0.62, 0.3 },
-				nestShown = { 0.6, 0.62, 0.55 },
+				nestShown = { 0.42, 0.45, 0.38 },
 				nestBright = { 1, 1.5, 2 },
 				nestLow = 2,
 				fade = 3,
@@ -6090,6 +6198,14 @@ Presets.eventBanner = {
 	lineText = Color3.fromRGB(74, 52, 38),
 	badge = Presets.palette.neonPink,
 	badgeText = Presets.palette.milk,
+	-- #4195 the admin event cards: a rose strip, a gold badge of at most `badgeLength` characters, and the start
+	-- card as wide as the screen allows
+	badgeLength = 3,
+	adminTop = Color3.fromRGB(255, 150, 170),
+	adminBottom = Presets.palette.neonPink,
+	adminBadge = Presets.palette.golden,
+	adminWidthScale = 0.98,
+	adminMaxWidth = 900,
 	fishImage = "rbxassetid://101061912700342", -- CatCafe_Icon_GoldenFish (the UI's Theme.textures.fishCoin)
 	-- the motion
 	dropSeconds = 0.45,

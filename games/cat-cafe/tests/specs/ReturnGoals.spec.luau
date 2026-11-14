@@ -33,12 +33,12 @@ return function()
 
 	describe("ReturnGoals.pick", function()
 		it("names Tier 2's cats with progress, then its cost", function()
-			local profile = withCats(3)
+			local profile = withCats(2) -- #4188: Tier 2 needs 3
 			profile.coins = 1000
 			local goals = ReturnGoals.pick(profile, NOW)
 			local tier2 = Catalog.getTier(2) :: any
 			expect(goals[1].kind).to.equal("cats")
-			expect(goals[1].have).to.equal(3)
+			expect(goals[1].have).to.equal(2)
 			expect(goals[1].need).to.equal(tier2.distinctCats)
 			expect(goals[1].tier).to.equal(2)
 			expect(goals[1].area).to.equal(tier2.area)

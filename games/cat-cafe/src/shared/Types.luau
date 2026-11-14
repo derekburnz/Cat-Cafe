@@ -144,6 +144,8 @@ export type CatDef = {
 	description: string,
 	pattern: string,
 	color: { number }, -- {r, g, b} 0..255 for the placeholder body
+	-- #4221: a Secret cat's home area (its `area` stays "secret"): it only takes the place of a Mythical rolled there
+	secretArea: Area?,
 }
 
 export type UpgradeDef = {

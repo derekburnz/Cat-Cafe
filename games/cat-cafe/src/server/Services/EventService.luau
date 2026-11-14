@@ -130,6 +130,16 @@ function EventService.bowlSpeed(): number
 	return if event ~= nil then event.effects.bowlSpeed else 1
 end
 
+-- #4195 (Cat Storm): the running admin event's storm (its boost and its window), nil with none. CatService drops
+-- the storm's strays (shared/CatStorm).
+function EventService.catStorm(): (number?, number?, number?)
+	local event = adminRunning
+	if event == nil or event.effects.catStorm <= 1 then
+		return nil, nil, nil
+	end
+	return event.effects.catStorm, event.startsAt, event.endsAt
+end
+
 local function daysText(event: CafeEvents.Event): string
 	local out: { string } = {}
 	for _, kind in CafeEvents.DAY_KINDS do

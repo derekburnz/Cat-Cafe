@@ -469,6 +469,32 @@ function Logic.poolCue(beat: any, step: any): (string?, number?)
 	return nil, nil
 end
 
+-- #4069: the new areas' own sounds, off the effects' beats. `beat` "step" is your step in an area (snow crunches in
+-- the Snowy Mountain), "arrive" a cat's gust where it lands (the Blizzard Cat's), "catch" a catch there: the
+-- Blizzard Cat's gust again and the White Tiger Cat's frost chime. Nil for everything else, which keeps the sounds
+-- every catch already has.
+local AREA_STEPS: { [string]: string } = { snowy = "snowStep" }
+-- #4070: the Water Cat lands and is caught with a splash (the Camp pond's, until the Water Park has its own sheet)
+-- #4071: the Dragon Knight lands and is caught with a little dragon's roar (the Dragon Keep hatchling's)
+local CAT_ARRIVES: { [string]: string } =
+	{ blizzard = "snowGust", water = "campSplash", dragon_knight = "dragonChirp" }
+local CAT_CATCHES: { [string]: string } = {
+	blizzard = "snowGust",
+	white_tiger = "frostChime",
+	water = "campSplash",
+	dragon_knight = "dragonChirp",
+}
+function Logic.areaCue(beat: any, area: any, catId: any): string?
+	if beat == "step" then
+		return if type(area) == "string" then AREA_STEPS[area] else nil
+	elseif beat == "arrive" then
+		return if type(catId) == "string" then CAT_ARRIVES[catId] else nil
+	elseif beat == "catch" then
+		return if type(catId) == "string" then CAT_CATCHES[catId] else nil
+	end
+	return nil
+end
+
 -- #4104: the Cat Fusion Observatory's window (Effects/FusionFx.onBeat), flat: the chime as the five tiles leave, and
 -- on Collect the "ta-da", the longer one for a rainbow. The tiles meeting has no sound of its own: the chime's last
 -- note lands there.
@@ -747,6 +773,27 @@ function Logic.rallyFrom(before: { lap: number, points: number }?, lap: any, act
 		return before.points
 	end
 	return if lap > before.lap then 0 else nil
+end
+
+-- #4061 the Ticket Booth between two ProfileSyncs: `before` and `after` are the syncs' `ticketBooth` views (nil
+-- while the switch is off or the tier is not reached). True when a prize was bought: tickets spent went up. Earning
+-- tickets is silent, since they come with every catch and the catch has its own sounds.
+function Logic.ticketPrizeBought(before: any, after: any): boolean
+	if type(before) ~= "table" or type(after) ~= "table" then
+		return false
+	end
+	local was, now = before.spent, after.spent
+	return type(was) == "number" and type(now) == "number" and now > was
+end
+
+-- #4062 the Dragon Keep between two ProfileSyncs: `before` and `after` are the syncs' `dragon` views (nil while the
+-- switch is off). True when a Rekindle hand has just come up: the hand showing is a "rekindle" one and was not
+-- before. A stage hand is the cutscene's (Effects/DragonRise), with its own sounds.
+function Logic.keepRekindled(before: any, after: any): boolean
+	if type(before) ~= "table" or type(after) ~= "table" then
+		return false
+	end
+	return after.handKind == "rekindle" and before.handKind ~= "rekindle"
 end
 
 -- The bait bowl (F28) between two ProfileSyncs: `before` and `after` are the syncs' `bait` (nil for an empty bowl)

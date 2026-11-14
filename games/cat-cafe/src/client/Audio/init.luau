@@ -18,9 +18,11 @@ local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local AreaFx = require(script.Parent.Effects.AreaFx)
 local Beats = require(script.Beats)
 local BigTraitCut = require(script.Parent.Effects.BigTraitCut)
 local BinRoll = require(script.Parent.Effects.BinRoll)
+local CatchFx = require(script.Parent.Effects.Catch)
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 local Cues = require(script.Cues)
 local Effects = require(script.Parent.Effects)
@@ -33,6 +35,7 @@ local PetCat = require(script.Parent.Effects.PetCat)
 local Rally = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Rally"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local RiftRun = require(script.Parent.Effects.RiftRun)
+local Signature = require(script.Parent.Effects.Signature)
 local Splash = require(script.Parent.Effects.Splash)
 local Trampoline = require(script.Parent.Effects.Trampoline)
 
@@ -1726,6 +1729,34 @@ local function followBait()
 	end)
 end
 
+-- #4061 the Ticket Booth, from each ProfileSync's `ticketBooth` (Logic.ticketPrizeBought), so it needs no moment: a
+-- prize bought prints its ticket, then the counter bell says it is yours. The first sync only sets the count.
+-- #4062 the Dragon Keep the same way, from `dragon` (Logic.keepRekindled): a Rekindle hand coming up plays Rekindle.
+local TICKET_DING_AFTER = 0.6
+local function followStations()
+	local seen = false
+	local last: any = nil
+	local lastKeep: any = nil
+	onRemote("ProfileSync", function(state: any)
+		if type(state) ~= "table" then
+			return
+		end
+		local view, keep = state.ticketBooth, state.dragon
+		local bought = seen and Logic.ticketPrizeBought(last, view)
+		local rekindled = seen and Logic.keepRekindled(lastKeep, keep)
+		seen, last, lastKeep = true, view, keep
+		if rekindled then
+			Audio.play("rekindle")
+		end
+		if bought then
+			Audio.play("ticketPrint")
+			task.delay(TICKET_DING_AFTER, function()
+				Audio.play("ticketDing")
+			end)
+		end
+	end)
+end
+
 -- The remotes that also feed a controller's state (ProfileSync, TradeState, RallyState) are hooked only once the
 -- first ProfileSync has reached the UI (the first applySettings), when every controller is listening: a remote
 -- fired before anything listens holds its events for the first listener alone, and that must be the controller.
@@ -1785,6 +1816,7 @@ local function followServerState()
 	task.defer(followTrade)
 	task.defer(followRally)
 	task.defer(followBait)
+	task.defer(followStations)
 	task.defer(followLateStations)
 	task.defer(followUpdateGift)
 end
@@ -2236,6 +2268,29 @@ local function followPool()
 	end)
 end
 
+-- #4069: the new areas' own sounds, in 3D where they happen: your steps in the snow, the Blizzard Cat's gust where
+-- it lands and when it is caught, the White Tiger Cat's chime on its catch.
+local function followAreas()
+	AreaFx.onStep(function(area, at)
+		local cue = Logic.areaCue("step", area, nil)
+		if cue ~= nil then
+			Audio.play(cue, at)
+		end
+	end)
+	Signature.onArrive(function(catId, at)
+		local cue = Logic.areaCue("arrive", nil, catId)
+		if cue ~= nil then
+			Audio.play(cue, at)
+		end
+	end)
+	CatchFx.onFlavour(function(area, catId, _rarity, at)
+		local cue = Logic.areaCue("catch", area, catId)
+		if cue ~= nil then
+			Audio.play(cue, at)
+		end
+	end)
+end
+
 -- #3690: this player's bounce on the trampoline, in 3D at the mat.
 local function followTrampoline()
 	Trampoline.onBounce(function(mat)
@@ -2368,6 +2423,7 @@ function Audio.start()
 	followShopCats()
 	followBeats()
 	followPool()
+	followAreas()
 	followPoolIntro()
 	followBigTrait()
 	followRiftRun()

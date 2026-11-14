@@ -58,7 +58,7 @@ local function ask(): boolean
 		line = LINE,
 		choices = {
 			{ id = "on", label = "Turn on", style = "primary" },
-			{ id = "no", label = "No thanks" },
+			{ id = "no", label = "No thanks", style = "ghost" },
 		},
 		answer = function(choice: string?)
 			if choice == "on" then

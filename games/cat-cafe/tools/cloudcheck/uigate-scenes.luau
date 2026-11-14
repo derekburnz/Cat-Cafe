@@ -3048,16 +3048,32 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.lateStations.open("museum")
 		assert(UI.isOpen() == "RelicMuseum", "uigate: the museum's prompt opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#2651)")
 		local window = lateWindow("RelicMuseum")
-		local title = window:FindFirstChild("Room", true)
-		assert(string.match(title.Text, "Hall 2/10$"), "uigate: the room reads " .. title.Text .. " (#2651)")
-		local dots = 0
+		-- #3961 (mock): the hall shown is the gold tab, its words the hall's count
+		local halls = window:FindFirstChild("Halls", true) :: ScrollingFrame
+		local shown = nil
+		for _, tab in halls:GetChildren() do
+			if tab:IsA("GuiObject") and string.match(tab.Name, "^Hall_") then
+				for _, label in tab:GetDescendants() do
+					if label:IsA("TextLabel") and string.match(label.Text, " 2/10$") then
+						shown = label.Text
+					end
+				end
+			end
+		end
+		assert(shown ~= nil, "uigate: no hall tab reads 2/10 (#2651, #3961)")
+		local chips, checks = 0, 0
 		for _, piece in window:GetDescendants() do
-			if piece.Name == "Dot" and piece:IsA("GuiObject") and piece.Visible then
-				dots += 1
+			if piece:IsA("GuiObject") and piece.Visible and piece.Parent and (piece.Parent :: GuiObject).Visible then
+				if piece.Name == "GiveChip" then
+					chips += 1
+				elseif piece.Name == "Check" then
+					checks += 1
+				end
 			end
 		end
 		-- #3123: a cat's only copy can be given too, so every owned cat of the room shows one, gate_4's among them
-		assert(dots >= 1, "uigate: " .. dots .. " exhibits show a ! (#2651)")
+		assert(chips >= 1, "uigate: " .. chips .. " exhibits show Give a copy (#2651, #3961)")
+		assert(checks == 2, "uigate: " .. checks .. " exhibits show the on show tick, not 2 (#3961)")
 		-- #3961 (Derek: names clipped, cells cut off): both rows sit whole above the footer, nothing scrolls
 		local note = window:FindFirstChild("Note", true)
 		for index = 1, 10 do
@@ -3077,11 +3093,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local window = lateWindow("RelicMuseum")
 		local tile = nil -- gate_4's exhibit: its copy and the three spares (#3123: the only-copy tiles show a ! too)
 		for _, piece in window:GetDescendants() do
-			if piece.Name == "Line" and piece:IsA("TextLabel") and piece.Text == "You have 4" then
-				tile = piece.Parent
+			if piece.Name == "GiveChip" and piece:IsA("Frame") and piece.Visible then
+				local cell = piece.Parent :: Instance
+				if cell:GetAttribute("Copies") == 4 then
+					tile = cell
+				end
 			end
 		end
-		assert(tile, "uigate: no exhibit reads You have 4 (#2651)")
+		assert(tile, "uigate: no exhibit with 4 copies shows Give a copy (#2651, #3961)")
 		press("RelicMuseum", tile.Name)
 		local give = window:FindFirstChild("Give", true)
 		assert(give and give.Visible, "uigate: the exhibit did not list its copies (#2651)")
@@ -7125,6 +7144,49 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "PalArrived", function()
 		UI.palArrived(4242, firstArea())
 	end },
+	-- #3995 (friend-join-3995.md 4): the joiner's note, the friend's headshot and "Your cafe is next door." (palJoin)
+	{ "PalJoinNote", function()
+		UI.palJoined(localUserId(), 4242, true)
+		local note = UIShim.playerGui:FindFirstChild("PalNote", true)
+		assert(note ~= nil, "uigate: no join note (#3995)")
+		local line = note:FindFirstChild("Line") :: TextLabel
+		assert(line ~= nil and line.Text == "Your cafe is next door.", "uigate: the joiner's note has no next door line (#3995)")
+		assert(note:FindFirstChild("Headshot", true) ~= nil, "uigate: the join note has no headshot (#3995)")
+	end },
+	-- #3995 (5): the friend's note, "<name> joined you! They're at your front door."
+	{ "PalJoinFriend", function()
+		UI.palJoined(4242, localUserId(), nil)
+		local note = UIShim.playerGui:FindFirstChild("PalNote", true)
+		assert(note ~= nil, "uigate: no friend note (#3995)")
+		local line = note:FindFirstChild("Line") :: TextLabel
+		assert(line ~= nil and line.Text == "They're at your front door.", "uigate: the friend's note is wrong (#3995)")
+	end },
+	-- #3995 (Review-QA on #4153, 667x375): the friend's note while the tutorial strip and its Buy show stays clear of both
+	{ "PalJoinStrip", function()
+		local levels = { tables = 0, lure_bowl = 0, espresso = 0, net = 0, lucky_cat = 0 }
+		-- no tier in the state: a drop to Tier 1 makes the next rank up show "The Park is open!" (CannonAfterBowl)
+		UI.update({ tutorialStep = 3, money = 850, upgradeLevels = levels } :: any)
+		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
+		task.wait(0.2)
+		UI.palJoined(4242, localUserId(), nil)
+		task.wait(0.2)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local note = UIShim.playerGui:FindFirstChild("PalNote", true) :: GuiObject?
+		assert(note ~= nil, "uigate: no friend note over the strip scene (#3995)")
+		local function clear(piece: GuiObject?)
+			if piece == nil or not piece.Visible then
+				return true
+			end
+			local a0, a1 = note.AbsolutePosition, note.AbsolutePosition + note.AbsoluteSize
+			local b0, b1 = piece.AbsolutePosition, piece.AbsolutePosition + piece.AbsoluteSize
+			return a1.X <= b0.X or b1.X <= a0.X or a1.Y <= b0.Y or b1.Y <= a0.Y
+		end
+		for _, piece in hud:GetDescendants() do
+			if piece:IsA("GuiObject") and (piece.Name == "TutorialBuy" or (piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Text ~= "")) then
+				assert(clear(piece), ("uigate: the join note lies over the strip's %s (#3995)"):format(piece.Name))
+			end
+		end
+	end },
 	-- F84: the name card in the clouds at the top centre, held so the scene catches it (Derek 2026-11-03: the flying
 	-- character shows below it)
 	{ "CannonFlightCard", function()
@@ -7377,7 +7439,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(4) -- earlier scenes' toasts and results gone
 		local before: { [Instance]: boolean } = {}
 		for _, child in root:GetChildren() do
-			if child:IsA("GuiObject") then
+			-- the Feedback callout (#3883) comes and goes on its own clock (a wait after the tutorial, then a few
+			-- seconds up), so in a long shard it can turn up or go mid-scene; it is not part of the catch's HUD
+			if child:IsA("GuiObject") and child.Name ~= "FeedbackCallout" then
 				before[child] = child.Visible
 			end
 		end
@@ -8074,6 +8138,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the walk-through ending this session
 	-- (step 4, the bowl, to 5) puts "Hop in the cannon to catch more cats!" on the tutorial strip, with the arrow
 	{ "CannonAfterBowl", function()
+		UI.parkTrail.reach(true) -- a player who has been to the Park: the Park line (#3893) would come first otherwise
 		UI.cannon.setWild(nil)
 		UI.update({ tutorialStep = 4, tier = 2 } :: any)
 		UI.update({ tutorialStep = 5 } :: any)
@@ -8091,6 +8156,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		)
 		UI.cannon.wrapUp.on = false -- as a flight clears it, so later scenes keep their own lines
 		UI.update({ tutorialStep = 9 } :: any)
+		UI.parkTrail.reach(false)
 	end },
 	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
 	-- the intro's screen: four captions with four dots, the read bar and Next, no Skip; it ends by itself and saves
@@ -8894,6 +8960,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ tutorialStep = 9 } :: any)
 		UIShim.advance(0.1)
 		assert(strip() == UI.parkTrail.STRIP, "uigate: the wrap-up hint took the Park line's place, the strip reads " .. strip() .. " (#3893)")
+		-- with the paw trail switched off (no goal) the line stays, without naming the paws (Review-QA's PC run)
+		UI.parkTrail.set(nil, nil)
+		UIShim.advance(0.1)
+		assert(strip() == UI.parkTrail.STRIP_PLAIN, "uigate: with the trail off the strip reads " .. strip() .. " (#3893)")
 		UI.cannon.wrapUp.on = false
 		UI.parkTrail.reach(true)
 		UI.parkTrail.set(nil, nil)
@@ -10933,6 +11003,57 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
 		assertStoreCards(true)
+	end },
+	-- #3996 (todays-deal-3996.md section 4): Today's Deal is the hero card while it shows, with what is in it, the honest
+	-- value line, the Tomorrow line and R$25, and the usual hero leads the picks; its press asks the server
+	-- (PromptDeal), never Roblox
+	{ "StoreDeal", function()
+		UI.update({ dailyDeal = { deal = 1, bought = false, tomorrow = 2 } } :: any)
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
+		local card = window:FindFirstChild("hero", true) :: Frame
+		assert(card and card.Visible, "uigate: no Today's Deal card on Featured (#3996)")
+		assert((card:FindFirstChild("Name") :: TextLabel).Text == "Today's Deal", "uigate: the deal card's title (#3996)")
+		local effect = card:FindFirstChild("Effect") :: TextLabel
+		assert(effect.Visible and string.find(effect.Text, "5 Big Money", 1, true), "uigate: the deal card does not say what is in it: " .. effect.Text .. " (#3996)")
+		assert(string.find(effect.Text, "Tomorrow: Trait Token deal", 1, true), "uigate: no Tomorrow line: " .. effect.Text .. " (#3996)")
+		assert(string.find(effect.Text, "more than Potion Pack S", 1, true), "uigate: no value line: " .. effect.Text .. " (#3996)")
+		local pick = window:FindFirstChild("pick1", true) :: Frame
+		local pickName = (pick:FindFirstChild("Name") :: TextLabel).Text
+		assert(pick.Visible and pickName ~= "" and pickName ~= "Today's Deal", "uigate: the usual hero does not lead the picks (#3996)")
+		local sent = nil
+		local connection = UI.events.storeDeal:Connect(function(productId)
+			sent = productId
+		end)
+		press("Store", "hero.Buy")
+		connection:Disconnect()
+		assert(sent == "deal_1", "uigate: the deal's R$25 sent " .. tostring(sent) .. " (#3996)")
+	end },
+	-- #3996: the token deal carries the Mystic Pool's roll odds on the card itself (monetization-policy, #3864)
+	{ "StoreDealTokens", function()
+		UI.update({ dailyDeal = { deal = 2, bought = false, tomorrow = 3 } } :: any)
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
+		local effect = window:FindFirstChild("hero", true):FindFirstChild("Effect") :: TextLabel
+		assert(string.find(effect.Text, "Roll odds:", 1, true), "uigate: the token deal shows no odds: " .. effect.Text .. " (#3996)")
+		assert(effect.TextFits ~= false or effect.TextTruncate == Enum.TextTruncate.None, "uigate: the token deal's odds are cut (#3996)")
+	end },
+	-- #3996: bought today, the card stays, a pick now, with "Bought today" in the button's place; switched off, no card
+	{ "StoreDealBought", function()
+		UI.update({ dailyDeal = { deal = 3, bought = true, tomorrow = 4 } } :: any)
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
+		local card = window:FindFirstChild("pick1", true) :: Frame
+		local owned = card:FindFirstChild("Owned") :: TextLabel
+		assert((card:FindFirstChild("Name") :: TextLabel).Text == "Today's Deal", "uigate: the bought deal is not the first pick (#3996)")
+		assert(card.Visible and owned.Visible and owned.Text == "Bought today", "uigate: the bought deal does not say so (#3996)")
+		assert(not (card:FindFirstChild("Buy") :: GuiObject).Visible, "uigate: the bought deal still has its button (#3996)")
+		UI.update({ dailyDeal = false } :: any)
+		local name = (card:FindFirstChild("Name") :: TextLabel).Text
+		assert(name ~= "Today's Deal" and not owned.Visible, "uigate: the deal card stays with the switch off (#3996)")
 	end },
 	-- #2850 (Derek2: "move the 999 pack and extra food bowl somewhere in featured"): with the Starter Bundle unbought
 	-- it is the hero, and the King Cat Pack and the Second Bait Bowl lead the picks; the hero lists the bundle's contents

@@ -43,6 +43,8 @@ local MysticPoolLogic = require(script.Parent.Parent.Components.MysticPoolLogic)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local RareBubbleLogic = require(script.Parent.Parent.Components.RareBubbleLogic)
+local RareBubbles = require(script.Parent.Parent.Components.RareBubbles)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
@@ -501,8 +503,13 @@ function Cannon._buildCards(self: any)
 				self:_press(id)
 			end,
 		})
+		-- #4227: the Mythical and Secret cats out in the area now, over the picture's top right corner
+		local rare = if id ~= CannonLogic.TOWN
+			then RareBubbles.new(frame, UDim2.new(1, -6, 0, 6), 8)
+			else nil
 		self._cards[id] = {
 			frame = frame,
+			rare = rare,
 			pal = pal,
 			night = night,
 			nightLine = nightLine,
@@ -715,6 +722,8 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		lockedIds[destination.id] = destination.locked == true
 	end
 	local tall = false
+	-- #4227: the wild Mythical and Secret cats out in each area now (the server's AreaRares)
+	local rares = RareBubbleLogic.decode(ReplicatedStorage:GetAttribute(RareBubbleLogic.ATTRIBUTE))
 	for id, card in self._cards do
 		local order = shown[id]
 		card.frame.Visible = order ~= nil
@@ -728,6 +737,9 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			CannonLogic.button(id, closed, dusk, carrying, locked)
 		card.night.Visible = buttonState == "night"
 		card.lock.Visible = locked or card.breaking == true or self._toBreak[id] == true -- #3884: until it breaks
+		if card.rare ~= nil then
+			card.rare:set(if locked then { m = 0, s = 0 } else RareBubbleLogic.counts(rares, id))
+		end
 		card.nightLine.Visible = ART_H >= 60 -- #2771: not in the phone's slim band
 		if id ~= CannonLogic.TOWN then
 			local counts = IndexRewards.counts(catalog, state, id)

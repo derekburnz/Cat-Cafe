@@ -3891,6 +3891,10 @@ function HUD._layoutRight(self: any)
 	roadmap.Position = UDim2.new(1, -MARGIN, 0, stripTop)
 	if roadmap.Visible then
 		lineTop += self._roadmap:closedHeight() + Theme.sizes.gap
+		if self._roadmapOpen == true then
+			-- #3990: the open steps list ran down over the spin and gift lines (a PC); they move under it
+			lineTop = math.max(lineTop, stripTop + lift + roadmap.Size.Y.Offset + Theme.sizes.gap)
+		end
 	end
 	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
 	local giftTop = if self._spinLine.Visible then lineTop + SPIN_LINE_H + 2 else lineTop

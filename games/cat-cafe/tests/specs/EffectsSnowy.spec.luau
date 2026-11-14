@@ -145,7 +145,9 @@ return function()
 			expect(#a.ribbons).to.equal(3) -- one count per budget tier, fewer as the tier drops
 			expect(a.ribbons[1] >= a.ribbons[2] and a.ribbons[2] >= a.ribbons[3]).to.equal(true)
 			expect(a.ribbons[1] <= 3).to.equal(true) -- two Beams a ribbon: six at most
-			expect(a.shown >= 0.6 and a.shown < 1).to.equal(true) -- soft, never a solid band
+			-- soft, never a solid band: the smoke picture thins it further (#4085: 0.72 could not be seen at all)
+			expect(a.shown >= 0.3 and a.shown <= 0.5).to.equal(true)
+			expect(a.brightness >= 1 and a.brightness <= 3).to.equal(true)
 			for _, seconds in a.seconds do
 				expect(seconds >= 8).to.equal(true) -- a slow sway
 			end

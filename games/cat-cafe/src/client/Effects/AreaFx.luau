@@ -440,6 +440,7 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 			band.TextureLength = 1
 			band.TextureSpeed = 0
 			band.LightEmission = 1
+			band.Brightness = spec.brightness
 			band.LightInfluence = 0
 			band.Width0 = spec.width
 			band.Width1 = spec.width
@@ -464,6 +465,22 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 			end
 		end
 		table.insert(auroraRibbons, ribbon)
+	end
+	if testAurora ~= nil then
+		-- Studio only: what was built, to rule out a hidden cause when nothing shows
+		for n, ribbon in auroraRibbons do
+			for _, band in ribbon.bands do
+				print(
+					"[AreaFx] aurora ribbon",
+					n,
+					band.Enabled,
+					band.Attachment0 ~= nil and (band.Attachment0 :: Attachment).WorldPosition,
+					band.Attachment1 ~= nil and (band.Attachment1 :: Attachment).WorldPosition,
+					band.Width0,
+					band.Brightness
+				)
+			end
+		end
 	end
 	part.Parent = Context.folder()
 	aurora, auroraArea = part, area

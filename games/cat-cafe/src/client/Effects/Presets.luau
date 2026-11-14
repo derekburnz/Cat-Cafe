@@ -4767,6 +4767,7 @@ Presets.bedWalk = { fade = 0.25 }
 -- performance. `ribbons` is per budget tier (high, medium, low).
 export type AuroraSpec = {
 	ribbons: { number },
+	brightness: number, -- Beam.Brightness: the soft picture is mostly see-through, so its light is scaled up
 	height: number,
 	spread: number, -- of the area's shorter side the ribbons are spread over (over 1: the outer ones hang past its walls)
 	rise: number, -- studs each ribbon hangs above the one in front
@@ -4852,7 +4853,9 @@ Presets.areaFx = {
 				curve = 0.22,
 				curveMost = 60,
 				seconds = { 11, 14, 17 },
-				shown = 0.72,
+				-- #4085 Studio look: 0.72 on the soft smoke picture left nothing to see, by day or at night
+				shown = 0.4,
+				brightness = 2.5,
 				fade = 3,
 				foot = Presets.palette.mint,
 				top = Presets.palette.aurora,

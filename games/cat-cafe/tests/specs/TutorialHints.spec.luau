@@ -106,6 +106,28 @@ return function()
 			)
 		end)
 
+		it("holds the table while the stray leads for its first seconds by day (#4097)", function()
+			TutorialHints.resetHold()
+			local s = TutorialHints.STRAY_FIRST_SECONDS
+			expect(TutorialHints.holdsTable({ step = 3, cats = 1 } :: any, 100)).to.equal(true)
+			expect(TutorialHints.holdsTable({ step = 3, cats = 1 } :: any, 100 + s - 1)).to.equal(
+				true
+			)
+			expect(TutorialHints.holdsTable({ step = 3, cats = 1 } :: any, 100 + s)).to.equal(false)
+			-- at night, or once the second cat is in, the table is the ask at once
+			TutorialHints.resetHold()
+			expect(TutorialHints.holdsTable({ step = 3, cats = 1, night = true } :: any, 0)).to.equal(
+				false
+			)
+			expect(TutorialHints.holdsTable({ step = 3, cats = 2 } :: any, 0)).to.equal(false)
+			expect(TutorialHints.upgrade(3, {}, true)).to.equal(nil)
+			expect(TutorialHints.upgrade(3, {}, false)).to.equal("tables")
+			local upgrades = { { id = "tables", startLevel = 0, costs = { 100 } } }
+			expect(TutorialHints.offer(3, {}, 1000, upgrades, true)).to.equal(nil)
+			expect((TutorialHints.offer(3, {}, 1000, upgrades) :: any).id).to.equal("tables")
+			TutorialHints.resetHold()
+		end)
+
 		it(
 			"asks for another cat or the table at step 3 while only one cat is caught (#2912)",
 			function()

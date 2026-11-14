@@ -2899,13 +2899,30 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- on the square alone: round the whole tile it covered the "Upgrades" label under it (device pass 2026-11-07)
 	-- #2759: none of the step rings while a fresh save's intro is on its way (holdTutorial)
 	local held = self._tutorialHeld == true
+	-- #4097: the table waits while the stray leads (TutorialHints.holdsTable), then a render at the end shows it
+	local clock = ReplicatedStorage:FindFirstChild("Clock")
+	local hintView = TutorialHints.view(
+		state,
+		if catalog then catalog.spots else nil,
+		nil,
+		not (clock ~= nil and clock:GetAttribute("AreasOpen") == false)
+	)
+	local holdTable = TutorialHints.holdsTable(hintView, os.clock())
+	if holdTable and not self._strayFirstQueued then
+		self._strayFirstQueued = true
+		task.delay(TutorialHints.STRAY_FIRST_SECONDS + 0.1, function()
+			if self._state ~= nil then
+				self:render(self._state)
+			end
+		end)
+	end
 	TutorialGlow.set(
 		self._upgradesTile.face,
-		not held and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+		not held
+			and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels, holdTable) ~= nil
 	)
 	-- #2697: the Cats tile while the step asks for a job, the Bowl tile while it asks for food in the bowl
-	local asks =
-		TutorialHints.ask(TutorialHints.view(state, if catalog then catalog.spots else nil))
+	local asks = TutorialHints.ask(hintView)
 	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, not held and asks == "job")
 	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, not held and asks == "food")
 	-- #2912: the strip's Buy button
@@ -2915,7 +2932,8 @@ function HUD.render(self: any, state: Types.PlayerState)
 			state.tutorialStep,
 			state.upgradeLevels,
 			state.money,
-			if catalog then catalog.upgrades else nil
+			if catalog then catalog.upgrades else nil,
+			holdTable
 		)
 	self._stripOffer = offer
 	self:_renderStripBuy()

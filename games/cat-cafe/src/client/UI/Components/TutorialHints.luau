@@ -154,8 +154,39 @@ function TutorialHints.view(
 	}
 end
 
-function TutorialHints.upgrade(step: number?, levels: { [string]: number }?): string?
+-- #4097 (Derek 2026-11-14: 19% leave between the first job and the second cat; Design-Agent's pick, trail first): at
+-- step 3 by day while the second cat is still to catch, the table's glow, spotlight, row and Buy button wait
+-- STRAY_FIRST_SECONDS from when the step first shows, so the stray's edge arrow and trail lead (the spotlight puts the
+-- edge arrow aside). After that, or at night (no strays), the table is offered as before. The words stay.
+TutorialHints.STRAY_FIRST_SECONDS = 20
+local strayFirstAt: number? = nil -- os.clock() when step 3's "second" first showed this session
+
+-- Whether the table waits now: `now` is os.clock(). The first true call starts the clock; HUD and UpgradeShop share it.
+function TutorialHints.holdsTable(view: View, now: number): boolean
+	if pick(view) ~= "second" or view.night == true then
+		return false
+	end
+	if strayFirstAt == nil then
+		strayFirstAt = now
+	end
+	return now - (strayFirstAt :: number) < TutorialHints.STRAY_FIRST_SECONDS
+end
+
+-- For specs: forget when the hold began.
+function TutorialHints.resetHold()
+	strayFirstAt = nil
+end
+
+-- `hold` (holdsTable) keeps the step's table back while the stray leads.
+function TutorialHints.upgrade(
+	step: number?,
+	levels: { [string]: number }?,
+	hold: boolean?
+): string?
 	local owned: { [string]: number } = levels or {}
+	if hold == true then
+		return nil
+	end
 	if step == 3 then
 		return TutorialHints.TABLE
 	elseif step == 4 and (owned[TutorialHints.BOWL] or 0) < 1 then
@@ -188,9 +219,10 @@ function TutorialHints.offer(
 	step: number?,
 	levels: { [string]: number }?,
 	money: number?,
-	upgrades: { any }?
+	upgrades: { any }?,
+	hold: boolean?
 ): Offer?
-	local id = TutorialHints.upgrade(step, levels)
+	local id = TutorialHints.upgrade(step, levels, hold)
 	local text = if id ~= nil then TutorialHints.BUY_TEXT[id] else nil
 	if id == nil or text == nil or type(money) ~= "number" or upgrades == nil then
 		return nil

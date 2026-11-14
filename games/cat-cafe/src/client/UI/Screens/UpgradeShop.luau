@@ -15,6 +15,7 @@
 -- (Components/LuckLogic.statueLines).
 
 local GuiService = game:GetService("GuiService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -605,7 +606,18 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 	end
 
 	-- #1796: the row the tutorial asks for (a table at step 3, the Bait bowl at step 4) glows
-	local asked = TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels)
+	-- #4097: no table row glows while the stray leads (TutorialHints.holdsTable)
+	local clock = ReplicatedStorage:FindFirstChild("Clock")
+	local holdTable = TutorialHints.holdsTable(
+		TutorialHints.view(
+			state,
+			if catalog then catalog.spots else nil,
+			nil,
+			not (clock ~= nil and clock:GetAttribute("AreasOpen") == false)
+		),
+		os.clock()
+	)
+	local asked = TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels, holdTable)
 	if asked ~= self._asked then
 		self._asked = asked
 		if asked ~= nil and self._rows[asked] then

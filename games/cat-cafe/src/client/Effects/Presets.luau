@@ -6072,6 +6072,14 @@ Presets.eventBanner = {
 	lineText = Color3.fromRGB(74, 52, 38),
 	badge = Presets.palette.neonPink,
 	badgeText = Presets.palette.milk,
+	-- #4195 the admin event cards: a rose strip, a gold badge of at most `badgeLength` characters, and the start
+	-- card as wide as the screen allows
+	badgeLength = 3,
+	adminTop = Color3.fromRGB(255, 150, 170),
+	adminBottom = Presets.palette.neonPink,
+	adminBadge = Presets.palette.golden,
+	adminWidthScale = 0.98,
+	adminMaxWidth = 900,
 	fishImage = "rbxassetid://101061912700342", -- CatCafe_Icon_GoldenFish (the UI's Theme.textures.fishCoin)
 	-- the motion
 	dropSeconds = 0.45,

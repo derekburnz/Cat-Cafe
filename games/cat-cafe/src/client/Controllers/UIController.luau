@@ -1928,6 +1928,12 @@ local function wireIntents()
 			Net.fire("TelemetryReport", "store_guard_blocked", what)
 		end)
 	end
+	-- #4176: a purchase prompt's source, "source:id"; the server allowlists it and keeps it 2 minutes for the receipt
+	if events.buySource ~= nil then
+		events.buySource:Connect(function(what: string)
+			Net.fire("TelemetryReport", "buy_source", what)
+		end)
+	end
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
 	UI.events.travel:Connect(function(destination: string)
 		Net.fire("Travel", destination)

@@ -639,6 +639,7 @@ return function()
 				Giveaways = true, -- Derek 2026-11-13: the 15:30 UTC giveaways, checked in Codes.spec
 				StoreWasPrice = true, -- #3572: the Sale badge's true old prices, checked in StoreLogic.spec
 				StoreSaleEnds = true, -- #3572: checked in StoreLogic.spec
+				UpdateFeature = true, -- #4175: checked in StoreLogic.spec
 				EarlyCatchCount = true, -- #2913 follow-up: checked in Circles.spec
 				EarlyCatchWindowScale = true, -- #2913 follow-up: checked in Circles.spec and S24 here
 				AfkCafeSeconds = true, -- #3573: checked in AfkCafe.spec

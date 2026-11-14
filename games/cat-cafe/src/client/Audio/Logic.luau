@@ -668,6 +668,10 @@ function Logic.bannerCue(kind: any): string?
 		return "indexReward"
 	elseif kind == "secrets" or kind == "secretSpawn" then
 		return "secretNear" -- #3523: the Secret stray's low twinkle
+	elseif kind == "adminSoon" then
+		return "uiGiftReady" -- #4195: an admin event is two minutes away
+	elseif kind == "admin" then
+		return "stationReveal" -- #4195: it starts, as the party card does
 	end
 	return nil
 end

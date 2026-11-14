@@ -235,6 +235,7 @@ UI.events = {
 	-- #1936 (release.md section 3), analytics only: a purchase prompt refused with no tap or during a catch, rescue or
 	-- cutscene, "source:reason" (bait, store or cafePass; no_tap or busy)
 	storeGuardBlocked = Signal.new(), -- (what)   forward as TelemetryReport("store_guard_blocked", what)
+	buySource = Signal.new(), -- (what)   #4176: forward as TelemetryReport("buy_source", what)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
@@ -873,7 +874,7 @@ function UI.init(config: Types.InitConfig)
 		-- #2353: the X2 Cash pill opens Roblox's window for the 2x pass, through the Store's tap guard (#1936)
 		buyPass = function(id: number)
 			local PassShop = require(script.Components.PassShop)
-			PassShop.prompt(id, "store")
+			PassShop.prompt(id, "hud_badge") -- #4176: purchase_source tells these from Store buys
 		end,
 		-- #1919: the goal card's nudge opens the Index on the newest open area with the most cats to find
 		openIndexAt = function(areaId: string?)
@@ -8782,6 +8783,7 @@ do
 		playedAt = 0,
 		quietUntil = nil :: number?,
 		blocked = nil :: Signal.Connection?,
+		prompting = nil :: Signal.Connection?, -- #4176
 	}
 
 	-- #1936 (release.md section 3): under 30 minutes of total play the money badge has no price and does not pulse
@@ -8859,7 +8861,7 @@ do
 				hud:setStoreNew(screen:hasNew())
 			end
 		end
-		-- #1606: the money pass badge beside the HUD's money ("2x" to "4x", or "Get 2x" while the 2x pass is on sale)
+		-- #1606: the money pass button beside the HUD's money: the next rung up while it is on sale (2x, then 3x, then 4x)
 		if hud then
 			local boosts = (state :: any).passBoosts
 			local multiplier = if type(boosts) == "table" then boosts.money else nil
@@ -8904,14 +8906,15 @@ do
 			return
 		end
 		local screen = Store.new({
-			buy = function(passId: number)
+			buy = function(passId: number, source: string?)
 				-- #1888: the funnel's buy_pressed, the first buy of a visit
 				local key = "buy:" .. tostring(passId)
 				if not shop.reported[key] then
 					shop.reported[key] = true
 					UI.events.storeReport:Fire("store_buy", passId)
 				end
-				PassShop.prompt(passId, "store")
+				-- #4175: "featured_new" from the update's own card on Featured
+				PassShop.prompt(passId, source or "store")
 			end,
 			-- #3996: the server checks Today's Deal and opens Roblox's prompt itself
 			deal = function(productId: string)
@@ -8998,6 +9001,12 @@ do
 		shop.blocked = PassShop.blocked:Connect(function(source: string, reason: string)
 			UI.events.storeGuardBlocked:Fire(source .. ":" .. reason)
 		end)
+		-- #4176: where the prompt started, so the receipt's purchase_source can say it
+		shop.prompting = PassShop.prompting:Connect(function(source: string, id: number)
+			local funnel: any =
+				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StoreFunnel"))
+			UI.events.buySource:Fire(funnel.buySourceOf(source) .. ":" .. tostring(id))
+		end)
 		PassShop.start(StoreLogic.passIds(Config), StoreLogic.productIds(Config))
 		refresh()
 	end
@@ -9066,6 +9075,10 @@ do
 		if shop.blocked then
 			shop.blocked:Disconnect()
 			shop.blocked = nil
+		end
+		if shop.prompting then
+			shop.prompting:Disconnect()
+			shop.prompting = nil
 		end
 		shop.quietUntil = nil
 		if shop.supporter then
@@ -9653,6 +9666,7 @@ do
 	local events = {
 		boards = nil :: EventBoards.EventBoards?,
 		seen = nil :: EventLogic.Seen?, -- kept across rebuilds, so a respawn neither repeats the banner nor forgets the end
+		adminSeen = nil :: any, -- #4195: the same for the admin event (Effects/AdminEventLogic.Seen)
 		token = 0,
 	}
 
@@ -9765,10 +9779,32 @@ do
 				)
 			end
 		end
+		-- #4195: an admin event (Bowl Frenzy, the Admin Wheel) beside the Cafe Event: its warning card two minutes
+		-- before, its wide card as it starts, and its timer first on the event chip (Effects/AdminEventLogic)
+		local AdminEventLogic = require(script.Parent.Effects.AdminEventLogic) :: any
+		local adminView = AdminEventLogic.read(get, UI.cafeEvent.decode)
+		local adminSeen, adminBeat = AdminEventLogic.follow(events.adminSeen, adminView, now)
+		events.adminSeen = adminSeen
+		if adminBeat ~= nil and adminView ~= nil then
+			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
+			local card = if adminBeat == "start"
+				then AdminEventLogic.startBanner(adminView, now)
+				else AdminEventLogic.soonBanner(adminView, now)
+			EventBanner.show(card)
+			-- the same words as one line in the chat window, for a player who looked away
+			local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any
+			AdminEventChat.say(AdminEventLogic.chatLine(card))
+		end
 		local current = hud
 		if current then
-			local chipLines, chipKind = EventLogic.chip(view, seen, now)
-			current:setEvent(chipLines, chipKind, EventLogic.strip(view, seen, now))
+			local eventLines, eventKind = EventLogic.chip(view, seen, now)
+			local chipLines, chipKind, stripLines = AdminEventLogic.merge(
+				eventLines,
+				eventKind,
+				EventLogic.strip(view, seen, now),
+				AdminEventLogic.stripLine(adminView, now)
+			)
+			current:setEvent(chipLines, chipKind, stripLines)
 			current:setEventBoost(EventLogic.moneyBoost(view, now))
 		end
 		local boards = events.boards
@@ -9793,6 +9829,7 @@ do
 	-- the UI gate's scenes: forget the watched event, so a put-away test party is not "ended early"
 	function UI.cafeEvent.forget()
 		events.seen = nil
+		events.adminSeen = nil
 	end
 
 	function UI.cafeEvent.reset()

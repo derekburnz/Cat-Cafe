@@ -8,6 +8,8 @@
 -- owned, runs 43359597703 and 43359644620 on 11-13; old and new ids in exports/icons/decor256/decor256-asset-ids.md.
 -- The Snowy Crate's twelve (snow_, Model-Agent #4139): group owned at 256, runs 43554372539 and 43555566969 on 11-14;
 -- ids in exports/icons/snowy-crate-asset-ids.md. Their catalog rows land with Tier 8 (#4135).
+-- The Water Park Crate's twelve (funfair_, Model-Agent #4182): group owned at 256, run 43594490852 on 11-14; ids in
+-- exports/icons/water-park-crate-asset-ids.md. Their catalog rows land with Tier 9 (#4181).
 
 return {
 	-- #2486's Cafe Event reward (Model-Agent #2488), uploaded by Tools-Agent on 11-08
@@ -56,6 +58,18 @@ return {
 	fish_tank = "rbxassetid://95197860659567",
 	flower_box_fence = "rbxassetid://114859649168345",
 	flower_cart = "rbxassetid://93079890251884",
+	funfair_balloon_wall = "rbxassetid://81431599359553",
+	funfair_beach_chair = "rbxassetid://124007010680811",
+	funfair_boardwalk = "rbxassetid://89622797885242",
+	funfair_candy_pink = "rbxassetid://90917459757536",
+	funfair_circus_stripes = "rbxassetid://91323473376370",
+	funfair_ferris_lamp = "rbxassetid://140297229761013",
+	funfair_mini_carousel = "rbxassetid://86422311308477",
+	funfair_popcorn_yellow = "rbxassetid://115895935030191",
+	funfair_prize_shelf = "rbxassetid://84005212486238",
+	funfair_slide_flap = "rbxassetid://119380596591254",
+	funfair_ticket_gate = "rbxassetid://96952427122360",
+	funfair_wave_pool = "rbxassetid://115719596582354",
 	garden_bench = "rbxassetid://130826010993603",
 	garden_gnome_cat = "rbxassetid://74808938102286",
 	-- #3222's rare Golden drops (Animation-Engineer #3228), uploaded owned by the group on 11-11

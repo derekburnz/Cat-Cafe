@@ -40,9 +40,15 @@ local SKIP: { [string]: boolean } = { Close = true, MenuFold = true, TravelFold 
 local TAB_ROWS: { [string]: boolean } = { Tabs = true, Rail = true, Bowls = true, Chips = true }
 -- #4224 (Review-QA's controller pass): buttons a window's first selection passes over when it has another, so a
 -- habit A never spends every potion ("Use all potions", Use all) or collects a station strip in place of Launch
--- (#4224 retest: and the Bait Bowl's Refill, so the first A is the tutorial's Kibble Use)
-local SKIP_FIRST: { [string]: boolean } =
-	{ UseAllPotions = true, DrinkAll = true, UseAll = true, Collect = true, Refill = true }
+-- (#4224 retest: and the Bait Bowl's Refill and a row's Details, so the first A is the tutorial's Kibble Use)
+local SKIP_FIRST: { [string]: boolean } = {
+	UseAllPotions = true,
+	DrinkAll = true,
+	UseAll = true,
+	Collect = true,
+	Refill = true,
+	Details = true,
+}
 local ROW = 12 -- pixels: buttons whose tops are this close count as one row, read left to right
 
 local GAMEPADS: { [Enum.UserInputType]: boolean } = {
@@ -402,22 +408,21 @@ function GamepadNav.stepTab(root: Instance, step: number): boolean
 		-- #4224 retest: the switch hides the list the selection sat in, and the engine moves the ring to the nearest
 		-- button left (the old tab); land on the new tab's first item instead, once it has been built
 		local function follow()
+			-- #4224 Studio retest: the ring stayed on the old tab, so after a switch from the page the selection
+			-- always lands on the new page's first item unless it already sits on a different shown item there
 			local now = GuiService.SelectedObject
 			if
-				selected ~= nil
-				and not GamepadNav.shown(selected)
-				and (
-					now == nil
-					or now == selected
-					or not GamepadNav.shown(now)
-					or now:IsDescendantOf(row)
-				)
+				now == nil
+				or now == selected
+				or not GamepadNav.shown(now)
+				or now:IsDescendantOf(row)
 			then
 				GamepadNav.select(GamepadNav.first(root))
 			end
 		end
 		task.defer(follow)
 		task.delay(0.1, follow)
+		task.delay(0.3, follow) -- a page that builds its rows a few frames later (the Bag's Cat Food)
 	end
 	return true
 end

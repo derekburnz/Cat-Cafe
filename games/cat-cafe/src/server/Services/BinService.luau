@@ -6,7 +6,8 @@
 -- last miss is BinMissRetrySeconds old, then sends the bar as RescueChallenge. Each press is judged as a rescue's
 -- (Rescue.pressBar, the press's own time kept within half the ping). A win rolls the prize here, pays it
 -- (Payout.pay), starts the wait and ends the bar with RescueResult's last argument, the win ({ id, first }), which
--- the bar shows as its closing words: no toast (#3080). A miss, Give up, walking away, dying or leaving costs nothing.
+-- the bar shows as its closing words: no toast (#3080). A miss, Give up, dying or leaving costs nothing; walking away
+-- no longer ends it (#4023).
 -- Each player's wait and wins live in their own DataStore, STORE (key: the user id), not in the save, so the bin
 -- needed no save version step and no restart (Derek2 2026-11-11: "shit them without restart"). They are read when
 -- the player joins (the bin stays shut until the read answers) and written at each win.
@@ -46,7 +47,6 @@ local BinService = {}
 
 local RANGE_SLACK = 4 -- studs past the prompt's reach, for a character the server sees a moment late
 local PAD_SLACK = 3 -- #3680: studs past the pad's edge, for the same reason
-local LEAVE_RANGE_STUDS = 16 -- further than this from the bin ends the bar, as a rescue's
 local FLAG_SECONDS = 5
 
 local STORE = "CatCafe_Bin" .. (if RunService:IsStudio() then "_dev" else "")
@@ -227,7 +227,7 @@ local function send(player: Player, attempt: Rescue.Attempt, win: Types.RummageW
 end
 
 -- Ends the player's bar. A win pays one prize and starts the wait; anything else costs nothing and starts the short
--- retry wait. `reason` is a toast for an end the bar does not show (walking away).
+-- retry wait. `reason` is an optional toast for an end the bar does not show.
 local function finish(player: Player, run: Run, reason: string?)
 	if runs[player] ~= run then
 		return -- already finished
@@ -288,7 +288,7 @@ local function finish(player: Player, run: Run, reason: string?)
 	end
 end
 
--- Watches a bar until it ends: its deadline, the player leaving, dying or walking away from the bin.
+-- Watches a bar until it ends: its deadline, the player leaving or dying (#4023: not walking away).
 local function watch(player: Player, run: Run)
 	task.spawn(function()
 		while runs[player] == run do
@@ -305,11 +305,10 @@ local function watch(player: Player, run: Run)
 				finish(player, run, nil)
 				return
 			end
-			local away = distance(player)
-			if away == nil or away > LEAVE_RANGE_STUDS then
-				finish(player, run, "You walked away from the bin")
-				return
-			end
+			-- #4023 (Derek 2026-11-13: "make it continue even if they walk away"): walking off no longer ends it; the
+			-- bar runs to its win, miss, deadline or Give up wherever the player stands. Every send to spawn (the
+			-- night's sweep, fast travel, the Cannon, a tutorial move) already waits for it, as for a rescue
+			-- (CatService.inMinigame and busyReason count this bar through RescueService's onOtherBar).
 		end
 	end)
 end

@@ -500,5 +500,8 @@ The Keep sheet holds all of these. It's mono. The cutscene and card sounds play 
 | `snowStep` | your steps in the Snowy Mountain | 0.2 s | a soft dry crunch; the pitch varies a little each step | P3 |
 | `snowGust` | the Blizzard Cat (Mythical) lands or is caught | 1.5 s | a gust that swells and whistles past, icy glints falling out of it | P2 |
 | `frostChime` | the White Tiger Cat (Legendary) is caught or revealed | 1.4 s | three cold glass notes falling like icicles, one low warm note under them | P2 |
+| `fusionStart` | five cats go into the Fusion Observatory's dome (#4104) | 1.9 s | five glass notes climbing, one for each cat, then a soft shimmer as they become one | P2 |
+| `fusionCollect` | a gold cat is collected from the dome | 1.3 s | a bright "ta-da": a pickup note and a warm major chord | P2 |
+| `fusionCollectRainbow` | a rainbow cat is collected from the dome | 2.6 s | the "ta-da", six notes running up (one for each colour) and a wider chord held under them | P2 |
 
 Nothing here is loud or scary: the roars are a cat's voice pitched down with a rolled growl. The area songs for the three new areas are in section 3.

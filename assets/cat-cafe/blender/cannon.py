@@ -32,8 +32,8 @@ common.RB, sizes in studs, front -Z.
                               clears the steps by 1). Flat, walk-on, nothing collides.
   CatCafe_Camp_Cannon_<Area>  each camp's cannon, the same cannon at three quarters size in the area's trim (Alleyway
                               neon pink, Park leaf green, Neighbourhood orange, Woods deep green, Sewer slate blue,
-                              Desert amber, Ruins jade, Snowy ice blue) on a low round base with one step at its
-                              back, no statue. Pivot at the base centre on the
+                              Desert amber, Ruins jade, Snowy ice blue, Water Park red) on a low round base with
+                              one step at its back, no statue. Pivot at the base centre on the
                               camp's floor, front -Z: place it at the camp's back wall with -Z to the wall, so the
                               barrel at rest points +Z out over the area. Same child Models and attachments; the
                               _Turret pivot is 1.49 up.
@@ -73,7 +73,8 @@ CAMP_TURRET_Y = 1.98
 PAD_R = 8.0
 PAD_AT = (0.0, -16.5)                                # the town pad's centre (world x, z)
 TRIM = {"Alleyway": "neon_pink", "Park": "paw_park", "Neighbourhood": "paw_neighbourhood", "Woods": "paw_woods",
-        "Sewer": "paw_sewer", "Desert": "eye_amber", "Ruins": "fur_emerald", "Snowy": "eye_blue"}
+        "Sewer": "paw_sewer", "Desert": "eye_amber", "Ruins": "fur_emerald", "Snowy": "eye_blue",
+        "WaterPark": "shirt_red"}
 PAWS = (("neon_pink", -1, -1), ("paw_park", 0, -1), ("paw_neighbourhood", 0, 1), ("paw_woods", -1, 0),
         ("paw_sewer", 1, 0), ("eye_amber", 1, -1), ("fur_emerald", 1, 1))   # the coping's paws, (swatch, x, z) toward
                                                      # each fire direction; #2651 Desert south-east, Ruins north-east
@@ -346,7 +347,8 @@ NEST = {"_Climb": "_Turret", "_MoonCover": "_Turret"}
 # _Turret turn, degrees: a guide only, the game reads the real turns from Layout.cannonAim (each camp's landing pad,
 # not the area centre: Desert 128.3, Ruins 52.2 for #2651)
 FIRE_TURNS = {"Alleyway": -135, "Park": 180, "Neighbourhood": 0, "Woods": -90, "Sewer": 90,
-              "Desert": 128.3, "Ruins": 52.2, "Snowy": -45.0}     # Snowy: the plan's north-west, till Layout has it
+              "Desert": 128.3, "Ruins": 52.2, "Snowy": -45.0,      # Snowy: the plan's north-west, till Layout has it
+              "WaterPark": 0.0}    # till Layout has it
 PLACEMENTS = {"CatCafe_Square_Cannon": (0, 0.1, 0, 0), "CatCafe_Square_LandingPad": (PAD_AT[0], 0.1, PAD_AT[1], 0)}
 
 ASSETS = {"CatCafe_Square_Cannon": (build_square_cannon, 8000),

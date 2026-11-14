@@ -3,13 +3,14 @@
 -- that runs, or from two minutes before its start the one coming, on ReplicatedStorage as attributes
 -- (shared/CafeEvents.ADMIN_ATTRIBUTES): AdminEventId ("" for none), AdminEventTitle, AdminEventStartsAt and
 -- AdminEventEndsAt (unix seconds, compared with Workspace:GetServerTimeNow), AdminEventRunning and AdminEventEffects
--- (JSON: {"bowlSpeed":4}).
+-- (JSON: {"bowlSpeed":4} or {"catStorm":10}).
 --   read(get, decode) -> View?          the attributes as a View; get reads one attribute, decode parses the JSON
 --   follow(seen, view, now)             what this client has watched: (Seen?, "soon" | "start" | nil), each once an
 --                                       event: "soon" the first time it sees one coming (the warning banner),
 --                                       "start" the first time it sees it running (the wide start banner; also for
 --                                       a player who joins while it runs)
---   effectLines(view)                   one calm line per effect: "Bait bowls lure cats 4x faster"
+--   effectLines(view)                   one calm line per effect: "Bait bowls lure cats 4x faster", "Strays rain
+--                                       in every area", "Mythical cats 10x as likely"
 --   soonBanner(view, now)               Effects/EventBanner's "adminSoon" card: "Bowl Frenzy soon!", "Starts in 2:00"
 --   startBanner(view, now)              its "admin" card: "Bowl Frenzy!", the effect, "Ends in 15:00"
 --   chatLine(banner)                    the same words as one system chat line, in the cards' rose, rich text safe:
@@ -28,6 +29,7 @@ export type View = {
 	endsAt: number,
 	running: boolean,
 	bowlSpeed: number, -- 1 for none
+	catStorm: number, -- 1 for none
 }
 export type Seen = { id: string, warned: boolean, started: boolean }
 export type Banner = { kind: string, title: string, lines: { string }, badge: string }
@@ -61,6 +63,7 @@ function AdminEventLogic.read(get: (name: string) -> any, decode: (json: string)
 		end
 	end
 	local bowlSpeed = if effects ~= nil then finite(effects.bowlSpeed) else nil
+	local catStorm = if effects ~= nil then finite(effects.catStorm) else nil
 	return {
 		id = id,
 		title = title,
@@ -68,6 +71,7 @@ function AdminEventLogic.read(get: (name: string) -> any, decode: (json: string)
 		endsAt = endsAt,
 		running = get("AdminEventRunning") == true,
 		bowlSpeed = if bowlSpeed ~= nil and bowlSpeed > 1 then bowlSpeed else 1,
+		catStorm = if catStorm ~= nil and catStorm > 1 then catStorm else 1,
 	}
 end
 
@@ -119,6 +123,10 @@ function AdminEventLogic.effectLines(view: View): { string }
 	if view.bowlSpeed > 1 then
 		table.insert(out, string.format("Bait bowls lure cats %sx faster", times(view.bowlSpeed)))
 	end
+	if view.catStorm > 1 then
+		table.insert(out, "Strays rain in every area")
+		table.insert(out, string.format("Mythical cats %sx as likely", times(view.catStorm)))
+	end
 	return out
 end
 
@@ -126,6 +134,8 @@ end
 function AdminEventLogic.badge(view: View): string
 	if view.bowlSpeed > 1 then
 		return times(view.bowlSpeed) .. "x"
+	elseif view.catStorm > 1 then
+		return times(view.catStorm) .. "x"
 	end
 	return "!"
 end

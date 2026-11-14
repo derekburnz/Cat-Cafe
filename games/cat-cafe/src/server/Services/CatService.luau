@@ -19,6 +19,7 @@ local BagColours = require(ReplicatedStorage.Shared.BagColours)
 local CafeService = require(script.Parent.CafeService)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
+local CatStorm = require(ReplicatedStorage.Shared.CatStorm)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Catching = require(ReplicatedStorage.Shared.Catching)
 local Circles = require(ReplicatedStorage.Shared.Circles)
@@ -29,6 +30,7 @@ local Cooldown = require(ReplicatedStorage.Shared.Cooldown)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EventRewardService = require(script.Parent.EventRewardService)
+local EventService = require(script.Parent.EventService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local HeldCat = require(ReplicatedStorage.Shared.HeldCat)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
@@ -1385,6 +1387,96 @@ local function topUpTick(dt: number)
 			left = StrayTopUp.wait(rng:NextNumber())
 		end
 		topUpLeft[areaDef.id] = left
+	end
+end
+
+-- #4195 part 3, Cat Storm (shared/CatStorm): while an admin event's storm runs, by day, each area somebody has open
+-- gets one more stray every CatStorm.gap seconds, rolled on the area's odds with the Mythical weight times the
+-- storm's boost, until it has had CatStorm.total of them or holds too many already. The model carries
+-- CatStorm.ATTRIBUTE for the client's falling streak. No area line for a storm's Mythical (the storm's own banner
+-- says it; a Secret still gets its line from spawnAt). Each storm's strays are counted in `storm_strays` at its end.
+local stormLeft: { [string]: number } = {} -- seconds until each area's next storm stray
+local stormDropped: { [string]: number } = {} -- storm strays each area has had in this storm
+local stormEndsAt: number? = nil -- the storm these belong to
+
+local function stormOver()
+	local dropped, mythical = 0, 0
+	for key, count in stormDropped do
+		if key == "Mythical" then
+			mythical = count
+		else
+			dropped += count
+		end
+	end
+	if dropped > 0 then
+		local someone: Player? = DataService.loadedPlayers()[1]
+		if someone ~= nil then
+			Telemetry.custom(someone, "storm_strays", dropped, { tostring(mythical) })
+		end
+	end
+	table.clear(stormLeft)
+	table.clear(stormDropped)
+	stormEndsAt = nil
+end
+
+local function stormTick(dt: number)
+	local boost, startsAt, endsAt = EventService.catStorm()
+	if boost == nil or startsAt == nil or endsAt == nil then
+		if stormEndsAt ~= nil then
+			stormOver()
+		end
+		return
+	end
+	if stormEndsAt ~= endsAt then
+		if stormEndsAt ~= nil then
+			stormOver()
+		end
+		stormEndsAt = endsAt
+	end
+	if not ClockService.areasOpen() then
+		return -- the areas are closed at night; the storm picks up at sunrise
+	end
+	local open: { [string]: boolean } = {}
+	for _, player in DataService.loadedPlayers() do
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			local tier = Economy.tier(profile)
+			for _, areaDef in Catalog.areas do
+				if tier >= areaDef.tier then
+					open[areaDef.id] = true
+				end
+			end
+		end
+	end
+	local count = #Catalog.areas
+	for index, areaDef in Catalog.areas do
+		local id = areaDef.id
+		if world.areas[id] == nil or not open[id] then
+			continue
+		end
+		local gap = CatStorm.gap(endsAt - startsAt, areaDef.waveSize)
+		local left = (stormLeft[id] or CatStorm.offset(index, count, gap)) - dt
+		if left <= 0 then
+			left = gap
+			local had = stormDropped[id] or 0
+			if
+				had < CatStorm.total(areaDef.waveSize)
+				and CatStorm.room(countStrays(id), areaDef.waveSize)
+			then
+				local rarity: Types.Rarity =
+					Catching.pickRarity(CatStorm.odds(areaDef.odds, boost), rng:NextNumber())
+				local point = freeSpawnPoint(id, rarity)
+				if point ~= nil then
+					local stray = spawnAt(id, point, rarity)
+					stray.model:SetAttribute(CatStorm.ATTRIBUTE, true)
+					stormDropped[id] = had + 1
+					if stray.def.rarity == "Mythical" then
+						stormDropped.Mythical = (stormDropped.Mythical or 0) + 1
+					end
+				end
+			end
+		end
+		stormLeft[id] = left
 	end
 end
 
@@ -3455,6 +3547,9 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			xpcall(topUpTick, function(err: unknown)
 				warn("[CatService] top-ups: " .. tostring(err))
 			end, nowClock - last)
+			xpcall(stormTick, function(err: unknown)
+				warn("[CatService] cat storm: " .. tostring(err))
+			end, nowClock - last) -- #4195
 			last = nowClock
 		end
 	end)

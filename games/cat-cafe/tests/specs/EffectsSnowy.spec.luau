@@ -173,17 +173,22 @@ return function()
 			local a = Presets.areaFx.areas.snowy.aurora :: any
 			expect(a.window >= 200 and a.window <= 400).to.equal(true)
 			expect(a.ahead < a.window / 2).to.equal(true) -- some of it is always over you
+			-- the strong middle of a ribbon (30 to 70% of its length) sits 10 to 25 degrees up from where you stand
+			local near = a.ahead - a.window * 0.8 * 0.2
+			local far = a.ahead + a.window * 0.8 * 0.2
+			expect(math.deg(math.atan2(a.height, near)) <= 25).to.equal(true)
+			expect(math.deg(math.atan2(a.height, far)) >= 8).to.equal(true)
 			expect(a.glide >= 2).to.equal(true) -- a slow glide, never a jump
-			local lo, hi = -280, 280
+			local lo, hi = -400, 400
 			-- looking up the area, down it, and across it
 			expect(Logic.auroraCentre(0, 1, lo, hi, a.window, a.ahead)).to.equal(a.ahead)
 			expect(Logic.auroraCentre(0, -1, lo, hi, a.window, a.ahead)).to.equal(-a.ahead)
 			expect(Logic.auroraCentre(0, 0.1, lo, hi, a.window, a.ahead)).to.equal(0)
 			-- at either end it stops at the area's edge
-			expect(Logic.auroraCentre(-270, -1, lo, hi, a.window, a.ahead)).to.equal(
+			expect(Logic.auroraCentre(-390, -1, lo, hi, a.window, a.ahead)).to.equal(
 				lo + a.window / 2
 			)
-			expect(Logic.auroraCentre(270, 1, lo, hi, a.window, a.ahead)).to.equal(
+			expect(Logic.auroraCentre(390, 1, lo, hi, a.window, a.ahead)).to.equal(
 				hi - a.window / 2
 			)
 			-- an area shorter than the window keeps its own middle
@@ -243,11 +248,11 @@ return function()
 					-- it bends square to its length, never more than curveMost
 					expect(math.abs(r.across:Dot(run)) < 1e-6).to.equal(true)
 					expect(math.abs(r.bend) <= a.curveMost).to.equal(true)
-					-- spread over the short side, each a little higher, over the roofs and the pines
+					-- spread over the short side, each a little higher, low enough for the default camera (#4216)
 					local off = if alongZ then r.from.X - centre.x else r.from.Z - centre.z
 					expect(math.abs(off) < short * a.spread / 2).to.equal(true)
 					expect(r.from.Y).to.equal(a.height + (i - 1) * a.rise)
-					expect(r.from.Y >= 55).to.equal(true)
+					expect(r.from.Y >= 30).to.equal(true)
 					-- neighbours bend to opposite sides
 					expect(r.bend * (if i % 2 == 1 then 1 else -1) > 0).to.equal(true)
 					expect(r.seconds >= 8).to.equal(true)

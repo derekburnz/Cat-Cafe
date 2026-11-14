@@ -5276,14 +5276,16 @@ Presets.areaFx = {
 			aurora = {
 				ribbons = { 3, 2, 2 },
 				-- #4216 Studio look: hung over the whole 560 stud area at 90 studs they sat far off behind the
-				-- mountain and the top of the screen. So a 300 stud window of them keeps ahead of you, lower.
-				height = 62,
-				window = 300,
-				ahead = 110,
+				-- mountain and the top of the screen. So a window of them keeps ahead of you, lower. Second look: at
+				-- 62 studs they were still above what the default camera shows (it looks a little down, and the top
+				-- HUD bar covers the rest), so they hang low and further out: 10 to 20 degrees up from where you stand.
+				height = 36,
+				window = 320,
+				ahead = 150,
 				recentre = 50,
 				glide = 4,
 				spread = 1.5,
-				rise = 12,
+				rise = 6,
 				width = 46,
 				overlap = 0.45,
 				curve = 0.22,

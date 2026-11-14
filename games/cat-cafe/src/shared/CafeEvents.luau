@@ -56,7 +56,10 @@
 --   (Economy.setAdminMoney); `traitParty` (Trait Party): Mystic Pool rolls cost nothing while it runs, at most
 --   ADMIN.traitPartyRolls an account an event (TraitService); `speedRush` (Speed Rush): every player counts as
 --   wearing the Speed Shoes while it runs (CatService). traitParty and speedRush are on with true or a number above
---   0, and travel as 1 in AdminEventEffects.
+--   0, and travel as 1 in AdminEventEffects. `secretHunt` (Secret Hunt): that many Secret cats hide in this server's
+--   open areas by day, 1 to ADMIN.secretHuntMax; whoever catches one keeps it, and when all are caught everyone
+--   online gets ADMIN.huntFish golden fish (CatService). The server adds `secretFound`, the count caught so far, to
+--   AdminEventEffects as it changes.
 -- An admin record runs ADMIN.minSeconds to ADMIN.maxSeconds and never overlaps another admin record (the later one
 -- is dropped, with a note); it needs at least one admin effect. Everything waits behind the LiveFlags switch
 -- ADMIN.flag (EventService), off by default.
@@ -114,16 +117,19 @@ CafeEvents.ADMIN = {
 	coatChanceMax = 0.5, -- a boosted gold or rainbow chance never goes over this
 	moneyStormMax = 5, -- #4197 Money Storm
 	traitPartyRolls = 30, -- #4197 Trait Party: free rolls an account may take in one party
+	secretHuntMax = 5, -- #4197 Secret Hunt
+	huntFish = 100, -- each player online when the last hunted cat is caught
 }
 -- The owner's kinds (`/admin <kind> [minutes] [now]`): each one's title, effects and length in minutes when none is given.
 CafeEvents.ADMIN_KINDS = {
 	bowl = { title = "Bowl Frenzy", minutes = 15, effects = { bowlSpeed = 4 } },
 	storm = { title = "Cat Storm", minutes = 10, effects = { catStorm = 10 } },
-	-- #4197 part 2 (Derek's `/admin golden|money|traits|speed`)
+	-- #4197 part 2 (Derek's `/admin golden|money|traits|speed|hunt`)
 	golden = { title = "Golden Hour", minutes = 15, effects = { goldBoost = 10, rainbowBoost = 5 } },
 	money = { title = "Money Storm", minutes = 10, effects = { moneyStorm = 5 } },
 	traits = { title = "Trait Party", minutes = 10, effects = { traitParty = true } },
 	speed = { title = "Speed Rush", minutes = 10, effects = { speedRush = true } },
+	hunt = { title = "Secret Hunt", minutes = 15, effects = { secretHunt = 3 } },
 	-- the Admin Wheel (AdminWheel.luau): every player may spin it once while it is up
 	wheel = { title = "Admin Wheel", minutes = 5, effects = { wheel = true } },
 } :: {
@@ -165,6 +171,7 @@ export type AdminEffects = {
 	moneyStorm: number,
 	traitParty: boolean,
 	speedRush: boolean,
+	secretHunt: number, -- #4197: the Secret cats hiding, 0 when the record has none
 }
 export type AdminEvent = {
 	id: string,
@@ -350,6 +357,7 @@ local function adminActive(effects: AdminEffects): boolean
 		or effects.moneyStorm > 1
 		or effects.traitParty
 		or effects.speedRush
+		or effects.secretHunt > 0
 end
 
 -- #4195/#4197: the admin effects of `values` (a record's `effects`, or an ADMIN_KINDS row), each checked and clamped
@@ -399,6 +407,15 @@ local function adminEffectsOf(
 			out[key] = n > 0
 		end
 	end
+	local hunt = if values.secretHunt == nil then 0 else finite(values.secretHunt)
+	if hunt == nil then
+		return nil, id .. ": a bad secretHunt"
+	end
+	local cats = math.clamp(math.floor(hunt), 0, CafeEvents.ADMIN.secretHuntMax)
+	if cats ~= hunt and hunt > 0 then
+		table.insert(notes, `{id}: secretHunt {hunt} clamped to {cats}`)
+	end
+	out.secretHunt = cats
 	return out :: any, nil
 end
 
@@ -581,6 +598,9 @@ function CafeEvents.adminEffectsData(event: AdminEvent): { [string]: any }
 		if (event.effects :: any)[key] == true then
 			out[key] = 1
 		end
+	end
+	if event.effects.secretHunt > 0 then
+		out.secretHunt = event.effects.secretHunt
 	end
 	return out
 end

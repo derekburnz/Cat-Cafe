@@ -29,6 +29,7 @@ return function()
 				moneyStorm = 1,
 				traitParty = false,
 				speedRush = false,
+				secretHunt = 0,
 			},
 		}
 	end
@@ -181,6 +182,7 @@ return function()
 				moneyStorm = 1,
 				traitParty = false,
 				speedRush = false,
+				secretHunt = 0,
 			}
 			expect(AdminWheel.view(redeemed, bowl, true)).to.equal(nil)
 		end)

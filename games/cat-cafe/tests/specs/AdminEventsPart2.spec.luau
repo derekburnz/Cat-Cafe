@@ -1,6 +1,6 @@
 --!strict
 -- Admin events part 2 (#4197): Golden Hour (goldBoost, rainbowBoost), Money Storm (moneyStorm), Trait Party
--- (traitParty) and Speed Rush (speedRush) in the admin lane (shared/CafeEvents), and what each one changes: the coat
+-- (traitParty), Speed Rush (speedRush) and Secret Hunt (secretHunt) in the admin lane (shared/CafeEvents), and what each one changes: the coat
 -- chances (Clock.setAdminCoats), the cafe pay floor (Economy.setAdminMoney, Economy.moneyFor) and the lent shoes
 -- (SpeedShoes.carry).
 return function()
@@ -43,6 +43,7 @@ return function()
 				money = { title = "Money Storm", data = { moneyStorm = 5 } },
 				traits = { title = "Trait Party", data = { traitParty = 1 } },
 				speed = { title = "Speed Rush", data = { speedRush = 1 } },
+				hunt = { title = "Secret Hunt", data = { secretHunt = 3 } },
 			}
 			for kind, want in expected do
 				expect(OwnerTest.adminAsk("/admin " .. kind .. " now").kind).to.equal(kind)
@@ -103,6 +104,21 @@ return function()
 			expect(event.effects.moneyStorm).to.equal(1)
 			expect(event.effects.traitParty).to.equal(false)
 			expect(event.effects.speedRush).to.equal(false)
+			expect(event.effects.secretHunt).to.equal(0)
+		end)
+
+		it("reads secretHunt as whole cats up to its cap", function()
+			local event, notes = parseOne({ secretHunt = 9 })
+			assert(event ~= nil)
+			expect(event.effects.secretHunt).to.equal(ADMIN.secretHuntMax)
+			expect(#notes).to.equal(1)
+			local three = parseOne({ secretHunt = 3.7 })
+			assert(three ~= nil)
+			expect(CafeEvents.adminEffectsData(three)).to.deepEqual({ secretHunt = 3 })
+			expect(parseOne({ secretHunt = 0 })).to.equal(nil)
+			expect(parseOne({ secretHunt = -2 })).to.equal(nil)
+			expect(parseOne({ secretHunt = "3" })).to.equal(nil)
+			expect(parseOne({ secretHunt = 0 / 0 })).to.equal(nil)
 		end)
 	end)
 

@@ -200,7 +200,7 @@ export type CustomEvent =
 	-- F97 (notes-10-28-to-10-30.md section 7): a sunrise wave with no Epic or rarer stray rerolled its last one; area,
 	-- the rarity it got. A server event, logged under the first loaded player
 	| "wave_rare"
-	-- #3470: Secret cats. secret_spawn (value 1; area or "bowl", wild, bait or rescue), secret_caught (value the
+	-- #3470: Secret cats. secret_spawn (value 1; area or "bowl", wild, bait, rescue or hunt), secret_caught (value the
 	-- tackles it took on the way home; catch, bait or rescue, coat) and secret_lost (value 1; area, despawn or tackle)
 	| "secret_spawn"
 	| "secret_caught"
@@ -419,6 +419,8 @@ export type CustomEvent =
 	-- #4197: a player was online in a running admin event, once per event, value 1; the event id and its title (Golden
 	-- Hour, Money Storm ...). Never for a test event
 	| "admin_join"
+	-- #4197 Secret Hunt: a hunt's Secret cat caught, value how many of the hunt's are caught now; the event id
+	| "secret_hunt_found"
 	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
 	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
 	-- report is "none". #2791: the server logs each gift ladder step as it pays, value the account's minutes played; the

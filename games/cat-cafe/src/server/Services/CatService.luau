@@ -16,6 +16,7 @@ local Workspace = game:GetService("Workspace")
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local Badges = require(ReplicatedStorage.Shared.Badges)
 local BagColours = require(ReplicatedStorage.Shared.BagColours)
+local CafeEvents = require(ReplicatedStorage.Shared.CafeEvents)
 local CafeService = require(script.Parent.CafeService)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
@@ -31,6 +32,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EventRewardService = require(script.Parent.EventRewardService)
 local EventService = require(script.Parent.EventService)
+local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local HeldCat = require(ReplicatedStorage.Shared.HeldCat)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
@@ -504,6 +506,18 @@ end
 
 -- Spawning ------------------------------------------------------------------------------------------------
 
+-- #4197 Secret Hunt: the running hunt's Secret strays (huntTick below). `gone` is huntTick's, called by despawn.
+type Hunt = {
+	id: string,
+	count: number, -- cats the hunt hides
+	spawned: number, -- of them out now or caught
+	found: number,
+	paid: boolean,
+	ids: { [string]: boolean }, -- stray id -> one of the hunt's, still out
+}
+local hunt: Hunt? = nil
+local huntGone: (stray: Stray, catcher: Player?) -> () = function() end
+
 -- `catcher` is the player who just caught it, nil when it leaves. A knocked-loose cat logs who ended up with it
 -- (drop_outcome, F16): against the catcher, or its old carrier when nobody caught it.
 local function despawn(stray: Stray, catcher: Player?)
@@ -525,6 +539,10 @@ local function despawn(stray: Stray, catcher: Player?)
 		end
 	end
 	strays[stray.id] = nil
+	local running = hunt
+	if running ~= nil and running.ids[stray.id] then
+		huntGone(stray, catcher)
+	end
 	if stray.def.rarity == Catalog.SECRET then
 		SecretBeacons.clear(stray.id)
 		-- #3470: gone with nobody holding it (dusk, or a Dropped one nobody picked up)
@@ -866,7 +884,7 @@ end
 -- #3470: a wild Secret stray is out. The players with its area open (#3897) get the banner and chat line with its
 -- area's name, and
 -- it is logged as `secret_spawn` (a server event with no player of its own: under the first player here).
-local function secretSpawned(stray: Stray)
+local function secretSpawned(stray: Stray, source: string?)
 	local areaDef = Catalog.getArea(stray.area)
 	local text = Catching.waveShoutOut(
 		stray.def.rarity,
@@ -878,7 +896,7 @@ local function secretSpawned(stray: Stray)
 	end
 	local someone: Player? = DataService.loadedPlayers()[1]
 	if someone ~= nil then
-		Telemetry.custom(someone, "secret_spawn", 1, { stray.area, "wild" })
+		Telemetry.custom(someone, "secret_spawn", 1, { stray.area, source or "wild" })
 	end
 end
 
@@ -1479,6 +1497,99 @@ local function stormTick(dt: number)
 		end
 		stormLeft[id] = left
 	end
+end
+
+-- #4197 Secret Hunt (shared/CafeEvents ADMIN_KINDS.hunt): while the admin event runs, by day, its Secret strays come
+-- out one a second in random areas somebody has open, each with a Secret's own area line, until the hunt has
+-- `count` of them. Whoever catches one keeps it as any Secret. One gone at dusk comes back at sunrise while the hunt
+-- runs. When all are caught every player here gets ADMIN.huntFish golden fish, once. EventService publishes the
+-- count caught as the effects' `secretFound` (the bar's "1/3"). Its strays carry HUNT_ATTRIBUTE; ones still out at
+-- the end stay until dusk like any Secret. Only while the `secretCats` switch is on.
+local HUNT_ATTRIBUTE = "HuntCat"
+
+huntGone = function(stray: Stray, catcher: Player?)
+	local running = hunt :: Hunt
+	running.ids[stray.id] = nil
+	if catcher == nil then
+		running.spawned -= 1 -- gone at dusk: out again at sunrise
+		return
+	end
+	running.found += 1
+	EventService.setHuntFound(running.id, running.found)
+	Telemetry.custom(catcher, "secret_hunt_found", running.found, { running.id })
+	if running.found < running.count or running.paid then
+		return
+	end
+	running.paid = true
+	local fish = CafeEvents.ADMIN.huntFish
+	for _, player in DataService.loadedPlayers() do
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			GoldenFish.credit(profile, fish)
+			Telemetry.fishSource(player, profile, fish, "TimedReward", "secret_hunt")
+			CafeService.sync(player)
+			Net.toast(
+				player,
+				string.format("All %d Secret cats found! +%d golden fish", running.count, fish),
+				"good"
+			)
+		end
+	end
+end
+
+local function huntTick()
+	local id, count = EventService.secretHunt()
+	if id == nil then
+		hunt = nil
+		return
+	end
+	local running = hunt
+	if running == nil or running.id ~= id then
+		running = { id = id, count = count, spawned = 0, found = 0, paid = false, ids = {} }
+		hunt = running
+		EventService.setHuntFound(id, 0)
+	end
+	assert(running ~= nil)
+	if
+		running.spawned >= running.count
+		or not ClockService.areasOpen()
+		or not LiveFlagService.on(Catching.SECRET_FLAG)
+		or #Catalog.secretCats == 0
+	then
+		return
+	end
+	local open: { string } = {}
+	local seen: { [string]: boolean } = {}
+	for _, player in DataService.loadedPlayers() do
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			local tier = Economy.tier(profile)
+			for _, areaDef in Catalog.areas do
+				if
+					tier >= areaDef.tier
+					and not seen[areaDef.id]
+					and world.areas[areaDef.id] ~= nil
+				then
+					seen[areaDef.id] = true
+					table.insert(open, areaDef.id)
+				end
+			end
+		end
+	end
+	if #open == 0 then
+		return
+	end
+	local areaId = open[rng:NextInteger(1, #open)]
+	local point = freeSpawnPoint(areaId, "Mythical")
+	if point == nil then
+		return -- that area is full; another next second
+	end
+	local def = Catalog.secretCats[rng:NextInteger(1, #Catalog.secretCats)]
+	local stray = spawnStray(def, areaId, world.areas[areaId].spawnPoints[point].Position, point)
+	stray.model:SetAttribute(HUNT_ATTRIBUTE, true)
+	running.ids[stray.id] = true
+	running.spawned += 1
+	secretSpawned(stray, "hunt")
 end
 
 -- Runs `after` once nobody holds the stray's lock: at once when it is free, else when the catch in progress ends
@@ -3572,6 +3683,9 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			xpcall(stormTick, function(err: unknown)
 				warn("[CatService] cat storm: " .. tostring(err))
 			end, nowClock - last) -- #4195
+			xpcall(huntTick, function(err: unknown)
+				warn("[CatService] secret hunt: " .. tostring(err))
+			end) -- #4197
 			last = nowClock
 		end
 	end)

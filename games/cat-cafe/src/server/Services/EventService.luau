@@ -32,6 +32,7 @@
 -- read cache, so a new schedule is seen at the next check.
 
 local DataStoreService = game:GetService("DataStoreService")
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -178,6 +179,24 @@ function EventService.takePartyRoll(player: Player): boolean
 	return true
 end
 
+-- #4197 (Secret Hunt): the cats caught so far in the running hunt, as CatService reports them; published with the
+-- effects as `secretFound`.
+local huntFound: { id: string, found: number }? = nil
+
+-- #4197 (Secret Hunt): the running hunt's id and how many cats hide, else nil and 0.
+function EventService.secretHunt(): (string?, number)
+	local event = adminRunning
+	if event == nil or event.effects.secretHunt <= 0 then
+		return nil, 0
+	end
+	return event.id, event.effects.secretHunt
+end
+
+-- #4197: CatService's count of the hunt's cats caught so far; the attribute follows on the lane's next second.
+function EventService.setHuntFound(id: string, found: number)
+	huntFound = { id = id, found = math.max(0, math.floor(found)) }
+end
+
 -- #4197 (Speed Rush): whether every player counts as wearing the Speed Shoes now.
 function EventService.speedRush(): boolean
 	local event = adminRunning
@@ -228,6 +247,17 @@ end
 
 -- #4195: the admin lane's second: which one runs, which one shows (the warning before a start), the attributes when
 -- either changed, and adminChanged when the running one did.
+-- The AdminEventEffects attribute for `shown`: its effects, plus a hunt's secretFound.
+local function adminJson(shown: CafeEvents.AdminEvent): string
+	local found = huntFound
+	if shown.effects.secretHunt <= 0 or found == nil or found.id ~= shown.id then
+		return CafeEvents.adminEffectsJson(shown)
+	end
+	local data = CafeEvents.adminEffectsData(shown)
+	data.secretFound = found.found
+	return HttpService:JSONEncode(data)
+end
+
 local function applyAdmin(at: number)
 	local list = adminList(at)
 	local event = CafeEvents.adminCurrent(list, at)
@@ -239,7 +269,7 @@ local function applyAdmin(at: number)
 			shown.title,
 			shown.startsAt,
 			shown.endsAt,
-			CafeEvents.adminEffectsJson(shown),
+			adminJson(shown),
 			tostring(event ~= nil)
 		)
 		else ""
@@ -250,10 +280,7 @@ local function applyAdmin(at: number)
 		ReplicatedStorage:SetAttribute(names.title, if shown ~= nil then shown.title else "")
 		ReplicatedStorage:SetAttribute(names.startsAt, if shown ~= nil then shown.startsAt else 0)
 		ReplicatedStorage:SetAttribute(names.endsAt, if shown ~= nil then shown.endsAt else 0)
-		ReplicatedStorage:SetAttribute(
-			names.effects,
-			if shown ~= nil then CafeEvents.adminEffectsJson(shown) else ""
-		)
+		ReplicatedStorage:SetAttribute(names.effects, if shown ~= nil then adminJson(shown) else "")
 		ReplicatedStorage:SetAttribute(names.running, event ~= nil)
 	end
 	local was = adminRunning

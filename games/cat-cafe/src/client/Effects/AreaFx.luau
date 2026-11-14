@@ -39,7 +39,14 @@ local function areaBoxes(): { any }
 	end
 	local world = (Config :: any).World
 	local list: { any } = {}
-	for _, id in { "Desert", "Ruins" } do
+	-- every area with effects (Presets.areaFx.areas): "snowy" reads Config.World's SnowyCenterX and the rest, so an
+	-- area's air starts the day its box is in the Config (#4069)
+	local ids: { string } = {}
+	for area in Presets.areaFx.areas do
+		table.insert(ids, area:sub(1, 1):upper() .. area:sub(2))
+	end
+	table.sort(ids)
+	for _, id in ids do
 		local x = if type(world) == "table" then world[id .. "CenterX"] else nil
 		local z = if type(world) == "table" then world[id .. "CenterZ"] else nil
 		local width = if type(world) == "table" then world[id .. "Width"] else nil
@@ -155,7 +162,7 @@ local function updateAir(area: string?, feet: Vector3)
 		box, air, airArea, airEmitter = part, part, area, emitter
 	end
 	local part = box :: Part
-	part.CFrame = CFrame.new(feet + Vector3.new(0, fx.lift, 0))
+	part.CFrame = CFrame.new(feet + Vector3.new(0, spec.lift or fx.lift, 0))
 	local emitter = airEmitter
 	if emitter ~= nil then
 		Particles.switchOn(emitter, spec.air)
@@ -180,6 +187,37 @@ local function updateMist(area: string?, feet: Vector3)
 	if not misted then
 		misted = true
 		Particles.burst("smokePuff", feet, spec.mist :: number, spec.mistColour or spec.colour)
+	end
+end
+
+-- #4069: a little puff under your feet for every `footStuds` you walk on the ground in an area with one (snow in
+-- the Snowy Mountain). None in Low performance or with Reduce Motion.
+local footAt: Vector3? = nil
+local function updateFeet(area: string?, feet: Vector3, humanoid: Humanoid?)
+	local spec = specOf(area)
+	local count = if spec ~= nil then spec.footPuff else nil
+	if
+		spec == nil
+		or count == nil
+		or humanoid == nil
+		or Context.lowPerformance
+		or Context.reducedMotion()
+	then
+		footAt = nil
+		return
+	end
+	local last = footAt
+	if last == nil then
+		footAt = feet
+		return
+	end
+	local walked = Vector3.new(feet.X - last.X, 0, feet.Z - last.Z).Magnitude
+	if walked < (spec.footStuds or 3) then
+		return
+	end
+	footAt = feet
+	if humanoid.FloorMaterial ~= Enum.Material.Air then
+		Particles.burst(spec.footPreset or "dust", feet, count, spec.footColour or spec.colour)
 	end
 end
 
@@ -298,6 +336,8 @@ local function step()
 	updateAir(area, feet)
 	updateMist(area, feet)
 	updateDunes(area, feet)
+	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
+	updateFeet(area, feet, humanoid :: Humanoid?)
 end
 
 function AreaFx.start()

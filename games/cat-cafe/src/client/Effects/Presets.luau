@@ -3486,7 +3486,7 @@ Presets.adminAir = {
 -- screen's shorter side between `scaleMin` and `scaleMax`. `looks`: the world's tint while each kind runs, eased
 -- over `tintSeconds`, and the band's and strip's colours.
 Presets.adminFlash = {
-	displayOrder = 24, -- the countdown, splash and end card: over the windows (20), under the banner (29) and toasts
+	displayOrder = 13, -- the countdown, splash and end card: over the HUD and the area title (12), under the windows (20)
 	stripOrder = 11, -- the strip: just over the HUD (10), under every window (20)
 	countFrom = 3,
 	splashSeconds = 3.2,

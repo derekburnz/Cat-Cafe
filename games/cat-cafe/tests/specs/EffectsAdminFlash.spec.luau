@@ -38,8 +38,8 @@ return function()
 			expect(Flash.headline(view({ moneyStorm = 4 }))).to.equal("x4 MONEY")
 			expect(Flash.headline(view({ moneyStorm = 2 }))).to.equal("x2 MONEY")
 			expect(Flash.headline(view({ bowlSpeed = 4 }))).to.equal("x4 BOWL SPEED")
-			expect(Flash.headline(view({ catStorm = 10 }))).to.equal("x10 MYTHICAL CATS")
-			expect(Flash.headline(view({ goldBoost = 1.5 }))).to.equal("x1.5 GOLD CATS")
+			expect(Flash.headline(view({ catStorm = 10 }))).to.equal("x10 MYTHICAL LUCK")
+			expect(Flash.headline(view({ goldBoost = 1.5 }))).to.equal("x1.5 GOLD LUCK")
 			expect(Flash.headline(view({ secretHunt = 3 }))).to.equal("3 SECRET CATS")
 			expect(Flash.headline(view({ traitParty = true }))).to.equal("FREE TRAIT ROLLS")
 			expect(Flash.headline(view({}))).to.equal("MONEY STORM") -- nothing it knows: the title
@@ -108,6 +108,26 @@ return function()
 			expect(Flash.step(on, joined + 1, joined, p).phase).to.equal("splash")
 			expect(Flash.step(on, joined + 1, joined, p).strip).to.equal(false)
 			expect(Flash.step(on, joined + p.stripAfter + 1, joined, p).strip).to.equal(true)
+		end)
+
+		it("leaves the middle of the screen alone while a window is open", function()
+			local soon = view({ moneyStorm = 4 }, false)
+			expect(Flash.step(soon, NOW - 2.5, nil, p, true).phase).to.equal("none")
+			local on = view({ moneyStorm = 4 })
+			local first = Flash.step(on, NOW + 0.1, NOW, p, true)
+			expect(first.phase).to.equal("run")
+			expect(first.strip).to.equal(true) -- the strip carries the start
+			expect(Flash.step(on, NOW + 0.1, NOW, p, false).phase).to.equal("splash")
+			expect(p.displayOrder < 20).to.equal(true) -- and what does draw sits under every window
+			expect(p.stripOrder < 20).to.equal(true)
+		end)
+
+		it("says LUCK for a boosted chance, never more cats", function()
+			for _, row in Flash.KINDS do
+				expect(string.find(row.head, "%s CATS", 1, true) == nil or row.name == "secretHunt").to.equal(
+					true
+				)
+			end
 		end)
 
 		it("marks the last minute, but not on a short event", function()

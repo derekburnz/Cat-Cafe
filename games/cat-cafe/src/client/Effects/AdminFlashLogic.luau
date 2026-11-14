@@ -2,7 +2,8 @@
 -- #4325 (Derek 2026-11-14: "I think the admin events are not flashy enough because people always leave"): the pure
 -- half of Effects/AdminFlash, so the cloud spec runner checks it. It reads Effects/AdminEventLogic's View.
 --   kindOf(view)                the row of KINDS the event shows as (its first effect in KINDS' order), or nil
---   headline(view)              the reward in a few big characters: "x4 MONEY", "x4 BOWL SPEED", else the title
+--   headline(view)              the reward in a few big characters: "x4 MONEY", "x4 BOWL SPEED", else the title. A
+--                               boost to a chance says LUCK ("x10 MYTHICAL LUCK"), never ten times the cats
 --   stay(view)                  why to stay, in one short line: "Stay and cash in!"
 --   lasting(view)               "for 10 minutes", "for 90 seconds"
 --   lookOf(view)                which of Presets.adminFlash.looks the world takes while it runs
@@ -54,21 +55,21 @@ AdminFlashLogic.KINDS = {
 	},
 	{
 		name = "goldBoost",
-		head = "x%s GOLD CATS",
+		head = "x%s GOLD LUCK",
 		stay = "Stay and catch a gold one!",
 		look = "gold",
 		rain = "goldBoost",
 	},
 	{
 		name = "rainbowBoost",
-		head = "x%s RAINBOW CATS",
+		head = "x%s RAINBOW LUCK",
 		stay = "Stay and catch a rainbow one!",
 		look = "rainbow",
 		rain = "rainbowBoost",
 	},
 	{
 		name = "catStorm",
-		head = "x%s MYTHICAL CATS",
+		head = "x%s MYTHICAL LUCK",
 		stay = "Cats are raining. Go catch them!",
 		look = "storm",
 		rain = "catStorm",
@@ -193,13 +194,20 @@ local NONE: Step = { phase = "none", count = 0, strip = false, last = false, lef
 
 -- `seenAt`: when this client first saw the event running (nil before it has), so a player who joins while it runs
 -- still gets the name splash, counted from then.
-function AdminFlashLogic.step(view: View?, now: number, seenAt: number?, p: Spec): Step
+-- `quiet`: a window is open, so nothing takes the middle of the screen and the strip carries the start by itself.
+function AdminFlashLogic.step(
+	view: View?,
+	now: number,
+	seenAt: number?,
+	p: Spec,
+	quiet: boolean?
+): Step
 	if view == nil or now >= view.endsAt then
 		return NONE
 	end
 	if not AdminEventLogic.runs(view, now) then
 		local to = view.startsAt - now
-		if to > 0 and to <= p.countFrom then
+		if to > 0 and to <= p.countFrom and quiet ~= true then
 			return {
 				phase = "count",
 				count = math.ceil(to),
@@ -216,9 +224,9 @@ function AdminFlashLogic.step(view: View?, now: number, seenAt: number?, p: Spec
 	local left = view.endsAt - now
 	local last = left <= p.lastSeconds and view.endsAt - view.startsAt >= p.lastMinEvent
 	return {
-		phase = if since < p.splashSeconds then "splash" else "run",
+		phase = if since < p.splashSeconds and quiet ~= true then "splash" else "run",
 		count = 0,
-		strip = since >= p.stripAfter,
+		strip = quiet == true or since >= p.stripAfter,
 		last = last,
 		left = left,
 		since = since,

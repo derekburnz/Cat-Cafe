@@ -12,8 +12,10 @@
 --   5. as it ends: a card with what the player earned.
 -- Effects/AdminAir rains the event's motes round the player the whole time (AdminFlashLogic.rainOf).
 --
--- Nothing here can be tapped and no object is active, so it covers no button; the splash draws over the windows and
--- the strip just over the HUD, under every window. It hides while a cutscene has the screen. Reduce Motion: the
+-- Nothing here can be tapped and no object is active, so it covers no button; all of it draws over the HUD and under
+-- every window, and while a window is open (AdminFlash.quietWhen, which the UI's owner sets) nothing takes the middle
+-- of the screen at all: no dim, no 3, 2, 1, no splash, no end card, and the strip carries the start by itself. It
+-- hides while a cutscene has the screen. Reduce Motion: the
 -- cards show and hold still (no pop, no swell, no sparkles). Low performance: no sparkles. It counts down only the
 -- event's own start and end, and sells nothing.
 -- Sound: AdminFlash.onBeat's "tick" (each of 3, 2, 1), "start", "last" (the last minute begins) and "over".
@@ -83,6 +85,7 @@ local earnedShown = 0
 local overUntil = 0 -- os.clock until which the end card shows
 local look: string? = nil
 local tint: ColorCorrectionEffect? = nil
+local quietProbe: (() -> boolean)? = nil
 
 -- Calls `listener(beat)` on each of the 3, 2, 1 ("tick"), as the event starts ("start"), as its last minute begins
 -- ("last") and as it ends ("over"). Listeners only listen.
@@ -94,6 +97,22 @@ local function beat(name: Beat)
 	for _, listener in listeners do
 		task.spawn(listener, name)
 	end
+end
+
+-- `probe()` says whether a window is open (the UI's `UI.isOpen() ~= nil`). While it is, nothing here takes the middle
+-- of the screen. Effects never reads the UI's state itself, so its owner hands this in; with none set, the middle
+-- still draws under every window.
+function AdminFlash.quietWhen(probe: () -> boolean)
+	quietProbe = probe
+end
+
+local function quiet(): boolean
+	local probe = quietProbe
+	if probe == nil then
+		return false
+	end
+	local ok, value = pcall(probe)
+	return ok and value == true
 end
 
 -- Whether the countdown, the splash or the end card has the middle of the screen now.
@@ -419,7 +438,8 @@ local function frame()
 	made.splash.Enabled = not hidden
 	made.low.Enabled = not hidden
 
-	local step = AdminFlashLogic.step(current, now, seenAt, p)
+	local calm = quiet()
+	local step = AdminFlashLogic.step(current, now, seenAt, p, calm)
 	local spec = p.looks[AdminFlashLogic.lookOf(current) or ""]
 		or p.looks[AdminFlashLogic.DEFAULT_LOOK]
 
@@ -489,7 +509,7 @@ local function frame()
 		made.earn.Visible = false
 	end
 
-	made.over.Visible = clock < overUntil and not middle
+	made.over.Visible = clock < overUntil and not middle and not calm
 end
 
 function AdminFlash.start()

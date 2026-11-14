@@ -178,7 +178,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		duskWarning = not pass
 			and Cannon.inDuskWarning(ClockService.phase(), ClockService.phaseEndsAt(), now),
 		distance = if root ~= nil and model ~= nil
-			then (root.Position - model:GetPivot().Position).Magnitude
+			then Cannon.reach(root.Position, model:GetPivot().Position) -- #4343: flat, as the ring
 			else nil,
 		carrying = CatService.isLoaded(player),
 		busy = CatService.inMinigame(player),

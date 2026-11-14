@@ -40,5 +40,15 @@ return function()
 			expect(EdgeShadeLogic.HINT_AT > 0.6).to.equal(true)
 			expect(EdgeShadeLogic.HINT_AT < 0.8).to.equal(true)
 		end)
+
+		it("skips on a short still tap only, never on a camera drag (#4016)", function()
+			expect(EdgeShadeLogic.isTap(0, 0.1)).to.equal(true)
+			expect(EdgeShadeLogic.isTap(EdgeShadeLogic.TAP_MOVE, EdgeShadeLogic.TAP_SECONDS)).to.equal(
+				true
+			)
+			expect(EdgeShadeLogic.isTap(EdgeShadeLogic.TAP_MOVE + 1, 0.1)).to.equal(false)
+			expect(EdgeShadeLogic.isTap(80, 0.3)).to.equal(false)
+			expect(EdgeShadeLogic.isTap(0, EdgeShadeLogic.TAP_SECONDS + 0.1)).to.equal(false)
+		end)
 	end)
 end

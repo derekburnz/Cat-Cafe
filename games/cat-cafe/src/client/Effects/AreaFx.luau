@@ -339,7 +339,8 @@ end
 -- #4069: the northern lights. While it is night and you stand in an area with an `aurora`, its ribbons hang over the
 -- area: two soft bands each, on one unseen part, bending slowly from side to side. They fade in when they start and
 -- out when night ends or you leave.
-type Ribbon = { bands: { Beam }, tweens: { Tween } }
+-- `full[i]` is band i's own middle transparency when the lights are fully shown, `base` the spec's `shown`
+type Ribbon = { bands: { Beam }, full: { number }, base: number, tweens: { Tween } }
 local aurora: Part? = nil
 local auroraArea: string? = nil
 local auroraRibbons: { Ribbon } = {}
@@ -355,15 +356,21 @@ local testHeight: number? = nil
 local testBox: any = nil
 
 local function auroraLook(middle: number)
-	local sequence = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.25, middle),
-		NumberSequenceKeypoint.new(0.75, middle),
-		NumberSequenceKeypoint.new(1, 1),
-	})
 	for _, ribbon in auroraRibbons do
-		for _, band in ribbon.bands do
-			band.Transparency = sequence
+		-- how far in the lights are: 0 hidden, 1 at the spec's `shown`
+		local level = math.clamp((1 - middle) / math.max(1 - ribbon.base, 0.01), 0, 1)
+		for b, band in ribbon.bands do
+			local own = 1 - level * (1 - (ribbon.full[b] or ribbon.base))
+			-- soft ends: nothing, half way, then the middle's own value
+			local half = (1 + own) / 2
+			band.Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 1),
+				NumberSequenceKeypoint.new(0.12, half),
+				NumberSequenceKeypoint.new(0.3, own),
+				NumberSequenceKeypoint.new(0.7, own),
+				NumberSequenceKeypoint.new(0.88, half),
+				NumberSequenceKeypoint.new(1, 1),
+			})
 		end
 	end
 	auroraShown = middle
@@ -411,6 +418,7 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 	local middle = Vector3.new(box.centre.x, height, box.centre.z)
 	part.CFrame = CFrame.new(middle)
 	local calm = Context.reducedMotion()
+	local nestMost = if Context.tier == "low" then spec.nestLow else #spec.nest
 	for _, r in
 		Logic.auroraRibbons(
 			count,
@@ -424,7 +432,7 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 			spec.curveMost
 		)
 	do
-		local ribbon: Ribbon = { bands = {}, tweens = {} }
+		local ribbon: Ribbon = { bands = {}, full = {}, base = spec.shown, tweens = {} }
 		for layer, colour in { spec.foot, spec.top } do
 			local lift = (layer - 1) * spec.width * (1 - spec.overlap)
 			-- a Beam bends along its attachments' X axes, so they point across the ribbon
@@ -436,43 +444,64 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 			to.Position = r.to - middle + Vector3.new(0, lift, 0)
 			to.Axis = r.across
 			to.Parent = part
-			local band = Instance.new("Beam")
-			band.Name = "Ribbon"
-			band.Attachment0 = from
-			band.Attachment1 = to
-			band.FaceCamera = true
-			band.Segments = 16
-			band.Color = ColorSequence.new(colour)
-			-- the soft smoke picture, once along the band: it thins toward the band's edges and ends
-			band.Texture = Presets.textures.smoke
-			band.TextureMode = Enum.TextureMode.Stretch
-			band.TextureLength = 1
-			band.TextureSpeed = 0
-			band.LightEmission = 1
-			band.LightInfluence = 0
-			band.Width0 = spec.width
-			band.Width1 = spec.width
-			band.CurveSize0 = r.bend
-			band.CurveSize1 = r.bend -- the far end bends the other way: a slow S
-			band.Parent = part
-			table.insert(ribbon.bands, band)
-			if not calm then
-				local tween = TweenService:Create(
-					band,
-					TweenInfo.new(
-						r.seconds + (layer - 1) * 1.5,
-						Enum.EasingStyle.Sine,
-						Enum.EasingDirection.InOut,
-						-1,
-						true
-					),
-					{ CurveSize0 = -r.bend, CurveSize1 = -r.bend }
-				)
-				tween:Play()
-				table.insert(ribbon.tweens, tween)
+			-- No picture on the bands: the particle smoke picture draws as nothing on a Beam (#4085 Studio look). The
+			-- soft edge across the band comes from thinner bands laid over wider ones, their light adding up toward
+			-- the middle.
+			for n, share in spec.nest do
+				if n > nestMost then
+					break
+				end
+				local band = Instance.new("Beam")
+				band.Name = "Ribbon"
+				band.Attachment0 = from
+				band.Attachment1 = to
+				band.FaceCamera = true
+				band.Segments = 16
+				band.Color = ColorSequence.new(colour)
+				band.LightEmission = 1
+				band.LightInfluence = 0
+				band.Brightness = spec.nestBright[n] or spec.brightness
+				band.Width0 = spec.width * share
+				band.Width1 = spec.width * share
+				band.CurveSize0 = r.bend
+				band.CurveSize1 = r.bend -- the far end bends the other way: a slow S
+				band.Parent = part
+				table.insert(ribbon.bands, band)
+				table.insert(ribbon.full, spec.nestShown[n] or spec.shown)
+				if not calm then
+					local tween = TweenService:Create(
+						band,
+						TweenInfo.new(
+							r.seconds + (layer - 1) * 1.5,
+							Enum.EasingStyle.Sine,
+							Enum.EasingDirection.InOut,
+							-1,
+							true
+						),
+						{ CurveSize0 = -r.bend, CurveSize1 = -r.bend }
+					)
+					tween:Play()
+					table.insert(ribbon.tweens, tween)
+				end
 			end
 		end
 		table.insert(auroraRibbons, ribbon)
+	end
+	if testAurora ~= nil then
+		-- Studio only: what was built, to rule out a hidden cause when nothing shows
+		for n, ribbon in auroraRibbons do
+			for _, band in ribbon.bands do
+				print(
+					"[AreaFx] aurora ribbon",
+					n,
+					band.Enabled,
+					band.Attachment0 ~= nil and (band.Attachment0 :: Attachment).WorldPosition,
+					band.Attachment1 ~= nil and (band.Attachment1 :: Attachment).WorldPosition,
+					band.Width0,
+					band.Brightness
+				)
+			end
+		end
 	end
 	part.Parent = Context.folder()
 	aurora, auroraArea = part, area

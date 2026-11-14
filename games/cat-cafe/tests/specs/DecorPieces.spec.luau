@@ -201,5 +201,15 @@ return function()
 				expect(seen[chip]).to.be.ok()
 			end
 		end)
+
+		it("keeps the Rally page while the rally switch is on or unknown (#4064)", function()
+			-- the server's copy reads false only once the switch is off; missing (as here) keeps the page
+			expect(DecorPieces.hidden("rally")).to.equal(false)
+			expect(DecorPieces.hidden("alley")).to.equal(false)
+			local Catalog = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog")
+			) :: any
+			expect(table.find(DecorPieces.pools(Catalog), "rally") ~= nil).to.equal(true)
+		end)
 	end)
 end

@@ -103,6 +103,8 @@ export type CustomEvent =
 	| "afk_start"
 	| "afk_end"
 	| "afk_pay"
+	-- #4197: an admin Cat Storm ended, value the strays it dropped that were not Mythical; field: its Mythicals
+	| "storm_strays"
 	| "afk_rejoin" -- #3602: a resting player was sent back into the game ahead of the idle disconnect (value 1)
 	-- #2792: a new account's first rich customer, Mystery Visitor or Cat Collector: the kind ("rich", "mystery",
 	-- "collector") and "arrived" (value the account's seconds of play), or how it ended, "claimed" or "missed" (value
@@ -223,7 +225,9 @@ export type CustomEvent =
 	-- known); the gap, the bucket (under_15s, 15_60s, 60_120s, over_120s, earlier_visit or no_start)
 	| "step_gap"
 	-- #3530: beside quit_state, value the session's seconds; kinds of cat ("0" to "5"), coins as a share of Tier 2's
-	-- cost (under_25, 25_50, 50_75, 75_plus), ready or not_ready (Tier 2's needs met: rank_up_ready_quit)
+	-- cost (under_25, 25_50, 50_75, 75_plus), ready or not_ready (Tier 2's needs met: rank_up_ready_quit). #4189: past
+	-- Tier 1, the kinds short of the next tier (0, 1-2, 3-5, 6+), the coin share of its cost, and "t<next>_<need>",
+	-- the first need missing (kinds, rarity, coins) or ready
 	| "quit_have"
 	-- #3098 (shared/FirstFive, below Tier 2): a step became possible, value the account's seconds of play; the step
 	-- (table_afford, bowl_afford, second_stray_up), kind (coins or stray), device
@@ -2742,6 +2746,32 @@ local function onRelease(player: Player, profile: Profile)
 				profile,
 				session,
 				bucket(played, { 60, 180, 600 }, { "0-60s", "61-180s", "3-10m", "10m+" })
+			)
+		)
+	end
+	-- #4189: past Tier 1, what a leaver still lacked for the next tier: kinds short, coins, the first need missing
+	local nextDef = Catalog.getTier(Economy.tier(profile) + 1)
+	if Economy.tier(profile) >= 2 and nextDef ~= nil then
+		local kinds = Economy.rankUpCatCount(profile.collection)
+		local blocker = Economy.rankUpBlocker(profile)
+		local need = if blocker == nil
+			then "ready"
+			elseif kinds < nextDef.distinctCats then "kinds"
+			elseif
+				not Economy.canAfford(profile, nextDef.cost) and blocker == "Not enough coins"
+			then "coins"
+			elseif string.sub(blocker, 1, 6) == "Needs " then "rarity"
+			else "closed" -- review: a tier held back by its switch, not by the player
+		Telemetry.custom(
+			player,
+			"quit_have",
+			played,
+			StepGaps.quitNeedFields(
+				nextDef.distinctCats - kinds,
+				profile.coins,
+				nextDef.cost,
+				need,
+				nextDef.tier
 			)
 		)
 	end

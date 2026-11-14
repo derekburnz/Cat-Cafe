@@ -760,12 +760,7 @@ local Config = {
 			startsAt = 1794772800, -- "3 New Worlds", Sunday 2026-11-15 20:00 UTC
 			title = "🔔 Next update Sunday: 3 NEW WORLDS! Want a reminder when it lands?",
 		},
-		-- Derek 2026-11-14 16:52 UTC: Rift Run is its own update, Tuesday 2026-11-17 20:00 UTC
-		{
-			id = "3176510604057903700",
-			startsAt = 1794945600, -- "Rift Run", Tuesday 2026-11-17 20:00 UTC
-			title = "🔔 Next update Tuesday: RIFT RUN! Want a reminder when it lands?",
-		},
+		-- (Rift Run ships in the same Sunday update with its own Event card; one ask covers both, Derek 17:01 UTC)
 		{
 			id = "6810389993696133776",
 			startsAt = 1795032000, -- "Better on Every Device", Wednesday 2026-11-18 20:00 UTC

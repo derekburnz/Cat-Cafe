@@ -7605,16 +7605,19 @@ do
 	local LateStationsLogic = require(script.Components.LateStationsLogic)
 	local OasisSpa = require(script.Screens.OasisSpa)
 	local RelicMuseum = require(script.Screens.RelicMuseum)
+	local TicketBooth = require(script.Screens.TicketBooth) -- #4061
 	local SharedConfig =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 	local TAG = "LateStation" -- shared/LateStations.TAG: the placed models, with their StationId attribute
 	local FAR_STUDS: number = (SharedConfig.CampExtraRangeStuds or 8) + 8
-	local WINDOWS: { [string]: string } = { spa = "OasisSpa", museum = "RelicMuseum" }
+	local WINDOWS: { [string]: string } =
+		{ spa = "OasisSpa", museum = "RelicMuseum", ticketBooth = "TicketBooth" }
 	local late = {
 		anywhere = false, -- #3213: the open card came from the Cannon menu, so walking away does not close it
 		state = nil :: any,
 		spa = nil :: OasisSpa.OasisSpa?,
 		museum = nil :: RelicMuseum.RelicMuseum?,
+		booth = nil :: TicketBooth.TicketBooth?, -- #4061
 	}
 
 	-- Studs from this player's character to a station's model, or nil while either is streamed out.
@@ -7729,12 +7732,53 @@ do
 				museum:closed()
 			end,
 		})
+		-- #4061: the Ticket Booth window (PlayerState.ticketBooth; the booth's prompt comes with its model)
+		local booth = TicketBooth.new({
+			buy = function(prizeId: string)
+				send("BuyTicketPrize", prizeId)
+			end,
+			close = closer(WINDOWS.ticketBooth),
+		})
+		late.booth = booth
+		modalView:register(WINDOWS.ticketBooth, {
+			frame = booth.frame,
+			onOpen = function()
+				booth:opened()
+			end,
+			onClose = function()
+				booth:closed()
+			end,
+		})
 		spa:render(state)
 		museum:render(state)
+		booth:setView(UI.lateStations.boothView(state))
 		paint()
 	end
 
+	-- #4061: PlayerState.ticketBooth, nil while the switch is off or below its tier (false from UIController)
+	function UI.lateStations.boothView(playerState: any): Types.TicketBoothView?
+		local view = if playerState ~= nil then playerState.ticketBooth else nil
+		return if type(view) == "table" then view else nil
+	end
+
+	-- #4061: the Ticket Booth window from anywhere (its prompt, the Cannon picker, a test), or a toast while it is shut
+	function UI.lateStations.openBooth()
+		local modalView = modal
+		if modalView == nil or late.booth == nil then
+			return
+		end
+		if UI.lateStations.boothView(state) == nil then
+			UI.toast("The Ticket Booth opens with the Water Park", "info")
+			return
+		end
+		modalView:open(WINDOWS.ticketBooth)
+	end
+
 	function UI.lateStations.render(playerState: Types.PlayerState)
+		local booth = late.booth
+		if booth then
+			booth:setView(UI.lateStations.boothView(playerState))
+		end
 		local spa = late.spa
 		if spa then
 			spa:render(playerState)
@@ -7814,6 +7858,11 @@ do
 			museum:destroy()
 		end
 		late.museum = nil
+		local booth = late.booth
+		if booth then
+			booth:destroy()
+		end
+		late.booth = nil
 	end
 end
 

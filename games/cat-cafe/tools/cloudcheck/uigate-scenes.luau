@@ -10800,6 +10800,84 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	-- the Store window for a new player (#1425): it opens on Featured, the King Cat Pack as the hero over 2x Money,
 	-- Long Nap and the Royal Cat, all in view with no scrolling
+	-- #4061: the Ticket Booth window (the station menus picture Derek OK'd): six prize cards in rows, every card's
+	-- words fitting and its BUY inside it, the count up top, SAVE UP with a bar while short, "Tap again" at 1,000 and
+	-- over, and BuyTicketPrize sent on the buy
+	{ "TicketBooth", function()
+		local function prize(id, name, line, price, left, per, blocker)
+			return { id = id, name = name, line = line, price = price, left = left, per = per, blocker = blocker }
+		end
+		local short = "Not enough tickets yet"
+		local view = {
+			tickets = 1100,
+			spent = 0,
+			rushEndsAt = workspace:GetServerTimeNow() + 1800,
+			rushUsedToday = true,
+			weekEndsAt = workspace:GetServerTimeNow() + 3 * 86400,
+			ready = 3,
+			prizes = {
+				prize("fish25", "25 golden fish", "25 golden fish", 300, 4, "day"),
+				prize("traitToken", "Trait Token", "One Mystic Pool roll", 700, 3, "week"),
+				prize("goldenCrate", "Golden Crate", "A golden Cafe Crate", 900, 2, "day"),
+				prize("bigGoldRush", "Big Gold Rush Potion", "30 minutes", 1200, nil, nil, short),
+				prize("bigLucky", "Big Lucky Potion", "30 minutes", 1200, nil, nil, short),
+				prize("swiftPaws", "Swift Paws", "1 hour of Big Swift Potion", 800, nil, nil),
+			},
+		}
+		local sent = {}
+		local link = UI.events.lateStation:Connect(function(remote, id)
+			table.insert(sent, { remote = remote, id = id })
+		end)
+		local ok, problem = pcall(function()
+			UI.update({ ticketBooth = view } :: any)
+			UI.lateStations.openBooth()
+			local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("TicketBooth", true) :: GuiObject
+			assert(window and window.Visible, "uigate: the Ticket Booth window did not open (#4061)")
+			local count = window:FindFirstChild("Count", true) :: TextLabel
+			assert(string.find(count.Text, "1,100", 1, true) and count.TextFits, "uigate: the ticket count reads " .. count.Text .. " (#4061)")
+			local rush = window:FindFirstChild("Rush", true) :: TextLabel
+			assert(string.find(rush.Text, "min", 1, true) and rush.TextFits, "uigate: the Rush line reads " .. rush.Text .. " (#4061)")
+			local grid = window:FindFirstChild("Prizes", true) :: GuiObject
+			local cards = 0
+			for _, card in grid:GetChildren() do
+				if card:IsA("Frame") and card.Visible then
+					cards += 1
+					for _, name in { "Name", "Chip", "Price" } do
+						local label = card:FindFirstChild(name) :: TextLabel
+						assert(label.Text ~= "" and label.TextFits, ("uigate: %s's %s %q does not fit (#4061)"):format(card.Name, name, label.Text))
+					end
+					local buy = card:FindFirstChild("Buy", true) :: GuiObject
+					assert(buy.AbsolutePosition.Y + buy.AbsoluteSize.Y <= card.AbsolutePosition.Y + card.AbsoluteSize.Y + 1, card.Name .. "'s BUY runs past its card (#4061)")
+					local price = card:FindFirstChild("Price") :: GuiObject
+					assert(price.AbsolutePosition.Y + price.AbsoluteSize.Y <= buy.AbsolutePosition.Y + 1, "uigate: " .. card.Name .. "'s price runs into BUY (#4061)")
+					assert(card.AbsoluteSize.X >= 120, "uigate: " .. card.Name .. " is only " .. card.AbsoluteSize.X .. " px wide (#4061)")
+				end
+			end
+			assert(cards == 6, ("uigate: the booth shows %d prizes, not 6 (#4061)"):format(cards))
+			local lucky = grid:FindFirstChild("Prize_bigLucky") :: GuiObject
+			local saved = lucky:FindFirstChild("Saved") :: GuiObject
+			assert(saved.Visible, "uigate: no bar of tickets saved on a prize short of its price (#4061)")
+			local numbers = saved:FindFirstChild("Numbers") :: TextLabel
+			assert(numbers.Text == "1,100 / 1,200" and numbers.TextFits, "uigate: the saved line reads " .. numbers.Text .. " (#4061)")
+			local function buyText(id)
+				return (grid:FindFirstChild("Prize_" .. id):FindFirstChild("Buy", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel).Text
+			end
+			assert(buyText("bigLucky") == "SAVE UP", "uigate: a short prize's button reads " .. buyText("bigLucky") .. " (#4061)")
+			press("TicketBooth", "Prize_fish25.Buy")
+			assert(#sent == 1 and sent[1].remote == "BuyTicketPrize" and sent[1].id == "fish25", "uigate: BUY sent no BuyTicketPrize fish25 (#4061)")
+			-- 1,000 and over asks first
+			view.tickets = 5000
+			view.prizes[4].blocker = nil
+			UI.update({ ticketBooth = view } :: any)
+			UI.lateStations.render(UI.getState() :: any)
+			press("TicketBooth", "Prize_bigGoldRush.Buy")
+			assert(#sent == 1 and buyText("bigGoldRush") == "Tap again", "uigate: the first tap at 1,200 did not ask, it reads " .. buyText("bigGoldRush") .. " (#4061)")
+			press("TicketBooth", "Prize_bigGoldRush.Buy")
+			assert(#sent == 2 and sent[2].id == "bigGoldRush", "uigate: Tap again sent no BuyTicketPrize (#4061)")
+		end)
+		link:Disconnect()
+		assert(ok, problem)
+	end },
 	{ "Store", function()
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")

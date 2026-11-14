@@ -25,6 +25,7 @@ local DecorBest = require(ReplicatedStorage.Shared.DecorBest)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local EventService = require(script.Parent.EventService)
+local FishStore = require(ReplicatedStorage.Shared.FishStore)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -67,6 +68,7 @@ local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StoreTabs = require(ReplicatedStorage.Shared.StoreTabs)
 local StuckGoal = require(ReplicatedStorage.Shared.StuckGoal)
 local Telemetry = require(script.Parent.Telemetry)
+local TicketBooth = require(ReplicatedStorage.Shared.TicketBooth)
 local TipService = require(script.Parent.TipService)
 local Trade = require(ReplicatedStorage.Shared.Trade)
 local Traits = require(ReplicatedStorage.Shared.Traits)
@@ -292,6 +294,11 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		bagColours = profile.bagColours, -- #3699
 		shoeColours = profile.shoeColours, -- #4049
 		mysteryOpen = Config.MysteryOpen or RunService:IsStudio(),
+		fishStore = if LiveFlagService.on(FishStore.FLAG) then FishStore.view(profile) else nil, -- #4055
+		ticketBooth = if LiveFlagService.on(TicketBooth.FLAG)
+				and TicketBooth.open(Economy.tier(profile))
+			then TicketBooth.view(profile.tickets, now)
+			else nil, -- #4061
 		goldLuck = totals.goldLuck,
 		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line
 		baitSpeed = totals.baitSpeed,
@@ -1533,6 +1540,11 @@ function CafeService.addCaughtCat(
 			"Gameplay",
 			if isNew or firstGold then "first_catch" else "repeat_catch"
 		)
+	end
+	-- #4061: the Ticket Booth's tickets, from TicketBoothTier, any area, a repeat cat as much as a new one
+	if LiveFlagService.on(TicketBooth.FLAG) and TicketBooth.open(Economy.tier(profile)) then
+		-- the catch pop's "+2" is the rise in PlayerState.ticketBooth.tickets at the next sync
+		TicketBooth.credit(profile.tickets, def.rarity, instance.variant, how, now)
 	end
 	-- F87 (easy-start.md section 2d): the first check-in, before it moves the tutorial on
 	local firstCheckIn = profile.tutorialStep < Config.TutorialGuaranteedStrayStep

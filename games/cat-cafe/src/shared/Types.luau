@@ -588,6 +588,34 @@ export type TraitData = { id: string }
 -- free starter rolls used, 0 to Traits.FREE_ROLLS, up (so a missing field never grants them again); `tokens` the
 -- Trait Tokens banked; `held` and `at` the station's free tokens waiting and when the next one started (os.time());
 -- `pending` a re-roll waiting for Keep old or Take new, saved so the roll paid for is never lost.
+-- #4061 (save version 49, shared/TicketBooth): the Ticket Booth's tickets. `have` to spend, `spent` lifetime (the Park
+-- Regular title), `limits` prize id -> the day or week number it counts in and how many were bought then, `rushAt`
+-- when today's Ticket Rush hour started (os.time(), 0 for never).
+export type TicketSave = {
+	have: number,
+	spent: number,
+	limits: { [string]: { key: number, n: number } },
+	rushAt: number,
+}
+export type TicketPrizeRow = {
+	id: string,
+	name: string,
+	line: string,
+	price: number,
+	left: number?, -- more that may be bought now, nil for no limit
+	per: string?, -- "day", "week" or "once" with a limit
+	blocker: string?, -- why BUY is off now, nil when it can be bought
+}
+export type TicketBoothView = {
+	tickets: number,
+	spent: number,
+	rushEndsAt: number?, -- while the rush runs
+	rushUsedToday: boolean,
+	weekEndsAt: number,
+	prizes: { TicketPrizeRow },
+	ready: number, -- prizes that can be bought now (the "!")
+}
+
 export type TraitSave = {
 	tokens: number,
 	freeUsed: number,
@@ -1339,6 +1367,10 @@ export type PlayerProfile = {
 	-- (the "!" over the cart until then). New fields with defaults: the shelf opens with a VERSION bump (MysteryOpen).
 	mystery: { [string]: boolean },
 	mysterySeen: boolean,
+	-- #4055 (save version 49, shared/FishStore): the Store passes bought with golden fish (FishStore key -> true); each
+	-- counts as owning that pass (PassService.addBought)
+	fishBought: { [string]: boolean },
+	tickets: TicketSave, -- #4061 (save version 49): the Ticket Booth
 	-- #3699 (shared/BagColours): the Backpack's two colour picks, nil while both are the built ones. No VERSION bump:
 	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
 	bagColours: { main: string, trim: string }?,
@@ -1458,6 +1490,9 @@ export type PlayerState = {
 	bagColours: { main: string, trim: string }?, -- #3699: the Backpack's colour picks, nil for the built ones
 	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' colour picks, nil for the built ones
 	mysteryOpen: boolean, -- BuyMystery is taken here (Config.MysteryOpen, or Studio)
+	-- #4055: the Store's golden fish prices (FishStore.view), nil while the fishStore switch is off
+	fishStore: { { key: string, fish: number, bought: boolean, made: boolean } }?,
+	ticketBooth: TicketBoothView?, -- #4061: nil while the ticketBooth switch is off or below TicketBoothTier
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
 	baitSpeed: number, -- F54: the All Cats track's summed bait speed, capped at BaitSpeedMax

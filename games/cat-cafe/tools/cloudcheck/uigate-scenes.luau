@@ -4560,6 +4560,28 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local shake = list and list:FindFirstChild("screenShake") :: GuiObject?
 		assert(shake and not shake.Visible, "uigate: the Screen rows show on the Help tab (#3961)")
 	end },
+	-- #4289 (Derek 11-14): Feedback in Settings opens the write box straight away, not the Good / OK / Not good faces
+	{ "SettingsFeedbackDirect", function()
+		UI.open("Settings")
+		press("Settings", "Tabs.Help")
+		press("Settings", "feedback.Open")
+		UIShim.advance(0.3)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("BugReport", true)
+		assert(window, "uigate: Feedback in Settings opened no Feedback window (#4289)")
+		local function shown(piece: Instance?): boolean
+			local at = piece
+			while at and at ~= window do
+				if at:IsA("GuiObject") and not at.Visible then
+					return false
+				end
+				at = at.Parent
+			end
+			return piece ~= nil
+		end
+		assert(shown(window:FindFirstChild("Box", true)), "uigate: Feedback in Settings shows no write box (#4289)")
+		assert(not shown(window:FindFirstChild("Faces", true)), "uigate: Feedback in Settings still shows the faces first (#4289)")
+	end },
 	{ "TipJar", function()
 		UI.tipJar.open()
 	end },

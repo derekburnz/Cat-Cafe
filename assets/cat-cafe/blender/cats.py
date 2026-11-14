@@ -330,6 +330,33 @@ ROSTER = {
                     pattern="gradient", muzzle=None, ruff="fish_belly", glow_eyes=True, sparkle=True,
                     sprinkles=("milk", "fish_belly"), scale=1.25, body_scale=(1.1, 1.0, 1.08), tail_thick=0.3,
                     nose="nose_dark", mark=("drop", "fish_belly")),
+    # Tier 10 Medieval Castle (cats draft 2, #4067, #4068), on the same rarity look ladder
+    "Elf":     dict(rarity="Common", fur="fur_oat", second="fur_vanilla", eyes="eye_green", pattern="solid",
+                    muzzle="fur_vanilla", ear_k=1.3),
+    "Squire":  dict(rarity="Common", fur="treat_tan", second="fur_seal", eyes="eye_amber", pattern="patches",
+                    muzzle="fur_cream"),
+    "Dwarf":   dict(rarity="Common", fur="fur_copper", second="fur_ginger", eyes="eye_blue", pattern="solid",
+                    muzzle=None, short_legs=True, body_scale=(1.15, 1.0, 1.05), nose="nose_dark"),
+    "Crumpet": dict(rarity="Common", fur="fur_golden", second="fur_toffee", third="fur_toffee", eyes="eye_amber",
+                    pattern="gradient", muzzle="fur_custard"),
+    "Jester":  dict(rarity="Rare", fur="shirt_red", second="rarity_legend", third="rarity_legend", eyes="eye_green",
+                    pattern="patches", muzzle="milk", mark=("star", "rarity_legend"),
+                    toes=("rarity_legend", "shirt_red", "rarity_legend", "shirt_red")),
+    "Rogue":   dict(rarity="Rare", fur="pants_navy", second="fur_ink", eyes="eye_chartreuse", pattern="points",
+                    muzzle=None, lids=True, nose="nose_dark"),
+    "Knight":  dict(rarity="Epic", fur="fur_silver", second="metal", eyes="eye_blue", pattern="points",
+                    muzzle="fur_white", socks="metal"),
+    # keeps apart from Midnight (night sky, a plain wizard hat): a blue to violet fade, a wide starry brim, a book
+    "Mage":    dict(rarity="Epic", fur="galaxy_blue", second="aurora_violet", third="aurora_violet", eyes="sparkle",
+                    pattern="gradient", muzzle=None, sparkle=True, nose="nose_dark"),
+    "Queen":   dict(rarity="Legendary", fur="fur_cream", second="fur_custard", eyes="eye_violet", pattern="patches",
+                    muzzle="milk", ruff="milk", fluffy=True, scale=1.2, body_scale=(1.1, 1.0, 1.05), tail_thick=0.28,
+                    mark=("heart", "rarity_legend")),
+    # keeps apart from Eclipse (the emerald dragon with mint spines): gunmetal and red, lit ember scales, no green
+    "DragonKnight": dict(rarity="Mythical", fur="fur_gunmetal", second="shirt_red", eyes="eye_amber",
+                         pattern="stripes", stripes2=True, muzzle=None, glow_eyes=True, tip="bowl_red", scale=1.3,
+                         body_scale=(1.12, 1.0, 1.08), tail_thick=0.32, nose="nose_dark",
+                         mark=("m", "bowl_red")),
     # #3470 (secret-cats.md section 8): the first three Secret cats, the tier above Mythical. They can be gold and
     # rainbow like any cat. Nebula: a deep space coat with violet and pink clouds, stars and glowing mint eyes
     "Nebula": dict(rarity="Secret", fur="night_sky", second="aurora_violet", third="neon_pink", eyes="mint",

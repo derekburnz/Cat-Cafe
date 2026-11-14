@@ -90,11 +90,6 @@ return function()
 					true
 				)
 			end
-			for catId, spec in Presets.signature do
-				if spec.minor == true then
-					expect(catId == "snow_boots" or catId == "ski").to.equal(true)
-				end
-			end
 			expect(blizzard.arrive.burst <= Presets.budget.low.maxBurst).to.equal(true)
 			expect(Presets.emitters[blizzard.arrive.preset] ~= nil).to.equal(true)
 			-- the frost trail only while it walks

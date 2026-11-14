@@ -73,10 +73,8 @@ return function()
 			expect(weight(sig.clown)).to.equal(weight(sig.water_gun))
 			expect(weight(sig.clown) < weight(sig.coaster)).to.equal(true)
 			expect(weight(sig.coaster) < weight(sig.water)).to.equal(true)
-			-- the commons and rares have none: their props do the talking
-			for _, catId in
-				{ "popcorn", "pinwheel", "splash", "taffy", "candy_apple", "cotton_candy" }
-			do
+			-- the commons have none: their props do the talking
+			for _, catId in { "popcorn", "pinwheel", "splash", "taffy" } do
 				expect(sig[catId] == nil).to.equal(true)
 			end
 			-- the Water Cat: a slow swirl, a splash in budget, a taller fountain on its catch
@@ -124,7 +122,7 @@ return function()
 			expect(weight(sig.knight)).to.equal(weight(sig.mage))
 			expect(weight(sig.knight) < weight(sig.queen)).to.equal(true)
 			expect(weight(sig.queen) < weight(sig.dragon_knight)).to.equal(true)
-			for _, catId in { "elf", "squire", "dwarf", "crumpet", "jester", "rogue" } do
+			for _, catId in { "elf", "squire", "dwarf", "crumpet" } do
 				expect(sig[catId] == nil).to.equal(true)
 			end
 			local dragon = sig.dragon_knight
@@ -141,6 +139,49 @@ return function()
 			expect(weight(dragon)).to.equal(weight(sig.water))
 			expect(weight(dragon) >= weight(sig.blizzard)).to.equal(true)
 		end)
+
+		it(
+			"gives each area's two Rares one small touch that never takes a rarer cat's slot",
+			function()
+				local sig = Presets.signature
+				local rares = {
+					snow_boots = true,
+					ski = true,
+					candy_apple = true,
+					cotton_candy = true,
+					jester = true,
+					rogue = true,
+				}
+				for catId in rares do
+					local spec = sig[catId]
+					expect(spec ~= nil).to.equal(true)
+					expect(spec.minor).to.equal(true)
+					-- one emitter and nothing else
+					expect(spec.extras == nil and spec.orbit == nil and spec.arrive == nil).to.equal(
+						true
+					)
+					expect(spec.eyes).to.equal(nil)
+					local emitter = Presets.emitters[spec.emitter]
+					-- fainter than any Epic's glint: fewer, or only while it moves
+					expect(emitter.rate < Presets.emitters.sigGlint.rate or spec.moving == true).to.equal(
+						true
+					)
+					expect(#spec.colors > 0 and #spec.gold > 0).to.equal(true)
+				end
+				for catId, spec in sig do
+					expect(spec.minor == true).to.equal(rares[catId] == true)
+				end
+				-- a crowd of Rares close by leaves the far Mythical its slot
+				local rarer = { { key = "mythical", distance = 30 } }
+				local crowd = {}
+				for i = 1, 6 do
+					crowd[i] = { key = "rare" .. i, distance = i }
+				end
+				local keys = Logic.nearestFirst(rarer, crowd, 40, 3)
+				expect(keys[1]).to.equal("mythical")
+				expect(#keys).to.equal(3)
+			end
+		)
 
 		it("reads each new area's box from the Config by its own name", function()
 			local boxes = {

@@ -2400,7 +2400,7 @@ end
 -- DRAGON_DUCK_LIMIT if a "done" is lost) and each beat plays its cue; the card deal's flips after it.
 local function followDragonRise()
 	local token = 0
-	DragonRise.onBeat(function(beat)
+	DragonRise.onBeat(function(beat, stage)
 		if beat == "hush" or beat == "done" then
 			token += 1
 			local mine = token
@@ -2420,9 +2420,17 @@ local function followDragonRise()
 			end
 			return
 		end
-		local cue = Logic.dragonRiseCue(beat)
+		local cue, after = Logic.dragonRiseCue(beat, stage)
 		if cue ~= nil then
 			Audio.play(cue)
+		end
+		if after ~= nil then
+			local mine = token
+			task.delay(Logic.DRAGON_FANFARE_AFTER, function()
+				if mine == token then -- not after a skip
+					Audio.play(after)
+				end
+			end)
 		end
 	end)
 	CardFlip.onBeat(function(beat, _index, rarity)

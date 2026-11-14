@@ -543,29 +543,42 @@ function Logic.riftRunCue(beat: any, step: any, tier: any): (string?, number?)
 end
 
 -- #4062: the Dragon Keep's stage-up cutscene (Effects/DragonRise.onBeat) and the card deal (Effects/CardFlip.onBeat)
--- on sounds the game already has, until the sound pass brings their own (a rumble, five roars, a card flip and a
--- rare card fanfare, docs/audio): the swing a whoosh, the curl the gate's rumble, the crack the pool's reveal, the
--- lap the cannon's clouds and its landing, and the roar the rank-up jingle. A card's flip is the sign's flip, a
--- Legendary or Mythic face its rarity's jingle.
-function Logic.dragonRiseCue(beat: any): string?
+-- on the Keep sheet's own sounds: the swing a whoosh, the curl the dragon's rumble, the crack its shell, the lap a
+-- wing beat and its landing a thump, and the roar by stage: a chirp for the Hatchling and the Whelp (1 and 2), the
+-- proud roar for the Drake and the Elder (3 and 4), the grand one with its bell call for Crowned (5). The second
+-- value is a cue to play `Logic.DRAGON_FANFARE_AFTER` seconds later: the rank-up jingle under stages 1 to 4 (the
+-- grand roar carries its own). A card's flip is its paper flick; a rare face its chime, a Legendary or Mythic face
+-- its rarity's jingle.
+Logic.DRAGON_FANFARE_AFTER = 0.7
+function Logic.dragonRiseCue(beat: any, stage: any): (string?, string?)
+	if beat == "roar" then
+		local n = if type(stage) == "number" then stage else 1
+		if n >= 5 then
+			return "dragonRoarGrand", nil
+		end
+		return if n >= 3 then "dragonRoar" else "dragonChirp", "jingleRankUp"
+	end
 	local cues: { [string]: string } = {
 		swing = "travelPoof",
-		curl = "gateOpen",
-		crack = "poolReveal",
-		lap = "cannonClouds",
+		curl = "dragonRumble",
+		crack = "dragonCrack",
+		lap = "dragonWing",
 		land = "cannonLand",
-		roar = "jingleRankUp",
 	}
-	return if type(beat) == "string" then cues[beat] else nil
+	return if type(beat) == "string" then cues[beat] else nil, nil
 end
 
 function Logic.cardFlipCue(beat: any, rarity: any): string?
 	if beat == "flip" then
-		return "signFlip"
+		return "cardFlip"
 	elseif beat == "rare" then
-		return if type(rarity) == "string" and string.lower(rarity) == "mythic"
-			then "jingleMythical"
-			else "jingleLegendary"
+		local name = if type(rarity) == "string" then string.lower(rarity) else ""
+		if name == "mythic" or name == "mythical" or name == "secret" then
+			return "jingleMythical"
+		elseif name == "legendary" then
+			return "jingleLegendary"
+		end
+		return "cardRare"
 	end
 	return nil
 end

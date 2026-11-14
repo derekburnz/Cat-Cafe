@@ -211,14 +211,28 @@ return function()
 
 		it("sounds each beat and each card from cues that exist", function()
 			for _, beat in { "swing", "curl", "crack", "lap", "land", "roar" } do
-				local cue = AudioLogic.dragonRiseCue(beat)
+				local cue = AudioLogic.dragonRiseCue(beat, 3)
 				expect(cue ~= nil and Cues[cue] ~= nil).to.equal(true)
 			end
-			expect(AudioLogic.dragonRiseCue("hush")).to.equal(nil)
-			expect(AudioLogic.dragonRiseCue(nil)).to.equal(nil)
-			expect(Cues[AudioLogic.cardFlipCue("flip", "common")] ~= nil).to.equal(true)
+			expect((AudioLogic.dragonRiseCue("hush", 1))).to.equal(nil)
+			expect((AudioLogic.dragonRiseCue(nil, nil))).to.equal(nil)
+			-- the roar grows with the stage, and the fanfare follows the first four (the grand roar has its own)
+			local roars =
+				{ "dragonChirp", "dragonChirp", "dragonRoar", "dragonRoar", "dragonRoarGrand" }
+			for stage, want in roars do
+				local cue, after = AudioLogic.dragonRiseCue("roar", stage)
+				expect(cue).to.equal(want)
+				expect(after).to.equal(if stage < 5 then "jingleRankUp" else nil)
+				expect(Cues[want].sheet).to.equal("sheetKeep")
+			end
+			expect((AudioLogic.dragonRiseCue("roar", nil))).to.equal("dragonChirp")
+			expect(AudioLogic.DRAGON_FANFARE_AFTER >= 0.5).to.equal(true)
+			expect(AudioLogic.cardFlipCue("flip", "common")).to.equal("cardFlip")
+			expect(AudioLogic.cardFlipCue("rare", "rare")).to.equal("cardRare")
+			expect(AudioLogic.cardFlipCue("rare", "epic")).to.equal("cardRare")
 			expect(AudioLogic.cardFlipCue("rare", "legendary")).to.equal("jingleLegendary")
 			expect(AudioLogic.cardFlipCue("rare", "Mythic")).to.equal("jingleMythical")
+			expect(Cues.cardFlip ~= nil and Cues.cardRare ~= nil).to.equal(true)
 			expect(Cues.jingleLegendary ~= nil and Cues.jingleMythical ~= nil).to.equal(true)
 			expect(AudioLogic.cardFlipCue("other", "rare")).to.equal(nil)
 		end)

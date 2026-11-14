@@ -129,6 +129,7 @@ export type CustomEvent =
 	| "rescue_refill" -- #3049: a starter trap refilled for a first-timer; fields: area, players waiting
 	| "bait_rolled"
 	| "bait_resolved"
+	| "auto_bowl" -- #4266: the Auto Bowl pass tamed or refilled a bowl ("claim" or "refill", the bowl)
 	| "gold_found"
 	| "rainbow_found" -- F99 (rainbow-coat.md section 5): rarity, net, bait or rescue, first of the cat yes or no
 	| "rally_step" -- F101 (rescue-rally.md section 5): value the players in the server; the step (25, 50, 100), lap, paid
@@ -169,6 +170,11 @@ export type CustomEvent =
 	| "spin"
 	| "crate_opened"
 	| "mystery_buy" -- #2565: value fish before; item, week slot, tier
+	| "fishstore_buy" -- #4055: value fish before; FishStore key, tier
+	| "ticket_buy" -- #4061: value tickets before; prize id, tier
+	| "dragon_give" -- #4062: value cats moved in; Warmth, stage after
+	| "dragon_stage" -- #4062: value the stage reached; tier
+	| "dragon_card" -- #4062: value the stage; card id, "stage" or "rekindle"
 	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id (#4049: then the kind)
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
@@ -885,14 +891,12 @@ function Telemetry.introJoin(player: Player, profile: Profile)
 	end
 	local on = LiveFlagService.on(IntroSplit.FLAG)
 	local state = profile.telemetry
-	-- #4001: a new save takes its arm from a Creator Hub Experiment's introMode when there is one (a short wait for
-	-- the config read, new saves only), else the older split by account number
+	-- #4252, #4001 ended (Derek 2026-11-14 18:07 UTC: "switch the entire game to be the short intro so no more of the full
+	-- intro or no intro"): every new save takes the short arm, so the short intro plays itself on its first join. The
+	-- Creator Hub Experiment's introMode is no longer read here; the group is still saved and logged as before.
 	local mode: string? = nil
 	if IntroSplit.joins(true, profile.stats.sessions, profile.introSeen, state.introGroup) then
-		mode = IntroSplit.fromMode(IntroModeService.get(player))
-		if introChecked[player] ~= nil then
-			return -- another caller decided while this one waited
-		end
+		mode = IntroSplit.SHORT
 	end
 	local test = IntroSplit.fromMode(IntroModeService.studioMode()) -- Studio only (IntroModeService.studioMode)
 	if test ~= nil then
@@ -919,11 +923,10 @@ function Telemetry.introPlays(player: Player, profile: Profile): boolean
 	return introChecked[player] == true
 end
 
--- #4001: whether this save's intro is the short one (its group is the Experiment's "short" arm).
-function Telemetry.introShort(profile: Profile): boolean
-	-- compared here, not through an IntroSplit helper: one more function there trips the test VM fault in
-	-- IndexRewardsShared.spec (tools/cloudcheck/README.md)
-	return profile.telemetry.introGroup == IntroSplit.SHORT
+-- #4001: whether this save's intro is the short one. Since the test ended (Derek 2026-11-14) it is for every save,
+-- whatever group the test put it in, so nobody plays the full intro again.
+function Telemetry.introShort(_profile: Profile): boolean
+	return true
 end
 
 -- #3695: the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS), one run per player with the user id as its

@@ -25,6 +25,7 @@ local TweenService = game:GetService("TweenService")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
@@ -464,6 +465,18 @@ function AskCard.show(self: any, ask: Ask)
 		slide:Play()
 	end
 	Sound.play("uiHint")
+	-- #4224 (console): on a gamepad the card takes the selection on its first choice, B closes it as its X does, and
+	-- the selection goes back as it hides; a next ask on the same card (#3657) takes it again on its new buttons
+	local navDone: (() -> ())? = self._navDone
+	if navDone ~= nil then
+		navDone()
+	end
+	self._navDone = GamepadNav.card("askCard", card, function(): boolean?
+		if self._showing then
+			self:hide("closed")
+		end
+		return nil
+	end)
 	local bar: Frame = self._bar
 	local old: Tween? = self._drain
 	if old then
@@ -523,6 +536,11 @@ end
 function AskCard.hide(self: any, how: string?)
 	if not self._showing then
 		return
+	end
+	local navDone: (() -> ())? = self._navDone
+	self._navDone = nil
+	if navDone ~= nil then
+		navDone()
 	end
 	self:_answer(nil, how or "hidden")
 	self._showing = false

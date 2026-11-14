@@ -457,8 +457,15 @@ function applyTutorial()
 	end
 	-- #3893 (Review-QA's Studio run, 2026-11-14): after the Park's "is open" hint has had its time, the walk to the Park
 	-- keeps a line on the strip, at home, in the square and in the Alley, until the Park is reached
-	local park: any = UI.parkTrail -- built further down (typed any: it is read here before its table)
-	if text == nil and park.goal ~= nil and not park.reached then
+	-- (Review-QA's re-test: the generic "Hop in the cannon to catch more cats!" took the line over after the "is open"
+	-- hint, so it gives way to the Park line too; the arrow stays on the cannon, the way to the Park)
+	local cards: any = UI -- UI.parkTrail is built further down
+	local park = cards.parkTrail
+	if
+		(text == nil or hint == CannonLogic.WRAP_UP_HINT)
+		and park.goal ~= nil
+		and not park.reached
+	then
 		text = park.STRIP
 	end
 	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides. #3893

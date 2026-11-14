@@ -8840,6 +8840,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.fire(UIShim.eventOf(hide, "Activated"))
 		UIShim.advance(0.1)
 		assert(strip() == UI.parkTrail.STRIP, "uigate: the tips X took the Park line away, the strip reads " .. strip() .. " (#3893)")
+		-- the walk-through's wrap-up hint ("Hop in the cannon to catch more cats!") gives way to the Park line too
+		UI.cannon.setWild(nil)
+		UI.cannon.wrapUp.on = true
+		UI.update({ tutorialStep = 9 } :: any)
+		UIShim.advance(0.1)
+		assert(strip() == UI.parkTrail.STRIP, "uigate: the wrap-up hint took the Park line's place, the strip reads " .. strip() .. " (#3893)")
+		UI.cannon.wrapUp.on = false
 		UI.parkTrail.reach(true)
 		UI.parkTrail.set(nil, nil)
 		UIShim.advance(0.1)

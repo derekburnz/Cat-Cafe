@@ -1310,6 +1310,7 @@ local function applyState(s: Types.PlayerState)
 	end
 	if lastTier ~= nil and s.tier > (lastTier :: number) then
 		Moments.RankUp:Fire(s.tier)
+		UIController.tradeUnlock(lastTier :: number, s.tier)
 	end
 	lastTier = s.tier
 	refreshCarry()
@@ -3584,6 +3585,46 @@ function UIController.start()
 	startCampWatch()
 	Net.fire("RequestSync")
 	print(string.format("[CatCafe] client ready for %s", player.Name))
+end
+
+-- #4280: a rank up that reaches the live TradeMinTier (Workspace's, else Config's) while trading is on plays
+-- Effects/TradeUnlock once, after the rank up's own window and cards: it starts only after the screen has been calm
+-- (UI.calmForMoment) for CALM seconds, and tries again while play refuses (another of the effects' cutscenes). Tiers
+-- only go up, so a rank up through it comes once per account; a rejoin above it plays nothing.
+local TRADE_UNLOCK = { FIRST_WAIT = 4, CALM = 1.5, STEP = 0.25, GIVE_UP = 600 }
+local tradeUnlockQueued = false
+
+function UIController.tradeUnlock(from: number, to: number)
+	local TradeLogic = require(script.Parent.Parent.UI.Components.TradeLogic) :: any
+	local min = TradeLogic.minTier(Workspace:GetAttribute("TradeMinTier"))
+	if
+		tradeUnlockQueued
+		or not (from < min and to >= min)
+		or Workspace:GetAttribute("TradingOn") ~= true
+	then
+		return
+	end
+	tradeUnlockQueued = true
+	task.spawn(function()
+		local TradeUnlock = require(script.Parent.Parent.Effects.TradeUnlock) :: any
+		local ui: any = UI
+		task.wait(TRADE_UNLOCK.FIRST_WAIT)
+		local calmSince: number? = nil
+		local started = os.clock()
+		while os.clock() - started < TRADE_UNLOCK.GIVE_UP do
+			if not ui.calmForMoment() then
+				calmSince = nil
+			elseif calmSince == nil then
+				calmSince = os.clock()
+			elseif os.clock() - (calmSince :: number) >= TRADE_UNLOCK.CALM then
+				if TradeUnlock.play(ui.tradeTile()) then
+					return
+				end
+				calmSince = nil
+			end
+			task.wait(TRADE_UNLOCK.STEP)
+		end
+	end)
 end
 
 return UIController

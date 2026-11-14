@@ -25,6 +25,21 @@ return function()
 			)
 		end)
 
+		it("lists an area with launchFrom only on that camp's cannon (#4070)", function()
+			local areas = {
+				{ id = "alley", name = "Alleyway", tier = 1 },
+				{ id = "desert", name = "Desert", tier = 6 },
+				{ id = "waterpark", name = "Water Park", tier = 9, launchFrom = "desert" },
+			}
+			expect(ids(CannonLogic.destinations(areas, 9, "town"))).to.equal("alley,desert")
+			expect(ids(CannonLogic.destinations(areas, 9, "alley"))).to.equal("town,desert")
+			expect(ids(CannonLogic.destinations(areas, 9, "desert"))).to.equal(
+				"town,alley,waterpark"
+			)
+			expect(ids(CannonLogic.cards(areas, 1, "town"))).to.equal("alley,desert")
+			expect(ids(CannonLogic.cards(areas, 1, "desert"))).to.equal("town,alley,waterpark")
+		end)
+
 		it("puts Town Square first from a camp and leaves out the camp's own area", function()
 			expect(ids(CannonLogic.destinations(Catalog.areas, 3, "park"))).to.equal(
 				"town,alley,neighbourhood"

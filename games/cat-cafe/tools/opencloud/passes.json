@@ -177,6 +177,7 @@
 	},
 	{
 		"name": "Auto Bowl",
+		"id": 2088615375,
 		"config": "AutoBowlPassId",
 		"price": 19,
 		"regionalPricing": true,

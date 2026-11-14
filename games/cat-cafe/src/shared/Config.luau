@@ -57,7 +57,7 @@ local Config = {
 	GardenDecorPackPassId = 2075342357, -- #1168 row 3: six looks-only decor pieces (R$149); made off sale by Tools-Agent 2026-11-06
 	GoldenPondPassId = 2071704337, -- #1232
 	SecondBowlPassId = 2072132265, -- #1161
-	AutoBowlPassId = 0, -- #4266: the Auto Bowl pass (auto claim, auto refill); 0 hides its offer and Store card
+	AutoBowlPassId = 2088615375, -- #4266 (R$19): the Auto Bowl pass (auto claim, auto refill); 0 hides its offer and Store card
 	-- #4026: the four outfit packs (R$99 each); made off sale with game-passes.yml 2026-11-13, on sale with this
 	StylishPackPassId = 2087936654,
 	WinterPackPassId = 2089766669,

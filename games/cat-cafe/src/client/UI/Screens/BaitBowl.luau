@@ -113,7 +113,7 @@ local AUTO_ROW = 36 -- a switch row, the tap height a mouse needs; touch Hit pad
 local AUTO_PILL_W = 64
 local AUTO_HEAD = 20
 local AUTO_PAD = 8
-local AUTO_OFFER_H = AUTO_PAD * 2 + 40 + AUTO_ROW -- the offer: picture and words, then the price
+local AUTO_OFFER_H = AUTO_PAD * 2 + 52 + AUTO_ROW -- the offer: picture and words (two lines on a phone), then the price
 
 local STATUS_HEIGHT = 92
 -- #1612 (Derek2 11-05: "just have it in a smaller line/image have the symbol the name the rarity of the food (remove
@@ -574,12 +574,26 @@ function BaitBowl._buildAuto(self: any)
 		{ Color = Theme.colors.gold, Thickness = Theme.sizes.stroke, Parent = card }
 	)
 	self._autoCard = card
+	-- what the card holds scrolls where a short phone's column has less room than it needs
+	local body: ScrollingFrame = Create("ScrollingFrame", {
+		Name = "Body",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		CanvasSize = UDim2.new(),
+		ScrollBarThickness = 0,
+		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		ElasticBehavior = Enum.ElasticBehavior.Never,
+		Parent = card,
+	})
+	self._autoBody = body
 	-- the offer
 	local offer: Frame = Create("Frame", {
 		Name = "Offer",
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, AUTO_OFFER_H),
-		Parent = card,
+		Parent = body,
 	})
 	self._autoOffer = offer
 	local icon: TextLabel = text({
@@ -607,10 +621,12 @@ function BaitBowl._buildAuto(self: any)
 	text({
 		Name = "Line",
 		Position = UDim2.fromOffset(AUTO_PAD + 48, AUTO_PAD + 22),
-		Size = UDim2.new(1, -(AUTO_PAD * 2 + 48), 0, 18),
+		Size = UDim2.new(1, -(AUTO_PAD * 2 + 48), 0, 30),
 		TextSize = Theme.sizes.textTiny + 1,
+		TextWrapped = true, -- two lines in a short phone's narrow column
+		TextYAlignment = Enum.TextYAlignment.Top,
 		TextColor3 = CARD.subtext,
-		Text = "Claims cats, refills food",
+		Text = "Claims cats, uses your best food",
 		Parent = offer,
 	})
 	self._autoBuy = Button.new({
@@ -637,7 +653,7 @@ function BaitBowl._buildAuto(self: any)
 		TextSize = Theme.sizes.textSmall,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "AUTO BOWL",
-		Parent = card,
+		Parent = body,
 	})
 	-- the switches, one row each: its words on the left and an ON / OFF pill on the right
 	self._autoRows = {} :: { [string]: Frame }
@@ -647,7 +663,7 @@ function BaitBowl._buildAuto(self: any)
 			Name = AUTO_NAMES[key] .. "Row",
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, -AUTO_PAD * 2, 0, AUTO_ROW),
-			Parent = card,
+			Parent = body,
 		})
 		text({
 			Name = "Words",
@@ -736,14 +752,19 @@ function BaitBowl._renderAuto(self: any)
 		)
 		and (state.upgradeLevels.lure_bowl or 0) >= 1
 		and self:_takesFood(self._selected)
-	-- top down: the heading (owned) or the offer (on sale), then the rows
+	-- top down: the heading (owned) or the offer (on sale), then the rows. On touch a pill's Hit pad reaches a
+	-- finger's 44 px, so the rows sit a pad apart and clear of the price button's pad
+	local scale = Scale.get()
+	local k = if scale > 0 then scale else 1
+	local pad = if Scale.isTouch()
+		then math.max(AUTO_ROW, math.ceil((Scale.TAP + 1) / k))
+		else AUTO_ROW
+	local reach = (pad - AUTO_ROW) / 2
+	local step = math.max(AUTO_ROW + 4, pad + 1)
 	local keys: { string } = if owned then AUTO_ORDER else { "popups" }
-	local y = if owned then AUTO_PAD + AUTO_HEAD elseif selling then AUTO_OFFER_H + 6 else AUTO_PAD
-	local height = y + #keys * AUTO_ROW + (#keys - 1) * 4 + AUTO_PAD
+	local room = 0
 	if shown then
 		-- room between the wait chip and the foot buttons (a phone with a cat waiting may have none)
-		local scale = Scale.get()
-		local k = if scale > 0 then scale else 1
 		local middle = self._status:FindFirstChild("Middle") :: GuiObject?
 		local top = if middle
 			then (
@@ -752,15 +773,46 @@ function BaitBowl._renderAuto(self: any)
 				- self._status.AbsolutePosition.Y
 			) / k
 			else 0
-		local room = self._status.AbsoluteSize.Y / k - self._footH - top - 2 * Theme.sizes.gap
-		shown = room >= height
+		room = math.floor(
+			self._status.AbsoluteSize.Y / k - self._footH - top - 2 * Theme.sizes.gap - reach
+		)
+	end
+	local function layout(offerH: number): (number, number)
+		local first = if owned
+			then AUTO_PAD + AUTO_HEAD + reach
+			elseif selling then offerH + math.max(6, 2 * reach + 1)
+			else AUTO_PAD + reach
+		return first, math.ceil(first + (#keys - 1) * step + AUTO_ROW + reach + AUTO_PAD)
+	end
+	-- the full offer (picture, name, line, price) where it fits with the switch under it, else only the price button
+	-- naming the pass
+	local offerH = AUTO_OFFER_H
+	local y, height = layout(offerH)
+	local short = selling and height > room
+	if short then
+		offerH = AUTO_PAD + AUTO_ROW
+		y, height = layout(offerH)
+	end
+	if shown then
+		-- a short phone's column shows what fits and scrolls the rest; at least a row's worth
+		shown = room >= math.min(height, pad + AUTO_PAD)
 	end
 	card.Visible = shown
 	if not shown then
 		return
 	end
-	card.Size = UDim2.new(1, -20, 0, height)
-	card.Position = UDim2.new(0.5, 0, 1, -(self._footH + Theme.sizes.gap))
+	self._autoOffer.Size = UDim2.new(1, 0, 0, offerH)
+	for _, name in { "Icon", "Name", "Line" } do
+		local piece = self._autoOffer:FindFirstChild(name) :: GuiObject?
+		if piece then
+			piece.Visible = not short
+		end
+	end
+	local cardH = math.min(height, room)
+	card.Size = UDim2.new(1, -20, 0, cardH)
+	self._autoBody.CanvasSize = UDim2.fromOffset(0, height)
+	self._autoBody.ScrollBarThickness = if cardH < height then 4 else 0
+	card.Position = UDim2.new(0.5, 0, 1, -(self._footH + Theme.sizes.gap + reach)) -- clear of Refill's pad too
 	self._autoStroke.Color = if owned
 		then Theme.colors.mintDark
 		elseif selling then Theme.colors.gold
@@ -768,13 +820,14 @@ function BaitBowl._renderAuto(self: any)
 	self._autoOffer.Visible = selling
 	self._autoHeading.Visible = owned
 	if selling and price and price.robux then
-		self._autoBuy:setText(("R$%d"):format(price.robux :: number))
+		local words = ("R$%d"):format(price.robux :: number)
+		self._autoBuy:setText(if short then "Auto Bowl  " .. words else words)
 	end
 	for key, row in self._autoRows do
 		local index = table.find(keys, key)
 		row.Visible = index ~= nil
 		if index then
-			row.Position = UDim2.fromOffset(AUTO_PAD, y + (index - 1) * (AUTO_ROW + 4))
+			row.Position = UDim2.fromOffset(AUTO_PAD, y + (index - 1) * step)
 			local on = self:_autoValue(key)
 			local pill: Button.Button = self._autoPills[key]
 			pill:setStyle(if on then "primary" else "slate")

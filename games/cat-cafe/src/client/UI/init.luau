@@ -9017,7 +9017,19 @@ do
 		}
 	end
 	local function rows(): { StoreLogic.Row }
-		return StoreLogic.rows(Config, PassShop.owned(), state.longNap, view())
+		-- #4266: the Auto Bowl card waits for its switch, as the Bait bowl window's offer does
+		local flags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local config: any = Config
+		if
+			not flags.shown(
+				"autoBowl",
+				ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. "autoBowl")
+			)
+		then
+			config = setmetatable({ AutoBowlPassId = 0 }, { __index = Config })
+		end
+		return StoreLogic.rows(config, PassShop.owned(), state.longNap, view())
 	end
 
 	-- The window's cards when it is up, and the HUD's tile when its open state changes.

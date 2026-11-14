@@ -116,4 +116,36 @@ function StepGaps.quitFields(
 	}
 end
 
+-- #4189: quit_have past Tier 1 (Tier 1 keeps the fields above). The kinds still short of the next tier ("0", "1-2",
+-- "3-5", "6+"), coins as a share of its cost (coinShare), and the first need missing with the tier it is for,
+-- "t<next>_<kinds|rarity|coins|ready>" ("ready": every need met).
+StepGaps.NEEDS = { "kinds", "rarity", "coins", "ready" }
+
+function StepGaps.short(missing: number): string
+	local n = if missing ~= missing then 0 else math.max(0, math.floor(missing))
+	if n == 0 then
+		return "0"
+	elseif n <= 2 then
+		return "1-2"
+	elseif n <= 5 then
+		return "3-5"
+	end
+	return "6+"
+end
+
+function StepGaps.quitNeedFields(
+	missing: number,
+	coins: number,
+	cost: number,
+	need: string,
+	nextTier: number
+): { string }
+	local known = if table.find(StepGaps.NEEDS, need) ~= nil then need else "ready"
+	return {
+		StepGaps.short(missing),
+		StepGaps.coinShare(coins, cost),
+		string.format("t%d_%s", math.floor(nextTier), known),
+	}
+end
+
 return StepGaps

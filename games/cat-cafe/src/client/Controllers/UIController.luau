@@ -347,6 +347,22 @@ local function circleVerb(): string
 	return "click"
 end
 
+-- #4151: the strip's own lines on the device the player used last, from TutorialHints' keyboard, touch and gamepad
+-- versions, so a phone reads "tap Upgrades" and never a letter key. `fallback` only if the id is unknown.
+local function deviceLine(id: string, fallback: string): string
+	local TutorialHints = require(script.Parent.Parent.UI.Components.TutorialHints) :: any
+	local last = UserInputService:GetLastInputType().Name
+	local device = if last:sub(1, 7) == "Gamepad"
+		then "gamepad"
+		elseif
+			last == "Touch"
+			or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+		then "touch"
+		else "keyboard"
+	local line: unknown = TutorialHints.lineFor(id, device)
+	return if type(line) == "string" and line ~= "" then line else fallback
+end
+
 local function swingHint(): string
 	local net: any = (UI :: any).net
 	local hint: unknown = if net ~= nil then net.hint else nil
@@ -602,12 +618,12 @@ local function refreshTutorial(s: Types.PlayerState)
 		if hasRestingCatAndFreeSpot(s) then
 			showTutorial(
 				s,
-				"Open the Collection (C) and give your new cat a role",
+				deviceLine("job", "Open Cats and give your new cat a job"),
 				restingCat(),
 				"Cat"
 			)
 		else
-			showTutorial(s, "Catch more cats in the alley, or buy a table in Upgrades (U)")
+			showTutorial(s, deviceLine("more", "Catch more cats, or buy a table in Upgrades"))
 		end
 	elseif s.tutorialStep == 3 then
 		-- #2912: with one cat, ring the nearest Alleyway stray (or where the tutorial stray waits) as well as the table;
@@ -616,12 +632,12 @@ local function refreshTutorial(s: Types.PlayerState)
 		if not SecondCat.done(s.stats) and areasShut() then
 			-- #3238: at night the strays are gone and the server picks the waiting one at sunrise, so say so and
 			-- point at the table instead of an empty alley
-			showTutorial(s, "Strays return at sunrise 🌅, or buy a table in Upgrades (U)")
+			showTutorial(s, deviceLine("secondNight", "Strays return at sunrise, or open Upgrades"))
 		elseif not SecondCat.done(s.stats) then -- #3160, #3551: the bowl's cat never ends it
 			local stray = nearestAlleyStray()
 			showTutorial(
 				s,
-				"Catch another cat 🐾", -- #4097: one ask by day
+				deviceLine("second", "Catch another cat 🐾"), -- #4097: one ask by day
 				stray or tutorialStrayPoint(),
 				"Catch another cat"
 			)
@@ -636,13 +652,13 @@ local function refreshTutorial(s: Types.PlayerState)
 				end)
 			end
 		else
-			showTutorial(s, "Buy your first table in Upgrades (U): more money from every cat")
+			showTutorial(s, deviceLine("table", "Open Upgrades and buy a table: more tips per cat"))
 		end
 	elseif s.tutorialStep == 4 then
 		-- gdd "The first ten minutes" beat 4: the bowl, then food in it (BaitService finishes the tutorial)
 		-- (the HUD strip shows about 50 characters on one line, reviewer N94)
 		if (s.upgradeLevels.lure_bowl or 0) < 1 then
-			showTutorial(s, "Buy the Bait bowl in Upgrades (U)")
+			showTutorial(s, deviceLine("bowl", "Open Upgrades and buy the Bait bowl"))
 		elseif s.bait ~= nil then
 			-- #3158: the first bait holds step 4 until its cat is tamed or let go (the line is TutorialHints'
 			-- "waiting", then "arrived")
@@ -650,7 +666,7 @@ local function refreshTutorial(s: Types.PlayerState)
 		else
 			showTutorial(
 				s,
-				"Put Kibble in your bowl on the back step (F)",
+				deviceLine("food", "Put Kibble in your bowl on the back step"),
 				UIController.ownBaitBowl(),
 				"Bowl"
 			)

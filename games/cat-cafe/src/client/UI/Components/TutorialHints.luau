@@ -220,6 +220,20 @@ function TutorialHints.offer(
 	return nil
 end
 
+-- #4151: one line by its id ("job", "more", "second", "secondNight", "table", "bowl", "food", ...) for a device, or nil
+-- for an id it doesn't know. UIController's own strip lines use it, so a phone never reads a letter key.
+function TutorialHints.lineFor(id: string, device: string): string?
+	local line: Line? = LINES[id]
+	if line == nil then
+		return nil
+	end
+	if type(line) == "string" then
+		return line
+	end
+	local byDevice: { [string]: string } = line :: any
+	return byDevice[device] or byDevice.keyboard
+end
+
 function TutorialHints.line(view: View): string?
 	local id = pick(view)
 	if id == "second" and view.night == true then

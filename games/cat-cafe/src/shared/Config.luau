@@ -753,6 +753,23 @@ local Config = {
 			startsAt = 1794693600,
 			title = "🔔 Next update Saturday: Cat Outfit Packs! Want a reminder when it lands?",
 		},
+		-- Derek 2026-11-14 16:23 UTC: each update prompts for the next one from 10 minutes after the last
+		-- (EventRsvp.QUIET_AFTER_SECONDS) until it starts. Growth-Agent's update run sheet.
+		{
+			id = "3176510604057903700",
+			startsAt = 1794772800, -- "3 New Worlds", Sunday 2026-11-15 20:00 UTC
+			title = "🔔 Next update Sunday: 3 NEW WORLDS! Want a reminder when it lands?",
+		},
+		{
+			id = "6810389993696133776",
+			startsAt = 1795032000, -- "Better on Every Device", Wednesday 2026-11-18 20:00 UTC
+			title = "🔔 Next update Wednesday: better controls on every device! Want a reminder?",
+		},
+		{
+			id = "8700676156604678758",
+			startsAt = 1795291200, -- "10 Secret Cats", Saturday 2026-11-21 20:00 UTC
+			title = "🔔 Next update Saturday: 10 SECRET CATS! Want a reminder when it lands?",
+		},
 	} :: { { id: string, startsAt: number, title: string? } },
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,

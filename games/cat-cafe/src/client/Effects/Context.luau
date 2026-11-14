@@ -121,8 +121,14 @@ function Context.isNight(): boolean
 	return clock ~= nil and clock:GetAttribute("Phase") == "night"
 end
 
--- The player's Reduce Motion setting: no camera shake or flashes, fewer confetti pieces.
+-- The player's Reduce Motion setting: no camera shake or flashes, fewer confetti pieces. In Studio only, the
+-- Workspace attribute `ReduceMotionTest` = true turns it on too, so a playtest can check the still version of an
+-- effect without changing a Roblox account setting (Review-QA, #4105). It does nothing in the live game.
+local IN_STUDIO = RunService:IsStudio()
 function Context.reducedMotion(): boolean
+	if IN_STUDIO and Workspace:GetAttribute("ReduceMotionTest") == true then
+		return true
+	end
 	return GuiService.ReducedMotionEnabled
 end
 

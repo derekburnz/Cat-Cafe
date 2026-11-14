@@ -23,7 +23,7 @@ local Presets = require(script.Parent.Presets)
 
 local CardFlip = {}
 
--- The beats, for the sounds: "flip" as a card turns, "rare" as a Legendary or Mythic face shows. Listeners only
+-- The beats, for the sounds: "flip" as a card turns, "rare" as a Rare or better face shows. Listeners only
 -- listen.
 export type Beat = "flip" | "rare"
 local listeners: { (beat: Beat, index: number, rarity: string) -> () } = {}
@@ -54,6 +54,12 @@ end
 local function isTop(rarity: string): boolean
 	local lower = string.lower(rarity)
 	return lower == "legendary" or lower == "mythic"
+end
+
+-- A card worth its own sound as it shows its face: Rare and better. Only the top two get the rays and the sweep.
+local function isRare(rarity: string): boolean
+	local lower = string.lower(rarity)
+	return lower == "rare" or lower == "epic" or isTop(rarity)
 end
 
 local function face(card: GuiObject, name: string): GuiObject?
@@ -256,7 +262,7 @@ function CardFlip.flip(
 	beat("flip", index or 1, rarity)
 	if Context.reducedMotion() then
 		show()
-		if isTop(rarity) then
+		if isRare(rarity) then
 			beat("rare", index or 1, rarity)
 		end
 		if turned ~= nil then
@@ -304,8 +310,10 @@ function CardFlip.flip(
 			TweenInfo.new(c.edgeSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
 			{ Thickness = c.edge }
 		)
-		if isTop(rarity) then
+		if isRare(rarity) then
 			beat("rare", index or 1, rarity)
+		end
+		if isTop(rarity) then
 			rays(card, rarity)
 			if front ~= nil and string.lower(rarity) == "legendary" then
 				sweep(front)

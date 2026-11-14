@@ -175,3 +175,11 @@ glyph widths per font, not the font files, and snap to whole pixels as Roblox dr
 prize rows shake, and what lets the jitter check see it); `UIFlexItem`, `UIPageLayout` and `UITableLayout` are not laid out; the
 phone has no notch. The pictures are for finding a box, not for judging the look: check that in Studio.
 
+
+### A failure at one optimization level only
+
+The specs compile at optimization level 2, what live servers run. The WebAssembly Luau now and then misruns a spec at
+one level (#4054 at level 1; a main merge on 2026-11-14 moved it to `ProfileSchema.spec` at level 2), and the failure
+flips with unrelated allocations. So a spec file that fails at level 2 is run again at 0 and 1: if it passes whole at
+both, the runner prints a `[VM]` line naming the tests and counts the file as passed. Code that is wrong fails at every
+level. `LUAU_OPT=0|1|2` pins one level and switches the second look off.

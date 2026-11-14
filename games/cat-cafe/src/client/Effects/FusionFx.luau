@@ -17,7 +17,7 @@
 -- At the dome (the `CampExtra`-tagged model whose name ends `_FusionObservatory`):
 --   FusionFx.set(coat?, ready?)  -- your own fusion: "gold", "rainbow" or nil for a free dome; ready once it is done
 --   FusionFx.collected(coat)     -- you collected: sparkles and a ring at the dome
--- While a fusion runs the dome's `_Glow` parts (the slit) take the coat's colour, the rainbow one drifting through
+-- While a fusion runs the dome's `_Glow` parts (the slit, `_Slit_Glow`) take the coat's colour, the rainbow one drifting through
 -- the hues, and five small paw lights circle the dome slowly; once ready they circle a little faster and the slit
 -- breathes. Everyone else sees only the glow, from the model's `FusionCoat` attribute if the server sets it. The
 -- lights hold still with Reduce Motion and are off in Low performance. Listening only: nothing here fires a remote
@@ -354,7 +354,15 @@ local function readGlows(model: Model)
 	table.clear(glows)
 	local suffix = Presets.fusion.dome.glow
 	for _, descendant in model:GetDescendants() do
-		if descendant:IsA("BasePart") and descendant.Name:sub(-#suffix) == suffix then
+		-- a part named ..._Glow, or any part of a child Model named so (Model-Agent's `_Slit_Glow`, PR #4114)
+		local holder = descendant.Parent
+		if
+			descendant:IsA("BasePart")
+			and (
+				descendant.Name:sub(-#suffix) == suffix
+				or (holder ~= nil and holder:IsA("Model") and holder.Name:sub(-#suffix) == suffix)
+			)
+		then
 			local part = descendant :: BasePart
 			table.insert(glows, { part = part, color = part.Color, material = part.Material })
 		end
@@ -414,10 +422,18 @@ local function stepDome(now: number)
 		dropPaws()
 		return
 	end
-	local _, size = model:GetBoundingBox()
-	local radius = math.max(size.X, size.Z) / 2 * p.pawRadius
-	local height = size.Y * p.pawHeight
-	local middle = model:GetBoundingBox().Position - Vector3.new(0, size.Y / 2, 0)
+	-- the ring's middle: the dome's `GlowAnchor` (PR #4114), `anchorRadius` out; else worked out from its box
+	local radius: number
+	local ringAt: Vector3
+	local anchor = model:FindFirstChild(p.anchor, true)
+	if anchor ~= nil and anchor:IsA("Attachment") then
+		radius = p.anchorRadius
+		ringAt = (anchor :: Attachment).WorldPosition
+	else
+		local box, size = model:GetBoundingBox()
+		radius = math.max(size.X, size.Z) / 2 * p.pawRadius
+		ringAt = box.Position + Vector3.new(0, size.Y * (p.pawHeight - 0.5), 0)
+	end
 	if #paws == 0 then
 		for i = 1, p.paws do
 			local paw = Context.effectPart("FusionPaw", Vector3.one * p.pawSize, colour)
@@ -431,7 +447,7 @@ local function stepDome(now: number)
 	local turn = if Context.reducedMotion() then 0 else t
 	for i, paw in paws do
 		local offset = FusionFx.pawAt(i, #paws, turn, radius, lap)
-		paw.Position = middle + Vector3.new(0, height, 0) + offset
+		paw.Position = ringAt + offset
 		paw.Color = if coat == "rainbow"
 			then FusionFx.coatColour(coat, t + (i - 1) * Presets.fusion.huePeriod / #paws)
 			else colour

@@ -45,7 +45,7 @@ from itertools import pairwise
 
 from mathutils import Matrix
 
-from areakit import PI, Set, turned
+from areakit import PI, Set, hinge, turned
 from common import Builder
 from woodsset import _dist_seg, _strip, bl
 
@@ -293,8 +293,10 @@ def pennant_tower(mat, h=17.0, k=0):
     b.cyl_base((0, WALL_D / 2, h - 3.6), 2.6, 3.0, cols[0], segments=8, radius2=0.2, bevel=False)
     b.ico((0, WALL_D / 2, h - 0.4), 0.4, GOLD, subdivisions=1)
     b.cyl_base((0, WALL_D / 2, h - 0.4), 0.08, 2.4, METAL, segments=6, bevel=False)
-    b.box((0.8, WALL_D / 2, h + 1.5), (1.6, 0.06, 0.9), cols[0], bevel=False)
-    return [b.finalize(N + "PennantTower", mat)]
+    f = Builder()                    # the pennant flaps about its rod: the child Model ..._PennantTower_Swing
+    f.box((0.88, WALL_D / 2, h + 1.5), (1.6, 0.06, 0.9), cols[0], bevel=False)
+    return [b.finalize(N + "PennantTower", mat),
+            hinge(f.finalize(N + "PennantTower_Swing", mat), (0, WALL_D / 2, h + 1.5))]
 
 
 def _run(s, mat, kinds, n, length, place, seed):
@@ -406,7 +408,8 @@ def planter_palm(mat, h=8.0):
 
 
 def balloon_bunch(mat, k=0):
-    """A bunch of balloons on a weight (the balloons and strings _Decor: nothing to bump into overhead)."""
+    """A bunch of balloons on a weight. The balloons and their string are the child Model ..._BalloonBunch_Swing,
+    hung from the knot on the weight so Motion sways the bunch; they never collide (nothing to bump into overhead)."""
     b, d = Builder(), Builder()
     b.box_base((0, 0, 0), (0.9, 0.9, 0.7), (RED, BLUE)[k % 2], bevel=False)
     d.cyl_base((0, 0, 0.7), 0.05, 4.6, MILK, segments=5, bevel=False)
@@ -415,7 +418,7 @@ def balloon_bunch(mat, k=0):
         r = 0.95 if i else 0.0
         d.ico((r * math.cos(a), r * math.sin(a), 5.9 + 0.9 * (i % 3) + (1.4 if not i else 0)), 0.85,
               BALLOONS[(i + k) % 6], subdivisions=1, scale=(1.0, 1.0, 1.2))
-    return [b.finalize(N + "BalloonBunch", mat), d.finalize(N + "BalloonBunch_Decor", mat)]
+    return [b.finalize(N + "BalloonBunch", mat), hinge(d.finalize(N + "BalloonBunch_Swing", mat), (0, 0, 0.7))]
 
 
 def park_sign(mat, k=0):

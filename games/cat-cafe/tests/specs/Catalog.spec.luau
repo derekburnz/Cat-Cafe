@@ -9,7 +9,17 @@ return function()
 	local ROLES = { "barista", "waiter", "greeter", "entertainer" }
 	local ROLE_SET: { [string]: boolean } =
 		{ barista = true, waiter = true, greeter = true, entertainer = true }
-	local AREA_ORDER = { "alley", "park", "neighbourhood", "woods", "sewer", "desert", "ruins" }
+	local AREA_ORDER = {
+		"alley",
+		"park",
+		"neighbourhood",
+		"woods",
+		"sewer",
+		"desert",
+		"ruins",
+		"snowy",
+		"waterpark",
+	}
 	local RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 	-- Per area: four Common, two Rare, two Epic, one Legendary, one Mythical (section 3).
 	local PER_AREA: { [string]: number } =
@@ -372,12 +382,34 @@ return function()
 			mosaic = { "Mosaic Cat", "Epic", "ruins", "entertainer" },
 			golem = { "Golem Cat", "Legendary", "ruins", "barista" },
 			jade_guardian = { "Jade Guardian", "Mythical", "ruins", "greeter" },
+			-- #3997 (tier8-snowy-mountain.md section 4): Tier 8's Snowy Mountain
+			flurry = { "Flurry", "Common", "snowy", "barista" },
+			mitten = { "Mitten", "Common", "snowy", "waiter" },
+			hot_chocolate = { "Hot Chocolate Cat", "Common", "snowy", "greeter" },
+			spruce = { "Spruce", "Common", "snowy", "entertainer" },
+			snow_boots = { "Snow Boots Cat", "Rare", "snowy", "greeter" },
+			ski = { "Ski Cat", "Rare", "snowy", "waiter" },
+			snow_leopard = { "Snow Leopard Cat", "Epic", "snowy", "entertainer" },
+			ice = { "Ice Cat", "Epic", "snowy", "barista" },
+			white_tiger = { "White Tiger Cat", "Legendary", "snowy", "waiter" },
+			blizzard = { "Blizzard Cat", "Mythical", "snowy", "greeter" },
+			-- #4070 (the next-areas plan.md section 2e): Tier 9's Water Park
+			popcorn = { "Popcorn", "Common", "waterpark", "barista" },
+			pinwheel = { "Pinwheel Cat", "Common", "waterpark", "waiter" },
+			splash = { "Splash", "Common", "waterpark", "greeter" },
+			taffy = { "Taffy", "Common", "waterpark", "entertainer" },
+			candy_apple = { "Candy Apple Cat", "Rare", "waterpark", "greeter" },
+			cotton_candy = { "Cotton Candy Cat", "Rare", "waterpark", "entertainer" },
+			clown = { "Clown Cat", "Epic", "waterpark", "barista" },
+			water_gun = { "Water Gun Cat", "Epic", "waterpark", "waiter" },
+			coaster = { "Coaster Cat", "Legendary", "waterpark", "waiter" },
+			water = { "Water Cat", "Mythical", "waterpark", "entertainer" },
 		}
 
 		it(
-			"has exactly 88 cats: the 20 slice, 30 later, the 20 of Tier 6 and 7 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin and the 3 Secret cats",
+			"has exactly 108 cats: the 20 slice, 30 later, the 40 of Tier 6 to 9 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin and the 3 Secret cats",
 			function()
-				expect(#Catalog.cats).to.equal(88)
+				expect(#Catalog.cats).to.equal(108)
 				for _, def in ipairs(Catalog.cats) do
 					expect(
 						slice[def.id] ~= nil
@@ -552,8 +584,14 @@ return function()
 				waiter_5 = { "waiter", 6 },
 				barista_4 = { "barista", 7 },
 				greeter_3 = { "greeter", 7 },
+				-- #3997: Tier 8 takes the pass's old pair, so a Tier 7 save's extra slots keep their stations
+				entertainer_3 = { "entertainer", 8 },
+				waiter_6 = { "waiter", 8 },
+				-- #4070: and Tier 9 the pass's Tier 8 pair
+				barista_5 = { "barista", 9 },
+				greeter_4 = { "greeter", 9 },
 			}
-			expect(#Catalog.spots).to.equal(14)
+			expect(#Catalog.spots).to.equal(18)
 			for id, row in pairs(expected) do
 				local spot = Catalog.getSpot(id)
 				expect(spot).to.be.ok()
@@ -664,23 +702,39 @@ return function()
 		local expected: { { any } } = {
 			{ "Corner Cafe", 0, 0, nil, nil, 2, 1.00, "alley", { 2, 2, 1 } },
 			-- #3204: Tables 4, Espresso 3 and Net 1 at Tier 2 (were 5, 4 and 2); Net 2 at Tier 3 and Net 3 at Tier 5
-			{ "Cozy Cafe", 7500, 4, nil, nil, 4, 1.25, "park", { 4, 3, 1 } }, -- #4098
+			{ "Cozy Cafe", 1500, 3, nil, nil, 4, 1.25, "park", { 4, 3, 1 } }, -- #4188 (7,500 and 4 for #4098)
 			-- economy-ladder.md section 3 v3.1 (#1452, more wild cats; #1499 Tier 2 30,000): 30,000, 700,000, 60M and 2B;
 			-- #1896 (first-hour.md 4): Tier 3 900,000
 			-- #2895 (Derek2: "lower the 3-6 tier costs", then 50/30/10% off for Tiers 5/6/7): 600,000, 24M, 700M, 8B and 60B before
 			-- #3111 (Derek2: "lower the different cats requirement a little bit between 3-7"): 11, 28, 42 and 52 before at
 			-- Tiers 3, 5, 6 and 7; Tier 4 stays 22, any cut there fails Pace's 2 hour floor for 4x Money
-			{ "Busy Cafe", 520000, 10, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 2 } },
-			{ "Famous Cafe", 16800000, 22, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 2 } },
-			{ "Grand Cafe", 390000000, 26, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			-- #4189 (Derek 2026-11-14: into the next areas sooner): 520,000, 16.8M, 390M, 5.6B and 54B, and 10, 22, 26, 38
+			-- and 47 kinds before; the 4x Money 2 hour floor is dropped
+			{ "Busy Cafe", 150000, 8, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 2 } },
+			{ "Famous Cafe", 4000000, 17, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 2 } },
+			{ "Grand Cafe", 90000000, 20, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 			-- #2651 (tier6-7-areas.md sections 1 and 7b), QA-Planner's Pace fit
-			{ "Sunstone Cafe", 5600000000, 38, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
-			{ "Wonder Cafe", 54000000000, 47, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
+			{ "Sunstone Cafe", 1250000000, 30, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
+			{ "Wonder Cafe", 12500000000, 38, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
+			-- #3997 (tier8-snowy-mountain.md section 1, draft numbers)
+			{ "Summit Cafe", 520000000000, 56, "Mythical", 4, 16, 2.75, "snowy", { 6, 8, 3 } },
+			-- #4070 (draft numbers on Tier 8's pattern)
+			{
+				"Funfair Cafe",
+				5000000000000,
+				65,
+				"Mythical",
+				5,
+				18,
+				3.00,
+				"waterpark",
+				{ 6, 9, 3 },
+			},
 		}
 
-		it("has seven tiers matching the table", function()
-			expect(#Catalog.tiers).to.equal(7)
-			expect(Catalog.maxTier).to.equal(7)
+		it("has nine tiers matching the table", function()
+			expect(#Catalog.tiers).to.equal(9)
+			expect(Catalog.maxTier).to.equal(9)
 			for tier, row in ipairs(expected) do
 				local def = Catalog.getTier(tier)
 				expect(def).to.be.ok()
@@ -699,7 +753,7 @@ return function()
 				expect(def.caps.net).to.equal(row[9][3])
 			end
 			expect(Catalog.getTier(0)).never.to.be.ok()
-			expect(Catalog.getTier(8)).never.to.be.ok()
+			expect(Catalog.getTier(10)).never.to.be.ok()
 		end)
 
 		it("each tier opens one new area, in the order of section 9", function()
@@ -808,10 +862,20 @@ return function()
 				},
 				espresso = {
 					name = "Espresso machine",
-					maxLevel = 7, -- #2651: 6 and 7 at Tier 6 and 7
-					costs = { 0, 2000, 15000, 550000, 6000000, 200000000, 1300000000 }, -- F95; #1896; #2651
+					maxLevel = 9, -- #2651: 6 and 7 at Tier 6 and 7; #3997: 8 at Tier 8; #4070: 9 at Tier 9
+					costs = {
+						0,
+						2000,
+						15000,
+						550000,
+						6000000,
+						200000000,
+						1300000000,
+						12000000000,
+						115000000000,
+					}, -- F95; #1896; #2651; #4070
 					startLevel = 1,
-					atLevel = { [3] = 2, [4] = 3, [5] = 4, [6] = 6, [7] = 7 }, -- #3204: Espresso 4 at Tier 3
+					atLevel = { [3] = 2, [4] = 3, [5] = 4, [6] = 6, [7] = 7, [8] = 8, [9] = 9 }, -- #3204: Espresso 4 at Tier 3
 				},
 				net = {
 					name = "Net",
@@ -829,10 +893,29 @@ return function()
 				},
 				lucky_cat = { -- F88 (luck-and-rare-moments.md 1a): level n needs Tier n, level 3 Tier 2 (#1896)
 					name = "Lucky Cat",
-					maxLevel = 7, -- #2651: 6 and 7 at Tier 6 and 7
-					costs = { 2000, 20000, 300000, 8000000, 80000000, 250000000, 1700000000 }, -- #2651
+					maxLevel = 9, -- #2651: 6 and 7 at Tier 6 and 7; #3997: 8 at Tier 8; #4070: 9 at Tier 9
+					costs = {
+						2000,
+						20000,
+						300000,
+						8000000,
+						80000000,
+						250000000,
+						1700000000,
+						14000000000,
+						135000000000,
+					}, -- #2651; #3997; #4070
 					startLevel = 0,
-					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5, [6] = 6, [7] = 7 }, -- #3204: level 3 at Tier 3
+					atLevel = {
+						[2] = 2,
+						[3] = 3,
+						[4] = 4,
+						[5] = 5,
+						[6] = 6,
+						[7] = 7,
+						[8] = 8,
+						[9] = 9,
+					}, -- #3204: level 3 at Tier 3
 				},
 			}
 
@@ -1259,7 +1342,7 @@ return function()
 		end)
 
 		it(
-			"seven areas in tier order with the section 9 spawn points, wave sizes (v0.13.5), odds and income (v0.13.7)",
+			"nine areas in tier order with the section 9 spawn points, wave sizes (v0.13.5), odds and income (v0.13.7)",
 			function()
 				-- id -> { name, tier, spawnPoints, odds, waveSize, incomeMultiplier }; v0.13.7: one set of odds everywhere
 				local same = { 54, 29, 11, 4.8, 1.2 } -- #1452 (was 72, 22, 5, 0.9, 0.1)
@@ -1272,6 +1355,8 @@ return function()
 					{ "sewer", "Sewer", 5, 60, same, 11, 81 }, -- F85's long set's cat spots (#860)
 					{ "desert", "Desert", 6, 106, same, 11, 243 }, -- #2651: the set's cat spots (#2666)
 					{ "ruins", "Ruins", 7, 100, same, 11, 729 }, -- #2651: the set's cat spots (#2669)
+					{ "snowy", "Snowy Mountain", 8, 105, same, 11, 2187 }, -- #3997: the set's cat spots (#3999)
+					{ "waterpark", "Water Park", 9, 155, same, 11, 6561 }, -- #4070: the set's cat spots (#4090)
 				}
 				expect(#Catalog.areas).to.equal(#want)
 				for i, row in want do

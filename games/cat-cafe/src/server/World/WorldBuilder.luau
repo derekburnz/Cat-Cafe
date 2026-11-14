@@ -200,6 +200,12 @@ local AREA_LOOKS: { [string]: AreaLook } = {
 		floorMaterial = Enum.Material.Snow,
 		wall = Color3.fromRGB(150, 156, 166),
 	},
+	-- #4070: painted asphalt under the Water Park set, cut hedge green at its edges (no grass ground)
+	waterpark = {
+		floor = Color3.fromRGB(120, 128, 140),
+		floorMaterial = Enum.Material.Asphalt,
+		wall = Color3.fromRGB(70, 130, 85),
+	},
 }
 
 local function part(
@@ -1214,7 +1220,7 @@ end
 -- emptied at night by the sweep, so the fence along the back alleys' inner edges went with them.
 local function buildNightFences(gates: { [string]: Model }, plots: { Plot }, parent: Instance)
 	for areaId, gate in gates do
-		local asset = "CatCafe_" .. areaId:sub(1, 1):upper() .. areaId:sub(2) .. "_NightFence"
+		local asset = "CatCafe_" .. Catalog.areaArt(areaId) .. "_NightFence"
 		if AssetRegistry.has(asset .. artSuffix(areaId)) then
 			asset ..= artSuffix(areaId) -- a long area's own fence; the Woods' and Sewer's v3.2 ones fit already
 		end
@@ -1250,7 +1256,7 @@ local function campArtName(areaId: string): string
 	if areaId == "alley" then
 		return "Alleyway"
 	end
-	return areaId:sub(1, 1):upper() .. areaId:sub(2)
+	return Catalog.areaArt(areaId) -- #4070: WaterPark
 end
 
 local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
@@ -1816,7 +1822,7 @@ local function buildGate(
 	turn: number,
 	parent: Instance
 ): Model
-	local pascal = def.id:sub(1, 1):upper() .. def.id:sub(2)
+	local pascal = Catalog.areaArt(def.id)
 	local asset = "CatCafe_" .. pascal .. "_Gate" .. artSuffix(def.id)
 	if not AssetRegistry.known(asset) then
 		asset = "CatCafe_" .. pascal .. "_Gate" -- a long area's gate before its art is in: the placeholder
@@ -1835,7 +1841,7 @@ end
 -- never arrives without its board. Skipped while an asset is missing.
 local function buildIndexBoards(parent: Instance)
 	for areaId, at in Layout.indexBoards do
-		local pascal = areaId:sub(1, 1):upper() .. areaId:sub(2)
+		local pascal = Catalog.areaArt(areaId)
 		local asset = "CatCafe_" .. pascal .. "_IndexBoard"
 		local hosts: { CFrame } = {}
 		local camp = Layout.camps[areaId]

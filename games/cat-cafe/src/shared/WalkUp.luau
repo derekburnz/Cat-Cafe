@@ -251,9 +251,10 @@ function WalkUp.new(): State
 	return { inside = {}, opened = nil, openedWindow = nil, since = {} }
 end
 
--- #3448: the bigger rings are crossed more often, so a window opens only once the character has stayed in the ring
--- this long. Walking straight through opens nothing.
-WalkUp.DWELL_SECONDS = 0.3
+-- #3448: the bigger rings are crossed more often, so a window opened only once the character had stayed in the ring
+-- a moment. Derek 2026-11-14 (top priority: "all circles you walk on have a delay before the menu's actually pop up
+-- just makes it feel laggy it should be instant response"): no wait now; the first look inside the ring opens it.
+WalkUp.DWELL_SECONDS = 0
 
 function WalkUp.inside(was: boolean, distance: number?, radius: number): boolean
 	if distance == nil or distance ~= distance then

@@ -777,6 +777,27 @@ function Logic.rallyFrom(before: { lap: number, points: number }?, lap: any, act
 	return if lap > before.lap then 0 else nil
 end
 
+-- #4061 the Ticket Booth between two ProfileSyncs: `before` and `after` are the syncs' `ticketBooth` views (nil
+-- while the switch is off or the tier is not reached). True when a prize was bought: tickets spent went up. Earning
+-- tickets is silent, since they come with every catch and the catch has its own sounds.
+function Logic.ticketPrizeBought(before: any, after: any): boolean
+	if type(before) ~= "table" or type(after) ~= "table" then
+		return false
+	end
+	local was, now = before.spent, after.spent
+	return type(was) == "number" and type(now) == "number" and now > was
+end
+
+-- #4062 the Dragon Keep between two ProfileSyncs: `before` and `after` are the syncs' `dragon` views (nil while the
+-- switch is off). True when a Rekindle hand has just come up: the hand showing is a "rekindle" one and was not
+-- before. A stage hand is the cutscene's (Effects/DragonRise), with its own sounds.
+function Logic.keepRekindled(before: any, after: any): boolean
+	if type(before) ~= "table" or type(after) ~= "table" then
+		return false
+	end
+	return after.handKind == "rekindle" and before.handKind ~= "rekindle"
+end
+
 -- The bait bowl (F28) between two ProfileSyncs: `before` and `after` are the syncs' `bait` (nil for an empty bowl)
 -- and `catsBefore` and `catsAfter` how many cats each showed. "placed" when food went in, "arrive" when its cat came
 -- (the sync names the cat only once it is at the bowl), "letgo" when a bowl with a cat emptied and no cat joined.

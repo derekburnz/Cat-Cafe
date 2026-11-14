@@ -107,7 +107,7 @@ return function()
 					"Quick update in 30 seconds, then a 1-hour party and a gift! Your cafe is saved."
 				)
 				for _, now in
-					{ at - 3601, at + 1801, at - 86400, friday + 1801, friday + 2 * 86400 }
+					{ at - 3601, at + 1801, at - 86400, friday + 1801, friday + 3 * 86400 }
 				do
 					expect(RestartNotice.text(600, now)).to.equal(RestartNotice.text(600))
 					expect(RestartNotice.text(0, now)).to.equal(RestartNotice.text(0))
@@ -154,6 +154,32 @@ return function()
 				)
 				expect(RestartNotice.text(0, devices)).to.equal(
 					"Updating now. Join again for better controls and ADMIN EVENTS! Your cafe is saved."
+				)
+				-- Derek 2026-11-14 17:59 UTC: Rift Run tonight and the Golden Fish Store on Sunday afternoon
+				local rift, fish = RestartNotice.ADMIN_LAUNCHES[5], RestartNotice.ADMIN_LAUNCHES[6]
+				expect(os.date("!%Y-%m-%d %H:%M", rift)).to.equal("2026-11-15 01:00")
+				expect(os.date("!%Y-%m-%d %H:%M", fish)).to.equal("2026-11-15 22:00")
+				-- Rift Run's other possible time, Saturday 10:30 PM ET
+				local late = RestartNotice.ADMIN_LAUNCHES[7]
+				expect(os.date("!%Y-%m-%d %H:%M", late)).to.equal("2026-11-15 03:30")
+				expect(RestartNotice.text(0, late)).to.equal(
+					"Updating now. Join again for RIFT RUN and ADMIN EVENTS! Your cafe is saved."
+				)
+				expect(RestartNotice.text(600, rift - 600)).to.equal(
+					"A quick update is coming in 10 minutes, then RIFT RUN and ADMIN EVENTS! Keep playing, your cafe is saved."
+				)
+				expect(RestartNotice.text(0, rift)).to.equal(
+					"Updating now. Join again for RIFT RUN and ADMIN EVENTS! Your cafe is saved."
+				)
+				expect(RestartNotice.text(600, fish - 600)).to.equal(
+					"A quick update is coming in 10 minutes, then the GOLDEN FISH STORE and ADMIN EVENTS! Keep playing, your cafe is saved."
+				)
+				expect(RestartNotice.text(0, fish)).to.equal(
+					"Updating now. Join again for the GOLDEN FISH STORE and ADMIN EVENTS! Your cafe is saved."
+				)
+				-- tonight's 22:00 warning still says its own words, not Rift Run's
+				expect(RestartNotice.text(0, saturday)).to.equal(
+					"Updating now. Join again for ADMIN EVENTS: 2x money, Golden Hour and cat showers! Your cafe is saved."
 				)
 				for _, now in
 					{

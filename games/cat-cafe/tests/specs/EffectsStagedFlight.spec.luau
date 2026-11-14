@@ -76,6 +76,25 @@ return function()
 			expect(Avatar.stagedSeconds("land", c.ends - c.touch + c.blendOut)).to.equal(nil)
 		end)
 
+		it(
+			"only a landing ends the pose, so a stager that leaves the landing out clears the beat",
+			function()
+				-- #4019: the short intro has no flight shot. The hop and the ball hold for as long as they are named
+				-- (a minute later the copy is still curled up); only "land" runs out on its own.
+				local c = Presets.cannonPose
+				expect(Avatar.stagedSeconds("hop", 60)).to.equal(c.hop)
+				expect(Avatar.stagedSeconds("ball", 60)).to.equal(c.hop)
+				expect(Avatar.stagedSeconds("land", 60)).to.equal(nil)
+				-- and the intro's catch stands on the root's own facing again
+				local Intro = require(
+					game:GetService("ReplicatedStorage")
+						:WaitForChild("Shared")
+						:WaitForChild("Intro")
+				) :: any
+				expect(Intro.FACE_FLIP).to.equal(false)
+			end
+		)
+
 		it("shows nothing for a beat it does not know", function()
 			expect(Avatar.stagedSeconds("glide", 0)).to.equal(nil)
 			expect(Avatar.stagedSeconds("", 0)).to.equal(nil)

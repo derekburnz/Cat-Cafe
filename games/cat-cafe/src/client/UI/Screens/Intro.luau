@@ -33,6 +33,7 @@
 
 local ContextActionService = game:GetService("ContextActionService")
 local GuiService = game:GetService("GuiService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
@@ -1020,7 +1021,19 @@ function Intro._newsShow(self: any, index: number)
 	end
 	self._newsTitle.Text = entry.title
 	self._newsLine.Text = entry.line
-	self._newsWhen.Text = LoadingNews.whenText(entry.at, Workspace:GetServerTimeNow())
+	local live = LoadingNews.live(entry, function(key: string): boolean
+		local shared = ReplicatedStorage:FindFirstChild("Shared")
+		local module = if shared then shared:FindFirstChild("LiveFlags") else nil
+		if module == nil or not module:IsA("ModuleScript") then
+			return false
+		end
+		local LiveFlags = require(module) :: any
+		return LiveFlags.shown(
+			key,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+		)
+	end)
+	self._newsWhen.Text = LoadingNews.whenText(entry.at, Workspace:GetServerTimeNow(), live)
 	for at, dot: Frame in self._newsDots do
 		local on = at == index
 		dot.BackgroundColor3 = if on then WAIT_BADGE else Color3.fromHex("E8C9D3")

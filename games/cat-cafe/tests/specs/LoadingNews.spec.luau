@@ -13,6 +13,27 @@ return function()
 			expect(LoadingNews.whenText(1794704400, 1794700000)).to.equal("Saturday 8 PM ET")
 			expect(LoadingNews.whenText(1794772800, 1794772800)).to.equal("Out now!")
 			expect(LoadingNews.whenText(nil, 0)).to.equal("Out now!")
+			-- past its time with a switch still off: never "Out now!" (Review-QA on #4321)
+			expect(LoadingNews.whenText(1794772800, 1794800000, false)).to.equal("Coming soon!")
+			expect(LoadingNews.whenText(1794772800, 1794800000, true)).to.equal("Out now!")
+			expect(LoadingNews.whenText(1794772800, 1794700000, false)).to.equal("Sunday 3 PM ET")
+		end)
+		it("is live only with every switch on", function()
+			local entry = { flags = { "a", "b" } }
+			expect(LoadingNews.live(entry, function(key)
+				return key == "a"
+			end)).to.equal(false)
+			expect(LoadingNews.live(entry, function()
+				return true
+			end)).to.equal(true)
+			expect(LoadingNews.live({}, function()
+				return false
+			end)).to.equal(true)
+			for _, news in LoadingNews.ENTRIES do
+				if news.at ~= nil then
+					expect(news.flags ~= nil and #news.flags > 0).to.equal(true)
+				end
+			end
 		end)
 	end)
 

@@ -2,7 +2,9 @@
 -- #4314 (Derek 2026-11-14: "can feature some of the new updates on the loading screen also"): the WHAT'S NEW card on
 -- the cute loading screen (Screens/Intro) turns through these, one every LoadingNews.SECONDS. Each has a title, one
 -- line, a picture (up to three tiles with an emoji and a word each, or `secret`: dark cat shapes only, never a Secret
--- cat's look, the dark-shape rule) and `at`, the server time it opens (nil: out already). whenText says when.
+-- cat's look, the dark-shape rule), `at`, the server time it opens (nil: out already), and `flags`, the live switches
+-- it sits behind. whenText says when: "Out now!" only once its time has passed and its switches are on (Review-QA on
+-- #4321: a release can slip), "Coming soon!" while past its time with a switch still off.
 -- Pure, so the cloud spec runner checks it. Edit the list with each update.
 
 local LoadingNews = {}
@@ -13,6 +15,7 @@ export type Entry = {
 	title: string,
 	line: string,
 	at: number?, -- os.time() it opens; nil: out now
+	flags: { string }?, -- LiveFlags keys that must all be on for "Out now!"
 	back: string, -- the picture's backing colour (hex)
 	tiles: { Tile }?,
 	secret: boolean?,
@@ -27,6 +30,7 @@ LoadingNews.ENTRIES = {
 		title = "3 New Worlds",
 		line = "Snowy, Water Park and Castle",
 		at = 1794772800, -- Sunday 2026-11-15 20:00 UTC
+		flags = { "tier8", "tier9" },
 		back = "BFE6FF",
 		tiles = {
 			{ emoji = "❄️", word = "Snowy", color = "EAF6FF" },
@@ -39,6 +43,7 @@ LoadingNews.ENTRIES = {
 		title = "Rift Run",
 		line = "Roll a Mythic or Secret trait and the rift opens!",
 		at = 1794704400, -- Sunday 2026-11-15 01:00 UTC
+		flags = { "riftRun" },
 		back = "3B2E63",
 		tiles = { { emoji = "🌀", word = "Rift Run", color = "8E6BE8" } },
 	},
@@ -58,6 +63,7 @@ LoadingNews.ENTRIES = {
 		title = "10 Secret Cats",
 		line = "Hidden in every area. Can you find them?",
 		at = 1794799800, -- Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET)
+		flags = { "secretAreas" },
 		back = "3A2F4A",
 		secret = true,
 	},
@@ -65,10 +71,11 @@ LoadingNews.ENTRIES = {
 
 local DAYS = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" }
 
--- "Out now!" once open (or with no time), else "Sunday 3 PM ET" or "Sunday 10:30 PM ET"
-function LoadingNews.whenText(at: number?, now: number): string
+-- "Out now!" once open (or with no time) and live, "Coming soon!" when open but not live yet, else "Sunday 3 PM ET"
+-- or "Sunday 10:30 PM ET". `live` false: one of the entry's switches is still off.
+function LoadingNews.whenText(at: number?, now: number, live: boolean?): string
 	if at == nil or now >= at then
-		return "Out now!"
+		return if live == false then "Coming soon!" else "Out now!"
 	end
 	local t = os.date("!*t", at + LoadingNews.ET_OFFSET) :: any
 	local hour: number = t.hour
@@ -78,6 +85,16 @@ function LoadingNews.whenText(at: number?, now: number): string
 	local wday: number = t.wday
 	local clock = if minute == 0 then tostring(twelve) else ("%d:%02d"):format(twelve, minute)
 	return ("%s %s %s ET"):format(DAYS[wday], clock, half)
+end
+
+-- true when every switch of `entry` is on; `shown(key)` says whether one is (LiveFlags.shown on its attribute)
+function LoadingNews.live(entry: Entry, shown: (key: string) -> boolean): boolean
+	for _, key in entry.flags or {} do
+		if not shown(key) then
+			return false
+		end
+	end
+	return true
 end
 
 -- the entry shown `seconds` after the screen came up, and its index

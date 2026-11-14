@@ -1213,3 +1213,17 @@ Effects/PoolBeacon, Presets.poolBeacon. A quiet way to notice the pool at its sp
 |---|---|
 | A soft PointLight just over the liquid, in the liquid's own colour, breathing slowly (one breath every 4 s, down by about a third), and 2 slow sparkles a second drifting up off the pool in a lighter tint of that colour. Full within 30 studs, fading to nothing at 60 and off past it | the station tagged `shared/Traits.TAG`, its `_Liquid_Glow` model for the middle and colour |
 | One light and about 4 particles on screen. Reduce Motion: the light holds still, no sparkles. Low performance: the light only. Never paused for a roll | checked 5 times a second |
+
+## Snowy Mountain (#4069, 2026-11-14)
+Derek 2026-11-13: "make the rarer ones more special". First pass, all client side and data driven, so it starts when the area's box and cats are wired.
+
+| Effect | What | Budget |
+|---|---|---|
+| Snowfall | Soft flakes drifting down round you in the area (`snowfall`, Rate 14, from 6 studs up) | Off in Low performance, a fifth with Reduce Motion |
+| Stray puff | A white puff where a Snowy stray appears or leaves | As the Desert and Ruins (`areaPuffs`) |
+| Snow under your feet | 3 small white puffs for every 3 studs walked on the ground | None in Low performance or with Reduce Motion |
+| Ice Cat (Epic) | A glint off its ice spikes | One signature cat's rate, split over 2 prop parts |
+| White Tiger Cat (Legendary) | Frosty breath off the head, a glint on the coat, glowing ice-blue eyes | 2 emitters, each Rate 2 or less |
+| Blizzard Cat (Mythical) | Falling flakes, 5 motes circling it (3 on a phone) every 3.2 s leaving flakes, a frost trail while it walks, glowing eyes, a ring and puff where it lands as a stray | 3 emitters plus the swirl sharing Rate 2; the swirl holds still with Reduce Motion |
+
+Still to do in #4069: night aurora and camp glow, Cocoa Stand steam, rescue spot motion, the Observatory, catch and reveal moments by rarity, sounds.

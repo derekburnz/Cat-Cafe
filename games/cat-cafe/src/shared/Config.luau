@@ -1374,6 +1374,16 @@ local Config = {
 			traitTokens = 10,
 		},
 		{ id = "2026-11-13-fish", from = 1794584100, to = 1794587400, fish = 100, spins = 0 },
+		-- Growth's weekend plan (Derek yes 2026-11-13 23:49 UTC): 10 free trait rerolls for everyone who plays on
+		-- Sunday 2026-11-15 from the Rift Run update, 3 minutes after its 20:00 UTC restart, to midnight Toronto time
+		{
+			id = "2026-11-15-tokens",
+			from = 1794772980,
+			to = 1794805200,
+			fish = 0,
+			spins = 0,
+			traitTokens = 10,
+		},
 	} :: {
 		{
 			id: string,

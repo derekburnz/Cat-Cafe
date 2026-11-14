@@ -253,12 +253,6 @@ function Store.new(callbacks: Callbacks): Store
 		StoreLogic.REWORK_FLAG,
 		game:GetService("ReplicatedStorage"):GetAttribute(reworkAttribute)
 	)
-	-- #4175: the same for the update's own item on Featured
-	self._updateFeature = LiveFlags.shown(
-		StoreLogic.UPDATE_FLAG,
-		game:GetService("ReplicatedStorage")
-			:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StoreLogic.UPDATE_FLAG)
-	)
 	self._wideMin = math.max(
 		CARD_PAD + WIDE_NAME_H + 2 + WIDE_EFFECT_MIN + 6 + self._actionHeight + CARD_PAD,
 		WIDE_TILE + 2 * CARD_PAD
@@ -1690,8 +1684,13 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 	end
 	-- Featured
 	-- #4175: on a big update day the update's own item leads, with its plain "New today" line
-	local feature =
-		StoreLogic.updateFeature(rows, prices, Config, os.time(), self._updateFeature == true)
+	-- (the switch is read at each render: it only reorders Featured's cards, so a flip changes no layout)
+	local featureOn = LiveFlags.shown(
+		StoreLogic.UPDATE_FLAG,
+		game:GetService("ReplicatedStorage")
+			:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StoreLogic.UPDATE_FLAG)
+	)
+	local feature = StoreLogic.updateFeature(rows, prices, Config, os.time(), featureOn)
 	local function lineOf(row: StoreLogic.Row?): string?
 		return if feature ~= nil
 				and row ~= nil

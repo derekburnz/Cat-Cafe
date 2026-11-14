@@ -147,6 +147,7 @@ local AREA_INCOME: { [string]: number } = {
 	ruins = 729, -- Tier 7
 	snowy = 2187, -- #3997 (tier8-snowy-mountain.md section 1): Tier 8
 	waterpark = 6561, -- #4070 (the next-areas plan.md section 0): Tier 9
+	castle = 19683, -- #4184 (the next-areas plan.md section 0): Tier 10
 }
 
 local function cat(
@@ -1113,6 +1114,107 @@ Catalog.cats = {
 		{ 120, 205, 240 },
 		"Made of clear flowing water, with bubbles inside."
 	),
+	-- #4184 (the next-areas plan.md section 3e, Derek approved 2026-11-13): the Medieval Castle's ten
+	cat(
+		"elf",
+		"Elf Cat",
+		"Common",
+		"castle",
+		"barista",
+		"solid",
+		{ 225, 205, 165 },
+		"A pointed green hood with a gold bell and a leaf cloak."
+	),
+	cat(
+		"squire",
+		"Squire",
+		"Common",
+		"castle",
+		"waiter",
+		"patches",
+		{ 200, 165, 120 },
+		"Tan with a dark saddle mark, and always ready to help."
+	),
+	cat(
+		"dwarf",
+		"Dwarf Cat",
+		"Common",
+		"castle",
+		"greeter",
+		"solid",
+		{ 190, 105, 55 },
+		"Stocky, with a braided ginger beard and a little iron cap."
+	),
+	cat(
+		"crumpet",
+		"Crumpet",
+		"Common",
+		"castle",
+		"entertainer",
+		"solid",
+		{ 225, 175, 90 },
+		"Golden like fresh bread from the castle kitchen."
+	),
+	cat(
+		"jester",
+		"Jester Cat",
+		"Rare",
+		"castle",
+		"entertainer",
+		"patches",
+		{ 200, 45, 50 },
+		"A split red and gold coat and a hat full of bells."
+	),
+	cat(
+		"rogue",
+		"Rogue Cat",
+		"Rare",
+		"castle",
+		"greeter",
+		"points",
+		{ 45, 55, 90 },
+		"A dark hood, a mask over the eyes and very quiet paws."
+	),
+	cat(
+		"knight",
+		"Knight Cat",
+		"Epic",
+		"castle",
+		"waiter",
+		"points",
+		{ 190, 195, 205 },
+		"A plumed silver helm and a round shield on its back."
+	),
+	cat(
+		"mage",
+		"Mage Cat",
+		"Epic",
+		"castle",
+		"barista",
+		"gradient",
+		{ 70, 90, 190 },
+		"A starry hat, a spell book and a glowing star on its tail."
+	),
+	cat(
+		"queen",
+		"Queen Cat",
+		"Legendary",
+		"castle",
+		"greeter",
+		"patches",
+		{ 250, 240, 220 },
+		"Long white and gold fur, a jewelled crown and a red cape."
+	),
+	cat(
+		"dragon_knight",
+		"Dragon Knight",
+		"Mythical",
+		"castle",
+		"waiter",
+		"solid",
+		{ 75, 80, 95 },
+		"Dragon-scale armour, wings, horns and an ember at the tip of its tail."
+	),
 	-- 3d. The spare pool (v0.13, Derek 2026-10-27 23:59): the ten cats the area-themed ones replaced
 	spare(
 		cat(
@@ -1440,6 +1542,9 @@ Catalog.spots = {
 	-- #4070 (Design's tier9-10-cafe-spots.md): the same rule at Tier 9, the pass's Tier 8 pair opens for everyone
 	{ id = "barista_5", spotType = "barista", tier = 9 },
 	{ id = "greeter_4", spotType = "greeter", tier = 9 },
+	-- #4184: and at Tier 10 the pass's Tier 9 pair
+	{ id = "waiter_7", spotType = "waiter", tier = 10 },
+	{ id = "entertainer_4", spotType = "entertainer", tier = 10 },
 } :: { Types.SpotDef }
 
 -- #1624 (economy-ladder.md section 6, section 6a): two role slots only extra slots reach, for a top-tier cafe with
@@ -1447,10 +1552,11 @@ Catalog.spots = {
 -- Kept apart from the tier slots so the Staff list shows them only once the client knows about extra slots. Since
 -- #2651 they are Model-Agent's two newest stations; waiter_4 and waiter_5 became Tier 6's.
 Catalog.passSpots = {
-	-- #4070: was barista_5 and greeter_4 (Tier 9's now), entertainer_3 and waiter_6 before #3997 (Tier 8's), and
-	-- waiter_4 and waiter_5 before #2651
-	{ id = "waiter_7", spotType = "waiter", tier = 10, passOnly = true },
-	{ id = "entertainer_4", spotType = "entertainer", tier = 10, passOnly = true },
+	-- #4184: two of Model-Agent's wall perches (#4117; Derek picked wall perches, 2026-11-14). Was waiter_7 and
+	-- entertainer_4 (Tier 10's now), barista_5 and greeter_4 before #4070 (Tier 9's), entertainer_3 and waiter_6 before
+	-- #3997 (Tier 8's), and waiter_4 and waiter_5 before #2651
+	{ id = "greeter_5", spotType = "greeter", tier = 11, passOnly = true },
+	{ id = "entertainer_5", spotType = "entertainer", tier = 11, passOnly = true },
 } :: { Types.SpotDef }
 
 -- Every role slot in opening order: the tier slots, then the pass-only ones.
@@ -1497,6 +1603,13 @@ end
 -- tables, so neither adds furniture; the greeter's podium comes with the role stations.
 Catalog.spotFurniture = {
 	entertainer = "CatCafe_Furniture_CatTree",
+} :: { [string]: string }
+
+-- #4184: a slot with furniture of its own, whatever its role's: the wall perches (Model-Agent #4117), shelves on the
+-- cafe's walls where the floor has no room left. The pivot is on the wall's face and the cat sits on the shelf.
+Catalog.spotFurnitureById = {
+	greeter_5 = "CatCafe_Furniture_WallPerch_Greeter",
+	entertainer_5 = "CatCafe_Furniture_WallPerch_Entertainer",
 } :: { [string]: string }
 
 -- Section 5b
@@ -1615,6 +1728,20 @@ Catalog.tiers = {
 		area = "waterpark",
 		caps = { tables = 6, espresso = 9, net = 3, lure_bowl = 5, lucky_cat = 9 },
 	},
+	-- #4184 (the next-areas plan.md section 0 for the name and area; draft numbers on Tier 8's and 9's pattern until
+	-- Design's Pace run): the same step in cost again, nine more cats, one more Mythical, two more slots
+	{
+		tier = 10,
+		name = "Royal Cafe",
+		cost = 48000000000000,
+		distinctCats = 74,
+		needsRarity = "Mythical",
+		needsRarityCount = 6,
+		slots = 20,
+		multiplier = 3.25,
+		area = "castle",
+		caps = { tables = 6, espresso = 10, net = 3, lure_bowl = 5, lucky_cat = 10 },
+	},
 } :: { Types.TierDef }
 
 Catalog.maxTier = #Catalog.tiers
@@ -1650,11 +1777,11 @@ Catalog.upgrades = {
 		id = "espresso",
 		name = "Espresso machine",
 		description = "Better coffee, more money from every cat",
-		maxLevel = 9,
+		maxLevel = 10,
 		-- F95: level 4 four times, 5 (Tier 4) 7.5 times; #1896 (first-hour.md 4): level 4 700,000 (was 400,000), now Tier 2
 		-- #2651 (tier6-7-areas.md 7b): levels 6 and 7 at Tier 6 and 7, scaled with the tiers' Pace fit
 		-- #3997 (tier8-snowy-mountain.md section 1): level 8 at Tier 8, about 2.3% of its cost
-		-- #4070: level 9 at Tier 9, about 2.3% of its cost
+		-- #4070: level 9 at Tier 9, about 2.3% of its cost; #4184: level 10 at Tier 10, the same share
 		costs = {
 			0,
 			2000,
@@ -1665,6 +1792,7 @@ Catalog.upgrades = {
 			1300000000,
 			12000000000,
 			115000000000,
+			1100000000000,
 		}, -- #1896 re-fit with Catch v3: Espresso 4 700,000 before
 		startLevel = 1,
 	},
@@ -1693,12 +1821,12 @@ Catalog.upgrades = {
 		id = "lucky_cat", -- F88 (luck-and-rare-moments.md 1a): the statue by the front door, shared/Luck
 		name = "Lucky Cat",
 		description = "A beckoning cat by your front door. Each level adds +10% Luck: rarer bait cats and crate finds",
-		maxLevel = 9,
+		maxLevel = 10,
 		-- level n needs Tier n, but level 3 comes at Tier 2 (#1896 follow-up, a buy inside the Tier 3 save, fitted to
 		-- minute 32 at 300,000; 600,000 before); levels 4 and 5 at economy-ladder.md section 4's prices; #2651 (tier6-7-
 		-- areas.md 7b): 6 and 7 at Tier 6 and 7, scaled with the tiers' Pace fit
 		-- #3997: level 8 at Tier 8, about 2.7% of its cost
-		-- #4070: level 9 at Tier 9, about 2.7% of its cost
+		-- #4070: level 9 at Tier 9, about 2.7% of its cost; #4184: level 10 at Tier 10, the same share
 		costs = {
 			2000,
 			20000,
@@ -1709,6 +1837,7 @@ Catalog.upgrades = {
 			1700000000,
 			14000000000,
 			135000000000,
+			1300000000000,
 		},
 		startLevel = 0,
 	},
@@ -3373,6 +3502,18 @@ Catalog.areas = {
 		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 },
 		incomeMultiplier = AREA_INCOME.waterpark,
 	},
+	-- #4184: Model-Agent's CatCafe_Castle_Set (#4108: 192 cat spots and a pool of 15 rescue spots; five traps a day as
+	-- in every area)
+	{
+		id = "castle",
+		name = "Medieval Castle",
+		tier = 10,
+		spawnPoints = 192,
+		waveSize = 11,
+		rescueSpots = 5, -- a haystack, a barrel, a banner pole, a fallen awning and an armour stand's helm
+		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 },
+		incomeMultiplier = AREA_INCOME.castle,
+	},
 } :: { Types.AreaDef }
 
 Catalog.areasById = {} :: { [string]: Types.AreaDef }
@@ -3406,13 +3547,13 @@ Catalog.indexMilestones = {
 	{ id = "total45", track = "normal", needs = 45 },
 	{ id = "total50", track = "normal", needs = 50 },
 	-- #3992 (Derek: "add more index rewards for rainbow /gold up to 70"; Design-Agent's table on the issue): every All
-	-- Cats track runs to the whole book. The last step is `whole`, so it needs every cat the book counts (90 with Tier 9, #4070)
+	-- Cats track runs to the whole book. The last step is `whole`, so it needs every cat the book counts (100 with Tier 10, #4184)
 	-- and moves up when an area adds cats. `late`: nothing shows or pays until the `indexTo70` switch is on, which waits
 	-- for the restart, as an older server's save check drops a claim id it does not know (shared/IndexRewards).
 	{ id = "total55", track = "normal", needs = 55, late = true },
 	{ id = "total60", track = "normal", needs = 60, late = true },
 	{ id = "total65", track = "normal", needs = 65, late = true },
-	{ id = "totalAll", track = "normal", needs = 90, whole = true, late = true },
+	{ id = "totalAll", track = "normal", needs = 100, whole = true, late = true },
 	{ id = "decor5", track = "decor", needs = 5 },
 	-- every piece of the page: 12 since F80 (golden-fish.md 4b), and 16 on the Classic page since F97 (`whole`)
 	{ id = "decor10", track = "decor", needs = 12, whole = true },
@@ -3431,7 +3572,7 @@ Catalog.indexMilestones = {
 	{ id = "rainbow55", track = "rainbow", needs = 55, late = true },
 	{ id = "rainbow60", track = "rainbow", needs = 60, late = true },
 	{ id = "rainbow65", track = "rainbow", needs = 65, late = true },
-	{ id = "rainbowAll", track = "rainbow", needs = 90, whole = true, late = true },
+	{ id = "rainbowAll", track = "rainbow", needs = 100, whole = true, late = true },
 	-- #1772 (Derek2: "Gold cats X / 50" like the Rainbow cats): the gold track on the All Cats page, different gold
 	-- cats across every area (profile.goldCollection), next to total5 to total50
 	{ id = "goldtotal5", track = "gold", needs = 5 },
@@ -3448,7 +3589,7 @@ Catalog.indexMilestones = {
 	{ id = "goldtotal55", track = "gold", needs = 55, late = true },
 	{ id = "goldtotal60", track = "gold", needs = 60, late = true },
 	{ id = "goldtotal65", track = "gold", needs = 65, late = true },
-	{ id = "goldtotalAll", track = "gold", needs = 90, whole = true, late = true },
+	{ id = "goldtotalAll", track = "gold", needs = 100, whole = true, late = true },
 } :: { Types.IndexMilestone }
 
 -- What each milestone pays per page (golden-fish.md sections 4, 5 and 5b). Everything is free and only the server
@@ -3677,6 +3818,27 @@ Catalog.indexPrizes = {
 			tag = "Water Park Gold Master",
 		},
 	},
+	castle = { -- #4184: the Water Park's coins times 3 and its step in fish; no goldLuck (capped)
+		cats3 = { coins = 7290000, coinSeconds = 300, fish = 35 },
+		cats6 = { crates = { castle_crate = 1 }, lures = { star_treat = 2 }, bonus = 0.02 },
+		cats10 = {
+			crates = { castle_crate = 2, castle_golden_crate = 1 },
+			fish = 75,
+			bonus = 0.05,
+		},
+		gold1 = { fish = 35, crates = { castle_crate = 1 } },
+		gold2 = { coins = 24300000, coinSeconds = 450, fish = 45 },
+		gold4 = { crates = { castle_golden_crate = 1 }, fish = 65 },
+		gold6 = { coins = 48600000, coinSeconds = 900, fish = 80 },
+		gold8 = { crates = { castle_golden_crate = 1 }, fish = 100 },
+		gold10 = {
+			coins = 121500000,
+			coinSeconds = 1800,
+			crates = { castle_golden_crate = 2 },
+			fish = 195,
+			tag = "Medieval Castle Gold Master",
+		},
+	},
 	all = {
 		total5 = { fish = 5, spins = 1, baitSpeed = 0.02 },
 		total10 = { fish = 10, crates = { classic_crate = 1 }, baitSpeed = 0.02 },
@@ -3766,6 +3928,10 @@ Catalog.indexPrizes = {
 		decor10 = { bonus = Config.DecorIndexBonus },
 	},
 	decor_waterpark = { -- #4070
+		decor5 = { fish = Config.DecorIndexHalfFish },
+		decor10 = { bonus = Config.DecorIndexBonus },
+	},
+	decor_castle = { -- #4184
 		decor5 = { fish = Config.DecorIndexHalfFish },
 		decor10 = { bonus = Config.DecorIndexBonus },
 	},
@@ -3975,6 +4141,7 @@ local CRATE_POOLS: { { area: string, name: string, sold: boolean?, golden: boole
 	{ area = "ruins", name = "Ruins" },
 	{ area = "snowy", name = "Snowy" }, -- #3997 (tier8-snowy-mountain.md section 6)
 	{ area = "waterpark", name = "WaterPark" }, -- #4070 (CatCafe_Prop_Crate_WaterPark)
+	{ area = "castle", name = "Castle" }, -- #4184 (CatCafe_Prop_Crate_Castle)
 	{ area = "classic", name = "Classic" },
 	{ area = "rally", name = "Rally", sold = false, golden = false },
 }
@@ -4890,6 +5057,105 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			kind = "catflap",
 			rarity = "Rare",
 			description = "The flap at the end of a tiny water slide.",
+		},
+	},
+	-- #4184: the Castle Crate's twelve (Model-Agent's draft names; the models are its Castle Crate PR)
+	castle = {
+		{
+			id = "castle_keep_stone",
+			name = "Keep Stone",
+			kind = "wallpaper",
+			rarity = "Common",
+			color = Color3.fromRGB(150, 150, 158),
+			material = Enum.Material.Brick,
+			description = "Grey stone blocks, like the castle wall.",
+		},
+		{
+			id = "castle_royal_tapestry",
+			name = "Royal Tapestry",
+			kind = "wallpaper",
+			rarity = "Rare",
+			color = Color3.fromRGB(150, 45, 55),
+			material = Enum.Material.Fabric,
+			description = "Deep red cloth with a woven gold edge.",
+		},
+		{
+			id = "castle_hall_flagstones",
+			name = "Hall Flagstones",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(140, 136, 130),
+			material = Enum.Material.Slate,
+			description = "Worn stone flags from the great hall.",
+		},
+		{
+			id = "castle_dragon_scales",
+			name = "Dragon Scales",
+			kind = "floor",
+			rarity = "Mythical",
+			color = Color3.fromRGB(190, 60, 45),
+			material = Enum.Material.Cobblestone,
+			description = "Red scales that glow like embers.",
+		},
+		{
+			id = "castle_banner_red",
+			name = "Banner Red",
+			kind = "paint",
+			rarity = "Common",
+			color = Color3.fromRGB(175, 45, 50),
+			material = Enum.Material.SmoothPlastic,
+			description = "The red of the banners over the gate.",
+		},
+		{
+			id = "castle_royal_blue",
+			name = "Royal Blue",
+			kind = "paint",
+			rarity = "Rare",
+			color = Color3.fromRGB(55, 85, 175),
+			material = Enum.Material.SmoothPlastic,
+			description = "A deep blue fit for a queen.",
+		},
+		{
+			id = "castle_feast_bench",
+			name = "Feast Bench",
+			kind = "furniture",
+			rarity = "Common",
+			description = "A long oak bench from the feast table.",
+		},
+		{
+			id = "castle_round_table",
+			name = "Round Table",
+			kind = "furniture",
+			rarity = "Legendary",
+			description = "A knights' round table with a flickering candle.",
+		},
+		{
+			id = "castle_shield_rack",
+			name = "Shield Rack",
+			kind = "decoration",
+			rarity = "Rare",
+			description = "Four painted shields on a wooden rack.",
+		},
+		{
+			id = "castle_armour_stand",
+			name = "Armour Stand",
+			kind = "decoration",
+			rarity = "Epic",
+			description = "A shining suit of armour with a red plume.",
+		},
+		{
+			id = "castle_drawbridge_door",
+			name = "Drawbridge Door",
+			kind = "door",
+			rarity = "Common",
+			description = "Heavy planks with iron bands and chains.",
+		},
+		{
+			id = "castle_portcullis_flap",
+			name = "Portcullis Flap",
+			kind = "catflap",
+			rarity = "Rare",
+			description = "A little iron gate that lifts for a cat.",
 		},
 	},
 	classic = {

@@ -464,6 +464,7 @@ local Config = {
 		ruins = 20,
 		snowy = 20, -- #3997
 		waterpark = 20, -- #4070
+		castle = 20, -- #4184
 	} :: { [string]: number },
 	EventCountdownSeconds = 10800,
 	EventRepeatGiftIncomeMinutes = 10,
@@ -490,6 +491,7 @@ local Config = {
 		ruins = 40,
 		snowy = 45, -- #3997 (tier8-snowy-mountain.md section 7)
 		waterpark = 50, -- #4070: five more, as each area before it
+		castle = 55, -- #4184
 	} :: { [string]: number },
 	PityClaimRetries = 3,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
@@ -1589,6 +1591,14 @@ local Config = {
 		WaterParkCenterZ = -2400,
 		WaterParkWidth = 150,
 		WaterParkDepth = 560,
+		-- The Medieval Castle (Tier 10, the next-areas plan section 0; #4184): the Water Park's mirror on the north east
+		-- line, further out past the Ruins and reached from the Ruins' camp cannon (Layout.castle.launchFrom). Long
+		-- along world Z with its camp on the south end like the Ruins. Model-Agent's CatCafe_Castle_Set has its walls
+		-- at x +-76.1 and z +-280.
+		CastleCenterX = 2400,
+		CastleCenterZ = 2400,
+		CastleWidth = 150,
+		CastleDepth = 560,
 		-- Camps (section 4): CampDepth deep across the area's whole width; the landing pad in its middle with
 		-- seventeen spots inside LandingPadRadius, a spot free with no character within LandingClearStuds; the cannon
 		-- prompt's reach. A dropped cat within CampDropMarginStuds of a camp moves out to CampDropOutStuds past its

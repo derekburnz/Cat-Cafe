@@ -37,7 +37,7 @@ return function()
 					end
 				end
 			end
-			expect(mythicals).to.equal(11) -- one a crate, the Rally Crate's since F101, Desert and Ruins since #2651, Snowy #3997, Water Park #4070
+			expect(mythicals).to.equal(12) -- one a crate, the Rally Crate's since F101, Desert and Ruins since #2651, Snowy #3997, Water Park #4070, Castle #4184
 		end)
 
 		it(

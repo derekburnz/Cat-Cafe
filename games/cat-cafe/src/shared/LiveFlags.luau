@@ -168,6 +168,7 @@ LiveFlags.KEYS = {
 	"secretTrait", -- #3908: the Secret trait rarity (0.1%) in the Mystic Pool's rolls and odds (shared/Traits)
 	"tier8", -- #3997: Tier 8 and the Snowy Mountain (shared/LateTiers); on once the area is built, after a restart
 	"tier9", -- #4070: Tier 9 and the Water Park (shared/LateTiers); on once the area is built, after a restart, never before tier8
+	"tier10", -- #4184: Tier 10 and the Medieval Castle (shared/LateTiers); on once the area is built, after a restart, never before tier9
 	"rareCustomers", -- #3889: rare customers by a chance per arriving customer, at any table
 	"goldTone", -- #4133: gold cats are their base model toned gold (shared/GoldTone), not the _Gold models
 	"palJoin", -- #3995: a player who joins through a friend gets the cafe next door and no intro by itself (shared/PalJoin)
@@ -213,6 +214,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	secretTrait = true,
 	tier8 = true,
 	tier9 = true,
+	tier10 = true,
 	rareCustomers = true,
 	goldTone = true,
 	palJoin = true,

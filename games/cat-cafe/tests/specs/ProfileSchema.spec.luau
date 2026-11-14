@@ -910,12 +910,13 @@ return function()
 			end
 		)
 
-		it("clamps the tier to 1 to 9 and levels to each upgrade's range", function()
+		it("clamps the tier to 1 to 10 and levels to each upgrade's range", function()
 			for _, case in ipairs({
 				{ 0, 1 },
 				{ 8, 8 },
 				{ 9, 9 },
-				{ 10, 9 },
+				{ 10, 10 },
+				{ 11, 10 },
 				{ "2", 1 },
 				{ 2.5, 2 },
 			}) do

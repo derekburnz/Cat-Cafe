@@ -71,7 +71,8 @@ export type AreaSpec = {
 	set: string?,
 	setLift: number?,
 	-- #4070: the area whose camp cannon flies here, for an area too far out for the town cannon (the Water Park from
-	-- the Desert). The town cannon does not list it and the barrel's 35 degree rule leaves it out.
+	-- the Desert, #4184: the Medieval Castle from the Ruins). The town cannon does not list it and the barrel's 35
+	-- degree rule leaves it out.
 	launchFrom: string?,
 	-- F85 (hometown-cannon.md section 6b): the suffix on a long area's camp, gate, night fence and backdrop models
 	-- (`CatCafe_Camp_ParkF85`, `CatCafe_Park_GateF85`, ...), which Model-Agent made with new names beside the old
@@ -162,6 +163,12 @@ Layout.setStuckPoses = {
 	plush_pile = { 0, -0.2, -0.3, -1, 0, 0, 0, 0.5, 0.866, 0, 0.866, -0.5 }, -- the same dive into the prize plushies
 	river_ring = { 0, 0.2, 0, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- sitting in the swim ring, facing out (-Z)
 	balloons = { 0, 0.6, 0, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- holding on to the strings, just off the ground
+	-- Tier 10 (#4184), first fits on CatCafe_Castle_Set from castleset.py's trap notes, to refine in Studio:
+	haystack = { 0, -0.5, 0, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- sunk to its chin in the stack's hollow, its face out of it (-Z)
+	barrel = { 0, 0, 0, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- standing in the open barrel (the spot is 0.9 up), head and paws over the rim
+	banner_pole = { 0, 0, 0.2, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- on the stone foot (1.6 up), hugging the pole behind it (+Z)
+	awning = { 0, 0, 0.4, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- under the fallen cloth, peeking out of its open side (-Z)
+	helmet = { 0, 0, 0, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- sitting inside the great helm (2.2 up), looking out of the visor (-Z)
 } :: { [string]: { number } }
 
 local W = Config.World
@@ -328,6 +335,12 @@ Layout.plot = {
 		-- #4070: the pass's new pair at Tier 9 (tier8-spots.md): by the right wall, and the fourth cat tree's top cushion
 		waiter_7 = { x = 17.75, y = 0, z = -1.75 },
 		entertainer_4 = { x = 17.25, y = 4.47, z = -14.1 },
+		-- #4184: the pass's new pair at Tier 10, on two of Model-Agent's wall perches (tier9-10-spots.md; Derek picked
+		-- wall perches 2026-11-14). Each is the perch's Seat: 0.24 over its shelf top and 0.95 out from the wall's face.
+		-- Over the front door, facing into the room (the perch hangs 2.3 below its top, so it clears the 7.5 door at 10),
+		-- and on the left wall between decor spot 4 and bed_7, facing across the room.
+		greeter_5 = { x = 0, y = 10.24, z = -halfD + 0.95, rotY = 180 },
+		entertainer_5 = { x = -halfW + 0.95, y = 7.24, z = -5.6, rotY = -90 },
 	} :: { [string]: Point },
 
 	-- Station furniture under a slot, for the roles that have one (Catalog.spotFurniture)
@@ -336,6 +349,9 @@ Layout.plot = {
 		entertainer_2 = { x = 17.11, y = 0, z = 9.71 },
 		entertainer_3 = { x = -11.8, y = 0, z = 10.5 }, -- #2651: Tier 7
 		entertainer_4 = { x = 16.75, y = 0, z = -14.5, rotY = 180 }, -- #4070: the pass's at Tier 9
+		-- #4184: the wall perches (Catalog.spotFurnitureById), their pivots on the inner faces of the front and left walls
+		greeter_5 = { x = 0, y = 10, z = -halfD, rotY = 180 },
+		entertainer_5 = { x = -halfW, y = 7, z = -5.6, rotY = -90 },
 	} :: { [string]: Point },
 
 	decorAnchors = {
@@ -503,6 +519,10 @@ Layout.plot = {
 		-- a Studio look before the switch goes on. Spare if one clashes: 17.25, 0, 12.5, rotY 0)
 		{ id = "bed_13", x = 17.5, y = 0, z = -9.0, rotY = 90, tier = 9 }, -- right side, between table 2's outer chair and decor 3
 		{ id = "bed_14", x = -17.5, y = 0, z = -9.0, rotY = -90, tier = 9 }, -- its mirror, in front of bed_10
+		-- #4184: Tier 10's two (Model-Agent's fit with every spot and bed above; about 0.25 clear each, so a Studio
+		-- look before the switch goes on)
+		{ id = "bed_15", x = 17.25, y = 0, z = 12.5, rotY = 0, tier = 10 }, -- the back right corner, right of the cat tree
+		{ id = "bed_16", x = 17.5, y = 0, z = 6.75, rotY = 90, tier = 10 }, -- the right wall, between bed_4 and bed_6
 	} :: { BedSpot },
 }
 
@@ -2282,6 +2302,260 @@ Layout.waterpark = {
 	props = {},
 } :: AreaSpec
 
+-- The Medieval Castle (Tier 10, the next-areas plan Derek OK'd 2026-11-13; #4184): Model-Agent's CatCafe_Castle_Set
+-- (#4108; set space as the Ruins': the pivot at the centre on the floor, -Z toward the camp), long along world Z with
+-- its gate on the south side, toward the Ruins it is reached from (`launchFrom`: the Ruins camp's cannon flies there,
+-- not the town's). Its cat spots and traps are the set's manifest points_roblox (castleset.py), `near` on the camp
+-- half (the village lane and the tilt field) and `deep` past the gatehouse, with a pool of 15 traps built into it.
+local CSX, CSZ = W.CastleCenterX, W.CastleCenterZ
+local CSGATE = CSZ - W.CastleDepth / 2 -- its south side, toward the Ruins and the town
+local CSTURN = townTurn(CSX, CSZ, nil, CSGATE)
+Layout.castle = {
+	floorY = 0.1,
+	center = { x = CSX, y = 0, z = CSZ },
+	halfWidth = W.CastleWidth / 2,
+	halfDepth = W.CastleDepth / 2,
+	gateZ = CSGATE,
+	openingHalfWidth = W.CampOpeningWidth / 2,
+	set = "CatCafe_Castle_Set",
+	launchFrom = "ruins",
+	spawnPoints = (function(): { Point }
+		local points = setPoints(CSX, CSZ, CSTURN, 0.1, {
+			{ -14.6, 0, -253.5 }, -- house front
+			{ 14.6, 0, -236.5 },
+			{ -14.6, 0, -209.5 },
+			{ 14.6, 0, -192.5 },
+			{ -14.6, 0, -165.5 },
+			{ -23, 0, -245 }, -- house gap
+			{ 23, 0, -245 },
+			{ -23, 0, -223 },
+			{ 23, 0, -223 },
+			{ -23, 0, -201 },
+			{ 23, 0, -201 },
+			{ -23, 0, -179 },
+			{ 23, 0, -179 },
+			{ 14.6, 0, -253.5 }, -- stall front
+			{ -14.6, 0, -236.5 },
+			{ 14.6, 0, -209.5 },
+			{ -14.6, 0, -192.5 },
+			{ 14.6, 0, -165.5 },
+			{ 5.2, 0, -198 }, -- well
+			{ -5.2, 0, -198 },
+			{ -0, 0, -207 },
+			{ -51, 0, -258 }, -- lane yard
+			{ -51, 0, -218 },
+			{ -51, 0, -174 },
+			{ 51, 0, -258 },
+			{ 51, 0, -218 },
+			{ 51, 0, -174 },
+			{ -57.5, 0, -246 }, -- haystack
+			{ -57.5, 0, -202 },
+			{ 57.5, 0, -246 },
+			{ 57.5, 0, -202 },
+			{ -46.5, 0, -166 }, -- hay cart
+			{ 46.5, 0, -166 },
+			{ -45.2, 0, -234 }, -- bench
+			{ 45.2, 0, -234 },
+			{ -41.5, 0, -248 }, -- alley
+			{ -41.5, 0, -206 },
+			{ -41.5, 0, -176 },
+			{ 41.5, 0, -248 },
+			{ 41.5, 0, -206 },
+			{ 41.5, 0, -176 },
+			{ -21, 0, -265 }, -- lane end
+			{ -21, 0, -158.5 },
+			{ 21, 0, -265 },
+			{ 21, 0, -158.5 },
+			{ -57, 0, -96 }, -- stand
+			{ -57, 0, -82 },
+			{ -57, 0, -68 },
+			{ 57, 0, -96 },
+			{ 57, 0, -82 },
+			{ 57, 0, -68 },
+			{ -64, 0, -105.5 }, -- stand end
+			{ -64, 0, -58.5 },
+			{ 64, 0, -105.5 },
+			{ 64, 0, -58.5 },
+			{ -37.17, 0, -130.79 }, -- pavilion
+			{ -54.83, 0, -137.21 },
+			{ 54.83, 0, -28.79 },
+			{ 37.17, 0, -35.21 },
+			{ 38, 0, -109 }, -- butt
+			{ 38, 0, -87 },
+			{ 38, 0, -65 },
+			{ -43, 0, -60 }, -- weapon rack
+			{ 20, 0, -127 },
+			{ -14, 0, -135 },
+			{ -40, 0, -100 }, -- field
+			{ -12, 0, -90 },
+			{ -38, 0, -76 },
+			{ -14, 0, -58 },
+			{ 16, 0, -80 },
+			{ 14, 0, -104 },
+			{ 48, 0, -60 },
+			{ 50, 0, -100 },
+			{ -50, 0, -84 },
+			{ 24, 0, -30 },
+			{ -30, 0, -40 },
+			{ 36, 0, -128 },
+			{ -20, 0, -114 },
+			{ -52, 0, -24 },
+			{ -26, 0, -19.5 }, -- gate front
+			{ -13, 0, -20 },
+			{ 26, 0, -19.5 },
+			{ 13, 0, -20 },
+			{ 50.5, 0, -20.5 }, -- postern (moved 6 off the set's point: 9.5 clear of the banner pole trap)
+		}, "near")
+		for _, point in
+			setPoints(CSX, CSZ, CSTURN, 0.1, {
+				{ -57.4, 0, 77 }, -- haystack
+				{ 57.4, 0, 151 },
+				{ -39.4, 0, 163 },
+				{ 43.4, 0, 105 },
+				{ -50, 0, 26 }, -- hay cart
+				{ -30.7, 0, 110 }, -- bench
+				{ 30.7, 0, 132 },
+				{ -12, 0, 79.8 },
+				{ 12, 0, 162.2 },
+				{ 46, 0, 126 }, -- butt
+				{ 10.5, 0, 46 }, -- weapon rack
+				{ -44.5, 0, 116 },
+				{ -23.5, 0, 21 }, -- gatehouse
+				{ 23.5, 0, 21 },
+				{ -58, 0, 19 }, -- tower foot
+				{ 58, 0, 19 },
+				{ -34, 0, 16.5 },
+				{ 30, 0, 16.5 },
+				{ 43.5, 0, 16 }, -- postern
+				{ -39.3, 0, 30.5 }, -- stables
+				{ -34, 0, 30.5 },
+				{ -28.7, 0, 30.5 },
+				{ -45, 0, 40 },
+				{ 24.2, 0, 29 }, -- ward stores
+				{ 63, 0, 21.8 },
+				{ -18.2, 0, 45 },
+				{ 33.14, 0, 55.03 },
+				{ -18, 0, 28 }, -- outer ward
+				{ -60, 0, 66 },
+				{ 38, 0, 44 },
+				{ 62, 0, 40 },
+				{ -46, 0, 60 },
+				{ 16, 0, 64 },
+				{ -16, 0, 62 },
+				{ 40, 0, 24 },
+				{ 6.65, 0, 126.65 }, -- oak
+				{ -6.65, 0, 126.65 },
+				{ -6.65, 0, 113.35 },
+				{ 6.65, 0, 113.35 },
+				{ -19.7, 0, 97.06 }, -- dummy
+				{ -18.84, 0, 134.81 },
+				{ 19.7, 0, 93.06 },
+				{ 17.16, 0, 149.19 },
+				{ -55.4, 0, 82 },
+				{ 57.4, 0, 96 },
+				{ 59.4, 0, 136 },
+				{ -53.8, 0, 151 }, -- yard stores
+				{ 57.8, 0, 83 },
+				{ -25, 0, 71.8 },
+				{ 25, 0, 168.2 },
+				{ -14, 0, 120 }, -- courtyard
+				{ 14, 0, 118 },
+				{ -48, 0, 96 },
+				{ -62, 0, 118 },
+				{ -46, 0, 142 },
+				{ 46, 0, 150 },
+				{ 62, 0, 122 },
+				{ 44, 0, 90 },
+				{ -20, 0, 158 },
+				{ 22, 0, 80 },
+				{ -64, 0, 164 },
+				{ 60, 0, 166 },
+				{ -9.6, 0, 194.5 }, -- column
+				{ 9.6, 0, 189.5 },
+				{ -9.6, 0, 214.5 },
+				{ 9.6, 0, 209.5 },
+				{ -9.6, 0, 234.5 },
+				{ 9.6, 0, 229.5 },
+				{ -9.6, 0, 249.5 },
+				{ 9.6, 0, 249.5 },
+				{ -19, 0, 206 }, -- table
+				{ -19, 0, 218 },
+				{ -19, 0, 230 },
+				{ 19, 0, 206 },
+				{ 19, 0, 218 },
+				{ 19, 0, 230 },
+				{ -25, 0, 197.5 }, -- table end
+				{ -25, 0, 238.5 },
+				{ 25, 0, 197.5 },
+				{ 25, 0, 238.5 },
+				{ -15, 0, 262 }, -- throne
+				{ -6, 0, 255.5 },
+				{ 15, 0, 262 },
+				{ 6, 0, 255.5 },
+				{ -47, 0, 193 }, -- armour
+				{ -47.5, 0, 241 }, -- moved off the set's point, clear of the helmet trap
+				{ -47, 0, 267 },
+				{ 47, 0, 186.5 }, -- moved, clear of the banner pole trap
+				{ 48.5, 0, 239.5 }, -- moved, clear of the helmet trap
+				{ 47, 0, 267 },
+				{ -40, 0, 214 }, -- hall
+				{ -38, 0, 236 },
+				{ -30, 0, 268 },
+				{ -36, 0, 188 },
+				{ 40, 0, 214 },
+				{ 38, 0, 236 },
+				{ 30, 0, 268 },
+				{ 36, 0, 188 },
+				{ -14, 0, 185 }, -- hall door
+				{ 14, 0, 185 },
+				{ -49, 0, 233.5 }, -- side door
+				{ 49, 0, 233.5 },
+				{ -62, 0, 240 }, -- keep strip
+				{ -62, 0, 258 },
+				{ -68, 0, 208 },
+				{ 62, 0, 240 },
+				{ 62, 0, 258 },
+				{ 68, 0, 208 },
+			}, "deep")
+		do
+			table.insert(points, point)
+		end
+		return points
+	end)(),
+	-- a hollow haystack, an open barrel, a banner pole, a fallen stall awning and an armour stand's great helm, four of
+	-- them deep and none within 100 studs of the camp (castleset.py MAIN_TRAPS)
+	rescueSpots = {
+		setTrap(CSX, CSZ, CSTURN, "haystack", { -46, 0, -30 }),
+		setTrap(CSX, CSZ, CSTURN, "barrel", { 61, 0.9, 52 }),
+		setTrap(CSX, CSZ, CSTURN, "banner_pole", { -54, 1.6, 130 }),
+		setTrap(CSX, CSZ, CSTURN, "awning", { 22, 0, 120 }, 200),
+		setTrap(CSX, CSZ, CSTURN, "helmet", { 44, 2.2, 248 }, 150),
+	},
+	-- the spots the day's traps are picked from (RescuePick, #2240): today's five first, then the set's other ten
+	rescuePool = {
+		setTrap(CSX, CSZ, CSTURN, "haystack", { -46, 0, -30 }),
+		setTrap(CSX, CSZ, CSTURN, "barrel", { 61, 0.9, 52 }),
+		setTrap(CSX, CSZ, CSTURN, "banner_pole", { -54, 1.6, 130 }),
+		setTrap(CSX, CSZ, CSTURN, "awning", { 22, 0, 120 }, 200),
+		setTrap(CSX, CSZ, CSTURN, "helmet", { 44, 2.2, 248 }, 150),
+		setTrap(CSX, CSZ, CSTURN, "haystack", { 40, 0, -138 }),
+		setTrap(CSX, CSZ, CSTURN, "haystack", { -58, 0, 100 }),
+		setTrap(CSX, CSZ, CSTURN, "barrel", { -61, 0.9, -150 }),
+		setTrap(CSX, CSZ, CSTURN, "barrel", { -43, 0.9, 200 }),
+		setTrap(CSX, CSZ, CSTURN, "banner_pole", { 60, 1.6, -20 }),
+		setTrap(CSX, CSZ, CSTURN, "banner_pole", { 44, 1.6, 196 }),
+		setTrap(CSX, CSZ, CSTURN, "awning", { 22, 0, -44 }, 30),
+		setTrap(CSX, CSZ, CSTURN, "awning", { -60, 0, 54 }, -40),
+		setTrap(CSX, CSZ, CSTURN, "helmet", { -44, 2.2, 250 }, 210),
+		setTrap(CSX, CSZ, CSTURN, "helmet", { 60, 2.2, 110 }, 90),
+	},
+	-- a first fit by the nook rules above (Model-Agent's search on the set's parts: the nook and a 3 wide lane 9 out
+	-- of its front clear, 16 from the nearest cat spot and 33 from the nearest pool trap), on the keep's west strip;
+	-- to be checked in Studio
+	nook = setNook(CSX, CSZ, CSTURN, "Castle", { -66.54, 0, 224 }, -90, "haystack", 0.4, 0),
+	props = {},
+} :: AreaSpec
+
 -- The Town Square (F76, town-layout-v3.md section 3): paved, in the middle of the street and the safe zone, with the
 -- Cat Cannon at the origin since v4 (F84, where the fountain stood) and a cross of open paving through it (the
 -- street's line north to south and a lane east to west to the side arches). The four stations stand in its quarters,
@@ -2553,6 +2827,7 @@ Layout.areas = {
 	ruins = Layout.ruins, -- Tier 7
 	snowy = Layout.snowy, -- #3997: Tier 8
 	waterpark = Layout.waterpark, -- #4070: Tier 9
+	castle = Layout.castle, -- #4184: Tier 10
 } :: { [string]: AreaSpec }
 
 -- Camps (v4, F84, hometown-cannon.md section 4): every wild area's camp lies across its whole width in front of its

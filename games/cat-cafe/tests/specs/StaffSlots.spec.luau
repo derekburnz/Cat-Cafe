@@ -159,23 +159,23 @@ return function()
 		it("hides the pass-only slots until extra slots open them (#1624)", function()
 			local roles = byRole(StaffSlots.rows(allSpots(), Catalog.maxTier, {}))
 			local hidden = 0
-			-- #4070: the pass-only pair is a waiter and an entertainer again (waiter_7, entertainer_4) since Tier 9 took
-			-- the barista and greeter that #3997 gave it
-			for _, role in { "waiter", "entertainer" } do
+			-- #4184: the pass-only pair is a greeter and an entertainer on wall perches (greeter_5, entertainer_5) since
+			-- Tier 10 took the waiter and entertainer that #4070 gave it
+			for _, role in { "greeter", "entertainer" } do
 				for _, slot in roles[role].slots do
 					if slot.hidden then
 						hidden += 1
 						expect(slot.kind).to.equal("locked")
 					end
 				end
-				-- never "opens at Tier 10": the hidden slots stay out of the summary
-				expect(roles[role].summary:find("Tier 10")).to.equal(nil)
+				-- never "opens at Tier 11": the hidden slots stay out of the summary
+				expect(roles[role].summary:find("Tier 11")).to.equal(nil)
 				expect(roles[role].locked).to.equal(0)
 			end
 			expect(hidden).to.equal(2)
 			-- two extra slots at the top tier open both pass-only slots
 			local extra = byRole(StaffSlots.rows(allSpots(), Catalog.maxTier, {}, 2))
-			for _, role in { "waiter", "entertainer" } do
+			for _, role in { "greeter", "entertainer" } do
 				for _, slot in extra[role].slots do
 					expect(slot.hidden).to.equal(nil)
 					expect(slot.kind).to.equal("open")

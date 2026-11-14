@@ -27,6 +27,7 @@ local AREAS = {
 	"Ruins",
 	"Snowy",
 	"WaterPark",
+	"Castle", -- #4184
 }
 
 -- CatCafe_<word>_<kind>, alone or with a version tag, for any one word (an area, Town)

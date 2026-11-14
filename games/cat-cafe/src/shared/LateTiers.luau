@@ -1,6 +1,6 @@
 --!strict
 -- #3997: Tier 8 (the Summit Cafe and the Snowy Mountain) waits for the `tier8` live switch, and each later tier for its
--- own (Tier 9, the Water Park, for `tier9`). A switch goes on only once its area is built and no server older than the
+-- own (Tier 9, the Water Park, for `tier9`; Tier 10, the Medieval Castle, for `tier10`). A switch goes on only once its area is built and no server older than the
 -- publish that added the tier is running, since an older server's save check clamps a saved tier to the last one it
 -- knows and drops a cat or decor id it does not know. Until then nobody ranks up past the tier before it, and the pity
 -- cats and event showers never pick its area. A tier is open only when every switch up to its own is on, so Tier 9
@@ -17,6 +17,7 @@ LateTiers.FIRST = 8 -- the first tier behind a switch
 LateTiers.FLAGS = table.freeze({
 	[8] = "tier8",
 	[9] = "tier9",
+	[10] = "tier10",
 } :: { [number]: string })
 
 -- Specs: true opens every tier, false none, a number every tier up to it, nil goes back to the switches.

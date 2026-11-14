@@ -19,6 +19,7 @@ return function()
 		"ruins",
 		"snowy",
 		"waterpark",
+		"castle",
 	}
 	local RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 	-- Per area: four Common, two Rare, two Epic, one Legendary, one Mythical (section 3).
@@ -404,12 +405,23 @@ return function()
 			water_gun = { "Water Gun Cat", "Epic", "waterpark", "waiter" },
 			coaster = { "Coaster Cat", "Legendary", "waterpark", "waiter" },
 			water = { "Water Cat", "Mythical", "waterpark", "entertainer" },
+			-- #4184 (the next-areas plan.md section 3e): Tier 10's Medieval Castle
+			elf = { "Elf Cat", "Common", "castle", "barista" },
+			squire = { "Squire", "Common", "castle", "waiter" },
+			dwarf = { "Dwarf Cat", "Common", "castle", "greeter" },
+			crumpet = { "Crumpet", "Common", "castle", "entertainer" },
+			jester = { "Jester Cat", "Rare", "castle", "entertainer" },
+			rogue = { "Rogue Cat", "Rare", "castle", "greeter" },
+			knight = { "Knight Cat", "Epic", "castle", "waiter" },
+			mage = { "Mage Cat", "Epic", "castle", "barista" },
+			queen = { "Queen Cat", "Legendary", "castle", "greeter" },
+			dragon_knight = { "Dragon Knight", "Mythical", "castle", "waiter" },
 		}
 
 		it(
-			"has exactly 108 cats: the 20 slice, 30 later, the 40 of Tier 6 to 9 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin and the 3 Secret cats",
+			"has exactly 118 cats: the 20 slice, 30 later, the 50 of Tier 6 to 10 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin and the 3 Secret cats",
 			function()
-				expect(#Catalog.cats).to.equal(108)
+				expect(#Catalog.cats).to.equal(118)
 				for _, def in ipairs(Catalog.cats) do
 					expect(
 						slice[def.id] ~= nil
@@ -590,8 +602,11 @@ return function()
 				-- #4070: and Tier 9 the pass's Tier 8 pair
 				barista_5 = { "barista", 9 },
 				greeter_4 = { "greeter", 9 },
+				-- #4184: and Tier 10 the pass's Tier 9 pair
+				waiter_7 = { "waiter", 10 },
+				entertainer_4 = { "entertainer", 10 },
 			}
-			expect(#Catalog.spots).to.equal(18)
+			expect(#Catalog.spots).to.equal(20)
 			for id, row in pairs(expected) do
 				local spot = Catalog.getSpot(id)
 				expect(spot).to.be.ok()
@@ -728,11 +743,23 @@ return function()
 				"waterpark",
 				{ 6, 9, 3 },
 			},
+			-- #4184 (draft numbers on the same pattern)
+			{
+				"Royal Cafe",
+				48000000000000,
+				74,
+				"Mythical",
+				6,
+				20,
+				3.25,
+				"castle",
+				{ 6, 10, 3 },
+			},
 		}
 
-		it("has nine tiers matching the table", function()
-			expect(#Catalog.tiers).to.equal(9)
-			expect(Catalog.maxTier).to.equal(9)
+		it("has ten tiers matching the table", function()
+			expect(#Catalog.tiers).to.equal(10)
+			expect(Catalog.maxTier).to.equal(10)
 			for tier, row in ipairs(expected) do
 				local def = Catalog.getTier(tier)
 				expect(def).to.be.ok()
@@ -751,7 +778,7 @@ return function()
 				expect(def.caps.net).to.equal(row[9][3])
 			end
 			expect(Catalog.getTier(0)).never.to.be.ok()
-			expect(Catalog.getTier(10)).never.to.be.ok()
+			expect(Catalog.getTier(11)).never.to.be.ok()
 		end)
 
 		it("each tier opens one new area, in the order of section 9", function()
@@ -860,7 +887,7 @@ return function()
 				},
 				espresso = {
 					name = "Espresso machine",
-					maxLevel = 9, -- #2651: 6 and 7 at Tier 6 and 7; #3997: 8 at Tier 8; #4070: 9 at Tier 9
+					maxLevel = 10, -- #2651: 6 and 7 at Tier 6 and 7; #3997: 8 at Tier 8; #4070: 9 at Tier 9; #4184: 10 at Tier 10
 					costs = {
 						0,
 						2000,
@@ -871,9 +898,19 @@ return function()
 						1300000000,
 						12000000000,
 						115000000000,
-					}, -- F95; #1896; #2651; #4070
+						1100000000000,
+					}, -- F95; #1896; #2651; #4070; #4184
 					startLevel = 1,
-					atLevel = { [3] = 2, [4] = 3, [5] = 4, [6] = 6, [7] = 7, [8] = 8, [9] = 9 }, -- #3204: Espresso 4 at Tier 3
+					atLevel = {
+						[3] = 2,
+						[4] = 3,
+						[5] = 4,
+						[6] = 6,
+						[7] = 7,
+						[8] = 8,
+						[9] = 9,
+						[10] = 10,
+					}, -- #3204: Espresso 4 at Tier 3
 				},
 				net = {
 					name = "Net",
@@ -891,7 +928,7 @@ return function()
 				},
 				lucky_cat = { -- F88 (luck-and-rare-moments.md 1a): level n needs Tier n, level 3 Tier 2 (#1896)
 					name = "Lucky Cat",
-					maxLevel = 9, -- #2651: 6 and 7 at Tier 6 and 7; #3997: 8 at Tier 8; #4070: 9 at Tier 9
+					maxLevel = 10, -- #2651: 6 and 7 at Tier 6 and 7; #3997: 8 at Tier 8; #4070: 9 at Tier 9; #4184: 10 at Tier 10
 					costs = {
 						2000,
 						20000,
@@ -902,7 +939,8 @@ return function()
 						1700000000,
 						14000000000,
 						135000000000,
-					}, -- #2651; #3997; #4070
+						1300000000000,
+					}, -- #2651; #3997; #4070; #4184
 					startLevel = 0,
 					atLevel = {
 						[2] = 2,
@@ -913,6 +951,7 @@ return function()
 						[7] = 7,
 						[8] = 8,
 						[9] = 9,
+						[10] = 10,
 					}, -- #3204: level 3 at Tier 3
 				},
 			}
@@ -1340,7 +1379,7 @@ return function()
 		end)
 
 		it(
-			"nine areas in tier order with the section 9 spawn points, wave sizes (v0.13.5), odds and income (v0.13.7)",
+			"ten areas in tier order with the section 9 spawn points, wave sizes (v0.13.5), odds and income (v0.13.7)",
 			function()
 				-- id -> { name, tier, spawnPoints, odds, waveSize, incomeMultiplier }; v0.13.7: one set of odds everywhere
 				local same = { 54, 29, 11, 4.8, 1.2 } -- #1452 (was 72, 22, 5, 0.9, 0.1)
@@ -1355,6 +1394,7 @@ return function()
 					{ "ruins", "Ruins", 7, 100, same, 11, 729 }, -- #2651: the set's cat spots (#2669)
 					{ "snowy", "Snowy Mountain", 8, 105, same, 11, 2187 }, -- #3997: the set's cat spots (#3999)
 					{ "waterpark", "Water Park", 9, 155, same, 11, 6561 }, -- #4070: the set's cat spots (#4090)
+					{ "castle", "Medieval Castle", 10, 192, same, 11, 19683 }, -- #4184: the set's cat spots (#4108)
 				}
 				expect(#Catalog.areas).to.equal(#want)
 				for i, row in want do

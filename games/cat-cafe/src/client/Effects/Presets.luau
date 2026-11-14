@@ -4083,6 +4083,7 @@ Presets.decor = {
 	ruins_stone_throne = legendary(),
 	snow_stone_fireplace = legendary(), -- #3997
 	funfair_mini_carousel = legendary(), -- #4070
+	castle_round_table = legendary(), -- #4184
 	classic_cat_tree_tower = legendary(),
 	rally_victory_podium = legendary(),
 	alley_midnight_sky = { look = "stars", on = "Wallpaper" },
@@ -4135,6 +4136,14 @@ Presets.decor = {
 		on = "Floor",
 		emitter = "decorGlint",
 		colors = { Color3.fromRGB(120, 205, 240), Color3.fromRGB(240, 250, 255) },
+	},
+	-- #4184: the Castle Crate's Mythical floor, the same moving light with ember orange and gold glints (a first
+	-- pick by Model-Agent for Motion-FX to tune)
+	castle_dragon_scales = {
+		look = "canal",
+		on = "Floor",
+		emitter = "decorGlint",
+		colors = { Color3.fromRGB(255, 140, 60), Color3.fromRGB(255, 214, 120) },
 	},
 	classic_gold_leaf = {
 		look = "goldLeaf",

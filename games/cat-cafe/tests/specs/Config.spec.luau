@@ -652,6 +652,10 @@ return function()
 				WinterPackPassId = true,
 				ChefPackPassId = true,
 				SpacePackPassId = true,
+				FusionCopies = true, -- #4104: checked in Fusion.spec
+				FusionGoldSeconds = true,
+				FusionRainbowSeconds = true,
+				FusionTier = true,
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

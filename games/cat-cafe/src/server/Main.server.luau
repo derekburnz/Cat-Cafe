@@ -31,14 +31,14 @@ local CozyService = require(script.Parent.Services.CozyService)
 local DailyTreatService = require(script.Parent.Services.DailyTreatService)
 local DataService = require(script.Parent.Services.DataService)
 local DealerService = require(script.Parent.Services.DealerService)
+local DragonKeepService = require(script.Parent.Services.DragonKeepService)
 local EventRewardService = require(script.Parent.Services.EventRewardService)
 local EventService = require(script.Parent.Services.EventService)
 local FallCatchService = require(script.Parent.Services.FallCatchService)
 local FeedService = require(script.Parent.Services.FeedService)
 local FishMarketService = require(script.Parent.Services.FishMarketService)
 local FishStoreService = require(script.Parent.Services.FishStoreService)
-local TicketBoothService = require(script.Parent.Services.TicketBoothService)
-local DragonKeepService = require(script.Parent.Services.DragonKeepService)
+local FusionService = require(script.Parent.Services.FusionService)
 local GlobalCatchService = require(script.Parent.Services.GlobalCatchService)
 local GrandOpeningService = require(script.Parent.Services.GrandOpeningService)
 local IdeaCreditsService = require(script.Parent.Services.IdeaCreditsService)
@@ -83,6 +83,7 @@ local SpinService = require(script.Parent.Services.SpinService)
 local StarterCatService = require(script.Parent.Services.StarterCatService)
 local StuckGoalService = require(script.Parent.Services.StuckGoalService)
 local Telemetry = require(script.Parent.Services.Telemetry)
+local TicketBoothService = require(script.Parent.Services.TicketBoothService)
 local TipJarService = require(script.Parent.Services.TipJarService)
 local TipPileService = require(script.Parent.Services.TipPileService)
 local TipService = require(script.Parent.Services.TipService)
@@ -147,6 +148,7 @@ MysteryMarketService.start() -- #2565: Juniper's Mystery Market
 FishStoreService.start() -- #4055: Store passes for golden fish
 TicketBoothService.start() -- #4061: the Water Park's Ticket Booth
 DragonKeepService.start() -- #4062: the Castle's Dragon Keep
+FusionService.start() -- #4104: the Snowy Mountain's Fusion Observatory
 CornerShopService.start() -- #1052: the coins-only Corner Shop
 FeedService.start() -- #1181: cat food from the Bag (FeedCat)
 LiveFlagService.start() -- #2119: the live switches (codes, rally) from CatCafe_Flags

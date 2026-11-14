@@ -15,6 +15,7 @@ local EquipBest = require(script.Parent.EquipBest)
 local FirstVisits = require(script.Parent.FirstVisits)
 local FishStore = require(script.Parent.FishStore)
 local FreshCatch = require(script.Parent.FreshCatch)
+local Fusion = require(script.Parent.Fusion)
 local GrandOpening = require(script.Parent.GrandOpening)
 local IntroSplit = require(script.Parent.IntroSplit)
 local Invites = require(script.Parent.Invites)
@@ -176,7 +177,10 @@ local ProfileSchema = {}
 -- and the cats moved in): an older server would drop them and the player would lose a pass paid for with fish,
 -- tickets or Cinder. It ships with a publish that restarts the servers; the `fishStore`, `ticketBooth` and
 -- `dragonKeep` switches open them after it.
-ProfileSchema.VERSION = 49
+-- Version 50 (#4104, shared/Fusion) adds fusion, the Fusion Observatory's dome: an older server would drop a fusion
+-- under way, and with it the five cats that went in. It ships with the Snowy Mountain update's restart; the `fusion`
+-- switch opens the dome after it. A save from before it has an empty dome.
+ProfileSchema.VERSION = 50
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -327,6 +331,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		fishBought = {}, -- #4055
 		tickets = TicketBooth.fresh(), -- #4061
 		dragon = DragonKeep.fresh(), -- #4062
+		fusion = Fusion.fresh(), -- #4104
 		firstVisits = {},
 		codesRedeemed = {},
 		introSeen = false,
@@ -1034,6 +1039,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.tickets = TicketBooth.sanitize(raw.tickets)
 	-- #4062 (version 49): the Dragon Keep; an older save has no dragon
 	profile.dragon = DragonKeep.sanitize(raw.dragon)
+	-- #4104 (version 50): the Fusion Observatory; an older save has an empty dome
+	profile.fusion = Fusion.sanitize(raw.fusion, sanitizeName)
 	-- #3699: the Backpack's colour picks (no version: see Types.PlayerProfile.bagColours)
 	profile.bagColours = BagColours.sanitize(raw.bagColours)
 	profile.shoeColours = BagColours.sanitize(raw.shoeColours, "shoes") -- #4049, the same way

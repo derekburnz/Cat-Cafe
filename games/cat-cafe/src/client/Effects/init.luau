@@ -231,6 +231,12 @@ function Effects.start()
 	end)
 end
 
+-- #4311: whether this phone or tablet's frame rate has stayed low this session (under Presets.slow.fps for
+-- Presets.slow.windows windows in a row); once true it stays true. The Low performance suggestion can read it.
+function Effects.struggling(): boolean
+	return Context.struggling
+end
+
 -- "low" on a phone or tablet or in Low performance mode, "high" on a PC or console (Presets.budget).
 function Effects.tier(): string
 	return Context.tier

@@ -113,14 +113,73 @@ return function()
 			expect(lite.animatedCats < low.animatedCats and lite.animHz < low.animHz).to.equal(true)
 		end)
 
-		it("wants lite on phones and graphics quality 1 to 3, only with the switch on", function()
-			expect(Logic.wantsLite(true, "low", 0)).to.equal(true)
-			expect(Logic.wantsLite(true, "high", 2)).to.equal(true)
-			expect(Logic.wantsLite(true, "high", 3)).to.equal(true)
-			expect(Logic.wantsLite(true, "high", 4)).to.equal(false)
-			expect(Logic.wantsLite(true, "high", 0)).to.equal(false)
-			expect(Logic.wantsLite(true, "high", nil)).to.equal(false)
-			expect(Logic.wantsLite(false, "low", 1)).to.equal(false)
+		it(
+			"wants lite on a struggling phone and on graphics quality 1 to 3, only with the switch on",
+			function()
+				-- Derek 2026-11-14: "turn it on for phones/tablets if they are struggling ... not if they are doing fine"
+				expect(Logic.wantsLite(true, "low", 0, true)).to.equal(true)
+				expect(Logic.wantsLite(true, "low", 0, false)).to.equal(false)
+				expect(Logic.wantsLite(true, "low", 0)).to.equal(false)
+				expect(Logic.wantsLite(true, "low", 2, false)).to.equal(true)
+				expect(Logic.wantsLite(true, "high", 2)).to.equal(true)
+				expect(Logic.wantsLite(true, "high", 3)).to.equal(true)
+				expect(Logic.wantsLite(true, "high", 4)).to.equal(false)
+				expect(Logic.wantsLite(true, "high", 0, true)).to.equal(false)
+				expect(Logic.wantsLite(true, "high", nil)).to.equal(false)
+				expect(Logic.wantsLite(false, "low", 1, true)).to.equal(false)
+			end
+		)
+
+		-- #4311: Logic.slowStep with Presets.slow
+		local function run(state: any, fps: number, seconds: number, hold: boolean?): boolean
+			local tripped = false
+			for _ = 1, math.floor(fps * seconds + 0.5) do
+				tripped = Logic.slowStep(state, 1 / fps, Presets.slow, hold) or tripped
+			end
+			return tripped
+		end
+
+		it(
+			"finds a device struggling after two slow windows in a row, past the loading minute",
+			function()
+				local p = Presets.slow
+				local state = Logic.slowStart()
+				expect(run(state, 20, p.after)).to.equal(false) -- loading does not count
+				expect(run(state, 20, p.window + 0.5)).to.equal(false) -- one slow window
+				expect(state.slow).to.equal(1)
+				expect(run(state, 20, p.window + 0.5)).to.equal(true)
+				expect(state.struggling).to.equal(true)
+				expect(run(state, 20, p.window * 3)).to.equal(false) -- it says so once, and stays
+				expect(state.struggling).to.equal(true)
+			end
+		)
+
+		it(
+			"leaves a device that is doing fine alone, and a good window starts the count again",
+			function()
+				local p = Presets.slow
+				local state = Logic.slowStart()
+				run(state, 60, p.after)
+				expect(run(state, 50, p.window * 5)).to.equal(false)
+				expect(run(state, 20, p.window + 0.5)).to.equal(false)
+				expect(run(state, 50, p.window + 0.5)).to.equal(false)
+				expect(state.slow).to.equal(0)
+				expect(run(state, 20, p.window + 0.5)).to.equal(false)
+				expect(state.struggling).to.equal(false)
+			end
+		)
+
+		it("does not count pauses or cutscenes", function()
+			local p = Presets.slow
+			local state = Logic.slowStart()
+			run(state, 60, p.after)
+			for _ = 1, 100 do -- the app in the background: long frames are pauses, not slow frames
+				expect(Logic.slowStep(state, p.pause + 1, p, false)).to.equal(false)
+			end
+			expect(state.slow).to.equal(0)
+			expect(run(state, 20, p.window * 4, true)).to.equal(false) -- a cutscene holds the count
+			expect(state.slow).to.equal(0)
+			expect(state.struggling).to.equal(false)
 		end)
 	end)
 end

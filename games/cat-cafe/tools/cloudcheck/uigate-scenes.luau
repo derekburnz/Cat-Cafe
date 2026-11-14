@@ -10603,6 +10603,33 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assert(banners == 1, ("uigate: %d Cafe Party banners, not 1 (#2487)"):format(banners))
 	end },
+	-- #4195: an admin event (Bowl Frenzy) beside the running party: its timer is first on the strip with the party
+	-- beside it, the card a tap opens has both, and with the admin event gone the strip is the party's again
+	{ "AdminEventRunning", function()
+		local t = workspace:GetServerTimeNow()
+		local store = game:GetService("ReplicatedStorage")
+		Scenes._cafeEvent = true
+		UIShim.advance(4) -- earlier scenes' toasts gone
+		store:SetAttribute("AdminEventId", "frenzy-gate")
+		store:SetAttribute("AdminEventTitle", "Bowl Frenzy")
+		store:SetAttribute("AdminEventStartsAt", t - 20)
+		store:SetAttribute("AdminEventEndsAt", t + 880)
+		store:SetAttribute("AdminEventEffects", "")
+		store:SetAttribute("AdminEventRunning", true)
+		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
+		local chip = assertEventChip(2)
+		assert(chip.Text:find("Bowl Frenzy 14:", 1, true) ~= nil, "uigate: the strip's first piece reads " .. chip.Text .. ", not the admin event's timer (#4195)")
+		local beside = UIShim.playerGui:FindFirstChild("EventNext", true) :: TextLabel?
+		assert(beside == nil or not beside.Visible or beside.Text:find("Cafe Party 1:59:", 1, true) ~= nil, "uigate: the piece beside the admin timer reads " .. tostring(beside and beside.Text) .. " (#4195)")
+		local cardLines = UIShim.playerGui:FindFirstChild("EventLines", true) :: TextLabel
+		assert(cardLines and cardLines.Text:find("Bowl Frenzy 14:", 1, true) and cardLines.Text:find("Cafe Party", 1, true), "uigate: the strip's card does not have the admin event and the party (#4195)")
+		-- the admin event over: the party's own strip is back
+		store:SetAttribute("AdminEventId", "")
+		store:SetAttribute("AdminEventRunning", false)
+		UI.cafeEvent.tick()
+		chip = assertEventChip(2)
+		assert(chip.Text:find("Cafe Party 1:59:", 1, true) ~= nil, "uigate: the strip did not go back to the party after the admin event: " .. chip.Text .. " (#4195)")
+	end },
 	-- #2487: the Town Square board's face while the party runs, its words drawn on a 10 x 7.5 stud face
 	{ "CafeEventBoard", function()
 		local t = workspace:GetServerTimeNow()
@@ -12046,6 +12073,7 @@ function Scenes.close()
 	if Scenes._cafeEvent then
 		Scenes._cafeEvent = nil
 		game:GetService("ReplicatedStorage"):SetAttribute("EventId", "") -- #2487: the party put away
+		game:GetService("ReplicatedStorage"):SetAttribute("AdminEventId", "") -- #4195
 		UI.cafeEvent.forget()
 		UI.cafeEvent.tick()
 	end

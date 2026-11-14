@@ -78,9 +78,21 @@ RestartNotice.LAUNCH_LINE = "then a 1-hour party and a gift!"
 -- #3535: the Friday 2026-11-13 update (22:00 UTC) has the same party and a gift of its own, so the same words
 RestartNotice.LAUNCHES = { RestartNotice.LAUNCH_AT, 1794607200 }
 local LAUNCH_BEFORE, LAUNCH_AFTER = 3600, 1800
+-- #4195 (Derek 2026-11-14: "announce admin abuse events in coming after update before you restart servers"): the
+-- Saturday 2026-11-14 22:00 UTC and Sunday 2026-11-15 20:00 UTC update restarts are followed by an admin event block
+-- (2x money, the lucky, golden and rainbow days as Golden Hour, Mythical and rainbow Legendary showers), so their
+-- warnings name it instead of the party line.
+RestartNotice.ADMIN_LAUNCHES = { 1794693600, 1794772800 }
+RestartNotice.ADMIN_LINE = "then ADMIN EVENTS: 2x money, Golden Hour and cat showers!"
+RestartNotice.ADMIN_AFTER = "ADMIN EVENTS: 2x money, Golden Hour and cat showers!"
 
 -- the promise a warning shown at `now` ends on, and what the event is called at zero
 local function promise(now: number?): (string, string)
+	for _, at in RestartNotice.ADMIN_LAUNCHES do
+		if now ~= nil and now >= at - LAUNCH_BEFORE and now <= at + LAUNCH_AFTER then
+			return RestartNotice.ADMIN_LINE, RestartNotice.ADMIN_AFTER
+		end
+	end
 	for _, at in RestartNotice.LAUNCHES do
 		if now ~= nil and now >= at - LAUNCH_BEFORE and now <= at + LAUNCH_AFTER then
 			return RestartNotice.LAUNCH_LINE, "a 1-hour party and a gift!"

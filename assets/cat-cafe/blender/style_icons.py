@@ -63,6 +63,13 @@ PENDING = [                               # (id, name, kind, (r, g, b), material
     ("funfair_wave_pool", "Wave Pool", "floor", (90, 190, 230), "Glass"),
     ("funfair_popcorn_yellow", "Popcorn Yellow", "paint", (250, 220, 110), "SmoothPlastic"),
     ("funfair_candy_pink", "Candy Pink", "paint", (255, 150, 190), "SmoothPlastic"),
+    # the Castle Crate (ids and colours as in the Tier 10 rows, #4184)
+    ("castle_keep_stone", "Keep Stone", "wallpaper", (150, 150, 158), "Brick"),
+    ("castle_royal_tapestry", "Royal Tapestry", "wallpaper", (150, 45, 55), "Fabric"),
+    ("castle_hall_flagstones", "Hall Flagstones", "floor", (140, 136, 130), "Slate"),
+    ("castle_dragon_scales", "Dragon Scales", "floor", (190, 60, 45), "Cobblestone"),
+    ("castle_banner_red", "Banner Red", "paint", (175, 45, 50), "SmoothPlastic"),
+    ("castle_royal_blue", "Royal Blue", "paint", (55, 85, 175), "SmoothPlastic"),
 ]
 
 

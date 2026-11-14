@@ -205,7 +205,8 @@ ROSTER = {
                         exclusive=True),
     # #1191 the shop-only cats (Design-Agent's briefs on #1191): fixed, never random, no gold twins
     "Sprinkles":   dict(rarity="Epic", fur="fur_custard", second="fur_caramel", third="fur_caramel", eyes="eye_amber",
-                        pattern="patches", muzzle="fur_white", scale=0.88, eye_k=1.14, exclusive=True, shop=True,
+                        pattern="patches", muzzle="fur_white", scale=1.0, eye_k=1.14, exclusive=True, shop=True,
+                        sparkle=True,
                         apron=("apron_pink", ("neon_pink", "sign_teal", "rarity_legend", "shirt_blue", "mint"))),
     "DuchessMarzipan": dict(rarity="Legendary", fur="fur_lilac_silver", second="pastel_lilac", eyes="eye_violet",
                             pattern="solid", muzzle="pearl", nose="nose_pink", fluffy=True, lids=True, curl=True,

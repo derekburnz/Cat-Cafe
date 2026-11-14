@@ -67,13 +67,18 @@ end
 -- #1625: what a receipt for `product` gives `profile`: the whole prize the first time, and for a once-per-account
 -- product already bought only its potions (a second purchase can only come from a prompt the Store never shows, and
 -- the Robux are not taken for nothing). `first` says which. Pure; ProductService pays it and calls markBought.
+-- #4020: `moneyOwned` is the buyer's Money pass multiplier (Economy.passes(profile).money, 1 without one). When it
+-- is already the prize's moneyMultiplier or more, the 2x adds nothing for them, so the first receipt also pays the
+-- prize's moneySwap potions; `swapped` says so.
 function Products.prizeFor(
 	profile: Types.PlayerProfile,
-	product: Types.ProductDef
+	product: Types.ProductDef,
+	moneyOwned: number?
 ): ({
 	potions: { [string]: number },
 	cats: { string },
 	signStyles: { string },
+	swapped: boolean,
 }, boolean)
 	local first = not (product.oncePerAccount == true and profile.onceBought[product.id] == true)
 	local cats: { string } = {}
@@ -88,7 +93,22 @@ function Products.prizeFor(
 			table.insert(styles, styleId)
 		end
 	end
-	return { potions = product.prize.potions, cats = cats, signStyles = styles }, first
+	local potions = product.prize.potions
+	local swap = product.prize.moneySwap
+	local multiplier = product.prize.moneyMultiplier
+	local swapped = first
+		and swap ~= nil
+		and multiplier ~= nil
+		and type(moneyOwned) == "number"
+		and moneyOwned >= multiplier
+	if swapped and swap ~= nil then
+		local merged: { [string]: number } = table.clone(potions)
+		for id, count in swap do
+			merged[id] = (merged[id] or 0) + count
+		end
+		potions = merged
+	end
+	return { potions = potions, cats = cats, signStyles = styles, swapped = swapped }, first
 end
 
 -- #1625: notes a once-per-account product bought and its sign styles owned, in the same step as the receipt.

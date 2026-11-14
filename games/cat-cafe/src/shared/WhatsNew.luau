@@ -34,6 +34,13 @@ WhatsNew.rows = table.freeze({
 	-- the Relic Museum's new inside (#4138), the Rummage Bin minigame fix (#4128), the pop-up cards (#4092) and the
 	-- phone fixes (#4151, #4152, #3990). Still behind switches (rare customers, friend joins, Today's Deal, gold tone):
 	-- rows when they open.
+	-- #4189 (Derek 2026-11-14 14:55 UTC: "add text that earlier tiers made easier")
+	{
+		id = "tiers_easier",
+		date = "2026-11-14",
+		icon = "faster",
+		text = "Tiers 2 to 7 made easier",
+	},
 	{
 		id = "free_bait_bowl",
 		date = "2026-11-14",

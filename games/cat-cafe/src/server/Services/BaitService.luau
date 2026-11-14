@@ -142,12 +142,29 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the switch is on (the card's Mythical line is
 	-- "Mythical or better", so it stays true)
 	local secret = if rarity == "Mythical" and LiveFlagService.on(Catching.SECRET_FLAG)
-		then Catching.secret(rarity, rng:NextNumber(), rng:NextNumber(), true)
+		then Catching.secret(
+			rarity,
+			rng:NextNumber(),
+			rng:NextNumber(),
+			true,
+			if LiveFlagService.on(Catching.SECRET_AREAS_FLAG)
+				then Catching.baitAreas(Economy.tier(profile))
+				else nil
+		)
 		else nil
 	if secret ~= nil then
 		Telemetry.custom(player, "secret_spawn", 1, { "bowl", "bait" })
 	end
-	local def = secret or Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
+	-- #4188: the account's first food brings a kind the player has not met (the tutorial's third kind, Tier 2's need)
+	local def = secret
+		or if profile.stats.luresUsed == 0
+			then Catching.pickNewBaitCat(
+				rarity,
+				Economy.tier(profile),
+				rng:NextNumber(),
+				profile.collection
+			)
+			else Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
 	-- the player's own gold luck, rainbow luck (F99) and bait speed, fixed now (F54): a later claim never moves a
 	-- filling bowl. A Lucky Potion running now doubles the gold chance (F64), never the rainbow one.
 	local totals = IndexRewards.totals(profile)

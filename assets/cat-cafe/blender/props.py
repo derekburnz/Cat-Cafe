@@ -1569,6 +1569,46 @@ def pastry_hat(ctx):
         x, y = 0.255 * math.cos(a), 0.255 * math.sin(a)
         P.box(_pastry_q((x, y, 0.06 + 0.025 * (i % 2 * 2 - 1))), (0.06, 0.012, 0.022), cols[i],
               rot=R @ _rz(math.degrees(a) + 90) @ _ry(35 * (1 if i % 2 else -1)))
+    # Derek 2026-11-14 (as good as an Epic from the best area): a lit cherry on the toque (the child Model
+    # _Cherry_Glow, Neon) and a frosted doughnut round the tail (_Tail_Donut)
+    top = _pastry_q((0.0, 0.0, 0.55))
+    C = ctx.piece("Cherry_Glow", "head", top)
+    C.ico(top, 0.085, "bowl_red")
+    P.box(_pastry_q((0.02, 0.0, 0.66)), (0.02, 0.02, 0.1), "leaf_green", rot=R @ _ry(18))             # its stalk
+    tip, d, th, a2, b2 = _tail_axes(ctx)
+    at = tip - d * 0.16
+    T = ctx.piece("Tail_Donut", "tail", tuple(at))
+    RT = Vector((0, 0, 1)).rotation_difference(d).to_matrix()
+    T.cyl(tuple(at), th * 0.5 + 0.07, 0.1, "treat_tan", rot=RT, segments=10)                          # the doughnut
+    T.cyl(tuple(at + d * 0.03), th * 0.5 + 0.075, 0.06, "fur_strawberry", rot=RT, segments=10)        # its icing
+    for i in range(5):
+        q = math.radians(72 * i)
+        T.box(tuple(at + d * 0.03 + (a2 * math.cos(q) + b2 * math.sin(q)) * (th * 0.5 + 0.08)), (0.03, 0.03, 0.05),
+              cols[i], rot=RT)
+
+
+def cupcake_pack(ctx):
+    """Sprinkles' second prop (Derek 2026-11-14): a big cupcake riding on its back, a pink paper case, a swirl of
+    strawberry icing with a cream tip, sprinkles that glow on the icing (the child Model _Sprinkle_Glow, Neon) and a
+    lit candle (_Candle_Glow)."""
+    P = ctx.pen("back")
+    k = ctx.back_len / 0.9
+    y0 = 0.04 * k
+    P.cyl((0, y0, 0.11), 0.17, 0.2, "apron_pink", r2=0.23, segments=12)                               # paper case
+    P.cyl((0, y0, 0.215), 0.24, 0.03, "milk", segments=12)                                            # its rim
+    for z, r, sw in ((0.27, 0.235, "fur_strawberry"), (0.35, 0.185, "fur_strawberry"), (0.42, 0.13, "fur_strawberry"),
+                     (0.48, 0.08, "milk")):
+        P.cyl((0, y0, z), r, 0.085, sw, r2=r * 0.78, segments=10)                                     # the swirl
+    G = ctx.piece("Sprinkle_Glow", "back", (0, y0, 0.33))
+    cols = ("neon_pink", "sign_teal", "rarity_legend", "shirt_blue", "mint")
+    for i in range(10):
+        q = math.radians(36 * i + 12)
+        z, r = ((0.275, 0.228), (0.355, 0.178))[i % 2]
+        G.box((r * math.cos(q), y0 + r * math.sin(q), z), (0.022, 0.065, 0.03), cols[i % 5],
+              rot=_rz(math.degrees(q)) @ _rx(35 * (1 if i % 2 else -1)))
+    P.cyl((0, y0, 0.57), 0.022, 0.12, "pastel_butter", segments=6)                                    # candle
+    F = ctx.piece("Candle_Glow", "back", (0, y0, 0.67))
+    F.ico((0, y0, 0.67), 0.05, "rarity_legend", scale=(0.8, 0.8, 1.35))
 
 
 def pearl_tiara(ctx):
@@ -3156,6 +3196,8 @@ PROPS2 = {
     "Water": ("Back", wave_back),
     "Knight": ("Back", knight_shield), "Mage": ("Back", spell_book), "Queen": ("Back", queen_cape),
     "DragonKnight": ("Back", dragon_armour),
+    # Derek 2026-11-14: the Starter Bundle's Sprinkles as good as an Epic from the best area
+    "Sprinkles": ("Back", cupcake_pack),
 }
 # Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
 # rides, and their Roblox Model nests inside that prop's Model.
@@ -3185,7 +3227,8 @@ PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"
           "Jester": {"Tail_Bell": "Tail"}, "Rogue": {"Tail_Pouch": "Tail"},
           "Knight": {"Crest_Glow": "Prop2"}, "Mage": {"Star_Glow": "Prop", "Tail_Star_Glow": "Tail", "Page_Glow": "Prop2"},
           "Queen": {"Gem_Glow": "Prop", "Tail_Ring": "Tail"},
-          "DragonKnight": {"Horn_Glow": "Prop", "Tail_Ember_Glow": "Tail", "Scale_Glow": "Prop2"}}
+          "DragonKnight": {"Horn_Glow": "Prop", "Tail_Ember_Glow": "Tail", "Scale_Glow": "Prop2"},
+          "Sprinkles": {"Cherry_Glow": "Prop", "Tail_Donut": "Tail", "Sprinkle_Glow": "Prop2", "Candle_Glow": "Prop2"}}
 # Extra Attachments for VFX (#1191): cat -> [(object suffix, Attachment name, frame, point in that frame)]. Frame
 # "head" is the head-top frame the Head props draw in; "chest" puts it at the middle of the chest (B, S) or body (A).
 ATTACH = {"KingCroissant": [("_Prop", "CrownTop", "head", (0.0, 0.0, CROWN_TOP)), ("_Body", "Glow", "chest", None)]}

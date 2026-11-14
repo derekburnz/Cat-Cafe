@@ -1928,6 +1928,12 @@ local function wireIntents()
 			Net.fire("TelemetryReport", "store_guard_blocked", what)
 		end)
 	end
+	-- #4174: the Starter Bundle card's shown or how it ended; the server allowlists it, once each a session
+	if events.starterSuggest ~= nil then
+		events.starterSuggest:Connect(function(outcome: string)
+			Net.fire("TelemetryReport", "starter_suggest", outcome)
+		end)
+	end
 	-- #4176: a purchase prompt's source, "source:id"; the server allowlists it and keeps it 2 minutes for the receipt
 	if events.buySource ~= nil then
 		events.buySource:Connect(function(what: string)

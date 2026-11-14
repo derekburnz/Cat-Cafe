@@ -719,6 +719,8 @@ done
 # event's value, in seconds for these). CustomEventName is a filter only, as in section 4.
 #   quit_state          value seconds played; fields furthest step, where, "carry|empty bait|nobait" (Tier < 2 leavers)
 #   step_time           value account seconds of play at the step; field the onboarding step name
+#   ab_loading          value the playtime_v1 step number; fields arm (on/off), step name, device (#4314, new saves)
+#   ab_loading_seen     value the seconds the loading screen was up; fields arm, device (#4314)
 #   step_gap            value seconds between two steps; fields the gap, the bucket (#3530, shared/StepGaps)
 #   quit_have           value seconds played; fields kinds of cat, coin share of Tier 2, ready or not_ready (#3530)
 #   cat_caught_area     value 1; fields area id, rarity
@@ -860,6 +862,10 @@ fieldEvents=(
 	"quit_scene|CustomField1,CustomField3|CustomEventCountUser|Leavers below Tier 2 by scene and seconds bucket"
 	"first_scene|CustomField1|CustomEventAvgValue|Average seconds from join to the first intro shot, by device (minus step_time loaded = still wait)"
 	"first_scene|CustomField1,CustomField3|CustomEventCountUser|Players by device and wait before the first intro shot"
+	"ab_loading|CustomField3,CustomField1,CustomField2|CustomEventCountUser|Loading screen test (#4314): players by device, arm and playtime step up to 5 min (churn = drop between steps)"
+	"ab_loading|CustomField1,CustomField2|CustomEventCountUser|Loading screen test: players by arm and playtime step, all devices (if the three-way row above is refused)"
+	"ab_loading_seen|CustomField2,CustomField1|CustomEventAvgValue|Loading screen test: average seconds the screen was up, by device and arm"
+	"ab_loading_seen|CustomField2,CustomField1|CustomEventCountUser|Loading screen test: players who saw it, by device and arm"
 )
 say "### Event fields"
 say ""

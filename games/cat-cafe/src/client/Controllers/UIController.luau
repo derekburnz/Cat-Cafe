@@ -1873,6 +1873,21 @@ local function wireIntents()
 			end
 		end)
 	end
+	if events.loadingSeen ~= nil then
+		-- #4314: once a session, only the first wait (the one before the first spawn or the intro)
+		local seen = false
+		events.loadingSeen:Connect(function(seconds: number)
+			if seen then
+				return
+			end
+			seen = true
+			Net.fire(
+				"TelemetryReport",
+				"loading_seen",
+				math.clamp(math.floor(seconds + 0.5), 0, 120)
+			)
+		end)
+	end
 	if events.introChoice ~= nil then
 		events.introChoice:Connect(function(from: string)
 			Net.fire("TelemetryReport", "intro_choice", from)

@@ -187,6 +187,8 @@ UI.events = {
 	-- #2182 (intro-cutscene.md 2b): (shot)   Next, a tap outside Skip, Space, Enter or gamepad A, once a shot and from
 	-- Intro.NEXT_AFTER into it; cut to the next shot, or on the last one end the intro as a finish (IntroDone(0, replay))
 	introNext = Signal.new(),
+	-- (seconds)   #4314: the loading screen slid away; forward as TelemetryReport("loading_seen", whole seconds), once
+	loadingSeen = Signal.new(),
 	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
 	introReplay = Signal.new(),
 	-- F64
@@ -1680,6 +1682,9 @@ function UI.init(config: Types.InitConfig)
 		ended = introEnded,
 		nextShot = function(shot: number)
 			UI.events.introNext:Fire(shot)
+		end,
+		waitEnded = function(seconds: number)
+			UI.events.loadingSeen:Fire(seconds) -- #4314
 		end,
 	})
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker", nil, false, true) -- #3055: the small, quiet one
@@ -3561,17 +3566,39 @@ end
 -- #3179 (Derek2 11-10: "remove the loading screen honestly I think that would make people leave faster then
 -- before"): it shows only with the `loadingScreen` live switch on (off unless set to true), so by default the wait
 -- is the still picture alone and the intro starts the moment the save is in (race() is 0 with no screen up).
+-- #4314: a new save in the loading screen test (shared/LoadingTest) follows its arm, the player's LoadingArm
+-- attribute, in place of the switch: "on" always shows the screen, "off" never. The arm can land a moment after the
+-- wait began, so while a wait is asked for (UI.intro.wanted) a new arm shows or hides the screen then.
+UI.intro.wanted = false
+UI.intro.armWatch = nil :: RBXScriptConnection?
 function UI.intro.waiting(on: boolean)
+	UI.intro.wanted = on
+	local shared = ReplicatedStorage:WaitForChild("Shared")
 	if on then
-		local LiveFlags =
-			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local LiveFlags = require(shared:WaitForChild("LiveFlags")) :: any
+		local LoadingTest = require(shared:WaitForChild("LoadingTest")) :: any
 		local key = "loadingScreen"
+		local player = Players.LocalPlayer
+		if UI.intro.armWatch == nil then
+			UI.intro.armWatch = player
+				:GetAttributeChangedSignal(LoadingTest.ATTRIBUTE)
+				:Connect(function()
+					if UI.intro.wanted then
+						UI.intro.waiting(true)
+					end
+				end)
+		end
+		local flagOn =
+			LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
 		if
-			not LiveFlags.shown(
-				key,
-				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+			not LoadingTest.shows(
+				LoadingTest.arm(player:GetAttribute(LoadingTest.ATTRIBUTE)),
+				flagOn
 			)
 		then
+			if introScreen then
+				introScreen:waiting(false) -- an "off" arm that landed while the switch had it up
+			end
 			return
 		end
 	end

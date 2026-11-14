@@ -101,6 +101,7 @@ local CHIP_H = 28
 local CAT_LIFETIME = 3 -- #3132
 local CAT_FACE = 40
 local CAT_TITLE_H = 16
+local PAL_TITLE_H = 20 -- #3995: the join note's title, one size up so its words keep their spaces on a small phone
 local CAT_LINE_H = 38 -- two rows of textSmall
 local CAT_TEXT_W = 230
 local CAT_PAD = 7
@@ -319,6 +320,23 @@ function Toasts.spot(boxes: { Types.Box }, width: number, pill: number): (number
 	return middle, top
 end
 
+-- #3995: whether a piece `height` design pixels tall fits under the toasts already up, above the HUD's bottom.
+function Toasts._fits(self: any, height: number): boolean
+	local scale = Scale.get()
+	local size = self._root.AbsoluteSize / (if scale > 0 then scale else 1)
+	local boxes: (() -> { Types.Box })? = self._boxes
+	local _, top = Toasts.spot(if boxes then boxes() else {}, size.X, PILL_MAX)
+	local floor: (() -> number)? = self._floor
+	local bottom = size.Y + (if floor then floor() else -EDGE)
+	local used = 0
+	for _, live in self._alive do
+		if live ~= self._catToast then
+			used += live.AbsoluteSize.Y / (if scale > 0 then scale else 1) + STACK_GAP
+		end
+	end
+	return top + used + height <= bottom
+end
+
 function Toasts._place(self: any)
 	local scale = Scale.get()
 	local size = self._root.AbsoluteSize / (if scale > 0 then scale else 1)
@@ -352,7 +370,12 @@ end
 -- #3132: the cat banner. One at a time; a new one replaces the last. While a camera cut holds the toasts or a catch
 -- runs it waits, a second at a time, and gives up after CAT_WAIT_TRIES.
 function Toasts.cat(self: any, card: CatCard, tries: number?)
-	if self._held or self._focus or (card.wait ~= nil and card.wait()) then
+	local titleH = if card.headshot ~= nil then PAL_TITLE_H else CAT_TITLE_H
+	local height = CAT_PAD * 2 + titleH + CAT_LINE_H
+	-- #3995 (Review-QA on #4153, 667x375): a join note waits too while the stack has no room for it over the HUD's
+	-- bottom (the tutorial strip and its Buy), so it never lies over them
+	local cramped = card.wait ~= nil and not self:_fits(height)
+	if self._held or self._focus or cramped or (card.wait ~= nil and card.wait()) then
 		local waited = (tries or 0) + 1
 		if waited <= CAT_WAIT_TRIES then
 			task.delay(1, function()
@@ -369,7 +392,6 @@ function Toasts.cat(self: any, card: CatCard, tries: number?)
 	end
 	self._order += 1
 	self._lastAt = os.clock()
-	local height = CAT_PAD * 2 + CAT_TITLE_H + CAT_LINE_H
 	local toast: TextButton = Create("TextButton", {
 		Name = if card.headshot ~= nil then "PalNote" else "CatToast",
 		AutoButtonColor = false,
@@ -423,9 +445,9 @@ function Toasts.cat(self: any, card: CatCard, tries: number?)
 		Name = "Title",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(left, CAT_PAD),
-		Size = UDim2.fromOffset(CAT_TEXT_W, CAT_TITLE_H),
+		Size = UDim2.fromOffset(CAT_TEXT_W, titleH),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textSmall,
+		TextSize = if card.headshot ~= nil then Theme.sizes.textBody else Theme.sizes.textSmall,
 		TextColor3 = Theme.colors.gold,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = card.title,
@@ -435,7 +457,7 @@ function Toasts.cat(self: any, card: CatCard, tries: number?)
 	local line: TextLabel = Create("TextLabel", {
 		Name = "Line",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(left, CAT_PAD + CAT_TITLE_H),
+		Position = UDim2.fromOffset(left, CAT_PAD + titleH),
 		Size = UDim2.fromOffset(CAT_TEXT_W, CAT_LINE_H),
 		FontFace = Theme.fonts.display,
 		RichText = true,

@@ -7106,6 +7106,31 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local line = note:FindFirstChild("Line") :: TextLabel
 		assert(line ~= nil and line.Text == "They're at your front door.", "uigate: the friend's note is wrong (#3995)")
 	end },
+	-- #3995 (Review-QA on #4153, 667x375): the friend's note while the tutorial strip and its Buy show stays clear of both
+	{ "PalJoinStrip", function()
+		local levels = { tables = 0, lure_bowl = 0, espresso = 0, net = 0, lucky_cat = 0 }
+		UI.update({ tutorialStep = 3, tier = 1, money = 850, upgradeLevels = levels } :: any)
+		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
+		task.wait(0.2)
+		UI.palJoined(4242, localUserId(), nil)
+		task.wait(0.2)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local note = UIShim.playerGui:FindFirstChild("PalNote", true) :: GuiObject?
+		assert(note ~= nil, "uigate: no friend note over the strip scene (#3995)")
+		local function clear(piece: GuiObject?)
+			if piece == nil or not piece.Visible then
+				return true
+			end
+			local a0, a1 = note.AbsolutePosition, note.AbsolutePosition + note.AbsoluteSize
+			local b0, b1 = piece.AbsolutePosition, piece.AbsolutePosition + piece.AbsoluteSize
+			return a1.X <= b0.X or b1.X <= a0.X or a1.Y <= b0.Y or b1.Y <= a0.Y
+		end
+		for _, piece in hud:GetDescendants() do
+			if piece:IsA("GuiObject") and (piece.Name == "TutorialBuy" or (piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Text ~= "")) then
+				assert(clear(piece), ("uigate: the join note lies over the strip's %s (#3995)"):format(piece.Name))
+			end
+		end
+	end },
 	-- F84: the name card in the clouds at the top centre, held so the scene catches it (Derek 2026-11-03: the flying
 	-- character shows below it)
 	{ "CannonFlightCard", function()

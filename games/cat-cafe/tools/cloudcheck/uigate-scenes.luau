@@ -1000,6 +1000,39 @@ local function assertArrowAt(target: GuiObject, where: string)
 	local gap = math.max(t0.X - a1.X, a0.X - t1.X, t0.Y - a1.Y, a0.Y - t1.Y)
 	assert(gap < 24, ("uigate: the arrow sits %d px from %s (#2314)"):format(gap, where))
 end
+-- #4249: the `mailbox` switch on and three letters (two to claim, one with golden crates; one claimed). Scenes.close
+-- turns it off and empties the box.
+local function mailboxOn()
+	local now = os.time()
+	local golden: string? = nil
+	for _, def in Catalog.crates or {} do
+		if golden == nil and def.golden then
+			golden = def.id
+		end
+	end
+	assert(golden, "uigate: no golden crate in the catalog for the Mailbox scenes")
+	game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_mailbox", true)
+	Scenes._mailbox = true
+	UI.update({
+		mail = {
+			{ id = "m1", title = "Thanks for playing!", note = "Thanks for being one of our first players. Here is a little something for your cafe.", from = "Derek", sentAt = now - 60, endsAt = now + 3 * 86400 + 60, prize = { fish = 250 }, claimed = false },
+			{ id = "m2", title = "Giveaway: 3 New Worlds", note = "Snowy Mountain, Water Park and Castle are open. Good luck out there!", from = "Derek", sentAt = now - 3600, endsAt = now + 7200, prize = { crates = { [golden :: string] = 3 } }, claimed = false },
+			{ id = "m3", title = "Welcome to the cafe", note = "Glad you are here.", from = "Catch a Cat Cafe", sentAt = now - 2 * 86400, prize = { coins = 5000 }, claimed = true },
+		},
+	} :: any)
+	task.wait(0.1)
+end
+-- A tap on a Components/Button (its face, or on a touch screen its Hit pad)
+local function tapPiece(holder: Instance)
+	local press = if holder:IsA("GuiButton") and holder.Interactable ~= false then holder else nil
+	for _, piece in holder:GetDescendants() do
+		if press == nil and piece:IsA("GuiButton") and piece.Interactable ~= false then
+			press = piece
+		end
+	end
+	assert(press, "uigate: nothing to tap in " .. holder.Name)
+	UIShim.fire(UIShim.eventOf(press, "Activated"))
+end
 -- #2697: step 2 with every sample cat resting at Tier 1 (Scenes.close puts the crew back)
 local function stepTwoResting()
 	local before = UI.getState() :: any
@@ -11949,6 +11982,59 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(music and not music.Visible, "uigate: the Sound rows show on the Trading tab (#3961)")
 	end },
 	-- F102 part 2: the Trades page: a trade 12 minutes ago, a gift yesterday, nine cats each way 4 days ago
+	-- #4249 (Derek 2026-11-14, mockup OK'd): with the `mailbox` switch on, the Mailbox tile in the Feedback tile's
+	-- place with its red count, Feedback in the Menu list, and the window's letters (to claim, with crate odds, and
+	-- claimed); Scenes.close turns the switch off again
+	{ "HUDMailbox", function()
+		mailboxOn()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local icons = hud:FindFirstChild("Icons", true)
+		local tile = icons:FindFirstChild("Mailbox") :: GuiObject
+		assert(tile and tile.Visible, "uigate: no Mailbox tile with the switch on (#4249)")
+		local feedback = icons:FindFirstChild("Feedback") :: GuiObject
+		assert(feedback and not feedback.Visible, "uigate: the Feedback tile still shows beside the Mailbox (#4249)")
+		local count = tile:FindFirstChild("Count", true) :: TextLabel
+		assert(count and count.Text == "2" and (count.Parent :: GuiObject).Visible, ("uigate: the Mailbox count reads %q, wants 2 (#4249)"):format(count and count.Text or "none"))
+		tapPiece(icons:FindFirstChild("Menu") :: Instance)
+		task.wait(0.2)
+		local row: Instance? = nil
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "Feedback" and piece ~= feedback and piece:IsA("GuiObject") and piece.Visible then
+				row = piece
+			end
+		end
+		assert(row, "uigate: no Feedback row in the Menu list with the Mailbox on (#4249)")
+	end },
+	{ "Mailbox", function()
+		mailboxOn()
+		UI.open("Mailbox")
+		task.wait(0.1)
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Mailbox", true)
+		local cards = {}
+		for index = 1, 3 do
+			local card = window:FindFirstChild("Letter" .. index, true) :: GuiObject
+			assert(card and card.Visible, "uigate: Mailbox letter " .. index .. " missing (#4249)")
+			cards[index] = card
+		end
+		local odds = cards[2]:FindFirstChild("Odds") :: TextLabel
+		assert(odds.Visible and string.find(odds.Text, "Odds:", 1, true), "uigate: the crate letter shows no odds (#4249)")
+		assert((cards[3]:FindFirstChild("Claimed") :: GuiObject).Visible, "uigate: the claimed letter has no Claimed mark (#4249)")
+		assert(not (cards[3]:FindFirstChild("Claim") :: GuiObject).Visible, "uigate: the claimed letter still has Claim (#4249)")
+		-- no server answer wired in the gate: the card says so on its From line
+		tapPiece(cards[1]:FindFirstChild("Claim") :: Instance)
+		task.wait(0.1)
+		local from = cards[1]:FindFirstChild("From") :: TextLabel
+		assert(from.Text == "The Mailbox opens soon", ("uigate: a refused claim reads %q (#4249)"):format(from.Text))
+	end },
+	{ "MailboxEmpty", function()
+		mailboxOn()
+		UI.update({ mail = {} } :: any)
+		UI.open("Mailbox")
+		task.wait(0.1)
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Mailbox", true)
+		local empty = window:FindFirstChild("Empty", true) :: GuiObject
+		assert(empty and empty.Visible, "uigate: the empty Mailbox has no words (#4249)")
+	end },
 	{ "TradeLog", function()
 		UI.update({ tradeLog = tradeLog(os.time()) })
 		UI.open("TradeLog")
@@ -12122,6 +12208,12 @@ function Scenes.open(name)
 end
 
 function Scenes.close()
+	if Scenes._mailbox then
+		-- #4249's scenes: the switch off and the box empty again
+		Scenes._mailbox = nil
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_mailbox", nil)
+		UI.update({ mail = {} } :: any)
+	end
 	if Scenes._richTipGate ~= nil then
 		-- #3633's scene: its bubbles and made-up plots
 		for _, made in Scenes._richTipGate.made do

@@ -67,6 +67,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Invite = require(script.Parent.Parent.Components.Invite)
 local LuckChip = require(script.Parent.LuckChip)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
+local MailLogic = require(script.Parent.Parent.Components.MailLogic)
 local MoneyFlash = require(script.Parent.Parent.Components.MoneyFlash)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
@@ -113,6 +114,9 @@ export type Callbacks = {
 	hideTutorialButton: () -> (), -- the Tutorial tile's red ×
 	openFeedback: () -> (), -- the Feedback tile: the Feedback window on its Idea chip
 	openIdea: (() -> ())?, -- #3883: the map theme bubble: the Feedback window on its Idea page (nil: openFeedback)
+	-- #4249: the Mailbox tile, in the Feedback tile's place while the `mailbox` switch is on (Feedback moves into the
+	-- Menu list); nil keeps the Feedback tile
+	openMailbox: (() -> ())?,
 	setSetting: ((key: string, value: boolean) -> ())?, -- #1893: the Grand Opening strip saves roadmapOpen
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
@@ -195,6 +199,7 @@ export type HUD = {
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local LiveFlags = require(Shared:WaitForChild("LiveFlags")) -- #4249: the `mailbox` switch
 local NewKind = require(Shared:WaitForChild("NewKind")) -- #3529: the goal card's "Catch new kinds of cat"
 local Pals = require(Shared:WaitForChild("Pals")) :: any -- #3954: the Menu's Invite row names the pal tip bonus
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel")) -- #1888: where a Store open came from
@@ -1108,6 +1113,54 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 	})
 	table.insert(self._buttons, self._feedbackTile)
+	-- #4249 (Derek 2026-11-14, mockup OK'd 18:04 UTC): while the `mailbox` switch is on the Mailbox tile takes the
+	-- Feedback tile's place, with a red count of the letters waiting, and Feedback moves into the Menu list
+	-- (_mailOn). The switch is followed live, so turning it on reaches players already in.
+	local openMailbox = callbacks.openMailbox
+	self._mailTile = nil :: Button.Button?
+	self._mailWaiting = 0
+	if openMailbox ~= nil then
+		local mailTile = Button.new({
+			name = "Mailbox",
+			text = "Mailbox",
+			icon = "✉️",
+			layout = "clean",
+			textSize = ICON_TEXT,
+			style = "berry",
+			size = UDim2.fromOffset(ICON, ICON_H),
+			layoutOrder = 4,
+			parent = icons,
+			sound = false, -- the modal swish is the sound
+			onClick = function()
+				openMailbox()
+			end,
+		})
+		mailTile.instance.Visible = false
+		table.insert(self._buttons, mailTile)
+		self._mailTile = mailTile
+		local mailDot: Frame = Create("Frame", {
+			Name = "Dot",
+			BackgroundColor3 = Theme.colors.red,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(1, 0.5),
+			Position = UDim2.new(1, 2, 0, 4),
+			Size = UDim2.fromOffset(24, 24),
+			Visible = false,
+			ZIndex = 6,
+			Parent = mailTile.instance,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+		Outline.border(mailDot, 2)
+		self._mailDot = mailDot
+		self._mailCount = label({
+			Name = "Count",
+			Size = UDim2.fromScale(1, 1),
+			TextSize = Theme.sizes.textSmall,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Text = "",
+			ZIndex = 7,
+			Parent = mailDot,
+		})
+	end
 	self._calloutDoneAt = nil :: number?
 	self._calloutStep = nil :: number?
 	-- Menu (Derek 2026-11-02, fewer buttons): Settings and Invite behind one gear. Once Invite is unlocked a press
@@ -2401,6 +2454,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 	self:_paintKeys()
+	-- #4249: the `mailbox` switch flipped while playing: the tiles and the Menu list follow
+	if self._mailTile ~= nil then
+		table.insert(
+			self._connections,
+			ReplicatedStorage
+				:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. MailLogic.FLAG)
+				:Connect(function()
+					self:_applyUnlocks()
+				end)
+		)
+	end
 	-- #3883: the map theme bubble under the Feedback tile (FeedbackCalloutLogic says when), made last so it
 	-- draws over the goal card
 	self._callout = FeedbackCallout.new(root, self._feedbackTile.instance, function()
@@ -2968,9 +3032,14 @@ end
 
 -- Shows the bubble now (the UI gate's picture calls this too) and puts it away after SHOW_SECONDS.
 function HUD.showCallout(self: any)
-	if not self._feedbackTile.instance.Visible then
+	-- #4249: under the Menu tile while the Mailbox has the Feedback tile's place (Feedback is in the Menu list)
+	local tile: GuiObject = if self:_mailOn()
+		then self._menuTile.instance
+		else self._feedbackTile.instance
+	if not tile.Visible then
 		return
 	end
+	self._callout._tile = tile
 	calloutShown = true
 	self._callout:show()
 	task.delay(FeedbackCalloutLogic.SHOW_SECONDS, function()
@@ -2987,6 +3056,13 @@ end
 
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
+	-- #4249: the Mailbox tile's red count, the letters still to claim
+	if self._mailTile ~= nil then
+		local waiting = MailLogic.waiting(state.mail, os.time())
+		self._mailWaiting = waiting
+		self._mailDot.Visible = waiting > 0
+		self._mailCount.Text = if waiting > 9 then "9+" else tostring(waiting)
+	end
 	-- #2211: the tutorial's last step done just now (not a player who finished it before this join): the × pulses
 	local step = state.tutorialStep or TUTORIAL_DONE
 	self:_calloutWatch(step)
@@ -3189,7 +3265,12 @@ function HUD._applyUnlocks(self: any)
 	end
 	self._questsPill.instance.Visible = self._questsLive == true and self:_open("quests")
 	self:_renderRewards()
-	self._feedbackTile.instance.Visible = self:_open("feedback")
+	local mailTile: Button.Button? = self._mailTile
+	local mailOn = self:_mailOn()
+	self._feedbackTile.instance.Visible = self:_open("feedback") and not mailOn
+	if mailTile ~= nil then
+		mailTile.instance.Visible = mailOn and self:_open("feedback") -- #4249: the Mailbox opens when Feedback would
+	end
 	-- #2710 (Derek2: "maybe just move potions to bag for mobile and remove that button entirely"): on touch the Bag
 	-- pill holds the potions (its Potions tab), and the one potion chip takes the tile's place while any run
 	self._potionsTile.instance.Visible = self:_open("potions") and not TOUCH
@@ -3227,7 +3308,9 @@ function HUD._unlockTarget(self: any, key: HudUnlocks.Key): (GuiObject?, boolean
 			if key == "quests"
 				then self._questsPill
 				elseif key == "gifts" or key == "daily" then self._rewards
-				elseif key == "feedback" then self._feedbackTile
+				elseif key == "feedback" then (if self:_mailOn()
+					then self._mailTile
+					else self._feedbackTile)
 				elseif key == "invite" then self._menuTile
 				elseif key == "potions" then (if TOUCH
 					then self._pills.Bag
@@ -4672,8 +4755,17 @@ end
 -- The Menu tile's press: the list (Settings, Invite) once Invite is unlocked, else Settings at once. Derek
 -- 2026-11-13 ("remove the old cat arcade icon from settings"): the list has no Cat Arcade row (#3062's); the arcade
 -- opens at its cabinet.
+-- #4249: true while the Mailbox tile stands in the Feedback tile's place (the `mailbox` switch, live)
+function HUD._mailOn(self: any): boolean
+	return self._mailTile ~= nil
+		and LiveFlags.shown(
+			MailLogic.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. MailLogic.FLAG)
+		)
+end
+
 function HUD._pressMenu(self: any)
-	if self:_open("invite") then
+	if self:_open("invite") or self:_mailOn() then -- #4249: the list holds Feedback with the Mailbox on
 		self:_togglePop("menu")
 	else
 		self._callbacks.openScreen("Settings")
@@ -4746,6 +4838,17 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 				style = "secondary" :: Button.Style,
 				press = function()
 					Invite.prompt() -- F92: with this player's name in the launch data
+				end,
+			})
+		end
+		-- #4249: Feedback's place while the Mailbox has its tile
+		if self:_mailOn() then
+			table.insert(rows, {
+				id = "Feedback",
+				icon = Theme.icons.feedback,
+				style = "sky" :: Button.Style,
+				press = function()
+					callbacks.openFeedback()
 				end,
 			})
 		end

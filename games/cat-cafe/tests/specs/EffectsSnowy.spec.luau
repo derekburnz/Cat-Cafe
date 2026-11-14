@@ -134,6 +134,12 @@ return function()
 			expect((a - b).Magnitude < 1e-6).to.equal(true)
 		end)
 
+		it("wriggles a cat stuck in each of the Snowy Mountain's traps", function()
+			for _, trap in { "snowdrift", "snow_log", "snowman", "sled" } do
+				expect(Logic.stuckStyle(trap)).to.equal("stuckButt")
+			end
+		end)
+
 		it("hangs the northern lights over the area at night, slow and inside it", function()
 			local a = Presets.areaFx.areas.snowy.aurora :: any
 			expect(#a.ribbons).to.equal(3) -- one count per budget tier, fewer as the tier drops

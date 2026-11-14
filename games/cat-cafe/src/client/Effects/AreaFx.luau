@@ -391,7 +391,8 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 	local count = spec.ribbons[tiers[Context.tier] or 3] or 2
 	local part = Context.effectPart("AreaAurora", Vector3.one, spec.foot)
 	part.Transparency = 1
-	local middle = Vector3.new(box.centre.x, spec.height, box.centre.z)
+	local height = testHeight or spec.height
+	local middle = Vector3.new(box.centre.x, height, box.centre.z)
 	part.CFrame = CFrame.new(middle)
 	local calm = Context.reducedMotion()
 	for _, r in
@@ -399,7 +400,7 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 			count,
 			box.centre,
 			box.size,
-			spec.height,
+			height,
 			spec.spread,
 			spec.rise,
 			spec.curve,
@@ -463,8 +464,10 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, box: any)
 end
 
 -- Studio only: Workspace's `AreaAuroraTest` attribute set to an area's id ("snowy") hangs its northern lights over
--- where you stand, day or night, until it is cleared.
+-- where you stand, day or night, until it is cleared. "snowy,30" hangs them 30 studs up instead, low enough to see
+-- without tilting the camera.
 local testAurora: string? = nil
+local testHeight: number? = nil
 local testBox: any = nil
 
 local function updateAurora(here: string?, feet: Vector3)
@@ -549,7 +552,9 @@ function AreaFx.start()
 			local value = Workspace:GetAttribute("AreaAuroraTest")
 			local old = specOf(auroraArea)
 			local was = if old ~= nil then old.aurora else nil
-			testAurora = if type(value) == "string" and value ~= "" then value else nil
+			local parts = if type(value) == "string" then string.split(value, ",") else {}
+			testAurora = if parts[1] ~= nil and parts[1] ~= "" then parts[1] else nil
+			testHeight = tonumber(parts[2] or "")
 			testBox = nil
 			if testAurora == nil and aurora ~= nil and was ~= nil then
 				auroraLeaving = true -- cleared: fade out as it does when night ends

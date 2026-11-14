@@ -1595,6 +1595,11 @@ Presets.motion = {
 			rubble_pile = "butt",
 			stone_urn = "butt",
 			bridge_ledge = "flip",
+			-- Tier 8, the Snowy Mountain (#4069): head first into a snowdrift, a snowy log, a snowman or under a sled
+			snowdrift = "butt",
+			snow_log = "butt",
+			snowman = "butt",
+			sled = "butt",
 		} :: { [string]: string },
 		butt = {
 			every = 2.2,

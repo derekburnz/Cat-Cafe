@@ -366682,6 +366682,66 @@
           "centered": "footprint center x=0.00 y=-3.56"
         }
       }
+    },
+    {
+      "name": "CatCafe_Castle_Backdrop",
+      "category": "Castle",
+      "module": "wildbackdrop",
+      "objects": [
+        "CatCafe_Castle_Backdrop",
+        "CatCafe_Castle_Backdrop_Ground",
+        "CatCafe_Castle_Backdrop_Hills",
+        "CatCafe_Castle_Backdrop_HillsFar",
+        "CatCafe_Castle_Backdrop_Flowers",
+        "CatCafe_Castle_Backdrop_Bulbs"
+      ],
+      "triangles": 27508,
+      "budget": 60000,
+      "size_studs": {
+        "x": 645.42,
+        "y": 1088.04,
+        "z": 281.91
+      },
+      "size_roblox": [
+        645.42,
+        281.91,
+        1088.04
+      ],
+      "bounds_min": [
+        -324.48,
+        -561.1,
+        -182.01
+      ],
+      "bounds_max": [
+        320.94,
+        526.94,
+        99.9
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Castle_Backdrop.model.json",
+      "rbx_parts": 1276,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Castle_Backdrop.fbx",
+        "assets/cat-cafe/exports/CatCafe_Castle_Backdrop.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "27508/60000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "21532 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-182.01 (want 0)",
+          "centered": "footprint center x=-1.77 y=-17.08"
+        }
+      }
     }
   ]
 }

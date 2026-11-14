@@ -230,6 +230,16 @@ function GamepadNav.popBack(id: string)
 	end
 end
 
+-- #4224 (the hint strip): whether a pushed card or list still shows, so B goes back out of it
+function GamepadNav.hasBack(): boolean
+	for index = #backs, 1, -1 do
+		if GamepadNav.shown(backs[index].frame) then
+			return true
+		end
+	end
+	return false
+end
+
 -- Closes the top pushed card that still shows and returns true; a card that has gone without popping is dropped.
 -- False when none shows (B then closes the window, or lets go of the selection).
 function GamepadNav.back(): boolean

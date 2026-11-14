@@ -2570,6 +2570,94 @@ local SCENES = {
 		assert(GuiService.SelectedObject == nil, "uigate: Select again did not let go (#2872)")
 		UIShim.setLastInput(nil)
 	end },
+	-- #4224: on a controller with the padControls switch on, a strip along the bottom says what A, B and LB / RB do
+	-- in the open window (the Index has tabs), and it hides off the controller
+	{ "GamepadHints", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local GuiService = game:GetService("GuiService")
+		Scenes._padReset = function()
+			ReplicatedStorage:SetAttribute("LiveFlag_padControls", nil)
+			UIShim.setLastInput(nil)
+			GuiService.SelectedObject = nil
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", true)
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		UI.open("Collection")
+		UIShim.advance(0.4)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafePadHints") :: ScreenGui
+		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale") :: any
+		if Scale.isShort() then
+			-- a short screen's window reaches the bottom edge, so the strip stays away while it is open
+			assert(gui ~= nil and not gui.Enabled, "uigate: controller hints over a short screen's window (#4224)")
+			return
+		end
+		assert(gui ~= nil and gui.Enabled, "uigate: no controller hints over an open window (#4224)")
+		local labels: { [string]: boolean } = {}
+		for _, piece in gui:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Name == "Label" then
+				labels[piece.Text] = true
+			end
+		end
+		local seen = {}
+		for word in labels do
+			table.insert(seen, word)
+		end
+		assert(labels.Select and labels.Back and labels.Tabs, "uigate: the hints miss Select, Back or Tabs in the Index (#4224): " .. table.concat(seen, ","))
+	end },
+	-- #4224 (Review-QA in Studio): with nothing open the strip sits at the right edge, clear of the tip cards at the top
+	-- and the travel row at the bottom
+	{ "GamepadHintsHUD", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local GuiService = game:GetService("GuiService")
+		Scenes._padReset = function()
+			ReplicatedStorage:SetAttribute("LiveFlag_padControls", nil)
+			UIShim.setLastInput(nil)
+			GuiService.SelectedObject = nil
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", true)
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		UI.open("Upgrades")
+		UIShim.advance(0.3)
+		UI.close()
+		UIShim.advance(0.4)
+		GuiService.SelectedObject = nil
+		UIShim.advance(0.2)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafePadHints") :: ScreenGui
+		local strip = gui and gui:FindFirstChild("Strip", true) :: Frame?
+		assert(gui.Enabled and strip ~= nil, "uigate: no controller hint with nothing open (#4224)")
+		assert(strip.AnchorPoint.X == 1, "uigate: the controller hint with nothing open is not at the right edge (#4224)")
+	end },
+	-- #4224 (Review-QA controller pass): L1 / R1 find the Store's rail and the Decor chips as tab rows, and Potions
+	-- does not land on "Use all potions" first
+	{ "GamepadTabRows", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local GuiService = game:GetService("GuiService")
+		local Nav = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.GamepadNav") :: any
+		Scenes._padReset = function()
+			ReplicatedStorage:SetAttribute("LiveFlag_padControls", nil)
+			UIShim.setLastInput(nil)
+			GuiService.SelectedObject = nil
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", true)
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals") :: any
+		local container = modals:FindFirstChild("Container", true)
+		for _, name in { "Store", "Decor" } do
+			UI.open(name)
+			UIShim.advance(0.4)
+			local row, tabs = Nav.tabs(container)
+			assert(row ~= nil and #tabs >= 2, "uigate: L1 / R1 find no tab row in " .. name .. " (#4224)")
+			UI.close()
+			UIShim.advance(0.4)
+		end
+		UI.open("Potions")
+		UIShim.advance(0.4)
+		local first = Nav.first(container)
+		assert(
+			first == nil or (first.Name ~= "UseAllPotions" and (first.Parent :: Instance).Name ~= "UseAllPotions"),
+			"uigate: Potions lands on Use all potions first (#4224)"
+		)
+	end },
 	-- #3839 (84 "Setting GuiService.SelectedObject to invalid GuiObject" a day): a button whose ScreenGui was taken out of
 	-- PlayerGui keeps Enabled and Visible, and the engine refuses it; GamepadNav.select and restore leave it alone
 	{ "GamepadSelectDetached", function()
@@ -12311,6 +12399,10 @@ function Scenes.close()
 		UI.update({ money = Scenes._parkFly } :: any)
 		Scenes._parkFly = nil
 		UI.cannon.clearFly() -- #2915's scene
+	end
+	if Scenes._padReset ~= nil then
+		Scenes._padReset() -- #4224's GamepadHints: off the controller again
+		Scenes._padReset = nil
 	end
 	if Scenes._rankTier ~= nil then
 		UI.update({ tier = Scenes._rankTier } :: any) -- #2121's Tier 2 rank-up scene

@@ -1400,9 +1400,101 @@ def build_dragon_keep(mat):
             cush.finalize(KEEP + "_Cushion", mat, location=(0.0, KEEP_FLOOR + 0.47, 0.0))]
 
 
+# ------------------------------------------------------------------------------------------ the Ticket Booth --
+BOOTH = "CatCafe_Camp_WaterPark_TicketBooth"
+TB_X, TB_Z0, TB_Z1, TB_H = 4.0, -1.6, 1.6, 5.2                 # the kiosk: half width, front, back, wall top
+TB_SIGN_Y, TB_SIGN_R = 9.4, 2.3                               # the ticket wheel sign: hub height, radius
+
+
+def build_ticket_booth(mat):
+    """#4061 (ticket-booth-and-dragon-keep.md 1.5): a red and white striped kiosk 8 wide on a blue deck, a round
+    ticket window in its front (-Z) with a counter under it and prize plushies hanging inside, a scalloped awning,
+    and a big ticket wheel sign on the roof. The sign is `_Sign_Spin`, one Model pivoted at its hub with the pivot's Y
+    axis to the front, so Effects spins it like every _Spin; it is for looks only. `_Glow` is the bulbs round the
+    window and on the sign's post (Neon). Attachments: PromptAnchor (the window's counter, 1.5 up), BangAnchor (2
+    over the sign)."""
+    b, glow, spin = RB(), RB(), RB()
+    b.span((-TB_X - 0.6, 0, TB_Z0 - 1.4), (TB_X + 0.6, 0.3, TB_Z1 + 0.5), "shirt_blue")          # the deck
+    b.span((-TB_X - 0.4, 0.3, TB_Z0 - 1.2), (TB_X + 0.4, 0.34, TB_Z1 + 0.3), "pastel_sky")
+    n = 8
+    for k in range(n):                                                                         # striped walls
+        x0 = -TB_X + 2 * TB_X * k / n
+        sw = ("shirt_red", "milk")[k % 2]
+        if k in (3, 4):                                                                        # the window's column
+            b.span((x0, 0.3, TB_Z0), (x0 + 2 * TB_X / n, 1.9, TB_Z0 + 0.3), sw)
+            b.span((x0, 4.3, TB_Z0), (x0 + 2 * TB_X / n, TB_H, TB_Z0 + 0.3), sw)
+        else:
+            b.span((x0, 0.3, TB_Z0), (x0 + 2 * TB_X / n, TB_H, TB_Z0 + 0.3), sw)
+        b.span((x0, 0.3, TB_Z1 - 0.3), (x0 + 2 * TB_X / n, TB_H, TB_Z1), sw)
+    for sx in (-1, 1):
+        for k in range(4):
+            z0 = TB_Z0 + 0.3 + (TB_Z1 - TB_Z0 - 0.6) * k / 4
+            b.span((sx * TB_X - (0.3 if sx > 0 else 0), 0.3, z0), (sx * TB_X + (0.3 if sx < 0 else 0), TB_H,
+                                                                 z0 + (TB_Z1 - TB_Z0 - 0.6) / 4),
+                   ("milk", "shirt_red")[k % 2])
+    b.span((-TB_X + 0.3, 0.3, TB_Z0 + 0.3), (TB_X - 0.3, 0.5, TB_Z1 - 0.3), "dark_wood")         # the floor inside
+    b.span((-0.95, 1.9, TB_Z0 + 0.32), (0.95, 4.3, TB_Z0 + 0.4), "night_sky")                   # the dark inside
+    for k in range(12):                                                                        # the round window's rim
+        a = math.radians(30.0 * k + 15)
+        b.box((1.25 * math.cos(a), 3.1 + 1.25 * math.sin(a), TB_Z0 - 0.06), (0.72, 0.3, 0.2), "gold_mid",
+              rot=rot_z(30.0 * k + 15 + 90))
+        if k % 2 == 0:
+            glow.ball((1.62 * math.cos(a), 3.1 + 1.62 * math.sin(a), TB_Z0 - 0.1), 0.14, "sparkle")
+    b.span((-1.7, 1.75, TB_Z0 - 0.75), (1.7, 1.95, TB_Z0 + 0.1), "caramel_wood")                # the counter
+    b.span((-1.5, 1.2, TB_Z0 - 0.5), (-1.3, 1.75, TB_Z0), "dark_wood")
+    b.span((1.3, 1.2, TB_Z0 - 0.5), (1.5, 1.75, TB_Z0), "dark_wood")
+    b.span((0.5, 1.95, TB_Z0 - 0.6), (1.2, 2.12, TB_Z0 - 0.2), "pastel_butter")                 # a roll of tickets
+    b.cyl((0.85, 2.3, TB_Z0 - 0.4), 0.2, 0.3, "pastel_butter", axis="X", segments=8)
+    # prize plushies hanging in the window: a cat, a fish and a star
+    b.span((-0.72, 3.3, TB_Z0 + 0.05), (-0.28, 3.7, TB_Z0 + 0.3), "fur_orange")
+    for sx in (-1, 1):
+        b.box((-0.5 + sx * 0.15, 3.76, TB_Z0 + 0.17), (0.12, 0.14, 0.12), "fur_orange")
+    b.span((-0.6, 3.05, TB_Z0 + 0.1), (-0.4, 3.3, TB_Z0 + 0.26), "fur_cream")
+    b.box((0.0, 3.3, TB_Z0 + 0.17), (0.5, 0.26, 0.16), "fish_blue")
+    b.box((0.3, 3.3, TB_Z0 + 0.17), (0.2, 0.2, 0.12), "fish_blue", rot=rot_z(45))
+    b.box((0.55, 3.55, TB_Z0 + 0.17), (0.3, 0.3, 0.14), "rarity_legend", rot=rot_z(45))
+    for x in (-0.5, 0.0, 0.55):
+        b.span((x - 0.02, 3.72, TB_Z0 + 0.15), (x + 0.02, 4.3, TB_Z0 + 0.19), "milk")
+    # the roof and the scalloped awning over the front
+    b.span((-TB_X - 0.3, TB_H, TB_Z0 - 0.3), (TB_X + 0.3, TB_H + 0.35, TB_Z1 + 0.3), "shirt_blue")
+    b.span((-TB_X + 0.4, TB_H + 0.35, TB_Z0 + 0.4), (TB_X - 0.4, TB_H + 0.7, TB_Z1 - 0.4), "pastel_sky")
+    for k in range(n):
+        x0 = -TB_X - 0.3 + (2 * TB_X + 0.6) * k / n
+        w = (2 * TB_X + 0.6) / n
+        sw = ("milk", "shirt_red")[k % 2]
+        b.box((x0 + w / 2, TB_H - 0.25, TB_Z0 - 0.95), (w, 0.12, 1.5), sw, rot=rot_x(-20))
+        b.cyl((x0 + w / 2, TB_H - 0.6, TB_Z0 - 1.62), w / 2, 0.1, sw, axis="Z", segments=8)      # the scallop
+    # the sign: a post, and the ticket wheel that spins on it
+    b.span((-0.25, TB_H + 0.7, -0.25), (0.25, TB_SIGN_Y, 0.25), "dark_wood")
+    b.span((-1.6, TB_H + 0.7, -0.5), (1.6, TB_H + 1.5, -0.3), "milk")                           # TICKETS board
+    b.text("TICKETS", (1.4, TB_H + 0.85, -0.5), 0.1, 0.05, "shirt_red", right=(-1, 0, 0))   # read from the front
+    for sx in (-1, 1):
+        glow.ball((sx * 1.75, TB_H + 1.1, -0.4), 0.16, "sparkle")
+    hub = (0.0, TB_SIGN_Y, -0.45)
+    spin.cyl((0, 0, 0), TB_SIGN_R, 0.2, "milk", axis="Z", segments=16)
+    spin.cyl((0, 0, -0.06), TB_SIGN_R - 0.3, 0.2, "shirt_red", axis="Z", segments=16)
+    spin.cyl((0, 0, -0.14), 0.4, 0.2, "gold_mid", axis="Z", segments=10)
+    for k in range(8):                                                                         # eight tickets round it
+        a = 45.0 * k
+        ar = math.radians(a)
+        r = TB_SIGN_R - 1.05
+        spin.box((r * math.cos(ar), r * math.sin(ar), -0.19), (1.0, 0.55, 0.08), ("pastel_butter", "milk")[k % 2],
+                 rot=rot_z(a))
+        spin.box((r * math.cos(ar), r * math.sin(ar), -0.24), (0.3, 0.3, 0.06), ("shirt_red", "shirt_blue")[k % 2],
+                 rot=rot_z(a + 45))
+        spin.box((TB_SIGN_R * math.cos(ar + 0.39), TB_SIGN_R * math.sin(ar + 0.39), 0.0), (0.3, 0.3, 0.24), "gold_mid",
+                 rot=rot_z(a + 22.5))
+    _anchor(BOOTH, "PromptAnchor", (0.0, 1.5 + 0.3, TB_Z0 - 1.3))
+    _anchor(BOOTH, "BangAnchor", (0.0, TB_SIGN_Y + TB_SIGN_R + 2.0, -0.45))
+    return [b.finalize(BOOTH, mat), glow.finalize(BOOTH + "_Glow", mat),
+            spin.finalize(BOOTH + "_Sign_Spin", mat, location=hub)]
+
+
 # #1800: the moving child Models' own numbers for Effects/Motion (rbx_export model_attributes), by asset
 MOVING = {YARD: {"model_attributes": {"_Sign_Swing": {"Angle": {"Float64": SIGN_ANGLE}}}},
-          KEEP: {"nest": {"_Gold_Glow": "_Gold"}}}   # #4062: the jewels ride the gold
+          KEEP: {"nest": {"_Gold_Glow": "_Gold"}},   # #4062: the jewels ride the gold
+          # #4061: the ticket wheel faces the front, so its _Spin pivot's Y axis is turned onto -Z
+          BOOTH: {"pivot_turns": {"_Spin": Matrix.Rotation(math.radians(-90), 3, "X")}}}
 
 
 def rbx_attachments(name):
@@ -1424,4 +1516,5 @@ ASSETS = {
     BIN: (build_rummage_bin, 2500),
     COCOA: (build_cocoa_stand, 6000),
     KEEP: (build_dragon_keep, 6000),
+    BOOTH: (build_ticket_booth, 6000),
 }

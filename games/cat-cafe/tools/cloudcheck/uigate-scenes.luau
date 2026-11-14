@@ -613,28 +613,6 @@ local function adminInfo(startsAt: number): any
 	}
 end
 
--- #4195: `piece` (the admin banner or timer) is clear of the HUD's top pieces
-local function adminClear(piece: GuiObject)
-	local function rect(o: GuiObject): (Vector2, Vector2)
-		return o.AbsolutePosition, o.AbsolutePosition + o.AbsoluteSize
-	end
-	local function apart(a: GuiObject, b: GuiObject): boolean
-		local a0, a1 = rect(a)
-		local b0, b1 = rect(b)
-		return a1.X <= b0.X + 1 or b1.X <= a0.X + 1 or a1.Y <= b0.Y + 1 or b1.Y <= a0.Y + 1
-	end
-	for _, gui in UIShim.playerGui:GetChildren() do
-		if gui:IsA("ScreenGui") and gui.Enabled and gui.Name ~= "CatCafeAdminEvent" then
-			for _, name in { "Counters", "Menu", "MenuFold", "TierGoal", "Icons", "MoneyBadge", "Quests", "Luck" } do
-				local other = gui:FindFirstChild(name, true)
-				if other ~= nil and other:IsA("GuiObject") and other.Visible and other.AbsoluteSize.X > 0 then
-					assert(apart(piece, other), "uigate: the admin " .. piece.Name .. " covers " .. name .. " (#4195)")
-				end
-			end
-		end
-	end
-end
-
 local function cafeEvent(fields: { [string]: any })
 	local store = game:GetService("ReplicatedStorage")
 	local attrs: { [string]: any } = {
@@ -4904,35 +4882,28 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local locked = maple and maple:FindFirstChild("Equip", true)
 		assert(maple and not (locked and (locked :: any).Visible), "uigate: a locked title shows Equip")
 	end },
-	-- #4195 (Derek 2026-11-14, admin events on update days): the 2 minute warning banner, then the HUD timer with its
-	-- Spin button, then the Admin Wheel's window, and the window once a spin has landed. Banner and timer sit top
-	-- centre clear of the HUD's top pieces.
-	{ "AdminWarn", function()
-		Scenes._admin = true
-		local t = workspace:GetServerTimeNow()
-		UI.admin.set(adminInfo(t + 120), nil)
-		local bar = UIShim.playerGui:FindFirstChild("CatCafeAdminEvent") :: ScreenGui
-		local banner = bar and bar:FindFirstChild("Banner", true) :: GuiObject
-		assert(bar and bar.Enabled and banner and banner.Visible, "uigate: no admin event warning banner (#4195)")
-		local big = banner:FindFirstChild("Big") :: TextLabel
-		assert(big.Text == "ADMIN EVENT IN 2:00" and big.TextFits, "uigate: the warning's words are wrong or cut: " .. big.Text .. " (#4195)")
-		adminClear(banner)
-	end },
-	{ "AdminTimer", function()
+	-- #4195 (Derek 2026-11-14, admin events on update days): the Admin Wheel's window, and the window once a spin has
+	-- landed. Derek 22:54 UTC ("the ui is still on the screen too much"): no admin bar or timer of its own; the window
+	-- opens by itself once, after the splash, and not over another window
+	{ "AdminWheelAuto", function()
 		Scenes._admin = true
 		local t = workspace:GetServerTimeNow()
 		local info = adminInfo(t - 60)
+		info.id = "wheel-auto-gate"
 		local wheel = { eventId = info.id, spun = false, endsAt = info.endsAt }
+		assert(UIShim.playerGui:FindFirstChild("CatCafeAdminEvent") == nil, "uigate: the admin bar is still built (Derek 22:54 UTC)")
+		UI.open("Settings")
 		UI.admin.set(info, wheel)
-		UIShim.advance(9) -- the start banner's time
+		UIShim.advance(5)
 		UI.admin.set(info, wheel)
-		local bar = UIShim.playerGui:FindFirstChild("CatCafeAdminEvent") :: ScreenGui
-		local timer = bar:FindFirstChild("Timer", true) :: GuiObject
-		local banner = bar:FindFirstChild("Banner", true) :: GuiObject
-		assert(timer.Visible and not banner.Visible, "uigate: the admin timer is not up after the banner (#4195)")
-		local spin = timer:FindFirstChild("Spin", true) :: GuiObject
-		assert(spin and spin.Visible, "uigate: the admin timer has no Spin button while the wheel is up (#4195)")
-		adminClear(timer)
+		assert(UI.isOpen() == "Settings", "uigate: the Admin Wheel opened over another window")
+		UI.close()
+		UI.admin.set(info, wheel)
+		assert(UI.isOpen() == "AdminWheel", "uigate: the Admin Wheel did not open by itself once the wheel was up (#4195)")
+		UI.close()
+		UIShim.advance(5)
+		UI.admin.set(info, wheel)
+		assert(UI.isOpen() ~= "AdminWheel", "uigate: the Admin Wheel opened by itself a second time")
 	end },
 	{ "AdminWheel", function()
 		Scenes._admin = true
@@ -10939,13 +10910,12 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assert(banners == 1, ("uigate: %d Cafe Party banners, not 1 (#2487)"):format(banners))
 	end },
-	-- #4195: an admin event (Bowl Frenzy) beside the running party. The admin bar (Screens/AdminEventBar) is its one
-	-- timer, so the Cafe Event strip stays the party's and shows no second admin timer (#4202 hands it over)
+	-- #4195: an admin event (Bowl Frenzy) beside the running party: its timer is first on the strip with the party
+	-- beside it, the card a tap opens has both, and with the admin event gone the strip is the party's again
 	{ "AdminEventRunning", function()
 		local t = workspace:GetServerTimeNow()
 		local store = game:GetService("ReplicatedStorage")
 		Scenes._cafeEvent = true
-		Scenes._admin = true
 		UIShim.advance(4) -- earlier scenes' toasts gone
 		store:SetAttribute("AdminEventId", "frenzy-gate")
 		store:SetAttribute("AdminEventTitle", "Bowl Frenzy")
@@ -10953,19 +10923,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		store:SetAttribute("AdminEventEndsAt", t + 880)
 		store:SetAttribute("AdminEventEffects", "")
 		store:SetAttribute("AdminEventRunning", true)
-		assert(UI.admin.hasBar(), "uigate: no admin bar to carry the admin event's timer (#4195)")
 		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
 		local chip = assertEventChip(2)
-		assert(chip.Text:find("Bowl Frenzy", 1, true) == nil and chip.Text:find("Cafe Party 1:59:", 1, true) ~= nil, "uigate: the strip reads " .. chip.Text .. ": a second admin timer beside the admin bar's (#4195)")
-		local info = adminInfo(t - 20)
-		info.id, info.title, info.wheel, info.bowlSpeed, info.endsAt = "frenzy-gate", "Bowl Frenzy", false, 4, t + 880
-		UI.admin.set(info, nil)
-		UIShim.advance(9)
-		UI.admin.set(info, nil)
-		local timer = UIShim.playerGui:FindFirstChild("CatCafeAdminEvent"):FindFirstChild("Timer", true) :: GuiObject
-		local words = timer:FindFirstChild("Words") :: TextLabel
-		assert(timer.Visible and words.Text == "Bowl Frenzy", "uigate: the admin bar's timer is not up for Bowl Frenzy (#4195)")
-		-- the admin event over: the strip is still the party's
+		assert(chip.Text:find("Bowl Frenzy 14:", 1, true) ~= nil, "uigate: the strip's first piece reads " .. chip.Text .. ", not the admin event's timer (#4195)")
+		local beside = UIShim.playerGui:FindFirstChild("EventNext", true) :: TextLabel?
+		assert(beside == nil or not beside.Visible or beside.Text:find("Cafe Party 1:59:", 1, true) ~= nil, "uigate: the piece beside the admin timer reads " .. tostring(beside and beside.Text) .. " (#4195)")
+		local cardLines = UIShim.playerGui:FindFirstChild("EventLines", true) :: TextLabel
+		assert(cardLines and cardLines.Text:find("Bowl Frenzy 14:", 1, true) and cardLines.Text:find("Cafe Party", 1, true), "uigate: the strip's card does not have the admin event and the party (#4195)")
+		-- the admin event over: the party's own strip is back
 		store:SetAttribute("AdminEventId", "")
 		store:SetAttribute("AdminEventRunning", false)
 		UI.cafeEvent.tick()

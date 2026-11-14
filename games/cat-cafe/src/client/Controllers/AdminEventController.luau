@@ -1,9 +1,9 @@
 --!strict
 -- #4195 (Derek 2026-11-14, admin events on update days): the admin event on this client. Every half second it reads
 -- the server's admin event attributes (shared/CafeEvents.ADMIN_ATTRIBUTES on ReplicatedStorage: the event running,
--- or the one starting within its 2 minute warning) and PlayerState.adminWheel, and hands them to UI.admin.set (the
--- banner, the HUD timer and the Admin Wheel's window). Spin on the window fires AdminWheelSpin; AdminWheelResult
--- turns the wheel. With the switch `adminEvents` off the server names no event, so nothing shows.
+-- or the one starting within its 2 minute warning) and PlayerState.adminWheel, and hands them to UI.admin.set (only
+-- the Admin Wheel's window now: Derek 22:54 UTC cut the banner and the HUD timer, Motion-FX's strip owns the readout).
+-- Spin on the window fires AdminWheelSpin; AdminWheelResult turns the wheel. With the switch `adminEvents` off the server names no event, so nothing shows.
 
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

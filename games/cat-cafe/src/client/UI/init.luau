@@ -1715,7 +1715,7 @@ function UI.init(config: Types.InitConfig)
 	UI.cornerShop.start() -- the Corner Shop window (#1052)
 	UI.mystery.start(parent) -- Juniper's Mystery Market window and the cart's "!" (#2574)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
-	UI.admin.start(parent) -- #4195: the admin event's banner and timer, and the Admin Wheel's window
+	UI.admin.start(parent) -- #4195: the Admin Wheel's window
 	UI.cafeEvent.start(parent) -- the Cafe Event chip, its start banner and the square's board face (#2487)
 	UI.trade.start() -- the Trade window in the modal (F102)
 	UI.nursery.start() -- the Garden Nursery window, opened from its stall's prompt (#1200)
@@ -8572,28 +8572,31 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- Controllers/AdminEventController reads the admin event's attributes and PlayerState.adminWheel each half second
--- and calls UI.admin.set(info, wheel): the 2 minute warning banner and the HUD timer (Screens/AdminEventBar), and the
--- Admin Wheel's window in the modal (Screens/AdminWheel), opened by the timer's Spin button. UI.admin.result takes
--- AdminWheelResult. All of it waits on the server's switch `adminEvents`: off, no attribute names an event. Its own
--- block, as the module is short of locals.
+-- and calls UI.admin.set(info, wheel): the Admin Wheel's window in the modal (Screens/AdminWheel). Derek 2026-11-14
+-- 22:54 UTC ("the ui is still on the screen too much in the events"): no bar or timer of its own; the event's splash
+-- and its one strip are Motion-FX's (Effects/AdminFlash). The window opens by itself once an event, AUTO_OPEN seconds
+-- after the wheel comes up for this account (after the splash), when no window is open and no catch runs; after that
+-- UI.admin.open() opens it (the strip's tap, the chat line). UI.admin.result takes AdminWheelResult. All of it waits
+-- on the server's switch `adminEvents`: off, no attribute names an event. Its own block, as the module is short of
+-- locals.
 UI.admin = {
 	spin = Signal.new(), -- ()   Spin on the Admin Wheel window: forward as AdminWheelSpin
 }
 do
-	local AdminEventBar = require(script.Screens.AdminEventBar)
 	local AdminBarLogic = require(script.Components.AdminBarLogic)
 	local AdminWheel = require(script.Screens.AdminWheel)
+	local AUTO_OPEN = 4 -- seconds after the wheel comes up before its window opens by itself (the splash first)
 	local admin = {
-		bar = nil :: AdminEventBar.AdminEventBar?,
 		window = nil :: AdminWheel.AdminWheel?,
-		busy = nil :: Signal.Connection?,
 		info = nil :: AdminBarLogic.Info?,
 		wheel = nil :: AdminBarLogic.Wheel?,
+		upAt = nil :: number?, -- when this event's wheel came up for this account (os.clock)
+		autoOpened = {} :: { [string]: boolean }, -- event ids whose window has opened by itself
 	}
 
-	-- The admin bar is up (UI.cafeEvent.tick leaves the admin event's banner and timer to it).
+	-- No admin bar since Derek's 22:54 UTC note: UI.cafeEvent.tick keeps its own admin line (Motion-FX's to trim).
 	function UI.admin.hasBar(): boolean
-		return admin.bar ~= nil
+		return false
 	end
 
 	function UI.admin.open()
@@ -8602,37 +8605,9 @@ do
 		end
 	end
 
-	-- UI.init: the bar, and the wheel's window in the modal.
-	function UI.admin.start(parent: Instance)
+	-- UI.init: the wheel's window in the modal.
+	function UI.admin.start(_parent: Instance)
 		UI.admin.reset()
-		admin.bar = AdminEventBar.new(parent, function(): { GuiObject }
-			local current = hud
-			if current == nil then
-				return {}
-			end
-			-- the counters and Luck row, and the menu, its fold button and the goal card beside the top middle
-			local pieces: { GuiObject } = { current:buffRow(), current:counterRow() }
-			for _, name in { "Menu", "MenuFold", "TierGoal", "Icons", "MoneyBadge" } do
-				local piece = current.screenGui:FindFirstChild(name, true)
-				if piece ~= nil and piece:IsA("GuiObject") then
-					table.insert(pieces, piece :: GuiObject)
-				end
-			end
-			return pieces
-		end, UI.admin.open)
-		local hudNow = hud
-		if hudNow then
-			local bar = admin.bar
-			if bar then
-				bar:setBusy(hudNow:isCatching())
-			end
-			admin.busy = hudNow.catchingChanged:Connect(function(active: boolean)
-				local current = admin.bar
-				if current then
-					current:setBusy(active)
-				end
-			end)
-		end
 		local window = AdminWheel.new({
 			spin = function()
 				UI.admin.spin:Fire()
@@ -8664,14 +8639,23 @@ do
 	function UI.admin.set(info: AdminBarLogic.Info?, wheel: AdminBarLogic.Wheel?)
 		admin.info = info
 		admin.wheel = wheel
-		local now = Workspace:GetServerTimeNow()
-		local bar = admin.bar
-		if bar then
-			bar:set(AdminBarLogic.view(info, now, wheel), now)
-		end
 		local window = admin.window
 		if window then
 			window:setWheel(wheel)
+		end
+		-- the wheel up and not spun yet: its window opens by itself once, after the splash, over nothing else
+		local up = wheel ~= nil and not wheel.spun and info ~= nil and info.running and info.wheel
+		if not up then
+			admin.upAt = nil
+		elseif wheel ~= nil and not admin.autoOpened[wheel.eventId] then
+			local upAt = admin.upAt or os.clock()
+			admin.upAt = upAt
+			local current = hud
+			local busy = current ~= nil and current:isCatching()
+			if os.clock() - upAt >= AUTO_OPEN and modal and modal:current() == nil and not busy then
+				admin.autoOpened[wheel.eventId] = true
+				UI.admin.open()
+			end
 		end
 		-- the window closes once the wheel has gone and no spin is landing
 		if
@@ -8693,18 +8677,8 @@ do
 		end
 	end
 
-	-- UI.destroy: the bar and the window go; what the server said stays for the next build.
+	-- UI.destroy: the window goes; what the server said stays for the next build.
 	function UI.admin.reset()
-		local busy = admin.busy
-		if busy then
-			busy:Disconnect()
-		end
-		admin.busy = nil
-		local bar = admin.bar
-		if bar then
-			bar:destroy()
-		end
-		admin.bar = nil
 		local window = admin.window
 		if window then
 			window:destroy()
@@ -10169,17 +10143,12 @@ do
 		local adminView = AdminEventLogic.read(get, UI.cafeEvent.decode)
 		local adminSeen, adminBeat = AdminEventLogic.follow(events.adminSeen, adminView, now)
 		events.adminSeen = adminSeen
-		-- With the admin bar up (UI.admin, Screens/AdminEventBar) that bar is the one banner and timer, with the
-		-- Admin Wheel's Spin button, so the wide cards and the chip line here stay away; the chat line stays.
-		local adminBar = UI.admin.hasBar()
 		if adminBeat ~= nil and adminView ~= nil then
 			local card = if adminBeat == "start"
 				then AdminEventLogic.startBanner(adminView, now)
 				else AdminEventLogic.soonBanner(adminView, now)
-			if not adminBar then
-				local EventBanner = require(script.Parent.Effects.EventBanner) :: any
-				EventBanner.show(card)
-			end
+			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
+			EventBanner.show(card)
 			-- the same words as one line in the chat window, for a player who looked away
 			local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any
 			AdminEventChat.say(AdminEventLogic.chatLine(card))
@@ -10191,7 +10160,7 @@ do
 				eventLines,
 				eventKind,
 				EventLogic.strip(view, seen, now),
-				if adminBar then nil else AdminEventLogic.stripLine(adminView, now)
+				AdminEventLogic.stripLine(adminView, now)
 			)
 			current:setEvent(chipLines, chipKind, stripLines)
 			current:setEventBoost(EventLogic.moneyBoost(view, now))

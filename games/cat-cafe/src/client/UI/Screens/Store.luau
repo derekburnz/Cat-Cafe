@@ -554,7 +554,7 @@ function Store._makeSwitch(self: any, panel: any)
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0.5),
 		-- on the window frame, not the header, so a phone's taller tap pad is not clipped by the body (as DecorShop)
-		Position = UDim2.new(1, -(panel.closeReach + 12), 0, panel.headerHeight / 2 - 2),
+		Position = UDim2.new(1, -(panel.closeReach + 16), 0, panel.headerHeight / 2 - 2), -- 4 px more clear of the X (Studio)
 		Size = UDim2.fromOffset(2 * half + 4 + 8 + FISH_COUNT_W, height),
 		Visible = false,
 		ZIndex = 4,

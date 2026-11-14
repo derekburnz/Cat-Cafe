@@ -761,6 +761,34 @@ Presets.emitters = {
 		lightEmission = 0.7,
 		rotSpeed = { -45, 45 },
 	},
+	-- #4070 the Water Park's air: fine spray off the slides and pools, small bright drops that lift a little and
+	-- fall, catching the light. #4071 the Medieval Castle's air: slow warm motes of dust in torch and banner gold.
+	waterparkSpray = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(170, 226, 250) },
+		size = { 0.16, 0.08 },
+		transparency = { 0.25, 1 },
+		lifetime = { 1.4, 2.2 },
+		speed = { 0.8, 2 },
+		spread = 70,
+		rate = 9,
+		acceleration = Vector3.new(0.4, -2.2, 0.2),
+		drag = 0.4,
+		lightEmission = 0.3,
+	},
+	castleMotes = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(255, 226, 150), Color3.fromRGB(226, 170, 96) },
+		size = { 0.14, 0.08 },
+		transparency = { 0.4, 1 },
+		lifetime = { 3.5, 5 },
+		speed = { 0.15, 0.5 },
+		spread = 180,
+		rate = 7,
+		acceleration = Vector3.new(0.2, 0.12, 0.1),
+		drag = 0.4,
+		lightEmission = 0.25,
+	},
 	-- #4069 Snowy Mountain. `snowfall` is the area's air: soft flakes drifting down round you, with a little sideways
 	-- drift, fading before they pile up. The three sig* ones are its rarer cats' (Presets.signature): `sigFrost` a
 	-- puff of frosty breath off the White Tiger Cat's head, `sigSnowflake` the flakes the Blizzard Cat's swirl leaves
@@ -1417,6 +1445,36 @@ Presets.catchFlavour = {
 			gustHeight = 8,
 			gustEvery = 0.18,
 			cats = { blizzard = 2 }, -- the snowstorm itself: a taller column
+		},
+		-- #4070 the Water Park: a splash, then bright drops, a ripple ring, and a little fountain for the rarest
+		waterpark = {
+			preset = "splashDrops",
+			colour = Color3.fromRGB(150, 220, 250),
+			puff = 6,
+			flakes = 10,
+			flakesFrom = "Epic",
+			ringScale = 1.3,
+			ringFrom = "Legendary",
+			gusts = 3,
+			gustsFrom = "Mythical",
+			gustHeight = 7,
+			gustEvery = 0.15,
+			cats = {},
+		},
+		-- #4071 the Medieval Castle: gold sparkles, more of them, a gold ring, and a rising fanfare of sparkles
+		castle = {
+			preset = "catchSparkle",
+			colour = Color3.fromRGB(255, 214, 120),
+			puff = 6,
+			flakes = 12,
+			flakesFrom = "Epic",
+			ringScale = 1.3,
+			ringFrom = "Legendary",
+			gusts = 3,
+			gustsFrom = "Mythical",
+			gustHeight = 8,
+			gustEvery = 0.18,
+			cats = {},
 		},
 	} :: { [string]: CatchFlavour },
 }
@@ -4078,6 +4136,8 @@ Presets.cannon = {
 		desert = Color3.fromRGB(232, 205, 150), -- Tier 6 (#2657): sand
 		ruins = Color3.fromRGB(80, 160, 120), -- Tier 7 (#2657): jade
 		snowy = Color3.fromRGB(214, 236, 255), -- Tier 8 (#4069): ice blue
+		waterpark = Color3.fromRGB(120, 205, 240), -- #4070: pool blue
+		castle = Color3.fromRGB(255, 214, 120), -- #4071: banner gold
 	} :: { [string]: Color3 },
 }
 
@@ -4855,6 +4915,22 @@ Presets.areaFx = {
 				foot = Presets.palette.mint,
 				top = Presets.palette.aurora,
 			},
+		},
+		-- #4070 the Water Park: fine spray in the air and a splash where its strays come and go. #4071 the Medieval
+		-- Castle: warm motes of dust and a gold sparkle for its strays. Their boxes are Config.World's Waterpark* and
+		-- Castle* once the areas are in.
+		waterpark = {
+			air = "waterparkSpray",
+			colour = Color3.fromRGB(150, 220, 250),
+			puffPreset = "splashDrops",
+			puff = 6,
+			lift = 4,
+		},
+		castle = {
+			air = "castleMotes",
+			colour = Color3.fromRGB(255, 214, 120),
+			puffPreset = "catchSparkle",
+			puff = 6,
 		},
 	} :: { [string]: AreaFxSpec },
 }

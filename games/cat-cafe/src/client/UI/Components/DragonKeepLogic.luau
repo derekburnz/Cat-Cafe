@@ -206,12 +206,13 @@ function DragonKeepLogic.candidates(
 	cats: { [string]: any }?,
 	busy: { [string]: boolean }?
 ): { Candidate }
+	local all: { [string]: any } = cats or {} -- one type, for the CI luau-lsp
 	local copies: { [string]: number } = {}
-	for _, instance in cats or {} do
+	for _, instance in all do
 		copies[instance.catId] = (copies[instance.catId] or 0) + 1
 	end
 	local out: { Candidate } = {}
-	for uid, instance in cats or {} do
+	for uid, instance in all do
 		if instance.locked == true or (busy and busy[uid]) then
 			continue
 		end

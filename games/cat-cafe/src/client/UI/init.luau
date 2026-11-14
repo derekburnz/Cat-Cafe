@@ -6048,12 +6048,7 @@ do
 			return -- #4005: the first visit calls wait for Tier 2 (Design-Agent, folding #3891's hold in)
 		end
 		if
-			FirstVisitLogic.holds(
-				if now ~= nil then now.tutorialStep else nil,
-				away(),
-				wrapHint,
-				if now ~= nil then now.tier else nil
-			)
+			FirstVisitLogic.holds(if now ~= nil then now.tutorialStep else nil, away(), wrapHint)
 		then
 			task.delay(1, present, token, away) -- not over a tutorial card; it comes once the tutorial is done
 			return

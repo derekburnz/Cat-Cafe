@@ -78,7 +78,7 @@ return function()
 				local preset = Presets.adminAir.kinds[name]
 				expect(preset).to.be.ok()
 				expect(Presets.emitters[preset]).to.be.ok()
-				expect(Presets.emitters[preset].rate <= 15).to.equal(true)
+				expect(Presets.emitters[preset].rate <= 30).to.equal(true) -- #4325: thicker, still one emitter
 			end
 		end)
 
@@ -89,7 +89,8 @@ return function()
 			expect(AdminAir.pick("goldBoost", false, false, kinds)).never.to.be.ok()
 			expect(AdminAir.pick("goldBoost", true, true, kinds)).never.to.be.ok()
 			expect(AdminAir.pick(nil, true, false, kinds)).never.to.be.ok()
-			expect(AdminAir.pick("speedRush", true, false, kinds)).never.to.be.ok()
+			expect(AdminAir.pick("speedRush", true, false, kinds)).to.equal("adminMintDrift") -- #4325
+			expect(AdminAir.pick("nothingWeKnow", true, false, kinds)).never.to.be.ok()
 		end)
 	end)
 end

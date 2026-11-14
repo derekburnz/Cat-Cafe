@@ -366802,6 +366802,201 @@
       }
     },
     {
+      "name": "CatCafe_Furniture_WallPerch_Greeter",
+      "category": "Furniture",
+      "module": "wallperch",
+      "objects": [
+        "CatCafe_Furniture_WallPerch_Greeter",
+        "CatCafe_Furniture_WallPerch_Greeter_Bell"
+      ],
+      "triangles": 732,
+      "budget": 1200,
+      "size_studs": {
+        "x": 4.07,
+        "y": 2.07,
+        "z": 3.9
+      },
+      "size_roblox": [
+        4.07,
+        3.9,
+        2.07
+      ],
+      "bounds_min": [
+        -2.37,
+        -2.07,
+        -2.3
+      ],
+      "bounds_max": [
+        1.7,
+        0.0,
+        1.6
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Furniture_WallPerch_Greeter_Bell": [
+          -2.05,
+          -1.2,
+          1.45
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Furniture_WallPerch_Greeter_Bell": [
+          2.05,
+          1.45,
+          -1.2
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Furniture_WallPerch_Greeter.model.json",
+      "rbx_parts": 53,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_WallPerch_Greeter.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_WallPerch_Greeter.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "732/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "348 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-2.30 (want 0)",
+          "centered": "footprint center x=-0.34 y=-1.03"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Furniture_WallPerch_Barista",
+      "category": "Furniture",
+      "module": "wallperch",
+      "objects": [
+        "CatCafe_Furniture_WallPerch_Barista"
+      ],
+      "triangles": 652,
+      "budget": 1200,
+      "size_studs": {
+        "x": 3.4,
+        "y": 2.07,
+        "z": 4.4
+      },
+      "size_roblox": [
+        3.4,
+        4.4,
+        2.07
+      ],
+      "bounds_min": [
+        -1.7,
+        -2.07,
+        -2.3
+      ],
+      "bounds_max": [
+        1.7,
+        0.0,
+        2.1
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Furniture_WallPerch_Barista.model.json",
+      "rbx_parts": 41,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_WallPerch_Barista.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_WallPerch_Barista.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "652/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "286 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-2.30 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.03"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Furniture_WallPerch_Entertainer",
+      "category": "Furniture",
+      "module": "wallperch",
+      "objects": [
+        "CatCafe_Furniture_WallPerch_Entertainer",
+        "CatCafe_Furniture_WallPerch_Entertainer_Toy"
+      ],
+      "triangles": 548,
+      "budget": 1200,
+      "size_studs": {
+        "x": 3.93,
+        "y": 2.07,
+        "z": 4.1
+      },
+      "size_roblox": [
+        3.93,
+        4.1,
+        2.07
+      ],
+      "bounds_min": [
+        -1.7,
+        -2.07,
+        -2.3
+      ],
+      "bounds_max": [
+        2.23,
+        0.0,
+        1.8
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Furniture_WallPerch_Entertainer_Toy": [
+          2.05,
+          -1.4,
+          1.65
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Furniture_WallPerch_Entertainer_Toy": [
+          -2.05,
+          1.65,
+          -1.4
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Furniture_WallPerch_Entertainer.model.json",
+      "rbx_parts": 37,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_WallPerch_Entertainer.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_WallPerch_Entertainer.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "548/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "272 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-2.30 (want 0)",
+          "centered": "footprint center x=0.26 y=-1.03"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Decor_FiresideRug",
       "category": "Decor",
       "module": "crate_decor",

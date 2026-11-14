@@ -9043,8 +9043,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(0.1)
 		assert(title.Text == expected, "uigate: the stuck cat goal did not come back (#2912)")
 	end },
-	-- #3529: while five different cats is the goal the card reads "Catch new kinds of cat 3/5", and the catch card
-	-- says "New kind! 3/5 for Cozy Cafe" for a kind the player has never owned
+	-- #3529: while four different cats is the goal (#4098: five before) the card reads "Catch new kinds of cat 3/4", and the catch card
+	-- says "New kind! 3/4 for Cozy Cafe" for a kind the player has never owned
 	{ "NewKindGoal", function()
 		local before: any = UI.getState()
 		Scenes._secondCat = Scenes._secondCat or { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }
@@ -9053,8 +9053,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
 		assert(goal.Visible, "uigate: no goal card for new kinds (#3529)")
 		local title = goal:FindFirstChild("Title") :: TextLabel
-		local expected = "Catch new kinds of cat 🐾 3/5"
-		if title.Text == "New kinds of cat 🐾 3/5" then
+		local expected = "Catch new kinds of cat 🐾 3/4"
+		if title.Text == "New kinds of cat 🐾 3/4" then
 			expected = title.Text -- the phone's narrower card
 		end
 		assert(title.Visible and title.Text == expected, "uigate: the new kinds goal reads " .. title.Text .. " (#3529)")

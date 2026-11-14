@@ -682,9 +682,13 @@ function DecorShop._makeCard(self: any, index: number, decor: Types.DecorDef)
 	text({
 		Name = "Effect",
 		Position = UDim2.fromOffset(10, 114 + ART_LIFT),
-		Size = UDim2.new(1, -20, 0, 18),
+		-- #3961: two lines, 6 px above the button, so "+12% money, cats stare at it" is not cut off on a card
+		Size = UDim2.new(1, -20, 0, 32),
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = CARD.subtext,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		TextYAlignment = Enum.TextYAlignment.Top,
 		-- #2006: never "+0%": a piece with no bonus yet says where it comes from instead
 		Text = if piece.kind and (decor.bonus or 0) > 0
 			then ("+%s money while in use"):format(Format.percent(decor.bonus or 0))

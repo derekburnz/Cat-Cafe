@@ -2811,11 +2811,11 @@ local ACHIEVEMENT_LINES: { [string]: AchievementLine } = {
 		M = { crates = { alley_crate = 1 } },
 		L = { crates = { alley_golden_crate = 1 } },
 	},
-	-- the design's 1 and 3 Trait Tokens, paid as the golden fish they cost (Traits.COST_FISH 10 a roll) until a
-	-- prize can carry tokens
+	-- the design's 1 and 3 Trait Tokens, paid as the golden fish they cost (Traits.COST_FISH 20 a roll since #4006)
+	-- until a prize can carry tokens
 	traitRolls = {
-		M = { fish = 10 },
-		L = { fish = 30 },
+		M = { fish = 20 },
+		L = { fish = 60 },
 	},
 	dashRuns = {
 		M = { spins = 2 },
@@ -3118,6 +3118,14 @@ Catalog.indexMilestones = {
 	{ id = "total40", track = "normal", needs = 40 },
 	{ id = "total45", track = "normal", needs = 45 },
 	{ id = "total50", track = "normal", needs = 50 },
+	-- #3992 (Derek: "add more index rewards for rainbow /gold up to 70"; Design-Agent's table on the issue): every All
+	-- Cats track runs to the whole book. The last step is `whole`, so it needs every cat the book counts (70 today)
+	-- and moves up when an area adds cats. `late`: nothing shows or pays until the `indexTo70` switch is on, which waits
+	-- for the restart, as an older server's save check drops a claim id it does not know (shared/IndexRewards).
+	{ id = "total55", track = "normal", needs = 55, late = true },
+	{ id = "total60", track = "normal", needs = 60, late = true },
+	{ id = "total65", track = "normal", needs = 65, late = true },
+	{ id = "totalAll", track = "normal", needs = 70, whole = true, late = true },
 	{ id = "decor5", track = "decor", needs = 5 },
 	-- every piece of the page: 12 since F80 (golden-fish.md 4b), and 16 on the Classic page since F97 (`whole`)
 	{ id = "decor10", track = "decor", needs = 12, whole = true },
@@ -3127,6 +3135,16 @@ Catalog.indexMilestones = {
 	{ id = "rainbow5", track = "rainbow", needs = 5 },
 	{ id = "rainbow10", track = "rainbow", needs = 10 },
 	{ id = "rainbow25", track = "rainbow", needs = 25 },
+	-- #3992: on to every rainbow cat
+	{ id = "rainbow30", track = "rainbow", needs = 30, late = true },
+	{ id = "rainbow35", track = "rainbow", needs = 35, late = true },
+	{ id = "rainbow40", track = "rainbow", needs = 40, late = true },
+	{ id = "rainbow45", track = "rainbow", needs = 45, late = true },
+	{ id = "rainbow50", track = "rainbow", needs = 50, late = true },
+	{ id = "rainbow55", track = "rainbow", needs = 55, late = true },
+	{ id = "rainbow60", track = "rainbow", needs = 60, late = true },
+	{ id = "rainbow65", track = "rainbow", needs = 65, late = true },
+	{ id = "rainbowAll", track = "rainbow", needs = 70, whole = true, late = true },
 	-- #1772 (Derek2: "Gold cats X / 50" like the Rainbow cats): the gold track on the All Cats page, different gold
 	-- cats across every area (profile.goldCollection), next to total5 to total50
 	{ id = "goldtotal5", track = "gold", needs = 5 },
@@ -3139,6 +3157,11 @@ Catalog.indexMilestones = {
 	{ id = "goldtotal40", track = "gold", needs = 40 },
 	{ id = "goldtotal45", track = "gold", needs = 45 },
 	{ id = "goldtotal50", track = "gold", needs = 50 },
+	-- #3992: on to every gold cat
+	{ id = "goldtotal55", track = "gold", needs = 55, late = true },
+	{ id = "goldtotal60", track = "gold", needs = 60, late = true },
+	{ id = "goldtotal65", track = "gold", needs = 65, late = true },
+	{ id = "goldtotalAll", track = "gold", needs = 70, whole = true, late = true },
 } :: { Types.IndexMilestone }
 
 -- What each milestone pays per page (golden-fish.md sections 4, 5 and 5b). Everything is free and only the server
@@ -3342,6 +3365,17 @@ Catalog.indexPrizes = {
 			tag = "Cat Master",
 			baitSpeed = 0.10,
 		},
+		-- #3992: the last bait speed steps take the total from 0.38 to exactly BaitSpeedMax (0.5)
+		total55 = { fish = 45, crates = { classic_golden_crate = 1 }, baitSpeed = 0.02 },
+		total60 = { fish = 50, spins = 4, baitSpeed = 0.02 },
+		total65 = { fish = 60, crates = { highest = 1 }, baitSpeed = 0.02 },
+		totalAll = {
+			fish = 150,
+			crates = { classic_golden_crate = 4 },
+			spins = 12,
+			tag = "Cat Legend",
+			baitSpeed = 0.06,
+		},
 		-- #1772 (Design-Agent's table on the issue): the gold cats track, a little richer than the totals as gold is
 		-- rarer. No gold luck: the five area gold tracks already reach GoldLuckMax, which would eat it
 		goldtotal5 = { fish = 10, spins = 1 },
@@ -3358,6 +3392,16 @@ Catalog.indexPrizes = {
 			crates = { classic_golden_crate = 4 },
 			spins = 10,
 			tag = "Golden Paw",
+		},
+		-- #3992
+		goldtotal55 = { fish = 65, crates = { classic_golden_crate = 2 } },
+		goldtotal60 = { fish = 75, spins = 6 },
+		goldtotal65 = { fish = 90, crates = { highest = 2 } },
+		goldtotalAll = {
+			fish = 200,
+			crates = { classic_golden_crate = 6 },
+			spins = 15,
+			tag = "Golden Legend",
 		},
 	},
 	decor_alley = {
@@ -3407,6 +3451,21 @@ Catalog.indexPrizes = {
 			crates = { classic_golden_crate = 3 },
 			tag = "Rainbow Master",
 			rainbowLuck = 0.2,
+		},
+		-- #3992: rainbow luck is already at RainbowLuckMax after rainbow25, so these add none
+		rainbow30 = { fish = 80, crates = { classic_golden_crate = 2 } },
+		rainbow35 = { fish = 90, spins = 3 },
+		rainbow40 = { fish = 100, crates = { highest = 1 } },
+		rainbow45 = { fish = 110, spins = 5 },
+		rainbow50 = { fish = 125, crates = { classic_golden_crate = 3 }, tag = "Rainbow Star" },
+		rainbow55 = { fish = 140, crates = { highest = 2 } },
+		rainbow60 = { fish = 160, spins = 8 },
+		rainbow65 = { fish = 180, crates = { classic_golden_crate = 4 } },
+		rainbowAll = {
+			fish = 300,
+			crates = { classic_golden_crate = 6 },
+			spins = 15,
+			tag = "Rainbow Legend",
 		},
 	},
 } :: { [string]: { [string]: Types.IndexPrize } }

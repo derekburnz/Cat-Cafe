@@ -320,7 +320,7 @@ def main():
     keys = [k for k in args.only.split(",") if k]
     extra = [os.path.join(RBX, e + ".model.json") for e in args.extra.split(",") if e]
     rows, detail = [], []
-    for path in sorted(glob.glob(os.path.join(RBX, "*.model.json"))):
+    for path in sorted(glob.glob(os.path.join(RBX, "**", "*.model.json"), recursive=True)):   # Assets.RiftRun too
         name = os.path.basename(path)[:-len(".model.json")]
         if keys and not any(k in name for k in keys):
             continue

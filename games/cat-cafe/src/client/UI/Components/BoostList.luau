@@ -262,9 +262,6 @@ function BoostList.rows(
 	local moneyPass: number = if type(boosts) == "table" and type(boosts.money) == "number"
 		then boosts.money
 		else 1
-	if moneyPass > 1 then
-		times("moneyPass", "Money pass", moneyPass)
-	end
 	local eventMoney = if event ~= nil and type(event.money) == "number"
 		then math.clamp(event.money, 1, EVENT_MONEY_MAX)
 		else 1
@@ -308,6 +305,12 @@ function BoostList.rows(
 		local share: number = Pals.bonus(palCount)
 		tips += share
 		add(rows, "pals", ("Friend bonus (%d)"):format(palCount), share)
+	end
+
+	-- #4033 (Derek 2026-11-13: "apply the multiplier after all the others"): the Money pass multiplies everything above
+	-- it, so its row sits last, over All together
+	if moneyPass > 1 then
+		times("moneyPass", "Money pass (x all)", moneyPass)
 	end
 
 	local total = cafe

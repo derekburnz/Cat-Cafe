@@ -43,6 +43,7 @@ local Net = require(script.Parent.Parent.Net)
 local NewKind = require(Shared:WaitForChild("NewKind"))
 local NewKindEconomy = require(Shared:WaitForChild("Economy"))
 local RareMoments = require(Shared:WaitForChild("RareMoments"))
+local RiftRun = require(script.Parent.Parent.Effects.RiftRun)
 local SecondCat = require(Shared:WaitForChild("SecondCat"))
 local Settings = require(Shared:WaitForChild("Settings"))
 local ShortNumber = require(Shared:WaitForChild("ShortNumber"))
@@ -1148,6 +1149,7 @@ local function applyState(s: Types.PlayerState)
 		mysterySeen = s.mysterySeen,
 		mysteryOpen = s.mysteryOpen,
 		bagColours = s.bagColours or false, -- #3699: false for the built colours, as UI.update skips a nil
+		shoeColours = s.shoeColours or false, -- #4049, the same way
 		signStyles = s.signStyles, -- #1625: the Style tab's sign row
 		-- #2007: "" for the plain sign, as UI.update skips a nil and the old pick stayed gold
 		signStyle = s.signStyle or "",
@@ -1323,8 +1325,8 @@ local function wireIntents()
 	end
 	-- #3699: Save on the Backpack's colour picker; the server checks both ids and that the Backpack is owned
 	if looseEvents.setBagColours ~= nil then
-		looseEvents.setBagColours:Connect(function(main: string, trim: string)
-			Net.fire("SetBagColours", main, trim)
+		looseEvents.setBagColours:Connect(function(main: string, trim: string, kind: string?)
+			Net.fire("SetBagColours", main, trim, kind) -- #4049: kind "shoes" for the Speed Shoes
 		end)
 	end
 	-- #2593: Buy all on a Day Cart section; the server plans from its own state and answers with CornerShopStock
@@ -1527,7 +1529,19 @@ local function wireIntents()
 		return (station:GetPivot().Position - root.Position).Magnitude
 	end
 	local mysticPool: any = (UI :: any).mysticPool
-	mysticPool.cutting = BigTraitCut.playing -- #3846: the bait and gift cards wait while it plays
+	mysticPool.cutting = function(): boolean -- #3846: the bait and gift cards wait while it plays
+		return BigTraitCut.playing() or RiftRun.playing()
+	end
+	-- the Rift Run (Effects/RiftRun): pop-ups, toasts and shout-outs wait through it (UI.setCutscene once #4018 has
+	-- it, which also holds the food bowl's and the tip cards)
+	RiftRun.onHold(function(on: boolean)
+		local setCutscene: ((on: boolean) -> ())? = (UI :: any).setCutscene
+		if setCutscene ~= nil then
+			setCutscene(on)
+		else
+			UI.setRollBusy(on)
+		end
+	end)
 	mysticPool.far = function(): boolean
 		local distance = poolDistance()
 		return distance == nil or distance > POOL_FAR_STUDS
@@ -1548,10 +1562,61 @@ local function wireIntents()
 		local pool = station :: Model
 		if big then
 			return BigTraitCut.atPool(pool, rarity, function(reveal: () -> ()): () -> ()
-				return MysticPool.roll(pool, asset, rarity, reveal, BigTraitCut.liftFor(rarity))
+				local lift, height = BigTraitCut.liftFor(rarity)
+				return MysticPool.roll(pool, asset, rarity, reveal, lift, false, height)
 			end, onReveal)
 		end
 		return MysticPool.roll(pool, asset, rarity, onReveal)
+	end
+	-- Derek 2026-11-13: a Mythic or Secret roll first runs the Rift Run with the rolled cat, then lands back in the
+	-- pool for the big moment (or, far from the pool, the screen's) and the card
+	local playPool: (uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())? =
+		mysticPool.play
+	mysticPool.play = function(uid: string, rarity: string, onReveal: () -> ()): (() -> ())?
+		if not RiftRun.wanted(rarity) then
+			return playPool(uid, rarity, onReveal)
+		end
+		local state: any = UIController.state
+		local cat = if state ~= nil and type(state.cats) == "table" then state.cats[uid] else nil
+		local catId: string? = if type(cat) == "table" and type(cat.catId) == "string"
+			then cat.catId
+			else nil
+		local gold = type(cat) == "table" and cat.gold == true
+		return RiftRun.play(
+			rarity,
+			{ catId = catId, gold = gold },
+			function(reveal: () -> ()): (() -> ())?
+				local station = poolStation()
+				local distance = poolDistance()
+				if station == nil or distance == nil or distance > POOL_SEEN_STUDS then
+					return BigTraitCut.screen(rarity, reveal)
+				end
+				local pool = station :: Model
+				local asset: string? = if catId ~= nil
+					then Catalog.sitModelName(Catalog.catModelName(catId :: string))
+					else nil
+				return BigTraitCut.atPool(pool, rarity, function(landed: () -> ()): () -> ()
+					local lift, height = BigTraitCut.liftFor(rarity)
+					return MysticPool.roll(pool, asset, rarity, landed, lift, true, height)
+				end, reveal)
+			end,
+			onReveal
+		)
+	end
+	-- Studio only: the Workspace attribute RiftRunTest ("mythic" or "secret") plays the Rift Run with this player's
+	-- first cat, as if that roll had come, so it can be watched without rolling one (Review-QA)
+	if RunService:IsStudio() then
+		Workspace:GetAttributeChangedSignal("RiftRunTest"):Connect(function()
+			local rarity = RiftRun.testRarity()
+			local state: any = UIController.state
+			if rarity == nil or state == nil or type(state.cats) ~= "table" then
+				return
+			end
+			local uid = next(state.cats)
+			if type(uid) == "string" then
+				mysticPool.play(uid, rarity, function() end)
+			end
+		end)
 	end
 	UI.events.rollTrait:Connect(function(uid: string)
 		Net.fire("RollTrait", uid)
@@ -2193,7 +2258,7 @@ local function reportRsvp(kind: string)
 	Net.fire("TelemetryReport", "event_rsvp", kind)
 end
 local function offerEvent()
-	local id, startsAt = EventRsvp.next(Config.UpdateEvents, os.time())
+	local id, startsAt, words = EventRsvp.next(Config.UpdateEvents, os.time())
 	if
 		eventAsk.asked
 		or state == nil
@@ -2219,7 +2284,7 @@ local function offerEvent()
 		local card: any = if asks ~= nil then asks.card else nil
 		local shown = type(card) == "function"
 			and (card :: (any) -> unknown)({
-					title = EventRsvp.title(at, os.time()),
+					title = words or EventRsvp.title(at, os.time()),
 					choices = {
 						{ id = "remind", label = EventRsvp.REMIND, style = "primary" },
 						{ id = "later", label = EventRsvp.LATER, style = "ghost" },
@@ -2397,7 +2462,8 @@ local function wireServerEvents()
 		"RainbowSpawned",
 		function(areaId: string, catId: string, strayId: string, toast: boolean)
 			Moments.RainbowSpawned:Fire(areaId, catId, strayId)
-			if toast ~= true then
+			-- #4005: the cat stays, the toast waits out a new player's quiet start
+			if toast ~= true or select(2, require(Shared:WaitForChild("QuietStart")).live()) then
 				return
 			end
 			local hook: unknown = (UI :: any).rainbowSpawned
@@ -3205,6 +3271,14 @@ function UIController.start()
 		achievementPrizesById = achievementPrizesById(), -- #3694: each one's own prize, its line's item
 		dailyTreat = Catalog.dailyTreat, -- F70: the Daily Treat card's seven days and their prizes
 	}
+	-- #3992: the Index's milestones past 50 (and the Rainbow track's past 25) wait for the `indexTo70` switch; the UI
+	-- reads catalog.indexPrizes each time, so a switch change shows at the next render
+	local SharedIndexRewards = require(Shared:WaitForChild("IndexRewards")) :: any
+	catalog.indexPrizes = SharedIndexRewards.shownPrizes()
+	ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. SharedIndexRewards.LATE_FLAG)
+		:Connect(function()
+			catalog.indexPrizes = SharedIndexRewards.shownPrizes()
+		end)
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({
 		catalog = catalog,

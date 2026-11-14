@@ -188,10 +188,17 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 		ZIndex = 3,
 		Parent = card,
 	})
-	-- the X's width on both sides, so the words stay centred and clear of it
+	-- the X's reach on both sides, so the words stay centred and clear of it: its width and its 6 from the edge,
+	-- the outline drawn outside it, its hover growth and a gap (Review-QA, #3976 on a 667x375 phone: the long "A CAT
+	-- CAME TO BOWL 1!" ran under the X's outline with touchMin + 8)
+	local xReach = 6
+		+ Theme.sizes.touchMin
+		+ Button.OUTLINE
+		+ math.ceil(Theme.sizes.touchMin * (Button.HOVER_SCALE - 1) / 2)
+		+ 6
 	Create("UIPadding", {
-		PaddingLeft = UDim.new(0, Theme.sizes.touchMin + 8),
-		PaddingRight = UDim.new(0, Theme.sizes.touchMin + 8),
+		PaddingLeft = UDim.new(0, xReach),
+		PaddingRight = UDim.new(0, xReach),
 		PaddingTop = UDim.new(0, 8),
 		PaddingBottom = UDim.new(0, 8),
 		Parent = self._banner,

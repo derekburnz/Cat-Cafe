@@ -43,6 +43,11 @@ const studioOnly = []; // modules that hit a shim limit
 // A fresh Luau state with the shim loaded and its own module cache.
 async function createState() {
   const lua = await Lua.create({ sandbox: false, libraries: 'all' });
+  // The WebAssembly Luau miscompiles or misruns one IndexRewardsShared spec at its default optimization level 1
+  // ("attempt to call missing method 'poolOf' of string" in IndexRewards.needLabel, #4054, 2026-11-13); the same code
+  // passes at 0 and 2, and the failure flips with unrelated allocations. Level 2 is what live Roblox servers run, so the
+  // specs run there. LUAU_OPT=0|1|2 overrides it for a check.
+  lua.setCompiler({ optimizationLevel: Number(process.env.LUAU_OPT ?? 2) });
   // The VM's collector can panic mid-spec ("unsupported collectable type 5" in gc/mark.rs) once the tree holds 34
   // spec files (UI thread, 2026-10-27). A state lives for one spec file, so it runs with the collector off.
   lua.gcStop();

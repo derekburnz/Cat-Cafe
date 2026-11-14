@@ -89,9 +89,10 @@ Remotes.ClientToServer = {
 	-- price above shownPrice (the sale ended while the window was open) is refused with "The sale just ended". 1 a
 	-- second; answered with a toast and a ProfileSync. Refused outside Studio while Config.MysteryOpen is false
 	"MarkMysterySeen", -- ()  #2565: the player opened Juniper's window; sets profile.mysterySeen (the cart's "!")
-	"SetBagColours", -- (main: string, trim: string)  #3699: the Backpack's owner picks its two colours, each an id
-	-- of BagColours.LIST and nothing else; free, from anywhere, behind the switch bagColours; 1 a second; the worn bag
-	-- is recoloured for everyone and the answer is a ProfileSync
+	"SetBagColours", -- (main: string, trim: string, kind: string?)  #3699: the Backpack's owner picks its two colours,
+	-- each an id of BagColours.LIST and nothing else; free, from anywhere, behind the switch bagColours; 1 a second;
+	-- the worn bag is recoloured for everyone and the answer is a ProfileSync. #4049: kind "shoes" picks the Speed
+	-- Shoes' two (BagColours.SHOE_LIST) the same way; nil or anything else is the Backpack
 	"RedeemCode", -- (text: string)  from anywhere (#1747), at most 40 bytes, trimmed and lowercased to 1
 	-- to CodeMaxLength letters and digits, a known active code not yet redeemed (F65, shared/Codes); 1 per 2 s, locked
 	-- CodeLockSeconds after CodeWrongLimit wrong codes; answered with CodeResult
@@ -235,7 +236,7 @@ Remotes.ClientToServer = {
 	-- #3196 (trait-station.md, TraitService, shared/Traits): each refused while the `traits` switch is off or the tier
 	-- has not opened the Park's camp extra; no range check (it opens from the Cannon menu too); answered with one sync
 	"RollTrait", -- (uid: string)  the cat owned and no re-roll waiting; paid by a free starter roll, else a Trait Token,
-	-- else 10 golden fish (none held in an open trade). A cat with no trait takes the roll; one with a trait keeps it
+	-- else Traits.COST_FISH golden fish (none held in an open trade). A cat with no trait takes the roll; one with a trait keeps it
 	-- and the roll waits (PlayerState.traits.pending) for ChooseTrait. 1 a second
 	"ChooseTrait", -- (takeNew: boolean)  the waiting re-roll goes on its cat (true) or is dropped; 1 a second
 	"CollectTraitTokens", -- ()  the station's free tokens (one each 12 h, holding 2) go to the bank; 1 a second

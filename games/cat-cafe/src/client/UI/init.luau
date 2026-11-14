@@ -563,6 +563,17 @@ local function autoOpenDailyTreat()
 		-- strip and the cannon walk-through after it go first
 		or tutorialText ~= nil
 		or hintShown ~= nil
+		-- #4005: on the account's first day the "!" on its button is enough
+		or not (function(): boolean
+			local QuietStart =
+				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+			local firstDay = Players.LocalPlayer:GetAttribute(QuietStart.DAY_ATTRIBUTE)
+			return QuietStart.treatOpensItself(
+				(QuietStart.live()),
+				firstDay,
+				now // QuietStart.DAY_SECONDS
+			)
+		end)()
 		-- #3188: last, so the plot is only looked up when everything else is ready (defined further down the module)
 		or not DailyTreatLogic.autoOpen(view, now, nil, nil, (UI.giftWait :: any).atCafe())
 	then
@@ -1495,6 +1506,8 @@ function UI.init(config: Types.InitConfig)
 			UI.rollBusy.window = name == dashWindow or name == "Arcade" or name == poolWindow
 			view:setBusy(UI.rollBusy.window or UI.rollBusy.on)
 		end
+		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
+		hudInstance:holdBanner("window", UI.rollBusy.window)
 	end)
 
 	catch = CatchPrompt.new(parent)
@@ -2231,6 +2244,11 @@ function UI.setRollBusy(on: boolean)
 	if view then
 		view:setBusy(UI.rollBusy.window or on)
 	end
+	-- Derek 2026-11-13: the event and day strip stays down through the roll too
+	local board = hud
+	if board then
+		board:holdBanner("roll", on)
+	end
 end
 function UI.announce(text: string, rarity: string?): boolean
 	local ToastRules = require(script.Components.ToastRules)
@@ -2293,6 +2311,20 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		-- bloat"): the catch's own small pop-up already said it
 		local CatFoundLogic = require(script.Components.CatFoundLogic) :: any
 		if not CatFoundLogic.big(def.rarity, isNew, info) then
+			return
+		end
+		-- #4005: before Tier 2 a new kind below Epic is a toast; the tutorial's catches and any coat, banner or line
+		-- keep the card
+		local QuietStart =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+		local plain = not (info.shiny or info.rainbow or info.banner ~= nil or info.line ~= nil)
+		local Onboarding =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Onboarding")) :: any
+		local tutorial = (state.tutorialStep or math.huge) < Onboarding.NEW_PLAYER_STEP
+		if
+			plain and QuietStart.foundToast((QuietStart.live()), state.tier, def.rarity, tutorial)
+		then
+			UI.toast(string.format("New cat: %s!", def.name), "good")
 			return
 		end
 		popups:showCatFound(def, isNew, info)
@@ -2562,6 +2594,31 @@ function UI.bait.busy(): boolean
 		or (hud ~= nil and hud:isCarrying())
 		or (UI.bait.cutting ~= nil and (UI.bait.cutting :: () -> boolean)()) -- #2946: the first bait's cutscene
 		or UI.bigTraitCutting() -- #3846: a Legendary or Mythic trait roll's cutscene
+		or UI.bait.away() -- #4035: out catching in an area
+end
+
+-- #4035 (Derek 2026-11-13: "remove all food bowl pop ups etc until your back in town square way too many annoying
+-- popups when out looking for and catching cats"): with the quietAway switch on, the bowl cards wait while the
+-- player's net is out (the server's NetHidden is clear only in a catching area's wild part, outside its camp), and
+-- come one at a time once they are back in town, a cafe or a camp. The bowl chip still shows its "!" meanwhile.
+function UI.bait.away(): boolean
+	local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
+	if
+		not LiveFlags.shown(
+			"quietAway",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "quietAway")
+		)
+	then
+		return false
+	end
+	local character = Players.LocalPlayer.Character
+	-- NetHidden is off in an area's wild part outside its camp, and on while carrying (CatService.markCamps), so a
+	-- carry counts as away too: the run back to camp stays quiet (review of #4040)
+	return character ~= nil
+		and (
+			character:GetAttribute("NetHidden") ~= true
+			or character:GetAttribute("CarryingCatId") ~= nil
+		)
 end
 
 -- #3846: Effects/BigTraitCut.playing, set by the controller as UI.mysticPool.cutting: pop-up cards (bait, gift) wait
@@ -5264,6 +5321,19 @@ do
 		return false
 	end
 
+	-- Derek 2026-11-13: the account's first pet of its own cat says what petting does, once (the card waits for a
+	-- free moment like every tip)
+	Moments.CatPetted:Connect(function(userId: number)
+		if
+			userId == Players.LocalPlayer.UserId
+			and state.tipsSeen ~= nil
+			and not tipKnown("pet")
+		then
+			local tips: any = (UI :: any).tips -- show is filled in further down this block
+			tips.show("pet")
+		end
+	end)
+
 	-- The client-found tips, once the save says which were seen.
 	local function lookForTips()
 		if state.tipsSeen == nil then
@@ -5411,6 +5481,20 @@ do
 			return
 		end
 		if tipKnown(id) or tipQueue:has(id) then
+			return
+		end
+		-- #4005: the extras wait for Tier 2, the tackle try for the quiet start, and the rank up cut goes beside the
+		-- walk through. Never marked seen, so the server sends it again later.
+		local shared = ReplicatedStorage:WaitForChild("Shared")
+		local QuietStart = require(shared:WaitForChild("QuietStart")) :: any
+		local LiveFlags = require(shared:WaitForChild("LiveFlags")) :: any
+		local on, quiet = QuietStart.live()
+		local spotlight = LiveFlags.shown(
+			"rankUpSpotlight",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "rankUpSpotlight")
+		)
+		local now: any = UI.getState()
+		if QuietStart.holdsTip(on, id, if now ~= nil then now.tier else nil, quiet, spotlight) then
 			return
 		end
 		if id == TackleLessonLogic.TIP then
@@ -5962,6 +6046,13 @@ do
 		end
 		local now: any = UI.getState()
 		local wrapHint = UI.cannon.wrapUp.on and cannonHint() == CannonLogic.WRAP_UP_HINT
+		local QuietStart =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+		if
+			QuietStart.holdsFirstVisit((QuietStart.live()), if now ~= nil then now.tier else nil)
+		then
+			return -- #4005: the first visit calls wait for Tier 2 (Design-Agent, folding #3891's hold in)
+		end
 		if
 			FirstVisitLogic.holds(if now ~= nil then now.tutorialStep else nil, away(), wrapHint)
 		then
@@ -6842,8 +6933,8 @@ do
 					ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
 				)
 			end,
-			saveColours = function(main: string, trim: string)
-				UI.events.setBagColours:Fire(main, trim)
+			saveColours = function(main: string, trim: string, kind: string?)
+				UI.events.setBagColours:Fire(main, trim, kind) -- #4049: kind "shoes" for the Speed Shoes
 			end,
 		})
 		mystery.view = view
@@ -7712,6 +7803,10 @@ do
 					game:GetService("MarketplaceService")
 						:PromptProductPurchase(game:GetService("Players").LocalPlayer, productId)
 				end)
+			end,
+			-- #3940: the list's Sort and Show chips, saved on the account
+			remember = function(key: string, value: any)
+				UI.events.setSetting:Fire(key, value)
 			end,
 			close = function()
 				if modalView:current() == MysticPoolLogic.WINDOW then
@@ -9506,7 +9601,8 @@ do
 		end
 		local current = hud
 		if current then
-			current:setEvent(EventLogic.chip(view, seen, now))
+			local chipLines, chipKind = EventLogic.chip(view, seen, now)
+			current:setEvent(chipLines, chipKind, EventLogic.strip(view, seen, now))
 			current:setEventBoost(EventLogic.moneyBoost(view, now))
 		end
 		local boards = events.boards
@@ -9554,7 +9650,8 @@ do
 	local kind: { tags: any, watch: RBXScriptConnection? } = { tags = nil, watch = nil }
 
 	function UI.newKind.on(): boolean
-		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 		return LiveFlags.shown(
 			NewKind.FLAG,
 			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. NewKind.FLAG)
@@ -9578,7 +9675,8 @@ do
 			return
 		end
 		kind.tags = require(script.Screens.NewKindTags).new()
-		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 		kind.watch = ReplicatedStorage
 			:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. NewKind.FLAG)
 			:Connect(UI.newKind.refresh)

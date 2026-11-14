@@ -107,20 +107,10 @@ function ItemIcon.new(props: Props): ItemIcon
 		self._border.Enabled = false
 	end
 
-	local camera: Camera = Create("Camera", { FieldOfView = FOV })
-	local viewport: ViewportFrame = Create("ViewportFrame", {
-		Name = "View",
-		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
-		Ambient = Color3.fromRGB(200, 190, 180),
-		LightColor = Color3.fromRGB(255, 244, 230),
-		LightDirection = Vector3.new(-1, -1.5, -1),
-		Parent = frame,
-	})
-	camera.Parent = viewport
-	viewport.CurrentCamera = camera
-	self._viewport = viewport
-	self._camera = camera
+	-- #4045 (Derek 2026-11-13: the Day Cart's potion list scrolled a little laggy on a phone): the ViewportFrame is
+	-- made only once a model goes in (_setModel), so a list of pictures carries no empty viewports to draw
+	self._viewport = nil :: ViewportFrame?
+	self._camera = nil :: Camera?
 
 	self._glyph = Create("TextLabel", {
 		Name = "Glyph",
@@ -274,13 +264,31 @@ function ItemIcon._setModel(self: any, asset: string?)
 		return
 	end
 	assert(model, "model")
+	if self._viewport == nil then
+		local camera: Camera = Create("Camera", { FieldOfView = FOV })
+		local viewport: ViewportFrame = Create("ViewportFrame", {
+			Name = "View",
+			BackgroundTransparency = 1,
+			Size = UDim2.fromScale(1, 1),
+			Ambient = Color3.fromRGB(200, 190, 180),
+			LightColor = Color3.fromRGB(255, 244, 230),
+			LightDirection = Vector3.new(-1, -1.5, -1),
+			ZIndex = self._glyph.ZIndex - 1,
+			Parent = self.frame,
+		})
+		camera.Parent = viewport
+		viewport.CurrentCamera = camera
+		self._viewport = viewport
+		self._camera = camera
+	end
 	-- face the item toward the camera (models face -Z, the Roblox front), turn it a little and frame its box
 	model:PivotTo(CFrame.Angles(0, math.rad(THREE_QUARTER), 0))
 	local boxCFrame, boxSize = model:GetBoundingBox()
 	local centre = boxCFrame.Position
 	local radius = boxSize.Magnitude / 2
 	local distance = radius / math.tan(math.rad(FOV / 2)) * 1.1
-	self._camera.CFrame = CFrame.lookAt(centre + Vector3.new(0, radius * 0.6, -distance), centre)
+	local camera = self._camera :: Camera
+	camera.CFrame = CFrame.lookAt(centre + Vector3.new(0, radius * 0.6, -distance), centre)
 	model.Parent = self._viewport
 	self._model = model
 end

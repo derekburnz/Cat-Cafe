@@ -4,7 +4,7 @@
 -- Picnic Basket there). It opens from the walk-in circle and the Cannon menu alike, so there is no range check, as
 -- for every other station (camp-extras.md section 3).
 --   RollTrait(uid): the cat owned, no re-roll waiting, and a roll paid for (Traits.pay: a free starter roll, else a
---     Trait Token, else 10 golden fish, checked and spent in one step before the roll). A cat with no trait takes
+--     Trait Token, else Traits.COST_FISH golden fish, checked and spent in one step before the roll). A cat with no trait takes
 --     the roll at once; a cat with one keeps it and the roll waits in the save (`pending`) for ChooseTrait.
 --   ChooseTrait(takeNew): the waiting re-roll goes on its cat (true) or is dropped (false), so a cat never gets worse.
 --   CollectTraitTokens(): the station's free tokens (one each 12 h, holding 2) go to the bank.

@@ -54,6 +54,7 @@ local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
+local QuietStartService = require(script.Parent.QuietStartService)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
@@ -289,6 +290,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		mystery = profile.mystery, -- #2565
 		mysterySeen = profile.mysterySeen,
 		bagColours = profile.bagColours, -- #3699
+		shoeColours = profile.shoeColours, -- #4049
 		mysteryOpen = Config.MysteryOpen or RunService:IsStudio(),
 		goldLuck = totals.goldLuck,
 		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line
@@ -309,6 +311,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		stuckGoal = StuckGoal.waiting(profile), -- #2912
 		introSeen = profile.introSeen,
 		introAuto = introAuto, -- #3666
+		introShort = Telemetry.introShort(profile), -- #4001: the short intro test's "short" arm
 		potions = profile.potions, -- F64
 		catFood = profile.catFood, -- #1181: the Bag's cat food
 		hideCredit = profile.hideCredit == true, -- #1083: the Settings row "Show my name on the Thank You board"
@@ -2060,7 +2063,12 @@ local function onRankUp(player: Player)
 		),
 		"good"
 	)
-	Net.fireAll("Announce", string.format("%s's cafe is now a %s!", player.DisplayName, def.name))
+	-- #4005: not on a new player's screen in their quiet start
+	QuietStartService.fireAll(
+		player,
+		"Announce",
+		string.format("%s's cafe is now a %s!", player.DisplayName, def.name)
+	)
 	giveLawnGifts(player, profile) -- F91: a Garden Bench at Tier 2, an Umbrella Table at Tier 3
 	CafeService.autoEquip(player, profile) -- #1534: the new slots take the best resting cats
 	print(string.format("[CafeService] %s ranked up to Tier %d", player.Name, def.tier))

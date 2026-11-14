@@ -208,6 +208,8 @@ export type IndexMilestone = {
 	-- F97: every piece of the Decor page, whatever its size (decor10: sixteen on the Classic page, twelve elsewhere);
 	-- `needs` is then the least it asks
 	whole: boolean?,
+	-- #3992: shown and paid only while the `indexTo70` switch is on (shared/IndexRewards.lateOpen)
+	late: boolean?,
 }
 
 -- What one Index milestone pays (golden-fish.md section 8), any of it. `coins` is the minimum and `coinSeconds`
@@ -688,6 +690,7 @@ export type Stats = {
 	dashRuns: number,
 	goldenCratesOpened: number,
 	restSeconds: number,
+	cannonFlights: number, -- #3618: cannon flights taken, for the Liftoff badge
 }
 
 export type WeekPlay = { week: number, seconds: number }
@@ -1249,6 +1252,9 @@ export type Settings = {
 	autoEquip: boolean, -- #1955: Auto Equip, on for new accounts and off for saves from before it
 	catIncome: boolean, -- #2551: the rate tags over working cats (UI WorldTags), on by default
 	goalFolded: boolean, -- #2714: the HUD's goal card folded into its chip (touch), off by default
+	catPickSort: string, -- #3940: the pick-a-cat list's Sort ("Money", "Level" or "Rarity")
+	catPickFlipped: boolean, -- #3940: that Sort turned round
+	catPickShow: string, -- #3940: the Show chips that are on ("Working,No trait"; "" for All)
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
@@ -1336,6 +1342,7 @@ export type PlayerProfile = {
 	-- #3699 (shared/BagColours): the Backpack's two colour picks, nil while both are the built ones. No VERSION bump:
 	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
 	bagColours: { main: string, trim: string }?,
+	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' picks, the same way
 	-- #2792 (shared/FirstVisits): the special visitors met once ("rich", "mystery", "collector" -> true). No VERSION
 	-- bump: an older server dropping it only matters inside the first FirstVisitWindowSeconds of play.
 	firstVisits: { [string]: boolean },
@@ -1449,6 +1456,7 @@ export type PlayerState = {
 	mystery: { [string]: boolean }, -- #2565
 	mysterySeen: boolean,
 	bagColours: { main: string, trim: string }?, -- #3699: the Backpack's colour picks, nil for the built ones
+	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' colour picks, nil for the built ones
 	mysteryOpen: boolean, -- BuyMystery is taken here (Config.MysteryOpen, or Studio)
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
@@ -1484,6 +1492,9 @@ export type PlayerState = {
 	-- #3666: whether the intro plays itself for this player (IntroSplit.plays); nil from an older server, which
 	-- reads as Config.IntroAutoPlay
 	introAuto: boolean?,
+	-- #4001: the save is in the short intro test's "short" arm (shared/IntroSplit.SHORT): its first play is the short
+	-- intro; nil or false plays the long one there (a replay is always the short one)
+	introShort: boolean?,
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
 	catFood: { [string]: number }, -- #1181: food id -> count in the Bag
 	hideCredit: boolean, -- #1083: true while the player keeps their name off the Thank You board (SetHideCredit)

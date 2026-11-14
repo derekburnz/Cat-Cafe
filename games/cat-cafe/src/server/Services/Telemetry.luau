@@ -42,6 +42,7 @@ local FieldText = require(script.Parent.Parent.Util.FieldText)
 local FirstFive = require(ReplicatedStorage.Shared.FirstFive)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local IntroModeService = require(script.Parent.IntroModeService)
 local IntroSplit = require(ReplicatedStorage.Shared.IntroSplit)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
@@ -165,7 +166,7 @@ export type CustomEvent =
 	| "spin"
 	| "crate_opened"
 	| "mystery_buy" -- #2565: value fish before; item, week slot, tier
-	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id
+	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id (#4049: then the kind)
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
 	| "intro_skip" -- #3773: a first play skipped; value the whole seconds watched; version:shot, device
@@ -840,8 +841,27 @@ function Telemetry.introJoin(player: Player, profile: Profile)
 	end
 	local on = LiveFlagService.on(IntroSplit.FLAG)
 	local state = profile.telemetry
-	local joins = IntroSplit.joins(on, profile.stats.sessions, profile.introSeen, state.introGroup)
-	local group = if joins then IntroSplit.group(player.UserId) else state.introGroup
+	-- #4001: a new save takes its arm from a Creator Hub Experiment's introMode when there is one (a short wait for
+	-- the config read, new saves only), else the older split by account number
+	local mode: string? = nil
+	if IntroSplit.joins(true, profile.stats.sessions, profile.introSeen, state.introGroup) then
+		mode = IntroSplit.fromMode(IntroModeService.get(player))
+		if introChecked[player] ~= nil then
+			return -- another caller decided while this one waited
+		end
+	end
+	local test = IntroSplit.fromMode(IntroModeService.studioMode()) -- Studio only (IntroModeService.studioMode)
+	if test ~= nil then
+		mode = test
+	end
+	local joins = test ~= nil
+		or IntroSplit.joins(
+			on or mode ~= nil,
+			profile.stats.sessions,
+			profile.introSeen,
+			state.introGroup
+		)
+	local group = if joins then mode or IntroSplit.group(player.UserId) else state.introGroup
 	introChecked[player] = IntroSplit.plays(group, on, Config.IntroAutoPlay)
 	if joins then
 		state.introGroup = group
@@ -853,6 +873,13 @@ end
 function Telemetry.introPlays(player: Player, profile: Profile): boolean
 	Telemetry.introJoin(player, profile)
 	return introChecked[player] == true
+end
+
+-- #4001: whether this save's intro is the short one (its group is the Experiment's "short" arm).
+function Telemetry.introShort(profile: Profile): boolean
+	-- compared here, not through an IntroSplit helper: one more function there trips the test VM fault in
+	-- IndexRewardsShared.spec (tools/cloudcheck/README.md)
+	return profile.telemetry.introGroup == IntroSplit.SHORT
 end
 
 -- #3695: the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS), one run per player with the user id as its

@@ -479,6 +479,31 @@ function Logic.bigTraitCue(beat: any, rarity: any): string?
 	return if rarity == "mythic" or rarity == "secret" then "jingleMythical" else "jingleLegendary"
 end
 
+-- Derek 2026-11-13: the Rift Run's beats (Effects/RiftRun.onBeat), flat. A gate is the pool's step chime one note up
+-- the scale each tier (`step` 1 Common up to 5 Legendary), the Mythic gate the pool's Mythic flash and the Secret
+-- one the Secret jingle; the white over the pool a poof, the landing a soft drop, a meteor the cannon's landing
+-- thump, the dark the Secret shimmer, the rift tearing open the gate's opening and the leap the cannon's launch.
+-- The fanfare is BigTraitCut's, after.
+function Logic.riftRunCue(beat: any, step: any, tier: any): (string?, number?)
+	if beat == "gate" then
+		if tier == "secret" then
+			return "jingleSecret", nil
+		elseif tier == "mythic" then
+			return "poolMythic", nil
+		end
+		return "poolStep", if type(step) == "number" then math.clamp(math.floor(step), 1, 5) else 1
+	end
+	local cues: { [string]: string } = {
+		flare = "travelPoof",
+		land = "catDrop",
+		meteor = "cannonLand",
+		dark = "secretNear",
+		tear = "gateOpen",
+		leap = "cannonLaunch",
+	}
+	return if type(beat) == "string" then cues[beat] else nil, nil
+end
+
 -- #3430: the Mystic Pool's first walk-up cutscene (Effects/MysticIntroCut.onBeat) plays the pool's own chimes,
 -- calm: each colour step the step chime one note up the scale, and the silhouette's rise the soft reveal. Never the
 -- Mythic sting, since nothing was won.

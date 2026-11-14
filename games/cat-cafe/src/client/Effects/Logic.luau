@@ -3750,10 +3750,12 @@ export type BigTraitScene = {
 	spiral: number,
 	spiralSeconds: number,
 	lift: number,
+	liftHeight: number?, -- studs the lift ends at (Presets.mysticPool.liftHeight when nil)
 	constellation: boolean,
 }
 
--- #3942: the whole scene round a Mythic or Secret roll (Presets.bigTrait.scenes), or nil for any other rarity.
+-- #3942: the whole scene round a Legendary (a small one), Mythic or Secret roll (Presets.bigTrait.scenes), or nil
+-- for any other rarity.
 function Logic.bigTraitScene(rarity: string?): BigTraitScene?
 	local scenes: { [string]: BigTraitScene } = Presets.bigTrait.scenes :: any
 	return if rarity ~= nil then scenes[rarity] else nil
@@ -3815,6 +3817,230 @@ function Logic.bigTraitPop(t: number): number
 		return b.popOver + (1 - b.popOver) * Logic.smoothstep01((t - b.popSeconds) / b.popSeconds)
 	end
 	return 1
+end
+
+-- The turn about the vertical (radians, for CFrame.Angles(0, yaw, 0)) that looks from `at` to `eye` along the
+-- ground, as a cat model faces its LookVector; nil when `eye` is straight above or below (MysticPool's cat turning
+-- to the player's camera).
+function Logic.facePoint(at: Vector3, eye: Vector3): number?
+	local dx, dz = eye.X - at.X, eye.Z - at.Z
+	if dx * dx + dz * dz < 0.0025 then
+		return nil
+	end
+	return math.atan2(-dx, -dz)
+end
+
+-- The Rift Run (Effects/RiftRun, Presets.riftRun): a Mythic or Secret trait roll's run through the Rift Realm.
+export type RiftPlan = {
+	rarity: string,
+	gates: { string }, -- the tiers passed, Common first, up to the rolled one
+	gateZ: { number }, -- each gate's distance along the path
+	gateAt: { number }, -- and when the cat passes it
+	knots: { Vector2 }, -- (seconds, distance) the run passes through
+	leapAt: number,
+	leapEnd: number,
+	darkAt: number?, -- a Secret: when the realm starts going black
+	total: number, -- when the cutscene hands back (all white)
+}
+
+-- The Rift Run for a roll of `rarity`, or nil when it gets none (below Mythic). Gates from Common up to the rolled
+-- tier, one each; a Secret passes the Mythic gate, then the dark, then the white Secret gate. Nothing random.
+function Logic.riftPlan(rarity: string?): RiftPlan?
+	local r = Presets.riftRun
+	if rarity ~= "mythic" and rarity ~= "secret" then
+		return nil
+	end
+	local gates: { string } = {}
+	for _, tier in r.tiers do
+		table.insert(gates, tier)
+		if tier == rarity then
+			break
+		end
+	end
+	local gateZ: { number } = {}
+	local gateAt: { number } = {}
+	local knots: { Vector2 } = { Vector2.new(r.runStart, 0) }
+	local at = r.firstGateAt
+	local darkAt: number? = nil
+	for i, tier in gates do
+		if i > 1 then
+			if tier == "secret" then
+				darkAt = at
+				at += r.darkGap
+			else
+				at += r.gateGaps[math.min(i - 1, #r.gateGaps)]
+			end
+		end
+		local z = r.gateFirst + r.gateGap * (i - 1)
+		table.insert(gateZ, z)
+		table.insert(gateAt, at)
+		table.insert(knots, Vector2.new(at, z))
+	end
+	local leapAt = at + (r.leapFrom - gateZ[#gateZ]) / r.endSpeed
+	table.insert(knots, Vector2.new(leapAt, r.leapFrom))
+	local leapEnd = leapAt + r.leapSeconds
+	return {
+		rarity = rarity :: string, -- CI's luau-lsp keeps the refined "mythic" | "secret" otherwise
+		gates = gates,
+		gateZ = gateZ,
+		gateAt = gateAt,
+		knots = knots,
+		leapAt = leapAt,
+		leapEnd = leapEnd,
+		darkAt = darkAt,
+		total = leapAt + r.leapSeconds * r.whiteAt,
+	}
+end
+
+-- How fast the run goes through knot `i` (studs a second): 0 at the start (it sets off from a stand), the mean of
+-- the two sides between, the last side's at the end. Kept under three times either side, so the run never goes back.
+local function riftSlope(knots: { Vector2 }, i: number): number
+	if i <= 1 then
+		return 0
+	end
+	local before = (knots[i].Y - knots[i - 1].Y) / math.max(knots[i].X - knots[i - 1].X, 1e-3)
+	if i >= #knots then
+		return before
+	end
+	local after = (knots[i + 1].Y - knots[i].Y) / math.max(knots[i + 1].X - knots[i].X, 1e-3)
+	return math.min((before + after) / 2, 3 * math.min(before, after))
+end
+
+-- The cat's distance along the path `t` seconds in: 0 until it starts, smooth through every gate at its time, the
+-- leap's start at the end (and held there after).
+function Logic.riftDistance(plan: RiftPlan, t: number): number
+	local knots = plan.knots
+	if t <= knots[1].X then
+		return knots[1].Y
+	end
+	for i = 2, #knots do
+		local a, b = knots[i - 1], knots[i]
+		if t <= b.X then
+			local h = b.X - a.X
+			local k = (t - a.X) / h
+			local k2, k3 = k * k, k * k * k
+			local m0, m1 = riftSlope(knots, i - 1) * h, riftSlope(knots, i) * h
+			return (2 * k3 - 3 * k2 + 1) * a.Y
+				+ (k3 - 2 * k2 + k) * m0
+				+ (-2 * k3 + 3 * k2) * b.Y
+				+ (k3 - k2) * m1
+		end
+	end
+	return knots[#knots].Y
+end
+
+-- The cat's dodge `t` seconds in: its lane offset across the path (studs, + to its right) and how high it is off the
+-- path in the hop over (studs). Hops start Presets.riftRun.dodges seconds after the run starts.
+function Logic.riftDodge(t: number): (number, number)
+	local r = Presets.riftRun
+	local from = 0
+	for i, at in r.dodges do
+		local start = r.runStart + at
+		local to = r.lanes[i] or 0
+		if t < start then
+			return from * r.laneWidth, 0
+		end
+		local k = (t - start) / r.dodgeSeconds
+		if k < 1 then
+			local side = from + (to - from) * Logic.smoothstep01(k)
+			return side * r.laneWidth, math.sin(math.pi * k) * r.dodgeHop
+		end
+		from = to
+	end
+	return from * r.laneWidth, 0
+end
+
+export type RiftMeteor = {
+	at: number, -- when it lands
+	lane: number, -- the lane it lands in, studs across
+	from: number, -- 1 from the right, -1 from the left
+}
+
+-- The meteors, one per dodge: each lands in the lane the cat has just left, `meteorLead` seconds after the hop
+-- starts, falling from alternate sides. Only those landing before `before` seconds (the leap).
+function Logic.riftMeteors(before: number): { RiftMeteor }
+	local r = Presets.riftRun
+	local out: { RiftMeteor } = {}
+	local from = 0
+	for i, at in r.dodges do
+		local lands = r.runStart + at + r.meteorLead
+		if lands < before then
+			table.insert(out, {
+				at = lands,
+				lane = from * r.laneWidth,
+				from = if i % 2 == 1 then 1 else -1,
+			})
+		end
+		from = r.lanes[i] or 0
+	end
+	return out
+end
+
+-- Where a meteor is `k` of the way down (0 to 1): from `start` to `land` along a slight curve, faster as it falls.
+function Logic.riftFall(start: Vector3, land: Vector3, k: number): Vector3
+	local e = math.clamp(k, 0, 1)
+	e = e * e * 0.35 + e * 0.65
+	local line = start:Lerp(land, e)
+	return line + Vector3.new(0, math.sin(math.pi * e) * 3, 0)
+end
+
+-- The leap `k` of the way (0 to 1) as offsets from the path's start: from (`side`, 0, -leapFrom) on the path up to
+-- the rift's middle, over an arc. Also the cat's nose-up tilt (radians): up off the path, level by the rift.
+function Logic.riftLeap(side: number, k: number): (Vector3, number)
+	local r = Presets.riftRun
+	local e = math.clamp(k, 0, 1)
+	local z = r.leapFrom + (r.pathLength + r.ringBeyond - r.leapFrom) * e
+	local y = r.ringLift * Logic.smoothstep01(e) + r.leapArc * 4 * e * (1 - e)
+	return Vector3.new(side * (1 - e), y, -z), math.rad(28) * (1 - e) * (1 - e)
+end
+
+-- How open the rift is `t` seconds in (0 shut to 1 wide open): a thin slit from the start, slowly wider, tearing the
+-- rest of the way in the last `ringTear` seconds before the leap.
+function Logic.riftOpen(plan: RiftPlan, t: number): number
+	local r = Presets.riftRun
+	local tearAt = plan.leapAt - r.ringTear
+	if t < tearAt then
+		local k = Logic.smoothstep01((t - r.dropAt) / math.max(tearAt - r.dropAt, 0.1))
+		return 0.05 + (r.ringOpen - 0.05) * k
+	end
+	return r.ringOpen + (1 - r.ringOpen) * Logic.smoothstep01((t - tearAt) / r.ringTear)
+end
+
+-- The screen's white `t` seconds in (0 clear, 1 all white) and how pink it is (0 to 1): up over the pool at the
+-- start, off again after the cut, and at the leap first pink, then white to hand back.
+function Logic.riftFlash(plan: RiftPlan, t: number): (number, number)
+	local r = Presets.riftRun
+	if t < r.flareIn then
+		return Logic.smoothstep01(t / r.flareIn), 0
+	elseif t < r.flareIn + r.flareOut then
+		return 1 - Logic.smoothstep01((t - r.flareIn) / r.flareOut), 0
+	end
+	local pinkFrom = plan.leapAt + r.leapSeconds * r.pinkAt
+	local whiteAt = plan.leapAt + r.leapSeconds * r.whiteAt
+	if t < pinkFrom then
+		return 0, 0
+	end
+	local k = math.clamp((t - pinkFrom) / math.max(whiteAt - pinkFrom, 0.05), 0, 1)
+	return Logic.smoothstep01(k), 1 - Logic.smoothstep01(math.clamp(k * 1.6 - 0.6, 0, 1))
+end
+
+-- How big gate `i`'s moment is (1 for the first): every gate a little more than the one before.
+function Logic.riftGateScale(i: number): number
+	return 1 + (math.max(i, 1) - 1) * 0.35
+end
+
+-- How dark the realm is `t` seconds in (0 its own look, 1 black): only a Secret, from `darkAt`, easing in over
+-- `darkIn`, and back off as the white Secret gate is passed.
+function Logic.riftDark(plan: RiftPlan, t: number): number
+	local r = Presets.riftRun
+	local from = plan.darkAt
+	if from == nil then
+		return 0
+	end
+	local into = Logic.smoothstep01((t - from - 0.25) / r.darkIn)
+	local secretAt = plan.gateAt[#plan.gateAt]
+	local out = Logic.smoothstep01((t - secretAt) / 0.5)
+	return into * (1 - out * 0.5)
 end
 
 return Logic

@@ -26,6 +26,9 @@ return function()
 					autoEquip = true, -- #1955: on for a new account
 					catIncome = true, -- #2551: the rate tags show, as they always did
 					goalFolded = false, -- #2714
+					catPickSort = "Money", -- #3940
+					catPickFlipped = false,
+					catPickShow = "",
 				})
 				for key in pairs(Settings.defaults() :: any) do
 					expect(Settings.kinds[key]).to.be.ok()
@@ -114,7 +117,27 @@ return function()
 				autoEquip = false, -- #1955: a save from before Auto Equip starts with it off
 				catIncome = true, -- #2551: a save from before Cat income has the tags on
 				goalFolded = false, -- #2714
+				catPickSort = "Money", -- #3940
+				catPickFlipped = false,
+				catPickShow = "",
 			})
+		end)
+
+		it("keeps the pick-a-cat Sort and Show chips as saved (#3940)", function()
+			expect(Settings.clean("catPickSort", "Level")).to.equal("Level")
+			expect(Settings.clean("catPickSort", "Name")).never.to.be.ok()
+			expect(Settings.clean("catPickFlipped", true)).to.equal(true)
+			expect(Settings.clean("catPickShow", "Working,No trait")).to.equal("Working,No trait")
+			expect(Settings.clean("catPickShow", "")).to.equal("")
+			expect(Settings.clean("catPickShow", "Working,Resting,No trait,Has trait")).to.equal(
+				"Working,Resting,No trait,Has trait"
+			)
+			expect(Settings.clean("catPickShow", "No trait,Working")).never.to.be.ok()
+			expect(Settings.clean("catPickShow", "Everything")).never.to.be.ok()
+			expect(#Settings.choices.catPickShow).to.equal(16)
+			expect(Settings.sanitize({ catPickShow = "Has trait" }).catPickShow).to.equal(
+				"Has trait"
+			)
 		end)
 
 		it("keeps Cat income as saved, a switch (#2551)", function()

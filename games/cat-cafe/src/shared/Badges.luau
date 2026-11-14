@@ -1,5 +1,5 @@
 --!strict
--- Roblox badges (#1934, release.md section 1), pure: the 22 badges in creation order (5 a day in Creator Hub), what
+-- Roblox badges (#1934, release.md section 1), pure: the 28 badges in their order (#3618; 5 a day are made free), what
 -- earns each, read from the profile alone, and which are due. The server's BadgeAwardService awards them; nothing
 -- here is sent to the client. A badge is earned by playing only: never for liking, favouriting, buying or inviting
 -- (a shop-only cat counts toward none), and nothing has a streak that can be lost once earned.
@@ -62,6 +62,21 @@ for _, def in Catalog.cats do
 	end
 end
 
+-- #3618: any upgrade bought past where a new cafe starts (the first table is open from the start, #3660).
+local function boughtUpgrade(profile: Profile): boolean
+	for upgradeId, level in profile.upgradeLevels do
+		local def = Catalog.getUpgrade(upgradeId)
+		local start = if def ~= nil then def.startLevel else 0
+		if upgradeId == "tables" then
+			start = math.max(start, Config.StartTables)
+		end
+		if level > start then
+			return true
+		end
+	end
+	return false
+end
+
 local function pageComplete(profile: Profile): boolean
 	for areaId, size in pageSize do
 		if size > 0 and IndexRewards.progress(profile.collection, areaId) >= size then
@@ -71,7 +86,42 @@ local function pageComplete(profile: Profile): boolean
 	return false
 end
 
+-- #3618 (Derek 2026-11-12: "tier 1,2,3,4,5,6,7 badges ... first badges should be like finished tutorial steps"):
+-- badges-order.md's 28, in the order they are awarded and listed. The 22 made before keep their ids and rules.
 local LIST: { Badge } = {
+	-- First steps
+	{
+		key = "firstCatch",
+		name = "First Catch",
+		description = "Catch your first stray cat.",
+		earned = function(profile)
+			return profile.stats.grabsSucceeded >= 1
+		end,
+	},
+	-- #3618 (badges-order.md): the six new badges read only from the save, so a player who passed the step or tier
+	-- before gets it on their next join
+	{
+		key = "firstHome",
+		name = "Home Sweet Home",
+		description = "Carry your first cat home to your cafe.",
+		earned = function(profile)
+			return profile.stats.catsCaught >= 1
+		end,
+	},
+	{
+		key = "firstUpgrade",
+		name = "Fixing Up",
+		description = "Upgrade your cafe for the first time.",
+		earned = boughtUpgrade,
+	},
+	{
+		key = "firstFlight",
+		name = "Liftoff",
+		description = "Fly from the cannon for the first time.",
+		earned = function(profile)
+			return (profile.stats.cannonFlights or 0) >= 1
+		end,
+	},
 	{
 		key = "welcome",
 		name = "Welcome to the Cafe",
@@ -81,11 +131,21 @@ local LIST: { Badge } = {
 		end,
 	},
 	{
-		key = "firstCatch",
-		name = "First Catch",
-		description = "Catch your first stray cat.",
+		key = "grandOpening",
+		name = "Grand Opening",
+		description = "Finish every step of the Grand Opening.",
 		earned = function(profile)
-			return profile.stats.grabsSucceeded >= 1
+			return profile.grandOpening.finished == true
+		end,
+	},
+	-- Cafe tiers, named after the tiers in the game
+	-- given once the tutorial is finished, so it never pops over the tutorial
+	{
+		key = "cornerCafe",
+		name = "Corner Cafe",
+		description = "Open your Tier 1 cafe.",
+		earned = function(profile)
+			return profile.tutorialStep >= Badges.WELCOME_STEP
 		end,
 	},
 	{
@@ -95,19 +155,50 @@ local LIST: { Badge } = {
 		earned = atTier(2),
 	},
 	{
-		key = "grandOpening",
-		name = "Grand Opening",
-		description = "Finish every step of the Grand Opening.",
-		earned = function(profile)
-			return profile.grandOpening.finished == true
-		end,
+		key = "busyCafe",
+		name = "Busy Cafe",
+		description = "Rank your cafe up to Tier 3.",
+		earned = atTier(3),
 	},
+	{
+		key = "famousCafe",
+		name = "Famous Cafe",
+		description = "Rank your cafe up to Tier 4.",
+		earned = atTier(4),
+	},
+	{
+		key = "grandCafe",
+		name = "Grand Cafe",
+		description = "Rank your cafe up to Tier 5.",
+		earned = atTier(5),
+	},
+	{
+		key = "sunstoneCafe",
+		name = "Sunstone Cafe",
+		description = "Rank your cafe up to Tier 6.",
+		earned = atTier(6),
+	},
+	{
+		key = "wonderCafe",
+		name = "Wonder Cafe",
+		description = "Rank your cafe up to Tier 7.",
+		earned = atTier(7),
+	},
+	-- Catching
 	{
 		key = "purrfect",
 		name = "Purrfect!",
 		description = "Make a PURRFECT catch.",
 		earned = function(profile)
 			return profile.stats.purrfectCatches >= 1
+		end,
+	},
+	{
+		key = "purrfectStreak",
+		name = "Purrfect Streak",
+		description = "Make 5 PURRFECT catches in a row.",
+		earned = function(profile)
+			return profile.stats.bestPurrfectStreak >= Badges.PURRFECT_RUN
 		end,
 	},
 	{
@@ -136,24 +227,7 @@ local LIST: { Badge } = {
 		description = "Find a Mythical cat.",
 		earned = owns("Mythical"),
 	},
-	{
-		key = "busyCafe",
-		name = "Busy Cafe",
-		description = "Rank your cafe up to Tier 3.",
-		earned = atTier(3),
-	},
-	{
-		key = "famousCafe",
-		name = "Famous Cafe",
-		description = "Rank your cafe up to Tier 4.",
-		earned = atTier(4),
-	},
-	{
-		key = "grandCafe",
-		name = "Grand Cafe",
-		description = "Rank your cafe up to Tier 5.",
-		earned = atTier(5),
-	},
+	-- Collecting
 	{
 		key = "catCollector",
 		name = "Cat Collector",
@@ -192,6 +266,7 @@ local LIST: { Badge } = {
 		description = "Fill a whole area page in the Cat Index.",
 		earned = pageComplete,
 	},
+	-- With other players
 	{
 		key = "helpingPaw",
 		name = "Helping Paw",
@@ -206,14 +281,6 @@ local LIST: { Badge } = {
 		description = "Finish your first trade with another player.",
 		earned = function(profile)
 			return profile.stats.trades >= 1
-		end,
-	},
-	{
-		key = "purrfectStreak",
-		name = "Purrfect Streak",
-		description = "Make 5 PURRFECT catches in a row.",
-		earned = function(profile)
-			return profile.stats.bestPurrfectStreak >= Badges.PURRFECT_RUN
 		end,
 	},
 	-- #2486 (live-events.md section 2e): one badge for every Cafe Event, earned by catching a cat in one

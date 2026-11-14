@@ -15,7 +15,7 @@ return function()
 	end
 
 	describe("the tip table (section 3)", function()
-		it("lists the 16 tips in the design's order with their kind", function()
+		it("lists the 17 tips in the design's order with their kind", function()
 			local got: { string } = {}
 			for _, def in Tips.LIST do
 				table.insert(got, def.id .. ":" .. def.kind)
@@ -38,6 +38,7 @@ return function()
 				"perfect:card", -- #2282
 				"tackle_try:card", -- #2302
 				"park_first:card", -- #2915
+				"pet:card", -- Derek 2026-11-13: the first pet
 			})
 		end)
 
@@ -56,6 +57,7 @@ return function()
 				"perfect",
 				"tackle_try",
 				"park_first",
+				"pet",
 			})
 		end)
 

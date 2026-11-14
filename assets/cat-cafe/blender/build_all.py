@@ -84,6 +84,7 @@ import mysterymarket  # noqa: E402
 import mysteryitems  # noqa: E402
 import desertset  # noqa: E402
 import ruinsset  # noqa: E402
+import snowyset  # noqa: E402
 import gardendecor  # noqa: E402
 import grandopening  # noqa: E402
 import gardennursery  # noqa: E402
@@ -107,8 +108,10 @@ import ringicons  # noqa: E402
 import plot  # noqa: E402
 import poses  # noqa: E402
 import props  # noqa: E402
+import riftrun  # noqa: E402
 import rbx_export  # noqa: E402
 import spot_clear  # noqa: E402
+import storepacks  # noqa: E402
 import seasondecor  # noqa: E402
 import sewer  # noqa: E402
 import themes  # noqa: E402
@@ -127,8 +130,8 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
-           mysterymarket, mysteryitems, desertset, ruinsset, campgrowth, townsfolk, nooks, feedbackstand,
-           arcadecabinet, mysticpool, moneybag]
+           mysterymarket, mysteryitems, desertset, ruinsset, snowyset, campgrowth, townsfolk, nooks, feedbackstand,
+           arcadecabinet, mysticpool, moneybag, riftrun, storepacks]
 
 PIVOT_NOTES = {
     **{n: "at its feet on the floor, front -Z" for n in townsfolk.ASSETS},
@@ -212,6 +215,7 @@ PIVOT_NOTES = {
     "CatCafe_Woods_SetF85": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
     "CatCafe_Sewer_SetF85": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
     "CatCafe_Desert_Set": "the wild part's centre on the floor, camp side -Z (areakit; Tier 6)",
+    "CatCafe_Snowy_Set": "the wild part's centre on the floor, camp side -Z (areakit; Tier 8)",
     "CatCafe_Ruins_Set": "the wild part's centre on the floor, camp side -Z (areakit; Tier 7)",
     "CatCafe_Woods_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Sewer_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
@@ -573,6 +577,14 @@ STUDIO_NOTES[ruinsset.NAME] = (
     "top and the walls a "
     "30 high one all round but the 24 stud way in at z -300 and the east bridge bay (a 9 high parapet barrier). The "
     "rescue spots (points_roblox trap_rubble_pile, trap_stone_urn, trap_bridge_ledge) carry their piece's turn.")
+STUDIO_NOTES[snowyset.NAME] = (
+    "Tier 8, the Snowy Mountain (next-areas plan section 1, #3997). Place it at the area's centre on its floor, camp "
+    "side -Z, like the Desert's set. The floor is snow right out to the walls and the lake is ice laid over the paths. "
+    "Nothing invisible stands inside the area: the ridges, humps and drifts are WedgeParts that collide where they "
+    "are drawn and the blockers have no _Barrier; the only _Barrier is the 30 high ring in the border's wall band, all "
+    "round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. Icicles, frozen bubbles, block "
+    "lines and rope are _Decor (no collision). The rescue spots (points_roblox trap_snowdrift, trap_snowman, trap_sled, "
+    "trap_snow_log) carry their piece's turn.")
 STUDIO_NOTES["CatCafe_NPC_MysteryVisitor"] = (
     "F64 Mystery Visitor: the client pivots it at a MysteryTable chair's seat on the floor, looking at the table, and "
     "tags it MysteryVisitor. A sitting cat (scale 1.3) with the usual hinged pieces (Head, Eye1, Eye2, EarL, EarR, "
@@ -903,7 +915,8 @@ def main():
             extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about
             extra = {"attachments": luckycat.hinge_attachments(name)}
-        rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)
+        rbx_dir = os.path.join(args.rbx, riftrun.RBX_DIR) if name in riftrun.ASSETS else args.rbx   # Assets.RiftRun
+        rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, rbx_dir, **extra)
         spots_ok = None
         if rbx_path and name in spot_clear.SETTLE and name in areakit.POINTS:   # cat spots out of solid props
             blo, bhi = common.bounds(objs)

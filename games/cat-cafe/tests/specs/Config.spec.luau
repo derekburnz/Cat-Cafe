@@ -647,6 +647,10 @@ return function()
 				SecretWanderRadius = true, -- #3545: checked in SecretCats.spec
 				SecretWanderPauseScale = true, -- #3545: checked in SecretCats.spec
 				ReturnGiftFromDay = true, -- #3772: checked in ReturnGift.spec
+				StylishPackPassId = true, -- #4026: the outfit packs' pass ids, 0 until made, checked in StoreLogic.spec
+				WinterPackPassId = true,
+				ChefPackPassId = true,
+				SpacePackPassId = true,
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

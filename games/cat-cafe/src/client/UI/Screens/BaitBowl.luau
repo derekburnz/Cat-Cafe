@@ -100,9 +100,25 @@ local DETAILS_W = 100
 local DETAILS_H = 42 -- a 37 px face, over the 36 px a mouse needs (the UI gate's tap check)
 local ICON = 52 -- the food's picture with its grade gem
 local TEXT_LEFT = ICON + 24
-local TEXT_WIDTH = -(TEXT_LEFT + BUTTON.X + DETAILS_W + 8 + 24)
 local TAB_H = 42 -- the bowl tabs (#1161), as tall as Details
 local PERK_LINE = 24 -- #1767: one of the locked bowl 2 card's three lines
+-- #3961 (batch 1 mock, station-menus-batch1-3558.png): with the family look the status card is a column down the
+-- left (the bowl's picture, what is in it, the wait chip, the buttons at its foot) and the foods are picture cards
+-- beside it, each with a round "i" for its odds and a chunky USE
+local COLUMN_W = 0.34 -- the status column's share of the window's width
+local COLUMN_PICTURE = 56
+-- the round "i" that opens a food's odds (its Details). Derek 2026-11-13 ("scale them down a little bit it's very
+-- big when barely anyone is checking it"): drawn well under USE, the tap size a mouse needs, and on a phone the
+-- button's invisible Hit pad (Components/Button) reaches out to a finger's 44 px so the look shrinks but the tap
+-- does not
+local INFO = 36
+local INFO_TOUCH = 44
+local COLUMN_USE_W = 84
+-- Derek 2026-11-13 ("the little blue detail buttons overlapping other buttons"): a clean button draws its outline
+-- past its box and a hover grows it round its middle (Button.OUTLINE, Button.HOVER_SCALE), so the row's two buttons
+-- keep both outlines, the hover and a clear 6 px between them, and Use keeps the same clear of the card's edge
+local ROW_GAP = 2 * Button.OUTLINE + math.ceil(COLUMN_USE_W * (Button.HOVER_SCALE - 1) / 2) + 6
+local ROW_RIGHT = 12 + Button.OUTLINE + math.ceil(COLUMN_USE_W * (Button.HOVER_SCALE - 1) / 2)
 local TITLE = "Bait bowl"
 local SUBTITLE = "Put food in and a cat comes to your door"
 
@@ -158,6 +174,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	self._speed = 0 -- the Index's faster bait (F54) plus a running Quick Bait Potion's (F73)
 	self._night = false -- the clock's phase (F60: food set at night waits half)
 	self._accumulator = 0
+	self._column = MenuFamily.on() -- #3961: the column layout (_layout, _placeStatus)
 
 	local panel = Panel.new({
 		dark = true, -- #1028
@@ -319,6 +336,9 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	})
 	self._refillFood.frame.Visible = false
 	self._refillLure = nil :: string? -- the food drawn beside Refill
+	if self._column then
+		self:_placeColumn()
+	end
 
 	self._list = Create("ScrollingFrame", {
 		Name = "Foods",
@@ -420,9 +440,88 @@ function BaitBowl._layout(self: any)
 	end
 	local top = if shown then self._tabH + Theme.sizes.gap else 0
 	self._status.Position = UDim2.fromOffset(0, top)
+	if self._column then
+		-- #3961: the status column on the left, as tall as the window, and the foods beside it
+		self._status.Size = UDim2.new(COLUMN_W, -Theme.sizes.gap, 1, -top - 6)
+		self._list.Position = UDim2.new(COLUMN_W, 0, 0, top)
+		self._list.Size = UDim2.new(1 - COLUMN_W, 0, 1, -top)
+		return
+	end
 	local listTop = top + STATUS_HEIGHT + Theme.sizes.gap + 4
 	self._list.Position = UDim2.fromOffset(0, listTop)
 	self._list.Size = UDim2.new(1, 0, 1, -listTop)
+end
+
+-- #3961: the column's insides, top down: the picture, the title, the wait chip and its bar, then the buttons at the
+-- foot (the action over Refill when both show). Placed once at build; _renderRefill only stacks the buttons.
+function BaitBowl._placeColumn(self: any)
+	local status = self._status
+	local center = Vector2.new(0.5, 0)
+	self._bowlTile.AnchorPoint = center
+	self._bowlTile.Position = UDim2.new(0.5, 0, 0, 8)
+	self._bowlTile.Size = UDim2.fromOffset(COLUMN_PICTURE, COLUMN_PICTURE)
+	self._bowlFood.frame.AnchorPoint = center
+	self._bowlFood.frame.Position = UDim2.new(0.5, 0, 0, 8)
+	self._bowlFood.frame.Size = UDim2.fromOffset(COLUMN_PICTURE, COLUMN_PICTURE)
+	-- the title, the wait chip and its bar stack under the picture, so a two-line chip pushes the bar down
+	local middle: Frame = Create("Frame", {
+		Name = "Middle",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(8, 8 + COLUMN_PICTURE + 10), -- under the food's grade ribbon
+		Size = UDim2.new(1, -16, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Parent = status,
+	}, {
+		Create("UIListLayout", {
+			Padding = UDim.new(0, 4),
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	local title: TextLabel = self._statusTitle
+	title.Size = UDim2.new(1, 0, 0, 22)
+	title.TextXAlignment = Enum.TextXAlignment.Center
+	title.TextScaled = true
+	title.LayoutOrder = 1
+	title.Parent = middle
+	Create("UITextSizeConstraint", {
+		MaxTextSize = Theme.sizes.textBody + 2,
+		MinTextSize = Theme.sizes.textSmall,
+		Parent = title,
+	})
+	-- the wait as a chip under the title, as the mock's "A cat comes by in 9 min"
+	local sub: TextLabel = self._statusSub
+	sub.Size = UDim2.new(1, 0, 0, 0)
+	sub.AutomaticSize = Enum.AutomaticSize.Y
+	sub.TextXAlignment = Enum.TextXAlignment.Center
+	sub.BackgroundColor3 = PAL.line
+	sub.BackgroundTransparency = 0
+	sub.TextColor3 = PAL.text
+	sub.FontFace = Theme.fonts.bodyBold
+	-- Studio 2026-11-13: "Tame it or let it go. The food is used either way." wraps in full, never cut
+	sub.TextWrapped = true
+	sub.TextTruncate = Enum.TextTruncate.None
+	sub.LayoutOrder = 2
+	sub.Parent = middle
+	Create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = sub })
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 8),
+		PaddingRight = UDim.new(0, 8),
+		PaddingTop = UDim.new(0, 3),
+		PaddingBottom = UDim.new(0, 3),
+		Parent = sub,
+	})
+	self._track.AnchorPoint = Vector2.zero
+	self._track.Size = UDim2.new(1, -8, 0, 8)
+	self._track.LayoutOrder = 3
+	self._track.Parent = middle
+	local wide = UDim2.new(1, -20, 0, ACTION_H)
+	self._action.instance.AnchorPoint = Vector2.new(0.5, 1)
+	self._action.instance.Size = wide
+	self._refill.instance.AnchorPoint = Vector2.new(1, 1)
+	-- Refill stays smaller than the action button (#3008), its food's picture beside it
+	self._refill.instance.Size = UDim2.new(1, -(20 + REFILL_ICON + 6), 0, REFILL.Y)
+	self._refillFood.frame.AnchorPoint = Vector2.new(0, 1)
 end
 
 function BaitBowl._buildRows(self: any)
@@ -448,6 +547,14 @@ function BaitBowl._buildRows(self: any)
 	local buttonH = Scale.tapHeight(BUTTON.Y, Theme.sizes.buttonDepth)
 	local detailsH = Scale.tapHeight(DETAILS_H, Theme.sizes.buttonDepth)
 	local topHeight = math.max(ICON + 16, buttonH + 16, detailsH + 16)
+	local column: boolean = self._column
+	-- #3961: the picture card's words take the width the round "i" leaves (narrower than Details)
+	local useW = if column then COLUMN_USE_W else BUTTON.X
+	local infoW = if column then (if Scale.isTouch() then INFO_TOUCH else INFO) else DETAILS_W
+	local textWidth = -(TEXT_LEFT + useW + infoW + ROW_RIGHT + ROW_GAP + 6)
+	if column then
+		topHeight = math.max(topHeight, ICON + 22) -- the name, the grade chip and the count, one line each
+	end
 	for index, lure in foods do
 		local dealer = lure.source == "dealer"
 		local cart = lure.source == "cart" -- #3462: sold only on the Day Cart
@@ -486,8 +593,8 @@ function BaitBowl._buildRows(self: any)
 		local heading: Frame = Create("Frame", {
 			Name = "Heading",
 			BackgroundTransparency = 1,
-			Position = UDim2.new(0, TEXT_LEFT, 0.5, -24),
-			Size = UDim2.new(1, TEXT_WIDTH, 0, 24),
+			Position = UDim2.new(0, TEXT_LEFT, 0.5, if column then -31 else -24),
+			Size = UDim2.new(1, textWidth, 0, 24),
 			Parent = top,
 		}, {
 			Create("UIListLayout", {
@@ -509,7 +616,7 @@ function BaitBowl._buildRows(self: any)
 		})
 		-- the food's own grade in its colour, where the "Attracts" chip was (#1612)
 		local grade = FoodGrade.of(lure)
-		text({
+		local gradeLabel = text({
 			Name = "Grade",
 			Size = UDim2.fromOffset(90, 24), -- "Legendary" at full width, beside a name of any length
 			FontFace = Theme.fonts.bodyBold,
@@ -520,10 +627,29 @@ function BaitBowl._buildRows(self: any)
 			LayoutOrder = 2,
 			Parent = heading,
 		})
+		if column then
+			-- #3961: the grade as a chip in its colour under the name, as the mock's EPIC and RARE
+			gradeLabel.Parent = top
+			gradeLabel.Position = UDim2.new(0, TEXT_LEFT, 0.5, -6)
+			gradeLabel.Size = UDim2.fromOffset(0, 18)
+			gradeLabel.AutomaticSize = Enum.AutomaticSize.X
+			gradeLabel.TextXAlignment = Enum.TextXAlignment.Center
+			gradeLabel.Text = string.upper(grade)
+			gradeLabel.TextSize = Theme.sizes.textTiny
+			gradeLabel.TextColor3 = Theme.colors.white
+			gradeLabel.BackgroundColor3 = Theme.rarityInk(grade)
+			gradeLabel.BackgroundTransparency = 0
+			Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = gradeLabel })
+			Create("UIPadding", {
+				PaddingLeft = UDim.new(0, 8),
+				PaddingRight = UDim.new(0, 8),
+				Parent = gradeLabel,
+			})
+		end
 		local count = text({
 			Name = "Count",
-			Position = UDim2.new(0, TEXT_LEFT, 0.5, 2),
-			Size = UDim2.new(1, TEXT_WIDTH, 0, 18),
+			Position = UDim2.new(0, TEXT_LEFT, 0.5, if column then 15 else 2),
+			Size = UDim2.new(1, textWidth, 0, 18),
 			TextSize = Theme.sizes.textSmall,
 			TextColor3 = CARD.subtext,
 			Parent = top,
@@ -531,30 +657,42 @@ function BaitBowl._buildRows(self: any)
 		-- Use on the right and Details beside it (#1612); the odds live under Details
 		local use = Button.new({
 			name = "Use",
-			text = "Use",
+			text = if column then "USE" else "Use",
 			style = "primary",
-			size = UDim2.fromOffset(BUTTON.X, buttonH),
+			size = UDim2.fromOffset(useW, buttonH),
 			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -12, 0.5, 0),
+			position = UDim2.new(1, -ROW_RIGHT, 0.5, 0),
 			textSize = Theme.sizes.textBody,
 			parent = top,
 			onClick = function()
 				self._callbacks.useLure(lure.id, self._selected)
 			end,
 		})
+		-- #3961: a round sky "i" in the family look, for the same odds
 		local details = Button.new({
 			name = "Details",
-			text = "Details",
-			style = "ghost",
-			size = UDim2.fromOffset(DETAILS_W, detailsH),
+			text = if column then "i" else "Details",
+			style = if column then "sky" else "ghost",
+			shine = not column, -- the round "i" is plain, no light bar on top (Derek 2026-11-13)
+			size = if column
+				then UDim2.fromOffset(infoW, infoW)
+				else UDim2.fromOffset(DETAILS_W, detailsH),
 			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -(12 + BUTTON.X + 8), 0.5, 0),
+			position = UDim2.new(1, -(ROW_RIGHT + useW + ROW_GAP), 0.5, 0),
 			textSize = Theme.sizes.textSmall,
 			parent = top,
 			onClick = function()
 				self:_toggleDetail(lure.id)
 			end,
 		})
+		if column then
+			-- the mock's round "i": the button's corners all the way round
+			for _, corner in details.instance:GetDescendants() do
+				if corner:IsA("UICorner") then
+					(corner :: UICorner).CornerRadius = UDim.new(1, 0)
+				end
+			end
+		end
 		local detail = text({
 			Name = "Detail",
 			AutomaticSize = Enum.AutomaticSize.Y,
@@ -570,9 +708,11 @@ function BaitBowl._buildRows(self: any)
 			LayoutOrder = 2,
 			Parent = row,
 		})
+		-- Studio 2026-11-13: in the family look the odds start a clear line under the round "i" and USE
 		Create("UIPadding", {
 			PaddingLeft = UDim.new(0, 16),
 			PaddingRight = UDim.new(0, 16),
+			PaddingTop = UDim.new(0, if column then 8 else 0),
 			PaddingBottom = UDim.new(0, 12),
 			Parent = detail,
 		})
@@ -600,7 +740,11 @@ function BaitBowl._toggleDetail(self: any, lureId: string)
 		return
 	end
 	row.detail.Visible = not row.detail.Visible
-	row.details:setText(if row.detail.Visible then "Hide details" else "Details")
+	if self._column then
+		row.details:setStyle(if row.detail.Visible then "gold" else "sky") -- the "i" lit while its odds show
+	else
+		row.details:setText(if row.detail.Visible then "Hide details" else "Details")
+	end
 end
 
 BaitBowl.BUILD_AFTER = 8 -- #3722: seconds after the catalog arrives
@@ -994,17 +1138,28 @@ function BaitBowl._renderRefill(self: any, state: Types.PlayerState, action: str
 	local selected: number = self._selected
 	local shown = ownsBowl(state) and self:_takesFood(selected)
 	self._refill.instance.Visible = shown
+	local stacked = action ~= nil
+	if self._column then
+		-- #3961: Refill at the column's foot with its food beside it, the action over it when both show. Studio
+		-- 2026-11-13: with no bowl yet (no Refill) the Upgrades button still sits at the column's foot, inside it
+		local gap = Theme.sizes.gap
+		self._action.instance.Position =
+			UDim2.new(0.5, 0, 1, if stacked and shown then -(10 + REFILL.Y + gap) else -10)
+		self._refill.instance.Position = UDim2.new(1, -10, 1, -10)
+		self._refillFood.frame.Position = UDim2.new(0, 10, 1, -10 - (REFILL.Y - REFILL_ICON) / 2)
+	end
 	if not shown then
 		self._refillFood.frame.Visible = false
 		return
 	end
 	local food: Types.LureDef? = FoodOrder.best(self._foods or {}, state.lures)
-	local stacked = action ~= nil
 	local y = if stacked then (STATUS_HEIGHT - REFILL.Y) / 2 - 2 else 0
-	self._action.instance.Position =
-		UDim2.new(1, -12, 0.5, if stacked then -(STATUS_HEIGHT - ACTION_H) / 2 + 2 else 0)
-	self._refill.instance.Position = UDim2.new(1, -12, 0.5, y)
-	self._refillFood.frame.Position = UDim2.new(1, -12 - REFILL.X - 4, 0.5, y)
+	if not self._column then
+		self._action.instance.Position =
+			UDim2.new(1, -12, 0.5, if stacked then -(STATUS_HEIGHT - ACTION_H) / 2 + 2 else 0)
+		self._refill.instance.Position = UDim2.new(1, -12, 0.5, y)
+		self._refillFood.frame.Position = UDim2.new(1, -12 - REFILL.X - 4, 0.5, y)
+	end
 	self._refillFood.frame.Visible = food ~= nil
 	local lureId = if food then food.id else nil
 	if lureId ~= self._refillLure then

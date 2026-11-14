@@ -285,15 +285,8 @@ local LIST: { Badge } = {
 			return profile.stats.trades >= 1
 		end,
 	},
-	-- #2486 (live-events.md section 2e): one badge for every Cafe Event, earned by catching a cat in one
-	{
-		key = "partyGuest",
-		name = "Cafe Party Guest",
-		description = "Catch a cat during a Cafe Event.",
-		earned = function(profile)
-			return profile.eventLast ~= ""
-		end,
-	},
+	-- #2486's "Cafe Party Guest" (catch a cat during a Cafe Event) was here; #4282 (Derek 2026-11-14: "remove this
+	-- badge ... its not really needed") took it out, and it is disabled on Roblox
 	-- #3324 (Derek2 11-11): being in a server while the owner is there. Nothing in the profile earns it: the server
 	-- passes it in `due`'s `extra` while the owner is in the server (BadgeAwardService), so it can't be earned alone.
 	{

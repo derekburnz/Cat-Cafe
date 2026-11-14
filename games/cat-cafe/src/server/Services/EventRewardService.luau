@@ -1,7 +1,7 @@
 --!strict
 -- The Cafe Event reward on the server (#2486; live-events.md section 2e; CafeEvents.reward for the rule). A player
 -- who secures a cat while an event with a reward runs (CatService's check-in calls `secured`) gets, once per event:
--- - the "Cafe Party Guest" badge, once per account (BadgeAwardService awards it from profile.eventLast);
+-- (#4282: the "Cafe Party Guest" badge it once gave is gone, Derek 2026-11-14)
 -- - the event's free piece into decorOwned, placed like a crate find (a free decor spot, else Auto Equip), or, for a
 --   player who has it already, EventRepeatGiftIncomeMinutes of their cafe income (Payout, sku "event_reward").
 -- An event that ends early (its record pulled, or a test stopped) pays everyone in the server at that moment, as
@@ -83,8 +83,9 @@ local function pay(player: Player, event: CafeEvents.Event)
 		local coins = if #paid > 0 then " " .. table.concat(paid, ", ") else ""
 		Net.toast(player, `{event.title} reward:{coins} (you have the {pieceName} already)`, "good")
 	else
-		warn(`[EventRewardService] {event.id}'s reward {cosmeticId} is no event decor: badge only`)
-		Net.toast(player, `{event.title} reward: the Cafe Party Guest badge!`, "good")
+		warn(
+			`[EventRewardService] {event.id}'s reward {cosmeticId} is no event decor: nothing to give`
+		)
 	end
 	print(`[EventRewardService] {player.UserId} rewarded in {event.id}: {kind}`)
 	if not event.test then

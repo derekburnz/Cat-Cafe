@@ -27,7 +27,7 @@ return function()
 		it("slows the same way wherever it stops and never lingers before the end", function()
 			local gapsFromEnd: { number }? = nil
 			for target = 1, 7 do
-				local steps = Logic.binRollSteps(7, target, p.laps, p.first, p.last)
+				local steps = Logic.binRollSteps(7, target, p.laps, p.first, p.last, p.slow)
 				local before = 0
 				local fromEnd: { number } = {}
 				for i = 2, #steps do
@@ -39,16 +39,47 @@ return function()
 				for i = #steps, #steps - 6, -1 do
 					table.insert(fromEnd, steps[i].at - steps[i - 1].at)
 				end
-				-- the honesty rule: the last seven gaps are the same for every stopping row
+				-- the honesty rule: each gap from the end is the shared curve's or the fast one, never longer
 				if gapsFromEnd ~= nil then
 					for i, gap in fromEnd do
-						expect(math.abs(gap - gapsFromEnd[i]) < 1e-6).to.equal(true)
+						local same = math.abs(gap - gapsFromEnd[i]) < 1e-6
+						expect(
+							same
+								or math.abs(gap - p.first) < 1e-6
+								or math.abs(gapsFromEnd[i] - p.first) < 1e-6
+						).to.equal(true)
 					end
 				end
-				gapsFromEnd = fromEnd
-				-- about the design's 2.5 seconds
-				expect(steps[#steps].at >= 2).to.equal(true)
+				if gapsFromEnd == nil or target >= p.slow then
+					gapsFromEnd = fromEnd
+				end
+				-- #3903: a lit row under the prize (index > target) never lingers: its gap is the fast one
+				for i = 1, #steps - 1 do
+					if steps[i].index > target then
+						expect(math.abs((steps[i + 1].at - steps[i].at) - p.first) < 1e-6).to.equal(
+							true
+						)
+					end
+				end
+				-- the row lit just before the prize lingers longest, unless the prize is row 1 (nothing above it)
+				local final = steps[#steps].at - steps[#steps - 1].at
+				expect(math.abs(final - (if target > 1 then p.last else p.first)) < 1e-6).to.equal(
+					true
+				)
+				expect(steps[#steps].at >= 0.8).to.equal(true)
 				expect(steps[#steps].at <= 2.5).to.equal(true)
+			end
+			for count = 1, 9 do
+				for target = 1, count do
+					local steps = Logic.binRollSteps(count, target, p.laps, p.first, p.last, p.slow)
+					for i = 1, #steps - 1 do
+						if steps[i].index > target then
+							expect(math.abs((steps[i + 1].at - steps[i].at) - p.first) < 1e-6).to.equal(
+								true
+							)
+						end
+					end
+				end
 			end
 			-- no flashing: never more than about 15 ticks a second
 			expect(p.first >= 1 / 15).to.equal(true)
@@ -104,6 +135,30 @@ return function()
 			expect(high).to.equal(p.lid[3].height)
 			expect(gone).to.equal(1)
 			expect(select(2, Logic.binLidPop(0.5, p.lid[3].height, true))).to.equal(0)
+		end)
+		it("pops the prize's picture up out of the bin and into the hands (#3885)", function()
+			local q = p.prize
+			expect(q.seconds > 0 and q.seconds <= 1.5).to.equal(true)
+			local from, hands = Vector3.new(0, 3, 0), Vector3.new(10, 2, 0)
+			local near = function(a: Vector3, b: Vector3): boolean
+				return (a - b).Magnitude < 0.01
+			end
+			-- it starts small at the bin top
+			local start, small = Logic.binPrizePop(from, hands, 0)
+			expect(near(start, from)).to.equal(true)
+			expect(math.abs(small - q.from) < 0.001).to.equal(true)
+			-- it is full size straight above the bin once the pop is over
+			local top, full = Logic.binPrizePop(from, hands, q.popShare)
+			expect(near(top, from + Vector3.new(0, q.rise, 0))).to.equal(true)
+			expect(math.abs(full - 1) < 0.001).to.equal(true)
+			-- it ends in the hands, smaller
+			local last, caught = Logic.binPrizePop(from, hands, 1)
+			expect(near(last, hands)).to.equal(true)
+			expect(math.abs(caught - q.catch) < 0.001).to.equal(true)
+			-- the rise only goes up
+			local half = Logic.binPrizePop(from, hands, q.popShare / 2)
+			expect(half.X).to.equal(from.X)
+			expect(half.Y > from.Y).to.equal(true)
 		end)
 	end)
 end

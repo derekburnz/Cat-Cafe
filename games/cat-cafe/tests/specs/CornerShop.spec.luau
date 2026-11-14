@@ -594,13 +594,21 @@ return function()
 			expect(CornerShop.buyBlocker(state, buy("honey_cream", window, 7, 1e12), window)).to.equal(
 				nil
 			)
-			-- Buy all never takes a top shelf row, open or shut
-			local lures = {}
-			local plan =
-				CornerShop.planAll(state, window, "bait", 7, 1e13, { catFood = {}, lures = lures })
-			for _, item in plan do
-				expect((Catalog.getCornerShopRow(item.itemId) :: any).topShelf).never.to.be.ok()
+			-- #3915: Buy all takes the top shelf's rows while it is open, and never while it is shut
+			local function takesTop(): boolean
+				local plan =
+					CornerShop.planAll(state, window, "bait", 7, 1e13, { catFood = {}, lures = {} })
+				for _, item in plan do
+					if (Catalog.getCornerShopRow(item.itemId) :: any).topShelf == true then
+						return true
+					end
+				end
+				return false
 			end
+			expect(takesTop()).to.equal(true)
+			CornerShop.setTopShelf(false)
+			expect(takesTop()).to.equal(false)
+			CornerShop.setTopShelf(true)
 		end)
 
 		it("#3462: sells its own two baits from Tier 6 at one price for every tier", function()

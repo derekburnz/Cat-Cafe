@@ -49,6 +49,13 @@ its prompt card and a BangAnchor 2 studs over its sign for the owner's red "!" (
                                       glass case (`_Glass`) holding a little gold cat idol with jade eyes. Attachments:
                                       PromptAnchor (the rope, 1.5 up), BangAnchor (2 over the sign), SparkleAnchor (the
                                       idol).
+  CatCafe_Camp_Snowy_CocoaStand      (tier8-snowy-mountain.md section 5, #3997) a little log cocoa hut on a plank deck:
+                                      a log back wall and sides, a counter with a red front, a red and white striped
+                                      awning with snow on top and icicles, a red cocoa pot on a warmer (`_Glow`) with
+                                      four mugs of cocoa and marshmallows, a HOT COCOA board on a log post, a snowy
+                                      pine and a stack of logs. Attachments: PromptAnchor (the counter's front, 1.5
+                                      up), BangAnchor (2 over the sign), GlowAnchor (under the awning), Steam (the
+                                      pot's mouth). It sells nothing: it gives Warm Paws.
 
 Every model: pivot at the base centre on the camp's ground, front -Z, no turn of its own, placed where its camp extra
 stands (Layout.campExtras, the area's set space) so Gameplay only swaps the asset name.
@@ -1162,6 +1169,144 @@ def build_rummage_bin(mat):
     return [b.finalize(BIN, mat), ready.finalize(BIN + "_Ready", mat), empty.finalize(BIN + "_Empty", mat)]
 
 
+# ------------------------------------------------------------------------------------------- cocoa stand --
+# tier8-snowy-mountain.md section 5: the Snowy camp's Cocoa Stand, free every 2 hours, gives Warm Paws. About 9 x 6,
+# inside the camp extra's radius 8 ring.
+COCOA = "CatCafe_Camp_Snowy_CocoaStand"
+CD_X, CD_Z0, CD_Z1, CD_Y = 4.6, -2.6, 3.0, 0.3            # the plank deck: half width, front, back, top
+HUT_X, HUT_Z0, HUT_Z1 = 3.5, -0.6, 2.5                    # the log walls: half width, the sides' front, the back
+CTR_Y, CTR_Z0, CTR_Z1 = 2.4, -1.35, -0.35                 # the counter: top, front, back
+AWN_TILT, AWN_C, AWN_D = -14.0, (0.0, 4.95, 0.55), 4.8     # the awning: tilt (back up), centre, depth
+LOG, LOG_DARK = "fur_brown", "dark_wood"
+
+
+def _cocoa_deck(b):
+    b.span((-CD_X, 0, CD_Z0), (CD_X, CD_Y, CD_Z1), LOG_DARK)
+    for k in range(9):                                                    # planks, a hair proud of the deck
+        x0 = -CD_X + 2 * CD_X * k / 9
+        b.span((x0 + 0.04, CD_Y, CD_Z0 + 0.04), (x0 + 2 * CD_X / 9 - 0.04, CD_Y + 0.03, CD_Z1 - 0.04), WOOD)
+    for (x, z, w) in ((-CD_X + 0.6, CD_Z1 - 0.6, 1.4), (CD_X - 0.7, CD_Z0 + 0.5, 1.2), (CD_X - 0.5, CD_Z1 - 0.4, 1.0)):
+        b.ball((x, CD_Y + 0.05, z), w * 0.6, "milk", scale=(1.2, 0.35, 1.0))       # snow drifts on the corners
+
+
+def _cocoa_hut(b):
+    """Log walls: the back wall and two sides of round logs, ends crossing at the corners, a snow line on top."""
+    n, r = 9, 0.26
+    for i in range(n):
+        y = CD_Y + r + i * 2 * r * 0.96
+        b.cyl((0, y, HUT_Z1), r, 2 * HUT_X + 0.7, (LOG, "fur_hazel")[i % 2], axis="X", segments=8)
+        if i < n - 1:
+            for sx in (-1, 1):
+                b.cyl((sx * HUT_X, y + r * 0.96, (HUT_Z0 + HUT_Z1) / 2 - 0.1), r, HUT_Z1 - HUT_Z0 + 0.6,
+                      (LOG, "fur_hazel")[(i + 1) % 2], axis="Z", segments=8)
+    top = CD_Y + r + (n - 1) * 2 * r * 0.96
+    b.span((-HUT_X - 0.3, top + r * 0.6, HUT_Z1 - 0.32), (HUT_X + 0.3, top + r + 0.18, HUT_Z1 + 0.32), "milk")
+    b.span((-HUT_X + 0.4, CD_Y + 2.6, HUT_Z1 - 0.3), (HUT_X - 0.4, CD_Y + 3.6, HUT_Z1 - 0.26), "cream")   # a shelf back
+    b.span((-HUT_X + 0.4, CD_Y + 2.5, HUT_Z1 - 0.62), (HUT_X - 0.4, CD_Y + 2.62, HUT_Z1 - 0.3), LOG_DARK)  # the shelf
+    for k, sw in enumerate(("shirt_red", "milk", "eye_blue", "leaf_green", "shirt_red", "pastel_butter")):
+        b.cyl((-2.5 + k * 1.0, CD_Y + 2.84, HUT_Z1 - 0.46), 0.17, 0.44, sw, segments=8)      # spare mugs, upturned
+
+
+def _cocoa_counter(b):
+    b.span((-HUT_X + 0.2, CD_Y, CTR_Z0), (HUT_X - 0.2, CTR_Y - 0.15, CTR_Z1), WOOD)
+    b.span((-HUT_X + 0.5, CD_Y + 0.4, CTR_Z0 - 0.04), (HUT_X - 0.5, CTR_Y - 0.55, CTR_Z0), "shirt_red")   # its front
+    for k in range(5):                                                    # little white snowflake dots on it
+        x = -2.4 + k * 1.2
+        b.span((x - 0.18, CD_Y + 1.05, CTR_Z0 - 0.07), (x + 0.18, CD_Y + 1.15, CTR_Z0 - 0.04), "milk")
+        b.span((x - 0.05, CD_Y + 0.92, CTR_Z0 - 0.07), (x + 0.05, CD_Y + 1.28, CTR_Z0 - 0.04), "milk")
+    b.span((-HUT_X, CTR_Y - 0.15, CTR_Z0 - 0.15), (HUT_X, CTR_Y, CTR_Z1 + 0.1), LOG_DARK)              # the top
+
+
+def _cocoa_awning(b):
+    """A red and white striped awning over the counter on two log posts, tilted back up, snow on it and icicles."""
+    R = rot_x(AWN_TILT)
+    c = Vector(AWN_C)
+    n, w = 8, (2 * HUT_X + 0.9) / 8
+    for k in range(n):
+        x = -(2 * HUT_X + 0.9) / 2 + w * (k + 0.5)
+        b.box(tuple(c + R @ Vector((x, 0, 0))), (w + 0.002, 0.12, AWN_D), ("shirt_red", "milk")[k % 2], rot=R)
+    b.box(tuple(c + R @ Vector((0, 0.15, AWN_D * 0.22))), (2 * HUT_X + 0.7, 0.18, AWN_D * 0.5), "milk", rot=R)  # snow
+    for k, (x, d) in enumerate(((-2.6, 0.9), (0.4, 1.3), (2.9, 0.7))):          # drifts of it reaching down the front
+        b.box(tuple(c + R @ Vector((x, 0.14, -AWN_D * 0.05 - d / 2))), (1.6 - 0.3 * k, 0.16, d), "milk", rot=R)
+    front = c + R @ Vector((0, 0, -AWN_D / 2))
+    for k in range(n):                                                    # its scalloped front, a flap a stripe
+        x = -(2 * HUT_X + 0.9) / 2 + w * (k + 0.5)
+        b.span((x - w / 2 + 0.03, front.y - 0.42, front.z - 0.08), (x + w / 2 - 0.03, front.y + 0.02, front.z - 0.02),
+               ("shirt_red", "milk")[k % 2])
+    for k in range(6):                                                    # icicles under the flap
+        x = -3.0 + k * 1.2 + 0.3 * (k % 2)
+        h = 0.35 + 0.2 * (k % 3)
+        b.span((x - 0.07, front.y - 0.42 - h, front.z - 0.09), (x + 0.07, front.y - 0.4, front.z - 0.01), "pastel_sky")
+    for sx in (-1, 1):                                                    # the posts
+        b.cyl((sx * (HUT_X + 0.15), (CD_Y + front.y) / 2, front.z + 0.25), 0.16, front.y - CD_Y, LOG, segments=8)
+    return front
+
+
+def _cocoa_pot(b, glow):
+    """A big red cocoa pot with a white rim on a round warmer (lit), a ladle in it, cocoa inside."""
+    x, z = 2.1, -0.85
+    glow.cyl((x, CTR_Y + 0.06, z), 0.52, 0.12, "eye_amber", segments=12)
+    b.cyl((x, CTR_Y + 0.02, z), 0.6, 0.04, "concrete", segments=12)
+    b.cyl((x, CTR_Y + 0.66, z), 0.5, 1.0, "shirt_red", r2=0.56, segments=12)
+    b.cyl((x, CTR_Y + 1.18, z), 0.6, 0.08, "milk", segments=12)
+    b.cyl((x, CTR_Y + 1.13, z), 0.5, 0.04, "choco", segments=12)
+    for sx in (-1, 1):
+        b.span((x + sx * 0.56, CTR_Y + 0.85, z - 0.08), (x + sx * 0.7, CTR_Y + 0.95, z + 0.08), "milk")   # handles
+    b.box((x - 0.15, CTR_Y + 1.45, z + 0.15), (0.06, 0.9, 0.06), "metal", rot=rot_x(18))               # the ladle
+    _anchor(COCOA, "Steam", (x, CTR_Y + 1.25, z))
+
+
+def _cocoa_mugs(b):
+    for k, sw in enumerate(("milk", "eye_blue", "leaf_green", "pastel_butter")):
+        x, z = -2.6 + k * 0.85, -0.85 + 0.12 * (k % 2)
+        b.cyl((x, CTR_Y + 0.2, z), 0.2, 0.4, sw, segments=10)
+        b.cyl((x, CTR_Y + 0.39, z), 0.165, 0.03, "choco", segments=10)
+        b.span((x + 0.19, CTR_Y + 0.1, z - 0.04), (x + 0.3, CTR_Y + 0.3, z + 0.04), sw)                  # handle
+        b.span((x - 0.07, CTR_Y + 0.39, z - 0.05), (x + 0.05, CTR_Y + 0.48, z + 0.07), "offwhite")       # marshmallow
+
+
+def _cocoa_sign(b, x, z):
+    """HOT COCOA on a cream board on a log post with a snowy cap. Returns the board's top."""
+    b.cyl((x, CD_Y + 1.7, z), 0.22, 3.4, LOG, segments=8)
+    hw, y0, y1 = 1.55, CD_Y + 3.4, CD_Y + 4.8
+    b.span((x - hw, y0, z - 0.12), (x + hw, y1, z + 0.12), LOG_DARK)
+    b.span((x - hw + 0.12, y0 + 0.12, z - 0.15), (x + hw - 0.12, y1 - 0.12, z - 0.12), "cream")
+    _label_front(b, "HOT", x, y0 + 0.75, z - 0.15, 0.09, 0.04, "shirt_red")
+    _label_front(b, "COCOA", x, y0 + 0.2, z - 0.15, 0.09, 0.04, "choco")
+    b.span((x - hw - 0.12, y1, z - 0.22), (x + hw + 0.12, y1 + 0.22, z + 0.22), "milk")                  # snow on it
+    return (x, y1 + 0.22, z)
+
+
+def _cocoa_pine(b, x, z):
+    b.cyl((x, CD_Y + 0.5, z), 0.2, 1.0, LOG, segments=6)
+    for i, (r, y) in enumerate(((1.0, 1.4), (0.75, 2.3), (0.45, 3.1))):
+        b.cyl((x, CD_Y + y, z), r, 1.0, "leaf_dark", r2=r * 0.35, segments=8)
+        b.cyl((x, CD_Y + y + 0.38, z), r * 0.55, 0.22, "milk", r2=r * 0.3, segments=8)
+
+
+def _cocoa_logs(b, x, z):
+    for i, (dx, dy) in enumerate(((-0.3, 0.0), (0.3, 0.0), (0.0, 0.5))):
+        b.cyl((x + dx, CD_Y + 0.26 + dy, z), 0.26, 1.3, (LOG, "fur_hazel", LOG)[i], axis="Z", segments=8)
+    b.ball((x, CD_Y + 1.0, z), 0.4, "milk", scale=(1.3, 0.35, 1.6))
+
+
+def build_cocoa_stand(mat):
+    b, glow = RB(), RB()
+    _cocoa_deck(b)
+    _cocoa_hut(b)
+    _cocoa_counter(b)
+    _cocoa_pot(b, glow)
+    _cocoa_mugs(b)
+    _cocoa_awning(b)
+    top = _cocoa_sign(b, -CD_X + 0.4, CD_Z0 + 0.45)
+    _cocoa_pine(b, CD_X - 0.55, 1.2)
+    _cocoa_logs(b, CD_X - 0.6, -1.6)
+    _anchor(COCOA, "PromptAnchor", (0.0, 1.5, CTR_Z0 - 1.0))
+    _anchor(COCOA, "BangAnchor", (top[0], top[1] + 2.0, top[2]))
+    _anchor(COCOA, "GlowAnchor", (0.0, CTR_Y + 1.6, -0.6))
+    return [b.finalize(COCOA, mat), glow.finalize(COCOA + "_Glow", mat)]
+
+
 # #1800: the moving child Models' own numbers for Effects/Motion (rbx_export model_attributes), by asset
 MOVING = {YARD: {"model_attributes": {"_Sign_Swing": {"Angle": {"Float64": SIGN_ANGLE}}}}}
 
@@ -1183,4 +1328,5 @@ ASSETS = {
     SPA_TOWEL: (build_spa_towel, 200),
     MUSEUM: (build_relic_museum, 12000),
     BIN: (build_rummage_bin, 2500),
+    COCOA: (build_cocoa_stand, 6000),
 }

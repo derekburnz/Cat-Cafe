@@ -22,6 +22,7 @@ local AreaFx = require(script.AreaFx)
 local BaitCrumbs = require(script.BaitCrumbs)
 local BedWalk = require(script.BedWalk)
 local Bellhop = require(script.Bellhop)
+local BigTraitCut = require(script.BigTraitCut)
 local CafeWalk = require(script.CafeWalk)
 local CampCollect = require(script.CampCollect)
 local CampExtras = require(script.CampExtras)
@@ -149,6 +150,7 @@ function Effects.start()
 		Rarity.start,
 		SecretStray.start,
 		SecretGlow.start,
+		BigTraitCut.watchPool, -- #3942: other players' big trait rolls, seen from nearby
 		Splash.start,
 		Rescue.start,
 		StuckCall.start,

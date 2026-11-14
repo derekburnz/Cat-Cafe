@@ -31,6 +31,7 @@ local MysticPool = require(script.Parent.Effects.MysticPool)
 local PetCat = require(script.Parent.Effects.PetCat)
 local Rally = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Rally"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
+local RiftRun = require(script.Parent.Effects.RiftRun)
 local Splash = require(script.Parent.Effects.Splash)
 local Trampoline = require(script.Parent.Effects.Trampoline)
 
@@ -56,6 +57,9 @@ local STINGER_DUCK = 0.4 -- music level under a stinger, the rank up jingle, a g
 local CATCH_MUSIC = 0.6 -- music level during a catch or rescue
 local CATCH_AMBIENCE = 0.5
 local CATCH_DUCK_LIMIT = 30 -- seconds; a catch that never reports back still lets the music up again
+local SCENE_DUCK = 0.35 -- #3942: music level under a Mythic or Secret trait roll's whole scene
+local SCENE_DUCK_LIMIT = 16 -- seconds; Presets.bigTrait.cap, so a lost "done" still lets the music up
+local RIFT_DUCK_LIMIT = 34 -- seconds; past Presets.riftRun.cap and its hand back
 local DUCK_LIMIT = 8 -- seconds; a stinger that never loads (so never ends) still lets the music up again
 local LUCKY_DAY_AFTER = 3.4 -- seconds after a Lucky Day's sunrise, so its chime follows the 3.2 s sunrise sting
 local ROLL_OFF_MIN = 8 -- studs of full volume around a 3D sound
@@ -2263,10 +2267,62 @@ end
 
 -- #3846: a Legendary or Mythic trait roll's cutscene: its fanfare, flat.
 local function followBigTrait()
+	local sceneToken = 0
 	BigTraitCut.onBeat(function(beat, rarity)
+		-- #3942: a Mythic or Secret roll's whole scene ducks the music from "hush" to "done" (capped by the cut's own)
+		if beat == "hush" or beat == "done" then
+			sceneToken += 1
+			local token = sceneToken
+			if beat == "hush" then
+				music.ducks["traitScene"] = SCENE_DUCK
+			else
+				music.ducks["traitScene"] = nil
+			end
+			applyDucks(music)
+			if beat == "hush" then
+				task.delay(SCENE_DUCK_LIMIT, function()
+					if token == sceneToken then
+						music.ducks["traitScene"] = nil
+						applyDucks(music)
+					end
+				end)
+			end
+			return
+		end
 		local cue = Logic.bigTraitCue(beat, rarity)
 		if cue ~= nil then
 			Audio.play(cue)
+		end
+	end)
+end
+
+-- Derek 2026-11-13: the Rift Run (Effects/RiftRun): the music ducks from "hush" to "done" (capped by the cut's own
+-- cap), and each beat its sound, flat (Logic.riftRunCue): a gate the pool's step chime a note higher each tier.
+local function followRiftRun()
+	local token = 0
+	RiftRun.onBeat(function(beat, step, tier)
+		if beat == "hush" or beat == "done" then
+			token += 1
+			local mine = token
+			if beat == "hush" then
+				music.ducks["riftRun"] = SCENE_DUCK
+			else
+				music.ducks["riftRun"] = nil
+			end
+			applyDucks(music)
+			if beat == "hush" then
+				task.delay(RIFT_DUCK_LIMIT, function()
+					if mine == token then
+						music.ducks["riftRun"] = nil
+						applyDucks(music)
+					end
+				end)
+			end
+			return
+		end
+		local cue, scaleStep = Logic.riftRunCue(beat, step, tier)
+		if cue ~= nil then
+			Audio.play(cue, nil, scaleStep)
 		end
 	end)
 end
@@ -2303,6 +2359,7 @@ function Audio.start()
 	followPool()
 	followPoolIntro()
 	followBigTrait()
+	followRiftRun()
 	followBinRoll()
 	followTrampoline()
 	followPetCat()

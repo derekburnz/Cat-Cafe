@@ -336,7 +336,7 @@ declare -A retired=(
 funnelTable() { # funnel: the table for one funnel, or its error
 	local funnel=$1 line step label users first=0 previous=0 share lost unit=Runs change= gone=
 	local -a lines=()
-	[[ ${funnel,,} != *onboarding* && ${funnel,,} != first_hour* && ${funnel,,} != playtime* ]] || unit=Players
+	[[ ${funnel,,} != *onboarding* && ${funnel,,} != first_hour* && ${funnel,,} != playtime* && ${funnel,,} != rarity* ]] || unit=Players
 	[ "${funnel,,}" != "${arcadeFunnel,,}" ] || unit="Player days" # #3378: one run per player per UTC day
 	say "#### $funnel"
 	say ""
@@ -653,7 +653,7 @@ if values FunnelUserTotalCount Platform && [ -n "$result" ]; then
 else
 	platformsLogged=(Phone Computer Tablet Console)
 fi
-for funnel in "${cleanFunnel:-$onboardingFunnel}" "${playtimeFunnel:-$firstHourFunnel}" "$arcadeFunnel"; do
+for funnel in "${cleanFunnel:-$onboardingFunnel}" "${playtimeFunnel:-$firstHourFunnel}" "$arcadeFunnel" rarity_v1; do
 	say "#### $funnel by Platform"
 	say ""
 	declare -A cell=() firstOf=() label=()
@@ -754,6 +754,10 @@ fieldEvents=(
 	"intro_cutscene|Platform,CustomField1,CustomField3|CustomEventCountUser|Intro: players by device, finished or skipped, first or replay"
 	"intro_cutscene|CustomField1,CustomField2|CustomEventCountUser|Intro: players by outcome and version:shot where they skipped"
 	"intro_skip|Platform|CustomEventAvgValue|Intro: average seconds watched before Skip on a first play, by device (#3773)"
+	"session_recap|CustomField3|CustomEventCountUser|Recap: players shown it, by its Tomorrow reason (gift, bait, treat, quests) (#3951)"
+	"session_recap|Platform|CustomEventAvgValue|Recap: average minutes played when it opened, by device (#3951)"
+	"welcome_back_hook|CustomField1|CustomEventCountUser|Welcome back: players shown a reason line on a rejoin, by reason (#3951)"
+	"return_gift_paid|Platform|CustomEventCountUser|Welcome back gift: players paid on a return, by device (#3772)"
 	"catch_circles|Platform,CustomField3|CustomEventCountUser|Catch results (caught, purrfect, missed, forfeit) by device"
 	"catch_finish|Platform,CustomField1|CustomEventCountUser|Catch finish kind (bolt is the cat running off) by device"
 	"first_catch_tries|Platform,CustomField1|CustomEventAvgValue|Tries before the first catch, by method and device"

@@ -163,7 +163,10 @@ function MysticPool.roll(
 	station: Model,
 	cat: (Model | string)?,
 	rarity: string,
-	onReveal: () -> ()
+	onReveal: () -> (),
+	lift: number?, -- #3942: seconds the cat rises up the pillar after it pops out (a whole scene); nil or 0 none
+	landing: boolean?, -- the Rift Run's hand back: the cat falls from the sky straight in and the liquid is its colour
+	liftHeight: number? -- studs over the liquid the lift ends at (Presets.mysticPool.liftHeight by default)
 ): () -> ()
 	local old = playing[station]
 	if old ~= nil then
@@ -261,29 +264,49 @@ function MysticPool.roll(
 	local over = surface + Vector3.new(0, p.riseHeight, 0)
 	local under = surface - Vector3.new(0, p.sink + catSize.Y, 0)
 	local facing = station:GetPivot().Rotation * CFrame.Angles(0, math.pi, 0) -- the cat looks out at the players
+	-- Derek 2026-11-13 ("cats coming out of trait portal not facing you"): the cat turns to this player's camera,
+	-- level, wherever they stand round the pool (and as the scene's camera circles); the pool's front only when
+	-- the camera is straight overhead
 	local function placeCat(at: Vector3, spin: number)
-		if copy ~= nil then
-			copy:PivotTo(CFrame.new(at) * facing * CFrame.Angles(0, spin, 0))
+		if copy == nil then
+			return
 		end
+		local camera = workspace.CurrentCamera
+		local yaw = if camera ~= nil then Logic.facePoint(at, camera.CFrame.Position) else nil
+		local turn = if yaw ~= nil then CFrame.Angles(0, yaw, 0) else facing
+		copy:PivotTo(CFrame.new(at) * turn * CFrame.Angles(0, spin, 0))
 	end
 
-	local riseAt = p.raise
-	local dropAt = riseAt + p.rise + p.hang
-	local splashAt = dropAt + p.drop
-	local poolEnd = splashAt + Logic.poolSeconds(rarity)
+	-- the Rift Run's landing (Presets.mysticPool.land): no float up and no colour steps (the realm's gates were the
+	-- steps); the cat falls from high over the pool into liquid already its colour, then pops out as ever
+	local landed = landing == true
+	if landed then
+		over = surface + Vector3.new(0, p.landHeight, 0)
+		steps = { rarity }
+		setArm(1)
+	end
+	local riseAt = if landed then 0 else p.raise
+	local dropAt = if landed then 0 else riseAt + p.rise + p.hang
+	local splashAt = dropAt + (if landed then p.landDrop else p.drop)
+	local poolEnd = splashAt + (if landed then p.landHold else Logic.poolSeconds(rarity))
 	local popEnd = poolEnd + p.popUp
-	local doneAt = popEnd + p.showCat
+	local liftSeconds = if lift ~= nil and lift > 0 then lift else 0
+	local liftTop = if liftHeight ~= nil and liftHeight > 0 then liftHeight else p.liftHeight
+	local liftEnd = popEnd + liftSeconds
+	local doneAt = liftEnd + p.showCat
 	local began = os.clock()
 	local lastStep = 0
 	local sparkled, splashed, popped = false, false, false
-	placeCat(start - Vector3.new(0, catSize.Y + 1, 0), 0)
-	if tip ~= nil then
+	placeCat(if landed then over else start - Vector3.new(0, catSize.Y + 1, 0), 0)
+	if tip ~= nil and not landed then
 		Particles.burst("catchSparkle", tip.WorldPosition, p.sparkles, Presets.palette.sparkle)
 	end
 
 	loop = RunService.Heartbeat:Connect(function()
 		local t = os.clock() - began
-		setArm(ease(t / p.raise))
+		if not landed then
+			setArm(ease(t / p.raise))
+		end
 		if t < riseAt then
 			return
 		end
@@ -313,8 +336,21 @@ function MysticPool.roll(
 			paint(MysticPool.colourOf(steps[1]))
 			Particles.burst("splashDrops", surface, p.splash, Presets.palette.fishBelly)
 			Particles.burst("poolBubble", surface, p.bubbles, MysticPool.colourOf(steps[1]))
+			if landed then -- out of the rift: a ring and a star burst as it hits the liquid
+				Particles.ring(surface + Vector3.new(0, 0.2, 0), final, 10, 0.7)
+				Particles.burst(
+					"catchSparkle",
+					surface + Vector3.new(0, 1, 0),
+					p.stars,
+					Presets.palette.sparkle
+				)
+			end
 			lastStep = 1
 			beat("drop", 1, surface)
+		end
+		if t < poolEnd and landed then
+			paint(final)
+			return
 		end
 		if t < poolEnd then
 			local into = t - splashAt
@@ -366,8 +402,15 @@ function MysticPool.roll(
 			placeCat(under:Lerp(surface + Vector3.new(0, p.popHeight, 0), k), 0)
 			return
 		end
+		local floatAt = if liftSeconds > 0 then liftTop else p.popHeight
+		if t < liftEnd then -- #3942: up the pillar, turning as it goes
+			local k = ease((t - popEnd) / liftSeconds)
+			local height = p.popHeight + (liftTop - p.popHeight) * k
+			placeCat(surface + Vector3.new(0, height, 0), k * p.liftTurns * math.pi * 2)
+			return
+		end
 		if t < doneAt then
-			placeCat(surface + Vector3.new(0, p.popHeight + 0.15 * math.sin(t * 4), 0), 0)
+			placeCat(surface + Vector3.new(0, floatAt + 0.15 * math.sin(t * 4), 0), 0)
 			return
 		end
 		stop()

@@ -45,6 +45,36 @@ return function()
 		end)
 
 		it(
+			"gives 10 Trait Tokens at 15:33 and 100 golden fish at 15:35 UTC on 2026-11-13, until 16:30",
+			function()
+				local tokens, fish = Config.Giveaways[1], Config.Giveaways[2]
+				expect(#Config.Giveaways).to.equal(2)
+				expect(os.date("!%Y-%m-%d %H:%M", tokens.from)).to.equal("2026-11-13 15:33")
+				expect(os.date("!%Y-%m-%d %H:%M", fish.from)).to.equal("2026-11-13 15:35")
+				expect(os.date("!%H:%M", tokens.to :: number)).to.equal("16:30")
+				expect(tokens.traitTokens).to.equal(10)
+				expect(tokens.fish + tokens.spins).to.equal(0)
+				expect(fish.fish).to.equal(100)
+				expect(UpdateGift.prize(fish) :: any).to.deepEqual({ fish = 100 })
+				-- their own keys, apart from each other and from the update gifts
+				local keys = {}
+				for _, gift in
+					{ tokens, fish, assert(Config.UpdateGift), assert(Config.UpdateGiftNext) }
+				do
+					local key = UpdateGift.key(gift.id)
+					expect(keys[key]).to.equal(nil)
+					keys[key] = true
+				end
+				expect(UpdateGift.due({}, tokens, tokens.from - 1)).to.equal(false)
+				expect(UpdateGift.due({}, tokens, tokens.from)).to.equal(true)
+				expect(UpdateGift.due({ [UpdateGift.key(tokens.id)] = 1 }, tokens, tokens.from)).to.equal(
+					false
+				)
+				expect(UpdateGift.due({}, fish, fish.to :: number)).to.equal(false)
+			end
+		)
+
+		it(
 			"has Friday's three golden crates from 22:03 UTC on 2026-11-13 (#3535), then Saturday's weekly gift (#3497)",
 			function()
 				local friday, weekly = assert(Config.UpdateGift), assert(Config.UpdateGiftNext)

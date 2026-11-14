@@ -74,6 +74,7 @@ local Signal = require(script.Components.Signal)
 local Sound = require(script.Components.Sound)
 local SpinWheel = require(script.Screens.SpinWheel)
 local SpotlightGuide = require(script.Components.SpotlightGuide) -- #3555
+local StationInfo = require(script.Screens.StationInfo)
 local TackleBar = require(script.Screens.TackleBar)
 local TackleLogic = require(script.Components.TackleLogic)
 local Theme = require(script.Theme)
@@ -120,8 +121,7 @@ UI.events = {
 	buyLure = Signal.new(), -- (lureId)
 	placeCat = Signal.new(), -- (uid, spotId)
 	unplaceCat = Signal.new(), -- (uid)
-	sellCat = Signal.new(), -- (uid)
-	lockCat = Signal.new(), -- (uid, locked)   the Lock row in the cat room: forward as LockCat (F62)
+	lockCat = Signal.new(), -- (uid, locked)   the Lock square in the cat room: forward as LockCat (F62)
 	renameCat = Signal.new(), -- (uid, name)   Rename in the cat room, trimmed and checked with Shared.CatName: forward as RenameCat (F33)
 	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
 	equipBestDecor = Signal.new(), -- ()   Equip Best on the Decor page: forward as EquipBestDecor (#828)
@@ -563,6 +563,17 @@ local function autoOpenDailyTreat()
 		-- strip and the cannon walk-through after it go first
 		or tutorialText ~= nil
 		or hintShown ~= nil
+		-- #4005: on the account's first day the "!" on its button is enough
+		or not (function(): boolean
+			local QuietStart =
+				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+			local firstDay = Players.LocalPlayer:GetAttribute(QuietStart.DAY_ATTRIBUTE)
+			return QuietStart.treatOpensItself(
+				(QuietStart.live()),
+				firstDay,
+				now // QuietStart.DAY_SECONDS
+			)
+		end)()
 		-- #3188: last, so the plot is only looked up when everything else is ready (defined further down the module)
 		or not DailyTreatLogic.autoOpen(view, now, nil, nil, (UI.giftWait :: any).atCafe())
 	then
@@ -961,9 +972,6 @@ function UI.init(config: Types.InitConfig)
 		unplaceCat = function(uid: string)
 			UI.events.unplaceCat:Fire(uid)
 		end,
-		sellCat = function(uid: string)
-			UI.events.sellCat:Fire(uid)
-		end,
 		lockCat = function(uid: string, locked: boolean)
 			UI.events.lockCat:Fire(uid, locked)
 		end,
@@ -1025,6 +1033,11 @@ function UI.init(config: Types.InitConfig)
 			-- #3715: with Picnic Treats on, the basket's button opens its pick card instead
 			if extraId == "picnic" and UI.campExtras.treats() then
 				UI.campExtras.openPicnic()
+				return
+			end
+			-- #3955: the Lost and Found's button opens its card, where the find is revealed
+			if extraId == "lostFound" then
+				UI.campExtras.openLostFound(true)
 				return
 			end
 			UI.events.collectCampExtra:Fire(extraId)
@@ -1490,8 +1503,11 @@ function UI.init(config: Types.InitConfig)
 		if view then
 			local dashWindow = require(script.Components.MouseDashLogic).WINDOW
 			local poolWindow = require(script.Components.MysticPoolLogic).WINDOW
-			view:setBusy(name == dashWindow or name == "Arcade" or name == poolWindow)
+			UI.rollBusy.window = name == dashWindow or name == "Arcade" or name == poolWindow
+			view:setBusy(UI.rollBusy.window or UI.rollBusy.on)
 		end
+		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
+		hudInstance:holdBanner("window", UI.rollBusy.window)
 	end)
 
 	catch = CatchPrompt.new(parent)
@@ -2192,6 +2208,24 @@ end
 -- (ToastRules.announce); true when it showed.
 -- (init.luau is at Luau's 200 locals a scope, so the rules load here and the time lives on UI.shoutout)
 UI.shoutout = { at = nil :: number? }
+-- Review-QA on #3904: a shout-out slid across the Rummage Bin's board mid-roll. While a roll or reveal plays
+-- (BinController) the pop-ups wait, as on a busy window (Toasts.setBusy); `window` is the open window's own part.
+UI.rollBusy = { on = false, window = false }
+function UI.setRollBusy(on: boolean)
+	if UI.rollBusy.on == on then
+		return
+	end
+	UI.rollBusy.on = on
+	local view = toasts
+	if view then
+		view:setBusy(UI.rollBusy.window or on)
+	end
+	-- Derek 2026-11-13: the event and day strip stays down through the roll too
+	local board = hud
+	if board then
+		board:holdBanner("roll", on)
+	end
+end
 function UI.announce(text: string, rarity: string?): boolean
 	local ToastRules = require(script.Components.ToastRules)
 	local now = os.clock()
@@ -2253,6 +2287,20 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		-- bloat"): the catch's own small pop-up already said it
 		local CatFoundLogic = require(script.Components.CatFoundLogic) :: any
 		if not CatFoundLogic.big(def.rarity, isNew, info) then
+			return
+		end
+		-- #4005: before Tier 2 a new kind below Epic is a toast; the tutorial's catches and any coat, banner or line
+		-- keep the card
+		local QuietStart =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+		local plain = not (info.shiny or info.rainbow or info.banner ~= nil or info.line ~= nil)
+		local Onboarding =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Onboarding")) :: any
+		local tutorial = (state.tutorialStep or math.huge) < Onboarding.NEW_PLAYER_STEP
+		if
+			plain and QuietStart.foundToast((QuietStart.live()), state.tier, def.rarity, tutorial)
+		then
+			UI.toast(string.format("New cat: %s!", def.name), "good")
 			return
 		end
 		popups:showCatFound(def, isNew, info)
@@ -2522,6 +2570,31 @@ function UI.bait.busy(): boolean
 		or (hud ~= nil and hud:isCarrying())
 		or (UI.bait.cutting ~= nil and (UI.bait.cutting :: () -> boolean)()) -- #2946: the first bait's cutscene
 		or UI.bigTraitCutting() -- #3846: a Legendary or Mythic trait roll's cutscene
+		or UI.bait.away() -- #4035: out catching in an area
+end
+
+-- #4035 (Derek 2026-11-13: "remove all food bowl pop ups etc until your back in town square way too many annoying
+-- popups when out looking for and catching cats"): with the quietAway switch on, the bowl cards wait while the
+-- player's net is out (the server's NetHidden is clear only in a catching area's wild part, outside its camp), and
+-- come one at a time once they are back in town, a cafe or a camp. The bowl chip still shows its "!" meanwhile.
+function UI.bait.away(): boolean
+	local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
+	if
+		not LiveFlags.shown(
+			"quietAway",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "quietAway")
+		)
+	then
+		return false
+	end
+	local character = Players.LocalPlayer.Character
+	-- NetHidden is off in an area's wild part outside its camp, and on while carrying (CatService.markCamps), so a
+	-- carry counts as away too: the run back to camp stays quiet (review of #4040)
+	return character ~= nil
+		and (
+			character:GetAttribute("NetHidden") ~= true
+			or character:GetAttribute("CarryingCatId") ~= nil
+		)
 end
 
 -- #3846: Effects/BigTraitCut.playing, set by the controller as UI.mysticPool.cutting: pop-up cards (bait, gift) wait
@@ -2904,14 +2977,11 @@ function UI.arcade.state(view: any)
 	end
 end
 
--- The `arcade` live switch: off hides the Menu row and greys Play (a game running finishes).
--- #3296: `row` is the Menu row alone, for when Circle Streak is vaulted (off) but Mouse Dash still opens from it.
-function UI.arcade.setOn(on: boolean, row: boolean?)
+-- The `arcade` live switch: off greys Play (a game running finishes). `row` was the Settings list's Arcade row,
+-- gone since 2026-11-13 (Derek: "remove the old cat arcade icon from settings"); callers may still pass it.
+function UI.arcade.setOn(on: boolean, _row: boolean?)
 	if arcadeScreen then
 		arcadeScreen:setOn(on)
-	end
-	if hud then
-		hud:setArcade(if row ~= nil then row else on)
 	end
 end
 
@@ -3782,15 +3852,15 @@ UI.catch = {}
 -- Luau's 200 local limit)
 UI.catch.promptTouch = false
 -- #3464 (Derek 2026-11-12: "show the loot obtained from rummage also"): the Rummage Bin's loot card
--- (Screens/LootCard). It shows as the bar's win banner closes, in the banner's place, and lists the server's items.
-local LOOT_AFTER_SECONDS = 1.6 -- the rescue bar's win banner (RescueBar's RESULT_SECONDS)
+-- (Screens/LootCard). It lists the server's items; since #3885 it shows as the prize lands in the hands.
+local LOOT_AFTER_POP_SECONDS = 0.9 -- #3885: as the prize's picture lands in the hands (Presets.binRoll.prize)
 UI.loot = { card = nil :: any, token = 0 }
-function UI.loot.show(win: unknown, after: number?)
+function UI.loot.show(win: unknown, after: number?, hint: string?)
 	UI.loot.token += 1
 	local token = UI.loot.token
 	local function show()
 		if UI.loot.token == token and UI.loot.card ~= nil then
-			UI.loot.card:show(win)
+			UI.loot.card:show(win, hint)
 		end
 	end
 	if after ~= nil and after > 0 then
@@ -4202,8 +4272,9 @@ do
 					gaveUp = "Maybe later",
 					won = "Got it!",
 					win = "Found something!",
-					lose = "So close!",
-					loseDetail = "Try again",
+					-- the prize is picked before the bar, so no "So close!" near-miss words (Review-QA, #3885)
+					lose = "Try again!",
+					loseDetail = "",
 				},
 			}
 			else { catName = catName, rarity = rarity }
@@ -4256,14 +4327,19 @@ do
 			return
 		end
 		if rescueBar then
-			local closing: RescueBar.Closing? = nil
-			if win ~= nil and type(win.id) == "string" then
-				local title, detail =
+			-- #3885 (Derek 2026-11-13: "drop the ui from rummage bin minigame as soon as its completed"): a Rummage Bin
+			-- win closes the bar at once, with no win banner over it. The prize's picture pops out of the bin into the
+			-- player's hands (BinController, Effects/BinRoll) and the loot card names what it was as it lands.
+			if win ~= nil and type(win.id) == "string" and done and success then
+				rescueBar:hide()
+				endRescue(true)
+				-- the banner's line ("Put it in your bowl", "Open it at the Golden Fish Market") goes on the loot card
+				local _, hint =
 					RummageBin.winWords(win.id, win.first == true, (win :: any).rolled == true)
-				closing = { title = title, detail = detail }
-				UI.loot.show(win, LOOT_AFTER_SECONDS) -- #3464: as the win banner closes
+				UI.loot.show(win, LOOT_AFTER_POP_SECONDS, hint)
+				return
 			end
-			rescueBar:update(hits, pawsLeft, done, success, bar, closing)
+			rescueBar:update(hits, pawsLeft, done, success, bar, nil)
 		end
 	end
 
@@ -5221,6 +5297,19 @@ do
 		return false
 	end
 
+	-- Derek 2026-11-13: the account's first pet of its own cat says what petting does, once (the card waits for a
+	-- free moment like every tip)
+	Moments.CatPetted:Connect(function(userId: number)
+		if
+			userId == Players.LocalPlayer.UserId
+			and state.tipsSeen ~= nil
+			and not tipKnown("pet")
+		then
+			local tips: any = (UI :: any).tips -- show is filled in further down this block
+			tips.show("pet")
+		end
+	end)
+
 	-- The client-found tips, once the save says which were seen.
 	local function lookForTips()
 		if state.tipsSeen == nil then
@@ -5368,6 +5457,20 @@ do
 			return
 		end
 		if tipKnown(id) or tipQueue:has(id) then
+			return
+		end
+		-- #4005: the extras wait for Tier 2, the tackle try for the quiet start, and the rank up cut goes beside the
+		-- walk through. Never marked seen, so the server sends it again later.
+		local shared = ReplicatedStorage:WaitForChild("Shared")
+		local QuietStart = require(shared:WaitForChild("QuietStart")) :: any
+		local LiveFlags = require(shared:WaitForChild("LiveFlags")) :: any
+		local on, quiet = QuietStart.live()
+		local spotlight = LiveFlags.shown(
+			"rankUpSpotlight",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "rankUpSpotlight")
+		)
+		local now: any = UI.getState()
+		if QuietStart.holdsTip(on, id, if now ~= nil then now.tier else nil, quiet, spotlight) then
 			return
 		end
 		if id == TackleLessonLogic.TIP then
@@ -5912,6 +6015,13 @@ do
 		end
 		local now: any = UI.getState()
 		local wrapHint = UI.cannon.wrapUp.on and cannonHint() == CannonLogic.WRAP_UP_HINT
+		local QuietStart =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+		if
+			QuietStart.holdsFirstVisit((QuietStart.live()), if now ~= nil then now.tier else nil)
+		then
+			return -- #4005: the first visit calls wait for Tier 2 (Design-Agent, folding #3891's hold in)
+		end
 		if
 			FirstVisitLogic.holds(if now ~= nil then now.tutorialStep else nil, away(), wrapHint)
 		then
@@ -6792,8 +6902,8 @@ do
 					ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
 				)
 			end,
-			saveColours = function(main: string, trim: string)
-				UI.events.setBagColours:Fire(main, trim)
+			saveColours = function(main: string, trim: string, kind: string?)
+				UI.events.setBagColours:Fire(main, trim, kind) -- #4049: kind "shoes" for the Speed Shoes
 			end,
 		})
 		mystery.view = view
@@ -6937,6 +7047,7 @@ end
 do
 	local CampExtrasLogic = require(script.Components.CampExtrasLogic)
 	local YardSale = require(script.Screens.YardSale)
+	local LostFound = require(script.Screens.LostFound) -- #3955
 	local ReadyBang = require(script.Components.ReadyBang)
 	local MarketBang = require(script.Components.MarketBang)
 	local RescueBang = require(script.Components.RescueBang)
@@ -6951,6 +7062,9 @@ do
 		late = nil :: any, -- #2651 part 4: the last LateStationsState
 		yard = nil :: YardSale.YardSale?,
 		picnic = nil :: PicnicTreats.PicnicTreats?, -- #3715: the Picnic Treats pick card
+		lost = nil :: LostFound.LostFound?, -- #3955: the Lost and Found's card
+		lostAnywhere = false, -- #3955: opened from the Cannon menu, walking away does not close it
+		info = {} :: { [string]: StationInfo.StationInfo }, -- #3938: each station's card while nothing waits
 		bang = nil :: ReadyBang.ReadyBang?, -- the red "!" over each ready station (camp-stations.md section 1)
 		market = nil :: MarketBang.MarketBang?, -- #2214: the "!" over the Fish Market while crates wait to open
 		spin = nil :: MarketBang.MarketBang?, -- #2358: the "!" over the Spin Wheel while the player has a spin
@@ -6963,8 +7077,9 @@ do
 		return if current ~= nil then current.yardSale else nil
 	end
 
-	-- Studs from this player's character to the Yard Sale's model, or nil while either is streamed out.
-	local function yardDistance(): number?
+	-- Studs from this player's character to a camp extra's model (the Yard Sale's by default), or nil while either is
+	-- streamed out.
+	local function yardDistance(extraId: string?): number?
 		local character = Players.LocalPlayer.Character
 		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 		if root == nil or not root:IsA("BasePart") then
@@ -6973,7 +7088,7 @@ do
 		for _, model in CollectionService:GetTagged(CAMP_TAG) do
 			if
 				model:IsA("Model")
-				and model:GetAttribute("ExtraId") == CampExtrasLogic.YARD_SALE
+				and model:GetAttribute("ExtraId") == (extraId or CampExtrasLogic.YARD_SALE)
 				and model:IsDescendantOf(Workspace)
 			then
 				return ((model :: Model):GetPivot().Position - (root :: BasePart).Position).Magnitude
@@ -7082,6 +7197,61 @@ do
 		})
 		camp.picnic = picnic
 		picnic:setView(if camp.state ~= nil then camp.state.picnic else nil)
+		-- #3955: the Lost and Found's card; its Claim sends the same CollectCampExtra the ring used to
+		local lost = LostFound.new({
+			collect = function()
+				UI.events.collectCampExtra:Fire("lostFound")
+			end,
+			close = function()
+				if modalView:current() == "LostFound" then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				if camp.lostAnywhere then
+					return false
+				end
+				local distance = yardDistance("lostFound")
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		camp.lost = lost
+		lost:setView(if camp.state ~= nil then (camp.state :: any).lostFound else nil)
+		if currentCatalog then
+			lost:setCatalog(currentCatalog)
+		end
+		modalView:register("LostFound", {
+			frame = lost.frame,
+			onOpen = function()
+				lost:opened()
+			end,
+			onClose = function()
+				lost:closed()
+			end,
+		})
+		-- #3938: a station square with nothing ready opens its card with the timer
+		local SharedCatalog =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+		for _, def in SharedCatalog.campExtras do
+			local extraId: string = def.id
+			local name = "StationInfo_" .. extraId
+			local card = StationInfo.new(extraId, function()
+				if modalView:current() == name then
+					modalView:close()
+				end
+			end)
+			card:setView(if camp.state ~= nil then (camp.state :: any)[extraId] else nil)
+			camp.info[extraId] = card
+			modalView:register(name, {
+				frame = card.frame,
+				onOpen = function()
+					card:opened()
+				end,
+				onClose = function()
+					card:closed()
+				end,
+			})
+		end
 		modalView:register("PicnicTreats", {
 			frame = picnic.frame,
 			onOpen = function()
@@ -7125,6 +7295,10 @@ do
 	end
 
 	function UI.campExtras.setCatalog(catalog: Types.Catalog)
+		local lost = camp.lost
+		if lost then
+			lost:setCatalog(catalog)
+		end
 		local yard = camp.yard
 		if yard then
 			yard:setCatalog(catalog)
@@ -7160,6 +7334,32 @@ do
 		if picnic then
 			picnic:setView(extras.picnic)
 		end
+		local lost = camp.lost
+		if lost then
+			lost:setView((extras :: any).lostFound)
+		end
+		for extraId, card in camp.info do
+			card:setView((extras :: any)[extraId])
+		end
+	end
+
+	-- #3938: a station square with nothing ready: that station's card, its timer and what it gives
+	function UI.campExtras.openInfo(extraId: string)
+		local modalView = modal
+		local card = camp.info[extraId]
+		if card == nil or modalView == nil or modalView:current() ~= nil then
+			return
+		end
+		card:setView(if camp.state ~= nil then (camp.state :: any)[extraId] else nil)
+		modalView:open("StationInfo_" .. extraId)
+	end
+
+	-- #3938: walking off the square closes its card
+	function UI.campExtras.closeInfo(extraId: string)
+		local modalView = modal
+		if modalView ~= nil and modalView:current() == "StationInfo_" .. extraId then
+			modalView:close()
+		end
 	end
 
 	-- #3715: whether the server runs Picnic Treats (the basket's view carries its treats).
@@ -7177,6 +7377,16 @@ do
 		modalView:open("PicnicTreats")
 	end
 
+	-- #3955: the Lost and Found's ring or prompt (or, `anywhere`, the Cat Cannon menu): its card.
+	function UI.campExtras.openLostFound(anywhere: boolean?)
+		local modalView = modal
+		if camp.lost == nil or modalView == nil then
+			return
+		end
+		camp.lostAnywhere = anywhere == true
+		modalView:open("LostFound")
+	end
+
 	-- The Yard Sale's prompt: its card with today's crates.
 	function UI.campExtras.openYardSale(view: Types.CampExtraView?, anywhere: boolean?)
 		camp.yardAnywhere = anywhere == true -- #3213: from the Cannon menu, walking away does not close it
@@ -7192,6 +7402,13 @@ do
 	-- CampExtraResult ok: the prize toast, the extra's name and what it paid as at most two pictures ("Fish Pond" and
 	-- the gold fish "x14"); with no prize the server's words say it ("Fish Pond: +14 golden fish").
 	function UI.campExtras.collected(extraId: string, paid: { string }?, prize: Types.IndexPrize?)
+		-- #3955: with its card open the Lost and Found's find shows there, large, in place of the toast
+		local lost = camp.lost
+		local modalView = modal
+		if extraId == "lostFound" and lost and modalView and modalView:current() == "LostFound" then
+			lost:found(prize, paid)
+			return
+		end
 		if toasts then
 			toasts:prize(
 				CampExtrasLogic.prizeTitle(extraId, if prize ~= nil then nil else paid),
@@ -7218,6 +7435,10 @@ do
 		if picnic and extraId == "picnic" then
 			picnic:refused()
 		end
+		local lost = camp.lost
+		if lost and extraId == "lostFound" then
+			lost:refused()
+		end
 	end
 
 	-- UI.destroy: the card goes with the modal and the "!" with the UI; the state stays for the next build.
@@ -7232,6 +7453,15 @@ do
 			picnic:destroy()
 		end
 		camp.picnic = nil
+		local lost = camp.lost
+		if lost then
+			lost:destroy()
+		end
+		camp.lost = nil
+		for _, card in camp.info do
+			card:destroy()
+		end
+		camp.info = {}
 		local bang = camp.bang
 		if bang then
 			bang:destroy()
@@ -7513,7 +7743,9 @@ do
 	local MysticPool = require(script.Screens.MysticPool)
 	local MysticPoolLogic = require(script.Components.MysticPoolLogic)
 	local EdgeShade = require(script.Components.EdgeShade)
-	local pool = { card = nil :: MysticPool.MysticPool?, anywhere = false }
+	local PoolBang = require(script.Components.PoolBang)
+	local pool =
+		{ card = nil :: MysticPool.MysticPool?, anywhere = false, bang = nil :: PoolBang.PoolBang? }
 	UI.mysticPool.play = nil :: ((uid: string, rarity: string, onReveal: () -> ()) -> (() -> ())?)?
 	UI.mysticPool.far = nil :: (() -> boolean)?
 	UI.mysticPool.cutting = nil :: (() -> boolean)? -- #3846: Effects/BigTraitCut.playing (UI.bigTraitCutting)
@@ -7541,6 +7773,10 @@ do
 						:PromptProductPurchase(game:GetService("Players").LocalPlayer, productId)
 				end)
 			end,
+			-- #3940: the list's Sort and Show chips, saved on the account
+			remember = function(key: string, value: any)
+				UI.events.setSetting:Fire(key, value)
+			end,
 			close = function()
 				if modalView:current() == MysticPoolLogic.WINDOW then
 					modalView:close()
@@ -7558,10 +7794,13 @@ do
 				return not pool.anywhere and far ~= nil and far()
 			end,
 			-- #3702: the card steps aside for the pool's animation, behind a soft shade at the screen's edges
-			shade = function(onTap: () -> ()): () -> ()
+			shade = function(onTap: () -> (), canSkip: boolean): () -> ()
 				modalView:tuck(MysticPoolLogic.WINDOW, true)
-				local lift =
-					EdgeShade.show(modalView.screenGui.Parent :: Instance, "Tap to skip", onTap)
+				local lift = EdgeShade.show(
+					modalView.screenGui.Parent :: Instance,
+					if canSkip then "Tap to skip" else nil, -- #3943: no skip words on a Mythic or Secret roll
+					onTap
+				)
 				return function()
 					lift()
 					modalView:tuck(MysticPoolLogic.WINDOW, false)
@@ -7569,6 +7808,7 @@ do
 			end,
 		})
 		pool.card = card
+		pool.bang = PoolBang.new() -- #3936: the red "!" over the pool while a roll waits
 		modalView:register(MysticPoolLogic.WINDOW, {
 			frame = card.frame,
 			onOpen = function()
@@ -7589,6 +7829,10 @@ do
 		local card = pool.card
 		if card then
 			card:render(playerState)
+		end
+		local bang = pool.bang
+		if bang then
+			bang:update((playerState :: any).traits)
 		end
 	end
 
@@ -7618,6 +7862,11 @@ do
 			card:destroy()
 		end
 		pool.card = nil
+		local bang = pool.bang
+		if bang then
+			bang:destroy()
+		end
+		pool.bang = nil
 	end
 end
 
@@ -9053,12 +9302,12 @@ function UI.perks.unlock(perkId: string)
 		-- both up at once); the card waits for the window to close, up to WINDOW_WAIT_SECONDS
 		local waited = 0
 		local windows = modal
-		while
-			UI.perks.token == token
-			and windows ~= nil
-			and windows:current() ~= nil
-			and waited < UI.perks.WINDOW_WAIT_SECONDS
-		do
+		-- Review-QA's Studio pass 2026-11-13: the "Unlocked! Haggler" card came up over a Rummage Bin roll, which
+		-- is not a window; a roll or its reveal (UI.rollBusy) holds the card as a window does
+		local function blocked(): boolean
+			return (windows ~= nil and windows:current() ~= nil) or UI.rollBusy.on
+		end
+		while UI.perks.token == token and blocked() and waited < UI.perks.WINDOW_WAIT_SECONDS do
 			waited += task.wait(0.5)
 		end
 		if UI.perks.token ~= token or UI.perks.card == nil then
@@ -9069,22 +9318,28 @@ function UI.perks.unlock(perkId: string)
 		local card = UI.perks.card
 		card:showUnlocked(perk, pool)
 		-- #3585, the other direction: a window that opens while the card is up (the walk onto the pool's ring a
-		-- moment after the card) takes the screen; the card steps aside and comes back when the window has closed
+		-- moment after the card) takes the screen; the card steps aside and comes back when the window has closed.
+		-- It comes back once: a second window or roll puts it away (Rank up's Perks lists it), so it never returns
+		-- after every Rummage Bin roll.
+		local returns = 0
 		while UI.perks.token == token and UI.perks.card == card and card:isShowing() do
 			task.wait(UI.perks.YIELD_STEP)
 			if
-				windows ~= nil
-				and windows:current() ~= nil
+				blocked()
 				and UI.perks.token == token
 				and UI.perks.card == card
 				and card:isShowing()
 				and card._mode == "unlocked"
 			then
 				card:hide()
+				returns += 1
+				if returns > 1 then
+					return
+				end
 				local away = 0
 				while
 					UI.perks.token == token
-					and windows:current() ~= nil
+					and blocked()
 					and away < UI.perks.WINDOW_WAIT_SECONDS
 				do
 					away += task.wait(0.5)
@@ -9315,7 +9570,9 @@ do
 		end
 		local current = hud
 		if current then
-			current:setEvent(EventLogic.chip(view, seen, now))
+			local chipLines, chipKind = EventLogic.chip(view, seen, now)
+			current:setEvent(chipLines, chipKind, EventLogic.strip(view, seen, now))
+			current:setEventBoost(EventLogic.moneyBoost(view, now))
 		end
 		local boards = events.boards
 		if boards then
@@ -9362,7 +9619,8 @@ do
 	local kind: { tags: any, watch: RBXScriptConnection? } = { tags = nil, watch = nil }
 
 	function UI.newKind.on(): boolean
-		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 		return LiveFlags.shown(
 			NewKind.FLAG,
 			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. NewKind.FLAG)
@@ -9386,7 +9644,8 @@ do
 			return
 		end
 		kind.tags = require(script.Screens.NewKindTags).new()
-		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 		kind.watch = ReplicatedStorage
 			:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. NewKind.FLAG)
 			:Connect(UI.newKind.refresh)

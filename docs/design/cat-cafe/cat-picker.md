@@ -42,6 +42,14 @@ Build it as one component and use it first at the Mystic Pool. Then the other "p
 - While the list shows, the card grows to the room the screen has (at most 680 px), which gives about six rows on a desktop. On the smallest phone it stays at its short height and the list scrolls.
 - Left for the next pass: the level badge on the portrait (the level is on the second line), a "Clear" chip when nothing matches, recycled rows, and a "Re-roll" label for cats that already have a trait.
 
+## One small row on top and a Filter pop-up (#3874, 2026-11-13)
+
+Derek: "make that just one small row on the top so I can see more cats at the same time on mobile", then "make it a search bar and a filter menu that they can pop up and close with an X. Make the default sort by money". This replaces the layout of sections 1 and 2 at the Mystic Pool:
+
+- One row: a small search box (its hint holds the count, "Search 14 cats"), **Filter** and **Back**.
+- Filter pops up over the list: Sort **Money** (the default now), **Level**, **Rarity**, with the X at the right; Show **All**, **Working**, **Resting**, **No trait**, **Has trait**. A chip works at once and the pop-up stays until the X or Filter. Filter is gold while open, and reads "Filter •" while a Show chip other than All is on. A press on the sort in use turns it round. A Name sort remembered from before falls back to Money.
+- On a short screen each row has two lines: the name with the trait at the right, then the rarity, level, job and pay. The Pick button is drawn slimmer (its touch pad still reaches 44 px). The UI gate wants at least three whole rows on a short screen: the A06 goes from 2 rows to about 3.3, the small phone to 4.
+
 ## The cat's detail card (#3717)
 
 Derek, 2026-11-12 22:32 UTC: "in the cat menu rework show the trait of cat in this little menu here". The Cats menu's detail card gets a TRAIT row under the chips: the trait's name in its rarity colour with the rarity word, its effects one per line, or a dashed "No trait yet. Roll one at the Mystic Pool." row. Hidden while `traits` is off. Built with the Cats menu rework (#3647). Layout draft: `Design-Agent/for-derek-2026-11-12/cat-card-trait.png`.

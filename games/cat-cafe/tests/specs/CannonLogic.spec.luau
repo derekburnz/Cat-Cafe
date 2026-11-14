@@ -44,6 +44,25 @@ return function()
 		end)
 	end)
 
+	describe("CannonLogic.unlocked (#3884)", function()
+		local areas = {
+			{ id = "town", name = "Town", tier = 0 },
+			{ id = "a", name = "A", tier = 1 },
+			{ id = "c", name = "C", tier = 3 },
+			{ id = "b", name = "B", tier = 2 },
+			{ id = "d", name = "D", tier = 3 },
+		}
+		it("names the areas a rank up opened, in tier order", function()
+			expect(table.concat(CannonLogic.unlocked(areas, 1, 2), ",")).to.equal("b")
+			expect(table.concat(CannonLogic.unlocked(areas, 1, 3), ",")).to.equal("b,c,d")
+			expect(table.concat(CannonLogic.unlocked(areas, 2, 3), ",")).to.equal("c,d")
+		end)
+		it("names none when the tier did not go up", function()
+			expect(#CannonLogic.unlocked(areas, 2, 2)).to.equal(0)
+			expect(#CannonLogic.unlocked(areas, 3, 2)).to.equal(0)
+		end)
+	end)
+
 	describe("CannonLogic.cards", function()
 		local areas = {
 			{ id = "a", name = "A", tier = 1 },

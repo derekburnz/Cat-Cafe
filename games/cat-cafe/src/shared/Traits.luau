@@ -16,7 +16,7 @@
 --
 -- Effects (KINDS): income, night income and XP work on their own cat only. Bowl luck, speed and rich visitor rate work
 -- cafe wide, only from cats in a staff slot, only the best `best` of them and at most `cap` (bowl luck 3 and 0.36,
--- speed 1 and 1.5 studs/s, rich rate 2 and 0.24); a combo's effect counts like the single trait with the same effect.
+-- speed 1 and 2.5 studs/s, rich rate 2 and 0.40); a combo's effect counts like the single trait with the same effect.
 -- So a cafe full of one trait can't run away and no paid perk is undercut (spec section 5).
 --
 -- Trait Tokens are never traded or gifted, and golden fish are earned only. #3864 (Derek 2026-11-13): tokens are sold
@@ -42,9 +42,15 @@ Traits.OPEN_TIER = 1
 -- the switch is on): its model, its CollectionService tag and its prompt's name.
 Traits.STATION_MODEL = "CatCafe_Camp_Park_MysticPool"
 Traits.TAG = "MysticPool"
+-- #3942: a Mythic or better roll marks the station (TraitService.announce) so every client near it sees the pillar
+Traits.ROLL_BY_ATTRIBUTE = "BigRollBy" -- the roller's UserId
+Traits.ROLL_RARITY_ATTRIBUTE = "BigRollRarity" -- the rolled trait's rarity id
+Traits.ROLL_AT_ATTRIBUTE = "BigRollAt" -- server time, set last
 Traits.PROMPT = "MysticPoolPrompt"
 Traits.FREE_ROLLS = 5 -- Derek2 2026-11-11: once per player, used before tokens and fish
-Traits.COST_FISH = 10 -- the first trait and every re-roll (Derek2 2026-11-10 23:59: "make re-rolls the same cost")
+-- the first trait and every re-roll (Derek2 2026-11-10 23:59: "make re-rolls the same cost"); #4006 (Derek 2026-11-13:
+-- "up the amount for trait rerolls to 20 or 25 gold fish per reroll"): 20, was 10
+Traits.COST_FISH = 20
 Traits.COST_TOKENS = 1
 Traits.TOKEN_EVERY_SECONDS = 12 * 3600 -- the station's free token, on its own timer
 Traits.TOKEN_HOLD = 2
@@ -113,9 +119,9 @@ Traits.KINDS = {
 		studs = false,
 	},
 	xp = { cafe = false, best = 1, cap = math.huge, what = "this cat's XP", studs = false },
-	bowlLuck = { cafe = true, best = 3, cap = 0.36, what = "bait bowl luck", studs = false },
-	speed = { cafe = true, best = 1, cap = 1.5, what = "walk and carry speed", studs = true },
-	richRate = { cafe = true, best = 2, cap = 0.24, what = "rich visitor rate", studs = false },
+	bowlLuck = { cafe = true, best = 3, cap = 0.50, what = "bait bowl luck", studs = false },
+	speed = { cafe = true, best = 1, cap = 2.5, what = "walk and carry speed", studs = true },
+	richRate = { cafe = true, best = 2, cap = 0.40, what = "rich visitor rate", studs = false },
 } :: { [Kind]: KindInfo }
 
 local function e(kind: Kind, amount: number): Effect
@@ -127,38 +133,40 @@ local function def(id: string, name: string, rarity: Rarity, effects: { Effect }
 end
 
 -- Spec section 2a: the six one-effect traits, at Common, Uncommon, Rare and Epic. Ids are `<trait>_<rarity>`. An
--- Epic single sits between its Rare and the same effect inside a Legendary.
+-- Epic single sits between its Rare and the same effect inside a Legendary. Derek 2026-11-13 ("make the epic+ traits
+-- wayy better", #3871): Epic, Legendary and Mythic about two to three times what they were, caps raised to match;
+-- the odds did not change.
 local SINGLES: { { id: string, name: string, kind: Kind, amounts: { number } } } = {
 	{
 		id = "bigTipper",
 		name = "Big Tipper",
 		kind = "income",
-		amounts = { 0.05, 0.08, 0.12, 0.15 },
+		amounts = { 0.05, 0.08, 0.12, 0.25 },
 	},
 	{
 		id = "nightOwl",
 		name = "Night Owl",
 		kind = "nightIncome",
-		amounts = { 0.10, 0.15, 0.22, 0.26 },
+		amounts = { 0.10, 0.15, 0.22, 0.40 },
 	},
 	{
 		id = "fastLearner",
 		name = "Fast Learner",
 		kind = "xp",
-		amounts = { 0.10, 0.15, 0.22, 0.26 },
+		amounts = { 0.10, 0.15, 0.22, 0.40 },
 	},
 	{
 		id = "luckyBowl",
 		name = "Lucky Bowl",
 		kind = "bowlLuck",
-		amounts = { 0.02, 0.03, 0.04, 0.05 },
+		amounts = { 0.02, 0.03, 0.04, 0.08 },
 	},
-	{ id = "quickPaws", name = "Quick Paws", kind = "speed", amounts = { 0.3, 0.5, 0.7, 0.85 } },
+	{ id = "quickPaws", name = "Quick Paws", kind = "speed", amounts = { 0.3, 0.5, 0.7, 1.2 } },
 	{
 		id = "richFriend",
 		name = "Rich Friend",
 		kind = "richRate",
-		amounts = { 0.02, 0.03, 0.04, 0.05 },
+		amounts = { 0.02, 0.03, 0.04, 0.08 },
 	},
 }
 
@@ -179,16 +187,16 @@ end
 -- Epic's own two: two effects each, both under a Legendary's.
 table.insert(
 	list,
-	def("treasureNose", "Treasure Nose", EPIC, { e("income", 0.10), e("bowlLuck", 0.04) })
+	def("treasureNose", "Treasure Nose", EPIC, { e("income", 0.20), e("bowlLuck", 0.08) })
 )
 table.insert(
 	list,
-	def("nightSprinter", "Night Sprinter", EPIC, { e("nightIncome", 0.18), e("speed", 0.6) })
+	def("nightSprinter", "Night Sprinter", EPIC, { e("nightIncome", 0.35), e("speed", 1.2) })
 )
 -- Spec section 2b: Legendary, two effects.
 table.insert(
 	list,
-	def("goldenWhiskers", "Golden Whiskers", LEGENDARY, { e("income", 0.18), e("richRate", 0.06) })
+	def("goldenWhiskers", "Golden Whiskers", LEGENDARY, { e("income", 0.45), e("richRate", 0.15) })
 )
 table.insert(
 	list,
@@ -196,13 +204,13 @@ table.insert(
 		"moonlitHunter",
 		"Moonlit Hunter",
 		LEGENDARY,
-		{ e("nightIncome", 0.30), e("bowlLuck", 0.06) }
+		{ e("nightIncome", 0.75), e("bowlLuck", 0.15) }
 	)
 )
-table.insert(list, def("prodigy", "Prodigy", LEGENDARY, { e("xp", 0.30), e("income", 0.10) }))
+table.insert(list, def("prodigy", "Prodigy", LEGENDARY, { e("xp", 0.75), e("income", 0.30) }))
 table.insert(
 	list,
-	def("lightningTail", "Lightning Tail", LEGENDARY, { e("speed", 1.0), e("xp", 0.20) })
+	def("lightningTail", "Lightning Tail", LEGENDARY, { e("speed", 2.0), e("xp", 0.50) })
 )
 -- Spec section 2c: Mythic, three effects.
 table.insert(
@@ -211,7 +219,7 @@ table.insert(
 		"cosmicFortune",
 		"Cosmic Fortune",
 		MYTHIC,
-		{ e("income", 0.40), e("bowlLuck", 0.12), e("richRate", 0.12) }
+		{ e("income", 1.0), e("bowlLuck", 0.25), e("richRate", 0.25) }
 	)
 )
 table.insert(
@@ -220,12 +228,12 @@ table.insert(
 		"eternalNight",
 		"Eternal Night",
 		MYTHIC,
-		{ e("nightIncome", 0.60), e("xp", 0.75), e("speed", 1.5) }
+		{ e("nightIncome", 1.5), e("xp", 1.5), e("speed", 2.5) }
 	)
 )
 table.insert(
 	list,
-	def("starSage", "Star Sage", MYTHIC, { e("xp", 1.0), e("income", 0.25), e("bowlLuck", 0.10) })
+	def("starSage", "Star Sage", MYTHIC, { e("xp", 2.5), e("income", 0.75), e("bowlLuck", 0.20) })
 )
 Traits.LIST = list
 

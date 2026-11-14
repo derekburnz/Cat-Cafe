@@ -34,10 +34,10 @@ return function()
 	describe("the words and the moments", function()
 		it("names the reward", function()
 			expect(InviteCardLogic.title(view())).to.equal(
-				"Invite a friend: you both get 🐟 20 when they start playing!"
+				"Invite a friend: +10% tips together and 🐟 20 each!"
 			)
 			expect(InviteCardLogic.title({ fish = 0 })).to.equal(
-				"Invite a friend to play with you!"
+				"Invite a friend: +10% tips while you play together!"
 			)
 		end)
 

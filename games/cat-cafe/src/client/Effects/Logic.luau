@@ -77,9 +77,11 @@ export type PlotChange = "claim" | "release" | "rankUp"
 export type AreasTurn = "dusk" | "sunrise"
 export type PrizeTier = "small" | "good" | "jackpot"
 
--- A phone or tablet (touch with no keyboard) gets the low budget.
-function Logic.tier(touch: boolean, keyboard: boolean): Presets.Tier
-	if touch and not keyboard then
+-- A phone or tablet gets the low budget: touch with no keyboard, or (#3918) touch with a keyboard but no mouse, as
+-- an iPad or Android tablet in a keyboard case. A touch screen laptop has a mouse or trackpad and stays "high".
+-- `mouse` nil (an older caller) leaves the keyboard rule alone.
+function Logic.tier(touch: boolean, keyboard: boolean, mouse: boolean?): Presets.Tier
+	if touch and (not keyboard or mouse == false) then
 		return "low"
 	end
 	return "high"
@@ -1635,6 +1637,22 @@ end
 function Logic.hopArc(from: Vector3, to: Vector3, height: number, alpha: number): Vector3
 	local k = math.clamp(alpha, 0, 1)
 	return from + (to - from) * k + Vector3.new(0, 4 * height * k * (1 - k), 0)
+end
+
+-- #3885: where the Rummage Bin's prize picture is at `alpha` (0 to 1 of Presets.binRoll.prize.seconds) and how big,
+-- as a share of its full size. It rises straight up out of the bin top `from` by `rise` studs while it grows (eased
+-- out), then arcs over to `to` (the hands) and shrinks to `catch`.
+function Logic.binPrizePop(from: Vector3, to: Vector3, alpha: number): (Vector3, number)
+	local p = Presets.binRoll.prize
+	local k = math.clamp(alpha, 0, 1)
+	local top = from + Vector3.new(0, p.rise, 0)
+	if k < p.popShare then
+		local t = k / p.popShare
+		local eased = 1 - (1 - t) * (1 - t)
+		return from:Lerp(top, eased), p.from + (1 - p.from) * eased
+	end
+	local t = (k - p.popShare) / (1 - p.popShare)
+	return Logic.hopArc(top, to, p.height, t), 1 + (p.catch - 1) * t
 end
 
 -- The Lucky Cat's paw at time t (Presets.luckyPaw), radians about its shoulder's X: a smooth beckon forward and back,
@@ -3513,15 +3531,20 @@ end
 -- The Rummage Bin's prize roll (#3608, Derek 2026-11-12: "ticks through the options a couple times before landing
 -- on one"; Effects/BinRoll). The marker goes down the `count` rows in list order, `laps` whole times round, then on
 -- to row `target` (the prize the server already picked) and stops. Returns each tick as { index, at }: the row lit
--- and the seconds after the start. The gaps are `first` seconds until the last `count` ticks, which slow in even
--- steps to `last`. Honesty rule (design section 3): that slowdown is the same wherever the roll stops, so it never
--- lingers on one row longer than the same tick of any other roll would, and no better prize is ever dangled.
+-- and the seconds after the start. #3903 (no near miss): the laps tick at an even `first`, and only the last run
+-- from row 1 to the prize slows: the last `slow` rows lit before the prize (fewer for a prize near the top, none
+-- for row 1) stay lit longer, growing evenly to `last`. No row under the prize (the rare rows at the foot) ever
+-- lingers before it lands. Honesty
+-- rule (design section 3): the gap at each tick from the end is the same curve wherever the roll stops (or the fast
+-- `first`), so it never lingers on one row longer than the same tick of any other roll, and no better prize is ever
+-- dangled.
 function Logic.binRollSteps(
 	count: number,
 	target: number,
 	laps: number,
 	first: number,
-	last: number
+	last: number,
+	slow: number?
 ): { { index: number, at: number } }
 	local steps: { { index: number, at: number } } = {}
 	if count < 1 then
@@ -3529,12 +3552,17 @@ function Logic.binRollSteps(
 	end
 	local goal = math.clamp(math.floor(target), 1, count)
 	local total = math.max(0, math.floor(laps)) * count + goal
+	local curve = math.max(1, math.floor(slow or 4)) -- the slow-down's length in ticks, the same for every roll
+	-- the gap after a tick is how long its row stays lit; only rows of the last run before the prize may linger
+	local slowTicks = math.min(goal - 1, curve)
 	local at = 0
 	for step = 1, total do
 		table.insert(steps, { index = (step - 1) % count + 1, at = at })
-		-- ticks still to come after this one; the last `count` gaps grow evenly from `first` to `last`
-		local left = total - step
-		local share = if left >= count then 0 else (count - left) / count
+		-- #3903 (no near miss, Review-QA on the Yard Sale's same pattern): the laps run at an even `first`, and only
+		-- the last run, from row 1 down to the prize, slows, its gaps growing evenly to `last`. So the slow ticks
+		-- never pass a row under the prize (the rare rows at the foot of the list) before it lands.
+		local left = total - step -- ticks still to come after this one
+		local share = if left < 1 or left > slowTicks then 0 else (curve - left + 1) / curve
 		at += first + (last - first) * share
 	end
 	return steps
@@ -3676,6 +3704,100 @@ function Logic.bigTraitRoll(rarity: string?): boolean
 	return rarity ~= nil and rarities[rarity] == true
 end
 
+export type BigTraitSize = {
+	big: number,
+	screenSeconds: number,
+	beams: number,
+	beamHeight: number,
+	rings: number,
+	stars: number,
+	confetti: number,
+	rays: number,
+	shake: number,
+	dim: number,
+}
+
+-- #3908: the size of the big moment for `rarity` (Presets.bigTrait.sizes): Mythic bigger than Legendary, Secret
+-- the biggest; any other rarity gets the Legendary's.
+function Logic.bigTraitSize(rarity: string?): BigTraitSize
+	local sizes: { [string]: BigTraitSize } = Presets.bigTrait.sizes :: any
+	return (if rarity ~= nil then sizes[rarity] else nil) or sizes.legendary
+end
+
+-- #3908: where each of `count` light columns stands round the pool's surface: one in the middle, the rest evenly
+-- on a circle `spread` studs wide (flat offsets).
+function Logic.bigTraitBeams(count: number, spread: number): { Vector3 }
+	local spots: { Vector3 } = {}
+	if count < 1 then
+		return spots
+	end
+	table.insert(spots, Vector3.zero)
+	local around = count - 1
+	for i = 1, around do
+		local a = (i - 1) / around * math.pi * 2
+		table.insert(spots, Vector3.new(math.cos(a) * spread / 2, 0, math.sin(a) * spread / 2))
+	end
+	return spots
+end
+
+export type BigTraitScene = {
+	bars: number,
+	dim: number,
+	saturation: number,
+	tint: Color3,
+	orbit: number,
+	orbitSeconds: number,
+	spiral: number,
+	spiralSeconds: number,
+	lift: number,
+	liftHeight: number?, -- studs the lift ends at (Presets.mysticPool.liftHeight when nil)
+	constellation: boolean,
+}
+
+-- #3942: the whole scene round a Legendary (a small one), Mythic or Secret roll (Presets.bigTrait.scenes), or nil
+-- for any other rarity.
+function Logic.bigTraitScene(rarity: string?): BigTraitScene?
+	local scenes: { [string]: BigTraitScene } = Presets.bigTrait.scenes :: any
+	return if rarity ~= nil then scenes[rarity] else nil
+end
+
+-- #3942: `eye` turned `degrees` round the upright line through `look`, at the same height and distance.
+function Logic.sceneOrbit(look: Vector3, eye: Vector3, degrees: number): Vector3
+	local offset = eye - look
+	local a = math.rad(degrees)
+	local c, s = math.cos(a), math.sin(a)
+	return look + Vector3.new(offset.X * c - offset.Z * s, offset.Y, offset.X * s + offset.Z * c)
+end
+
+-- #3942: the Secret roll's cat in the sky, in drawing order: a sitting cat facing out (two ears, the head, the back,
+-- the curled tail and the front paws). Units across (right +) and up, the head about 1 wide; nothing random.
+Logic.CAT_CONSTELLATION = {
+	Vector2.new(-0.5, 2.2), -- left ear tip
+	Vector2.new(-0.6, 1.7),
+	Vector2.new(-0.1, 1.85),
+	Vector2.new(0.3, 1.85),
+	Vector2.new(0.7, 2.2), -- right ear tip
+	Vector2.new(0.6, 1.7),
+	Vector2.new(0.45, 1.2), -- the cheek
+	Vector2.new(0.9, 0.6), -- the back
+	Vector2.new(1.05, -0.2),
+	Vector2.new(0.8, -0.8), -- the hip
+	Vector2.new(1.5, -0.7), -- the tail curling round
+	Vector2.new(1.7, -0.2),
+	Vector2.new(0.2, -0.85), -- the front paws
+	Vector2.new(-0.4, -0.85),
+	Vector2.new(-0.35, 0.3), -- the chest
+	Vector2.new(-0.55, 1.2), -- the other cheek
+} :: { Vector2 }
+
+-- #3942: where the `i`th spiral pop of `count` climbs the pillar: round it `radius` studs out, two turns in all, from
+-- the surface to `height` studs up (an offset from the pool's surface).
+function Logic.sceneSpiral(i: number, count: number, radius: number, height: number): Vector3
+	local k = if count <= 1 then 1 else (i - 1) / (count - 1)
+	local a = k * math.pi * 4
+	return Vector3.new(math.cos(a) * radius, k * height, math.sin(a) * radius)
+end
+
 -- #3846: the cutscene's title for `rarity`.
 function Logic.bigTraitTitle(rarity: string): string
 	local titles: { [string]: string } = Presets.bigTrait.titles :: any
@@ -3695,6 +3817,230 @@ function Logic.bigTraitPop(t: number): number
 		return b.popOver + (1 - b.popOver) * Logic.smoothstep01((t - b.popSeconds) / b.popSeconds)
 	end
 	return 1
+end
+
+-- The turn about the vertical (radians, for CFrame.Angles(0, yaw, 0)) that looks from `at` to `eye` along the
+-- ground, as a cat model faces its LookVector; nil when `eye` is straight above or below (MysticPool's cat turning
+-- to the player's camera).
+function Logic.facePoint(at: Vector3, eye: Vector3): number?
+	local dx, dz = eye.X - at.X, eye.Z - at.Z
+	if dx * dx + dz * dz < 0.0025 then
+		return nil
+	end
+	return math.atan2(-dx, -dz)
+end
+
+-- The Rift Run (Effects/RiftRun, Presets.riftRun): a Mythic or Secret trait roll's run through the Rift Realm.
+export type RiftPlan = {
+	rarity: string,
+	gates: { string }, -- the tiers passed, Common first, up to the rolled one
+	gateZ: { number }, -- each gate's distance along the path
+	gateAt: { number }, -- and when the cat passes it
+	knots: { Vector2 }, -- (seconds, distance) the run passes through
+	leapAt: number,
+	leapEnd: number,
+	darkAt: number?, -- a Secret: when the realm starts going black
+	total: number, -- when the cutscene hands back (all white)
+}
+
+-- The Rift Run for a roll of `rarity`, or nil when it gets none (below Mythic). Gates from Common up to the rolled
+-- tier, one each; a Secret passes the Mythic gate, then the dark, then the white Secret gate. Nothing random.
+function Logic.riftPlan(rarity: string?): RiftPlan?
+	local r = Presets.riftRun
+	if rarity ~= "mythic" and rarity ~= "secret" then
+		return nil
+	end
+	local gates: { string } = {}
+	for _, tier in r.tiers do
+		table.insert(gates, tier)
+		if tier == rarity then
+			break
+		end
+	end
+	local gateZ: { number } = {}
+	local gateAt: { number } = {}
+	local knots: { Vector2 } = { Vector2.new(r.runStart, 0) }
+	local at = r.firstGateAt
+	local darkAt: number? = nil
+	for i, tier in gates do
+		if i > 1 then
+			if tier == "secret" then
+				darkAt = at
+				at += r.darkGap
+			else
+				at += r.gateGaps[math.min(i - 1, #r.gateGaps)]
+			end
+		end
+		local z = r.gateFirst + r.gateGap * (i - 1)
+		table.insert(gateZ, z)
+		table.insert(gateAt, at)
+		table.insert(knots, Vector2.new(at, z))
+	end
+	local leapAt = at + (r.leapFrom - gateZ[#gateZ]) / r.endSpeed
+	table.insert(knots, Vector2.new(leapAt, r.leapFrom))
+	local leapEnd = leapAt + r.leapSeconds
+	return {
+		rarity = rarity :: string, -- CI's luau-lsp keeps the refined "mythic" | "secret" otherwise
+		gates = gates,
+		gateZ = gateZ,
+		gateAt = gateAt,
+		knots = knots,
+		leapAt = leapAt,
+		leapEnd = leapEnd,
+		darkAt = darkAt,
+		total = leapAt + r.leapSeconds * r.whiteAt,
+	}
+end
+
+-- How fast the run goes through knot `i` (studs a second): 0 at the start (it sets off from a stand), the mean of
+-- the two sides between, the last side's at the end. Kept under three times either side, so the run never goes back.
+local function riftSlope(knots: { Vector2 }, i: number): number
+	if i <= 1 then
+		return 0
+	end
+	local before = (knots[i].Y - knots[i - 1].Y) / math.max(knots[i].X - knots[i - 1].X, 1e-3)
+	if i >= #knots then
+		return before
+	end
+	local after = (knots[i + 1].Y - knots[i].Y) / math.max(knots[i + 1].X - knots[i].X, 1e-3)
+	return math.min((before + after) / 2, 3 * math.min(before, after))
+end
+
+-- The cat's distance along the path `t` seconds in: 0 until it starts, smooth through every gate at its time, the
+-- leap's start at the end (and held there after).
+function Logic.riftDistance(plan: RiftPlan, t: number): number
+	local knots = plan.knots
+	if t <= knots[1].X then
+		return knots[1].Y
+	end
+	for i = 2, #knots do
+		local a, b = knots[i - 1], knots[i]
+		if t <= b.X then
+			local h = b.X - a.X
+			local k = (t - a.X) / h
+			local k2, k3 = k * k, k * k * k
+			local m0, m1 = riftSlope(knots, i - 1) * h, riftSlope(knots, i) * h
+			return (2 * k3 - 3 * k2 + 1) * a.Y
+				+ (k3 - 2 * k2 + k) * m0
+				+ (-2 * k3 + 3 * k2) * b.Y
+				+ (k3 - k2) * m1
+		end
+	end
+	return knots[#knots].Y
+end
+
+-- The cat's dodge `t` seconds in: its lane offset across the path (studs, + to its right) and how high it is off the
+-- path in the hop over (studs). Hops start Presets.riftRun.dodges seconds after the run starts.
+function Logic.riftDodge(t: number): (number, number)
+	local r = Presets.riftRun
+	local from = 0
+	for i, at in r.dodges do
+		local start = r.runStart + at
+		local to = r.lanes[i] or 0
+		if t < start then
+			return from * r.laneWidth, 0
+		end
+		local k = (t - start) / r.dodgeSeconds
+		if k < 1 then
+			local side = from + (to - from) * Logic.smoothstep01(k)
+			return side * r.laneWidth, math.sin(math.pi * k) * r.dodgeHop
+		end
+		from = to
+	end
+	return from * r.laneWidth, 0
+end
+
+export type RiftMeteor = {
+	at: number, -- when it lands
+	lane: number, -- the lane it lands in, studs across
+	from: number, -- 1 from the right, -1 from the left
+}
+
+-- The meteors, one per dodge: each lands in the lane the cat has just left, `meteorLead` seconds after the hop
+-- starts, falling from alternate sides. Only those landing before `before` seconds (the leap).
+function Logic.riftMeteors(before: number): { RiftMeteor }
+	local r = Presets.riftRun
+	local out: { RiftMeteor } = {}
+	local from = 0
+	for i, at in r.dodges do
+		local lands = r.runStart + at + r.meteorLead
+		if lands < before then
+			table.insert(out, {
+				at = lands,
+				lane = from * r.laneWidth,
+				from = if i % 2 == 1 then 1 else -1,
+			})
+		end
+		from = r.lanes[i] or 0
+	end
+	return out
+end
+
+-- Where a meteor is `k` of the way down (0 to 1): from `start` to `land` along a slight curve, faster as it falls.
+function Logic.riftFall(start: Vector3, land: Vector3, k: number): Vector3
+	local e = math.clamp(k, 0, 1)
+	e = e * e * 0.35 + e * 0.65
+	local line = start:Lerp(land, e)
+	return line + Vector3.new(0, math.sin(math.pi * e) * 3, 0)
+end
+
+-- The leap `k` of the way (0 to 1) as offsets from the path's start: from (`side`, 0, -leapFrom) on the path up to
+-- the rift's middle, over an arc. Also the cat's nose-up tilt (radians): up off the path, level by the rift.
+function Logic.riftLeap(side: number, k: number): (Vector3, number)
+	local r = Presets.riftRun
+	local e = math.clamp(k, 0, 1)
+	local z = r.leapFrom + (r.pathLength + r.ringBeyond - r.leapFrom) * e
+	local y = r.ringLift * Logic.smoothstep01(e) + r.leapArc * 4 * e * (1 - e)
+	return Vector3.new(side * (1 - e), y, -z), math.rad(28) * (1 - e) * (1 - e)
+end
+
+-- How open the rift is `t` seconds in (0 shut to 1 wide open): a thin slit from the start, slowly wider, tearing the
+-- rest of the way in the last `ringTear` seconds before the leap.
+function Logic.riftOpen(plan: RiftPlan, t: number): number
+	local r = Presets.riftRun
+	local tearAt = plan.leapAt - r.ringTear
+	if t < tearAt then
+		local k = Logic.smoothstep01((t - r.dropAt) / math.max(tearAt - r.dropAt, 0.1))
+		return 0.05 + (r.ringOpen - 0.05) * k
+	end
+	return r.ringOpen + (1 - r.ringOpen) * Logic.smoothstep01((t - tearAt) / r.ringTear)
+end
+
+-- The screen's white `t` seconds in (0 clear, 1 all white) and how pink it is (0 to 1): up over the pool at the
+-- start, off again after the cut, and at the leap first pink, then white to hand back.
+function Logic.riftFlash(plan: RiftPlan, t: number): (number, number)
+	local r = Presets.riftRun
+	if t < r.flareIn then
+		return Logic.smoothstep01(t / r.flareIn), 0
+	elseif t < r.flareIn + r.flareOut then
+		return 1 - Logic.smoothstep01((t - r.flareIn) / r.flareOut), 0
+	end
+	local pinkFrom = plan.leapAt + r.leapSeconds * r.pinkAt
+	local whiteAt = plan.leapAt + r.leapSeconds * r.whiteAt
+	if t < pinkFrom then
+		return 0, 0
+	end
+	local k = math.clamp((t - pinkFrom) / math.max(whiteAt - pinkFrom, 0.05), 0, 1)
+	return Logic.smoothstep01(k), 1 - Logic.smoothstep01(math.clamp(k * 1.6 - 0.6, 0, 1))
+end
+
+-- How big gate `i`'s moment is (1 for the first): every gate a little more than the one before.
+function Logic.riftGateScale(i: number): number
+	return 1 + (math.max(i, 1) - 1) * 0.35
+end
+
+-- How dark the realm is `t` seconds in (0 its own look, 1 black): only a Secret, from `darkAt`, easing in over
+-- `darkIn`, and back off as the white Secret gate is passed.
+function Logic.riftDark(plan: RiftPlan, t: number): number
+	local r = Presets.riftRun
+	local from = plan.darkAt
+	if from == nil then
+		return 0
+	end
+	local into = Logic.smoothstep01((t - from - 0.25) / r.darkIn)
+	local secretAt = plan.gateAt[#plan.gateAt]
+	local out = Logic.smoothstep01((t - secretAt) / 0.5)
+	return into * (1 - out * 0.5)
 end
 
 return Logic

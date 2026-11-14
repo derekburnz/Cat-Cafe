@@ -51,6 +51,11 @@ local Config = {
 	GardenDecorPackPassId = 2075342357, -- #1168 row 3: six looks-only decor pieces (R$149); made off sale by Tools-Agent 2026-11-06
 	GoldenPondPassId = 2071704337, -- #1232
 	SecondBowlPassId = 2072132265, -- #1161
+	-- #4026: the four outfit packs (R$99 each); 0 until Gameplay-Engineer makes the passes, and their cards stay hidden
+	StylishPackPassId = 0,
+	WinterPackPassId = 0,
+	ChefPackPassId = 0,
+	SpacePackPassId = 0,
 	-- #1624 (economy-ladder.md section 6a v2.4): what the five store passes give. VIP, Cafe Style and Grand Cafe add
 	-- into cafeMultiplier like tables and decor; Cat Accessories and Uniform Styles each multiply every working cat's
 	-- rate; Cafe Style and Grand Cafe add to how often rich visitors come (x(1 + 0.25 + 1.0) with both).
@@ -79,8 +84,8 @@ local Config = {
 		thank_you_badge = 3728719483, -- #1168 row 4: once per account (Tools-Agent, 2026-11-06), off sale until live
 		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
-		trait_tokens_20 = 0, -- #3864: 20 Trait Tokens, R$99; made with dev-products.yml, then its id goes here
-		trait_tokens_50 = 0, -- #3864: 50 Trait Tokens, R$199
+		trait_tokens_20 = 3730879829, -- #3864: 20 Trait Tokens, R$99; made with dev-products.yml, then its id goes here
+		trait_tokens_50 = 3730879833, -- #3864: 50 Trait Tokens, R$199
 	} :: { [string]: number },
 	-- #1934 (release.md section 1): the Roblox badge id of each badge in shared/Badges, by key; a 0 is not made yet
 	-- and is never awarded. Made 5 a day in Creator Hub, in Badges.LIST order, by Tools-Agent or Derek.
@@ -107,6 +112,13 @@ local Config = {
 		purrfectStreak = 4111238237174459,
 		partyGuest = 4328065554528969, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e); made 2026-11-11 (#1957)
 		metOwner = 1802984077324671, -- #3324: "Met the Owner", for being in a server with the owner; made 2026-11-11 (badges.yml)
+		-- #3618 (badges-order.md): the six new badges, 0 until badges.yml makes them (5 a day, free only)
+		firstHome = 3818992250915779, -- Home Sweet Home (made 2026-11-13)
+		firstUpgrade = 708647132528539, -- Fixing Up
+		firstFlight = 771736196964132, -- Liftoff
+		cornerCafe = 4089080696855068, -- Corner Cafe
+		sunstoneCafe = 3966771842573409, -- Sunstone Cafe
+		wonderCafe = 0, -- tomorrow: five free badges a day
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).
@@ -392,7 +404,7 @@ local Config = {
 	-- #3572 (Derek 2026-11-12: "make the prizes of anything not being bought yet half'd", "put a sale badge on it"): the
 	-- Store's Sale badge, by Store card key. `was` is the real Robux price the item had on 2026-11-12 and `now` the
 	-- half price Derek OK'd. Roblox only tells the game today's price, so the card shows the badge and the struck old
-	-- price only while Roblox's price is exactly `now` (a player whose regional price differs sees the plain price),
+	-- price while Roblox's price is `now` or lower (#3594 follow up, 2026-11-13: unsold items go a little below half),
 	-- and only before StoreSaleEnds (os.time: 2026-12-13 00:00 UTC, 30 days on; never shown to players, no countdown).
 	-- After that the half price is simply the price. Every key is a Store card (StoreLogic.spec checks); the Golden
 	-- Pond pass (99 to 49) is sold at the camp pond, not on a Store card, so it is not here.
@@ -404,11 +416,6 @@ local Config = {
 		kingCat = { was = 799, now = 399 },
 		grandTheme = { was = 799, now = 399 },
 		kingPack = { was = 999, now = 499 },
-		potionXS = { was = 10, now = 5 },
-		potionS = { was = 25, now = 13 },
-		potionM = { was = 49, now = 25 },
-		potionL = { was = 99, now = 49 },
-		steadyPaw = { was = 25, now = 13 },
 		thankYou = { was = 25, now = 13 },
 		cafePass = { was = 299, now = 149 },
 	} :: { [string]: { was: number, now: number } },
@@ -717,7 +724,14 @@ local Config = {
 	UpdateEvents = {
 		{ id = "4470282858327573133", startsAt = 1794583800 }, -- "New Station Menus", 2026-11-13 15:30 UTC
 		{ id = "5904084271926215257", startsAt = 1794607200 }, -- "Speed Shoes + Secrets", 2026-11-13 22:00 UTC
-	} :: { { id: string, startsAt: number } },
+		-- #4026 (Derek 2026-11-13 23:12 UTC: "yes to update everything"): "Cat Outfit Packs!", 2026-11-14 22:00 UTC,
+		-- with its own words on the ask
+		{
+			id = "4733999329807827538",
+			startsAt = 1794693600,
+			title = "🔔 Next update Saturday: Cat Outfit Packs! Want a reminder when it lands?",
+		},
+	} :: { { id: string, startsAt: number, title: string? } },
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,
@@ -1327,7 +1341,33 @@ local Config = {
 		spins: number,
 		crates: { [string]: number }?,
 		to: number?,
+		traitTokens: number?,
 	}?,
+	-- Derek 2026-11-13 14:24 UTC, the 15:30 UTC station menus update: "run a couple giveaways of first 10 trait
+	-- rerolls for everyone online (2-3 minutes after server restart) then 100 gold fish 4-5 minutes after server
+	-- restart". Each pays once per account, to everyone in game from `from` and to anyone who joins before `to` (the
+	-- Update Party's end), beside the update gift (PlaytimeGiftService). Same fields as UpdateGift, plus traitTokens.
+	Giveaways = {
+		{
+			id = "2026-11-13-tokens",
+			from = 1794583980,
+			to = 1794587400,
+			fish = 0,
+			spins = 0,
+			traitTokens = 10,
+		},
+		{ id = "2026-11-13-fish", from = 1794584100, to = 1794587400, fish = 100, spins = 0 },
+	} :: {
+		{
+			id: string,
+			from: number,
+			to: number?,
+			fish: number,
+			spins: number,
+			crates: { [string]: number }?,
+			traitTokens: number?,
+		}
+	},
 	-- The gift after UpdateGift, which takes over at its own `from` (shared/UpdateGift.pick).
 	-- #3497: the weekly gift again, Saturday 2026-11-14 17:00 UTC for one week. It is set here ahead of time so the
 	-- servers started by Friday's restart already carry it: a later publish reaches new servers only.
@@ -1344,6 +1384,7 @@ local Config = {
 		spins: number,
 		crates: { [string]: number }?,
 		to: number?,
+		traitTokens: number?,
 	}?,
 	CodeMaxLength = 20,
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box

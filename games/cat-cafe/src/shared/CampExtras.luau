@@ -603,6 +603,9 @@ function CampExtras.autoClaim(extraId: string, view: Types.CampExtraView): (stri
 	if view.treats ~= nil then
 		return nil, nil -- Picnic Treats: the player picks on the card, walking up never picks for them
 	end
+	if extraId == "lostFound" then
+		return nil, nil -- #3955: the ring opens the Lost and Found's card; Claim there shows what turned up
+	end
 	if extraId == CampExtras.YARD_SALE then
 		-- #3615: a lucky pick is pressed on the card, where its board rolls; walking up never spends it
 		if view.pick ~= nil then
@@ -618,6 +621,28 @@ function CampExtras.autoClaim(extraId: string, view: Types.CampExtraView): (stri
 		return "collect", nil
 	end
 	return nil, nil
+end
+
+-- #3938 (Derek 2026-11-13: "the squares don't open menus if item not ready"): what stepping into an extra's ring
+-- does. "collect" and "yard" (with the free crate's id) claim as autoClaim does; "treats" opens the Picnic Treats
+-- pick card, "yardCard" the Yard Sale's card, ready or not, and "lostCard" the Lost and Found's card, open or shut
+-- (#3955: WalkUpController opens those three); "info" opens the station's card with its timer when
+-- nothing waits (or the extra is still shut). Walking up never spends a lucky pick or picks a treat.
+function CampExtras.walkUp(extraId: string, view: Types.CampExtraView): (string, string?)
+	local how, crateId = CampExtras.autoClaim(extraId, view)
+	if how ~= nil then
+		return how, crateId
+	end
+	if view.open and view.treats ~= nil then
+		return "treats", nil
+	end
+	if extraId == CampExtras.YARD_SALE then
+		return if view.open then "yardCard" else "info", nil
+	end
+	if extraId == "lostFound" then
+		return "lostCard", nil
+	end
+	return "info", nil
 end
 
 local function plural(count: number, one: string, many: string): string
@@ -654,7 +679,11 @@ function CampExtras.promptText(
 		elseif extraId == "lostFound" then
 			return name, "Collect " .. plural(view.held, "find", "finds") -- #1732: "Collect 3 finds"
 		end
-		return name, "Take a free crate"
+		-- #3615: with the lucky pick on, the stall offers a pick, not a set crate
+		return name,
+			if extraId == CampExtras.YARD_SALE and view.pick ~= nil
+				then "Free lucky pick"
+				else "Take a free crate"
 	end
 	if extraId == CampExtras.YARD_SALE then
 		return name,
@@ -694,7 +723,10 @@ function CampExtras.pickerLine(
 			end
 			if def.id == CampExtras.YARD_SALE then
 				if view.held > 0 then
-					return "Yard Sale: free crate !", true
+					return if view.pick ~= nil
+						then "Yard Sale: free lucky pick !"
+						else "Yard Sale: free crate !",
+						true
 				end
 				return if wait ~= nil
 					then "Yard Sale: new crate in " .. wait

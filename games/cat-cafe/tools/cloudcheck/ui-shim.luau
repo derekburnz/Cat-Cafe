@@ -1334,7 +1334,14 @@ local function layoutWorldGui(gui)
 	local size = rawProp(gui, "Size") or UDim2.new(0, 200, 0, 50)
 	local w, h = math.max(1, size.X.Offset), math.max(1, size.Y.Offset)
 	if classOf(gui) == "SurfaceGui" then
+		-- a scene can give the face's real size as a FixedSize CanvasSize (#3926: the Thank You board, 486 x 333)
+		local canvas = rawProp(gui, "CanvasSize")
 		w, h = 800, 600
+		local cw = if canvas ~= nil then (canvas :: any).X else nil
+		local ch = if canvas ~= nil then (canvas :: any).Y else nil
+		if type(cw) == "number" and type(ch) == "number" and cw > 0 and ch > 0 then
+			w, h = cw, ch
+		end
 	end
 	if cache[gui] ~= nil and not subDirty[gui] then
 		return

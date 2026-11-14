@@ -402,6 +402,28 @@ function TradeLogic.myCats(
 end
 
 -- What a press on a cat in the list does not do, and why; nil when it goes into the offer.
+-- #3932 (Derek: "in trade the search bar is missing"): whether a card matches the search over the list, as the cat
+-- room's Search does: any of `words` (name, rarity, trait) holds the query, case and outer spaces ignored; an empty
+-- query matches everything.
+function TradeLogic.matches(query: string?, words: { string? }): boolean
+	local needle = string.lower((query or ""):match("^%s*(.-)%s*$") or "")
+	if needle == "" then
+		return true
+	end
+	for index = 1, #words do
+		local word = words[index]
+		if word ~= nil and string.find(string.lower(word), needle, 1, true) then
+			return true
+		end
+	end
+	return false
+end
+
+-- #3932: the list's empty line while a search hides every card
+function TradeLogic.noMatch(query: string): string
+	return string.format('Nothing matches "%s"', (query:match("^%s*(.-)%s*$") or query))
+end
+
 function TradeLogic.pickHint(pick: Pick, full: boolean): string?
 	if pick.status == "locked" then
 		return "Unlock it on its card to trade"

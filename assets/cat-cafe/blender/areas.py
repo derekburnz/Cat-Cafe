@@ -7,6 +7,7 @@ see-through barrier and a sign board, the way simulator zone gates work, themed 
   CatCafe_Sewer_Gate           24 wide, east back alley's outer wall (94, 0), turned 90
   CatCafe_Desert_Gate          24 wide, Tier 6 (#2651): the Desert's camp opening
   CatCafe_Ruins_Gate           24 wide, Tier 7 (#2651): the Ruins' camp opening
+  CatCafe_Snowy_Gate           24 wide, Tier 8 (#3997): the Snowy Mountain's camp opening
 
 The Park and Neighbourhood openings follow the street (town-layout-v3.md: StreetHalfWidth 16); the Woods and Sewer
 openings are SideGateHalfWidth 12 either side of z 0 (section 7, v3.1).
@@ -29,7 +30,7 @@ import math
 
 from alleyway import bar, flower_clump, label, lantern
 from common import RB, text_width
-from plot import TRIM, rot_y
+from plot import TRIM, rot_y, rot_z
 
 BARS_TOP = 12.0
 PILLAR = 2.6
@@ -395,6 +396,58 @@ def build_ruins_gate(mat):
     return _gate("CatCafe_Ruins_Gate", mat, 24.0, "fur_emerald", "fur_golden", _ruins)
 
 
+# ------------------------------------------------------------------------------------------- snowy --
+def _snow_pine(b, x, z, h):
+    """A small snowy pine beside a pillar, stepped like the area's: a trunk, three tiers, snow on each step."""
+    b.cyl((x, h * 0.45, z), 0.18, h * 0.9, "fur_brown", segments=8)
+    for i, (y, r) in enumerate(((0.16, 0.34), (0.38, 0.26), (0.58, 0.17))):
+        b.cyl((x, h * y + h * 0.1, z), r * h, h * 0.2, ("leaf_dark", "paw_woods")[i % 2], segments=8)
+        b.cyl((x, h * y + h * 0.215, z), r * h * 0.8, h * 0.03, "milk", segments=8)
+    b.cyl((x, h * 0.85, z), 0.07 * h, 0.1 * h, "milk", segments=8)
+
+
+def _snowy(b, lamps, flowers, half):
+    for s in (-1, 1):                                  # timber posts on grey stone, snow on every top
+        x0, x1, cx = _pillar_x(s, half)
+        b.span((x0 - 0.3, 0, -FRONT - 0.3), (x1 + 0.3, 1.6, BACK + 0.3), "concrete")
+        b.span((x0 - 0.35, 1.6, -FRONT - 0.35), (x1 + 0.35, 1.8, BACK + 0.35), "milk")
+        b.span((x0, 1.8, -FRONT), (x1, 13.0, BACK), "fur_brown")
+        for y in (3.6, 6.2, 8.8, 11.4):                                                     # log courses
+            b.span((x0 - 0.06, y, -FRONT - 0.06), (x1 + 0.06, y + 0.14, BACK + 0.06), "dark_wood")
+        b.span((x0 - 0.3, 13.0, -FRONT - 0.3), (x1 + 0.3, 13.5, BACK + 0.3), "dark_wood")
+        b.span((x0 - 0.2, 13.5, -FRONT - 0.2), (x1 + 0.2, 13.9, BACK + 0.2), "milk")
+        lantern(b, lamps, cx, 13.9, (BACK - FRONT) / 2, 0.8)
+        _snow_pine(b, s * (half + PILLAR + 1.6), -3.0, 6.0)                                # off the wall line
+        b.ball((cx + s * 0.6, 0.0, -2.2), 1.3, "milk", scale=(1.4, 0.4, 0.7))             # drift, clear of the wall
+    reach = half + PILLAR + 0.3
+    b.cyl((0, 12.75, 0), 0.75, 2 * reach, "fur_brown", axis="X", segments=12)            # the log lintel
+    b.span((-reach + 0.3, 13.4, -0.55), (reach - 0.3, 13.7, 0.55), "milk")                 # snow along it
+    for x in range(-int(half) + 2, int(half) - 1, 2):                                      # icicles off its front
+        ln = (0.6, 1.0, 0.8, 1.3)[(x // 2) % 4]
+        b.span((x - 0.1, 12.0 - ln, -0.76), (x + 0.1, 12.0, -0.6), "pastel_sky")
+    px = 0.45
+    text = "SNOWY MOUNTAIN"
+    bw = text_width(text, px) + 2.4
+    b.span((-bw / 2, 13.7, -0.22), (bw / 2, 16.2, 0.22), "shirt_red")                      # name plate
+    for (ya, yb) in ((13.7, 13.88), (16.02, 16.2)):
+        b.span((-bw / 2 - 0.06, ya, -0.27), (bw / 2 + 0.06, yb, 0.27), "eye_blue")
+    b.span((-bw / 2 - 0.1, 16.2, -0.35), (bw / 2 + 0.1, 16.45, 0.35), "milk")
+    _title(b, text, 14.8 - 2.5 * px, px, -0.22, 0.22, "offwhite")
+    for k in range(3):                                                                     # a snowflake on top
+        b.box((0, 18.2, 0), (0.32, 3.0, 0.24), "eye_blue", rot=rot_z(60 * k))
+        for sgn in (-1, 1):
+            a = math.radians(60 * k + 90)
+            tx, ty = sgn * 1.0 * math.cos(a), 18.2 + sgn * 1.0 * math.sin(a)
+            b.box((tx, ty, 0), (0.22, 0.8, 0.2), "pastel_sky", rot=rot_z(60 * k + 45 * sgn))
+    b.span((-0.2, 16.45, -0.12), (0.2, 16.75, 0.12), "fur_brown")
+    return 12.0
+
+
+def build_snowy_gate(mat):
+    """Tier 8: the Snowy Mountain's 24 stud opening (the camp opening, as every area since F85)."""
+    return _gate("CatCafe_Snowy_Gate", mat, 24.0, "eye_blue", "shirt_red", _snowy)
+
+
 ASSETS = {
     "CatCafe_Park_Gate": (build_park_gate, 6000),
     "CatCafe_Park_GateF85": (build_park_gate_f85, 6000),
@@ -404,4 +457,5 @@ ASSETS = {
     "CatCafe_Sewer_Gate": (build_sewer_gate, 6000),
     "CatCafe_Desert_Gate": (build_desert_gate, 6000),
     "CatCafe_Ruins_Gate": (build_ruins_gate, 6000),
+    "CatCafe_Snowy_Gate": (build_snowy_gate, 6000),
 }

@@ -272,6 +272,14 @@ function Catching.shoutOut(
 	return string.format("%s %s %s%s%s!", playerName, verb, article, phrase, where or "")
 end
 
+-- #3897 (Derek 2026-11-13: "instead of flooding players with banners ... only show the cat spawns banners for
+-- area's they have unlocked"): whether a player at `tier` hears a rare cat's spawn banner in an area that opens at
+-- `areaTier` (nil: an unknown area, which nobody hears). The wave's Mythical, the Secret cat, the pity cat and the
+-- event shower all use it.
+function Catching.hearsSpawn(tier: number?, areaTier: number?): boolean
+	return tier ~= nil and areaTier ~= nil and tier >= areaTier
+end
+
 -- F58 (data-model section 9, v0.8): the server-wide line when a wave spawns a Mythical stray, naming the area and
 -- not the cat, so finding it is still a surprise: "A Mythical cat appeared in the Woods!", "A gold Mythical cat..."
 -- when it is gold (or "rainbow", F99), "... in the Woods on a Lucky Day!" on a Lucky Day's wave (F88). Nil for any

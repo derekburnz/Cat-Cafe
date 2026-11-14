@@ -498,11 +498,6 @@ function LawnLogic.total(state: Types.PlayerState): string
 	return ("Lawn: %d out, +%s money"):format(out, percent(bonus))
 end
 
--- Where to buy more, for the grid's last card (lawn-nursery.md section 7: only the Yard Sale sells lawn pieces).
-LawnLogic.SHOP_TITLE = "Find more lawn decor"
--- #1760: name the camp and the tier, since nothing else in the game says where the Yard Sale is.
-LawnLogic.SHOP_WHERE = "Yard Sale, Neighbourhood camp (Tier 3)"
-
 -- #1751 part 3 (Derek2: "lawn section is missing remove/use it buttons"): a Lawn card's one button. An out piece
 -- reads Remove (SetLawnSpot(spot, "") takes it in), a stored one Use onto the first open spot of its size, or "Spots
 -- full", off; the path or fence in use reads Remove (SetLawnStyle(kind, ""): Grey Slabs, no fence), another owned one

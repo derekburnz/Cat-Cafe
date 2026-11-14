@@ -55,6 +55,9 @@ Tips.LIST = table.freeze({
 	-- #2915 (Design-Agent): the account's first Park landing, "Strays wait near the camp", shown by the client (and
 	-- its 90 s soft ring on the nearest stray), saved by TipSeen like every tip
 	tip("park_first", "card", "client"),
+	-- Derek 2026-11-13 ("when someone pets give a context tutorial little pop up guide that shows petting =2x money for
+	-- that cat for an hour and can only do one at once"): after the account's first pet of its own cat (#3651)
+	tip("pet", "card", "client"),
 } :: { TipDef })
 
 -- The offline card gets its line ("Your cats earned while you were away!") after this long away (section 3).

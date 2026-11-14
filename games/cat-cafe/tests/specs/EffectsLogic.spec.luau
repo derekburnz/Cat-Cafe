@@ -216,4 +216,17 @@ return function()
 			expect(Presets.emitters.catchSparkle ~= nil).to.equal(true)
 		end)
 	end)
+
+	describe("Logic.facePoint", function()
+		it("turns a pool cat to look at the player's camera along the ground", function()
+			local at = Vector3.new(10, 5, 10)
+			-- CFrame.Angles(0, yaw, 0) looks along (-sin yaw, 0, -cos yaw): the camera is straight along +Z
+			local yaw = Logic.facePoint(at, Vector3.new(10, 40, 30)) :: number
+			expect(math.abs(-math.sin(yaw)) < 1e-4).to.equal(true)
+			expect(-math.cos(yaw) > 0.999).to.equal(true)
+			local side = Logic.facePoint(at, Vector3.new(-5, 5, 10)) :: number
+			expect(-math.sin(side) < -0.999).to.equal(true)
+			expect(Logic.facePoint(at, Vector3.new(10, 50, 10))).to.equal(nil)
+		end)
+	end)
 end

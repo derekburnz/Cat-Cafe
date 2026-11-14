@@ -72,6 +72,9 @@ export type Props = {
 	sound: (string | false)?,
 	name: string?,
 	zIndex: number?,
+	-- false leaves off the light bar along the top (Derek 2026-11-13: the round blue "i" had "this annoying glow on
+	-- the top")
+	shine: boolean?,
 }
 
 export type Button = {
@@ -213,7 +216,7 @@ function Button.new(props: Props): Button
 	})
 	-- the light bar along the top of the face (a little thinner on a small button)
 	local faceH = (if measured then side else 44) - depth
-	Create("Frame", {
+	local shine: Frame = Create("Frame", {
 		Name = "Shine",
 		BackgroundColor3 = Theme.colors.white,
 		BackgroundTransparency = CLEAN_SHINE_TRANSPARENCY,
@@ -224,6 +227,7 @@ function Button.new(props: Props): Button
 		ZIndex = (props.zIndex or 1) + 1,
 		Parent = face,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	shine.Visible = props.shine ~= false
 
 	local isTile = layout == "tile"
 	local iconSize: number? = if not isTile

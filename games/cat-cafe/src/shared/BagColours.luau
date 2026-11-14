@@ -12,6 +12,10 @@
 -- Saved as profile.bagColours ({ main, trim }, nil while both are the defaults). No VERSION bump: an older server
 -- dropping it only loses a colour pick, and the `bagColours` switch goes on after a restart that carries this code.
 -- Pure but for tint, which only sets part colours.
+-- #4049 (Derek 2026-11-13: "make the player able to switch the color of the shoes and backpack"): a second kind,
+-- "shoes", for the worn Speed Shoes: their teal upper is "main" and the mint trim "trim" (the white sole and the
+-- tan laces stay). Every function takes the kind last, "bag" when left out, so the Backpack works as before. The
+-- shoes' picks save as profile.shoeColours, the same shape.
 
 local BagColours = {}
 
@@ -31,6 +35,7 @@ BagColours.WORDS = {
 BagColours.TELEMETRY = "bag_colours"
 
 export type Slot = "main" | "trim"
+export type Kind = "bag" | "shoes"
 export type Row = { id: string, name: string, color: Color3 }
 export type Picks = { main: string, trim: string }
 
@@ -55,6 +60,22 @@ local BY_ID: { [string]: Row } = {}
 for _, row in BagColours.LIST do
 	BY_ID[row.id] = row
 end
+-- #4049: the shoes' twelve: the bag's, with the shoes' own teal first and mint second, and no Rose
+BY_ID.teal = { id = "teal", name = "Teal", color = Color3.fromHex("1FA58F") }
+BagColours.SHOE_LIST = {
+	BY_ID.teal,
+	BY_ID.mint,
+	BY_ID.berry,
+	BY_ID.pumpkin,
+	BY_ID.honey,
+	BY_ID.cream,
+	BY_ID.sky,
+	BY_ID.navy,
+	BY_ID.plum,
+	BY_ID.forest,
+	BY_ID.cocoa,
+	BY_ID.charcoal,
+} :: { Row }
 
 -- The colours the bag is built with (CatCafe_Item_Backpack), by slot. The first of each is the slot's own colour,
 -- the one a pick replaces; the others are its lighter steps.
@@ -63,6 +84,55 @@ BagColours.BUILT = {
 	trim = { Color3.fromHex("E07A8C"), Color3.fromHex("F28FAA"), Color3.fromHex("F6B9CB") },
 } :: { [string]: { Color3 } }
 
+export type KindInfo = {
+	item: string, -- the Mystery Market item that must be owned
+	list: { Row },
+	built: { [string]: { Color3 } },
+	main: string, -- the default ids, the model's own colours
+	trim: string,
+	title: string,
+	mainWord: string,
+	locked: string,
+}
+
+BagColours.KINDS = {
+	bag = {
+		item = "backpack",
+		list = BagColours.LIST,
+		built = BagColours.BUILT,
+		main = "plum",
+		trim = "rose",
+		title = "Bag colours",
+		mainWord = "Bag",
+		locked = "Get the Backpack to pick its colours",
+	},
+	shoes = {
+		item = "speed_shoes",
+		list = BagColours.SHOE_LIST,
+		built = { main = { Color3.fromHex("1FA58F") }, trim = { Color3.fromHex("8FD3C1") } },
+		main = "teal",
+		trim = "mint",
+		title = "Shoe colours",
+		mainWord = "Shoes",
+		locked = "Get the Speed Shoes to pick their colours",
+	},
+} :: { [string]: KindInfo }
+BagColours.EDIT = "Edit" -- the shelf button on an owned row that has colours
+
+function BagColours.info(kind: string?): KindInfo
+	return BagColours.KINDS[kind or "bag"] or BagColours.KINDS.bag
+end
+
+-- The kind whose Mystery Market item is `itemId`, or nil.
+function BagColours.kindOf(itemId: unknown): Kind?
+	for kind, info in BagColours.KINDS do
+		if info.item == itemId then
+			return kind :: Kind
+		end
+	end
+	return nil
+end
+
 local NEAR = 0.02 -- a colour channel this close is the same colour (the model file rounds to four places)
 local BASE_ATTRIBUTE = "BagBuilt" -- a tinted part's built colour, so a later pick or Reset starts from it
 
@@ -70,34 +140,37 @@ function BagColours.row(id: unknown): Row?
 	return if type(id) == "string" then BY_ID[id] else nil
 end
 
-function BagColours.valid(id: unknown): boolean
-	return BagColours.row(id) ~= nil
+function BagColours.valid(id: unknown, kind: string?): boolean
+	local row = BagColours.row(id)
+	return row ~= nil and table.find(BagColours.info(kind).list, row) ~= nil
 end
 
 -- A save's or a remote's picks: two known ids, or nil for anything else and for the two defaults (nothing to keep).
-function BagColours.sanitize(raw: unknown): Picks?
+function BagColours.sanitize(raw: unknown, kind: string?): Picks?
 	if type(raw) ~= "table" then
 		return nil
 	end
+	local info = BagColours.info(kind)
 	local main, trim = (raw :: any).main, (raw :: any).trim
-	if not BagColours.valid(main) or not BagColours.valid(trim) then
+	if not BagColours.valid(main, kind) or not BagColours.valid(trim, kind) then
 		return nil
 	end
-	if main == BagColours.DEFAULT_MAIN and trim == BagColours.DEFAULT_TRIM then
+	if main == info.main and trim == info.trim then
 		return nil
 	end
 	return { main = main, trim = trim }
 end
 
 -- The picks in force for a saved value: the defaults where nothing is saved.
-function BagColours.picks(saved: Picks?): Picks
+function BagColours.picks(saved: Picks?, kind: string?): Picks
+	local info = BagColours.info(kind)
 	return {
-		main = if saved ~= nil and BagColours.valid(saved.main)
+		main = if saved ~= nil and BagColours.valid(saved.main, kind)
 			then saved.main
-			else BagColours.DEFAULT_MAIN,
-		trim = if saved ~= nil and BagColours.valid(saved.trim)
+			else info.main,
+		trim = if saved ~= nil and BagColours.valid(saved.trim, kind)
 			then saved.trim
-			else BagColours.DEFAULT_TRIM,
+			else info.trim,
 	}
 end
 
@@ -108,13 +181,14 @@ local function same(a: Color3, b: Color3): boolean
 end
 
 -- Which slot a part built in `built` belongs to, nil for the bag's cream, gold and mint parts.
-function BagColours.slotOf(built: Color3): Slot?
-	for _, color in BagColours.BUILT.main do
+function BagColours.slotOf(built: Color3, kind: string?): Slot?
+	local colours = BagColours.info(kind).built
+	for _, color in colours.main do
 		if same(built, color) then
 			return "main"
 		end
 	end
-	for _, color in BagColours.BUILT.trim do
+	for _, color in colours.trim do
 		if same(built, color) then
 			return "trim"
 		end
@@ -168,8 +242,8 @@ end
 
 -- The colour of a part built in `built` once its slot is picked as `pick`: the pick's hue, with the part's own step
 -- lighter or paler than the slot's colour kept. The slot's own colour comes out as the pick exactly.
-function BagColours.shade(built: Color3, slot: Slot, pick: Color3): Color3
-	local own = BagColours.BUILT[slot][1]
+function BagColours.shade(built: Color3, slot: Slot, pick: Color3, kind: string?): Color3
+	local own = BagColours.info(kind).built[slot][1]
 	if same(built, own) then
 		return pick
 	end
@@ -185,23 +259,24 @@ end
 
 -- What a part built in `built` shows under `picks`: its built colour for the default of its slot and for parts of
 -- no slot.
-function BagColours.colorFor(built: Color3, picks: Picks): Color3
-	local slot = BagColours.slotOf(built)
+function BagColours.colorFor(built: Color3, picks: Picks, kind: string?): Color3
+	local slot = BagColours.slotOf(built, kind)
 	if slot == nil then
 		return built
 	end
+	local info = BagColours.info(kind)
 	local id = if slot == "main" then picks.main else picks.trim
-	local default = if slot == "main" then BagColours.DEFAULT_MAIN else BagColours.DEFAULT_TRIM
+	local default = if slot == "main" then info.main else info.trim
 	local row = BY_ID[id]
 	if row == nil or id == default then
 		return built
 	end
-	return BagColours.shade(built, slot :: any, row.color) -- the old solver reads `slot` as a plain string here
+	return BagColours.shade(built, slot :: any, row.color, kind) -- the old solver reads `slot` as a plain string here
 end
 
 -- Colours every part of `pack` (a worn or shown Backpack) for `picks`. Safe to call again with other picks: each
 -- part remembers the colour it was built with. Returns how many parts it coloured.
-function BagColours.tint(pack: Instance, picks: Picks): number
+function BagColours.tint(pack: Instance, picks: Picks, kind: string?): number
 	local count = 0
 	for _, descendant in pack:GetDescendants() do
 		if descendant:IsA("BasePart") then
@@ -209,13 +284,13 @@ function BagColours.tint(pack: Instance, picks: Picks): number
 			local built: Color3? = part:GetAttribute(BASE_ATTRIBUTE)
 			if built == nil then
 				local color: Color3 = part.Color
-				if BagColours.slotOf(color) == nil then
+				if BagColours.slotOf(color, kind) == nil then
 					continue
 				end
 				part:SetAttribute(BASE_ATTRIBUTE, color)
 				built = color
 			end
-			part.Color = BagColours.colorFor(built :: Color3, picks)
+			part.Color = BagColours.colorFor(built :: Color3, picks, kind)
 			count += 1
 		end
 	end

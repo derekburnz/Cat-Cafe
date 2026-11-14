@@ -13,6 +13,7 @@ local Pals = require(script.Parent.Pals)
 local Pet = require(script.Parent.Pet)
 local Potions = require(script.Parent.Potions)
 local StationPerks = require(script.Parent.StationPerks)
+local Traits = require(script.Parent.Traits)
 local Types = require(script.Parent.Types)
 
 local Economy = {}
@@ -155,7 +156,20 @@ function Economy.richRate(profile: Types.PlayerProfile): number
 	if passes.grand == true then
 		rate += Config.GrandRichRate
 	end
-	return rate
+	return rate + Economy.traitBonus(profile, "richRate") -- #3871: Rich Friend and the combos that hold it
+end
+
+-- #3871: a cafe-wide trait effect (bowl luck, speed, rich visitor rate) from the cats in a staff slot, the best
+-- Traits.KINDS[kind].best of them, at most its cap (Traits.cafeBonus). 0 for none.
+function Economy.traitBonus(profile: Types.PlayerProfile, kind: Traits.Kind): number
+	local working: { Traits.Trait } = {}
+	for _, instance in profile.cats do
+		local trait = instance.trait
+		if instance.spotId ~= nil and trait ~= nil then
+			table.insert(working, trait)
+		end
+	end
+	return if #working > 0 then Traits.cafeBonus(working, kind) else 0
 end
 
 function Economy.level(profile: Types.PlayerProfile, upgradeId: string): number
@@ -276,7 +290,8 @@ function Economy.baitWaitSeconds(
 end
 
 -- Rate of one working cat before the cafe multiplier: its rating for an owner at `tier` (rarity x area x charm x
--- level x variant, see CatStats) times the favorite role bonus (data-model section 11). Resting cats earn nothing.
+-- level x variant, see CatStats) times the favorite role bonus (data-model section 11) times its trait's income
+-- (#3871; night income is paid on top in settle, Economy.nightTraitRate). Resting cats earn nothing.
 function Economy.catRate(instance: Types.CatInstance, tier: number?): number
 	local def = Catalog.getCat(instance.catId)
 	if def == nil or instance.spotId == nil then
@@ -287,7 +302,9 @@ function Economy.catRate(instance: Types.CatInstance, tier: number?): number
 		return 0
 	end
 	local favorite = if spot.spotType == def.favoriteRole then Config.FavoriteMultiplier else 1
-	return CatStats.rating(instance, tier) * favorite
+	return CatStats.rating(instance, tier)
+		* favorite
+		* Traits.incomeMultiplier(instance.trait, false)
 end
 
 function Economy.variantMultiplier(variant: string): number
@@ -299,17 +316,36 @@ end
 -- (F95). The whole income formula lives here, so the night multiplier and a customer-driven model change one
 -- function. The pass multiplies whatever the potions add in settle, so 4x with a Big Money Potion is 6x, and the
 -- tip piles, rich visitors and coin prizes that read the day rate scale with it.
-function Economy.incomePerSecond(profile: Types.PlayerProfile): number
-	local total = 0
-	for _, instance in profile.cats do
-		total += Economy.catRate(instance, profile.tier)
-	end
+local function cafeRate(profile: Types.PlayerProfile, total: number): number
 	return total
 		* Economy.staffMultiplier(profile)
 		* Economy.cafeMultiplier(profile)
 		* Economy.tierMultiplier(profile)
 		* Economy.passMultiplier(profile)
 		* StationPerks.tipMultiplier(profile.tier) -- #2687: the Relic Museum's Curator from Tier 7
+end
+
+function Economy.incomePerSecond(profile: Types.PlayerProfile): number
+	local total = 0
+	for _, instance in profile.cats do
+		total += Economy.catRate(instance, profile.tier)
+	end
+	return cafeRate(profile, total)
+end
+
+-- #3871: the extra day rate a second the working cats' night income traits add while it is night (Night Owl and the
+-- combos that hold it): each cat's rate without its trait x its nightIncome, through the same multipliers. settle
+-- pays it over the night part of a window, at NightIncomeMultiplier like the rest of the night's pay.
+function Economy.nightTraitRate(profile: Types.PlayerProfile): number
+	local total = 0
+	for _, instance in profile.cats do
+		local extra = Traits.amount(instance.trait, "nightIncome")
+		if extra > 0 then
+			local rate = Economy.catRate(instance, profile.tier)
+			total += rate / Traits.incomeMultiplier(instance.trait, false) * extra
+		end
+	end
+	return if total > 0 then cafeRate(profile, total) else 0
 end
 
 -- XP a second for one owned cat (data-model section 4b, v0.12 F75): a working cat earns CatXpPerSecondPlaced, times
@@ -324,7 +360,7 @@ function Economy.catXpRate(instance: Types.CatInstance): number
 	local favorite = if def ~= nil and spot.spotType == def.favoriteRole
 		then Config.CatXpFavoriteMultiplier
 		else 1
-	return Config.CatXpPerSecondPlaced * favorite
+	return Config.CatXpPerSecondPlaced * favorite * Traits.xpMultiplier(instance.trait) -- #3871: Fast Learner and co
 end
 
 -- Every owned cat earns XP for the settled time at its catXpRate. Only online time is settled: DataService.load
@@ -353,14 +389,18 @@ function Economy.phaseMultiplier(phase: Types.ClockPhase): number
 end
 
 -- Seconds of [from, from + seconds] weighted by the phase pay: a night second counts NightIncomeMultiplier.
-local function paidSecondsFrom(from: number, seconds: number, clockEpoch: number?): number
-	local nightSeconds = if clockEpoch ~= nil
+local function nightSecondsFrom(from: number, seconds: number, clockEpoch: number?): number
+	return if clockEpoch ~= nil
 		then math.clamp(
 			Clock.nightSecondsBetween(from - clockEpoch, from + seconds - clockEpoch),
 			0,
 			seconds
 		)
 		else 0
+end
+
+local function paidSecondsFrom(from: number, seconds: number, clockEpoch: number?): number
+	local nightSeconds = nightSecondsFrom(from, seconds, clockEpoch)
 	return seconds - nightSeconds + nightSeconds * Config.NightIncomeMultiplier
 end
 
@@ -515,7 +555,12 @@ function Economy.settle(profile: Types.PlayerProfile, now: number, clockEpoch: n
 		local rate = Economy.incomePerSecond(profile) * money
 		-- F92: the pal bonus over the whole window; the caller settled when the pal count last changed
 		local palCoins = rate * base * Economy.palBonus(profile)
-		earned = rate * paidSeconds + palCoins
+		-- #3871: the night income traits over the window's night seconds, paid like the night's own pay
+		local nightTrait = Economy.nightTraitRate(profile)
+			* money
+			* nightSecondsFrom(profile.lastTick, elapsed, clockEpoch)
+			* Config.NightIncomeMultiplier
+		earned = rate * paidSeconds + palCoins + nightTrait
 		if palCoins > 0 then
 			palEarnedByProfile[profile] = (palEarnedByProfile[profile] or 0) + palCoins
 		end

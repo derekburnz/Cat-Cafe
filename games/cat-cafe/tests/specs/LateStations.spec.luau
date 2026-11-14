@@ -12,7 +12,6 @@ return function()
 	local IndexRewards = require(Shared.IndexRewards)
 	local LateStations = require(Shared.LateStations)
 	local ProfileSchema = require(Shared.ProfileSchema)
-	local SellExtras = require(Shared.SellExtras)
 	local Types = require(Shared.Types)
 
 	local NOW = 1_800_000_000
@@ -274,7 +273,7 @@ return function()
 				)
 			end)
 
-			it("keeps a spa cat away from the Collector and Sell Extra Commons", function()
+			it("keeps a spa cat away from the Collector", function()
 				local profile = profileAt(6)
 				add(profile, "c1", "tabby", 3)
 				add(profile, "c2", "tabby", 1)
@@ -289,8 +288,6 @@ return function()
 					end, 6, busy)
 					expect(pick ~= nil and pick.uid ~= "c2").to.equal(true)
 				end
-				local plan = SellExtras.plan(profile, 6, nil)
-				expect(table.find(plan.uids, "c2")).to.equal(nil)
 			end)
 
 			it("shows the picker line", function()

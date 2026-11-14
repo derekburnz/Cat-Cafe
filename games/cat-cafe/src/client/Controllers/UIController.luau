@@ -564,6 +564,45 @@ end
 local CARRY_SETTLE = 0.6
 local tutorialCarry = { was = false, endedAt = -math.huge }
 
+-- #3995 (friend-join-3995.md 6, palJoin switch): a new player who joined through a friend and got the cafe next door
+-- reads "Your cafe is next to Sam's: step inside 🐾" as the strip's first line, with the trail to their own door,
+-- until they first stand inside it; then the tutorial goes on as normal. `pal` is the friend's user id.
+local palJoin = { pal = 0, nextDoor = false, entered = false, watching = false }
+local PAL_JOIN_WAIT = 5 -- seconds the joiner's note waits for the server's PalNextDoor attribute
+local PAL_JOIN_CHECK = 0.5 -- seconds between the "inside your cafe yet?" checks
+
+-- Whether this player's character stands inside their own cafe (over its Floor, under the roof).
+local function insideOwnCafe(): boolean
+	local plot = ownPlot()
+	local floor = if plot ~= nil then plot:FindFirstChild("Floor") else nil
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if floor == nil or not floor:IsA("BasePart") or root == nil or not root:IsA("BasePart") then
+		return false
+	end
+	local offset = (floor :: BasePart).CFrame:PointToObjectSpace((root :: BasePart).Position)
+	local half = (floor :: BasePart).Size / 2
+	return math.abs(offset.X) <= half.X
+		and math.abs(offset.Z) <= half.Z
+		and offset.Y >= -2
+		and offset.Y <= 14
+end
+
+-- The strip's next-door line while it applies (true), else false and the usual first line shows.
+local function palJoinLine(s: Types.PlayerState): boolean
+	if not palJoin.nextDoor or palJoin.entered or s.tutorialStep >= 2 then
+		return false
+	end
+	local PalsLogic = require(script.Parent.Parent.UI.Components.PalsLogic) :: any
+	local pal = Players:GetPlayerByUserId(palJoin.pal)
+	UI.tutorial.show(
+		PalsLogic.nextDoorLine(if pal ~= nil then pal.DisplayName else nil),
+		UIController.ownDoor(),
+		"Your cafe"
+	)
+	return true
+end
+
 local function refreshTutorial(s: Types.PlayerState)
 	if tutorialWatch.connection ~= nil then
 		tutorialWatch.connection:Disconnect()
@@ -602,6 +641,9 @@ local function refreshTutorial(s: Types.PlayerState)
 	-- #2636 (onboarding_v6): the first instruction after the first check-in (card 2, 3 or 4) is on screen
 	if s.tutorialStep >= 2 and s.tutorialStep <= 4 then
 		reportStep("next_goal_shown")
+	end
+	if s.tutorialStep < 2 and palJoinLine(s) then
+		return
 	end
 	if s.tutorialStep < 2 then
 		showTutorial(
@@ -732,6 +774,76 @@ local function refreshTutorial(s: Types.PlayerState)
 	else
 		UI.tutorial.hide()
 	end
+end
+
+-- #3995: watches for the joiner's first step inside their own cafe, then puts the strip back to the tutorial's own
+-- first line. Gives up once the tutorial has moved past its first steps.
+local function watchPalJoin()
+	if palJoin.watching then
+		return
+	end
+	palJoin.watching = true
+	task.spawn(function()
+		while not palJoin.entered do
+			task.wait(PAL_JOIN_CHECK)
+			local current = state
+			if current ~= nil and current.tutorialStep >= 2 then
+				break
+			end
+			if insideOwnCafe() then
+				palJoin.entered = true
+				local now = state
+				if now ~= nil then
+					refreshTutorial(now)
+				end
+			end
+		end
+		palJoin.watching = false
+	end)
+end
+
+-- #3995 (friend-join-3995.md 4 to 6): PalArrived with the palJoin switch on. The joiner's note waits a moment for the
+-- server's PalNextDoor attribute (it is set once the save and the plot are in), then shows; a new joiner next door
+-- gets the strip's next-door line. The friend gets their note at once.
+function UIController.palJoined(joinerId: number, palId: number)
+	if joinerId ~= player.UserId and palId ~= player.UserId then
+		return
+	end
+	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+	local PalJoin = require(Shared:WaitForChild("PalJoin")) :: any
+	local key: string = PalJoin.FLAG
+	if
+		not LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
+	then
+		return
+	end
+	local hook: unknown = (UI :: any).palJoined
+	if type(hook) ~= "function" then
+		return
+	end
+	local show = hook :: (number, number, boolean?) -> ()
+	if palId == player.UserId then
+		show(joinerId, palId, nil)
+		return
+	end
+	task.spawn(function()
+		local attribute: string = PalJoin.ATTRIBUTE
+		local started = os.clock()
+		while player:GetAttribute(attribute) == nil and os.clock() - started < PAL_JOIN_WAIT do
+			task.wait(0.25)
+		end
+		local nextDoor = player:GetAttribute(attribute) == true
+		show(joinerId, palId, nextDoor)
+		if nextDoor then
+			palJoin.pal = palId
+			palJoin.nextDoor = true
+			local now = state
+			if now ~= nil then
+				refreshTutorial(now)
+			end
+			watchPalJoin()
+		end
+	end)
 end
 
 -- Role changes since the last sync, for the sounds (sound list: place and unplace): a cat newly in a role or moved
@@ -2543,6 +2655,7 @@ local function wireServerEvents()
 	-- the glowing travel button), else a toast when the pal is out in an area.
 	Net.on("PalArrived", function(joinerId: number, palId: number, palArea: string?)
 		Moments.PalArrived:Fire(joinerId, palId)
+		UIController.palJoined(joinerId, palId)
 		if joinerId ~= player.UserId then
 			return
 		end

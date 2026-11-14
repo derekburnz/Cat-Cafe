@@ -6807,6 +6807,39 @@ do
 		end
 	end
 
+	-- #3995 (friend-join-3995.md 4 and 5, palJoin switch): the join notes. The joiner reads "You joined Sam!" over
+	-- "Your cafe is next door." when it is, the friend "Mia joined you!" over "They're at your front door.", each on the
+	-- small banner with the other player's headshot, 6 s, one tap puts it away, held back while a menu is open. No
+	-- bonus words (Derek 2026-11-13).
+	function UI.palJoined(joinerUserId: number, palUserId: number, nextDoor: boolean?)
+		local shown = toasts
+		if type(joinerUserId) ~= "number" or type(palUserId) ~= "number" or shown == nil then
+			return
+		end
+		local me = Players.LocalPlayer.UserId
+		if joinerUserId ~= me and palUserId ~= me then
+			return
+		end
+		local joiner = joinerUserId == me
+		local other: number = if joiner then palUserId else joinerUserId
+		local title: string, line: string
+		if joiner then
+			title, line = PalsLogic.joinedNote(nameOf(palUserId), nextDoor)
+		else
+			title, line = PalsLogic.arrivedNote(nameOf(joinerUserId))
+		end
+		shown:cat({
+			title = title,
+			line = line,
+			headshot = PalsLogic.headshot(other),
+			seconds = PalsLogic.NOTE_SECONDS,
+			tapCloses = true,
+			wait = function()
+				return UI.isOpen() ~= nil
+			end,
+		})
+	end
+
 	-- TeamRescue on both players' screens: the pop with both faces, the helper's tip in the helper's line.
 	function UI.teamRescue(rescuerUserId: number, helperUserId: number, coins: number)
 		if type(rescuerUserId) ~= "number" or type(helperUserId) ~= "number" then

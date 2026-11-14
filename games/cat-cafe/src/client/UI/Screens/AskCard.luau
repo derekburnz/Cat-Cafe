@@ -84,6 +84,10 @@ local PICTURE = 128 -- #4174: the picture's side (design px; a size smaller on a
 local LINE_H = 38 -- #4174: room for the line's two rows
 local LINE_TEXT = Theme.sizes.textSmall
 local WIDEN = true -- #4174: a picture widens the card by its own width (not on a phone)
+-- #4174 (Review-QA: on a small phone the taller card's X sat on the goal arrow and its top on the side panel's button):
+-- on a phone the picture runs down the card's left side from the band to the buttons, the title moves right of it and
+-- the line is left out, so a picture never makes the card taller than an ask without one
+local COMPACT = false
 local PAD = 10
 local GAP = 8
 local BAR_H = 5
@@ -128,7 +132,7 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 			340, 26, Theme.sizes.textBody + 2, Theme.sizes.textSmall, 7
 		TITLE_RIGHT = 26
 		-- #4174: on a phone the card keeps its width (wider, it reached the menu grid on a small phone)
-		PICTURE, LINE_H, LINE_TEXT, WIDEN = 96, 30, Theme.sizes.textSmall - 1, false
+		PICTURE, LINE_H, LINE_TEXT, WIDEN, COMPACT = 96, 30, Theme.sizes.textSmall - 1, false, true
 	end
 	local choiceH = Scale.tapHeight(CHOICE_H, Theme.sizes.buttonDepth)
 	self._choiceH = choiceH
@@ -324,17 +328,24 @@ function AskCard._setLines(
 	local titleH = if lines >= 2 then TITLE_H * 2 - 2 else TITLE_H
 	self._title.TextWrapped = lines >= 2
 	local inset: number = self._titleInset or 0
-	self._title.Size = UDim2.new(1, -2 * PAD - inset - TITLE_RIGHT, 0, titleH)
 	self._band.Size = UDim2.new(1, 0, 0, PAD + titleH + 3)
 	local top = PAD + titleH + 6
+	local buttonsH = if two then self._choiceH * 2 + GAP else self._choiceH
 	local hasPicture = picture ~= nil and picture ~= ""
-	local left = if hasPicture then PAD + PICTURE + GAP else PAD
+	local compact = hasPicture and COMPACT
+	-- compact: the picture spans the title and the buttons, the title starts right of it
+	local side = if compact then titleH + 6 + buttonsH else PICTURE
+	local left = if hasPicture then PAD + side + GAP else PAD
+	local titleLeft = if compact then left else PAD
+	self._title.Position = UDim2.fromOffset(titleLeft, PAD)
+	self._title.Size = UDim2.new(1, -titleLeft - PAD - inset - TITLE_RIGHT, 0, titleH)
 	self._extraW = if hasPicture and WIDEN then PICTURE + GAP else 0
 	self._picture.Visible = hasPicture
-	self._picture.Position = UDim2.fromOffset(PAD, top)
+	self._picture.Size = UDim2.fromOffset(side, side)
+	self._picture.Position = UDim2.fromOffset(PAD, if compact then PAD else top)
 	local art = self._picture:FindFirstChild("Art") :: ImageLabel
 	art.Image = if hasPicture then picture :: string else ""
-	local hasLine = line ~= nil and line ~= ""
+	local hasLine = line ~= nil and line ~= "" and not compact
 	local lineH = if hasLine then LINE_H + 4 else 0
 	self._line.Visible = hasLine
 	self._line.Text = line or ""
@@ -345,8 +356,7 @@ function AskCard._setLines(
 	self._row2.Position = UDim2.fromOffset(left, top + lineH + self._choiceH + GAP)
 	self._row2.Size = UDim2.new(1, -left - PAD, 0, self._choiceH)
 	self._row2.Visible = two
-	local buttonsH = if two then self._choiceH * 2 + GAP else self._choiceH
-	local bodyH = math.max(lineH + buttonsH, if hasPicture then PICTURE else 0)
+	local bodyH = math.max(lineH + buttonsH, if hasPicture and not compact then PICTURE else 0)
 	local bar = if timed == false then 0 else BAR_H
 	self._track.Visible = bar > 0
 	self._cardH = top + bodyH + PAD + bar

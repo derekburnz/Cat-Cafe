@@ -7209,7 +7209,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.asks.skipPace()
 		local ended = nil
 		local shown = UI.asks.card({
-			title = "Get the Starter Bundle",
+			title = "Starter Bundle",
 			line = "Epic cat Sprinkles, 2x Money and 20 potions",
 			picture = "rbxassetid://95362407964835",
 			choices = { { id = "buy", label = "Buy R$99", style = "primary" } },
@@ -7229,14 +7229,54 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local buy = holder:FindFirstChild("Choice_buy", true) :: GuiObject
 		local track = holder:FindFirstChild("Track", true) :: GuiObject
 		assert(picture.Visible and picture.AbsoluteSize.X >= 56, "uigate: the ask's picture is missing or small (#4174)")
-		assert(line.Visible and line.TextFits, "uigate: the ask's line does not fit: " .. line.Text .. " (#4174)")
+		local phone = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isPhone()
+		-- on a phone the line is left out (the card stays no taller than an ask without a picture)
+		assert(phone or (line.Visible and line.TextFits), "uigate: the ask's line does not fit: " .. line.Text .. " (#4174)")
+		assert(not phone or not line.Visible, "uigate: a phone's picture ask still shows its line (#4174)")
 		assert(title.TextFits, "uigate: the ask's title does not fit (#4174)")
 		local label = buy:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel
 		assert(label == nil or label.TextFits, "uigate: the ask's Buy words do not fit (#4174)")
 		assert(not track.Visible, "uigate: an ask with no seconds still has its draining bar (#4174)")
 		-- the line and the button sit right of the picture, inside the card
 		local right = picture.AbsolutePosition.X + picture.AbsoluteSize.X
-		assert(line.AbsolutePosition.X >= right and buy.AbsolutePosition.X >= right, "uigate: the line or button is over the picture (#4174)")
+		assert((not line.Visible or line.AbsolutePosition.X >= right) and buy.AbsolutePosition.X >= right, "uigate: the line or button is over the picture (#4174)")
+		assert(title.AbsolutePosition.X >= right or picture.AbsolutePosition.Y >= title.AbsolutePosition.Y + title.AbsoluteSize.Y - 1, "uigate: the title runs over the picture (#4174)")
+		-- Review-QA 2026-11-14: the card and its X stay clear of the HUD's side panel button, goal card and the
+		-- tutorial's arrow (on a small phone the taller card covered the first and its X sat on the arrow)
+		local close = holder:FindFirstChild("Close", true) :: GuiObject
+		Scenes._askClose = close -- it never goes by itself: Scenes.close presses its X
+		-- on a phone the picture runs from the title's top to the button's foot: the card is no taller than an ask
+		-- without one
+		if phone then
+			local pictureFoot = picture.AbsolutePosition.Y + picture.AbsoluteSize.Y
+			assert(
+				picture.AbsolutePosition.Y >= title.AbsolutePosition.Y - 1
+					and pictureFoot <= buy.AbsolutePosition.Y + buy.AbsoluteSize.Y + 1,
+				"uigate: a phone's picture makes the ask taller (#4174)"
+			)
+		end
+		local function rect(g: GuiObject): (Vector2, Vector2)
+			return g.AbsolutePosition, g.AbsolutePosition + g.AbsoluteSize
+		end
+		local function apart(a: GuiObject, b: GuiObject): boolean
+			local a0, a1 = rect(a)
+			local b0, b1 = rect(b)
+			return a1.X <= b0.X + 1 or b1.X <= a0.X + 1 or a1.Y <= b0.Y + 1 or b1.Y <= a0.Y + 1
+		end
+		for _, gui in UIShim.playerGui:GetChildren() do
+			if gui ~= ask and gui:IsA("ScreenGui") and gui.Enabled then
+				for _, name in { "MenuFold", "TierGoal", "TutorialArrow" } do
+					local other = gui:FindFirstChild(name, true) :: GuiObject?
+					if other ~= nil and other:IsA("GuiObject") and other.Visible and other.AbsoluteSize.X > 0 then
+						-- (the fold button: only the X. Every ask on the budget phone reaches its corner, picture or not)
+						assert(
+							apart(close, other) and (name == "MenuFold" or apart(holder, other)),
+							"uigate: the picture ask covers " .. name .. " (#4174)"
+						)
+					end
+				end
+			end
+		end
 		local card = holder:FindFirstChild("Card") :: GuiObject
 		local bottom = card.AbsolutePosition.Y + card.AbsoluteSize.Y
 		assert(picture.AbsolutePosition.Y + picture.AbsoluteSize.Y <= bottom and buy.AbsolutePosition.Y + buy.AbsoluteSize.Y <= bottom, "uigate: the picture or button runs out of the card (#4174)")
@@ -11975,6 +12015,20 @@ function Scenes.close()
 	if Scenes._rankSpot then
 		Scenes._rankSpot = nil
 		(UI.rankSpot :: any).set("none") -- #3555's scene
+	end
+	if Scenes._askClose ~= nil then
+		-- #4174's scene: the untimed ask (on a touch screen the X's Hit pad takes the press)
+		local x: Instance = Scenes._askClose
+		local press = if x:IsA("GuiButton") and x.Interactable ~= false then x else nil
+		for _, piece in x:GetDescendants() do
+			if press == nil and piece:IsA("GuiButton") and piece.Interactable ~= false then
+				press = piece
+			end
+		end
+		if press ~= nil then
+			UIShim.fire(UIShim.eventOf(press, "Activated"))
+		end
+		Scenes._askClose = nil
 	end
 	if Scenes._rest then
 		Scenes._rest = nil

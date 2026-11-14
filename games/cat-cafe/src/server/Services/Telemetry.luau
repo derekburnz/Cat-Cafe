@@ -129,6 +129,7 @@ export type CustomEvent =
 	| "rescue_refill" -- #3049: a starter trap refilled for a first-timer; fields: area, players waiting
 	| "bait_rolled"
 	| "bait_resolved"
+	| "auto_bowl" -- #4266: the Auto Bowl pass tamed or refilled a bowl ("claim" or "refill", the bowl)
 	| "gold_found"
 	| "rainbow_found" -- F99 (rainbow-coat.md section 5): rarity, net, bait or rescue, first of the cat yes or no
 	| "rally_step" -- F101 (rescue-rally.md section 5): value the players in the server; the step (25, 50, 100), lap, paid

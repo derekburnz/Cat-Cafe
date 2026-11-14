@@ -1271,6 +1271,9 @@ export type Settings = {
 	catPickSort: string, -- #3940: the pick-a-cat list's Sort ("Money", "Level" or "Rarity")
 	catPickFlipped: boolean, -- #3940: that Sort turned round
 	catPickShow: string, -- #3940: the Show chips that are on ("Working,No trait"; "" for All)
+	autoBowlClaim: boolean, -- #4266: the Auto Bowl pass tames arrived bowl cats (shared/AutoBowl)
+	autoBowlRefill: boolean, -- #4266: the Auto Bowl pass refills empty bowls with owned food
+	bowlNewCatCard: boolean, -- #4266: a cat tamed at a bowl shows the big Cat found card (off: a toast)
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
@@ -1461,6 +1464,7 @@ export type PlayerState = {
 	bait: BaitView?, -- nil when the bowl is empty
 	bait2: BaitView?, -- #1161: the second bowl's, nil when it is empty
 	secondBowl: SecondBowl?, -- #1161: "on" (the pass: bowl 2 takes food) or "offer" (show the pass in the Store)
+	autoBowl: { owned: boolean }?, -- #4266: whether the Auto Bowl pass is owned (its switches are in settings)
 	-- extras (not in the UI contract, used by the client controller)
 	cats: { [string]: CatView },
 	collection: { [string]: number },

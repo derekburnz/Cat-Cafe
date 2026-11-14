@@ -69,6 +69,10 @@ ELLIPSOID_FIT = 0.75                  # an ellipsoid's collision box, as a share
 #                                       back up), so players stop at the visible surface instead of its corners
 TOUCH_OBJECTS = ("_CodesCircle",)    # parts the game code may watch with Touched; every other part has CanTouch off
 MIN_COLLIDE = 0.35                # thinner parts (trim, handles, bulbs) never collide
+# A stall's keeper cat (part names with _Cat_) is walk-through like every other cat: its small stacked pieces read as
+# ladder rungs to a Roblox character, which then flips in and out of Climbing (#4073). A statue stays solid.
+KEEPER_CAT = "_Cat_"
+KEEPER_CAT_SOLID = ("CatCafe_Lawn_GoldenCatFountain",)
 BACKDROP = "_Backdrop"            # scenery past an edge, out of reach (backdrop.py): no collision, shadow or raycast
 ALWAYS_LIT = ("HangingLamp",)     # matches WorldController: indoor lamps glow all day
 ROUND = 4
@@ -289,7 +293,7 @@ def _props(p, asset, uid):
                 and not p["name"].endswith(NO_COLLIDE_OBJECTS) and not see_through)
                or (asset.startswith("CatCafe_Plot_") and p["name"].endswith(("_Wall", "_Glass")))
                or p["name"].endswith("_Bars") or p["name"].endswith(BARRIER_OBJECTS) or climb)
-    if BACKDROP in asset:
+    if BACKDROP in asset or (KEEPER_CAT in p["name"] and asset not in KEEPER_CAT_SOLID):
         collide = False
     size = [max(v, 0.01) for v in p["size"]]
     fit = 1.0

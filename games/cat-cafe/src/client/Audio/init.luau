@@ -18,13 +18,18 @@ local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local AreaFx = require(script.Parent.Effects.AreaFx)
 local Beats = require(script.Beats)
 local BigTraitCut = require(script.Parent.Effects.BigTraitCut)
 local BinRoll = require(script.Parent.Effects.BinRoll)
+local CardFlip = require(script.Parent.Effects.CardFlip)
+local CatchFx = require(script.Parent.Effects.Catch)
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 local Cues = require(script.Cues)
+local DragonRise = require(script.Parent.Effects.DragonRise)
 local Effects = require(script.Parent.Effects)
 local EventBanner = require(script.Parent.Effects.EventBanner)
+local FusionFx = require(script.Parent.Effects.FusionFx)
 local Logic = require(script.Logic)
 local MysticIntroCut = require(script.Parent.Effects.MysticIntroCut)
 local MysticPool = require(script.Parent.Effects.MysticPool)
@@ -32,6 +37,7 @@ local PetCat = require(script.Parent.Effects.PetCat)
 local Rally = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Rally"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local RiftRun = require(script.Parent.Effects.RiftRun)
+local Signature = require(script.Parent.Effects.Signature)
 local Splash = require(script.Parent.Effects.Splash)
 local Trampoline = require(script.Parent.Effects.Trampoline)
 
@@ -59,6 +65,7 @@ local CATCH_AMBIENCE = 0.5
 local CATCH_DUCK_LIMIT = 30 -- seconds; a catch that never reports back still lets the music up again
 local SCENE_DUCK = 0.35 -- #3942: music level under a Mythic or Secret trait roll's whole scene
 local SCENE_DUCK_LIMIT = 16 -- seconds; Presets.bigTrait.cap, so a lost "done" still lets the music up
+local DRAGON_DUCK_LIMIT = 16 -- seconds; past the longest stage-up (12 s) and its cap
 local RIFT_DUCK_LIMIT = 34 -- seconds; past Presets.riftRun.cap and its hand back
 local DUCK_LIMIT = 8 -- seconds; a stinger that never loads (so never ends) still lets the music up again
 local LUCKY_DAY_AFTER = 3.4 -- seconds after a Lucky Day's sunrise, so its chime follows the 3.2 s sunrise sting
@@ -1725,6 +1732,34 @@ local function followBait()
 	end)
 end
 
+-- #4061 the Ticket Booth, from each ProfileSync's `ticketBooth` (Logic.ticketPrizeBought), so it needs no moment: a
+-- prize bought prints its ticket, then the counter bell says it is yours. The first sync only sets the count.
+-- #4062 the Dragon Keep the same way, from `dragon` (Logic.keepRekindled): a Rekindle hand coming up plays Rekindle.
+local TICKET_DING_AFTER = 0.6
+local function followStations()
+	local seen = false
+	local last: any = nil
+	local lastKeep: any = nil
+	onRemote("ProfileSync", function(state: any)
+		if type(state) ~= "table" then
+			return
+		end
+		local view, keep = state.ticketBooth, state.dragon
+		local bought = seen and Logic.ticketPrizeBought(last, view)
+		local rekindled = seen and Logic.keepRekindled(lastKeep, keep)
+		seen, last, lastKeep = true, view, keep
+		if rekindled then
+			Audio.play("rekindle")
+		end
+		if bought then
+			Audio.play("ticketPrint")
+			task.delay(TICKET_DING_AFTER, function()
+				Audio.play("ticketDing")
+			end)
+		end
+	end)
+end
+
 -- The remotes that also feed a controller's state (ProfileSync, TradeState, RallyState) are hooked only once the
 -- first ProfileSync has reached the UI (the first applySettings), when every controller is listening: a remote
 -- fired before anything listens holds its events for the first listener alone, and that must be the controller.
@@ -1784,6 +1819,7 @@ local function followServerState()
 	task.defer(followTrade)
 	task.defer(followRally)
 	task.defer(followBait)
+	task.defer(followStations)
 	task.defer(followLateStations)
 	task.defer(followUpdateGift)
 end
@@ -2235,6 +2271,29 @@ local function followPool()
 	end)
 end
 
+-- #4069: the new areas' own sounds, in 3D where they happen: your steps in the snow, the Blizzard Cat's gust where
+-- it lands and when it is caught, the White Tiger Cat's chime on its catch.
+local function followAreas()
+	AreaFx.onStep(function(area, at)
+		local cue = Logic.areaCue("step", area, nil)
+		if cue ~= nil then
+			Audio.play(cue, at)
+		end
+	end)
+	Signature.onArrive(function(catId, at)
+		local cue = Logic.areaCue("arrive", nil, catId)
+		if cue ~= nil then
+			Audio.play(cue, at)
+		end
+	end)
+	CatchFx.onFlavour(function(area, catId, _rarity, at)
+		local cue = Logic.areaCue("catch", area, catId)
+		if cue ~= nil then
+			Audio.play(cue, at)
+		end
+	end)
+end
+
 -- #3690: this player's bounce on the trampoline, in 3D at the mat.
 local function followTrampoline()
 	Trampoline.onBounce(function(mat)
@@ -2296,6 +2355,16 @@ local function followBigTrait()
 	end)
 end
 
+-- #4104: the Fusion Observatory's window, flat (Logic.fusionCue).
+local function followFusion()
+	FusionFx.onBeat(function(beat, coat)
+		local cue = Logic.fusionCue(beat, coat)
+		if cue ~= nil then
+			Audio.play(cue)
+		end
+	end)
+end
+
 -- Derek 2026-11-13: the Rift Run (Effects/RiftRun): the music ducks from "hush" to "done" (capped by the cut's own
 -- cap), and each beat its sound, flat (Logic.riftRunCue): a gate the pool's step chime a note higher each tier.
 local function followRiftRun()
@@ -2323,6 +2392,51 @@ local function followRiftRun()
 		local cue, scaleStep = Logic.riftRunCue(beat, step, tier)
 		if cue ~= nil then
 			Audio.play(cue, nil, scaleStep)
+		end
+	end)
+end
+
+-- #4062: the Dragon Keep's stage-up cutscene: the music ducks from "hush" to "done" (and comes back by itself after
+-- DRAGON_DUCK_LIMIT if a "done" is lost) and each beat plays its cue; the card deal's flips after it.
+local function followDragonRise()
+	local token = 0
+	DragonRise.onBeat(function(beat, stage)
+		if beat == "hush" or beat == "done" then
+			token += 1
+			local mine = token
+			if beat == "hush" then
+				music.ducks["dragonRise"] = SCENE_DUCK
+			else
+				music.ducks["dragonRise"] = nil
+			end
+			applyDucks(music)
+			if beat == "hush" then
+				task.delay(DRAGON_DUCK_LIMIT, function()
+					if mine == token then
+						music.ducks["dragonRise"] = nil
+						applyDucks(music)
+					end
+				end)
+			end
+			return
+		end
+		local cue, after = Logic.dragonRiseCue(beat, stage)
+		if cue ~= nil then
+			Audio.play(cue)
+		end
+		if after ~= nil then
+			local mine = token
+			task.delay(Logic.DRAGON_FANFARE_AFTER, function()
+				if mine == token then -- not after a skip
+					Audio.play(after)
+				end
+			end)
+		end
+	end)
+	CardFlip.onBeat(function(beat, _index, rarity)
+		local cue = Logic.cardFlipCue(beat, rarity)
+		if cue ~= nil then
+			Audio.play(cue)
 		end
 	end)
 end
@@ -2357,9 +2471,12 @@ function Audio.start()
 	followShopCats()
 	followBeats()
 	followPool()
+	followAreas()
 	followPoolIntro()
 	followBigTrait()
 	followRiftRun()
+	followDragonRise()
+	followFusion()
 	followBinRoll()
 	followTrampoline()
 	followPetCat()

@@ -456,10 +456,27 @@ function applyTutorial()
 	if hint ~= nil then
 		text, target, label = hint, cannonPart, "Cannon"
 	end
-	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides
+	-- #3893 (Review-QA's Studio run, 2026-11-14): after the Park's "is open" hint has had its time, the walk to the Park
+	-- keeps a line on the strip, at home, in the square and in the Alley, until the Park is reached
+	-- (Review-QA's re-test: the generic "Hop in the cannon to catch more cats!" took the line over after the "is open"
+	-- hint, so it gives way to the Park line too; the arrow stays on the cannon, the way to the Park)
+	local cards: any = UI -- UI.parkTrail is built further down
+	local park = cards.parkTrail
+	-- The Park opens at Tier 2; `reached` comes from ParkTrailController whatever the parkGateTrail switch says (Review-
+	-- QA's PC run: with the switch off no goal came, so the line never showed). The paws are only named when they show.
+	if
+		(text == nil or hint == CannonLogic.WRAP_UP_HINT)
+		and (state.tier or 1) >= 2
+		and not park.reached
+	then
+		text = if park.goal ~= nil then park.STRIP else park.STRIP_PLAIN
+	end
+	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides. #3893
+	-- (Derek 2026-11-13: "still show the tips all the way up to going to park"): and only once the Park is reached
 	if
 		not tutorialButtonOn
 		and (state.tutorialStep or math.huge) >= CannonLogic.WALKTHROUGH_STEP
+		and UI.parkTrail.reached
 	then
 		text, target = nil, nil
 	end
@@ -515,6 +532,9 @@ local function introEnded(replay: boolean)
 	UI.setVisible(true)
 	if popups then
 		popups:setHeld(false) -- on only if a card waits; never the bare dimmed backdrop
+	end
+	if hud then
+		hud:holdBanner("intro", false)
 	end
 	applyTutorial()
 	if not replay and not introGlowed then
@@ -903,8 +923,12 @@ function UI.init(config: Types.InitConfig)
 				settingsScreen:set(SettingsList.TUTORIAL_KEY, false)
 			end
 			UI.toast(
+				-- Review-QA's Studio run (2026-11-14): short enough for a 667 px phone's toast
 				if (state.tutorialStep or math.huge) < CannonLogic.WALKTHROUGH_STEP
-					then "Tips hidden. Your first walk-through still shows. Turn tips on in Settings."
+					then "Tips hidden. Your first steps still show."
+					elseif
+						not UI.parkTrail.reached
+					then "Tips hidden. The way to the Park still shows."
 					else "Tutorial and tips hidden. Turn them on in Settings.",
 				"info"
 			)
@@ -914,6 +938,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		openFeedback = function()
 			UI.bugReport.open() -- F87: the faces page first
+		end,
+		openIdea = function()
+			UI.bugReport.open("idea") -- #3883: the map theme bubble
 		end,
 	})
 	local hudInstance = hud :: HUD.HUD
@@ -1588,6 +1615,10 @@ function UI.init(config: Types.InitConfig)
 			return hudInstance:bottomTop()
 		end
 	)
+	-- #4152: the tutorial's edge arrow keeps off the HUD (the money pill, the menu column, the goal card)
+	require(script.Components.StepTarget).setAvoid(function()
+		return hudInstance:edgeAvoid()
+	end)
 	popups = Popups.new(parent)
 	-- #2157 (Desktop-Tester on #2128): a replay waits before the intro hides the UI (for the camp to stream in then;
 	-- since #3109 for the loading screen's run to 100), so the window it was asked from stayed up about 1.5 s, and a Welcome back card that was up or
@@ -1838,6 +1869,14 @@ function UI.update(partial: Types.PartialState)
 	deriveState(partial)
 	render()
 	UI.giftLadder.refresh() -- #2791
+end
+
+-- #3883: the map theme bubble under the Feedback tile now (the UI gate's picture; the HUD shows it by itself)
+function UI.feedbackCallout()
+	local view = hud
+	if view then
+		view:showCallout()
+	end
 end
 
 function UI.getState(): Types.PlayerState
@@ -3416,6 +3455,13 @@ function UI.intro.start(options: Types.IntroOptions?)
 	if popups then
 		popups:setHeld(true)
 	end
+	-- Review-QA's Studio run: the event and day strip ("Lucky Day! Golden Day!", "+50% Luck") stays off the intro
+	if hud then
+		hud:holdBanner("intro", true)
+	end
+	if areaTitle then
+		areaTitle:clear() -- a day banner already up goes; the day banners wait out the intro (UI.intro.playing)
+	end
 	if tutorialMarker then
 		tutorialMarker:hide()
 	end
@@ -3545,7 +3591,20 @@ UI.parkTrail = {
 	target = nil :: BasePart?,
 	goal = nil :: string?,
 	tutorial = false, -- a tutorial target has the trail
+	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
+	STRIP = "Visit the Park: follow the paws to a cannon 🐾", -- #3893: the strip's line while the walk is on
+	STRIP_PLAIN = "Visit the Park: hop in a cannon to fly there 🐾", -- the same with the paw trail switched off
 }
+
+-- #3893: ParkTrailController says when the first steps are done, up to the Park; the tutorial X's hold on the
+-- strip lets go then
+function UI.parkTrail.reach(reached: boolean)
+	if UI.parkTrail.reached == reached then
+		return
+	end
+	UI.parkTrail.reached = reached
+	applyTutorial()
+end
 
 function UI.parkTrail.apply(tutorialTarget: any)
 	local trail = tutorialTrail
@@ -3571,6 +3630,7 @@ function UI.parkTrail.set(target: BasePart?, goal: string?)
 	if UI.parkTrail.goal ~= goal and hud ~= nil then
 		UI.parkTrail.goal = goal
 		hud:setParkGoal(goal)
+		applyTutorial() -- #3893: the strip's Park line comes and goes with the walk
 	end
 	if changed and not UI.parkTrail.tutorial then
 		UI.parkTrail.apply(nil)
@@ -4803,6 +4863,7 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 		and phase == "day"
 		and areaTitle
 		and not (toasts and toasts:isBusy())
+		and not UI.intro.playing()
 	then
 		areaTitle:banner(
 			"sunrise",
@@ -4997,7 +5058,11 @@ function UI.clock.bind(clock: Instance)
 			local title, line = LuckLogic.dayBanner(view)
 			if title then
 				task.delay(SUNRISE_HOLD + 0.4, function()
-					if areaTitle and not (toasts and toasts:isBusy()) then
+					if
+						areaTitle
+						and not (toasts and toasts:isBusy())
+						and not UI.intro.playing()
+					then
 						areaTitle:banner("lucky_day", title, line, Theme.colors.gold, 4)
 					end
 				end)
@@ -5050,7 +5115,12 @@ function UI.luckyDay(
 		if type(coming) == "table" then
 			title, said = (require(script.Components.LuckLogic) :: any).warnBanner(coming)
 		end
-		if areaTitle and title ~= nil and not (toasts and toasts:isBusy()) then
+		if
+			areaTitle
+			and title ~= nil
+			and not (toasts and toasts:isBusy())
+			and not UI.intro.playing()
+		then
 			areaTitle:banner("lucky_warning", title, said or line, Theme.colors.gold, 4)
 		end
 		return

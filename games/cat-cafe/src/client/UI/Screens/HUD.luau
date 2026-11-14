@@ -49,6 +49,8 @@ local Button = require(script.Parent.Parent.Components.Button)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
+local FeedbackCallout = require(script.Parent.Parent.Components.FeedbackCallout)
+local FeedbackCalloutLogic = require(script.Parent.Parent.Components.FeedbackCalloutLogic)
 local FirstBait = require(script.Parent.Parent.Components.FirstBait)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -110,6 +112,7 @@ export type Callbacks = {
 	replayIntro: () -> (), -- the Tutorial tile (F72)
 	hideTutorialButton: () -> (), -- the Tutorial tile's red ×
 	openFeedback: () -> (), -- the Feedback tile: the Feedback window on its Idea chip
+	openIdea: (() -> ())?, -- #3883: the map theme bubble: the Feedback window on its Idea page (nil: openFeedback)
 	setSetting: ((key: string, value: boolean) -> ())?, -- #1893: the Grand Opening strip saves roadmapOpen
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
@@ -120,6 +123,7 @@ export type HUD = {
 	screenGui: ScreenGui,
 	setCatalog: (self: HUD, catalog: Types.Catalog) -> (),
 	render: (self: HUD, state: Types.PlayerState) -> (),
+	showCallout: (self: HUD) -> (), -- #3883: the map theme bubble now (the UI gate's picture)
 	goalSeen: (self: HUD) -> (), -- #2331: the rank up card opened, so the goal card's ready pulse and arrow stop
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
@@ -152,6 +156,7 @@ export type HUD = {
 	bottomTop: (self: HUD) -> number,
 	tackleTop: (self: HUD) -> number, -- #3119: where the Tackle bar's foot sits (under the Drop off touch)
 	toastAvoid: (self: HUD) -> { Types.Box }, -- #2338: what the toasts keep clear of
+	edgeAvoid: (self: HUD) -> { Types.Box }, -- #4152: what the tutorial's edge arrow keeps clear of, in screen px
 	setCatching: (self: HUD, active: boolean) -> (),
 	roadmapStep: (self: HUD, n: number) -> (),
 	setCatchStreak: (self: HUD, streak: number) -> (),
@@ -202,6 +207,15 @@ local MONEY_W = 232
 -- #2194: the money amount takes the room of its shape with the widest digits ("$33.7M" takes "$88.8M"), so the golden
 -- fish beside it holds still while the digits tick. #2383 (Derek2 11-08: "isn't supposed to be a big gap between the
 -- money and fish"): it used to take at least 140 px, a wide gap after a short amount
+-- #4097: whether the areas are open (the Clock folder's AreasOpen; nil while it has not replicated)
+local function areasOpen(): boolean?
+	local clock = ReplicatedStorage:FindFirstChild("Clock")
+	if clock == nil then
+		return nil
+	end
+	return clock:GetAttribute("AreasOpen") ~= false
+end
+
 local function moneyShape(text: string): string
 	return (text:gsub("%d", "8"))
 end
@@ -1060,6 +1074,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 	})
 	table.insert(self._buttons, self._feedbackTile)
+	self._calloutDoneAt = nil :: number?
+	self._calloutStep = nil :: number?
 	-- Menu (Derek 2026-11-02, fewer buttons): Settings and Invite behind one gear. Once Invite is unlocked a press
 	-- opens the short list; before that it opens Settings.
 	self._menuTile = Button.new({
@@ -2351,6 +2367,19 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 	self:_paintKeys()
+	-- #3883: the map theme bubble under the Feedback tile (FeedbackCalloutLogic says when), made last so it
+	-- draws over the goal card
+	self._callout = FeedbackCallout.new(root, self._feedbackTile.instance, function()
+		self:_calloutAway()
+		local openIdea = callbacks.openIdea
+		if openIdea ~= nil then
+			openIdea()
+		else
+			callbacks.openFeedback()
+		end
+	end, function()
+		self:_calloutAway()
+	end, self._goal.frame)
 	return self :: HUD
 end
 
@@ -2881,10 +2910,52 @@ function HUD.setCatalog(self: any, catalog: Types.Catalog)
 	self._luck:setCatalog(catalog)
 end
 
+-- #3883: once a join, FeedbackCalloutLogic.WAIT_SECONDS after the tutorial is done (or after the join for a player
+-- done before), the map theme bubble shows under the Feedback tile for SHOW_SECONDS
+local calloutShown = false -- once a join, whatever happens to the HUD
+
+function HUD._calloutWatch(self: any, step: number)
+	self._calloutStep = step
+	if calloutShown or self._calloutDoneAt ~= nil or step < TUTORIAL_DONE then
+		return
+	end
+	local doneAt = os.clock()
+	self._calloutDoneAt = doneAt
+	task.delay(FeedbackCalloutLogic.WAIT_SECONDS, function()
+		if
+			self._gone
+			or not FeedbackCalloutLogic.due(self._calloutStep, doneAt, os.clock(), calloutShown)
+		then
+			return
+		end
+		self:showCallout()
+	end)
+end
+
+-- Shows the bubble now (the UI gate's picture calls this too) and puts it away after SHOW_SECONDS.
+function HUD.showCallout(self: any)
+	if not self._feedbackTile.instance.Visible then
+		return
+	end
+	calloutShown = true
+	self._callout:show()
+	task.delay(FeedbackCalloutLogic.SHOW_SECONDS, function()
+		if not self._gone then
+			self._callout:hide()
+		end
+	end)
+end
+
+function HUD._calloutAway(self: any)
+	calloutShown = true
+	self._callout:hide()
+end
+
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
 	-- #2211: the tutorial's last step done just now (not a player who finished it before this join): the × pulses
 	local step = state.tutorialStep or TUTORIAL_DONE
+	self:_calloutWatch(step)
 	local before: number? = self._stepBefore
 	self._stepBefore = step
 	if before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE then
@@ -2900,9 +2971,15 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- on the square alone: round the whole tile it covered the "Upgrades" label under it (device pass 2026-11-07)
 	-- #2759: none of the step rings while a fresh save's intro is on its way (holdTutorial)
 	local held = self._tutorialHeld == true
+	-- #4097: while the step asks for the second cat by day, nothing points at the table (no glow, no Buy button)
+	local stepView =
+		TutorialHints.view(state, if catalog then catalog.spots else nil, nil, areasOpen())
+	local holdsTable = TutorialHints.holdsOffer(stepView)
 	TutorialGlow.set(
 		self._upgradesTile.face,
-		not held and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+		not held
+			and not holdsTable
+			and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
 	)
 	-- #2697: the Cats tile while the step asks for a job, the Bowl tile while it asks for food in the bowl
 	local asks =
@@ -2916,7 +2993,8 @@ function HUD.render(self: any, state: Types.PlayerState)
 			state.tutorialStep,
 			state.upgradeLevels,
 			state.money,
-			if catalog then catalog.upgrades else nil
+			if catalog then catalog.upgrades else nil,
+			stepView
 		)
 	self._stripOffer = offer
 	self:_renderStripBuy()
@@ -3391,6 +3469,42 @@ end
 -- lines by their words, which sit right-aligned in wider boxes), the chips over the counters and the corner tiles over
 -- the bottom right. Measured, so a folded menu or a hidden card counts as
 -- nothing; none while the HUD is hidden.
+-- #4152: the same pieces as toastAvoid, in the screen's own pixels with the top inset counted (the tutorial's edge
+-- arrow draws in a ScreenGui that ignores the inset), so the arrow keeps off the money pill and the menu.
+function HUD.edgeAvoid(self: any): { Types.Box }
+	local scale = Scale.get()
+	local out: { Types.Box } = {}
+	if scale <= 0 then
+		return out
+	end
+	-- The arrow is placed in viewport space (WorldToViewportPoint, in an IgnoreGuiInset gui), but AbsolutePosition is
+	-- always measured from under the top inset, whatever the gui's IgnoreGuiInset (Review-QA in Studio, 667x375: the
+	-- arrow and the counters both draw 58 px below their AbsolutePosition), so every box adds the inset
+	local inset = GuiService:GetGuiInset()
+	local origin = self._root.AbsolutePosition + inset
+	for _, box in self:toastAvoid() do
+		table.insert(out, {
+			x0 = origin.X + box.x0 * scale,
+			y0 = origin.Y + box.y0 * scale,
+			x1 = origin.X + box.x1 * scale,
+			y1 = origin.Y + box.y1 * scale,
+		})
+	end
+	-- and on every device the counters (the money pill and its coin) and the travel row, which the toasts don't need
+	for _, piece in { self._counters, self._travelRow } :: { GuiObject } do
+		if piece.Visible and piece.AbsoluteSize.X > 0 then
+			local at = piece.AbsolutePosition + inset
+			table.insert(out, {
+				x0 = at.X,
+				y0 = at.Y,
+				x1 = at.X + piece.AbsoluteSize.X,
+				y1 = at.Y + piece.AbsoluteSize.Y,
+			})
+		end
+	end
+	return out
+end
+
 function HUD.toastAvoid(self: any): { Types.Box }
 	local scale = Scale.get()
 	local boxes: { Types.Box } = {}
@@ -3814,6 +3928,10 @@ function HUD._layoutRight(self: any)
 	roadmap.Position = UDim2.new(1, -MARGIN, 0, stripTop)
 	if roadmap.Visible then
 		lineTop += self._roadmap:closedHeight() + Theme.sizes.gap
+		if self._roadmapOpen == true then
+			-- #3990: the open steps list ran down over the spin and gift lines (a PC); they move under it
+			lineTop = math.max(lineTop, stripTop + lift + roadmap.Size.Y.Offset + Theme.sizes.gap)
+		end
 	end
 	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
 	local giftTop = if self._spinLine.Visible then lineTop + SPIN_LINE_H + 2 else lineTop
@@ -4487,12 +4605,15 @@ function HUD._tradeLockedNote(self: any)
 	local scale = math.max(Scale.get(), 0.01)
 	local x = (tile.AbsolutePosition.X + tile.AbsoluteSize.X / 2 - root.AbsolutePosition.X) / scale
 	local y = (tile.AbsolutePosition.Y + tile.AbsoluteSize.Y - root.AbsolutePosition.Y) / scale + 4
-	local note: TextLabel = Create("TextLabel", {
+	-- #3990 (Review-QA on a PC): a button, so a tap on the note never reaches the goal card's Rank up under it (a
+	-- label lets taps through, even with Active)
+	local note: TextButton = Create("TextButton", {
 		Name = "LockedNote",
+		AutoButtonColor = false,
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromOffset(x, y),
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 26),
+		Size = UDim2.fromOffset(0, Scale.tapHeight(36)), -- a full tap height, now that it is a button
 		BackgroundColor3 = Theme.colors.ink,
 		BackgroundTransparency = 0.1,
 		FontFace = Theme.fonts.display,
@@ -5529,6 +5650,7 @@ end
 
 function HUD.destroy(self: any)
 	self._gone = true -- #3022: the second cat goal's timers stop here
+	self._callout:destroy()
 	self:_stopClock()
 	local shine: Tween? = self._storeShine
 	if shine then

@@ -30,6 +30,27 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #3927 refresh (11-14 02:50 UTC): live since the Friday rows. The Cats menu's new top bar (#4028) and turning the
+	-- camera through a trait roll (#4016); the station menus' one look went on with the 15:30 UTC update (#3558).
+	-- Behind switches or tiers still (Snowy Mountain, the late stations, the Secret trait): rows when they open.
+	{
+		id = "cats_menu_bar",
+		date = "2026-11-14",
+		icon = "look",
+		text = "Cats menu: search and sort",
+	},
+	{
+		id = "pool_camera",
+		date = "2026-11-14",
+		icon = "new",
+		text = "Turn the camera at the Pool",
+	},
+	{
+		id = "station_menus",
+		date = "2026-11-13",
+		icon = "look",
+		text = "One new look for every menu",
+	},
 	-- Friday 2026-11-13 22:00 UTC update (#3523): the switches turned on after the restart. The two player ideas carry
 	-- their IdeaCredits_v1 ids (added 22:05 UTC with idea-credits.yml add-player at place version 632).
 	{

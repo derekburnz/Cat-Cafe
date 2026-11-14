@@ -6,11 +6,17 @@
 local Config = {
 	ServerPlayers = 8,
 	-- #1796 (Derek2 11-06: the tutorial asks for a table and then the Bait bowl, and $50 covered neither): the first
-	-- table, the Bait bowl and its Kibble ($150 + $600 + $100), so tutorial steps 3 and 4 never wait on coins
-	StartCoins = 850,
+	-- table, the Bait bowl and its Kibble ($150 + $600 + $100), so tutorial steps 3 and 4 never wait on coins. #4097:
+	-- 850 to 250 now the table (#3660), the bowl and its Kibble are given: what a new player had left after buying the
+	-- bowl, so the money after the tutorial is as before
+	StartCoins = 250,
 	-- #3660 (Derek 2026-11-12: "make the players start with one table upgrade done and remove it from tutorial
 	-- steps"): the Tables level a new save starts at. Saves made before keep what they have
 	StartTables = 1,
+	-- #4097 (Derek 2026-11-14: "just have them click use the kibble show the cutscene, then claim the cat"): the Bait
+	-- bowl level a new save starts at, with one Kibble in the Bag, so the tutorial goes from the first job straight to
+	-- putting the Kibble in. Saves made before keep what they have
+	StartBowls = 1,
 
 	-- Income (data-model section 11)
 	FavoriteMultiplier = 1.5,
@@ -123,7 +129,7 @@ local Config = {
 		firstFlight = 771736196964132, -- Liftoff
 		cornerCafe = 4089080696855068, -- Corner Cafe
 		sunstoneCafe = 3966771842573409, -- Sunstone Cafe
-		wonderCafe = 0, -- tomorrow: five free badges a day
+		wonderCafe = 383838983462242, -- Wonder Cafe (made 2026-11-14, free)
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).
@@ -806,6 +812,12 @@ local Config = {
 	CollectorEveryMax = 400, -- #2272: was 840
 	CollectorStaySeconds = 180,
 	VisitRetrySeconds = 15, -- #1135: a visitor whose timer ran out while the cafe was not ready tries again this often
+	-- #3889 (Derek 2026-11-13: "make it a % chance per customer walking in instead of it being a set time"): with
+	-- the rareCustomers switch on, each open cafe gets a customer every RareCustomerSeconds (the street's own pace,
+	-- World.CustomerSpawnSeconds) and each one is a rare customer at RareChance (shared/RareCustomers), in place of
+	-- the three timers above. The chances keep today's averages: 6 / 480 rich, 6 / 1250 Mystery, 6 / 300 Collector.
+	RareCustomerSeconds = 6,
+	RareChance = { rich = 0.0125, mystery = 0.005, collector = 0.02 },
 	-- #3470: a Secret is worth four Mythicals in a trade's value check (as its income); the Collector never asks for one
 	CollectorValue = {
 		Common = 1,

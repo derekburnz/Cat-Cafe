@@ -1295,7 +1295,7 @@
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
-    "CastShadow": true,
+    "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
@@ -25352,7 +25352,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -26202,7 +26202,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",

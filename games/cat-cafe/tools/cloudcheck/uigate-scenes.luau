@@ -3048,16 +3048,32 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.lateStations.open("museum")
 		assert(UI.isOpen() == "RelicMuseum", "uigate: the museum's prompt opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#2651)")
 		local window = lateWindow("RelicMuseum")
-		local title = window:FindFirstChild("Room", true)
-		assert(string.match(title.Text, "Hall 2/10$"), "uigate: the room reads " .. title.Text .. " (#2651)")
-		local dots = 0
+		-- #3961 (mock): the hall shown is the gold tab, its words the hall's count
+		local halls = window:FindFirstChild("Halls", true) :: ScrollingFrame
+		local shown = nil
+		for _, tab in halls:GetChildren() do
+			if tab:IsA("GuiObject") and string.match(tab.Name, "^Hall_") then
+				for _, label in tab:GetDescendants() do
+					if label:IsA("TextLabel") and string.match(label.Text, " 2/10$") then
+						shown = label.Text
+					end
+				end
+			end
+		end
+		assert(shown ~= nil, "uigate: no hall tab reads 2/10 (#2651, #3961)")
+		local chips, checks = 0, 0
 		for _, piece in window:GetDescendants() do
-			if piece.Name == "Dot" and piece:IsA("GuiObject") and piece.Visible then
-				dots += 1
+			if piece:IsA("GuiObject") and piece.Visible and piece.Parent and (piece.Parent :: GuiObject).Visible then
+				if piece.Name == "GiveChip" then
+					chips += 1
+				elseif piece.Name == "Check" then
+					checks += 1
+				end
 			end
 		end
 		-- #3123: a cat's only copy can be given too, so every owned cat of the room shows one, gate_4's among them
-		assert(dots >= 1, "uigate: " .. dots .. " exhibits show a ! (#2651)")
+		assert(chips >= 1, "uigate: " .. chips .. " exhibits show Give a copy (#2651, #3961)")
+		assert(checks == 2, "uigate: " .. checks .. " exhibits show the on show tick, not 2 (#3961)")
 		-- #3961 (Derek: names clipped, cells cut off): both rows sit whole above the footer, nothing scrolls
 		local note = window:FindFirstChild("Note", true)
 		for index = 1, 10 do
@@ -3077,11 +3093,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local window = lateWindow("RelicMuseum")
 		local tile = nil -- gate_4's exhibit: its copy and the three spares (#3123: the only-copy tiles show a ! too)
 		for _, piece in window:GetDescendants() do
-			if piece.Name == "Line" and piece:IsA("TextLabel") and piece.Text == "You have 4" then
-				tile = piece.Parent
+			if piece.Name == "GiveChip" and piece:IsA("Frame") and piece.Visible then
+				local cell = piece.Parent :: Instance
+				if cell:GetAttribute("Copies") == 4 then
+					tile = cell
+				end
 			end
 		end
-		assert(tile, "uigate: no exhibit reads You have 4 (#2651)")
+		assert(tile, "uigate: no exhibit with 4 copies shows Give a copy (#2651, #3961)")
 		press("RelicMuseum", tile.Name)
 		local give = window:FindFirstChild("Give", true)
 		assert(give and give.Visible, "uigate: the exhibit did not list its copies (#2651)")
@@ -4545,6 +4564,42 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.tipJar.open()
 	end },
 	-- #1965: the HUD's Pass tile while a season runs, with the Cafe Pass ticket and a reward ready to claim
+	-- #3883: the map theme bubble hangs under the Feedback tile, on the screen, its point at the tile; its X puts it away
+	{ "FeedbackCallout", function()
+		UI.update({ tutorialStep = 5 } :: any)
+		UI.feedbackCallout()
+		local playerGui = UIShim.playerGui
+		local bubble = playerGui:FindFirstChild("FeedbackCallout", true)
+		assert(bubble and bubble.Visible, "uigate: the map theme bubble did not show (#3883)")
+		local tile = playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Icons", true):FindFirstChild("Feedback")
+		local screenW, screenH = UIShim.screen()
+		local x, y = bubble.AbsolutePosition.X, bubble.AbsolutePosition.Y
+		assert(x >= 0 and x + bubble.AbsoluteSize.X <= screenW, "uigate: the map theme bubble runs off the screen's side (#3883)")
+		assert(y >= tile.AbsolutePosition.Y + tile.AbsoluteSize.Y - 2 and y + bubble.AbsoluteSize.Y <= screenH, "uigate: the map theme bubble is not under its tile (#3883)")
+		local words = bubble:FindFirstChild("Words", true)
+		assert(words.Text:find("map theme", 1, true), "uigate: the bubble reads " .. words.Text .. " (#3883)")
+		assert(words.TextFits ~= false, "uigate: the bubble's words do not fit (#3883)")
+		-- Review-QA's Studio run (2026-11-14): never over the goal card; under the tile only when that is clear
+		local goal = playerGui:FindFirstChild("TierGoal", true) :: GuiObject?
+		local covers = false
+		if goal and goal.Visible then
+			local gx, gy = goal.AbsolutePosition.X, goal.AbsolutePosition.Y
+			covers = x < gx + goal.AbsoluteSize.X and x + bubble.AbsoluteSize.X > gx and y < gy + goal.AbsoluteSize.Y and y + bubble.AbsoluteSize.Y > gy
+		end
+		assert(not covers, "uigate: the map theme bubble covers the goal card (#3883)")
+		local point = bubble:FindFirstChild("Point")
+		local middle = tile.AbsolutePosition.X + tile.AbsoluteSize.X / 2
+		local pointMiddle = point.AbsolutePosition.X + point.AbsoluteSize.X / 2
+		local aside = x + bubble.AbsoluteSize.X < tile.AbsolutePosition.X + tile.AbsoluteSize.X - 8
+		assert(aside or math.abs(middle - pointMiddle) <= 8, ("uigate: the point is %d px off the tile's middle (#3883)"):format(pointMiddle - middle))
+	end },
+	{ "FeedbackCalloutClose", function()
+		UI.update({ tutorialStep = 5 } :: any)
+		UI.feedbackCallout()
+		local bubble = UIShim.playerGui:FindFirstChild("FeedbackCallout", true)
+		press("CatCafeHUD", "FeedbackCallout.Close")
+		assert(not bubble.Visible, "uigate: the X did not put the map theme bubble away (#3883)")
+	end },
 	{ "HUDPass", function()
 		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
 			levels = 30, paid = false, claimedFree = { 2 }, claimedPaid = {}, claimable = 1, items = {} })
@@ -7341,7 +7396,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(4) -- earlier scenes' toasts and results gone
 		local before: { [Instance]: boolean } = {}
 		for _, child in root:GetChildren() do
-			if child:IsA("GuiObject") then
+			-- the Feedback callout (#3883) comes and goes on its own clock (a wait after the tutorial, then a few
+			-- seconds up), so in a long shard it can turn up or go mid-scene; it is not part of the catch's HUD
+			if child:IsA("GuiObject") and child.Name ~= "FeedbackCallout" then
 				before[child] = child.Visible
 			end
 		end
@@ -8038,6 +8095,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the walk-through ending this session
 	-- (step 4, the bowl, to 5) puts "Hop in the cannon to catch more cats!" on the tutorial strip, with the arrow
 	{ "CannonAfterBowl", function()
+		UI.parkTrail.reach(true) -- a player who has been to the Park: the Park line (#3893) would come first otherwise
 		UI.cannon.setWild(nil)
 		UI.update({ tutorialStep = 4, tier = 2 } :: any)
 		UI.update({ tutorialStep = 5 } :: any)
@@ -8055,6 +8113,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		)
 		UI.cannon.wrapUp.on = false -- as a flight clears it, so later scenes keep their own lines
 		UI.update({ tutorialStep = 9 } :: any)
+		UI.parkTrail.reach(false)
 	end },
 	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
 	-- the intro's screen: four captions with four dots, the read bar and Next, no Skip; it ends by itself and saves
@@ -8294,6 +8353,52 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- #2702 (Derek2 11-09: "make the tutorial cutscene skip button more obvious maybe one quick flash on the bottom right
 	-- when its ready" and "fix the black bar on the top of screen for mobile so it just shows the dots"): as Skip's bar
 	-- fills it flashes once with a gold ring spreading out; on touch there is no top bar and the dots sit near the top
+	-- Review-QA's Studio run (2026-11-14): the event and day strip waits out the intro, and comes back after it
+	{ "IntroHoldsBanner", function()
+		local t = workspace:GetServerTimeNow()
+		local clock = Instance.new("Folder")
+		clock.Name = "Clock"
+		clock:SetAttribute("Phase", "day")
+		clock:SetAttribute("PhaseEndsAt", t + 190)
+		clock:SetAttribute("AreasOpen", true)
+		clock:SetAttribute("Day", 4)
+		clock:SetAttribute("LuckyDay", true)
+		clock:SetAttribute("GoldenDay", true)
+		UI.clock.bind(clock)
+		UIShim.advance(0.5)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local banner = hud:FindFirstChild("StatusBanner", true) :: Frame
+		local function shown(): boolean
+			local item: Instance? = banner
+			while item ~= nil and item ~= UIShim.playerGui do
+				if item:IsA("GuiObject") and not item.Visible then
+					return false
+				end
+				if item:IsA("ScreenGui") and not item.Enabled then
+					return false
+				end
+				item = item.Parent
+			end
+			return true
+		end
+		assert(banner and shown(), "uigate: no day strip before the intro (#4032)")
+		local titles = UIShim.playerGui:FindFirstChild("CatCafeAreaTitle", true)
+		UI.luckyDay("warning", "Rare cats are twice as likely from sunrise", { lucky = true, golden = true })
+		UIShim.advance(0.5)
+		local holder = titles and titles:FindFirstChild("Card", true) :: Frame?
+		assert(holder and holder.Visible, "uigate: no Lucky Day banner before the intro (#1572)")
+		UI.intro.start({ skipAfter = 5 })
+		UI.intro.setShot(1, "Fly the Cat Cannon to catch stray cats!", nil, 4.2)
+		UIShim.advance(1)
+		assert(not shown(), "uigate: the day strip shows over the intro (Review-QA, 2026-11-14)")
+		assert(not (holder :: Frame).Visible, "uigate: the Lucky Day banner stayed over the intro (Review-QA, 2026-11-14)")
+		UI.luckyDay("warning", "Rare cats are twice as likely from sunrise", { lucky = true })
+		UIShim.advance(0.5)
+		assert(not (holder :: Frame).Visible, "uigate: a Lucky Day banner came up over the intro (Review-QA, 2026-11-14)")
+		UI.intro.finish()
+		UIShim.advance(2)
+		assert(shown(), "uigate: the day strip did not come back after the intro")
+	end },
 	{ "IntroSkipFlash", function()
 		UI.intro.start({ skipAfter = 5 })
 		UI.intro.setShot(2, "Fly the Cat Cannon to catch stray cats!", nil, 4.2)
@@ -8780,6 +8885,53 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.parkTrail.set(nil, "Visit the Park 🐾") -- the picture
 		UIShim.advance(0.1)
 	end },
+	-- #3893 (Review-QA's Studio run, 2026-11-14): at Tier 2 on the way to the Park the strip keeps "Visit the Park" once
+	-- the Park's "is open" hint has gone, and the tutorial's X does not take it away until the Park is reached
+	{ "ParkStripAfterX", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD", true) :: Instance
+		local function strip(): string
+			for _, piece in hud:GetDescendants() do
+				if piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Visible then
+					return piece.Text
+				end
+			end
+			return ""
+		end
+		UI.tutorial.hide()
+		UI.update({ tutorialStep = 9, tier = 2 } :: any)
+		UI.parkTrail.reach(false)
+		UI.parkTrail.set(nil, "Visit the Park 🐾")
+		-- a rank up in an earlier scene leaves "The Park is open!" up for its time; the Park line comes after it
+		local CannonLogic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.CannonLogic")
+		UIShim.advance(CannonLogic.OPENED_HINT_SECONDS + 1)
+		assert(strip() == UI.parkTrail.STRIP, "uigate: on the way to the Park the strip reads " .. strip() .. " (#3893)")
+		-- the Tutorial tile's red X (its Hide button, the Cross's grandparent)
+		local cross = hud:FindFirstChild("Cross", true) :: Instance
+		local hide = assert(cross.Parent and cross.Parent.Parent, "uigate: no Tutorial X (#3893)") :: GuiButton
+		UIShim.fire(UIShim.eventOf(hide, "Activated"))
+		UIShim.advance(0.1)
+		assert(strip() == UI.parkTrail.STRIP, "uigate: the tips X took the Park line away, the strip reads " .. strip() .. " (#3893)")
+		-- the walk-through's wrap-up hint ("Hop in the cannon to catch more cats!") gives way to the Park line too
+		UI.cannon.setWild(nil)
+		UI.cannon.wrapUp.on = true
+		UI.update({ tutorialStep = 9 } :: any)
+		UIShim.advance(0.1)
+		assert(strip() == UI.parkTrail.STRIP, "uigate: the wrap-up hint took the Park line's place, the strip reads " .. strip() .. " (#3893)")
+		-- with the paw trail switched off (no goal) the line stays, without naming the paws (Review-QA's PC run)
+		UI.parkTrail.set(nil, nil)
+		UIShim.advance(0.1)
+		assert(strip() == UI.parkTrail.STRIP_PLAIN, "uigate: with the trail off the strip reads " .. strip() .. " (#3893)")
+		UI.cannon.wrapUp.on = false
+		UI.parkTrail.reach(true)
+		UI.parkTrail.set(nil, nil)
+		UIShim.advance(0.1)
+		assert(strip() == "", "uigate: the strip kept " .. strip() .. " after the Park was reached (#3893)")
+		-- back as it was: tips on, as other scenes expect
+		UI.parkTrail.reach(false)
+		local settings = table.clone((UI.getState() :: any).settings or {})
+		settings.tutorialButton = true
+		UI.update({ settings = settings } :: any)
+	end },
 	-- #3558: one menu look for a whole session. The switch flipping after the UI was built changes nothing here, so no
 	-- window can end up with cream cards under white words; the flip reaches a player at their next join.
 	{ "MenuFamilyLatch", function()
@@ -8964,8 +9116,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(0.1)
 		assert(title.Text == expected, "uigate: the stuck cat goal did not come back (#2912)")
 	end },
-	-- #3529: while five different cats is the goal the card reads "Catch new kinds of cat 3/5", and the catch card
-	-- says "New kind! 3/5 for Cozy Cafe" for a kind the player has never owned
+	-- #3529: while four different cats is the goal (#4098: five before) the card reads "Catch new kinds of cat 3/4", and the catch card
+	-- says "New kind! 3/4 for Cozy Cafe" for a kind the player has never owned
 	{ "NewKindGoal", function()
 		local before: any = UI.getState()
 		Scenes._secondCat = Scenes._secondCat or { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }
@@ -8974,8 +9126,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
 		assert(goal.Visible, "uigate: no goal card for new kinds (#3529)")
 		local title = goal:FindFirstChild("Title") :: TextLabel
-		local expected = "Catch new kinds of cat 🐾 3/5"
-		if title.Text == "New kinds of cat 🐾 3/5" then
+		local expected = "Catch new kinds of cat 🐾 3/4"
+		if title.Text == "New kinds of cat 🐾 3/4" then
 			expected = title.Text -- the phone's narrower card
 		end
 		assert(title.Visible and title.Text == expected, "uigate: the new kinds goal reads " .. title.Text .. " (#3529)")

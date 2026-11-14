@@ -8858,7 +8858,7 @@ do
 			if up and list then
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
-				screen:setDeal((state :: any).dailyDeal) -- #3996
+				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238
 				screen:render(list, PassShop.prices())
 			end
 			if hud then
@@ -8966,7 +8966,7 @@ do
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
-				screen:setDeal((state :: any).dailyDeal) -- #3996
+				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238
 				screen:render(rows(), PassShop.prices())
 				PassShop.refresh() -- a price changed in the Creator Hub shows without a rejoin
 			end,

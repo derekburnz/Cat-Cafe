@@ -11183,7 +11183,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.open("Store")
 		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
 		local effect = window:FindFirstChild("hero", true):FindFirstChild("Effect") :: TextLabel
-		assert(string.find(effect.Text, "10 Golden Crates", 1, true), "uigate: the crate deal does not say what is in it: " .. effect.Text .. " (#4238)")
+		assert(string.find(effect.Text, "^10 Golden %a+ Crates"), "uigate: the crate deal does not name the best area's crate: " .. effect.Text .. " (#4238)")
 		assert(string.find(effect.Text, "Odds: Epic", 1, true), "uigate: the crate deal shows no odds: " .. effect.Text .. " (#4238)")
 		assert(effect.TextFits ~= false or effect.TextTruncate == Enum.TextTruncate.None, "uigate: the crate deal's odds are cut (#4238)")
 		assert(not string.find(string.lower(effect.Text), "potion", 1, true), "uigate: a potion on Today's Deal (#4238)")

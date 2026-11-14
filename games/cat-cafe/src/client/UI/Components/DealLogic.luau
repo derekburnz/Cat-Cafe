@@ -7,7 +7,8 @@
 -- today", no streaks (monetization-policy).
 -- #4238 (Derek 2026-11-14: no potion packs, "actually good stuff"): the deals are golden fish, Trait Tokens and golden
 -- crates of the best open area. A crate deal carries the golden crate's decor odds the same way.
---   DealLogic.card(view, now, oddsLine)   the card's words, or nil when there is no deal to show
+--   DealLogic.card(view, now, oddsLine, tier)   the card's words, or nil when there is no deal to show; `tier` names
+--                                         the best open area's golden crate ("10 Golden Park Crates")
 --   DealLogic.contents(prize)             "10 Golden Crates", the count and "fish", "token", "crate" or "potion"
 --   DealLogic.value(prize)                "250 golden fish for R$25"
 --   DealLogic.crateOdds()                 "Odds: Epic 70%, Legendary 24%, Mythical 6%"
@@ -17,6 +18,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+local CrateLogic = require(script.Parent.CrateLogic)
 local DailyDeal = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("DailyDeal"))
 
 local DealLogic = {}
@@ -46,6 +48,8 @@ export type Card = {
 	bought: boolean,
 	kind: string, -- "fish", "token", "crate" or "potion": the picture
 	potion: string?, -- the first potion's id, for its picture
+	crate: string?, -- #4238: the golden crate the deal pays, its best-area id once the tier is known, for its picture
+	fish: boolean, -- #4238: golden fish in it (the Golden Haul's crate picture carries a fish in its corner)
 	title: string,
 	contents: string,
 	value: string,
@@ -211,7 +215,7 @@ end
 
 -- The card's words for PlayerState.dailyDeal, or nil (false, nil, or a deal number it doesn't know). `oddsLine` is
 -- the Mystic Pool's "Roll odds: ..." line, shown on the token deal.
-function DealLogic.card(view: any, now: number, oddsLine: string?): Card?
+function DealLogic.card(view: any, now: number, oddsLine: string?, tier: number?): Card?
 	if type(view) ~= "table" or type(view.deal) ~= "number" then
 		return nil
 	end
@@ -221,6 +225,20 @@ function DealLogic.card(view: any, now: number, oddsLine: string?): Card?
 	end
 	local prize = productPrize(deal.product)
 	local contents, _, kind = DealLogic.contents(prize)
+	-- #4238: a crate deal names the player's own best-area golden crate ("10 Golden Park Crates") once it is known
+	local crate: string? = nil
+	if kind == "crate" then
+		local byId = CrateLogic.byId(Catalog.crates)
+		local resolved = CrateLogic.resolve(CrateLogic.HIGHEST_GOLDEN, byId, Catalog.areas, tier)
+		crate = resolved
+		local count = crateCount(prize)
+		if tier ~= nil and resolved ~= CrateLogic.HIGHEST_GOLDEN then
+			local name = CrateLogic.name(resolved, byId[resolved])
+			local fish = fishCount(prize)
+			contents = string.format("%d %s", count, if count == 1 then name else name .. "s")
+				.. (if fish > 0 then string.format(" · %d Golden Fish", fish) else "")
+		end
+	end
 	local potion: string? = nil
 	local potions: { [string]: any } = if type(prize) == "table"
 			and type(prize.potions) == "table"
@@ -274,6 +292,8 @@ function DealLogic.card(view: any, now: number, oddsLine: string?): Card?
 		bought = bought,
 		kind = kind,
 		potion = potion,
+		crate = crate,
+		fish = fishCount(prize) > 0,
 		title = DealLogic.TITLE,
 		contents = contents,
 		value = value,

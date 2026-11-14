@@ -727,6 +727,7 @@ function Trade._buildPicker(self: any, picks: Frame)
 	self._pickerButtonH = buttonH
 	local picker: Frame = Create("Frame", {
 		Name = "CratePicker",
+		Active = true, -- #3990: a tap on the picker never reaches the crate rows under it
 		BackgroundColor3 = PAL.panel,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 1),

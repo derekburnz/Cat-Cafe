@@ -4550,6 +4550,7 @@ function HUD._tradeLockedNote(self: any)
 	local y = (tile.AbsolutePosition.Y + tile.AbsoluteSize.Y - root.AbsolutePosition.Y) / scale + 4
 	local note: TextLabel = Create("TextLabel", {
 		Name = "LockedNote",
+		Active = true, -- #3990: a tap on the note never reaches the goal card's buttons under it
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromOffset(x, y),
 		AutomaticSize = Enum.AutomaticSize.X,

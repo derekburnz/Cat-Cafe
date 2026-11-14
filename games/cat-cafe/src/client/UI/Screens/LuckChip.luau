@@ -162,6 +162,7 @@ function LuckChip.new(
 	-- the card over the counters
 	local card: Frame = Create("Frame", {
 		Name = "LuckCard",
+		Active = true, -- #3990: a tap on the card stays on it, never the menu tile drawn under it (a PC)
 		BackgroundColor3 = Theme.hud.panel,
 		BackgroundTransparency = Theme.hud.panelTransparency,
 		BorderSizePixel = 0,

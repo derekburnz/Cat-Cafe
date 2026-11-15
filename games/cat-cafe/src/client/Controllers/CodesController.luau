@@ -19,7 +19,7 @@ local UI = require(script.Parent.Parent.UI)
 local CodesController = {}
 
 local player = Players.LocalPlayer
-local POLL_SECONDS = 0.1
+local POLL_SECONDS = 0.05 -- Derek 2026-11-14: the circle opens at once (was 0.1)
 
 -- The code box comes with the UI's Codes window. Until that is on main the UI module may not have it, so it is
 -- reached loosely and skipped when missing.

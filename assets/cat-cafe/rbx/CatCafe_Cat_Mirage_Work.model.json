@@ -4384,13 +4384,7 @@
       "Transparency": 0.15
      },
      "attributes": {
-      "GoldColor": {
-       "Color3": [
-        0.1686,
-        0.1686,
-        0.2078
-       ]
-      },
+      "GoldTone": 3,
       "GoldSolid": true
      }
     },

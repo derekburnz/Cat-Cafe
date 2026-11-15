@@ -15,6 +15,12 @@
 #         events.sh test [effects JSON]       a 5 minute event starting in about 2 minutes (id test-<time>)
 #         events.sh remove <id>
 #         events.sh clear                     an empty schedule: no event runs or counts down
+#         events.sh admin <kind> [minutes] [now]
+#                                             #4326: an admin event on every live server, as the owner's /admin
+#                                             in a live server writes it (CafeEvents.adminRecord): bowl (Bowl Frenzy,
+#                                             15 min), storm (Cat Storm, 10) or wheel (Admin Wheel, 5); minutes 1 to
+#                                             60; it starts after the 2 minute warning, or at once with "now"
+#         events.sh admin-stop                ends every admin event started this way or by /admin
 #         events.sh roblox                    list the experience's Roblox Experience Events (Creator Hub > Engagement >
 #                                             Events & Updates; Open Cloud game-events, needs universe.event:read)
 #         events.sh roblox-create <title> <subtitle> <description> <start> <end> [category] [image asset id]
@@ -67,7 +73,7 @@ BIG_GAP=$(cap EventBigMinGapSeconds 518400)
 LIST_MAX=$(cap EventScheduleMax 10)
 
 usage() {
-	echo 'usage: events.sh show | roblox | roblox-create <title> <subtitle> <description> <start> <end> [category] [image id] | roblox-update <event id> [title] [subtitle] [description] [start] [end] [category] [image id] | add <id> <title> <"YYYY-MM-DD HH:MM" UTC> <minutes> [big] [effects JSON] | test [effects JSON] | remove <id> | clear' >&2
+	echo 'usage: events.sh show | admin <bowl|storm|wheel> [minutes] [now] | admin-stop | roblox | roblox-create <title> <subtitle> <description> <start> <end> [category] [image id] | roblox-update <event id> [title] [subtitle] [description] [start] [end] [category] [image id] | add <id> <title> <"YYYY-MM-DD HH:MM" UTC> <minutes> [big] [effects JSON] | test [effects JSON] | remove <id> | clear' >&2
 	exit 2
 }
 
@@ -347,6 +353,57 @@ remove)
 clear)
 	[ $# -eq 1 ] || usage
 	write_list '[]'
+	;;
+admin)
+	# #4326 (Derek 2026-11-14: "make sure the next update has the events able to run after restart without me"): the
+	# record CafeEvents.adminRecord makes for /admin in a live server; the kinds, lengths and effects are its
+	# ADMIN_KINDS, the warning ADMIN.warnSeconds and the limits ADMIN.minSeconds and maxSeconds. It may run beside a
+	# normal event, never beside another admin event (CafeEvents.ownerAdd). Needs adminEvents on to show in game.
+	[ $# -ge 2 ] && [ $# -le 4 ] || usage
+	kind=$2 minutes="" skip=false
+	shift 2
+	for arg in "$@"; do
+		if [ "$arg" = now ]; then skip=true
+		elif [[ $arg =~ ^[0-9]{1,3}$ ]]; then minutes=$arg
+		elif [ -n "$arg" ]; then refuse "admin takes a kind, then minutes and/or now, got: $arg"; fi
+	done
+	case "$kind" in
+	bowl) title="Bowl Frenzy" length=15 effects='{"bowlSpeed":4}' ;;
+	storm) title="Cat Storm" length=10 effects='{"catStorm":10}' ;;
+	wheel) title="Admin Wheel" length=5 effects='{"wheel":true}' ;;
+	*) refuse "no such admin event: bowl, storm or wheel (got: $kind)" ;;
+	esac
+	[ -z "$minutes" ] || length=$minutes
+	[ "$length" -ge 1 ] && [ "$length" -le 60 ] || refuse "an admin event runs 1 to 60 minutes, got: $length"
+	now=$(date +%s)
+	startsAt=$now
+	[ "$skip" = true ] || startsAt=$((now + 120))
+	read_list
+	others=$(jq -c --argjson now "$now" '[.[] | select((.endsAt // 0) > $now)]' <<<"$list")
+	clash=$(jq -r --argjson s "$startsAt" --argjson e "$((startsAt + length * 60))" --argjson now "$now" \
+		'[.[] | select(.admin == true and .startsAt < $e and $s < .endsAt)][0]
+			| if . then "\(.title) is running or coming until \(((.endsAt - $now) / 60) | ceil) minutes from now (admin-stop ends it)" else empty end' <<<"$others")
+	[ -z "$clash" ] || refuse "$clash"
+	record=$(jq -cn --arg id "owner-admin-$startsAt" --arg title "$title" --argjson s "$startsAt" \
+		--argjson e "$((startsAt + length * 60))" --argjson fx "$effects" \
+		'{id: $id, title: $title, admin: true, startsAt: $s, endsAt: $e, effects: $fx}')
+	merged=$(jq -c --argjson r "$record" '. + [$r] | sort_by(.startsAt)' <<<"$others")
+	[ "$(jq length <<<"$merged")" -le "$LIST_MAX" ] || refuse "at most $LIST_MAX events can be scheduled at once"
+	write_list "$merged"
+	if [ "$skip" = true ]; then
+		echo "$title starts on all servers now, for $length minutes (servers pick it up within about 60 s)"
+	else
+		echo "$title starts on all servers in about 2 minutes, for $length minutes"
+	fi
+	;;
+admin-stop)
+	[ $# -eq 1 ] || usage
+	now=$(date +%s)
+	read_list
+	count=$(jq --argjson now "$now" '[.[] | select(.admin == true and (.endsAt // 0) > $now)] | length' <<<"$list")
+	[ "$count" -gt 0 ] || refuse "no admin event is running or coming"
+	write_list "$(jq -c --argjson now "$now" '[.[] | select(.admin != true and (.endsAt // 0) > $now)]' <<<"$list")"
+	echo "Ended $count admin event(s) on all servers"
 	;;
 *) usage ;;
 esac

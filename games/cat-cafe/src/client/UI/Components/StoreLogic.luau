@@ -128,7 +128,7 @@ local PASSES: { PassCard } = {
 		configKey = "VipPassId",
 		name = "VIP",
 		icon = "⭐",
-		effect = "+10% money, a VIP chat tag and a gold VIP plate on your cafe sign.",
+		effect = "+50% money, a VIP tag over your head, a VIP chat tag and a gold VIP plate on your cafe sign.",
 	},
 	{
 		key = "accessories",
@@ -164,9 +164,9 @@ local PASSES: { PassCard } = {
 	{
 		key = "royalCat",
 		configKey = "RoyalCatPassId",
-		name = "Royal Cat",
+		name = "Royal Cat Pack", -- #4261 (Derek 2026-11-14): the Royal Cat became a pack, R$199
 		icon = "👑",
-		effect = "A cat that always earns like a Legendary from your newest area.",
+		effect = "Duchess Marzipan, who always earns like a Legendary from your newest area, and Potion Pack S.",
 		note = "Yours to keep. Can't be traded.",
 		tab = "cats",
 	},
@@ -207,22 +207,13 @@ local PASSES: { PassCard } = {
 		icon = "🏷️", -- #2015: not 🪧 (Unicode 13), drawn blank
 		effect = "Three cafe sign looks: Flower Box, Starry Night and Paw Chalkboard. Looks only.",
 	},
-	-- #1822 (Monetization's store doc §3C): the King Cat alone sits just before its bundle under Cats, so the bundle
-	-- reads as the better deal; hidden while KingCatPassId is 0
-	{
-		key = "kingCat",
-		configKey = "KingCatPassId",
-		name = "King Cat",
-		icon = "🤴",
-		effect = "A cat that always earns like a Mythical from your newest area.", -- fits a phone's card
-		note = "Yours to keep. Can't be traded.", -- as the Royal Cat's; a longer note shrank the card's text on a small phone
-		tab = "cats",
-	},
+	-- #4261 (Derek 2026-11-14: "no need to make it buyable alone"): the King Cat alone card is gone; its pass stays in
+	-- Config (KingCatPassId) so earlier buyers keep the cat, and it is off sale on Roblox
 	-- #1822: the bundle lists what it holds (shared/KingPack.contents, in its order)
 	{
 		key = "kingPack",
 		configKey = "KingPackPassId",
-		name = "King Cat Pack",
+		name = "Cat King Pack", -- #4261: was "King Cat Pack", R$299
 		icon = "🤴",
 		-- short enough to stay readable on a phone's small card (the King Cat's own card says how he earns)
 		effect = "King Croissant, Royal Crest sign, Grand look, Royal Velvet Booth, Potion Pack M.",
@@ -387,7 +378,9 @@ StoreLogic.PRODUCTS = PRODUCTS
 local STARTER: ProductCard = {
 	key = "starterBundle",
 	productKey = "starter_bundle",
-	effect = "A head start for a new cafe. Once per player.",
+	-- Derek 2026-11-14: say that Sprinkles is as good as an Epic from the best area unlocked (an exclusive cat earns like
+	-- its rarity from the newest area, CatStats.areaMultiplier)
+	effect = "Sprinkles always earns like an Epic from your newest area. Once per player.",
 }
 StoreLogic.STARTER = STARTER
 
@@ -416,6 +409,7 @@ export type ProductPrize = {
 	cats: { string }?, -- #1625: the Starter Bundle's Sprinkles
 	signStyles: { string }?, -- #1625: the Starter Bundle's Bakery Stripes
 	moneyMultiplier: number?, -- #2850: the Starter Bundle's 2x Money for good
+	moneySwap: { [string]: number }?, -- #4020: the potions in its place for a buyer who already has that much
 }
 -- The running Cafe Pass season for its card: its number, its name, whether its paid track is bought, and the paid
 -- track's contents in words (PassLogic.paidContents).
@@ -617,7 +611,9 @@ local function productRows(config: any, view: ShopView?): { Row }
 end
 
 -- The Starter Bundle's row while it can be bought, else nil.
-local function starterRow(config: any, view: ShopView?): Row?
+-- #4020: `moneyTop` is the highest Money pass owned (1 with none); at the bundle's multiplier or more the card says the
+-- swap potions come instead of the 2x, as the server pays them (Products.prizeFor).
+local function starterRow(config: any, view: ShopView?, moneyTop: number): Row?
 	local id = productId(config, STARTER)
 	if id == nil or view == nil or view.starterBought ~= false then
 		return nil
@@ -634,9 +630,27 @@ local function starterRow(config: any, view: ShopView?): Row?
 	end
 	-- #1625: the exact contents on the card (monetization policy): the cat and sign style, then the potions
 	local effect = STARTER.effect
-	local extras = StoreLogic.extras(def.prize, view.catNames)
+	local prize: ProductPrize = def.prize
+	local swap = prize.moneySwap
+	local multiplier = prize.moneyMultiplier
+	local swapped = swap ~= nil
+		and next(swap) ~= nil
+		and multiplier ~= nil
+		and moneyTop >= multiplier
+	local extras = StoreLogic.extras(
+		if swapped
+			then { potions = prize.potions, cats = prize.cats, signStyles = prize.signStyles }
+			else prize,
+		view.catNames
+	)
 	if extras then
 		effect ..= "\n" .. extras
+	end
+	if swapped and swap ~= nil then
+		effect ..= ("\nYou own %dx Money, so instead: %s"):format(
+			moneyTop,
+			StoreLogic.contentsLine(swap, view.potionNames)
+		)
 	end
 	-- #2850: the potions on one line, so the bigger bundle still fits the Featured hero on a phone
 	local potions = def.prize.potions
@@ -710,15 +724,10 @@ local function passId(config: any, card: PassCard): number?
 	return if type(value) == "number" and value ~= 0 then value else nil
 end
 
--- #1822: what the King Cat Pack's worth adds up, as shared/KingPack.worthRefs: the King Cat alone pass and the Potion
--- Pack M product, both only once made (the looks-only pieces are never priced). nil while either is 0.
-local function kingWorth(config: any): { number }?
-	local cat = config.KingCatPassId
-	local ids = config.ProductIds
-	local potions = if type(ids) == "table" then ids.potion_pack_m else nil
-	if type(cat) == "number" and cat ~= 0 and type(potions) == "number" and potions ~= 0 then
-		return { cat, potions }
-	end
+-- #1822: the King Cat Pack's worth line added up the King Cat alone pass and Potion Pack M. #4261 (Review-QA): the
+-- King Cat is no longer sold alone, so a "bought apart" sum would name a price nobody can pay; the Cat King Pack has
+-- no worth line.
+local function kingWorth(_config: any): { number }?
 	return nil
 end
 
@@ -853,13 +862,15 @@ end
 
 -- #1606 (Derek2 11-05: "shows 2x money on your screen somewhere near your money always and replaces itself with
 -- 3x/4x if bought"): the badge beside the HUD's money. The highest money pass owned (Roblox's answer in `owned`, or
--- the server's PlayerState.passBoosts.money as `serverMultiplier`) reads "2x", "3x" or "4x"; with none, "Get 2x"
--- while the 2x pass is on sale (a tap opens the Store), else no badge.
--- price: #1759, the not-owned badge's line under its pill, "Only R$5" (nil once owned or with no price yet)
+-- the server's PlayerState.passBoosts.money as `serverMultiplier`) sets the rung; the badge offers the next rung up
+-- ("2x Money", then "3x Money", then "4x Money", Derek 2026-11-14) while that pass is on sale. With the top rung owned,
+-- or the next one off sale, it is owned ("2x" to "4x", which the HUD does not show, #3052); with none owned and the 2x
+-- pass off sale, no badge.
+-- price: #1759, the for-sale badge's price chip from the next rung's live price (nil while quiet or with no price yet)
 -- quiet: #1936 (release.md section 3), the first 30 minutes of play: a plain "x2" with no price that holds still, and
 -- a tap still opens the Store
--- id: #2353 (Derek2 11-07: "just prompt them to buy it for robux not open shop"), the 2x pass a tap on the X2 Cash
--- pill buys straight away; nil while owned or quiet, so those taps work as before
+-- id: #2353 (Derek2 11-07: "just prompt them to buy it for robux not open shop"), the pass a tap on the button buys
+-- straight away (the next rung up); nil while owned or quiet, so those taps work as before
 export type MoneyBadge = {
 	text: string,
 	owned: boolean,
@@ -884,22 +895,35 @@ function StoreLogic.moneyBadge(
 			top = math.max(top, rung.multiplier)
 		end
 	end
-	if top > 1 then
+	-- Derek 2026-11-14 12:09 UTC ("make 2x change to 3x after 2x bought and to 4x after 3x bought"): the button offers
+	-- the next rung up, each with its own live price, and goes once the top rung is owned
+	local nextRung = nil
+	for _, rung in ladder do
+		if rung.multiplier > top then
+			nextRung = rung
+			break
+		end
+	end
+	local price = if nextRung ~= nil then prices[nextRung.id] else nil
+	-- #1936: the quiet first 30 minutes hold back the offer; an owner stays owned there
+	if quiet and top > 1 then
 		return { text = ("%dx"):format(top), owned = true }
 	end
-	local first = ladder[1]
-	local price = if first ~= nil then prices[first.id] else nil
-	if price ~= nil and price.forSale and quiet then
-		return { text = ("x%d"):format(first.multiplier), owned = false, quiet = true }
-	end
-	if price ~= nil and price.forSale then
-		-- #1759 (Derek2 11-06: "more in your face then that slight 2x"): the HUD's rainbow buy button
+	if nextRung ~= nil and price ~= nil and price.forSale then
+		if quiet then
+			return { text = ("x%d"):format(nextRung.multiplier), owned = false, quiet = true }
+		end
+		-- #1759 (Derek2 11-06: "more in your face then that slight 2x"): the HUD's green buy button
 		return {
-			text = ("X%d Cash"):format(first.multiplier),
+			text = ("%dx Money"):format(nextRung.multiplier), -- Derek 2026-11-14: the pass's own name
 			owned = false,
-			price = if price.robux ~= nil then ("Only R$%d"):format(price.robux :: number) else nil,
-			id = first.id,
+			price = if price.robux ~= nil then ("R$%d"):format(price.robux :: number) else nil, -- no "Only" (2026-11-14)
+			id = nextRung.id,
 		}
+	end
+	if top > 1 then
+		-- #3052: the HUD shows nothing for this; the boosts card has the row
+		return { text = ("%dx"):format(top), owned = true }
 	end
 	return nil
 end
@@ -917,6 +941,12 @@ function StoreLogic.rows(
 ): { Row }
 	local rows: { Row } = {}
 	local ladder = rungs(config)
+	local moneyTop = 1 -- #4020: for the Starter Bundle's swap line
+	for _, rung in ladder do
+		if owned[rung.id] then
+			moneyTop = math.max(moneyTop, rung.multiplier)
+		end
+	end
 	if #ladder > 0 then
 		local top = 1
 		for _, rung in ladder do
@@ -984,7 +1014,7 @@ function StoreLogic.rows(
 			for _, row in productRows(config, view) do
 				table.insert(rows, row)
 			end
-			local starter = starterRow(config, view)
+			local starter = starterRow(config, view, moneyTop)
 			if starter then
 				table.insert(rows, starter)
 			end
@@ -1095,7 +1125,6 @@ local PASS_PICKS = {
 	"signStylePack",
 	"gardenDecor",
 	"grandTheme",
-	"kingCat",
 }
 
 -- #3562: the potion packs (every card of PRODUCTS), last on Featured. They keep their place on the Potions tab.
@@ -1113,7 +1142,22 @@ end
 -- its other products, then the potion packs, each in order. #3562: with `prices`, a card Roblox says is off sale or
 -- has no price is passed over too, so the tab never leads with "Soon" (a price still loading does not count: the
 -- card shows "..." for a moment as before). Cards passed over only come back when nothing else fills the tab.
-function StoreLogic.featured(rows: { Row }, prices: { [number]: Price }?): Featured
+-- #4175: with `lead` (StoreLogic.updateFeature's row) that card is the hero, the usual hero leads the picks and the
+-- last pick gives way, as with Today's Deal.
+function StoreLogic.featured(rows: { Row }, prices: { [number]: Price }?, lead: Row?): Featured
+	if lead ~= nil then
+		local usual = StoreLogic.featured(rows, prices)
+		local picks: { Row } = {}
+		if usual.hero ~= nil and usual.hero.key ~= lead.key then
+			table.insert(picks, usual.hero)
+		end
+		for _, pick in usual.picks do
+			if #picks < StoreLogic.PICKS and pick.key ~= lead.key then
+				table.insert(picks, pick)
+			end
+		end
+		return { hero = lead, picks = picks }
+	end
 	local byKey: { [string]: Row } = {}
 	for _, row in rows do
 		byKey[row.key] = row
@@ -1194,6 +1238,57 @@ function StoreLogic.featured(rows: { Row }, prices: { [number]: Price }?): Featu
 		take(byKey[key]) -- everything bought: the picks still show, marked Owned
 	end
 	return { hero = hero, picks = picks }
+end
+
+-- #4175: the update's own item for Featured on a big update day, or nil. `on` is the updateFeature switch. Inside
+-- Config.UpdateFeature's window (starts <= now < ends) it is the first of its keys that is a Store card the player
+-- can still buy at a known price; an owned, closed, off sale or unpriced card is never pushed. The line is "New
+-- today", or the real end day of a real sale ("Sale ends Sunday") while the card has its Sale badge. No countdown.
+StoreLogic.UPDATE_FLAG = "updateFeature"
+StoreLogic.NEW_TODAY = "New today"
+export type UpdateFeature = { row: Row, line: string }
+function StoreLogic.updateFeature(
+	rows: { Row },
+	prices: { [number]: Price }?,
+	config: any,
+	now: number,
+	on: boolean
+): UpdateFeature?
+	local entry = config.UpdateFeature
+	if
+		not on
+		or prices == nil
+		or type(entry) ~= "table"
+		or type(entry.keys) ~= "table"
+		or type(entry.starts) ~= "number"
+		or type(entry.ends) ~= "number"
+		or now < entry.starts
+		or now >= entry.ends
+	then
+		return nil
+	end
+	for _, key in entry.keys do
+		for _, row in rows do
+			local price = prices[row.passId]
+			if
+				row.key == key
+				and not row.owned
+				and row.closed ~= true
+				and price ~= nil
+				and price.forSale
+				and price.robux ~= nil
+			then
+				local sale = type(entry.saleEnds) == "string"
+					and entry.saleEnds ~= ""
+					and StoreLogic.saleWas(row, price, config, now) ~= nil
+				return {
+					row = row,
+					line = if sale then "Sale ends " .. entry.saleEnds else StoreLogic.NEW_TODAY,
+				}
+			end
+		end
+	end
+	return nil
 end
 
 -- #4026 (the approved store-v2 draft: "A Sale row names the halved items"): Featured's Sale row, the cards on sale

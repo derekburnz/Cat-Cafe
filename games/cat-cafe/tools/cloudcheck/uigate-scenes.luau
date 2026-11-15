@@ -3904,6 +3904,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "CannonParkRing", function()
 		atTier(2)
 		UI.cannon.clearFly()
+		-- a Launch rings only while it is live: in a full run the clock an earlier scene set has reached dusk ("Night
+		-- soon"), so no day clock and the areas open
+		UI.clock.clear()
+		UI.clock.setAreasOpen(true)
 		local reachedWas = UI.parkTrail.reached
 		local function ringed(): boolean
 			local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance

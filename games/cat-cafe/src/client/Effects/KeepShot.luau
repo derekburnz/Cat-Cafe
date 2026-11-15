@@ -8,7 +8,8 @@
 
 local KeepShot = {}
 
-export type Walls = { halfX: number, halfZ: number, top: number }
+-- `x`, `z`: the box's middle off the yard centre (0 when left out)
+export type Walls = { halfX: number, halfZ: number, top: number, x: number?, z: number? }
 
 -- Pure: the walls from the Keep model's bounding box, its centre `centre` in the yard centre's frame and its `size`;
 -- the top is kept to at most `most` studs so a tall flag or tower does not throw the camera into the sky.
@@ -17,6 +18,8 @@ function KeepShot.walls(centre: Vector3, size: Vector3, most: number): Walls
 		halfX = size.X / 2,
 		halfZ = size.Z / 2,
 		top = math.clamp(centre.Y + size.Y / 2, 0, most),
+		x = centre.X,
+		z = centre.Z,
 	}
 end
 
@@ -36,17 +39,21 @@ function KeepShot.lift(
 	end
 	if walls ~= nil then
 		local hx, hz = walls.halfX, walls.halfZ
-		local inside = math.abs(look.X) < hx and math.abs(look.Z) < hz
-		local outside = math.abs(eye.X) > hx or math.abs(eye.Z) > hz
+		-- both points from the box's middle (#4621 review: a box off the yard centre)
+		local ox, oz = walls.x or 0, walls.z or 0
+		local lx, lz = look.X - ox, look.Z - oz
+		local ex, ez = eye.X - ox, eye.Z - oz
+		local inside = math.abs(lx) < hx and math.abs(lz) < hz
+		local outside = math.abs(ex) > hx or math.abs(ez) > hz
 		if inside and outside then
 			-- the share of the way from `look` to `eye` at which the line leaves the walls
-			local dx, dz = eye.X - look.X, eye.Z - look.Z
+			local dx, dz = ex - lx, ez - lz
 			local share = math.huge
 			if dx ~= 0 then
-				share = math.min(share, ((if dx > 0 then hx else -hx) - look.X) / dx)
+				share = math.min(share, ((if dx > 0 then hx else -hx) - lx) / dx)
 			end
 			if dz ~= 0 then
-				share = math.min(share, ((if dz > 0 then hz else -hz) - look.Z) / dz)
+				share = math.min(share, ((if dz > 0 then hz else -hz) - lz) / dz)
 			end
 			local need = walls.top + gap
 			if share > 0 and share < 1 and need > look.Y then

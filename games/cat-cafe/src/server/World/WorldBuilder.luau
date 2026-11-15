@@ -19,10 +19,12 @@ local CornerShop = require(ReplicatedStorage.Shared.CornerShop)
 local FeedbackStand = require(ReplicatedStorage.Shared.FeedbackStand)
 local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Layout = require(script.Parent.Layout)
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local RummageBin = require(ReplicatedStorage.Shared.RummageBin)
 local SafeWords = require(script.Parent.SafeWords)
 local StarterCat = require(ReplicatedStorage.Shared.StarterCat)
 local StationIcons = require(ReplicatedStorage.Shared.StationIcons)
+local TicketBooth = require(ReplicatedStorage.Shared.TicketBooth)
 local Traits = require(ReplicatedStorage.Shared.Traits)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WalkUp = require(ReplicatedStorage.Shared.WalkUp)
@@ -2067,7 +2069,7 @@ local function buildRummageBin(parent: Instance)
 end
 
 -- #4061: the Water Park's Ticket Booth kiosk at Layout.ticketBoothAt, tagged TicketBooth, with the ProximityPrompt
--- TicketBoothPrompt (Open / Ticket Booth) in front of it; the client opens the booth window from it, and the server
+-- TicketBoothPrompt (Open / Ticket Booth) in front of it, enabled only while the ticketBooth switch is on; the client opens the booth window from it, and the server
 -- still checks the switch, the tier and the tickets on every buy (TicketBoothService). Nothing without the art.
 local TICKET_BOOTH_MODEL = "CatCafe_Camp_WaterPark_TicketBooth"
 local function buildTicketBooth(parent: Instance)
@@ -2101,6 +2103,13 @@ local function buildTicketBooth(parent: Instance)
 	prompt.HoldDuration = 0
 	prompt.MaxActivationDistance = Config.CampExtraRangeStuds
 	prompt.RequiresLineOfSight = false
+	-- shown only while the ticketBooth switch is on, following it live (LiveFlagService's ReplicatedStorage attribute)
+	local flag = LiveFlags.ATTRIBUTE_PREFIX .. TicketBooth.FLAG
+	local function follow()
+		prompt.Enabled = ReplicatedStorage:GetAttribute(flag) == true
+	end
+	follow()
+	ReplicatedStorage:GetAttributeChangedSignal(flag):Connect(follow)
 	prompt.Parent = anchor
 end
 

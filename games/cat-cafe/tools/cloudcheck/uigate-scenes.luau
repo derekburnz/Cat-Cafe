@@ -3326,7 +3326,7 @@ local SCENES = {
 		local viewX = if camera then camera.ViewportSize.X else screenRight
 		assert(side.AbsolutePosition.X + side.AbsoluteSize.X <= viewX, "uigate: the token panel runs off the screen's right edge (#4006)")
 		assert(side.AbsolutePosition.Y + side.AbsoluteSize.Y <= screenBottom + 1, "uigate: the token panel runs below its room (#4006)")
-		local want = { "20 Tokens · R$99", "50 Tokens · R$199" }
+		local want = { "20 Tokens · R$49", "50 Tokens · R$99" }
 		for index, words in want do
 			local button = side:FindFirstChild("Bundle" .. index)
 			local label = button and button:FindFirstChildWhichIsA("TextLabel", true)

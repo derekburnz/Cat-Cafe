@@ -122,9 +122,9 @@ return function()
 					expect(Config.ProductIds[bundle.product]).to.be.ok()
 				end
 				expect(Traits.BUNDLES[1].tokens).to.equal(20)
-				expect(Traits.BUNDLES[1].robux).to.equal(99)
+				expect(Traits.BUNDLES[1].robux).to.equal(49) -- #4377: half price (was 99)
 				expect(Traits.BUNDLES[2].tokens).to.equal(50)
-				expect(Traits.BUNDLES[2].robux).to.equal(199)
+				expect(Traits.BUNDLES[2].robux).to.equal(99) -- #4377: half price (was 199)
 			end
 		)
 

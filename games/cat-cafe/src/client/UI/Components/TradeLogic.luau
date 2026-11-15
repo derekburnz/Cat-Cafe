@@ -39,6 +39,7 @@
 --   countText(n) -> string               "x3"
 -- #2745 (section 1d): golden fish, an amount on each side while the server's fishOn says so.
 --   fishOf(side) -> number               the fish on offer, a whole number, 0 for none
+--   fishLine(fish) -> string             #4623 a side's fish in words under its grid: "🐟 50 golden fish"
 --   fishMax(wallet, room) -> number      the fish picker's top: the wallet, MAX_FISH and the other player's room today
 --   fishHint(wallet, room, offered)      why the picker can't open: "You have no golden fish", the daily cap
 --   fishRoomLine(room) -> string         "They can get 150 more today"
@@ -448,6 +449,14 @@ function TradeLogic.fishOf(side: any): number
 end
 
 -- The cats and pieces on one side of the trade (#1574: decor counts toward Ready too, and #2745 crates and fish).
+-- #4623: "🐟 50 golden fish", "🐟 1 golden fish", "🐟 No golden fish"
+function TradeLogic.fishLine(fish: number): string
+	if fish <= 0 then
+		return "🐟 No golden fish"
+	end
+	return ("🐟 %s golden fish"):format(TradeLogic.compact(fish))
+end
+
 function TradeLogic.offerCount(side: any): number
 	local decor = if type(side.decor) == "table" then #side.decor else 0
 	local crates = if type(side.crates) == "table" then #side.crates else 0

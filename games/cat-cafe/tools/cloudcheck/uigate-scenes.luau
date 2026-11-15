@@ -13876,6 +13876,23 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local theirs = modals:FindFirstChild("Theirs", true)
 		local fish = theirs and theirs:FindFirstChild("Fish", true)
 		assert(fish ~= nil and fish.Visible, "uigate: Sam's fish card is hidden")
+		-- #4623: each side's fish in words under its grid, clear of the rate note and the button row
+		local mine = modals:FindFirstChild("Mine", true)
+		local offer = mine.Parent :: GuiObject -- the trade's offer face
+		for _, pair in { { mine, "🐟 50 golden fish", "🐟 50" }, { theirs, "🐟 120 golden fish", "🐟 120" } } do
+			local line = pair[1]:FindFirstChild("FishLine") :: TextLabel
+			local title = (pair[1]:FindFirstChild("Header") :: Instance):FindFirstChild("Title") :: TextLabel
+			if line.Visible then
+				assert(line.Text == pair[2] and line.TextFits, "uigate: the fish line reads " .. line.Text .. " (#4623)")
+				local note = modals:FindFirstChild("RateNote", true) :: GuiObject
+				assert(line.AbsolutePosition.Y >= note.AbsolutePosition.Y + note.AbsoluteSize.Y - 1, "uigate: the fish line covers the rate note (#4623)")
+				assert(line.AbsolutePosition.Y + line.AbsoluteSize.Y <= offer.AbsolutePosition.Y + offer.AbsoluteSize.Y + 1, ("uigate: the fish line runs into the button row %d+%d vs %d+%d (#4623)"):format(line.AbsolutePosition.Y, line.AbsoluteSize.Y, offer.AbsolutePosition.Y, offer.AbsoluteSize.Y))
+			else
+				-- a short screen: the grid's fish card alone says the amount
+				local card = pair[1]:FindFirstChild("Fish", true) :: GuiObject
+				assert(card and card.Visible and title, "uigate: no fish line and no fish card (#4623)")
+			end
+		end
 	end },
 	-- #2745: no fish yet: my card says Add, Sam's is hidden; with fishOn false neither shows
 	{ "TradeFishNone", function()

@@ -15,9 +15,14 @@
 --     switch on, the area AREA_EARLY_SECONDS before it opens
 --     (at start, or on a timer), never once it has closed. A picked pumpkin hides until it regrows.
 --   HarvestService.tripBlocker(player): why a Travel "harvest" trip is refused, or nil (TravelService asks).
+--   The Feast Pie (HarvestPieService): each harvest cat caught adds one to the all-servers count.
+--   PinHarvestNote(note): one of HarvestSave.NOTES (1 to 6) on the Thankful Board, from inside the area while it is
+--     open, one pin every NOTE_GAP seconds a player; the board keeps the last NOTE_KEEP in this server as its
+--     HarvestNotes attribute (JSON [{userId, note}], newest last), one pin a player.
 -- Nothing is random and nothing here costs Robux.
 
 local CollectionService = game:GetService("CollectionService")
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -31,6 +36,7 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local CafeService = require(script.Parent.CafeService)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local HarvestPieService = require(script.Parent.HarvestPieService)
 local HarvestWorld = require(script.Parent.Parent.World.HarvestWorld)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
@@ -44,9 +50,12 @@ HarvestService.ARRIVAL_TAG = HarvestWorld.ARRIVAL_TAG
 HarvestService.NEAR_STUDS = 90 -- "players in the area" for the busy regrow: within this of the picked spot
 HarvestService.TOUCH_STUDS = 12 -- a touch counts only with the player's root this close (exploit tools fire touches)
 local TOUCH_GAP = 0.5 -- one pick per player per half second, whatever the touch events do
+local NOTE_GAP = 10 -- one Thankful Board pin per player every 10 s
 
 local lastTouch: { [Player]: number } = {}
 local built = false -- the area is in the Workspace
+local lastNote: { [Player]: number } = {}
+local notes: { { userId: number, note: number } } = {}
 
 local function rootOf(player: Player): BasePart?
 	local character = player.Character
@@ -279,7 +288,30 @@ function HarvestService.caught(player: Player, rarity: string): number
 		return 0
 	end
 	profile.harvest.helped = true
+	HarvestPieService.add(1)
 	return HarvestSave.give(profile.harvest, HarvestSave.catchPumpkins(rarity))
+end
+
+-- The Thankful Board's pin: a fixed note by index, from a player standing in the open area.
+local function onPinNote(player: Player, rawNote: unknown)
+	if not HarvestSave.validNote(rawNote) then
+		return
+	end
+	local last = lastNote[player]
+	if last ~= nil and os.clock() - last < NOTE_GAP then
+		return
+	end
+	local profile, reason = shut(player)
+	local root = rootOf(player)
+	if profile == nil or reason ~= nil or root == nil or not HarvestWorld.inArea(root.Position) then
+		return
+	end
+	lastNote[player] = os.clock()
+	notes = HarvestSave.pinNote(notes, player.UserId, rawNote :: number)
+	local json = HttpService:JSONEncode(notes)
+	for _, board in CollectionService:GetTagged(HarvestWorld.BOARD_TAG) do
+		board:SetAttribute("HarvestNotes", json)
+	end
 end
 
 -- #4251: why a trip into Harvest Hollow is refused, or nil (the dates, Tier 2, the switch, the area not built yet).
@@ -328,12 +360,15 @@ end
 
 function HarvestService.start()
 	Net.on("BuyHarvest", onBuy)
+	Net.on("PinHarvestNote", onPinNote)
+	HarvestPieService.start()
 	watchTag(HarvestService.PUMPKIN_TAG, pick)
 	watchTag(HarvestService.ARRIVAL_TAG, arrive)
 	archWhenDue()
 	buildWhenDue()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		lastTouch[player] = nil
+		lastNote[player] = nil
 	end)
 end
 

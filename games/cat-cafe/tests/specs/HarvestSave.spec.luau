@@ -98,6 +98,44 @@ return function()
 			expect(save.bought.feather_cap).to.equal(nil)
 		end)
 
+		it("bakes the Feast Pie in eighths of a live goal", function()
+			expect(HarvestSave.pieGoal(false)).to.equal(25000)
+			expect(HarvestSave.pieGoal(true)).to.equal(15000)
+			expect(HarvestSave.pieSlices(0, 25000)).to.equal(0)
+			expect(HarvestSave.pieSlices(3124, 25000)).to.equal(0)
+			expect(HarvestSave.pieSlices(3125, 25000)).to.equal(1)
+			expect(HarvestSave.pieSlices(24999, 25000)).to.equal(7)
+			expect(HarvestSave.pieSlices(99999, 25000)).to.equal(8)
+			expect(HarvestSave.pieSlices(10, 0)).to.equal(0)
+			expect(LiveFlags.defaults()[HarvestSave.PIE_LOW_FLAG]).to.equal(false)
+		end)
+
+		it("pins one of six fixed notes, one a player, the last twelve", function()
+			expect(HarvestSave.validNote(1)).to.equal(true)
+			expect(HarvestSave.validNote(6)).to.equal(true)
+			expect(HarvestSave.validNote(0)).to.equal(false)
+			expect(HarvestSave.validNote(7)).to.equal(false)
+			expect(HarvestSave.validNote(2.5)).to.equal(false)
+			expect(HarvestSave.validNote("1")).to.equal(false)
+			local list = {}
+			for userId = 1, 13 do
+				list = HarvestSave.pinNote(list, userId, 1)
+			end
+			expect(#list).to.equal(12)
+			expect(list[1].userId).to.equal(2)
+			list = HarvestSave.pinNote(list, 5, 3)
+			expect(#list).to.equal(12)
+			expect(list[12].userId).to.equal(5)
+			expect(list[12].note).to.equal(3)
+			local fives = 0
+			for _, row in list do
+				if row.userId == 5 then
+					fives += 1
+				end
+			end
+			expect(fives).to.equal(1)
+		end)
+
 		it("is in every new save and the switch is on by default", function()
 			local profile = ProfileSchema.migrate({}, open)
 			expect(profile.harvest.pumpkins).to.equal(0)

@@ -11,6 +11,9 @@
 --   catchPumpkins(rarity)              pumpkins for a harvest cat caught (Common 1 to Mythical 10)
 --   regrowSeconds(playersNear)         a picked patch spot's regrow time: 90 s, 45 s with BUSY_PLAYERS or more near
 --   forClient(save)                    PlayerState.harvest
+--   pieGoal(low) / pieSlices(count, goal) the Feast Pie's goal (PIE_GOAL, or PIE_GOAL_LOW with the harvestPieLow switch
+--                                      on) and its slices baked, 0 to PIE_SLICES (spec section 5)
+--   NOTES / pinNote(list, userId, note) the Thankful Board's six fixed notes and its last NOTE_KEEP pins (spec section 6)
 -- Fixed prices, nothing random, nothing sold for Robux. Nothing owned is taken away when the area closes.
 
 local HarvestHollow = require(script.Parent.HarvestHollow)
@@ -31,6 +34,24 @@ HarvestSave.REGROW_SECONDS = 90
 HarvestSave.BUSY_REGROW_SECONDS = 45
 HarvestSave.BUSY_PLAYERS = 6
 HarvestSave.DAY = 86400
+
+-- #4251 section 5: the Feast Pie, one slice of eight per eighth of the goal. The goal is a server read: the
+-- harvestPieLow switch (off by default) drops it to PIE_GOAL_LOW after Growth's first-day read.
+HarvestSave.PIE_GOAL = 25000
+HarvestSave.PIE_GOAL_LOW = 15000
+HarvestSave.PIE_LOW_FLAG = "harvestPieLow"
+HarvestSave.PIE_SLICES = 8
+
+-- #4251 section 6: the Thankful Board's fixed notes (no typed text, so nothing to filter) and how many it shows.
+HarvestSave.NOTES = table.freeze({
+	"Thank you, cats!",
+	"Thanks for the pie!",
+	"Happy harvest!",
+	"Best pumpkin patch ever!",
+	"Grateful for friends!",
+	"See you next autumn!",
+})
+HarvestSave.NOTE_KEEP = 12
 
 HarvestSave.CATCH_PUMPKINS = table.freeze({
 	Common = 1,
@@ -126,6 +147,46 @@ function HarvestSave.visit(save: Save, now: number): number
 		return 0
 	end
 	save.visitDay = day
+	function HarvestSave.pieGoal(low: boolean): number
+		return if low then HarvestSave.PIE_GOAL_LOW else HarvestSave.PIE_GOAL
+	end
+
+	function HarvestSave.pieSlices(count: number, goal: number): number
+		if goal <= 0 or count ~= count then
+			return 0
+		end
+		return math.clamp(
+			math.floor(count * HarvestSave.PIE_SLICES / goal),
+			0,
+			HarvestSave.PIE_SLICES
+		)
+	end
+
+	export type Note = { userId: number, note: number }
+
+	-- Whether `note` is one of NOTES by its index (1 to 6).
+	function HarvestSave.validNote(note: unknown): boolean
+		return type(note) == "number"
+			and note == math.floor(note)
+			and note >= 1
+			and note <= #HarvestSave.NOTES
+	end
+
+	-- The board's list with this pin added last, the player's own older pin dropped, at most NOTE_KEEP. A copy.
+	function HarvestSave.pinNote(list: { Note }, userId: number, note: number): { Note }
+		local out: { Note } = {}
+		for _, row in list do
+			if row.userId ~= userId then
+				table.insert(out, { userId = row.userId, note = row.note })
+			end
+		end
+		table.insert(out, { userId = userId, note = note })
+		while #out > HarvestSave.NOTE_KEEP do
+			table.remove(out, 1)
+		end
+		return out
+	end
+
 	return HarvestSave.give(save, HarvestSave.VISIT_PUMPKINS)
 end
 

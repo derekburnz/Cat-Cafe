@@ -85,6 +85,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	BuyWithFish = RateLimiter.new(1, 1), -- #4055: 1 a second
 	BuyTicketPrize = RateLimiter.new(1, 1), -- #4061: 1 a second
 	BuyHarvest = RateLimiter.new(1, 1), -- #4251: 1 a second
+	PinHarvestNote = RateLimiter.new(1, 1), -- #4251: 1 a second (HarvestService allows one pin every 10 s)
 	GiveToKeep = RateLimiter.new(1, 1), -- #4062
 	PickDragonCard = RateLimiter.new(2, 1),
 	KeepCards = RateLimiter.new(1, 1),

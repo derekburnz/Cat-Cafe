@@ -98,6 +98,8 @@ Remotes.ClientToServer = {
 	"BuyHarvest", -- (id: string)  #4251 (shared/HarvestSave): a Harvest Stall item of HarvestHollow.STALL not bought, for
 	-- its price in pumpkins, within HarvestStallRange + 4 of a HarvestStall, while the area is open and from Tier 2. 1 a
 	-- second; answered with a toast and a ProfileSync (PlayerState.harvest)
+	"PinHarvestNote", -- (note: number)  #4251: one of HarvestSave.NOTES (1 to 6) on the Thankful Board, from inside
+	-- Harvest Hollow while it is open, one pin every 10 s; the board's HarvestNotes attribute answers. 1 a second
 	"BuyTicketPrize", -- (prizeId: string)  #4061 (shared/TicketBooth): a prize of TicketBooth.PRIZES under its limit, for
 	-- its price in tickets, from TicketBoothTier and only while the ticketBooth switch is on. 1 a second; answered with a
 	-- toast and a ProfileSync (PlayerState.ticketBooth)

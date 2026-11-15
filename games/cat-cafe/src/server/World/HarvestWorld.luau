@@ -105,6 +105,15 @@ function HarvestWorld.landing(): CFrame
 	return CFrame.new(HarvestWorld.landingPoint()) * CFrame.Angles(0, math.pi, 0) -- LookVector (0, 0, 1)
 end
 
+-- Whether a point is inside the set's fence (150 x 120, a stud of slack).
+function HarvestWorld.inArea(position: Vector3): boolean
+	local offset = position - HarvestWorld.CENTER
+	return math.abs(offset.X) <= 76
+		and math.abs(offset.Z) <= 61
+		and offset.Y > -10
+		and offset.Y < 60
+end
+
 local function invisible(name: string, size: Vector3, cframe: CFrame, parent: Instance): BasePart
 	local part = Instance.new("Part")
 	part.Name = name

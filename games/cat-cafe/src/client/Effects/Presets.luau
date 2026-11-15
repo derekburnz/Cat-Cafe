@@ -2125,6 +2125,28 @@ Presets.motion = {
 		swaySeconds = 3.1,
 		resting = 0.5,
 	},
+	-- The new areas' Common cats (#4069, #4070, #4071; Derek 2026-11-13: commons get prop motion only): the hat or
+	-- tufts in the head (`_Prop`, Pose's "cap") bounce with each stride while the cat walks, tipping up to the cat's
+	-- `degrees` front and back about the prop's own pivot, `lag` radians behind the legs so it reads as loose. One
+	-- bounce a leg cycle (about 2 a second at a stray's walk), still while it stands. The Elf Cat's belled hood swings
+	-- the most and the Dwarf Cat's beard and iron cap bounce; the Squire wears nothing on its head, so it has none.
+	-- Small on purpose: the exported props pivot at the neck like the head, so a bigger tip would lift them off it.
+	propBounce = {
+		lag = 0.9,
+		cats = {
+			elf = 5,
+			dwarf = 4,
+			pinwheel = 4,
+			hot_chocolate = 3,
+			crumpet = 3,
+			flurry = 3,
+			mitten = 3,
+			spruce = 3,
+			popcorn = 3,
+			splash = 3,
+			taffy = 3,
+		} :: { [string]: number },
+	},
 }
 
 -- Model-Agent's piece poses for the new bodies (manifest `cat_poses`, PR #259), copied here because the

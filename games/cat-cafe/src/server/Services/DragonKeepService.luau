@@ -11,12 +11,14 @@
 -- now: the Castle and its Keep are not placed yet. The cards' effects (#4447) are read where each one acts; Golden
 -- Breath's timed pay runs here.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -296,6 +298,17 @@ function DragonKeepService.start()
 	DataService.beforeRelease(function(player)
 		breathAt[player] = nil
 	end)
+	-- the Fire Trail and set looks (and the air cards) follow the dragonKeep switch the moment it flips, not at each
+	-- player's next card or rejoin
+	ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. DragonKeep.FLAG)
+		:Connect(function()
+			for _, player in Players:GetPlayers() do
+				local profile = DataService.get(player)
+				if profile ~= nil then
+					applyReach(player, profile)
+				end
+			end
+		end)
 	task.spawn(function()
 		while true do
 			task.wait(BREATH_TICK)

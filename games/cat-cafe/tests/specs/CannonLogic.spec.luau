@@ -36,7 +36,9 @@ return function()
 			expect(ids(CannonLogic.destinations(areas, 9, "desert"))).to.equal(
 				"town,alley,waterpark"
 			)
-			expect(ids(CannonLogic.cards(areas, 1, "town"))).to.equal("alley,desert")
+			-- #4364: shut, it is a coming-soon card on every cannon; open, only on the Desert's
+			expect(ids(CannonLogic.cards(areas, 1, "town"))).to.equal("alley,desert,waterpark")
+			expect(ids(CannonLogic.cards(areas, 9, "town"))).to.equal("alley,desert")
 			expect(ids(CannonLogic.cards(areas, 1, "desert"))).to.equal("town,alley,waterpark")
 		end)
 

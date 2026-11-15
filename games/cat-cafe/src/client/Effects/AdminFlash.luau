@@ -22,6 +22,7 @@
 -- show, since it says the same and would cover it; with a window open the card shows as before. Reduce Motion: the
 -- cards show and hold still (no pop, no swell, no sparkles). Low performance: no sparkles. It counts down only the
 -- event's own start and end, and sells nothing.
+-- Toasts: AdminFlash.onPlaying(listener) tells the UI's owner when the middle of the screen is taken and given back.
 -- Sound: AdminFlash.onBeat's "tick" (each of 3, 2, 1), "start", "last" (the last minute begins) and "over".
 -- Client only; it sends nothing. What shows when is AdminFlashLogic.step; numbers in Presets.adminFlash.
 
@@ -91,6 +92,8 @@ local overUntil = 0 -- os.clock until which the end card shows
 local look: string? = nil
 local tint: ColorCorrectionEffect? = nil
 local quietProbe: (() -> boolean)? = nil
+local playingListeners: { (on: boolean) -> () } = {}
+local wasPlaying = false
 
 -- Calls `listener(beat)` on each of the 3, 2, 1 ("tick"), as the event starts ("start"), as its last minute begins
 -- ("last") and as it ends ("over"). Listeners only listen.
@@ -124,6 +127,23 @@ end
 function AdminFlash.playing(): boolean
 	local made = parts
 	return made ~= nil and (made.dim.Visible or made.over.Visible)
+end
+
+-- Calls `listener(on)` as the countdown, splash or end card takes the middle of the screen (true) and as it gives it
+-- back (false), so the UI's owner can hold its toasts for that long (`UI.setQuiet`). Listeners only listen.
+function AdminFlash.onPlaying(listener: (on: boolean) -> ())
+	table.insert(playingListeners, listener)
+end
+
+local function tellPlaying()
+	local on = AdminFlash.playing()
+	if on == wasPlaying then
+		return
+	end
+	wasPlaying = on
+	for _, listener in playingListeners do
+		task.spawn(listener, on)
+	end
 end
 
 local function decode(json: string): any
@@ -533,7 +553,10 @@ function AdminFlash.start()
 	EventBanner.skipWhen("admin", function(): boolean
 		return not quiet()
 	end)
-	RunService.RenderStepped:Connect(frame)
+	RunService.RenderStepped:Connect(function()
+		frame()
+		tellPlaying()
+	end)
 end
 
 return AdminFlash

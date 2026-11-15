@@ -5,6 +5,9 @@
 -- CafeRestZone and CafeRest attributes, which the server sets, and leaves its count or its green at the first input
 -- without waiting for the server.
 -- Input is any key, button, tap, click, stick, mouse move or wheel, or a chat message typed.
+-- #4346: AFK mode. UI.afk is the HUD's AFK tile's side: whether the tile shows (the afkButton and afkCafe switches),
+-- whether the mode is on (the Player's AfkMode attribute, server set), toggle() to ask for it on or off, and
+-- changed(fn) to redraw. In AFK mode the banner shows the rest whatever the input, as the server pays it.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +16,7 @@ local UserInputService = game:GetService("UserInputService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local AfkCafe = require(Shared:WaitForChild("AfkCafe"))
 local Config = require(Shared:WaitForChild("Config"))
+local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Net = require(script.Parent.Parent.Net)
 local RestBannerLogic = require(script.Parent.Parent.UI.Components.RestBannerLogic)
 local UI = require(script.Parent.Parent.UI)
@@ -44,7 +48,7 @@ local function chip()
 	-- a walk in during a window or a catch is not counted as seen: the welcome comes at the next walk in
 	wasInZone = inZone and (calm or wasInZone)
 	local state, remaining = RestBannerLogic.pick({
-		rest = if idle and type(rest) == "boolean" then rest else nil,
+		rest = if (idle or AfkController.modeOn()) and type(rest) == "boolean" then rest else nil,
 		zone = if type(zone) == "boolean" then zone else nil,
 		sinceInput = now - lastInput,
 		welcomeAge = if welcomeAt ~= nil then now - welcomeAt else nil,
@@ -88,7 +92,39 @@ function AfkController.rejoinQuiet(): boolean
 	return not inputSeen and Players.LocalPlayer:GetAttribute(AfkCafe.REJOIN_ATTRIBUTE) == true
 end
 
+-- #4346: whether AFK mode is on (the server's attribute).
+function AfkController.modeOn(): boolean
+	return Players.LocalPlayer:GetAttribute(AfkCafe.MODE_ATTRIBUTE) == true
+end
+
+-- #4346: whether the AFK tile shows: both switches on.
+function AfkController.modeShown(): boolean
+	local function flag(key: string): boolean
+		return LiveFlags.shown(
+			key,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+		)
+	end
+	return flag(AfkCafe.FLAG) and flag(AfkCafe.BUTTON_FLAG)
+end
+
 function AfkController.start()
+	local ui: any = UI
+	ui.afk = {
+		shown = AfkController.modeShown,
+		on = AfkController.modeOn,
+		toggle = function()
+			Net.fire("AfkMode", not AfkController.modeOn())
+		end,
+		changed = function(fn: () -> ())
+			Players.LocalPlayer:GetAttributeChangedSignal(AfkCafe.MODE_ATTRIBUTE):Connect(fn)
+			for _, key in { AfkCafe.FLAG, AfkCafe.BUTTON_FLAG } do
+				ReplicatedStorage:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. key)
+					:Connect(fn)
+			end
+		end,
+	}
+	Players.LocalPlayer:GetAttributeChangedSignal(AfkCafe.MODE_ATTRIBUTE):Connect(chip)
 	UserInputService.InputBegan:Connect(touched)
 	UserInputService.InputChanged:Connect(function(input: InputObject)
 		local kind = input.UserInputType

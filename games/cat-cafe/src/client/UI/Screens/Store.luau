@@ -74,7 +74,7 @@ export type Store = {
 	setBag: (self: Store, bag: { StoreLogic.BagEntry }) -> (),
 	setNew: (self: Store, tabs: { [string]: true }) -> (),
 	-- #3996: PlayerState.dailyDeal (false or nil: no card); the next render shows it
-	setDeal: (self: Store, view: any) -> (),
+	setDeal: (self: Store, view: any, tier: number?) -> (),
 	hasNew: (self: Store) -> boolean,
 	tab: (self: Store) -> string,
 	closed: (self: Store) -> (),
@@ -1078,8 +1078,9 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?, line: string?)
 end
 
 -- #3996: PlayerState.dailyDeal for the next render (false or nil: no card).
-function Store.setDeal(self: any, view: any)
+function Store.setDeal(self: any, view: any, tier: number?)
 	self._deal = if type(view) == "table" then view else nil
+	self._dealTier = tier -- #4238: names and draws the best open area's golden crate
 end
 
 -- #3996: Today's Deal on the hero card (nil hides it): the deal's picture, "Today's Deal", what is in it, the value line, the
@@ -1104,14 +1105,30 @@ function Store._fillDeal(_self: any, entry: any, card: DealLogic.Card?)
 	entry.badge.Visible = false
 	entry.dim.Visible = false
 	fitEffect(entry)
-	local art = "deal:" .. card.kind .. ":" .. (card.potion or "")
+	local art = "deal:"
+		.. card.kind
+		.. ":"
+		.. (card.potion or card.crate or "")
+		.. (if card.fish then ":fish" else "")
 	if entry.key ~= art then
 		entry.key = art
 		local images: { string } = {}
-		if card.kind == "token" then
+		local dealPicture = ShopIcons.deal(card.kind, card.fish)
+		if dealPicture ~= nil then
+			-- #4246: the deal's own picture; the older ones below stay as the fallback
+			table.insert(images, dealPicture)
+		elseif card.kind == "token" then
 			local token = MysticPoolLogic.TOKEN_IMAGE
 			if token ~= nil then
 				table.insert(images, token)
+			end
+		elseif card.kind == "crate" or card.kind == "fish" then
+			-- #4238: the best open area's golden crate (the Classic one's while the tier is unknown), or the golden fish
+			local picture: string? = if card.kind == "crate"
+				then ShopIcons.crate(card.crate) or ShopIcons.crate("classic_golden_crate")
+				else ShopIcons.prize("fish")
+			if picture ~= nil then
+				table.insert(images, picture :: string)
 			end
 		else
 			for _, image in ShopIcons.potionAll(card.potion) do
@@ -1122,7 +1139,11 @@ function Store._fillDeal(_self: any, entry: any, card: DealLogic.Card?)
 				table.insert(images, flask)
 			end
 		end
-		entry.glyph.Text = if card.kind == "token" then "🪙" else "🧪"
+		entry.glyph.Text = if card.kind == "token"
+			then "🪙"
+			elseif card.kind == "crate" then "📦"
+			elseif card.kind == "fish" then "🐟"
+			else "🧪"
 		local padding = entry.glyph:FindFirstChildOfClass("UIPadding")
 		local inset = if #images > 0 then 0 else GLYPH_PAD
 		if padding then
@@ -1135,6 +1156,28 @@ function Store._fillDeal(_self: any, entry: any, card: DealLogic.Card?)
 		else
 			IconArt.setImage(entry.glyph, nil)
 			IconArt.set(entry.glyph, entry.glyph.Text)
+		end
+		-- #4238: the Golden Haul's crate carries a golden fish in its corner
+		local corner: ImageLabel? = entry.glyph:FindFirstChild("DealFish") :: ImageLabel?
+		local fishImage = if card.kind == "crate" and card.fish
+			then ShopIcons.prize("fish")
+			else nil
+		if fishImage ~= nil and corner == nil then
+			corner = Create("ImageLabel", {
+				Name = "DealFish",
+				BackgroundTransparency = 1,
+				AnchorPoint = Vector2.new(1, 1),
+				Position = UDim2.fromScale(1, 1),
+				Size = UDim2.fromScale(0.45, 0.45),
+				ScaleType = Enum.ScaleType.Fit,
+				ZIndex = entry.glyph.ZIndex + 2,
+				Parent = entry.glyph,
+			})
+		end
+		if corner ~= nil then
+			local label: ImageLabel = corner
+			label.Image = fishImage or ""
+			label.Visible = fishImage ~= nil
 		end
 	end
 	entry.button.instance.Visible = not card.bought
@@ -1927,7 +1970,7 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 	-- #4259 (Derek 11-14: "todays deal ... honestly a seperate tab for todays deals, they are not that good save that big
 	-- space for starter packs or vip"): Today's Deal has its own tab and page, bought or not; Featured keeps its hero
 	-- and picks for the bundles and passes
-	local deal = DealLogic.card(self._deal, os.time(), MysticPoolLogic.oddsLine())
+	local deal = DealLogic.card(self._deal, os.time(), MysticPoolLogic.oddsLine(), self._dealTier)
 	local picks: { StoreLogic.Row } = featured.picks
 	self:_fill(hero, featured.hero, lineOf(featured.hero))
 	for index = 1, StoreLogic.PICKS do

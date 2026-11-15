@@ -42,6 +42,8 @@ return function()
 			expect(Flash.headline(view({ goldBoost = 1.5 }))).to.equal("x1.5 GOLD LUCK")
 			expect(Flash.headline(view({ secretHunt = 3 }))).to.equal("3 SECRET CATS")
 			expect(Flash.headline(view({ traitParty = true }))).to.equal("FREE TRAIT ROLLS")
+			expect(Flash.headline(view({ wheel = true }))).to.equal("SPIN THE ADMIN WHEEL!")
+			expect(Flash.countsMoney(view({ wheel = true }))).to.equal(false)
 			expect(Flash.headline(view({}))).to.equal("MONEY STORM") -- nothing it knows: the title
 		end)
 

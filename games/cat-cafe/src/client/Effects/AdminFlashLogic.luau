@@ -49,6 +49,13 @@ export type Step = {
 -- In the order an event with several effects picks its look: the first one it has.
 AdminFlashLogic.KINDS = {
 	{
+		name = "wheel",
+		head = "SPIN THE ADMIN WHEEL!",
+		stay = "One free spin for everyone!",
+		look = "gold",
+		rain = "wheel",
+	},
+	{
 		name = "moneyStorm",
 		head = "x%s MONEY",
 		stay = "Stay and cash in!",

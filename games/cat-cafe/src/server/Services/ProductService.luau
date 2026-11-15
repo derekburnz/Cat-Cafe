@@ -133,7 +133,12 @@ function ProductService.give(
 		{
 			name = "potions",
 			run = function()
-				local prize: Types.IndexPrize = { potions = give.potions }
+				-- #4238: Today's Deal's golden fish and crates ride along (Payout banks the crates for the Market)
+				local prize: Types.IndexPrize = {
+					potions = give.potions,
+					fish = product.prize.fish,
+					crates = product.prize.crates,
+				}
 				for _, line in Payout.pay(player, profile, prize, sku, "Shop") do
 					table.insert(paid, line)
 				end
@@ -267,8 +272,11 @@ function ProductService.processReceipt(receipt: { [string]: any }): Enum.Product
 		if deal ~= nil then
 			local day = DailyDeal.dayOf(os.time())
 			profile.dealDay = day
-			local today = DailyDeal.dealFor(day, CafeService.dealTokensOk(player, profile))
-				== deal.n
+			local today = DailyDeal.dealFor(
+				day,
+				CafeService.dealTokensOk(player, profile),
+				CafeService.dealCratesOk(player)
+			) == deal.n
 			if not today then
 				warn(
 					"[ProductService] a Today's Deal receipt for a deal that was not today's:",
@@ -303,7 +311,8 @@ local function onPromptDeal(player: Player, rawProduct: unknown)
 		os.time(),
 		CafeService.dealTokensOk(player, profile),
 		Economy.tier(profile),
-		productId
+		productId,
+		CafeService.dealCratesOk(player)
 	)
 	local id = Config.ProductIds[productId]
 	if blocker == nil and (id == nil or id == 0) then

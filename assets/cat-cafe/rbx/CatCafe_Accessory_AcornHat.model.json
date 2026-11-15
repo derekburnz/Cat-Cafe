@@ -1,0 +1,1295 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Accessory_AcornHat/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.07,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.14,
+     0.85,
+     0.85
+    ],
+    "Color": [
+     0.549,
+     0.3725,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       -0.07,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Accessory_AcornHat/0"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.1567,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0333,
+     0.7867,
+     0.7867
+    ],
+    "Color": [
+     0.549,
+     0.3725,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.19,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0333,
+     0.68,
+     0.68
+    ],
+    "Color": [
+     0.549,
+     0.3725,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.2233,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0333,
+     0.5733,
+     0.5733
+    ],
+    "Color": [
+     0.549,
+     0.3725,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.435,
+       0.07,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        0.0,
+        -0.7071,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3519,
+       0.07,
+       0.2557
+      ],
+      "orientation": [
+       [
+        0.809,
+        -0.4156,
+        0.4156
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        -0.5878,
+        -0.5721,
+        0.5721
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1344,
+       0.07,
+       0.4137
+      ],
+      "orientation": [
+       [
+        0.309,
+        -0.6725,
+        0.6725
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        -0.9511,
+        -0.2185,
+        0.2185
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1344,
+       0.07,
+       0.4137
+      ],
+      "orientation": [
+       [
+        -0.309,
+        -0.6725,
+        0.6725
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        -0.9511,
+        0.2185,
+        -0.2185
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3519,
+       0.07,
+       0.2557
+      ],
+      "orientation": [
+       [
+        -0.809,
+        -0.4156,
+        0.4156
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        -0.5878,
+        0.5721,
+        -0.5721
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.435,
+       0.07,
+       0.0
+      ],
+      "orientation": [
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        0.0,
+        0.7071,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3519,
+       0.07,
+       -0.2557
+      ],
+      "orientation": [
+       [
+        -0.809,
+        0.4156,
+        -0.4156
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        0.5878,
+        0.5721,
+        -0.5721
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1344,
+       0.07,
+       -0.4137
+      ],
+      "orientation": [
+       [
+        -0.309,
+        0.6725,
+        -0.6725
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        0.9511,
+        0.2185,
+        -0.2185
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1344,
+       0.07,
+       -0.4137
+      ],
+      "orientation": [
+       [
+        0.309,
+        0.6725,
+        -0.6725
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        0.9511,
+        -0.2185,
+        0.2185
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3519,
+       0.07,
+       -0.2557
+      ],
+      "orientation": [
+       [
+        0.809,
+        0.4156,
+        -0.4156
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        0.5878,
+        -0.5721,
+        0.5721
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3326,
+       0.2,
+       0.1378
+      ],
+      "orientation": [
+       [
+        0.9239,
+        -0.2706,
+        0.2706
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        -0.3827,
+        -0.6533,
+        0.6533
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1378,
+       0.2,
+       0.3326
+      ],
+      "orientation": [
+       [
+        0.3827,
+        -0.6533,
+        0.6533
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        -0.9239,
+        -0.2706,
+        0.2706
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1378,
+       0.2,
+       0.3326
+      ],
+      "orientation": [
+       [
+        -0.3827,
+        -0.6533,
+        0.6533
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        -0.9239,
+        0.2706,
+        -0.2706
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3326,
+       0.2,
+       0.1378
+      ],
+      "orientation": [
+       [
+        -0.9239,
+        -0.2706,
+        0.2706
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        -0.3827,
+        0.6533,
+        -0.6533
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3326,
+       0.2,
+       -0.1378
+      ],
+      "orientation": [
+       [
+        -0.9239,
+        0.2706,
+        -0.2706
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        0.3827,
+        0.6533,
+        -0.6533
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1378,
+       0.2,
+       -0.3326
+      ],
+      "orientation": [
+       [
+        -0.3827,
+        0.6533,
+        -0.6533
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        0.9239,
+        0.2706,
+        -0.2706
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1378,
+       0.2,
+       -0.3326
+      ],
+      "orientation": [
+       [
+        0.3827,
+        0.6533,
+        -0.6533
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        0.9239,
+        -0.2706,
+        0.2706
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3326,
+       0.2,
+       -0.1378
+      ],
+      "orientation": [
+       [
+        0.9239,
+        0.2706,
+        -0.2706
+       ],
+       [
+        0.0,
+        0.7071,
+        0.7071
+       ],
+       [
+        0.3827,
+        -0.6533,
+        0.6533
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.08,
+     0.11
+    ],
+    "Color": [
+     0.4784,
+     0.3098,
+     0.1804
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.29,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.09,
+     0.12,
+     0.09
+    ],
+    "Color": [
+     0.2431,
+     0.1647,
+     0.1333
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2,
+       0.27,
+       -0.05
+      ],
+      "orientation": [
+       [
+        0.9063,
+        0.0,
+        0.4226
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.4226,
+        0.0,
+        0.9063
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.03,
+     0.15
+    ],
+    "Color": [
+     0.9137,
+     0.6353,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_AcornHat",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.31,
+       0.275,
+       -0.01
+      ],
+      "orientation": [
+       [
+        0.5,
+        0.0,
+        0.866
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.866,
+        0.0,
+        0.5
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.028,
+     0.1
+    ],
+    "Color": [
+     0.9137,
+     0.6353,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

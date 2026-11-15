@@ -3638,6 +3638,7 @@ Presets.adminAir = {
 		goldBoost = "goldHourDrift",
 		moneyStorm = "moneyStormDrift",
 		crateDrop = "goldHourDrift",
+		wheel = "goldHourDrift",
 		bowlSpeed = "adminRoseDrift",
 		catStorm = "adminStormDrift",
 		rainbowBoost = "adminRainbowDrift",
@@ -3649,6 +3650,39 @@ Presets.adminAir = {
 	box = Vector3.new(70, 1, 70),
 	height = 22,
 	every = 0.5,
+}
+
+-- #4197 (Effects/AdminDrops): the stand-ins that fly in what an admin event drops, for drops within `within` studs.
+-- Fish Fountain: a `blob` arcs from the plinth to its fish in `seconds`, `rise` studs high at the middle, then
+-- `splashCount` glints. Crate Drop: a `box` under a `canopy` on `cord` studs of line comes down from `height` over
+-- the `seconds` before the server's LandsAt, leaning up to `swayDegrees` each way every `swaySeconds`, then a ring
+-- and a puff.
+Presets.adminDrops = {
+	within = 160,
+	fish = {
+		seconds = 0.8,
+		rise = 9,
+		blob = Vector3.new(1.1, 1.1, 1.1),
+		colour = Presets.palette.golden,
+		splash = "coinGlint",
+		splashCount = 6,
+	},
+	crate = {
+		seconds = 3,
+		height = 45,
+		box = Vector3.new(3, 3, 3),
+		colour = Presets.palette.golden,
+		canopy = Vector3.new(8, 3.2, 8),
+		canopyColour = Presets.palette.neonPink,
+		cord = 5,
+		cordColour = Presets.palette.offwhite,
+		swayDegrees = 6,
+		swaySeconds = 1.6,
+		ring = 7,
+		ringSeconds = 0.5,
+		puff = "stormPuff",
+		puffCount = 10,
+	},
 }
 
 -- #4325 (Effects/AdminFlash): an admin event takes the screen and the world. The 3, 2, 1 begins `countFrom` seconds
@@ -5972,8 +6006,16 @@ Presets.baitCrumbs = {
 -- every `check` seconds. `marker` is the gold paw over it, drawn through walls within `marker.within` studs (#3238:
 -- only 51 of 139 players reached the second cat's trail). `attribute`, `delay` and `seconds` are shared/SecondCat's
 -- when it is in.
+-- #4384 (one ask at a time after the first check-in): while the player's tutorialStep is `holdStep` (the bowl step)
+-- the beacon, the call and its sound wait, so the Bait bowl is the only ask; switch `holdSwitch` (on unless false).
+-- Only once the player owns the Bait bowl (upgrade `holdUpgrade`): one who cannot buy it yet keeps the beacon to the
+-- free second cat. And for `holdMost` seconds at most, so nobody is left with no next step.
 Presets.waitingCat = {
 	attribute = "WaitsFor",
+	holdStep = 4,
+	holdSwitch = "checkInCalm",
+	holdUpgrade = "lure_bowl",
+	holdMost = 180,
 	delay = 2,
 	seconds = 120,
 	within = 400,

@@ -658,6 +658,7 @@ return function()
 				WinterPackPassId = true,
 				ChefPackPassId = true,
 				SpacePackPassId = true,
+				AutoBowlPassId = true, -- #4266: the Auto Bowl pass id, its Store card hidden while 0
 				FusionCopies = true, -- #4104: checked in Fusion.spec
 				FusionGoldSeconds = true,
 				FusionRainbowSeconds = true,

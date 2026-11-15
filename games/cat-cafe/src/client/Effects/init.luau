@@ -17,6 +17,7 @@
 -- Wiring and file map: README.md next to this file.
 
 local AdminAir = require(script.AdminAir)
+local AdminDrops = require(script.AdminDrops)
 local AdminFlash = require(script.AdminFlash)
 local Ambient = require(script.Ambient)
 local ArcadeGlow = require(script.ArcadeGlow)
@@ -205,6 +206,7 @@ function Effects.start()
 		BulbChase.start, -- #4070: the fairground's bulbs chase at night
 		StormFall.start, -- #4197: a Cat Storm's strays fall out of the sky
 		AdminAir.start, -- #4197: Golden Hour's gold motes and Money Storm's coin glints round you
+		AdminDrops.start, -- #4197: Fish Fountain's fish arc out, Crate Drop's crates come down by parachute
 		AdminFlash.start, -- #4325: an admin event's 3, 2, 1, name splash, world tint, strip and end card
 		TrailSparkle.start,
 		PawTrail.start,

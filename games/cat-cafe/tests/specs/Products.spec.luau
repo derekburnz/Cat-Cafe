@@ -71,11 +71,11 @@ return function()
 				cafe_pass = {}, -- #1626: everything comes from the paid track's levels
 				trait_tokens_20 = {}, -- #3864: Trait Tokens only
 				trait_tokens_50 = {},
-				-- #3996: Today's Deal (todays-deal-3996.md section 2)
-				deal_1 = { big_tip_potion = 5, swift_potion = 2 },
-				deal_2 = {}, -- 7 Trait Tokens
-				deal_3 = { steady_potion = 10, big_tip_potion = 2 },
-				deal_4 = { big_tip_potion = 4, swift_potion = 1, steady_potion = 2 },
+				-- #3996: Today's Deal; #4238: no potions, golden fish, Trait Tokens and golden crates
+				deal_1 = {}, -- 250 golden fish
+				deal_2 = {}, -- 10 Trait Tokens
+				deal_3 = {}, -- 10 golden crates
+				deal_4 = {}, -- 5 golden crates and 100 golden fish
 			}
 			-- #1625: besides potions only the Starter Bundle's named cat and sign style, never anything random
 			-- #2850: a fixed 2x, not random; #4020: and the fixed potions in its place for a buyer who owns a Money pass
@@ -89,12 +89,11 @@ return function()
 					expect(
 						key == "potions"
 							or (product.id == "starter_bundle" and extras[key] == true)
+							or (key == "traitTokens" and (string.sub(product.id, 1, 13) == "trait_tokens_" or product.id == "deal_2"))
+							-- #4238: Today's Deal's golden fish and golden crates (shown with their odds)
 							or (
-								key == "traitTokens"
-								and (
-									string.sub(product.id, 1, 13) == "trait_tokens_"
-									or product.id == "deal_2"
-								)
+								(key == "fish" or key == "crates")
+								and string.sub(product.id, 1, 5) == "deal_"
 							)
 					).to.equal(true)
 				end
@@ -123,9 +122,9 @@ return function()
 					expect(Config.ProductIds[bundle.product]).to.be.ok()
 				end
 				expect(Traits.BUNDLES[1].tokens).to.equal(20)
-				expect(Traits.BUNDLES[1].robux).to.equal(99)
+				expect(Traits.BUNDLES[1].robux).to.equal(49) -- #4377: half price (was 99)
 				expect(Traits.BUNDLES[2].tokens).to.equal(50)
-				expect(Traits.BUNDLES[2].robux).to.equal(199)
+				expect(Traits.BUNDLES[2].robux).to.equal(99) -- #4377: half price (was 199)
 			end
 		)
 

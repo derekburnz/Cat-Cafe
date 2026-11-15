@@ -1901,10 +1901,6 @@ local function priceOf(kind: "pass" | "product", id: number): number?
 	return nil
 end
 
--- #2131: a pass prompt that said bought, by player and pass id: whether it was the account's first spend, kept until
--- PassService.purchased confirms it with Roblox (a faked flag never logs a purchase).
-local pendingPasses: { [Player]: { [number]: boolean } } = {} -- cleared with the session
-
 -- #1888: a game pass prompt closed (PromptGamePassPurchaseFinished on the server): bought, or store_cancelled.
 local function onPassPrompt(player: Player, passId: unknown, purchased: unknown)
 	local sku = StoreFunnel.passSku(passId)
@@ -1917,26 +1913,21 @@ local function onPassPrompt(player: Player, passId: unknown, purchased: unknown)
 		promptClosed(player, sku, "cancelled")
 		return
 	end
-	promptClosed(player, sku, "bought")
-	-- now, before PassService's check marks the pass owned; robux_purchase waits for that check (#2131)
-	local pending = pendingPasses[player] or {}
-	pendingPasses[player] = pending
-	pending[passId :: number] = not spentBefore(player, profile, 0, passId :: number)
+	promptClosed(player, sku, "bought") -- robux_purchase waits for PassService's check (#2131)
 end
 
 -- #2131: PassService confirmed a bought pass with Roblox: robux_purchase now.
+-- #4438: this alone decides, with no note from onPassPrompt. Both listen to PromptGamePassPurchaseFinished and
+-- PassService's runs first; when Roblox answered its ownership check without a wait, it confirmed before
+-- onPassPrompt had noted the buy, and the purchase was never logged. spentBefore leaves this pass out, so asking
+-- it now gives the same first or repeat.
 local function onPassConfirmed(player: Player, passId: number)
-	local pending = pendingPasses[player]
-	local first = if pending ~= nil then pending[passId] else nil
-	if first == nil then
-		return
-	end
-	pending[passId] = nil
 	local sku = StoreFunnel.passSku(passId)
 	local current = DataService.get(player)
 	if sku == nil or current == nil then
 		return
 	end
+	local first = not spentBefore(player, current, 0, passId)
 	task.spawn(function()
 		local price = priceOf("pass", passId) or 0 -- yields (GetProductInfo)
 		Telemetry.robuxPurchase(player, current, sku, price, first)
@@ -3001,7 +2992,6 @@ local function onRelease(player: Player, profile: Profile)
 	end
 	sessions[player] = nil
 	lastWhere[player] = nil
-	pendingPasses[player] = nil
 end
 
 -- #3098: whether a free stray (not locked by a catch) stands within FirstFive.STRAY_NEAR studs of `at`.

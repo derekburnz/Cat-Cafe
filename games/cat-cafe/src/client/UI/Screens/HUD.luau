@@ -2179,6 +2179,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			name = "Harvest",
 			label = "Harvest",
 			icon = HarvestLogic.PUMPKIN,
+			image = ShopIcons.hud("Harvest"), -- #4460: the pumpkin picture; the 🎃 shows if it fails to load
 			style = "gold",
 		},
 	}

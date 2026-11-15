@@ -2644,6 +2644,56 @@ def swim_ring_hat(ctx):
               (0.15, 0.09, 0.125), "milk", rot=R @ _rz(math.degrees(a)))
 
 
+def prize_bow(ctx):
+    """Booth Plush Cat (#4061, Legendary, the Ticket Booth's prize): a big red prize bow on the right of its head with
+    a gold ticket tag hanging from it that glows (the child Model _Tag_Glow, Neon), and a row of stitches down its
+    brow like a sewn toy."""
+    P = ctx.pen("head")
+    c = Vector((0.25, -0.1, 0.13))
+    R = _ry(-14)
+    P.box(tuple(c), (0.12, 0.1, 0.12), "shirt_red", rot=R, bevel=True)                                # the knot
+    for sx in (-1, 1):
+        P.cyl(tuple(c + R @ Vector((sx * 0.17, 0, 0))), 0.03, 0.2, "shirt_red", rot=R @ _ry(sx * 90), r2=0.13,
+              segments=8)                                                                             # the loops
+        P.box(tuple(c + R @ Vector((sx * 0.07, -0.03, -0.17))), (0.08, 0.03, 0.2), "shirt_red",
+              rot=R @ _ry(sx * 16))                                                                   # the tails
+    t0 = c + Vector((-0.02, 0.05, 0.21))                                                              # the ticket,
+    G = ctx.piece("Tag_Glow", "head", tuple(c + Vector((0.0, 0.05, 0.05))))                           # stood behind
+    G.box(tuple(t0), (0.2, 0.035, 0.28), "rarity_legend", rot=_ry(-12))                               # the knot
+    P.cyl(tuple(t0 + Vector((0.0, -0.022, 0.02))), 0.05, 0.012, "shirt_red", rot=_rx(90), segments=8) # its stamp
+    for i in range(3):                                                                                # stitches
+        P.box((-0.2, -(ctx.hd + 0.004), -0.06 - 0.085 * i), (0.09, 0.012, 0.022), "milk", rot=_ry(28 * (i % 2 * 2 - 1)))
+
+
+def inner_tube(ctx):
+    """Booth Plush Cat's second prop: a mini inner tube round its middle, red with white bands, and a little yellow
+    rubber duck riding on the tube at its left."""
+    if ctx.body == "walk":
+        P = ctx.pen("back")
+        (x0, y0, zc), (sx, sy, sz) = ctx.d["body"]
+        c = Vector((0.0, 0.0, -sz * 0.52))
+        ro = math.hypot(sx, sy) / 2 + 0.22
+    else:
+        P = ctx.pen("up")
+        c = Vector((0.0, cats.B_CHEST_C[1] - B_BACK_Y, 0.67 - 0.98))
+        ro = math.hypot(cats.B_CHEST_S[0], cats.B_CHEST_S[1]) / 2 + 0.22
+    t, h = 0.27, 0.24
+    # the tube is solid through the middle (the body fills it): a wide band and a taller, narrower one give it a
+    # round side
+    P.cyl(tuple(c), ro, h * 0.62, "shirt_red", segments=14)
+    P.cyl(tuple(c), ro - 0.07, h, "shirt_red", segments=14)
+    rm = ro - t / 2
+    for k in range(6):
+        a = math.radians(30 + 60 * k)
+        u = Vector((math.cos(a), math.sin(a), 0.0))
+        P.box(tuple(c + u * rm), (t + 0.012, 0.17, h * 0.62 + 0.012), "milk", rot=_rz(math.degrees(a)))
+        P.box(tuple(c + u * (rm - 0.035)), (t - 0.058, 0.176, h + 0.012), "milk", rot=_rz(math.degrees(a)))
+    d0 = c + Vector((rm, 0.0, h / 2))                                                                 # the duck
+    P.ico(tuple(d0 + Vector((0, 0, 0.07))), 0.1, "pastel_butter", scale=(1.0, 1.25, 0.85))
+    P.ico(tuple(d0 + Vector((0, -0.09, 0.17))), 0.07, "pastel_butter")
+    P.box(tuple(d0 + Vector((0, -0.165, 0.16))), (0.06, 0.05, 0.025), "fur_ginger")
+
+
 def taffy_bow(ctx):
     """Taffy (Common): a wrapped taffy sweet clipped on the right of its head like a bow, twisted paper ends."""
     P = ctx.pen("head")
@@ -3578,6 +3628,7 @@ PROPS = {
     "BellhopCat": ("Head", bellhop_cap),
     # #1191 the shop-only cats
     "Sprinkles": ("Head", pastry_hat),
+    "BoothPlush": ("Head", prize_bow),               # #4061
     "DuchessMarzipan": ("Head", pearl_tiara),
     "KingCroissant": ("Head", king_crown),
     # #1637 the Cafe Pass season 1 cat
@@ -3651,10 +3702,12 @@ PROPS2 = {
     "DragonKnight": ("Back", dragon_armour),
     # Derek 2026-11-14: the Starter Bundle's Sprinkles as good as an Epic from the best area
     "Sprinkles": ("Back", cupcake_pack),
+    "BoothPlush": ("Back", inner_tube),              # #4061
 }
 # Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
 # rides, and their Roblox Model nests inside that prop's Model.
 PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"},
+          "BoothPlush": {"Tag_Glow": "Prop"},              # #4061 the lit ticket tag
           # #4251 Harvest Hollow: the lit leaf and moon
           "MapleLeaf": {"Glow": "Prop", "Leaves_Glow": "Prop2"},
           "HarvestMoon": {"Glow": "Prop", "Wheat_Glow": "Prop2"},

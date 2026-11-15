@@ -62,9 +62,39 @@ return function()
 
 	describe("the panel (section 7a, QA check 1)", function()
 		it("shows the newest five at most, never padding", function()
-			local shown = WhatsNew.latest()
+			local shown = WhatsNew.latest(math.huge)
 			expect(#shown).to.equal(math.min(WhatsNew.SHOWN, #WhatsNew.rows))
 			expect(shown[1]).to.equal(WhatsNew.rows[1])
+		end)
+
+		it("leaves out a row until its startsAt, and fills from older rows", function()
+			local timed: any = nil
+			for _, row in WhatsNew.rows do
+				if row.startsAt ~= nil then
+					expect(type(row.startsAt)).to.equal("number")
+					timed = timed or row
+				end
+			end
+			if timed == nil then
+				return
+			end
+			local before = WhatsNew.latest(timed.startsAt - 1)
+			for _, row in before do
+				expect(row.startsAt == nil or row.startsAt < timed.startsAt).to.equal(true)
+				expect(row).never.to.equal(timed)
+			end
+			local live = 0
+			for _, row in WhatsNew.rows do
+				if WhatsNew.isLive(row, timed.startsAt - 1) then
+					live += 1
+				end
+			end
+			expect(#before).to.equal(math.min(WhatsNew.SHOWN, live))
+			local shownAt = false
+			for _, row in WhatsNew.latest(timed.startsAt) do
+				shownAt = shownAt or row == timed
+			end
+			expect(shownAt).to.equal(true)
 		end)
 
 		it("writes the date as UTC month and day", function()

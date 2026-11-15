@@ -2707,6 +2707,12 @@ Layout.townSquare = {
 		{ asset = "CatCafe_Square_GardenEnd", x = 64, y = 0.1, z = 51.5, rotY = 90 },
 		{ asset = "CatCafe_Square_GardenMid", x = -64, y = 0.1, z = 0, rotY = -90 },
 		{ asset = "CatCafe_Square_GardenMid", x = 64, y = 0.1, z = 0, rotY = 90 },
+		-- #4508 (Derek2 2026-11-15: "make a signboard beside the mystery market ... that shows the new items like
+		-- backpack/shoes on it so people know where that is"): Model-Agent's `CatCafe_Square_MysterySign` (front -Z,
+		-- about 5.3 x 2.9), just past the wagon's easel end (Layout.mysteryCart), turned to face the spawn. Its arrow
+		-- points at the wagon from here. 1 stud clear of the wagon, 5 of its walk-up ring and 6 of everything else
+		-- (world scan). Skipped until its model is in (AssetRegistry.known).
+		{ asset = "CatCafe_Square_MysterySign", x = -37.1, y = 0.1, z = -58.4, rotY = -140.1 },
 	} :: { Prop },
 }
 

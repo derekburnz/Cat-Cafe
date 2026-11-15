@@ -2105,13 +2105,13 @@ local function wireIntents()
 		Net.fire("TelemetryReport", "tutorial_closed", "x")
 	end)
 	-- The net (data-model section 10): since F93 a swing starts the circles or picks a Dropped cat up
-	-- (Controllers/NetSwingController); the server answers with CatchSchedule, and each press on a circle sends only
-	-- its index, since the server stamps the time itself.
+	-- (Controllers/NetSwingController); the server answers with CatchSchedule, and each press on a circle sends its
+	-- index and the tap's time on the ring clock (#4597), which the server believes only within a short bound.
 	-- Each press is heard the instant it lands (sound list 5.1): the swing, then this device's grade estimate.
 	-- The server's own grades come back in CatchResult.
 	UI.events.catchPressed:Connect(
 		function(strayId: string, index: number, grade: Types.CircleGrade?)
-			Net.fire("CatchPress", strayId, index)
+			Net.fire("CatchPress", strayId, index, Workspace:GetServerTimeNow())
 			Moments.NetSwing:Fire(index)
 			if grade ~= nil then
 				Moments.CircleGrade:Fire(index, grade)

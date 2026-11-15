@@ -297,6 +297,16 @@ function Circles.latency(pingSeconds: number): number
 	return math.min(pingSeconds / 2, Config.CatchLatencyCapSeconds)
 end
 
+-- #4597: the time a catch press is judged at. The client's own `stamp` (its tap on the ring clock) when it is a real
+-- number, held between CatchPressStampSeconds before the arrival and the arrival itself, so a stamp can never claim a
+-- tap later than it came in or much earlier; with no stamp (an older client), the arrival less half the ping, capped.
+function Circles.pressTime(arrival: number, pingSeconds: number, stamp: unknown): number
+	if type(stamp) == "number" and stamp == stamp then
+		return math.clamp(stamp, arrival - Config.CatchPressStampSeconds, arrival)
+	end
+	return arrival - Circles.latency(pingSeconds)
+end
+
 function Circles.grade(errorSeconds: number, windows: Types.NetWindows): (Types.CircleGrade, number)
 	local err = math.abs(errorSeconds)
 	if err <= windows.perfect then
@@ -436,7 +446,8 @@ function Circles.press(
 	pressTime: number,
 	now: number
 ): Types.RingGrade?
-	Circles.expire(attempt, now)
+	-- #4597: only the rings already over when the press was made, so a tap that arrived late is still judged
+	Circles.expire(attempt, math.min(now, pressTime))
 	if math.floor(index) ~= index or index < attempt.nextIndex or index > #attempt.circles then
 		return nil -- not a whole number (NaN included), already judged or past the last circle
 	end

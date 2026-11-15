@@ -201,7 +201,8 @@ function AdminWheel.new(callbacks: Callbacks): AdminWheel
 	local side: Frame = Create("Frame", {
 		Name = "Side",
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromScale(1, 0),
+		-- Review-QA in Studio: Spun ran ~10 px past the window's right edge; kept the outlines' room inside it
+		Position = UDim2.new(1, -Outline.ROOM, 0, 0),
 		BackgroundTransparency = 1,
 		Parent = panel.content,
 	})
@@ -304,7 +305,9 @@ function AdminWheel.new(callbacks: Callbacks): AdminWheel
 		local content = panel.content.AbsoluteSize / uiScale
 		local wheelW = math.floor(math.min(content.Y, content.X * 0.48))
 		wheel.Size = UDim2.fromOffset(wheelW, wheelW)
-		side.Size = UDim2.fromOffset(math.max(0, content.X - wheelW - 12), self._sideH)
+		-- the width from the window itself (not from the scale), so a view scale that differs from Scale.get() can
+		-- never push the side past the window's edge
+		side.Size = UDim2.new(1, -(wheelW + 12 + Outline.ROOM), 0, self._sideH)
 	end
 	self._lay = lay
 	panel.content:GetPropertyChangedSignal("AbsoluteSize"):Connect(lay)

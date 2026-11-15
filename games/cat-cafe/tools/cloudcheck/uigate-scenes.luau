@@ -4927,6 +4927,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local body = window:FindFirstChild("Body", true) :: GuiObject
 		local foot = side.AbsolutePosition.Y + side.AbsoluteSize.Y
 		assert(foot <= body.AbsolutePosition.Y + body.AbsoluteSize.Y + 1, "uigate: the Admin Wheel's Spin and line run out of the window (#4195)")
+		-- Review-QA in Studio: Spun ran ~10 px past the window's right edge; Spin and its outline stay inside
+		local spin = side:FindFirstChild("Spin") :: GuiObject
+		local right = body.AbsolutePosition.X + body.AbsoluteSize.X
+		assert(spin.AbsolutePosition.X + spin.AbsoluteSize.X + 3 <= right + 0.5,
+			("uigate: Spin ends at %.0f, the window at %.0f (#4210)"):format(spin.AbsolutePosition.X + spin.AbsoluteSize.X, right))
 	end },
 	{ "AdminWheelWon", function()
 		Scenes._admin = true

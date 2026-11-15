@@ -8,7 +8,7 @@
 --
 -- Hidden means the ring's SurfaceGui pieces are not Visible (StationLockController switches the SurfaceGui's own
 -- Enabled for a locked station, so the two never fight) and the art laid in its middle has LocalTransparencyModifier 1.
--- A sweep every SWEEP seconds puts the look back after anything else touches it (a station unlocking). Listening only.
+-- A sweep every SWEEP (1) seconds puts the look back after anything else touches it (a station unlocking). Listening only.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -17,7 +17,7 @@ local WalkUp = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Wa
 
 local StationCircles = {}
 
-local SWEEP = 2 -- seconds between sweeps of the known rings
+local SWEEP = 1 -- seconds between sweeps of the known rings (a station unlocking flashes its art at most this long)
 
 local started = false
 local shown = false

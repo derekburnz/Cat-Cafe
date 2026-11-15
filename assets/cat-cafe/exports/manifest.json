@@ -460333,6 +460333,75 @@
           "centered": "footprint center x=0.00 y=0.46"
         }
       }
+    },
+    {
+      "name": "CatCafe_Square_UpdatePoster",
+      "category": "Square",
+      "module": "updateposter",
+      "objects": [
+        "CatCafe_Square_UpdatePoster",
+        "CatCafe_Square_UpdatePoster_Screen"
+      ],
+      "triangles": 760,
+      "budget": 4000,
+      "size_studs": {
+        "x": 8.8,
+        "y": 1.25,
+        "z": 8.82
+      },
+      "size_roblox": [
+        8.8,
+        8.82,
+        1.25
+      ],
+      "bounds_min": [
+        -4.4,
+        -0.64,
+        0.0
+      ],
+      "bounds_max": [
+        4.4,
+        0.6,
+        8.82
+      ],
+      "pivot": "the base centre between its posts on the square's floor (world y 0.1), front -Z; updateposter.SPOT, facing the player spawn",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [],
+      "screen": {
+        "part": "Screen",
+        "face": "Front (-Z)",
+        "size": [
+          8.0,
+          4.5
+        ]
+      },
+      "placement_suggested_roblox": [
+        -13.5,
+        0.1,
+        -23.0,
+        -123.69
+      ],
+      "studio": "#4362: the update poster in the Town Square (suggested spot updateposter.SPOT, the pity sign's mirror, facing the spawn). Streams Atomic. The UI's SurfaceGui (Adornee = the part named Screen, 8.0 x 4.5, night blue) draws the next update's picture, name, countdown and the Notify Me tap on its Front (-Z) face.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_UpdatePoster.model.json",
+      "rbx_parts": 48,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_UpdatePoster.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_UpdatePoster.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "760/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "328 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.02"
+        }
+      }
     }
   ]
 }

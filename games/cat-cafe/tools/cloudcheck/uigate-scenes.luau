@@ -207,6 +207,8 @@ local function samplePlayer(now)
 		},
 		achievements = achievements,
 		dailyTreat = { stamp = 2, lastDay = day - 1, due = true, nextDay = 3 },
+		-- #4251: a Harvest Hollow player with 65 pumpkins who bought the Acorn Hat and the Hay Bale Sofa
+		harvest = { pumpkins = 65, bought = { acorn_hat = true, hay_bale_sofa = true } },
 		-- F91: a lawn half done: two pieces out, two more in the bag, a Red Brick path and the White Picket
 		lawnOwned = {
 			tulip_bed = true,
@@ -10918,6 +10920,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	{ "LawnStallFences", function()
 		UI.nursery.open("fence")
+	end },
+	-- #4251: the Harvest Stall with 65 pumpkins: the Acorn Hat Owned, 50 and 60 gold, 70 and 80 greyed; then its Decor tab
+	{ "HarvestStall", function()
+		UI.harvest.open("outfit")
+	end },
+	{ "HarvestStallDecor", function()
+		UI.harvest.open("decor")
 	end },
 	-- #1052: the Corner Shop with every line: a Swift Potion left, snacks part bought, no Big Snack, a Steady Potion sold out
 	{ "CornerShop", function()

@@ -101,6 +101,7 @@ UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the en
 UI.trade = {} -- F102 trading, filled at the end of the file
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
+UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
 UI.store = {} -- the Store window behind the HUD's Store tile, filled at the end of the file
 UI.pass = {} -- #1646 the Cafe Pass window behind the HUD's Pass tile, filled at the end of the file
 
@@ -115,6 +116,7 @@ UI.events = {
 	toggleDecor = Signal.new(), -- (decorId, placed: boolean)
 	-- F91 front lawn (front-lawn.md section 3): forward as BuyLawn
 	buyLawn = Signal.new(), -- (id, spotId?)  a piece or style; a piece onto spotId, else the first free spot
+	buyHarvest = Signal.new(), -- (id)  a Harvest Stall item, paid in pumpkins (#4251)
 	-- #1751 (back with #1758): the Lawn cards' Use and Remove
 	setLawnSpot = Signal.new(), -- (spotId, pieceId)  forward as SetLawnSpot; pieceId "" takes the spot's piece in
 	setLawnStyle = Signal.new(), -- (kind, id)  forward as SetLawnStyle; id "" for Grey Slabs or no fence
@@ -694,6 +696,7 @@ local function render()
 	UI.mystery.render(state)
 	UI.trade.render(state)
 	UI.nursery.render(state)
+	UI.harvest.render(state)
 	UI.store.render()
 	UI.pass.render()
 	if cannonHint() ~= hintShown then
@@ -1764,6 +1767,7 @@ function UI.init(config: Types.InitConfig)
 	UI.cafeEvent.start(parent) -- the Cafe Event chip, its start banner and the square's board face (#2487)
 	UI.trade.start() -- the Trade window in the modal (F102)
 	UI.nursery.start() -- the Garden Nursery window, opened from its stall's prompt (#1200)
+	UI.harvest.start() -- the Harvest Stall window, opened from its stall's prompt (#4251)
 	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
 	UI.pass.start() -- the Cafe Pass window; its HUD tile shows while a season runs (#1646)
 	worldTags = WorldTags.new(UI.settings.value("catIncome")) -- #2551: the Cat income switch as it stands now
@@ -1994,6 +1998,7 @@ function UI.destroy()
 	UI.cafeEvent.reset()
 	UI.trade.reset()
 	UI.nursery.reset()
+	UI.harvest.reset()
 	UI.store.reset()
 	UI.pass.reset()
 	UI.bubbles.reset()
@@ -9329,6 +9334,158 @@ do
 			window:destroy()
 		end
 		nursery.window = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Harvest Stall (#4251, harvest-hollow-spec section 4)
+--
+-- The market stall in Harvest Hollow (tag HarvestStall, Gameplay-Engineer's HarvestService) carries a ProximityPrompt
+-- named HarvestStallPrompt; holding it opens the stall window in the modal, and walking more than
+-- HarvestStallRange + 4 studs from the stall closes it. A Buy fires BuyHarvest(id), which the server checks (area open,
+-- Tier 2, pumpkins, standing at the stall). Until the server side ships nothing carries the tag, so nothing opens.
+do
+	local HarvestStall = require(script.Screens.HarvestStall)
+	local SharedConfig =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+	local STALL_TAG = "HarvestStall"
+	local PROMPT_NAME = "HarvestStallPrompt"
+	local FAR_STUDS: number = (SharedConfig.HarvestStallRange or 14) + 4
+	local harvest = {
+		window = nil :: HarvestStall.HarvestStall?,
+		connections = {} :: { RBXScriptConnection },
+		prompts = {} :: { [ProximityPrompt]: boolean },
+	}
+
+	local function stallDistance(): number?
+		local character = Players.LocalPlayer.Character
+		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+		if root == nil or not root:IsA("BasePart") then
+			return nil
+		end
+		local best: number? = nil
+		for _, stall in CollectionService:GetTagged(STALL_TAG) do
+			if stall:IsA("Model") and stall:IsDescendantOf(Workspace) then
+				local distance = (
+					(stall :: Model):GetPivot().Position - (root :: BasePart).Position
+				).Magnitude
+				if best == nil or distance < best then
+					best = distance
+				end
+			end
+		end
+		return best
+	end
+
+	local function open()
+		local window = harvest.window
+		local modalView = modal
+		if window == nil or modalView == nil then
+			return
+		end
+		window:render(state)
+		modalView:open("HarvestStall")
+	end
+
+	local function track(stall: Instance)
+		if not stall:IsDescendantOf(Workspace) then
+			return
+		end
+		local found = stall:FindFirstChild(PROMPT_NAME, true)
+		if found == nil or not found:IsA("ProximityPrompt") then
+			local waiting: RBXScriptConnection
+			waiting = stall.DescendantAdded:Connect(function(child: Instance)
+				if child.Name == PROMPT_NAME and child:IsA("ProximityPrompt") then
+					waiting:Disconnect()
+					track(stall)
+				end
+			end)
+			table.insert(harvest.connections, waiting)
+			return
+		end
+		local prompt = found :: ProximityPrompt
+		if harvest.prompts[prompt] then
+			return
+		end
+		harvest.prompts[prompt] = true
+		table.insert(harvest.connections, prompt.Triggered:Connect(open))
+		table.insert(
+			harvest.connections,
+			prompt.AncestryChanged:Connect(function()
+				if not prompt:IsDescendantOf(Workspace) then
+					harvest.prompts[prompt] = nil
+				end
+			end)
+		)
+	end
+
+	function UI.harvest.start()
+		UI.harvest.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local window = HarvestStall.new({
+			buy = function(id: string)
+				UI.events.buyHarvest:Fire(id)
+			end,
+			close = function()
+				if modalView:current() == "HarvestStall" then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				local distance = stallDistance()
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		harvest.window = window
+		modalView:register("HarvestStall", {
+			frame = window.frame,
+			onOpen = function()
+				window:render(state)
+				window:opened()
+			end,
+			onClose = function()
+				window:closed()
+			end,
+		})
+		for _, stall in CollectionService:GetTagged(STALL_TAG) do
+			track(stall)
+		end
+		table.insert(
+			harvest.connections,
+			CollectionService:GetInstanceAddedSignal(STALL_TAG):Connect(track)
+		)
+	end
+
+	-- The window on one tab ("outfit" by default), as the stall's prompt opens it; the UI gate's scenes call this too.
+	function UI.harvest.open(tab: string?)
+		local window = harvest.window
+		if window and (tab == "outfit" or tab == "decor") then
+			window:showTab(tab :: any)
+		end
+		open()
+	end
+
+	function UI.harvest.render(playerState: Types.PlayerState)
+		local window = harvest.window
+		if window then
+			window:render(playerState)
+		end
+	end
+
+	function UI.harvest.reset()
+		for _, connection in harvest.connections do
+			connection:Disconnect()
+		end
+		table.clear(harvest.connections)
+		table.clear(harvest.prompts)
+		local window = harvest.window
+		if window then
+			window:destroy()
+		end
+		harvest.window = nil
 	end
 end
 

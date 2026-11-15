@@ -95,7 +95,7 @@ end
 
 function MailLogic.waiting(mail: { Letter }?, now: number): number
 	local count = 0
-	for _, letter in mail or {} do
+	for _, letter in (mail or {}) :: { Letter } do
 		if MailLogic.open(letter, now) then
 			count += 1
 		end
@@ -199,7 +199,7 @@ function MailLogic.gift(prize: Prize, names: Names?): Gift
 		}
 	do
 		local map: { [string]: number } = (prize :: any)[kind.key] or {}
-		local namer = if names == nil
+		local namer: ((id: string) -> string?)? = if names == nil
 			then nil
 			elseif kind.key == "lures" then names.lure
 			else names.food
@@ -220,7 +220,7 @@ end
 function MailLogic.rows(mail: { Letter }?, now: number, names: Names?): { Row }
 	local waiting: { Letter } = {}
 	local claimed: { Letter } = {}
-	for _, letter in mail or {} do
+	for _, letter in (mail or {}) :: { Letter } do
 		if letter.claimed then
 			table.insert(claimed, letter)
 		elseif MailLogic.open(letter, now) then

@@ -396,10 +396,10 @@ function Mailbox.setCatalog(self: any, catalog: Types.Catalog)
 	end
 	for _, kind in
 		{
-			{ into = self._potions, from = catalog.potions or {} },
-			{ into = self._lures, from = catalog.lures },
-			{ into = self._foods, from = catalog.catFood or {} },
-		}
+			{ into = self._potions, from = (catalog.potions or {}) :: { any } },
+			{ into = self._lures, from = catalog.lures :: { any } },
+			{ into = self._foods, from = (catalog.catFood or {}) :: { any } },
+		} :: { { into: any, from: { any } } }
 	do
 		table.clear(kind.into)
 		for _, def in kind.from :: { any } do

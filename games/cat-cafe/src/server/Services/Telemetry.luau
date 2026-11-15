@@ -165,6 +165,9 @@ export type CustomEvent =
 	-- screen had drifted), "no_home" or "no_body" (the night's refusal is not counted)
 	| "drop_refused"
 	| "left_after_shove"
+	-- #4359: a Reset my save went through, value the cats owned before it; the device and the tier before it. Growth
+	-- drops these players from the new-player funnels, D1 and D7 and the loading screen A/B
+	| "save_reset"
 	| "left_after_restart_warning" -- #2720: value the seconds since the last restart warning; warnings seen, its seconds left
 	| "slots_full"
 	| "role_favorite"
@@ -1532,6 +1535,20 @@ function Telemetry.catWorking(player: Player, uid: string)
 	end
 	session.waitingForRole[uid] = nil
 	funnelStep(player, "catch_attempt", funnel.id, 5, "working", funnel.values)
+end
+
+-- #4359: this player's save is about to be reset (ResetSaveService), logged before the kick
+function Telemetry.saveReset(player: Player, profile: Profile)
+	local cats = 0
+	for _ in profile.cats do
+		cats += 1
+	end
+	Telemetry.custom(
+		player,
+		"save_reset",
+		cats,
+		{ Telemetry.device(player) or "unknown", tierText(profile) }
+	)
 end
 
 -- A shove knocked this player's cat loose: if they leave within LEFT_AFTER_SHOVE_SECONDS, left_after_shove fires.

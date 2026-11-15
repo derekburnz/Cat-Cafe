@@ -76,7 +76,11 @@ function Payout.pay(
 			local crate = if paidId ~= nil then Catalog.getCrate(paidId) else nil
 			if paidId ~= nil and crate ~= nil then
 				profile.crates[paidId] = (profile.crates[paidId] or 0) + count
-				table.insert(paid, string.format("%d %s", count, crate.name))
+				-- "5 Golden Neighbourhood Crates" (Review-QA on the Admin Wheel); ClaimAll.merge adds both forms up
+				table.insert(
+					paid,
+					string.format("%d %s%s", count, crate.name, if count == 1 then "" else "s")
+				)
 			end
 		end
 	end

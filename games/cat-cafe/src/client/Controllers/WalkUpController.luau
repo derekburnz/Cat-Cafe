@@ -30,6 +30,7 @@ local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
 local LateStations = require(Shared:WaitForChild("LateStations"))
 local MysticIntroCut = require(script.Parent.Parent.Effects.MysticIntroCut)
 local Net = require(script.Parent.Parent.Net)
+local StationLockController = require(script.Parent.StationLockController)
 local StationOpens = require(Shared:WaitForChild("StationOpens"))
 local Tips = require(Shared:WaitForChild("Tips"))
 local Traits = require(Shared:WaitForChild("Traits"))
@@ -490,6 +491,9 @@ function WalkUpController.start()
 				})
 			end
 			for _, kind in KINDS do
+				if StationLockController.locked(kind.tag) then
+					continue -- #4539: below its tier the station is hidden and its ring does not open
+				end
 				for _, model in CollectionService:GetTagged(kind.tag) do
 					if not model:IsDescendantOf(Workspace) then
 						continue -- the templates in ReplicatedStorage.Assets carry the tags too

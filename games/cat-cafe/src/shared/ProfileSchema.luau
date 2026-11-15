@@ -357,6 +357,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 			firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT,
 			firstHourV3Step = 0,
 			cleanStep = 0,
+			cleanV8Step = 0, -- #4504
 			playtimeStep = 0,
 		},
 		tipsSeen = {},
@@ -845,6 +846,7 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT,
 		firstHourV3Step = 0,
 		cleanStep = 0,
+		cleanV8Step = 0,
 		playtimeStep = 0,
 	}
 	if type(value) ~= "table" then
@@ -901,7 +903,12 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	-- logged any first_hour step is out of playtime_v1: both count only players who start on them.
 	local cleanStep = value.cleanStep
 	telemetry.cleanStep = if type(cleanStep) == "number"
-		then math.clamp(asInt(cleanStep, 0), 0, Onboarding.CLEAN_COUNT)
+		then math.clamp(asInt(cleanStep, 0), 0, Onboarding.V7_CLEAN_COUNT)
+		else Onboarding.v7Start(telemetry)
+	-- #4504: onboarding_v8 (cleanV8Step, logged while the walk-through runs bowl first) the same way
+	local cleanV8Step = value.cleanV8Step
+	telemetry.cleanV8Step = if type(cleanV8Step) == "number"
+		then math.clamp(asInt(cleanV8Step, 0), 0, Onboarding.CLEAN_COUNT)
 		else Onboarding.cleanStart(telemetry)
 	local playtimeStep = value.playtimeStep
 	telemetry.playtimeStep = if type(playtimeStep) == "number"

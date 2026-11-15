@@ -3053,32 +3053,11 @@ function UI.bait.arrived(cat: Types.BaitCat, bowl: number?)
 	end)
 end
 
--- #1897: FirstWow(rarity, first) from the server: the first wow cat came to the bowl (UI.bigPull.wow plays it). The
--- card's portrait is the cat at a bowl with that rarity (BaitReady comes first), unless the server names it.
-function UI.bait.wow(rarity: string, first: boolean?, catId: string?)
-	if UI.bait.busy() then
-		-- #2412: after the catch or the carry; gone if the bowl's cat left meanwhile
-		UI.bait.whenCalm(function()
-			return bowls.cats[1] ~= nil or bowls.cats[2] ~= nil
-		end, function()
-			UI.bait.wow(rarity, first, catId)
-		end)
-		return
-	end
-	local id = catId
-	if id == nil then
-		for _, cat in bowls.cats do
-			local catAt: Types.BaitCat? = cat
-			if catAt then
-				local def = lookupCat(catAt.catId)
-				if def and def.rarity == rarity then
-					id = catAt.catId
-				end
-			end
-		end
-	end
-	UI.bigPull.wow(rarity, first, id)
-end
+-- #1897: FirstWow(rarity, first) from the server: the first wow cat came to the bowl. #4488 (Derek 2026-11-15: "make
+-- it so the 'your first rare' after foodbowl scene doesn't show up just the tame button so they don't have to clear 2
+-- things for the same cat"): no card and no toast; the bait card's Tame button is the one thing for that cat.
+-- UI.bigPull.wow still draws the card, for the UI gate and should it come back.
+function UI.bait.wow(_rarity: string, _first: boolean?, _catId: string?) end
 
 -- The server resolved the cat (tamed or let go): close its card and forget it. `bowl` is 1 or 2 (#1161), nil is 1.
 function UI.bait.hideReady(bowl: number?)
@@ -7601,7 +7580,7 @@ do
 			tag = CART_TAG,
 			name = "CatCafeMysteryBang",
 			line = function(value: any): string?
-				return MysteryLogic.bang(value)
+				return MysteryLogic.bang(value, workspace:GetServerTimeNow()) -- #4525
 			end,
 		})
 		bang:update(state)

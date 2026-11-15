@@ -161,6 +161,9 @@ type Def = { name: string, rarity: string, exclusive: boolean? }
 
 local TradeLogic = {}
 
+-- #4517: the line under the offer grids; every $/s in the window is at the player's own multipliers
+TradeLogic.RATE_NOTE = "Cats show what they earn with your current multipliers"
+
 TradeLogic.ICON = "🤝"
 TradeLogic.TITLE = "Trade"
 TradeLogic.CHANGED_SECONDS = 2 -- how long a changed tile flashes and its side says "Changed!"

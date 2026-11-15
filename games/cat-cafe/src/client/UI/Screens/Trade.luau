@@ -535,6 +535,22 @@ function Trade._buildOffer(self: any, content: Frame)
 			crates = {} :: { TradeItemTile.TradeItemTile },
 		},
 	}
+	-- #4517 (Derek 2026-11-15: "add a note to trade menu that says shows cats with how much money they make with your
+	-- current multipliers"): one small line under the two grids, where the totals sat before they moved to the
+	-- button row
+	self._rateNote = text({
+		Name = "RateNote",
+		Position = UDim2.fromOffset(0, HEADER_H + 4 + gridW + 4),
+		Size = UDim2.fromOffset(2 * columnW + 16, 18),
+		FontFace = Theme.fonts.body,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextWrapped = false,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Text = TradeLogic.RATE_NOTE,
+		Parent = offer,
+	})
 	-- #2745: each side's golden fish card, after the crates; yours opens the picker
 	self._side.me.fish = TradeItemTile.new({
 		parent = mineGrid,

@@ -40,6 +40,9 @@ export type Prize = {
 	prize: Types.IndexPrize?, -- paid by Payout
 	tokens: number?, -- Trait Tokens, into profile.traits.tokens
 	cat: string?, -- an exclusive cat's id, given by TicketBoothService (the Booth Plush Cat)
+	-- the weekly Water Park shelf (spec 1.3): a decor piece (Catalog.boothDecor, into decorOwned) or a wearable (a Looks
+	-- accessory, owned once its once-limit is used); only buyable the weeks it is on the shelf (weekShelf)
+	weekly: { kind: "decor" | "look", item: string }?,
 }
 
 -- In shelf order (section 1.3)
@@ -99,6 +102,77 @@ TicketBooth.PRIZES = {
 	},
 } :: { Prize }
 
+-- #4061 (spec 1.3): the weekly Water Park shelf, SHELF_SIZE cards a week taken in turn from WEEKLY (Monday 00:00 UTC).
+-- Decor pays like a crate piece of its rarity while in use (Rare +4%, Epic +8%); a wearable pays WEAR_BONUS while it
+-- is the cafe's accessory. Bought once, owned for good; "Owned" when it comes round again. The Water Squirter and
+-- Pool Noodle toys join the pool once their held play exists (Motion-FX).
+TicketBooth.SHELF_SIZE = 4
+TicketBooth.WEAR_BONUS = 0.05
+local function weekly(
+	id: string,
+	name: string,
+	line: string,
+	price: number,
+	kind: "decor" | "look",
+	item: string
+): Prize
+	return {
+		id = id,
+		name = name,
+		line = line,
+		price = price,
+		limit = { per = "once", n = 1 },
+		weekly = { kind = kind, item = item },
+	}
+end
+TicketBooth.WEEKLY = {
+	weekly("wFlamingoFloat", "Flamingo Float", "+4% money", 1500, "decor", "decor_flamingo_float"),
+	weekly(
+		"wSnorkelMask",
+		"Snorkel Mask",
+		"+5% money while worn",
+		1200,
+		"look",
+		"acc_snorkel_mask"
+	),
+	weekly(
+		"wSplashFountain",
+		"Splash Fountain",
+		"+8% money",
+		3000,
+		"decor",
+		"decor_splash_fountain"
+	),
+	weekly("wSwimCap", "Swim Cap", "+5% money while worn", 1500, "look", "acc_swim_cap"),
+	weekly("wTicketArch", "Ticket Arch", "+8% money", 2500, "decor", "decor_ticket_arch"),
+	weekly("wSunVisor", "Sun Visor", "+5% money while worn", 1800, "look", "acc_sun_visor"),
+	weekly(
+		"wWavePoolTiles",
+		"Wave Pool Tiles",
+		"+4% money",
+		1800,
+		"decor",
+		"decor_wave_pool_tiles"
+	),
+	weekly(
+		"wStarfishShades",
+		"Starfish Shades",
+		"+5% money while worn",
+		2000,
+		"look",
+		"acc_starfish_shades"
+	),
+	weekly(
+		"wLifeguardChair",
+		"Lifeguard Chair",
+		"+4% money",
+		2000,
+		"decor",
+		"decor_lifeguard_chair"
+	),
+	weekly("wSnackHut", "Snack Hut", "+8% money", 3000, "decor", "decor_snack_hut"),
+} :: { Prize }
+
 -- #4061 (spec 1.3): the "Park Regular" chat title, held for good once a save has spent this many tickets
 -- (CafePassService adds it to the tag choices from profile.tickets.spent)
 TicketBooth.REGULAR_SPENT = 10000
@@ -110,6 +184,9 @@ end
 
 local byId: { [string]: Prize } = {}
 for _, prize in TicketBooth.PRIZES do
+	byId[prize.id] = prize
+end
+for _, prize in TicketBooth.WEEKLY do
 	byId[prize.id] = prize
 end
 
@@ -221,6 +298,61 @@ function TicketBooth.left(save: Types.TicketSave, prize: Prize, now: number): nu
 	return math.max(0, limit.n - used)
 end
 
+-- #4061: this week's SHELF_SIZE weekly cards, the next ones of WEEKLY in turn each Monday 00:00 UTC.
+function TicketBooth.weekShelf(now: number): { Prize }
+	local n = #TicketBooth.WEEKLY
+	local start = (TicketBooth.weekOf(now) * TicketBooth.SHELF_SIZE) % n
+	local out: { Prize } = {}
+	for i = 0, math.min(TicketBooth.SHELF_SIZE, n) - 1 do
+		table.insert(out, TicketBooth.WEEKLY[(start + i) % n + 1])
+	end
+	return out
+end
+
+function TicketBooth.onShelf(prize: Prize, now: number): boolean
+	return table.find(TicketBooth.weekShelf(now), prize) ~= nil
+end
+
+-- Whether the save bought weekly `prize` (its once-limit used).
+function TicketBooth.owns(save: Types.TicketSave, prize: Prize): boolean
+	local entry = save.limits[prize.id]
+	return entry ~= nil and entry.n >= 1
+end
+
+-- The weekly wearables the save owns, as Looks items (accessory id -> true), added into a copy of `items`.
+function TicketBooth.lookItems(
+	save: Types.TicketSave,
+	items: { [string]: boolean }
+): { [string]: boolean }
+	local out = table.clone(items)
+	for _, prize in TicketBooth.WEEKLY do
+		local w = prize.weekly
+		if w ~= nil and w.kind == "look" and TicketBooth.owns(save, prize) then
+			out[w.item] = true
+		end
+	end
+	return out
+end
+
+-- WEAR_BONUS when `accessory` (the cafe's worn Looks accessory) is a weekly wearable the save owns, else 0.
+function TicketBooth.wearBonus(save: Types.TicketSave, accessory: string?): number
+	if accessory == nil then
+		return 0
+	end
+	for _, prize in TicketBooth.WEEKLY do
+		local w = prize.weekly
+		if
+			w ~= nil
+			and w.kind == "look"
+			and w.item == accessory
+			and TicketBooth.owns(save, prize)
+		then
+			return TicketBooth.WEAR_BONUS
+		end
+	end
+	return 0
+end
+
 -- Why `prize` cannot be bought now, or nil.
 function TicketBooth.blocker(save: Types.TicketSave, prize: Prize, now: number): string?
 	local left = TicketBooth.left(save, prize, now)
@@ -230,6 +362,9 @@ function TicketBooth.blocker(save: Types.TicketSave, prize: Prize, now: number):
 			then "That's all for today"
 			elseif limit.per == "week" then "That's all for this week"
 			else "You have this already"
+	end
+	if prize.weekly ~= nil and not TicketBooth.onShelf(prize, now) then
+		return "Not on the shelf this week"
 	end
 	if save.have < prize.price then
 		return "Not enough tickets yet"
@@ -261,14 +396,19 @@ function TicketBooth.readyCount(save: Types.TicketSave, now: number): number
 			n += 1
 		end
 	end
+	for _, prize in TicketBooth.weekShelf(now) do
+		if TicketBooth.blocker(save, prize, now) == nil then
+			n += 1
+		end
+	end
 	return n
 end
 
 -- For the booth window (PlayerState.ticketBooth).
 function TicketBooth.view(save: Types.TicketSave, now: number): Types.TicketBoothView
-	local rows: { Types.TicketPrizeRow } = {}
-	for _, prize in TicketBooth.PRIZES do
-		table.insert(rows, {
+	local function row(prize: Prize): Types.TicketPrizeRow
+		local w = prize.weekly
+		return {
 			id = prize.id,
 			name = prize.name,
 			line = prize.line,
@@ -276,7 +416,18 @@ function TicketBooth.view(save: Types.TicketSave, now: number): Types.TicketBoot
 			left = TicketBooth.left(save, prize, now),
 			per = if prize.limit ~= nil then prize.limit.per :: string else nil,
 			blocker = TicketBooth.blocker(save, prize, now),
-		})
+			kind = if w ~= nil then w.kind :: string else nil,
+			item = if w ~= nil then w.item else nil,
+			owned = if w ~= nil then TicketBooth.owns(save, prize) else nil,
+		}
+	end
+	local rows: { Types.TicketPrizeRow } = {}
+	for _, prize in TicketBooth.PRIZES do
+		table.insert(rows, row(prize))
+	end
+	local week: { Types.TicketPrizeRow } = {}
+	for _, prize in TicketBooth.weekShelf(now) do
+		table.insert(week, row(prize))
 	end
 	return {
 		tickets = save.have,
@@ -287,6 +438,7 @@ function TicketBooth.view(save: Types.TicketSave, now: number): Types.TicketBoot
 		rushUsedToday = TicketBooth.dayOf(save.rushAt) == TicketBooth.dayOf(now),
 		weekEndsAt = TicketBooth.weekEndsAt(now),
 		prizes = rows,
+		week = week,
 		ready = TicketBooth.readyCount(save, now),
 	}
 end

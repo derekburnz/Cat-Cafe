@@ -5846,6 +5846,75 @@ for _, row in EVENT_DECOR do
 	table.insert(Catalog.eventDecor, def)
 end
 
+-- #4061 (Design-Agent's booth spec 1.3): the Ticket Booth's six weekly shelf pieces (TicketBooth.WEEKLY), bought with
+-- tickets and owned for good. Model-Agent's CatCafe_Decor_<Name> models (#4061 booth models). They join
+-- Catalog.passDecor with source "booth" and pay like a crate piece of their rarity while in use.
+local BOOTH_DECOR: { { id: string, rarity: Types.Rarity, name: string, kind: Types.DecorKind, description: string } } =
+	{
+		{
+			id = "decor_flamingo_float",
+			rarity = "Rare",
+			name = "Flamingo Float",
+			kind = "decoration",
+			description = "A big pink pool float, still a little damp.",
+		},
+		{
+			id = "decor_splash_fountain",
+			rarity = "Epic",
+			name = "Splash Fountain",
+			kind = "decoration",
+			description = "Little jets that splash on and off all day.",
+		},
+		{
+			id = "decor_ticket_arch",
+			rarity = "Epic",
+			name = "Ticket Arch",
+			kind = "decoration",
+			description = "A striped arch from the Water Park's front gate.",
+		},
+		{
+			id = "decor_wave_pool_tiles",
+			rarity = "Rare",
+			name = "Wave Pool Tiles",
+			kind = "decoration",
+			description = "Blue tiles with a painted wave, cool under paws.",
+		},
+		{
+			id = "decor_lifeguard_chair",
+			rarity = "Rare",
+			name = "Lifeguard Chair",
+			kind = "furniture",
+			description = "A tall white chair for keeping an eye on things.",
+		},
+		{
+			id = "decor_snack_hut",
+			rarity = "Epic",
+			name = "Snack Hut",
+			kind = "furniture",
+			description = "A tiny hut that smells of popcorn and sun cream.",
+		},
+	}
+Catalog.boothDecor = {} :: { Types.DecorDef }
+for _, row in BOOTH_DECOR do
+	local bonus = Config.CratePieceBonus[row.rarity]
+	local def: Types.DecorDef = {
+		id = row.id,
+		name = row.name,
+		cost = 0,
+		category = KIND_CATEGORY[row.kind],
+		effect = string.format("+%d%% money while in use", math.floor(bonus * 100 + 0.5)),
+		description = row.description,
+		bonus = bonus,
+		rarity = row.rarity,
+		asset = "CatCafe_Decor_" .. (row.name:gsub("[^%w]", "")),
+		source = "booth",
+		kind = row.kind,
+	}
+	Catalog.decorById[row.id] = def
+	table.insert(Catalog.passDecor, def)
+	table.insert(Catalog.boothDecor, def)
+end
+
 Catalog.crates = {} :: { Types.CrateDef }
 for _, pool in CRATE_POOLS do
 	table.insert(Catalog.crates, {

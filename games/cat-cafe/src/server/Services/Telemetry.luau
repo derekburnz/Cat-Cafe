@@ -56,6 +56,7 @@ local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassService = require(script.Parent.PassService)
+local PerfSuggest = require(ReplicatedStorage.Shared.PerfSuggest)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
@@ -217,7 +218,7 @@ export type CustomEvent =
 	-- F97 (notes-10-28-to-10-30.md section 7): a sunrise wave with no Epic or rarer stray rerolled its last one; area,
 	-- the rarity it got. A server event, logged under the first loaded player
 	| "wave_rare"
-	-- #3470: Secret cats. secret_spawn (value 1; area or "bowl", wild, bait or rescue), secret_caught (value the
+	-- #3470: Secret cats. secret_spawn (value 1; area or "bowl", wild, bait, rescue or hunt), secret_caught (value the
 	-- tackles it took on the way home; catch, bait or rescue, coat) and secret_lost (value 1; area, despawn or tackle)
 	| "secret_spawn"
 	| "secret_caught"
@@ -424,6 +425,8 @@ export type CustomEvent =
 	-- #4174: the Starter Bundle's slide-in card, value 1; shown, closed, ignored, buy or hidden (each once a session),
 	-- the device and tier
 	| "starter_suggest"
+	-- #4311: the Low performance ask, value 1; how it went (PerfSuggest.OUTCOMES), the device and the tier
+	| "perf_suggest"
 	-- #4307: the join to the first ProfileSync on the client, once a session below Tier 2; the device, the Roblox load
 	-- and "<UI build>/<save wait>" (FirstFive.bootBucket each)
 	| "client_boot"
@@ -441,6 +444,13 @@ export type CustomEvent =
 	-- #4195: an Admin Wheel spin, value 1; the prize id (AdminWheel.PRIZES), the player's tier and the event id.
 	-- Never for a test event
 	| "admin_wheel"
+	-- #4197: a player was online in a running admin event, once per event, value 1; the event id and its title (Golden
+	-- Hour, Money Storm ...). Never for a test event
+	| "admin_join"
+	-- #4197 Secret Hunt: a hunt's Secret cat caught, value how many of the hunt's are caught now; the event id
+	| "secret_hunt_found"
+	-- #4197 Crate Drop: a golden crate from an admin drop, value 1; "crate" and the event id
+	| "admin_drop"
 	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
 	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
 	-- report is "none". #2791: the server logs each gift ladder step as it pays, value the account's minutes played; the
@@ -496,6 +506,7 @@ local REPORTS = {
 	"store_guard_blocked", -- #1936: a purchase prompt the guard refused, "<source>:<reason>"
 	"buy_source", -- #4176: a purchase prompt about to open, "<source>:<pass or product id>" (StoreFunnel.BUY_SOURCES)
 	"starter_suggest", -- #4174: the Starter Bundle card's shown or how it ended (StarterSuggest.OUTCOMES)
+	"perf_suggest", -- #4311: the Low performance ask shown or how it ended (PerfSuggest.OUTCOMES)
 	"playtime_gift", -- #1947: a gift card's button, "<like|fav>:<like|favourite|close>"
 	"client_error", -- #2681: the client logged its first error line this session (value true)
 	"feedback_outcome", -- #2694: how a slide-in faces ask ended, "<answered|closed|ignored>:<early|late>"
@@ -630,6 +641,7 @@ type Session = {
 	buySources: { [string]: { source: string, at: number } }, -- #4176: the last tagged source by sku (os.clock)
 	buySourceTags: number, -- #4176: buy_source tags taken this session (StoreFunnel.BUY_SOURCES_MAX)
 	starterSuggest: { [string]: boolean }, -- #4174: starter_suggest outcomes logged this session
+	perfSuggest: { [string]: boolean }, -- #4311: perf_suggest outcomes logged this session
 	bootUi: number?, -- #4307: the client's boot_ui seconds, kept for client_boot
 	bootLogged: boolean, -- #4307: client_boot logged this session
 	giftButtons: { [string]: boolean }, -- #1947: playtime_gift logged this session, by gift kind
@@ -2435,6 +2447,17 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				{ outcome, session.device or "unknown", tierText(profile) }
 			)
 		end
+	elseif name == "perf_suggest" then
+		local outcome = Guard.oneOf(rawValue, PerfSuggest.OUTCOMES)
+		if outcome ~= nil and not session.perfSuggest[outcome] then
+			session.perfSuggest[outcome] = true
+			Telemetry.custom(
+				player,
+				"perf_suggest",
+				1,
+				{ outcome, session.device or "unknown", tierText(profile) }
+			)
+		end
 	elseif name == "store_buy" then
 		local passSku = StoreFunnel.passSku(rawValue)
 		local sku = passSku or StoreFunnel.productSku(rawValue)
@@ -2595,6 +2618,7 @@ local function onLoaded(player: Player, profile: Profile)
 		buySources = {},
 		buySourceTags = 0,
 		starterSuggest = {},
+		perfSuggest = {},
 		bootUi = nil,
 		bootLogged = false,
 		giftButtons = {},

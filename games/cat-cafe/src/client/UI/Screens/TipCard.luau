@@ -13,6 +13,7 @@ local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 
 local Create = require(script.Parent.Parent.Components.Create)
+local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
@@ -286,6 +287,11 @@ function TipCard.show(
 			self:_close(false)
 		end
 	end)
+	-- #4224 (console): B puts the tip away, without taking the selection (the player keeps moving)
+	GamepadNav.pushBack("tipCard", card, function(): boolean?
+		self:_close(false)
+		return true
+	end)
 end
 
 function TipCard._close(self: any, tapped: boolean)
@@ -294,6 +300,7 @@ function TipCard._close(self: any, tapped: boolean)
 		return
 	end
 	self._onDone = nil
+	GamepadNav.popBack("tipCard")
 	self._token += 1
 	local token = self._token
 	local drain: Tween? = self._drain

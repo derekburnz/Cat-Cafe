@@ -42,6 +42,7 @@ local REMOTES: { [string]: boolean } = {
 	-- #4104: the Fusion Observatory window
 	StartFusion = true,
 	CollectFusion = true,
+	FuseAll = true, -- #4589
 }
 
 local tracked: { [ProximityPrompt]: boolean } = {}

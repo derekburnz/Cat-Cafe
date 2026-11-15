@@ -1775,6 +1775,22 @@ Presets.catchFlavour = {
 			gustEvery = 0.18,
 			cats = { dragon_knight = 2 }, -- a taller fanfare for the Dragon Knight
 		},
+		-- #4251 Harvest Hollow (area id "harvest"): a puff of pumpkin orange, then gold sparkles, a warm ring, and
+		-- climbing orange puffs for the rarest
+		harvest = {
+			preset = "smokePuff",
+			colour = Color3.fromRGB(232, 140, 60),
+			puff = 6,
+			flakes = 10,
+			flakesFrom = "Epic",
+			ringScale = 1.3,
+			ringFrom = "Legendary",
+			gusts = 3,
+			gustsFrom = "Mythical",
+			gustHeight = 7,
+			gustEvery = 0.15,
+			cats = { harvest_moon = 2 }, -- the moon over the hollow: a taller column
+		},
 	} :: { [string]: CatchFlavour },
 }
 
@@ -6042,6 +6058,15 @@ Presets.areaFx = {
 			air = "castleMotes",
 			colour = Color3.fromRGB(255, 214, 120),
 			puffPreset = "catchSparkle",
+			puff = 6,
+		},
+		-- #4251 Harvest Hollow (area id "harvest"): a pumpkin-orange puff where its strays come and go. The falling
+		-- leaves are Effects/HarvestFx's (by the Thankful Board), so Config.World has no Harvest box and `air` here
+		-- never starts.
+		harvest = {
+			air = "harvestLeaves",
+			colour = Color3.fromRGB(232, 140, 60),
+			puffPreset = "smokePuff",
 			puff = 6,
 		},
 	} :: { [string]: AreaFxSpec },

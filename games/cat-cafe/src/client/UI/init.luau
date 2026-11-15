@@ -2362,7 +2362,7 @@ function UI.setQuiet(key: string, on: boolean)
 	if (cut.quiet[key] == true) == on then
 		return
 	end
-	cut.quiet[key] = if on then true else nil
+	(cut.quiet :: any)[key] = if on then true else nil
 	-- Review-QA on #4376: a hold whose "off" never comes (an error, a hop) clears itself after QUIET_MOST seconds
 	local hold = (cut.quietHold[key] or 0) + 1
 	cut.quietHold[key] = hold
@@ -2378,7 +2378,7 @@ function UI.setQuiet(key: string, on: boolean)
 		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or cut.held())
 	end
 	if not cut.held() then
-		cut.flush()
+		(cut :: any).flush()
 	end
 end
 -- Motion-FX's AdminFlash says when its countdown, splash or end card takes the middle of the screen (#4353); Effects
@@ -2422,7 +2422,7 @@ function UI.setCutscene(on: boolean)
 		return
 	end
 	if not cut.held() then
-		cut.flush()
+		(cut :: any).flush()
 	end
 	-- Derek 2026-11-13: the event and day strip stays down through the roll too
 	local board = hud

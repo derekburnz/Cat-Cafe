@@ -1,5 +1,5 @@
 --!strict
--- #4511 (Derek 2026-11-15 15:24 UTC: "food bowl first (can start earning money for rank up early also) into cannon to
+-- #4518 (Derek 2026-11-15 15:24 UTC: "food bowl first (can start earning money for rank up early also) into cannon to
 -- alleyway for 2 catches (not mandatory to be a rescue) and showing rankup to click right after that's ready ... then
 -- they can walk into cannon beside where they just secured the 3rd cat in safezone and go to park and that ends
 -- tutorial steps"): the walk-through's order, behind the `catchFirst` live switch.

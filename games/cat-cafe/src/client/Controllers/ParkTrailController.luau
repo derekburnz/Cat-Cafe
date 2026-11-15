@@ -117,7 +117,7 @@ end
 
 local function tick(dt: number)
 	local state = UIController.state
-	-- #4511: bowl first ends the walk-through at the Park, so its walk shows whatever parkGateTrail says
+	-- #4518: bowl first ends the walk-through at the Park, so its walk shows whatever parkGateTrail says
 	local on = LiveFlags.shown(
 		ParkTrailLogic.FLAG,
 		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. ParkTrailLogic.FLAG)

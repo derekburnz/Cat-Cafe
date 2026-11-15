@@ -62,7 +62,7 @@ end
 -- cats that count toward the goal, 0 to CATS. The walk-through leads to the bait bowl before the cannon, so the first
 -- cat most new players get is the bowl's, and the card read 0/2 with it in the cafe. The first bowl cat now counts
 -- as one (only one: more bowl cats add nothing), and every cat caught by hand counts.
--- #4511: bowl first (shared/TutorialOrder, `bowlFirst` nil reads the switch), the goal is two catches by hand in the
+-- #4518: bowl first (shared/TutorialOrder, `bowlFirst` nil reads the switch), the goal is two catches by hand in the
 -- Alleyway, so the bowl cat counts for nothing.
 function SecondCat.progress(stats: Types.Stats, bowlFirst: boolean?): number
 	local first = if bowlFirst == nil then TutorialOrder.bowlFirst() else bowlFirst
@@ -72,7 +72,7 @@ function SecondCat.progress(stats: Types.Stats, bowlFirst: boolean?): number
 end
 
 -- Whether the goal is finished: CATS cats that count, at least one of them caught by hand, so the bowl never ends
--- it and a trip out by cannon is always part of it (#3160). Bowl first (#4511): CATS caught by hand.
+-- it and a trip out by cannon is always part of it (#3160). Bowl first (#4518): CATS caught by hand.
 function SecondCat.done(stats: Types.Stats, bowlFirst: boolean?): boolean
 	return SecondCat.caught(stats) >= 1 and SecondCat.progress(stats, bowlFirst) >= SecondCat.CATS
 end

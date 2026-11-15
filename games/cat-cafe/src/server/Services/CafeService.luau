@@ -97,7 +97,7 @@ end)
 
 -- #2697: the tutorial moved forward (player, from step, to step), from the server or the client's TutorialAdvance
 CafeService.tutorialStepped = Signal.new() :: Signal.Signal<Player, number, number>
--- #4511: a move the walk-through asks for outside a step change (bowl first: to the cannon once the bowl cat is
+-- #4518: a move the walk-through asks for outside a step change (bowl first: to the cannon once the bowl cat is
 -- claimed); TutorialMoveService does it
 CafeService.tutorialMove = Signal.new() :: Signal.Signal<Player, string>
 

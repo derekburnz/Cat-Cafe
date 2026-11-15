@@ -120,7 +120,7 @@ local function schedule(player: Player, target: TutorialMoves.Target)
 end
 
 local function onStepped(player: Player, from: number, to: number)
-	-- #4511: bowl first has no step moves: the bowl comes first by itself, and the walk-through ends at a camp
+	-- #4518: bowl first has no step moves: the bowl comes first by itself, and the walk-through ends at a camp
 	-- cannon, so the old move to the Town Square cannon at the last step would pull the player away from it
 	if TutorialOrder.bowlFirst() then
 		return
@@ -131,7 +131,7 @@ local function onStepped(player: Player, from: number, to: number)
 	end
 end
 
--- #4511: a move asked for outside a step change (CafeService.tutorialMove)
+-- #4518: a move asked for outside a step change (CafeService.tutorialMove)
 local function onMove(player: Player, target: string)
 	if target == "cannon" or target == "bowl" then
 		schedule(player, target :: TutorialMoves.Target)

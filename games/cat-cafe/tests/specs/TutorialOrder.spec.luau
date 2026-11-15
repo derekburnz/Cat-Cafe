@@ -1,5 +1,5 @@
 --!strict
--- shared/TutorialOrder (#4511): the walk-through's order behind the catchFirst switch.
+-- shared/TutorialOrder (#4518): the walk-through's order behind the catchFirst switch.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local LiveFlags = require(Shared.LiveFlags)

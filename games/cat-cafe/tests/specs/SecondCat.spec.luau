@@ -60,8 +60,8 @@ return function()
 		return n
 	end
 
-	-- #4511: bowl first, the bowl cat counts for nothing and the goal is two catches by hand
-	describe("bowl first (#4511)", function()
+	-- #4518: bowl first, the bowl cat counts for nothing and the goal is two catches by hand
+	describe("bowl first (#4518)", function()
 		it("counts only cats caught by hand, two to finish", function()
 			local stats: any = { catsCaught = 1, baitsTamed = 1 }
 			expect(SecondCat.progress(stats, true)).to.equal(0)

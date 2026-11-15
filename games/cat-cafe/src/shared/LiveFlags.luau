@@ -199,7 +199,7 @@ LiveFlags.KEYS = {
 	"afkButton", -- #4346: the HUD's AFK tile and AfkMode (shared/AfkCafe): home, 2x rest at once, the rejoin keeps it
 	"freeCatchPads", -- Derek 2026-11-14: phone, tablet and console catches below Tier 2 are the tutorial's (shared/FreeCatch)
 	"fusion", -- #4104: the Fusion Observatory (shared/Fusion); on after the save version 50 restart
-	"catchFirst", -- #4511: on, today's walk-through order; false, bowl first (shared/TutorialOrder)
+	"catchFirst", -- #4518: on, today's walk-through order; false, bowl first (shared/TutorialOrder)
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {

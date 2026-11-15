@@ -292,7 +292,7 @@ local function resolveBait(
 		and profile.stats.luresUsed <= 1
 		and TutorialOrder.bowlFirst()
 	then
-		-- #4511: bowl first, the first food's cat is tamed or let go: on to the Town Square cannon for the Alleyway
+		-- #4518: bowl first, the first food's cat is tamed or let go: on to the Town Square cannon for the Alleyway
 		CafeService.tutorialMove:Fire(player, "cannon")
 	end
 	local shown = shownArrival[player]

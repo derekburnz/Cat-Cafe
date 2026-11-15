@@ -12095,7 +12095,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(not (window:FindFirstChild("Featured", true) :: GuiObject).Visible, "uigate: Featured stays up under the Deal tab (#4259)")
 		assert((card:FindFirstChild("Name") :: TextLabel).Text == "Today's Deal", "uigate: the deal card's title (#3996)")
 		local effect = card:FindFirstChild("Effect") :: TextLabel
-		assert(effect.Visible and string.find(effect.Text, "5 Big Money", 1, true), "uigate: the deal card does not say what is in it: " .. effect.Text .. " (#3996)")
+		assert(effect.Visible and string.find(effect.Text, "250 Golden Fish", 1, true), "uigate: the deal card does not say what is in it: " .. effect.Text .. " (#3996, #4238)")
 		assert(string.find(effect.Text, "Tomorrow: Trait Token deal", 1, true), "uigate: no Tomorrow line: " .. effect.Text .. " (#3996)")
 		local sent = nil
 		local connection = UI.events.storeDeal:Connect(function(productId)
@@ -12115,6 +12115,20 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local effect = window:FindFirstChild("dealCard", true):FindFirstChild("Effect") :: TextLabel
 		assert(string.find(effect.Text, "Roll odds:", 1, true), "uigate: the token deal shows no odds: " .. effect.Text .. " (#3996)")
 		assert(effect.TextFits ~= false or effect.TextTruncate == Enum.TextTruncate.None, "uigate: the token deal's odds are cut (#3996)")
+	end },
+	-- #4238 (Derek: "10 of the gold crates from your best area"): the crate deal says what is in it and carries the
+	-- golden crate's decor odds on the card itself (a paid random item, monetization-policy), whole
+	{ "StoreDealCrates", function()
+		UI.update({ dailyDeal = { deal = 3, bought = false, tomorrow = 4 } } :: any)
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		press("CatCafeModals", "deal")
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
+		local effect = window:FindFirstChild("dealCard", true):FindFirstChild("Effect") :: TextLabel
+		assert(string.find(effect.Text, "^10 Golden %a+ Crates"), "uigate: the crate deal does not name the best area's crate: " .. effect.Text .. " (#4238)")
+		assert(string.find(effect.Text, "Odds: Epic", 1, true), "uigate: the crate deal shows no odds: " .. effect.Text .. " (#4238)")
+		assert(effect.TextFits ~= false or effect.TextTruncate == Enum.TextTruncate.None, "uigate: the crate deal's odds are cut (#4238)")
+		assert(not string.find(string.lower(effect.Text), "potion", 1, true), "uigate: a potion on Today's Deal (#4238)")
 	end },
 	-- #3996: bought today, the card stays on the Deal tab with "Bought today" in the button's place and no New dot;
 	-- switched off, the tab goes and the Store is back on Featured

@@ -86,7 +86,7 @@ local function wear(character: Model, sets: { [string]: number })
 		return
 	end
 	local p = Presets.dragonSets
-	local looks = worn[character] or {}
+	local looks: Worn = worn[character] or {}
 	worn[character] = looks
 	for family, look in looks do
 		if sets[family] == nil then

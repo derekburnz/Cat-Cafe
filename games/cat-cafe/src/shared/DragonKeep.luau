@@ -84,7 +84,7 @@ DragonKeep.CARDS = {
 		name = "Toasty Tables",
 		family = "flame",
 		rarity = "Common",
-		text = "+3% money.",
+		text = "Rare customers come 5% more often.",
 	},
 	{
 		id = "emberTips",
@@ -112,7 +112,7 @@ DragonKeep.CARDS = {
 		name = "Smoke Signal",
 		family = "flame",
 		rarity = "Epic",
-		text = "Rich visitors come 15% more often.",
+		text = "Rare customers come 15% more often.",
 	},
 	{
 		id = "dragonCoin",
@@ -273,7 +273,7 @@ DragonKeep.CARDS = {
 		name = "Wingbeat",
 		family = "wing",
 		rarity = "Legendary",
-		text = "Rich visitors come 15% more often.",
+		text = "Rare customers come 15% more often.",
 	},
 	{
 		id = "shinyPocket",
@@ -294,7 +294,7 @@ DragonKeep.CARDS = {
 		name = "Treasure Nose",
 		family = "hoard",
 		rarity = "Rare",
-		text = "Rich visitors come 10% more often.",
+		text = "Rare customers come 10% more often.",
 	},
 	{
 		id = "hoarder",
@@ -448,7 +448,7 @@ DragonKeep.CARDS = {
 		name = "Mythic Roar",
 		family = "crown",
 		rarity = "Mythic",
-		text = "Rich visitors come 25% more often.",
+		text = "Rare customers come 25% more often.",
 	},
 } :: { Card }
 
@@ -1006,7 +1006,6 @@ DragonKeep.MONEY = { -- card id -> what it adds into cafeMultiplier
 	dragonCoin = 0.10, -- every 10th customer pays double, as a steady +10%
 	treasureTax = 0.15, -- every earning cat is in a staff slot
 	crownOfEmbers = 0.20,
-	toastyTables = 0.03,
 	hotSeats = 0.05,
 	softLanding = 0.03,
 	dragonRide = 0.10,
@@ -1033,12 +1032,14 @@ DragonKeep.GOLD = { -- card id -> gold luck (inside GoldLuckMax with the Index's
 	rummageKing = 0.10,
 	royalDecree = 0.15,
 } :: { [string]: number }
-DragonKeep.RICH_CARDS = { -- card id -> share more rich visitors (into Economy.richRate)
-	smokeSignal = 0.15,
-	wingbeat = 0.15,
-	treasureNose = 0.10,
-	mythicRoar = 0.25,
-} :: { [string]: number }
+DragonKeep.RICH_CARDS =
+	{ -- card id -> share more rare customers: Economy.richRate and RareCustomerService's trait share
+		toastyTables = 0.05, -- Derek 18:33 UTC: "make this say rare customers"
+		smokeSignal = 0.15,
+		wingbeat = 0.15,
+		treasureNose = 0.10,
+		mythicRoar = 0.25,
+	} :: { [string]: number }
 DragonKeep.CAP = 0.50 -- bowl luck, rich visitors and tip piles from cards, each in total
 DragonKeep.LUCK = 0.05 -- Lucky Scale: +5% bowl luck (a Luck source, inside LuckMax)
 DragonKeep.GOLD_LUCK = 0.10 -- Gold Fever: +0.10 gold luck, inside GoldLuckMax with the Index's

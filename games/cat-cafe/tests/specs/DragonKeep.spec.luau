@@ -455,7 +455,13 @@ return function()
 					}),
 				} :: any)
 				local rich = DragonKeep.of({
-					dragon = withSlots({ "mythicRoar", "smokeSignal", "wingbeat", "treasureNose" }),
+					dragon = withSlots({
+						"mythicRoar",
+						"smokeSignal",
+						"wingbeat",
+						"treasureNose",
+						"toastyTables",
+					}),
 				} :: any)
 				DragonKeep.setOn(nil)
 				expect(fx.luck <= DragonKeep.CAP + 1e-9).to.equal(true)

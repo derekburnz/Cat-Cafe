@@ -813,6 +813,24 @@ return function()
 				expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + 3).to.equal(true)
 			end
 		)
+
+		it(
+			"stands the Ticket Booth in the Water Park camp, off its way out and the pad, facing the pad (#4061)",
+			function()
+				local x, y, z, turn = Layout.ticketBoothAt()
+				assert(x ~= nil and y ~= nil and z ~= nil and turn ~= nil, "no Ticket Booth spot")
+				local camp = Layout.camps.waterpark
+				expect(Layout.campAt(x, z)).to.equal("waterpark")
+				expect(y).to.equal(Layout.areas.waterpark.floorY)
+				expect(turn).to.equal(camp.turn + 90)
+				local cx, cz = Layout.campSpace(camp, x, z)
+				-- the turned kiosk is 5.4 across: its near side clear of the opening, its back inside the camp
+				expect(cx - 2.7 > camp.openingHalfWidth + 4).to.equal(true)
+				expect(cz < -5 and cz > -W.CampDepth + 5).to.equal(true)
+				local pad = Layout.landingPads.waterpark.centre
+				expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + 3).to.equal(true)
+			end
+		)
 	end)
 
 	-- #2240 (Derek 11-07: "change rescue spots not always the same"): each area's pool of trap spots, which RescuePick

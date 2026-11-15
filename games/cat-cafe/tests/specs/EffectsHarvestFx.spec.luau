@@ -31,6 +31,28 @@ return function()
 			end
 		)
 
+		it("knows when you are in the area, for the song", function()
+			expect(HarvestFx.within(40, 130)).to.equal(true)
+			expect(HarvestFx.within(130, 130)).to.equal(true)
+			expect(HarvestFx.within(131, 130)).to.equal(false)
+			expect(HarvestFx.within(nil, 130)).to.equal(false)
+		end)
+
+		it("celebrates a new Feast Pie slice, and the last one more", function()
+			expect(HarvestFx.pie(2, 3, 8)).to.equal("slice")
+			expect(HarvestFx.pie(7, 8, 8)).to.equal("full")
+			expect(HarvestFx.pie(3, 8, 8)).to.equal("full")
+			expect(HarvestFx.pie(nil, 3, 8)).never.to.be.ok() -- the first value only sets the mark
+			expect(HarvestFx.pie(3, 3, 8)).never.to.be.ok()
+			expect(HarvestFx.pie(8, 8, 8)).never.to.be.ok()
+			expect(HarvestFx.pie(4, 2, 8)).never.to.be.ok() -- a count never goes down, and a drop is not news
+			expect(HarvestFx.pie(2, nil, 8)).never.to.be.ok()
+			expect(HarvestFx.pie(2, "3", 8)).never.to.be.ok()
+			expect(Presets.harvestFx.pieAttribute).to.equal("HarvestPieSlices") -- HarvestPieService's name
+			expect(Presets.harvestFx.pieFull).to.equal(8)
+			expect(Presets.emitters[Presets.harvestFx.pieBurst]).to.be.ok()
+		end)
+
 		it("glints the nearest ready pumpkins only", function()
 			local picked = HarvestFx.glinters({ 50, 12, 90, 30, 12 }, 60, 3)
 			expect(#picked).to.equal(3)
@@ -40,6 +62,19 @@ return function()
 			expect(#HarvestFx.glinters({ 61, 200 }, 60, 3)).to.equal(0)
 			expect(#HarvestFx.glinters({}, 60, 3)).to.equal(0)
 			expect(#HarvestFx.glinters({ 5 }, 60, 3)).to.equal(1)
+		end)
+
+		it("swirls leaves when you walk in, not when you pace the edge", function()
+			expect(HarvestFx.arrive(nil, true, nil, 90)).to.equal(true) -- the first look finds you inside
+			expect(HarvestFx.arrive(false, true, nil, 90)).to.equal(true)
+			expect(HarvestFx.arrive(false, true, 30, 90)).to.equal(false)
+			expect(HarvestFx.arrive(false, true, 90, 90)).to.equal(true)
+			expect(HarvestFx.arrive(true, true, 500, 90)).to.equal(false)
+			expect(HarvestFx.arrive(true, false, 500, 90)).to.equal(false)
+			local p = Presets.harvestFx
+			expect(p.arriveSpots * p.arriveCount <= 24).to.equal(true)
+			expect(p.arriveSparkles <= Presets.budget.low.maxBurst).to.equal(true)
+			expect(p.arriveGap >= 60).to.equal(true)
 		end)
 
 		it("keeps its numbers calm and its presets real", function()

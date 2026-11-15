@@ -8,10 +8,15 @@
 --   a regrow    `Ready` back to true: a small green sprout of sparkles, so you see a pumpkin is back.
 --   the glint   every `glintEvery` seconds the nearest ready pumpkins give a small gold glint, the "pick me" cue.
 --               None with Reduce Motion or in Low performance.
+--   the song    HarvestFx.onArea tells Audio when you walk in or out (the area has no World.Zones box).
+--   the pie     a Feast Pie slice baked (ReplicatedStorage's `HarvestPieSlices` rises, HarvestPieService) while you
+--               are in the area: gold sparkles and a ring at the Thankful Board; the last slice adds confetti and a
+--               gold beam. The first value seen only sets the mark.
 -- Nothing runs until one of those tags is in the world, so the module is idle outside the event. Numbers in
 -- Presets.harvestFx.
 
 local CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Context = require(script.Parent.Context)
 local Particles = require(script.Parent.Particles)
@@ -27,6 +32,10 @@ local links: { [Instance]: RBXScriptConnection } = {} -- each watched pumpkin's 
 local listeners: { Listener } = {}
 local box: Part? = nil
 local emitter: ParticleEmitter? = nil
+local inside = false -- whether you were in the area at the last look
+local slices: number? = nil -- the Feast Pie's slices as last seen
+local areaListeners: { (inside: boolean) -> () } = {}
+local arrivedAt: number? = nil -- os.clock() of the last arrival swirl
 local sinceGlint = 0
 
 -- What a pumpkin's `Ready` change means: "pick" when it was ready and is not now, "regrow" the other way, nil for
@@ -73,6 +82,37 @@ function HarvestFx.glinters(spots: { number }, within: number, most: number): { 
 		picked[i] = near[i]
 	end
 	return picked
+end
+
+-- What a new Feast Pie slice count means: "slice" when it rose, "full" when it rose to `full` or past it, nil for
+-- the first value seen, for no rise and for anything that is not a number.
+function HarvestFx.pie(was: number?, now: unknown, full: number): string?
+	if type(now) ~= "number" or was == nil or now <= was then
+		return nil
+	end
+	return if now >= full then "full" else "slice"
+end
+
+-- Whether walking in plays the arrival swirl: you were outside (or not yet looked at), are inside now, and the last
+-- swirl was at least `gap` seconds ago (`since` is nil before the first), so pacing the edge does not repeat it.
+function HarvestFx.arrive(was: boolean?, now: boolean, since: number?, gap: number): boolean
+	if not now or was == true then
+		return false
+	end
+	return since == nil or since >= gap
+end
+
+-- Whether you are in the area: within `within` studs of its middle. `distance` is nil while it is not in the world.
+function HarvestFx.within(distance: number?, within: number): boolean
+	return distance ~= nil and distance <= within
+end
+
+-- Tells `listener` each time you walk into or out of the area (Audio's song), and at once if you are in it now.
+function HarvestFx.onArea(listener: (inside: boolean) -> ())
+	table.insert(areaListeners, listener)
+	if inside then
+		task.spawn(listener, true)
+	end
 end
 
 -- Tells `listener` where a pumpkin was picked near you (Audio's cue).
@@ -149,12 +189,58 @@ local function middle(): Vector3?
 	return nil
 end
 
+-- The arrival swirl: `arriveSpots` puffs of leaves in a circle `arriveRadius` studs round you, one after another,
+-- and a few gold sparkles over your head. None in Low performance; half the leaves with Reduce Motion.
+local function swirl(at: Vector3)
+	if Context.lowPerformance then
+		return
+	end
+	local p = Presets.harvestFx
+	local count = if Context.reducedMotion() then math.ceil(p.arriveCount / 2) else p.arriveCount
+	for i = 1, p.arriveSpots do
+		task.delay((i - 1) * p.arriveStep, function()
+			local turn = (i - 1) / p.arriveSpots * math.pi * 2
+			local spot = at
+				+ Vector3.new(
+					math.cos(turn) * p.arriveRadius,
+					p.arriveLift,
+					math.sin(turn) * p.arriveRadius
+				)
+			Particles.burst(p.air, spot, count)
+		end)
+	end
+	Particles.burst(
+		p.pieBurst,
+		at + Vector3.new(0, p.arriveLift + 2, 0),
+		p.arriveSparkles,
+		Presets.palette.golden
+	)
+end
+
 local function stepAir()
 	local p = Presets.harvestFx
 	local at = middle()
 	local focus = Context.focus()
+	local distance = if at ~= nil then Context.distance(at) else nil
+	local now = HarvestFx.within(distance, p.airWithin)
+	if now ~= inside then
+		local clock = os.clock()
+		local last = arrivedAt
+		if
+			HarvestFx.arrive(inside, now, if last ~= nil then clock - last else nil, p.arriveGap)
+		then
+			arrivedAt = clock
+			if focus ~= nil then
+				swirl(focus)
+			end
+		end
+		inside = now
+		for _, listener in areaListeners do
+			task.spawn(listener, now)
+		end
+	end
 	local share = HarvestFx.air(
-		if at ~= nil then Context.distance(at) else nil,
+		distance,
 		p.airWithin,
 		Context.lowPerformance,
 		Context.reducedMotion(),
@@ -210,12 +296,43 @@ local function stepGlint()
 	end
 end
 
+-- The Feast Pie's count changed: celebrate a new slice at the board, if you are in the area to see it.
+local function pieChanged()
+	local p = Presets.harvestFx
+	local now = ReplicatedStorage:GetAttribute(p.pieAttribute)
+	local what = HarvestFx.pie(slices, now, p.pieFull)
+	if type(now) == "number" then
+		slices = now
+	end
+	local board = middle()
+	if what == nil or board == nil or not inside then
+		return
+	end
+	local at = board + Vector3.new(0, p.pieLift, 0)
+	Particles.burst(p.pieBurst, at, p.pieCount, Presets.palette.golden)
+	Particles.ring(board, Presets.palette.golden, p.pieRing)
+	if what == "full" then
+		Particles.confetti(at, math.ceil(Context.budget.confetti * p.pieConfetti))
+		if not Context.reducedMotion() then
+			Particles.beam(
+				board,
+				Presets.palette.golden,
+				p.pieBeamWidth,
+				p.pieBeamHeight,
+				p.pieBeamSeconds
+			)
+		end
+	end
+end
+
 function HarvestFx.start()
 	if started then
 		return
 	end
 	started = true
 	local p = Presets.harvestFx
+	pieChanged() -- sets the mark
+	ReplicatedStorage:GetAttributeChangedSignal(p.pieAttribute):Connect(pieChanged)
 	for _, spot in CollectionService:GetTagged(p.pumpkinTag) do
 		watch(spot)
 	end

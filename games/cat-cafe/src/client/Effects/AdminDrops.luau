@@ -10,6 +10,7 @@
 -- Only drops within `within` studs get a stand-in; the rest just appear. Reduce Motion: no arc and no sway (the
 -- chute comes straight down). Low performance: nothing here, the things just appear. A thing's parts can arrive
 -- after it does (Review-QA, #4211), so the hide follows DescendantAdded until the landing.
+-- Sound: AdminDrops.onLand(listener) is told "fish" or "crate" and where, as a stand-in lands.
 -- Listening only: it sends nothing and changes nothing the server reads. Numbers in Presets.adminDrops.
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -26,6 +27,19 @@ type Flight = { step: (now: number) -> boolean } -- false once it is over
 
 local started = false
 local flights: { Flight } = {}
+local listeners: { (kind: "fish" | "crate", at: Vector3) -> () } = {}
+
+-- Calls `listener(kind, at)` as a stand-in lands: "fish" where a Fish Fountain fish plops down, "crate" where a
+-- Crate Drop crate touches the ground. Drops that just appear (far off, or Low performance) tell nobody.
+function AdminDrops.onLand(listener: (kind: "fish" | "crate", at: Vector3) -> ())
+	table.insert(listeners, listener)
+end
+
+local function landed(kind: "fish" | "crate", at: Vector3)
+	for _, listener in listeners do
+		task.spawn(listener, kind, at)
+	end
+end
 local stepping: RBXScriptConnection? = nil
 
 -- A point on the fish's arc: straight from `from` to `to` with a hump `rise` studs high in the middle. t 0 to 1.
@@ -141,6 +155,7 @@ local function fish(part: BasePart)
 			show()
 			if part.Parent ~= nil then
 				Particles.burst(p.fish.splash, to, p.fish.splashCount)
+				landed("fish", to)
 			end
 			return false
 		end,
@@ -210,6 +225,7 @@ local function crate(model: Model)
 			if model.Parent ~= nil then
 				Particles.ring(at + Vector3.new(0, 0.1, 0), c.canopyColour, c.ring, c.ringSeconds)
 				Particles.burst(c.puff, at + Vector3.new(0, 0.5, 0), c.puffCount)
+				landed("crate", at)
 			end
 			return false
 		end,

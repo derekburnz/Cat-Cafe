@@ -78,11 +78,7 @@ local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local PromptKey = require(script.Parent.Parent.Components.PromptKey)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
-local RareBubbleLogic = require(script.Parent.Parent.Components.RareBubbleLogic)
-local RareBubbles = require(script.Parent.Parent.Components.RareBubbles)
 local RestChip = require(script.Parent.Parent.Components.RestChip)
-local Roadmap = require(script.Parent.Roadmap)
-local RoadmapLogic = require(script.Parent.Parent.Components.RoadmapLogic)
 local Scale = require(script.Parent.Parent.Scale)
 local SecondCatGoal = require(script.Parent.Parent.Components.SecondCatGoal)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
@@ -117,7 +113,7 @@ export type Callbacks = {
 	-- #4249: the Mailbox tile, in the Feedback tile's place while the `mailbox` switch is on (Feedback moves into the
 	-- Menu list); nil keeps the Feedback tile
 	openMailbox: (() -> ())?,
-	setSetting: ((key: string, value: boolean) -> ())?, -- #1893: the Grand Opening strip saves roadmapOpen
+	setSetting: ((key: string, value: boolean) -> ())?,
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
 	takeCozy: (() -> ())?, -- #2854: the Rewards list's "Cozy gift waiting!" row takes the bag
@@ -163,7 +159,6 @@ export type HUD = {
 	toastAvoid: (self: HUD) -> { Types.Box }, -- #2338: what the toasts keep clear of
 	edgeAvoid: (self: HUD) -> { Types.Box }, -- #4152: what the tutorial's edge arrow keeps clear of, in screen px
 	setCatching: (self: HUD, active: boolean) -> (),
-	roadmapStep: (self: HUD, n: number) -> (),
 	setCatchStreak: (self: HUD, streak: number) -> (),
 	-- F101: fires (active) when a catch or rescue starts or ends, so the Rally banner gets out of its way
 	catchingChanged: Signal.Signal,
@@ -1642,16 +1637,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._secondPreviewed = true -- #3155: the preview lines no longer show
 	self._secondRun = 0
 	self._gone = false
-	-- #1893 (first-hour.md 1b): the Grand Opening strip just under the goal card; a tap opens or closes its steps,
-	-- saved as the roadmapOpen setting
-	self._roadmap = Roadmap.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function(open: boolean)
-		self._roadmapOpen = open
-		local save = callbacks.setSetting
-		if save then
-			save("roadmapOpen", open)
-		end
-		self:_layoutRight()
-	end)
+	-- #4162: the Grand Opening strip under the goal card (#1893) is retired; its steps, prizes and toasts stay
 	-- #2358 (Derek2: "show an exclamation mark near spin when you have one"): the red "!" at the line's left, the
 	-- words right-aligned after it
 	local spinLine: Frame = Create("Frame", {
@@ -2234,16 +2220,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			self:_paintHarvest()
 		end)
 	)
-	-- #4227: the wild Mythical and Secret cats out now in the areas this player has open, on the Cannon button
-	self._rareBubbles =
-		RareBubbles.new(self._travelButtons.cannon.instance, UDim2.new(1, 8, 0, -8), 12)
-	self._rareTier = 0
-	table.insert(
-		self._connections,
-		ReplicatedStorage:GetAttributeChangedSignal(RareBubbleLogic.ATTRIBUTE):Connect(function()
-			self:_paintRares()
-		end)
-	)
+	-- #4450 (Derek 2026-11-15): the Cannon button carries no Mythical or Secret count; only the picker's cards do (#4227)
 	-- the arrow tab right of the row folds it below the screen edge and back; it stays where it is
 	self._travelFolded = false
 	local travelFold = Button.new({
@@ -2846,11 +2823,6 @@ function HUD._applyFocus(self: any)
 	end
 end
 
--- #1893: RoadmapStep(n) from the server: the strip's dot pops gold (the toast is the UI's)
-function HUD.roadmapStep(self: any, n: number)
-	self._roadmap:pop(n)
-end
-
 -- #2464 (Derek2 11-08: "remove the purrrfect text from top as that squishes the buttons especially mobile"): the
 -- "🐾 Purrfect x3" streak label is gone, so the top row keeps its place; the PURRFECT! banner over the catch stays
 function HUD.setCatchStreak(_self: any, _streak: number) end
@@ -3113,21 +3085,6 @@ function HUD.setCatalog(self: any, catalog: Types.Catalog)
 	self._luck:setCatalog(catalog)
 end
 
--- #4227: the Cannon button's bubbles, every area the player's tier has open added up.
-function HUD._paintRares(self: any)
-	local catalog: Types.Catalog? = self._catalog
-	local open: { [string]: boolean } = {}
-	if catalog ~= nil then
-		for _, area in (catalog.areas or {}) :: { Types.AreaDef } do
-			if area.tier <= self._rareTier then
-				open[area.id] = true
-			end
-		end
-	end
-	local rares = RareBubbleLogic.decode(ReplicatedStorage:GetAttribute(RareBubbleLogic.ATTRIBUTE))
-	self._rareBubbles:set(RareBubbleLogic.totals(rares, open))
-end
-
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
 	-- #4249: the Mailbox tile's red count, the letters still to claim
@@ -3136,10 +3093,6 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self._mailWaiting = waiting
 		self._mailDot.Visible = waiting > 0
 		self._mailCount.Text = if waiting > 9 then "9+" else tostring(waiting)
-	end
-	if (state.tier or 1) ~= self._rareTier then
-		self._rareTier = state.tier or 1
-		self:_paintRares()
 	end
 	if (state.tier or 1) ~= self._harvestTier then
 		self._harvestTier = state.tier or 1
@@ -3300,29 +3253,6 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self._chimedTier = tierProgress.tier
 		Sound.play("uiRankReady")
 	end
-	-- #1893: the Grand Opening strip (Components/RoadmapLogic), open as the roadmapOpen setting says
-	local settings: any = state.settings
-	if
-		self._roadmapOpen == nil
-		and type(settings) == "table"
-		and type(settings.roadmapOpen) == "boolean"
-	then
-		self._roadmapOpen = settings.roadmapOpen
-	end
-	-- #4384: the strip waits for the tutorial's end while the checkInCalm switch is on
-	local LiveFlags =
-		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-	local calm = RoadmapLogic.calm(
-		LiveFlags.shown(
-			RoadmapLogic.CALM_FLAG,
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RoadmapLogic.CALM_FLAG)
-		),
-		state.tutorialStep
-	)
-	self._roadmap:render(
-		if calm then nil else RoadmapLogic.view(state :: any),
-		self._roadmapOpen == true
-	)
 	self:_renderQuests(state, catalog)
 	self:_renderFreeSpin()
 	self:_layoutRight()
@@ -4150,26 +4080,7 @@ function HUD._layoutRight(self: any)
 	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)
 	local goal = self._goal.frame
 	local lineTop = if goal.Visible then top + goal.Size.Y.Offset + Theme.sizes.gap else top
-	-- #1893: the Grand Opening strip under the goal card, the free spin line under it
-	local roadmap: TextButton = self._roadmap.frame
-	local stripTop = lineTop - lift
-	if roadmap.Visible and self._roadmapOpen == true then
-		-- open on a short screen (a phone turned sideways): the list rises over the goal card so all eight steps fit
-		local parent = roadmap.Parent
-		local screenH = if parent and parent:IsA("GuiObject")
-			then parent.AbsoluteSize.Y / math.max(Scale.get(), 0.01)
-			else math.huge
-		local room = screenH - MARGIN - roadmap.Size.Y.Offset
-		stripTop = math.max(MARGIN, math.min(stripTop, room))
-	end
-	roadmap.Position = UDim2.new(1, -MARGIN, 0, stripTop)
-	if roadmap.Visible then
-		lineTop += self._roadmap:closedHeight() + Theme.sizes.gap
-		if self._roadmapOpen == true then
-			-- #3990: the open steps list ran down over the spin and gift lines (a PC); they move under it
-			lineTop = math.max(lineTop, stripTop + lift + roadmap.Size.Y.Offset + Theme.sizes.gap)
-		end
-	end
+	-- the free spin line under the goal card (the Grand Opening strip between them is retired, #4162)
 	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
 	local giftTop = if self._spinLine.Visible then lineTop + SPIN_LINE_H + 2 else lineTop
 	self._giftLine.Position = UDim2.new(1, -MARGIN, 0, giftTop - lift)

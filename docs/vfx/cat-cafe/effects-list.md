@@ -1241,7 +1241,7 @@ Derek 2026-11-13: "make the rarer ones more special". First pass, all client sid
 | White Tiger Cat (Legendary) | Frosty breath off the head, a glint on the coat, glowing ice-blue eyes | 2 emitters, each Rate 2 or less |
 | Blizzard Cat (Mythical) | Falling flakes, 5 motes circling it (3 on a phone) every 3.2 s leaving flakes, a frost trail while it walks, glowing eyes, a ring and puff where it lands as a stray | 3 emitters plus the swirl sharing Rate 2; the swirl holds still with Reduce Motion |
 
-Done since: camp chimney smoke (Ambient's `Smoke` attachments) and the summit flag's cloth (`_Swing`). Still to do in #4069: the gate's opening moment, the Observatory telescope, commons' prop motion, the phone budget measurement.
+Done since: camp chimney smoke (Ambient's `Smoke` attachments) and the summit flag's cloth (`_Swing`), commons' head props bouncing as they walk (`motion.propBounce`, all three new areas). Still to do in #4069: the gate's opening moment, the Observatory telescope (no model yet), the phone budget measurement.
 
 ## Water Park and Medieval Castle (#4070, #4071, 2026-11-14)
 The same ladder as the Snowy Mountain: more effect the rarer the cat. All client side and data driven, so it starts when each area's box and cats are wired.
@@ -1260,7 +1260,7 @@ The same ladder as the Snowy Mountain: more effect the rarer the cat. All client
 | Water Cat (Mythical) | Drips, circling bubbles, a wet trail while it walks, glowing eyes, a splash where it lands, a taller catch fountain | As the Blizzard Cat |
 | Dragon Knight Cat (Mythical) | Rising sparks, glowing eyes, a shield glint, an ember trail while it moves, circling embers, a burst where it lands, a taller catch column | As the Blizzard Cat |
 
-Done since: water flow and slide splashes (`AreaWater`), ride lamps chasing at night (`BulbChase`, #4206), the banners, pennants and balloons swaying (`_Swing` models). Still to do: the gates' opening moments, the Ticket Booth and Throne Hall moments, commons' prop motion.
+Done since: water flow and slide splashes (`AreaWater`), ride lamps chasing at night (`BulbChase`, #4206), the banners, pennants and balloons swaying (`_Swing` models). Commons' head props bounce as they walk (`motion.propBounce`). Still to do: the gates' opening moments, the Ticket Booth and Throne Hall moments.
 
 ## Admin events (#4325, #4197, 2026-11-14 and 15)
 Derek 2026-11-14: a big intro, then a clear screen with one small strip, and money shown only in money events. All client side, self-driving from ReplicatedStorage's `AdminEvent*` attributes.

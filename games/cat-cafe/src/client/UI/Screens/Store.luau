@@ -333,7 +333,7 @@ function Store.new(callbacks: Callbacks): Store
 			Parent = self._railButtons[id].instance,
 		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	end
-	self:_packTab()
+	self:_packTab(railButtonH)
 
 	-- the page beside the rail, from the top (#1690: no note row; cards say "Yours to keep", prices show Robux)
 	local pageX = RAIL_W + GAP + 4
@@ -1663,13 +1663,16 @@ end
 
 -- #4276: the rail's Packs tab turns through the pictures of the packs on sale (StoreLogic.NEWEST_PACKS order), with a
 -- light sweep each turn, while the Store shows. With Reduce Motion the pictures still turn, with no sweep.
-function Store._packTab(self: any)
+function Store._packTab(self: any, buttonH: number)
 	local button = self._railButtons.packs
 	local face = button and button.instance:FindFirstChild("Face")
 	local icon = button and button.instance:FindFirstChild("Icon", true)
 	if face == nil or icon == nil or not icon:IsA("TextLabel") then
 		return
 	end
+	-- Review-QA in Studio: at about 20 px the turn was easy to miss; the Packs picture fills the button's height
+	local side = math.max(icon.Size.X.Offset, math.floor(buttonH * 0.72))
+	icon.Size = UDim2.fromOffset(side, side)
 	local sweep: Frame = Create("Frame", {
 		Name = "Sweep",
 		BackgroundColor3 = Theme.colors.white,

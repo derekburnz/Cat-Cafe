@@ -11577,6 +11577,12 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			assert(sweep and sweep.Parent == face and sweep:FindFirstChildOfClass("UIGradient"), "uigate: the Packs tab has no light sweep (#4276)")
 			local label = tab:FindFirstChild("Label", true) :: TextLabel
 			assert(label and label.Text == "Packs", "uigate: the Packs tab reads " .. tostring(label and label.Text) .. " (#4276)")
+			-- Review-QA: the picture big enough to see turn, inside the button, and beside its word
+			local fy, fh = face.AbsolutePosition.Y, face.AbsoluteSize.Y
+			assert(icon.AbsoluteSize.Y >= fh * 0.6, ("uigate: the Packs picture is %.0f px in a %.0f px button (#4276)"):format(icon.AbsoluteSize.Y, fh))
+			assert(icon.AbsolutePosition.Y >= fy - 0.5 and icon.AbsolutePosition.Y + icon.AbsoluteSize.Y <= fy + fh + 0.5, "uigate: the Packs picture spills out of its button (#4276)")
+			assert(icon.AbsolutePosition.X + icon.AbsoluteSize.X <= label.AbsolutePosition.X + 1, "uigate: the Packs picture overlaps its word (#4276)")
+			assert(label.TextFits, "uigate: the word Packs no longer fits beside its picture (#4276)")
 			-- for the picture: the sweep part way across
 			UIShim.advance(2.5 + 0.3)
 		end)

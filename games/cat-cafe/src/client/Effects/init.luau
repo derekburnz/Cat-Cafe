@@ -197,7 +197,6 @@ function Effects.start()
 		AreaFx.start,
 		LateStationFx.start,
 		BoothFx.start, -- #4061: the Ticket Booth's buy moment
-		DragonSets.start, -- Dragon Keep set looks from the DragonSets attribute
 		FusionFx.start, -- #4104: the Fusion Observatory dome's glow and paw lights
 		MuseumPlaques.start,
 		StationMotion.start,
@@ -214,6 +213,7 @@ function Effects.start()
 		BowlFrenzyFx.start, -- #4195: a Bowl Frenzy's gold sparkles off the food in your bait bowls
 		AdminAir.start, -- #4197: Golden Hour's gold motes and Money Storm's coin glints round you
 		AdminDrops.start, -- #4197: Fish Fountain's fish arc out, Crate Drop's crates come down by parachute
+		DragonSets.start, -- Dragon Keep set looks from the DragonSets attribute
 		HarvestFx.start, -- #4251: Harvest Hollow's falling leaves and the pumpkin patch's pops
 		AdminFlash.start, -- #4325: an admin event's 3, 2, 1, name splash, world tint, strip and end card
 		TrailSparkle.start,

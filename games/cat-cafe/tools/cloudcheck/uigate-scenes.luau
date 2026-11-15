@@ -414,6 +414,19 @@ local function mouseDashCard(circle)
 	return UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("MouseDash", true)
 end
 
+-- #4271: the faces in a cat list's rows, by row name (the CatPortrait frames in each row's Face disc)
+local function listFaces(list: Instance): { [string]: Instance }
+	local faces: { [string]: Instance } = {}
+	for _, row in list:GetChildren() do
+		local disc = row:IsA("Frame") and row.Visible and row:FindFirstChild("Face")
+		local face = disc and disc:FindFirstChild("CatPortrait")
+		if face then
+			faces[row.Name] = face
+		end
+	end
+	return faces
+end
+
 local function lateWindow(name)
 	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 	local window = modals and modals:FindFirstChild(name, true)
@@ -2792,6 +2805,28 @@ local SCENES = {
 		UI.lateStations.update(lateState(3 * 3600 + 600))
 		press("OasisSpa", "Slot2.Action")
 	end },
+	-- #4271: the Oasis Spa's cat list keeps its faces between opens too
+	{ "OasisSpaPickFaces", function()
+		UI.lateStations.update(lateState(3 * 3600 + 600))
+		UI.lateStations.open("spa")
+		press("OasisSpa", "Slot2.Action")
+		local list = lateWindow("OasisSpa"):FindFirstChild("Picker", true):FindFirstChild("List")
+		for _ = 1, 10 do
+			UIShim.advance(1 / 60)
+		end
+		local before = listFaces(list)
+		local count = 0
+		for _ in before do
+			count += 1
+		end
+		assert(count >= 4, "uigate: only " .. count .. " faces in the spa's cat list (#4271)")
+		press("OasisSpa", "Picker.Back")
+		press("OasisSpa", "Slot2.Action")
+		local after = listFaces(list)
+		for name in before do
+			assert(after[name] ~= nil, "uigate: spa row " .. name .. " has no face right after Add a cat again (#4271)")
+		end
+	end },
 	-- #2651 part 4: Take out on a cat 20 minutes in asks first ("It won't level up.")
 	{ "OasisSpaTakeOut", function()
 		UI.lateStations.update(lateState(20 * 60))
@@ -2968,6 +3003,33 @@ local SCENES = {
 		end
 		press("MysticPool", "Picker.FilterMenu.Close")
 		assert(not menu.Visible, "uigate: the X did not close the Filter pop-up (#3874)")
+	end },
+	-- #4271 (Derek 2026-11-14: "when going to this screen each time to pick a cat takes a second to load the cats
+	-- faces"): Back and Pick a cat again shows the same faces at once, with no frame to wait
+	{ "MysticPoolPickFaces", function()
+		local window = mysticPool(nil, "gate_1")
+		press("MysticPool", "Change")
+		local list = window:FindFirstChild("Picker", true):FindFirstChild("List")
+		for _ = 1, 10 do
+			UIShim.advance(1 / 60)
+		end
+		local before = listFaces(list)
+		local count = 0
+		for _ in before do
+			count += 1
+		end
+		assert(count >= 4, "uigate: only " .. count .. " faces in the cat list (#4271)")
+		press("MysticPool", "Tools.Back")
+		press("MysticPool", "Change")
+		local after = listFaces(list)
+		for name, face in before do
+			assert(after[name] ~= nil, "uigate: row " .. name .. " has no face right after Pick a cat again (#4271)")
+		end
+		local same = 0
+		for name, face in after do
+			same += if before[name] == face then 1 else 0
+		end
+		assert(same >= count, ("uigate: only %d of %d faces were kept between opens (#4271)"):format(same, count))
 	end },
 	-- #3874: the Filter pop-up left open, for the picture: Sort and Show over the list, the X at the top right
 	{ "MysticPoolFilter", function()

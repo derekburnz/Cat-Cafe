@@ -26,6 +26,7 @@ local CatPickLogic = require(script.Parent.Parent.Components.CatPickLogic)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
+local FaceShelf = require(script.Parent.Parent.Components.FaceShelf)
 local Format = require(script.Parent.Parent.Components.Format)
 local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLogic)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
@@ -130,6 +131,7 @@ local SHORT_FACE = 36
 local SHORT_PICK_W = 72
 local SHORT_PICK_H = 38 -- drawn; on a touch screen its pad still reaches a finger's 44 px (Button's Hit)
 local FACE = 44
+local FACE_Z = 8 -- a row's face (Components/FaceShelf keeps faces by it)
 local TOOL_H = Scale.tapHeight(Theme.sizes.touchMin)
 local FIRST_ROWS = 12
 local ROWS_PER_FRAME = 20
@@ -1312,8 +1314,10 @@ end
 function MysticPool._clearRows(self: any)
 	self._buildToken += 1
 	for _, entry: Row in self._rows do
-		if entry.portrait then
-			entry.portrait:destroy()
+		local portrait = entry.portrait
+		if portrait then
+			-- #4271: kept for the next open (Components/FaceShelf), so its face shows at once
+			FaceShelf.give(portrait, entry.cat.catId, CatVariant.isGold(entry.cat.variant), FACE_Z)
 		end
 		entry.button:destroy()
 		entry.frame:Destroy()
@@ -1340,7 +1344,7 @@ function MysticPool._fit(self: any, tall: boolean)
 	frame.Size = UDim2.new(1, 0, 0, height)
 end
 
--- The cat list, or back to the card (false), which frees every row and face.
+-- The cat list, or back to the card (false), which frees every row and parks its faces (#4271).
 function MysticPool._showPicker(self: any, show: boolean)
 	self._picking = show
 	self._picker.Visible = show
@@ -1359,6 +1363,21 @@ function MysticPool._showPicker(self: any, show: boolean)
 	self:_setShown(remembered.shown, true)
 	self:_paintSorts()
 	self:_buildRows()
+	self:_loadFaces() -- #4271: the kept faces at once, not a frame later
+end
+
+-- #4271: the faces the list's first rows will want, built a few a frame while the card shows (Components/FaceShelf)
+function MysticPool._warmFaces(self: any)
+	local looks: { FaceShelf.Look } = {}
+	for _, cat in CatPickLogic.sorted(self._cats, CatPickLogic.menuSort(self._sort), self._flipped) do
+		if #looks >= FIRST_ROWS then
+			break
+		end
+		if CatPickLogic.matchShown(cat, "", remembered.shown) then
+			table.insert(looks, { catId = cat.catId, gold = CatVariant.isGold(cat.variant) })
+		end
+	end
+	FaceShelf.warm(looks, FACE_Z)
 end
 
 -- #3874: the Filter pop-up opens over the list and closes with its X or Filter.
@@ -1738,8 +1757,14 @@ function MysticPool._loadFaces(self: any)
 			local far = y + height < top - (FACE_KEEP - FACE_MARGIN)
 				or y > bottom + (FACE_KEEP - FACE_MARGIN)
 			if not row.frame.Visible or far then
-				if row.portrait then
-					row.portrait:destroy()
+				local portrait = row.portrait
+				if portrait then
+					FaceShelf.give(
+						portrait,
+						row.cat.catId,
+						CatVariant.isGold(row.cat.variant),
+						FACE_Z
+					)
 					row.portrait = nil
 				end
 				row.loaded = false
@@ -1749,20 +1774,15 @@ function MysticPool._loadFaces(self: any)
 		if not row.frame.Visible or y + height < top or y > bottom then
 			continue
 		end
-		if made >= FACES_PER_PASS then
+		-- #4271: a face kept from before (Components/FaceShelf) costs nothing, so only new ones count to the pass
+		local catId: string, gold = row.cat.catId, CatVariant.isGold(row.cat.variant)
+		local kept = FaceShelf.count(catId, gold, FACE_Z) > 0
+		if not kept and made >= FACES_PER_PASS then
 			self:_queueFaces()
 			return
 		end
-		made += 1
-		local portrait = CatPortrait.new({
-			parent = row.disc,
-			size = UDim2.fromScale(1, 1),
-			still = true,
-			head = true,
-			zIndex = 8,
-		})
-		portrait:set(Catalog.getCat(row.cat.catId), CatVariant.isGold(row.cat.variant))
-		row.portrait = portrait
+		made += if kept then 0 else 1
+		row.portrait = FaceShelf.take(row.disc, catId, gold, FACE_Z)
 		row.loaded = true
 	end
 end
@@ -1954,6 +1974,7 @@ function MysticPool.opened(self: any)
 	local tick = self._tick
 	self:_showPicker(false)
 	self._oddsSheet.Visible = false
+	self:_warmFaces()
 	local waiting = MysticPoolLogic.pending(self._view, self._cats)
 	if waiting ~= nil and self._cats[waiting.uid] ~= nil then
 		self._uid = waiting.uid

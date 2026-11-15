@@ -93,6 +93,9 @@ Remotes.ClientToServer = {
 	"BuyWithFish", -- (key: string, shownPrice: number)  #4055 (shared/FishStore): a Store pass of FishStore.LIST not
 	-- owned, made, for FishStore.price golden fish; a price above shownPrice is refused. From anywhere, 1 a second, only
 	-- while the fishStore switch is on; answered with a toast and a ProfileSync (PlayerState.fishStore)
+	"BuyHarvest", -- (id: string)  #4251 (shared/HarvestSave): a Harvest Stall item of HarvestHollow.STALL not bought, for
+	-- its price in pumpkins, within HarvestStallRange + 4 of a HarvestStall, while the area is open and from Tier 2. 1 a
+	-- second; answered with a toast and a ProfileSync (PlayerState.harvest)
 	"BuyTicketPrize", -- (prizeId: string)  #4061 (shared/TicketBooth): a prize of TicketBooth.PRIZES under its limit, for
 	-- its price in tickets, from TicketBoothTier and only while the ticketBooth switch is on. 1 a second; answered with a
 	-- toast and a ProfileSync (PlayerState.ticketBooth)

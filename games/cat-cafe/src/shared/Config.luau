@@ -988,6 +988,7 @@ local Config = {
 	-- reaching Tier 2 to 7 (#2237: was 10/25/50/100); #2651: Tier 6 and 7 carry the climb on, 100 and 150
 	-- #4061: the Ticket Booth opens with the Water Park (Snowy is Tier 8; the Water Park is taken as Tier 9)
 	TicketBoothTier = 9,
+	HarvestStallRange = 14, -- #4251: the Harvest Stall's prompt; BuyHarvest from within this + 4 studs
 	-- #4055 (Derek 2026-11-13 23:53 UTC): Tiers 8 to 10 pay 300 each, so the fish Store can be reached by playing
 	FishRankUp = { 5, 15, 30, 60, 100, 150, 300, 300, 300 } :: { number },
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds

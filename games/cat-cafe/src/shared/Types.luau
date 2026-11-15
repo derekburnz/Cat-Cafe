@@ -1431,6 +1431,9 @@ export type PlayerProfile = {
 	fishBought: { [string]: boolean },
 	tickets: TicketSave, -- #4061 (save version 49): the Ticket Booth
 	dragon: DragonSave, -- #4062 (save version 49): the Dragon Keep
+	-- #4251 (save version 50, shared/HarvestSave): Harvest Hollow's pumpkins, Stall items bought, the arch's last +10
+	-- day and whether the player caught a harvest cat (the Feast Pie's helpers)
+	harvest: { pumpkins: number, bought: { [string]: boolean }, visitDay: number, helped: boolean },
 	-- #3699 (shared/BagColours): the Backpack's two colour picks, nil while both are the built ones. No VERSION bump:
 	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
 	bagColours: { main: string, trim: string }?,

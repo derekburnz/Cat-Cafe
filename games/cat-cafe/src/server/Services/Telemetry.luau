@@ -172,6 +172,7 @@ export type CustomEvent =
 	| "mystery_buy" -- #2565: value fish before; item, week slot, tier
 	| "fishstore_buy" -- #4055: value fish before; FishStore key, tier
 	| "ticket_buy" -- #4061: value tickets before; prize id, tier
+	| "harvest_buy" -- #4251: value pumpkins before; Stall item id, tier
 	| "dragon_give" -- #4062: value cats moved in; Warmth, stage after
 	| "dragon_stage" -- #4062: value the stage reached; tier
 	| "dragon_card" -- #4062: value the stage; card id, "stage" or "rekindle"

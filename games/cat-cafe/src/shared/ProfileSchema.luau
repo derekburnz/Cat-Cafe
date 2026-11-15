@@ -17,6 +17,7 @@ local FirstVisits = require(script.Parent.FirstVisits)
 local FishStore = require(script.Parent.FishStore)
 local FreshCatch = require(script.Parent.FreshCatch)
 local GrandOpening = require(script.Parent.GrandOpening)
+local HarvestSave = require(script.Parent.HarvestSave)
 local IntroSplit = require(script.Parent.IntroSplit)
 local Invites = require(script.Parent.Invites)
 local Jukebox = require(script.Parent.Jukebox)
@@ -177,7 +178,10 @@ local ProfileSchema = {}
 -- and the cats moved in): an older server would drop them and the player would lose a pass paid for with fish,
 -- tickets or Cinder. It ships with a publish that restarts the servers; the `fishStore`, `ticketBooth` and
 -- `dragonKeep` switches open them after it.
-ProfileSchema.VERSION = 49
+-- Version 50 adds harvest (#4251, shared/HarvestSave: Harvest Hollow's pumpkins and Stall items): an older server
+-- would drop them and the player would lose pumpkins and items. It ships with a publish that restarts the servers,
+-- well before the area opens on 2026-11-25.
+ProfileSchema.VERSION = 50
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -328,6 +332,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		mysterySeen = false,
 		fishBought = {}, -- #4055
 		tickets = TicketBooth.fresh(), -- #4061
+		harvest = HarvestSave.fresh(), -- #4251
 		dragon = DragonKeep.fresh(), -- #4062
 		firstVisits = {},
 		codesRedeemed = {},
@@ -1036,6 +1041,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.tickets = TicketBooth.sanitize(raw.tickets)
 	-- #4062 (version 49): the Dragon Keep; an older save has no dragon
 	profile.dragon = DragonKeep.sanitize(raw.dragon)
+	-- #4251 (version 50): Harvest Hollow; an older save has no pumpkins
+	profile.harvest = HarvestSave.sanitize(raw.harvest)
 	-- #3699: the Backpack's colour picks (no version: see Types.PlayerProfile.bagColours)
 	profile.bagColours = BagColours.sanitize(raw.bagColours)
 	profile.dealDay = DailyDeal.sanitizeDay(raw.dealDay) -- #3996 (no version: see Types.PlayerProfile.dealDay)

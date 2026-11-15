@@ -33,6 +33,7 @@ local FishStore = require(ReplicatedStorage.Shared.FishStore)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local HarvestSave = require(ReplicatedStorage.Shared.HarvestSave)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Invites = require(ReplicatedStorage.Shared.Invites)
 local Jukebox = require(ReplicatedStorage.Shared.Jukebox)
@@ -428,6 +429,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		lawnOwned = profile.lawnOwned, -- F91: the Front lawn tab
 		lawn = profile.lawn,
 		lawnStyles = profile.lawnStyles,
+		harvest = HarvestSave.forClient(profile.harvest), -- #4251: the Harvest Stall's pumpkins and items
 		serverTime = now,
 	}
 end

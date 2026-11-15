@@ -1459,6 +1459,12 @@ local function wireIntents()
 			Net.fire("BuyMystery", itemId, shownPrice)
 		end)
 	end
+	-- #4251: Buy on the Harvest Stall; the server checks the area, the price in pumpkins and the distance
+	if looseEvents.buyHarvest ~= nil then
+		looseEvents.buyHarvest:Connect(function(id: string)
+			Net.fire("BuyHarvest", id)
+		end)
+	end
 	if looseEvents.mysterySeen ~= nil then
 		looseEvents.mysterySeen:Connect(function()
 			Net.fire("MarkMysterySeen")

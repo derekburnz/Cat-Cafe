@@ -1177,107 +1177,11 @@ local builders: { [string]: () -> Model } = {
 	CatCafe_Item_Net_L3 = function()
 		return net(3)
 	end,
-	-- Rescue props (features.md 8b), shaped to the asset round 2 bounds with the real props' pivots (front -Z),
-	-- so Layout.stuckPoses fits both. The tree's low branch reaches along -X; the box lies on its side with the
-	-- opening toward -Z; the drainpipe hangs on a wall (pivot at the back-bottom of its plate) with its outlet
-	-- toward -Z at floor level.
-	CatCafe_Alley_StuckBox = function()
-		local cardboard = Color3.fromRGB(196, 150, 100)
-		return simple("CatCafe_Alley_StuckBox", {
-			{
-				name = "Back",
-				size = Vector3.new(2.29, 2.1, 0.15),
-				offset = Vector3.new(0.3, 1.05, 1.4),
-				color = cardboard,
-				material = Enum.Material.Cardboard,
-				collide = true,
-			},
-			{
-				name = "SideL",
-				size = Vector3.new(0.15, 2.1, 2.19),
-				offset = Vector3.new(-0.78, 1.05, 0.38),
-				color = cardboard,
-				material = Enum.Material.Cardboard,
-				collide = true,
-			},
-			{
-				name = "SideR",
-				size = Vector3.new(0.15, 2.1, 2.19),
-				offset = Vector3.new(1.37, 1.05, 0.38),
-				color = cardboard,
-				material = Enum.Material.Cardboard,
-				collide = true,
-			},
-			{
-				name = "Top",
-				size = Vector3.new(2.29, 0.15, 2.19),
-				offset = Vector3.new(0.3, 2.03, 0.38),
-				color = cardboard:Lerp(DARK, 0.1),
-				material = Enum.Material.Cardboard,
-				collide = true,
-			},
-		})
-	end,
-	CatCafe_Alley_Drainpipe = function()
-		local pipe = METAL:Lerp(DARK, 0.3)
-		return simple("CatCafe_Alley_Drainpipe", {
-			{
-				name = "Plate",
-				size = Vector3.new(2.6, 8.3, 0.06),
-				offset = Vector3.new(0, 4.15, -0.03),
-				color = DARK,
-				material = Enum.Material.Metal,
-			},
-			{
-				name = "Riser",
-				size = Vector3.new(1, 6.6, 1),
-				offset = Vector3.new(0, 5, -0.7),
-				color = pipe,
-				material = Enum.Material.Metal,
-				collide = true,
-			},
-			{
-				name = "Outlet",
-				size = Vector3.new(1.6, 1.7, 2.9),
-				offset = Vector3.new(0, 0.85, -1.5),
-				color = pipe,
-				material = Enum.Material.Metal,
-				collide = true,
-			},
-		})
-	end,
-	CatCafe_Alley_StuckTree = function()
-		local bark = Color3.fromRGB(110, 75, 45)
-		return simple("CatCafe_Alley_StuckTree", {
-			{
-				name = "Trunk",
-				size = Vector3.new(1.2, 7.2, 1.2),
-				offset = Vector3.new(0, 3.6, 0),
-				color = bark,
-				material = Enum.Material.Wood,
-				collide = true,
-			},
-			{
-				name = "Branch",
-				size = Vector3.new(3.1, 0.5, 0.6),
-				offset = Vector3.new(-1.55, 4.0, 0),
-				color = bark,
-				material = Enum.Material.Wood,
-				collide = true,
-			},
-			{
-				name = "Leaves",
-				size = Vector3.new(4, 2.4, 2.9),
-				offset = Vector3.new(1.2, 6.9, 0),
-				color = GREEN,
-				material = Enum.Material.Grass,
-			},
-		})
-	end,
 }
 
--- Index decor (F48) until the asset thread models it: each piece is a rough stand-in at its final footprint, and
--- the gold piece is the same shape in gold. The print hangs from its base like the neon sign, face toward -Z.
+-- Index decor (F48) until the asset thread models it: each piece is a rough stand-in at its final footprint. The
+-- print hangs from its base like the neon sign, face toward -Z. (#4656: the gold pieces' stand-ins went; no catalog
+-- row names a gold Index piece.)
 local INDEX_GOLD = Color3.fromRGB(232, 184, 64)
 local INDEX_DECOR: { [string]: { PartSpec } } = {
 	MuralPrint = {
@@ -1376,15 +1280,6 @@ for piece, parts in INDEX_DECOR do
 	local name = "CatCafe_Decor_" .. piece
 	builders[name] = function()
 		return simple(name, parts)
-	end
-	builders[name .. "_Gold"] = function()
-		local gold = table.clone(parts)
-		for i, spec in gold do
-			gold[i] = table.clone(spec)
-			gold[i].color = INDEX_GOLD
-			gold[i].material = Enum.Material.Metal
-		end
-		return simple(name .. "_Gold", gold)
 	end
 end
 

@@ -114,13 +114,6 @@ Layout.stuckPoses = {
 	CatCafe_Park_RescueTree = { -2.2, 4.1, 0, 0, 0, 1, 0, -1, 0, 1, 0, 0 },
 	-- Nose first into the can under the lid, back end out of the top.
 	CatCafe_Park_TrashCan = { 0, 2.05, -0.65, -1, 0, 0, 0, 0, 1, 0, 1, 0 },
-	-- Stand-ins for the provisional traps of the grayboxes.
-	-- Clings to the low branch, rolled 20 degrees toward the trunk.
-	CatCafe_Alley_StuckTree = { -1.4, 4.4, 0, 0.9397, -0.342, 0, 0.342, 0.9397, 0, 0, 0, 1 },
-	-- Head inside the box, tail end out of the opening (turned 180 degrees).
-	CatCafe_Alley_StuckBox = { 0, 0, -0.6, -1, 0, 0, 0, 1, 0, 0, 0, -1 },
-	-- Body inside the outlet, head poking out.
-	CatCafe_Alley_Drainpipe = { 0, 0, -2, 1, 0, 0, 0, 1, 0, 0, 0, 1 },
 } :: { [string]: { number } }
 
 -- Where the stuck cat's pivot sits at a trap built into an area set (setTrap), in the spot's space: the spot at

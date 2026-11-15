@@ -8,6 +8,7 @@
 --   a regrow    `Ready` back to true: a small green sprout of sparkles, so you see a pumpkin is back.
 --   the glint   every `glintEvery` seconds the nearest ready pumpkins give a small gold glint, the "pick me" cue.
 --               None with Reduce Motion or in Low performance.
+--   the song    HarvestFx.onArea tells Audio when you walk in or out (the area has no World.Zones box).
 -- Nothing runs until one of those tags is in the world, so the module is idle outside the event. Numbers in
 -- Presets.harvestFx.
 
@@ -27,6 +28,8 @@ local links: { [Instance]: RBXScriptConnection } = {} -- each watched pumpkin's 
 local listeners: { Listener } = {}
 local box: Part? = nil
 local emitter: ParticleEmitter? = nil
+local inside = false -- whether you were in the area at the last look
+local areaListeners: { (inside: boolean) -> () } = {}
 local sinceGlint = 0
 
 -- What a pumpkin's `Ready` change means: "pick" when it was ready and is not now, "regrow" the other way, nil for
@@ -73,6 +76,19 @@ function HarvestFx.glinters(spots: { number }, within: number, most: number): { 
 		picked[i] = near[i]
 	end
 	return picked
+end
+
+-- Whether you are in the area: within `within` studs of its middle. `distance` is nil while it is not in the world.
+function HarvestFx.within(distance: number?, within: number): boolean
+	return distance ~= nil and distance <= within
+end
+
+-- Tells `listener` each time you walk into or out of the area (Audio's song), and at once if you are in it now.
+function HarvestFx.onArea(listener: (inside: boolean) -> ())
+	table.insert(areaListeners, listener)
+	if inside then
+		task.spawn(listener, true)
+	end
 end
 
 -- Tells `listener` where a pumpkin was picked near you (Audio's cue).
@@ -152,8 +168,16 @@ local function stepAir()
 	local p = Presets.harvestFx
 	local at = middle()
 	local focus = Context.focus()
+	local distance = if at ~= nil then Context.distance(at) else nil
+	local now = HarvestFx.within(distance, p.airWithin)
+	if now ~= inside then
+		inside = now
+		for _, listener in areaListeners do
+			task.spawn(listener, now)
+		end
+	end
 	local share = HarvestFx.air(
-		if at ~= nil then Context.distance(at) else nil,
+		distance,
 		p.airWithin,
 		Context.lowPerformance,
 		Context.reducedMotion(),

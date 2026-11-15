@@ -1730,5 +1730,30 @@ return function()
 			expect(cue.volume <= 0.4).to.equal(true)
 			expect(#cue.ids > 0).to.equal(true)
 		end)
+
+		it(
+			"plays the area's own song while you are in it, whatever zone the world gives",
+			function()
+				local function has(name: string): boolean
+					return name == "musicAreaHarvest" or name == "musicAreaDesert"
+				end
+				expect(Logic.songZone(nil, true)).to.equal("Harvest")
+				expect(Logic.songZone("Cafe", true)).to.equal("Harvest")
+				expect(Logic.songZone("Desert", false)).to.equal("Desert")
+				expect(Logic.songZone(nil, false)).to.equal(nil)
+				expect(Logic.areaSongFor(Logic.songZone("Cafe", true), has)).to.equal(
+					"musicAreaHarvest"
+				)
+				expect(Logic.areaSongFor(Logic.songZone("Cafe", false), has)).to.equal(nil)
+				-- the song is a looped region of its own sheet, as quiet as the other area songs
+				local song = Cues.musicAreaHarvest
+				expect(song).to.be.ok()
+				expect(song.sheet).to.equal("sheetMusicAreas3")
+				expect(song.looped).to.equal(true)
+				expect(song.group).to.equal("Music")
+				expect(song.volume).to.equal(Cues.musicAreaSnowy.volume)
+				expect(Cues.sheetMusicAreas3).to.be.ok()
+			end
+		)
 	end)
 end

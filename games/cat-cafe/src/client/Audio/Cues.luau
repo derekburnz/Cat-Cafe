@@ -210,6 +210,23 @@ local Cues: { [string]: Cue } = {
 		seconds = 83.478, -- 32 bars at 92 BPM
 		sections = 4,
 	}, -- "Banner Hall" (the Medieval Castle)
+	-- #4251: Harvest Hollow's song starts a third area sheet (synth/music.py, AREAS3). It plays while Effects/HarvestFx
+	-- says you are in the area (Logic.songZone), since the area has no zone box.
+	sheetMusicAreas3 = {
+		ids = {},
+		group = "Music",
+		volume = 0.3,
+	}, -- stereo, 80.0 s: Cider Lane
+	musicAreaHarvest = {
+		ids = {},
+		sheet = "sheetMusicAreas3",
+		region = { 0.000, 80.000 },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 80.000, -- 32 bars at 96 BPM
+		sections = 4,
+	}, -- "Cider Lane" (Harvest Hollow, the limited autumn area)
 	-- 2026-11-05 (#1541, Derek): the tutorial plays its own calm song instead of the day and night songs, from the intro
 	-- cutscene and through the first tutorial steps, until it is skipped or done. Uploaded by upload-audio run
 	-- 42068848366.

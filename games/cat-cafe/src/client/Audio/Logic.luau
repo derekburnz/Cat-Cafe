@@ -86,6 +86,13 @@ function Logic.songsFor(phase: string?, has: (string) -> boolean): { string }
 	return songs
 end
 
+-- #4251: the zone the area song follows. Harvest Hollow has no World.Zones box, so while Effects/HarvestFx says you
+-- are in it the song's zone is "Harvest" (musicAreaHarvest), whatever zone the world gives.
+Logic.HARVEST_ZONE = "Harvest"
+function Logic.songZone(zone: string?, inHarvest: boolean): string?
+	return if inHarvest then Logic.HARVEST_ZONE else zone
+end
+
 -- #2651: the song of the area a zone names ("Desert" plays musicAreaDesert), or nil when the zone has none (the cafe
 -- and the town areas) or its file is not uploaded yet. Played in place of the cafe music while you are in it.
 function Logic.areaSongFor(zone: string?, has: (string) -> boolean): string?

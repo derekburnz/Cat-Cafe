@@ -101,6 +101,8 @@ local bedGeneration = 0
 local catchToken = 0
 local zone: string? = nil
 local areaSong: string? = nil -- #2651: the area song the music follows (Audio.setZone), nil for the cafe music
+local inHarvest = false -- #4251: in Harvest Hollow (Effects/HarvestFx.onArea), which has no zone box
+local followAreaSong: () -> () -- defined with Audio.setZone, used by the Harvest hook above it
 local AREA_LEAVE_DELAY = 4 -- seconds out of an area before its song gives way
 local areaLeaveRun = 0 -- bumped on every area change, so a stale leave timer does nothing
 local music: Bed = { cue = nil, sound = nil, ducks = {} }
@@ -2316,6 +2318,11 @@ local function followAreas()
 	HarvestFx.onPick(function(at)
 		Audio.play(Logic.HARVEST_PICK_CUE, at)
 	end)
+	-- #4251: Harvest Hollow's own song while you are in it
+	HarvestFx.onArea(function(inside)
+		inHarvest = inside
+		followAreaSong()
+	end)
 end
 
 -- #3690: this player's bounce on the trampoline, in 3D at the mat.
@@ -2614,15 +2621,11 @@ function Audio.setCarrying(isCarrying: boolean)
 	end
 end
 
--- The zone the ambience follows: "Cafe", "Alley", "Park" (later "Neighbourhood", "Woods", "Sewer"); nil for none.
--- Crossing between the safe street and a catching area is silent since 2026-11-02: its chimes went with the Safe
--- zone chip and toast (Derek 2026-10-28: "no need for the safe area reached banner either", UI PR #669).
-function Audio.setZone(newZone: string?)
-	zone = newZone
-	refreshAmbience()
-	-- #2651: walking into an area with its own song switches to it at once; walking out waits AREA_LEAVE_DELAY, so a
-	-- step through a gap between the area's zone boxes does not bounce the music.
-	local target = Logic.areaSongFor(zone, has)
+-- #2651: walking into an area with its own song switches to it at once; walking out waits AREA_LEAVE_DELAY, so a
+-- step through a gap between the area's zone boxes does not bounce the music. #4251: Harvest Hollow counts as an
+-- area while Effects/HarvestFx says you are in it (Logic.songZone).
+function followAreaSong()
+	local target = Logic.areaSongFor(Logic.songZone(zone, inHarvest), has)
 	if target == areaSong then
 		return
 	end
@@ -2636,11 +2639,24 @@ function Audio.setZone(newZone: string?)
 	local run = areaLeaveRun
 	task.delay(AREA_LEAVE_DELAY, function()
 		-- only the latest leave counts, and only if the zone now (not the one left) still has no area song
-		if run == areaLeaveRun and areaSong ~= nil and Logic.areaSongFor(zone, has) == nil then
+		if
+			run == areaLeaveRun
+			and areaSong ~= nil
+			and Logic.areaSongFor(Logic.songZone(zone, inHarvest), has) == nil
+		then
 			areaSong = nil
 			refreshMusic(false)
 		end
 	end)
+end
+
+-- The zone the ambience follows: "Cafe", "Alley", "Park" (later "Neighbourhood", "Woods", "Sewer"); nil for none.
+-- Crossing between the safe street and a catching area is silent since 2026-11-02: its chimes went with the Safe
+-- zone chip and toast (Derek 2026-10-28: "no need for the safe area reached banner either", UI PR #669).
+function Audio.setZone(newZone: string?)
+	zone = newZone
+	refreshAmbience()
+	followAreaSong()
 end
 
 -- Connects every moment Audio knows to its sounds. `moments` maps a moment name to a signal with :Connect

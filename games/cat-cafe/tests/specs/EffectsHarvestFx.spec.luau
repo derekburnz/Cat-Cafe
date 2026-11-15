@@ -31,6 +31,13 @@ return function()
 			end
 		)
 
+		it("knows when you are in the area, for the song", function()
+			expect(HarvestFx.within(40, 130)).to.equal(true)
+			expect(HarvestFx.within(130, 130)).to.equal(true)
+			expect(HarvestFx.within(131, 130)).to.equal(false)
+			expect(HarvestFx.within(nil, 130)).to.equal(false)
+		end)
+
 		it("glints the nearest ready pumpkins only", function()
 			local picked = HarvestFx.glinters({ 50, 12, 90, 30, 12 }, 60, 3)
 			expect(#picked).to.equal(3)

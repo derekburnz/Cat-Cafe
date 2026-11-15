@@ -1970,11 +1970,41 @@ local SCENES = {
 		if SettingsList.isKey(SettingsList.AUTO_EQUIP_KEY) then
 			local switch = UIShim.playerGui:FindFirstChild("AutoEquip", true)
 			assert(switch and switch.Visible, "uigate: no Auto Equip switch in the Cats window (#1955)")
-			-- #4028: the switch is the AUTO pill inside Equip Best, green while on (its On attribute)
+			-- #4028: the switch is the AUTO button, green while on (its On attribute); #4256: beside Equip Best
 			local function shows(): string
 				return if (switch :: Instance):GetAttribute("On") == true then "Auto Equip: On" else "Auto Equip: Off"
 			end
-			assert((switch :: Instance):FindFirstAncestor("EquipBest") ~= nil, "uigate: the AUTO switch is not inside Equip Best (#4028)")
+			-- #4256 (Derek 2026-11-14: "a lot of the buttons on the cat menu are squished"): AUTO is its own button right
+			-- of Equip Best with a gap, on the same row and as tall; the three filters have gaps between them
+			assert((switch :: Instance):FindFirstAncestor("EquipBest") == nil, "uigate: the AUTO switch is still inside Equip Best (#4256)")
+			local toolbar = (switch :: Instance):FindFirstAncestor("Toolbar") :: GuiObject
+			assert(toolbar, "uigate: the AUTO switch is not in the Cats toolbar (#4256)")
+			local best = toolbar:FindFirstChild("EquipBest") :: GuiObject
+			local auto = switch :: GuiObject
+			assert(best, "uigate: no Equip Best in the Cats toolbar")
+			local gap = auto.AbsolutePosition.X - (best.AbsolutePosition.X + best.AbsoluteSize.X)
+			assert(gap >= 3, ("uigate: AUTO sits %.1f px from Equip Best, not beside it with a gap (#4256)"):format(gap))
+			assert(math.abs(auto.AbsolutePosition.Y - best.AbsolutePosition.Y) <= 1 and math.abs(auto.AbsoluteSize.Y - best.AbsoluteSize.Y) <= 1, "uigate: AUTO is not on Equip Best's row at its height (#4256)")
+			local right = auto.AbsolutePosition.X + auto.AbsoluteSize.X
+			assert(right <= toolbar.AbsolutePosition.X + toolbar.AbsoluteSize.X + 1, "uigate: AUTO runs past the toolbar's right edge (#4256)")
+			local filters = toolbar:FindFirstChild("Filters") :: GuiObject
+			local chips = {}
+			for _, chip in filters:GetChildren() do
+				if chip:IsA("GuiObject") then
+					table.insert(chips, chip)
+				end
+			end
+			table.sort(chips, function(x, y)
+				return x.AbsolutePosition.X < y.AbsolutePosition.X
+			end)
+			assert(#chips == 3, "uigate: the Cats filters are not All, Working and Resting")
+			for index = 2, #chips do
+				local between = chips[index].AbsolutePosition.X - (chips[index - 1].AbsolutePosition.X + chips[index - 1].AbsoluteSize.X)
+				assert(between >= 2, ("uigate: the %s and %s tabs touch (%.1f px apart, #4256)"):format(chips[index - 1].Name, chips[index].Name, between))
+			end
+			local sort = toolbar:FindFirstChild("Sort") :: GuiObject
+			local sortGap = best.AbsolutePosition.X - (sort.AbsolutePosition.X + sort.AbsoluteSize.X)
+			assert(sortGap >= 3, "uigate: Sort touches Equip Best (#4256)")
 			assert(shows() == "Auto Equip: On", "uigate: the switch shows " .. shows() .. " with the setting on")
 			-- #2076: a sync sent before the server applied the press keeps the old value; the switch keeps the press
 			local function sync(on: boolean)

@@ -781,18 +781,21 @@ local Config = {
 			startsAt = 1794780000, -- "Golden Fish Store", Sunday 2026-11-15 22:00 UTC
 			title = "🔔 Next update Sunday: the GOLDEN FISH STORE! Want a reminder when it lands?",
 			name = "GOLDEN FISH STORE",
+			poster = "rbxassetid://78033321655386",
 		},
 		{
 			id = "6810389993696133776",
 			startsAt = 1795032000, -- "Better on Every Device", Wednesday 2026-11-18 20:00 UTC
 			title = "🔔 Next update Wednesday: better controls on every device! Want a reminder?",
 			name = "BETTER ON EVERY DEVICE",
+			poster = "rbxassetid://138232412903853",
 		},
 		{
 			id = "8700676156604678758",
 			startsAt = 1794799800, -- "10 Secret Cats", Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, Derek 17:40 UTC)
 			title = "🔔 Next update: 10 SECRET CATS! Want a reminder when it lands?",
 			name = "10 SECRET CATS",
+			poster = "rbxassetid://119053796760824",
 		},
 	} :: {
 		{

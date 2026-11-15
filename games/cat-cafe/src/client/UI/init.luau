@@ -175,6 +175,7 @@ UI.events = {
 	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
+	buyWithFish = Signal.new(), -- (key, fish)  #4055: a Store pass bought with golden fish, forward as BuyWithFish
 	storeSeen = Signal.new(), -- (tab)   a Store tab with a New dot opened: forward as MarkStoreSeen (#1823 §4)
 	storeDeal = Signal.new(), -- (productId)   #3996: Today's Deal's R$25 pressed: forward as PromptDeal
 	-- (kind, value)   #1888 the Store funnel: "store_tab" (a tab id, once a visit) or "store_buy" (the pass or product
@@ -9832,6 +9833,26 @@ do
 			supporter = Players.LocalPlayer:GetAttribute(shop.supporterKey) == true, -- #1168 row 4
 		}
 	end
+	-- #4055: a pass bought with golden fish counts as owned on its card, as the server counts it (FishStore.boughtIds)
+	local SharedFishStore =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("FishStore")) :: any
+	local function owned(): { [number]: boolean }
+		local fishList = (state :: any).fishStore
+		if type(fishList) ~= "table" then
+			return PassShop.owned()
+		end
+		local all = table.clone(PassShop.owned())
+		for _, item in fishList do
+			local def = if type(item) == "table" and item.bought == true
+				then SharedFishStore.item(item.key)
+				else nil
+			local id = if def then SharedFishStore.passId(def) else 0
+			if id ~= 0 then
+				all[id] = true
+			end
+		end
+		return all
+	end
 	local function rows(): { StoreLogic.Row }
 		-- #4266: the Auto Bowl card waits for its switch, as the Bait bowl window's offer does
 		local flags =
@@ -9845,7 +9866,7 @@ do
 		then
 			config = setmetatable({ AutoBowlPassId = 0 }, { __index = Config })
 		end
-		return StoreLogic.rows(config, PassShop.owned(), state.longNap, view())
+		return StoreLogic.rows(config, owned(), state.longNap, view())
 	end
 
 	-- The window's cards when it is up, and the HUD's tile when its open state changes.
@@ -9862,6 +9883,8 @@ do
 			if up and list then
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
+				-- #4055: the Robux / Fish switch, while the fishStore switch is on
+				screen:setFish((state :: any).fishStore, state.goldenFish or 0)
 				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238
 				screen:render(list, PassShop.prices())
 			end
@@ -9924,6 +9947,10 @@ do
 				-- #4175: "featured_new" from the update's own card on Featured
 				PassShop.prompt(passId, source or "store")
 			end,
+			-- #4055: the server checks the price, the fish and the pass, and answers with a toast and a sync
+			buyFish = function(key: string, fish: number)
+				UI.events.buyWithFish:Fire(key, fish)
+			end,
 			-- #3996: the server checks Today's Deal and opens Roblox's prompt itself
 			deal = function(productId: string)
 				UI.events.storeDeal:Fire(productId)
@@ -9970,6 +9997,7 @@ do
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
+				screen:setFish((state :: any).fishStore, state.goldenFish or 0) -- #4055
 				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238
 				screen:render(rows(), PassShop.prices())
 				PassShop.refresh() -- a price changed in the Creator Hub shows without a rejoin

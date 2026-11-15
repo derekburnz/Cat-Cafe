@@ -2875,7 +2875,9 @@ Presets.nap = {
 	tilt = 12,
 }
 
-Presets.gate = { seconds = 1.4, playWithin = 70 }
+-- `areaPuff` (#4069): pieces of the area's own puff at each of Presets.areas.points places along the foot of a gate
+-- whose area has effects of its own (Presets.areaFx.areas), on top of the dissolve.
+Presets.gate = { seconds = 1.4, playWithin = 70, areaPuff = 3 }
 
 Presets.shutter = { seconds = 0.9, signSeconds = 0.6 }
 

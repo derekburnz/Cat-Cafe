@@ -789,6 +789,7 @@ local Config = {
 			-- #4362: the Town Square update poster's name and picture (UI/Screens/UpdatePoster); an entry with
 			-- neither reads "NEW UPDATE" on a plain face
 			name = "3 NEW WORLDS",
+			poster = "rbxassetid://136446394707169",
 		},
 		-- Derek 2026-11-14 17:59 UTC: Rift Run moves to tonight, Sunday 2026-11-15 01:00 UTC (Saturday 8 PM ET, the busier
 		-- hour), and the Golden Fish Store to Sunday 2026-11-15 22:00 UTC (5 PM ET), each with its own ask

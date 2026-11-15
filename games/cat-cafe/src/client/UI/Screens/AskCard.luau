@@ -375,7 +375,11 @@ end
 -- Whether `title` runs past the title's box on one line. Display letters average a little over half their size wide.
 local WIDTH_PER_SIZE = 0.56
 function AskCard._long(self: any, title: string): boolean
-	local box = self._holder.Size.X.Offset - self._title.Position.X.Offset - PAD - (self._titleInset or 0) - TITLE_RIGHT
+	local box = self._holder.Size.X.Offset
+		- self._title.Position.X.Offset
+		- PAD
+		- (self._titleInset or 0)
+		- TITLE_RIGHT
 	local letters = utf8.len(title) or #title
 	return letters * TITLE_TEXT * WIDTH_PER_SIZE > box
 end

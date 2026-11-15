@@ -4163,20 +4163,10 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 end
 
 -- The player's own CampCheckIn: "Pirate Cat is on its way to your cafe!" (the camp chime is Audio's).
--- #3080 cut it with the other green pop-ups; #3106 (Derek2 11-10: "maybe add those two buttons back") brings it back
--- for a new player's first delivery only: once a session, while the first walk-through is not done. After that the
--- basket and the camp chime say it.
-function UI.cannon.checkedIn(catName: string?)
-	local cannon: any = UI.cannon
-	if
-		cannon._deliverySaid
-		or (state.tutorialStep or math.huge) >= CannonLogic.WALKTHROUGH_STEP
-	then
-		return
-	end
-	cannon._deliverySaid = true
-	UI.toast(("🧺 %s is on its way to your cafe!"):format(catName or "Your cat"), "good")
-end
+-- #3080 cut it with the other green pop-ups; #3106 brought it back for a new player's first delivery; #4497 (Derek
+-- 2026-11-15: "remove all the pop ups that happen after first catch like "cat" is captured, "cat" is on the way to
+-- your cafe etc") cuts it again. The flight, the basket and the camp chime say it.
+function UI.cannon.checkedIn(_catName: string?) end
 
 -- A refused LaunchCannon: Launch comes back at once and the card's button wobbles. The server's toast says why.
 function UI.cannon.result(ok: boolean, destination: string?)

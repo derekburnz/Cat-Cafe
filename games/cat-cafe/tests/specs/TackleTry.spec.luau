@@ -102,7 +102,7 @@ return function()
 		end)
 
 		it("is false with no shield or a value that is not a time", function()
-			expect(TackleTry.shielded(nil, 1000)).to.equal(false) -- never had one, or their own tackle ended it
+			expect(TackleTry.shielded(nil, 1000)).to.equal(false) -- never had one, or it ran out
 			expect(TackleTry.shielded("1900", 1000)).to.equal(false)
 			expect(TackleTry.shielded(0 / 0, 1000)).to.equal(false)
 		end)

@@ -227,6 +227,12 @@ local function report(ok: boolean, outcome: string?, targetUserId: number?)
 	result(ok, outcome, targetUserId)
 end
 
+-- #4499: true while this player's new player shield runs (the Player's TackleShieldUntil attribute, ShoveService).
+local function shielded(): boolean
+	local untilAt = player:GetAttribute("TackleShieldUntil")
+	return type(untilAt) == "number" and Shove.shielded(untilAt, workspace:GetServerTimeNow())
+end
+
 -- A press of the Tackle button or key. The UI hides or greys the button when a press would be refused; these are
 -- the same checks so a stray key press does not lunge for nothing.
 local function press()
@@ -236,6 +242,9 @@ local function press()
 	if
 		root == nil
 		or not inOpenArea()
+		-- #4499: no tackle from inside the new player shield; the button is hidden then (TackleBar) and the server
+		-- refuses it too
+		or shielded()
 		or (state ~= nil and state.carrying ~= nil)
 		or now < nextPressAt
 		or now < downUntil

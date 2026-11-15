@@ -49,6 +49,7 @@ local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local LoadingTest = require(ReplicatedStorage.Shared.LoadingTest)
 local MemoryWatch = require(ReplicatedStorage.Shared.MemoryWatch)
+local MoneyCard = require(ReplicatedStorage.Shared.MoneyCard)
 local Net = require(script.Parent.Net)
 local NetPing = require(ReplicatedStorage.Shared.NetPing)
 local NewKind = require(ReplicatedStorage.Shared.NewKind)
@@ -425,6 +426,9 @@ export type CustomEvent =
 	-- #4174: the Starter Bundle's slide-in card, value 1; shown, closed, ignored, buy or hidden (each once a session),
 	-- the device and tier
 	| "starter_suggest"
+	-- #4437: the 2x Money boost card from the HUD, value 1; shown, buy, closed or hidden (each once a session), the
+	-- Money pass rung it offered and the tier
+	| "money_card"
 	-- #4311: the Low performance ask, value 1; how it went (PerfSuggest.OUTCOMES), the device and the tier
 	| "perf_suggest"
 	-- #4307: the join to the first ProfileSync on the client, once a session below Tier 2; the device, the Roblox load
@@ -506,6 +510,7 @@ local REPORTS = {
 	"store_guard_blocked", -- #1936: a purchase prompt the guard refused, "<source>:<reason>"
 	"buy_source", -- #4176: a purchase prompt about to open, "<source>:<pass or product id>" (StoreFunnel.BUY_SOURCES)
 	"starter_suggest", -- #4174: the Starter Bundle card's shown or how it ended (StarterSuggest.OUTCOMES)
+	"money_card", -- #4437: the HUD's Money boost card shown or how it ended, "<outcome>:<rung>" (MoneyCard.OUTCOMES)
 	"perf_suggest", -- #4311: the Low performance ask shown or how it ended (PerfSuggest.OUTCOMES)
 	"playtime_gift", -- #1947: a gift card's button, "<like|fav>:<like|favourite|close>"
 	"client_error", -- #2681: the client logged its first error line this session (value true)
@@ -641,6 +646,7 @@ type Session = {
 	buySources: { [string]: { source: string, at: number } }, -- #4176: the last tagged source by sku (os.clock)
 	buySourceTags: number, -- #4176: buy_source tags taken this session (StoreFunnel.BUY_SOURCES_MAX)
 	starterSuggest: { [string]: boolean }, -- #4174: starter_suggest outcomes logged this session
+	moneyCard: { [string]: boolean }, -- #4437: money_card outcomes logged this session
 	perfSuggest: { [string]: boolean }, -- #4311: perf_suggest outcomes logged this session
 	bootUi: number?, -- #4307: the client's boot_ui seconds, kept for client_boot
 	bootLogged: boolean, -- #4307: client_boot logged this session
@@ -2447,6 +2453,17 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				{ outcome, session.device or "unknown", tierText(profile) }
 			)
 		end
+	elseif name == "money_card" then
+		local outcome, rung = MoneyCard.report(rawValue)
+		if outcome ~= nil and rung ~= nil and not session.moneyCard[outcome] then
+			session.moneyCard[outcome] = true
+			Telemetry.custom(
+				player,
+				"money_card",
+				1,
+				{ outcome, tostring(rung), tierText(profile) }
+			)
+		end
 	elseif name == "perf_suggest" then
 		local outcome = Guard.oneOf(rawValue, PerfSuggest.OUTCOMES)
 		if outcome ~= nil and not session.perfSuggest[outcome] then
@@ -2618,6 +2635,7 @@ local function onLoaded(player: Player, profile: Profile)
 		buySources = {},
 		buySourceTags = 0,
 		starterSuggest = {},
+		moneyCard = {},
 		perfSuggest = {},
 		bootUi = nil,
 		bootLogged = false,

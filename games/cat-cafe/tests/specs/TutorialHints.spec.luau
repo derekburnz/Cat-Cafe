@@ -360,4 +360,33 @@ return function()
 			expect(TutorialHints.lineFor("nope", "touch")).to.equal(nil)
 		end)
 	end)
+
+	describe("bowl first (#4518)", function()
+		local function view(changes: { [string]: any }, first: boolean): any
+			local s: { [string]: any } =
+				{ tutorialStep = 0, tier = 1, cats = {}, upgradeLevels = { lure_bowl = 1 } }
+			for key, value in changes do
+				s[key] = value
+			end
+			return TutorialHints.view(s, {}, "touch", true, first)
+		end
+		it("asks for the bowl before the first catch, then the catch", function()
+			local stats = { catsCaught = 0, baitsTamed = 0, luresUsed = 0 }
+			expect(TutorialHints.ask(view({ stats = stats }, true))).to.equal("food")
+			local fed = { catsCaught = 0, baitsTamed = 0, luresUsed = 1 }
+			expect(TutorialHints.ask(view({ stats = fed, bait = {} }, true))).to.equal("waiting")
+			expect(TutorialHints.ask(view({ stats = fed, bait = { cat = "tabby" } }, true))).to.equal(
+				"arrived"
+			)
+			local tamed = { catsCaught = 1, baitsTamed = 1, luresUsed = 1 }
+			expect(TutorialHints.ask(view({ stats = tamed }, true))).to.equal("catch")
+			-- catchFirst on: today's order
+			expect(TutorialHints.ask(view({ stats = stats }, false))).to.equal("catch")
+		end)
+		it("counts only cats caught by hand", function()
+			local tamed = { catsCaught = 2, baitsTamed = 1, luresUsed = 1 }
+			expect(view({ stats = tamed }, true).cats).to.equal(1)
+			expect(view({ stats = tamed }, false).cats).to.equal(2)
+		end)
+	end)
 end

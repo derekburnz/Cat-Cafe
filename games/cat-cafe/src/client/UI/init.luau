@@ -3942,7 +3942,11 @@ function UI.parkTrail.walkOn(): boolean
 	local LiveFlags =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 	local flag = (require(script.Components.ParkTrailLogic) :: any).FLAG
+	-- #4518: bowl first ends the walk-through at the Park, so the walk shows whatever parkGateTrail says
+	local TutorialOrder =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")) :: any
 	return LiveFlags.shown(flag, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. flag))
+		or TutorialOrder.bowlFirst()
 end
 
 -- #3893: ParkTrailController says when the first steps are done, up to the Park; the tutorial X's hold on the

@@ -7594,7 +7594,7 @@ do
 			tag = CART_TAG,
 			name = "CatCafeMysteryBang",
 			line = function(value: any): string?
-				return MysteryLogic.bang(value)
+				return MysteryLogic.bang(value, workspace:GetServerTimeNow()) -- #4525
 			end,
 		})
 		bang:update(state)

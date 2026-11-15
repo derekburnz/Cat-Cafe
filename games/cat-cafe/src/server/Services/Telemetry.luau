@@ -963,9 +963,10 @@ function Telemetry.introShort(_profile: Profile): boolean
 	return true
 end
 
--- #3695: the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS), one run per player with the user id as its
--- session: every clean step done since the last one logged, read off the ledger, the cafe's tier and the areas with
--- a catch. Called after every ledger step, every rank up and every catch in an area.
+-- #3695: the clean funnel (Onboarding.CLEAN_STEPS, onboarding_v8 since #4504), one run per player with the user id as
+-- its session: every clean step done since the last one logged, read off the ledger, the cafe's tier, the areas with
+-- a catch, the walk-through's step and the cats caught by hand, and `event`, the moment happening now (an event step,
+-- Onboarding.CLEAN_EVENTS). Called after every ledger step, every rank up, every catch in an area and every event.
 -- The areas the save has a cat from (a spare cat counts by its old area too), added to `areas`.
 local function saveAreas(profile: Profile, areas: { [string]: boolean })
 	for catId in profile.collection do
@@ -979,39 +980,98 @@ local function saveAreas(profile: Profile, areas: { [string]: boolean })
 	end
 end
 
-local function logClean(player: Player, profile: Profile)
-	local session = sessions[player]
+-- #3695: one clean funnel step out to Roblox.
+local function sendClean(
+	player: Player,
+	profile: Profile,
+	funnel: string,
+	step: number,
+	name: string
+)
+	local fields = grouped(profile, {}) -- #3666
+	remember(player, "funnel", funnel .. " " .. name, step, fields)
+	send(player, "funnel " .. funnel, function()
+		AnalyticsService:LogFunnelStepEvent(
+			player,
+			funnel,
+			tostring(player.UserId),
+			step,
+			name,
+			customFields(fields)
+		)
+	end)
+end
+
+-- #3695: v7, while the walk-through runs today's order (#4518).
+local function logCleanV7(player: Player, profile: Profile, areas: { [string]: boolean })
 	local state = profile.telemetry
 	local logged = state.cleanStep or 0
+	if logged >= Onboarding.V7_CLEAN_COUNT then
+		return
+	end
+	if logged >= Onboarding.V7_CLEAN_TUTORIAL then
+		saveAreas(profile, areas) -- a cat from bait or a rescue never passes caughtIn (Review-QA on #3697)
+	end
+	for _, step in Onboarding.v7Due(state, logged, { tier = Economy.tier(profile), areas = areas }) do
+		state.cleanStep = step
+		sendClean(
+			player,
+			profile,
+			Onboarding.V7_CLEAN_FUNNEL,
+			step,
+			Onboarding.V7_CLEAN_STEPS[step]
+		)
+	end
+end
+
+local function logClean(player: Player, profile: Profile, event: string?)
+	local session = sessions[player]
+	if session == nil or session.areasCaught == nil then
+		return -- joined is not logged yet (logJoined calls this once the session is set up)
+	end
+	local areas: { [string]: boolean } = session.areasCaught
+	if not Onboarding.v8On() then
+		logCleanV7(player, profile, areas)
+		return
+	end
+	local state = profile.telemetry
+	local logged = state.cleanV8Step or 0
+	if logged == 0 and Onboarding.reached(state, "first_catch") then
+		state.cleanV8Step = Onboarding.CLEAN_COUNT -- #4504: began on v7 before the switch: out of v8
+		return
+	end
 	if logged >= Onboarding.CLEAN_COUNT then
 		return
 	end
-	local areas: { [string]: boolean } = if session ~= nil and session.areasCaught ~= nil
-		then session.areasCaught
-		else {}
 	if logged >= Onboarding.CLEAN_TUTORIAL then
 		-- past the tutorial the next steps can be an area's: a cat from bait or a rescue never passes caughtIn, so
 		-- the save is read again (Review-QA on #3697)
 		saveAreas(profile, areas)
 	end
-	local facts: Onboarding.CleanFacts = { tier = Economy.tier(profile), areas = areas }
-	for _, step in Onboarding.cleanDue(state, logged, facts) do
-		state.cleanStep = step
-		local name = Onboarding.CLEAN_STEPS[step]
-		local fields = grouped(profile, {}) -- #3666
-		remember(player, "funnel", Onboarding.CLEAN_FUNNEL .. " " .. name, step, fields)
-		send(player, "funnel " .. Onboarding.CLEAN_FUNNEL, function()
-			AnalyticsService:LogFunnelStepEvent(
-				player,
-				Onboarding.CLEAN_FUNNEL,
-				tostring(player.UserId),
-				step,
-				name,
-				customFields(fields)
-			)
-		end)
+	-- (read as unknown: catsCaught counts bowl cats too, and baitsTamed takes them out, as SecondCat.caught does)
+	local caught: unknown, tamed: unknown = profile.stats.catsCaught, profile.stats.baitsTamed
+	local facts: Onboarding.CleanFacts = {
+		tier = Economy.tier(profile),
+		areas = areas,
+		tutorialStep = profile.tutorialStep,
+		handCats = if type(caught) == "number"
+			then caught - (if type(tamed) == "number" then tamed else 0)
+			else 0,
+	}
+	for _, step in Onboarding.cleanDue(state, logged, facts, event) do
+		state.cleanV8Step = step
+		sendClean(player, profile, Onboarding.CLEAN_FUNNEL, step, Onboarding.CLEAN_STEPS[step])
 	end
 end
+
+-- #4504: a moment an onboarding_v8 event step listens for (Onboarding.CLEAN_EVENTS, Onboarding.arrivedEvent), from
+-- the service where it happens. Logs nothing unless the save stands right before that step.
+function Telemetry.cleanEvent(player: Player, profile: Profile, event: string)
+	logClean(player, profile, event)
+end
+-- (the event names, for services that do not require Onboarding)
+Telemetry.CLEAN_EVENTS = Onboarding.CLEAN_EVENTS
+Telemetry.arrivedEvent = Onboarding.arrivedEvent
 
 -- #3695: a cat caught in `area` (CatService, as the catch is won), for the clean funnel's area steps.
 function Telemetry.caughtIn(player: Player, profile: Profile, area: string)
@@ -2331,6 +2391,13 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			local raw = rawValue :: string
 			session.screen = if raw == "none" then "none" else SCREENS[raw] or "other"
 			session.snapScreen = FirstFive.snapScreen(raw) -- #3098
+			if raw == "Cannon" then
+				logClean(player, profile, Onboarding.CLEAN_EVENTS.cannonOpen) -- #4504: in the cannon
+			elseif raw == "Bait" then
+				logClean(player, profile, Onboarding.CLEAN_EVENTS.bowlOpen) -- #4504: the Bait bowl window
+			elseif raw == "RankUp" and Economy.tier(profile) == 1 then
+				logClean(player, profile, Onboarding.CLEAN_EVENTS.rankUpShown) -- #4504: the Rank Up shown
+			end
 		end
 	elseif name == "tutorial_closed" then
 		if not session.tutorialClosed then
@@ -2834,6 +2901,10 @@ function Telemetry.firstBaitArrived(player: Player, seconds: number)
 		math.max(0, math.floor(seconds)),
 		{ whereOf(player) }
 	)
+	local profile = DataService.get(player)
+	if profile ~= nil then
+		logClean(player, profile, Onboarding.CLEAN_EVENTS.bowlArrived) -- #4504: bowl_cat_here
+	end
 end
 
 -- Runs after the other services' leave work (Telemetry starts last), so a carried cat saved on leave or a rich tip

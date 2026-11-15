@@ -1416,6 +1416,22 @@ Catalog.cats = {
 		),
 		"pass"
 	),
+	-- #4061 (Design-Agent's booth spec 1.3): the Ticket Booth's once-only 8,000 ticket prize (TicketBooth.PRIZES),
+	-- given by TicketBoothService. Earns like a Legendary from the owner's newest area. Model CatCafe_Cat_BoothPlush
+	-- (with _Sit and _Work, on its mini inner tube; Model-Agent #4404); never gold.
+	exclusive(
+		cat(
+			"booth_plush",
+			"Booth Plush Cat",
+			"Legendary",
+			"alley",
+			"entertainer",
+			"solid", -- a stitched aqua plush with a ticket tag, on a striped mini inner tube
+			{ 120, 205, 210 },
+			"Won at the Ticket Booth. Bobs on its little inner tube and squeaks when patted."
+		),
+		"booth"
+	),
 	-- #3470: the first three Secret cats (Design-Agent's names and looks; Model-Agent's CatCafe_Cat_Nebula, _Glitch
 	-- and _CafeGhost, the placeholder body until they land). The `alley` here only feeds the helper: `secret` takes
 	-- the area away. #4221: one Secret per area (Design-Agent's secret-per-area spec): Cafe Ghost is the Alleyway's,
@@ -1795,7 +1811,7 @@ Catalog.tiers = {
 	{
 		tier = 6,
 		name = "Sunstone Cafe",
-		cost = 625000000, -- #4320: 1,250,000,000 before; #4189: 2,500,000,000 at first, 5,600,000,000 before; #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
+		cost = 312500000, -- #4537 (Derek 2026-11-15: "lower the money amount for tier 5 to 6 by like half and tier 6 to 7 also"): 625,000,000 before; #4320: 1,250,000,000 before; #4189: 2,500,000,000 at first, 5,600,000,000 before; #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
 		distinctCats = 21, -- #4320: 30 before; #4189: 38 before; #3111: 42 before
 		needsRarity = "Mythical",
 		needsRarityCount = 2,
@@ -1807,7 +1823,7 @@ Catalog.tiers = {
 	{
 		tier = 7,
 		name = "Wonder Cafe",
-		cost = 6250000000, -- #4320: 12,500,000,000 before; #4189: 25,000,000,000 at first, 54,000,000,000 before; #2895 (10% off): 60,000,000,000 before
+		cost = 3125000000, -- #4537: 6,250,000,000 before; #4320: 12,500,000,000 before; #4189: 25,000,000,000 at first, 54,000,000,000 before; #2895 (10% off): 60,000,000,000 before
 		distinctCats = 27, -- #4320: 38 before; #4189: 47 before; #3111: 52 before
 		needsRarity = "Mythical",
 		needsRarityCount = 3,
@@ -1821,9 +1837,9 @@ Catalog.tiers = {
 		tier = 8,
 		name = "Summit Cafe",
 		cost = 21000000000, -- #4320 (Tiers 3 to 7 were halved, so Tier 8 follows): 42,000,000,000 before; #4192 (Pace: about 4 to 5 h after Tier 7): 520,000,000,000 before
-		distinctCats = 36, -- #4320: 47 before, the step of 9 kinds is kept on Tier 7's 27; #4192: 56 before
+		distinctCats = 43, -- #4513 (Derek 2026-11-15 15:12 UTC: "make tier 8 5 mythicals, tier 9 7 mythicals, and tier 10 make it 9 mythicals. increase the amount of cats by 20%"): 36 before; #4320: 47 before, the step of 9 kinds is kept on Tier 7's 27; #4192: 56 before
 		needsRarity = "Mythical",
-		needsRarityCount = 4,
+		needsRarityCount = 5, -- #4513: 4 before
 		slots = 16,
 		multiplier = 2.75,
 		area = "snowy",
@@ -1834,10 +1850,10 @@ Catalog.tiers = {
 	{
 		tier = 9,
 		name = "Funfair Cafe",
-		cost = 250000000000, -- #4320: 500,000,000,000 before; #4192 (Pace: about 6 to 7 h after Tier 8): 5,000,000,000,000 before
-		distinctCats = 45, -- #4320: 56 before; #4192: 65 before
+		cost = 312500000000, -- Derek 2026-11-15 18:39 UTC ("increase the cost of 9 and 10 slightly like 25% for now just to slow progress"): 250,000,000,000 before; #4320: 500,000,000,000 before; #4192 (Pace: about 6 to 7 h after Tier 8): 5,000,000,000,000 before
+		distinctCats = 54, -- #4513 (Derek 2026-11-15 15:12 UTC: "make tier 8 5 mythicals, tier 9 7 mythicals, and tier 10 make it 9 mythicals. increase the amount of cats by 20%"): 45 before; #4320: 56 before; #4192: 65 before
 		needsRarity = "Mythical",
-		needsRarityCount = 5,
+		needsRarityCount = 7, -- #4513: 5 before
 		slots = 18,
 		multiplier = 3.00,
 		area = "waterpark",
@@ -1848,10 +1864,10 @@ Catalog.tiers = {
 	{
 		tier = 10,
 		name = "Royal Cafe",
-		cost = 1500000000000, -- #4320: 3,000,000,000,000 before; #4192 (Pace: about 8 to 10 h after Tier 9): 48,000,000,000,000 before
-		distinctCats = 54, -- #4320: 65 before; #4192: 74 before
+		cost = 1875000000000, -- Derek 2026-11-15 18:39 UTC (+25%): 1,500,000,000,000 before; #4320: 3,000,000,000,000 before; #4192 (Pace: about 8 to 10 h after Tier 9): 48,000,000,000,000 before
+		distinctCats = 65, -- #4513 (Derek 2026-11-15 15:12 UTC: "make tier 8 5 mythicals, tier 9 7 mythicals, and tier 10 make it 9 mythicals. increase the amount of cats by 20%"): 54 before; #4320: 65 before; #4192: 74 before
 		needsRarity = "Mythical",
-		needsRarityCount = 6,
+		needsRarityCount = 8, -- #4513 (Derek 15:15 UTC: "fine use 8 for tier 10"): 6 before
 		slots = 20,
 		multiplier = 3.25,
 		area = "castle",
@@ -3626,7 +3642,8 @@ Catalog.areas = {
 		rescueSpots = 5, -- the carousel top, a ball pit, a prize plush pile, a river ring and a balloon bunch
 		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 },
 		incomeMultiplier = AREA_INCOME.waterpark,
-		launchFrom = "desert", -- #4070: flown to from the Desert camp's cannon only (Layout.waterpark.launchFrom)
+		-- no launchFrom (Derek2 2026-11-15 17:54 UTC: "water park is fully missing from the menu"): every cannon flies
+		-- here, as to the Castle and every other area (#4367); Layout.waterpark.launchFrom only places its gate
 	},
 	-- #4184: Model-Agent's CatCafe_Castle_Set (#4108: 192 cat spots and a pool of 15 rescue spots; five traps a day as
 	-- in every area)
@@ -5828,6 +5845,75 @@ for _, row in EVENT_DECOR do
 	Catalog.decorById[row.id] = def
 	table.insert(Catalog.passDecor, def)
 	table.insert(Catalog.eventDecor, def)
+end
+
+-- #4061 (Design-Agent's booth spec 1.3): the Ticket Booth's six weekly shelf pieces (TicketBooth.WEEKLY), bought with
+-- tickets and owned for good. Model-Agent's CatCafe_Decor_<Name> models (#4061 booth models). They join
+-- Catalog.passDecor with source "booth" and pay like a crate piece of their rarity while in use.
+local BOOTH_DECOR: { { id: string, rarity: Types.Rarity, name: string, kind: Types.DecorKind, description: string } } =
+	{
+		{
+			id = "decor_flamingo_float",
+			rarity = "Rare",
+			name = "Flamingo Float",
+			kind = "decoration",
+			description = "A big pink pool float, still a little damp.",
+		},
+		{
+			id = "decor_splash_fountain",
+			rarity = "Epic",
+			name = "Splash Fountain",
+			kind = "decoration",
+			description = "Little jets that splash on and off all day.",
+		},
+		{
+			id = "decor_ticket_arch",
+			rarity = "Epic",
+			name = "Ticket Arch",
+			kind = "decoration",
+			description = "A striped arch from the Water Park's front gate.",
+		},
+		{
+			id = "decor_wave_pool_tiles",
+			rarity = "Rare",
+			name = "Wave Pool Tiles",
+			kind = "decoration",
+			description = "Blue tiles with a painted wave, cool under paws.",
+		},
+		{
+			id = "decor_lifeguard_chair",
+			rarity = "Rare",
+			name = "Lifeguard Chair",
+			kind = "furniture",
+			description = "A tall white chair for keeping an eye on things.",
+		},
+		{
+			id = "decor_snack_hut",
+			rarity = "Epic",
+			name = "Snack Hut",
+			kind = "furniture",
+			description = "A tiny hut that smells of popcorn and sun cream.",
+		},
+	}
+Catalog.boothDecor = {} :: { Types.DecorDef }
+for _, row in BOOTH_DECOR do
+	local bonus = Config.CratePieceBonus[row.rarity]
+	local def: Types.DecorDef = {
+		id = row.id,
+		name = row.name,
+		cost = 0,
+		category = KIND_CATEGORY[row.kind],
+		effect = string.format("+%d%% money while in use", math.floor(bonus * 100 + 0.5)),
+		description = row.description,
+		bonus = bonus,
+		rarity = row.rarity,
+		asset = "CatCafe_Decor_" .. (row.name:gsub("[^%w]", "")),
+		source = "booth",
+		kind = row.kind,
+	}
+	Catalog.decorById[row.id] = def
+	table.insert(Catalog.passDecor, def)
+	table.insert(Catalog.boothDecor, def)
 end
 
 Catalog.crates = {} :: { Types.CrateDef }

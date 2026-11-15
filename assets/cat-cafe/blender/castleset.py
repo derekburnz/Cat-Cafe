@@ -1072,6 +1072,50 @@ def check_layout():
 
 
 # ------------------------------------------------------------------------------------------------ the set --
+def _field_corners(s, mat, put, keep):
+    """The Jousting Field's four corners off the sand (look pass 2026-11-15, they read bare): up to five pieces
+    each from barrels, crates, haystacks, banner poles and benches facing the field, clear of the sand, the paths,
+    the pieces and the cat spots."""
+    spots = [(p[0], p[2]) for lst in s.points.values() for p in lst]
+    fx, fz, frx, frz = FIELD
+
+    def free(x, z, r):
+        if near_trail(x, z) < r + 1.5 or in_block(x, z, r + 1.0) or in_moat(x, z, r + 1.0):
+            return False
+        if abs(x) > IN_X - r - 1.5 or ((x - fx) / (frx + r)) ** 2 + ((z - fz) / (frz + r)) ** 2 < 1.0:
+            return False
+        if any(math.hypot(x - qx, z - qz) < r + 3.5 for (qx, qz) in spots):
+            return False
+        return not any(math.hypot(x - qx, z - qz) < r + qr + 1.0 for (qx, qz, qr) in keep)
+
+    k = 0
+    for sx in (-1, 1):
+        for (z0, z1) in ((-150.0, -126.0), (-38.0, -18.0)):
+            placed = 0
+            for gz in range(int(z0), int(z1) + 1, 6):
+                for gx in range(68, 22, -6):
+                    if placed >= 5:
+                        break
+                    x, z = sx * (gx - 1.5 * (gz % 4 == 0)), gz + 1.0 * (gx % 4 == 0)
+                    kind = k % 5
+                    r = (1.4, 3.5, 2.6, 1.5, 2.6)[kind]
+                    if not free(x, z, r):
+                        continue
+                    face = math.degrees(math.atan2(fx - x, fz - z))
+                    if kind == 0:
+                        put(barrel(mat, k), x, z, (k * 53) % 360, r=r)
+                    elif kind == 1:
+                        put(crate_stack(mat, k), x, z, (k * 37) % 360, r=r)
+                    elif kind == 2:
+                        put(haystack(mat, 0.7 + 0.1 * (k % 3)), x, z, (k * 29) % 360, r=r)
+                    elif kind == 3:
+                        put(banner_pole(mat, k), x, z, 0 if z < -80 else 180, r=r)
+                    else:
+                        put(bench(mat), x, z, face, r=r)
+                    k += 1
+                    placed += 1
+
+
 def build_set(mat):
     check_layout()
     s = Set(NAME)
@@ -1255,6 +1299,7 @@ def build_set(mat):
 
     # filler: barrels, crates and haystacks, clear of the paths, the blockers, the moat, the pieces and the spots
     spots = [(p[0], p[2]) for lst in s.points.values() for p in lst]
+    filler = []
     k = 0
     for gx in range(-64, 65, 16):
         for gz in range(-262, 263, 18):
@@ -1274,12 +1319,16 @@ def build_set(mat):
                 continue
             if any(math.hypot(x - qx, z - qz) < 6.0 for (qx, qz) in spots):
                 continue
+            filler.append((x, z, 3.0))
             if k % 4 == 0:
                 s.put(barrel(mat, k), x, z, (k * 53) % 360)
             elif k % 4 == 1:
                 s.put(crate_stack(mat, k), x, z, (k * 37) % 360)
             elif k % 4 == 2:
                 s.put(haystack(mat, 0.7 + 0.1 * (k % 3)), x, z, (k * 37) % 360)
+    # last, so every earlier piece keeps its number in the set
+    keep.extend(filler)
+    _field_corners(s, mat, put, keep)
     return s.finish(_ground(), mat), s
 
 

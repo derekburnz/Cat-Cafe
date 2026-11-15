@@ -1269,7 +1269,7 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 		elseif row.dealer then
 			row.count.Text = "Sold by the night dealer's cart"
 		elseif row.cart then
-			row.count.Text = "Sold on the Day Cart from Tier 6"
+			row.count.Text = "Sold on the Coin Cart from Tier 6"
 		else
 			row.count.Text = "Get more at the Corner Shop"
 		end

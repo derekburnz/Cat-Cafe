@@ -38,6 +38,7 @@
 -- funnels count only players who started on them.
 
 local Catalog = require(script.Parent.Catalog)
+local TutorialOrder = require(script.Parent.TutorialOrder)
 local Types = require(script.Parent.Types)
 
 local Onboarding = {}
@@ -530,44 +531,12 @@ end
 -- player must do, in the order the game asks for it. Out of it on purpose: the optional rescue, the cards and windows
 -- a client reports, coming back the next day, the Store, the Cafe Pass and Robux. Its place is its own telemetry
 -- field (cleanStep), so a server still on v6 during a rollout never reads it.
-Onboarding.CLEAN_FUNNEL = "onboarding_v7"
+Onboarding.CLEAN_FUNNEL = "onboarding_v8"
 
--- One clean step: `ledger` a step of STEPS reached, `tier` the cafe at that tier or over, `area` a cat caught there.
-type CleanRule = { name: string, ledger: StepName?, tier: number?, area: string? }
-local CLEAN_RULES: { CleanRule } = {
-	{ name = "joined", ledger = "joined" },
-	{ name = "loaded", ledger = "loaded" },
-	{ name = "first_move", ledger = "first_move" },
-	{ name = "first_cannon", ledger = "first_cannon" },
-	{ name = "entered_alley", ledger = "entered_alley" },
-	{ name = "near_stray", ledger = "near_stray" },
-	{ name = "catch_started", ledger = "catch_started" },
-	{ name = "first_catch", ledger = "first_catch" },
-	{ name = "first_checkin", ledger = "first_checkin" },
-	{ name = "first_role_assigned", ledger = "first_role_assigned" },
-	-- the tutorial's "catch another cat" goal: the table can be bought first, but every cafe that goes on gets a second
-	-- cat, and it is where phones lose the most players (Growth-Agent, the 7 day read), so it has its own step
-	{ name = "second_cat", ledger = "second_cat" },
-	{ name = "first_table", ledger = "first_table" },
-	{ name = "bowl_bought", ledger = "bowl_bought" },
-	{ name = "first_bait", ledger = "first_bait" },
-	{ name = "first_bait_resolved", ledger = "first_bait_resolved" }, -- the tutorial's last step
-	{ name = "tier_2", tier = 2 },
-	{ name = "park_catch", area = "park" },
-	{ name = "tier_3", tier = 3 },
-	{ name = "neighbourhood_catch", area = "neighbourhood" },
-	{ name = "tier_4", tier = 4 },
-	{ name = "woods_catch", area = "woods" },
-	{ name = "tier_5", tier = 5 },
-	{ name = "sewer_catch", area = "sewer" },
-	{ name = "tier_6", tier = 6 },
-	{ name = "desert_catch", area = "desert" },
-	{ name = "tier_7", tier = 7 },
-	{ name = "ruins_catch", area = "ruins" },
-}
-
--- The names in order; the step number is the index (tools/opencloud/analytics.sh reads this list).
-Onboarding.CLEAN_STEPS = {
+-- v7's 27 steps in v7's order, kept for the report's labels of onboarding_v7 and for the v7 field (cleanStep) a save
+-- still carries for a server on v7 during the rollout (#4504).
+Onboarding.V7_CLEAN_FUNNEL = "onboarding_v7"
+Onboarding.V7_CLEAN_STEPS = {
 	"joined",
 	"loaded",
 	"first_move",
@@ -596,33 +565,27 @@ Onboarding.CLEAN_STEPS = {
 	"tier_7",
 	"ruins_catch",
 } :: { string }
-Onboarding.CLEAN_COUNT = #Onboarding.CLEAN_STEPS
-Onboarding.CLEAN_TUTORIAL = 15 -- first_bait_resolved, the tutorial's last step: the tiers and areas come after
+Onboarding.V7_CLEAN_COUNT = #Onboarding.V7_CLEAN_STEPS
+Onboarding.V7_CLEAN_TUTORIAL = 15 -- first_bait_resolved, v7's last tutorial step
 
--- The areas the clean funnel asks about, for a caller that gathers CleanFacts.
-Onboarding.CLEAN_AREAS =
-	{ "park", "neighbourhood", "woods", "sewer", "desert", "ruins" } :: { string }
-
--- What the clean funnel needs beside the ledger: the cafe's tier and the areas with a catch.
-export type CleanFacts = { tier: number, areas: { [string]: boolean } }
-
--- The clean step numbers to log now, in order, for a player whose furthest logged clean step is `logged` (0 before
--- joined): every step past it that is done, stopping at the first that is not. Pure, mutates nothing.
-function Onboarding.cleanDue(
+-- v7's step numbers to log now (its rules from #3695: the first 15 are ledger steps, then tier_N the cafe at that
+-- tier, <area>_catch a cat caught there), for a player whose furthest logged v7 step is `logged`: every step past it
+-- that is done, stopping at the first that is not. Pure, mutates nothing.
+function Onboarding.v7Due(
 	state: Types.TelemetryState,
 	logged: number,
-	facts: CleanFacts
+	facts: { tier: number, areas: { [string]: boolean } }
 ): { number }
 	local out: { number } = {}
-	for step = math.max(0, logged) + 1, Onboarding.CLEAN_COUNT do
-		local rule = CLEAN_RULES[step]
-		local done = false
-		if rule.ledger ~= nil then
-			done = Onboarding.reached(state, rule.ledger)
-		elseif rule.tier ~= nil then
-			done = facts.tier >= rule.tier
-		elseif rule.area ~= nil then
-			done = facts.areas[rule.area] == true
+	for step = math.max(0, logged) + 1, Onboarding.V7_CLEAN_COUNT do
+		local name = Onboarding.V7_CLEAN_STEPS[step]
+		local done
+		if step <= Onboarding.V7_CLEAN_TUTORIAL then
+			done = Onboarding.reached(state, name :: StepName)
+		elseif string.sub(name, 1, 5) == "tier_" then
+			done = facts.tier >= (tonumber(string.sub(name, 6)) or math.huge)
+		else
+			done = facts.areas[string.sub(name, 1, #name - #"_catch")] == true
 		end
 		if not done then
 			break
@@ -632,10 +595,257 @@ function Onboarding.cleanDue(
 	return out
 end
 
+-- Where a save that never had v7 starts it: out of it once the ledger shows a first catch, else 0.
+function Onboarding.v7Start(state: Types.TelemetryState): number
+	return if Onboarding.reached(state, "first_catch") then Onboarding.V7_CLEAN_COUNT else 0
+end
+
+-- v7's furthest step logged, as cleanFurthest.
+local function v7Furthest(state: Types.TelemetryState): string
+	local step = state.cleanStep or 0
+	if step >= Onboarding.V7_CLEAN_COUNT then
+		return "done"
+	end
+	return Onboarding.V7_CLEAN_STEPS[step] or "none"
+end
+
+-- Version 8 (#4504; Derek 2026-11-15 14:07 UTC: a funnel with the exact steps a new player takes, so the daily read
+-- shows where they leave): `onboarding_v8`, the walk-through bowl first (#4518, Derek 15:24 UTC; Growth-Agent's step
+-- list): the food in the bowl, the cannon to the Alleyway, two catches by hand saved at camp, the Rank Up shown and
+-- pressed, the camp cannon to the Park (the walk-through's end), then per area: a cat caught there, the next tier,
+-- arrived in the next area. It is logged while the walk-through runs bowl first (TutorialOrder.bowlFirst), and v7
+-- while it runs today's order, so each funnel only ever sees the order it was made for. The bowl cat's claim is a
+-- step too (Derek 16:14 UTC: "capture the steps properly in order and detail"): bowl window, food in, bowl cat here,
+-- tamed, cannon, launch, landed in the Alleyway, each catch's start and win, check-ins, Rank Up, Park cannon, launch,
+-- landing.
+-- Some steps are moments the save does not keep (a window open, the bowl cat here, in the cannon, near the cat, a
+-- catch started, the net catch, the Rank Up shown and pressed, a launch, landed in an area): those are `event` steps,
+-- logged as the event comes. As in Roblox's own funnels, a step
+-- that is done proves every step before it, so a player who left between two moments (or a client too old to
+-- report one) never holds the funnel.
+-- One clean step: `ledger` a step of STEPS reached, `tier` the cafe at that tier or over, `area` a cat caught there
+-- (with the cafe at its `tier`),
+-- `tutorialStep` the walk-through at that step or past it, `handCats` that many cats caught by hand and checked in
+-- (SecondCat.caught), `event` the moment Telemetry.cleanEvent names.
+type CleanRule = {
+	name: string,
+	ledger: StepName?,
+	tier: number?,
+	area: string?,
+	tutorialStep: number?,
+	handCats: number?,
+	event: string?,
+}
+
+-- The moments an event step listens for (Telemetry.cleanEvent's `event`).
+Onboarding.CLEAN_EVENTS = {
+	bowlArrived = "bowl_arrived", -- the account's first bowl cat arrived (BaitService, Telemetry.firstBaitArrived)
+	bowlOpen = "bowl_open", -- the Bait bowl window opened (the client's screen report)
+	cannonOpen = "cannon_open", -- the Cat Cannon window opened (the client's screen report)
+	catchStart = "catch_start", -- a net catch started (CatService)
+	launch = "launch", -- a cannon launch (CannonService)
+	nearStray = "near_stray", -- came near the cat that waits for the second catch (CatService)
+	netCatch = "net_catch", -- a cat caught with the net (CatService)
+	rankUpPressed = "rank_up_pressed", -- RankUp pressed at Tier 1, met or not (CafeService)
+	rankUpShown = "rank_up_shown", -- the Rank Up card opened at Tier 1 (the client's screen report)
+}
+-- The landing in `area` by cannon (CannonService).
+function Onboarding.arrivedEvent(area: string): string
+	return "arrived_" .. area
+end
+
+local EV = Onboarding.CLEAN_EVENTS
+-- The areas after the Alleyway, in tier order (Tier 2 to 10).
+local LATER_AREAS =
+	{ "park", "neighbourhood", "woods", "sewer", "desert", "ruins", "snowy", "waterpark", "castle" }
+local CLEAN_RULES: { CleanRule } = {
+	{ name = "joined", ledger = "joined" },
+	{ name = "loaded", ledger = "loaded" },
+	{ name = "first_move", ledger = "first_move" }, -- the intro scene over, the character walks
+	{ name = "bowl_opened", event = EV.bowlOpen }, -- the Bait bowl window open
+	{ name = "first_bowl", ledger = "first_bait" }, -- food in the bowl
+	{ name = "bowl_cat_here", event = EV.bowlArrived }, -- the bowl cat arrived
+	{ name = "bowl_cat_tamed", ledger = "first_bait_resolved" }, -- tamed (or let go)
+	{ name = "in_cannon", event = EV.cannonOpen },
+	{ name = "alley_picked", ledger = "first_cannon" }, -- the first launch, to the Alleyway
+	{ name = "alley_arrived", event = Onboarding.arrivedEvent("alley") }, -- landed in the Alleyway
+	{ name = "near_stray", ledger = "near_stray" },
+	{ name = "catch_started", ledger = "catch_started" }, -- the net swung
+	{ name = "first_catch", ledger = "first_catch" },
+	{ name = "first_checkin", ledger = "first_checkin" }, -- saved at camp
+	{ name = "near_stray_2", event = EV.nearStray },
+	{ name = "catch_2_started", event = EV.catchStart }, -- the net swung at the second cat
+	{ name = "second_net_catch", event = EV.netCatch },
+	{ name = "second_checkin", handCats = 2 }, -- three cats with the bowl's
+	{ name = "rank_up_ready_shown", event = EV.rankUpShown },
+	{ name = "rank_up_pressed", event = EV.rankUpPressed },
+	{ name = "tier_2", tier = 2 },
+	{ name = "park_cannon", event = EV.cannonOpen }, -- into the camp cannon after the Rank Up
+	{ name = "park_launch", event = EV.launch }, -- launched to the Park
+	{ name = "park_arrived", event = Onboarding.arrivedEvent("park") }, -- the walk-through's end
+	{ name = "park_catch", area = "park", tier = 2 },
+}
+for index, area in LATER_AREAS do
+	if index > 1 then
+		table.insert(CLEAN_RULES, { name = "tier_" .. (index + 1), tier = index + 1 })
+		table.insert(
+			CLEAN_RULES,
+			{ name = area .. "_arrived", event = Onboarding.arrivedEvent(area) }
+		)
+		table.insert(CLEAN_RULES, { name = area .. "_catch", area = area, tier = index + 1 })
+	end
+end
+
+-- The names in order; the step number is the index (tools/opencloud/analytics.sh reads this literal list, and a spec
+-- checks it against the rules).
+Onboarding.CLEAN_STEPS = {
+	"joined",
+	"loaded",
+	"first_move",
+	"bowl_opened",
+	"first_bowl",
+	"bowl_cat_here",
+	"bowl_cat_tamed",
+	"in_cannon",
+	"alley_picked",
+	"alley_arrived",
+	"near_stray",
+	"catch_started",
+	"first_catch",
+	"first_checkin",
+	"near_stray_2",
+	"catch_2_started",
+	"second_net_catch",
+	"second_checkin",
+	"rank_up_ready_shown",
+	"rank_up_pressed",
+	"tier_2",
+	"park_cannon",
+	"park_launch",
+	"park_arrived",
+	"park_catch",
+	"tier_3",
+	"neighbourhood_arrived",
+	"neighbourhood_catch",
+	"tier_4",
+	"woods_arrived",
+	"woods_catch",
+	"tier_5",
+	"sewer_arrived",
+	"sewer_catch",
+	"tier_6",
+	"desert_arrived",
+	"desert_catch",
+	"tier_7",
+	"ruins_arrived",
+	"ruins_catch",
+	"tier_8",
+	"snowy_arrived",
+	"snowy_catch",
+	"tier_9",
+	"waterpark_arrived",
+	"waterpark_catch",
+	"tier_10",
+	"castle_arrived",
+	"castle_catch",
+} :: { string }
+Onboarding.CLEAN_COUNT = #Onboarding.CLEAN_STEPS
+Onboarding.CLEAN_TUTORIAL = 24 -- park_arrived, the walk-through's end: the areas come after
+Onboarding.CLEAN_RULE_NAMES = table.create(#CLEAN_RULES) :: { string } -- for the spec
+for index, rule in CLEAN_RULES do
+	Onboarding.CLEAN_RULE_NAMES[index] = rule.name
+end
+
+-- The areas the clean funnel asks about, for a caller that gathers CleanFacts.
+Onboarding.CLEAN_AREAS = table.clone(LATER_AREAS) :: { string }
+
+-- What the clean funnel needs beside the ledger: the cafe's tier, the areas with a catch, and (when known) the
+-- walk-through's step and the cats caught by hand. Missing ones read as 0.
+export type CleanFacts = {
+	tier: number,
+	areas: { [string]: boolean },
+	tutorialStep: number?,
+	handCats: number?,
+}
+
+-- Whether a rule that is not an event step is done.
+local function cleanDone(state: Types.TelemetryState, rule: CleanRule, facts: CleanFacts): boolean
+	if rule.ledger ~= nil then
+		return Onboarding.reached(state, rule.ledger)
+	elseif rule.area ~= nil then
+		-- with the area's tier too, so a cat given early (a code, a gift) never passes the rank ups before it
+		return facts.areas[rule.area] == true and facts.tier >= (rule.tier or 0)
+	elseif rule.tier ~= nil then
+		return facts.tier >= rule.tier
+	elseif rule.tutorialStep ~= nil then
+		return (facts.tutorialStep or 0) >= rule.tutorialStep
+	elseif rule.handCats ~= nil then
+		return (facts.handCats or 0) >= rule.handCats
+	end
+	return false
+end
+
+-- The event step `event` counts at, past `base`: the first step after base with that event and only event steps
+-- between them (a moment counts only where the save already stands, so a launch at the first trip never passes the
+-- second trip's launch). Nil when none.
+local function eventStep(base: number, event: string): number?
+	for step = math.max(0, base) + 1, Onboarding.CLEAN_COUNT do
+		local rule = CLEAN_RULES[step]
+		if rule.event == nil then
+			return nil
+		elseif rule.event == event then
+			return step
+		end
+	end
+	return nil
+end
+
+-- The clean step numbers to log now, in order, for a player whose furthest logged clean step is `logged` (0 before
+-- joined), with `event` the moment happening now (nil for none): up to the furthest step that is done, since a done
+-- step proves those before it. Pure, mutates nothing.
+function Onboarding.cleanDue(
+	state: Types.TelemetryState,
+	logged: number,
+	facts: CleanFacts,
+	event: string?
+): { number }
+	local base = math.max(0, logged)
+	for step = Onboarding.CLEAN_COUNT, base + 1, -1 do
+		local rule = CLEAN_RULES[step]
+		if rule.event == nil and cleanDone(state, rule, facts) then
+			base = step
+			break
+		end
+	end
+	if event ~= nil then
+		base = eventStep(base, event) or base
+	end
+	local out: { number } = {}
+	for step = math.max(0, logged) + 1, base do
+		table.insert(out, step)
+	end
+	return out
+end
+
+-- Whether `event` would log a step for a save at `logged`, its stored facts aside: for a caller that checks a
+-- moment often (the near check runs every tick) and only wants the work when it can count.
+function Onboarding.cleanWants(logged: number, event: string): boolean
+	return logged < Onboarding.CLEAN_COUNT and eventStep(logged, event) ~= nil
+end
+
 -- The furthest clean step logged, for the events that say where a player was: "none" before joined and "done" for a
 -- player through it or out of it (a veteran who never started it).
-function Onboarding.cleanFurthest(state: Types.TelemetryState): string
-	local step = state.cleanStep or 0
+-- Whether onboarding_v8 is the funnel logged now: the walk-through runs bowl first (#4518); v7 otherwise.
+function Onboarding.v8On(): boolean
+	return TutorialOrder.bowlFirst()
+end
+
+-- `v8` says which funnel runs (Onboarding.v8On; nil reads it): v7's names for today's order.
+function Onboarding.cleanFurthest(state: Types.TelemetryState, v8: boolean?): string
+	if not (if v8 == nil then TutorialOrder.bowlFirst() else v8) then
+		return v7Furthest(state)
+	end
+	local step = state.cleanV8Step or 0
 	if step >= Onboarding.CLEAN_COUNT then
 		return "done"
 	end

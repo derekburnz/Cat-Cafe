@@ -736,7 +736,7 @@ return function()
 			-- #4070 (draft numbers on Tier 8's pattern)
 			{
 				"Funfair Cafe",
-				250000000000,
+				312500000000, -- Derek 2026-11-15 18:39 UTC: +25% (250,000,000,000 before)
 				54, -- #4513
 				"Mythical",
 				7,
@@ -748,7 +748,7 @@ return function()
 			-- #4184 (draft numbers on the same pattern)
 			{
 				"Royal Cafe",
-				1500000000000,
+				1875000000000, -- Derek 2026-11-15 18:39 UTC: +25% (1,500,000,000,000 before)
 				65, -- #4513
 				"Mythical",
 				8,

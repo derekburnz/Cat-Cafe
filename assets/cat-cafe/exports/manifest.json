@@ -360265,6 +360265,383 @@
       }
     },
     {
+      "name": "CatCafe_Decor_HayBaleSofa",
+      "category": "Decor",
+      "module": "harvestdecor",
+      "objects": [
+        "CatCafe_Decor_HayBaleSofa"
+      ],
+      "triangles": 442,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.44,
+        "y": 2.09,
+        "z": 2.29
+      },
+      "size_roblox": [
+        3.44,
+        2.29,
+        2.09
+      ],
+      "bounds_min": [
+        -1.72,
+        -0.92,
+        -0.02
+      ],
+      "bounds_max": [
+        1.72,
+        1.17,
+        2.27
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_HayBaleSofa.model.json",
+      "rbx_parts": 33,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_HayBaleSofa.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_HayBaleSofa.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "442/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "281 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.02 (want 0)",
+          "centered": "footprint center x=0.00 y=0.12"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_PawPumpkin",
+      "category": "Decor",
+      "module": "harvestdecor",
+      "objects": [
+        "CatCafe_Decor_PawPumpkin",
+        "CatCafe_Decor_PawPumpkin_Glow"
+      ],
+      "triangles": 276,
+      "budget": 3000,
+      "size_studs": {
+        "x": 2.16,
+        "y": 2.16,
+        "z": 2.18
+      },
+      "size_roblox": [
+        2.16,
+        2.18,
+        2.16
+      ],
+      "bounds_min": [
+        -1.08,
+        -1.17,
+        0.0
+      ],
+      "bounds_max": [
+        1.08,
+        0.99,
+        2.18
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PawPumpkin.model.json",
+      "rbx_parts": 17,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_PawPumpkin.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_PawPumpkin.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "276/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "192 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.09"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_AppleBushel",
+      "category": "Decor",
+      "module": "harvestdecor",
+      "objects": [
+        "CatCafe_Decor_AppleBushel"
+      ],
+      "triangles": 1040,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.63,
+        "y": 1.86,
+        "z": 1.8
+      },
+      "size_roblox": [
+        3.63,
+        1.8,
+        1.86
+      ],
+      "bounds_min": [
+        -2.24,
+        -0.97,
+        0.0
+      ],
+      "bounds_max": [
+        1.39,
+        0.89,
+        1.8
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_AppleBushel.model.json",
+      "rbx_parts": 71,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_AppleBushel.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_AppleBushel.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1040/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "698 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.43 y=-0.04"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_CornSheaf",
+      "category": "Decor",
+      "module": "harvestdecor",
+      "objects": [
+        "CatCafe_Decor_CornSheaf"
+      ],
+      "triangles": 704,
+      "budget": 3000,
+      "size_studs": {
+        "x": 2.73,
+        "y": 2.2,
+        "z": 4.06
+      },
+      "size_roblox": [
+        2.73,
+        4.06,
+        2.2
+      ],
+      "bounds_min": [
+        -1.46,
+        -1.1,
+        -0.0
+      ],
+      "bounds_max": [
+        1.27,
+        1.1,
+        4.05
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_CornSheaf.model.json",
+      "rbx_parts": 48,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_CornSheaf.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_CornSheaf.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "704/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "446 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=-0.10 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_PieCounter",
+      "category": "Decor",
+      "module": "harvestdecor",
+      "objects": [
+        "CatCafe_Decor_PieCounter"
+      ],
+      "triangles": 1212,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.8,
+        "y": 1.97,
+        "z": 3.6
+      },
+      "size_roblox": [
+        3.8,
+        3.6,
+        1.97
+      ],
+      "bounds_min": [
+        -1.9,
+        -1.02,
+        0.0
+      ],
+      "bounds_max": [
+        1.9,
+        0.95,
+        3.6
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PieCounter.model.json",
+      "rbx_parts": 78,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_PieCounter.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_PieCounter.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1212/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "522 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.03"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_HarvestWreath",
+      "category": "Decor",
+      "module": "harvestdecor",
+      "objects": [
+        "CatCafe_Decor_HarvestWreath"
+      ],
+      "triangles": 732,
+      "budget": 3000,
+      "size_studs": {
+        "x": 2.96,
+        "y": 2.02,
+        "z": 4.29
+      },
+      "size_roblox": [
+        2.96,
+        4.29,
+        2.02
+      ],
+      "bounds_min": [
+        -1.44,
+        -0.24,
+        -0.04
+      ],
+      "bounds_max": [
+        1.52,
+        1.78,
+        4.25
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_HarvestWreath.model.json",
+      "rbx_parts": 57,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_HarvestWreath.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_HarvestWreath.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "732/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "426 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.04 (want 0)",
+          "centered": "footprint center x=0.04 y=0.77"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_FeastPie",
+      "category": "Decor",
+      "module": "harvestdecor",
+      "objects": [
+        "CatCafe_Decor_FeastPie",
+        "CatCafe_Decor_FeastPie_Glow"
+      ],
+      "triangles": 1236,
+      "budget": 3000,
+      "size_studs": {
+        "x": 3.8,
+        "y": 3.8,
+        "z": 3.29
+      },
+      "size_roblox": [
+        3.8,
+        3.29,
+        3.8
+      ],
+      "bounds_min": [
+        -1.9,
+        -1.9,
+        0.0
+      ],
+      "bounds_max": [
+        1.9,
+        1.9,
+        3.29
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_FeastPie.model.json",
+      "rbx_parts": 70,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_FeastPie.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_FeastPie.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1236/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "639 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Camp_Castle_DragonKeep",
       "category": "Camp",
       "module": "campstations",

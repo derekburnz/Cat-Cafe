@@ -2763,7 +2763,7 @@ local function buildTownSquare(parent: Instance)
 		part(
 			"GardenWall",
 			Vector3.new(1, wallHeight, floor.z2 - floor.z1),
-			CFrame.new(side * (W.TownEdgeX - 1), wallHeight / 2, (floor.z1 + floor.z2) / 2),
+			CFrame.new(side * (W.TownSquareEdgeX - 1), wallHeight / 2, (floor.z1 + floor.z2) / 2),
 			BRICK,
 			Enum.Material.Brick,
 			square

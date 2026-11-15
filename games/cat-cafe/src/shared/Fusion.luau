@@ -173,8 +173,24 @@ local function better(a: Types.CatInstance, b: Types.CatInstance): boolean
 	return a.uid < b.uid
 end
 
--- The window's default pick for `catId` in `variant` (section 1): the best copy plus the four weakest others, among
--- the free copies (`free(uid)` false skips a busy one). Fewer than COPIES when there are not enough.
+-- The weakest first: the lowest level, then the least XP, then the lowest charm, then uid (#4588).
+local function weaker(a: Types.CatInstance, b: Types.CatInstance): boolean
+	local la, lb = CatStats.level(a), CatStats.level(b)
+	if la ~= lb then
+		return la < lb
+	end
+	if (a.xp or 0) ~= (b.xp or 0) then
+		return (a.xp or 0) < (b.xp or 0)
+	end
+	if CatStats.charm(a) ~= CatStats.charm(b) then
+		return CatStats.charm(a) < CatStats.charm(b)
+	end
+	return a.uid < b.uid
+end
+
+-- The window's default pick for `catId` in `variant` (section 1): #4588 (Derek 2026-11-15: "make it so it picks the 5
+-- lowest level copies") the five weakest free copies (`free(uid)` false skips a busy one), so a fusion never spends
+-- the player's best copies unless they tick them. Fewer than COPIES when there are not enough.
 function Fusion.defaultPick(
 	profile: Types.PlayerProfile,
 	catId: string,
@@ -199,12 +215,9 @@ function Fusion.defaultPick(
 		end
 		return out
 	end
-	table.sort(list, better)
-	local out = { list[1].uid }
-	for index = #list, 2, -1 do
-		if #out >= Fusion.COPIES then
-			break
-		end
+	table.sort(list, weaker)
+	local out = {}
+	for index = 1, Fusion.COPIES do
 		table.insert(out, list[index].uid)
 	end
 	return out

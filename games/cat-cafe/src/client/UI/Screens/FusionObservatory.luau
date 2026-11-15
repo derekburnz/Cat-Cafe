@@ -5,8 +5,8 @@
 -- - Fuse: the dome card (free, a live timer while a fusion runs, or "Gold Mochi is ready" with Collect), then every
 --   cat and coat with five free copies, best result first, each with Fuse, and up to three dimmed "1 more" rows.
 -- - Coats: every cat's three coats as dots, lit when found, with the copies owned; a cat that can fuse now has a "!".
--- Fuse opens the confirm card over the window: the free copies with the default five ticked (the best level and the
--- four weakest), what comes out (level, name, the trait to keep), the time, and a two tap Fuse, because the five leave
+-- Fuse opens the confirm card over the window: the free copies with the default five ticked (the five lowest level
+-- copies, #4588), what comes out (level, name, the trait to keep), the time, and a two tap Fuse, because the five leave
 -- when it starts.
 --   FusionObservatory.new(callbacks)   built hidden; the UI registers its frame as the "FusionObservatory" modal
 --   :setView(view, cats, busy, collection) :opened() :closed() :destroy()

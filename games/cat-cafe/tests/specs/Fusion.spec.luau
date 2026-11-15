@@ -256,15 +256,22 @@ return function()
 			expect((profile.fusion.running :: any).trait).to.equal(nil)
 		end)
 
-		it("picks the best copy and the four weakest by default", function()
+		it("picks the five lowest level copies by default (#4588)", function()
 			local profile = profileWith(8) -- levels 1 to 8
 			local pick = Fusion.defaultPick(profile, MYTH, "base")
 			table.sort(pick)
-			expect(pick).to.deepEqual({ "a1", "a2", "a3", "a4", "a8" })
-			profile.cats.a1.locked = true
+			expect(pick).to.deepEqual({ "a1", "a2", "a3", "a4", "a5" })
+			profile.cats.a1.locked = true -- a busy low copy is skipped
 			pick = Fusion.defaultPick(profile, MYTH, "base")
 			table.sort(pick)
-			expect(pick).to.deepEqual({ "a2", "a3", "a4", "a5", "a8" })
+			expect(pick).to.deepEqual({ "a2", "a3", "a4", "a5", "a6" })
+			-- a tie on level goes to the one with less XP
+			profile.cats.a1.locked = nil
+			profile.cats.a6.level = 1
+			profile.cats.a6.xp = 0
+			profile.cats.a1.xp = 5
+			pick = Fusion.defaultPick(profile, MYTH, "base")
+			expect(pick[1]).to.equal("a6")
 			expect(#Fusion.defaultPick(profileWith(3), MYTH, "base")).to.equal(3)
 		end)
 	end)

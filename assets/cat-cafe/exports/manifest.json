@@ -360000,6 +360000,271 @@
       }
     },
     {
+      "name": "CatCafe_Accessory_AcornHat",
+      "category": "Accessory",
+      "module": "harvestoutfits",
+      "objects": [
+        "CatCafe_Accessory_AcornHat"
+      ],
+      "triangles": 330,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.92,
+        "y": 0.92,
+        "z": 0.35
+      },
+      "size_roblox": [
+        0.92,
+        0.35,
+        0.92
+      ],
+      "bounds_min": [
+        -0.46,
+        -0.46,
+        0.0
+      ],
+      "bounds_max": [
+        0.46,
+        0.46,
+        0.35
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_AcornHat.model.json",
+      "rbx_parts": 25,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_AcornHat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_AcornHat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "330/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "153 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_PumpkinHat",
+      "category": "Accessory",
+      "module": "harvestoutfits",
+      "objects": [
+        "CatCafe_Accessory_PumpkinHat"
+      ],
+      "triangles": 192,
+      "budget": 600,
+      "size_studs": {
+        "x": 0.7,
+        "y": 0.64,
+        "z": 0.59
+      },
+      "size_roblox": [
+        0.7,
+        0.59,
+        0.64
+      ],
+      "bounds_min": [
+        -0.35,
+        -0.32,
+        0.0
+      ],
+      "bounds_max": [
+        0.35,
+        0.32,
+        0.59
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_PumpkinHat.model.json",
+      "rbx_parts": 12,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_PumpkinHat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_PumpkinHat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "192/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "156 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_FeatherCap",
+      "category": "Accessory",
+      "module": "harvestoutfits",
+      "objects": [
+        "CatCafe_Accessory_FeatherCap"
+      ],
+      "triangles": 156,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.96,
+        "y": 0.93,
+        "z": 0.93
+      },
+      "size_roblox": [
+        0.96,
+        0.93,
+        0.93
+      ],
+      "bounds_min": [
+        -0.42,
+        -0.41,
+        0.0
+      ],
+      "bounds_max": [
+        0.54,
+        0.52,
+        0.93
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_FeatherCap.model.json",
+      "rbx_parts": 13,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_FeatherCap.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_FeatherCap.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "156/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "78 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.06 y=0.06"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_SunflowerHat",
+      "category": "Accessory",
+      "module": "harvestoutfits",
+      "objects": [
+        "CatCafe_Accessory_SunflowerHat"
+      ],
+      "triangles": 260,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.9,
+        "y": 0.5,
+        "z": 0.75
+      },
+      "size_roblox": [
+        0.9,
+        0.75,
+        0.5
+      ],
+      "bounds_min": [
+        -0.45,
+        -0.19,
+        -0.03
+      ],
+      "bounds_max": [
+        0.45,
+        0.31,
+        0.71
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_SunflowerHat.model.json",
+      "rbx_parts": 17,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_SunflowerHat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_SunflowerHat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "260/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "116 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.03 (want 0)",
+          "centered": "footprint center x=0.00 y=0.06"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_WheatWreath",
+      "category": "Accessory",
+      "module": "harvestoutfits",
+      "objects": [
+        "CatCafe_Accessory_WheatWreath"
+      ],
+      "triangles": 564,
+      "budget": 700,
+      "size_studs": {
+        "x": 1.05,
+        "y": 0.94,
+        "z": 0.44
+      },
+      "size_roblox": [
+        1.05,
+        0.44,
+        0.94
+      ],
+      "bounds_min": [
+        -0.52,
+        -0.44,
+        0.0
+      ],
+      "bounds_max": [
+        0.52,
+        0.5,
+        0.44
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_WheatWreath.model.json",
+      "rbx_parts": 45,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_WheatWreath.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_WheatWreath.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "564/700 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "312 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.03"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Camp_Castle_DragonKeep",
       "category": "Camp",
       "module": "campstations",

@@ -1192,3 +1192,7 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
 ## 2026-11-15 The automerge label merges a green PR even when main moved during its run (#4241, Sync-Agent)
 - **Why:** the label path re-ran the whole check every time main moved during a run. On a busy main it never caught up: #4387 went green four times, about 40 runner minutes a lap, and stayed open. Main's ruleset is not strict, so GitHub's own auto-merge already merges a green head without that re-check.
 - **What:** `.github/scripts/automerge.sh` now merges when the run was green and GitHub reports the PR as mergeable (no conflict), even if main moved. A conflict still drops the label with a comment; an unknown merge state still gets one more run. The skill `merge-and-publish` says the same.
+
+## 2026-11-15 No golden fish caps in trades (#4623, Gameplay-Engineer)
+- **Why:** Derek, 2026-11-15 23:21 to 23:23 UTC: "I don't care about the alt account farming", "no fish limit a trade I dont care", "no 250 fish a day either".
+- **What:** `TradeFishPerDay` is 0 (no daily cap on fish received; `Trade.fishRoom` is math.huge and the trade view sends no room) and `TradeMaxFish` is 1,000,000, only the remote's sanity bound. The 24 h hold after buying the Golden Pond pass stays. There is no fee: the receiver gets exactly what was offered. The fish picker's line reads "No limit".

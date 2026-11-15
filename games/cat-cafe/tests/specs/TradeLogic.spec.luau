@@ -772,7 +772,7 @@ return function()
 
 		it("caps the picker at the wallet, the per-trade cap and their room today", function()
 			local cap = TradeLogic.MAX_FISH
-			expect(TradeLogic.fishMax(1000, nil)).to.equal(cap)
+			expect(TradeLogic.fishMax(1000, nil)).to.equal(math.min(1000, cap)) -- #4623: no real cap, the wallet
 			expect(TradeLogic.fishMax(30, nil)).to.equal(30)
 			expect(TradeLogic.fishMax(1000, 120)).to.equal(math.min(120, cap))
 			expect(TradeLogic.fishMax(1000, 0)).to.equal(0)
@@ -789,7 +789,7 @@ return function()
 			expect(TradeLogic.fishRoomLine(150)).to.equal("They can get 150 more today")
 			expect(TradeLogic.fishRoomLine(0)).to.equal("They can't get more today")
 			expect(TradeLogic.fishRoomLine(nil)).to.equal(
-				string.format("Up to %d a trade", TradeLogic.MAX_FISH)
+				"No limit" -- #4623: no daily cap
 			)
 		end)
 

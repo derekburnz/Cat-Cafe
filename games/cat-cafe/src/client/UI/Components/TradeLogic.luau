@@ -663,7 +663,7 @@ end
 -- #2745: the picker's line under its title: the other player's room left today.
 function TradeLogic.fishRoomLine(room: number?): string
 	if type(room) ~= "number" or room ~= room or room >= TradeLogic.MAX_FISH then
-		return string.format("Up to %d a trade", TradeLogic.MAX_FISH)
+		return "No limit" -- #4623 (Derek 2026-11-15): no cap a trade or a day
 	elseif room < 1 then
 		return "They can't get more today"
 	end

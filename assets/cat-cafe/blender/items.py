@@ -483,6 +483,22 @@ def build_pool_noodle(mat):
     return [b.finalize(NOODLE, mat)]
 
 
+def build_pool_noodle_icon(mat):
+    """The Pool Noodle's picture only (icons.py): the same noodle in a soft S wave, fatter and shorter, so it fills a
+    square card. The held model is too long and thin to read at 52 px. One run of short overlapping rods, no joint
+    balls (their poles showed as dark marks under the outline pass)."""
+    b = Builder()
+    n = 18
+    pts = [Vector((-1.5 + 3.0 * k / n, 0.0, 0.5 * math.sin(2 * math.pi * k / n) + 0.35 * (k / n - 0.5))) for k in range(n + 1)]
+    for k, (p, q) in enumerate(zip(pts, pts[1:])):
+        band = k in (2, 3, n - 4, n - 3)
+        _rod(b, p, q, 0.305 if band else 0.29, "fur_bubblegum" if band else "leaf_green", segments=12, extend=0.05)
+    for p, q in ((pts[0], pts[1]), (pts[-1], pts[-2])):
+        d = (p - q).normalized()
+        _rod(b, p + d * 0.03, p + d * 0.07, 0.14, "choco", segments=8)                               # the hollow ends
+    return [b.finalize(NOODLE + "_Icon", mat)]
+
+
 def toy_attachments(name):
     """Grip at the pivot with the model's own axes; the squirter's Muzzle at its nozzle's tip."""
     out = [("", "Grip", Matrix.Identity(4))]

@@ -1188,3 +1188,7 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
 ## 2026-11-13 A small bubble by the Feedback button asks for map theme ideas (#3883, Design-Agent)
 - **Why:** Derek: "Have the feedback have a little pop up above it not too annoying but make it noticable that says suggest new map themes to have you name be featured if picked".
 - **What:** a gold edged bubble under the Feedback tile reads "Suggest a new map theme! If we pick yours, your name gets featured." It shows once a join, 90 s after the tutorial is done, bobs gently, and goes by itself after 20 s. A tap opens Feedback on its Idea chip; the X closes it for the rest of the join. Credits for picked themes follow the idea credits list.
+
+## 2026-11-15 The automerge label merges a green PR even when main moved during its run (#4241, Sync-Agent)
+- **Why:** the label path re-ran the whole check every time main moved during a run. On a busy main it never caught up: #4387 went green four times, about 40 runner minutes a lap, and stayed open. Main's ruleset is not strict, so GitHub's own auto-merge already merges a green head without that re-check.
+- **What:** `.github/scripts/automerge.sh` now merges when the run was green and GitHub reports the PR as mergeable (no conflict), even if main moved. A conflict still drops the label with a comment; an unknown merge state still gets one more run. The skill `merge-and-publish` says the same.

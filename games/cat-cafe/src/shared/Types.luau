@@ -704,6 +704,8 @@ export type TraitsView = {
 	-- #3864: whether the Trait Token bundles may be offered to this player (the traitBundles switch on, and their
 	-- policy read and not restricting paid random items); nil or false hides the offer
 	bundles: boolean?,
+	-- #4197: the free Trait Party rolls left while an admin Trait Party runs; nil with none
+	party: number?,
 }
 
 export type PassBoostsView = { cafe: number, staff: number, rich: number, money: number }
@@ -1348,6 +1350,7 @@ export type Settings = {
 	tradeRequests: string, -- F102: who may ask to trade, "everyone", "friends" or "off" (Settings.choices)
 	roadmapOpen: boolean, -- #1893: the Grand Opening strip opened into its list
 	sessionRecap: boolean, -- #1920: the session recap card after Config.RecapAfterSeconds of play
+	perfAsked: boolean, -- #4311: the Low performance ask was answered (shared/PerfSuggest)
 	autoEquip: boolean, -- #1955: Auto Equip, on for new accounts and off for saves from before it
 	catIncome: boolean, -- #2551: the rate tags over working cats (UI WorldTags), on by default
 	goalFolded: boolean, -- #2714: the HUD's goal card folded into its chip (touch), off by default

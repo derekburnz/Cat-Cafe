@@ -12758,6 +12758,18 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				end
 			end
 			assert(ticked == 5, ("uigate: %d copies ticked, not 5 (#4104)"):format(ticked))
+			-- #4563: the copies sit in one even row (a sideways strip), never a squashed second row
+			local rowY, tileH = nil, nil
+			for _, cell in copies:GetChildren() do
+				if cell:IsA("GuiObject") and cell.Visible and string.match(cell.Name, "^Copy%d+$") then
+					rowY = rowY or cell.AbsolutePosition.Y
+					tileH = tileH or cell.AbsoluteSize.Y
+					assert(math.abs(cell.AbsolutePosition.Y - rowY) < 1 and math.abs(cell.AbsoluteSize.Y - tileH) < 1, "uigate: " .. cell.Name .. " left the copies' one row (#4563)")
+					assert(cell.AbsolutePosition.Y + cell.AbsoluteSize.Y <= copies.AbsolutePosition.Y + copies.AbsoluteSize.Y + 1, "uigate: " .. cell.Name .. " is cut off at the strip's foot (#4563)")
+				end
+			end
+			local foot = confirm:FindFirstChild("Foot", true) :: GuiObject
+			assert(foot.AbsolutePosition.Y >= copies.AbsolutePosition.Y + copies.AbsoluteSize.Y - 1, "uigate: the confirm's foot covers the copies (#4563)")
 			local result = (confirm:FindFirstChild("Result", true) :: TextLabel).Text
 			assert(string.find(result, "Lv 12", 1, true) and string.find(result, "Mochi", 1, true), "uigate: the result reads " .. result .. " (#4104)")
 			local chip = confirm:FindFirstChild("Trait1", true) :: GuiObject

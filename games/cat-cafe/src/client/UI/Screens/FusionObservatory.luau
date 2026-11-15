@@ -58,8 +58,9 @@ local GAP = Theme.sizes.gap
 local TAB_H = 36 -- a tap target (ui-review: 36 px or more)
 local DOME_H = 88
 local ROW_H = 68
-local PICK_CELL = 88
-local PICK_H = 104
+local PICK_MIN = 80 -- a copy tile's height on the smallest phone; it grows with the strip on bigger screens (#4563)
+local PICK_MAX = 124
+local HEAD_H = 48 -- the confirm card's title and picked lines
 local COAT_CELL = 112
 local COAT_H = 104
 local ARM_SECONDS = 4 -- the confirm's "Tap again" waits this long
@@ -719,7 +720,7 @@ function FusionObservatory._buildConfirm(self: any, content: Frame)
 	FitText.shrink(self._confirmTitle)
 	self._pickedLine = text({
 		Name = "Picked",
-		Size = UDim2.new(1, -16, 0, 18),
+		Size = UDim2.new(0.5, -12, 0, 18),
 		Position = UDim2.fromOffset(8, 26),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
@@ -729,32 +730,51 @@ function FusionObservatory._buildConfirm(self: any, content: Frame)
 	})
 	FitText.shrink(self._pickedLine)
 
-	-- the foot: the result, the trait chips, the time, Back and Fuse
-	local footH = self._buyH + 6 + 20 + 4 + 36 + 4 + 22
+	-- the time sits on the picked line's right, so the copies get the room (#4563)
+	self._timeLine = text({
+		Name = "Time",
+		AnchorPoint = Vector2.new(1, 0),
+		Size = UDim2.new(0.5, -12, 0, 18),
+		Position = UDim2.new(1, -8, 0, 26),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		ZIndex = 21,
+		Parent = shade,
+	})
+	FitText.shrink(self._timeLine)
+
+	-- the copies: one row of even tiles that slides sideways, never a squashed second row (#4563)
 	local list = scroller("Copies", shade)
 	list.ZIndex = 21
-	list.Position = UDim2.fromOffset(0, 48)
-	list.Size = UDim2.new(1, 0, 1, -(48 + footH + 6))
+	list.Position = UDim2.fromOffset(0, HEAD_H)
+	list.AutomaticCanvasSize = Enum.AutomaticSize.X
+	list.ScrollingDirection = Enum.ScrollingDirection.X
+	list.VerticalScrollBarInset = Enum.ScrollBarInset.None
+	list.HorizontalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 	self._copyList = list
-	local layout: UIGridLayout = Create("UIGridLayout", {
-		CellPadding = UDim2.fromOffset(6, 6),
+	Create("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		Padding = UDim.new(0, 6),
 		SortOrder = Enum.SortOrder.LayoutOrder,
+		VerticalAlignment = Enum.VerticalAlignment.Top,
 		Parent = list,
 	})
-	GridFit.fit(list, layout, PICK_CELL, 6, function()
-		return PICK_H
-	end)
 	self._copyCells = {} :: { any }
+	self._pickH = PICK_MIN
+	list:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		self:_sizeCopies()
+	end)
+
+	-- the foot: the result, the trait chips (only when a picked copy has a trait), Back and Fuse
 
 	local foot: Frame = Create("Frame", {
 		Name = "Foot",
 		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.fromScale(0, 1),
-		Size = UDim2.new(1, 0, 0, footH),
 		ZIndex = 21,
 		Parent = shade,
 	})
+	self._foot = foot
 	self._resultLine = text({
 		Name = "Result",
 		Size = UDim2.new(1, -16, 0, 22),
@@ -784,17 +804,10 @@ function FusionObservatory._buildConfirm(self: any, content: Frame)
 	})
 	self._chips = chips
 	self._chipButtons = {} :: { any }
-	self._timeLine = text({
-		Name = "Time",
-		Size = UDim2.new(1, -16, 0, 20),
-		Position = UDim2.fromOffset(8, 66),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		ZIndex = 22,
-		Parent = foot,
-	})
-	FitText.shrink(self._timeLine)
+	self:_layConfirm(false)
+	shade:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		self:_placeConfirm()
+	end)
 	local buttons: Frame = Create("Frame", {
 		Name = "Buttons",
 		BackgroundTransparency = 1,
@@ -860,9 +873,10 @@ function FusionObservatory._copyCell(self: any, index: number): any
 		Thickness = 2,
 		Parent = cell,
 	})
+	-- the picture on top, the level under it, a trait or name last; sizes come from _sizeCopies
 	local portrait = CatPortrait.new({
 		parent = cell,
-		size = UDim2.fromOffset(48, 48),
+		size = UDim2.fromOffset(40, 40),
 		anchorPoint = Vector2.new(0.5, 0),
 		position = UDim2.new(0.5, 0, 0, 4),
 		zIndex = 23,
@@ -871,20 +885,22 @@ function FusionObservatory._copyCell(self: any, index: number): any
 	})
 	local level = text({
 		Name = "Level",
-		Position = UDim2.fromOffset(4, 54),
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, 4, 1, -20),
 		Size = UDim2.new(1, -8, 0, 18),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
 		ZIndex = 23,
 		Parent = cell,
 	})
+	FitText.shrink(level)
 	local tag = text({
 		Name = "Tag",
-		Position = UDim2.fromOffset(4, 74),
-		Size = UDim2.new(1, -8, 0, 24),
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, 4, 1, -3),
+		Size = UDim2.new(1, -8, 0, 16),
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = CARD.subtext,
-		TextWrapped = true,
 		ZIndex = 23,
 		Parent = cell,
 	})
@@ -915,6 +931,7 @@ function FusionObservatory._copyCell(self: any, index: number): any
 		uid = nil :: string?,
 		shown = "",
 	}
+	self:_sizeCell(made)
 	cell.Activated:Connect(function()
 		local uid = made.uid
 		if uid == nil then
@@ -937,6 +954,51 @@ function FusionObservatory._copyCell(self: any, index: number): any
 	end)
 	self._copyCells[index] = made
 	return made
+end
+
+-- One copy tile at the strip's current height: a little narrower than tall, the picture filling the top half.
+function FusionObservatory._sizeCell(self: any, made: any)
+	local h = self._pickH
+	made.cell.Size = UDim2.fromOffset(math.floor(h * 0.92), h)
+	local side = math.max(28, h - 44)
+	made.portrait.frame.Size = UDim2.fromOffset(side, side)
+end
+
+function FusionObservatory._sizeCopies(self: any)
+	local scale = Scale.get()
+	local tall = if scale > 0 then self._copyList.AbsoluteSize.Y / scale else 0 -- AbsoluteSize is after the UIScale
+	local room = tall - 8 - self._copyList.ScrollBarThickness
+	local h = math.clamp(math.floor(room), PICK_MIN, PICK_MAX)
+	if h == self._pickH and #self._copyCells > 0 then
+		return
+	end
+	self._pickH = h
+	for _, made in self._copyCells do
+		self:_sizeCell(made)
+	end
+end
+
+-- The foot is as tall as what it shows: the chips row only when there is a trait to keep.
+function FusionObservatory._layConfirm(self: any, chips: boolean)
+	if self._chipsShown == chips then
+		return
+	end
+	self._chipsShown = chips
+	self._footH = 22 + 6 + (if chips then 36 + 6 else 0) + self._buyH
+	self._foot.Size = UDim2.new(1, 0, 0, self._footH)
+	self:_placeConfirm()
+end
+
+-- The copies get the room the foot leaves, up to one tall row, and the foot sits right under them, so on a big
+-- screen the result and Fuse stay next to the cats instead of across an empty gap (#4563).
+function FusionObservatory._placeConfirm(self: any)
+	local scale = Scale.get()
+	local tall = if scale > 0 then self._confirm.AbsoluteSize.Y / scale else 0
+	local room = tall - HEAD_H - self._footH - 4
+	local stripH =
+		math.max(PICK_MIN + 14, math.min(room, PICK_MAX + 8 + self._copyList.ScrollBarThickness))
+	self._copyList.Size = UDim2.new(1, 0, 0, stripH)
+	self._foot.Position = UDim2.fromOffset(0, HEAD_H + stripH + 4)
 end
 
 function FusionObservatory._groupByKey(self: any, key: string?): FusionLogic.Group?
@@ -965,6 +1027,8 @@ function FusionObservatory._openConfirm(self: any, key: string)
 	self._armed = false
 	self._confirm.Visible = true
 	self:_paintConfirm()
+	self:_placeConfirm()
+	self:_sizeCopies()
 end
 
 function FusionObservatory._closeConfirm(self: any)
@@ -1013,7 +1077,7 @@ function FusionObservatory._paintConfirm(self: any)
 	end
 	self._picked = still
 	local picked = self:_pickedList(group)
-	self._pickedLine.Text = ("%d of %d picked · tap a cat to swap it"):format(
+	self._pickedLine.Text = ("%d of %d picked · tap a cat to swap"):format(
 		#picked,
 		FusionLogic.COPIES
 	)
@@ -1078,6 +1142,7 @@ function FusionObservatory._paintConfirm(self: any)
 		self._keep = keep
 	end
 	self._chips.Visible = #result.traits > 0
+	self:_layConfirm(#result.traits > 0)
 	for index = 1, math.max(#result.traits, #self._chipButtons) do
 		local choice = result.traits[index]
 		local chip = self._chipButtons[index]
@@ -1118,8 +1183,8 @@ function FusionObservatory._paintConfirm(self: any)
 	end
 	local wait = FusionLogic.seconds(self._view, group.next)
 	self._timeLine.Text = if wait <= 0
-		then "Ready at once · the five leave when it starts" -- #4556: instant fusions
-		else "Ready in " .. FusionLogic.duration(wait) .. " · the five leave when it starts"
+		then "Ready at once · uses these 5" -- #4556: instant fusions
+		else "Ready in " .. FusionLogic.duration(wait) .. " · uses these 5"
 	local ready = #picked == FusionLogic.COPIES
 	self._fuseButton:setText(
 		if ready

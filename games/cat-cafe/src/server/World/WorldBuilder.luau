@@ -2066,6 +2066,44 @@ local function buildRummageBin(parent: Instance)
 	end
 end
 
+-- #4061: the Water Park's Ticket Booth kiosk at Layout.ticketBoothAt, tagged TicketBooth, with the ProximityPrompt
+-- TicketBoothPrompt (Open / Ticket Booth) in front of it; the client opens the booth window from it, and the server
+-- still checks the switch, the tier and the tickets on every buy (TicketBoothService). Nothing without the art.
+local TICKET_BOOTH_MODEL = "CatCafe_Camp_WaterPark_TicketBooth"
+local function buildTicketBooth(parent: Instance)
+	local x, y, z, turn = Layout.ticketBoothAt()
+	if
+		x == nil
+		or y == nil
+		or z == nil
+		or turn == nil
+		or not AssetRegistry.has(TICKET_BOOTH_MODEL)
+	then
+		return
+	end
+	local at = CFrame.new(x, y, z) * CFrame.Angles(0, math.rad(turn), 0)
+	local model = place(TICKET_BOOTH_MODEL, at, parent)
+	model.Name = "TicketBooth"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	CollectionService:AddTag(model, "TicketBooth")
+	local host = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	if host == nil then
+		return
+	end
+	local anchor = Instance.new("Attachment")
+	anchor.Name = "PromptAnchor"
+	anchor.Parent = host
+	anchor.WorldPosition = (at * CFrame.new(0, 3, -3.5)).Position
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "TicketBoothPrompt"
+	prompt.ActionText = "Open"
+	prompt.ObjectText = "Ticket Booth"
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = Config.CampExtraRangeStuds
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = anchor
+end
+
 -- #2651 part 4 (late-stations.md): the Oasis Spa and the Relic Museum, each LateStations.stations model at
 -- Layout.lateStationAt, placed and prompted as the camp extras are (tag LateStation, attributes StationId and Area,
 -- prompt LateStationPrompt). Without the art a plain block stands in. Only once Config.LateStationsOpen, when the UI's
@@ -3049,6 +3087,7 @@ function WorldBuilder.build(): World
 	local extrasFolder = folder("CampExtras", root)
 	buildCampExtras(extrasFolder)
 	buildLateStations(extrasFolder) -- #2651 part 4
+	buildTicketBooth(extrasFolder) -- #4061
 	buildRummageBin(extrasFolder) -- #3050
 	-- the SAFE ZONE words last among the camp's dressing, so they find room clear of the gate, the Index Board and the
 	-- extras too (#1132)

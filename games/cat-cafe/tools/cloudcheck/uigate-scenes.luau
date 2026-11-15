@@ -9553,6 +9553,21 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	-- #2912: after the first bait cat the goal card reads "Free a stuck cat" until the first rescue starts; at night it
 	-- says when the stuck cats come back; the tier goal returns after.
+	-- #4383: after the tutorial a Tier 1 cafe that can rank up gets the tier goal with its Rank up! sticker, not the
+	-- stuck cat, and the strip names the goal card (shared/RankFirst)
+	{ "RankFirstGoal", function()
+		local before: any = UI.getState()
+		Scenes._secondCat = Scenes._secondCat or { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }
+		UI.update({ tier = 1, tutorialStep = 5, money = 2000, secondCat = false, stuckGoal = false } :: any)
+		local RankFirst = UIShim.require("ReplicatedStorage.Shared.RankFirst") :: any
+		UI.tutorial.show(RankFirst.line("touch"))
+		UIShim.advance(0.1)
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		assert(goal.Visible, "uigate: no goal card for the rank up (#4383)")
+		assert((goal:FindFirstChild("RankReady") :: GuiObject).Visible, "uigate: no Rank up! sticker on a ready Tier 1 goal (#4383)")
+		local title = goal:FindFirstChild("Title") :: TextLabel
+		assert(title.Text ~= "Free a stuck cat 🐾", "uigate: the stuck cat goal over a ready rank up (#4383)")
+	end },
 	{ "StuckCatGoal", function()
 		local before: any = UI.getState()
 		Scenes._secondCat = Scenes._secondCat or { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }

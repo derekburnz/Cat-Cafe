@@ -15,6 +15,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
 local GridFit = require(script.Parent.Parent.Components.GridFit)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -103,6 +104,33 @@ local function text(props: { [string]: any }): TextLabel
 	return Create("TextLabel", merged)
 end
 
+-- #4061 (Model-Agent's Icon_Clean_Ticket, #4424): a number label with the ticket picture just left of it. The label
+-- sizes to its number and sits a half picture right of centre, so picture and number centre together; the 🎟️ shows
+-- until the picture has loaded.
+local TICKET_GAP = 4
+local function ticketed(label: TextLabel, size: number, widest: number)
+	label.AutomaticSize = Enum.AutomaticSize.X
+	-- never wider than its box, less the picture (the numbers are kept short: TicketBoothLogic.countText)
+	Create(
+		"UISizeConstraint",
+		{ MaxSize = Vector2.new(widest - size - TICKET_GAP, math.huge), Parent = label }
+	)
+	label.AnchorPoint = Vector2.new(0.5, label.AnchorPoint.Y)
+	label.Position =
+		UDim2.new(0.5, (size + TICKET_GAP) / 2, label.Position.Y.Scale, label.Position.Y.Offset)
+	label.Size = UDim2.new(0, 0, label.Size.Y.Scale, label.Size.Y.Offset)
+	local icon = text({
+		Name = "TicketIcon",
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(0, -TICKET_GAP, 0.5, 0),
+		Size = UDim2.fromOffset(size, size),
+		TextScaled = true,
+		Text = TicketBoothLogic.TICKET,
+		Parent = label,
+	})
+	IconArt.setImage(icon, ShopIcons.clean("Ticket"))
+end
+
 function TicketBooth.new(callbacks: Callbacks): TicketBooth
 	local self = setmetatable({}, TicketBooth) :: any
 	self._callbacks = callbacks
@@ -160,10 +188,10 @@ function TicketBooth.new(callbacks: Callbacks): TicketBooth
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
 		TextColor3 = PAL.gold,
-		Text = TicketBoothLogic.ticketText(0),
+		Text = "0",
 		Parent = count,
 	})
-	FitText.shrink(self._count)
+	ticketed(self._count, TOP_H - 10, COUNT_W - 12)
 	Outline.text(self._count, 1.5)
 
 	-- the prize cards
@@ -295,7 +323,7 @@ function TicketBooth._card(self: any, id: string, order: number): any
 		TextColor3 = MenuFamily.onCard(Theme.colors.goldDark),
 		Parent = frame,
 	})
-	FitText.shrink(price)
+	ticketed(price, PRICE_H - 2, CELL_MIN - 12)
 	local made: any = {}
 	made.buy = Button.new({
 		name = "Buy",
@@ -331,7 +359,7 @@ function TicketBooth._paint(self: any)
 	local view: Types.TicketBoothView? = self._view
 	local now = Workspace:GetServerTimeNow()
 	local tickets = if view then view.tickets else 0
-	self._count.Text = TicketBoothLogic.ticketText(tickets)
+	self._count.Text = TicketBoothLogic.countText(tickets)
 	self._rush.Text = if view
 		then TicketBoothLogic.rushLine(view.rushEndsAt, view.rushUsedToday, now)
 		else ""
@@ -344,7 +372,7 @@ function TicketBooth._paint(self: any)
 		local card = TicketBoothLogic.card(row :: any, tickets, self._armed == row.id)
 		entry.name.Text = row.name
 		entry.chip.Text = card.chip
-		entry.price.Text = TicketBoothLogic.ticketText(row.price)
+		entry.price.Text = TicketBoothLogic.commas(row.price)
 		entry.saved.Visible = card.progress ~= nil
 		entry.fill.Size = UDim2.fromScale(card.progress or 0, 1)
 		entry.numbers.Text = card.saved or ""

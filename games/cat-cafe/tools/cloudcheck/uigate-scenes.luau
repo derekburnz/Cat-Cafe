@@ -4243,21 +4243,16 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local title = window:FindFirstChild("Status", true):FindFirstChild("Title", true).Text
 		assert(title == "Your next cat will be Rare or better!", "uigate: the wow bowl reads " .. title)
 	end },
-	-- #1893 (first-hour.md 1b): the Grand Opening strip under the goal card at 3/8, tapped open into its eight steps
-	-- (the next one highlighted), then milestone 4's toast and dot
+	-- #4162: the Grand Opening strip under the goal card (#1893) is retired; a milestone brings no strip up
 	{ "GrandOpening", function()
 		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true } } })
-		local strip = UIShim.playerGui:FindFirstChild("GrandOpening", true)
-		assert(strip and strip.Visible, "uigate: no Grand Opening strip after the tutorial (#1893)")
-		local title = strip:FindFirstChild("Title")
-		assert(title and title.Text == "Grand Opening 3/8", "uigate: the strip reads " .. tostring(title and title.Text))
-		UIShim.fire(UIShim.eventOf(strip, "Activated"))
-		local steps = strip:FindFirstChild("Steps")
-		assert(steps and steps.Visible, "uigate: a tap didn't open the Grand Opening steps (#1893)")
 		UI.roadmap.step(4)
+		task.wait(0.1)
+		local strip = UIShim.playerGui:FindFirstChild("GrandOpening", true)
+		assert(strip == nil, "uigate: the retired Grand Opening strip is back (#4162)")
 	end },
-	-- #2795 (Derek2: Grand Opening from the first catch, compact on phones): the closed strip shows at 0/8 under the
-	-- goal card beside the tutorial strip, and the first table's toast plays; #4384: from the tutorial's end, not mid way
+	-- #2795, #4384: the first table's Grand Opening toast plays from the tutorial's end, not mid way (the strip it
+	-- once came with is retired, #4162)
 	{ "GrandOpeningTutorial", function()
 		local before = UI.getState() :: any
 		-- Scenes.close puts these back, so the scenes after this one keep their bowls, tier and finished tutorial
@@ -4271,9 +4266,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ tutorialStep = 3, tier = 1, upgradeLevels = levels, grandOpening = { done = {} } } :: any)
 		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
 		task.wait(0.1)
-		local strip = UIShim.playerGui:FindFirstChild("GrandOpening", true)
-		-- #4384 (checkInCalm, on unless switched off): mid tutorial the strip waits, and a prize gives no toast
-		assert(strip == nil or not strip.Visible, "uigate: the Grand Opening strip shows mid tutorial (#4384)")
+		-- #4384 (checkInCalm, on unless switched off): mid tutorial a prize gives no toast
 		local toastsBefore = 0
 		for _, piece in UIShim.playerGui:GetDescendants() do
 			if piece:IsA("TextLabel") and piece.Visible and string.find(piece.Text, "Grand Opening 1/8", 1, true) then
@@ -4287,19 +4280,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 		assert(toastsBefore == 0, "uigate: a Grand Opening toast mid tutorial (#4384)")
-		-- at the tutorial's end it shows, at 0/8 here
+		-- at the tutorial's end the toast plays (through the toast queue)
 		UI.update({ tutorialStep = 5 } :: any)
-		task.wait(0.1)
-		strip = UIShim.playerGui:FindFirstChild("GrandOpening", true)
-		assert(strip and strip.Visible, "uigate: no Grand Opening strip at the tutorial's end (#2795, #4384)")
-		local title = strip:FindFirstChild("Title")
-		assert(title and title.Text == "Grand Opening 0/8", "uigate: the strip reads " .. tostring(title and title.Text))
-		-- closed, as a new account has it (the roadmapOpen setting starts false), so it takes two lines on a phone
-		local steps = strip:FindFirstChild("Steps")
-		if steps and steps.Visible then
-			UIShim.fire(UIShim.eventOf(strip, "Activated")) -- an earlier scene in this run tapped it open
-		end
-		assert(steps == nil or not steps.Visible, "uigate: the Grand Opening list did not close (#2795)")
 		UI.roadmap.step(1)
 	end },
 	-- #1920 (first-hour.md 6): the session recap card at a calm moment: today, the Grand Opening's next step, a cooking

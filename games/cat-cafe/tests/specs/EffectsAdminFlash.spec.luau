@@ -141,6 +141,21 @@ return function()
 			expect(Flash.step(short, NOW + p.lastMinEvent - 70, NOW, p).last).to.equal(false)
 		end)
 
+		it(
+			"keeps the strip off the money and X2 Cash on touch, under the top bar elsewhere (#4616)",
+			function()
+				local a, y, off = Flash.stripSpot(false, 1, p.stripY, p.stripLift)
+				expect(a).to.equal(0)
+				expect(y).to.equal(p.stripY)
+				expect(off).to.equal(0)
+				-- a 338 px tall phone (scale 0.5) keeps the strip's bottom over the 61 px of My Cafe and Cannon
+				a, y, off = Flash.stripSpot(true, 0.5, p.stripY, p.stripLift)
+				expect(a).to.equal(1)
+				expect(y).to.equal(1)
+				expect(-off >= 66).to.equal(true)
+			end
+		)
+
 		it("swells slower than 3 times a second and only a little", function()
 			expect(p.pulseHz < 3).to.equal(true)
 			expect(p.pulse <= 0.15).to.equal(true)

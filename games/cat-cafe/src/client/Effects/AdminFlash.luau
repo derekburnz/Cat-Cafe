@@ -31,6 +31,7 @@ local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local AdminEventLogic = require(script.Parent.AdminEventLogic)
@@ -201,6 +202,13 @@ local function scaleOf(gui: ScreenGui): number
 	return math.clamp(math.min(size.X, size.Y) / p.designHeight, p.scaleMin, p.scaleMax)
 end
 
+-- a phone or tablet with no keyboard or mouse (the HUD's own test, UI/Scale.isTouch)
+local function touchOnly(): boolean
+	return UserInputService.TouchEnabled
+		and not UserInputService.KeyboardEnabled
+		and not UserInputService.MouseEnabled
+end
+
 local function build(): Parts?
 	local existing = parts
 	if existing ~= nil and existing.splash.Parent ~= nil and existing.low.Parent ~= nil then
@@ -261,8 +269,10 @@ local function build(): Parts?
 
 	local strip = Instance.new("Frame")
 	strip.Name = "Strip"
-	strip.AnchorPoint = Vector2.new(0.5, 0)
-	strip.Position = UDim2.fromScale(0.5, p.stripY)
+	-- #4616: clear of the money and the X2 Cash button on a phone or tablet (AdminFlashLogic.stripSpot)
+	local anchorY, atY, liftY = AdminFlashLogic.stripSpot(touchOnly(), s, p.stripY, p.stripLift)
+	strip.AnchorPoint = Vector2.new(0.5, anchorY)
+	strip.Position = UDim2.new(0.5, 0, atY, liftY)
 	strip.Size = UDim2.fromOffset(p.stripWidth * s, p.stripHeight * s)
 	strip.BackgroundColor3 = WHITE
 	strip.BorderSizePixel = 0

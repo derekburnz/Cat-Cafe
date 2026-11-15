@@ -10,8 +10,8 @@
 --   "All Mythical" pick every cat of that rarity (#4566: never a locked or working cat). A pick with special cats
 --   asks once ("Tap again"). Cats "move into the Keep": never any other word.
 -- The hand: three cards over the window with the card odds under them (a random pick, earned only, so the odds show).
--- Tap one to take it. A Rekindle hand then asks which slot it replaces (or the binder only), and offers "Keep my cards"
--- for 25 golden fish. Motion-FX's Effects/CardFlip deals the cards when it is there.
+-- Tap one to take it. A Rekindle hand then asks which slot it replaces (or the binder only; #4571 dropped "Keep my
+-- cards"). Motion-FX's Effects/CardFlip deals the cards when it is there.
 --   DragonKeep.new(callbacks)   built hidden; the UI registers its frame as the "DragonKeep" modal
 --   :setView(view, cats, busy) :opened() :closed() :destroy()
 
@@ -1258,22 +1258,7 @@ function DragonKeep._buildHand(self: any, content: Frame)
 			self:_take()
 		end,
 	})
-	self._keepButton = Button.new({
-		name = "KeepCards",
-		text = "Keep my cards · 🐟 " .. tostring(SharedKeep.KEEP_FISH),
-		style = "ghost",
-		size = UDim2.new(0.4, 0, 1, 0),
-		textSize = Theme.sizes.textSmall,
-		layoutOrder = 2,
-		zIndex = 22,
-		parent = foot,
-		onClick = function()
-			self._handPick = nil
-			self._selected = nil
-			self._callbacks.keep()
-			self:_showHand(false)
-		end,
-	})
+	-- #4571 (Derek 2026-11-15): no "Keep my cards". A taken card can go to the binder only, so the slots never change.
 end
 
 function DragonKeep._paintHand(self: any)
@@ -1301,7 +1286,6 @@ function DragonKeep._paintHand(self: any)
 		made.ring.Thickness = if self._selected == index then 4 else 0
 	end
 	self._oddsLine.Text = DragonKeepLogic.oddsLine(if view then view.odds else nil)
-	self._keepButton.instance.Visible = rekindle
 	local selected = if self._selected then hand[self._selected] else nil
 	local def = if selected then SharedKeep.card(selected) else nil
 	self._takeButton:setText(

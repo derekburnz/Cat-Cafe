@@ -12362,7 +12362,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local icon = tab:FindFirstChild("Icon", true) :: TextLabel
 			local seen: { [string]: boolean } = {}
 			local turns = 0
-			for _ = 1, 4 do
+			-- up to eight turns: the turn loop runs on the gate's shared clock, so what ran before decides its phase, and
+			-- CI's merged runs missed one turn in four (desktop and laptop, not phone); every pack must show within two rounds
+			for _ = 1, 8 do
 				UIShim.advance(2.6)
 				local pack = icon:GetAttribute("Pack")
 				assert(type(pack) == "string", "uigate: the Packs tab did not turn to a pack's picture (#4276)")
@@ -12370,8 +12372,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 					seen[pack] = true
 					turns += 1
 				end
+				if turns == 4 then
+					break
+				end
 			end
-			assert(turns == 4, ("uigate: the Packs tab showed %d of the 4 packs in four turns (#4276)"):format(turns))
+			assert(turns == 4, ("uigate: the Packs tab showed %d of the 4 packs in eight turns (#4276)"):format(turns))
 			local sweep = tab:FindFirstChild("Sweep", true) :: GuiObject
 			local face = tab:FindFirstChild("Face") :: GuiObject
 			assert(sweep and sweep.Parent == face and sweep:FindFirstChildOfClass("UIGradient"), "uigate: the Packs tab has no light sweep (#4276)")

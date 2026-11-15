@@ -507,8 +507,12 @@ function applyTutorial()
 	local park = cards.parkTrail
 	-- The Park opens at Tier 2; `reached` comes from ParkTrailController whatever the parkGateTrail switch says (Review-
 	-- QA's PC run: with the switch off no goal came, so the line never showed). The paws are only named when they show.
+	-- #4480 (Derek 2026-11-15: "remove the follow a cannon to park just have it show the unlock animation after ranking
+	-- up to tier 2 and end tutorial there"): none of the walk to the Park unless the parkGateTrail switch is on
+	local walk = park.walkOn()
 	if
-		(text == nil or hint == CannonLogic.WRAP_UP_HINT)
+		walk
+		and (text == nil or hint == CannonLogic.WRAP_UP_HINT)
 		and (state.tier or 1) >= 2
 		and not park.reached
 	then
@@ -516,10 +520,11 @@ function applyTutorial()
 	end
 	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides. #3893
 	-- (Derek 2026-11-13: "still show the tips all the way up to going to park"): and only once the Park is reached
+	-- #4480: with the walk off, the Tier 2 rank up ends it, so the X stops waiting for the Park there
 	if
 		not tutorialButtonOn
 		and (state.tutorialStep or math.huge) >= CannonLogic.WALKTHROUGH_STEP
-		and UI.parkTrail.reached
+		and (UI.parkTrail.reached or (not walk and (state.tier or 1) >= 2))
 	then
 		text, target = nil, nil
 	end
@@ -973,7 +978,7 @@ function UI.init(config: Types.InitConfig)
 				if (state.tutorialStep or math.huge) < CannonLogic.WALKTHROUGH_STEP
 					then "Tips hidden. Your first steps still show."
 					elseif
-						not UI.parkTrail.reached
+						not UI.parkTrail.reached and UI.parkTrail.walkOn()
 					then "Tips hidden. The way to the Park still shows."
 					else "Tutorial and tips hidden. Turn them on in Settings.",
 				"info"
@@ -1937,7 +1942,14 @@ function UI.update(partial: Types.PartialState)
 	if tier ~= nil then
 		local before = hintTier
 		hintTier = tier
-		if before ~= nil and before < CannonLogic.HINT_TIER and tier >= CannonLogic.HINT_TIER then
+		-- #4480: no "The Park is open!" hint or "Fly to the Park" button while the walk to the Park is off; the rank
+		-- up's own unlock animation is the tutorial's end
+		if
+			before ~= nil
+			and before < CannonLogic.HINT_TIER
+			and tier >= CannonLogic.HINT_TIER
+			and UI.parkTrail.walkOn()
+		then
 			for _, area in catalogAreas() do
 				if area.tier == CannonLogic.HINT_TIER then
 					local opened = area.name
@@ -3924,6 +3936,15 @@ UI.parkTrail = {
 	STRIP_PLAIN = "Visit the Park: hop in a cannon to fly there 🐾", -- the same with the paw trail switched off
 }
 
+-- #4480: whether the walk to the Park shows at all (the strip line, the "is open" hint, "Fly to the Park"): the
+-- parkGateTrail switch (off by default). Required here: the main chunk is at Luau's 200 local limit.
+function UI.parkTrail.walkOn(): boolean
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local flag = (require(script.Components.ParkTrailLogic) :: any).FLAG
+	return LiveFlags.shown(flag, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. flag))
+end
+
 -- #3893: ParkTrailController says when the first steps are done, up to the Park; the tutorial X's hold on the
 -- strip lets go then
 function UI.parkTrail.reach(reached: boolean)
@@ -4146,9 +4167,12 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 			name = area.name
 		end
 	end
-	if cannonCard then
+	-- #4491 (Derek 2026-11-15: "no need to show the traveling to alleyway pop up on screen for half a second just
+	-- adds bloat and confusion"): the intro's staged flight (a `hold` while the intro plays) shows no name card; a
+	-- player's own flight does
+	if cannonCard and not (hold ~= nil and UI.intro.playing()) then
 		if hold ~= nil then
-			cannonCard:show(destination, name, launchAt, hold) -- the intro's, in the clouds
+			cannonCard:show(destination, name, launchAt, hold) -- in the clouds (the UI gate's held card)
 		else
 			-- counted from launchAt, so the zip lands on the BOOM whatever the lag; it still pops in on arrival
 			cannonCard:show(

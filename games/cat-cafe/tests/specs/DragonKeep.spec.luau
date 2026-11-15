@@ -419,6 +419,20 @@ return function()
 			end
 		)
 
+		it("adds Night Glow's 12% of the cafe rate to the night rate", function()
+			local Economy = require(Shared.Economy)
+			local profile = profileWith({ { uid = "a", rarity = "Common" } }) :: any
+			profile.cats.a.spotId = "barista_1"
+			DragonKeep.setOn(true)
+			local before = Economy.nightTraitRate(profile)
+			profile.dragon = withSlots({ "nightGlow" })
+			local after = Economy.nightTraitRate(profile)
+			local rate = Economy.incomePerSecond(profile)
+			DragonKeep.setOn(nil)
+			expect(rate > 0).to.equal(true)
+			expect(math.abs(after - before - rate * DragonKeep.NIGHT) < 1e-9).to.equal(true)
+		end)
+
 		it("adds Kindred's 0.1% money a kept cat, up to 10%", function()
 			local save = withSlots({ "kindred" })
 			save.kept = 40

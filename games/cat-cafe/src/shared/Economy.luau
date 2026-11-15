@@ -382,7 +382,8 @@ end
 
 -- #3871: the extra day rate a second the working cats' night income traits add while it is night (Night Owl and the
 -- combos that hold it): each cat's rate without its trait x its nightIncome, through the same multipliers. settle
--- pays it over the night part of a window, at NightIncomeMultiplier like the rest of the night's pay.
+-- pays it over the night part of a window, at NightIncomeMultiplier like the rest of the night's pay. Night Glow
+-- (#4447) adds its share of the whole rate.
 function Economy.nightTraitRate(profile: Types.PlayerProfile): number
 	local total = 0
 	for _, instance in profile.cats do
@@ -392,7 +393,10 @@ function Economy.nightTraitRate(profile: Types.PlayerProfile): number
 			total += rate / Traits.incomeMultiplier(instance.trait, false) * extra
 		end
 	end
-	return if total > 0 then cafeRate(profile, total) else 0
+	-- #4447: Night Glow's share of the whole cafe's rate, paid the same way
+	local glow = Economy.dragonEffects(profile).night
+	return (if total > 0 then cafeRate(profile, total) else 0)
+		+ (if glow > 0 then Economy.incomePerSecond(profile) * glow else 0)
 end
 
 -- XP a second for one owned cat (data-model section 4b, v0.12 F75): a working cat earns CatXpPerSecondPlaced, times

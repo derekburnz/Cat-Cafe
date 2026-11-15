@@ -53,6 +53,12 @@ def ry(d):
     return (math.radians(d), "Y")
 
 
+def _turn_tilt(yaw, tilt):
+    """A turn about Z by yaw, with the +X end lifted by tilt degrees (for roof corners)."""
+    from mathutils import Matrix
+    return Matrix.Rotation(math.radians(yaw), 3, "Z") @ Matrix.Rotation(math.radians(-tilt), 3, "Y")
+
+
 def _cherry(b, d, rnd, x, y, h=None):
     h = h or rnd.uniform(10, 15)
     r = h * 0.36
@@ -86,8 +92,12 @@ def _roof(b, x, y, z, w, dd, h=1.6, col=ROOF):
     b.box_base((x, y, z + 0.35 + h * 0.45), (w * 0.5, dd * 0.5, h * 0.45), col, bevel=False)
     for sx in (-1, 1):
         for sy in (-1, 1):
-            b.box((x + sx * (w / 2 - 0.2), y + sy * (dd / 2 - 0.2), z + 0.55), (1.3, 1.3, 0.35), "gold_mid", bevel=False,
-                  rot=rz(45))
+            cx, cy = x + sx * (w / 2 - 0.2), y + sy * (dd / 2 - 0.2)
+            a = math.degrees(math.atan2(sy, sx))
+            # the corner sweeps up: a short ridge tilted outward and up, then a gold tip on its end
+            b.box((cx + sx * 0.5, cy + sy * 0.5, z + 0.55), (2.6, 0.7, 0.4), col, bevel=False,
+                  rot=_turn_tilt(a, 28))
+            b.box((cx + sx * 1.35, cy + sy * 1.35, z + 1.2), (0.8, 0.8, 0.5), "gold_mid", bevel=False, rot=rz(a))
 
 
 def _arch(b, x, y, w=12.0, h=11.0):
@@ -184,6 +194,19 @@ def _pond(b, w, d, rnd):
     for (x, y, r) in ((px - 22, py - 4, 2.6), (px + 22, py + 6, 2.2), (px + 6, py + 16, 2.8), (px - 4, py - 15, 2.0)):
         b.ico((x, y, 0.8), r, STONE, scale=(1, 1, 0.7))
         b.ico((x + r * 0.8, y + 0.5, 0.5), r * 0.55, "fur_slate", scale=(1, 1, 0.7))
+    for k in range(26):                                                            # rocks round the main pool's rim
+        a = math.radians(k * 360 / 26 + 5)
+        if 150 < math.degrees(a) % 360 < 215 or math.sin(a) > 0.85:
+            continue                                                               # open toward the path and the falls
+        r = 0.9 + 0.5 * ((k * 7) % 5) / 4
+        b.ico((px + 23.2 * math.cos(a), py + 16.2 * math.sin(a), G + r * 0.35), r, (STONE, "fur_slate")[k % 2],
+              scale=(1, 1, 0.6))
+    for k in range(6):                                                             # stepping stones over the near lobe
+        b.cyl_base((px + 14 - 3.5 + k * 1.2, py - 14.5 + k * 3.2, G), 1.25, 0.34 + 0.004 * k, STONE, segments=8,
+                   bevel=False)
+    for (x, wd, _h) in FALLS:                                                       # a splash pool under each fall
+        w.cyl_base((x, 41.5, G + 0.02), 1, 0.15, "fish_blue", segments=16, bevel=False, scale=(wd * 0.9, 3.4, 1))
+        b.cyl_base((x, 41.5, G), 1, 0.07, "paving_sand", segments=16, bevel=False, scale=(wd * 0.9 + 1.0, 4.4, 1))
     # the red hump bridge over the pond's narrow part
     bx, by = px + 3, py + 1
     for k in range(11):
@@ -301,6 +324,27 @@ def _dressing(b, g, d, rnd):
               rot=rz(rnd.uniform(0, 90)))
 
 
+def _props(b, g, w):
+    """A bamboo water spout by the tea house, a low bamboo fence along the deck's front, post markers on the paths."""
+    tx, ty = TEA
+    sx, sy = tx - 20, ty - 12                                                       # the spout and its stone basin
+    b.cyl_base((sx, sy, G), 1.6, 0.9, STONE, segments=10, bevel=False)
+    w.cyl_base((sx, sy, G + 0.9), 1.25, 0.06, "fish_blue", segments=10, bevel=False)
+    for dx in (-0.5, 0.5):
+        b.box_base((sx + 2.2, sy + dx, G), (0.3, 0.3, 2.6), "fur_fern", bevel=False)
+    b.box((sx + 2.2, sy, 2.3), (0.25, 1.4, 0.25), "fur_fern", bevel=False)
+    b.box((sx + 1.2, sy, 2.2), (3.4, 0.5, 0.5), "fur_fern", bevel=False, rot=ry(18))   # the tipping pipe
+    for k in range(9):                                                               # the fence, with a gap at the steps
+        x = tx - 8 + k * 2.6
+        b.box_base((x, ty - 10.2, G), (0.3, 0.3, 1.9), "fur_fern", bevel=False)
+        if k < 8:
+            b.box((x + 1.3, ty - 10.2, 1.5), (2.6, 0.2, 0.22), "fur_fern", bevel=False)
+            b.box((x + 1.3, ty - 10.2, 0.8), (2.6, 0.2, 0.22), "fur_fern", bevel=False)
+    for (x, y) in ((-5.5, -2), (5.5, -2), (-5.5, 8), (5.5, 8), (-36, 6), (38, 4)):       # path markers
+        b.box_base((x, y, G), (0.6, 0.6, 1.4), STONE, bevel=False)
+        g.box_base((x, y, G + 1.4), (0.5, 0.5, 0.3), "lamp_warm", bevel=False)
+
+
 def _points():
     """Area-space Roblox points: a Blender (x, y) here is Roblox (-x, y)."""
     def rb(x, y, h=0.0, *more):
@@ -327,6 +371,7 @@ def build_cherry_set(mat):
     _sand_garden(b)
     _wishing_tree(b, g)
     _dressing(b, g, d, rnd)
+    _props(b, g, w)
     areakit.POINTS[NAME] = _points()
     return [b.finalize(NAME, mat), _barrier(mat), g.finalize(NAME + "_002_Lights_Glow", mat),
             w.finalize(NAME + "_003_Pond_Water", mat), d.finalize(NAME + "_004_Petals_Decor", mat)]

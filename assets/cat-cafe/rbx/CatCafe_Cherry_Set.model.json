@@ -23750,6 +23750,1384 @@
     "CFrame": {
      "CFrame": {
       "position": [
+       10.8883,
+       0.345,
+       23.4119
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.8,
+     1.08,
+     1.8
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       12.0438,
+       0.4325,
+       27.2331
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.3,
+     1.38,
+     2.3
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       14.4753,
+       0.52,
+       30.7501
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.8,
+     1.68,
+     2.8
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       18.0415,
+       0.3887,
+       33.7585
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.05,
+     1.23,
+     2.05
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       48.793,
+       0.4762,
+       34.4795
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.55,
+     1.53,
+     2.55
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       52.6402,
+       0.345,
+       31.6449
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.8,
+     1.08,
+     1.8
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       49.9585,
+       0.4325,
+       10.2415
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.3,
+     1.38,
+     2.3
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       45.4649,
+       0.52,
+       7.9163
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.8,
+     1.68,
+     2.8
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       40.3049,
+       0.3887,
+       6.4097
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.05,
+     1.23,
+     2.05
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       34.7785,
+       0.4762,
+       5.8091
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.55,
+     1.53,
+     2.55
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       29.2069,
+       0.345,
+       6.1495
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.8,
+     1.08,
+     1.8
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       23.9139,
+       0.4325,
+       7.4111
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.3,
+     1.38,
+     2.3
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       19.207,
+       0.52,
+       9.5205
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.8,
+     1.68,
+     2.8
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       15.3598,
+       0.3887,
+       12.3551
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.05,
+     1.23,
+     2.05
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       12.5959,
+       0.4762,
+       15.7503
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.55,
+     1.53,
+     2.55
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       11.076,
+       0.345,
+       19.5087
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.8,
+     1.08,
+     1.8
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       23.5,
+       0.2,
+       7.5
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     2.5,
+     2.5
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       22.3,
+       0.202,
+       10.7
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.344,
+     2.5,
+     2.5
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       21.1,
+       0.204,
+       13.9
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.348,
+     2.5,
+     2.5
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       19.9,
+       0.206,
+       17.1
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.352,
+     2.5,
+     2.5
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       18.7,
+       0.208,
+       20.3
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.356,
+     2.5,
+     2.5
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       17.5,
+       0.21,
+       23.5
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     2.5,
+     2.5
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       53.0,
+       0.065,
+       41.5
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.07,
+     10.8,
+     10.8
+    ],
+    "Color": [
+     0.8863,
+     0.8118,
+     0.6824
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       36.0,
+       0.065,
+       41.5
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.07,
+     12.6,
+     12.6
+    ],
+    "Color": [
+     0.8863,
+     0.8118,
+     0.6824
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       19.0,
+       0.065,
+       41.5
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.07,
+     9.9,
+     9.9
+    ],
+    "Color": [
+     0.8863,
+     0.8118,
+     0.6824
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
        40.5,
        0.825,
        23.0
@@ -29360,15 +30738,64 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       5.3,
+       5.8,
        8.68,
-       28.7
+       28.2
       ],
       "orientation": [
        [
-        0.7071,
+        -0.6243,
+        -0.332,
+        -0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        0.6243,
+        0.332,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       6.65,
+       9.33,
+       27.35
+      ],
+      "orientation": [
+       [
+        -0.7071,
         0.0,
-        0.7071
+        -0.7071
        ],
        [
         0.0,
@@ -29376,17 +30803,17 @@
         0.0
        ],
        [
-        -0.7071,
+        0.7071,
         0.0,
-        0.7071
+        -0.7071
        ]
       ]
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -29409,13 +30836,62 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       5.3,
+       5.8,
        8.68,
-       51.3
+       51.8
       ],
       "orientation": [
        [
-        0.7071,
+        -0.6243,
+        -0.332,
+        0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        -0.6243,
+        -0.332,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       6.65,
+       9.33,
+       52.65
+      ],
+      "orientation": [
+       [
+        -0.7071,
         0.0,
         0.7071
        ],
@@ -29427,15 +30903,15 @@
        [
         -0.7071,
         0.0,
-        0.7071
+        -0.7071
        ]
       ]
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -29458,15 +30934,64 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -17.3,
+       -17.8,
        8.68,
-       28.7
+       28.2
+      ],
+      "orientation": [
+       [
+        0.6243,
+        0.332,
+        -0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        0.6243,
+        0.332,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -18.65,
+       9.33,
+       27.35
       ],
       "orientation": [
        [
         0.7071,
         0.0,
-        0.7071
+        -0.7071
        ],
        [
         0.0,
@@ -29474,7 +30999,7 @@
         0.0
        ],
        [
-        -0.7071,
+        0.7071,
         0.0,
         0.7071
        ]
@@ -29482,9 +31007,9 @@
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -29507,9 +31032,58 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -17.3,
+       -17.8,
        8.68,
-       51.3
+       51.8
+      ],
+      "orientation": [
+       [
+        0.6243,
+        0.332,
+        0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        -0.6243,
+        -0.332,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -18.65,
+       9.33,
+       52.65
       ],
       "orientation": [
        [
@@ -29531,9 +31105,9 @@
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -29997,15 +31571,64 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       3.8,
+       4.3,
        16.08,
-       30.2
+       29.7
       ],
       "orientation": [
        [
-        0.7071,
+        -0.6243,
+        -0.332,
+        -0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        0.6243,
+        0.332,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       5.15,
+       16.73,
+       28.85
+      ],
+      "orientation": [
+       [
+        -0.7071,
         0.0,
-        0.7071
+        -0.7071
        ],
        [
         0.0,
@@ -30013,17 +31636,17 @@
         0.0
        ],
        [
-        -0.7071,
+        0.7071,
         0.0,
-        0.7071
+        -0.7071
        ]
       ]
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -30046,13 +31669,62 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       3.8,
+       4.3,
        16.08,
-       49.8
+       50.3
       ],
       "orientation": [
        [
-        0.7071,
+        -0.6243,
+        -0.332,
+        0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        -0.6243,
+        -0.332,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       5.15,
+       16.73,
+       51.15
+      ],
+      "orientation": [
+       [
+        -0.7071,
         0.0,
         0.7071
        ],
@@ -30064,15 +31736,15 @@
        [
         -0.7071,
         0.0,
-        0.7071
+        -0.7071
        ]
       ]
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -30095,15 +31767,64 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -15.8,
+       -16.3,
        16.08,
-       30.2
+       29.7
+      ],
+      "orientation": [
+       [
+        0.6243,
+        0.332,
+        -0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        0.6243,
+        0.332,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -17.15,
+       16.73,
+       28.85
       ],
       "orientation": [
        [
         0.7071,
         0.0,
-        0.7071
+        -0.7071
        ],
        [
         0.0,
@@ -30111,7 +31832,7 @@
         0.0
        ],
        [
-        -0.7071,
+        0.7071,
         0.0,
         0.7071
        ]
@@ -30119,9 +31840,9 @@
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -30144,9 +31865,58 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -15.8,
+       -16.3,
        16.08,
-       49.8
+       50.3
+      ],
+      "orientation": [
+       [
+        0.6243,
+        0.332,
+        0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        -0.6243,
+        -0.332,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -17.15,
+       16.73,
+       51.15
       ],
       "orientation": [
        [
@@ -30168,9 +31938,9 @@
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -30634,15 +32404,64 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.3,
+       2.8,
        22.98,
-       31.7
+       31.2
       ],
       "orientation": [
        [
-        0.7071,
+        -0.6243,
+        -0.332,
+        -0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        0.6243,
+        0.332,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       3.65,
+       23.63,
+       30.35
+      ],
+      "orientation": [
+       [
+        -0.7071,
         0.0,
-        0.7071
+        -0.7071
        ],
        [
         0.0,
@@ -30650,17 +32469,17 @@
         0.0
        ],
        [
-        -0.7071,
+        0.7071,
         0.0,
-        0.7071
+        -0.7071
        ]
       ]
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -30683,13 +32502,62 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.3,
+       2.8,
        22.98,
-       48.3
+       48.8
       ],
       "orientation": [
        [
-        0.7071,
+        -0.6243,
+        -0.332,
+        0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        -0.6243,
+        -0.332,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       3.65,
+       23.63,
+       49.65
+      ],
+      "orientation": [
+       [
+        -0.7071,
         0.0,
         0.7071
        ],
@@ -30701,15 +32569,15 @@
        [
         -0.7071,
         0.0,
-        0.7071
+        -0.7071
        ]
       ]
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -30732,15 +32600,64 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -14.3,
+       -14.8,
        22.98,
-       31.7
+       31.2
+      ],
+      "orientation": [
+       [
+        0.6243,
+        0.332,
+        -0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        0.6243,
+        0.332,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -15.65,
+       23.63,
+       30.35
       ],
       "orientation": [
        [
         0.7071,
         0.0,
-        0.7071
+        -0.7071
        ],
        [
         0.0,
@@ -30748,7 +32665,7 @@
         0.0
        ],
        [
-        -0.7071,
+        0.7071,
         0.0,
         0.7071
        ]
@@ -30756,9 +32673,9 @@
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -30781,9 +32698,58 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -14.3,
+       -14.8,
        22.98,
-       48.3
+       48.8
+      ],
+      "orientation": [
+       [
+        0.6243,
+        0.332,
+        0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        -0.6243,
+        -0.332,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -15.65,
+       23.63,
+       49.65
       ],
       "orientation": [
        [
@@ -30805,9 +32771,9 @@
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -31271,15 +33237,64 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.8,
+       1.3,
        29.38,
-       33.2
+       32.7
       ],
       "orientation": [
        [
-        0.7071,
+        -0.6243,
+        -0.332,
+        -0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        0.6243,
+        0.332,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       2.15,
+       30.03,
+       31.85
+      ],
+      "orientation": [
+       [
+        -0.7071,
         0.0,
-        0.7071
+        -0.7071
        ],
        [
         0.0,
@@ -31287,17 +33302,17 @@
         0.0
        ],
        [
-        -0.7071,
+        0.7071,
         0.0,
-        0.7071
+        -0.7071
        ]
       ]
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -31320,13 +33335,62 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.8,
+       1.3,
        29.38,
-       46.8
+       47.3
       ],
       "orientation": [
        [
-        0.7071,
+        -0.6243,
+        -0.332,
+        0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        -0.6243,
+        -0.332,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       2.15,
+       30.03,
+       48.15
+      ],
+      "orientation": [
+       [
+        -0.7071,
         0.0,
         0.7071
        ],
@@ -31338,15 +33402,15 @@
        [
         -0.7071,
         0.0,
-        0.7071
+        -0.7071
        ]
       ]
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -31369,15 +33433,64 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -12.8,
+       -13.3,
        29.38,
-       33.2
+       32.7
+      ],
+      "orientation": [
+       [
+        0.6243,
+        0.332,
+        -0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        0.6243,
+        0.332,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -14.15,
+       30.03,
+       31.85
       ],
       "orientation": [
        [
         0.7071,
         0.0,
-        0.7071
+        -0.7071
        ],
        [
         0.0,
@@ -31385,7 +33498,7 @@
         0.0
        ],
        [
-        -0.7071,
+        0.7071,
         0.0,
         0.7071
        ]
@@ -31393,9 +33506,9 @@
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -31418,9 +33531,58 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -12.8,
+       -13.3,
        29.38,
-       46.8
+       47.3
+      ],
+      "orientation": [
+       [
+        0.6243,
+        0.332,
+        0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        -0.6243,
+        -0.332,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -14.15,
+       30.03,
+       48.15
       ],
       "orientation": [
        [
@@ -31442,9 +33604,9 @@
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -32745,15 +34907,64 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -33.7,
+       -33.2,
        9.75,
-       15.7
+       15.2
       ],
       "orientation": [
        [
-        0.7071,
+        -0.6243,
+        -0.332,
+        -0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        0.6243,
+        0.332,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -32.35,
+       10.4,
+       14.35
+      ],
+      "orientation": [
+       [
+        -0.7071,
         0.0,
-        0.7071
+        -0.7071
        ],
        [
         0.0,
@@ -32761,17 +34972,17 @@
         0.0
        ],
        [
-        -0.7071,
+        0.7071,
         0.0,
-        0.7071
+        -0.7071
        ]
       ]
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -32794,13 +35005,62 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -33.7,
+       -33.2,
        9.75,
-       30.3
+       30.8
       ],
       "orientation": [
        [
-        0.7071,
+        -0.6243,
+        -0.332,
+        0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        -0.6243,
+        -0.332,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -32.35,
+       10.4,
+       31.65
+      ],
+      "orientation": [
+       [
+        -0.7071,
         0.0,
         0.7071
        ],
@@ -32812,15 +35072,15 @@
        [
         -0.7071,
         0.0,
-        0.7071
+        -0.7071
        ]
       ]
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -32843,15 +35103,64 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -58.3,
+       -58.8,
        9.75,
-       15.7
+       15.2
+      ],
+      "orientation": [
+       [
+        0.6243,
+        0.332,
+        -0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        0.6243,
+        0.332,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -59.65,
+       10.4,
+       14.35
       ],
       "orientation": [
        [
         0.7071,
         0.0,
-        0.7071
+        -0.7071
        ],
        [
         0.0,
@@ -32859,7 +35168,7 @@
         0.0
        ],
        [
-        -0.7071,
+        0.7071,
         0.0,
         0.7071
        ]
@@ -32867,9 +35176,9 @@
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -32892,9 +35201,58 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -58.3,
+       -58.8,
        9.75,
-       30.3
+       30.8
+      ],
+      "orientation": [
+       [
+        0.6243,
+        0.332,
+        0.7071
+       ],
+       [
+        -0.4695,
+        0.8829,
+        0.0
+       ],
+       [
+        -0.6243,
+        -0.332,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.4,
+     0.7
+    ],
+    "Color": [
+     0.4314,
+     0.4941,
+     0.5961
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -59.65,
+       10.4,
+       31.65
       ],
       "orientation": [
        [
@@ -32916,9 +35274,9 @@
      }
     },
     "Size": [
-     1.3,
-     0.35,
-     1.3
+     0.8,
+     0.5,
+     0.8
     ],
     "Color": [
      0.949,
@@ -48900,6 +51258,1771 @@
    }
   },
   {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -26.0,
+       0.48,
+       10.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.9,
+     3.2,
+     3.2
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -28.2,
+       1.33,
+       9.5
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     2.6,
+     0.3
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -28.2,
+       1.33,
+       10.5
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     2.6,
+     0.3
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -28.2,
+       2.3,
+       10.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.25,
+     0.25,
+     1.4
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -27.2,
+       2.2,
+       10.0
+      ],
+      "orientation": [
+       [
+        0.9511,
+        -0.309,
+        0.0
+       ],
+       [
+        0.309,
+        0.9511,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     3.4,
+     0.5,
+     0.5
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -38.0,
+       0.98,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     1.9,
+     0.3
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -39.3,
+       1.5,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -39.3,
+       0.8,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -40.6,
+       0.98,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     1.9,
+     0.3
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -41.9,
+       1.5,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -41.9,
+       0.8,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -43.2,
+       0.98,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     1.9,
+     0.3
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -44.5,
+       1.5,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -44.5,
+       0.8,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -45.8,
+       0.98,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     1.9,
+     0.3
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -47.1,
+       1.5,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -47.1,
+       0.8,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -48.4,
+       0.98,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     1.9,
+     0.3
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -49.7,
+       1.5,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -49.7,
+       0.8,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -51.0,
+       0.98,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     1.9,
+     0.3
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -52.3,
+       1.5,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -52.3,
+       0.8,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -53.6,
+       0.98,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     1.9,
+     0.3
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -54.9,
+       1.5,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -54.9,
+       0.8,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -56.2,
+       0.98,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     1.9,
+     0.3
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -57.5,
+       1.5,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -57.5,
+       0.8,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.6,
+     0.22,
+     0.2
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -58.8,
+       0.98,
+       11.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     1.9,
+     0.3
+    ],
+    "Color": [
+     0.6431,
+     0.7529,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       5.5,
+       0.73,
+       -2.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     1.4,
+     0.6
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -5.5,
+       0.73,
+       -2.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     1.4,
+     0.6
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       5.5,
+       0.73,
+       8.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     1.4,
+     0.6
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -5.5,
+       0.73,
+       8.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     1.4,
+     0.6
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       36.0,
+       0.73,
+       6.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     1.4,
+     0.6
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cherry_Set",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -38.0,
+       0.73,
+       4.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     1.4,
+     0.6
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
    "className": "Model",
    "attributes": {
     "Rojo_Target_PrimaryPart": "CatCafe_Cherry_Set/1"
@@ -51237,6 +55360,300 @@
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
+    },
+    {
+     "name": "CatCafe_Cherry_Set_002_Lights_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         5.5,
+         1.58,
+         -2.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.5,
+       0.3,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cherry_Set_002_Lights_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -5.5,
+         1.58,
+         -2.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.5,
+       0.3,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cherry_Set_002_Lights_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         5.5,
+         1.58,
+         8.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.5,
+       0.3,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cherry_Set_002_Lights_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -5.5,
+         1.58,
+         8.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.5,
+       0.3,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cherry_Set_002_Lights_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         36.0,
+         1.58,
+         6.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.5,
+       0.3,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cherry_Set_002_Lights_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -38.0,
+         1.58,
+         4.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.5,
+       0.3,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
     }
    ],
    "properties": {
@@ -51413,7 +55830,7 @@
        "CFrame": {
         "position": [
          54.2,
-         8.63,
+         8.645,
          44.3
         ],
         "orientation": [
@@ -51437,7 +55854,7 @@
       },
       "Size": [
        1.5,
-       17.06,
+       17.03,
        0.4
       ],
       "Color": [
@@ -51513,7 +55930,7 @@
        "CFrame": {
         "position": [
          37.6,
-         9.38,
+         9.395,
          44.3
         ],
         "orientation": [
@@ -51537,7 +55954,7 @@
       },
       "Size": [
        2.0,
-       18.56,
+       18.53,
        0.4
       ],
       "Color": [
@@ -51613,7 +56030,7 @@
        "CFrame": {
         "position": [
          20.0,
-         8.13,
+         8.145,
          44.3
         ],
         "orientation": [
@@ -51637,7 +56054,7 @@
       },
       "Size": [
        1.25,
-       16.06,
+       16.03,
        0.4
       ],
       "Color": [
@@ -51663,7 +56080,7 @@
        "CFrame": {
         "position": [
          20.0,
-         0.1215,
+         0.1235,
          16.0
         ],
         "orientation": [
@@ -51686,7 +56103,7 @@
        }
       },
       "Size": [
-       0.143,
+       0.147,
        23.0,
        23.0
       ],
@@ -51740,6 +56157,210 @@
        0.128,
        24.0,
        24.0
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3,
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Cherry_Set_003_Pond_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.0,
+         0.125,
+         41.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       8.8,
+       8.8
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3,
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Cherry_Set_003_Pond_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         36.0,
+         0.125,
+         41.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       10.6,
+       10.6
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3,
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Cherry_Set_003_Pond_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         19.0,
+         0.125,
+         41.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       7.9,
+       7.9
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3,
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Cherry_Set_003_Pond_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -26.0,
+         0.96,
+         10.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       2.5,
+       2.5
       ],
       "Color": [
        0.4314,
@@ -68259,7 +72880,7 @@
        "CFrame": {
         "position": [
          19.0459,
-         0.174,
+         0.176,
          15.7352
         ],
         "orientation": [
@@ -68283,7 +72904,7 @@
       },
       "Size": [
        0.7,
-       0.098,
+       0.102,
        0.7
       ],
       "Color": [
@@ -73943,7 +78564,7 @@
        "CFrame": {
         "position": [
          20.7159,
-         0.1265,
+         0.138,
          17.2332
         ],
         "orientation": [
@@ -73967,7 +78588,7 @@
       },
       "Size": [
        0.7,
-       0.027,
+       0.05,
        0.7
       ],
       "Color": [

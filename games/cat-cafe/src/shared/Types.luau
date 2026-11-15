@@ -1651,6 +1651,9 @@ export type PlayerState = {
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,
+	-- #4626: tomorrow's reason to come back for the minute 6 line (shared/ReturnHook.early, "gift" or "treat"); nil
+	-- with the returnHookEarly switch off, from Tier 3, with nothing to name, and from an older server
+	tomorrowHook: ReturnHookView?,
 	returnGoals: { ReturnGoalView }?, -- #2916: a returning player's next goals on the welcome back card
 	-- #3022: set from the first customer served until the second cat is checked in (shared/SecondCat.view); nil
 	-- otherwise, and from an older server

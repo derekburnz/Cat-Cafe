@@ -386,6 +386,11 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		),
 		dailyDeal = dealView(player, profile, now), -- #3996
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
+		-- #4626: the minute 6 line for a player before Tier 3, behind returnHookEarly (the client times it)
+		tomorrowHook = if LiveFlagService.on(ReturnHook.EARLY_FLAG)
+				and Economy.tier(profile) <= ReturnHook.EARLY_MAX_TIER
+			then ReturnHook.early(profile, now, LiveFlagService.on(ReturnHook.GIFT_FLAG))
+			else nil,
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile, LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)), -- #3022, #4624
 		stuckGoal = StuckGoal.waiting(profile, LiveFlagService.on(StuckGoal.AFTER_SECOND_FLAG)), -- #2912, #4473

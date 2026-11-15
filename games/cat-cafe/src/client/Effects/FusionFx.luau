@@ -75,6 +75,21 @@ function FusionFx.swirlAt(i: number, t: number): (number, number, number)
 	return 1 - eased, p.turns * 2 * math.pi * eased, 1 + (p.land - 1) * eased
 end
 
+-- Pure: where the tiles meet in a centre at `corner` of `size` pixels, and how wide the meeting's ring and sparkles
+-- are sized from (#4563). A square-ish centre (a picture): its middle and its width. A wide one (the window's dome
+-- card, its picture at the left end): the square at its left end, so the five land on the dome's picture and the ring
+-- is sized from the card's height, not swelling over the whole screen from its width. Never under `acrossMin`, never
+-- over `acrossMax`.
+function FusionFx.landing(corner: Vector2, size: Vector2): (Vector2, number)
+	local p = Presets.fusion
+	local short = math.min(size.X, size.Y)
+	local across = math.clamp(short, p.acrossMin, p.acrossMax)
+	if size.X > size.Y * p.wide then
+		return corner + Vector2.new(short / 2, size.Y / 2), across
+	end
+	return corner + size / 2, across
+end
+
 -- Pure: the whole swirl's seconds for `count` tiles.
 function FusionFx.swirlSeconds(count: number): number
 	local p = Presets.fusion.swirl
@@ -165,8 +180,8 @@ function FusionFx.swirl(tiles: { GuiObject }, centre: GuiObject, coat: string, o
 		done()
 		return
 	end
-	local middle = ScreenFx.centre(gui, centre)
-	local across = math.max(centre.AbsoluteSize.X, centre.AbsoluteSize.Y, Presets.fusion.acrossMin)
+	local middle, across =
+		FusionFx.landing(ScreenFx.toGui(gui, centre.AbsolutePosition), centre.AbsoluteSize)
 	if Context.reducedMotion() then
 		meet(gui, middle, across, coat, true)
 		done()
@@ -289,7 +304,8 @@ function FusionFx.burst(target: GuiObject, coat: string)
 		return
 	end
 	local middle = ScreenFx.centre(gui, target)
-	local across = math.max(size.X, size.Y, Presets.fusion.acrossMin)
+	local across =
+		math.clamp(math.max(size.X, size.Y), Presets.fusion.acrossMin, Presets.fusion.acrossMax)
 	for ring = 1, k.rings do
 		task.delay((ring - 1) * s.ringGap, function()
 			if gui.Parent ~= nil then
@@ -319,6 +335,7 @@ local dome: Model? = nil
 local glows: { Glow } = {}
 local paws: { Part } = {}
 local lit: string? = nil -- the coat the slit shows now
+local anchor: Attachment? = nil -- the dome's `GlowAnchor`, found once with its glows
 
 local function findDome(): Model?
 	local suffix = Presets.fusion.dome.suffix
@@ -353,6 +370,8 @@ end
 
 local function readGlows(model: Model)
 	table.clear(glows)
+	local found = model:FindFirstChild(Presets.fusion.dome.anchor, true)
+	anchor = if found ~= nil and found:IsA("Attachment") then found :: Attachment else nil
 	local suffix = Presets.fusion.dome.glow
 	for _, descendant in model:GetDescendants() do
 		-- a part named ..._Glow, or any part of a child Model named so (Model-Agent's `_Slit_Glow`, PR #4114)
@@ -389,6 +408,7 @@ local function stepDome(now: number)
 		if model ~= nil then
 			dropPaws()
 			table.clear(glows)
+			anchor = nil
 			lit = nil
 		end
 		dome = nil
@@ -426,10 +446,9 @@ local function stepDome(now: number)
 	-- the ring's middle: the dome's `GlowAnchor` (PR #4114), `anchorRadius` out; else worked out from its box
 	local radius: number
 	local ringAt: Vector3
-	local anchor = model:FindFirstChild(p.anchor, true)
-	if anchor ~= nil and anchor:IsA("Attachment") then
+	if anchor ~= nil and anchor.Parent ~= nil then
 		radius = p.anchorRadius
-		ringAt = (anchor :: Attachment).WorldPosition
+		ringAt = anchor.WorldPosition
 	else
 		local box, size = model:GetBoundingBox()
 		radius = math.max(size.X, size.Z) / 2 * p.pawRadius

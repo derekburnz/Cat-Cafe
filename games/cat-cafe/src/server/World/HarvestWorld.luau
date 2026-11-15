@@ -34,9 +34,10 @@ HarvestWorld.ARRIVAL_TAG = "HarvestArrival"
 
 -- The set's centre on its floor: south-west of the Alley, clear of every area (the Water Park mirrors it at +2400).
 HarvestWorld.CENTER = Vector3.new(-2400, 0, -2400)
--- The arch in the Town Square's north-west quarter, off the street and the lane, facing the cannon (Model-Agent to
--- check the spot in Studio; the square is 120 x 140 with the cannon at the origin).
-HarvestWorld.ARCH_AT = Vector3.new(-46, 0.1, 30)
+-- The arch in the Town Square's north-west quarter, facing the cannon (Model-Agent's world scan on #4397): 2 studs or
+-- more clear all round, with a 12 wide path from the opening to the cannon between the Arcade Cabinet's ring and the
+-- Spin Wheel's. (-46, 30) had the Arcade Cabinet 6.5 studs in front of the opening.
+HarvestWorld.ARCH_AT = Vector3.new(-42, 0.1, 38)
 HarvestWorld.AREA_EARLY_SECONDS = 3600 -- built this long before it opens, so the first trip never waits on it
 HarvestWorld.ARCH_EARLY_SECONDS = 86400 -- the arch and its countdown from a day before (the update countdown's 24 hours)
 

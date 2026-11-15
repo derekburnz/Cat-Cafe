@@ -46,7 +46,7 @@ return function()
 			expect(ready[1].key).to.equal("ginger:gold")
 			expect(ready[1].next).to.equal("rainbow")
 			expect(ready[2].key).to.equal("tabby:base")
-			expect(#ready[2].free).to.equal(5) -- the working one stays out
+			expect(#ready[2].free).to.equal(6) -- #4605: the working one can go in too
 			expect(ready[2].total).to.equal(6)
 			-- three free Tuxedos (one locked) are "almost"; rainbow Smokes can't fuse
 			expect(#almost).to.equal(1)
@@ -60,7 +60,9 @@ return function()
 		end)
 		it("says why a copy can't go in", function()
 			expect(Logic.blocker(cat("tabby", 1, { locked = true }), "a", nil)).to.equal("Locked")
-			expect(Logic.blocker(cat("tabby", 1, { spotId = "x" }), "a", nil)).to.equal("Working")
+			expect(Logic.blocker(cat("tabby", 1, { spotId = "x" }), "a", nil)).to.equal(nil) -- #4605
+			expect(Logic.working(cat("tabby", 1, { spotId = "x" }))).to.equal(true)
+			expect(Logic.working(cat("tabby", 1))).to.equal(false)
 			expect(Logic.blocker(cat("tabby", 1), "a", { a = true })).to.equal("Busy")
 			expect(Logic.blocker(cat("tabby", 1), "a", nil)).to.equal(nil)
 		end)

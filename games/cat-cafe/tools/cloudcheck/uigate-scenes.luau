@@ -5471,6 +5471,37 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			"uigate: the Admin Wheel opened on a controller selecting " .. (if selected then selected:GetFullName() else "nothing") .. ", not Spin! (#4224)"
 		)
 	end },
+	-- #4224 (audit gap 4): on a controller the Luck card takes the selection, says "Press B to close", and B closes it
+	-- with the selection back on the chip
+	{ "GamepadLuckCard", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local GuiService = game:GetService("GuiService")
+		local inputs = game:GetService("UserInputService")
+		Scenes._padReset = function()
+			ReplicatedStorage:SetAttribute("LiveFlag_padControls", nil)
+			UIShim.setLastInput(nil)
+			GuiService.SelectedObject = nil
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", true)
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		UI.update({ luck = 1.3, luckSources = { { id = "statue", value = 0.3 } } } :: any)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local chip = hud:FindFirstChild("Luck", true) :: GuiObject
+		GuiService.SelectedObject = chip
+		press("CatCafeHUD", "Luck")
+		UIShim.advance(0.4)
+		local card = hud:FindFirstChild("LuckCard", true) :: GuiObject
+		assert(card and card.Visible, "uigate: the Luck card did not open (#4224)")
+		local selected = GuiService.SelectedObject
+		assert(selected ~= nil and selected:IsDescendantOf(card), "uigate: the Luck card took no selection on a gamepad, it is on " .. (if selected then selected:GetFullName() else "nothing") .. " (#4224)")
+		local hint = card:FindFirstChild("Hint", true) :: TextLabel
+		assert(hint.Text == "Press B to close" and hint.TextFits, "uigate: the Luck card's hint reads " .. hint.Text .. " on a gamepad (#4224)")
+		local input = { KeyCode = Enum.KeyCode.ButtonB, UserInputType = Enum.UserInputType.Gamepad1 }
+		UIShim.fire(UIShim.eventOf(inputs, "InputBegan"), input, true)
+		UIShim.advance(0.2)
+		assert(not card.Visible, "uigate: B did not close the Luck card (#4224)")
+		assert(GuiService.SelectedObject == chip, "uigate: the selection did not go back to the Luck chip (#4224)")
+	end },
 	{ "Spin", function()
 		UI.spin.open()
 	end },
@@ -9399,7 +9430,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- press in a shot's first second does nothing, then one press moves on once
 	-- #2242 (Derek2 11-07: "add the rare customers chance to the tutorial scene like rich customer tips"): the rich
 	-- visitor shot's caption fits one line, and the grab's gold "+$" pops over the bag and is gone by 1.6 s
-	-- #3106: a new player's first delivery says "on its way to your cafe!" once; a player past the walk-through never
+	-- #4497: no "on its way to your cafe!" pop-up, for a new player (#3106 had one) or anyone else
 	{ "FirstDeliveryToast", function()
 		local function count(text: string): number
 			local found = 0
@@ -9419,7 +9450,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.cannon.checkedIn("Mochi")
 		UI.cannon.checkedIn("Mochi")
 		UIShim.advance(0.3)
-		assert(count(line) == 1, "uigate: a new player's first delivery did not show its pop-up once (#3106)")
+		assert(count(line) == 0, "uigate: a new player's first delivery still shows its pop-up (#4497)")
 	end },
 	-- #3105: the loading screen over the still wait before the first shot, and a play sliding it away
 	{ "IntroLoading", function()

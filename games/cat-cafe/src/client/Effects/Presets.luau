@@ -1775,6 +1775,22 @@ Presets.catchFlavour = {
 			gustEvery = 0.18,
 			cats = { dragon_knight = 2 }, -- a taller fanfare for the Dragon Knight
 		},
+		-- #4251 Harvest Hollow (area id "harvest"): a puff of pumpkin orange, then gold sparkles, a warm ring, and
+		-- climbing orange puffs for the rarest
+		harvest = {
+			preset = "smokePuff",
+			colour = Color3.fromRGB(232, 140, 60),
+			puff = 6,
+			flakes = 10,
+			flakesFrom = "Epic",
+			ringScale = 1.3,
+			ringFrom = "Legendary",
+			gusts = 3,
+			gustsFrom = "Mythical",
+			gustHeight = 7,
+			gustEvery = 0.15,
+			cats = { harvest_moon = 2 }, -- the moon over the hollow: a taller column
+		},
 	} :: { [string]: CatchFlavour },
 }
 
@@ -6044,6 +6060,15 @@ Presets.areaFx = {
 			puffPreset = "catchSparkle",
 			puff = 6,
 		},
+		-- #4251 Harvest Hollow (area id "harvest"): a pumpkin-orange puff where its strays come and go. The falling
+		-- leaves are Effects/HarvestFx's (by the Thankful Board), so Config.World has no Harvest box and `air` here
+		-- never starts.
+		harvest = {
+			air = "harvestLeaves",
+			colour = Color3.fromRGB(232, 140, 60),
+			puffPreset = "smokePuff",
+			puff = 6,
+		},
 	} :: { [string]: AreaFxSpec },
 }
 
@@ -6280,6 +6305,7 @@ Presets.areaWater = {
 		"CatCafe_Castle_",
 		"CatCafe_Camp_WaterPark",
 		"CatCafe_Camp_Castle",
+		"CatCafe_Harvest_", -- #4251: Harvest Hollow's creek
 	},
 	suffix = "_Water",
 	within = 110,
@@ -6299,6 +6325,8 @@ Presets.areaWater = {
 		{ piece = "KidsPool", glint = "poolGlint", parts = 1, ringEvery = 2.2, ring = 2.6 },
 		{ piece = "Moat", glint = "poolGlint", parts = 2, ringEvery = 2.2, ring = 3 },
 		{ piece = "Well", glint = "wellGlint", parts = 1, ringEvery = 3.5, ring = 1.2 },
+		-- #4251: Harvest Hollow's creek is a run of small plates, so the well's small glints on the nearest few
+		{ piece = "Creek", glint = "wellGlint", parts = 4, ringEvery = 3, ring = 1.4 },
 	} :: { AreaWaterKind },
 }
 

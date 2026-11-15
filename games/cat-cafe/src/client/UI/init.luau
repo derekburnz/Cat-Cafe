@@ -4163,20 +4163,10 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 end
 
 -- The player's own CampCheckIn: "Pirate Cat is on its way to your cafe!" (the camp chime is Audio's).
--- #3080 cut it with the other green pop-ups; #3106 (Derek2 11-10: "maybe add those two buttons back") brings it back
--- for a new player's first delivery only: once a session, while the first walk-through is not done. After that the
--- basket and the camp chime say it.
-function UI.cannon.checkedIn(catName: string?)
-	local cannon: any = UI.cannon
-	if
-		cannon._deliverySaid
-		or (state.tutorialStep or math.huge) >= CannonLogic.WALKTHROUGH_STEP
-	then
-		return
-	end
-	cannon._deliverySaid = true
-	UI.toast(("🧺 %s is on its way to your cafe!"):format(catName or "Your cat"), "good")
-end
+-- #3080 cut it with the other green pop-ups; #3106 brought it back for a new player's first delivery; #4497 (Derek
+-- 2026-11-15: "remove all the pop ups that happen after first catch like "cat" is captured, "cat" is on the way to
+-- your cafe etc") cuts it again. The flight, the basket and the camp chime say it.
+function UI.cannon.checkedIn(_catName: string?) end
 
 -- A refused LaunchCannon: Launch comes back at once and the card's button wobbles. The server's toast says why.
 function UI.cannon.result(ok: boolean, destination: string?)
@@ -6328,6 +6318,7 @@ do
 end
 
 -- #4174: the Starter Bundle's one slide-in card a session (shared/StarterSuggest), behind the starterSuggest switch.
+-- #4438: after a rank up to Tier 2 or higher, or on a later day than the account's first, never on a first-day timer.
 -- It rides the ask card (its X from the first frame, its picture and line, no timer: it stays until Buy or the X) with one Buy button, only in
 -- a clear moment past its random 10 to 15 minute mark. Its own block, as the module is short of locals.
 do
@@ -6335,9 +6326,15 @@ do
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterSuggest")) :: any
 	local suggest = {
 		start = os.clock(),
-		dueAt = StarterSuggest.dueAt(math.random()),
+		rankedAt = nil :: number?, -- #4438: seconds into the session of the rank up to Tier 2 or higher
 		done = false,
 	}
+	-- #4438: the card's first moment is a rank up (Moments.RankUp fires on a rise in the server's tier, never at join)
+	Moments.RankUp:Connect(function(tier: number)
+		if suggest.rankedAt == nil and tier >= StarterSuggest.RANK_TIER then
+			suggest.rankedAt = os.clock() - suggest.start
+		end
+	end)
 
 	local function report(outcome: string)
 		UI.events.starterSuggest:Fire(outcome)
@@ -6419,7 +6416,8 @@ do
 			on = on,
 			done = suggest.done,
 			played = os.clock() - suggest.start,
-			dueAt = suggest.dueAt,
+			rankedAt = suggest.rankedAt,
+			firstDay = Players.LocalPlayer:GetAttribute(QuietStart.DAY_ATTRIBUTE),
 			owned = (state :: any).starterBought,
 			quietUntil = Players.LocalPlayer:GetAttribute(QuietStart.ATTRIBUTE),
 			now = Workspace:GetServerTimeNow(),

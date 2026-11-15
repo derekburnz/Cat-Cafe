@@ -208,7 +208,7 @@ None of these needs a moment: Audio follows the `bait` in each ProfileSync (`Log
 | `tipPile` | your plot's `TipPiles` went down (F61: `CollectTips`, walking near a pile or Collect on the till). Silent since F97 (#714): a pile pays the moment it appears, which plays `coinPop`, and the count only drops when old piles are swept | 2D | 0.5 s | a short clink of coins scooped off the tables, once per collect however many piles | P1 |
 | `dealerArrive` | DealerArrive | 3D on the cart | 1.5 s | cart wheels rolling in and a lantern bell. Quiet on purpose for now: the cart parks with the dusk stinger, which marks it | P2 |
 | `dealerLeave` | DealerLeave | 3D on the cart | 1.5 s | wheels rolling away. Quiet with the dawn stinger the same way | P2 |
-| `announce` | Announce, the server shout-out (Epic and up, every gold cat, rank ups to Tier 3 and up) | 2D | 1 s | two-note chime under the banner, one note higher per rarity step | P1 |
+| `announce` | Announce, the server shout-out (Epic and up, every gold cat, rank ups to Tier 3 and up); never on a spawn line ("A Mythical cat appeared in the ...!", #4470) | 2D | 1 s | two-note chime under the banner, one note higher per rarity step | P1 |
 | `announceMythical` | Announce with rarity Mythical (F58: a Mythical in the sunrise wave, or a Mythical catch); the two-note chime if the file is missing | 2D | 2.4 s | the shout-out's two notes grow into a shimmering gold chord over a wordless choir; ducks the music | P1 |
 
 ### 5.7 Clock

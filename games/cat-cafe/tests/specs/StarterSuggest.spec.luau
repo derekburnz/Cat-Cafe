@@ -8,10 +8,11 @@ local function moment(over: { [string]: any }?): StarterSuggest.Moment
 		on = true,
 		done = false,
 		played = 700,
-		dueAt = 650,
+		rankedAt = 600,
+		firstDay = 20000,
 		owned = false,
 		quietUntil = nil,
-		now = 1000,
+		now = 20000 * 86400 + 1000,
 		tutorialDone = true,
 		clear = true,
 		priced = true,
@@ -22,20 +23,46 @@ local function moment(over: { [string]: any }?): StarterSuggest.Moment
 	return m :: StarterSuggest.Moment
 end
 
+-- a moment with no rank up this session (a nil in `over` would be skipped)
+local function unranked(over: { [string]: any }?): StarterSuggest.Moment
+	local m: any = moment(over)
+	m.rankedAt = nil
+	return m :: StarterSuggest.Moment
+end
+
 return function()
 	describe("StarterSuggest (#4174)", function()
-		it("is due between 10 and 15 minutes into the session", function()
-			expect(StarterSuggest.dueAt(0)).to.equal(600)
-			expect(StarterSuggest.dueAt(0.5)).to.equal(750)
-			expect(StarterSuggest.dueAt(0.9999)).to.equal(899)
-			expect(StarterSuggest.dueAt(-1)).to.equal(600)
-			expect(StarterSuggest.dueAt(2)).to.equal(900)
+		it("keeps its picture", function()
 			expect(StarterSuggest.PICTURE).to.equal("rbxassetid://125781962090599")
 		end)
 
+		it("comes 45 s after a rank up to Tier 2 or higher (#4438)", function()
+			expect(StarterSuggest.due(moment({ rankedAt = 600, played = 645 }))).to.equal(true)
+			expect(StarterSuggest.due(moment({ rankedAt = 600, played = 644 }))).to.equal(false)
+		end)
+
+		it("comes 2 minutes into a session on a later day than the first (#4438)", function()
+			local later = 20001 * 86400 + 50
+			expect(StarterSuggest.due(unranked({ now = later, played = 120 }))).to.equal(true)
+			expect(StarterSuggest.due(unranked({ now = later, played = 119 }))).to.equal(false)
+		end)
+
+		it(
+			"never comes on a first day with no rank up, whatever the time played (#4438)",
+			function()
+				expect(StarterSuggest.due(unranked({ played = 3600 }))).to.equal(false)
+				local noDay: any = unranked({ played = 3600 })
+				noDay.firstDay = nil
+				expect(StarterSuggest.due(noDay)).to.equal(false)
+				expect(StarterSuggest.due(unranked({ firstDay = 0, played = 3600 }))).to.equal(
+					false
+				)
+			end
+		)
+
 		it("shows once a clear moment comes after its time", function()
 			expect(StarterSuggest.due(moment())).to.equal(true)
-			expect(StarterSuggest.due(moment({ played = 600 }))).to.equal(false)
+			expect(StarterSuggest.due(moment({ played = 620 }))).to.equal(false)
 			expect(StarterSuggest.due(moment({ clear = false }))).to.equal(false)
 		end)
 
@@ -50,8 +77,10 @@ return function()
 		end)
 
 		it("waits through the quiet start and the tutorial", function()
-			expect(StarterSuggest.due(moment({ quietUntil = 1200 }))).to.equal(false)
-			expect(StarterSuggest.due(moment({ quietUntil = 900 }))).to.equal(true)
+			expect(StarterSuggest.due(moment({ quietUntil = 20000 * 86400 + 1200 }))).to.equal(
+				false
+			)
+			expect(StarterSuggest.due(moment({ quietUntil = 20000 * 86400 + 900 }))).to.equal(true)
 			expect(StarterSuggest.due(moment({ quietUntil = "x" }))).to.equal(true)
 			expect(StarterSuggest.due(moment({ tutorialDone = false }))).to.equal(false)
 		end)

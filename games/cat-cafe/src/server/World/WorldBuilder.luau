@@ -16,6 +16,7 @@ local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local CornerShop = require(ReplicatedStorage.Shared.CornerShop)
+local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local FeedbackStand = require(ReplicatedStorage.Shared.FeedbackStand)
 local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Layout = require(script.Parent.Layout)
@@ -2068,26 +2069,30 @@ local function buildRummageBin(parent: Instance)
 	end
 end
 
--- #4061: the Water Park's Ticket Booth kiosk at Layout.ticketBoothAt, tagged TicketBooth, with the ProximityPrompt
--- TicketBoothPrompt (Open / Ticket Booth) in front of it, enabled only while the ticketBooth switch is on; the client opens the booth window from it, and the server
--- still checks the switch, the tier and the tickets on every buy (TicketBoothService). Nothing without the art.
-local TICKET_BOOTH_MODEL = "CatCafe_Camp_WaterPark_TicketBooth"
-local function buildTicketBooth(parent: Instance)
-	local x, y, z, turn = Layout.ticketBoothAt()
-	if
-		x == nil
-		or y == nil
-		or z == nil
-		or turn == nil
-		or not AssetRegistry.has(TICKET_BOOTH_MODEL)
-	then
+-- #4061 and #4103: a camp station placed at a Layout camp spot, tagged `tag`, with a ProximityPrompt `promptName`
+-- ("Open" / `title`) in front of it, enabled only while switch `flag` is on (following LiveFlagService's
+-- ReplicatedStorage attribute live); the client opens the station's window from it, and the server still checks the
+-- switch and everything else on every remote. Nothing without the art.
+local function buildCampStation(
+	parent: Instance,
+	asset: string,
+	x: number?,
+	y: number?,
+	z: number?,
+	turn: number?,
+	name: string,
+	title: string,
+	flag: string,
+	inFront: number
+)
+	if x == nil or y == nil or z == nil or turn == nil or not AssetRegistry.has(asset) then
 		return
 	end
 	local at = CFrame.new(x, y, z) * CFrame.Angles(0, math.rad(turn), 0)
-	local model = place(TICKET_BOOTH_MODEL, at, parent)
-	model.Name = "TicketBooth"
+	local model = place(asset, at, parent)
+	model.Name = name
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
-	CollectionService:AddTag(model, "TicketBooth")
+	CollectionService:AddTag(model, name)
 	local host = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
 	if host == nil then
 		return
@@ -2095,22 +2100,54 @@ local function buildTicketBooth(parent: Instance)
 	local anchor = Instance.new("Attachment")
 	anchor.Name = "PromptAnchor"
 	anchor.Parent = host
-	anchor.WorldPosition = (at * CFrame.new(0, 3, -3.5)).Position
+	anchor.WorldPosition = (at * CFrame.new(0, 3, -inFront)).Position
 	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "TicketBoothPrompt"
+	prompt.Name = name .. "Prompt"
 	prompt.ActionText = "Open"
-	prompt.ObjectText = "Ticket Booth"
+	prompt.ObjectText = title
 	prompt.HoldDuration = 0
 	prompt.MaxActivationDistance = Config.CampExtraRangeStuds
 	prompt.RequiresLineOfSight = false
-	-- shown only while the ticketBooth switch is on, following it live (LiveFlagService's ReplicatedStorage attribute)
-	local flag = LiveFlags.ATTRIBUTE_PREFIX .. TicketBooth.FLAG
+	local attribute = LiveFlags.ATTRIBUTE_PREFIX .. flag
 	local function follow()
-		prompt.Enabled = ReplicatedStorage:GetAttribute(flag) == true
+		prompt.Enabled = ReplicatedStorage:GetAttribute(attribute) == true
 	end
 	follow()
-	ReplicatedStorage:GetAttributeChangedSignal(flag):Connect(follow)
+	ReplicatedStorage:GetAttributeChangedSignal(attribute):Connect(follow)
 	prompt.Parent = anchor
+end
+
+-- #4061: the Water Park's Ticket Booth kiosk (tag TicketBooth, prompt TicketBoothPrompt, switch ticketBooth), its
+-- prompt 0.8 in front of its 5.4 deep front.
+-- #4103: the Castle's Dragon Keep (tag DragonKeep, prompt DragonKeepPrompt, switch dragonKeep), its prompt 1 in
+-- front of its 15 deep front.
+local function buildCampStations(parent: Instance)
+	local x, y, z, turn = Layout.ticketBoothAt()
+	buildCampStation(
+		parent,
+		"CatCafe_Camp_WaterPark_TicketBooth",
+		x,
+		y,
+		z,
+		turn,
+		"TicketBooth",
+		"Ticket Booth",
+		TicketBooth.FLAG,
+		3.5
+	)
+	x, y, z, turn = Layout.dragonKeepAt()
+	buildCampStation(
+		parent,
+		"CatCafe_Camp_Castle_DragonKeep",
+		x,
+		y,
+		z,
+		turn,
+		"DragonKeep",
+		"Dragon Keep",
+		DragonKeep.FLAG,
+		8.5
+	)
 end
 
 -- #2651 part 4 (late-stations.md): the Oasis Spa and the Relic Museum, each LateStations.stations model at
@@ -3096,7 +3133,7 @@ function WorldBuilder.build(): World
 	local extrasFolder = folder("CampExtras", root)
 	buildCampExtras(extrasFolder)
 	buildLateStations(extrasFolder) -- #2651 part 4
-	buildTicketBooth(extrasFolder) -- #4061
+	buildCampStations(extrasFolder) -- #4061 the Ticket Booth, #4103 the Dragon Keep
 	buildRummageBin(extrasFolder) -- #3050
 	-- the SAFE ZONE words last among the camp's dressing, so they find room clear of the gate, the Index Board and the
 	-- extras too (#1132)

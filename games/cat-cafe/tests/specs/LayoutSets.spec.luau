@@ -831,6 +831,24 @@ return function()
 				expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + 3).to.equal(true)
 			end
 		)
+
+		it(
+			"stands the Dragon Keep in the Castle camp, off its way out and the pad, facing the pad (#4103)",
+			function()
+				local x, y, z, turn = Layout.dragonKeepAt()
+				assert(x ~= nil and y ~= nil and z ~= nil and turn ~= nil, "no Dragon Keep spot")
+				local camp = Layout.camps.castle
+				expect(Layout.campAt(x, z)).to.equal("castle")
+				expect(y).to.equal(Layout.areas.castle.floorY)
+				expect(turn).to.equal(camp.turn + 90)
+				local cx, cz = Layout.campSpace(camp, x, z)
+				-- the turned keep is 15 by 15: its near side clear of the opening, all of it inside the camp
+				expect(cx - 7.6 > camp.openingHalfWidth + 4).to.equal(true)
+				expect(cz + 7.6 < 0 and cz - 7.6 > -W.CampDepth).to.equal(true)
+				local pad = Layout.landingPads.castle.centre
+				expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + 3).to.equal(true)
+			end
+		)
 	end)
 
 	-- #2240 (Derek 11-07: "change rescue spots not always the same"): each area's pool of trap spots, which RescuePick

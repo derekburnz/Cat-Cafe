@@ -818,13 +818,13 @@ local Config = {
 		{
 			id = "2956295611862876771",
 			startsAt = 1795636800, -- "Harvest Hollow", Wednesday 2026-11-25 20:00 UTC
-			title = "🔔 Next update Wednesday: HARVEST HOLLOW! Want a reminder when it lands?",
+			title = "🔔 Next update Wed Nov 25: HARVEST HOLLOW! Want a reminder when it lands?",
 			name = "HARVEST HOLLOW",
 		},
 		{
 			id = "6693355219203523122",
 			startsAt = 1796500800, -- "Cherry Blossom Grove", Saturday 2026-12-05 20:00 UTC
-			title = "🔔 Next update Saturday: CHERRY BLOSSOM GROVE! Want a reminder when it lands?",
+			title = "🔔 Next update Sat Dec 5: CHERRY BLOSSOM GROVE! Want a reminder when it lands?",
 			name = "CHERRY BLOSSOM GROVE",
 		},
 		{

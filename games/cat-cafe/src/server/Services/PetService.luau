@@ -16,6 +16,7 @@ local CafeService = require(script.Parent.CafeService)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
+local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local LiveFlagService = require(script.Parent.LiveFlagService)
@@ -61,7 +62,7 @@ local function onPet(player: Player, rawUid: unknown)
 	lastPet[player] = now
 	local at = os.time()
 	Economy.settle(profile, at, ClockService.epoch()) -- the window so far at its own rate
-	local how, previous = Pet.pet(profile, uid, at)
+	local how, previous = Pet.pet(profile, uid, at, DragonKeep.of(profile).petExtra) -- #4447: Pat Pat
 	CafeService.markHappy(player)
 	Telemetry.custom(player, "cat_pet", 1, { how })
 	local from = if previous ~= nil then plot.cats:FindFirstChild(previous) else nil

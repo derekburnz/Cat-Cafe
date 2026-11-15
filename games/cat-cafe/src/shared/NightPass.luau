@@ -24,6 +24,12 @@
 -- "Catch a 2nd cat" trip is still ahead) keeps the pass, in any session and whatever the switch says. At night it
 -- finds one Common at its plot's `near` point, as a first-session holder does. It ends at the first check-in of a
 -- cat caught by hand, or at the rank up to Tier 2. No save field.
+--
+-- #4494 (Derek 2026-11-15 14:01 UTC: "during tutorial steps should be immune to not being able to cannon during
+-- night that is not the case for the second cat catch fix asap"): the walk-through's first catch is by hand again
+-- (the tutorial stray), so #3659's pass ended there and the "Catch a 2nd cat" trip was refused at night. The
+-- walk-through's pass now lasts until LEARNER_CATS cats are caught by hand (SecondCat.CATS: the first catch and
+-- the second cat), or the rank up to Tier 2.
 
 local Config = require(script.Parent.Config)
 local Economy = require(script.Parent.Economy)
@@ -31,6 +37,8 @@ local SecondCat = require(script.Parent.SecondCat)
 local Types = require(script.Parent.Types)
 
 local NightPass = {}
+
+NightPass.LEARNER_CATS = SecondCat.CATS -- #4494: cats caught by hand that end the walk-through's pass
 
 NightPass.ATTRIBUTE = "NightPass"
 NightPass.FLAG = "nightCatch" -- the LiveFlags key
@@ -50,10 +58,12 @@ function NightPass.first(tier: number, sessions: number, on: boolean): boolean
 	return on and tier <= NightPass.MAX_TIER and sessions <= NightPass.MAX_SESSIONS
 end
 
--- #3659: whether a save past its first check-in is still on the walk-through's trip out: Tier 1 and no cat caught by
--- hand yet (`handCaught`: SecondCat.caught).
+-- #3659: whether a save past its first check-in is still on the walk-through's trip out: Tier 1 and (#4494) fewer
+-- than LEARNER_CATS cats caught by hand (`handCaught`: SecondCat.caught), so the second cat's trip flies at night too.
 function NightPass.learner(tutorialStep: number, tier: number, handCaught: number): boolean
-	return not NightPass.has(tutorialStep) and tier <= NightPass.MAX_TIER and handCaught < 1
+	return not NightPass.has(tutorialStep)
+		and tier <= NightPass.MAX_TIER
+		and handCaught < NightPass.LEARNER_CATS
 end
 
 -- Whether a save holds the pass any way: a beginner, the first session at Tier 1 while the switch is on, or (#3659,

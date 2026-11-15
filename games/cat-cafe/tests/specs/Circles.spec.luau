@@ -1589,6 +1589,26 @@ return function()
 		end)
 	end)
 
+	describe("Circles.handScale (#4299)", function()
+		it(
+			"widens a phone or tablet's bands, never past a new player's, and not stacked",
+			function()
+				expect(Circles.TOUCH_SCALE > 1).to.equal(true)
+				expect(Circles.TOUCH_SCALE <= Config.EarlyCatchWindowScale).to.equal(true) -- so S24 still holds
+				local late = Config.EarlyCatchCount
+				expect(Circles.handScale(late, "phone")).to.equal(Circles.TOUCH_SCALE)
+				expect(Circles.handScale(late, "tablet")).to.equal(Circles.TOUCH_SCALE)
+				expect(Circles.handScale(late, "pc")).to.equal(1)
+				expect(Circles.handScale(late, "console")).to.equal(1)
+				expect(Circles.handScale(late, nil)).to.equal(1)
+				expect(Circles.handScale(0, "phone")).to.equal(
+					math.max(Config.EarlyCatchWindowScale, Circles.TOUCH_SCALE)
+				)
+				expect(Circles.handScale(0, "pc")).to.equal(Config.EarlyCatchWindowScale)
+			end
+		)
+	end)
+
 	describe("Circles.earlyScale (#2913 follow-up)", function()
 		it("widens a new player's first catches by hand, then stops", function()
 			expect(Circles.earlyScale(0)).to.equal(Config.EarlyCatchWindowScale)

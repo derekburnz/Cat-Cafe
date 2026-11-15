@@ -2412,9 +2412,10 @@ function startCatch(
 		then Circles.tutorialWindows(netLevel)
 		-- #2322: wider in the first area; #3135: a little narrower for a gold or rainbow coat
 		-- #2913 follow-up: a little wider for a player's first few catches by hand
+		-- #4299: and on a phone or tablet (the larger of the two)
 		else Circles.scaled(
 			Circles.windowsFor(netLevel, stray.def.rarity, stray.area, stray.variant),
-			Circles.earlyScale(SecondCat.caught(profile.stats))
+			Circles.handScale(SecondCat.caught(profile.stats), Telemetry.device(player))
 		)
 	-- #2920: a player's very first catch holds its ring on the target until the press
 	-- #3662: the first catch by hand, which a bowl cat in the cafe no longer uses up

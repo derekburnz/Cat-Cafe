@@ -90,6 +90,18 @@ function Circles.earlyScale(caughtByHand: number): number
 	return if caughtByHand < Config.EarlyCatchCount then Config.EarlyCatchWindowScale else 1
 end
 
+-- #4299 (Nov 13 read: a cat bolts on 19% of catches on a phone or tablet against 13% with a mouse or controller):
+-- a phone or tablet player's bands are TOUCH_SCALE times as wide. The device is the one the client reported
+-- (Telemetry.device); a false "phone" buys at most these wider bands, never more than a new player's, so it is
+-- kept no wider than EarlyCatchWindowScale (Config.spec S24 covers it). The larger of this and earlyScale applies.
+Circles.TOUCH_SCALE = 1.3
+Circles.TOUCH_DEVICES = { phone = true, tablet = true } :: { [string]: boolean }
+
+function Circles.handScale(caughtByHand: number, device: string?): number
+	local touch = if device ~= nil and Circles.TOUCH_DEVICES[device] then Circles.TOUCH_SCALE else 1
+	return math.max(Circles.earlyScale(caughtByHand), touch)
+end
+
 -- `windows` with both bands times `scale`.
 function Circles.scaled(windows: Types.NetWindows, scale: number): Types.NetWindows
 	return { perfect = windows.perfect * scale, good = windows.good * scale }

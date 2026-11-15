@@ -42,6 +42,7 @@ export type BinInput = {
 	now: number,
 	playing: string?, -- the row id the roll, the reveal or the bar is for, while one is up
 	rolling: boolean?, -- the roll is passing over the list
+	stepBack: boolean?, -- the pad will not start another try by itself until the player steps off and on (#3683)
 }
 
 RollBoardLogic.BIN_TITLE = "RUMMAGE BIN"
@@ -49,6 +50,7 @@ RollBoardLogic.BIN_LIST = "What is inside? One prize each dig."
 RollBoardLogic.BIN_ROLLING = "Rolling..."
 RollBoardLogic.BIN_WAITING = "Waiting for you"
 RollBoardLogic.BIN_PLAYING = "Rummage for"
+RollBoardLogic.BIN_STEP_BACK = "Step back on the pad to roll" -- Review-QA 2026-11-14: the waiting prize after two misses
 
 local FISH_GLYPH = "🐟"
 
@@ -153,7 +155,9 @@ function RollBoardLogic.bin(input: BinInput): View
 	if waiting ~= nil then
 		return {
 			title = title,
-			line = RollBoardLogic.BIN_WAITING,
+			line = if input.stepBack
+				then RollBoardLogic.BIN_STEP_BACK
+				else RollBoardLogic.BIN_WAITING,
 			rows = { RollBoardLogic.binRow(waiting, false) },
 			dim = false,
 		}

@@ -484,6 +484,7 @@ local CAT_CATCHES: { [string]: string } = {
 	water = "campSplash",
 	dragon_knight = "dragonChirp",
 }
+Logic.STORM_LAND_CUE = "stormLand" -- #4197: a Cat Storm's stray lands (Effects/StormFall)
 function Logic.areaCue(beat: any, area: any, catId: any): string?
 	if beat == "step" then
 		return if type(area) == "string" then AREA_STEPS[area] else nil
@@ -668,6 +669,10 @@ function Logic.bannerCue(kind: any): string?
 		return "indexReward"
 	elseif kind == "secrets" or kind == "secretSpawn" then
 		return "secretNear" -- #3523: the Secret stray's low twinkle
+	elseif kind == "adminSoon" then
+		return "uiGiftReady" -- #4195: an admin event is two minutes away
+	elseif kind == "admin" then
+		return "stationReveal" -- #4195: it starts, as the party card does
 	end
 	return nil
 end

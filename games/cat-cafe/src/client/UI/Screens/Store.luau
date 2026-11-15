@@ -42,7 +42,8 @@ local StoreMotion = require(script.Parent.Parent.Parent.Effects.StoreMotion)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type Callbacks = {
-	buy: (passId: number) -> (),
+	-- #4175: `source` is "featured_new" for the update's own item on Featured (PassShop.prompt's source), else nil
+	buy: (passId: number, source: string?) -> (),
 	close: () -> (),
 	-- #1428: the Codes tab came into view (true) or left it (false), so the code box can start fresh or clear
 	codes: ((shown: boolean) -> ())?,
@@ -753,9 +754,9 @@ end
 
 -- A card's buy tap: Roblox's purchase window, or in fish mode the fish buy (the first tap arms it, "Buy? 🐟 4,950",
 -- and the second within ARM_SECONDS buys), or back to Robux prices from a "Robux only" card.
-function Store._tap(self: any, row: StoreLogic.Row?, passId: number)
+function Store._tap(self: any, row: StoreLogic.Row?, passId: number, source: string?)
 	if not self._fishMode or row == nil then
-		self._callbacks.buy(passId)
+		self._callbacks.buy(passId, source)
 		return
 	end
 	local key = StoreLogic.FISH_KEYS[row.key]
@@ -1071,7 +1072,7 @@ function Store._makeCard(
 				-- #1823: the card dips with the tap (the Buy button already dips through its own UIScale, so
 				-- StoreMotion moves the card rather than fight that tween)
 				StoreMotion.press(entry.frame :: any) -- press takes a GuiButton; it only scales the object
-				self:_tap(entry.row, entry.passId)
+				self:_tap(entry.row, entry.passId, entry.source)
 			end
 		end,
 	})
@@ -1141,7 +1142,11 @@ function Store._place(self: any, entry: any)
 end
 
 -- The picture, words and button for `row` (nil hides the card).
-function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
+-- #4175: `line` is the update's own item's line on Featured. "New today" is the card's badge (every layout has
+-- one); on a real sale the Sale badge keeps that place and "Sale ends Sunday" takes the chip. Such a card's buy is
+-- tagged "featured_new".
+function Store._fill(self: any, entry: any, row: StoreLogic.Row?, line: string?)
+	entry.source = if row ~= nil and line ~= nil then "featured_new" else nil
 	if row == nil then
 		entry.frame.Visible = false
 		entry.passId = 0
@@ -1166,7 +1171,8 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	entry.shortText = effect
 	entry.effect.Text = entry.fullText
 	-- #2147: the gold chip, placed before the words are fitted under it
-	local perkText = row.perk or ""
+	local was = StoreLogic.saleWas(row, self._prices[row.passId], Config, os.time())
+	local perkText = if line ~= nil and was ~= nil then line else row.perk or ""
 	local perkShown = perkText ~= "" and not entry.compact
 	if entry.perk.Text ~= perkText or entry.perk.Visible ~= perkShown then
 		entry.perk.Text = perkText
@@ -1220,12 +1226,13 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	entry.dim.Visible = owned or (self._fishMode and StoreLogic.FISH_KEYS[row.key] == nil)
 	-- one badge at most: #3572's Sale (red, with the true old price struck through) before Best Value. #4055: none in
 	-- fish mode (fish prices are never on sale or struck out)
-	local was = if self._fishMode
-		then nil
-		else StoreLogic.saleWas(row, self._prices[row.passId], Config, os.time())
+	if self._fishMode then
+		was = nil
+	end
 	local badge = if was
 		then StoreLogic.saleBadge(was)
 		elseif self._fishMode then nil
+		elseif line ~= nil then line
 		else StoreLogic.badge(row, self._prices, self._ownedIds)
 	entry.badge.Visible = badge ~= nil
 	entry.badge.RichText = was ~= nil
@@ -1946,7 +1953,23 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 		button.instance.Visible = visibleTabs[id] == true
 	end
 	-- Featured
-	local featured = StoreLogic.featured(rows, prices) -- #3562: off sale cards never lead
+	-- #4175: on a big update day the update's own item leads, with its plain "New today" line
+	-- (the switch is read at each render: it only reorders Featured's cards, so a flip changes no layout)
+	local featureOn = LiveFlags.shown(
+		StoreLogic.UPDATE_FLAG,
+		game:GetService("ReplicatedStorage")
+			:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StoreLogic.UPDATE_FLAG)
+	)
+	local feature = StoreLogic.updateFeature(rows, prices, Config, os.time(), featureOn)
+	local function lineOf(row: StoreLogic.Row?): string?
+		return if feature ~= nil
+				and row ~= nil
+				and row.key == feature.row.key
+			then feature.line
+			else nil
+	end
+	-- #3562: off sale cards never lead
+	local featured = StoreLogic.featured(rows, prices, if feature then feature.row else nil)
 	local hero = self._cards.hero or self:_makeCard("hero", "hero", self._featured, 0)
 	-- #3996 (todays-deal-3996.md section 4): while Today's Deal shows it is the hero, since a pick on a phone has room
 	-- for one line and the deal's lines (the token deal's odds above all) must be on the card itself. The usual hero
@@ -1967,7 +1990,7 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 			end
 		end
 	else
-		self:_fill(hero, featured.hero)
+		self:_fill(hero, featured.hero, lineOf(featured.hero))
 	end
 	for index = 1, StoreLogic.PICKS do
 		local slot = "pick" .. index
@@ -1975,7 +1998,8 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 		if dealPick and index == 1 then
 			self:_fillDeal(entry, deal)
 		else
-			self:_fill(entry, picks[if dealPick then index - 1 else index])
+			local pick = picks[if dealPick then index - 1 else index]
+			self:_fill(entry, pick, lineOf(pick))
 		end
 	end
 	self._picks.Visible = #picks > 0

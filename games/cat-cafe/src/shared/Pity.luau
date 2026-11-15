@@ -29,6 +29,7 @@ local Catalog = require(script.Parent.Catalog)
 local Catching = require(script.Parent.Catching)
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
+local LateTiers = require(script.Parent.LateTiers)
 
 local Pity = {}
 
@@ -254,15 +255,20 @@ local function roll(slot: number, salt: number): number
 end
 
 -- The area a roll in [0, 1) lands on, by PityAreaWeights in Catalog.areas order (an area with no weight never).
+-- #3997: an area behind the `tier8` switch (shared/LateTiers) weighs nothing until it opens.
+local function pityWeight(areaId: string): number
+	return if LateTiers.areaOpen(areaId) then Config.PityAreaWeights[areaId] or 0 else 0
+end
+
 function Pity.areaFor(r: number): string
 	local total = 0
 	for _, area in Catalog.areas do
-		total += Config.PityAreaWeights[area.id] or 0
+		total += pityWeight(area.id)
 	end
 	local point = math.clamp(r, 0, 1) * total
 	local last = Catalog.areas[1].id
 	for _, area in Catalog.areas do
-		local weight = Config.PityAreaWeights[area.id] or 0
+		local weight = pityWeight(area.id)
 		if weight > 0 then
 			last = area.id
 			if point < weight then

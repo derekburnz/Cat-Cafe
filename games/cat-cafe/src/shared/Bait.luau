@@ -89,6 +89,15 @@ function Bait.firstWait(wait: number, luresUsed: number): number
 	return wait
 end
 
+-- #4195 (Bowl Frenzy): the wait for food going in while an admin event's `bowlSpeed` runs: `wait` divided by it,
+-- whole seconds, never under FirstBaitWaitSeconds (the shortest wait there is) unless `wait` already was.
+function Bait.eventWait(wait: number, speed: number): number
+	if speed ~= speed or speed <= 1 then
+		return wait
+	end
+	return math.max(math.min(wait, Config.FirstBaitWaitSeconds), math.floor(wait / speed))
+end
+
 -- #3158, #3161: whether the bait in a bowl is the account's short first one (`luresUsed` counts it already): its
 -- whole wait is FirstBaitWaitSeconds or less. Its cat's cutscene plays at the bowl, so the tutorial waits for that
 -- cat to be tamed or let go before it moves on (BaitService), and the cat stands at the bowl early (catOutAt).

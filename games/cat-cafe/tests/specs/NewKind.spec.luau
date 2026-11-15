@@ -74,12 +74,11 @@ return function()
 	describe("the catch card's line", function()
 		it("counts the kind being caught toward Tier 2 below Tier 2", function()
 			local name = (Catalog.getTier(2) :: any).name
-			-- #4098: Tier 2 needs 4 kinds (5 before)
-			expect(NewKind.line(1, 1)).to.equal("New kind! 2/4 for " .. name)
-			expect(NewKind.line(2, 1)).to.equal("New kind! 3/4 for " .. name)
-			expect(NewKind.line(3, 1)).to.equal("New kind! 4/4 for " .. name)
-			expect(NewKind.line(9, 1)).to.equal("New kind! 4/4 for " .. name)
-			expect(NewKind.line(0, 1)).to.equal("New kind! 1/4 for " .. name)
+			-- #4188: Tier 2 needs 3 kinds (4 for #4098, 5 before)
+			expect(NewKind.line(1, 1)).to.equal("New kind! 2/3 for " .. name)
+			expect(NewKind.line(2, 1)).to.equal("New kind! 3/3 for " .. name)
+			expect(NewKind.line(9, 1)).to.equal("New kind! 3/3 for " .. name)
+			expect(NewKind.line(0, 1)).to.equal("New kind! 1/3 for " .. name)
 		end)
 
 		it("is short at Tier 2 and above", function()
@@ -94,20 +93,20 @@ return function()
 
 	describe("the goal", function()
 		it("reads the count on the card", function()
-			expect(NewKind.title(3)).to.equal("Catch new kinds of cat 🐾 3/4")
-			expect(NewKind.title(0)).to.equal("Catch new kinds of cat 🐾 0/4")
-			expect(NewKind.title(8)).to.equal("Catch new kinds of cat 🐾 4/4")
-			expect(NewKind.title(3, true)).to.equal("New kinds of cat 🐾 3/4") -- the phone's narrower card
+			expect(NewKind.title(2)).to.equal("Catch new kinds of cat 🐾 2/3")
+			expect(NewKind.title(0)).to.equal("Catch new kinds of cat 🐾 0/3")
+			expect(NewKind.title(8)).to.equal("Catch new kinds of cat 🐾 3/3")
+			expect(NewKind.title(2, true)).to.equal("New kinds of cat 🐾 2/3") -- the phone's narrower card
 		end)
 
 		it(
 			"is on only with the switch, as the Grand Opening's next milestone, under five kinds",
 			function()
-				expect(NewKind.goal(true, "five_cats", 3)).to.equal(true)
-				expect(NewKind.goal(false, "five_cats", 3)).to.equal(false)
-				expect(NewKind.goal(true, "first_bait_cat", 3)).to.equal(false)
-				expect(NewKind.goal(true, nil, 3)).to.equal(false)
-				expect(NewKind.goal(true, "five_cats", 5)).to.equal(false)
+				expect(NewKind.goal(true, "five_cats", 2)).to.equal(true)
+				expect(NewKind.goal(false, "five_cats", 2)).to.equal(false)
+				expect(NewKind.goal(true, "first_bait_cat", 2)).to.equal(false)
+				expect(NewKind.goal(true, nil, 2)).to.equal(false)
+				expect(NewKind.goal(true, "five_cats", 3)).to.equal(false)
 			end
 		)
 

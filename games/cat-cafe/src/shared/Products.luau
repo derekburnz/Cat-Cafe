@@ -10,6 +10,7 @@
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local KingPack = require(script.Parent.KingPack)
+local RoyalPack = require(script.Parent.RoyalPack)
 local Types = require(script.Parent.Types)
 
 local Products = {}
@@ -67,13 +68,18 @@ end
 -- #1625: what a receipt for `product` gives `profile`: the whole prize the first time, and for a once-per-account
 -- product already bought only its potions (a second purchase can only come from a prompt the Store never shows, and
 -- the Robux are not taken for nothing). `first` says which. Pure; ProductService pays it and calls markBought.
+-- #4020: `moneyOwned` is the buyer's Money pass multiplier (Economy.passes(profile).money, 1 without one). When it
+-- is already the prize's moneyMultiplier or more, the 2x adds nothing for them, so the first receipt also pays the
+-- prize's moneySwap potions; `swapped` says so.
 function Products.prizeFor(
 	profile: Types.PlayerProfile,
-	product: Types.ProductDef
+	product: Types.ProductDef,
+	moneyOwned: number?
 ): ({
 	potions: { [string]: number },
 	cats: { string },
 	signStyles: { string },
+	swapped: boolean,
 }, boolean)
 	local first = not (product.oncePerAccount == true and profile.onceBought[product.id] == true)
 	local cats: { string } = {}
@@ -88,7 +94,22 @@ function Products.prizeFor(
 			table.insert(styles, styleId)
 		end
 	end
-	return { potions = product.prize.potions, cats = cats, signStyles = styles }, first
+	local potions = product.prize.potions
+	local swap = product.prize.moneySwap
+	local multiplier = product.prize.moneyMultiplier
+	local swapped = first
+		and swap ~= nil
+		and multiplier ~= nil
+		and type(moneyOwned) == "number"
+		and moneyOwned >= multiplier
+	if swapped and swap ~= nil then
+		local merged: { [string]: number } = table.clone(potions)
+		for id, count in swap do
+			merged[id] = (merged[id] or 0) + count
+		end
+		potions = merged
+	end
+	return { potions = potions, cats = cats, signStyles = styles, swapped = swapped }, first
 end
 
 -- #1625: notes a once-per-account product bought and its sign styles owned, in the same step as the receipt.
@@ -113,7 +134,11 @@ function Products.sanitizeOnce(raw: unknown): { [string]: boolean }
 		for id, value in raw :: { [any]: any } do
 			if type(id) == "string" and value == true then
 				local product = Catalog.getProduct(id)
-				if id == KingPack.MARK or (product ~= nil and product.oncePerAccount == true) then
+				if
+					id == KingPack.MARK
+					or id == RoyalPack.MARK
+					or (product ~= nil and product.oncePerAccount == true)
+				then
 					out[id] = true
 				end
 			end

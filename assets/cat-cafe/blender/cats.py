@@ -205,7 +205,8 @@ ROSTER = {
                         exclusive=True),
     # #1191 the shop-only cats (Design-Agent's briefs on #1191): fixed, never random, no gold twins
     "Sprinkles":   dict(rarity="Epic", fur="fur_custard", second="fur_caramel", third="fur_caramel", eyes="eye_amber",
-                        pattern="patches", muzzle="fur_white", scale=0.88, eye_k=1.14, exclusive=True, shop=True,
+                        pattern="patches", muzzle="fur_white", scale=1.0, eye_k=1.14, exclusive=True, shop=True,
+                        sparkle=True,
                         apron=("apron_pink", ("neon_pink", "sign_teal", "rarity_legend", "shirt_blue", "mint"))),
     "DuchessMarzipan": dict(rarity="Legendary", fur="fur_lilac_silver", second="pastel_lilac", eyes="eye_violet",
                             pattern="solid", muzzle="pearl", nose="nose_pink", fluffy=True, lids=True, curl=True,
@@ -369,6 +370,34 @@ ROSTER = {
     # Cafe Ghost: a pale see-through cat (rbx_export.GHOST: Transparency 0.5) in a tiny chef hat (props.py)
     "CafeGhost": dict(rarity="Secret", fur="fur_white", second="fur_white", eyes="pastel_sky", pattern="solid",
                       muzzle=None, glow_eyes=True, lids=True, curl=True, short_legs=True),
+    # Derek 2026-11-14: ten Secret cats, one per area (drafts). Park: a lucky emerald cat in clover leaves
+    "LuckyClover": dict(rarity="Secret", fur="paw_park", second="fur_emerald", third="eye_chartreuse",
+                        eyes="rarity_legend", pattern="spots", leafy=True, muzzle=None, glow_eyes=True, sparkle=True,
+                        tip="eye_chartreuse", socks="fur_golden", nose="nose_dark", eye_k=1.08),
+    # Woods: a moonlit fawn coat, pale spots, glowing antlers
+    "Moonstag": dict(rarity="Secret", fur="paw_sewer", second="pastel_sky", third="milk", eyes="mint", pattern="spots",
+                     muzzle=None, glow_eyes=True, sparkle=True, socks="night_sky", tip="mint", nose="nose_dark",
+                     ear_k=1.15, blaze="pastel_sky", rosettes=True),
+    # Sewer: glowing lime slime
+    "Ooze": dict(rarity="Secret", fur="eye_chartreuse", second="paw_park", third="fur_emerald", eyes="sparkle",
+                 pattern="gradient", muzzle=None, glow_eyes=True, tip="eye_green", nose="nose_dark",
+                 toes=("fur_emerald", "paw_park", "paw_park", "fur_emerald"), eye_k=1.1),
+    # Desert: a wine and gold genie
+    "Djinn": dict(rarity="Secret", fur="royal_berry", second="aurora_violet", third="rarity_legend",
+                  eyes="rarity_legend", pattern="gradient", muzzle=None, glow_eyes=True, sparkle=True,
+                  cuff="rarity_legend", tip="pastel_lilac", curl=True, nose="nose_dark", mark=("star", "rarity_legend")),
+    # Ruins: reborn from the ashes, ember to gold
+    "Phoenix": dict(rarity="Secret", fur="eye_copper", second="bowl_red", third="eye_amber", eyes="sparkle",
+                    pattern="gradient", muzzle=None, glow_eyes=True, tip="sparkle", socks="bowl_red",
+                    mane=("eye_amber", "bowl_red"), nose="nose_dark", eye_k=1.08),
+    # Water Park: from the deep end, with lit spots
+    "Abyss": dict(rarity="Secret", fur="shirt_blue", second="galaxy_blue", third="night_sky", eyes="mint",
+                  pattern="gradient", muzzle=None, glow_eyes=True, sparkle=True,
+                  sprinkles=("mint", "sparkle", "fish_blue", "mint", "pastel_sky"), socks="night_sky", tip="mint", nose="nose_dark", eye_k=1.12),
+    # Castle: the cat that pulled the sword
+    "Excalipurr": dict(rarity="Secret", fur="fur_lilac_silver", second="fur_silver", third="rarity_legend", eyes="fish_blue",
+                       pattern="solid", muzzle="milk", glow_eyes=True, socks="rarity_legend", tip="rarity_legend",
+                       cuff="fish_blue", ruff="milk", nose="nose_pink", mark=("star", "rarity_legend"), eye_k=1.08),
 }
 
 COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze", "cuff")

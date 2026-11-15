@@ -22,6 +22,7 @@ local Net = require(script.Parent.Net)
 local PassDecor = require(ReplicatedStorage.Shared.PassDecor)
 local PassService = require(script.Parent.PassService)
 local Payout = require(script.Parent.Payout)
+local RoyalPack = require(ReplicatedStorage.Shared.RoyalPack)
 local ShopCats = require(ReplicatedStorage.Shared.ShopCats)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -49,7 +50,15 @@ local function give(player: Player)
 		local prize: Types.IndexPrize = { potions = potions }
 		local paid = Payout.pay(player, profile, prize, "king_cat_pack", "Shop")
 		table.insert(paid, 1, "the Royal Velvet Booth")
-		Net.fire(player, "Toast", "King Cat Pack: " .. table.concat(paid, ", "), "good")
+		Net.fire(player, "Toast", "Cat King Pack: " .. table.concat(paid, ", "), "good")
+		CafeService.sync(player)
+	end
+	-- #4261: the Royal Cat Pack's potions, once per account, the same way
+	local royal = RoyalPack.gift(profile, PassService.owns(player, RoyalPack.passId()))
+	if royal ~= nil then
+		local prize: Types.IndexPrize = { potions = royal }
+		local paid = Payout.pay(player, profile, prize, "royal_cat_pack", "Shop")
+		Net.fire(player, "Toast", RoyalPack.NAME .. ": " .. table.concat(paid, ", "), "good")
 		CafeService.sync(player)
 	end
 	-- #1168 row 3: the decor a pass gives (the Garden Decor Pack), owned for good once given

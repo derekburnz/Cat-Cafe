@@ -259,6 +259,10 @@ local function boardFor(model: Model): Board?
 	return made
 end
 
+-- Review-QA 2026-11-14: true while the player stands on the ring and the pad has used up its tries by itself
+-- (PAD_RETRIES below), so the board says to step off and back on
+local binStepBack = false
+
 local function boardView(): RollBoardLogic.View
 	local player = Players.LocalPlayer
 	local uses = player:GetAttribute(RummageBin.USES_ATTRIBUTE)
@@ -272,6 +276,7 @@ local function boardView(): RollBoardLogic.View
 		now = Workspace:GetServerTimeNow(),
 		playing = if playing ~= nil then playing.row else nil,
 		rolling = playing ~= nil and playing.rolling,
+		stepBack = binStepBack,
 	})
 end
 
@@ -755,8 +760,10 @@ local function padStep()
 		padSince = nil
 		padUsed = false
 		padRetries = 0
+		binStepBack = false
 		return
 	end
+	binStepBack = padUsed and play == nil and padRetries >= PAD_RETRIES
 	local now = os.clock()
 	local since = padSince or now
 	padSince = since

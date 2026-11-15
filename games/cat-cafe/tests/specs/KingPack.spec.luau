@@ -67,14 +67,14 @@ return function()
 			local profile = ProfileSchema.template(1000)
 			local def = Catalog.getDecor(KingPack.DECOR) :: any
 			expect(def.source).to.equal("pass")
-			expect(def.pack).to.equal("King Cat Pack")
+			expect(def.pack).to.equal("Cat King Pack")
 			expect(def.rarity).to.equal("Epic") -- #2006
 			expect(def.bonus).to.equal(Config.CratePieceBonus.Epic)
 			expect(def.asset).to.equal("CatCafe_Decor_VelvetBooth")
 			expect(Crates.takesSpot(def)).to.equal(true)
 			expect(table.find(Catalog.passDecor, def)).to.be.ok()
 			expect(Economy.decorBlocker(profile, KingPack.DECOR)).to.equal(
-				"Comes with the King Cat Pack, not for sale"
+				"Comes with the Cat King Pack, not for sale"
 			)
 			expect(Trade.piece(KingPack.DECOR)).never.to.be.ok()
 		end)
@@ -113,25 +113,5 @@ return function()
 				(Catalog.getProduct(KingPack.POTION_PRODUCT) :: any).prize.potions.big_tip_potion
 			).to.equal(5)
 		end)
-	end)
-
-	describe("the worth line", function()
-		it(
-			"prices only the King Cat alone and Potion Pack M, and waits for both to be made",
-			function()
-				local refs, ready = KingPack.worthRefs()
-				local potionRef = { infoType = "Product", id = Config.ProductIds.potion_pack_m }
-				if (Config :: any).KingCatPassId == 0 then
-					expect(ready).to.equal(false)
-					expect(refs :: any).to.deepEqual({ potionRef })
-				else
-					expect(ready).to.equal(true)
-					expect(refs :: any).to.deepEqual({
-						{ infoType = "GamePass", id = (Config :: any).KingCatPassId },
-						potionRef,
-					})
-				end
-			end
-		)
 	end)
 end

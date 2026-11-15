@@ -168,6 +168,9 @@ SettingsList.OTHER_KEYS = {
 	catPickSort = true, -- #3940: the Mystic Pool's Filter pop-up sets these three
 	catPickFlipped = true,
 	catPickShow = true,
+	autoBowlClaim = true, -- #4266: the Bait bowl window's Auto Bowl switches set these three
+	autoBowlRefill = true,
+	bowlNewCatCard = true,
 } :: { [string]: boolean }
 
 -- Every row in screen order.

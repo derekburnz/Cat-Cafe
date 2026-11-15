@@ -187,6 +187,9 @@ return function()
 				catPickSort = "Money", -- #3940
 				catPickFlipped = false,
 				catPickShow = "",
+				autoBowlClaim = true,
+				autoBowlRefill = true,
+				bowlNewCatCard = true,
 			})
 		end)
 
@@ -652,6 +655,9 @@ return function()
 					catPickSort = "Money", -- #3940
 					catPickFlipped = false,
 					catPickShow = "",
+					autoBowlClaim = true,
+					autoBowlRefill = true,
+					bowlNewCatCard = true,
 				})
 				-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
 				expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })
@@ -910,8 +916,16 @@ return function()
 			end
 		)
 
-		it("clamps the tier to 1 to 7 and levels to each upgrade's range", function()
-			for _, case in ipairs({ { 0, 1 }, { 9, 7 }, { "2", 1 }, { 2.5, 2 } }) do
+		it("clamps the tier to 1 to 10 and levels to each upgrade's range", function()
+			for _, case in ipairs({
+				{ 0, 1 },
+				{ 8, 8 },
+				{ 9, 9 },
+				{ 10, 10 },
+				{ 11, 10 },
+				{ "2", 1 },
+				{ 2.5, 2 },
+			}) do
 				local raw = v3Save()
 				raw.tier = case[1]
 				expect(ProfileSchema.migrate(raw, 500).tier).to.equal(case[2])

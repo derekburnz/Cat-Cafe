@@ -26,6 +26,51 @@ return function()
 		}
 	end
 
+	describe("Cannon.launchRefusal and launchFrom (#4070)", function()
+		it("flies to a launchFrom area only from that camp's cannon", function()
+			local made = check(nil)
+			made.destination = "waterpark"
+			made.destinationName = "Water Park"
+			made.destinationTier = 9
+			made.destinationFrom = "desert"
+			made.destinationFromName = "Desert"
+			made.tier = 9
+			expect(Cannon.launchRefusal(made)).to.equal(
+				"Water Park is reached from the Desert camp's cannon"
+			)
+			made.cannonId = "desert"
+			expect(Cannon.launchRefusal(made)).to.equal(nil)
+		end)
+	end)
+
+	describe("Cannon.reach (#4343)", function()
+		it(
+			"measures flat, so a high pivot never pushes a player in the ring out of reach",
+			function()
+				local pivot = Vector3.new(0, 6, 0)
+				expect(Cannon.reach(Vector3.new(3, 3, 4), pivot)).to.equal(5)
+				expect(Cannon.reach(Vector3.new(3, 3 + Cannon.MAX_RISE + 4, 4), pivot)).to.equal(
+					nil
+				)
+			end
+		)
+
+		it("lets a player anywhere in the town cannon's ring, rim included, launch", function()
+			local WalkUp = require(Shared.WalkUp)
+			local range = Cannon.range("town")
+			-- the ring as wide as the range allows (WalkUp.aroundRadius with fill), and the window stays open
+			-- LEAVE_EXTRA past its rim
+			local rim = WalkUp.aroundRadius(1, range, nil, true) + WalkUp.LEAVE_EXTRA
+			local made = check(nil)
+			made.distance = Cannon.reach(Vector3.new(rim, 3, 0), Vector3.new(0, 9, 0))
+			expect(Cannon.launchRefusal(made)).to.equal(nil)
+			made.distance = range + Cannon.RANGE_SLACK + 0.5
+			expect(Cannon.launchRefusal(made)).to.equal("Get closer to the cannon")
+			made.distance = nil
+			expect(Cannon.launchRefusal(made)).to.equal("Get closer to the cannon")
+		end)
+	end)
+
 	describe("Cannon.downRefusal", function()
 		it("refuses for TackledDownSeconds after a tackle lands, then lets go", function()
 			expect(Cannon.downRefusal(0)).to.equal(Cannon.DOWN_TEXT)

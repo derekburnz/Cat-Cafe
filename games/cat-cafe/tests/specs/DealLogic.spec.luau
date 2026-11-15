@@ -11,7 +11,8 @@ return function()
 
 	describe("DealLogic.card", function()
 		it("names the contents, the honest value and tomorrow's deal", function()
-			local card = Logic.card({ deal = 1, bought = false, tomorrow = 2 }, NOON, "Roll odds: x")
+			local card =
+				Logic.card({ deal = 1, bought = false, tomorrow = 2 }, NOON, "Roll odds: x")
 			expect(card.product).to.equal("deal_1")
 			expect(card.contents).to.equal("5 Big Money · 2 Swift")
 			expect(card.value).to.equal("7 potions for R$25, more than Potion Pack S")
@@ -27,7 +28,11 @@ return function()
 			expect(card.tomorrow).to.equal("Tomorrow: Potion Mix deal")
 		end)
 		it("puts the roll odds on the token deal, kept on a small card", function()
-			local card = Logic.card({ deal = 2, bought = false, tomorrow = 3 }, NOON, "Roll odds: Common 35% · Rare 65%")
+			local card = Logic.card(
+				{ deal = 2, bought = false, tomorrow = 3 },
+				NOON,
+				"Roll odds: Common 35% · Rare 65%"
+			)
 			expect(card.kind).to.equal("token")
 			expect(card.contents).to.equal("7 Trait Tokens")
 			expect(card.value).to.equal("7 Trait Tokens, more than the 20 pack gives for R$25")
@@ -51,7 +56,9 @@ return function()
 	describe("DealLogic.changeText", function()
 		it("names a clock time and never a countdown", function()
 			local line = Logic.changeText(NOON)
-			expect(string.match(line, "^A new deal each day at %d+:%d%d [AP]M$") ~= nil).to.equal(true)
+			expect(string.match(line, "^A new deal each day at %d+:%d%d [AP]M$") ~= nil).to.equal(
+				true
+			)
 			for _, word in { "left", "ends", "only", "last", "hurry" } do
 				expect(string.find(string.lower(line), word, 1, true)).to.equal(nil)
 			end

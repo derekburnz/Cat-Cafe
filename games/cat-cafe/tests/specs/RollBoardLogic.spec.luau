@@ -67,6 +67,18 @@ return function()
 			end
 		end)
 
+		it(
+			"tells a player on the pad to step back on once its own tries are used (Review-QA 2026-11-14)",
+			function()
+				local view = RollBoardLogic.bin(input({ prize = "golden", stepBack = true }))
+				expect(view.line).to.equal(RollBoardLogic.BIN_STEP_BACK)
+				expect(#view.rows).to.equal(1)
+				expect(RollBoardLogic.bin(input({ prize = "golden", stepBack = false })).line).to.equal(
+					RollBoardLogic.BIN_WAITING
+				)
+			end
+		)
+
 		it("shows the prize kept after a miss ahead of the list, new account or not", function()
 			for _, uses in { 0, Config.BinFirstUses } do
 				local view = RollBoardLogic.bin(input({ uses = uses, prize = "golden" }))

@@ -28,8 +28,8 @@ export type Step = { id: string, name: string, prize: Types.IndexPrize }
 GrandOpening.STEPS = {
 	{ id = "first_table", name = "Open your first table", prize = { fish = 3 } }, -- #2237 fish: was 5, 5, 10, 10, 50
 	{ id = "first_bait_cat", name = "Your first bait cat", prize = { fish = 3 } },
-	-- #4098: Tier 2's need of 4 (the id stays "five_cats", so saves keep it done)
-	{ id = "five_cats", name = "Four different cats", prize = { spins = 1 } },
+	-- #4188: Tier 2's need of 3 (4 for #4098; the id stays "five_cats", so saves keep it done)
+	{ id = "five_cats", name = "Three different cats", prize = { spins = 1 } },
 	{ id = "tier_2", name = "Rank up to Tier 2", prize = { fish = 5 } },
 	{
 		id = "park_catch",
@@ -137,7 +137,7 @@ function GrandOpening.met(profile: Types.PlayerProfile, n: number): boolean
 	elseif n == 2 then
 		return profile.stats.baitsTamed + profile.stats.baitsLetGo >= 1
 	elseif n == 3 then
-		return Economy.distinctCats(profile) >= Catalog.tiers[2].distinctCats -- #4098: 4 (5 before)
+		return Economy.distinctCats(profile) >= Catalog.tiers[2].distinctCats -- #4188: 3 (4 for #4098, 5 before)
 	elseif n == 4 then
 		return Economy.tier(profile) >= 2
 	elseif n == 5 then

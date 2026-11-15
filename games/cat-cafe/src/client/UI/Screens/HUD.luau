@@ -3002,7 +3002,7 @@ function HUD._paintRares(self: any)
 	local catalog: Types.Catalog? = self._catalog
 	local open: { [string]: boolean } = {}
 	if catalog ~= nil then
-		for _, area in catalog.areas or {} do
+		for _, area in (catalog.areas or {}) :: { Types.AreaDef } do
 			if area.tier <= self._rareTier then
 				open[area.id] = true
 			end

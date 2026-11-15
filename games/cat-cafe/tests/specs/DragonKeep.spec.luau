@@ -406,6 +406,34 @@ return function()
 			expect(none.glide).to.equal(false)
 		end)
 
+		it(
+			"adds Fast Learner and the Heart set to every cat's XP, Cosy Nap to a resting cat's",
+			function()
+				DragonKeep.setOn(true)
+				local fx = DragonKeep.of(
+					{ dragon = withSlots({ "fastLearner", "cosyNap", "patPat" }) } :: any
+				)
+				DragonKeep.setOn(nil)
+				expect(math.abs(fx.xp - 0.20) < 1e-9).to.equal(true) -- 0.10 + the lit Heart set's 0.10
+				expect(fx.restXp).to.equal(DragonKeep.REST_XP)
+			end
+		)
+
+		it("grows a resting cat's XP by Fast Learner and Cosy Nap in Economy.grantXp", function()
+			local Economy = require(Shared.Economy)
+			local CatStats = require(Shared.CatStats)
+			local plain = profileWith({ { uid = "a", rarity = "Common" } }) :: any
+			local carded = profileWith({ { uid = "a", rarity = "Common" } }) :: any
+			carded.dragon = withSlots({ "fastLearner", "cosyNap" })
+			DragonKeep.setOn(true)
+			Economy.grantXp(plain, 10)
+			Economy.grantXp(carded, 10)
+			DragonKeep.setOn(nil)
+			local base = CatStats.xp(plain.cats.a)
+			expect(base > 0).to.equal(true)
+			expect(math.abs(CatStats.xp(carded.cats.a) - base * 1.2) < 1e-6).to.equal(true)
+		end)
+
 		it("shortens the swing wait with Ember Net, only with the switch on", function()
 			local NetSwing = require(Shared.NetSwing)
 			local Config = require(Shared.Config)

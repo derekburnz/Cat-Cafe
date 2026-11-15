@@ -418,11 +418,13 @@ function Economy.grantXp(profile: Types.PlayerProfile, seconds: number): number
 		return 0
 	end
 	local gained = 0
+	local fx = Economy.dragonEffects(profile) -- #4447: Fast Learner, the Heart set and Cosy Nap
 	for uid, instance in profile.cats do
 		if CatStats.atSpa(profile, uid) then
 			continue -- #2651 part 4: a cat at the Oasis Spa earns no XP; it gains its level when collected
 		end
-		gained += CatStats.addXp(instance, seconds * Economy.catXpRate(instance))
+		local boost = 1 + fx.xp + (if instance.spotId == nil then fx.restXp else 0)
+		gained += CatStats.addXp(instance, seconds * Economy.catXpRate(instance) * boost)
 	end
 	if gained > 0 then
 		profile.stats.catLevelUps = (profile.stats.catLevelUps or 0) + gained

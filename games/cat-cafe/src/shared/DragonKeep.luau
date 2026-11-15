@@ -1018,6 +1018,9 @@ DragonKeep.TICKET_BONUS = 0.25 -- Ticket Dragon: +25% Ticket Booth tickets (roun
 DragonKeep.REPEAT_FISH = 1 -- Fish Scale: a repeat Epic or better catch gives +1 golden fish
 DragonKeep.WALK = { lightStep = 0.5, wingbeat = 1.5 } :: { [string]: number } -- stud/s on the walk speed
 DragonKeep.SET_WALK = { wing = 1 } :: { [string]: number }
+DragonKeep.XP = { fastLearner = 0.10 } :: { [string]: number } -- share more cat XP, every cat
+DragonKeep.SET_XP = { heart = 0.10 } :: { [string]: number }
+DragonKeep.REST_XP = 0.10 -- Cosy Nap: resting cats (no spot) gain 10% more XP
 DragonKeep.WALK_CAP = 2 -- card walk speed in total, stud/s (with and without a cat)
 
 export type Effects = {
@@ -1036,18 +1039,21 @@ export type Effects = {
 	softLanding: boolean, -- Soft Landing: no CannonCooldownSeconds wait after a landing
 	doubleJump: boolean, -- Double Jump: once more in the air (shared/AirMoves)
 	glide: boolean, -- Glide: hold jump to fall slowly (shared/AirMoves)
+	xp: number, -- share more cat XP for every cat (Economy.grantXp)
+	restXp: number, -- share more on top for a resting cat
 }
 
 function DragonKeep.effects(save: Types.DragonSave): Effects
 	local money, tips, tickets, repeatFish, luck, goldLuck, reach, swing = 0, 0, 0, 0, 0, 0, 0, 0
 	local slowRings, forgive, friend, walk, softLanding = 0, false, 0, 0, false
-	local doubleJump, glide = false, false
+	local doubleJump, glide, xp, restXp = false, false, 0, 0
 	for _, id in save.slots do
 		if cardsById[id] ~= nil then
 			money += DragonKeep.MONEY[id] or 0
 			tips += DragonKeep.TIPS[id] or 0
 			reach += DragonKeep.REACH[id] or 0
 			walk += DragonKeep.WALK[id] or 0
+			xp += DragonKeep.XP[id] or 0
 			if id == "ticketDragon" then
 				tickets = DragonKeep.TICKET_BONUS
 			elseif id == "fishScale" then
@@ -1070,6 +1076,8 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 				doubleJump = true
 			elseif id == "glide" then
 				glide = true
+			elseif id == "cosyNap" then
+				restXp = DragonKeep.REST_XP
 			end
 		end
 	end
@@ -1077,6 +1085,7 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 		money += DragonKeep.SET_MONEY[family] or 0
 		reach += DragonKeep.SET_REACH[family] or 0
 		walk += DragonKeep.SET_WALK[family] or 0
+		xp += DragonKeep.SET_XP[family] or 0
 	end
 	reach = math.min(reach, DragonKeep.REACH_CAP)
 	walk = math.min(walk, DragonKeep.WALK_CAP)
@@ -1098,6 +1107,8 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 		softLanding = softLanding,
 		doubleJump = doubleJump,
 		glide = glide,
+		xp = xp,
+		restXp = restXp,
 	}
 end
 
@@ -1123,6 +1134,8 @@ local NONE: Effects = table.freeze({
 	softLanding = false,
 	doubleJump = false,
 	glide = false,
+	xp = 0,
+	restXp = 0,
 }) :: any
 function DragonKeep.of(profile: Types.PlayerProfile): Effects
 	local on = if onOverride ~= nil

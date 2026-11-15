@@ -73,7 +73,10 @@ local function bubble(
 		ZIndex = zIndex + 1,
 		Parent = frame,
 	}, {
-		Create("UITextSizeConstraint", { MaxTextSize = Theme.sizes.textSmall }),
+		Create(
+			"UITextSizeConstraint",
+			{ MinTextSize = Theme.sizes.textTiny, MaxTextSize = Theme.sizes.textSmall }
+		),
 	})
 	Outline.text(label, 1.5)
 	return frame, label

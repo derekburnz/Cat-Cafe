@@ -134,6 +134,7 @@ return function()
 							or key == "updateFeature"
 							or key == "adminEvents"
 							or key == "secretAreas"
+							or key == "autoBowl"
 							or key == "padControls"
 							or key == "afkButton" -- #4346
 							or key == "tier8" -- #3997

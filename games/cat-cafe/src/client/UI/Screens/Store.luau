@@ -1016,7 +1016,11 @@ function Store._fillDeal(_self: any, entry: any, card: DealLogic.Card?)
 	if entry.key ~= art then
 		entry.key = art
 		local images: { string } = {}
-		if card.kind == "token" then
+		local dealPicture = ShopIcons.deal(card.kind, card.fish)
+		if dealPicture ~= nil then
+			-- #4246: the deal's own picture; the older ones below stay as the fallback
+			table.insert(images, dealPicture)
+		elseif card.kind == "token" then
 			local token = MysticPoolLogic.TOKEN_IMAGE
 			if token ~= nil then
 				table.insert(images, token)

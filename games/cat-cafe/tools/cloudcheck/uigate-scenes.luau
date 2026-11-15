@@ -12494,7 +12494,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(ok, problem)
 	end },
 	-- #4062: the Dragon Keep window at stage 3 (three slots, one empty), the binder's 54 cards, a card slotted from the
-	-- binder, the give picker's Repeats, a special cat's second tap and the stage hand over the window
+	-- binder, the give picker's All Common, a special cat's second tap and the stage hand over the window
 	{ "DragonKeep", function()
 		local before = UI.getState() :: any
 		local cats = {}
@@ -12587,11 +12587,39 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			press("DragonKeep", "Card_emberTips")
 			press("DragonKeep", "Slot3")
 			assert(#sent == 1 and sent[1].remote == "SlotDragonCard" and sent[1].a == "emberTips" and sent[1].b == 3, "uigate: a binder card to Slot3 sent no SlotDragonCard (#4062)")
+			-- #4576: the Sets tab shows every family's two set bonuses, and each line fits
+			press("DragonKeep", "Tab_sets")
+			local setsPage = window:FindFirstChild("SetsPage", true) :: GuiObject
+			assert(setsPage.Visible, "uigate: the Sets tab did not open (#4576)")
+			for _, family in { "flame", "claw", "wing", "hoard", "heart", "crown" } do
+				local row = setsPage:FindFirstChild("Set_" .. family, true) :: GuiObject
+				assert(row ~= nil, "uigate: no " .. family .. " set row (#4576)")
+				for _, name in { "Title", "Count", "Three", "Five" } do
+					local label = row:FindFirstChild(name) :: TextLabel
+					assert(label.Text ~= "" and label.TextFits and label.TextSize >= 10, ("uigate: %s's %s %q does not fit (#4576)"):format(family, name, label.Text))
+				end
+			end
 			-- the give picker
 			press("DragonKeep", "Tab_give")
 			local give = window:FindFirstChild("GivePage", true) :: GuiObject
 			assert(give.Visible, "uigate: the Give cats tab did not open (#4062)")
-			press("DragonKeep", "Repeats")
+			-- #4566: one pick-all button per rarity, each fits its words; All Common picks the unlocked Commons
+			for _, rarity in { "Common", "Rare", "Epic", "Legendary", "Mythical" } do
+				local pick = give:FindFirstChild("All" .. rarity, true) :: GuiObject
+				assert(pick ~= nil, "uigate: the give picker has no All " .. rarity .. " (#4566)")
+				local words = pick:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel
+				assert(words.TextFits, "uigate: All " .. rarity .. " does not fit its button (#4566)")
+			end
+			assert(give:FindFirstChild("Repeats", true) == nil, "uigate: the Repeats button is still there (#4566)")
+			-- the order flip: the strongest cat leads, and back
+			local firstName = ((give:FindFirstChild("Cats", true) :: Instance):FindFirstChild("Name", true) :: TextLabel).Text
+			press("DragonKeep", "Order")
+			local orderText = (give:FindFirstChild("Order", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel)
+			assert(orderText.Text == "Weakest first" and orderText.TextFits, "uigate: the order button reads " .. orderText.Text)
+			press("DragonKeep", "Order")
+			assert(orderText.Text == "Strongest first", "uigate: the order did not flip back")
+			assert(firstName ~= "", "uigate: the give list is empty")
+			press("DragonKeep", "AllCommon")
 			local giveButton = give:FindFirstChild("Give", true) :: GuiObject
 			local giveText = (giveButton:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel)
 			assert(string.find(giveText.Text, "Move", 1, true) and giveText.TextFits, "uigate: the give button reads " .. giveText.Text .. " (#4062)")

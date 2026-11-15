@@ -27,7 +27,7 @@ local SIGN_NAME = "CatCafeStationLock"
 type Saved = { kind: string, value: any }
 
 local saved: { [Instance]: Saved } = {} -- what each hidden instance was, to put back
-local signs: { [Instance]: BillboardGui } = {}
+local signs: { [Instance]: BillboardGui? } = {}
 
 local function switchOn(): boolean
 	return LiveFlags.shown(
@@ -105,8 +105,8 @@ local function anchorOf(model: Instance): BasePart?
 end
 
 local function signFor(model: Instance, tag: string): BillboardGui?
-	local sign = signs[model]
-	if sign ~= nil and sign.Parent ~= nil then
+	local sign: BillboardGui? = signs[model]
+	if sign and sign.Parent then
 		return sign
 	end
 	local anchor = anchorOf(model)
@@ -148,9 +148,9 @@ local function signFor(model: Instance, tag: string): BillboardGui?
 end
 
 local function dropSign(model: Instance)
-	local sign = signs[model]
+	local sign: BillboardGui? = signs[model]
 	signs[model] = nil
-	if sign ~= nil then
+	if sign then
 		sign:Destroy()
 	end
 end
@@ -204,7 +204,9 @@ end
 function StationLockController.start()
 	task.spawn(function()
 		while true do
-			local ok, err = pcall(sweep)
+			local ok, err = pcall(function(): ()
+				sweep()
+			end)
 			if not ok then
 				warn("[StationLock] " .. tostring(err))
 			end

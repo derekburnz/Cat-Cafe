@@ -116,12 +116,9 @@ function CannonLogic.cards(areas: { AreaLike }, tier: number, cannonId: string):
 	local locked: { Destination } = {}
 	local order: { [string]: number } = {}
 	for index, area in areas do
-		if
-			area.tier > tier
-			and area.id ~= cannonId
-			and area.id ~= CannonLogic.TOWN
-			and flies(area, cannonId)
-		then
+		-- #4364: a shut area shows on every cannon as a coming-soon card, even one only a camp's cannon flies to
+		-- (Derek: the Water Park was missing between Snowy Mountain and the Castle); once open, only there
+		if area.tier > tier and area.id ~= cannonId and area.id ~= CannonLogic.TOWN then
 			table.insert(
 				locked,
 				{ id = area.id, name = area.name, tier = area.tier, locked = true }

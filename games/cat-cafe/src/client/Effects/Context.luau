@@ -24,7 +24,8 @@ Context.budget = Presets.budget.high
 Context.screenShake = true -- the Screen shake setting
 Context.lowPerformance = false -- the Low performance setting
 Context.console = false -- an Xbox or PlayStation (a ten-foot screen): Presets.budget.console (#2871)
-Context.lite = false -- #3794: the lighter budget (Logic.wantsLite): a phone or graphics quality 1 to 3, switch on
+Context.lite = false -- #3794: the lighter budget (Logic.wantsLite): a struggling phone or graphics quality 1 to 3
+Context.struggling = false -- #4311: this phone or tablet's frame rate stayed low (Logic.slowStep); kept all session
 local LITE_FLAG = "fxLite"
 
 local SHAKE_STEP = "CatCafeEffectsShake"
@@ -48,7 +49,8 @@ local function rebudget()
 			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. LITE_FLAG)
 		),
 		Context.device :: Presets.Tier,
-		savedQuality()
+		savedQuality(),
+		Context.struggling
 	)
 	local tier, budget = Logic.budgetFor(
 		Context.device :: Presets.Tier,
@@ -85,6 +87,25 @@ function Context.init()
 		local userSettings = UserSettings():GetService("UserGameSettings")
 		userSettings:GetPropertyChangedSignal("SavedQualityLevel"):Connect(rebudget)
 	end)
+	-- #4311: watch the frame rate until this device is found to be struggling, then the lighter budget applies on
+	-- a phone or tablet for the rest of the session. One add and one compare a frame; the watch ends when it trips.
+	local slow = Logic.slowStart()
+	local watch: RBXScriptConnection? = nil
+	watch = RunService.RenderStepped:Connect(function(dt: number)
+		if Logic.slowStep(slow, dt, Presets.slow, Context.cutscene()) then
+			Context.struggling = true
+			rebudget()
+			if watch ~= nil then
+				watch:Disconnect()
+			end
+		end
+	end)
+end
+
+-- Whether a cutscene has the camera (it is Scriptable), so a slow frame there says nothing about the device.
+function Context.cutscene(): boolean
+	local camera = Workspace.CurrentCamera
+	return camera ~= nil and camera.CameraType == Enum.CameraType.Scriptable
 end
 
 -- Follows the player's Settings switches (Effects.applySettings). Turning Screen shake off also stops a shake that

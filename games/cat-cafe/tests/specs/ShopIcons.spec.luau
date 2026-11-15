@@ -254,6 +254,7 @@ return function()
 			end
 			expect(ShopIcons.storeTab("featured")).to.equal("rbxassetid://137984752078851")
 			expect(ShopIcons.storeTab("codes")).to.equal("rbxassetid://126780860250721")
+			expect(ShopIcons.storeTab("deal")).to.equal(ShopIcons.hud("Tag"))
 			expect(ShopIcons.storeTab("cafePass")).to.equal(ShopIcons.store("cafePass"))
 			expect(ShopIcons.storeTab("nope")).to.equal(nil)
 		end)

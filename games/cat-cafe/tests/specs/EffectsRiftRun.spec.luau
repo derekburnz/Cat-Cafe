@@ -208,6 +208,14 @@ return function()
 			expect(AudioLogic.riftRunCue("nope", 0, "mythic")).to.equal(nil)
 		end)
 
+		it("draws no letterbox bars on a phone or tablet", function()
+			local Logic = require(Effects:WaitForChild("Logic")) :: any
+			expect(Logic.letterbox("low")).to.equal(0)
+			expect(Logic.letterbox("high")).to.equal(1)
+			expect(Logic.letterbox(Logic.tier(true, false, false))).to.equal(0) -- a phone
+			expect(Logic.letterbox(Logic.tier(false, true, true))).to.equal(1) -- a desktop
+		end)
+
 		it("has a word for every tier", function()
 			for _, tier in r.tiers do
 				expect(type(r.words[tier])).to.equal("string")

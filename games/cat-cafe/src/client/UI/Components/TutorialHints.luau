@@ -83,7 +83,7 @@ local LINES: { [string]: Line } = {
 	},
 	food = {
 		keyboard = "Put Kibble in your bowl on the back step (F)",
-		touch = "Tap the Bait bowl and put Kibble in it",
+		touch = "Tap Bowl, then Use on Kibble", -- #4384: names the HUD tile and its button, not a bowl in the world
 		gamepad = "Put Kibble in your bowl on the back step",
 	},
 	waiting = "A cat is on its way to your bowl",

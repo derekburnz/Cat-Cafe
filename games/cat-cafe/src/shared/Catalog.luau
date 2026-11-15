@@ -195,9 +195,12 @@ end
 -- or count lists it; Catching.secret picks one in place of a rolled Mythical. Its rate here is the rarity's own, and
 -- an owner's best open area multiplies it (CatStats.areaMultiplier). #4221: `home` is the one area whose rolled
 -- Mythicals it can take the place of (its `secretArea`); its `area` still says "secret".
-local function secret(def: Types.CatDef, home: Types.Area): Types.CatDef
+-- Derek 2026-11-14 ("draft all 10"): `new` marks the seven Secrets of the one-per-area update, which only roll while
+-- the `secretAreas` switch is on (Catching.secret); with it off the first three are the only Secrets, as before.
+local function secret(def: Types.CatDef, home: Types.Area, new: boolean?): Types.CatDef
 	def.area = "secret"
 	def.secretArea = home
+	def.secretNew = new
 	return def
 end
 
@@ -1455,6 +1458,106 @@ Catalog.cats = {
 			"Has worked here longer than the cafe has."
 		),
 		"alley"
+	),
+	-- Derek 2026-11-14 ("draft all 10"): the other seven, one per area (Model-Agent's roster in cats.py, models
+	-- CatCafe_Cat_<Name>). They only roll while `secretAreas` is on.
+	secret(
+		cat(
+			"lucky_clover",
+			"Lucky Clover",
+			"Secret",
+			"alley",
+			"greeter",
+			"spots", -- an emerald coat with clover leaves and gold socks
+			{ 46, 168, 92 },
+			"Found in a patch of four-leaf clovers. Luck follows it home."
+		),
+		"park",
+		true
+	),
+	secret(
+		cat(
+			"moonstag",
+			"Moonstag",
+			"Secret",
+			"alley",
+			"entertainer",
+			"spots", -- a moonlit fawn coat with pale spots and glowing antlers
+			{ 178, 150, 122 },
+			"Only walks the woods under a full moon. Its antlers glow."
+		),
+		"woods",
+		true
+	),
+	secret(
+		cat(
+			"ooze",
+			"Ooze",
+			"Secret",
+			"alley",
+			"barista",
+			"gradient", -- glowing lime slime, darker at the paws
+			{ 150, 214, 48 },
+			"Bubbled up from the pipes. Leaves a glowing trail."
+		),
+		"sewer",
+		true
+	),
+	secret(
+		cat(
+			"djinn",
+			"Djinn",
+			"Secret",
+			"alley",
+			"waiter",
+			"gradient", -- a wine and violet coat with gold cuffs and a gold star
+			{ 122, 32, 74 },
+			"Spent a thousand years in a lamp. Its one wish is more milk."
+		),
+		"desert",
+		true
+	),
+	secret(
+		cat(
+			"phoenix",
+			"Phoenix",
+			"Secret",
+			"alley",
+			"entertainer",
+			"gradient", -- ember to gold, with a flame mane
+			{ 214, 96, 40 },
+			"Rose from the ashes of the old temple. Always warm."
+		),
+		"ruins",
+		true
+	),
+	secret(
+		cat(
+			"abyss",
+			"Abyss",
+			"Secret",
+			"alley",
+			"barista",
+			"gradient", -- deep blue with lit spots from the deep end
+			{ 32, 72, 168 },
+			"Swam up from the deepest pool. Its spots light the way."
+		),
+		"waterpark",
+		true
+	),
+	secret(
+		cat(
+			"excalipurr",
+			"Excalipurr",
+			"Secret",
+			"alley",
+			"greeter",
+			"solid", -- a lilac silver coat with a white ruff and gold socks
+			{ 186, 176, 214 },
+			"The only cat that could pull the sword from the stone."
+		),
+		"castle",
+		true
 	),
 } :: { Types.CatDef }
 
@@ -3114,7 +3217,7 @@ Catalog.achievements = {
 	{
 		id = "a_secret3",
 		name = "Secret Keeper",
-		text = "Find all three Secret cats",
+		text = "Find three Secret cats",
 		measure = "secretCats",
 		needs = 3,
 		size = "XL",
@@ -6244,27 +6347,30 @@ Catalog.products = {
 		name = "50 Trait Tokens",
 		prize = { potions = {}, traitTokens = 50 },
 	},
-	-- #3996 (todays-deal-3996.md section 2): Today's Deal, R$25 each, one a UTC day (shared/DailyDeal). Fixed contents;
-	-- deal 2's tokens are offered only where the token bundles may be.
+	-- #3996 (todays-deal-3996.md section 2): Today's Deal, R$25 each, one a UTC day (shared/DailyDeal). Fixed contents.
+	-- #4238 (Derek 2026-11-14: "don't do any potion packs ... actually good stuff like 10 of the gold crates from your
+	-- best area, trait tokens and 250 gold fish"): no potions. "highest_golden" is the golden crate of the player's best
+	-- open area (shared/Prizes). Deal 2's tokens and the crates of deals 3 and 4 are offered only where paid random
+	-- items may be (DailyDeal.dealFor).
 	{
 		id = "deal_1",
-		name = "Today's Deal: Big Money",
-		prize = { potions = { big_tip_potion = 5, swift_potion = 2 } },
+		name = "Today's Deal: 250 Golden Fish",
+		prize = { potions = {}, fish = 250 },
 	},
 	{
 		id = "deal_2",
 		name = "Today's Deal: Trait Tokens",
-		prize = { potions = {}, traitTokens = 7 },
+		prize = { potions = {}, traitTokens = 10 },
 	},
 	{
 		id = "deal_3",
-		name = "Today's Deal: Steady Paw",
-		prize = { potions = { steady_potion = 10, big_tip_potion = 2 } },
+		name = "Today's Deal: Golden Crates",
+		prize = { potions = {}, crates = { highest_golden = 10 } },
 	},
 	{
 		id = "deal_4",
-		name = "Today's Deal: Potion Mix",
-		prize = { potions = { big_tip_potion = 4, swift_potion = 1, steady_potion = 2 } },
+		name = "Today's Deal: Golden Haul",
+		prize = { potions = {}, crates = { highest_golden = 5 }, fish = 100 },
 	},
 } :: { Types.ProductDef }
 Catalog.productsById = {} :: { [string]: Types.ProductDef }
@@ -6276,6 +6382,9 @@ for _, product in Catalog.products do
 	end
 	if product.prize.signStyles ~= nil then
 		table.freeze(product.prize.signStyles)
+	end
+	if product.prize.crates ~= nil then
+		table.freeze(product.prize.crates)
 	end
 	table.freeze(product.prize)
 	table.freeze(product)

@@ -644,6 +644,7 @@ return function()
 				UpdateFeature = true, -- #4175: checked in StoreLogic.spec
 				EarlyCatchCount = true, -- #2913 follow-up: checked in Circles.spec
 				EarlyCatchWindowScale = true, -- #2913 follow-up: checked in Circles.spec and S24 here
+				TouchCatchWindowScale = true, -- #4299: checked in Circles.spec and S24 here
 				AfkCafeSeconds = true, -- #3573: checked in AfkCafe.spec
 				AutoRejoinSeconds = true, -- #3602: checked in AfkCafe.spec
 				AfkCafeMoney = true, -- #3573: checked in AfkCafe.spec
@@ -657,6 +658,7 @@ return function()
 				WinterPackPassId = true,
 				ChefPackPassId = true,
 				SpacePackPassId = true,
+				AutoBowlPassId = true, -- #4266: the Auto Bowl pass id, its Store card hidden while 0
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
@@ -827,7 +829,10 @@ return function()
 					end
 					widest = math.max(
 						widest,
-						row.good * rarity.catchWindow * Config.EarlyCatchWindowScale * area
+						row.good
+							* rarity.catchWindow
+							* math.max(Config.EarlyCatchWindowScale, Config.TouchCatchWindowScale) -- #4299
+							* area
 					)
 				end
 			end

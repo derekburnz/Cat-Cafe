@@ -17,6 +17,8 @@
 -- Wiring and file map: README.md next to this file.
 
 local AdminAir = require(script.AdminAir)
+local AdminDrops = require(script.AdminDrops)
+local AdminFlash = require(script.AdminFlash)
 local Ambient = require(script.Ambient)
 local ArcadeGlow = require(script.ArcadeGlow)
 local AreaFx = require(script.AreaFx)
@@ -204,6 +206,8 @@ function Effects.start()
 		BulbChase.start, -- #4070: the fairground's bulbs chase at night
 		StormFall.start, -- #4197: a Cat Storm's strays fall out of the sky
 		AdminAir.start, -- #4197: Golden Hour's gold motes and Money Storm's coin glints round you
+		AdminDrops.start, -- #4197: Fish Fountain's fish arc out, Crate Drop's crates come down by parachute
+		AdminFlash.start, -- #4325: an admin event's 3, 2, 1, name splash, world tint, strip and end card
 		TrailSparkle.start,
 		PawTrail.start,
 		GoldenFind.start,
@@ -229,6 +233,12 @@ function Effects.start()
 		-- #2946: the first bait's cutscene; the UI's bait cards wait for it
 		FirstBaitCut.start(require(script.Parent.UI) :: any)
 	end)
+end
+
+-- #4311: whether this phone or tablet's frame rate has stayed low this session (under Presets.slow.fps for
+-- Presets.slow.windows windows in a row); once true it stays true. The Low performance suggestion can read it.
+function Effects.struggling(): boolean
+	return Context.struggling
 end
 
 -- "low" on a phone or tablet or in Low performance mode, "high" on a PC or console (Presets.budget).

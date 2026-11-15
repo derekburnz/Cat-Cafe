@@ -636,6 +636,10 @@ local function sanitizeBait(value: any): Types.BaitState?
 		readyAt = readyAt,
 		night = if value.night == true then true else nil, -- F60: night bait, only ever true
 		wow = if value.wow == true then true else nil, -- #1897: the guaranteed Rare-or-better cat, only ever true
+		-- #4338: the Bowl Frenzy that sped it, a short id string
+		frenzy = if type(value.frenzy) == "string" and #value.frenzy <= 64
+			then value.frenzy
+			else nil,
 		catId = value.catId,
 		variant = variantOf(value.variant),
 		charm = math.clamp(

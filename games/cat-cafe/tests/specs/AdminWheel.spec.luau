@@ -20,7 +20,19 @@ return function()
 			startsAt = startsAt or NOW,
 			endsAt = (startsAt or NOW) + 300,
 			test = test == true,
-			effects = { bowlSpeed = 1, catStorm = 1, wheel = true },
+			effects = {
+				bowlSpeed = 1,
+				catStorm = 1,
+				wheel = true,
+				goldBoost = 1,
+				rainbowBoost = 1,
+				moneyStorm = 1,
+				traitParty = false,
+				speedRush = false,
+				secretHunt = 0,
+				fishFountain = false,
+				crateDrop = false,
+			},
 		}
 	end
 
@@ -163,7 +175,19 @@ return function()
 			expect(AdminWheel.view(redeemed, up, false)).to.equal(nil)
 			expect(AdminWheel.view(redeemed, nil, true)).to.equal(nil)
 			local bowl = event("frenzy-1115")
-			bowl.effects = { bowlSpeed = 4, catStorm = 1, wheel = false }
+			bowl.effects = {
+				bowlSpeed = 4,
+				catStorm = 1,
+				wheel = false,
+				goldBoost = 1,
+				rainbowBoost = 1,
+				moneyStorm = 1,
+				traitParty = false,
+				speedRush = false,
+				secretHunt = 0,
+				fishFountain = false,
+				crateDrop = false,
+			}
 			expect(AdminWheel.view(redeemed, bowl, true)).to.equal(nil)
 		end)
 	end)
@@ -207,12 +231,18 @@ return function()
 			expect(#Catalog.secretCats > 0).to.equal(true)
 			local seen: { [string]: boolean } = {}
 			for i = 0, 99 do
-				local def = AdminWheel.catFor(secret, 3, true, i / 100) :: any
+				local def = AdminWheel.catFor(secret, 3, true, i / 100, true) :: any
 				expect(def.rarity).to.equal("Secret")
 				seen[def.id] = true
 			end
 			for _, def in Catalog.secretCats do
 				expect(seen[def.id]).to.equal(true)
+			end
+			-- #4221: before `secretAreas`, never one of the seven new Secrets
+			for i = 0, 99 do
+				local def = AdminWheel.catFor(secret, 3, true, i / 100, false) :: any
+				expect(def.rarity).to.equal("Secret")
+				expect(def.secretNew).never.to.equal(true)
 			end
 			-- switched off: the Mythical instead, never nothing
 			local fallback = AdminWheel.catFor(secret, 3, false, 0.5) :: any

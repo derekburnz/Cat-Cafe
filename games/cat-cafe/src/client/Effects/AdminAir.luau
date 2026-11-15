@@ -1,7 +1,7 @@
 --!strict
--- #4197: the air of an admin event. While Golden Hour or Money Storm runs (the AdminEvent* attributes on
--- ReplicatedStorage, read by Effects/AdminEventLogic; the effect's name picks the drift, AdminEventLogic.airOf), slow
--- gold motes or quicker coin glints fall round you, so the event reads in the world and not only on its banner. One
+-- #4197: the air of an admin event. While one runs (the AdminEvent* attributes on ReplicatedStorage, read by
+-- Effects/AdminEventLogic; since #4325 every kind has a drift, picked by AdminFlashLogic.rainOf), gold motes, coin
+-- glints or motes in the event's own colour fall round you, so the event reads in the world and not only on its banner. One
 -- emitter on one unseen part that follows the camera's focus. None with Reduce Motion or in Low performance.
 -- Listening only. Numbers in Presets.adminAir.
 local HttpService = game:GetService("HttpService")
@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local AdminEventLogic = require(script.Parent.AdminEventLogic)
+local AdminFlashLogic = require(script.Parent.AdminFlashLogic)
 local Context = require(script.Parent.Context)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
@@ -52,7 +53,7 @@ local function tick()
 		return ReplicatedStorage:GetAttribute(name)
 	end, decode)
 	local preset = AdminAir.pick(
-		AdminEventLogic.airOf(view),
+		AdminFlashLogic.rainOf(view),
 		AdminEventLogic.runs(view, Workspace:GetServerTimeNow()),
 		Context.lowPerformance or Context.reducedMotion(),
 		p.kinds

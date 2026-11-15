@@ -11,7 +11,9 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Net = require(script.Parent.Parent.Net)
+local RankFirst = require(Shared:WaitForChild("RankFirst"))
 local RankSpot = require(Shared:WaitForChild("RankSpot"))
 local UI = require(script.Parent.Parent.UI)
 
@@ -24,6 +26,8 @@ local phase: RankSpot.Phase = "none"
 local freeSeconds = 0
 local shownAt = 0 -- os.clock() the walk-through last went from nothing to showing
 local putAway = false -- closed by a press on the dim this session; the save has it from the next sync
+local presses = 0 -- #4383: presses on the dim that would have put it away, this session
+local restUntil = 0 -- #4383: os.clock() until which a pressed walk-through rests
 local reported: { [string]: boolean } = {}
 
 local function report(kind: string)
@@ -52,9 +56,20 @@ local function show(next: any)
 			window = open
 		end
 		if RankSpot.putsAway(os.clock() - shownAt, next, window) then
-			putAway = true
-			report("closed")
-			Net.fire("TipSeen", RankSpot.SEEN, false)
+			-- #4383 (shared/RankFirst): with the switch on a press only rests it, until the PRESSES-th; a phone
+			-- player's thumbstick touch counts as a press, and closed it for good at once
+			presses += 1
+			local on = LiveFlags.shown(
+				RankFirst.FLAG,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankFirst.FLAG)
+			)
+			if RankFirst.forGood(on, presses) then
+				putAway = true
+				report("closed")
+				Net.fire("TipSeen", RankSpot.SEEN, false)
+			else
+				restUntil = os.clock() + RankFirst.REST_SECONDS
+			end
 		end
 		rankSpot.set("none")
 		phase = "none"
@@ -77,7 +92,9 @@ local function tick(dt: number)
 	end
 	local free: boolean, window: string? = (moment :: () -> (boolean, string?))()
 	freeSeconds = if free then freeSeconds + dt else 0
-	local due = not putAway and player:GetAttribute(RankSpot.ATTRIBUTE) == true
+	local due = not putAway
+		and os.clock() >= restUntil
+		and player:GetAttribute(RankSpot.ATTRIBUTE) == true
 	local next: any = RankSpot.phase(due, phase, freeSeconds, window)
 	if next ~= phase then
 		show(next)

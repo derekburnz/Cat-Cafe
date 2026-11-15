@@ -84,5 +84,63 @@ return function()
 			expect(thanked[1].credit).to.equal("💡 Thanks to bgdevila")
 			expect(thanked[2].credit).to.equal(nil)
 		end)
+		it(
+			"names the next update from Config.UpdateEvents and moves on by itself (Derek 2026-11-14)",
+			function()
+				local list = {
+					{
+						id = "1",
+						startsAt = 1794704400,
+						title = "🔔 Next update tonight: RIFT RUN! Want a reminder when it lands?",
+					},
+					{
+						id = "2",
+						startsAt = 1794772800,
+						title = "🔔 Next update Sunday: 3 NEW WORLDS! Want a reminder when it lands?",
+					},
+					{
+						id = "3",
+						startsAt = 1794780000,
+						title = "🔔 Next update Sunday: the GOLDEN FISH STORE! Want a reminder when it lands?",
+					},
+					{
+						id = "4",
+						startsAt = 1795032000,
+						title = "🔔 Next update Wednesday: better controls on every device! Want a reminder?",
+					},
+					{
+						id = "5",
+						startsAt = 1794799800,
+						title = "🔔 Next update: 10 SECRET CATS! Want a reminder when it lands?",
+					},
+				}
+				local before = Logic.nextUpdate(list, 1794704400 - 60)
+				expect(before.text).to.equal("Next: RIFT RUN")
+				expect(before.when).to.equal("Saturday 8 PM ET · tap Notify Me for a reminder")
+				-- the first 10 minutes after an update goes out are its own
+				expect(Logic.nextUpdate(list, 1794704400 + 60)).to.equal(nil)
+				local after = Logic.nextUpdate(list, 1794704400 + 601)
+				expect(after.text).to.equal("Next: 3 NEW WORLDS")
+				expect(after.when).to.equal("Sunday 3 PM ET · tap Notify Me for a reminder")
+				expect(Logic.nextUpdate(list, 1794772800 + 601).text).to.equal(
+					"Next: GOLDEN FISH STORE"
+				)
+				local secret = Logic.nextUpdate(list, 1794780000 + 601)
+				expect(secret.text).to.equal("Next: 10 SECRET CATS")
+				expect(secret.when).to.equal("Sunday 10:30 PM ET · tap Notify Me for a reminder")
+				expect(Logic.nextUpdate(list, 1794799800 + 601).text).to.equal(
+					"Next: Better controls on every device"
+				)
+				expect(Logic.nextUpdate(list, 1795032000 + 601)).to.equal(nil)
+				expect(Logic.nextUpdate(nil, 0)).to.equal(nil)
+			end
+		)
+		it("prefers an entry's own name and falls back to a plain one", function()
+			expect(Logic.updateName({ name = "Harvest Hollow", title = "x: y!" })).to.equal(
+				"Harvest Hollow"
+			)
+			expect(Logic.updateName({ title = "no colon here" })).to.equal("A new update")
+			expect(Logic.updateName({})).to.equal("A new update")
+		end)
 	end)
 end

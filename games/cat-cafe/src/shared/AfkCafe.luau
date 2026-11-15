@@ -34,6 +34,15 @@ AfkCafe.TICK_SECONDS = 1
 AfkCafe.REJOIN_FLAG = "autoRejoin"
 AfkCafe.ARRIVED_ATTRIBUTE = "CafeRestArrived" -- on the Player once the server has taken up the rest again after a
 -- rejoin, so the client knows it counts as idle and reports its first input
+-- #4346 (Derek 2026-11-14: "add an afk button on the top right ... put you in cafe and 2x money mode and start the
+-- auto server reconnecting and putting you back in cafe on reconnect and in afk mode before the roblox idle kick"):
+-- AFK mode. The AfkMode remote (true) takes the player home and starts the rest as soon as they stand there (no
+-- AfkCafeSeconds wait, and input such as the camera does not end it); walking off, leaving the zone, a cat in the
+-- arms, a trade or AfkMode(false) ends it. The auto rejoin carries it. Behind BUTTON_FLAG (off by default) with FLAG.
+AfkCafe.BUTTON_FLAG = "afkButton"
+AfkCafe.MODE_ATTRIBUTE = "AfkMode" -- on the Player while AFK mode is on (the HUD's AFK tile shows it), else nil
+AfkCafe.MODE_ON_TEXT = "AFK mode on. Your cats earn 2x while you rest here."
+AfkCafe.MODE_OFF_TEXT = "AFK mode off"
 AfkCafe.REJOIN_ATTRIBUTE = "RestRejoin" -- on the Player from the moment a rest's rejoin joins: this join is the same
 -- visit carried on, so nothing that greets a join shows (the Welcome back card, the top 10 chat line, the rest
 -- line), and the client holds its asks until the player's first input (AfkController.rejoinQuiet)
@@ -106,9 +115,10 @@ function AfkCafe.rejoinDue(idleSeconds: number, lastTry: number?, now: number): 
 	return lastTry == nil or now - lastTry >= AfkCafe.REJOIN_RETRY_SECONDS
 end
 
--- #3602: what the rejoin teleport carries.
-function AfkCafe.teleportData(): { [string]: boolean }
-	return { cafeRest = true }
+-- #3602: what the rejoin teleport carries. #4346: `mode` when the player is in AFK mode, so the new server takes the
+-- mode up again too.
+function AfkCafe.teleportData(mode: boolean?): { [string]: boolean }
+	return { cafeRest = true, afkMode = if mode == true then true else nil }
 end
 
 -- #3602: whether a join is a rest's rejoin: it came from this same place carrying teleportData's mark.
@@ -122,6 +132,26 @@ function AfkCafe.arrivedResting(
 		return false
 	end
 	return (teleportData :: any).cafeRest == true
+end
+
+-- #4346: whether a rest's rejoin (arrivedResting) was in AFK mode.
+function AfkCafe.arrivedInMode(teleportData: unknown): boolean
+	return type(teleportData) == "table" and (teleportData :: any).afkMode == true
+end
+
+-- #4346: whether a player in AFK mode rests at this check: in the zone, not busy and still ARRIVAL_STILL_SECONDS
+-- (the trip home has settled). Input does not matter: the player asked to rest with the AFK button.
+function AfkCafe.modeRests(stillSeconds: number, inZone: boolean, busy: boolean): boolean
+	return inZone and not busy and stillSeconds >= AfkCafe.ARRIVAL_STILL_SECONDS
+end
+
+-- #4346: whether AFK mode ends at this check. It ends when a player who has rested in it walks off or leaves the zone
+-- (`rested` and no longer resting), or when the trip home never settled into a rest within ARRIVAL_SECONDS.
+function AfkCafe.modeEnds(rested: boolean, resting: boolean, sinceStart: number): boolean
+	if rested then
+		return not resting
+	end
+	return not resting and sinceStart > AfkCafe.ARRIVAL_SECONDS
 end
 
 -- #3602: whether an arrival takes the rest up again at this check: inside its window, in the zone, not busy and

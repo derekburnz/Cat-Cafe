@@ -82,7 +82,8 @@ local function pay(
 			prize,
 			Economy.tier(profile),
 			LiveFlagService.on("secretCats"),
-			random:NextNumber()
+			random:NextNumber(),
+			LiveFlagService.on("secretAreas") -- #4221: the seven new Secrets wait for it
 		)
 		if def ~= nil then
 			CafeService.addGiftCat(player, profile, def, CatStats.DEFAULT_CHARM)

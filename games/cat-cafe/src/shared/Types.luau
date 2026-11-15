@@ -148,6 +148,8 @@ export type CatDef = {
 	color: { number }, -- {r, g, b} 0..255 for the placeholder body
 	-- #4221: a Secret cat's home area (its `area` stays "secret"): it only takes the place of a Mythical rolled there
 	secretArea: Area?,
+	-- Derek 2026-11-14: one of the seven Secrets of the one-per-area update; it only rolls while `secretAreas` is on
+	secretNew: boolean?,
 }
 
 export type UpgradeDef = {
@@ -248,6 +250,10 @@ export type ProductDef = {
 		-- #3864: Trait Tokens for the Mystic Pool (the token bundles). A token buys a trait roll, so these make the
 		-- roll a paid random item: the offer shows the roll's odds and is hidden where paid random items are restricted
 		traitTokens: number?,
+		-- #4238: Today's Deal's golden fish, and its crates ("highest_golden" the best open area's golden crate), paid
+		-- through Payout like an Index prize
+		fish: number?,
+		crates: { [string]: number }?,
 	},
 	-- #1625: sold once per account; a second receipt pays only the potions (Products.prizeFor)
 	oncePerAccount: boolean?,
@@ -692,6 +698,8 @@ export type TraitsView = {
 	-- #3864: whether the Trait Token bundles may be offered to this player (the traitBundles switch on, and their
 	-- policy read and not restricting paid random items); nil or false hides the offer
 	bundles: boolean?,
+	-- #4197: the free Trait Party rolls left while an admin Trait Party runs; nil with none
+	party: number?,
 }
 
 export type PassBoostsView = { cafe: number, staff: number, rich: number, money: number }
@@ -958,6 +966,9 @@ export type BaitState = {
 	-- #1897 (first-hour.md section 2): the account's guaranteed Rare-or-better cat, true until it arrives (the bowl
 	-- card's "Your next cat will be Rare or better!" and, on arrival, FirstWow)
 	wow: boolean?,
+	-- #4338: the id of the Bowl Frenzy that already sped this filling bowl (BaitService's frenzyBowls), so one event
+	-- speeds it once even across a server hop; nil until a frenzy meets it
+	frenzy: string?,
 }
 
 -- The second bowl for a player (#1161, Bait.secondBowl): "on" with the pass, "offer" without it (the Store shows it).
@@ -1333,6 +1344,7 @@ export type Settings = {
 	tradeRequests: string, -- F102: who may ask to trade, "everyone", "friends" or "off" (Settings.choices)
 	roadmapOpen: boolean, -- #1893: the Grand Opening strip opened into its list
 	sessionRecap: boolean, -- #1920: the session recap card after Config.RecapAfterSeconds of play
+	perfAsked: boolean, -- #4311: the Low performance ask was answered (shared/PerfSuggest)
 	autoEquip: boolean, -- #1955: Auto Equip, on for new accounts and off for saves from before it
 	catIncome: boolean, -- #2551: the rate tags over working cats (UI WorldTags), on by default
 	goalFolded: boolean, -- #2714: the HUD's goal card folded into its chip (touch), off by default
@@ -1640,6 +1652,14 @@ export type PlayerState = {
 	lawnOwned: { [string]: boolean },
 	lawn: { [string]: string },
 	lawnStyles: LawnStyles,
+	-- #4251 Harvest Hollow (harvest-hollow-spec sections 3 to 5): pumpkins, the Stall items bought, the shared Feast Pie
+	-- and whether this player caught a harvest cat for it; nil until the server side sends it
+	harvest: {
+		pumpkins: number,
+		bought: { [string]: boolean }?,
+		pie: { count: number, goal: number }?,
+		helped: boolean?,
+	}?,
 	serverTime: number,
 }
 

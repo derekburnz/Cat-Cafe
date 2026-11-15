@@ -52,7 +52,7 @@ COLLIDE_PREFIXES = ("CatCafe_Furniture_", "CatCafe_Alley_", "CatCafe_Park_", "Ca
                     "CatCafe_Neighbourhood_", "CatCafe_Woods_", "CatCafe_Sewer_", "CatCafe_Square_", "CatCafe_Camp_",
                     "CatCafe_Town_", "CatCafe_Lawn_", "CatCafe_Cafe_", "CatCafe_Desert_", "CatCafe_Ruins_",
                     # Derek 2026-11-14: "some of the new areas a lot of the models can just be walked through so fix that"
-                    "CatCafe_Snowy_", "CatCafe_WaterPark_", "CatCafe_Castle_")
+                    "CatCafe_Snowy_", "CatCafe_WaterPark_", "CatCafe_Castle_", "CatCafe_Harvest_")
 NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights", "_Fireflies", "_Glow", "_CodesCircle",
                       "_Wheel", "_Pointer", "_RimLight", "_Flowers", "_Pennant", "Balloons", "_Canopy",
                       "_BannerPole_Swing", "_SummitFlag_Swing", "_PennantTower_Swing", "_BalloonBunch_Swing")
@@ -68,7 +68,7 @@ CLIMB_OBJECTS = ("_Climb",)           # invisible TrussParts behind a ladder's r
 # rails and pickets collide too, down to THIN_COLLIDE thick when at least THIN_LONG long.
 OUTDOOR_PREFIXES = ("CatCafe_Alley_", "CatCafe_Park_", "CatCafe_Street_", "CatCafe_Neighbourhood_", "CatCafe_Woods_",
                     "CatCafe_Sewer_", "CatCafe_Square_", "CatCafe_Camp_", "CatCafe_Town_", "CatCafe_Lawn_",
-                    "CatCafe_Snowy_", "CatCafe_WaterPark_", "CatCafe_Castle_")
+                    "CatCafe_Snowy_", "CatCafe_WaterPark_", "CatCafe_Castle_", "CatCafe_Harvest_")
 THIN_COLLIDE, THIN_LONG = 0.12, 0.9
 THIN_SKIP = ("StringLights",)       # overhead cables stay walk-through
 ELLIPSOID_FIT = 0.75                  # an ellipsoid's collision box, as a share of the box round it (the mesh is scaled
@@ -120,6 +120,9 @@ MODEL_PROPS = {"_IndexBoard": {"ModelStreamingMode": "Atomic"},
                "_LeaderboardRow": {"ModelStreamingMode": "Atomic"},
                "_ThanksBoard": {"ModelStreamingMode": "Atomic"},
                "_PitySign": {"ModelStreamingMode": "Atomic"},
+               "_Harvest_Arch": {"ModelStreamingMode": "Atomic"},     # #4251: their Screens with them
+               "_Harvest_Board": {"ModelStreamingMode": "Atomic"},
+               "_UpdatePoster": {"ModelStreamingMode": "Atomic"},   # #4362: its Screen with it
                "_ArcadeCabinet": {"ModelStreamingMode": "Atomic"}}   # #3062: its Screen with it
 # Objects whose Model goes inside another object's Model rather than the root: name suffix -> the suffix of the
 # object it rides, with the same prefix. Turning the Head Model (PivotTo) carries the eyes and ears with it.

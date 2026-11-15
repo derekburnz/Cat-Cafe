@@ -28,6 +28,7 @@ local Panel = require(script.Parent.Parent.Components.Panel)
 local PassLogic = require(script.Parent.Parent.Components.PassLogic)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
+local SidePager = require(script.Parent.Parent.Components.SidePager)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Types = require(script.Parent.Parent.Types)
@@ -335,11 +336,7 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(SIDE_W + ARROW_W + ARROW_GAP, trackY),
 		Size = UDim2.new(1, -(SIDE_W + 2 * (ARROW_W + ARROW_GAP)), 1, -(trackY + FOOT_H)),
-		CanvasSize = UDim2.new(),
-		AutomaticCanvasSize = Enum.AutomaticSize.None, -- #4258: _layout sets the width from the columns
-		ScrollBarThickness = 0, -- #4258: no bar; the arrows and a drag move the track
-		ElasticBehavior = Enum.ElasticBehavior.Never, -- #4258: a drag stays where it is let go
-		ScrollingDirection = Enum.ScrollingDirection.X,
+		CanvasSize = UDim2.new(), -- #4258: _layout sets the width from the columns (Components/SidePager styles the rest)
 		Parent = content,
 	}, {
 		Create("UIListLayout", {
@@ -354,29 +351,15 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 			{ PaddingLeft = UDim.new(0, Outline.ROOM), PaddingRight = UDim.new(0, 6) }
 		),
 	})
-	-- #4258: ◀ and ▶ either side of the track, a page of levels per tap
-	self._arrows = {}
-	for _, side in { -1, 1 } do
-		local arrow = Button.new({
-			name = if side < 0 then "PageLeft" else "PageRight",
-			text = if side < 0 then "◀" else "▶",
-			style = "gold",
-			size = UDim2.fromOffset(ARROW_W, ARROW_H),
-			anchorPoint = Vector2.new(if side < 0 then 0 else 1, 0.5),
-			position = if side < 0
-				then UDim2.fromOffset(SIDE_W, trackY)
-				else UDim2.new(1, 0, 0, trackY),
-			textSize = Theme.sizes.textBody + 6,
-			parent = content,
-			onClick = function()
-				self:page(side)
-			end,
-		})
-		self._arrows[side] = arrow
-	end
-	self._moved = self._track:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
-		self:_paintArrows()
-	end)
+	-- #4258: ◀ and ▶ either side of the track, a page of levels per tap (Components/SidePager, shared with the Index's
+	-- milestones since #4264); _layout centres them on the cards
+	self._pager = SidePager.new({
+		track = self._track,
+		parent = content,
+		step = COL_W + COL_GAP,
+		lead = Outline.ROOM - COL_GAP,
+		size = Vector2.new(ARROW_W, ARROW_H),
+	})
 	self._foot = text({
 		Name = "Later",
 		AnchorPoint = Vector2.new(0, 1),
@@ -431,7 +414,7 @@ function CafePassScreen._layout(self: any)
 	)
 	local middle = LEVEL_H + slotH + math.floor(COL_GAP / 2)
 	local trackY = self._track.Position.Y.Offset
-	for side, arrow in self._arrows do
+	for side, arrow in self._pager.arrows do
 		arrow.instance.Position =
 			UDim2.new(if side < 0 then 0 else 1, if side < 0 then SIDE_W else 0, 0, trackY + middle)
 	end
@@ -443,7 +426,7 @@ function CafePassScreen._layout(self: any)
 		end
 		self:_place(column.paid, LEVEL_H + slotH + COL_GAP)
 	end
-	self:_paintArrows()
+	self._pager:paint()
 end
 
 -- One card at `y`, its picture sized to what is left over its name and Claim.
@@ -753,49 +736,12 @@ function CafePassScreen.onOpen(self: any)
 	end
 	local def: Types.PassSeasonDef? = SharedPass.seasonDef(view.season)
 	local index = PassLogic.focus(PassLogic.columns(view, def), view.level)
-	self:_scrollTo((index - 2) * self:_step())
+	self._pager:scrollTo((index - 2) * self._pager:step())
 end
 
--- #4258 (Review-QA in Studio at ViewScale 0.878): CanvasPosition is in on-screen pixels, as AbsoluteCanvasSize and
--- AbsoluteWindowSize are, so the track's furthest scroll and a level's width are read in those pixels too.
-function CafePassScreen._most(self: any): number
-	local track: ScrollingFrame = self._track
-	return math.max(0, track.AbsoluteCanvasSize.X - track.AbsoluteWindowSize.X)
-end
-
--- one level's column and the gap after it, on screen
-function CafePassScreen._step(_self: any): number
-	local scale = ViewScale.get()
-	return (COL_W + COL_GAP) * (if scale > 0 then scale else 1)
-end
-
-function CafePassScreen._scrollTo(self: any, x: number)
-	self._track.CanvasPosition = Vector2.new(math.clamp(x, 0, self:_most()), 0)
-	self:_paintArrows()
-end
-
--- #4258: one tap of ◀ (-1) or ▶ (1) moves the track a page: as many whole levels as show, at least one, landing on a
--- level's edge
+-- #4258: one tap of ◀ (-1) or ▶ (1) moves the track a page of whole levels (Components/SidePager)
 function CafePassScreen.page(self: any, side: number)
-	local step = self:_step()
-	local scale = step / (COL_W + COL_GAP)
-	local window = self._track.AbsoluteWindowSize.X
-	local perPage = math.max(1, math.floor((window - (Outline.ROOM - COL_GAP) * scale) / step))
-	local first = math.floor(self._track.CanvasPosition.X / step + 0.5)
-	self:_scrollTo((first + side * perPage) * step)
-end
-
--- #4258: an arrow with nowhere to go is dimmed
-function CafePassScreen._paintArrows(self: any)
-	local most = self:_most()
-	local x = self._track.CanvasPosition.X
-	local open = self._track.Visible
-	for side, arrow in self._arrows do
-		arrow.instance.Visible = open
-		local go = if side < 0 then x > 0.5 else x < most - 0.5
-		arrow:setEnabled(go)
-		arrow.instance:SetAttribute("CanGo", go)
-	end
+	self._pager:page(side)
 end
 
 local function paintSlot(slot: Slot, cell: PassLogic.Cell?, pending: boolean)
@@ -823,7 +769,7 @@ function CafePassScreen._refresh(self: any)
 	self._track.Visible = open
 	self._side.Visible = open
 	self._foot.Visible = open
-	self:_paintArrows()
+	self._pager:paint()
 	-- Derek2 11-11: titles are picked in the Bag's Titles tab now, so the pass's Chat tag button stays hidden
 	self._tag.instance.Visible = false
 	if view == nil or not open then
@@ -886,10 +832,7 @@ end
 function CafePassScreen.destroy(self: any)
 	self._sized:Disconnect()
 	self._scaled:Disconnect()
-	self._moved:Disconnect()
-	for _, arrow in self._arrows do
-		arrow:destroy()
-	end
+	self._pager:destroy()
 	self:_clearColumns()
 	self._claimAll:destroy()
 	self._buy:destroy()

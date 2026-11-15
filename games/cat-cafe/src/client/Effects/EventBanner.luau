@@ -232,7 +232,8 @@ function EventBanner.shapeModels(only: { string }?): { string }
 		if #names >= Presets.eventBanner.shapeMost then
 			break
 		end
-		if only == nil or table.find(only, def.id) ~= nil then
+		-- #4221: the seven one-per-area Secrets (secretNew) have their own update, never this card
+		if not def.secretNew and (only == nil or table.find(only, def.id) ~= nil) then
 			table.insert(names, Catalog.catModelName(def.id))
 		end
 	end
@@ -793,12 +794,28 @@ advance = function()
 	run(plan)
 end
 
+-- #4332: banners of `kind` are not shown while `probe()` says something else is saying the same thing (the "admin"
+-- start card while Effects/AdminFlash's name splash takes the screen: Review-QA saw the card cover the splash).
+-- show() then returns false, as for a kind already showing. One probe a kind; a probe that errors skips nothing.
+local skips: { [string]: () -> boolean } = {}
+function EventBanner.skipWhen(kind: Kind, probe: () -> boolean)
+	skips[kind] = probe
+end
+
 -- Shows a banner (see the top of this file), after any that are already showing or waiting. Returns whether it was
--- taken: false for words it cannot draw, a kind already showing or waiting, or a full line.
+-- taken: false for words it cannot draw, a kind already showing or waiting, a full line, or a kind something else
+-- is covering (skipWhen).
 function EventBanner.show(spec: any): boolean
 	local plan = EventBanner.plan(spec)
 	if plan == nil then
 		return false
+	end
+	local skip = skips[plan.kind]
+	if skip ~= nil then
+		local ok, covered = pcall(skip)
+		if ok and covered == true then
+			return false
+		end
 	end
 	local kinds: { string } = {}
 	for _, other in waiting do

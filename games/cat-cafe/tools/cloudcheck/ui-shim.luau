@@ -2091,11 +2091,14 @@ local function runDue(upTo)
 	end
 end
 
--- runs the clock forward `seconds`, a frame at a time: due threads, Heartbeat and layout change signals
-function UIShim.advance(seconds)
+-- runs the clock forward `seconds`, a frame at a time: due threads, Heartbeat and layout change signals. `frame`
+-- (optional, seconds) makes the frames longer: a scene that only waits out a long gap (the tip queue's 150 s) passes it
+-- in 1 s frames instead of 3,000 frames of 1/20 s, each a full layout pass (about 1,000 s of the CI's UI gate, #4241)
+function UIShim.advance(seconds, frame)
 	local target = clock + seconds
+	local step = frame or FRAME
 	while clock < target - 1e-9 do
-		local frameEnd = math.min(target, clock + FRAME)
+		local frameEnd = math.min(target, clock + step)
 		runDue(frameEnd)
 		local dt = frameEnd - clock
 		clock = frameEnd

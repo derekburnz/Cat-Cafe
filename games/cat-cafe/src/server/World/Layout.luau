@@ -2615,6 +2615,17 @@ Layout.townSquare = {
 	-- player spawn (#1753: it was never placed). WorldBuilder tags it PitySign for the countdown on its Screen.
 	-- #3454: to the south-west, on the Day Cart's old spot, facing the spawn; (19, -53.5) before (#3070)
 	pitySign = { asset = "CatCafe_Square_PitySign", x = -22, y = 0.1, z = -56, rotY = -152.4 } :: Prop,
+	-- The update poster (#4362, Derek 2026-11-15: nudge players to Notify Me for the next update, "including
+	-- posters"; Model-Agent's `CatCafe_Square_UpdatePoster`, front -Z, its Screen 8.0 x 4.5, about 9.3 wide): east of
+	-- the street between the spawn and the Feedback stand, turned to face the spawn, so a player who lands sees the
+	-- pity sign on one side and the next update on the other. WorldBuilder tags it UpdatePoster for its face.
+	updatePoster = {
+		asset = "CatCafe_Square_UpdatePoster",
+		x = 20,
+		y = 0.1,
+		z = -40,
+		rotY = 142.43,
+	} :: Prop,
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the
 	-- street, then the edge (Derek 10-28, Model-Agent #726; #3070's 120 x 140 square): twenty-four lamps on the

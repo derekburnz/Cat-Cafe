@@ -1,12 +1,15 @@
 --!strict
 -- #3996 (Design-Agent's todays-deal-3996.md, from Growth-Agent's proposal): Today's Deal, one small fixed R$25 pack
 -- on the Store's Featured tab that changes each UTC day, once per player a day, from Tier 2, behind the dailyDeal
--- switch. Nothing in a deal is random but deal 2's Trait Tokens (rolls, which are paid random items): that deal is
--- offered only where the token bundles may be (traitBundles on, the policy read and not restricting paid random items)
--- and the token bank has room, and deal 1 shows instead. No countdown, no "only today", no reminder (monetization-policy).
---   DailyDeal.dayOf(now)                          the UTC day number
---   DailyDeal.dealFor(day, tokensOk)              the deal number (1 to 4) a player sees that day
---   DailyDeal.view(profile, now, tokensOk, tier)  PlayerState.dailyDeal, or false
+-- switch. #4238 (Derek 2026-11-14: "make sure they don't do any potion packs ... make sure they are actually good
+-- stuff like 10 of the gold crates from your best area, trait tokens and 250 gold fish"): no potions in any deal.
+-- Deal 1's golden fish are not random. Deal 2's Trait Tokens (rolls) and the golden crates of deals 3 and 4 (a decor
+-- piece by odds) are paid random items: the token deal shows only where the token bundles may be (traitBundles on,
+-- the policy read and not restricting paid random items, the bank has room), a crate deal only where the policy read
+-- allows paid random items, and deal 1 shows instead. No countdown, no "only today", no reminder (monetization-policy).
+--   DailyDeal.dayOf(now)                                     the UTC day number
+--   DailyDeal.dealFor(day, tokensOk, cratesOk)               the deal number (1 to 4) a player sees that day
+--   DailyDeal.view(profile, now, tokensOk, tier, cratesOk)   PlayerState.dailyDeal, or false
 -- Pure.
 
 local Types = require(script.Parent.Types)
@@ -22,14 +25,15 @@ DailyDeal.DAY_SECONDS = 86400
 export type Deal = {
 	n: number,
 	product: string, -- its Catalog.products id
-	name: string, -- for the Tomorrow line ("Tomorrow: Steady Paw deal")
+	name: string, -- for the Tomorrow line ("Tomorrow: Golden Crates deal")
+	needs: string?, -- "tokens" or "crates": a paid random deal, shown only where that is allowed
 }
 
 DailyDeal.LIST = table.freeze({
-	table.freeze({ n = 1, product = "deal_1", name = "Big Money" }),
-	table.freeze({ n = 2, product = "deal_2", name = "Trait Token" }),
-	table.freeze({ n = 3, product = "deal_3", name = "Steady Paw" }),
-	table.freeze({ n = 4, product = "deal_4", name = "Potion Mix" }),
+	table.freeze({ n = 1, product = "deal_1", name = "Golden Fish" }),
+	table.freeze({ n = 2, product = "deal_2", name = "Trait Token", needs = "tokens" }),
+	table.freeze({ n = 3, product = "deal_3", name = "Golden Crates", needs = "crates" }),
+	table.freeze({ n = 4, product = "deal_4", name = "Golden Haul", needs = "crates" }),
 } :: { Deal })
 
 local byProduct: { [string]: Deal } = {}
@@ -47,10 +51,11 @@ function DailyDeal.dayOf(now: number): number
 end
 
 -- The deal number for UTC day `day`: day % 4 + 1, with the token deal falling back to deal 1 where `tokensOk` is not
--- true.
-function DailyDeal.dealFor(day: number, tokensOk: boolean?): number
+-- true and a crate deal where `cratesOk` is not true.
+function DailyDeal.dealFor(day: number, tokensOk: boolean?, cratesOk: boolean?): number
 	local n = day % #DailyDeal.LIST + 1
-	if n == DailyDeal.TOKEN_DEAL and tokensOk ~= true then
+	local needs = DailyDeal.LIST[n].needs
+	if (needs == "tokens" and tokensOk ~= true) or (needs == "crates" and cratesOk ~= true) then
 		return DailyDeal.FALLBACK
 	end
 	return n
@@ -72,16 +77,17 @@ function DailyDeal.view(
 	profile: Types.PlayerProfile,
 	now: number,
 	tokensOk: boolean?,
-	tier: number
+	tier: number,
+	cratesOk: boolean?
 ): Types.DailyDealView | false
 	if tier < DailyDeal.MIN_TIER then
 		return false
 	end
 	local day = DailyDeal.dayOf(now)
 	return {
-		deal = DailyDeal.dealFor(day, tokensOk),
+		deal = DailyDeal.dealFor(day, tokensOk, cratesOk),
 		bought = DailyDeal.boughtOn(profile, day),
-		tomorrow = DailyDeal.dealFor(day + 1, tokensOk),
+		tomorrow = DailyDeal.dealFor(day + 1, tokensOk, cratesOk),
 	}
 end
 
@@ -91,7 +97,8 @@ function DailyDeal.promptBlocker(
 	now: number,
 	tokensOk: boolean?,
 	tier: number,
-	productId: string
+	productId: string,
+	cratesOk: boolean?
 ): string?
 	if tier < DailyDeal.MIN_TIER then
 		return "Today's Deal opens at Tier 2"
@@ -100,7 +107,7 @@ function DailyDeal.promptBlocker(
 	if DailyDeal.boughtOn(profile, day) then
 		return "Bought today. A new deal comes tomorrow."
 	end
-	local deal = DailyDeal.LIST[DailyDeal.dealFor(day, tokensOk)]
+	local deal = DailyDeal.LIST[DailyDeal.dealFor(day, tokensOk, cratesOk)]
 	if deal.product ~= productId then
 		return "That deal is not today's"
 	end

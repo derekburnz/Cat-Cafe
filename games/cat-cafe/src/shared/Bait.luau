@@ -91,6 +91,34 @@ end
 
 -- #4195 (Bowl Frenzy): the wait for food going in while an admin event's `bowlSpeed` runs: `wait` divided by it,
 -- whole seconds, never under FirstBaitWaitSeconds (the shortest wait there is) unless `wait` already was.
+-- #4338 (Derek 2026-11-14: "the 4x time boost for foodbowl doesn't actually make the time tick down 4x faster"):
+-- Bowl Frenzy runs a bowl's clock `speed` times faster for `window` more seconds. A bowl already filling with `left`
+-- real seconds to go then needs this many real seconds: the part of its wait inside the window at `speed`, the rest
+-- at 1. Never more than `left`.
+function Bait.frenzyLeft(left: number, speed: number, window: number): number
+	if left <= 0 or speed ~= speed or speed <= 1 or window <= 0 then
+		return math.max(left, 0)
+	end
+	local inside = speed * window -- normal seconds the window covers
+	if left <= inside then
+		return left / speed
+	end
+	return window + (left - inside)
+end
+
+-- #4338: the wait to show for a bowl `left` real seconds from its cat while Bowl Frenzy has `window` seconds to run:
+-- the normal seconds that are left, so the shown timer counts down `speed` times a second during the frenzy and
+-- lands on 0 with the cat. The inverse of frenzyLeft.
+function Bait.frenzyShown(left: number, speed: number, window: number): number
+	if left <= 0 or speed ~= speed or speed <= 1 or window <= 0 then
+		return math.max(left, 0)
+	end
+	if left <= window then
+		return left * speed
+	end
+	return speed * window + (left - window)
+end
+
 function Bait.eventWait(wait: number, speed: number): number
 	if speed ~= speed or speed <= 1 then
 		return wait

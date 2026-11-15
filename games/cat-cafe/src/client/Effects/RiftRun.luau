@@ -728,6 +728,17 @@ local function makeScreen(): Screen?
 	gui.ResetOnSpawn = false
 	gui.IgnoreGuiInset = true
 	gui.DisplayOrder = r.displayOrder
+	-- #4365: the bars and the flash run edge to edge on a gui of their own, past a phone's notch sides; the word and
+	-- the row of tiers stay on `gui`, inside the safe area
+	local edgeGui = Instance.new("ScreenGui")
+	edgeGui.Name = "EffectsRiftRunEdge"
+	edgeGui.ResetOnSpawn = false
+	edgeGui.IgnoreGuiInset = true
+	edgeGui.ScreenInsets = Enum.ScreenInsets.None
+	edgeGui.DisplayOrder = r.displayOrder + 1
+	gui.Destroying:Connect(function()
+		edgeGui:Destroy()
+	end)
 
 	local bars: { Frame } = {}
 	for _, top in { true, false } do
@@ -738,7 +749,7 @@ local function makeScreen(): Screen?
 		bar.AnchorPoint = Vector2.new(0, if top then 0 else 1)
 		bar.Position = UDim2.fromScale(0, if top then 0 else 1)
 		bar.Size = UDim2.fromScale(1, 0)
-		bar.Parent = gui
+		bar.Parent = edgeGui
 		table.insert(bars, bar)
 	end
 
@@ -789,9 +800,10 @@ local function makeScreen(): Screen?
 	flash.BorderSizePixel = 0
 	flash.Size = UDim2.fromScale(1, 1)
 	flash.ZIndex = 10
-	flash.Parent = gui
+	flash.Parent = edgeGui
 
 	gui.Parent = playerGui
+	edgeGui.Parent = playerGui
 	return {
 		gui = gui,
 		flash = flash,
@@ -1195,7 +1207,8 @@ function RiftRun.play(
 			shown.flash.BackgroundTransparency = 1 - white
 			local barK = Logic.smoothstep01(t / r.flareIn)
 			for _, bar in shown.bars do
-				bar.Size = UDim2.fromScale(1, 0.1 * barK)
+				bar.Size =
+					UDim2.fromScale(1, 0.1 * barK * Logic.letterbox(Context.device :: Presets.Tier))
 			end
 			local w = now - wordAt
 			if w < r.wordSeconds then

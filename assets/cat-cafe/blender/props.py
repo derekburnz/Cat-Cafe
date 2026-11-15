@@ -3395,9 +3395,165 @@ def sword_stone(ctx):
               tuple(c + Vector((0.46 * math.cos(a), 0, 0.46 * math.sin(a)))), 0.04, 0.02, "sparkle", up=(0, 1, 0))
 
 
+# ------------------------------------------------------------------------- Harvest Hollow cats (#4251) --
+def _pumpkin(P, c, r, sw="fur_marmalade", stem="leaf_dark"):
+    c = Vector(c)
+    for k in range(6):
+        a = math.radians(60 * k)
+        P.ico(tuple(c + Vector((0.42 * r * math.cos(a), 0.42 * r * math.sin(a), 0))), r * 0.68, sw, scale=(1, 1, 0.85))
+    P.box(tuple(c + Vector((0, 0, r * 0.66))), (r * 0.26, r * 0.26, r * 0.4), stem, rot=_ry(12))
+
+
+def _leaf(P, c, r, sw, rot=None, t=0.035):
+    """A maple-ish leaf standing in the frame's XZ plane: five points off a middle."""
+    R = rot if rot is not None else Matrix.Identity(3)
+    c = Vector(c)
+    P.box(tuple(c), (r * 0.7, t, r * 0.7), sw, rot=R @ _ry(45))
+    for ang, L in ((90, 1.0), (30, 0.85), (150, 0.85), (-25, 0.6), (205, 0.6)):
+        a = math.radians(ang)
+        P.box(tuple(c + R @ Vector((0.55 * r * math.cos(a), 0, 0.55 * r * math.sin(a)))), (r * 0.42, t, r * 0.42), sw,
+              rot=R @ _ry(-ang + 45))
+    P.box(tuple(c + R @ Vector((0, 0, -0.75 * r))), (r * 0.1, t, r * 0.5), "fur_brown", rot=R)
+
+
+def spice_swirl(ctx):
+    """Pumpkin Spice (Harvest Hollow, Rare): a swirl of whipped cream on its head with a dusting of spice, a cinnamon
+    stick and a tiny pumpkin."""
+    P = ctx.pen("head")
+    for z, r in ((0.05, 0.32), (0.15, 0.25), (0.24, 0.18), (0.32, 0.11)):
+        P.cyl((0.02 * math.sin(z * 30), 0, z), r, 0.11, "milk", r2=r * 0.8, segments=10)
+    P.ico((0.02, 0, 0.4), 0.06, "milk")
+    for x, y, z in ((0.14, -0.14, 0.13), (-0.16, -0.05, 0.12), (0.05, -0.2, 0.2), (-0.06, -0.1, 0.3), (0.18, 0.05, 0.2)):
+        P.box((x, y, z), (0.04, 0.04, 0.04), "fur_rust_red", rot=_rz(30))
+    P.bar((-0.12, 0.05, 0.1), (-0.34, 0.12, 0.52), 0.07, 0.07, "fur_brown")
+    _pumpkin(P, (0.27, -0.12, 0.1), 0.13)
+
+
+def berry_sprig(ctx):
+    """Cranberry (Harvest Hollow, Epic): a sprig of cranberries and leaves tucked behind one ear, and a berry garland
+    across its brow."""
+    P, w, d = ctx.pen("head"), ctx.hw, ctx.hd
+    for x, y, z, r in ((0.2, -0.02, 0.12, 0.12), (0.34, 0.02, 0.2, 0.1), (0.24, 0.08, 0.28, 0.09), (0.1, 0.04, 0.24, 0.08)):
+        P.ico((x, y, z), r, "bowl_red")
+        P.box((x - r * 0.4, y - r * 0.6, z + r * 0.4), (r * 0.3, r * 0.3, r * 0.3), "fur_strawberry")
+    for ang, L in ((40, 0.26), (110, 0.22), (-10, 0.2)):
+        a = math.radians(ang)
+        P.box((0.2 + 0.2 * math.cos(a), 0.06, 0.16 + 0.2 * math.sin(a)), (L, 0.04, 0.11), "leaf_dark", rot=_ry(-ang))
+    for k in range(7):
+        x = -w + 2 * w * (k + 0.5) / 7
+        P.ico((x, -(d + 0.03), -0.06 - 0.05 * math.sin(math.pi * (k + 0.5) / 7)), 0.055, ("bowl_red", "fur_strawberry")[k % 2])
+
+
+def maple_crest(ctx):
+    """Maple Leaf (Harvest Hollow, Legendary): a great glowing maple leaf stands on its head with two smaller ones
+    beside it."""
+    P = ctx.pen("head")
+    G = ctx.piece("Glow", "head", (0, 0, 0.2))
+    _leaf(G, (0, 0.04, 0.42), 0.36, "eye_amber")
+    _leaf(P, (-0.3, 0.08, 0.22), 0.22, "bowl_red", rot=_ry(-25))
+    _leaf(P, (0.3, 0.08, 0.22), 0.22, "fur_ginger", rot=_ry(25))
+
+
+def leaf_cape(ctx):
+    """Maple Leaf's second prop: a cape of fallen leaves over its back, with a few lifting off in the wind."""
+    P = ctx.pen("back")
+    G = ctx.piece("Leaves_Glow", "back", (0, 0, 0.2))
+    hw, L = ctx.back_w / 2, ctx.back_len
+    cols = ("bowl_red", "fur_ginger", "eye_amber", "fur_rust_red", "rarity_legend")
+    k = 0
+    for iy in range(4):
+        for ix in range(3):
+            x = (ix - 1) * hw * 0.72 + (0.06 if iy % 2 else -0.04)
+            y = -L * 0.3 + iy * L * 0.2
+            P.box((x, y, 0.035 + 0.012 * (k % 3)), (hw * 0.8, L * 0.24, 0.035), cols[k % 5], rot=_rz(45 + 20 * (k % 3)))
+            k += 1
+    for sx in (-1, 1):
+        for iy in range(3):
+            P.box((sx * (hw + 0.02), -L * 0.2 + iy * L * 0.22, -0.1), (0.035, L * 0.22, 0.22), cols[(iy + (sx > 0)) % 5],
+                  rot=_rx(45))
+    for x, y, z, sw in ((0.25, 0.2, 0.4, "eye_amber"), (-0.2, 0.34, 0.55, "rarity_legend"), (0.05, 0.42, 0.75, "eye_amber")):
+        _leaf(G, (x, y, z), 0.1, sw, rot=_rz(30) @ _ry(20))
+
+
+def straw_hat(ctx):
+    """Hay Bale (Harvest Hollow, Common): a floppy straw hat with a red band and straws sticking out."""
+    P, w = ctx.pen("head"), ctx.hw
+    P.cyl((0, 0, 0.04), w + 0.2, 0.06, "fur_sand", segments=12)
+    P.cyl((0, 0, 0.16), w - 0.1, 0.2, "fur_sand", r2=w - 0.2, segments=12)
+    P.cyl((0, 0, 0.09), w - 0.08, 0.07, "bowl_red", segments=12)
+    for k, (x, y, ang) in enumerate(((0.3, 0.1, 30), (-0.34, -0.05, -35), (0.1, 0.3, 15))):
+        P.box((x, y, 0.16), (0.03, 0.03, 0.3), "fur_custard", rot=_ry(ang))
+
+
+def acorn_top(ctx):
+    """Acorn Cap (Harvest Hollow, Common): one fat acorn sits between its ears with an oak leaf beside it."""
+    P = ctx.pen("head")
+    P.ico((0, 0, 0.16), 0.17, "fur_oat", scale=(1, 1, 1.25))
+    P.cyl((0, 0, 0.3), 0.2, 0.12, "fur_seal", r2=0.12, segments=10)
+    P.box((0.02, 0, 0.4), (0.05, 0.05, 0.1), "fur_seal", rot=_ry(15))
+    _leaf(P, (0.28, 0.04, 0.14), 0.16, "fur_ginger", rot=_ry(35))
+
+
+def pie_top(ctx):
+    """Apple Pie (Harvest Hollow, Rare): a little lattice pie rides on its head with a red apple on top."""
+    P, w = ctx.pen("head"), ctx.hw
+    P.cyl((0, 0, 0.07), 0.3, 0.14, "fur_pewter", r2=0.36, segments=12)
+    P.cyl((0, 0, 0.16), 0.38, 0.06, "fur_croissant", segments=12)
+    P.cyl((0, 0, 0.19), 0.3, 0.04, "fur_marmalade", segments=12)
+    for o in (-0.16, 0, 0.16):
+        P.box((o, 0, 0.215), (0.07, 0.56 - abs(o), 0.03), "fur_croissant_dark")
+        P.box((0, o, 0.23), (0.56 - abs(o), 0.07, 0.03), "fur_croissant")
+    P.ico((0, 0, 0.36), 0.13, "bowl_red")
+    P.box((0.02, 0, 0.5), (0.03, 0.03, 0.08), "fur_seal")
+    P.box((0.1, 0, 0.5), (0.14, 0.07, 0.03), "leaf_green", rot=_ry(-20))
+
+
+def corn_husk(ctx):
+    """Cornstalk (Harvest Hollow, Rare): an ear of corn stands on its head in a wrap of green husk leaves."""
+    P = ctx.pen("head")
+    P.cyl((0, 0, 0.26), 0.13, 0.5, "fur_golden", r2=0.07, segments=8)
+    for k in range(4):
+        P.ring((0, 0, 0.1 + 0.11 * k), 0.135 - 0.012 * k, 0.03, 0.03, "fur_custard", segments=8)
+    for ang, tilt in ((0, 28), (90, 34), (180, 28), (270, 34)):
+        a = math.radians(ang)
+        P.box((0.17 * math.cos(a), 0.17 * math.sin(a), 0.2), (0.05, 0.2, 0.42), "leaf_green", rot=_rz(ang) @ _ry(tilt))
+    for k in range(4):
+        P.box((0.02 * (k - 1.5), 0, 0.55 + 0.02 * (k % 2)), (0.02, 0.02, 0.12), "fur_toffee", rot=_ry(12 * (k - 1.5)))
+
+
+def moon_disc(ctx):
+    """Harvest Moon (Harvest Hollow, Mythical): a great glowing harvest moon rises behind its head, with a wheat
+    sheaf either side and stars drifting off it."""
+    P = ctx.pen("head")
+    G = ctx.piece("Glow", "head", (0, 0, 0.3))
+    G.cyl((0, 0.12, 0.42), 0.46, 0.06, "eye_amber", rot=_rx(90), segments=14)
+    G.cyl((0.1, 0.085, 0.5), 0.12, 0.03, "rarity_legend", rot=_rx(90), segments=8)
+    G.cyl((-0.16, 0.085, 0.34), 0.08, 0.03, "rarity_legend", rot=_rx(90), segments=8)
+    for sx in (-1, 1):
+        P.bar((sx * 0.3, 0.0, 0.0), (sx * 0.5, 0.0, 0.5), 0.035, 0.035, "fur_sand")
+        for k in range(4):
+            P.box((sx * (0.4 + 0.035 * k), 0.0, 0.3 + 0.08 * k), (0.1, 0.05, 0.1), "fur_golden", rot=_ry(45))
+    for x, z in ((0.55, 0.75), (-0.5, 0.85), (0.2, 1.0)):
+        G.star((x, 0.1, z), 0.08, 0.035, 0.03, "sparkle", rot=_rx(90))
+
+
+def wheat_cloak(ctx):
+    """Harvest Moon's second prop: sheaves of glowing wheat lie along its back."""
+    P = ctx.pen("back")
+    G = ctx.piece("Wheat_Glow", "back", (0, 0, 0.2))
+    hw, L = ctx.back_w / 2, ctx.back_len
+    for ix in (-1, 0, 1):
+        P.bar((ix * hw * 0.55, -L * 0.3, 0.05), (ix * hw * 0.7, L * 0.3, 0.2), 0.04, 0.04, "fur_sand")
+        for k in range(4):
+            G.box((ix * hw * (0.6 + 0.03 * k), L * (0.0 + 0.09 * k), 0.14 + 0.03 * k), (0.11, 0.07, 0.11), "rarity_legend",
+                  rot=_rx(45))
 
 
 PROPS = {
+    # #4251 Harvest Hollow
+    "PumpkinSpice": ("Head", spice_swirl), "Cranberry": ("Head", berry_sprig), "MapleLeaf": ("Head", maple_crest),
+    "HayBale": ("Head", straw_hat), "AcornCap": ("Head", acorn_top), "ApplePie": ("Head", pie_top),
+    "Cornstalk": ("Head", corn_husk), "HarvestMoon": ("Head", moon_disc),
     "Nebula": ("Head", orbit_ring), "Glitch": ("Head", glitch_pixels),   # #3470, Derek 2026-11-12: more unique
     "CafeGhost": ("Head", chef_hat),   # #3470
     "LuckyClover": ("Head", clover_crown), "Moonstag": ("Head", moon_antlers), "Ooze": ("Head", slime_crown),
@@ -3458,6 +3614,7 @@ PROPS = {
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
 PROPS2 = {
+    "MapleLeaf": ("Back", leaf_cape), "HarvestMoon": ("Back", wheat_cloak),   # #4251
     "Nebula": ("Back", star_trail), "Glitch": ("Back", error_sprite),   # #3470
     "LuckyClover": ("Back", rainbow_pot), "Moonstag": ("Back", spirit_grove), "Ooze": ("Back", toxic_barrel),
     "Djinn": ("Back", magic_lamp), "Phoenix": ("Back", fire_wings), "Abyss": ("Back", fin_sail),
@@ -3498,6 +3655,9 @@ PROPS2 = {
 # Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
 # rides, and their Roblox Model nests inside that prop's Model.
 PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"},
+          # #4251 Harvest Hollow: the lit leaf and moon
+          "MapleLeaf": {"Glow": "Prop", "Leaves_Glow": "Prop2"},
+          "HarvestMoon": {"Glow": "Prop", "Wheat_Glow": "Prop2"},
           # #2584: the glowing parts, Neon in Roblox (rbx_export: _Flame, _Runes, _RuneRing)
           "Torch": {"Flame": "Prop", "Tail_Flame": "Tail"}, "Golem": {"Runes": "Prop"}, "JadeGuardian": {"RuneRing": "Prop"},
           # #2739 theme extras, batch 1: lit parts (..._Glow, Neon) and tail pieces

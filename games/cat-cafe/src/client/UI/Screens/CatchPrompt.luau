@@ -21,8 +21,18 @@
 -- sign of touch (Components/TouchPrompt), not only a device with no keyboard or mouse, and it swaps live with the key
 -- cap when the player's input changes.
 -- bindProximityPrompts() in init.luau wires all of this to any ProximityPrompt with Style = Custom.
+-- #4307 (Derek 2026-11-14: "if a phone player or tablet player is beside the cat prompt them to click the catch button
+-- with the arrow pointing to it until they do"; touch players left at their first stray without starting a catch ~20x
+-- as often as computer players): until the player's first press this session, a "Tap to catch!" bubble and a bobbing
+-- gold arrow (drawn like Components/TutorialArrow's) point at the CATCH button from its left (the Tackle button may sit above
+-- it), a gold ring keeps rippling out of the button (the button itself keeps its size, so it never grows onto the jump
+-- button). The button is a quarter bigger than the Net button, on the
+-- same right edge and middle, still clear of the jump button. A quick tap is enough: it finishes the 0.5 s hold
+-- (kids tap, they don't hold). On a gamepad (Derek: "for console players make it show what button to swing on screen
+-- if its not obvious") the same bubble reads "Hold X to catch!" over the card, the arrow pointing at the key cap.
 
 local GuiService = game:GetService("GuiService")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
@@ -30,6 +40,7 @@ local Cooldown = require(script.Parent.Parent.Components.Cooldown)
 local Create = require(script.Parent.Parent.Components.Create)
 local JumpButton = require(script.Parent.Parent.Components.JumpButton)
 local NetButtonPlace = require(script.Parent.Parent.Components.NetButtonPlace)
+local Outline = require(script.Parent.Parent.Components.Outline)
 local PromptKey = require(script.Parent.Parent.Components.PromptKey)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Parent.Components.Signal)
@@ -46,6 +57,13 @@ local CARD_W = 360
 local CARD_H = 70
 local CARD_HINT_H = 86 -- with the hint line
 local MINI_W = 96
+-- #4307: the touch button, a quarter over the Net button's size (56 -> 70 beside the small jump button, 80 -> 100)
+local GRAB_GROW = 1.25
+local NUDGE_ARROW = 56 -- design px, the arrow's box
+local NUDGE_GAP = 4
+local BOB = 6 -- px the arrow bobs toward its tip
+local BOB_INFO = TweenInfo.new(0.45, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+local RIPPLE_INFO = TweenInfo.new(1.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, -1)
 
 export type CatchPrompt = {
 	screenGui: ScreenGui,
@@ -61,6 +79,8 @@ export type CatchPrompt = {
 	setClear: (self: CatchPrompt, top: number?) -> (),
 	grabShowing: (self: CatchPrompt) -> boolean, -- #2409
 	blockedText: (self: CatchPrompt) -> string?,
+	nudgeShowing: (self: CatchPrompt) -> boolean, -- #4307
+	resetNudge: (self: CatchPrompt) -> (),
 	holdStart: (self: CatchPrompt) -> (),
 	holdStop: (self: CatchPrompt) -> (),
 	destroy: (self: CatchPrompt) -> (),
@@ -91,6 +111,7 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 	self._retryAt = nil :: number?
 	self._ownerTurnUntil = nil :: number?
 	self._holdDuration = 0
+	self._nudged = false -- #4307: the player pressed the prompt once this session; the nudge stays away
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeCatch",
@@ -306,6 +327,18 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 	-- Mobile CATCH button (bottom right, right of the Shove button); reads RESCUE on a stuck cat
 	-- #2409 (Derek2: "rescue button is overlapping net button on mobile"): it takes the Net button's own spot, up and
 	-- left of the jump button (_placeGrab), and the Net button steps away while it shows (UI's blocked())
+	-- #4307: a gold ring that ripples out of the CATCH button while the nudge shows (under the button)
+	local ripple: Frame = Create("Frame", {
+		Name = "Ripple",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Visible = false,
+		Parent = root,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIStroke", { Name = "Ring", Color = Theme.colors.gold, Thickness = 4 }),
+	})
+	self._ripple = ripple
 	local grab: TextButton = Create("TextButton", {
 		Name = "Grab",
 		Text = "",
@@ -356,6 +389,16 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
 	})
 	local holding = false
+	local latched = false -- #4307: let go before the hold was full; it lets go itself once full
+	local pressedAt = 0
+	local function release()
+		holding = false
+		latched = false
+		grab.BackgroundColor3 = if self:blockedText()
+			then Theme.colors.disabled
+			else Theme.colors.good
+		self.holdEnded:Fire()
+	end
 	table.insert(
 		self._connections,
 		grab.InputBegan:Connect(function(input: InputObject)
@@ -365,7 +408,9 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 			then
 				if not holding then
 					holding = true
+					pressedAt = Workspace:GetServerTimeNow()
 					grab.BackgroundColor3 = Theme.colors.goodDark
+					self:_nudgeDone()
 					self.holdBegan:Fire()
 				end
 			end
@@ -378,16 +423,24 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 				input.UserInputType == Enum.UserInputType.Touch
 				or input.UserInputType == Enum.UserInputType.MouseButton1
 			then
-				if holding then
-					holding = false
-					grab.BackgroundColor3 = if self:blockedText()
-						then Theme.colors.disabled
-						else Theme.colors.good
-					self.holdEnded:Fire()
+				if holding and not latched then
+					-- #4307: a quick tap finishes the hold; only a cat that can't be tried yet lets go at once
+					local left = self._holdDuration - (Workspace:GetServerTimeNow() - pressedAt)
+					if left > 0.02 and not self:blockedText() then
+						latched = true
+						task.delay(left + 0.05, function()
+							if latched then
+								release()
+							end
+						end)
+					else
+						release()
+					end
 				end
 			end
 		end)
 	)
+	self:_makeNudge(root)
 	-- #2315: a player who puts the keyboard down and touches the screen gets the button at once, and back
 	table.insert(
 		self._connections,
@@ -443,6 +496,7 @@ function CatchPrompt._paintIdle(self: any, actionText: string?)
 		elseif blocked then Theme.hud.subtext
 		else Theme.hud.text
 	self._grab.BackgroundColor3 = if blocked then Theme.colors.disabled else Theme.colors.good
+	self:_paintNudge()
 end
 
 -- #2315: the big press-and-hold button on any sign of touch (Components/TouchPrompt), else the key cap and HOLD
@@ -463,6 +517,7 @@ function CatchPrompt._paintInput(self: any)
 	if touch then
 		self:_placeGrab()
 	end
+	self:_paintNudge()
 end
 
 -- #2409: the touch button on the Net button's spot (Components/NetButtonPlace, in screen pixels), the same size, so
@@ -474,13 +529,323 @@ function CatchPrompt._placeGrab(self: any)
 	if camera == nil or scale <= 0 or root.AbsoluteSize.Y <= 0 then
 		return
 	end
-	local at, size = NetButtonPlace.place(camera.ViewportSize, JumpButton.read(camera.ViewportSize))
+	local viewport = camera.ViewportSize
+	local netAt, netSize = NetButtonPlace.place(viewport, JumpButton.read(viewport))
+	-- #4307: a quarter bigger, grown left and evenly up and down from the Net button's spot (its right edge keeps the
+	-- gap to the jump button), kept on screen
+	local size = math.floor(netSize * GRAB_GROW + 0.5)
+	local at = Vector2.new(
+		math.clamp(netAt.X + netSize - size, 0, math.max(0, viewport.X - size)),
+		math.clamp(netAt.Y - math.floor((size - netSize) / 2), 0, math.max(0, viewport.Y - size))
+	)
 	local inset = GuiService:GetGuiInset()
 	local origin = root.AbsolutePosition + inset
 	local grab: TextButton = self._grab
 	grab.AnchorPoint = Vector2.zero
 	grab.Position = UDim2.fromOffset((at.X - origin.X) / scale, (at.Y - origin.Y) / scale)
 	grab.Size = UDim2.fromOffset(size / scale, size / scale)
+	self:_placeNudge()
+end
+
+-- #4307: the bubble and the arrow (see the header), built once and hidden
+function CatchPrompt._makeNudge(self: any, root: Frame)
+	local nudge: Frame = Create("Frame", {
+		Name = "CatchNudge",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1), -- its parent's box (the root, or the card on a gamepad); _placeNudge sets the rest
+		Visible = false,
+		ZIndex = 50,
+		Parent = root,
+	})
+	local bubble: TextLabel = Create("TextLabel", {
+		Name = "Bubble",
+		BackgroundColor3 = Theme.colors.paper,
+		BorderSizePixel = 0,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 40),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 2,
+		TextColor3 = Theme.colors.ink,
+		Text = "Tap to catch!",
+		ZIndex = 50,
+		Parent = nudge,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, 12) }),
+		Create("UIStroke", {
+			Color = Theme.colors.outline,
+			Thickness = 3,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		}),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14) }),
+	})
+	-- the tutorial's own big gold arrow (drawn pointing down, bobbing toward its tip) in a box of its own
+	local slot: Frame = Create("Frame", {
+		Name = "ArrowSlot",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(NUDGE_ARROW, NUDGE_ARROW),
+		Parent = nudge,
+	})
+	-- drawn for its direction (no Rotation, so every renderer shows it the same): a gold shaft and head with the dark
+	-- outline, like the tutorial's arrow, bobbing toward its tip
+	local arrow: Frame = Create("Frame", {
+		Name = "Arrow",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 51,
+		Parent = slot,
+	})
+	local shaft: Frame = Create("Frame", {
+		Name = "Shaft",
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		ZIndex = 51,
+		Parent = arrow,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, 5) }) })
+	Outline.border(shaft, 3)
+	local head: TextLabel = Create("TextLabel", {
+		Name = "Head",
+		BackgroundTransparency = 1,
+		FontFace = Theme.fonts.body,
+		TextSize = NUDGE_ARROW - 8,
+		TextColor3 = Theme.colors.gold,
+		Text = "▶",
+		ZIndex = 52,
+		Parent = arrow,
+	})
+	Outline.text(head, 3)
+	self._nudgeShaft = shaft
+	self._nudgeHead = head
+	self._nudgeBob = nil :: Tween?
+	self._nudgeDir = nil :: string?
+	-- a new word, or the card moved or popped in: place the bubble again
+	local function again()
+		if nudge.Visible and self._nudgeMode == "touch" then
+			self:_placeNudge()
+		end
+	end
+	local card: Frame = self._card
+	local connections: { RBXScriptConnection } = self._connections
+	table.insert(connections, bubble:GetPropertyChangedSignal("AbsoluteSize"):Connect(again))
+	table.insert(connections, card:GetPropertyChangedSignal("AbsolutePosition"):Connect(again))
+	table.insert(connections, card:GetPropertyChangedSignal("AbsoluteSize"):Connect(again))
+	self._nudge = nudge
+	self._nudgeBubble = bubble
+	self._nudgeSlot = slot
+	self._nudgeArrow = arrow
+	self._nudgeMode = nil :: string?
+	self._pulses = {} :: { Tween }
+end
+
+-- #4307: the words for the card's kind and the input in hand
+function CatchPrompt.nudgeText(kind: Types.PromptKind, padKey: string?): string
+	local verb = if kind == "rescue"
+		then "rescue"
+		elseif kind == "pickup" then "pick up"
+		else "catch"
+	if padKey ~= nil then
+		return "Hold " .. padKey .. " to " .. verb .. "!"
+	end
+	return "Tap to " .. verb .. "!"
+end
+
+-- #4307: point the arrow "right" (at the touch button) or "down" (at the key cap), and bob it toward its tip
+function CatchPrompt._pointNudge(self: any, dir: string)
+	if self._nudgeDir == dir then
+		return
+	end
+	self._nudgeDir = dir
+	local arrow: Frame = self._nudgeArrow
+	local shaft: Frame = self._nudgeShaft
+	local head: TextLabel = self._nudgeHead
+	local bob: Tween? = self._nudgeBob
+	if bob then
+		bob:Cancel()
+	end
+	arrow.Position = UDim2.fromOffset(0, 0)
+	if dir == "right" then
+		shaft.AnchorPoint = Vector2.new(0, 0.5)
+		shaft.Position = UDim2.fromScale(0.04, 0.5)
+		shaft.Size = UDim2.fromScale(0.5, 0.34)
+		head.Text = "▶"
+		head.AnchorPoint = Vector2.new(1, 0.5)
+		head.Position = UDim2.fromScale(1, 0.5)
+		head.Size = UDim2.fromScale(0.62, 1)
+	else
+		shaft.AnchorPoint = Vector2.new(0.5, 0)
+		shaft.Position = UDim2.fromScale(0.5, 0.04)
+		shaft.Size = UDim2.fromScale(0.34, 0.5)
+		head.Text = "▼"
+		head.AnchorPoint = Vector2.new(0.5, 1)
+		head.Position = UDim2.fromScale(0.5, 1)
+		head.Size = UDim2.fromScale(1, 0.62)
+	end
+	if GuiService.ReducedMotionEnabled then
+		self._nudgeBob = nil
+		return
+	end
+	local tween = TweenService:Create(
+		arrow,
+		BOB_INFO,
+		{ Position = if dir == "right" then UDim2.fromOffset(BOB, 0) else UDim2.fromOffset(0, BOB) }
+	)
+	tween:Play()
+	self._nudgeBob = tween
+end
+
+-- #4307: on touch the arrow sits left of the button, level with it, pointing right; the bubble goes left of the arrow,
+-- or under it (then above it) where the left would lie on the catch card (a big screen's card reaches that far). On a
+-- gamepad the arrow points down at the card's key cap, the bubble right of it.
+function CatchPrompt._placeNudge(self: any)
+	local nudge: Frame? = self._nudge
+	if nudge == nil or not nudge.Visible then
+		return
+	end
+	local bubble: TextLabel = self._nudgeBubble
+	local slot: Frame = self._nudgeSlot
+	local half = NUDGE_ARROW / 2
+	if self._nudgeMode ~= "touch" then
+		nudge.Parent = self._card
+		slot.AnchorPoint = Vector2.new(0.5, 1)
+		slot.Position = UDim2.fromOffset(34, -NUDGE_GAP)
+		self:_pointNudge("down")
+		bubble.AnchorPoint = Vector2.new(0, 0.5)
+		bubble.Position = UDim2.fromOffset(34 + half + NUDGE_GAP, -NUDGE_GAP - half)
+		return
+	end
+	nudge.Parent = self._root
+	local grab: TextButton = self._grab
+	local x = grab.Position.X.Offset
+	local y = grab.Position.Y.Offset + grab.Size.Y.Offset / 2
+	slot.AnchorPoint = Vector2.new(1, 0.5)
+	local right = x - NUDGE_GAP - BOB -- the bob's reach stays off the button
+	slot.Position = UDim2.fromOffset(right, y)
+	self:_pointNudge("right")
+	self._ripple.Position = UDim2.fromOffset(x + grab.Size.X.Offset / 2, y)
+	-- the card's box and the bubble's size in the root's design px
+	local root: Frame = self._root
+	local scale = self._uiScale.Scale
+	if scale <= 0 then
+		scale = 1
+	end
+	local card: Frame = self._card
+	local cardAt = (card.AbsolutePosition - root.AbsolutePosition) / scale
+	local cardSize = card.AbsoluteSize / scale
+	local size = bubble.AbsoluteSize / scale
+	local w = if size.X > 0 then size.X else 170
+	local h = if size.Y > 0 then size.Y else 40
+	local rootH = root.AbsoluteSize.Y / scale
+	local function clear(left: number, top: number): boolean
+		if left < 0 or top < 0 or top + h > rootH then
+			return false
+		end
+		return left >= cardAt.X + cardSize.X
+			or left + w <= cardAt.X
+			or top >= cardAt.Y + cardSize.Y
+			or top + h <= cardAt.Y
+	end
+	local spots = {
+		{ right - NUDGE_ARROW - NUDGE_GAP - w, y - h / 2 }, -- left of the arrow
+		{ right - w, y + half + NUDGE_GAP }, -- under it
+		{ right - w, y - half - NUDGE_GAP - h }, -- over it
+	}
+	local pick = spots[1]
+	for _, spot in spots do
+		if clear(spot[1], spot[2]) then
+			pick = spot
+			break
+		end
+	end
+	bubble.AnchorPoint = Vector2.zero
+	bubble.Position = UDim2.fromOffset(pick[1], pick[2])
+end
+
+function CatchPrompt._stopPulse(self: any)
+	for _, tween in self._pulses do
+		tween:Cancel()
+	end
+	table.clear(self._pulses)
+	self._ripple.Visible = false
+end
+
+-- #4307: a gold ring ripples out of the button (still with Reduce Motion on: a still ring)
+function CatchPrompt._startPulse(self: any)
+	self:_stopPulse()
+	local grab: TextButton = self._grab
+	local ripple: Frame = self._ripple
+	local size = grab.Size.X.Offset
+	local ring = ripple:FindFirstChild("Ring") :: UIStroke
+	ripple.Visible = true
+	if GuiService.ReducedMotionEnabled then
+		ripple.Size = UDim2.fromOffset(size + 12, size + 12)
+		ring.Transparency = 0.2
+		return
+	end
+	ripple.Size = UDim2.fromOffset(size, size)
+	ring.Transparency = 0
+	for _, tween in
+		{
+			TweenService:Create(
+				ripple,
+				RIPPLE_INFO,
+				{ Size = UDim2.fromOffset(size * 1.5, size * 1.5) }
+			),
+			TweenService:Create(ring, RIPPLE_INFO, { Transparency = 1 }),
+		}
+	do
+		tween:Play()
+		table.insert(self._pulses, tween)
+	end
+end
+
+-- #4307: show the nudge while the card can be pressed and the player hasn't yet this session
+function CatchPrompt._paintNudge(self: any)
+	local nudge: Frame? = self._nudge
+	if nudge == nil then
+		return
+	end
+	local mode: string? = nil
+	if not self._nudged and self.screenGui.Enabled and self:blockedText() == nil then
+		if self._grab.Visible then
+			mode = "touch"
+		elseif string.sub(UserInputService:GetLastInputType().Name, 1, 7) == "Gamepad" then
+			mode = "pad"
+		end
+	end
+	local was = self._nudgeMode
+	self._nudgeMode = mode
+	nudge.Visible = mode ~= nil
+	if mode == nil then
+		self:_stopPulse()
+		return
+	end
+	self._nudgeBubble.Text = CatchPrompt.nudgeText(
+		self._kind,
+		if mode == "pad" then PromptKey.label("Gamepad", self._padKeyName or "ButtonX") else nil
+	)
+	self:_placeNudge()
+	if mode == "touch" and (was ~= "touch" or #self._pulses == 0) then
+		self:_startPulse()
+	elseif mode ~= "touch" then
+		self:_stopPulse()
+	end
+end
+
+-- #4307: the first press this session; the nudge goes for good
+function CatchPrompt._nudgeDone(self: any)
+	if not self._nudged then
+		self._nudged = true
+		self:_paintNudge()
+	end
+end
+
+function CatchPrompt.nudgeShowing(self: any): boolean
+	return self._nudge ~= nil and self._nudge.Visible
+end
+
+-- for the gate's scenes: as if the player never pressed
+function CatchPrompt.resetNudge(self: any)
+	self._nudged = false
+	self:_paintNudge()
 end
 
 -- #2409: the big touch button shows (the Net button stays away meanwhile)
@@ -533,6 +898,7 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 		self.screenGui.Enabled = true
 		Tween.popIn(self._card, 0.9)
 	end
+	self:_paintNudge() -- #4307: now the card is on
 	if blocked then
 		self:_countDown(self._failToken)
 		-- turn back to Catch the moment it may be tried, unless anything else changed the card first
@@ -587,6 +953,7 @@ end
 
 -- The hold began: fill the key cap and the CATCH button over the prompt's HoldDuration.
 function CatchPrompt.holdStart(self: any)
+	self:_nudgeDone() -- #4307: E, X or the button: the player found it
 	local duration: number = self._holdDuration
 	if duration <= 0 or self:blockedText() then
 		return
@@ -606,6 +973,7 @@ end
 
 -- The press went to the server; dim the card until the circles or the minigame come.
 function CatchPrompt.waiting(self: any)
+	self:_nudgeDone()
 	self:holdStop()
 	self._failToken += 1
 	self._action.Text = if self._kind == "pickup" then "Picking up..." else "Get ready..."
@@ -617,6 +985,7 @@ function CatchPrompt.hide(self: any)
 	self._keyFill.Size = UDim2.fromScale(1, 0)
 	self._grabFill.Size = UDim2.fromScale(0, 0)
 	self.screenGui.Enabled = false
+	self:_paintNudge()
 end
 
 function CatchPrompt.setClear(self: any, top: number?)

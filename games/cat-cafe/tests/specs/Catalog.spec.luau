@@ -419,9 +419,9 @@ return function()
 		}
 
 		it(
-			"has exactly 118 cats: the 20 slice, 30 later, the 50 of Tier 6 to 10 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin and the 3 Secret cats",
+			"has exactly 125 cats: the 20 slice, 30 later, the 50 of Tier 6 to 10 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin and the 10 Secret cats",
 			function()
-				expect(#Catalog.cats).to.equal(118)
+				expect(#Catalog.cats).to.equal(125)
 				for _, def in ipairs(Catalog.cats) do
 					expect(
 						slice[def.id] ~= nil
@@ -433,7 +433,7 @@ return function()
 							or def.id == "king_croissant"
 							or def.id == "sprinkles" -- #1625: the Starter Bundle's cat
 							or def.id == "maple_muffin" -- #1626: the Cafe Pass season cat
-							or def.rarity == "Secret" -- #3470: Nebula, Glitch and Cafe Ghost
+							or def.rarity == "Secret" -- #3470 and #4221: the ten Secret cats
 					).to.equal(true)
 				end
 				for id in pairs(slice) do

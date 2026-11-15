@@ -102,12 +102,13 @@ local CREW_H = 2 * CREW_PAD + CREW_FACE_TOP + SQUARE + 2 + CREW_NOTE_H
 local FACE_TAP = Scale.tapHeight(36) -- a face's tap pad: 36 px with a mouse, a finger's 44 on touch
 local TOOL_H = Scale.tapHeight(Theme.sizes.touchMin) -- #3056: 44 px on a tablet too (its PC layout at 0.8 scale)
 local SEARCH_MIN = 110 -- #4028: the search box takes what the bar leaves, never less
-local SEG_W = 300 -- the All / Working / Resting switch
+local SEG_W = 288 -- the All / Working / Resting switch
 local SEG_PAD = 4
+local CHIP_GAP = 4 -- #4256: a gap between the three, so they don't run together
 local SORT_W = 112 -- #3647: Sort, now a pop-up
 local SORT_MENU_W = 160
-local EQUIP_W = 196 -- Equip Best with its AUTO switch inside
-local AUTO_W = 56
+local EQUIP_W = 144 -- Equip Best
+local AUTO_W = 68 -- #4256: the AUTO switch, its own button right of Equip Best (it sat inside it)
 local CONFIRM_SECONDS = 3 -- Unequip All asks a second tap within this
 local COUNT_W = 40 -- a role's green "2/4"
 local DETAIL_W = 236
@@ -269,7 +270,8 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	)
 
 	-- #4028: one bar under the strip: search (with the count), All / Working / Resting as one switch, Sort (a pop-up
-	-- with the orders and Unequip All behind a confirm) and Equip Best with its AUTO switch inside
+	-- with the orders and Unequip All behind a confirm), Equip Best and its AUTO switch (#4256: beside it, no longer
+	-- inside it; without the switch Equip Best takes its room)
 	local toolTop = CREW_H + GAP
 	local toolbar: Frame = Create("Frame", {
 		Name = "Toolbar",
@@ -279,7 +281,10 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 		Parent = parent,
 	})
 	self._toolbar = toolbar
-	local fixedW = SEG_W + SORT_W + EQUIP_W + 3 * GAP
+	local hasAuto = callbacks.setAutoEquip ~= nil
+		and SettingsList.isKey(SettingsList.AUTO_EQUIP_KEY)
+	local equipRight = if hasAuto then AUTO_W + GAP else 0 -- Equip Best's right edge, from the bar's
+	local fixedW = SEG_W + SORT_W + EQUIP_W + equipRight + 3 * GAP
 	local search: TextBox = Create("TextBox", {
 		Name = "Search",
 		BackgroundColor3 = PAL.card,
@@ -316,7 +321,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 		BackgroundColor3 = PAL.panel,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -(SORT_W + EQUIP_W + 2 * GAP), 0, 0),
+		Position = UDim2.new(1, -(SORT_W + EQUIP_W + equipRight + 2 * GAP), 0, 0),
 		Size = UDim2.fromOffset(SEG_W, TOOL_H),
 		Parent = toolbar,
 	}, {
@@ -324,14 +329,14 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	})
 	Outline.border(seg, Theme.sizes.stroke, PAL.cardStroke)
 	self._chips = {} :: { [string]: any }
-	local chipW = math.floor((SEG_W - 2 * SEG_PAD) / #FILTERS)
+	local chipW = math.floor((SEG_W - 2 * SEG_PAD - (#FILTERS - 1) * CHIP_GAP) / #FILTERS)
 	for index, filter in FILTERS do
 		self._chips[filter] = Button.new({
 			name = filter,
 			text = filter,
 			style = if filter == "All" then "gold" else "ghost",
 			size = UDim2.fromOffset(chipW, TOOL_H - 2 * SEG_PAD),
-			position = UDim2.fromOffset(SEG_PAD + (index - 1) * chipW, SEG_PAD),
+			position = UDim2.fromOffset(SEG_PAD + (index - 1) * (chipW + CHIP_GAP), SEG_PAD),
 			textSize = Theme.sizes.textSmall,
 			parent = seg,
 			sound = "uiTab",
@@ -350,7 +355,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 		style = "ghost",
 		size = UDim2.fromOffset(SORT_W, TOOL_H),
 		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, -(EQUIP_W + GAP), 0, 0),
+		position = UDim2.new(1, -(EQUIP_W + equipRight + GAP), 0, 0),
 		textSize = Theme.sizes.textSmall,
 		parent = toolbar,
 		sound = "uiTab",
@@ -363,7 +368,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 		BackgroundColor3 = PAL.panel,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -(EQUIP_W + GAP), 0, toolTop + TOOL_H + 4),
+		Position = UDim2.new(1, -(EQUIP_W + equipRight + GAP), 0, toolTop + TOOL_H + 4),
 		Size = UDim2.fromOffset(SORT_MENU_W, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Visible = false,
@@ -384,6 +389,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	})
 	Outline.border(menu, Theme.sizes.stroke, PAL.cardStroke)
 	self._sortMenu = menu
+	self._sortRight = EQUIP_W + equipRight + GAP -- the pop-up's right edge, from the window's
 	self._sortChoices = {} :: { [string]: any }
 	for index, sort in CatRoomList.SORTS do
 		local choice = Button.new({
@@ -436,8 +442,8 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	self._unequipAsk = false
 
 	-- Equip Best: the server fills the open slots with the highest-rated cats; its AUTO switch (#1955, auto-equip.md)
-	-- sits inside it on the right: on, the server runs Equip Best by itself when a better cat comes, never moving a
-	-- locked cat or one placed by hand in the last 10 minutes
+	-- sits right of it: on, the server runs Equip Best by itself when a better cat comes, never moving a locked cat or
+	-- one placed by hand in the last 10 minutes
 	self._equipBest = Button.new({
 		name = "EquipBest",
 		text = "Equip Best",
@@ -446,7 +452,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 		style = "gold",
 		size = UDim2.fromOffset(EQUIP_W, TOOL_H),
 		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, 0, 0, 0),
+		position = UDim2.new(1, -equipRight, 0, 0),
 		textSize = Theme.sizes.textSmall,
 		parent = toolbar,
 		onClick = function()
@@ -456,34 +462,16 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	self._autoOn = false
 	self._autoTaps = {} -- #2076: the pressed value, held as Settings holds a tap (SettingsList.shown)
 	local setAuto = callbacks.setAutoEquip
-	if setAuto ~= nil and SettingsList.isKey(SettingsList.AUTO_EQUIP_KEY) then
-		-- the words make room for the switch on the button's right
-		local label = self._equipBest.label
-		label.Size = UDim2.new(
-			label.Size.X.Scale,
-			label.Size.X.Offset - AUTO_W,
-			label.Size.Y.Scale,
-			label.Size.Y.Offset
-		)
-		local row = self._equipBest.face:FindFirstChild("Row")
-		if row and row:IsA("GuiObject") then
-			row.Size = UDim2.new(
-				row.Size.X.Scale,
-				row.Size.X.Offset - AUTO_W,
-				row.Size.Y.Scale,
-				row.Size.Y.Offset
-			)
-		end
+	if setAuto ~= nil and hasAuto then
 		self._auto = Button.new({
 			name = "AutoEquip",
 			text = "AUTO",
 			style = "slate",
-			size = UDim2.fromOffset(AUTO_W, TOOL_H - 8), -- 36 px with a mouse; on touch its Hit pad reaches 44
-			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -8, 0.5, 0),
-			textSize = Theme.sizes.textTiny,
-			parent = self._equipBest.instance,
-			zIndex = 5,
+			size = UDim2.fromOffset(AUTO_W, TOOL_H),
+			anchorPoint = Vector2.new(1, 0),
+			position = UDim2.new(1, 0, 0, 0),
+			textSize = Theme.sizes.textSmall,
+			parent = toolbar,
 			sound = "uiToggle",
 			shine = false,
 			onClick = function()
@@ -1424,7 +1412,7 @@ function CatRoom._showSortMenu(self: any, open: boolean)
 	-- over the roles row, so Unequip All is never cut
 	local toolTop = self._toolbar.Position.Y.Offset
 	menu.AnchorPoint = Vector2.new(1, 0)
-	menu.Position = UDim2.new(1, -(EQUIP_W + GAP), 0, toolTop + TOOL_H + 4)
+	menu.Position = UDim2.new(1, -self._sortRight, 0, toolTop + TOOL_H + 4)
 	task.spawn(function()
 		-- its automatic height is measured a frame or two after it shows
 		for _ = 1, 5 do
@@ -1455,7 +1443,7 @@ function CatRoom._showSortMenu(self: any, open: boolean)
 			then barTop - 4 * scale - height
 			else math.max(top, foot - height)
 		menu.Position =
-			UDim2.new(1, -(EQUIP_W + GAP), 0, math.floor(toolTop + TOOL_H + 4 + (at - now) / scale))
+			UDim2.new(1, -self._sortRight, 0, math.floor(toolTop + TOOL_H + 4 + (at - now) / scale))
 	end)
 end
 
@@ -1481,7 +1469,7 @@ function CatRoom._paintAuto(self: any)
 	if auto == nil then
 		return
 	end
-	-- #4028: a green AUTO while on, grey while off, inside Equip Best
+	-- #4028: a green AUTO while on, grey while off (#4256: beside Equip Best)
 	auto:setStyle(if self._autoOn then "primary" else "slate")
 	auto.instance:SetAttribute("On", self._autoOn)
 end

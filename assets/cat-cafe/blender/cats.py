@@ -400,6 +400,30 @@ ROSTER = {
                        cuff="fish_blue", ruff="milk", nose="nose_pink", mark=("star", "rarity_legend"), eye_k=1.08),
 }
 
+# Harvest Hollow, the limited area (#4251, Wed Nov 25 to Sun Dec 6 2026): eight harvest cats. Autumn and harvest only.
+ROSTER["PumpkinSpice"] = dict(rarity="Rare", fur="fur_marmalade", second="fur_rust_red", third="fur_custard",
+                              eyes="eye_amber", pattern="stripes", muzzle="fur_custard", socks="fur_custard",
+                              tip="fur_custard", blaze="fur_custard", eye_k=1.08, curl=True)
+ROSTER["Cranberry"] = dict(rarity="Epic", fur="royal_berry", second="bowl_red", third="fur_strawberry", eyes="eye_green",
+                           pattern="spots", muzzle="fur_cream", socks="fur_cream", tip="bowl_red", nose="nose_dark",
+                           eye_k=1.08, ruff="fur_cream")
+ROSTER["MapleLeaf"] = dict(rarity="Legendary", fur="fur_ginger", second="eye_amber", third="bowl_red", eyes="rarity_legend",
+                           pattern="gradient", muzzle=None, glow_eyes=True, leafy=True, socks="bowl_red", tip="eye_amber",
+                           mane=("eye_amber", "bowl_red"), nose="nose_dark", eye_k=1.08, ear_tufts=True)
+ROSTER["HayBale"] = dict(rarity="Common", fur="fur_sand", second="fur_toffee", eyes="eye_green", pattern="stripes",
+                         muzzle="fur_vanilla", socks="fur_vanilla", tip="fur_toffee")
+# AcornCap, not Acorn: the Woods already has an Acorn cat
+ROSTER["AcornCap"] = dict(rarity="Common", fur="fur_acorn", second="fur_toffee", eyes="eye_amber", pattern="patches",
+                       muzzle="fur_oat", socks="fur_oat", tip="fur_seal")
+ROSTER["ApplePie"] = dict(rarity="Rare", fur="fur_croissant", second="fur_croissant_dark", third="bowl_red",
+                          eyes="eye_green", pattern="stripes", muzzle="fur_vanilla", socks="fur_vanilla", tip="bowl_red",
+                          blaze="fur_vanilla")
+ROSTER["Cornstalk"] = dict(rarity="Rare", fur="fur_golden", second="fur_custard", third="leaf_green", eyes="eye_green",
+                           pattern="spots", muzzle="fur_vanilla", socks="leaf_green", tip="leaf_green", ear_tufts=True)
+ROSTER["HarvestMoon"] = dict(rarity="Mythical", fur="night_sky", second="eye_amber", third="rarity_legend", eyes="eye_amber",
+                             pattern="gradient", muzzle=None, glow_eyes=True, sparkle=True, socks="eye_amber",
+                             tip="rarity_legend", nose="nose_dark", eye_k=1.08, mane=("eye_amber", "rarity_legend"))
+
 COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze", "cuff")
 
 

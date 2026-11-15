@@ -65,7 +65,7 @@ export type Toasts = {
 		quiet: boolean?,
 		seconds: number?
 	) -> (),
-	announce: (self: Toasts, text: string, rarity: string?) -> (),
+	announce: (self: Toasts, text: string, rarity: string?, more: number?) -> (),
 	rainbow: (self: Toasts, text: string, rarity: string?) -> (),
 	prize: (self: Toasts, text: string, prize: Types.IndexPrize?) -> (),
 	cat: (self: Toasts, card: CatCard) -> (),
@@ -265,7 +265,9 @@ end
 
 -- Server shout-outs (Pet Simulator 99 style) on the colour of the cat's rarity, a little longer than a toast.
 -- Silent: Audio plays the shout-out sting from the Announce remote itself.
-function Toasts.announce(self: any, text: string, rarity: string?)
+-- #4227: `more` (the spawn line queue, UI.spawns) is how many spawn lines wait after this one: a "+N" badge on the
+-- pill's corner, and a thin bar along its bottom runs down its time so the player sees when the next comes.
+function Toasts.announce(self: any, text: string, rarity: string?, more: number?)
 	if self._busy then
 		return -- setBusy: a shout-out is news of the moment, so it is dropped, not kept for later
 	end
@@ -275,6 +277,60 @@ function Toasts.announce(self: any, text: string, rarity: string?)
 		elseif rarity and (Theme.rarity :: any)[rarity] then Theme.rarityColor(rarity)
 		else announceColor(text) or KIND_COLORS.announce
 	self:_push(text, fill, ANNOUNCE_LIFETIME)
+	if more ~= nil then
+		local toast = self._alive[#self._alive]
+		if toast ~= nil and toast:GetAttribute("Line") == text then
+			Toasts._spawnExtras(toast, more, ANNOUNCE_LIFETIME)
+		end
+	end
+end
+
+-- #4227: the spawn line's drain bar and its "+N" waiting badge (Toasts.announce)
+function Toasts._spawnExtras(toast: Frame, more: number, seconds: number)
+	local old = toast:FindFirstChild("Drain")
+	if old then
+		old:Destroy()
+	end
+	local track: Frame = Create("Frame", {
+		Name = "Drain",
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -4),
+		Size = UDim2.new(1, 0, 0, 3),
+		BackgroundColor3 = Theme.colors.white,
+		BackgroundTransparency = 0.75,
+		BorderSizePixel = 0,
+		Parent = toast,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	local bar: Frame = Create("Frame", {
+		Name = "Bar",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Theme.colors.white,
+		BackgroundTransparency = 0.1,
+		BorderSizePixel = 0,
+		Parent = track,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Tween.to(bar, TweenInfo.new(seconds, Enum.EasingStyle.Linear), { Size = UDim2.fromScale(0, 1) })
+	local badge = toast:FindFirstChild("More")
+	if badge then
+		badge:Destroy()
+	end
+	if more > 0 then
+		local label: TextLabel = Create("TextLabel", {
+			Name = "More",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			-- the pill's top right corner, past its padding
+			Position = UDim2.new(1, 14, 0, 2),
+			Size = UDim2.fromOffset(30, 22),
+			BackgroundColor3 = Theme.colors.white,
+			FontFace = Theme.fonts.display,
+			Text = "+" .. tostring(math.min(more, 9)),
+			TextColor3 = Theme.dark.panel,
+			TextSize = Theme.sizes.textSmall,
+			ZIndex = 3,
+			Parent = toast,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+		Outline.border(label)
+	end
 end
 
 -- A rainbow stray's shout-out: the announce pill in the cat's rarity colour with the rainbow bands on its edge.

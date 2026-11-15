@@ -1,7 +1,7 @@
 --!strict
 -- Every signature effect (Presets.signature) belongs to a cat in the Catalog, so a renamed or mistyped cat id cannot
 -- leave an effect that no cat ever shows. The `minor` ones (a small touch that only takes a spare slot) are the
--- Rares; the full ones belong to rarer cats. The Medieval Castle's six wait in PENDING until Tier 10 (#4184) puts its
+-- Rares; the full ones belong to rarer cats. Harvest Hollow's three wait in PENDING until #4251 puts its
 -- cats in the Catalog: a pending id that has arrived fails here, so the list empties with that change.
 return function()
 	local Client =
@@ -10,7 +10,9 @@ return function()
 	local Presets = require(Client:WaitForChild("Effects"):WaitForChild("Presets")) :: any
 	local Catalog = require(Shared:WaitForChild("Catalog")) :: any
 
-	local PENDING: { [string]: boolean } = {} -- #4184: the Castle's six are in the Catalog
+	-- #4251: Harvest Hollow's three wait here until its cats are in the Catalog (the Castle's six arrived, #4184)
+	local PENDING: { [string]: boolean } =
+		{ cranberry = true, maple_leaf = true, harvest_moon = true }
 
 	describe("Effects signature cats and the Catalog", function()
 		it("names only cats the Catalog has", function()

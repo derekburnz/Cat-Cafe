@@ -3266,6 +3266,50 @@ Presets.signature = {
 		},
 		arrive = { ring = 9, burst = 10, preset = "catchSparkle" },
 	},
+	-- #4251 Harvest Hollow's rarer cats (Wed Nov 25 to Sun Dec 6), the same ladder in autumn colours, on the lit
+	-- parts of their models (`..._Leaves_Glow`, `..._Wheat_Glow`, `..._Glow`; a copy without them shows on its body).
+	cranberry = { -- Cranberry Cat (Epic): a glint now and then off its berries
+		emitter = "sigGlint",
+		on = "Prop",
+		colors = { Color3.fromRGB(226, 60, 84), palette.sparkle },
+		gold = { palette.goldLight, palette.sparkle },
+	},
+	maple_leaf = { -- Maple Leaf Cat (Legendary): leaves drift down off it, the lit leaves glint, and it glows a little
+		emitter = "sigFall",
+		on = "Leaves_Glow",
+		colors = {
+			Color3.fromRGB(236, 160, 60),
+			Color3.fromRGB(214, 84, 44),
+			Color3.fromRGB(246, 206, 96),
+		},
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = {
+			{ emitter = "sigGlint", on = "Leaves_Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+		},
+	},
+	harvest_moon = { -- Harvest Moon Cat (Mythical): moonlit motes rise off its wheat and circle it like fireflies
+		emitter = "sigRise",
+		on = "Wheat_Glow",
+		colors = { Color3.fromRGB(255, 214, 120), Color3.fromRGB(255, 168, 72), palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = {
+			{ emitter = "sigGlint", on = "Prop" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = {
+			emitter = "sigEmber",
+			count = 5,
+			countLow = 3,
+			radius = 0.8,
+			height = 0.6,
+			tilt = 0.3,
+			seconds = 3.4,
+		},
+		arrive = { ring = 9, burst = 10, preset = "catchSparkle" },
+	},
 	-- Sprinkles, the Starter Bundle's baker (Derek 2026-11-14: as good as an Epic from the best area, effects
 	-- included). The Epic rung of the same ladder on the lit parts of its model (#4190): sprinkles drift up off the
 	-- cupcake's candle through the puff's own colours, and the cherry on its toque twinkles a little. `on` names

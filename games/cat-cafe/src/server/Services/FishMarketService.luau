@@ -24,6 +24,7 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Crates = require(ReplicatedStorage.Shared.Crates)
 local DataService = require(script.Parent.DataService)
+local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EventService = require(script.Parent.EventService)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
@@ -128,7 +129,7 @@ local function open(
 	local refund = 0
 	local placed = false
 	if duplicate then
-		refund = Crates.refund(rarity)
+		refund = math.floor(Crates.refund(rarity) * (1 + DragonKeep.of(profile).refund)) -- #4447: Hoarder
 		GoldenFish.credit(profile, refund)
 		Telemetry.fishSource(player, profile, refund, "Gameplay", "crate_refund")
 	else

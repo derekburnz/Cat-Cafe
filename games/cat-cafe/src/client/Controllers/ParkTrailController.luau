@@ -18,6 +18,7 @@ local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Net = require(script.Parent.Parent.Net)
 local ParkFirstLogic = require(script.Parent.Parent.UI.Components.ParkFirstLogic)
 local ParkTrailLogic = require(script.Parent.Parent.UI.Components.ParkTrailLogic)
+local TutorialOrder = require(Shared:WaitForChild("TutorialOrder"))
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
 
@@ -116,10 +117,11 @@ end
 
 local function tick(dt: number)
 	local state = UIController.state
+	-- #4518: bowl first ends the walk-through at the Park, so its walk shows whatever parkGateTrail says
 	local on = LiveFlags.shown(
 		ParkTrailLogic.FLAG,
 		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. ParkTrailLogic.FLAG)
-	)
+	) or TutorialOrder.bowlFirst()
 	if state == nil then
 		return
 	end

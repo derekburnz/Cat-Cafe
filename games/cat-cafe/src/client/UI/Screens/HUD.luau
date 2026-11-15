@@ -663,6 +663,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		}),
 	})
 	self._counters = counters
+	-- #4529: bigger on a tablet only (Scale.counterBoost), kept up to date as the screen turns or resizes
+	self._counterBoost = Create("UIScale", {
+		Name = "TabletBoost",
+		Scale = Scale.counterBoost(),
+		Parent = counters,
+	}) :: UIScale
 	-- #2393 (Derek2 11-08: "the 2x money pop up, money amount/breakdown menu, golden fish, and lucky and the breakdown
 	-- menu are all kind of where you want your left thumb to move around maybe make it on the top middle of the screen
 	-- ... and put the 2x money advertising on the right side above potions"): on touch the counters sit at the top
@@ -1694,6 +1700,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 	self._scaleConnection = Scale.changed:Connect(function()
+		self._counterBoost.Scale = Scale.counterBoost() -- #4529
 		self:_liftRight()
 	end)
 	self:_liftRight()
@@ -2179,6 +2186,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			name = "Harvest",
 			label = "Harvest",
 			icon = HarvestLogic.PUMPKIN,
+			image = ShopIcons.hud("Harvest"), -- #4460: the pumpkin picture; the 🎃 shows if it fails to load
 			style = "gold",
 		},
 	}

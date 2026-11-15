@@ -14,6 +14,7 @@
 --   text(luck) -> string                             "Luck x1.3", as the HUD chip shows it
 
 local Config = require(script.Parent.Config)
+local DragonKeep = require(script.Parent.DragonKeep)
 local LuckyCharm = require(script.Parent.LuckyCharm)
 local Potions = require(script.Parent.Potions)
 local Types = require(script.Parent.Types)
@@ -27,7 +28,7 @@ Luck.DAY_WARNING = "A Lucky Day starts at sunrise!"
 Luck.DAY_BANNER = "Lucky Day! Rare cats are twice as likely until night"
 
 -- A source of Luck: "statue", "charm" (#3298), "potion", "lucky_day" or "event" (#2486), and what it adds.
-export type SourceId = "statue" | "charm" | "potion" | "lucky_day" | "event"
+export type SourceId = "statue" | "charm" | "potion" | "lucky_day" | "event" | "dragon" -- dragon #4447
 export type Source = { id: SourceId, value: number }
 
 local function statueLevel(profile: Types.PlayerProfile): number
@@ -65,6 +66,10 @@ function Luck.sources(
 	if event ~= nil and event > 0 then
 		add("event", math.min(event, Config.EventLuckMax))
 	end
+	local dragon = DragonKeep.of(profile).luck -- #4447: the Dragon Keep's Lucky Scale, only while its switch is on
+	if dragon > 0 then
+		add("dragon", dragon)
+	end
 	return out
 end
 
@@ -84,6 +89,7 @@ function Luck.of(
 	for _, source in Luck.sources(profile, now, luckyDay, event, charm) do
 		luck += source.value
 	end
+	luck *= DragonKeep.of(profile).luckMult -- #4569: the Claw and Crown full sets, 2x luck (still at most LuckMax)
 	return math.clamp(round(luck), 1, Config.LuckMax)
 end
 

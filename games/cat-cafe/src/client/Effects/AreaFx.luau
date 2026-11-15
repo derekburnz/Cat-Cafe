@@ -197,7 +197,7 @@ local function updateMist(area: string?, feet: Vector3)
 end
 
 -- #4069: a little puff under your feet for every `footStuds` you walk on the ground in an area with one (snow in
--- the Snowy Mountain), and a step for whoever listens (AreaFx.onStep). No puff in Low performance or with Reduce
+-- the Snowy Mountain, dry leaves in Harvest Hollow), and a step for whoever listens (AreaFx.onStep). No puff in Low performance or with Reduce
 -- Motion.
 local footAt: Vector3? = nil
 
@@ -608,6 +608,22 @@ local function updateAurora(here: string?, feet: Vector3)
 	buildAurora(area, wanted, place)
 end
 
+-- Harvest Hollow's Thankful Boards in the world (tag Presets.harvestFx.boardTag), kept from the tag's signals in
+-- AreaFx.start so a step never builds a new list.
+local harvestBoards: { [Instance]: boolean } = {}
+
+-- How far your feet are from the Thankful Board, nil while it is not in the world (outside the event, or not
+-- streamed in).
+local function harvestBoard(feet: Vector3): number?
+	for board in harvestBoards do
+		local at = Context.positionOf(board)
+		if at ~= nil then
+			return (at - feet).Magnitude
+		end
+	end
+	return nil
+end
+
 local function step()
 	local character = Players.LocalPlayer.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
@@ -624,7 +640,11 @@ local function step()
 	updateDunes(area, feet)
 	updateAurora(area, feet)
 	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
-	updateFeet(area, feet, humanoid :: Humanoid?)
+	updateFeet(
+		Logic.walkArea(area, harvestBoard(feet), Presets.harvestFx.airWithin),
+		feet,
+		humanoid :: Humanoid?
+	)
 end
 
 function AreaFx.start()
@@ -639,6 +659,16 @@ function AreaFx.start()
 		strayAdded(instance)
 	end)
 	CollectionService:GetInstanceRemovedSignal("Stray"):Connect(strayRemoved)
+	local boardTag = Presets.harvestFx.boardTag
+	for _, board in CollectionService:GetTagged(boardTag) do
+		harvestBoards[board] = true
+	end
+	CollectionService:GetInstanceAddedSignal(boardTag):Connect(function(board: Instance)
+		harvestBoards[board] = true
+	end)
+	CollectionService:GetInstanceRemovedSignal(boardTag):Connect(function(board: Instance)
+		harvestBoards[board] = nil
+	end)
 	if RunService:IsStudio() then
 		Workspace:GetAttributeChangedSignal("AreaAuroraTest"):Connect(function()
 			local value = Workspace:GetAttribute("AreaAuroraTest")

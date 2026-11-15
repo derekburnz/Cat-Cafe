@@ -812,6 +812,21 @@ local Config = {
 			name = "BETTER ON EVERY DEVICE",
 			poster = "rbxassetid://138232412903853",
 		},
+		-- Derek 2026-11-15 17:13 UTC ("are we still prompting people ... we should be"): the two after Better on Every
+		-- Device, so the ask keeps rolling to the next update with no gap. Cherry Blossom Grove's Roblox Event was
+		-- made 2026-11-15 (one week, Dec 5 to Dec 12), Harvest Hollow's on Nov 14.
+		{
+			id = "2956295611862876771",
+			startsAt = 1795636800, -- "Harvest Hollow", Wednesday 2026-11-25 20:00 UTC
+			title = "🔔 Next update Wed Nov 25: HARVEST HOLLOW! Want a reminder when it lands?",
+			name = "HARVEST HOLLOW",
+		},
+		{
+			id = "6693355219203523122",
+			startsAt = 1796500800, -- "Cherry Blossom Grove", Saturday 2026-12-05 20:00 UTC
+			title = "🔔 Next update Sat Dec 5: CHERRY BLOSSOM GROVE! Want a reminder when it lands?",
+			name = "CHERRY BLOSSOM GROVE",
+		},
 		{
 			id = "8700676156604678758",
 			startsAt = 1794799800, -- "10 Secret Cats", Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, Derek 17:40 UTC)
@@ -1029,10 +1044,11 @@ local Config = {
 	TicketBoothTier = 9,
 	-- #4104 (fusion-observatory.md section 4): the Snowy Mountain's Fusion Observatory. FusionCopies of one cat in one
 	-- coat make one in the next coat, after FusionGoldSeconds (into gold) or FusionRainbowSeconds (into rainbow), from
-	-- FusionTier. Elder Lore takes 25% off (shared/Fusion).
+	-- FusionTier. Elder Lore takes 25% off (shared/Fusion). Derek 2026-11-15 18:11 UTC ("make the dome take no time and
+	-- be instant"): both 0, so a fusion is ready to collect the moment it starts (was 600 and 3600).
 	FusionCopies = 5,
-	FusionGoldSeconds = 600,
-	FusionRainbowSeconds = 3600,
+	FusionGoldSeconds = 0,
+	FusionRainbowSeconds = 0,
 	FusionTier = 8,
 	-- #4055 (Derek 2026-11-13 23:53 UTC): Tiers 8 to 10 pay 300 each, so the fish Store can be reached by playing
 	FishRankUp = { 5, 15, 30, 60, 100, 150, 300, 300, 300 } :: { number },
@@ -1139,6 +1155,9 @@ local Config = {
 	-- #2745 (section 1d): golden fish a side (whole fish, at most the giver's wallet), the most one player may receive
 	-- in trades in a game day, and one fish's Collector value for the lopsided warning (40 fish count as one Rare, 3)
 	TradeMaxFish = 200,
+	-- #2745 (Derek 2026-11-12, "go w recommend"): no golden fish offers for this long after buying the Golden Pond pass
+	-- with Robux, so the pass is never a way to buy fish for another account
+	TradeFishPassHoldSeconds = 24 * 60 * 60,
 	TradeFishPerDay = 250, -- Derek2 2026-11-10: "250 golden fish limit lowered is fine" (400 before; less room for alt farming)
 	TradeFishValue = 0.075,
 	TradeCountdownSeconds = 5,
@@ -1599,12 +1618,12 @@ local Config = {
 		-- Town layout v3 (F76, town-layout-v3.md, Derek 2026-10-27: "the main town should be wider so that it can have
 		-- a central middle area"): a 32 wide street with the Town Square in its middle, two rows of cafes either side.
 		StreetHalfWidth = 16,
-		StreetSouthZ = -178, -- #3070: -163 before the 120 x 140 square (#3001: -152, #2707: -140 before that)
-		StreetNorthZ = 178, -- #3070: 163 before; the street ends at the hometown's north welcome arch (v4)
+		StreetSouthZ = -198, -- #4532: -178 before the 120 x 180 square (#3070: -163, #3001: -152, #2707: -140 before that)
+		StreetNorthZ = 198, -- #4532: 178 before (#3070: 163 before); the street ends at the hometown's north welcome arch (v4)
 		-- v4 (F84, hometown-cannon.md section 2): the hometown's own ground round the town, and each wild area its own
 		-- CatCafe_Town_Backdrop (Model-Agent #733) is built against 272 by 332 (#917): tell Model-Agent when these change
 		TownGroundWidth = 272,
-		TownGroundDepth = 408, -- #3070: 378 before (#3001: 356, #2707: 332 before that)
+		TownGroundDepth = 448, -- #4532: 408 before (#3070: 378, #3001: 356, #2707: 332 before that)
 		WallHeight = 9,
 		DoorWidth = 7,
 		-- The Town Square: paved, centred on the origin across the street, with the stations round the Cat Cannon (the
@@ -1615,7 +1634,9 @@ local Config = {
 		TownSquareHalfWidth = 60, -- 48 before
 		-- #3070 (Derek2 2026-11-10: "expand the town square again"): 120 x 140. Only the depth grows (the town edge
 		-- holds the width), which moves the cafes back another 15.
-		TownSquareHalfDepth = 70, -- #3070: 55 before (#3001: 44, #2707: 32 before that)
+		-- #4532 (Derek2 2026-11-15, a playtester's "expand town square everything is too cramped", "I agree with this
+		-- one"): 120 x 180. Only the depth grows again, which moves the cafes back another 20.
+		TownSquareHalfDepth = 90, -- #4532: 70 before (#3070: 55, #3001: 44, #2707: 32 before that)
 		TownSquareLaneHalfWidth = 8, -- the street's line through the square
 		TownSquareCrossHalfWidth = 6, -- the east to west lane
 		-- The hometown's back edge (v4, F84, hometown-cannon.md section 2): a fence at |x| TownEdgeX behind each row of

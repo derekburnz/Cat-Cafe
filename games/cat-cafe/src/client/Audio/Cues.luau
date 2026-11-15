@@ -1741,6 +1741,15 @@ local Cues: { [string]: Cue } = {
 		pitch = { 0.88, 1.12 },
 		minGap = 0.2,
 	}, -- your step in the Snowy Mountain's snow
+	leafStep = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 15.620, 15.820 },
+		group = "Sfx",
+		volume = 0.22,
+		pitch = { 1.25, 1.5 },
+		minGap = 0.2,
+	}, -- #4251: your step in Harvest Hollow, dry leaves: the snow step's crunch pitched up, a little quieter
 	snowGust = {
 		ids = {},
 		sheet = "sheetKeep",

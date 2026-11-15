@@ -7,6 +7,7 @@ return function()
 	local ServerScriptService = game:GetService("ServerScriptService")
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
+	local Cannon = require(Shared.Cannon)
 	local Config = require(Shared.Config)
 	local FeedbackStand = require(Shared.FeedbackStand)
 	local Layout = require(ServerScriptService.Server.World.Layout)
@@ -1251,7 +1252,7 @@ return function()
 
 		it("puts plots 1 to 4 by the square and 5 to 8 one row out, west then east", function()
 			-- the bigger cafes (44 x 34, #917)
-			local want = { { -41, -100 }, { 41, -100 }, { -41, 100 }, { 41, 100 } } -- #3070: 85 before the 120 x 140 square
+			local want = { { -41, -120 }, { 41, -120 }, { -41, 120 }, { 41, 120 } } -- #4532: 100 before the 120 x 180 square
 			for n = 1, 4 do
 				want[n + 4] = { want[n][1], want[n][2] + (if want[n][2] < 0 then -52 else 52) }
 			end
@@ -1435,17 +1436,17 @@ return function()
 			end
 		)
 
-		it("is 120 by 140: #3001's width, and 15 deeper either side (#3070)", function()
+		it("is 120 by 180: #3001's width, 20 deeper either side (#4532)", function()
 			expect(W.TownSquareHalfWidth).to.equal(60)
-			expect(W.TownSquareHalfDepth).to.equal(70)
+			expect(W.TownSquareHalfDepth).to.equal(90)
 			expect(square.floor.x2 - square.floor.x1).to.equal(120)
-			expect(square.floor.z2 - square.floor.z1).to.equal(140)
+			expect(square.floor.z2 - square.floor.z1).to.equal(180)
 			-- the width grows inside the town edge: the gardens keep a strip either side
 			expect(W.TownEdgeX - W.TownSquareHalfWidth >= 9).to.equal(true)
 			-- the streets and the town ground follow the deeper square, so the outer cafe row keeps its margin
-			expect(W.StreetNorthZ).to.equal(178)
-			expect(W.StreetSouthZ).to.equal(-178)
-			expect(W.TownGroundDepth).to.equal(408)
+			expect(W.StreetNorthZ).to.equal(198)
+			expect(W.StreetSouthZ).to.equal(-198)
+			expect(W.TownGroundDepth).to.equal(448)
 		end)
 
 		it("brings the Thank You board and the Rally board out into the open (#3070)", function()
@@ -2027,12 +2028,13 @@ return function()
 				local fromPad =
 					math.sqrt((spawn.x - pad.centre.x) ^ 2 + (spawn.z - pad.centre.z) ^ 2)
 				expect(fromPad <= W.LandingPadRadius).to.equal(true)
-				-- the Cannon button's spot in town: in front of the plinth, the prompt in reach
+				-- the Cannon button's spot in town (Derek 2026-11-15): just outside the cannon's ring, so the window
+				-- waits for a step in and the button is a shortcut to the square, but within the server's reach
+				-- plus its slack, so "Fly to the Park" still opens the picker there
 				local front = Layout.cannonFronts.town
 				local reach = math.sqrt(front.x ^ 2 + front.z ^ 2)
-				expect(reach > square.fountainRadius and reach < W.CannonRangeStuds - 2).to.equal(
-					true
-				)
+				expect(reach > W.TownCannonRangeStuds).to.equal(true)
+				expect(reach <= W.TownCannonRangeStuds + Cannon.RANGE_SLACK).to.equal(true)
 				expect(front.z < 0).to.equal(true)
 			end
 		)
@@ -2402,6 +2404,85 @@ return function()
 				expect(math.sqrt((sign.x - poster.x) ^ 2 + (sign.z - poster.z) ^ 2) > 12).to.equal(
 					true
 				)
+			end
+		)
+
+		it(
+			"stands the Mystery Market's signboard beside the wagon, facing the spawn (#4508)",
+			function()
+				local sign: any = nil
+				for _, prop in square.props :: { any } do
+					if prop.asset == "CatCafe_Square_MysterySign" then
+						expect(sign).to.equal(nil) -- one board
+						sign = prop
+					end
+				end
+				expect(sign).to.be.ok()
+				local cart = Layout.mysteryCart
+				local apart = math.sqrt((sign.x - cart.x) ^ 2 + (sign.z - cart.z) ^ 2)
+				-- beside the wagon (10.2 x 5.7): past its end, and close enough to read as the wagon's own board
+				expect(apart > 7).to.equal(true)
+				expect(apart < 12).to.equal(true)
+				-- about 5.4 wide and 3 deep (the manifest); every corner, turned, stays on the square off the lanes
+				local yaw = math.rad(sign.rotY or 0)
+				local cos, sin = math.cos(yaw), math.sin(yaw)
+				for _, corner in { { -2.7, -2.2 }, { 2.7, -2.2 }, { -2.7, 0.7 }, { 2.7, 0.7 } } do
+					local x = sign.x + corner[1] * cos + corner[2] * sin
+					local z = sign.z - corner[1] * sin + corner[2] * cos
+					expect(inside(x, z, square.floor, 2)).to.equal(true)
+					for _, lane in lanes do
+						expect(inside(x, z, lane, -0.5)).to.equal(false)
+					end
+				end
+				local spawn = Layout.playerSpawn
+				local toX, toZ = spawn.x - sign.x, spawn.z - sign.z
+				local length = math.sqrt(toX ^ 2 + toZ ^ 2)
+				expect((-sin * toX - cos * toZ) / length > 0.99).to.equal(true)
+				-- the arrow on its top points along the board's +X (cos, -sin): toward the wagon
+				local cartX, cartZ = cart.x - sign.x, cart.z - sign.z
+				expect((cos * cartX - sin * cartZ) / apart > 0.7).to.equal(true)
+			end
+		)
+
+		it(
+			"stands the decor stand beside the Golden Fish Market, facing the spawn (#4516)",
+			function()
+				local stand: any = nil
+				for _, prop in square.props :: { any } do
+					if prop.asset == "CatCafe_Square_DecorStand" then
+						expect(stand).to.equal(nil) -- one stand
+						stand = prop
+					end
+				end
+				expect(stand).to.be.ok()
+				local market = Layout.fishMarket
+				local apart = math.sqrt((stand.x - market.x) ^ 2 + (stand.z - market.z) ^ 2)
+				-- beside the market (11.9 wide): past its end, and close enough to read as the market's own stand
+				expect(apart > 8).to.equal(true)
+				expect(apart < 12).to.equal(true)
+				-- clear of the Day Cart next door
+				local cart = Layout.dayCart
+				expect(math.sqrt((stand.x - cart.x) ^ 2 + (stand.z - cart.z) ^ 2) > 10).to.equal(
+					true
+				)
+				-- about 5 wide and 3 deep (the manifest); every corner, turned, stays on the square off the lanes
+				local yaw = math.rad(stand.rotY or 0)
+				local cos, sin = math.cos(yaw), math.sin(yaw)
+				for _, corner in { { -2.5, -1.9 }, { 2.5, -1.9 }, { -2.5, 1.1 }, { 2.5, 1.1 } } do
+					local x = stand.x + corner[1] * cos + corner[2] * sin
+					local z = stand.z - corner[1] * sin + corner[2] * cos
+					expect(inside(x, z, square.floor, 2)).to.equal(true)
+					for _, lane in lanes do
+						expect(inside(x, z, lane, -0.5)).to.equal(false)
+					end
+				end
+				local spawn = Layout.playerSpawn
+				local toX, toZ = spawn.x - stand.x, spawn.z - stand.z
+				local length = math.sqrt(toX ^ 2 + toZ ^ 2)
+				expect((-sin * toX - cos * toZ) / length > 0.99).to.equal(true)
+				-- the arrow on its top points along the stand's +X (cos, -sin): toward the market
+				local toMarketX, toMarketZ = market.x - stand.x, market.z - stand.z
+				expect((cos * toMarketX - sin * toMarketZ) / apart > 0.7).to.equal(true)
 			end
 		)
 

@@ -25,6 +25,27 @@ TackleLogic.MISS_RECOVER = number(Config.TackleMissRecoverSeconds, 1.2)
 -- the knockback takes 0.25 s (ShoveController's push), then the target is down TackledDownSeconds
 TackleLogic.TACKLED = 0.25 + number(Config.TackledDownSeconds, 0.8)
 
+-- #4481 (Derek 2026-11-15: "remove the tackle button while safe so that people don't mistake it for the net
+-- button"): where this player stands, for whether the Tackle shows at all. The bar, the round touch button and the
+-- key all follow it (ShoveController), so a new player at home sees only the Net button.
+export type Place = {
+	switchedOn: boolean, -- Config.BumpEnabled
+	flying: boolean, -- in a cannon shot or a cloud hop
+	newcomer: boolean, -- before the first check-in, with the deviceFixes switch on
+	areaTier: number?, -- the tier of the catching area the player stands in; nil on the street, the Town Square and in a cafe
+	tier: number, -- the player's tier
+	inCamp: boolean, -- the character's Camp attribute: behind a camp's SAFE ZONE stripe
+}
+
+-- Whether the Tackle shows: only in the wild part of a catching area this player's tier opens. A camp is a safe
+-- zone (the net is away there too), so it hides in every camp, as it does on the street and the Town Square.
+function TackleLogic.shown(place: Place): boolean
+	if not place.switchedOn or place.flying or place.newcomer or place.inCamp then
+		return false
+	end
+	return place.areaTier ~= nil and place.tier >= place.areaTier
+end
+
 -- The attributes on the local character, server times (workspace:GetServerTimeNow()).
 export type Marks = { tackleAt: number?, missAt: number?, shovedAt: number? }
 

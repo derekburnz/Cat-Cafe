@@ -7,6 +7,7 @@ local Catalog = require(script.Parent.Catalog)
 local Catching = require(script.Parent.Catching)
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
+local DragonKeep = require(script.Parent.DragonKeep)
 local IndexRewards = require(script.Parent.IndexRewards)
 local LateTiers = require(script.Parent.LateTiers)
 local Lawn = require(script.Parent.Lawn)
@@ -16,6 +17,7 @@ local Pet = require(script.Parent.Pet)
 local Potions = require(script.Parent.Potions)
 local StationPerks = require(script.Parent.StationPerks)
 local StorePacks = require(script.Parent.StorePacks)
+local TicketBooth = require(script.Parent.TicketBooth)
 local Traits = require(script.Parent.Traits)
 local Types = require(script.Parent.Types)
 
@@ -101,7 +103,9 @@ end
 -- Everything on top of the cafe's rate at `now`: the running tip potions (Potions.tipMultiplier, at most
 -- TimedTipsMax) plus the pal bonus. Income, the tip piles and rich visitors use it; offline pay does not.
 function Economy.tipMultiplier(profile: Types.PlayerProfile, now: number): number
-	return Potions.tipMultiplier(profile, now) + Economy.palBonus(profile)
+	return Potions.tipMultiplier(profile, now)
+		+ Economy.palBonus(profile)
+		+ Economy.dragonEffects(profile).tips
 end
 
 -- The Money pass multiplier on all cafe income, 1 without one. #2850: a bought once-per-account product with a
@@ -134,6 +138,15 @@ function Economy.vipBoost(): boolean
 	end
 	return game:GetService("ReplicatedStorage")
 		:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Economy.VIP_BOOST_FLAG) ~= false
+end
+
+-- #4447: the Dragon Keep's slotted cards and sets (DragonKeep.effects), all zero while the dragonKeep switch is off
+-- (read from its ReplicatedStorage attribute, which LiveFlagService sets for both sides; specs set it here).
+function Economy.setDragonKeep(on: boolean?)
+	DragonKeep.setOn(on)
+end
+function Economy.dragonEffects(profile: Types.PlayerProfile): DragonKeep.Effects
+	return DragonKeep.of(profile)
 end
 
 -- #1624 (economy-ladder.md section 6a): what VIP, Cafe Style and Grand Cafe add into cafeMultiplier, 0 without them.
@@ -189,7 +202,9 @@ function Economy.richRate(profile: Types.PlayerProfile): number
 	if passes.grand == true then
 		rate += Config.GrandRichRate
 	end
-	return rate + Economy.traitBonus(profile, "rareCustomer") -- #3871, #3889: Crowd Pleaser and the combos with it
+	return rate
+		+ Economy.traitBonus(profile, "rareCustomer") -- #3871, #3889: Crowd Pleaser and the combos with it
+		+ Economy.dragonEffects(profile).rich -- #4447: Smoke Signal
 end
 
 -- #3871: a cafe-wide trait effect (bowl luck, speed, rare customer chance) from the cats in a staff slot, the best
@@ -289,6 +304,13 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	multiplier += Economy.lawnBonus(profile)
 	multiplier += Economy.passCafeBonus(profile)
 	multiplier += Economy.packBonus(profile)
+	multiplier += Economy.dragonEffects(profile).money -- #4447: the Dragon Keep's money cards and Flame set
+	-- #4061: a Ticket Booth wearable while it is the cafe's accessory
+	local looks = (profile :: any).looks
+	local tickets = (profile :: any).tickets
+	if type(looks) == "table" and type(tickets) == "table" then
+		multiplier += TicketBooth.wearBonus(tickets, looks.accessory)
+	end
 	return multiplier
 end
 
@@ -314,7 +336,9 @@ function Economy.baitWaitSeconds(
 ): number
 	-- #2687: the Picnic Basket's Fresh Bait from Tier 2
 	local speed = math.min(
-		IndexRewards.totals(profile).baitSpeed + StationPerks.baitSpeed(profile.tier),
+		IndexRewards.totals(profile).baitSpeed
+			+ StationPerks.baitSpeed(profile.tier)
+			+ Economy.dragonEffects(profile).baitSpeed, -- #4447: Bait Whisperer
 		Config.BaitSpeedMax
 	)
 	if now ~= nil then
@@ -369,7 +393,8 @@ end
 
 -- #3871: the extra day rate a second the working cats' night income traits add while it is night (Night Owl and the
 -- combos that hold it): each cat's rate without its trait x its nightIncome, through the same multipliers. settle
--- pays it over the night part of a window, at NightIncomeMultiplier like the rest of the night's pay.
+-- pays it over the night part of a window, at NightIncomeMultiplier like the rest of the night's pay. Night Glow
+-- (#4447) adds its share of the whole rate.
 function Economy.nightTraitRate(profile: Types.PlayerProfile): number
 	local total = 0
 	for _, instance in profile.cats do
@@ -379,7 +404,10 @@ function Economy.nightTraitRate(profile: Types.PlayerProfile): number
 			total += rate / Traits.incomeMultiplier(instance.trait, false) * extra
 		end
 	end
-	return if total > 0 then cafeRate(profile, total) else 0
+	-- #4447: Night Glow's share of the whole cafe's rate, paid the same way
+	local glow = Economy.dragonEffects(profile).night
+	return (if total > 0 then cafeRate(profile, total) else 0)
+		+ (if glow > 0 then Economy.incomePerSecond(profile) * glow else 0)
 end
 
 -- XP a second for one owned cat (data-model section 4b, v0.12 F75): a working cat earns CatXpPerSecondPlaced, times
@@ -405,11 +433,13 @@ function Economy.grantXp(profile: Types.PlayerProfile, seconds: number): number
 		return 0
 	end
 	local gained = 0
+	local fx = Economy.dragonEffects(profile) -- #4447: Fast Learner, the Heart set and Cosy Nap
 	for uid, instance in profile.cats do
 		if CatStats.atSpa(profile, uid) then
 			continue -- #2651 part 4: a cat at the Oasis Spa earns no XP; it gains its level when collected
 		end
-		gained += CatStats.addXp(instance, seconds * Economy.catXpRate(instance))
+		local boost = 1 + fx.xp + (if instance.spotId == nil then fx.restXp else 0)
+		gained += CatStats.addXp(instance, seconds * Economy.catXpRate(instance) * boost)
 	end
 	if gained > 0 then
 		profile.stats.catLevelUps = (profile.stats.catLevelUps or 0) + gained

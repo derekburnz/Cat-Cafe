@@ -208,7 +208,7 @@ None of these needs a moment: Audio follows the `bait` in each ProfileSync (`Log
 | `tipPile` | your plot's `TipPiles` went down (F61: `CollectTips`, walking near a pile or Collect on the till). Silent since F97 (#714): a pile pays the moment it appears, which plays `coinPop`, and the count only drops when old piles are swept | 2D | 0.5 s | a short clink of coins scooped off the tables, once per collect however many piles | P1 |
 | `dealerArrive` | DealerArrive | 3D on the cart | 1.5 s | cart wheels rolling in and a lantern bell. Quiet on purpose for now: the cart parks with the dusk stinger, which marks it | P2 |
 | `dealerLeave` | DealerLeave | 3D on the cart | 1.5 s | wheels rolling away. Quiet with the dawn stinger the same way | P2 |
-| `announce` | Announce, the server shout-out (Epic and up, every gold cat, rank ups to Tier 3 and up) | 2D | 1 s | two-note chime under the banner, one note higher per rarity step | P1 |
+| `announce` | Announce, the server shout-out (Epic and up, every gold cat, rank ups to Tier 3 and up); never on a spawn line ("A Mythical cat appeared in the ...!", #4470) | 2D | 1 s | two-note chime under the banner, one note higher per rarity step | P1 |
 | `announceMythical` | Announce with rarity Mythical (F58: a Mythical in the sunrise wave, or a Mythical catch); the two-note chime if the file is missing | 2D | 2.4 s | the shout-out's two notes grow into a shimmering gold chord over a wordless choir; ducks the music | P1 |
 
 ### 5.7 Clock
@@ -499,6 +499,7 @@ The Keep sheet holds all of these. It's mono. The cutscene and card sounds play 
 | `ticketPrint` | you buy a Ticket Booth prize: the booth prints its ticket (Audio follows ProfileSync's `ticketBooth.spent`) | 0.7 s | soft printer chatter and the paper tearing off | P2 |
 | `ticketDing` | 0.6 s after the print: the prize is yours | 0.8 s | a bright two note counter bell, like a fairground booth | P2 |
 | `snowStep` | your steps in the Snowy Mountain | 0.2 s | a soft dry crunch; the pitch varies a little each step | P3 |
+| `leafStep` | your steps in Harvest Hollow (#4251) | 0.2 s | dry leaves underfoot: the snow step's crunch pitched up and a little quieter, no new file | P3 |
 | `snowGust` | the Blizzard Cat (Mythical) lands or is caught | 1.5 s | a gust that swells and whistles past, icy glints falling out of it | P2 |
 | `frostChime` | the White Tiger Cat (Legendary) is caught or revealed | 1.4 s | three cold glass notes falling like icicles, one low warm note under them | P2 |
 | `fusionStart` | five cats go into the Fusion Observatory's dome (#4104) | 1.9 s | five glass notes climbing, one for each cat, then a soft shimmer as they become one | P2 |
@@ -530,3 +531,13 @@ All of these are quiet next to the catch sounds, so ten fish landing at once nev
 | `harvestPick` | a patch pumpkin is picked near you, by you or anyone | as the coin pop | a soft low "pluck": the coin pop a third lower, in the world; at most one every 0.3 s | P3 |
 
 The pick sound needs no new file. The area's song is `musicAreaHarvest` "Cider Lane" in section 3. Its strays' voices are still to pick.
+
+## Mix audit (2026-11-15)
+
+A paper audit, not a listening one: for each cue whose file the audio gate measured, the file's loudness (LUFS in `assets/cat-cafe/audio/gates.md`) plus the cue's volume in dB, compared with its channel's median. 121 cues matched by name (109 Sfx, 10 Music, 2 Ui).
+
+- Music: every song sits at -18 LUFS and volume 0.3, so the areas' songs are level with each other.
+- Sfx: the median is about -25 dB. The loudest, 8 to 10 dB over it, are the three reward sounds (`catchSparkle`, `checkInBell`, `circlePerfect`), which is meant: they are the moments the mix points at. The quietest, 8 to 16 dB under it, are the purrs (`purr`, `carryPurr`, looped beds), the four food sounds, `spaSplash` and `dragonWing`, all background touches.
+- Nothing else is more than 8 dB from the median, and no file peaks over -1.9 dBTP.
+
+No volume was changed from this: a short sound's LUFS is a rough guide, and the three loud ones need ears on a phone speaker before anyone turns them down. To listen for on the next device test: `checkInBell` and `catchSparkle` together when a catch and a check-in land in the same second, and whether the food sounds are heard at all on a phone.

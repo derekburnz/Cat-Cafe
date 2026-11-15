@@ -663,6 +663,7 @@ return function()
 				FusionGoldSeconds = true,
 				FusionRainbowSeconds = true,
 				FusionTier = true,
+				TradeFishPassHoldSeconds = true, -- #4521: the Golden Pond fish hold, checked in Trade.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

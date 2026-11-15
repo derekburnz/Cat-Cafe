@@ -1542,6 +1542,13 @@ function Logic.startle(o: Offsets, alpha: number)
 	o.earR = math.max(o.earR, math.rad(s.ears) * arc)
 end
 
+-- #4384: whether the waiting stray's beacon, call and sound wait: the switch is on (LiveFlags.shown of `checkInCalm`)
+-- and the player is on the bowl step (`tutorialStep` is Presets.waitingCat.holdStep). A step not yet known holds
+-- nothing.
+function Logic.waitingHeld(switchOn: boolean, tutorialStep: unknown): boolean
+	return switchOn and tutorialStep == Presets.waitingCat.holdStep
+end
+
 -- #3022: the waiting stray's "come here" (motion.beckon), `alpha` 0 to 1 through it, layered on whatever the cat
 -- does: a couple of small hops, its head turned `yaw` degrees to you and tipped up, ears forward, tail up and flicking,
 -- all easing in and out so it never snaps.

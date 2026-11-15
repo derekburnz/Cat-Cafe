@@ -5,6 +5,10 @@ return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
 	local Presets = require(Client:WaitForChild("Effects"):WaitForChild("Presets")) :: any
+	local Logic = require(Client:WaitForChild("Effects"):WaitForChild("Logic")) :: any
+	local LiveFlags = require(
+		game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("LiveFlags")
+	) :: any
 
 	describe("Effects waiting cat", function()
 		it("has a gentle steady beacon and slow rings", function()
@@ -28,5 +32,21 @@ return function()
 				expect(type(p.marker.glyph)).to.equal("string")
 			end
 		)
+
+		it("waits while the bowl step is the one ask, and only then (#4384)", function()
+			local p = Presets.waitingCat
+			expect(p.holdStep).to.equal(4)
+			expect(Logic.waitingHeld(true, p.holdStep)).to.equal(true)
+			for _, step in { 0, 1, 2, 3, 5, 6 } do
+				expect(Logic.waitingHeld(true, step)).to.equal(false)
+			end
+			-- a step not yet known, and the switch off, hold nothing
+			expect(Logic.waitingHeld(true, nil)).to.equal(false)
+			expect(Logic.waitingHeld(false, p.holdStep)).to.equal(false)
+			-- the switch is on until the store says false, so it holds before its attribute arrives
+			expect(LiveFlags.OFF_BY_DEFAULT[p.holdSwitch] == true).to.equal(false)
+			expect(LiveFlags.shown(p.holdSwitch, nil)).to.equal(true)
+			expect(LiveFlags.shown(p.holdSwitch, false)).to.equal(false)
+		end)
 	end)
 end

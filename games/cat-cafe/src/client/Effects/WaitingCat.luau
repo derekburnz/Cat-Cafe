@@ -8,6 +8,8 @@
 -- instead of stopping, so the beacon lasts until the cat is caught or gone. It starts `delay` seconds after the cat
 -- first shows (SecondCat's TRAIL_DELAY_SECONDS and TRAIL_SECONDS when present). Reduce Motion keeps the sparkles and a
 -- still badge without the rings; Low performance keeps the badge and rings without the sparkles. Listening only.
+-- #4384: all of it waits while the player is on the bowl step (`WaitingCat.held`, switch `checkInCalm`), so the Bait
+-- bowl is the one thing asked for after the first check-in; it starts when that step is done.
 --
 -- Roblox terms: a BillboardGui is 2D UI drawn at a point in the world, always facing the camera; AlwaysOnTop draws it
 -- over walls. It is made by this client, so no other player sees it.
@@ -18,7 +20,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
+
+local Net = require(script.Parent.Parent.Net)
+
 local Context = require(script.Parent.Context)
+local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
 
@@ -31,6 +38,16 @@ local ringAt = 0
 local anchor: Attachment? = nil
 local emitter: ParticleEmitter? = nil
 local badge: Attachment? = nil
+local tutorialStep: unknown = nil -- this player's, from ProfileSync
+
+-- #4384: true while the bowl step is the one ask (Logic.waitingHeld): no beacon here, and StrayCall and Audio ask
+-- this before the cat calls. The server keeps the stray waiting all the while.
+function WaitingCat.held(): boolean
+	local key = Presets.waitingCat.holdSwitch
+	local on =
+		LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
+	return Logic.waitingHeld(on, tutorialStep)
+end
 
 -- SecondCat's attribute name and timings, if that module is in, else Presets.waitingCat's.
 local function rules(): (string, number, number)
@@ -132,7 +149,8 @@ end
 local function step()
 	local p = Presets.waitingCat
 	local attribute, delay, seconds = rules()
-	local found = find(attribute)
+	-- held: as if there were no cat, so the beacon starts afresh (after `delay`) once the bowl step is done
+	local found = if WaitingCat.held() then nil else find(attribute)
 	if found ~= cat then
 		drop()
 		dropBadge()
@@ -187,6 +205,14 @@ function WaitingCat.start()
 		return
 	end
 	started = true
+	Net.on("ProfileSync", function(state: unknown)
+		if type(state) == "table" then
+			local value = (state :: { [string]: unknown }).tutorialStep
+			if type(value) == "number" then
+				tutorialStep = value
+			end
+		end
+	end)
 	task.spawn(function()
 		while true do
 			step()

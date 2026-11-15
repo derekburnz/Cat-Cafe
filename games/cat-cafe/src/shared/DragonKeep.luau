@@ -1034,11 +1034,14 @@ export type Effects = {
 	friend: number, -- Double Catch's chance
 	walk: number, -- stud/s added to the walk speed, inside WALK_CAP
 	softLanding: boolean, -- Soft Landing: no CannonCooldownSeconds wait after a landing
+	doubleJump: boolean, -- Double Jump: once more in the air (shared/AirMoves)
+	glide: boolean, -- Glide: hold jump to fall slowly (shared/AirMoves)
 }
 
 function DragonKeep.effects(save: Types.DragonSave): Effects
 	local money, tips, tickets, repeatFish, luck, goldLuck, reach, swing = 0, 0, 0, 0, 0, 0, 0, 0
 	local slowRings, forgive, friend, walk, softLanding = 0, false, 0, 0, false
+	local doubleJump, glide = false, false
 	for _, id in save.slots do
 		if cardsById[id] ~= nil then
 			money += DragonKeep.MONEY[id] or 0
@@ -1063,6 +1066,10 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 				friend = DragonKeep.FRIEND_CHANCE
 			elseif id == "softLanding" then
 				softLanding = true
+			elseif id == "doubleJump" then
+				doubleJump = true
+			elseif id == "glide" then
+				glide = true
 			end
 		end
 	end
@@ -1089,6 +1096,8 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 		friend = friend,
 		walk = walk,
 		softLanding = softLanding,
+		doubleJump = doubleJump,
+		glide = glide,
 	}
 end
 
@@ -1112,6 +1121,8 @@ local NONE: Effects = table.freeze({
 	friend = 0,
 	walk = 0,
 	softLanding = false,
+	doubleJump = false,
+	glide = false,
 }) :: any
 function DragonKeep.of(profile: Types.PlayerProfile): Effects
 	local on = if onOverride ~= nil

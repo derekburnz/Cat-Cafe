@@ -147,6 +147,9 @@ local function applyReach(player: Player, profile: Types.PlayerProfile)
 	local cooldown = NetSwing.cooldownFor(profile)
 	player:SetAttribute("NetCooldown", if cooldown < Config.NetSwingCooldown then cooldown else nil)
 	CatService.refreshSpeed(player) -- the wing cards' walk speed
+	local fx = DragonKeep.of(profile) -- the air cards, for client/Controllers/AirMovesController
+	player:SetAttribute("DoubleJump", if fx.doubleJump then true else nil)
+	player:SetAttribute("Glide", if fx.glide then true else nil)
 end
 
 local function onPick(player: Player, rawIndex: unknown, rawSlot: unknown)

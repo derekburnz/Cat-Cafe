@@ -419,6 +419,16 @@ return function()
 			end
 		)
 
+		it("adds Kindred's 0.1% money a kept cat, up to 10%", function()
+			local save = withSlots({ "kindred" })
+			save.kept = 40
+			expect(math.abs(DragonKeep.effects(save).money - 0.04) < 1e-9).to.equal(true)
+			save.kept = 500
+			expect(math.abs(DragonKeep.effects(save).money - DragonKeep.KINDRED_MAX) < 1e-9).to.equal(
+				true
+			)
+		end)
+
 		it("grows a resting cat's XP by Fast Learner and Cosy Nap in Economy.grantXp", function()
 			local Economy = require(Shared.Economy)
 			local CatStats = require(Shared.CatStats)

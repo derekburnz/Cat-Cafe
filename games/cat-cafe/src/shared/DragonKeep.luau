@@ -1021,6 +1021,8 @@ DragonKeep.SET_WALK = { wing = 1 } :: { [string]: number }
 DragonKeep.XP = { fastLearner = 0.10 } :: { [string]: number } -- share more cat XP, every cat
 DragonKeep.SET_XP = { heart = 0.10 } :: { [string]: number }
 DragonKeep.REST_XP = 0.10 -- Cosy Nap: resting cats (no spot) gain 10% more XP
+DragonKeep.KINDRED_EACH = 0.001 -- Kindred: +0.1% money for each cat ever given to the Keep (save.kept)
+DragonKeep.KINDRED_MAX = 0.10
 DragonKeep.WALK_CAP = 2 -- card walk speed in total, stud/s (with and without a cat)
 
 export type Effects = {
@@ -1054,6 +1056,9 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 			reach += DragonKeep.REACH[id] or 0
 			walk += DragonKeep.WALK[id] or 0
 			xp += DragonKeep.XP[id] or 0
+			if id == "kindred" then
+				money += math.min(save.kept * DragonKeep.KINDRED_EACH, DragonKeep.KINDRED_MAX)
+			end
 			if id == "ticketDragon" then
 				tickets = DragonKeep.TICKET_BONUS
 			elseif id == "fishScale" then

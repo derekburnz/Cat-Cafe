@@ -326,6 +326,87 @@ export type EmitterPreset = {
 }
 
 Presets.emitters = {
+	-- The Dragon Keep's set looks (Effects/KeepSets, Derek 2026-11-15): one soft look per lit card family, from the
+	-- body (the crown's from the head). Level 5 doubles the rate and grows the size (Presets.dragonSets).
+	dragonSetFlame = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Color3.fromRGB(255, 130, 50),
+			Color3.fromRGB(255, 205, 110),
+			Color3.fromRGB(255, 240, 200),
+		},
+		size = { 0.3, 0.05 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.6, 1 },
+		speed = { 0.5, 1.2 },
+		spread = 40,
+		rate = 5,
+		acceleration = Vector3.new(0, 2, 0),
+		drag = 1,
+		lightEmission = 0.6,
+	},
+	dragonSetClaw = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(235, 240, 250), Color3.fromRGB(170, 185, 210) },
+		size = { 0.35, 0 },
+		transparency = { 0, 1 },
+		lifetime = { 0.25, 0.4 },
+		speed = { 0, 0.3 },
+		spread = 180,
+		rate = 3,
+		lightEmission = 0.8,
+		rotSpeed = { -90, 90 },
+	},
+	dragonSetWing = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(225, 240, 255), Color3.fromRGB(190, 215, 245) },
+		size = { 0.25, 0.15 },
+		transparency = { 0.3, 1 },
+		lifetime = { 1.2, 1.8 },
+		speed = { 0.3, 0.6 },
+		spread = 70,
+		rate = 3,
+		acceleration = Vector3.new(0, -1, 0),
+		drag = 1.5,
+		rotSpeed = { -40, 40 },
+	},
+	dragonSetHoard = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 215, 90), Color3.fromRGB(255, 180, 40) },
+		size = { 0.3, 0.15 },
+		transparency = { 0, 1 },
+		lifetime = { 0.7, 1 },
+		speed = { 0.2, 0.5 },
+		spread = 60,
+		rate = 3,
+		acceleration = Vector3.new(0, -3, 0),
+		lightEmission = 0.5,
+	},
+	dragonSetHeart = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 150, 190), Color3.fromRGB(255, 200, 220) },
+		size = { 0.3, 0.1 },
+		transparency = { 0.1, 1 },
+		lifetime = { 1, 1.5 },
+		speed = { 0.3, 0.7 },
+		spread = 35,
+		rate = 3,
+		acceleration = Vector3.new(0, 0.8, 0),
+		drag = 0.8,
+		lightEmission = 0.4,
+	},
+	dragonSetCrown = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 225, 120), Color3.fromRGB(255, 250, 220) },
+		size = { 0.25, 0.05 },
+		transparency = { 0, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 0.6, 1 },
+		spread = 15,
+		rate = 4,
+		drag = 2,
+		lightEmission = 0.8,
+	},
 	-- Ambient
 	-- The Desert's air (#2657, tier6-7-areas.md section 4): sand motes drifting downwind round you, in sand and
 	-- sandstone; the Ruins' air (section 5): slow glyph-gold and jade motes floating up, glowing a little at night.
@@ -4129,12 +4210,14 @@ Presets.fusion = {
 	gold = Presets.palette.golden,
 	huePeriod = 6,
 	acrossMin = 110, -- pixels: rings are sized as if the picture were at least this wide, so a small one still reads
+	acrossMax = 180, -- and never wider than this, so the meeting ring stays round the dome's picture (#4563)
+	wide = 1.6, -- a centre wider than this many times its height is a card: the tiles land on its left square
 	swirl = {
 		most = 5,
-		stagger = 0.07,
-		seconds = 0.9,
+		stagger = 0.09,
+		seconds = 1.1,
 		turns = 0.75,
-		land = 0.3,
+		land = 0.2,
 		sparkles = 10,
 		sparkleSize = 12,
 		sparkleSeconds = 0.5,
@@ -4174,7 +4257,7 @@ Presets.fusion = {
 		collect = 12,
 		collectRing = 1.2,
 		collectConfetti = 0.5,
-		rate = 1 / 20,
+		rate = 1 / 60, -- every frame near the dome: at 20 a second the paw lights stepped round in jerks (#4563)
 		lookSeconds = 3,
 	},
 }
@@ -5182,6 +5265,25 @@ Presets.fireTrail = {
 	moving = 0.2,
 	lift = 0.2,
 	behind = 0.5,
+}
+
+-- The Dragon Keep's set looks (Effects/KeepSets): `families` maps each card family to its emitter, `onHead` the
+-- ones worn on the head. Level 5 runs `bigRate` times the rate at `bigSize` times the size. The nearest
+-- budget.potionGlows players within `radius` studs show theirs, checked every `pickEvery` seconds.
+Presets.dragonSets = {
+	radius = 60,
+	pickEvery = 0.5,
+	bigRate = 2,
+	bigSize = 1.4,
+	families = {
+		flame = "dragonSetFlame",
+		claw = "dragonSetClaw",
+		wing = "dragonSetWing",
+		hoard = "dragonSetHoard",
+		heart = "dragonSetHeart",
+		crown = "dragonSetCrown",
+	} :: { [string]: string },
+	onHead = { crown = true } :: { [string]: boolean },
 }
 
 Presets.potionFx =

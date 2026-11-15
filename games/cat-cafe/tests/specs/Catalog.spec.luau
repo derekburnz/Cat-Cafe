@@ -419,9 +419,9 @@ return function()
 		}
 
 		it(
-			"has exactly 125 cats: the 20 slice, 30 later, the 50 of Tier 6 to 10 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin and the 10 Secret cats",
+			"has exactly 126 cats: the 20 slice, 30 later, the 50 of Tier 6 to 10 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles, Maple Muffin, the Booth Plush Cat and the 10 Secret cats",
 			function()
-				expect(#Catalog.cats).to.equal(125)
+				expect(#Catalog.cats).to.equal(126)
 				for _, def in ipairs(Catalog.cats) do
 					expect(
 						slice[def.id] ~= nil
@@ -433,6 +433,7 @@ return function()
 							or def.id == "king_croissant"
 							or def.id == "sprinkles" -- #1625: the Starter Bundle's cat
 							or def.id == "maple_muffin" -- #1626: the Cafe Pass season cat
+							or def.id == "booth_plush" -- #4061: the Ticket Booth's prize cat
 							or def.rarity == "Secret" -- #3470 and #4221: the ten Secret cats
 					).to.equal(true)
 				end
@@ -736,7 +737,7 @@ return function()
 			-- #4070 (draft numbers on Tier 8's pattern)
 			{
 				"Funfair Cafe",
-				250000000000,
+				312500000000, -- Derek 2026-11-15 18:39 UTC: +25% (250,000,000,000 before)
 				54, -- #4513
 				"Mythical",
 				7,
@@ -748,7 +749,7 @@ return function()
 			-- #4184 (draft numbers on the same pattern)
 			{
 				"Royal Cafe",
-				1500000000000,
+				1875000000000, -- Derek 2026-11-15 18:39 UTC: +25% (1,500,000,000,000 before)
 				65, -- #4513
 				"Mythical",
 				8,

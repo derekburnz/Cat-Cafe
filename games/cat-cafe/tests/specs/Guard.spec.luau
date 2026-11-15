@@ -5,8 +5,12 @@
 return function()
 	local ServerScriptService = game:GetService("ServerScriptService")
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+	local Catalog = require(Shared.Catalog)
 	local CatStats = require(Shared.CatStats)
 	local Config = require(Shared.Config)
+	local DragonKeep = require(Shared.DragonKeep)
+	local FishStore = require(Shared.FishStore)
+	local TicketBooth = require(Shared.TicketBooth)
 	local Guard = require(ServerScriptService.Server.Util.Guard)
 
 	describe("Guard.id", function()
@@ -41,9 +45,47 @@ return function()
 			end
 		end)
 
-		it("drops anything that is not a short lowercase id", function()
+		it(
+			"passes every camelCase id a remote takes: booth prizes, keep cards, Fish Store keys, milestones, decor (#4564)",
+			function()
+				local ids: { string } = {}
+				for _, prize in TicketBooth.PRIZES do
+					table.insert(ids, prize.id)
+				end
+				for _, card in DragonKeep.CARDS do
+					table.insert(ids, card.id)
+				end
+				for _, item in FishStore.LIST do
+					table.insert(ids, item.key)
+				end
+				for _, milestone in Catalog.indexMilestones do
+					table.insert(ids, milestone.id)
+				end
+				for _, decor in Catalog.decor do
+					table.insert(ids, decor.id)
+				end
+				expect(#ids > 60).to.equal(true)
+				local dropped: { string } = {}
+				for _, id in ids do
+					if Guard.id(id) ~= id then
+						table.insert(dropped, id)
+					end
+				end
+				expect(table.concat(dropped, ", ")).to.equal("")
+			end
+		)
+
+		it(
+			"passes capitals: HOME and stylishPack are well formed (each caller looks the id up)",
+			function()
+				expect(Guard.id("HOME")).to.equal("HOME")
+				expect(Guard.id("stylishPack")).to.equal("stylishPack")
+			end
+		)
+
+		it("drops anything that is not a short id of letters, digits, _ and -", function()
 			local tooLong = string.rep("a", Config.MaxIdLength + 1)
-			for _, bad in { "", "HOME", "Neon Sign", "../x", "a/b", "a.b", "a b", tooLong } do
+			for _, bad in { "", "Neon Sign", "../x", "a/b", "a.b", "a b", tooLong } do
 				expect(Guard.id(bad)).to.equal(nil)
 			end
 			for _, bad in { 123, true, {} } do
@@ -129,8 +171,10 @@ return function()
 			expect(loaded).to.equal(41) -- the 40 plus the starter Tabby
 		end)
 
-		it("drops upper case uids, control and non-ASCII characters", function()
-			for _, bad in { "FA3848F6-E97", " tabby", "tabby\n", "a\0b", "tab\tby", "tabb\u{E9}" } do
+		-- An upper case uid passes since #4564 (camelCase ids), but uids are saved lowercase and every caller looks
+		-- the uid up exactly, so it finds no cat.
+		it("drops control and non-ASCII characters", function()
+			for _, bad in { " tabby", "tabby\n", "a\0b", "tab\tby", "tabb\u{E9}" } do
 				expect(Guard.id(bad)).to.equal(nil)
 			end
 		end)

@@ -3070,6 +3070,13 @@ Layout.ticketBooth = { area = "waterpark", x = 22, y = 0, z = -290, turn = 90 }
 -- 39.5 and z -285.5 to -300.5, inside the camp (gate line z -280, back wall -310) and clear of the opening.
 Layout.dragonKeep = { area = "castle", x = 32, y = 0, z = -293, turn = 90 }
 
+-- #4104 (Derek 2026-11-15 18:00 UTC: "I want all stations and maps out with the update"): the Fusion Observatory's
+-- dome (CatCafe_Camp_Snowy_FusionObservatory, pivot its base centre, front -Z, about 15 wide and 13 deep) in the Snowy
+-- Mountain's camp, as Layout.dragonKeep: right of the way out, its centre level with the pad, turned 90 so its front
+-- faces the pad. Model-Agent's fit against the Snowy camp's parts (2026-11-15 18:05 UTC): turned, it runs x 20.5 to
+-- 33.4 and z -299.9 to -284.9, clear of the opening, the ski rack and the Cocoa Lodge front (x 33.7 on).
+Layout.fusionObservatory = { area = "snowy", x = 27, y = 0, z = -294, turn = 90 }
+
 -- Where a camp spot ({area, x, y, z, turn} in its area's set space) stands in the world, as lawnStallAt, or nil
 -- without that area or its camp.
 local function campSpotAt(
@@ -3094,6 +3101,11 @@ end
 -- #4103: where the Dragon Keep stands in the world, or nil without the Castle or its camp.
 function Layout.dragonKeepAt(): (number?, number?, number?, number?)
 	return campSpotAt(Layout.dragonKeep)
+end
+
+-- #4104: where the Fusion Observatory stands in the world, or nil without the Snowy Mountain or its camp.
+function Layout.fusionObservatoryAt(): (number?, number?, number?, number?)
+	return campSpotAt(Layout.fusionObservatory)
 end
 
 -- The camp an x, z stands in, by its rect (edges included), or nil.

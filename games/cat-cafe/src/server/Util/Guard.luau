@@ -7,14 +7,17 @@ local Config = require(ReplicatedStorage.Shared.Config)
 
 local Guard = {}
 
--- A catalog id or instance id: short, lowercase letters, digits, underscores and hyphens only. Cat uids are the
+-- A catalog id or instance id: short, ASCII letters, digits, underscores and hyphens only. Cat uids are the
 -- first 12 characters of a lowercased GUID ("fa3848f6-e97", CafeService newUid), so the hyphen has to pass or no
--- caught cat can be placed, sold or renamed (laptop Studio run 2026-10-27).
+-- caught cat can be placed, sold or renamed (laptop Studio run 2026-10-27). Capitals pass too (#4564, Derek
+-- 2026-11-15): the Ticket Booth prizes ("goldenCrate"), the Dragon Keep cards ("doubleJump"), the Fish Store keys
+-- ("stylishPack"), the late index milestones ("totalAll") and the event decor ("Decor_PartyBunting") are camelCase,
+-- and a lowercase-only guard dropped every one of those calls silently. Each caller still looks the id up exactly.
 function Guard.id(value: unknown): string?
 	if type(value) ~= "string" or #value == 0 or #value > Config.MaxIdLength then
 		return nil
 	end
-	if value:match("^[%l%d_%-]+$") == nil then
+	if value:match("^[%w_%-]+$") == nil then
 		return nil
 	end
 	return value

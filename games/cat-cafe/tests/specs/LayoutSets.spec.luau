@@ -849,6 +849,27 @@ return function()
 				expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + 3).to.equal(true)
 			end
 		)
+
+		it(
+			"stands the Fusion Observatory in the Snowy Mountain camp, off its way out and the pad, facing the pad (#4104)",
+			function()
+				local x, y, z, turn = Layout.fusionObservatoryAt()
+				assert(
+					x ~= nil and y ~= nil and z ~= nil and turn ~= nil,
+					"no Fusion Observatory spot"
+				)
+				local camp = Layout.camps.snowy
+				expect(Layout.campAt(x, z)).to.equal("snowy")
+				expect(y).to.equal(Layout.areas.snowy.floorY)
+				expect(turn).to.equal(camp.turn + 90)
+				local cx, cz = Layout.campSpace(camp, x, z)
+				-- the turned dome is about 13 across and 15 along: its near side clear of the opening, all of it inside
+				expect(cx - 6.6 > camp.openingHalfWidth + 4).to.equal(true)
+				expect(cz + 7.6 < 0 and cz - 7.6 > -W.CampDepth).to.equal(true)
+				local pad = Layout.landingPads.snowy.centre
+				expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + 3).to.equal(true)
+			end
+		)
 	end)
 
 	-- #2240 (Derek 11-07: "change rescue spots not always the same"): each area's pool of trap spots, which RescuePick

@@ -40,6 +40,8 @@ local TAGS: { [string]: Tag } = {
 	title_devoted = { text = "[Devoted]", color = "#C79BE8" },
 	title_week_champion = { text = "[Week Champion]", color = "#6FB3E8" },
 	title_gold_rush = { text = "[Gold Rush]", color = "#E8C547" },
+	-- #4061: the Ticket Booth's title, held for good from 10,000 tickets spent (TicketBooth.REGULAR_SPENT)
+	title_park_regular = { text = "[Park Regular]", color = "#4FC3D9" },
 }
 for _, tag in TAGS do
 	table.freeze(tag)
@@ -58,6 +60,7 @@ local ORDER: { string } = {
 	"title_devoted",
 	"title_week_champion",
 	"title_gold_rush",
+	"title_park_regular",
 	"rank_1",
 	"rank_2",
 	"rank_3",

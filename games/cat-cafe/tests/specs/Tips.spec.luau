@@ -258,7 +258,7 @@ return function()
 
 	-- QA edges: what TipSeen, the save and ClearTips do with input nobody planned for.
 	describe("edges (QA)", function()
-		-- TipSeen goes through the server's Guard.id first (lowercase letters, digits, _ and -, 1 to MaxIdLength),
+		-- TipSeen goes through the server's Guard.id first (ASCII letters, digits, _ and -, 1 to MaxIdLength),
 		-- so an id outside it could never be saved.
 		it("every id TipSeen takes passes the server's id guard", function()
 			local ids: { string } = {

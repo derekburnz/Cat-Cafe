@@ -28,6 +28,7 @@ local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local StationTiers = require(ReplicatedStorage.Shared.StationTiers)
 local Telemetry = require(script.Parent.Telemetry)
 local Trade = require(ReplicatedStorage.Shared.Trade)
 local TradeService = require(script.Parent.TradeService)
@@ -42,7 +43,11 @@ local rng = Random.new()
 
 -- Whether `profile`'s player can use the station now (CafeService.traitsView reads the same).
 function TraitService.open(profile: Profile): boolean
-	return LiveFlagService.on(Traits.FLAG) and Traits.openAt(Economy.tier(profile))
+	local tier = Economy.tier(profile)
+	-- #4539: the pool opens from Tier 4 (shared/StationTiers)
+	return LiveFlagService.on(Traits.FLAG)
+		and Traits.openAt(tier)
+		and not StationTiers.locked(Traits.TAG, tier, LiveFlagService.on(StationTiers.FLAG))
 end
 
 -- Adds `count` Trait Tokens from `source` (a spin, the Daily Treat, a quest set, Lost and Found, a code) and logs

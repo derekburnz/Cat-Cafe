@@ -148,6 +148,12 @@ local ICON_EXTRA: { [string]: WalkUpCircles.Icon } = {
 	museum = { emoji = "🏺", image = StationIcons.museum },
 }
 local RING_STATION = Color3.fromRGB(255, 201, 77) -- a camp station without its own colour
+-- #4554: the floor icon in the Ticket Booth's and the Dragon Keep's rings
+local CAMP_STATION_ICON: { [string]: WalkUpCircles.Icon } = {
+	TicketBooth = { emoji = "🎟️" },
+	DragonKeep = { emoji = "🐉" },
+	FusionObservatory = { emoji = "🔭" }, -- #4104's dome, once it is placed by buildCampStation
+}
 local RING_BOARD = Color3.fromRGB(190, 150, 240)
 -- #3347: the Index Boards show the drawn open book (the client's Icon_Clean_Index), the emoji under it until it loads
 local ICON_BOARD: WalkUpCircles.Icon = { emoji = "📖", image = StationIcons.index }
@@ -2108,9 +2114,21 @@ local function buildCampStation(
 	prompt.HoldDuration = 0
 	prompt.MaxActivationDistance = Config.CampExtraRangeStuds
 	prompt.RequiresLineOfSight = false
+	-- #4554 (Derek 2026-11-15: "ticket booth is press e right now and missing a circle infront", and the Dragon Keep
+	-- too): the ring in front, where the window opens as you walk in (WalkUpController), as at every other station
+	WalkUpCircles.frontFit(model, RING_STATION, parent, CAMP_STATION_ICON[name])
+	local link = model:FindFirstChild(WalkUp.CIRCLE)
+	local ringPart: Instance? = if link ~= nil and link:IsA("ObjectValue")
+		then (link :: ObjectValue).Value
+		else nil
+	local ringHome = if ringPart ~= nil then ringPart.Parent else nil
 	local attribute = LiveFlags.ATTRIBUTE_PREFIX .. flag
 	local function follow()
-		prompt.Enabled = ReplicatedStorage:GetAttribute(attribute) == true
+		local on = ReplicatedStorage:GetAttribute(attribute) == true
+		prompt.Enabled = on
+		if ringPart ~= nil then
+			ringPart.Parent = if on then ringHome else nil -- no ring while the switch is off
+		end
 	end
 	follow()
 	ReplicatedStorage:GetAttributeChangedSignal(attribute):Connect(follow)
@@ -2147,6 +2165,21 @@ local function buildCampStations(parent: Instance)
 		"Dragon Keep",
 		DragonKeep.FLAG,
 		8.5
+	)
+	-- #4104: the Snowy Mountain's Fusion Observatory (tag and name FusionObservatory, prompt FusionObservatoryPrompt,
+	-- switch fusion), its prompt 0.8 in front of its 13 deep front
+	x, y, z, turn = Layout.fusionObservatoryAt()
+	buildCampStation(
+		parent,
+		"CatCafe_Camp_Snowy_FusionObservatory",
+		x,
+		y,
+		z,
+		turn,
+		"FusionObservatory",
+		"Fusion Observatory",
+		"fusion", -- shared/Fusion.FLAG
+		7.3
 	)
 end
 

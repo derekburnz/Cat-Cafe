@@ -1444,9 +1444,11 @@ local function paintCampWords(
 	-- the walk-up rings near the words (Derek 2026-11-12: "move the safezone text", painted inside the Mystic Pool's
 	-- ring): kept apart from what stands on the floor, so the words can fall back to ignoring them
 	local rings: { SafeWords.Box } = {}
+	-- #4619: the camp stations' rings, which the words never lie on (the fallback below ignores only the others)
+	local stationRings: { SafeWords.Box } = {}
 	local counted: { [BasePart]: boolean } = {}
 	-- a ring is unseen and flat (its SurfaceGui draws it), so the checks on what stands on the floor would pass it by
-	local function addRing(piece: BasePart)
+	local function addRing(piece: BasePart, into: { SafeWords.Box })
 		local radius = piece:GetAttribute("Radius")
 		if counted[piece] or type(radius) ~= "number" then
 			return
@@ -1461,7 +1463,7 @@ local function paintCampWords(
 			and at.X + radius > -camp.halfAcross - 1
 			and at.X - radius < camp.halfAcross + 1
 		then
-			table.insert(rings, {
+			table.insert(into, {
 				x1 = at.X - radius,
 				z1 = at.Z - radius,
 				x2 = at.X + radius,
@@ -1476,7 +1478,7 @@ local function paintCampWords(
 			end
 			local piece = descendant :: BasePart
 			if piece.Name == WalkUp.CIRCLE then
-				addRing(piece)
+				addRing(piece, rings)
 				continue
 			end
 			-- a night fence is built hidden (hideForDay) and keeps its real look in an attribute
@@ -1528,19 +1530,23 @@ local function paintCampWords(
 			end
 		end
 	end
+	-- the camp stations' rings first, in the world or not (a ring outside this camp is too far to count), so the
+	-- walk below finds them already counted
+	for _, piece in campStationRings do
+		addRing(piece, stationRings)
+	end
 	add(areaModel)
 	for _, extra in extras do
 		add(extra)
 	end
-	-- #4619: the camp stations' rings too, in the world or not (a ring outside this camp is too far to count)
-	for _, piece in campStationRings do
-		addRing(piece)
-	end
-	-- clear of the rings too. #4619: where the only room is on a ring the words are left out (the stripe still marks
-	-- the line); they used to go where they went before the rings counted, across a ring's rim
-	local all = table.clone(obstacles)
+	-- clear of the rings too where there is room; where there is none, where they went before the rings counted.
+	-- #4619: never on a camp station's ring, though: with no room clear of those the words are left out (the stripe
+	-- still marks the line). A camp with no station keeps exactly what it had.
+	local firm = table.clone(obstacles)
+	table.move(stationRings, 1, #stationRings, #firm + 1, firm)
+	local all = table.clone(firm)
 	table.move(rings, 1, #rings, #all + 1, all)
-	local spot = SafeWords.fit(all, camp.halfAcross)
+	local spot = SafeWords.fit(all, camp.halfAcross) or SafeWords.fit(firm, camp.halfAcross)
 	if spot == nil then
 		return
 	end

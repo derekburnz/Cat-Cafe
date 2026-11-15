@@ -23,10 +23,12 @@ local Create = require(script.Parent.Parent.Components.Create)
 local DragonKeepLogic = require(script.Parent.Parent.Components.DragonKeepLogic)
 local FitText = require(script.Parent.Parent.Components.FitText)
 local GridFit = require(script.Parent.Parent.Components.GridFit)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -164,6 +166,7 @@ function DragonKeep.new(callbacks: Callbacks): DragonKeep
 		subtitle = "Spare cats move in and keep Cinder warm",
 		color = Color3.fromHex("6A3FB0"),
 		icon = "🐉",
+		image = ShopIcons.clean("DragonKeep"), -- #4417: the station's clean picture
 		size = UDim2.fromScale(1, 1),
 		onClose = callbacks.close,
 	})
@@ -520,6 +523,11 @@ end
 function DragonKeep._paintSlots(self: any)
 	local view = self._view
 	self._dragonName.Text = DragonKeepLogic.title(view)
+	-- #4412: Cinder's portrait for the stage reached; the Egg (no stage yet) keeps the 🐉
+	IconArt.setImage(
+		self._dragonPicture,
+		ShopIcons.dragonStage(if view then view.stageName else nil)
+	)
 	local words, share = DragonKeepLogic.warmth(view)
 	self._warmthText.Text = words
 	self._warmthFill.Size = UDim2.fromScale(share, 1)
@@ -531,6 +539,8 @@ function DragonKeep._paintSlots(self: any)
 			then "🔒"
 			elseif family then DragonKeepLogic.FAMILY_ICONS[family] or "✨"
 			else "+"
+		-- #4415: a slotted card's family picture over its emoji; a lock or an empty slot keeps its glyph
+		IconArt.setImage(tile.icon, if family then ShopIcons.dragonFamily(family) else nil)
 		tile.label.Text = slot.label
 		tile.label.TextColor3 = if slot.locked then CARD.subtext else CARD.text
 		tile.tile.BackgroundColor3 = if slot.locked then PAL.card else CARD.card

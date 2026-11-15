@@ -86,6 +86,13 @@ function Logic.songsFor(phase: string?, has: (string) -> boolean): { string }
 	return songs
 end
 
+-- #4251: the zone the area song follows. Harvest Hollow has no World.Zones box, so while Effects/HarvestFx says you
+-- are in it the song's zone is "Harvest" (musicAreaHarvest), whatever zone the world gives.
+Logic.HARVEST_ZONE = "Harvest"
+function Logic.songZone(zone: string?, inHarvest: boolean): string?
+	return if inHarvest then Logic.HARVEST_ZONE else zone
+end
+
 -- #2651: the song of the area a zone names ("Desert" plays musicAreaDesert), or nil when the zone has none (the cafe
 -- and the town areas) or its file is not uploaded yet. Played in place of the cafe music while you are in it.
 function Logic.areaSongFor(zone: string?, has: (string) -> boolean): string?
@@ -484,6 +491,9 @@ local CAT_CATCHES: { [string]: string } = {
 	water = "campSplash",
 	dragon_knight = "dragonChirp",
 }
+-- #4197: what an admin event drops lands (Effects/AdminDrops.onLand)
+Logic.ADMIN_DROP_CUES = { fish = "adminFishLand", crate = "adminCrateLand" } :: { [string]: string }
+Logic.HARVEST_PICK_CUE = "harvestPick" -- #4251: a Harvest Hollow patch pumpkin is picked (Effects/HarvestFx)
 Logic.STORM_LAND_CUE = "stormLand" -- #4197: a Cat Storm's stray lands (Effects/StormFall)
 function Logic.areaCue(beat: any, area: any, catId: any): string?
 	if beat == "step" then

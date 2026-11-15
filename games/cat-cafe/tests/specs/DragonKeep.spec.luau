@@ -388,6 +388,35 @@ return function()
 			expect(NetSwing.refusal(early)).to.equal(nil)
 		end)
 
+		it("slows the rings with Quick Paws and forgives one Miss with Steady Claw", function()
+			local Circles = require(Shared.Circles)
+			local fx = DragonKeep.effects(withSlots({ "quickPaws", "steadyClaw" }))
+			expect(fx.slowRings).to.equal(DragonKeep.SLOW_RINGS)
+			expect(fx.forgive).to.equal(true)
+			local function roll(): number
+				return 0.5
+			end
+			local plain = Circles.schedule("Rare", 1, T, roll, nil)
+			local slow = Circles.schedule("Rare", 1, T, roll, nil, fx.slowRings)
+			expect(math.abs(slow[1].shrinkSeconds - plain[1].shrinkSeconds * 1.05) < 1e-9).to.equal(
+				true
+			)
+			local windows = Circles.windows(1)
+			local trust = Circles.trustFor("Rare")
+			local attempt = Circles.newAttempt(plain, windows, trust, true)
+			local start = attempt.trust :: number
+			-- the first ring left to run out is a Miss that costs nothing, the second costs as ever
+			Circles.expire(attempt, Circles.deadline(plain[1], windows) + 0.01)
+			expect(attempt.grades[1]).to.equal("miss")
+			expect(attempt.trust).to.equal(start)
+			Circles.expire(attempt, Circles.deadline(plain[2], windows) + 0.01)
+			expect(attempt.grades[2]).to.equal("miss")
+			expect(attempt.trust).to.equal(start + Circles.trustDelta("miss"))
+			local noCard = Circles.newAttempt(plain, windows, trust)
+			Circles.expire(noCard, Circles.deadline(plain[1], windows) + 0.01)
+			expect(noCard.trust).to.equal(start + Circles.trustDelta("miss"))
+		end)
+
 		it("names only real cards in its tables", function()
 			for id in DragonKeep.MONEY do
 				expect(DragonKeep.card(id)).to.be.ok()

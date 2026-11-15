@@ -31,6 +31,7 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Cooldown = require(ReplicatedStorage.Shared.Cooldown)
 local DataService = require(script.Parent.DataService)
+local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EventRewardService = require(script.Parent.EventRewardService)
 local EventService = require(script.Parent.EventService)
@@ -2608,7 +2609,8 @@ function startCatch(
 		return rng:NextNumber()
 	end
 	-- F87: a beginner's own tutorial stray is one slow circle with doubled bands (easy-start.md section 2b)
-	local tutorial = easyCatch(player, profile, stray) -- #2774: any rarity, until the first check-in
+	local tutorial = easyCatch(player, profile, stray)
+	local dragonFx = DragonKeep.of(profile) -- #4447: Quick Paws and Steady Claw -- #2774: any rarity, until the first check-in
 	-- F83: the rarer the cat, the narrower its bands; CatchSchedule sends these, so the client draws the real ones
 	local windows = if tutorial
 		then Circles.tutorialWindows(netLevel)
@@ -2630,13 +2632,20 @@ function startCatch(
 		and (SecondCat.caught(profile.stats) == 0 or freeCatch(player, profile))
 	local circles = if tutorial
 		then Circles.tutorialSchedule(now, roll, hold)
-		else Circles.schedule(stray.def.rarity, netLevel, now, roll, stray.area) -- #3140: quicker late on
+		else Circles.schedule(
+			stray.def.rarity,
+			netLevel,
+			now,
+			roll,
+			stray.area,
+			dragonFx.slowRings
+		) -- #3140, #4447
 	-- #1884 (catch-rework.md 7b): the trust bar; the tutorial stray's one ring catches on a Good or Perfect
 	-- #1884 (7a): a swing landing just as a Curious cat walks up starts with CuriousTrustBonus more
 	local trust = if tutorial
 		then Circles.tutorialTrust()
 		else Circles.trustFor(stray.def.rarity, Moods.trustBonus(stray.curiousAt, now))
-	local attempt = Circles.newAttempt(circles, windows, trust)
+	local attempt = Circles.newAttempt(circles, windows, trust, not tutorial and dragonFx.forgive)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
 	CatService.refreshSpeed(player) -- #2052: the catcher stands still until the circles end

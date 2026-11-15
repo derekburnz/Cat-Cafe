@@ -994,9 +994,11 @@ export type VersionQuery<T> = {
 
 type ProfileStoreStandard<T> = {
 	Name: string,
-	StartSessionAsync: (self: any, profile_key: string, params: { Steal: boolean? }) -> (
-		Profile<T>?
-	),
+	StartSessionAsync: (
+		self: any,
+		profile_key: string,
+		params: { Steal: boolean? }
+	) -> Profile<T>?,
 	MessageAsync: (self: any, profile_key: string, message: JSONAcceptable) -> boolean,
 	GetAsync: (self: any, profile_key: string, version: string?) -> Profile<T>?,
 	VersionQuery: (

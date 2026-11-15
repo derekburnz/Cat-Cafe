@@ -1011,6 +1011,7 @@ DragonKeep.GOLD_LUCK = 0.10 -- Gold Fever: +0.10 gold luck, inside GoldLuckMax w
 DragonKeep.REACH = { sharpEye = 0.03 } :: { [string]: number } -- share of NetReachStuds added to the net's reach
 DragonKeep.SET_REACH = { claw = 0.03 } :: { [string]: number }
 DragonKeep.REACH_CAP = 0.05 -- card reach in total, so it stays under the Long Net's +1 stud
+DragonKeep.SLOW_RINGS = 0.05 -- Quick Paws: catch circles move 5% slower (their shrink time 5% longer)
 DragonKeep.SWING = 0.08 -- Ember Net: nets swing 8% faster (NetSwingCooldown 8% shorter)
 DragonKeep.TICKET_BONUS = 0.25 -- Ticket Dragon: +25% Ticket Booth tickets (rounded down a catch)
 DragonKeep.REPEAT_FISH = 1 -- Fish Scale: a repeat Epic or better catch gives +1 golden fish
@@ -1024,10 +1025,13 @@ export type Effects = {
 	goldLuck: number,
 	reach: number,
 	swing: number,
+	slowRings: number,
+	forgive: boolean, -- Steady Claw: the first Miss in each net catch costs no trust
 }
 
 function DragonKeep.effects(save: Types.DragonSave): Effects
 	local money, tips, tickets, repeatFish, luck, goldLuck, reach, swing = 0, 0, 0, 0, 0, 0, 0, 0
+	local slowRings, forgive = 0, false
 	for _, id in save.slots do
 		if cardsById[id] ~= nil then
 			money += DragonKeep.MONEY[id] or 0
@@ -1043,6 +1047,10 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 				goldLuck = DragonKeep.GOLD_LUCK
 			elseif id == "emberNet" then
 				swing = DragonKeep.SWING
+			elseif id == "quickPaws" then
+				slowRings = DragonKeep.SLOW_RINGS
+			elseif id == "steadyClaw" then
+				forgive = true
 			end
 		end
 	end
@@ -1062,6 +1070,8 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 		goldLuck = goldLuck,
 		reach = reach,
 		swing = swing,
+		slowRings = slowRings,
+		forgive = forgive,
 	}
 end
 
@@ -1080,6 +1090,8 @@ local NONE: Effects = table.freeze({
 	goldLuck = 0,
 	reach = 0,
 	swing = 0,
+	slowRings = 0,
+	forgive = false,
 }) :: any
 function DragonKeep.of(profile: Types.PlayerProfile): Effects
 	local on = if onOverride ~= nil

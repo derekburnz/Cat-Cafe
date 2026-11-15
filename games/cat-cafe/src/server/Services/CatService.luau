@@ -407,7 +407,9 @@ local function pawsBonus(player: Player): number
 	local profile = DataService.get(player)
 	-- #3871: plus the working cats' speed traits (Quick Paws and the combos that hold it), the best one only
 	local traits = if profile ~= nil then Economy.traitBonus(profile, "speed") else 0
-	return SwiftPaws.bonus(profile, LiveFlagService.on(SwiftPaws.FLAG)) + traits
+	-- #4447: the Dragon Keep's wing cards and set, inside DragonKeep.WALK_CAP
+	local dragon = if profile ~= nil then DragonKeep.of(profile).walk else 0
+	return SwiftPaws.bonus(profile, LiveFlagService.on(SwiftPaws.FLAG)) + traits + dragon
 end
 
 -- #3535: the carry walk speed: CarryWalkSpeed with Swift Paws and, with the Speed Shoes owned and their switch on,

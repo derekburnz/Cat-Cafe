@@ -368,6 +368,21 @@ return function()
 			expect(extra < Config.LongNetReachStuds - Config.NetReachStuds).to.equal(true)
 		end)
 
+		it("adds the wing cards' walk speed, the Wing set held to WALK_CAP", function()
+			DragonKeep.setOn(true)
+			local one = DragonKeep.of({ dragon = withSlots({ "lightStep" }) } :: any).walk
+			-- Light Step 0.5 + Wingbeat 1.5 + the lit Wing set 1, held to 2
+			local all = DragonKeep.of(
+				{ dragon = withSlots({ "lightStep", "wingbeat", "glide" }) } :: any
+			).walk
+			DragonKeep.setOn(false)
+			local off = DragonKeep.of({ dragon = withSlots({ "lightStep" }) } :: any).walk
+			DragonKeep.setOn(nil)
+			expect(one).to.equal(0.5)
+			expect(all).to.equal(DragonKeep.WALK_CAP)
+			expect(off).to.equal(0)
+		end)
+
 		it("shortens the swing wait with Ember Net, only with the switch on", function()
 			local NetSwing = require(Shared.NetSwing)
 			local Config = require(Shared.Config)

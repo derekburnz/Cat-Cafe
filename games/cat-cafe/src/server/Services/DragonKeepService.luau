@@ -20,6 +20,7 @@ local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local CafeService = require(script.Parent.CafeService)
+local CatService = require(script.Parent.CatService)
 local ClockService = require(script.Parent.ClockService)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -138,13 +139,14 @@ local function onGive(player: Player, rawUids: unknown, rawConfirmed: unknown)
 end
 
 -- #4447: the net's extra reach (the Long Net and the reach cards) as NetExtraStuds, for the client's reach glow
--- (MysteryMarketService sets it the same way at join and on a Long Net buy), and the time between swings as
--- NetCooldown, for the client's own wait (nil at the Config one).
+-- (MysteryMarketService sets it the same way at join and on a Long Net buy), the time between swings as
+-- NetCooldown, for the client's own wait (nil at the Config one), and the walk speed again for the wing cards.
 local function applyReach(player: Player, profile: Types.PlayerProfile)
 	local extra = NetSwing.extraForProfile(profile)
 	player:SetAttribute("NetExtraStuds", if extra > 0 then extra else nil)
 	local cooldown = NetSwing.cooldownFor(profile)
 	player:SetAttribute("NetCooldown", if cooldown < Config.NetSwingCooldown then cooldown else nil)
+	CatService.refreshSpeed(player) -- the wing cards' walk speed
 end
 
 local function onPick(player: Player, rawIndex: unknown, rawSlot: unknown)

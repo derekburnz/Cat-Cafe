@@ -1016,6 +1016,9 @@ DragonKeep.FRIEND_CHANCE = 0.04 -- Double Catch: a caught Common or Rare brings 
 DragonKeep.SWING = 0.08 -- Ember Net: nets swing 8% faster (NetSwingCooldown 8% shorter)
 DragonKeep.TICKET_BONUS = 0.25 -- Ticket Dragon: +25% Ticket Booth tickets (rounded down a catch)
 DragonKeep.REPEAT_FISH = 1 -- Fish Scale: a repeat Epic or better catch gives +1 golden fish
+DragonKeep.WALK = { lightStep = 0.5, wingbeat = 1.5 } :: { [string]: number } -- stud/s on the walk speed
+DragonKeep.SET_WALK = { wing = 1 } :: { [string]: number }
+DragonKeep.WALK_CAP = 2 -- card walk speed in total, stud/s (with and without a cat)
 
 export type Effects = {
 	money: number,
@@ -1029,16 +1032,18 @@ export type Effects = {
 	slowRings: number,
 	forgive: boolean, -- Steady Claw: the first Miss in each net catch costs no trust
 	friend: number, -- Double Catch's chance
+	walk: number, -- stud/s added to the walk speed, inside WALK_CAP
 }
 
 function DragonKeep.effects(save: Types.DragonSave): Effects
 	local money, tips, tickets, repeatFish, luck, goldLuck, reach, swing = 0, 0, 0, 0, 0, 0, 0, 0
-	local slowRings, forgive, friend = 0, false, 0
+	local slowRings, forgive, friend, walk = 0, false, 0, 0
 	for _, id in save.slots do
 		if cardsById[id] ~= nil then
 			money += DragonKeep.MONEY[id] or 0
 			tips += DragonKeep.TIPS[id] or 0
 			reach += DragonKeep.REACH[id] or 0
+			walk += DragonKeep.WALK[id] or 0
 			if id == "ticketDragon" then
 				tickets = DragonKeep.TICKET_BONUS
 			elseif id == "fishScale" then
@@ -1061,8 +1066,10 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 	for _, family in DragonKeep.sets(save) do
 		money += DragonKeep.SET_MONEY[family] or 0
 		reach += DragonKeep.SET_REACH[family] or 0
+		walk += DragonKeep.SET_WALK[family] or 0
 	end
 	reach = math.min(reach, DragonKeep.REACH_CAP)
+	walk = math.min(walk, DragonKeep.WALK_CAP)
 	money = math.min(money, DragonKeep.MONEY_CAP)
 	tips = math.min(tips, DragonKeep.MONEY_CAP - money)
 	return {
@@ -1077,6 +1084,7 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 		slowRings = slowRings,
 		forgive = forgive,
 		friend = friend,
+		walk = walk,
 	}
 end
 
@@ -1098,6 +1106,7 @@ local NONE: Effects = table.freeze({
 	slowRings = 0,
 	forgive = false,
 	friend = 0,
+	walk = 0,
 }) :: any
 function DragonKeep.of(profile: Types.PlayerProfile): Effects
 	local on = if onOverride ~= nil

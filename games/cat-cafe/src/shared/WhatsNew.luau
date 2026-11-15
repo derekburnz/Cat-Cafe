@@ -134,7 +134,7 @@ WhatsNew.rows = table.freeze({
 		date = "2026-11-15",
 		startsAt = UPDATE_20_00,
 		icon = "faster",
-		text = "Tiers 3 to 5 reached sooner",
+		text = "Easier rank ups to Tier 7",
 	},
 	{
 		id = "epics_early",
@@ -160,14 +160,16 @@ WhatsNew.rows = table.freeze({
 	{
 		id = "fewer_popups",
 		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
 		icon = "fix",
-		text = "Fewer pop-ups",
+		text = "Fewer pop-ups on screen",
 	},
 	{
 		id = "trade_note",
 		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
 		icon = "look",
-		text = "Trade menu has a new note",
+		text = "Trade shows true earnings",
 	},
 	-- #2718 refresh (Growth-Agent 2026-11-15 09:45 UTC, about 240 merges since the 17:44 UTC rows): live on every
 	-- server since the 01:00 UTC restart. Rift Run (on 01:02), easier touch catches (#4300, #4310, #4316), the Town

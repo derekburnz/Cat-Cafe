@@ -10266,19 +10266,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(5)
 		assert(strip() ~= UI.parkTrail.STRIP and strip() ~= UI.parkTrail.STRIP_PLAIN, "uigate: the Park line showed with the walk off (#4480)")
 	end },
-	-- #3558: one menu look for a whole session. The switch flipping after the UI was built changes nothing here, so no
-	-- window can end up with cream cards under white words; the flip reaches a player at their next join.
+	-- #4657: the family look is the only look; a switch flip changes nothing
 	{ "MenuFamilyLatch", function()
 		local MenuFamily = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily")
 		local RS = game:GetService("ReplicatedStorage")
-		local name = "LiveFlag_" .. MenuFamily.FLAG
-		local was = RS:GetAttribute(name)
-		local on = MenuFamily.on()
-		local card = MenuFamily.card.card
-		RS:SetAttribute(name, not on)
-		assert(MenuFamily.on() == on, "uigate: the menu look followed a mid-session switch flip (#3558)")
-		assert(MenuFamily.card.card == card, "uigate: the card colour followed a mid-session switch flip (#3558)")
-		RS:SetAttribute(name, was)
+		RS:SetAttribute("LiveFlag_menuFamily", false)
+		assert(MenuFamily.on() == true and MenuFamily.card.card == MenuFamily.CARD.card, "uigate: the old menu look can still show (#4657)")
+		RS:SetAttribute("LiveFlag_menuFamily", nil)
 		UI.open("Quests")
 	end },
 	-- #3555: the first rank up's walk-through: the goal card lit with "You can rank up!", then the rank up window's

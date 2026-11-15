@@ -162,6 +162,15 @@ return function()
 			expect(FirstFive.firstSceneBucket(90)).to.equal("40+")
 		end)
 
+		it("buckets each part of the wait before the save (#4307)", function()
+			expect(FirstFive.bootBucket(0.5)).to.equal("lt2")
+			expect(FirstFive.bootBucket(2)).to.equal("2-5")
+			expect(FirstFive.bootBucket(7)).to.equal("5-10")
+			expect(FirstFive.bootBucket(30)).to.equal("10+")
+			expect(FirstFive.bootBucket(0 / 0)).to.equal("lt2")
+			expect(FirstFive.BOOT_MAX >= 60).to.equal(true)
+		end)
+
 		it(
 			"prefers a flight, then a carry, then the catch, then a tutorial card, then the place",
 			function()

@@ -206,6 +206,12 @@ local AREA_LOOKS: { [string]: AreaLook } = {
 		floorMaterial = Enum.Material.Asphalt,
 		wall = Color3.fromRGB(70, 130, 85),
 	},
+	-- #4184: packed earth under the Castle set, grey curtain wall stone at its edges (no grass ground)
+	castle = {
+		floor = Color3.fromRGB(150, 125, 95),
+		floorMaterial = Enum.Material.Ground,
+		wall = Color3.fromRGB(140, 140, 148),
+	},
 }
 
 local function part(
@@ -915,7 +921,8 @@ local function buildPlot(index: number, parent: Instance): Plot
 		spot:SetAttribute("Tier", def.tier)
 		spots[def.id] = spot
 		local furniturePoint = Layout.plot.spotFurniture[def.id]
-		local assetName = Catalog.spotFurniture[def.spotType]
+		-- #4184: a slot's own furniture first (the wall perches), then its role's
+		local assetName = Catalog.spotFurnitureById[def.id] or Catalog.spotFurniture[def.spotType]
 		if furniturePoint ~= nil and assetName ~= nil then
 			local furniture = place(assetName, localCFrame(cframe, furniturePoint), furnitureFolder)
 			furniture.Name = def.id

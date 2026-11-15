@@ -10,12 +10,15 @@
 -- over the row when the row sits low (over the counters on a computer) and under it when it sits high (level with
 -- the menu on a phone), so the chip stays in view. A tap on the card closes it, and so does any window opening
 -- (HUD.screenOpened).
+-- #4224 (audit gap 4): on a controller the open card takes the selection (its whole-card Close), says "Press B to
+-- close", and B closes it (GamepadNav.card); the selection goes back to the chip.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
+local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -298,7 +301,7 @@ function LuckChip.new(
 		})
 		self._pills[index] = pill
 	end
-	label({
+	self._hint = label({
 		Name = "Hint",
 		Size = UDim2.new(1, 0, 0, 18),
 		TextSize = Theme.sizes.textTiny,
@@ -318,6 +321,7 @@ function LuckChip.new(
 		Parent = card,
 	})
 	self.card = card
+	self._closeButton = close
 	self._connections = {
 		chip.Activated:Connect(function()
 			self:toggle()
@@ -428,9 +432,15 @@ function LuckChip.toggle(self: any)
 	self._onOpen()
 	self:_renderCard()
 	self:_place()
+	self._hint.Text = if GamepadNav.on() and GamepadNav.isGamepad() then "Press B to close" else "Tap to close"
 	self.card.Visible = true
 	Tween.popIn(self.card, 0.9)
 	Sound.play("uiClick")
+	-- #4224: a controller lands on the card and B closes it
+	self._padDone = GamepadNav.card("luckCard", self.card, function()
+		self:hide()
+		return true
+	end, self._closeButton)
 end
 
 -- Beside the chip, in the root's design px (the root is scaled, so screen px divide by Scale.get(), as
@@ -474,6 +484,11 @@ end
 
 function LuckChip.hide(self: any)
 	self.card.Visible = false
+	local done: (() -> ())? = self._padDone
+	self._padDone = nil
+	if done ~= nil then
+		done()
+	end
 end
 
 function LuckChip._renderCard(self: any)

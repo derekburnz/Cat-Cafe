@@ -187,6 +187,28 @@ function Catching.pickCat(rarity: Types.Rarity, area: string, roll: number): Typ
 	return Catalog.cats[1]
 end
 
+-- #4188 follow-up (Review-QA's Studio check: the tutorial's first hand catch was a second Tabby, so the tutorial
+-- ended on 2 kinds): pickCat's pick among `area`'s cats of `rarity` that `owned` (the save's collection, by cat id)
+-- does not hold; with all of them owned it is pickCat's pick.
+function Catching.pickNewCat(
+	rarity: Types.Rarity,
+	area: string,
+	roll: number,
+	owned: { [string]: any }
+): Types.CatDef
+	local picked = Catching.pickCat(rarity, area, roll)
+	local list: { Types.CatDef } = {}
+	for _, def in Catching.candidates(picked.rarity, area) do
+		if owned[def.id] == nil then
+			table.insert(list, def)
+		end
+	end
+	if #list == 0 then
+		return picked
+	end
+	return list[math.clamp(math.floor(roll * #list) + 1, 1, #list)]
+end
+
 -- The bait bowl's pick (data-model section 8): uniform among the rarity's cats in every area `tier` opens, so the
 -- pool grows with the tier, the same split the food cards show. Falls back down the rarity ladder like pickCat.
 function Catching.pickBaitCat(rarity: Types.Rarity, tier: number, roll: number): Types.CatDef
@@ -242,7 +264,8 @@ end
 -- Luck did to the odds, and every other rarity keeps its chance.
 -- #4221: `areas` lists the areas the Mythical was rolled for (a wild stray's or a trap's one area, a bait bowl's
 -- open areas), and only those areas' own Secrets (`secretArea`) can turn up. No Secret lives there: nil, and the
--- Mythical stays. Left out, every Secret can (the old rule). The services pass it only while `secretAreas` is on.
+-- Mythical stays. Left out, every Secret but the seven `secretNew` ones can (the old rule). The services pass it only
+-- while `secretAreas` is on.
 Catching.SECRET_FLAG = "secretCats"
 Catching.SECRET_AREAS_FLAG = "secretAreas"
 Catching.SECRET_NAME = "???" -- a wild Secret stray's name on its tag and catch header until it is caught
@@ -258,8 +281,15 @@ function Catching.secret(
 	if not on or rarity ~= "Mythical" or roll >= Catalog.secretPerMythical then
 		return nil
 	end
-	local list: { Types.CatDef } = Catalog.secretCats
-	if areas ~= nil then
+	local list: { Types.CatDef } = {}
+	if areas == nil then
+		-- the old rule: any of the first three (the seven new ones wait for `secretAreas`)
+		for _, def in Catalog.secretCats do
+			if not def.secretNew then
+				table.insert(list, def)
+			end
+		end
+	else
 		local open: { [string]: boolean } = {}
 		for _, id in areas do
 			open[id] = true

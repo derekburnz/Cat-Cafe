@@ -3,7 +3,7 @@
 		"name": "2x Money",
 		"id": 2064604577,
 		"config": "MoneyPassIds[2]",
-		"price": 5,
+		"price": 12,
 		"regionalPricing": false,
 		"description": "All your cafe income x2, for good."
 	},
@@ -11,7 +11,7 @@
 		"name": "3x Money",
 		"id": 2064670602,
 		"config": "MoneyPassIds[3]",
-		"price": 15,
+		"price": 29,
 		"regionalPricing": false,
 		"description": "All your cafe income x3, for good. Takes the place of 2x Money."
 	},
@@ -19,7 +19,7 @@
 		"name": "4x Money",
 		"id": 2064357148,
 		"config": "MoneyPassIds[4]",
-		"price": 25,
+		"price": 49,
 		"regionalPricing": false,
 		"description": "All your cafe income x4, for good. Takes the place of 3x Money."
 	},
@@ -27,7 +27,7 @@
 		"name": "Long Nap",
 		"id": 2064345084,
 		"config": "LongNapPassId",
-		"price": 199,
+		"price": 99,
 		"regionalPricing": true,
 		"description": "Your cats earn full pay while you are away, for up to 16 hours. Without it they earn half pay for up to 8 hours."
 	},
@@ -35,7 +35,7 @@
 		"name": "VIP",
 		"id": 2072030274,
 		"config": "VipPassId",
-		"price": 25,
+		"price": 12,
 		"regionalPricing": true,
 		"description": "+50% cafe money, a VIP tag over your head and in chat, and a gold VIP plate on your cafe sign. Yours to keep."
 	},
@@ -43,7 +43,7 @@
 		"name": "Cat Accessories",
 		"id": 2068634239,
 		"config": "CatAccessoriesPassId",
-		"price": 149,
+		"price": 75,
 		"regionalPricing": true,
 		"description": "Dress your cats in bows, glasses and more. A dressed cat earns +15%. Yours to keep."
 	},
@@ -115,7 +115,7 @@
 		"name": "Second Bait Bowl",
 		"id": 2072132265,
 		"config": "SecondBowlPassId",
-		"price": 149,
+		"price": 75,
 		"regionalPricing": true,
 		"description": "A second bait bowl in your cafe, so you can run two baits at once. It has the same upgrades as your first bowl. Yours to keep."
 	},
@@ -123,7 +123,7 @@
 		"name": "Sign Style Pack",
 		"id": 2075396351,
 		"config": "SignStylePackPassId",
-		"price": 79,
+		"price": 39,
 		"regionalPricing": true,
 		"description": "Three cafe sign styles: Flower Box, Starry Night and Paw Chalkboard. Pick one for your sign any time. Yours to keep, can't be traded."
 	},
@@ -131,7 +131,7 @@
 		"name": "Garden Decor Pack",
 		"id": 2075342357,
 		"config": "GardenDecorPackPassId",
-		"price": 149,
+		"price": 75,
 		"regionalPricing": true,
 		"description": "Six garden decor pieces for your cafe: three Rare (+4% money each while in use): Hanging Fern Basket, Sunflower Pot and Watering Can Planter, and three Epic (+8%): Potted Lemon Tree, Ivy Trellis and Garden Swing Seat. Yours to keep, can't be traded."
 	},
@@ -146,7 +146,7 @@
 	{
 		"name": "Stylish Pack",
 		"config": "StylishPackPassId",
-		"price": 99,
+		"price": 49,
 		"regionalPricing": true,
 		"description": "A full cafe outfit: the Club Banner sign (+25% money in use), the Disco Ball decor (+25%), the Club Suit staff uniform (+15%) and Cool Shades for your cats (+15%). All four in use add +20% more: up to +100% money. Yours to keep, can't be traded.",
 		"icon": "assets/cat-cafe/exports/store/CatCafe_StorePack_Stylish_Icon.png"
@@ -154,7 +154,7 @@
 	{
 		"name": "Winter Pack",
 		"config": "WinterPackPassId",
-		"price": 99,
+		"price": 49,
 		"regionalPricing": true,
 		"description": "A full cafe outfit: the Snowy Banner sign (+25% money in use), the Cocoa Stand decor (+25%), the Winter Coat staff uniform (+15%) and Bobble Hat for your cats (+15%). All four in use add +20% more: up to +100% money. Yours to keep, can't be traded.",
 		"icon": "assets/cat-cafe/exports/store/CatCafe_StorePack_Winter_Icon.png"
@@ -162,7 +162,7 @@
 	{
 		"name": "Chef Pack",
 		"config": "ChefPackPassId",
-		"price": 99,
+		"price": 49,
 		"regionalPricing": true,
 		"description": "A full cafe outfit: the Bakery Banner sign (+25% money in use), the Pastry Case decor (+25%), the Chef Whites staff uniform (+15%) and Chef Hat for your cats (+15%). All four in use add +20% more: up to +100% money. Yours to keep, can't be traded.",
 		"icon": "assets/cat-cafe/exports/store/CatCafe_StorePack_Chef_Icon.png"
@@ -170,9 +170,18 @@
 	{
 		"name": "Space Pack",
 		"config": "SpacePackPassId",
-		"price": 99,
+		"price": 49,
 		"regionalPricing": true,
 		"description": "A full cafe outfit: the Star Banner sign (+25% money in use), the Rocket Lamp decor (+25%), the Space Suit staff uniform (+15%) and Bubble Helmet for your cats (+15%). All four in use add +20% more: up to +100% money. Yours to keep, can't be traded.",
 		"icon": "assets/cat-cafe/exports/store/CatCafe_StorePack_Space_Icon.png"
+	},
+	{
+		"name": "Auto Bowl",
+		"id": 2088615375,
+		"config": "AutoBowlPassId",
+		"price": 19,
+		"regionalPricing": true,
+		"description": "Claims each cat as it arrives and refills your bowl with your best food. Switch it off any time.",
+		"icon": "assets/cat-cafe/exports/store/CatCafe_Pass_AutoBowl_Icon.png"
 	}
 ]

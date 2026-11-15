@@ -49,8 +49,6 @@ local Button = require(script.Parent.Parent.Components.Button)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
-local FeedbackCallout = require(script.Parent.Parent.Components.FeedbackCallout)
-local FeedbackCalloutLogic = require(script.Parent.Parent.Components.FeedbackCalloutLogic)
 local FirstBait = require(script.Parent.Parent.Components.FirstBait)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -60,6 +58,7 @@ local GiftLogic = require(script.Parent.Parent.Components.GiftLogic)
 local GoalCard = require(script.Parent.GoalCard)
 local GoalFold = require(script.Parent.Parent.Components.GoalFold)
 local GoalLines = require(script.Parent.Parent.Components.GoalLines) -- #4098
+local HarvestLogic = require(script.Parent.Parent.Components.HarvestLogic) -- #4251: the Harvest travel button
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexHints = require(script.Parent.Parent.Components.IndexHints)
@@ -67,6 +66,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Invite = require(script.Parent.Parent.Components.Invite)
 local LuckChip = require(script.Parent.LuckChip)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
+local MailLogic = require(script.Parent.Parent.Components.MailLogic)
 local MoneyFlash = require(script.Parent.Parent.Components.MoneyFlash)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
@@ -78,6 +78,8 @@ local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local PromptKey = require(script.Parent.Parent.Components.PromptKey)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
+local RareBubbleLogic = require(script.Parent.Parent.Components.RareBubbleLogic)
+local RareBubbles = require(script.Parent.Parent.Components.RareBubbles)
 local RestChip = require(script.Parent.Parent.Components.RestChip)
 local Roadmap = require(script.Parent.Roadmap)
 local RoadmapLogic = require(script.Parent.Parent.Components.RoadmapLogic)
@@ -112,7 +114,9 @@ export type Callbacks = {
 	replayIntro: () -> (), -- the Tutorial tile (F72)
 	hideTutorialButton: () -> (), -- the Tutorial tile's red ×
 	openFeedback: () -> (), -- the Feedback tile: the Feedback window on its Idea chip
-	openIdea: (() -> ())?, -- #3883: the map theme bubble: the Feedback window on its Idea page (nil: openFeedback)
+	-- #4249: the Mailbox tile, in the Feedback tile's place while the `mailbox` switch is on (Feedback moves into the
+	-- Menu list); nil keeps the Feedback tile
+	openMailbox: (() -> ())?,
 	setSetting: ((key: string, value: boolean) -> ())?, -- #1893: the Grand Opening strip saves roadmapOpen
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
@@ -123,7 +127,7 @@ export type HUD = {
 	screenGui: ScreenGui,
 	setCatalog: (self: HUD, catalog: Types.Catalog) -> (),
 	render: (self: HUD, state: Types.PlayerState) -> (),
-	showCallout: (self: HUD) -> (), -- #3883: the map theme bubble now (the UI gate's picture)
+	bindAfk: (self: HUD, afk: any) -> (), -- #4346: UI.afk for the AFK tile
 	goalSeen: (self: HUD) -> (), -- #2331: the rank up card opened, so the goal card's ready pulse and arrow stop
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
@@ -146,6 +150,7 @@ export type HUD = {
 	clockFrame: (self: HUD) -> GuiObject?, -- #3683
 	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
 	setBowlCount: (self: HUD, count: number) -> (), -- #1161: a "2" on the bowl tile with the second bowl
+	setBowlRefill: (self: HUD, on: boolean) -> (), -- #4267: the "!" for an empty bowl with food to put in
 	pressTravel: (self: HUD, destination: string) -> boolean,
 	setCannonMode: (self: HUD, on: boolean) -> (),
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
@@ -193,8 +198,12 @@ export type HUD = {
 	destroy: (self: HUD) -> (),
 }
 
+local AFK_ICON = "💤" -- #4346: the AFK tile's glyph (a sleeping cat's Zs)
+local AFK_ON = "AFK ON" -- the tile's words while the mode is on
+
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local LiveFlags = require(Shared:WaitForChild("LiveFlags")) -- #4249: the `mailbox` switch
 local NewKind = require(Shared:WaitForChild("NewKind")) -- #3529: the goal card's "Catch new kinds of cat"
 local Pals = require(Shared:WaitForChild("Pals")) :: any -- #3954: the Menu's Invite row names the pal tip bonus
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel")) -- #1888: where a Store open came from
@@ -1108,8 +1117,80 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 	})
 	table.insert(self._buttons, self._feedbackTile)
-	self._calloutDoneAt = nil :: number?
-	self._calloutStep = nil :: number?
+	-- #4249 (Derek 2026-11-14, mockup OK'd 18:04 UTC): while the `mailbox` switch is on the Mailbox tile takes the
+	-- Feedback tile's place, with a red count of the letters waiting, and Feedback moves into the Menu list
+	-- (_mailOn). The switch is followed live, so turning it on reaches players already in.
+	local openMailbox = callbacks.openMailbox
+	self._mailTile = nil :: Button.Button?
+	self._mailWaiting = 0
+	if openMailbox ~= nil then
+		local mailTile = Button.new({
+			name = "Mailbox",
+			text = "Mailbox",
+			icon = "✉️",
+			layout = "clean",
+			textSize = ICON_TEXT,
+			style = "berry",
+			size = UDim2.fromOffset(ICON, ICON_H),
+			layoutOrder = 4,
+			parent = icons,
+			sound = false, -- the modal swish is the sound
+			onClick = function()
+				openMailbox()
+			end,
+		})
+		mailTile.instance.Visible = false
+		table.insert(self._buttons, mailTile)
+		self._mailTile = mailTile
+		local mailDot: Frame = Create("Frame", {
+			Name = "Dot",
+			BackgroundColor3 = Theme.colors.red,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(1, 0.5),
+			Position = UDim2.new(1, 2, 0, 4),
+			Size = UDim2.fromOffset(24, 24),
+			Visible = false,
+			ZIndex = 6,
+			Parent = mailTile.instance,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+		Outline.border(mailDot, 2)
+		self._mailDot = mailDot
+		self._mailCount = label({
+			Name = "Count",
+			Size = UDim2.fromScale(1, 1),
+			TextSize = Theme.sizes.textSmall,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Text = "",
+			ZIndex = 7,
+			Parent = mailDot,
+		})
+	end
+	-- #4346 (Derek 2026-11-14: "add an afk button on the top right maybe on top of where the feedback button was
+	-- before"): the AFK tile, left of the Feedback place, while UI.afk says it shows (the afkButton and afkCafe
+	-- switches; HUD.bindAfk). A tap asks the server for AFK mode on or off: home, 2x rest at once, and the rejoin
+	-- before Roblox's idle kick keeps it. Purple with "AFK" while off, gold with "AFK ON" while on. With it
+	-- showing, Feedback moves into the Menu list (_feedbackInMenu), so the row keeps its width.
+	self._afk = nil :: any -- UI.afk (Controllers/AfkController), once bound
+	self._afkTile = Button.new({
+		name = "AFK",
+		text = "AFK",
+		icon = AFK_ICON,
+		layout = "clean",
+		textSize = ICON_TEXT,
+		style = "purple",
+		size = UDim2.fromOffset(ICON, ICON_H),
+		layoutOrder = 3,
+		parent = icons,
+		sound = "uiToggle",
+		onClick = function()
+			local afk = self._afk
+			if afk ~= nil then
+				afk.toggle()
+			end
+		end,
+	})
+	self._afkTile.instance.Visible = false
+	table.insert(self._buttons, self._afkTile)
 	-- Menu (Derek 2026-11-02, fewer buttons): Settings and Invite behind one gear. Once Invite is unlocked a press
 	-- opens the short list; before that it opens Settings.
 	self._menuTile = Button.new({
@@ -2106,6 +2187,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			image = ShopIcons.hud("Cannon"),
 			style = "close",
 		},
+		-- #4251 (harvest-hollow-spec section 1): Harvest Hollow, while it is open and from Tier 2 (_paintHarvest)
+		{
+			key = "harvest",
+			name = "Harvest",
+			label = "Harvest",
+			icon = HarvestLogic.PUMPKIN,
+			style = "gold",
+		},
 	}
 	for index, item in travelItems do
 		local home = item.key == "home"
@@ -2137,6 +2226,24 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		table.insert(self._buttons, button)
 	end
 	self._travelButtons.cannon.instance.Visible = false
+	self._travelButtons.harvest.instance.Visible = false
+	self._harvestTier = 0
+	table.insert(
+		self._connections,
+		ReplicatedStorage:GetAttributeChangedSignal(HarvestLogic.FLAG_ATTRIBUTE):Connect(function()
+			self:_paintHarvest()
+		end)
+	)
+	-- #4227: the wild Mythical and Secret cats out now in the areas this player has open, on the Cannon button
+	self._rareBubbles =
+		RareBubbles.new(self._travelButtons.cannon.instance, UDim2.new(1, 8, 0, -8), 12)
+	self._rareTier = 0
+	table.insert(
+		self._connections,
+		ReplicatedStorage:GetAttributeChangedSignal(RareBubbleLogic.ATTRIBUTE):Connect(function()
+			self:_paintRares()
+		end)
+	)
 	-- the arrow tab right of the row folds it below the screen edge and back; it stays where it is
 	self._travelFolded = false
 	local travelFold = Button.new({
@@ -2401,19 +2508,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 	self:_paintKeys()
-	-- #3883: the map theme bubble under the Feedback tile (FeedbackCalloutLogic says when), made last so it
-	-- draws over the goal card
-	self._callout = FeedbackCallout.new(root, self._feedbackTile.instance, function()
-		self:_calloutAway()
-		local openIdea = callbacks.openIdea
-		if openIdea ~= nil then
-			openIdea()
-		else
-			callbacks.openFeedback()
-		end
-	end, function()
-		self:_calloutAway()
-	end, self._goal.frame)
+	-- #4249: the `mailbox` switch flipped while playing: the tiles and the Menu list follow
+	if self._mailTile ~= nil then
+		table.insert(
+			self._connections,
+			ReplicatedStorage
+				:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. MailLogic.FLAG)
+				:Connect(function()
+					self:_applyUnlocks()
+				end)
+		)
+	end
 	return self :: HUD
 end
 
@@ -2469,6 +2574,15 @@ function HUD.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 	end)
 end
 
+-- #4267: the tile's "!" also shows while a bowl is empty and the bag holds a food to put in it (UI._bowlRefillable).
+function HUD.setBowlRefill(self: any, on: boolean)
+	if self._bowlRefill == on then
+		return
+	end
+	self._bowlRefill = on
+	self:_renderBowl()
+end
+
 -- #1161: the Second Bait Bowl's "2" on the tile; setBait gets the sooner bowl and "!" for either bowl's cat.
 function HUD.setBowlCount(self: any, count: number)
 	local badge: TextLabel = self._bowlCount
@@ -2485,8 +2599,10 @@ function HUD._renderBowl(self: any)
 	self._baitReady = ready
 	local waiting = ready or self._catWaiting == true
 	local badge: Frame = self._bowlBadge
-	if badge.Visible ~= waiting then
-		badge.Visible = waiting
+	-- #4267: an empty bowl with food to put in shows the "!" too (the tile stays its own colour)
+	local refill = not waiting and self._bowlRefill == true
+	if badge.Visible ~= (waiting or refill) then
+		badge.Visible = waiting or refill
 	end
 	local style: Button.Style = if waiting then "gold" else "secondary"
 	if style ~= self._bowlStyle then
@@ -2519,7 +2635,13 @@ function HUD.pressTravel(self: any, destination: string): boolean
 		return false
 	end
 	-- the Cannon button works at night too: the picker shows the sunrise countdown (F84)
-	if destination ~= "home" and destination ~= "cannon" and not self._areasOpen then
+	-- and so does Harvest (#4251): the server keeps Harvest Hollow open all night
+	if
+		destination ~= "home"
+		and destination ~= "cannon"
+		and destination ~= "harvest"
+		and not self._areasOpen
+	then
 		self:travelResult(destination, false) -- shut for the night (F66): wobble, as the server would refuse it
 		return false
 	end
@@ -2550,6 +2672,36 @@ function HUD.setCannonMode(self: any, on: boolean)
 	self._carrySub.Text = if on then CannonLogic.CARRY_SUB else CARRY_SUB
 	self._homeCarrying = nil -- the next render writes Home's text for the new mode
 	self:_renderTravel()
+end
+
+-- #4251: the Harvest button shows while Harvest Hollow is open, from Tier 2, with its switch on, and comes and goes
+-- by itself at the opening and closing times (one timer to the next change).
+function HUD._paintHarvest(self: any)
+	if self._gone then
+		return
+	end
+	local now = Workspace:GetServerTimeNow()
+	local shown = HarvestLogic.hudShown(
+		now,
+		self._harvestTier,
+		ReplicatedStorage:GetAttribute(HarvestLogic.FLAG_ATTRIBUTE)
+	)
+	local button: Button.Button = self._travelButtons.harvest
+	if button.instance.Visible ~= shown then
+		button.instance.Visible = shown
+		if shown then
+			Tween.popIn(button.instance, 0.85)
+		end
+		self:_sizeTravelRow()
+		self:_layoutMenu()
+	end
+	local nextAt = HarvestLogic.nextChange(now)
+	if nextAt ~= nil and self._harvestTimer == nil then
+		self._harvestTimer = task.delay(math.max(1, nextAt - now + 1), function()
+			self._harvestTimer = nil
+			self:_paintHarvest()
+		end)
+	end
 end
 
 -- The server's answer (TravelResult). A refusal lifts the cooldown at once and wobbles the button that
@@ -2742,6 +2894,23 @@ function HUD.setMenuFolded(self: any, folded: boolean)
 	end
 	self:_placeMenuFold()
 	self:_renderFoldDot()
+	self:_placeFoldArrow()
+end
+
+-- While a tutorial step points at a menu tile and the player folded the menu away, the big arrow points at the
+-- menu's arrow tab instead, so there is always something to tap.
+function HUD._placeFoldArrow(self: any)
+	local want = self._menuAsk ~= nil and self._menuFolded == true
+	if want == (self._foldArrow == true) then
+		return
+	end
+	self._foldArrow = want
+	local tab: GuiObject = self._menuFold.instance
+	if want then
+		TutorialArrow.add(tab)
+	else
+		TutorialArrow.remove(tab)
+	end
 end
 
 function HUD.setTravelFolded(self: any, folded: boolean)
@@ -2944,52 +3113,40 @@ function HUD.setCatalog(self: any, catalog: Types.Catalog)
 	self._luck:setCatalog(catalog)
 end
 
--- #3883: once a join, FeedbackCalloutLogic.WAIT_SECONDS after the tutorial is done (or after the join for a player
--- done before), the map theme bubble shows under the Feedback tile for SHOW_SECONDS
-local calloutShown = false -- once a join, whatever happens to the HUD
-
-function HUD._calloutWatch(self: any, step: number)
-	self._calloutStep = step
-	if calloutShown or self._calloutDoneAt ~= nil or step < TUTORIAL_DONE then
-		return
-	end
-	local doneAt = os.clock()
-	self._calloutDoneAt = doneAt
-	task.delay(FeedbackCalloutLogic.WAIT_SECONDS, function()
-		if
-			self._gone
-			or not FeedbackCalloutLogic.due(self._calloutStep, doneAt, os.clock(), calloutShown)
-		then
-			return
+-- #4227: the Cannon button's bubbles, every area the player's tier has open added up.
+function HUD._paintRares(self: any)
+	local catalog: Types.Catalog? = self._catalog
+	local open: { [string]: boolean } = {}
+	if catalog ~= nil then
+		for _, area in (catalog.areas or {}) :: { Types.AreaDef } do
+			if area.tier <= self._rareTier then
+				open[area.id] = true
+			end
 		end
-		self:showCallout()
-	end)
-end
-
--- Shows the bubble now (the UI gate's picture calls this too) and puts it away after SHOW_SECONDS.
-function HUD.showCallout(self: any)
-	if not self._feedbackTile.instance.Visible then
-		return
 	end
-	calloutShown = true
-	self._callout:show()
-	task.delay(FeedbackCalloutLogic.SHOW_SECONDS, function()
-		if not self._gone then
-			self._callout:hide()
-		end
-	end)
-end
-
-function HUD._calloutAway(self: any)
-	calloutShown = true
-	self._callout:hide()
+	local rares = RareBubbleLogic.decode(ReplicatedStorage:GetAttribute(RareBubbleLogic.ATTRIBUTE))
+	self._rareBubbles:set(RareBubbleLogic.totals(rares, open))
 end
 
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
+	-- #4249: the Mailbox tile's red count, the letters still to claim
+	if self._mailTile ~= nil then
+		local waiting = MailLogic.waiting(state.mail, os.time())
+		self._mailWaiting = waiting
+		self._mailDot.Visible = waiting > 0
+		self._mailCount.Text = if waiting > 9 then "9+" else tostring(waiting)
+	end
+	if (state.tier or 1) ~= self._rareTier then
+		self._rareTier = state.tier or 1
+		self:_paintRares()
+	end
+	if (state.tier or 1) ~= self._harvestTier then
+		self._harvestTier = state.tier or 1
+		self:_paintHarvest()
+	end
 	-- #2211: the tutorial's last step done just now (not a player who finished it before this join): the × pulses
 	local step = state.tutorialStep or TUTORIAL_DONE
-	self:_calloutWatch(step)
 	local before: number? = self._stepBefore
 	self._stepBefore = step
 	if before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE then
@@ -3020,6 +3177,29 @@ function HUD.render(self: any, state: Types.PlayerState)
 		TutorialHints.ask(TutorialHints.view(state, if catalog then catalog.spots else nil))
 	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, not held and asks == "job")
 	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, not held and asks == "food")
+	-- Review-QA 2026-11-14: a step that points at a menu tile (Upgrades, Cats, Bowl) with the menu folded off the edge
+	-- had no tile on screen and no arrow, only the strip's words. The folded menu slides back out once as such a step
+	-- starts; a player who folds it again keeps it folded until the next step.
+	local menuAsk: string? = nil
+	if not held then
+		if asks == "job" or asks == "food" then
+			menuAsk = asks
+		elseif
+			not holdsTable
+			and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+		then
+			menuAsk = "upgrade"
+		end
+	end
+	local askKey = if menuAsk ~= nil then `{step}:{menuAsk}` else nil
+	self._menuAsk = menuAsk
+	if askKey ~= self._menuAskKey then
+		self._menuAskKey = askKey
+		if askKey ~= nil and self._menuFolded then
+			self:setMenuFolded(false)
+		end
+	end
+	self:_placeFoldArrow()
 	-- #2912: the strip's Buy button
 	local offer = if held
 		then nil
@@ -3129,7 +3309,20 @@ function HUD.render(self: any, state: Types.PlayerState)
 	then
 		self._roadmapOpen = settings.roadmapOpen
 	end
-	self._roadmap:render(RoadmapLogic.view(state :: any), self._roadmapOpen == true)
+	-- #4384: the strip waits for the tutorial's end while the checkInCalm switch is on
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local calm = RoadmapLogic.calm(
+		LiveFlags.shown(
+			RoadmapLogic.CALM_FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RoadmapLogic.CALM_FLAG)
+		),
+		state.tutorialStep
+	)
+	self._roadmap:render(
+		if calm then nil else RoadmapLogic.view(state :: any),
+		self._roadmapOpen == true
+	)
 	self:_renderQuests(state, catalog)
 	self:_renderFreeSpin()
 	self:_layoutRight()
@@ -3189,7 +3382,14 @@ function HUD._applyUnlocks(self: any)
 	end
 	self._questsPill.instance.Visible = self._questsLive == true and self:_open("quests")
 	self:_renderRewards()
-	self._feedbackTile.instance.Visible = self:_open("feedback")
+	local mailTile: Button.Button? = self._mailTile
+	local mailOn = self:_mailOn()
+	self._feedbackTile.instance.Visible = self:_open("feedback") and not self:_feedbackInMenu()
+	if mailTile ~= nil then
+		mailTile.instance.Visible = mailOn and self:_open("feedback") -- #4249: the Mailbox opens when Feedback would
+	end
+	-- #4346: the AFK tile opens when Feedback would, while its switches are on
+	self._afkTile.instance.Visible = self:_afkOn() and self:_open("feedback")
 	-- #2710 (Derek2: "maybe just move potions to bag for mobile and remove that button entirely"): on touch the Bag
 	-- pill holds the potions (its Potions tab), and the one potion chip takes the tile's place while any run
 	self._potionsTile.instance.Visible = self:_open("potions") and not TOUCH
@@ -3227,7 +3427,10 @@ function HUD._unlockTarget(self: any, key: HudUnlocks.Key): (GuiObject?, boolean
 			if key == "quests"
 				then self._questsPill
 				elseif key == "gifts" or key == "daily" then self._rewards
-				elseif key == "feedback" then self._feedbackTile
+				elseif key == "feedback" then (if self:_mailOn()
+					then self._mailTile
+					elseif self:_afkOn() then self._afkTile
+					else self._feedbackTile)
 				elseif key == "invite" then self._menuTile
 				elseif key == "potions" then (if TOUCH
 					then self._pills.Bag
@@ -4672,8 +4875,54 @@ end
 -- The Menu tile's press: the list (Settings, Invite) once Invite is unlocked, else Settings at once. Derek
 -- 2026-11-13 ("remove the old cat arcade icon from settings"): the list has no Cat Arcade row (#3062's); the arcade
 -- opens at its cabinet.
+-- #4249: true while the Mailbox tile stands in the Feedback tile's place (the `mailbox` switch, live)
+function HUD._mailOn(self: any): boolean
+	return self._mailTile ~= nil
+		and LiveFlags.shown(
+			MailLogic.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. MailLogic.FLAG)
+		)
+end
+
+-- #4346: true while the AFK tile shows (UI.afk bound and its switches on)
+function HUD._afkOn(self: any): boolean
+	local afk = self._afk
+	return afk ~= nil and afk.shown() == true
+end
+
+-- #4249, #4346: Feedback sits in the Menu list (not its own tile) while the Mailbox or the AFK tile shows
+function HUD._feedbackInMenu(self: any): boolean
+	return self:_mailOn() or self:_afkOn()
+end
+
+-- #4346: UI.afk from Controllers/AfkController (shown, on, toggle, changed): the AFK tile shows and follows it.
+function HUD.bindAfk(self: any, afk: any)
+	if afk == nil or self._afk == afk then
+		return
+	end
+	self._afk = afk
+	afk.changed(function()
+		if self._gone then
+			return
+		end
+		self:_applyUnlocks()
+		self:_paintAfk()
+	end)
+	self:_applyUnlocks()
+	self:_paintAfk()
+end
+
+-- #4346: purple "AFK" while off, gold "AFK ON" while on (the tile's On attribute for the UI gate).
+function HUD._paintAfk(self: any)
+	local afk = self._afk
+	local on = afk ~= nil and afk.on() == true
+	self._afkTile:setStyle(if on then "gold" else "purple")
+	self._afkTile:setText(if on then AFK_ON else "AFK")
+	self._afkTile.instance:SetAttribute("On", on)
+end
+
 function HUD._pressMenu(self: any)
-	if self:_open("invite") then
+	if self:_open("invite") or self:_feedbackInMenu() then -- #4249, #4346: the list holds Feedback then
 		self:_togglePop("menu")
 	else
 		self._callbacks.openScreen("Settings")
@@ -4746,6 +4995,17 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 				style = "secondary" :: Button.Style,
 				press = function()
 					Invite.prompt() -- F92: with this player's name in the launch data
+				end,
+			})
+		end
+		-- #4249, #4346: Feedback's place while the Mailbox or the AFK tile shows
+		if self:_feedbackInMenu() then
+			table.insert(rows, {
+				id = "Feedback",
+				icon = Theme.icons.feedback,
+				style = "sky" :: Button.Style,
+				press = function()
+					callbacks.openFeedback()
 				end,
 			})
 		end
@@ -4831,11 +5091,13 @@ function HUD._togglePop(self: any, kind: string)
 	pop.Visible = true
 	Tween.popIn(pop, 0.9)
 	Sound.play("uiClick")
-	-- #4224 (console): on a gamepad the list takes the selection on its first row, and B closes it
+	-- #4224 (console): on a gamepad the list takes the selection, on Gifts or Daily treat when it has them (the
+	-- countdown rows above them only close it), else its first row, and B closes it
+	local main = self._popRows.Gifts or self._popRows.Daily
 	self._popNav = GamepadNav.card("hudPop", pop, function(): boolean?
 		self:_closePop()
 		return nil
-	end)
+	end, if main ~= nil then main.face else nil)
 end
 
 -- The open list's rows say what they say now (the gift countdown ticks while it is open).
@@ -5707,7 +5969,10 @@ end
 
 function HUD.destroy(self: any)
 	self._gone = true -- #3022: the second cat goal's timers stop here
-	self._callout:destroy()
+	if self._harvestTimer ~= nil then
+		task.cancel(self._harvestTimer) -- #4251
+		self._harvestTimer = nil
+	end
 	self:_stopClock()
 	local shine: Tween? = self._storeShine
 	if shine then

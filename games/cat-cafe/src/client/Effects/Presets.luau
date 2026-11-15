@@ -7382,6 +7382,14 @@ Presets.dragonRise = {
 		clearGap = 1.5,
 		clearLeast = 0.25,
 		clearEase = 0.12,
+		-- #4612 (Derek: "make it show from above"): the yard shots look down on him by at least `pitch` and over the
+		-- Keep's walls by `wallGap` studs (Effects/KeepShot). The walls come from the Keep model's box (top at most
+		-- `wallsMost`); without one, `wallsHalf` and `wallsTop` (the Keep export: 15 x 15 studs, 7.5 high)
+		pitch = math.rad(38),
+		wallGap = 2,
+		wallsHalf = 7.5,
+		wallsTop = 7.5,
+		wallsMost = 16,
 	},
 	-- the ember ball
 	ball = {

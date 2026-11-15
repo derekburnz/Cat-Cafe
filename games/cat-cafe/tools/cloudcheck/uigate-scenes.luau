@@ -3083,6 +3083,53 @@ local SCENES = {
 			assert(itemBottom <= bottom + 1, ("uigate: %s is cut %d px under the odds sheet (#4063)"):format(item.Name, itemBottom - bottom))
 		end
 	end },
+	-- Derek 2026-11-14 ("make sure the odds show secret trait odds in the trait menu also on update"): the secretTrait
+	-- switch reaches a running server with no restart, so the open menu redraws every odds display when it flips: the
+	-- card's pills, the choice card's lines and the Odds list gain Secret 0.1% (Mythic 4.9%), and lose them again
+	{ "MysticPoolOddsFlip", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local key = "LiveFlag_secretTrait"
+		Scenes._secretRestore = { value = ReplicatedStorage:GetAttribute(key) }
+		local window = mysticPool(nil, "gate_1")
+		press("MysticPool", "Odds")
+		local list = window:FindFirstChild("OddsList", true) :: Instance
+		local function check(on: boolean)
+			ReplicatedStorage:SetAttribute(key, on)
+			task.wait(0.05)
+			local pills = window:FindFirstChild("OddsPills", true) :: Instance
+			local count = 0
+			for _, child in list:GetChildren() do
+				if child:GetAttribute("OddsRow") and child.Name ~= "Equal" then
+					count += 1
+				end
+			end
+			local secretRow = list:FindFirstChild("Secret") :: any
+			local mythic = list:FindFirstChild("Mythic") :: any
+			local line = window:FindFirstChild("OddsLine", true) :: TextLabel
+			local where = if on then "on" else "off"
+			assert(count == (if on then 7 else 6), ("uigate: the Odds list has %d rows with the Secret switch %s"):format(count, where))
+			assert((secretRow ~= nil) == on, "uigate: the Secret row does not follow the switch (" .. where .. ")")
+			assert(secretRow == nil or secretRow.Percent.Text == "0.1%", "uigate: the Secret row does not read 0.1%")
+			assert(mythic.Percent.Text == (if on then "4.9%" else "5%"), "uigate: Mythic reads " .. mythic.Percent.Text .. " with the switch " .. where)
+			assert((pills:FindFirstChild("Secret") ~= nil) == on, "uigate: the card's odds pills do not follow the switch (" .. where .. ")")
+			assert(#window:GetDescendants() > 0 and #pills.Parent:GetChildren() > 0, "uigate: the card lost its pieces")
+			local pillsCount = 0
+			for _, piece in window:GetDescendants() do
+				if piece.Name == "OddsPills" then
+					pillsCount += 1
+				end
+			end
+			assert(pillsCount == 1, ("uigate: %d odds pill rows after the switch flipped (old ones kept)"):format(pillsCount))
+			assert(line and (string.find(line.Text, "Secret 0.1%", 1, true) ~= nil) == on, "uigate: the choice card's odds line does not follow the switch (" .. where .. ")")
+		end
+		check(false)
+		check(true)
+		check(false)
+		check(true) -- left on, for the picture
+		local bottom = (list :: GuiObject).AbsolutePosition.Y + (list :: GuiObject).AbsoluteSize.Y
+		local equal = list:FindFirstChild("Equal") :: GuiObject
+		assert(equal.AbsolutePosition.Y + equal.AbsoluteSize.Y <= bottom + 1, "uigate: the Equal line is cut under the odds sheet after the flip")
+	end },
 	-- #3864: the Trait Token offer once the free rolls are used: both bundles with their prices, the full odds, a
 	-- No thanks that hides it, and once a session only
 	-- #4006: the token panel left open beside the card, for the picture
@@ -12429,6 +12476,10 @@ function Scenes.close()
 	end
 	if UI.recap.card and UI.recap.card:isShowing() then
 		UI.recap.card:hide() -- #1920
+	end
+	if Scenes._secretRestore then
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_secretTrait", Scenes._secretRestore.value)
+		Scenes._secretRestore = nil
 	end
 	if Scenes._settings then
 		UI.update({ settings = Scenes._settings } :: any) -- #1955's Auto Equip scene

@@ -177,5 +177,48 @@ return function()
 				expect(HarvestSave.forClient(save).pieReward).to.equal(true)
 			end
 		)
+
+		it(
+			"puts Stall decor and the Feast Pie in decorOwned and the hats in the Looks items (part 7)",
+			function()
+				local Catalog = require(game:GetService("ReplicatedStorage").Shared.Catalog) :: any
+				local Looks = require(game:GetService("ReplicatedStorage").Shared.Looks) :: any
+				local HarvestHollow =
+					require(game:GetService("ReplicatedStorage").Shared.HarvestHollow) :: any
+				-- every Stall item and the Feast Pie has its decor piece or hat
+				for _, item in HarvestHollow.STALL do
+					if item.kind == "decor" then
+						local def = Catalog.getDecor(HarvestSave.decorId(item.id))
+						expect(def).to.be.ok()
+						expect(def.source).to.equal("harvest")
+						expect(def.asset).to.equal(item.model)
+					else
+						expect(Looks.accessory(HarvestSave.lookId(item.id))).to.be.ok()
+					end
+				end
+				expect(Catalog.getDecor(HarvestSave.decorId(HarvestSave.FEAST_PIE))).to.be.ok()
+				local save = HarvestSave.fresh()
+				save.bought.hay_bale_sofa = true
+				save.bought.acorn_hat = true
+				local decor: { [string]: boolean } = {}
+				expect(HarvestSave.grantOwned(save, decor)).to.equal(1)
+				expect(decor.decor_hay_bale_sofa).to.equal(true)
+				expect(HarvestSave.grantOwned(save, decor)).to.equal(0) -- already whole
+				save.pieReward = true
+				expect(HarvestSave.grantOwned(save, decor)).to.equal(1)
+				expect(decor.decor_feast_pie).to.equal(true)
+				local passItems: { [string]: boolean } = { acc_leaf_beret = true }
+				local items = HarvestSave.lookItems(save, passItems)
+				expect(items.acc_acorn_hat).to.equal(true)
+				expect(items.acc_leaf_beret).to.equal(true)
+				expect(passItems.acc_acorn_hat).to.equal(nil) -- a copy
+				expect(table.find(
+					Looks.owned("accessory", function()
+						return false
+					end, items),
+					"acc_acorn_hat"
+				)).to.be.ok()
+			end
+		)
 	end)
 end

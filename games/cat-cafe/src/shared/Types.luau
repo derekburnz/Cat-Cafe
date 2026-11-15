@@ -170,7 +170,7 @@ export type UpgradeDef = {
 -- "shop" decor is bought with BuyDecor; "crate" decor (F53) only comes out of a Cafe Crate. The F48 Index pieces
 -- became their zones' Epic crate pieces in F54, and the gold Index pieces were retired before anyone earned one.
 -- #2486: "event", a Cafe Event's free reward piece (Catalog.passDecor holds it too, live-events.md section 2e)
-export type DecorSource = "shop" | "crate" | "pass" | "event" -- #1645: "pass", a pass piece (a rarity and bonus since #2006)
+export type DecorSource = "shop" | "crate" | "pass" | "event" | "harvest" -- #4251: Harvest Hollow's Stall and Feast Pie -- #1645: "pass", a pass piece (a rarity and bonus since #2006)
 
 -- What a crate piece is (F53, golden-fish.md section 4). The cafe has one wallpaper, one floor and one paint in use
 -- at a time, and since F80 (section 4b) one door set (front and back door together) and one cat flap; furniture and

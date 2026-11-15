@@ -148,6 +148,7 @@ local function onBuy(player: Player, rawId: unknown)
 		before,
 		{ item.id, "T" .. tostring(Economy.tier(profile)) }
 	)
+	HarvestSave.grantOwned(save, profile.decorOwned) -- part 7: a decor piece into the Decor window
 	Net.toast(player, string.format("%s, yours to keep!", item.name), "good")
 	CafeService.sync(player)
 end
@@ -337,6 +338,7 @@ local function rewardPie(player: Player)
 		return
 	end
 	profile.harvest.pieReward = true
+	HarvestSave.grantOwned(profile.harvest, profile.decorOwned)
 	local spins = Spin.bank(profile.spin, HarvestSave.PIE_REWARD_SPINS)
 	Telemetry.custom(
 		player,
@@ -453,7 +455,8 @@ function HarvestService.start()
 			rewardPie(player)
 		end
 	end)
-	DataService.onLoaded:Connect(function(player: Player, _profile: Types.PlayerProfile)
+	DataService.onLoaded:Connect(function(player: Player, profile: Types.PlayerProfile)
+		HarvestSave.grantOwned(profile.harvest, profile.decorOwned)
 		rewardPie(player)
 	end)
 	HarvestPieService.start()

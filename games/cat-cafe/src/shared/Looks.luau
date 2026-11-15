@@ -222,6 +222,37 @@ local ACCESSORIES: { Accessory } = {
 		slot = "Head",
 		at = "Hat",
 	},
+	-- #4251 Harvest Hollow's five Stall hats (Model-Agent's #4375, all on the Outfit_Hat spot): no pass; owned once
+	-- bought, through the items CafeService hands Looks (HarvestSave.lookItems adds them by lookId)
+	{ id = "acc_acorn_hat", name = "Acorn Hat", piece = "AcornHat", slot = "Head", at = "Hat" },
+	{
+		id = "acc_sunflower_hat",
+		name = "Sunflower Hat",
+		piece = "SunflowerHat",
+		slot = "Head",
+		at = "Hat",
+	},
+	{
+		id = "acc_wheat_wreath",
+		name = "Wheat Wreath",
+		piece = "WheatWreath",
+		slot = "Head",
+		at = "Hat",
+	},
+	{
+		id = "acc_pumpkin_hat",
+		name = "Pumpkin Hat",
+		piece = "PumpkinHat",
+		slot = "Head",
+		at = "Hat",
+	},
+	{
+		id = "acc_feather_cap",
+		name = "Feather Cap",
+		piece = "FeatherCap",
+		slot = "Head",
+		at = "Hat",
+	},
 }
 for _, accessory in ACCESSORIES do
 	table.freeze(accessory)

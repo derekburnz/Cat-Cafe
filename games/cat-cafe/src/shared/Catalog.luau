@@ -5940,6 +5940,83 @@ for _, row in EVENT_DECOR do
 	table.insert(Catalog.eventDecor, def)
 end
 
+-- #4251 Harvest Hollow's decor (Model-Agent's #4378): the six Stall pieces, bought for pumpkins, and the Feast Pie,
+-- the full pie's reward. Owned for good in profile.decorOwned (HarvestService), placed on the next free decor spots
+-- like the pass and event pieces (Catalog.passDecor), source "harvest", never sold for coins or Robux. Ids are
+-- "decor_" .. the Stall item's id (HarvestSave.decorId).
+local HARVEST_DECOR: { { id: string, rarity: Types.Rarity, name: string, kind: Types.DecorKind, description: string } } =
+	{
+		{
+			id = "decor_hay_bale_sofa",
+			rarity = "Common",
+			name = "Hay Bale Sofa",
+			kind = "furniture",
+			description = "Two hay bales and a cushion, comfy as a barn.",
+		},
+		{
+			id = "decor_paw_pumpkin",
+			rarity = "Common",
+			name = "Paw Pumpkin",
+			kind = "decoration",
+			description = "A pumpkin with a glowing paw print.",
+		},
+		{
+			id = "decor_apple_bushel",
+			rarity = "Common",
+			name = "Apple Bushel",
+			kind = "decoration",
+			description = "A basket heaped with red apples.",
+		},
+		{
+			id = "decor_corn_sheaf",
+			rarity = "Rare",
+			name = "Corn Sheaf",
+			kind = "decoration",
+			description = "Golden corn stalks tied with twine.",
+		},
+		{
+			id = "decor_pie_counter",
+			rarity = "Rare",
+			name = "Pie Counter",
+			kind = "furniture",
+			description = "A counter full of warm pies cooling.",
+		},
+		{
+			id = "decor_harvest_wreath",
+			rarity = "Rare",
+			name = "Harvest Wreath",
+			kind = "decoration",
+			description = "Leaves, wheat and little pumpkins in a ring.",
+		},
+		{
+			id = "decor_feast_pie",
+			rarity = "Epic",
+			name = "Feast Pie",
+			kind = "decoration",
+			description = "The giant pie everyone baked together.",
+		},
+	}
+Catalog.harvestDecor = {} :: { Types.DecorDef }
+for _, row in HARVEST_DECOR do
+	local bonus = Config.CratePieceBonus[row.rarity]
+	local def: Types.DecorDef = {
+		id = row.id,
+		name = row.name,
+		cost = 0,
+		category = KIND_CATEGORY[row.kind],
+		effect = string.format("+%d%% money while in use", math.floor(bonus * 100 + 0.5)),
+		description = row.description,
+		bonus = bonus,
+		rarity = row.rarity,
+		asset = "CatCafe_Decor_" .. (row.name:gsub("[^%w]", "")),
+		source = "harvest",
+		kind = row.kind,
+	}
+	Catalog.decorById[row.id] = def
+	table.insert(Catalog.passDecor, def)
+	table.insert(Catalog.harvestDecor, def)
+end
+
 Catalog.crates = {} :: { Types.CrateDef }
 for _, pool in CRATE_POOLS do
 	table.insert(Catalog.crates, {

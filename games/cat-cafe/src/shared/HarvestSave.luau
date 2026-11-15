@@ -61,7 +61,53 @@ HarvestSave.NOTES = table.freeze({
 HarvestSave.NOTE_KEEP = 12
 
 -- #4251 part 6 (spec section 5): the full pie's reward for everyone who helped, at once or at their next join.
-HarvestSave.FEAST_PIE = "feast_pie" -- CatCafe_Decor_FeastPie; owned when save.pieReward
+HarvestSave.FEAST_PIE = "feast_pie" -- CatCafe_Decor_FeastPie (Catalog decor "decor_feast_pie"); owned when save.pieReward
+
+-- #4251 part 7: where a Stall item (or the Feast Pie) is owned for good: a decor piece in profile.decorOwned under
+-- decorId, a hat as the Looks accessory lookId (the Style tab), read from save.bought (lookItems).
+function HarvestSave.decorId(itemId: string): string
+	return "decor_" .. itemId
+end
+
+function HarvestSave.lookId(itemId: string): string
+	return "acc_" .. itemId
+end
+
+-- Puts every Stall decor piece bought (and the Feast Pie, with pieReward) into `decorOwned` (profile.decorOwned), so
+-- the Decor window lists them. Run on each buy, on the reward and at each join, so a save is always whole. Returns
+-- how many it added.
+function HarvestSave.grantOwned(save: Save, decorOwned: { [string]: boolean }): number
+	local added = 0
+	local function give(id: string)
+		if decorOwned[id] ~= true then
+			decorOwned[id] = true
+			added += 1
+		end
+	end
+	for itemId, yes in save.bought do
+		local item = if yes then HarvestHollow.item(itemId) else nil
+		if item ~= nil and item.kind == "decor" then
+			give(HarvestSave.decorId(itemId))
+		end
+	end
+	if save.pieReward then
+		give(HarvestSave.decorId(HarvestSave.FEAST_PIE))
+	end
+	return added
+end
+
+-- The items Looks reads for this player (profile.pass.items) with the Stall hats bought added under lookId. A copy;
+-- nothing is saved, so the hats stay owned through save.bought alone.
+function HarvestSave.lookItems(save: Save, items: { [string]: boolean }): { [string]: boolean }
+	local out = table.clone(items)
+	for itemId, yes in save.bought do
+		local item = if yes then HarvestHollow.item(itemId) else nil
+		if item ~= nil and item.kind == "outfit" then
+			out[HarvestSave.lookId(itemId)] = true
+		end
+	end
+	return out
+end
 HarvestSave.PIE_REWARD_SPINS = 1
 
 function HarvestSave.pieRewardDue(save: Save, slices: number): boolean

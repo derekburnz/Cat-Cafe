@@ -33,6 +33,22 @@ function RankFirst.line(device: string): string
 	return lines[device] or lines.keyboard
 end
 
+-- Whether a strip line is one of the rank up lines. The cannon's wrap-up hint ("Hop in the cannon to catch more
+-- cats!", CannonLogic.WRAP_UP_HINT) comes the moment the walk-through ends, which is when Tier 2 gets ready, so it gives
+-- way to a rank up line (Review-QA's laptop run of #4388: the strip kept the cannon line).
+function RankFirst.isLine(text: string?): boolean
+	if text == nil then
+		return false
+	end
+	local lines = RankFirst.LINES
+	for _, line in { lines.touch, lines.keyboard, lines.gamepad } do
+		if line == text then
+			return true
+		end
+	end
+	return false
+end
+
 -- Whether a press outside the spotlight puts it away for good: with the switch off every such press does (the old
 -- rule, RankSpot.putsAway deciding), with it on only the PRESSES-th of this session.
 function RankFirst.forGood(on: boolean, presses: number): boolean

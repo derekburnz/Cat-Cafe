@@ -9567,6 +9567,24 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert((goal:FindFirstChild("RankReady") :: GuiObject).Visible, "uigate: no Rank up! sticker on a ready Tier 1 goal (#4383)")
 		local title = goal:FindFirstChild("Title") :: TextLabel
 		assert(title.Text ~= "Free a stuck cat 🐾", "uigate: the stuck cat goal over a ready rank up (#4383)")
+		-- the walk-through just ended this session: the cannon's wrap-up hint gives way to the rank up line (Review-QA's
+		-- laptop run of #4388)
+		UI.cannon.setWild(nil)
+		UI.cannon.wrapUp.on = true
+		UI.tutorial.show(RankFirst.line("touch"))
+		UIShim.advance(0.1)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD", true) :: Instance
+		local texts: { string } = {}
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Visible then
+				table.insert(texts, piece.Text)
+			end
+		end
+		UI.cannon.wrapUp.on = false
+		assert(
+			table.find(texts, RankFirst.line("touch")) and not table.find(texts, "Hop in the cannon to catch more cats!"),
+			"uigate: after the walk-through the strip reads " .. table.concat(texts, " | ") .. ", not the rank up line (#4383)"
+		)
 	end },
 	{ "StuckCatGoal", function()
 		local before: any = UI.getState()

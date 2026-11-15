@@ -26,6 +26,15 @@ return function()
 			end
 		)
 
+		it("knows its own strip lines, so the cannon's wrap-up hint gives way to them", function()
+			for _, device in { "touch", "keyboard", "gamepad" } do
+				local line = RankFirst.line(device)
+				expect(RankFirst.isLine(line)).to.equal(true)
+			end
+			expect(RankFirst.isLine("Hop in the cannon to catch more cats!")).to.equal(false)
+			expect(RankFirst.isLine(nil)).to.equal(false)
+		end)
+
 		it("names the goal card in each device's words, one strip line each", function()
 			expect(RankFirst.line("touch")).to.equal("Rank up! Tap YOUR GOAL")
 			expect(RankFirst.line("keyboard")).to.equal("Rank up! Click YOUR GOAL")

@@ -148,6 +148,8 @@ export type CatDef = {
 	color: { number }, -- {r, g, b} 0..255 for the placeholder body
 	-- #4221: a Secret cat's home area (its `area` stays "secret"): it only takes the place of a Mythical rolled there
 	secretArea: Area?,
+	-- Derek 2026-11-14: one of the seven Secrets of the one-per-area update; it only rolls while `secretAreas` is on
+	secretNew: boolean?,
 }
 
 export type UpgradeDef = {
@@ -958,6 +960,9 @@ export type BaitState = {
 	-- #1897 (first-hour.md section 2): the account's guaranteed Rare-or-better cat, true until it arrives (the bowl
 	-- card's "Your next cat will be Rare or better!" and, on arrival, FirstWow)
 	wow: boolean?,
+	-- #4338: the id of the Bowl Frenzy that already sped this filling bowl (BaitService's frenzyBowls), so one event
+	-- speeds it once even across a server hop; nil until a frenzy meets it
+	frenzy: string?,
 }
 
 -- The second bowl for a player (#1161, Bait.secondBowl): "on" with the pass, "offer" without it (the Store shows it).

@@ -293,6 +293,11 @@ local Config = {
 	-- never trusts; the widest band stays under CircleGapMin (Config.spec S24).
 	EarlyCatchCount = 5,
 	EarlyCatchWindowScale = 1.3,
+	-- #4299 (Nov 13 read: a cat bolts on 19% of phone and tablet catches, 13% with a mouse or controller): a player whose
+	-- client reports a phone or tablet is judged with bands TouchCatchWindowScale times as wide, behind the live switch
+	-- touchCatchReach. Not multiplied with EarlyCatchWindowScale: the wider of the two wins, so S24 still holds. A
+	-- spoofed "phone" only gets these touch bands, the same as any real phone player.
+	TouchCatchWindowScale = 1.3,
 	-- The net swing (F93, catch-rework.md section 1): one SwingNet per NetSwingCooldown. NetSmackDelay after it
 	-- arrives, when the net lands, the server looks for the nearest free stray within NetReachStuds plus
 	-- NetSlackStuds of the root and within NetArcDegrees either side of its facing. A swing that hits nothing makes
@@ -765,6 +770,9 @@ local Config = {
 			id = "8139939288161845916",
 			startsAt = 1794772800, -- "3 New Worlds", Sunday 2026-11-15 20:00 UTC
 			title = "🔔 Next update Sunday: 3 NEW WORLDS! Want a reminder when it lands?",
+			-- #4362: the Town Square update poster's name and picture (UI/Screens/UpdatePoster); an entry with
+			-- neither reads "NEW UPDATE" on a plain face
+			name = "3 NEW WORLDS",
 		},
 		-- Derek 2026-11-14 17:59 UTC: Rift Run moves to tonight, Sunday 2026-11-15 01:00 UTC (Saturday 8 PM ET, the busier
 		-- hour), and the Golden Fish Store to Sunday 2026-11-15 22:00 UTC (5 PM ET), each with its own ask
@@ -777,18 +785,29 @@ local Config = {
 			id = "8042541751075996433",
 			startsAt = 1794780000, -- "Golden Fish Store", Sunday 2026-11-15 22:00 UTC
 			title = "🔔 Next update Sunday: the GOLDEN FISH STORE! Want a reminder when it lands?",
+			name = "GOLDEN FISH STORE",
 		},
 		{
 			id = "6810389993696133776",
 			startsAt = 1795032000, -- "Better on Every Device", Wednesday 2026-11-18 20:00 UTC
 			title = "🔔 Next update Wednesday: better controls on every device! Want a reminder?",
+			name = "BETTER ON EVERY DEVICE",
 		},
 		{
 			id = "8700676156604678758",
 			startsAt = 1794799800, -- "10 Secret Cats", Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, Derek 17:40 UTC)
 			title = "🔔 Next update: 10 SECRET CATS! Want a reminder when it lands?",
+			name = "10 SECRET CATS",
 		},
-	} :: { { id: string, startsAt: number, title: string? } },
+	} :: {
+		{
+			id: string,
+			startsAt: number,
+			title: string?,
+			name: string?,
+			poster: string?,
+		}
+	},
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,

@@ -89,7 +89,8 @@ return function()
 			expect(AdminAir.pick("goldBoost", false, false, kinds)).never.to.be.ok()
 			expect(AdminAir.pick("goldBoost", true, true, kinds)).never.to.be.ok()
 			expect(AdminAir.pick(nil, true, false, kinds)).never.to.be.ok()
-			expect(AdminAir.pick("speedRush", true, false, kinds)).never.to.be.ok()
+			expect(AdminAir.pick("speedRush", true, false, kinds)).to.equal("adminMintDrift") -- #4325
+			expect(AdminAir.pick("nothingWeKnow", true, false, kinds)).never.to.be.ok()
 		end)
 	end)
 end

@@ -39,7 +39,16 @@ export type Uniform = { id: string, name: string, passKey: string?, main: Rgb, t
 -- Cafe Pass piece has none and is owned through profile.pass.items.
 -- #2109: "Tail" is a slot no cat's own prop uses, so a Tail piece shows on every working cat.
 export type Slot = "Head" | "Face" | "Back" | "Tail"
-export type Accessory = { id: string, name: string, passKey: string?, piece: string, slot: Slot }
+-- #4026: `at` names the cat's Outfit_<at> Attachment when the piece is made for an existing spot (the packs' pieces
+-- sit at Outfit_Glasses or Outfit_Hat, so no cat model changes); nil uses Outfit_<piece>.
+export type Accessory = {
+	id: string,
+	name: string,
+	passKey: string?,
+	piece: string,
+	slot: Slot,
+	at: string?,
+}
 export type Picks = { theme: string?, uniform: string?, accessory: string? }
 
 local KINDS: { Kind } = { "theme", "uniform", "accessory" }
@@ -107,6 +116,35 @@ local UNIFORMS: { Uniform } = {
 	{ id = "uniform_acorn_brown", name = "Acorn Brown", main = { 160, 104, 58 }, trim = CREAM },
 	{ id = "uniform_forest_green", name = "Forest Green", main = { 63, 111, 94 }, trim = CREAM },
 	{ id = "uniform_cranberry", name = "Cranberry", main = { 142, 42, 74 }, trim = CREAM },
+	-- #4026: the outfit packs' uniforms (storepacks.py UNIFORM_COLOURS)
+	{
+		id = "uniform_club_suit",
+		name = "Club Suit",
+		passKey = "StylishPackPassId",
+		main = { 40, 38, 48 },
+		trim = { 242, 193, 78 },
+	},
+	{
+		id = "uniform_winter_coat",
+		name = "Winter Coat",
+		passKey = "WinterPackPassId",
+		main = { 196, 48, 56 },
+		trim = { 250, 248, 244 },
+	},
+	{
+		id = "uniform_chef_whites",
+		name = "Chef Whites",
+		passKey = "ChefPackPassId",
+		main = { 250, 248, 242 },
+		trim = { 92, 62, 44 },
+	},
+	{
+		id = "uniform_space_suit",
+		name = "Space Suit",
+		passKey = "SpacePackPassId",
+		main = { 222, 228, 240 },
+		trim = { 96, 200, 180 },
+	},
 }
 for _, uniform in UNIFORMS do
 	table.freeze(uniform)
@@ -151,6 +189,39 @@ local ACCESSORIES: { Accessory } = {
 		slot = "Face",
 	},
 	{ id = "acc_tiny_lantern", name = "Tiny Lantern", piece = "TinyLantern", slot = "Back" },
+	-- #4026: the outfit packs' wearables (storepacks.py ACCESSORY_SLOTS), on the face or the head only
+	{
+		id = "acc_cool_shades",
+		name = "Cool Shades",
+		passKey = "StylishPackPassId",
+		piece = "CoolShades",
+		slot = "Face",
+		at = "Glasses",
+	},
+	{
+		id = "acc_bobble_hat",
+		name = "Bobble Hat",
+		passKey = "WinterPackPassId",
+		piece = "WinterBobble",
+		slot = "Head",
+		at = "Hat",
+	},
+	{
+		id = "acc_chef_hat",
+		name = "Chef Hat",
+		passKey = "ChefPackPassId",
+		piece = "PackChefHat",
+		slot = "Head",
+		at = "Hat",
+	},
+	{
+		id = "acc_bubble_helmet",
+		name = "Bubble Helmet",
+		passKey = "SpacePackPassId",
+		piece = "BubbleHelmet",
+		slot = "Head",
+		at = "Hat",
+	},
 }
 for _, accessory in ACCESSORIES do
 	table.freeze(accessory)
@@ -190,6 +261,11 @@ end
 
 function Looks.accessory(id: string): Accessory?
 	return accessoriesById[current(id)]
+end
+
+-- #4026: the name of the cat Attachment `accessory` is worn at: Outfit_<at>, else Outfit_<piece>.
+function Looks.attachmentOf(accessory: Accessory): string
+	return "Outfit_" .. (accessory.at or accessory.piece)
 end
 
 -- The pass id Config holds under `key`, or 0 (not made, or no key).

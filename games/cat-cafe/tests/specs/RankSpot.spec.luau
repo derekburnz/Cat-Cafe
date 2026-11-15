@@ -40,6 +40,35 @@ return function()
 			expect(RankSpot.phase(true, "button", 10, "Store")).to.equal("none") -- another window
 		end)
 
+		-- #4188 (Tier 2 at 3 kinds): the first bait cat is the third kind. Its scene and card count as a card ("other"),
+		-- so the free seconds run under them (RankSpotController ticks every 0.25 s) and the goal card lights on the
+		-- first tick after they go. When the coins come a beat later, it lights on the tick the server's word arrives.
+		it(
+			"lights the goal card the moment the bait cat's card closes, or the moment ready lands after",
+			function()
+				local free = 0
+				local function step(due: boolean, window: string?, was: string): string
+					free += 0.25
+					return RankSpot.phase(due, was :: any, free, window)
+				end
+				local was = "none"
+				for _ = 1, 12 do -- the scene and the card, 3 s, ready from the start
+					was = step(true, "other", was)
+					expect(was).to.equal("none")
+				end
+				expect(step(true, nil, was)).to.equal("button") -- first tick after the card
+				free, was = 0, "none"
+				for _ = 1, 12 do
+					was = step(false, "other", was)
+				end
+				for _ = 1, 4 do -- the card closed, the coins not there yet
+					was = step(false, nil, was)
+					expect(was).to.equal("none")
+				end
+				expect(step(true, nil, was)).to.equal("button") -- the tick the server's word arrives
+			end
+		)
+
 		it("lights the rank up window's button once the window is open", function()
 			expect(RankSpot.phase(true, "button", 0.25, RankSpot.WINDOW)).to.equal("confirm")
 			expect(RankSpot.phase(true, "confirm", 5, RankSpot.WINDOW)).to.equal("confirm")

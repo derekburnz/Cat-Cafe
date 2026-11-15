@@ -10,7 +10,8 @@ recolour a clone:
 
 `stamp(base_path, gold_path)` reads the two .model.json files, matches parts by CFrame, Size and Shape, and writes
 the attributes into the base file. A base part with no twin (a marking the gold coat swallowed, mouth lines that
-sit a hair differently) takes the look of the same-sized gold part next to it, or else of the gold part it sits on.
+sit a hair differently) takes the look of the same-sized gold part next to it, or else of the gold part it sits on
+(never of a thinner face line drawn across it: a muzzle patch goes the head's gold, not the mouth's dark).
 build_all.py calls it whenever either file of a pair is written.   python3 goldtone.py [rbx dir]  stamps and checks all.
 """
 import glob
@@ -20,6 +21,7 @@ import sys
 
 TONES = {(0.9843, 0.8941, 0.6039): 1, (0.949, 0.7569, 0.3059): 2, (0.7882, 0.5608, 0.1647): 3}   # light, mid, dark
 KEYS = ("GoldTone", "GoldColor", "GoldSolid")
+LINE = [0.1686, 0.1686, 0.2078]                    # the mouth and eye line dark
 
 
 def _parts(tree):
@@ -45,6 +47,10 @@ def _pos(p):
 
 def _dist(a, b):
     return sum((x - y) ** 2 for x, y in zip(_pos(a), _pos(b))) ** 0.5
+
+
+def _vol(p):
+    return p["Size"][0] * p["Size"][1] * p["Size"][2]
 
 
 def _local(p, point):
@@ -96,7 +102,12 @@ def stamp_trees(base, gold):
             if near:
                 twin, how = min(near, key=lambda g: _dist(g, p)), "near"
             elif under:
-                twin, how = min(under, key=lambda g: g["Size"][0] * g["Size"][1] * g["Size"][2]), "under"
+                twin, how = min(under, key=_vol), "under"
+                if twin["Color"] == LINE and _vol(twin) < _vol(p):
+                    # a patch with a face line drawn across it (a muzzle under the mouth) is not that line: it takes
+                    # the part it sits in, or else the smallest one at least its own size
+                    big = [g for g in under if _vol(g) >= _vol(p)]
+                    twin = min([g for g in big if _holds(g, p, 1e-4)] or big or [twin], key=_vol)
             else:
                 twin, how = None, "lost"
         look = _look(p, twin) if twin else {}

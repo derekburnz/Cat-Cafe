@@ -359,7 +359,7 @@ return function()
 		BinFirstRepeatSeconds = 180,
 		BinCooldownSeconds = 900,
 		BinMissRetrySeconds = 10,
-		BinZoneWidth = 0.22, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed; #3458: 0.42 before
+		BinZoneWidth = 0.18, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed; #3458: 0.42 before; #4284: 0.22 before
 		BinBarSpeed = 0.80, -- #3458: 0.64 before
 		BinHits = 5, -- #3458: the bin's own hit count
 		BinPadRadius = 4, -- #3608: the pad in front of the bin
@@ -433,6 +433,7 @@ return function()
 		PassXpPerLevel = 800,
 		-- #1624 (economy-ladder.md section 6a v2.4): the store passes
 		VipCafeBonus = 0.10,
+		VipBoostCafeBonus = 0.50,
 		CafeStyleCafeBonus = 0.50,
 		GrandCafeBonus = 1.50,
 		AccessoriesStaffMultiplier = 1.15,
@@ -545,6 +546,7 @@ return function()
 				MysteryFeatured = true, -- #3535: a table, the dated featured weeks, checked in MysteryMarket.spec
 				SpeedShoesCarryBonus = true, -- #3535: checked in SpeedShoes.spec
 				MysteryMarketRange = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
+				TicketBoothTier = true, -- #4061: checked in TicketBooth.spec (the Water Park taken as Tier 9)
 				LongNetReachStuds = true, -- #2565: the Long Net's extra reach, checked in NetSwing.spec
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
 				WaveMinRareRerollOdds = true, -- a table, checked in Catching.spec (F97 section 7)
@@ -639,8 +641,10 @@ return function()
 				Giveaways = true, -- Derek 2026-11-13: the 15:30 UTC giveaways, checked in Codes.spec
 				StoreWasPrice = true, -- #3572: the Sale badge's true old prices, checked in StoreLogic.spec
 				StoreSaleEnds = true, -- #3572: checked in StoreLogic.spec
+				UpdateFeature = true, -- #4175: checked in StoreLogic.spec
 				EarlyCatchCount = true, -- #2913 follow-up: checked in Circles.spec
 				EarlyCatchWindowScale = true, -- #2913 follow-up: checked in Circles.spec and S24 here
+				TouchCatchWindowScale = true, -- #4299: checked in Circles.spec and S24 here
 				AfkCafeSeconds = true, -- #3573: checked in AfkCafe.spec
 				AutoRejoinSeconds = true, -- #3602: checked in AfkCafe.spec
 				AfkCafeMoney = true, -- #3573: checked in AfkCafe.spec
@@ -654,6 +658,7 @@ return function()
 				WinterPackPassId = true,
 				ChefPackPassId = true,
 				SpacePackPassId = true,
+				AutoBowlPassId = true, -- #4266: the Auto Bowl pass id, its Store card hidden while 0
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
@@ -685,7 +690,7 @@ return function()
 				Mythical = 5,
 				Secret = 20, -- #3470
 			})
-			expect(Config.FishRankUp :: any).to.deepEqual({ 5, 15, 30, 60, 100, 150 }) -- #2651: Tiers 6 and 7
+			expect(Config.FishRankUp :: any).to.deepEqual({ 5, 15, 30, 60, 100, 150, 300, 300, 300 }) -- #2651: Tiers 6 and 7; #4055: 8 to 10
 		end)
 
 		it(
@@ -824,7 +829,10 @@ return function()
 					end
 					widest = math.max(
 						widest,
-						row.good * rarity.catchWindow * Config.EarlyCatchWindowScale * area
+						row.good
+							* rarity.catchWindow
+							* math.max(Config.EarlyCatchWindowScale, Config.TouchCatchWindowScale) -- #4299
+							* area
 					)
 				end
 			end

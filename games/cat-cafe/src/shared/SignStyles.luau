@@ -69,6 +69,31 @@ SignStyles.LIST = table.freeze({
 		model = "CatCafe_Plot_SignPawChalkboard",
 		passKey = "SignStylePackPassId",
 	}),
+	-- #4026: the four outfit packs' banners (storepacks.py), each +25% money while it is the sign (shared/StorePacks)
+	table.freeze({
+		id = "pack_club_banner",
+		name = "Club Banner",
+		model = "CatCafe_Plot_SignClubBanner",
+		passKey = "StylishPackPassId",
+	}),
+	table.freeze({
+		id = "pack_snowy_banner",
+		name = "Snowy Banner",
+		model = "CatCafe_Plot_SignSnowyBanner",
+		passKey = "WinterPackPassId",
+	}),
+	table.freeze({
+		id = "pack_bakery_banner",
+		name = "Bakery Banner",
+		model = "CatCafe_Plot_SignBakeryBanner",
+		passKey = "ChefPackPassId",
+	}),
+	table.freeze({
+		id = "pack_star_banner",
+		name = "Star Banner",
+		model = "CatCafe_Plot_SignStarBanner",
+		passKey = "SpacePackPassId",
+	}),
 }) :: { Style }
 
 local byId: { [string]: Style } = {}

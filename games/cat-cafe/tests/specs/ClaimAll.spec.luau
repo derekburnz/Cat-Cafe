@@ -204,7 +204,7 @@ return function()
 					"+$500",
 					"1 spin",
 					"+10 golden fish",
-					"2 Alley Crate",
+					"2 Alley Crates",
 					"+3% gold luck forever",
 					"+5% money forever",
 					"1 spin",
@@ -213,7 +213,7 @@ return function()
 				expect(lines :: any).to.deepEqual({
 					"+$800",
 					"+15 golden fish",
-					"3 Alley Crate",
+					"3 Alley Crates",
 					"+7% money forever",
 					"2 spins",
 					"+3% gold luck forever",

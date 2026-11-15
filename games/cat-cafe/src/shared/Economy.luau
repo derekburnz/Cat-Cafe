@@ -8,11 +8,14 @@ local Catching = require(script.Parent.Catching)
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
 local IndexRewards = require(script.Parent.IndexRewards)
+local LateTiers = require(script.Parent.LateTiers)
 local Lawn = require(script.Parent.Lawn)
+local LiveFlags = require(script.Parent.LiveFlags)
 local Pals = require(script.Parent.Pals)
 local Pet = require(script.Parent.Pet)
 local Potions = require(script.Parent.Potions)
 local StationPerks = require(script.Parent.StationPerks)
+local StorePacks = require(script.Parent.StorePacks)
 local Traits = require(script.Parent.Traits)
 local Types = require(script.Parent.Types)
 
@@ -34,6 +37,7 @@ export type Passes = {
 	uniforms: boolean?,
 	cafeStyle: boolean?,
 	grand: boolean?,
+	packs: { [string]: boolean }?, -- #4026: the outfit packs owned, by StorePacks key
 }
 
 local NO_PASSES: Passes = { money = 1, longNap = false, slots = 0 } -- shared; never changed
@@ -56,6 +60,7 @@ function Economy.setPasses(profile: Types.PlayerProfile, passes: Passes?)
 		uniforms = p.uniforms == true or nil,
 		cafeStyle = p.cafeStyle == true or nil,
 		grand = p.grand == true or nil,
+		packs = if p.packs ~= nil and next(p.packs) ~= nil then table.clone(p.packs) else nil,
 	}
 end
 
@@ -115,12 +120,28 @@ function Economy.passMultiplier(profile: Types.PlayerProfile): number
 	return best
 end
 
+-- #4235 (Derek 2026-11-14, priority): VIP pays +50% (Config.VipBoostCafeBonus) in place of +10% and shows a tag over
+-- the owner's head (Services/VipTagService), behind the `vipBoost` switch, on unless switched off. Read from the
+-- switch's ReplicatedStorage attribute, which LiveFlagService sets on the server for both sides; specs set it here.
+Economy.VIP_BOOST_FLAG = "vipBoost"
+local vipBoostOverride: boolean? = nil
+function Economy.setVipBoost(on: boolean?)
+	vipBoostOverride = on
+end
+function Economy.vipBoost(): boolean
+	if vipBoostOverride ~= nil then
+		return vipBoostOverride
+	end
+	return game:GetService("ReplicatedStorage")
+		:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Economy.VIP_BOOST_FLAG) ~= false
+end
+
 -- #1624 (economy-ladder.md section 6a): what VIP, Cafe Style and Grand Cafe add into cafeMultiplier, 0 without them.
 function Economy.passCafeBonus(profile: Types.PlayerProfile): number
 	local passes = Economy.passes(profile)
 	local bonus = 0
 	if passes.vip == true then
-		bonus += Config.VipCafeBonus
+		bonus += if Economy.vipBoost() then Config.VipBoostCafeBonus else Config.VipCafeBonus
 	end
 	if passes.cafeStyle == true then
 		bonus += Config.CafeStyleCafeBonus
@@ -129,6 +150,18 @@ function Economy.passCafeBonus(profile: Types.PlayerProfile): number
 		bonus += Config.GrandCafeBonus
 	end
 	return bonus
+end
+
+-- #4026: what the outfit packs owned add into cafeMultiplier while their pieces are in use (StorePacks.bonus; their
+-- decor counts with the other decor). 0 without a pack.
+function Economy.packBonus(profile: Types.PlayerProfile): number
+	local packs = Economy.passes(profile).packs
+	if packs == nil then
+		return 0
+	end
+	return StorePacks.bonus(profile, function(key: string): boolean
+		return packs[key] == true
+	end)
 end
 
 -- #1624: Cat Accessories and Uniform Styles, each a multiplier on every working cat's rate (a dressed working cat
@@ -255,6 +288,7 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	multiplier += IndexRewards.totals(profile).bonus
 	multiplier += Economy.lawnBonus(profile)
 	multiplier += Economy.passCafeBonus(profile)
+	multiplier += Economy.packBonus(profile)
 	return multiplier
 end
 
@@ -405,22 +439,24 @@ local function paidSecondsFrom(from: number, seconds: number, clockEpoch: number
 end
 
 -- The extra paid seconds the running tip potions add to a window of `elapsed` from lastTick: each potion's `tips` over
--- the start it covers, split where each ends, the running sum capped at TimedTipsMax.
+-- the start it covers, split where each ends, the running sum capped at TimedTipsMax; a potion's `tipsOver` (#4195,
+-- the Admin Wheel's 3x money) is added outside that cap.
 local function tipBonusSeconds(
 	profile: Types.PlayerProfile,
 	elapsed: number,
 	clockEpoch: number?
 ): number
-	type Span = { seconds: number, tips: number }
+	type Span = { seconds: number, tips: number, over: number }
 	local spans: { Span } = {}
-	local total = 0
+	local total, totalOver = 0, 0
 	for _, def in Catalog.potions do
-		local tips = def.tips
-		if tips ~= nil then
+		local tips, over = def.tips or 0, def.tipsOver or 0
+		if tips > 0 or over > 0 then
 			local seconds = math.min(elapsed, Potions.left(profile, def.id, profile.lastTick))
 			if seconds > 0 then
-				table.insert(spans, { seconds = seconds, tips = tips })
+				table.insert(spans, { seconds = seconds, tips = tips, over = over })
 				total += tips
+				totalOver += over
 			end
 		end
 	end
@@ -430,7 +466,7 @@ local function tipBonusSeconds(
 	local bonus, from = 0, 0
 	for _, span in spans do
 		if span.seconds > from then
-			bonus += math.min(total, Config.TimedTipsMax) * paidSecondsFrom(
+			bonus += (math.min(total, Config.TimedTipsMax) + totalOver) * paidSecondsFrom(
 				profile.lastTick + from,
 				span.seconds - from,
 				clockEpoch
@@ -438,6 +474,7 @@ local function tipBonusSeconds(
 			from = span.seconds
 		end
 		total -= span.tips
+		totalOver -= span.over
 	end
 	return bonus
 end
@@ -770,8 +807,10 @@ end
 -- order a player works through them: cats, the rarity, then coins.
 function Economy.rankUpBlocker(profile: Types.PlayerProfile): string?
 	local nextTier = Catalog.getTier(Economy.tier(profile) + 1)
-	if nextTier == nil then
-		return "Your cafe is already a " .. (Catalog.getTier(Catalog.maxTier) :: Types.TierDef).name
+	-- #3997: a tier behind the `tier8` switch (shared/LateTiers) is not there yet
+	if nextTier == nil or not LateTiers.tierOpen(nextTier.tier) then
+		local top = math.max(Economy.tier(profile), LateTiers.topTier())
+		return "Your cafe is already a " .. (Catalog.getTier(top) :: Types.TierDef).name
 	end
 	local cats = Economy.rankUpCatCount(profile.collection)
 	if cats < nextTier.distinctCats then

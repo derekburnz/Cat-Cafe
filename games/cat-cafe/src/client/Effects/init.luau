@@ -16,13 +16,18 @@
 -- .claude/skills/animation-vfx/SKILL.md.
 -- Wiring and file map: README.md next to this file.
 
+local AdminAir = require(script.AdminAir)
+local AdminDrops = require(script.AdminDrops)
+local AdminFlash = require(script.AdminFlash)
 local Ambient = require(script.Ambient)
 local ArcadeGlow = require(script.ArcadeGlow)
 local AreaFx = require(script.AreaFx)
+local AreaWater = require(script.AreaWater)
 local BaitCrumbs = require(script.BaitCrumbs)
 local BedWalk = require(script.BedWalk)
 local Bellhop = require(script.Bellhop)
 local BigTraitCut = require(script.BigTraitCut)
+local BulbChase = require(script.BulbChase)
 local CafeWalk = require(script.CafeWalk)
 local CampCollect = require(script.CampCollect)
 local CampExtras = require(script.CampExtras)
@@ -92,6 +97,7 @@ local Splash = require(script.Splash)
 local StationBuild = require(script.StationBuild)
 local StationMotion = require(script.StationMotion)
 local StationReveal = require(script.StationReveal)
+local StormFall = require(script.StormFall)
 local StrayCall = require(script.StrayCall)
 local StuckCall = require(script.StuckCall)
 local Tackle = require(script.Tackle)
@@ -196,6 +202,12 @@ function Effects.start()
 		ArcadeGlow.start,
 		PoolBeacon.start,
 		RuinsWater.start,
+		AreaWater.start, -- #4070, #4071: the Water Park's pools and river, the Castle's moat and well
+		BulbChase.start, -- #4070: the fairground's bulbs chase at night
+		StormFall.start, -- #4197: a Cat Storm's strays fall out of the sky
+		AdminAir.start, -- #4197: Golden Hour's gold motes and Money Storm's coin glints round you
+		AdminDrops.start, -- #4197: Fish Fountain's fish arc out, Crate Drop's crates come down by parachute
+		AdminFlash.start, -- #4325: an admin event's 3, 2, 1, name splash, world tint, strip and end card
 		TrailSparkle.start,
 		PawTrail.start,
 		GoldenFind.start,
@@ -221,6 +233,12 @@ function Effects.start()
 		-- #2946: the first bait's cutscene; the UI's bait cards wait for it
 		FirstBaitCut.start(require(script.Parent.UI) :: any)
 	end)
+end
+
+-- #4311: whether this phone or tablet's frame rate has stayed low this session (under Presets.slow.fps for
+-- Presets.slow.windows windows in a row); once true it stays true. The Low performance suggestion can read it.
+function Effects.struggling(): boolean
+	return Context.struggling
 end
 
 -- "low" on a phone or tablet or in Low performance mode, "high" on a PC or console (Presets.budget).

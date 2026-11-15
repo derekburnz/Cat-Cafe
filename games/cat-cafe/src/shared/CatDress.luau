@@ -182,9 +182,10 @@ local function putOn(
 	model: Model,
 	piece: string,
 	clone: (assetName: string) -> Model?,
-	attribute: string
+	attribute: string,
+	slotName: string? -- #4026: an accessory's Looks.attachmentOf; nil is Outfit_<piece>
 ): boolean
-	local slot = model:FindFirstChild("Outfit_" .. piece, true)
+	local slot = model:FindFirstChild(slotName or ("Outfit_" .. piece), true)
 	if slot == nil or not slot:IsA("Attachment") then
 		return false
 	end
@@ -232,7 +233,7 @@ local function slotsOf(model: Model, accessoryId: string?): (string?, string?, L
 	local propSlot2 = model:GetAttribute("PropSlot2")
 	local accessory = if accessoryId ~= nil then Looks.accessory(accessoryId) else nil
 	if accessory ~= nil then
-		local slot = model:FindFirstChild("Outfit_" .. accessory.piece, true)
+		local slot = model:FindFirstChild(Looks.attachmentOf(accessory), true)
 		if slot == nil or not slot:IsA("Attachment") then
 			accessory = nil
 		end
@@ -272,7 +273,13 @@ function CatDress.dress(
 	if
 		accessory ~= nil
 		and accessoryOn
-		and putOn(model, accessory.piece, clone, ACCESSORY_PIECE_ATTRIBUTE)
+		and putOn(
+			model,
+			accessory.piece,
+			clone,
+			ACCESSORY_PIECE_ATTRIBUTE,
+			Looks.attachmentOf(accessory)
+		)
 	then
 		worn += 1
 	end
@@ -321,7 +328,13 @@ function CatDress.setAccessory(
 		end
 	end
 	if accessory ~= nil and accessoryOn then
-		putOn(model, accessory.piece, clone, ACCESSORY_PIECE_ATTRIBUTE)
+		putOn(
+			model,
+			accessory.piece,
+			clone,
+			ACCESSORY_PIECE_ATTRIBUTE,
+			Looks.attachmentOf(accessory)
+		)
 	end
 	model:SetAttribute(Looks.ACCESSORY_ATTRIBUTE, id)
 	if added then

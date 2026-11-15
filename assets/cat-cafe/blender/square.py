@@ -557,6 +557,8 @@ def build_garden(mat):
     for s in (-1, 1):
         b.box((s * 0.48, 3.95, -0.25), (0.5, 0.5, 0.3), "leaf_green", rot=rot_z(45))
     b.ball((1.15, 0.95, 0.8), 0.4, "leaf_dark", scale=(1.0, 0.8, 1.8))                         # tail
+    # #4073: tail, body, head and ears stack up like rungs; one flat box from the grass to the ears, back to the hedge
+    wall.span((-1.3, 0.5, -1.15), (1.6, 4.35, 1.2), "concrete")
     for k in range(8):                                                                         # flowers along the front
         x = -hw + 1.6 + k * (GARDEN_W - 3.2) / 7
         flower_clump(flowers, x, 0.5, -hd + 1.4, n=4, spread=0.45)

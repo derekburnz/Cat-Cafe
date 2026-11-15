@@ -51,6 +51,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	-- second the second and third were dropped and each waited out the button's 3 s
 	ClaimRichTip = RateLimiter.new(3, 1),
 	AfkIdle = RateLimiter.new(4, 2), -- #3573: idle and back again
+	AfkMode = RateLimiter.new(2, 2), -- #4346: the AFK tile, on and off
 	TakeCozy = RateLimiter.new(1, 1), -- #2854: one bag waits at a time
 	Tackle = RateLimiter.new(2, 1), -- a flood guard; ShoveService holds TackleCooldownSeconds from each press
 	LockCat = RateLimiter.new(4, 1), -- data-model section 15: 4 a second (tapping the lock icon on cat cards)
@@ -72,6 +73,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClaimTipJar = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimIndexReward = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	SpinAll = RateLimiter.new(1, 1), -- #1078: 1 a second (and the spin cooldown)
+	AdminWheelSpin = RateLimiter.new(1, 1), -- #4195: one spin an event; AdminWheelService refuses the rest
 	SpinWheel = RateLimiter.new(2, 1), -- SpinService also holds each player to SpinCooldownSeconds between spins
 	-- #1146: a flood guard only; FishMarketService refuses an open while one is in flight or within
 	-- CrateOpenCooldownSeconds (0.3 s) of the last, so Quick open and Buy 5's crates one by one go through
@@ -80,6 +82,13 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	OpenAllCrates = RateLimiter.new(1, 2), -- #2402: 1 every 2 seconds (and the crate spam limit)
 	BuyFishItem = RateLimiter.new(2, 1), -- golden-fish.md section 8: 2 a second
 	BuyMystery = RateLimiter.new(1, 1), -- #2565 (mystery-market.md section 5): 1 a second
+	BuyWithFish = RateLimiter.new(1, 1), -- #4055: 1 a second
+	BuyTicketPrize = RateLimiter.new(1, 1), -- #4061: 1 a second
+	GiveToKeep = RateLimiter.new(1, 1), -- #4062
+	PickDragonCard = RateLimiter.new(2, 1),
+	KeepCards = RateLimiter.new(1, 1),
+	SlotDragonCard = RateLimiter.new(4, 1),
+	SetDragonColour = RateLimiter.new(1, 1),
 	MarkMysterySeen = RateLimiter.new(1, 2), -- #2565: one save flag
 	SetBagColours = RateLimiter.new(1, 1), -- #3699: 1 a second
 	PromptDeal = RateLimiter.new(1, 1), -- #3996

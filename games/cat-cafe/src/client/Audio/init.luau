@@ -18,6 +18,7 @@ local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local AdminFlash = require(script.Parent.Effects.AdminFlash)
 local AreaFx = require(script.Parent.Effects.AreaFx)
 local Beats = require(script.Beats)
 local BigTraitCut = require(script.Parent.Effects.BigTraitCut)
@@ -39,6 +40,8 @@ local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("R
 local RiftRun = require(script.Parent.Effects.RiftRun)
 local Signature = require(script.Parent.Effects.Signature)
 local Splash = require(script.Parent.Effects.Splash)
+local StormFall = require(script.Parent.Effects.StormFall)
+local TradeUnlock = require(script.Parent.Effects.TradeUnlock)
 local Trampoline = require(script.Parent.Effects.Trampoline)
 
 local Audio = {}
@@ -2292,6 +2295,10 @@ local function followAreas()
 			Audio.play(cue, at)
 		end
 	end)
+	-- #4197: a Cat Storm's stray lands
+	StormFall.onLand(function(at)
+		Audio.play(Logic.STORM_LAND_CUE, at)
+	end)
 end
 
 -- #3690: this player's bounce on the trampoline, in 3D at the mat.
@@ -2451,6 +2458,24 @@ local function followPoolIntro()
 	end)
 end
 
+-- #4280: "Trading unlocked!" (Effects/TradeUnlock): the lock springs open on the gift chime and the icon lands on
+-- the Trade tile with the badge blip, both flat.
+local function followTradeUnlock()
+	TradeUnlock.onBeat(function(beat)
+		Audio.play(if beat == "open" then "uiGiftReady" else "uiBadge")
+	end)
+end
+
+-- #4325: an admin event's loud start (Effects/AdminFlash): a wheel tick on each of 3, 2, 1, the wheel's win fanfare as
+-- it starts, the gift chime as its last minute begins and the badge blip on its end card, all flat.
+local ADMIN_FLASH_CUES =
+	{ tick = "uiSpinTick", start = "uiSpinWin", last = "uiGiftReady", over = "uiBadge" }
+local function followAdminFlash()
+	AdminFlash.onBeat(function(beat)
+		Audio.play(ADMIN_FLASH_CUES[beat])
+	end)
+end
+
 function Audio.start()
 	if started then
 		return
@@ -2473,6 +2498,8 @@ function Audio.start()
 	followPool()
 	followAreas()
 	followPoolIntro()
+	followTradeUnlock()
+	followAdminFlash()
 	followBigTrait()
 	followRiftRun()
 	followDragonRise()

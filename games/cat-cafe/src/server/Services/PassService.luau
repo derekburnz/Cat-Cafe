@@ -15,6 +15,7 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local AutoBowl = require(ReplicatedStorage.Shared.AutoBowl)
 local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -23,6 +24,7 @@ local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassCheck = require(ReplicatedStorage.Shared.PassCheck)
 local ShopCats = require(ReplicatedStorage.Shared.ShopCats)
 local Signal = require(ReplicatedStorage.Shared.Signal)
+local StorePacks = require(ReplicatedStorage.Shared.StorePacks)
 
 local PassService = {}
 
@@ -49,6 +51,10 @@ local function storePassIds(): { number }
 			Config.JukeboxPassId, -- #1168 row 2: off sale, songs free since #1875; kept for earlier buyers
 			Config.SignStylePackPassId, -- #1168 row 1: SignStyles reads it with `owns`
 			Config.GardenDecorPackPassId, -- #1168 row 3: ShopCatService gives its decor (PassDecor)
+			Config.StylishPackPassId, -- #4026: the four outfit packs (shared/StorePacks)
+			Config.WinterPackPassId,
+			Config.ChefPackPassId,
+			Config.SpacePackPassId,
 		}
 	do
 		if id ~= 0 then
@@ -80,6 +86,9 @@ local function passIds(): { number }
 	end
 	if Config.SecondBowlPassId ~= 0 then
 		table.insert(ids, Config.SecondBowlPassId) -- #1161
+	end
+	if AutoBowl.passId() ~= 0 then
+		table.insert(ids, AutoBowl.passId()) -- #4266; BaitService reads it with `owns`
 	end
 	for _, id in storePassIds() do
 		table.insert(ids, id) -- #1624
@@ -122,6 +131,19 @@ function PassService.setTagPick(player: Player, pick: string?, items: { [string]
 	markPlayer(player, owned[player] or {})
 end
 
+-- #4026: the outfit packs an owned-id set holds, by StorePacks key; nil for none.
+local function packsOf(set: { [number]: boolean }): { [string]: boolean }?
+	local packs: { [string]: boolean }? = nil
+	for _, pack in StorePacks.LIST do
+		local id = StorePacks.passId(pack)
+		if id ~= 0 and set[id] == true then
+			packs = packs or {}
+			(packs :: { [string]: boolean })[pack.key] = true
+		end
+	end
+	return packs
+end
+
 -- The passes an owned-id set gives: the highest Money pass, Long Nap and one slot per extra slot pass.
 function PassService.fromOwned(set: { [number]: boolean }): Economy.Passes
 	local money = 1
@@ -150,6 +172,7 @@ function PassService.fromOwned(set: { [number]: boolean }): Economy.Passes
 		uniforms = if has(set, Config.UniformStylesPassId) then true else nil,
 		cafeStyle = if has(set, Config.CafeStylePassId) then true else nil,
 		grand = if has(set, Config.GrandThemePassId) then true else nil,
+		packs = packsOf(set), -- #4026
 	}
 end
 
@@ -280,6 +303,37 @@ local function onPurchaseFinished(player: Player, passId: number, purchased: boo
 	markPlayer(player, set)
 	PassService.changed:Fire(player, PassService.fromOwned(set))
 	PassService.purchased:Fire(player, passId)
+end
+
+-- #4055 (shared/FishStore): passes bought with golden fish count as owned, the same as a Robux purchase. DataService
+-- calls it at join, after the save is read, with the save's ids, and gets the passes again with them in. A player
+-- without a set yet (no join lookup) gets the ids alone.
+function PassService.addBought(player: Player, ids: { number }): Economy.Passes
+	local set = owned[player]
+	if set == nil then
+		set = {}
+		owned[player] = set
+	end
+	local s = set :: { [number]: boolean }
+	for _, id in ids do
+		if id ~= 0 then
+			s[id] = true
+		end
+	end
+	markPlayer(player, s)
+	return PassService.fromOwned(s)
+end
+
+-- #4055: one pass just bought with golden fish (FishStoreService, after the fish are spent): owned from now on, and
+-- `changed` fires as for a Robux purchase so the cafe, its theme and the pass decor update at once.
+function PassService.grantFish(player: Player, id: number)
+	local set = owned[player]
+	if id == 0 or set == nil or set[id] then
+		return
+	end
+	set[id] = true
+	markPlayer(player, set)
+	PassService.changed:Fire(player, PassService.fromOwned(set))
 end
 
 function PassService.start()

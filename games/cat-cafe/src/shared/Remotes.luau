@@ -72,6 +72,8 @@ Remotes.ClientToServer = {
 	"ClaimTipJar", -- (step: number)  integer 1 to #Catalog.tipJar, unclaimed this session, its minutes reached (F47)
 	"ClaimIndexReward", -- (areaId: string, milestoneId: string)  known prize, unclaimed, the area's count met (F48)
 	"SpinWheel", -- ()  within SpinStationRange of a SpinWheel station, a free or banked spin, SpinCooldownSeconds (F49)
+	"AdminWheelSpin", -- ()  #4195: spins the Admin Wheel while an admin event with `wheel` runs; once per account per
+	-- event, no arguments (AdminWheelService). The answer is AdminWheelResult
 	"SpinAll", -- ()  #1078: as SpinWheel, but spends every free and banked spin, up to SpinAllMax, each rolled with the
 	-- same odds; 1 a second; answered with SpinAllResult
 	"OpenCrate", -- (crateId: string)  within FishMarketRange of a FishMarket, the crate's zone unlocked, a banked
@@ -88,6 +90,20 @@ Remotes.ClientToServer = {
 	-- item of Catalog.mysteryItems not owned, from its minTier, priced by the server's clock (MysteryMarket.priceOf); a
 	-- price above shownPrice (the sale ended while the window was open) is refused with "The sale just ended". 1 a
 	-- second; answered with a toast and a ProfileSync. Refused outside Studio while Config.MysteryOpen is false
+	"BuyWithFish", -- (key: string, shownPrice: number)  #4055 (shared/FishStore): a Store pass of FishStore.LIST not
+	-- owned, made, for FishStore.price golden fish; a price above shownPrice is refused. From anywhere, 1 a second, only
+	-- while the fishStore switch is on; answered with a toast and a ProfileSync (PlayerState.fishStore)
+	"BuyTicketPrize", -- (prizeId: string)  #4061 (shared/TicketBooth): a prize of TicketBooth.PRIZES under its limit, for
+	-- its price in tickets, from TicketBoothTier and only while the ticketBooth switch is on. 1 a second; answered with a
+	-- toast and a ProfileSync (PlayerState.ticketBooth)
+	"GiveToKeep", -- (uids: { string }, confirmed: boolean)  #4062 (shared/DragonKeep): at most GIVE_MAX of the player's
+	-- cats move into the Dragon Keep (DragonKeep.giveBlocker: not locked, at the spa or in a trade, never the last cat;
+	-- `confirmed` true for a gold, rainbow or Legendary and better one). Refused whole on any bad cat. 1 a second
+	"PickDragonCard", -- (index: number, slot: number?)  #4062: card `index` (1 to 3) of the hand showing; a stage hand
+	-- fills the new slot, a Rekindle hand replaces `slot` or (nil) goes to the binder. 2 a second
+	"KeepCards", -- ()  #4062: a Rekindle hand's "Keep my cards", DragonKeep.KEEP_FISH golden fish. 1 a second
+	"SlotDragonCard", -- (cardId: string, slot: number)  #4062: a binder card into an open slot, free. 4 a second
+	"SetDragonColour", -- (colour: string)  #4062: one of DragonKeep.COLOURS from stage 3, free. 1 a second
 	"PromptDeal", -- (productId: string)  #3996 (shared/DailyDeal): opens Roblox's purchase prompt for Today's Deal from
 	-- the server, only for today's deal, not yet bought today, from Tier 2 and while the dailyDeal switch is on; refused
 	-- with a toast otherwise. 1 a second
@@ -264,8 +280,8 @@ Remotes.ServerToClient = {
 	-- { Types.CrateSummary }, gaveFish: number, gotFish: number)  the swap happened (the decor lists since #1574, the
 	-- crate lists since #2745, the golden fish amounts since #2745 section 1d)
 	"TradeEnded", -- (tradeId: string, reason: string)  ended with nothing moved, in words ("Sam left")
-	"CatCaught", -- (catId: string, isNew: boolean, variant: string)  variant "base", "gold" or "rainbow" (F99), for the
-	-- Cat found card's coat
+	"CatCaught", -- (catId: string, isNew: boolean, variant: string, source: string?)  variant "base", "gold" or
+	-- "rainbow" (F99), for the Cat found card's coat; source "bowl" for a cat tamed at a bait bowl (#4266)
 	"OfflineEarnings", -- (amount: number, seconds: number)
 	"Toast", -- (text: string, kind: "info" | "good" | "warn")
 	"Announce", -- (text: string, rarity: Types.Rarity?)  fired to everyone; rarity on a rare catch. F89: a Legendary
@@ -347,6 +363,8 @@ Remotes.ServerToClient = {
 	-- per id until TipSeen. The client queues and times it, then answers TipSeen
 	"SpinAllResult", -- (rolls: { Spin.SpinRoll }, totals: { Spin.SpinTotal })  #1078: each spin's slice and amount in
 	-- order, and the prizes added up for the one results card; both empty when nothing was spent
+	"AdminWheelResult", -- (slice: number, prizeId: string, paid: { string })  #4195: where an AdminWheelSpin landed
+	-- (the place in AdminWheel.PRIZES) and what it paid, as short lines; 0, "", {} when refused
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
 	-- when refused (F49)
 	"CrateAllResult", -- (crateId: string, opened: { Crates.Opened })  #2402: every piece an OpenAllCrates gave, in
@@ -375,6 +393,7 @@ Remotes.ServerToClient = {
 	"CafePassState", -- (state: Types.CafePassView)  #1645: the Pass screen, at join and after each claim or season roll
 	"CampExtrasState", -- (state: Types.CampExtrasState)  F100: each camp extra's open, held, nextAt and the Yard
 	-- Sale's stock today, on join and whenever it changes (a fill, a new UTC day, a rank up, a collect or a buy)
+	"DragonStage", -- (stage: number)  #4062: Cinder reached `stage` (the rise cutscene, then the card deal)
 	"LateStationsState", -- (state: Types.LateStationsState)  #2651 part 4: the Oasis Spa's slots and the Relic Museum's
 	-- exhibits, on join and whenever it changes (a cat in or out, a slot finishing, a donation, a rank up)
 	"LateStationResult", -- (stationId: string, ok: boolean, detail: { [string]: any })  #2651 part 4: the answer to a

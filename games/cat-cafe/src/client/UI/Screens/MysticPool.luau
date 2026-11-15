@@ -26,6 +26,7 @@ local CatPickLogic = require(script.Parent.Parent.Components.CatPickLogic)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
+local FaceShelf = require(script.Parent.Parent.Components.FaceShelf)
 local Format = require(script.Parent.Parent.Components.Format)
 local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLogic)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
@@ -130,6 +131,7 @@ local SHORT_FACE = 36
 local SHORT_PICK_W = 72
 local SHORT_PICK_H = 38 -- drawn; on a touch screen its pad still reaches a finger's 44 px (Button's Hit)
 local FACE = 44
+local FACE_Z = 8 -- a row's face (Components/FaceShelf keeps faces by it)
 local TOOL_H = Scale.tapHeight(Theme.sizes.touchMin)
 local FIRST_ROWS = 12
 local ROWS_PER_FRAME = 20
@@ -328,6 +330,12 @@ end
 
 -- The odds, always on the card: two short lines at `top`.
 local function oddsLines(parent: Instance, top: number, z: number)
+	-- drawn again when the Secret switch flips (MysticPoolLogic.secretChanged): the old lines go first
+	for _, child in parent:GetChildren() do
+		if string.sub(child.Name, 1, 8) == "OddsLine" then
+			child:Destroy()
+		end
+	end
 	for index, words in MysticPoolLogic.oddsLines() do
 		text({
 			Name = if index == 1 then "OddsLine" else "OddsLine" .. index,
@@ -347,6 +355,12 @@ end
 -- rarity on, seven pills in two rows of four across the whole width; the "equally likely" line is then on the Odds
 -- list only (its Equal line), as the pills need the room.
 local function oddsPills(parent: Instance, top: number, z: number)
+	for _, name in { "OddsPills", "OddsNote" } do
+		local old = parent:FindFirstChild(name)
+		if old then
+			old:Destroy()
+		end
+	end
 	local rows = MysticPoolLogic.odds()
 	local perRow = math.max(3, math.ceil(#rows / 2))
 	local wide = perRow > 3
@@ -604,7 +618,15 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		TextColor3 = PAL.text,
 		Parent = content,
 	})
-	oddsPills(content, if short then lineTop else lineTop + 18, 1)
+	-- the pills sit in their own layer, made here, so drawing them again (secretChanged) keeps them under the sheets
+	local pillsLayer: Frame = Create("Frame", {
+		Name = "OddsLayer",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 1,
+		Parent = content,
+	})
+	oddsPills(pillsLayer, if short then lineTop else lineTop + 18, 1)
 	-- the station's free tokens
 	self._tokens = text({
 		Name = "Tokens",
@@ -941,66 +963,83 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 			odds.Visible = false
 		end,
 	})
-	local rows = MysticPoolLogic.odds()
-	-- #4063 Studio: with the Secret row there are 7, so the rows close up to fit the sheet with the Equal line under
-	-- them (every odd stays in view, monetization-policy 2.1); 6 rows keep the 30 px pitch
-	local pitch = math.min(30, math.floor((contentH - buttonH - 8 - 44) / #rows))
-	for index, row in rows do
-		local top = buttonH + 8 + (index - 1) * pitch
-		local line: Frame = Create("Frame", {
-			Name = row.name,
-			BackgroundColor3 = CARD.card,
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(0, top),
-			Size = UDim2.new(1, 0, 0, pitch - 4),
+	-- the rows and the Equal line, drawn again when the Secret switch flips (old rows carry the OddsRow attribute)
+	local function oddsRows()
+		for _, child in odds:GetChildren() do
+			if child:GetAttribute("OddsRow") then
+				child:Destroy()
+			end
+		end
+		local rows = MysticPoolLogic.odds()
+		-- #4063 Studio: with the Secret row there are 7, so the rows close up to fit the sheet with the Equal line under
+		-- them (every odd stays in view, monetization-policy 2.1); 6 rows keep the 30 px pitch
+		local pitch = math.min(30, math.floor((contentH - buttonH - 8 - 44) / #rows))
+		for index, row in rows do
+			local top = buttonH + 8 + (index - 1) * pitch
+			local line: Frame = Create("Frame", {
+				Name = row.name,
+				BackgroundColor3 = CARD.card,
+				BorderSizePixel = 0,
+				Position = UDim2.fromOffset(0, top),
+				Size = UDim2.new(1, 0, 0, pitch - 4),
+				ZIndex = 12,
+				Parent = odds,
+			}, {
+				Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+				Create("Frame", {
+					Name = "Dot",
+					AnchorPoint = Vector2.new(0, 0.5),
+					BackgroundColor3 = Color3.fromHex(row.color),
+					BorderSizePixel = 0,
+					Position = UDim2.new(0, 10, 0.5, 0),
+					Size = UDim2.fromOffset(14, 14),
+					ZIndex = 13,
+				}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
+			})
+			line:SetAttribute("OddsRow", true)
+			text({
+				Name = "Name",
+				Position = UDim2.fromOffset(34, 0),
+				Size = UDim2.new(1, -110, 1, 0),
+				FontFace = Theme.fonts.bodyBold,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				Text = row.name,
+				ZIndex = 13,
+				Parent = line,
+			})
+			text({
+				Name = "Percent",
+				AnchorPoint = Vector2.new(1, 0),
+				Position = UDim2.new(1, -12, 0, 0),
+				Size = UDim2.new(0, 70, 1, 0),
+				FontFace = Theme.fonts.bodyBold,
+				TextXAlignment = Enum.TextXAlignment.Right,
+				Text = row.label,
+				ZIndex = 13,
+				Parent = line,
+			})
+		end
+		local equal = text({
+			Name = "Equal",
+			Position = UDim2.fromOffset(0, buttonH + 8 + #rows * pitch + 4),
+			Size = UDim2.new(1, 0, 0, 34),
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = PAL.subtext,
+			TextWrapped = true,
+			TextTruncate = Enum.TextTruncate.None,
+			Text = MysticPoolLogic.EQUAL_LINE .. " Rolls cost golden fish or Trait Tokens.",
 			ZIndex = 12,
 			Parent = odds,
-		}, {
-			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
-			Create("Frame", {
-				Name = "Dot",
-				AnchorPoint = Vector2.new(0, 0.5),
-				BackgroundColor3 = Color3.fromHex(row.color),
-				BorderSizePixel = 0,
-				Position = UDim2.new(0, 10, 0.5, 0),
-				Size = UDim2.fromOffset(14, 14),
-				ZIndex = 13,
-			}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
 		})
-		text({
-			Name = "Name",
-			Position = UDim2.fromOffset(34, 0),
-			Size = UDim2.new(1, -110, 1, 0),
-			FontFace = Theme.fonts.bodyBold,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			Text = row.name,
-			ZIndex = 13,
-			Parent = line,
-		})
-		text({
-			Name = "Percent",
-			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.new(1, -12, 0, 0),
-			Size = UDim2.new(0, 70, 1, 0),
-			FontFace = Theme.fonts.bodyBold,
-			TextXAlignment = Enum.TextXAlignment.Right,
-			Text = row.label,
-			ZIndex = 13,
-			Parent = line,
-		})
+		equal:SetAttribute("OddsRow", true)
 	end
-	text({
-		Name = "Equal",
-		Position = UDim2.fromOffset(0, buttonH + 8 + #rows * pitch + 4),
-		Size = UDim2.new(1, 0, 0, 34),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
-		TextWrapped = true,
-		TextTruncate = Enum.TextTruncate.None,
-		Text = MysticPoolLogic.EQUAL_LINE .. " Rolls cost golden fish or Trait Tokens.",
-		ZIndex = 12,
-		Parent = odds,
-	})
+	oddsRows()
+	-- #4314 follow-up: Secret 0.1% shows (or goes) on every odds display as soon as the switch flips
+	self._secretChanged = MysticPoolLogic.secretChanged(function()
+		oddsPills(pillsLayer, if short then lineTop else lineTop + 18, 1)
+		oddsLines(choice, 30 + cardH + GAP + buttonH + 4 + 6, 9)
+		oddsRows()
+	end)
 
 	-- #4006 (Derek 2026-11-13: "instead of making this the pop up when opening mystic pool have the back open up on the
 	-- side of screen prompting people to buy it until they click a small X"): the Trait Token offer is a slim cream
@@ -1275,8 +1314,10 @@ end
 function MysticPool._clearRows(self: any)
 	self._buildToken += 1
 	for _, entry: Row in self._rows do
-		if entry.portrait then
-			entry.portrait:destroy()
+		local portrait = entry.portrait
+		if portrait then
+			-- #4271: kept for the next open (Components/FaceShelf), so its face shows at once
+			FaceShelf.give(portrait, entry.cat.catId, CatVariant.isGold(entry.cat.variant), FACE_Z)
 		end
 		entry.button:destroy()
 		entry.frame:Destroy()
@@ -1303,7 +1344,7 @@ function MysticPool._fit(self: any, tall: boolean)
 	frame.Size = UDim2.new(1, 0, 0, height)
 end
 
--- The cat list, or back to the card (false), which frees every row and face.
+-- The cat list, or back to the card (false), which frees every row and parks its faces (#4271).
 function MysticPool._showPicker(self: any, show: boolean)
 	self._picking = show
 	self._picker.Visible = show
@@ -1322,6 +1363,21 @@ function MysticPool._showPicker(self: any, show: boolean)
 	self:_setShown(remembered.shown, true)
 	self:_paintSorts()
 	self:_buildRows()
+	self:_loadFaces() -- #4271: the kept faces at once, not a frame later
+end
+
+-- #4271: the faces the list's first rows will want, built a few a frame while the card shows (Components/FaceShelf)
+function MysticPool._warmFaces(self: any)
+	local looks: { FaceShelf.Look } = {}
+	for _, cat in CatPickLogic.sorted(self._cats, CatPickLogic.menuSort(self._sort), self._flipped) do
+		if #looks >= FIRST_ROWS then
+			break
+		end
+		if CatPickLogic.matchShown(cat, "", remembered.shown) then
+			table.insert(looks, { catId = cat.catId, gold = CatVariant.isGold(cat.variant) })
+		end
+	end
+	FaceShelf.warm(looks, FACE_Z)
 end
 
 -- #3874: the Filter pop-up opens over the list and closes with its X or Filter.
@@ -1701,8 +1757,14 @@ function MysticPool._loadFaces(self: any)
 			local far = y + height < top - (FACE_KEEP - FACE_MARGIN)
 				or y > bottom + (FACE_KEEP - FACE_MARGIN)
 			if not row.frame.Visible or far then
-				if row.portrait then
-					row.portrait:destroy()
+				local portrait = row.portrait
+				if portrait then
+					FaceShelf.give(
+						portrait,
+						row.cat.catId,
+						CatVariant.isGold(row.cat.variant),
+						FACE_Z
+					)
 					row.portrait = nil
 				end
 				row.loaded = false
@@ -1712,20 +1774,15 @@ function MysticPool._loadFaces(self: any)
 		if not row.frame.Visible or y + height < top or y > bottom then
 			continue
 		end
-		if made >= FACES_PER_PASS then
+		-- #4271: a face kept from before (Components/FaceShelf) costs nothing, so only new ones count to the pass
+		local catId: string, gold = row.cat.catId, CatVariant.isGold(row.cat.variant)
+		local kept = FaceShelf.count(catId, gold, FACE_Z) > 0
+		if not kept and made >= FACES_PER_PASS then
 			self:_queueFaces()
 			return
 		end
-		made += 1
-		local portrait = CatPortrait.new({
-			parent = row.disc,
-			size = UDim2.fromScale(1, 1),
-			still = true,
-			head = true,
-			zIndex = 8,
-		})
-		portrait:set(Catalog.getCat(row.cat.catId), CatVariant.isGold(row.cat.variant))
-		row.portrait = portrait
+		made += if kept then 0 else 1
+		row.portrait = FaceShelf.take(row.disc, catId, gold, FACE_Z)
 		row.loaded = true
 	end
 end
@@ -1917,6 +1974,7 @@ function MysticPool.opened(self: any)
 	local tick = self._tick
 	self:_showPicker(false)
 	self._oddsSheet.Visible = false
+	self:_warmFaces()
 	local waiting = MysticPoolLogic.pending(self._view, self._cats)
 	if waiting ~= nil and self._cats[waiting.uid] ~= nil then
 		self._uid = waiting.uid
@@ -1957,6 +2015,7 @@ function MysticPool.destroy(self: any)
 	self:_stopPlay()
 	self:_clearRows()
 	self._searchChanged:Disconnect()
+	self._secretChanged:Disconnect()
 	self._scrolled:Disconnect()
 	self._skipPressed:Disconnect()
 	for _, chip: Button.Button in self._sorts do

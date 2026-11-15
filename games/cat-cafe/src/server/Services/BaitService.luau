@@ -15,6 +15,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local AutoBowl = require(ReplicatedStorage.Shared.AutoBowl)
 local Bait = require(ReplicatedStorage.Shared.Bait)
 local CafeService = require(script.Parent.CafeService)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
@@ -29,9 +30,11 @@ local EventService = require(script.Parent.EventService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local LiveFlagService = require(script.Parent.LiveFlagService)
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local LuckyCharm = require(ReplicatedStorage.Shared.LuckyCharm)
 local Net = require(script.Parent.Net)
+local PassService = require(script.Parent.PassService)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local RallyService = require(script.Parent.RallyService)
@@ -75,19 +78,29 @@ local function bowlDistance(player: Player): number?
 	return (root.Position - plot.baitBowl.Position).Magnitude
 end
 
-local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
-	local lureId = Guard.id(rawLureId)
-	local bowl = bowlOf(rawBowl)
-	local profile = DataService.get(player)
-	if lureId == nil or bowl == nil or profile == nil then
-		return
-	end
+-- #4266: whether `bowl` takes food now: the Bait bowl bought, and bowl 2 only with its pass.
+local function takesFood(player: Player, profile: Types.PlayerProfile, bowl: number): boolean
+	return Economy.level(profile, "lure_bowl") >= 1
+		and (bowl == 1 or CafeService.secondBowl(player, profile) == "on")
+end
+
+-- Puts one `lureId` in `bowl` and rolls its cat. `auto` (#4266, the Auto Bowl pass's refill) drops the warnings: the
+-- caller only asks for an empty bowl that takes food and a food the player has.
+local function useLure(
+	player: Player,
+	profile: Types.PlayerProfile,
+	lureId: string,
+	bowl: number,
+	auto: boolean
+)
 	local lure = Catalog.getLure(lureId)
 	if lure == nil then
 		return
 	end
 	if Economy.level(profile, "lure_bowl") < 1 then
-		Net.toast(player, "Buy the Bait bowl in Upgrades first.", "warn")
+		if not auto then
+			Net.toast(player, "Buy the Bait bowl in Upgrades first.", "warn")
+		end
 		return
 	end
 	if bowl == 2 and CafeService.secondBowl(player, profile) ~= "on" then
@@ -95,12 +108,16 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 		return
 	end
 	if Bait.stateOf(profile, bowl) ~= nil then
-		Net.toast(player, "There is food in that bowl already.", "warn")
+		if not auto then
+			Net.toast(player, "There is food in that bowl already.", "warn")
+		end
 		return
 	end
 	local stock = profile.lures[lureId] or 0
 	if stock < 1 then
-		Net.toast(player, string.format("You have no %s left.", lure.name), "warn")
+		if not auto then
+			Net.toast(player, string.format("You have no %s left.", lure.name), "warn")
+		end
 		return
 	end
 	-- from anywhere (Derek 2026-10-28 01:28: food goes in from the F menu); it touches only the player's own bowl
@@ -230,13 +247,24 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	CafeService.sync(player)
 end
 
-local function onResolveBait(player: Player, rawChoice: unknown, rawBowl: unknown)
-	local choice = Guard.oneOf(rawChoice, CHOICES)
+local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
+	local lureId = Guard.id(rawLureId)
 	local bowl = bowlOf(rawBowl)
 	local profile = DataService.get(player)
-	if choice == nil or bowl == nil or profile == nil then
+	if lureId == nil or bowl == nil or profile == nil then
 		return
 	end
+	useLure(player, profile, lureId, bowl, false)
+end
+
+-- Tames or lets go the cat at `bowl`, once it has arrived. The Tame tap (ResolveBait) and the Auto Bowl pass's
+-- claim (#4266) both come here.
+local function resolveBait(
+	player: Player,
+	profile: Types.PlayerProfile,
+	choice: string,
+	bowl: number
+)
 	local bait = Bait.stateOf(profile, bowl)
 	if bait == nil or os.time() < CafeService.baitReadyAt(profile, bait) then
 		CafeService.sync(player) -- the card waits for a fresh bowl state
@@ -271,7 +299,7 @@ local function onResolveBait(player: Player, rawChoice: unknown, rawBowl: unknow
 		local hadEpicOrBetter = RareMoments.ownsEpicOrBetter(profile.collection) -- F89: the first Epic's card
 		local instance, isNew =
 			CafeService.addCaughtCat(player, def, true, nil, bait.charm, "bait", bait.variant)
-		Net.fire(player, "CatCaught", def.id, isNew, instance.variant)
+		Net.fire(player, "CatCaught", def.id, isNew, instance.variant, "bowl") -- #4266: tamed at a bowl
 		RareMomentService.shoutOut(
 			player,
 			def.rarity,
@@ -289,6 +317,56 @@ local function onResolveBait(player: Player, rawChoice: unknown, rawBowl: unknow
 	)
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
+end
+
+local function onResolveBait(player: Player, rawChoice: unknown, rawBowl: unknown)
+	local choice = Guard.oneOf(rawChoice, CHOICES)
+	local bowl = bowlOf(rawBowl)
+	local profile = DataService.get(player)
+	if choice == nil or bowl == nil or profile == nil then
+		return
+	end
+	resolveBait(player, profile, choice, bowl)
+end
+
+-- #4266: the Auto Bowl pass, each second for an owner with the `autoBowl` switch on (a key LiveFlags does not know
+-- yet counts as off). Claim tames each bowl's arrived cat, as the Tame tap; refill then puts the best owned food in
+-- each empty bowl that takes food, never buying any. The tutorial's bait step (4) is left to the player.
+local function autoBowl(player: Player, profile: Types.PlayerProfile, now: number)
+	local known = table.find(LiveFlags.KEYS, AutoBowl.FLAG) ~= nil
+	if
+		profile.tutorialStep == 4
+		or not AutoBowl.active(
+			known,
+			known and LiveFlagService.on(AutoBowl.FLAG),
+			PassService.owns(player, AutoBowl.passId())
+		)
+	then
+		return
+	end
+	local settings = profile.settings :: any
+	for bowl = 1, Bait.BOWLS do
+		local bait = Bait.stateOf(profile, bowl)
+		if
+			settings[AutoBowl.KEYS.claim] == true
+			and bait ~= nil
+			and now >= CafeService.baitReadyAt(profile, bait)
+		then
+			resolveBait(player, profile, "tame", bowl)
+			Telemetry.custom(player, "auto_bowl", 1, { "claim", tostring(bowl) })
+		end
+		if
+			settings[AutoBowl.KEYS.refill] == true
+			and Bait.stateOf(profile, bowl) == nil
+			and takesFood(player, profile, bowl)
+		then
+			local lureId = AutoBowl.bestFood(Catalog.lures, profile.lures)
+			if lureId ~= nil then
+				useLure(player, profile, lureId, bowl, true)
+				Telemetry.custom(player, "auto_bowl", 1, { "refill", tostring(bowl) })
+			end
+		end
+	end
 end
 
 -- #1897 (first-hour.md section 2): the guaranteed cat is at the bowl. The client plays the F89 rare-moment look with
@@ -329,6 +407,7 @@ local function checkArrivals()
 		if profile == nil then
 			continue
 		end
+		autoBowl(player, profile, now) -- #4266: before the arrivals, so an auto claimed cat never flashes its card
 		local shown = shownArrival[player]
 		if shown == nil then
 			shown = {}

@@ -629,63 +629,185 @@ return function()
 		)
 	end)
 
-	-- #3695: the clean funnel onboarding_v7 and playtime_v1
-	describe("the clean funnel (#3695)", function()
+	-- #3695: the clean funnels, onboarding_v7 (today's walk-through order) and onboarding_v8 (bowl first, #4504)
+	describe("the clean funnel v8 (#4504, bowl first #4518)", function()
+		local EV = Onboarding.CLEAN_EVENTS
+		local tutorial = {
+			"joined",
+			"first_bait",
+			"first_bait_resolved",
+			"first_cannon",
+			"first_catch",
+			"first_checkin",
+		}
+
 		it(
-			"is onboarding_v7: 27 steps from joined to the Ruins catch, with no rescue step",
+			"is onboarding_v8: 49 steps in the bowl first order, ending at the Park, then catch, tier and arrival per area",
 			function()
-				expect(Onboarding.CLEAN_FUNNEL).to.equal("onboarding_v7")
-				expect(Onboarding.CLEAN_COUNT).to.equal(27)
-				expect(Onboarding.CLEAN_STEPS[1]).to.equal("joined")
-				expect(Onboarding.CLEAN_STEPS[11]).to.equal("second_cat")
-				expect(Onboarding.CLEAN_STEPS[Onboarding.CLEAN_TUTORIAL]).to.equal(
-					"first_bait_resolved"
-				)
-				expect(Onboarding.CLEAN_STEPS[27]).to.equal("ruins_catch")
+				expect(Onboarding.CLEAN_FUNNEL).to.equal("onboarding_v8")
+				expect(Onboarding.CLEAN_COUNT).to.equal(49)
+				expect(Onboarding.CLEAN_STEPS :: any).to.deepEqual(Onboarding.CLEAN_RULE_NAMES)
+				expect(Onboarding.CLEAN_STEPS[4]).to.equal("bowl_opened")
+				expect(Onboarding.CLEAN_STEPS[5]).to.equal("first_bowl")
+				expect(Onboarding.CLEAN_STEPS[6]).to.equal("bowl_cat_here")
+				expect(Onboarding.CLEAN_STEPS[7]).to.equal("bowl_cat_tamed")
+				expect(Onboarding.CLEAN_STEPS[8]).to.equal("in_cannon")
+				expect(Onboarding.CLEAN_STEPS[10]).to.equal("alley_arrived")
+				expect(Onboarding.CLEAN_STEPS[14]).to.equal("first_checkin")
+				expect(Onboarding.CLEAN_STEPS[16]).to.equal("catch_2_started")
+				expect(Onboarding.CLEAN_STEPS[17]).to.equal("second_net_catch")
+				expect(Onboarding.CLEAN_STEPS[18]).to.equal("second_checkin")
+				expect(Onboarding.CLEAN_STEPS[19]).to.equal("rank_up_ready_shown")
+				expect(Onboarding.CLEAN_STEPS[21]).to.equal("tier_2")
+				expect(Onboarding.CLEAN_STEPS[22]).to.equal("park_cannon")
+				expect(Onboarding.CLEAN_STEPS[23]).to.equal("park_launch")
+				expect(Onboarding.CLEAN_STEPS[Onboarding.CLEAN_TUTORIAL]).to.equal("park_arrived")
+				expect(Onboarding.CLEAN_TUTORIAL).to.equal(24)
+				expect(Onboarding.CLEAN_STEPS[25]).to.equal("park_catch")
+				expect(Onboarding.CLEAN_STEPS[26]).to.equal("tier_3")
+				expect(Onboarding.CLEAN_STEPS[27]).to.equal("neighbourhood_arrived")
+				expect(Onboarding.CLEAN_STEPS[49]).to.equal("castle_catch")
 				local seen: { [string]: boolean } = {}
 				for _, name in Onboarding.CLEAN_STEPS do
 					expect(seen[name]).to.equal(nil)
 					seen[name] = true
 					expect(string.find(name, "rescue", 1, true)).to.equal(nil)
-					expect(string.find(name, "_shown", 1, true)).to.equal(nil)
 				end
-				expect(seen.returned_next_day).to.equal(nil)
 			end
 		)
+
+		it("walks the bowl first order: each moment counts only where the save stands", function()
+			local state = fresh()
+			local facts: Onboarding.CleanFacts = { tier = 1, areas = {} }
+			play(state, { "joined", "first_move" })
+			expect(Onboarding.cleanDue(state, 0, facts) :: any).to.deepEqual({ 1, 2, 3 })
+			-- the cannon window before the food is not in_cannon
+			expect(#Onboarding.cleanDue(state, 3, facts, EV.cannonOpen)).to.equal(0)
+			expect(Onboarding.cleanDue(state, 3, facts, EV.bowlOpen) :: any).to.deepEqual({ 4 })
+			play(state, { "first_bait" })
+			expect(Onboarding.cleanDue(state, 4, facts) :: any).to.deepEqual({ 5 })
+			-- the bowl window again before the cat is here counts nothing
+			expect(#Onboarding.cleanDue(state, 5, facts, EV.bowlOpen)).to.equal(0)
+			expect(Onboarding.cleanDue(state, 5, facts, EV.bowlArrived) :: any).to.deepEqual({ 6 })
+			play(state, { "first_bait_resolved" })
+			expect(Onboarding.cleanDue(state, 6, facts) :: any).to.deepEqual({ 7 })
+			expect(Onboarding.cleanDue(state, 7, facts, EV.cannonOpen) :: any).to.deepEqual({ 8 })
+			-- the first launch is the ledger's alley_picked, never park_launch
+			expect(#Onboarding.cleanDue(state, 8, facts, EV.launch)).to.equal(0)
+			play(state, { "first_cannon" })
+			expect(Onboarding.cleanDue(state, 8, facts) :: any).to.deepEqual({ 9 })
+			expect(Onboarding.cleanDue(state, 9, facts, Onboarding.arrivedEvent("alley")) :: any).to.deepEqual({
+				10,
+			})
+			-- the first catch's start and win are the ledger's, never the second cat's
+			play(state, { "near_stray" })
+			expect(Onboarding.cleanDue(state, 10, facts) :: any).to.deepEqual({ 11 })
+			expect(#Onboarding.cleanDue(state, 11, facts, EV.catchStart)).to.equal(0)
+			expect(#Onboarding.cleanDue(state, 11, facts, EV.netCatch)).to.equal(0)
+			play(state, { "first_catch", "first_checkin" })
+			expect(Onboarding.cleanDue(state, 11, facts) :: any).to.deepEqual({ 12, 13, 14 })
+			expect(Onboarding.cleanDue(state, 14, facts, EV.nearStray) :: any).to.deepEqual({ 15 })
+			expect(Onboarding.cleanDue(state, 15, facts, EV.catchStart) :: any).to.deepEqual({ 16 })
+			expect(Onboarding.cleanDue(state, 16, facts, EV.netCatch) :: any).to.deepEqual({ 17 })
+			-- a Rank Up shown before the second cat is saved waits for it
+			expect(#Onboarding.cleanDue(state, 17, facts, EV.rankUpShown)).to.equal(0)
+			facts.handCats = 2
+			expect(Onboarding.cleanDue(state, 17, facts) :: any).to.deepEqual({ 18 })
+			expect(Onboarding.cleanDue(state, 18, facts, EV.rankUpShown) :: any).to.deepEqual({ 19 })
+			expect(Onboarding.cleanDue(state, 19, facts, EV.rankUpPressed) :: any).to.deepEqual({
+				20,
+			})
+			facts.tier = 2
+			expect(Onboarding.cleanDue(state, 20, facts) :: any).to.deepEqual({ 21 })
+			expect(Onboarding.cleanDue(state, 21, facts, EV.cannonOpen) :: any).to.deepEqual({ 22 })
+			expect(Onboarding.cleanDue(state, 22, facts, EV.launch) :: any).to.deepEqual({ 23 })
+			expect(Onboarding.cleanDue(state, 23, facts, Onboarding.arrivedEvent("park")) :: any).to.deepEqual({
+				24,
+			})
+			facts.areas.park = true
+			facts.tier = 3
+			expect(Onboarding.cleanDue(state, 24, facts) :: any).to.deepEqual({ 25, 26 })
+			expect(
+				Onboarding.cleanDue(state, 26, facts, Onboarding.arrivedEvent("neighbourhood")) :: any
+			).to.deepEqual({ 27 })
+		end)
+
+		it(
+			"lets a later done step prove the moments before it, and keeps area catches behind their tier",
+			function()
+				local state = fresh()
+				play(state, tutorial)
+				local facts: Onboarding.CleanFacts =
+					{ tier = 1, areas = { park = true }, handCats = 2 }
+				-- the second cat saved by any route proves near_stray_2, its start and the net catch
+				expect(Onboarding.cleanDue(state, 14, facts) :: any).to.deepEqual({ 15, 16, 17, 18 })
+				-- a Park cat at Tier 1 (a gift) passes no tier
+				expect(#Onboarding.cleanDue(state, 18, facts)).to.equal(0)
+				local all: Onboarding.CleanFacts = { tier = 10, areas = {}, handCats = 2 }
+				for _, area in Onboarding.CLEAN_AREAS do
+					all.areas[area] = true
+				end
+				local due = Onboarding.cleanDue(state, 18, all)
+				expect(#due).to.equal(49 - 18)
+				expect(due[#due]).to.equal(49)
+			end
+		)
+
+		it("says when a moment can count, for the checks that run every tick", function()
+			expect(Onboarding.cleanWants(14, EV.nearStray)).to.equal(true)
+			expect(Onboarding.cleanWants(13, EV.nearStray)).to.equal(false) -- first_checkin is a stored step
+			expect(Onboarding.cleanWants(15, EV.nearStray)).to.equal(false)
+			expect(Onboarding.cleanWants(Onboarding.CLEAN_COUNT, EV.nearStray)).to.equal(false)
+		end)
+
+		it("names the furthest step of the funnel that runs", function()
+			local state = fresh()
+			expect(Onboarding.cleanFurthest(state, true)).to.equal("none")
+			state.cleanV8Step = 17
+			expect(Onboarding.cleanFurthest(state, true)).to.equal("second_net_catch")
+			state.cleanV8Step = Onboarding.CLEAN_COUNT
+			expect(Onboarding.cleanFurthest(state, true)).to.equal("done")
+			state.cleanStep = 10
+			expect(Onboarding.cleanFurthest(state, false)).to.equal("first_role_assigned")
+			expect(Onboarding.cleanFurthest(state)).to.equal("first_role_assigned") -- today's order by default
+			expect(Onboarding.v8On()).to.equal(false)
+		end)
+
+		it("starts a save without the field out of the funnel once past its first catch", function()
+			local state = fresh()
+			expect(Onboarding.cleanStart(state)).to.equal(0)
+			expect(Onboarding.v7Start(state)).to.equal(0)
+			play(state, { "joined", "near_stray" })
+			expect(Onboarding.cleanStart(state)).to.equal(0)
+			play(state, { "first_catch" })
+			expect(Onboarding.cleanStart(state)).to.equal(Onboarding.CLEAN_COUNT)
+			expect(Onboarding.v7Start(state)).to.equal(Onboarding.V7_CLEAN_COUNT)
+		end)
+	end)
+
+	describe("the clean funnel v7 (#3695, today's order)", function()
+		it("is onboarding_v7: 27 steps from joined to the Ruins catch", function()
+			expect(Onboarding.V7_CLEAN_FUNNEL).to.equal("onboarding_v7")
+			expect(Onboarding.V7_CLEAN_COUNT).to.equal(27)
+			expect(Onboarding.V7_CLEAN_STEPS[11]).to.equal("second_cat")
+			expect(Onboarding.V7_CLEAN_STEPS[Onboarding.V7_CLEAN_TUTORIAL]).to.equal(
+				"first_bait_resolved"
+			)
+			expect(Onboarding.V7_CLEAN_STEPS[27]).to.equal("ruins_catch")
+		end)
 
 		it(
 			"logs each step once the ledger shows it, in order, and stops at the first not done",
 			function()
 				local state = fresh()
 				local facts = { tier = 1, areas = {} }
-				expect(#Onboarding.cleanDue(state, 0, facts)).to.equal(0)
+				expect(#Onboarding.v7Due(state, 0, facts)).to.equal(0)
 				play(state, { "joined" })
-				expect(Onboarding.cleanDue(state, 0, facts) :: any).to.deepEqual({ 1 })
-				-- a walking character proves loaded; the client steps between them never hold the clean funnel
+				expect(Onboarding.v7Due(state, 0, facts) :: any).to.deepEqual({ 1 })
 				play(state, { "first_move" })
-				expect(Onboarding.cleanDue(state, 1, facts) :: any).to.deepEqual({ 2, 3 })
+				expect(Onboarding.v7Due(state, 1, facts) :: any).to.deepEqual({ 2, 3 })
 				play(state, { "first_catch" })
-				expect(Onboarding.cleanDue(state, 3, facts) :: any).to.deepEqual({ 4, 5, 6, 7, 8 })
-			end
-		)
-
-		it(
-			"never waits on the optional rescue: bait resolved logs with the rescue steps unreached",
-			function()
-				local state = fresh()
-				local facts = { tier = 1, areas = {} }
-				play(state, {
-					"joined",
-					"first_role_assigned",
-					"second_cat",
-					"first_table",
-					"first_bait",
-					"first_bait_resolved",
-				})
-				-- the ledger holds first_bait_resolved behind the rescue steps
-				expect(Onboarding.furthest(state) == "first_bait_resolved").to.equal(false)
-				local due = Onboarding.cleanDue(state, 0, facts)
-				expect(due[#due]).to.equal(15)
+				expect(Onboarding.v7Due(state, 3, facts) :: any).to.deepEqual({ 4, 5, 6, 7, 8 })
 			end
 		)
 
@@ -701,55 +823,23 @@ return function()
 					"first_bait",
 					"first_bait_resolved",
 				})
-				-- a Park cat with the cafe still at Tier 1 (a gift) does not pass tier_2
-				expect(#Onboarding.cleanDue(state, 15, { tier = 1, areas = { park = true } })).to.equal(
+				expect(#Onboarding.v7Due(state, 15, { tier = 1, areas = { park = true } })).to.equal(
 					0
 				)
-				expect(Onboarding.cleanDue(state, 15, { tier = 2, areas = {} }) :: any).to.deepEqual({
-					16,
-				})
-				expect(Onboarding.cleanDue(state, 15, { tier = 3, areas = { park = true } }) :: any).to.deepEqual({
+				expect(Onboarding.v7Due(state, 15, { tier = 3, areas = { park = true } }) :: any).to.deepEqual({
 					16,
 					17,
 					18,
 				})
 				local all = { tier = 7, areas = {} :: { [string]: boolean } }
-				for _, area in Onboarding.CLEAN_AREAS do
+				for _, area in { "park", "neighbourhood", "woods", "sewer", "desert", "ruins" } do
 					all.areas[area] = true
 				end
-				local due = Onboarding.cleanDue(state, 15, all)
+				local due = Onboarding.v7Due(state, 15, all)
 				expect(#due).to.equal(12)
 				expect(due[12]).to.equal(27)
-				expect(#Onboarding.cleanDue(state, 27, all)).to.equal(0)
 			end
 		)
-
-		it(
-			"holds the table behind the second cat, and names the furthest step for the leave events",
-			function()
-				local state = fresh()
-				local facts = { tier = 1, areas = {} }
-				expect(Onboarding.cleanFurthest(state)).to.equal("none")
-				play(state, { "joined", "first_role_assigned", "first_table" })
-				local due = Onboarding.cleanDue(state, 0, facts)
-				expect(due[#due]).to.equal(10) -- first_role_assigned: the table waits for the second cat
-				state.cleanStep = 10
-				expect(Onboarding.cleanFurthest(state)).to.equal("first_role_assigned")
-				play(state, { "second_cat" })
-				expect(Onboarding.cleanDue(state, 10, facts) :: any).to.deepEqual({ 11, 12 })
-				state.cleanStep = Onboarding.CLEAN_COUNT
-				expect(Onboarding.cleanFurthest(state)).to.equal("done")
-			end
-		)
-
-		it("starts a save without the field out of the funnel once past its first catch", function()
-			local state = fresh()
-			expect(Onboarding.cleanStart(state)).to.equal(0)
-			play(state, { "joined", "near_stray" })
-			expect(Onboarding.cleanStart(state)).to.equal(0)
-			play(state, { "first_catch" })
-			expect(Onboarding.cleanStart(state)).to.equal(Onboarding.CLEAN_COUNT)
-		end)
 	end)
 
 	describe("playtime_v1 (#3695)", function()

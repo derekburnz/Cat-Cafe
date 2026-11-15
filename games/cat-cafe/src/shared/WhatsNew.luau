@@ -126,6 +126,40 @@ WhatsNew.rows = table.freeze({
 		icon = "new",
 		text = "New code: UPDATE5",
 	},
+	-- Derek 2026-11-15 15:54 UTC ("update whats new board with recent changes"): the changes that reach every server
+	-- with the 20:00 UTC restart (Tier 3 to 7 pace #4500, #4511, #4538, the decor stand #4524, the Coin Cart name
+	-- #4533, the trade note #4520, fewer pop-ups #4478 to #4528) wait for it. Gold fish trading gets its row once
+	-- the tradeFish switch is on.
+	{
+		id = "tiers_sooner",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "faster",
+		text = "Easier rank ups to Tier 7",
+	},
+	{
+		id = "decor_stand",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "new",
+		text = "Decor stand by Fish Market",
+	},
+	{
+		id = "coin_cart",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "look",
+		text = "Day Cart is now Coin Cart",
+	},
+	{
+		id = "trade_note",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "look",
+		text = "Trade shows true earnings",
+	},
+	-- Growth-Agent 2026-11-15 19:00 UTC: rows for #4511 (Epics) and #4528 (pop-up card) dropped, both PRs have merge conflicts
+	-- and will not be in the 20:00 UTC build. Re-add them with their PRs.
 	-- #2718 refresh (Growth-Agent 2026-11-15 09:45 UTC, about 240 merges since the 17:44 UTC rows): live on every
 	-- server since the 01:00 UTC restart. Rift Run (on 01:02), easier touch catches (#4300, #4310, #4316), the Town
 	-- Square update poster (#4371), Smooth mode (#4322), the painted sky (#4297), the Cat Arcade
@@ -464,7 +498,7 @@ WhatsNew.rows = table.freeze({
 		id = "day_cart_top_shelf",
 		date = "2026-11-12",
 		icon = "new",
-		text = "Day Cart: Tier 6 top shelf",
+		text = "Coin Cart: Tier 6 top shelf",
 	},
 	-- #3448: take this row out if the bigger circles are not on main at the launch
 	{
@@ -948,7 +982,7 @@ WhatsNew.rows = table.freeze({
 		id = "day_cart_buy_all",
 		date = "2026-11-09",
 		icon = "faster",
-		text = "Buy all at the Day Cart",
+		text = "Buy all at the Coin Cart",
 	},
 	{
 		id = "rare_rescue_easier",

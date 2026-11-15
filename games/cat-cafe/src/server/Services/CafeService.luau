@@ -97,6 +97,9 @@ end)
 
 -- #2697: the tutorial moved forward (player, from step, to step), from the server or the client's TutorialAdvance
 CafeService.tutorialStepped = Signal.new() :: Signal.Signal<Player, number, number>
+-- #4518: a move the walk-through asks for outside a step change (bowl first: to the cannon once the bowl cat is
+-- claimed); TutorialMoveService does it
+CafeService.tutorialMove = Signal.new() :: Signal.Signal<Player, string>
 
 -- Whether `player` owns pass `passId`, for the pass sign styles (#1625).
 local function ownsPassOf(player: Player): (number) -> boolean
@@ -302,6 +305,12 @@ local function dealView(player: Player, profile: Profile, now: number): Types.Da
 	)
 end
 
+-- #4061: the Looks items a save has: the Cafe Pass's, plus the Ticket Booth wearables it bought (TicketBooth.lookItems
+-- adds them to a copy, so profile.pass.items never holds them and CafePass.sanitize keeps working as it is).
+local function lookItems(profile: Profile): { [string]: boolean }
+	return TicketBooth.lookItems(profile.tickets, profile.pass.items)
+end
+
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
 	-- #3666: a new save joins the intro test before its first sync says whether the intro plays itself; the answer
 	-- holds for the session
@@ -379,7 +388,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile), -- #3022
-		stuckGoal = StuckGoal.waiting(profile), -- #2912
+		stuckGoal = StuckGoal.waiting(profile, LiveFlagService.on(StuckGoal.AFTER_SECOND_FLAG)), -- #2912, #4473
 		introSeen = profile.introSeen,
 		introAuto = introAuto, -- #3666
 		introShort = Telemetry.introShort(profile), -- #4001: the short intro test's "short" arm
@@ -410,23 +419,23 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 				"theme",
 				profile.looks.theme,
 				ownsPassOf(player),
-				profile.pass.items
+				lookItems(profile)
 			),
 			uniform = Looks.shown(
 				"uniform",
 				profile.looks.uniform,
 				ownsPassOf(player),
-				profile.pass.items
+				lookItems(profile)
 			),
-			themes = Looks.owned("theme", ownsPassOf(player), profile.pass.items),
-			uniforms = Looks.owned("uniform", ownsPassOf(player), profile.pass.items),
+			themes = Looks.owned("theme", ownsPassOf(player), lookItems(profile)),
+			uniforms = Looks.owned("uniform", ownsPassOf(player), lookItems(profile)),
 			accessory = Looks.shown(
 				"accessory",
 				profile.looks.accessory,
 				ownsPassOf(player),
-				profile.pass.items
+				lookItems(profile)
 			),
-			accessories = Looks.owned("accessory", ownsPassOf(player), profile.pass.items),
+			accessories = Looks.owned("accessory", ownsPassOf(player), lookItems(profile)),
 		},
 		luck = luck, -- F88
 		luckSources = luckSources,
@@ -495,7 +504,7 @@ local function shownLook(player: Player, kind: Looks.Kind): string?
 		then looks.uniform
 		elseif kind == "accessory" then looks.accessory
 		else looks.theme
-	return Looks.shown(kind, pick, ownsPassOf(player), profile.pass.items)
+	return Looks.shown(kind, pick, ownsPassOf(player), lookItems(profile))
 end
 
 -- One cat's model at `at` for its `slot`, not parented yet, its Rate for an owner at `tier`. A working cat stands on
@@ -1093,7 +1102,7 @@ end
 -- plate (`VipPlate`, VipPlate attribute true). Everyone sees all of it; none of it changes collision or money.
 local function refreshLooks(player: Player, plot: WorldBuilder.Plot, profile: Profile)
 	local owns = ownsPassOf(player)
-	local items = profile.pass.items
+	local items = lookItems(profile)
 	local themeId = Looks.shown("theme", profile.looks.theme, owns, items)
 	local theme = if themeId ~= nil then Looks.theme(themeId) else nil
 	local front = if theme ~= nil and AssetRegistry.has(theme.front) then theme.front else nil
@@ -2138,6 +2147,9 @@ local function onRankUp(player: Player)
 	if profile == nil then
 		return
 	end
+	if profile.tier == 1 then
+		Telemetry.cleanEvent(player, profile, Telemetry.CLEAN_EVENTS.rankUpPressed) -- #4504: pressed, met or not
+	end
 	local blocker = Economy.rankUpBlocker(profile)
 	if blocker ~= nil then
 		Net.toast(player, blocker, "warn")
@@ -2464,7 +2476,7 @@ local function onSetLook(player: Player, rawKind: unknown, rawId: unknown)
 		return
 	end
 	-- the whole check is Looks.pickFor (known kinds, owned looks only, specced in Looks.spec)
-	local ok, pick = Looks.pickFor(rawKind, rawId, ownsPassOf(player), profile.pass.items)
+	local ok, pick = Looks.pickFor(rawKind, rawId, ownsPassOf(player), lookItems(profile))
 	if not ok then
 		Net.toast(player, "You don't have that look yet.", "warn")
 		return

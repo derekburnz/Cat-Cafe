@@ -46,6 +46,24 @@ return function()
 			expect(p.turns <= 1).to.equal(true)
 		end)
 
+		it(
+			"lands the five on the dome card's picture with a ring sized from its height (#4563)",
+			function()
+				local p = Presets.fusion
+				-- the window's dome card: 600 wide, 88 high, its picture at the left end
+				local at, across = FusionFx.landing(Vector2.new(20, 40), Vector2.new(600, 88))
+				expect(at).to.equal(Vector2.new(20 + 44, 40 + 44))
+				expect(across).to.equal(p.acrossMin)
+				-- a square picture: its middle, its own width, never over acrossMax
+				at, across = FusionFx.landing(Vector2.new(0, 0), Vector2.new(140, 140))
+				expect(at).to.equal(Vector2.new(70, 70))
+				expect(across).to.equal(140)
+				at, across = FusionFx.landing(Vector2.new(0, 0), Vector2.new(400, 400))
+				expect(across).to.equal(p.acrossMax)
+				expect(p.acrossMax * p.swirl.ringTo <= 400).to.equal(true)
+			end
+		)
+
 		it("shows gold steady and the rainbow drifting slowly round its hues", function()
 			local p = Presets.fusion
 			expect(FusionFx.coatColour("gold", 0)).to.equal(p.gold)

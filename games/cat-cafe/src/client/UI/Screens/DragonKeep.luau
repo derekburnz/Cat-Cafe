@@ -6,12 +6,12 @@
 --   colours.
 -- - Binder N/54: every card in family order. One you own shows its words; one you don't is a "?" in its family's
 --   colour. Tap an owned card, then a slot, to put it there (free swaps).
--- - Give cats: the cats that may move in, weakest first, each with its Warmth. Tap to pick; "Spare Commons" and
---   "Repeats" pick for you (never a working, gold, rainbow or Legendary and better cat, and one copy of each cat
---   stays). A pick with special cats asks once ("Tap again"). Cats "move into the Keep": never any other word.
+-- - Give cats: the cats that may move in, weakest first, each with its Warmth. Tap to pick; "All Common" to
+--   "All Mythical" pick every cat of that rarity (#4566: never a locked or working cat). A pick with special cats
+--   asks once ("Tap again"). Cats "move into the Keep": never any other word.
 -- The hand: three cards over the window with the card odds under them (a random pick, earned only, so the odds show).
--- Tap one to take it. A Rekindle hand then asks which slot it replaces (or the binder only), and offers "Keep my cards"
--- for 25 golden fish. Motion-FX's Effects/CardFlip deals the cards when it is there.
+-- Tap one to take it. A Rekindle hand then asks which slot it replaces (or the binder only; #4571 dropped "Keep my
+-- cards"). Motion-FX's Effects/CardFlip deals the cards when it is there.
 --   DragonKeep.new(callbacks)   built hidden; the UI registers its frame as the "DragonKeep" modal
 --   :setView(view, cats, busy) :opened() :closed() :destroy()
 
@@ -69,6 +69,10 @@ local SLOT_MIN = 72
 local BINDER_CELL = 104
 local BINDER_H = 92
 local GIVE_CELL = 92
+-- #4566: the give picker's pick-all buttons, commonest first, and the line under them
+local PICK_RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
+local PICK_UNDER_H = 30
+local PICK_NOTE = "Locked cats and cats at work stay."
 local GIVE_H = 112
 local HAND_W = 170
 local HAND_H = 210
@@ -83,6 +87,7 @@ local COLOURS: { [string]: Color3 } = {
 local TABS = {
 	{ id = "slots", name = "Slots" },
 	{ id = "binder", name = "Binder" },
+	{ id = "sets", name = "Sets" }, -- #4576
 	{ id = "give", name = "Give cats" },
 }
 
@@ -153,6 +158,7 @@ function DragonKeep.new(callbacks: Callbacks): DragonKeep
 	self._asking = false
 	self._askToken = 0
 	self._chosen = nil :: string? -- a binder card picked, waiting for its slot
+	self._reading = nil :: number? -- #4561: the filled slot whose card's words show under the slots
 	self._open = false
 	self._handPick = nil :: number? -- a Rekindle hand's card picked, waiting for its slot
 	self._handKey = ""
@@ -197,7 +203,10 @@ function DragonKeep.new(callbacks: Callbacks): DragonKeep
 			name = "Tab_" .. tab.id,
 			text = tab.name,
 			style = if tab.id == self._tab then "purple" else "ghost",
-			size = UDim2.fromOffset(if tab.id == "binder" then 128 else 104, TAB_H),
+			size = UDim2.fromOffset(
+				if tab.id == "binder" then 128 elseif tab.id == "sets" then 80 else 104,
+				TAB_H
+			),
 			textSize = Theme.sizes.textSmall,
 			layoutOrder = order,
 			parent = tabs,
@@ -216,6 +225,7 @@ function DragonKeep.new(callbacks: Callbacks): DragonKeep
 	self._pages = pages
 	self:_buildSlots(pages)
 	self:_buildBinder(pages)
+	self:_buildSets(pages)
 	self:_buildGive(pages)
 	self:_buildHand(content)
 	self:showTab("slots")
@@ -430,7 +440,7 @@ function DragonKeep._buildSlots(self: any, pages: Frame)
 	end
 	local sets = card({
 		Name = "Sets",
-		Size = UDim2.new(1, 0, 0, 28),
+		Size = UDim2.new(1, 0, 0, Scale.tapHeight(36)), -- #4576: a tap target now (it opens the Sets tab)
 		LayoutOrder = 3,
 		BackgroundColor3 = PAL.card,
 	}, PAL.cardStroke)
@@ -445,9 +455,23 @@ function DragonKeep._buildSlots(self: any, pages: Frame)
 		Parent = sets,
 	})
 	FitText.shrink(self._setsLine)
+	-- #4576: the line opens the Sets tab
+	local setsHit: TextButton = Create("TextButton", {
+		Name = "OpenSets",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Text = "",
+		ZIndex = 3,
+		Parent = sets,
+	})
+	setsHit.Activated:Connect(function()
+		self:showTab("sets")
+	end)
 	self._chooseLine = text({
 		Name = "Choose",
 		Size = UDim2.new(1, 0, 0, 18),
+		AutomaticSize = Enum.AutomaticSize.Y, -- #4561: a card's words may take two lines
+		TextWrapped = true,
 		LayoutOrder = 4,
 		TextSize = Theme.sizes.textTiny + 1,
 		TextColor3 = PAL.gold,
@@ -562,10 +586,26 @@ function DragonKeep._paintSlots(self: any)
 		local def = SharedKeep.card(self._chosen)
 		chosenName = if def then def.name else nil
 	end
-	self._chooseLine.Visible = chosenName ~= nil
+	-- #4561 (Derek 2026-11-15: "click your current equipped one to view and read what it does"): a tapped filled slot's
+	-- card, its name and words, until another tap
+	local reading = nil
+	if chosenName == nil and self._reading ~= nil and view ~= nil then
+		local id = (view.slots or {})[self._reading]
+		local def = if type(id) == "string" then SharedKeep.card(id) else nil
+		if def then
+			local words = def.text or ""
+			if words ~= "" and not string.find(words, "[%.!?]$") then
+				words ..= "."
+			end
+			reading = ("%s: %s Tap again to swap it."):format(def.name, words)
+		else
+			self._reading = nil
+		end
+	end
+	self._chooseLine.Visible = chosenName ~= nil or reading ~= nil
 	self._chooseLine.Text = if chosenName
 		then ("Tap a slot to put %s there"):format(chosenName)
-		else ""
+		else reading or ""
 	local hands = if view then view.hands or 0 else 0
 	local waiting = view ~= nil and #(view.hand or {}) > 0
 	self._strip.Visible = waiting
@@ -603,7 +643,15 @@ function DragonKeep._slotTapped(self: any, index: number)
 		self:_paint()
 		return
 	end
-	-- an empty or filled slot with nothing chosen opens the binder to pick for it
+	-- #4561: a filled slot's first tap shows what its card does; the second (or an empty slot) opens the binder
+	local held = if view ~= nil then (view.slots or {})[index] else nil
+	local filled = type(held) == "string" and held ~= ""
+	if filled and self._reading ~= index then
+		self._reading = index
+		self:_paint()
+		return
+	end
+	self._reading = nil
 	self:showTab("binder")
 end
 
@@ -726,6 +774,120 @@ function DragonKeep._binderTapped(self: any, id: string)
 end
 
 ----------------------------------------------------------------------------------------------------
+-- Sets (#4576, Derek 2026-11-15 18:36 UTC: "no way to see set bonuses right now")
+----------------------------------------------------------------------------------------------------
+
+local SET_ROW_H = 72
+
+function DragonKeep._buildSets(self: any, pages: Frame)
+	local page: Frame = Create("Frame", {
+		Name = "SetsPage",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Visible = false,
+		Parent = pages,
+	})
+	self._setsPage = page
+	local intro = text({
+		Name = "Intro",
+		Size = UDim2.new(1, 0, 0, 20),
+		TextSize = Theme.sizes.textTiny + 1,
+		TextColor3 = PAL.subtext,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "Put cards of one family in your slots: 3 light its set, all 5 light the full set too.",
+		Parent = page,
+	})
+	FitText.shrink(intro)
+	local list = scroller("Sets", page)
+	list.Position = UDim2.fromOffset(0, 24)
+	list.Size = UDim2.new(1, 0, 1, -24)
+	Create("UIListLayout", {
+		Padding = UDim.new(0, 6),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = list,
+	})
+	self._setRows = {} :: { [string]: any }
+	for order, family in DragonKeepLogic.FAMILIES do
+		local colour = DragonKeepLogic.FAMILY_COLOURS[family] or PURPLE
+		local row = card({
+			Name = "Set_" .. family,
+			Size = UDim2.new(1, -8, 0, SET_ROW_H),
+			LayoutOrder = order,
+			BackgroundColor3 = PAL.card,
+		}, colour)
+		row.Parent = list
+		local title = text({
+			Name = "Title",
+			Position = UDim2.fromOffset(10, 6),
+			Size = UDim2.new(0, 110, 0, 26),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textBody,
+			TextColor3 = PAL.text,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Parent = row,
+		})
+		FitText.shrink(title)
+		local count = text({
+			Name = "Count",
+			Position = UDim2.fromOffset(10, 34),
+			Size = UDim2.new(0, 110, 0, 22),
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = PAL.subtext,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Parent = row,
+		})
+		FitText.shrink(count)
+		local function line(name: string, y: number): TextLabel
+			local label = text({
+				Name = name,
+				Position = UDim2.fromOffset(128, y),
+				Size = UDim2.new(1, -138, 0, 32),
+				TextSize = Theme.sizes.textSmall,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				TextWrapped = true,
+				TextTruncate = Enum.TextTruncate.None,
+				Parent = row,
+			})
+			FitText.shrink(label)
+			return label
+		end
+		self._setRows[family] = {
+			row = row,
+			stroke = row:FindFirstChildWhichIsA("UIStroke"),
+			title = title,
+			count = count,
+			three = line("Three", 4),
+			five = line("Five", 37),
+		}
+	end
+end
+
+function DragonKeep._paintSets(self: any)
+	local lit = Theme.colors.gold
+	for _, info in DragonKeepLogic.setRows(self._view) do
+		local made = self._setRows[info.family]
+		if made == nil then
+			continue
+		end
+		made.title.Text = info.title
+		made.count.Text = info.count .. " in your slots"
+		made.count.TextColor3 = if info.level > 0 then lit else PAL.subtext
+		made.three.Text = (if info.level >= SharedKeep.SET_SIZE then "✓ " else "") .. info.three
+		made.three.TextColor3 = if info.level >= SharedKeep.SET_SIZE then lit else PAL.text
+		local five = info.five
+		made.five.Visible = five ~= nil
+		if five ~= nil then
+			local full = info.level > SharedKeep.SET_SIZE
+			made.five.Text = (if full then "✓ " else "") .. five
+			made.five.TextColor3 = if full then lit else PAL.text
+		end
+		if made.stroke then
+			made.stroke.Thickness = if info.level > 0 then 3 else 2
+		end
+	end
+end
+
+----------------------------------------------------------------------------------------------------
 -- Give cats
 ----------------------------------------------------------------------------------------------------
 
@@ -751,60 +913,75 @@ function DragonKeep._buildGive(self: any, pages: Frame)
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 		}),
 	})
-	Button.new({
-		name = "Commons",
-		text = "Spare Commons",
-		style = "ghost",
-		size = UDim2.fromOffset(132, 36),
-		textSize = Theme.sizes.textSmall,
-		layoutOrder = 1,
-		parent = top,
-		onClick = function()
-			self:_quick("commons")
-		end,
+	-- #4566 (Derek 2026-11-15): one button per rarity picks every cat of it (locked and working cats stay)
+	for index, rarity in PICK_RARITIES do
+		Button.new({
+			name = "All" .. rarity,
+			text = "All " .. rarity,
+			style = "ghost",
+			size = UDim2.new(1 / #PICK_RARITIES, -5, 1, 0),
+			textSize = Theme.sizes.textSmall,
+			layoutOrder = index,
+			parent = top,
+			onClick = function()
+				self:_pickRarity(rarity)
+			end,
+		})
+	end
+	local under: Frame = Create("Frame", {
+		Name = "Under",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(0, 36 + 4),
+		Size = UDim2.new(1, 0, 0, PICK_UNDER_H),
+		Parent = page,
 	})
-	Button.new({
-		name = "Repeats",
-		text = "Repeats",
+	-- Sync-Agent's sweep 2026-11-15: only the MOST_SHOWN weakest cats show, so a big collection hid every gold and
+	-- rainbow cat. This flips the order so the strongest show first.
+	self._strong = false
+	self._orderButton = Button.new({
+		name = "Order",
+		text = "Strongest first",
 		style = "ghost",
-		size = UDim2.fromOffset(100, 36),
+		size = UDim2.new(0, 132, 1, 0),
+		position = UDim2.new(1, -(72 + 6 + 132), 0, 0),
 		textSize = Theme.sizes.textSmall,
-		layoutOrder = 2,
-		parent = top,
+		parent = under,
 		onClick = function()
-			self:_quick("repeats")
+			self._strong = not self._strong
+			self._orderButton:setText(if self._strong then "Weakest first" else "Strongest first")
+			self:_paintGive()
 		end,
 	})
 	Button.new({
 		name = "Clear",
 		text = "Clear",
 		style = "ghost",
-		size = UDim2.fromOffset(72, 36),
+		size = UDim2.new(0, 72, 1, 0),
+		position = UDim2.new(1, -72, 0, 0),
 		textSize = Theme.sizes.textSmall,
-		layoutOrder = 3,
-		parent = top,
+		parent = under,
 		onClick = function()
 			self._picked = {}
 			self._asking = false
+			self._giveNote.Text = PICK_NOTE
 			self:_paintGive()
 		end,
 	})
 	self._giveNote = text({
 		Name = "Note",
-		Size = UDim2.new(1, -330, 0, 36),
+		Size = UDim2.new(1, -(72 + 6 + 132 + 8), 1, 0),
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
-		LayoutOrder = 4,
-		Text = "Locked cats stay. One copy of each cat stays with the quick picks.",
-		Parent = top,
+		Text = PICK_NOTE,
+		Parent = under,
 	})
 	FitText.shrink(self._giveNote)
 	local list = scroller("Cats", page)
-	list.Position = UDim2.fromOffset(0, 36 + 6)
-	list.Size = UDim2.new(1, 0, 1, -(36 + 6 + self._buyH + 8))
+	list.Position = UDim2.fromOffset(0, 36 + 4 + PICK_UNDER_H + 6)
+	list.Size = UDim2.new(1, 0, 1, -(36 + 4 + PICK_UNDER_H + 6 + self._buyH + 8))
 	self._giveList = list
 	local layout: UIGridLayout = Create("UIGridLayout", {
 		CellPadding = UDim2.fromOffset(6, 6),
@@ -949,6 +1126,13 @@ function DragonKeep._paintGive(self: any)
 		end
 	end
 	self._picked = still
+	if self._strong then
+		local flipped: { DragonKeepLogic.Candidate } = {}
+		for index = #list, 1, -1 do
+			table.insert(flipped, list[index])
+		end
+		list = flipped
+	end
 	for index = 1, math.max(#self._giveCells, math.min(#list, DragonKeepLogic.MOST_SHOWN)) do
 		local cand = if index <= DragonKeepLogic.MOST_SHOWN then list[index] else nil
 		if cand == nil then
@@ -988,16 +1172,20 @@ function DragonKeep._paintGive(self: any)
 	self._giveButton:setEnabled(count > 0)
 end
 
-function DragonKeep._quick(self: any, kind: string)
+function DragonKeep._pickRarity(self: any, rarity: string)
 	local list = self:_candidates()
 	local total = 0
 	for _ in self._cats or {} do
 		total += 1
 	end
 	self._picked = {}
-	for _, uid in DragonKeepLogic.quick(list, kind, total) do
+	local uids = DragonKeepLogic.byRarity(list, rarity, total)
+	for _, uid in uids do
 		self._picked[uid] = true
 	end
+	self._giveNote.Text = if #uids == 0
+		then string.format("No unlocked %s cats can move in.", rarity)
+		else PICK_NOTE
 	self._asking = false
 	self:_paintGive()
 end
@@ -1252,22 +1440,7 @@ function DragonKeep._buildHand(self: any, content: Frame)
 			self:_take()
 		end,
 	})
-	self._keepButton = Button.new({
-		name = "KeepCards",
-		text = "Keep my cards · 🐟 " .. tostring(SharedKeep.KEEP_FISH),
-		style = "ghost",
-		size = UDim2.new(0.4, 0, 1, 0),
-		textSize = Theme.sizes.textSmall,
-		layoutOrder = 2,
-		zIndex = 22,
-		parent = foot,
-		onClick = function()
-			self._handPick = nil
-			self._selected = nil
-			self._callbacks.keep()
-			self:_showHand(false)
-		end,
-	})
+	-- #4571 (Derek 2026-11-15): no "Keep my cards". A taken card can go to the binder only, so the slots never change.
 end
 
 function DragonKeep._paintHand(self: any)
@@ -1295,7 +1468,6 @@ function DragonKeep._paintHand(self: any)
 		made.ring.Thickness = if self._selected == index then 4 else 0
 	end
 	self._oddsLine.Text = DragonKeepLogic.oddsLine(if view then view.odds else nil)
-	self._keepButton.instance.Visible = rekindle
 	local selected = if self._selected then hand[self._selected] else nil
 	local def = if selected then SharedKeep.card(selected) else nil
 	self._takeButton:setText(
@@ -1382,6 +1554,7 @@ function DragonKeep.showTab(self: any, tab: string)
 	self._tab = tab
 	self._slotsPage.Visible = tab == "slots"
 	self._binderPage.Visible = tab == "binder"
+	self._setsPage.Visible = tab == "sets"
 	self._givePage.Visible = tab == "give"
 	for id, button in self._tabButtons do
 		button:setStyle(if id == tab then "purple" else "ghost")
@@ -1417,6 +1590,7 @@ end
 function DragonKeep._paint(self: any)
 	self:_paintSlots()
 	self:_paintBinder()
+	self:_paintSets()
 	if self._tab == "give" then
 		self:_paintGive()
 	end
@@ -1443,6 +1617,7 @@ function DragonKeep.opened(self: any)
 end
 
 function DragonKeep.closed(self: any)
+	self._reading = nil -- #4561: a reopened window starts with no card read
 	self._open = false
 	self._chosen = nil
 	self._handPick = nil

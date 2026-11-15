@@ -2330,6 +2330,8 @@ UI.cutscene = {
 	-- the short screen takeovers that hold toasts and shout-outs like a cutscene but leave the HUD and the event strip
 	-- alone, by key (UI.setQuiet): Motion-FX's admin event countdown, splash and end card ("adminFlash")
 	quiet = {} :: { [string]: boolean },
+	quietHold = {} :: { [string]: number }, -- each setQuiet's number, so only the latest hold's safety clear fires
+	QUIET_MOST = 15, -- seconds a quiet key holds at most
 	queue = {} :: { { text: string, rarity: string? } },
 	hooks = {} :: { (on: boolean) -> () },
 	KEEP = 3,
@@ -2361,6 +2363,16 @@ function UI.setQuiet(key: string, on: boolean)
 		return
 	end
 	cut.quiet[key] = if on then true else nil
+	-- Review-QA on #4376: a hold whose "off" never comes (an error, a hop) clears itself after QUIET_MOST seconds
+	local hold = (cut.quietHold[key] or 0) + 1
+	cut.quietHold[key] = hold
+	if on then
+		task.delay(cut.QUIET_MOST, function()
+			if UI.cutscene.quietHold[key] == hold and UI.cutscene.quiet[key] then
+				UI.setQuiet(key, false)
+			end
+		end)
+	end
 	local view = toasts
 	if view then
 		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or cut.held())
@@ -2369,6 +2381,26 @@ function UI.setQuiet(key: string, on: boolean)
 		cut.flush()
 	end
 end
+-- Motion-FX's AdminFlash says when its countdown, splash or end card takes the middle of the screen (#4353); Effects
+-- never requires the UI, so the hookup is here, and either side may ship first
+task.defer(function()
+	local client: any = script.Parent
+	local effects: any = client:FindFirstChild("Effects")
+	local flash: any = if effects ~= nil then effects:FindFirstChild("AdminFlash") else nil
+	if flash == nil or not flash:IsA("ModuleScript") then
+		return
+	end
+	local ok, adminFlash = pcall(require, flash)
+	local onPlaying: any = if ok and type(adminFlash) == "table"
+		then (adminFlash :: any).onPlaying
+		else nil
+	if type(onPlaying) == "function" then
+		local listen = onPlaying :: (listener: (on: boolean) -> ()) -> ()
+		listen(function(on: boolean)
+			UI.setQuiet("adminFlash", on == true)
+		end)
+	end
+end)
 function UI.setCutscene(on: boolean)
 	local cut = UI.cutscene
 	if cut.on == on then

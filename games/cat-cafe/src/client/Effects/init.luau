@@ -59,6 +59,7 @@ local HarvestFx = require(script.HarvestFx)
 local HoldPulse = require(script.HoldPulse)
 local Intro = require(script.Intro)
 local IntroCut = require(script.IntroCut)
+local KeepDragon = require(script.KeepDragon)
 local LateStationFx = require(script.LateStationFx)
 local Lawn = require(script.Lawn)
 local Levels = require(script.Levels)
@@ -197,6 +198,7 @@ function Effects.start()
 		LateStationFx.start,
 		BoothFx.start, -- #4061: the Ticket Booth's buy moment
 		FusionFx.start, -- #4104: the Fusion Observatory dome's glow and paw lights
+		KeepDragon.start, -- #4567: your own stage's dragon stands in the Dragon Keep
 		MuseumPlaques.start,
 		StationMotion.start,
 		Rides.start,

@@ -103,8 +103,21 @@ function ToastRules.newcomer(on: boolean, played: number?): boolean
 	return on and played ~= nil and played < ToastRules.NEWCOMER_SECONDS
 end
 
+-- Review-QA on #4478: the lines a new player still gets, as Lua patterns (a gift paid with no other word)
+ToastRules.NEWCOMER_KEEP = {
+	"^Welcome gift: ", -- #4453: the Tier 2 top up after the first bait cat
+}
+
 function ToastRules.newcomerDrops(kind: string?, text: string): boolean
-	return kind ~= "warn" and not ToastRules.purchase(text)
+	if kind == "warn" or ToastRules.purchase(text) then
+		return false
+	end
+	for _, pattern in ToastRules.NEWCOMER_KEEP do
+		if string.find(text, pattern) ~= nil then
+			return false
+		end
+	end
+	return true
 end
 
 function ToastRules.purchase(text: string): boolean
@@ -138,6 +151,7 @@ ToastRules.KEEP = {
 	" is on its way to your cafe!$",
 	"^Your first cat! ",
 	"^Welcome back! Your cats earned ", -- #3573 AfkCafe.welcome: what a rest in the cafe paid, once on coming back
+	"^Welcome gift: ", -- #4453 BaitService: the Tier 2 top up after the first bait cat, so the coins never jump unsaid
 }
 
 function ToastRules.kept(text: string): boolean

@@ -228,6 +228,15 @@ return function()
 			expect(ToastRules.newcomerDrops(nil, "Anything")).to.equal(true)
 			expect(ToastRules.newcomerDrops("warn", "Not enough coins")).to.equal(false)
 			expect(ToastRules.newcomerDrops("good", "Thank you! Starter Bundle")).to.equal(false)
+			expect(
+				ToastRules.newcomerDrops(
+					"good",
+					"Welcome gift: +$900. Your cafe is ready to rank up!"
+				)
+			).to.equal(false)
+			expect(ToastRules.quiet("Welcome gift: +$900. Your cafe is ready to rank up!", "good")).to.equal(
+				false
+			)
 		end)
 	end)
 end

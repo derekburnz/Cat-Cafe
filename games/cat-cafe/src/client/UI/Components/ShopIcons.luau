@@ -305,6 +305,11 @@ local IDS: { [string]: string } = {
 	Icon_Store_PackChefArt = "rbxassetid://114389016087315",
 	Icon_Store_PackSpaceArt = "rbxassetid://130035950104996",
 	Icon_Store_Money2x = "rbxassetid://106785644491188",
+	-- #4246: Today's Deal pictures (Model-Agent, Nov 15): golden fish, Trait Tokens, golden crates, the Golden Haul
+	Icon_Deal_Fish = "rbxassetid://101203726051045",
+	Icon_Deal_Tokens = "rbxassetid://78569830646639",
+	Icon_Deal_Crates = "rbxassetid://91039633847739",
+	Icon_Deal_Haul = "rbxassetid://136852623730951",
 	Icon_Store_Money3x = "rbxassetid://124737817716796",
 	Icon_Store_Money4x = "rbxassetid://103246165862005",
 	Icon_Store_LongNap = "rbxassetid://127782122363076",
@@ -318,6 +323,7 @@ local IDS: { [string]: string } = {
 	Icon_Store_KingPack = "rbxassetid://93204952454452",
 	Icon_Store_GoldenPond = "rbxassetid://89558912583122",
 	Icon_Store_SecondBowl = "rbxassetid://135271113321879",
+	Icon_Store_AutoBowl = "rbxassetid://135271113321879", -- #4266: the bowl picture, as on the Bait bowl window's offer
 	Icon_Store_StarterBundle = "rbxassetid://95362407964835",
 	Icon_Store_PotionXS = "rbxassetid://97739871449916",
 	Icon_Store_PotionS = "rbxassetid://101008485240894",
@@ -760,6 +766,19 @@ end
 function ShopIcons.setting(key: string?): string?
 	local name = if type(key) == "string" then SETTING_ART[key] else nil
 	return if name then IDS[name] else nil
+end
+
+-- #4246: Today's Deal's own picture for a card kind ("fish", "token", "crate"; a crate deal with fish is the Golden
+-- Haul), nil for any other kind
+function ShopIcons.deal(kind: string, fish: boolean?): string?
+	if kind == "crate" then
+		return if fish then IDS.Icon_Deal_Haul else IDS.Icon_Deal_Crates
+	elseif kind == "token" then
+		return IDS.Icon_Deal_Tokens
+	elseif kind == "fish" then
+		return IDS.Icon_Deal_Fish
+	end
+	return nil
 end
 
 return ShopIcons

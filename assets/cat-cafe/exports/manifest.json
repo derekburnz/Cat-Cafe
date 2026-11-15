@@ -355372,9 +355372,21 @@
         "CatCafe_Snowy_Set_319_Rock",
         "CatCafe_Snowy_Set_320_PineSmall",
         "CatCafe_Snowy_Set_321_Rock",
-        "CatCafe_Snowy_Set_322_Rock"
+        "CatCafe_Snowy_Set_322_Rock",
+        "CatCafe_Snowy_Set_323_Rock",
+        "CatCafe_Snowy_Set_324_Rock",
+        "CatCafe_Snowy_Set_325_Rock",
+        "CatCafe_Snowy_Set_326_PineSmall",
+        "CatCafe_Snowy_Set_327_PineSmall",
+        "CatCafe_Snowy_Set_328_PineSmall",
+        "CatCafe_Snowy_Set_329_PineSmall",
+        "CatCafe_Snowy_Set_330_SkiPair",
+        "CatCafe_Snowy_Set_331_Rock",
+        "CatCafe_Snowy_Set_332_PineSmall",
+        "CatCafe_Snowy_Set_333_PineSmall",
+        "CatCafe_Snowy_Set_334_SkiPair"
       ],
-      "triangles": 101628,
+      "triangles": 103844,
       "budget": 150000,
       "size_studs": {
         "x": 153.98,
@@ -356209,7 +356221,7 @@
       },
       "studio": "Tier 8, the Snowy Mountain (next-areas plan section 1, #3997). Place it at the area's centre on its floor, camp side -Z, like the Desert's set. The floor is snow right out to the walls and the lake is ice laid over the paths. Nothing invisible stands inside the area: the ridges, humps and drifts are WedgeParts that collide where they are drawn and the blockers have no _Barrier; the only _Barrier is the 30 high ring in the border's wall band, all round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. Icicles, frozen bubbles, block lines and rope are _Decor (no collision). The rescue spots (points_roblox trap_snowdrift, trap_snowman, trap_sled, trap_snow_log) carry their piece's turn.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Snowy_Set.model.json",
-      "rbx_parts": 6477,
+      "rbx_parts": 6567,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Snowy_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Snowy_Set.glb"
@@ -356222,10 +356234,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "101628/150000 tris",
+          "budget": "103844/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "49922 faces on swatch centers",
+          "uv": "50830 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.63 (want 0)",
           "centered": "footprint center x=0.02 y=0.99",
@@ -361316,6 +361328,75 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.02"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Castle_HoardChest",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Castle_HoardChest",
+        "CatCafe_Camp_Castle_HoardChest_Gold",
+        "CatCafe_Camp_Castle_HoardChest_Gold_Glow",
+        "CatCafe_Camp_Castle_HoardChest_Lid"
+      ],
+      "triangles": 548,
+      "budget": 600,
+      "size_studs": {
+        "x": 2.34,
+        "y": 1.64,
+        "z": 1.49
+      },
+      "size_roblox": [
+        2.34,
+        1.49,
+        1.64
+      ],
+      "bounds_min": [
+        -1.17,
+        -0.87,
+        0.0
+      ],
+      "bounds_max": [
+        1.17,
+        0.77,
+        1.49
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Castle_HoardChest_Lid": [
+          -0.0,
+          0.7,
+          0.9
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Castle_HoardChest_Lid": [
+          0.0,
+          0.9,
+          0.7
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Castle_HoardChest.model.json",
+      "rbx_parts": 39,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Castle_HoardChest.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Castle_HoardChest.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "548/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "242 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.05"
         }
       }
     },
@@ -366911,9 +366992,33 @@
         "CatCafe_Castle_Set_252_Barrel",
         "CatCafe_Castle_Set_253_Crates",
         "CatCafe_Castle_Set_254_Crates",
-        "CatCafe_Castle_Set_255_Crates"
+        "CatCafe_Castle_Set_255_Crates",
+        "CatCafe_Castle_Set_256_Barrel",
+        "CatCafe_Castle_Set_257_Crates",
+        "CatCafe_Castle_Set_258_Haystack",
+        "CatCafe_Castle_Set_259_BannerPole",
+        "CatCafe_Castle_Set_259_BannerPole_Swing",
+        "CatCafe_Castle_Set_260_Bench",
+        "CatCafe_Castle_Set_261_Barrel",
+        "CatCafe_Castle_Set_262_Crates",
+        "CatCafe_Castle_Set_263_Haystack",
+        "CatCafe_Castle_Set_264_BannerPole",
+        "CatCafe_Castle_Set_264_BannerPole_Swing",
+        "CatCafe_Castle_Set_265_Bench",
+        "CatCafe_Castle_Set_266_Barrel",
+        "CatCafe_Castle_Set_267_Crates",
+        "CatCafe_Castle_Set_268_Haystack",
+        "CatCafe_Castle_Set_269_BannerPole",
+        "CatCafe_Castle_Set_269_BannerPole_Swing",
+        "CatCafe_Castle_Set_270_Bench",
+        "CatCafe_Castle_Set_271_Barrel",
+        "CatCafe_Castle_Set_272_Crates",
+        "CatCafe_Castle_Set_273_Haystack",
+        "CatCafe_Castle_Set_274_BannerPole",
+        "CatCafe_Castle_Set_274_BannerPole_Swing",
+        "CatCafe_Castle_Set_275_Bench"
       ],
-      "triangles": 62836,
+      "triangles": 64900,
       "budget": 150000,
       "size_studs": {
         "x": 152.2,
@@ -366997,6 +367102,26 @@
           -8.5,
           171.7,
           10.72
+        ],
+        "CatCafe_Castle_Set_259_BannerPole_Swing": [
+          48.5,
+          -143.7,
+          10.72
+        ],
+        "CatCafe_Castle_Set_264_BannerPole_Swing": [
+          60.5,
+          -32.3,
+          10.72
+        ],
+        "CatCafe_Castle_Set_269_BannerPole_Swing": [
+          -48.5,
+          -143.7,
+          10.72
+        ],
+        "CatCafe_Castle_Set_274_BannerPole_Swing": [
+          -60.5,
+          -32.3,
+          10.72
         ]
       },
       "part_pivots_roblox": {
@@ -367059,6 +367184,26 @@
           8.5,
           10.72,
           171.7
+        ],
+        "CatCafe_Castle_Set_259_BannerPole_Swing": [
+          -48.5,
+          10.72,
+          -143.7
+        ],
+        "CatCafe_Castle_Set_264_BannerPole_Swing": [
+          -60.5,
+          10.72,
+          -32.3
+        ],
+        "CatCafe_Castle_Set_269_BannerPole_Swing": [
+          48.5,
+          10.72,
+          -143.7
+        ],
+        "CatCafe_Castle_Set_274_BannerPole_Swing": [
+          60.5,
+          10.72,
+          -32.3
         ]
       },
       "points_roblox": {
@@ -368404,7 +368549,7 @@
       },
       "studio": "Tier 10, the Medieval Castle (next-areas plan section 3, #4067). Place it at the area's centre on its floor, camp side -Z, like the Snowy set. Packed earth right out to the walls, cobbles, the field's sand and the keep's flags over it. Nothing invisible stands inside the area: the only _Barrier is the 30 high ring in the border's wall band, all round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. The moat is a kerb 0.7 high (a step, not a wall) round shallow _Water; the drawbridge and the postern's plank bridge are 0.9 up with a ramp at each end. The curtain wall and the keep's walls collide; the tilt fence is a low rail to hop. Torch flames are _Glow, windows _Pane, the drawbridge's chains _Decor. The rescue spots (points_roblox trap_haystack, trap_barrel, trap_banner_pole, trap_awning, trap_helmet) carry their piece's turn.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Castle_Set.model.json",
-      "rbx_parts": 4853,
+      "rbx_parts": 4977,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Castle_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Castle_Set.glb"
@@ -368416,10 +368561,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "62836/150000 tris",
+          "budget": "64900/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "28303 faces on swatch centers",
+          "uv": "29219 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.01 (want 0)",
           "centered": "footprint center x=0.00 y=0.85",
@@ -489910,75 +490055,6 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.21 (want 0)",
           "centered": "footprint center x=0.00 y=-1.65"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Camp_Castle_HoardChest",
-      "category": "Camp",
-      "module": "campstations",
-      "objects": [
-        "CatCafe_Camp_Castle_HoardChest",
-        "CatCafe_Camp_Castle_HoardChest_Gold",
-        "CatCafe_Camp_Castle_HoardChest_Gold_Glow",
-        "CatCafe_Camp_Castle_HoardChest_Lid"
-      ],
-      "triangles": 548,
-      "budget": 600,
-      "size_studs": {
-        "x": 2.34,
-        "y": 1.64,
-        "z": 1.49
-      },
-      "size_roblox": [
-        2.34,
-        1.49,
-        1.64
-      ],
-      "bounds_min": [
-        -1.17,
-        -0.87,
-        0.0
-      ],
-      "bounds_max": [
-        1.17,
-        0.77,
-        1.49
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "part_pivots": {
-        "CatCafe_Camp_Castle_HoardChest_Lid": [
-          -0.0,
-          0.7,
-          0.9
-        ]
-      },
-      "part_pivots_roblox": {
-        "CatCafe_Camp_Castle_HoardChest_Lid": [
-          0.0,
-          0.9,
-          0.7
-        ]
-      },
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Castle_HoardChest.model.json",
-      "rbx_parts": 39,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Camp_Castle_HoardChest.fbx",
-        "assets/cat-cafe/exports/CatCafe_Camp_Castle_HoardChest.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [],
-        "checks": {
-          "budget": "548/600 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "242 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.05"
         }
       }
     }

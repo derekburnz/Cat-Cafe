@@ -326,6 +326,31 @@ return function()
 			expect(DragonKeep.catchFish(fx, "Rare", false)).to.equal(0)
 		end)
 
+		it(
+			"adds Lucky Scale to Luck and Gold Fever inside the gold cap, only with the switch on",
+			function()
+				local Luck = require(Shared.Luck)
+				local IndexRewards = require(Shared.IndexRewards)
+				local Config = require(Shared.Config)
+				local profile = ProfileSchema.migrate({ version = 49 }, T) :: any
+				profile.dragon = withSlots({ "luckyScale", "goldFever" })
+				DragonKeep.setOn(false)
+				local luckOff = Luck.of(profile, T, false)
+				local goldOff = IndexRewards.luckiest({ profile }, 1, function()
+					return 10
+				end)
+				DragonKeep.setOn(true)
+				local luckOn = Luck.of(profile, T, false)
+				local goldOn = IndexRewards.luckiest({ profile }, 1, function()
+					return 10
+				end)
+				DragonKeep.setOn(nil)
+				expect(math.abs(luckOn - luckOff - 0.05) < 1e-9).to.equal(true)
+				expect(math.abs(goldOn - goldOff - 0.10) < 1e-9).to.equal(true)
+				expect(goldOn <= Config.GoldLuckMax).to.equal(true)
+			end
+		)
+
 		it("names only real cards in its tables", function()
 			for id in DragonKeep.MONEY do
 				expect(DragonKeep.card(id)).to.be.ok()

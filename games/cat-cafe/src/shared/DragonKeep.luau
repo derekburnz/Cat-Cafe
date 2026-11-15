@@ -1006,13 +1006,22 @@ DragonKeep.MONEY = { -- card id -> what it adds into cafeMultiplier
 } :: { [string]: number }
 DragonKeep.TIPS = { warmTips = 0.04, emberTips = 0.08 } :: { [string]: number } -- into Economy.tipMultiplier
 DragonKeep.SET_MONEY = { flame = 0.05 } :: { [string]: number }
+DragonKeep.LUCK = 0.05 -- Lucky Scale: +5% bowl luck (a Luck source, inside LuckMax)
+DragonKeep.GOLD_LUCK = 0.10 -- Gold Fever: +0.10 gold luck, inside GoldLuckMax with the Index's
 DragonKeep.TICKET_BONUS = 0.25 -- Ticket Dragon: +25% Ticket Booth tickets (rounded down a catch)
 DragonKeep.REPEAT_FISH = 1 -- Fish Scale: a repeat Epic or better catch gives +1 golden fish
 
-export type Effects = { money: number, tips: number, tickets: number, repeatFish: number }
+export type Effects = {
+	money: number,
+	tips: number,
+	tickets: number,
+	repeatFish: number,
+	luck: number,
+	goldLuck: number,
+}
 
 function DragonKeep.effects(save: Types.DragonSave): Effects
-	local money, tips, tickets, repeatFish = 0, 0, 0, 0
+	local money, tips, tickets, repeatFish, luck, goldLuck = 0, 0, 0, 0, 0, 0
 	for _, id in save.slots do
 		if cardsById[id] ~= nil then
 			money += DragonKeep.MONEY[id] or 0
@@ -1021,6 +1030,10 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 				tickets = DragonKeep.TICKET_BONUS
 			elseif id == "fishScale" then
 				repeatFish = DragonKeep.REPEAT_FISH
+			elseif id == "luckyScale" then
+				luck = DragonKeep.LUCK
+			elseif id == "goldFever" then
+				goldLuck = DragonKeep.GOLD_LUCK
 			end
 		end
 	end
@@ -1029,7 +1042,40 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 	end
 	money = math.min(money, DragonKeep.MONEY_CAP)
 	tips = math.min(tips, DragonKeep.MONEY_CAP - money)
-	return { money = money, tips = tips, tickets = tickets, repeatFish = repeatFish }
+	return {
+		money = money,
+		tips = tips,
+		tickets = tickets,
+		repeatFish = repeatFish,
+		luck = luck,
+		goldLuck = goldLuck,
+	}
+end
+
+-- The effects a profile has now: DragonKeep.effects of its save while the dragonKeep switch is on (its
+-- ReplicatedStorage attribute, set by LiveFlagService for both sides; specs set it with setOn), else all zero.
+local onOverride: boolean? = nil
+function DragonKeep.setOn(on: boolean?)
+	onOverride = on
+end
+local NONE: Effects = table.freeze({
+	money = 0,
+	tips = 0,
+	tickets = 0,
+	repeatFish = 0,
+	luck = 0,
+	goldLuck = 0,
+}) :: any
+function DragonKeep.of(profile: Types.PlayerProfile): Effects
+	local on = if onOverride ~= nil
+		then onOverride
+		else game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_" .. DragonKeep.FLAG)
+			== true
+	local save = (profile :: any).dragon
+	if not on or type(save) ~= "table" then
+		return NONE
+	end
+	return DragonKeep.effects(save)
 end
 
 -- Fish Scale's golden fish for one catch: a repeat (not a new Index entry) of Epic or better.

@@ -141,22 +141,11 @@ end
 
 -- #4447: the Dragon Keep's slotted cards and sets (DragonKeep.effects), all zero while the dragonKeep switch is off
 -- (read from its ReplicatedStorage attribute, which LiveFlagService sets for both sides; specs set it here).
-local dragonOverride: boolean? = nil
 function Economy.setDragonKeep(on: boolean?)
-	dragonOverride = on
+	DragonKeep.setOn(on)
 end
-local NO_DRAGON: DragonKeep.Effects =
-	table.freeze({ money = 0, tips = 0, tickets = 0, repeatFish = 0 }) :: any
 function Economy.dragonEffects(profile: Types.PlayerProfile): DragonKeep.Effects
-	local on = if dragonOverride ~= nil
-		then dragonOverride
-		else game:GetService("ReplicatedStorage")
-			:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. DragonKeep.FLAG) == true
-	local save = (profile :: any).dragon
-	if not on or type(save) ~= "table" then
-		return NO_DRAGON
-	end
-	return DragonKeep.effects(save)
+	return DragonKeep.of(profile)
 end
 
 -- #1624 (economy-ladder.md section 6a): what VIP, Cafe Style and Grand Cafe add into cafeMultiplier, 0 without them.

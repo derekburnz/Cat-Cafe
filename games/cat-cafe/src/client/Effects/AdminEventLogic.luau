@@ -16,7 +16,8 @@
 --   startBanner(view, now)              its "admin" card: "Bowl Frenzy!", the effect, "Ends in 15:00"
 --   chatLine(banner)                    the same words as one system chat line, in the cards' rose, rich text safe:
 --                                       "⚡ Bowl Frenzy soon! Starts in 2:00. Bait bowls lure cats 4x faster."
---   stripLine(view, now)                the HUD's timer words: "⚡ Bowl Frenzy in 1:59", then "⚡ Bowl Frenzy 14:59"
+--   stripLine(view, now)                the HUD's timer words before the start: "⚡ Bowl Frenzy in 1:59"; none while
+--                                       it runs, when Effects/AdminFlash's strip is the one readout (#4325)
 --   merge(lines, kind, strip, admin)    the Cafe Event chip's lines, kind and strip with the admin line put first
 --   airOf(view)                         which of Presets.adminAir's drifts the event hangs round you, or nil
 --   clock(seconds)                      "14:59", "1:02:05"
@@ -51,6 +52,8 @@ AdminEventLogic.EXTRA = {
 	},
 	{ name = "crateDrop", line = "Golden crates drop into every area", times = false },
 	{ name = "speedRush", line = "Speed Shoes for everyone", times = false },
+	-- the Admin Wheel event (the server writes `wheel = true`; Design-Agent's wheel window opens by itself)
+	{ name = "wheel", line = "One free spin of the Admin Wheel", times = false },
 }
 -- The effects that hang a drift round you, first match wins (Presets.adminAir.kinds).
 AdminEventLogic.AIR = { "moneyStorm", "goldBoost" }
@@ -265,7 +268,9 @@ function AdminEventLogic.stripLine(view: View?, now: number): string?
 		return nil
 	end
 	if AdminEventLogic.runs(view, now) then
-		return string.format("⚡ %s %s", view.title, AdminEventLogic.clock(view.endsAt - now))
+		-- #4325: while it runs, Effects/AdminFlash's strip is the one readout on the screen (Derek 2026-11-14 22:54:
+		-- "the ui is still on the screen too much in the events"), so the chip says nothing of it
+		return nil
 	end
 	if now < view.startsAt then
 		return string.format("⚡ %s in %s", view.title, AdminEventLogic.clock(view.startsAt - now))

@@ -2875,7 +2875,9 @@ Presets.nap = {
 	tilt = 12,
 }
 
-Presets.gate = { seconds = 1.4, playWithin = 70 }
+-- `areaPuff` (#4069): pieces of the area's own puff at each of Presets.areas.points places along the foot of a gate
+-- whose area has effects of its own (Presets.areaFx.areas), on top of the dissolve.
+Presets.gate = { seconds = 1.4, playWithin = 70, areaPuff = 3 }
 
 Presets.shutter = { seconds = 0.9, signSeconds = 0.6 }
 
@@ -6062,6 +6064,19 @@ Presets.lateStations = {
 	beamWidth = 1.2,
 	beamHeight = 14,
 	beamSeconds = 1.2,
+}
+
+-- The Ticket Booth's buy moment (#4061; Effects/BoothFx): paper tickets in the booth's own red, cream and gold off
+-- the `anchor` attachment of the `tag`-tagged model (else `under` of its height above its middle), `tickets` of the
+-- device's confetti budget, `sparkles` gold sparkles and one gold ring `ring` studs wide at its feet.
+Presets.boothFx = {
+	tag = "TicketBooth",
+	anchor = "BangAnchor",
+	under = 0.2,
+	tickets = 0.5,
+	sparkles = 8,
+	ring = 7,
+	colours = { Presets.palette.shirtRed, Presets.palette.cream, Presets.palette.golden },
 }
 
 -- The Relic Museum's room names (#3129; Effects/MuseumPlaques, Logic.plaqueGlow): a finished room's plaque letters

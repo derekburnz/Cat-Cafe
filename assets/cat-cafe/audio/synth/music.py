@@ -1023,11 +1023,64 @@ def area_castle(tmp: Path) -> np.ndarray:
                   "pad": (pad, -30, 0.45), "kit": (kit, -31, 0.15)}, 805, tmp)
 
 
+def area_harvest(tmp: Path) -> np.ndarray:
+    """Cider Lane: D major, 96 BPM. A nylon guitar picks an easy pattern (D D G D, then Bm G A D) over an upright
+    bass on one and three, with a hand drum and a soft shaker like a cart rolling home; a flute sings the tune; a
+    marimba answers it with strings holding the evening light; the flute again with glockenspiel glints, like
+    lanterns coming on over the pumpkin patch. For Harvest Hollow (#4251)."""
+    s = Song(96, 4, seed=85)
+    bars = [  # bass root, the chord the guitar picks
+        ("D2", "D3 A3 D4 F#4"), ("D2", "D3 A3 D4 F#4"), ("G2", "G3 B3 D4 G4"), ("D2", "D3 A3 D4 F#4"),
+        ("B1", "B2 F#3 B3 D4"), ("G2", "G3 B3 D4 G4"), ("A1", "A2 E3 A3 C#4"), ("D2", "D3 A3 D4 F#4"),
+    ]
+    tune = melody("0 0 1.5 F#4; 0 1.5 0.5 A4; 0 2 2 D5; 1 0 1 B4; 1 1 1 A4; 1 2 2 F#4;"
+                  "2 0 1.5 G4; 2 1.5 0.5 A4; 2 2 1 B4; 2 3 1 D5; 3 0 3 A4; 3 3 1 F#4;"
+                  "4 0 1.5 B4; 4 1.5 0.5 C#5; 4 2 1 D5; 4 3 1 F#5; 5 0 2 E5; 5 2 2 D5;"
+                  "6 0 1 C#5; 6 1 1 B4; 6 2 1 A4; 6 3 1 E4; 7 0 4 D4")
+    guitar, bass, lead, pad, kit = s.stem(), s.stem(), s.stem(), s.stem(), s.stem()
+    for bar in range(BARS):
+        root, voicing = bars[bar % 8]
+        section = bar // 8
+        notes = chord(voicing)
+        for k, i in enumerate((0, 2, 1, 3, 2, 1, 3, 2)):  # the picking pattern, thumb on one and three
+            s.put(guitar, pluck(0.45, notes[i], bar * 16 + k, bright=0.55, ring=1.6) * (0.85 if k % 4 == 0 else 0.5),
+                  bar, k * 0.5, pan=-0.35 + 0.12 * i, loose=0.005)
+        s.put(bass, upright(1.4, note(root), 0.65), bar, 0.0, pan=-0.05)
+        s.put(bass, upright(1.0, note(root) * 1.5, 0.45), bar, 2.0, pan=-0.05)
+        soft = 0.8 if section == 0 else 1.0
+        for beat, f, v in ((0.0, 170, 0.7), (2.0, 170, 0.5), (2.5, 250, 0.35), (3.5, 250, 0.4)):
+            s.put(kit, hand_drum(bar * 8 + int(beat * 2), f, v * soft), bar, beat, pan=0.25)
+        for k in range(8):
+            s.put(kit, noise_hit(9500 + bar * 8 + k, 0.09, 4500, 10000, 0.01, 0.03), bar, k * 0.5, pan=-0.4,
+                  gain=0.3 if k % 2 else 0.15)
+        # the strings hold all the way round (quieter under the guitar alone), so the loop's seam keeps its level
+        s.put(pad, strings(4 * s.beat, notes[1:], 850 + bar), bar, 0.0, gain=1.0 if section >= 2 else 0.6, loose=0)
+        for b, beat, length, f in tune:
+            if b != bar % 8:
+                continue
+            if section == 1:
+                s.put(lead, flute(length * s.beat * 0.92, f, bar * 10 + int(beat * 2)), bar, beat, pan=0.1)
+            elif section == 2:
+                s.put(lead, marimba(f * 2, 0.85), bar, beat, pan=0.15)
+            elif section == 3:
+                s.put(lead, flute(length * s.beat * 0.92, f, bar * 10 + int(beat * 2)), bar, beat, pan=0.1)
+                s.put(lead, glock(f * 4) * 0.2, bar, beat, pan=0.35)
+        if section == 0 and bar % 2 == 1:  # before the tune: two marimba notes answer the guitar
+            for k, i in enumerate((3, 2)):
+                s.put(lead, marimba(notes[i] * 2, 0.45), bar, 2.0 + k, pan=0.3)
+        if bar % 8 == 7 and section in (1, 2):  # a little turn up into the next phrase (the last bar rests)
+            for k, name in enumerate(("A4", "B4", "D5", "F#5")):
+                s.put(lead, marimba(note(name), 0.4), bar, 2.0 + 0.5 * k, pan=0.3)
+    return blend({"lead": (lead, -20, 0.3), "guitar": (guitar, -23, 0.25), "bass": (bass, -27, 0.05),
+                  "pad": (pad, -30, 0.45), "kit": (kit, -33, 0.15)}, 805, tmp)
+
+
 SONGS = {"DayA": day_a, "DayB": day_b, "NightA": night_a, "DayC": day_c, "DayD": day_d, "NightB": night_b,
          "Tutorial": tutorial, "JukeboxRainyWindow": jukebox_rainy_window,
          "JukeboxCatnapWaltz": jukebox_catnap_waltz, "JukeboxBakeryBounce": jukebox_bakery_bounce,
          "JukeboxStarlightPurr": jukebox_starlight_purr, "AreaDesert": area_desert, "AreaRuins": area_ruins,
-         "AreaSnowy": area_snowy, "AreaWaterpark": area_waterpark, "AreaCastle": area_castle}
+         "AreaSnowy": area_snowy, "AreaWaterpark": area_waterpark, "AreaCastle": area_castle,
+         "AreaHarvest": area_harvest}
 
 # The music sheet (#980, 2026-11-03). Audio uploads were used up (100 a month until an account is ID verified), so the
 # three songs Derek approved on 2026-11-03 share one upload: each renders on its own to sheet-parts/music/ (gated
@@ -1041,6 +1094,8 @@ JUKEBOX = ("JukeboxRainyWindow", "JukeboxCatnapWaltz", "JukeboxBakeryBounce", "J
 AREAS = ("AreaDesert", "AreaRuins")
 # The next three areas' songs (#4069, #4070, #4071) share a second one: sheets/CatCafe_Sheet_MusicAreas2.ogg.
 AREAS2 = ("AreaSnowy", "AreaWaterpark", "AreaCastle")
+# Harvest Hollow's song (#4251) starts a third: sheets/CatCafe_Sheet_MusicAreas3.ogg. Later limited areas join it.
+AREAS3 = ("AreaHarvest",)
 SHEET_GAP = 0.5
 
 
@@ -1105,7 +1160,7 @@ def main() -> int:
             rendered[name] = x
             wav = tmp / f"{name}.wav"
             write_wav(wav, x)
-            folder = "sheet-parts/music" if name in SHEET or name in JUKEBOX or name in AREAS or name in AREAS2 else "music"
+            folder = "sheet-parts/music" if name in SHEET or name in JUKEBOX or name in AREAS or name in AREAS2 or name in AREAS3 else "music"
             out = ROOT / folder / f"CatCafe_Music_{name}.ogg"
             encode(wav, out, ["-c:a", "libvorbis", "-q:a", "5"])
             print(f"music: {out.relative_to(ROOT.parents[2]).as_posix()}  {len(x) / SR:.1f} s")
@@ -1117,6 +1172,8 @@ def main() -> int:
             write_sheet(rendered, tmp, AREAS, "MusicAreas", "sheetMusicAreas")
         if any(name in rendered for name in AREAS2):
             write_sheet(rendered, tmp, AREAS2, "MusicAreas2", "sheetMusicAreas2")
+        if any(name in rendered for name in AREAS3):
+            write_sheet(rendered, tmp, AREAS3, "MusicAreas3", "sheetMusicAreas3")
         if args.preview:
             folder = Path(args.preview)
             folder.mkdir(parents=True, exist_ok=True)

@@ -2619,12 +2619,15 @@ Layout.townSquare = {
 	-- posters"; Model-Agent's `CatCafe_Square_UpdatePoster`, front -Z, its Screen 8.0 x 4.5, about 9.3 wide): east of
 	-- the street between the spawn and the Feedback stand, turned to face the spawn, so a player who lands sees the
 	-- pity sign on one side and the next update on the other. WorldBuilder tags it UpdatePoster for its face.
+	-- #4474 (Derek2 2026-11-15: "the 3 worlds sign in game is infront of feedback stand move it off to side a little
+	-- bit"): at (20, -40) it stood on the line from the spawn, and from the cannon, to the Feedback stand at (28, -54).
+	-- It stands beside the street now, 8 studs west of both lines, still facing the spawn.
 	updatePoster = {
 		asset = "CatCafe_Square_UpdatePoster",
-		x = 20,
+		x = 13.5,
 		y = 0.1,
-		z = -40,
-		rotY = 142.43,
+		z = -50,
+		rotY = 159.44,
 	} :: Prop,
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the

@@ -74,6 +74,7 @@ local NAMES: { [string]: string } = {
 	charm = "Lucky Charm", -- #3298: the Golden Fish Market perk
 	potion = "Lucky Potion",
 	lucky_day = "Lucky Day",
+	dragon = "Lucky Scale (Dragon Keep)", -- #4447
 	event = "Cafe Event", -- #2539: a Cafe Event's luck; rows() takes the running event's title ("Cafe Party") over it
 }
 

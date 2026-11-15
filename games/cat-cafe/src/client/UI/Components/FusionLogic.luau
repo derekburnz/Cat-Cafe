@@ -240,6 +240,10 @@ end
 
 -- "10 min", "1 h", "45 min" (the confirm card's time line, after Elder Lore)
 function FusionLogic.duration(seconds: number): string
+	-- #4556 (Derek 2026-11-15: "make the dome take no time and be instant"): a fusion with no wait says so
+	if seconds <= 0 then
+		return "Instant"
+	end
 	local minutes = math.max(math.ceil(seconds / 60), 1)
 	if minutes >= 60 and minutes % 60 == 0 then
 		return ("%d h"):format(minutes // 60)

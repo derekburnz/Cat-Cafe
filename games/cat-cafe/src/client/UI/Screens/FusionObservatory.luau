@@ -1116,9 +1116,10 @@ function FusionObservatory._paintConfirm(self: any)
 		chip:setText("Keep: " .. choice.name .. " (" .. choice.rarity .. ")")
 		chip:setStyle(if choice.uid == keep then "sky" else "ghost")
 	end
-	self._timeLine.Text = "Ready in "
-		.. FusionLogic.duration(FusionLogic.seconds(self._view, group.next))
-		.. " · the five leave when it starts"
+	local wait = FusionLogic.seconds(self._view, group.next)
+	self._timeLine.Text = if wait <= 0
+		then "Ready at once · the five leave when it starts" -- #4556: instant fusions
+		else "Ready in " .. FusionLogic.duration(wait) .. " · the five leave when it starts"
 	local ready = #picked == FusionLogic.COPIES
 	self._fuseButton:setText(
 		if ready

@@ -133,6 +133,7 @@ return function()
 			expect(Logic.clock(3725)).to.equal("1:02:05")
 			expect(Logic.clock(-3)).to.equal("0:00")
 			expect(Logic.duration(600)).to.equal("10 min")
+			expect(Logic.duration(0)).to.equal("Instant") -- #4556
 			expect(Logic.duration(3600)).to.equal("1 h")
 			expect(Logic.duration(2700)).to.equal("45 min")
 			expect(Logic.duration(5400)).to.equal("1 h 30 min")
@@ -151,14 +152,10 @@ return function()
 			expect(free.name).to.equal("Observatory")
 			expect(free.state).to.equal("The dome is free")
 			expect(free.ready).to.equal(false)
-			local done = Logic.cannonLine(
-				{
-					running = { catId = "tabby", coat = "gold", doneAt = 0, level = 3 },
-					ready = true,
-				},
-				"snowy",
-				10
-			)
+			local done = Logic.cannonLine({
+				running = { catId = "tabby", coat = "gold", doneAt = 0, level = 3 },
+				ready = true,
+			}, "snowy", 10)
 			expect(done.ready).to.equal(true)
 			expect(Logic.cannonLine({}, "castle", 0)).to.equal(nil)
 			expect(Logic.cannonLine(false, "snowy", 0)).to.equal(nil)

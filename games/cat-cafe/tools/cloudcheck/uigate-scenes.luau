@@ -3919,7 +3919,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(drain ~= nil, "uigate: the spawn line has no drain bar (#4227)")
 		assert(badge ~= nil and badge.Text == "+2", "uigate: the spawn line's badge does not say +2 (#4227)")
 	end },
-	-- #4227: wild Mythical and Secret cats out now, as small bubbles on each open area's card and the Cannon button
+	-- #4227: wild Mythical and Secret cats out now, as small round bubbles on each open area's card (#4450: none on
+	-- the HUD Cannon button)
 	{ "CannonRares", function()
 		local ReplicatedStorage = game:GetService("ReplicatedStorage")
 		local Logic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RareBubbleLogic") :: any

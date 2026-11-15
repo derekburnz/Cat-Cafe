@@ -99,6 +99,8 @@ local function announce(player: Player, rolled: Traits.Trait)
 	end
 end
 
+local DROP_TOAST = "One moment, the pool is still stirring." -- #4477
+
 local function onRoll(player: Player, rawUid: unknown)
 	local uid = Guard.id(rawUid)
 	local profile = DataService.get(player)
@@ -223,8 +225,13 @@ local function onCollect(player: Player)
 end
 
 function TraitService.start()
-	Net.on("RollTrait", onRoll)
-	Net.on("ChooseTrait", onChoose)
+	-- #4477: a press over the 1 a second limit gets an answer (Net.on's onDrop, itself limited to 2 a second), so the
+	-- player hears why nothing happened; the card's own wait wakes its buttons
+	local function tooFast(player: Player)
+		Net.toast(player, DROP_TOAST, "info")
+	end
+	Net.on("RollTrait", onRoll, tooFast)
+	Net.on("ChooseTrait", onChoose, tooFast)
 	Net.on("CollectTraitTokens", onCollect)
 	-- #4197: a Trait Party starts or ends: every Mystic Pool's Roll button follows (PlayerState.traits.party)
 	local partying = EventService.traitParty()

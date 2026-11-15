@@ -22,6 +22,7 @@
 --   rolled(view, uid, hadTrait, trait)  the trait id a roll on `uid` gave, once the state shows it: the waiting
 --                               re-roll, or a first trait
 --   rarityId(traitId)           "rare", for the pool's colour (Effects/MysticPool.roll)
+--   sendIn(lastAt, now)         #4477: seconds to hold a press so the server's 1 a second limit never drops it
 -- Button words stay neutral ("Roll again" is never "so close"), for a young audience (spec section 1a).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -366,6 +367,19 @@ end
 MysticPoolLogic.NO_SKIP = { mythic = true, secret = true } :: { [string]: boolean }
 
 function MysticPoolLogic.canSkip(rarity: string): boolean
+	-- #4477 (Derek 2026-11-15: "when using lots of rerolls mystic pool gets stuck on ..."): the server takes RollTrait
+	-- and ChooseTrait at most once a second each (server/Services/Net), and a dropped press gets no answer, so the card
+	-- waited out PENDING_SECONDS on "..." again and again on a fast run of re-rolls. A press of the same remote less than
+	-- SEND_GAP after the last one is held the rest of the gap (the buttons already rest on "..." meanwhile).
+	MysticPoolLogic.SEND_GAP = 1.1 -- seconds, a little over the server's 1 a second
+	function MysticPoolLogic.sendIn(lastAt: number?, now: number): number
+		if type(lastAt) ~= "number" or lastAt ~= lastAt then
+			return 0
+		end
+		-- a gap after the last press went (which may itself still be held, so in the future), never more than 3 gaps
+		return math.clamp(lastAt + MysticPoolLogic.SEND_GAP - now, 0, 3 * MysticPoolLogic.SEND_GAP)
+	end
+
 	return MysticPoolLogic.NO_SKIP[rarity] ~= true
 end
 
@@ -428,6 +442,19 @@ function MysticPoolLogic.bundles(view: View?, ids: { [string]: any }?, seen: boo
 		end
 	end
 	return if #out > 0 then out else nil
+end
+
+-- #4477 (Derek 2026-11-15: "when using lots of rerolls mystic pool gets stuck on ..."): the server takes RollTrait
+-- and ChooseTrait at most once a second each (server/Services/Net), and a dropped press gets no answer, so the card
+-- waited out PENDING_SECONDS on "..." again and again on a fast run of re-rolls. A press of the same remote less than
+-- SEND_GAP after the last one is held the rest of the gap (the buttons already rest on "..." meanwhile).
+MysticPoolLogic.SEND_GAP = 1.1 -- seconds, a little over the server's 1 a second
+function MysticPoolLogic.sendIn(lastAt: number?, now: number): number
+	if type(lastAt) ~= "number" or lastAt ~= lastAt then
+		return 0
+	end
+	-- a gap after the last press went (which may itself still be held, so in the future), never more than 3 gaps
+	return math.clamp(lastAt + MysticPoolLogic.SEND_GAP - now, 0, 3 * MysticPoolLogic.SEND_GAP)
 end
 
 return MysticPoolLogic

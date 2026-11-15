@@ -454,6 +454,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._fish = 0
 	self._uid = nil :: string? -- the picked cat
 	self._pending = false
+	self._sentAt = {} :: { [string]: number } -- #4477: when each remote's last press went (os.clock)
 	self._pendingAt = 0
 	self._pendingToken = 0
 	self._stamp = nil :: string? -- MysticPoolLogic.stamp when the last press went out
@@ -900,7 +901,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		return function()
 			self:_send(function()
 				self._callbacks.choose(takeNew)
-			end)
+			end, "choose")
 		end
 	end
 	-- #3875: a tap on a grey Keep old or Take new once the wait is RETRY_SECONDS old sends the choice again (the
@@ -1198,16 +1199,23 @@ end
 
 -- Every press goes out once: the buttons rest until the state shows the server's answer (render), or
 -- PENDING_SECONDS (a refusal changes nothing; its toast says why).
-function MysticPool._send(self: any, fire: () -> ())
+-- #4477: `remote` ("roll" or "choose") keeps the presses of one remote MysticPoolLogic.SEND_GAP apart, so the
+-- server's limit never drops one; the wait for the answer starts when the press really goes.
+function MysticPool._send(self: any, fire: () -> (), remote: string?)
 	if self._pending then
 		return
 	end
+	local now = os.clock()
+	local key = remote or "other"
+	local sentAt: { [string]: number } = self._sentAt
+	local hold = MysticPoolLogic.sendIn(sentAt[key], now)
+	sentAt[key] = now + hold
 	self._pending = true
-	self._pendingAt = os.clock()
+	self._pendingAt = now + hold
 	self._stamp = self:_stampNow()
 	self._pendingToken += 1
 	local token = self._pendingToken
-	task.delay(PENDING_SECONDS, function()
+	task.delay(hold + PENDING_SECONDS, function()
 		if self._pendingToken == token and self._pending then
 			self._pending = false
 			self._rolling = nil
@@ -1223,7 +1231,15 @@ function MysticPool._send(self: any, fire: () -> ())
 		end
 	end)
 	self:_paint()
-	fire()
+	if hold <= 0 then
+		fire()
+	else
+		task.delay(hold, function()
+			if self._pendingToken == token and self._pending then
+				fire()
+			end
+		end)
+	end
 end
 
 function MysticPool._rollPress(self: any)
@@ -1239,7 +1255,7 @@ function MysticPool._rollPress(self: any)
 	self._rolling = { uid = uid, hadTrait = cat.trait ~= nil }
 	self:_send(function()
 		self._callbacks.roll(uid)
-	end)
+	end, "roll")
 end
 
 -- The roll's answer has come: the pool plays it (a tap skips), then the card shows it. #3702: while it plays the

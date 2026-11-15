@@ -4078,6 +4078,28 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		-- applyTutorial lands in a later scene and holds the first visit cards (FirstVisitAway, GiftLadder)
 		UIShim.advance(46)
 	end },
+	-- #4540: at Tier 2 before the Park is reached, any Cat Cannon picker rings the Park card's Launch; once the Park
+	-- is reached, none
+	{ "CannonParkRing", function()
+		atTier(2)
+		local wasReached = UI.parkTrail.reached
+		UI.parkTrail.reach(false)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+		local park = window:FindFirstChild("park", true) :: Instance
+		local launch = park and park:FindFirstChild("Launch", true) :: Instance
+		assert(launch and launch:FindFirstChild("TutorialGlow"), "uigate: no ring on the Park card at Tier 2 (#4540)")
+		UI.close()
+		UIShim.advance(0.5)
+		UI.parkTrail.reach(true)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		assert(launch:FindFirstChild("TutorialGlow") == nil, "uigate: the Park card is still ringed after the Park (#4540)")
+		UI.close()
+		UIShim.advance(0.5)
+		UI.parkTrail.reach(wasReached)
+	end },
 	-- #2692: at night a new player with the night pass (the NightPass attribute, before the first check-in) sees the
 	-- area cards open, no moon cover; once the pass ends, the cover is back
 	{ "CannonNightPass", function()

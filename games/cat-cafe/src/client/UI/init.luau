@@ -4119,6 +4119,16 @@ function UI.cannon.open(cannonId: string?)
 		return
 	end
 	screen:setCannon(cannonId or CannonLogic.TOWN)
+	-- #4540: from the Tier 2 rank up until the Park is reached, every picker rings the Park card (Fly to the Park's
+	-- own ring, while it waits, is the same card). Required here: the main chunk is at Luau's 200 local limit.
+	if UI.cannon.fly.ring == nil then
+		local ParkTrailLogic = require(script.Components.ParkTrailLogic) :: any
+		screen:setRing(
+			if ParkTrailLogic.cannonRing(state.tier, UI.parkTrail.reached)
+				then ParkTrailLogic.AREA
+				else nil
+		)
+	end
 	windows:open("Cannon")
 end
 

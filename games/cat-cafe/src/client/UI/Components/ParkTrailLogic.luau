@@ -44,6 +44,13 @@ function ParkTrailLogic.due(on: boolean, tier: number?, caught: boolean, visited
 		and tier >= ParkTrailLogic.TIER
 end
 
+-- #4540 (Derek 2026-11-15: "also point at park in cannon menu after unlocking"): whether a Cat Cannon picker opened
+-- now rings the Park card's Launch: at Tier 2 (from the rank up that opens the Park) until the player first reaches
+-- the Park (`reached`), whatever the parkGateTrail switch says. A higher tier has long since been there.
+function ParkTrailLogic.cannonRing(tier: number?, reached: boolean): boolean
+	return tier == ParkTrailLogic.TIER and not reached
+end
+
 -- #3893: whether the player's first steps are done, up to reaching the Park: the tutorial's X hides the strip only
 -- after this.
 function ParkTrailLogic.reached(caught: boolean, visited: boolean): boolean

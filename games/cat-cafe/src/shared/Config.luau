@@ -789,6 +789,7 @@ local Config = {
 			-- #4362: the Town Square update poster's name and picture (UI/Screens/UpdatePoster); an entry with
 			-- neither reads "NEW UPDATE" on a plain face
 			name = "3 NEW WORLDS",
+			poster = "rbxassetid://136446394707169",
 		},
 		-- Derek 2026-11-14 17:59 UTC: Rift Run moves to tonight, Sunday 2026-11-15 01:00 UTC (Saturday 8 PM ET, the busier
 		-- hour), and the Golden Fish Store to Sunday 2026-11-15 22:00 UTC (5 PM ET), each with its own ask
@@ -802,18 +803,21 @@ local Config = {
 			startsAt = 1794780000, -- "Golden Fish Store", Sunday 2026-11-15 22:00 UTC
 			title = "🔔 Next update Sunday: the GOLDEN FISH STORE! Want a reminder when it lands?",
 			name = "GOLDEN FISH STORE",
+			poster = "rbxassetid://78033321655386",
 		},
 		{
 			id = "6810389993696133776",
 			startsAt = 1795032000, -- "Better on Every Device", Wednesday 2026-11-18 20:00 UTC
 			title = "🔔 Next update Wednesday: better controls on every device! Want a reminder?",
 			name = "BETTER ON EVERY DEVICE",
+			poster = "rbxassetid://138232412903853",
 		},
 		{
 			id = "8700676156604678758",
 			startsAt = 1794799800, -- "10 Secret Cats", Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, Derek 17:40 UTC)
 			title = "🔔 Next update: 10 SECRET CATS! Want a reminder when it lands?",
 			name = "10 SECRET CATS",
+			poster = "rbxassetid://119053796760824",
 		},
 	} :: {
 		{

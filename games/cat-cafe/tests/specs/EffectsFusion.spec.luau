@@ -64,6 +64,28 @@ return function()
 			end
 		)
 
+		it("reads the dome's fusion from ProfileSync and spots a Collect (#4563)", function()
+			local coat, ready, gold, rainbow = FusionFx.read({
+				running = { coat = "gold", doneAt = 0 },
+				ready = true,
+				made = { gold = 2, rainbow = 0 },
+			})
+			expect(coat).to.equal("gold")
+			expect(ready).to.equal(true)
+			expect(gold).to.equal(2)
+			expect(rainbow).to.equal(0)
+			coat, ready = FusionFx.read(false)
+			expect(coat).to.equal(nil)
+			expect(ready).to.equal(false)
+			coat = FusionFx.read({ running = { coat = "plain" } })
+			expect(coat).to.equal(nil)
+			-- gone with its count up: collected; gone with no count change (the switch off): not
+			expect(FusionFx.collectedCoat("gold", nil, { gold = 2 }, { gold = 3 })).to.equal("gold")
+			expect(FusionFx.collectedCoat("gold", nil, { gold = 2 }, { gold = 2 })).to.equal(nil)
+			expect(FusionFx.collectedCoat("gold", "gold", { gold = 2 }, { gold = 3 })).to.equal(nil)
+			expect(FusionFx.collectedCoat(nil, nil, {}, { rainbow = 1 })).to.equal(nil)
+		end)
+
 		it("shows gold steady and the rainbow drifting slowly round its hues", function()
 			local p = Presets.fusion
 			expect(FusionFx.coatColour("gold", 0)).to.equal(p.gold)

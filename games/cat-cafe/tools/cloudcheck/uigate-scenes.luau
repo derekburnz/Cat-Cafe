@@ -9398,7 +9398,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- press in a shot's first second does nothing, then one press moves on once
 	-- #2242 (Derek2 11-07: "add the rare customers chance to the tutorial scene like rich customer tips"): the rich
 	-- visitor shot's caption fits one line, and the grab's gold "+$" pops over the bag and is gone by 1.6 s
-	-- #3106: a new player's first delivery says "on its way to your cafe!" once; a player past the walk-through never
+	-- #4497: no "on its way to your cafe!" pop-up, for a new player (#3106 had one) or anyone else
 	{ "FirstDeliveryToast", function()
 		local function count(text: string): number
 			local found = 0
@@ -9418,7 +9418,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.cannon.checkedIn("Mochi")
 		UI.cannon.checkedIn("Mochi")
 		UIShim.advance(0.3)
-		assert(count(line) == 1, "uigate: a new player's first delivery did not show its pop-up once (#3106)")
+		assert(count(line) == 0, "uigate: a new player's first delivery still shows its pop-up (#4497)")
 	end },
 	-- #3105: the loading screen over the still wait before the first shot, and a play sliding it away
 	{ "IntroLoading", function()

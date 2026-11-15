@@ -3744,6 +3744,16 @@ Presets.harvestFx = {
 	pieBeamWidth = 1.2,
 	pieBeamHeight = 14,
 	pieBeamSeconds = 1.2,
+	-- walking in: `arriveSpots` puffs of `arriveCount` leaves in a circle `arriveRadius` studs round you, `arriveLift`
+	-- studs up, `arriveStep` seconds apart (each spot puffs once), with `arriveSparkles` gold
+	-- sparkles; not again within `arriveGap` seconds
+	arriveSpots = 6,
+	arriveCount = 4,
+	arriveRadius = 5,
+	arriveLift = 3,
+	arriveStep = 0.12,
+	arriveSparkles = 8,
+	arriveGap = 90,
 }
 
 -- #4325 (Effects/AdminFlash): an admin event takes the screen and the world. The 3, 2, 1 begins `countFrom` seconds

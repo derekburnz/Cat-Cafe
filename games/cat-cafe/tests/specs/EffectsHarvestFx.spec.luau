@@ -64,6 +64,19 @@ return function()
 			expect(#HarvestFx.glinters({ 5 }, 60, 3)).to.equal(1)
 		end)
 
+		it("swirls leaves when you walk in, not when you pace the edge", function()
+			expect(HarvestFx.arrive(nil, true, nil, 90)).to.equal(true) -- the first look finds you inside
+			expect(HarvestFx.arrive(false, true, nil, 90)).to.equal(true)
+			expect(HarvestFx.arrive(false, true, 30, 90)).to.equal(false)
+			expect(HarvestFx.arrive(false, true, 90, 90)).to.equal(true)
+			expect(HarvestFx.arrive(true, true, 500, 90)).to.equal(false)
+			expect(HarvestFx.arrive(true, false, 500, 90)).to.equal(false)
+			local p = Presets.harvestFx
+			expect(p.arriveSpots * p.arriveCount <= 24).to.equal(true)
+			expect(p.arriveSparkles <= Presets.budget.low.maxBurst).to.equal(true)
+			expect(p.arriveGap >= 60).to.equal(true)
+		end)
+
 		it("keeps its numbers calm and its presets real", function()
 			local p = Presets.harvestFx
 			expect(Presets.emitters[p.air]).to.be.ok()

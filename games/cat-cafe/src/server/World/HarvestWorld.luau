@@ -5,7 +5,9 @@
 -- walking through the arch in the Town Square or the HUD's Harvest button.
 --   buildArch(parent)   the arch in the Town Square, tagged HarvestArch, with an invisible HarvestArchTouch part in its
 --                       opening. It stays after the area closes, as decor (spec section 7).
---   buildArea(parent)   the set, the Harvest Stall (tagged HarvestStall), the Thankful Board (HarvestBoard), the 12
+--   buildArea(parent)   the set, the Harvest Stall (tagged HarvestStall, with the ProximityPrompt HarvestStallPrompt
+--                       the client opens the Stall window from), the Thankful Board (HarvestBoard, with
+--                       HarvestBoardPrompt for the note picker), the 12
 --                       patch pumpkins (HarvestPumpkin, each with an invisible Touch part) and the arrival pad
 --                       (HarvestArrival) at the player spawn. HarvestService watches those tags.
 --   landing()           where a trip in lands: the player spawn, facing the patch.
@@ -128,6 +130,21 @@ local function invisible(name: string, size: Vector3, cframe: CFrame, parent: In
 	return part
 end
 
+-- A ProximityPrompt (the "press E" / tap button Roblox shows near an object) the client listens to.
+-- It shows on a part, so it goes on the model's PrimaryPart (or its first part).
+local function prompt(name: string, action: string, object: string, model: Model)
+	local parent: Instance = model.PrimaryPart
+		or model:FindFirstChildWhichIsA("BasePart", true)
+		or model
+	local p = Instance.new("ProximityPrompt")
+	p.Name = name
+	p.ActionText = action
+	p.ObjectText = object
+	p.RequiresLineOfSight = false
+	p.MaxActivationDistance = 10
+	p.Parent = parent
+end
+
 local function place(asset: string, cframe: CFrame, parent: Instance): Model?
 	if not AssetRegistry.known(asset) then
 		warn(string.format("[HarvestWorld] %s is not in the assets", asset))
@@ -162,10 +179,12 @@ function HarvestWorld.buildArea(parent: Instance): Folder
 	place(HarvestWorld.SET, CFrame.new(HarvestWorld.CENTER), folder)
 	local stall = place(HarvestWorld.STALL, CFrame.new(world(POINTS.stall)), folder)
 	if stall ~= nil then
+		prompt("HarvestStallPrompt", "Shop", "Harvest Stall", stall)
 		CollectionService:AddTag(stall, HarvestWorld.STALL_TAG)
 	end
 	local board = place(HarvestWorld.BOARD, CFrame.new(world(POINTS.board)), folder)
 	if board ~= nil then
+		prompt("HarvestBoardPrompt", "Pin a note", "Thankful Board", board)
 		CollectionService:AddTag(board, HarvestWorld.BOARD_TAG)
 	end
 	for index, point in POINTS.pumpkins do

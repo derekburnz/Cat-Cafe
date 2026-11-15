@@ -4,7 +4,8 @@
 -- PUSH_SECONDS (one UpdateAsync with the sum, so the count is never faked or pushed down), and reads the total back.
 --   ReplicatedStorage attributes for the Thankful Board: HarvestPieCount (the all-servers count), HarvestPieGoal
 --   (HarvestSave.pieGoal, the harvestPieLow switch read live) and HarvestPieSlices (0 to 8).
---   A slice baked since this server's last read toasts everyone here (not in a quiet start): "The Feast Pie is 3/8 baked!" (the first read
+--   A slice baked since this server's last read toasts the players here who can enter (Tier HarvestHollow.TIER and up,
+--   not in a quiet start): "The Feast Pie is 3/8 baked!" (the first read
 --   in a server only sets the mark, so a new server does not toast old slices).
 --   HarvestPieService.add(n): catches to count (HarvestService.caught).
 -- Runs from the area's build time until PIE_SHOW_DAYS after it closes, so the board keeps its full pie for a while.
@@ -14,13 +15,17 @@
 -- (EXPIRY_SECONDS keeps it past the close), and UpdateAsync changes it in one step even with many servers at once.
 
 local MemoryStoreService = game:GetService("MemoryStoreService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
+local Economy = require(ReplicatedStorage.Shared.Economy)
 local HarvestHollow = require(ReplicatedStorage.Shared.HarvestHollow)
 local HarvestSave = require(ReplicatedStorage.Shared.HarvestSave)
 
+local DataService = require(script.Parent.DataService)
 local LiveFlagService = require(script.Parent.LiveFlagService)
+local Net = require(script.Parent.Net)
 local QuietStartService = require(script.Parent.QuietStartService)
 
 local HarvestPieService = {}
@@ -53,13 +58,18 @@ local function publish()
 	ReplicatedStorage:SetAttribute("HarvestPieGoal", goal)
 	ReplicatedStorage:SetAttribute("HarvestPieSlices", slices)
 	if markSlices ~= nil and slices > markSlices and slices > 0 then
-		-- not to players in their quiet first minutes (#4005)
-		QuietStartService.fireAll(
-			nil,
-			"Toast",
-			string.format("The Feast Pie is %d/%d baked!", slices, HarvestSave.PIE_SLICES),
-			"good"
-		)
+		-- only to players who can go in, and not in their quiet first minutes (#4005)
+		local text = string.format("The Feast Pie is %d/%d baked!", slices, HarvestSave.PIE_SLICES)
+		for _, player in Players:GetPlayers() do
+			local profile = DataService.get(player)
+			if
+				profile ~= nil
+				and Economy.tier(profile) >= HarvestHollow.TIER
+				and not QuietStartService.quiet(player)
+			then
+				Net.fire(player, "Toast", text, "good")
+			end
+		end
 	end
 	markSlices = slices
 end

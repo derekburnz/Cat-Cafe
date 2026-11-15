@@ -147,47 +147,43 @@ function HarvestSave.visit(save: Save, now: number): number
 		return 0
 	end
 	save.visitDay = day
-	function HarvestSave.pieGoal(low: boolean): number
-		return if low then HarvestSave.PIE_GOAL_LOW else HarvestSave.PIE_GOAL
-	end
-
-	function HarvestSave.pieSlices(count: number, goal: number): number
-		if goal <= 0 or count ~= count then
-			return 0
-		end
-		return math.clamp(
-			math.floor(count * HarvestSave.PIE_SLICES / goal),
-			0,
-			HarvestSave.PIE_SLICES
-		)
-	end
-
-	export type Note = { userId: number, note: number }
-
-	-- Whether `note` is one of NOTES by its index (1 to 6).
-	function HarvestSave.validNote(note: unknown): boolean
-		return type(note) == "number"
-			and note == math.floor(note)
-			and note >= 1
-			and note <= #HarvestSave.NOTES
-	end
-
-	-- The board's list with this pin added last, the player's own older pin dropped, at most NOTE_KEEP. A copy.
-	function HarvestSave.pinNote(list: { Note }, userId: number, note: number): { Note }
-		local out: { Note } = {}
-		for _, row in list do
-			if row.userId ~= userId then
-				table.insert(out, { userId = row.userId, note = row.note })
-			end
-		end
-		table.insert(out, { userId = userId, note = note })
-		while #out > HarvestSave.NOTE_KEEP do
-			table.remove(out, 1)
-		end
-		return out
-	end
-
 	return HarvestSave.give(save, HarvestSave.VISIT_PUMPKINS)
+end
+
+function HarvestSave.pieGoal(low: boolean): number
+	return if low then HarvestSave.PIE_GOAL_LOW else HarvestSave.PIE_GOAL
+end
+
+function HarvestSave.pieSlices(count: number, goal: number): number
+	if goal <= 0 or count ~= count then
+		return 0
+	end
+	return math.clamp(math.floor(count * HarvestSave.PIE_SLICES / goal), 0, HarvestSave.PIE_SLICES)
+end
+
+export type Note = { userId: number, note: number }
+
+-- Whether `note` is one of NOTES by its index (1 to 6).
+function HarvestSave.validNote(note: unknown): boolean
+	return type(note) == "number"
+		and note == math.floor(note)
+		and note >= 1
+		and note <= #HarvestSave.NOTES
+end
+
+-- The board's list with this pin added last, the player's own older pin dropped, at most NOTE_KEEP. A copy.
+function HarvestSave.pinNote(list: { Note }, userId: number, note: number): { Note }
+	local out: { Note } = {}
+	for _, row in list do
+		if row.userId ~= userId then
+			table.insert(out, { userId = row.userId, note = row.note })
+		end
+	end
+	table.insert(out, { userId = userId, note = note })
+	while #out > HarvestSave.NOTE_KEEP do
+		table.remove(out, 1)
+	end
+	return out
 end
 
 function HarvestSave.catchPumpkins(rarity: string): number

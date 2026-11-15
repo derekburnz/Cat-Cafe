@@ -75,9 +75,9 @@ DragonKeep.SETS_FULL = {
 	flame = "+200% money",
 	claw = "+25% bowl luck, then 2x luck on every bowl and crate roll",
 	wing = "+25% tips, and every rich customer tip also gives 50 golden fish",
-	hoard = "Every tip pile drops 10 golden fish",
+	hoard = "Every tip pile drops 3 golden fish",
 	heart = "+200% cat XP, and rare customers come 50% more often",
-	crown = "+300% money and 2x luck on every bowl and crate roll",
+	crown = "+300% money, +25% bowl luck, then 2x luck on every bowl and crate roll",
 } :: { [string]: string }
 DragonKeep.SET_FULL = 5
 
@@ -1096,9 +1096,12 @@ DragonKeep.SET_LEVELS = {
 	flame = { [3] = { money = 0.25 }, [5] = { money = 2.00 } },
 	claw = { [3] = { luck = 0.25 }, [5] = { luck = 0.25, luckMult = 2 } },
 	wing = { [3] = { tips = 0.25 }, [5] = { tips = 0.25, richFish = 50 } },
-	hoard = { [3] = { pileFishEach = 1 }, [5] = { pileFishEach = 10 } },
+	hoard = { [3] = { pileFishEach = 1 }, [5] = { pileFishEach = 3 } }, -- a pile every TipPileSeconds (30 s): about 120 and 360 fish an hour
 	heart = { [3] = { xp = 0.50 }, [5] = { xp = 2.00, rich = 0.50 } },
-	crown = { [3] = { money = 0.50, luck = 0.25 }, [5] = { money = 3.00, luckMult = 2 } },
+	crown = {
+		[3] = { money = 0.50, luck = 0.25 },
+		[5] = { money = 3.00, luck = 0.25, luckMult = 2 },
+	},
 } :: { [string]: { [number]: SetBonus } }
 DragonKeep.LUCK = 0.05 -- Lucky Scale: +5% bowl luck (a Luck source, inside LuckMax)
 DragonKeep.GOLD_LUCK = 0.10 -- Gold Fever: +0.10 gold luck, inside GoldLuckMax with the Index's

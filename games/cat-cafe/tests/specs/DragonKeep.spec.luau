@@ -434,7 +434,7 @@ return function()
 			end
 		)
 
-		it("#4569: the full sets: 2x luck, 50 fish a rich tip, 10 fish a tip pile", function()
+		it("#4569: the full sets: 2x luck, 50 fish a rich tip, 3 fish a tip pile", function()
 			local claw = DragonKeep.effects(
 				withSlots({ "sharpEye", "quickPaws", "steadyClaw", "emberNet", "baitWhisperer" })
 			)
@@ -446,7 +446,7 @@ return function()
 			local hoard = DragonKeep.effects(
 				withSlots({ "shinyPocket", "coinSniffer", "treasureNose", "hoarder", "fishScale" })
 			)
-			expect(DragonKeep.pileFish(hoard, 0.99)).to.equal(10)
+			expect(DragonKeep.pileFish(hoard, 0.99)).to.equal(3)
 			local hoard3 = DragonKeep.effects(withSlots({ "shinyPocket", "hoarder", "fishScale" }))
 			expect(DragonKeep.pileFish(hoard3, 0.99)).to.equal(1)
 			local none = DragonKeep.effects(withSlots({ "coinSniffer" }))

@@ -11,6 +11,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CafeService = require(script.Parent.CafeService)
 local ClockService = require(script.Parent.ClockService)
 local DataService = require(script.Parent.DataService)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local RescueService = require(script.Parent.RescueService)
 local StuckGoal = require(ReplicatedStorage.Shared.StuckGoal)
 local Telemetry = require(script.Parent.Telemetry)
@@ -32,7 +33,7 @@ local function check(player: Player)
 		entry = { waiting = false, shownAt = nil :: number?, followed = false } :: Seen
 		seen[player] = entry
 	end
-	local waiting = StuckGoal.waiting(profile)
+	local waiting = StuckGoal.waiting(profile, LiveFlagService.on(StuckGoal.AFTER_SECOND_FLAG)) -- #4473
 	if entry.waiting and not waiting then
 		CafeService.sync(player) -- the goal card goes back to the rank up
 	end

@@ -375,7 +375,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile), -- #3022
-		stuckGoal = StuckGoal.waiting(profile), -- #2912
+		stuckGoal = StuckGoal.waiting(profile, LiveFlagService.on(StuckGoal.AFTER_SECOND_FLAG)), -- #2912, #4473
 		introSeen = profile.introSeen,
 		introAuto = introAuto, -- #3666
 		introShort = Telemetry.introShort(profile), -- #4001: the short intro test's "short" arm

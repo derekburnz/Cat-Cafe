@@ -350119,15 +350119,15 @@
         "CatCafe_Town_DayCart_Cat_LegF2",
         "CatCafe_Town_DayCart_Cat_Prop"
       ],
-      "triangles": 5960,
+      "triangles": 6008,
       "budget": 7000,
       "size_studs": {
-        "x": 8.41,
+        "x": 8.64,
         "y": 3.6,
         "z": 7.61
       },
       "size_roblox": [
-        8.41,
+        8.64,
         7.61,
         3.6
       ],
@@ -350137,7 +350137,7 @@
         0.0
       ],
       "bounds_max": [
-        4.31,
+        4.54,
         1.78,
         7.61
       ],
@@ -350260,7 +350260,7 @@
       ],
       "studio": "#1577 (day-cart.md section 1): the Corner Shop's stock on a cart in the Town Square, opposite the Golden Fish Market; WorldBuilder places it (suggested spot daycart.SPOT, turned to face the cannon), tags it CornerShop and hangs the shop prompt on the Attachment PromptAnchor (cart front, 3 up). The shop cat's visor rides its Head Model, the lantern Bulb is lit at night. It replaced the Corner Shop stall (#1698).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_DayCart.model.json",
-      "rbx_parts": 439,
+      "rbx_parts": 443,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Town_DayCart.fbx",
         "assets/cat-cafe/exports/CatCafe_Town_DayCart.glb"
@@ -350272,13 +350272,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "5960/7000 tris",
+          "budget": "6008/7000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2937 faces on swatch centers",
+          "uv": "2961 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.11 y=-0.02"
+          "centered": "footprint center x=0.22 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Town_DayCart.png",
@@ -358390,16 +358390,16 @@
         "CatCafe_Camp_Park_MysticPool_Sage_Prop2",
         "CatCafe_Camp_Park_MysticPool_Sage_Staff"
       ],
-      "triangles": 5640,
+      "triangles": 6840,
       "budget": 9000,
       "size_studs": {
         "x": 10.0,
         "y": 8.87,
-        "z": 7.99
+        "z": 11.16
       },
       "size_roblox": [
         10.0,
-        7.99,
+        11.16,
         8.87
       ],
       "bounds_min": [
@@ -358410,7 +358410,7 @@
       "bounds_max": [
         5.0,
         4.67,
-        7.99
+        11.16
       ],
       "pivot": "the base centre on the camp's ground, front -Z, no turn; the Picnic station's spot (Layout.campExtras.park), so Gameplay swaps the asset name when the traits flag goes on",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -358560,7 +358560,7 @@
       },
       "studio": "#3314 (trait-station.md section 1): the Mystic Pool, the Picnic station reworked into the trait station. _Liquid_Glow is Neon and walk-through; Effects/MysticPool recolours it during a roll. Sage Sorrel's hat rides his Head Model and his staff his right arm (LegF2). Attachments: PromptAnchor, BangAnchor, GlowAnchor, PoolDrop (the liquid's surface) and StaffTip (the orb). _Runes_Glow (the stones' star runes) is Neon all day; _Lantern_Bulb (the moon arch's two lanterns) lights at night with the other _Bulb parts. The arch, kerb and stones collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Park_MysticPool.model.json",
-      "rbx_parts": 453,
+      "rbx_parts": 553,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Park_MysticPool.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Park_MysticPool.glb"
@@ -358572,10 +358572,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5640/9000 tris",
+          "budget": "6840/9000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "3120 faces on swatch centers",
+          "uv": "3720 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.24"

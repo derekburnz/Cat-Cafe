@@ -1342,6 +1342,11 @@ export type TelemetryState = {
 	-- first catch or has logged any first_hour step (ProfileSchema), so nothing is counted twice
 	cleanStep: number?,
 	playtimeStep: number?,
+	-- #4504: the furthest step logged of onboarding_v8 (Onboarding.CLEAN_STEPS), 0 before any and the count once out
+	-- of it; cleanStep above keeps v7's numbers, written as v7's count by this code so a server still on v7 logs no v7
+	-- step for a player this code has seen. Optional with a default, so no save version: a server without it drops it,
+	-- and the save then comes back out of v8 once it is past its first catch (ProfileSchema)
+	cleanV8Step: number?,
 	-- #3666 (shared/IntroSplit): the intro test's group, "intro_on" or "intro_off"; nil for a save never in the test.
 	-- An optional field inside telemetry, so it needs no save version (a server without it drops it: the save then
 	-- reads as never in the test)

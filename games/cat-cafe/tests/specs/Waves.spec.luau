@@ -50,6 +50,16 @@ return function()
 		return false
 	end
 
+	local vectorsOf: { [string]: { Vector3 } } = {}
+
+	-- #4070 shared `total` runs out over however many areas there are; #4184 also gives an area of more than 100
+	-- points fewer runs in step (a run costs about its points), since the Castle's 192 points ran the state out of
+	-- memory at a full share. Never under 10 runs.
+	local function runsFor(total: number, areaId: string): number
+		local points = #Layout.areas[areaId].spawnPoints
+		return math.max(10, (total // #Catalog.areas) * 100 // math.max(100, points))
+	end
+
 	-- One wave of `rarities` over `areaId` with the points in `held` taken. Each stray that finds no point is
 	-- returned in `waiting` with the free points it could have used by the zone rule, which should be none.
 	local function wave(
@@ -60,6 +70,16 @@ return function()
 	): ({ Placed }, { number })
 		local spec = Layout.areas[areaId]
 		local zones = zonesOf(areaId)
+		-- #4184: each point's Vector3 is made once an area, not once a stray; ten areas of up to 192 points ran the
+		-- test state out of memory otherwise
+		local vectors = vectorsOf[areaId]
+		if vectors == nil then
+			vectors = {}
+			for i, p in spec.spawnPoints do
+				vectors[i] = Vector3.new(p.x, p.y, p.z)
+			end
+			vectorsOf[areaId] = vectors
+		end
 		local occupied = table.clone(held)
 		local order = table.clone(rarities)
 		table.sort(order, function(a, b)
@@ -75,13 +95,11 @@ return function()
 			local pool = Catching.spawnPool(slots, rarity :: any)
 			local points: { Vector3 } = {}
 			for _, index in pool do
-				local p = spec.spawnPoints[index]
-				table.insert(points, Vector3.new(p.x, p.y, p.z))
+				table.insert(points, vectors[index])
 			end
 			local taken: { Vector3 } = {}
 			for index in occupied do
-				local p = spec.spawnPoints[index]
-				table.insert(taken, Vector3.new(p.x, p.y, p.z))
+				table.insert(taken, vectors[index])
 			end
 			local pick = Catching.spreadPick(points, taken, rng:NextNumber())
 			if pick ~= nil then
@@ -154,8 +172,9 @@ return function()
 		function()
 			local rng = Random.new(2810)
 			for _, area in Catalog.areas do
-				-- #2651: 110 a area over seven areas, about the 800 waves of five at 160, so the batch's memory holds
-				for run = 1, 110 do
+				-- #2651: 110 a area over seven areas, about the 800 waves of five at 160, so the batch's memory holds;
+				-- #4070: the same 770 shared out over however many areas there are, since nine at 110 ran out of it
+				for run = 1, runsFor(770, area.id) do
 					local rarities = rollWave(area, rng, run % 2 == 0)
 					local uniform = run % 2 == 0
 					local placed, waiting = wave(area.id, rarities, {}, rng)
@@ -228,7 +247,8 @@ return function()
 			local waited = 0
 			for _, area in Catalog.areas do
 				local count = #Layout.areas[area.id].spawnPoints
-				for run = 1, 85 do -- #2651: about the 600 runs of five areas at 120, over seven
+				-- #2651: about the 600 runs of five areas at 120, over seven (#4070: shared out over every area)
+				for run = 1, runsFor(595, area.id) do
 					local held: { [number]: boolean } = {}
 					-- from a few held points up to all but one
 					local share = rng:NextNumber()

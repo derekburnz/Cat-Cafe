@@ -47,6 +47,7 @@ local IntroSplit = require(ReplicatedStorage.Shared.IntroSplit)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
+local LoadingTest = require(ReplicatedStorage.Shared.LoadingTest)
 local MemoryWatch = require(ReplicatedStorage.Shared.MemoryWatch)
 local Net = require(script.Parent.Net)
 local NetPing = require(ReplicatedStorage.Shared.NetPing)
@@ -62,6 +63,7 @@ local RarityFunnel = require(ReplicatedStorage.Shared.RarityFunnel)
 local ReturnGoals = require(ReplicatedStorage.Shared.ReturnGoals)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SessionFeedback = require(ReplicatedStorage.Shared.SessionFeedback)
+local StarterSuggest = require(ReplicatedStorage.Shared.StarterSuggest)
 local StationOpens = require(ReplicatedStorage.Shared.StationOpens)
 local StepGaps = require(ReplicatedStorage.Shared.StepGaps)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
@@ -77,6 +79,11 @@ export type TransactionType = "Gameplay" | "Onboarding" | "Shop" | "TimedReward"
 -- once shipped; the launch-phase events (codes, Daily Treat, requests) come with their features.
 export type CustomEvent =
 	"rank_up"
+	-- #4314 (shared/LoadingTest): a loading screen test save reached a playtime_v1 step up to played_5m, value the
+	-- step's number; fields: arm ("on"/"off"), the step's name, device
+	| "ab_loading"
+	-- #4314: the seconds the loading screen was up for a test save (0 "off" or never shown); fields: arm, device
+	| "ab_loading_seen"
 	| "session_end"
 	-- #2996 (retention-ideas.md 5e): an upgrade level bought, value the seconds since the previous buy this session
 	-- (else since the join); fields: "1", "2", "3", "4" or "5+" (the account's nth buy), the upgrade id, the new level
@@ -128,6 +135,7 @@ export type CustomEvent =
 	| "rescue_refill" -- #3049: a starter trap refilled for a first-timer; fields: area, players waiting
 	| "bait_rolled"
 	| "bait_resolved"
+	| "auto_bowl" -- #4266: the Auto Bowl pass tamed or refilled a bowl ("claim" or "refill", the bowl)
 	| "gold_found"
 	| "rainbow_found" -- F99 (rainbow-coat.md section 5): rarity, net, bait or rescue, first of the cat yes or no
 	| "rally_step" -- F101 (rescue-rally.md section 5): value the players in the server; the step (25, 50, 100), lap, paid
@@ -157,6 +165,9 @@ export type CustomEvent =
 	-- screen had drifted), "no_home" or "no_body" (the night's refusal is not counted)
 	| "drop_refused"
 	| "left_after_shove"
+	-- #4359: a Reset my save went through, value the cats owned before it; the device and the tier before it. Growth
+	-- drops these players from the new-player funnels, D1 and D7 and the loading screen A/B
+	| "save_reset"
 	| "left_after_restart_warning" -- #2720: value the seconds since the last restart warning; warnings seen, its seconds left
 	| "slots_full"
 	| "role_favorite"
@@ -168,6 +179,11 @@ export type CustomEvent =
 	| "spin"
 	| "crate_opened"
 	| "mystery_buy" -- #2565: value fish before; item, week slot, tier
+	| "fishstore_buy" -- #4055: value fish before; FishStore key, tier
+	| "ticket_buy" -- #4061: value tickets before; prize id, tier
+	| "dragon_give" -- #4062: value cats moved in; Warmth, stage after
+	| "dragon_stage" -- #4062: value the stage reached; tier
+	| "dragon_card" -- #4062: value the stage; card id, "stage" or "rekindle"
 	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id (#4049: then the kind)
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
@@ -225,7 +241,9 @@ export type CustomEvent =
 	-- known); the gap, the bucket (under_15s, 15_60s, 60_120s, over_120s, earlier_visit or no_start)
 	| "step_gap"
 	-- #3530: beside quit_state, value the session's seconds; kinds of cat ("0" to "5"), coins as a share of Tier 2's
-	-- cost (under_25, 25_50, 50_75, 75_plus), ready or not_ready (Tier 2's needs met: rank_up_ready_quit)
+	-- cost (under_25, 25_50, 50_75, 75_plus), ready or not_ready (Tier 2's needs met: rank_up_ready_quit). #4189: past
+	-- Tier 1, the kinds short of the next tier (0, 1-2, 3-5, 6+), the coin share of its cost, and "t<next>_<need>",
+	-- the first need missing (kinds, rarity, coins) or ready
 	| "quit_have"
 	-- #3098 (shared/FirstFive, below Tier 2): a step became possible, value the account's seconds of play; the step
 	-- (table_afford, bowl_afford, second_stray_up), kind (coins or stray), device
@@ -402,6 +420,12 @@ export type CustomEvent =
 	-- #4176: a pass or product bought, value 1; its sku, where its prompt started (StoreFunnel.BUY_SOURCES, "store"
 	-- when no tag came within StoreFunnel.BUY_SOURCE_SECONDS) and the device
 	| "purchase_source"
+	-- #4174: the Starter Bundle's slide-in card, value 1; shown, closed, ignored, buy or hidden (each once a session),
+	-- the device and tier
+	| "starter_suggest"
+	-- #4307: the join to the first ProfileSync on the client, once a session below Tier 2; the device, the Roblox load
+	-- and "<UI build>/<save wait>" (FirstFive.bootBucket each)
+	| "client_boot"
 	-- #2486 (live-events.md section 7): a player in a running Cafe Event (joined during it, or in the server as it
 	-- started), value 1; the event id, the Experience Event id the join came through ("" for none), the join source
 	| "event_join"
@@ -413,6 +437,9 @@ export type CustomEvent =
 	-- #2486: a Cafe Event's reward paid for a secure (or to everyone at an early end); the event id, and "first" for
 	-- the account's first event reward (the badge's), else "again"
 	| "event_reward"
+	-- #4195: an Admin Wheel spin, value 1; the prize id (AdminWheel.PRIZES), the player's tier and the event id.
+	-- Never for a test event
+	| "admin_wheel"
 	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
 	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
 	-- report is "none". #2791: the server logs each gift ladder step as it pays, value the account's minutes played; the
@@ -467,6 +494,7 @@ local REPORTS = {
 	"index_hint_tap", -- #1919: the goal card's hint opened the Index, a Catalog area id or "none"
 	"store_guard_blocked", -- #1936: a purchase prompt the guard refused, "<source>:<reason>"
 	"buy_source", -- #4176: a purchase prompt about to open, "<source>:<pass or product id>" (StoreFunnel.BUY_SOURCES)
+	"starter_suggest", -- #4174: the Starter Bundle card's shown or how it ended (StarterSuggest.OUTCOMES)
 	"playtime_gift", -- #1947: a gift card's button, "<like|fav>:<like|favourite|close>"
 	"client_error", -- #2681: the client logged its first error line this session (value true)
 	"feedback_outcome", -- #2694: how a slide-in faces ask ended, "<answered|closed|ignored>:<early|late>"
@@ -481,7 +509,10 @@ local REPORTS = {
 	"health_fps", -- #3098: the client's frames a second (0 to FirstFive.FPS_MAX), once a session (health_check)
 	"mem_total", -- #3743: the client's total memory at a mark (MemoryWatch.encode), once a mark a session
 	"mem_tag", -- #3743: the memory under one group at a mark (MemoryWatch.encode), once a mark and group a session
+	"boot_ui", -- #4307: seconds from the client's first script line to its UI built (0 to FirstFive.BOOT_MAX)
+	"boot_sync", -- #4307: seconds from the client's first script line to its first ProfileSync (client_boot)
 	"intro_shot", -- #3098 P1b: an intro shot started, 1 to FirstFive.INTRO_SHOTS (quit_scene; the first logs first_scene)
+	LoadingTest.SEEN_REPORT, -- #4314: the whole seconds the loading screen was up (0 to LoadingTest.SEEN_MAX), once
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -558,6 +589,7 @@ local FIELD_KEYS = {
 type Session = {
 	accounted: number, -- lifetimeCoins already logged, as tips or as a Source of its own
 	joinedAt: number,
+	joinedClock: number, -- #4307: os.clock() at the join, for client_boot's fractions of a second
 	lastUpgradeAt: number?, -- #2996: os.time() of this session's last upgrade buy
 	caughtAtJoin: number,
 	device: string?, -- from the client's one device report
@@ -596,6 +628,9 @@ type Session = {
 	guardBlocks: number, -- #1936: store_guard_blocked events logged this session (StoreFunnel.GUARD_BLOCKS_MAX)
 	buySources: { [string]: { source: string, at: number } }, -- #4176: the last tagged source by sku (os.clock)
 	buySourceTags: number, -- #4176: buy_source tags taken this session (StoreFunnel.BUY_SOURCES_MAX)
+	starterSuggest: { [string]: boolean }, -- #4174: starter_suggest outcomes logged this session
+	bootUi: number?, -- #4307: the client's boot_ui seconds, kept for client_boot
+	bootLogged: boolean, -- #4307: client_boot logged this session
 	giftButtons: { [string]: boolean }, -- #1947: playtime_gift logged this session, by gift kind
 	clientError: boolean, -- #2681: the client reported an error line this session (client_error)
 	feedbackRun: string?, -- #2681: the feedback_v1 run of a slide-in ask shown and not answered yet
@@ -620,6 +655,8 @@ type Session = {
 	stepClock: { [string]: number }, -- #3530: os.clock() when a step_gap step was reached this session
 	areasCaught: { [string]: boolean }?, -- #3695: the areas with a catch, for the clean funnel (nil until joined is logged)
 	rarityStep: number?, -- #3876: rarity_v1 steps logged this session (nil until joined is logged)
+	loadingArm: string?, -- #4314: this new save's loading screen test arm (shared/LoadingTest), nil outside it
+	loadingSeen: boolean, -- #4314: ab_loading_seen logged this session
 }
 
 -- #2916: one next goal shown: where ("recap" or "join") and os.time() it was shown
@@ -867,14 +904,12 @@ function Telemetry.introJoin(player: Player, profile: Profile)
 	end
 	local on = LiveFlagService.on(IntroSplit.FLAG)
 	local state = profile.telemetry
-	-- #4001: a new save takes its arm from a Creator Hub Experiment's introMode when there is one (a short wait for
-	-- the config read, new saves only), else the older split by account number
+	-- #4252, #4001 ended (Derek 2026-11-14 18:07 UTC: "switch the entire game to be the short intro so no more of the full
+	-- intro or no intro"): every new save takes the short arm, so the short intro plays itself on its first join. The
+	-- Creator Hub Experiment's introMode is no longer read here; the group is still saved and logged as before.
 	local mode: string? = nil
 	if IntroSplit.joins(true, profile.stats.sessions, profile.introSeen, state.introGroup) then
-		mode = IntroSplit.fromMode(IntroModeService.get(player))
-		if introChecked[player] ~= nil then
-			return -- another caller decided while this one waited
-		end
+		mode = IntroSplit.SHORT
 	end
 	local test = IntroSplit.fromMode(IntroModeService.studioMode()) -- Studio only (IntroModeService.studioMode)
 	if test ~= nil then
@@ -901,11 +936,10 @@ function Telemetry.introPlays(player: Player, profile: Profile): boolean
 	return introChecked[player] == true
 end
 
--- #4001: whether this save's intro is the short one (its group is the Experiment's "short" arm).
-function Telemetry.introShort(profile: Profile): boolean
-	-- compared here, not through an IntroSplit helper: one more function there trips the test VM fault in
-	-- IndexRewardsShared.spec (tools/cloudcheck/README.md)
-	return profile.telemetry.introGroup == IntroSplit.SHORT
+-- #4001: whether this save's intro is the short one. Since the test ended (Derek 2026-11-14) it is for every save,
+-- whatever group the test put it in, so nobody plays the full intro again.
+function Telemetry.introShort(_profile: Profile): boolean
+	return true
 end
 
 -- #3695: the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS), one run per player with the user id as its
@@ -1307,6 +1341,7 @@ end
 -- #3695: the playtime_v1 funnel (Onboarding.PLAYTIME_STEPS), one run per player with the user id as its session:
 -- joined, moved (the ledger's first_move), then every mark the account's play time has reached since the last one
 -- logged. It replaces first_hour_v3 (#2391, #3308), which is no longer sent.
+local LOADING_LAST = table.find(Onboarding.PLAYTIME_STEPS, LoadingTest.LAST_STEP) or 0 -- #4314
 local function logFirstHour(player: Player, profile: Profile)
 	local state = profile.telemetry
 	local logged = state.playtimeStep or 0
@@ -1329,6 +1364,17 @@ local function logFirstHour(player: Player, profile: Profile)
 				customFields(fields)
 			)
 		end)
+		-- #4314: the loading screen test's own copy of the steps up to played_5m, by arm and device
+		local session = sessions[player]
+		local arm = if session ~= nil then session.loadingArm else nil
+		if arm ~= nil and step <= LOADING_LAST then
+			Telemetry.custom(
+				player,
+				LoadingTest.EVENT :: any,
+				step,
+				{ arm, name, session.device or "unknown" }
+			)
+		end
 	end
 end
 
@@ -1489,6 +1535,20 @@ function Telemetry.catWorking(player: Player, uid: string)
 	end
 	session.waitingForRole[uid] = nil
 	funnelStep(player, "catch_attempt", funnel.id, 5, "working", funnel.values)
+end
+
+-- #4359: this player's save is about to be reset (ResetSaveService), logged before the kick
+function Telemetry.saveReset(player: Player, profile: Profile)
+	local cats = 0
+	for _ in profile.cats do
+		cats += 1
+	end
+	Telemetry.custom(
+		player,
+		"save_reset",
+		cats,
+		{ Telemetry.device(player) or "unknown", tierText(profile) }
+	)
 end
 
 -- A shove knocked this player's cat loose: if they leave within LEFT_AFTER_SHOVE_SECONDS, left_after_shove fires.
@@ -2115,6 +2175,28 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.nudges["rsvp:" .. kind] = true -- the stuck nudges' once-a-session set, keyed apart
 			Telemetry.custom(player, "event_rsvp", 1, { kind })
 		end
+	elseif name == "boot_ui" or name == "boot_sync" then
+		-- #4307: where the wait before the intro goes (FirstFive.bootBucket)
+		if
+			type(rawValue) == "number"
+			and rawValue == rawValue
+			and rawValue >= 0
+			and rawValue <= FirstFive.BOOT_MAX
+		then
+			local seconds = rawValue :: number
+			if name == "boot_ui" then
+				session.bootUi = session.bootUi or seconds
+			elseif not session.bootLogged and Economy.tier(profile) < 2 then
+				session.bootLogged = true
+				local total = math.max(0, os.clock() - session.joinedClock)
+				local ui = math.min(session.bootUi or 0, seconds)
+				Telemetry.custom(player, "client_boot", math.floor(total), {
+					session.device or "unknown",
+					FirstFive.bootBucket(total - seconds),
+					FirstFive.bootBucket(ui) .. "/" .. FirstFive.bootBucket(seconds - ui),
+				})
+			end
+		end
 	elseif name == "intro_shot" then
 		-- #3098 P1b: kept for quit_scene; the session's first shot 1 logs first_scene (join to the cutscene)
 		if
@@ -2189,6 +2271,19 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			and rawValue <= FirstFive.MEMORY_MAX
 		then
 			session.healthMem = FirstFive.memoryBucket(rawValue :: number)
+		end
+	elseif name == LoadingTest.SEEN_REPORT then
+		-- #4314: once a session, and only for a save in the loading screen test
+		local seconds = Guard.int(rawValue, 0, LoadingTest.SEEN_MAX)
+		local arm = session.loadingArm
+		if seconds ~= nil and arm ~= nil and not session.loadingSeen then
+			session.loadingSeen = true
+			Telemetry.custom(
+				player,
+				LoadingTest.SEEN_EVENT :: any,
+				seconds,
+				{ arm, session.device or "unknown" }
+			)
 		end
 	elseif name == "health_fps" then
 		if
@@ -2328,6 +2423,17 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if source ~= nil and sku ~= nil then
 			Telemetry.buySource(player, sku :: string, source :: string)
 		end
+	elseif name == "starter_suggest" then
+		local outcome = Guard.oneOf(rawValue, StarterSuggest.OUTCOMES)
+		if outcome ~= nil and not session.starterSuggest[outcome] then
+			session.starterSuggest[outcome] = true
+			Telemetry.custom(
+				player,
+				"starter_suggest",
+				1,
+				{ outcome, session.device or "unknown", tierText(profile) }
+			)
+		end
 	elseif name == "store_buy" then
 		local passSku = StoreFunnel.passSku(rawValue)
 		local sku = passSku or StoreFunnel.productSku(rawValue)
@@ -2447,6 +2553,7 @@ local function onLoaded(player: Player, profile: Profile)
 	local session: Session = {
 		accounted = profile.lifetimeCoins,
 		joinedAt = now,
+		joinedClock = os.clock(),
 		caughtAtJoin = profile.stats.catsCaught,
 		device = nil,
 		joinLogged = false,
@@ -2486,6 +2593,9 @@ local function onLoaded(player: Player, profile: Profile)
 		guardBlocks = 0,
 		buySources = {},
 		buySourceTags = 0,
+		starterSuggest = {},
+		bootUi = nil,
+		bootLogged = false,
 		giftButtons = {},
 		clientError = false,
 		feedbackRun = nil,
@@ -2505,6 +2615,7 @@ local function onLoaded(player: Player, profile: Profile)
 		memLogged = {},
 		memFirst = nil,
 		introShot = 0,
+		loadingSeen = false,
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
 	local ok, joinData = pcall(function(): any
@@ -2524,6 +2635,28 @@ local function onLoaded(player: Player, profile: Profile)
 		end
 	end
 	sessions[player] = session
+	-- #4314: a new save joins the loading screen test when the Experiment gives it an arm; the client reads the
+	-- attribute (UI.intro.waiting). The read can wait up to IntroModeService.WAIT_SECONDS, so it runs apart.
+	if LoadingTest.joins(profile.stats.sessions, profile.introSeen) then
+		task.spawn(function()
+			local arm = LoadingTest.arm(IntroModeService.loadingArm(player))
+			if arm == nil or sessions[player] ~= session or player.Parent == nil then
+				return
+			end
+			session.loadingArm = arm
+			player:SetAttribute(LoadingTest.ATTRIBUTE, arm)
+			-- the steps logged while the read waited (joined at least) get their copy now
+			local logged = math.min(profile.telemetry.playtimeStep or 0, LOADING_LAST)
+			for step = 1, logged do
+				Telemetry.custom(
+					player,
+					LoadingTest.EVENT :: any,
+					step,
+					{ arm, Onboarding.PLAYTIME_STEPS[step], session.device or "unknown" }
+				)
+			end
+		end)
+	end
 	-- #3661: this session's ping, once, after the join has settled
 	task.delay(NetPing.SAMPLE_SECONDS, function()
 		if sessions[player] ~= session or player.Parent == nil then
@@ -2744,6 +2877,32 @@ local function onRelease(player: Player, profile: Profile)
 				profile,
 				session,
 				bucket(played, { 60, 180, 600 }, { "0-60s", "61-180s", "3-10m", "10m+" })
+			)
+		)
+	end
+	-- #4189: past Tier 1, what a leaver still lacked for the next tier: kinds short, coins, the first need missing
+	local nextDef = Catalog.getTier(Economy.tier(profile) + 1)
+	if Economy.tier(profile) >= 2 and nextDef ~= nil then
+		local kinds = Economy.rankUpCatCount(profile.collection)
+		local blocker = Economy.rankUpBlocker(profile)
+		local need = if blocker == nil
+			then "ready"
+			elseif kinds < nextDef.distinctCats then "kinds"
+			elseif
+				not Economy.canAfford(profile, nextDef.cost) and blocker == "Not enough coins"
+			then "coins"
+			elseif string.sub(blocker, 1, 6) == "Needs " then "rarity"
+			else "closed" -- review: a tier held back by its switch, not by the player
+		Telemetry.custom(
+			player,
+			"quit_have",
+			played,
+			StepGaps.quitNeedFields(
+				nextDef.distinctCats - kinds,
+				profile.coins,
+				nextDef.cost,
+				need,
+				nextDef.tier
 			)
 		)
 	end

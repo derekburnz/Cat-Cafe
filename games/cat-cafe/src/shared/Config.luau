@@ -66,6 +66,7 @@ local Config = {
 	-- into cafeMultiplier like tables and decor; Cat Accessories and Uniform Styles each multiply every working cat's
 	-- rate; Cafe Style and Grand Cafe add to how often rich visitors come (x(1 + 0.25 + 1.0) with both).
 	VipCafeBonus = 0.10,
+	VipBoostCafeBonus = 0.50, -- #4235 (Derek 2026-11-14): VIP's bonus while the vipBoost switch is on (Economy.vipBoost)
 	CafeStyleCafeBonus = 0.50,
 	GrandCafeBonus = 1.50,
 	AccessoriesStaffMultiplier = 1.15,
@@ -121,7 +122,7 @@ local Config = {
 		helpingPaw = 905647581887639,
 		firstTrade = 428728625137987,
 		purrfectStreak = 4111238237174459,
-		partyGuest = 4328065554528969, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e); made 2026-11-11 (#1957)
+		-- #4282: partyGuest (4328065554528969, "Cafe Party Guest") removed by Derek 2026-11-14; disabled on Roblox
 		metOwner = 1802984077324671, -- #3324: "Met the Owner", for being in a server with the owner; made 2026-11-11 (badges.yml)
 		-- #3618 (badges-order.md): the six new badges, 0 until badges.yml makes them (5 a day, free only)
 		firstHome = 3818992250915779, -- Home Sweet Home (made 2026-11-13)
@@ -292,6 +293,11 @@ local Config = {
 	-- never trusts; the widest band stays under CircleGapMin (Config.spec S24).
 	EarlyCatchCount = 5,
 	EarlyCatchWindowScale = 1.3,
+	-- #4299 (Nov 13 read: a cat bolts on 19% of phone and tablet catches, 13% with a mouse or controller): a player whose
+	-- client reports a phone or tablet is judged with bands TouchCatchWindowScale times as wide, behind the live switch
+	-- touchCatchReach. Not multiplied with EarlyCatchWindowScale: the wider of the two wins, so S24 still holds. A
+	-- spoofed "phone" only gets these touch bands, the same as any real phone player.
+	TouchCatchWindowScale = 1.3,
 	-- The net swing (F93, catch-rework.md section 1): one SwingNet per NetSwingCooldown. NetSmackDelay after it
 	-- arrives, when the net lands, the server looks for the nearest free stray within NetReachStuds plus
 	-- NetSlackStuds of the root and within NetArcDegrees either side of its facing. A swing that hits nothing makes
@@ -423,10 +429,9 @@ local Config = {
 		extraSlot = { was = 149, now = 75 },
 		uniforms = { was = 149, now = 75 },
 		cafeStyle = { was = 249, now = 125 },
-		royalCat = { was = 599, now = 299 },
-		kingCat = { was = 799, now = 399 },
+		royalCat = { was = 599, now = 199 }, -- #4261: the Royal Cat Pack at R$199 (Derek 2026-11-14)
 		grandTheme = { was = 799, now = 399 },
-		kingPack = { was = 999, now = 499 },
+		kingPack = { was = 999, now = 299 }, -- #4261: the Cat King Pack at R$299; the King Cat is no longer sold alone
 		thankYou = { was = 25, now = 13 },
 		cafePass = { was = 299, now = 149 },
 	} :: { [string]: { was: number, now: number } },
@@ -473,6 +478,9 @@ local Config = {
 		sewer = 20,
 		desert = 20, -- #2651 (tier6-7-areas.md section 7): the same as every area
 		ruins = 20,
+		snowy = 20, -- #3997
+		waterpark = 20, -- #4070
+		castle = 20, -- #4184
 	} :: { [string]: number },
 	EventCountdownSeconds = 10800,
 	EventRepeatGiftIncomeMinutes = 10,
@@ -497,6 +505,9 @@ local Config = {
 		sewer = 30,
 		desert = 35, -- #2651 (tier6-7-areas.md section 7)
 		ruins = 40,
+		snowy = 45, -- #3997 (tier8-snowy-mountain.md section 7)
+		waterpark = 50, -- #4070: five more, as each area before it
+		castle = 55, -- #4184
 	} :: { [string]: number },
 	PityClaimRetries = 3,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
@@ -753,7 +764,50 @@ local Config = {
 			startsAt = 1794693600,
 			title = "🔔 Next update Saturday: Cat Outfit Packs! Want a reminder when it lands?",
 		},
-	} :: { { id: string, startsAt: number, title: string? } },
+		-- Derek 2026-11-14 16:23 UTC: each update prompts for the next one from 10 minutes after the last
+		-- (EventRsvp.QUIET_AFTER_SECONDS) until it starts. Growth-Agent's update run sheet.
+		{
+			id = "8139939288161845916",
+			startsAt = 1794772800, -- "3 New Worlds", Sunday 2026-11-15 20:00 UTC
+			title = "🔔 Next update Sunday: 3 NEW WORLDS! Want a reminder when it lands?",
+			-- #4362: the Town Square update poster's name and picture (UI/Screens/UpdatePoster); an entry with
+			-- neither reads "NEW UPDATE" on a plain face
+			name = "3 NEW WORLDS",
+		},
+		-- Derek 2026-11-14 17:59 UTC: Rift Run moves to tonight, Sunday 2026-11-15 01:00 UTC (Saturday 8 PM ET, the busier
+		-- hour), and the Golden Fish Store to Sunday 2026-11-15 22:00 UTC (5 PM ET), each with its own ask
+		{
+			id = "3176510604057903700",
+			startsAt = 1794704400, -- "Rift Run", Sunday 2026-11-15 01:00 UTC
+			title = "🔔 Next update tonight: RIFT RUN! Want a reminder when it lands?",
+		},
+		{
+			id = "8042541751075996433",
+			startsAt = 1794780000, -- "Golden Fish Store", Sunday 2026-11-15 22:00 UTC
+			title = "🔔 Next update Sunday: the GOLDEN FISH STORE! Want a reminder when it lands?",
+			name = "GOLDEN FISH STORE",
+		},
+		{
+			id = "6810389993696133776",
+			startsAt = 1795032000, -- "Better on Every Device", Wednesday 2026-11-18 20:00 UTC
+			title = "🔔 Next update Wednesday: better controls on every device! Want a reminder?",
+			name = "BETTER ON EVERY DEVICE",
+		},
+		{
+			id = "8700676156604678758",
+			startsAt = 1794799800, -- "10 Secret Cats", Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, Derek 17:40 UTC)
+			title = "🔔 Next update: 10 SECRET CATS! Want a reminder when it lands?",
+			name = "10 SECRET CATS",
+		},
+	} :: {
+		{
+			id: string,
+			startsAt: number,
+			title: string?,
+			name: string?,
+			poster: string?,
+		}
+	},
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,
@@ -951,7 +1005,10 @@ local Config = {
 	-- a cat already in the Index, by net or rescue (never bait, so food bought with coins never turns into fish)
 	FishRepeatCatch = { Epic = 1, Legendary = 2, Mythical = 5, Secret = 20 } :: { [string]: number }, -- #2237: was 1/3/8
 	-- reaching Tier 2 to 7 (#2237: was 10/25/50/100); #2651: Tier 6 and 7 carry the climb on, 100 and 150
-	FishRankUp = { 5, 15, 30, 60, 100, 150 } :: { number },
+	-- #4061: the Ticket Booth opens with the Water Park (Snowy is Tier 8; the Water Park is taken as Tier 9)
+	TicketBoothTier = 9,
+	-- #4055 (Derek 2026-11-13 23:53 UTC): Tiers 8 to 10 pay 300 each, so the fish Store can be reached by playing
+	FishRankUp = { 5, 15, 30, 60, 100, 150, 300, 300, 300 } :: { number },
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds
 
 	-- Cafe Crates and the Golden Fish Market (F53, golden-fish.md sections 3 and 4). Pure rules in Crates.
@@ -1133,8 +1190,10 @@ local Config = {
 	-- first BinFirstUses rummages keep BinFirstEase's wider zone (0.35) and need the 5 hits too. Their marker runs
 	-- at the full BinBarSpeed since 2026-11-12 (Derek on the live game: "the moving marker is too slow not the same
 	-- speed as the studio version"): a new account saw 0.48 where his practised Studio save saw 0.80.
+	-- #4284 (Derek 2026-11-14: "make the rummage bin minigame slightly harder (make area to hit smaller)"): the zone
+	-- 0.22 to 0.18 (the first rummages' eased zone 0.35 to 0.29, by BinFirstEase); hits and marker speed unchanged
 	BinHits = 5,
-	BinZoneWidth = 0.22,
+	BinZoneWidth = 0.18,
 	BinBarSpeed = 0.80,
 	BinFirstEase = { zone = 1.6, speed = 1 },
 	-- #3460 (Derek 2026-11-12: "make the rummage bin rewards a bit better so people get a good starting boost
@@ -1595,6 +1654,22 @@ local Config = {
 		SnowyCenterZ = 1400,
 		SnowyWidth = 150,
 		SnowyDepth = 560,
+		-- The Water Park (Tier 9, the next-areas plan section 0; #4070): no diagonal round the town is free, so it lies
+		-- further out past the Desert on the same south east line and is reached from the Desert's camp cannon
+		-- (Layout.waterpark.launchFrom). Long along world Z with its camp on the north end like the Desert.
+		-- Model-Agent's CatCafe_WaterPark_Set has its walls at x +-75.6 and z +-280.
+		WaterParkCenterX = 2400,
+		WaterParkCenterZ = -2400,
+		WaterParkWidth = 150,
+		WaterParkDepth = 560,
+		-- The Medieval Castle (Tier 10, the next-areas plan section 0; #4184): the Water Park's mirror on the north east
+		-- line, further out past the Ruins and reached from the Ruins' camp cannon (Layout.castle.launchFrom). Long
+		-- along world Z with its camp on the south end like the Ruins. Model-Agent's CatCafe_Castle_Set has its walls
+		-- at x +-76.1 and z +-280.
+		CastleCenterX = 2400,
+		CastleCenterZ = 2400,
+		CastleWidth = 150,
+		CastleDepth = 560,
 		-- Camps (section 4): CampDepth deep across the area's whole width; the landing pad in its middle with
 		-- seventeen spots inside LandingPadRadius, a spot free with no character within LandingClearStuds; the cannon
 		-- prompt's reach. A dropped cat within CampDropMarginStuds of a camp moves out to CampDropOutStuds past its

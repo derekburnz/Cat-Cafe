@@ -173,7 +173,9 @@ return function()
 			expect(items.title_cat_legend).to.equal(true)
 			expect(items.title_devoted).to.equal(nil)
 			expect(ChatTags.choices(false, items)).to.deepEqual({ "tag_maple", "title_cat_legend" })
-			expect(ChatTags.shown(nil, false, { title_gold_rush = true })).to.equal("title_gold_rush")
+			expect(ChatTags.shown(nil, false, { title_gold_rush = true })).to.equal(
+				"title_gold_rush"
+			)
 		end)
 	end)
 end

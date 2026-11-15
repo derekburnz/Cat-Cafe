@@ -52,6 +52,15 @@ local IDS: { [string]: string } = {
 	Crate_Desert_Gold = "rbxassetid://94504392823331",
 	Crate_Ruins = "rbxassetid://118466907555386",
 	Crate_Ruins_Gold = "rbxassetid://131280595657141",
+	-- Tier 8 Snowy Mountain (#3997, Model-Agent's 256 store pictures, group owned)
+	Crate_Snowy = "rbxassetid://111252121844431",
+	Crate_Snowy_Gold = "rbxassetid://77415248022047",
+	-- Tier 9 Water Park (#4070, Model-Agent's 256 store pictures, group owned)
+	Crate_WaterPark = "rbxassetid://131949222748155",
+	Crate_WaterPark_Gold = "rbxassetid://85963054237364",
+	-- Tier 10 Medieval Castle (#4184, Model-Agent's 256 store pictures, group owned)
+	Crate_Castle = "rbxassetid://86599176060723",
+	Crate_Castle_Gold = "rbxassetid://89340633875692",
 	Crate_Classic = "rbxassetid://72888217681662",
 	Crate_Classic_Gold = "rbxassetid://115785859034580",
 	Crate_Rally = "rbxassetid://94810600062208", -- F101 Rally Crate (Model-Agent #766), banked only and no golden twin
@@ -282,6 +291,7 @@ local IDS: { [string]: string } = {
 	Icon_StoreTab_Potions = "rbxassetid://110723659646530",
 	Icon_StoreTab_Codes = "rbxassetid://126780860250721",
 	Icon_StoreTab_Packs = "rbxassetid://125330764207763", -- #4026: the Winter Pack's icon
+	Icon_StoreTab_Deal = "rbxassetid://118492801057625", -- #4259: the Deal tab wears the tag picture (Icon_Hud_Tag, its 🏷️)
 	-- the Store's card pictures, one per pass and product, by ShopIcons.store (#1762: the redrawn set, Tools-Agent 11-06;
 	-- #2578: eight passes redrawn on clear backgrounds, upload run 42665652455, 11-09)
 	-- #4026: the outfit packs' pass icons (512) and their 2:1 store art, cats close up in the pack (Model-Agent, 21:00
@@ -471,7 +481,7 @@ local function cratePool(crateId: string?): (string?, boolean)
 	if area == nil then
 		return nil, false
 	end
-	return pascal(area), golden ~= nil
+	return (Catalog :: any).areaArt(area), golden ~= nil -- #4070: Crate_WaterPark
 end
 
 function ShopIcons.crate(crateId: string?): string?
@@ -498,6 +508,7 @@ local POTION_STAND_INS: { [string]: string } = {
 	big_lucky_potion = "lucky_potion",
 	big_gold_rush_potion = "gold_rush_potion",
 	mega_tip_potion = "big_tip_potion",
+	admin_money_potion = "big_tip_potion", -- #4195: the Admin Wheel's 3x money
 }
 
 function ShopIcons.potionAll(potionId: string?): { string }
@@ -583,6 +594,11 @@ end
 -- #4026: an outfit pack's 2:1 store art (cats close up in the pack), by its Row key ("packWinter")
 function ShopIcons.packArt(key: string): string?
 	return IDS["Icon_Store_" .. key:sub(1, 1):upper() .. key:sub(2) .. "Art"]
+end
+
+-- #4276: an outfit pack's square pass icon, by its Row key ("packWinter"), for the Store rail's Packs tab
+function ShopIcons.packIcon(key: string): string?
+	return IDS["Icon_Store_" .. key:sub(1, 1):upper() .. key:sub(2)]
 end
 
 function ShopIcons.storeTab(id: string): string?

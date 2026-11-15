@@ -21,6 +21,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
@@ -576,6 +577,16 @@ function Popups._open(self: any, card: Frame)
 	self.screenGui.Enabled = true
 	card.Visible = true
 	Tween.popIn(card, 0.8)
+	-- #4224 (console): on a gamepad the card takes the selection on its button (OK, Claim, Nice), and B presses
+	-- that same button, so B never skips a claim
+	local navDone: (() -> ())? = self._navDone
+	if navDone ~= nil then
+		navDone()
+	end
+	self._navDone = GamepadNav.card("popup", card, function(): boolean?
+		Button.press(GamepadNav.first(card))
+		return nil
+	end)
 	return self._token
 end
 
@@ -627,6 +638,11 @@ function Popups.dismiss(self: any)
 	end
 	self._token += 1
 	self._onClaim = nil
+	local navDone: (() -> ())? = self._navDone
+	self._navDone = nil
+	if navDone ~= nil then
+		navDone()
+	end
 	local card: Frame = self._current or self._offlineCard
 	self._current = nil
 	local spin: Tween? = self._raySpin

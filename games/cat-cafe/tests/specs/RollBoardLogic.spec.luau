@@ -67,6 +67,18 @@ return function()
 			end
 		end)
 
+		it(
+			"tells a player on the pad to step back on once its own tries are used (Review-QA 2026-11-14)",
+			function()
+				local view = RollBoardLogic.bin(input({ prize = "golden", stepBack = true }))
+				expect(view.line).to.equal(RollBoardLogic.BIN_STEP_BACK)
+				expect(#view.rows).to.equal(1)
+				expect(RollBoardLogic.bin(input({ prize = "golden", stepBack = false })).line).to.equal(
+					RollBoardLogic.BIN_WAITING
+				)
+			end
+		)
+
 		it("shows the prize kept after a miss ahead of the list, new account or not", function()
 			for _, uses in { 0, Config.BinFirstUses } do
 				local view = RollBoardLogic.bin(input({ uses = uses, prize = "golden" }))
@@ -137,7 +149,8 @@ return function()
 		it("dims the rows and counts down while the next pick waits", function()
 			local view = RollBoardLogic.yard({ rows = rows, nextAt = 100 + 80 * 60, now = 100 })
 			expect(view.dim).to.equal(true)
-			expect(view.line).to.equal("Next pick in 1 h 20 m")
+			expect(view.line).to.equal("New crate in 1 h 20 m")
+			expect(RollBoardLogic.wonLine("Alley Crate")).to.equal("You got Alley Crate!")
 		end)
 
 		it("keeps the rows at full strength while the light rolls, wait or not", function()
@@ -208,6 +221,32 @@ return function()
 				0.5 - RollBoardLogic.LOWER_MOST,
 				0.0001
 			)
+		end)
+	end)
+
+	describe("sideOffset (#4225)", function()
+		it("hangs the board right of the bin, level with it", function()
+			-- 667 x 375 phone, bin at the middle, board 220 x 200, HUD row ends at 50
+			local x, y = RollBoardLogic.sideOffset(333, 190, 220, 200, 667, 375, 50)
+			expect(x).to.be.near((333 + RollBoardLogic.SIDE_GAP + 110 - 333) / 220, 0.0001)
+			expect(y).to.be.near(0, 0.0001)
+		end)
+
+		it("goes left when the right side has no room", function()
+			local x = RollBoardLogic.sideOffset(560, 190, 220, 200, 667, 375, 50)
+			expect(x < 0).to.equal(true)
+			local left = 560 + x * 220 - 110
+			expect(left + 220).to.be.near(560 - RollBoardLogic.SIDE_GAP, 0.0001)
+		end)
+
+		it("keeps its top under the HUD row and its bottom on the screen, the top first", function()
+			local _, high = RollBoardLogic.sideOffset(333, 60, 220, 200, 667, 375, 50)
+			-- top at 50 + edge: its middle 100 + 58 = 158, so the board moves down 98 px of 200
+			expect(high).to.be.near((60 - (50 + RollBoardLogic.SIDE_EDGE + 100)) / 200, 0.0001)
+			local _, low = RollBoardLogic.sideOffset(333, 340, 220, 200, 667, 375, 50)
+			expect(low).to.be.near((340 - (375 - RollBoardLogic.SIDE_EDGE - 100)) / 200, 0.0001)
+			local _, tall = RollBoardLogic.sideOffset(333, 190, 220, 400, 667, 375, 50)
+			expect(tall).to.be.near((190 - (50 + RollBoardLogic.SIDE_EDGE + 200)) / 400, 0.0001)
 		end)
 	end)
 end

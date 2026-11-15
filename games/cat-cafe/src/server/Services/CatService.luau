@@ -6,6 +6,7 @@
 -- chase and odds live here.
 
 local CollectionService = game:GetService("CollectionService")
+local HttpService = game:GetService("HttpService")
 local PathfindingService = game:GetService("PathfindingService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +14,7 @@ local RunService = game:GetService("RunService")
 local StarterPlayer = game:GetService("StarterPlayer")
 local Workspace = game:GetService("Workspace")
 
+local AreaRares = require(ReplicatedStorage.Shared.AreaRares)
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local Badges = require(ReplicatedStorage.Shared.Badges)
 local BagColours = require(ReplicatedStorage.Shared.BagColours)
@@ -31,6 +33,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EventRewardService = require(script.Parent.EventRewardService)
 local EventService = require(script.Parent.EventService)
+local FreeCatch = require(ReplicatedStorage.Shared.FreeCatch)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local HeldCat = require(ReplicatedStorage.Shared.HeldCat)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
@@ -52,12 +55,14 @@ local RareMomentService = require(script.Parent.RareMomentService)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
 local SecretBeacons = require(script.Parent.SecretBeacons)
+local SecretCalm = require(ReplicatedStorage.Shared.SecretCalm)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local SpeedShoes = require(ReplicatedStorage.Shared.SpeedShoes)
 local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StrayTopUp = require(ReplicatedStorage.Shared.StrayTopUp)
 local SwiftPaws = require(ReplicatedStorage.Shared.SwiftPaws)
 local Telemetry = require(script.Parent.Telemetry)
+local TouchReach = require(ReplicatedStorage.Shared.TouchReach)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -119,6 +124,7 @@ type Stray = {
 	mood: Types.CatMood,
 	curiousAt: number?,
 	skittishAt: number?,
+	secretHops: { [number]: number }, -- #4255 follow-up: a Secret's hops away from each player (by UserId), SecretCalm
 	walk: number, -- bumped by every walk that starts, so an older walk stops where it is
 	alive: boolean,
 }
@@ -196,6 +202,16 @@ local function rootPosition(player: Player): Vector3?
 		return root.Position
 	end
 	return nil
+end
+
+-- #4255 follow-up: how fast the player's root moves (zero without a character), for SecretCalm.running
+local function rootVelocity(player: Player): Vector3
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root ~= nil and root:IsA("BasePart") then
+		return root.AssemblyLinearVelocity
+	end
+	return Vector3.zero
 end
 
 local function withinRange(player: Player, position: Vector3, range: number): boolean
@@ -505,6 +521,27 @@ end
 
 -- `catcher` is the player who just caught it, nil when it leaves. A knocked-loose cat logs who ended up with it
 -- (drop_outcome, F16): against the catcher, or its old carrier when nobody caught it.
+-- #4227: the wild Mythicals and Secrets out in each area, in ReplicatedStorage's AreaRares attribute for the Cannon
+-- picker's and the HUD Cannon button's bubbles. Rewritten after each spawn and despawn, only when it changed.
+local areaRaresText = ""
+local function writeAreaRares()
+	local rows: { AreaRares.Row } = {}
+	for _, stray in strays do
+		if stray.alive then
+			table.insert(rows, {
+				area = stray.area,
+				rarity = stray.def.rarity :: string,
+				wild = stray.drop == nil and stray.beginner == nil,
+			})
+		end
+	end
+	local text = HttpService:JSONEncode(AreaRares.count(rows))
+	if text ~= areaRaresText then
+		areaRaresText = text
+		ReplicatedStorage:SetAttribute(AreaRares.ATTRIBUTE, text)
+	end
+end
+
 local function despawn(stray: Stray, catcher: Player?)
 	if not stray.alive then
 		return
@@ -524,6 +561,7 @@ local function despawn(stray: Stray, catcher: Player?)
 		end
 	end
 	strays[stray.id] = nil
+	writeAreaRares()
 	if stray.def.rarity == Catalog.SECRET then
 		SecretBeacons.clear(stray.id)
 		-- #3470: gone with nobody holding it (dusk, or a Dropped one nobody picked up)
@@ -739,10 +777,12 @@ local function spawnStray(
 		recaught = false,
 		beginner = beginner,
 		mood = mood,
+		secretHops = {},
 		walk = 0,
 		alive = true,
 	}
 	strays[id] = stray
+	writeAreaRares()
 	if def.rarity == Catalog.SECRET then
 		-- #3470: its sky beam shows from anywhere (Effects)
 		SecretBeacons.set(id, areaId, position)
@@ -885,7 +925,8 @@ local function spawnAt(
 	areaId: string,
 	pointIndex: number,
 	rarity: Types.Rarity,
-	beginner: number?
+	beginner: number?,
+	owned: { [string]: any }? -- #4188: a beginner's collection, so their tutorial stray is a kind they lack
 ): Stray
 	local area = world.areas[areaId]
 	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the `secretCats` switch is on (never a beginner's
@@ -895,9 +936,20 @@ local function spawnAt(
 	local secret = if beginner == nil
 			and rarity == "Mythical"
 			and LiveFlagService.on(Catching.SECRET_FLAG)
-		then Catching.secret(rarity, rng:NextNumber(), rng:NextNumber(), true)
+		then Catching.secret(
+			rarity,
+			rng:NextNumber(),
+			rng:NextNumber(),
+			true,
+			if LiveFlagService.on(Catching.SECRET_AREAS_FLAG) then { areaId } else nil
+		)
 		else nil
-	local def = secret or Catching.pickCat(rarity, areaId, rng:NextNumber())
+	local def = secret
+		or (
+			if owned ~= nil
+				then Catching.pickNewCat(rarity, areaId, rng:NextNumber(), owned)
+				else Catching.pickCat(rarity, areaId, rng:NextNumber())
+		)
 	local point = area.spawnPoints[pointIndex]
 	local stray = spawnStray(def, areaId, point.Position, pointIndex, nil, nil, nil, beginner)
 	if secret ~= nil then
@@ -984,6 +1036,21 @@ local function tutorialTick()
 				and not stray.returning
 				and (stray.lockedBy == 0 or lockExpired(stray))
 			then
+				if
+					profile.collection[stray.def.id] ~= nil
+					and profile.collection[Catching.pickNewCat(
+							"Common",
+							TUTORIAL_AREA,
+							0.5,
+							profile.collection
+						).id]
+						== nil
+				then
+					-- #4188: a kind this beginner already has (a stray left at the point from before) goes, and the next
+					-- tick brings one they lack in its place
+					despawn(stray)
+					continue
+				end
 				reserve(stray, player.UserId)
 			end
 			-- funnel steps first_stray_in_view and near_stray (easy-start.md section 5)
@@ -998,7 +1065,8 @@ local function tutorialTick()
 				end
 			end
 		elseif strayId == nil then
-			spawnAt(TUTORIAL_AREA, own, "Common", player.UserId)
+			-- #4188: a kind the beginner lacks, so the tutorial ends on three kinds (the starter, this one, the bait cat)
+			spawnAt(TUTORIAL_AREA, own, "Common", player.UserId, profile.collection)
 		end
 	end
 	local leaving: { Stray } = {}
@@ -2087,6 +2155,14 @@ end
 -- their first check-in, a beginner's catch on any free stray, not only their own tutorial stray, is the tutorial's
 -- one slow circle with doubled bands, and a Miss only brings the circle back.
 -- #3022: so is the catch of the stray that waits for a player's second cat (shared/SecondCat), for that player.
+local function freeCatch(player: Player, profile: Types.PlayerProfile): boolean
+	return FreeCatch.applies(
+		LiveFlagService.on(FreeCatch.FLAG),
+		Telemetry.device(player),
+		Economy.tier(profile)
+	)
+end
+
 local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: Stray): boolean
 	if stray.waitsFor == player.UserId and SecondCat.waiting(profile) then
 		return true
@@ -2098,6 +2174,10 @@ local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: St
 	-- Only on a plain stray of SecondCat.MAX_RARITY or below (SecondCat.easyFirst), so it never hands a new save a
 	-- Legendary, Mythical, Secret, gold or rainbow cat.
 	if SecondCat.easyFirst(profile.stats, stray.def.rarity, stray.variant) then
+		return true
+	end
+	-- Derek 2026-11-14 (#4307): every catch on a phone, tablet or console below Tier 2 (shared/FreeCatch)
+	if freeCatch(player, profile) then
 		return true
 	end
 	-- #3181: another beginner's tutorial stray too, now that anyone may catch one
@@ -2408,11 +2488,18 @@ function startCatch(
 		-- #2913 follow-up: a little wider for a player's first few catches by hand
 		else Circles.scaled(
 			Circles.windowsFor(netLevel, stray.def.rarity, stray.area, stray.variant),
-			Circles.earlyScale(SecondCat.caught(profile.stats))
+			-- #4299: or wider on a phone or tablet, whichever is wider
+			math.max(
+				Circles.earlyScale(SecondCat.caught(profile.stats)),
+				Circles.touchScale(Telemetry.device(player), LiveFlagService.on(TouchReach.FLAG))
+			)
 		)
 	-- #2920: a player's very first catch holds its ring on the target until the press
 	-- #3662: the first catch by hand, which a bowl cat in the cafe no longer uses up
-	local hold = tutorial and Config.CatchHoldFirstRing and SecondCat.caught(profile.stats) == 0
+	-- Derek 2026-11-14: and every free catch on a phone, tablet or console below Tier 2 (shared/FreeCatch)
+	local hold = tutorial
+		and Config.CatchHoldFirstRing
+		and (SecondCat.caught(profile.stats) == 0 or freeCatch(player, profile))
 	local circles = if tutorial
 		then Circles.tutorialSchedule(now, roll, hold)
 		else Circles.schedule(stray.def.rarity, netLevel, now, roll, stray.area) -- #3140: quicker late on
@@ -2610,6 +2697,17 @@ local function swingable(stray: Stray, player: Player, now: number): boolean
 	return stray.lockedBy == 0 or stray.lockedBy == player.UserId or lockExpired(stray)
 end
 
+-- #4255 follow-up (SecretCalm rule 1): whether a stray may hop away from `player`; only a Secret is capped.
+local function secretMayHop(stray: Stray, player: Player): boolean
+	return stray.def.rarity ~= Catalog.SECRET or SecretCalm.mayHop(stray.secretHops[player.UserId])
+end
+
+local function countSecretHop(stray: Stray, player: Player)
+	if stray.def.rarity == Catalog.SECRET then
+		stray.secretHops[player.UserId] = (stray.secretHops[player.UserId] or 0) + 1
+	end
+end
+
 -- Free strays for a near miss: swingable, not Dropped (a dropped cat stays where it fell, F67) and not mid-walk home.
 local function hoppable(stray: Stray, player: Player, now: number): boolean
 	return swingable(stray, player, now)
@@ -2732,8 +2830,13 @@ local function landSwing(player: Player)
 		started = true -- #2341: it landed on a stuck cat; RescueService answers as for its prompt
 	elseif near > 0 and NetSwing.missHops(profile.tutorialStep) then
 		for _, other in strays do
-			if hoppable(other, player, now) and NetSwing.nearMiss(origin, other.body.Position) then
+			if
+				hoppable(other, player, now)
+				and NetSwing.nearMiss(origin, other.body.Position)
+				and secretMayHop(other, player)
+			then
 				hop(other, player)
+				countSecretHop(other, player)
 			end
 		end
 	end
@@ -3335,8 +3438,20 @@ local function skittish(stray: Stray, player: Player, root: Vector3, now: number
 	if profile == nil or not Moods.canStartle(profile.tutorialStep) then
 		return false
 	end
+	-- #4255 follow-up (SecretCalm): a Secret startles once a visit, only at a player running at it, never mid-swing
+	if stray.def.rarity == Catalog.SECRET then
+		local last = lastSwing[player]
+		if
+			not secretMayHop(stray, player)
+			or not SecretCalm.running(rootVelocity(player))
+			or SecretCalm.swinging(if last ~= nil then now - last else nil)
+		then
+			return false
+		end
+	end
 	stray.skittishAt = now
 	hop(stray, player, Config.SkittishHopStuds)
+	countSecretHop(stray, player)
 	return true
 end
 

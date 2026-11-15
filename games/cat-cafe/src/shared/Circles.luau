@@ -90,6 +90,15 @@ function Circles.earlyScale(caughtByHand: number): number
 	return if caughtByHand < Config.EarlyCatchCount then Config.EarlyCatchWindowScale else 1
 end
 
+-- #4299: how much wider a player's bands are on `device` (Telemetry.device, the client's own report): Config
+-- TouchCatchWindowScale on a phone or tablet while the touch switch is `on`, else 1. CatService takes the wider of
+-- this and earlyScale, never the product.
+function Circles.touchScale(device: string?, on: boolean): number
+	return if on and (device == "phone" or device == "tablet")
+		then Config.TouchCatchWindowScale
+		else 1
+end
+
 -- `windows` with both bands times `scale`.
 function Circles.scaled(windows: Types.NetWindows, scale: number): Types.NetWindows
 	return { perfect = windows.perfect * scale, good = windows.good * scale }

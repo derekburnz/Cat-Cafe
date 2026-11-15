@@ -42,6 +42,7 @@ export type BinInput = {
 	now: number,
 	playing: string?, -- the row id the roll, the reveal or the bar is for, while one is up
 	rolling: boolean?, -- the roll is passing over the list
+	stepBack: boolean?, -- the pad will not start another try by itself until the player steps off and on (#3683)
 }
 
 RollBoardLogic.BIN_TITLE = "RUMMAGE BIN"
@@ -49,6 +50,7 @@ RollBoardLogic.BIN_LIST = "What is inside? One prize each dig."
 RollBoardLogic.BIN_ROLLING = "Rolling..."
 RollBoardLogic.BIN_WAITING = "Waiting for you"
 RollBoardLogic.BIN_PLAYING = "Rummage for"
+RollBoardLogic.BIN_STEP_BACK = "Step back on the pad to roll" -- Review-QA 2026-11-14: the waiting prize after two misses
 
 local FISH_GLYPH = "🐟"
 
@@ -153,7 +155,9 @@ function RollBoardLogic.bin(input: BinInput): View
 	if waiting ~= nil then
 		return {
 			title = title,
-			line = RollBoardLogic.BIN_WAITING,
+			line = if input.stepBack
+				then RollBoardLogic.BIN_STEP_BACK
+				else RollBoardLogic.BIN_WAITING,
 			rows = { RollBoardLogic.binRow(waiting, false) },
 			dim = false,
 		}
@@ -203,6 +207,11 @@ function RollBoardLogic.yardRow(row: YardRow): RowView
 	}
 end
 
+-- #4225: the line under the Yard Sale's board for a while after a pick lands: "You got Alley Crate!"
+function RollBoardLogic.wonLine(name: string): string
+	return "You got " .. name .. "!"
+end
+
 function RollBoardLogic.yard(input: YardInput): View
 	local rows: { RowView } = {}
 	for _, row in input.rows do
@@ -216,7 +225,8 @@ function RollBoardLogic.yard(input: YardInput): View
 	if nextAt ~= nil and input.now < nextAt then
 		return {
 			title = title,
-			line = "Next pick in " .. RollBoardLogic.wait(nextAt - input.now),
+			-- #4225: the same words as the station's pill (CampExtrasLogic.yardFooter)
+			line = "New crate in " .. RollBoardLogic.wait(nextAt - input.now),
 			rows = rows,
 			dim = true,
 		}
@@ -297,6 +307,45 @@ function RollBoardLogic.sizeOffsetY(
 		return 0.5
 	end
 	return 0.5 - math.min(over / height, RollBoardLogic.LOWER_MOST)
+end
+
+-- #4225 (Review-QA's Studio phone check): on a short screen (a phone held sideways) there is no room over the bin:
+-- the board ran up under the Roblox menu and its rows came down over the Rummage prompt. There it hangs beside the
+-- bin instead, as BillboardGui.SizeOffset (x right, y up, each a share of the board's own size): right of the point
+-- with SIDE_GAP px between, or left when the right would run off the screen, and level with the point, moved down
+-- just enough that its top clears `clearBelow` (the HUD's top row, viewport px; nil for none) and up just enough
+-- that its bottom stays SIDE_EDGE px off the screen's bottom (the top wins when both cannot hold).
+--   pointX, pointY      the point over the bin on screen (viewport px)
+--   width, height       the board's size on screen (px)
+--   viewWidth, viewHeight  the viewport's size (px)
+RollBoardLogic.SHORT_SCREEN = 500 -- viewport px tall; below it the board hangs beside the bin
+RollBoardLogic.SIDE_GAP = 48 -- px between the point and the board's near edge: the prompt's half width and a bit
+RollBoardLogic.SIDE_EDGE = 8
+function RollBoardLogic.sideOffset(
+	pointX: number,
+	pointY: number,
+	width: number,
+	height: number,
+	viewWidth: number,
+	viewHeight: number,
+	clearBelow: number?
+): (number, number)
+	if width <= 0 or height <= 0 then
+		return 0, 0
+	end
+	local gap = RollBoardLogic.SIDE_GAP
+	local edge = RollBoardLogic.SIDE_EDGE
+	local left = pointX + gap -- the board's left edge when it sits on the right
+	if left + width > viewWidth - edge and pointX - gap - width >= edge then
+		left = pointX - gap - width
+	end
+	local top = pointY - height / 2
+	top = math.min(top, viewHeight - edge - height)
+	top = math.max(top, (clearBelow or 0) + edge)
+	-- SizeOffset moves the board by shares of its own size from centred on the point: x to the right, y up
+	local x = (left + width / 2 - pointX) / width
+	local y = (pointY - (top + height / 2)) / height
+	return x, y
 end
 
 return RollBoardLogic

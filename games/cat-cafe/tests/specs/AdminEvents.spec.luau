@@ -274,6 +274,36 @@ return function()
 		end)
 	end)
 
+	describe("Bowl Frenzy runs every bowl's clock faster (#4338)", function()
+		it("a bowl inside the window needs a quarter of its wait at 4x", function()
+			expect(Bait.frenzyLeft(600, 4, 900)).to.equal(150)
+			expect(Bait.frenzyLeft(400, 4, 100)).to.equal(100)
+		end)
+
+		it("a bowl past the window runs the window at 4x and the rest at 1x", function()
+			-- 15 min frenzy covers 60 normal minutes; 90 to go means 15 min fast plus 30 min after
+			expect(Bait.frenzyLeft(5400, 4, 900)).to.equal(900 + 1800)
+		end)
+
+		it("changes nothing with no speed, no window or nothing left", function()
+			expect(Bait.frenzyLeft(600, 1, 900)).to.equal(600)
+			expect(Bait.frenzyLeft(600, 4, 0)).to.equal(600)
+			expect(Bait.frenzyLeft(0, 4, 900)).to.equal(0)
+			expect(Bait.frenzyLeft(600, 0 / 0, 900)).to.equal(600)
+		end)
+
+		it("the shown timer is the normal seconds left, the inverse of frenzyLeft", function()
+			for _, wait in { 30, 600, 3600, 5400 } do
+				for _, window in { 60, 900 } do
+					local real = Bait.frenzyLeft(wait, 4, window)
+					expect(math.abs(Bait.frenzyShown(real, 4, window) - wait) < 1e-6).to.equal(true)
+					expect(real <= wait).to.equal(true)
+				end
+			end
+			expect(Bait.frenzyShown(100, 1, 900)).to.equal(100)
+		end)
+	end)
+
 	describe("Bowl Frenzy's bait wait", function()
 		it("divides the wait, in whole seconds", function()
 			expect(Bait.eventWait(600, 4)).to.equal(150)
@@ -300,6 +330,67 @@ return function()
 			end
 			-- the account's first bait keeps its own short wait
 			expect(Bait.firstWait(Bait.eventWait(600, 4), 0)).to.equal(least)
+		end)
+	end)
+
+	describe("the Admin Wheel's admin effect", function()
+		local function wheel(overrides: { [string]: any }?): { [string]: any }
+			local out =
+				frenzy({ id = "wheel-1115", title = "Admin Wheel", effects = { wheel = true } })
+			for key, value in overrides or {} do
+				out[key] = value
+			end
+			return out
+		end
+
+		it("is an admin kind the owner's /admin starts with no parser change", function()
+			local kind = CafeEvents.ADMIN_KINDS.wheel
+			expect(kind.title).to.equal("Admin Wheel")
+			expect(kind.effects).to.deepEqual({ wheel = true })
+			local ask = OwnerTest.adminAsk("/admin wheel now")
+			expect(ask.kind).to.equal("wheel")
+			local record = CafeEvents.adminRecord("wheel", NOW, nil, true) :: { [string]: any }
+			expect(record.effects).to.deepEqual({ wheel = true })
+			expect(record.endsAt - record.startsAt).to.equal(kind.minutes * 60)
+			local events, notes, admins = CafeEvents.parse({ record }, NOW)
+			expect(#events).to.equal(0)
+			expect(#notes).to.equal(0)
+			expect(admins[1].effects.wheel).to.equal(true)
+			expect(admins[1].effects.bowlSpeed).to.equal(1)
+			expect(CafeEvents.adminCurrent(admins, NOW)).to.equal(admins[1])
+		end)
+
+		it("is read from a schedule record, alone or with Bowl Frenzy's speed", function()
+			local _, notes, admins = CafeEvents.parse({ wheel() }, NOW)
+			expect(#notes).to.equal(0)
+			expect(admins[1].effects).to.deepEqual({ bowlSpeed = 1, catStorm = 1, wheel = true })
+			expect(CafeEvents.adminEffectsData(admins[1])).to.deepEqual({ wheel = true })
+			_, notes, admins =
+				CafeEvents.parse({ wheel({ effects = { wheel = true, bowlSpeed = 4 } }) }, NOW)
+			expect(#notes).to.equal(0)
+			expect(CafeEvents.adminEffectsData(admins[1])).to.deepEqual({
+				bowlSpeed = 4,
+				wheel = true,
+			})
+			-- Bowl Frenzy has no wheel
+			_, _, admins = CafeEvents.parse({ frenzy() }, NOW)
+			expect(admins[1].effects.wheel).to.equal(false)
+		end)
+
+		it("drops a record whose wheel is no boolean, or is off with nothing else", function()
+			for _, effects in { { wheel = "yes" }, { wheel = 1 }, { wheel = false } } do
+				local _, notes, admins = CafeEvents.parse({ wheel({ effects = effects }) }, NOW)
+				expect(#admins).to.equal(0)
+				expect(#notes).to.equal(1)
+			end
+		end)
+
+		it("runs as a test in one server", function()
+			local event = CafeEvents.adminTest("wheel", NOW, nil, true) :: CafeEvents.AdminEvent
+			expect(event.test).to.equal(true)
+			expect(event.effects).to.deepEqual({ bowlSpeed = 1, catStorm = 1, wheel = true })
+			local bowl = CafeEvents.adminTest("bowl", NOW, 2, true) :: CafeEvents.AdminEvent
+			expect(bowl.effects.wheel).to.equal(false)
 		end)
 	end)
 

@@ -11,6 +11,7 @@
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local Crates = require(script.Parent.Crates)
+local DragonKeep = require(script.Parent.DragonKeep)
 local LateStations = require(script.Parent.LateStations)
 local LiveFlags = require(script.Parent.LiveFlags)
 local Potions = require(script.Parent.Potions)
@@ -281,8 +282,12 @@ function IndexRewards.luckiest(
 	local best, from = 0, nil
 	for index, profile in profiles do
 		if tierOf(profile) >= areaTier then
-			local luck = IndexRewards.totals(profile).goldLuck
-				+ (if now ~= nil then Potions.goldLuck(profile, now) else 0)
+			-- #4447: the Dragon Keep's Gold Fever sits inside GoldLuckMax with the Index's own gold luck
+			local indexLuck = math.min(
+				IndexRewards.totals(profile).goldLuck + DragonKeep.of(profile).goldLuck,
+				Config.GoldLuckMax
+			)
+			local luck = indexLuck + (if now ~= nil then Potions.goldLuck(profile, now) else 0)
 			if luck > best then
 				best, from = luck, index
 			end

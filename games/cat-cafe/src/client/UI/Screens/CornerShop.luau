@@ -159,7 +159,7 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 	local panel = Panel.new({
 		dark = true,
 		name = "CornerShop",
-		title = CornerShopLogic.TITLE, -- "Day Cart" (#1577, day-cart.md: only the shown name changes)
+		title = CornerShopLogic.TITLE, -- "Coin Cart" (#1577, day-cart.md: only the shown name changes)
 		subtitle = "Coins only",
 		color = Theme.colors.caramel,
 		icon = "🏪",

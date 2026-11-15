@@ -28,6 +28,7 @@ local BedWalk = require(script.BedWalk)
 local Bellhop = require(script.Bellhop)
 local BigTraitCut = require(script.BigTraitCut)
 local BoothFx = require(script.BoothFx)
+local BowlFrenzyFx = require(script.BowlFrenzyFx)
 local BulbChase = require(script.BulbChase)
 local CafeWalk = require(script.CafeWalk)
 local CampCollect = require(script.CampCollect)
@@ -48,6 +49,7 @@ local ContextCut = require(script.ContextCut)
 local Crown = require(script.Crown)
 local Decor = require(script.Decor)
 local DoorSign = require(script.DoorSign)
+local DragonStageCut = require(script.DragonStageCut)
 local Equip = require(script.Equip)
 local FirstBaitCut = require(script.FirstBaitCut)
 local Fish = require(script.Fish)
@@ -58,6 +60,7 @@ local HarvestFx = require(script.HarvestFx)
 local HoldPulse = require(script.HoldPulse)
 local Intro = require(script.Intro)
 local IntroCut = require(script.IntroCut)
+local KeepDragon = require(script.KeepDragon)
 local LateStationFx = require(script.LateStationFx)
 local Lawn = require(script.Lawn)
 local Levels = require(script.Levels)
@@ -195,7 +198,9 @@ function Effects.start()
 		AreaFx.start,
 		LateStationFx.start,
 		BoothFx.start, -- #4061: the Ticket Booth's buy moment
+		DragonStageCut.start, -- #4062: the Dragon Keep stage-up cutscene on each DragonStage
 		FusionFx.start, -- #4104: the Fusion Observatory dome's glow and paw lights
+		KeepDragon.start, -- #4567: your own stage's dragon stands in the Dragon Keep
 		MuseumPlaques.start,
 		StationMotion.start,
 		Rides.start,
@@ -208,6 +213,7 @@ function Effects.start()
 		AreaWater.start, -- #4070, #4071: the Water Park's pools and river, the Castle's moat and well
 		BulbChase.start, -- #4070: the fairground's bulbs chase at night
 		StormFall.start, -- #4197: a Cat Storm's strays fall out of the sky
+		BowlFrenzyFx.start, -- #4195: a Bowl Frenzy's gold sparkles off the food in your bait bowls
 		AdminAir.start, -- #4197: Golden Hour's gold motes and Money Storm's coin glints round you
 		AdminDrops.start, -- #4197: Fish Fountain's fish arc out, Crate Drop's crates come down by parachute
 		HarvestFx.start, -- #4251: Harvest Hollow's falling leaves and the pumpkin patch's pops

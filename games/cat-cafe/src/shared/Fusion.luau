@@ -23,6 +23,9 @@ Fusion.TIER = Config.FusionTier
 Fusion.COPIES = Config.FusionCopies
 Fusion.ELDER_LORE = "elderLore" -- the Dragon Keep card that takes ELDER_LORE_CUT off every fusion
 Fusion.ELDER_LORE_CUT = 0.25
+-- The longest a running fusion may hold in a save (the sanitizer's bound): the old hour into rainbow, so a save from
+-- before the instant fusion (Config.FusionRainbowSeconds 3600 until 2026-11-15) keeps its fusion.
+Fusion.MAX_SECONDS = 3600
 Fusion.COATS = table.freeze({ "gold", "rainbow" })
 
 -- The coat five copies in `variant` make, or nil at the top coat (rainbow) or for an unknown one.
@@ -340,7 +343,11 @@ function Fusion.sanitize(raw: any, cleanName: ((any) -> string?)?): Types.Fusion
 		and type(running.doneAt) == "number"
 		and running.doneAt == running.doneAt
 		and running.doneAt
-			<= running.startedAt + math.max(Config.FusionGoldSeconds, Config.FusionRainbowSeconds)
+			<= running.startedAt + math.max(
+				Fusion.MAX_SECONDS,
+				Config.FusionGoldSeconds,
+				Config.FusionRainbowSeconds
+			)
 	then
 		local probe = { level = running.level, charm = running.charm } :: any
 		save.running = {

@@ -2916,7 +2916,7 @@ case(
 			return done(
 				"CHECK",
 				table.concat(notes, "; ")
-					.. "; a press in the Alleyway was refused (night, or a tier that has not opened it?); run by day"
+					.. "; a press in the Alleyway was refused (night, a tier that has not opened it, or the new player shield of the first 15 minutes of play, #4499?); run by day on an older save"
 			)
 		end
 		if (pressed.miss or 0) ~= 1 or lunges(pressed) ~= 1 then

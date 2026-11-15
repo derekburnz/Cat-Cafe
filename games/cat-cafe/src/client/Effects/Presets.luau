@@ -1775,6 +1775,22 @@ Presets.catchFlavour = {
 			gustEvery = 0.18,
 			cats = { dragon_knight = 2 }, -- a taller fanfare for the Dragon Knight
 		},
+		-- #4251 Harvest Hollow (area id "harvest"): a puff of pumpkin orange, then gold sparkles, a warm ring, and
+		-- climbing orange puffs for the rarest
+		harvest = {
+			preset = "smokePuff",
+			colour = Color3.fromRGB(232, 140, 60),
+			puff = 6,
+			flakes = 10,
+			flakesFrom = "Epic",
+			ringScale = 1.3,
+			ringFrom = "Legendary",
+			gusts = 3,
+			gustsFrom = "Mythical",
+			gustHeight = 7,
+			gustEvery = 0.15,
+			cats = { harvest_moon = 2 }, -- the moon over the hollow: a taller column
+		},
 	} :: { [string]: CatchFlavour },
 }
 
@@ -2125,6 +2141,28 @@ Presets.motion = {
 		swaySeconds = 3.1,
 		resting = 0.5,
 	},
+	-- The new areas' Common cats (#4069, #4070, #4071; Derek 2026-11-13: commons get prop motion only): the hat or
+	-- tufts in the head (`_Prop`, Pose's "cap") bounce with each stride while the cat walks, tipping up to the cat's
+	-- `degrees` front and back about the prop's own pivot, `lag` radians behind the legs so it reads as loose. One
+	-- bounce a leg cycle (about 2 a second at a stray's walk), still while it stands. The Elf Cat's belled hood swings
+	-- the most and the Dwarf Cat's beard and iron cap bounce; the Squire wears nothing on its head, so it has none.
+	-- Small on purpose: the exported props pivot at the neck like the head, so a bigger tip would lift them off it.
+	propBounce = {
+		lag = 0.9,
+		cats = {
+			elf = 5,
+			dwarf = 4,
+			pinwheel = 4,
+			hot_chocolate = 3,
+			crumpet = 3,
+			flurry = 3,
+			mitten = 3,
+			spruce = 3,
+			popcorn = 3,
+			splash = 3,
+			taffy = 3,
+		} :: { [string]: number },
+	},
 }
 
 -- Model-Agent's piece poses for the new bodies (manifest `cat_poses`, PR #259), copied here because the
@@ -2390,6 +2428,30 @@ Presets.catPoses = {
 } :: { [string]: CatPose }
 
 Presets.shake = { seconds = 0.18, studs = 0.22 }
+
+-- Controller rumble and phone taps (#4224; Effects/Rumble): a camera bump of `studs` buzzes the gamepad's big motor at `perStud` a
+-- stud, between `least` and `most` of full, for the bump's seconds kept between `shortest` and `longest`. `catch` is
+-- your own catch's pulse by rarity: light for a Common, firmer and a little longer the rarer the cat.
+Presets.rumble = {
+	perStud = 1.6,
+	least = 0.2,
+	most = 0.7,
+	shortest = 0.08,
+	longest = 0.5,
+	-- a phone taps once: a click, a knock from `knockFrom` of full or a thump from `thumpFrom`, felt within `tapReach`
+	-- studs of where the camera looks
+	knockFrom = 0.3,
+	thumpFrom = 0.5,
+	tapReach = 60,
+	catch = {
+		Common = { seconds = 0.08, strength = 0.2 },
+		Rare = { seconds = 0.1, strength = 0.25 },
+		Epic = { seconds = 0.14, strength = 0.35 },
+		Legendary = { seconds = 0.2, strength = 0.45 },
+		Mythical = { seconds = 0.3, strength = 0.55 },
+		Secret = { seconds = 0.4, strength = 0.65 },
+	} :: { [string]: { seconds: number, strength: number } },
+}
 
 -- A shove (F41), a landed tackle since F74: a puff where it lands, dizzy stars over the shoved player's head and,
 -- for them, a bigger camera bump than a missed catch. The knockback itself is the engineer's, on the target's own
@@ -3283,6 +3345,50 @@ Presets.signature = {
 		},
 		arrive = { ring = 9, burst = 10, preset = "catchSparkle" },
 	},
+	-- #4251 Harvest Hollow's rarer cats (Wed Nov 25 to Sun Dec 6), the same ladder in autumn colours, on the lit
+	-- parts of their models (`..._Leaves_Glow`, `..._Wheat_Glow`, `..._Glow`; a copy without them shows on its body).
+	cranberry = { -- Cranberry Cat (Epic): a glint now and then off its berries
+		emitter = "sigGlint",
+		on = "Prop",
+		colors = { Color3.fromRGB(226, 60, 84), palette.sparkle },
+		gold = { palette.goldLight, palette.sparkle },
+	},
+	maple_leaf = { -- Maple Leaf Cat (Legendary): leaves drift down off it, the lit leaves glint, and it glows a little
+		emitter = "sigFall",
+		on = "Leaves_Glow",
+		colors = {
+			Color3.fromRGB(236, 160, 60),
+			Color3.fromRGB(214, 84, 44),
+			Color3.fromRGB(246, 206, 96),
+		},
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = {
+			{ emitter = "sigGlint", on = "Leaves_Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+		},
+	},
+	harvest_moon = { -- Harvest Moon Cat (Mythical): moonlit motes rise off its wheat and circle it like fireflies
+		emitter = "sigRise",
+		on = "Wheat_Glow",
+		colors = { Color3.fromRGB(255, 214, 120), Color3.fromRGB(255, 168, 72), palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = {
+			{ emitter = "sigGlint", on = "Prop" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = {
+			emitter = "sigEmber",
+			count = 5,
+			countLow = 3,
+			radius = 0.8,
+			height = 0.6,
+			tilt = 0.3,
+			seconds = 3.4,
+		},
+		arrive = { ring = 9, burst = 10, preset = "catchSparkle" },
+	},
 	-- Sprinkles, the Starter Bundle's baker (Derek 2026-11-14: as good as an Epic from the best area, effects
 	-- included). The Epic rung of the same ladder on the lit parts of its model (#4190): sprinkles drift up off the
 	-- cupcake's candle through the puff's own colours, and the cherry on its toque twinkles a little. `on` names
@@ -4005,12 +4111,14 @@ Presets.fusion = {
 	gold = Presets.palette.golden,
 	huePeriod = 6,
 	acrossMin = 110, -- pixels: rings are sized as if the picture were at least this wide, so a small one still reads
+	acrossMax = 180, -- and never wider than this, so the meeting ring stays round the dome's picture (#4563)
+	wide = 1.6, -- a centre wider than this many times its height is a card: the tiles land on its left square
 	swirl = {
 		most = 5,
-		stagger = 0.07,
-		seconds = 0.9,
+		stagger = 0.09,
+		seconds = 1.1,
 		turns = 0.75,
-		land = 0.3,
+		land = 0.2,
 		sparkles = 10,
 		sparkleSize = 12,
 		sparkleSeconds = 0.5,
@@ -4050,7 +4158,7 @@ Presets.fusion = {
 		collect = 12,
 		collectRing = 1.2,
 		collectConfetti = 0.5,
-		rate = 1 / 20,
+		rate = 1 / 60, -- every frame near the dome: at 20 a second the paw lights stepped round in jerks (#4563)
 		lookSeconds = 3,
 	},
 }
@@ -5998,6 +6106,15 @@ Presets.areaFx = {
 			puffPreset = "catchSparkle",
 			puff = 6,
 		},
+		-- #4251 Harvest Hollow (area id "harvest"): a pumpkin-orange puff where its strays come and go. The falling
+		-- leaves are Effects/HarvestFx's (by the Thankful Board), so Config.World has no Harvest box and `air` here
+		-- never starts.
+		harvest = {
+			air = "harvestLeaves",
+			colour = Color3.fromRGB(232, 140, 60),
+			puffPreset = "smokePuff",
+			puff = 6,
+		},
 	} :: { [string]: AreaFxSpec },
 }
 
@@ -6069,6 +6186,24 @@ Presets.baitCrumbs = {
 	lift = 0.4,
 	gap = 0.35,
 	most = 4,
+}
+
+-- Bowl Frenzy at your bait bowl (#4195; Effects/BowlFrenzyFx): every `every` seconds while the frenzy runs, `count`
+-- gold `preset` sparkles pop `lift` studs over the food in each of your bowls whose cat is still on the way, and every
+-- `ringEvery`th pop a `ring` stud gold ring spreads from it; within `within` studs, checked every `check` seconds.
+-- Low performance: every `lowEvery` seconds, `lowCount` sparkles, no ring. `folders` are CafeService's bowl folders.
+Presets.bowlFrenzy = {
+	folders = { "Bait", "Bait2" },
+	preset = "catchSparkle",
+	count = 5,
+	lowCount = 2,
+	lift = 0.6,
+	every = 1.2,
+	lowEvery = 3,
+	ringEvery = 3,
+	ring = 5,
+	within = 80,
+	check = 0.3,
 }
 
 -- The stray waiting for your second cat (#3022; Effects/WaitingCat): `emitter` sparkles rise off it and a `ring` stud
@@ -6234,6 +6369,7 @@ Presets.areaWater = {
 		"CatCafe_Castle_",
 		"CatCafe_Camp_WaterPark",
 		"CatCafe_Camp_Castle",
+		"CatCafe_Harvest_", -- #4251: Harvest Hollow's creek
 	},
 	suffix = "_Water",
 	within = 110,
@@ -6253,6 +6389,8 @@ Presets.areaWater = {
 		{ piece = "KidsPool", glint = "poolGlint", parts = 1, ringEvery = 2.2, ring = 2.6 },
 		{ piece = "Moat", glint = "poolGlint", parts = 2, ringEvery = 2.2, ring = 3 },
 		{ piece = "Well", glint = "wellGlint", parts = 1, ringEvery = 3.5, ring = 1.2 },
+		-- #4251: Harvest Hollow's creek is a run of small plates, so the well's small glints on the nearest few
+		{ piece = "Creek", glint = "wellGlint", parts = 4, ringEvery = 3, ring = 1.4 },
 	} :: { AreaWaterKind },
 }
 

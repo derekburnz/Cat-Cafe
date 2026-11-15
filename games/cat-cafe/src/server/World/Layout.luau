@@ -2619,12 +2619,15 @@ Layout.townSquare = {
 	-- posters"; Model-Agent's `CatCafe_Square_UpdatePoster`, front -Z, its Screen 8.0 x 4.5, about 9.3 wide): east of
 	-- the street between the spawn and the Feedback stand, turned to face the spawn, so a player who lands sees the
 	-- pity sign on one side and the next update on the other. WorldBuilder tags it UpdatePoster for its face.
+	-- #4474 (Derek2 2026-11-15: "the 3 worlds sign in game is infront of feedback stand move it off to side a little
+	-- bit"): at (20, -40) it stood on the line from the spawn, and from the cannon, to the Feedback stand at (28, -54).
+	-- It stands beside the street now, 8 studs west of both lines, still facing the spawn.
 	updatePoster = {
 		asset = "CatCafe_Square_UpdatePoster",
-		x = 20,
+		x = 13.5,
 		y = 0.1,
-		z = -40,
-		rotY = 142.43,
+		z = -50,
+		rotY = 159.44,
 	} :: Prop,
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the
@@ -2707,6 +2710,12 @@ Layout.townSquare = {
 		{ asset = "CatCafe_Square_GardenEnd", x = 64, y = 0.1, z = 51.5, rotY = 90 },
 		{ asset = "CatCafe_Square_GardenMid", x = -64, y = 0.1, z = 0, rotY = -90 },
 		{ asset = "CatCafe_Square_GardenMid", x = 64, y = 0.1, z = 0, rotY = 90 },
+		-- #4516 (Derek2 2026-11-15: "add a little decor stand beside the fish market so people know thats where to
+		-- get decor"): Model-Agent's `CatCafe_Square_DecorStand` (front -Z, about 4.9 x 2.9), just past the market's
+		-- end on the Day Cart's side (Layout.fishMarket), turned to face the spawn. Its arrow points at the market
+		-- from here. 1 stud clear of the market, 7 of its walk-up ring and 8 of everything else (world scan).
+		-- Skipped until its model is in (AssetRegistry.known).
+		{ asset = "CatCafe_Square_DecorStand", x = 37.8, y = 0.1, z = 57.4, rotY = 27.9 },
 	} :: { Prop },
 }
 
@@ -3061,6 +3070,13 @@ Layout.ticketBooth = { area = "waterpark", x = 22, y = 0, z = -290, turn = 90 }
 -- 39.5 and z -285.5 to -300.5, inside the camp (gate line z -280, back wall -310) and clear of the opening.
 Layout.dragonKeep = { area = "castle", x = 32, y = 0, z = -293, turn = 90 }
 
+-- #4104 (Derek 2026-11-15 18:00 UTC: "I want all stations and maps out with the update"): the Fusion Observatory's
+-- dome (CatCafe_Camp_Snowy_FusionObservatory, pivot its base centre, front -Z, about 15 wide and 13 deep) in the Snowy
+-- Mountain's camp, as Layout.dragonKeep: right of the way out, its centre level with the pad, turned 90 so its front
+-- faces the pad. Model-Agent's fit against the Snowy camp's parts (2026-11-15 18:05 UTC): turned, it runs x 20.5 to
+-- 33.4 and z -299.9 to -284.9, clear of the opening, the ski rack and the Cocoa Lodge front (x 33.7 on).
+Layout.fusionObservatory = { area = "snowy", x = 27, y = 0, z = -294, turn = 90 }
+
 -- Where a camp spot ({area, x, y, z, turn} in its area's set space) stands in the world, as lawnStallAt, or nil
 -- without that area or its camp.
 local function campSpotAt(
@@ -3085,6 +3101,11 @@ end
 -- #4103: where the Dragon Keep stands in the world, or nil without the Castle or its camp.
 function Layout.dragonKeepAt(): (number?, number?, number?, number?)
 	return campSpotAt(Layout.dragonKeep)
+end
+
+-- #4104: where the Fusion Observatory stands in the world, or nil without the Snowy Mountain or its camp.
+function Layout.fusionObservatoryAt(): (number?, number?, number?, number?)
+	return campSpotAt(Layout.fusionObservatory)
 end
 
 -- The camp an x, z stands in, by its rect (edges included), or nil.
@@ -3139,12 +3160,16 @@ for id, camp in Layout.camps do
 	Layout.cannons[id] = camp.cannon
 end
 
--- In front of each cannon (section 5: the Cannon button), facing it with its "Hop in" prompt in reach: in town just
--- off the plinth's south side on the landing pad, at a camp on the pad side of the cannon's paving.
-local TOWN_FRONT_OUT = 1.5 -- studs past the plinth's edge
+-- In front of each cannon (section 5: the Cannon button), facing it: at a camp on the pad side of the cannon's
+-- paving, its "Hop in" prompt in reach. In town just outside the cannon's ring, south of it on the landing pad where
+-- players spawn: Derek 2026-11-15, "teleports people just outside of the circle for cannon not instantly inside so
+-- people can still use it as a shortcut to get to the market". It was 7.5 studs out, inside the ring, so the Cat
+-- Cannon window opened at once. The ring's edge is TownCannonRangeStuds less WalkUp.EDGE_SLACK (9.5 studs); one step
+-- forward opens it. Still within the server's reach plus Cannon.RANGE_SLACK, so "Fly to the Park" opens the picker.
+local TOWN_FRONT_STUDS = W.TownCannonRangeStuds + 2.5
 local CAMP_FRONT = { x = 0, z = CAMP_CANNON.z + 6.5 }
 Layout.cannonFronts = {
-	town = { x = 0, y = 0.1, z = -(Layout.townSquare.fountainRadius + TOWN_FRONT_OUT), rotY = 180 } :: Point,
+	town = { x = 0, y = 0.1, z = -TOWN_FRONT_STUDS, rotY = 180 } :: Point,
 } :: { [string]: Point }
 for id, camp in Layout.camps do
 	local x, z = Layout.campPoint(camp, CAMP_FRONT.x, CAMP_FRONT.z)

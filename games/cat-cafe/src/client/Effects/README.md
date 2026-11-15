@@ -211,7 +211,7 @@ Everything here runs on this client only. Effects read replicated world state (t
 | Spin prize | the won slice's weight against the others in `Catalog.spinWheel` (`Logic.prizeTier`) |
 | Rank up | a `Plot`'s `Tier` rising with the same `OwnerUserId`, 2 s or more after the owner changed; your own when `OwnerUserId` is yours, at its `Door` |
 | Shutters | a `Plot`'s `OwnerUserId` going from 0 to a player; parts ending `_Shutter` and `_Sign` inside a model named `...ForRent...` |
-| Gate dissolve | tag `AreaGate` with `RequiresTier`; this player's own plot `Tier` crossing it |
+| Gate dissolve | tag `AreaGate` with `RequiresTier`; this player's own plot `Tier` crossing it. A gate whose `Area` has effects of its own (the Desert on, `Presets.areaFx.areas`) opens in the area's colour: the ring in its cannon tint and 3 pieces of the area's puff (sand, jade, snow, spray, gold) at 3 places along its foot; no puffs in Low performance |
 | Steam | parts, attachments or object Models ending `_Steam`, an Attachment named `Steam` (the camp Picnic Basket's thermos), else the top of each plot's `Espresso` model |
 | Chimney smoke | parts or object Models ending `_Chimney` |
 | Butterflies (day) | parts or object Models ending `_Flowers` (an object Model's beds count as one, so a cafe's two front beds share their butterflies), else the pavement in front of each plot's `Door`; they wander the source's footprint plus 1 stud, now and then fly to another source within 26 studs of their own, and come and go on their own timers |

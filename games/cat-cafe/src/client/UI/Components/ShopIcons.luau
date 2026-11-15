@@ -288,6 +288,7 @@ local IDS: { [string]: string } = {
 	Icon_StoreTab_Potions = "rbxassetid://110723659646530",
 	Icon_StoreTab_Codes = "rbxassetid://126780860250721",
 	Icon_StoreTab_Packs = "rbxassetid://125330764207763", -- #4026: the Winter Pack's icon
+	Icon_StoreTab_Deal = "rbxassetid://118492801057625", -- #4259: the Deal tab wears the tag picture (Icon_Hud_Tag, its 🏷️)
 	-- the Store's card pictures, one per pass and product, by ShopIcons.store (#1762: the redrawn set, Tools-Agent 11-06;
 	-- #2578: eight passes redrawn on clear backgrounds, upload run 42665652455, 11-09)
 	-- #4026: the outfit packs' pass icons (512) and their 2:1 store art, cats close up in the pack (Model-Agent, 21:00

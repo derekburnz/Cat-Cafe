@@ -55,6 +55,9 @@ local PAL = MenuFamily.pal
 local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+local DragonKeep =
+	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("DragonKeep")) :: any
+local Spin = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Spin")) :: any
 
 export type Callbacks = {
 	spin: () -> (),
@@ -642,6 +645,17 @@ function SpinWheel.render(self: any, state: Types.PlayerState)
 		self._lateBuild:ensure()
 	end
 	self._spin = state.spin
+	-- the Dragon Keep's Lucky Spin: the Odds list shows the odds the server picks with
+	local cardLuck: any = (state :: any).cardLuck
+	local spinLuck = if type(cardLuck) == "table" and type(cardLuck.spin) == "number"
+		then cardLuck.spin
+		else 0
+	if spinLuck ~= (self._spinLuck or 0) then
+		self._spinLuck = spinLuck
+		if #self._oddsTiles > 0 then
+			self:_buildOdds()
+		end
+	end
 	self._income = state.incomePerSecond
 	self._prizeRate = state.prizeRate -- #2539
 	if state.tier ~= self._tier then
@@ -1073,9 +1087,7 @@ function SpinWheel._build(self: any)
 		self:_paint(tile)
 		table.insert(self._tiles, tile)
 	end
-	for order, row: Types.SpinRow in SpinLogic.byChance(self._rows) do
-		self:_oddsRow(row, order)
-	end
+	self:_buildOdds()
 	self:_setAngle(self._angle)
 	self:_refresh()
 end
@@ -1096,6 +1108,36 @@ function SpinWheel._paint(self: any, tile: Tile)
 	else
 		-- the clean money bag (#966, Derek: "The money bag ... too hard to understand what it is or too small")
 		icon:set(nil, COIN_GLYPH, "Legendary", ShopIcons.clean("Bag"))
+	end
+end
+
+-- The Odds list, from the slices with the Dragon Keep's spin luck in them (Spin.rows, as the server picks), and a
+-- line under it while Lucky Spin is slotted. Drawn again when the luck changes (render).
+function SpinWheel._buildOdds(self: any)
+	for _, tile: Tile in self._oddsTiles do
+		tile.icon:destroy()
+		tile.holder:Destroy()
+	end
+	table.clear(self._oddsTiles)
+	local old = self._oddsList:FindFirstChild("CardLuckNote")
+	if old then
+		old:Destroy()
+	end
+	self._oddsRows = Spin.rows(self._spinLuck) :: any
+	for order, row: Types.SpinRow in SpinLogic.byChance(self._oddsRows) do
+		self:_oddsRow(row, order)
+	end
+	local note = DragonKeep.cardLuckNote("spin", self._spinLuck)
+	if note ~= "" then
+		text({
+			Name = "CardLuckNote",
+			LayoutOrder = 999,
+			Size = UDim2.new(1, 0, 0, 20),
+			TextSize = Theme.sizes.textTiny,
+			TextWrapped = true,
+			Text = string.sub(note, 5), -- without the leading " · "
+			Parent = self._oddsList,
+		})
 	end
 end
 
@@ -1146,7 +1188,8 @@ function SpinWheel._oddsRow(self: any, row: Types.SpinRow, order: number)
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 	})
-	local share = math.clamp(SpinLogic.share(self._rows, row) / 100, 0, 1)
+	local rows = self._oddsRows or self._rows
+	local share = math.clamp(SpinLogic.share(rows, row) / 100, 0, 1)
 	Create("Frame", {
 		Name = "Fill",
 		BackgroundColor3 = if jackpot then Theme.colors.gold else Theme.colors.berry,
@@ -1164,7 +1207,7 @@ function SpinWheel._oddsRow(self: any, row: Types.SpinRow, order: number)
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge + 2,
 		TextXAlignment = Enum.TextXAlignment.Right,
-		Text = SpinLogic.chance(self._rows, row),
+		Text = SpinLogic.chance(rows, row),
 		Parent = line,
 	})
 	MenuFamily.outline(chance, 1)

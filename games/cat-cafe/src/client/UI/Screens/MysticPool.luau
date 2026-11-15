@@ -1047,11 +1047,13 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	end
 	oddsRows()
 	-- #4314 follow-up: Secret 0.1% shows (or goes) on every odds display as soon as the switch flips
-	self._secretChanged = MysticPoolLogic.secretChanged(function()
+	-- and the Dragon Keep's trait luck: render draws them again when a slotted Trait Spark changes it
+	self._redrawOdds = function()
 		oddsPills(pillsLayer, if short then lineTop else lineTop + 18, 1)
 		oddsLines(choice, 30 + cardH + GAP + buttonH + 4 + 6, 9)
 		oddsRows()
-	end)
+	end
+	self._secretChanged = MysticPoolLogic.secretChanged(self._redrawOdds)
 
 	-- #4006 (Derek 2026-11-13: "instead of making this the pop up when opening mystic pool have the back open up on the
 	-- side of screen prompting people to buy it until they click a small X"): the Trait Token offer is a slim cream
@@ -1979,6 +1981,16 @@ end
 
 function MysticPool.render(self: any, state: Types.PlayerState)
 	self:_seed((state :: any).settings)
+	-- the Dragon Keep's trait luck (UI.mysticPool.render sets it): the odds drawn again when it changed
+	local cardLuck: any = (state :: any).cardLuck
+	MysticPoolLogic.setLuck(if type(cardLuck) == "table" then cardLuck.trait else nil)
+	local luck = MysticPoolLogic.luck()
+	local redraw = (self :: any)._redrawOdds :: (() -> ())?
+	if luck ~= (self._drawnLuck or 0) and redraw ~= nil then
+		self._drawnLuck = luck
+		local draw = redraw :: () -> ()
+		draw()
+	end
 	local view: any = (state :: any).traits
 	self._view = if type(view) == "table" then view else nil
 	self._fish = state.goldenFish or 0

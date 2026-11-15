@@ -67,6 +67,7 @@ local CREAM = MenuFamily.card -- #3558: what sits on a picture card (cream in th
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 -- #1146: Crates.openRefusal, the server's own in-flight and spam rule for OpenCrate
 local Crates = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Crates"))
+local DragonKeep = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("DragonKeep"))
 local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
 local LuckyCharm = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LuckyCharm"))
 local SwiftPaws = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("SwiftPaws"))
@@ -711,7 +712,11 @@ function FishMarket._showOdds(self: any, crate: Types.CrateDef)
 	local state: Types.PlayerState? = self._state
 	local luck = if state and state.crateLuck then state.crateLuck[crate.area] else nil
 	-- F88: a plain crate's odds with the player's Luck in them, as shared Crates.oddsFor rolls the next open
-	local playerLuck = if state then LuckLogic.current(state, Workspace:GetServerTimeNow()) else 1
+	-- the Dragon Keep's Lucky Crate on top, as the server rolls (Crates.withCardLuck)
+	local cardLuck = if state and state.cardLuck then state.cardLuck.crate else 0
+	local playerLuck = if state
+		then Crates.withCardLuck(LuckLogic.current(state, Workspace:GetServerTimeNow()), cardLuck)
+		else 1
 	local odds =
 		MarketLogic.nextOdds(crate, luck, LUCKY_EVERY, self._goldenOdds[crate.area], playerLuck)
 	-- N167: the same test nextOdds makes, not a comparison of the odds tables
@@ -724,7 +729,10 @@ function FishMarket._showOdds(self: any, crate: Types.CrateDef)
 		elseif lucky then "Lucky! Your next crate opens on these lucky odds"
 		elseif playerLuck > 1 then MarketLogic.luckText(
 			MarketLogic.luckLeft(luck, LUCKY_EVERY)
-		) .. ". " .. LuckLogic.ICON .. " " .. LuckLogic.text(playerLuck)
+		) .. ". " .. LuckLogic.ICON .. " " .. LuckLogic.text(playerLuck) .. DragonKeep.cardLuckNote(
+			"crate",
+			cardLuck
+		)
 		else MarketLogic.luckText(MarketLogic.luckLeft(luck, LUCKY_EVERY))
 	self._oddsNote.TextColor3 = if lucky then CREAM.gold else CREAM.subtext
 	local order = 0

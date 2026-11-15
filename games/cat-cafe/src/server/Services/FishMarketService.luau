@@ -100,12 +100,16 @@ local function open(
 	-- roll first (pure), then pay, so an error in the roll never takes the crate or the fish (review N168)
 	local luck = profile.crateLuck[crate.area] or 0
 	-- F88: the player's Luck now multiplies a plain open's Epic and rarer chances (not the twentieth or golden ones)
-	local playerLuck = Luck.of(
-		profile,
-		os.time(),
-		ClockService.luckyDay(),
-		EventService.luck(),
-		LiveFlagService.on(LuckyCharm.FLAG) -- #3298
+	-- Derek 2026-11-15: the Dragon Keep's Lucky Crate multiplies it (Crates.withCardLuck; the odds lists show the same)
+	local playerLuck = Crates.withCardLuck(
+		Luck.of(
+			profile,
+			os.time(),
+			ClockService.luckyDay(),
+			EventService.luck(),
+			LiveFlagService.on(LuckyCharm.FLAG) -- #3298
+		),
+		DragonKeep.of(profile).crateLuck
 	)
 	local decorId, lucky =
 		Crates.roll(crate, luck, random:NextNumber(), random:NextNumber(), playerLuck)

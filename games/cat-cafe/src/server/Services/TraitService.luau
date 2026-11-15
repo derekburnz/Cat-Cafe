@@ -149,9 +149,13 @@ local function onRoll(player: Player, rawUid: unknown)
 		end
 		Telemetry.fishSink(player, profile, fish, "Shop", "trait_roll")
 	end
-	local rolled = Traits.roll(function(n: number): number
-		return rng:NextInteger(1, n)
-	end, LiveFlagService.on(Traits.SECRET_FLAG))
+	local rolled = Traits.roll(
+		function(n: number): number
+			return rng:NextInteger(1, n)
+		end,
+		LiveFlagService.on(Traits.SECRET_FLAG),
+		Economy.dragonEffects(profile).traitLuck -- the Dragon Keep's Trait Spark; the odds lists show the same
+	)
 	profile.stats.traitRolls += 1 -- #3694 section 3: every roll, a first or a re-roll
 	local reroll = cat.trait ~= nil
 	if reroll then

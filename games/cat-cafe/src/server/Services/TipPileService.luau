@@ -15,13 +15,17 @@ local CafeService = require(script.Parent.CafeService)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
+local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local PlotService = require(script.Parent.PlotService)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local TipPileService = {}
+
+local random = Random.new()
 
 type Shown = { amount: number, at: number } -- a paid pile on the tables: its amount and os.clock() it came
 
@@ -68,8 +72,15 @@ local function addPile(
 	piles[plot.index] = current
 	-- #2486: a running Cafe Event's money counts on tips (live-events.md 2b)
 	local boost = Economy.eventMoney()
-	local amount = Economy.tipPileAmount(dayRate * Economy.tipMultiplier(profile, now) * boost)
+	local fx = DragonKeep.of(profile) -- #4447: Furnace and Coin Sniffer
+	local amount =
+		Economy.tipPileAmount(dayRate * Economy.tipMultiplier(profile, now) * boost * (1 + fx.pile))
 	Economy.credit(profile, amount)
+	local fish = DragonKeep.pileFish(fx, random:NextNumber())
+	if fish > 0 then
+		GoldenFish.credit(profile, fish)
+		Telemetry.fishSource(player, profile, fish, "Gameplay", "dragon_coin_sniffer")
+	end
 	Economy.noteEventExtra(profile, amount, boost)
 	profile.stats.tipPilesCollected += 1 -- F73: each pile counts
 	Telemetry.source(player, profile, amount, "Gameplay", "tip_pile")

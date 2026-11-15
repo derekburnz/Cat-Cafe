@@ -1026,6 +1026,8 @@ DragonKeep.KINDRED_MAX = 0.10
 DragonKeep.NIGHT = 0.12 -- Night Glow: +12% income at night (Economy.nightTraitRate)
 DragonKeep.PET_EXTRA = 15 * 60 -- Pat Pat: a pet's happy heart lasts 15 minutes longer (inside Pet.EXTRA_MAX)
 DragonKeep.RICH = 0.15 -- Smoke Signal: rich visitors come 15% more often (into Economy.richRate)
+DragonKeep.PILE = 0.20 -- Furnace: tip piles grow 20% faster, paid as 20% more a pile on the same clock
+DragonKeep.PILE_FISH_CHANCE = 0.05 -- Coin Sniffer: a tip pile drops 1 golden fish
 DragonKeep.WALK_CAP = 2 -- card walk speed in total, stud/s (with and without a cat)
 
 export type Effects = {
@@ -1049,13 +1051,15 @@ export type Effects = {
 	night: number, -- share more income at night
 	petExtra: number, -- seconds more on each pet's happy heart
 	rich: number, -- added to Economy.richRate
+	pile: number, -- share more on each tip pile
+	pileFish: number, -- chance a tip pile drops 1 golden fish
 }
 
 function DragonKeep.effects(save: Types.DragonSave): Effects
 	local money, tips, tickets, repeatFish, luck, goldLuck, reach, swing = 0, 0, 0, 0, 0, 0, 0, 0
 	local slowRings, forgive, friend, walk, softLanding = 0, false, 0, 0, false
 	local doubleJump, glide, xp, restXp, night, petExtra = false, false, 0, 0, 0, 0
-	local rich = 0
+	local rich, pile, pileFish = 0, 0, 0
 	for _, id in save.slots do
 		if cardsById[id] ~= nil then
 			money += DragonKeep.MONEY[id] or 0
@@ -1096,6 +1100,10 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 				petExtra = DragonKeep.PET_EXTRA
 			elseif id == "smokeSignal" then
 				rich = DragonKeep.RICH
+			elseif id == "furnace" then
+				pile = DragonKeep.PILE
+			elseif id == "coinSniffer" then
+				pileFish = DragonKeep.PILE_FISH_CHANCE
 			end
 		end
 	end
@@ -1130,6 +1138,8 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 		night = night,
 		petExtra = petExtra,
 		rich = rich,
+		pile = pile,
+		pileFish = pileFish,
 	}
 end
 
@@ -1160,6 +1170,8 @@ local NONE: Effects = table.freeze({
 	night = 0,
 	petExtra = 0,
 	rich = 0,
+	pile = 0,
+	pileFish = 0,
 }) :: any
 function DragonKeep.of(profile: Types.PlayerProfile): Effects
 	local on = if onOverride ~= nil
@@ -1186,6 +1198,11 @@ end
 -- Double Catch: whether a caught `rarity` cat brings a friend, for a roll in [0, 1). Common and Rare only.
 function DragonKeep.bringsFriend(fx: Effects, rarity: string, roll: number): boolean
 	return (rarity == "Common" or rarity == "Rare") and roll < fx.friend
+end
+
+-- Coin Sniffer's golden fish for one tip pile: 1 when `roll` (0 to 1) lands inside its chance.
+function DragonKeep.pileFish(fx: Effects, roll: number): number
+	return if roll < fx.pileFish then 1 else 0
 end
 
 -- Ticket Dragon's extra tickets on a catch that credited `n`.

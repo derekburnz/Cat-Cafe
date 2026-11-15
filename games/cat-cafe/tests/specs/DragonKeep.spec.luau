@@ -444,6 +444,19 @@ return function()
 			expect(math.abs(after - before - DragonKeep.RICH) < 1e-9).to.equal(true)
 		end)
 
+		it(
+			"pays Furnace's 20% more a tip pile and Coin Sniffer's fish inside its chance",
+			function()
+				local fx = DragonKeep.effects(withSlots({ "furnace", "coinSniffer" }))
+				expect(fx.pile).to.equal(DragonKeep.PILE)
+				expect(DragonKeep.pileFish(fx, 0.01)).to.equal(1)
+				expect(DragonKeep.pileFish(fx, 0.5)).to.equal(0)
+				expect(DragonKeep.pileFish(DragonKeep.effects(withSlots({ "furnace" })), 0)).to.equal(
+					0
+				)
+			end
+		)
+
 		it("adds Kindred's 0.1% money a kept cat, up to 10%", function()
 			local save = withSlots({ "kindred" })
 			save.kept = 40

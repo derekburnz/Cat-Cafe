@@ -5,9 +5,19 @@
 -- #3470: "Secret" is a cat rarity above Mythical. No odds table lists it (Types.LureOdds and Catalog.rarityOrder
 -- keep the five): a rolled Mythical turns Secret at Catalog.secretPerMythical while the `secretCats` switch is on.
 export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical" | "Secret"
-export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer" | "desert" | "ruins"
--- A cat's area: one of the seven, the spare pool of cats an area-themed cat replaced (data-model 3d, F78), or
--- "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
+export type Area =
+	"alley"
+	| "park"
+	| "neighbourhood"
+	| "woods"
+	| "sewer"
+	| "desert"
+	| "ruins"
+	| "snowy"
+	| "waterpark"
+	| "castle"
+-- A cat's area: one of the ten (#3997, #4070, #4184: the Snowy Mountain, the Water Park and the Medieval Castle are not open yet), the spare pool of cats an area-themed
+-- cat replaced (data-model 3d, F78), or "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
 -- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.
 export type CatArea = Area | "spare" | "exclusive" | "secret"
 -- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
@@ -136,6 +146,10 @@ export type CatDef = {
 	description: string,
 	pattern: string,
 	color: { number }, -- {r, g, b} 0..255 for the placeholder body
+	-- #4221: a Secret cat's home area (its `area` stays "secret"): it only takes the place of a Mythical rolled there
+	secretArea: Area?,
+	-- Derek 2026-11-14: one of the seven Secrets of the one-per-area update; it only rolls while `secretAreas` is on
+	secretNew: boolean?,
 }
 
 export type UpgradeDef = {
@@ -230,9 +244,16 @@ export type ProductDef = {
 		cats: { string }?,
 		signStyles: { string }?,
 		moneyMultiplier: number?,
+		-- #4020: potions given in place of moneyMultiplier to a buyer whose money pass already gives that much or more
+		-- (Products.prizeFor), so the bundle is never worth less to them
+		moneySwap: { [string]: number }?,
 		-- #3864: Trait Tokens for the Mystic Pool (the token bundles). A token buys a trait roll, so these make the
 		-- roll a paid random item: the offer shows the roll's odds and is hidden where paid random items are restricted
 		traitTokens: number?,
+		-- #4238: Today's Deal's golden fish, and its crates ("highest_golden" the best open area's golden crate), paid
+		-- through Payout like an Index prize
+		fish: number?,
+		crates: { [string]: number }?,
 	},
 	-- #1625: sold once per account; a second receipt pays only the potions (Products.prizeFor)
 	oncePerAccount: boolean?,
@@ -342,6 +363,9 @@ export type PotionDef = {
 	-- speed of food set while it runs, inside BaitSpeedMax. `quest` marks the three quest potions, which only quests
 	-- and achievements pay (never a Mystery gift).
 	tips: number?,
+	-- #4195 (the Admin Wheel's hour of 3x money): added to every tip while it runs, outside TimedTipsMax and on top
+	-- of whatever the `tips` potions add
+	tipsOver: number?,
 	goldLuck: number?,
 	baitSpeed: number?,
 	quest: boolean?,
@@ -536,6 +560,8 @@ export type AreaDef = {
 	entryFloor: number?,
 	rescueMinStuck: number?,
 	starterRescue: boolean?,
+	-- #4070: only this camp's cannon flies here (the Water Park from the Desert camp); nil: every cannon does
+	launchFrom: string?,
 }
 
 export type SpotDef = {
@@ -660,6 +686,9 @@ export type TraitPending = { uid: string, id: string, paid: string? } -- paid: f
 
 -- #3196: PlayerState.traits, the Mystic Pool card's numbers (nil while the `traits` flag is off or the station is
 -- shut for the tier). `nextAt` is the next free token in server time, nil while the station holds TOKEN_HOLD.
+-- #3996 (shared/DailyDeal): PlayerState.dailyDeal
+export type DailyDealView = { deal: number, bought: boolean, tomorrow: number }
+
 export type TraitsView = {
 	tokens: number,
 	freeLeft: number,
@@ -935,6 +964,9 @@ export type BaitState = {
 	-- #1897 (first-hour.md section 2): the account's guaranteed Rare-or-better cat, true until it arrives (the bowl
 	-- card's "Your next cat will be Rare or better!" and, on arrival, FirstWow)
 	wow: boolean?,
+	-- #4338: the id of the Bowl Frenzy that already sped this filling bowl (BaitService's frenzyBowls), so one event
+	-- speeds it once even across a server hop; nil until a frenzy meets it
+	frenzy: string?,
 }
 
 -- The second bowl for a player (#1161, Bait.secondBowl): "on" with the pass, "offer" without it (the Store shows it).
@@ -1316,6 +1348,9 @@ export type Settings = {
 	catPickSort: string, -- #3940: the pick-a-cat list's Sort ("Money", "Level" or "Rarity")
 	catPickFlipped: boolean, -- #3940: that Sort turned round
 	catPickShow: string, -- #3940: the Show chips that are on ("Working,No trait"; "" for All)
+	autoBowlClaim: boolean, -- #4266: the Auto Bowl pass tames arrived bowl cats (shared/AutoBowl)
+	autoBowlRefill: boolean, -- #4266: the Auto Bowl pass refills empty bowls with owned food
+	bowlNewCatCard: boolean, -- #4266: a cat tamed at a bowl shows the big Cat found card (off: a toast)
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
@@ -1409,6 +1444,9 @@ export type PlayerProfile = {
 	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
 	bagColours: { main: string, trim: string }?,
 	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' picks, the same way
+	-- #3996 (shared/DailyDeal): the UTC day the player last bought Today's Deal, nil for never. No VERSION bump: an
+	-- older server dropping it only lets the same day's deal be bought once more, which pays as normal.
+	dealDay: number?,
 	-- #2792 (shared/FirstVisits): the special visitors met once ("rich", "mystery", "collector" -> true). No VERSION
 	-- bump: an older server dropping it only matters inside the first FirstVisitWindowSeconds of play.
 	firstVisits: { [string]: boolean },
@@ -1508,6 +1546,7 @@ export type PlayerState = {
 	bait: BaitView?, -- nil when the bowl is empty
 	bait2: BaitView?, -- #1161: the second bowl's, nil when it is empty
 	secondBowl: SecondBowl?, -- #1161: "on" (the pass: bowl 2 takes food) or "offer" (show the pass in the Store)
+	autoBowl: { owned: boolean }?, -- #4266: whether the Auto Bowl pass is owned (its switches are in settings)
 	-- extras (not in the UI contract, used by the client controller)
 	cats: { [string]: CatView },
 	collection: { [string]: number },
@@ -1523,6 +1562,9 @@ export type PlayerState = {
 	mysterySeen: boolean,
 	bagColours: { main: string, trim: string }?, -- #3699: the Backpack's colour picks, nil for the built ones
 	shoeColours: { main: string, trim: string }?, -- #4049: the Speed Shoes' colour picks, nil for the built ones
+	-- #3996: Today's Deal (DailyDeal.view): today's deal number, bought today, tomorrow's; false below Tier 2 or while
+	-- the dailyDeal switch is off
+	dailyDeal: DailyDealView | false,
 	mysteryOpen: boolean, -- BuyMystery is taken here (Config.MysteryOpen, or Studio)
 	-- #4055: the Store's golden fish prices (FishStore.view), nil while the fishStore switch is off
 	fishStore: { { key: string, fish: number, bought: boolean, made: boolean } }?,
@@ -1549,6 +1591,9 @@ export type PlayerState = {
 	invite: InviteView?,
 	-- #3196: the Mystic Pool card; nil while the `traits` flag is off, the station is shut, or from an older server
 	traits: TraitsView?,
+	-- #4195: the Admin Wheel that is up now (AdminWheel.view): its event's id and end, and whether this account has
+	-- spun it; nil with no wheel up
+	adminWheel: { eventId: string, spun: boolean, endsAt: number }?,
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,
@@ -1604,6 +1649,14 @@ export type PlayerState = {
 	lawnOwned: { [string]: boolean },
 	lawn: { [string]: string },
 	lawnStyles: LawnStyles,
+	-- #4251 Harvest Hollow (harvest-hollow-spec sections 3 to 5): pumpkins, the Stall items bought, the shared Feast Pie
+	-- and whether this player caught a harvest cat for it; nil until the server side sends it
+	harvest: {
+		pumpkins: number,
+		bought: { [string]: boolean }?,
+		pie: { count: number, goal: number }?,
+		helped: boolean?,
+	}?,
 	serverTime: number,
 }
 

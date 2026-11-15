@@ -14,7 +14,6 @@
 -- The worth line counts only what is also sold alone: the King Cat alone pass and Potion Pack M, with their prices
 -- read at runtime (MarketplaceService), so it never claims a value for the pass-only pieces.
 --   contents() -> { Item }           the card's list, in order
---   worthRefs() -> ({ Ref }, ready)  what to price for the worth line; ready is false while one is not made (0)
 --   due(profile, ownsPack) -> bool   whether the gift is still owed
 --   gift(profile) -> potions?        marks the gift given and owns the booth; the potions to pay, nil if not due
 
@@ -61,28 +60,6 @@ end
 function KingPack.potions(): { [string]: number }
 	local product = Catalog.getProduct(KingPack.POTION_PRODUCT)
 	return if product ~= nil then table.clone(product.prize.potions) else {}
-end
-
--- What the worth line prices: the King Cat alone pass and the Potion Pack M product. `ready` is false while either
--- is not made (id 0), and the card then shows no worth line.
-function KingPack.worthRefs(): ({ Ref }, boolean)
-	local catId = (Config :: any).KingCatPassId
-	local potionId = Config.ProductIds[KingPack.POTION_PRODUCT]
-	local refs: { Ref } = {}
-	local ready = true
-	if type(catId) == "number" and catId ~= 0 then
-		local ref: Ref = { infoType = "GamePass", id = catId :: number }
-		table.insert(refs, ref)
-	else
-		ready = false
-	end
-	if type(potionId) == "number" and potionId ~= 0 then
-		local ref: Ref = { infoType = "Product", id = potionId }
-		table.insert(refs, ref)
-	else
-		ready = false
-	end
-	return refs, ready
 end
 
 -- Whether the gift is still owed: the player owns the pack and it has not been given.

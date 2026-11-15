@@ -15,6 +15,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local AutoBowl = require(ReplicatedStorage.Shared.AutoBowl)
 local Bait = require(ReplicatedStorage.Shared.Bait)
 local CafeService = require(script.Parent.CafeService)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
@@ -29,9 +30,11 @@ local EventService = require(script.Parent.EventService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local LiveFlagService = require(script.Parent.LiveFlagService)
+local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local LuckyCharm = require(ReplicatedStorage.Shared.LuckyCharm)
 local Net = require(script.Parent.Net)
+local PassService = require(script.Parent.PassService)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local RallyService = require(script.Parent.RallyService)
@@ -75,19 +78,29 @@ local function bowlDistance(player: Player): number?
 	return (root.Position - plot.baitBowl.Position).Magnitude
 end
 
-local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
-	local lureId = Guard.id(rawLureId)
-	local bowl = bowlOf(rawBowl)
-	local profile = DataService.get(player)
-	if lureId == nil or bowl == nil or profile == nil then
-		return
-	end
+-- #4266: whether `bowl` takes food now: the Bait bowl bought, and bowl 2 only with its pass.
+local function takesFood(player: Player, profile: Types.PlayerProfile, bowl: number): boolean
+	return Economy.level(profile, "lure_bowl") >= 1
+		and (bowl == 1 or CafeService.secondBowl(player, profile) == "on")
+end
+
+-- Puts one `lureId` in `bowl` and rolls its cat. `auto` (#4266, the Auto Bowl pass's refill) drops the warnings: the
+-- caller only asks for an empty bowl that takes food and a food the player has.
+local function useLure(
+	player: Player,
+	profile: Types.PlayerProfile,
+	lureId: string,
+	bowl: number,
+	auto: boolean
+)
 	local lure = Catalog.getLure(lureId)
 	if lure == nil then
 		return
 	end
 	if Economy.level(profile, "lure_bowl") < 1 then
-		Net.toast(player, "Buy the Bait bowl in Upgrades first.", "warn")
+		if not auto then
+			Net.toast(player, "Buy the Bait bowl in Upgrades first.", "warn")
+		end
 		return
 	end
 	if bowl == 2 and CafeService.secondBowl(player, profile) ~= "on" then
@@ -95,12 +108,16 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 		return
 	end
 	if Bait.stateOf(profile, bowl) ~= nil then
-		Net.toast(player, "There is food in that bowl already.", "warn")
+		if not auto then
+			Net.toast(player, "There is food in that bowl already.", "warn")
+		end
 		return
 	end
 	local stock = profile.lures[lureId] or 0
 	if stock < 1 then
-		Net.toast(player, string.format("You have no %s left.", lure.name), "warn")
+		if not auto then
+			Net.toast(player, string.format("You have no %s left.", lure.name), "warn")
+		end
 		return
 	end
 	-- from anywhere (Derek 2026-10-28 01:28: food goes in from the F menu); it touches only the player's own bowl
@@ -142,12 +159,29 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the switch is on (the card's Mythical line is
 	-- "Mythical or better", so it stays true)
 	local secret = if rarity == "Mythical" and LiveFlagService.on(Catching.SECRET_FLAG)
-		then Catching.secret(rarity, rng:NextNumber(), rng:NextNumber(), true)
+		then Catching.secret(
+			rarity,
+			rng:NextNumber(),
+			rng:NextNumber(),
+			true,
+			if LiveFlagService.on(Catching.SECRET_AREAS_FLAG)
+				then Catching.baitAreas(Economy.tier(profile))
+				else nil
+		)
 		else nil
 	if secret ~= nil then
 		Telemetry.custom(player, "secret_spawn", 1, { "bowl", "bait" })
 	end
-	local def = secret or Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
+	-- #4188: the account's first food brings a kind the player has not met (the tutorial's third kind, Tier 2's need)
+	local def = secret
+		or if profile.stats.luresUsed == 0
+			then Catching.pickNewBaitCat(
+				rarity,
+				Economy.tier(profile),
+				rng:NextNumber(),
+				profile.collection
+			)
+			else Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
 	-- the player's own gold luck, rainbow luck (F99) and bait speed, fixed now (F54): a later claim never moves a
 	-- filling bowl. A Lucky Potion running now doubles the gold chance (F64), never the rainbow one.
 	local totals = IndexRewards.totals(profile)
@@ -156,8 +190,21 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	-- server hop or sunrise never moves it
 	local night = ClockService.phase() == "night"
 	-- #1895: the account's first bait comes within 2 minutes (luresUsed counts up below)
-	local wait =
-		Bait.firstWait(Economy.baitWaitSeconds(profile, night, now), profile.stats.luresUsed)
+	-- #4195, #4338 (Derek 2026-11-14: "make it so the current ones also tick down 4x faster and have that be the
+	-- event"): Bowl Frenzy runs the bowl's clock bowlSpeed times faster until it ends (Bait.frenzyLeft), the same as
+	-- for a bowl that was already filling (frenzyBowls), fixed in readyAt like the rest
+	local admin = EventService.admin()
+	local frenzyWindow = if admin ~= nil then admin.endsAt - now else 0
+	local wait = Bait.firstWait(
+		math.ceil(
+			Bait.frenzyLeft(
+				Economy.baitWaitSeconds(profile, night, now),
+				EventService.bowlSpeed(),
+				frenzyWindow
+			)
+		),
+		profile.stats.luresUsed
+	)
 	-- F73: a Gold Rush Potion's luck and a Quick Bait Potion's speed running now are fixed in with the Index's
 	local kinds = ClockService.dayKinds() -- #1572: a Golden or Rainbow Day lifts the chances fixed in now
 	local goldChance = Potions.baitGoldChance(
@@ -210,13 +257,24 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	CafeService.sync(player)
 end
 
-local function onResolveBait(player: Player, rawChoice: unknown, rawBowl: unknown)
-	local choice = Guard.oneOf(rawChoice, CHOICES)
+local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
+	local lureId = Guard.id(rawLureId)
 	local bowl = bowlOf(rawBowl)
 	local profile = DataService.get(player)
-	if choice == nil or bowl == nil or profile == nil then
+	if lureId == nil or bowl == nil or profile == nil then
 		return
 	end
+	useLure(player, profile, lureId, bowl, false)
+end
+
+-- Tames or lets go the cat at `bowl`, once it has arrived. The Tame tap (ResolveBait) and the Auto Bowl pass's
+-- claim (#4266) both come here.
+local function resolveBait(
+	player: Player,
+	profile: Types.PlayerProfile,
+	choice: string,
+	bowl: number
+)
 	local bait = Bait.stateOf(profile, bowl)
 	if bait == nil or os.time() < CafeService.baitReadyAt(profile, bait) then
 		CafeService.sync(player) -- the card waits for a fresh bowl state
@@ -251,7 +309,7 @@ local function onResolveBait(player: Player, rawChoice: unknown, rawBowl: unknow
 		local hadEpicOrBetter = RareMoments.ownsEpicOrBetter(profile.collection) -- F89: the first Epic's card
 		local instance, isNew =
 			CafeService.addCaughtCat(player, def, true, nil, bait.charm, "bait", bait.variant)
-		Net.fire(player, "CatCaught", def.id, isNew, instance.variant)
+		Net.fire(player, "CatCaught", def.id, isNew, instance.variant, "bowl") -- #4266: tamed at a bowl
 		RareMomentService.shoutOut(
 			player,
 			def.rarity,
@@ -269,6 +327,56 @@ local function onResolveBait(player: Player, rawChoice: unknown, rawBowl: unknow
 	)
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
+end
+
+local function onResolveBait(player: Player, rawChoice: unknown, rawBowl: unknown)
+	local choice = Guard.oneOf(rawChoice, CHOICES)
+	local bowl = bowlOf(rawBowl)
+	local profile = DataService.get(player)
+	if choice == nil or bowl == nil or profile == nil then
+		return
+	end
+	resolveBait(player, profile, choice, bowl)
+end
+
+-- #4266: the Auto Bowl pass, each second for an owner with the `autoBowl` switch on (a key LiveFlags does not know
+-- yet counts as off). Claim tames each bowl's arrived cat, as the Tame tap; refill then puts the best owned food in
+-- each empty bowl that takes food, never buying any. The tutorial's bait step (4) is left to the player.
+local function autoBowl(player: Player, profile: Types.PlayerProfile, now: number)
+	local known = table.find(LiveFlags.KEYS, AutoBowl.FLAG) ~= nil
+	if
+		profile.tutorialStep == 4
+		or not AutoBowl.active(
+			known,
+			known and LiveFlagService.on(AutoBowl.FLAG),
+			PassService.owns(player, AutoBowl.passId())
+		)
+	then
+		return
+	end
+	local settings = profile.settings :: any
+	for bowl = 1, Bait.BOWLS do
+		local bait = Bait.stateOf(profile, bowl)
+		if
+			settings[AutoBowl.KEYS.claim] == true
+			and bait ~= nil
+			and now >= CafeService.baitReadyAt(profile, bait)
+		then
+			resolveBait(player, profile, "tame", bowl)
+			Telemetry.custom(player, "auto_bowl", 1, { "claim", tostring(bowl) })
+		end
+		if
+			settings[AutoBowl.KEYS.refill] == true
+			and Bait.stateOf(profile, bowl) == nil
+			and takesFood(player, profile, bowl)
+		then
+			local lureId = AutoBowl.bestFood(Catalog.lures, profile.lures)
+			if lureId ~= nil then
+				useLure(player, profile, lureId, bowl, true)
+				Telemetry.custom(player, "auto_bowl", 1, { "refill", tostring(bowl) })
+			end
+		end
+	end
 end
 
 -- #1897 (first-hour.md section 2): the guaranteed cat is at the bowl. The client plays the F89 rare-moment look with
@@ -300,6 +408,34 @@ local function wowArrived(
 	end
 end
 
+-- #4338 (Derek 2026-11-14: "the 4x time boost for foodbowl doesn't actually make the time tick down 4x faster"):
+-- food put in during Bowl Frenzy already waits wait / speed (useLure), but a bowl that was filling when it began kept
+-- its time. Now such a bowl's clock runs `speed` times faster for the rest of the frenzy (Bait.frenzyLeft), once per
+-- bowl and event, at the frenzy's start or the player's first pass in it (a join mid frenzy). The bowl keeps the
+-- event's id in its saved state (BaitState.frenzy), so a server hop mid frenzy never speeds it twice. Returns
+-- whether a bowl changed.
+local function frenzyBowls(profile: Types.PlayerProfile, now: number): boolean
+	local event = EventService.admin()
+	local speed = EventService.bowlSpeed()
+	if event == nil or speed <= 1 or now >= event.endsAt then
+		return false
+	end
+	local changed = false
+	for bowl = 1, Bait.BOWLS do
+		local bait = Bait.stateOf(profile, bowl)
+		if bait ~= nil and bait.readyAt ~= nil and bait.frenzy ~= event.id then
+			bait.frenzy = event.id
+			local left = (bait.readyAt :: number) - now
+			-- food put in during the frenzy already has its share (useLure)
+			if bait.placedAt < event.startsAt and left > 0 then
+				bait.readyAt = now + math.ceil(Bait.frenzyLeft(left, speed, event.endsAt - now))
+				changed = true
+			end
+		end
+	end
+	return changed
+end
+
 -- Within a second of a cat arriving, put it at the bowl and send the bowl state that names it. A rejoin is
 -- caught on the first pass after load as well.
 local function checkArrivals()
@@ -309,12 +445,13 @@ local function checkArrivals()
 		if profile == nil then
 			continue
 		end
+		autoBowl(player, profile, now) -- #4266: before the arrivals, so an auto claimed cat never flashes its card
 		local shown = shownArrival[player]
 		if shown == nil then
 			shown = {}
 			shownArrival[player] = shown
 		end
-		local changed = false
+		local changed = frenzyBowls(profile, now) -- #4338
 		local after: { () -> () } = {}
 		for bowl = 1, Bait.BOWLS do
 			local bait = Bait.stateOf(profile, bowl)

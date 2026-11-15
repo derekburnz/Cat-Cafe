@@ -16,7 +16,11 @@ export type Target = "bowl" | "cannon"
 TutorialMoves.BOWL_STEP = 4
 TutorialMoves.CANNON_STEP = 5
 TutorialMoves.BOWL_STUDS = 4 -- stand this far out from the bowl (BaitService's prompt reaches it)
-TutorialMoves.CANNON_STUDS = 7 -- and this far from the cannon, inside Config.World.CannonRangeStuds (10)
+-- #4097 (Derek 2026-11-14: "teleport them infront of the cannon not directly into the circle area and have them walk
+-- in"): this far from the cannon, outside its walk-up ring (at most TownCannonRangeStuds 11.5 less WalkUp.EDGE_SLACK)
+-- and the range, so the Cat Cannon window waits until they step in. It was 7, inside the ring, and the window opened
+-- over the goal card and the strip by itself.
+TutorialMoves.CANNON_STUDS = 15
 -- 2 since #3640 (Derek 2026-11-12: "the cannon teleport after claiming the cat from food bowl is a bit delayed"; 6 and
 -- 4 before, so the new cat's card, which closes itself after 5 seconds, was gone before the Cat Cannon window could
 -- open over it). The client now closes that card as the move lands (UI.closeCatCard), so the move only waits long

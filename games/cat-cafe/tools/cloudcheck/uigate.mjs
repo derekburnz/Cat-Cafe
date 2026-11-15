@@ -23,7 +23,9 @@
 //   tiles    two HUD tiles, both in the left column or the bottom right corner, whose drawn edges (outline, key cap,
 //            dot, glow) come closer than their outline (#1210); any other pair is 'tilesnear', a warning
 // Warnings only (in the report, never a fail): pressables that overlap, and on the phone anything pressable under
-// the thumbstick or the jump button.
+// the thumbstick or the jump button. 'crowd' (#3990): two buttons whose faces (outlines left out) touch or overlap by
+// more than 1 px, or a button over a line of text that isn't its own. Anything under a solid cover in the same gui,
+// and screen-size tap catchers, are skipped.
 // A finding already in uigate-baseline.json does not fail; a new one does. --update-baseline writes the current
 // findings as the new baseline. The report, a picture of each scene (SVG) and an index.html go to <out> (default
 // <system temp>/cat-cafe-uigate), never into the repo.

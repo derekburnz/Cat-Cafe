@@ -21,6 +21,7 @@ local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local ThanksBoardLogic = require(script.Parent.Parent.Components.ThanksBoardLogic)
 
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 local Theme = require(script.Parent.Parent.Theme)
 local WhatsNew = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("WhatsNew")) :: any
 
@@ -258,10 +259,60 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 			{ Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder }
 		),
 	})
+	-- the NEXT row on top (ThanksBoardLogic.nextUpdate): the next update, when (ET) and the Notify Me call; it keeps
+	-- its room even while hidden, so the rows under it never jump
+	local nextRow: Frame = Create("Frame", {
+		Name = "Next",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, NEW_ROW + NEW_CREDIT),
+		LayoutOrder = 0,
+		Parent = list,
+	})
+	local bell = text({
+		Name = "Icon",
+		Position = UDim2.fromOffset(0, 2),
+		Size = UDim2.fromOffset(26, 26),
+		TextSize = 22,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "🔔",
+		Parent = nextRow,
+	})
+	IconArt.set(bell, "🔔")
+	local nextText = text({
+		Name = "Text",
+		Position = UDim2.fromOffset(34, 2),
+		Size = UDim2.new(1, -34, 0, 26),
+		FontFace = Theme.fonts.display,
+		TextSize = 22,
+		TextColor3 = BERRY,
+		Text = "",
+		Parent = nextRow,
+	})
+	FitText.shrink(nextText, CARD_TEXT_MIN)
+	local nextWhen = text({
+		Name = "When",
+		Position = UDim2.fromOffset(34, NEW_ROW - 2),
+		Size = UDim2.new(1, -34, 0, 16),
+		TextSize = 16,
+		TextColor3 = Color3.fromRGB(140, 120, 104),
+		Text = "",
+		Parent = nextRow,
+	})
+	FitText.shrink(nextWhen, CARD_TEXT_MIN)
+	self._nextText = nextText
+	self._nextWhen = nextWhen
+	self._nextRow = nextRow
+	self:_paintNext()
+	task.spawn(function()
+		while self._newGui == gui and gui.Parent ~= nil do
+			task.wait(30)
+			self:_paintNext()
+		end
+	end)
 	-- Derek2 11-07: a credit line ("Thanks to ...") makes its row taller, so the rows stop where WhatsNew.SHOWN plain
 	-- rows would end and the oldest give way, never running off the panel
 	local budget = WhatsNew.SHOWN * (NEW_ROW + 2)
-	local used = 0
+	local used = NEW_ROW + NEW_CREDIT + 2
 	for order, line in ThanksBoardLogic.whatsNew(WhatsNew.latest(), {}) do
 		local height = NEW_ROW + (if line.credit ~= nil then NEW_CREDIT else 0)
 		if used + height + 2 > budget then
@@ -324,6 +375,24 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 		)
 	end
 	self._newRows = list
+end
+
+-- The NEXT row: the next update from Config.UpdateEvents, hidden while none is due.
+function ThanksBoard._paintNext(self: any)
+	local row: Frame? = self._nextRow
+	if row == nil then
+		return
+	end
+	local next = ThanksBoardLogic.nextUpdate(Config.UpdateEvents, os.time())
+	for _, child in row:GetChildren() do
+		if child:IsA("GuiObject") then
+			(child :: GuiObject).Visible = next ~= nil
+		end
+	end
+	if next ~= nil then
+		self._nextText.Text = next.text
+		self._nextWhen.Text = next.when
+	end
 end
 
 -- The credit lines under linked updates, named from the board's rows (they arrive with ThanksBoard).

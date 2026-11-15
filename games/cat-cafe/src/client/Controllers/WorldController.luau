@@ -17,8 +17,10 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Audio = require(script.Parent.Parent.Audio)
 local Config = require(Shared:WaitForChild("Config"))
 local DayLight = require(Shared:WaitForChild("DayLight"))
+local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
+local NightLights = require(Shared:WaitForChild("NightLights"))
 local NightPass = require(Shared:WaitForChild("NightPass"))
 local StationReveal = require(Shared:WaitForChild("StationReveal"))
 local UI = require(script.Parent.Parent.UI)
@@ -197,6 +199,24 @@ local dayLooks: { [BasePart]: DayLook } = setmetatable({}, { __mode = "k" }) :: 
 local modelLights: { [Instance]: Light } = setmetatable({}, { __mode = "k" }) :: any
 local isNight = false
 local lowPerformance = false -- the Low performance setting: no night Light objects, shadows or post effects
+-- #4311 (shared/NightLights): the night Light objects near enough to be on, picked every NightLights.STEP seconds;
+-- nil until the first pick, or with the nearLights switch off (every light then)
+local nearLights: { [Light]: boolean }? = nil
+
+local function nearOnly(): boolean
+	return LiveFlags.shown(
+		NightLights.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. NightLights.FLAG)
+	)
+end
+
+local function lightOn(light: Light): boolean
+	if not isNight or lowPerformance then
+		return false
+	end
+	local near = nearLights
+	return near == nil or near[light] == true
+end
 
 local function glowsAtNight(part: BasePart): boolean
 	local name = part.Name
@@ -261,7 +281,53 @@ local function setGlow(part: BasePart, look: DayLook)
 		part.Color = look.color
 		part.Transparency = look.transparency
 	end
-	look.light.Enabled = isNight and not lowPerformance
+	local on = lightOn(look.light)
+	if look.light.Enabled ~= on then
+		look.light.Enabled = on
+	end
+end
+
+-- #4311: picks the night lights nearest the camera and turns the rest off. A light shared by a model's parts
+-- (lightFor) counts once.
+local function pickNearLights()
+	if not isNight or lowPerformance or not nearOnly() then
+		if nearLights ~= nil then
+			nearLights = nil
+			for part, look in dayLooks do
+				setGlow(part, look)
+			end
+		end
+		return
+	end
+	local camera = Workspace.CurrentCamera
+	if camera == nil then
+		return
+	end
+	local lights: { Light } = {}
+	local points: { Vector3 } = {}
+	local seen: { [Light]: boolean } = {}
+	for _, look in dayLooks do
+		local light = look.light
+		local parent = light.Parent
+		if not seen[light] and parent ~= nil and parent:IsA("BasePart") then
+			seen[light] = true
+			table.insert(lights, light)
+			table.insert(points, (parent :: BasePart).Position)
+		end
+	end
+	local picked =
+		NightLights.nearest(points, camera.CFrame.Position, NightLights.COUNT, NightLights.RANGE)
+	local near: { [Light]: boolean } = {}
+	for index in picked do
+		near[lights[index]] = true
+	end
+	nearLights = near
+	for _, light in lights do
+		local on = near[light] == true
+		if light.Enabled ~= on then
+			light.Enabled = on
+		end
+	end
 end
 
 -- Records a night part's day look the first time it is seen, then gives it the current phase's look.
@@ -410,6 +476,12 @@ local function followClock()
 		Workspace:WaitForChild("World").DescendantAdded:Connect(track)
 	end)
 	installSky()
+	task.spawn(function()
+		while true do
+			pickNearLights()
+			task.wait(NightLights.STEP)
+		end
+	end)
 	local clock = ReplicatedStorage:WaitForChild("Clock")
 	stepSky(clock)
 	setNight(clock:GetAttribute("Phase") == "night")

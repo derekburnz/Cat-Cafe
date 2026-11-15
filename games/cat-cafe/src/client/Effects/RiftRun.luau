@@ -10,8 +10,8 @@
 --   3. It runs, faster and faster, with the camera low behind it. Meteors fall beside it and it hops aside from
 --      each (nothing ever hits it). One gate a tier rises out of the void and lights as it passes, Common up to the
 --      rolled tier, each with a bigger flare, shockwave, sparkles, word and note than the last.
---      A Secret: after the Mythic gate the realm goes black, a cat of stars draws itself in the sky and the white
---      Secret gate rises out of the dark.
+--      A Secret: after the Mythic gate the realm goes black and the white Secret gate rises out of the dark
+--      (Derek 2026-11-14: no cat of stars past the gate).
 --   4. The rift tears open and the cat leaps off the path's end into it, slowed right down; the screen goes pink,
 --      then white.
 --   5. Back at the pool (`back`, the controller's BigTraitCut.atPool with the pool's landing), or on the screen when
@@ -36,9 +36,11 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog"))
+local GoldTone = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("GoldTone"))
 local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
 
 local Context = require(script.Parent.Context)
+local CutsceneShell = require(script.Parent.CutsceneShell)
 local Logic = require(script.Parent.Logic)
 local MysticPool = require(script.Parent.MysticPool)
 local Particles = require(script.Parent.Particles)
@@ -70,13 +72,6 @@ local SWITCH = "riftRun"
 local TEST_ATTRIBUTE = "RiftRunTest"
 local STEP = "EffectsRiftRun"
 local KIT = "RiftRun"
--- the cutscene's own ScreenGuis, which stay up while every other window, marker and label hides
-local OURS = {
-	EffectsRiftRun = true,
-	EffectsBigTraitCut = true,
-	EffectsBigTraitScene = true,
-	EffectsBigTraitLadder = true,
-}
 local FONT = Font.new(
 	"rbxasset://fonts/families/FredokaOne.json",
 	Enum.FontWeight.Regular,
@@ -258,7 +253,6 @@ type Realm = {
 	coreMesh: SpecialMesh,
 	coreLight: PointLight,
 	ringCentre: Vector3,
-	constellation: { BasePart },
 }
 
 -- One gate arch of `tier`, standing at `at` (its base centre on the path's top), drawn when the kit has none.
@@ -664,7 +658,6 @@ local function buildRealm(plan: Logic.RiftPlan, lite: boolean): Realm
 		coreMesh = coreMesh,
 		coreLight = coreLight,
 		ringCentre = ringCentre,
-		constellation = {},
 	}
 	placeRing(realm, Logic.riftOpen(plan, 0))
 	return realm
@@ -679,14 +672,18 @@ local function makeCat(catId: string?, gold: boolean?): Model?
 	if assets == nil then
 		return nil
 	end
-	local names = { Catalog.catModelName(catId) }
+	local names, tone = { Catalog.catModelName(catId) }, false
 	if gold == true then
-		table.insert(names, 1, Catalog.goldModelName(catId))
+		-- #4133: gold from the base model once the goldTone switch is on
+		names, tone = GoldTone.names(Catalog.goldModelName(catId), Catalog.catModelName(catId))
 	end
 	for _, name in names do
 		local found = assets:FindFirstChild(name)
 		if found ~= nil and found:IsA("Model") then
 			local copy = (found :: Model):Clone() :: Model
+			if tone then
+				GoldTone.apply(copy)
+			end
 			copy.Name = "RiftRunCat"
 			copy:SetAttribute("CatId", catId)
 			copy:SetAttribute("Gold", gold == true)
@@ -731,6 +728,17 @@ local function makeScreen(): Screen?
 	gui.ResetOnSpawn = false
 	gui.IgnoreGuiInset = true
 	gui.DisplayOrder = r.displayOrder
+	-- #4365: the bars and the flash run edge to edge on a gui of their own, past a phone's notch sides; the word and
+	-- the row of tiers stay on `gui`, inside the safe area
+	local edgeGui = Instance.new("ScreenGui")
+	edgeGui.Name = "EffectsRiftRunEdge"
+	edgeGui.ResetOnSpawn = false
+	edgeGui.IgnoreGuiInset = true
+	edgeGui.ScreenInsets = Enum.ScreenInsets.None
+	edgeGui.DisplayOrder = r.displayOrder + 1
+	gui.Destroying:Connect(function()
+		edgeGui:Destroy()
+	end)
 
 	local bars: { Frame } = {}
 	for _, top in { true, false } do
@@ -741,7 +749,7 @@ local function makeScreen(): Screen?
 		bar.AnchorPoint = Vector2.new(0, if top then 0 else 1)
 		bar.Position = UDim2.fromScale(0, if top then 0 else 1)
 		bar.Size = UDim2.fromScale(1, 0)
-		bar.Parent = gui
+		bar.Parent = edgeGui
 		table.insert(bars, bar)
 	end
 
@@ -792,9 +800,10 @@ local function makeScreen(): Screen?
 	flash.BorderSizePixel = 0
 	flash.Size = UDim2.fromScale(1, 1)
 	flash.ZIndex = 10
-	flash.Parent = gui
+	flash.Parent = edgeGui
 
 	gui.Parent = playerGui
+	edgeGui.Parent = playerGui
 	return {
 		gui = gui,
 		flash = flash,
@@ -834,87 +843,6 @@ local function addChip(screen: Screen, i: number, tier: string, colour: Color3)
 	ink.Thickness = 2
 	ink.Parent = chip
 	chip.Parent = screen.ladder
-end
-
--- The windows ------------------------------------------------------------------------------------------------------
-
--- Hides every ScreenGui of this player's but ours (and any that turns up meanwhile). Returns the putting back.
-local function hideWindows(): () -> ()
-	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
-	if playerGui == nil then
-		return function() end
-	end
-	-- Review-QA on #4029: the HUD's pointer arrow (a marker drawn over the world) showed through, so billboards in
-	-- the PlayerGui hide too, at any depth
-	-- and one whose own code switches it back on (the arrow did for its first second in the realm) is switched off
-	-- again at once
-	local hidden: { LayerCollector } = {}
-	local watches: { RBXScriptConnection } = {}
-	local function hide(child: Instance)
-		if not (child:IsA("ScreenGui") or child:IsA("BillboardGui")) then
-			return
-		end
-		local gui = child :: LayerCollector
-		if gui.Enabled and not OURS[gui.Name] then
-			gui.Enabled = false
-			table.insert(hidden, gui)
-			table.insert(
-				watches,
-				gui:GetPropertyChangedSignal("Enabled"):Connect(function()
-					if gui.Enabled then
-						gui.Enabled = false
-					end
-				end)
-			)
-		end
-	end
-	for _, child in playerGui:GetDescendants() do
-		hide(child)
-	end
-	local added = playerGui.DescendantAdded:Connect(hide)
-	local back = false
-	return function()
-		if back then
-			return
-		end
-		back = true
-		added:Disconnect()
-		for _, watch in watches do
-			watch:Disconnect()
-		end
-		for _, gui in hidden do
-			if gui.Parent ~= nil then
-				gui.Enabled = true
-			end
-		end
-	end
-end
-
--- The PlayerModule's controls, or nil without the default player scripts (as BigTraitCut).
-local function controls(): any?
-	local scripts = Players.LocalPlayer:FindFirstChildOfClass("PlayerScripts")
-	local module = if scripts ~= nil then scripts:FindFirstChild("PlayerModule") else nil
-	if module == nil or not module:IsA("ModuleScript") then
-		return nil
-	end
-	local requireAny: any = require -- Roblox's own PlayerModule is not in the Rojo tree
-	local ok, controlModule = pcall(function(): any
-		return requireAny(module):GetControls()
-	end)
-	return if ok then controlModule else nil
-end
-
-local function setControls(module: any?, on: boolean)
-	if module == nil then
-		return
-	end
-	pcall(function()
-		if on then
-			module:Enable()
-		else
-			module:Disable()
-		end
-	end)
 end
 
 -- Playing --------------------------------------------------------------------------------------------------------
@@ -1059,7 +987,7 @@ function RiftRun.play(
 				cam.CameraSubject = subject
 			end
 		end
-		setControls(module, true)
+		CutsceneShell.setControls(module, true)
 		ProximityPromptService.Enabled = promptsWere
 	end
 
@@ -1255,40 +1183,6 @@ function RiftRun.play(
 		grade.TintColor = g.tint:Lerp(d.tint, k)
 	end
 
-	-- a Secret's cat of stars over the rift, a star at a time
-	local function drawConstellation()
-		local b = Presets.bigTrait
-		-- Review-QA on #4029: over the rift it was out of the low camera's view; it now draws in the dark ahead,
-		-- just past the white Secret gate, where the cat runs toward it
-		local centre = realm.origin
-			+ Vector3.new(
-				0,
-				r.starCatHeight,
-				-(r.gateFirst + r.gateGap * (#plan.gates - 1) + r.starCatBeyond)
-			)
-		for i, point in Logic.CAT_CONSTELLATION do
-			task.delay((i - 1) * r.starCatGap, function()
-				if stopped then
-					return
-				end
-				local at = centre
-					+ Vector3.new(point.X * r.starCatScale, point.Y * r.starCatScale, 0)
-				local size = r.starCatSize
-				local star = plain(
-					"StarCat",
-					Vector3.new(size, size, size),
-					r.starCatColour,
-					Enum.Material.Neon
-				)
-				star.Shape = Enum.PartType.Ball
-				star.CFrame = CFrame.new(at)
-				star.Parent = realm.root
-				table.insert(realm.constellation, star)
-				Particles.burst("catchSparkle", at, b.starSparkles, r.starCatColour)
-			end)
-		end
-	end
-
 	local function step()
 		local now = os.clock()
 		local t = now - began
@@ -1313,7 +1207,8 @@ function RiftRun.play(
 			shown.flash.BackgroundTransparency = 1 - white
 			local barK = Logic.smoothstep01(t / r.flareIn)
 			for _, bar in shown.bars do
-				bar.Size = UDim2.fromScale(1, 0.1 * barK)
+				bar.Size =
+					UDim2.fromScale(1, 0.1 * barK * Logic.letterbox(Context.device :: Presets.Tier))
 			end
 			local w = now - wordAt
 			if w < r.wordSeconds then
@@ -1342,9 +1237,9 @@ function RiftRun.play(
 				return
 			end
 			cut = true
-			putBack = hideWindows()
-			module = controls()
-			setControls(module, false)
+			putBack = CutsceneShell.hideWindows()
+			module = CutsceneShell.controls()
+			CutsceneShell.setControls(module, false)
 			ProximityPromptService.Enabled = false
 			realm.root.Parent = Context.folder()
 			grade.Enabled = true
@@ -1496,7 +1391,6 @@ function RiftRun.play(
 			if not darkened and t >= (plan.darkAt :: number) + 0.25 then
 				darkened = true
 				beat("dark", 0, rarity)
-				drawConstellation()
 			end
 			dark(Logic.riftDark(plan, t))
 		end

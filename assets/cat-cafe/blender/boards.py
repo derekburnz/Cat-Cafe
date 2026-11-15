@@ -45,6 +45,8 @@ STYLES = {
     "desert": ("CatCafe_Desert_IndexBoard", "fur_caramel", "fur_latte", "terracotta", "offwhite", "cream"),
     "ruins": ("CatCafe_Ruins_IndexBoard", "fur_pewter", "fur_soot", "fur_soot", "fur_golden", "cream"),
     "snowy": ("CatCafe_Snowy_IndexBoard", "dark_wood", "fur_brown", "shirt_red", "offwhite", "cream"),
+    "waterpark": ("CatCafe_WaterPark_IndexBoard", "shirt_blue", "shirt_blue", "shirt_red", "offwhite", "cream"),
+    "castle": ("CatCafe_Castle_IndexBoard", "dark_wood", "caramel_wood", "pants_navy", "offwhite", "cream"),
 }
 
 # Each board's spot in its gate's or arch's own frame: (x, y, z, turn about Y in degrees). The openings are 24
@@ -58,6 +60,8 @@ PLACEMENT = {
     "desert": ("CatCafe_Desert_Gate", (-7.0, 0.0, 8.0, -20.0)),
     "ruins": ("CatCafe_Ruins_Gate", (-7.0, 0.0, 8.0, -20.0)),
     "snowy": ("CatCafe_Snowy_Gate", (-7.0, 0.0, 8.0, -20.0)),
+    "waterpark": ("CatCafe_WaterPark_Gate", (-7.0, 0.0, 8.0, -20.0)),
+    "castle": ("CatCafe_Castle_Gate", (-7.0, 0.0, 8.0, -20.0)),
 }
 
 
@@ -257,8 +261,63 @@ def _snowy(b, screen, st):
         b.span((x0 - 0.05, roof + 0.3, -0.45), (x1 + 0.05, roof + 0.42, 0.65), "milk")
 
 
+def _waterpark(b, screen, st):
+    """A funfair board (#4066): candy striped posts on blue feet with gold balls, a striped awning with a scalloped
+    edge over it and a row of coloured balls along the header."""
+    _board(b, screen, *st)
+    roof = TOP + 0.25
+    for s in (-1, 1):
+        x0, x1 = sorted((s * (HX - 0.05), s * (HX + 0.8)))
+        b.span((x0 - 0.15, 0, -0.55), (x1 + 0.15, 0.45, 0.75), "shirt_blue")
+        n = 6
+        for k in range(n):
+            b.span((x0, 0.44 + k * (roof - 0.44) / n, -0.4), (x1, 0.45 + (k + 1) * (roof - 0.44) / n, 0.6),
+                   ("milk", "shirt_red")[k % 2])
+        b.ball(((x0 + x1) / 2, roof + 0.95, 0.1), 0.42, "rarity_legend")
+    hw = HX + 1.1
+    b.span((-hw, roof, -0.7), (hw, roof + 0.3, 0.9), "rarity_legend")                      # beam
+    n = 10
+    w = 2 * (hw - 0.9) / n
+    for k in range(n):                                                                   # the awning's stripes
+        x = -hw + 0.9 + k * w
+        b.span((x, roof + 0.3, -1.1), (x + w, roof + 0.55, 1.0), ("shirt_red", "milk")[k % 2])
+        b.span((x + 0.04, roof - (0.45 if k % 2 == 0 else 0.25), -1.1), (x + w - 0.04, roof + 0.3, -0.98),
+               ("shirt_red", "milk")[k % 2])
+    for k, x in enumerate((-HX + 0.7, -HX + 1.3, HX - 1.3, HX - 0.7)):
+        b.ball((x, HY + HEAD / 2, -0.17), 0.18, ("pastel_butter", "shirt_blue", "leaf_green", "pastel_butter")[k])
+
+
+def _castle(b, screen, st):
+    """A herald's board (#4067): grey stone posts with merlons, a dark timber beam with a little tiled roof over it,
+    a red and a navy pennant and a gold crown in the middle."""
+    _board(b, screen, *st)
+    roof = TOP + 0.25
+    for s in (-1, 1):
+        x0, x1 = sorted((s * (HX - 0.05), s * (HX + 0.8)))
+        b.span((x0 - 0.15, 0, -0.55), (x1 + 0.15, 0.45, 0.75), "concrete_dark")
+        b.span((x0, 0.45, -0.4), (x1, roof, 0.6), "concrete")
+        for y in (roof * 0.35, roof * 0.68):
+            b.span((x0 - 0.04, y, -0.44), (x1 + 0.04, y + 0.1, 0.64), "concrete_dark")
+        for dz in (-0.3, 0.5):                                                             # merlons
+            b.span((x0, roof + 0.3, dz - 0.14), (x0 + 0.3, roof + 0.75, dz + 0.14), "metal")
+            b.span((x1 - 0.3, roof + 0.3, dz - 0.14), (x1, roof + 0.75, dz + 0.14), "metal")
+        b.span((s * (HX - 0.9) - 0.04, roof + 0.55, 0.06), (s * (HX - 0.9) + 0.04, roof + 1.9, 0.14), "dark_wood")   # pennant
+        px0, px1 = sorted((s * (HX - 0.9), s * (HX - 1.9)))
+        b.span((px0, roof + 1.35, 0.07), (px1, roof + 1.85, 0.13), ("shirt_red", "pants_navy")[s > 0])
+    hw = HX + 1.1
+    b.span((-hw, roof, -0.7), (hw, roof + 0.3, 0.9), "dark_wood")                          # beam
+    b.span((-hw + 1.2, roof + 0.3, -0.9), (hw - 1.2, roof + 0.55, 1.0), "terracotta")      # its tiled roof
+    b.span((-hw + 1.6, roof + 0.55, -0.5), (hw - 1.6, roof + 0.75, 0.7), "brick")
+    b.span((-0.5, roof + 0.75, -0.1), (0.5, roof + 1.0, 0.3), "rarity_legend")             # the crown
+    for k, x in enumerate((-0.4, 0.0, 0.4)):
+        b.span((x - 0.1, roof + 1.0, -0.1), (x + 0.1, roof + 1.25 + 0.12 * (k == 1), 0.3), "rarity_legend")
+    for k, x in enumerate((-HX + 0.7, -HX + 1.3, HX - 1.3, HX - 0.7)):
+        b.ball((x, HY + HEAD / 2, -0.17), 0.18, ("rarity_legend", "shirt_red", "shirt_red", "rarity_legend")[k])
+
+
 BUILD = {"alley": _alley, "park": _park, "neighbourhood": _neighbourhood, "woods": _woods, "sewer": _sewer,
-         "desert": _desert, "ruins": _ruins, "snowy": _snowy}
+         "desert": _desert, "ruins": _ruins, "snowy": _snowy, "waterpark": _waterpark,
+         "castle": _castle}
 
 
 def build(area, mat):

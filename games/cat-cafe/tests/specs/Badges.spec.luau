@@ -93,7 +93,6 @@ return function()
 				"pageComplete",
 				"helpingPaw",
 				"firstTrade",
-				"partyGuest",
 				"metOwner",
 			}
 			expect(#Badges.LIST).to.equal(#keys)

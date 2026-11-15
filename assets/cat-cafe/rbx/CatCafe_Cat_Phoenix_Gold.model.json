@@ -1,0 +1,8280 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/0",
+  "PartBuilt": true,
+  "Scale": {
+   "Float64": 1.0
+  },
+  "PropSlot": "Head",
+  "PropSlot2": "Back"
+ },
+ "children": [
+  {
+   "name": "CatCafe_Cat_Phoenix_Gold_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.62,
+       0.1098
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.78,
+     0.58,
+     0.9295
+    ],
+    "Color": [
+     0.949,
+     0.7569,
+     0.3059
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.62,
+       -0.1098
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/0"
+   },
+   "children": [
+    {
+     "name": "Outfit_Cape",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.27,
+         -0.1698
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cat_Phoenix_Gold_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0,
+       0.62,
+       0.16
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.73,
+     0.53,
+     0.285
+    ],
+    "Color": [
+     0.7882,
+     0.5608,
+     0.1647
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Phoenix_Gold_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.62,
+       0.4335
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.82,
+     0.62,
+     0.342
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Phoenix_Gold_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.94,
+       -0.275
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     0.1,
+     0.17
+    ],
+    "Color": [
+     0.851,
+     0.298,
+     0.2314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Phoenix_Gold_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.95,
+       -0.125
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     0.1,
+     0.17
+    ],
+    "Color": [
+     0.949,
+     0.6941,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Phoenix_Gold_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.93,
+       0.025
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     0.08,
+     0.17
+    ],
+    "Color": [
+     0.851,
+     0.298,
+     0.2314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/1"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.17,
+         -0.531
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       0.84,
+       0.778
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.32,
+         0.231
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/1"
+     },
+     "children": [
+      {
+       "name": "Carry",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.68,
+           0.011
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_BaristaCap",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.41,
+           -0.049
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Boater",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.41,
+           -0.049
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_PartyHat",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.41,
+           -0.049
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_BowTie",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.47,
+           -0.269
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Hat",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.42,
+           0.011
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_LeafBeret",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.42,
+           0.011
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_AcornHairClip",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.42,
+           0.011
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_MushroomCap",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.42,
+           0.011
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_LeafCrown",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.42,
+           0.011
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Glasses",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.06,
+           -0.439
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_ReadingGlasses",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.06,
+           -0.439
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.17,
+         -0.28
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.03,
+       0.87,
+       0.336
+      ],
+      "Color": [
+       0.7882,
+       0.5608,
+       0.1647
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.9835,
+         -0.945
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.115,
+       0.0805,
+       0.06
+      ],
+      "Color": [
+       0.2902,
+       0.2667,
+       0.3137
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.9138,
+         -0.925
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.028,
+       0.079,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0288,
+         0.8628,
+         -0.928
+        ],
+        "orientation": [
+         [
+          0.866,
+          0.5,
+          0.0
+         ],
+         [
+          -0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0575,
+       0.028,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0978,
+         0.8628,
+         -0.925
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0575,
+       0.028,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0288,
+         0.8628,
+         -0.928
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0575,
+       0.028,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0978,
+         0.8628,
+         -0.925
+        ],
+        "orientation": [
+         [
+          0.866,
+          0.5,
+          0.0
+         ],
+         [
+          -0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0575,
+       0.028,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4255,
+         0.949,
+         -0.92
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.138,
+       0.0575,
+       0.05
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4255,
+         0.949,
+         -0.92
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.138,
+       0.0575,
+       0.05
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.62,
+         -0.64
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       0.1,
+       0.15
+      ],
+      "Color": [
+       0.949,
+       0.6941,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.63,
+         -0.51
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.214,
+       0.12,
+       0.15
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0,
+         1.62,
+         -0.38
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2604,
+       0.1,
+       0.15
+      ],
+      "Color": [
+       0.949,
+       0.6941,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.4825,
+         -0.09
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.19,
+       0.155,
+       0.1
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.33,
+         -0.08
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.17,
+       0.17,
+       0.1
+      ],
+      "Color": [
+       0.949,
+       0.6941,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/2"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.253,
+           1.11,
+           -0.93
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2484,
+         0.3229,
+         0.07
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/2"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1971,
+           1.2004,
+           -0.975
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0745,
+         0.0869,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.253,
+         1.11,
+         -0.93
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Phoenix_Gold_Eye1"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/3"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.253,
+           1.11,
+           -0.93
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2484,
+         0.3229,
+         0.07
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/3"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3089,
+           1.2004,
+           -0.975
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0745,
+         0.0869,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.253,
+         1.11,
+         -0.93
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Phoenix_Gold_Eye2"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/4"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2792,
+           1.6122,
+           -0.46
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2667,
+         0.1,
+         0.2667
+        ],
+        "Color": [
+         0.9843,
+         0.8941,
+         0.6039
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.0312,
+           -0.0467,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/4"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3,
+           1.71,
+           -0.46
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.16,
+         0.1,
+         0.16
+        ],
+        "Color": [
+         0.9843,
+         0.8941,
+         0.6039
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3208,
+           1.8078,
+           -0.46
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0533,
+         0.1,
+         0.0533
+        ],
+        "Color": [
+         0.9843,
+         0.8941,
+         0.6039
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3187,
+           1.65,
+           -0.5918
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1152,
+         0.114,
+         0.0631
+        ],
+        "Color": [
+         0.8784,
+         0.4784,
+         0.549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.3,
+         1.56,
+         -0.46
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Phoenix_Gold_EarL"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/5"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2792,
+           1.6122,
+           -0.46
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2667,
+         0.1,
+         0.2667
+        ],
+        "Color": [
+         0.9843,
+         0.8941,
+         0.6039
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0312,
+           -0.0467,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/5"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3,
+           1.71,
+           -0.46
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.16,
+         0.1,
+         0.16
+        ],
+        "Color": [
+         0.9843,
+         0.8941,
+         0.6039
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3208,
+           1.8078,
+           -0.46
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0533,
+         0.1,
+         0.0533
+        ],
+        "Color": [
+         0.9843,
+         0.8941,
+         0.6039
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3187,
+           1.65,
+           -0.5918
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1152,
+         0.114,
+         0.0631
+        ],
+        "Color": [
+         0.8784,
+         0.4784,
+         0.549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.3,
+         1.56,
+         -0.46
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Phoenix_Gold_EarR"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/11"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.7301,
+           -0.5715
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9272,
+            -0.3746
+           ],
+           [
+            0.0,
+            0.3746,
+            0.9272
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2355,
+         0.2826,
+         0.2355
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.7143,
+           0.5815
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9272,
+            0.3746
+           ],
+           [
+            0.0,
+            -0.3746,
+            0.9272
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/11",
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.6429,
+           -0.7557
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9848,
+            0.1736
+           ],
+           [
+            0.0,
+            -0.1736,
+            0.9848
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2717,
+         0.1449,
+         0.2717
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.7857,
+           -0.7809
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9848,
+            0.1736
+           ],
+           [
+            0.0,
+            -0.1736,
+            0.9848
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.163,
+         0.1449,
+         0.163
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.9284,
+           -0.806
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9848,
+            0.1736
+           ],
+           [
+            0.0,
+            -0.1736,
+            0.9848
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0543,
+         0.1449,
+         0.0543
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.6791,
+           -0.659
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9903,
+            -0.1392
+           ],
+           [
+            0.0,
+            0.1392,
+            0.9903
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2536,
+         0.2174,
+         0.2536
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.8943,
+           -0.6287
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9903,
+            -0.1392
+           ],
+           [
+            0.0,
+            0.1392,
+            0.9903
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1522,
+         0.2174,
+         0.1522
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           2.1096,
+           -0.5984
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9903,
+            -0.1392
+           ],
+           [
+            0.0,
+            0.1392,
+            0.9903
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0507,
+         0.2174,
+         0.0507
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.9922,
+           -0.4657
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9272,
+            -0.3746
+           ],
+           [
+            0.0,
+            0.3746,
+            0.9272
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1413,
+         0.2826,
+         0.1413
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           2.2542,
+           -0.3598
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9272,
+            -0.3746
+           ],
+           [
+            0.0,
+            0.3746,
+            0.9272
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0471,
+         0.2826,
+         0.0471
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.7235,
+           -0.4346
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.809,
+            -0.5878
+           ],
+           [
+            0.0,
+            0.5878,
+            0.809
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2174,
+         0.2246,
+         0.2174
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.9052,
+           -0.3026
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.809,
+            -0.5878
+           ],
+           [
+            0.0,
+            0.5878,
+            0.809
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1304,
+         0.2246,
+         0.1304
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           2.087,
+           -0.1706
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.809,
+            -0.5878
+           ],
+           [
+            0.0,
+            0.5878,
+            0.809
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0435,
+         0.2246,
+         0.0435
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.6987,
+           -0.2887
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.6428,
+            -0.766
+           ],
+           [
+            0.0,
+            0.766,
+            0.6428
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1993,
+         0.1522,
+         0.1993
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.7965,
+           -0.1722
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.6428,
+            -0.766
+           ],
+           [
+            0.0,
+            0.766,
+            0.6428
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1196,
+         0.1522,
+         0.1196
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.8943,
+           -0.0556
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.6428,
+            -0.766
+           ],
+           [
+            0.0,
+            0.766,
+            0.6428
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0399,
+         0.1522,
+         0.0399
+        ],
+        "Color": [
+         0.851,
+         0.298,
+         0.2314
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.4783,
+           1.8183,
+           -0.2754
+          ],
+          "orientation": [
+           [
+            0.6971,
+            -0.46,
+            0.55
+           ],
+           [
+            0.0,
+            0.767,
+            0.6416
+           ],
+           [
+            -0.717,
+            -0.4473,
+            0.5347
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0761,
+         0.0435,
+         0.7115
+        ],
+        "Color": [
+         0.8784,
+         0.4706,
+         0.1843
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.4783,
+           1.8183,
+           -0.2754
+          ],
+          "orientation": [
+           [
+            0.6971,
+            0.46,
+            -0.55
+           ],
+           [
+            0.0,
+            0.767,
+            0.6416
+           ],
+           [
+            0.717,
+            -0.4473,
+            0.5347
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0761,
+         0.0435,
+         0.7115
+        ],
+        "Color": [
+         0.8784,
+         0.4706,
+         0.1843
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/12"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.7013,
+             -0.5657
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9272,
+              -0.3746
+             ],
+             [
+              0.0,
+              0.3746,
+              0.9272
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.154,
+           0.2091,
+           0.154
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0,
+             0.0147,
+             0.0434
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9272,
+              0.3746
+             ],
+             [
+              0.0,
+              -0.3746,
+              0.9272
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/12",
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.6409,
+             -0.784
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9848,
+              0.1736
+             ],
+             [
+              0.0,
+              -0.1736,
+              0.9848
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1812,
+           0.1072,
+           0.1812
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.744,
+             -0.8169
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9848,
+              0.1736
+             ],
+             [
+              0.0,
+              -0.1736,
+              0.9848
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1087,
+           0.1072,
+           0.1377
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.8521,
+             -0.8212
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9848,
+              0.1736
+             ],
+             [
+              0.0,
+              -0.1736,
+              0.9848
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0362,
+           0.1072,
+           0.0362
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.63,
+             -0.8053
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9848,
+              0.1736
+             ],
+             [
+              0.0,
+              -0.1736,
+              0.9848
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0906,
+           0.0667,
+           0.0754
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.6882,
+             -0.8592
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9848,
+              0.1736
+             ],
+             [
+              0.0,
+              -0.1736,
+              0.9848
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0543,
+           0.0667,
+           0.1251
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.76,
+             -0.8359
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9848,
+              0.1736
+             ],
+             [
+              0.0,
+              -0.1736,
+              0.9848
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0181,
+           0.0667,
+           0.0181
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.6655,
+             -0.6728
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9903,
+              -0.1392
+             ],
+             [
+              0.0,
+              0.1392,
+              0.9903
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1676,
+           0.1609,
+           0.1676
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.8248,
+             -0.6504
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9903,
+              -0.1392
+             ],
+             [
+              0.0,
+              0.1392,
+              0.9903
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1005,
+           0.1609,
+           0.1005
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.986,
+             -0.6412
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9903,
+              -0.1392
+             ],
+             [
+              0.0,
+              0.1392,
+              0.9903
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0335,
+           0.1609,
+           0.0603
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.6475,
+             -0.6861
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9903,
+              -0.1392
+             ],
+             [
+              0.0,
+              0.1392,
+              0.9903
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0906,
+           0.1,
+           0.0906
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.7465,
+             -0.6722
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9903,
+              -0.1392
+             ],
+             [
+              0.0,
+              0.1392,
+              0.9903
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0543,
+           0.1,
+           0.0543
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.8455,
+             -0.6583
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9903,
+              -0.1392
+             ],
+             [
+              0.0,
+              0.1392,
+              0.9903
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0181,
+           0.1,
+           0.0181
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.8952,
+             -0.4874
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9272,
+              -0.3746
+             ],
+             [
+              0.0,
+              0.3746,
+              0.9272
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0924,
+           0.2091,
+           0.0924
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             2.0766,
+             -0.378
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9272,
+              -0.3746
+             ],
+             [
+              0.0,
+              0.3746,
+              0.9272
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0308,
+           0.2091,
+           0.0977
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.6729,
+             -0.5578
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9272,
+              -0.3746
+             ],
+             [
+              0.0,
+              0.3746,
+              0.9272
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0906,
+           0.13,
+           0.0906
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.7935,
+             -0.5091
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9272,
+              -0.3746
+             ],
+             [
+              0.0,
+              0.3746,
+              0.9272
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0543,
+           0.13,
+           0.0543
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.914,
+             -0.4604
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.9272,
+              -0.3746
+             ],
+             [
+              0.0,
+              0.3746,
+              0.9272
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0181,
+           0.13,
+           0.0181
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.6981,
+             -0.4221
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.809,
+              -0.5878
+             ],
+             [
+              0.0,
+              0.5878,
+              0.809
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1404,
+           0.1662,
+           0.1404
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.8326,
+             -0.3243
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.809,
+              -0.5878
+             ],
+             [
+              0.0,
+              0.5878,
+              0.809
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0842,
+           0.1662,
+           0.0842
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.9671,
+             -0.2266
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.809,
+              -0.5878
+             ],
+             [
+              0.0,
+              0.5878,
+              0.809
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0281,
+           0.1662,
+           0.0281
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.6681,
+             -0.4068
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.809,
+              -0.5878
+             ],
+             [
+              0.0,
+              0.5878,
+              0.809
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0906,
+           0.1033,
+           0.0906
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.7517,
+             -0.3461
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.809,
+              -0.5878
+             ],
+             [
+              0.0,
+              0.5878,
+              0.809
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0543,
+           0.1033,
+           0.0543
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.8353,
+             -0.2853
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.809,
+              -0.5878
+             ],
+             [
+              0.0,
+              0.5878,
+              0.809
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0181,
+           0.1033,
+           0.0181
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.682,
+             -0.2802
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.6428,
+              -0.766
+             ],
+             [
+              0.0,
+              0.766,
+              0.6428
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1268,
+           0.1126,
+           0.1268
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.7645,
+             -0.2025
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.6428,
+              -0.766
+             ],
+             [
+              0.0,
+              0.766,
+              0.6428
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0761,
+           0.1126,
+           0.0495
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.8267,
+             -0.1076
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.6428,
+              -0.766
+             ],
+             [
+              0.0,
+              0.766,
+              0.6428
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0254,
+           0.1126,
+           0.0254
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.6546,
+             -0.2693
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.6428,
+              -0.766
+             ],
+             [
+              0.0,
+              0.766,
+              0.6428
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0906,
+           0.07,
+           0.0906
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.6996,
+             -0.2157
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.6428,
+              -0.766
+             ],
+             [
+              0.0,
+              0.766,
+              0.6428
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0543,
+           0.07,
+           0.0543
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.7446,
+             -0.162
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.6428,
+              -0.766
+             ],
+             [
+              0.0,
+              0.766,
+              0.6428
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0181,
+           0.07,
+           0.0181
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.6739,
+             2.0465,
+             -0.0852
+            ],
+            "orientation": [
+             [
+              0.7071,
+              -0.7071,
+              0.0
+             ],
+             [
+              0.7071,
+              0.7071,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1848,
+           0.1848,
+           0.0543
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.6739,
+             2.0465,
+             -0.0852
+            ],
+            "orientation": [
+             [
+              0.7071,
+              -0.7071,
+              0.0
+             ],
+             [
+              0.7071,
+              0.7071,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.087,
+           0.087,
+           0.1143
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.6739,
+             2.0465,
+             -0.0852
+            ],
+            "orientation": [
+             [
+              0.7071,
+              -0.7071,
+              0.0
+             ],
+             [
+              0.7071,
+              0.7071,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1848,
+           0.1848,
+           0.0543
+          ],
+          "Color": [
+           0.949,
+           0.6941,
+           0.2039
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.6739,
+             2.0465,
+             -0.0852
+            ],
+            "orientation": [
+             [
+              0.7071,
+              -0.7071,
+              0.0
+             ],
+             [
+              0.7071,
+              0.7071,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.087,
+           0.087,
+           0.1143
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.2174,
+             2.2639,
+             -0.6287
+            ],
+            "orientation": [
+             [
+              0.7071,
+              -0.7071,
+              0.0
+             ],
+             [
+              0.7071,
+              0.7071,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0543,
+           0.0543,
+           0.0543
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.2609,
+             2.4378,
+             -0.4113
+            ],
+            "orientation": [
+             [
+              0.7071,
+              -0.7071,
+              0.0
+             ],
+             [
+              0.7071,
+              0.7071,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0543,
+           0.0543,
+           0.0543
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Phoenix_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.0652,
+             2.59,
+             -0.1939
+            ],
+            "orientation": [
+             [
+              0.7071,
+              -0.7071,
+              0.0
+             ],
+             [
+              0.7071,
+              0.7071,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0543,
+           0.0543,
+           0.0543
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           1.6987,
+           -0.52
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Cat_Phoenix_Gold_Glow"
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.85,
+         -0.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Phoenix_Gold_Prop"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.85,
+       -0.3
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Phoenix_Gold_Head"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/6"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.886,
+         0.7029
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8192,
+          0.5736
+         ],
+         [
+          0.0,
+          -0.5736,
+          0.8192
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.24,
+       0.24,
+       0.36
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0,
+         -0.15
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8192,
+          -0.5736
+         ],
+         [
+          0.0,
+          0.5736,
+          0.8192
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/6"
+     },
+     "children": [
+      {
+       "name": "Outfit_TailBow",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0954,
+           0.2455
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.7071,
+            0.7071
+           ],
+           [
+            0.0,
+            -0.7071,
+            0.7071
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0,
+         1.1198,
+         0.8518
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.1736,
+          0.9848
+         ],
+         [
+          0.0,
+          -0.9848,
+          0.1736
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.22,
+       0.36
+      ],
+      "Color": [
+       1.0,
+       0.9569,
+       0.6902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.8,
+       0.58
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Phoenix_Gold_Tail"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/7"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.22,
+         0.235,
+         -0.2
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.24,
+       0.37,
+       0.24
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.185,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/7"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.22,
+         0.055,
+         -0.1975
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.27,
+       0.11,
+       0.295
+      ],
+      "Color": [
+       0.7882,
+       0.5608,
+       0.1647
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.22,
+       0.42,
+       -0.2
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Phoenix_Gold_LegF1"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/8"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.22,
+         0.235,
+         -0.2
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.24,
+       0.37,
+       0.24
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.185,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/8"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.22,
+         0.055,
+         -0.1975
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.27,
+       0.11,
+       0.295
+      ],
+      "Color": [
+       0.7882,
+       0.5608,
+       0.1647
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.22,
+       0.42,
+       -0.2
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Phoenix_Gold_LegF2"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/9"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_LegB1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.22,
+         0.235,
+         0.42
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.24,
+       0.37,
+       0.24
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.185,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/9"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_LegB1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.22,
+         0.055,
+         0.4225
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.27,
+       0.11,
+       0.295
+      ],
+      "Color": [
+       0.7882,
+       0.5608,
+       0.1647
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.22,
+       0.42,
+       0.42
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Phoenix_Gold_LegB1"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/10"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_LegB2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.22,
+         0.235,
+         0.42
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.24,
+       0.37,
+       0.24
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.185,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/10"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_LegB2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.22,
+         0.055,
+         0.4225
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.27,
+       0.11,
+       0.295
+      ],
+      "Color": [
+       0.7882,
+       0.5608,
+       0.1647
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.22,
+       0.42,
+       0.42
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Phoenix_Gold_LegB2"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/13"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.421,
+         1.0249,
+         -0.0145
+        ],
+        "orientation": [
+         [
+          -0.159,
+          -0.0697,
+          0.9848
+         ],
+         [
+          0.9873,
+          -0.0112,
+          0.1586
+         ],
+         [
+          0.0,
+          0.9975,
+          0.0706
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.13,
+       0.035,
+       0.6924
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -0.9449,
+         0.0554,
+         -0.5761
+        ],
+        "orientation": [
+         [
+          -0.159,
+          0.9873,
+          0.0
+         ],
+         [
+          -0.0697,
+          -0.0112,
+          0.9975
+         ],
+         [
+          0.9848,
+          0.1586,
+          0.0706
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/13",
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.96,
+         -0.039
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.26,
+       0.12,
+       0.1
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1287,
+         1.1791,
+         0.0541
+        ],
+        "orientation": [
+         [
+          -0.974,
+          -0.0902,
+          0.2079
+         ],
+         [
+          0.2266,
+          -0.3875,
+          0.8936
+         ],
+         [
+          0.0,
+          0.9175,
+          0.3978
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.13,
+       0.035,
+       0.468
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.2173,
+         1.1963,
+         0.0618
+        ],
+        "orientation": [
+         [
+          -0.8549,
+          -0.1845,
+          0.4848
+         ],
+         [
+          0.5187,
+          -0.3041,
+          0.799
+         ],
+         [
+          0.0,
+          0.9346,
+          0.3557
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.13,
+       0.035,
+       0.5664
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.3114,
+         1.1741,
+         0.0519
+        ],
+        "orientation": [
+         [
+          -0.6616,
+          -0.2119,
+          0.7193
+         ],
+         [
+          0.7499,
+          -0.1869,
+          0.6346
+         ],
+         [
+          0.0,
+          0.9593,
+          0.2825
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.13,
+       0.035,
+       0.6433
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.3853,
+         1.1121,
+         0.0243
+        ],
+        "orientation": [
+         [
+          -0.422,
+          -0.1674,
+          0.891
+         ],
+         [
+          0.9066,
+          -0.0779,
+          0.4147
+         ],
+         [
+          0.0,
+          0.9828,
+          0.1847
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.13,
+       0.035,
+       0.6853
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4165,
+         0.9323,
+         -0.0558
+        ],
+        "orientation": [
+         [
+          0.1115,
+          0.0493,
+          0.9925
+         ],
+         [
+          0.9938,
+          -0.0055,
+          -0.1113
+         ],
+         [
+          0.0,
+          0.9988,
+          -0.0496
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.13,
+       0.035,
+       0.678
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.1287,
+         1.1791,
+         0.0541
+        ],
+        "orientation": [
+         [
+          -0.974,
+          0.0902,
+          -0.2079
+         ],
+         [
+          -0.2266,
+          -0.3875,
+          0.8936
+         ],
+         [
+          0.0,
+          0.9175,
+          0.3978
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.13,
+       0.035,
+       0.468
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.2173,
+         1.1963,
+         0.0618
+        ],
+        "orientation": [
+         [
+          -0.8549,
+          0.1845,
+          -0.4848
+         ],
+         [
+          -0.5187,
+          -0.3041,
+          0.799
+         ],
+         [
+          0.0,
+          0.9346,
+          0.3557
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.13,
+       0.035,
+       0.5664
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3114,
+         1.1741,
+         0.0519
+        ],
+        "orientation": [
+         [
+          -0.6616,
+          0.2119,
+          -0.7193
+         ],
+         [
+          -0.7499,
+          -0.1869,
+          0.6346
+         ],
+         [
+          0.0,
+          0.9593,
+          0.2825
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.13,
+       0.035,
+       0.6433
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3853,
+         1.1121,
+         0.0243
+        ],
+        "orientation": [
+         [
+          -0.422,
+          0.1674,
+          -0.891
+         ],
+         [
+          -0.9066,
+          -0.0779,
+          0.4147
+         ],
+         [
+          0.0,
+          0.9828,
+          0.1847
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.13,
+       0.035,
+       0.6853
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.421,
+         1.0249,
+         -0.0145
+        ],
+        "orientation": [
+         [
+          -0.159,
+          0.0697,
+          -0.9848
+         ],
+         [
+          -0.9873,
+          -0.0112,
+          0.1586
+         ],
+         [
+          0.0,
+          0.9975,
+          0.0706
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.13,
+       0.035,
+       0.6924
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Phoenix_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4165,
+         0.9323,
+         -0.0558
+        ],
+        "orientation": [
+         [
+          0.1115,
+          -0.0493,
+          -0.9925
+         ],
+         [
+          -0.9938,
+          -0.0055,
+          -0.1113
+         ],
+         [
+          0.0,
+          0.9988,
+          -0.0496
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.13,
+       0.035,
+       0.678
+      ],
+      "Color": [
+       0.851,
+       0.298,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Phoenix_Gold/14"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.8399,
+           1.1379,
+           0.016
+          ],
+          "orientation": [
+           [
+            -0.159,
+            -0.0697,
+            0.9848
+           ],
+           [
+            0.9873,
+            -0.0112,
+            0.1586
+           ],
+           [
+            0.0,
+            0.9975,
+            0.0706
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1,
+         0.095,
+         0.5193
+        ],
+        "Color": [
+         0.949,
+         0.6941,
+         0.2039
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.0422,
+           0.0056,
+           -0.8594
+          ],
+          "orientation": [
+           [
+            -0.159,
+            0.9873,
+            0.0
+           ],
+           [
+            -0.0697,
+            -0.0112,
+            0.9975
+           ],
+           [
+            0.9848,
+            0.1586,
+            0.0706
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Phoenix_Gold/14",
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2139,
+           1.4348,
+           0.1705
+          ],
+          "orientation": [
+           [
+            -0.974,
+            -0.0902,
+            0.2079
+           ],
+           [
+            0.2266,
+            -0.3875,
+            0.8936
+           ],
+           [
+            0.0,
+            0.9175,
+            0.3978
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.06,
+         0.095,
+         0.351
+        ],
+        "Color": [
+         0.949,
+         0.6941,
+         0.2039
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2341,
+           1.6321,
+           0.2558
+          ],
+          "orientation": [
+           [
+            -0.974,
+            -0.0902,
+            0.2079
+           ],
+           [
+            0.2266,
+            -0.3875,
+            0.8936
+           ],
+           [
+            0.0,
+            0.9175,
+            0.3978
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.07,
+         0.155,
+         0.2028
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.4274,
+           1.4558,
+           0.1878
+          ],
+          "orientation": [
+           [
+            -0.8549,
+            -0.1845,
+            0.4848
+           ],
+           [
+            0.5187,
+            -0.3041,
+            0.799
+           ],
+           [
+            0.0,
+            0.9346,
+            0.3557
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1,
+         0.095,
+         0.4248
+        ],
+        "Color": [
+         0.949,
+         0.6941,
+         0.2039
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.5148,
+           1.6866,
+           0.2802
+          ],
+          "orientation": [
+           [
+            -0.8549,
+            -0.1845,
+            0.4848
+           ],
+           [
+            0.5187,
+            -0.3041,
+            0.799
+           ],
+           [
+            0.0,
+            0.9346,
+            0.3557
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.07,
+         0.155,
+         0.2455
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.6304,
+           1.3955,
+           0.1655
+          ],
+          "orientation": [
+           [
+            -0.6616,
+            -0.2119,
+            0.7193
+           ],
+           [
+            0.7499,
+            -0.1869,
+            0.6346
+           ],
+           [
+            0.0,
+            0.9593,
+            0.2825
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1,
+         0.095,
+         0.4825
+        ],
+        "Color": [
+         0.949,
+         0.6941,
+         0.2039
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.8127,
+           1.6164,
+           0.2488
+          ],
+          "orientation": [
+           [
+            -0.6616,
+            -0.2119,
+            0.7193
+           ],
+           [
+            0.7499,
+            -0.1869,
+            0.6346
+           ],
+           [
+            0.0,
+            0.9593,
+            0.2825
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.07,
+         0.155,
+         0.2788
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.748,
+           1.3305,
+           0.1034
+          ],
+          "orientation": [
+           [
+            -0.422,
+            -0.1674,
+            0.891
+           ],
+           [
+            0.9066,
+            -0.0779,
+            0.4147
+           ],
+           [
+            0.0,
+            0.9828,
+            0.1847
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1,
+         0.095,
+         0.514
+        ],
+        "Color": [
+         0.949,
+         0.6941,
+         0.2039
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.0468,
+           1.42,
+           0.1614
+          ],
+          "orientation": [
+           [
+            -0.422,
+            -0.1674,
+            0.891
+           ],
+           [
+            0.9066,
+            -0.0779,
+            0.4147
+           ],
+           [
+            0.0,
+            0.9828,
+            0.1847
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.07,
+         0.155,
+         0.297
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.1597,
+           1.1439,
+           0.0384
+          ],
+          "orientation": [
+           [
+            -0.159,
+            -0.0697,
+            0.9848
+           ],
+           [
+            0.9873,
+            -0.0112,
+            0.1586
+           ],
+           [
+            0.0,
+            0.9975,
+            0.0706
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.07,
+         0.155,
+         0.3001
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.8421,
+           0.9298,
+           -0.0768
+          ],
+          "orientation": [
+           [
+            0.1115,
+            0.0493,
+            0.9925
+           ],
+           [
+            0.9938,
+            -0.0055,
+            -0.1113
+           ],
+           [
+            0.0,
+            0.9988,
+            -0.0496
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1,
+         0.095,
+         0.5085
+        ],
+        "Color": [
+         0.949,
+         0.6941,
+         0.2039
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.1455,
+           0.8505,
+           -0.0922
+          ],
+          "orientation": [
+           [
+            0.1115,
+            0.0493,
+            0.9925
+           ],
+           [
+            0.9938,
+            -0.0055,
+            -0.1113
+           ],
+           [
+            0.0,
+            0.9988,
+            -0.0496
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.07,
+         0.155,
+         0.2938
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2139,
+           1.4348,
+           0.1705
+          ],
+          "orientation": [
+           [
+            -0.974,
+            0.0902,
+            -0.2079
+           ],
+           [
+            -0.2266,
+            -0.3875,
+            0.8936
+           ],
+           [
+            0.0,
+            0.9175,
+            0.3978
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.06,
+         0.095,
+         0.351
+        ],
+        "Color": [
+         0.949,
+         0.6941,
+         0.2039
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2341,
+           1.6321,
+           0.2558
+          ],
+          "orientation": [
+           [
+            -0.974,
+            0.0902,
+            -0.2079
+           ],
+           [
+            -0.2266,
+            -0.3875,
+            0.8936
+           ],
+           [
+            0.0,
+            0.9175,
+            0.3978
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.07,
+         0.155,
+         0.2028
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3504,
+           1.5026,
+           0.1878
+          ],
+          "orientation": [
+           [
+            -0.8549,
+            0.1845,
+            -0.4848
+           ],
+           [
+            -0.5187,
+            -0.3041,
+            0.799
+           ],
+           [
+            0.0,
+            0.9346,
+            0.3557
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1,
+         0.095,
+         0.4248
+        ],
+        "Color": [
+         0.949,
+         0.6941,
+         0.2039
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.5148,
+           1.6866,
+           0.2802
+          ],
+          "orientation": [
+           [
+            -0.8549,
+            0.1845,
+            -0.4848
+           ],
+           [
+            -0.5187,
+            -0.3041,
+            0.799
+           ],
+           [
+            0.0,
+            0.9346,
+            0.3557
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.07,
+         0.155,
+         0.2455
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.6304,
+           1.3955,
+           0.1655
+          ],
+          "orientation": [
+           [
+            -0.6616,
+            0.2119,
+            -0.7193
+           ],
+           [
+            -0.7499,
+            -0.1869,
+            0.6346
+           ],
+           [
+            0.0,
+            0.9593,
+            0.2825
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1,
+         0.095,
+         0.4825
+        ],
+        "Color": [
+         0.949,
+         0.6941,
+         0.2039
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.8127,
+           1.6164,
+           0.2488
+          ],
+          "orientation": [
+           [
+            -0.6616,
+            0.2119,
+            -0.7193
+           ],
+           [
+            -0.7499,
+            -0.1869,
+            0.6346
+           ],
+           [
+            0.0,
+            0.9593,
+            0.2825
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.07,
+         0.155,
+         0.2788
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.748,
+           1.3305,
+           0.1034
+          ],
+          "orientation": [
+           [
+            -0.422,
+            0.1674,
+            -0.891
+           ],
+           [
+            -0.9066,
+            -0.0779,
+            0.4147
+           ],
+           [
+            0.0,
+            0.9828,
+            0.1847
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1,
+         0.095,
+         0.514
+        ],
+        "Color": [
+         0.949,
+         0.6941,
+         0.2039
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.0468,
+           1.42,
+           0.1614
+          ],
+          "orientation": [
+           [
+            -0.422,
+            0.1674,
+            -0.891
+           ],
+           [
+            -0.9066,
+            -0.0779,
+            0.4147
+           ],
+           [
+            0.0,
+            0.9828,
+            0.1847
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.07,
+         0.155,
+         0.297
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.8399,
+           1.1379,
+           0.016
+          ],
+          "orientation": [
+           [
+            -0.159,
+            0.0697,
+            -0.9848
+           ],
+           [
+            -0.9873,
+            -0.0112,
+            0.1586
+           ],
+           [
+            0.0,
+            0.9975,
+            0.0706
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1,
+         0.095,
+         0.5193
+        ],
+        "Color": [
+         0.949,
+         0.6941,
+         0.2039
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.1597,
+           1.1439,
+           0.0384
+          ],
+          "orientation": [
+           [
+            -0.159,
+            0.0697,
+            -0.9848
+           ],
+           [
+            -0.9873,
+            -0.0112,
+            0.1586
+           ],
+           [
+            0.0,
+            0.9975,
+            0.0706
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.07,
+         0.155,
+         0.3001
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.8321,
+           0.8404,
+           -0.0768
+          ],
+          "orientation": [
+           [
+            0.1115,
+            -0.0493,
+            -0.9925
+           ],
+           [
+            -0.9938,
+            -0.0055,
+            -0.1113
+           ],
+           [
+            0.0,
+            0.9988,
+            -0.0496
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1,
+         0.095,
+         0.5085
+        ],
+        "Color": [
+         0.949,
+         0.6941,
+         0.2039
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.1455,
+           0.8505,
+           -0.0922
+          ],
+          "orientation": [
+           [
+            0.1115,
+            -0.0493,
+            -0.9925
+           ],
+           [
+            -0.9938,
+            -0.0055,
+            -0.1113
+           ],
+           [
+            0.0,
+            0.9988,
+            -0.0496
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.07,
+         0.155,
+         0.2938
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.96,
+         -0.039
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Phoenix_Gold_Wings_Glow"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Phoenix_Gold_Prop2"
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

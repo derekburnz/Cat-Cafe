@@ -134,6 +134,10 @@ local CLEAN_LIP = 0.84
 local CLEAN_SHINE_TRANSPARENCY = 0.6
 
 local Button = {}
+
+-- #4224 (console): every live Button by the GuiButton a press lands on (its face, or the clean tile's target), so a
+-- gamepad shortcut can press one (L1/R1 on a window's tabs) and read its style. Weak keys: a destroyed button goes.
+local BY_TARGET: { [GuiButton]: any } = setmetatable({}, { __mode = "k" }) :: any
 Button.__index = Button
 -- what a clean button draws past its box, for layouts that keep a clear gap between them (#1210): its outline, and
 -- how much a hover grows it (the scale is round its middle, so each side gains half of the extra)
@@ -527,29 +531,38 @@ function Button.new(props: Props): Button
 			applyStyle()
 		end)
 	)
+	local function activate()
+		-- A greyed button stays Active so a tap on it bonks; a drag that starts on it (a phone scroll) never
+		-- fires Activated, so scrolling past "can't afford" rows stays quiet (reviewer N57).
+		if not self._enabled then
+			Sound.play("uiError")
+			local onLocked = self._onLocked
+			if onLocked then
+				onLocked()
+			end
+			return
+		end
+		local sound = self._sound
+		if sound then
+			Sound.play(sound)
+		end
+		local onClick = self._onClick
+		if onClick then
+			onClick()
+		end
+	end
+	self._activate = activate
+	-- the value holds the key (self.instance holds target), so the weak key alone never lets go: destroy and the
+	-- target's own Destroying (a row that goes with its parent) take the entry out
+	self._target = target
+	BY_TARGET[target] = self
 	table.insert(
 		self._connections,
-		target.Activated:Connect(function()
-			-- A greyed button stays Active so a tap on it bonks; a drag that starts on it (a phone scroll) never
-			-- fires Activated, so scrolling past "can't afford" rows stays quiet (reviewer N57).
-			if not self._enabled then
-				Sound.play("uiError")
-				local onLocked = self._onLocked
-				if onLocked then
-					onLocked()
-				end
-				return
-			end
-			local sound = self._sound
-			if sound then
-				Sound.play(sound)
-			end
-			local onClick = self._onClick
-			if onClick then
-				onClick()
-			end
+		target.Destroying:Connect(function()
+			BY_TARGET[target] = nil
 		end)
 	)
+	table.insert(self._connections, target.Activated:Connect(activate))
 
 	if props.parent then
 		root.Parent = props.parent
@@ -571,7 +584,29 @@ function Button.setEnabled(self: any, enabled: boolean)
 	self._applyStyle()
 end
 
+-- #4224: presses the Button whose press lands on `target`, as a tap would (a greyed one bonks). False when `target`
+-- is no live Button's.
+function Button.press(target: Instance?): boolean
+	local button = if target ~= nil and target:IsA("GuiButton")
+		then BY_TARGET[target :: GuiButton]
+		else nil
+	if button == nil then
+		return false
+	end
+	button._activate()
+	return true
+end
+
+-- #4224: the style of the Button whose press lands on `target`, or nil when it is no live Button's
+function Button.styleOf(target: Instance?): Style?
+	local button = if target ~= nil and target:IsA("GuiButton")
+		then BY_TARGET[target :: GuiButton]
+		else nil
+	return if button ~= nil then button._style else nil
+end
+
 function Button.destroy(self: any)
+	BY_TARGET[self._target] = nil
 	for _, connection in self._connections do
 		connection:Disconnect()
 	end

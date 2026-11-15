@@ -25,6 +25,7 @@ local TweenService = game:GetService("TweenService")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
@@ -40,11 +41,17 @@ export type Choice = {
 
 export type Ask = {
 	title: string,
-	choices: { Choice }, -- two or three
-	seconds: number, -- how long it stays with no answer
+	choices: { Choice }, -- one (#4174: a centred button), two or three
+	-- how long it stays with no answer; nil stays until a button or the X (#4174, Derek 2026-11-14: the Starter
+	-- Bundle card "stays forever on screen until X"), with no draining bar
+	seconds: number?,
 	thanks: string?, -- said for THANKS_SECONDS after a press, in place of the title; nil slides away at once
 	lines: number?, -- F92: 2 wraps a long title onto two lines and makes the card that much taller; 1 by default
 	rows: number?, -- #3657: 2 lays the buttons over two rows (the first half, rounded down, on top), the card that much taller
+	-- #4174 (Derek 2026-11-14: "make sure it has a good art for the pop up"): a square picture on the left under the
+	-- band, the line and buttons to its right, the card that much wider
+	picture: string?,
+	line: string?, -- #4174: up to two short lines of what the ask is about, over the buttons
 	answer: (id: string?) -> (),
 	ended: ((how: string) -> ())?,
 }
@@ -63,13 +70,25 @@ export type AskCard = {
 }
 
 local CARD_W = 400
-local TITLE_H = 26
-local TITLE_TEXT = Theme.sizes.textLarge - 2
+-- #3891 (Derek 2026-11-13: "make the ui for pop ups like this easier to see"): the title sits on a gold band in
+-- white with a dark outline, a size bigger, and the card has a soft shadow under it
+local TITLE_H = 30
+local TITLE_TEXT = Theme.sizes.textLarge
+local SHADOW = 6 -- px the shadow drops under the card
 local CHOICE_TEXT = Theme.sizes.textBody
 -- Studio 2026-11-13 (the invite card's X sat over the word "they"): the X hangs over the card's top right corner, so
 -- the title's right end keeps its reach clear; set once the X is made
 local TITLE_RIGHT = 0
 local CHOICE_H = 44
+local LONE_WIDTH = 0.6 -- #4174: a one-button ask's button, of the row's width
+local PICTURE = 128 -- #4174: the picture's side (design px; a size smaller on a phone)
+local LINE_H = 38 -- #4174: room for the line's two rows
+local LINE_TEXT = Theme.sizes.textSmall
+local WIDEN = true -- #4174: a picture widens the card by its own width (not on a phone)
+-- #4174 (Review-QA: on a small phone the taller card's X sat on the goal arrow and its top on the side panel's button):
+-- on a phone the picture runs down the card's left side from the band to the buttons, the title moves right of it and
+-- the line is left out, so a picture never makes the card taller than an ask without one
+local COMPACT = false
 local PAD = 10
 local GAP = 8
 local BAR_H = 5
@@ -111,8 +130,10 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 	-- width, title and padding; the buttons keep a finger's height (Scale.tapHeight)
 	if Scale.isPhone() then
 		CARD_W, TITLE_H, TITLE_TEXT, CHOICE_TEXT, PAD =
-			340, 22, Theme.sizes.textBody + 1, Theme.sizes.textSmall, 7
+			340, 26, Theme.sizes.textBody + 2, Theme.sizes.textSmall, 7
 		TITLE_RIGHT = 26
+		-- #4174: on a phone the card keeps its width (wider, it reached the menu grid on a small phone)
+		PICTURE, LINE_H, LINE_TEXT, WIDEN, COMPACT = 96, 30, Theme.sizes.textSmall - 1, false, true
 	end
 	local choiceH = Scale.tapHeight(CHOICE_H, Theme.sizes.buttonDepth)
 	self._choiceH = choiceH
@@ -128,6 +149,19 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 		Parent = root,
 	})
 	self._holder = holder
+	-- #3891: a soft dark shadow under the card, so it lifts off the world behind it
+	Create("Frame", {
+		Name = "Shadow",
+		BackgroundColor3 = Color3.new(0, 0, 0),
+		BackgroundTransparency = 0.55,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(0, SHADOW),
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 0,
+		Parent = holder,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 4) }),
+	})
 	local card: Frame = Create("Frame", {
 		Name = "Card",
 		BackgroundColor3 = Theme.modal.panel,
@@ -138,8 +172,16 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 4) }),
 	})
-	Outline.border(card, Theme.sizes.outline + 1)
+	Outline.border(card, Theme.sizes.outline + 2)
 	self._card = card
+	-- #3891: the gold band behind the title (the card's rounded top clips it)
+	self._band = Create("Frame", {
+		Name = "Band",
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, PAD + TITLE_H + 3),
+		Parent = card,
+	})
 	self._title = Create("TextLabel", {
 		Name = "Title",
 		BackgroundTransparency = 1,
@@ -147,8 +189,43 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 		Size = UDim2.new(1, -2 * PAD - TITLE_RIGHT, 0, TITLE_H),
 		FontFace = Theme.fonts.display,
 		TextSize = TITLE_TEXT,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = Theme.colors.white,
 		Text = "",
+		Parent = card,
+	})
+	Outline.text(self._title, 2)
+	-- #4174: the picture on a lighter tile, and the line beside it
+	self._picture = Create("Frame", {
+		Name = "Picture",
+		BackgroundColor3 = Theme.colors.white,
+		BackgroundTransparency = 0.35,
+		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(PICTURE, PICTURE),
+		Visible = false,
+		Parent = card,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("ImageLabel", {
+			Name = "Art",
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(1.08, 1.08),
+			ScaleType = Enum.ScaleType.Fit,
+			Image = "",
+		}),
+	})
+	self._line = Create("TextLabel", {
+		Name = "Line",
+		BackgroundTransparency = 1,
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = LINE_TEXT,
+		TextColor3 = Theme.colors.ink,
+		TextWrapped = true,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextYAlignment = Enum.TextYAlignment.Center,
+		Text = "",
+		Visible = false,
 		Parent = card,
 	})
 	-- the X: a finger wide on a touch screen (Scale.tapHeight), in the close red every window uses
@@ -182,6 +259,7 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center, -- #4174: a lone button sits in the middle
 			Padding = UDim.new(0, GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
@@ -197,6 +275,7 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center, -- #4174: a lone button sits in the middle
 			Padding = UDim.new(0, GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
@@ -210,6 +289,7 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 		Size = UDim2.new(1, 0, 0, BAR_H),
 		Parent = card,
 	})
+	self._track = track
 	self._bar = Create("Frame", {
 		Name = "Bar",
 		BackgroundColor3 = Theme.colors.gold,
@@ -228,23 +308,59 @@ end
 function AskCard._fit(self: any)
 	local scale = math.max(self._uiScale.Scale, 0.01)
 	local width = self._holder.Parent.AbsoluteSize.X / scale
-	self._holder.Size = UDim2.fromOffset(math.min(CARD_W, math.max(280, width - 32)), self._cardH)
+	local want = CARD_W + (self._extraW or 0) -- #4174: a picture widens the card by its own width
+	self._holder.Size = UDim2.fromOffset(math.min(want, math.max(280, width - 32)), self._cardH)
 end
 
 -- F92: one title line or two; the buttons and the card's foot move down with it. #3657: one row of buttons or two.
-function AskCard._setLines(self: any, lines: number, rows: number?)
+-- #4174: with a picture it sits on the left under the band and the line and buttons move right of it; with a line it
+-- sits over the buttons; an ask with no seconds has no draining bar.
+function AskCard._setLines(
+	self: any,
+	lines: number,
+	rows: number?,
+	picture: string?,
+	line: string?,
+	timed: boolean?
+)
 	local two = (rows or 1) >= 2
 	self._lines = lines
 	self._rows = if two then 2 else 1
 	local titleH = if lines >= 2 then TITLE_H * 2 - 2 else TITLE_H
 	self._title.TextWrapped = lines >= 2
 	local inset: number = self._titleInset or 0
-	self._title.Size = UDim2.new(1, -2 * PAD - inset - TITLE_RIGHT, 0, titleH)
-	self._row.Position = UDim2.fromOffset(PAD, PAD + titleH + 6)
-	self._row2.Position = UDim2.fromOffset(PAD, PAD + titleH + 6 + self._choiceH + GAP)
-	self._row2.Visible = two
+	self._band.Size = UDim2.new(1, 0, 0, PAD + titleH + 3)
+	local top = PAD + titleH + 6
 	local buttonsH = if two then self._choiceH * 2 + GAP else self._choiceH
-	self._cardH = PAD + titleH + 6 + buttonsH + PAD + BAR_H
+	local hasPicture = picture ~= nil and picture ~= ""
+	local compact = hasPicture and COMPACT
+	-- compact: the picture spans the title and the buttons, the title starts right of it
+	local side = if compact then titleH + 6 + buttonsH else PICTURE
+	local left = if hasPicture then PAD + side + GAP else PAD
+	local titleLeft = if compact then left else PAD
+	self._title.Position = UDim2.fromOffset(titleLeft, PAD)
+	self._title.Size = UDim2.new(1, -titleLeft - PAD - inset - TITLE_RIGHT, 0, titleH)
+	self._extraW = if hasPicture and WIDEN then PICTURE + GAP else 0
+	self._picture.Visible = hasPicture
+	self._picture.Size = UDim2.fromOffset(side, side)
+	self._picture.Position = UDim2.fromOffset(PAD, if compact then PAD else top)
+	local art = self._picture:FindFirstChild("Art") :: ImageLabel
+	art.Image = if hasPicture then picture :: string else ""
+	local hasLine = line ~= nil and line ~= "" and not compact
+	local lineH = if hasLine then LINE_H + 4 else 0
+	self._line.Visible = hasLine
+	self._line.Text = line or ""
+	self._line.Position = UDim2.fromOffset(left, top)
+	self._line.Size = UDim2.new(1, -left - PAD, 0, LINE_H)
+	self._row.Position = UDim2.fromOffset(left, top + lineH)
+	self._row.Size = UDim2.new(1, -left - PAD, 0, self._choiceH)
+	self._row2.Position = UDim2.fromOffset(left, top + lineH + self._choiceH + GAP)
+	self._row2.Size = UDim2.new(1, -left - PAD, 0, self._choiceH)
+	self._row2.Visible = two
+	local bodyH = math.max(lineH + buttonsH, if hasPicture and not compact then PICTURE else 0)
+	local bar = if timed == false then 0 else BAR_H
+	self._track.Visible = bar > 0
+	self._cardH = top + bodyH + PAD + bar
 	self:_fit()
 end
 
@@ -261,6 +377,10 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 	end
 	table.clear(self._buttons)
 	local top = if self._rows >= 2 then math.floor(#choices / 2) else #choices
+	-- #4174 (the Starter Bundle card, Derek: no UI issues on any device): an ask with one button keeps it a button,
+	-- LONE_WIDTH of the row in the middle with its words a size bigger, not a full width slab with small words
+	local lone = #choices == 1
+	local loneWidth = if self._picture.Visible then 1 else LONE_WIDTH -- beside a picture the row is narrow already
 	for index, choice in choices do
 		local id = choice.id
 		local upper = index <= top
@@ -276,8 +396,10 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 					then ShopIcons.clean(Theme.cleanGlyphs[choice.icon] or "")
 					else nil,
 				style = choice.style or "ghost",
-				textSize = CHOICE_TEXT,
-				size = UDim2.new(1 / count, -GAP * (count - 1) / count, 1, 0),
+				textSize = if lone then CHOICE_TEXT + 4 else CHOICE_TEXT,
+				size = if lone
+					then UDim2.fromScale(loneWidth, 1)
+					else UDim2.new(1 / count, -GAP * (count - 1) / count, 1, 0),
 				layoutOrder = index,
 				parent = if upper then self._row else self._row2,
 				sound = "uiToggle",
@@ -326,7 +448,9 @@ function AskCard.show(self: any, ask: Ask)
 	self._token += 1
 	local token = self._token
 	self._title.Text = ask.title
-	self:_setLines(ask.lines or 1, ask.rows)
+	local seconds = ask.seconds
+	local timed = seconds ~= nil and seconds > 0
+	self:_setLines(ask.lines or 1, ask.rows, ask.picture, ask.line, timed)
 	self:_buildChoices(ask.choices)
 	local card: Frame = self._holder
 	local wasVisible = card.Visible
@@ -341,20 +465,36 @@ function AskCard.show(self: any, ask: Ask)
 		slide:Play()
 	end
 	Sound.play("uiHint")
+	-- #4224 (console): on a gamepad the card takes the selection on its first choice, B closes it as its X does, and
+	-- the selection goes back as it hides; a next ask on the same card (#3657) takes it again on its new buttons
+	local navDone: (() -> ())? = self._navDone
+	if navDone ~= nil then
+		navDone()
+	end
+	self._navDone = GamepadNav.card("askCard", card, function(): boolean?
+		if self._showing then
+			self:hide("closed")
+		end
+		return nil
+	end)
 	local bar: Frame = self._bar
 	local old: Tween? = self._drain
 	if old then
 		old:Cancel()
 	end
 	bar.Size = UDim2.fromScale(1, 1)
+	self._drain = nil
+	if seconds == nil or seconds <= 0 then
+		return -- #4174: stays until a button or the X
+	end
 	local drain = TweenService:Create(
 		bar,
-		TweenInfo.new(ask.seconds, Enum.EasingStyle.Linear),
+		TweenInfo.new(seconds, Enum.EasingStyle.Linear),
 		{ Size = UDim2.fromScale(0, 1) }
 	)
 	self._drain = drain
 	drain:Play()
-	task.delay(ask.seconds, function()
+	task.delay(seconds, function()
 		if self._token == token then
 			self:hide("ignored")
 		end
@@ -396,6 +536,11 @@ end
 function AskCard.hide(self: any, how: string?)
 	if not self._showing then
 		return
+	end
+	local navDone: (() -> ())? = self._navDone
+	self._navDone = nil
+	if navDone ~= nil then
+		navDone()
 	end
 	self:_answer(nil, how or "hidden")
 	self._showing = false

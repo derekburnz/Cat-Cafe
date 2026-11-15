@@ -35,6 +35,8 @@ Products
   PotionL         a wide crate of 18 bottles and 2 bonus ones on top, with a pink bow on it
   CafePass        a season badge: a gold rosette with a berry centre, a paw and a star, two ribbon tails
   SteadyPawPack   a low wooden crate of 10 Steady Paw jars with a round mint tag and a white paw on its front (#1867)
+  StarterPopup    (CatCafe_Icon_StarterPopup) the Starter Bundle pop-up card's picture: Sprinkles in its Epic look,
+                  the three potions and the 2x money coins, on a soft warm glow
   ThankYouBadge   a gold heart badge (the supporter's gold heart) with a cream paw, pink ribbon tails, twinkles (#1867)
 
 Built in Blender axes (x right, -y toward the camera, z up); nothing here is a game model.
@@ -537,6 +539,19 @@ def starter_bundle(mat):
         b.box((-1.45 - 0.27 + 0.18 * i, 0.5, 1.15), (0.18, 0.06, 0.5), ("fur_bubblegum", "cream")[i % 2], bevel=False)
     b.box((-1.45, 0.47, 1.15), (0.6, 0.02, 0.06), "fur_strawberry", bevel=False)
     return box + cat + pots + _fin(b, "StarterBundle", mat)
+
+
+def starter_popup(mat):
+    """The Starter Bundle pop-up card's picture (Derek 2026-11-14, Design-Agent's brief): Sprinkles in its Epic look,
+    three-quarter front and a little left of the middle, with the bundle's three potions (Big Money, Swift, Steady
+    Paw) and the 2x money coins in front at the bottom right. icons.py puts a soft warm glow behind it."""
+    cat = place(_cat("Sprinkles", mat, body="walk"), at=(-0.5, 0.3, 0.0), scale=1.45, yaw=48)
+    pots = (_flask("BigTip", mat, (0.75, -1.0, 0.0), 0.4, yaw=-6) + _flask("Swift", mat, (1.3, -0.85, 0.0), 0.4)
+            + _flask("Steady", mat, (1.85, -0.7, 0.0), 0.4, yaw=8))
+    coins = place(icon_art.coins(mat), at=(2.0, 0.5, 0.0), scale=0.55)
+    b = Builder()
+    _tag(b, "X2", 2.1, 1.75, 0.42, y=0.3)
+    return cat + pots + coins + _fin(b, "StarterPopup", mat)
 
 
 def potion_xs(mat):

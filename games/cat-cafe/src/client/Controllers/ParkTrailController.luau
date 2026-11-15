@@ -30,6 +30,7 @@ local CANNON_TAG = "CatCannon"
 local rest = ParkTrailLogic.rest()
 local lastPhase: ParkTrailLogic.Phase? = nil
 local wasDue = false
+local visited = false -- #3893: the player has been in the Park this join
 local sent: { [string]: boolean } = {}
 
 local function report(value: string)
@@ -123,7 +124,15 @@ local function tick(dt: number)
 		return
 	end
 	local caught = ParkFirstLogic.caught(state.collection, areaOf)
-	if not ParkTrailLogic.due(on, state.tier, caught) then
+	-- #3893: reaching the Park ends the walk (and the tutorial X's hold on the strip), switch or not
+	if not visited and UI.cannon.area == ParkTrailLogic.AREA then
+		visited = true
+		if wasDue then
+			report(ParkTrailLogic.ENTERED)
+		end
+	end
+	UI.parkTrail.reach(ParkTrailLogic.reached(caught, visited))
+	if not ParkTrailLogic.due(on, state.tier, caught, visited) then
 		if wasDue then
 			wasDue = false
 			lastPhase = nil

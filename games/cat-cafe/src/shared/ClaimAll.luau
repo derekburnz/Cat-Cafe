@@ -170,7 +170,9 @@ function ClaimAll.merge(lines: { string }): { string }
 		elseif spins ~= nil then
 			add("spins", "spins", nil, tonumber(spins) :: number)
 		elseif count ~= nil and name ~= nil and not string.find(name, "(", 1, true) then
-			add("count " .. name, "count", name, tonumber(count) :: number)
+			-- "2 Alley Crates" and "1 Alley Crate" are one entry; the plural goes back on below
+			local single = string.match(name, "^(.+ Crate)s$") or name
+			add("count " .. single, "count", single, tonumber(count) :: number)
 		else
 			local kept: Entry = { format = "text", text = line }
 			table.insert(order, kept)
@@ -188,7 +190,9 @@ function ClaimAll.merge(lines: { string }): { string }
 		elseif entry.format == "spins" then
 			table.insert(out, string.format("%d spin%s", total, if total == 1 then "" else "s"))
 		elseif entry.format == "count" then
-			table.insert(out, string.format("%d %s", total, entry.name :: string))
+			local name = entry.name :: string
+			local plural = total ~= 1 and string.sub(name, -6) == " Crate"
+			table.insert(out, string.format("%d %s%s", total, name, if plural then "s" else ""))
 		else
 			table.insert(out, entry.text :: string)
 		end

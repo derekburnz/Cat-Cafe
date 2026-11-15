@@ -23,7 +23,7 @@
 -- settings.tradeRequests) and a Trades row that opens the last 20 trades (callbacks.openTrades).
 -- Testers (Derek's 10-28 to 10-30 notes: "reset character (wipe save) option for testing"): a Testers section at the
 -- end with one row, Reset my save, shown only while showTester(true) (the Player attribute Tester, which the server
--- sets in Studio and for the game's owner). Its Reset button swaps the list for a confirm card; the card's Reset
+-- sets in Studio and for the game's owner; since #4359 for every player, under the header "Start over"). Its Reset button swaps the list for a confirm card; the card's Reset
 -- calls callbacks.resetSave once, and the row reads "Resetting your save..." with the button grey until the server
 -- kicks the player to rejoin, or after RESET_HOLD_SECONDS when it refused (its toast says why).
 -- #3961 (Derek 2026-11-13: "make it easy to navigate on phone and pc"): one long list became four tabs over it,
@@ -737,7 +737,7 @@ function Settings._buildTester(self: any, order: number, content: Instance, rese
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
 		TextColor3 = PAL.subtext,
-		Text = "Testers",
+		Text = "Start over", -- #4359: every player sees it now, not only testers
 		Parent = self._list,
 	})
 	self._testerHeader = header

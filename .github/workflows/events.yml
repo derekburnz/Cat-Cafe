@@ -13,7 +13,7 @@ on:
       action:
         description: "show | add | test (5 minutes, starting in about 2) | remove (by id) | clear (empty the schedule) | roblox (list the Experience Events, the Notify Me cards) | roblox-create | roblox-update (by event id)"
         type: choice
-        options: [show, add, test, remove, clear, roblox, roblox-create, roblox-update]
+        options: [show, admin, admin-stop, add, test, remove, clear, roblox, roblox-create, roblox-update]
         default: show
       store:
         description: "live (CatCafe_Events) or dev (CatCafe_Events_dev, what Studio reads)"
@@ -42,6 +42,10 @@ on:
         default: false
       event:
         description: 'roblox-create and roblox-update: JSON, every part optional, {"subtitle":"","description":"","end":"YYYY-MM-DD HH:MM","category":"","image":"asset id"}'
+        required: false
+        default: ""
+      admin:
+        description: "admin (#4326): the admin event and how, e.g. bowl, storm, wheel, \"storm 10 now\" (kind, then minutes 1 to 60 and/or now; without now it starts after the 2 minute warning)"
         required: false
         default: ""
       effects:
@@ -76,6 +80,7 @@ jobs:
       BIG: ${{ inputs.big }}
       EFFECTS: ${{ inputs.effects }}
       EVENT: ${{ inputs.event }}
+      ADMIN: ${{ inputs.admin }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -96,6 +101,12 @@ jobs:
           script=games/cat-cafe/tools/opencloud/events.sh
           case "$ACTION" in
           show) bash "$script" show ;;
+          admin)
+            read -r -a ask <<<"$ADMIN"
+            [ "${#ask[@]}" -ge 1 ] || { echo "::error::admin needs a kind: bowl, storm or wheel"; exit 1; }
+            bash "$script" admin "${ask[@]}"
+            ;;
+          admin-stop) bash "$script" admin-stop ;;
           add)
             big=""
             [ "$BIG" != true ] || big=big

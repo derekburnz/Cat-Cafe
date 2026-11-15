@@ -155,7 +155,42 @@ function OwnerTest.isShoutCommand(text: unknown): boolean
 end
 
 function OwnerTest.isCommand(text: unknown): boolean
-	return OwnerTest.isEventCommand(text) or OwnerTest.isShoutCommand(text)
+	return OwnerTest.isEventCommand(text)
+		or OwnerTest.isShoutCommand(text)
+		or OwnerTest.isAdminCommand(text)
+end
+
+-- #4195 (Derek 2026-11-14: "owner chat commands to start each admin event himself"): `/admin <kind> [minutes]
+-- [now]` and `/admin stop`, any case. `kind` is one of CafeEvents.ADMIN_KINDS (EventService answers an unknown one
+-- with the list); `minutes` is the kind's own length when none is typed; `now` as the last word skips the 2 minute
+-- warning.
+--   isAdminCommand(text)       the chat line is "/admin" alone or "/admin ..."
+--   adminAsk(text) -> AdminAsk  what it asks for
+function OwnerTest.isAdminCommand(text: unknown): boolean
+	if type(text) ~= "string" then
+		return false
+	end
+	local lower = string.lower(text)
+	return lower == "/admin" or string.sub(lower, 1, 7) == "/admin "
+end
+
+export type AdminAsk = { stop: boolean, kind: string, minutes: number?, now: boolean }
+
+function OwnerTest.adminAsk(text: string): AdminAsk
+	local words: { string } = {}
+	for word in string.gmatch(string.lower(text), "%S+") do
+		table.insert(words, word)
+	end
+	local kind = words[2] or "" -- "" for a bare /admin: no such kind, so the reply lists them
+	if kind == "stop" then
+		return { stop = true, kind = "stop", minutes = nil, now = false }
+	end
+	local skip = #words >= 3 and words[#words] == "now"
+	local minutes = tonumber(words[3] or "")
+	if minutes ~= nil and (minutes ~= minutes or minutes < 1 or minutes == math.huge) then
+		minutes = nil
+	end
+	return { stop = false, kind = kind, minutes = minutes, now = skip }
 end
 
 export type EventAsk = { stop: boolean, preset: string, minutes: number }

@@ -72,11 +72,11 @@ return function()
 		end)
 
 		it(
-			"is the bait bowl straight away for a new save, which starts with its table (#3660)",
+			"has no buy due for a new save, which starts with its table and Bait bowl (#3660, #4097)",
 			function()
 				local telemetry = ProfileSchema.template(100).telemetry
 				telemetry.onboardingStep = Onboarding.index("first_customer_served")
-				expect(FirstFive.nextBuy(telemetry)).to.equal("lure_bowl")
+				expect(FirstFive.nextBuy(telemetry)).to.equal(nil)
 			end
 		)
 
@@ -160,6 +160,15 @@ return function()
 			expect(FirstFive.firstSceneBucket(10)).to.equal("10-20")
 			expect(FirstFive.firstSceneBucket(25)).to.equal("20-40")
 			expect(FirstFive.firstSceneBucket(90)).to.equal("40+")
+		end)
+
+		it("buckets each part of the wait before the save (#4307)", function()
+			expect(FirstFive.bootBucket(0.5)).to.equal("lt2")
+			expect(FirstFive.bootBucket(2)).to.equal("2-5")
+			expect(FirstFive.bootBucket(7)).to.equal("5-10")
+			expect(FirstFive.bootBucket(30)).to.equal("10+")
+			expect(FirstFive.bootBucket(0 / 0)).to.equal("lt2")
+			expect(FirstFive.BOOT_MAX >= 60).to.equal(true)
 		end)
 
 		it(

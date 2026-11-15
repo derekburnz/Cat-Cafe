@@ -124,33 +124,34 @@ local function cloudHop(player: Player, landing: CFrame, arrived: (() -> ())?)
 	end)
 end
 
-local function onTravel(player: Player, rawDestination: unknown)
+-- Whether the trip went: true once the character is on its way (a cloud hop lands it a moment later).
+local function onTravel(player: Player, rawDestination: unknown): boolean
 	local destination = Guard.id(rawDestination)
 	if destination == nil then
-		return
+		return false
 	end
 	local last = lastTravel[player]
 	if last ~= nil and os.clock() - last < Config.TravelCooldownSeconds then
 		local left = Config.TravelCooldownSeconds - (os.clock() - last)
 		Net.fire(player, "TravelResult", destination, false, Cooldown.text(left)) -- #2324
-		return
+		return false
 	end
 	local landing, reason = landingFor(player, destination)
 	if landing == nil then
 		Net.fire(player, "TravelResult", destination, false, reason)
 		Net.toast(player, reason or "You can't go there", "warn")
-		return
+		return false
 	end
 	local busy = CatService.busyReason(player)
 	if busy ~= nil then
 		Net.fire(player, "TravelResult", destination, false, busy)
 		Net.toast(player, busy, "warn")
-		return
+		return false
 	end
 	local character = player.Character
 	if character == nil or character:FindFirstChild("HumanoidRootPart") == nil then
 		Net.fire(player, "TravelResult", destination, false, "Still loading")
-		return
+		return false
 	end
 	-- ShovedAt is the server time a tackle last hit this character (ShoveService, server set)
 	-- #1434: with the 1 s cooldown a second trip can come inside a cloud hop home (CloudHopSeconds); its move at
@@ -161,7 +162,7 @@ local function onTravel(player: Player, rawDestination: unknown)
 			then hopAt + Config.CloudHopSeconds - Workspace:GetServerTimeNow()
 			else Config.CloudHopSeconds
 		Net.fire(player, "TravelResult", destination, false, Cooldown.text(left)) -- #2324
-		return
+		return false
 	end
 	local shovedAt = character:GetAttribute("ShovedAt")
 	local down = Cannon.downRefusal(
@@ -170,7 +171,7 @@ local function onTravel(player: Player, rawDestination: unknown)
 	if down ~= nil then
 		Net.fire(player, "TravelResult", destination, false, down)
 		Net.toast(player, down, "warn")
-		return
+		return false
 	end
 	lastTravel[player] = os.clock()
 	if destination == "home" and wildAreaOf(player) ~= nil then
@@ -181,11 +182,19 @@ local function onTravel(player: Player, rawDestination: unknown)
 	end
 	Net.fire(player, "TravelResult", destination, true, nil)
 	Telemetry.custom(player, "travel", 1, { destination }) -- "home" or "cannon": landingFor allowed it
+	return true
+end
+
+-- #4346: the AFK tile's trip home, with every check and answer a Travel("home") gets. True when it went.
+function TravelService.home(player: Player): boolean
+	return onTravel(player, "home")
 end
 
 function TravelService.start(builtWorld: WorldBuilder.World)
 	world = builtWorld
-	Net.on("Travel", onTravel)
+	Net.on("Travel", function(player: Player, rawDestination: unknown)
+		onTravel(player, rawDestination)
+	end)
 	Players.PlayerRemoving:Connect(function(player)
 		lastTravel[player] = nil
 	end)

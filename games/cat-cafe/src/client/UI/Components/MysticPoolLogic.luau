@@ -40,9 +40,18 @@ MysticPoolLogic.TAKE_NEW = "Take new"
 MysticPoolLogic.EQUAL_LINE = "Each trait inside a rarity is equally likely."
 
 -- #3908: whether the Secret rarity is in the rolls (the server's `secretTrait` switch, copied to ReplicatedStorage).
--- The switch flips at a restart, so a card built once per session shows what the server rolls.
+-- It can flip while a server runs (secretChanged), so the menu redraws its odds then.
 function MysticPoolLogic.secret(): boolean
 	return ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Traits.SECRET_FLAG) == true
+end
+
+-- #4314 follow-up (Derek 2026-11-14: "make sure the odds show secret trait odds in the trait menu also on update"):
+-- the switch reaches running servers within a minute with no restart (LiveFlagService), so the menu redraws its odds
+-- when the copied attribute changes. `fn` runs on each change; the caller disconnects the connection.
+function MysticPoolLogic.secretChanged(fn: () -> ()): RBXScriptConnection
+	return ReplicatedStorage
+		:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. Traits.SECRET_FLAG)
+		:Connect(fn)
 end
 
 -- The odds line as two short lines, for a narrow card: the rarity odds, then "Each trait inside a rarity ...".

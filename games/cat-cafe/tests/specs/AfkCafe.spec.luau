@@ -167,4 +167,40 @@ return function()
 			)
 		end)
 	end)
+
+	describe("AFK mode (#4346)", function()
+		it("rests once the trip home settles, whatever the input", function()
+			expect(AfkCafe.modeRests(AfkCafe.ARRIVAL_STILL_SECONDS, true, false)).to.equal(true)
+			expect(AfkCafe.modeRests(AfkCafe.ARRIVAL_STILL_SECONDS - 0.5, true, false)).to.equal(
+				false
+			)
+			expect(AfkCafe.modeRests(60, false, false)).to.equal(false)
+			expect(AfkCafe.modeRests(60, true, true)).to.equal(false)
+		end)
+
+		it(
+			"ends when a player who rested walks off, or when no rest came in the arrival window",
+			function()
+				expect(AfkCafe.modeEnds(true, true, 9999)).to.equal(false)
+				expect(AfkCafe.modeEnds(true, false, 5)).to.equal(true)
+				expect(AfkCafe.modeEnds(false, false, 5)).to.equal(false)
+				expect(AfkCafe.modeEnds(false, false, AfkCafe.ARRIVAL_SECONDS + 1)).to.equal(true)
+			end
+		)
+
+		it("rides the rejoin's teleport data", function()
+			local data = AfkCafe.teleportData(true)
+			expect(AfkCafe.arrivedResting(data, 1, 1)).to.equal(true)
+			expect(AfkCafe.arrivedInMode(data)).to.equal(true)
+			expect(AfkCafe.arrivedInMode(AfkCafe.teleportData())).to.equal(false)
+			expect(AfkCafe.arrivedInMode(nil)).to.equal(false)
+			expect(AfkCafe.arrivedInMode({ afkMode = "yes" })).to.equal(false)
+		end)
+
+		it("is behind its own switch, off by default", function()
+			local LiveFlags = require(game:GetService("ReplicatedStorage").Shared.LiveFlags)
+			expect(table.find(LiveFlags.KEYS, AfkCafe.BUTTON_FLAG) ~= nil).to.equal(true)
+			expect(LiveFlags.OFF_BY_DEFAULT[AfkCafe.BUTTON_FLAG]).to.equal(true)
+		end)
+	end)
 end

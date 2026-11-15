@@ -209,11 +209,11 @@ local function streak(character: Model, root: BasePart): { Instance }
 	trail.Attachment1 = right
 	trail.Lifetime = t.streakSeconds
 	trail.MinLength = 0.05
-	trail.Texture = Presets.textures.smoke
-	trail.TextureMode = Enum.TextureMode.Stretch
+	-- No Texture: the particle smoke picture drew as nothing on a Beam in Studio (#4085), and a Trail is the same
+	-- kind of textured strip. A bare strip in the cream colour, fading along its length, reads as the streak.
 	trail.Color = ColorSequence.new(Presets.palette.cream)
 	trail.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.35),
+		NumberSequenceKeypoint.new(0, 0.5),
 		NumberSequenceKeypoint.new(1, 1),
 	})
 	trail.WidthScale = NumberSequence.new(1, 0.4)

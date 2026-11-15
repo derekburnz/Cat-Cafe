@@ -15,6 +15,10 @@
 -- leaves the bag is gone unpaid. A rich customer comes only by day before the dusk warning (data-model 12 v0.13.4),
 -- and the timer keeps counting while bags wait, holding at 0 while the plot is full.
 -- Owner safety (S29): every path takes the bag out of the table before it adds coins, so a bag pays exactly once.
+-- #3889: with the `rareCustomers` switch on the timer stops and RareCustomerService sends the customer
+-- (RichTipService.arriveRare) when an arriving customer rolls rich; the bag then waits on any open table, which the
+-- plot attribute RichTable names for the client's rich customer (1 by default). A new account's first one still
+-- comes at FirstVisitAt.rich, on table 1.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -28,8 +32,10 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local FirstVisit = require(script.Parent.Parent.Util.FirstVisit)
 local FirstVisits = require(ReplicatedStorage.Shared.FirstVisits)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
+local RareCustomers = require(ReplicatedStorage.Shared.RareCustomers)
 local RichBags = require(ReplicatedStorage.Shared.RichBags)
 local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local Telemetry = require(script.Parent.Telemetry)
@@ -68,9 +74,17 @@ local function show(plot: WorldBuilder.Plot, amount: number, expiresAt: number, 
 end
 
 -- Where a bag sits: its slot's offset from the plot's RichTipAnchor, along the table.
+-- #3889: on another table, the same spot on that table (the anchor's place on table 1, moved to that table's anchor).
 local function positionOf(plot: WorldBuilder.Plot, bag: RichBags.Bag): Vector3
 	local offset = RichBags.offset(bag.slot)
-	return (plot.richTipAnchor.CFrame * CFrame.new(offset.x, 0, offset.z)).Position
+	local base = plot.richTipAnchor.CFrame
+	local index = bag.tableIndex
+	local first: BasePart? = plot.tableAnchors[1]
+	local other: BasePart? = if index ~= nil then plot.tableAnchors[index] else nil
+	if first ~= nil and other ~= nil and index ~= 1 then
+		base = other.CFrame * first.CFrame:ToObjectSpace(base)
+	end
+	return (base * CFrame.new(offset.x, 0, offset.z)).Position
 end
 
 local function folderOf(plot: WorldBuilder.Plot): Folder
@@ -281,7 +295,8 @@ local function drop(
 	dayRate: number,
 	now: number,
 	first: boolean,
-	seconds: number?
+	seconds: number?,
+	tableIndex: number?
 ): RichBags.Bag?
 	local existing = held[plot.index]
 	local entry: Held
@@ -310,6 +325,7 @@ local function drop(
 		droppedAt = now,
 		expiresAt = now + (seconds or FirstVisits.stay(first, Config.RichBagSeconds)),
 		first = first,
+		tableIndex = tableIndex,
 	}
 	table.insert(entry.bags, bag)
 	local record = Instance.new("Configuration")
@@ -319,6 +335,7 @@ local function drop(
 	record:SetAttribute("Slot", bag.slot)
 	record:SetAttribute("Position", positionOf(plot, bag))
 	record.Parent = folderOf(plot)
+	plot.model:SetAttribute("RichTable", tableIndex or 1) -- #3889: before RichVisitAt, so the customer sits there
 	plot.model:SetAttribute("RichVisitAt", now) -- the client's rich customer walks in for this drop
 	showFront(plot.index)
 	return bag
@@ -341,6 +358,7 @@ local function tickTimers(dt: number)
 	local now = os.time()
 	local dusk = math.floor(ClockService.phaseEndsAt())
 	local open_ = not ClockService.isNight() and dusk - now > Config.DuskWarningSeconds
+	local byChance = LiveFlagService.on(RareCustomers.FLAG) -- #3889: RareCustomerService sends them
 	for _, player in DataService.loadedPlayers() do
 		local plot = PlotService.get(player)
 		local profile = DataService.get(player)
@@ -356,7 +374,7 @@ local function tickTimers(dt: number)
 			or VisitTimer.draw(Config.RichEveryMin, Config.RichEveryMax, rng:NextNumber())
 				/ Economy.richRate(profile)
 		local due: boolean
-		left, due = VisitTimer.tick(left, dt, counting)
+		left, due = VisitTimer.tick(left, dt, counting and not byChance)
 		due = due and ready
 		-- #2792: a new account's first rich customer comes at FirstVisitAt.rich seconds of play, timer or not
 		if ready and not due and FirstVisit.due(player, profile, "rich") then
@@ -370,6 +388,33 @@ local function tickTimers(dt: number)
 		end
 		timers[player] = left
 	end
+end
+
+-- #3889: an arriving customer rolled rich (RareCustomerService, `rareCustomers` on, the cafe open). The bag waits on
+-- one of the cafe's open tables. False when the cafe cannot take one now (no income, no table, RichBagsMax waiting).
+function RichTipService.arriveRare(player: Player, u: number): boolean
+	local plot = PlotService.get(player)
+	local profile = DataService.get(player)
+	if plot == nil or profile == nil then
+		return false
+	end
+	local dayRate = Economy.incomePerSecond(profile)
+	local tables = math.min(Economy.level(profile, "tables"), #plot.tableAnchors)
+	if dayRate <= 0 or tables < 1 or bagCount(plot.index) >= Config.RichBagsMax then
+		return false
+	end
+	local now = os.time()
+	local first = FirstVisit.arrive(player, profile, plot.model, "rich")
+	local bag = drop(
+		player,
+		plot,
+		dayRate * Economy.tipMultiplier(profile, now),
+		now,
+		first,
+		nil,
+		RareCustomers.tableFor(tables, u)
+	)
+	return bag ~= nil
 end
 
 function RichTipService.start()

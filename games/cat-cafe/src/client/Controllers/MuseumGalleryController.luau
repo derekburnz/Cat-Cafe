@@ -16,6 +16,7 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalog = require(Shared:WaitForChild("Catalog"))
+local GoldTone = require(Shared:WaitForChild("GoldTone"))
 local LateStations = require(Shared:WaitForChild("LateStations"))
 local Net = require(script.Parent.Parent.Net)
 
@@ -56,22 +57,24 @@ local function holder(): Folder
 	return folder :: Folder
 end
 
-local function template(catId: string, coat: string): Model?
+-- The model to copy for a cat in `coat`, and whether the copy must be toned gold (#4133, shared/GoldTone).
+local function template(catId: string, coat: string): (Model?, boolean)
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	if assets == nil then
-		return nil
+		return nil, false
 	end
 	local names = { Catalog.catModelName(catId) }
+	local tone = false
 	if coat == "gold" then
-		table.insert(names, 1, Catalog.goldModelName(catId))
+		names, tone = GoldTone.names(Catalog.goldModelName(catId), Catalog.catModelName(catId))
 	end
 	for _, name in names do
 		local found = assets:FindFirstChild(name)
 		if found ~= nil and found:IsA("Model") then
-			return found :: Model
+			return found :: Model, tone
 		end
 	end
-	return nil
+	return nil, false
 end
 
 local function quiet(model: Instance)
@@ -99,11 +102,14 @@ end
 local function place(catId: string, coat: string, museum: Model)
 	local name = LateStations.exhibitSpot(catId)
 	local spot = if name ~= nil then museum:FindFirstChild(name, true) else nil
-	local source = template(catId, coat)
+	local source, tone = template(catId, coat)
 	if spot == nil or not spot:IsA("Attachment") or source == nil then
 		return -- no plinth yet (before #2918) or no model: the card still shows it
 	end
 	local copy = source:Clone() :: Model
+	if tone then
+		GoldTone.apply(copy)
+	end
 	copy.Name = "Exhibit_" .. catId
 	quiet(copy)
 	pcall(function()

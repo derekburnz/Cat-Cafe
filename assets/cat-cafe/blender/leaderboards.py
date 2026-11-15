@@ -231,12 +231,17 @@ def planter(b, lamps, flowers, s):
 
 
 def build(mat):
-    b, lamps, flowers = RB(), RB(), RB()
+    b, lamps, flowers, wall = RB(), RB(), RB(), RB()
     b.span((-ROW_HALF, 0, -DEPTH), (ROW_HALF, PLINTH - 0.1, DEPTH), "brick")
     b.span((-ROW_HALF - 0.06, PLINTH - 0.1, -DEPTH - 0.06), (ROW_HALF + 0.06, PLINTH, DEPTH + 0.06), "cream")
     for s in (-1, 1):
         planter(b, lamps, flowers, s)
-    objs = [b.finalize(N, mat), flowers.finalize(N + "_Flowers", mat), lamps.finalize(N + "_Lamp_Bulb", mat)]
+    # #4073: a board stands on two posts with its frame and chalk tray 1.4 over the plinth, which a character's ladder
+    # check reads as a rung. One invisible flat-sided slab per board, post to post and feet deep, leaves nothing to catch.
+    for bx in BOARD_X.values():
+        wall.span((bx - HX - PW, PLINTH, -0.82), (bx + HX + PW, TOP, 0.82), "concrete")
+    objs = [b.finalize(N, mat), flowers.finalize(N + "_Flowers", mat), lamps.finalize(N + "_Lamp_Bulb", mat),
+            wall.finalize(N + "_Barrier", mat)]
     for name in BOARD_X:
         objs += board(name, mat)
     return objs

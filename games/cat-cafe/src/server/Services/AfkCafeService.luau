@@ -10,6 +10,8 @@
 -- place, ahead of Roblox's 20 minute idle disconnect; the arrival (marked in its join data) takes the rest up again
 -- once it stands at its cafe. Never in Studio (teleports do not run there) or in a private server (a public
 -- teleport would take the player out of it).
+-- #4346: AFK mode (shared/AfkCafe, behind `afkButton`): the AfkMode remote takes the player home and rests them as
+-- soon as they stand there, input or not; the rejoin carries the mode. Walking off or AfkMode(false) ends it.
 -- The client is trusted only for "no input": a client that lies and says idle still has to stand still in its own
 -- cafe to rest, which is what resting is.
 
@@ -42,6 +44,8 @@ type Watch = {
 	arrivedAt: number?, -- #3602: os.clock() a rest's rejoin joined, until it rests again or its window ends
 	idleSince: number?, -- #3602: os.clock() the player's last input, as far as the server knows; nil while not idle
 	rejoinTry: number?, -- #3602: os.clock() of the last rejoin teleport since then
+	modeSince: number?, -- #4346: os.clock() AFK mode came on, nil while it is off
+	modeRested: boolean, -- #4346: a rest has started in this AFK mode
 }
 
 local TUTORIAL_DONE = 5 -- the tutorial's last step (the client's TutorialHints.DONE)
@@ -62,6 +66,8 @@ local function watchOf(player: Player): Watch
 		arrivedAt = nil,
 		idleSince = nil,
 		rejoinTry = nil,
+		modeSince = nil,
+		modeRested = false,
 	}
 	watches[player] = watch
 	return watch
@@ -127,7 +133,10 @@ local function rejoin(player: Player)
 	Telemetry.custom(player, "afk_rejoin", 1)
 	task.spawn(function()
 		local options = Instance.new("TeleportOptions")
-		options:SetTeleportData(AfkCafe.teleportData() :: any)
+		local watch = watches[player]
+		options:SetTeleportData(
+			AfkCafe.teleportData(watch ~= nil and watch.modeSince ~= nil) :: any
+		)
 		local ok, problem = pcall(function()
 			TeleportService:TeleportAsync(game.PlaceId, { player }, options)
 		end)
@@ -151,7 +160,39 @@ local function noteArrival(player: Player)
 		watch.arrivedAt = os.clock()
 		watch.told = true -- the rest line was this visit's already
 		player:SetAttribute(AfkCafe.REJOIN_ATTRIBUTE, true)
+		if AfkCafe.arrivedInMode(data.TeleportData) then
+			-- #4346: AFK mode carries on; its idle clock runs from this join, as the rest's does
+			watch.modeSince = os.clock()
+			watch.modeRested = false
+			watch.idleSince = os.clock()
+			player:SetAttribute(AfkCafe.MODE_ATTRIBUTE, true)
+		end
 	end
+end
+
+-- #4346: AFK mode on or off. Off ends the rest it held (input ends a rest in the usual way from then on).
+local function setMode(player: Player, watch: Watch, on: boolean)
+	if on then
+		watch.modeSince = os.clock()
+		watch.modeRested = false
+		watch.idleSince = os.clock() -- the tap was input: Roblox's idle clock starts now
+		watch.rejoinTry = nil
+		player:SetAttribute(AfkCafe.MODE_ATTRIBUTE, true)
+		return
+	end
+	if watch.modeSince == nil then
+		return
+	end
+	watch.modeSince = nil
+	watch.modeRested = false
+	player:SetAttribute(AfkCafe.MODE_ATTRIBUTE, nil)
+	if not watch.idle then
+		stop(player, watch)
+	end
+end
+
+local function modeOn(): boolean
+	return LiveFlagService.on(AfkCafe.FLAG) and LiveFlagService.on(AfkCafe.BUTTON_FLAG)
 end
 
 local function check(player: Player, now: number)
@@ -216,6 +257,21 @@ local function check(player: Player, now: number)
 		end
 	end
 	local resting = on and AfkCafe.resting(watch.idle, now - watch.stillSince, inZone, busy(player))
+	-- #4346: AFK mode rests without the wait and whatever the input, and ends once its rest does (walked off)
+	local modeSince = watch.modeSince
+	if modeSince ~= nil then
+		local modeResting = on
+			and LiveFlagService.on(AfkCafe.BUTTON_FLAG)
+			and AfkCafe.modeRests(now - watch.stillSince, inZone, busy(player))
+		if AfkCafe.modeEnds(watch.modeRested, modeResting, now - modeSince) then
+			setMode(player, watch, false)
+		else
+			resting = resting or modeResting
+			if modeResting then
+				watch.modeRested = true
+			end
+		end
+	end
 	if resting and watch.restSince == nil then
 		start(player, watch)
 	elseif not resting and watch.restSince ~= nil then
@@ -239,6 +295,28 @@ local function check(player: Player, now: number)
 end
 
 function AfkCafeService.start()
+	Net.on("AfkMode", function(player: Player, raw: unknown)
+		if type(raw) ~= "boolean" then
+			return
+		end
+		local watch = watchOf(player)
+		if not raw then
+			setMode(player, watch, false)
+			Net.toast(player, AfkCafe.MODE_OFF_TEXT, "info")
+			return
+		end
+		if not modeOn() or DataService.get(player) == nil or busy(player) then
+			return
+		end
+		if not TravelService.home(player) then
+			return -- TravelService said why (a cooldown, a catch, a tackle)
+		end
+		setMode(player, watch, true)
+		watch.at = nil -- the trip home moved the character: stillness counts from the landing
+		watch.stillSince = os.clock()
+		Telemetry.custom(player, "afk_mode", 1)
+		Net.toast(player, AfkCafe.MODE_ON_TEXT, "good")
+	end)
 	Net.on("AfkIdle", function(player: Player, raw: unknown)
 		if type(raw) ~= "boolean" then
 			return
@@ -248,8 +326,8 @@ function AfkCafeService.start()
 		-- #3602: the client says idle AfkCafeSeconds after its last input
 		watch.idleSince = if raw then os.clock() - Config.AfkCafeSeconds else nil
 		watch.rejoinTry = nil
-		if not raw then
-			stop(player, watch) -- any input ends it at once
+		if not raw and watch.modeSince == nil then
+			stop(player, watch) -- any input ends it at once (#4346: not in AFK mode, which walking off ends)
 		end
 	end)
 	DataService.beforeRelease(function(player: Player)

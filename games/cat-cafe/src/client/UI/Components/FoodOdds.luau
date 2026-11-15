@@ -26,6 +26,7 @@ local Types = require(script.Parent.Parent.Types)
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Bait = require(Shared:WaitForChild("Bait"))
 local Config = require(Shared:WaitForChild("Config"))
+local LateTiers = require(Shared:WaitForChild("LateTiers")) :: any -- #3997: no area behind a live switch is named
 local Luck = require(Shared:WaitForChild("Luck"))
 
 local FoodOdds = {}
@@ -119,7 +120,7 @@ function FoodOdds.split(
 		if area.tier <= tier then
 			unlocked[area.id] = true
 			table.insert(areaNames, area.name)
-		elseif area.tier == tier + 1 and nextArea == nil then
+		elseif area.tier == tier + 1 and nextArea == nil and LateTiers.tierOpen(area.tier) then
 			nextArea = area
 		end
 	end

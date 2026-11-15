@@ -53,6 +53,21 @@ return function()
 			expect(view.hook).to.equal(nil)
 		end)
 
+		it("names the Bait bowl while the tutorial is on its bowl step (#4097)", function()
+			for _, narrow in { true, false } do
+				local view = SecondCatGoal.view(full({ tutorialStep = 4 }), narrow, "Cozy Cafe")
+				expect(view.title).to.equal("2nd cat: your Bait bowl 🐾 1/2")
+				expect(view.chip).to.equal("2nd cat: your Bait bowl 🐾 1/2")
+			end
+			-- before or after the bowl step it is the catch again
+			expect(SecondCatGoal.view(full({ tutorialStep = 3 }), true, "Cozy Cafe").title).to.equal(
+				"Catch a 2nd cat 🐾 1/2"
+			)
+			expect(SecondCatGoal.view(full({ tutorialStep = 5 }), true, "Cozy Cafe").title).to.equal(
+				"Catch a 2nd cat 🐾 1/2"
+			)
+		end)
+
 		it("names the new-cat bonus under it on a wide card, the server's number", function()
 			local view = SecondCatGoal.view(full(), false, "Cozy Cafe")
 			expect(view.title).to.equal("Catch a 2nd cat 🐾 1/2")

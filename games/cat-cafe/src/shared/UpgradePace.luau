@@ -22,8 +22,10 @@ function UpgradePace.bought(levels: { [string]: number }): number
 		if level ~= nil then
 			-- #3660 opens the first table on every save (ProfileSchema), so it is no buy: without this a new
 			-- account's first buy read as "2" from 2026-11-13 on
+			-- #4097: and the Bait bowl
 			local given = if def.id == "tables"
 				then math.max(def.startLevel, Config.StartTables)
+				elseif def.id == "lure_bowl" then math.max(def.startLevel, Config.StartBowls)
 				else def.startLevel
 			total += math.max(0, level - given)
 		end

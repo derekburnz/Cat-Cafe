@@ -36,6 +36,7 @@ local RunService = game:GetService("RunService")
 local CatDress = require(ReplicatedStorage.Shared.CatDress)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Context = require(script.Parent.Context)
+local GoldTone = require(ReplicatedStorage.Shared.GoldTone)
 local Logic = require(script.Parent.Logic)
 local Moments = require(script.Parent.Parent.Moments)
 local Pose = require(script.Parent.Pose)
@@ -133,33 +134,37 @@ local function assets(): Instance?
 end
 
 -- The walking body (A) of the cat at `station`, gold if it is, as the server's AssetRegistry.cloneCat picks it.
-local function walkingTemplate(station: Model): Model?
+-- The second result: the copy made from it must be toned gold (GoldTone.apply, #4133: gold from the base model).
+local function walkingTemplate(station: Model): (Model?, boolean)
 	local catId = station:GetAttribute("CatId")
 	local folder = assets()
 	if type(catId) ~= "string" or folder == nil then
-		return nil
+		return nil, false
 	end
-	local names = { Catalog.catModelName(catId) }
+	local names, tone = { Catalog.catModelName(catId) }, false
 	if station:GetAttribute("Gold") == true then
-		table.insert(names, 1, Catalog.goldModelName(catId))
+		names, tone = GoldTone.names(Catalog.goldModelName(catId), Catalog.catModelName(catId))
 	end
 	for _, name in names do
 		local found = folder:FindFirstChild(name)
 		if found ~= nil and found:IsA("Model") then
-			return found :: Model
+			return found :: Model, tone
 		end
 	end
-	return nil
+	return nil, false
 end
 
 -- A copy of the cat on the walking body in its role's outfit, at `home`, faded out, never colliding or blocking a
 -- click; with the station's Uid and CatId so its idles keep their own timing and look.
 local function makeWalker(station: Model, home: CFrame): Model?
-	local template = walkingTemplate(station)
+	local template, tone = walkingTemplate(station)
 	if template == nil then
 		return nil
 	end
 	local walker = (template :: Model):Clone() :: Model
+	if tone then
+		GoldTone.apply(walker)
+	end
 	walker.Name = "CafeWalker"
 	for _, key in { "Uid", "CatId", "Gold", "Rarity", "Variant" } do -- Variant: a rainbow coat flows on it too
 		walker:SetAttribute(key, station:GetAttribute(key))

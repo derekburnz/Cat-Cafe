@@ -84,7 +84,8 @@
     }
    },
    "attributes": {
-    "Rojo_Id": "CatCafe_Cat_Void/0"
+    "Rojo_Id": "CatCafe_Cat_Void/0",
+    "GoldTone": 3
    },
    "children": [
     {
@@ -1068,7 +1069,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Void/1"
+      "Rojo_Id": "CatCafe_Cat_Void/1",
+      "GoldTone": 3
      },
      "children": [
       {
@@ -1553,6 +1555,15 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldColor": {
+       "Color3": [
+        0.1686,
+        0.1686,
+        0.2078
+       ]
+      }
      }
     },
     {
@@ -1602,6 +1613,15 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldColor": {
+       "Color3": [
+        0.1686,
+        0.1686,
+        0.2078
+       ]
+      }
      }
     },
     {
@@ -1651,6 +1671,15 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldColor": {
+       "Color3": [
+        0.1686,
+        0.1686,
+        0.2078
+       ]
+      }
      }
     },
     {
@@ -1700,6 +1729,15 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldColor": {
+       "Color3": [
+        0.1686,
+        0.1686,
+        0.2078
+       ]
+      }
      }
     },
     {
@@ -1749,6 +1787,15 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldColor": {
+       "Color3": [
+        0.1686,
+        0.1686,
+        0.2078
+       ]
+      }
      }
     },
     {
@@ -2258,7 +2305,8 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Cat_Void/4"
+        "Rojo_Id": "CatCafe_Cat_Void/4",
+        "GoldTone": 3
        }
       },
       {
@@ -2308,6 +2356,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 3
        }
       },
       {
@@ -2357,6 +2408,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 3
        }
       },
       {
@@ -2520,7 +2574,8 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Cat_Void/5"
+        "Rojo_Id": "CatCafe_Cat_Void/5",
+        "GoldTone": 3
        }
       },
       {
@@ -2570,6 +2625,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 3
        }
       },
       {
@@ -2619,6 +2677,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 3
        }
       },
       {
@@ -3345,7 +3406,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Void/6"
+      "Rojo_Id": "CatCafe_Cat_Void/6",
+      "GoldTone": 3
      },
      "children": [
       {
@@ -3429,6 +3491,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 3
      }
     }
    ],
@@ -3543,7 +3608,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Void/7"
+      "Rojo_Id": "CatCafe_Cat_Void/7",
+      "GoldTone": 3
      }
     },
     {
@@ -3593,6 +3659,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 3
      }
     }
    ],
@@ -3707,7 +3776,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Void/8"
+      "Rojo_Id": "CatCafe_Cat_Void/8",
+      "GoldTone": 3
      }
     },
     {
@@ -3757,6 +3827,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 3
      }
     }
    ],
@@ -3871,7 +3944,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Void/9"
+      "Rojo_Id": "CatCafe_Cat_Void/9",
+      "GoldTone": 3
      }
     },
     {
@@ -3921,6 +3995,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 3
      }
     }
    ],
@@ -4035,7 +4112,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Void/10"
+      "Rojo_Id": "CatCafe_Cat_Void/10",
+      "GoldTone": 3
      }
     },
     {
@@ -4085,6 +4163,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 3
      }
     }
    ],

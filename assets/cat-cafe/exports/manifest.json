@@ -350119,15 +350119,15 @@
         "CatCafe_Town_DayCart_Cat_LegF2",
         "CatCafe_Town_DayCart_Cat_Prop"
       ],
-      "triangles": 5960,
+      "triangles": 6008,
       "budget": 7000,
       "size_studs": {
-        "x": 8.41,
+        "x": 8.64,
         "y": 3.6,
         "z": 7.61
       },
       "size_roblox": [
-        8.41,
+        8.64,
         7.61,
         3.6
       ],
@@ -350137,7 +350137,7 @@
         0.0
       ],
       "bounds_max": [
-        4.31,
+        4.54,
         1.78,
         7.61
       ],
@@ -350260,7 +350260,7 @@
       ],
       "studio": "#1577 (day-cart.md section 1): the Corner Shop's stock on a cart in the Town Square, opposite the Golden Fish Market; WorldBuilder places it (suggested spot daycart.SPOT, turned to face the cannon), tags it CornerShop and hangs the shop prompt on the Attachment PromptAnchor (cart front, 3 up). The shop cat's visor rides its Head Model, the lantern Bulb is lit at night. It replaced the Corner Shop stall (#1698).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_DayCart.model.json",
-      "rbx_parts": 439,
+      "rbx_parts": 443,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Town_DayCart.fbx",
         "assets/cat-cafe/exports/CatCafe_Town_DayCart.glb"
@@ -350272,13 +350272,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "5960/7000 tris",
+          "budget": "6008/7000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2937 faces on swatch centers",
+          "uv": "2961 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.11 y=-0.02"
+          "centered": "footprint center x=0.22 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Town_DayCart.png",

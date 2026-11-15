@@ -26,7 +26,7 @@ local SharedTypes = require(Shared:WaitForChild("Types"))
 local CornerShopLogic = {}
 
 -- #1577 (day-cart.md): the window's shown name; code keeps the CornerShop names. No help line since #1688.
-CornerShopLogic.TITLE = "Day Cart"
+CornerShopLogic.TITLE = "Coin Cart" -- #4530: Day Cart until then, easy to mix up with the fish cart
 
 export type Item = SharedTypes.CornerShopItem
 export type Row = SharedTypes.CornerShopRow

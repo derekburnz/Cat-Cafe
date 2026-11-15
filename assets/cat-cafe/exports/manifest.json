@@ -342270,32 +342270,32 @@
         "CatCafe_Town_Backdrop_Sails",
         "CatCafe_Town_Backdrop_Bulbs"
       ],
-      "triangles": 25030,
+      "triangles": 26630,
       "budget": 60000,
       "size_studs": {
-        "x": 617.43,
-        "y": 848.57,
-        "z": 242.51
+        "x": 645.03,
+        "y": 912.57,
+        "z": 243.65
       },
       "size_roblox": [
-        617.43,
-        242.51,
-        848.57
+        645.03,
+        243.65,
+        912.57
       ],
       "bounds_min": [
-        -306.7,
-        -424.03,
-        -178.0
+        -319.31,
+        -456.03,
+        -179.14
       ],
       "bounds_max": [
-        310.73,
-        424.54,
+        325.72,
+        456.54,
         64.51
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_Backdrop.model.json",
-      "rbx_parts": 1115,
+      "rbx_parts": 1175,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Town_Backdrop.fbx",
         "assets/cat-cafe/exports/CatCafe_Town_Backdrop.glb"
@@ -342308,13 +342308,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "25030/60000 tris",
+          "budget": "26630/60000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "19129 faces on swatch centers",
+          "uv": "20495 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-178.00 (want 0)",
-          "centered": "footprint center x=2.02 y=0.26"
+          "pivot": "floor at z=-179.14 (want 0)",
+          "centered": "footprint center x=3.20 y=0.26"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Town_Backdrop.png",

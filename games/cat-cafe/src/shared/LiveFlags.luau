@@ -155,6 +155,7 @@ LiveFlags.KEYS = {
 	"newKindTag",
 	"parkGateTrail",
 	"touchCatchReach",
+	"nearLights", -- #4311: at night only the nearest Light objects are on (shared/NightLights); on by default
 	"rankUpSpotlight",
 	"rankFirst", -- #4383: a Tier 1 cafe that can rank up is sent to the rank up before the stuck cat, and a stray press no longer closes the walk-through for good (shared/RankFirst)
 	"bagColours",

@@ -58,19 +58,24 @@ return function()
 			expect(Logic.view(list, 9999)).to.equal(nil)
 		end)
 
-		it("reads the game's own list: every picture is an asset id and every name is short", function()
-			for _, entry in Config.UpdateEvents do
-				if entry.poster ~= nil then
-					expect(string.match(entry.poster, "^rbxassetid://%d+$") ~= nil).to.equal(true)
+		it(
+			"reads the game's own list: every picture is an asset id and every name is short",
+			function()
+				for _, entry in Config.UpdateEvents do
+					if entry.poster ~= nil then
+						expect(string.match(entry.poster, "^rbxassetid://%d+$") ~= nil).to.equal(
+							true
+						)
+					end
+					if entry.name ~= nil then
+						expect(#entry.name <= 24).to.equal(true)
+					end
 				end
-				if entry.name ~= nil then
-					expect(#entry.name <= 24).to.equal(true)
-				end
+				-- 3 New Worlds is on the poster until Sunday 2026-11-15 20:00 UTC
+				local view = Logic.view(Config.UpdateEvents, 1794772800 - 3600)
+				expect(view.name).to.equal("3 NEW WORLDS")
+				expect(view.countdown).to.equal("Starts in 1 h 0 min")
 			end
-			-- 3 New Worlds is on the poster until Sunday 2026-11-15 20:00 UTC
-			local view = Logic.view(Config.UpdateEvents, 1794772800 - 3600)
-			expect(view.name).to.equal("3 NEW WORLDS")
-			expect(view.countdown).to.equal("Starts in 1 h 0 min")
-		end)
+		)
 	end)
 end

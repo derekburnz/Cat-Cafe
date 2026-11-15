@@ -768,7 +768,6 @@ local Config = {
 			-- #4362: the Town Square update poster's name and picture (UI/Screens/UpdatePoster); an entry with
 			-- neither reads "NEW UPDATE" on a plain face
 			name = "3 NEW WORLDS",
-			poster = "POSTER_ID",
 		},
 		-- Derek 2026-11-14 17:59 UTC: Rift Run moves to tonight, Sunday 2026-11-15 01:00 UTC (Saturday 8 PM ET, the busier
 		-- hour), and the Golden Fish Store to Sunday 2026-11-15 22:00 UTC (5 PM ET), each with its own ask
@@ -795,7 +794,15 @@ local Config = {
 			title = "🔔 Next update: 10 SECRET CATS! Want a reminder when it lands?",
 			name = "10 SECRET CATS",
 		},
-	} :: { { id: string, startsAt: number, title: string?, name: string?, poster: string? } },
+	} :: {
+		{
+			id: string,
+			startsAt: number,
+			title: string?,
+			name: string?,
+			poster: string?,
+		}
+	},
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,

@@ -13,7 +13,6 @@ root Model streams Atomic (rbx_export.MODEL_PROPS) so the Screen is there whenev
 SPOT: see its comment.
 """
 
-import math
 
 from common import RB
 from pitysign import _paw
@@ -30,10 +29,9 @@ FRONT, BACK = -0.35, 0.3
 FRAME, PIPE = "caramel_wood", "rarity_legend"
 POST_X = SW / 2 - 0.7
 
-# Model-Agent's spot (world x, y, z, rotY): the pity sign's mirror in the south-west quarter (pitysign.SPOT is at
-# x 13.5, z -23), turned to face the spawn (0, -14), so a player who lands sees the rare cat sign on one side and the
-# next update on the other. The server's Layout owns the final spot.
-SPOT = (-13.5, 0.1, -23.0, math.degrees(math.atan2(-(0 - -13.5), -(-14 - -23.0))))
+# Model-Agent's spot (world x, y, z, rotY): the square's south-east quarter, 21 studs from the pity sign, turned to face
+# the spawn (0, -14), so a player who lands sees the next update. The server's Layout owns the final spot.
+SPOT = (20.0, 0.1, -40.0, 142.43)
 
 
 def _frame(b, screen):

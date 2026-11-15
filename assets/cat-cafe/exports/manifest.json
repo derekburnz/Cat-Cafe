@@ -460376,10 +460376,10 @@
         ]
       },
       "placement_suggested_roblox": [
-        -13.5,
+        20.0,
         0.1,
-        -23.0,
-        -123.69
+        -40.0,
+        142.43
       ],
       "studio": "#4362: the update poster in the Town Square (suggested spot updateposter.SPOT, the pity sign's mirror, facing the spawn). Streams Atomic. The UI's SurfaceGui (Adornee = the part named Screen, 8.0 x 4.5, night blue) draws the next update's picture, name, countdown and the Notify Me tap on its Front (-Z) face.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_UpdatePoster.model.json",

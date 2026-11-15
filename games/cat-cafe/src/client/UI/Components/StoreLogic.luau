@@ -34,8 +34,12 @@ export type Row = {
 -- The Store's left rail, top to bottom (#1425). Featured and Codes (#1428, the code box) always show; another tab
 -- only while it has a card.
 export type Tab = { id: string, name: string, icon: string, always: boolean? }
+StoreLogic.DEAL_TAB = "deal"
 StoreLogic.TABS = {
 	{ id = "featured", name = "Featured", icon = "⭐", always = true },
+	-- #4259 (Derek 11-14: "a seperate tab for todays deals"): Today's Deal on its own page, while there is one (the
+	-- Store shows it from PlayerState.dailyDeal, not from a row, so StoreLogic.tabs never lists it)
+	{ id = StoreLogic.DEAL_TAB, name = "Deal", icon = "🏷️" },
 	{ id = "packs", name = "Packs", icon = "🎁" }, -- #4026: the outfit packs, under Featured
 	{ id = "passes", name = "Passes", icon = "🎟️" },
 	{ id = "cats", name = "Cats", icon = "🐱" },
@@ -47,7 +51,8 @@ StoreLogic.TABS = {
 -- #3572 (Derek's OK of Model-Agent's mock, 2026-11-12 13:10 UTC): the reworked Store, behind the `storeRework`
 -- switch, puts Cats above Passes on the rail.
 StoreLogic.REWORK_FLAG = "storeRework"
-StoreLogic.REWORK_RAIL = { "featured", "packs", "cats", "passes", "potions", "cafePass", "codes" }
+StoreLogic.REWORK_RAIL =
+	{ "featured", StoreLogic.DEAL_TAB, "packs", "cats", "passes", "potions", "cafePass", "codes" }
 
 -- The rail's tabs in their order: TABS, or with the rework on REWORK_RAIL's order.
 function StoreLogic.railTabs(rework: boolean): { Tab }
@@ -70,6 +75,7 @@ end
 StoreLogic.SUBTITLE_DEFAULT = "Help your cafe grow"
 local SUBTITLES: { [string]: string } = {
 	featured = "Prices are in Robux.", -- Featured can show potion packs, which are used up
+	deal = "A new deal every day. Prices are in Robux.",
 	packs = "Packs are yours to keep. Prices are in Robux.",
 	cats = "Passes are yours to keep. Prices are in Robux.",
 	passes = "Passes are yours to keep. Prices are in Robux.",
@@ -129,7 +135,7 @@ local PASSES: { PassCard } = {
 		configKey = "VipPassId",
 		name = "VIP",
 		icon = "⭐",
-		effect = "+50% money, a VIP tag over your head, a VIP chat tag and a gold VIP plate on your cafe sign.",
+		effect = "+50% money and VIP tags.",
 	},
 	{
 		key = "accessories",
@@ -157,21 +163,21 @@ local PASSES: { PassCard } = {
 		configKey = "ExtraSlotPassIds",
 		name = "Extra Slot",
 		icon = "➕",
-		effect = "+1 job slot, so one more cat can work.",
+		effect = "+1 job slot for one more cat.",
 	},
 	{
 		key = "cafeStyle",
 		configKey = "CafeStylePassId",
 		name = "Cafe Style",
 		icon = "🏪",
-		effect = "A new cafe theme and tag, +50% money, and rich visitors come 25% more often.",
+		effect = "A new cafe theme and +50% money.",
 	},
 	{
 		key = "royalCat",
 		configKey = "RoyalCatPassId",
 		name = "Royal Cat Pack", -- #4261 (Derek 2026-11-14): the Royal Cat became a pack, R$199
 		icon = "👑",
-		effect = "Duchess Marzipan, who always earns like a Legendary from your newest area, and Potion Pack S.",
+		effect = "Duchess Marzipan and Potion Pack S.", -- #4277: short; the i sheet says how she earns
 		note = "Yours to keep. Can't be traded.",
 		tab = "cats",
 	},
@@ -182,7 +188,7 @@ local PASSES: { PassCard } = {
 		configKey = "SecondBowlPassId",
 		name = "Second Bait Bowl",
 		icon = "🥣",
-		effect = "A second bait bowl, so two baits run at once. Same upgrades as the first.",
+		effect = "Two baits run at once.",
 		note = "Yours to keep.",
 		tab = "cats",
 	},
@@ -191,7 +197,7 @@ local PASSES: { PassCard } = {
 		configKey = "GrandThemePassId",
 		name = "Grand Cafe Theme",
 		icon = "🏰",
-		effect = "The grand look: +150% money, twice the rich visitors, +1 job slot every tier.",
+		effect = "+150% money and more rich visitors.",
 	},
 	-- #1168 row 3: the six pieces of Catalog.passDecor with pack "Garden Decor Pack", by name and rarity (#2006: each
 	-- adds money while in use, Rare +4% and Epic +8%); hidden while GardenDecorPackPassId is 0
@@ -200,8 +206,7 @@ local PASSES: { PassCard } = {
 		configKey = "GardenDecorPackPassId",
 		name = "Garden Decor Pack",
 		icon = "🌻",
-		effect = "More money while in use. Rare +4%: Hanging Fern Basket, Sunflower Pot, Watering Can Planter. "
-			.. "Epic +8%: Potted Lemon Tree, Ivy Trellis, Garden Swing Seat.",
+		effect = "6 garden decor, up to +8% money each.",
 	},
 	-- #1168 row 1: the three sign styles of shared/SignStyles with passKey SignStylePackPassId, by name; hidden while
 	-- the id is 0. Owned, they show on the Style tab with the rest.
@@ -210,7 +215,7 @@ local PASSES: { PassCard } = {
 		configKey = "SignStylePackPassId",
 		name = "Sign Style Pack",
 		icon = "🏷️", -- #2015: not 🪧 (Unicode 13), drawn blank
-		effect = "Three cafe sign looks: Flower Box, Starry Night and Paw Chalkboard. Looks only.",
+		effect = "Three new cafe sign looks.",
 	},
 	-- #4261 (Derek 2026-11-14: "no need to make it buyable alone"): the King Cat alone card is gone; its pass stays in
 	-- Config (KingCatPassId) so earlier buyers keep the cat, and it is off sale on Roblox
@@ -221,7 +226,7 @@ local PASSES: { PassCard } = {
 		name = "Cat King Pack", -- #4261: was "King Cat Pack", R$299
 		icon = "🤴",
 		-- short enough to stay readable on a phone's small card (the King Cat's own card says how he earns)
-		effect = "King Croissant, Royal Crest sign, Grand look, Royal Velvet Booth, Potion Pack M.",
+		effect = "The King Cat and 4 royal extras.",
 		note = "Yours to keep. Can't be traded.",
 		tab = "cats",
 	},
@@ -360,6 +365,114 @@ function StoreLogic.packLines(key: string): { PackLine }
 	)
 	return lines
 end
+-- #4277 (Derek 2026-11-14: "info button for an extended description on what it is / how it works ... for all of
+-- them"): each card says one short line in bigger words, and its white i opens the Winter Pack sheet's look with the
+-- whole story, line by line. Plain facts: what it gives, how it works, that it is kept. A card with no entry here
+-- (the money ladder, Long Nap, the Starter Bundle, the Cafe Pass) shows its own lines, one a row.
+local KEEP: PackLine = { left = "Yours to keep", right = "" }
+local KEEP_TRADE: PackLine = { left = "Yours to keep. Can't be traded.", right = "" }
+StoreLogic.INFO = {
+	vip = {
+		{ left = "Money", right = "+50%" },
+		{ left = "VIP tag over your head", right = "" },
+		{ left = "VIP tag in chat", right = "" },
+		{ left = "Gold VIP plate on your cafe sign", right = "" },
+		KEEP,
+	},
+	extraSlot = {
+		{ left = "Job slots", right = "+1" },
+		{ left = "One more cat works and earns money", right = "" },
+		KEEP,
+	},
+	cafeStyle = {
+		{ left = "A new cafe theme and tag", right = "" },
+		{ left = "Money", right = "+50%" },
+		{ left = "Rich visitors", right = "25% more often" },
+		KEEP,
+	},
+	royalCat = {
+		{ left = "Duchess Marzipan joins your cafe", right = "" },
+		{ left = "Earns like a Legendary from your newest area", right = "" },
+		{ left = "Keeps up as you open new areas", right = "" },
+		{ left = "Potion Pack S", right = "" },
+		KEEP_TRADE,
+	},
+	kingPack = {
+		{ left = "King Croissant", right = "" },
+		{ left = "Royal Crest sign", right = "" },
+		{ left = "Grand look", right = "" },
+		{ left = "Royal Velvet Booth", right = "" },
+		{ left = "Potion Pack M", right = "" },
+		KEEP_TRADE,
+	},
+	secondBowl = {
+		{ left = "A second bait bowl", right = "" },
+		{ left = "Two baits run at once, so more cats come", right = "" },
+		{ left = "Same upgrades as your first bowl", right = "" },
+		KEEP,
+	},
+	autoBowl = {
+		{ left = "Auto claim", right = "tames each cat" },
+		{ left = "Auto refill", right = "your best food" },
+		{ left = "Never buys food for you", right = "" },
+		{ left = "Turn each switch off any time", right = "" },
+		KEEP,
+	},
+	grandTheme = {
+		{ left = "The grand cafe look", right = "" },
+		{ left = "Money", right = "+150%" },
+		{ left = "Rich visitors", right = "twice as often" },
+		{ left = "Job slots", right = "+1 every tier" },
+		KEEP,
+	},
+	gardenDecor = {
+		{ left = "Hanging Fern Basket · Rare", right = "+4% money" },
+		{ left = "Sunflower Pot · Rare", right = "+4% money" },
+		{ left = "Watering Can Planter · Rare", right = "+4% money" },
+		{ left = "Potted Lemon Tree · Epic", right = "+8% money" },
+		{ left = "Ivy Trellis · Epic", right = "+8% money" },
+		{ left = "Garden Swing Seat · Epic", right = "+8% money" },
+		{ left = "Each adds money while it is in use", right = "" },
+	},
+	signStylePack = {
+		{ left = "Flower Box sign", right = "" },
+		{ left = "Starry Night sign", right = "" },
+		{ left = "Paw Chalkboard sign", right = "" },
+		{ left = "Looks only: no money bonus", right = "" },
+		KEEP,
+	},
+	thankYou = {
+		{ left = "[Thank You] tag in chat", right = "" },
+		{ left = "Gold heart by your name on the ideas board", right = "" },
+		{ left = "A thank-you only: nothing in the game changes", right = "" },
+	},
+} :: { [string]: { PackLine } }
+
+-- #4277: the i sheet's lines for a Store row: a pack's pieces, its INFO entry, else its own words a line each.
+function StoreLogic.infoLines(row: Row): { PackLine }
+	if row.pack ~= nil then
+		return StoreLogic.packLines(row.pack)
+	end
+	local info = StoreLogic.INFO[row.key]
+	if info ~= nil then
+		return info
+	end
+	local lines: { PackLine } = {}
+	for line in string.gmatch(row.effect, "[^\n]+") do
+		table.insert(lines, { left = line, right = "" })
+	end
+	return lines
+end
+
+-- #4277: the i sheet's words for a row in one string, a line each ("left  right")
+function StoreLogic.infoText(row: Row): string
+	local parts: { string } = {}
+	for _, line in StoreLogic.infoLines(row) do
+		table.insert(parts, if line.right ~= "" then line.left .. "  " .. line.right else line.left)
+	end
+	return table.concat(parts, "\n")
+end
+
 -- #2147 (store-pass-looks.md 7.3): the toast right after an outfit pass is bought, with its pass's symbol
 StoreLogic.OUTFIT_THANKS = "Your working cats now earn +15%!"
 function StoreLogic.outfitThanks(which: string): string
@@ -404,7 +517,7 @@ StoreLogic.CAFE_PASS = CAFE_PASS
 local THANK_YOU: ProductCard = {
 	key = "thankYou",
 	productKey = "thank_you_badge",
-	effect = "A [Thank You] chat tag and a gold heart by your name on the ideas board.",
+	effect = "A chat tag and a gold heart.",
 }
 StoreLogic.THANK_YOU = THANK_YOU
 

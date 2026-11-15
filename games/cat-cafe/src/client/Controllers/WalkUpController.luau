@@ -276,9 +276,9 @@ local KINDS: { Kind } = {
 		end,
 		open = function()
 			-- the window comes with #4107; until then the ring opens nothing
-			local open: any = (UI.lateStations :: any).openFusion
-			if open ~= nil then
-				open()
+			local stations: any = (UI :: any).lateStations
+			if stations ~= nil and stations.openFusion ~= nil then
+				(stations.openFusion :: any)()
 			end
 		end,
 	},

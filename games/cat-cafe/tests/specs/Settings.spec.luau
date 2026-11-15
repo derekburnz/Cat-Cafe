@@ -30,6 +30,9 @@ return function()
 					catPickSort = "Money", -- #3940
 					catPickFlipped = false,
 					catPickShow = "",
+					autoBowlClaim = true,
+					autoBowlRefill = true,
+					bowlNewCatCard = true,
 				})
 				for key in pairs(Settings.defaults() :: any) do
 					expect(Settings.kinds[key]).to.be.ok()
@@ -122,6 +125,9 @@ return function()
 				catPickSort = "Money", -- #3940
 				catPickFlipped = false,
 				catPickShow = "",
+				autoBowlClaim = true,
+				autoBowlRefill = true,
+				bowlNewCatCard = true,
 			})
 		end)
 

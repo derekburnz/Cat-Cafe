@@ -80,8 +80,10 @@ SettingsList.SECTIONS = {
 				icon = "🐢",
 				-- #1573 (Derek, 2026-11-05: "a lighter phone setting: reduce effects and shadows first, never hide the
 				-- cats you own"): the Low performance switch, named for what it does. Your own cats always show.
-				name = "Lighter graphics",
-				detail = "Fewer effects, no shadows. Your cats still show",
+				-- #4311 (Derek 2026-11-14: "I know their is a low quality mode just make it better and suggest it to
+				-- them"): "Smooth mode", the name the slow-device card (#4313) offers it by; kids read "low" as worse
+				name = "Smooth mode",
+				detail = "Fewer shadows, glow and sparkles. Cats still show",
 			},
 			{
 				key = "showOtherCats",
@@ -169,6 +171,9 @@ SettingsList.OTHER_KEYS = {
 	catPickSort = true, -- #3940: the Mystic Pool's Filter pop-up sets these three
 	catPickFlipped = true,
 	catPickShow = true,
+	autoBowlClaim = true, -- #4266: the Bait bowl window's Auto Bowl switches set these three
+	autoBowlRefill = true,
+	bowlNewCatCard = true,
 } :: { [string]: boolean }
 
 -- Every row in screen order.

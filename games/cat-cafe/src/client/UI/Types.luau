@@ -254,6 +254,31 @@ export type CatInstance = {
 	trait: { id: string }?, -- #3196: its Mystic Pool trait (shared/Traits), nil for none
 }
 
+-- #4249: one Mailbox letter (Components/MailLogic, Screens/Mailbox); the server sends only this player's
+export type MailLetter = {
+	id: string,
+	title: string,
+	note: string,
+	sentAt: number,
+	endsAt: number?,
+	from: string?, -- "Derek" or "Catch a Cat Cafe"
+	prize: {
+		coins: number?,
+		coinSeconds: number?,
+		fish: number?,
+		crates: { [string]: number }?,
+		potions: { [string]: number }?,
+		spins: number?,
+		lures: { [string]: number }?,
+		catFood: { [string]: number }?,
+		traitTokens: number?,
+	},
+	claimed: boolean,
+}
+-- #4266: the Auto Bowl pass: owned, and its switches (auto claim tames an arrived cat, auto refill puts in the best
+-- food the player owns)
+export type AutoBowl = { owned: boolean, claim: boolean, refill: boolean }
+
 export type PlayerState = {
 	money: number,
 	incomePerSecond: number,
@@ -270,6 +295,7 @@ export type PlayerState = {
 	decorPlaced: { [string]: boolean },
 	lures: { [string]: number },
 	-- optional extras the engineer's ProfileSync also sends
+	autoBowl: AutoBowl?, -- #4266: the Auto Bowl pass and its two switches
 	cats: { [string]: CatInstance }?, -- uid -> instance; fills the Cats screen
 	collection: { [string]: number }?, -- catId -> firstCaughtAt; drives silhouettes
 	goldCollection: { [string]: number }?, -- catId -> first gold cat caught at (was shinyCollection)
@@ -279,6 +305,8 @@ export type PlayerState = {
 	tutorialStep: number?,
 	settings: { [string]: boolean | number | string }?, -- profile.settings (shared/Settings): switches, 0 to 1 volumes, tradeRequests
 	tradeLog: { TradeLogEntry }?, -- F102: the last 20 trades, for the Trades page
+	-- #4249: this player's Mailbox letters from the server, newest first (Components/MailLogic.Letter)
+	mail: { MailLetter }?,
 	indexRewards: { [string]: { [string]: boolean } }?, -- F48: area id -> milestone id -> true once claimed
 	spin: SpinState?, -- F49: the free spin and the banked ones
 	goldenFish: number?, -- F52: the rare currency; nil hides its HUD counter
@@ -423,6 +451,7 @@ export type ScreenName =
 	| "YardSale" -- F100: the Yard Sale's card, opened by its prompt (UI.campExtras.openYardSale)
 	| "Trade" -- F102: the players to trade with, then the trade window (UI.trade)
 	| "TradeLog" -- F102: the last 20 trades, opened from Settings
+	| "Mailbox" -- #4249: letters from Derek with a gift to claim, from the HUD's Mailbox tile
 	| "Store" -- the passes for Robux, from the HUD's Store tile (UI.store)
 	| "Arcade" -- #3062: the Cat Arcade, from its cabinet and the Menu list (UI.arcade)
 
@@ -553,6 +582,7 @@ export type CatFoundExtra = {
 	banner: string?, -- in place of "NEW RARE CAT!"
 	line: string?, -- in gold under the name, in place of the description
 	rate: number?, -- in place of the catalog's incomePerSecond (an exclusive cat earns like its rarity in the newest area)
+	source: string?, -- #4266: "bowl" for a cat tamed at the bait bowl (the server's CatCaught source)
 }
 
 export type InitConfig = {

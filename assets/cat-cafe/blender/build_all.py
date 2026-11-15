@@ -108,6 +108,7 @@ import yardfence  # noqa: E402
 import sewerset  # noqa: E402
 import neighbourhoodset  # noqa: E402
 import pitysign  # noqa: E402
+import updateposter  # noqa: E402
 import ringicons  # noqa: E402
 import plot  # noqa: E402
 import poses  # noqa: E402
@@ -116,6 +117,9 @@ import riftrun  # noqa: E402
 import rbx_export  # noqa: E402
 import spot_clear  # noqa: E402
 import storepacks  # noqa: E402
+import harvestoutfits  # noqa: E402
+import harvestdecor  # noqa: E402
+import harvestset  # noqa: E402
 import waterparkshelf  # noqa: E402
 import wallperch  # noqa: E402
 import seasondecor  # noqa: E402
@@ -137,7 +141,8 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
            mysterymarket, mysteryitems, desertset, ruinsset, snowyset, waterparkset, castleset, campgrowth, townsfolk, nooks, feedbackstand,
-           arcadecabinet, mysticpool, moneybag, riftrun, storepacks, dragon,
+           arcadecabinet, mysticpool, moneybag, riftrun, storepacks, harvestoutfits, harvestdecor, harvestset, dragon,
+           updateposter,
            waterparkshelf, wallperch]
 
 PIVOT_NOTES = {
@@ -257,6 +262,8 @@ PIVOT_NOTES = {
                               "pivots at the middle of its foot's underside",
     pitysign.NAME: "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
                    "pitysign.SPOT, facing the player spawn",
+    updateposter.NAME: "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
+                       "updateposter.SPOT, facing the player spawn",
     campstations.PIC: "the base centre on the camp's ground, front -Z, no turn; the Picnic Basket's spot "
                       "(Layout.campExtras.park, Park set space)",
     campstations.YARD: "the base centre on the camp's ground, front -Z, no turn; the Yard Sale's spot "
@@ -449,6 +456,10 @@ STUDIO_NOTES = {
                         "centre, where the week's featured item can sit and turn. Juniper's hood rides its Head Model; "
                         "the lanterns (_Bulb) are lit at night; the rug and the lantern cord (_Decor) never collide. "
                         "Everything, rug included, fits mysterymarket.FOOT so the walk-up ring lands as planned.",
+    updateposter.NAME: "#4362: the update poster in the Town Square (suggested spot updateposter.SPOT, the pity "
+                       "sign's mirror, facing the spawn). Streams Atomic. The UI's SurfaceGui (Adornee = the part "
+                       "named Screen, 8.0 x 4.5, night blue) draws the next update's picture, name, countdown and "
+                       "the Notify Me tap on its Front (-Z) face.",
     pitysign.NAME: "#1572 (luck-and-rare-moments.md section 1h): the rare cat sign in the Town Square (suggested "
                    "spot pitysign.SPOT, across the street from the Day Cart, facing the spawn). Streams Atomic. The "
                    "UI's SurfaceGui (Adornee = the part named Screen, 5.6 x 2.8, night blue) draws the Legendary and "
@@ -594,6 +605,14 @@ STUDIO_NOTES[snowyset.NAME] = (
     "round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. Icicles, frozen bubbles, block "
     "lines and rope are _Decor (no collision). The rescue spots (points_roblox trap_snowdrift, trap_snowman, trap_sled, "
     "trap_snow_log) carry their piece's turn.")
+STUDIO_NOTES[harvestset.NAME] = (
+    "#4251 Harvest Hollow, the limited autumn area (Nov 25 to Dec 6 2026). Place it at the area's centre on its floor; "
+    "players arrive by teleport at points_roblox player_spawn, so it is fenced all round with no way in. The only "
+    "_Barrier is the 30 high ring in the fence band. The creek is flat _Water with no kerb, the bridge a low hump. "
+    "The barn is hollow with a 10 wide open door; the maze walls are 9 high. points_roblox: spawn (14 stray spots), "
+    "nook (the maze's middle), pumpkin (12 pickup spots for CatCafe_Harvest_Pumpkin), stall and board (where "
+    "CatCafe_Harvest_Stall and CatCafe_Harvest_Board stand, with a turn). The windmill's sails are a "
+    "_Spin child Model pivoted at the hub.")
 STUDIO_NOTES[castleset.NAME] = (
     "Tier 10, the Medieval Castle (next-areas plan section 3, #4067). Place it at the area's centre on its floor, "
     "camp side -Z, like the Snowy set. Packed earth right out to the walls, cobbles, the field's sand and the keep's "
@@ -931,7 +950,8 @@ def main():
         if name in menu.ATTACHMENTS:              # F90: the tray's Item spot, the oven's DoorGlow
             extra = {"attachments": menu.rbx_attachments(name)}
         if name == arcadecabinet.NAME:            # #3062: the Play prompt, the coin slot and the screen
-            extra = {"attachments": arcadecabinet.attachments()}
+            extra = {"attachments": arcadecabinet.attachments(), "nest": arcadecabinet.NEST,
+                     "part_attributes": arcadecabinet.FOLLOWS}   # #4272: the mouse cat's ears ride his head
         if name in campstations.ASSETS:           # #1319: PromptAnchor, BangAnchor, and GlowAnchor / Steam
             extra = {"attachments": campstations.rbx_attachments(name), **campstations.MOVING.get(name, {})}
         if name in townsfolk.ASSETS:              # #2687: the hat rides the Head Model
@@ -948,6 +968,8 @@ def main():
             extra = {"attachments": wallperch.rbx_attachments(name)}
         if name in dragon.ASSETS:                 # #4062: the joint chain, each joint's scales inside it
             extra = {"nest": dragon.NEST}
+        if name in harvestset.MOVING:             # #4251: the windmill sails turn about their hub
+            extra = {**extra, **harvestset.MOVING[name]}
         if name in areakit.SWING_ASSETS:          # banners, flags, pennants and balloons that sway (areakit.SWING)
             extra = {**extra, **areakit.SWING}
         if name in areakit.SMOKE:                 # chimney tops: an Attachment named "Smoke" for Effects
@@ -1057,6 +1079,9 @@ def main():
         if name == pitysign.NAME:
             entry["screen"] = {"part": "Screen", "face": "Front (-Z)", "size": [pitysign.SW, pitysign.SH]}
             entry["placement_suggested_roblox"] = [round(v, 2) for v in pitysign.SPOT]
+        if name == updateposter.NAME:
+            entry["screen"] = {"part": "Screen", "face": "Front (-Z)", "size": [updateposter.SW, updateposter.SH]}
+            entry["placement_suggested_roblox"] = [round(v, 2) for v in updateposter.SPOT]
         if name == gardennursery.NAME:
             entry["prompt_anchor_roblox"] = list(gardennursery.PROMPT_ROBLOX)
             entry["placement_park_set_roblox"] = list(gardennursery.SPOT)

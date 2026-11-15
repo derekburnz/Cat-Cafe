@@ -8705,7 +8705,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 			return nil
 		end
-		UIShim.advance(tipGap() + 1) -- past TipGapSeconds after the TipCard scene's tip, so the queue may show the next one
+		-- past TipGapSeconds after the TipCard scene's tip, so the queue may show the next one; 1 s frames, as nothing
+		-- here is on screen to check while the gap runs out (#4241)
+		UIShim.advance(tipGap() + 1, 1)
 		UI.catch.showGrades("uigate_stray", { "good", "good" }, true, 0)
 		UIShim.advance(1)
 		assert(charmLine() == nil, "uigate: a catch with no Perfect showed the Charm tip (#2282)")
@@ -8740,7 +8742,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			cut.done = done
 			return true
 		end)
-		UIShim.advance(tipGap() + 1) -- past TipGapSeconds after an earlier scene's tip
+		UIShim.advance(tipGap() + 1, 1) -- past TipGapSeconds after an earlier scene's tip, in 1 s frames (#4241)
 		UI.tips.show("rank_up")
 		UIShim.advance(1)
 		assert(cut.started, "uigate: the rank up cut never played (#2408)")
@@ -8781,7 +8783,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local counting = UI.events.tipSeen:Connect(function(id: string)
 			table.insert(seen, id)
 		end)
-		UIShim.advance(tipGap() + 1) -- past TipGapSeconds after an earlier scene's tip
+		UIShim.advance(tipGap() + 1, 1) -- past TipGapSeconds after an earlier scene's tip, in 1 s frames (#4241)
 		UI.tips.show("tackle_try")
 		UIShim.advance(1)
 		local line: TextLabel? = nil

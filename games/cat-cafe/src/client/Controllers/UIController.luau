@@ -1877,6 +1877,21 @@ local function wireIntents()
 			end
 		end)
 	end
+	if events.loadingSeen ~= nil then
+		-- #4314: once a session, only the first wait (the one before the first spawn or the intro)
+		local seen = false
+		events.loadingSeen:Connect(function(seconds: number)
+			if seen then
+				return
+			end
+			seen = true
+			Net.fire(
+				"TelemetryReport",
+				"loading_seen",
+				math.clamp(math.floor(seconds + 0.5), 0, 120)
+			)
+		end)
+	end
 	if events.introChoice ~= nil then
 		events.introChoice:Connect(function(from: string)
 			Net.fire("TelemetryReport", "intro_choice", from)
@@ -2603,6 +2618,11 @@ local function wireServerEvents()
 	Net.on("OwnerShout", function(text: string)
 		(UI :: any).ownerShout(text)
 	end)
+	-- #4227: a queued spawn line's sting plays as it shows, not as it arrives
+	local hooks: any = UI
+	hooks.onAnnounceShown = function(text: string, rarity: string?)
+		Moments.Announce:Fire(text, rarity)
+	end
 	Net.on("Announce", function(text: string, rarity: string?)
 		-- #2399: the sting plays only with a shout-out that shows; UI.announce says false when it drops one (it said
 		-- nothing before #2426, which counts as shown)

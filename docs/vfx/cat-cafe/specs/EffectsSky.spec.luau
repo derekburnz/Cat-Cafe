@@ -10,7 +10,7 @@ return function()
 	describe("Effects sky", function()
 		it("leaves the skybox showing between soft clouds", function()
 			local s = Presets.sky
-			expect(s.cover >= 0.3 and s.cover <= 0.7).to.equal(true)
+			expect(s.cover >= 0.1 and s.cover <= 0.35).to.equal(true) -- #4291: a few drifting clouds over the painted sky
 			expect(s.density >= 0.3 and s.density <= 0.7).to.equal(true)
 			expect(math.min(s.color.R, s.color.G, s.color.B) > 0.9).to.equal(true) -- white, lit by the sun
 		end)

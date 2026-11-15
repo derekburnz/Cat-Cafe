@@ -923,9 +923,18 @@ end
 -- `now` (a regional price between the two, a price that went up) shows no badge, so nobody sees a sale that is not
 -- one for them (Review-QA, young audience). No countdown.
 StoreLogic.SALE = "SALE"
+-- #4377: the Config.StoreWasPrice key of a card. The money ladder's rungs share the card key "money", so each rung
+-- has its own entry, "money2", "money3" and so on.
+function StoreLogic.saleKey(row: Row): string
+	if row.key == "money" and type(row.multiplier) == "number" then
+		return "money" .. tostring(row.multiplier)
+	end
+	return row.key
+end
+
 function StoreLogic.saleWas(row: Row, price: Price?, config: any, now: number): number?
 	local entry = if type(config.StoreWasPrice) == "table"
-		then config.StoreWasPrice[row.key]
+		then config.StoreWasPrice[StoreLogic.saleKey(row)]
 		else nil
 	local ends = config.StoreSaleEnds
 	if

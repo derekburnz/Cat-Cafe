@@ -1795,7 +1795,7 @@ Catalog.tiers = {
 	{
 		tier = 6,
 		name = "Sunstone Cafe",
-		cost = 625000000, -- #4320: 1,250,000,000 before; #4189: 2,500,000,000 at first, 5,600,000,000 before; #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
+		cost = 312500000, -- #4537 (Derek 2026-11-15: "lower the money amount for tier 5 to 6 by like half and tier 6 to 7 also"): 625,000,000 before; #4320: 1,250,000,000 before; #4189: 2,500,000,000 at first, 5,600,000,000 before; #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
 		distinctCats = 21, -- #4320: 30 before; #4189: 38 before; #3111: 42 before
 		needsRarity = "Mythical",
 		needsRarityCount = 2,
@@ -1807,7 +1807,7 @@ Catalog.tiers = {
 	{
 		tier = 7,
 		name = "Wonder Cafe",
-		cost = 6250000000, -- #4320: 12,500,000,000 before; #4189: 25,000,000,000 at first, 54,000,000,000 before; #2895 (10% off): 60,000,000,000 before
+		cost = 3125000000, -- #4537: 6,250,000,000 before; #4320: 12,500,000,000 before; #4189: 25,000,000,000 at first, 54,000,000,000 before; #2895 (10% off): 60,000,000,000 before
 		distinctCats = 27, -- #4320: 38 before; #4189: 47 before; #3111: 52 before
 		needsRarity = "Mythical",
 		needsRarityCount = 3,

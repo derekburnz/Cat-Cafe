@@ -729,8 +729,8 @@ return function()
 			{ "Famous Cafe", 2600000, 13, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 2 } },
 			{ "Grand Cafe", 45000000, 14, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 			-- #2651 (tier6-7-areas.md sections 1 and 7b), QA-Planner's Pace fit
-			{ "Sunstone Cafe", 625000000, 21, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
-			{ "Wonder Cafe", 6250000000, 27, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
+			{ "Sunstone Cafe", 312500000, 21, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
+			{ "Wonder Cafe", 3125000000, 27, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
 			-- #3997 (tier8-snowy-mountain.md section 1, draft numbers)
 			{ "Summit Cafe", 21000000000, 36, "Mythical", 4, 16, 2.75, "snowy", { 6, 8, 3 } },
 			-- #4070 (draft numbers on Tier 8's pattern)

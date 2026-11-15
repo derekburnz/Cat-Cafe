@@ -21,8 +21,8 @@ DragonKeep.STAGES = {
 	{ name = "Hatchling", warmth = 50 },
 	{ name = "Whelp", warmth = 300 },
 	{ name = "Drake", warmth = 1000 },
-	{ name = "Elder", warmth = 2500 },
-	{ name = "Crowned", warmth = 5000 },
+	{ name = "Elder", warmth = 2100 }, -- #4615 (Derek 2026-11-15): was 2,500
+	{ name = "Crowned", warmth = 4000 }, -- #4615: was 5,000
 }
 DragonKeep.MAX_STAGE = #DragonKeep.STAGES
 DragonKeep.REKINDLE = 1500
@@ -511,7 +511,12 @@ local function whole(value: unknown, max: number): number
 	return 0
 end
 
+-- grow, defined below with the giving code: sanitize ends with it
+local grow: (save: Types.DragonSave) -> ()
+
 -- A save's dragon made whole: known cards only, slots only up to the stage, no slotted card outside the binder.
+-- #4615: a save whose Warmth already reaches a stage (the stage Warmths were lowered) gets that stage and its hand
+-- queued here, on load, and not only at its next gift.
 function DragonKeep.sanitize(raw: unknown): Types.DragonSave
 	local out = DragonKeep.fresh()
 	if type(raw) ~= "table" then
@@ -587,6 +592,7 @@ function DragonKeep.sanitize(raw: unknown): Types.DragonSave
 			end
 		end
 	end
+	grow(out)
 	return out
 end
 
@@ -778,7 +784,7 @@ end
 
 -- Queues the stage hands and Rekindle hands the Warmth has reached (Rekindle up to HAND_CAP waiting; past the cap
 -- the Warmth waits too, so no hand is lost).
-local function grow(save: Types.DragonSave)
+function grow(save: Types.DragonSave)
 	while
 		save.stage < DragonKeep.MAX_STAGE
 		and save.warmth >= DragonKeep.STAGES[save.stage + 1].warmth

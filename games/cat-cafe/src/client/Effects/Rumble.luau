@@ -2,14 +2,17 @@
 -- Controller rumble (#4224, Better on Every Device): a short buzz in the gamepad's big motor for the moments that
 -- already bump the camera (a missed catch, a shove, the cannon's launch, a prize landing) and a light one for your
 -- own catch, stronger the rarer the cat. Only while the last thing the player touched is a gamepad whose motor
--- Roblox says it can drive; keyboard, mouse and touch get nothing. Context.shake and Context.rumble call it, so it
--- follows the Screen shake setting; it still plays with Reduce Motion, since nothing on screen moves.
+-- Roblox says it can drive, or a touch screen: a phone gets the same moments as one of Roblox's ready-made taps
+-- (a HapticEffect: a click for a light pulse, a knock for a firmer one, a thump for the strongest), on phones that
+-- can vibrate. Keyboard and mouse get nothing. Context.shake and Context.rumble call it, so it follows the Screen
+-- shake setting; it still plays with Reduce Motion, since nothing on screen moves.
 --
 -- One pulse at a time: a new one replaces one still running, and the motor always goes back to 0 (also if the
 -- gamepad is put down mid pulse). Numbers in Presets.rumble.
 
 local HapticService = game:GetService("HapticService")
 local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
 
 local Presets = require(script.Parent.Presets)
 
@@ -28,6 +31,7 @@ local PADS: { [Enum.UserInputType]: boolean } = {
 }
 
 local turn = 0 -- the pulse now running; a later one takes over
+local taps: { [string]: HapticEffect } = {} -- one HapticEffect a kind, made at its first use
 
 -- The motor's strength (0 to 1) for a camera bump of `studs`: `perStud` each, never under `least` (a bump you can
 -- feel) or over `most` (never the motor's full buzz).
@@ -55,6 +59,44 @@ function Rumble.catch(rarity: string): (number, number)
 	return row.seconds, row.strength
 end
 
+-- A phone's tap for a pulse of `strength`: "click" under `knockFrom`, "knock" under `thumpFrom`, else "thump".
+function Rumble.tap(strength: number): string
+	local r = Presets.rumble
+	if strength >= r.thumpFrom then
+		return "thump"
+	end
+	return if strength >= r.knockFrom then "knock" else "click"
+end
+
+local TAP_TYPES: { [string]: Enum.HapticEffectType } = {
+	click = Enum.HapticEffectType.UIClick,
+	knock = Enum.HapticEffectType.GameplayCollision,
+	thump = Enum.HapticEffectType.GameplayExplosion,
+}
+
+-- Plays the phone's tap of that kind where the camera looks, so the player is always inside its reach.
+local function touchTap(kind: string)
+	pcall(function()
+		local effect: HapticEffect? = taps[kind]
+		if effect == nil or effect.Parent == nil then
+			local made = Instance.new("HapticEffect")
+			made.Name = "CatCafeTap_" .. kind
+			made.Type = TAP_TYPES[kind]
+			made.Looped = false
+			made.Radius = Presets.rumble.tapReach
+			made.Parent = Workspace
+			taps[kind] = made
+			effect = made
+		end
+		local camera = Workspace.CurrentCamera
+		local tap = effect :: HapticEffect
+		if camera ~= nil then
+			tap.Position = camera.Focus.Position
+		end
+		tap:Play()
+	end)
+end
+
 local function pad(): Enum.UserInputType?
 	local last = UserInputService:GetLastInputType()
 	if not PADS[last] then
@@ -73,11 +115,15 @@ local function set(on: Enum.UserInputType, strength: number)
 	end)
 end
 
--- Buzzes the gamepad in use for `seconds` at `strength` (0 to 1). Nothing without one.
+-- Buzzes the gamepad in use for `seconds` at `strength` (0 to 1), or taps the phone once. Nothing on a keyboard.
 function Rumble.pulse(seconds: number, strength: number)
 	local length = Rumble.length(seconds)
 	local level = math.clamp(strength, 0, Presets.rumble.most)
 	if length <= 0 or level <= 0 then
+		return
+	end
+	if UserInputService:GetLastInputType() == Enum.UserInputType.Touch then
+		touchTap(Rumble.tap(level))
 		return
 	end
 	local on = pad()

@@ -32,6 +32,18 @@ return function()
 			expect(r.most < 1).to.equal(true)
 		end)
 
+		it("picks a phone's tap by how strong the pulse is", function()
+			local r = Presets.rumble
+			expect(Rumble.tap(r.least)).to.equal("click")
+			expect(Rumble.tap(r.knockFrom)).to.equal("knock")
+			expect(Rumble.tap(r.thumpFrom)).to.equal("thump")
+			expect(Rumble.tap(Rumble.strength(Presets.shake.studs))).to.equal("knock") -- a missed catch
+			local _, common = Rumble.catch("Common")
+			expect(Rumble.tap(common)).to.equal("click")
+			local _, secret = Rumble.catch("Secret")
+			expect(Rumble.tap(secret)).to.equal("thump")
+		end)
+
 		it("buzzes more for a rarer catch", function()
 			local order = { "Common", "Rare", "Epic", "Legendary", "Mythical", "Secret" }
 			local lastSeconds, lastStrength = 0, 0

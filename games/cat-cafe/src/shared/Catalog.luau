@@ -3626,7 +3626,9 @@ Catalog.areas = {
 		rescueSpots = 5, -- the carousel top, a ball pit, a prize plush pile, a river ring and a balloon bunch
 		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 },
 		incomeMultiplier = AREA_INCOME.waterpark,
-		launchFrom = "desert", -- #4070: flown to from the Desert camp's cannon only (Layout.waterpark.launchFrom)
+		-- Derek 2026-11-15 ("water park is fully missing from the menu"): no launchFrom here, so every cannon's picker
+		-- lists the Water Park and flies there, as for the Medieval Castle. Layout.waterpark.launchFrom stays for the
+		-- town barrel's aim only.
 	},
 	-- #4184: Model-Agent's CatCafe_Castle_Set (#4108: 192 cat spots and a pool of 15 rescue spots; five traps a day as
 	-- in every area)

@@ -120,6 +120,7 @@ import storepacks  # noqa: E402
 import harvestoutfits  # noqa: E402
 import harvestdecor  # noqa: E402
 import harvestset  # noqa: E402
+import cherryset  # noqa: E402
 import waterparkshelf  # noqa: E402
 import wallperch  # noqa: E402
 import seasondecor  # noqa: E402
@@ -141,7 +142,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
            mysterymarket, mysteryitems, desertset, ruinsset, snowyset, waterparkset, castleset, campgrowth, townsfolk, nooks, feedbackstand,
-           arcadecabinet, mysticpool, moneybag, riftrun, storepacks, harvestoutfits, harvestdecor, harvestset, dragon,
+           arcadecabinet, mysticpool, moneybag, riftrun, storepacks, harvestoutfits, harvestdecor, harvestset, cherryset, dragon,
            updateposter,
            waterparkshelf, wallperch]
 
@@ -613,6 +614,12 @@ STUDIO_NOTES[harvestset.NAME] = (
     "nook (the maze's middle), pumpkin (12 pickup spots for CatCafe_Harvest_Pumpkin), stall and board (where "
     "CatCafe_Harvest_Stall and CatCafe_Harvest_Board stand, with a turn). The windmill's sails are a "
     "_Spin child Model pivoted at the hub.")
+STUDIO_NOTES[cherryset.NAME] = (
+    "#4386 Cherry Blossom Grove, a future area (blockout: no tier, cats or station yet, nothing in the game uses it). "
+    "Place it at the area's centre on its floor; walled all round, players arrive at points_roblox player_spawn. The "
+    "only _Barrier is the 30 high ring in the wall band. The pond and the three waterfalls are _Water (flat, no "
+    "kerb); petals, koi and lily pads are _Decor. The pagoda is solid; the tea house deck is 2.5 up with steps at "
+    "its -X end. points_roblox: spawn (14 stray spots) and nook (the pond's far shore, between two waterfalls).")
 STUDIO_NOTES[castleset.NAME] = (
     "Tier 10, the Medieval Castle (next-areas plan section 3, #4067). Place it at the area's centre on its floor, "
     "camp side -Z, like the Snowy set. Packed earth right out to the walls, cobbles, the field's sand and the keep's "

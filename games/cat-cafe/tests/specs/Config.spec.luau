@@ -659,6 +659,10 @@ return function()
 				ChefPackPassId = true,
 				SpacePackPassId = true,
 				AutoBowlPassId = true, -- #4266: the Auto Bowl pass id, its Store card hidden while 0
+				FusionCopies = true, -- #4104: checked in Fusion.spec
+				FusionGoldSeconds = true,
+				FusionRainbowSeconds = true,
+				FusionTier = true,
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

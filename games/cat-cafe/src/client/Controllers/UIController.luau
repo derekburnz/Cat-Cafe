@@ -1282,6 +1282,9 @@ local function applyState(s: Types.PlayerState)
 		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done
 		spin = s.spin, -- F49: the free spin and the banked ones, for the Spin window
 		goldenFish = s.goldenFish, -- F52: the HUD's fish counter
+		-- #4061: the Ticket Booth window; false (not nil, which UI.update would skip) while off or below its tier
+		ticketBooth = s.ticketBooth or false,
+		dragon = s.dragon or false, -- #4062: the Dragon Keep window, false while off or below its tier
 		crates = s.crates, -- F53: unopened crates, crate luck and Market perks
 		crateLuck = s.crateLuck,
 		fishPerks = s.fishPerks,
@@ -1315,6 +1318,8 @@ local function applyState(s: Types.PlayerState)
 		-- #2555: the free Bellhop Cat's stand "!" (#2501) and its speech bubble show only while this is false
 		starterCatClaimed = s.starterCatClaimed,
 		storeSeen = s.storeSeen, -- #1823 §4: the Store tabs' New dots
+		-- #4055: the Store's golden fish prices; false (not nil, which UI.update would skip) while the switch is off
+		fishStore = s.fishStore or false,
 		dailyDeal = s.dailyDeal or false, -- #3996: Today's Deal on the Store's Featured tab
 		-- #2574: Juniper's Mystery Market: the items owned, the cart's "!" until the first visit, and whether buys are
 		-- taken yet
@@ -1457,6 +1462,18 @@ local function wireIntents()
 	end)
 	local seenQueue: { string } = {}
 	local seenSending = false
+	-- #4055: one fish buy at a time; the server answers with a toast and a ProfileSync
+	local fishBuying = false
+	UI.events.buyWithFish:Connect(function(key: string, fish: number)
+		if fishBuying or type(key) ~= "string" or type(fish) ~= "number" then
+			return
+		end
+		fishBuying = true
+		Net.fire("BuyWithFish", key, fish)
+		task.delay(1, function()
+			fishBuying = false
+		end)
+	end)
 	UI.events.storeSeen:Connect(function(tab: string)
 		if table.find(seenQueue, tab) then
 			return

@@ -2906,7 +2906,9 @@ Presets.nap = {
 	tilt = 12,
 }
 
-Presets.gate = { seconds = 1.4, playWithin = 70 }
+-- `areaPuff` (#4069): pieces of the area's own puff at each of Presets.areas.points places along the foot of a gate
+-- whose area has effects of its own (Presets.areaFx.areas), on top of the dissolve.
+Presets.gate = { seconds = 1.4, playWithin = 70, areaPuff = 3 }
 
 Presets.shutter = { seconds = 0.9, signSeconds = 0.6 }
 
@@ -3721,7 +3723,7 @@ Presets.adminDrops = {
 -- at `calmRate` of the rate with Reduce Motion. A patch pumpkin (`pumpkinTag`) whose `readyAttribute` goes false
 -- within `within` studs pops `pickCount` pieces `lift` studs up and a `pickRing` stud ring; one that comes back
 -- sprouts `regrowCount` green sparkles. Every `glintEvery` seconds the nearest `glintMost` ready pumpkins within
--- `glintWithin` studs give `glintCount` gold glints.
+-- `glintWithin` studs give `glintCount` gold glints. `inside` the area is within `airWithin` too (the song, the pie).
 Presets.harvestFx = {
 	pumpkinTag = "HarvestPumpkin",
 	boardTag = "HarvestBoard",
@@ -3746,6 +3748,28 @@ Presets.harvestFx = {
 	glintEvery = 5,
 	glintWithin = 60,
 	glintMost = 3,
+	-- the Feast Pie: a slice baked while you are in the area pops `pieCount` gold pieces `pieLift` studs over the
+	-- board and a `pieRing` stud ring; the last of `pieFull` slices adds confetti and a gold beam
+	pieAttribute = "HarvestPieSlices",
+	pieFull = 8,
+	pieLift = 6,
+	pieBurst = "catchSparkle",
+	pieCount = 12,
+	pieRing = 8,
+	pieConfetti = 0.6,
+	pieBeamWidth = 1.2,
+	pieBeamHeight = 14,
+	pieBeamSeconds = 1.2,
+	-- walking in: `arriveSpots` puffs of `arriveCount` leaves in a circle `arriveRadius` studs round you, `arriveLift`
+	-- studs up, `arriveStep` seconds apart (each spot puffs once), with `arriveSparkles` gold
+	-- sparkles; not again within `arriveGap` seconds
+	arriveSpots = 6,
+	arriveCount = 4,
+	arriveRadius = 5,
+	arriveLift = 3,
+	arriveStep = 0.12,
+	arriveSparkles = 8,
+	arriveGap = 90,
 }
 
 -- #4325 (Effects/AdminFlash): an admin event takes the screen and the world. The 3, 2, 1 begins `countFrom` seconds
@@ -6139,6 +6163,19 @@ Presets.lateStations = {
 	beamWidth = 1.2,
 	beamHeight = 14,
 	beamSeconds = 1.2,
+}
+
+-- The Ticket Booth's buy moment (#4061; Effects/BoothFx): paper tickets in the booth's own red, cream and gold off
+-- the `anchor` attachment of the `tag`-tagged model (else `under` of its height above its middle), `tickets` of the
+-- device's confetti budget, `sparkles` gold sparkles and one gold ring `ring` studs wide at its feet.
+Presets.boothFx = {
+	tag = "TicketBooth",
+	anchor = "BangAnchor",
+	under = 0.2,
+	tickets = 0.5,
+	sparkles = 8,
+	ring = 7,
+	colours = { Presets.palette.shirtRed, Presets.palette.cream, Presets.palette.golden },
 }
 
 -- The Relic Museum's room names (#3129; Effects/MuseumPlaques, Logic.plaqueGlow): a finished room's plaque letters

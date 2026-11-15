@@ -27,6 +27,7 @@ local BaitCrumbs = require(script.BaitCrumbs)
 local BedWalk = require(script.BedWalk)
 local Bellhop = require(script.Bellhop)
 local BigTraitCut = require(script.BigTraitCut)
+local BoothFx = require(script.BoothFx)
 local BulbChase = require(script.BulbChase)
 local CafeWalk = require(script.CafeWalk)
 local CampCollect = require(script.CampCollect)
@@ -193,6 +194,7 @@ function Effects.start()
 		CampGlow.start,
 		AreaFx.start,
 		LateStationFx.start,
+		BoothFx.start, -- #4061: the Ticket Booth's buy moment
 		FusionFx.start, -- #4104: the Fusion Observatory dome's glow and paw lights
 		MuseumPlaques.start,
 		StationMotion.start,

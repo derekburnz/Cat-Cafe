@@ -1180,3 +1180,11 @@ The main card's odds are now six pills in the rarities' colours (two rows of thr
 ## 2026-11-13 The Bag's Titles tab lists titles rarest first (Design-Agent)
 - **Why:** Derek: "sort titles in backpack section to sort rarest first so that leaderboards players can see their good titles first".
 - **What:** owned titles, then locked ones, each in `TitlesLogic.RAREST`: #1, #2, #3, then the big achievements hardest first (Cat Legend, Devoted, Steady Hands, Week Champion, Gold Rush), then Grand Opener, Maple, Thank You and VIP. The server's default title (`ChatTags.ORDER`) is unchanged.
+
+## 2026-11-13 Pop-up cards are easier to see, first visit calls wait for Tier 2, and the tips X still guides to the Park (#3891, #3893, Design-Agent)
+- **Why:** Derek: "make the ui for pop ups like this easier to see and also maybe wait for the rich customer pop up until after tier 2 is unlocked so people don't stop before 5 cats", and "if tips are X'd and closed to still at least show the tips all the way up to going to park and remove the getting first cat at park have that just end tutorial there when park has been visited".
+- **What:** the ask card (rich customer, first visit calls) has a bigger white outlined title on a gold band and a soft shadow. First visit calls already wait for Tier 2 through the quiet start (#4005), so that part needs no change here. With tips X'd the strip still shows each step up to the Park; the Park walk now ends when the player enters the Park, not at the first Park catch, and nothing else pops up after that. Server rich spawns are unchanged (Gameplay-Engineer).
+
+## 2026-11-13 A small bubble by the Feedback button asks for map theme ideas (#3883, Design-Agent)
+- **Why:** Derek: "Have the feedback have a little pop up above it not too annoying but make it noticable that says suggest new map themes to have you name be featured if picked".
+- **What:** a gold edged bubble under the Feedback tile reads "Suggest a new map theme! If we pick yours, your name gets featured." It shows once a join, 90 s after the tutorial is done, bobs gently, and goes by itself after 20 s. A tap opens Feedback on its Idea chip; the X closes it for the rest of the join. Credits for picked themes follow the idea credits list.

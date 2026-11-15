@@ -70,6 +70,7 @@ import townbuildings  # noqa: E402
 import decor  # noqa: E402
 import furniture  # noqa: E402
 import gold  # noqa: E402
+import goldtone  # noqa: E402
 import gates  # noqa: E402
 import items  # noqa: E402
 import lawn  # noqa: E402
@@ -107,6 +108,7 @@ import yardfence  # noqa: E402
 import sewerset  # noqa: E402
 import neighbourhoodset  # noqa: E402
 import pitysign  # noqa: E402
+import updateposter  # noqa: E402
 import ringicons  # noqa: E402
 import plot  # noqa: E402
 import poses  # noqa: E402
@@ -116,6 +118,7 @@ import rbx_export  # noqa: E402
 import spot_clear  # noqa: E402
 import storepacks  # noqa: E402
 import waterparkshelf  # noqa: E402
+import wallperch  # noqa: E402
 import seasondecor  # noqa: E402
 import sewer  # noqa: E402
 import themes  # noqa: E402
@@ -135,8 +138,8 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
            mysterymarket, mysteryitems, desertset, ruinsset, snowyset, waterparkset, castleset, campgrowth, townsfolk, nooks, feedbackstand,
-           arcadecabinet, mysticpool, moneybag, riftrun, storepacks, dragon,
-           waterparkshelf]
+           arcadecabinet, mysticpool, moneybag, riftrun, storepacks, dragon, updateposter,
+           waterparkshelf, wallperch]
 
 PIVOT_NOTES = {
     **{n: "at its feet on the floor, front -Z" for n in townsfolk.ASSETS},
@@ -255,6 +258,8 @@ PIVOT_NOTES = {
                               "pivots at the middle of its foot's underside",
     pitysign.NAME: "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
                    "pitysign.SPOT, facing the player spawn",
+    updateposter.NAME: "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
+                       "updateposter.SPOT, facing the player spawn",
     campstations.PIC: "the base centre on the camp's ground, front -Z, no turn; the Picnic Basket's spot "
                       "(Layout.campExtras.park, Park set space)",
     campstations.YARD: "the base centre on the camp's ground, front -Z, no turn; the Yard Sale's spot "
@@ -447,6 +452,10 @@ STUDIO_NOTES = {
                         "centre, where the week's featured item can sit and turn. Juniper's hood rides its Head Model; "
                         "the lanterns (_Bulb) are lit at night; the rug and the lantern cord (_Decor) never collide. "
                         "Everything, rug included, fits mysterymarket.FOOT so the walk-up ring lands as planned.",
+    updateposter.NAME: "#4362: the update poster in the Town Square (suggested spot updateposter.SPOT, the pity "
+                       "sign's mirror, facing the spawn). Streams Atomic. The UI's SurfaceGui (Adornee = the part "
+                       "named Screen, 8.0 x 4.5, night blue) draws the next update's picture, name, countdown and "
+                       "the Notify Me tap on its Front (-Z) face.",
     pitysign.NAME: "#1572 (luck-and-rare-moments.md section 1h): the rare cat sign in the Town Square (suggested "
                    "spot pitysign.SPOT, across the street from the Day Cart, facing the spawn). Streams Atomic. The "
                    "UI's SurfaceGui (Adornee = the part named Screen, 5.6 x 2.8, night blue) draws the Legendary and "
@@ -929,7 +938,8 @@ def main():
         if name in menu.ATTACHMENTS:              # F90: the tray's Item spot, the oven's DoorGlow
             extra = {"attachments": menu.rbx_attachments(name)}
         if name == arcadecabinet.NAME:            # #3062: the Play prompt, the coin slot and the screen
-            extra = {"attachments": arcadecabinet.attachments()}
+            extra = {"attachments": arcadecabinet.attachments(), "nest": arcadecabinet.NEST,
+                     "part_attributes": arcadecabinet.FOLLOWS}   # #4272: the mouse cat's ears ride his head
         if name in campstations.ASSETS:           # #1319: PromptAnchor, BangAnchor, and GlowAnchor / Steam
             extra = {"attachments": campstations.rbx_attachments(name), **campstations.MOVING.get(name, {})}
         if name in townsfolk.ASSETS:              # #2687: the hat rides the Head Model
@@ -942,11 +952,21 @@ def main():
             extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about
             extra = {"attachments": luckycat.hinge_attachments(name)}
+        if name in wallperch.ASSETS:              # the cat's Seat on the shelf
+            extra = {"attachments": wallperch.rbx_attachments(name)}
         if name in dragon.ASSETS:                 # #4062: the joint chain, each joint's scales inside it
             extra = {"nest": dragon.NEST}
+        if name in areakit.SWING_ASSETS:          # banners, flags, pennants and balloons that sway (areakit.SWING)
+            extra = {**extra, **areakit.SWING}
+        if name in areakit.SMOKE:                 # chimney tops: an Attachment named "Smoke" for Effects
+            extra = {**extra, "attachments": [*extra.get("attachments", ()), *areakit.SMOKE[name]]}
         rbx_dir = os.path.join(args.rbx, riftrun.RBX_DIR) if name in riftrun.ASSETS else args.rbx   # Assets.RiftRun
         rbx_dir = os.path.join(args.rbx, dragon.RBX_DIR) if name in dragon.ASSETS else rbx_dir      # Assets.Dragon
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, rbx_dir, **extra)
+        if rbx_path and name.startswith("CatCafe_Cat_"):      # #3918: the base cat's parts say how its gold twin differs
+            pair = goldtone.twin_paths(rbx_path)
+            if pair:
+                goldtone.stamp(*pair)
         spots_ok = None
         if rbx_path and name in spot_clear.SETTLE and name in areakit.POINTS:   # cat spots out of solid props
             blo, bhi = common.bounds(objs)
@@ -1045,6 +1065,9 @@ def main():
         if name == pitysign.NAME:
             entry["screen"] = {"part": "Screen", "face": "Front (-Z)", "size": [pitysign.SW, pitysign.SH]}
             entry["placement_suggested_roblox"] = [round(v, 2) for v in pitysign.SPOT]
+        if name == updateposter.NAME:
+            entry["screen"] = {"part": "Screen", "face": "Front (-Z)", "size": [updateposter.SW, updateposter.SH]}
+            entry["placement_suggested_roblox"] = [round(v, 2) for v in updateposter.SPOT]
         if name == gardennursery.NAME:
             entry["prompt_anchor_roblox"] = list(gardennursery.PROMPT_ROBLOX)
             entry["placement_park_set_roblox"] = list(gardennursery.SPOT)

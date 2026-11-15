@@ -87,6 +87,11 @@ return function()
 			local profile = fresh()
 			profile.upgradeLevels.lure_bowl = 1
 			profile.lures = { kibble = 2 }
+			-- not during the tutorial, whose bowl step teaches the given bowl (#4125)
+			expect(#Tips.due(profile, DAY)).to.equal(0)
+			profile.tutorialStep = 5
+			expect(Tips.due(profile, DAY) :: any).to.deepEqual({ "bowl", "spin_wheel" })
+			profile.tipsSeen = { spin_wheel = true }
 			expect(Tips.due(profile, DAY) :: any).to.deepEqual({ "bowl" })
 			profile.bait = { lureId = "kibble", placedAt = 0, readyAt = 10 }
 			expect(#Tips.due(profile, DAY)).to.equal(0)
@@ -112,6 +117,7 @@ return function()
 			profile.goldenFish = 3
 			profile.potions = { tip_potion = 1 }
 			profile.tutorialStep = 5
+			profile.lures = {} -- the given Kibble used, so no bowl cut
 			expect(Tips.due(profile, DAY) :: any).to.deepEqual({
 				"golden_fish",
 				"potion",

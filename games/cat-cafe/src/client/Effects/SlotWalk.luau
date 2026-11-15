@@ -21,6 +21,7 @@ local RunService = game:GetService("RunService")
 
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Context = require(script.Parent.Context)
+local GoldTone = require(ReplicatedStorage.Shared.GoldTone)
 local Logic = require(script.Parent.Logic)
 local Pose = require(script.Parent.Pose)
 local Presets = require(script.Parent.Presets)
@@ -78,23 +79,24 @@ local function setFade(parts: { BasePart }, k: number)
 end
 
 -- The walking body (A) of `model`'s cat, gold if it is, as the server's AssetRegistry.cloneCat picks it.
-local function walkingTemplate(model: Model): Model?
+-- The second result: the copy made from it must be toned gold (GoldTone.apply, #4133: gold from the base model).
+local function walkingTemplate(model: Model): (Model?, boolean)
 	local catId = model:GetAttribute("CatId")
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	if type(catId) ~= "string" or assets == nil then
-		return nil
+		return nil, false
 	end
-	local names = { Catalog.catModelName(catId) }
+	local names, tone = { Catalog.catModelName(catId) }, false
 	if model:GetAttribute("Gold") == true then
-		table.insert(names, 1, Catalog.goldModelName(catId))
+		names, tone = GoldTone.names(Catalog.goldModelName(catId), Catalog.catModelName(catId))
 	end
 	for _, name in names do
 		local found = assets:FindFirstChild(name)
 		if found ~= nil and found:IsA("Model") then
-			return found :: Model
+			return found :: Model, tone
 		end
 	end
-	return nil
+	return nil, false
 end
 
 -- Why a walk ended, left on the cat's model on this client only for a tester to read (#2050): the reason, and the
@@ -206,11 +208,14 @@ local function begin(model: Model, from: CFrame): boolean
 	if Context.distance(to.Position) > radius and Context.distance(from.Position) > radius then
 		return false
 	end
-	local template = walkingTemplate(model)
+	local template, tone = walkingTemplate(model)
 	if template == nil then
 		return false
 	end
 	local copy = template:Clone() :: Model
+	if tone then
+		GoldTone.apply(copy)
+	end
 	copy.Name = "SlotWalker"
 	for _, tag in CollectionService:GetTags(copy) do
 		CollectionService:RemoveTag(copy, tag)

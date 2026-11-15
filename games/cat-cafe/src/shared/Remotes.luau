@@ -72,6 +72,8 @@ Remotes.ClientToServer = {
 	"ClaimTipJar", -- (step: number)  integer 1 to #Catalog.tipJar, unclaimed this session, its minutes reached (F47)
 	"ClaimIndexReward", -- (areaId: string, milestoneId: string)  known prize, unclaimed, the area's count met (F48)
 	"SpinWheel", -- ()  within SpinStationRange of a SpinWheel station, a free or banked spin, SpinCooldownSeconds (F49)
+	"AdminWheelSpin", -- ()  #4195: spins the Admin Wheel while an admin event with `wheel` runs; once per account per
+	-- event, no arguments (AdminWheelService). The answer is AdminWheelResult
 	"SpinAll", -- ()  #1078: as SpinWheel, but spends every free and banked spin, up to SpinAllMax, each rolled with the
 	-- same odds; 1 a second; answered with SpinAllResult
 	"OpenCrate", -- (crateId: string)  within FishMarketRange of a FishMarket, the crate's zone unlocked, a banked
@@ -102,6 +104,9 @@ Remotes.ClientToServer = {
 	"KeepCards", -- ()  #4062: a Rekindle hand's "Keep my cards", DragonKeep.KEEP_FISH golden fish. 1 a second
 	"SlotDragonCard", -- (cardId: string, slot: number)  #4062: a binder card into an open slot, free. 4 a second
 	"SetDragonColour", -- (colour: string)  #4062: one of DragonKeep.COLOURS from stage 3, free. 1 a second
+	"PromptDeal", -- (productId: string)  #3996 (shared/DailyDeal): opens Roblox's purchase prompt for Today's Deal from
+	-- the server, only for today's deal, not yet bought today, from Tier 2 and while the dailyDeal switch is on; refused
+	-- with a toast otherwise. 1 a second
 	"StartFusion", -- (uids: { string }, keepTraitUid: string?)  #4104 (shared/Fusion): exactly FusionCopies distinct
 	-- owned, free copies of one cat in one coat (Fusion.startBlocker) go into the Fusion Observatory's dome, which must be
 	-- free; `keepTraitUid` one of them with a trait, or nil for the rarest. From FusionTier, only while the fusion
@@ -280,8 +285,8 @@ Remotes.ServerToClient = {
 	-- { Types.CrateSummary }, gaveFish: number, gotFish: number)  the swap happened (the decor lists since #1574, the
 	-- crate lists since #2745, the golden fish amounts since #2745 section 1d)
 	"TradeEnded", -- (tradeId: string, reason: string)  ended with nothing moved, in words ("Sam left")
-	"CatCaught", -- (catId: string, isNew: boolean, variant: string)  variant "base", "gold" or "rainbow" (F99), for the
-	-- Cat found card's coat
+	"CatCaught", -- (catId: string, isNew: boolean, variant: string, source: string?)  variant "base", "gold" or
+	-- "rainbow" (F99), for the Cat found card's coat; source "bowl" for a cat tamed at a bait bowl (#4266)
 	"OfflineEarnings", -- (amount: number, seconds: number)
 	"Toast", -- (text: string, kind: "info" | "good" | "warn")
 	"Announce", -- (text: string, rarity: Types.Rarity?)  fired to everyone; rarity on a rare catch. F89: a Legendary
@@ -363,6 +368,8 @@ Remotes.ServerToClient = {
 	-- per id until TipSeen. The client queues and times it, then answers TipSeen
 	"SpinAllResult", -- (rolls: { Spin.SpinRoll }, totals: { Spin.SpinTotal })  #1078: each spin's slice and amount in
 	-- order, and the prizes added up for the one results card; both empty when nothing was spent
+	"AdminWheelResult", -- (slice: number, prizeId: string, paid: { string })  #4195: where an AdminWheelSpin landed
+	-- (the place in AdminWheel.PRIZES) and what it paid, as short lines; 0, "", {} when refused
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
 	-- when refused (F49)
 	"CrateAllResult", -- (crateId: string, opened: { Crates.Opened })  #2402: every piece an OpenAllCrates gave, in

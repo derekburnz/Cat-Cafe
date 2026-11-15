@@ -349,6 +349,11 @@ return function()
 				local achieved = Onboarding.startAchieved(1)
 				expect(achieved[tostring(Onboarding.index("tut_3_shown"))]).to.equal(true)
 				expect(achieved[tostring(Onboarding.index("first_table"))]).to.equal(true)
+				expect(achieved[tostring(Onboarding.index("bowl_bought"))]).to.equal(nil)
+				-- #4097: and the Bait bowl for a save that starts with one
+				local both = Onboarding.startAchieved(1, 1)
+				expect(both[tostring(Onboarding.index("first_table"))]).to.equal(true)
+				expect(both[tostring(Onboarding.index("bowl_bought"))]).to.equal(true)
 			end
 		)
 

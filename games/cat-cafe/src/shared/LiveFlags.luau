@@ -45,6 +45,10 @@
 -- - `secretCats` (#3470): Secret cats, the rarity above Mythical. It starts OFF (OFF_BY_DEFAULT): off, nothing rolls
 --   Secret anywhere. Switch it on only once no server older than the publish that added them is running, since an
 --   older server's save check drops a cat id it does not know.
+-- - `secretAreas` (#4221): one Secret per area (Catalog's `secretArea`). It starts OFF (OFF_BY_DEFAULT): off, a
+--   Secret comes from any area as before; on, a wild stray's or trap's Mythical turns only into its area's Secret and
+--   a bait bowl's into one of its open areas' Secrets, and an area with none keeps its Mythical. The Index's Secret
+--   tab reads the same switch. Its own update day (Saturday 2026-11-21 20:00 UTC).
 -- - `luckyCharm` (#3298): the Golden Fish Market's Lucky Charm perk (shared/LuckyCharm). It starts OFF
 --   (OFF_BY_DEFAULT): off hides the row, refuses a buy and adds no Luck. Switch it on only once no server older than
 --   the publish that added the row is running, since an older server's save check drops a perk id it does not know.
@@ -105,6 +109,12 @@
 --   pop ups, refuse trade requests to them and hold the extra tips and cards. It starts OFF (OFF_BY_DEFAULT).
 -- - `quietAway` (#4035): while a player's net is out in a catching area, the food bowl cards wait until they are
 --   back (town, a cafe or a camp; client/UI UI.bait.busy). Client only. It starts OFF (OFF_BY_DEFAULT).
+-- - `rareCustomers` (#3889): each customer walking into an open cafe has a chance to be a rich customer, a Mystery
+--   Visitor or the Cat Collector (shared/RareCustomers, RareCustomerService), sitting at any open table, in place of
+--   their three timers. It starts OFF (OFF_BY_DEFAULT); off, the timers run as before.
+-- - `adminEvents` (#4195): admin events from the events schedule's `admin = true` records (shared/CafeEvents; Bowl
+--   Frenzy's faster bait bowls, EventService.bowlSpeed). It starts OFF (OFF_BY_DEFAULT); off, EventService shows and
+--   runs none, and one running ends at the next second.
 -- LiveFlagService also copies each switch to a ReplicatedStorage attribute (ATTRIBUTE_PREFIX .. key) for the client.
 -- Only an explicit false turns a feature off: a missing key, a value of another type or a failed read leaves it on
 -- (a failed read keeps what the server had), so a broken store can't switch the game off. A key in OFF_BY_DEFAULT is
@@ -117,6 +127,7 @@ LiveFlags.STORE = "CatCafe_Flags"
 --   never rescued (RescueService), back to one cat a day there.
 LiveFlags.KEYS = {
 	"codes",
+	"vipBoost", -- #4235: VIP pays +50% and shows a tag over the owner's head (Economy.vipBoost, Services/VipTagService)
 	"rally",
 	"tradeCrates",
 	"tradeFish",
@@ -144,7 +155,9 @@ LiveFlags.KEYS = {
 	"newKindTag",
 	"parkGateTrail",
 	"touchCatchReach",
+	"nearLights", -- #4311: at night only the nearest Light objects are on (shared/NightLights); on by default
 	"rankUpSpotlight",
+	"rankFirst", -- #4383: a Tier 1 cafe that can rank up is sent to the rank up before the stuck cat, and a stray press no longer closes the walk-through for good (shared/RankFirst)
 	"bagColours",
 	"menuFamily",
 	"speedShoes",
@@ -164,6 +177,19 @@ LiveFlags.KEYS = {
 	"riftRun", -- Derek 2026-11-13: a Mythic or Secret trait roll's Rift Run cutscene (client/Effects/RiftRun); client only
 	"secretTrait", -- #3908: the Secret trait rarity (0.1%) in the Mystic Pool's rolls and odds (shared/Traits)
 	"tier8", -- #3997: Tier 8 and the Snowy Mountain (shared/LateTiers); on once the area is built, after a restart
+	"tier9", -- #4070: Tier 9 and the Water Park (shared/LateTiers); on once the area is built, after a restart, never before tier8
+	"tier10", -- #4184: Tier 10 and the Medieval Castle (shared/LateTiers); on once the area is built, after a restart, never before tier9
+	"rareCustomers", -- #3889: rare customers by a chance per arriving customer, at any table
+	"goldTone", -- #4133: gold cats are their base model toned gold (shared/GoldTone), not the _Gold models
+	"palJoin", -- #3995: a player who joins through a friend gets the cafe next door and no intro by itself (shared/PalJoin)
+	"dailyDeal", -- #3996: Today's Deal on the Store's Featured tab (shared/DailyDeal)
+	"starterSuggest", -- #4174: the Starter Bundle's one slide-in card a session after 10 to 15 minutes (shared/StarterSuggest)
+	"updateFeature", -- #4175: the update's own item first on the Store's Featured tab on big update days (Config.UpdateFeature)
+	"adminEvents", -- #4195: admin events (Bowl Frenzy, the Admin Wheel) from the events schedule (shared/CafeEvents)
+	"secretAreas", -- #4221: one Secret per area; a rolled Mythical turns only into its own area's Secret (Catching.secret)
+	"spawnQueue", -- #4227: spawn pop-ups one at a time (UI/Components/SpawnQueue); false shows them as they come
+	"padControls", -- #4224: B back one step, L1/R1 tabs and pop-ups taking focus on a gamepad (UI/Components/GamepadNav)
+	"freeCatchPads", -- Derek 2026-11-14: phone, tablet and console catches below Tier 2 are the tutorial's (shared/FreeCatch)
 	"fusion", -- #4104: the Fusion Observatory (shared/Fusion); on after the save version 50 restart
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -205,6 +231,17 @@ LiveFlags.OFF_BY_DEFAULT = {
 	riftRun = true,
 	secretTrait = true,
 	tier8 = true,
+	tier9 = true,
+	tier10 = true,
+	rareCustomers = true,
+	goldTone = true,
+	palJoin = true,
+	dailyDeal = true,
+	starterSuggest = true,
+	updateFeature = true,
+	adminEvents = true,
+	secretAreas = true,
+	padControls = true,
 	fusion = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

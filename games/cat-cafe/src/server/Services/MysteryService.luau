@@ -11,6 +11,9 @@
 -- it"): an unopened gift is gone after MysteryGiftKeepSeconds or when its owner leaves, never opened for them.
 -- Nightfall sends the visitor home; the gift stays on the table until it is opened or its time is up.
 -- Owner safety: the gift comes out of the visit before it is paid, so a gift pays once.
+-- #3889: with the `rareCustomers` switch on the timer stops and RareCustomerService sends the visitor
+-- (MysteryService.arriveRare) when an arriving customer rolls Mystery, to any open table. A new account's first one
+-- still comes at FirstVisitAt.mystery.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -22,10 +25,12 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local FirstVisit = require(script.Parent.Parent.Util.FirstVisit)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
+local RareCustomers = require(ReplicatedStorage.Shared.RareCustomers)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local VisitTimer = require(ReplicatedStorage.Shared.VisitTimer)
@@ -262,6 +267,7 @@ local function tickTimers(dt: number)
 	local now = os.time()
 	local dusk = math.floor(ClockService.phaseEndsAt())
 	local open_ = not ClockService.isNight() and dusk - now > Config.DuskWarningSeconds
+	local byChance = LiveFlagService.on(RareCustomers.FLAG) -- #3889: RareCustomerService sends them
 	for _, player in DataService.loadedPlayers() do
 		local plot = PlotService.get(player)
 		local profile = DataService.get(player)
@@ -276,7 +282,7 @@ local function tickTimers(dt: number)
 		local left = timers[player]
 			or VisitTimer.draw(Config.MysteryEveryMin, Config.MysteryEveryMax, rng:NextNumber())
 		local due: boolean
-		left, due = VisitTimer.tick(left, dt, ready)
+		left, due = VisitTimer.tick(left, dt, ready and not byChance)
 		-- #2792: a new account's first Mystery Visitor comes at FirstVisitAt.mystery seconds of play, timer or not
 		if ready and not due and FirstVisit.due(player, profile, "mystery") then
 			due = true
@@ -305,6 +311,24 @@ local function checkExpiries()
 			missGift(index)
 		end
 	end
+end
+
+-- #3889: an arriving customer rolled Mystery (RareCustomerService, `rareCustomers` on, the cafe open): the visitor
+-- sits at one of the cafe's open tables. False when the cafe cannot take one now (a visit already on, no income or no
+-- table).
+function MysteryService.arriveRare(player: Player, u: number): boolean
+	local plot = PlotService.get(player)
+	local profile = DataService.get(player)
+	if plot == nil or profile == nil or visits[plot.index] ~= nil then
+		return false
+	end
+	local tables = math.min(Economy.level(profile, "tables"), #plot.tableAnchors)
+	if tables < 1 or Economy.incomePerSecond(profile) <= 0 then
+		return false
+	end
+	local first = FirstVisit.arrive(player, profile, plot.model, "mystery")
+	arrive(player, plot, RareCustomers.tableFor(tables, u), os.time(), first)
+	return true
 end
 
 function MysteryService.start()

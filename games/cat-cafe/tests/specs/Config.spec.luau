@@ -10,7 +10,7 @@ return function()
 
 	local expected: { [string]: any } = {
 		ServerPlayers = 8,
-		StartCoins = 850, -- #1796: was 50
+		StartCoins = 250, -- #4097: was 850 (#1796: was 50)
 		FavoriteMultiplier = 1.5,
 		TableBonus = 0.10,
 		EspressoBonus = 0.15,
@@ -166,6 +166,7 @@ return function()
 		MysteryStaySeconds = 120,
 		MysteryGiftKeepSeconds = 900, -- #2614 (was 600)
 		MysteryRareStreak = 4,
+		RareCustomerSeconds = 6, -- #3889: one street customer every 6 s, each a rare one at RareChance
 		PotionMaxMinutes = 1440, -- F95 (economy-ladder.md section 6b): potions stack to 24 hours
 		-- quests and achievements and their potions (F73, quests.md section 6)
 		TimedTipsMax = 1.0,
@@ -358,7 +359,7 @@ return function()
 		BinFirstRepeatSeconds = 180,
 		BinCooldownSeconds = 900,
 		BinMissRetrySeconds = 10,
-		BinZoneWidth = 0.22, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed; #3458: 0.42 before
+		BinZoneWidth = 0.18, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed; #3458: 0.42 before; #4284: 0.22 before
 		BinBarSpeed = 0.80, -- #3458: 0.64 before
 		BinHits = 5, -- #3458: the bin's own hit count
 		BinPadRadius = 4, -- #3608: the pad in front of the bin
@@ -432,6 +433,7 @@ return function()
 		PassXpPerLevel = 800,
 		-- #1624 (economy-ladder.md section 6a v2.4): the store passes
 		VipCafeBonus = 0.10,
+		VipBoostCafeBonus = 0.50,
 		CafeStyleCafeBonus = 0.50,
 		GrandCafeBonus = 1.50,
 		AccessoriesStaffMultiplier = 1.15,
@@ -536,6 +538,7 @@ return function()
 				LureReserveSeconds = true,
 				IntroAutoPlay = true, -- false since #3162, checked below
 				StartTables = true, -- #3660
+				StartBowls = true, -- #4097
 				MysteryOpen = true, -- #2565: the Mystery Market buy switch, checked in MysteryMarket.spec
 				MysteryEpoch = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				MysteryRotateSeconds = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
@@ -587,6 +590,7 @@ return function()
 				MoneyPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				ExtraSlotPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				ProductIds = true, -- #1182: a table of developer product ids, checked in Products.spec
+				RareChance = true, -- #3889: a table, checked in Economy.spec
 				SeasonStarts = true, -- #1645: a list of UTC dates, checked in CafePass.spec
 				VipPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				CatAccessoriesPassId = true, -- #1197: an off-sale placeholder pass id, checked below
@@ -637,8 +641,10 @@ return function()
 				Giveaways = true, -- Derek 2026-11-13: the 15:30 UTC giveaways, checked in Codes.spec
 				StoreWasPrice = true, -- #3572: the Sale badge's true old prices, checked in StoreLogic.spec
 				StoreSaleEnds = true, -- #3572: checked in StoreLogic.spec
+				UpdateFeature = true, -- #4175: checked in StoreLogic.spec
 				EarlyCatchCount = true, -- #2913 follow-up: checked in Circles.spec
 				EarlyCatchWindowScale = true, -- #2913 follow-up: checked in Circles.spec and S24 here
+				TouchCatchWindowScale = true, -- #4299: checked in Circles.spec and S24 here
 				AfkCafeSeconds = true, -- #3573: checked in AfkCafe.spec
 				AutoRejoinSeconds = true, -- #3602: checked in AfkCafe.spec
 				AfkCafeMoney = true, -- #3573: checked in AfkCafe.spec
@@ -826,7 +832,10 @@ return function()
 					end
 					widest = math.max(
 						widest,
-						row.good * rarity.catchWindow * Config.EarlyCatchWindowScale * area
+						row.good
+							* rarity.catchWindow
+							* math.max(Config.EarlyCatchWindowScale, Config.TouchCatchWindowScale) -- #4299
+							* area
 					)
 				end
 			end

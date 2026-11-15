@@ -49,6 +49,27 @@ PENDING = [                               # (id, name, kind, (r, g, b), material
     ("ruins_jade_inlay", "Jade Inlay", "floor", (80, 160, 120), "Marble"),
     ("ruins_moss_stone", "Moss Stone", "paint", (120, 130, 110), "SmoothPlastic"),
     ("ruins_glyph_gold", "Glyph Gold", "paint", (232, 190, 80), "SmoothPlastic"),
+    # the Snowy Crate (tier8-snowy-mountain.md section 6); colours as in Gameplay-Engineer's rows on #4135
+    ("snow_log_cabin", "Log Cabin", "wallpaper", (150, 105, 70), "Wood"),
+    ("snow_knit_pattern", "Knit Pattern", "wallpaper", (200, 70, 70), "Fabric"),
+    ("snow_pine_planks", "Pine Planks", "floor", (205, 170, 120), "WoodPlanks"),
+    ("snow_aurora_ice", "Aurora Ice", "floor", (120, 210, 200), "Glass"),
+    ("snow_frost_white", "Frost White", "paint", (240, 244, 248), "SmoothPlastic"),
+    ("snow_cocoa_brown", "Cocoa Brown", "paint", (110, 70, 45), "SmoothPlastic"),
+    # the Water Park Crate (ids as in Motion-FX-Agent's Tier 9 rows)
+    ("funfair_circus_stripes", "Circus Stripes", "wallpaper", (222, 64, 64), "Fabric"),
+    ("funfair_balloon_wall", "Balloon Wall", "wallpaper", (255, 178, 204), "Fabric"),
+    ("funfair_boardwalk", "Boardwalk", "floor", (190, 150, 105), "WoodPlanks"),
+    ("funfair_wave_pool", "Wave Pool", "floor", (90, 190, 230), "Glass"),
+    ("funfair_popcorn_yellow", "Popcorn Yellow", "paint", (250, 220, 110), "SmoothPlastic"),
+    ("funfair_candy_pink", "Candy Pink", "paint", (255, 150, 190), "SmoothPlastic"),
+    # the Castle Crate (ids and colours as in the Tier 10 rows, #4184)
+    ("castle_keep_stone", "Keep Stone", "wallpaper", (150, 150, 158), "Brick"),
+    ("castle_royal_tapestry", "Royal Tapestry", "wallpaper", (150, 45, 55), "Fabric"),
+    ("castle_hall_flagstones", "Hall Flagstones", "floor", (140, 136, 130), "Slate"),
+    ("castle_dragon_scales", "Dragon Scales", "floor", (190, 60, 45), "Cobblestone"),
+    ("castle_banner_red", "Banner Red", "paint", (175, 45, 50), "SmoothPlastic"),
+    ("castle_royal_blue", "Royal Blue", "paint", (55, 85, 175), "SmoothPlastic"),
 ]
 
 

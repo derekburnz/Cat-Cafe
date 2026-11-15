@@ -169,12 +169,16 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 			and (destination == Cannon.TOWN or area ~= nil),
 		destinationName = if area ~= nil then area.name else nil,
 		destinationTier = if area ~= nil then area.tier else nil,
+		destinationFrom = if area ~= nil then area.launchFrom else nil, -- #4070
+		destinationFromName = if area ~= nil and area.launchFrom ~= nil
+			then (Catalog.getArea(area.launchFrom) or area).name
+			else nil,
 		tier = Economy.tier(profile),
 		areasOpen = NightPass.open(ClockService.areasOpen(), pass),
 		duskWarning = not pass
 			and Cannon.inDuskWarning(ClockService.phase(), ClockService.phaseEndsAt(), now),
 		distance = if root ~= nil and model ~= nil
-			then (root.Position - model:GetPivot().Position).Magnitude
+			then Cannon.reach(root.Position, model:GetPivot().Position) -- #4343: flat, as the ring
 			else nil,
 		carrying = CatService.isLoaded(player),
 		busy = CatService.inMinigame(player),

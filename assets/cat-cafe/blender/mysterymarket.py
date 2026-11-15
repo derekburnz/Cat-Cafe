@@ -250,7 +250,8 @@ def _stool(b):
     b.span((x - 0.6, 0.0, z - 0.5), (x + 0.6, top - 0.12, z + 0.5), WOOD)
     b.span((x - 0.62, top - 0.4, z - 0.52), (x + 0.62, top - 0.32, z + 0.52), DARK)
     b.span((x - 0.62, top - 0.12, z - 0.52), (x + 0.62, top, z + 0.52), CLOAK)
-    b.span((x - 0.45, 0.0, z - 0.75), (x + 0.45, 0.45, z - 0.5), WOOD)              # the step
+    # the step: kept under 0.9 wide so it stays walk-through (a low rung in front of the stool made players climb, #4073)
+    b.span((x - 0.43, 0.0, z - 0.75), (x + 0.43, 0.45, z - 0.5), WOOD)
 
 
 # ---------------------------------------------------------------- signs -----

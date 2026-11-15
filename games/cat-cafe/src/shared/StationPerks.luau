@@ -13,6 +13,8 @@
 --   6     Oasis Spa        Warm Paws     rescue zones 10% wider                          RescueService (Rescue)
 --   7     Relic Museum     Curator       +5% tips                                        Economy.incomePerSecond
 --   8     Cocoa Stand      Cocoa Break   +10% money for 10 min, free every 2 hours       the Cocoa Stand (to build)
+--   9     Ticket Booth     Ticket Stubs  every catch drops tickets for the prize shelf   TicketBooth (#4061)
+--   10    Dragon Keep      Dragon's Warmth  spare cats warm Cinder, each stage a perk card  DragonKeep (#4062)
 --
 -- Pure, so the client shows the same numbers (the Unlocked card and the "Your perks" list are UI-Engineer's).
 
@@ -78,6 +80,22 @@ StationPerks.LIST = table.freeze({
 		station = "Cocoa Stand",
 		name = "Cocoa Break",
 		text = "Free cocoa every 2 hours: +10% money for 10 minutes",
+	}),
+	-- #4070: the Water Park's station is the Ticket Booth (#4061, shared/TicketBooth), which has its own switch
+	table.freeze({
+		id = "ticket_stubs",
+		tier = 9,
+		station = "Ticket Booth",
+		name = "Ticket Stubs",
+		text = "Every cat you catch drops tickets for the prize shelf",
+	}),
+	-- #4184: the Medieval Castle's station is the Dragon Keep (#4062, shared/DragonKeep), which has its own switch
+	table.freeze({
+		id = "dragon_warmth",
+		tier = 10,
+		station = "Dragon Keep",
+		name = "Dragon's Warmth",
+		text = "Give spare cats to warm Cinder the dragon: a perk card at every stage",
 	}),
 } :: { Perk })
 

@@ -1,7 +1,8 @@
 --!strict
 -- A live 3D cat for reveal cards and the Index: the cat's own model, cloned from ReplicatedStorage.Assets (the
 -- asset thread's mesh, or the server's placeholder until it lands), in a ViewportFrame that sways it slowly.
--- set(def, true) shows a gold cat's own coat (v0.5 F42, Catalog.goldModelName), else its base coat.
+-- set(def, true) shows a gold cat's own coat (v0.5 F42, Catalog.goldModelName; the toned base with goldTone on, #4133),
+-- else its base coat.
 -- When the model is not there yet it falls back to the cat's initial on its body colour. A silhouette (the
 -- Index's cats not found yet, like the Pet Simulator index) tints the whole view near black and hides the initial.
 -- `head` keeps only the cat's head and frames it nearly face on (the hover card, Derek 2026-10-27: "do a pic of the
@@ -21,6 +22,7 @@ local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog"))
+local GoldTone = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("GoldTone"))
 
 export type Props = {
 	parent: Instance,
@@ -63,22 +65,31 @@ local function bodyColor(def: Types.CatDef): Color3
 end
 
 -- A copy of the cat's model (the gold coat when asked and there, else the base coat) with every script removed,
--- or nil when Assets has no model for it yet.
+-- or nil when Assets has no model for it yet. #4133: with the goldTone switch on, a gold cat is its base model toned
+-- gold (GoldTone.apply), as its walks and catches are.
 local function cloneModel(catId: string, gold: boolean): Model?
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	if not assets then
 		return nil
 	end
-	local source: Instance? = if gold
-		then assets:FindFirstChild(Catalog.goldModelName(catId))
-		else nil
-	if not source then
-		source = assets:FindFirstChild(Catalog.catModelName(catId))
+	local names, tone = { Catalog.catModelName(catId) }, false
+	if gold then
+		names, tone = GoldTone.names(Catalog.goldModelName(catId), Catalog.catModelName(catId))
+	end
+	local source: Instance? = nil
+	for _, name in names do
+		source = assets:FindFirstChild(name)
+		if source ~= nil then
+			break
+		end
 	end
 	if not source then
 		return nil
 	end
 	local copy = (source :: Instance):Clone()
+	if tone then
+		GoldTone.apply(copy)
+	end
 	for _, descendant in copy:GetDescendants() do
 		if descendant:IsA("BaseScript") or descendant:IsA("ModuleScript") then
 			descendant:Destroy()

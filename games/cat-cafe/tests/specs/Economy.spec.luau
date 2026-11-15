@@ -7,6 +7,7 @@ return function()
 	local Config = require(Shared.Config)
 	local Economy = require(Shared.Economy)
 	local LateTiers = require(Shared.LateTiers)
+	local ProfileSchema = require(Shared.ProfileSchema)
 
 	-- A fresh version 3 profile per data-model section 14, built by hand so these tests do not depend on
 	-- ProfileSchema.template (which has its own spec).
@@ -77,7 +78,7 @@ return function()
 	end)
 
 	describe("tier and tierMultiplier (section 5b)", function()
-		it("reads the saved tier, 1 for a missing or damaged one, clamped to 1 to 8", function()
+		it("reads the saved tier, 1 for a missing or damaged one, clamped to 1 to 10", function()
 			local p = freshProfile()
 			expect(Economy.tier(p)).to.equal(1)
 			for _, case in ipairs({
@@ -89,7 +90,9 @@ return function()
 				{ 5, 5 },
 				{ 7, 7 }, -- #2651
 				{ 8, 8 }, -- #3997
-				{ 9, 8 },
+				{ 9, 9 }, -- #4070
+				{ 10, 10 }, -- #4184
+				{ 11, 10 },
 			}) do
 				p.tier = case[1]
 				expect(Economy.tier(p)).to.equal(case[2])
@@ -394,10 +397,10 @@ return function()
 				local p = freshProfile()
 				local base = Economy.incomePerSecond(p)
 				local xp = Economy.catXpRate(p.cats.starter)
-				p.cats.starter.trait = { id = "cosmicFortune" } -- +100% income, bowl luck 0.25, rich rate 0.25
+				p.cats.starter.trait = { id = "cosmicFortune" } -- +100% income, bowl luck 0.25, rare customer chance 0.25
 				expect(Economy.incomePerSecond(p)).to.be.near(base * 2, 1e-9)
 				expect(Economy.nightTraitRate(p)).to.equal(0)
-				expect(Economy.traitBonus(p, "richRate")).to.be.near(0.25)
+				expect(Economy.traitBonus(p, "rareCustomer")).to.be.near(0.25)
 				expect(Economy.traitBonus(p, "bowlLuck")).to.be.near(0.25)
 				expect(Economy.richRate(p)).to.be.near(1.25)
 				p.cats.starter.trait = { id = "eternalNight" } -- +150% night income, +150% XP, +2.5 studs/s
@@ -612,8 +615,9 @@ return function()
 			end
 
 			it(
-				"VIP, Cafe Style and Grand Cafe add into cafeMultiplier, +0.10, +0.50 and +1.50",
+				"VIP, Cafe Style and Grand Cafe add into cafeMultiplier, +0.10, +0.50 and +1.50 (vipBoost off)",
 				function()
+					Economy.setVipBoost(false)
 					local p = working()
 					local base = Economy.cafeMultiplier(p)
 					Economy.setPasses(p, with({ vip = true }))
@@ -621,8 +625,20 @@ return function()
 					Economy.setPasses(p, with({ vip = true, cafeStyle = true, grand = true }))
 					expect(Economy.passCafeBonus(p)).to.be.near(2.10, 1e-9)
 					expect(Economy.cafeMultiplier(p)).to.be.near(base + 2.10, 1e-9)
+					Economy.setVipBoost(nil)
 				end
 			)
+
+			it("#4235: with vipBoost on (the default) VIP adds +0.50 money", function()
+				Economy.setVipBoost(true)
+				local p = working()
+				local base = Economy.cafeMultiplier(p)
+				Economy.setPasses(p, with({ vip = true }))
+				expect(Economy.cafeMultiplier(p)).to.be.near(base + 0.50, 1e-9)
+				expect(Economy.passCafeBonus(p)).to.be.near(0.50, 1e-9)
+				Economy.setVipBoost(nil)
+				expect(Economy.vipBoost()).to.equal(true) -- no attribute: on unless switched off
+			end)
 
 			it(
 				"Accessories and Uniforms each multiply the working cats by 1.15, x1.3225 together",
@@ -690,7 +706,7 @@ return function()
 				expect(Catalog.openSlotCount(1, 2)).to.equal(4)
 				expect(Catalog.openSlotCount(5, 0)).to.equal(10)
 				expect(Catalog.openSlotCount(5, 2)).to.equal(12)
-				expect(Catalog.openSlotCount(5, 9)).to.equal(#Catalog.allSpots)
+				expect(Catalog.openSlotCount(5, 14)).to.equal(#Catalog.allSpots) -- 22 since #4184
 				expect(Catalog.openSlotCount(1, -3)).to.equal(2)
 				expect(Catalog.slotIsOpen("nope", 5, 2)).to.equal(false)
 			end)
@@ -835,10 +851,10 @@ return function()
 			end
 		)
 
-		it("at Tier 8 everything can go to its max level and then says Already maxed", function()
+		it("at Tier 10 everything can go to its max level and then says Already maxed", function()
 			local p = freshProfile()
-			p.tier = 8 -- #2651; #3997
-			p.coins = 1e11 -- the Lucky Cat 8 is 14,000,000,000 (#3997)
+			p.tier = 10 -- #2651; #3997; #4070; #4184
+			p.coins = 1e13 -- the Lucky Cat 10 is 1,300,000,000,000 (#4184)
 			for _, def in ipairs(Catalog.upgrades) do
 				p.upgradeLevels[def.id] = def.maxLevel - 1
 				expect(Economy.upgradeBlocker(p, def.id)).never.to.be.ok()
@@ -1008,11 +1024,14 @@ return function()
 	end)
 
 	describe("features.md section 8: the ten minute loop in numbers (v0.3)", function()
-		it("step 1: $850 (#1796, was $50) and 1.5 per second with the Tabby as Barista", function()
-			local p = freshProfile()
-			expect(p.coins).to.equal(850)
-			expect(Economy.incomePerSecond(p)).to.be.near(1.5)
-		end)
+		it(
+			"step 1: $250 (#4097, was $850; #1796, was $50) and 1.5 per second with the Tabby as Barista",
+			function()
+				local p = freshProfile()
+				expect(p.coins).to.equal(250)
+				expect(Economy.incomePerSecond(p)).to.be.near(1.5)
+			end
+		)
 
 		it(
 			"step 4: a caught Common as Waiter raises the rate to 2.5, or 3.0 if it loves waiting",
@@ -1052,14 +1071,15 @@ return function()
 		)
 
 		it(
-			"a new save buys the first table, the Bait bowl and Kibble straight away (#1796)",
+			"a new save has its first table, Bait bowl and Kibble without buying (#3660, #4097; #1796 bought them)",
 			function()
-				-- tutorial steps 3 and 4 ask for them in a row, so none of them waits on coins
-				local p = freshProfile(0)
-				local spend = Catalog.upgradesById.tables.costs[1]
-					+ Catalog.upgradesById.lure_bowl.costs[1]
-					+ Economy.foodPrice("kibble", Economy.tier(p))
-				expect(p.coins >= spend).to.equal(true)
+				-- the tutorial asks for no purchase, so it never waits on coins; the start coins are what was left after
+				-- the old buys (850 - 600 for the bowl, the table and Kibble given)
+				local p = ProfileSchema.template(0)
+				expect(Economy.level(p, "tables") >= 1).to.equal(true)
+				expect(Economy.level(p, "lure_bowl") >= 1).to.equal(true)
+				expect(p.lures.kibble).to.equal(1)
+				expect(p.coins).to.equal(850 - Catalog.upgradesById.lure_bowl.costs[1])
 			end
 		)
 
@@ -1123,7 +1143,9 @@ return function()
 					)
 				end
 			end
-			expect(Catalog.tiers[2].cost >= 5000).to.equal(true)
+			-- #4188 (Derek 2026-11-14): Tier 2 right after the tutorial, about what the focused player holds then (5,000
+			-- floor before); Pace's "Tier 2 right after the tutorial" checks it is not free either
+			expect(Catalog.tiers[2].cost >= 1000).to.equal(true)
 		end)
 	end)
 	describe("rank up (F24, section 5b)", function()
@@ -1206,17 +1228,15 @@ return function()
 		end)
 
 		it(
-			"Tier 1 to 2: 5 different cats and 13,500 coins (#3195; 12,000 for #2915, 22,000 for #2683, 30,000 for #1499), the starter Tabby counts",
+			"Tier 1 to 2: 3 different cats and 1,500 coins (#4188; 7,500 and 4 for #4098, 13,500 and 5 for #3195, 12,000 for #2915, 22,000 for #2683, 30,000 for #1499), the starter Tabby counts",
 			function()
 				local p = freshProfile()
-				p.coins = 13500
-				for _, id in { "ginger", "tuxedo", "smoke" } do
-					p.collection[id] = 1000
-				end
-				expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 4)")
-				p.collection.calico = 1000
+				p.coins = 1500
+				p.collection.ginger = 1000
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 3 different cats (you have 2)")
+				p.collection.tuxedo = 1000
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
-				p.coins = 13499
+				p.coins = 1499
 				expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
 			end
 		)
@@ -1266,8 +1286,8 @@ return function()
 		it(
 			"reasons come in the order a player works through them: cats, then the rarity, then coins",
 			function()
-				expect(Economy.rankUpBlocker(profileWith(2, 9, nil, nil, 0))).to.equal(
-					"Needs 10 different cats (you have 9)" -- #3111: Tier 3 needs 10 (11 before)
+				expect(Economy.rankUpBlocker(profileWith(2, 5, nil, nil, 0))).to.equal(
+					"Needs 6 different cats (you have 5)" -- #4320: Tier 3 needs 6 (#4189: 8; 10 before; 11 before #3111)
 				)
 				expect(Economy.rankUpBlocker(profileWith(2, 11, nil, nil, 0))).to.equal(
 					"Needs one cat, Epic or better"
@@ -1322,12 +1342,43 @@ return function()
 			end
 		)
 
-		it("at Tier 8 there is nothing left, whatever the coins (#3997)", function()
+		it(
+			"at Tier 8 there is nothing left while the tier9 switch is off, whatever the coins (#3997, #4070)",
+			function()
+				LateTiers.setOpen(8) -- tier8 on, tier9 off
+				local p = profileWith(8, 70, "Mythical", 6, 1e14)
+				expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Summit Cafe")
+				LateTiers.setOpen(true)
+				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
+				-- and tier9 alone opens nothing: Tier 7 stays the top until tier8 is on
+				LateTiers.setOpen(false)
+				expect(LateTiers.topTier()).to.equal(7)
+				expect(LateTiers.tierOpen(9)).to.equal(false)
+				LateTiers.setOpen(nil)
+			end
+		)
+
+		it(
+			"at Tier 9 there is nothing left while the tier10 switch is off, whatever the coins (#4184)",
+			function()
+				LateTiers.setOpen(9) -- tier8 and tier9 on, tier10 off
+				local p = profileWith(9, 80, "Mythical", 7, 1e15)
+				expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Funfair Cafe")
+				LateTiers.setOpen(true)
+				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
+				LateTiers.setOpen(8) -- and tier10 never opens ahead of tier9
+				expect(LateTiers.topTier()).to.equal(8)
+				expect(LateTiers.tierOpen(10)).to.equal(false)
+				LateTiers.setOpen(nil)
+			end
+		)
+
+		it("at Tier 10 there is nothing left, whatever the coins (#4184)", function()
 			LateTiers.setOpen(true)
-			local p = profileWith(8, 60, "Mythical", 5)
-			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Summit Cafe")
+			local p = profileWith(10, 80, "Mythical", 7)
+			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Royal Cafe")
 			p.tier = 99 -- clamped like Economy.tier
-			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Summit Cafe")
+			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Royal Cafe")
 			LateTiers.setOpen(nil)
 		end)
 
@@ -1336,7 +1387,7 @@ return function()
 				local p = freshProfile()
 				p.tier = damaged
 				p.coins = 1e9
-				expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 1)")
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 3 different cats (you have 1)") -- #4188: 4 before
 			end
 		end)
 
@@ -1347,6 +1398,81 @@ return function()
 			expect(p.coins).to.equal(8000)
 			expect(p.tier).to.equal(2)
 			expect(Economy.distinctCats(p)).to.equal(before)
+		end)
+	end)
+	-- #3889: rare customers by a chance per arriving customer (shared/RareCustomers). Here, not in a spec file of its
+	-- own, since the cloud checker holds a fixed number of spec files.
+	describe("rare customers by chance (#3889)", function()
+		local RareCustomers = require(Shared.RareCustomers)
+
+		it("keeps the old timers' averages and adds to at most 1", function()
+			local c = RareCustomers.chances(1, 0)
+			local every = Config.RareCustomerSeconds
+			expect(c.rich).to.be.near(every / 480, 1e-9)
+			expect(c.mystery).to.be.near(every / 1200, 1e-3)
+			expect(c.collector).to.be.near(every / 300, 1e-9)
+			-- the trait raises all three, the passes the rich one only
+			local boosted = RareCustomers.chances(1.4, 0.4)
+			expect(boosted.rich).to.be.near(c.rich * 1.4, 1e-9)
+			expect(boosted.mystery).to.be.near(c.mystery * 1.4, 1e-9)
+			expect(boosted.collector).to.be.near(c.collector * 1.4, 1e-9)
+			local passes = RareCustomers.chances(2.25, 0)
+			expect(passes.mystery).to.be.near(c.mystery, 1e-9)
+			-- never more than one kind a customer
+			local huge = RareCustomers.chances(1000, 1000)
+			expect(huge.rich + huge.mystery + huge.collector).to.be.near(1, 1e-9)
+		end)
+
+		it("picks one kind per customer from one roll, else an everyday customer", function()
+			local c = { rich = 0.1, mystery = 0.05, collector = 0.2 }
+			expect(RareCustomers.pick(c, 0)).to.equal("rich")
+			expect(RareCustomers.pick(c, 0.099)).to.equal("rich")
+			expect(RareCustomers.pick(c, 0.1)).to.equal("mystery")
+			expect(RareCustomers.pick(c, 0.149)).to.equal("mystery")
+			expect(RareCustomers.pick(c, 0.151)).to.equal("collector")
+			expect(RareCustomers.pick(c, 0.349)).to.equal("collector")
+			expect(RareCustomers.pick(c, 0.351)).to.equal(nil)
+			expect(RareCustomers.pick(c, 0.999)).to.equal(nil)
+			-- 100,000 rolls land near the chances
+			local r = Random.new(3889)
+			local got: { [string]: number } = { rich = 0, mystery = 0, collector = 0 }
+			local base = RareCustomers.chances(1, 0)
+			local n = 100000
+			for _ = 1, n do
+				local kind = RareCustomers.pick(base, r:NextNumber())
+				if kind ~= nil then
+					got[kind] += 1
+				end
+			end
+			expect(math.abs(got.rich / n - base.rich) < 0.002).to.equal(true)
+			expect(math.abs(got.mystery / n - base.mystery) < 0.002).to.equal(true)
+			expect(math.abs(got.collector / n - base.collector) < 0.002).to.equal(true)
+		end)
+
+		it(
+			"counts one customer every RareCustomerSeconds of open day, carrying the rest",
+			function()
+				local every = Config.RareCustomerSeconds
+				local count, left = RareCustomers.arrivals(0, every - 1)
+				expect(count).to.equal(0)
+				expect(left).to.be.near(every - 1)
+				count, left = RareCustomers.arrivals(left, 1)
+				expect(count).to.equal(1)
+				expect(left).to.be.near(0)
+				count, left = RareCustomers.arrivals(0, every * 3 + 2)
+				expect(count).to.equal(3)
+				expect(left).to.be.near(2)
+			end
+		)
+
+		it("seats a rare customer at any open table", function()
+			expect(RareCustomers.tableFor(1, 0.99)).to.equal(1)
+			expect(RareCustomers.tableFor(4, 0)).to.equal(1)
+			expect(RareCustomers.tableFor(4, 0.5)).to.equal(3)
+			expect(RareCustomers.tableFor(4, 0.999)).to.equal(4)
+			expect(RareCustomers.tableFor(0, 0.5)).to.equal(1)
+			expect(RareCustomers.percent(0.0125)).to.equal("1.3%")
+			expect(RareCustomers.percent(0.005)).to.equal("0.5%")
 		end)
 	end)
 end

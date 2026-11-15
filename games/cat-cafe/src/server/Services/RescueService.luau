@@ -172,6 +172,15 @@ local function onOtherBar(player: Player): boolean
 	return false
 end
 
+-- #4128 follow-up (Review-QA): the refusal while a player is on a bar names the bar they are on, so a Home press
+-- during the Rummage Bin no longer says "rescue".
+local function busyText(player: Player): string
+	if attemptOf(player) == nil and helpingOf(player) == nil and onOtherBar(player) then
+		return "Finish the Rummage Bin first"
+	end
+	return "Finish this rescue first"
+end
+
 -- Stuck cats --------------------------------------------------------------------------------------------------
 
 local function clearStuck(entry: Stuck)
@@ -278,7 +287,13 @@ local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePa
 		Catching.pickRarity(Luck.apply(Catching.rescueOdds(areaDef.odds), luck), rng:NextNumber())
 	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the switch is on; a trap's cat gets no banner
 	local secret = if rarity == "Mythical" and LiveFlagService.on(Catching.SECRET_FLAG)
-		then Catching.secret(rarity, rng:NextNumber(), rng:NextNumber(), true)
+		then Catching.secret(
+			rarity,
+			rng:NextNumber(),
+			rng:NextNumber(),
+			true,
+			if LiveFlagService.on(Catching.SECRET_AREAS_FLAG) then { areaDef.id } else nil
+		)
 		else nil
 	if secret ~= nil then
 		local someone: Player? = DataService.loadedPlayers()[1]
@@ -718,7 +733,7 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 		return
 	end
 	if attemptOf(player) ~= nil or helpingOf(player) ~= nil or onOtherBar(player) then
-		refuse(player, spotId, "Finish this rescue first")
+		refuse(player, spotId, busyText(player))
 		return
 	end
 	local now = serverNow()
@@ -808,7 +823,7 @@ local function onRescueHelp(player: Player, rawSpotId: unknown)
 		return
 	end
 	if attemptOf(player) ~= nil or helpingOf(player) ~= nil or onOtherBar(player) then
-		refuse(player, spotId, "Finish this rescue first")
+		refuse(player, spotId, busyText(player))
 		return
 	end
 	-- 2 studs of slack for movement in flight, as for RescueBegin
@@ -998,7 +1013,7 @@ function RescueService.start(builtWorld: WorldBuilder.World)
 	-- #3050: so does a bar that only runs on the rescue remotes (the Rummage Bin's).
 	CatService.setRescueCheck(function(player: Player): boolean
 		return attemptOf(player) ~= nil or helpingOf(player) ~= nil or onOtherBar(player)
-	end)
+	end, busyText)
 
 	Players.PlayerRemoving:Connect(function(player)
 		local entry = attemptOf(player)

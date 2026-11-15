@@ -344,6 +344,7 @@ local function sceneLook(scene: Logic.BigTraitScene): ((w: number) -> (), () -> 
 		holder.Name = "EffectsBigTraitScene"
 		holder.ResetOnSpawn = false
 		holder.IgnoreGuiInset = true
+		holder.ScreenInsets = Enum.ScreenInsets.None -- edge to edge: the bars stopped short of a phone's notch sides
 		holder.DisplayOrder = Presets.bigTrait.displayOrder - 1 -- under the title
 		for _, top in { true, false } do
 			local bar = Instance.new("Frame")
@@ -365,7 +366,8 @@ local function sceneLook(scene: Logic.BigTraitScene): ((w: number) -> (), () -> 
 	local white = Color3.new(1, 1, 1)
 	local function draw(w: number)
 		for _, bar in bars do
-			bar.Size = UDim2.fromScale(1, scene.bars * w)
+			bar.Size =
+				UDim2.fromScale(1, scene.bars * w * Logic.letterbox(Context.device :: Presets.Tier))
 		end
 		grade.Brightness = -scene.dim * w
 		grade.Saturation = scene.saturation * w

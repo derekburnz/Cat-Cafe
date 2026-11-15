@@ -14,6 +14,7 @@
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local GoalLines = require(script.Parent.Parent.Components.GoalLines) -- #3997: no goal behind a live switch
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PerkCardLogic = require(script.Parent.Parent.Components.PerkCardLogic) -- #2687: the next station's perk
@@ -201,7 +202,9 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 	local tiers: { Types.TierDef } = catalog.tiers or {}
 	local tier = state.tier or 1
 	local current = findTier(tiers, tier)
-	local nextTier = findTier(tiers, tier + 1)
+	-- a tier held by its live switch is not the goal yet (GoalLines.nextTier): the cafe reads as the top one until the
+	-- new areas open, then the next tier's needs appear by themselves
+	local nextTier: Types.TierDef? = GoalLines.nextTier(tiers, tier)
 	local requirements: { Requirement } = {}
 	local opens: { string } = {}
 	if nextTier then
@@ -285,6 +288,8 @@ function RankUp.new(callbacks: Callbacks): RankUp
 	local self = setmetatable({}, RankUp) :: any
 	self._catalog = nil :: Types.Catalog?
 	self._rows = {} :: { Frame }
+	self._rowsKey = nil :: string? -- #4292: what the drawn rows say
+	self._opensKey = nil :: string? -- #4292: what the drawn "It opens" cards say
 
 	local panel = Panel.new({
 		dark = true, -- #1028
@@ -368,6 +373,11 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		ScrollBarThickness = 4,
 		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
+		-- #4292 again (Derek 2026-11-14 22:01 UTC: the bottom card still flashed on and off): with three cards the
+		-- list only just overflows. The bar came on, took 4 px from the cards' width, their wrapped words grew or
+		-- shrank the canvas, the bar went off, the width came back, and round again every frame. The bar's strip is
+		-- now always kept, so the cards' width never depends on the bar.
+		VerticalScrollBarInset = Enum.ScrollBarInset.Always,
 		Visible = self._family,
 		Parent = content,
 	}, {
@@ -377,7 +387,7 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		}),
 		Create("UIPadding", { -- room for the cards' outlines
 			PaddingLeft = UDim.new(0, 2),
-			PaddingRight = UDim.new(0, 6),
+			PaddingRight = UDim.new(0, 2), -- the bar's own strip is kept beside this (VerticalScrollBarInset)
 			PaddingTop = UDim.new(0, 2),
 			PaddingBottom = UDim.new(0, 2),
 		}),
@@ -633,12 +643,35 @@ function RankUp.render(self: any, state: Types.PlayerState)
 		"Rank up",
 		("Tier %d%s"):format(progress.tier, if current then "  ·  " .. current.name else "")
 	)
-	for _, row in self._rows :: { Frame } do
-		row:Destroy()
-	end
-	table.clear(self._rows)
-
 	local nextTier = progress.nextTier
+	-- #4292 (Derek 11-14: "those bottom white bubbles flash on and off"): render runs on every state push (money
+	-- ticks), and it threw the rows and the "It opens" cards away and drew them again each time. The cards size
+	-- themselves a frame later, so they blinked. Now they are drawn again only when what they say changes.
+	local rowsKey = ""
+	if nextTier then
+		local parts = {}
+		for _, item in progress.requirements do
+			table.insert(
+				parts,
+				("%s|%s|%s|%.3f"):format(item.label, item.status, tostring(item.met), item.fraction)
+			)
+		end
+		rowsKey = table.concat(parts, "\n")
+	end
+	if rowsKey ~= self._rowsKey then
+		self._rowsKey = rowsKey
+		for _, row in self._rows :: { Frame } do
+			row:Destroy()
+		end
+		table.clear(self._rows)
+		if nextTier then
+			for index, item in progress.requirements do
+				local row: Frame = self:_row(index, item)
+				table.insert(self._rows, row)
+			end
+		end
+	end
+
 	if not nextTier then
 		self._nextTitle.Text = if current then current.name else "Top tier"
 		self._needsLabel.Text = "You reached the top tier. Every area and role slot is open."
@@ -651,10 +684,6 @@ function RankUp.render(self: any, state: Types.PlayerState)
 	end
 	self._nextTitle.Text = ("Next: Tier %d  ·  %s"):format(nextTier.tier, nextTier.name)
 	self._needsLabel.Text = "To rank up you need"
-	for index, item in progress.requirements do
-		local row: Frame = self:_row(index, item)
-		table.insert(self._rows, row)
-	end
 	self._opensLabel.Visible = true
 	local teaser = PerkCardLogic.teaser(progress.tier, PerkCardLogic.poolStands())
 	self._teaser.Text = teaser or ""
@@ -677,6 +706,11 @@ end
 
 -- #3961: one cream card per line of what the tier opens, its picture on the left
 function RankUp._fillOpens(self: any, lines: { string })
+	local key = table.concat(lines, "\n")
+	if key == self._opensKey then
+		return -- #4292: the same cards are already there
+	end
+	self._opensKey = key
 	for _, card in self._opensCards :: { Frame } do
 		card:Destroy()
 	end

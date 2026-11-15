@@ -55,6 +55,9 @@ local function number(value: unknown): number?
 	return nil
 end
 
+SecondCatGoal.BOWL_STEP = 4 -- tutorialStep 4: the Bait bowl and its first cat (TutorialHints)
+SecondCatGoal.BOWL_TITLE = "2nd cat: your Bait bowl 🐾"
+
 -- `state` is a PlayerState; `narrow` the phone and tablet's narrow goal card; `nextTier` the next tier's name for
 -- the preview's second line (nil at the top tier, which drops it); `areasOpen` false from dusk to sunrise (#3238).
 function SecondCatGoal.view(
@@ -74,7 +77,12 @@ function SecondCatGoal.view(
 	local bonus = number(second.bonus)
 	local cats = math.clamp(math.floor(number(second.cats) or 1), 0, SecondCatGoal.NEED - 1)
 	local count = string.format("%d/%d", cats, SecondCatGoal.NEED)
-	local title = "Catch a 2nd cat 🐾 " .. count
+	-- #4097: a new save opens with a table, so after the first job the tutorial goes straight to the Bait bowl (step
+	-- 4) and its first cat is the second one; the card asked to catch one while the strip asked for the bowl. While
+	-- the bowl step is on, the card names the bowl too, so both ask for the same thing.
+	local title = if state.tutorialStep == SecondCatGoal.BOWL_STEP
+		then SecondCatGoal.BOWL_TITLE .. " " .. count
+		else "Catch a 2nd cat 🐾 " .. count
 	if areasOpen == false then
 		return {
 			title = title,

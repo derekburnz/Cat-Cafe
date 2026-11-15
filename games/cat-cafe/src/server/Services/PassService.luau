@@ -15,6 +15,7 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local AutoBowl = require(ReplicatedStorage.Shared.AutoBowl)
 local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -85,6 +86,9 @@ local function passIds(): { number }
 	end
 	if Config.SecondBowlPassId ~= 0 then
 		table.insert(ids, Config.SecondBowlPassId) -- #1161
+	end
+	if AutoBowl.passId() ~= 0 then
+		table.insert(ids, AutoBowl.passId()) -- #4266; BaitService reads it with `owns`
 	end
 	for _, id in storePassIds() do
 		table.insert(ids, id) -- #1624

@@ -205,7 +205,8 @@ ROSTER = {
                         exclusive=True),
     # #1191 the shop-only cats (Design-Agent's briefs on #1191): fixed, never random, no gold twins
     "Sprinkles":   dict(rarity="Epic", fur="fur_custard", second="fur_caramel", third="fur_caramel", eyes="eye_amber",
-                        pattern="patches", muzzle="fur_white", scale=0.88, eye_k=1.14, exclusive=True, shop=True,
+                        pattern="patches", muzzle="fur_white", scale=1.0, eye_k=1.14, exclusive=True, shop=True,
+                        sparkle=True,
                         apron=("apron_pink", ("neon_pink", "sign_teal", "rarity_legend", "shirt_blue", "mint"))),
     "DuchessMarzipan": dict(rarity="Legendary", fur="fur_lilac_silver", second="pastel_lilac", eyes="eye_violet",
                             pattern="solid", muzzle="pearl", nose="nose_pink", fluffy=True, lids=True, curl=True,
@@ -301,6 +302,62 @@ ROSTER = {
     "Blizzard": dict(rarity="Mythical", fur="fur_silver", second="fish_belly", third="pastel_sky", eyes="fish_blue",
                      pattern="gradient", muzzle=None, ruff="milk", fluffy=True, glow_eyes=True, sparkle=True,
                      scale=1.25, body_scale=(1.1, 1.0, 1.08), tail_thick=0.3, nose="nose_dark"),
+    # Tier 9 Theme Park and Water Park (Derek approved cats draft 2 2026-11-13 18:54; #4066, #4068). The rarity look
+    # ladder (#4068, "make the rarer ones more special"): Common one prop; Rare a prop and a tail piece; Epic two
+    # props, one lit; Legendary two props, lit, a tail piece and 1.2x; Mythical lit all over at 1.25x.
+    "Popcorn": dict(rarity="Common", fur="fur_cream", second="pastel_butter", eyes="eye_amber", pattern="spots",
+                    muzzle="milk"),
+    "Pinwheel": dict(rarity="Common", fur="fur_apricot", second="fur_cream", eyes="eye_blue", pattern="solid",
+                     muzzle="fur_cream", tip="fur_cream"),
+    # keeps apart from the Puddle (grey solid) by its gradient and its swim ring
+    "Splash":  dict(rarity="Common", fur="fur_teal_grey", second="fish_belly", third="pastel_sky", eyes="eye_blue",
+                    pattern="gradient", muzzle="fish_belly", sprinkles=("pastel_sky",), nose="nose_dark"),
+    "Taffy":   dict(rarity="Common", fur="blush", second="milk", third="fur_strawberry", eyes="eye_green",
+                    pattern="stripes", stripes2=True, muzzle="milk"),
+    "CandyApple": dict(rarity="Rare", fur="shirt_red", second="fur_rust_red", eyes="eye_green", pattern="solid",
+                       muzzle=None, tip="leaf_green", nose="nose_dark", mark=("drop", "fur_caramel")),
+    "CottonCandy": dict(rarity="Rare", fur="fur_bubblegum", second="pastel_sky", third="pastel_sky", eyes="eye_blue",
+                        pattern="patches", muzzle="milk", fluffy=True),
+    "Clown":   dict(rarity="Epic", fur="fur_white", second="fur_bubblegum", third="pastel_sky", eyes="eye_green",
+                    pattern="patches", muzzle=None, nose="bowl_red",
+                    toes=("shirt_red", "pastel_butter", "shirt_green", "shirt_blue")),
+    "WaterGun": dict(rarity="Epic", fur="fur_peach", second="fur_blue", eyes="eye_blue", pattern="points",
+                     muzzle=None),
+    "Coaster": dict(rarity="Legendary", fur="bowl_red", second="milk", third="rarity_legend", eyes="eye_amber",
+                    pattern="stripes", stripes2=True, muzzle="milk", scale=1.2, body_scale=(1.1, 1.0, 1.05),
+                    tail_thick=0.28, mark=("star", "rarity_legend")),
+    # made of clear flowing water: sky fading to deep blue, a pale ruff, glowing eyes and bubbles for specks
+    "Water":   dict(rarity="Mythical", fur="pastel_sky", second="fish_blue", third="fur_blue", eyes="mint",
+                    pattern="gradient", muzzle=None, ruff="fish_belly", glow_eyes=True, sparkle=True,
+                    sprinkles=("milk", "fish_belly"), scale=1.25, body_scale=(1.1, 1.0, 1.08), tail_thick=0.3,
+                    nose="nose_dark", mark=("drop", "fish_belly")),
+    # Tier 10 Medieval Castle (cats draft 2, #4067, #4068), on the same rarity look ladder
+    "Elf":     dict(rarity="Common", fur="fur_oat", second="fur_vanilla", eyes="eye_green", pattern="solid",
+                    muzzle="fur_vanilla", ear_k=1.3),
+    "Squire":  dict(rarity="Common", fur="treat_tan", second="fur_seal", eyes="eye_amber", pattern="patches",
+                    muzzle="fur_cream"),
+    "Dwarf":   dict(rarity="Common", fur="fur_copper", second="fur_ginger", eyes="eye_blue", pattern="solid",
+                    muzzle=None, short_legs=True, body_scale=(1.15, 1.0, 1.05), nose="nose_dark"),
+    "Crumpet": dict(rarity="Common", fur="fur_golden", second="fur_toffee", third="fur_toffee", eyes="eye_amber",
+                    pattern="gradient", muzzle="fur_custard"),
+    "Jester":  dict(rarity="Rare", fur="shirt_red", second="rarity_legend", third="rarity_legend", eyes="eye_green",
+                    pattern="patches", muzzle="milk", mark=("star", "rarity_legend"),
+                    toes=("rarity_legend", "shirt_red", "rarity_legend", "shirt_red")),
+    "Rogue":   dict(rarity="Rare", fur="pants_navy", second="fur_ink", eyes="eye_chartreuse", pattern="points",
+                    muzzle=None, lids=True, nose="nose_dark"),
+    "Knight":  dict(rarity="Epic", fur="fur_silver", second="metal", eyes="eye_blue", pattern="points",
+                    muzzle="fur_white", socks="metal"),
+    # keeps apart from Midnight (night sky, a plain wizard hat): a blue to violet fade, a wide starry brim, a book
+    "Mage":    dict(rarity="Epic", fur="galaxy_blue", second="aurora_violet", third="aurora_violet", eyes="sparkle",
+                    pattern="gradient", muzzle=None, sparkle=True, nose="nose_dark"),
+    "Queen":   dict(rarity="Legendary", fur="fur_cream", second="fur_custard", eyes="eye_violet", pattern="patches",
+                    muzzle="milk", ruff="milk", fluffy=True, scale=1.2, body_scale=(1.1, 1.0, 1.05), tail_thick=0.28,
+                    mark=("heart", "rarity_legend")),
+    # keeps apart from Eclipse (the emerald dragon with mint spines): gunmetal and red, lit ember scales, no green
+    "DragonKnight": dict(rarity="Mythical", fur="fur_gunmetal", second="shirt_red", eyes="eye_amber",
+                         pattern="stripes", stripes2=True, muzzle=None, glow_eyes=True, tip="bowl_red", scale=1.3,
+                         body_scale=(1.12, 1.0, 1.08), tail_thick=0.32, nose="nose_dark",
+                         mark=("m", "bowl_red")),
     # #3470 (secret-cats.md section 8): the first three Secret cats, the tier above Mythical. They can be gold and
     # rainbow like any cat. Nebula: a deep space coat with violet and pink clouds, stars and glowing mint eyes
     "Nebula": dict(rarity="Secret", fur="night_sky", second="aurora_violet", third="neon_pink", eyes="mint",
@@ -313,6 +370,34 @@ ROSTER = {
     # Cafe Ghost: a pale see-through cat (rbx_export.GHOST: Transparency 0.5) in a tiny chef hat (props.py)
     "CafeGhost": dict(rarity="Secret", fur="fur_white", second="fur_white", eyes="pastel_sky", pattern="solid",
                       muzzle=None, glow_eyes=True, lids=True, curl=True, short_legs=True),
+    # Derek 2026-11-14: ten Secret cats, one per area (drafts). Park: a lucky emerald cat in clover leaves
+    "LuckyClover": dict(rarity="Secret", fur="paw_park", second="fur_emerald", third="eye_chartreuse",
+                        eyes="rarity_legend", pattern="spots", leafy=True, muzzle=None, glow_eyes=True, sparkle=True,
+                        tip="eye_chartreuse", socks="fur_golden", nose="nose_dark", eye_k=1.08),
+    # Woods: a moonlit fawn coat, pale spots, glowing antlers
+    "Moonstag": dict(rarity="Secret", fur="paw_sewer", second="pastel_sky", third="milk", eyes="mint", pattern="spots",
+                     muzzle=None, glow_eyes=True, sparkle=True, socks="night_sky", tip="mint", nose="nose_dark",
+                     ear_k=1.15, blaze="pastel_sky", rosettes=True),
+    # Sewer: glowing lime slime
+    "Ooze": dict(rarity="Secret", fur="eye_chartreuse", second="paw_park", third="fur_emerald", eyes="sparkle",
+                 pattern="gradient", muzzle=None, glow_eyes=True, tip="eye_green", nose="nose_dark",
+                 toes=("fur_emerald", "paw_park", "paw_park", "fur_emerald"), eye_k=1.1),
+    # Desert: a wine and gold genie
+    "Djinn": dict(rarity="Secret", fur="royal_berry", second="aurora_violet", third="rarity_legend",
+                  eyes="rarity_legend", pattern="gradient", muzzle=None, glow_eyes=True, sparkle=True,
+                  cuff="rarity_legend", tip="pastel_lilac", curl=True, nose="nose_dark", mark=("star", "rarity_legend")),
+    # Ruins: reborn from the ashes, ember to gold
+    "Phoenix": dict(rarity="Secret", fur="eye_copper", second="bowl_red", third="eye_amber", eyes="sparkle",
+                    pattern="gradient", muzzle=None, glow_eyes=True, tip="sparkle", socks="bowl_red",
+                    mane=("eye_amber", "bowl_red"), nose="nose_dark", eye_k=1.08),
+    # Water Park: from the deep end, with lit spots
+    "Abyss": dict(rarity="Secret", fur="shirt_blue", second="galaxy_blue", third="night_sky", eyes="mint",
+                  pattern="gradient", muzzle=None, glow_eyes=True, sparkle=True,
+                  sprinkles=("mint", "sparkle", "fish_blue", "mint", "pastel_sky"), socks="night_sky", tip="mint", nose="nose_dark", eye_k=1.12),
+    # Castle: the cat that pulled the sword
+    "Excalipurr": dict(rarity="Secret", fur="fur_lilac_silver", second="fur_silver", third="rarity_legend", eyes="fish_blue",
+                       pattern="solid", muzzle="milk", glow_eyes=True, socks="rarity_legend", tip="rarity_legend",
+                       cuff="fish_blue", ruff="milk", nose="nose_pink", mark=("star", "rarity_legend"), eye_k=1.08),
 }
 
 COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze", "cuff")

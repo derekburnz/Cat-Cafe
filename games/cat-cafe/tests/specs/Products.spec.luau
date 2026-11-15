@@ -71,9 +71,16 @@ return function()
 				cafe_pass = {}, -- #1626: everything comes from the paid track's levels
 				trait_tokens_20 = {}, -- #3864: Trait Tokens only
 				trait_tokens_50 = {},
+				-- #3996: Today's Deal (todays-deal-3996.md section 2)
+				deal_1 = { big_tip_potion = 5, swift_potion = 2 },
+				deal_2 = {}, -- 7 Trait Tokens
+				deal_3 = { steady_potion = 10, big_tip_potion = 2 },
+				deal_4 = { big_tip_potion = 4, swift_potion = 1, steady_potion = 2 },
 			}
 			-- #1625: besides potions only the Starter Bundle's named cat and sign style, never anything random
-			local extras = { cats = true, signStyles = true, moneyMultiplier = true } -- #2850: a fixed 2x, not random
+			-- #2850: a fixed 2x, not random; #4020: and the fixed potions in its place for a buyer who owns a Money pass
+			local extras =
+				{ cats = true, signStyles = true, moneyMultiplier = true, moneySwap = true }
 			for _, product in Catalog.products do
 				expect(Config.ProductIds[product.id]).to.be.ok()
 				expect(product.prize.potions :: any).to.deepEqual(want[product.id])
@@ -84,9 +91,16 @@ return function()
 							or (product.id == "starter_bundle" and extras[key] == true)
 							or (
 								key == "traitTokens"
-								and string.sub(product.id, 1, 13) == "trait_tokens_"
+								and (
+									string.sub(product.id, 1, 13) == "trait_tokens_"
+									or product.id == "deal_2"
+								)
 							)
 					).to.equal(true)
+				end
+				for potionId, count in product.prize.moneySwap or {} do
+					expect(Products.ALLOWED_POTIONS[potionId]).to.equal(true)
+					expect(count > 0 and count == math.floor(count)).to.equal(true)
 				end
 				for potionId, count in product.prize.potions do
 					expect(Products.ALLOWED_POTIONS[potionId]).to.equal(true)
@@ -194,6 +208,53 @@ return function()
 				steady_potion = 5,
 			})
 		end)
+
+		it(
+			"pays the swap potions in place of the 2x to a buyer with a Money pass (#4020)",
+			function()
+				expect(bundle.prize.moneyMultiplier).to.equal(2)
+				expect(bundle.prize.moneySwap :: any).to.deepEqual({
+					big_tip_potion = 10,
+					swift_potion = 5,
+				})
+				-- no pass (or the multiplier not given): the bundle as sold, its 2x included
+				expect(Products.prizeFor(ProfileSchema.template(1000), bundle).swapped).to.equal(
+					false
+				)
+				for _, owned in { 1, 0 } do
+					local give, first =
+						Products.prizeFor(ProfileSchema.template(1000), bundle, owned)
+					expect(first).to.equal(true)
+					expect(give.swapped).to.equal(false)
+					expect(give.potions :: any).to.deepEqual({
+						big_tip_potion = 10,
+						swift_potion = 5,
+						steady_potion = 5,
+					})
+				end
+				-- 2x, 3x or 4x Money owned: 10 more Big Money and 5 more Swift on top of the potions
+				for _, owned in { 2, 3, 4 } do
+					local profile = ProfileSchema.template(1000)
+					local give, first = Products.prizeFor(profile, bundle, owned)
+					expect(first).to.equal(true)
+					expect(give.swapped).to.equal(true)
+					expect(give.potions :: any).to.deepEqual({
+						big_tip_potion = 20,
+						swift_potion = 10,
+						steady_potion = 5,
+					})
+					expect(give.cats).to.deepEqual({ "sprinkles" })
+					-- the Catalog's own prize is left as it is
+					expect(bundle.prize.potions.big_tip_potion).to.equal(10)
+					-- a second receipt pays only the bundle's potions, never the swap again
+					Products.markBought(profile, bundle, give.signStyles)
+					local again, firstAgain = Products.prizeFor(profile, bundle, owned)
+					expect(firstAgain).to.equal(false)
+					expect(again.swapped).to.equal(false)
+					expect(again.potions.big_tip_potion).to.equal(10)
+				end
+			end
+		)
 
 		it("never marks a repeatable product bought", function()
 			local profile = ProfileSchema.template(1000)

@@ -49,6 +49,8 @@ local Button = require(script.Parent.Parent.Components.Button)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
+local FeedbackCallout = require(script.Parent.Parent.Components.FeedbackCallout)
+local FeedbackCalloutLogic = require(script.Parent.Parent.Components.FeedbackCalloutLogic)
 local FirstBait = require(script.Parent.Parent.Components.FirstBait)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -76,6 +78,8 @@ local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local PromptKey = require(script.Parent.Parent.Components.PromptKey)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
+local RareBubbleLogic = require(script.Parent.Parent.Components.RareBubbleLogic)
+local RareBubbles = require(script.Parent.Parent.Components.RareBubbles)
 local RestChip = require(script.Parent.Parent.Components.RestChip)
 local Roadmap = require(script.Parent.Roadmap)
 local RoadmapLogic = require(script.Parent.Parent.Components.RoadmapLogic)
@@ -110,6 +114,7 @@ export type Callbacks = {
 	replayIntro: () -> (), -- the Tutorial tile (F72)
 	hideTutorialButton: () -> (), -- the Tutorial tile's red ×
 	openFeedback: () -> (), -- the Feedback tile: the Feedback window on its Idea chip
+	openIdea: (() -> ())?, -- #3883: the map theme bubble: the Feedback window on its Idea page (nil: openFeedback)
 	setSetting: ((key: string, value: boolean) -> ())?, -- #1893: the Grand Opening strip saves roadmapOpen
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
@@ -120,6 +125,7 @@ export type HUD = {
 	screenGui: ScreenGui,
 	setCatalog: (self: HUD, catalog: Types.Catalog) -> (),
 	render: (self: HUD, state: Types.PlayerState) -> (),
+	showCallout: (self: HUD) -> (), -- #3883: the map theme bubble now (the UI gate's picture)
 	goalSeen: (self: HUD) -> (), -- #2331: the rank up card opened, so the goal card's ready pulse and arrow stop
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
@@ -152,6 +158,7 @@ export type HUD = {
 	bottomTop: (self: HUD) -> number,
 	tackleTop: (self: HUD) -> number, -- #3119: where the Tackle bar's foot sits (under the Drop off touch)
 	toastAvoid: (self: HUD) -> { Types.Box }, -- #2338: what the toasts keep clear of
+	edgeAvoid: (self: HUD) -> { Types.Box }, -- #4152: what the tutorial's edge arrow keeps clear of, in screen px
 	setCatching: (self: HUD, active: boolean) -> (),
 	roadmapStep: (self: HUD, n: number) -> (),
 	setCatchStreak: (self: HUD, streak: number) -> (),
@@ -202,6 +209,15 @@ local MONEY_W = 232
 -- #2194: the money amount takes the room of its shape with the widest digits ("$33.7M" takes "$88.8M"), so the golden
 -- fish beside it holds still while the digits tick. #2383 (Derek2 11-08: "isn't supposed to be a big gap between the
 -- money and fish"): it used to take at least 140 px, a wide gap after a short amount
+-- #4097: whether the areas are open (the Clock folder's AreasOpen; nil while it has not replicated)
+local function areasOpen(): boolean?
+	local clock = ReplicatedStorage:FindFirstChild("Clock")
+	if clock == nil then
+		return nil
+	end
+	return clock:GetAttribute("AreasOpen") ~= false
+end
+
 local function moneyShape(text: string): string
 	return (text:gsub("%d", "8"))
 end
@@ -217,6 +233,11 @@ local CASH_TEXT = 22
 local CASH_PRICE_H = 14
 local CASH_PULSE = 1.08 -- the badge's scale at the top of each pulse
 local CASH_PULSE_SECONDS = 0.7 -- one way
+-- Derek 2026-11-14 ("how the 2x money badge looks across devices"): a green button in the HUD's button family with the
+-- price on it, which pulses CASH_PULSES times the first time it shows in a session and then holds still
+local CASH_PULSES = 3
+local CASH_PAD = 8 -- the button's side padding
+local CASH_CHIP_PAD = 6 -- the price chip's side padding
 local COUNTER_GAP = 14
 -- the row's widest usual reach (the money at MONEY_W and "12.3K" golden fish): the bottom row moves right of it
 local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
@@ -751,13 +772,18 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- #2334 (Derek2: "the gold fish and money should be side by side in bottom left and the 2x cash ... should be to
 	-- the right of both of those"): the row is the money, the golden fish, then the money badge.
 	-- #1606: the money pass badge right of the two counters (setMoneyBadge): "2x" to "4x" in gold once a money pass is owned
-	-- (a tap opens the boosts card, as the money does), or while none is (a tap opens the Store) a rainbow "X2 Cash"
-	-- pill with "Only R$5" under it, pulsing (#1759). Hidden until the Store knows.
+	-- (a tap opens the boosts card, as the money does), or a green button for the next rung up with its price on it
+	-- ("2x Money", then "3x Money", then "4x Money", Derek 2026-11-14; was a rainbow "X2 Cash" pill with "Only R$5"
+	-- under it, #1759). Hidden until the Store knows, and once 4x is owned.
 	-- the tap area is the counters' height and at least as wide (a finger's 44 px on a phone); the pill sits inside it
+	-- Derek 2026-11-14: for sale, the button is a green face (Theme.button.primary top to bottom, the Face gradient on a
+	-- white background, as Components/Button does, since a UIGradient multiplies the colour under it) with the words and
+	-- the price chip side by side on it; owned or quiet, it is bare words as before
 	local badge: TextButton = Create("TextButton", {
 		Name = "MoneyBadge",
 		AutoButtonColor = false,
 		BackgroundTransparency = 1,
+		BackgroundColor3 = Theme.colors.white,
 		Text = "",
 		Size = UDim2.fromOffset(0, counterH),
 		AutomaticSize = Enum.AutomaticSize.X,
@@ -768,9 +794,26 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	}, {
 		Create("UISizeConstraint", { MinSize = Vector2.new(counterH, 0) }),
 		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 			SortOrder = Enum.SortOrder.LayoutOrder,
+			Padding = UDim.new(0, 4),
+		}),
+		Create("UICorner", { CornerRadius = UDim.new(0, 12) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }),
+		Create("UIGradient", {
+			Name = "Face",
+			Rotation = 90,
+			Color = ColorSequence.new(Theme.button.primary.top, Theme.button.primary.bottom),
+			Enabled = false,
+		}),
+		Create("UIStroke", {
+			Name = "Edge",
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Color = Theme.colors.outline,
+			Thickness = 2.5,
+			Enabled = false,
 		}),
 	})
 	self._moneyPulse = Create("UIScale", { Parent = badge }) :: UIScale
@@ -788,27 +831,34 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = badge,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
-		-- #1759: the rainbow under the "X2 Cash" words while no money pass is owned
-		Create("UIGradient", { Name = "Rainbow", Color = Theme.rainbow, Enabled = false }),
+		Create(
+			"UIPadding",
+			{ PaddingLeft = UDim.new(0, CASH_PAD), PaddingRight = UDim.new(0, CASH_PAD) }
+		),
 	})
 	Outline.text(pill, 2.5)
 	self._moneyPill = pill
+	-- the price chip on the button, right of the words (Derek 2026-11-14: the price on the button, no "Only")
 	local price: TextLabel = Create("TextLabel", {
 		Name = "Price",
-		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(0, CASH_PRICE_H),
+		BackgroundColor3 = Theme.colors.ink,
+		BackgroundTransparency = 0,
+		Size = UDim2.fromOffset(0, CASH_H - 6),
 		AutomaticSize = Enum.AutomaticSize.X,
 		FontFace = Theme.fonts.display,
-		TextSize = CASH_PRICE_H,
+		TextSize = CASH_PRICE_H + 4,
 		TextColor3 = Theme.colors.white,
-		RichText = true,
 		Text = "",
 		LayoutOrder = 2,
 		Visible = false,
 		Parent = badge,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, 8) }),
+		Create(
+			"UIPadding",
+			{ PaddingLeft = UDim.new(0, CASH_CHIP_PAD), PaddingRight = UDim.new(0, CASH_CHIP_PAD) }
+		),
 	})
-	Outline.text(price, 2)
 	self._moneyPrice = price
 	self._moneyBadge = badge
 	self._moneyBadgeOwned = false
@@ -1060,6 +1110,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 	})
 	table.insert(self._buttons, self._feedbackTile)
+	self._calloutDoneAt = nil :: number?
+	self._calloutStep = nil :: number?
 	-- Menu (Derek 2026-11-02, fewer buttons): Settings and Invite behind one gear. Once Invite is unlocked a press
 	-- opens the short list; before that it opens Settings.
 	self._menuTile = Button.new({
@@ -2087,6 +2139,16 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		table.insert(self._buttons, button)
 	end
 	self._travelButtons.cannon.instance.Visible = false
+	-- #4227: the wild Mythical and Secret cats out now in the areas this player has open, on the Cannon button
+	self._rareBubbles =
+		RareBubbles.new(self._travelButtons.cannon.instance, UDim2.new(1, 8, 0, -8), 12)
+	self._rareTier = 0
+	table.insert(
+		self._connections,
+		ReplicatedStorage:GetAttributeChangedSignal(RareBubbleLogic.ATTRIBUTE):Connect(function()
+			self:_paintRares()
+		end)
+	)
 	-- the arrow tab right of the row folds it below the screen edge and back; it stays where it is
 	self._travelFolded = false
 	local travelFold = Button.new({
@@ -2351,6 +2413,19 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 	self:_paintKeys()
+	-- #3883: the map theme bubble under the Feedback tile (FeedbackCalloutLogic says when), made last so it
+	-- draws over the goal card
+	self._callout = FeedbackCallout.new(root, self._feedbackTile.instance, function()
+		self:_calloutAway()
+		local openIdea = callbacks.openIdea
+		if openIdea ~= nil then
+			openIdea()
+		else
+			callbacks.openFeedback()
+		end
+	end, function()
+		self:_calloutAway()
+	end, self._goal.frame)
 	return self :: HUD
 end
 
@@ -2679,6 +2754,23 @@ function HUD.setMenuFolded(self: any, folded: boolean)
 	end
 	self:_placeMenuFold()
 	self:_renderFoldDot()
+	self:_placeFoldArrow()
+end
+
+-- While a tutorial step points at a menu tile and the player folded the menu away, the big arrow points at the
+-- menu's arrow tab instead, so there is always something to tap.
+function HUD._placeFoldArrow(self: any)
+	local want = self._menuAsk ~= nil and self._menuFolded == true
+	if want == (self._foldArrow == true) then
+		return
+	end
+	self._foldArrow = want
+	local tab: GuiObject = self._menuFold.instance
+	if want then
+		TutorialArrow.add(tab)
+	else
+		TutorialArrow.remove(tab)
+	end
 end
 
 function HUD.setTravelFolded(self: any, folded: boolean)
@@ -2881,10 +2973,71 @@ function HUD.setCatalog(self: any, catalog: Types.Catalog)
 	self._luck:setCatalog(catalog)
 end
 
+-- #3883: once a join, FeedbackCalloutLogic.WAIT_SECONDS after the tutorial is done (or after the join for a player
+-- done before), the map theme bubble shows under the Feedback tile for SHOW_SECONDS
+local calloutShown = false -- once a join, whatever happens to the HUD
+
+function HUD._calloutWatch(self: any, step: number)
+	self._calloutStep = step
+	if calloutShown or self._calloutDoneAt ~= nil or step < TUTORIAL_DONE then
+		return
+	end
+	local doneAt = os.clock()
+	self._calloutDoneAt = doneAt
+	task.delay(FeedbackCalloutLogic.WAIT_SECONDS, function()
+		if
+			self._gone
+			or not FeedbackCalloutLogic.due(self._calloutStep, doneAt, os.clock(), calloutShown)
+		then
+			return
+		end
+		self:showCallout()
+	end)
+end
+
+-- Shows the bubble now (the UI gate's picture calls this too) and puts it away after SHOW_SECONDS.
+function HUD.showCallout(self: any)
+	if not self._feedbackTile.instance.Visible then
+		return
+	end
+	calloutShown = true
+	self._callout:show()
+	task.delay(FeedbackCalloutLogic.SHOW_SECONDS, function()
+		if not self._gone then
+			self._callout:hide()
+		end
+	end)
+end
+
+function HUD._calloutAway(self: any)
+	calloutShown = true
+	self._callout:hide()
+end
+
+-- #4227: the Cannon button's bubbles, every area the player's tier has open added up.
+function HUD._paintRares(self: any)
+	local catalog: Types.Catalog? = self._catalog
+	local open: { [string]: boolean } = {}
+	if catalog ~= nil then
+		for _, area in (catalog.areas or {}) :: { Types.AreaDef } do
+			if area.tier <= self._rareTier then
+				open[area.id] = true
+			end
+		end
+	end
+	local rares = RareBubbleLogic.decode(ReplicatedStorage:GetAttribute(RareBubbleLogic.ATTRIBUTE))
+	self._rareBubbles:set(RareBubbleLogic.totals(rares, open))
+end
+
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
+	if (state.tier or 1) ~= self._rareTier then
+		self._rareTier = state.tier or 1
+		self:_paintRares()
+	end
 	-- #2211: the tutorial's last step done just now (not a player who finished it before this join): the × pulses
 	local step = state.tutorialStep or TUTORIAL_DONE
+	self:_calloutWatch(step)
 	local before: number? = self._stepBefore
 	self._stepBefore = step
 	if before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE then
@@ -2900,15 +3053,44 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- on the square alone: round the whole tile it covered the "Upgrades" label under it (device pass 2026-11-07)
 	-- #2759: none of the step rings while a fresh save's intro is on its way (holdTutorial)
 	local held = self._tutorialHeld == true
+	-- #4097: while the step asks for the second cat by day, nothing points at the table (no glow, no Buy button)
+	local stepView =
+		TutorialHints.view(state, if catalog then catalog.spots else nil, nil, areasOpen())
+	local holdsTable = TutorialHints.holdsOffer(stepView)
 	TutorialGlow.set(
 		self._upgradesTile.face,
-		not held and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+		not held
+			and not holdsTable
+			and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
 	)
 	-- #2697: the Cats tile while the step asks for a job, the Bowl tile while it asks for food in the bowl
 	local asks =
 		TutorialHints.ask(TutorialHints.view(state, if catalog then catalog.spots else nil))
 	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, not held and asks == "job")
 	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, not held and asks == "food")
+	-- Review-QA 2026-11-14: a step that points at a menu tile (Upgrades, Cats, Bowl) with the menu folded off the edge
+	-- had no tile on screen and no arrow, only the strip's words. The folded menu slides back out once as such a step
+	-- starts; a player who folds it again keeps it folded until the next step.
+	local menuAsk: string? = nil
+	if not held then
+		if asks == "job" or asks == "food" then
+			menuAsk = asks
+		elseif
+			not holdsTable
+			and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+		then
+			menuAsk = "upgrade"
+		end
+	end
+	local askKey = if menuAsk ~= nil then `{step}:{menuAsk}` else nil
+	self._menuAsk = menuAsk
+	if askKey ~= self._menuAskKey then
+		self._menuAskKey = askKey
+		if askKey ~= nil and self._menuFolded then
+			self:setMenuFolded(false)
+		end
+	end
+	self:_placeFoldArrow()
 	-- #2912: the strip's Buy button
 	local offer = if held
 		then nil
@@ -2916,7 +3098,8 @@ function HUD.render(self: any, state: Types.PlayerState)
 			state.tutorialStep,
 			state.upgradeLevels,
 			state.money,
-			if catalog then catalog.upgrades else nil
+			if catalog then catalog.upgrades else nil,
+			stepView
 		)
 	self._stripOffer = offer
 	self:_renderStripBuy()
@@ -3391,6 +3574,42 @@ end
 -- lines by their words, which sit right-aligned in wider boxes), the chips over the counters and the corner tiles over
 -- the bottom right. Measured, so a folded menu or a hidden card counts as
 -- nothing; none while the HUD is hidden.
+-- #4152: the same pieces as toastAvoid, in the screen's own pixels with the top inset counted (the tutorial's edge
+-- arrow draws in a ScreenGui that ignores the inset), so the arrow keeps off the money pill and the menu.
+function HUD.edgeAvoid(self: any): { Types.Box }
+	local scale = Scale.get()
+	local out: { Types.Box } = {}
+	if scale <= 0 then
+		return out
+	end
+	-- The arrow is placed in viewport space (WorldToViewportPoint, in an IgnoreGuiInset gui), but AbsolutePosition is
+	-- always measured from under the top inset, whatever the gui's IgnoreGuiInset (Review-QA in Studio, 667x375: the
+	-- arrow and the counters both draw 58 px below their AbsolutePosition), so every box adds the inset
+	local inset = GuiService:GetGuiInset()
+	local origin = self._root.AbsolutePosition + inset
+	for _, box in self:toastAvoid() do
+		table.insert(out, {
+			x0 = origin.X + box.x0 * scale,
+			y0 = origin.Y + box.y0 * scale,
+			x1 = origin.X + box.x1 * scale,
+			y1 = origin.Y + box.y1 * scale,
+		})
+	end
+	-- and on every device the counters (the money pill and its coin) and the travel row, which the toasts don't need
+	for _, piece in { self._counters, self._travelRow } :: { GuiObject } do
+		if piece.Visible and piece.AbsoluteSize.X > 0 then
+			local at = piece.AbsolutePosition + inset
+			table.insert(out, {
+				x0 = at.X,
+				y0 = at.Y,
+				x1 = at.X + piece.AbsoluteSize.X,
+				y1 = at.Y + piece.AbsoluteSize.Y,
+			})
+		end
+	end
+	return out
+end
+
 function HUD.toastAvoid(self: any): { Types.Box }
 	local scale = Scale.get()
 	local boxes: { Types.Box } = {}
@@ -3814,6 +4033,10 @@ function HUD._layoutRight(self: any)
 	roadmap.Position = UDim2.new(1, -MARGIN, 0, stripTop)
 	if roadmap.Visible then
 		lineTop += self._roadmap:closedHeight() + Theme.sizes.gap
+		if self._roadmapOpen == true then
+			-- #3990: the open steps list ran down over the spin and gift lines (a PC); they move under it
+			lineTop = math.max(lineTop, stripTop + lift + roadmap.Size.Y.Offset + Theme.sizes.gap)
+		end
 	end
 	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
 	local giftTop = if self._spinLine.Visible then lineTop + SPIN_LINE_H + 2 else lineTop
@@ -4487,12 +4710,15 @@ function HUD._tradeLockedNote(self: any)
 	local scale = math.max(Scale.get(), 0.01)
 	local x = (tile.AbsolutePosition.X + tile.AbsoluteSize.X / 2 - root.AbsolutePosition.X) / scale
 	local y = (tile.AbsolutePosition.Y + tile.AbsoluteSize.Y - root.AbsolutePosition.Y) / scale + 4
-	local note: TextLabel = Create("TextLabel", {
+	-- #3990 (Review-QA on a PC): a button, so a tap on the note never reaches the goal card's Rank up under it (a
+	-- label lets taps through, even with Active)
+	local note: TextButton = Create("TextButton", {
 		Name = "LockedNote",
+		AutoButtonColor = false,
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromOffset(x, y),
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 26),
+		Size = UDim2.fromOffset(0, Scale.tapHeight(36)), -- a full tap height, now that it is a button
 		BackgroundColor3 = Theme.colors.ink,
 		BackgroundTransparency = 0.1,
 		FontFace = Theme.fonts.display,
@@ -4676,6 +4902,11 @@ function HUD._togglePop(self: any, kind: string)
 	pop.Visible = true
 	Tween.popIn(pop, 0.9)
 	Sound.play("uiClick")
+	-- #4224 (console): on a gamepad the list takes the selection on its first row, and B closes it
+	self._popNav = GamepadNav.card("hudPop", pop, function(): boolean?
+		self:_closePop()
+		return nil
+	end)
 end
 
 -- The open list's rows say what they say now (the gift countdown ticks while it is open).
@@ -4692,6 +4923,11 @@ end
 function HUD._closePop(self: any)
 	self._popFor = nil
 	self._pop.Visible = false
+	local popNav: (() -> ())? = self._popNav
+	self._popNav = nil
+	if popNav ~= nil then
+		popNav()
+	end
 	for _, button in self._popRows do
 		button:destroy()
 	end
@@ -4828,45 +5064,58 @@ function HUD.setMoneyBadge(
 	pill.Size = UDim2.fromOffset(0, if sell then CASH_H else MONEY_BADGE_H)
 	pill.TextSize = if sell then CASH_TEXT else MONEY_BADGE_TEXT
 	pill.TextColor3 = if sell then Theme.colors.white else Theme.colors.gold
-	-- #1759: a rainbow pill (white under the gradient) while for sale, bare gold words once owned
-	pill.BackgroundColor3 = Theme.colors.white
-	pill.BackgroundTransparency = if sell then 0 else 1
-	local rainbow = pill:FindFirstChild("Rainbow") :: UIGradient?
-	if rainbow then
-		rainbow.Enabled = sell
+	pill.BackgroundTransparency = 1
+	-- Derek 2026-11-14: a green button while for sale (not in the quiet first 30 minutes), bare gold words once owned
+	local button = sell and not badge.quiet
+	self._moneyBadge.BackgroundTransparency = if button then 0 else 1
+	local face = self._moneyBadge:FindFirstChild("Face") :: UIGradient?
+	if face then
+		face.Enabled = button
+	end
+	local edge = self._moneyBadge:FindFirstChild("Edge") :: UIStroke?
+	if edge then
+		edge.Enabled = button
 	end
 	local price: TextLabel = self._moneyPrice
-	local line = if sell and not badge.quiet then badge.price else nil
+	local line = if button then badge.price else nil
 	price.Visible = line ~= nil
 	if line ~= nil then
-		-- "Only" in green, the price in white, as in Derek2's reference
-		price.Text = (line:gsub("^Only", '<font color="#7CFC6A">Only</font>'))
+		price.Text = line
 	end
-	self:_pulseMoneyBadge(sell and not badge.quiet)
+	self:_pulseMoneyBadge(button)
 end
 
--- #1759: the for-sale badge grows and shrinks a little, over and over; it holds still once owned or with Reduce
--- Motion on.
+-- #1759: the for-sale badge grows and shrinks a little; it holds still once owned or with Reduce Motion on.
+-- Derek 2026-11-14: CASH_PULSES times the first time it shows in a session, then still.
 function HUD._pulseMoneyBadge(self: any, on: boolean)
-	local want = on and not GuiService.ReducedMotionEnabled
 	local tween: Tween? = self._moneyPulseTween
-	if want == (tween ~= nil) then
+	if not on or GuiService.ReducedMotionEnabled then
+		if tween then
+			tween:Cancel()
+			self._moneyPulseTween = nil
+			self._moneyPulse.Scale = 1
+		end
 		return
 	end
-	if tween then
-		tween:Cancel()
-		self._moneyPulseTween = nil
-		self._moneyPulse.Scale = 1
+	-- a pulse under way runs out; one already played this session is not played again
+	if tween ~= nil or self._moneyPulsed == true then
 		return
 	end
 	local info = TweenInfo.new(
 		CASH_PULSE_SECONDS,
 		Enum.EasingStyle.Sine,
 		Enum.EasingDirection.InOut,
-		-1,
+		CASH_PULSES - 1,
 		true
 	)
 	local made = TweenService:Create(self._moneyPulse, info, { Scale = CASH_PULSE })
+	self._moneyPulsed = true
+	made.Completed:Connect(function()
+		if self._moneyPulseTween == made then
+			self._moneyPulseTween = nil
+			self._moneyPulse.Scale = 1
+		end
+	end)
 	made:Play()
 	self._moneyPulseTween = made
 end
@@ -5529,6 +5778,7 @@ end
 
 function HUD.destroy(self: any)
 	self._gone = true -- #3022: the second cat goal's timers stop here
+	self._callout:destroy()
 	self:_stopClock()
 	local shine: Tween? = self._storeShine
 	if shine then

@@ -72,6 +72,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClaimTipJar = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimIndexReward = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	SpinAll = RateLimiter.new(1, 1), -- #1078: 1 a second (and the spin cooldown)
+	AdminWheelSpin = RateLimiter.new(1, 1), -- #4195: one spin an event; AdminWheelService refuses the rest
 	SpinWheel = RateLimiter.new(2, 1), -- SpinService also holds each player to SpinCooldownSeconds between spins
 	-- #1146: a flood guard only; FishMarketService refuses an open while one is in flight or within
 	-- CrateOpenCooldownSeconds (0.3 s) of the last, so Quick open and Buy 5's crates one by one go through
@@ -91,6 +92,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	CollectFusion = RateLimiter.new(1, 1),
 	MarkMysterySeen = RateLimiter.new(1, 2), -- #2565: one save flag
 	SetBagColours = RateLimiter.new(1, 1), -- #3699: 1 a second
+	PromptDeal = RateLimiter.new(1, 1), -- #3996
 	RedeemCode = RateLimiter.new(1, 2), -- data-model section 11d: 1 per 2 s; CodeService locks after wrong codes
 	IntroDone = RateLimiter.new(1, 1), -- intro-cutscene.md section 3: 1 a second; each call logs one event
 	SetHideCredit = RateLimiter.new(1, 1), -- #1083: 1 a second

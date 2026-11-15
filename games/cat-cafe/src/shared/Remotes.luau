@@ -433,8 +433,6 @@ Remotes.ServerToClient = {
 	"UpdateGiftNotice", -- (kind: "soon" | "paid", fish, spins, secondsLeft, crates: number)  #3420, #3535: the
 	-- update gift is on its way (once, in the UpdateGift.NOTICE_SECONDS before it) or was just paid (ProfileSync
 	-- first); the client shows the banner with UpdateGift.banner's words
-	"AutoEquipped", -- (swaps: { Types.AutoEquipSwap })  #1955: an Auto Equip run moved cats into roles (ProfileSync
-	-- first): each cat's name and role, and the coins a second gained when exactly one moved; the client toasts it
 	"ArcadeState", -- (state: Arcade.State)  #3062: this player's best, today's paid milestones, the title and the
 	-- server's best, on join once the arcade is read and after every game
 	"ArcadeBlock", -- (run: number, block: number, circles: { Types.CatchCircle }, windows: Types.CatchWindows,

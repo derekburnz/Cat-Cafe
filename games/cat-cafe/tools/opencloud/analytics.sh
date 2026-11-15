@@ -762,6 +762,7 @@ fieldEvents=(
 	"pal_join|Platform,CustomField2|CustomEventCountUser|Friend joins by device, new or returning (#3995, #4141)"
 	"quit_have|CustomField2|CustomEventCountUser|Leavers before Tier 2 by coins as a share of Tier 2's cost"
 	"quit_have|CustomField3|CustomEventCountUser|Leavers before Tier 2: ready to rank up or not (rank_up_ready_quit)"
+	"quit_have|CustomField1,CustomField2|CustomEventCountUser|Leavers before Tier 2 by kinds of cat owned and coins share of Tier 2 cost (Design-Agent 2026-11-15)"
 	"cat_caught_area|CustomField1,CustomField2|CustomEventCountUser|Players catching by area and rarity"
 	"bait_rolled|CustomField1|CustomEventCountUser|Bait: players who put food in a bowl, by food"
 	"bait_resolved|CustomField3|CustomEventCountUser|Bait: players who met their bait cat, by choice (tame or let go)"

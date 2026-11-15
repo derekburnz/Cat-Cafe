@@ -254,6 +254,10 @@ export type CatInstance = {
 	trait: { id: string }?, -- #3196: its Mystic Pool trait (shared/Traits), nil for none
 }
 
+-- #4266: the Auto Bowl pass: owned, and its switches (auto claim tames an arrived cat, auto refill puts in the best
+-- food the player owns)
+export type AutoBowl = { owned: boolean, claim: boolean, refill: boolean }
+
 export type PlayerState = {
 	money: number,
 	incomePerSecond: number,
@@ -270,6 +274,7 @@ export type PlayerState = {
 	decorPlaced: { [string]: boolean },
 	lures: { [string]: number },
 	-- optional extras the engineer's ProfileSync also sends
+	autoBowl: AutoBowl?, -- #4266: the Auto Bowl pass and its two switches
 	cats: { [string]: CatInstance }?, -- uid -> instance; fills the Cats screen
 	collection: { [string]: number }?, -- catId -> firstCaughtAt; drives silhouettes
 	goldCollection: { [string]: number }?, -- catId -> first gold cat caught at (was shinyCollection)
@@ -553,6 +558,7 @@ export type CatFoundExtra = {
 	banner: string?, -- in place of "NEW RARE CAT!"
 	line: string?, -- in gold under the name, in place of the description
 	rate: number?, -- in place of the catalog's incomePerSecond (an exclusive cat earns like its rarity in the newest area)
+	source: string?, -- #4266: "bowl" for a cat tamed at the bait bowl (the server's CatCaught source)
 }
 
 export type InitConfig = {

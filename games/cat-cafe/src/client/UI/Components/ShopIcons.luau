@@ -318,6 +318,7 @@ local IDS: { [string]: string } = {
 	Icon_Store_KingPack = "rbxassetid://93204952454452",
 	Icon_Store_GoldenPond = "rbxassetid://89558912583122",
 	Icon_Store_SecondBowl = "rbxassetid://135271113321879",
+	Icon_Store_AutoBowl = "rbxassetid://135271113321879", -- #4266: the bowl picture, as on the Bait bowl window's offer
 	Icon_Store_StarterBundle = "rbxassetid://95362407964835",
 	Icon_Store_PotionXS = "rbxassetid://97739871449916",
 	Icon_Store_PotionS = "rbxassetid://101008485240894",

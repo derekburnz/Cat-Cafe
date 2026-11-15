@@ -7,6 +7,7 @@ local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
+local AdminWheelService = require(script.Parent.Services.AdminWheelService)
 local AfkCafeService = require(script.Parent.Services.AfkCafeService)
 local ArcadeCabinetService = require(script.Parent.Services.ArcadeCabinetService)
 local ArcadeService = require(script.Parent.Services.ArcadeService)
@@ -31,11 +32,13 @@ local CozyService = require(script.Parent.Services.CozyService)
 local DailyTreatService = require(script.Parent.Services.DailyTreatService)
 local DataService = require(script.Parent.Services.DataService)
 local DealerService = require(script.Parent.Services.DealerService)
+local DragonKeepService = require(script.Parent.Services.DragonKeepService)
 local EventRewardService = require(script.Parent.Services.EventRewardService)
 local EventService = require(script.Parent.Services.EventService)
 local FallCatchService = require(script.Parent.Services.FallCatchService)
 local FeedService = require(script.Parent.Services.FeedService)
 local FishMarketService = require(script.Parent.Services.FishMarketService)
+local FishStoreService = require(script.Parent.Services.FishStoreService)
 local GlobalCatchService = require(script.Parent.Services.GlobalCatchService)
 local GrandOpeningService = require(script.Parent.Services.GrandOpeningService)
 local IdeaCreditsService = require(script.Parent.Services.IdeaCreditsService)
@@ -81,6 +84,7 @@ local SpinService = require(script.Parent.Services.SpinService)
 local StarterCatService = require(script.Parent.Services.StarterCatService)
 local StuckGoalService = require(script.Parent.Services.StuckGoalService)
 local Telemetry = require(script.Parent.Services.Telemetry)
+local TicketBoothService = require(script.Parent.Services.TicketBoothService)
 local TipJarService = require(script.Parent.Services.TipJarService)
 local TipPileService = require(script.Parent.Services.TipPileService)
 local TipService = require(script.Parent.Services.TipService)
@@ -88,6 +92,7 @@ local TradeService = require(script.Parent.Services.TradeService)
 local TraitService = require(script.Parent.Services.TraitService)
 local TravelService = require(script.Parent.Services.TravelService)
 local TutorialMoveService = require(script.Parent.Services.TutorialMoveService)
+local VipTagService = require(script.Parent.Services.VipTagService)
 local WorldBuilder = require(script.Parent.World.WorldBuilder)
 
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -139,10 +144,14 @@ DailyTreatService.start()
 IndexRewardService.start()
 ClaimAllService.start() -- Claim all in the Quests window, the Index and the Tip Jar
 SpinService.start()
+AdminWheelService.start() -- #4195: the Admin Wheel's one spin an event
 FishMarketService.start()
 TraitService.start() -- #3196: the Mystic Pool, refused while the `traits` switch is off
 MysticPoolStationService.start() -- #3196: the pool stands in the Picnic Basket's place while the switch is on
 MysteryMarketService.start() -- #2565: Juniper's Mystery Market
+FishStoreService.start() -- #4055: Store passes for golden fish
+TicketBoothService.start() -- #4061: the Water Park's Ticket Booth
+DragonKeepService.start() -- #4062: the Castle's Dragon Keep
 CornerShopService.start() -- #1052: the coins-only Corner Shop
 FeedService.start() -- #1181: cat food from the Bag (FeedCat)
 LiveFlagService.start() -- #2119: the live switches (codes, rally) from CatCafe_Flags
@@ -158,6 +167,7 @@ TipService.start() -- F87: context tips and feedback; before DataService so its 
 BugReportService.start(world)
 IdeaCreditsService.start() -- #1083: the Thank You board's credits
 PassService.start() -- F95: purchases in game; DataService checks owned passes at each join
+VipTagService.start() -- #4235: the gold VIP tag over a VIP owner's head
 ProductService.start() -- #1182: developer product receipts (ProcessReceipt)
 OwnerTestService.start() -- #1770: owner test mode (OwnerGrant, the OwnerTest attribute)
 PalService.start() -- F92: pals; before Telemetry so pal_time goes out before its leave work

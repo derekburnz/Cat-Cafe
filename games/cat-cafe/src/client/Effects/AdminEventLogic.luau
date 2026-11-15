@@ -3,7 +3,8 @@
 -- that runs, or from two minutes before its start the one coming, on ReplicatedStorage as attributes
 -- (shared/CafeEvents.ADMIN_ATTRIBUTES): AdminEventId ("" for none), AdminEventTitle, AdminEventStartsAt and
 -- AdminEventEndsAt (unix seconds, compared with Workspace:GetServerTimeNow), AdminEventRunning and AdminEventEffects
--- (JSON: {"bowlSpeed":4} or {"catStorm":10}).
+-- (JSON: {"bowlSpeed":4} or {"catStorm":10}). #4197's kinds are read by name into `extra` (EXTRA below), so their
+-- words and air are here before the server's rows are.
 --   read(get, decode) -> View?          the attributes as a View; get reads one attribute, decode parses the JSON
 --   follow(seen, view, now)             what this client has watched: (Seen?, "soon" | "start" | nil), each once an
 --                                       event: "soon" the first time it sees one coming (the warning banner),
@@ -17,6 +18,7 @@
 --                                       "⚡ Bowl Frenzy soon! Starts in 2:00. Bait bowls lure cats 4x faster."
 --   stripLine(view, now)                the HUD's timer words: "⚡ Bowl Frenzy in 1:59", then "⚡ Bowl Frenzy 14:59"
 --   merge(lines, kind, strip, admin)    the Cafe Event chip's lines, kind and strip with the admin line put first
+--   airOf(view)                         which of Presets.adminAir's drifts the event hangs round you, or nil
 --   clock(seconds)                      "14:59", "1:02:05"
 -- The words sell nothing and count nothing down but the event's own start and end.
 
@@ -30,9 +32,28 @@ export type View = {
 	running: boolean,
 	bowlSpeed: number, -- 1 for none
 	catStorm: number, -- 1 for none
+	extra: { [string]: number }?, -- #4197's effects by name (EXTRA), only those above 0
 }
 export type Seen = { id: string, warned: boolean, started: boolean }
 export type Banner = { kind: string, title: string, lines: { string }, badge: string }
+
+-- #4197's effects, in the order their lines show. `%s` in a line takes the effect's number.
+AdminEventLogic.EXTRA = {
+	{ name = "goldBoost", line = "Gold coats %sx as likely", times = true },
+	{ name = "rainbowBoost", line = "Rainbow coats %sx as likely", times = true },
+	{ name = "moneyStorm", line = "Cafe money %sx for everyone", times = true },
+	{ name = "traitParty", line = "Trait rolls are free", times = false },
+	{ name = "secretHunt", line = "%s Secret cats are hiding", times = false },
+	{
+		name = "fishFountain",
+		line = "Golden fish spray from the Town Square fountain",
+		times = false,
+	},
+	{ name = "crateDrop", line = "Golden crates drop into every area", times = false },
+	{ name = "speedRush", line = "Speed Shoes for everyone", times = false },
+}
+-- The effects that hang a drift round you, first match wins (Presets.adminAir.kinds).
+AdminEventLogic.AIR = { "moneyStorm", "goldBoost" }
 
 local function finite(value: any): number?
 	if type(value) ~= "number" or value ~= value or value == math.huge or value == -math.huge then
@@ -64,6 +85,23 @@ function AdminEventLogic.read(get: (name: string) -> any, decode: (json: string)
 	end
 	local bowlSpeed = if effects ~= nil then finite(effects.bowlSpeed) else nil
 	local catStorm = if effects ~= nil then finite(effects.catStorm) else nil
+	local extra: { [string]: number }? = nil
+	if effects ~= nil then
+		for _, row in AdminEventLogic.EXTRA do
+			local raw = effects[row.name]
+			local value = if raw == true then 1 else finite(raw)
+			if value ~= nil and value > 0 and (not row.times or value > 1) then
+				local map: { [string]: number } = extra or {}
+				map[row.name] = value
+				extra = map
+			end
+		end
+		-- Secret Hunt's count so far: the server rewrites the effects as each one is found
+		local found = finite(effects.secretFound)
+		if extra ~= nil and extra.secretHunt ~= nil and found ~= nil and found > 0 then
+			extra.secretFound = math.min(math.floor(found), extra.secretHunt)
+		end
+	end
 	return {
 		id = id,
 		title = title,
@@ -72,6 +110,7 @@ function AdminEventLogic.read(get: (name: string) -> any, decode: (json: string)
 		running = get("AdminEventRunning") == true,
 		bowlSpeed = if bowlSpeed ~= nil and bowlSpeed > 1 then bowlSpeed else 1,
 		catStorm = if catStorm ~= nil and catStorm > 1 then catStorm else 1,
+		extra = extra,
 	}
 end
 
@@ -97,6 +136,20 @@ function AdminEventLogic.follow(seen: Seen?, view: View?, now: number): (Seen?, 
 		return { id = view.id, warned = true, started = false }, "soon"
 	end
 	return mine, nil
+end
+
+-- The drift the event hangs round you while it runs (a key of Presets.adminAir.kinds), or nil.
+function AdminEventLogic.airOf(view: View?): string?
+	local extra = if view ~= nil then view.extra else nil
+	if extra == nil then
+		return nil
+	end
+	for _, name in AdminEventLogic.AIR do
+		if extra[name] ~= nil then
+			return name
+		end
+	end
+	return nil
 end
 
 -- 899 -> "14:59", 3725 -> "1:02:05", never under "0:00"
@@ -127,6 +180,23 @@ function AdminEventLogic.effectLines(view: View): { string }
 		table.insert(out, "Strays rain in every area")
 		table.insert(out, string.format("Mythical cats %sx as likely", times(view.catStorm)))
 	end
+	local extra = view.extra
+	if extra ~= nil then
+		for _, row in AdminEventLogic.EXTRA do
+			local value = extra[row.name]
+			if value ~= nil then
+				local line = row.line
+				local found = extra.secretFound
+				if row.name == "secretHunt" and found ~= nil and found >= 1 then
+					line = string.format("%d of %s Secret cats found", found, "%s")
+				end
+				if string.find(line, "%s", 1, true) ~= nil then
+					line = string.format(line, times(value))
+				end
+				table.insert(out, line)
+			end
+		end
+	end
 	return out
 end
 
@@ -136,6 +206,15 @@ function AdminEventLogic.badge(view: View): string
 		return times(view.bowlSpeed) .. "x"
 	elseif view.catStorm > 1 then
 		return times(view.catStorm) .. "x"
+	end
+	local extra = view.extra
+	if extra ~= nil then
+		for _, row in AdminEventLogic.EXTRA do
+			local value = extra[row.name]
+			if row.times and value ~= nil then
+				return times(value) .. "x"
+			end
+		end
 	end
 	return "!"
 end

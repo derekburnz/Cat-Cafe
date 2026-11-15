@@ -1600,6 +1600,8 @@ function CafeService.addCaughtCat(
 	if isNew then
 		fish += StationPerks.firstCatchFish(Economy.tier(profile)) -- #2687: the Fish Pond's Lucky Line from Tier 4
 	end
+	local dragonFx = Economy.dragonEffects(profile) -- #4447: the Dragon Keep's slotted cards
+	fish += DragonKeep.catchFish(dragonFx, def.rarity, isNew) -- Fish Scale
 	if fish > 0 then
 		GoldenFish.credit(profile, fish)
 		Telemetry.fishSource(
@@ -1613,7 +1615,8 @@ function CafeService.addCaughtCat(
 	-- #4061: the Ticket Booth's tickets, from TicketBoothTier, any area, a repeat cat as much as a new one
 	if LiveFlagService.on(TicketBooth.FLAG) and TicketBooth.open(Economy.tier(profile)) then
 		-- the catch pop's "+2" is the rise in PlayerState.ticketBooth.tickets at the next sync
-		TicketBooth.credit(profile.tickets, def.rarity, instance.variant, how, now)
+		local tickets = TicketBooth.credit(profile.tickets, def.rarity, instance.variant, how, now)
+		profile.tickets.have += DragonKeep.extraTickets(dragonFx, tickets) -- #4447: Ticket Dragon
 	end
 	-- F87 (easy-start.md section 2d): the first check-in, before it moves the tutorial on
 	local firstCheckIn = profile.tutorialStep < Config.TutorialGuaranteedStrayStep

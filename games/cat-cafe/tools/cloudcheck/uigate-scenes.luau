@@ -12475,11 +12475,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			ready = 3,
 			prizes = {
 				prize("fish25", "25 golden fish", "25 golden fish", 300, 4, "day"),
-				prize("traitToken", "Trait Token", "One Mystic Pool roll", 700, 3, "week"),
+				prize("tokens10", "10 Trait Tokens", "Ten Mystic Pool rolls", 6000, 1, "week", short), -- #4596
 				prize("goldenCrate", "Golden Crate", "A golden Cafe Crate", 900, 2, "day"),
-				prize("bigGoldRush", "Big Gold Rush Potion", "30 minutes", 1200, nil, nil, short),
-				prize("bigLucky", "Big Lucky Potion", "30 minutes", 1200, nil, nil, short),
-				prize("swiftPaws", "Swift Paws", "1 hour of Big Swift Potion", 800, nil, nil),
+				prize("spins5", "5 Wheel Spins", "Five spins of the wheel", 1000, 3, "day"),
+				prize("caviar", "Caviar Bait", "The best bait", 1200, 3, "day", short),
+				prize("bestGolden", "Best Golden Crate", "Your best area's golden crate", 1800, 1, "day", short),
 			},
 		}
 		local sent = {}
@@ -12512,7 +12512,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				end
 			end
 			assert(cards == 6, ("uigate: the booth shows %d prizes, not 6 (#4061)"):format(cards))
-			local lucky = grid:FindFirstChild("Prize_bigLucky") :: GuiObject
+			local lucky = grid:FindFirstChild("Prize_caviar") :: GuiObject
 			local saved = lucky:FindFirstChild("Saved") :: GuiObject
 			assert(saved.Visible, "uigate: no bar of tickets saved on a prize short of its price (#4061)")
 			local numbers = saved:FindFirstChild("Numbers") :: TextLabel
@@ -12520,7 +12520,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local function buyText(id)
 				return (grid:FindFirstChild("Prize_" .. id):FindFirstChild("Buy", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel).Text
 			end
-			assert(buyText("bigLucky") == "SAVE UP", "uigate: a short prize's button reads " .. buyText("bigLucky") .. " (#4061)")
+			assert(buyText("caviar") == "SAVE UP", "uigate: a short prize's button reads " .. buyText("caviar") .. " (#4061)")
 			press("TicketBooth", "Prize_fish25.Buy")
 			assert(#sent == 1 and sent[1].remote == "BuyTicketPrize" and sent[1].id == "fish25", "uigate: BUY sent no BuyTicketPrize fish25 (#4061)")
 			-- 1,000 and over asks first
@@ -12528,10 +12528,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			view.prizes[4].blocker = nil
 			UI.update({ ticketBooth = view } :: any)
 			UI.lateStations.render(UI.getState() :: any)
-			press("TicketBooth", "Prize_bigGoldRush.Buy")
-			assert(#sent == 1 and buyText("bigGoldRush") == "Tap again", "uigate: the first tap at 1,200 did not ask, it reads " .. buyText("bigGoldRush") .. " (#4061)")
-			press("TicketBooth", "Prize_bigGoldRush.Buy")
-			assert(#sent == 2 and sent[2].id == "bigGoldRush", "uigate: Tap again sent no BuyTicketPrize (#4061)")
+			press("TicketBooth", "Prize_spins5.Buy")
+			assert(#sent == 1 and buyText("spins5") == "Tap again", "uigate: the first tap at 1,000 did not ask, it reads " .. buyText("spins5") .. " (#4061)")
+			press("TicketBooth", "Prize_spins5.Buy")
+			assert(#sent == 2 and sent[2].id == "spins5", "uigate: Tap again sent no BuyTicketPrize (#4061)")
 		end)
 		link:Disconnect()
 		assert(ok, problem)

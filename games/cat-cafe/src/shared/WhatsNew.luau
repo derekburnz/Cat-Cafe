@@ -138,13 +138,6 @@ WhatsNew.rows = table.freeze({
 		text = "Easier rank ups to Tier 7",
 	},
 	{
-		id = "epics_early",
-		date = "2026-11-15",
-		startsAt = UPDATE_20_00,
-		icon = "cat",
-		text = "Tier 4: Epics, not a Mythic",
-	},
-	{
 		id = "decor_stand",
 		date = "2026-11-15",
 		startsAt = UPDATE_20_00,
@@ -159,19 +152,14 @@ WhatsNew.rows = table.freeze({
 		text = "Day Cart is now Coin Cart",
 	},
 	{
-		id = "fewer_popups",
-		date = "2026-11-15",
-		startsAt = UPDATE_20_00,
-		icon = "fix",
-		text = "Fewer pop-ups on screen",
-	},
-	{
 		id = "trade_note",
 		date = "2026-11-15",
 		startsAt = UPDATE_20_00,
 		icon = "look",
 		text = "Trade shows true earnings",
 	},
+	-- Growth-Agent 2026-11-15 19:00 UTC: rows for #4511 (Epics) and #4528 (pop-up card) dropped, both PRs have merge conflicts
+	-- and will not be in the 20:00 UTC build. Re-add them with their PRs.
 	-- #2718 refresh (Growth-Agent 2026-11-15 09:45 UTC, about 240 merges since the 17:44 UTC rows): live on every
 	-- server since the 01:00 UTC restart. Rift Run (on 01:02), easier touch catches (#4300, #4310, #4316), the Town
 	-- Square update poster (#4371), Smooth mode (#4322), the painted sky (#4297), the Cat Arcade

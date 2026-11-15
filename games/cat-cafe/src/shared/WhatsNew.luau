@@ -66,6 +66,20 @@ WhatsNew.rows = table.freeze({
 		text = "30 new cats to catch",
 	},
 	{
+		id = "ticket_booth",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "new",
+		text = "Ticket Booth prizes",
+	},
+	{
+		id = "dragon_keep",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "new",
+		text = "Raise a dragon: Dragon Keep",
+	},
+	{
 		id = "code_update5",
 		date = "2026-11-15",
 		startsAt = UPDATE_20_00,

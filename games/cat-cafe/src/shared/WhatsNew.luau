@@ -30,6 +30,50 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- 3 New Worlds update (Growth-Agent launch pack, Sun 2026-11-15 20:00 UTC): in the last publish before the restart,
+	-- so every server has them as the worlds open. Tier 8 to 10 gates stay as they are (Derek 2026-11-14 14:55 UTC).
+	{
+		id = "snowy_mountain",
+		date = "2026-11-15",
+		icon = "new",
+		text = "Snowy Mountain opens (T8)",
+	},
+	{
+		id = "water_park",
+		date = "2026-11-15",
+		icon = "new",
+		text = "Water Park opens (Tier 9)",
+	},
+	{
+		id = "medieval_castle",
+		date = "2026-11-15",
+		icon = "new",
+		text = "Medieval Castle opens (T10)",
+	},
+	{
+		id = "new_cats_30",
+		date = "2026-11-15",
+		icon = "cat",
+		text = "30 new cats to catch",
+	},
+	{
+		id = "ticket_booth",
+		date = "2026-11-15",
+		icon = "new",
+		text = "Ticket Booth prizes",
+	},
+	{
+		id = "dragon_keep",
+		date = "2026-11-15",
+		icon = "new",
+		text = "Raise a dragon: Dragon Keep",
+	},
+	{
+		id = "code_update5",
+		date = "2026-11-15",
+		icon = "new",
+		text = "New code: UPDATE5",
+	},
 	-- #2718 refresh (Growth-Agent 2026-11-15 09:45 UTC, about 240 merges since the 17:44 UTC rows): live on every
 	-- server since the 01:00 UTC restart. Rift Run (on 01:02), easier touch catches (#4300, #4310, #4316), the Town
 	-- Square update poster (#4371), Smooth mode (#4322), the painted sky (#4297), the Cat Arcade

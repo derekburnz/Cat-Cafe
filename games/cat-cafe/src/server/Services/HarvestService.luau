@@ -7,7 +7,7 @@
 --   The Pumpkin Patch: every BasePart (or Model) tagged HarvestPumpkin is a pickup shared by the whole server. A
 --     player who touches a ready one gets +1 and it regrows after HarvestSave.regrowSeconds (45 s with 6 or more
 --     players near it, else 90 s). Attributes for the client: Ready (boolean) and RegrowAt (os.time).
---   Touches count only with the player's root within TOUCH_STUDS (plus half the part's size) of the spot.
+--   Touches count only with the player's root within TOUCH_STUDS (plus half the part's or model's size) of the spot.
 --   The arrival: touching a part tagged HarvestArrival gives the first visit of the UTC day +10.
 --   HarvestService.caught(player, rarity): pumpkins for a harvest cat caught and marks the player as a Feast Pie
 --     helper (wired once the harvest cats are in the Catalog).
@@ -150,6 +150,8 @@ local function standsAt(player: Player, instance: Instance): boolean
 	local reach = HarvestService.TOUCH_STUDS
 	if instance:IsA("BasePart") then
 		reach += (instance :: BasePart).Size.Magnitude / 2
+	elseif instance:IsA("Model") then
+		reach += (instance :: Model):GetExtentsSize().Magnitude / 2 -- a wide arrival mat or gate (Review-QA)
 	end
 	return (root.Position - at).Magnitude <= reach
 end

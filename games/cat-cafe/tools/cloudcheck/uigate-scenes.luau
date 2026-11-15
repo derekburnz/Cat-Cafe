@@ -5433,6 +5433,31 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local line = window:FindFirstChild("Line", true) :: TextLabel
 		assert(line.Text == "You won +200 golden fish!", "uigate: the Admin Wheel's line after a spin: " .. line.Text .. " (#4195)")
 	end },
+	-- #4224 audit gap 3: on a controller the Admin Wheel opens on Spin!, not on its X or an odds row
+	{ "GamepadAdminWheel", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local GuiService = game:GetService("GuiService")
+		Scenes._padReset = function()
+			ReplicatedStorage:SetAttribute("LiveFlag_padControls", nil)
+			UIShim.setLastInput(nil)
+			GuiService.SelectedObject = nil
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", true)
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		Scenes._admin = true
+		local t = workspace:GetServerTimeNow()
+		local info = adminInfo(t - 60)
+		UI.admin.set(info, { eventId = info.id, spun = false, endsAt = info.endsAt })
+		UI.admin.open()
+		UIShim.advance(0.4)
+		local window = UIShim.playerGui:FindFirstChild("AdminWheel", true) :: GuiObject
+		local spin = window:FindFirstChild("Spin", true) :: GuiObject
+		local selected = GuiService.SelectedObject
+		assert(
+			selected ~= nil and (selected == spin or selected:IsDescendantOf(spin)),
+			"uigate: the Admin Wheel opened on a controller selecting " .. (if selected then selected:GetFullName() else "nothing") .. ", not Spin! (#4224)"
+		)
+	end },
 	{ "Spin", function()
 		UI.spin.open()
 	end },

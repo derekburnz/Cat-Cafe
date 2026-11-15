@@ -589,10 +589,14 @@ function Codes._refresh(self: any)
 	)
 	local ready = not self._pending and not self:_resting() and lock == nil
 	self._redeem:setEnabled(ready and CodeEntry.canRedeem(self._box.Text))
-	if lock ~= nil then
+	-- Review-QA: in the Store the gold hint strip says it in place of "Check the game description for codes", which
+	-- would still invite a try; elsewhere the answer line does
+	local hint: TextLabel = self._hint
+	hint.Text = lock or HINT_LINE
+	if lock ~= nil and not hint.Visible then
 		self._locked = true
 		self:_setAnswer(false, lock, nil)
-	elseif self._locked then
+	elseif self._locked and (lock == nil or hint.Visible) then
 		self._locked = false
 		self:_setAnswer(nil, nil, nil)
 	end
@@ -677,6 +681,7 @@ function Codes.mount(self: any, parent: Instance?)
 	self._hint.Visible = mounted
 	self._usedTitle.Visible = mounted
 	self._used.Visible = mounted
+	self:_refresh() -- #4655: the Tier 2 line moves between the hint strip and the answer line
 end
 
 function Codes.destroy(self: any)

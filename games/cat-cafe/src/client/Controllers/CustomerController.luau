@@ -6,7 +6,8 @@
 -- chair's row (the chair's Aisle and Approach attributes), and leaves the same way, so it never cuts through a table. Coin text pops only over this player's own cafe. The cafe closes at night (v0.5 F44):
 -- no customers come, and at nightfall the ones inside skip the rest of their visit and walk out.
 -- A rich customer (F31, data-model section 12; #3360) comes to any nearby cafe at each money bag drop (the plot's
--- RichVisitAt), sits at table 1 for RichCustomerSitSeconds and leaves; each waiting bag (RichBags/<id>) shows as a
+-- RichVisitAt), sits at the RichTable (table 1 unless rare customers come by chance, #3889) for
+-- RichCustomerSitSeconds and leaves; each waiting bag (RichBags/<id>) shows as a
 -- gold coin pile beside the RichTipAnchor until it is paid or missed.
 -- The server decides the tip; this is only what the street sees.
 -- Six everyday looks, A to F, and the rich customer each have a seated twin `<asset>_Sit` (Model-Agent #546) whose
@@ -495,10 +496,14 @@ local function tipAnchor(plot: Model): BasePart?
 	return if anchor ~= nil and anchor:IsA("BasePart") then anchor :: BasePart else nil
 end
 
--- A free chair at table 1, the table under the coin pile.
+-- A free chair at the plot's RichTable (#3889: any open table once rare customers come by chance; table 1 before),
+-- the table under the money bag.
 local function richSeat(plot: Model): (BasePart?, BasePart?)
 	local tables = plot:FindFirstChild("Tables")
-	local group = if tables ~= nil then tables:FindFirstChild("table_1") else nil
+	local index = plot:GetAttribute("RichTable")
+	local name = "table_"
+		.. tostring(if type(index) == "number" and index >= 1 then math.floor(index) else 1)
+	local group = if tables ~= nil then tables:FindFirstChild(name) else nil
 	if group == nil then
 		return nil, nil
 	end

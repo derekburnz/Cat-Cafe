@@ -294,6 +294,9 @@ Theme.areaPictures = {
 	sewer = "rbxassetid://139316344682802", -- the THE SEWER sign
 	desert = "rbxassetid://78191788809166", -- the sunstone pyramid (#2666 render; dormant until the Desert opens)
 	ruins = "rbxassetid://76447908818587", -- the Golem Courtyard and its cat-head throne (Ruins set render; dormant until the Ruins open)
+	snowy = "rbxassetid://78221826396063", -- #4364: the Snowy Mountain gate and lodge
+	waterpark = "rbxassetid://99110201209726", -- #4364: the Water Park lazy river and wave pool
+	castle = "rbxassetid://101068487529770", -- #4364: the Medieval Castle gate and keep
 } :: { [string]: string }
 
 -- Fonts. Fredoka One for numbers and titles, Nunito for everything else (both ship with Roblox).
@@ -430,6 +433,7 @@ Theme.potionColors = {
 	big_lucky_potion = Color3.fromHex("3FB65C"),
 	big_gold_rush_potion = Color3.fromHex("FFD24D"),
 	mega_tip_potion = Color3.fromHex("F2932B"),
+	admin_money_potion = Color3.fromHex("F2932B"), -- #4195: the Admin Wheel's 3x money, as Mega Money until it has its own
 } :: { [string]: Color3 }
 
 -- A glyph per food for shop rows until the asset thread's item model is in ReplicatedStorage.Assets

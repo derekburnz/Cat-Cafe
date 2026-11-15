@@ -4,6 +4,8 @@
 -- on a touch screen the client shows the glow and the Net button from SHARE times the swing's reach, and a press
 -- there walks the character the last steps and swings once the stray is truly in reach. Pure rules, no instances:
 -- Controllers/NetSwingController drives them, behind the live switch `touchCatchReach` (off by default).
+-- #4299: the one exception, behind the same switch: the server widens a reported phone or tablet's catch bands
+-- (Circles.touchScale). A spoofed report gets only those 1.3x bands, the same as a real phone (see the PR).
 --   FLAG, SHARE, WALK_SECONDS, FOLLOW_SECONDS, TELEMETRY
 --   reach(extra?)                     how far the touch glow and button reach, in studs
 --   pick(origin, targets, extra?)     the nearest target inside that reach, or nil

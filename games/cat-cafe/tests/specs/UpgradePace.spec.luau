@@ -13,8 +13,11 @@ return function()
 			expect(Config.StartTables).to.equal(1)
 			expect(UpgradePace.bought({ tables = 1 })).to.equal(0)
 			expect(UpgradePace.bought({ tables = 2 })).to.equal(1)
-			expect(UpgradePace.bought({ tables = 2, lure_bowl = 1 })).to.equal(2)
-			expect(UpgradePace.bought({ tables = 1, lure_bowl = 1 })).to.equal(1)
+			-- #4097: and Config.StartBowls Bait bowls
+			expect(Config.StartBowls).to.equal(1)
+			expect(UpgradePace.bought({ tables = 2, lure_bowl = 1 })).to.equal(1)
+			expect(UpgradePace.bought({ tables = 1, lure_bowl = 1 })).to.equal(0)
+			expect(UpgradePace.bought({ tables = 1, lure_bowl = 2 })).to.equal(1)
 			-- Espresso starts at level 1, so its level 1 is no buy and its level 2 is one
 			expect((Catalog.getUpgrade("espresso") :: any).startLevel).to.equal(1)
 			expect(UpgradePace.bought({ espresso = 1 })).to.equal(0)

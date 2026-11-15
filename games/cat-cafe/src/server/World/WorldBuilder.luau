@@ -194,6 +194,24 @@ local AREA_LOOKS: { [string]: AreaLook } = {
 		floorMaterial = Enum.Material.Ground,
 		wall = Color3.fromRGB(150, 145, 135),
 	},
+	-- #3997: snow under the Snowy set, grey rock at its edges
+	snowy = {
+		floor = Color3.fromRGB(236, 242, 248),
+		floorMaterial = Enum.Material.Snow,
+		wall = Color3.fromRGB(150, 156, 166),
+	},
+	-- #4070: painted asphalt under the Water Park set, cut hedge green at its edges (no grass ground)
+	waterpark = {
+		floor = Color3.fromRGB(120, 128, 140),
+		floorMaterial = Enum.Material.Asphalt,
+		wall = Color3.fromRGB(70, 130, 85),
+	},
+	-- #4184: packed earth under the Castle set, grey curtain wall stone at its edges (no grass ground)
+	castle = {
+		floor = Color3.fromRGB(150, 125, 95),
+		floorMaterial = Enum.Material.Ground,
+		wall = Color3.fromRGB(140, 140, 148),
+	},
 }
 
 local function part(
@@ -903,7 +921,8 @@ local function buildPlot(index: number, parent: Instance): Plot
 		spot:SetAttribute("Tier", def.tier)
 		spots[def.id] = spot
 		local furniturePoint = Layout.plot.spotFurniture[def.id]
-		local assetName = Catalog.spotFurniture[def.spotType]
+		-- #4184: a slot's own furniture first (the wall perches), then its role's
+		local assetName = Catalog.spotFurnitureById[def.id] or Catalog.spotFurniture[def.spotType]
 		if furniturePoint ~= nil and assetName ~= nil then
 			local furniture = place(assetName, localCFrame(cframe, furniturePoint), furnitureFolder)
 			furniture.Name = def.id
@@ -1208,7 +1227,7 @@ end
 -- emptied at night by the sweep, so the fence along the back alleys' inner edges went with them.
 local function buildNightFences(gates: { [string]: Model }, plots: { Plot }, parent: Instance)
 	for areaId, gate in gates do
-		local asset = "CatCafe_" .. areaId:sub(1, 1):upper() .. areaId:sub(2) .. "_NightFence"
+		local asset = "CatCafe_" .. Catalog.areaArt(areaId) .. "_NightFence"
 		if AssetRegistry.has(asset .. artSuffix(areaId)) then
 			asset ..= artSuffix(areaId) -- a long area's own fence; the Woods' and Sewer's v3.2 ones fit already
 		end
@@ -1244,7 +1263,7 @@ local function campArtName(areaId: string): string
 	if areaId == "alley" then
 		return "Alleyway"
 	end
-	return areaId:sub(1, 1):upper() .. areaId:sub(2)
+	return Catalog.areaArt(areaId) -- #4070: WaterPark
 end
 
 local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
@@ -1810,7 +1829,7 @@ local function buildGate(
 	turn: number,
 	parent: Instance
 ): Model
-	local pascal = def.id:sub(1, 1):upper() .. def.id:sub(2)
+	local pascal = Catalog.areaArt(def.id)
 	local asset = "CatCafe_" .. pascal .. "_Gate" .. artSuffix(def.id)
 	if not AssetRegistry.known(asset) then
 		asset = "CatCafe_" .. pascal .. "_Gate" -- a long area's gate before its art is in: the placeholder
@@ -1829,7 +1848,7 @@ end
 -- never arrives without its board. Skipped while an asset is missing.
 local function buildIndexBoards(parent: Instance)
 	for areaId, at in Layout.indexBoards do
-		local pascal = areaId:sub(1, 1):upper() .. areaId:sub(2)
+		local pascal = Catalog.areaArt(areaId)
 		local asset = "CatCafe_" .. pascal .. "_IndexBoard"
 		local hosts: { CFrame } = {}
 		local camp = Layout.camps[areaId]
@@ -2514,6 +2533,8 @@ local RALLY_TWINS: { [string]: string } = {
 local RALLY_BOARD_TAG = "RallyBoard"
 -- #1753: the pity cat's sign (Layout.townSquare.pitySign), tagged for the client's countdown on its Screen part.
 local PITY_SIGN_TAG = "PitySign"
+-- #4362: the update poster (Layout.townSquare.updatePoster), tagged for the client's face on its Screen part.
+local UPDATE_POSTER_TAG = "UpdatePoster"
 
 type RallySwap = { plain: Instance?, rally: Instance, home: Instance }
 
@@ -2651,6 +2672,17 @@ local function buildTownSquare(parent: Instance)
 		)
 		model.Name = sign.asset
 		CollectionService:AddTag(model, PITY_SIGN_TAG)
+	end
+	local poster = spec.updatePoster
+	if AssetRegistry.known(poster.asset) then
+		local model = place(
+			poster.asset,
+			CFrame.new(poster.x, poster.y or 0.1, poster.z)
+				* CFrame.Angles(0, math.rad(poster.rotY or 0), 0),
+			square
+		)
+		model.Name = poster.asset
+		CollectionService:AddTag(model, UPDATE_POSTER_TAG)
 	end
 end
 

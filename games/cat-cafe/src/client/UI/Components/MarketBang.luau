@@ -149,9 +149,22 @@ function MarketBang.build(parent: Instance, name: string?): Bang
 		TextColor3 = Theme.colors.white,
 		Text = "",
 		Parent = card,
+	}, {
+		-- #4328: never scaled down to nothing while the billboard has no size yet (no Adornee)
+		Create("UITextSizeConstraint", { MinTextSize = 8, MaxTextSize = 100 }),
 	})
 	Outline.text(line, 1.5)
 	return { gui = gui, line = line, bob = nil }
+end
+
+-- #4328: sets a label's text again so a TextScaled label measured while its billboard had no size is laid out anew.
+function MarketBang.relayout(line: TextLabel, words: string)
+	line.Text = ""
+	task.defer(function()
+		if line.Parent ~= nil and line.Text == "" then
+			line.Text = words
+		end
+	end)
 end
 
 function MarketBang.new(parent: Instance, options: Options?): MarketBang
@@ -242,9 +255,14 @@ function MarketBang._apply(self: any)
 				gui.StudsOffsetWorldSpace = lift
 			end
 			local on = anchor ~= nil
+			local was = gui.Enabled
 			gui.Enabled = on
 			if words ~= nil and bang.line.Text ~= words then
 				bang.line.Text = words
+			elseif on and not was and words ~= nil then
+				-- #4328 (Derek 2026-11-14: "sometimes banner text above fish market goes blank"): a billboard that
+				-- comes back (its stall streamed in again) lays its scaled text out afresh
+				MarketBang.relayout(bang.line, words)
 			end
 			if not on then
 				self:_still(bang)

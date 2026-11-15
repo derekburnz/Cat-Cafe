@@ -160,6 +160,34 @@ function OwnerTestService.eventCommand(userId: number, text: string): string?
 	return "Owner test mode: " .. line
 end
 
+-- #4195: `/admin <kind> [minutes] [now]` or `/admin stop` from `userId` (OwnerTest.adminAsk). As `/event`: in
+-- Studio or a private server the admin event runs in that server only (EventService.startAdminTest); in a live
+-- public server an owner's goes into the schedule for every server (EventService.ownerAdmin), beside a Cafe Party
+-- if one runs. From anyone else it is dropped with a line in the output.
+function OwnerTestService.adminCommand(userId: number, text: string): string?
+	if not ownerId(userId) and not RunService:IsStudio() then
+		warn(`[OwnerTest] /admin from {userId}, who is not an owner: dropped`)
+		return nil
+	end
+	local ask = OwnerTest.adminAsk(text)
+	if testPlace() then
+		local line = EventService.startAdminTest(ask.kind, ask.minutes, ask.now)
+		print(`[OwnerTest] {userId} /admin {ask.kind}: {line}`)
+		return "Owner test mode: " .. line
+	end
+	local line: string, changed: boolean
+	if ask.stop then
+		line, changed = EventService.ownerAdminStop()
+	else
+		line, changed = EventService.ownerAdmin(ask.kind, ask.minutes, ask.now)
+	end
+	print(`[OwnerTest] {userId} /admin {ask.kind} (live): {line}`)
+	if changed then
+		tellServers(OwnerTest.eventMessage(game.JobId))
+	end
+	return "Owner test mode: " .. line
+end
+
 local lastShoutAt: number? = nil
 
 -- #3212 (Derek2 2026-11-11: "add a command to /shout "msg" across all servers so I can tell people in all servers
@@ -217,6 +245,8 @@ local function answer(player: Player?, userId: number, text: string)
 	local reply: string? = nil
 	if OwnerTest.isShoutCommand(text) then
 		reply = OwnerTestService.shoutCommand(userId, text)
+	elseif OwnerTest.isAdminCommand(text) then
+		reply = OwnerTestService.adminCommand(userId, text)
 	else
 		reply = OwnerTestService.eventCommand(userId, text)
 	end
@@ -265,8 +295,11 @@ end
 -- With TextChatService chat, a TextChatCommand: the message never reaches the channel. With the legacy chat (the dev
 -- copy's setting, Laptop-Tester 2026-11-08) TextChatCommands never fire, so the legacy ChatService and Player.Chatted
 -- read it instead (whichever comes first answers; the other is a repeat).
-local COMMANDS: { [string]: string } =
-	{ OwnerTestEventCommand = "/event", OwnerTestShoutCommand = "/shout" }
+local COMMANDS: { [string]: string } = {
+	OwnerTestEventCommand = "/event",
+	OwnerTestShoutCommand = "/shout",
+	OwnerTestAdminCommand = "/admin", -- #4195
+}
 
 local function eventCommand()
 	if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then

@@ -152,10 +152,12 @@ export type Moment = { duskWarning: boolean, night: boolean }
 function Tips.due(profile: Types.PlayerProfile, moment: Moment): { string }
 	local tier = Economy.tier(profile)
 	local now: { [string]: boolean } = {
-		-- Derek's example: food and a bowl, and nothing in the bowl
-		bowl = Economy.level(profile, "lure_bowl") >= 1 and profile.bait == nil and anyCount(
-			profile.lures
-		),
+		-- Derek's example: food and a bowl, and nothing in the bowl. New saves start with a bowl and a Kibble
+		-- (Config.StartBowls, #4125) and the tutorial's bowl step teaches it, so the cut waits until that step is past.
+		bowl = profile.tutorialStep >= 5
+			and Economy.level(profile, "lure_bowl") >= 1
+			and profile.bait == nil
+			and anyCount(profile.lures),
 		night = moment.duskWarning,
 		rank_up = tier == 1 and Economy.rankUpBlocker(profile) == nil,
 		golden_fish = profile.goldenFish > 0,

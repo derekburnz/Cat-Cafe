@@ -1793,7 +1793,8 @@ function FishMarket._short(self: any, crate: Types.CrateDef?, price: number?): b
 	return math.floor(state.goldenFish or 0) < price
 end
 
--- #1818: a press without enough fish shows "Need N more" on that button for SHORT_FLASH_SECONDS, then its price.
+-- #1818: a press without enough fish shows "Need N more" on that button for SHORT_FLASH_SECONDS, then its price
+-- (#4274: on a grey face, not blue).
 function FishMarket._flash(self: any, flash: { [string]: number }, key: string)
 	local untilAt = os.clock() + SHORT_FLASH_SECONDS
 	flash[key] = untilAt
@@ -1958,7 +1959,9 @@ function FishMarket._refresh(self: any)
 					elseif MenuFamily.on() then ("BUY 1 · %s"):format(Format.short(price))
 					else ("Buy 1x · %s"):format(Format.short(price))
 			)
-			entry.open:setStyle(if flashing then "secondary" else "gold")
+			-- #4274 (Derek 2026-11-14: "if you click one you cant afford make it turn gray and not blue"): the "Need N
+			-- more" flash is grey
+			entry.open:setStyle(if flashing then "slate" else "gold")
 			entry.open:setEnabled(not pending)
 		end
 		-- Buy 5: a crate sold at the Market (not golden) whose zone is open
@@ -1986,7 +1989,7 @@ function FishMarket._refresh(self: any)
 						Format.short(bundlePrice)
 					)
 			)
-			entry.bundle:setStyle(if flashing then "secondary" else "gold")
+			entry.bundle:setStyle(if flashing then "slate" else "gold") -- #4274: grey, as Open
 			entry.bundle:setEnabled(not waiting)
 		end
 		local luck = if state.crateLuck then state.crateLuck[crate.area] else nil

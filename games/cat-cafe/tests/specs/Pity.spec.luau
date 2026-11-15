@@ -6,6 +6,7 @@ return function()
 	local Catalog = require(Shared.Catalog)
 	local Clock = require(Shared.Clock)
 	local Config = require(Shared.Config)
+	local LateTiers = require(Shared.LateTiers)
 	local Pity = require(Shared.Pity)
 
 	local every = Config.PityLegendarySeconds
@@ -91,6 +92,7 @@ return function()
 		)
 
 		it("lands on the areas within 1 point of the weights over 10,000 slots (QA 3)", function()
+			LateTiers.setOpen(true) -- #3997: every area, the Snowy Mountain too
 			local total = 0
 			for _, weight in Config.PityAreaWeights do
 				total += weight
@@ -106,16 +108,35 @@ return function()
 				local share = 100 * (counts[areaId] or 0) / n
 				expect(math.abs(share - 100 * weight / total) <= 1).to.equal(true)
 			end
+			LateTiers.setOpen(nil)
 		end)
 
 		it("maps a roll onto the weights in area order", function()
-			-- weights 10, 15, 20, 25, 30, 35 and 40 (#2651), 175 in all
-			expect(Pity.areaFor(0)).to.equal("alley")
-			expect(Pity.areaFor(9.9 / 175)).to.equal("alley")
-			expect(Pity.areaFor(10.1 / 175)).to.equal("park")
-			expect(Pity.areaFor(134.9 / 175)).to.equal("desert")
+			-- weights 10, 15, 20, 25, 30, 35 and 40 (#2651), 175 in all while the tier8 switch is off (#3997)
+			LateTiers.setOpen(false)
 			expect(Pity.areaFor(135.1 / 175)).to.equal("ruins")
 			expect(Pity.areaFor(0.999)).to.equal("ruins")
+			-- and the Snowy Mountain's 45 on top once it is on, 220 in all (the Water Park's tier9 still off, #4070)
+			LateTiers.setOpen(8)
+			expect(Pity.areaFor(0)).to.equal("alley")
+			expect(Pity.areaFor(9.9 / 220)).to.equal("alley")
+			expect(Pity.areaFor(10.1 / 220)).to.equal("park")
+			expect(Pity.areaFor(134.9 / 220)).to.equal("desert")
+			expect(Pity.areaFor(135.1 / 220)).to.equal("ruins")
+			expect(Pity.areaFor(174.9 / 220)).to.equal("ruins")
+			expect(Pity.areaFor(175.1 / 220)).to.equal("snowy")
+			expect(Pity.areaFor(0.999)).to.equal("snowy")
+			-- and the Water Park's 50 with both on, 270 in all (the Castle's tier10 still off, #4184)
+			LateTiers.setOpen(9)
+			expect(Pity.areaFor(219.9 / 270)).to.equal("snowy")
+			expect(Pity.areaFor(220.1 / 270)).to.equal("waterpark")
+			expect(Pity.areaFor(0.999)).to.equal("waterpark")
+			-- and the Medieval Castle's 55 with all three on, 325 in all
+			LateTiers.setOpen(true)
+			expect(Pity.areaFor(269.9 / 325)).to.equal("waterpark")
+			expect(Pity.areaFor(270.1 / 325)).to.equal("castle")
+			expect(Pity.areaFor(0.999)).to.equal("castle")
+			LateTiers.setOpen(nil)
 		end)
 	end)
 

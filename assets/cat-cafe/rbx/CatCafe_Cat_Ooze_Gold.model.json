@@ -1,0 +1,6703 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/0",
+  "PartBuilt": true,
+  "Scale": {
+   "Float64": 1.0
+  },
+  "PropSlot": "Head",
+  "PropSlot2": "Back"
+ },
+ "children": [
+  {
+   "name": "CatCafe_Cat_Ooze_Gold_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.62,
+       0.1098
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.78,
+     0.58,
+     0.9295
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.62,
+       -0.1098
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Cat_Ooze_Gold/0"
+   },
+   "children": [
+    {
+     "name": "Outfit_Cape",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.27,
+         -0.1698
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cat_Ooze_Gold_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.62,
+       0.16
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.81,
+     0.61,
+     0.285
+    ],
+    "Color": [
+     0.7882,
+     0.5608,
+     0.1647
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Ooze_Gold_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.62,
+       0.4335
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.82,
+     0.62,
+     0.342
+    ],
+    "Color": [
+     0.7882,
+     0.5608,
+     0.1647
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/1"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.17,
+         -0.531
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       0.84,
+       0.778
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.32,
+         0.231
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Ooze_Gold/1"
+     },
+     "children": [
+      {
+       "name": "Carry",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.68,
+           0.011
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_BaristaCap",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.41,
+           -0.049
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Boater",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.41,
+           -0.049
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_PartyHat",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.41,
+           -0.049
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_BowTie",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.47,
+           -0.269
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Hat",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.42,
+           0.011
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_LeafBeret",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.42,
+           0.011
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_AcornHairClip",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.42,
+           0.011
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_MushroomCap",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.42,
+           0.011
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_LeafCrown",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.42,
+           0.011
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Glasses",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.06,
+           -0.439
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_ReadingGlasses",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.06,
+           -0.439
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.17,
+         -0.28
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.03,
+       0.87,
+       0.336
+      ],
+      "Color": [
+       0.7882,
+       0.5608,
+       0.1647
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.9835,
+         -0.945
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.115,
+       0.0805,
+       0.06
+      ],
+      "Color": [
+       0.2902,
+       0.2667,
+       0.3137
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.9138,
+         -0.925
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.028,
+       0.079,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0288,
+         0.8628,
+         -0.928
+        ],
+        "orientation": [
+         [
+          0.866,
+          0.5,
+          0.0
+         ],
+         [
+          -0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0575,
+       0.028,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0978,
+         0.8628,
+         -0.925
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0575,
+       0.028,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0288,
+         0.8628,
+         -0.928
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0575,
+       0.028,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0978,
+         0.8628,
+         -0.925
+        ],
+        "orientation": [
+         [
+          0.866,
+          0.5,
+          0.0
+         ],
+         [
+          -0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0575,
+       0.028,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4255,
+         0.949,
+         -0.92
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.138,
+       0.0575,
+       0.05
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4255,
+         0.949,
+         -0.92
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.138,
+       0.0575,
+       0.05
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/2"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.253,
+           1.11,
+           -0.93
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.253,
+         0.3289,
+         0.07
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Ooze_Gold/2"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1961,
+           1.2021,
+           -0.975
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0759,
+         0.0886,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.253,
+         1.11,
+         -0.93
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Ooze_Gold_Eye1"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/3"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.253,
+           1.11,
+           -0.93
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.253,
+         0.3289,
+         0.07
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Ooze_Gold/3"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3099,
+           1.2021,
+           -0.975
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0759,
+         0.0886,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.253,
+         1.11,
+         -0.93
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Ooze_Gold_Eye2"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/4"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2792,
+           1.6122,
+           -0.46
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2667,
+         0.1,
+         0.2667
+        ],
+        "Color": [
+         0.7882,
+         0.5608,
+         0.1647
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.0312,
+           -0.0467,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Ooze_Gold/4"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3,
+           1.71,
+           -0.46
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.16,
+         0.1,
+         0.16
+        ],
+        "Color": [
+         0.7882,
+         0.5608,
+         0.1647
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3208,
+           1.8078,
+           -0.46
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0533,
+         0.1,
+         0.0533
+        ],
+        "Color": [
+         0.7882,
+         0.5608,
+         0.1647
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3187,
+           1.65,
+           -0.5752
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1152,
+         0.114,
+         0.03
+        ],
+        "Color": [
+         0.8784,
+         0.4784,
+         0.549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.3,
+         1.56,
+         -0.46
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Ooze_Gold_EarL"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/5"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2792,
+           1.6122,
+           -0.46
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2667,
+         0.1,
+         0.2667
+        ],
+        "Color": [
+         0.7882,
+         0.5608,
+         0.1647
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0312,
+           -0.0467,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Ooze_Gold/5"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3,
+           1.71,
+           -0.46
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.16,
+         0.1,
+         0.16
+        ],
+        "Color": [
+         0.7882,
+         0.5608,
+         0.1647
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3208,
+           1.8078,
+           -0.46
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0533,
+         0.1,
+         0.0533
+        ],
+        "Color": [
+         0.7882,
+         0.5608,
+         0.1647
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3187,
+           1.65,
+           -0.5752
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1152,
+         0.114,
+         0.03
+        ],
+        "Color": [
+         0.8784,
+         0.4784,
+         0.549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.3,
+         1.56,
+         -0.46
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Ooze_Gold_EarR"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/11"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.628,
+           -0.52
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         1.087,
+         0.0978,
+         0.887
+        ],
+        "Color": [
+         0.4078,
+         0.7686,
+         0.3608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.778,
+           0.22
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Ooze_Gold/11",
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3913,
+           1.4596,
+           -0.958
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1196,
+         0.3261,
+         0.0543
+        ],
+        "Color": [
+         0.4078,
+         0.7686,
+         0.3608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2174,
+           1.5465,
+           -0.958
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1196,
+         0.1522,
+         0.0543
+        ],
+        "Color": [
+         0.4078,
+         0.7686,
+         0.3608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0217,
+           1.503,
+           -0.958
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1196,
+         0.2391,
+         0.0543
+        ],
+        "Color": [
+         0.4078,
+         0.7686,
+         0.3608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1848,
+           1.5683,
+           -0.958
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1196,
+         0.1087,
+         0.0543
+        ],
+        "Color": [
+         0.4078,
+         0.7686,
+         0.3608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3696,
+           1.427,
+           -0.958
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1196,
+         0.3913,
+         0.0543
+        ],
+        "Color": [
+         0.4078,
+         0.7686,
+         0.3608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.538,
+           1.4813,
+           -0.683
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0543,
+         0.2826,
+         0.1196
+        ],
+        "Color": [
+         0.4078,
+         0.7686,
+         0.3608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.538,
+           1.4052,
+           -0.3678
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0543,
+         0.4348,
+         0.1196
+        ],
+        "Color": [
+         0.4078,
+         0.7686,
+         0.3608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.538,
+           1.4378,
+           -0.5743
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0543,
+         0.3696,
+         0.1196
+        ],
+        "Color": [
+         0.4078,
+         0.7686,
+         0.3608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.538,
+           1.5248,
+           -0.3026
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0543,
+         0.1957,
+         0.1196
+        ],
+        "Color": [
+         0.4078,
+         0.7686,
+         0.3608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1757,
+           1.6987,
+           -0.4629
+          ],
+          "orientation": [
+           [
+            0.9511,
+            0.0,
+            0.309
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.309,
+            0.0,
+            0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0652,
+         0.0652,
+         0.1451
+        ],
+        "Color": [
+         0.1804,
+         0.6196,
+         0.4196
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1086,
+           1.6987,
+           -0.3705
+          ],
+          "orientation": [
+           [
+            0.5878,
+            0.0,
+            0.809
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.809,
+            0.0,
+            0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0652,
+         0.0652,
+         0.1451
+        ],
+        "Color": [
+         0.1804,
+         0.6196,
+         0.4196
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.6987,
+           -0.3352
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0652,
+         0.0652,
+         0.1451
+        ],
+        "Color": [
+         0.1804,
+         0.6196,
+         0.4196
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1086,
+           1.6987,
+           -0.3705
+          ],
+          "orientation": [
+           [
+            -0.5878,
+            0.0,
+            0.809
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.809,
+            0.0,
+            -0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0652,
+         0.0652,
+         0.1451
+        ],
+        "Color": [
+         0.1804,
+         0.6196,
+         0.4196
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1757,
+           1.6987,
+           -0.4629
+          ],
+          "orientation": [
+           [
+            -0.9511,
+            0.0,
+            0.309
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.309,
+            0.0,
+            -0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0652,
+         0.0652,
+         0.1451
+        ],
+        "Color": [
+         0.1804,
+         0.6196,
+         0.4196
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1757,
+           1.6987,
+           -0.5771
+          ],
+          "orientation": [
+           [
+            -0.9511,
+            0.0,
+            -0.309
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.309,
+            0.0,
+            -0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0652,
+         0.0652,
+         0.1451
+        ],
+        "Color": [
+         0.1804,
+         0.6196,
+         0.4196
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1086,
+           1.6987,
+           -0.6695
+          ],
+          "orientation": [
+           [
+            -0.5878,
+            0.0,
+            -0.809
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.809,
+            0.0,
+            -0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0652,
+         0.0652,
+         0.1451
+        ],
+        "Color": [
+         0.1804,
+         0.6196,
+         0.4196
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.6987,
+           -0.7048
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0652,
+         0.0652,
+         0.1451
+        ],
+        "Color": [
+         0.1804,
+         0.6196,
+         0.4196
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1086,
+           1.6987,
+           -0.6695
+          ],
+          "orientation": [
+           [
+            0.5878,
+            0.0,
+            -0.809
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.809,
+            0.0,
+            0.5878
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0652,
+         0.0652,
+         0.1451
+        ],
+        "Color": [
+         0.1804,
+         0.6196,
+         0.4196
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1757,
+           1.6987,
+           -0.5771
+          ],
+          "orientation": [
+           [
+            0.9511,
+            0.0,
+            -0.309
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.309,
+            0.0,
+            0.9511
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0652,
+         0.0652,
+         0.1451
+        ],
+        "Color": [
+         0.1804,
+         0.6196,
+         0.4196
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/12"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.087,
+             2.2639,
+             -0.3026
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1848,
+           0.1848,
+           0.1848
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Ball",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.087,
+             -0.5652,
+             -0.2174
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Cat_Ooze_Gold/12",
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.3913,
+             1.2748,
+             -0.958
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1413,
+           0.1413,
+           0.1413
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Ball"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.2174,
+             1.4487,
+             -0.958
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1413,
+           0.1413,
+           0.1413
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Ball"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0217,
+             1.3617,
+             -0.958
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1413,
+           0.1413,
+           0.1413
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Ball"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.1848,
+             1.4922,
+             -0.958
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1413,
+           0.1413,
+           0.1413
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Ball"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.3696,
+             1.2096,
+             -0.958
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1413,
+           0.1413,
+           0.1413
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Ball"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.538,
+             1.3183,
+             -0.683
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1413,
+           0.1413,
+           0.1413
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Ball"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.538,
+             1.1661,
+             -0.3678
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1413,
+           0.1413,
+           0.1413
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Ball"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.538,
+             1.2313,
+             -0.5743
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1413,
+           0.1413,
+           0.1413
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Ball"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.538,
+             1.4052,
+             -0.3026
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1413,
+           0.1413,
+           0.1413
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Ball"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.1757,
+             1.7168,
+             -0.4629
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0996,
+           0.0797,
+           0.0996
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.1757,
+             1.7965,
+             -0.4629
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0598,
+           0.0797,
+           0.0598
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.1757,
+             1.8762,
+             -0.4629
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0199,
+           0.0797,
+           0.0199
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.7168,
+             -0.3352
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0996,
+           0.0797,
+           0.0996
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.7965,
+             -0.3352
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0598,
+           0.0797,
+           0.0598
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.8762,
+             -0.3352
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0199,
+           0.0797,
+           0.0199
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.1757,
+             1.7168,
+             -0.4629
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0996,
+           0.0797,
+           0.0996
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.1757,
+             1.7965,
+             -0.4629
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0598,
+           0.0797,
+           0.0598
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.1757,
+             1.8762,
+             -0.4629
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0199,
+           0.0797,
+           0.0199
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.1086,
+             1.7168,
+             -0.6695
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0996,
+           0.0797,
+           0.0996
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.1086,
+             1.7965,
+             -0.6695
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0598,
+           0.0797,
+           0.0598
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.1086,
+             1.8762,
+             -0.6695
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0199,
+           0.0797,
+           0.0199
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.1086,
+             1.7168,
+             -0.6695
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0996,
+           0.0797,
+           0.0996
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.1086,
+             1.7965,
+             -0.6695
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0598,
+           0.0797,
+           0.0598
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.1086,
+             1.8762,
+             -0.6695
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0199,
+           0.0797,
+           0.0199
+          ],
+          "Color": [
+           0.7255,
+           0.8471,
+           0.2902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.3261,
+             1.9596,
+             -0.4113
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1522,
+           0.1522,
+           0.1522
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Ball"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.2826,
+             2.1335,
+             -0.607
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1087,
+           0.1087,
+           0.1087
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Ball"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Ooze_Gold_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.1087,
+             2.4378,
+             -0.4657
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.087,
+           0.087,
+           0.087
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": false,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Ball"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           1.6987,
+           -0.52
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Cat_Ooze_Gold_Glow"
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.85,
+         -0.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Ooze_Gold_Prop"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.85,
+       -0.3
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Ooze_Gold_Head"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/6"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.886,
+         0.7029
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8192,
+          0.5736
+         ],
+         [
+          0.0,
+          -0.5736,
+          0.8192
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.24,
+       0.24,
+       0.36
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0,
+         -0.15
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8192,
+          -0.5736
+         ],
+         [
+          0.0,
+          0.5736,
+          0.8192
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Ooze_Gold/6"
+     },
+     "children": [
+      {
+       "name": "Outfit_TailBow",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0954,
+           0.2455
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.7071,
+            0.7071
+           ],
+           [
+            0.0,
+            -0.7071,
+            0.7071
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0,
+         1.1198,
+         0.8518
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.1736,
+          0.9848
+         ],
+         [
+          0.0,
+          -0.9848,
+          0.1736
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.22,
+       0.36
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.8,
+       0.58
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Ooze_Gold_Tail"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/7"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.22,
+         0.235,
+         -0.2
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.24,
+       0.37,
+       0.24
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.185,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Ooze_Gold/7"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.22,
+         0.055,
+         -0.2
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.27,
+       0.11,
+       0.25
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.22,
+         0.065,
+         -0.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.33,
+       0.122,
+       0.11
+      ],
+      "Color": [
+       0.1804,
+       0.6196,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.22,
+       0.42,
+       -0.2
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Ooze_Gold_LegF1"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/8"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.22,
+         0.235,
+         -0.2
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.24,
+       0.37,
+       0.24
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.185,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Ooze_Gold/8"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.22,
+         0.055,
+         -0.2
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.27,
+       0.11,
+       0.25
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.22,
+         0.065,
+         -0.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.33,
+       0.122,
+       0.11
+      ],
+      "Color": [
+       0.4078,
+       0.7686,
+       0.3608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.22,
+       0.42,
+       -0.2
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Ooze_Gold_LegF2"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/9"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_LegB1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.22,
+         0.235,
+         0.42
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.24,
+       0.37,
+       0.24
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.185,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Ooze_Gold/9"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_LegB1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.22,
+         0.055,
+         0.42
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.27,
+       0.11,
+       0.25
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_LegB1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.22,
+         0.065,
+         0.32
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.33,
+       0.122,
+       0.11
+      ],
+      "Color": [
+       0.4078,
+       0.7686,
+       0.3608
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.22,
+       0.42,
+       0.42
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Ooze_Gold_LegB1"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/10"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_LegB2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.22,
+         0.235,
+         0.42
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.24,
+       0.37,
+       0.24
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.185,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Ooze_Gold/10"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_LegB2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.22,
+         0.055,
+         0.42
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.27,
+       0.11,
+       0.25
+      ],
+      "Color": [
+       0.9843,
+       0.8941,
+       0.6039
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_LegB2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.22,
+         0.065,
+         0.32
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.33,
+       0.122,
+       0.11
+      ],
+      "Color": [
+       0.1804,
+       0.6196,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.22,
+       0.42,
+       0.42
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Ooze_Gold_LegB2"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/13"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.08,
+         0.16
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.44,
+       0.34,
+       0.34
+      ],
+      "Color": [
+       0.4118,
+       0.451,
+       0.4902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.08,
+         -0.16
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Ooze_Gold/13",
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.15,
+         1.08,
+         0.16
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.37,
+       0.37
+      ],
+      "Color": [
+       1.0,
+       0.7882,
+       0.302
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.15,
+         1.08,
+         0.16
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.37,
+       0.37
+      ],
+      "Color": [
+       1.0,
+       0.7882,
+       0.302
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ooze_Gold_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.08,
+         -0.02
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.14,
+       0.14,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Ooze_Gold/14"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Spill_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.93,
+           0.16
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.87,
+         0.05,
+         0.34
+        ],
+        "Color": [
+         0.7255,
+         0.8471,
+         0.2902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.0,
+           0.08,
+           -0.04
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Ooze_Gold/14",
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Spill_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.42,
+           0.84,
+           0.04
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.05,
+         0.2,
+         0.1
+        ],
+        "Color": [
+         0.7255,
+         0.8471,
+         0.2902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Spill_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.42,
+           0.72,
+           0.04
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.12,
+         0.12,
+         0.12
+        ],
+        "Color": [
+         0.7255,
+         0.8471,
+         0.2902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Ball"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Spill_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.42,
+           0.78,
+           0.22
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.05,
+         0.32,
+         0.1
+        ],
+        "Color": [
+         0.7255,
+         0.8471,
+         0.2902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Spill_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.42,
+           0.6,
+           0.22
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.12,
+         0.12,
+         0.12
+        ],
+        "Color": [
+         0.7255,
+         0.8471,
+         0.2902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Ball"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Spill_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.42,
+           0.8,
+           0.12
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.05,
+         0.28,
+         0.1
+        ],
+        "Color": [
+         0.7255,
+         0.8471,
+         0.2902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Spill_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.42,
+           0.64,
+           0.12
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.12,
+         0.12,
+         0.12
+        ],
+        "Color": [
+         0.7255,
+         0.8471,
+         0.2902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Ball"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Spill_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.42,
+           0.87,
+           0.28
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.05,
+         0.14,
+         0.1
+        ],
+        "Color": [
+         0.7255,
+         0.8471,
+         0.2902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Spill_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.42,
+           0.78,
+           0.28
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.12,
+         0.12,
+         0.12
+        ],
+        "Color": [
+         0.7255,
+         0.8471,
+         0.2902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Ball"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Spill_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.24,
+           1.33,
+           0.12
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.12,
+         0.12,
+         0.12
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Ball"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Spill_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2,
+           1.41,
+           0.26
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.09,
+         0.09,
+         0.09
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Ball"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Ooze_Gold_Spill_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.02,
+           1.47,
+           0.02
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.07,
+         0.07,
+         0.07
+        ],
+        "Color": [
+         1.0,
+         0.9569,
+         0.6902
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Ball"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         1.01,
+         0.12
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Ooze_Gold_Spill_Glow"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Ooze_Gold_Prop2"
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

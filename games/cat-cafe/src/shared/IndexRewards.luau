@@ -129,7 +129,7 @@ function IndexRewards.claimed(
 	return area ~= nil and area[milestoneId] == true
 end
 
--- #3992: how many cats the All Cats and Rainbow pages count, the catalog's cats that `progress` counts (70 today).
+-- #3992: how many cats the All Cats and Rainbow pages count, the catalog's cats that `progress` counts (80 with Tier 8).
 local bookSize: number? = nil
 function IndexRewards.bookSize(): number
 	if bookSize == nil then

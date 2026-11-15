@@ -1262,6 +1262,15 @@ local function stageCatch(r: Run, t: number)
 		end
 		return
 	end
+	-- #4019: the flight's landing (shot 2) is what ends the cannon pose, and the short intro leaves shot 2 out, so
+	-- your copy stood through the catch and the carry still curled in the barrel's ball: head straight down, its
+	-- back to whatever its root faced, the cat hidden in its lap. A copy that has not landed stands up here.
+	if not r.done.uncurl then
+		r.done.uncurl = true
+		if you.model:GetAttribute("StagedFlight") ~= "land" then
+			you.model:SetAttribute("StagedFlight", nil)
+		end
+	end
 	-- #4001 (Derek 2026-11-13: "your character holding cat is facing camera so they can see it being held"): in the
 	-- short intro you turn to the camera as the cat hops in (the hop follows your arms) and keep facing it, cat in
 	-- your arms, through the rest of the shot. Review-QA's Studio run: turning only after the landing left a few
@@ -1283,7 +1292,8 @@ local function stageCatch(r: Run, t: number)
 			local camWay =
 				toward(spot, if last ~= nil then last.position else camera.CFrame.Position)
 			-- Review-QA (Studio, f9293840): with the root's LookVector on the camera the picture still showed the
-			-- back, so the turn aims the other way while Intro.FACE_FLIP is on (the head's look is printed to check)
+			-- back, so the turn aimed the other way (Intro.FACE_FLIP). #4019 found why (the leftover ball pose, see
+			-- above), so the flip is off and the root faces the camera again (the head's look is printed to check)
 			if Intro.FACE_FLIP then
 				camWay = -camWay
 			end

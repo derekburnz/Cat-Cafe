@@ -37,6 +37,7 @@
 -- `played_60s` in front of `played_2m`; a save that logged any of `first_hour` leaves `first_hour_v2`, so both
 -- funnels count only players who started on them.
 
+local Catalog = require(script.Parent.Catalog)
 local Types = require(script.Parent.Types)
 
 local Onboarding = {}
@@ -428,12 +429,16 @@ end
 -- Whether `stepName` is logged or held already, so a caller can skip work to find out whether it happened.
 -- #3660: the steps a new save has met before it starts: with `tables` of 1 or more, first_table and the tutorial's
 -- table step (tut_3_shown), which such a save never sees. Both are logged in their places as the funnel reaches them
--- (it needs every step in order), so the steps after them are not held back.
-function Onboarding.startAchieved(tables: number): { [string]: boolean }
+-- (it needs every step in order), so the steps after them are not held back. #4097: with `bowls` of 1 or more,
+-- bowl_bought too (a new save starts with its Bait bowl).
+function Onboarding.startAchieved(tables: number, bowls: number?): { [string]: boolean }
 	local achieved: { [string]: boolean } = {}
 	if tables >= 1 then
 		achieved[tostring(indexOf.tut_3_shown)] = true
 		achieved[tostring(indexOf.first_table)] = true
+	end
+	if (bowls or 0) >= 1 then
+		achieved[tostring(indexOf.bowl_bought)] = true
 	end
 	return achieved
 end
@@ -839,7 +844,8 @@ function Onboarding.fromSave(facts: SaveFacts): { StepName }
 	if (facts.goalsDone or 0) >= 1 then
 		add("first_goal_done")
 	end
-	if facts.distinctCats >= 5 then
+	-- #4098: Tier 2's need (4 from 2026-11-14, 5 before); the id stays five_cats so the funnel keeps its step
+	if facts.distinctCats >= Catalog.tiers[2].distinctCats then
 		add("five_cats")
 	end
 	if facts.tier >= 2 then

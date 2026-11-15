@@ -159,6 +159,8 @@ ICONS = {
     "Ui_Store_Icon_GardenCafe": (store_icons.cafe_style, INK, 5, (-24.0, 12.0)),
     "Ui_Store_Icon_GrandCafe": (store_icons.grand_theme, INK, 5, (-20.0, 10.0)),
     "Ui_Store_Icon_CrownSign": (store_icons.crown_sign, INK, 5, (-14.0, 6.0)),
+    # Derek 2026-11-14: the Starter Bundle pop-up card's picture, on a warm glow (_glow)
+    "CatCafe_Icon_StarterPopup": (store_icons.starter_popup, INK, 10, (-24.0, 12.0)),
     # Derek2 11-09: the Cafe Pass and Style tab's uniform colours and chat tags (pass_reward_icons.py)
     **{n: (fn, INK, 10, pass_reward_icons.VIEWS[n]) for n, fn in pass_reward_icons.ICONS.items()},
     # #3296: Mouse Dash, the Cat Arcade's second game (arcade_icons.py): mice, kitten, hole, paw, hearts, cellar
@@ -268,6 +270,31 @@ def _outline(path, colour, width):
     bpy.data.images.remove(img)
 
 
+GLOW = {"CatCafe_Icon_StarterPopup": (255, 214, 130)}       # name -> the glow's colour (0-255 RGB)
+
+
+def _glow(path, colour):
+    """A soft round glow in `colour` behind the picture at `path`, strongest at the middle and clear well before the
+    edges, written in place."""
+    img = bpy.data.images.load(path, check_existing=False)
+    w, h = img.size
+    px = np.empty(w * h * 4, dtype=np.float32)
+    img.pixels.foreach_get(px)
+    px = px.reshape(h, w, 4)
+    yy, xx = np.mgrid[0:h, 0:w]
+    r = np.hypot((xx + 0.5) / w - 0.5, (yy + 0.5) / h - 0.5) / 0.5
+    ga = (np.clip(1 - r / 0.9, 0, 1) ** 1.6 * 0.85)[:, :, None]
+    c = np.array(colour, np.float32) / 255
+    a = px[:, :, 3:4]
+    alpha = a + ga * (1 - a)
+    rgb = (px[:, :, :3] * a + c * ga * (1 - a)) / np.maximum(alpha, 1e-6)
+    img.pixels.foreach_set(np.concatenate([rgb, alpha], axis=2).astype(np.float32).ravel())
+    img.filepath_raw = path
+    img.file_format = "PNG"
+    img.save()
+    bpy.data.images.remove(img)
+
+
 def _backdrop(path, out, centre, edge):
     """#2578: the picture at `path` over a round disc filling the square, `centre` fading to `edge` (0-255 RGB), with a
     soft white glow behind the middle; outside the disc stays clear. Written to `out`."""
@@ -328,6 +355,8 @@ def render_icon(name, mat, samples=48):
     sc.render.filepath = path
     bpy.ops.render.render(write_still=True)
     _outline(path, colour, width)
+    if name in GLOW:
+        _glow(path, GLOW[name])
     family = store_icons.BG_OF.get(name[len("CatCafe_Icon_Pass_"):]) if name.startswith("CatCafe_Icon_Pass_") else None
     if family:
         _backdrop(path, os.path.join(OUT, name + "_Bg.png"), *store_icons.BG_FAMILIES[family])

@@ -2432,6 +2432,46 @@ def frost_chime() -> np.ndarray:
     return finish(fade_tail(mix(d, *ice, (warm, 0.36), (air / np.max(np.abs(air)) * 0.12, 0.0)), 0.4), -7)
 
 
+# --- the Cat Fusion Observatory (#4104) ----------------------------------------------------------
+
+
+def fusion_start() -> np.ndarray:
+    """Five cats go into the dome (#4104): five glass notes climbing, one for each cat as its picture flies in, then a
+    soft shimmer as they become one. It lasts as long as the swirl on screen (about 1.2 s) plus its tail."""
+    d = 1.9
+    climb = [(bell(d - at, note(n), GLOCK) * a, at)
+             for n, at, a in (("D5", 0.0, 0.42), ("F#5", 0.14, 0.44), ("A5", 0.28, 0.46), ("D6", 0.42, 0.48),
+                              ("F#6", 0.56, 0.5))]
+    one = bell(d - 1.0, note("A6"), VIBES) * 0.55
+    under = bell(d - 1.0, note("D5"), VIBES) * 0.35
+    air = bandpass(noise(1.1, 4401), sweep(1.1, 1200, 6000), 2.5) * np.sin(np.pi * np.clip(seconds(1.1) / 1.1, 0, 1))
+    return finish(fade_tail(mix(d, *climb, (one, 1.0), (under, 1.0), (air / np.max(np.abs(air)) * 0.1, 0.0)), 0.5), -7)
+
+
+def fusion_collect() -> np.ndarray:
+    """A gold cat comes out of the dome (#4104): a bright "ta-da", a short pickup note and a warm major chord."""
+    d = 1.3
+    pick = bell(0.3, note("A5"), GLOCK) * 0.5
+    chord = [(bell(d - 0.16, note(n), VIBES) * a, 0.16)
+             for n, a in (("D5", 0.42), ("F#5", 0.38), ("A5", 0.38), ("D6", 0.5))]
+    top = bell(d - 0.16, note("D7"), GLOCK) * 0.25
+    return finish(fade_tail(mix(d, (pick, 0.0), *chord, (top, 0.16)), 0.4), -6)
+
+
+def fusion_collect_rainbow() -> np.ndarray:
+    """A rainbow cat comes out of the dome (#4104): the gold "ta-da", then six notes running up, one for each colour
+    of the coat, and a wider chord held under them. The longer, prouder one."""
+    d = 2.6
+    pick = bell(0.3, note("A5"), GLOCK) * 0.45
+    first = [(bell(1.2, note(n), VIBES) * a, 0.16) for n, a in (("D5", 0.4), ("F#5", 0.36), ("A5", 0.36))]
+    run = [(bell(0.7, note(n), GLOCK) * 0.4, 0.5 + 0.1 * i)
+           for i, n in enumerate(("D6", "E6", "F#6", "A6", "B6", "D7"))]
+    wide = [(bell(d - 1.15, note(n), VIBES) * a, 1.15)
+            for n, a in (("D4", 0.4), ("A4", 0.36), ("D5", 0.4), ("F#5", 0.36), ("A5", 0.36), ("E6", 0.3))]
+    top = bell(d - 1.15, note("D7"), GLOCK) * 0.28
+    return finish(fade_tail(mix(d, (pick, 0.0), *first, *run, *wide, (top, 1.15)), 0.7), -6)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -2597,6 +2637,9 @@ SOUNDS = {
     "MouseMrow": ("sheet-parts/sfx", "Sfx", mouse_mrow),
     "MouseThud": ("sheet-parts/sfx", "Sfx", mouse_thud),
     "MouseHeart": ("sheet-parts/sfx", "Sfx", mouse_heart),
+    "FusionStart": ("sheet-parts/sfx", "Sfx", fusion_start),
+    "FusionCollect": ("sheet-parts/sfx", "Sfx", fusion_collect),
+    "FusionCollectRainbow": ("sheet-parts/sfx", "Sfx", fusion_collect_rainbow),
     "DragonRumble": ("sheet-parts/sfx", "Sfx", dragon_rumble),
     "DragonCrack": ("sheet-parts/sfx", "Sfx", dragon_crack),
     "DragonChirp": ("sheet-parts/sfx", "Sfx", dragon_chirp),
@@ -2651,6 +2694,8 @@ SHEETS = {
     "Keep": (1, ("DragonRumble", "DragonCrack", "DragonChirp", "DragonRoar", "DragonRoarGrand", "DragonWing",
                  "CardFlip", "CardRare", "Rekindle", "TicketPrint", "TicketDing", "SnowStep", "SnowGust",
                  "FrostChime")),
+    # the Cat Fusion Observatory (2026-11-14, #4104), mono, all flat: the window's start chime and the two fanfares
+    "Fusion": (1, ("FusionStart", "FusionCollect", "FusionCollectRainbow")),
 }
 
 

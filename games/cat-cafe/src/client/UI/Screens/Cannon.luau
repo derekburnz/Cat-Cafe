@@ -43,11 +43,14 @@ local MysticPoolLogic = require(script.Parent.Parent.Components.MysticPoolLogic)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local RareBubbleLogic = require(script.Parent.Parent.Components.RareBubbleLogic)
+local RareBubbles = require(script.Parent.Parent.Components.RareBubbles)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
+local TicketBoothLogic = require(script.Parent.Parent.Components.TicketBoothLogic)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -84,6 +87,7 @@ export type Cannon = {
 	-- F100: the last CampExtrasState, or nil before the first
 	setExtras: (self: Cannon, extras: Types.CampExtrasState?) -> (),
 	setTraits: (self: Cannon, traits: any) -> (), -- #3196: PlayerState.traits, for the Mystic Pool's strip
+	setBooth: (self: Cannon, booth: any) -> (), -- #4061: PlayerState.ticketBooth, for the Water Park card's strip
 	setLate: (self: Cannon, late: any) -> (), -- #2651 part 4: LateStationsState, for the Desert and Ruins strips
 	render: (self: Cannon, state: Types.PlayerState, carrying: boolean) -> (),
 	opened: (self: Cannon) -> (),
@@ -176,6 +180,7 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._pal = nil :: { areaId: string, name: string }?
 	self._extras = nil :: Types.CampExtrasState?
 	self._traits = nil :: any -- #3196: PlayerState.traits, for the Mystic Pool's strip
+	self._booth = nil :: any -- #4061: PlayerState.ticketBooth, for the Water Park card's strip
 	self._late = nil :: any -- #2651 part 4: the last LateStationsState
 	self._tall = false -- the cards have room for a camp extra's strip
 	self._ring = nil :: string? -- #2915: the area whose Launch wears the ring
@@ -501,8 +506,13 @@ function Cannon._buildCards(self: any)
 				self:_press(id)
 			end,
 		})
+		-- #4227: the Mythical and Secret cats out in the area now, over the picture's top right corner
+		local rare = if id ~= CannonLogic.TOWN
+			then RareBubbles.new(frame, UDim2.new(1, -6, 0, 6), 8)
+			else nil
 		self._cards[id] = {
 			frame = frame,
+			rare = rare,
 			pal = pal,
 			night = night,
 			nightLine = nightLine,
@@ -531,6 +541,7 @@ function Cannon._line(self: any, id: string): CampExtrasLogic.Line?
 	local station: CampExtrasLogic.Line? = MysticPoolLogic.pickerLine(self._traits, id)
 		or CampExtrasLogic.pickerLine(self._extras, id, now)
 		or LateStationsLogic.pickerLine(self._late, id)
+		or TicketBoothLogic.pickerLine(self._booth, id) -- #4061: the Water Park card's Ticket Booth
 	-- the Rummage Bin on its area's card (Derek 2026-11-12): the player's BinNextAt and the `alleyBin` switch
 	local bin = CampExtrasLogic.binLine(
 		id,
@@ -539,6 +550,11 @@ function Cannon._line(self: any, id: string): CampExtrasLogic.Line?
 		ReplicatedStorage:GetAttribute(BIN_FLAG) ~= false
 	)
 	return CampExtrasLogic.withBin(station, bin)
+end
+
+-- #4061: PlayerState.ticketBooth (nil or false while the booth is shut), for the Water Park card's strip.
+function Cannon.setBooth(self: any, booth: any)
+	self._booth = if type(booth) == "table" then booth else nil
 end
 
 -- #3196: PlayerState.traits (nil while the Mystic Pool is shut), for the Park card's strip.
@@ -715,6 +731,8 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		lockedIds[destination.id] = destination.locked == true
 	end
 	local tall = false
+	-- #4227: the wild Mythical and Secret cats out in each area now (the server's AreaRares)
+	local rares = RareBubbleLogic.decode(ReplicatedStorage:GetAttribute(RareBubbleLogic.ATTRIBUTE))
 	for id, card in self._cards do
 		local order = shown[id]
 		card.frame.Visible = order ~= nil
@@ -728,6 +746,9 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			CannonLogic.button(id, closed, dusk, carrying, locked)
 		card.night.Visible = buttonState == "night"
 		card.lock.Visible = locked or card.breaking == true or self._toBreak[id] == true -- #3884: until it breaks
+		if card.rare ~= nil then
+			card.rare:set(if locked then { m = 0, s = 0 } else RareBubbleLogic.counts(rares, id))
+		end
 		card.nightLine.Visible = ART_H >= 60 -- #2771: not in the phone's slim band
 		if id ~= CannonLogic.TOWN then
 			local counts = IndexRewards.counts(catalog, state, id)

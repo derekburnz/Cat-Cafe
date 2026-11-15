@@ -20,16 +20,21 @@
 -- kept for good. buy(passId) opens Roblox's purchase window (Components/PassShop); the server turns the pass on when
 -- Roblox says it was bought.
 
+local TweenService = game:GetService("TweenService")
+
 local Button = require(script.Parent.Parent.Components.Button)
 local Config = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
 ) :: any
+local Context = require(script.Parent.Parent.Parent.Effects.Context)
 local Create = require(script.Parent.Parent.Components.Create)
+local DealLogic = require(script.Parent.Parent.Components.DealLogic)
 local FitText = require(script.Parent.Parent.Components.FitText)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local LiveFlags =
 	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("LiveFlags"))
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
+local MysticPoolLogic = require(script.Parent.Parent.Components.MysticPoolLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
@@ -40,7 +45,8 @@ local StoreMotion = require(script.Parent.Parent.Parent.Effects.StoreMotion)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type Callbacks = {
-	buy: (passId: number) -> (),
+	-- #4175: `source` is "featured_new" for the update's own item on Featured (PassShop.prompt's source), else nil
+	buy: (passId: number, source: string?) -> (),
 	close: () -> (),
 	-- #1428: the Codes tab came into view (true) or left it (false), so the code box can start fresh or clear
 	codes: ((shown: boolean) -> ())?,
@@ -48,6 +54,8 @@ export type Callbacks = {
 	seen: ((tab: string) -> ())?,
 	-- #1888: every tab shown, the first on open included (the Store funnel's tab_viewed)
 	tabShown: ((tab: string) -> ())?,
+	-- #3996: Today's Deal's R$25 pressed: the server checks it and opens Roblox's prompt (PromptDeal)
+	deal: ((productId: string) -> ())?,
 }
 
 -- the dark window palette (#1028), in place of Theme.modal
@@ -65,6 +73,8 @@ export type Store = {
 	showTab: (self: Store, tab: string) -> (),
 	setBag: (self: Store, bag: { StoreLogic.BagEntry }) -> (),
 	setNew: (self: Store, tabs: { [string]: true }) -> (),
+	-- #3996: PlayerState.dailyDeal (false or nil: no card); the next render shows it
+	setDeal: (self: Store, view: any, tier: number?) -> (),
 	hasNew: (self: Store) -> boolean,
 	tab: (self: Store) -> string,
 	closed: (self: Store) -> (),
@@ -120,6 +130,7 @@ local BAG_ICON = 28
 local HERO_TILE_MAX = 132
 local HERO_BUTTON_W = 150
 local HERO_MIN = 100
+local DEAL_MAX = 300 -- #4259: Today's Deal's card on its own page, no taller than this
 -- On a short page (a phone held sideways) the picks drop their descriptions, so the hero and the three picks still
 -- fit with no scrolling; each pick keeps its picture, name and price, and the tabs show the details.
 local HERO_ROOM = 150 -- the hero wants at least this much beside the picks before they keep their words
@@ -130,6 +141,8 @@ local PACK_PAD = 8
 local PACK_NAME_H = 24
 local PACK_LINE_H = 32 -- two small lines
 local PACK_INFO = 36 -- the white i (and the sheet's X), a thumb's tap on touch
+local INFO_FACE = 24 -- #4277: the white i on every other card's picture
+local INFO_TAP_MOUSE = 36 -- its invisible pad with a mouse (a finger's is bigger)
 local PACK_MIN_W = 300 -- a pack card no narrower than this, else one a row
 -- the art: the lower 352 of the 1024 x 512 render, where the cats sit close up (the sign's top is cut)
 local ART_RECT_OFFSET = Vector2.new(0, 160)
@@ -147,6 +160,11 @@ local INK = Color3.fromHex("2C1642") -- the family kit's ink, the i's letter and
 local PRELOAD_AFTER = 3 -- #2500: seconds after the Store is built (at join) before its pictures are fetched
 local PRELOAD_BATCH = 8 -- pictures asked for at once
 local PRELOAD_GAP = 0.25 -- seconds between batches
+-- #4276 (Derek 2026-11-14: "for the side panel of the store the packs is a plain image it needs something that will
+-- help grab attention more then just one plain image"): the rail's Packs tab turns through the packs' pictures, one
+-- every PACK_TURN seconds, each with a soft light sweep across the button. No words, timers or discounts are added.
+local PACK_TURN = 2.5
+local SWEEP_SECONDS = 0.7
 local QUIET_SECONDS = 2.5 -- a card's picture this long to load before its emoji shows
 
 local Store = {}
@@ -231,6 +249,7 @@ function Store.new(callbacks: Callbacks): Store
 	self._marked = {} :: { [string]: true } -- the tabs sent as seen this session, until the server's word comes back
 	self._tab = "featured"
 	self._rows = {} :: { StoreLogic.Row }
+	self._deal = nil :: any -- #3996: PlayerState.dailyDeal
 	self._seen = {} :: StoreLogic.Seen -- #1823: each card's pass and Owned at the last render, for the thank-you burst
 	-- #1870: true until the first render after the window opens; that render only notes what is owned, so a pass
 	-- bought while the Store was shut doesn't pop and burst on opening (and the cards are measured at rest)
@@ -317,6 +336,7 @@ function Store.new(callbacks: Callbacks): Store
 			Parent = self._railButtons[id].instance,
 		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	end
+	self:_packTab(railButtonH)
 
 	-- the page beside the rail, from the top (#1690: no note row; cards say "Yours to keep", prices show Robux)
 	local pageX = RAIL_W + GAP + 4
@@ -401,6 +421,22 @@ function Store.new(callbacks: Callbacks): Store
 		Parent = self._featured,
 	})
 
+	-- #4259: Today's Deal's own page, one big card (Store._fillDeal) from the top
+	self._dealPage = Create("Frame", {
+		Name = "DealPage",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Visible = false,
+		Parent = pages,
+	}, {
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, CARD_INSET),
+			PaddingRight = UDim.new(0, CARD_INSET),
+			PaddingTop = UDim.new(0, CARD_STROKE),
+			PaddingBottom = UDim.new(0, CARD_STROKE),
+		}),
+	})
+
 	-- Codes (#1428): Screens/Codes mounts its box here (UI.store.start)
 	self.codesPage = Create("Frame", {
 		Name = "CodesPage",
@@ -445,7 +481,6 @@ function Store.new(callbacks: Callbacks): Store
 			PaddingBottom = UDim.new(0, CARD_STROKE),
 		}),
 	})
-	self:_packSheet(pages)
 
 	-- every other tab: one grid, showing the cards of the tab picked
 	self._grid = Create("UIGridLayout", {
@@ -516,6 +551,9 @@ function Store.new(callbacks: Callbacks): Store
 		MenuFamily.outline(title)
 		self._bagStrip = strip
 	end
+
+	-- #4277: the white i's sheet, made last so it sits over every page (its i is on every card now, not only the packs)
+	self:_packSheet(pages)
 
 	self._sizeChanged = pages:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		self:_layout()
@@ -671,7 +709,9 @@ function Store._makeCard(
 	MenuFamily.outline(name)
 	local effect = text({
 		Name = "Effect",
-		TextSize = if hero then Theme.sizes.textBody else Theme.sizes.textSmall,
+		-- #4277 (Derek 11-14: "briefer description with bigger but easy to read text"): every card's line at body size
+		-- (fitText still shrinks a long one to fit)
+		TextSize = Theme.sizes.textBody,
 		TextColor3 = CARD.subtext,
 		TextWrapped = true,
 		TextYAlignment = Enum.TextYAlignment.Top,
@@ -766,10 +806,48 @@ function Store._makeCard(
 		"UIPadding",
 		{ PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8), Parent = perk }
 	)
+	-- #4277: the white i on the picture's top right corner, as on the pack cards: the whole story in the sheet. On
+	-- touch its invisible pad reaches a finger's 44 px around the small face
+	local infoTap = math.max(INFO_TAP_MOUSE, Scale.tapHeight(INFO_FACE))
+	local info: TextButton = Create("TextButton", {
+		Name = "Info",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -4, 0, 4),
+		Size = UDim2.fromOffset(infoTap, infoTap),
+		BackgroundTransparency = 1,
+		AutoButtonColor = false,
+		Text = "",
+		Visible = false,
+		ZIndex = 4,
+		Parent = tile,
+	})
+	local infoFace = text({
+		Name = "Face",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(INFO_FACE, INFO_FACE),
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = INK,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "i",
+		ZIndex = 4,
+		Parent = info,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = infoFace })
+	Create("UIStroke", {
+		Color = INK,
+		Thickness = 2,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Parent = infoFace,
+	})
 	local entry: any = {
 		frame = card,
 		look = look,
 		wide = wide,
+		info = info,
 		perk = perk,
 		tile = tile,
 		glyph = glyph,
@@ -793,14 +871,27 @@ function Store._makeCard(
 		enabled = false,
 		parent = card,
 		onClick = function()
-			if entry.passId ~= 0 then
+			local deal = entry.dealProduct
+			if deal ~= nil then
+				-- #3996: the server checks today's deal and opens the prompt itself
+				StoreMotion.press(entry.frame :: any)
+				local press = (self._callbacks :: Callbacks).deal
+				if press ~= nil then
+					press(deal)
+				end
+			elseif entry.passId ~= 0 then
 				-- #1823: the card dips with the tap (the Buy button already dips through its own UIScale, so
 				-- StoreMotion moves the card rather than fight that tween)
 				StoreMotion.press(entry.frame :: any) -- press takes a GuiButton; it only scales the object
-				self._callbacks.buy(entry.passId)
+				self._callbacks.buy(entry.passId, entry.source)
 			end
 		end,
 	})
+	info.Activated:Connect(function()
+		if entry.row ~= nil then
+			self:_showInfo(entry.row)
+		end
+	end)
 	-- a new box (the window or the page resized): fit the words again
 	effect:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		fitEffect(entry)
@@ -867,7 +958,16 @@ function Store._place(self: any, entry: any)
 end
 
 -- The picture, words and button for `row` (nil hides the card).
-function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
+-- #4175: `line` is the update's own item's line on Featured. "New today" is the card's badge (every layout has
+-- one); on a real sale the Sale badge keeps that place and "Sale ends Sunday" takes the chip. Such a card's buy is
+-- tagged "featured_new".
+function Store._fill(self: any, entry: any, row: StoreLogic.Row?, line: string?)
+	entry.source = if row ~= nil and line ~= nil then "featured_new" else nil
+	entry.row = row -- #4277: the white i's sheet reads it
+	entry.info.Visible = row ~= nil
+	if row ~= nil and self._packShown == row.key then
+		self:_showInfo(row) -- the open sheet follows a price or Owned change
+	end
 	if row == nil then
 		entry.frame.Visible = false
 		entry.passId = 0
@@ -877,6 +977,8 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	end
 	entry.frame.Visible = true
 	entry.passId = row.passId
+	entry.dealProduct = nil -- #3996: the hero was Today's Deal
+	entry.owned.Text = "✓ Yours"
 	entry.rowKey = row.key -- #1823: the thank-you burst finds a bought row's cards by this
 	entry.name.Text = row.name
 	-- #1822: a bundle adds its "Worth R$X bought apart" line once every part's price is in
@@ -888,7 +990,8 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	entry.shortText = effect
 	entry.effect.Text = entry.fullText
 	-- #2147: the gold chip, placed before the words are fitted under it
-	local perkText = row.perk or ""
+	local was = StoreLogic.saleWas(row, self._prices[row.passId], Config, os.time())
+	local perkText = if line ~= nil and was ~= nil then line else row.perk or ""
 	local perkShown = perkText ~= "" and not entry.compact
 	if entry.perk.Text ~= perkText or entry.perk.Visible ~= perkShown then
 		entry.perk.Text = perkText
@@ -930,7 +1033,22 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 		if #images > 0 then
 			-- #2500: no old emoji flashing while the picture first loads (it shows only if the picture never comes)
 			IconArt.quietWait(entry.glyph, QUIET_SECONDS)
-			IconArt.setImages(entry.glyph, images, PICTURE_SCALE)
+			-- #4259 (Derek 11-14: "the image clips out of the box for at least winter pack"): an outfit pack's picture
+			-- is art to its edges with no clear margin, so it fills its tile exactly, with the tile's round corners
+			IconArt.setImages(entry.glyph, images, if row.pack then 1 else PICTURE_SCALE)
+			local picture = entry.glyph:FindFirstChild("IconArt")
+			if picture and picture:IsA("ImageLabel") then
+				local corner = picture:FindFirstChild("PackCorner")
+				if row.pack and corner == nil then
+					Create("UICorner", {
+						Name = "PackCorner",
+						CornerRadius = UDim.new(0, Theme.sizes.radius),
+						Parent = picture,
+					})
+				elseif not row.pack and corner then
+					corner:Destroy()
+				end
+			end
 		else
 			IconArt.setImage(entry.glyph, nil)
 			IconArt.set(entry.glyph, row.icon)
@@ -944,9 +1062,9 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	entry.owned.Visible = row.owned
 	entry.dim.Visible = row.owned
 	-- one badge at most: #3572's Sale (red, with the true old price struck through) before Best Value
-	local was = StoreLogic.saleWas(row, self._prices[row.passId], Config, os.time())
 	local badge = if was
 		then StoreLogic.saleBadge(was)
+		elseif line ~= nil then line
 		else StoreLogic.badge(row, self._prices, self._ownedIds)
 	entry.badge.Visible = badge ~= nil
 	entry.badge.RichText = was ~= nil
@@ -959,6 +1077,121 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	end
 end
 
+-- #3996: PlayerState.dailyDeal for the next render (false or nil: no card).
+function Store.setDeal(self: any, view: any, tier: number?)
+	self._deal = if type(view) == "table" then view else nil
+	self._dealTier = tier -- #4238: names and draws the best open area's golden crate
+end
+
+-- #3996: Today's Deal on the hero card (nil hides it): the deal's picture, "Today's Deal", what is in it, the value line, the
+-- Tomorrow line and the plain change line, and the R$25 button; once bought the button goes and the card says so.
+function Store._fillDeal(_self: any, entry: any, card: DealLogic.Card?)
+	entry.dealProduct = nil
+	entry.row = nil
+	entry.info.Visible = false -- the deal's card holds all its lines
+	if card == nil then
+		entry.frame.Visible = false
+		entry.key = ""
+		return
+	end
+	entry.frame.Visible = true
+	entry.passId = 0
+	entry.rowKey = ""
+	entry.name.Text = card.title
+	entry.fullText = card.full
+	entry.shortText = card.short
+	entry.effect.Text = card.full
+	entry.perk.Visible = false
+	entry.badge.Visible = false
+	entry.dim.Visible = false
+	fitEffect(entry)
+	local art = "deal:"
+		.. card.kind
+		.. ":"
+		.. (card.potion or card.crate or "")
+		.. (if card.fish then ":fish" else "")
+	if entry.key ~= art then
+		entry.key = art
+		local images: { string } = {}
+		local dealPicture = ShopIcons.deal(card.kind, card.fish)
+		if dealPicture ~= nil then
+			-- #4246: the deal's own picture; the older ones below stay as the fallback
+			table.insert(images, dealPicture)
+		elseif card.kind == "token" then
+			local token = MysticPoolLogic.TOKEN_IMAGE
+			if token ~= nil then
+				table.insert(images, token)
+			end
+		elseif card.kind == "crate" or card.kind == "fish" then
+			-- #4238: the best open area's golden crate (the Classic one's while the tier is unknown), or the golden fish
+			local picture: string? = if card.kind == "crate"
+				then ShopIcons.crate(card.crate) or ShopIcons.crate("classic_golden_crate")
+				else ShopIcons.prize("fish")
+			if picture ~= nil then
+				table.insert(images, picture :: string)
+			end
+		else
+			for _, image in ShopIcons.potionAll(card.potion) do
+				table.insert(images, image)
+			end
+			local flask = ShopIcons.hud("Potion")
+			if flask ~= nil then
+				table.insert(images, flask)
+			end
+		end
+		entry.glyph.Text = if card.kind == "token"
+			then "🪙"
+			elseif card.kind == "crate" then "📦"
+			elseif card.kind == "fish" then "🐟"
+			else "🧪"
+		local padding = entry.glyph:FindFirstChildOfClass("UIPadding")
+		local inset = if #images > 0 then 0 else GLYPH_PAD
+		if padding then
+			padding.PaddingTop = UDim.new(inset, 0)
+			padding.PaddingBottom = UDim.new(inset, 0)
+		end
+		if #images > 0 then
+			IconArt.quietWait(entry.glyph, QUIET_SECONDS)
+			IconArt.setImages(entry.glyph, images, PICTURE_SCALE)
+		else
+			IconArt.setImage(entry.glyph, nil)
+			IconArt.set(entry.glyph, entry.glyph.Text)
+		end
+		-- #4238: the Golden Haul's crate carries a golden fish in its corner
+		local corner: ImageLabel? = entry.glyph:FindFirstChild("DealFish") :: ImageLabel?
+		local fishImage = if card.kind == "crate" and card.fish
+			then ShopIcons.prize("fish")
+			else nil
+		if fishImage ~= nil and corner == nil then
+			corner = Create("ImageLabel", {
+				Name = "DealFish",
+				BackgroundTransparency = 1,
+				AnchorPoint = Vector2.new(1, 1),
+				Position = UDim2.fromScale(1, 1),
+				Size = UDim2.fromScale(0.45, 0.45),
+				ScaleType = Enum.ScaleType.Fit,
+				ZIndex = entry.glyph.ZIndex + 2,
+				Parent = entry.glyph,
+			})
+		end
+		if corner ~= nil then
+			local label: ImageLabel = corner
+			label.Image = fishImage or ""
+			label.Visible = fishImage ~= nil
+		end
+	end
+	entry.button.instance.Visible = not card.bought
+	entry.owned.Visible = card.bought
+	if card.bought then
+		entry.owned.Text = DealLogic.BOUGHT
+	else
+		entry.dealProduct = card.product
+		entry.button:setText(card.price)
+		entry.button:setStyle("store")
+		entry.button:setEnabled(true)
+	end
+end
+
 -- Sizes the hero, the picks and the grid's cells to the page (design px; the window's UIScale shrinks it all).
 function Store._layout(self: any)
 	local scale = math.max(Scale.get(), 0.01)
@@ -968,6 +1201,14 @@ function Store._layout(self: any)
 		return
 	end
 	local spacing = GAP + 2 * CARD_STROKE
+	-- #4259: Today's Deal's card on its own page, as tall as its lines want and the page allows
+	local dealCard = self._cards.dealCard
+	if dealCard then
+		dealCard.frame.Size = UDim2.new(1, 0, 0, math.clamp(height, HERO_MIN, DEAL_MAX))
+		dealCard.effectMax = Theme.sizes.textBody
+		dealCard.effect.TextSize = dealCard.effectMax
+		self:_place(dealCard)
+	end
 	-- #4026: the Sale row takes its strip at the foot of Featured, only where the hero and the picks keep their words
 	local saleShown = self._saleCount > 0
 		and height - SALE_ROW_H - 2 * spacing - self._cellMin >= HERO_ROOM
@@ -1376,7 +1617,8 @@ function Store._placePackSheet(self: any, pageH: number)
 	if info == nil then
 		return
 	end
-	local count = 6 -- four pieces, the set and the total
+	self._sheetPageH = pageH
+	local count = math.max(info.count or 6, 1) -- #4277: the sheet's lines (a pack: four pieces, the set and the total)
 	local fixed = 2 * SHEET_PAD + SHEET_TITLE_H + 4 + 6 + self._actionHeight
 	local rowH =
 		math.floor((pageH - 2 * CARD_STROKE - fixed - SHEET_HOOK_H - (count - 1) * 2) / count)
@@ -1399,21 +1641,28 @@ end
 
 -- #4026: opens the white i's sheet for a pack card (its Row key, "packWinter"), or closes it (nil)
 function Store._showPack(self: any, key: string?)
+	local entry = if key then self._packCards[key] else nil
+	self:_showInfo(entry and entry.row)
+end
+
+-- #4026, #4277: opens the white i's sheet for any Store row (a pack's pieces, set and total; another card's lines from
+-- StoreLogic.infoLines), or closes it (nil)
+function Store._showInfo(self: any, row: StoreLogic.Row?)
 	local info = self._packInfo
 	if info == nil then
 		return
 	end
-	local entry = if key then self._packCards[key] else nil
-	local row: StoreLogic.Row? = entry and entry.row
-	local pack = if row and row.pack then StoreLogic.PACKS[row.pack] else nil
-	info.shade.Visible = pack ~= nil
-	self._packShown = if pack then key else nil
-	if pack == nil or row == nil or row.pack == nil then
+	local lines: { StoreLogic.PackLine } = if row then StoreLogic.infoLines(row) else {}
+	local shown = row ~= nil and #lines > 0
+	info.shade.Visible = shown
+	self._packShown = if shown and row then row.key else nil
+	if not shown or row == nil then
 		info.passId = 0
 		return
 	end
+	local pack = if row.pack then StoreLogic.PACKS[row.pack] else nil
 	info.passId = row.passId
-	info.title.Text = pack.title
+	info.title.Text = if pack then pack.title else row.name
 	info.hook.Text = string.match(row.effect, "^[^\n]+") or row.effect
 	local button = StoreLogic.button(row, self._prices[row.passId])
 	info.buy:setText(if row.owned then "✓ Yours" else button.text)
@@ -1424,9 +1673,10 @@ function Store._showPack(self: any, key: string?)
 			child:Destroy()
 		end
 	end
-	local list = StoreLogic.packLines(row.pack)
-	for index, line in list do
-		local last = index == #list
+	info.count = #lines
+	self:_placePackSheet(self._sheetPageH or 0)
+	for index, line in lines do
+		local last = pack ~= nil and index == #lines -- a pack's Total, in gold
 		local rowFrame: Frame = Create("Frame", {
 			Name = "Line" .. index,
 			BackgroundTransparency = 0,
@@ -1440,9 +1690,10 @@ function Store._showPack(self: any, key: string?)
 			Create("UICorner", { CornerRadius = UDim.new(0, 6) }),
 			Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
 		})
+		local plain = line.right == ""
 		local left = text({
 			Name = "Piece",
-			Size = UDim2.new(0.68, 0, 1, 0),
+			Size = UDim2.new(if plain then 1 elseif pack then 0.68 else 0.6, 0, 1, 0),
 			FontFace = if last then Theme.fonts.display else Theme.fonts.body,
 			TextSize = Theme.sizes.textSmall + (if last then 2 else 0),
 			Text = line.left,
@@ -1450,26 +1701,28 @@ function Store._showPack(self: any, key: string?)
 			Parent = rowFrame,
 		})
 		FitText.shrink(left)
-		local right = text({
-			Name = "Bonus",
-			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.fromScale(1, 0),
-			Size = UDim2.new(0.32, 0, 1, 0),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textSmall + (if last then 2 else 0),
-			TextColor3 = CARD.good,
-			TextXAlignment = Enum.TextXAlignment.Right,
-			Text = line.right,
-			ZIndex = 23,
-			Parent = rowFrame,
-		})
-		FitText.shrink(right)
+		if not plain then
+			local right = text({
+				Name = "Bonus",
+				AnchorPoint = Vector2.new(1, 0),
+				Position = UDim2.fromScale(1, 0),
+				Size = UDim2.new(if pack then 0.32 else 0.4, 0, 1, 0),
+				FontFace = Theme.fonts.display,
+				TextSize = Theme.sizes.textSmall + (if last then 2 else 0),
+				TextColor3 = CARD.good,
+				TextXAlignment = Enum.TextXAlignment.Right,
+				Text = line.right,
+				ZIndex = 23,
+				Parent = rowFrame,
+			})
+			FitText.shrink(right)
+		end
 	end
 end
 
 -- The tab the rail shows: its button gold, its page up (Featured, or the grid with that tab's cards).
 function Store.showTab(self: any, tab: string)
-	local shown = false
+	local shown = tab == StoreLogic.DEAL_TAB and self._dealShown == true -- #4259: while there is a deal
 	for _, entry in StoreLogic.tabs(self._rows) do
 		if entry.id == tab then
 			shown = true
@@ -1504,11 +1757,20 @@ function Store.showTab(self: any, tab: string)
 	local featured = self._tab == "featured"
 	local codes = self._tab == "codes"
 	local packs = self._tab == "packs"
+	local dealTab = self._tab == StoreLogic.DEAL_TAB
 	self._featured.Visible = featured
-	self._list.Visible = not featured and not codes and not packs
+	self._dealPage.Visible = dealTab
+	if dealTab then
+		self._dealLooked = true
+		local dot = self._newDots[StoreLogic.DEAL_TAB]
+		if dot then
+			dot.Visible = false
+		end
+	end
+	self._list.Visible = not featured and not codes and not packs and not dealTab
 	self._packsPage.Visible = packs
-	if not packs then
-		self:_showPack(nil)
+	if was ~= self._tab then
+		self:_showInfo(nil) -- #4277: a sheet opened from any tab closes with it
 	end
 	self:_placeBag()
 	self.codesPage.Visible = codes
@@ -1559,6 +1821,103 @@ function Store.tab(self: any): string
 	return self._tab
 end
 
+-- #4276: the rail's Packs tab turns through the pictures of the packs on sale (StoreLogic.NEWEST_PACKS order), with a
+-- light sweep each turn, while the Store shows. With Reduce Motion the pictures still turn, with no sweep.
+function Store._packTab(self: any, buttonH: number)
+	local button = self._railButtons.packs
+	local face = button and button.instance:FindFirstChild("Face")
+	local icon = button and button.instance:FindFirstChild("Icon", true)
+	if face == nil or icon == nil or not icon:IsA("TextLabel") then
+		return
+	end
+	-- Review-QA in Studio: at about 20 px the turn was easy to miss; the Packs picture fills the button's height
+	local side = math.max(icon.Size.X.Offset, math.floor(buttonH * 0.72))
+	icon.Size = UDim2.fromOffset(side, side)
+	local sweep: Frame = Create("Frame", {
+		Name = "Sweep",
+		BackgroundColor3 = Theme.colors.white,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = (face :: GuiObject).ZIndex + 4,
+		Visible = false,
+		Parent = face,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+	})
+	local gradient: UIGradient = Create("UIGradient", {
+		Rotation = 20,
+		Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 1),
+			NumberSequenceKeypoint.new(0.4, 1),
+			NumberSequenceKeypoint.new(0.5, 0.45),
+			NumberSequenceKeypoint.new(0.6, 1),
+			NumberSequenceKeypoint.new(1, 1),
+		}),
+		Offset = Vector2.new(-1, 0),
+		Parent = sweep,
+	})
+	self._packSweep = sweep
+	self._packTurn = 0
+	local function showing(): boolean
+		local node: Instance? = self.frame
+		while node ~= nil do
+			if node:IsA("GuiObject") and not node.Visible then
+				return false
+			elseif node:IsA("ScreenGui") then
+				return node.Enabled
+			end
+			node = node.Parent
+		end
+		return false
+	end
+	task.spawn(function()
+		while self._panel ~= nil do
+			task.wait(PACK_TURN)
+			if self._panel == nil then
+				return
+			end
+			if showing() and button.instance.Visible then
+				self:_turnPackTab(icon :: TextLabel, gradient)
+			end
+		end
+	end)
+end
+
+-- the next pack's picture on the Packs tab, and the sweep across it
+function Store._turnPackTab(self: any, icon: TextLabel, gradient: UIGradient)
+	local sold: { string } = {}
+	for _, key in StoreLogic.NEWEST_PACKS do
+		for _, row in StoreLogic.tabRows(self._rows, "packs") do
+			if row.key == key and ShopIcons.packIcon(key) ~= nil then
+				table.insert(sold, key)
+				break
+			end
+		end
+	end
+	if #sold < 2 then
+		return
+	end
+	self._packTurn = self._packTurn % #sold + 1
+	local key = sold[self._packTurn]
+	icon:SetAttribute("Pack", key)
+	IconArt.setImage(icon, ShopIcons.packIcon(key))
+	if Context.reducedMotion() then
+		return
+	end
+	local sweep: Frame = self._packSweep
+	sweep.Visible = true
+	gradient.Offset = Vector2.new(-1, 0)
+	local tween = TweenService:Create(
+		gradient,
+		TweenInfo.new(SWEEP_SECONDS, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+		{ Offset = Vector2.new(1, 0) }
+	)
+	tween.Completed:Once(function()
+		sweep.Visible = false
+	end)
+	tween:Play()
+end
+
 -- The window closed: the Codes tab is out of view (its box clears), and the next open starts on Featured.
 function Store.closed(self: any)
 	local onCodes: ((boolean) -> ())? = self._callbacks.codes
@@ -1590,20 +1949,61 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 		button.instance.Visible = visibleTabs[id] == true
 	end
 	-- Featured
-	local featured = StoreLogic.featured(rows, prices) -- #3562: off sale cards never lead
+	-- #4175: on a big update day the update's own item leads, with its plain "New today" line
+	-- (the switch is read at each render: it only reorders Featured's cards, so a flip changes no layout)
+	local featureOn = LiveFlags.shown(
+		StoreLogic.UPDATE_FLAG,
+		game:GetService("ReplicatedStorage")
+			:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StoreLogic.UPDATE_FLAG)
+	)
+	local feature = StoreLogic.updateFeature(rows, prices, Config, os.time(), featureOn)
+	local function lineOf(row: StoreLogic.Row?): string?
+		return if feature ~= nil
+				and row ~= nil
+				and row.key == feature.row.key
+			then feature.line
+			else nil
+	end
+	-- #3562: off sale cards never lead
+	local featured = StoreLogic.featured(rows, prices, if feature then feature.row else nil)
 	local hero = self._cards.hero or self:_makeCard("hero", "hero", self._featured, 0)
-	self:_fill(hero, featured.hero)
+	-- #4259 (Derek 11-14: "todays deal ... honestly a seperate tab for todays deals, they are not that good save that big
+	-- space for starter packs or vip"): Today's Deal has its own tab and page, bought or not; Featured keeps its hero
+	-- and picks for the bundles and passes
+	local deal = DealLogic.card(self._deal, os.time(), MysticPoolLogic.oddsLine(), self._dealTier)
+	local picks: { StoreLogic.Row } = featured.picks
+	self:_fill(hero, featured.hero, lineOf(featured.hero))
 	for index = 1, StoreLogic.PICKS do
 		local slot = "pick" .. index
 		local entry = self._cards[slot] or self:_makeCard(slot, "tile", self._picks, index)
-		self:_fill(entry, featured.picks[index])
+		local pick = picks[index]
+		self:_fill(entry, pick, lineOf(pick))
 	end
-	self._picks.Visible = #featured.picks > 0
+	self._dealShown = deal ~= nil
+	local dealButton = self._railButtons[StoreLogic.DEAL_TAB]
+	if dealButton then
+		dealButton.instance.Visible = deal ~= nil
+	end
+	local dealDot = self._newDots[StoreLogic.DEAL_TAB]
+	if dealDot then
+		-- a deal still to buy that this visit has not looked at yet
+		dealDot.Visible = deal ~= nil and not deal.bought and not self._dealLooked
+	end
+	if deal ~= nil then
+		local entry = self._cards.dealCard or self:_makeCard("dealCard", "hero", self._dealPage, 0)
+		self:_fillDeal(entry, deal)
+	elseif self._cards.dealCard then
+		self:_fillDeal(self._cards.dealCard, nil)
+	end
+	if deal == nil and self._tab == StoreLogic.DEAL_TAB then
+		self._tab = "featured" -- the deal ended while its page was up
+	end
+	self._picks.Visible = #picks > 0
 	local onFeatured: { [string]: boolean } = {}
 	if featured.hero then
 		onFeatured[featured.hero.key] = true
 	end
-	for _, pick in featured.picks do
+	for _, pick in picks do
 		onFeatured[pick.key] = true
 	end
 	self:_fillSale(StoreLogic.saleList(rows, prices, Config, os.time(), SALE_MOST, onFeatured))
@@ -1685,6 +2085,7 @@ function Store.destroy(self: any)
 		self._packInfo.buy:destroy()
 	end
 	self._panel:destroy()
+	self._panel = nil -- #4276: stops the Packs tab's turns
 end
 
 return Store

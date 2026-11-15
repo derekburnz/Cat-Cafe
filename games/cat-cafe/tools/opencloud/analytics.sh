@@ -719,6 +719,8 @@ done
 # event's value, in seconds for these). CustomEventName is a filter only, as in section 4.
 #   quit_state          value seconds played; fields furthest step, where, "carry|empty bait|nobait" (Tier < 2 leavers)
 #   step_time           value account seconds of play at the step; field the onboarding step name
+#   ab_loading          value the playtime_v1 step number; fields arm (on/off), step name, device (#4314, new saves)
+#   ab_loading_seen     value the seconds the loading screen was up; fields arm, device (#4314)
 #   step_gap            value seconds between two steps; fields the gap, the bucket (#3530, shared/StepGaps)
 #   quit_have           value seconds played; fields kinds of cat, coin share of Tier 2, ready or not_ready (#3530)
 #   cat_caught_area     value 1; fields area id, rarity
@@ -739,8 +741,30 @@ fieldEvents=(
 	"step_gap|CustomField1,CustomField2|CustomEventCountUser|Players per gap between two steps, by time bucket (#3530)"
 	"step_gap|CustomField1|CustomEventAvgValue|Average seconds per gap (earlier_visit and no_start rows count as 0)"
 	"quit_have|CustomField1|CustomEventCountUser|Leavers before Tier 2 by kinds of cat owned (#3530)"
+	"new_player_left|Platform,CustomField1|CustomEventCountUser|New players leaving: by device and furthest clean step (#4097)"
+	"new_player_left|Platform,CustomField1|CustomEventAvgValue|New players leaving: average seconds in session, by device and furthest step (#4097)"
+	"new_player_left|CustomField1,CustomField3|CustomEventCountUser|New players leaving: by furthest step and bounce window (#4097)"
+	"step_time|Platform,CustomField1|CustomEventCountUser|Players per step by device (step_time, second cat trail) (#4097)"
+	"step_gap|Platform,CustomField1|CustomEventAvgValue|Average seconds per gap, by device (#4097)"
+	"quit_have|Platform,CustomField1|CustomEventCountUser|Leavers before Tier 2 by device and kinds of cat owned (#4097)"
+	"quit_have|Platform,CustomField2|CustomEventCountUser|Leavers before Tier 2 by device and coins share of Tier 2 cost (#4097)"
+	"slots_full|Platform,CustomField1|CustomEventCountUser|Players who hit full cat slots, by device and tier (#4097)"
+	"step_ready|Platform,CustomField1|CustomEventCountUser|Players ready for each step, by device (bowl_afford) (#4097)"
+	"step_ready|Platform,CustomField1|CustomEventAvgValue|Average account seconds when each step became ready, by device (#4097)"
+	"step_stall|Platform,CustomField1,CustomField2|CustomEventCountUser|Stalls by device, awaited step and 30/60/120 s (#4097)"
+	"step_stall|Platform,CustomField1,CustomField3|CustomEventCountUser|Stalls by device, awaited step and last hint (#4097)"
+	"quit_state|Platform,CustomField1,CustomField2|CustomEventCountUser|Leavers by device, furthest step and where (#4097)"
+	"quit_state|CustomField1,CustomField2,CustomField3|CustomEventCountUser|Leavers by furthest step, where and carry or bait state (#4097)"
+	"pal_time|CustomField1|CustomEventCountUser|Players with time beside a pal, by how the pal link started (#3995)"
+	"pal_time|CustomField1|CustomEventAvgValue|Average minutes beside a pal, by how the link started (#3995)"
+	"pal_time|Platform,CustomField1|CustomEventCountUser|Players with pal time by device and how the link started (#3995)"
+	"pal_time|CustomField2|CustomEventCountUser|Players with pal time, by tier when they left (#3995)"
+	"pal_join|CustomField1,CustomField2|CustomEventCountUser|Friend joins: invite or follow, new or returning (#3995, #4141)"
+	"pal_join|CustomField1,CustomField3|CustomEventCountUser|Friend joins: invite or follow, landed next door or not (#3995, #4141)"
+	"pal_join|Platform,CustomField2|CustomEventCountUser|Friend joins by device, new or returning (#3995, #4141)"
 	"quit_have|CustomField2|CustomEventCountUser|Leavers before Tier 2 by coins as a share of Tier 2's cost"
 	"quit_have|CustomField3|CustomEventCountUser|Leavers before Tier 2: ready to rank up or not (rank_up_ready_quit)"
+	"quit_have|CustomField1,CustomField2|CustomEventCountUser|Leavers before Tier 2 by kinds of cat owned and coins share of Tier 2 cost (Design-Agent 2026-11-15)"
 	"cat_caught_area|CustomField1,CustomField2|CustomEventCountUser|Players catching by area and rarity"
 	"bait_rolled|CustomField1|CustomEventCountUser|Bait: players who put food in a bowl, by food"
 	"bait_resolved|CustomField3|CustomEventCountUser|Bait: players who met their bait cat, by choice (tame or let go)"
@@ -839,6 +863,13 @@ fieldEvents=(
 	"quit_scene|CustomField1,CustomField3|CustomEventCountUser|Leavers below Tier 2 by scene and seconds bucket"
 	"first_scene|CustomField1|CustomEventAvgValue|Average seconds from join to the first intro shot, by device (minus step_time loaded = still wait)"
 	"first_scene|CustomField1,CustomField3|CustomEventCountUser|Players by device and wait before the first intro shot"
+	"ab_loading|CustomField3,CustomField1,CustomField2|CustomEventCountUser|Loading screen test (#4314): players by device, arm and playtime step up to 5 min (churn = drop between steps)"
+	"ab_loading|CustomField1,CustomField2|CustomEventCountUser|Loading screen test: players by arm and playtime step, all devices (if the three-way row above is refused)"
+	"ab_loading_seen|CustomField2,CustomField1|CustomEventAvgValue|Loading screen test: average seconds the screen was up, by device and arm"
+	"ab_loading_seen|CustomField2,CustomField1|CustomEventCountUser|Loading screen test: players who saw it, by device and arm"
+	"client_boot|CustomField1|CustomEventAvgValue|Average seconds from join to the first save on the client, by device (#4307)"
+	"client_boot|CustomField1,CustomField2|CustomEventCountUser|Players by device and Roblox load time (join to first script line)"
+	"client_boot|CustomField1,CustomField3|CustomEventCountUser|Players by device and UI build / save wait"
 )
 say "### Event fields"
 say ""

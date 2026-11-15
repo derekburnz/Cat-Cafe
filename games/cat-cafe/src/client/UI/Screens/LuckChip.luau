@@ -27,7 +27,7 @@ local Types = require(script.Parent.Parent.Types)
 
 export type LuckChip = {
 	chip: TextButton,
-	card: Frame,
+	card: TextButton,
 	setCatalog: (self: LuckChip, catalog: Types.Catalog) -> (),
 	render: (self: LuckChip, state: Types.PlayerState) -> (),
 	toggle: (self: LuckChip) -> (),
@@ -160,8 +160,12 @@ function LuckChip.new(
 	self.chip = chip
 
 	-- the card over the counters
-	local card: Frame = Create("Frame", {
+	-- #3990 (Review-QA on a PC): a button, so a tap on its padding never opens the menu tile drawn under it (a Frame
+	-- lets taps through, even with Active)
+	local card: TextButton = Create("TextButton", {
 		Name = "LuckCard",
+		Text = "",
+		AutoButtonColor = false,
 		BackgroundColor3 = Theme.hud.panel,
 		BackgroundTransparency = Theme.hud.panelTransparency,
 		BorderSizePixel = 0,
@@ -433,7 +437,7 @@ end
 -- HUD._showExact does): its left edge on the chip's, above the chip when the chip is in the lower half of the screen,
 -- else below it.
 function LuckChip._place(self: any)
-	local card: Frame = self.card
+	local card: TextButton = self.card
 	local root: Frame = self._root
 	local chip: TextButton = self.chip
 	local scale = Scale.get()

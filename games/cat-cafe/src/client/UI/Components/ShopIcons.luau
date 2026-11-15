@@ -220,6 +220,40 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Pond = StationIcons.pond,
 	Icon_Clean_LostFound = StationIcons.lostFound,
 	Icon_Clean_Arcade = StationIcons.arcade,
+	-- #4417 (Model-Agent, 2026-11-15): the late stations' clean pictures, for their window headers and Cannon strips
+	-- (ShopIcons.hud("TicketBooth") finds Icon_Clean_TicketBooth)
+	Icon_Clean_TicketBooth = "rbxassetid://96195139920509",
+	Icon_Clean_Observatory = "rbxassetid://72696437397422",
+	Icon_Clean_DragonKeep = "rbxassetid://122710978883444",
+	-- #4424: one prize ticket, for the Ticket Booth's balance and prices
+	Icon_Clean_Ticket = "rbxassetid://129842731005234",
+	-- #4412: Cinder's five stage portraits (CatCafe_Icon_Dragon_<Stage>); ShopIcons.dragonStage
+	Icon_Dragon_Hatchling = "rbxassetid://99135344316065",
+	Icon_Dragon_Whelp = "rbxassetid://102034058992887",
+	Icon_Dragon_Drake = "rbxassetid://134663605479359",
+	Icon_Dragon_Elder = "rbxassetid://72176959650077",
+	Icon_Dragon_Crowned = "rbxassetid://71739636873722",
+	-- #4415: the six card families (CatCafe_Icon_DragonFamily_<Name>); ShopIcons.dragonFamily
+	Icon_DragonFamily_Flame = "rbxassetid://77240575634492",
+	Icon_DragonFamily_Claw = "rbxassetid://90005938117764",
+	Icon_DragonFamily_Wing = "rbxassetid://94092411571418",
+	Icon_DragonFamily_Hoard = "rbxassetid://131216459580695",
+	Icon_DragonFamily_Heart = "rbxassetid://100631268032899",
+	Icon_DragonFamily_Crown = "rbxassetid://91850271285128",
+	-- #4061: the Ticket Booth's prizes and weekly shelf (Model-Agent); ShopIcons.booth
+	Icon_ShopCat_BoothPlush = "rbxassetid://126308376800797",
+	Icon_Booth_WaterSquirter = "rbxassetid://127849436597884",
+	Icon_Booth_PoolNoodle = "rbxassetid://137047405302523",
+	Icon_Booth_FlamingoFloat = "rbxassetid://104577381956407",
+	Icon_Booth_SplashFountain = "rbxassetid://73775856027824",
+	Icon_Booth_TicketArch = "rbxassetid://123078102631830",
+	Icon_Booth_WavePoolTiles = "rbxassetid://94896793871597",
+	Icon_Booth_LifeguardChair = "rbxassetid://85047858255430",
+	Icon_Booth_SnackHut = "rbxassetid://128018175497731",
+	Icon_Booth_SnorkelMask = "rbxassetid://89416076906488",
+	Icon_Booth_SwimCap = "rbxassetid://118865614034085",
+	Icon_Booth_SunVisor = "rbxassetid://140281430991767",
+	Icon_Booth_StarfishShades = "rbxassetid://83848413674386",
 	-- #2836 pass 2: the Settings rows' pictures (Model-Agent, group upload run 42714863021 (#2866), PR #2841); ShopIcons.setting
 	Icon_Hud_SetMusic = "rbxassetid://133550441899269",
 	Icon_Hud_SetMusicVolume = "rbxassetid://121500344853399",
@@ -570,6 +604,30 @@ end
 -- A shop-only cat's picture (#1191) by its name, such as "KingCroissant", or nil.
 function ShopIcons.shopCat(name: string?): string?
 	return if type(name) == "string" then IDS["Icon_ShopCat_" .. name] else nil
+end
+
+-- #4412: Cinder's portrait for a stage name ("Drake"), or nil for the Egg and names it does not know.
+function ShopIcons.dragonStage(stageName: string?): string?
+	return if type(stageName) == "string" then IDS["Icon_Dragon_" .. stageName] else nil
+end
+
+-- #4415: a card family's picture by DragonKeep's family id ("flame"), or nil.
+function ShopIcons.dragonFamily(family: string?): string?
+	if type(family) ~= "string" or family == "" then
+		return nil
+	end
+	return IDS["Icon_DragonFamily_" .. string.upper(string.sub(family, 1, 1)) .. string.sub(
+		family,
+		2
+	)]
+end
+
+-- #4061: a Ticket Booth prize or shelf picture by its name ("PoolNoodle", "BoothPlush"), or nil.
+function ShopIcons.booth(name: string?): string?
+	if type(name) ~= "string" then
+		return nil
+	end
+	return IDS["Icon_Booth_" .. name] or IDS["Icon_ShopCat_" .. name]
 end
 
 -- A Store card's own picture (Tools-Agent's uploads, 11-05), by the card's StoreLogic key: "vip" is Icon_Store_Vip.

@@ -3048,6 +3048,45 @@ function Layout.lawnStallAt(): (number?, number?, number?, number?)
 		camp.turn + at.turn
 end
 
+-- #4061: the Ticket Booth kiosk (CatCafe_Camp_WaterPark_TicketBooth, pivot its base centre, front -Z, 9.2 wide and
+-- 5.4 deep) in the Water Park's set space, as Layout.lawnStall: in the camp right of the way out (the Index Board is
+-- on the left at x -19), 10 in from the gate line (set z -280) and level with the landing pad (z -293, x 0), turned 90
+-- so its front faces set -X, toward the pad. Its turned footprint runs x 19.3 to 24.7, clear of the opening (12 either
+-- side of the middle).
+Layout.ticketBooth = { area = "waterpark", x = 22, y = 0, z = -290, turn = 90 }
+
+-- #4103: the Dragon Keep (CatCafe_Camp_Castle_DragonKeep, pivot its base centre, front -Z, 15.1 wide and 15.0 deep)
+-- in the Medieval Castle's set space, as Layout.ticketBooth: right of the way out (its Index Board on the left at
+-- x -19), its centre level with the pad (z -293), turned 90 so its front faces the pad. Its footprint runs x 24.5 to
+-- 39.5 and z -285.5 to -300.5, inside the camp (gate line z -280, back wall -310) and clear of the opening.
+Layout.dragonKeep = { area = "castle", x = 32, y = 0, z = -293, turn = 90 }
+
+-- Where a camp spot ({area, x, y, z, turn} in its area's set space) stands in the world, as lawnStallAt, or nil
+-- without that area or its camp.
+local function campSpotAt(
+	at: { area: string, x: number, y: number, z: number, turn: number }
+): (number?, number?, number?, number?)
+	local spec, camp = Layout.areas[at.area], Layout.camps[at.area]
+	if spec == nil or camp == nil then
+		return nil, nil, nil, nil
+	end
+	local c, s = math.cos(math.rad(camp.turn)), math.sin(math.rad(camp.turn))
+	return spec.center.x + at.x * c + at.z * s,
+		spec.floorY + at.y,
+		spec.center.z - at.x * s + at.z * c,
+		camp.turn + at.turn
+end
+
+-- Where the Ticket Booth stands in the world, or nil without the Water Park or its camp.
+function Layout.ticketBoothAt(): (number?, number?, number?, number?)
+	return campSpotAt(Layout.ticketBooth)
+end
+
+-- #4103: where the Dragon Keep stands in the world, or nil without the Castle or its camp.
+function Layout.dragonKeepAt(): (number?, number?, number?, number?)
+	return campSpotAt(Layout.dragonKeep)
+end
+
 -- The camp an x, z stands in, by its rect (edges included), or nil.
 function Layout.campAt(x: number, z: number): string?
 	for id, camp in Layout.camps do

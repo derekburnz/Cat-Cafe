@@ -2875,7 +2875,9 @@ Presets.nap = {
 	tilt = 12,
 }
 
-Presets.gate = { seconds = 1.4, playWithin = 70 }
+-- `areaPuff` (#4069): pieces of the area's own puff at each of Presets.areas.points places along the foot of a gate
+-- whose area has effects of its own (Presets.areaFx.areas), on top of the dissolve.
+Presets.gate = { seconds = 1.4, playWithin = 70, areaPuff = 3 }
 
 Presets.shutter = { seconds = 0.9, signSeconds = 0.6 }
 
@@ -6006,8 +6008,16 @@ Presets.baitCrumbs = {
 -- every `check` seconds. `marker` is the gold paw over it, drawn through walls within `marker.within` studs (#3238:
 -- only 51 of 139 players reached the second cat's trail). `attribute`, `delay` and `seconds` are shared/SecondCat's
 -- when it is in.
+-- #4384 (one ask at a time after the first check-in): while the player's tutorialStep is `holdStep` (the bowl step)
+-- the beacon, the call and its sound wait, so the Bait bowl is the only ask; switch `holdSwitch` (on unless false).
+-- Only once the player owns the Bait bowl (upgrade `holdUpgrade`): one who cannot buy it yet keeps the beacon to the
+-- free second cat. And for `holdMost` seconds at most, so nobody is left with no next step.
 Presets.waitingCat = {
 	attribute = "WaitsFor",
+	holdStep = 4,
+	holdSwitch = "checkInCalm",
+	holdUpgrade = "lure_bowl",
+	holdMost = 180,
 	delay = 2,
 	seconds = 120,
 	within = 400,
@@ -6054,6 +6064,19 @@ Presets.lateStations = {
 	beamWidth = 1.2,
 	beamHeight = 14,
 	beamSeconds = 1.2,
+}
+
+-- The Ticket Booth's buy moment (#4061; Effects/BoothFx): paper tickets in the booth's own red, cream and gold off
+-- the `anchor` attachment of the `tag`-tagged model (else `under` of its height above its middle), `tickets` of the
+-- device's confetti budget, `sparkles` gold sparkles and one gold ring `ring` studs wide at its feet.
+Presets.boothFx = {
+	tag = "TicketBooth",
+	anchor = "BangAnchor",
+	under = 0.2,
+	tickets = 0.5,
+	sparkles = 8,
+	ring = 7,
+	colours = { Presets.palette.shirtRed, Presets.palette.cream, Presets.palette.golden },
 }
 
 -- The Relic Museum's room names (#3129; Effects/MuseumPlaques, Logic.plaqueGlow): a finished room's plaque letters

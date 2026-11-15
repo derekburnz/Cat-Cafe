@@ -15,6 +15,7 @@ local TweenService = game:GetService("TweenService")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RecapLogic = require(script.Parent.Parent.Components.RecapLogic)
 local ReturnGoalWords = require(script.Parent.Parent.Components.ReturnGoalWords)
@@ -356,6 +357,11 @@ function RecapCard.show(
 			self:_close()
 		end
 	end)
+	-- #4224 (console): B closes it as its X does, without taking the selection (the player keeps moving)
+	GamepadNav.pushBack("recapCard", card, function(): boolean?
+		self:_close()
+		return true
+	end)
 end
 
 function RecapCard._close(self: any)
@@ -364,6 +370,7 @@ function RecapCard._close(self: any)
 		return
 	end
 	self._onClosed = nil
+	GamepadNav.popBack("recapCard")
 	self._token += 1
 	local token = self._token
 	local card: Frame = self._card

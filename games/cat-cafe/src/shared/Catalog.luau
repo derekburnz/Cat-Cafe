@@ -4226,6 +4226,14 @@ Catalog.codes = {
 		active = true,
 		prize = { coins = 2500, coinSeconds = 900, fish = 60, crates = { classic_crate = 2 } },
 	},
+	-- Growth-Agent 2026-11-15 (coordinator, under Derek's standing OK on recommendations): the 3 New Worlds update's
+	-- code, on by the clock at the update (Sunday 2026-11-15 20:00 UTC), the size of `update4`; no end.
+	update5 = {
+		id = "update5",
+		active = true,
+		startsAt = 1794772800, -- 2026-11-15 20:00 UTC
+		prize = { coins = 2500, coinSeconds = 900, fish = 60, potions = { lucky_potion = 2 } },
+	},
 	["30likes"] = {
 		id = "30likes",
 		active = true,

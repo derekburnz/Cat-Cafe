@@ -204,8 +204,9 @@ end
 function StationLockController.start()
 	task.spawn(function()
 		while true do
-			local ok, err = pcall(function(): ()
+			local ok, err = pcall(function(): string?
 				sweep()
+				return nil -- CI's luau-lsp wants two values from pcall
 			end)
 			if not ok then
 				warn("[StationLock] " .. tostring(err))

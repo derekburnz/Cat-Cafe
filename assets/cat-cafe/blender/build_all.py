@@ -109,6 +109,7 @@ import sewerset  # noqa: E402
 import neighbourhoodset  # noqa: E402
 import pitysign  # noqa: E402
 import updateposter  # noqa: E402
+import decorstand  # noqa: E402
 import mysterysign  # noqa: E402
 import ringicons  # noqa: E402
 import plot  # noqa: E402
@@ -143,7 +144,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
            mysterymarket, mysteryitems, desertset, ruinsset, snowyset, waterparkset, castleset, campgrowth, townsfolk, nooks, feedbackstand,
            arcadecabinet, mysticpool, moneybag, riftrun, storepacks, harvestoutfits, harvestdecor, harvestset, dragon,
-           updateposter, mysterysign,
+           updateposter, decorstand, mysterysign,
            waterparkshelf, wallperch]
 
 PIVOT_NOTES = {
@@ -265,6 +266,8 @@ PIVOT_NOTES = {
                    "pitysign.SPOT, facing the player spawn",
     updateposter.NAME: "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
                        "updateposter.SPOT, facing the player spawn",
+    decorstand.NAME: "the base centre on the square's floor (world y 0.1), front -Z; decorstand.SPOT, beside the "
+                     "Golden Fish Market, facing the player spawn",
     mysterysign.NAME: "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
                       "mysterysign.SPOT, beside the Mystery Market wagon, facing the player spawn",
     campstations.PIC: "the base centre on the camp's ground, front -Z, no turn; the Picnic Basket's spot "
@@ -463,6 +466,10 @@ STUDIO_NOTES = {
                        "sign's mirror, facing the spawn). Streams Atomic. The UI's SurfaceGui (Adornee = the part "
                        "named Screen, 8.0 x 4.5, night blue) draws the next update's picture, name, countdown and "
                        "the Notify Me tap on its Front (-Z) face.",
+    decorstand.NAME: "#4516: the decor stand beside the Golden Fish Market (suggested spot decorstand.SPOT): a "
+                     "two-step table with a Cafe Crate, the Mushroom Lamp and the Lantern Stump under a DECOR CRATES "
+                     "board, a gold arrow on top pointing at the market (+X). The pieces are the game's own models, "
+                     "scaled; none collide.",
     mysterysign.NAME: "#4508: the Mystery Market's signboard beside Juniper's wagon (suggested spot "
                       "mysterysign.SPOT): NEW ITEMS, the Backpack on a peg and the Speed Shoes on a shelf with "
                       "their names, and a gold arrow on top pointing at the wagon (+X). The item parts (_Decor) "
@@ -1088,6 +1095,8 @@ def main():
         if name == pitysign.NAME:
             entry["screen"] = {"part": "Screen", "face": "Front (-Z)", "size": [pitysign.SW, pitysign.SH]}
             entry["placement_suggested_roblox"] = [round(v, 2) for v in pitysign.SPOT]
+        if name == decorstand.NAME:
+            entry["placement_suggested_roblox"] = [round(v, 2) for v in decorstand.SPOT]
         if name == mysterysign.NAME:
             entry["placement_suggested_roblox"] = [round(v, 2) for v in mysterysign.SPOT]
         if name == updateposter.NAME:

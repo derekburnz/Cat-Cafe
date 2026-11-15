@@ -78,8 +78,6 @@ local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local PromptKey = require(script.Parent.Parent.Components.PromptKey)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
-local RareBubbleLogic = require(script.Parent.Parent.Components.RareBubbleLogic)
-local RareBubbles = require(script.Parent.Parent.Components.RareBubbles)
 local RestChip = require(script.Parent.Parent.Components.RestChip)
 local Scale = require(script.Parent.Parent.Scale)
 local SecondCatGoal = require(script.Parent.Parent.Components.SecondCatGoal)
@@ -2222,16 +2220,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			self:_paintHarvest()
 		end)
 	)
-	-- #4227: the wild Mythical and Secret cats out now in the areas this player has open, on the Cannon button
-	self._rareBubbles =
-		RareBubbles.new(self._travelButtons.cannon.instance, UDim2.new(1, 8, 0, -8), 12)
-	self._rareTier = 0
-	table.insert(
-		self._connections,
-		ReplicatedStorage:GetAttributeChangedSignal(RareBubbleLogic.ATTRIBUTE):Connect(function()
-			self:_paintRares()
-		end)
-	)
+	-- #4450 (Derek 2026-11-15): the Cannon button carries no Mythical or Secret count; only the picker's cards do (#4227)
 	-- the arrow tab right of the row folds it below the screen edge and back; it stays where it is
 	self._travelFolded = false
 	local travelFold = Button.new({
@@ -3096,21 +3085,6 @@ function HUD.setCatalog(self: any, catalog: Types.Catalog)
 	self._luck:setCatalog(catalog)
 end
 
--- #4227: the Cannon button's bubbles, every area the player's tier has open added up.
-function HUD._paintRares(self: any)
-	local catalog: Types.Catalog? = self._catalog
-	local open: { [string]: boolean } = {}
-	if catalog ~= nil then
-		for _, area in (catalog.areas or {}) :: { Types.AreaDef } do
-			if area.tier <= self._rareTier then
-				open[area.id] = true
-			end
-		end
-	end
-	local rares = RareBubbleLogic.decode(ReplicatedStorage:GetAttribute(RareBubbleLogic.ATTRIBUTE))
-	self._rareBubbles:set(RareBubbleLogic.totals(rares, open))
-end
-
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
 	-- #4249: the Mailbox tile's red count, the letters still to claim
@@ -3119,10 +3093,6 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self._mailWaiting = waiting
 		self._mailDot.Visible = waiting > 0
 		self._mailCount.Text = if waiting > 9 then "9+" else tostring(waiting)
-	end
-	if (state.tier or 1) ~= self._rareTier then
-		self._rareTier = state.tier or 1
-		self:_paintRares()
 	end
 	if (state.tier or 1) ~= self._harvestTier then
 		self._harvestTier = state.tier or 1

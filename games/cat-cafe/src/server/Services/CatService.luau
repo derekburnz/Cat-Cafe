@@ -51,6 +51,7 @@ local M = {
 	Config = require(ReplicatedStorage.Shared.Config),
 	Cooldown = require(ReplicatedStorage.Shared.Cooldown),
 	DataService = require(script.Parent.DataService),
+	DragonKeep = require(ReplicatedStorage.Shared.DragonKeep),
 	Economy = require(ReplicatedStorage.Shared.Economy),
 	EventRewardService = require(script.Parent.EventRewardService),
 	GoldenFish = require(ReplicatedStorage.Shared.GoldenFish),
@@ -411,7 +412,9 @@ local function pawsBonus(player: Player): number
 	local profile = M.DataService.get(player)
 	-- #3871: plus the working cats' speed traits (Quick Paws and the combos that hold it), the best one only
 	local traits = if profile ~= nil then M.Economy.traitBonus(profile, "speed") else 0
-	return M.SwiftPaws.bonus(profile, M.LiveFlagService.on(M.SwiftPaws.FLAG)) + traits
+	-- #4447: the Dragon Keep's wing cards and set, inside DragonKeep.WALK_CAP
+	local dragon = if profile ~= nil then M.DragonKeep.of(profile).walk else 0
+	return M.SwiftPaws.bonus(profile, M.LiveFlagService.on(M.SwiftPaws.FLAG)) + traits + dragon
 end
 
 -- #3535: the carry walk speed: CarryWalkSpeed with Swift Paws and, with the Speed Shoes owned and their switch on,
@@ -2612,6 +2615,7 @@ function startCatch(
 	end
 	-- F87: a beginner's own tutorial stray is one slow circle with doubled bands (easy-start.md section 2b)
 	local tutorial = easyCatch(player, profile, stray) -- #2774: any rarity, until the first check-in
+	local dragonFx = M.DragonKeep.of(profile) -- #4447: Quick Paws and Steady Claw
 	-- F83: the rarer the cat, the narrower its bands; CatchSchedule sends these, so the client draws the real ones
 	local windows = if tutorial
 		then Circles.tutorialWindows(netLevel)
@@ -2636,13 +2640,20 @@ function startCatch(
 		and (SecondCat.caught(profile.stats) == 0 or freeCatch(player, profile))
 	local circles = if tutorial
 		then Circles.tutorialSchedule(now, roll, hold)
-		else Circles.schedule(stray.def.rarity, netLevel, now, roll, stray.area) -- #3140: quicker late on
+		else Circles.schedule(
+			stray.def.rarity,
+			netLevel,
+			now,
+			roll,
+			stray.area,
+			dragonFx.slowRings
+		) -- #3140, #4447
 	-- #1884 (catch-rework.md 7b): the trust bar; the tutorial stray's one ring catches on a Good or Perfect
 	-- #1884 (7a): a swing landing just as a Curious cat walks up starts with CuriousTrustBonus more
 	local trust = if tutorial
 		then Circles.tutorialTrust()
 		else Circles.trustFor(stray.def.rarity, M.Moods.trustBonus(stray.curiousAt, now))
-	local attempt = Circles.newAttempt(circles, windows, trust)
+	local attempt = Circles.newAttempt(circles, windows, trust, not tutorial and dragonFx.forgive)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
 	CatService.refreshSpeed(player) -- #2052: the catcher stands still until the circles end
@@ -2853,7 +2864,9 @@ end
 
 local function swingCheck(player: Player): NetSwing.SwingCheck
 	local last = lastSwing[player]
+	local profile = M.DataService.get(player)
 	return {
+		cooldown = if profile ~= nil then NetSwing.cooldownFor(profile) else nil, -- #4447: Ember Net
 		carrying = carrying[player] ~= nil,
 		busy = holdsCatch(player) or inRescue(player),
 		inFlight = inFlight(player),
@@ -2927,7 +2940,7 @@ local function landSwing(player: Player)
 			end
 		end
 	end
-	local picked = NetSwing.pick(origin, look, targets, NetSwing.extraFor(profile.mystery)) -- #2565: the Long Net
+	local picked = NetSwing.pick(origin, look, targets, NetSwing.extraForProfile(profile)) -- #2565, #4447
 	-- #2774: a beginner's swing near their own tutorial stray lands on it whichever way they face
 	if picked == nil and profile.tutorialStep < M.Config.TutorialGuaranteedStrayStep then
 		for _, target in targets do
@@ -3022,6 +3035,15 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 			Telemetry.catchCheckedIn(player, carry.funnel, instance.uid, instance.spotId ~= nil)
 		end
 		Net.fire(player, "CatCaught", def.id, isNew, instance.variant)
+		-- #4447: the Dragon Keep's Double Catch, a plain second copy that joins quietly with its own toast
+		local keeper = M.DataService.get(player)
+		if
+			keeper ~= nil
+			and M.DragonKeep.bringsFriend(M.DragonKeep.of(keeper), def.rarity, rng:NextNumber())
+		then
+			M.CafeService.addCaughtCat(player, def, false, keeper, nil, carry.method, nil)
+			Net.toast(player, string.format("Your %s brought a friend!", def.name), "good")
+		end
 		local verb = if carry.method == "rescue" then "rescued" else "caught"
 		-- the shout-out chime rises with rarity; F89: a Legendary or Mythical one at most once a minute a player
 		M.RareMomentService.shoutOut(

@@ -1532,6 +1532,19 @@ function Logic.isStuck(style: Style): boolean
 	return style == "stuck" or style == "stuckButt" or style == "stuckFlip"
 end
 
+-- A Common cat's head prop bouncing as it walks (Presets.motion.propBounce, #4069 to #4071): `degrees` is the cat's
+-- own swing (0 or less for none). Eases in from a standstill like the legs, and tips the prop through `capTip`, the
+-- same turn the Bellhop Cat's cap uses, so it rides on top of whatever else the head is doing.
+function Logic.propBounce(o: Offsets, speed: number, stride: number, degrees: number)
+	local g = Presets.motion.gait
+	if degrees <= 0 or speed < g.moveFrom then
+		return
+	end
+	local start = math.clamp((speed - g.moveFrom) / g.moveFrom, 0, 1)
+	local phase = stride * 2 * math.pi - Presets.motion.propBounce.lag
+	o.capTip += math.rad(degrees) * start * math.sin(phase)
+end
+
 -- How much of the Balloon Cat's float (motion.float) a style gets: all of it awake, `resting` of it asleep or
 -- loafing, none stuck in a trap.
 function Logic.floatShare(style: Style): number

@@ -2443,6 +2443,48 @@ return function()
 		)
 
 		it(
+			"stands the decor stand beside the Golden Fish Market, facing the spawn (#4516)",
+			function()
+				local stand: any = nil
+				for _, prop in square.props :: { any } do
+					if prop.asset == "CatCafe_Square_DecorStand" then
+						expect(stand).to.equal(nil) -- one stand
+						stand = prop
+					end
+				end
+				expect(stand).to.be.ok()
+				local market = Layout.fishMarket
+				local apart = math.sqrt((stand.x - market.x) ^ 2 + (stand.z - market.z) ^ 2)
+				-- beside the market (11.9 wide): past its end, and close enough to read as the market's own stand
+				expect(apart > 8).to.equal(true)
+				expect(apart < 12).to.equal(true)
+				-- clear of the Day Cart next door
+				local cart = Layout.dayCart
+				expect(math.sqrt((stand.x - cart.x) ^ 2 + (stand.z - cart.z) ^ 2) > 10).to.equal(
+					true
+				)
+				-- about 5 wide and 3 deep (the manifest); every corner, turned, stays on the square off the lanes
+				local yaw = math.rad(stand.rotY or 0)
+				local cos, sin = math.cos(yaw), math.sin(yaw)
+				for _, corner in { { -2.5, -1.9 }, { 2.5, -1.9 }, { -2.5, 1.1 }, { 2.5, 1.1 } } do
+					local x = stand.x + corner[1] * cos + corner[2] * sin
+					local z = stand.z - corner[1] * sin + corner[2] * cos
+					expect(inside(x, z, square.floor, 2)).to.equal(true)
+					for _, lane in lanes do
+						expect(inside(x, z, lane, -0.5)).to.equal(false)
+					end
+				end
+				local spawn = Layout.playerSpawn
+				local toX, toZ = spawn.x - stand.x, spawn.z - stand.z
+				local length = math.sqrt(toX ^ 2 + toZ ^ 2)
+				expect((-sin * toX - cos * toZ) / length > 0.99).to.equal(true)
+				-- the arrow on its top points along the stand's +X (cos, -sin): toward the market
+				local toMarketX, toMarketZ = market.x - stand.x, market.z - stand.z
+				expect((cos * toMarketX - sin * toMarketZ) / apart > 0.7).to.equal(true)
+			end
+		)
+
+		it(
 			"stands the pity sign across from the Day Cart facing the spawn, off the lanes (#1753)",
 			function()
 				local sign = square.pitySign

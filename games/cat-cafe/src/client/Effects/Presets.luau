@@ -6305,6 +6305,7 @@ Presets.areaWater = {
 		"CatCafe_Castle_",
 		"CatCafe_Camp_WaterPark",
 		"CatCafe_Camp_Castle",
+		"CatCafe_Harvest_", -- #4251: Harvest Hollow's creek
 	},
 	suffix = "_Water",
 	within = 110,
@@ -6324,6 +6325,8 @@ Presets.areaWater = {
 		{ piece = "KidsPool", glint = "poolGlint", parts = 1, ringEvery = 2.2, ring = 2.6 },
 		{ piece = "Moat", glint = "poolGlint", parts = 2, ringEvery = 2.2, ring = 3 },
 		{ piece = "Well", glint = "wellGlint", parts = 1, ringEvery = 3.5, ring = 1.2 },
+		-- #4251: Harvest Hollow's creek is a run of small plates, so the well's small glints on the nearest few
+		{ piece = "Creek", glint = "wellGlint", parts = 4, ringEvery = 3, ring = 1.4 },
 	} :: { AreaWaterKind },
 }
 

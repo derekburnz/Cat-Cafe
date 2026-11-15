@@ -463,3 +463,44 @@ Object.assign(window.ICONS, {
     <circle cx="33.6" cy="26.3" r="1.4" fill="#ff8fb3"/><circle cx="36.6" cy="27.8" r="1.4" fill="#ff8fb3"/>
     <path d="M16 24 Q14 34 15 46" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round" opacity=".9"/>`,
 });
+// #4061, #4062, #4104 the three late stations (Tier 8 to 10 camps), for their ring cards and window headers in place
+// of 🎟️, 🔭 and 🐉 (Model-Agent, 2026-11-15)
+Object.assign(window.ICONS, {
+  // the Ticket Booth: two prize tickets fanned out, the front one orange with a paw and notched ends
+  ticketBooth: `<path ${S} fill="#ffd23f" transform="rotate(-18 32 30)" d="M8 18 H56 V26 Q51 26 51 31 Q51 36 56 36 V44 H8 V36 Q13 36 13 31 Q13 26 8 26 Z"/>
+    <path ${S} fill="#ff9a3c" transform="rotate(8 32 38)" d="M6 24 H58 V33 Q52 33 52 39 Q52 45 58 45 V54 H6 V45 Q12 45 12 39 Q12 33 6 33 Z"/>
+    <g transform="rotate(8 32 38)"><path d="M20 27 V51" stroke="${O}" stroke-width="2.6" stroke-dasharray="3.5 3.5"/>
+    <ellipse cx="37" cy="42.5" rx="6.5" ry="5.5" fill="#fff" stroke="${O}" stroke-width="2.6"/>
+    <circle cx="28.5" cy="35.5" r="3.1" fill="#fff" stroke="${O}" stroke-width="2.3"/><circle cx="34" cy="32" r="3.1" fill="#fff" stroke="${O}" stroke-width="2.3"/>
+    <circle cx="40.5" cy="32" r="3.1" fill="#fff" stroke="${O}" stroke-width="2.3"/><circle cx="46" cy="35.5" r="3.1" fill="#fff" stroke="${O}" stroke-width="2.3"/></g>`,
+  // the Cat Fusion Observatory: a round dome with its slit open, a telescope poking out at a gold star
+  observatory: `<rect ${S} x="8" y="42" width="48" height="16" rx="4" fill="#c9d3de"/>
+    <path d="M12 50 H52" stroke="#8fa0b3" stroke-width="2.6" stroke-linecap="round"/>
+    <path ${S} fill="#6f8fe0" d="M10 42 Q10 18 32 18 Q54 18 54 42 Z"/>
+    <path d="M17 36 Q19 25 28 22" stroke="#a9c0ff" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    <path d="M30 40 L46 14" stroke="${O}" stroke-width="12" stroke-linecap="round"/>
+    <path d="M30 40 L46 14" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+    <path d="M42 20 L47 12" stroke="#ffd23f" stroke-width="7" stroke-linecap="butt"/>
+    <path ${S} stroke-width="3.5" fill="#6f8fe0" d="M22 42 Q24 34 32 34 Q40 34 42 42 Z"/>
+    <path fill="#ffd23f" stroke="${O}" stroke-width="2.4" stroke-linejoin="round" d="M14 4 L16.4 10.6 L23 13 L16.4 15.4 L14 22 L11.6 15.4 L5 13 L11.6 10.6 Z"/>
+    <path fill="#fff" stroke="${O}" stroke-width="1.8" stroke-linejoin="round" d="M57 22 L58.3 25.7 L62 27 L58.3 28.3 L57 32 L55.7 28.3 L52 27 L55.7 25.7 Z"/>`,
+  // the Dragon Keep: Cinder's head, red with cream horns, a gold eye and a little flame at his nose
+  dragonKeep: `<path ${S} fill="#fff1d6" d="M18 20 L10 4 L26 14 Z"/><path ${S} fill="#fff1d6" d="M40 16 L50 3 L50 20 Z"/>
+    <path ${S} fill="#e8503f" d="M12 30 Q12 14 30 14 Q48 14 50 28 L58 34 Q62 38 58 43 Q54 48 44 46 Q40 56 28 56 Q12 56 12 40 Z"/>
+    <path d="M22 50 Q30 54 40 47" stroke="#ffd9a8" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="33" cy="30" rx="6" ry="7" fill="#ffd23f" stroke="${O}" stroke-width="3"/>
+    <ellipse cx="34" cy="30" rx="2" ry="5" fill="${O}"/>
+    <circle cx="53" cy="37" r="1.8" fill="${O}"/>
+    <path d="M14 30 L8 27 M13 38 L6 38 M15 46 L9 50" stroke="${O}" stroke-width="7" stroke-linecap="round"/>
+    <path d="M14 30 L8 27 M13 38 L6 38 M15 46 L9 50" stroke="#fff1d6" stroke-width="3" stroke-linecap="round"/>
+    <path fill="#ff9a3c" stroke="${O}" stroke-width="2.6" stroke-linejoin="round" d="M57 30 Q63 24 59 16 Q56 21 53 18 Q51 25 55 30 Z"/>`,
+});
+
+// #4061: one prize ticket, for the Ticket Booth's balance and prices in place of 🎟️ (Model-Agent, 2026-11-15)
+Object.assign(window.ICONS, {
+  ticket: `<g transform="rotate(-10 32 32) translate(0 -7)"><path ${S} fill="#ff9a3c" d="M6 24 H58 V33 Q52 33 52 39 Q52 45 58 45 V54 H6 V45 Q12 45 12 39 Q12 33 6 33 Z"/>
+    <path d="M20 27 V51" stroke="${O}" stroke-width="2.6" stroke-dasharray="3.5 3.5"/>
+    <ellipse cx="37" cy="42.5" rx="6.5" ry="5.5" fill="#fff" stroke="${O}" stroke-width="2.6"/>
+    <circle cx="28.5" cy="35.5" r="3.1" fill="#fff" stroke="${O}" stroke-width="2.3"/><circle cx="34" cy="32" r="3.1" fill="#fff" stroke="${O}" stroke-width="2.3"/>
+    <circle cx="40.5" cy="32" r="3.1" fill="#fff" stroke="${O}" stroke-width="2.3"/><circle cx="46" cy="35.5" r="3.1" fill="#fff" stroke="${O}" stroke-width="2.3"/></g>`,
+});

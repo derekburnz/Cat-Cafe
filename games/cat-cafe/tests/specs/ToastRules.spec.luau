@@ -149,9 +149,6 @@ return function()
 						"Owner test mode: 3 Luck Potions",
 						"Your bait cat is here! Head home to your bowl to meet it.",
 						"It dropped! Pick it up quick!",
-						-- #3106: a new player's first delivery and first cat are back
-						"🧺 Mochi is on its way to your cafe!",
-						"Your first cat! Mochi is your Waiter now ($2/s)",
 						"Welcome back! Your cats earned $113K while you rested 💤", -- #3573
 					}
 				do
@@ -160,6 +157,20 @@ return function()
 				end
 			end
 		)
+
+		it("drops the first catch lines (#4497)", function()
+			for _, line in
+				{
+					"🧺 Mochi is on its way to your cafe!",
+					"Your first cat! Mochi is your Waiter now ($2/s)",
+					"Your first cat! Mochi is your Barista (+$50)",
+					"New cat! Mochi joins the collection (+$50, 3 golden fish)",
+				}
+			do
+				expect(ToastRules.kept(line)).to.equal(false)
+				expect(ToastRules.quiet(line, "good")).to.equal(true)
+			end
+		end)
 
 		it("leaves info toasts and warnings to the older rules", function()
 			expect(ToastRules.quiet("Trade cancelled", "info")).to.equal(false)

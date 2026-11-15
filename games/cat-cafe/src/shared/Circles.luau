@@ -35,6 +35,7 @@ export type Attempt = {
 	trust: number?,
 	need: number?,
 	caught: boolean,
+	forgive: boolean?, -- #4447: the Dragon Keep's Steady Claw, until the first Miss uses it
 }
 
 -- #1884: the trust bar an attempt starts with and the trust that catches the cat.
@@ -132,10 +133,13 @@ function Circles.schedule(
 	_netLevel: number,
 	now: number,
 	roll: () -> number,
-	areaId: string?
+	areaId: string?,
+	slow: number? -- #4447: the Dragon Keep's Quick Paws, the share the shrink time grows by
 ): { Types.CatchCircle }
 	local def = Catalog.rarities[rarity]
-	local shrink = def.shrinkSeconds * Circles.ringSpeed(rarity, areaId)
+	local shrink = def.shrinkSeconds
+		* Circles.ringSpeed(rarity, areaId)
+		* (1 + math.max(0, slow or 0))
 	local jitter = Config.CircleJitter
 	local cap = Circles.ringCap(rarity)
 	local circles: { Types.CatchCircle } = {}
@@ -307,9 +311,11 @@ end
 function Circles.newAttempt(
 	circles: { Types.CatchCircle },
 	windows: Types.NetWindows,
-	trust: Trust?
+	trust: Trust?,
+	forgive: boolean?
 ): Attempt
 	return {
+		forgive = if trust ~= nil and forgive == true then true else nil,
 		circles = circles,
 		windows = windows,
 		scores = {},
@@ -345,7 +351,11 @@ local function settle(attempt: Attempt, grade: Types.RingGrade)
 		end
 		return
 	end
-	trust += Circles.trustDelta(grade)
+	if grade == "miss" and attempt.forgive == true then
+		attempt.forgive = nil -- #4447: Steady Claw forgives this Miss's trust once a catch
+	else
+		trust += Circles.trustDelta(grade)
+	end
 	attempt.trust = trust
 	if trust >= (attempt.need :: number) then
 		attempt.caught = true

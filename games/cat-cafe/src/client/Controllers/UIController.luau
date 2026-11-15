@@ -3274,9 +3274,8 @@ local function wireServerEvents()
 			show(kind, paid)
 		end
 	end)
-	-- #3420: the update gift's banners (Effects/EventBanner): "a gift is coming" and the gift paid. The words are
-	-- built here from shared/UpdateGift, which refuses anything but small whole numbers; a paid gift that cannot
-	-- show as a banner falls back to the toast.
+	-- #3420: the update gift's "a gift is coming" banner (Effects/EventBanner), and the gift paid as a toast (#4484).
+	-- The words are built here from shared/UpdateGift, which refuses anything but small whole numbers.
 	Net.on(
 		"UpdateGiftNotice",
 		function(
@@ -3290,14 +3289,13 @@ local function wireServerEvents()
 			if banner == nil then
 				return
 			end
-			local shown = EventBanner.show({
-				kind = if kind == "paid" then "gift" else "giftSoon",
-				title = banner.title,
-				lines = banner.lines,
-			})
-			if not shown and kind == "paid" then
+			-- #4484 (Derek 2026-11-15: "remove the big banner thanks for playing that gives fish on join because new
+			-- players cant see tutorial then"): the gift paid on join is a small toast, never the big banner
+			if kind == "paid" then
 				UI.toast(banner.title .. " " .. banner.lines[1], "good")
+				return
 			end
+			EventBanner.show({ kind = "giftSoon", title = banner.title, lines = banner.lines })
 		end
 	)
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.

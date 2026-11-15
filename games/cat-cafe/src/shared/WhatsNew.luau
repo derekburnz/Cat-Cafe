@@ -33,9 +33,40 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 local SECRETS_AT = 1794799800 -- 2026-11-16 03:30 UTC (Sunday 10:30 PM ET): 10 Secret Cats, the secretAreas switch
+local UPDATE_NOV_18 = 1795032000 -- 2026-11-18 20:00 UTC: Better on Every Device, when UPDATE6 opens too
 local UPDATE_20_00 = 1794772800 -- 2026-11-15 20:00 UTC: the 3 New Worlds restart, when the UPDATE5 code opens too
 
 WhatsNew.rows = table.freeze({
+	-- Better on Every Device update (Growth-Agent launch pack, Wed 2026-11-18 20:00 UTC): each row waits for
+	-- startsAt. Drop any row whose part does not ship (Gameplay-Engineer confirms by Tue 20:00 UTC).
+	{
+		id = "pad_controls",
+		date = "2026-11-18",
+		startsAt = UPDATE_NOV_18,
+		icon = "faster",
+		text = "Pad: B back, L1/R1 tabs",
+	},
+	{
+		id = "pad_menus",
+		date = "2026-11-18",
+		startsAt = UPDATE_NOV_18,
+		icon = "faster",
+		text = "Every menu works on a pad",
+	},
+	{
+		id = "smooth_mode_lite",
+		date = "2026-11-18",
+		startsAt = UPDATE_NOV_18,
+		icon = "faster",
+		text = "Lighter Smooth mode",
+	},
+	{
+		id = "code_update6",
+		date = "2026-11-18",
+		startsAt = UPDATE_NOV_18,
+		icon = "new",
+		text = "New code: UPDATE6",
+	},
 	-- 10 Secret Cats (#4221, Mon 2026-11-16 03:30 UTC): in tonight's build, shown only once the secretAreas switch opens.
 	{
 		id = "secret_areas",

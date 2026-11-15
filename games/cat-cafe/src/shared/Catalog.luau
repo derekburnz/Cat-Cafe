@@ -1756,7 +1756,7 @@ Catalog.tiers = {
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 110000, -- #4320 (Derek 2026-11-14 21:41 UTC: "lower all tier requirements for money and different cats now so people start getting to 7 before new areas unlock"): 150,000 before; #4189 (Derek 2026-11-14: "we need to get them into the next area's asap", "lower for right now by a decent bit", then "its fine to make less hours of play": Tier 3 near 12 min): 300,000 at first, 520,000 before; #3195 + #3204 (Design-Agent: nights 45 s and the Tier 2 caps brought Tier 3 to 27.7 min; 520,000 gives about 30, and 560,000 only 1.2 min more): 420,000 before; #2895 (Derek2 2026-11-10: "lower the 3-6 tier costs", 30% off): 600,000 before; #2683: 1,240,000 before; #2559 (Derek2 2026-11-09: "increase tier 2 to tier 3 by 35%"): 920,000 before; #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
+		cost = 50000, -- #4496 (Derek 2026-11-15 13:58 UTC: "the money jump between tier 2 and 3 is a little much make it like 50k coins"): 110,000 before; #4320 (Derek 2026-11-14 21:41 UTC: "lower all tier requirements for money and different cats now so people start getting to 7 before new areas unlock"): 150,000 before; #4189 (Derek 2026-11-14: "we need to get them into the next area's asap", "lower for right now by a decent bit", then "its fine to make less hours of play": Tier 3 near 12 min): 300,000 at first, 520,000 before; #3195 + #3204 (Design-Agent: nights 45 s and the Tier 2 caps brought Tier 3 to 27.7 min; 520,000 gives about 30, and 560,000 only 1.2 min more): 420,000 before; #2895 (Derek2 2026-11-10: "lower the 3-6 tier costs", 30% off): 600,000 before; #2683: 1,240,000 before; #2559 (Derek2 2026-11-09: "increase tier 2 to tier 3 by 35%"): 920,000 before; #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
 		distinctCats = 6, -- #4320: 8 before; #4189: 10 before; #3111 (Derek2 2026-11-10: "lower the different cats requirement a little bit between 3-7"): 11 before; #2683: 13 before; #2230: 12 before
 		needsRarity = "Epic",
 		needsRarityCount = 1,
@@ -1795,7 +1795,7 @@ Catalog.tiers = {
 	{
 		tier = 6,
 		name = "Sunstone Cafe",
-		cost = 625000000, -- #4320: 1,250,000,000 before; #4189: 2,500,000,000 at first, 5,600,000,000 before; #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
+		cost = 312500000, -- #4537 (Derek 2026-11-15: "lower the money amount for tier 5 to 6 by like half and tier 6 to 7 also"): 625,000,000 before; #4320: 1,250,000,000 before; #4189: 2,500,000,000 at first, 5,600,000,000 before; #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
 		distinctCats = 21, -- #4320: 30 before; #4189: 38 before; #3111: 42 before
 		needsRarity = "Mythical",
 		needsRarityCount = 2,
@@ -1807,7 +1807,7 @@ Catalog.tiers = {
 	{
 		tier = 7,
 		name = "Wonder Cafe",
-		cost = 6250000000, -- #4320: 12,500,000,000 before; #4189: 25,000,000,000 at first, 54,000,000,000 before; #2895 (10% off): 60,000,000,000 before
+		cost = 3125000000, -- #4537: 6,250,000,000 before; #4320: 12,500,000,000 before; #4189: 25,000,000,000 at first, 54,000,000,000 before; #2895 (10% off): 60,000,000,000 before
 		distinctCats = 27, -- #4320: 38 before; #4189: 47 before; #3111: 52 before
 		needsRarity = "Mythical",
 		needsRarityCount = 3,
@@ -4225,6 +4225,14 @@ Catalog.codes = {
 		id = "update4",
 		active = true,
 		prize = { coins = 2500, coinSeconds = 900, fish = 60, crates = { classic_crate = 2 } },
+	},
+	-- Growth-Agent 2026-11-15: the Better on Every Device update's code (Wed 2026-11-18 20:00 UTC), the same size;
+	-- no end.
+	update6 = {
+		id = "update6",
+		active = true,
+		startsAt = 1795032000, -- 2026-11-18 20:00 UTC, Better on Every Device
+		prize = { coins = 2500, coinSeconds = 900, fish = 60, potions = { lucky_potion = 2 } },
 	},
 	-- Growth-Agent 2026-11-15 (coordinator, under Derek's standing OK on recommendations): the 3 New Worlds update's
 	-- code, on by the clock at the update (Sunday 2026-11-15 20:00 UTC), the size of `update4`; no end.

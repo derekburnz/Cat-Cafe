@@ -86,6 +86,13 @@ function Logic.songsFor(phase: string?, has: (string) -> boolean): { string }
 	return songs
 end
 
+-- #4251: the zone the area song follows. Harvest Hollow has no World.Zones box, so while Effects/HarvestFx says you
+-- are in it the song's zone is "Harvest" (musicAreaHarvest), whatever zone the world gives.
+Logic.HARVEST_ZONE = "Harvest"
+function Logic.songZone(zone: string?, inHarvest: boolean): string?
+	return if inHarvest then Logic.HARVEST_ZONE else zone
+end
+
 -- #2651: the song of the area a zone names ("Desert" plays musicAreaDesert), or nil when the zone has none (the cafe
 -- and the town areas) or its file is not uploaded yet. Played in place of the cafe music while you are in it.
 function Logic.areaSongFor(zone: string?, has: (string) -> boolean): string?
@@ -330,6 +337,29 @@ function Logic.restingPurrs(pose: any, night: boolean, loafing: boolean): boolea
 	return pose == "sit" or loafing
 end
 
+-- #4470 (Derek 2026-11-15: "remove the ding sound from a mythic spawn bubble pop up its so annoying because of how
+-- the pop ups queue now"): a spawn shout-out ("A Mythical cat appeared in the Park!", "... is somewhere in the ...!",
+-- the queue's merged "2 Mythical cats are out in the ...!") plays no sting. The words match UI/Components/SpawnQueue's,
+-- copied here because Audio does not require the UI. Catch shout-outs ("Sam secured a Mythical ...") keep theirs.
+local SPAWN_WORDS = {
+	" appeared in the ",
+	" is somewhere in the ",
+	" is out in the ",
+	" are out in the ",
+	" are somewhere in the ",
+}
+function Logic.isSpawnLine(text: any): boolean
+	if type(text) ~= "string" then
+		return false
+	end
+	for _, words in SPAWN_WORDS do
+		if string.find(text, words, 1, true) ~= nil then
+			return true
+		end
+	end
+	return false
+end
+
 -- The shout-out cue for a rarity (F58): a Mythical gets its own sting, everything else the two-note chime.
 function Logic.announceCue(rarity: string?): string
 	local step = Logic.rarityStep(rarity)
@@ -484,6 +514,9 @@ local CAT_CATCHES: { [string]: string } = {
 	water = "campSplash",
 	dragon_knight = "dragonChirp",
 }
+-- #4197: what an admin event drops lands (Effects/AdminDrops.onLand)
+Logic.ADMIN_DROP_CUES = { fish = "adminFishLand", crate = "adminCrateLand" } :: { [string]: string }
+Logic.HARVEST_PICK_CUE = "harvestPick" -- #4251: a Harvest Hollow patch pumpkin is picked (Effects/HarvestFx)
 Logic.STORM_LAND_CUE = "stormLand" -- #4197: a Cat Storm's stray lands (Effects/StormFall)
 function Logic.areaCue(beat: any, area: any, catId: any): string?
 	if beat == "step" then

@@ -1028,6 +1028,8 @@ DragonKeep.PET_EXTRA = 15 * 60 -- Pat Pat: a pet's happy heart lasts 15 minutes 
 DragonKeep.RICH = 0.15 -- Smoke Signal: rich visitors come 15% more often (into Economy.richRate)
 DragonKeep.PILE = 0.20 -- Furnace: tip piles grow 20% faster, paid as 20% more a pile on the same clock
 DragonKeep.PILE_FISH_CHANCE = 0.05 -- Coin Sniffer: a tip pile drops 1 golden fish
+DragonKeep.BREATH_EVERY = 600 -- Golden Breath: every 10 minutes of play...
+DragonKeep.BREATH_SECONDS = 60 -- ...Cinder pays 1 minute of the cafe's income
 DragonKeep.WALK_CAP = 2 -- card walk speed in total, stud/s (with and without a cat)
 
 export type Effects = {
@@ -1053,13 +1055,14 @@ export type Effects = {
 	rich: number, -- added to Economy.richRate
 	pile: number, -- share more on each tip pile
 	pileFish: number, -- chance a tip pile drops 1 golden fish
+	breath: boolean, -- Golden Breath (DragonKeepService)
 }
 
 function DragonKeep.effects(save: Types.DragonSave): Effects
 	local money, tips, tickets, repeatFish, luck, goldLuck, reach, swing = 0, 0, 0, 0, 0, 0, 0, 0
 	local slowRings, forgive, friend, walk, softLanding = 0, false, 0, 0, false
 	local doubleJump, glide, xp, restXp, night, petExtra = false, false, 0, 0, 0, 0
-	local rich, pile, pileFish = 0, 0, 0
+	local rich, pile, pileFish, breath = 0, 0, 0, false
 	for _, id in save.slots do
 		if cardsById[id] ~= nil then
 			money += DragonKeep.MONEY[id] or 0
@@ -1104,6 +1107,8 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 				pile = DragonKeep.PILE
 			elseif id == "coinSniffer" then
 				pileFish = DragonKeep.PILE_FISH_CHANCE
+			elseif id == "goldenBreath" then
+				breath = true
 			end
 		end
 	end
@@ -1140,6 +1145,7 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 		rich = rich,
 		pile = pile,
 		pileFish = pileFish,
+		breath = breath,
 	}
 end
 
@@ -1172,6 +1178,7 @@ local NONE: Effects = table.freeze({
 	rich = 0,
 	pile = 0,
 	pileFish = 0,
+	breath = false,
 }) :: any
 function DragonKeep.of(profile: Types.PlayerProfile): Effects
 	local on = if onOverride ~= nil

@@ -8,7 +8,8 @@
 --   SlotDragonCard(cardId, slot)  a binder card into an open slot, free, any time
 --   SetDragonColour(colour)       Cinder's scales from stage 3, free
 -- Fires DragonStage(stage) to the owner for each stage up (the cutscene, client/Effects/DragonRise). From anywhere for
--- now: the Castle and its Keep are not placed yet. The cards' effects come in a follow-up.
+-- now: the Castle and its Keep are not placed yet. The cards' effects (#4447) are read where each one acts; Golden
+-- Breath's timed pay runs here.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -26,10 +27,14 @@ local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
 local Telemetry = require(script.Parent.Telemetry)
 local TradeService = require(script.Parent.TradeService)
 
 local DragonKeepService = {}
+
+local BREATH_TICK = 15 -- seconds between Golden Breath checks
+local breathAt: { [Player]: number } = {} -- os.clock() of each player's last breath (or its first chance)
 
 local random = Random.new()
 local function roll(): number
@@ -233,6 +238,45 @@ local function onLoaded(player: Player)
 	end
 end
 
+-- #4447: Golden Breath: every BREATH_EVERY seconds of play with the card slotted, BREATH_SECONDS of the cafe's
+-- income now (the phase's pay and a running event's money with it). The clock starts when the card is first seen.
+local function breathe(now: number)
+	for _, player in DataService.loadedPlayers() do
+		local profile = DataService.get(player)
+		if profile == nil or not DragonKeep.of(profile).breath then
+			breathAt[player] = nil
+			continue
+		end
+		local last = breathAt[player]
+		if last == nil then
+			breathAt[player] = now
+			continue
+		end
+		if now - last < DragonKeep.BREATH_EVERY then
+			continue
+		end
+		breathAt[player] = now
+		Economy.settle(profile, os.time(), ClockService.epoch())
+		local amount = math.floor(
+			Economy.incomePerSecond(profile)
+				* Economy.phaseMultiplier(ClockService.phase())
+				* Economy.moneyFor(profile)
+				* DragonKeep.BREATH_SECONDS
+		)
+		if amount <= 0 then
+			continue
+		end
+		Economy.credit(profile, amount)
+		Telemetry.source(player, profile, amount, "Gameplay", "dragon_golden_breath")
+		Net.toast(
+			player,
+			"Cinder breathed gold over your cafe! +$" .. ShortNumber.format(amount),
+			"good"
+		)
+		CafeService.sync(player)
+	end
+end
+
 function DragonKeepService.start()
 	Net.on("GiveToKeep", onGive)
 	Net.on("PickDragonCard", onPick)
@@ -240,6 +284,15 @@ function DragonKeepService.start()
 	Net.on("SlotDragonCard", onSlot)
 	Net.on("SetDragonColour", onColour)
 	DataService.onLoaded:Connect(onLoaded)
+	DataService.beforeRelease(function(player)
+		breathAt[player] = nil
+	end)
+	task.spawn(function()
+		while true do
+			task.wait(BREATH_TICK)
+			breathe(os.clock())
+		end
+	end)
 end
 
 return DragonKeepService

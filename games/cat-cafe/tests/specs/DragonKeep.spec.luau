@@ -457,6 +457,11 @@ return function()
 			end
 		)
 
+		it("turns Golden Breath on only while it is slotted", function()
+			expect(DragonKeep.effects(withSlots({ "goldenBreath" })).breath).to.equal(true)
+			expect(DragonKeep.effects(withSlots({ "furnace" })).breath).to.equal(false)
+		end)
+
 		it("adds Kindred's 0.1% money a kept cat, up to 10%", function()
 			local save = withSlots({ "kindred" })
 			save.kept = 40

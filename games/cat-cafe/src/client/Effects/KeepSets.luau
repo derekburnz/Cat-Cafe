@@ -16,7 +16,7 @@ local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
 
-local DragonSets = {}
+local KeepSets = {}
 
 type Worn = { [string]: { emitter: ParticleEmitter, level: number } }
 
@@ -25,7 +25,7 @@ local started = false
 
 -- Pure: the families and levels in a `DragonSets` value: only known families, level 5 at 5 or more, else 3 (a lit
 -- set is level 3 at least). Anything that is not a string reads as no sets.
-function DragonSets.parse(value: unknown): { [string]: number }
+function KeepSets.parse(value: unknown): { [string]: number }
 	local out: { [string]: number } = {}
 	if type(value) ~= "string" or value == "" then
 		return out
@@ -43,7 +43,7 @@ function DragonSets.parse(value: unknown): { [string]: number }
 end
 
 -- Pure: a look's rate and size scale at `level`: 1 at 3, the `big` numbers at 5.
-function DragonSets.scale(level: number): (number, number)
+function KeepSets.scale(level: number): (number, number)
 	local p = Presets.dragonSets
 	if level >= 5 then
 		return p.bigRate, p.bigSize
@@ -109,7 +109,7 @@ local function wear(character: Model, sets: { [string]: number })
 				looks[family] = look
 			end
 			local made = look :: { emitter: ParticleEmitter, level: number }
-			local rate, size = DragonSets.scale(level)
+			local rate, size = KeepSets.scale(level)
 			if made.level ~= level then
 				made.level = level
 				made.emitter.Size = NumberSequence.new(preset.size[1] * size, preset.size[2] * size)
@@ -128,7 +128,7 @@ local function pick()
 		local character = player.Character
 		local root = if character ~= nil then partOf(character, "HumanoidRootPart") else nil
 		if character ~= nil and root ~= nil then
-			local sets = DragonSets.parse(player:GetAttribute("DragonSets"))
+			local sets = KeepSets.parse(player:GetAttribute("DragonSets"))
 			if next(sets) ~= nil then
 				lit[character] = sets
 				local distance = if player == me then 0 else Context.distance(root.Position)
@@ -154,7 +154,7 @@ local function pick()
 	end
 end
 
-function DragonSets.start()
+function KeepSets.start()
 	if started then
 		return
 	end
@@ -169,11 +169,11 @@ function DragonSets.start()
 			end)
 			if not ok and not warned then
 				warned = true
-				warn("[Effects] DragonSets: " .. tostring(problem))
+				warn("[Effects] KeepSets: " .. tostring(problem))
 			end
 			task.wait(Presets.dragonSets.pickEvery)
 		end
 	end)
 end
 
-return DragonSets
+return KeepSets

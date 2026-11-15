@@ -326,7 +326,7 @@ export type EmitterPreset = {
 }
 
 Presets.emitters = {
-	-- The Dragon Keep's set looks (Effects/DragonSets, Derek 2026-11-15): one soft look per lit card family, from the
+	-- The Dragon Keep's set looks (Effects/KeepSets, Derek 2026-11-15): one soft look per lit card family, from the
 	-- body (the crown's from the head). Level 5 doubles the rate and grows the size (Presets.dragonSets).
 	dragonSetFlame = {
 		texture = Presets.textures.sparkle,
@@ -5236,7 +5236,7 @@ Presets.speedShoes = {
 	model = "CatCafe_Item_SpeedShoes",
 }
 
--- The Dragon Keep's set looks (Effects/DragonSets): `families` maps each card family to its emitter, `onHead` the
+-- The Dragon Keep's set looks (Effects/KeepSets): `families` maps each card family to its emitter, `onHead` the
 -- ones worn on the head. Level 5 runs `bigRate` times the rate at `bigSize` times the size. The nearest
 -- budget.potionGlows players within `radius` studs show theirs, checked every `pickEvery` seconds.
 Presets.dragonSets = {

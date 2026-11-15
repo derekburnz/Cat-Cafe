@@ -35,6 +35,7 @@ local emitter: ParticleEmitter? = nil
 local inside = false -- whether you were in the area at the last look
 local slices: number? = nil -- the Feast Pie's slices as last seen
 local areaListeners: { (inside: boolean) -> () } = {}
+local arrivedAt: number? = nil -- os.clock() of the last arrival swirl
 local sinceGlint = 0
 
 -- What a pumpkin's `Ready` change means: "pick" when it was ready and is not now, "regrow" the other way, nil for
@@ -90,6 +91,15 @@ function HarvestFx.pie(was: number?, now: unknown, full: number): string?
 		return nil
 	end
 	return if now >= full then "full" else "slice"
+end
+
+-- Whether walking in plays the arrival swirl: you were outside (or not yet looked at), are inside now, and the last
+-- swirl was at least `gap` seconds ago (`since` is nil before the first), so pacing the edge does not repeat it.
+function HarvestFx.arrive(was: boolean?, now: boolean, since: number?, gap: number): boolean
+	if not now or was == true then
+		return false
+	end
+	return since == nil or since >= gap
 end
 
 -- Whether you are in the area: within `within` studs of its middle. `distance` is nil while it is not in the world.
@@ -179,6 +189,34 @@ local function middle(): Vector3?
 	return nil
 end
 
+-- The arrival swirl: `arriveSpots` puffs of leaves in a circle `arriveRadius` studs round you, one after another,
+-- and a few gold sparkles over your head. None in Low performance; half the leaves with Reduce Motion.
+local function swirl(at: Vector3)
+	if Context.lowPerformance then
+		return
+	end
+	local p = Presets.harvestFx
+	local count = if Context.reducedMotion() then math.ceil(p.arriveCount / 2) else p.arriveCount
+	for i = 1, p.arriveSpots do
+		task.delay((i - 1) * p.arriveStep, function()
+			local turn = (i - 1) / p.arriveSpots * math.pi * 2
+			local spot = at
+				+ Vector3.new(
+					math.cos(turn) * p.arriveRadius,
+					p.arriveLift,
+					math.sin(turn) * p.arriveRadius
+				)
+			Particles.burst(p.air, spot, count)
+		end)
+	end
+	Particles.burst(
+		p.pieBurst,
+		at + Vector3.new(0, p.arriveLift + 2, 0),
+		p.arriveSparkles,
+		Presets.palette.golden
+	)
+end
+
 local function stepAir()
 	local p = Presets.harvestFx
 	local at = middle()
@@ -186,6 +224,16 @@ local function stepAir()
 	local distance = if at ~= nil then Context.distance(at) else nil
 	local now = HarvestFx.within(distance, p.airWithin)
 	if now ~= inside then
+		local clock = os.clock()
+		local last = arrivedAt
+		if
+			HarvestFx.arrive(inside, now, if last ~= nil then clock - last else nil, p.arriveGap)
+		then
+			arrivedAt = clock
+			if focus ~= nil then
+				swirl(focus)
+			end
+		end
 		inside = now
 		for _, listener in areaListeners do
 			task.spawn(listener, now)

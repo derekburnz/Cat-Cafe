@@ -58,6 +58,9 @@ local IDS: { [string]: string } = {
 	-- Tier 9 Water Park (#4070, Model-Agent's 256 store pictures, group owned)
 	Crate_WaterPark = "rbxassetid://131949222748155",
 	Crate_WaterPark_Gold = "rbxassetid://85963054237364",
+	-- Tier 10 Medieval Castle (#4184, Model-Agent's 256 store pictures, group owned)
+	Crate_Castle = "rbxassetid://86599176060723",
+	Crate_Castle_Gold = "rbxassetid://89340633875692",
 	Crate_Classic = "rbxassetid://72888217681662",
 	Crate_Classic_Gold = "rbxassetid://115785859034580",
 	Crate_Rally = "rbxassetid://94810600062208", -- F101 Rally Crate (Model-Agent #766), banked only and no golden twin

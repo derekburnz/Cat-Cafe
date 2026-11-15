@@ -14,6 +14,7 @@
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local GoalLines = require(script.Parent.Parent.Components.GoalLines) -- #3997: no goal behind a live switch
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PerkCardLogic = require(script.Parent.Parent.Components.PerkCardLogic) -- #2687: the next station's perk
@@ -201,7 +202,9 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 	local tiers: { Types.TierDef } = catalog.tiers or {}
 	local tier = state.tier or 1
 	local current = findTier(tiers, tier)
-	local nextTier = findTier(tiers, tier + 1)
+	-- a tier held by its live switch is not the goal yet (GoalLines.nextTier): the cafe reads as the top one until the
+	-- new areas open, then the next tier's needs appear by themselves
+	local nextTier: Types.TierDef? = GoalLines.nextTier(tiers, tier)
 	local requirements: { Requirement } = {}
 	local opens: { string } = {}
 	if nextTier then

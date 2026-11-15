@@ -78,7 +78,7 @@ return function()
 	end)
 
 	describe("tier and tierMultiplier (section 5b)", function()
-		it("reads the saved tier, 1 for a missing or damaged one, clamped to 1 to 9", function()
+		it("reads the saved tier, 1 for a missing or damaged one, clamped to 1 to 10", function()
 			local p = freshProfile()
 			expect(Economy.tier(p)).to.equal(1)
 			for _, case in ipairs({
@@ -91,7 +91,8 @@ return function()
 				{ 7, 7 }, -- #2651
 				{ 8, 8 }, -- #3997
 				{ 9, 9 }, -- #4070
-				{ 10, 9 },
+				{ 10, 10 }, -- #4184
+				{ 11, 10 },
 			}) do
 				p.tier = case[1]
 				expect(Economy.tier(p)).to.equal(case[2])
@@ -705,7 +706,7 @@ return function()
 				expect(Catalog.openSlotCount(1, 2)).to.equal(4)
 				expect(Catalog.openSlotCount(5, 0)).to.equal(10)
 				expect(Catalog.openSlotCount(5, 2)).to.equal(12)
-				expect(Catalog.openSlotCount(5, 12)).to.equal(#Catalog.allSpots) -- 20 since #4070
+				expect(Catalog.openSlotCount(5, 14)).to.equal(#Catalog.allSpots) -- 22 since #4184
 				expect(Catalog.openSlotCount(1, -3)).to.equal(2)
 				expect(Catalog.slotIsOpen("nope", 5, 2)).to.equal(false)
 			end)
@@ -850,10 +851,10 @@ return function()
 			end
 		)
 
-		it("at Tier 9 everything can go to its max level and then says Already maxed", function()
+		it("at Tier 10 everything can go to its max level and then says Already maxed", function()
 			local p = freshProfile()
-			p.tier = 9 -- #2651; #3997; #4070
-			p.coins = 1e12 -- the Lucky Cat 9 is 135,000,000,000 (#4070)
+			p.tier = 10 -- #2651; #3997; #4070; #4184
+			p.coins = 1e13 -- the Lucky Cat 10 is 1,300,000,000,000 (#4184)
 			for _, def in ipairs(Catalog.upgrades) do
 				p.upgradeLevels[def.id] = def.maxLevel - 1
 				expect(Economy.upgradeBlocker(p, def.id)).never.to.be.ok()
@@ -1285,8 +1286,8 @@ return function()
 		it(
 			"reasons come in the order a player works through them: cats, then the rarity, then coins",
 			function()
-				expect(Economy.rankUpBlocker(profileWith(2, 7, nil, nil, 0))).to.equal(
-					"Needs 8 different cats (you have 7)" -- #4189: Tier 3 needs 8 (10 before; 11 before #3111)
+				expect(Economy.rankUpBlocker(profileWith(2, 5, nil, nil, 0))).to.equal(
+					"Needs 6 different cats (you have 5)" -- #4320: Tier 3 needs 6 (#4189: 8; 10 before; 11 before #3111)
 				)
 				expect(Economy.rankUpBlocker(profileWith(2, 11, nil, nil, 0))).to.equal(
 					"Needs one cat, Epic or better"
@@ -1357,12 +1358,27 @@ return function()
 			end
 		)
 
-		it("at Tier 9 there is nothing left, whatever the coins (#4070)", function()
+		it(
+			"at Tier 9 there is nothing left while the tier10 switch is off, whatever the coins (#4184)",
+			function()
+				LateTiers.setOpen(9) -- tier8 and tier9 on, tier10 off
+				local p = profileWith(9, 80, "Mythical", 7, 1e15)
+				expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Funfair Cafe")
+				LateTiers.setOpen(true)
+				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
+				LateTiers.setOpen(8) -- and tier10 never opens ahead of tier9
+				expect(LateTiers.topTier()).to.equal(8)
+				expect(LateTiers.tierOpen(10)).to.equal(false)
+				LateTiers.setOpen(nil)
+			end
+		)
+
+		it("at Tier 10 there is nothing left, whatever the coins (#4184)", function()
 			LateTiers.setOpen(true)
-			local p = profileWith(9, 70, "Mythical", 6)
-			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Funfair Cafe")
+			local p = profileWith(10, 80, "Mythical", 7)
+			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Royal Cafe")
 			p.tier = 99 -- clamped like Economy.tier
-			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Funfair Cafe")
+			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Royal Cafe")
 			LateTiers.setOpen(nil)
 		end)
 

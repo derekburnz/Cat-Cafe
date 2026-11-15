@@ -3638,6 +3638,7 @@ Presets.adminAir = {
 		goldBoost = "goldHourDrift",
 		moneyStorm = "moneyStormDrift",
 		crateDrop = "goldHourDrift",
+		wheel = "goldHourDrift",
 		bowlSpeed = "adminRoseDrift",
 		catStorm = "adminStormDrift",
 		rainbowBoost = "adminRainbowDrift",

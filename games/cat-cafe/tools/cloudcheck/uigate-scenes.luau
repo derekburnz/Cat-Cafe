@@ -11699,8 +11699,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assert(banners == 1, ("uigate: %d Cafe Party banners, not 1 (#2487)"):format(banners))
 	end },
-	-- #4195: an admin event (Bowl Frenzy) beside the running party: its timer is first on the strip with the party
-	-- beside it, the card a tap opens has both, and with the admin event gone the strip is the party's again
+	-- #4195, #4325: an admin event (Bowl Frenzy) running beside the party: Effects/AdminFlash's strip is its one
+	-- readout, so the Cafe Event chip and the card a tap opens stay the party's and do not repeat it, during and after
 	{ "AdminEventRunning", function()
 		local t = workspace:GetServerTimeNow()
 		local store = game:GetService("ReplicatedStorage")
@@ -11714,11 +11714,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		store:SetAttribute("AdminEventRunning", true)
 		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
 		local chip = assertEventChip(2)
-		assert(chip.Text:find("Bowl Frenzy 14:", 1, true) ~= nil, "uigate: the strip's first piece reads " .. chip.Text .. ", not the admin event's timer (#4195)")
-		local beside = UIShim.playerGui:FindFirstChild("EventNext", true) :: TextLabel?
-		assert(beside == nil or not beside.Visible or beside.Text:find("Cafe Party 1:59:", 1, true) ~= nil, "uigate: the piece beside the admin timer reads " .. tostring(beside and beside.Text) .. " (#4195)")
+		assert(chip.Text:find("Cafe Party 1:59:", 1, true) ~= nil and chip.Text:find("Bowl Frenzy", 1, true) == nil, "uigate: the chip reads " .. chip.Text .. " while an admin event runs, not the party alone (#4325)")
 		local cardLines = UIShim.playerGui:FindFirstChild("EventLines", true) :: TextLabel
-		assert(cardLines and cardLines.Text:find("Bowl Frenzy 14:", 1, true) and cardLines.Text:find("Cafe Party", 1, true), "uigate: the strip's card does not have the admin event and the party (#4195)")
+		assert(cardLines and cardLines.Text:find("Cafe Party", 1, true) and cardLines.Text:find("Bowl Frenzy", 1, true) == nil, "uigate: the chip's card repeats the running admin event (#4325)")
 		-- the admin event over: the party's own strip is back
 		store:SetAttribute("AdminEventId", "")
 		store:SetAttribute("AdminEventRunning", false)

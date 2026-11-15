@@ -230,10 +230,10 @@ return function()
 			)
 		end)
 
-		it("shows a timer line before and during, and none after", function()
+		it("shows a timer line before the start, and none while it runs or after", function()
 			expect(AdminEventLogic.stripLine(view(), NOW + 1)).to.equal("⚡ Bowl Frenzy in 1:59")
 			local running = view({ AdminEventRunning = true })
-			expect(AdminEventLogic.stripLine(running, START + 1)).to.equal("⚡ Bowl Frenzy 14:59")
+			expect(AdminEventLogic.stripLine(running, START + 1)).to.equal(nil) -- #4325: AdminFlash's strip says it
 			expect(AdminEventLogic.stripLine(running, END)).to.equal(nil)
 			expect(AdminEventLogic.stripLine(view(), START + 0.5)).to.equal(nil)
 			expect(AdminEventLogic.stripLine(nil, NOW)).to.equal(nil)

@@ -1048,7 +1048,7 @@ local function stepFourFood()
 	-- #3285: an empty bowl is false in the UI's state (UIController), as UI.update skips a nil
 	UI.update({ tutorialStep = 4, upgradeLevels = levels, lures = { kibble = 3 }, bait = false } :: any)
 	UI.bait.set(nil)
-	UI.tutorial.show(UI.tutorial.hint(UI.getState()) or "Tap the Bait bowl and put Kibble in it")
+	UI.tutorial.show(UI.tutorial.hint(UI.getState()) or "Tap Bowl, then Use on Kibble")
 	task.wait(0.1)
 end
 -- #1161: the Bait bowl window, and its bowl tabs shown with `selected` chosen and the status title holding `title`.
@@ -3930,8 +3930,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(steps and steps.Visible, "uigate: a tap didn't open the Grand Opening steps (#1893)")
 		UI.roadmap.step(4)
 	end },
-	-- #2795 (Derek2: Grand Opening from the first catch, compact on phones): mid tutorial (the first table step) the
-	-- closed strip shows at 0/8 under the goal card beside the tutorial strip, and the first table's toast plays
+	-- #2795 (Derek2: Grand Opening from the first catch, compact on phones): the closed strip shows at 0/8 under the
+	-- goal card beside the tutorial strip, and the first table's toast plays; #4384: from the tutorial's end, not mid way
 	{ "GrandOpeningTutorial", function()
 		local before = UI.getState() :: any
 		-- Scenes.close puts these back, so the scenes after this one keep their bowls, tier and finished tutorial
@@ -3946,7 +3946,26 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
 		task.wait(0.1)
 		local strip = UIShim.playerGui:FindFirstChild("GrandOpening", true)
-		assert(strip and strip.Visible, "uigate: no Grand Opening strip after the first catch (#2795)")
+		-- #4384 (checkInCalm, on unless switched off): mid tutorial the strip waits, and a prize gives no toast
+		assert(strip == nil or not strip.Visible, "uigate: the Grand Opening strip shows mid tutorial (#4384)")
+		local toastsBefore = 0
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Visible and string.find(piece.Text, "Grand Opening 1/8", 1, true) then
+				toastsBefore += 1
+			end
+		end
+		UI.roadmap.step(1)
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Visible and string.find(piece.Text, "Grand Opening 1/8", 1, true) then
+				toastsBefore -= 1
+			end
+		end
+		assert(toastsBefore == 0, "uigate: a Grand Opening toast mid tutorial (#4384)")
+		-- at the tutorial's end it shows, at 0/8 here
+		UI.update({ tutorialStep = 5 } :: any)
+		task.wait(0.1)
+		strip = UIShim.playerGui:FindFirstChild("GrandOpening", true)
+		assert(strip and strip.Visible, "uigate: no Grand Opening strip at the tutorial's end (#2795, #4384)")
 		local title = strip:FindFirstChild("Title")
 		assert(title and title.Text == "Grand Opening 0/8", "uigate: the strip reads " .. tostring(title and title.Text))
 		-- closed, as a new account has it (the roadmapOpen setting starts false), so it takes two lines on a phone

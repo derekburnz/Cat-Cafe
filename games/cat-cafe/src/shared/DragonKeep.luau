@@ -175,7 +175,7 @@ DragonKeep.CARDS = {
 		name = "Bait Whisperer",
 		family = "claw",
 		rarity = "Rare",
-		text = "Bait lasts 15% longer.",
+		text = "Bait cats come 15% sooner.",
 	},
 	{
 		id = "luckyScale",
@@ -259,7 +259,7 @@ DragonKeep.CARDS = {
 		name = "Sky Mail",
 		family = "wing",
 		rarity = "Epic",
-		text = "Claim your Tip Jar from anywhere.",
+		text = "Tip piles pay 10% more.",
 	},
 	{
 		id = "dragonRide",
@@ -301,7 +301,7 @@ DragonKeep.CARDS = {
 		name = "Hoarder",
 		family = "hoard",
 		rarity = "Rare",
-		text = "Crates give 10% more coins.",
+		text = "Crate repeats give 25% more fish.",
 	},
 	{
 		id = "fishScale",
@@ -993,6 +993,240 @@ function DragonKeep.sets(save: Types.DragonSave): { string }
 		end
 	end
 	return out
+end
+
+-- #4447 part 1: what the slotted cards and lit sets do (slotted cards only; binder cards do nothing). Pure, read by
+-- Economy while the dragonKeep switch is on. All card money is additive into cafeMultiplier (Economy), never a
+-- multiplier on top, and money plus tips is held to MONEY_CAP together (Gameplay-Engineer's check, section 4).
+DragonKeep.MONEY_CAP = 0.50
+DragonKeep.MONEY = { -- card id -> what it adds into cafeMultiplier
+	dragonCoin = 0.10, -- every 10th customer pays double, as a steady +10%
+	treasureTax = 0.15, -- every earning cat is in a staff slot
+	crownOfEmbers = 0.20,
+} :: { [string]: number }
+DragonKeep.TIPS = { warmTips = 0.04, emberTips = 0.08 } :: { [string]: number } -- into Economy.tipMultiplier
+DragonKeep.SET_MONEY = { flame = 0.05 } :: { [string]: number }
+DragonKeep.LUCK = 0.05 -- Lucky Scale: +5% bowl luck (a Luck source, inside LuckMax)
+DragonKeep.GOLD_LUCK = 0.10 -- Gold Fever: +0.10 gold luck, inside GoldLuckMax with the Index's
+DragonKeep.REACH = { sharpEye = 0.03 } :: { [string]: number } -- share of NetReachStuds added to the net's reach
+DragonKeep.SET_REACH = { claw = 0.03 } :: { [string]: number }
+DragonKeep.REACH_CAP = 0.05 -- card reach in total, so it stays under the Long Net's +1 stud
+DragonKeep.SLOW_RINGS = 0.05 -- Quick Paws: catch circles move 5% slower (their shrink time 5% longer)
+DragonKeep.FRIEND_CHANCE = 0.04 -- Double Catch: a caught Common or Rare brings a second copy
+DragonKeep.SWING = 0.08 -- Ember Net: nets swing 8% faster (NetSwingCooldown 8% shorter)
+DragonKeep.TICKET_BONUS = 0.25 -- Ticket Dragon: +25% Ticket Booth tickets (rounded down a catch)
+DragonKeep.REPEAT_FISH = 1 -- Fish Scale: a repeat Epic or better catch gives +1 golden fish
+DragonKeep.WALK = { lightStep = 0.5, wingbeat = 1.5 } :: { [string]: number } -- stud/s on the walk speed
+DragonKeep.SET_WALK = { wing = 1 } :: { [string]: number }
+DragonKeep.XP = { fastLearner = 0.10 } :: { [string]: number } -- share more cat XP, every cat
+DragonKeep.SET_XP = { heart = 0.10 } :: { [string]: number }
+DragonKeep.REST_XP = 0.10 -- Cosy Nap: resting cats (no spot) gain 10% more XP
+DragonKeep.KINDRED_EACH = 0.001 -- Kindred: +0.1% money for each cat ever given to the Keep (save.kept)
+DragonKeep.KINDRED_MAX = 0.10
+DragonKeep.NIGHT = 0.12 -- Night Glow: +12% income at night (Economy.nightTraitRate)
+DragonKeep.PET_EXTRA = 15 * 60 -- Pat Pat: a pet's happy heart lasts 15 minutes longer (inside Pet.EXTRA_MAX)
+DragonKeep.RICH = 0.15 -- Smoke Signal: rich visitors come 15% more often (into Economy.richRate)
+DragonKeep.PILE = { furnace = 0.20, skyMail = 0.10 } :: { [string]: number } -- share more on each tip pile
+-- (Furnace's "20% faster" is paid as 20% more a pile on the same clock; Sky Mail's text since Design-Agent, Nov 15)
+DragonKeep.REFUND = 0.25 -- Hoarder: a crate repeat's golden fish refund 25% more (rounded down)
+DragonKeep.BAIT_SPEED = 0.15 -- Bait Whisperer: the bowl wait 15% shorter, inside Config.BaitSpeedMax
+DragonKeep.PILE_FISH_CHANCE = 0.05 -- Coin Sniffer: a tip pile drops 1 golden fish
+DragonKeep.BREATH_EVERY = 600 -- Golden Breath: every 10 minutes of play...
+DragonKeep.BREATH_SECONDS = 60 -- ...Cinder pays 1 minute of the cafe's income
+DragonKeep.WALK_CAP = 2 -- card walk speed in total, stud/s (with and without a cat)
+
+export type Effects = {
+	money: number,
+	tips: number,
+	tickets: number,
+	repeatFish: number,
+	luck: number,
+	goldLuck: number,
+	reach: number,
+	swing: number,
+	slowRings: number,
+	forgive: boolean, -- Steady Claw: the first Miss in each net catch costs no trust
+	friend: number, -- Double Catch's chance
+	walk: number, -- stud/s added to the walk speed, inside WALK_CAP
+	softLanding: boolean, -- Soft Landing: no CannonCooldownSeconds wait after a landing
+	doubleJump: boolean, -- Double Jump: once more in the air (shared/AirMoves)
+	glide: boolean, -- Glide: hold jump to fall slowly (shared/AirMoves)
+	xp: number, -- share more cat XP for every cat (Economy.grantXp)
+	restXp: number, -- share more on top for a resting cat
+	night: number, -- share more income at night
+	petExtra: number, -- seconds more on each pet's happy heart
+	rich: number, -- added to Economy.richRate
+	pile: number, -- share more on each tip pile
+	pileFish: number, -- chance a tip pile drops 1 golden fish
+	breath: boolean, -- Golden Breath (DragonKeepService)
+	refund: number, -- share more on a crate repeat's fish refund
+	baitSpeed: number, -- share off the bowl wait (Economy.baitWaitSeconds)
+}
+
+function DragonKeep.effects(save: Types.DragonSave): Effects
+	local money, tips, tickets, repeatFish, luck, goldLuck, reach, swing = 0, 0, 0, 0, 0, 0, 0, 0
+	local slowRings, forgive, friend, walk, softLanding = 0, false, 0, 0, false
+	local doubleJump, glide, xp, restXp, night, petExtra = false, false, 0, 0, 0, 0
+	local rich, pile, pileFish, breath, refund, baitSpeed = 0, 0, 0, false, 0, 0
+	for _, id in save.slots do
+		if cardsById[id] ~= nil then
+			money += DragonKeep.MONEY[id] or 0
+			tips += DragonKeep.TIPS[id] or 0
+			reach += DragonKeep.REACH[id] or 0
+			walk += DragonKeep.WALK[id] or 0
+			xp += DragonKeep.XP[id] or 0
+			pile += DragonKeep.PILE[id] or 0
+			if id == "kindred" then
+				money += math.min(save.kept * DragonKeep.KINDRED_EACH, DragonKeep.KINDRED_MAX)
+			end
+			if id == "ticketDragon" then
+				tickets = DragonKeep.TICKET_BONUS
+			elseif id == "fishScale" then
+				repeatFish = DragonKeep.REPEAT_FISH
+			elseif id == "luckyScale" then
+				luck = DragonKeep.LUCK
+			elseif id == "goldFever" then
+				goldLuck = DragonKeep.GOLD_LUCK
+			elseif id == "emberNet" then
+				swing = DragonKeep.SWING
+			elseif id == "quickPaws" then
+				slowRings = DragonKeep.SLOW_RINGS
+			elseif id == "steadyClaw" then
+				forgive = true
+			elseif id == "doubleCatch" then
+				friend = DragonKeep.FRIEND_CHANCE
+			elseif id == "softLanding" then
+				softLanding = true
+			elseif id == "doubleJump" then
+				doubleJump = true
+			elseif id == "glide" then
+				glide = true
+			elseif id == "cosyNap" then
+				restXp = DragonKeep.REST_XP
+			elseif id == "nightGlow" then
+				night = DragonKeep.NIGHT
+			elseif id == "patPat" then
+				petExtra = DragonKeep.PET_EXTRA
+			elseif id == "smokeSignal" then
+				rich = DragonKeep.RICH
+			elseif id == "hoarder" then
+				refund = DragonKeep.REFUND
+			elseif id == "baitWhisperer" then
+				baitSpeed = DragonKeep.BAIT_SPEED
+			elseif id == "coinSniffer" then
+				pileFish = DragonKeep.PILE_FISH_CHANCE
+			elseif id == "goldenBreath" then
+				breath = true
+			end
+		end
+	end
+	for _, family in DragonKeep.sets(save) do
+		money += DragonKeep.SET_MONEY[family] or 0
+		reach += DragonKeep.SET_REACH[family] or 0
+		walk += DragonKeep.SET_WALK[family] or 0
+		xp += DragonKeep.SET_XP[family] or 0
+	end
+	reach = math.min(reach, DragonKeep.REACH_CAP)
+	walk = math.min(walk, DragonKeep.WALK_CAP)
+	money = math.min(money, DragonKeep.MONEY_CAP)
+	tips = math.min(tips, DragonKeep.MONEY_CAP - money)
+	return {
+		money = money,
+		tips = tips,
+		tickets = tickets,
+		repeatFish = repeatFish,
+		luck = luck,
+		goldLuck = goldLuck,
+		reach = reach,
+		swing = swing,
+		slowRings = slowRings,
+		forgive = forgive,
+		friend = friend,
+		walk = walk,
+		softLanding = softLanding,
+		doubleJump = doubleJump,
+		glide = glide,
+		xp = xp,
+		restXp = restXp,
+		night = night,
+		petExtra = petExtra,
+		rich = rich,
+		pile = pile,
+		pileFish = pileFish,
+		breath = breath,
+		refund = refund,
+		baitSpeed = baitSpeed,
+	}
+end
+
+-- The effects a profile has now: DragonKeep.effects of its save while the dragonKeep switch is on (its
+-- ReplicatedStorage attribute, set by LiveFlagService for both sides; specs set it with setOn), else all zero.
+local onOverride: boolean? = nil
+function DragonKeep.setOn(on: boolean?)
+	onOverride = on
+end
+local NONE: Effects = table.freeze({
+	money = 0,
+	tips = 0,
+	tickets = 0,
+	repeatFish = 0,
+	luck = 0,
+	goldLuck = 0,
+	reach = 0,
+	swing = 0,
+	slowRings = 0,
+	forgive = false,
+	friend = 0,
+	walk = 0,
+	softLanding = false,
+	doubleJump = false,
+	glide = false,
+	xp = 0,
+	restXp = 0,
+	night = 0,
+	petExtra = 0,
+	rich = 0,
+	pile = 0,
+	pileFish = 0,
+	breath = false,
+	refund = 0,
+	baitSpeed = 0,
+}) :: any
+function DragonKeep.of(profile: Types.PlayerProfile): Effects
+	local on = if onOverride ~= nil
+		then onOverride
+		else game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_" .. DragonKeep.FLAG)
+			== true
+	local save = (profile :: any).dragon
+	if not on or type(save) ~= "table" then
+		return NONE
+	end
+	return DragonKeep.effects(save)
+end
+
+-- Fish Scale's golden fish for one catch: a repeat (not a new Index entry) of Epic or better.
+local REPEAT_RANK =
+	{ Epic = true, Legendary = true, Mythical = true, Secret = true } :: { [string]: boolean }
+function DragonKeep.catchFish(fx: Effects, rarity: string, isNew: boolean): number
+	if isNew or not REPEAT_RANK[rarity] then
+		return 0
+	end
+	return fx.repeatFish
+end
+
+-- Double Catch: whether a caught `rarity` cat brings a friend, for a roll in [0, 1). Common and Rare only.
+function DragonKeep.bringsFriend(fx: Effects, rarity: string, roll: number): boolean
+	return (rarity == "Common" or rarity == "Rare") and roll < fx.friend
+end
+
+-- Coin Sniffer's golden fish for one tip pile: 1 when `roll` (0 to 1) lands inside its chance.
+function DragonKeep.pileFish(fx: Effects, roll: number): number
+	return if roll < fx.pileFish then 1 else 0
+end
+
+-- Ticket Dragon's extra tickets on a catch that credited `n`.
+function DragonKeep.extraTickets(fx: Effects, n: number): number
+	return math.floor(n * fx.tickets)
 end
 
 -- The Warmth still to the next stage or Rekindle hand.

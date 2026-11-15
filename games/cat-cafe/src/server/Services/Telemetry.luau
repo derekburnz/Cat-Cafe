@@ -49,6 +49,7 @@ local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local LoadingTest = require(ReplicatedStorage.Shared.LoadingTest)
 local MemoryWatch = require(ReplicatedStorage.Shared.MemoryWatch)
+local MoneyCard = require(ReplicatedStorage.Shared.MoneyCard)
 local Net = require(script.Parent.Net)
 local NetPing = require(ReplicatedStorage.Shared.NetPing)
 local NewKind = require(ReplicatedStorage.Shared.NewKind)
@@ -186,6 +187,8 @@ export type CustomEvent =
 	| "dragon_give" -- #4062: value cats moved in; Warmth, stage after
 	| "dragon_stage" -- #4062: value the stage reached; tier
 	| "dragon_card" -- #4062: value the stage; card id, "stage" or "rekindle"
+	| "fusion_start" -- #4104: value 1; the coat it makes, the rarity
+	| "fusion_collect" -- #4104: value 1; the coat, the rarity, "first" or "repeat" for the coat in the Index
 	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id (#4049: then the kind)
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
@@ -425,6 +428,9 @@ export type CustomEvent =
 	-- #4174: the Starter Bundle's slide-in card, value 1; shown, closed, ignored, buy or hidden (each once a session),
 	-- the device and tier
 	| "starter_suggest"
+	-- #4437: the 2x Money boost card from the HUD, value 1; shown, buy, closed or hidden (each once a session), the
+	-- Money pass rung it offered and the tier
+	| "money_card"
 	-- #4311: the Low performance ask, value 1; how it went (PerfSuggest.OUTCOMES), the device and the tier
 	| "perf_suggest"
 	-- #4307: the join to the first ProfileSync on the client, once a session below Tier 2; the device, the Roblox load
@@ -506,6 +512,7 @@ local REPORTS = {
 	"store_guard_blocked", -- #1936: a purchase prompt the guard refused, "<source>:<reason>"
 	"buy_source", -- #4176: a purchase prompt about to open, "<source>:<pass or product id>" (StoreFunnel.BUY_SOURCES)
 	"starter_suggest", -- #4174: the Starter Bundle card's shown or how it ended (StarterSuggest.OUTCOMES)
+	"money_card", -- #4437: the HUD's Money boost card shown or how it ended, "<outcome>:<rung>" (MoneyCard.OUTCOMES)
 	"perf_suggest", -- #4311: the Low performance ask shown or how it ended (PerfSuggest.OUTCOMES)
 	"playtime_gift", -- #1947: a gift card's button, "<like|fav>:<like|favourite|close>"
 	"client_error", -- #2681: the client logged its first error line this session (value true)
@@ -641,6 +648,7 @@ type Session = {
 	buySources: { [string]: { source: string, at: number } }, -- #4176: the last tagged source by sku (os.clock)
 	buySourceTags: number, -- #4176: buy_source tags taken this session (StoreFunnel.BUY_SOURCES_MAX)
 	starterSuggest: { [string]: boolean }, -- #4174: starter_suggest outcomes logged this session
+	moneyCard: { [string]: boolean }, -- #4437: money_card outcomes logged this session
 	perfSuggest: { [string]: boolean }, -- #4311: perf_suggest outcomes logged this session
 	bootUi: number?, -- #4307: the client's boot_ui seconds, kept for client_boot
 	bootLogged: boolean, -- #4307: client_boot logged this session
@@ -1899,10 +1907,6 @@ local function priceOf(kind: "pass" | "product", id: number): number?
 	return nil
 end
 
--- #2131: a pass prompt that said bought, by player and pass id: whether it was the account's first spend, kept until
--- PassService.purchased confirms it with Roblox (a faked flag never logs a purchase).
-local pendingPasses: { [Player]: { [number]: boolean } } = {} -- cleared with the session
-
 -- #1888: a game pass prompt closed (PromptGamePassPurchaseFinished on the server): bought, or store_cancelled.
 local function onPassPrompt(player: Player, passId: unknown, purchased: unknown)
 	local sku = StoreFunnel.passSku(passId)
@@ -1915,26 +1919,21 @@ local function onPassPrompt(player: Player, passId: unknown, purchased: unknown)
 		promptClosed(player, sku, "cancelled")
 		return
 	end
-	promptClosed(player, sku, "bought")
-	-- now, before PassService's check marks the pass owned; robux_purchase waits for that check (#2131)
-	local pending = pendingPasses[player] or {}
-	pendingPasses[player] = pending
-	pending[passId :: number] = not spentBefore(player, profile, 0, passId :: number)
+	promptClosed(player, sku, "bought") -- robux_purchase waits for PassService's check (#2131)
 end
 
 -- #2131: PassService confirmed a bought pass with Roblox: robux_purchase now.
+-- #4438: this alone decides, with no note from onPassPrompt. Both listen to PromptGamePassPurchaseFinished and
+-- PassService's runs first; when Roblox answered its ownership check without a wait, it confirmed before
+-- onPassPrompt had noted the buy, and the purchase was never logged. spentBefore leaves this pass out, so asking
+-- it now gives the same first or repeat.
 local function onPassConfirmed(player: Player, passId: number)
-	local pending = pendingPasses[player]
-	local first = if pending ~= nil then pending[passId] else nil
-	if first == nil then
-		return
-	end
-	pending[passId] = nil
 	local sku = StoreFunnel.passSku(passId)
 	local current = DataService.get(player)
 	if sku == nil or current == nil then
 		return
 	end
+	local first = not spentBefore(player, current, 0, passId)
 	task.spawn(function()
 		local price = priceOf("pass", passId) or 0 -- yields (GetProductInfo)
 		Telemetry.robuxPurchase(player, current, sku, price, first)
@@ -2447,6 +2446,17 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				{ outcome, session.device or "unknown", tierText(profile) }
 			)
 		end
+	elseif name == "money_card" then
+		local outcome, rung = MoneyCard.report(rawValue)
+		if outcome ~= nil and rung ~= nil and not session.moneyCard[outcome] then
+			session.moneyCard[outcome] = true
+			Telemetry.custom(
+				player,
+				"money_card",
+				1,
+				{ outcome, tostring(rung), tierText(profile) }
+			)
+		end
 	elseif name == "perf_suggest" then
 		local outcome = Guard.oneOf(rawValue, PerfSuggest.OUTCOMES)
 		if outcome ~= nil and not session.perfSuggest[outcome] then
@@ -2618,6 +2628,7 @@ local function onLoaded(player: Player, profile: Profile)
 		buySources = {},
 		buySourceTags = 0,
 		starterSuggest = {},
+		moneyCard = {},
 		perfSuggest = {},
 		bootUi = nil,
 		bootLogged = false,
@@ -2999,7 +3010,6 @@ local function onRelease(player: Player, profile: Profile)
 	end
 	sessions[player] = nil
 	lastWhere[player] = nil
-	pendingPasses[player] = nil
 end
 
 -- #3098: whether a free stray (not locked by a catch) stands within FirstFive.STRAY_NEAR studs of `at`.

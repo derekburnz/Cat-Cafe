@@ -59,6 +59,7 @@ The clock is 5 minutes of day and 90 s of night (data-model section 9, v0.9). Mu
 | `musicAreaSnowy` "Lantern Peaks" | the Snowy Mountain (Tier 8, #4069): as above, in the Snowy zone | 2D | 96 s loop, 32 bars | cozy and still, lamps in falling snow, the northern lights overhead | music box arpeggios, soft strings, quiet bass, small sleigh bells, vibraphone tune, flute, glockenspiel | 80 BPM, G major (G Em C D) | P2 |
 | `musicAreaWaterpark` "Splash Parade" | the Water Park (#4070): as above, in the Waterpark zone | 2D | 71 s loop, 32 bars | sunny and bouncy, slides and splashes | off-beat marimba, walking bass, kick and claps, shaker, glockenspiel drops, marimba and flute tune | 108 BPM, C major (C F G C) | P2 |
 | `musicAreaCastle` "Banner Hall" | the Medieval Castle (#4071): as above, in the Castle zone | 2D | 83 s loop, 32 bars | a stately court dance, friendly not grim | plucked lute, hand drum, tambourine bells, recorder-like flute tune, low strings, glockenspiel | 92 BPM, D minor (Dm C Dm A) | P2 |
+| `musicAreaHarvest` "Cider Lane" | Harvest Hollow (#4251, the limited autumn area): as above, while you are in the area (it has no zone box, so `Effects/HarvestFx` tells Audio) | 2D | 80 s loop, 32 bars | an easy ride home at harvest time, lanterns coming on over the pumpkin patch | picked nylon guitar, upright bass, hand drum, shaker, flute tune, marimba answer, strings, glockenspiel | 96 BPM, D major (D D G D, Bm G A D) | P2 |
 | `tutorialStepDone` | a tutorial step is done (`tutorialStep` rises while the tile is on); reuses the Rank Ready chime's file (#1541) | 2D | 0.6 s | the soft rising chime | | P2 |
 | `stingDusk` "Night Shift" | NightStart (F66: the areas close) | 3.2 s | the lamps come on, the sign turns to the moon, the gates latch for the night | descending vibraphone run into a cozy chord, a soft lamp click, a wooden latch (synthesized, until a composed one) | | P1 |
 | `stingDawn` "Fresh Pot" | DayStart (F66: the sunrise wave, the areas open) | 3.2 s | morning, the sun sign, fresh cats | rising glockenspiel, one shop bell, a warm swell (synthesized, until a composed one) | | P1 |
@@ -207,7 +208,7 @@ None of these needs a moment: Audio follows the `bait` in each ProfileSync (`Log
 | `tipPile` | your plot's `TipPiles` went down (F61: `CollectTips`, walking near a pile or Collect on the till). Silent since F97 (#714): a pile pays the moment it appears, which plays `coinPop`, and the count only drops when old piles are swept | 2D | 0.5 s | a short clink of coins scooped off the tables, once per collect however many piles | P1 |
 | `dealerArrive` | DealerArrive | 3D on the cart | 1.5 s | cart wheels rolling in and a lantern bell. Quiet on purpose for now: the cart parks with the dusk stinger, which marks it | P2 |
 | `dealerLeave` | DealerLeave | 3D on the cart | 1.5 s | wheels rolling away. Quiet with the dawn stinger the same way | P2 |
-| `announce` | Announce, the server shout-out (Epic and up, every gold cat, rank ups to Tier 3 and up) | 2D | 1 s | two-note chime under the banner, one note higher per rarity step | P1 |
+| `announce` | Announce, the server shout-out (Epic and up, every gold cat, rank ups to Tier 3 and up); never on a spawn line ("A Mythical cat appeared in the ...!", #4470) | 2D | 1 s | two-note chime under the banner, one note higher per rarity step | P1 |
 | `announceMythical` | Announce with rarity Mythical (F58: a Mythical in the sunrise wave, or a Mythical catch); the two-note chime if the file is missing | 2D | 2.4 s | the shout-out's two notes grow into a shimmering gold chord over a wordless choir; ducks the music | P1 |
 
 ### 5.7 Clock
@@ -505,6 +506,30 @@ The Keep sheet holds all of these. It's mono. The cutscene and card sounds play 
 | `fusionCollectRainbow` | a rainbow cat is collected from the dome | 2.6 s | the "ta-da", six notes running up (one for each colour) and a wider chord held under them | P2 |
 
 Nothing here is loud or scary: the roars are a cat's voice pitched down with a rolled growl. The area songs for the three new areas are in section 3.
+
+## Admin events (#4195, #4325, #4197, 2026-11-15)
+
+No new files: every cue here is one the game already has, played at a new pitch or from a new moment.
+
+| cue | when | length | feel | P |
+|---|---|---|---|---|
+| `uiGiftReady` | the "event in two minutes" banner, and the start of an event's last minute | as the gift chime | the soft gift chime | P2 |
+| `uiSpinTick` | each of 3, 2, 1 before an event starts | as the wheel's tick | one clear tick a second | P2 |
+| `uiSpinWin` | the event starts and its name fills the screen | as the wheel's win | the wheel's fanfare | P2 |
+| `uiBadge` | the event's end card | as the badge blip | a small bright blip | P3 |
+| `stormLand` | a Cat Storm stray lands near you | as the cannon's landing | the landing thump, lighter and a quarter higher, in the world | P3 |
+| `adminFishLand` | a Fish Fountain fish lands near you | 0.9 s of the World sheet | a small bright plip, pitched up, in the world; at most one every 0.35 s | P3 |
+| `adminCrateLand` | a Crate Drop crate touches down | as the cannon's landing | the landing thump, a little lower and heavier, in the world | P3 |
+
+All of these are quiet next to the catch sounds, so ten fish landing at once never drown the music.
+
+## Harvest Hollow (#4251, 2026-11-15)
+
+| cue | when | length | feel | P |
+|---|---|---|---|---|
+| `harvestPick` | a patch pumpkin is picked near you, by you or anyone | as the coin pop | a soft low "pluck": the coin pop a third lower, in the world; at most one every 0.3 s | P3 |
+
+The pick sound needs no new file. The area's song is `musicAreaHarvest` "Cider Lane" in section 3. Its strays' voices are still to pick.
 
 ## Mix audit (2026-11-15)
 

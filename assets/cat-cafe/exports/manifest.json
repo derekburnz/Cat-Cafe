@@ -363865,7 +363865,7 @@
         "CatCafe_WaterPark_Set_291_BalloonBunch_Swing",
         "CatCafe_WaterPark_Set_292_PlanterPalm"
       ],
-      "triangles": 109680,
+      "triangles": 113008,
       "budget": 150000,
       "size_studs": {
         "x": 151.2,
@@ -365652,7 +365652,7 @@
       },
       "studio": "Tier 9, the Theme Park and Water Park (next-areas plan section 2, #4066). Place it at the area's centre on its floor, camp side -Z, like the Snowy set. Asphalt to z 20 and blue tiles from there on, right out to the walls. Nothing invisible stands inside the area: the only _Barrier is the 30 high ring in the border's wall band, all round but the 24 stud way in at z -280, starting 0.8 behind the border's faces. The lazy river is a kerb 0.7 high (a step, not a wall) round _Water; the spine crosses it on two plank bridges 1.15 up with a ramp at each end. The coaster's track, the balloons and the wave crests are _Decor (no collision), the pool's glass is _Pane. Turning pieces for Motion-FX, each its own Model: ..._CarouselTurn about a vertical axis at (-38, -110), ..._TeacupsTurn about a vertical axis at (38, -118), ..._FerrisTurn about the x axis through its hub at (59, 24, -42). The rescue spots (points_roblox trap_carousel, trap_ball_pit, trap_plush_pile, trap_river_ring, trap_balloons) carry their piece's turn; trap_carousel's spot is 0.3 up, on its deck.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_WaterPark_Set.model.json",
-      "rbx_parts": 6680,
+      "rbx_parts": 6744,
       "files": [
         "assets/cat-cafe/exports/CatCafe_WaterPark_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_WaterPark_Set.glb"
@@ -365664,10 +365664,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "109680/150000 tris",
+          "budget": "113008/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "66812 faces on swatch centers",
+          "uv": "67836 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.01 (want 0)",
           "centered": "footprint center x=0.00 y=0.30",
@@ -489628,6 +489628,75 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.21 (want 0)",
           "centered": "footprint center x=0.00 y=-1.65"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Castle_HoardChest",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Castle_HoardChest",
+        "CatCafe_Camp_Castle_HoardChest_Gold",
+        "CatCafe_Camp_Castle_HoardChest_Gold_Glow",
+        "CatCafe_Camp_Castle_HoardChest_Lid"
+      ],
+      "triangles": 548,
+      "budget": 600,
+      "size_studs": {
+        "x": 2.34,
+        "y": 1.64,
+        "z": 1.49
+      },
+      "size_roblox": [
+        2.34,
+        1.49,
+        1.64
+      ],
+      "bounds_min": [
+        -1.17,
+        -0.87,
+        0.0
+      ],
+      "bounds_max": [
+        1.17,
+        0.77,
+        1.49
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Castle_HoardChest_Lid": [
+          -0.0,
+          0.7,
+          0.9
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Castle_HoardChest_Lid": [
+          0.0,
+          0.9,
+          0.7
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Castle_HoardChest.model.json",
+      "rbx_parts": 39,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Castle_HoardChest.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Castle_HoardChest.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "548/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "242 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.05"
         }
       }
     }

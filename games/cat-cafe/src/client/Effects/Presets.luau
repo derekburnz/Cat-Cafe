@@ -1547,6 +1547,21 @@ Presets.emitters = {
 		drag = 0.7,
 		rotSpeed = { -90, 90 },
 	},
+	-- #4251 Harvest Hollow's air (Effects/HarvestFx): amber, gold and rust leaves falling slowly round you, rocking
+	-- as they go. Thin: it sits behind the strays and the pumpkins.
+	harvestLeaves = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(236, 160, 60), Color3.fromRGB(196, 84, 44) },
+		size = { 0.3, 0.22 },
+		transparency = { 0.1, 0.9 },
+		lifetime = { 4, 5.5 },
+		speed = { 0.4, 1 },
+		spread = 40,
+		rate = 8,
+		acceleration = Vector3.new(0.5, -1.2, 0.2),
+		drag = 0.5,
+		rotSpeed = { -90, 90 },
+	},
 	-- King Croissant's gold motes (Effects/ShopCats, #1191): a slow drift of tiny warm gold lights rising off him.
 	goldMote = {
 		texture = Presets.textures.sparkle,
@@ -2110,6 +2125,28 @@ Presets.motion = {
 		swaySeconds = 3.1,
 		resting = 0.5,
 	},
+	-- The new areas' Common cats (#4069, #4070, #4071; Derek 2026-11-13: commons get prop motion only): the hat or
+	-- tufts in the head (`_Prop`, Pose's "cap") bounce with each stride while the cat walks, tipping up to the cat's
+	-- `degrees` front and back about the prop's own pivot, `lag` radians behind the legs so it reads as loose. One
+	-- bounce a leg cycle (about 2 a second at a stray's walk), still while it stands. The Elf Cat's belled hood swings
+	-- the most and the Dwarf Cat's beard and iron cap bounce; the Squire wears nothing on its head, so it has none.
+	-- Small on purpose: the exported props pivot at the neck like the head, so a bigger tip would lift them off it.
+	propBounce = {
+		lag = 0.9,
+		cats = {
+			elf = 5,
+			dwarf = 4,
+			pinwheel = 4,
+			hot_chocolate = 3,
+			crumpet = 3,
+			flurry = 3,
+			mitten = 3,
+			spruce = 3,
+			popcorn = 3,
+			splash = 3,
+			taffy = 3,
+		} :: { [string]: number },
+	},
 }
 
 -- Model-Agent's piece poses for the new bodies (manifest `cat_poses`, PR #259), copied here because the
@@ -2375,6 +2412,30 @@ Presets.catPoses = {
 } :: { [string]: CatPose }
 
 Presets.shake = { seconds = 0.18, studs = 0.22 }
+
+-- Controller rumble and phone taps (#4224; Effects/Rumble): a camera bump of `studs` buzzes the gamepad's big motor at `perStud` a
+-- stud, between `least` and `most` of full, for the bump's seconds kept between `shortest` and `longest`. `catch` is
+-- your own catch's pulse by rarity: light for a Common, firmer and a little longer the rarer the cat.
+Presets.rumble = {
+	perStud = 1.6,
+	least = 0.2,
+	most = 0.7,
+	shortest = 0.08,
+	longest = 0.5,
+	-- a phone taps once: a click, a knock from `knockFrom` of full or a thump from `thumpFrom`, felt within `tapReach`
+	-- studs of where the camera looks
+	knockFrom = 0.3,
+	thumpFrom = 0.5,
+	tapReach = 60,
+	catch = {
+		Common = { seconds = 0.08, strength = 0.2 },
+		Rare = { seconds = 0.1, strength = 0.25 },
+		Epic = { seconds = 0.14, strength = 0.35 },
+		Legendary = { seconds = 0.2, strength = 0.45 },
+		Mythical = { seconds = 0.3, strength = 0.55 },
+		Secret = { seconds = 0.4, strength = 0.65 },
+	} :: { [string]: { seconds: number, strength: number } },
+}
 
 -- A shove (F41), a landed tackle since F74: a puff where it lands, dizzy stars over the shoved player's head and,
 -- for them, a bigger camera bump than a missed catch. The knockback itself is the engineer's, on the target's own
@@ -3685,6 +3746,60 @@ Presets.adminDrops = {
 		puff = "stormPuff",
 		puffCount = 10,
 	},
+}
+
+-- #4251 (Effects/HarvestFx): Harvest Hollow. Leaves (`air`) fall from a `box` held `height` studs over the camera's
+-- focus while you are within `airWithin` studs of the Thankful Board (`boardTag`), looked at every `every` seconds,
+-- at `calmRate` of the rate with Reduce Motion. A patch pumpkin (`pumpkinTag`) whose `readyAttribute` goes false
+-- within `within` studs pops `pickCount` pieces `lift` studs up and a `pickRing` stud ring; one that comes back
+-- sprouts `regrowCount` green sparkles. Every `glintEvery` seconds the nearest `glintMost` ready pumpkins within
+-- `glintWithin` studs give `glintCount` gold glints. `inside` the area is within `airWithin` too (the song, the pie).
+Presets.harvestFx = {
+	pumpkinTag = "HarvestPumpkin",
+	boardTag = "HarvestBoard",
+	readyAttribute = "Ready",
+	airWithin = 130,
+	air = "harvestLeaves",
+	box = Vector3.new(60, 1, 60),
+	height = 18,
+	every = 0.5,
+	calmRate = 0.2,
+	within = 120,
+	lift = 1.2,
+	pick = "catchSparkle",
+	pickCount = 10,
+	pickColour = Color3.fromRGB(240, 140, 40), -- pumpkin orange
+	pickRing = 5,
+	regrow = "catchSparkle",
+	regrowCount = 5,
+	regrowColour = Presets.palette.leaf,
+	glint = "coinGlint",
+	glintCount = 2,
+	glintEvery = 5,
+	glintWithin = 60,
+	glintMost = 3,
+	-- the Feast Pie: a slice baked while you are in the area pops `pieCount` gold pieces `pieLift` studs over the
+	-- board and a `pieRing` stud ring; the last of `pieFull` slices adds confetti and a gold beam
+	pieAttribute = "HarvestPieSlices",
+	pieFull = 8,
+	pieLift = 6,
+	pieBurst = "catchSparkle",
+	pieCount = 12,
+	pieRing = 8,
+	pieConfetti = 0.6,
+	pieBeamWidth = 1.2,
+	pieBeamHeight = 14,
+	pieBeamSeconds = 1.2,
+	-- walking in: `arriveSpots` puffs of `arriveCount` leaves in a circle `arriveRadius` studs round you, `arriveLift`
+	-- studs up, `arriveStep` seconds apart (each spot puffs once), with `arriveSparkles` gold
+	-- sparkles; not again within `arriveGap` seconds
+	arriveSpots = 6,
+	arriveCount = 4,
+	arriveRadius = 5,
+	arriveLift = 3,
+	arriveStep = 0.12,
+	arriveSparkles = 8,
+	arriveGap = 90,
 }
 
 -- #4325 (Effects/AdminFlash): an admin event takes the screen and the world. The 3, 2, 1 begins `countFrom` seconds

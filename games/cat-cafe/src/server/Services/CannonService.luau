@@ -27,6 +27,7 @@ local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
+local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
@@ -158,7 +159,8 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	local area = if destination ~= Cannon.TOWN then Catalog.getArea(destination) else nil
 	local now = serverNow()
 	local shovedAt = if character ~= nil then character:GetAttribute("ShovedAt") else nil
-	local landed = landedAt[player]
+	-- #4447: Soft Landing skips the wait after a landing
+	local landed = if DragonKeep.of(profile).softLanding then nil else landedAt[player]
 	-- #2692: a beginner flies at night and in the dusk warning; #3035: a first-session Tier 1 player too
 	local pass = NightPass.of(profile, LiveFlagService.on(NightPass.FLAG))
 	local reason = Cannon.launchRefusal({

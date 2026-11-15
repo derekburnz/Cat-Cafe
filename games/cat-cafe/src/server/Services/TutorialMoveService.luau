@@ -16,6 +16,7 @@ local CatService = require(script.Parent.CatService)
 local Layout = require(script.Parent.Parent.World.Layout)
 local PlotService = require(script.Parent.PlotService)
 local TutorialMoves = require(ReplicatedStorage.Shared.TutorialMoves)
+local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local TutorialMoveService = {}
@@ -87,14 +88,11 @@ end
 
 local pending: { [Player]: number } = {} -- the newest waiting move's token, so only that one happens
 
-local function onStepped(player: Player, from: number, to: number)
-	local target = TutorialMoves.target(from, to)
-	if target == nil then
-		return
-	end
-	local wait = TutorialMoves.delay(target :: TutorialMoves.Target)
+-- Does the move to `target` after its wait (TutorialMoves.delay).
+local function schedule(player: Player, target: TutorialMoves.Target)
+	local wait = TutorialMoves.delay(target)
 	if wait <= 0 then
-		move(player, target :: TutorialMoves.Target)
+		move(player, target)
 		return
 	end
 	-- #3158: the move to the cannon waits a beat after the step (#3640: 2 seconds), and is dropped
@@ -116,9 +114,28 @@ local function onStepped(player: Player, from: number, to: number)
 		end
 		local now = freeRoot(player)
 		if now ~= nil and TutorialMoves.stayed(stood, now.Position) then
-			move(player, target :: TutorialMoves.Target)
+			move(player, target)
 		end
 	end)
+end
+
+local function onStepped(player: Player, from: number, to: number)
+	-- #4511: bowl first has no step moves: the bowl comes first by itself, and the walk-through ends at a camp
+	-- cannon, so the old move to the Town Square cannon at the last step would pull the player away from it
+	if TutorialOrder.bowlFirst() then
+		return
+	end
+	local target = TutorialMoves.target(from, to)
+	if target ~= nil then
+		schedule(player, target :: TutorialMoves.Target)
+	end
+end
+
+-- #4511: a move asked for outside a step change (CafeService.tutorialMove)
+local function onMove(player: Player, target: string)
+	if target == "cannon" or target == "bowl" then
+		schedule(player, target :: TutorialMoves.Target)
+	end
 end
 
 function TutorialMoveService.start(builtWorld: WorldBuilder.World)
@@ -127,6 +144,7 @@ function TutorialMoveService.start(builtWorld: WorldBuilder.World)
 		CollectionService:AddTag(plot.baitBowl, TutorialMoves.BOWL_TAG)
 	end
 	CafeService.tutorialStepped:Connect(onStepped)
+	CafeService.tutorialMove:Connect(onMove)
 	Players.PlayerRemoving:Connect(function(player)
 		pending[player] = nil
 	end)

@@ -595,6 +595,11 @@ function ShopIcons.packArt(key: string): string?
 	return IDS["Icon_Store_" .. key:sub(1, 1):upper() .. key:sub(2) .. "Art"]
 end
 
+-- #4276: an outfit pack's square pass icon, by its Row key ("packWinter"), for the Store rail's Packs tab
+function ShopIcons.packIcon(key: string): string?
+	return IDS["Icon_Store_" .. key:sub(1, 1):upper() .. key:sub(2)]
+end
+
 function ShopIcons.storeTab(id: string): string?
 	if id == "cafePass" then
 		return IDS.Icon_Store_CafePass

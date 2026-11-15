@@ -11730,6 +11730,56 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assert(ok, problem)
 	end },
+	-- #4276 (Derek 2026-11-14: "the packs is a plain image it needs something that will help grab attention"): the
+	-- rail's Packs tab turns through the packs' pictures with a light sweep, and adds no words, timer or discount
+	{ "StorePacksTab", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local keys = { "StylishPackPassId", "WinterPackPassId", "ChefPackPassId", "SpacePackPassId" }
+		local was = {}
+		local prices = storePrices(true)
+		for index, key in keys do
+			was[key] = Config[key]
+			Config[key] = 990000 + index
+			prices[990000 + index] = { robux = 99, forSale = true }
+		end
+		local ok, problem = pcall(function()
+			UI.store.preview(prices, {})
+			UI.open("Store")
+			local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Store", true)
+			local tab = window:FindFirstChild("Rail", true):FindFirstChild("packs") :: GuiObject
+			assert(tab and tab.Visible, "uigate: the Store has no Packs tab (#4276)")
+			local icon = tab:FindFirstChild("Icon", true) :: TextLabel
+			local seen: { [string]: boolean } = {}
+			local turns = 0
+			for _ = 1, 4 do
+				UIShim.advance(2.6)
+				local pack = icon:GetAttribute("Pack")
+				assert(type(pack) == "string", "uigate: the Packs tab did not turn to a pack's picture (#4276)")
+				if not seen[pack] then
+					seen[pack] = true
+					turns += 1
+				end
+			end
+			assert(turns == 4, ("uigate: the Packs tab showed %d of the 4 packs in four turns (#4276)"):format(turns))
+			local sweep = tab:FindFirstChild("Sweep", true) :: GuiObject
+			local face = tab:FindFirstChild("Face") :: GuiObject
+			assert(sweep and sweep.Parent == face and sweep:FindFirstChildOfClass("UIGradient"), "uigate: the Packs tab has no light sweep (#4276)")
+			local label = tab:FindFirstChild("Label", true) :: TextLabel
+			assert(label and label.Text == "Packs", "uigate: the Packs tab reads " .. tostring(label and label.Text) .. " (#4276)")
+			-- Review-QA: the picture big enough to see turn, inside the button, and beside its word
+			local fy, fh = face.AbsolutePosition.Y, face.AbsoluteSize.Y
+			assert(icon.AbsoluteSize.Y >= fh * 0.6, ("uigate: the Packs picture is %.0f px in a %.0f px button (#4276)"):format(icon.AbsoluteSize.Y, fh))
+			assert(icon.AbsolutePosition.Y >= fy - 0.5 and icon.AbsolutePosition.Y + icon.AbsoluteSize.Y <= fy + fh + 0.5, "uigate: the Packs picture spills out of its button (#4276)")
+			assert(icon.AbsolutePosition.X + icon.AbsoluteSize.X <= label.AbsolutePosition.X + 1, "uigate: the Packs picture overlaps its word (#4276)")
+			assert(label.TextFits, "uigate: the word Packs no longer fits beside its picture (#4276)")
+			-- for the picture: the sweep part way across
+			UIShim.advance(2.5 + 0.3)
+		end)
+		for key, value in was do
+			Config[key] = value
+		end
+		assert(ok, problem)
+	end },
 	-- #4026 (the approved store-v2 draft): with more cards on sale than Featured shows, the Sale row under the picks
 	-- names the others with their prices (at most three; StoreLogic.spec checks none is already on Featured), inside the
 	-- page and under the picks

@@ -28,6 +28,7 @@ export type SwingCheck = {
 	inCamp: boolean, -- a camp is a safe zone (F84)
 	inTown: boolean?, -- on the Town Square, where the net is put away (Derek 2026-11-03)
 	sinceSwing: number?, -- seconds since this player's last swing, nil for the first
+	cooldown: number?, -- #4447: this player's NetSwingCooldown (cooldownFor), the Config one when nil
 }
 
 -- How far a swing reaches from the root: NetReachStuds plus NetSlackStuds for the latency, plus `extra` studs (#2565:
@@ -49,6 +50,12 @@ end
 -- attribute for the client's glow both read it.
 function NetSwing.extraForProfile(profile: Types.PlayerProfile): number
 	return NetSwing.extraFor(profile.mystery) + Config.NetReachStuds * DragonKeep.of(profile).reach
+end
+
+-- #4447: a profile's time between swings: NetSwingCooldown, less the Dragon Keep's Ember Net share. The server's check
+-- and the NetCooldown attribute for the client's own wait both read it.
+function NetSwing.cooldownFor(profile: Types.PlayerProfile): number
+	return Config.NetSwingCooldown * (1 - DragonKeep.of(profile).swing)
 end
 
 -- True when `point` is in the swing from a root at `origin` facing `look`: within reach in 3D, so a cat up on a perch
@@ -176,7 +183,8 @@ function NetSwing.refusal(check: SwingCheck): string?
 	end
 	if
 		check.sinceSwing ~= nil
-		and check.sinceSwing < Config.NetSwingCooldown - NetSwing.COOLDOWN_SLACK
+		and check.sinceSwing
+			< (check.cooldown or Config.NetSwingCooldown) - NetSwing.COOLDOWN_SLACK
 	then
 		return "cooldown"
 	end

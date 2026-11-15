@@ -368,6 +368,26 @@ return function()
 			expect(extra < Config.LongNetReachStuds - Config.NetReachStuds).to.equal(true)
 		end)
 
+		it("shortens the swing wait with Ember Net, only with the switch on", function()
+			local NetSwing = require(Shared.NetSwing)
+			local Config = require(Shared.Config)
+			local profile = ProfileSchema.migrate({ version = 49 }, T) :: any
+			profile.dragon = withSlots({ "emberNet" })
+			DragonKeep.setOn(false)
+			expect(NetSwing.cooldownFor(profile)).to.equal(Config.NetSwingCooldown)
+			DragonKeep.setOn(true)
+			local cooldown = NetSwing.cooldownFor(profile)
+			DragonKeep.setOn(nil)
+			expect(math.abs(cooldown - Config.NetSwingCooldown * 0.92) < 1e-9).to.equal(true)
+			local base = { carrying = false, busy = false, inFlight = false, inCamp = false }
+			local early = table.clone(base) :: any
+			-- just inside the Config wait, but past the shorter one
+			early.sinceSwing = Config.NetSwingCooldown - NetSwing.COOLDOWN_SLACK - 0.01
+			expect(NetSwing.refusal(early)).to.equal("cooldown") -- the Config wait without the card
+			early.cooldown = cooldown
+			expect(NetSwing.refusal(early)).to.equal(nil)
+		end)
+
 		it("names only real cards in its tables", function()
 			for id in DragonKeep.MONEY do
 				expect(DragonKeep.card(id)).to.be.ok()

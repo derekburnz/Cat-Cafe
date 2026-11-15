@@ -2846,7 +2846,9 @@ end
 
 local function swingCheck(player: Player): NetSwing.SwingCheck
 	local last = lastSwing[player]
+	local profile = DataService.get(player)
 	return {
+		cooldown = if profile ~= nil then NetSwing.cooldownFor(profile) else nil, -- #4447: Ember Net
 		carrying = carrying[player] ~= nil,
 		busy = holdsCatch(player) or inRescue(player),
 		inFlight = inFlight(player),

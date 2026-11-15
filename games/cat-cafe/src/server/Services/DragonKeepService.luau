@@ -12,6 +12,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Config = require(ReplicatedStorage.Shared.Config)
 local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
@@ -136,11 +137,14 @@ local function onGive(player: Player, rawUids: unknown, rawConfirmed: unknown)
 	CafeService.sync(player)
 end
 
--- #4447: the net's extra reach (the Long Net and the reach cards) as NetExtraStuds, for the client's reach glow;
--- MysteryMarketService sets it the same way at join and on a Long Net buy.
+-- #4447: the net's extra reach (the Long Net and the reach cards) as NetExtraStuds, for the client's reach glow
+-- (MysteryMarketService sets it the same way at join and on a Long Net buy), and the time between swings as
+-- NetCooldown, for the client's own wait (nil at the Config one).
 local function applyReach(player: Player, profile: Types.PlayerProfile)
 	local extra = NetSwing.extraForProfile(profile)
 	player:SetAttribute("NetExtraStuds", if extra > 0 then extra else nil)
+	local cooldown = NetSwing.cooldownFor(profile)
+	player:SetAttribute("NetCooldown", if cooldown < Config.NetSwingCooldown then cooldown else nil)
 end
 
 local function onPick(player: Player, rawIndex: unknown, rawSlot: unknown)
@@ -216,6 +220,9 @@ end
 -- A hand that waits from an earlier session but was never dealt (a stopped server) is dealt at join.
 local function onLoaded(player: Player)
 	local profile = DataService.get(player)
+	if profile ~= nil then
+		applyReach(player, profile) -- #4447: the swing cards' NetCooldown (the reach is also set by the Market)
+	end
 	if profile ~= nil and LiveFlagService.on(DragonKeep.FLAG) and #profile.dragon.hand == 0 then
 		deal(player, profile)
 	end

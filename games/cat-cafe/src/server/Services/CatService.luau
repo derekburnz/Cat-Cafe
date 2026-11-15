@@ -2675,6 +2675,7 @@ function startCatch(
 	-- a catch starts in reach of a stray, so catch_started implies near_stray when the tutorial stray was never the one
 	-- (a player who caught another cat first would hold every later step behind it)
 	Telemetry.onboarding(player, profile, "catch_started")
+	Telemetry.cleanEvent(player, profile, M.Onboarding.CLEAN_EVENTS.catchStart) -- #4504: catch_2_started
 
 	-- A circle nobody presses is a Miss at its deadline (#1884: trust lost, and the catch ends only if the cat bolts);
 	-- walking out of range ends it.

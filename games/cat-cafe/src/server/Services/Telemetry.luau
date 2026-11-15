@@ -2396,6 +2396,8 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.snapScreen = FirstFive.snapScreen(raw) -- #3098
 			if raw == "Cannon" then
 				logClean(player, profile, Onboarding.CLEAN_EVENTS.cannonOpen) -- #4504: in the cannon
+			elseif raw == "Bait" then
+				logClean(player, profile, Onboarding.CLEAN_EVENTS.bowlOpen) -- #4504: the Bait bowl window
 			elseif raw == "RankUp" and Economy.tier(profile) == 1 then
 				logClean(player, profile, Onboarding.CLEAN_EVENTS.rankUpShown) -- #4504: the Rank Up shown
 			end
@@ -2890,6 +2892,10 @@ function Telemetry.firstBaitArrived(player: Player, seconds: number)
 		math.max(0, math.floor(seconds)),
 		{ whereOf(player) }
 	)
+	local profile = DataService.get(player)
+	if profile ~= nil then
+		logClean(player, profile, Onboarding.CLEAN_EVENTS.bowlArrived) -- #4504: bowl_cat_here
+	end
 end
 
 -- Runs after the other services' leave work (Telemetry starts last), so a carried cat saved on leave or a rich tip

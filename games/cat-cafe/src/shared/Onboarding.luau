@@ -615,9 +615,12 @@ end
 -- pressed, the camp cannon to the Park (the walk-through's end), then per area: a cat caught there, the next tier,
 -- arrived in the next area. It is logged while the walk-through runs bowl first (TutorialOrder.bowlFirst), and v7
 -- while it runs today's order, so each funnel only ever sees the order it was made for. The bowl cat's claim is a
--- step_time of the ledger, not a step, since its timing varies.
--- Some steps are moments the save does not keep (in the cannon, near the cat, the net catch, the Rank Up shown and
--- pressed, landed in an area): those are `event` steps, logged as the event comes. As in Roblox's own funnels, a step
+-- step too (Derek 16:14 UTC: "capture the steps properly in order and detail"): bowl window, food in, bowl cat here,
+-- tamed, cannon, launch, landed in the Alleyway, each catch's start and win, check-ins, Rank Up, Park cannon, launch,
+-- landing.
+-- Some steps are moments the save does not keep (a window open, the bowl cat here, in the cannon, near the cat, a
+-- catch started, the net catch, the Rank Up shown and pressed, a launch, landed in an area): those are `event` steps,
+-- logged as the event comes. As in Roblox's own funnels, a step
 -- that is done proves every step before it, so a player who left between two moments (or a client too old to
 -- report one) never holds the funnel.
 -- One clean step: `ledger` a step of STEPS reached, `tier` the cafe at that tier or over, `area` a cat caught there
@@ -636,7 +639,10 @@ type CleanRule = {
 
 -- The moments an event step listens for (Telemetry.cleanEvent's `event`).
 Onboarding.CLEAN_EVENTS = {
+	bowlArrived = "bowl_arrived", -- the account's first bowl cat arrived (BaitService, Telemetry.firstBaitArrived)
+	bowlOpen = "bowl_open", -- the Bait bowl window opened (the client's screen report)
 	cannonOpen = "cannon_open", -- the Cat Cannon window opened (the client's screen report)
+	catchStart = "catch_start", -- a net catch started (CatService)
 	launch = "launch", -- a cannon launch (CannonService)
 	nearStray = "near_stray", -- came near the cat that waits for the second catch (CatService)
 	netCatch = "net_catch", -- a cat caught with the net (CatService)
@@ -656,20 +662,26 @@ local CLEAN_RULES: { CleanRule } = {
 	{ name = "joined", ledger = "joined" },
 	{ name = "loaded", ledger = "loaded" },
 	{ name = "first_move", ledger = "first_move" }, -- the intro scene over, the character walks
+	{ name = "bowl_opened", event = EV.bowlOpen }, -- the Bait bowl window open
 	{ name = "first_bowl", ledger = "first_bait" }, -- food in the bowl
+	{ name = "bowl_cat_here", event = EV.bowlArrived }, -- the bowl cat arrived
+	{ name = "bowl_cat_tamed", ledger = "first_bait_resolved" }, -- tamed (or let go)
 	{ name = "in_cannon", event = EV.cannonOpen },
 	{ name = "alley_picked", ledger = "first_cannon" }, -- the first launch, to the Alleyway
+	{ name = "alley_arrived", event = Onboarding.arrivedEvent("alley") }, -- landed in the Alleyway
 	{ name = "near_stray", ledger = "near_stray" },
 	{ name = "catch_started", ledger = "catch_started" }, -- the net swung
 	{ name = "first_catch", ledger = "first_catch" },
 	{ name = "first_checkin", ledger = "first_checkin" }, -- saved at camp
 	{ name = "near_stray_2", event = EV.nearStray },
+	{ name = "catch_2_started", event = EV.catchStart }, -- the net swung at the second cat
 	{ name = "second_net_catch", event = EV.netCatch },
 	{ name = "second_checkin", handCats = 2 }, -- three cats with the bowl's
 	{ name = "rank_up_ready_shown", event = EV.rankUpShown },
 	{ name = "rank_up_pressed", event = EV.rankUpPressed },
 	{ name = "tier_2", tier = 2 },
 	{ name = "park_cannon", event = EV.cannonOpen }, -- into the camp cannon after the Rank Up
+	{ name = "park_launch", event = EV.launch }, -- launched to the Park
 	{ name = "park_arrived", event = Onboarding.arrivedEvent("park") }, -- the walk-through's end
 	{ name = "park_catch", area = "park", tier = 2 },
 }
@@ -690,20 +702,26 @@ Onboarding.CLEAN_STEPS = {
 	"joined",
 	"loaded",
 	"first_move",
+	"bowl_opened",
 	"first_bowl",
+	"bowl_cat_here",
+	"bowl_cat_tamed",
 	"in_cannon",
 	"alley_picked",
+	"alley_arrived",
 	"near_stray",
 	"catch_started",
 	"first_catch",
 	"first_checkin",
 	"near_stray_2",
+	"catch_2_started",
 	"second_net_catch",
 	"second_checkin",
 	"rank_up_ready_shown",
 	"rank_up_pressed",
 	"tier_2",
 	"park_cannon",
+	"park_launch",
 	"park_arrived",
 	"park_catch",
 	"tier_3",
@@ -732,7 +750,7 @@ Onboarding.CLEAN_STEPS = {
 	"castle_catch",
 } :: { string }
 Onboarding.CLEAN_COUNT = #Onboarding.CLEAN_STEPS
-Onboarding.CLEAN_TUTORIAL = 18 -- park_arrived, the walk-through's end: the areas come after
+Onboarding.CLEAN_TUTORIAL = 24 -- park_arrived, the walk-through's end: the areas come after
 Onboarding.CLEAN_RULE_NAMES = table.create(#CLEAN_RULES) :: { string } -- for the spec
 for index, rule in CLEAN_RULES do
 	Onboarding.CLEAN_RULE_NAMES[index] = rule.name

@@ -10126,6 +10126,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 			return ""
 		end
+		-- #4480: the walk to the Park shows only with the parkGateTrail switch on
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_parkGateTrail", true)
 		UI.tutorial.hide()
 		UI.update({ tutorialStep = 9, tier = 2 } :: any)
 		UI.parkTrail.reach(false)
@@ -10160,6 +10162,33 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local settings = table.clone((UI.getState() :: any).settings or {})
 		settings.tutorialButton = true
 		UI.update({ settings = settings } :: any)
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_parkGateTrail", nil)
+	end },
+	-- #4480 (Derek 2026-11-15: "just have it show the unlock animation after ranking up to tier 2 and end tutorial
+	-- there"): with the parkGateTrail switch off, a Tier 2 rank up brings no "The Park is open!" hint and no Park line
+	{ "ParkWalkOff", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD", true) :: Instance
+		local function strip(): string
+			for _, piece in hud:GetDescendants() do
+				if piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Visible then
+					return piece.Text
+				end
+			end
+			return ""
+		end
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_parkGateTrail", nil)
+		assert(not UI.parkTrail.walkOn(), "uigate: the walk to the Park is on with its switch off (#4480)")
+		UI.tutorial.hide()
+		UI.cannon.setWild(nil)
+		UI.parkTrail.reach(false)
+		UI.parkTrail.set(nil, nil)
+		UI.update({ tutorialStep = 9, tier = 1 } :: any)
+		UIShim.advance(0.1)
+		UI.update({ tier = 2 } :: any) -- the rank up to Tier 2
+		UIShim.advance(0.5)
+		assert(string.find(strip(), "Park", 1, true) == nil, "uigate: after the Tier 2 rank up the strip reads " .. strip() .. " (#4480)")
+		UIShim.advance(5)
+		assert(strip() ~= UI.parkTrail.STRIP and strip() ~= UI.parkTrail.STRIP_PLAIN, "uigate: the Park line showed with the walk off (#4480)")
 	end },
 	-- #3558: one menu look for a whole session. The switch flipping after the UI was built changes nothing here, so no
 	-- window can end up with cream cards under white words; the flip reaches a player at their next join.

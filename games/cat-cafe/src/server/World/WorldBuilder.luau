@@ -2149,7 +2149,7 @@ local function buildCampStations(parent: Instance)
 		8.5
 	)
 	-- #4104: the Snowy Mountain's Fusion Observatory (tag and name FusionObservatory, prompt FusionObservatoryPrompt,
-	-- switch fusion), its prompt 1 in front of its 13 deep front
+	-- switch fusion), its prompt 0.8 in front of its 13 deep front
 	x, y, z, turn = Layout.fusionObservatoryAt()
 	buildCampStation(
 		parent,
@@ -2161,7 +2161,7 @@ local function buildCampStations(parent: Instance)
 		"FusionObservatory",
 		"Fusion Observatory",
 		"fusion", -- shared/Fusion.FLAG
-		7.5
+		7.3
 	)
 end
 

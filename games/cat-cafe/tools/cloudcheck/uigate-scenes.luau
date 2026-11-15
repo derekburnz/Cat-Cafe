@@ -12878,6 +12878,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				lines += 1
 				local piece = line:FindFirstChild("Piece") :: TextLabel
 				assert(piece.Text ~= "" and piece.TextFits ~= false, "uigate: a sheet line is cut: " .. piece.Text .. " (#4277)")
+				local function lum(c: Color3): number
+					return 0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B
+				end
+				-- #4606: the words must stand off their row (white on white hid every name with the cream menus off)
+				assert(math.abs(lum(piece.TextColor3) - lum(line.BackgroundColor3)) > 0.4, "uigate: the sheet line " .. piece.Text .. " is the colour of its row (#4606)")
 			end
 		end
 		assert(lines > 0, "uigate: the sheet has no lines (#4277)")
@@ -13171,6 +13176,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 					count += 1
 					local piece = line:FindFirstChild("Piece") :: TextLabel
 					assert(piece.TextFits, "uigate: the breakdown's " .. piece.Text .. " does not fit (#4026)")
+					local tc, bc = piece.TextColor3, line.BackgroundColor3
+					local gap = math.abs((0.2126 * tc.R + 0.7152 * tc.G + 0.0722 * tc.B) - (0.2126 * bc.R + 0.7152 * bc.G + 0.0722 * bc.B))
+					assert(gap > 0.4, "uigate: the breakdown's " .. piece.Text .. " is the colour of its row (#4606)")
 					if last == nil or line.LayoutOrder > last.LayoutOrder then
 						last = line
 					end

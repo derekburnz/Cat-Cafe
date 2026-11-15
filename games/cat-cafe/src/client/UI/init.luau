@@ -1541,7 +1541,7 @@ function UI.init(config: Types.InitConfig)
 				or name == "Arcade"
 				or name == poolWindow
 				or name == "Store"
-			view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.on)
+			view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.held())
 		end
 		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
 		hudInstance:holdBanner("window", UI.rollBusy.window)
@@ -2316,7 +2316,7 @@ function UI.setRollBusy(on: boolean)
 	end
 	local view = toasts
 	if view then
-		view:setBusy(UI.rollBusy.window or on or UI.cutscene.on)
+		view:setBusy(UI.rollBusy.window or on or UI.cutscene.held())
 	end
 end
 -- #4018 (Derek OK'd the Mythic and up trait pull cutscene, 2026-11-13: every banner and pop-up muted while it plays,
@@ -2327,11 +2327,48 @@ end
 -- `hooks`: callers that hide their own pieces too (UIController's bait bowl prompts, from #4077)
 UI.cutscene = {
 	on = false,
+	-- the short screen takeovers that hold toasts and shout-outs like a cutscene but leave the HUD and the event strip
+	-- alone, by key (UI.setQuiet): Motion-FX's admin event countdown, splash and end card ("adminFlash")
+	quiet = {} :: { [string]: boolean },
 	queue = {} :: { { text: string, rarity: string? } },
 	hooks = {} :: { (on: boolean) -> () },
 	KEEP = 3,
 	GAP = 1.5,
 }
+-- Whether toasts and shout-outs wait now: a cutscene, or any quiet key.
+function UI.cutscene.held(): boolean
+	return UI.cutscene.on or next(UI.cutscene.quiet) ~= nil
+end
+-- The shout-outs held back come out one by one, UI.cutscene.GAP apart, unless something holds them again.
+function UI.cutscene.flush()
+	local cut = UI.cutscene
+	local waiting = cut.queue
+	cut.queue = {}
+	for index, item in waiting do
+		task.delay((index - 1) * cut.GAP, function()
+			if not UI.cutscene.held() then
+				UI.announce(item.text, item.rarity)
+			end
+		end)
+	end
+end
+-- Holds toasts and shout-outs while `key` is on (a few seconds at most), the way a cutscene does, without hiding the
+-- HUD: the admin event's 3, 2, 1, splash and end card call it so a rare cat shout-out never lands on the splash title
+-- (Review-QA's Studio look, 2026-11-15). Safe to call with the same state twice.
+function UI.setQuiet(key: string, on: boolean)
+	local cut = UI.cutscene
+	if (cut.quiet[key] == true) == on then
+		return
+	end
+	cut.quiet[key] = if on then true else nil
+	local view = toasts
+	if view then
+		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or cut.held())
+	end
+	if not cut.held() then
+		cut.flush()
+	end
+end
 function UI.setCutscene(on: boolean)
 	local cut = UI.cutscene
 	if cut.on == on then
@@ -2343,7 +2380,7 @@ function UI.setCutscene(on: boolean)
 	end
 	local view = toasts
 	if view then
-		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or on)
+		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or cut.held())
 	end
 	-- the event strip steps aside too (HUD.holdBanner, #4032)
 	if hud ~= nil then
@@ -2352,14 +2389,8 @@ function UI.setCutscene(on: boolean)
 	if on then
 		return
 	end
-	local waiting = cut.queue
-	cut.queue = {}
-	for index, item in waiting do
-		task.delay((index - 1) * cut.GAP, function()
-			if not UI.cutscene.on then
-				UI.announce(item.text, item.rarity)
-			end
-		end)
+	if not cut.held() then
+		cut.flush()
 	end
 	-- Derek 2026-11-13: the event and day strip stays down through the roll too
 	local board = hud
@@ -2371,7 +2402,7 @@ function UI.announce(text: string, rarity: string?): boolean
 	local ToastRules = require(script.Components.ToastRules)
 	local now = os.clock()
 	local cut = UI.cutscene
-	if cut.on then
+	if cut.held() then
 		table.insert(cut.queue, { text = text, rarity = rarity })
 		if #cut.queue > cut.KEEP then
 			table.remove(cut.queue, 1)
@@ -2734,7 +2765,7 @@ function UI.bait.busy(): boolean
 		or (UI.bait.cutting ~= nil and (UI.bait.cutting :: () -> boolean)()) -- #2946: the first bait's cutscene
 		or UI.bigTraitCutting() -- #3846: a Legendary or Mythic trait roll's cutscene
 		or UI.bait.away() -- #4035: out catching in an area
-		or UI.cutscene.on -- #4018: any cutscene (UI.setCutscene)
+		or UI.cutscene.held() -- #4018: any cutscene (UI.setCutscene) or quiet key (UI.setQuiet)
 		or (modal ~= nil and modal:current() == "Store") -- Derek 2026-11-14: no bowl cards over the Store
 end
 
@@ -5345,7 +5376,7 @@ do
 			intro = UI.intro.playing(),
 			flying = os.clock() < tipsHeldUntil,
 			window = (modal ~= nil and modal:current() ~= nil)
-				or UI.cutscene.on -- #4018: tips, ask and first visit cards wait through a cutscene
+				or UI.cutscene.held() -- #4018: tips, ask and first visit cards wait through a cutscene
 				or (popups ~= nil and popups:isShowing())
 				or (baitCard ~= nil and baitCard:isShowing())
 				or (askCard ~= nil and askCard:isShowing()),

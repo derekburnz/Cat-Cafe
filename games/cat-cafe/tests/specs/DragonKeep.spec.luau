@@ -433,6 +433,17 @@ return function()
 			expect(math.abs(after - before - rate * DragonKeep.NIGHT) < 1e-9).to.equal(true)
 		end)
 
+		it("brings rich visitors 15% more often with Smoke Signal", function()
+			local Economy = require(Shared.Economy)
+			local profile = profileWith({}) :: any
+			DragonKeep.setOn(true)
+			local before = Economy.richRate(profile)
+			profile.dragon = withSlots({ "smokeSignal" })
+			local after = Economy.richRate(profile)
+			DragonKeep.setOn(nil)
+			expect(math.abs(after - before - DragonKeep.RICH) < 1e-9).to.equal(true)
+		end)
+
 		it("adds Kindred's 0.1% money a kept cat, up to 10%", function()
 			local save = withSlots({ "kindred" })
 			save.kept = 40

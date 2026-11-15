@@ -201,7 +201,9 @@ function Economy.richRate(profile: Types.PlayerProfile): number
 	if passes.grand == true then
 		rate += Config.GrandRichRate
 	end
-	return rate + Economy.traitBonus(profile, "rareCustomer") -- #3871, #3889: Crowd Pleaser and the combos with it
+	return rate
+		+ Economy.traitBonus(profile, "rareCustomer") -- #3871, #3889: Crowd Pleaser and the combos with it
+		+ Economy.dragonEffects(profile).rich -- #4447: Smoke Signal
 end
 
 -- #3871: a cafe-wide trait effect (bowl luck, speed, rare customer chance) from the cats in a staff slot, the best

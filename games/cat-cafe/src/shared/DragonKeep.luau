@@ -1025,6 +1025,7 @@ DragonKeep.KINDRED_EACH = 0.001 -- Kindred: +0.1% money for each cat ever given 
 DragonKeep.KINDRED_MAX = 0.10
 DragonKeep.NIGHT = 0.12 -- Night Glow: +12% income at night (Economy.nightTraitRate)
 DragonKeep.PET_EXTRA = 15 * 60 -- Pat Pat: a pet's happy heart lasts 15 minutes longer (inside Pet.EXTRA_MAX)
+DragonKeep.RICH = 0.15 -- Smoke Signal: rich visitors come 15% more often (into Economy.richRate)
 DragonKeep.WALK_CAP = 2 -- card walk speed in total, stud/s (with and without a cat)
 
 export type Effects = {
@@ -1047,12 +1048,14 @@ export type Effects = {
 	restXp: number, -- share more on top for a resting cat
 	night: number, -- share more income at night
 	petExtra: number, -- seconds more on each pet's happy heart
+	rich: number, -- added to Economy.richRate
 }
 
 function DragonKeep.effects(save: Types.DragonSave): Effects
 	local money, tips, tickets, repeatFish, luck, goldLuck, reach, swing = 0, 0, 0, 0, 0, 0, 0, 0
 	local slowRings, forgive, friend, walk, softLanding = 0, false, 0, 0, false
 	local doubleJump, glide, xp, restXp, night, petExtra = false, false, 0, 0, 0, 0
+	local rich = 0
 	for _, id in save.slots do
 		if cardsById[id] ~= nil then
 			money += DragonKeep.MONEY[id] or 0
@@ -1091,6 +1094,8 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 				night = DragonKeep.NIGHT
 			elseif id == "patPat" then
 				petExtra = DragonKeep.PET_EXTRA
+			elseif id == "smokeSignal" then
+				rich = DragonKeep.RICH
 			end
 		end
 	end
@@ -1124,6 +1129,7 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 		restXp = restXp,
 		night = night,
 		petExtra = petExtra,
+		rich = rich,
 	}
 end
 
@@ -1153,6 +1159,7 @@ local NONE: Effects = table.freeze({
 	restXp = 0,
 	night = 0,
 	petExtra = 0,
+	rich = 0,
 }) :: any
 function DragonKeep.of(profile: Types.PlayerProfile): Effects
 	local on = if onOverride ~= nil

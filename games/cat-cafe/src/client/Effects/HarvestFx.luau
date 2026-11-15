@@ -125,7 +125,7 @@ end
 -- a first sight again and never has two listeners (one pick, one pop).
 local function forget(spot: Instance)
 	ready[spot] = nil
-	local link = links[spot]
+	local link: RBXScriptConnection? = links[spot]
 	if link ~= nil then
 		link:Disconnect()
 		links[spot] = nil
@@ -134,7 +134,8 @@ end
 
 local function watch(spot: Instance)
 	ready[spot] = isReady(spot)
-	if links[spot] ~= nil then
+	local link: RBXScriptConnection? = links[spot]
+	if link ~= nil then
 		return
 	end
 	links[spot] = spot:GetAttributeChangedSignal(Presets.harvestFx.readyAttribute)

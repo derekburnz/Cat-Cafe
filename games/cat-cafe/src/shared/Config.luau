@@ -1050,6 +1050,10 @@ local Config = {
 	FusionGoldSeconds = 0,
 	FusionRainbowSeconds = 0,
 	FusionTier = 8,
+	-- #4221 (Derek 2026-11-15 21:57 UTC: "make them behave like 10x money of the mythic cat from the next tier area so
+	-- secret tier 9 is 10x the tier 10 mythic"): an area's Secret earns this many times the Mythical of the area one
+	-- tier past its home (Catalog's secret). Tier 10's next area is taken as three times the Castle, the ladder's step.
+	SecretNextMythicTimes = 10,
 	-- #4055 (Derek 2026-11-13 23:53 UTC): Tiers 8 to 10 pay 300 each, so the fish Store can be reached by playing
 	FishRankUp = { 5, 15, 30, 60, 100, 150, 300, 300, 300 } :: { number },
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds

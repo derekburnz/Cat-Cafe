@@ -197,7 +197,15 @@ end
 -- Mythicals it can take the place of (its `secretArea`); its `area` still says "secret".
 -- Derek 2026-11-14 ("draft all 10"): `new` marks the seven Secrets of the one-per-area update, which only roll while
 -- the `secretAreas` switch is on (Catching.secret); with it off the first three are the only Secrets, as before.
+-- #4221 (Derek 2026-11-15): its own rate is Config.SecretNextMythicTimes times the Mythical of the area one tier past
+-- `home` (each area pays three times the one before, so that is the home's multiplier times 3, Tier 10's too). An
+-- owner's best open area still lifts it when that pays more (CatStats.areaMultiplier keeps the larger), so no Secret
+-- earns less than the old four Mythicals at the owner's best area.
 local function secret(def: Types.CatDef, home: Types.Area, new: boolean?): Types.CatDef
+	local nextArea = (AREA_INCOME[home] or 1) * 3
+	def.incomePerSecond = Config.SecretNextMythicTimes
+		* Catalog.rarities.Mythical.incomePerSecond
+		* nextArea
 	def.area = "secret"
 	def.secretArea = home
 	def.secretNew = new

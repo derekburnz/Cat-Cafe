@@ -14,18 +14,28 @@
 --   teamRescue(selfId, rescuerId, helperId, coins, nameOf)  the pop's line for this player: the rescuer reads
 --                                    "Sam helped you free it!", the helper "You helped Alex free it!" and its tip
 --                                    ("+$1,240") when there is one (none inside TeamRescueTipCooldown)
--- Names come from `nameOf`, the caller's Players lookup, with "A pal" or "your pal" when someone has left.
+--   joinedNote(palName?, nextDoor)  #3995 (friend-join-3995.md 4): the joiner's note as (title, line): "You joined
+--                                    Sam!" over "Your cafe is next door." when it is, else "Playing together" over
+--                                    "You joined Sam!". No bonus words (Derek 2026-11-13)
+--   arrivedNote(joinerName?)         #3995 (5): the friend's note, "Mia joined you!" over "They're at your front door."
+--   nextDoorLine(palName?)           #3995 (6): a new joiner's first strip line, "Your cafe is next to Sam's: step
+--                                    inside 🐾", until they walk into their own cafe
+-- Names come from `nameOf`, the caller's Players lookup, with "A pal" or "your pal" when someone has left. The
+-- #3995 lines cut a long display name as the cafe sign does (CafeName.shown).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ShortNumber = require(script.Parent.ShortNumber)
 
+local CafeName = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("CafeName"))
 local Pals = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Pals")) :: any
 
 local PalsLogic = {}
 
 PalsLogic.FACES = 3 -- headshots on the chip before "+N"
 PalsLogic.TITLE = "Team Rescue!"
+PalsLogic.NOTE_TITLE = "Playing together" -- #3995: the small title over both join notes
+PalsLogic.NOTE_SECONDS = 6 -- #3995: how long a join note stays; one tap puts it away sooner
 
 function PalsLogic.list(userIds: unknown, selfId: number?): { number }
 	local out: { number } = {}
@@ -98,6 +108,36 @@ function PalsLogic.teamRescue(
 		return line
 	end
 	return ("%s helped you free it!"):format(nameOf(helperId) or "A pal")
+end
+
+-- A name for the #3995 lines: the display name cut as the cafe sign cuts it, or nil when there is none.
+local function shortName(name: string?): string?
+	if type(name) ~= "string" or name == "" then
+		return nil
+	end
+	local shown = CafeName.shown(name)
+	return if shown ~= "" then shown else nil
+end
+
+function PalsLogic.joinedNote(palName: string?, nextDoor: boolean?): (string, string)
+	local joined = ("You joined %s!"):format(shortName(palName) or "your friend")
+	if nextDoor == true then
+		return joined, "Your cafe is next door."
+	end
+	return PalsLogic.NOTE_TITLE, joined
+end
+
+function PalsLogic.arrivedNote(joinerName: string?): (string, string)
+	return ("%s joined you!"):format(shortName(joinerName) or "A friend"),
+		"They're at your front door."
+end
+
+function PalsLogic.nextDoorLine(palName: string?): string
+	local name = shortName(palName)
+	if name == nil then
+		return "Your cafe is next door: step inside 🐾"
+	end
+	return ("Your cafe is next to %s's: step inside 🐾"):format(name)
 end
 
 return PalsLogic

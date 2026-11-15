@@ -136,7 +136,7 @@ return function()
 			check("fastLearner", "xp", { 0.10, 0.15, 0.22, 0.40 })
 			check("luckyBowl", "bowlLuck", { 0.02, 0.03, 0.04, 0.08 })
 			check("quickPaws", "speed", { 0.3, 0.5, 0.7, 1.2 })
-			check("richFriend", "richRate", { 0.02, 0.03, 0.04, 0.08 })
+			check("richFriend", "rareCustomer", { 0.02, 0.03, 0.04, 0.08 })
 			-- Epic's own pair (Derek 2026-11-12), each effect under the same effect in a Legendary
 			expect(Traits.amount(t("treasureNose"), "income")).to.be.near(0.20)
 			expect(Traits.amount(t("treasureNose"), "bowlLuck")).to.be.near(0.08)
@@ -155,11 +155,11 @@ return function()
 				end
 				expect(got :: any).to.deepEqual(effects)
 			end
-			check("goldenWhiskers", "legendary", { income = 0.45, richRate = 0.15 })
+			check("goldenWhiskers", "legendary", { income = 0.45, rareCustomer = 0.15 })
 			check("moonlitHunter", "legendary", { nightIncome = 0.75, bowlLuck = 0.15 })
 			check("prodigy", "legendary", { xp = 0.75, income = 0.30 })
 			check("lightningTail", "legendary", { speed = 2.0, xp = 0.50 })
-			check("cosmicFortune", "mythic", { income = 1.0, bowlLuck = 0.25, richRate = 0.25 })
+			check("cosmicFortune", "mythic", { income = 1.0, bowlLuck = 0.25, rareCustomer = 0.25 })
 			check("eternalNight", "mythic", { nightIncome = 1.5, xp = 1.5, speed = 2.5 })
 			check("starSage", "mythic", { xp = 2.5, income = 0.75, bowlLuck = 0.20 })
 		end)
@@ -374,12 +374,12 @@ return function()
 				expect(Traits.cafeBonus({ t("quickPaws_common"), t("lightningTail") }, "speed")).to.be.near(
 					2.0
 				)
-				-- rich rate: the best 2, at most 40%
-				expect(Traits.cafeBonus(mythic, "richRate")).to.be.near(0.40)
+				-- rare customer chance: the best 2, at most 40%
+				expect(Traits.cafeBonus(mythic, "rareCustomer")).to.be.near(0.40)
 				expect(
 					Traits.cafeBonus(
 						{ t("richFriend_rare"), t("goldenWhiskers"), t("richFriend_common") },
-						"richRate"
+						"rareCustomer"
 					)
 				).to.be.near(0.19)
 				-- per-cat effects count nothing cafe wide
@@ -394,8 +394,8 @@ return function()
 			expect(Traits.KINDS.bowlLuck.cap).to.equal(0.50)
 			expect(Traits.KINDS.speed.best).to.equal(1)
 			expect(Traits.KINDS.speed.cap).to.equal(2.5)
-			expect(Traits.KINDS.richRate.best).to.equal(2)
-			expect(Traits.KINDS.richRate.cap).to.equal(0.40)
+			expect(Traits.KINDS.rareCustomer.best).to.equal(2)
+			expect(Traits.KINDS.rareCustomer.cap).to.equal(0.40)
 			-- no trait's own amount beats its kind's cap
 			for _, def in Traits.LIST do
 				for _, effect in def.effects do

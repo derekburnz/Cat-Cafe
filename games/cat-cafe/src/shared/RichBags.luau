@@ -20,6 +20,7 @@ export type Bag = {
 	droppedAt: number, -- os.time()
 	expiresAt: number, -- os.time()
 	first: boolean, -- #2792: the account's first rich customer
+	tableIndex: number?, -- #3889: the table it waits on (nil: table 1, as before rare customers came by chance)
 }
 
 -- Each slot's offset from the RichTipAnchor along the table (studs, the anchor's own X and Z): the middle, then

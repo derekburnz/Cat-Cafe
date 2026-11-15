@@ -3,7 +3,7 @@
 		"name": "Starter Bundle",
 		"id": 3728336166,
 		"config": "ProductIds.starter_bundle",
-		"price": 99,
+		"price": 49,
 		"regionalPricing": false,
 		"description": "A head start: the cat Sprinkles, 10 Big Money Potions, 5 Swift Potions and a cafe sign style. Once per player."
 	},
@@ -67,7 +67,7 @@
 		"name": "20 Trait Tokens",
 		"id": 3730879829,
 		"config": "ProductIds.trait_tokens_20",
-		"price": 99,
+		"price": 49,
 		"regionalPricing": false,
 		"description": "20 Trait Tokens for the Mystic Pool. One token is one trait roll; the odds are shown on the pool before you buy."
 	},
@@ -75,8 +75,36 @@
 		"name": "50 Trait Tokens",
 		"id": 3730879833,
 		"config": "ProductIds.trait_tokens_50",
-		"price": 199,
+		"price": 99,
 		"regionalPricing": false,
 		"description": "50 Trait Tokens for the Mystic Pool. One token is one trait roll; the odds are shown on the pool before you buy."
+	},
+	{
+		"name": "Today's Deal: 250 Golden Fish",
+		"config": "ProductIds.deal_1",
+		"price": 13,
+		"regionalPricing": false,
+		"description": "250 golden fish to spend at the Golden Fish Market. Today's Deal in the Store; a new deal comes each day."
+	},
+	{
+		"name": "Today's Deal: Trait Tokens",
+		"config": "ProductIds.deal_2",
+		"price": 13,
+		"regionalPricing": false,
+		"description": "10 Trait Tokens for the Mystic Pool. One token is one trait roll; the odds are shown on the pool before you spend one."
+	},
+	{
+		"name": "Today's Deal: Golden Crates",
+		"config": "ProductIds.deal_3",
+		"price": 13,
+		"regionalPricing": false,
+		"description": "10 golden crates from your best open area. Each opens to an Epic or better decor piece; the odds are shown on the deal before you buy."
+	},
+	{
+		"name": "Today's Deal: Golden Haul",
+		"config": "ProductIds.deal_4",
+		"price": 13,
+		"regionalPricing": false,
+		"description": "5 golden crates from your best open area and 100 golden fish. Each crate opens to an Epic or better decor piece; the odds are shown on the deal before you buy."
 	}
 ]

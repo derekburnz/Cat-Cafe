@@ -26,6 +26,7 @@ local Catching = require(Shared:WaitForChild("Catching"))
 local Clock = require(Shared:WaitForChild("Clock"))
 local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
+local DragonRise = require(script.Parent.Parent.Effects.DragonRise)
 local Effects = require(script.Parent.Parent.Effects)
 local EventBanner = require(script.Parent.Parent.Effects.EventBanner)
 local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
@@ -346,6 +347,22 @@ local function circleVerb(): string
 	return "click"
 end
 
+-- #4151: the strip's own lines on the device the player used last, from TutorialHints' keyboard, touch and gamepad
+-- versions, so a phone reads "tap Upgrades" and never a letter key. `fallback` only if the id is unknown.
+local function deviceLine(id: string, fallback: string): string
+	local TutorialHints = require(script.Parent.Parent.UI.Components.TutorialHints) :: any
+	local last = UserInputService:GetLastInputType().Name
+	local device = if last:sub(1, 7) == "Gamepad"
+		then "gamepad"
+		elseif
+			last == "Touch"
+			or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+		then "touch"
+		else "keyboard"
+	local line: unknown = TutorialHints.lineFor(id, device)
+	return if type(line) == "string" and line ~= "" then line else fallback
+end
+
 local function swingHint(): string
 	local net: any = (UI :: any).net
 	local hint: unknown = if net ~= nil then net.hint else nil
@@ -412,7 +429,34 @@ local stuckGoal = {
 	aside = false, -- near the trap: the marker and trail are put away so the cat's own call shows (StuckGoal.aside)
 }
 
+-- #4383 (shared/RankFirst, switch rankFirst): after the tutorial, a Tier 1 cafe with every Tier 2 need met goes to
+-- the rank up first; the stuck cat goal waits until then (and comes back should the coins be spent).
+local function rankFirstNow(s: Types.PlayerState): boolean
+	if (s.tier or 1) ~= 1 or s.tutorialStep < 5 then
+		return false
+	end
+	local RankFirst = require(Shared:WaitForChild("RankFirst")) :: any
+	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+	local on: boolean = LiveFlags.shown(
+		RankFirst.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankFirst.FLAG)
+	)
+	if not on then
+		return false
+	end
+	local GoalLines = require(script.Parent.Parent.UI.Components.GoalLines) :: any
+	local RankUpNeeds = require(script.Parent.Parent.UI.Components.RankUpNeeds) :: any
+	local nextTier = GoalLines.nextTier(Catalog.tiers :: any, 1)
+	if nextTier == nil then
+		return false
+	end
+	return RankFirst.holds(on, s.tier, RankUpNeeds.of(nextTier, s :: any).ready == true)
+end
+
 local function stuckGoalActive(s: Types.PlayerState): boolean
+	if rankFirstNow(s) then
+		return false
+	end
 	local shownAt = stuckGoal.shownAt
 	return StuckGoal.active(
 		s.stuckGoal,
@@ -547,6 +591,45 @@ end
 local CARRY_SETTLE = 0.6
 local tutorialCarry = { was = false, endedAt = -math.huge }
 
+-- #3995 (friend-join-3995.md 6, palJoin switch): a new player who joined through a friend and got the cafe next door
+-- reads "Your cafe is next to Sam's: step inside 🐾" as the strip's first line, with the trail to their own door,
+-- until they first stand inside it; then the tutorial goes on as normal. `pal` is the friend's user id.
+local palJoin = { pal = 0, nextDoor = false, entered = false, watching = false }
+local PAL_JOIN_WAIT = 5 -- seconds the joiner's note waits for the server's PalNextDoor attribute
+local PAL_JOIN_CHECK = 0.5 -- seconds between the "inside your cafe yet?" checks
+
+-- Whether this player's character stands inside their own cafe (over its Floor, under the roof).
+local function insideOwnCafe(): boolean
+	local plot = ownPlot()
+	local floor = if plot ~= nil then plot:FindFirstChild("Floor") else nil
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if floor == nil or not floor:IsA("BasePart") or root == nil or not root:IsA("BasePart") then
+		return false
+	end
+	local offset = (floor :: BasePart).CFrame:PointToObjectSpace((root :: BasePart).Position)
+	local half = (floor :: BasePart).Size / 2
+	return math.abs(offset.X) <= half.X
+		and math.abs(offset.Z) <= half.Z
+		and offset.Y >= -2
+		and offset.Y <= 14
+end
+
+-- The strip's next-door line while it applies (true), else false and the usual first line shows.
+local function palJoinLine(s: Types.PlayerState): boolean
+	if not palJoin.nextDoor or palJoin.entered or s.tutorialStep >= 2 then
+		return false
+	end
+	local PalsLogic = require(script.Parent.Parent.UI.Components.PalsLogic) :: any
+	local pal = Players:GetPlayerByUserId(palJoin.pal)
+	UI.tutorial.show(
+		PalsLogic.nextDoorLine(if pal ~= nil then pal.DisplayName else nil),
+		UIController.ownDoor(),
+		"Your cafe"
+	)
+	return true
+end
+
 local function refreshTutorial(s: Types.PlayerState)
 	if tutorialWatch.connection ~= nil then
 		tutorialWatch.connection:Disconnect()
@@ -586,6 +669,9 @@ local function refreshTutorial(s: Types.PlayerState)
 	if s.tutorialStep >= 2 and s.tutorialStep <= 4 then
 		reportStep("next_goal_shown")
 	end
+	if s.tutorialStep < 2 and palJoinLine(s) then
+		return
+	end
 	if s.tutorialStep < 2 then
 		showTutorial(
 			s,
@@ -601,12 +687,12 @@ local function refreshTutorial(s: Types.PlayerState)
 		if hasRestingCatAndFreeSpot(s) then
 			showTutorial(
 				s,
-				"Open the Collection (C) and give your new cat a role",
+				deviceLine("job", "Open Cats and give your new cat a job"),
 				restingCat(),
 				"Cat"
 			)
 		else
-			showTutorial(s, "Catch more cats in the alley, or buy a table in Upgrades (U)")
+			showTutorial(s, deviceLine("more", "Catch more cats, or buy a table in Upgrades"))
 		end
 	elseif s.tutorialStep == 3 then
 		-- #2912: with one cat, ring the nearest Alleyway stray (or where the tutorial stray waits) as well as the table;
@@ -615,12 +701,12 @@ local function refreshTutorial(s: Types.PlayerState)
 		if not SecondCat.done(s.stats) and areasShut() then
 			-- #3238: at night the strays are gone and the server picks the waiting one at sunrise, so say so and
 			-- point at the table instead of an empty alley
-			showTutorial(s, "Strays return at sunrise 🌅, or buy a table in Upgrades (U)")
+			showTutorial(s, deviceLine("secondNight", "Strays return at sunrise, or open Upgrades"))
 		elseif not SecondCat.done(s.stats) then -- #3160, #3551: the bowl's cat never ends it
 			local stray = nearestAlleyStray()
 			showTutorial(
 				s,
-				"Catch another cat, or buy a table in Upgrades (U)",
+				deviceLine("second", "Catch another cat 🐾"), -- #4097: one ask by day
 				stray or tutorialStrayPoint(),
 				"Catch another cat"
 			)
@@ -635,13 +721,13 @@ local function refreshTutorial(s: Types.PlayerState)
 				end)
 			end
 		else
-			showTutorial(s, "Buy your first table in Upgrades (U): more money from every cat")
+			showTutorial(s, deviceLine("table", "Open Upgrades and buy a table: more tips per cat"))
 		end
 	elseif s.tutorialStep == 4 then
 		-- gdd "The first ten minutes" beat 4: the bowl, then food in it (BaitService finishes the tutorial)
 		-- (the HUD strip shows about 50 characters on one line, reviewer N94)
 		if (s.upgradeLevels.lure_bowl or 0) < 1 then
-			showTutorial(s, "Buy the Bait bowl in Upgrades (U)")
+			showTutorial(s, deviceLine("bowl", "Open Upgrades and buy the Bait bowl"))
 		elseif s.bait ~= nil then
 			-- #3158: the first bait holds step 4 until its cat is tamed or let go (the line is TutorialHints'
 			-- "waiting", then "arrived")
@@ -649,11 +735,23 @@ local function refreshTutorial(s: Types.PlayerState)
 		else
 			showTutorial(
 				s,
-				"Put Kibble in your bowl on the back step (F)",
+				deviceLine("food", "Put Kibble in your bowl on the back step"),
 				UIController.ownBaitBowl(),
 				"Bowl"
 			)
 		end
+	elseif rankFirstNow(s) then
+		-- #4383: the strip names the goal card; RankSpotController's walk-through lights it
+		local RankFirst = require(Shared:WaitForChild("RankFirst")) :: any
+		local last = UserInputService:GetLastInputType().Name
+		local device = if last:sub(1, 7) == "Gamepad"
+			then "gamepad"
+			elseif
+				last == "Touch"
+				or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+			then "touch"
+			else "keyboard"
+		showTutorial(s, RankFirst.line(device))
 	elseif stuckGoalActive(s) then
 		-- #2912: after the walk-through, to the Alleyway's stuck cat (the cannon first from town); nothing at night,
 		-- when the goal card says the cats come back at sunrise
@@ -715,6 +813,76 @@ local function refreshTutorial(s: Types.PlayerState)
 	else
 		UI.tutorial.hide()
 	end
+end
+
+-- #3995: watches for the joiner's first step inside their own cafe, then puts the strip back to the tutorial's own
+-- first line. Gives up once the tutorial has moved past its first steps.
+local function watchPalJoin()
+	if palJoin.watching then
+		return
+	end
+	palJoin.watching = true
+	task.spawn(function()
+		while not palJoin.entered do
+			task.wait(PAL_JOIN_CHECK)
+			local current = state
+			if current ~= nil and current.tutorialStep >= 2 then
+				break
+			end
+			if insideOwnCafe() then
+				palJoin.entered = true
+				local now = state
+				if now ~= nil then
+					refreshTutorial(now)
+				end
+			end
+		end
+		palJoin.watching = false
+	end)
+end
+
+-- #3995 (friend-join-3995.md 4 to 6): PalArrived with the palJoin switch on. The joiner's note waits a moment for the
+-- server's PalNextDoor attribute (it is set once the save and the plot are in), then shows; a new joiner next door
+-- gets the strip's next-door line. The friend gets their note at once.
+function UIController.palJoined(joinerId: number, palId: number)
+	if joinerId ~= player.UserId and palId ~= player.UserId then
+		return
+	end
+	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+	local PalJoin = require(Shared:WaitForChild("PalJoin")) :: any
+	local key: string = PalJoin.FLAG
+	if
+		not LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
+	then
+		return
+	end
+	local hook: unknown = (UI :: any).palJoined
+	if type(hook) ~= "function" then
+		return
+	end
+	local show = hook :: (number, number, boolean?) -> ()
+	if palId == player.UserId then
+		show(joinerId, palId, nil)
+		return
+	end
+	task.spawn(function()
+		local attribute: string = PalJoin.ATTRIBUTE
+		local started = os.clock()
+		while player:GetAttribute(attribute) == nil and os.clock() - started < PAL_JOIN_WAIT do
+			task.wait(0.25)
+		end
+		local nextDoor = player:GetAttribute(attribute) == true
+		show(joinerId, palId, nextDoor)
+		if nextDoor then
+			palJoin.pal = palId
+			palJoin.nextDoor = true
+			local now = state
+			if now ~= nil then
+				refreshTutorial(now)
+			end
+			watchPalJoin()
+		end
+	end)
 end
 
 -- Role changes since the last sync, for the sounds (sound list: place and unplace): a cat newly in a role or moved
@@ -1100,6 +1268,9 @@ local function applyState(s: Types.PlayerState)
 		-- #3529: the goal card's "Catch new kinds of cat 3/5" while five different cats is the goal; false otherwise
 		newKindGoal = if newKindGoal(s) then kindsOf(s) else false,
 		traits = if s.traits ~= nil then s.traits else false, -- #3196: the Mystic Pool's card
+		-- #4210: the Admin Wheel's spin for this account (AdminEventController reads it; false clears it, since
+		-- UI.update skips a nil)
+		adminWheel = if s.adminWheel ~= nil then s.adminWheel else false,
 		tutorialStep = s.tutorialStep,
 		-- #3285: what is in the first bowl, for the tutorial's food step (TutorialHints.view). Without it the HUD's
 		-- Bowl ring, its dim and the Kibble row's ring kept asking for food through the wait for the cat. false while
@@ -1148,6 +1319,7 @@ local function applyState(s: Types.PlayerState)
 		-- #2555: the free Bellhop Cat's stand "!" (#2501) and its speech bubble show only while this is false
 		starterCatClaimed = s.starterCatClaimed,
 		storeSeen = s.storeSeen, -- #1823 §4: the Store tabs' New dots
+		dailyDeal = s.dailyDeal or false, -- #3996: Today's Deal on the Store's Featured tab
 		-- #2574: Juniper's Mystery Market: the items owned, the cart's "!" until the first visit, and whether buys are
 		-- taken yet
 		mystery = s.mystery,
@@ -1184,6 +1356,7 @@ local function applyState(s: Types.PlayerState)
 	end
 	if lastTier ~= nil and s.tier > (lastTier :: number) then
 		Moments.RankUp:Fire(s.tier)
+		UIController.tradeUnlock(lastTier :: number, s.tier)
 	end
 	lastTier = s.tier
 	refreshCarry()
@@ -1280,6 +1453,12 @@ local function wireIntents()
 	end)
 	-- #1823 §4: a Store tab with a New dot opened; the server saves its version (known tabs only). The server takes
 	-- two a second, so tabs tapped faster than that wait their turn here instead of being dropped.
+	-- #3996: Today's Deal's R$25: the server checks it is today's, not bought yet, and opens the prompt (1 a second)
+	UI.events.storeDeal:Connect(function(productId: string)
+		if type(productId) == "string" then
+			Net.fire("PromptDeal", productId)
+		end
+	end)
 	local seenQueue: { string } = {}
 	local seenSending = false
 	UI.events.storeSeen:Connect(function(tab: string)
@@ -1547,6 +1726,8 @@ local function wireIntents()
 		end
 	end)
 	RiftRun.onHold(UI.setCutscene)
+	-- #4062: the Dragon Keep's stage-up cutscene holds them the same way
+	DragonRise.onHold(UI.setCutscene)
 	mysticPool.far = function(): boolean
 		local distance = poolDistance()
 		return distance == nil or distance > POOL_FAR_STUDS
@@ -1739,6 +1920,21 @@ local function wireIntents()
 			end
 		end)
 	end
+	if events.loadingSeen ~= nil then
+		-- #4314: once a session, only the first wait (the one before the first spawn or the intro)
+		local seen = false
+		events.loadingSeen:Connect(function(seconds: number)
+			if seen then
+				return
+			end
+			seen = true
+			Net.fire(
+				"TelemetryReport",
+				"loading_seen",
+				math.clamp(math.floor(seconds + 0.5), 0, 120)
+			)
+		end)
+	end
 	if events.introChoice ~= nil then
 		events.introChoice:Connect(function(from: string)
 			Net.fire("TelemetryReport", "intro_choice", from)
@@ -1792,6 +1988,18 @@ local function wireIntents()
 	if events.storeGuardBlocked ~= nil then
 		events.storeGuardBlocked:Connect(function(what: string)
 			Net.fire("TelemetryReport", "store_guard_blocked", what)
+		end)
+	end
+	-- #4174: the Starter Bundle card's shown or how it ended; the server allowlists it, once each a session
+	if events.starterSuggest ~= nil then
+		events.starterSuggest:Connect(function(outcome: string)
+			Net.fire("TelemetryReport", "starter_suggest", outcome)
+		end)
+	end
+	-- #4176: a purchase prompt's source, "source:id"; the server allowlists it and keeps it 2 minutes for the receipt
+	if events.buySource ~= nil then
+		events.buySource:Connect(function(what: string)
+			Net.fire("TelemetryReport", "buy_source", what)
 		end)
 	end
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
@@ -2276,7 +2484,21 @@ local function offerEvent()
 	eventAsk.asked = true
 	local eventId, at = id :: string, startsAt :: number
 	task.spawn(function()
-		while not quiet() do
+		-- Derek 2026-11-14 ("just have this pop up when in safezone randomly not make them say notify me first"): a
+		-- random moment in the window, then only in a safe place (town, a cafe or a camp, not out in an area's wild
+		-- part: UI.bait.away) at a quiet moment with no window open
+		task.wait(
+			math.random()
+				* math.max(0, EventRsvp.UNTIL_SECONDS - 60 - (os.clock() - eventAsk.started))
+		)
+		local function safe(): boolean
+			local bait: any = (UI :: any).bait
+			local away = bait ~= nil
+				and type(bait.away) == "function"
+				and (bait.away :: () -> unknown)() == true
+			return quiet() and not away and UI.isOpen() == nil
+		end
+		while not safe() do
 			task.wait(1)
 			if not EventRsvp.window(os.clock() - eventAsk.started) then
 				return -- no quiet moment by minute 10: not this session
@@ -2284,6 +2506,12 @@ local function offerEvent()
 		end
 		if EventRsvp.status(eventId) ~= "none" or not EventRsvp.due(eventId, at, os.time()) then
 			return -- answered before (or Roblox cannot say), or it has started
+		end
+		if EventRsvp.DIRECT then
+			-- straight to Roblox's own Join Event card, no in-game ask first
+			reportRsvp("shown")
+			reportRsvp(EventRsvp.prompt(eventId) or "failed")
+			return
 		end
 		local asks: any = (UI :: any).asks
 		local card: any = if asks ~= nil then asks.card else nil
@@ -2433,6 +2661,11 @@ local function wireServerEvents()
 	Net.on("OwnerShout", function(text: string)
 		(UI :: any).ownerShout(text)
 	end)
+	-- #4227: a queued spawn line's sting plays as it shows, not as it arrives
+	local hooks: any = UI
+	hooks.onAnnounceShown = function(text: string, rarity: string?)
+		Moments.Announce:Fire(text, rarity)
+	end
 	Net.on("Announce", function(text: string, rarity: string?)
 		-- #2399: the sting plays only with a shout-out that shows; UI.announce says false when it drops one (it said
 		-- nothing before #2426, which counts as shown)
@@ -2521,6 +2754,7 @@ local function wireServerEvents()
 	-- the glowing travel button), else a toast when the pal is out in an area.
 	Net.on("PalArrived", function(joinerId: number, palId: number, palArea: string?)
 		Moments.PalArrived:Fire(joinerId, palId)
+		UIController.palJoined(joinerId, palId)
 		if joinerId ~= player.UserId then
 			return
 		end
@@ -2558,14 +2792,18 @@ local function wireServerEvents()
 			)
 		end
 	)
-	Net.on("CatCaught", function(catId: string, isNew: boolean, variant: string?)
+	Net.on("CatCaught", function(catId: string, isNew: boolean, variant: string?, source: string?)
 		-- F99: the coat comes with the catch, so the card says RAINBOW or GOLD without looking for the new cat
 		local extra: UITypes.CatFoundExtra? = nil
-		if pendingCharmGain > 0 or variant ~= nil then
+		local fromBowl = source == "bowl" -- #4266: tamed at a bait bowl (the Tame tap or the Auto Bowl pass)
+		if pendingCharmGain > 0 or variant ~= nil or fromBowl then
 			local info: UITypes.CatFoundExtra = {}
 			info.charmGain = if pendingCharmGain > 0 then pendingCharmGain else nil
 			info.shiny = if variant ~= nil then variant == "gold" else nil
 			info.rainbow = if variant ~= nil then variant == "rainbow" else nil
+			if fromBowl then
+				(info :: any).source = "bowl" -- UI.showCatFound: a toast instead with settings.bowlNewCatCard off
+			end
 			extra = info
 		end
 		pendingCharmGain = 0
@@ -3433,6 +3671,46 @@ function UIController.start()
 	startCampWatch()
 	Net.fire("RequestSync")
 	print(string.format("[CatCafe] client ready for %s", player.Name))
+end
+
+-- #4280: a rank up that reaches the live TradeMinTier (Workspace's, else Config's) while trading is on plays
+-- Effects/TradeUnlock once, after the rank up's own window and cards: it starts only after the screen has been calm
+-- (UI.calmForMoment) for CALM seconds, and tries again while play refuses (another of the effects' cutscenes). Tiers
+-- only go up, so a rank up through it comes once per account; a rejoin above it plays nothing.
+local TRADE_UNLOCK = { FIRST_WAIT = 4, CALM = 1.5, STEP = 0.25, GIVE_UP = 600 }
+local tradeUnlockQueued = false
+
+function UIController.tradeUnlock(from: number, to: number)
+	local TradeLogic = require(script.Parent.Parent.UI.Components.TradeLogic) :: any
+	local min = TradeLogic.minTier(Workspace:GetAttribute("TradeMinTier"))
+	if
+		tradeUnlockQueued
+		or not (from < min and to >= min)
+		or Workspace:GetAttribute("TradingOn") ~= true
+	then
+		return
+	end
+	tradeUnlockQueued = true
+	task.spawn(function()
+		local TradeUnlock = require(script.Parent.Parent.Effects.TradeUnlock) :: any
+		local ui: any = UI
+		task.wait(TRADE_UNLOCK.FIRST_WAIT)
+		local calmSince: number? = nil
+		local started = os.clock()
+		while os.clock() - started < TRADE_UNLOCK.GIVE_UP do
+			if not ui.calmForMoment() then
+				calmSince = nil
+			elseif calmSince == nil then
+				calmSince = os.clock()
+			elseif os.clock() - (calmSince :: number) >= TRADE_UNLOCK.CALM then
+				if TradeUnlock.play(ui.tradeTile()) then
+					return
+				end
+				calmSince = nil
+			end
+			task.wait(TRADE_UNLOCK.STEP)
+		end
+	end)
 end
 
 return UIController

@@ -2455,6 +2455,225 @@
    },
    "children": [
     {
+     "name": "CatCafe_Town_LeaderboardRow_Barrier",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         6.72,
+         5.16,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       6.36,
+       9.62,
+       1.64
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 1.0,
+      "CanQuery": false,
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -6.72,
+         -5.16,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Town_LeaderboardRow/3"
+     }
+    },
+    {
+     "name": "CatCafe_Town_LeaderboardRow_Barrier",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         5.16,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       6.36,
+       9.62,
+       1.64
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 1.0,
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Town_LeaderboardRow_Barrier",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.72,
+         5.16,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       6.36,
+       9.62,
+       1.64
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 1.0,
+      "CanQuery": false
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Town_LeaderboardRow_Barrier"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Town_LeaderboardRow/4"
+   },
+   "children": [
+    {
      "name": "CatCafe_Town_LeaderboardRow_Index",
      "className": "Part",
      "properties": {
@@ -2529,7 +2748,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Town_LeaderboardRow/3"
+      "Rojo_Id": "CatCafe_Town_LeaderboardRow/4"
      }
     },
     {
@@ -6256,7 +6475,7 @@
     {
      "className": "Model",
      "attributes": {
-      "Rojo_Target_PrimaryPart": "CatCafe_Town_LeaderboardRow/4"
+      "Rojo_Target_PrimaryPart": "CatCafe_Town_LeaderboardRow/5"
      },
      "children": [
       {
@@ -6334,7 +6553,7 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Town_LeaderboardRow/4"
+        "Rojo_Id": "CatCafe_Town_LeaderboardRow/5"
        }
       }
      ],
@@ -6405,7 +6624,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Town_LeaderboardRow/5"
+    "Rojo_Target_PrimaryPart": "CatCafe_Town_LeaderboardRow/6"
    },
    "children": [
     {
@@ -6483,7 +6702,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Town_LeaderboardRow/5"
+      "Rojo_Id": "CatCafe_Town_LeaderboardRow/6"
      }
     },
     {
@@ -11411,7 +11630,7 @@
     {
      "className": "Model",
      "attributes": {
-      "Rojo_Target_PrimaryPart": "CatCafe_Town_LeaderboardRow/6"
+      "Rojo_Target_PrimaryPart": "CatCafe_Town_LeaderboardRow/7"
      },
      "children": [
       {
@@ -11489,7 +11708,7 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Town_LeaderboardRow/6"
+        "Rojo_Id": "CatCafe_Town_LeaderboardRow/7"
        }
       }
      ],
@@ -11560,7 +11779,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Town_LeaderboardRow/7"
+    "Rojo_Target_PrimaryPart": "CatCafe_Town_LeaderboardRow/8"
    },
    "children": [
     {
@@ -11638,7 +11857,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Town_LeaderboardRow/7"
+      "Rojo_Id": "CatCafe_Town_LeaderboardRow/8"
      }
     },
     {
@@ -15323,7 +15542,7 @@
     {
      "className": "Model",
      "attributes": {
-      "Rojo_Target_PrimaryPart": "CatCafe_Town_LeaderboardRow/8"
+      "Rojo_Target_PrimaryPart": "CatCafe_Town_LeaderboardRow/9"
      },
      "children": [
       {
@@ -15401,7 +15620,7 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Town_LeaderboardRow/8"
+        "Rojo_Id": "CatCafe_Town_LeaderboardRow/9"
        }
       }
      ],

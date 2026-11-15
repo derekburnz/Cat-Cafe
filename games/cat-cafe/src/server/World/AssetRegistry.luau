@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local GoldTone = require(ReplicatedStorage.Shared.GoldTone)
 local Placeholders = require(script.Parent.Placeholders)
 local ServerOnlyAssets = require(script.Parent.ServerOnlyAssets)
 
@@ -129,25 +130,40 @@ export type Body = "walk" | "sit" | "work"
 function AssetRegistry.cloneCat(catId: string, variant: string?, body: Body?): (Model, Body)
 	local base = Catalog.catModelName(catId)
 	local gold = Catalog.goldModelName(catId)
-	local walkers: { string } = if variant == "gold" then { gold, base } else { base }
+	-- #4133: with the goldTone switch on a gold cat is its base model toned (shared/GoldTone), so the _Gold models
+	-- are never looked up
+	local walkers: { string } = { base }
+	local tone = false
+	if variant == "gold" then
+		walkers, tone = GoldTone.names(gold, base)
+	end
+	local function take(name: string, which: Body): (Model, Body)
+		local model = AssetRegistry.clone(name)
+		if tone then
+			GoldTone.apply(model)
+		end
+		return model, which
+	end
 	if body == "work" then
 		for _, name in walkers do
 			if AssetRegistry.has(Catalog.workModelName(name)) then
-				return AssetRegistry.clone(Catalog.workModelName(name)), "work"
+				return take(Catalog.workModelName(name), "work")
 			end
 		end
 	end
 	if body == "work" or body == "sit" then
 		for _, name in walkers do
 			if AssetRegistry.has(Catalog.sitModelName(name)) then
-				return AssetRegistry.clone(Catalog.sitModelName(name)), "sit"
+				return take(Catalog.sitModelName(name), "sit")
 			end
 		end
 	end
-	if variant == "gold" and AssetRegistry.has(gold) then
-		return AssetRegistry.clone(gold), "walk"
+	for _, name in walkers do
+		if AssetRegistry.has(name) then
+			return take(name, "walk")
+		end
 	end
-	return AssetRegistry.clone(base), "walk"
+	return take(base, "walk")
 end
 
 return AssetRegistry

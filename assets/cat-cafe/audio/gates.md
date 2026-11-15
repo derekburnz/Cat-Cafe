@@ -2,7 +2,7 @@
 
 Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat-cafe/audio`. Do not edit by hand; rerun the script. Budgets: audio-pipeline section 5. PASS means measured clean, not that it sounds right: Derek or Gavin still listens.
 
-208 files: 197 PASS, 11 WARN, 0 FAIL.
+212 files: 201 PASS, 11 WARN, 0 FAIL.
 
 | file | kind | s | ch | Hz | KB | LUFS | peak dBTP | lead ms | seam | verdict | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -123,6 +123,9 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sheet-parts/sfx/CatCafe_Sfx_FoodStarTreat.ogg` | sfx | 0.75 | 1 | 48000 | 10 | -18.6 | -9.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_FoodTuna.ogg` | sfx | 0.55 | 1 | 48000 | 8 | -24.6 | -8.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_FrostChime.ogg` | sfx | 1.40 | 1 | 48000 | 16 | -19.3 | -6.9 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_FusionCollect.ogg` | sfx | 1.30 | 1 | 48000 | 13 | -19.1 | -6.3 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_FusionCollectRainbow.ogg` | sfx | 2.60 | 1 | 48000 | 27 | -19.8 | -5.9 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_FusionStart.ogg` | sfx | 1.90 | 1 | 48000 | 21 | -17.0 | -6.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_MouseBest.ogg` | sfx | 1.60 | 1 | 48000 | 19 | -18.8 | -6.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_MouseCatch.ogg` | sfx | 0.40 | 1 | 48000 | 6 | - | -7.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_MouseDuck.ogg` | sfx | 0.50 | 1 | 48000 | 8 | -22.6 | -8.9 | 0 | - | PASS |  |
@@ -182,6 +185,7 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sheets/CatCafe_Sheet_Catch.ogg` | sheet | 4.85 | 1 | 48000 | 23 | -19.1 | -4.1 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Catch3.ogg` | sheet | 3.70 | 1 | 48000 | 19 | -21.0 | -6.0 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Decor.ogg` | sheet | 14.90 | 1 | 48000 | 130 | -18.9 | -5.3 | 0 | - | PASS |  |
+| `sheets/CatCafe_Sheet_Fusion.ogg` | sheet | 6.80 | 1 | 48000 | 55 | -18.9 | -5.9 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Keep.ogg` | sheet | 19.72 | 1 | 48000 | 138 | -20.1 | -4.1 | 3 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Late.ogg` | sheet | 6.30 | 1 | 48000 | 43 | -20.4 | -6.9 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Moments.ogg` | sheet | 23.22 | 2 | 48000 | 266 | -16.3 | -5.9 | 0 | - | PASS |  |

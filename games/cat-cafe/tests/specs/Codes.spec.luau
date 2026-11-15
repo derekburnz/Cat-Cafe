@@ -48,7 +48,7 @@ return function()
 			"gives 10 Trait Tokens at 15:33 and 100 golden fish at 15:35 UTC on 2026-11-13, until 16:30",
 			function()
 				local tokens, fish = Config.Giveaways[1], Config.Giveaways[2]
-				expect(#Config.Giveaways).to.equal(2)
+				expect(#Config.Giveaways).to.equal(3)
 				expect(os.date("!%Y-%m-%d %H:%M", tokens.from)).to.equal("2026-11-13 15:33")
 				expect(os.date("!%Y-%m-%d %H:%M", fish.from)).to.equal("2026-11-13 15:35")
 				expect(os.date("!%H:%M", tokens.to :: number)).to.equal("16:30")
@@ -71,6 +71,27 @@ return function()
 					false
 				)
 				expect(UpdateGift.due({}, fish, fish.to :: number)).to.equal(false)
+			end
+		)
+
+		it(
+			"gives 10 Trait Tokens to Sunday's players from 20:03 UTC on 2026-11-15 to midnight Toronto",
+			function()
+				local sunday = Config.Giveaways[3]
+				expect(sunday.id).to.equal("2026-11-15-tokens")
+				expect(os.date("!%Y-%m-%d %H:%M", sunday.from)).to.equal("2026-11-15 20:03")
+				expect(os.date("!%Y-%m-%d %H:%M", sunday.to :: number)).to.equal("2026-11-16 05:00")
+				expect(sunday.traitTokens).to.equal(10)
+				expect(sunday.fish + sunday.spins).to.equal(0)
+				local keys = {}
+				for _, gift in Config.Giveaways do
+					local key = UpdateGift.key(gift.id)
+					expect(keys[key]).to.equal(nil)
+					keys[key] = true
+				end
+				expect(UpdateGift.due({}, sunday, sunday.from - 1)).to.equal(false)
+				expect(UpdateGift.due({}, sunday, sunday.from)).to.equal(true)
+				expect(UpdateGift.due({}, sunday, sunday.to :: number)).to.equal(false)
 			end
 		)
 
@@ -354,9 +375,9 @@ return function()
 	describe("refusal", function()
 		it("pays a known active code once per player", function()
 			local profile = fresh()
-			expect(Codes.refusal(profile, "playtest", NOW)).never.to.be.ok()
-			profile.codesRedeemed.playtest = NOW
-			expect(Codes.refusal(profile, "playtest", NOW)).to.equal(Codes.USED)
+			expect(Codes.refusal(profile, "release", NOW)).never.to.be.ok()
+			profile.codesRedeemed.release = NOW
+			expect(Codes.refusal(profile, "release", NOW)).to.equal(Codes.USED)
 		end)
 
 		it("answers an unknown code, an inactive one and one past its endsAt", function()
@@ -432,7 +453,7 @@ return function()
 
 		it("playtest pays the friends-alpha starter pack", function()
 			local def = Catalog.codes.playtest
-			expect(def.active).to.equal(true)
+			expect(def.active).to.equal(false) -- Derek 2026-11-14: off
 			expect(def.prize :: any).to.deepEqual({
 				coins = 5000,
 				fish = 100, -- #2497: was 300
@@ -447,7 +468,7 @@ return function()
 			"playtest2 gives two of each potion, for testers who redeemed playtest before F64 (11d)",
 			function()
 				local def = Catalog.codes.playtest2
-				expect(def.active).to.equal(true)
+				expect(def.active).to.equal(false) -- Derek 2026-11-14: off
 				expect(def.id).to.equal("playtest2")
 				expect(def.prize :: any).to.deepEqual({
 					potions = {
@@ -469,9 +490,13 @@ return function()
 		)
 
 		it(
-			"release, playtest and playtest2 are on for everyone, case-insensitive, once each (#1118)",
+			"release is on for everyone, case-insensitive, once each (#1118); playtest and playtest2 are off (Derek 2026-11-14)",
 			function()
-				for _, id in { "release", "playtest", "playtest2" } do
+				for _, id in { "playtest", "playtest2" } do
+					expect(Catalog.codes[id].active).to.equal(false)
+					expect(Codes.refusal(fresh(), id, NOW, false)).to.equal(Codes.EXPIRED)
+				end
+				for _, id in { "release" } do
 					local def = Catalog.codes[id]
 					expect(def).to.be.ok()
 					expect(def.active).to.equal(true)
@@ -587,6 +612,37 @@ return function()
 					coinSeconds = 600,
 					fish = 40,
 					potions = { lucky_potion = 1 },
+				})
+			end
+		)
+
+		it(
+			"5000VISITS and 30LIKES are on at once, any case, with no end (Derek 2026-11-14)",
+			function()
+				expect(Codes.normalize("5000VISITS")).to.equal("5000visits")
+				expect(Codes.normalize("30Likes")).to.equal("30likes")
+				for _, id in { "5000visits", "30likes" } do
+					local def = Codes.get(id)
+					assert(def ~= nil, id)
+					expect(def.active).to.equal(true)
+					expect(def.startsAt).never.to.be.ok()
+					expect(def.endsAt).never.to.be.ok()
+					expect(def.requiresGroup).never.to.be.ok()
+					expect(#id <= Config.CodeMaxLength).to.equal(true)
+					expect((def.prize.coinSeconds or 0) <= 900).to.equal(true)
+					expect(Codes.refusal(fresh(), id, 1794700000, false)).to.equal(nil)
+				end
+				expect(Catalog.codes["5000visits"].prize :: any).to.deepEqual({
+					coins = 3000,
+					coinSeconds = 900,
+					fish = 60,
+					crates = { classic_crate = 2 },
+				})
+				expect(Catalog.codes["30likes"].prize :: any).to.deepEqual({
+					coins = 2500,
+					coinSeconds = 900,
+					fish = 50,
+					potions = { lucky_potion = 2 },
 				})
 			end
 		)
@@ -915,7 +971,7 @@ return function()
 			expect(Codes.refusal(profile, "launch", NOW, true)).to.equal(Codes.USED)
 			expect(Codes.refusal(fresh(), "launch", NOW, true)).to.equal(Codes.EXPIRED)
 			expect(Codes.refusal(fresh(), "group", NOW, false)).to.equal(Codes.GROUP)
-			expect(Codes.refusal(fresh(), "playtest", NOW, false)).never.to.be.ok()
+			expect(Codes.refusal(fresh(), "release", NOW, false)).never.to.be.ok()
 			for id, def in pairs(Catalog.codes) do
 				expect(Codes.normalize(id)).to.equal(id)
 				expect(def.id).to.equal(id)

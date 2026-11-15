@@ -82,7 +82,9 @@ local TAKE_NOTE = "Taken crates open free at the Golden Fish Market"
 local PICK_GAP = 10
 local PICK_BUTTON = "Lucky pick"
 local PICK_TILE = 64 -- #3953: the picture on the pick's side card
-local LANDED_SECONDS = 1.5 -- the light stays on the won row this long
+-- the light stays on the won row this long (#4225, Review-QA's phone check: at 1.5 the win was easy to miss)
+local LANDED_SECONDS = 2.5
+local WON_SECONDS = 6 -- and the line under the board says what was won this long after the pick
 local PENDING_SECONDS = 5 -- a buy with no answer lets the button go again after this long
 local GAP = Theme.sizes.gap
 
@@ -165,6 +167,8 @@ function YardSale.new(callbacks: Callbacks): YardSale
 	-- #3615: the lucky pick: the board in a scrolling box on the left, the button and its line on the right
 	self._picking = false
 	self._rolling = false
+	self._won = nil :: string? -- #4225: the crate the last pick landed on, said under the board until _wonUntil
+	self._wonUntil = 0
 	self._rollToken = 0
 	self._pickFrame = Create("Frame", {
 		Name = "Pick",
@@ -592,8 +596,10 @@ function YardSale._paintPick(self: any): boolean
 	local free: TextLabel = self._pickFree
 	free.Text = if waiting then "SOON" else "FREE"
 	free.BackgroundColor3 = if waiting then Theme.colors.disabledDark else Theme.colors.goodDark
+	local won: string? = self._won
 	self._pickLine.Text = if self._rolling
 		then RollBoardLogic.YARD_ROLLING
+		elseif won ~= nil and os.clock() < self._wonUntil then RollBoardLogic.wonLine(won)
 		elseif waiting then made.line
 		else "Free. Every pick wins a crate."
 	return true
@@ -663,6 +669,8 @@ function YardSale.picked(self: any, index: number, crateId: string?)
 		end
 		self._board:light(index)
 		self:_showRow(index)
+		self._won = RollBoardLogic.yardRow(rows[index]).name
+		self._wonUntil = os.clock() + LANDED_SECONDS + WON_SECONDS
 		local callbacks: Callbacks = self._callbacks
 		if callbacks.landed ~= nil then
 			callbacks.landed(rows[index].crateId)

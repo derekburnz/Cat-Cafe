@@ -161,12 +161,11 @@ return function()
 				tables = Config.StartTables, -- #3660: one table is open from the start
 				espresso = 1,
 				net = 0,
-				lure_bowl = 0,
+				lure_bowl = Config.StartBowls, -- #4097: and the Bait bowl
 				lucky_cat = 0,
 			})
-			expect(count(profile.decorOwned) + count(profile.decorPlaced) + count(profile.lures)).to.equal(
-				0
-			)
+			expect(count(profile.decorOwned) + count(profile.decorPlaced)).to.equal(0)
+			expect(profile.lures :: any).to.deepEqual({ kibble = 1 }) -- #4097: the first bowl's Kibble
 			expect(profile.tutorialStep).to.equal(0)
 			expect(profile.settings :: any).to.deepEqual({
 				music = true,
@@ -188,6 +187,9 @@ return function()
 				catPickSort = "Money", -- #3940
 				catPickFlipped = false,
 				catPickShow = "",
+				autoBowlClaim = true,
+				autoBowlRefill = true,
+				bowlNewCatCard = true,
 			})
 		end)
 
@@ -244,7 +246,7 @@ return function()
 			function()
 				expect(ProfileSchema.template(0).telemetry :: any).to.deepEqual({
 					onboardingStep = 0,
-					achieved = Onboarding.startAchieved(Config.StartTables), -- #3660: starts with a table
+					achieved = Onboarding.startAchieved(Config.StartTables, Config.StartBowls), -- #3660, #4097
 					funnel = 6,
 					firstDay = 0,
 					introStep = 0,
@@ -653,6 +655,9 @@ return function()
 					catPickSort = "Money", -- #3940
 					catPickFlipped = false,
 					catPickShow = "",
+					autoBowlClaim = true,
+					autoBowlRefill = true,
+					bowlNewCatCard = true,
 				})
 				-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
 				expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })
@@ -911,8 +916,16 @@ return function()
 			end
 		)
 
-		it("clamps the tier to 1 to 7 and levels to each upgrade's range", function()
-			for _, case in ipairs({ { 0, 1 }, { 9, 7 }, { "2", 1 }, { 2.5, 2 } }) do
+		it("clamps the tier to 1 to 10 and levels to each upgrade's range", function()
+			for _, case in ipairs({
+				{ 0, 1 },
+				{ 8, 8 },
+				{ 9, 9 },
+				{ 10, 10 },
+				{ 11, 10 },
+				{ "2", 1 },
+				{ 2.5, 2 },
+			}) do
 				local raw = v3Save()
 				raw.tier = case[1]
 				expect(ProfileSchema.migrate(raw, 500).tier).to.equal(case[2])

@@ -25,6 +25,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
+local FaceShelf = require(script.Parent.Parent.Components.FaceShelf)
 local LateStationsLogic = require(script.Parent.Parent.Components.LateStationsLogic)
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -90,6 +91,7 @@ local SORT_LABEL_W = 40
 local FIRST_ROWS = 12 -- built at once when the list opens: more than a screenful
 local ROWS_PER_FRAME = 20 -- then this many a frame
 local FACES_PER_PASS = 15
+local FACE_Z = 8 -- a row's face (Components/FaceShelf keeps faces by it)
 local FACE_MARGIN = 240 -- a face loads once its row is this near the visible part of the list (as the Cats window)
 -- a face is let go again once its row is this far from the visible part (about three screens of the list), so
 -- scrolling through hundreds of cats never holds hundreds of cat models (QA-Planner on #3142: 315 faces stayed)
@@ -666,8 +668,10 @@ end
 function OasisSpa._clearRows(self: any)
 	self._buildToken += 1 -- a build still going a few rows a frame stops
 	for _, entry: Row in self._rows do
-		if entry.portrait then
-			entry.portrait:destroy() -- its ViewportFrame and cat model
+		local portrait = entry.portrait
+		if portrait then
+			-- #4271: kept for the next open (Components/FaceShelf), so its face shows at once
+			FaceShelf.give(portrait, entry.cat.catId, CatVariant.isGold(entry.cat.variant), FACE_Z)
 		end
 		entry.button:destroy()
 		entry.frame:Destroy()
@@ -676,7 +680,7 @@ function OasisSpa._clearRows(self: any)
 	self._rowsKey = nil
 end
 
--- The cat list for `slot`, or back to the slots (nil), which frees every row and face.
+-- The cat list for `slot`, or back to the slots (nil), which frees every row and parks its faces (#4271).
 function OasisSpa._showPicker(self: any, slot: number?)
 	self._pickSlot = slot
 	self._picker.Visible = slot ~= nil
@@ -689,6 +693,19 @@ function OasisSpa._showPicker(self: any, slot: number?)
 	self._searchToken += 1
 	self:_setFilter("All", true)
 	self:_buildRows()
+	self:_loadFaces() -- #4271: the kept faces at once, not a frame later
+end
+
+-- #4271: the faces the list's first rows will want, built a few a frame while the card shows (Components/FaceShelf)
+function OasisSpa._warmFaces(self: any)
+	local looks: { FaceShelf.Look } = {}
+	for _, cat in LateStationsLogic.spaCandidates(self._cats, self._spa, self._sort) do
+		if #looks >= FIRST_ROWS then
+			break
+		end
+		table.insert(looks, { catId = cat.catId, gold = CatVariant.isGold(cat.variant) })
+	end
+	FaceShelf.warm(looks, FACE_Z)
 end
 
 function OasisSpa._setFilter(self: any, filter: string, quiet: boolean?)
@@ -877,8 +894,14 @@ function OasisSpa._loadFaces(self: any)
 			local far = y + height < top - (FACE_KEEP - FACE_MARGIN)
 				or y > bottom + (FACE_KEEP - FACE_MARGIN)
 			if not row.frame.Visible or far then
-				if row.portrait then
-					row.portrait:destroy()
+				local portrait = row.portrait
+				if portrait then
+					FaceShelf.give(
+						portrait,
+						row.cat.catId,
+						CatVariant.isGold(row.cat.variant),
+						FACE_Z
+					)
 					row.portrait = nil
 				end
 				row.loaded = false
@@ -891,20 +914,15 @@ function OasisSpa._loadFaces(self: any)
 		if y + height < top or y > bottom then
 			continue
 		end
-		if made >= FACES_PER_PASS then
+		-- #4271: a face kept from before (Components/FaceShelf) costs nothing, so only new ones count to the pass
+		local catId: string, gold = row.cat.catId, CatVariant.isGold(row.cat.variant)
+		local kept = FaceShelf.count(catId, gold, FACE_Z) > 0
+		if not kept and made >= FACES_PER_PASS then
 			self:_queueFaces() -- the rest on the next frame
 			return
 		end
-		made += 1
-		local portrait = CatPortrait.new({
-			parent = row.disc,
-			size = UDim2.fromScale(1, 1),
-			still = true,
-			head = true,
-			zIndex = 8,
-		})
-		portrait:set(Catalog.getCat(row.cat.catId), CatVariant.isGold(row.cat.variant))
-		row.portrait = portrait
+		made += if kept then 0 else 1
+		row.portrait = FaceShelf.take(row.disc, catId, gold, FACE_Z)
 		row.loaded = true
 	end
 end
@@ -1042,6 +1060,7 @@ function OasisSpa.opened(self: any)
 	local tick = self._tick
 	self:_showPicker(nil)
 	self:_showConfirm(nil)
+	self:_warmFaces()
 	self:_paint()
 	task.spawn(function()
 		while self._open and self._tick == tick do

@@ -9,6 +9,7 @@ local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local CornerShop = require(script.Parent.CornerShop)
 local CozyCafe = require(script.Parent.CozyCafe)
+local DailyDeal = require(script.Parent.DailyDeal)
 local DailyTreat = require(script.Parent.DailyTreat)
 local DragonKeep = require(script.Parent.DragonKeep)
 local EquipBest = require(script.Parent.EquipBest)
@@ -287,6 +288,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		levels[def.id] = def.startLevel
 	end
 	levels.tables = math.max(levels.tables or 0, Config.StartTables) -- #3660: the first table is already open
+	levels.lure_bowl = math.max(levels.lure_bowl or 0, Config.StartBowls) -- #4097: and the Bait bowl
 	-- The starter has neutral charm (50) so every new cafe earns the same 1.5 per second.
 	local starter = CatStats.newInstance(STARTER_UID, "tabby", now)
 	starter.spotId = "barista_1"
@@ -304,7 +306,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		decorPlaced = {},
 		decorUnlocked = {},
 		decorLocked = {},
-		lures = {},
+		lures = if Config.StartBowls >= 1 then { kibble = 1 } else {}, -- #4097: the first bowl's Kibble
 		bait = nil,
 		bait2 = nil,
 		pet = nil,
@@ -343,7 +345,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 			onboardingStep = 0,
 			-- #3660: the first table is there from the start, so its funnel step counts as met: it is logged in its
 			-- place as the funnel reaches it (the funnel needs every step in order) and nothing waits on it
-			achieved = Onboarding.startAchieved(Config.StartTables),
+			achieved = Onboarding.startAchieved(Config.StartTables, Config.StartBowls),
 			funnel = Onboarding.VERSION,
 			firstDay = now // DAY_SECONDS,
 			introStep = 0,
@@ -634,6 +636,10 @@ local function sanitizeBait(value: any): Types.BaitState?
 		readyAt = readyAt,
 		night = if value.night == true then true else nil, -- F60: night bait, only ever true
 		wow = if value.wow == true then true else nil, -- #1897: the guaranteed Rare-or-better cat, only ever true
+		-- #4338: the Bowl Frenzy that sped it, a short id string
+		frenzy = if type(value.frenzy) == "string" and #value.frenzy <= 64
+			then value.frenzy
+			else nil,
 		catId = value.catId,
 		variant = variantOf(value.variant),
 		charm = math.clamp(
@@ -1036,6 +1042,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.dragon = DragonKeep.sanitize(raw.dragon)
 	-- #3699: the Backpack's colour picks (no version: see Types.PlayerProfile.bagColours)
 	profile.bagColours = BagColours.sanitize(raw.bagColours)
+	profile.dealDay = DailyDeal.sanitizeDay(raw.dealDay) -- #3996 (no version: see Types.PlayerProfile.dealDay)
 	profile.shoeColours = BagColours.sanitize(raw.shoeColours, "shoes") -- #4049, the same way
 	-- #2792: the special visitors met once (no version: see Types.PlayerProfile.firstVisits)
 	profile.firstVisits = FirstVisits.sanitize(raw.firstVisits)

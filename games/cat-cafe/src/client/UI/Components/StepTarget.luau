@@ -29,12 +29,20 @@ local TutorialArrow = require(script.Parent.TutorialArrow)
 local TutorialGlow = require(script.Parent.TutorialGlow)
 
 local StepTarget = {}
+
+-- #4152: the HUD's pieces in screen px (UI.init sets it once the HUD is built), which the edge arrow keeps clear of
+local avoid: (() -> { StepTargetLogic.Box })? = nil
+
+function StepTarget.setAvoid(boxes: (() -> { StepTargetLogic.Box })?)
+	avoid = boxes
+end
 StepTarget.__index = StepTarget
 
 StepTarget.NAME = "CatCafeStepTarget"
 local ARROW = 64 -- design px, the size of TutorialArrow's
 local FLASH_INFO = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
 local FILL_DIM, FILL_BRIGHT = 0.85, 0.45
+local EDGE_REACH = 1.5 -- #4158: how far the drawn edge arrow reaches from its centre, in arrow sizes
 local LOOK_SECONDS = 0.05 -- the edge arrow follows the camera at 20 Hz
 
 export type Target = BasePart | Attachment | Vector3
@@ -178,6 +186,25 @@ function StepTarget._place(self: any)
 	if place == nil then
 		arrow.Visible = false
 		return
+	end
+	local boxes = avoid
+	if boxes == nil then
+		arrow:SetAttribute("ClearResult", "skipped") -- debug for Studio checks (#4158)
+	else
+		-- Review-QA on #4158 (667x375): turned and bobbing, the drawn arrow (its head glyph overflows the frame) reaches
+		-- about 1.5 times its size from its centre, past its own square
+		local list = boxes()
+		local clear, how =
+			StepTargetLogic.clear(place, px, list, camera.ViewportSize, nil, px * EDGE_REACH)
+		-- debug for Studio checks (#4158): how many HUD boxes it kept clear of, and which way it found a spot
+		arrow:SetAttribute("AvoidCount", #list)
+		arrow:SetAttribute("ClearResult", how)
+		arrow:SetAttribute("PosY", if clear ~= nil then clear.y else place.y)
+		if clear == nil then
+			arrow.Visible = false -- no spot on this edge is clear of the HUD (a short phone)
+			return
+		end
+		place = clear
 	end
 	arrow.Size = UDim2.fromOffset(px, px)
 	arrow.Position = UDim2.fromOffset(place.x, place.y)

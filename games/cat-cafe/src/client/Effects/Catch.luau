@@ -168,6 +168,15 @@ end
 -- #4069: the area's own touch on a catch, on top of the rarity pop (Presets.catchFlavour, Logic.catchFlavour): in
 -- the Snowy Mountain a puff of snow, flakes from Epic up, a frost ring from Legendary up and, for a Mythical, gusts
 -- of snow climbing over the cat. Rings are skipped with Reduce Motion (Particles.ring), and so are the gusts.
+-- Who wants to know about a catch in an area with a flavour (Audio plays the rarer cats' own cues on it).
+local flavourListeners: { (area: string, catId: string?, rarity: string, at: Vector3) -> () } = {}
+
+function Catch.onFlavour(
+	listener: (area: string, catId: string?, rarity: string, at: Vector3) -> ()
+)
+	table.insert(flavourListeners, listener)
+end
+
 local function flavour(spot: Scheduled)
 	local plan = Logic.catchFlavour(spot.area, spot.catId, spot.rarity)
 	local spec: Presets.CatchFlavour? = if type(spot.area) == "string"
@@ -175,6 +184,10 @@ local function flavour(spot: Scheduled)
 		else nil
 	if plan == nil or spec == nil then
 		return
+	end
+	local catId: string? = if type(spot.catId) == "string" then spot.catId else nil
+	for _, listener in flavourListeners do
+		task.spawn(listener, spot.area :: string, catId, spot.rarity, spot.position)
 	end
 	Particles.burst(spec.preset, spot.position, plan.puff, spec.colour)
 	if plan.flakes > 0 then

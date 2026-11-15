@@ -85,7 +85,8 @@
     }
    },
    "attributes": {
-    "Rojo_Id": "CatCafe_Cat_Gnome/0"
+    "Rojo_Id": "CatCafe_Cat_Gnome/0",
+    "GoldTone": 2
    },
    "children": [
     {
@@ -297,6 +298,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
    }
   },
   {
@@ -346,6 +350,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
    }
   },
   {
@@ -395,6 +402,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
    }
   },
   {
@@ -444,6 +454,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
    }
   },
   {
@@ -493,6 +506,9 @@
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
    }
   },
   {
@@ -542,6 +558,9 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
    }
   },
   {
@@ -591,6 +610,9 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
    }
   },
   {
@@ -640,6 +662,9 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
+   },
+   "attributes": {
+    "GoldTone": 1
    }
   },
   {
@@ -723,7 +748,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Gnome/1"
+      "Rojo_Id": "CatCafe_Cat_Gnome/1",
+      "GoldTone": 2
      },
      "children": [
       {
@@ -1159,6 +1185,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
      }
     },
     {
@@ -1208,6 +1237,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
      }
     },
     {
@@ -1257,6 +1289,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
      }
     },
     {
@@ -1698,6 +1733,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
      }
     },
     {
@@ -1747,6 +1785,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 1
      }
     },
     {
@@ -2256,7 +2297,8 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Cat_Gnome/4"
+        "Rojo_Id": "CatCafe_Cat_Gnome/4",
+        "GoldTone": 2
        }
       },
       {
@@ -2306,6 +2348,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 2
        }
       },
       {
@@ -2355,6 +2400,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 2
        }
       },
       {
@@ -2518,7 +2566,8 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Cat_Gnome/5"
+        "Rojo_Id": "CatCafe_Cat_Gnome/5",
+        "GoldTone": 2
        }
       },
       {
@@ -2568,6 +2617,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 2
        }
       },
       {
@@ -2617,6 +2669,9 @@
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "GoldTone": 2
        }
       },
       {
@@ -4367,7 +4422,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Gnome/6"
+      "Rojo_Id": "CatCafe_Cat_Gnome/6",
+      "GoldTone": 2
      },
      "children": [
       {
@@ -4451,6 +4507,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 2
      }
     }
    ],
@@ -4565,7 +4624,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Gnome/7"
+      "Rojo_Id": "CatCafe_Cat_Gnome/7",
+      "GoldTone": 2
      }
     },
     {
@@ -4615,6 +4675,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 2
      }
     }
    ],
@@ -4729,7 +4792,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Gnome/8"
+      "Rojo_Id": "CatCafe_Cat_Gnome/8",
+      "GoldTone": 2
      }
     },
     {
@@ -4779,6 +4843,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 2
      }
     }
    ],
@@ -4893,7 +4960,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Gnome/9"
+      "Rojo_Id": "CatCafe_Cat_Gnome/9",
+      "GoldTone": 2
      }
     },
     {
@@ -4943,6 +5011,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 2
      }
     }
    ],
@@ -5057,7 +5128,8 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Gnome/10"
+      "Rojo_Id": "CatCafe_Cat_Gnome/10",
+      "GoldTone": 2
      }
     },
     {
@@ -5107,6 +5179,9 @@
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "GoldTone": 2
      }
     }
    ],

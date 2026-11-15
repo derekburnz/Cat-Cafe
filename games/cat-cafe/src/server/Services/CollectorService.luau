@@ -11,6 +11,9 @@
 -- The timeout, nightfall, the owner leaving, or the cat being locked, put to work or sold ends the visit and nothing
 -- is lost. Neither he nor his offer is ever sold, sped up or called with Robux.
 -- Owner safety: the visit comes out of the table before the cat goes and the offer pays, so a trade happens once.
+-- #3889: with the `rareCustomers` switch on the timer stops and RareCustomerService sends him
+-- (CollectorService.arriveRare) when an arriving customer rolls Collector. A new account's first one still comes at
+-- FirstVisitAt.collector, retrying every VisitRetrySeconds until there is a cat to ask for.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -28,10 +31,12 @@ local FirstVisit = require(script.Parent.Parent.Util.FirstVisit)
 local FirstVisits = require(ReplicatedStorage.Shared.FirstVisits)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local LateStations = require(ReplicatedStorage.Shared.LateStations)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local PlotService = require(script.Parent.PlotService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local RareCustomers = require(ReplicatedStorage.Shared.RareCustomers)
 local Telemetry = require(script.Parent.Telemetry)
 local Trade = require(ReplicatedStorage.Shared.Trade)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -230,6 +235,7 @@ local function tickTimers(dt: number)
 	local now = os.time()
 	local dusk = math.floor(ClockService.phaseEndsAt())
 	local open_ = not ClockService.isNight() and dusk - now > Config.DuskWarningSeconds
+	local byChance = LiveFlagService.on(RareCustomers.FLAG) -- #3889: RareCustomerService sends him
 	for _, player in DataService.loadedPlayers() do
 		local plot = PlotService.get(player)
 		if plot == nil then
@@ -238,7 +244,17 @@ local function tickTimers(dt: number)
 		local left = timers[player]
 			or VisitTimer.draw(Config.CollectorEveryMin, Config.CollectorEveryMax, rng:NextNumber())
 		local due: boolean
-		left, due = VisitTimer.tick(left, dt, open_ and visits[plot.index] == nil)
+		-- #3889: by chance the timer only counts a first visit's retry wait down, and its end is never a visit itself
+		local retrying = left <= Config.VisitRetrySeconds
+		left, due = VisitTimer.tick(
+			left,
+			dt,
+			open_ and visits[plot.index] == nil and (not byChance or retrying)
+		)
+		if byChance and due then
+			due = false
+			left = Config.VisitRetrySeconds + 1 -- the first visit's check below may run again
+		end
 		-- #2792: a new account's first Collector comes at FirstVisitAt.collector seconds of play, timer or not, and
 		-- waits for a cat to ask for (VisitRetrySeconds) as a timed one does
 		local profile = DataService.get(player)
@@ -300,6 +316,28 @@ local function checkVisits()
 			end
 		end
 	end
+end
+
+-- #3889: an arriving customer rolled Collector (RareCustomerService, `rareCustomers` on, the cafe open). False when he
+-- cannot come now (a visit already on, or no cat for him to ask for).
+function CollectorService.arriveRare(player: Player): boolean
+	local plot = PlotService.get(player)
+	local profile = DataService.get(player)
+	if plot == nil or profile == nil or visits[plot.index] ~= nil then
+		return false
+	end
+	local instance = wantedAt(player, plot)
+	if instance == nil then
+		return false
+	end
+	arrive(
+		player,
+		plot,
+		instance,
+		os.time(),
+		FirstVisit.arrive(player, profile, plot.model, "collector")
+	)
+	return true
 end
 
 function CollectorService.start()

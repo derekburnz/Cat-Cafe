@@ -111,17 +111,14 @@ end
 -- #2682 (Derek2: "show all areas when in cannon just make them shaded out and have a lock on them until you hit the
 -- proper tier"): destinations, then the areas above `tier`, locked, in tier order (catalog order within a tier). The
 -- server refuses a launch to any of them all the same (Cannon.launchRefusal: "<Area> opens at Tier N").
+-- #4364 (Derek's screenshot 2026-11-15: Water Park missing from the Town picker): every locked area shows on every
+-- cannon, whichever cannon will fly there; once open, an area with launchFrom is only on that camp's cannon.
 function CannonLogic.cards(areas: { AreaLike }, tier: number, cannonId: string): { Destination }
 	local list = CannonLogic.destinations(areas, tier, cannonId)
 	local locked: { Destination } = {}
 	local order: { [string]: number } = {}
 	for index, area in areas do
-		if
-			area.tier > tier
-			and area.id ~= cannonId
-			and area.id ~= CannonLogic.TOWN
-			and flies(area, cannonId)
-		then
+		if area.tier > tier and area.id ~= cannonId and area.id ~= CannonLogic.TOWN then
 			table.insert(
 				locked,
 				{ id = area.id, name = area.name, tier = area.tier, locked = true }

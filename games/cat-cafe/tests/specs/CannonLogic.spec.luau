@@ -36,8 +36,13 @@ return function()
 			expect(ids(CannonLogic.destinations(areas, 9, "desert"))).to.equal(
 				"town,alley,waterpark"
 			)
-			expect(ids(CannonLogic.cards(areas, 1, "town"))).to.equal("alley,desert")
+			-- #4364: while locked, it shows on every cannon as a coming-soon card
+			expect(ids(CannonLogic.cards(areas, 1, "town"))).to.equal("alley,desert,waterpark")
 			expect(ids(CannonLogic.cards(areas, 1, "desert"))).to.equal("town,alley,waterpark")
+			expect(ids(CannonLogic.cards(areas, 6, "alley"))).to.equal("town,desert,waterpark")
+			-- once open, only the Desert cannon flies there
+			expect(ids(CannonLogic.cards(areas, 9, "town"))).to.equal("alley,desert")
+			expect(ids(CannonLogic.cards(areas, 9, "desert"))).to.equal("town,alley,waterpark")
 		end)
 
 		it("puts Town Square first from a camp and leaves out the camp's own area", function()

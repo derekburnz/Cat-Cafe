@@ -8306,14 +8306,17 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local chip = gui:FindFirstChild("Shield", true) :: TextLabel
 		assert(chip and chip.Visible, "uigate: no shield chip while the join shield runs (#3342)")
 		assert(chip.Text:find("Safe 4:3") ~= nil, "uigate: the shield chip reads " .. chip.Text .. " (#3342)")
-		-- over the round button on touch, beside the bar's right end with a mouse (#3744)
-		local chipBottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
-		local over = chipBottom <= button.AbsolutePosition.Y + 0.5
-		local beside = chip.AbsolutePosition.X >= button.AbsolutePosition.X + button.AbsoluteSize.X - 0.5
-		assert(over or beside, "uigate: the shield chip covers the Tackle (#3342)")
+		-- #4499 (Derek2 2026-11-15: shielded players "shouldn't be able to tackle back also and it helps with net vs
+		-- tackle button confusion"): no Tackle while the shield runs, only the chip, whole and on the screen
+		assert(not button.Visible, "uigate: the Tackle shows while the new player shield runs (#4499)")
+		assert(chip.TextFits, "uigate: the shield chip's words do not fit (#4499)")
+		local view = (workspace.CurrentCamera :: Camera).ViewportSize
+		local c0, c1 = chip.AbsolutePosition, chip.AbsolutePosition + chip.AbsoluteSize
+		assert(c0.X >= 0 and c0.Y >= 0 and c1.X <= view.X and c1.Y <= view.Y, "uigate: the shield chip is off the screen (#4499)")
 		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() - 1)
 		UIShim.advance(0.3)
 		assert(not chip.Visible, "uigate: the shield chip stayed after the shield ended (#3342)")
+		assert(gui.Enabled and button.Visible, "uigate: no Tackle once the shield ended (#4499)")
 		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() + 272)
 		UIShim.advance(0.3)
 	end },
@@ -8343,7 +8346,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(gui.Enabled and button.Visible, "uigate: no Tackle in a catching area (#4481)")
 	end },
 	-- #3744 (Studio 11-12: "D... Safe 8:18 ..."): a cat in the bag in a catching area while the join shield runs, so
-	-- the Drop pill, the Tackle and the Safe chip all show: the chip touches neither the pill nor the Tackle
+	-- the Drop pill and the Safe chip both show and do not touch. #4499: the Tackle is hidden while the shield runs
 	{ "PackDropShield", function()
 		local player = UIShim.player
 		local character = player.Character
@@ -8369,14 +8372,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local tackle = gui:FindFirstChild("Tackle", true) :: GuiObject
 		assert(pill and pill.Visible, "uigate: no Drop pill with a cat in the bag (#3744)")
 		assert(chip and chip.Visible, "uigate: no Safe chip while the join shield runs (#3744)")
-		assert(tackle and tackle.Visible, "uigate: no Tackle in the Alley with a cat in the bag (#3744)")
+		assert(tackle and not tackle.Visible, "uigate: the Tackle shows while the new player shield runs (#4499)")
 		local function apart(a: GuiObject, b: GuiObject): boolean
 			local a0, a1 = a.AbsolutePosition, a.AbsolutePosition + a.AbsoluteSize
 			local b0, b1 = b.AbsolutePosition, b.AbsolutePosition + b.AbsoluteSize
 			return a1.X <= b0.X + 0.5 or b1.X <= a0.X + 0.5 or a1.Y <= b0.Y + 0.5 or b1.Y <= a0.Y + 0.5
 		end
 		assert(apart(chip, pill), "uigate: the Safe chip lies over the Drop pill (#3744)")
-		assert(apart(chip, tackle), "uigate: the Safe chip lies over the Tackle (#3744)")
 	end },
 	{ "TackleButton", function()
 		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")

@@ -32,9 +32,18 @@ WhatsNew.ICONS = table.freeze({ "new", "cat", "look", "faster", "fix" })
 WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
+local SECRETS_AT = 1794799800 -- 2026-11-16 03:30 UTC (Sunday 10:30 PM ET): 10 Secret Cats, the secretAreas switch
 local UPDATE_20_00 = 1794772800 -- 2026-11-15 20:00 UTC: the 3 New Worlds restart, when the UPDATE5 code opens too
 
 WhatsNew.rows = table.freeze({
+	-- 10 Secret Cats (#4221, Mon 2026-11-16 03:30 UTC): in tonight's build, shown only once the secretAreas switch opens.
+	{
+		id = "secret_areas",
+		date = "2026-11-16",
+		startsAt = SECRETS_AT,
+		icon = "cat",
+		text = "10 Secret Cats, one per area",
+	},
 	-- 3 New Worlds update (Growth-Agent launch pack, Sun 2026-11-15 20:00 UTC): each row waits for startsAt, so it can
 	-- merge early and the board shows it only once the worlds and the UPDATE5 code are open. Tier 8 to 10 gates stay as they are (Derek 2026-11-14 14:55 UTC).
 	{

@@ -1850,7 +1850,7 @@ Catalog.tiers = {
 	{
 		tier = 9,
 		name = "Funfair Cafe",
-		cost = 250000000000, -- #4320: 500,000,000,000 before; #4192 (Pace: about 6 to 7 h after Tier 8): 5,000,000,000,000 before
+		cost = 312500000000, -- Derek 2026-11-15 18:39 UTC ("increase the cost of 9 and 10 slightly like 25% for now just to slow progress"): 250,000,000,000 before; #4320: 500,000,000,000 before; #4192 (Pace: about 6 to 7 h after Tier 8): 5,000,000,000,000 before
 		distinctCats = 54, -- #4513 (Derek 2026-11-15 15:12 UTC: "make tier 8 5 mythicals, tier 9 7 mythicals, and tier 10 make it 9 mythicals. increase the amount of cats by 20%"): 45 before; #4320: 56 before; #4192: 65 before
 		needsRarity = "Mythical",
 		needsRarityCount = 7, -- #4513: 5 before
@@ -1864,7 +1864,7 @@ Catalog.tiers = {
 	{
 		tier = 10,
 		name = "Royal Cafe",
-		cost = 1500000000000, -- #4320: 3,000,000,000,000 before; #4192 (Pace: about 8 to 10 h after Tier 9): 48,000,000,000,000 before
+		cost = 1875000000000, -- Derek 2026-11-15 18:39 UTC (+25%): 1,500,000,000,000 before; #4320: 3,000,000,000,000 before; #4192 (Pace: about 8 to 10 h after Tier 9): 48,000,000,000,000 before
 		distinctCats = 65, -- #4513 (Derek 2026-11-15 15:12 UTC: "make tier 8 5 mythicals, tier 9 7 mythicals, and tier 10 make it 9 mythicals. increase the amount of cats by 20%"): 54 before; #4320: 65 before; #4192: 74 before
 		needsRarity = "Mythical",
 		needsRarityCount = 8, -- #4513 (Derek 15:15 UTC: "fine use 8 for tier 10"): 6 before

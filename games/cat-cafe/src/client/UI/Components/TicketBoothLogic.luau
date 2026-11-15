@@ -30,6 +30,37 @@ function TicketBoothLogic.ticketText(value: number): string
 	return TicketBoothLogic.TICKET .. " " .. TicketBoothLogic.commas(value)
 end
 
+-- #4061: the Water Park card's strip in the Cannon picker (the booth's way in until its kiosk is placed): the ticket
+-- count and Open, which brings up the booth window from anywhere. Nil on other cards and while the booth is shut
+-- (PlayerState.ticketBooth unset: switch off or below its tier). The shape is CampExtrasLogic.Line.
+TicketBoothLogic.AREA = "waterpark"
+TicketBoothLogic.STATION = "ticketBooth"
+function TicketBoothLogic.pickerLine(
+	view: any,
+	areaId: string
+): {
+	extraId: string,
+	icon: string,
+	name: string,
+	state: string,
+	ready: boolean,
+}?
+	if
+		areaId ~= TicketBoothLogic.AREA
+		or type(view) ~= "table"
+		or type(view.tickets) ~= "number"
+	then
+		return nil
+	end
+	return {
+		extraId = TicketBoothLogic.STATION,
+		icon = TicketBoothLogic.TICKET,
+		name = "Ticket Booth",
+		state = TicketBoothLogic.commas(view.tickets) .. " tickets",
+		ready = false,
+	}
+end
+
 export type Row = {
 	id: string,
 	name: string,

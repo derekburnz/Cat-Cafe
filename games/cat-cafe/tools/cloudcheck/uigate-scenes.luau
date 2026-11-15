@@ -10821,6 +10821,30 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		task.wait(0.4)
 		assert(UI.isOpen() == "OasisSpa", "uigate: Open on the Desert strip opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#3082)")
 	end },
+	-- #4061: until the kiosk is placed, the Water Park card's strip (on the Desert camp's cannon) is the Ticket Booth's
+	-- way in: the ticket count and Open, which brings up the booth window from anywhere
+	{ "CannonOpensBooth", function()
+		atTier(9) -- the Water Park opens at Tier 9; Scenes.close puts the tier back
+		UI.update({ ticketBooth = { tickets = 1234, spent = 0, rushUsedToday = false, weekEndsAt = workspace:GetServerTimeNow() + 86400, ready = 0, prizes = {} } } :: any)
+		UI.cannon.open("desert") -- the Water Park's cannon is the Desert camp's (launchFrom)
+		task.wait(0.3)
+		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+		local card = window:FindFirstChild("waterpark", true) :: Instance
+		local words = {}
+		for _, piece in card:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Visible then
+				words[piece.Text] = true
+			end
+		end
+		assert(words["Ticket Booth"] and words["1,234 tickets"], "uigate: the Water Park card has no Ticket Booth line (#4061)")
+		press("Cannon", "waterpark.Collect")
+		task.wait(0.4)
+		assert(UI.isOpen() == "TicketBooth", "uigate: Open on the Water Park strip opened " .. tostring(UI.isOpen()) .. " (#4061)")
+		UI.update({ ticketBooth = false } :: any)
+		-- the sample tier again before the scan: the Tier 9 HUD's TierGoal chip is not this scene's subject
+		UI.update({ tier = Scenes._rankTier } :: any)
+		Scenes._rankTier = nil
+	end },
 	-- #3082: 14 fish in the pond: Collect on the Woods strip in place of the red dot, for every player (#1463 had it
 	-- for a Golden Pond owner; the pass doubles the fish instead, #3093)
 	{ "CannonPondCollect", function()

@@ -8,7 +8,15 @@ return function()
 	) :: any
 
 	local function row(price: number, left: number?, per: string?, blocker: string?)
-		return { id = "x", name = "X", line = "A line", price = price, left = left, per = per, blocker = blocker }
+		return {
+			id = "x",
+			name = "X",
+			line = "A line",
+			price = price,
+			left = left,
+			per = per,
+			blocker = blocker,
+		}
 	end
 
 	describe("TicketBoothLogic.card", function()
@@ -52,15 +60,29 @@ return function()
 
 	describe("TicketBoothLogic.rushLine", function()
 		it("counts the rush down in minutes, then says when it is back", function()
-			expect(Logic.rushLine(1000 + 2520, true, 1000)).to.equal("Ticket Rush: x2 tickets for 42 min")
+			expect(Logic.rushLine(1000 + 2520, true, 1000)).to.equal(
+				"Ticket Rush: x2 tickets for 42 min"
+			)
 			expect(Logic.rushLine(nil, true, 1000)).to.equal("Ticket Rush is back tomorrow")
-			expect(Logic.rushLine(nil, false, 1000)).to.equal("Ticket Rush: x2 tickets for an hour from your next catch")
+			expect(Logic.rushLine(nil, false, 1000)).to.equal(
+				"Ticket Rush: x2 tickets for an hour from your next catch"
+			)
 		end)
 	end)
 
 	describe("TicketBoothLogic.ticketText", function()
 		it("groups the thousands", function()
 			expect(Logic.ticketText(3240)).to.equal("🎟️ 3,240")
+		end)
+		it("puts the booth on the Water Park card's strip only while it is open (#4061)", function()
+			local line = Logic.pickerLine({ tickets = 12345 }, "waterpark")
+			expect(line ~= nil).to.equal(true)
+			expect(line.extraId).to.equal("ticketBooth")
+			expect(line.name).to.equal("Ticket Booth")
+			expect(line.state).to.equal("12,345 tickets")
+			expect(Logic.pickerLine({ tickets = 5 }, "snowy")).to.equal(nil)
+			expect(Logic.pickerLine(false, "waterpark")).to.equal(nil)
+			expect(Logic.pickerLine(nil, "waterpark")).to.equal(nil)
 		end)
 	end)
 end

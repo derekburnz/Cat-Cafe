@@ -193,9 +193,31 @@ return function()
 			)
 		end)
 
+		it("asks 2,100 Warmth for stage 4 and 4,000 for stage 5 (#4615)", function()
+			expect(DragonKeep.STAGES[3].warmth).to.equal(1000)
+			expect(DragonKeep.STAGES[4].warmth).to.equal(2100)
+			expect(DragonKeep.STAGES[5].warmth).to.equal(4000)
+			expect(DragonKeep.REKINDLE).to.equal(1500)
+		end)
+
+		it("gives a loaded save the stage its Warmth already reaches (#4615)", function()
+			local save = DragonKeep.sanitize({ warmth = 2200, stage = 3, slots = { "", "", "" } })
+			expect(save.stage).to.equal(4)
+			expect(#save.slots).to.equal(4)
+			expect(save.queue[1]).to.equal("stage")
+			-- and nothing twice: a second pass over the same save adds no hand
+			local again = DragonKeep.sanitize(save)
+			expect(again.stage).to.equal(4)
+			expect(#again.queue).to.equal(1)
+			-- a save below the next stage is left alone
+			local low = DragonKeep.sanitize({ warmth = 2099, stage = 3 })
+			expect(low.stage).to.equal(3)
+			expect(#low.queue).to.equal(0)
+		end)
+
 		it("caps Rekindle hands at 3 waiting and keeps the Warmth for later", function()
 			local save = DragonKeep.fresh()
-			save.warmth = 5000 + 1500 * 5
+			save.warmth = 4000 + 1500 * 5
 			DragonKeep.give({ cats = {}, dragon = save } :: any, {})
 			expect(save.stage).to.equal(5)
 			local rekindles = 0

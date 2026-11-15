@@ -3,6 +3,8 @@
 -- tester can play the new player's path again on the live game. Only testers see or use it: in Studio anyone; live,
 -- the experience's owner (the creator of a user-owned game, rank ResetSaveGroupRank or higher in the owning group
 -- once the game moves to a group). No user id is written anywhere: the check reads game.CreatorType and CreatorId.
+-- #4359 (Derek 2026-11-15: "add the reset save back in settings ... for anyone so that I can test and reset on alt
+-- account"): with FOR_EVERYONE every player may use it; the confirm card in Settings still asks first.
 -- The Player attribute Tester tells the UI to show the Settings row. ResetSave() is refused mid flight, carry, catch
 -- or rescue (CatService.busyReason); otherwise DataService saves a fresh save in place of this one as the session
 -- ends, after every leave hook has run on the old one, and the player is kicked with a note to join again, so every
@@ -24,13 +26,14 @@ local TradeService = require(script.Parent.TradeService)
 
 local ResetSaveService = {}
 
-ResetSaveService.KICK_TEXT = "Your save was reset for testing. Join again to start fresh."
+ResetSaveService.KICK_TEXT = "Your save was reset. Join again to start fresh."
+ResetSaveService.FOR_EVERYONE = true -- #4359: every player sees and may use Reset my save, not only testers
 
 local testers: { [Player]: boolean } = {}
 
 -- Whether `player` may reset their save; asks Roblox for a group rank, so it can yield.
 local function checkTester(player: Player): boolean
-	if RunService:IsStudio() then
+	if ResetSaveService.FOR_EVERYONE or RunService:IsStudio() then
 		return true
 	end
 	if game.CreatorType == Enum.CreatorType.User then

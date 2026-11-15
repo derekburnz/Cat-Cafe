@@ -11,12 +11,23 @@ return function()
 	local Catalog = require(Shared:WaitForChild("Catalog")) :: any
 
 	local PENDING: { [string]: boolean } = {} -- #4184: the Castle's six are in the Catalog
+	-- #4369: the seven new Secret cats' effects may land before or after their Catalog rows (#4255), so these may be
+	-- missing and, unlike PENDING, arriving does not fail. Empty this list once #4255 is in.
+	local SOON: { [string]: boolean } = {
+		lucky_clover = true,
+		moonstag = true,
+		ooze = true,
+		djinn = true,
+		phoenix = true,
+		abyss = true,
+		excalipurr = true,
+	}
 
 	describe("Effects signature cats and the Catalog", function()
 		it("names only cats the Catalog has", function()
 			local missing = {}
 			for catId in Presets.signature do
-				if Catalog.catsById[catId] == nil and not PENDING[catId] then
+				if Catalog.catsById[catId] == nil and not PENDING[catId] and not SOON[catId] then
 					table.insert(missing, catId)
 				end
 			end

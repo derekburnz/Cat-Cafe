@@ -34,6 +34,27 @@ local StationOpens = require(Shared:WaitForChild("StationOpens"))
 local Tips = require(Shared:WaitForChild("Tips"))
 local Traits = require(Shared:WaitForChild("Traits"))
 local UI = require(script.Parent.Parent.UI)
+
+-- #4283: the arcade's ring opens Mouse Dash's window while that is the arcade's game (UI.arcade.open), so the ring
+-- remembers that window, and closes it on the way out like any other.
+local function arcadeWindow(window: string): string
+	if window ~= "Arcade" then
+		return window
+	end
+	local dash: any = (UI :: any).mouseDash
+	local ok, main = pcall(function()
+		return dash.isMain() == true
+	end)
+	return if ok and main
+		then require(script.Parent.Parent.UI.Components.MouseDashLogic).WINDOW
+		else window
+end
+
+local RESULT_SECONDS = 3 -- #4283: how long a finished round's result stays up before the walk-away close
+
+local function isArcade(window: string?): boolean
+	return window == "Arcade" or (window ~= nil and window == arcadeWindow("Arcade"))
+end
 local UIController = require(script.Parent.UIController)
 local WalkUp = require(Shared:WaitForChild("WalkUp"))
 
@@ -372,6 +393,8 @@ function WalkUpController.start()
 		end
 	end)
 	local state = WalkUp.new()
+	-- #4283: an arcade window the player walked away from mid round, closed once the round ends
+	local held: { key: string?, window: string, endedAt: number? }? = nil
 	-- #3066: looks stood still in the feedback stand's ring since it opened the window, and whether the box has had
 	-- the cursor from that
 	local stillLooks, standFocused = 0, false
@@ -434,7 +457,7 @@ function WalkUpController.start()
 					if kind.only ~= nil and not kind.only(model) then
 						continue
 					end
-					add(model, promptOf(model, kind.prompt), kind.window, function()
+					add(model, promptOf(model, kind.prompt), arcadeWindow(kind.window), function()
 						kind.open(model)
 					end, kind.loose)
 				end
@@ -447,6 +470,7 @@ function WalkUpController.start()
 					UIController.openBowl(1)
 				end)
 			end
+			local openedKey = state.opened
 			local ok, open, close = pcall(function()
 				local current = UI.isOpen()
 				local key, shut = WalkUp.step(state, stations, blocked(), current, os.clock())
@@ -455,9 +479,33 @@ function WalkUpController.start()
 			if not ok then
 				continue -- a UI that is rebuilding misses one look
 			end
-			-- #3338: walking out of the arcade's ring mid game leaves the game running; it closes when it ends
-			if close and not (UI.isOpen() == "Arcade" and UI.arcade.playing()) then
-				UI.close()
+			-- #3338: walking out of the arcade's ring mid game leaves the game running. #4283 (Derek 2026-11-14:
+			-- "make the cat arcade menu close when walking away off the circle like the other ones do and no closing
+			-- during mid round"): the close waits for the round to end, then happens if the player is still outside
+			if close then
+				local current = UI.isOpen()
+				if isArcade(current) and UI.arcade.playing() then
+					held = { key = openedKey, window = current :: string }
+				else
+					UI.close()
+				end
+			end
+			local waiting = held
+			if waiting ~= nil then
+				if UI.isOpen() ~= waiting.window then
+					held = nil -- closed by hand, or another window took its place
+				elseif waiting.key ~= nil and state.inside[waiting.key] == true then
+					-- back in the ring before the round ended: the window stays, and leaving again closes it
+					held = nil
+					state.opened, state.openedWindow = waiting.key, waiting.window
+				elseif UI.arcade.playing() then
+					waiting.endedAt = nil
+				elseif waiting.endedAt == nil then
+					waiting.endedAt = os.clock() -- the round is over: its result shows for a moment first
+				elseif os.clock() - (waiting.endedAt :: number) >= RESULT_SECONDS then
+					held = nil
+					UI.close()
+				end
 			end
 			local run = if open ~= nil then opener[open :: string] else nil
 			if run ~= nil then

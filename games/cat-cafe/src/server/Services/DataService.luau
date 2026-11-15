@@ -11,6 +11,7 @@ local RunService = game:GetService("RunService")
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local FishStore = require(ReplicatedStorage.Shared.FishStore)
 local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
 local PassService = require(script.Parent.PassService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
@@ -119,6 +120,10 @@ local function load(player: Player)
 	if retired > 0 then
 		profile.coins += retired -- a refund of coins spent, so not lifetimeCoins
 		retiredRefunds[player] = retired
+	end
+	-- #4055: the passes bought with golden fish join the owned set, so they count everywhere a pass does
+	if next(profile.fishBought) ~= nil then
+		passes = PassService.addBought(player, FishStore.boughtIds(profile.fishBought))
 	end
 	Economy.setPasses(profile, passes)
 	local offline, offlineSeconds =

@@ -188,10 +188,11 @@ function CannonController.start()
 		local bestDistance = math.huge
 		for model in prompts do
 			local id = model:GetAttribute("CannonId")
-			local distance = (model:GetPivot().Position - at).Magnitude
+			local distance = Cannon.reach(at, model:GetPivot().Position) -- #4343: flat, as the server
 			-- #3671: each cannon's own range
 			if
 				type(id) == "string"
+				and distance ~= nil
 				and distance <= Cannon.range(id) + Cannon.RANGE_SLACK
 				and distance <= bestDistance
 			then

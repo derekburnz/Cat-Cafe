@@ -14,7 +14,7 @@ return function()
 		require(Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("RankUpNeeds"))
 
 	local BELLHOP = "bellhop_cat"
-	local NEED = (Catalog.getTier(3) :: any).distinctCats :: number -- #4189: 8 (10 before)
+	local NEED = (Catalog.getTier(3) :: any).distinctCats :: number -- #4320: 6 (8 before, 10 before #4189)
 	local NOW = 1000
 
 	-- Caught (non exclusive, non spare) cat ids of one rarity, in catalog order.
@@ -74,7 +74,7 @@ return function()
 			"one short in normal cats plus the Bellhop Cat: the client shows ready and the server ranks up",
 			function()
 				local p = profile(true)
-				expect(NEED).to.equal(8) -- #4189: was 10; #3111: was 11; #2683: was 13; #2230: was 12
+				expect(NEED).to.equal(6) -- #4320: was 8; #4189: was 10; #3111: was 11; #2683: was 13; #2230: was 12
 				expect(Economy.rankUpCatCount(p.collection)).to.equal(NEED)
 				expect(Economy.rankUpBlocker(p)).to.equal(nil)
 				local needs = client(p)

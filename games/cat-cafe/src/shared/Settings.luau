@@ -42,6 +42,11 @@ Settings.kinds = {
 	catPickSort = "choice",
 	catPickFlipped = "switch",
 	catPickShow = "choice",
+	-- #4266: the Auto Bowl pass's two switches (shared/AutoBowl), on by default; SetSetting takes them only from a
+	-- pass owner. bowlNewCatCard: a cat tamed at a bowl shows the big Cat found card (off: a toast), for everyone
+	autoBowlClaim = "switch",
+	autoBowlRefill = "switch",
+	bowlNewCatCard = "switch",
 } :: { [string]: Kind }
 
 -- #3940: every way the four Show chips can be on, as CatPickLogic.packShown writes them (chip names in this order,
@@ -86,6 +91,9 @@ function Settings.defaults(): Types.Settings
 		catPickSort = "Money",
 		catPickFlipped = false,
 		catPickShow = "",
+		autoBowlClaim = true,
+		autoBowlRefill = true,
+		bowlNewCatCard = true,
 	}
 end
 

@@ -866,6 +866,9 @@ fieldEvents=(
 	"ab_loading|CustomField1,CustomField2|CustomEventCountUser|Loading screen test: players by arm and playtime step, all devices (if the three-way row above is refused)"
 	"ab_loading_seen|CustomField2,CustomField1|CustomEventAvgValue|Loading screen test: average seconds the screen was up, by device and arm"
 	"ab_loading_seen|CustomField2,CustomField1|CustomEventCountUser|Loading screen test: players who saw it, by device and arm"
+	"client_boot|CustomField1|CustomEventAvgValue|Average seconds from join to the first save on the client, by device (#4307)"
+	"client_boot|CustomField1,CustomField2|CustomEventCountUser|Players by device and Roblox load time (join to first script line)"
+	"client_boot|CustomField1,CustomField3|CustomEventCountUser|Players by device and UI build / save wait"
 )
 say "### Event fields"
 say ""

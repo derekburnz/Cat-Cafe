@@ -135,6 +135,7 @@ export type CustomEvent =
 	| "rescue_refill" -- #3049: a starter trap refilled for a first-timer; fields: area, players waiting
 	| "bait_rolled"
 	| "bait_resolved"
+	| "auto_bowl" -- #4266: the Auto Bowl pass tamed or refilled a bowl ("claim" or "refill", the bowl)
 	| "gold_found"
 	| "rainbow_found" -- F99 (rainbow-coat.md section 5): rarity, net, bait or rescue, first of the cat yes or no
 	| "rally_step" -- F101 (rescue-rally.md section 5): value the players in the server; the step (25, 50, 100), lap, paid
@@ -175,6 +176,11 @@ export type CustomEvent =
 	| "spin"
 	| "crate_opened"
 	| "mystery_buy" -- #2565: value fish before; item, week slot, tier
+	| "fishstore_buy" -- #4055: value fish before; FishStore key, tier
+	| "ticket_buy" -- #4061: value tickets before; prize id, tier
+	| "dragon_give" -- #4062: value cats moved in; Warmth, stage after
+	| "dragon_stage" -- #4062: value the stage reached; tier
+	| "dragon_card" -- #4062: value the stage; card id, "stage" or "rekindle"
 	| "bag_colours" -- #3699: a Backpack colour pick saved, value 1; the main id, the trim id (#4049: then the kind)
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
@@ -414,6 +420,9 @@ export type CustomEvent =
 	-- #4174: the Starter Bundle's slide-in card, value 1; shown, closed, ignored, buy or hidden (each once a session),
 	-- the device and tier
 	| "starter_suggest"
+	-- #4307: the join to the first ProfileSync on the client, once a session below Tier 2; the device, the Roblox load
+	-- and "<UI build>/<save wait>" (FirstFive.bootBucket each)
+	| "client_boot"
 	-- #2486 (live-events.md section 7): a player in a running Cafe Event (joined during it, or in the server as it
 	-- started), value 1; the event id, the Experience Event id the join came through ("" for none), the join source
 	| "event_join"
@@ -425,6 +434,9 @@ export type CustomEvent =
 	-- #2486: a Cafe Event's reward paid for a secure (or to everyone at an early end); the event id, and "first" for
 	-- the account's first event reward (the badge's), else "again"
 	| "event_reward"
+	-- #4195: an Admin Wheel spin, value 1; the prize id (AdminWheel.PRIZES), the player's tier and the event id.
+	-- Never for a test event
+	| "admin_wheel"
 	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
 	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
 	-- report is "none". #2791: the server logs each gift ladder step as it pays, value the account's minutes played; the
@@ -494,6 +506,8 @@ local REPORTS = {
 	"health_fps", -- #3098: the client's frames a second (0 to FirstFive.FPS_MAX), once a session (health_check)
 	"mem_total", -- #3743: the client's total memory at a mark (MemoryWatch.encode), once a mark a session
 	"mem_tag", -- #3743: the memory under one group at a mark (MemoryWatch.encode), once a mark and group a session
+	"boot_ui", -- #4307: seconds from the client's first script line to its UI built (0 to FirstFive.BOOT_MAX)
+	"boot_sync", -- #4307: seconds from the client's first script line to its first ProfileSync (client_boot)
 	"intro_shot", -- #3098 P1b: an intro shot started, 1 to FirstFive.INTRO_SHOTS (quit_scene; the first logs first_scene)
 	LoadingTest.SEEN_REPORT, -- #4314: the whole seconds the loading screen was up (0 to LoadingTest.SEEN_MAX), once
 }
@@ -572,6 +586,7 @@ local FIELD_KEYS = {
 type Session = {
 	accounted: number, -- lifetimeCoins already logged, as tips or as a Source of its own
 	joinedAt: number,
+	joinedClock: number, -- #4307: os.clock() at the join, for client_boot's fractions of a second
 	lastUpgradeAt: number?, -- #2996: os.time() of this session's last upgrade buy
 	caughtAtJoin: number,
 	device: string?, -- from the client's one device report
@@ -611,6 +626,8 @@ type Session = {
 	buySources: { [string]: { source: string, at: number } }, -- #4176: the last tagged source by sku (os.clock)
 	buySourceTags: number, -- #4176: buy_source tags taken this session (StoreFunnel.BUY_SOURCES_MAX)
 	starterSuggest: { [string]: boolean }, -- #4174: starter_suggest outcomes logged this session
+	bootUi: number?, -- #4307: the client's boot_ui seconds, kept for client_boot
+	bootLogged: boolean, -- #4307: client_boot logged this session
 	giftButtons: { [string]: boolean }, -- #1947: playtime_gift logged this session, by gift kind
 	clientError: boolean, -- #2681: the client reported an error line this session (client_error)
 	feedbackRun: string?, -- #2681: the feedback_v1 run of a slide-in ask shown and not answered yet
@@ -2141,6 +2158,28 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.nudges["rsvp:" .. kind] = true -- the stuck nudges' once-a-session set, keyed apart
 			Telemetry.custom(player, "event_rsvp", 1, { kind })
 		end
+	elseif name == "boot_ui" or name == "boot_sync" then
+		-- #4307: where the wait before the intro goes (FirstFive.bootBucket)
+		if
+			type(rawValue) == "number"
+			and rawValue == rawValue
+			and rawValue >= 0
+			and rawValue <= FirstFive.BOOT_MAX
+		then
+			local seconds = rawValue :: number
+			if name == "boot_ui" then
+				session.bootUi = session.bootUi or seconds
+			elseif not session.bootLogged and Economy.tier(profile) < 2 then
+				session.bootLogged = true
+				local total = math.max(0, os.clock() - session.joinedClock)
+				local ui = math.min(session.bootUi or 0, seconds)
+				Telemetry.custom(player, "client_boot", math.floor(total), {
+					session.device or "unknown",
+					FirstFive.bootBucket(total - seconds),
+					FirstFive.bootBucket(ui) .. "/" .. FirstFive.bootBucket(seconds - ui),
+				})
+			end
+		end
 	elseif name == "intro_shot" then
 		-- #3098 P1b: kept for quit_scene; the session's first shot 1 logs first_scene (join to the cutscene)
 		if
@@ -2497,6 +2536,7 @@ local function onLoaded(player: Player, profile: Profile)
 	local session: Session = {
 		accounted = profile.lifetimeCoins,
 		joinedAt = now,
+		joinedClock = os.clock(),
 		caughtAtJoin = profile.stats.catsCaught,
 		device = nil,
 		joinLogged = false,
@@ -2537,6 +2577,8 @@ local function onLoaded(player: Player, profile: Profile)
 		buySources = {},
 		buySourceTags = 0,
 		starterSuggest = {},
+		bootUi = nil,
+		bootLogged = false,
 		giftButtons = {},
 		clientError = false,
 		feedbackRun = nil,

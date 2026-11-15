@@ -7,6 +7,7 @@
 --   The Pumpkin Patch: every BasePart (or Model) tagged HarvestPumpkin is a pickup shared by the whole server. A
 --     player who touches a ready one gets +1 and it regrows after HarvestSave.regrowSeconds (45 s with 6 or more
 --     players near it, else 90 s). Attributes for the client: Ready (boolean) and RegrowAt (os.time).
+--   Touches count only with the player's root within TOUCH_STUDS (plus half the part's size) of the spot.
 --   The arrival: touching a part tagged HarvestArrival gives the first visit of the UTC day +10.
 --   HarvestService.caught(player, rarity): pumpkins for a harvest cat caught and marks the player as a Feast Pie
 --     helper (wired once the harvest cats are in the Catalog).
@@ -35,6 +36,7 @@ HarvestService.STALL_TAG = "HarvestStall"
 HarvestService.PUMPKIN_TAG = "HarvestPumpkin"
 HarvestService.ARRIVAL_TAG = "HarvestArrival"
 HarvestService.NEAR_STUDS = 90 -- "players in the area" for the busy regrow: within this of the picked spot
+HarvestService.TOUCH_STUDS = 12 -- a touch counts only with the player's root this close (exploit tools fire touches)
 local TOUCH_GAP = 0.5 -- one pick per player per half second, whatever the touch events do
 
 local lastTouch: { [Player]: number } = {}
@@ -138,6 +140,20 @@ local function touchedOk(player: Player): boolean
 	return true
 end
 
+-- Whether the player stands at `instance` (its pivot or any of its parts within TOUCH_STUDS of the root).
+local function standsAt(player: Player, instance: Instance): boolean
+	local root = rootOf(player)
+	local at = positionOf(instance)
+	if root == nil or at == nil then
+		return false
+	end
+	local reach = HarvestService.TOUCH_STUDS
+	if instance:IsA("BasePart") then
+		reach += (instance :: BasePart).Size.Magnitude / 2
+	end
+	return (root.Position - at).Magnitude <= reach
+end
+
 local function playersNear(at: Vector3): number
 	local count = 0
 	for _, other in Players:GetPlayers() do
@@ -150,7 +166,11 @@ local function playersNear(at: Vector3): number
 end
 
 local function pick(spot: Instance, player: Player)
-	if spot:GetAttribute("Ready") == false or not touchedOk(player) then
+	if
+		spot:GetAttribute("Ready") == false
+		or not standsAt(player, spot)
+		or not touchedOk(player)
+	then
 		return
 	end
 	local profile, reason = shut(player)
@@ -177,8 +197,8 @@ local function pick(spot: Instance, player: Player)
 	end)
 end
 
-local function arrive(player: Player)
-	if not touchedOk(player) then
+local function arrive(arrival: Instance, player: Player)
+	if not standsAt(player, arrival) or not touchedOk(player) then
 		return
 	end
 	local profile, reason = shut(player)
@@ -239,9 +259,7 @@ end
 function HarvestService.start()
 	Net.on("BuyHarvest", onBuy)
 	watchTag(HarvestService.PUMPKIN_TAG, pick)
-	watchTag(HarvestService.ARRIVAL_TAG, function(_, player: Player)
-		arrive(player)
-	end)
+	watchTag(HarvestService.ARRIVAL_TAG, arrive)
 	Players.PlayerRemoving:Connect(function(player: Player)
 		lastTouch[player] = nil
 	end)

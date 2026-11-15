@@ -3642,7 +3642,8 @@ Catalog.areas = {
 		rescueSpots = 5, -- the carousel top, a ball pit, a prize plush pile, a river ring and a balloon bunch
 		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 },
 		incomeMultiplier = AREA_INCOME.waterpark,
-		launchFrom = "desert", -- #4070: flown to from the Desert camp's cannon only (Layout.waterpark.launchFrom)
+		-- no launchFrom (Derek2 2026-11-15 17:54 UTC: "water park is fully missing from the menu"): every cannon flies
+		-- here, as to the Castle and every other area (#4367); Layout.waterpark.launchFrom only places its gate
 	},
 	-- #4184: Model-Agent's CatCafe_Castle_Set (#4108: 192 cat spots and a pool of 15 rescue spots; five traps a day as
 	-- in every area)

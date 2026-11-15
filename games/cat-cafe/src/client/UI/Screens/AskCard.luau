@@ -473,9 +473,12 @@ function AskCard.show(self: any, ask: Ask)
 	self:_setLines(ask.lines or 1, ask.rows, ask.picture, ask.line, timed)
 	-- #4552: a one-line title too long for the card (a phone's narrower card) takes two lines at its full size
 	-- rather than shrinking to a whisper; FitText still covers what two lines cannot hold
-	if (ask.lines or 1) < 2 and self:_long(ask.title) then
+	local long = (ask.lines or 1) < 2 and self:_long(ask.title)
+	if long then
 		self:_setLines(2, ask.rows, ask.picture, ask.line, timed)
 	end
+	-- the two lines at the title's full size, wrapped; a one-line title keeps FitText's shrink as the backstop
+	self._title.TextScaled = not long
 	self:_buildChoices(ask.choices)
 	local card: Frame = self._holder
 	local wasVisible = card.Visible

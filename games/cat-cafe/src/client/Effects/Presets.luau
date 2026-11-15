@@ -4111,12 +4111,14 @@ Presets.fusion = {
 	gold = Presets.palette.golden,
 	huePeriod = 6,
 	acrossMin = 110, -- pixels: rings are sized as if the picture were at least this wide, so a small one still reads
+	acrossMax = 180, -- and never wider than this, so the meeting ring stays round the dome's picture (#4563)
+	wide = 1.6, -- a centre wider than this many times its height is a card: the tiles land on its left square
 	swirl = {
 		most = 5,
-		stagger = 0.07,
-		seconds = 0.9,
+		stagger = 0.09,
+		seconds = 1.1,
 		turns = 0.75,
-		land = 0.3,
+		land = 0.2,
 		sparkles = 10,
 		sparkleSize = 12,
 		sparkleSeconds = 0.5,
@@ -4156,7 +4158,7 @@ Presets.fusion = {
 		collect = 12,
 		collectRing = 1.2,
 		collectConfetti = 0.5,
-		rate = 1 / 20,
+		rate = 1 / 60, -- every frame near the dome: at 20 a second the paw lights stepped round in jerks (#4563)
 		lookSeconds = 3,
 	},
 }

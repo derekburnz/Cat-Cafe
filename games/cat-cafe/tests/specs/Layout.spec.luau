@@ -7,6 +7,7 @@ return function()
 	local ServerScriptService = game:GetService("ServerScriptService")
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
+	local Cannon = require(Shared.Cannon)
 	local Config = require(Shared.Config)
 	local FeedbackStand = require(Shared.FeedbackStand)
 	local Layout = require(ServerScriptService.Server.World.Layout)
@@ -2027,12 +2028,13 @@ return function()
 				local fromPad =
 					math.sqrt((spawn.x - pad.centre.x) ^ 2 + (spawn.z - pad.centre.z) ^ 2)
 				expect(fromPad <= W.LandingPadRadius).to.equal(true)
-				-- the Cannon button's spot in town: in front of the plinth, the prompt in reach
+				-- the Cannon button's spot in town (Derek 2026-11-15): just outside the cannon's ring, so the window
+				-- waits for a step in and the button is a shortcut to the square, but within the server's reach
+				-- plus its slack, so "Fly to the Park" still opens the picker there
 				local front = Layout.cannonFronts.town
 				local reach = math.sqrt(front.x ^ 2 + front.z ^ 2)
-				expect(reach > square.fountainRadius and reach < W.CannonRangeStuds - 2).to.equal(
-					true
-				)
+				expect(reach > W.TownCannonRangeStuds).to.equal(true)
+				expect(reach <= W.TownCannonRangeStuds + Cannon.RANGE_SLACK).to.equal(true)
 				expect(front.z < 0).to.equal(true)
 			end
 		)

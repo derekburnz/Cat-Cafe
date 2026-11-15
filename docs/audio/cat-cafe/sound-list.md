@@ -530,3 +530,13 @@ All of these are quiet next to the catch sounds, so ten fish landing at once nev
 | `harvestPick` | a patch pumpkin is picked near you, by you or anyone | as the coin pop | a soft low "pluck": the coin pop a third lower, in the world; at most one every 0.3 s | P3 |
 
 The pick sound needs no new file. The area's song is `musicAreaHarvest` "Cider Lane" in section 3. Its strays' voices are still to pick.
+
+## Mix audit (2026-11-15)
+
+A paper audit, not a listening one: for each cue whose file the audio gate measured, the file's loudness (LUFS in `assets/cat-cafe/audio/gates.md`) plus the cue's volume in dB, compared with its channel's median. 121 cues matched by name (109 Sfx, 10 Music, 2 Ui).
+
+- Music: every song sits at -18 LUFS and volume 0.3, so the areas' songs are level with each other.
+- Sfx: the median is about -25 dB. The loudest, 8 to 10 dB over it, are the three reward sounds (`catchSparkle`, `checkInBell`, `circlePerfect`), which is meant: they are the moments the mix points at. The quietest, 8 to 16 dB under it, are the purrs (`purr`, `carryPurr`, looped beds), the four food sounds, `spaSplash` and `dragonWing`, all background touches.
+- Nothing else is more than 8 dB from the median, and no file peaks over -1.9 dBTP.
+
+No volume was changed from this: a short sound's LUFS is a rough guide, and the three loud ones need ears on a phone speaker before anyone turns them down. To listen for on the next device test: `checkInBell` and `catchSparkle` together when a catch and a check-in land in the same second, and whether the food sounds are heard at all on a phone.

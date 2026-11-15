@@ -238,6 +238,12 @@ function IndexStrip.new(parent: Instance, callbacks: Callbacks): IndexStrip
 		size = ARROW,
 		hideWhenFits = true,
 	})
+	-- the canvas's end room follows the row's width (_sizeRow)
+	self._rowSized = self._row:GetPropertyChangedSignal("AbsoluteWindowSize"):Connect(function()
+		if self._rowFrame.Visible then
+			self:_sizeRow()
+		end
+	end)
 	-- centred on the cards, under the NEXT sticker's room
 	for side, arrow in self._pager.arrows do
 		arrow.instance.Position =
@@ -624,8 +630,16 @@ function IndexStrip._sizeRow(self: any)
 		end
 	end
 	local gap = Theme.sizes.gap
-	self._row.CanvasSize =
-		UDim2.fromOffset(if shown > 0 then EDGE * 2 + shown * CARD.X + (shown - 1) * gap else 0, 0)
+	local width = if shown > 0 then EDGE * 2 + shown * CARD.X + (shown - 1) * gap else 0
+	-- Review-QA in Studio (#4354): the end of the row clamped mid-card, so the leftmost card showed cut in half. The
+	-- canvas gets the room to end on a whole card: its furthest scroll a whole number of cards
+	local scale = Scale.get()
+	local window = self._row.AbsoluteWindowSize.X / (if scale > 0 then scale else 1)
+	local step = CARD.X + gap
+	if window > 0 and width > window then
+		width += (step - (width - window) % step) % step
+	end
+	self._row.CanvasSize = UDim2.fromOffset(width, 0)
 	self._pager:paint()
 end
 
@@ -668,6 +682,7 @@ function IndexStrip.destroy(self: any)
 	self._featured.chips:destroy()
 	self._expand:destroy()
 	self._pager:destroy()
+	self._rowSized:Disconnect()
 	self.frame:Destroy()
 end
 

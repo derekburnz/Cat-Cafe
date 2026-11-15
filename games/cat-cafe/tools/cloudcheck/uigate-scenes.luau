@@ -6278,11 +6278,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assert(right:GetAttribute("CanGo") == false and left:GetAttribute("CanGo") == true, "uigate: ▶ not dimmed at the end (#4264)")
 		assert(math.abs(at() - (row.AbsoluteCanvasSize.X - row.AbsoluteWindowSize.X)) < 0.5, "uigate: ▶ stopped short of the row's end (#4264)")
+		-- Review-QA (#4354): the end lands on a whole card, so the leftmost card is not cut in half
+		local ends = at() / step
+		assert(math.abs(ends - math.floor(ends + 0.5)) < 0.02, ("uigate: the row ends %.2f cards in, not on a whole card"):format(ends))
 		if math.abs(scale - 1) < 0.001 then
 			local last = cards[#cards]
 			local lastEnd = last.AbsolutePosition.X + last.AbsoluteSize.X
 			local rowEnd = row.AbsolutePosition.X + row.AbsoluteSize.X
-			assert(lastEnd <= rowEnd + 0.5 and lastEnd >= rowEnd - 20,
+			assert(lastEnd <= rowEnd + 0.5 and lastEnd >= rowEnd - step - 0.5,
 				("uigate: at the end the last card ends at %.0f, the row at %.0f (#4264)"):format(lastEnd, rowEnd))
 		end
 		-- for the picture: one page back, both arrows lit, and the Index scrolled so the row shows

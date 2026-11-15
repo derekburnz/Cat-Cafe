@@ -121,6 +121,7 @@ def _hud_decor(mat):
 STORE_FIT = 0.88
 MARKET_VIEWS = {"Crates": QUARTER, "Treats": (-14.0, 14.0), "FreshCatch": (-16.0, 24.0)}
 
+DRAGON_PADS = {"Drake": "height", "Elder": "height", "Crowned": "height"}      # #4062: the wing tips crop
 # #4061 the booth's shelf pictures: the wearables from the front, a touch to one side
 SHELF_VIEWS = {"SnorkelMask": (-38.0, 14.0), "SwimCap": (-40.0, 24.0), "SunVisor": (-30.0, 16.0),
                "StarfishShades": (-16.0, 4.0)}
@@ -185,7 +186,9 @@ ICONS = {
     **{"CatCafe_Icon_Shelf_" + n.split("_", 2)[2]: (fn, INK, 10, SHELF_VIEWS.get(n.split("_", 2)[2], (-28.0, 18.0)))
        for n, (fn, _budget) in waterparkshelf.ASSETS.items() if "_Camp_" not in n},
     # #4062 the Dragon Keep window's portrait of Cinder, one per stage (dragon.py), three-quarter front
-    **{"CatCafe_Icon_Dragon_" + n.rsplit("_", 1)[1]: (fn, INK, 10, (-16.0, 10.0)) for n, (fn, _budget) in dragon.ASSETS.items()},
+    # (the three winged stages are framed on the body and let their wing tips crop, so the stage reads at slot size)
+    **{"CatCafe_Icon_Dragon_" + n.rsplit("_", 1)[1]: (fn, INK, 10, (-16.0, 10.0), DRAGON_PADS.get(n.rsplit("_", 1)[1]))
+       for n, (fn, _budget) in dragon.ASSETS.items()},
     # #2836 pass 2: the Garden Nursery's lawn pieces, paths and fences (lawn.py), one picture per Catalog.lawn model
     **{"CatCafe_Icon_Lawn_" + n[len("CatCafe_Lawn_"):]: (_lawn_piece(n, fn), INK, 10, LAWN_VIEWS.get(n[len("CatCafe_Lawn_"):].split("_")[0],
                                                                                 (-28.0, 22.0)))
@@ -254,6 +257,8 @@ def _camera(objs, view=(0.0, 0.0), pad=None, fit=None):
     cu, cv = (max(us) + min(us)) / 2, (max(vs) + min(vs)) / 2
     if fit:
         cd.ortho_scale = 2 * max(math.hypot(u - cu, v - cv) for u, v in zip(us, vs)) / fit
+    elif pad == "height":                       # frame the height only; anything wider crops at the sides
+        cd.ortho_scale = (max(vs) - min(vs)) * (1 + 2 * PAD)
     else:
         cd.ortho_scale = max(max(us) - min(us), max(vs) - min(vs)) * (1 + 2 * (PAD if pad is None else pad))
     centre = right * cu + up * cv

@@ -2254,7 +2254,11 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		end
 	end,
 	-- F58: a Mythical shout-out (the sunrise wave's or a catch) plays its own sting once it has a file.
-	Announce = function(_text: any, rarity: any)
+	-- #4470: a spawn shout-out shows with no sound (Logic.isSpawnLine)
+	Announce = function(text: any, rarity: any)
+		if Logic.isSpawnLine(text) then
+			return
+		end
 		local cueId = Logic.announceCue(str(rarity))
 		if cueId ~= "announce" and has(cueId) then
 			Audio.play(cueId)

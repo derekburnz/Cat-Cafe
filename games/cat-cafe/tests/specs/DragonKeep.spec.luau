@@ -448,12 +448,32 @@ return function()
 			"pays Furnace's 20% more a tip pile and Coin Sniffer's fish inside its chance",
 			function()
 				local fx = DragonKeep.effects(withSlots({ "furnace", "coinSniffer" }))
-				expect(fx.pile).to.equal(DragonKeep.PILE)
+				expect(fx.pile).to.equal(DragonKeep.PILE.furnace)
 				expect(DragonKeep.pileFish(fx, 0.01)).to.equal(1)
 				expect(DragonKeep.pileFish(fx, 0.5)).to.equal(0)
 				expect(DragonKeep.pileFish(DragonKeep.effects(withSlots({ "furnace" })), 0)).to.equal(
 					0
 				)
+			end
+		)
+
+		it(
+			"adds Sky Mail to the tip pile share, Hoarder's refund and Bait Whisperer's shorter wait",
+			function()
+				local Economy = require(Shared.Economy)
+				local fx = DragonKeep.effects(withSlots({ "furnace", "skyMail", "hoarder" }))
+				expect(math.abs(fx.pile - 0.30) < 1e-9).to.equal(true)
+				expect(fx.refund).to.equal(DragonKeep.REFUND)
+				local profile = profileWith({}) :: any
+				DragonKeep.setOn(true)
+				local before = Economy.baitWaitSeconds(profile)
+				profile.dragon = withSlots({ "baitWhisperer" })
+				local after = Economy.baitWaitSeconds(profile)
+				DragonKeep.setOn(nil)
+				expect(after < before).to.equal(true)
+				expect(
+					math.abs(after - math.floor(before * (1 - DragonKeep.BAIT_SPEED) + 1e-6)) <= 1
+				).to.equal(true)
 			end
 		)
 

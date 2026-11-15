@@ -329,7 +329,9 @@ function Economy.baitWaitSeconds(
 ): number
 	-- #2687: the Picnic Basket's Fresh Bait from Tier 2
 	local speed = math.min(
-		IndexRewards.totals(profile).baitSpeed + StationPerks.baitSpeed(profile.tier),
+		IndexRewards.totals(profile).baitSpeed
+			+ StationPerks.baitSpeed(profile.tier)
+			+ Economy.dragonEffects(profile).baitSpeed, -- #4447: Bait Whisperer
 		Config.BaitSpeedMax
 	)
 	if now ~= nil then

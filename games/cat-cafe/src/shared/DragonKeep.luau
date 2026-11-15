@@ -175,7 +175,7 @@ DragonKeep.CARDS = {
 		name = "Bait Whisperer",
 		family = "claw",
 		rarity = "Rare",
-		text = "Bait lasts 15% longer.",
+		text = "Bait cats come 15% sooner.",
 	},
 	{
 		id = "luckyScale",
@@ -259,7 +259,7 @@ DragonKeep.CARDS = {
 		name = "Sky Mail",
 		family = "wing",
 		rarity = "Epic",
-		text = "Claim your Tip Jar from anywhere.",
+		text = "Tip piles pay 10% more.",
 	},
 	{
 		id = "dragonRide",
@@ -301,7 +301,7 @@ DragonKeep.CARDS = {
 		name = "Hoarder",
 		family = "hoard",
 		rarity = "Rare",
-		text = "Crates give 10% more coins.",
+		text = "Crate repeats give 25% more fish.",
 	},
 	{
 		id = "fishScale",
@@ -1026,7 +1026,10 @@ DragonKeep.KINDRED_MAX = 0.10
 DragonKeep.NIGHT = 0.12 -- Night Glow: +12% income at night (Economy.nightTraitRate)
 DragonKeep.PET_EXTRA = 15 * 60 -- Pat Pat: a pet's happy heart lasts 15 minutes longer (inside Pet.EXTRA_MAX)
 DragonKeep.RICH = 0.15 -- Smoke Signal: rich visitors come 15% more often (into Economy.richRate)
-DragonKeep.PILE = 0.20 -- Furnace: tip piles grow 20% faster, paid as 20% more a pile on the same clock
+DragonKeep.PILE = { furnace = 0.20, skyMail = 0.10 } :: { [string]: number } -- share more on each tip pile
+-- (Furnace's "20% faster" is paid as 20% more a pile on the same clock; Sky Mail's text since Design-Agent, Nov 15)
+DragonKeep.REFUND = 0.25 -- Hoarder: a crate repeat's golden fish refund 25% more (rounded down)
+DragonKeep.BAIT_SPEED = 0.15 -- Bait Whisperer: the bowl wait 15% shorter, inside Config.BaitSpeedMax
 DragonKeep.PILE_FISH_CHANCE = 0.05 -- Coin Sniffer: a tip pile drops 1 golden fish
 DragonKeep.BREATH_EVERY = 600 -- Golden Breath: every 10 minutes of play...
 DragonKeep.BREATH_SECONDS = 60 -- ...Cinder pays 1 minute of the cafe's income
@@ -1056,13 +1059,15 @@ export type Effects = {
 	pile: number, -- share more on each tip pile
 	pileFish: number, -- chance a tip pile drops 1 golden fish
 	breath: boolean, -- Golden Breath (DragonKeepService)
+	refund: number, -- share more on a crate repeat's fish refund
+	baitSpeed: number, -- share off the bowl wait (Economy.baitWaitSeconds)
 }
 
 function DragonKeep.effects(save: Types.DragonSave): Effects
 	local money, tips, tickets, repeatFish, luck, goldLuck, reach, swing = 0, 0, 0, 0, 0, 0, 0, 0
 	local slowRings, forgive, friend, walk, softLanding = 0, false, 0, 0, false
 	local doubleJump, glide, xp, restXp, night, petExtra = false, false, 0, 0, 0, 0
-	local rich, pile, pileFish, breath = 0, 0, 0, false
+	local rich, pile, pileFish, breath, refund, baitSpeed = 0, 0, 0, false, 0, 0
 	for _, id in save.slots do
 		if cardsById[id] ~= nil then
 			money += DragonKeep.MONEY[id] or 0
@@ -1070,6 +1075,7 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 			reach += DragonKeep.REACH[id] or 0
 			walk += DragonKeep.WALK[id] or 0
 			xp += DragonKeep.XP[id] or 0
+			pile += DragonKeep.PILE[id] or 0
 			if id == "kindred" then
 				money += math.min(save.kept * DragonKeep.KINDRED_EACH, DragonKeep.KINDRED_MAX)
 			end
@@ -1103,8 +1109,10 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 				petExtra = DragonKeep.PET_EXTRA
 			elseif id == "smokeSignal" then
 				rich = DragonKeep.RICH
-			elseif id == "furnace" then
-				pile = DragonKeep.PILE
+			elseif id == "hoarder" then
+				refund = DragonKeep.REFUND
+			elseif id == "baitWhisperer" then
+				baitSpeed = DragonKeep.BAIT_SPEED
 			elseif id == "coinSniffer" then
 				pileFish = DragonKeep.PILE_FISH_CHANCE
 			elseif id == "goldenBreath" then
@@ -1146,6 +1154,8 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 		pile = pile,
 		pileFish = pileFish,
 		breath = breath,
+		refund = refund,
+		baitSpeed = baitSpeed,
 	}
 end
 
@@ -1179,6 +1189,8 @@ local NONE: Effects = table.freeze({
 	pile = 0,
 	pileFish = 0,
 	breath = false,
+	refund = 0,
+	baitSpeed = 0,
 }) :: any
 function DragonKeep.of(profile: Types.PlayerProfile): Effects
 	local on = if onOverride ~= nil

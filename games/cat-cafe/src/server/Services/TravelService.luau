@@ -6,7 +6,11 @@
 -- mid catch or rescue (leaving would be a Miss, reviewer N47), in a flight or knocked down by a tackle (the same
 -- TackledDownSeconds refusal as the cannon, N281), and that TravelCooldownSeconds have passed. Every answer goes back as TravelResult. At night NightService sends anyone in a wild area home with
 -- sendHome, the same cloud hop.
+-- #4251: "harvest" goes into Harvest Hollow (World/HarvestWorld.landing) while HarvestService.tripBlocker allows it:
+-- the HUD's Harvest button, or walking through the arch in the Town Square (its HarvestArchTouch part, with the
+-- player's root within ARCH_REACH studs, one try every ARCH_GAP seconds so standing in it does not repeat a toast).
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -18,6 +22,8 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Cooldown = require(ReplicatedStorage.Shared.Cooldown)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local HarvestService = require(script.Parent.HarvestService)
+local HarvestWorld = require(script.Parent.Parent.World.HarvestWorld)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
@@ -27,9 +33,12 @@ local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 local TravelService = {}
 
 local HOME_STEP_OUT = 6 -- studs out from the front door, on the street
+local ARCH_REACH = 20 -- #4251: an arch touch counts with the player's root this close to it (exploit tools fire touches)
+local ARCH_GAP = 3
 
 local world: WorldBuilder.World? = nil
 local lastTravel: { [Player]: number } = {}
+local lastArch: { [Player]: number } = {}
 
 -- On the street outside the player's front door, facing it; nil without a cafe.
 local function homeLanding(player: Player): CFrame?
@@ -84,6 +93,10 @@ local function landingFor(player: Player, destination: string): (CFrame?, string
 	if destination == "cannon" then
 		local front = cannonFront(wildAreaOf(player))
 		return front, if front == nil then "Still loading" else nil
+	end
+	if destination == "harvest" then
+		local blocked = HarvestService.tripBlocker(player)
+		return if blocked == nil then HarvestWorld.landing() else nil, blocked
 	end
 	if Catalog.getArea(destination) ~= nil or destination == "alley" then
 		return nil, "Hop in the Cat Cannon to fly there"
@@ -190,13 +203,49 @@ function TravelService.home(player: Player): boolean
 	return onTravel(player, "home")
 end
 
+-- #4251: a walk through the Harvest Hollow arch is a Travel("harvest").
+local function onArchTouched(touch: BasePart, hit: BasePart)
+	local model = hit:FindFirstAncestorOfClass("Model")
+	local player = if model ~= nil then Players:GetPlayerFromCharacter(model :: Model) else nil
+	if player == nil then
+		return
+	end
+	local root = (model :: Model):FindFirstChild("HumanoidRootPart")
+	if root == nil or not root:IsA("BasePart") then
+		return
+	end
+	if ((root :: BasePart).Position - touch.Position).Magnitude > ARCH_REACH then
+		return
+	end
+	local last = lastArch[player]
+	if last ~= nil and os.clock() - last < ARCH_GAP then
+		return
+	end
+	lastArch[player] = os.clock()
+	onTravel(player, "harvest")
+end
+
+local function watchArch(instance: Instance)
+	if instance:IsA("BasePart") then
+		local touch = instance :: BasePart
+		touch.Touched:Connect(function(hit: BasePart)
+			onArchTouched(touch, hit)
+		end)
+	end
+end
+
 function TravelService.start(builtWorld: WorldBuilder.World)
 	world = builtWorld
 	Net.on("Travel", function(player: Player, rawDestination: unknown)
 		onTravel(player, rawDestination)
 	end)
+	for _, touch in CollectionService:GetTagged(HarvestWorld.ARCH_TOUCH_TAG) do
+		watchArch(touch)
+	end
+	CollectionService:GetInstanceAddedSignal(HarvestWorld.ARCH_TOUCH_TAG):Connect(watchArch)
 	Players.PlayerRemoving:Connect(function(player)
 		lastTravel[player] = nil
+		lastArch[player] = nil
 	end)
 end
 

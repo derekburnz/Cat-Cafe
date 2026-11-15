@@ -11,11 +11,15 @@
 --   The arrival: touching a part tagged HarvestArrival gives the first visit of the UTC day +10.
 --   HarvestService.caught(player, rarity): pumpkins for a harvest cat caught and marks the player as a Feast Pie
 --     helper (wired once the harvest cats are in the Catalog).
+--   The world (World/HarvestWorld): the arch in the Town Square at start, the area AREA_EARLY_SECONDS before it opens
+--     (at start, or on a timer), never once it has closed. A picked pumpkin hides until it regrows.
+--   HarvestService.tripBlocker(player): why a Travel "harvest" trip is refused, or nil (TravelService asks).
 -- Nothing is random and nothing here costs Robux.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
@@ -26,20 +30,22 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local CafeService = require(script.Parent.CafeService)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local HarvestWorld = require(script.Parent.Parent.World.HarvestWorld)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Telemetry = require(script.Parent.Telemetry)
 
 local HarvestService = {}
 
-HarvestService.STALL_TAG = "HarvestStall"
-HarvestService.PUMPKIN_TAG = "HarvestPumpkin"
-HarvestService.ARRIVAL_TAG = "HarvestArrival"
+HarvestService.STALL_TAG = HarvestWorld.STALL_TAG
+HarvestService.PUMPKIN_TAG = HarvestWorld.PUMPKIN_TAG
+HarvestService.ARRIVAL_TAG = HarvestWorld.ARRIVAL_TAG
 HarvestService.NEAR_STUDS = 90 -- "players in the area" for the busy regrow: within this of the picked spot
 HarvestService.TOUCH_STUDS = 12 -- a touch counts only with the player's root this close (exploit tools fire touches)
 local TOUCH_GAP = 0.5 -- one pick per player per half second, whatever the touch events do
 
 local lastTouch: { [Player]: number } = {}
+local built = false -- the area is in the Workspace
 
 local function rootOf(player: Player): BasePart?
 	local character = player.Character
@@ -167,6 +173,21 @@ local function playersNear(at: Vector3): number
 	return count
 end
 
+-- A picked pumpkin hides until it regrows (its Touch box stays, and Ready says whether a touch counts).
+local function showPumpkin(spot: Instance, shown: boolean)
+	for _, child in spot:GetDescendants() do
+		if child:IsA("BasePart") and child.Name ~= "Touch" then
+			local part = child :: BasePart
+			local base = part:GetAttribute("HarvestBaseTransparency")
+			if type(base) ~= "number" then
+				base = part.Transparency
+				part:SetAttribute("HarvestBaseTransparency", base)
+			end
+			part.Transparency = if shown then base :: number else 1
+		end
+	end
+end
+
 local function pick(spot: Instance, player: Player)
 	if
 		spot:GetAttribute("Ready") == false
@@ -184,6 +205,7 @@ local function pick(spot: Instance, player: Player)
 		return
 	end
 	spot:SetAttribute("Ready", false) -- before anything that yields, so two touches cannot both pick it
+	showPumpkin(spot, false)
 	local wait = HarvestSave.regrowSeconds(playersNear(at))
 	spot:SetAttribute("RegrowAt", os.time() + wait)
 	local added = HarvestSave.give(profile.harvest, 1)
@@ -195,6 +217,7 @@ local function pick(spot: Instance, player: Player)
 		if spot.Parent ~= nil then
 			spot:SetAttribute("Ready", true)
 			spot:SetAttribute("RegrowAt", nil)
+			showPumpkin(spot, true)
 		end
 	end)
 end
@@ -258,10 +281,42 @@ function HarvestService.caught(player: Player, rarity: string): number
 	return HarvestSave.give(profile.harvest, HarvestSave.catchPumpkins(rarity))
 end
 
+-- #4251: why a trip into Harvest Hollow is refused, or nil (the dates, Tier 2, the switch, the area not built yet).
+function HarvestService.tripBlocker(player: Player): string?
+	local profile, reason = shut(player)
+	if profile == nil then
+		return "Still loading"
+	end
+	if reason ~= nil then
+		return reason
+	end
+	if not built then
+		return "Harvest Hollow is getting ready"
+	end
+	return nil
+end
+
+-- The area once a server, AREA_EARLY_SECONDS before it opens; nothing once it has closed.
+local function buildWhenDue()
+	local now = os.time()
+	if now >= HarvestHollow.CLOSES_AT then
+		return
+	end
+	local wait = math.max(0, HarvestHollow.OPENS_AT - HarvestWorld.AREA_EARLY_SECONDS - now)
+	task.delay(wait, function()
+		if not built then
+			built = true
+			HarvestWorld.buildArea(Workspace)
+		end
+	end)
+end
+
 function HarvestService.start()
 	Net.on("BuyHarvest", onBuy)
 	watchTag(HarvestService.PUMPKIN_TAG, pick)
 	watchTag(HarvestService.ARRIVAL_TAG, arrive)
+	HarvestWorld.buildArch(Workspace)
+	buildWhenDue()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		lastTouch[player] = nil
 	end)

@@ -45,7 +45,8 @@ Remotes.ClientToServer = {
 	"TutorialAdvance", -- (step: number)
 	"RequestSync", -- ()  asks for a full ProfileSync (client UI just loaded)
 	"Travel", -- (destination: string)  "home" (a cloud hop from a wild area) or "cannon" (the front of the nearest
-	-- Cat Cannon, F84); not while carrying, mid catch or rescue, or in a flight
+	-- Cat Cannon, F84); not while carrying, mid catch or rescue, or in a flight. #4251: "harvest" into Harvest Hollow while
+	-- it is open, from Tier 2 and with the harvestHollow switch on (the HUD's Harvest button; the arch does the same)
 	"LaunchCannon", -- (cannonId: string, destination: string)  F84 (hometown-cannon.md section 7): `town` or a camp's
 	-- area id within CannonRangeStuds; `town` or another area with a camp, the area opened by the caller's tier, open
 	-- and not in the dusk warning; not carrying, no lock, not flying or tackled down, off CannonCooldownSeconds;

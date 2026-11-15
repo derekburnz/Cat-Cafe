@@ -6,6 +6,8 @@
 --   EMPTY                    the line on a board with no credits yet
 --   whatsNew(updates, rows)  the What's new panel's lines (#1216): { glyph, text, date, credit? } from shared/WhatsNew
 --                            rows, each linked credit named from the board's rows by creditId
+--   nextUpdate(list, now)    the panel's NEXT row from Config.UpdateEvents: { text, when } for the first update not
+--                            started yet, nil when none is left or one went out under QUIET_SECONDS ago
 
 local ThanksBoardLogic = {}
 
@@ -113,6 +115,70 @@ function ThanksBoardLogic.page(rows: { Row }, page: number): Page
 		table.insert(out, rows[index])
 	end
 	return { rows = out, page = at, pages = pages }
+end
+
+-- Derek 2026-11-14 16:23 UTC (every update teases the next one, from 10 minutes after one goes out until the next
+-- begins; Growth 2026-11-15): the What's new panel's NEXT row. It reads Config.UpdateEvents, the list the in-game
+-- Notify Me ask reads, so it moves on to the next update by itself.
+ThanksBoardLogic.QUIET_SECONDS = 600 -- EventRsvp.QUIET_AFTER_SECONDS
+ThanksBoardLogic.ET_OFFSET = -5 * 3600 -- Eastern Standard Time (no daylight saving from 2026-11-01 to 2027-03-14)
+ThanksBoardLogic.NEXT_CALL = "tap Notify Me for a reminder"
+
+local DAYS = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" }
+
+export type NextUpdate = { text: string, when: string }
+
+-- "Sunday 3 PM ET", "Monday 10:30 PM ET"
+function ThanksBoardLogic.etTime(at: number): string
+	local t = os.date("!*t", at + ThanksBoardLogic.ET_OFFSET) :: any
+	local hour: number = t.hour
+	local minute: number = t.min
+	local wday: number = t.wday
+	local twelve = if hour % 12 == 0 then 12 else hour % 12
+	local clock = if minute == 0 then tostring(twelve) else ("%d:%02d"):format(twelve, minute)
+	return ("%s %s %s ET"):format(DAYS[wday], clock, if hour >= 12 then "PM" else "AM")
+end
+
+-- an entry's short name: its `name`, else the words between ": " and "!" of its ask ("🔔 Next update Sunday: 3 NEW
+-- WORLDS! Want a reminder ...?" gives "3 NEW WORLDS"), a leading "the " dropped and the first letter raised
+function ThanksBoardLogic.updateName(entry: any): string
+	local name: string? = if type(entry.name) == "string" and entry.name ~= ""
+		then entry.name
+		else nil
+	if name == nil and type(entry.title) == "string" then
+		name = string.match(entry.title, ":%s*([^!?]+)[!?]")
+	end
+	if name == nil or name == "" then
+		return "A new update"
+	end
+	local words: string = name
+	words = string.gsub(words, "^%s*[Tt]he%s+", "")
+	words = string.gsub(words, "%s+$", "")
+	return string.upper(string.sub(words, 1, 1)) .. string.sub(words, 2)
+end
+
+function ThanksBoardLogic.nextUpdate(list: unknown, now: number): NextUpdate?
+	if type(list) ~= "table" then
+		return nil
+	end
+	local soonest: any = nil
+	for _, entry in list :: { any } do
+		if type(entry) == "table" and type(entry.startsAt) == "number" then
+			if now >= entry.startsAt and now < entry.startsAt + ThanksBoardLogic.QUIET_SECONDS then
+				return nil -- an update just went out: its own moment first
+			end
+			if now < entry.startsAt and (soonest == nil or entry.startsAt < soonest.startsAt) then
+				soonest = entry
+			end
+		end
+	end
+	if soonest == nil then
+		return nil
+	end
+	return {
+		text = "Next: " .. ThanksBoardLogic.updateName(soonest),
+		when = ThanksBoardLogic.etTime(soonest.startsAt) .. " · " .. ThanksBoardLogic.NEXT_CALL,
+	}
 end
 
 return ThanksBoardLogic

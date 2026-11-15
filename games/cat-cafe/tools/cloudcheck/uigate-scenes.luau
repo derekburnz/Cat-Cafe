@@ -6218,6 +6218,32 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(cards == 12, "uigate: " .. cards .. " card lines on the board, wanted 12 (#3926)")
 		UI.thanksBoard({}, false)
 	end },
+	{ "WhatsNewNextRow", function()
+		-- Growth 2026-11-15 (Derek: every update teases the next one): the What's new panel's NEXT row from
+		-- Config.UpdateEvents fits at the panel's 7.6 x 4.8 studs, and the update rows under it still fit
+		UI.thanksBoard({}, false)
+		task.wait(0.1)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeWhatsNew")
+		assert(gui, "uigate: no What's new panel")
+		gui.SizingMode = Enum.SurfaceGuiSizingMode.FixedSize
+		gui.CanvasSize = Vector2.new(486, 307)
+		task.wait(0.1)
+		local row = gui:FindFirstChild("Next", true)
+		assert(row, "uigate: no NEXT row on the What's new panel")
+		local text = row:FindFirstChild("Text")
+		local when = row:FindFirstChild("When")
+		if text.Visible then
+			assert(string.find(text.Text, "^Next: ") ~= nil, "uigate: the NEXT row says " .. text.Text)
+			assert(text.TextFits and when.TextFits, "uigate: the NEXT row is cut off: " .. text.Text .. " / " .. when.Text)
+		end
+		local rows = gui:FindFirstChild("Rows", true)
+		local bottom = rows.AbsolutePosition.Y + rows.AbsoluteSize.Y
+		for _, child in rows:GetChildren() do
+			if child:IsA("Frame") then
+				assert(child.AbsolutePosition.Y + child.AbsoluteSize.Y <= bottom + 1, "uigate: What's new row " .. child.Name .. " runs off the panel")
+			end
+		end
+	end },
 	{ "CatsNoSellExtras", function()
 		UI.open("Cats")
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")

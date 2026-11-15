@@ -417,6 +417,16 @@ return function()
 			expect(noCard.trust).to.equal(start + Circles.trustDelta("miss"))
 		end)
 
+		it("brings a friend with Double Catch, Common and Rare only", function()
+			local none = DragonKeep.effects(withSlots({}))
+			expect(DragonKeep.bringsFriend(none, "Common", 0)).to.equal(false)
+			local fx = DragonKeep.effects(withSlots({ "doubleCatch" }))
+			expect(DragonKeep.bringsFriend(fx, "Common", 0.039)).to.equal(true)
+			expect(DragonKeep.bringsFriend(fx, "Rare", 0.01)).to.equal(true)
+			expect(DragonKeep.bringsFriend(fx, "Common", 0.04)).to.equal(false)
+			expect(DragonKeep.bringsFriend(fx, "Epic", 0)).to.equal(false)
+		end)
+
 		it("names only real cards in its tables", function()
 			for id in DragonKeep.MONEY do
 				expect(DragonKeep.card(id)).to.be.ok()

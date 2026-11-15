@@ -3026,6 +3026,15 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 			Telemetry.catchCheckedIn(player, carry.funnel, instance.uid, instance.spotId ~= nil)
 		end
 		Net.fire(player, "CatCaught", def.id, isNew, instance.variant)
+		-- #4447: the Dragon Keep's Double Catch, a plain second copy that joins quietly with its own toast
+		local keeper = DataService.get(player)
+		if
+			keeper ~= nil
+			and DragonKeep.bringsFriend(DragonKeep.of(keeper), def.rarity, rng:NextNumber())
+		then
+			CafeService.addCaughtCat(player, def, false, keeper, nil, carry.method, nil)
+			Net.toast(player, string.format("Your %s brought a friend!", def.name), "good")
+		end
 		local verb = if carry.method == "rescue" then "rescued" else "caught"
 		-- the shout-out chime rises with rarity; F89: a Legendary or Mythical one at most once a minute a player
 		RareMomentService.shoutOut(

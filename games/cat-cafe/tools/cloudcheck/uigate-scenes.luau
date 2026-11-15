@@ -12556,6 +12556,18 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			press("DragonKeep", "Card_emberTips")
 			press("DragonKeep", "Slot3")
 			assert(#sent == 1 and sent[1].remote == "SlotDragonCard" and sent[1].a == "emberTips" and sent[1].b == 3, "uigate: a binder card to Slot3 sent no SlotDragonCard (#4062)")
+			-- #4576: the Sets tab shows every family's two set bonuses, and each line fits
+			press("DragonKeep", "Tab_sets")
+			local setsPage = window:FindFirstChild("SetsPage", true) :: GuiObject
+			assert(setsPage.Visible, "uigate: the Sets tab did not open (#4576)")
+			for _, family in { "flame", "claw", "wing", "hoard", "heart", "crown" } do
+				local row = setsPage:FindFirstChild("Set_" .. family, true) :: GuiObject
+				assert(row ~= nil, "uigate: no " .. family .. " set row (#4576)")
+				for _, name in { "Title", "Count", "Three", "Five" } do
+					local label = row:FindFirstChild(name) :: TextLabel
+					assert(label.Text ~= "" and label.TextFits and label.TextSize >= 10, ("uigate: %s's %s %q does not fit (#4576)"):format(family, name, label.Text))
+				end
+			end
 			-- the give picker
 			press("DragonKeep", "Tab_give")
 			local give = window:FindFirstChild("GivePage", true) :: GuiObject
@@ -12568,6 +12580,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				assert(words.TextFits, "uigate: All " .. rarity .. " does not fit its button (#4566)")
 			end
 			assert(give:FindFirstChild("Repeats", true) == nil, "uigate: the Repeats button is still there (#4566)")
+			-- the order flip: the strongest cat leads, and back
+			local firstName = ((give:FindFirstChild("Cats", true) :: Instance):FindFirstChild("Name", true) :: TextLabel).Text
+			press("DragonKeep", "Order")
+			local orderText = (give:FindFirstChild("Order", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel)
+			assert(orderText.Text == "Weakest first" and orderText.TextFits, "uigate: the order button reads " .. orderText.Text)
+			press("DragonKeep", "Order")
+			assert(orderText.Text == "Strongest first", "uigate: the order did not flip back")
+			assert(firstName ~= "", "uigate: the give list is empty")
 			press("DragonKeep", "AllCommon")
 			local giveButton = give:FindFirstChild("Give", true) :: GuiObject
 			local giveText = (giveButton:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel)

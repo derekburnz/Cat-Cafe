@@ -21,7 +21,7 @@ export type Area =
 -- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.
 export type CatArea = Area | "spare" | "exclusive" | "secret"
 -- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
-export type CatSource = "free" | "shop" | "pass"
+export type CatSource = "free" | "shop" | "pass" | "booth" -- booth #4061: the Ticket Booth's prize cat
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 -- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
 export type SpotType = Role

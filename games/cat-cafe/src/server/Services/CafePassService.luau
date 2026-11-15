@@ -29,6 +29,7 @@ local Payout = require(script.Parent.Payout)
 local Products = require(ReplicatedStorage.Shared.Products)
 local Spin = require(ReplicatedStorage.Shared.Spin)
 local Telemetry = require(script.Parent.Telemetry)
+local TicketBooth = require(ReplicatedStorage.Shared.TicketBooth)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local CafePassService = {}
@@ -48,6 +49,9 @@ local function tagItems(player: Player, profile: Types.PlayerProfile): { [string
 		items[GrandOpening.TAG] = true -- #1893: the Grand Opening's tag
 	end
 	ChatTags.addAchievementTitles(items, profile.achievements) -- #3694: the big achievements' titles
+	if TicketBooth.regular(profile.tickets) then
+		items[TicketBooth.REGULAR_TAG] = true -- #4061: the Ticket Booth's Park Regular
+	end
 	local rank = ChatTags.rankTag(LeaderboardService.place(player)) -- #3333: held while the place is
 	if rank ~= nil then
 		items[rank] = true

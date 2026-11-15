@@ -110,6 +110,42 @@ return function()
 			expect(ProfileSchema.template(MONDAY).tickets.have).to.equal(0)
 		end)
 	end)
+	describe("Booth Plush Cat and Park Regular", function()
+		it(
+			"sells the plush cat once for 8,000, an exclusive booth cat that is never gold",
+			function()
+				local prize = TicketBooth.prize("boothPlush")
+				expect(prize).to.be.ok()
+				local p = prize :: TicketBooth.Prize
+				expect(p.price).to.equal(8000)
+				expect((p.limit :: TicketBooth.Limit).per).to.equal("once")
+				local def = Catalog.getCat(p.cat :: string)
+				expect(def).to.be.ok()
+				local d = def :: any
+				expect(d.exclusive).to.equal(true)
+				expect(d.source).to.equal("booth")
+				expect(d.rarity).to.equal("Legendary")
+				expect(Catalog.catModelName(d.id)).to.equal("CatCafe_Cat_BoothPlush")
+				local save = TicketBooth.fresh()
+				save.have = 20000
+				expect(TicketBooth.blocker(save, p, MONDAY)).to.equal(nil)
+				TicketBooth.spend(save, p, MONDAY)
+				expect(save.have).to.equal(12000)
+				expect(TicketBooth.blocker(save, p, MONDAY + 30 * 86400)).to.be.ok()
+			end
+		)
+
+		it("gives Park Regular from 10,000 tickets spent, a tag in ChatTags", function()
+			local ChatTags = require(Shared.ChatTags)
+			local save = TicketBooth.fresh()
+			save.spent = 9999
+			expect(TicketBooth.regular(save)).to.equal(false)
+			save.spent = 10000
+			expect(TicketBooth.regular(save)).to.equal(true)
+			expect(ChatTags.TAGS[TicketBooth.REGULAR_TAG]).to.be.ok()
+			expect(table.find(ChatTags.ORDER, TicketBooth.REGULAR_TAG)).to.be.ok()
+		end)
+	end)
 	describe("open", function()
 		it("opens from Config.TicketBoothTier (9, the Water Park)", function()
 			expect(TicketBooth.open(8)).to.equal(false)

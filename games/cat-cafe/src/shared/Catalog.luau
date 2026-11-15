@@ -1416,6 +1416,22 @@ Catalog.cats = {
 		),
 		"pass"
 	),
+	-- #4061 (Design-Agent's booth spec 1.3): the Ticket Booth's once-only 8,000 ticket prize (TicketBooth.PRIZES),
+	-- given by TicketBoothService. Earns like a Legendary from the owner's newest area. Model CatCafe_Cat_BoothPlush
+	-- (with _Sit and _Work, on its mini inner tube; Model-Agent #4404); never gold.
+	exclusive(
+		cat(
+			"booth_plush",
+			"Booth Plush Cat",
+			"Legendary",
+			"alley",
+			"entertainer",
+			"solid", -- a stitched aqua plush with a ticket tag, on a striped mini inner tube
+			{ 120, 205, 210 },
+			"Won at the Ticket Booth. Bobs on its little inner tube and squeaks when patted."
+		),
+		"booth"
+	),
 	-- #3470: the first three Secret cats (Design-Agent's names and looks; Model-Agent's CatCafe_Cat_Nebula, _Glitch
 	-- and _CafeGhost, the placeholder body until they land). The `alley` here only feeds the helper: `secret` takes
 	-- the area away. #4221: one Secret per area (Design-Agent's secret-per-area spec): Cafe Ghost is the Alleyway's,

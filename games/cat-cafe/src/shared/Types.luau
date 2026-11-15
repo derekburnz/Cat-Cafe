@@ -788,6 +788,9 @@ export type Stats = {
 	-- seen; golden fish offers wait Config.TradeFishPassHoldSeconds after it. A number in stats with a default, so no
 	-- save version (a server without it drops it, and the hold then reads as long past)
 	pondPassAt: number,
+	-- #2745: 1 once this save has been seen owning the Golden Pond pass (a buy on the website or before joining never
+	-- fires the in-game purchase, so the first sighting starts the hold too); 0 before
+	pondSeen: number,
 	goldCatches: number,
 	rainbowCatches: number, -- F99: rainbow cats added by net, rescue or bait
 	tipPilesCollected: number,

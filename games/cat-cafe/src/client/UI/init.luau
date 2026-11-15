@@ -1127,6 +1127,8 @@ function UI.init(config: Types.InitConfig)
 				UI.lateStations.openBooth() -- #4061: no kiosk in the world yet, so this is its way in
 			elseif stationId == "dragon" then
 				UI.lateStations.openKeep() -- #4062: no Keep in the world yet, so this is its way in
+			elseif stationId == "fusion" then
+				UI.lateStations.openFusion() -- #4104: the Observatory's way in until its dome has a prompt
 			else
 				UI.lateStations.open(stationId, true)
 			end
@@ -8178,6 +8180,7 @@ do
 	local RelicMuseum = require(script.Screens.RelicMuseum)
 	local TicketBooth = require(script.Screens.TicketBooth) -- #4061
 	local DragonKeepScreen = require(script.Screens.DragonKeep) -- #4062
+	local FusionScreen = require(script.Screens.FusionObservatory) -- #4104
 	local StationFixtures = require(script.Components.StationFixtures) -- Studio only (#4103)
 	local SharedConfig =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
@@ -8188,6 +8191,7 @@ do
 		museum = "RelicMuseum",
 		ticketBooth = "TicketBooth",
 		dragon = "DragonKeep",
+		fusion = "FusionObservatory",
 	}
 	local late = {
 		anywhere = false, -- #3213: the open card came from the Cannon menu, so walking away does not close it
@@ -8196,6 +8200,7 @@ do
 		museum = nil :: RelicMuseum.RelicMuseum?,
 		booth = nil :: TicketBooth.TicketBooth?, -- #4061
 		keep = nil :: DragonKeepScreen.DragonKeep?, -- #4062
+		fusion = nil :: FusionScreen.FusionObservatory?, -- #4104
 		test = nil :: { [string]: any }?, -- Studio only: StationFixtures views in place of PlayerState's (#4103)
 		testLink = nil :: RBXScriptConnection?,
 		boothPrompt = nil :: RBXScriptConnection?, -- #4061: TicketBoothPrompt's Triggered
@@ -8370,6 +8375,27 @@ do
 				keep:closed()
 			end,
 		})
+		-- #4104: the Fusion Observatory window (PlayerState.fusion; the dome's prompt comes with its model)
+		local fusion = FusionScreen.new({
+			start = function(uids: { string }, keepTraitUid: string?)
+				send("StartFusion", uids, keepTraitUid)
+			end,
+			collect = function()
+				send("CollectFusion")
+			end,
+			close = closer(WINDOWS.fusion),
+		})
+		late.fusion = fusion
+		modalView:register(WINDOWS.fusion, {
+			frame = fusion.frame,
+			onOpen = function()
+				UI.lateStations.paintFusion(state)
+				fusion:opened()
+			end,
+			onClose = function()
+				fusion:closed()
+			end,
+		})
 		-- the kiosk's own prompt (TicketBoothPrompt, placed by the server with the model) opens it the same way, and so
 		-- does the Keep's (DragonKeepPrompt) once its model is placed
 		late.boothPrompt = ProximityPromptService.PromptTriggered:Connect(
@@ -8378,6 +8404,8 @@ do
 					UI.lateStations.openBooth()
 				elseif prompt.Name == "DragonKeepPrompt" then
 					UI.lateStations.openKeep() -- #4062: the Keep's own prompt, once its model is placed
+				elseif prompt.Name == "FusionObservatoryPrompt" then
+					UI.lateStations.openFusion() -- #4104: the dome's own prompt, once the server places it
 				end
 			end
 		)
@@ -8385,16 +8413,19 @@ do
 		museum:render(state)
 		booth:setView(UI.lateStations.boothView(state))
 		UI.lateStations.paintKeep(state)
+		UI.lateStations.paintFusion(state)
 		paint()
-		-- Studio only (Review-QA, #4103): Workspace attribute StationTest "booth", "keep" or "keephand" opens that window
+		-- Studio only (Review-QA, #4103): Workspace attribute StationTest (StationFixtures' names) opens that window
 		-- with StationFixtures' view, so its look can be checked before its tier exists in the test place; "" clears it.
 		-- Presses still go to the server, which refuses them below the tier.
 		if RunService:IsStudio() then
 			late.testLink = Workspace:GetAttributeChangedSignal("StationTest"):Connect(function()
 				local which = Workspace:GetAttribute("StationTest")
+				local current: any = state
 				local views, stationId = StationFixtures.views(
 					if type(which) == "string" then which else "",
-					Workspace:GetServerTimeNow()
+					Workspace:GetServerTimeNow(),
+					if current ~= nil then current.cats else nil
 				)
 				local wasTest = late.test ~= nil
 				late.test = views
@@ -8414,6 +8445,8 @@ do
 					UI.lateStations.openBooth()
 				elseif stationId == "dragon" then
 					UI.lateStations.openKeep()
+				elseif stationId == "fusion" then
+					UI.lateStations.openFusion()
 				end
 			end)
 		end
@@ -8451,6 +8484,41 @@ do
 				keepBusy(playerState)
 			)
 		end
+	end
+
+	-- #4104: PlayerState.fusion, nil while the switch is off or below its tier (false from UIController)
+	function UI.lateStations.fusionView(playerState: any): any
+		return stationView(playerState, "fusion")
+	end
+
+	function UI.lateStations.paintFusion(playerState: any)
+		local fusion = late.fusion
+		if fusion and playerState ~= nil then
+			local test = late.test
+			fusion:setView(
+				UI.lateStations.fusionView(playerState),
+				if test ~= nil and test.cats ~= nil then test.cats else playerState.cats, -- Studio StationTest copies
+				keepBusy(playerState),
+				{
+					base = playerState.collection,
+					gold = playerState.goldCollection,
+					rainbow = playerState.rainbowCollection,
+				}
+			)
+		end
+	end
+
+	-- #4104: the Fusion Observatory window from anywhere (its prompt, the Cannon picker, a test), or a toast while shut
+	function UI.lateStations.openFusion()
+		local modalView = modal
+		if modalView == nil or late.fusion == nil then
+			return
+		end
+		if UI.lateStations.fusionView(state) == nil then
+			UI.toast("The Fusion Observatory opens with Snowy Mountain", "info")
+			return
+		end
+		modalView:open(WINDOWS.fusion)
 	end
 
 	-- #4062: the Dragon Keep window from anywhere (its prompt, the Cannon picker, after the stage cutscene), or a toast
@@ -8491,6 +8559,7 @@ do
 			booth:setView(UI.lateStations.boothView(playerState))
 		end
 		UI.lateStations.paintKeep(playerState)
+		UI.lateStations.paintFusion(playerState)
 		local spa = late.spa
 		if spa then
 			spa:render(playerState)
@@ -8580,6 +8649,11 @@ do
 			keep:destroy()
 		end
 		late.keep = nil
+		local fusion = late.fusion
+		if fusion then
+			fusion:destroy()
+		end
+		late.fusion = nil
 		local testLink = late.testLink
 		if testLink then
 			testLink:Disconnect()
@@ -8690,6 +8764,7 @@ do
 			cannonScreen:setTraits((playerState :: any).traits) -- the Park card's strip in the Cannon menu
 			cannonScreen:setBooth((playerState :: any).ticketBooth) -- #4061: the Water Park card's Ticket Booth
 			cannonScreen:setKeep((playerState :: any).dragon) -- #4062: the Castle card's Dragon Keep
+			cannonScreen:setFusion((playerState :: any).fusion) -- #4104: the Snowy Mountain card's Observatory
 		end
 		local card = pool.card
 		if card then

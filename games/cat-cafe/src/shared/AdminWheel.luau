@@ -178,15 +178,23 @@ function AdminWheel.catFor(
 	prize: Prize,
 	tier: number,
 	secretOn: boolean,
-	roll: number
+	roll: number,
+	secretAreasOn: boolean?
 ): Types.CatDef?
 	if prize.cat == nil then
 		return nil
 	end
-	local pool = if prize.cat == "secret"
-			and secretOn
-			and #Catalog.secretCats > 0
-		then Catalog.secretCats
+	-- #4221: the seven one-per-area Secrets (secretNew) only once `secretAreas` is on, as in Catching.secret
+	local secrets: { Types.CatDef } = {}
+	if secretOn then
+		for _, def in Catalog.secretCats do
+			if secretAreasOn or not def.secretNew then
+				table.insert(secrets, def)
+			end
+		end
+	end
+	local pool = if prize.cat == "secret" and #secrets > 0
+		then secrets
 		else AdminWheel.mythicals(tier)
 	if #pool == 0 then
 		return nil

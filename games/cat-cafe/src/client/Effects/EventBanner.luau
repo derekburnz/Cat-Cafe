@@ -232,7 +232,8 @@ function EventBanner.shapeModels(only: { string }?): { string }
 		if #names >= Presets.eventBanner.shapeMost then
 			break
 		end
-		if only == nil or table.find(only, def.id) ~= nil then
+		-- #4221: the seven one-per-area Secrets (secretNew) have their own update, never this card
+		if not def.secretNew and (only == nil or table.find(only, def.id) ~= nil) then
 			table.insert(names, Catalog.catModelName(def.id))
 		end
 	end

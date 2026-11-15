@@ -114,6 +114,7 @@ local CARD_PAD = 10 -- inside a card, round its picture, words and button
 -- a grid card (and a top pick): the picture and name side by side, what it does under them, the button at the foot
 local TILE = 52
 local GLYPH_PAD = 0.18 -- the emoji's inset top and bottom in its tile
+local TILE_CORNER = UDim.new(0.26, 0) -- a picture tile's round corners; an outfit pack's picture takes the same
 local PICTURE_SCALE = 1.4 -- #1738: a picture over its whole tile, past its clear margin (art about 85% of the tile)
 local EFFECT_MIN = 48 -- three small lines at least
 local PERK_H = 20 -- #2147: the gold "+15% money" chip over a card's words
@@ -939,7 +940,7 @@ function Store._makeCard(
 		BorderSizePixel = 0,
 		Parent = card,
 	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0.26, 0) }),
+		Create("UICorner", { CornerRadius = TILE_CORNER }),
 		Create("UIGradient", { Rotation = 90, Color = TILE_FILL }),
 	})
 	Outline.border(tile, if hero then 4 else 3)
@@ -1299,11 +1300,14 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?, line: string?)
 			IconArt.setImages(entry.glyph, images, if row.pack then 1 else PICTURE_SCALE)
 			local picture = entry.glyph:FindFirstChild("IconArt")
 			if picture and picture:IsA("ImageLabel") then
+				-- #4593 (Derek 11-15: "store images for packs still look like they r sticking out of boxes"): the
+				-- picture's corners were the card's small radius while the tile's are much rounder, so its four
+				-- corners stood out past the tile and over its outline. They take the tile's own corners.
 				local corner = picture:FindFirstChild("PackCorner")
 				if row.pack and corner == nil then
 					Create("UICorner", {
 						Name = "PackCorner",
-						CornerRadius = UDim.new(0, Theme.sizes.radius),
+						CornerRadius = TILE_CORNER,
 						Parent = picture,
 					})
 				elseif not row.pack and corner then

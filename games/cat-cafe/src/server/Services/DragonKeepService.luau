@@ -15,6 +15,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
+local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local CafeService = require(script.Parent.CafeService)
@@ -135,6 +136,13 @@ local function onGive(player: Player, rawUids: unknown, rawConfirmed: unknown)
 	CafeService.sync(player)
 end
 
+-- #4447: the net's extra reach (the Long Net and the reach cards) as NetExtraStuds, for the client's reach glow;
+-- MysteryMarketService sets it the same way at join and on a Long Net buy.
+local function applyReach(player: Player, profile: Types.PlayerProfile)
+	local extra = NetSwing.extraForProfile(profile)
+	player:SetAttribute("NetExtraStuds", if extra > 0 then extra else nil)
+end
+
 local function onPick(player: Player, rawIndex: unknown, rawSlot: unknown)
 	local profile = ready(player)
 	local index = Guard.int(rawIndex, 1, DragonKeep.HAND_SIZE)
@@ -151,6 +159,7 @@ local function onPick(player: Player, rawIndex: unknown, rawSlot: unknown)
 	Economy.settle(profile, os.time(), ClockService.epoch()) -- a card can change the rate (follow-up effects)
 	local kind = save.queue[1]
 	local id = DragonKeep.pick(save, index, slot)
+	applyReach(player, profile)
 	Telemetry.custom(player, "dragon_card", save.stage, { id, kind })
 	deal(player, profile)
 	CafeService.sync(player)
@@ -190,6 +199,7 @@ local function onSlot(player: Player, rawId: unknown, rawSlot: unknown)
 	end
 	Economy.settle(profile, os.time(), ClockService.epoch())
 	DragonKeep.slot(profile.dragon, id, slot)
+	applyReach(player, profile)
 	CafeService.sync(player)
 end
 

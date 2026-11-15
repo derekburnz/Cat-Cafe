@@ -2920,7 +2920,7 @@ local function landSwing(player: Player)
 			end
 		end
 	end
-	local picked = NetSwing.pick(origin, look, targets, NetSwing.extraFor(profile.mystery)) -- #2565: the Long Net
+	local picked = NetSwing.pick(origin, look, targets, NetSwing.extraForProfile(profile)) -- #2565, #4447
 	-- #2774: a beginner's swing near their own tutorial stray lands on it whichever way they face
 	if picked == nil and profile.tutorialStep < Config.TutorialGuaranteedStrayStep then
 		for _, target in targets do

@@ -6,6 +6,7 @@
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
+local DragonKeep = require(script.Parent.DragonKeep)
 local Types = require(script.Parent.Types)
 
 local NetSwing = {}
@@ -41,6 +42,13 @@ function NetSwing.extraFor(owned: { [string]: boolean }?): number
 		return math.max(0, Config.LongNetReachStuds - Config.NetReachStuds)
 	end
 	return 0
+end
+
+-- #4447: every extra reach a profile has, in studs: the Long Net's (extraFor) plus the Dragon Keep's reach cards as a
+-- share of NetReachStuds (DragonKeep.of, only while its switch is on). The server's swing and the NetExtraStuds
+-- attribute for the client's glow both read it.
+function NetSwing.extraForProfile(profile: Types.PlayerProfile): number
+	return NetSwing.extraFor(profile.mystery) + Config.NetReachStuds * DragonKeep.of(profile).reach
 end
 
 -- True when `point` is in the swing from a root at `origin` facing `look`: within reach in 3D, so a cat up on a perch

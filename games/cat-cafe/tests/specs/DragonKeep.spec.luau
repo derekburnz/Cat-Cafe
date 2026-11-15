@@ -351,11 +351,31 @@ return function()
 			end
 		)
 
+		it("adds reach cards to the net, held to REACH_CAP, only with the switch on", function()
+			local NetSwing = require(Shared.NetSwing)
+			local Config = require(Shared.Config)
+			local profile = ProfileSchema.migrate({ version = 49 }, T) :: any
+			-- Sharp Eye plus two more Claw cards light the Claw set: 0.03 + 0.03, held to 0.05
+			profile.dragon = withSlots({ "sharpEye", "quickPaws", "steadyClaw" })
+			DragonKeep.setOn(false)
+			expect(NetSwing.extraForProfile(profile)).to.equal(0)
+			DragonKeep.setOn(true)
+			local extra = NetSwing.extraForProfile(profile)
+			DragonKeep.setOn(nil)
+			expect(math.abs(extra - Config.NetReachStuds * DragonKeep.REACH_CAP) < 1e-9).to.equal(
+				true
+			)
+			expect(extra < Config.LongNetReachStuds - Config.NetReachStuds).to.equal(true)
+		end)
+
 		it("names only real cards in its tables", function()
 			for id in DragonKeep.MONEY do
 				expect(DragonKeep.card(id)).to.be.ok()
 			end
 			for id in DragonKeep.TIPS do
+				expect(DragonKeep.card(id)).to.be.ok()
+			end
+			for id in DragonKeep.REACH do
 				expect(DragonKeep.card(id)).to.be.ok()
 			end
 		end)

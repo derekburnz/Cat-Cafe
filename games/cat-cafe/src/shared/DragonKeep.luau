@@ -1008,6 +1008,9 @@ DragonKeep.TIPS = { warmTips = 0.04, emberTips = 0.08 } :: { [string]: number } 
 DragonKeep.SET_MONEY = { flame = 0.05 } :: { [string]: number }
 DragonKeep.LUCK = 0.05 -- Lucky Scale: +5% bowl luck (a Luck source, inside LuckMax)
 DragonKeep.GOLD_LUCK = 0.10 -- Gold Fever: +0.10 gold luck, inside GoldLuckMax with the Index's
+DragonKeep.REACH = { sharpEye = 0.03 } :: { [string]: number } -- share of NetReachStuds added to the net's reach
+DragonKeep.SET_REACH = { claw = 0.03 } :: { [string]: number }
+DragonKeep.REACH_CAP = 0.05 -- card reach in total, so it stays under the Long Net's +1 stud
 DragonKeep.TICKET_BONUS = 0.25 -- Ticket Dragon: +25% Ticket Booth tickets (rounded down a catch)
 DragonKeep.REPEAT_FISH = 1 -- Fish Scale: a repeat Epic or better catch gives +1 golden fish
 
@@ -1018,14 +1021,16 @@ export type Effects = {
 	repeatFish: number,
 	luck: number,
 	goldLuck: number,
+	reach: number,
 }
 
 function DragonKeep.effects(save: Types.DragonSave): Effects
-	local money, tips, tickets, repeatFish, luck, goldLuck = 0, 0, 0, 0, 0, 0
+	local money, tips, tickets, repeatFish, luck, goldLuck, reach = 0, 0, 0, 0, 0, 0, 0
 	for _, id in save.slots do
 		if cardsById[id] ~= nil then
 			money += DragonKeep.MONEY[id] or 0
 			tips += DragonKeep.TIPS[id] or 0
+			reach += DragonKeep.REACH[id] or 0
 			if id == "ticketDragon" then
 				tickets = DragonKeep.TICKET_BONUS
 			elseif id == "fishScale" then
@@ -1039,7 +1044,9 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 	end
 	for _, family in DragonKeep.sets(save) do
 		money += DragonKeep.SET_MONEY[family] or 0
+		reach += DragonKeep.SET_REACH[family] or 0
 	end
+	reach = math.min(reach, DragonKeep.REACH_CAP)
 	money = math.min(money, DragonKeep.MONEY_CAP)
 	tips = math.min(tips, DragonKeep.MONEY_CAP - money)
 	return {
@@ -1049,6 +1056,7 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 		repeatFish = repeatFish,
 		luck = luck,
 		goldLuck = goldLuck,
+		reach = reach,
 	}
 end
 
@@ -1065,6 +1073,7 @@ local NONE: Effects = table.freeze({
 	repeatFish = 0,
 	luck = 0,
 	goldLuck = 0,
+	reach = 0,
 }) :: any
 function DragonKeep.of(profile: Types.PlayerProfile): Effects
 	local on = if onOverride ~= nil

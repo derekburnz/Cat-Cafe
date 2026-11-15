@@ -253,11 +253,12 @@ function FusionLogic.duration(seconds: number): string
 	return ("%d min"):format(minutes)
 end
 
+-- #4590: the server's 0 means instant (Config, #4556), so only a missing value falls back to the old times
 function FusionLogic.seconds(view: any, coat: string): number
 	local value = if view ~= nil
 		then (if coat == "rainbow" then view.rainbowSeconds else view.goldSeconds)
 		else nil
-	if type(value) == "number" and value > 0 then
+	if type(value) == "number" and value >= 0 then
 		return value
 	end
 	return if coat == "rainbow" then 3600 else 600

@@ -12784,6 +12784,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			fits(confirm, "Title")
 			fits(confirm, "Result")
 			fits(confirm, "Time")
+			-- #4590 (Derek): fusion is instant on main (0 seconds), so the card shows no "Ready in" time
+			local timeLine = confirm:FindFirstChild("Time", true) :: TextLabel
+			assert(string.find(timeLine.Text, "Ready in 10 min", 1, true), "uigate: a 600 s fusion reads " .. timeLine.Text .. " (#4104)")
+			UI.update({ fusion = { goldSeconds = 0, rainbowSeconds = 0, made = { gold = 0, rainbow = 0 } } } :: any)
+			UIShim.advance(0.1)
+			assert(confirm.Visible and not string.find(timeLine.Text, "Ready", 1, true), "uigate: an instant fusion still reads " .. timeLine.Text .. " (#4590)")
+			UI.update({ fusion = view } :: any)
+			UIShim.advance(0.1)
 			local copies = confirm:FindFirstChild("Copies", true) :: GuiObject
 			local ticked = 0
 			for _, cell in copies:GetChildren() do
@@ -12795,6 +12803,18 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				end
 			end
 			assert(ticked == 5, ("uigate: %d copies ticked, not 5 (#4104)"):format(ticked))
+			-- #4563: the copies sit in one even row (a sideways strip), never a squashed second row
+			local rowY, tileH = nil, nil
+			for _, cell in copies:GetChildren() do
+				if cell:IsA("GuiObject") and cell.Visible and string.match(cell.Name, "^Copy%d+$") then
+					rowY = rowY or cell.AbsolutePosition.Y
+					tileH = tileH or cell.AbsoluteSize.Y
+					assert(math.abs(cell.AbsolutePosition.Y - rowY) < 1 and math.abs(cell.AbsoluteSize.Y - tileH) < 1, "uigate: " .. cell.Name .. " left the copies' one row (#4563)")
+					assert(cell.AbsolutePosition.Y + cell.AbsoluteSize.Y <= copies.AbsolutePosition.Y + copies.AbsoluteSize.Y + 1, "uigate: " .. cell.Name .. " is cut off at the strip's foot (#4563)")
+				end
+			end
+			local foot = confirm:FindFirstChild("Foot", true) :: GuiObject
+			assert(foot.AbsolutePosition.Y >= copies.AbsolutePosition.Y + copies.AbsoluteSize.Y - 1, "uigate: the confirm's foot covers the copies (#4563)")
 			local result = (confirm:FindFirstChild("Result", true) :: TextLabel).Text
 			assert(string.find(result, "Lv 12", 1, true) and string.find(result, "Mochi", 1, true), "uigate: the result reads " .. result .. " (#4104)")
 			local chip = confirm:FindFirstChild("Trait1", true) :: GuiObject
@@ -12807,6 +12827,15 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			assert(#sent == 0 and string.find(goText.Text, "Tap again", 1, true) and goText.TextFits, "uigate: the first Fuse tap did not ask, it reads " .. goText.Text .. " (#4104)")
 			press("FusionObservatory", "FuseGo")
 			assert(#sent == 1 and sent[1].remote == "StartFusion" and #sent[1].a == 5 and sent[1].b == "t2", "uigate: Tap again sent no StartFusion with five cats and Mochi's trait (#4104)")
+			-- #4602: once the card shuts after the swirl, every copy tile has its look back for the next fusion
+			UIShim.advance(3.5)
+			assert(not confirm.Visible, "uigate: the confirm card stayed open after Fuse (#4104)")
+			for _, cell in copies:GetChildren() do
+				if cell:IsA("GuiObject") and string.match(cell.Name, "^Copy%d+$") then
+					local edge = cell:FindFirstChildOfClass("UIStroke") :: UIStroke
+					assert(cell.BackgroundTransparency < 1 and edge.Enabled, "uigate: " .. cell.Name .. " stayed see-through after a fusion (#4602)")
+				end
+			end
 			-- the dome running, then ready
 			view = table.clone(view)
 			view.running = { catId = "tabby", coat = "gold", doneAt = workspace:GetServerTimeNow() + 402, level = 12, name = "Mochi" }

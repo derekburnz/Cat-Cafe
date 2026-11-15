@@ -1001,6 +1001,14 @@ function FusionObservatory._placeConfirm(self: any)
 	self._foot.Position = UDim2.fromOffset(0, HEAD_H + stripH + 4)
 end
 
+function FusionObservatory._restoreTiles(self: any)
+	local restore: (() -> ())? = self._restore
+	self._restore = nil
+	if restore then
+		restore()
+	end
+end
+
 function FusionObservatory._groupByKey(self: any, key: string?): FusionLogic.Group?
 	if key == nil then
 		return nil
@@ -1025,6 +1033,7 @@ function FusionObservatory._openConfirm(self: any, key: string)
 	end
 	self._keep = nil
 	self._armed = false
+	self:_restoreTiles()
 	self._confirm.Visible = true
 	self:_paintConfirm()
 	self:_placeConfirm()
@@ -1191,7 +1200,7 @@ function FusionObservatory._paintConfirm(self: any)
 			then FusionLogic.fuseText(group, self._armed)
 			else ("Pick %d more"):format(FusionLogic.COPIES - #picked)
 	)
-	self._fuseButton:setEnabled(ready)
+	self._fuseButton:setEnabled(ready and not self._fusing)
 end
 
 function FusionObservatory._fuse(self: any)
@@ -1229,15 +1238,19 @@ function FusionObservatory._fuse(self: any)
 			table.insert(tiles, made.cell)
 		end
 	end
+	-- #4602 (Derek: "sometimes when clicking fuse it doesn't show any of your cats"): with instant fusion the card
+	-- could stay open over a second ready set and Fuse came back on mid swirl; a second hide then saved the
+	-- see-through look as the tiles' own and its restore left every copy invisible. One hide at a time, Fuse stays
+	-- off until the card shuts, and the card puts any hidden tiles back before it shows again.
+	self:_restoreTiles()
+	self._fusing = true
 	local closed = false
-	local restore: (() -> ())? = nil
 	local function close()
 		if not closed then
 			closed = true
+			self._fusing = false
 			self:_closeConfirm()
-			if restore then
-				restore() -- the card is shut by now, so the tiles are ready for the next fusion
-			end
+			self:_restoreTiles() -- the card is shut by now, so the tiles are ready for the next fusion
 		end
 	end
 	if fx and type(fx.swirl) == "function" and #tiles > 0 then
@@ -1245,7 +1258,7 @@ function FusionObservatory._fuse(self: any)
 		local ok = pcall(fx.swirl, tiles, self._dome, group.next, close)
 		if ok then
 			if not closed then
-				restore = hideTiles(tiles) -- the swirl has its copies; the five originals go see-through in the same frame
+				self._restore = hideTiles(tiles) -- the swirl has its copies; the five originals go see-through at once
 			end
 			task.delay(3, close) -- never left open if the effect stops early
 			return

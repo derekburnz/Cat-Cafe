@@ -12790,6 +12790,15 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			assert(#sent == 0 and string.find(goText.Text, "Tap again", 1, true) and goText.TextFits, "uigate: the first Fuse tap did not ask, it reads " .. goText.Text .. " (#4104)")
 			press("FusionObservatory", "FuseGo")
 			assert(#sent == 1 and sent[1].remote == "StartFusion" and #sent[1].a == 5 and sent[1].b == "t2", "uigate: Tap again sent no StartFusion with five cats and Mochi's trait (#4104)")
+			-- #4602: once the card shuts after the swirl, every copy tile has its look back for the next fusion
+			UIShim.advance(3.5)
+			assert(not confirm.Visible, "uigate: the confirm card stayed open after Fuse (#4104)")
+			for _, cell in copies:GetChildren() do
+				if cell:IsA("GuiObject") and string.match(cell.Name, "^Copy%d+$") then
+					local edge = cell:FindFirstChildOfClass("UIStroke") :: UIStroke
+					assert(cell.BackgroundTransparency < 1 and edge.Enabled, "uigate: " .. cell.Name .. " stayed see-through after a fusion (#4602)")
+				end
+			end
 			-- the dome running, then ready
 			view = table.clone(view)
 			view.running = { catId = "tabby", coat = "gold", doneAt = workspace:GetServerTimeNow() + 402, level = 12, name = "Mochi" }

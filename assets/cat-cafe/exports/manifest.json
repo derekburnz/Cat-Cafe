@@ -474937,6 +474937,72 @@
       }
     },
     {
+      "name": "CatCafe_Square_MysterySign",
+      "category": "Square",
+      "module": "mysterysign",
+      "objects": [
+        "CatCafe_Square_MysterySign",
+        "CatCafe_Square_MysterySign_Backpack_Decor",
+        "CatCafe_Square_MysterySign_BackpackLid_Decor",
+        "CatCafe_Square_MysterySign_ShoeLeft_Decor",
+        "CatCafe_Square_MysterySign_ShoeRight_Decor"
+      ],
+      "triangles": 3856,
+      "budget": 6000,
+      "size_studs": {
+        "x": 5.32,
+        "y": 2.85,
+        "z": 7.47
+      },
+      "size_roblox": [
+        5.32,
+        7.47,
+        2.85
+      ],
+      "bounds_min": [
+        -2.66,
+        -2.3,
+        0.0
+      ],
+      "bounds_max": [
+        2.66,
+        0.55,
+        7.47
+      ],
+      "pivot": "the base centre between its posts on the square's floor (world y 0.1), front -Z; mysterysign.SPOT, beside the Mystery Market wagon, facing the player spawn",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [],
+      "placement_suggested_roblox": [
+        -37.1,
+        0.1,
+        -58.4,
+        -140.1
+      ],
+      "studio": "#4508: the Mystery Market's signboard beside Juniper's wagon (suggested spot mysterysign.SPOT): NEW ITEMS, the Backpack on a peg and the Speed Shoes on a shelf with their names, and a gold arrow on top pointing at the wagon (+X). The item parts (_Decor) never collide. A picture of the shelf, not a live list: rebuild when the shelf changes.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_MysterySign.model.json",
+      "rbx_parts": 258,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_MysterySign.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_MysterySign.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "3856/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1799 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.88"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Cat_PumpkinSpice_Gold",
       "category": "Cat",
       "module": "gold",

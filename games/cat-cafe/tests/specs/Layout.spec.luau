@@ -2408,6 +2408,43 @@ return function()
 		)
 
 		it(
+			"stands the Mystery Market's signboard beside the wagon, facing the spawn (#4508)",
+			function()
+				local sign: any = nil
+				for _, prop in square.props :: { any } do
+					if prop.asset == "CatCafe_Square_MysterySign" then
+						expect(sign).to.equal(nil) -- one board
+						sign = prop
+					end
+				end
+				expect(sign).to.be.ok()
+				local cart = Layout.mysteryCart
+				local apart = math.sqrt((sign.x - cart.x) ^ 2 + (sign.z - cart.z) ^ 2)
+				-- beside the wagon (10.2 x 5.7): past its end, and close enough to read as the wagon's own board
+				expect(apart > 7).to.equal(true)
+				expect(apart < 12).to.equal(true)
+				-- about 5.4 wide and 3 deep (the manifest); every corner, turned, stays on the square off the lanes
+				local yaw = math.rad(sign.rotY or 0)
+				local cos, sin = math.cos(yaw), math.sin(yaw)
+				for _, corner in { { -2.7, -2.2 }, { 2.7, -2.2 }, { -2.7, 0.7 }, { 2.7, 0.7 } } do
+					local x = sign.x + corner[1] * cos + corner[2] * sin
+					local z = sign.z - corner[1] * sin + corner[2] * cos
+					expect(inside(x, z, square.floor, 2)).to.equal(true)
+					for _, lane in lanes do
+						expect(inside(x, z, lane, -0.5)).to.equal(false)
+					end
+				end
+				local spawn = Layout.playerSpawn
+				local toX, toZ = spawn.x - sign.x, spawn.z - sign.z
+				local length = math.sqrt(toX ^ 2 + toZ ^ 2)
+				expect((-sin * toX - cos * toZ) / length > 0.99).to.equal(true)
+				-- the arrow on its top points along the board's +X (cos, -sin): toward the wagon
+				local cartX, cartZ = cart.x - sign.x, cart.z - sign.z
+				expect((cos * cartX - sin * cartZ) / apart > 0.7).to.equal(true)
+			end
+		)
+
+		it(
 			"stands the decor stand beside the Golden Fish Market, facing the spawn (#4516)",
 			function()
 				local stand: any = nil

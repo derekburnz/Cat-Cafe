@@ -2166,6 +2166,21 @@ local function buildCampStations(parent: Instance)
 		DragonKeep.FLAG,
 		8.5
 	)
+	-- #4104: the Snowy Mountain's Fusion Observatory (tag and name FusionObservatory, prompt FusionObservatoryPrompt,
+	-- switch fusion), its prompt 0.8 in front of its 13 deep front
+	x, y, z, turn = Layout.fusionObservatoryAt()
+	buildCampStation(
+		parent,
+		"CatCafe_Camp_Snowy_FusionObservatory",
+		x,
+		y,
+		z,
+		turn,
+		"FusionObservatory",
+		"Fusion Observatory",
+		"fusion", -- shared/Fusion.FLAG
+		7.3
+	)
 end
 
 -- #2651 part 4 (late-stations.md): the Oasis Spa and the Relic Museum, each LateStations.stations model at

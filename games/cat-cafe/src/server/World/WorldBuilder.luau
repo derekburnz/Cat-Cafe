@@ -1424,6 +1424,10 @@ end
 -- the camp (its set's circles, edging and props, the cannon, the gate, the Index Board and the camp extras) and of
 -- the stripe, the widest that fit, and none when nothing does. Flat paving (blocks thinner than 3 hundredths) is what
 -- they are painted on, so it is not an obstacle, and neither is the ground slab or the stripe.
+-- #4619 (Derek 11-15: "safe zone is hovering over dragon circle"): a camp station's ring leaves the world while its
+-- switch is off (buildCampStation), and the switches are not read yet when the world is built, so the words never
+-- saw it and were painted inside the Dragon Keep's ring. Those rings are kept here and always count.
+local campStationRings: { BasePart } = {}
 local SIGNS = { -1, 1 }
 local SAFE_SKIP = { Ground = true, CampFloor = true, SafeLine = true, SafeZoneWords = true }
 
@@ -1440,6 +1444,31 @@ local function paintCampWords(
 	-- the walk-up rings near the words (Derek 2026-11-12: "move the safezone text", painted inside the Mystic Pool's
 	-- ring): kept apart from what stands on the floor, so the words can fall back to ignoring them
 	local rings: { SafeWords.Box } = {}
+	local counted: { [BasePart]: boolean } = {}
+	-- a ring is unseen and flat (its SurfaceGui draws it), so the checks on what stands on the floor would pass it by
+	local function addRing(piece: BasePart)
+		local radius = piece:GetAttribute("Radius")
+		if counted[piece] or type(radius) ~= "number" then
+			return
+		end
+		counted[piece] = true
+		local where = piece.Position
+		local at = base:PointToObjectSpace(Vector3.new(where.X, floorY, where.Z))
+		if
+			math.abs(where.Y - floorY) < 3
+			and at.Z + radius > -SafeWords.MAX_DEPTH - SafeWords.GAP - 1
+			and at.Z - radius < 0
+			and at.X + radius > -camp.halfAcross - 1
+			and at.X - radius < camp.halfAcross + 1
+		then
+			table.insert(rings, {
+				x1 = at.X - radius,
+				z1 = at.Z - radius,
+				x2 = at.X + radius,
+				z2 = at.Z + radius,
+			})
+		end
+	end
 	local function add(root: Instance)
 		for _, descendant in root:GetDescendants() do
 			if not descendant:IsA("BasePart") or SAFE_SKIP[descendant.Name] then
@@ -1447,26 +1476,7 @@ local function paintCampWords(
 			end
 			local piece = descendant :: BasePart
 			if piece.Name == WalkUp.CIRCLE then
-				-- a ring is unseen and flat (its SurfaceGui draws it), so the checks below would pass it by
-				local radius = piece:GetAttribute("Radius")
-				if type(radius) == "number" then
-					local where = piece.Position
-					local at = base:PointToObjectSpace(Vector3.new(where.X, floorY, where.Z))
-					if
-						math.abs(where.Y - floorY) < 3
-						and at.Z + radius > -SafeWords.MAX_DEPTH - SafeWords.GAP - 1
-						and at.Z - radius < 0
-						and at.X + radius > -camp.halfAcross - 1
-						and at.X - radius < camp.halfAcross + 1
-					then
-						table.insert(rings, {
-							x1 = at.X - radius,
-							z1 = at.Z - radius,
-							x2 = at.X + radius,
-							z2 = at.Z + radius,
-						})
-					end
-				end
+				addRing(piece)
 				continue
 			end
 			-- a night fence is built hidden (hideForDay) and keeps its real look in an attribute
@@ -1522,10 +1532,15 @@ local function paintCampWords(
 	for _, extra in extras do
 		add(extra)
 	end
-	-- clear of the rings too where there is room; where there is none, where they went before the rings counted
+	-- #4619: the camp stations' rings too, in the world or not (a ring outside this camp is too far to count)
+	for _, piece in campStationRings do
+		addRing(piece)
+	end
+	-- clear of the rings too. #4619: where the only room is on a ring the words are left out (the stripe still marks
+	-- the line); they used to go where they went before the rings counted, across a ring's rim
 	local all = table.clone(obstacles)
 	table.move(rings, 1, #rings, #all + 1, all)
-	local spot = SafeWords.fit(all, camp.halfAcross) or SafeWords.fit(obstacles, camp.halfAcross)
+	local spot = SafeWords.fit(all, camp.halfAcross)
 	if spot == nil then
 		return
 	end
@@ -2089,7 +2104,8 @@ local function buildCampStation(
 	name: string,
 	title: string,
 	flag: string,
-	inFront: number
+	inFront: number,
+	ringRadius: number -- #4628: Layout's ring for this station, so it clears the camp's landing pad
 )
 	if x == nil or y == nil or z == nil or turn == nil or not AssetRegistry.has(asset) then
 		return
@@ -2116,12 +2132,16 @@ local function buildCampStation(
 	prompt.RequiresLineOfSight = false
 	-- #4554 (Derek 2026-11-15: "ticket booth is press e right now and missing a circle infront", and the Dragon Keep
 	-- too): the ring in front, where the window opens as you walk in (WalkUpController), as at every other station
-	WalkUpCircles.frontFit(model, RING_STATION, parent, CAMP_STATION_ICON[name])
+	-- #4620: on the camp floor (y), whatever the model has below it
+	WalkUpCircles.frontFit(model, RING_STATION, parent, CAMP_STATION_ICON[name], ringRadius, y)
 	local link = model:FindFirstChild(WalkUp.CIRCLE)
 	local ringPart: Instance? = if link ~= nil and link:IsA("ObjectValue")
 		then (link :: ObjectValue).Value
 		else nil
 	local ringHome = if ringPart ~= nil then ringPart.Parent else nil
+	if ringPart ~= nil and ringPart:IsA("BasePart") then
+		table.insert(campStationRings, ringPart :: BasePart) -- #4619: the SAFE ZONE words keep off it, shown or not
+	end
 	local attribute = LiveFlags.ATTRIBUTE_PREFIX .. flag
 	local function follow()
 		local on = ReplicatedStorage:GetAttribute(attribute) == true
@@ -2151,7 +2171,8 @@ local function buildCampStations(parent: Instance)
 		"TicketBooth",
 		"Ticket Booth",
 		TicketBooth.FLAG,
-		3.5
+		3.5,
+		Layout.ticketBooth.ring
 	)
 	x, y, z, turn = Layout.dragonKeepAt()
 	buildCampStation(
@@ -2164,7 +2185,8 @@ local function buildCampStations(parent: Instance)
 		"DragonKeep",
 		"Dragon Keep",
 		DragonKeep.FLAG,
-		8.5
+		8.5,
+		Layout.dragonKeep.ring
 	)
 	-- #4104: the Snowy Mountain's Fusion Observatory (tag and name FusionObservatory, prompt FusionObservatoryPrompt,
 	-- switch fusion), its prompt 0.8 in front of its 13 deep front
@@ -2179,7 +2201,8 @@ local function buildCampStations(parent: Instance)
 		"FusionObservatory",
 		"Fusion Observatory",
 		"fusion", -- shared/Fusion.FLAG
-		7.3
+		7.3,
+		Layout.fusionObservatory.ring
 	)
 end
 

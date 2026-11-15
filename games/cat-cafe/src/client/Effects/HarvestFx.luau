@@ -23,6 +23,7 @@ type Listener = (at: Vector3) -> ()
 
 local started = false
 local ready: { [Instance]: boolean } = {} -- each pumpkin's Ready as last seen
+local links: { [Instance]: RBXScriptConnection } = {} -- each watched pumpkin's one Ready listener
 local listeners: { Listener } = {}
 local box: Part? = nil
 local emitter: ParticleEmitter? = nil
@@ -104,16 +105,28 @@ local function changed(spot: Instance)
 	end
 end
 
+-- Forgets a pumpkin that left the world (streamed out or removed) and its listener, so one that streams back in is
+-- a first sight again and never has two listeners (one pick, one pop).
+local function forget(spot: Instance)
+	ready[spot] = nil
+	local link = links[spot]
+	if link ~= nil then
+		link:Disconnect()
+		links[spot] = nil
+	end
+end
+
 local function watch(spot: Instance)
-	if ready[spot] ~= nil then
+	ready[spot] = isReady(spot)
+	if links[spot] ~= nil then
 		return
 	end
-	ready[spot] = isReady(spot)
-	spot:GetAttributeChangedSignal(Presets.harvestFx.readyAttribute):Connect(function()
-		if spot.Parent ~= nil then
-			changed(spot)
-		end
-	end)
+	links[spot] = spot:GetAttributeChangedSignal(Presets.harvestFx.readyAttribute)
+		:Connect(function()
+			if spot.Parent ~= nil then
+				changed(spot)
+			end
+		end)
 end
 
 local function stopAir()
@@ -182,7 +195,7 @@ local function stepGlint()
 	local distances: { number } = {}
 	for spot, isUp in ready do
 		if spot.Parent == nil then
-			ready[spot] = nil
+			forget(spot)
 		elseif isUp then
 			local at = Context.positionOf(spot)
 			if at ~= nil then
@@ -206,9 +219,7 @@ function HarvestFx.start()
 		watch(spot)
 	end
 	CollectionService:GetInstanceAddedSignal(p.pumpkinTag):Connect(watch)
-	CollectionService:GetInstanceRemovedSignal(p.pumpkinTag):Connect(function(spot: Instance)
-		ready[spot] = nil
-	end)
+	CollectionService:GetInstanceRemovedSignal(p.pumpkinTag):Connect(forget)
 	task.spawn(function()
 		while true do
 			stepAir()

@@ -1287,3 +1287,22 @@ Ten new Secret cats, each one rung above the Mythicals. Data only (`Presets.sign
 | Arrival | A 10 stud ring and a 12 piece sparkle burst where it lands as a stray | Once per stray |
 
 The dark haze, the beam of starlight and the taller catch pop every Secret has are in `SecretStray`, `Catch` and `Pull` (#3470).
+
+## Harvest Hollow (#4251, 2026-11-15)
+The limited autumn area, Wed Nov 25 to Sun Dec 6. All client side and listening only (`Effects/HarvestFx`, plus data rows), so each piece starts when the server's part is in the world.
+
+| Effect | What | Budget |
+|---|---|---|
+| The air | Amber, gold and rust leaves fall slowly round you within 130 studs of the Thankful Board | 1 emitter, Rate 8; a fifth with Reduce Motion, none in Low performance |
+| Pumpkin picked | An orange pop and a ring where a patch pumpkin stood, for anyone's pick near you, with a soft pluck (`harvestPick`) | 10 pieces and one ring a pick; the sound at most every 0.3 s |
+| Pumpkin back | A small sprout of green sparkles when one regrows | 5 pieces |
+| Pick me | Every 5 s the nearest 3 ready pumpkins within 60 studs give a small gold glint | 2 pieces each; none with Reduce Motion or in Low performance |
+| Feast Pie slice | A slice baked while you are in the area: gold sparkles and a ring at the board; the last slice adds confetti and a gold beam | 12 pieces; no beam with Reduce Motion |
+| The creek | Small glints on the nearest 4 plates and a ring now and then (`AreaWater`) | The water budget of every area |
+| The windmill | Its sails turn once every 16 s (a `_Spin` model, `Motion`) | Still with Reduce Motion |
+| Rares (Apple Pie, Cornstalk, Pumpkin Spice) | One small touch each: a glaze glint, husk flecks while it moves, a puff of cinnamon while it walks | 1 emitter, only in a slot no rarer cat nearby needs |
+| Cranberry Cat (Epic) | A glint now and then off its berries | One signature cat's rate |
+| Maple Leaf Cat (Legendary) | Leaves drift down off it, its lit leaves glint, a soft halo, glowing eyes | 3 emitters, each Rate 2 or less |
+| Harvest Moon Cat (Mythical) | Moonlit motes rise off its wheat, 5 fireflies circle it (3 on a phone), a trail while it walks, glowing eyes, a ring and burst where it lands | As the Blizzard Cat |
+
+The area's song, "Cider Lane", is in the sound list. Still to do: stray puffs in the area's colour, the strays' voices, a Studio look of all of it once the area is in the dev copy.

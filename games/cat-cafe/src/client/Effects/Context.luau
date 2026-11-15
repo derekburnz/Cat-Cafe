@@ -15,6 +15,7 @@ local Remotes = require(ReplicatedStorage.Shared.Remotes)
 
 local Logic = require(script.Parent.Logic)
 local Presets = require(script.Parent.Presets)
+local Rumble = require(script.Parent.Rumble)
 
 local Context = {}
 
@@ -158,9 +159,13 @@ end
 
 -- A short camera shake for this player (a missed catch, being shoved), fading out over `seconds`. Runs after the
 -- camera scripts each frame, so the offset never piles up; a new shake replaces one still running; off with Reduce
--- Motion or the Screen shake setting off.
+-- Motion or the Screen shake setting off. A gamepad in use buzzes with it (Effects/Rumble).
 function Context.shake(seconds: number, studs: number)
-	if Context.reducedMotion() or not Context.screenShake then
+	if not Context.screenShake then
+		return
+	end
+	Rumble.bump(seconds, studs) -- #4224: a gamepad buzzes with the bump, also with Reduce Motion (nothing moves)
+	if Context.reducedMotion() then
 		return
 	end
 	local camera = Workspace.CurrentCamera
@@ -178,6 +183,13 @@ function Context.shake(seconds: number, studs: number)
 		local k = (1 - t / seconds) * studs
 		camera.CFrame = camera.CFrame * CFrame.new(rng:NextNumber(-k, k), rng:NextNumber(-k, k), 0)
 	end)
+end
+
+-- #4224: a gamepad pulse with no camera bump (your own catch), off with the Screen shake setting off.
+function Context.rumble(seconds: number, strength: number)
+	if Context.screenShake then
+		Rumble.pulse(seconds, strength)
+	end
 end
 
 function Context.folder(): Folder

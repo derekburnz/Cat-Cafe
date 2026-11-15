@@ -2376,6 +2376,25 @@ Presets.catPoses = {
 
 Presets.shake = { seconds = 0.18, studs = 0.22 }
 
+-- Controller rumble (#4224; Effects/Rumble): a camera bump of `studs` buzzes the gamepad's big motor at `perStud` a
+-- stud, between `least` and `most` of full, for the bump's seconds kept between `shortest` and `longest`. `catch` is
+-- your own catch's pulse by rarity: light for a Common, firmer and a little longer the rarer the cat.
+Presets.rumble = {
+	perStud = 1.6,
+	least = 0.2,
+	most = 0.7,
+	shortest = 0.08,
+	longest = 0.5,
+	catch = {
+		Common = { seconds = 0.08, strength = 0.2 },
+		Rare = { seconds = 0.1, strength = 0.25 },
+		Epic = { seconds = 0.14, strength = 0.35 },
+		Legendary = { seconds = 0.2, strength = 0.45 },
+		Mythical = { seconds = 0.3, strength = 0.55 },
+		Secret = { seconds = 0.4, strength = 0.65 },
+	} :: { [string]: { seconds: number, strength: number } },
+}
+
 -- A shove (F41), a landed tackle since F74: a puff where it lands, dizzy stars over the shoved player's head and,
 -- for them, a bigger camera bump than a missed catch. The knockback itself is the engineer's, on the target's own
 -- client.

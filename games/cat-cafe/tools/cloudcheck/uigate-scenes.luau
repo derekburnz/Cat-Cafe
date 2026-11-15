@@ -6504,6 +6504,82 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		press("Collection", "rainbow.Expand")
 		assert(cards() > 0, "uigate: Expand milestones built no cards (#3064)")
 	end },
+	-- #4264 (Derek 2026-11-14: "expanded milestones index side scrolling doesn't work and the scroll bar is too small
+	-- anyways just add arrows like the cafe pass"): the expanded row has no bar and no spring back; ◀ and ▶ sit either
+	-- side of it, page a whole number of cards, are dimmed at the ends, and the canvas ends just after the last card
+	{ "IndexMilestoneArrows", function()
+		UI.open("Collection")
+		press("Collection", "RainbowTab")
+		press("Collection", "rainbow.Header.Rewards")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true)
+		local section = window and window:FindFirstChild("rainbow", true)
+		local row = section and section:FindFirstChild("All", true) :: ScrollingFrame
+		local holder = row and row.Parent :: GuiObject
+		if holder and not holder.Visible then -- an earlier scene may have left it open (IndexRainbowLuck)
+			press("Collection", "rainbow.Expand")
+		end
+		assert(row and holder.Name == "Row" and holder.Visible, ("uigate: Expand milestones opened no row (%s in %s, #4264)"):format(tostring(row), tostring(holder)))
+		local left = holder:FindFirstChild("PageLeft") :: GuiObject
+		local right = holder:FindFirstChild("PageRight") :: GuiObject
+		assert(left and right and left.Visible and right.Visible, "uigate: the milestones row has no ◀ ▶ arrows (#4264)")
+		assert(row.ScrollBarThickness == 0, "uigate: the milestones row still shows a scroll bar (#4264)")
+		assert(row.ElasticBehavior == Enum.ElasticBehavior.Never, "uigate: the milestones row springs back on a drag (#4264)")
+		assert(left.AbsolutePosition.X + left.AbsoluteSize.X <= row.AbsolutePosition.X + 0.5, "uigate: ◀ overlaps the milestones")
+		assert(right.AbsolutePosition.X >= row.AbsolutePosition.X + row.AbsoluteSize.X - 0.5, "uigate: ▶ overlaps the milestones")
+		local cards: { GuiObject } = {}
+		for _, child in row:GetChildren() do
+			if child:IsA("GuiObject") and child.Visible then
+				table.insert(cards, child)
+			end
+		end
+		table.sort(cards, function(a, b)
+			return a.LayoutOrder < b.LayoutOrder
+		end)
+		assert(#cards >= 6, "uigate: the rainbow row shows only " .. #cards .. " cards")
+		local function at(): number
+			return row.CanvasPosition.X
+		end
+		for _ = 1, 20 do
+			press("Collection", "rainbow.PageLeft")
+		end
+		assert(at() == 0 and left:GetAttribute("CanGo") == false and right:GetAttribute("CanGo") == true,
+			("uigate: at the start the row sits at %.0f with ◀ %s, ▶ %s (#4264)"):format(at(), tostring(left:GetAttribute("CanGo")), tostring(right:GetAttribute("CanGo"))))
+		local scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").get()
+		local Theme = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Theme")
+		local step = (200 + Theme.sizes.gap) * scale
+		press("Collection", "rainbow.PageRight")
+		local moved = at() / step
+		assert(at() >= step - 0.01 and math.abs(moved - math.floor(moved + 0.5)) < 0.01,
+			("uigate: ▶ moved the row to %.1f, not a whole page of %.1f px cards (#4264)"):format(at(), step))
+		for _ = 1, 20 do
+			press("Collection", "rainbow.PageRight")
+		end
+		assert(right:GetAttribute("CanGo") == false and left:GetAttribute("CanGo") == true, "uigate: ▶ not dimmed at the end (#4264)")
+		assert(math.abs(at() - (row.AbsoluteCanvasSize.X - row.AbsoluteWindowSize.X)) < 0.5, "uigate: ▶ stopped short of the row's end (#4264)")
+		-- Review-QA (#4354): the end lands on a whole card, so the leftmost card is not cut in half
+		local ends = at() / step
+		assert(math.abs(ends - math.floor(ends + 0.5)) < 0.02, ("uigate: the row ends %.2f cards in, not on a whole card"):format(ends))
+		if math.abs(scale - 1) < 0.001 then
+			local last = cards[#cards]
+			local lastEnd = last.AbsolutePosition.X + last.AbsoluteSize.X
+			local rowEnd = row.AbsolutePosition.X + row.AbsoluteSize.X
+			assert(lastEnd <= rowEnd + 0.5 and lastEnd >= rowEnd - step - 0.5,
+				("uigate: at the end the last card ends at %.0f, the row at %.0f (#4264)"):format(lastEnd, rowEnd))
+		end
+		-- for the picture: one page back, both arrows lit, and the Index scrolled so the row shows
+		press("Collection", "rainbow.PageLeft")
+		local book = row.Parent
+		while book and not (book:IsA("ScrollingFrame") and book ~= row) do
+			book = book.Parent
+		end
+		if book then
+			local frame = book :: ScrollingFrame
+			local k = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").get()
+			local up = (holder.AbsolutePosition.Y - frame.AbsolutePosition.Y - 150) / (if k > 0 then k else 1)
+			frame.CanvasPosition = Vector2.new(0, math.max(0, frame.CanvasPosition.Y + up))
+		end
+	end },
 	-- #2270 (Derek2: "the bold text on index rewards is hard to read"): every forever pill, the NEXT sticker and the
 	-- reward band read at 4.5:1 or better against their own fill, and no turning bands sit under their words
 	{ "IndexRewardContrast", function()

@@ -13,14 +13,14 @@ R = math.radians
 
 
 def flame(mat):
-    """A fat flame: an orange body with a tall tip leaning right and a lick at its left, a gold middle and a pale
-    heart."""
+    """One tall teardrop flame: a red outer layer, an orange middle and a pale gold heart, each a round bulb under
+    a long cone, stacked toward the camera. One shape, so it still reads as a flame at 28 px."""
     b = Builder()
-    for (x, z, r, tip, lean, sw, y) in ((0.0, 0.6, 0.6, 1.0, -12, "fur_orange", 0.0), (0.03, 0.48, 0.42, 0.7, -8, "rarity_legend", -0.2),
-                                        (0.05, 0.36, 0.24, 0.42, 0, "pastel_butter", -0.36)):
-        b.ico((x, y, z), r, sw, scale=(1.0, 0.5, 1.05), subdivisions=2)
-        b.pyramid((x + 0.02, y, z + r * 0.55), r * 1.25, tip, sw, rot=(R(lean), "Y"))
-    b.pyramid((-0.4, 0.0, 0.8), 0.36, 0.5, "fur_orange", rot=(R(24), "Y"))                 # a side lick
+    for (z, r, tip, sw, y) in ((0.62, 0.62, 1.3, "shirt_red", 0.0), (0.52, 0.44, 0.9, "fur_orange", -0.26),
+                               (0.42, 0.26, 0.58, "rarity_legend", -0.44)):
+        b.ico((0.0, y, z), r, sw, scale=(1.15, 0.5, 1.0), subdivisions=3)
+        b.cyl_base((0.0, y, z + r * 0.5), r * 0.84, tip, sw, segments=20, bevel=False, radius2=0.02,
+                   scale=(1.15, 0.5, 1.0))
     return [b.finalize(N + "Flame", mat)]
 
 

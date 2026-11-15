@@ -133,8 +133,10 @@ def build_ticket_arch(mat):
     for k in range(9):                                                                        # the arch
         a = 180.0 * (k + 0.5) / 9
         ar = math.radians(a)
-        b.box((1.7 * math.cos(ar), 3.3 + 1.2 * math.sin(ar), 0), (0.68, 0.55, 0.55), ("milk", "shirt_red")[k % 2],
-              rot=rot_z(a + 90))
+        # the stripes overlap on the inside of the curve, so they stand a little proud of the posts and the red ones prouder: two
+        # colours never share a plane (they z-fought, and drew black in the pictures)
+        b.box((1.7 * math.cos(ar), 3.3 + 1.2 * math.sin(ar), 0), (0.68, 0.55, 0.57 + 0.04 * (k % 2)),
+              ("milk", "shirt_red")[k % 2], rot=rot_z(a + 90))
         glow.ball((1.7 * math.cos(ar), 3.3 + 1.2 * math.sin(ar), -0.33), 0.12, "sparkle")
     b.box((0, 4.95, 0), (1.5, 0.75, 0.16), "pastel_butter", rot=rot_z(-6))                    # a big ticket on top
     b.box((0, 4.95, -0.1), (0.4, 0.4, 0.06), "shirt_red", rot=rot_z(39))

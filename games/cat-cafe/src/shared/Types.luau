@@ -148,6 +148,8 @@ export type CatDef = {
 	color: { number }, -- {r, g, b} 0..255 for the placeholder body
 	-- #4221: a Secret cat's home area (its `area` stays "secret"): it only takes the place of a Mythical rolled there
 	secretArea: Area?,
+	-- Derek 2026-11-14: one of the seven Secrets of the one-per-area update; it only rolls while `secretAreas` is on
+	secretNew: boolean?,
 }
 
 export type UpgradeDef = {

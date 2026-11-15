@@ -10279,12 +10279,10 @@ do
 				local LiveFlags = require(
 					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
 				) :: any
-				local Catalog =
-					require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
 				local secrets = EventLogic.secretsBanner(
 					view,
 					LiveFlags.shown("secretCats", get(LiveFlags.ATTRIBUTE_PREFIX .. "secretCats")),
-					#Catalog.secretCats
+					#EventBanner.shapeModels() -- #4221: the first three only, as the shapes under it
 				)
 				if secrets ~= nil then
 					EventBanner.show({

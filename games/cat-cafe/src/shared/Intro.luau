@@ -173,7 +173,7 @@ Intro.FOLLOW_BACK = 12
 Intro.FOLLOW_UP = 6
 Intro.HEAD_UP = 1.5
 
-Intro.CODES_CAPTION = "Free spin every day. Codes at the Codes Cat!"
+Intro.CODES_CAPTION = "Free spin every day. Codes unlock at Tier 2!" -- #4655: codes need Tier 2
 Intro.SPIN_CAPTION = "Spin the wheel for a free prize every day!" -- shot 8 before a Codes Cat stands in the world
 Intro.RICH_CAPTION = "Rich visitors leave big tips. Grab them fast!"
 

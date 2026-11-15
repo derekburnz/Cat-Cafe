@@ -6553,6 +6553,27 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		box.Text = "WRONGCODE"
 		UI.codes.result(false, "That code doesn't exist", nil)
 	end },
+	-- #4655: under Tier 2 the Codes page is shut: the box takes no typing, Redeem is grey and the server's reason shows
+	{ "CodesTier1", function()
+		local tierWas = (UI.getState() :: any).tier
+		UI.update({ tier = 1 } :: any)
+		UI.codes.open()
+		press("Store", "codes")
+		local store = UIShim.playerGui:FindFirstChild("Store", true)
+		local box = store and store:FindFirstChildWhichIsA("TextBox", true)
+		assert(box and not box.TextEditable, "uigate: the code box takes typing under Tier 2 (#4655)")
+		local found = false
+		for _, label in store:GetDescendants() do
+			if label:IsA("TextLabel") and label.Visible and label.Text == "Reach Tier 2 to use codes" then
+				found = label.TextFits
+			end
+		end
+		assert(found, "uigate: no fitting 'Reach Tier 2 to use codes' line under Tier 2 (#4655)")
+		UI.update({ tier = tierWas } :: any)
+		assert(box.TextEditable, "uigate: the code box stays shut at Tier 2 (#4655)")
+		UI.update({ tier = 1 } :: any) -- shut again for the picture
+		Scenes._codesTier = tierWas
+	end },
 	-- #1633: the circle's Store opens on Featured, and walking out closes it from any tab; a Store the player opened
 	-- with the tile stays when they walk out
 	{ "CodesBenchWalkOut", function()
@@ -14242,6 +14263,10 @@ function Scenes.close()
 		Scenes._mailbox = nil
 		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_mailbox", nil)
 		UI.update({ mail = {} } :: any)
+	end
+	if Scenes._codesTier ~= nil then
+		UI.update({ tier = Scenes._codesTier } :: any) -- #4655's scene
+		Scenes._codesTier = nil
 	end
 	if Scenes._richTipGate ~= nil then
 		-- #3633's scene: its bubbles and made-up plots

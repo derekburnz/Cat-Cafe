@@ -498,6 +498,7 @@ The Keep sheet holds all of these. It's mono. The cutscene and card sounds play 
 | `ticketPrint` | you buy a Ticket Booth prize: the booth prints its ticket (Audio follows ProfileSync's `ticketBooth.spent`) | 0.7 s | soft printer chatter and the paper tearing off | P2 |
 | `ticketDing` | 0.6 s after the print: the prize is yours | 0.8 s | a bright two note counter bell, like a fairground booth | P2 |
 | `snowStep` | your steps in the Snowy Mountain | 0.2 s | a soft dry crunch; the pitch varies a little each step | P3 |
+| `leafStep` | your steps in Harvest Hollow (#4251) | 0.2 s | dry leaves underfoot: the snow step's crunch pitched up and a little quieter, no new file | P3 |
 | `snowGust` | the Blizzard Cat (Mythical) lands or is caught | 1.5 s | a gust that swells and whistles past, icy glints falling out of it | P2 |
 | `frostChime` | the White Tiger Cat (Legendary) is caught or revealed | 1.4 s | three cold glass notes falling like icicles, one low warm note under them | P2 |
 | `fusionStart` | five cats go into the Fusion Observatory's dome (#4104) | 1.9 s | five glass notes climbing, one for each cat, then a soft shimmer as they become one | P2 |

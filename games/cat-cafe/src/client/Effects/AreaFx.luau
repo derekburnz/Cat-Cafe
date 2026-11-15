@@ -197,7 +197,7 @@ local function updateMist(area: string?, feet: Vector3)
 end
 
 -- #4069: a little puff under your feet for every `footStuds` you walk on the ground in an area with one (snow in
--- the Snowy Mountain), and a step for whoever listens (AreaFx.onStep). No puff in Low performance or with Reduce
+-- the Snowy Mountain, dry leaves in Harvest Hollow), and a step for whoever listens (AreaFx.onStep). No puff in Low performance or with Reduce
 -- Motion.
 local footAt: Vector3? = nil
 
@@ -608,6 +608,18 @@ local function updateAurora(here: string?, feet: Vector3)
 	buildAurora(area, wanted, place)
 end
 
+-- How far your feet are from Harvest Hollow's Thankful Board (tag Presets.harvestFx.boardTag), nil while it is not
+-- in the world (outside the event, or not streamed in).
+local function harvestBoard(feet: Vector3): number?
+	for _, board in CollectionService:GetTagged(Presets.harvestFx.boardTag) do
+		local at = Context.positionOf(board)
+		if at ~= nil then
+			return (at - feet).Magnitude
+		end
+	end
+	return nil
+end
+
 local function step()
 	local character = Players.LocalPlayer.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
@@ -624,7 +636,11 @@ local function step()
 	updateDunes(area, feet)
 	updateAurora(area, feet)
 	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
-	updateFeet(area, feet, humanoid :: Humanoid?)
+	updateFeet(
+		Logic.walkArea(area, harvestBoard(feet), Presets.harvestFx.airWithin),
+		feet,
+		humanoid :: Humanoid?
+	)
 end
 
 function AreaFx.start()

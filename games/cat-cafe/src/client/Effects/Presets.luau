@@ -5992,12 +5992,17 @@ Presets.areaFx = {
 		},
 		-- #4251 Harvest Hollow (area id "harvest"): a pumpkin-orange puff where its strays come and go. The falling
 		-- leaves are Effects/HarvestFx's (by the Thankful Board), so Config.World has no Harvest box and `air` here
-		-- never starts.
+		-- never starts. Your steps there (no box, so Logic.walkArea goes by the distance to the Thankful Board) kick up a few
+		-- dry leaves in amber and play the leaf crunch.
 		harvest = {
 			air = "harvestLeaves",
 			colour = Color3.fromRGB(232, 140, 60),
 			puffPreset = "smokePuff",
 			puff = 6,
+			footPuff = 2,
+			footPreset = "dust",
+			footColour = Color3.fromRGB(214, 128, 52),
+			footStuds = 3,
 		},
 	} :: { [string]: AreaFxSpec },
 }

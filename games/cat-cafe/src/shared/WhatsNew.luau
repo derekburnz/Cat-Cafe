@@ -42,7 +42,7 @@ WhatsNew.rows = table.freeze({
 		id = "water_park",
 		date = "2026-11-15",
 		icon = "new",
-		text = "Water Park opens (Tier 9)",
+		text = "Water Park opens (T9)",
 	},
 	{
 		id = "medieval_castle",

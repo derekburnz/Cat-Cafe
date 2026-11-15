@@ -90,7 +90,7 @@ jobs:
     name: Rojo sourcemap, luau-lsp, Selene, StyLua
     needs: plan
     # Only a run that checked the UI scenes marks a tree (not a docs-only change, not a main push).
-    if: ${{ needs.plan.outputs.passed != 'true' && needs.plan.outputs.light != 'true' && github.event_name != 'push' }}
+    if: ${{ needs.plan.outputs.passed != 'true' && needs.plan.outputs.light != 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -279,7 +279,8 @@ jobs:
   passed:
     name: Mark this tree as passed
     needs: [plan, gate, cloudcheck]
-    if: ${{ needs.plan.outputs.passed != 'true' && needs.plan.outputs.light != 'true' }}
+    # Only a run that checked the UI scenes marks a tree (not a docs-only change, not a main push).
+    if: ${{ needs.plan.outputs.passed != 'true' && needs.plan.outputs.light != 'true' && github.event_name != 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

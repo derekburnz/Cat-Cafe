@@ -2,7 +2,7 @@
 -- #4539: the Mystery Market, Cat Arcade and Mystic Pool open from Tiers 2, 3 and 4 (shared/StationTiers).
 return function()
 	local ReplicatedStorage = game:GetService("ReplicatedStorage")
-	local Shared = ReplicatedStorage.Shared
+	local Shared: any = ReplicatedStorage:WaitForChild("Shared")
 	local StationTiers = require(Shared.StationTiers)
 	local Arcade = require(Shared.Arcade)
 	local Traits = require(Shared.Traits)

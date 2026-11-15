@@ -1543,10 +1543,21 @@ function Logic.startle(o: Offsets, alpha: number)
 end
 
 -- #4384: whether the waiting stray's beacon, call and sound wait: the switch is on (LiveFlags.shown of `checkInCalm`)
--- and the player is on the bowl step (`tutorialStep` is Presets.waitingCat.holdStep). A step not yet known holds
--- nothing.
-function Logic.waitingHeld(switchOn: boolean, tutorialStep: unknown): boolean
-	return switchOn and tutorialStep == Presets.waitingCat.holdStep
+-- and the player is on the bowl step (`tutorialStep` is Presets.waitingCat.holdStep) with a Bait bowl to fill
+-- (`bowlLevel` 1 or more), for at most `holdMost` seconds (`heldFor` is how long it has held). A step or a level not
+-- yet known holds nothing.
+function Logic.waitingHeld(
+	switchOn: boolean,
+	tutorialStep: unknown,
+	bowlLevel: unknown,
+	heldFor: number
+): boolean
+	local p = Presets.waitingCat
+	return switchOn
+		and tutorialStep == p.holdStep
+		and type(bowlLevel) == "number"
+		and bowlLevel >= 1
+		and heldFor < p.holdMost
 end
 
 -- #3022: the waiting stray's "come here" (motion.beckon), `alpha` 0 to 1 through it, layered on whatever the cat

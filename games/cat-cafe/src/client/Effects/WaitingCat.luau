@@ -8,8 +8,9 @@
 -- instead of stopping, so the beacon lasts until the cat is caught or gone. It starts `delay` seconds after the cat
 -- first shows (SecondCat's TRAIL_DELAY_SECONDS and TRAIL_SECONDS when present). Reduce Motion keeps the sparkles and a
 -- still badge without the rings; Low performance keeps the badge and rings without the sparkles. Listening only.
--- #4384: all of it waits while the player is on the bowl step (`WaitingCat.held`, switch `checkInCalm`), so the Bait
--- bowl is the one thing asked for after the first check-in; it starts when that step is done.
+-- #4384: all of it waits while the player is on the bowl step with a Bait bowl to fill (`WaitingCat.held`, switch
+-- `checkInCalm`), so the bowl is the one thing asked for after the first check-in; it starts when that step is done,
+-- or after Presets.waitingCat.holdMost seconds.
 --
 -- Roblox terms: a BillboardGui is 2D UI drawn at a point in the world, always facing the camera; AlwaysOnTop draws it
 -- over walls. It is made by this client, so no other player sees it.
@@ -39,6 +40,8 @@ local anchor: Attachment? = nil
 local emitter: ParticleEmitter? = nil
 local badge: Attachment? = nil
 local tutorialStep: unknown = nil -- this player's, from ProfileSync
+local bowlLevel: unknown = nil -- their Bait bowl's upgrade level, from ProfileSync
+local heldSince: number? = nil -- os.clock when the hold began
 
 -- #4384: true while the bowl step is the one ask (Logic.waitingHeld): no beacon here, and StrayCall and Audio ask
 -- this before the cat calls. The server keeps the stray waiting all the while.
@@ -46,7 +49,14 @@ function WaitingCat.held(): boolean
 	local key = Presets.waitingCat.holdSwitch
 	local on =
 		LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
-	return Logic.waitingHeld(on, tutorialStep)
+	local now = os.clock()
+	if not Logic.waitingHeld(on, tutorialStep, bowlLevel, 0) then
+		heldSince = nil -- the step is over (or never was): a later bowl step would hold afresh
+		return false
+	end
+	local since = heldSince or now
+	heldSince = since
+	return Logic.waitingHeld(on, tutorialStep, bowlLevel, now - since)
 end
 
 -- SecondCat's attribute name and timings, if that module is in, else Presets.waitingCat's.
@@ -210,6 +220,10 @@ function WaitingCat.start()
 			local value = (state :: { [string]: unknown }).tutorialStep
 			if type(value) == "number" then
 				tutorialStep = value
+			end
+			local levels = (state :: { [string]: unknown }).upgradeLevels
+			if type(levels) == "table" then
+				bowlLevel = (levels :: { [string]: unknown })[Presets.waitingCat.holdUpgrade] or 0
 			end
 		end
 	end)

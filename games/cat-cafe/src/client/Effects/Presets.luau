@@ -5591,10 +5591,14 @@ Presets.baitCrumbs = {
 -- when it is in.
 -- #4384 (one ask at a time after the first check-in): while the player's tutorialStep is `holdStep` (the bowl step)
 -- the beacon, the call and its sound wait, so the Bait bowl is the only ask; switch `holdSwitch` (on unless false).
+-- Only once the player owns the Bait bowl (upgrade `holdUpgrade`): one who cannot buy it yet keeps the beacon to the
+-- free second cat. And for `holdMost` seconds at most, so nobody is left with no next step.
 Presets.waitingCat = {
 	attribute = "WaitsFor",
 	holdStep = 4,
 	holdSwitch = "checkInCalm",
+	holdUpgrade = "lure_bowl",
+	holdMost = 180,
 	delay = 2,
 	seconds = 120,
 	within = 400,

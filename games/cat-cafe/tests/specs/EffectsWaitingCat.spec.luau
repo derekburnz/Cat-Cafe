@@ -36,13 +36,20 @@ return function()
 		it("waits while the bowl step is the one ask, and only then (#4384)", function()
 			local p = Presets.waitingCat
 			expect(p.holdStep).to.equal(4)
-			expect(Logic.waitingHeld(true, p.holdStep)).to.equal(true)
+			expect(Logic.waitingHeld(true, p.holdStep, 1, 0)).to.equal(true)
 			for _, step in { 0, 1, 2, 3, 5, 6 } do
-				expect(Logic.waitingHeld(true, step)).to.equal(false)
+				expect(Logic.waitingHeld(true, step, 1, 0)).to.equal(false)
 			end
 			-- a step not yet known, and the switch off, hold nothing
-			expect(Logic.waitingHeld(true, nil)).to.equal(false)
-			expect(Logic.waitingHeld(false, p.holdStep)).to.equal(false)
+			expect(Logic.waitingHeld(true, nil, 1, 0)).to.equal(false)
+			expect(Logic.waitingHeld(false, p.holdStep, 1, 0)).to.equal(false)
+			-- no Bait bowl yet (or not known yet): the beacon to the free second cat stays
+			expect(Logic.waitingHeld(true, p.holdStep, 0, 0)).to.equal(false)
+			expect(Logic.waitingHeld(true, p.holdStep, nil, 0)).to.equal(false)
+			-- and never for long, so nobody is left with no next step
+			expect(p.holdMost >= 60 and p.holdMost <= 300).to.equal(true)
+			expect(Logic.waitingHeld(true, p.holdStep, 1, p.holdMost - 1)).to.equal(true)
+			expect(Logic.waitingHeld(true, p.holdStep, 1, p.holdMost)).to.equal(false)
 			-- the switch is on until the store says false, so it holds before its attribute arrives
 			expect(LiveFlags.OFF_BY_DEFAULT[p.holdSwitch] == true).to.equal(false)
 			expect(LiveFlags.shown(p.holdSwitch, nil)).to.equal(true)

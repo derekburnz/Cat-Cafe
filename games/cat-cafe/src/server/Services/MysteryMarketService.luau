@@ -42,7 +42,7 @@ local MAX_PRICE = 1e6
 -- #2565: the Long Net's extra reach as the player attribute NetExtraStuds, for the client's reach glow (the server
 -- reads the profile itself).
 local function applyPerks(player: Player, profile: Types.PlayerProfile)
-	local extra = NetSwing.extraFor(profile.mystery)
+	local extra = NetSwing.extraForProfile(profile) -- #4447: the Dragon Keep's reach cards too
 	player:SetAttribute("NetExtraStuds", if extra > 0 then extra else nil)
 end
 

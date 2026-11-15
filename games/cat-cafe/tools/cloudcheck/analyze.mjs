@@ -15,6 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { Lua } from '@luau-rs/luau';
 import { Analysis } from '@luau-rs/luau/analysis';
 import { buildTree, walk, fullName } from './rojo-tree.mjs';
 
@@ -90,6 +91,26 @@ for (const node of [...support, ...scripts]) {
 const SPEC_MAX_BYTES = 100_000;
 const SPEC_RE = /\.spec\.luau$/;
 
+// Every module must also compile, at the optimization levels Roblox runs (1 and 2). The type checker passes a chunk
+// with over 200 live locals ("Out of local registers ... exceeded limit 200"), so on 2026-11-15 CatService (226) went
+// through CI and only the engine smoke test in publish.yml stopped it, after merge, and main did not publish for two
+// hours (#4449, #4451). That smoke test loads only Shared and Server modules, so a client module would get through.
+const compiler = await Lua.create({ sandbox: false, libraries: 'all' });
+const COMPILE_LEVELS = [1, 2];
+const compileErrors = new Map();
+for (const level of COMPILE_LEVELS) {
+  compiler.setCompiler({ optimizationLevel: level });
+  for (const node of scripts) {
+    if (compileErrors.has(node.moduleName)) continue;
+    try {
+      compiler.load(fs.readFileSync(node.path, 'utf8'), { name: node.rel });
+    } catch (e) {
+      const message = String(e && e.message ? e.message : e).replace(/^(Error: )?(syntax error: )?/, '');
+      compileErrors.set(node.moduleName, `does not compile at optimization level ${level}: ${message.replace(/\s*\n\s*/g, ' ')}`);
+    }
+  }
+}
+
 // 4. Check everything and report.
 const results = analysis.checkModules(scripts.map((n) => n.moduleName));
 let errors = 0;
@@ -124,6 +145,12 @@ for (const node of scripts) {
     lines.push(`  ${severity.toUpperCase().padEnd(7)} ${where}  ${d.message.replace(/\s*\n\s*/g, ' ')}${d.kind === 'lint' ? ` [lint ${d.code}]` : ''}`);
   }
   if (timeouts.has(node.moduleName)) lines.push(`  TIMEOUT ${node.rel}: checker gave up`);
+  if (compileErrors.has(node.moduleName)) {
+    errors++;
+    const text = compileErrors.get(node.moduleName);
+    const hint = /local registers/.test(text) ? ' (too many live locals: group requires in a table or require inside functions)' : '';
+    lines.push(`  ERROR   ${node.rel}  ${text}${hint}`);
+  }
   const size = SPEC_RE.test(node.rel) ? fs.statSync(node.path).size : 0;
   if (size > SPEC_MAX_BYTES) {
     errors++;

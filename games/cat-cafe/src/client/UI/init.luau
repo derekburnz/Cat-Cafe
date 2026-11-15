@@ -6356,6 +6356,7 @@ do
 end
 
 -- #4174: the Starter Bundle's one slide-in card a session (shared/StarterSuggest), behind the starterSuggest switch.
+-- #4438: after a rank up to Tier 2 or higher, or on a later day than the account's first, never on a first-day timer.
 -- It rides the ask card (its X from the first frame, its picture and line, no timer: it stays until Buy or the X) with one Buy button, only in
 -- a clear moment past its random 10 to 15 minute mark. Its own block, as the module is short of locals.
 do
@@ -6363,9 +6364,15 @@ do
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterSuggest")) :: any
 	local suggest = {
 		start = os.clock(),
-		dueAt = StarterSuggest.dueAt(math.random()),
+		rankedAt = nil :: number?, -- #4438: seconds into the session of the rank up to Tier 2 or higher
 		done = false,
 	}
+	-- #4438: the card's first moment is a rank up (Moments.RankUp fires on a rise in the server's tier, never at join)
+	Moments.RankUp:Connect(function(tier: number)
+		if suggest.rankedAt == nil and tier >= StarterSuggest.RANK_TIER then
+			suggest.rankedAt = os.clock() - suggest.start
+		end
+	end)
 
 	local function report(outcome: string)
 		UI.events.starterSuggest:Fire(outcome)
@@ -6447,7 +6454,8 @@ do
 			on = on,
 			done = suggest.done,
 			played = os.clock() - suggest.start,
-			dueAt = suggest.dueAt,
+			rankedAt = suggest.rankedAt,
+			firstDay = Players.LocalPlayer:GetAttribute(QuietStart.DAY_ATTRIBUTE),
 			owned = (state :: any).starterBought,
 			quietUntil = Players.LocalPlayer:GetAttribute(QuietStart.ATTRIBUTE),
 			now = Workspace:GetServerTimeNow(),

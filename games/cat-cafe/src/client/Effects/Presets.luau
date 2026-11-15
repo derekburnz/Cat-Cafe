@@ -2125,6 +2125,28 @@ Presets.motion = {
 		swaySeconds = 3.1,
 		resting = 0.5,
 	},
+	-- The new areas' Common cats (#4069, #4070, #4071; Derek 2026-11-13: commons get prop motion only): the hat or
+	-- tufts in the head (`_Prop`, Pose's "cap") bounce with each stride while the cat walks, tipping up to the cat's
+	-- `degrees` front and back about the prop's own pivot, `lag` radians behind the legs so it reads as loose. One
+	-- bounce a leg cycle (about 2 a second at a stray's walk), still while it stands. The Elf Cat's belled hood swings
+	-- the most and the Dwarf Cat's beard and iron cap bounce; the Squire wears nothing on its head, so it has none.
+	-- Small on purpose: the exported props pivot at the neck like the head, so a bigger tip would lift them off it.
+	propBounce = {
+		lag = 0.9,
+		cats = {
+			elf = 5,
+			dwarf = 4,
+			pinwheel = 4,
+			hot_chocolate = 3,
+			crumpet = 3,
+			flurry = 3,
+			mitten = 3,
+			spruce = 3,
+			popcorn = 3,
+			splash = 3,
+			taffy = 3,
+		} :: { [string]: number },
+	},
 }
 
 -- Model-Agent's piece poses for the new bodies (manifest `cat_poses`, PR #259), copied here because the
@@ -2390,6 +2412,30 @@ Presets.catPoses = {
 } :: { [string]: CatPose }
 
 Presets.shake = { seconds = 0.18, studs = 0.22 }
+
+-- Controller rumble and phone taps (#4224; Effects/Rumble): a camera bump of `studs` buzzes the gamepad's big motor at `perStud` a
+-- stud, between `least` and `most` of full, for the bump's seconds kept between `shortest` and `longest`. `catch` is
+-- your own catch's pulse by rarity: light for a Common, firmer and a little longer the rarer the cat.
+Presets.rumble = {
+	perStud = 1.6,
+	least = 0.2,
+	most = 0.7,
+	shortest = 0.08,
+	longest = 0.5,
+	-- a phone taps once: a click, a knock from `knockFrom` of full or a thump from `thumpFrom`, felt within `tapReach`
+	-- studs of where the camera looks
+	knockFrom = 0.3,
+	thumpFrom = 0.5,
+	tapReach = 60,
+	catch = {
+		Common = { seconds = 0.08, strength = 0.2 },
+		Rare = { seconds = 0.1, strength = 0.25 },
+		Epic = { seconds = 0.14, strength = 0.35 },
+		Legendary = { seconds = 0.2, strength = 0.45 },
+		Mythical = { seconds = 0.3, strength = 0.55 },
+		Secret = { seconds = 0.4, strength = 0.65 },
+	} :: { [string]: { seconds: number, strength: number } },
+}
 
 -- A shove (F41), a landed tackle since F74: a puff where it lands, dizzy stars over the shoved player's head and,
 -- for them, a bigger camera bump than a missed catch. The knockback itself is the engineer's, on the target's own

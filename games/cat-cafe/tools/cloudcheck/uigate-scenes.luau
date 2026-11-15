@@ -2368,6 +2368,8 @@ local SCENES = {
 	-- #2915: ranking up to Tier 2 turns the rank-up button into "Fly to the Park"; pressing it closes the window, and
 	-- the picker (opened here, as the trip to the cannon would) rings the Park card's Launch. A flight ends both.
 	{ "ParkFly", function()
+		-- #4480: "Fly to the Park" shows only while the walk to the Park is on (parkGateTrail, off by default)
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_parkGateTrail", true)
 		Scenes._rankTier = (UI.getState() :: any).tier -- Scenes.close puts the sample tier back
 		Scenes._parkFly = (UI.getState() :: any).money or 0 -- the sample's money would make Tier 3 ready
 		UI.update({ money = 0, tier = 1 } :: any)
@@ -2397,6 +2399,7 @@ local SCENES = {
 		local town = window:FindFirstChild("town", true) :: Instance
 		local other = town and town:FindFirstChild("Launch", true) :: Instance
 		assert(other == nil or other:FindFirstChild("TutorialGlow") == nil, "uigate: the ring is on the wrong card (#2915)")
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_parkGateTrail", nil)
 	end },
 	-- #2687 part 4: the "Unlocked!" card a station's reveal brings: the station's picture and name, the new perk in gold
 	-- and its one line, every word fitting, the card on screen with its button a finger tall
@@ -5470,6 +5473,37 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			selected ~= nil and (selected == spin or selected:IsDescendantOf(spin)),
 			"uigate: the Admin Wheel opened on a controller selecting " .. (if selected then selected:GetFullName() else "nothing") .. ", not Spin! (#4224)"
 		)
+	end },
+	-- #4224 (audit gap 4): on a controller the Luck card takes the selection, says "Press B to close", and B closes it
+	-- with the selection back on the chip
+	{ "GamepadLuckCard", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local GuiService = game:GetService("GuiService")
+		local inputs = game:GetService("UserInputService")
+		Scenes._padReset = function()
+			ReplicatedStorage:SetAttribute("LiveFlag_padControls", nil)
+			UIShim.setLastInput(nil)
+			GuiService.SelectedObject = nil
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", true)
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		UI.update({ luck = 1.3, luckSources = { { id = "statue", value = 0.3 } } } :: any)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local chip = hud:FindFirstChild("Luck", true) :: GuiObject
+		GuiService.SelectedObject = chip
+		press("CatCafeHUD", "Luck")
+		UIShim.advance(0.4)
+		local card = hud:FindFirstChild("LuckCard", true) :: GuiObject
+		assert(card and card.Visible, "uigate: the Luck card did not open (#4224)")
+		local selected = GuiService.SelectedObject
+		assert(selected ~= nil and selected:IsDescendantOf(card), "uigate: the Luck card took no selection on a gamepad, it is on " .. (if selected then selected:GetFullName() else "nothing") .. " (#4224)")
+		local hint = card:FindFirstChild("Hint", true) :: TextLabel
+		assert(hint.Text == "Press B to close" and hint.TextFits, "uigate: the Luck card's hint reads " .. hint.Text .. " on a gamepad (#4224)")
+		local input = { KeyCode = Enum.KeyCode.ButtonB, UserInputType = Enum.UserInputType.Gamepad1 }
+		UIShim.fire(UIShim.eventOf(inputs, "InputBegan"), input, true)
+		UIShim.advance(0.2)
+		assert(not card.Visible, "uigate: B did not close the Luck card (#4224)")
+		assert(GuiService.SelectedObject == chip, "uigate: the selection did not go back to the Luck chip (#4224)")
 	end },
 	{ "Spin", function()
 		UI.spin.open()

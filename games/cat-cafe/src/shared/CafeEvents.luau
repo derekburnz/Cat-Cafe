@@ -46,6 +46,8 @@
 --     effects = { bowlSpeed = 4 } }
 -- - `bowlSpeed`: food put in a bait bowl while it runs brings its cat that many times sooner, 1 to
 --   ADMIN.bowlSpeedMax (Bait.eventWait; BaitService).
+-- - `catStorm` (shared/CatStorm): while it runs, by day, extra strays drop into every open area with the Mythical
+--   weight of their roll times it, 1 to ADMIN.catStormMax.
 -- An admin record runs ADMIN.minSeconds to ADMIN.maxSeconds and never overlaps another admin record (the later one
 -- is dropped, with a note); it needs at least one admin effect. Everything waits behind the LiveFlags switch
 -- ADMIN.flag (EventService), off by default.
@@ -62,6 +64,7 @@ local HttpService = game:GetService("HttpService")
 local Catalog = require(script.Parent.Catalog)
 local Catching = require(script.Parent.Catching)
 local Config = require(script.Parent.Config)
+local LateTiers = require(script.Parent.LateTiers)
 local Types = require(script.Parent.Types)
 
 local CafeEvents = {}
@@ -97,11 +100,15 @@ CafeEvents.ADMIN = {
 	warnSeconds = 120, -- the warning banner goes up this long before the start
 	testWarnSeconds = 10, -- a test in one server: a short warning, so the banner is seen without the wait
 	bowlSpeedMax = 4,
+	catStormMax = 10,
 }
 -- The owner's kinds (`/admin <kind> [minutes] [now]`): each one's title, effects and length in minutes when none is given.
 CafeEvents.ADMIN_KINDS =
 	{
 		bowl = { title = "Bowl Frenzy", minutes = 15, effects = { bowlSpeed = 4 } },
+		-- the Admin Wheel (AdminWheel.luau): every player may spin it once while it is up
+		wheel = { title = "Admin Wheel", minutes = 5, effects = { wheel = true } },
+		storm = { title = "Cat Storm", minutes = 10, effects = { catStorm = 10 } },
 	} :: { [string]: { title: string, minutes: number, effects: { [string]: any } } }
 -- OwnerTest's presets (section 8): "full" every effect, with test showers a minute apart; "days" the stacked days
 -- only; "money" x2 only; "luck" +0.5 only; "showers" test showers only.
@@ -132,6 +139,8 @@ export type Effects = {
 }
 export type AdminEffects = {
 	bowlSpeed: number, -- 1 when the record has none
+	wheel: boolean, -- the Admin Wheel is up (AdminWheelService: one spin an account for this event's id)
+	catStorm: number, -- 1 when the record has none
 }
 export type AdminEvent = {
 	id: string,
@@ -309,7 +318,7 @@ end
 
 -- Whether `effects` holds at least one admin effect that does something.
 local function adminActive(effects: AdminEffects): boolean
-	return effects.bowlSpeed > 1
+	return effects.bowlSpeed > 1 or effects.catStorm > 1 or effects.wheel
 end
 
 -- #4195: one admin record against the rules, or nil and why (nil and no why for one that is over).
@@ -342,11 +351,25 @@ local function adminOf(
 	if bowlSpeed == nil then
 		return nil, id .. ": a bad bowlSpeed"
 	end
-	local clamped = math.clamp(bowlSpeed, 1, CafeEvents.ADMIN.bowlSpeedMax)
-	if clamped ~= bowlSpeed then
-		table.insert(notes, `{id}: bowlSpeed {bowlSpeed} clamped to {clamped}`)
+	local catStorm = if values.catStorm == nil then 1 else finite(values.catStorm)
+	if catStorm == nil then
+		return nil, id .. ": a bad catStorm"
 	end
-	local effects: AdminEffects = { bowlSpeed = clamped }
+	if values.wheel ~= nil and type(values.wheel) ~= "boolean" then
+		return nil, id .. ": a bad wheel"
+	end
+	local function clamp(name: string, value: number, high: number): number
+		local out = math.clamp(value, 1, high)
+		if out ~= value then
+			table.insert(notes, `{id}: {name} {value} clamped to {out}`)
+		end
+		return out
+	end
+	local effects: AdminEffects = {
+		bowlSpeed = clamp("bowlSpeed", bowlSpeed, CafeEvents.ADMIN.bowlSpeedMax),
+		catStorm = clamp("catStorm", catStorm, CafeEvents.ADMIN.catStormMax),
+		wheel = values.wheel == true,
+	}
 	if not adminActive(effects) then
 		return nil, id .. ": no admin effect"
 	end
@@ -481,6 +504,12 @@ function CafeEvents.adminEffectsData(event: AdminEvent): { [string]: any }
 	if event.effects.bowlSpeed > 1 then
 		out.bowlSpeed = event.effects.bowlSpeed
 	end
+	if event.effects.wheel then
+		out.wheel = true
+	end
+	if event.effects.catStorm > 1 then
+		out.catStorm = event.effects.catStorm
+	end
 	return out
 end
 
@@ -555,15 +584,18 @@ end
 
 -- The area a roll in [0, 1) lands on, by EventShowerAreaWeights in Catalog.areas order (equal: 20 each).
 function CafeEvents.showerAreaFor(r: number): string
-	local weights = Config.EventShowerAreaWeights
+	-- #3997: an area behind the `tier8` switch (shared/LateTiers) weighs nothing until it opens
+	local function weightOf(areaId: string): number
+		return if LateTiers.areaOpen(areaId) then Config.EventShowerAreaWeights[areaId] or 0 else 0
+	end
 	local total = 0
 	for _, area in Catalog.areas do
-		total += weights[area.id] or 0
+		total += weightOf(area.id)
 	end
 	local point = math.clamp(r, 0, 1) * total
 	local last = Catalog.areas[1].id
 	for _, area in Catalog.areas do
-		local weight = weights[area.id] or 0
+		local weight = weightOf(area.id)
 		if weight > 0 then
 			last = area.id
 			if point < weight then
@@ -783,14 +815,18 @@ function CafeEvents.adminTest(
 		return nil
 	end
 	local startsAt = math.floor(now) + (if skipWarning then 0 else CafeEvents.ADMIN.testWarnSeconds)
-	local bowlSpeed = def.effects.bowlSpeed
+	local bowlSpeed, catStorm = def.effects.bowlSpeed, def.effects.catStorm
 	return {
 		id = "test-admin-" .. kind,
 		title = def.title,
 		startsAt = startsAt,
 		endsAt = startsAt + adminSeconds(kind, minutes),
 		test = true,
-		effects = { bowlSpeed = if type(bowlSpeed) == "number" then bowlSpeed else 1 },
+		effects = {
+			bowlSpeed = if type(bowlSpeed) == "number" then bowlSpeed else 1,
+			catStorm = if type(catStorm) == "number" then catStorm else 1,
+			wheel = def.effects.wheel == true,
+		},
 	}
 end
 

@@ -1229,6 +1229,9 @@ local function applyState(s: Types.PlayerState)
 		-- #3529: the goal card's "Catch new kinds of cat 3/5" while five different cats is the goal; false otherwise
 		newKindGoal = if newKindGoal(s) then kindsOf(s) else false,
 		traits = if s.traits ~= nil then s.traits else false, -- #3196: the Mystic Pool's card
+		-- #4210: the Admin Wheel's spin for this account (AdminEventController reads it; false clears it, since
+		-- UI.update skips a nil)
+		adminWheel = if s.adminWheel ~= nil then s.adminWheel else false,
 		tutorialStep = s.tutorialStep,
 		-- #3285: what is in the first bowl, for the tutorial's food step (TutorialHints.view). Without it the HUD's
 		-- Bowl ring, its dim and the Kibble row's ring kept asking for food through the wait for the cat. false while
@@ -1310,6 +1313,7 @@ local function applyState(s: Types.PlayerState)
 	end
 	if lastTier ~= nil and s.tier > (lastTier :: number) then
 		Moments.RankUp:Fire(s.tier)
+		UIController.tradeUnlock(lastTier :: number, s.tier)
 	end
 	lastTier = s.tier
 	refreshCarry()
@@ -1928,6 +1932,12 @@ local function wireIntents()
 			Net.fire("TelemetryReport", "store_guard_blocked", what)
 		end)
 	end
+	-- #4174: the Starter Bundle card's shown or how it ended; the server allowlists it, once each a session
+	if events.starterSuggest ~= nil then
+		events.starterSuggest:Connect(function(outcome: string)
+			Net.fire("TelemetryReport", "starter_suggest", outcome)
+		end)
+	end
 	-- #4176: a purchase prompt's source, "source:id"; the server allowlists it and keeps it 2 minutes for the receipt
 	if events.buySource ~= nil then
 		events.buySource:Connect(function(what: string)
@@ -2416,7 +2426,21 @@ local function offerEvent()
 	eventAsk.asked = true
 	local eventId, at = id :: string, startsAt :: number
 	task.spawn(function()
-		while not quiet() do
+		-- Derek 2026-11-14 ("just have this pop up when in safezone randomly not make them say notify me first"): a
+		-- random moment in the window, then only in a safe place (town, a cafe or a camp, not out in an area's wild
+		-- part: UI.bait.away) at a quiet moment with no window open
+		task.wait(
+			math.random()
+				* math.max(0, EventRsvp.UNTIL_SECONDS - 60 - (os.clock() - eventAsk.started))
+		)
+		local function safe(): boolean
+			local bait: any = (UI :: any).bait
+			local away = bait ~= nil
+				and type(bait.away) == "function"
+				and (bait.away :: () -> unknown)() == true
+			return quiet() and not away and UI.isOpen() == nil
+		end
+		while not safe() do
 			task.wait(1)
 			if not EventRsvp.window(os.clock() - eventAsk.started) then
 				return -- no quiet moment by minute 10: not this session
@@ -2424,6 +2448,12 @@ local function offerEvent()
 		end
 		if EventRsvp.status(eventId) ~= "none" or not EventRsvp.due(eventId, at, os.time()) then
 			return -- answered before (or Roblox cannot say), or it has started
+		end
+		if EventRsvp.DIRECT then
+			-- straight to Roblox's own Join Event card, no in-game ask first
+			reportRsvp("shown")
+			reportRsvp(EventRsvp.prompt(eventId) or "failed")
+			return
 		end
 		local asks: any = (UI :: any).asks
 		local card: any = if asks ~= nil then asks.card else nil
@@ -2699,14 +2729,18 @@ local function wireServerEvents()
 			)
 		end
 	)
-	Net.on("CatCaught", function(catId: string, isNew: boolean, variant: string?)
+	Net.on("CatCaught", function(catId: string, isNew: boolean, variant: string?, source: string?)
 		-- F99: the coat comes with the catch, so the card says RAINBOW or GOLD without looking for the new cat
 		local extra: UITypes.CatFoundExtra? = nil
-		if pendingCharmGain > 0 or variant ~= nil then
+		local fromBowl = source == "bowl" -- #4266: tamed at a bait bowl (the Tame tap or the Auto Bowl pass)
+		if pendingCharmGain > 0 or variant ~= nil or fromBowl then
 			local info: UITypes.CatFoundExtra = {}
 			info.charmGain = if pendingCharmGain > 0 then pendingCharmGain else nil
 			info.shiny = if variant ~= nil then variant == "gold" else nil
 			info.rainbow = if variant ~= nil then variant == "rainbow" else nil
+			if fromBowl then
+				(info :: any).source = "bowl" -- UI.showCatFound: a toast instead with settings.bowlNewCatCard off
+			end
 			extra = info
 		end
 		pendingCharmGain = 0
@@ -3574,6 +3608,46 @@ function UIController.start()
 	startCampWatch()
 	Net.fire("RequestSync")
 	print(string.format("[CatCafe] client ready for %s", player.Name))
+end
+
+-- #4280: a rank up that reaches the live TradeMinTier (Workspace's, else Config's) while trading is on plays
+-- Effects/TradeUnlock once, after the rank up's own window and cards: it starts only after the screen has been calm
+-- (UI.calmForMoment) for CALM seconds, and tries again while play refuses (another of the effects' cutscenes). Tiers
+-- only go up, so a rank up through it comes once per account; a rejoin above it plays nothing.
+local TRADE_UNLOCK = { FIRST_WAIT = 4, CALM = 1.5, STEP = 0.25, GIVE_UP = 600 }
+local tradeUnlockQueued = false
+
+function UIController.tradeUnlock(from: number, to: number)
+	local TradeLogic = require(script.Parent.Parent.UI.Components.TradeLogic) :: any
+	local min = TradeLogic.minTier(Workspace:GetAttribute("TradeMinTier"))
+	if
+		tradeUnlockQueued
+		or not (from < min and to >= min)
+		or Workspace:GetAttribute("TradingOn") ~= true
+	then
+		return
+	end
+	tradeUnlockQueued = true
+	task.spawn(function()
+		local TradeUnlock = require(script.Parent.Parent.Effects.TradeUnlock) :: any
+		local ui: any = UI
+		task.wait(TRADE_UNLOCK.FIRST_WAIT)
+		local calmSince: number? = nil
+		local started = os.clock()
+		while os.clock() - started < TRADE_UNLOCK.GIVE_UP do
+			if not ui.calmForMoment() then
+				calmSince = nil
+			elseif calmSince == nil then
+				calmSince = os.clock()
+			elseif os.clock() - (calmSince :: number) >= TRADE_UNLOCK.CALM then
+				if TradeUnlock.play(ui.tradeTile()) then
+					return
+				end
+				calmSince = nil
+			end
+			task.wait(TRADE_UNLOCK.STEP)
+		end
+	end)
 end
 
 return UIController

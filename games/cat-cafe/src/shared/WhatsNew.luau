@@ -34,6 +34,40 @@ WhatsNew.rows = table.freeze({
 	-- the Relic Museum's new inside (#4138), the Rummage Bin minigame fix (#4128), the pop-up cards (#4092) and the
 	-- phone fixes (#4151, #4152, #3990). Still behind switches (rare customers, friend joins, Today's Deal, gold tone):
 	-- rows when they open.
+	-- Tonight's refresh (Derek 2026-11-14 17:41 UTC: "update whats new board prior to tonights update"), reaching every
+	-- server with the 22:00 UTC restart: the new-kind first bait cat (#4199), spawn pop-ups one at a time (#4228), the
+	-- new codes (#4242) and the admin events after each update restart (#4195). Robux items get no row.
+	{
+		id = "first_bait_new",
+		date = "2026-11-14",
+		icon = "cat",
+		text = "First bait cat is always new",
+	},
+	{
+		id = "spawn_popups",
+		date = "2026-11-14",
+		icon = "fix",
+		text = "Spawn pop-ups one at a time",
+	},
+	{
+		id = "codes_nov14",
+		date = "2026-11-14",
+		icon = "new",
+		text = "Four new codes to redeem",
+	},
+	{
+		id = "admin_events",
+		date = "2026-11-14",
+		icon = "new",
+		text = "Admin events after updates",
+	},
+	-- #4189 (Derek 2026-11-14 14:55 UTC: "add text that earlier tiers made easier")
+	{
+		id = "tiers_easier",
+		date = "2026-11-14",
+		icon = "faster",
+		text = "Tiers 2 to 7 made easier",
+	},
 	{
 		id = "free_bait_bowl",
 		date = "2026-11-14",

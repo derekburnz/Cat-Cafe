@@ -11,7 +11,8 @@
 --   The arrival: touching a part tagged HarvestArrival gives the first visit of the UTC day +10.
 --   HarvestService.caught(player, rarity): pumpkins for a harvest cat caught and marks the player as a Feast Pie
 --     helper (wired once the harvest cats are in the Catalog).
---   The world (World/HarvestWorld): the arch in the Town Square at start, the area AREA_EARLY_SECONDS before it opens
+--   The world (World/HarvestWorld): the arch in the Town Square ARCH_EARLY_SECONDS before the area opens with the
+--     switch on, the area AREA_EARLY_SECONDS before it opens
 --     (at start, or on a timer), never once it has closed. A picked pumpkin hides until it regrows.
 --   HarvestService.tripBlocker(player): why a Travel "harvest" trip is refused, or nil (TravelService asks).
 -- Nothing is random and nothing here costs Robux.
@@ -296,6 +297,20 @@ function HarvestService.tripBlocker(player: Player): string?
 	return nil
 end
 
+-- Review-QA on #4397: the arch only from ARCH_EARLY_SECONDS before the area opens (the update countdown's 24 hours),
+-- and only while the switch is on (checked once a minute until it is). It stays after the area closes, as decor.
+local function archWhenDue()
+	task.delay(
+		math.max(0, HarvestHollow.OPENS_AT - HarvestWorld.ARCH_EARLY_SECONDS - os.time()),
+		function()
+			while not LiveFlagService.on(HarvestSave.FLAG) do
+				task.wait(60)
+			end
+			HarvestWorld.buildArch(Workspace)
+		end
+	)
+end
+
 -- The area once a server, AREA_EARLY_SECONDS before it opens; nothing once it has closed.
 local function buildWhenDue()
 	local now = os.time()
@@ -315,7 +330,7 @@ function HarvestService.start()
 	Net.on("BuyHarvest", onBuy)
 	watchTag(HarvestService.PUMPKIN_TAG, pick)
 	watchTag(HarvestService.ARRIVAL_TAG, arrive)
-	HarvestWorld.buildArch(Workspace)
+	archWhenDue()
 	buildWhenDue()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		lastTouch[player] = nil

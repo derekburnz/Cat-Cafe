@@ -38,8 +38,11 @@ HarvestWorld.CENTER = Vector3.new(-2400, 0, -2400)
 -- check the spot in Studio; the square is 120 x 140 with the cannon at the origin).
 HarvestWorld.ARCH_AT = Vector3.new(-46, 0.1, 30)
 HarvestWorld.AREA_EARLY_SECONDS = 3600 -- built this long before it opens, so the first trip never waits on it
+HarvestWorld.ARCH_EARLY_SECONDS = 86400 -- the arch and its countdown from a day before (the update countdown's 24 hours)
 
--- CatCafe_Harvest_Set points_roblox (set space, front -Z, no turn): x, y, z
+-- CatCafe_Harvest_Set points_roblox (set space, front -Z, no turn): x, y, z. player_spawn, stall and board carry a
+-- fourth value, their turn, and it is 0 for all three, so the Stall and Board stand unturned (front -Z, toward the
+-- spawn).
 local POINTS = {
 	playerSpawn = Vector3.new(0, 0, -55.2),
 	stall = Vector3.new(24, 0, 14),

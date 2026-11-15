@@ -35,10 +35,12 @@ local TravelService = {}
 local HOME_STEP_OUT = 6 -- studs out from the front door, on the street
 local ARCH_REACH = 20 -- #4251: an arch touch counts with the player's root this close to it (exploit tools fire touches)
 local ARCH_GAP = 3
+local STREAM_SECONDS = 2 -- how long a trip into Harvest Hollow may wait for the area to stream in
 
 local world: WorldBuilder.World? = nil
 local lastTravel: { [Player]: number } = {}
 local lastArch: { [Player]: number } = {}
+local archTold: { [Player]: boolean } = {} -- Review-QA on #4397: a refused arch walk toasts once a session
 
 -- On the street outside the player's front door, facing it; nil without a cafe.
 local function homeLanding(player: Player): CFrame?
@@ -190,6 +192,15 @@ local function onTravel(player: Player, rawDestination: unknown): boolean
 	if destination == "home" and wildAreaOf(player) ~= nil then
 		cloudHop(player, landing :: CFrame)
 	else
+		if destination == "harvest" then
+			-- 3,400 studs out: stream the area in first (up to STREAM_SECONDS), as the cannon does
+			pcall(function()
+				player:RequestStreamAroundAsync((landing :: CFrame).Position, STREAM_SECONDS)
+			end)
+			if player.Character ~= character or character.Parent == nil then
+				return false
+			end
+		end
 		character:PivotTo(landing :: CFrame)
 		Cannon.noteMove(player, landing :: CFrame)
 	end
@@ -222,6 +233,12 @@ local function onArchTouched(touch: BasePart, hit: BasePart)
 		return
 	end
 	lastArch[player] = os.clock()
+	if HarvestService.tripBlocker(player) ~= nil then
+		if archTold[player] then
+			return
+		end
+		archTold[player] = true
+	end
 	onTravel(player, "harvest")
 end
 
@@ -246,6 +263,7 @@ function TravelService.start(builtWorld: WorldBuilder.World)
 	Players.PlayerRemoving:Connect(function(player)
 		lastTravel[player] = nil
 		lastArch[player] = nil
+		archTold[player] = nil
 	end)
 end
 

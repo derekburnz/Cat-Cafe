@@ -4864,7 +4864,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		task.wait(UI.bait.SETTLE + 0.6)
 		assert(card.Enabled, "uigate: the bait card never showed after the carry (#2412)")
 		pull = UIShim.playerGui:FindFirstChild("CatCafeBigPull")
-		assert(pull and pull.Enabled, "uigate: the wow card never showed after the carry (#2412)")
+		-- #4488: the bowl's first wow cat has no card of its own now, only the bait card's Tame
+		assert(not (pull and pull.Enabled), "uigate: the wow card showed for a bowl cat (#4488)")
 		UI.bait.set(nil, 1) -- the bowl empty again for the scenes after
 	end },
 	-- #1161: the cat's card with two bowls names the bowl, and its banner stays clear of the X on a phone
@@ -10570,7 +10571,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		task.delay(0.9, function()
 			-- BaitReady first, then FirstWow(rarity, first): the card takes the bowl cat of that rarity for its portrait
 			UI.bait.showReady({ catId = epic }, 1)
-			UI.bait.wow("Epic", true)
+			UI.bait.wow("Epic", true) -- #4488: draws nothing now
+			UI.bigPull.wow("Epic", true, epic) -- the card itself, kept should it come back
 			UI.securedRare(localUserId(), epic, "Epic", false, nil)
 			local pull = UIShim.playerGui:FindFirstChild("CatCafeBigPull")
 			local word = pull and pull:FindFirstChild("Word", true)

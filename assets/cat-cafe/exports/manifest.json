@@ -489630,6 +489630,75 @@
           "centered": "footprint center x=0.00 y=-1.65"
         }
       }
+    },
+    {
+      "name": "CatCafe_Camp_Castle_HoardChest",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Castle_HoardChest",
+        "CatCafe_Camp_Castle_HoardChest_Gold",
+        "CatCafe_Camp_Castle_HoardChest_Gold_Glow",
+        "CatCafe_Camp_Castle_HoardChest_Lid"
+      ],
+      "triangles": 548,
+      "budget": 600,
+      "size_studs": {
+        "x": 2.34,
+        "y": 1.64,
+        "z": 1.49
+      },
+      "size_roblox": [
+        2.34,
+        1.49,
+        1.64
+      ],
+      "bounds_min": [
+        -1.17,
+        -0.87,
+        0.0
+      ],
+      "bounds_max": [
+        1.17,
+        0.77,
+        1.49
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Castle_HoardChest_Lid": [
+          -0.0,
+          0.7,
+          0.9
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Castle_HoardChest_Lid": [
+          0.0,
+          0.9,
+          0.7
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Castle_HoardChest.model.json",
+      "rbx_parts": 39,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Castle_HoardChest.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Castle_HoardChest.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "548/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "242 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.05"
+        }
+      }
     }
   ]
 }

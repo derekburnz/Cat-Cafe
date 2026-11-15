@@ -4116,7 +4116,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 					string.match(text, "^You have %d+$")
 						or text == "Get more at the Corner Shop"
 						or text == "Sold by the night dealer's cart"
-						or text == "Sold on the Day Cart from Tier 6", -- #3462
+						or text == "Sold on the Coin Cart from Tier 6", -- #3462
 					("uigate: a food row says %q (#1281)"):format(text)
 				)
 			end

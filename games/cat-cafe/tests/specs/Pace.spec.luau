@@ -1592,16 +1592,17 @@ return function()
 		end)
 
 		it(
-			"reaches Tier 3 at 12 to 30 minutes (the middle run, #4189: 17.8, was 26 to 45; #4097: was 28 to 45; #4098: was 30 to 45; #3195 + #3204: was 33 to 45; #2895: was 40 to 50; #2683: was 50 to 62), the fastest tenth at 8 or later (#4189: was 15); Tier 2 at 1.5 to 20 (#4188: was 4; #4098: was 8; #3195 + #3204: was 10)",
+			"reaches Tier 3 at 8 to 30 minutes (the middle run, #4496: 12.2, was 12 to 30; #4189: 17.8, was 26 to 45; #4097: was 28 to 45; #4098: was 30 to 45; #3195 + #3204: was 33 to 45; #2895: was 40 to 50; #2683: was 50 to 62), the fastest tenth at 4 or later (#4496: 5.2, was 8; #4189: was 15); Tier 2 at 1.5 to 20 (#4188: was 4; #4098: was 8; #3195 + #3204: was 10)",
 			function()
 				local list = firstHour()
 				local median = quantile(list, tierAt(3), 0.5, HOUR + 15 * 60 + 1) / 60
 				local fast = quantile(list, tierAt(3), 0.1, HOUR + 15 * 60 + 1) / 60
 				-- #4098: about 29.9 with the cheaper Tier 2 (30 and 20 before); #4097: 27.3 with the bowl from the start (28)
-				if median < 12 or median > 30 or fast < 8 then
+				-- #4496 (Tier 3 at 50,000): 12.2, the fastest tenth 5.2
+				if median < 8 or median > 30 or fast < 4 then
 					error(
 						string.format(
-							"Tier 3 at %.1f min (tenth %.1f), outside 12 to 30 or before 8",
+							"Tier 3 at %.1f min (tenth %.1f), outside 8 to 30 or before 4",
 							median,
 							fast
 						)
@@ -1633,10 +1634,11 @@ return function()
 				-- Espresso 4 by 50
 				-- #4097: Espresso 4 at 38.2 with the bowl from the start (no $600 buy first), so 7 either side (5.5)
 				-- #4189: 24.6 and 32.2 with the cheaper Tiers 2 and 3 (the shop opens sooner)
-				if math.abs(tables - 21) > 4 or math.abs(espresso - 29.5) > 7 then -- #4320: 20.7 and 29.5 (were about 25 and 32)
+				-- #4496 (Tier 3 at 50,000, so the Tier 3 caps open sooner): 16.7 and 26.3
+				if math.abs(tables - 17) > 4 or math.abs(espresso - 27) > 7 then -- #4320: 20.7 and 29.5 (were about 25 and 32)
 					error(
 						string.format(
-							"Tables 5 at %.1f min, Espresso 4 at %.1f min (want about 25 and 32)",
+							"Tables 5 at %.1f min, Espresso 4 at %.1f min (want about 17 and 27)",
 							tables,
 							espresso
 						)

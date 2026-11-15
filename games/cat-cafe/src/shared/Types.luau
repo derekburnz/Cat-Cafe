@@ -14,7 +14,9 @@ export type Area =
 	| "desert"
 	| "ruins"
 	| "snowy"
--- A cat's area: one of the eight (#3997: the Snowy Mountain's not open yet), the spare pool of cats an area-themed
+	| "waterpark"
+	| "castle"
+-- A cat's area: one of the ten (#3997, #4070, #4184: the Snowy Mountain, the Water Park and the Medieval Castle are not open yet), the spare pool of cats an area-themed
 -- cat replaced (data-model 3d, F78), or "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
 -- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.
 export type CatArea = Area | "spare" | "exclusive" | "secret"
@@ -355,6 +357,9 @@ export type PotionDef = {
 	-- speed of food set while it runs, inside BaitSpeedMax. `quest` marks the three quest potions, which only quests
 	-- and achievements pay (never a Mystery gift).
 	tips: number?,
+	-- #4195 (the Admin Wheel's hour of 3x money): added to every tip while it runs, outside TimedTipsMax and on top
+	-- of whatever the `tips` potions add
+	tipsOver: number?,
 	goldLuck: number?,
 	baitSpeed: number?,
 	quest: boolean?,
@@ -549,6 +554,8 @@ export type AreaDef = {
 	entryFloor: number?,
 	rescueMinStuck: number?,
 	starterRescue: boolean?,
+	-- #4070: only this camp's cannon flies here (the Water Park from the Desert camp); nil: every cannon does
+	launchFrom: string?,
 }
 
 export type SpotDef = {
@@ -601,6 +608,67 @@ export type TraitData = { id: string }
 -- free starter rolls used, 0 to Traits.FREE_ROLLS, up (so a missing field never grants them again); `tokens` the
 -- Trait Tokens banked; `held` and `at` the station's free tokens waiting and when the next one started (os.time());
 -- `pending` a re-roll waiting for Keep old or Take new, saved so the roll paid for is never lost.
+-- #4062 (save version 49, shared/DragonKeep): Cinder in the Dragon Keep. `stage` 0 to 5; `slots` one card id per open
+-- slot ("" for empty), `binder` every card taken for good (slotted ones too); `hand` the dealt cards showing and
+-- `queue` the hands waiting ("stage" or "rekindle"), the first being the hand showing; `rekindled` the Rekindle hands
+-- earned so far; `kept` cats moved in; `napping` the rarest moved-in cats shown around the gold pile.
+export type DragonSave = {
+	warmth: number,
+	stage: number,
+	slots: { string },
+	binder: { [string]: boolean },
+	hand: { string },
+	queue: { string },
+	rekindled: number,
+	kept: number,
+	colour: string?,
+	napping: { { id: string, variant: string? } },
+}
+export type DragonView = {
+	warmth: number,
+	stage: number,
+	stageName: string?,
+	nextAt: number, -- the Warmth total of the next stage or Rekindle hand
+	slots: { string },
+	binder: { [string]: boolean },
+	hand: { string },
+	handKind: string?, -- "stage" or "rekindle" while a hand shows
+	hands: number, -- hands waiting, the one showing included
+	colour: string?,
+	sets: { string }, -- families with a set lit
+	napping: { { id: string, variant: string? } },
+	kept: number,
+	odds: { [string]: number }, -- "Card odds" for the hand showing (or the next stage's)
+}
+
+-- #4061 (save version 49, shared/TicketBooth): the Ticket Booth's tickets. `have` to spend, `spent` lifetime (the Park
+-- Regular title), `limits` prize id -> the day or week number it counts in and how many were bought then, `rushAt`
+-- when today's Ticket Rush hour started (os.time(), 0 for never).
+export type TicketSave = {
+	have: number,
+	spent: number,
+	limits: { [string]: { key: number, n: number } },
+	rushAt: number,
+}
+export type TicketPrizeRow = {
+	id: string,
+	name: string,
+	line: string,
+	price: number,
+	left: number?, -- more that may be bought now, nil for no limit
+	per: string?, -- "day", "week" or "once" with a limit
+	blocker: string?, -- why BUY is off now, nil when it can be bought
+}
+export type TicketBoothView = {
+	tickets: number,
+	spent: number,
+	rushEndsAt: number?, -- while the rush runs
+	rushUsedToday: boolean,
+	weekEndsAt: number,
+	prizes: { TicketPrizeRow },
+	ready: number, -- prizes that can be bought now (the "!")
+}
+
 export type TraitSave = {
 	tokens: number,
 	freeUsed: number,
@@ -1271,6 +1339,9 @@ export type Settings = {
 	catPickSort: string, -- #3940: the pick-a-cat list's Sort ("Money", "Level" or "Rarity")
 	catPickFlipped: boolean, -- #3940: that Sort turned round
 	catPickShow: string, -- #3940: the Show chips that are on ("Working,No trait"; "" for All)
+	autoBowlClaim: boolean, -- #4266: the Auto Bowl pass tames arrived bowl cats (shared/AutoBowl)
+	autoBowlRefill: boolean, -- #4266: the Auto Bowl pass refills empty bowls with owned food
+	bowlNewCatCard: boolean, -- #4266: a cat tamed at a bowl shows the big Cat found card (off: a toast)
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
@@ -1355,6 +1426,11 @@ export type PlayerProfile = {
 	-- (the "!" over the cart until then). New fields with defaults: the shelf opens with a VERSION bump (MysteryOpen).
 	mystery: { [string]: boolean },
 	mysterySeen: boolean,
+	-- #4055 (save version 49, shared/FishStore): the Store passes bought with golden fish (FishStore key -> true); each
+	-- counts as owning that pass (PassService.addBought)
+	fishBought: { [string]: boolean },
+	tickets: TicketSave, -- #4061 (save version 49): the Ticket Booth
+	dragon: DragonSave, -- #4062 (save version 49): the Dragon Keep
 	-- #3699 (shared/BagColours): the Backpack's two colour picks, nil while both are the built ones. No VERSION bump:
 	-- an older server dropping it only loses a colour pick, and the switch goes on after a restart with this code.
 	bagColours: { main: string, trim: string }?,
@@ -1461,6 +1537,7 @@ export type PlayerState = {
 	bait: BaitView?, -- nil when the bowl is empty
 	bait2: BaitView?, -- #1161: the second bowl's, nil when it is empty
 	secondBowl: SecondBowl?, -- #1161: "on" (the pass: bowl 2 takes food) or "offer" (show the pass in the Store)
+	autoBowl: { owned: boolean }?, -- #4266: whether the Auto Bowl pass is owned (its switches are in settings)
 	-- extras (not in the UI contract, used by the client controller)
 	cats: { [string]: CatView },
 	collection: { [string]: number },
@@ -1480,6 +1557,10 @@ export type PlayerState = {
 	-- the dailyDeal switch is off
 	dailyDeal: DailyDealView | false,
 	mysteryOpen: boolean, -- BuyMystery is taken here (Config.MysteryOpen, or Studio)
+	-- #4055: the Store's golden fish prices (FishStore.view), nil while the fishStore switch is off
+	fishStore: { { key: string, fish: number, bought: boolean, made: boolean } }?,
+	ticketBooth: TicketBoothView?, -- #4061: nil while the ticketBooth switch is off or below TicketBoothTier
+	dragon: DragonView?, -- #4062: nil while the dragonKeep switch is off or below the Castle's tier
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
 	baitSpeed: number, -- F54: the All Cats track's summed bait speed, capped at BaitSpeedMax
@@ -1501,6 +1582,9 @@ export type PlayerState = {
 	invite: InviteView?,
 	-- #3196: the Mystic Pool card; nil while the `traits` flag is off, the station is shut, or from an older server
 	traits: TraitsView?,
+	-- #4195: the Admin Wheel that is up now (AdminWheel.view): its event's id and end, and whether this account has
+	-- spun it; nil with no wheel up
+	adminWheel: { eventId: string, spun: boolean, endsAt: number }?,
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,

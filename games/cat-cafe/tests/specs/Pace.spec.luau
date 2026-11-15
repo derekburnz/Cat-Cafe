@@ -1194,7 +1194,7 @@ return function()
 	-- after Tier 5, Tier 7 8 to 11 h after Tier 6, both in one go. Fit run (10 runs): Tier 6 16 h 17, Tier 7 26 h 19.
 	describe("Tiers 6 and 7 on the money ladder (QA edges, #2651)", function()
 		it(
-			"Tier 6 comes 1 to 2.5 h after Tier 5 and Tier 7 1.5 to 3.5 h after Tier 6, in one go (#4320: 1 h 17 and 2 h 20, were 1.75 to 3.5 and 2.5 to 5; #4189: 2 h 27 and 3 h 32, were 4.5 to 7.5 and 8 to 11.5)",
+			"Tier 6 comes 0.5 to 2 h after Tier 5 and Tier 7 0.75 to 2.5 h after Tier 6, in one go (#4537: 0 h 56 and 1 h 24, were 1 to 2.5 and 1.5 to 3.5; #4320: 1 h 17 and 2 h 20, were 1.75 to 3.5 and 2.5 to 5; #4189: 2 h 27 and 3 h 32, were 4.5 to 7.5 and 8 to 11.5)",
 			function()
 				local limit = 40 * HOUR
 				local list =
@@ -1220,11 +1220,12 @@ return function()
 				-- #3660 (Design-Agent): the floor is 4.5 h, was 5 h, since a new save starts with one table
 				-- #4189: 2 h 27 and 3 h 32 with Tier 6 at 1.25B and Tier 7 at 12.5B (3 h 10 and 5 h 10 at 2.5B and 25B)
 				-- #4320: 1 h 17 and 2 h 20 with Tier 6 at 625M and Tier 7 at 6.25B
-				if six < 1 * HOUR or six > 2.5 * HOUR then
-					error("Tier 6 outside 1 to 2.5 h after Tier 5: " .. text)
+				-- #4537 (Derek 2026-11-15: halve both): 0 h 56 and 1 h 24 with Tier 6 at 312.5M and Tier 7 at 3.125B
+				if six < 0.5 * HOUR or six > 2 * HOUR then
+					error("Tier 6 outside 0.5 to 2 h after Tier 5: " .. text)
 				end
-				if seven < 1.5 * HOUR or seven > 3.5 * HOUR then
-					error("Tier 7 outside 1.5 to 3.5 h after Tier 6: " .. text)
+				if seven < 0.75 * HOUR or seven > 2.5 * HOUR then
+					error("Tier 7 outside 0.75 to 2.5 h after Tier 6: " .. text)
 				end
 			end
 		)

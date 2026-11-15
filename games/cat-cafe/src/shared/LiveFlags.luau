@@ -199,9 +199,13 @@ LiveFlags.KEYS = {
 	"afkButton", -- #4346: the HUD's AFK tile and AfkMode (shared/AfkCafe): home, 2x rest at once, the rejoin keeps it
 	"freeCatchPads", -- Derek 2026-11-14: phone, tablet and console catches below Tier 2 are the tutorial's (shared/FreeCatch)
 	"fusion", -- #4104: the Fusion Observatory (shared/Fusion); on after the save version 50 restart
+	-- #4527 (Derek 2026-11-15: "too much popups on screen maybe remove popups from claiming stuff"): the Mystery gift's
+	-- centre card; off (the default) the gift opens with its sound alone
+	"giftCard",
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
+	giftCard = true, -- #4527
 	tradeFish = true,
 	nightCatch = true,
 	loadingScreen = true,

@@ -207,16 +207,17 @@ end
 -- #4251 Harvest Hollow (harvest-hollow-spec 3b): a harvest cat is kept and earns like the cat two rarities lower in
 -- the owner's newest area, never below Common (CatStats.areaMultiplier). `area = "harvest"`: it spawns only in Harvest
 -- Hollow and counts toward no Index page, total, track or reward (like the Secrets).
-Catalog.HARVEST_EARNS_LIKE = table.freeze({
+local HARVEST_EARNS_LIKE: { [string]: Types.Rarity } = {
 	Common = "Common",
 	Rare = "Common",
 	Epic = "Common",
 	Legendary = "Rare",
 	Mythical = "Epic",
-}) :: { [string]: Types.Rarity }
+}
+Catalog.HARVEST_EARNS_LIKE = table.freeze(HARVEST_EARNS_LIKE)
 
 local function harvest(def: Types.CatDef): Types.CatDef
-	local like = Catalog.HARVEST_EARNS_LIKE[def.rarity] or "Common"
+	local like: Types.Rarity = HARVEST_EARNS_LIKE[def.rarity] or "Common"
 	def.area = "harvest"
 	def.earnsLike = like
 	def.incomePerSecond = Catalog.rarities[like].incomePerSecond

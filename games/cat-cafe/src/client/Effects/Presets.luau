@@ -976,6 +976,21 @@ Presets.emitters = {
 		drag = 0.4,
 		lightEmission = 0.25,
 	},
+	-- #4386 Cherry Blossom Grove's air (a future area, id "cherry"): pink and white petals drifting down round you,
+	-- turning as they fall. Thin, like the Castle's motes.
+	cherryPetals = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(255, 196, 214), Color3.fromRGB(255, 240, 244) },
+		size = { 0.2, 0.14 },
+		transparency = { 0.1, 0.9 },
+		lifetime = { 4, 5.5 },
+		speed = { 0.3, 0.9 },
+		spread = 50,
+		rate = 8,
+		acceleration = Vector3.new(0.5, -1, 0.3),
+		drag = 0.5,
+		rotSpeed = { -80, 80 },
+	},
 	-- #4069 Snowy Mountain. `snowfall` is the area's air: soft flakes drifting down round you, with a little sideways
 	-- drift, fading before they pile up. The three sig* ones are its rarer cats' (Presets.signature): `sigFrost` a
 	-- puff of frosty breath off the White Tiger Cat's head, `sigSnowflake` the flakes the Blizzard Cat's swirl leaves
@@ -1759,6 +1774,22 @@ Presets.catchFlavour = {
 			gustHeight = 8,
 			gustEvery = 0.18,
 			cats = { dragon_knight = 2 }, -- a taller fanfare for the Dragon Knight
+		},
+		-- #4386 Cherry Blossom Grove (a future area, id "cherry"): a puff of petals, then sparkles, a blush ring, and
+		-- petals climbing for the rarest
+		cherry = {
+			preset = "smokePuff",
+			colour = Color3.fromRGB(255, 196, 214),
+			puff = 6,
+			flakes = 10,
+			flakesFrom = "Epic",
+			ringScale = 1.3,
+			ringFrom = "Legendary",
+			gusts = 3,
+			gustsFrom = "Mythical",
+			gustHeight = 7,
+			gustEvery = 0.15,
+			cats = {},
 		},
 	} :: { [string]: CatchFlavour },
 }
@@ -5090,6 +5121,7 @@ Presets.cannon = {
 		snowy = Color3.fromRGB(214, 236, 255), -- Tier 8 (#4069): ice blue
 		waterpark = Color3.fromRGB(120, 205, 240), -- #4070: pool blue
 		castle = Color3.fromRGB(255, 214, 120), -- #4071: banner gold
+		cherry = Color3.fromRGB(255, 176, 200), -- #4386: blossom pink (a future area)
 	} :: { [string]: Color3 },
 }
 
@@ -5927,6 +5959,15 @@ Presets.areaFx = {
 			puffPreset = "catchSparkle",
 			puff = 6,
 		},
+		-- #4386 Cherry Blossom Grove (a future area, id "cherry"): petals in the air and a pink puff where its strays
+		-- come and go. Its box is Config.World's Cherry* once the area is in; until then nothing here runs.
+		cherry = {
+			air = "cherryPetals",
+			colour = Color3.fromRGB(255, 196, 214),
+			puffPreset = "smokePuff",
+			puff = 6,
+			lift = 4,
+		},
 	} :: { [string]: AreaFxSpec },
 }
 
@@ -6150,6 +6191,7 @@ Presets.areaWater = {
 		"CatCafe_Castle_",
 		"CatCafe_Camp_WaterPark",
 		"CatCafe_Camp_Castle",
+		"CatCafe_Cherry_", -- #4386: the koi pond (a future area)
 	},
 	suffix = "_Water",
 	within = 110,
@@ -6169,6 +6211,7 @@ Presets.areaWater = {
 		{ piece = "KidsPool", glint = "poolGlint", parts = 1, ringEvery = 2.2, ring = 2.6 },
 		{ piece = "Moat", glint = "poolGlint", parts = 2, ringEvery = 2.2, ring = 3 },
 		{ piece = "Well", glint = "wellGlint", parts = 1, ringEvery = 3.5, ring = 1.2 },
+		{ piece = "Pond", glint = "poolGlint", parts = 2, ringEvery = 2.6, ring = 1.8 }, -- #4386: koi ripples
 	} :: { AreaWaterKind },
 }
 

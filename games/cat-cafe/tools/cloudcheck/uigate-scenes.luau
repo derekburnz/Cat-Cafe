@@ -2368,6 +2368,8 @@ local SCENES = {
 	-- #2915: ranking up to Tier 2 turns the rank-up button into "Fly to the Park"; pressing it closes the window, and
 	-- the picker (opened here, as the trip to the cannon would) rings the Park card's Launch. A flight ends both.
 	{ "ParkFly", function()
+		-- #4480: "Fly to the Park" shows only while the walk to the Park is on (parkGateTrail, off by default)
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_parkGateTrail", true)
 		Scenes._rankTier = (UI.getState() :: any).tier -- Scenes.close puts the sample tier back
 		Scenes._parkFly = (UI.getState() :: any).money or 0 -- the sample's money would make Tier 3 ready
 		UI.update({ money = 0, tier = 1 } :: any)
@@ -2397,6 +2399,7 @@ local SCENES = {
 		local town = window:FindFirstChild("town", true) :: Instance
 		local other = town and town:FindFirstChild("Launch", true) :: Instance
 		assert(other == nil or other:FindFirstChild("TutorialGlow") == nil, "uigate: the ring is on the wrong card (#2915)")
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_parkGateTrail", nil)
 	end },
 	-- #2687 part 4: the "Unlocked!" card a station's reveal brings: the station's picture and name, the new perk in gold
 	-- and its one line, every word fitting, the card on screen with its button a finger tall
@@ -4549,6 +4552,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- out catching: the ask card's one line says so, and Go to my cafe travels home. The Mystery Visitor's card is next,
 	-- and the rich customer's card went when its visit ended
 	{ "FirstVisitAway", function()
+		-- an earlier scene ended the walk-through, which turns the cannon's wrap-up hint on until a flight; a player who
+		-- is away has flown, which ends it. Since #4480 no "The Park is open!" hint takes its place at Tier 2, so the
+		-- wrap-up line was still up here and held the card back (FirstVisitLogic.holds)
+		UI.cannon.wrapUp.on = false
 		local trips = {}
 		local connection = UI.events.travel:Connect(function(destination)
 			table.insert(trips, destination)
@@ -9326,7 +9333,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "CannonAfterBowl", function()
 		UI.parkTrail.reach(true) -- a player who has been to the Park: the Park line (#3893) would come first otherwise
 		UI.cannon.setWild(nil)
-		UI.update({ tutorialStep = 4, tier = 2 } :: any)
+		-- #4480: at Tier 1 (the bowl's tier): with the walk to the Park off, the Tier 2 rank up ends the tutorial
+		UI.update({ tutorialStep = 4, tier = 1 } :: any)
 		UI.update({ tutorialStep = 5 } :: any)
 		task.wait(0.1)
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD", true) :: Instance
@@ -9341,7 +9349,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			"uigate: the tutorial strip after the bowl reads " .. table.concat(texts, " | ") .. " (#2477)"
 		)
 		UI.cannon.wrapUp.on = false -- as a flight clears it, so later scenes keep their own lines
-		UI.update({ tutorialStep = 9 } :: any)
+		UI.update({ tutorialStep = 9, tier = 2 } :: any)
 		UI.parkTrail.reach(false)
 	end },
 	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
@@ -10194,6 +10202,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 			return ""
 		end
+		-- #4480: the walk to the Park shows only with the parkGateTrail switch on
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_parkGateTrail", true)
 		UI.tutorial.hide()
 		UI.update({ tutorialStep = 9, tier = 2 } :: any)
 		UI.parkTrail.reach(false)
@@ -10228,6 +10238,33 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local settings = table.clone((UI.getState() :: any).settings or {})
 		settings.tutorialButton = true
 		UI.update({ settings = settings } :: any)
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_parkGateTrail", nil)
+	end },
+	-- #4480 (Derek 2026-11-15: "just have it show the unlock animation after ranking up to tier 2 and end tutorial
+	-- there"): with the parkGateTrail switch off, a Tier 2 rank up brings no "The Park is open!" hint and no Park line
+	{ "ParkWalkOff", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD", true) :: Instance
+		local function strip(): string
+			for _, piece in hud:GetDescendants() do
+				if piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Visible then
+					return piece.Text
+				end
+			end
+			return ""
+		end
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_parkGateTrail", nil)
+		assert(not UI.parkTrail.walkOn(), "uigate: the walk to the Park is on with its switch off (#4480)")
+		UI.tutorial.hide()
+		UI.cannon.setWild(nil)
+		UI.parkTrail.reach(false)
+		UI.parkTrail.set(nil, nil)
+		UI.update({ tutorialStep = 9, tier = 1 } :: any)
+		UIShim.advance(0.1)
+		UI.update({ tier = 2 } :: any) -- the rank up to Tier 2
+		UIShim.advance(0.5)
+		assert(string.find(strip(), "Park", 1, true) == nil, "uigate: after the Tier 2 rank up the strip reads " .. strip() .. " (#4480)")
+		UIShim.advance(5)
+		assert(strip() ~= UI.parkTrail.STRIP and strip() ~= UI.parkTrail.STRIP_PLAIN, "uigate: the Park line showed with the walk off (#4480)")
 	end },
 	-- #3558: one menu look for a whole session. The switch flipping after the UI was built changes nothing here, so no
 	-- window can end up with cream cards under white words; the flip reaches a player at their next join.

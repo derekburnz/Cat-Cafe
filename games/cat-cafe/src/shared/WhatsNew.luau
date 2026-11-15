@@ -11,6 +11,8 @@
 --   thanks    optional (Derek2 2026-11-07: "mention of peoples fixes/suggestions ... it can use their roblox names"):
 --             the Roblox username of a playtester whose report or suggestion this update came from, only for the
 --             playtesters Derek2 has named; the board shows "💡 Thanks to <name>" under it. Never with a creditId.
+--   startsAt  optional: a Unix time (UTC) before which the board leaves the row out, so a row for an update that opens
+--             at a set time can merge early and still appear only once it is live (3 New Worlds, 2026-11-15)
 -- WhatsNew.spec checks every rule, so a bad row fails the gate.
 
 local WhatsNew = {}
@@ -23,54 +25,64 @@ export type Row = {
 	text: string,
 	creditId: string?,
 	thanks: string?,
+	startsAt: number?,
 }
 
 WhatsNew.ICONS = table.freeze({ "new", "cat", "look", "faster", "fix" })
 WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
+local UPDATE_20_00 = 1794772800 -- 2026-11-15 20:00 UTC: the 3 New Worlds restart, when the UPDATE5 code opens too
+
 WhatsNew.rows = table.freeze({
-	-- 3 New Worlds update (Growth-Agent launch pack, Sun 2026-11-15 20:00 UTC): in the last publish before the restart,
-	-- so every server has them as the worlds open. Tier 8 to 10 gates stay as they are (Derek 2026-11-14 14:55 UTC).
+	-- 3 New Worlds update (Growth-Agent launch pack, Sun 2026-11-15 20:00 UTC): each row waits for startsAt, so it can
+	-- merge early and the board shows it only once the worlds and the UPDATE5 code are open. Tier 8 to 10 gates stay as they are (Derek 2026-11-14 14:55 UTC).
 	{
 		id = "snowy_mountain",
 		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
 		icon = "new",
 		text = "Snowy Mountain opens (T8)",
 	},
 	{
 		id = "water_park",
 		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
 		icon = "new",
 		text = "Water Park opens (T9)",
 	},
 	{
 		id = "medieval_castle",
 		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
 		icon = "new",
 		text = "Medieval Castle opens (T10)",
 	},
 	{
 		id = "new_cats_30",
 		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
 		icon = "cat",
 		text = "30 new cats to catch",
 	},
 	{
 		id = "ticket_booth",
 		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
 		icon = "new",
 		text = "Ticket Booth prizes",
 	},
 	{
 		id = "dragon_keep",
 		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
 		icon = "new",
 		text = "Raise a dragon: Dragon Keep",
 	},
 	{
 		id = "code_update5",
 		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
 		icon = "new",
 		text = "New code: UPDATE5",
 	},
@@ -1134,9 +1146,25 @@ for _, row in WhatsNew.rows do
 	table.freeze(row)
 end
 
--- The rows the board shows: the newest SHOWN, or all of them when there are fewer (it never pads).
-function WhatsNew.latest(): { Row }
-	return table.move(WhatsNew.rows, 1, math.min(WhatsNew.SHOWN, #WhatsNew.rows), 1, {})
+-- Whether `row` is live at `now` (Unix seconds): a row with no startsAt always is.
+function WhatsNew.isLive(row: Row, now: number): boolean
+	return row.startsAt == nil or (row.startsAt :: number) <= now
+end
+
+-- The rows the board shows at `now` (default: the server's clock): the newest SHOWN of those already live, or all of
+-- them when there are fewer (it never pads).
+function WhatsNew.latest(now: number?): { Row }
+	local at = now or workspace:GetServerTimeNow()
+	local out: { Row } = {}
+	for _, row in WhatsNew.rows do
+		if #out >= WhatsNew.SHOWN then
+			break
+		end
+		if WhatsNew.isLive(row, at) then
+			table.insert(out, row)
+		end
+	end
+	return out
 end
 
 -- "Nov 4" for "2026-11-04" (UTC month and day, never "2 days ago"); "" for a malformed date.

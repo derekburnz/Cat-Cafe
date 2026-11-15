@@ -1992,6 +1992,12 @@ local function wireIntents()
 			Net.fire("TelemetryReport", "starter_suggest", outcome)
 		end)
 	end
+	-- #4437: the Money boost card shown or how it ended, "<outcome>:<rung>"; the server logs each once a session
+	if events.moneyCard ~= nil then
+		events.moneyCard:Connect(function(what: string)
+			Net.fire("TelemetryReport", "money_card", what)
+		end)
+	end
 	-- #4176: a purchase prompt's source, "source:id"; the server allowlists it and keeps it 2 minutes for the receipt
 	if events.buySource ~= nil then
 		events.buySource:Connect(function(what: string)

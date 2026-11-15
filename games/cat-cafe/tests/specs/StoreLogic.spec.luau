@@ -852,23 +852,35 @@ return function()
 				expect(StoreLogic.saleWas(card("kingPack"), half, Config, Config.StoreSaleEnds)).to.equal(
 					nil
 				)
-				for _, key in
-					{
-						"money",
-						"vip",
-						"longNap",
-						"accessories",
-						"secondBowl",
-						"gardenDecor",
-						"signStylePack",
-						"starterBundle",
-					}
-				do
+				for _, key in { "money", "starterBundle" } do
 					expect(Config.StoreWasPrice[key]).to.equal(nil)
 				end
 				expect(
-					StoreLogic.saleWas(card("vip"), { robux = 13, forSale = true }, Config, before)
+					StoreLogic.saleWas(
+						card("starterBundle"),
+						{ robux = 13, forSale = true },
+						Config,
+						before
+					)
 				).to.equal(nil)
+			end)
+
+			it("keys each money rung on its own (#4377)", function()
+				local rung: any = card("money")
+				rung.multiplier = 3
+				expect(StoreLogic.saleKey(rung)).to.equal("money3")
+				expect(StoreLogic.saleKey(card("vip"))).to.equal("vip")
+				expect(StoreLogic.saleKey(card("money"))).to.equal("money")
+				expect(StoreLogic.saleWas(rung, { robux = 29, forSale = true }, Config, before)).to.equal(
+					59
+				)
+				expect(StoreLogic.saleWas(rung, { robux = 59, forSale = true }, Config, before)).to.equal(
+					nil
+				)
+				rung.multiplier = 4
+				expect(StoreLogic.saleWas(rung, { robux = 49, forSale = true }, Config, before)).to.equal(
+					99
+				)
 			end)
 
 			it(
@@ -884,7 +896,7 @@ return function()
 					end
 					expect(Config.StoreWasPrice.royalCat.now).to.equal(199)
 					expect(Config.StoreWasPrice.kingPack.now).to.equal(299)
-					expect(count).to.equal(8) -- the Golden Pond pass has no Store card; the potion packs left the Store
+					expect(count).to.equal(21) -- the Golden Pond pass has no Store card; the potion packs left the Store
 					-- every key is a card the Store can show
 					local cards: { [string]: boolean } = {
 						[StoreLogic.STARTER.key] = true,
@@ -896,6 +908,10 @@ return function()
 					end
 					for _, product in StoreLogic.PRODUCTS do
 						cards[product.key] = true
+					end
+					cards.longNap = true
+					for multiplier in Config.MoneyPassIds do
+						cards["money" .. tostring(multiplier)] = true
 					end
 					for key in Config.StoreWasPrice do
 						expect(cards[key]).to.equal(true)

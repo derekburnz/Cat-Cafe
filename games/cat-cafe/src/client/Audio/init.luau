@@ -18,6 +18,7 @@ local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local AdminDrops = require(script.Parent.Effects.AdminDrops)
 local AdminFlash = require(script.Parent.Effects.AdminFlash)
 local AreaFx = require(script.Parent.Effects.AreaFx)
 local Beats = require(script.Beats)
@@ -31,6 +32,7 @@ local DragonRise = require(script.Parent.Effects.DragonRise)
 local Effects = require(script.Parent.Effects)
 local EventBanner = require(script.Parent.Effects.EventBanner)
 local FusionFx = require(script.Parent.Effects.FusionFx)
+local HarvestFx = require(script.Parent.Effects.HarvestFx)
 local Logic = require(script.Logic)
 local MysticIntroCut = require(script.Parent.Effects.MysticIntroCut)
 local MysticPool = require(script.Parent.Effects.MysticPool)
@@ -2302,6 +2304,17 @@ local function followAreas()
 	-- #4197: a Cat Storm's stray lands
 	StormFall.onLand(function(at)
 		Audio.play(Logic.STORM_LAND_CUE, at)
+	end)
+	-- #4197: a Fish Fountain fish or a Crate Drop crate lands
+	AdminDrops.onLand(function(kind, at)
+		local cue = Logic.ADMIN_DROP_CUES[kind]
+		if cue ~= nil then
+			Audio.play(cue, at)
+		end
+	end)
+	-- #4251: a Harvest Hollow patch pumpkin is picked near you
+	HarvestFx.onPick(function(at)
+		Audio.play(Logic.HARVEST_PICK_CUE, at)
 	end)
 end
 

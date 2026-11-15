@@ -1547,6 +1547,21 @@ Presets.emitters = {
 		drag = 0.7,
 		rotSpeed = { -90, 90 },
 	},
+	-- #4251 Harvest Hollow's air (Effects/HarvestFx): amber, gold and rust leaves falling slowly round you, rocking
+	-- as they go. Thin: it sits behind the strays and the pumpkins.
+	harvestLeaves = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(236, 160, 60), Color3.fromRGB(196, 84, 44) },
+		size = { 0.3, 0.22 },
+		transparency = { 0.1, 0.9 },
+		lifetime = { 4, 5.5 },
+		speed = { 0.4, 1 },
+		spread = 40,
+		rate = 8,
+		acceleration = Vector3.new(0.5, -1.2, 0.2),
+		drag = 0.5,
+		rotSpeed = { -90, 90 },
+	},
 	-- King Croissant's gold motes (Effects/ShopCats, #1191): a slow drift of tiny warm gold lights rising off him.
 	goldMote = {
 		texture = Presets.textures.sparkle,
@@ -3683,6 +3698,38 @@ Presets.adminDrops = {
 		puff = "stormPuff",
 		puffCount = 10,
 	},
+}
+
+-- #4251 (Effects/HarvestFx): Harvest Hollow. Leaves (`air`) fall from a `box` held `height` studs over the camera's
+-- focus while you are within `airWithin` studs of the Thankful Board (`boardTag`), looked at every `every` seconds,
+-- at `calmRate` of the rate with Reduce Motion. A patch pumpkin (`pumpkinTag`) whose `readyAttribute` goes false
+-- within `within` studs pops `pickCount` pieces `lift` studs up and a `pickRing` stud ring; one that comes back
+-- sprouts `regrowCount` green sparkles. Every `glintEvery` seconds the nearest `glintMost` ready pumpkins within
+-- `glintWithin` studs give `glintCount` gold glints.
+Presets.harvestFx = {
+	pumpkinTag = "HarvestPumpkin",
+	boardTag = "HarvestBoard",
+	readyAttribute = "Ready",
+	airWithin = 130,
+	air = "harvestLeaves",
+	box = Vector3.new(60, 1, 60),
+	height = 18,
+	every = 0.5,
+	calmRate = 0.2,
+	within = 120,
+	lift = 1.2,
+	pick = "catchSparkle",
+	pickCount = 10,
+	pickColour = Color3.fromRGB(240, 140, 40), -- pumpkin orange
+	pickRing = 5,
+	regrow = "catchSparkle",
+	regrowCount = 5,
+	regrowColour = Presets.palette.leaf,
+	glint = "coinGlint",
+	glintCount = 2,
+	glintEvery = 5,
+	glintWithin = 60,
+	glintMost = 3,
 }
 
 -- #4325 (Effects/AdminFlash): an admin event takes the screen and the world. The 3, 2, 1 begins `countFrom` seconds

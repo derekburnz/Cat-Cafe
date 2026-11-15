@@ -2533,6 +2533,8 @@ local RALLY_TWINS: { [string]: string } = {
 local RALLY_BOARD_TAG = "RallyBoard"
 -- #1753: the pity cat's sign (Layout.townSquare.pitySign), tagged for the client's countdown on its Screen part.
 local PITY_SIGN_TAG = "PitySign"
+-- #4362: the update poster (Layout.townSquare.updatePoster), tagged for the client's face on its Screen part.
+local UPDATE_POSTER_TAG = "UpdatePoster"
 
 type RallySwap = { plain: Instance?, rally: Instance, home: Instance }
 
@@ -2670,6 +2672,17 @@ local function buildTownSquare(parent: Instance)
 		)
 		model.Name = sign.asset
 		CollectionService:AddTag(model, PITY_SIGN_TAG)
+	end
+	local poster = spec.updatePoster
+	if AssetRegistry.known(poster.asset) then
+		local model = place(
+			poster.asset,
+			CFrame.new(poster.x, poster.y or 0.1, poster.z)
+				* CFrame.Angles(0, math.rad(poster.rotY or 0), 0),
+			square
+		)
+		model.Name = poster.asset
+		CollectionService:AddTag(model, UPDATE_POSTER_TAG)
 	end
 end
 

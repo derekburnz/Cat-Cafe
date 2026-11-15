@@ -39,6 +39,7 @@ export type Prize = {
 	limit: Limit?,
 	prize: Types.IndexPrize?, -- paid by Payout
 	tokens: number?, -- Trait Tokens, into profile.traits.tokens
+	cat: string?, -- an exclusive cat's id, given by TicketBoothService (the Booth Plush Cat)
 }
 
 -- In shelf order (section 1.3)
@@ -88,7 +89,24 @@ TicketBooth.PRIZES = {
 		price = 800,
 		prize = { potions = { swift_potion_big = 2 } },
 	},
+	{
+		id = "boothPlush",
+		name = "Booth Plush Cat",
+		line = "A Legendary cat, only here",
+		price = 8000,
+		limit = { per = "once", n = 1 },
+		cat = "booth_plush",
+	},
 } :: { Prize }
+
+-- #4061 (spec 1.3): the "Park Regular" chat title, held for good once a save has spent this many tickets
+-- (CafePassService adds it to the tag choices from profile.tickets.spent)
+TicketBooth.REGULAR_SPENT = 10000
+TicketBooth.REGULAR_TAG = "title_park_regular"
+
+function TicketBooth.regular(save: Types.TicketSave): boolean
+	return save.spent >= TicketBooth.REGULAR_SPENT
+end
 
 local byId: { [string]: Prize } = {}
 for _, prize in TicketBooth.PRIZES do

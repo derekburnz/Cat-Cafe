@@ -790,7 +790,7 @@ function FusionObservatory._buildConfirm(self: any, content: Frame)
 	local chips: Frame = Create("Frame", {
 		Name = "Traits",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(8, 28) -- 6 px under the result line, as the foot height counts it,
+		Position = UDim2.fromOffset(8, 28), -- 6 px under the result line, as the foot height counts it
 		Size = UDim2.new(1, -16, 0, 36),
 		ZIndex = 22,
 		Parent = foot,

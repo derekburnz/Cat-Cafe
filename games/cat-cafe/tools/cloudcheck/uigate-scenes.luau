@@ -6646,8 +6646,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		press("Collection", "IndexTab")
 		assert(title.Text ~= "Gold cats", "uigate: the Cats tab's line still reads Gold cats (#1772)")
 	end },
-	-- #4221: the Secret tab (secretAreas on): one card per area, Cafe Ghost found in gold, Glitch hidden in an open
-	-- area, the areas with no Secret yet "Coming soon"; the old Secret page is gone from the Cats tab
+	-- #4221: the Secret tab (secretAreas on): one card per area, Cafe Ghost found in gold, an open area's Secret hidden,
+	-- an area with no Secret yet "Coming soon"; the old Secret page is gone from the Cats tab
 	{ "IndexSecretTab", function()
 		local RS = game:GetService("ReplicatedStorage")
 		RS:SetAttribute("LiveFlag_secretAreas", true)
@@ -6666,14 +6666,30 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local ghost = page:FindFirstChild("alley", true)
 		local nameLabel = ghost and ghost:FindFirstChild("Name")
 		assert(nameLabel and nameLabel.Text == "Cafe Ghost", "uigate: the Alleyway card reads " .. tostring(nameLabel and nameLabel.Text))
+		-- #4255 put a Secret in every area: the Park's (open at Tier 3, not found) is hidden, and an area with no
+		-- Secret in the catalog (none since #4255) would read "Coming soon"
+		local Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog") :: any
+		local homes: { [string]: boolean } = {}
+		for _, def in Catalog.cats do
+			if def.secretArea ~= nil then
+				homes[def.secretArea] = true
+			end
+		end
 		local park = page:FindFirstChild("park", true)
 		local parkName = park and park:FindFirstChild("Name")
-		assert(parkName and parkName.Text == "Coming soon", "uigate: the Park card reads " .. tostring(parkName and parkName.Text))
+		local parkWant = if homes.park then "???" else "Coming soon"
+		assert(parkName and parkName.Text == parkWant, "uigate: the Park card reads " .. tostring(parkName and parkName.Text) .. ", not " .. parkWant .. " (#4221)")
+		for _, area in Catalog.areas do
+			local card = page:FindFirstChild(area.id, true)
+			local label = card and card:FindFirstChild("Name")
+			if not homes[area.id] then
+				assert(label and label.Text == "Coming soon", "uigate: " .. area.id .. " has no Secret yet but reads " .. tostring(label and label.Text) .. " (#4221)")
+			end
+		end
 		local count = page:FindFirstChild("Count", true)
 		assert(count and string.find(count.Text, "^1 / %d+ found$") ~= nil, "uigate: the Secret count reads " .. tostring(count and count.Text))
 		-- Review-QA in Studio: a bad property on the first card stopped the rest; every area has its card, and a
 		-- locked area's shape is faint on the portrait's ViewportFrame
-		local Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog") :: any
 		for _, area in Catalog.areas do
 			local card = page:FindFirstChild(area.id, true) :: GuiObject?
 			assert(card ~= nil and card.Visible, "uigate: no Secret card for " .. area.id .. " (#4221)")

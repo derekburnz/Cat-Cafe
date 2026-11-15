@@ -89,6 +89,7 @@ function Luck.of(
 	for _, source in Luck.sources(profile, now, luckyDay, event, charm) do
 		luck += source.value
 	end
+	luck *= DragonKeep.of(profile).luckMult -- #4569: the Claw and Crown full sets, 2x luck (still at most LuckMax)
 	return math.clamp(round(luck), 1, Config.LuckMax)
 end
 

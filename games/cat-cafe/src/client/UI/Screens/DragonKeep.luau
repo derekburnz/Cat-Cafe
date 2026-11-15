@@ -153,6 +153,7 @@ function DragonKeep.new(callbacks: Callbacks): DragonKeep
 	self._asking = false
 	self._askToken = 0
 	self._chosen = nil :: string? -- a binder card picked, waiting for its slot
+	self._reading = nil :: number? -- #4561: the filled slot whose card's words show under the slots
 	self._open = false
 	self._handPick = nil :: number? -- a Rekindle hand's card picked, waiting for its slot
 	self._handKey = ""
@@ -448,6 +449,8 @@ function DragonKeep._buildSlots(self: any, pages: Frame)
 	self._chooseLine = text({
 		Name = "Choose",
 		Size = UDim2.new(1, 0, 0, 18),
+		AutomaticSize = Enum.AutomaticSize.Y, -- #4561: a card's words may take two lines
+		TextWrapped = true,
 		LayoutOrder = 4,
 		TextSize = Theme.sizes.textTiny + 1,
 		TextColor3 = PAL.gold,
@@ -562,10 +565,22 @@ function DragonKeep._paintSlots(self: any)
 		local def = SharedKeep.card(self._chosen)
 		chosenName = if def then def.name else nil
 	end
-	self._chooseLine.Visible = chosenName ~= nil
+	-- #4561 (Derek 2026-11-15: "click your current equipped one to view and read what it does"): a tapped filled slot's
+	-- card, its name and words, until another tap
+	local reading = nil
+	if chosenName == nil and self._reading ~= nil and view ~= nil then
+		local id = (view.slots or {})[self._reading]
+		local def = if type(id) == "string" then SharedKeep.card(id) else nil
+		if def then
+			reading = ("%s: %s Tap again to swap it."):format(def.name, def.text or "")
+		else
+			self._reading = nil
+		end
+	end
+	self._chooseLine.Visible = chosenName ~= nil or reading ~= nil
 	self._chooseLine.Text = if chosenName
 		then ("Tap a slot to put %s there"):format(chosenName)
-		else ""
+		else reading or ""
 	local hands = if view then view.hands or 0 else 0
 	local waiting = view ~= nil and #(view.hand or {}) > 0
 	self._strip.Visible = waiting
@@ -603,7 +618,15 @@ function DragonKeep._slotTapped(self: any, index: number)
 		self:_paint()
 		return
 	end
-	-- an empty or filled slot with nothing chosen opens the binder to pick for it
+	-- #4561: a filled slot's first tap shows what its card does; the second (or an empty slot) opens the binder
+	local held = if view ~= nil then (view.slots or {})[index] else nil
+	local filled = type(held) == "string" and held ~= ""
+	if filled and self._reading ~= index then
+		self._reading = index
+		self:_paint()
+		return
+	end
+	self._reading = nil
 	self:showTab("binder")
 end
 

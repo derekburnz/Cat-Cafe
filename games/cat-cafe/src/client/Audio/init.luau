@@ -44,6 +44,7 @@ local Splash = require(script.Parent.Effects.Splash)
 local StormFall = require(script.Parent.Effects.StormFall)
 local TradeUnlock = require(script.Parent.Effects.TradeUnlock)
 local Trampoline = require(script.Parent.Effects.Trampoline)
+local WaitingCat = require(script.Parent.Effects.WaitingCat)
 
 local Audio = {}
 
@@ -1018,6 +1019,9 @@ local CALL_MOST = 4
 local function strayCall(instance: Instance, watch: StrayWatch, part: BasePart, distance: number)
 	if instance:GetAttribute(WAITS_FOR) ~= Players.LocalPlayer.UserId then
 		return
+	end
+	if WaitingCat.held() then
+		return -- #4384: the bowl step is the one ask; the calls are not used up meanwhile
 	end
 	local now = os.clock()
 	if

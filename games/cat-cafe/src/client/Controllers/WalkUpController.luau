@@ -242,6 +242,46 @@ local KINDS: { Kind } = {
 			UI.lateStations.open(LateStations.MUSEUM)
 		end,
 	},
+	-- #4554 (Derek 2026-11-15): the Water Park's Ticket Booth and the Castle's Dragon Keep open from their rings too,
+	-- only while their switches are on (the server lays the rings and takes them away with the switch)
+	{
+		tag = "TicketBooth",
+		prompt = "TicketBoothPrompt",
+		window = "TicketBooth",
+		only = function()
+			return ReplicatedStorage:GetAttribute("LiveFlag_ticketBooth") == true
+		end,
+		open = function()
+			UI.lateStations.openBooth()
+		end,
+	},
+	{
+		tag = "DragonKeep",
+		prompt = "DragonKeepPrompt",
+		window = "DragonKeep",
+		only = function()
+			return ReplicatedStorage:GetAttribute("LiveFlag_dragonKeep") == true
+		end,
+		open = function()
+			UI.lateStations.openKeep()
+		end,
+	},
+	-- #4554 (Derek 2026-11-15: "observatory also needs the circle infront"): the Snowy camp's Fusion Observatory dome
+	{
+		tag = "FusionObservatory",
+		prompt = "FusionObservatoryPrompt",
+		window = "FusionObservatory",
+		only = function()
+			return ReplicatedStorage:GetAttribute("LiveFlag_fusion") == true
+		end,
+		open = function()
+			-- the window comes with #4107; until then the ring opens nothing
+			local open: any = (UI.lateStations :: any).openFusion
+			if open ~= nil then
+				open()
+			end
+		end,
+	},
 	{
 		tag = "IndexBoard", -- each area's board opens the Index on that area's page (Screens/IndexBoards)
 		prompt = "IndexPrompt",

@@ -214,6 +214,12 @@ ROSTER = {
     "KingCroissant": dict(rarity="Mythical", fur="fur_croissant", second="fur_croissant_dark", eyes="eye_amber",
                           pattern="stripes", muzzle="fur_custard", ruff="fur_custard", fluffy=True, scale=1.3,
                           body_scale=(1.1, 1.0, 1.08), tail_thick=0.3, nose="nose_brick", exclusive=True, shop=True),
+    # #4061 the Ticket Booth's prize (ticket-booth-and-dragon-keep.md 1.3): the Booth Plush Cat, a bubblegum pink plush
+    # with white paws, muzzle and tail tip, a prize bow with a lit gold ticket tag, and a red and white inner tube round
+    # its middle (props.py). Booth-only, fixed, never random, no gold twin.
+    "BoothPlush": dict(rarity="Legendary", fur="fur_bubblegum", second="fur_strawberry", eyes="eye_amber",
+                       pattern="solid", muzzle="milk", socks="milk", tip="milk", nose="nose_pink", eye_k=1.14,
+                       body_scale=(1.04, 1.0, 1.04), sparkle=True, exclusive=True, shop=True),
     # #1637 the Cafe Pass season 1 cat (cafe-pass.md section 4): Maple Muffin, a ginger tabby with cream paws and
     # muzzle in a knitted beret with a maple leaf pin (props.py). Exclusive, Legendary rate, sold only through the pass.
     "MapleMuffin": dict(rarity="Legendary", fur="fur_ginger", second="fur_russet", eyes="eye_amber", pattern="stripes",

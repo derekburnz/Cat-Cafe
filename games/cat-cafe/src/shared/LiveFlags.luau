@@ -176,6 +176,7 @@ LiveFlags.KEYS = {
 	"secretTrait", -- #3908: the Secret trait rarity (0.1%) in the Mystic Pool's rolls and odds (shared/Traits)
 	"tier8", -- #3997: Tier 8 and the Snowy Mountain (shared/LateTiers); on once the area is built, after a restart
 	"tier9", -- #4070: Tier 9 and the Water Park (shared/LateTiers); on once the area is built, after a restart, never before tier8
+	"tier10", -- #4184: Tier 10 and the Medieval Castle (shared/LateTiers); on once the area is built, after a restart, never before tier9
 	"rareCustomers", -- #3889: rare customers by a chance per arriving customer, at any table
 	"goldTone", -- #4133: gold cats are their base model toned gold (shared/GoldTone), not the _Gold models
 	"palJoin", -- #3995: a player who joins through a friend gets the cafe next door and no intro by itself (shared/PalJoin)
@@ -184,6 +185,7 @@ LiveFlags.KEYS = {
 	"updateFeature", -- #4175: the update's own item first on the Store's Featured tab on big update days (Config.UpdateFeature)
 	"adminEvents", -- #4195: admin events (Bowl Frenzy, the Admin Wheel) from the events schedule (shared/CafeEvents)
 	"secretAreas", -- #4221: one Secret per area; a rolled Mythical turns only into its own area's Secret (Catching.secret)
+	"spawnQueue", -- #4227: spawn pop-ups one at a time (UI/Components/SpawnQueue); false shows them as they come
 	"padControls", -- #4224: B back one step, L1/R1 tabs and pop-ups taking focus on a gamepad (UI/Components/GamepadNav)
 }
 -- Switches that stay off until the store holds an explicit true.
@@ -226,6 +228,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	secretTrait = true,
 	tier8 = true,
 	tier9 = true,
+	tier10 = true,
 	rareCustomers = true,
 	goldTone = true,
 	palJoin = true,

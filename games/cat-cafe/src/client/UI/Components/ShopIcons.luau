@@ -58,6 +58,9 @@ local IDS: { [string]: string } = {
 	-- Tier 9 Water Park (#4070, Model-Agent's 256 store pictures, group owned)
 	Crate_WaterPark = "rbxassetid://131949222748155",
 	Crate_WaterPark_Gold = "rbxassetid://85963054237364",
+	-- Tier 10 Medieval Castle (#4184, Model-Agent's 256 store pictures, group owned)
+	Crate_Castle = "rbxassetid://86599176060723",
+	Crate_Castle_Gold = "rbxassetid://89340633875692",
 	Crate_Classic = "rbxassetid://72888217681662",
 	Crate_Classic_Gold = "rbxassetid://115785859034580",
 	Crate_Rally = "rbxassetid://94810600062208", -- F101 Rally Crate (Model-Agent #766), banked only and no golden twin
@@ -590,6 +593,11 @@ end
 -- #4026: an outfit pack's 2:1 store art (cats close up in the pack), by its Row key ("packWinter")
 function ShopIcons.packArt(key: string): string?
 	return IDS["Icon_Store_" .. key:sub(1, 1):upper() .. key:sub(2) .. "Art"]
+end
+
+-- #4276: an outfit pack's square pass icon, by its Row key ("packWinter"), for the Store rail's Packs tab
+function ShopIcons.packIcon(key: string): string?
+	return IDS["Icon_Store_" .. key:sub(1, 1):upper() .. key:sub(2)]
 end
 
 function ShopIcons.storeTab(id: string): string?

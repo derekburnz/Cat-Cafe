@@ -1229,6 +1229,9 @@ local function applyState(s: Types.PlayerState)
 		-- #3529: the goal card's "Catch new kinds of cat 3/5" while five different cats is the goal; false otherwise
 		newKindGoal = if newKindGoal(s) then kindsOf(s) else false,
 		traits = if s.traits ~= nil then s.traits else false, -- #3196: the Mystic Pool's card
+		-- #4210: the Admin Wheel's spin for this account (AdminEventController reads it; false clears it, since
+		-- UI.update skips a nil)
+		adminWheel = if s.adminWheel ~= nil then s.adminWheel else false,
 		tutorialStep = s.tutorialStep,
 		-- #3285: what is in the first bowl, for the tutorial's food step (TutorialHints.view). Without it the HUD's
 		-- Bowl ring, its dim and the Kibble row's ring kept asking for food through the wait for the cat. false while
@@ -2600,6 +2603,11 @@ local function wireServerEvents()
 	Net.on("OwnerShout", function(text: string)
 		(UI :: any).ownerShout(text)
 	end)
+	-- #4227: a queued spawn line's sting plays as it shows, not as it arrives
+	local hooks: any = UI
+	hooks.onAnnounceShown = function(text: string, rarity: string?)
+		Moments.Announce:Fire(text, rarity)
+	end
 	Net.on("Announce", function(text: string, rarity: string?)
 		-- #2399: the sting plays only with a shout-out that shows; UI.announce says false when it drops one (it said
 		-- nothing before #2426, which counts as shown)

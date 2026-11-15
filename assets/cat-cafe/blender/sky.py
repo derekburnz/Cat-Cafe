@@ -1,3 +1,6 @@
+# SUPERSEDED (#4291, 2026-11-14): the live sky now comes from assets/cat-cafe/vfx/sky_painted.py (painted clouds, a
+# deeper blue). Do not run this script to rebuild rbx/CatCafe_Sky.model.json: it would write the old plain faces' ids
+# back over the new ones. Only its Dn face (below the horizon) is still in use.
 """CatCafe_Sky: a soft daytime skybox in place of the Roblox default (Derek, 2026-10-27 22:37: "the sky shouldn't
 be the roblox default pick something simple"). Pale blue overhead fading to a warm cream horizon, no clouds.
 

@@ -37,7 +37,9 @@ end
 local SKIP: { [string]: boolean } = { Close = true, MenuFold = true, TravelFold = true }
 -- #4224: the frames that hold a window's tab row (a tabbed window's Tabs, the Store's Rail, the Bait Bowl's Bowls,
 -- the Decor shop's Chips): L1/R1 step through them, and a window's first selection lands below them
-local TAB_ROWS: { [string]: boolean } = { Tabs = true, Rail = true, Bowls = true, Chips = true }
+-- Review-QA's controller pass: and the Cats book's All / Working / Resting switch (Filters)
+local TAB_ROWS: { [string]: boolean } =
+	{ Tabs = true, Rail = true, Bowls = true, Chips = true, Filters = true }
 -- #4224 (Review-QA's controller pass): buttons a window's first selection passes over when it has another, so a
 -- habit A never spends every potion ("Use all potions", Use all) or collects a station strip in place of Launch
 -- (#4224 retest: and the Bait Bowl's Refill, so the first A is the tutorial's Kibble Use)
@@ -190,13 +192,35 @@ function GamepadNav.select(target: GuiObject?): boolean
 	return false
 end
 
+-- The shown X (a GuiButton named Close, or the button in a frame named Close) under `root`, or nil.
+function GamepadNav.closeButton(root: Instance): GuiButton?
+	for _, descendant in root:GetDescendants() do
+		if
+			descendant:IsA("GuiButton")
+			and (descendant.Name == "Close" or (descendant.Parent ~= nil and (
+				descendant.Parent :: Instance
+			).Name == "Close"))
+			and (descendant :: GuiButton).Selectable
+			and GamepadNav.shown(descendant)
+		then
+			return descendant :: GuiButton
+		end
+	end
+	return nil
+end
+
 -- Puts the gamepad selection on the first useful button under `root` and returns what was selected before (to hand
 -- back to restore). Does nothing off a gamepad, or when `root` has no button, and then returns nil.
 function GamepadNav.focus(root: Instance): (GuiObject?, boolean)
 	if not GamepadNav.isGamepad() then
 		return nil, false
 	end
-	local first = GamepadNav.first(root)
+	local first: GuiObject? = GamepadNav.first(root)
+	if first == nil then
+		-- Review-QA's controller pass: a window with nothing to press but prices (the Cafe Pass with no reward
+		-- ready) left the ring on the HUD button behind it; land on the window's X instead, so A or B closes it
+		first = GamepadNav.closeButton(root)
+	end
 	if first == nil then
 		return nil, false
 	end
@@ -375,8 +399,13 @@ function GamepadNav.stepTab(root: Instance, step: number): boolean
 		return false
 	end
 	local styles: { string? } = {}
+	-- a row whose tabs keep their own colours (Mouse Dash's pink Prizes and blue Leaderboard) names its open tab in
+	-- an OpenTab attribute, 1 up, or 0 for none open
+	local open = row:GetAttribute("OpenTab")
 	for index, tab in tabs do
-		styles[index] = Button.styleOf(tab)
+		styles[index] = if type(open) == "number"
+			then (if index == open then "gold" else "ghost")
+			else Button.styleOf(tab)
 	end
 	local index = GamepadNav.tabIndex(styles, step)
 	if index == nil then

@@ -120,7 +120,7 @@ STORE_FIT = 0.88
 MARKET_VIEWS = {"Crates": QUARTER, "Treats": (-14.0, 14.0), "FreshCatch": (-16.0, 24.0)}
 
 # #4061 the booth's shelf pictures: the wearables from the front, a touch to one side
-SHELF_VIEWS = {"SnorkelMask": (-22.0, 6.0), "SwimCap": (-28.0, 12.0), "SunVisor": (-30.0, 16.0),
+SHELF_VIEWS = {"SnorkelMask": (-38.0, 14.0), "SwimCap": (-40.0, 24.0), "SunVisor": (-30.0, 16.0),
                "StarfishShades": (-16.0, 4.0)}
 ICONS = {
     "CatCafe_Icon_GoldenFish": (icon_art.golden_fish, GOLD_INK, 10, (0.0, 8.0)),

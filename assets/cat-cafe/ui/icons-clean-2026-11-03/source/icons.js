@@ -495,3 +495,12 @@ Object.assign(window.ICONS, {
     <path d="M14 30 L8 27 M13 38 L6 38 M15 46 L9 50" stroke="#fff1d6" stroke-width="3" stroke-linecap="round"/>
     <path fill="#ff9a3c" stroke="${O}" stroke-width="2.6" stroke-linejoin="round" d="M57 30 Q63 24 59 16 Q56 21 53 18 Q51 25 55 30 Z"/>`,
 });
+
+// #4061: one prize ticket, for the Ticket Booth's balance and prices in place of 🎟️ (Model-Agent, 2026-11-15)
+Object.assign(window.ICONS, {
+  ticket: `<g transform="rotate(-10 32 32) translate(0 -7)"><path ${S} fill="#ff9a3c" d="M6 24 H58 V33 Q52 33 52 39 Q52 45 58 45 V54 H6 V45 Q12 45 12 39 Q12 33 6 33 Z"/>
+    <path d="M20 27 V51" stroke="${O}" stroke-width="2.6" stroke-dasharray="3.5 3.5"/>
+    <ellipse cx="37" cy="42.5" rx="6.5" ry="5.5" fill="#fff" stroke="${O}" stroke-width="2.6"/>
+    <circle cx="28.5" cy="35.5" r="3.1" fill="#fff" stroke="${O}" stroke-width="2.3"/><circle cx="34" cy="32" r="3.1" fill="#fff" stroke="${O}" stroke-width="2.3"/>
+    <circle cx="40.5" cy="32" r="3.1" fill="#fff" stroke="${O}" stroke-width="2.3"/><circle cx="46" cy="35.5" r="3.1" fill="#fff" stroke="${O}" stroke-width="2.3"/></g>`,
+});

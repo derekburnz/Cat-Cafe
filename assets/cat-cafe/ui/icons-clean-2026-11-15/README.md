@@ -7,6 +7,7 @@ Same clean style as `../icons-clean-2026-11-03/` (one SVG source, 64 by 64 view 
 | `Icon_Clean_TicketBooth.png` | Ticket Booth (two tickets) | #4061 |
 | `Icon_Clean_Observatory.png` | Observatory (dome with telescope) | #4062 |
 | `Icon_Clean_DragonKeep.png` | Dragon Keep (dragon head) | #4104 |
+| `Icon_Clean_Ticket.png` | one prize ticket, for the booth balance and prices | #4061 |
 
 Source: the `ticketBooth`, `observatory` and `dragonKeep` entries at the end of `../icons-clean-2026-11-03/source/icons.js`.
 

@@ -18,6 +18,7 @@ local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local AdminDrops = require(script.Parent.Effects.AdminDrops)
 local AdminFlash = require(script.Parent.Effects.AdminFlash)
 local AreaFx = require(script.Parent.Effects.AreaFx)
 local Beats = require(script.Beats)
@@ -2298,6 +2299,13 @@ local function followAreas()
 	-- #4197: a Cat Storm's stray lands
 	StormFall.onLand(function(at)
 		Audio.play(Logic.STORM_LAND_CUE, at)
+	end)
+	-- #4197: a Fish Fountain fish or a Crate Drop crate lands
+	AdminDrops.onLand(function(kind, at)
+		local cue = Logic.ADMIN_DROP_CUES[kind]
+		if cue ~= nil then
+			Audio.play(cue, at)
+		end
 	end)
 end
 

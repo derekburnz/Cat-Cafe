@@ -829,6 +829,28 @@ local Cues: { [string]: Cue } = {
 		range = 50,
 		voices = 2,
 	},
+	-- #4197 (Effects/AdminDrops.onLand): a Fish Fountain fish plops down (the Fish Pond's splash, lighter and higher;
+	-- minGap keeps a whole spray to a patter) and a Crate Drop crate touches the ground (the cannon's landing, lower)
+	adminFishLand = {
+		ids = {},
+		sheet = "sheetWorld",
+		region = { 3.600, 4.500 },
+		group = "Sfx",
+		volume = 0.35,
+		pitch = { 1.15, 1.4 },
+		minGap = 0.35,
+		range = 45,
+		voices = 2,
+	},
+	adminCrateLand = {
+		ids = { "rbxassetid://103029343434588" },
+		group = "Sfx",
+		volume = 0.5,
+		pitch = { 0.8, 0.9 },
+		minGap = 0.4,
+		range = 60,
+		voices = 2,
+	},
 	cloudHop = {
 		ids = { "rbxassetid://76704372473776" },
 		group = "Sfx",

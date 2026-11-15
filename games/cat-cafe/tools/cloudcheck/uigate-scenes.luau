@@ -8336,6 +8336,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	-- and in an area's wild part it is back, beside the Net button
 	{ "TackleWild", function()
+		-- #4499: the TackleShield scene before this one leaves the new player shield running, which hides the Tackle
+		UIShim.player:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() - 1)
 		UI.setZone("Alley")
 		UI.net.setEnabled(true)
 		UI.shove.setEnabled(true)
@@ -8383,6 +8385,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "TackleButton", function()
 		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
 		local NetButtonPlace = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.NetButtonPlace")
+		-- #4499: the PackDropShield scene before this one leaves the new player shield running, which hides the Tackle
+		UIShim.player:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() - 1)
 		UI.setZone("Alley")
 		UI.net.setEnabled(true)
 		UI.shove.setEnabled(true)

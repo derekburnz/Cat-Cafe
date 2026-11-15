@@ -6,9 +6,9 @@
 --   colours.
 -- - Binder N/54: every card in family order. One you own shows its words; one you don't is a "?" in its family's
 --   colour. Tap an owned card, then a slot, to put it there (free swaps).
--- - Give cats: the cats that may move in, weakest first, each with its Warmth. Tap to pick; "Spare Commons" and
---   "Repeats" pick for you (never a working, gold, rainbow or Legendary and better cat, and one copy of each cat
---   stays). A pick with special cats asks once ("Tap again"). Cats "move into the Keep": never any other word.
+-- - Give cats: the cats that may move in, weakest first, each with its Warmth. Tap to pick; "All Common" to
+--   "All Mythical" pick every cat of that rarity (#4566: never a locked or working cat). A pick with special cats
+--   asks once ("Tap again"). Cats "move into the Keep": never any other word.
 -- The hand: three cards over the window with the card odds under them (a random pick, earned only, so the odds show).
 -- Tap one to take it. A Rekindle hand then asks which slot it replaces (or the binder only), and offers "Keep my cards"
 -- for 25 golden fish. Motion-FX's Effects/CardFlip deals the cards when it is there.
@@ -69,6 +69,10 @@ local SLOT_MIN = 72
 local BINDER_CELL = 104
 local BINDER_H = 92
 local GIVE_CELL = 92
+-- #4566: the give picker's pick-all buttons, commonest first, and the line under them
+local PICK_RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
+local PICK_UNDER_H = 30
+local PICK_NOTE = "Locked cats and cats at work stay."
 local GIVE_H = 112
 local HAND_W = 170
 local HAND_H = 210
@@ -751,60 +755,58 @@ function DragonKeep._buildGive(self: any, pages: Frame)
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 		}),
 	})
-	Button.new({
-		name = "Commons",
-		text = "Spare Commons",
-		style = "ghost",
-		size = UDim2.fromOffset(132, 36),
-		textSize = Theme.sizes.textSmall,
-		layoutOrder = 1,
-		parent = top,
-		onClick = function()
-			self:_quick("commons")
-		end,
-	})
-	Button.new({
-		name = "Repeats",
-		text = "Repeats",
-		style = "ghost",
-		size = UDim2.fromOffset(100, 36),
-		textSize = Theme.sizes.textSmall,
-		layoutOrder = 2,
-		parent = top,
-		onClick = function()
-			self:_quick("repeats")
-		end,
+	-- #4566 (Derek 2026-11-15): one button per rarity picks every cat of it (locked and working cats stay)
+	for index, rarity in PICK_RARITIES do
+		Button.new({
+			name = "All" .. rarity,
+			text = "All " .. rarity,
+			style = "ghost",
+			size = UDim2.new(1 / #PICK_RARITIES, -5, 1, 0),
+			textSize = Theme.sizes.textSmall,
+			layoutOrder = index,
+			parent = top,
+			onClick = function()
+				self:_pickRarity(rarity)
+			end,
+		})
+	end
+	local under: Frame = Create("Frame", {
+		Name = "Under",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(0, 36 + 4),
+		Size = UDim2.new(1, 0, 0, PICK_UNDER_H),
+		Parent = page,
 	})
 	Button.new({
 		name = "Clear",
 		text = "Clear",
 		style = "ghost",
-		size = UDim2.fromOffset(72, 36),
+		size = UDim2.new(0, 72, 1, 0),
+		position = UDim2.new(1, -72, 0, 0),
 		textSize = Theme.sizes.textSmall,
-		layoutOrder = 3,
-		parent = top,
+		parent = under,
 		onClick = function()
 			self._picked = {}
 			self._asking = false
+			self._giveNote.Text = PICK_NOTE
 			self:_paintGive()
 		end,
 	})
 	self._giveNote = text({
 		Name = "Note",
-		Size = UDim2.new(1, -330, 0, 36),
+		Size = UDim2.new(1, -80, 1, 0),
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
-		LayoutOrder = 4,
-		Text = "Locked cats stay. One copy of each cat stays with the quick picks.",
-		Parent = top,
+		Text = PICK_NOTE,
+		Parent = under,
 	})
 	FitText.shrink(self._giveNote)
 	local list = scroller("Cats", page)
-	list.Position = UDim2.fromOffset(0, 36 + 6)
-	list.Size = UDim2.new(1, 0, 1, -(36 + 6 + self._buyH + 8))
+	list.Position = UDim2.fromOffset(0, 36 + 4 + PICK_UNDER_H + 6)
+	list.Size = UDim2.new(1, 0, 1, -(36 + 4 + PICK_UNDER_H + 6 + self._buyH + 8))
 	self._giveList = list
 	local layout: UIGridLayout = Create("UIGridLayout", {
 		CellPadding = UDim2.fromOffset(6, 6),
@@ -988,16 +990,20 @@ function DragonKeep._paintGive(self: any)
 	self._giveButton:setEnabled(count > 0)
 end
 
-function DragonKeep._quick(self: any, kind: string)
+function DragonKeep._pickRarity(self: any, rarity: string)
 	local list = self:_candidates()
 	local total = 0
 	for _ in self._cats or {} do
 		total += 1
 	end
 	self._picked = {}
-	for _, uid in DragonKeepLogic.quick(list, kind, total) do
+	local uids = DragonKeepLogic.byRarity(list, rarity, total)
+	for _, uid in uids do
 		self._picked[uid] = true
 	end
+	self._giveNote.Text = if #uids == 0
+		then string.format("No unlocked %s cats can move in.", rarity)
+		else PICK_NOTE
 	self._asking = false
 	self:_paintGive()
 end

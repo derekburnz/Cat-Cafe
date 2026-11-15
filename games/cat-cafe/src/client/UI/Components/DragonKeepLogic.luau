@@ -278,24 +278,15 @@ function DragonKeepLogic.candidates(
 	return out
 end
 
--- "commons": every spare Common; "repeats": every copy past the first of its cat. Both skip working and special cats
--- and keep one copy of each cat (as DragonKeep.quickPlan on the server). Never all the player's cats.
-function DragonKeepLogic.quick(list: { Candidate }, kind: string, total: number): { string }
-	local kept: { [string]: number } = {}
+-- #4566 (Derek 2026-11-15): "All Commons", "All Rares" and so on pick every cat of that rarity the list holds. The
+-- list already leaves out locked cats and cats at the spa or waiting on a trait; working cats stay at their spots too.
+-- Never all the player's cats (the server keeps one) and never past GIVE_MAX.
+function DragonKeepLogic.byRarity(list: { Candidate }, rarity: string, total: number): { string }
 	local out: { string } = {}
 	for _, cand in list do
-		if cand.working or cand.special or not cand.spare then
+		if cand.working or cand.rarity ~= rarity then
 			continue
 		end
-		if kind == "commons" and cand.rarity ~= "Common" then
-			continue
-		end
-		-- the last copy stays (at most copies - 1 go, as the server's quickPlan); list is weakest first
-		local used = kept[cand.catId] or 0
-		if used >= cand.copies - 1 then
-			continue
-		end
-		kept[cand.catId] = used + 1
 		if #out >= math.min(DragonKeep.GIVE_MAX, total - 1) then
 			break
 		end

@@ -7723,12 +7723,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.open("Quests")
 		press("Quests", "DailyTab")
 		press("Quests", "Daily.Quest2.Claim")
-		-- #4025 (Derek: "the quests blend in and is hard to see"): a claimed card stays light behind its ink words
+		-- #4600 (Derek: "the annoying white highlight of quests when being finished is not needed"): a claimed card keeps
+		-- the same card as every other row, so it never lights up behind light words; the ✓ Claimed says it is done
 		local window = UIShim.playerGui:FindFirstChild("Quests", true)
 		local row = window:FindFirstChild("Quest2", true)
-		local c = row.BackgroundColor3
-		local light = 0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B
-		assert(light >= 0.6, ("uigate: a claimed quest card is dark (%.2f) behind its ink words (#4025)"):format(light))
+		local MenuFamily = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily")
+		assert(row.BackgroundColor3 == MenuFamily.card.card, ("uigate: a claimed quest card is %s, not the rows' card (#4600)"):format(row.BackgroundColor3:ToHex()))
+		assert((row:FindFirstChild("Check", true) :: GuiObject).Visible, "uigate: a claimed quest shows no ✓ Claimed (#4600)")
 	end },
 	-- Claim all on the Achievements tab (two met in the sample player)
 	{ "QuestsClaimAll", function()

@@ -17,9 +17,9 @@ RankFirst.FLAG = "rankFirst"
 RankFirst.REST_SECONDS = 20 -- a press outside the spotlight hides it this long
 RankFirst.PRESSES = 3 -- the press that puts it away for good
 RankFirst.LINES = table.freeze({
-	touch = "You can rank up! Tap YOUR GOAL",
-	keyboard = "You can rank up! Click YOUR GOAL",
-	gamepad = "You can rank up! Select YOUR GOAL",
+	touch = "Rank up! Tap YOUR GOAL",
+	keyboard = "Rank up! Click YOUR GOAL",
+	gamepad = "Rank up! Select YOUR GOAL",
 })
 
 -- Whether the rank up goes first now: the switch on, the cafe at Tier 1 and every Tier 2 need met.

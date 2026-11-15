@@ -81,5 +81,22 @@ return function()
 			)
 			expect(Logic.keepLine("Legendary", nil)).to.equal("Yours to keep · earns like a Rare")
 		end)
+		it(
+			"shows the HUD Harvest button only while open, from Tier 2, with the switch on (#4251)",
+			function()
+				local H = HarvestHollow
+				local during = H.OPENS_AT + 3600
+				expect(Logic.hudShown(during, 2, nil)).to.equal(true)
+				expect(Logic.hudShown(during, 5, true)).to.equal(true)
+				expect(Logic.hudShown(during, 1, nil)).to.equal(false)
+				expect(Logic.hudShown(during, nil, nil)).to.equal(false)
+				expect(Logic.hudShown(during, 3, false)).to.equal(false)
+				expect(Logic.hudShown(H.OPENS_AT - 1, 3, nil)).to.equal(false)
+				expect(Logic.hudShown(H.CLOSES_AT, 3, nil)).to.equal(false)
+				expect(Logic.nextChange(H.OPENS_AT - 60)).to.equal(H.OPENS_AT)
+				expect(Logic.nextChange(during)).to.equal(H.CLOSES_AT)
+				expect(Logic.nextChange(H.CLOSES_AT)).to.equal(nil)
+			end
+		)
 	end)
 end

@@ -3828,6 +3828,39 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			Logic.decode = decode
 		end
 	end },
+	-- #4251: the HUD's Harvest travel button shows while Harvest Hollow is open and the player is Tier 2 or higher, and
+	-- goes with the harvestHollow switch off or below Tier 2 (the dates are moved to now for the scene)
+	{ "HudHarvest", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local Hollow = UIShim.require("ReplicatedStorage.Shared.HarvestHollow") :: any
+		local opens, closes = Hollow.OPENS_AT, Hollow.CLOSES_AT
+		local now = workspace:GetServerTimeNow()
+		Hollow.OPENS_AT, Hollow.CLOSES_AT = now - 60, now + 3600
+		if Scenes._rankTier == nil then
+			Scenes._rankTier = (UI.getState() :: any).tier -- Scenes.close puts the sample tier back
+		end
+		Scenes._harvestReset = function()
+			Hollow.OPENS_AT, Hollow.CLOSES_AT = opens, closes
+			ReplicatedStorage:SetAttribute("LiveFlag_harvestHollow", nil)
+		end
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: Instance
+		local travel = hud:FindFirstChild("Travel", true) :: GuiObject
+		local function button(): GuiObject?
+			return travel:FindFirstChild("Harvest") :: GuiObject?
+		end
+		UI.update({ tier = 1 } :: any)
+		ReplicatedStorage:SetAttribute("LiveFlag_harvestHollow", true)
+		UIShim.advance(0.3)
+		assert(button() ~= nil and not (button() :: GuiObject).Visible, "uigate: the Harvest button shows below Tier 2 (#4251)")
+		UI.update({ tier = 3 } :: any)
+		UIShim.advance(0.5)
+		assert((button() :: GuiObject).Visible, "uigate: no Harvest button at Tier 3 while Harvest Hollow is open (#4251)")
+		ReplicatedStorage:SetAttribute("LiveFlag_harvestHollow", false)
+		UIShim.advance(0.3)
+		assert(not (button() :: GuiObject).Visible, "uigate: the Harvest button stays with its switch off (#4251)")
+		ReplicatedStorage:SetAttribute("LiveFlag_harvestHollow", true)
+		UIShim.advance(0.5) -- the scene's picture shows the row with the button in it
+	end },
 	-- #3884: a rank up to Tier 2 since the picker last opened: the Park card keeps its lock a moment, the lock breaks
 	-- with "Unlocked!", and about 3 s later the cover is gone and the card can launch
 	{ "CannonUnlock", function()
@@ -13523,6 +13556,10 @@ function Scenes.close()
 	if Scenes._rareReset ~= nil then
 		Scenes._rareReset() -- #4227's CannonRares: no bubbles again
 		Scenes._rareReset = nil
+	end
+	if Scenes._harvestReset ~= nil then
+		Scenes._harvestReset() -- #4251's HudHarvest: the real dates again
+		Scenes._harvestReset = nil
 	end
 	if Scenes._rankTier ~= nil then
 		UI.update({ tier = Scenes._rankTier } :: any) -- #2121's Tier 2 rank-up scene

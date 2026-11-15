@@ -81,4 +81,21 @@ function HarvestLogic.keepLine(rarity: string, area: string?): string
 	return ("Yours to keep · earns like %s %s"):format(article, words)
 end
 
+-- Spec section 1: the HUD's Harvest travel button shows while the area is open (`now` is the server's time), from
+-- Tier 2, with the harvestHollow switch on, so phone players need not find the arch. The server checks all three again.
+HarvestLogic.FLAG_ATTRIBUTE = "LiveFlag_harvestHollow" -- a kill switch, on unless the attribute is false
+function HarvestLogic.hudShown(now: number, tier: number?, flag: unknown): boolean
+	return flag ~= false and HarvestHollow.open(now) and (tier or 1) >= HarvestHollow.TIER
+end
+
+-- The server time the button next changes on its own (opening or closing), or nil once the area has closed.
+function HarvestLogic.nextChange(now: number): number?
+	if now < HarvestHollow.OPENS_AT then
+		return HarvestHollow.OPENS_AT
+	elseif now < HarvestHollow.CLOSES_AT then
+		return HarvestHollow.CLOSES_AT
+	end
+	return nil
+end
+
 return HarvestLogic

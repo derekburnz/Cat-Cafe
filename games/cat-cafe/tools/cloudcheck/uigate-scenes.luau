@@ -12820,8 +12820,15 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local chip = confirm:FindFirstChild("Trait1", true) :: GuiObject
 			assert(chip and chip.Visible, "uigate: no trait to keep (#4104)")
 			local goText = (confirm:FindFirstChild("FuseGo", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel)
-			press("FusionObservatory", "Copy1") -- the Lv 12 copy leads the strip: untick it
+			-- #4588: the five picked copies lead the strip
+			for index = 1, 5 do
+				local cell = copies:FindFirstChild("Copy" .. index, true) :: GuiObject
+				assert(cell and (cell:FindFirstChild("Check") :: GuiObject).Visible, "uigate: Copy" .. index .. " is not a picked copy at the strip's head (#4588)")
+			end
+			press("FusionObservatory", "Copy1") -- a picked copy leads the strip: untick it
 			assert(goText.Text == "Pick 1 more", "uigate: four picked reads " .. goText.Text .. " (#4104)")
+			-- the strip holds its order on a tap: the unticked copy stays first, so nothing jumps under the finger
+			assert(not ((copies:FindFirstChild("Copy1", true) :: GuiObject):FindFirstChild("Check") :: GuiObject).Visible, "uigate: the strip moved its copies on a tap (#4588)")
 			press("FusionObservatory", "Copy1")
 			press("FusionObservatory", "FuseGo")
 			assert(#sent == 0 and string.find(goText.Text, "Tap again", 1, true) and goText.TextFits, "uigate: the first Fuse tap did not ask, it reads " .. goText.Text .. " (#4104)")

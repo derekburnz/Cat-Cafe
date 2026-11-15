@@ -36,6 +36,8 @@ local ScreenFx = require(script.Parent.ScreenFx)
 local FusionFx = {}
 
 local TAG = "CampExtra" -- shared/CampExtras.TAG
+-- #4551 places the dome as its own model, tagged FusionObservatory (not a camp extra); that tag is looked at first
+local DOME_TAG = "FusionObservatory"
 local GUI_NAME = "FusionFx"
 
 -- Audio listens here: `fn(beat, coat)` with beat "start" as the tiles leave, "meet" as they become one and "collect"
@@ -321,6 +323,11 @@ local paws: { Part } = {}
 local lit: string? = nil -- the coat the slit shows now
 
 local function findDome(): Model?
+	for _, instance in CollectionService:GetTagged(DOME_TAG) do
+		if instance:IsA("Model") and instance:IsDescendantOf(Workspace) then
+			return instance :: Model
+		end
+	end
 	local suffix = Presets.fusion.dome.suffix
 	for _, instance in CollectionService:GetTagged(TAG) do
 		if

@@ -157,7 +157,7 @@ local function fountainTick(at: number)
 		run = newRun(id)
 		fountain = run
 	end
-	assert(run ~= nil)
+	assert(run ~= nil, "admin drop run")
 	for thing, gone in run.out do
 		if gone <= at then
 			run.out[thing] = nil
@@ -271,7 +271,7 @@ local function crateTick(at: number, dt: number)
 		run = newRun(id)
 		crates = run
 	end
-	assert(run ~= nil)
+	assert(run ~= nil, "admin drop run")
 	for thing, gone in run.out do
 		if gone <= at then
 			run.out[thing] = nil

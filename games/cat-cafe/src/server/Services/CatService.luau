@@ -1555,7 +1555,7 @@ local function huntTick()
 		hunt = running
 		EventService.setHuntFound(id, 0)
 	end
-	assert(running ~= nil)
+	assert(running ~= nil, "secret hunt run")
 	if
 		running.spawned >= running.count
 		or not ClockService.areasOpen()

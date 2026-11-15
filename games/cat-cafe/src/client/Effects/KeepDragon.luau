@@ -25,11 +25,12 @@ local KIT = "Dragon"
 local NAME = "KeepDragon"
 local STAGES = { "Hatchling", "Whelp", "Drake", "Elder", "Crowned" }
 local LIFT = 0.22 -- the yard's paving above the Keep's pivot (its DragonSpot)
--- How far forward of the yard's middle each stage stands: the Crowned dragon's tail reaches 6.9 behind his pivot
--- and the wall's inside is 6.3 from the middle.
-local FORWARD = { 0, 0, 0, 0, 0.6 }
--- The Hatchling is 1.9 tall behind a 3 stud wall: half as big again so he shows through the gate.
-local SCALE = { 1.5, 1, 1, 1, 1 }
+-- How far forward of the yard's middle each stage stands, and how big he is shown. The Hatchling is 1.9 tall behind
+-- a 3 stud wall: half as big again so he shows through the gate. The Crowned dragon at full size (10.7 across the
+-- wings, his tail 6.9 behind his pivot) put a wing over the wall and his tail into the gold pile at the back of the
+-- 12.6 wide yard (Studio sweep 2026-11-15), so he is shown at 0.8 and a stud forward: wings 8.5 across, tail 4.5 back.
+local FORWARD = { 0, 0, 0, 0, 1 }
+local SCALE = { 1.5, 1, 1, 1, 0.8 }
 local LOOK_SECONDS = 1
 local CUSHION = "_Cushion"
 local SCALE_SUFFIX = "_Scale"
@@ -197,6 +198,18 @@ local function refresh()
 	end
 end
 
+-- Studio only: the stage the Workspace attribute KeepDragonTest (0 to 5) asks for, or nil when it is not set.
+local function testStage(): number?
+	if not RunService:IsStudio() then
+		return nil
+	end
+	local asked = Workspace:GetAttribute("KeepDragonTest")
+	if type(asked) ~= "number" then
+		return nil
+	end
+	return if asked >= 1 then KeepDragon.stageOf({ stage = asked }) else 0
+end
+
 function KeepDragon.start()
 	if started then
 		return
@@ -207,15 +220,17 @@ function KeepDragon.start()
 			return
 		end
 		local view = (state :: { [string]: any }).dragon
-		stage = KeepDragon.stageOf(view)
+		-- Studio only: a stage set by hand (KeepDragonTest) stays until the attribute is cleared
+		stage = testStage() or KeepDragon.stageOf(view)
 		local picked = if type(view) == "table" then view.colour else nil
 		colour = if type(picked) == "string" then picked else nil
 		refresh()
 	end)
 	if RunService:IsStudio() then
-		-- Studio only: Workspace attribute KeepDragonTest (0 to 5) shows that stage with the switch off
+		-- Studio only: Workspace attribute KeepDragonTest (0 to 5) shows that stage, switch on or off, until it is
+		-- cleared (the next ProfileSync shows the real stage again)
 		Workspace:GetAttributeChangedSignal("KeepDragonTest"):Connect(function()
-			stage = KeepDragon.stageOf({ stage = Workspace:GetAttribute("KeepDragonTest") })
+			stage = testStage() or 0
 			refresh()
 		end)
 	end

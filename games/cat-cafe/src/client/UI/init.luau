@@ -2877,8 +2877,18 @@ do
 			screen:setSecond(bowls.second, if id ~= 0 then PassShop.prices()[id] else nil)
 			-- #4266: the Auto Bowl pass's price and Roblox's word on owning it (0 until the pass is made)
 			local autoId: number = Config.AutoBowlPassId or 0
+			-- #4610: bought with golden fish counts as owned too (PlayerState.fishStore, as the Store reads it)
+			local fishAuto = false
+			local fishList = (state :: any).fishStore
+			if type(fishList) == "table" then
+				for _, row in fishList do
+					if type(row) == "table" and row.key == "autoBowl" and row.bought == true then
+						fishAuto = true
+					end
+				end
+			end
 			screen:setAuto(
-				autoId ~= 0 and PassShop.owned()[autoId] == true,
+				autoId ~= 0 and (PassShop.owned()[autoId] == true or fishAuto),
 				if autoId ~= 0 then PassShop.prices()[autoId] else nil
 			)
 		end

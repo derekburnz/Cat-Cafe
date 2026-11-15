@@ -100,6 +100,9 @@ UI.rest = {} -- #3573: the rest chip, filled at the end of the file
 UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
 UI.mailbox = {} -- #4249 the Mailbox window, filled at the end of the file
+-- #4346: AFK mode's side for the HUD's AFK tile, set by Controllers/AfkController.start (shown, on, toggle, changed);
+-- nil until then. UI.bindAfk() hands it to the HUD.
+UI.afk = nil :: any
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
@@ -1897,11 +1900,20 @@ function UI.isInitialized(): boolean
 	return initialized
 end
 
+-- #4346: hands UI.afk to the HUD's AFK tile once AfkController has set it (again does nothing). UI.update calls it, so
+-- the controller needs no call of its own.
+function UI.bindAfk()
+	if UI.afk ~= nil and hud ~= nil then
+		hud:bindAfk(UI.afk)
+	end
+end
+
 -- Merge a partial state and re-render. Pass whole maps (catsOwned, upgradeLevels...) when they change.
 function UI.update(partial: Types.PartialState)
 	for key, value in partial :: { [string]: any } do
 		(state :: any)[key] = value
 	end
+	UI.bindAfk()
 	if partial.collection ~= nil then
 		UI.newKind.refresh() -- #3529: a kind just caught loses its "NEW" tag at once
 	end

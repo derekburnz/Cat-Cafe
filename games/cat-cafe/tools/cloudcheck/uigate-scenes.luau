@@ -13022,6 +13022,82 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assert(row, "uigate: no Feedback row in the Menu list with the Mailbox on (#4249)")
 	end },
+	-- #4346 (Derek 2026-11-14: "add an afk button on the top right maybe on top of where the feedback button was"):
+	-- with UI.afk bound and its switches on, the AFK tile shows in the icon row, Feedback moves into the Menu list, a
+	-- tap asks for the mode, and the tile is gold with an ON pill while the mode is on (left on, for the picture)
+	{ "HUDAfk", function()
+		local fake = { shownNow = true, onNow = false, toggles = 0, fns = {} :: { () -> () } }
+		local function fire()
+			for _, fn in fake.fns do
+				fn()
+			end
+		end
+		UI.afk = {
+			shown = function()
+				return fake.shownNow
+			end,
+			on = function()
+				return fake.onNow
+			end,
+			toggle = function()
+				fake.toggles += 1
+			end,
+			changed = function(fn: () -> ())
+				table.insert(fake.fns, fn)
+			end,
+		}
+		Scenes._afkRestore = function()
+			fake.shownNow, fake.onNow = false, false
+			fire()
+		end
+		UI.update({})
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local icons = hud:FindFirstChild("Icons", true)
+		local tile = icons:FindFirstChild("AFK") :: GuiObject
+		assert(tile and tile.Visible, "uigate: no AFK tile with UI.afk shown (#4346)")
+		local feedback = icons:FindFirstChild("Feedback") :: GuiObject
+		assert(feedback and not feedback.Visible, "uigate: the Feedback tile still shows beside the AFK tile (#4346)")
+		local function words(): string
+			for _, piece in tile:GetDescendants() do
+				if piece:IsA("TextLabel") and string.find(piece.Text, "AFK", 1, true) then
+					return piece.Text
+				end
+			end
+			return ""
+		end
+		assert(tile:GetAttribute("On") == false and words() == "AFK", "uigate: the AFK tile looks on while the mode is off (#4346)")
+		tapPiece(tile)
+		assert(fake.toggles == 1, ("uigate: the AFK tile asked %d times for one tap (#4346)"):format(fake.toggles))
+		fake.onNow = true
+		fire()
+		assert(tile:GetAttribute("On") == true and words() == "AFK ON", ("uigate: the AFK tile reads %q with the mode on (#4346)"):format(words()))
+		-- the row stays clear of the screen's right edge and the tiles do not overlap
+		local last = -math.huge
+		local shown = {}
+		for _, child in icons:GetChildren() do
+			if child:IsA("GuiObject") and child.Visible then
+				table.insert(shown, child)
+			end
+		end
+		table.sort(shown, function(a, b)
+			return a.AbsolutePosition.X < b.AbsolutePosition.X
+		end)
+		for _, child in shown do
+			assert(child.AbsolutePosition.X >= last - 1, "uigate: " .. child.Name .. " overlaps the tile before it (#4346)")
+			last = child.AbsolutePosition.X + child.AbsoluteSize.X
+		end
+		tapPiece(icons:FindFirstChild("Menu") :: Instance)
+		task.wait(0.2)
+		local row: Instance? = nil
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "Feedback" and piece ~= feedback and piece:IsA("GuiObject") and piece.Visible then
+				row = piece
+			end
+		end
+		assert(row, "uigate: no Feedback row in the Menu list with the AFK tile on (#4346)")
+		tapPiece(icons:FindFirstChild("Menu") :: Instance) -- shut the list again for the picture
+		task.wait(0.1)
+	end },
 	{ "Mailbox", function()
 		mailboxOn()
 		UI.open("Mailbox")
@@ -13387,6 +13463,10 @@ function Scenes.close()
 	end
 	if UI.recap.card and UI.recap.card:isShowing() then
 		UI.recap.card:hide() -- #1920
+	end
+	if Scenes._afkRestore then
+		Scenes._afkRestore() -- #4346's HUDAfk scene: the tile goes, Feedback comes back
+		Scenes._afkRestore = nil
 	end
 	if Scenes._marketRestore then
 		UI.update(Scenes._marketRestore :: any) -- #4274's MarketCrateShort scene

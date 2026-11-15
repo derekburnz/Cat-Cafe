@@ -29,6 +29,7 @@ return function()
 			"title_steady_hands",
 			"title_week_champion",
 			"title_gold_rush",
+			"title_park_regular", -- #4061
 			"tag_grand_opener",
 			"supporter",
 			"vip",

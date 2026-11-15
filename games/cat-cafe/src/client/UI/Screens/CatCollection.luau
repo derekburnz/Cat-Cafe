@@ -1269,7 +1269,10 @@ function CatCollection._showDetail(self: any)
 		-- F95 and F96: never caught, so it lives nowhere
 		table.insert(
 			meta,
-			if def.source == "free" then "free at its stand in town" else "from the shop"
+			if def.source == "free"
+				then "free at its stand in town"
+				elseif def.source == "booth" then "won at the Ticket Booth" -- #4061
+				else "from the shop"
 		)
 	elseif def.area == IndexBook.SECRET then
 		table.insert(meta, "turns up anywhere") -- #3470: a Secret cat has no home area

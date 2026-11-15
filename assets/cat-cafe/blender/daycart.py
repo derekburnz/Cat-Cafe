@@ -291,9 +291,9 @@ def _sun(b, x, y, z, r, rays=8, depth=0.05):
 
 
 def _sign(b):
-    """The DAY CART board standing on the awning's back half: a cream board in a choco frame, a sun at each end of the
+    """The COIN CART board (#4530: DAY CART until then) standing on the awning's back half: a cream board in a choco frame, a sun at each end of the
     words, and a big sun painted on its back."""
-    text = "DAY CART"
+    text = "COIN CART"                                                              # #4530: was DAY CART
     tw = text_width(text, SIGN_PX)
     w = tw + 1.7
     zf = 0.6                                                                        # the board's front face

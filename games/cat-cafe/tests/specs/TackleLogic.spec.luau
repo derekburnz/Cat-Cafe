@@ -21,6 +21,51 @@ return function()
 		end)
 	end)
 
+	describe("TackleLogic.shown (#4481: no Tackle while safe)", function()
+		local function place(changes: { [string]: any }?): any
+			local at: { [string]: any } = {
+				switchedOn = true,
+				flying = false,
+				newcomer = false,
+				areaTier = 1,
+				tier = 3,
+				inCamp = false,
+			}
+			for key, value in changes or {} do
+				at[key] = value
+			end
+			return at
+		end
+
+		it("shows in the wild part of an area the player's tier opens", function()
+			expect(TackleLogic.shown(place())).to.equal(true)
+			expect(TackleLogic.shown(place({ areaTier = 3 }))).to.equal(true)
+		end)
+
+		it(
+			"hides on the street, the Town Square and in a cafe, where there is no catching area",
+			function()
+				local at = place()
+				at.areaTier = nil
+				expect(TackleLogic.shown(at)).to.equal(false)
+			end
+		)
+
+		it("hides in a camp, which is a safe zone", function()
+			expect(TackleLogic.shown(place({ inCamp = true }))).to.equal(false)
+		end)
+
+		it("hides in an area above the player's tier", function()
+			expect(TackleLogic.shown(place({ areaTier = 4 }))).to.equal(false)
+		end)
+
+		it("hides before the first check-in, in a flight and with tackles switched off", function()
+			expect(TackleLogic.shown(place({ newcomer = true }))).to.equal(false)
+			expect(TackleLogic.shown(place({ flying = true }))).to.equal(false)
+			expect(TackleLogic.shown(place({ switchedOn = false }))).to.equal(false)
+		end)
+	end)
+
 	describe("TackleLogic.downUntil", function()
 		it("is never down without marks", function()
 			expect(TackleLogic.downUntil({})).to.equal(-math.huge)

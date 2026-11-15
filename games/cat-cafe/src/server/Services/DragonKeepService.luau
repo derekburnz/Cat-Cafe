@@ -155,6 +155,11 @@ local function applyReach(player: Player, profile: Types.PlayerProfile)
 	local fx = DragonKeep.of(profile) -- the air cards, for client/Controllers/AirMovesController
 	player:SetAttribute("DoubleJump", if fx.doubleJump then true else nil)
 	player:SetAttribute("Glide", if fx.glide then true else nil)
+	-- #4569: the lit sets for their looks (client Effects): "flame5,claw3", nil with none or the switch off
+	player:SetAttribute(
+		"DragonSets",
+		if LiveFlagService.on(DragonKeep.FLAG) then DragonKeep.setsTag(profile.dragon) else nil
+	)
 end
 
 local function onPick(player: Player, rawIndex: unknown, rawSlot: unknown)

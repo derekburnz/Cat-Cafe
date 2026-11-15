@@ -57,12 +57,12 @@ return function()
 		end)
 
 		it(
-			"takes 10 minutes into gold and an hour into rainbow, 25% less with Elder Lore",
+			"is instant into gold and into rainbow, with Elder Lore or not (Derek 2026-11-15)",
 			function()
-				expect(Fusion.seconds("gold")).to.equal(600)
-				expect(Fusion.seconds("rainbow")).to.equal(3600)
-				expect(Fusion.seconds("gold", true)).to.equal(450)
-				expect(Fusion.seconds("rainbow", true)).to.equal(2700)
+				expect(Fusion.seconds("gold")).to.equal(0)
+				expect(Fusion.seconds("rainbow")).to.equal(0)
+				expect(Fusion.seconds("gold", true)).to.equal(0)
+				expect(Fusion.seconds("rainbow", true)).to.equal(0)
 				local profile = profileWith(0)
 				expect(Fusion.hasElderLore(profile)).to.equal(false)
 				profile.dragon.slots = { "", Fusion.ELDER_LORE }
@@ -182,7 +182,7 @@ return function()
 
 	describe("start and collect (QA 1, 2, 4 and 5)", function()
 		it(
-			"takes the five out, keeps the best level, its XP and name, and collects one gold after 10 minutes",
+			"takes the five out, keeps the best level, its XP and name, and collects one gold at once",
 			function()
 				local profile = profileWith(5)
 				profile.cats.a4.level = 40
@@ -197,11 +197,11 @@ return function()
 				expect(running.level).to.equal(40)
 				expect(running.xp).to.equal(123)
 				expect(running.name).to.equal("Biscuit")
-				expect(running.doneAt).to.equal(T + 600)
-				expect(Fusion.collectBlocker(profile.fusion, T + 599)).to.equal(
+				expect(running.doneAt).to.equal(T)
+				expect(Fusion.collectBlocker(profile.fusion, T - 1)).to.equal(
 					Fusion.Messages.notReady
 				)
-				expect(Fusion.collectBlocker(profile.fusion, T + 600)).to.equal(nil)
+				expect(Fusion.collectBlocker(profile.fusion, T)).to.equal(nil)
 				local made, first = Fusion.collect(profile, "new1", T + 9999) -- offline time counts too
 				expect(first).to.equal(true)
 				expect(made.variant).to.equal("gold")
@@ -219,11 +219,11 @@ return function()
 			end
 		)
 
-		it("makes a rainbow from five gold after an hour, lighting its Index entry once", function()
+		it("makes a rainbow from five gold at once, lighting its Index entry once", function()
 			local profile = profileWith(5, MYTH, "gold")
 			profile.rainbowCollection[MYTH] = nil
 			expect(Fusion.start(profile, FIVE, nil, T)).to.equal("rainbow")
-			expect((profile.fusion.running :: any).doneAt).to.equal(T + 3600)
+			expect((profile.fusion.running :: any).doneAt).to.equal(T)
 			local _, first = Fusion.collect(profile, "r1", T + 3600)
 			expect(first).to.equal(true)
 			expect(profile.rainbowCollection[MYTH]).to.equal(T + 3600)
@@ -316,13 +316,12 @@ return function()
 			local view = Fusion.view(profile.fusion, T, false)
 			expect(view.running).to.equal(nil)
 			expect(view.ready).to.equal(false)
-			expect(view.goldSeconds).to.equal(600)
+			expect(view.goldSeconds).to.equal(0)
 			Fusion.start(profile, FIVE, nil, T, true)
-			view = Fusion.view(profile.fusion, T + 449, true)
+			view = Fusion.view(profile.fusion, T, true)
 			expect((view.running :: any).catId).to.equal(MYTH)
-			expect(view.ready).to.equal(false)
-			expect(view.goldSeconds).to.equal(450)
-			expect(Fusion.view(profile.fusion, T + 450, true).ready).to.equal(true)
+			expect(view.ready).to.equal(true) -- instant (Derek 2026-11-15)
+			expect(view.goldSeconds).to.equal(0)
 		end)
 	end)
 end

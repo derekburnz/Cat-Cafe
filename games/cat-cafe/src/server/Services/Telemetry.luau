@@ -957,9 +957,10 @@ function Telemetry.introShort(_profile: Profile): boolean
 	return true
 end
 
--- #3695: the clean funnel onboarding_v7 (Onboarding.CLEAN_STEPS), one run per player with the user id as its
--- session: every clean step done since the last one logged, read off the ledger, the cafe's tier and the areas with
--- a catch. Called after every ledger step, every rank up and every catch in an area.
+-- #3695: the clean funnel (Onboarding.CLEAN_STEPS, onboarding_v8 since #4504), one run per player with the user id as
+-- its session: every clean step done since the last one logged, read off the ledger, the cafe's tier, the areas with
+-- a catch, the walk-through's step and the cats caught by hand, and `event`, the moment happening now (an event step,
+-- Onboarding.CLEAN_EVENTS). Called after every ledger step, every rank up, every catch in an area and every event.
 -- The areas the save has a cat from (a spare cat counts by its old area too), added to `areas`.
 local function saveAreas(profile: Profile, areas: { [string]: boolean })
 	for catId in profile.collection do
@@ -973,24 +974,31 @@ local function saveAreas(profile: Profile, areas: { [string]: boolean })
 	end
 end
 
-local function logClean(player: Player, profile: Profile)
+local function logClean(player: Player, profile: Profile, event: string?)
 	local session = sessions[player]
 	local state = profile.telemetry
-	local logged = state.cleanStep or 0
-	if logged >= Onboarding.CLEAN_COUNT then
-		return
+	local logged = state.cleanV8Step or 0
+	if logged >= Onboarding.CLEAN_COUNT or session == nil or session.areasCaught == nil then
+		return -- out of it, or joined is not logged yet (logJoined calls this once the session is set up)
 	end
-	local areas: { [string]: boolean } = if session ~= nil and session.areasCaught ~= nil
-		then session.areasCaught
-		else {}
+	local areas: { [string]: boolean } = session.areasCaught
 	if logged >= Onboarding.CLEAN_TUTORIAL then
 		-- past the tutorial the next steps can be an area's: a cat from bait or a rescue never passes caughtIn, so
 		-- the save is read again (Review-QA on #3697)
 		saveAreas(profile, areas)
 	end
-	local facts: Onboarding.CleanFacts = { tier = Economy.tier(profile), areas = areas }
-	for _, step in Onboarding.cleanDue(state, logged, facts) do
-		state.cleanStep = step
+	-- (read as unknown: catsCaught counts bowl cats too, and baitsTamed takes them out, as SecondCat.caught does)
+	local caught: unknown, tamed: unknown = profile.stats.catsCaught, profile.stats.baitsTamed
+	local facts: Onboarding.CleanFacts = {
+		tier = Economy.tier(profile),
+		areas = areas,
+		tutorialStep = profile.tutorialStep,
+		handCats = if type(caught) == "number"
+			then caught - (if type(tamed) == "number" then tamed else 0)
+			else 0,
+	}
+	for _, step in Onboarding.cleanDue(state, logged, facts, event) do
+		state.cleanV8Step = step
 		local name = Onboarding.CLEAN_STEPS[step]
 		local fields = grouped(profile, {}) -- #3666
 		remember(player, "funnel", Onboarding.CLEAN_FUNNEL .. " " .. name, step, fields)
@@ -1006,6 +1014,15 @@ local function logClean(player: Player, profile: Profile)
 		end)
 	end
 end
+
+-- #4504: a moment an onboarding_v8 event step listens for (Onboarding.CLEAN_EVENTS, Onboarding.arrivedEvent), from
+-- the service where it happens. Logs nothing unless the save stands right before that step.
+function Telemetry.cleanEvent(player: Player, profile: Profile, event: string)
+	logClean(player, profile, event)
+end
+-- (the event names, for services that do not require Onboarding)
+Telemetry.CLEAN_EVENTS = Onboarding.CLEAN_EVENTS
+Telemetry.arrivedEvent = Onboarding.arrivedEvent
 
 -- #3695: a cat caught in `area` (CatService, as the catch is won), for the clean funnel's area steps.
 function Telemetry.caughtIn(player: Player, profile: Profile, area: string)
@@ -2334,6 +2351,9 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			local raw = rawValue :: string
 			session.screen = if raw == "none" then "none" else SCREENS[raw] or "other"
 			session.snapScreen = FirstFive.snapScreen(raw) -- #3098
+			if raw == "Cannon" then
+				logClean(player, profile, Onboarding.CLEAN_EVENTS.cannonOpen) -- #4504: in the cannon
+			end
 		end
 	elseif name == "tutorial_closed" then
 		if not session.tutorialClosed then

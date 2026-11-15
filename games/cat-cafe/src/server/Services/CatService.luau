@@ -1264,6 +1264,14 @@ do
 		local root = rootPosition(player)
 		if root ~= nil and SecondCat.followed(root, waiting.body.Position) then
 			Second.step(player, profile, SecondCat.FOLLOWED)
+			if
+				M.Onboarding.cleanWants(
+					profile.telemetry.cleanV8Step or 0,
+					M.Onboarding.CLEAN_EVENTS.nearStray
+				)
+			then
+				Telemetry.cleanEvent(player, profile, M.Onboarding.CLEAN_EVENTS.nearStray) -- #4504: near_stray_2
+			end
 		end
 	end
 
@@ -2044,6 +2052,9 @@ local function startCarry(
 		local profile = M.DataService.get(player)
 		if profile ~= nil and SecondCat.waiting(profile) then
 			Second.step(player, profile, SecondCat.CAUGHT)
+		end
+		if profile ~= nil and method == "net" then
+			Telemetry.cleanEvent(player, profile, M.Onboarding.CLEAN_EVENTS.netCatch) -- #4504: second_net_catch
 		end
 		-- #3035: a first-session Tier 1 player's first night catch of the session (Research-Agent: do they use it)
 		if

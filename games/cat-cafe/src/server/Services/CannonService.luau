@@ -224,6 +224,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	local launcher = DataService.get(player)
 	if launcher ~= nil then
 		Telemetry.onboarding(player, launcher, "first_cannon") -- #1273: the way out to the first catch
+		Telemetry.cleanEvent(player, launcher, Telemetry.CLEAN_EVENTS.launch) -- #4504: the second trip's launch
 	end
 
 	-- this flight is still the character's: not respawned, not left, not a newer flight
@@ -265,6 +266,10 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		end
 		landedAt[player] = serverNow()
 		NightService.landed(player) -- a flight into an area that lands after night start is swept at once
+		local lander = if area ~= nil then DataService.get(player) else nil
+		if lander ~= nil then
+			Telemetry.cleanEvent(player, lander, Telemetry.arrivedEvent(destination)) -- #4504: arrived
+		end
 	end)
 end
 

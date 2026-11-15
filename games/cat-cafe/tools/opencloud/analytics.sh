@@ -215,6 +215,9 @@ introFunnel=onboarding_v4_intro
 # and first_hour_v3 stopped being sent with them and keep their labels for a window that starts before.
 cleanFunnel=
 cleanSteps=()
+# #4504: onboarding_v8 replaced onboarding_v7 as the clean funnel; v7's rows keep their labels through V7_CLEAN_STEPS
+cleanV7Funnel=onboarding_v7
+cleanV7Steps=()
 playtimeFunnel=
 playtimeSteps=()
 onboardingSteps=()
@@ -249,6 +252,7 @@ if [ -f "$onboarding" ]; then
 	introFunnel=${funnelName:-$introFunnel}
 	cleanFunnel=$(luaString CLEAN_FUNNEL)
 	mapfile -t cleanSteps < <(luaNames CLEAN_STEPS)
+	mapfile -t cleanV7Steps < <(luaNames V7_CLEAN_STEPS)
 	playtimeFunnel=$(luaString PLAYTIME_FUNNEL)
 	mapfile -t playtimeSteps < <(luaNames PLAYTIME_STEPS)
 fi
@@ -281,6 +285,8 @@ stepName() { # funnel step label
 			list=("${introSteps[@]}")
 		elif [ -n "$cleanFunnel" ] && [ "${funnel,,}" = "${cleanFunnel,,}" ]; then
 			list=("${cleanSteps[@]}")
+		elif [ "${#cleanV7Steps[@]}" -gt 0 ] && [ "${funnel,,}" = "${cleanV7Funnel,,}" ]; then
+			list=("${cleanV7Steps[@]}")
 		elif [ -n "$playtimeFunnel" ] && [ "${funnel,,}" = "${playtimeFunnel,,}" ]; then
 			list=("${playtimeSteps[@]}")
 		elif [ "${funnel,,}" = "${onboardingFunnel,,}" ]; then
@@ -332,6 +338,7 @@ declare -A retired=(
 	[onboarding_v4_intro]="2026-11-08|the intro_cutscene custom event"
 	[onboarding_v6]="2026-11-13|onboarding_v7, the clean funnel (#3695)"
 	[first_hour_v3]="2026-11-13|playtime_v1 (#3695)"
+	[onboarding_v7]="2026-11-15|onboarding_v8, every tutorial step in Derek's order (#4504)"
 )
 funnelTable() { # funnel: the table for one funnel, or its error
 	local funnel=$1 line step label users first=0 previous=0 share lost unit=Runs change= gone=

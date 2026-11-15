@@ -2135,6 +2135,9 @@ local function onRankUp(player: Player)
 	if profile == nil then
 		return
 	end
+	if profile.tier == 1 then
+		Telemetry.cleanEvent(player, profile, Telemetry.CLEAN_EVENTS.rankUpPressed) -- #4504: pressed, met or not
+	end
 	local blocker = Economy.rankUpBlocker(profile)
 	if blocker ~= nil then
 		Net.toast(player, blocker, "warn")

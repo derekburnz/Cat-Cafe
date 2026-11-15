@@ -12561,6 +12561,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				assert(slot.AbsolutePosition.X + slot.AbsoluteSize.X <= window.AbsolutePosition.X + window.AbsoluteSize.X + 1, "uigate: Slot" .. index .. " runs past the window (#4062)")
 			end
 			assert((slotsRow:FindFirstChild("Slot4", true):FindFirstChild("Label", true) :: TextLabel).Text == "Stage 4", "uigate: a locked slot does not say its stage (#4062)")
+			-- #4561: a filled slot's first tap reads its card under the slots, the second opens the binder
+			press("DragonKeep", "Slot1")
+			local reading = window:FindFirstChild("Choose", true) :: TextLabel
+			assert(reading.Visible and string.find(reading.Text, "Tap again", 1, true) and reading.TextFits, ("uigate: tapping a filled slot did not read its card: %q (#4561)"):format(reading.Text))
+			press("DragonKeep", "Slot1")
+			assert((window:FindFirstChild("BinderPage", true) :: GuiObject).Visible, "uigate: a second tap on the slot did not open the binder (#4561)")
+			press("DragonKeep", "Tab_slots")
 			-- the binder: every card, a card owned slotted into the empty slot
 			press("DragonKeep", "Tab_binder")
 			local binder = window:FindFirstChild("BinderPage", true) :: GuiObject

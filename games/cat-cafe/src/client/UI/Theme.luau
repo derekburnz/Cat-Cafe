@@ -295,7 +295,7 @@ Theme.areaPictures = {
 	desert = "rbxassetid://78191788809166", -- the sunstone pyramid (#2666 render; dormant until the Desert opens)
 	ruins = "rbxassetid://76447908818587", -- the Golem Courtyard and its cat-head throne (Ruins set render; dormant until the Ruins open)
 	snowy = "rbxassetid://78221826396063", -- #4364: the Snowy Mountain gate and lodge
-	waterpark = "rbxassetid://71588494615983", -- #4364: the Water Park gate and slides
+	waterpark = "rbxassetid://99110201209726", -- #4364: the Water Park lazy river and wave pool
 	castle = "rbxassetid://101068487529770", -- #4364: the Medieval Castle gate and keep
 } :: { [string]: string }
 

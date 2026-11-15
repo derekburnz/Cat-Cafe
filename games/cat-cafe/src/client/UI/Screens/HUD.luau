@@ -3212,7 +3212,20 @@ function HUD.render(self: any, state: Types.PlayerState)
 	then
 		self._roadmapOpen = settings.roadmapOpen
 	end
-	self._roadmap:render(RoadmapLogic.view(state :: any), self._roadmapOpen == true)
+	-- #4384: the strip waits for the tutorial's end while the checkInCalm switch is on
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local calm = RoadmapLogic.calm(
+		LiveFlags.shown(
+			RoadmapLogic.CALM_FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RoadmapLogic.CALM_FLAG)
+		),
+		state.tutorialStep
+	)
+	self._roadmap:render(
+		if calm then nil else RoadmapLogic.view(state :: any),
+		self._roadmapOpen == true
+	)
 	self:_renderQuests(state, catalog)
 	self:_renderFreeSpin()
 	self:_layoutRight()

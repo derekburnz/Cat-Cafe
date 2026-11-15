@@ -572,7 +572,11 @@ function DragonKeep._paintSlots(self: any)
 		local id = (view.slots or {})[self._reading]
 		local def = if type(id) == "string" then SharedKeep.card(id) else nil
 		if def then
-			reading = ("%s: %s Tap again to swap it."):format(def.name, def.text or "")
+			local words = def.text or ""
+			if words ~= "" and not string.find(words, "[%.!?]$") then
+				words ..= "."
+			end
+			reading = ("%s: %s Tap again to swap it."):format(def.name, words)
 		else
 			self._reading = nil
 		end
@@ -1466,6 +1470,7 @@ function DragonKeep.opened(self: any)
 end
 
 function DragonKeep.closed(self: any)
+	self._reading = nil -- #4561: a reopened window starts with no card read
 	self._open = false
 	self._chosen = nil
 	self._handPick = nil

@@ -59,6 +59,7 @@ Remotes.ClientToServer = {
 	"Tackle", -- ()  v0.11 F74 (data-model section 10c, shared/Shove): in an unlocked catching area, areas open, not
 	-- carrying, no lock, off TackleCooldownSeconds; lunges and hits the first player in reach who could be shoved
 	"ClaimRichTip", -- (bagId: string?)  #3360: own plot has that unexpired money bag (none: the front one), within RichTipRangeStuds of it
+	"AfkMode", -- (on: boolean)  #4346: the AFK tile; afkButton and afkCafe on; true takes the player home (TravelService's checks) and starts AFK mode, false ends it
 	"AfkIdle", -- (idle: boolean)  #3573: the client has had no input for Config.AfkCafeSeconds (true) or has input again (false); the server decides whether the player rests (AfkCafeService)
 	"TakeCozy", -- ()  #2854: own plot has a waiting Cozy gift bag (the Rewards list's row takes it from anywhere)
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes

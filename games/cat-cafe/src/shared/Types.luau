@@ -148,6 +148,8 @@ export type CatDef = {
 	color: { number }, -- {r, g, b} 0..255 for the placeholder body
 	-- #4221: a Secret cat's home area (its `area` stays "secret"): it only takes the place of a Mythical rolled there
 	secretArea: Area?,
+	-- Derek 2026-11-14: one of the seven Secrets of the one-per-area update; it only rolls while `secretAreas` is on
+	secretNew: boolean?,
 }
 
 export type UpgradeDef = {
@@ -248,6 +250,10 @@ export type ProductDef = {
 		-- #3864: Trait Tokens for the Mystic Pool (the token bundles). A token buys a trait roll, so these make the
 		-- roll a paid random item: the offer shows the roll's odds and is hidden where paid random items are restricted
 		traitTokens: number?,
+		-- #4238: Today's Deal's golden fish, and its crates ("highest_golden" the best open area's golden crate), paid
+		-- through Payout like an Index prize
+		fish: number?,
+		crates: { [string]: number }?,
 	},
 	-- #1625: sold once per account; a second receipt pays only the potions (Products.prizeFor)
 	oncePerAccount: boolean?,
@@ -960,6 +966,9 @@ export type BaitState = {
 	-- #1897 (first-hour.md section 2): the account's guaranteed Rare-or-better cat, true until it arrives (the bowl
 	-- card's "Your next cat will be Rare or better!" and, on arrival, FirstWow)
 	wow: boolean?,
+	-- #4338: the id of the Bowl Frenzy that already sped this filling bowl (BaitService's frenzyBowls), so one event
+	-- speeds it once even across a server hop; nil until a frenzy meets it
+	frenzy: string?,
 }
 
 -- The second bowl for a player (#1161, Bait.secondBowl): "on" with the pass, "offer" without it (the Store shows it).
@@ -1642,6 +1651,14 @@ export type PlayerState = {
 	lawnOwned: { [string]: boolean },
 	lawn: { [string]: string },
 	lawnStyles: LawnStyles,
+	-- #4251 Harvest Hollow (harvest-hollow-spec sections 3 to 5): pumpkins, the Stall items bought, the shared Feast Pie
+	-- and whether this player caught a harvest cat for it; nil until the server side sends it
+	harvest: {
+		pumpkins: number,
+		bought: { [string]: boolean }?,
+		pie: { count: number, goal: number }?,
+		helped: boolean?,
+	}?,
 	serverTime: number,
 }
 

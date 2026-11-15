@@ -60,12 +60,12 @@ Traits.COST_TOKENS = 1
 Traits.TOKEN_EVERY_SECONDS = 12 * 3600 -- the station's free token, on its own timer
 Traits.TOKEN_HOLD = 2
 Traits.TOKEN_MAX = 999 -- a save's tokens are clamped here (no source comes near it)
--- #3864: the token bundles on the card once the free rolls are used, by Catalog.products id; `robux` is the price
+-- #3864: the token bundles on the card once the free rolls are used, by Catalog.products id; `robux` is the price (#4377: halved 2026-11-15, R$49 and R$99)
 -- set in tools/opencloud/products.json (Roblox's own prompt shows the live price before anything is paid)
 Traits.BUNDLE_FLAG = "traitBundles"
 Traits.BUNDLES = table.freeze({
-	table.freeze({ product = "trait_tokens_20", tokens = 20, robux = 99 }),
-	table.freeze({ product = "trait_tokens_50", tokens = 50, robux = 199 }),
+	table.freeze({ product = "trait_tokens_20", tokens = 20, robux = 49 }),
+	table.freeze({ product = "trait_tokens_50", tokens = 50, robux = 99 }),
 })
 
 export type Trait = { id: string }

@@ -231,12 +231,18 @@ return function()
 			expect(#Catalog.secretCats > 0).to.equal(true)
 			local seen: { [string]: boolean } = {}
 			for i = 0, 99 do
-				local def = AdminWheel.catFor(secret, 3, true, i / 100) :: any
+				local def = AdminWheel.catFor(secret, 3, true, i / 100, true) :: any
 				expect(def.rarity).to.equal("Secret")
 				seen[def.id] = true
 			end
 			for _, def in Catalog.secretCats do
 				expect(seen[def.id]).to.equal(true)
+			end
+			-- #4221: before `secretAreas`, never one of the seven new Secrets
+			for i = 0, 99 do
+				local def = AdminWheel.catFor(secret, 3, true, i / 100, false) :: any
+				expect(def.rarity).to.equal("Secret")
+				expect(def.secretNew).never.to.equal(true)
 			end
 			-- switched off: the Mythical instead, never nothing
 			local fallback = AdminWheel.catFor(secret, 3, false, 0.5) :: any

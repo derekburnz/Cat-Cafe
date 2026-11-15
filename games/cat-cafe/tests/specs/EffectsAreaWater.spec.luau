@@ -25,6 +25,7 @@ return function()
 			expect(piece("CatCafe_WaterPark_Set_201_KidsPool_Water")).to.equal("KidsPool")
 			expect(piece("CatCafe_Castle_Set_044_Moat_Water")).to.equal("Moat")
 			expect(piece("CatCafe_Camp_Castle_012_Well_Water")).to.equal("Well")
+			expect(piece("CatCafe_Harvest_Set_003_Creek_Water")).to.equal("Creek") -- #4251
 			-- not water, not ours, or a piece with no kind
 			expect(piece("CatCafe_WaterPark_Set_162_WavePool_Pane")).to.equal(nil)
 			expect(piece("CatCafe_Ruins_Set_089_Fountain_Water")).to.equal(nil)

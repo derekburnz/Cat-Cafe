@@ -10,6 +10,7 @@ ReplicatedStorage:WaitForChild("Remotes")
 
 local AdminEventController = require(script.Parent.Controllers.AdminEventController)
 local AfkController = require(script.Parent.Controllers.AfkController)
+local AirMovesController = require(script.Parent.Controllers.AirMovesController)
 local Audio = require(script.Parent.Audio)
 local BinController = require(script.Parent.Controllers.BinController)
 local CampExtrasController = require(script.Parent.Controllers.CampExtrasController)
@@ -28,6 +29,7 @@ local MuseumGalleryController = require(script.Parent.Controllers.MuseumGalleryC
 local NetSwingController = require(script.Parent.Controllers.NetSwingController)
 local ParkFirstController = require(script.Parent.Controllers.ParkFirstController)
 local ParkTrailController = require(script.Parent.Controllers.ParkTrailController)
+local PerfSuggestController = require(script.Parent.Controllers.PerfSuggestController)
 local PetController = require(script.Parent.Controllers.PetController)
 local RallyController = require(script.Parent.Controllers.RallyController)
 local RankSpotController = require(script.Parent.Controllers.RankSpotController)
@@ -71,6 +73,7 @@ MemoryWatchController.start() -- #3743: the client's memory at 5, 15, 30 and 60 
 StyleController.start()
 ShoveController.start()
 NetSwingController.start() -- F93: the net swing, after the UI whose Net button it listens to
+AirMovesController.start() -- #4447: the Dragon Keep's Double Jump and Glide
 CannonController.start() -- F84: after the UI, whose cannon picker it opens
 ParkFirstController.start() -- #2915: the first Park landing toast and the stray ring, after the cannon
 ParkTrailController.start() -- #3554: the goal and paw trail to a first Park catch, behind parkGateTrail
@@ -93,3 +96,4 @@ SpaPoolController.start() -- #2909: your own cats soaking in the Oasis Spa pool
 StarterCatController.start() -- F96: the Bellhop Cat's stand card
 CustomerController.start()
 Effects.start()
+PerfSuggestController.start() -- #4311: the one Low performance ask on a slow touch device

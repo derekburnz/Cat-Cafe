@@ -1,0 +1,60 @@
+--!strict
+-- MoneyCard.luau (#4437): the HUD boost card's per-minute numbers, its next rung and its telemetry value.
+return function()
+	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+	local MoneyCard = require(Shared.MoneyCard)
+	local StoreFunnel = require(Shared.StoreFunnel)
+
+	describe("MoneyCard", function()
+		it("doubles a cafe with no Money pass", function()
+			local now, with = MoneyCard.perMinute(10, 1, 2)
+			expect(now).to.equal(600)
+			expect(with).to.equal(1200)
+		end)
+
+		it("counts from the cafe's base when a pass is already in the rate", function()
+			-- 2x owned: 20 a second now is 10 a second base, so 3x pays 30 a second
+			local now, with = MoneyCard.perMinute(20, 2, 3)
+			expect(now).to.equal(1200)
+			expect(with).to.equal(1800)
+		end)
+
+		it("adds nothing for a rung at or under the one owned", function()
+			local now, with = MoneyCard.perMinute(30, 3, 2)
+			expect(with).to.equal(now)
+		end)
+
+		it("never shows a broken number", function()
+			local now, with = MoneyCard.perMinute(0 / 0, 0 / 0, 2)
+			expect(now).to.equal(0)
+			expect(with).to.equal(0)
+			local n2, w2 = MoneyCard.perMinute(-5, 0, 2)
+			expect(n2).to.equal(0)
+			expect(w2).to.equal(0)
+		end)
+
+		it("offers the next rung up, none past 4x", function()
+			expect(MoneyCard.nextRung(1)).to.equal(2)
+			expect(MoneyCard.nextRung(2)).to.equal(3)
+			expect(MoneyCard.nextRung(3)).to.equal(4)
+			expect(MoneyCard.nextRung(4)).to.equal(nil)
+		end)
+
+		it("reads only a known outcome and rung", function()
+			local outcome, rung = MoneyCard.report("shown:2")
+			expect(outcome).to.equal("shown")
+			expect(rung).to.equal(2)
+			expect((MoneyCard.report("buy:4"))).to.equal("buy")
+			expect((MoneyCard.report("shown:5"))).to.equal(nil)
+			expect((MoneyCard.report("nope:2"))).to.equal(nil)
+			expect((MoneyCard.report("shown"))).to.equal(nil)
+			expect((MoneyCard.report(2))).to.equal(nil)
+			expect((MoneyCard.report(string.rep("a", 40) .. ":2"))).to.equal(nil)
+		end)
+
+		it("is a purchase source the Store funnel keeps", function()
+			expect(table.find(StoreFunnel.BUY_SOURCES, MoneyCard.SOURCE) ~= nil).to.equal(true)
+			expect(StoreFunnel.buySourceOf(MoneyCard.SOURCE)).to.equal(MoneyCard.SOURCE)
+		end)
+	end)
+end

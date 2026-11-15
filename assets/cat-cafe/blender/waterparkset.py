@@ -41,6 +41,7 @@ Four of the five are deep and none is within 100 studs of the camp. The rescue p
 """
 
 import math
+import random
 from itertools import pairwise
 
 from mathutils import Matrix
@@ -211,6 +212,25 @@ def _ground():
         if abs(x) < SPINE_W / 2 + 2:
             continue
         g.box_base((*bl(x, COASTER_Z)[:2], 0), (5.0, 2.0, 0.07), (BUTTER, MILK)[i % 2], bevel=False)
+    # confetti dots painted on Ride Row's asphalt, so the open ground between the rides is not plain grey: flat
+    # paint, clear of the paths, the ride discs, the wheel, the drop tower and the zebra stripes, no two touching
+    rnd, dots = random.Random(11), []
+    keep_off = [(RIDES["carousel"][0], RIDES["carousel"][1], RIDES["carousel"][2] + 7.0),
+                (RIDES["teacups"][0], RIDES["teacups"][1], RIDES["teacups"][2] + 7.0), (*FERRIS, 12.0), (*DROP, 9.0)]
+    for _ in range(4000):
+        if len(dots) == 64:
+            break
+        x, z, r = rnd.uniform(-66.0, 66.0), rnd.uniform(-152.0, 14.0), rnd.choice((1.1, 1.5, 1.5, 2.2, 3.0))
+        if abs(x) < SPINE_W / 2 + 2.5 + r or abs(z - COASTER_Z) < 3.0 + r:
+            continue
+        if any(math.hypot(x - cx, z - cz) < cr + r for cx, cz, cr in keep_off):
+            continue
+        if any(math.hypot(x - dx, z - dz) < dr + r + 3.0 for dx, dz, dr in dots):
+            continue
+        dots.append((x, z, r))
+    for i, (x, z, r) in enumerate(dots):
+        g.cyl_base((*bl(x, z)[:2], 0), r, 0.058 + 0.0004 * (i % 12), BALLOONS[i % len(BALLOONS)], segments=14,
+                   bevel=False)
     # every path at its own height, so no two share a top where they meet; sand-coloured from the tiles on
     spine_a, spine_b = [TRAIL[0], (0.0, TILE_Z)], [(0.0, TILE_Z), TRAIL[1]]
     for pts, w, sw, edge, top in ((spine_a, SPINE_W, PATH, PATH_EDGE, 0.0), (spine_b, SPINE_W, PATH_WET, PATH_WET_EDGE, 0.004),

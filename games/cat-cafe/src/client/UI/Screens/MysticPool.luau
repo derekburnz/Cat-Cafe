@@ -103,6 +103,11 @@ local WORDS_H = 18 + 28 -- what the player has (or why Roll is grey), then the o
 local SHORT_WORDS_H = 28
 local PENDING_SECONDS = 4
 local RETRY_SECONDS = 1.5 -- #3875: a tap on a grey choice after this sends it again
+-- #4477 (Derek 2026-11-15: "when using lots of rerolls mystic pool gets stuck on ..."): the server takes RollTrait,
+-- ChooseTrait and CollectTraitTokens at most once a second each (server/Services/Net) and drops a faster one without
+-- an answer, so a quick Take new then Roll again sat on "..." for the whole PENDING_SECONDS. Presses now go out at
+-- least this far apart (a faster one waits its turn under the same "..."), so none is dropped.
+local SEND_GAP_SECONDS = 1.1
 local ROW_H = 68 -- #3700: three lines (name, rarity and level, trait)
 local PICKER_TALL = 680 -- #3700: the card grows to at most this while the cat list shows, so about six rows fit
 local SCREEN_ROOM = 16 -- px kept clear above and below the grown card
@@ -456,6 +461,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._pending = false
 	self._pendingAt = 0
 	self._pendingToken = 0
+	self._lastFire = -math.huge -- #4477: when the last press went (or goes) out
 	self._stamp = nil :: string? -- MysticPoolLogic.stamp when the last press went out
 	self._rolling = nil :: { uid: string, hadTrait: boolean }? -- a Roll waiting for its answer
 	self._skip = nil :: (() -> ())? -- the running animation's skip
@@ -1202,12 +1208,16 @@ function MysticPool._send(self: any, fire: () -> ())
 	if self._pending then
 		return
 	end
+	-- #4477: a press within SEND_GAP_SECONDS of the last one goes out when the gap is up; its wait starts then
+	local now = os.clock()
+	local hold = math.max(0, SEND_GAP_SECONDS - (now - self._lastFire))
+	self._lastFire = now + hold
 	self._pending = true
-	self._pendingAt = os.clock()
+	self._pendingAt = now + hold
 	self._stamp = self:_stampNow()
 	self._pendingToken += 1
 	local token = self._pendingToken
-	task.delay(PENDING_SECONDS, function()
+	task.delay(PENDING_SECONDS + hold, function()
 		if self._pendingToken == token and self._pending then
 			self._pending = false
 			self._rolling = nil
@@ -1223,7 +1233,16 @@ function MysticPool._send(self: any, fire: () -> ())
 		end
 	end)
 	self:_paint()
-	fire()
+	if hold <= 0 then
+		fire()
+	else
+		task.delay(hold, function()
+			-- the card was closed or the wait ended meanwhile: the press is dropped, as a closed card drops it
+			if self._pendingToken == token and self._pending then
+				fire()
+			end
+		end)
+	end
 end
 
 function MysticPool._rollPress(self: any)

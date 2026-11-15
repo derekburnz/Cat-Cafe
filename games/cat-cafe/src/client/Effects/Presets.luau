@@ -1547,6 +1547,21 @@ Presets.emitters = {
 		drag = 0.7,
 		rotSpeed = { -90, 90 },
 	},
+	-- #4251 Harvest Hollow's air (Effects/HarvestFx): amber, gold and rust leaves falling slowly round you, rocking
+	-- as they go. Thin: it sits behind the strays and the pumpkins.
+	harvestLeaves = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(236, 160, 60), Color3.fromRGB(196, 84, 44) },
+		size = { 0.3, 0.22 },
+		transparency = { 0.1, 0.9 },
+		lifetime = { 4, 5.5 },
+		speed = { 0.4, 1 },
+		spread = 40,
+		rate = 8,
+		acceleration = Vector3.new(0.5, -1.2, 0.2),
+		drag = 0.5,
+		rotSpeed = { -90, 90 },
+	},
 	-- King Croissant's gold motes (Effects/ShopCats, #1191): a slow drift of tiny warm gold lights rising off him.
 	goldMote = {
 		texture = Presets.textures.sparkle,
@@ -1759,6 +1774,22 @@ Presets.catchFlavour = {
 			gustHeight = 8,
 			gustEvery = 0.18,
 			cats = { dragon_knight = 2 }, -- a taller fanfare for the Dragon Knight
+		},
+		-- #4251 Harvest Hollow (area id "harvest"): a puff of pumpkin orange, then gold sparkles, a warm ring, and
+		-- climbing orange puffs for the rarest
+		harvest = {
+			preset = "smokePuff",
+			colour = Color3.fromRGB(232, 140, 60),
+			puff = 6,
+			flakes = 10,
+			flakesFrom = "Epic",
+			ringScale = 1.3,
+			ringFrom = "Legendary",
+			gusts = 3,
+			gustsFrom = "Mythical",
+			gustHeight = 7,
+			gustEvery = 0.15,
+			cats = { harvest_moon = 2 }, -- the moon over the hollow: a taller column
 		},
 	} :: { [string]: CatchFlavour },
 }
@@ -2110,6 +2141,28 @@ Presets.motion = {
 		swaySeconds = 3.1,
 		resting = 0.5,
 	},
+	-- The new areas' Common cats (#4069, #4070, #4071; Derek 2026-11-13: commons get prop motion only): the hat or
+	-- tufts in the head (`_Prop`, Pose's "cap") bounce with each stride while the cat walks, tipping up to the cat's
+	-- `degrees` front and back about the prop's own pivot, `lag` radians behind the legs so it reads as loose. One
+	-- bounce a leg cycle (about 2 a second at a stray's walk), still while it stands. The Elf Cat's belled hood swings
+	-- the most and the Dwarf Cat's beard and iron cap bounce; the Squire wears nothing on its head, so it has none.
+	-- Small on purpose: the exported props pivot at the neck like the head, so a bigger tip would lift them off it.
+	propBounce = {
+		lag = 0.9,
+		cats = {
+			elf = 5,
+			dwarf = 4,
+			pinwheel = 4,
+			hot_chocolate = 3,
+			crumpet = 3,
+			flurry = 3,
+			mitten = 3,
+			spruce = 3,
+			popcorn = 3,
+			splash = 3,
+			taffy = 3,
+		} :: { [string]: number },
+	},
 }
 
 -- Model-Agent's piece poses for the new bodies (manifest `cat_poses`, PR #259), copied here because the
@@ -2375,6 +2428,30 @@ Presets.catPoses = {
 } :: { [string]: CatPose }
 
 Presets.shake = { seconds = 0.18, studs = 0.22 }
+
+-- Controller rumble and phone taps (#4224; Effects/Rumble): a camera bump of `studs` buzzes the gamepad's big motor at `perStud` a
+-- stud, between `least` and `most` of full, for the bump's seconds kept between `shortest` and `longest`. `catch` is
+-- your own catch's pulse by rarity: light for a Common, firmer and a little longer the rarer the cat.
+Presets.rumble = {
+	perStud = 1.6,
+	least = 0.2,
+	most = 0.7,
+	shortest = 0.08,
+	longest = 0.5,
+	-- a phone taps once: a click, a knock from `knockFrom` of full or a thump from `thumpFrom`, felt within `tapReach`
+	-- studs of where the camera looks
+	knockFrom = 0.3,
+	thumpFrom = 0.5,
+	tapReach = 60,
+	catch = {
+		Common = { seconds = 0.08, strength = 0.2 },
+		Rare = { seconds = 0.1, strength = 0.25 },
+		Epic = { seconds = 0.14, strength = 0.35 },
+		Legendary = { seconds = 0.2, strength = 0.45 },
+		Mythical = { seconds = 0.3, strength = 0.55 },
+		Secret = { seconds = 0.4, strength = 0.65 },
+	} :: { [string]: { seconds: number, strength: number } },
+}
 
 -- A shove (F41), a landed tackle since F74: a puff where it lands, dizzy stars over the shoved player's head and,
 -- for them, a bigger camera bump than a missed catch. The knockback itself is the engineer's, on the target's own
@@ -2875,7 +2952,9 @@ Presets.nap = {
 	tilt = 12,
 }
 
-Presets.gate = { seconds = 1.4, playWithin = 70 }
+-- `areaPuff` (#4069): pieces of the area's own puff at each of Presets.areas.points places along the foot of a gate
+-- whose area has effects of its own (Presets.areaFx.areas), on top of the dissolve.
+Presets.gate = { seconds = 1.4, playWithin = 70, areaPuff = 3 }
 
 Presets.shutter = { seconds = 0.9, signSeconds = 0.6 }
 
@@ -3263,6 +3342,50 @@ Presets.signature = {
 			height = 0.6,
 			tilt = 0.35,
 			seconds = 3,
+		},
+		arrive = { ring = 9, burst = 10, preset = "catchSparkle" },
+	},
+	-- #4251 Harvest Hollow's rarer cats (Wed Nov 25 to Sun Dec 6), the same ladder in autumn colours, on the lit
+	-- parts of their models (`..._Leaves_Glow`, `..._Wheat_Glow`, `..._Glow`; a copy without them shows on its body).
+	cranberry = { -- Cranberry Cat (Epic): a glint now and then off its berries
+		emitter = "sigGlint",
+		on = "Prop",
+		colors = { Color3.fromRGB(226, 60, 84), palette.sparkle },
+		gold = { palette.goldLight, palette.sparkle },
+	},
+	maple_leaf = { -- Maple Leaf Cat (Legendary): leaves drift down off it, the lit leaves glint, and it glows a little
+		emitter = "sigFall",
+		on = "Leaves_Glow",
+		colors = {
+			Color3.fromRGB(236, 160, 60),
+			Color3.fromRGB(214, 84, 44),
+			Color3.fromRGB(246, 206, 96),
+		},
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = {
+			{ emitter = "sigGlint", on = "Leaves_Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+		},
+	},
+	harvest_moon = { -- Harvest Moon Cat (Mythical): moonlit motes rise off its wheat and circle it like fireflies
+		emitter = "sigRise",
+		on = "Wheat_Glow",
+		colors = { Color3.fromRGB(255, 214, 120), Color3.fromRGB(255, 168, 72), palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = {
+			{ emitter = "sigGlint", on = "Prop" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = {
+			emitter = "sigEmber",
+			count = 5,
+			countLow = 3,
+			radius = 0.8,
+			height = 0.6,
+			tilt = 0.3,
+			seconds = 3.4,
 		},
 		arrive = { ring = 9, burst = 10, preset = "catchSparkle" },
 	},
@@ -3683,6 +3806,60 @@ Presets.adminDrops = {
 		puff = "stormPuff",
 		puffCount = 10,
 	},
+}
+
+-- #4251 (Effects/HarvestFx): Harvest Hollow. Leaves (`air`) fall from a `box` held `height` studs over the camera's
+-- focus while you are within `airWithin` studs of the Thankful Board (`boardTag`), looked at every `every` seconds,
+-- at `calmRate` of the rate with Reduce Motion. A patch pumpkin (`pumpkinTag`) whose `readyAttribute` goes false
+-- within `within` studs pops `pickCount` pieces `lift` studs up and a `pickRing` stud ring; one that comes back
+-- sprouts `regrowCount` green sparkles. Every `glintEvery` seconds the nearest `glintMost` ready pumpkins within
+-- `glintWithin` studs give `glintCount` gold glints. `inside` the area is within `airWithin` too (the song, the pie).
+Presets.harvestFx = {
+	pumpkinTag = "HarvestPumpkin",
+	boardTag = "HarvestBoard",
+	readyAttribute = "Ready",
+	airWithin = 130,
+	air = "harvestLeaves",
+	box = Vector3.new(60, 1, 60),
+	height = 18,
+	every = 0.5,
+	calmRate = 0.2,
+	within = 120,
+	lift = 1.2,
+	pick = "catchSparkle",
+	pickCount = 10,
+	pickColour = Color3.fromRGB(240, 140, 40), -- pumpkin orange
+	pickRing = 5,
+	regrow = "catchSparkle",
+	regrowCount = 5,
+	regrowColour = Presets.palette.leaf,
+	glint = "coinGlint",
+	glintCount = 2,
+	glintEvery = 5,
+	glintWithin = 60,
+	glintMost = 3,
+	-- the Feast Pie: a slice baked while you are in the area pops `pieCount` gold pieces `pieLift` studs over the
+	-- board and a `pieRing` stud ring; the last of `pieFull` slices adds confetti and a gold beam
+	pieAttribute = "HarvestPieSlices",
+	pieFull = 8,
+	pieLift = 6,
+	pieBurst = "catchSparkle",
+	pieCount = 12,
+	pieRing = 8,
+	pieConfetti = 0.6,
+	pieBeamWidth = 1.2,
+	pieBeamHeight = 14,
+	pieBeamSeconds = 1.2,
+	-- walking in: `arriveSpots` puffs of `arriveCount` leaves in a circle `arriveRadius` studs round you, `arriveLift`
+	-- studs up, `arriveStep` seconds apart (each spot puffs once), with `arriveSparkles` gold
+	-- sparkles; not again within `arriveGap` seconds
+	arriveSpots = 6,
+	arriveCount = 4,
+	arriveRadius = 5,
+	arriveLift = 3,
+	arriveStep = 0.12,
+	arriveSparkles = 8,
+	arriveGap = 90,
 }
 
 -- #4325 (Effects/AdminFlash): an admin event takes the screen and the world. The 3, 2, 1 begins `countFrom` seconds
@@ -5927,6 +6104,15 @@ Presets.areaFx = {
 			puffPreset = "catchSparkle",
 			puff = 6,
 		},
+		-- #4251 Harvest Hollow (area id "harvest"): a pumpkin-orange puff where its strays come and go. The falling
+		-- leaves are Effects/HarvestFx's (by the Thankful Board), so Config.World has no Harvest box and `air` here
+		-- never starts.
+		harvest = {
+			air = "harvestLeaves",
+			colour = Color3.fromRGB(232, 140, 60),
+			puffPreset = "smokePuff",
+			puff = 6,
+		},
 	} :: { [string]: AreaFxSpec },
 }
 
@@ -6000,6 +6186,24 @@ Presets.baitCrumbs = {
 	most = 4,
 }
 
+-- Bowl Frenzy at your bait bowl (#4195; Effects/BowlFrenzyFx): every `every` seconds while the frenzy runs, `count`
+-- gold `preset` sparkles pop `lift` studs over the food in each of your bowls whose cat is still on the way, and every
+-- `ringEvery`th pop a `ring` stud gold ring spreads from it; within `within` studs, checked every `check` seconds.
+-- Low performance: every `lowEvery` seconds, `lowCount` sparkles, no ring. `folders` are CafeService's bowl folders.
+Presets.bowlFrenzy = {
+	folders = { "Bait", "Bait2" },
+	preset = "catchSparkle",
+	count = 5,
+	lowCount = 2,
+	lift = 0.6,
+	every = 1.2,
+	lowEvery = 3,
+	ringEvery = 3,
+	ring = 5,
+	within = 80,
+	check = 0.3,
+}
+
 -- The stray waiting for your second cat (#3022; Effects/WaitingCat): `emitter` sparkles rise off it and a `ring` stud
 -- gold ring pulses out at its feet every `ringEvery` seconds, from `delay` seconds after it shows for `seconds`, then
 -- every `calmEvery` seconds until it is caught (#3238: it used to stop at `seconds`), within `within` studs, checked
@@ -6062,6 +6266,19 @@ Presets.lateStations = {
 	beamWidth = 1.2,
 	beamHeight = 14,
 	beamSeconds = 1.2,
+}
+
+-- The Ticket Booth's buy moment (#4061; Effects/BoothFx): paper tickets in the booth's own red, cream and gold off
+-- the `anchor` attachment of the `tag`-tagged model (else `under` of its height above its middle), `tickets` of the
+-- device's confetti budget, `sparkles` gold sparkles and one gold ring `ring` studs wide at its feet.
+Presets.boothFx = {
+	tag = "TicketBooth",
+	anchor = "BangAnchor",
+	under = 0.2,
+	tickets = 0.5,
+	sparkles = 8,
+	ring = 7,
+	colours = { Presets.palette.shirtRed, Presets.palette.cream, Presets.palette.golden },
 }
 
 -- The Relic Museum's room names (#3129; Effects/MuseumPlaques, Logic.plaqueGlow): a finished room's plaque letters
@@ -6150,6 +6367,7 @@ Presets.areaWater = {
 		"CatCafe_Castle_",
 		"CatCafe_Camp_WaterPark",
 		"CatCafe_Camp_Castle",
+		"CatCafe_Harvest_", -- #4251: Harvest Hollow's creek
 	},
 	suffix = "_Water",
 	within = 110,
@@ -6169,6 +6387,8 @@ Presets.areaWater = {
 		{ piece = "KidsPool", glint = "poolGlint", parts = 1, ringEvery = 2.2, ring = 2.6 },
 		{ piece = "Moat", glint = "poolGlint", parts = 2, ringEvery = 2.2, ring = 3 },
 		{ piece = "Well", glint = "wellGlint", parts = 1, ringEvery = 3.5, ring = 1.2 },
+		-- #4251: Harvest Hollow's creek is a run of small plates, so the well's small glints on the nearest few
+		{ piece = "Creek", glint = "wellGlint", parts = 4, ringEvery = 3, ring = 1.4 },
 	} :: { AreaWaterKind },
 }
 

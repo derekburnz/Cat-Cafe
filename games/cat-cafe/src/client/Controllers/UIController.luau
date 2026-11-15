@@ -1319,6 +1319,8 @@ local function applyState(s: Types.PlayerState)
 		-- #2555: the free Bellhop Cat's stand "!" (#2501) and its speech bubble show only while this is false
 		starterCatClaimed = s.starterCatClaimed,
 		storeSeen = s.storeSeen, -- #1823 §4: the Store tabs' New dots
+		-- #4055: the Store's golden fish prices; false (not nil, which UI.update would skip) while the switch is off
+		fishStore = s.fishStore or false,
 		dailyDeal = s.dailyDeal or false, -- #3996: Today's Deal on the Store's Featured tab
 		-- #2574: Juniper's Mystery Market: the items owned, the cart's "!" until the first visit, and whether buys are
 		-- taken yet
@@ -1461,6 +1463,18 @@ local function wireIntents()
 	end)
 	local seenQueue: { string } = {}
 	local seenSending = false
+	-- #4055: one fish buy at a time; the server answers with a toast and a ProfileSync
+	local fishBuying = false
+	UI.events.buyWithFish:Connect(function(key: string, fish: number)
+		if fishBuying or type(key) ~= "string" or type(fish) ~= "number" then
+			return
+		end
+		fishBuying = true
+		Net.fire("BuyWithFish", key, fish)
+		task.delay(1, function()
+			fishBuying = false
+		end)
+	end)
 	UI.events.storeSeen:Connect(function(tab: string)
 		if table.find(seenQueue, tab) then
 			return
@@ -3261,9 +3275,8 @@ local function wireServerEvents()
 			show(kind, paid)
 		end
 	end)
-	-- #3420: the update gift's banners (Effects/EventBanner): "a gift is coming" and the gift paid. The words are
-	-- built here from shared/UpdateGift, which refuses anything but small whole numbers; a paid gift that cannot
-	-- show as a banner falls back to the toast.
+	-- #3420: the update gift's "a gift is coming" banner (Effects/EventBanner), and the gift paid as a toast (#4484).
+	-- The words are built here from shared/UpdateGift, which refuses anything but small whole numbers.
 	Net.on(
 		"UpdateGiftNotice",
 		function(
@@ -3277,14 +3290,13 @@ local function wireServerEvents()
 			if banner == nil then
 				return
 			end
-			local shown = EventBanner.show({
-				kind = if kind == "paid" then "gift" else "giftSoon",
-				title = banner.title,
-				lines = banner.lines,
-			})
-			if not shown and kind == "paid" then
+			-- #4484 (Derek 2026-11-15: "remove the big banner thanks for playing that gives fish on join because new
+			-- players cant see tutorial then"): the gift paid on join is a small toast, never the big banner
+			if kind == "paid" then
 				UI.toast(banner.title .. " " .. banner.lines[1], "good")
+				return
 			end
+			EventBanner.show({ kind = "giftSoon", title = banner.title, lines = banner.lines })
 		end
 	)
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.

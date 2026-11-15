@@ -175,6 +175,7 @@ UI.events = {
 	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
+	buyWithFish = Signal.new(), -- (key, fish)  #4055: a Store pass bought with golden fish, forward as BuyWithFish
 	storeSeen = Signal.new(), -- (tab)   a Store tab with a New dot opened: forward as MarkStoreSeen (#1823 §4)
 	storeDeal = Signal.new(), -- (productId)   #3996: Today's Deal's R$25 pressed: forward as PromptDeal
 	-- (kind, value)   #1888 the Store funnel: "store_tab" (a tab id, once a visit) or "store_buy" (the pass or product
@@ -979,7 +980,7 @@ function UI.init(config: Types.InitConfig)
 			)
 		end,
 		setSetting = function(key: string, value: boolean)
-			UI.events.setSetting:Fire(key, value) -- #1893: the Grand Opening strip's roadmapOpen
+			UI.events.setSetting:Fire(key, value)
 		end,
 		openFeedback = function()
 			UI.bugReport.open() -- F87: the faces page first
@@ -2893,7 +2894,28 @@ do
 end
 
 -- Opens the Bait bowl screen: the bowl's state and every food with its odds, Use and Buy.
+-- Review-QA's first 5 minutes on a tablet (2026-11-14): a bowl's walk-up ring right after the first check-in opened
+-- this under the new cat's card, so with a card up it waits for the card (up to 20 s) and opens once it has gone.
 function UI.bait.openPicker()
+	local cards = popups
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local fixes = LiveFlags.shown(
+		"deviceFixes",
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "deviceFixes")
+	)
+	if fixes and cards ~= nil and cards:isShowing() then
+		task.spawn(function()
+			local waited = 0
+			while waited < 20 and cards:isShowing() do
+				waited += task.wait(0.25)
+			end
+			if modal and modal:current() == nil and not cards:isShowing() then
+				modal:open("Bait")
+			end
+		end)
+		return
+	end
 	if modal then
 		modal:open("Bait")
 	end
@@ -3033,32 +3055,11 @@ function UI.bait.arrived(cat: Types.BaitCat, bowl: number?)
 	end)
 end
 
--- #1897: FirstWow(rarity, first) from the server: the first wow cat came to the bowl (UI.bigPull.wow plays it). The
--- card's portrait is the cat at a bowl with that rarity (BaitReady comes first), unless the server names it.
-function UI.bait.wow(rarity: string, first: boolean?, catId: string?)
-	if UI.bait.busy() then
-		-- #2412: after the catch or the carry; gone if the bowl's cat left meanwhile
-		UI.bait.whenCalm(function()
-			return bowls.cats[1] ~= nil or bowls.cats[2] ~= nil
-		end, function()
-			UI.bait.wow(rarity, first, catId)
-		end)
-		return
-	end
-	local id = catId
-	if id == nil then
-		for _, cat in bowls.cats do
-			local catAt: Types.BaitCat? = cat
-			if catAt then
-				local def = lookupCat(catAt.catId)
-				if def and def.rarity == rarity then
-					id = catAt.catId
-				end
-			end
-		end
-	end
-	UI.bigPull.wow(rarity, first, id)
-end
+-- #1897: FirstWow(rarity, first) from the server: the first wow cat came to the bowl. #4488 (Derek 2026-11-15: "make
+-- it so the 'your first rare' after foodbowl scene doesn't show up just the tame button so they don't have to clear 2
+-- things for the same cat"): no card and no toast; the bait card's Tame button is the one thing for that cat.
+-- UI.bigPull.wow still draws the card, for the UI gate and should it come back.
+function UI.bait.wow(_rarity: string, _first: boolean?, _catId: string?) end
 
 -- The server resolved the cat (tamed or let go): close its card and forget it. `bowl` is 1 or 2 (#1161), nil is 1.
 function UI.bait.hideReady(bowl: number?)
@@ -4143,20 +4144,10 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 end
 
 -- The player's own CampCheckIn: "Pirate Cat is on its way to your cafe!" (the camp chime is Audio's).
--- #3080 cut it with the other green pop-ups; #3106 (Derek2 11-10: "maybe add those two buttons back") brings it back
--- for a new player's first delivery only: once a session, while the first walk-through is not done. After that the
--- basket and the camp chime say it.
-function UI.cannon.checkedIn(catName: string?)
-	local cannon: any = UI.cannon
-	if
-		cannon._deliverySaid
-		or (state.tutorialStep or math.huge) >= CannonLogic.WALKTHROUGH_STEP
-	then
-		return
-	end
-	cannon._deliverySaid = true
-	UI.toast(("🧺 %s is on its way to your cafe!"):format(catName or "Your cat"), "good")
-end
+-- #3080 cut it with the other green pop-ups; #3106 brought it back for a new player's first delivery; #4497 (Derek
+-- 2026-11-15: "remove all the pop ups that happen after first catch like "cat" is captured, "cat" is on the way to
+-- your cafe etc") cuts it again. The flight, the basket and the camp chime say it.
+function UI.cannon.checkedIn(_catName: string?) end
 
 -- A refused LaunchCannon: Launch comes back at once and the card's button wobbles. The server's toast says why.
 function UI.cannon.result(ok: boolean, destination: string?)
@@ -4741,9 +4732,13 @@ do
 			cancel = function()
 				UI.events.rescueCancelled:Fire(rescueSpotId)
 			end,
-			ended = function(success: boolean)
+			ended = function(success: boolean, said: string?)
 				if rescueTarget == rescueSpotId then
 					endRescue(success)
+				end
+				-- #4492: the bar is gone at once; its closing words show as one small toast
+				if said ~= nil and toasts then
+					toasts:show(said, if success then "good" else "warn", true)
 				end
 			end,
 		})
@@ -4775,11 +4770,11 @@ do
 				elseif guess == "perfect" then "perfect"
 				else "good"
 			if hud then
-				hud:setCatching(false) -- #3078: at once, as a catch's result does; endRescue does the rest after the word
+				hud:setCatching(false) -- #3078: at once, as a catch's result does
 			end
-			screen:showResult({ grades = { grade }, success = success }, function()
-				endRescue(success)
-			end)
+			-- #4492: the rescue is over the moment the result is in; the grade word still flashes, as on a catch
+			screen:showResult({ grades = { grade }, success = success }, function() end)
+			endRescue(success)
 			return
 		end
 		if rescueBar then
@@ -5445,16 +5440,15 @@ function UI.luckyDay(
 end
 
 -- #1893 (first-hour.md 1b): UIController's hook for RoadmapStep(n), the server's word that milestone n was done and
--- paid. The strip's dot pops gold, a small toast slides in ("Grand Opening 4/8: Tier 2! +10 golden fish") with a
--- short confetti puff off the strip (Effects/StoreBurst), and step 8 plays the Grand Opening banner once. The strip
--- itself follows the next ProfileSync.
+-- paid. A small toast slides in ("Grand Opening 4/8: Tier 2! +10 golden fish") and step 8 plays the Grand Opening
+-- banner once. The strip under the goal card is retired (#4162).
 UI.roadmap = {}
 function UI.roadmap.step(n: number)
 	if type(n) ~= "number" then
 		return
 	end
 	local RoadmapLogic = require(script.Components.RoadmapLogic)
-	-- #4384: no prize toast or confetti during the tutorial while checkInCalm is on; the strip shows it done later
+	-- #4384: no prize toast during the tutorial while checkInCalm is on
 	local LiveFlags =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
 	if
@@ -5468,14 +5462,6 @@ function UI.roadmap.step(n: number)
 		)
 	then
 		return
-	end
-	if hud then
-		hud:roadmapStep(n)
-		local strip = hud.screenGui:FindFirstChild("GrandOpening", true)
-		if strip and strip:IsA("GuiObject") and strip.Visible then
-			local Burst = require(script.Parent.Effects.StoreBurst) :: any
-			Burst.play(strip, if n >= #RoadmapLogic.STEPS then "bundle" else "pass")
-		end
 	end
 	if toasts then
 		toasts:show(RoadmapLogic.toast(n), "good")
@@ -6108,6 +6094,11 @@ do
 
 	-- #2880: true when a slide-in ask may show now (AskPacing), false while it is too soon
 	function UI.asks.paced(): boolean
+		-- #4483 (Derek 2026-11-15: "if the tips menu is X'd ... don't show cafe recap or pop ups at all like rate the
+		-- game"): a player who X'd the Tutorial tile gets no slide-in ask at all
+		if not tutorialButtonOn then
+			return false
+		end
 		return AskPacing.allow(os.clock() - sessionStart, early.lastAsk)
 	end
 
@@ -6317,6 +6308,7 @@ do
 end
 
 -- #4174: the Starter Bundle's one slide-in card a session (shared/StarterSuggest), behind the starterSuggest switch.
+-- #4438: after a rank up to Tier 2 or higher, or on a later day than the account's first, never on a first-day timer.
 -- It rides the ask card (its X from the first frame, its picture and line, no timer: it stays until Buy or the X) with one Buy button, only in
 -- a clear moment past its random 10 to 15 minute mark. Its own block, as the module is short of locals.
 do
@@ -6324,9 +6316,15 @@ do
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterSuggest")) :: any
 	local suggest = {
 		start = os.clock(),
-		dueAt = StarterSuggest.dueAt(math.random()),
+		rankedAt = nil :: number?, -- #4438: seconds into the session of the rank up to Tier 2 or higher
 		done = false,
 	}
+	-- #4438: the card's first moment is a rank up (Moments.RankUp fires on a rise in the server's tier, never at join)
+	Moments.RankUp:Connect(function(tier: number)
+		if suggest.rankedAt == nil and tier >= StarterSuggest.RANK_TIER then
+			suggest.rankedAt = os.clock() - suggest.start
+		end
+	end)
 
 	local function report(outcome: string)
 		UI.events.starterSuggest:Fire(outcome)
@@ -6408,7 +6406,8 @@ do
 			on = on,
 			done = suggest.done,
 			played = os.clock() - suggest.start,
-			dueAt = suggest.dueAt,
+			rankedAt = suggest.rankedAt,
+			firstDay = Players.LocalPlayer:GetAttribute(QuietStart.DAY_ATTRIBUTE),
 			owned = (state :: any).starterBought,
 			quietUntil = Players.LocalPlayer:GetAttribute(QuietStart.ATTRIBUTE),
 			now = Workspace:GetServerTimeNow(),
@@ -9895,6 +9894,26 @@ do
 			supporter = Players.LocalPlayer:GetAttribute(shop.supporterKey) == true, -- #1168 row 4
 		}
 	end
+	-- #4055: a pass bought with golden fish counts as owned on its card, as the server counts it (FishStore.boughtIds)
+	local SharedFishStore =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("FishStore")) :: any
+	local function owned(): { [number]: boolean }
+		local fishList = (state :: any).fishStore
+		if type(fishList) ~= "table" then
+			return PassShop.owned()
+		end
+		local all = table.clone(PassShop.owned())
+		for _, item in fishList do
+			local def = if type(item) == "table" and item.bought == true
+				then SharedFishStore.item(item.key)
+				else nil
+			local id = if def then SharedFishStore.passId(def) else 0
+			if id ~= 0 then
+				all[id] = true
+			end
+		end
+		return all
+	end
 	local function rows(): { StoreLogic.Row }
 		-- #4266: the Auto Bowl card waits for its switch, as the Bait bowl window's offer does
 		local flags =
@@ -9908,7 +9927,7 @@ do
 		then
 			config = setmetatable({ AutoBowlPassId = 0 }, { __index = Config })
 		end
-		return StoreLogic.rows(config, PassShop.owned(), state.longNap, view())
+		return StoreLogic.rows(config, owned(), state.longNap, view())
 	end
 
 	-- The window's cards when it is up, and the HUD's tile when its open state changes.
@@ -9925,6 +9944,8 @@ do
 			if up and list then
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
+				-- #4055: the Robux / Fish switch, while the fishStore switch is on
+				screen:setFish((state :: any).fishStore, state.goldenFish or 0)
 				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238
 				screen:render(list, PassShop.prices())
 			end
@@ -9987,6 +10008,10 @@ do
 				-- #4175: "featured_new" from the update's own card on Featured
 				PassShop.prompt(passId, source or "store")
 			end,
+			-- #4055: the server checks the price, the fish and the pass, and answers with a toast and a sync
+			buyFish = function(key: string, fish: number)
+				UI.events.buyWithFish:Fire(key, fish)
+			end,
 			-- #3996: the server checks Today's Deal and opens Roblox's prompt itself
 			deal = function(productId: string)
 				UI.events.storeDeal:Fire(productId)
@@ -10033,6 +10058,7 @@ do
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
+				screen:setFish((state :: any).fishStore, state.goldenFish or 0) -- #4055
 				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238
 				screen:render(rows(), PassShop.prices())
 				PassShop.refresh() -- a price changed in the Creator Hub shows without a rejoin
@@ -10500,8 +10526,8 @@ local function recapTry(): boolean
 	end
 	local RecapLogic = require(script.Components.RecapLogic)
 	local settings: { [string]: any } = state.settings or {}
-	if settings[RecapLogic.SETTING] == false then
-		UI.recap.waiting = nil -- off: this session's card is dropped
+	if settings[RecapLogic.SETTING] == false or not tutorialButtonOn then
+		UI.recap.waiting = nil -- off (#4483: or the Tutorial tile X'd): this session's card is dropped
 		return true
 	end
 	local busy = (modal ~= nil and modal:current() ~= nil)
@@ -10690,6 +10716,10 @@ local function giftTry(): boolean
 	local waiting = UI.gift.queue[1]
 	if waiting == nil or card == nil then
 		return true
+	end
+	if not tutorialButtonOn then
+		table.remove(UI.gift.queue, 1) -- #4483: the Tutorial tile X'd: the gift is paid, its thank-you card is not shown
+		return #UI.gift.queue == 0
 	end
 	local GiftCardLogic = require(script.Components.GiftCardLogic)
 	local busy = (modal ~= nil and modal:current() ~= nil)

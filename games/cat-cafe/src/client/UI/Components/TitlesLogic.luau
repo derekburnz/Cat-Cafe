@@ -38,6 +38,7 @@ local HOW: { [string]: string } = {
 	title_devoted = "Achievement: Devoted",
 	title_week_champion = "Achievement: Week Champion",
 	title_gold_rush = "Achievement: Gold Rush",
+	title_park_regular = "Spend 10,000 tickets at the Ticket Booth", -- #4061
 }
 table.freeze(HOW)
 TitlesLogic.HOW = HOW
@@ -55,6 +56,7 @@ TitlesLogic.RAREST = table.freeze({
 	"title_steady_hands",
 	"title_week_champion",
 	"title_gold_rush",
+	"title_park_regular",
 	"tag_grand_opener",
 	"tag_maple",
 	"supporter",

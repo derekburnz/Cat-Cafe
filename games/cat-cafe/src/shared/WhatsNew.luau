@@ -510,7 +510,7 @@ WhatsNew.rows = table.freeze({
 		id = "day_cart_top_shelf",
 		date = "2026-11-12",
 		icon = "new",
-		text = "Day Cart: Tier 6 top shelf",
+		text = "Coin Cart: Tier 6 top shelf",
 	},
 	-- #3448: take this row out if the bigger circles are not on main at the launch
 	{
@@ -994,7 +994,7 @@ WhatsNew.rows = table.freeze({
 		id = "day_cart_buy_all",
 		date = "2026-11-09",
 		icon = "faster",
-		text = "Buy all at the Day Cart",
+		text = "Buy all at the Coin Cart",
 	},
 	{
 		id = "rare_rescue_easier",

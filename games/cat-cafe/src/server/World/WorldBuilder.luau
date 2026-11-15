@@ -2421,7 +2421,7 @@ local function buildCornerShop(parent: Instance): Model?
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "CornerShopPrompt"
 	prompt.ActionText = "Shop"
-	prompt.ObjectText = if onCart then "Day Cart" else "Corner Shop"
+	prompt.ObjectText = if onCart then "Coin Cart" else "Corner Shop"
 	prompt.HoldDuration = 0 -- #2326: one press opens it
 	prompt.MaxActivationDistance = Config.CornerShopRange - 4
 	prompt.RequiresLineOfSight = false

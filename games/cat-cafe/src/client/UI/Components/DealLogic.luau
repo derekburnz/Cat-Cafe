@@ -19,7 +19,7 @@ local DailyDeal = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild(
 local DealLogic = {}
 
 DealLogic.TITLE = "Today's Deal"
-DealLogic.PRICE = 25 -- tools/opencloud/products.json: deal_1 to deal_4 are R$25 each, regional pricing off
+DealLogic.PRICE = 13 -- tools/opencloud/products.json: deal_1 to deal_4 are R$13 each (#4377 half price, was R$25), regional pricing off
 DealLogic.BOUGHT = "Bought today"
 DealLogic.BOUGHT_LINE = "Bought today. A new deal comes tomorrow."
 DealLogic.TOKEN_LINE = "One Trait Token is one Mystic Pool roll."
@@ -35,7 +35,7 @@ local POTIONS: { { id: string, short: string } } = {
 local SMALL_PACK = "potion_pack_s"
 local STEADY_PACK = "steady_paw_pack"
 local TOKEN_PACK = "trait_tokens_20"
-local TOKEN_PACK_PRICE = 99
+local TOKEN_PACK_PRICE = 49 -- #4377: the 20 Trait Tokens pack at half price (was R$99)
 
 export type Card = {
 	n: number,

@@ -3994,6 +3994,7 @@ Presets.adminFlash = {
 	splashPop = 0.4,
 	popSeconds = 0.25,
 	stripY = 0.17,
+	stripLift = 140, -- #4616: on touch the strip's bottom edge sits this far over the screen's bottom (above My Cafe)
 	stripWidth = 220,
 	stripHeight = 56,
 	stripBig = 25,

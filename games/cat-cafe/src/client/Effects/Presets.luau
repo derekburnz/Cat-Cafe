@@ -6212,6 +6212,7 @@ Presets.areaWater = {
 		{ piece = "Moat", glint = "poolGlint", parts = 2, ringEvery = 2.2, ring = 3 },
 		{ piece = "Well", glint = "wellGlint", parts = 1, ringEvery = 3.5, ring = 1.2 },
 		{ piece = "Pond", glint = "poolGlint", parts = 2, ringEvery = 2.6, ring = 1.8 }, -- #4386: koi ripples
+		{ piece = "Waterfall", mist = "fallMist", parts = 3, ringEvery = 1.8, ring = 2.6 }, -- #4386: mist at the falls
 	} :: { AreaWaterKind },
 }
 

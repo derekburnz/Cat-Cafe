@@ -38,6 +38,10 @@ return function()
 			expect(kind.piece).to.equal("Pond")
 			expect(kind.ringEvery >= 1).to.equal(true) -- far under 3 a second
 			expect(AreaWater.kindOf("CatCafe_Cherry_Set_004_Petals_Decor")).to.equal(nil)
+			local falls = AreaWater.kindOf("CatCafe_Cherry_Set_005_Waterfall_Water")
+			expect(falls).to.be.ok()
+			expect(falls.piece).to.equal("Waterfall")
+			expect(Presets.emitters[falls.mist]).to.be.ok()
 		end)
 	end)
 end

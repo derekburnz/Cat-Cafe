@@ -1007,6 +1007,46 @@ def ski_rack(mat):
 
 
 # --------------------------------------------------------------------------------------------------- set --
+def _lake_shore(s, mat, put, keep):
+    """The lake's shore (look pass 2026-11-15, the shore read bare): a ring of pine clumps, snowy rocks, snowball
+    piles and ski pairs 7 to 13 out from the ice, clear of the paths, the pieces and the cat spots."""
+    spots = [(p[0], p[2]) for lst in s.points.values() for p in lst]
+
+    def free(x, z, r):
+        if z > -12 or z < -128 or abs(x) > IN_X - 5:
+            return False
+        if near_trail(x, z) < TRAIL_W / 2 + r + 1.5 or in_block(x, z, r + 1.0) or in_lake(x, z, r + 2.0):
+            return False
+        if any(math.hypot(x - qx, z - qz) < r + 3.5 for (qx, qz) in spots):
+            return False
+        return not any(math.hypot(x - qx, z - qz) < r + qr + 1.0 for (qx, qz, qr) in keep)
+
+    n = 36
+    for k in range(n):
+        a = 2.0 * math.pi * (k + 0.5) / n
+        pad = 7.0 + 3.0 * (k % 3)
+        x = LAKE[0] + (LAKE_RX + pad) * math.cos(a)
+        z = LAKE[1] + (LAKE_RZ + pad) * math.sin(a)
+        kind = k % 6
+        if kind in (0, 3):                                    # a clump: one pine and a small one beside it
+            h = 8.0 + (k % 4)
+            d = 0.34 * h + 0.34 * 5.5 + 0.4                       # the two lowest tiers just apart
+            x2, z2 = x + d * math.cos(a + 1.2), z + d * math.sin(a + 1.2)
+            if not (free(x, z, 0.36 * h) and free(x2, z2, 2.0)):
+                continue
+            put(pine(mat, h, "PineSmall"), x, z, (k * 53) % 360, r=h * 0.36)
+            s.put(pine(mat, 5.5, "PineSmall"), x2, z2, (k * 31) % 360)
+            keep.append((x2, z2, 2.0))
+        elif kind in (1, 4):
+            if free(x, z, 2.2):
+                put(snow_rock(mat, 1.0 + 0.25 * (k % 3)), x, z, (k * 37) % 360, r=2.2)
+        elif kind == 2:
+            if free(x, z, 1.8):
+                put(snowball_pile(mat), x, z, (k * 47) % 360, r=1.8)
+        elif free(x, z, 1.8):
+            put(ski_pair(mat), x, z, (k * 41) % 360, r=1.8)
+
+
 def build_set(mat):
     check_layout()
     s = Set(NAME)
@@ -1180,6 +1220,7 @@ def build_set(mat):
 
     # filler: small pines and snowy rocks, clear of the paths, the blockers, the lake, the pieces and the spots
     spots = [(p[0], p[2]) for lst in s.points.values() for p in lst]
+    filler = []
     k = 0
     for gx in range(-64, 65, 16):
         for gz in range(-262, 263, 16):
@@ -1196,10 +1237,14 @@ def build_set(mat):
                 continue
             if any(math.hypot(x - qx, z - qz) < 6.0 for (qx, qz) in spots):
                 continue
+            filler.append((x, z, 3.0))
             if k % 3 == 0:
                 s.put(snow_rock(mat, 0.9 + 0.2 * (k % 3)), x, z, (k * 37) % 360)
             elif k % 3 == 1:
                 s.put(pine(mat, 6.0 + (k % 4), "PineSmall"), x, z, (k * 53) % 360)
+    # last, so every earlier piece keeps its number in the set
+    keep.extend(filler)
+    _lake_shore(s, mat, put, keep)
     return s.finish(_ground(), mat), s
 
 

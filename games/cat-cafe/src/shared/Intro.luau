@@ -289,6 +289,10 @@ function Intro.camp(area: string): Camp?
 			W.WaterParkCenterZ + W.WaterParkDepth / 2,
 			180,
 			W.CampOpeningWidth / 2
+	elseif area == "castle" then
+		-- #4184: the Medieval Castle's camp on its south side (toward the Ruins and the town), no turn like the Snowy Mountain
+		ox, oz, turn, opening =
+			W.CastleCenterX, W.CastleCenterZ - W.CastleDepth / 2, 0, W.CampOpeningWidth / 2
 	else
 		return nil
 	end

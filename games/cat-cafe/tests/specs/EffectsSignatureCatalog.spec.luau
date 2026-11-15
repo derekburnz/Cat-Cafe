@@ -10,14 +10,7 @@ return function()
 	local Presets = require(Client:WaitForChild("Effects"):WaitForChild("Presets")) :: any
 	local Catalog = require(Shared:WaitForChild("Catalog")) :: any
 
-	local PENDING = {
-		jester = true,
-		rogue = true,
-		knight = true,
-		mage = true,
-		queen = true,
-		dragon_knight = true,
-	}
+	local PENDING: { [string]: boolean } = {} -- #4184: the Castle's six are in the Catalog
 
 	describe("Effects signature cats and the Catalog", function()
 		it("names only cats the Catalog has", function()

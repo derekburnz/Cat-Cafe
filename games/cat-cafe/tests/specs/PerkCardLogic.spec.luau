@@ -87,7 +87,7 @@ return function()
 		end)
 
 		it("has no locked row once every perk is owned", function()
-			local rows = PerkCardLogic.list(9) -- #3997: Tier 8's Cocoa Stand; #4070: Tier 9's Ticket Booth
+			local rows = PerkCardLogic.list(10) -- #3997: Tier 8's Cocoa Stand; #4070: Tier 9's Ticket Booth; #4184: Tier 10's Dragon Keep
 			expect(#rows).to.equal(#StationPerks.LIST)
 			for _, row in rows do
 				expect(row.owned).to.equal(true)
@@ -103,7 +103,7 @@ return function()
 		end)
 
 		it("is nil at the top tier", function()
-			expect(PerkCardLogic.teaser(9)).to.equal(nil)
+			expect(PerkCardLogic.teaser(10)).to.equal(nil)
 		end)
 
 		it("keeps Tier 8's Cocoa Stand back until the tier8 switch is on (#3997)", function()
@@ -123,6 +123,16 @@ return function()
 			LateTiers.setOpen(true)
 			expect(PerkCardLogic.teaser(8):find("Ticket Booth", 1, true)).to.be.ok()
 			expect(#PerkCardLogic.list(8)).to.equal(8)
+			LateTiers.setOpen(nil)
+		end)
+
+		it("keeps Tier 10's Dragon Keep back until the tier10 switch is on too (#4184)", function()
+			LateTiers.setOpen(9)
+			expect(PerkCardLogic.teaser(9)).to.equal(nil)
+			expect(#PerkCardLogic.list(9)).to.equal(8)
+			LateTiers.setOpen(true)
+			expect(PerkCardLogic.teaser(9):find("Dragon Keep", 1, true)).to.be.ok()
+			expect(#PerkCardLogic.list(9)).to.equal(9)
 			LateTiers.setOpen(nil)
 		end)
 	end)

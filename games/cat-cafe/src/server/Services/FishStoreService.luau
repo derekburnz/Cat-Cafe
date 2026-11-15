@@ -1,6 +1,6 @@
 --!strict
 -- #4055 (shared/FishStore): BuyWithFish(key, shownPrice) buys one Store pass with golden fish. Refused while the
--- fishStore switch is off, for an unknown key, a pass not made, one already owned (by Robux or fish), during a trade
+-- fishStore switch is off, for an unknown key or one whose own switch is off (#4610: the Auto Bowl), a pass not made, one already owned (by Robux or fish), during a trade
 -- that holds fish, or with too few fish. On success the fish are spent, the key is saved in profile.fishBought and
 -- PassService.grantFish makes the pass count as owned at once, exactly as the Robux pass would. From anywhere (the
 -- Store is a menu), 1 a second (Net's limiter).
@@ -32,7 +32,7 @@ local function onBuy(player: Player, rawKey: unknown, rawShown: unknown)
 		return
 	end
 	local item = FishStore.item(key)
-	if item == nil then
+	if item == nil or (item.flag ~= nil and not LiveFlagService.on(item.flag)) then
 		return
 	end
 	local function refuse(reason: string)

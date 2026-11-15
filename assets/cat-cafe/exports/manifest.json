@@ -474721,6 +474721,75 @@
       }
     },
     {
+      "name": "CatCafe_Square_DecorStand",
+      "category": "Square",
+      "module": "decorstand",
+      "objects": [
+        "CatCafe_Square_DecorStand",
+        "CatCafe_Square_DecorStand_Crate_Decor",
+        "CatCafe_Square_DecorStand_Crate_Lid_Decor",
+        "CatCafe_Square_DecorStand_Lamp_Decor",
+        "CatCafe_Square_DecorStand_Lamp_Glow",
+        "CatCafe_Square_DecorStand_Stump_Decor",
+        "CatCafe_Square_DecorStand_Stump_Glow",
+        "CatCafe_Square_DecorStand_Stump_Glass"
+      ],
+      "triangles": 3170,
+      "budget": 6000,
+      "size_studs": {
+        "x": 4.84,
+        "y": 2.84,
+        "z": 6.77
+      },
+      "size_roblox": [
+        4.84,
+        6.77,
+        2.84
+      ],
+      "bounds_min": [
+        -2.42,
+        -1.79,
+        0.0
+      ],
+      "bounds_max": [
+        2.42,
+        1.05,
+        6.77
+      ],
+      "pivot": "the base centre on the square's floor (world y 0.1), front -Z; decorstand.SPOT, beside the Golden Fish Market, facing the player spawn",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [],
+      "placement_suggested_roblox": [
+        37.8,
+        0.1,
+        57.4,
+        27.9
+      ],
+      "studio": "#4516: the decor stand beside the Golden Fish Market (suggested spot decorstand.SPOT): a two-step table with a Cafe Crate, the Mushroom Lamp and the Lantern Stump under a DECOR CRATES board, a gold arrow on top pointing at the market (+X). The pieces are the game's own models, scaled; none collide.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_DecorStand.model.json",
+      "rbx_parts": 227,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_DecorStand.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_DecorStand.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "3170/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1640 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.37"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Cat_PumpkinSpice_Gold",
       "category": "Cat",
       "module": "gold",

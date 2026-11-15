@@ -2710,6 +2710,12 @@ Layout.townSquare = {
 		{ asset = "CatCafe_Square_GardenEnd", x = 64, y = 0.1, z = 51.5, rotY = 90 },
 		{ asset = "CatCafe_Square_GardenMid", x = -64, y = 0.1, z = 0, rotY = -90 },
 		{ asset = "CatCafe_Square_GardenMid", x = 64, y = 0.1, z = 0, rotY = 90 },
+		-- #4516 (Derek2 2026-11-15: "add a little decor stand beside the fish market so people know thats where to
+		-- get decor"): Model-Agent's `CatCafe_Square_DecorStand` (front -Z, about 4.9 x 2.9), just past the market's
+		-- end on the Day Cart's side (Layout.fishMarket), turned to face the spawn. Its arrow points at the market
+		-- from here. 1 stud clear of the market, 7 of its walk-up ring and 8 of everything else (world scan).
+		-- Skipped until its model is in (AssetRegistry.known).
+		{ asset = "CatCafe_Square_DecorStand", x = 37.8, y = 0.1, z = 57.4, rotY = 27.9 },
 	} :: { Prop },
 }
 

@@ -1,7 +1,7 @@
 --!strict
 -- #4251 Harvest Hollow, the save and the rules the server checks (harvest-hollow-spec sections 3 to 5). Pure: no
 -- services, so the cloud specs read it. shared/HarvestHollow (Design-Agent) holds the Stall's items and dates.
---   fresh() / sanitize(raw)            profile.harvest (save version 50): pumpkins, Stall items bought, the last day
+--   fresh() / sanitize(raw)            profile.harvest (save version 51): pumpkins, Stall items bought, the last day
 --                                      the arch's +10 was given, whether this player caught a harvest cat (Feast Pie)
 --   areaBlocker(now, tier, flagOn)     why the area is shut for this player, or nil
 --   buyBlocker(save, id, now, tier, flagOn) why a Stall buy is refused, or nil

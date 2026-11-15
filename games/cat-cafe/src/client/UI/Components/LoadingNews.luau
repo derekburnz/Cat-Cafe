@@ -89,7 +89,7 @@ end
 
 -- true when every switch of `entry` is on; `shown(key)` says whether one is (LiveFlags.shown on its attribute)
 function LoadingNews.live(entry: Entry, shown: (key: string) -> boolean): boolean
-	for _, key in entry.flags or {} do
+	for _, key in (entry.flags or {}) :: { string } do
 		if not shown(key) then
 			return false
 		end

@@ -982,7 +982,7 @@ function Intro._newsShow(self: any, index: number)
 			})
 		end
 	else
-		local tiles = entry.tiles or {}
+		local tiles: { LoadingNews.Tile } = entry.tiles or {}
 		local width = math.floor((WAIT_CARD.X - 32 - 16 - 8 * (#tiles - 1)) / math.max(#tiles, 1))
 		width = math.min(width, 140)
 		for order, tile in tiles do

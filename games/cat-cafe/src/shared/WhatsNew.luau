@@ -11,6 +11,8 @@
 --   thanks    optional (Derek2 2026-11-07: "mention of peoples fixes/suggestions ... it can use their roblox names"):
 --             the Roblox username of a playtester whose report or suggestion this update came from, only for the
 --             playtesters Derek2 has named; the board shows "💡 Thanks to <name>" under it. Never with a creditId.
+--   startsAt  optional: a Unix time (UTC) before which the board leaves the row out, so a row for an update that opens
+--             at a set time can merge early and still appear only once it is live (3 New Worlds, 2026-11-15)
 -- WhatsNew.spec checks every rule, so a bad row fails the gate.
 
 local WhatsNew = {}
@@ -23,13 +25,114 @@ export type Row = {
 	text: string,
 	creditId: string?,
 	thanks: string?,
+	startsAt: number?,
 }
 
 WhatsNew.ICONS = table.freeze({ "new", "cat", "look", "faster", "fix" })
 WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
+local UPDATE_20_00 = 1794772800 -- 2026-11-15 20:00 UTC: the 3 New Worlds restart, when the UPDATE5 code opens too
+
 WhatsNew.rows = table.freeze({
+	-- 3 New Worlds update (Growth-Agent launch pack, Sun 2026-11-15 20:00 UTC): each row waits for startsAt, so it can
+	-- merge early and the board shows it only once the worlds and the UPDATE5 code are open. Tier 8 to 10 gates stay as they are (Derek 2026-11-14 14:55 UTC).
+	{
+		id = "snowy_mountain",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "new",
+		text = "Snowy Mountain opens (T8)",
+	},
+	{
+		id = "water_park",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "new",
+		text = "Water Park opens (T9)",
+	},
+	{
+		id = "medieval_castle",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "new",
+		text = "Medieval Castle opens (T10)",
+	},
+	{
+		id = "new_cats_30",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "cat",
+		text = "30 new cats to catch",
+	},
+	{
+		id = "code_update5",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "new",
+		text = "New code: UPDATE5",
+	},
+	-- #2718 refresh (Growth-Agent 2026-11-15 09:45 UTC, about 240 merges since the 17:44 UTC rows): live on every
+	-- server since the 01:00 UTC restart. Rift Run (on 01:02), easier touch catches (#4300, #4310, #4316), the Town
+	-- Square update poster (#4371), Smooth mode (#4322), the painted sky (#4297), the Cat Arcade
+	-- corner (#4275), the Store's info buttons (#4309), the one-scroll Decor Index (#4349) and the Rummage Bin board on
+	-- phones (#4337). Still behind switches (AFK button, Mailbox, Auto Bowl, controller strip, loading screen, the new
+	-- worlds and Secret areas): rows when they open. Robux items get no row. Reset my save gets none on purpose
+	-- (Review-QA: kids could wipe their progress by accident).
+	{
+		id = "rift_run",
+		date = "2026-11-15",
+		icon = "new",
+		text = "Rift Run is open",
+	},
+	{
+		id = "touch_catch_easy",
+		date = "2026-11-15",
+		icon = "faster",
+		text = "Easier catches on touch",
+	},
+	{
+		id = "update_poster",
+		date = "2026-11-15",
+		icon = "new",
+		text = "Update poster in Town Square",
+	},
+	{
+		id = "smooth_mode",
+		date = "2026-11-15",
+		icon = "faster",
+		text = "Smooth mode in Settings",
+	},
+	{
+		id = "painted_sky",
+		date = "2026-11-15",
+		icon = "look",
+		text = "Painted sky and clouds",
+	},
+	{
+		id = "arcade_corner",
+		date = "2026-11-15",
+		icon = "look",
+		text = "New Cat Arcade corner",
+	},
+	{
+		id = "store_info",
+		date = "2026-11-15",
+		icon = "look",
+		text = "Store: tap i for details",
+	},
+	{
+		id = "decor_index_scroll",
+		date = "2026-11-15",
+		icon = "look",
+		text = "Decor Index in one scroll",
+	},
+	{
+		id = "bin_board_phone",
+		date = "2026-11-15",
+		icon = "fix",
+		text = "Rummage Bin board on phones",
+	},
 	-- #2718 refresh (11-14 11:50 UTC, 59 merges since #3927): the onboarding fixes Derek OK'd 02:37 UTC (#4097, #4098),
 	-- the Relic Museum's new inside (#4138), the Rummage Bin minigame fix (#4128), the pop-up cards (#4092) and the
 	-- phone fixes (#4151, #4152, #3990). Still behind switches (rare customers, friend joins, Today's Deal, gold tone):
@@ -1029,9 +1132,25 @@ for _, row in WhatsNew.rows do
 	table.freeze(row)
 end
 
--- The rows the board shows: the newest SHOWN, or all of them when there are fewer (it never pads).
-function WhatsNew.latest(): { Row }
-	return table.move(WhatsNew.rows, 1, math.min(WhatsNew.SHOWN, #WhatsNew.rows), 1, {})
+-- Whether `row` is live at `now` (Unix seconds): a row with no startsAt always is.
+function WhatsNew.isLive(row: Row, now: number): boolean
+	return row.startsAt == nil or (row.startsAt :: number) <= now
+end
+
+-- The rows the board shows at `now` (default: the server's clock): the newest SHOWN of those already live, or all of
+-- them when there are fewer (it never pads).
+function WhatsNew.latest(now: number?): { Row }
+	local at = now or workspace:GetServerTimeNow()
+	local out: { Row } = {}
+	for _, row in WhatsNew.rows do
+		if #out >= WhatsNew.SHOWN then
+			break
+		end
+		if WhatsNew.isLive(row, at) then
+			table.insert(out, row)
+		end
+	end
+	return out
 end
 
 -- "Nov 4" for "2026-11-04" (UTC month and day, never "2 days ago"); "" for a malformed date.

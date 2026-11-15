@@ -101,6 +101,7 @@ UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the en
 UI.trade = {} -- F102 trading, filled at the end of the file
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
+UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
 UI.store = {} -- the Store window behind the HUD's Store tile, filled at the end of the file
 UI.pass = {} -- #1646 the Cafe Pass window behind the HUD's Pass tile, filled at the end of the file
 
@@ -115,6 +116,7 @@ UI.events = {
 	toggleDecor = Signal.new(), -- (decorId, placed: boolean)
 	-- F91 front lawn (front-lawn.md section 3): forward as BuyLawn
 	buyLawn = Signal.new(), -- (id, spotId?)  a piece or style; a piece onto spotId, else the first free spot
+	buyHarvest = Signal.new(), -- (id)  a Harvest Stall item, paid in pumpkins (#4251)
 	-- #1751 (back with #1758): the Lawn cards' Use and Remove
 	setLawnSpot = Signal.new(), -- (spotId, pieceId)  forward as SetLawnSpot; pieceId "" takes the spot's piece in
 	setLawnStyle = Signal.new(), -- (kind, id)  forward as SetLawnStyle; id "" for Grey Slabs or no fence
@@ -351,6 +353,31 @@ local bowls = {
 	card = 1,
 	second = nil :: string?,
 }
+-- #4267 (Derek 2026-11-14: "show a little exclamation mark ... beside the bait bowl menu when you have food that can be
+-- refilled into it and its empty"): true while a bowl that takes food is empty, with no cat at it, and the bag holds
+-- a food. (Field, not a local: this chunk is at Luau's 200 locals.)
+function UI._bowlRefillable(s: Types.PlayerState): boolean
+	if (s.upgradeLevels.lure_bowl or 0) < 1 then
+		return false
+	end
+	local hasFood = false
+	local lures: { [string]: number } = s.lures or {}
+	for _, count in lures do
+		if count > 0 then
+			hasFood = true
+			break
+		end
+	end
+	if not hasFood then
+		return false
+	end
+	for bowl = 1, if bowls.second == "on" then 2 else 1 do
+		if bowls.views[bowl] == nil and bowls.cats[bowl] == nil then
+			return true
+		end
+	end
+	return false
+end
 local dealerScreen: Dealer.Dealer? = nil
 local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), for the range hint
 local settingsScreen: Settings.Settings? = nil -- sound switches and volumes, screen shake and the like (gear in the HUD)
@@ -633,6 +660,7 @@ local function render()
 	end
 	if hud then
 		hud:render(state)
+		hud:setBowlRefill(UI._bowlRefillable(state)) -- #4267
 	end
 	UI.campExtras.crates(state.crates) -- #2214: the "!" over the Fish Market
 	if upgrades then
@@ -668,6 +696,7 @@ local function render()
 	UI.mystery.render(state)
 	UI.trade.render(state)
 	UI.nursery.render(state)
+	UI.harvest.render(state)
 	UI.store.render()
 	UI.pass.render()
 	if cannonHint() ~= hintShown then
@@ -949,9 +978,6 @@ function UI.init(config: Types.InitConfig)
 		openFeedback = function()
 			UI.bugReport.open() -- F87: the faces page first
 		end,
-		openIdea = function()
-			UI.bugReport.open("idea") -- #3883: the map theme bubble
-		end,
 	})
 	local hudInstance = hud :: HUD.HUD
 
@@ -1166,6 +1192,13 @@ function UI.init(config: Types.InitConfig)
 		buySecond = function()
 			local api: any = UI.bait -- defined further down
 			api.buySecond()
+		end,
+		buyAuto = function()
+			local api: any = UI.bait
+			api.buyAuto()
+		end,
+		setSetting = function(key: string, on: boolean)
+			UI.events.setSetting:Fire(key, on) -- #4266: autoBowlClaim, autoBowlRefill
 		end,
 		close = closeModal,
 	})
@@ -1731,6 +1764,7 @@ function UI.init(config: Types.InitConfig)
 	UI.cafeEvent.start(parent) -- the Cafe Event chip, its start banner and the square's board face (#2487)
 	UI.trade.start() -- the Trade window in the modal (F102)
 	UI.nursery.start() -- the Garden Nursery window, opened from its stall's prompt (#1200)
+	UI.harvest.start() -- the Harvest Stall window, opened from its stall's prompt (#4251)
 	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
 	UI.pass.start() -- the Cafe Pass window; its HUD tile shows while a season runs (#1646)
 	worldTags = WorldTags.new(UI.settings.value("catIncome")) -- #2551: the Cat income switch as it stands now
@@ -1916,14 +1950,6 @@ function UI.update(partial: Types.PartialState)
 	UI.giftLadder.refresh() -- #2791
 end
 
--- #3883: the map theme bubble under the Feedback tile now (the UI gate's picture; the HUD shows it by itself)
-function UI.feedbackCallout()
-	local view = hud
-	if view then
-		view:showCallout()
-	end
-end
-
 function UI.getState(): Types.PlayerState
 	return table.clone(state)
 end
@@ -1961,6 +1987,7 @@ function UI.destroy()
 	UI.cafeEvent.reset()
 	UI.trade.reset()
 	UI.nursery.reset()
+	UI.harvest.reset()
 	UI.store.reset()
 	UI.pass.reset()
 	UI.bubbles.reset()
@@ -2579,6 +2606,13 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		if not CatFoundLogic.big(def.rarity, isNew, info) then
 			return
 		end
+		-- #4266 (Derek 2026-11-14: "an option to toggle off new cat pop ups"): with the Bowl window's New cat pop-ups
+		-- switch off (settings.bowlNewCatCard), a cat tamed at the bowl is a toast in place of the big card
+		local settings: { [string]: boolean | number | string } = state.settings or {}
+		if extra and extra.source == "bowl" and settings.bowlNewCatCard == false then
+			UI.toast(string.format("New cat: %s!", def.name), "good")
+			return
+		end
 		-- #4005: before Tier 2 a new kind below Epic is a toast; the tutorial's catches and any coat, banner or line
 		-- keep the card
 		local QuietStart =
@@ -2739,6 +2773,7 @@ local function renderBait()
 	local waiting = bowls.cats[1] ~= nil or bowls.cats[2] ~= nil
 	if hud then
 		hud:setBait(soonest, waiting)
+		hud:setBowlRefill(UI._bowlRefillable(state)) -- #4267
 		hud:setBowlCount(if bowls.second == "on" or bowls.views[2] ~= nil then 2 else 1)
 	end
 	if baitScreen then
@@ -2787,6 +2822,12 @@ do
 		if screen then
 			local id: number = Config.SecondBowlPassId
 			screen:setSecond(bowls.second, if id ~= 0 then PassShop.prices()[id] else nil)
+			-- #4266: the Auto Bowl pass's price and Roblox's word on owning it (0 until the pass is made)
+			local autoId: number = Config.AutoBowlPassId or 0
+			screen:setAuto(
+				autoId ~= 0 and PassShop.owned()[autoId] == true,
+				if autoId ~= 0 then PassShop.prices()[autoId] else nil
+			)
 		end
 	end
 	function UI.bait.setSecond(kind: string?)
@@ -2796,6 +2837,13 @@ do
 		end
 		push()
 		renderBait()
+	end
+	-- #4266: the Auto Bowl offer's price button: Roblox's purchase window; the server saves the pass
+	function UI.bait.buyAuto()
+		local id: number = Config.AutoBowlPassId or 0
+		if id ~= 0 then
+			PassShop.prompt(id, "bait")
+		end
 	end
 	-- the locked tab's buy button: Roblox's purchase window; the server turns bowl 2 on (PassService)
 	function UI.bait.buySecond()
@@ -5368,6 +5416,21 @@ function UI.roadmap.step(n: number)
 		return
 	end
 	local RoadmapLogic = require(script.Components.RoadmapLogic)
+	-- #4384: no prize toast or confetti during the tutorial while checkInCalm is on; the strip shows it done later
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	if
+		n < #RoadmapLogic.STEPS
+		and RoadmapLogic.calm(
+			LiveFlags.shown(
+				RoadmapLogic.CALM_FLAG,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RoadmapLogic.CALM_FLAG)
+			),
+			state.tutorialStep
+		)
+	then
+		return
+	end
 	if hud then
 		hud:roadmapStep(n)
 		local strip = hud.screenGui:FindFirstChild("GrandOpening", true)
@@ -9264,6 +9327,158 @@ do
 end
 
 ----------------------------------------------------------------------------------------------------
+-- Harvest Stall (#4251, harvest-hollow-spec section 4)
+--
+-- The market stall in Harvest Hollow (tag HarvestStall, Gameplay-Engineer's HarvestService) carries a ProximityPrompt
+-- named HarvestStallPrompt; holding it opens the stall window in the modal, and walking more than
+-- HarvestStallRange + 4 studs from the stall closes it. A Buy fires BuyHarvest(id), which the server checks (area open,
+-- Tier 2, pumpkins, standing at the stall). Until the server side ships nothing carries the tag, so nothing opens.
+do
+	local HarvestStall = require(script.Screens.HarvestStall)
+	local SharedConfig =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+	local STALL_TAG = "HarvestStall"
+	local PROMPT_NAME = "HarvestStallPrompt"
+	local FAR_STUDS: number = (SharedConfig.HarvestStallRange or 14) + 4
+	local harvest = {
+		window = nil :: HarvestStall.HarvestStall?,
+		connections = {} :: { RBXScriptConnection },
+		prompts = {} :: { [ProximityPrompt]: boolean },
+	}
+
+	local function stallDistance(): number?
+		local character = Players.LocalPlayer.Character
+		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+		if root == nil or not root:IsA("BasePart") then
+			return nil
+		end
+		local best: number? = nil
+		for _, stall in CollectionService:GetTagged(STALL_TAG) do
+			if stall:IsA("Model") and stall:IsDescendantOf(Workspace) then
+				local distance = (
+					(stall :: Model):GetPivot().Position - (root :: BasePart).Position
+				).Magnitude
+				if best == nil or distance < best then
+					best = distance
+				end
+			end
+		end
+		return best
+	end
+
+	local function open()
+		local window = harvest.window
+		local modalView = modal
+		if window == nil or modalView == nil then
+			return
+		end
+		window:render(state)
+		modalView:open("HarvestStall")
+	end
+
+	local function track(stall: Instance)
+		if not stall:IsDescendantOf(Workspace) then
+			return
+		end
+		local found = stall:FindFirstChild(PROMPT_NAME, true)
+		if found == nil or not found:IsA("ProximityPrompt") then
+			local waiting: RBXScriptConnection
+			waiting = stall.DescendantAdded:Connect(function(child: Instance)
+				if child.Name == PROMPT_NAME and child:IsA("ProximityPrompt") then
+					waiting:Disconnect()
+					track(stall)
+				end
+			end)
+			table.insert(harvest.connections, waiting)
+			return
+		end
+		local prompt = found :: ProximityPrompt
+		if harvest.prompts[prompt] then
+			return
+		end
+		harvest.prompts[prompt] = true
+		table.insert(harvest.connections, prompt.Triggered:Connect(open))
+		table.insert(
+			harvest.connections,
+			prompt.AncestryChanged:Connect(function()
+				if not prompt:IsDescendantOf(Workspace) then
+					harvest.prompts[prompt] = nil
+				end
+			end)
+		)
+	end
+
+	function UI.harvest.start()
+		UI.harvest.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local window = HarvestStall.new({
+			buy = function(id: string)
+				UI.events.buyHarvest:Fire(id)
+			end,
+			close = function()
+				if modalView:current() == "HarvestStall" then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				local distance = stallDistance()
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		harvest.window = window
+		modalView:register("HarvestStall", {
+			frame = window.frame,
+			onOpen = function()
+				window:render(state)
+				window:opened()
+			end,
+			onClose = function()
+				window:closed()
+			end,
+		})
+		for _, stall in CollectionService:GetTagged(STALL_TAG) do
+			track(stall)
+		end
+		table.insert(
+			harvest.connections,
+			CollectionService:GetInstanceAddedSignal(STALL_TAG):Connect(track)
+		)
+	end
+
+	-- The window on one tab ("outfit" by default), as the stall's prompt opens it; the UI gate's scenes call this too.
+	function UI.harvest.open(tab: string?)
+		local window = harvest.window
+		if window and (tab == "outfit" or tab == "decor") then
+			window:showTab(tab :: any)
+		end
+		open()
+	end
+
+	function UI.harvest.render(playerState: Types.PlayerState)
+		local window = harvest.window
+		if window then
+			window:render(playerState)
+		end
+	end
+
+	function UI.harvest.reset()
+		for _, connection in harvest.connections do
+			connection:Disconnect()
+		end
+		table.clear(harvest.connections)
+		table.clear(harvest.prompts)
+		local window = harvest.window
+		if window then
+			window:destroy()
+		end
+		harvest.window = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
 -- Store
 ----------------------------------------------------------------------------------------------------
 
@@ -9353,7 +9568,19 @@ do
 		}
 	end
 	local function rows(): { StoreLogic.Row }
-		return StoreLogic.rows(Config, PassShop.owned(), state.longNap, view())
+		-- #4266: the Auto Bowl card waits for its switch, as the Bait bowl window's offer does
+		local flags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local config: any = Config
+		if
+			not flags.shown(
+				"autoBowl",
+				ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. "autoBowl")
+			)
+		then
+			config = setmetatable({ AutoBowlPassId = 0 }, { __index = Config })
+		end
+		return StoreLogic.rows(config, PassShop.owned(), state.longNap, view())
 	end
 
 	-- The window's cards when it is up, and the HUD's tile when its open state changes.
@@ -9370,7 +9597,7 @@ do
 			if up and list then
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
-				screen:setDeal((state :: any).dailyDeal) -- #3996
+				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238
 				screen:render(list, PassShop.prices())
 			end
 			if hud then
@@ -9478,7 +9705,7 @@ do
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
-				screen:setDeal((state :: any).dailyDeal) -- #3996
+				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238
 				screen:render(rows(), PassShop.prices())
 				PassShop.refresh() -- a price changed in the Creator Hub shows without a rejoin
 			end,

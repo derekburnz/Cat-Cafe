@@ -250,6 +250,10 @@ export type ProductDef = {
 		-- #3864: Trait Tokens for the Mystic Pool (the token bundles). A token buys a trait roll, so these make the
 		-- roll a paid random item: the offer shows the roll's odds and is hidden where paid random items are restricted
 		traitTokens: number?,
+		-- #4238: Today's Deal's golden fish, and its crates ("highest_golden" the best open area's golden crate), paid
+		-- through Payout like an Index prize
+		fish: number?,
+		crates: { [string]: number }?,
 	},
 	-- #1625: sold once per account; a second receipt pays only the potions (Products.prizeFor)
 	oncePerAccount: boolean?,
@@ -1645,6 +1649,14 @@ export type PlayerState = {
 	lawnOwned: { [string]: boolean },
 	lawn: { [string]: string },
 	lawnStyles: LawnStyles,
+	-- #4251 Harvest Hollow (harvest-hollow-spec sections 3 to 5): pumpkins, the Stall items bought, the shared Feast Pie
+	-- and whether this player caught a harvest cat for it; nil until the server side sends it
+	harvest: {
+		pumpkins: number,
+		bought: { [string]: boolean }?,
+		pie: { count: number, goal: number }?,
+		helped: boolean?,
+	}?,
 	serverTime: number,
 }
 

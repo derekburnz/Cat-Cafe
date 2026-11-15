@@ -198,6 +198,38 @@ return function()
 		it("is nil once the second cat is in", function()
 			expect(SecondCat.view(save(2, true))).to.equal(nil)
 		end)
+
+		it("says the early kind bonus while earlyKindBonus is on (#4624)", function()
+			local profile = save(1, true)
+			local base = Catalog.rarities.Common.firstCatchReward
+			expect((SecondCat.view(profile, false) :: any).bonus).to.equal(base)
+			if Economy.tier(profile) == 1 and ProfileSchema.collectionCount(profile) >= 1 then
+				expect((SecondCat.view(profile, true) :: any).bonus).to.equal(3 * base)
+			end
+		end)
+	end)
+
+	describe("SecondCat.newKindReward (#4624)", function()
+		local common = 50
+
+		it("pays 3x a Common's for kinds 2 to 5 in Tier 1, with the switch on", function()
+			expect(Catalog.rarities.Common.firstCatchReward).to.equal(common)
+			for before = 1, 4 do
+				expect(SecondCat.newKindReward(common, 1, before, true)).to.equal(150)
+			end
+		end)
+
+		it("changes nothing with the switch off, from Tier 2, or past the fifth kind", function()
+			expect(SecondCat.newKindReward(common, 1, 2, false)).to.equal(common)
+			expect(SecondCat.newKindReward(common, 2, 2, true)).to.equal(common)
+			expect(SecondCat.newKindReward(common, 1, 5, true)).to.equal(common)
+			expect(SecondCat.newKindReward(common, 1, 0, true)).to.equal(common)
+		end)
+
+		it("keeps a rarer kind's bigger reward", function()
+			local rare = Catalog.rarities.Rare.firstCatchReward
+			expect(SecondCat.newKindReward(rare, 1, 2, true)).to.equal(math.max(rare, 150))
+		end)
 	end)
 
 	describe("the waiting stray", function()

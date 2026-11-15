@@ -1361,6 +1361,24 @@ Presets.emitters = {
 	},
 	-- The Speed Shoes' trail (#3523, Effects/SpeedShoes): small mint and cream puffs left at the heels of a wearer who
 	-- carries a cat on the move. Thinner and shorter than the Swift Potion's blue wisps, so the two read apart.
+	-- #4558: Fire Trail's embers, at the heels of a walker with the Dragon Keep card (Effects/FireTrail)
+	fireTrail = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Color3.fromRGB(255, 130, 50),
+			Color3.fromRGB(255, 205, 110),
+			Color3.fromRGB(255, 240, 200),
+		},
+		size = { 0.35, 0.05 },
+		transparency = { 0.05, 1 },
+		lifetime = { 0.45, 0.8 },
+		speed = { 0.4, 1.2 },
+		spread = 60,
+		rate = 12,
+		acceleration = Vector3.new(0, 1.8, 0),
+		drag = 1.5,
+		lightEmission = 0.8,
+	},
 	shoeTrail = {
 		texture = Presets.textures.smoke,
 		colors = { Presets.palette.mint, Presets.palette.offwhite },
@@ -5236,6 +5254,17 @@ Presets.speedShoes = {
 	lift = 0.25,
 	behind = 0.6,
 	model = "CatCafe_Item_SpeedShoes",
+}
+
+-- #4558 Fire Trail (Dragon Keep card, look only; Effects/FireTrail): embers at the heels while a player whose
+-- `FireTrail` attribute is true (DragonKeepService) walks on the ground faster than `moving` of full speed; the nearest
+-- budget.potionGlows within `radius`, yours first, re-picked every `pickEvery` seconds. None in Low performance.
+Presets.fireTrail = {
+	radius = 60,
+	pickEvery = 0.25,
+	moving = 0.2,
+	lift = 0.2,
+	behind = 0.5,
 }
 
 -- The Dragon Keep's set looks (Effects/KeepSets): `families` maps each card family to its emitter, `onHead` the

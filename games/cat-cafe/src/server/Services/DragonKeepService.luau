@@ -155,6 +155,10 @@ local function applyReach(player: Player, profile: Types.PlayerProfile)
 	local fx = DragonKeep.of(profile) -- the air cards, for client/Controllers/AirMovesController
 	player:SetAttribute("DoubleJump", if fx.doubleJump then true else nil)
 	player:SetAttribute("Glide", if fx.glide then true else nil)
+	-- #4558: Fire Trail is a look only; every client draws the embers off this attribute (client/Effects/FireTrail)
+	local trail = LiveFlagService.on(DragonKeep.FLAG)
+		and table.find(profile.dragon.slots, "fireTrail") ~= nil
+	player:SetAttribute("FireTrail", if trail then true else nil)
 	-- #4569: the lit sets for their looks (client Effects): "flame5,claw3", nil with none or the switch off
 	player:SetAttribute(
 		"DragonSets",

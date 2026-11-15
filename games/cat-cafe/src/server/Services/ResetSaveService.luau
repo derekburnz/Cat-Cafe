@@ -21,6 +21,7 @@ local CatService = require(script.Parent.CatService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Net = require(script.Parent.Net)
+local Telemetry = require(script.Parent.Telemetry)
 local Trade = require(ReplicatedStorage.Shared.Trade)
 local TradeService = require(script.Parent.TradeService)
 
@@ -58,7 +59,8 @@ local function onResetSave(player: Player)
 	if not testers[player] then
 		return -- not a tester, or the check has not answered yet: the row is not shown either
 	end
-	if DataService.get(player) == nil then
+	local profile = DataService.get(player)
+	if profile == nil then
 		return -- still loading
 	end
 	local busy = CatService.busyReason(player)
@@ -67,6 +69,7 @@ local function onResetSave(player: Player)
 		Net.toast(player, busy, "warn")
 		return
 	end
+	Telemetry.saveReset(player, profile) -- #4359: Growth drops reset players from the new-player reads
 	DataService.resetOnLeave(player)
 	player:Kick(ResetSaveService.KICK_TEXT)
 end

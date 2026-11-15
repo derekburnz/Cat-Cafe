@@ -187,6 +187,8 @@ UI.events = {
 	-- #2182 (intro-cutscene.md 2b): (shot)   Next, a tap outside Skip, Space, Enter or gamepad A, once a shot and from
 	-- Intro.NEXT_AFTER into it; cut to the next shot, or on the last one end the intro as a finish (IntroDone(0, replay))
 	introNext = Signal.new(),
+	-- (seconds)   #4314: the loading screen slid away; forward as TelemetryReport("loading_seen", whole seconds), once
+	loadingSeen = Signal.new(),
 	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
 	introReplay = Signal.new(),
 	-- F64
@@ -1211,7 +1213,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		close = closeModal,
 		openFeedback = function()
-			UI.bugReport.open()
+			-- #4289 (Derek 11-14: "just make it immediately go to feedback"): Settings opens the write box on the
+			-- Idea chip, with no faces first; the HUD tile keeps the faces (F87)
+			UI.bugReport.open("idea", "none")
 		end,
 		-- F102: the Trading section, saved as settings.tradeRequests through SetSetting (Gameplay 2026-11-02)
 		setTradeRequests = function(mode: string)
@@ -1681,6 +1685,9 @@ function UI.init(config: Types.InitConfig)
 		nextShot = function(shot: number)
 			UI.events.introNext:Fire(shot)
 		end,
+		waitEnded = function(seconds: number)
+			UI.events.loadingSeen:Fire(seconds) -- #4314
+		end,
 	})
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker", nil, false, true) -- #3055: the small, quiet one
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker", nil, true) -- #2697: flashes its target
@@ -1713,6 +1720,7 @@ function UI.init(config: Types.InitConfig)
 	UI.cornerShop.start() -- the Corner Shop window (#1052)
 	UI.mystery.start(parent) -- Juniper's Mystery Market window and the cart's "!" (#2574)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
+	UI.admin.start(parent) -- #4195: the Admin Wheel's window
 	UI.cafeEvent.start(parent) -- the Cafe Event chip, its start banner and the square's board face (#2487)
 	UI.trade.start() -- the Trade window in the modal (F102)
 	UI.nursery.start() -- the Garden Nursery window, opened from its stall's prompt (#1200)
@@ -1942,6 +1950,7 @@ function UI.destroy()
 	UI.mystery.reset()
 	UI.giftWait.reset()
 	UI.rally.reset()
+	UI.admin.reset()
 	UI.cafeEvent.reset()
 	UI.trade.reset()
 	UI.nursery.reset()
@@ -2363,9 +2372,75 @@ function UI.setCutscene(on: boolean)
 		board:holdBanner("roll", on)
 	end
 end
+-- #4227 (Derek 2026-11-14, from a player's suggestion): spawn lines wait in a line (Components/SpawnQueue) and show
+-- one at a time for SpawnQueue.SHOW seconds, merged when several of a rarity are out in one area, "+N" saying how
+-- many wait. Through a cutscene, Mouse Dash or the Mystic Pool they wait instead of dropping. The sting plays as
+-- each one shows (UI.onAnnounceShown, set by UIController). The `spawnQueue` switch off: spawn lines go as before.
+UI.spawns = {
+	queue = nil :: any,
+	until_ = 0,
+	pumping = false,
+} :: any
+UI.onAnnounceShown = nil :: ((string, string?) -> ())?
+function UI.spawns.on(): boolean
+	local SpawnQueue = require(script.Components.SpawnQueue) :: any
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	return LiveFlags.shown(
+		SpawnQueue.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SpawnQueue.FLAG)
+	)
+end
+function UI.spawns.pump()
+	local SpawnQueue = require(script.Components.SpawnQueue) :: any
+	local ToastRules = require(script.Components.ToastRules)
+	local spawns = UI.spawns
+	if spawns.pumping or spawns.queue == nil then
+		return
+	end
+	spawns.pumping = true
+	-- deferred, so a burst that lands in one frame (a new day, a storm) is all in the line before the first shows:
+	-- it can merge, and the first one's "+N" counts the rest
+	task.defer(function()
+		while SpawnQueue.waiting(spawns.queue, os.clock()) > 0 do
+			local now = os.clock()
+			local view = toasts
+			if now < spawns.until_ or UI.cutscene.on or view == nil or view:isBusy() then
+				task.wait(0.5)
+			else
+				local text, rarity = SpawnQueue.take(spawns.queue, now)
+				if
+					text ~= nil
+					and ToastRules.announce(rarity, now, UI.shoutout.at, Scale.isTouch())
+				then
+					local more = SpawnQueue.waiting(spawns.queue, now)
+					if rarity ~= nil then
+						UI.shoutout.at = now
+					end
+					view:announce(text, rarity, more) -- its "+N" badge and drain bar (Toasts.announce)
+					spawns.until_ = now + SpawnQueue.SHOW
+					local shown = UI.onAnnounceShown
+					if shown ~= nil then
+						shown(text, rarity)
+					end
+				end
+			end
+		end
+		spawns.pumping = false
+	end)
+end
+
 function UI.announce(text: string, rarity: string?): boolean
 	local ToastRules = require(script.Components.ToastRules)
 	local now = os.clock()
+	local SpawnQueue = require(script.Components.SpawnQueue) :: any
+	if SpawnQueue.isSpawn(text) and UI.spawns.on() then
+		local spawns = UI.spawns
+		spawns.queue = spawns.queue or SpawnQueue.new()
+		SpawnQueue.push(spawns.queue, text, rarity, now)
+		UI.spawns.pump()
+		return false -- its sting plays as it shows (UI.onAnnounceShown)
+	end
 	local cut = UI.cutscene
 	if cut.on then
 		table.insert(cut.queue, { text = text, rarity = rarity })
@@ -3136,6 +3211,11 @@ function UI.arcade.state(view: any)
 	if arcadeScreen and type(view) == "table" then
 		arcadeScreen:setState(view)
 	end
+	local bang: any = (UI :: any).arcadeBang -- filled with Mouse Dash, later in the file
+	if type(view) == "table" and type(bang) == "table" then
+		bang.classic = view
+		bang.refresh()
+	end
 end
 
 -- The `arcade` live switch: off greys Play (a game running finishes). `row` was the Settings list's Arcade row,
@@ -3143,6 +3223,11 @@ end
 function UI.arcade.setOn(on: boolean, _row: boolean?)
 	if arcadeScreen then
 		arcadeScreen:setOn(on)
+	end
+	local bang: any = (UI :: any).arcadeBang -- #4272: no "!" while the arcade is switched off
+	if type(bang) == "table" then
+		bang.on = on
+		bang.refresh()
 	end
 end
 
@@ -3561,17 +3646,39 @@ end
 -- #3179 (Derek2 11-10: "remove the loading screen honestly I think that would make people leave faster then
 -- before"): it shows only with the `loadingScreen` live switch on (off unless set to true), so by default the wait
 -- is the still picture alone and the intro starts the moment the save is in (race() is 0 with no screen up).
+-- #4314: a new save in the loading screen test (shared/LoadingTest) follows its arm, the player's LoadingArm
+-- attribute, in place of the switch: "on" always shows the screen, "off" never. The arm can land a moment after the
+-- wait began, so while a wait is asked for (UI.intro.wanted) a new arm shows or hides the screen then.
+UI.intro.wanted = false
+UI.intro.armWatch = nil :: RBXScriptConnection?
 function UI.intro.waiting(on: boolean)
+	UI.intro.wanted = on
+	local shared = ReplicatedStorage:WaitForChild("Shared")
 	if on then
-		local LiveFlags =
-			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local LiveFlags = require(shared:WaitForChild("LiveFlags")) :: any
+		local LoadingTest = require(shared:WaitForChild("LoadingTest")) :: any
 		local key = "loadingScreen"
+		local player = Players.LocalPlayer
+		if UI.intro.armWatch == nil then
+			UI.intro.armWatch = player
+				:GetAttributeChangedSignal(LoadingTest.ATTRIBUTE)
+				:Connect(function()
+					if UI.intro.wanted then
+						UI.intro.waiting(true)
+					end
+				end)
+		end
+		local flagOn =
+			LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
 		if
-			not LiveFlags.shown(
-				key,
-				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+			not LoadingTest.shows(
+				LoadingTest.arm(player:GetAttribute(LoadingTest.ATTRIBUTE)),
+				flagOn
 			)
 		then
+			if introScreen then
+				introScreen:waiting(false) -- an "off" arm that landed while the switch had it up
+			end
 			return
 		end
 	end
@@ -5289,8 +5396,12 @@ do
 		return TipQueue.device(UserInputService:GetLastInputType().Name, Scale.isTouch())
 	end
 
-	-- The area the next rank up opens, for rank_up's line.
+	-- The area the next rank up opens, for rank_up's line (#3997: none while its tier waits behind a live switch).
 	local function nextAreaName(): string?
+		local GoalLines = require(script.Components.GoalLines) :: any
+		if GoalLines.nextTier(currentCatalog and currentCatalog.tiers, state.tier) == nil then
+			return nil
+		end
 		for _, area in catalogAreas() do
 			if area.tier == state.tier + 1 then
 				return area.name
@@ -8242,6 +8353,18 @@ end
 do
 	local MouseDash = require(script.Screens.MouseDash)
 	local MouseDashLogic = require(script.Components.MouseDashLogic)
+	-- #4272 (Derek 2026-11-14: "put an exclamation mark above the arcade when you have your free daily play"): the
+	-- camp stations' red "!" (Components/PoolBang) on the cabinet's BangAnchor while today's free play is unused, from
+	-- MouseDashState while Mouse Dash is the arcade's game, else ArcadeState
+	local ArcadeShared =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Arcade")) :: any
+	local arcadeBang = {
+		bang = nil :: any,
+		classic = nil :: any,
+		on = true, -- the `arcade` switch (UI.arcade.setOn)
+		refresh = function() end,
+	}
+	(UI :: any).arcadeBang = arcadeBang
 	local dash = {
 		screen = nil :: MouseDash.MouseDash?,
 		view = nil :: any,
@@ -8308,6 +8431,23 @@ do
 		return dash.on and dash.screen ~= nil
 	end
 
+	arcadeBang.refresh = function()
+		if arcadeBang.bang == nil then
+			arcadeBang.bang = require(script.Components.PoolBang).new(
+				ArcadeShared.TAG,
+				function(view: any): boolean
+					return type(view) == "table" and view.free == true and view.loaded ~= false
+				end
+			)
+		end
+		arcadeBang.bang:update(
+			if not arcadeBang.on
+				then nil
+				elseif UI.mouseDash.isMain() then dash.view
+				else arcadeBang.classic
+		)
+	end
+
 	function UI.mouseDash.open()
 		local modalView = modal
 		if
@@ -8324,6 +8464,7 @@ do
 		dash.on = on
 		dash.circle = circle
 		apply()
+		arcadeBang.refresh()
 	end
 
 	function UI.mouseDash.render(playerState: Types.PlayerState)
@@ -8342,6 +8483,7 @@ do
 		if screen then
 			screen:setState(view)
 		end
+		arcadeBang.refresh()
 	end
 
 	function UI.mouseDash.began(run: number, hearts: number, firstAt: number, endsAt: number?)
@@ -8515,6 +8657,133 @@ do
 		end
 		rally.banner = nil
 		rally.boards = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Admin events (#4195, Derek 2026-11-14: admin events on update days)
+----------------------------------------------------------------------------------------------------
+
+-- Controllers/AdminEventController reads the admin event's attributes and PlayerState.adminWheel each half second
+-- and calls UI.admin.set(info, wheel): the Admin Wheel's window in the modal (Screens/AdminWheel). Derek 2026-11-14
+-- 22:54 UTC ("the ui is still on the screen too much in the events"): no bar or timer of its own; the event's splash
+-- and its one strip are Motion-FX's (Effects/AdminFlash). The window opens by itself once an event, AUTO_OPEN seconds
+-- after the wheel comes up for this account (after the splash), when no window is open and no catch runs; after that
+-- UI.admin.open() opens it (the strip's tap, the chat line). UI.admin.result takes AdminWheelResult. All of it waits
+-- on the server's switch `adminEvents`: off, no attribute names an event. Its own block, as the module is short of
+-- locals.
+UI.admin = {
+	spin = Signal.new(), -- ()   Spin on the Admin Wheel window: forward as AdminWheelSpin
+}
+do
+	local AdminBarLogic = require(script.Components.AdminBarLogic)
+	local AdminWheel = require(script.Screens.AdminWheel)
+	local AUTO_OPEN = 4 -- seconds after the wheel comes up before its window opens by itself (the splash first)
+	local admin = {
+		window = nil :: AdminWheel.AdminWheel?,
+		info = nil :: AdminBarLogic.Info?,
+		wheel = nil :: AdminBarLogic.Wheel?,
+		upAt = nil :: number?, -- when this event's wheel came up for this account (os.clock)
+		autoOpened = {} :: { [string]: boolean }, -- event ids whose window has opened by itself
+	}
+
+	-- No admin bar since Derek's 22:54 UTC note: UI.cafeEvent.tick keeps its own admin line (Motion-FX's to trim).
+	function UI.admin.hasBar(): boolean
+		return false
+	end
+
+	function UI.admin.open()
+		if modal and admin.window then
+			modal:open("AdminWheel")
+		end
+	end
+
+	-- UI.init: the wheel's window in the modal.
+	function UI.admin.start(_parent: Instance)
+		UI.admin.reset()
+		local window = AdminWheel.new({
+			spin = function()
+				UI.admin.spin:Fire()
+			end,
+			close = function()
+				if modal then
+					modal:close()
+				end
+			end,
+			toast = function(text: string)
+				if toasts then
+					toasts:show(text, "good")
+				end
+			end,
+		})
+		admin.window = window
+		if modal then
+			modal:register("AdminWheel", {
+				frame = window.frame,
+				onOpen = function()
+					window:refresh()
+				end,
+			})
+		end
+		UI.admin.set(admin.info, admin.wheel)
+	end
+
+	-- The admin event shown now (AdminBarLogic.info, nil for none) and PlayerState.adminWheel.
+	function UI.admin.set(info: AdminBarLogic.Info?, wheel: AdminBarLogic.Wheel?)
+		admin.info = info
+		admin.wheel = wheel
+		local window = admin.window
+		if window then
+			window:setWheel(wheel)
+		end
+		-- the wheel up and not spun yet: its window opens by itself once, after the splash, over nothing else
+		local up = wheel ~= nil and not wheel.spun and info ~= nil and info.running and info.wheel
+		if not up then
+			admin.upAt = nil
+		elseif wheel ~= nil and not admin.autoOpened[wheel.eventId] then
+			local upAt = admin.upAt or os.clock()
+			admin.upAt = upAt
+			-- Review-QA: never over a cutscene (Rift Run, a big trait roll, the first bait), a roll window or a carried
+			-- cat either, the "every pop-up muted while it plays" rule; upAt is kept, so it opens once they end
+			local current = hud
+			local busy = (current ~= nil and (current:isCatching() or current:isCarrying()))
+				or UI.cutscene.on
+				or UI.bigTraitCutting()
+				or UI.rollBusy.window
+				or UI.rollBusy.held()
+				or (UI.bait.cutting ~= nil and (UI.bait.cutting :: () -> boolean)())
+			if os.clock() - upAt >= AUTO_OPEN and modal and modal:current() == nil and not busy then
+				admin.autoOpened[wheel.eventId] = true
+				UI.admin.open()
+			end
+		end
+		-- the window closes once the wheel has gone and no spin is landing
+		if
+			wheel == nil
+			and modal
+			and modal:current() == "AdminWheel"
+			and window
+			and not (window :: any)._spinning
+		then
+			modal:close()
+		end
+	end
+
+	-- AdminWheelResult(slice, prizeId, paid).
+	function UI.admin.result(slice: number, prizeId: string, paid: { string })
+		local window = admin.window
+		if window then
+			window:result(slice, prizeId, paid)
+		end
+	end
+
+	-- UI.destroy: the window goes; what the server said stays for the next build.
+	function UI.admin.reset()
+		local window = admin.window
+		if window then
+			window:destroy()
+		end
+		admin.window = nil
 	end
 end
 
@@ -9561,10 +9830,11 @@ local function recapLines(view: { [string]: any }): { string }
 	local catalog = currentCatalog
 	local nextTier: string? = nil
 	if catalog and catalog.tiers and state.tier then
-		for _, tier in catalog.tiers :: { any } do
-			if tier.tier == state.tier + 1 and type(tier.name) == "string" then
-				nextTier = tier.name
-			end
+		-- #3997: nil while the next tier waits behind its live switch
+		local GoalLines = require(script.Components.GoalLines) :: any
+		local def = GoalLines.nextTier(catalog.tiers, state.tier)
+		if def and type(def.name) == "string" then
+			nextTier = def.name
 		end
 	end
 	local readyAt: { number } = {}
@@ -9974,10 +10244,10 @@ do
 		local adminSeen, adminBeat = AdminEventLogic.follow(events.adminSeen, adminView, now)
 		events.adminSeen = adminSeen
 		if adminBeat ~= nil and adminView ~= nil then
-			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
 			local card = if adminBeat == "start"
 				then AdminEventLogic.startBanner(adminView, now)
 				else AdminEventLogic.soonBanner(adminView, now)
+			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
 			EventBanner.show(card)
 			-- the same words as one line in the chat window, for a player who looked away
 			local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any

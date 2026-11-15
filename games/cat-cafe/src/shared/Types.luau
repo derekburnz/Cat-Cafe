@@ -15,7 +15,8 @@ export type Area =
 	| "ruins"
 	| "snowy"
 	| "waterpark"
--- A cat's area: one of the nine (#3997, #4070: the Snowy Mountain and the Water Park are not open yet), the spare pool of cats an area-themed
+	| "castle"
+-- A cat's area: one of the ten (#3997, #4070, #4184: the Snowy Mountain, the Water Park and the Medieval Castle are not open yet), the spare pool of cats an area-themed
 -- cat replaced (data-model 3d, F78), or "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
 -- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.
 export type CatArea = Area | "spare" | "exclusive" | "secret"
@@ -356,6 +357,9 @@ export type PotionDef = {
 	-- speed of food set while it runs, inside BaitSpeedMax. `quest` marks the three quest potions, which only quests
 	-- and achievements pay (never a Mystery gift).
 	tips: number?,
+	-- #4195 (the Admin Wheel's hour of 3x money): added to every tip while it runs, outside TimedTipsMax and on top
+	-- of whatever the `tips` potions add
+	tipsOver: number?,
 	goldLuck: number?,
 	baitSpeed: number?,
 	quest: boolean?,
@@ -1578,6 +1582,9 @@ export type PlayerState = {
 	invite: InviteView?,
 	-- #3196: the Mystic Pool card; nil while the `traits` flag is off, the station is shut, or from an older server
 	traits: TraitsView?,
+	-- #4195: the Admin Wheel that is up now (AdminWheel.view): its event's id and end, and whether this account has
+	-- spun it; nil with no wheel up
+	adminWheel: { eventId: string, spun: boolean, endsAt: number }?,
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,

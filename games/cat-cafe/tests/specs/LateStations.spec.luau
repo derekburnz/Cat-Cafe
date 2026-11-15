@@ -56,7 +56,7 @@ return function()
 		end)
 
 		it(
-			"has one room per area, each its Index cats, 90 exhibits in all (#3997 and #4070: the Snowy Mountain's and the Water Park's tens)",
+			"has one room per area, each its Index cats, 100 exhibits in all (#3997, #4070 and #4184: the Snowy Mountain's, the Water Park's and the Castle's tens)",
 			function()
 				expect(#LateStations.rooms).to.equal(#Catalog.areas)
 				local total = 0
@@ -69,8 +69,8 @@ return function()
 					end
 					total += #room.cats
 				end
-				expect(total).to.equal(90)
-				expect(LateStations.EXHIBITS).to.equal(90)
+				expect(total).to.equal(100)
+				expect(LateStations.EXHIBITS).to.equal(100)
 				-- no shop, starter or spare cat has an exhibit
 				for _, def in Catalog.cats do
 					if def.exclusive == true or Catalog.getArea(def.area) == nil then
@@ -457,7 +457,7 @@ return function()
 				expect(profile.museum.smoke).to.equal("gold")
 				expect(
 					LateStations.pickerLine(LateStations.MUSEUM, LateStations.view(profile, 7, NOW))
-				).to.equal("Relic Museum: 1/90 · 1 can be filled !") -- #3123: the starter tabby's only copy
+				).to.equal("Relic Museum: 1/100 · 1 can be filled !") -- #3123: the starter tabby's only copy
 			end)
 		end)
 	end)

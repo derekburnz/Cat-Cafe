@@ -97,12 +97,24 @@ export type Budget = {
 	waterfalls: number, -- Ruins waterfalls and fountains whose water runs at once (Effects/RuinsWater)
 }
 
+-- When a phone or tablet counts as struggling (#4311, Logic.slowStep; Derek 2026-11-14): under `fps` frames a second
+-- on average over a `window` second window, `windows` windows in a row, not counting the first `after` seconds or
+-- frames longer than `pause` seconds. Gameplay's Low performance suggestion uses the same numbers.
+Presets.slow = {
+	fps = 30,
+	window = 20,
+	windows = 2,
+	after = 60,
+	pause = 1,
+}
+
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
 -- (skill section 7). "high" is a PC. "console" is an Xbox or PlayStation (#2871): it runs at the "high" tier, but
 -- with a budget between the phone's and the PC's, since an Xbox One or PS4 is far slower than a gaming PC and the
 -- console pass watches the frame rate in a busy Alleyway. "lowPerformance" is the Low performance setting on any
 -- device: under the phone budget everywhere, with half the steady particles. "lite" (#3794, the `fxLite` switch) is
--- a phone, or any device with graphics quality set to 1 to 3: between the phone budget and Low performance, for the
+-- a struggling phone or tablet (Presets.slow, #4311), or any device with graphics quality set to 1 to 3: between the
+-- phone budget and Low performance, for the
 -- phones' frame rate (about 47 fps against 65 on PC): fewer moving cats at 20 Hz, fewer and thinner steady emitters,
 -- smaller bursts, fewer Highlights, and no decor motion or bunting flutter.
 Presets.budget = {
@@ -4167,8 +4179,11 @@ Presets.orders = {
 -- Clouds in the sky (Sky.luau; Derek 2026-10-28 17:05: "add clouds in sky"): Roblox's cloud layer at `cover` (0 to
 -- 1, how much of the sky it hides) and `density` (how thick each cloud looks), tinted `color`, drifting on `wind`
 -- studs a second when the place has no wind of its own. Off in Low performance.
+-- #4291 (Derek 2026-11-14: "the sky still needs to be changed off the boring cloudy view"): the sky box now has its
+-- own painted clouds (assets/cat-cafe/vfx/sky_painted.py), so this layer is a few drifting clouds (0.5 before, which
+-- hid half the blue behind flat white).
 Presets.sky = {
-	cover = 0.5,
+	cover = 0.22,
 	density = 0.5,
 	color = Color3.fromRGB(255, 252, 247),
 	wind = Vector3.new(3, 0, 1.5),
@@ -4445,6 +4460,7 @@ Presets.decor = {
 	ruins_stone_throne = legendary(),
 	snow_stone_fireplace = legendary(), -- #3997
 	funfair_mini_carousel = legendary(), -- #4070
+	castle_round_table = legendary(), -- #4184
 	classic_cat_tree_tower = legendary(),
 	rally_victory_podium = legendary(),
 	alley_midnight_sky = { look = "stars", on = "Wallpaper" },
@@ -4497,6 +4513,14 @@ Presets.decor = {
 		on = "Floor",
 		emitter = "decorGlint",
 		colors = { Color3.fromRGB(120, 205, 240), Color3.fromRGB(240, 250, 255) },
+	},
+	-- #4184: the Castle Crate's Mythical floor, the same moving light with ember orange and gold glints (a first
+	-- pick by Model-Agent for Motion-FX to tune)
+	castle_dragon_scales = {
+		look = "canal",
+		on = "Floor",
+		emitter = "decorGlint",
+		colors = { Color3.fromRGB(255, 140, 60), Color3.fromRGB(255, 214, 120) },
 	},
 	classic_gold_leaf = {
 		look = "goldLeaf",
@@ -4746,6 +4770,8 @@ Presets.potions = {
 		colour = palette.goldLight,
 	},
 	mega_tip_potion = { emitter = "potionMegaTip", on = "Body", colour = palette.golden },
+	-- #4195: the Admin Wheel's hour of 3x money glows as Mega Money until Motion-FX gives it its own
+	admin_money_potion = { emitter = "potionMegaTip", on = "Body", colour = palette.golden },
 } :: { [string]: PotionSpec }
 -- The Speed Shoes' trail (Effects/SpeedShoes): shown on wearers within `radius` studs, checked every `pickEvery`
 -- seconds; `moving` is how much of full walking input counts as on the move; the puffs start `lift` studs over the

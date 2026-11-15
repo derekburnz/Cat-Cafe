@@ -20,10 +20,13 @@
 -- kept for good. buy(passId) opens Roblox's purchase window (Components/PassShop); the server turns the pass on when
 -- Roblox says it was bought.
 
+local TweenService = game:GetService("TweenService")
+
 local Button = require(script.Parent.Parent.Components.Button)
 local Config = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
 ) :: any
+local Context = require(script.Parent.Parent.Parent.Effects.Context)
 local Create = require(script.Parent.Parent.Components.Create)
 local DealLogic = require(script.Parent.Parent.Components.DealLogic)
 local FitText = require(script.Parent.Parent.Components.FitText)
@@ -154,6 +157,11 @@ local INK = Color3.fromHex("2C1642") -- the family kit's ink, the i's letter and
 local PRELOAD_AFTER = 3 -- #2500: seconds after the Store is built (at join) before its pictures are fetched
 local PRELOAD_BATCH = 8 -- pictures asked for at once
 local PRELOAD_GAP = 0.25 -- seconds between batches
+-- #4276 (Derek 2026-11-14: "for the side panel of the store the packs is a plain image it needs something that will
+-- help grab attention more then just one plain image"): the rail's Packs tab turns through the packs' pictures, one
+-- every PACK_TURN seconds, each with a soft light sweep across the button. No words, timers or discounts are added.
+local PACK_TURN = 2.5
+local SWEEP_SECONDS = 0.7
 local QUIET_SECONDS = 2.5 -- a card's picture this long to load before its emoji shows
 
 local Store = {}
@@ -325,6 +333,7 @@ function Store.new(callbacks: Callbacks): Store
 			Parent = self._railButtons[id].instance,
 		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	end
+	self:_packTab(railButtonH)
 
 	-- the page beside the rail, from the top (#1690: no note row; cards say "Yours to keep", prices show Robux)
 	local pageX = RAIL_W + GAP + 4
@@ -1652,6 +1661,103 @@ function Store.tab(self: any): string
 	return self._tab
 end
 
+-- #4276: the rail's Packs tab turns through the pictures of the packs on sale (StoreLogic.NEWEST_PACKS order), with a
+-- light sweep each turn, while the Store shows. With Reduce Motion the pictures still turn, with no sweep.
+function Store._packTab(self: any, buttonH: number)
+	local button = self._railButtons.packs
+	local face = button and button.instance:FindFirstChild("Face")
+	local icon = button and button.instance:FindFirstChild("Icon", true)
+	if face == nil or icon == nil or not icon:IsA("TextLabel") then
+		return
+	end
+	-- Review-QA in Studio: at about 20 px the turn was easy to miss; the Packs picture fills the button's height
+	local side = math.max(icon.Size.X.Offset, math.floor(buttonH * 0.72))
+	icon.Size = UDim2.fromOffset(side, side)
+	local sweep: Frame = Create("Frame", {
+		Name = "Sweep",
+		BackgroundColor3 = Theme.colors.white,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = (face :: GuiObject).ZIndex + 4,
+		Visible = false,
+		Parent = face,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+	})
+	local gradient: UIGradient = Create("UIGradient", {
+		Rotation = 20,
+		Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 1),
+			NumberSequenceKeypoint.new(0.4, 1),
+			NumberSequenceKeypoint.new(0.5, 0.45),
+			NumberSequenceKeypoint.new(0.6, 1),
+			NumberSequenceKeypoint.new(1, 1),
+		}),
+		Offset = Vector2.new(-1, 0),
+		Parent = sweep,
+	})
+	self._packSweep = sweep
+	self._packTurn = 0
+	local function showing(): boolean
+		local node: Instance? = self.frame
+		while node ~= nil do
+			if node:IsA("GuiObject") and not node.Visible then
+				return false
+			elseif node:IsA("ScreenGui") then
+				return node.Enabled
+			end
+			node = node.Parent
+		end
+		return false
+	end
+	task.spawn(function()
+		while self._panel ~= nil do
+			task.wait(PACK_TURN)
+			if self._panel == nil then
+				return
+			end
+			if showing() and button.instance.Visible then
+				self:_turnPackTab(icon :: TextLabel, gradient)
+			end
+		end
+	end)
+end
+
+-- the next pack's picture on the Packs tab, and the sweep across it
+function Store._turnPackTab(self: any, icon: TextLabel, gradient: UIGradient)
+	local sold: { string } = {}
+	for _, key in StoreLogic.NEWEST_PACKS do
+		for _, row in StoreLogic.tabRows(self._rows, "packs") do
+			if row.key == key and ShopIcons.packIcon(key) ~= nil then
+				table.insert(sold, key)
+				break
+			end
+		end
+	end
+	if #sold < 2 then
+		return
+	end
+	self._packTurn = self._packTurn % #sold + 1
+	local key = sold[self._packTurn]
+	icon:SetAttribute("Pack", key)
+	IconArt.setImage(icon, ShopIcons.packIcon(key))
+	if Context.reducedMotion() then
+		return
+	end
+	local sweep: Frame = self._packSweep
+	sweep.Visible = true
+	gradient.Offset = Vector2.new(-1, 0)
+	local tween = TweenService:Create(
+		gradient,
+		TweenInfo.new(SWEEP_SECONDS, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+		{ Offset = Vector2.new(1, 0) }
+	)
+	tween.Completed:Once(function()
+		sweep.Visible = false
+	end)
+	tween:Play()
+end
+
 -- The window closed: the Codes tab is out of view (its box clears), and the next open starts on Featured.
 function Store.closed(self: any)
 	local onCodes: ((boolean) -> ())? = self._callbacks.codes
@@ -1819,6 +1925,7 @@ function Store.destroy(self: any)
 		self._packInfo.buy:destroy()
 	end
 	self._panel:destroy()
+	self._panel = nil -- #4276: stops the Packs tab's turns
 end
 
 return Store

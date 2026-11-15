@@ -110,6 +110,24 @@ function FirstFive.firstSceneBucket(seconds: number): string
 	return "40+"
 end
 
+-- #4307 (phones wait over 10 s before the intro 32% of the time against 12% on a computer): client_boot splits that
+-- wait. The client reports boot_ui (seconds from its first script line to the UI built) and then boot_sync (to its
+-- first ProfileSync); the server logs client_boot once, value the whole seconds from the join to that sync, fields the
+-- Roblox load (join to the first script line), the UI build and the save wait (script start to the sync less the UI
+-- build), each bootBucket'd. BOOT_MAX caps a report.
+FirstFive.BOOT_MAX = 300
+
+function FirstFive.bootBucket(seconds: number): string
+	if seconds ~= seconds or seconds < 2 then
+		return "lt2"
+	elseif seconds < 5 then
+		return "2-5"
+	elseif seconds < 10 then
+		return "5-10"
+	end
+	return "10+"
+end
+
 -- quit_scene's scenes: where a beginner was when they left
 FirstFive.SCENES = {
 	"loading",

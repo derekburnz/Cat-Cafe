@@ -199,7 +199,7 @@ local PASSES: { PassCard } = {
 		configKey = "AutoBowlPassId",
 		name = "Auto Bowl",
 		icon = "🥣",
-		effect = "Claims each cat as it arrives and refills your bowl with your best food. Switch it off any time.",
+		effect = "Claims cats, uses your best food",
 		note = "Yours to keep.",
 		tab = "cats",
 	},

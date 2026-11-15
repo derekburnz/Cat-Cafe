@@ -225,6 +225,8 @@ local IDS: { [string]: string } = {
 	Icon_Clean_TicketBooth = "rbxassetid://96195139920509",
 	Icon_Clean_Observatory = "rbxassetid://72696437397422",
 	Icon_Clean_DragonKeep = "rbxassetid://122710978883444",
+	-- #4424: one prize ticket, for the Ticket Booth's balance and prices
+	Icon_Clean_Ticket = "rbxassetid://129842731005234",
 	-- #4412: Cinder's five stage portraits (CatCafe_Icon_Dragon_<Stage>); ShopIcons.dragonStage
 	Icon_Dragon_Hatchling = "rbxassetid://99135344316065",
 	Icon_Dragon_Whelp = "rbxassetid://102034058992887",

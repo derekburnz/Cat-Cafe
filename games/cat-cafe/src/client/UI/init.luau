@@ -8425,6 +8425,9 @@ do
 			collect = function()
 				send("CollectFusion")
 			end,
+			fuseAll = function()
+				send("FuseAll") -- #4589
+			end,
 			close = closer(WINDOWS.fusion),
 		})
 		late.fusion = fusion
@@ -8650,6 +8653,14 @@ do
 	end
 
 	-- LateStationResult: a refusal wakes the card (the server's toast says why); a gift bursts its exhibit.
+	-- #4589: FusionSummary, what one Fuse all made (LateStationsController)
+	function UI.lateStations.fusionSummary(made: any)
+		local fusion = late.fusion
+		if fusion and type(made) == "table" then
+			fusion:summary(made)
+		end
+	end
+
 	function UI.lateStations.result(stationId: string, ok: boolean, detail: any)
 		if not ok then
 			local card: any = if stationId == LateStationsLogic.SPA then late.spa else late.museum

@@ -12402,12 +12402,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local price = badge:FindFirstChild("Price") :: TextLabel
 		local view = workspace.CurrentCamera.ViewportSize
 		local inset = game:GetService("GuiService"):GetGuiInset()
-		for _, step in { { owned = {}, text = "2x Money", price = "R$25" }, { owned = { [ids[2]] = true }, text = "3x Money", price = "R$59" }, { owned = { [ids[3]] = true }, text = "4x Money", price = "R$99" } } do
+		for _, step in { { owned = {}, text = "X2 Cash", price = "R$25" }, { owned = { [ids[2]] = true }, text = "X3 Cash", price = "R$59" }, { owned = { [ids[3]] = true }, text = "X4 Cash", price = "R$99" } } do
 			UI.store.preview(prices, step.owned)
 			UIShim.advance(1 / 60)
 			assert(badge.Visible, "uigate: no money button before " .. step.text .. " (Derek 2026-11-14)")
 			assert(pill.Text == step.text and pill.TextFits, "uigate: the money button reads " .. pill.Text .. ", not " .. step.text .. " (Derek 2026-11-14)")
-			assert(price.Visible and price.Text == step.price and price.TextFits, "uigate: the " .. step.text .. " price reads " .. price.Text .. " (Derek 2026-11-14)")
+			-- #4617: the old look, "X2 Cash" over a green "Only" and the price
+			assert(price.Visible and string.find(price.Text, "Only</font> " .. step.price, 1, true) and price.TextFits, "uigate: the " .. step.text .. " price reads " .. price.Text .. " (#4617)")
 			assert(badge.AbsolutePosition.X + inset.X >= 0 and badge.AbsolutePosition.X + badge.AbsoluteSize.X + inset.X <= view.X, "uigate: the " .. step.text .. " button runs off screen (Derek 2026-11-14)")
 		end
 		UI.store.preview(prices, { [ids[4]] = true })

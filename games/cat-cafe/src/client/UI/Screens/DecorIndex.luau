@@ -467,7 +467,7 @@ function DecorIndex._buildNear(self: any)
 end
 
 function DecorIndex._buildCell(
-	self: any,
+	_self: any,
 	parent: Instance,
 	def: Types.DecorDef,
 	order: number

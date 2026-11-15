@@ -505,3 +505,19 @@ The Keep sheet holds all of these. It's mono. The cutscene and card sounds play 
 | `fusionCollectRainbow` | a rainbow cat is collected from the dome | 2.6 s | the "ta-da", six notes running up (one for each colour) and a wider chord held under them | P2 |
 
 Nothing here is loud or scary: the roars are a cat's voice pitched down with a rolled growl. The area songs for the three new areas are in section 3.
+
+## Admin events (#4195, #4325, #4197, 2026-11-15)
+
+No new files: every cue here is one the game already has, played at a new pitch or from a new moment.
+
+| cue | when | length | feel | P |
+|---|---|---|---|---|
+| `uiGiftReady` | the "event in two minutes" banner, and the start of an event's last minute | as the gift chime | the soft gift chime | P2 |
+| `uiSpinTick` | each of 3, 2, 1 before an event starts | as the wheel's tick | one clear tick a second | P2 |
+| `uiSpinWin` | the event starts and its name fills the screen | as the wheel's win | the wheel's fanfare | P2 |
+| `uiBadge` | the event's end card | as the badge blip | a small bright blip | P3 |
+| `stormLand` | a Cat Storm stray lands near you | as the cannon's landing | the landing thump, lighter and a quarter higher, in the world | P3 |
+| `adminFishLand` | a Fish Fountain fish lands near you | 0.9 s of the World sheet | a small bright plip, pitched up, in the world; at most one every 0.35 s | P3 |
+| `adminCrateLand` | a Crate Drop crate touches down | as the cannon's landing | the landing thump, a little lower and heavier, in the world | P3 |
+
+All of these are quiet next to the catch sounds, so ten fish landing at once never drown the music.

@@ -356,8 +356,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 			introStep = 0,
 			firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT,
 			firstHourV3Step = 0,
-			cleanStep = Onboarding.V7_CLEAN_COUNT, -- #4504: out of v7, so a server still on v7 logs none of it
-			cleanV8Step = 0,
+			cleanStep = 0,
+			cleanV8Step = 0, -- #4504
 			playtimeStep = 0,
 		},
 		tipsSeen = {},
@@ -845,7 +845,7 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		introStep = 0,
 		firstHourStep = Onboarding.FIRST_HOUR_V2_COUNT,
 		firstHourV3Step = 0,
-		cleanStep = Onboarding.V7_CLEAN_COUNT,
+		cleanStep = 0,
 		cleanV8Step = 0,
 		playtimeStep = 0,
 	}
@@ -901,13 +901,15 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	-- #3695: the clean funnel and playtime_v1 from their own fields once this code has saved them. Without them (an
 	-- older save, or a server on v6 dropped them) a save past its first catch is out of the clean funnel, and one that
 	-- logged any first_hour step is out of playtime_v1: both count only players who start on them.
-	-- #4504: onboarding_v8 (cleanV8Step) the same way; v7's field is written as v7's count, so a server still on v7
-	-- logs no v7 step for a player this code has seen (v8 replaces it)
+	local cleanStep = value.cleanStep
+	telemetry.cleanStep = if type(cleanStep) == "number"
+		then math.clamp(asInt(cleanStep, 0), 0, Onboarding.V7_CLEAN_COUNT)
+		else Onboarding.v7Start(telemetry)
+	-- #4504: onboarding_v8 (cleanV8Step, logged while the walk-through runs bowl first) the same way
 	local cleanV8Step = value.cleanV8Step
 	telemetry.cleanV8Step = if type(cleanV8Step) == "number"
 		then math.clamp(asInt(cleanV8Step, 0), 0, Onboarding.CLEAN_COUNT)
 		else Onboarding.cleanStart(telemetry)
-	telemetry.cleanStep = Onboarding.V7_CLEAN_COUNT
 	local playtimeStep = value.playtimeStep
 	telemetry.playtimeStep = if type(playtimeStep) == "number"
 		then math.clamp(asInt(playtimeStep, 0), 0, Onboarding.PLAYTIME_COUNT)

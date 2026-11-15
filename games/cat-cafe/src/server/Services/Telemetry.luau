@@ -974,14 +974,69 @@ local function saveAreas(profile: Profile, areas: { [string]: boolean })
 	end
 end
 
+-- #3695: one clean funnel step out to Roblox.
+local function sendClean(
+	player: Player,
+	profile: Profile,
+	funnel: string,
+	step: number,
+	name: string
+)
+	local fields = grouped(profile, {}) -- #3666
+	remember(player, "funnel", funnel .. " " .. name, step, fields)
+	send(player, "funnel " .. funnel, function()
+		AnalyticsService:LogFunnelStepEvent(
+			player,
+			funnel,
+			tostring(player.UserId),
+			step,
+			name,
+			customFields(fields)
+		)
+	end)
+end
+
+-- #3695: v7, while the walk-through runs today's order (#4518).
+local function logCleanV7(player: Player, profile: Profile, areas: { [string]: boolean })
+	local state = profile.telemetry
+	local logged = state.cleanStep or 0
+	if logged >= Onboarding.V7_CLEAN_COUNT then
+		return
+	end
+	if logged >= Onboarding.V7_CLEAN_TUTORIAL then
+		saveAreas(profile, areas) -- a cat from bait or a rescue never passes caughtIn (Review-QA on #3697)
+	end
+	for _, step in Onboarding.v7Due(state, logged, { tier = Economy.tier(profile), areas = areas }) do
+		state.cleanStep = step
+		sendClean(
+			player,
+			profile,
+			Onboarding.V7_CLEAN_FUNNEL,
+			step,
+			Onboarding.V7_CLEAN_STEPS[step]
+		)
+	end
+end
+
 local function logClean(player: Player, profile: Profile, event: string?)
 	local session = sessions[player]
-	local state = profile.telemetry
-	local logged = state.cleanV8Step or 0
-	if logged >= Onboarding.CLEAN_COUNT or session == nil or session.areasCaught == nil then
-		return -- out of it, or joined is not logged yet (logJoined calls this once the session is set up)
+	if session == nil or session.areasCaught == nil then
+		return -- joined is not logged yet (logJoined calls this once the session is set up)
 	end
 	local areas: { [string]: boolean } = session.areasCaught
+	if not Onboarding.v8On() then
+		logCleanV7(player, profile, areas)
+		return
+	end
+	local state = profile.telemetry
+	local logged = state.cleanV8Step or 0
+	if logged == 0 and Onboarding.reached(state, "first_catch") then
+		state.cleanV8Step = Onboarding.CLEAN_COUNT -- #4504: began on v7 before the switch: out of v8
+		return
+	end
+	if logged >= Onboarding.CLEAN_COUNT then
+		return
+	end
 	if logged >= Onboarding.CLEAN_TUTORIAL then
 		-- past the tutorial the next steps can be an area's: a cat from bait or a rescue never passes caughtIn, so
 		-- the save is read again (Review-QA on #3697)
@@ -999,19 +1054,7 @@ local function logClean(player: Player, profile: Profile, event: string?)
 	}
 	for _, step in Onboarding.cleanDue(state, logged, facts, event) do
 		state.cleanV8Step = step
-		local name = Onboarding.CLEAN_STEPS[step]
-		local fields = grouped(profile, {}) -- #3666
-		remember(player, "funnel", Onboarding.CLEAN_FUNNEL .. " " .. name, step, fields)
-		send(player, "funnel " .. Onboarding.CLEAN_FUNNEL, function()
-			AnalyticsService:LogFunnelStepEvent(
-				player,
-				Onboarding.CLEAN_FUNNEL,
-				tostring(player.UserId),
-				step,
-				name,
-				customFields(fields)
-			)
-		end)
+		sendClean(player, profile, Onboarding.CLEAN_FUNNEL, step, Onboarding.CLEAN_STEPS[step])
 	end
 end
 
@@ -2353,6 +2396,8 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.snapScreen = FirstFive.snapScreen(raw) -- #3098
 			if raw == "Cannon" then
 				logClean(player, profile, Onboarding.CLEAN_EVENTS.cannonOpen) -- #4504: in the cannon
+			elseif raw == "RankUp" and Economy.tier(profile) == 1 then
+				logClean(player, profile, Onboarding.CLEAN_EVENTS.rankUpShown) -- #4504: the Rank Up shown
 			end
 		end
 	elseif name == "tutorial_closed" then

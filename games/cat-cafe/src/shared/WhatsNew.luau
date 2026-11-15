@@ -35,6 +35,7 @@ WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one co
 local SECRETS_AT = 1794799800 -- 2026-11-16 03:30 UTC (Sunday 10:30 PM ET): 10 Secret Cats, the secretAreas switch
 local UPDATE_NOV_18 = 1795032000 -- 2026-11-18 20:00 UTC: Better on Every Device, when UPDATE6 opens too
 local UPDATE_20_00 = 1794772800 -- 2026-11-15 20:00 UTC: the 3 New Worlds restart, when the UPDATE5 code opens too
+local FISH_AT = 1794780000 -- 2026-11-15 22:00 UTC: the Golden Fish Store opens, gold fish trading is back
 
 WhatsNew.rows = table.freeze({
 	-- Better on Every Device update (Growth-Agent launch pack, Wed 2026-11-18 20:00 UTC): each row waits for
@@ -125,6 +126,56 @@ WhatsNew.rows = table.freeze({
 		startsAt = UPDATE_20_00,
 		icon = "new",
 		text = "New code: UPDATE5",
+	},
+	-- Derek 2026-11-15 15:54 UTC ("update whats new board with recent changes"): the changes that reach every server
+	-- with the 20:00 UTC restart (Tiers 3 to 7 pace #4500 and #4511, the decor stand #4524, the Coin Cart name #4533)
+	-- wait for it; gold fish trading waits for the Golden Fish Store. Fewer pop-ups and the trade note are live.
+	{
+		id = "tiers_sooner",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "faster",
+		text = "Tiers 3 to 5 reached sooner",
+	},
+	{
+		id = "epics_early",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "cat",
+		text = "Epics replace early Mythics",
+	},
+	{
+		id = "decor_stand",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "new",
+		text = "Decor stand by Fish Market",
+	},
+	{
+		id = "coin_cart",
+		date = "2026-11-15",
+		startsAt = UPDATE_20_00,
+		icon = "look",
+		text = "Day Cart is now Coin Cart",
+	},
+	{
+		id = "gold_fish_trade",
+		date = "2026-11-15",
+		startsAt = FISH_AT,
+		icon = "new",
+		text = "Gold fish trading is back",
+	},
+	{
+		id = "fewer_popups",
+		date = "2026-11-15",
+		icon = "fix",
+		text = "Fewer pop-ups",
+	},
+	{
+		id = "trade_note",
+		date = "2026-11-15",
+		icon = "look",
+		text = "Trade menu has a new note",
 	},
 	-- #2718 refresh (Growth-Agent 2026-11-15 09:45 UTC, about 240 merges since the 17:44 UTC rows): live on every
 	-- server since the 01:00 UTC restart. Rift Run (on 01:02), easier touch catches (#4300, #4310, #4316), the Town

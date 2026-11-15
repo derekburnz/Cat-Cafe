@@ -430868,6 +430868,116 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_TipPile.png"
     },
     {
+      "name": "CatCafe_Item_WaterSquirter",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_WaterSquirter"
+      ],
+      "triangles": 448,
+      "budget": 600,
+      "size_studs": {
+        "x": 0.38,
+        "y": 1.6,
+        "z": 1.1
+      },
+      "size_roblox": [
+        0.38,
+        1.1,
+        1.6
+      ],
+      "bounds_min": [
+        -0.19,
+        -1.3,
+        -0.26
+      ],
+      "bounds_max": [
+        0.19,
+        0.3,
+        0.84
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_WaterSquirter.model.json",
+      "rbx_parts": 10,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_WaterSquirter.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_WaterSquirter.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "448/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "240 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.26 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.50"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Item_PoolNoodle",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_PoolNoodle"
+      ],
+      "triangles": 300,
+      "budget": 400,
+      "size_studs": {
+        "x": 0.4,
+        "y": 4.22,
+        "z": 0.75
+      },
+      "size_roblox": [
+        0.4,
+        0.75,
+        4.22
+      ],
+      "bounds_min": [
+        -0.2,
+        -3.76,
+        -0.21
+      ],
+      "bounds_max": [
+        0.2,
+        0.46,
+        0.54
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_PoolNoodle.model.json",
+      "rbx_parts": 7,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_PoolNoodle.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_PoolNoodle.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "300/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "128 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.21 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.65"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Accessory_TailBow",
       "category": "Accessory",
       "module": "accessories",
@@ -442927,6 +443037,65 @@
       }
     },
     {
+      "name": "CatCafe_Sign_VipPlate",
+      "category": "Sign",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Sign_VipPlate"
+      ],
+      "triangles": 412,
+      "budget": 600,
+      "size_studs": {
+        "x": 3.0,
+        "y": 0.22,
+        "z": 0.8
+      },
+      "size_roblox": [
+        3.0,
+        0.8,
+        0.22
+      ],
+      "bounds_min": [
+        -1.5,
+        -18.76,
+        13.05
+      ],
+      "bounds_max": [
+        1.5,
+        -18.54,
+        13.85
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sign_VipPlate.model.json",
+      "rbx_parts": 13,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.fbx",
+        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.glb"
+      ],
+      "gates": {
+        "pass": false,
+        "failed": [
+          "naming"
+        ],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "412/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "142 faces on swatch centers",
+          "naming": "bad asset name",
+          "pivot": "floor at z=13.05 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.65"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sign_VipPlate.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Sign_VipPlate.png"
+    },
+    {
       "name": "CatCafe_Park_Set",
       "category": "Park",
       "module": "parkset",
@@ -444238,65 +444407,6 @@
           "centered": "footprint center x=0.00 y=-0.12"
         }
       }
-    },
-    {
-      "name": "CatCafe_Sign_VipPlate",
-      "category": "Sign",
-      "module": "signstyles",
-      "objects": [
-        "CatCafe_Sign_VipPlate"
-      ],
-      "triangles": 412,
-      "budget": 600,
-      "size_studs": {
-        "x": 3.0,
-        "y": 0.22,
-        "z": 0.8
-      },
-      "size_roblox": [
-        3.0,
-        0.8,
-        0.22
-      ],
-      "bounds_min": [
-        -1.5,
-        -18.76,
-        13.05
-      ],
-      "bounds_max": [
-        1.5,
-        -18.54,
-        13.85
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sign_VipPlate.model.json",
-      "rbx_parts": 13,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.fbx",
-        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.glb"
-      ],
-      "gates": {
-        "pass": false,
-        "failed": [
-          "naming"
-        ],
-        "warnings": [
-          "pivot",
-          "centered"
-        ],
-        "checks": {
-          "budget": "412/600 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "142 faces on swatch centers",
-          "naming": "bad asset name",
-          "pivot": "floor at z=13.05 (want 0)",
-          "centered": "footprint center x=0.00 y=-18.65"
-        }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sign_VipPlate.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Sign_VipPlate.png"
     },
     {
       "name": "CatCafe_Woods_SetV32",

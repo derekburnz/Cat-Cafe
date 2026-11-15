@@ -442,6 +442,55 @@ def build_tip_pile(mat):
     return [b.finalize("CatCafe_Prop_TipPile", mat)]
 
 
+# #4061 the Ticket Booth's two toys (ticket-booth-and-dragon-keep.md 1.3, fun only). Each is one object held in the
+# hand like a net: pivot at the middle of the grip, pointing forward (-Y in Blender, -Z in Roblox), with a `Grip`
+# Attachment at the pivot. The Water Squirter also has `Muzzle` at the nozzle's tip, where the splash starts.
+SQUIRTER, NOODLE = "CatCafe_Item_WaterSquirter", "CatCafe_Item_PoolNoodle"
+SQUIRTER_MUZZLE = (0.0, -1.3, 0.34)
+NOODLE_LEN = 4.2
+
+
+def build_water_squirter(mat):
+    """A chunky toy water pistol, 1.6 long: a sky blue body with an orange nozzle and trigger, a see-through-look
+    mint water tank on top with a butter cap, and a white grip the hand holds."""
+    b = Builder()
+    b.box((0, 0.0, 0.0), (0.2, 0.24, 0.5), "milk", rot=Matrix.Rotation(math.radians(-12), 3, "X"))    # the grip
+    b.box((0, -0.38, 0.34), (0.26, 1.15, 0.3), "pastel_sky")                                          # the body
+    b.box((0, -0.3, 0.33), (0.275, 0.5, 0.1), "milk", bevel=False)                                    # a side stripe
+    _rod(b, (0, -0.95, 0.34), (0, -1.18, 0.34), 0.1, "fur_ginger")                                    # the nozzle
+    _rod(b, (0, -1.18, 0.34), SQUIRTER_MUZZLE, 0.055, "pastel_butter")                                # its tip
+    b.box((0, -0.24, 0.12), (0.08, 0.07, 0.2), "fur_ginger", rot=Matrix.Rotation(math.radians(18), 3, "X"))  # trigger
+    b.box((0, -0.3, 0.17), (0.06, 0.34, 0.04), "pastel_sky", bevel=False)                             # its guard
+    b.cyl((0, -0.2, 0.62), 0.2, 0.3, "mint", segments=10)                                             # the tank
+    b.cyl((0, -0.2, 0.8), 0.11, 0.08, "pastel_butter", segments=8)                                    # its cap
+    b.box((0, 0.24, 0.42), (0.14, 0.12, 0.12), "fur_ginger")                                          # the pump knob
+    return [b.finalize(SQUIRTER, mat)]
+
+
+def build_pool_noodle(mat):
+    """A foam pool noodle, 4.2 long with a soft bend near its far end: lime green with two pink bands and a darker
+    hole at each end. Held near one end; it bonks with a squeak."""
+    b = Builder()
+    a, m, c = Vector((0, 0.45, 0)), Vector((0, -2.6, 0)), Vector((0, -3.7, 0.35))
+    _rod(b, a, m, 0.2, "leaf_green", segments=10)
+    _rod(b, m, c, 0.2, "leaf_green", segments=10)
+    b.sphere(tuple(m), 0.2, "leaf_green", segments=10, rings=6)                                       # the bend
+    for y in (-0.9, -1.9):
+        _rod(b, (0, y, 0), (0, y - 0.25, 0), 0.212, "fur_bubblegum", segments=10)                     # the bands
+    d = (c - m).normalized()
+    _rod(b, c - d * 0.02, c + d * 0.012, 0.09, "choco", segments=8)                                   # the far hole
+    _rod(b, a - Vector((0, 0.02, 0)), a + Vector((0, 0.012, 0)), 0.09, "choco", segments=8)           # the near hole
+    return [b.finalize(NOODLE, mat)]
+
+
+def toy_attachments(name):
+    """Grip at the pivot with the model's own axes; the squirter's Muzzle at its nozzle's tip."""
+    out = [("", "Grip", Matrix.Identity(4))]
+    if name == SQUIRTER:
+        out.append(("", "Muzzle", Matrix.Translation(Vector(SQUIRTER_MUZZLE))))
+    return out
+
+
 ASSETS = {
     "CatCafe_Item_FoodBowl": (build_food_bowl, 300),
     "CatCafe_Item_FoodBowl_Premium": (build_food_bowl_premium, 400),
@@ -459,4 +508,6 @@ ASSETS = {
     "CatCafe_Item_HoneyCream": (build_honey_cream, 1100),     # #3462 the Day Cart's own baits
     "CatCafe_Item_CometTreat": (build_comet_treat, 900),
     "CatCafe_Prop_TipPile": (build_tip_pile, 600),
+    SQUIRTER: (build_water_squirter, 600),                    # #4061 the Ticket Booth's toys
+    NOODLE: (build_pool_noodle, 400),
 }

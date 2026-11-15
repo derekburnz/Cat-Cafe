@@ -933,6 +933,8 @@ def main():
             extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
         if name.startswith("CatCafe_Item_Net_L"):  # the hand's spot for the net hold (Animation-Engineer)
             extra = {"attachments": [items.grip_attachment()]}
+        if name in (items.SQUIRTER, items.NOODLE):  # #4061 the booth's toys: Grip, and the squirter's Muzzle
+            extra = {"attachments": items.toy_attachments(name)}
         if name.startswith(("CatCafe_Door_", "CatCafe_CatFlap_")):   # F80: glass, sign and panels ride their leaf
             extra = {"nest": doorsets.NEST}
             if name.endswith("_Back"):

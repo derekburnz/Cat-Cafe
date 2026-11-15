@@ -187,6 +187,28 @@ function Catching.pickCat(rarity: Types.Rarity, area: string, roll: number): Typ
 	return Catalog.cats[1]
 end
 
+-- #4188 follow-up (Review-QA's Studio check: the tutorial's first hand catch was a second Tabby, so the tutorial
+-- ended on 2 kinds): pickCat's pick among `area`'s cats of `rarity` that `owned` (the save's collection, by cat id)
+-- does not hold; with all of them owned it is pickCat's pick.
+function Catching.pickNewCat(
+	rarity: Types.Rarity,
+	area: string,
+	roll: number,
+	owned: { [string]: any }
+): Types.CatDef
+	local picked = Catching.pickCat(rarity, area, roll)
+	local list: { Types.CatDef } = {}
+	for _, def in Catching.candidates(picked.rarity, area) do
+		if owned[def.id] == nil then
+			table.insert(list, def)
+		end
+	end
+	if #list == 0 then
+		return picked
+	end
+	return list[math.clamp(math.floor(roll * #list) + 1, 1, #list)]
+end
+
 -- The bait bowl's pick (data-model section 8): uniform among the rarity's cats in every area `tier` opens, so the
 -- pool grows with the tier, the same split the food cards show. Falls back down the rarity ladder like pickCat.
 function Catching.pickBaitCat(rarity: Types.Rarity, tier: number, roll: number): Types.CatDef

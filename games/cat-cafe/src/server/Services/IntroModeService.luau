@@ -4,6 +4,8 @@
 -- "full" plays today's intro, "short" the short one (shared/Intro.SHORT_CAPTIONS) and "none" no scene. A player outside any
 -- experiment, a failed read or another value gives nil, and the save keeps the older split (shared/IntroSplit).
 -- Only new saves read it in the end (Telemetry.introJoin waits for it then, never longer than WAIT_SECONDS).
+-- #4314: since the short intro went to every save (#4252) introMode is no longer read; the same read now takes the
+-- loading screen test's arm (loadingArm).
 --
 -- Roblox terms: ConfigService:GetConfigForPlayerAsync(player) yields and gives a ConfigSnapshot of the experience's
 -- config values with the player's experiment arm applied; GetValue(key) reads one.
@@ -17,7 +19,9 @@ local IntroModeService = {}
 IntroModeService.KEY = "introMode"
 IntroModeService.WAIT_SECONDS = 2
 
-local modes: { [Player]: string } = {}
+-- #4314: the loading screen test's arm (shared/LoadingTest.KEY), read from the same config snapshot
+local LOADING_KEY = "loadingScreenArm"
+local loadingArms: { [Player]: string } = {}
 local pending: { [Player]: boolean } = {}
 
 -- #4074: GetValue warns "Config value not found for key" for a key the player's config does not hold, and that was
@@ -40,25 +44,33 @@ local function fetch(player: Player)
 	pending[player] = true
 	local ok, value = pcall(function()
 		local snapshot = (game:GetService("ConfigService") :: any):GetConfigForPlayerAsync(player)
-		return snapshot:GetValue(IntroModeService.KEY)
+		-- #4314: only the loading test's key. introMode is no longer read (the short intro is for every save since
+		-- #4252), and a second key no Experiment holds would warn on every join once this one is live (#4074).
+		return snapshot:GetValue(LOADING_KEY)
 	end)
 	pending[player] = nil
 	if ok and value ~= nil then
 		keyLive = true
 	end
 	if ok and type(value) == "string" and player.Parent ~= nil then
-		modes[player] = value
+		loadingArms[player] = value
 	end
 end
 
--- The player's introMode value ("short", "none" or whatever the config says), or nil. Waits up to WAIT_SECONDS for a
--- read still on its way.
-function IntroModeService.get(player: Player): string?
+-- #4314: the player's loadingScreenArm value, or nil, waiting the same way. In Studio a Workspace attribute
+-- LoadingArmTest stands in for it.
+function IntroModeService.loadingArm(player: Player): string?
+	if RunService:IsStudio() then
+		local test = Workspace:GetAttribute("LoadingArmTest")
+		if type(test) == "string" then
+			return test
+		end
+	end
 	local waited = 0
 	while pending[player] and waited < IntroModeService.WAIT_SECONDS do
 		waited += task.wait(0.1)
 	end
-	return modes[player]
+	return loadingArms[player]
 end
 
 -- Review-QA: ConfigService does not load in the dev place file, so in Studio only a Workspace attribute
@@ -80,7 +92,7 @@ function IntroModeService.start()
 		task.spawn(fetch, player)
 	end
 	Players.PlayerRemoving:Connect(function(player)
-		modes[player] = nil
+		loadingArms[player] = nil
 		pending[player] = nil
 	end)
 end

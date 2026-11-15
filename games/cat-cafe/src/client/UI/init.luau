@@ -4751,9 +4751,13 @@ do
 			cancel = function()
 				UI.events.rescueCancelled:Fire(rescueSpotId)
 			end,
-			ended = function(success: boolean)
+			ended = function(success: boolean, said: string?)
 				if rescueTarget == rescueSpotId then
 					endRescue(success)
+				end
+				-- #4492: the bar is gone at once; its closing words show as one small toast
+				if said ~= nil and toasts then
+					toasts:show(said, if success then "good" else "warn", true)
 				end
 			end,
 		})
@@ -4785,11 +4789,11 @@ do
 				elseif guess == "perfect" then "perfect"
 				else "good"
 			if hud then
-				hud:setCatching(false) -- #3078: at once, as a catch's result does; endRescue does the rest after the word
+				hud:setCatching(false) -- #3078: at once, as a catch's result does
 			end
-			screen:showResult({ grades = { grade }, success = success }, function()
-				endRescue(success)
-			end)
+			-- #4492: the rescue is over the moment the result is in; the grade word still flashes, as on a catch
+			screen:showResult({ grades = { grade }, success = success }, function() end)
+			endRescue(success)
 			return
 		end
 		if rescueBar then

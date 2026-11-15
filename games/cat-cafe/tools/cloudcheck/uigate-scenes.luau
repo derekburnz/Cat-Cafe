@@ -7777,8 +7777,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			zoneEndsAt = t + 5,
 		})
 	end },
-	-- #2460: once the server says the rescue is done, the full-screen tap catcher goes so a phone can move again under
-	-- the "Rescued!" banner; the next rescue has it back
+	-- #2460: once the server says the rescue is done, the full-screen tap catcher goes so a phone can move again; the
+	-- next rescue has it back. #4492: the bar itself goes at that moment too, win or loss
 	{ "RescueResultTapThrough", function()
 		UI.rescue.show("gate_rescue", rescueChallenge())
 		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
@@ -7792,9 +7792,15 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			speed = 1,
 			zoneEndsAt = t + 5,
 		})
-		local outcome = barGui:FindFirstChild("Outcome", true) :: TextLabel?
-		assert(outcome and outcome.Text == "Rescued!", "uigate: no Rescued! banner (#2460)")
+		-- #4492: no banner any more, the whole bar is gone the moment the result is in
+		assert(not barGui.Enabled, "uigate: the rescue bar is still up after a win (#4492)")
+		assert(not UI.rescue.isActive(), "uigate: the rescue is still on after a win (#4492)")
 		assert(not tap.Visible, "uigate: the tap catcher still covers the screen after the rescue (#2460)")
+		-- a loss closes it at once too, and so does Give up
+		UI.rescue.show("gate_rescue", rescueChallenge())
+		UI.rescue.update("gate_rescue", 1, 0, true, false, nil)
+		assert(not barGui.Enabled and not UI.rescue.isActive(), "uigate: the rescue bar is still up after a loss (#4492)")
+		assert(barGui:FindFirstChild("Outcome", true) == nil, "uigate: the rescue bar still has its result banner (#4492)")
 		UIShim.advance(5)
 		UI.rescue.show("gate_rescue", rescueChallenge())
 		assert(tap.Visible, "uigate: the next rescue has no tap catcher (#2460)")
@@ -7938,11 +7944,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			speed = 0.5,
 			zoneEndsAt = t + 5,
 		})
+		-- #4492: the bar closes at once; its words ("Try again!") go on a toast
 		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
-		local outcome = barGui:FindFirstChild("Outcome", true) :: TextLabel
-		local detail = barGui:FindFirstChild("Detail", true) :: TextLabel
-		assert(outcome.Text == "Try again!" and detail.Text == "", "uigate: a bin miss reads " .. outcome.Text .. " / " .. detail.Text .. " (#3050, #3885)")
-		assert(outcome.TextFits and detail.TextFits, "uigate: the bin's miss words do not fit (#3050)")
+		assert(not barGui.Enabled and not UI.rescue.isActive(), "uigate: the bin's bar is still up after a miss (#4492)")
 	end },
 	-- #2219 (crispi_255): a rescuer two hits in misses; the server sends the bar back to the start (no hits, zone 1)
 	-- and the flash says "MISS! Back to the start", whole, with every pip empty

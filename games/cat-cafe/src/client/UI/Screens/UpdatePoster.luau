@@ -279,7 +279,9 @@ function UpdatePoster._detach(self: any, model: Instance)
 end
 
 function UpdatePoster._view(self: any): UpdatePosterLogic.View?
-	local view = UpdatePosterLogic.view(Config.UpdateEvents, os.time())
+	-- the server's clock, so a device with a wrong clock still counts down to the real start
+	local view =
+		UpdatePosterLogic.view(Config.UpdateEvents, math.floor(Workspace:GetServerTimeNow()))
 	self._eventId = if view then view.id else nil
 	return view
 end

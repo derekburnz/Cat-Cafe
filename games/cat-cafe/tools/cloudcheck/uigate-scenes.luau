@@ -3916,6 +3916,66 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			Logic.decode = decode
 		end
 	end },
+	-- #4251: Harvest Hollow's arch sign says when it opens, then "Opens at Tier 2" below the tier and "Open until Sun
+	-- Dec 6" from Tier 2 (the dates are moved to now for the second half); its face is moved onto a frame for the shot
+	{ "HarvestArchSign", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local HarvestSign = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.HarvestSign") :: any
+		local Hollow = UIShim.require("ReplicatedStorage.Shared.HarvestHollow") :: any
+		local opens, closes = Hollow.OPENS_AT, Hollow.CLOSES_AT
+		local model = Instance.new("Model")
+		model.Name = "CatCafe_Harvest_Arch"
+		local screen = Instance.new("Part")
+		screen.Name = "CatCafe_Harvest_Arch_Screen"
+		screen.Parent = model
+		model.Parent = workspace
+		model:AddTag("HarvestArch")
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "HarvestSignGate"
+		gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+		gui.DisplayOrder = 100 -- over the HUD, so the shot shows the face
+		gui.Parent = UIShim.playerGui
+		local tier = 1
+		local sign = HarvestSign.new(gui, function()
+			return tier
+		end)
+		Scenes._harvestReset = function()
+			sign:destroy()
+			gui:Destroy()
+			model:Destroy()
+			Hollow.OPENS_AT, Hollow.CLOSES_AT = opens, closes
+			ReplicatedStorage:SetAttribute("LiveFlag_harvestHollow", nil)
+		end
+		UIShim.advance(0.2)
+		local surface = gui:FindFirstChild("HarvestSignFace") :: SurfaceGui
+		assert(surface ~= nil and surface:IsA("SurfaceGui"), "uigate: the tagged arch got no sign face (#4251)")
+		local line = surface:FindFirstChild("Line") :: TextLabel
+		assert(string.sub(line.Text, 1, 6) == "Opens ", "uigate: before the dates the arch reads " .. line.Text .. " (#4251)")
+		local now = workspace:GetServerTimeNow()
+		Hollow.OPENS_AT, Hollow.CLOSES_AT = now - 60, now + 3600
+		ReplicatedStorage:SetAttribute("LiveFlag_harvestHollow", true) -- repaints at once
+		assert(line.Text == "Opens at Tier 2", "uigate: below Tier 2 the open arch reads " .. line.Text .. " (#4251)")
+		tier = 3
+		UIShim.advance(6)
+		assert(line.Text == "Open until Sun Dec 6", "uigate: at Tier 3 the open arch reads " .. line.Text .. " (#4251)")
+		-- the 8 x 2.6 stud face at 50 px a stud, on a frame the shot can show
+		local face = Instance.new("Frame")
+		face.Name = "Face"
+		face.BackgroundColor3 = Color3.fromHex("1F2A44")
+		face.AnchorPoint = Vector2.new(0.5, 0.5)
+		face.Position = UDim2.fromScale(0.5, 0.5)
+		local width = math.min(400, workspace.CurrentCamera.ViewportSize.X - 32)
+		face.Size = UDim2.fromOffset(width, width * 2.6 / 8)
+		face.Parent = gui
+		local scale = Instance.new("UIScale")
+		scale.Scale = width / 800
+		for _, child in surface:GetChildren() do
+			child.Parent = face
+		end
+		face.Size = UDim2.fromOffset(800, 260)
+		scale.Parent = face
+		UIShim.advance(0.2)
+	end },
 	-- #4251: the HUD's Harvest travel button shows while Harvest Hollow is open and the player is Tier 2 or higher, and
 	-- goes with the harvestHollow switch off or below Tier 2 (the dates are moved to now for the scene)
 	{ "HudHarvest", function()
@@ -13648,7 +13708,7 @@ function Scenes.close()
 		Scenes._rareReset = nil
 	end
 	if Scenes._harvestReset ~= nil then
-		Scenes._harvestReset() -- #4251's HudHarvest: the real dates again
+		Scenes._harvestReset() -- #4251's Harvest scenes: the real dates again
 		Scenes._harvestReset = nil
 	end
 	if Scenes._rankTier ~= nil then

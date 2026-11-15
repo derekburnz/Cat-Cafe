@@ -81,6 +81,39 @@ function HarvestLogic.keepLine(rarity: string, area: string?): string
 	return ("Yours to keep · earns like %s %s"):format(article, words)
 end
 
+-- Spec section 1: the arch sign's small line under HARVEST HOLLOW. `now` is the server's time, `opensText` the
+-- opening in the player's own time ("Wed 3 PM", the screen formats it), `flag` the harvestHollow switch attribute.
+-- Before it opens: "Opens Wed 3 PM", and a calm "Opens in 5h 12m" in the last day. While open: "Open until Sun Dec 6",
+-- or "Opens at Tier 2" below the tier. After: "Back next autumn". With the switch off in the dates: "Closed for now".
+HarvestLogic.SIGN_TITLE = "HARVEST HOLLOW"
+HarvestLogic.SIGN_OPEN = "Open until Sun Dec 6"
+HarvestLogic.SIGN_AFTER = "Back next autumn"
+HarvestLogic.SIGN_OFF = "Closed for now"
+HarvestLogic.SIGN_COUNTDOWN = 86400 -- the last day before it opens counts down
+function HarvestLogic.signLine(now: number, tier: number?, flag: unknown, opensText: string): string
+	if now >= HarvestHollow.CLOSES_AT then
+		return HarvestLogic.SIGN_AFTER
+	end
+	if now < HarvestHollow.OPENS_AT then
+		local left = HarvestHollow.OPENS_AT - now
+		if left > HarvestLogic.SIGN_COUNTDOWN then
+			return "Opens " .. opensText
+		end
+		local minutes = math.max(1, math.ceil(left / 60))
+		local hours = minutes // 60
+		return if hours > 0
+			then string.format("Opens in %dh %dm", hours, minutes % 60)
+			else string.format("Opens in %dm", minutes)
+	end
+	if flag == false then
+		return HarvestLogic.SIGN_OFF
+	end
+	if (tier or 1) < HarvestHollow.TIER then
+		return string.format("Opens at Tier %d", HarvestHollow.TIER)
+	end
+	return HarvestLogic.SIGN_OPEN
+end
+
 -- Spec section 1: the HUD's Harvest travel button shows while the area is open (`now` is the server's time), from
 -- Tier 2, with the harvestHollow switch on, so phone players need not find the arch. The server checks all three again.
 HarvestLogic.FLAG_ATTRIBUTE = "LiveFlag_harvestHollow" -- a kill switch, on unless the attribute is false

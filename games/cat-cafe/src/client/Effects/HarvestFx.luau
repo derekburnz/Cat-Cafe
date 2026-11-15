@@ -9,10 +9,14 @@
 --   the glint   every `glintEvery` seconds the nearest ready pumpkins give a small gold glint, the "pick me" cue.
 --               None with Reduce Motion or in Low performance.
 --   the song    HarvestFx.onArea tells Audio when you walk in or out (the area has no World.Zones box).
+--   the pie     a Feast Pie slice baked (ReplicatedStorage's `HarvestPieSlices` rises, HarvestPieService) while you
+--               are in the area: gold sparkles and a ring at the Thankful Board; the last slice adds confetti and a
+--               gold beam. The first value seen only sets the mark.
 -- Nothing runs until one of those tags is in the world, so the module is idle outside the event. Numbers in
 -- Presets.harvestFx.
 
 local CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Context = require(script.Parent.Context)
 local Particles = require(script.Parent.Particles)
@@ -29,6 +33,7 @@ local listeners: { Listener } = {}
 local box: Part? = nil
 local emitter: ParticleEmitter? = nil
 local inside = false -- whether you were in the area at the last look
+local slices: number? = nil -- the Feast Pie's slices as last seen
 local areaListeners: { (inside: boolean) -> () } = {}
 local sinceGlint = 0
 
@@ -76,6 +81,15 @@ function HarvestFx.glinters(spots: { number }, within: number, most: number): { 
 		picked[i] = near[i]
 	end
 	return picked
+end
+
+-- What a new Feast Pie slice count means: "slice" when it rose, "full" when it rose to `full` or past it, nil for
+-- the first value seen, for no rise and for anything that is not a number.
+function HarvestFx.pie(was: number?, now: unknown, full: number): string?
+	if type(now) ~= "number" or was == nil or now <= was then
+		return nil
+	end
+	return if now >= full then "full" else "slice"
 end
 
 -- Whether you are in the area: within `within` studs of its middle. `distance` is nil while it is not in the world.
@@ -234,12 +248,43 @@ local function stepGlint()
 	end
 end
 
+-- The Feast Pie's count changed: celebrate a new slice at the board, if you are in the area to see it.
+local function pieChanged()
+	local p = Presets.harvestFx
+	local now = ReplicatedStorage:GetAttribute(p.pieAttribute)
+	local what = HarvestFx.pie(slices, now, p.pieFull)
+	if type(now) == "number" then
+		slices = now
+	end
+	local board = middle()
+	if what == nil or board == nil or not inside then
+		return
+	end
+	local at = board + Vector3.new(0, p.pieLift, 0)
+	Particles.burst(p.pieBurst, at, p.pieCount, Presets.palette.golden)
+	Particles.ring(board, Presets.palette.golden, p.pieRing)
+	if what == "full" then
+		Particles.confetti(at, math.ceil(Context.budget.confetti * p.pieConfetti))
+		if not Context.reducedMotion() then
+			Particles.beam(
+				board,
+				Presets.palette.golden,
+				p.pieBeamWidth,
+				p.pieBeamHeight,
+				p.pieBeamSeconds
+			)
+		end
+	end
+end
+
 function HarvestFx.start()
 	if started then
 		return
 	end
 	started = true
 	local p = Presets.harvestFx
+	pieChanged() -- sets the mark
+	ReplicatedStorage:GetAttributeChangedSignal(p.pieAttribute):Connect(pieChanged)
 	for _, spot in CollectionService:GetTagged(p.pumpkinTag) do
 		watch(spot)
 	end

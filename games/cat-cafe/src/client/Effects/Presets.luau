@@ -3705,7 +3705,7 @@ Presets.adminDrops = {
 -- at `calmRate` of the rate with Reduce Motion. A patch pumpkin (`pumpkinTag`) whose `readyAttribute` goes false
 -- within `within` studs pops `pickCount` pieces `lift` studs up and a `pickRing` stud ring; one that comes back
 -- sprouts `regrowCount` green sparkles. Every `glintEvery` seconds the nearest `glintMost` ready pumpkins within
--- `glintWithin` studs give `glintCount` gold glints.
+-- `glintWithin` studs give `glintCount` gold glints. `inside` the area is within `airWithin` too (the song, the pie).
 Presets.harvestFx = {
 	pumpkinTag = "HarvestPumpkin",
 	boardTag = "HarvestBoard",
@@ -3730,6 +3730,18 @@ Presets.harvestFx = {
 	glintEvery = 5,
 	glintWithin = 60,
 	glintMost = 3,
+	-- the Feast Pie: a slice baked while you are in the area pops `pieCount` gold pieces `pieLift` studs over the
+	-- board and a `pieRing` stud ring; the last of `pieFull` slices adds confetti and a gold beam
+	pieAttribute = "HarvestPieSlices",
+	pieFull = 8,
+	pieLift = 6,
+	pieBurst = "catchSparkle",
+	pieCount = 12,
+	pieRing = 8,
+	pieConfetti = 0.6,
+	pieBeamWidth = 1.2,
+	pieBeamHeight = 14,
+	pieBeamSeconds = 1.2,
 }
 
 -- #4325 (Effects/AdminFlash): an admin event takes the screen and the world. The 3, 2, 1 begins `countFrom` seconds

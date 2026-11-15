@@ -38,6 +38,21 @@ return function()
 			expect(HarvestFx.within(nil, 130)).to.equal(false)
 		end)
 
+		it("celebrates a new Feast Pie slice, and the last one more", function()
+			expect(HarvestFx.pie(2, 3, 8)).to.equal("slice")
+			expect(HarvestFx.pie(7, 8, 8)).to.equal("full")
+			expect(HarvestFx.pie(3, 8, 8)).to.equal("full")
+			expect(HarvestFx.pie(nil, 3, 8)).never.to.be.ok() -- the first value only sets the mark
+			expect(HarvestFx.pie(3, 3, 8)).never.to.be.ok()
+			expect(HarvestFx.pie(8, 8, 8)).never.to.be.ok()
+			expect(HarvestFx.pie(4, 2, 8)).never.to.be.ok() -- a count never goes down, and a drop is not news
+			expect(HarvestFx.pie(2, nil, 8)).never.to.be.ok()
+			expect(HarvestFx.pie(2, "3", 8)).never.to.be.ok()
+			expect(Presets.harvestFx.pieAttribute).to.equal("HarvestPieSlices") -- HarvestPieService's name
+			expect(Presets.harvestFx.pieFull).to.equal(8)
+			expect(Presets.emitters[Presets.harvestFx.pieBurst]).to.be.ok()
+		end)
+
 		it("glints the nearest ready pumpkins only", function()
 			local picked = HarvestFx.glinters({ 50, 12, 90, 30, 12 }, 60, 3)
 			expect(#picked).to.equal(3)

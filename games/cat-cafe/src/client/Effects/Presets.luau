@@ -2883,6 +2883,18 @@ export type SignatureOrbit = {
 export type SignatureArrive = { ring: number, burst: number, preset: string }
 
 local palette = Presets.palette
+-- the Secret cats' circling motes: one more than a Mythical's, a little wider and slower
+local function secretOrbit(emitter: string): SignatureOrbit
+	return {
+		emitter = emitter,
+		count = 6,
+		countLow = 3,
+		radius = 0.9,
+		height = 0.6,
+		tilt = 0.35,
+		seconds = 3.5,
+	}
+end
 Presets.signature = {
 	void = { -- Ninja Cat: glowing eyes and a twinkle on the black coat
 		emitter = "sigGlint",
@@ -3186,6 +3198,154 @@ Presets.signature = {
 		extras = {
 			{ emitter = "sigGlintSmall", on = "Cherry_Glow" },
 		},
+	},
+	-- The Secret cats (#4369): the rung above Mythical on the same ladder, on top of the starlight halo every
+	-- Secret shares (Effects/SecretGlow). Each has its own steady effect on its lit part (..._Stars_Glow and so on; a
+	-- copy without that part shows it on its body), four extras (one only while it walks), six motes circling it
+	-- (three on a phone) and a gust where it appears. Every emitter stays at Rate 2 or less.
+	nebula = { -- Nebula: stars drift up off its starfield
+		emitter = "sigRise",
+		on = "Stars_Glow",
+		colors = { palette.aurora, palette.pastelSky, palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigHalo", on = "Body" },
+			{ emitter = "sigGlint", on = "Glow" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	glitch = { -- Glitch: its sprite blinks in three screen colours
+		emitter = "sigGlint",
+		on = "Sprite_Glow",
+		colors = {
+			Color3.fromRGB(90, 240, 255),
+			Color3.fromRGB(255, 90, 220),
+			Color3.fromRGB(140, 255, 120),
+		},
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigGlintSmall", on = "Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	cafe_ghost = { -- Cafe Ghost: a pale mist round it, wisps rising off its head
+		emitter = "sigHalo",
+		on = "Body",
+		colors = { palette.offwhite, palette.pastelSky },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigRise", on = "Head" },
+			{ emitter = "sigGlintSmall", on = "Tail" },
+			{ emitter = "sigWhoosh", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	lucky_clover = { -- Lucky Clover: its rainbow twinkles, green luck drifts up
+		emitter = "sigRise",
+		on = "Rainbow_Glow",
+		colors = { Color3.fromRGB(120, 230, 120), palette.mint, palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigGlint", on = "Glow" },
+			{ emitter = "sigFall", on = "Body" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	moonstag = { -- Moonstag: moonlight falls off its antlers
+		emitter = "sigFall",
+		on = "Grove_Glow",
+		colors = { palette.pastelSky, palette.offwhite, palette.aurora },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigGlint", on = "Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	ooze = { -- Ooze: drips off its spill, a glowing trail where it walks
+		emitter = "sigDrip",
+		on = "Spill_Glow",
+		colors = { Color3.fromRGB(150, 255, 110), Color3.fromRGB(90, 220, 140) },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigBubble", on = "Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+			{ emitter = "sigWetTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigBubble"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	djinn = { -- Djinn: smoke curls off it, gold dust in the air
+		emitter = "sigHalo",
+		on = "Smoke_Glow",
+		colors = { palette.aurora, palette.eyeBlue, palette.goldLight },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigRise", on = "Glow" },
+			{ emitter = "sigGlint", on = "Prop" },
+			{ emitter = "sigWhoosh", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	phoenix = { -- Phoenix: warm sparks rise off its wings (little lights, no flame)
+		emitter = "sigRise",
+		on = "Wings_Glow",
+		colors = { Color3.fromRGB(255, 170, 80), Color3.fromRGB(255, 96, 64), palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigGlint", on = "Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	abyss = { -- Abyss: deep sea lights on its sail, bubbles rising
+		emitter = "sigBubble",
+		on = "Sail_Glow",
+		colors = { Color3.fromRGB(80, 220, 255), palette.eyeBlue, palette.mint },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigGlint", on = "Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+			{ emitter = "sigWetTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigBubble"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	excalipurr = { -- Excalipurr: its blade glints, light rises round it
+		emitter = "sigGlint",
+		on = "Blade_Glow",
+		colors = { palette.sparkle, palette.offwhite, palette.pastelSky },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigRise", on = "Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
 	},
 } :: { [string]: Signature }
 Presets.signatureFx = {

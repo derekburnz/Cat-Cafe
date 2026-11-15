@@ -30,6 +30,72 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #2718 refresh (Growth-Agent 2026-11-15 09:45 UTC, about 240 merges since the 17:44 UTC rows): live on every
+	-- server since the 01:00 UTC restart. Rift Run (on 01:02), easier touch catches (#4300, #4310, #4316), the Town
+	-- Square update poster (#4371), Reset my save (#4360), Smooth mode (#4322), the painted sky (#4297), the Cat Arcade
+	-- corner (#4275), the Store's info buttons (#4309), the one-scroll Decor Index (#4349) and the Rummage Bin board on
+	-- phones (#4337). Still behind switches (AFK button, Mailbox, Auto Bowl, controller strip, loading screen, the new
+	-- worlds and Secret areas): rows when they open. Robux items get no row.
+	{
+		id = "rift_run",
+		date = "2026-11-15",
+		icon = "new",
+		text = "Rift Run is open",
+	},
+	{
+		id = "touch_catch_easy",
+		date = "2026-11-15",
+		icon = "faster",
+		text = "Easier catches on touch",
+	},
+	{
+		id = "update_poster",
+		date = "2026-11-15",
+		icon = "new",
+		text = "Update poster in Town Square",
+	},
+	{
+		id = "reset_save",
+		date = "2026-11-15",
+		icon = "new",
+		text = "Reset my save in Settings",
+	},
+	{
+		id = "smooth_mode",
+		date = "2026-11-15",
+		icon = "faster",
+		text = "Smooth mode in Settings",
+	},
+	{
+		id = "painted_sky",
+		date = "2026-11-15",
+		icon = "look",
+		text = "Painted sky and clouds",
+	},
+	{
+		id = "arcade_corner",
+		date = "2026-11-15",
+		icon = "look",
+		text = "New Cat Arcade corner",
+	},
+	{
+		id = "store_info",
+		date = "2026-11-15",
+		icon = "look",
+		text = "Store: tap i for details",
+	},
+	{
+		id = "decor_index_scroll",
+		date = "2026-11-15",
+		icon = "look",
+		text = "Decor Index in one scroll",
+	},
+	{
+		id = "bin_board_phone",
+		date = "2026-11-15",
+		icon = "fix",
+		text = "Rummage Bin board on phones",
+	},
 	-- #2718 refresh (11-14 11:50 UTC, 59 merges since #3927): the onboarding fixes Derek OK'd 02:37 UTC (#4097, #4098),
 	-- the Relic Museum's new inside (#4138), the Rummage Bin minigame fix (#4128), the pop-up cards (#4092) and the
 	-- phone fixes (#4151, #4152, #3990). Still behind switches (rare customers, friend joins, Today's Deal, gold tone):

@@ -360642,6 +360642,467 @@
       }
     },
     {
+      "name": "CatCafe_Harvest_Set",
+      "category": "Harvest",
+      "module": "harvestset",
+      "objects": [
+        "CatCafe_Harvest_Set",
+        "CatCafe_Harvest_Set_001_Fence_Barrier",
+        "CatCafe_Harvest_Set_002_Lights_Glow",
+        "CatCafe_Harvest_Set_003_Creek_Water",
+        "CatCafe_Harvest_Set_004_Leaves_Decor",
+        "CatCafe_Harvest_Set_005_Windmill_Sails_Spin"
+      ],
+      "triangles": 23172,
+      "budget": 150000,
+      "size_studs": {
+        "x": 150.4,
+        "y": 120.0,
+        "z": 33.47
+      },
+      "size_roblox": [
+        150.4,
+        33.47,
+        120.0
+      ],
+      "bounds_min": [
+        -75.2,
+        -60.0,
+        -0.84
+      ],
+      "bounds_max": [
+        75.2,
+        60.0,
+        32.63
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Harvest_Set_005_Windmill_Sails_Spin": [
+          0.0,
+          37.4,
+          19.5
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Harvest_Set_005_Windmill_Sails_Spin": [
+          0.0,
+          19.5,
+          37.4
+        ]
+      },
+      "points_roblox": {
+        "player_spawn": [
+          [
+            0,
+            0.0,
+            -55.2,
+            0
+          ]
+        ],
+        "spawn": [
+          [
+            56.0,
+            0.0,
+            -35.0
+          ],
+          [
+            44.0,
+            0.0,
+            -29.0
+          ],
+          [
+            36.0,
+            0.0,
+            -17.0
+          ],
+          [
+            -36.0,
+            0.0,
+            -27.0
+          ],
+          [
+            -56.0,
+            0.0,
+            -27.0
+          ],
+          [
+            -66.0,
+            0.0,
+            -13.0
+          ],
+          [
+            54.0,
+            0.0,
+            28.0
+          ],
+          [
+            40.0,
+            0.0,
+            32.0
+          ],
+          [
+            -30.25,
+            0.0,
+            44.0
+          ],
+          [
+            -33.75,
+            0.0,
+            16.0
+          ],
+          [
+            -61.75,
+            0.0,
+            44.0
+          ],
+          [
+            20,
+            0.0,
+            -36
+          ],
+          [
+            22,
+            0.0,
+            40
+          ],
+          [
+            -16,
+            0.0,
+            30
+          ]
+        ],
+        "nook": [
+          [
+            -47.75,
+            0.0,
+            30.0
+          ]
+        ],
+        "pumpkin": [
+          [
+            61.0,
+            0.29,
+            -32.0
+          ],
+          [
+            51.0,
+            0.29,
+            -32.0
+          ],
+          [
+            41.0,
+            0.29,
+            -32.0
+          ],
+          [
+            31.0,
+            0.29,
+            -32.0
+          ],
+          [
+            61.0,
+            0.29,
+            -26.0
+          ],
+          [
+            51.0,
+            0.29,
+            -26.0
+          ],
+          [
+            41.0,
+            0.29,
+            -26.0
+          ],
+          [
+            31.0,
+            0.29,
+            -26.0
+          ],
+          [
+            61.0,
+            0.29,
+            -20.0
+          ],
+          [
+            51.0,
+            0.29,
+            -20.0
+          ],
+          [
+            41.0,
+            0.29,
+            -20.0
+          ],
+          [
+            31.0,
+            0.29,
+            -20.0
+          ]
+        ],
+        "stall": [
+          [
+            24.0,
+            0.0,
+            14.0,
+            0
+          ]
+        ],
+        "board": [
+          [
+            0,
+            0.0,
+            16,
+            0
+          ]
+        ]
+      },
+      "studio": "#4251 Harvest Hollow, the limited autumn area (Nov 25 to Dec 6 2026). Place it at the area's centre on its floor; players arrive by teleport at points_roblox player_spawn, so it is fenced all round with no way in. The only _Barrier is the 30 high ring in the fence band. The creek is flat _Water with no kerb, the bridge a low hump. The barn is hollow with a 10 wide open door; the maze walls are 9 high. points_roblox: spawn (14 stray spots), nook (the maze's middle), pumpkin (12 pickup spots for CatCafe_Harvest_Pumpkin), stall and board (where CatCafe_Harvest_Stall and CatCafe_Harvest_Board stand, with a turn). The windmill's sails are a _Spin child Model pivoted at the hub.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Harvest_Set.model.json",
+      "rbx_parts": 1389,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Harvest_Set.fbx",
+        "assets/cat-cafe/exports/CatCafe_Harvest_Set.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "23172/150000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "15223 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.84 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00",
+          "cat_spots": "30 cat spots clear of every collidable part"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Harvest_Arch",
+      "category": "Harvest",
+      "module": "harvestset",
+      "objects": [
+        "CatCafe_Harvest_Arch",
+        "CatCafe_Harvest_Arch_Screen"
+      ],
+      "triangles": 1632,
+      "budget": 4000,
+      "size_studs": {
+        "x": 24.05,
+        "y": 3.62,
+        "z": 14.43
+      },
+      "size_roblox": [
+        24.05,
+        14.43,
+        3.62
+      ],
+      "bounds_min": [
+        -12.02,
+        -2.02,
+        0.0
+      ],
+      "bounds_max": [
+        12.02,
+        1.6,
+        14.43
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Harvest_Arch.model.json",
+      "rbx_parts": 108,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Harvest_Arch.fbx",
+        "assets/cat-cafe/exports/CatCafe_Harvest_Arch.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1632/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1236 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.21"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Harvest_Stall",
+      "category": "Harvest",
+      "module": "harvestset",
+      "objects": [
+        "CatCafe_Harvest_Stall",
+        "CatCafe_Harvest_Stall_Glow"
+      ],
+      "triangles": 1708,
+      "budget": 4000,
+      "size_studs": {
+        "x": 15.53,
+        "y": 4.98,
+        "z": 11.6
+      },
+      "size_roblox": [
+        15.53,
+        11.6,
+        4.98
+      ],
+      "bounds_min": [
+        -9.53,
+        -2.92,
+        0.0
+      ],
+      "bounds_max": [
+        6.0,
+        2.06,
+        11.6
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Harvest_Stall.model.json",
+      "rbx_parts": 119,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Harvest_Stall.fbx",
+        "assets/cat-cafe/exports/CatCafe_Harvest_Stall.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1708/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-1.76 y=-0.43"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Harvest_Board",
+      "category": "Harvest",
+      "module": "harvestset",
+      "objects": [
+        "CatCafe_Harvest_Board",
+        "CatCafe_Harvest_Board_Screen"
+      ],
+      "triangles": 720,
+      "budget": 4000,
+      "size_studs": {
+        "x": 16.45,
+        "y": 2.87,
+        "z": 11.22
+      },
+      "size_roblox": [
+        16.45,
+        11.22,
+        2.87
+      ],
+      "bounds_min": [
+        -8.23,
+        -1.62,
+        0.0
+      ],
+      "bounds_max": [
+        8.23,
+        1.25,
+        11.22
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Harvest_Board.model.json",
+      "rbx_parts": 45,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Harvest_Board.fbx",
+        "assets/cat-cafe/exports/CatCafe_Harvest_Board.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "720/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "456 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.19"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Harvest_Pumpkin",
+      "category": "Harvest",
+      "module": "harvestset",
+      "objects": [
+        "CatCafe_Harvest_Pumpkin"
+      ],
+      "triangles": 156,
+      "budget": 600,
+      "size_studs": {
+        "x": 2.26,
+        "y": 2.07,
+        "z": 1.68
+      },
+      "size_roblox": [
+        2.26,
+        1.68,
+        2.07
+      ],
+      "bounds_min": [
+        -1.13,
+        -1.04,
+        0.02
+      ],
+      "bounds_max": [
+        1.13,
+        1.04,
+        1.7
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Harvest_Pumpkin.model.json",
+      "rbx_parts": 9,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Harvest_Pumpkin.fbx",
+        "assets/cat-cafe/exports/CatCafe_Harvest_Pumpkin.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "156/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "138 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.02 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Camp_Castle_DragonKeep",
       "category": "Camp",
       "module": "campstations",

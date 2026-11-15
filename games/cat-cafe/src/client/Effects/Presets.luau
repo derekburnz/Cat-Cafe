@@ -97,12 +97,24 @@ export type Budget = {
 	waterfalls: number, -- Ruins waterfalls and fountains whose water runs at once (Effects/RuinsWater)
 }
 
+-- When a phone or tablet counts as struggling (#4311, Logic.slowStep; Derek 2026-11-14): under `fps` frames a second
+-- on average over a `window` second window, `windows` windows in a row, not counting the first `after` seconds or
+-- frames longer than `pause` seconds. Gameplay's Low performance suggestion uses the same numbers.
+Presets.slow = {
+	fps = 30,
+	window = 20,
+	windows = 2,
+	after = 60,
+	pause = 1,
+}
+
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
 -- (skill section 7). "high" is a PC. "console" is an Xbox or PlayStation (#2871): it runs at the "high" tier, but
 -- with a budget between the phone's and the PC's, since an Xbox One or PS4 is far slower than a gaming PC and the
 -- console pass watches the frame rate in a busy Alleyway. "lowPerformance" is the Low performance setting on any
 -- device: under the phone budget everywhere, with half the steady particles. "lite" (#3794, the `fxLite` switch) is
--- a phone, or any device with graphics quality set to 1 to 3: between the phone budget and Low performance, for the
+-- a struggling phone or tablet (Presets.slow, #4311), or any device with graphics quality set to 1 to 3: between the
+-- phone budget and Low performance, for the
 -- phones' frame rate (about 47 fps against 65 on PC): fewer moving cats at 20 Hz, fewer and thinner steady emitters,
 -- smaller bursts, fewer Highlights, and no decor motion or bunting flutter.
 Presets.budget = {

@@ -44,6 +44,17 @@ return function()
 			expect(Rumble.tap(secret)).to.equal("thump")
 		end)
 
+		it("waits behind a switch that is off by default", function()
+			local LiveFlags = require(
+				game:GetService("ReplicatedStorage")
+					:WaitForChild("Shared")
+					:WaitForChild("LiveFlags")
+			) :: any
+			expect(LiveFlags.OFF_BY_DEFAULT.deviceFixes).to.equal(true)
+			expect(LiveFlags.shown("deviceFixes", nil)).to.equal(false)
+			expect(LiveFlags.shown("deviceFixes", true)).to.equal(true)
+		end)
+
 		it("buzzes more for a rarer catch", function()
 			local order = { "Common", "Rare", "Epic", "Legendary", "Mythical", "Secret" }
 			local lastSeconds, lastStrength = 0, 0

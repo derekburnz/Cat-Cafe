@@ -7,6 +7,8 @@
 -- can vibrate. Keyboard and mouse get nothing. Context.shake and Context.rumble call it, so it follows the Screen
 -- shake setting; it still plays with Reduce Motion, since nothing on screen moves.
 --
+-- Context only calls it while the `deviceFixes` switch is on (off by default until the Wed 2026-11-18 update).
+--
 -- One pulse at a time: a new one replaces one still running, and the motor always goes back to 0 (also if the
 -- gamepad is put down mid pulse). Numbers in Presets.rumble.
 

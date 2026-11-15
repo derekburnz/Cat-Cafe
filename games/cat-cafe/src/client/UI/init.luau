@@ -189,6 +189,8 @@ UI.events = {
 	-- #2182 (intro-cutscene.md 2b): (shot)   Next, a tap outside Skip, Space, Enter or gamepad A, once a shot and from
 	-- Intro.NEXT_AFTER into it; cut to the next shot, or on the last one end the intro as a finish (IntroDone(0, replay))
 	introNext = Signal.new(),
+	-- (seconds)   #4314: the loading screen slid away; forward as TelemetryReport("loading_seen", whole seconds), once
+	loadingSeen = Signal.new(),
 	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
 	introReplay = Signal.new(),
 	-- F64
@@ -351,6 +353,31 @@ local bowls = {
 	card = 1,
 	second = nil :: string?,
 }
+-- #4267 (Derek 2026-11-14: "show a little exclamation mark ... beside the bait bowl menu when you have food that can be
+-- refilled into it and its empty"): true while a bowl that takes food is empty, with no cat at it, and the bag holds
+-- a food. (Field, not a local: this chunk is at Luau's 200 locals.)
+function UI._bowlRefillable(s: Types.PlayerState): boolean
+	if (s.upgradeLevels.lure_bowl or 0) < 1 then
+		return false
+	end
+	local hasFood = false
+	local lures: { [string]: number } = s.lures or {}
+	for _, count in lures do
+		if count > 0 then
+			hasFood = true
+			break
+		end
+	end
+	if not hasFood then
+		return false
+	end
+	for bowl = 1, if bowls.second == "on" then 2 else 1 do
+		if bowls.views[bowl] == nil and bowls.cats[bowl] == nil then
+			return true
+		end
+	end
+	return false
+end
 local dealerScreen: Dealer.Dealer? = nil
 local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), for the range hint
 local settingsScreen: Settings.Settings? = nil -- sound switches and volumes, screen shake and the like (gear in the HUD)
@@ -457,7 +484,13 @@ function applyTutorial()
 	local text: string? = tutorialText
 	local target: (BasePart | Attachment | Vector3)? = tutorialTarget
 	local label: string? = tutorialLabel
-	if hint ~= nil then
+	-- #4383: the wrap-up hint gives way to the rank up line (UIController sends it only while rankFirst holds)
+	-- (required here: the main chunk is at Luau's 200 local limit)
+	local rankLine = hint == CannonLogic.WRAP_UP_HINT
+		and (require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RankFirst")) :: any).isLine(
+			tutorialText
+		)
+	if hint ~= nil and not rankLine then
 		text, target, label = hint, cannonPart, "Cannon"
 	end
 	-- #3893 (Review-QA's Studio run, 2026-11-14): after the Park's "is open" hint has had its time, the walk to the Park
@@ -627,6 +660,7 @@ local function render()
 	end
 	if hud then
 		hud:render(state)
+		hud:setBowlRefill(UI._bowlRefillable(state)) -- #4267
 	end
 	UI.campExtras.crates(state.crates) -- #2214: the "!" over the Fish Market
 	if upgrades then
@@ -944,9 +978,6 @@ function UI.init(config: Types.InitConfig)
 		openFeedback = function()
 			UI.bugReport.open() -- F87: the faces page first
 		end,
-		openIdea = function()
-			UI.bugReport.open("idea") -- #3883: the map theme bubble
-		end,
 	})
 	local hudInstance = hud :: HUD.HUD
 
@@ -1161,6 +1192,13 @@ function UI.init(config: Types.InitConfig)
 		buySecond = function()
 			local api: any = UI.bait -- defined further down
 			api.buySecond()
+		end,
+		buyAuto = function()
+			local api: any = UI.bait
+			api.buyAuto()
+		end,
+		setSetting = function(key: string, on: boolean)
+			UI.events.setSetting:Fire(key, on) -- #4266: autoBowlClaim, autoBowlRefill
 		end,
 		close = closeModal,
 	})
@@ -1544,7 +1582,7 @@ function UI.init(config: Types.InitConfig)
 				or name == "Arcade"
 				or name == poolWindow
 				or name == "Store"
-			view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.on)
+			view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.held())
 		end
 		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
 		hudInstance:holdBanner("window", UI.rollBusy.window)
@@ -1686,6 +1724,9 @@ function UI.init(config: Types.InitConfig)
 		nextShot = function(shot: number)
 			UI.events.introNext:Fire(shot)
 		end,
+		waitEnded = function(seconds: number)
+			UI.events.loadingSeen:Fire(seconds) -- #4314
+		end,
 	})
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker", nil, false, true) -- #3055: the small, quiet one
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker", nil, true) -- #2697: flashes its target
@@ -1695,6 +1736,7 @@ function UI.init(config: Types.InitConfig)
 	-- every area's Index Board, including boards that stream in later; its prompt opens that area's Index page
 	require(script.Screens.ThanksBoard).new(parent) -- #1083: the Thank You board's face (no local: init is at Luau's 200)
 	require(script.Screens.PitySign).new(parent) -- #1572: the pity cat sign's countdowns (no local, as above)
+	require(script.Screens.UpdatePoster).new(parent) -- #4362: the next update's poster stand (no local, as above)
 	indexBoards = IndexBoards.new(parent, {
 		open = function(areaId: string)
 			UI.openIndex(areaId)
@@ -1906,14 +1948,6 @@ function UI.update(partial: Types.PartialState)
 	deriveState(partial)
 	render()
 	UI.giftLadder.refresh() -- #2791
-end
-
--- #3883: the map theme bubble under the Feedback tile now (the UI gate's picture; the HUD shows it by itself)
-function UI.feedbackCallout()
-	local view = hud
-	if view then
-		view:showCallout()
-	end
 end
 
 function UI.getState(): Types.PlayerState
@@ -2321,7 +2355,7 @@ function UI.setRollBusy(on: boolean)
 	end
 	local view = toasts
 	if view then
-		view:setBusy(UI.rollBusy.window or on or UI.cutscene.on)
+		view:setBusy(UI.rollBusy.window or on or UI.cutscene.held())
 	end
 end
 -- #4018 (Derek OK'd the Mythic and up trait pull cutscene, 2026-11-13: every banner and pop-up muted while it plays,
@@ -2332,11 +2366,80 @@ end
 -- `hooks`: callers that hide their own pieces too (UIController's bait bowl prompts, from #4077)
 UI.cutscene = {
 	on = false,
+	-- the short screen takeovers that hold toasts and shout-outs like a cutscene but leave the HUD and the event strip
+	-- alone, by key (UI.setQuiet): Motion-FX's admin event countdown, splash and end card ("adminFlash")
+	quiet = {} :: { [string]: boolean },
+	quietHold = {} :: { [string]: number }, -- each setQuiet's number, so only the latest hold's safety clear fires
+	QUIET_MOST = 15, -- seconds a quiet key holds at most
 	queue = {} :: { { text: string, rarity: string? } },
 	hooks = {} :: { (on: boolean) -> () },
 	KEEP = 3,
 	GAP = 1.5,
 }
+-- Whether toasts and shout-outs wait now: a cutscene, or any quiet key.
+function UI.cutscene.held(): boolean
+	return UI.cutscene.on or next(UI.cutscene.quiet) ~= nil
+end
+-- The shout-outs held back come out one by one, UI.cutscene.GAP apart, unless something holds them again.
+function UI.cutscene.flush()
+	local cut = UI.cutscene
+	local waiting = cut.queue
+	cut.queue = {}
+	for index, item in waiting do
+		task.delay((index - 1) * cut.GAP, function()
+			if not UI.cutscene.held() then
+				UI.announce(item.text, item.rarity)
+			end
+		end)
+	end
+end
+-- Holds toasts and shout-outs while `key` is on (a few seconds at most), the way a cutscene does, without hiding the
+-- HUD: the admin event's 3, 2, 1, splash and end card call it so a rare cat shout-out never lands on the splash title
+-- (Review-QA's Studio look, 2026-11-15). Safe to call with the same state twice.
+function UI.setQuiet(key: string, on: boolean)
+	local cut = UI.cutscene
+	if (cut.quiet[key] == true) == on then
+		return
+	end
+	(cut.quiet :: any)[key] = if on then true else nil
+	-- Review-QA on #4376: a hold whose "off" never comes (an error, a hop) clears itself after QUIET_MOST seconds
+	local hold = (cut.quietHold[key] or 0) + 1
+	cut.quietHold[key] = hold
+	if on then
+		task.delay(cut.QUIET_MOST, function()
+			if UI.cutscene.quietHold[key] == hold and UI.cutscene.quiet[key] then
+				UI.setQuiet(key, false)
+			end
+		end)
+	end
+	local view = toasts
+	if view then
+		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or cut.held())
+	end
+	if not cut.held() then
+		(cut :: any).flush()
+	end
+end
+-- Motion-FX's AdminFlash says when its countdown, splash or end card takes the middle of the screen (#4353); Effects
+-- never requires the UI, so the hookup is here, and either side may ship first
+task.defer(function()
+	local client: any = script.Parent
+	local effects: any = client:FindFirstChild("Effects")
+	local flash: any = if effects ~= nil then effects:FindFirstChild("AdminFlash") else nil
+	if flash == nil or not flash:IsA("ModuleScript") then
+		return
+	end
+	local ok, adminFlash = pcall(require, flash)
+	local onPlaying: any = if ok and type(adminFlash) == "table"
+		then (adminFlash :: any).onPlaying
+		else nil
+	if type(onPlaying) == "function" then
+		local listen = onPlaying :: (listener: (on: boolean) -> ()) -> ()
+		listen(function(on: boolean)
+			UI.setQuiet("adminFlash", on == true)
+		end)
+	end
+end)
 function UI.setCutscene(on: boolean)
 	local cut = UI.cutscene
 	if cut.on == on then
@@ -2348,7 +2451,7 @@ function UI.setCutscene(on: boolean)
 	end
 	local view = toasts
 	if view then
-		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or on)
+		view:setBusy(UI.rollBusy.window or UI.rollBusy.on or cut.held())
 	end
 	-- the event strip steps aside too (HUD.holdBanner, #4032)
 	if hud ~= nil then
@@ -2357,14 +2460,8 @@ function UI.setCutscene(on: boolean)
 	if on then
 		return
 	end
-	local waiting = cut.queue
-	cut.queue = {}
-	for index, item in waiting do
-		task.delay((index - 1) * cut.GAP, function()
-			if not UI.cutscene.on then
-				UI.announce(item.text, item.rarity)
-			end
-		end)
+	if not cut.held() then
+		(cut :: any).flush()
 	end
 	-- Derek 2026-11-13: the event and day strip stays down through the roll too
 	local board = hud
@@ -2372,11 +2469,77 @@ function UI.setCutscene(on: boolean)
 		board:holdBanner("roll", on)
 	end
 end
+-- #4227 (Derek 2026-11-14, from a player's suggestion): spawn lines wait in a line (Components/SpawnQueue) and show
+-- one at a time for SpawnQueue.SHOW seconds, merged when several of a rarity are out in one area, "+N" saying how
+-- many wait. Through a cutscene, Mouse Dash or the Mystic Pool they wait instead of dropping. The sting plays as
+-- each one shows (UI.onAnnounceShown, set by UIController). The `spawnQueue` switch off: spawn lines go as before.
+UI.spawns = {
+	queue = nil :: any,
+	until_ = 0,
+	pumping = false,
+} :: any
+UI.onAnnounceShown = nil :: ((string, string?) -> ())?
+function UI.spawns.on(): boolean
+	local SpawnQueue = require(script.Components.SpawnQueue) :: any
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	return LiveFlags.shown(
+		SpawnQueue.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SpawnQueue.FLAG)
+	)
+end
+function UI.spawns.pump()
+	local SpawnQueue = require(script.Components.SpawnQueue) :: any
+	local ToastRules = require(script.Components.ToastRules)
+	local spawns = UI.spawns
+	if spawns.pumping or spawns.queue == nil then
+		return
+	end
+	spawns.pumping = true
+	-- deferred, so a burst that lands in one frame (a new day, a storm) is all in the line before the first shows:
+	-- it can merge, and the first one's "+N" counts the rest
+	task.defer(function()
+		while SpawnQueue.waiting(spawns.queue, os.clock()) > 0 do
+			local now = os.clock()
+			local view = toasts
+			if now < spawns.until_ or UI.cutscene.on or view == nil or view:isBusy() then
+				task.wait(0.5)
+			else
+				local text, rarity = SpawnQueue.take(spawns.queue, now)
+				if
+					text ~= nil
+					and ToastRules.announce(rarity, now, UI.shoutout.at, Scale.isTouch())
+				then
+					local more = SpawnQueue.waiting(spawns.queue, now)
+					if rarity ~= nil then
+						UI.shoutout.at = now
+					end
+					view:announce(text, rarity, more) -- its "+N" badge and drain bar (Toasts.announce)
+					spawns.until_ = now + SpawnQueue.SHOW
+					local shown = UI.onAnnounceShown
+					if shown ~= nil then
+						shown(text, rarity)
+					end
+				end
+			end
+		end
+		spawns.pumping = false
+	end)
+end
+
 function UI.announce(text: string, rarity: string?): boolean
 	local ToastRules = require(script.Components.ToastRules)
 	local now = os.clock()
+	local SpawnQueue = require(script.Components.SpawnQueue) :: any
+	if SpawnQueue.isSpawn(text) and UI.spawns.on() then
+		local spawns = UI.spawns
+		spawns.queue = spawns.queue or SpawnQueue.new()
+		SpawnQueue.push(spawns.queue, text, rarity, now)
+		UI.spawns.pump()
+		return false -- its sting plays as it shows (UI.onAnnounceShown)
+	end
 	local cut = UI.cutscene
-	if cut.on then
+	if cut.held() then
 		table.insert(cut.queue, { text = text, rarity = rarity })
 		if #cut.queue > cut.KEEP then
 			table.remove(cut.queue, 1)
@@ -2441,6 +2604,13 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		-- bloat"): the catch's own small pop-up already said it
 		local CatFoundLogic = require(script.Components.CatFoundLogic) :: any
 		if not CatFoundLogic.big(def.rarity, isNew, info) then
+			return
+		end
+		-- #4266 (Derek 2026-11-14: "an option to toggle off new cat pop ups"): with the Bowl window's New cat pop-ups
+		-- switch off (settings.bowlNewCatCard), a cat tamed at the bowl is a toast in place of the big card
+		local settings: { [string]: boolean | number | string } = state.settings or {}
+		if extra and extra.source == "bowl" and settings.bowlNewCatCard == false then
+			UI.toast(string.format("New cat: %s!", def.name), "good")
 			return
 		end
 		-- #4005: before Tier 2 a new kind below Epic is a toast; the tutorial's catches and any coat, banner or line
@@ -2603,6 +2773,7 @@ local function renderBait()
 	local waiting = bowls.cats[1] ~= nil or bowls.cats[2] ~= nil
 	if hud then
 		hud:setBait(soonest, waiting)
+		hud:setBowlRefill(UI._bowlRefillable(state)) -- #4267
 		hud:setBowlCount(if bowls.second == "on" or bowls.views[2] ~= nil then 2 else 1)
 	end
 	if baitScreen then
@@ -2651,6 +2822,12 @@ do
 		if screen then
 			local id: number = Config.SecondBowlPassId
 			screen:setSecond(bowls.second, if id ~= 0 then PassShop.prices()[id] else nil)
+			-- #4266: the Auto Bowl pass's price and Roblox's word on owning it (0 until the pass is made)
+			local autoId: number = Config.AutoBowlPassId or 0
+			screen:setAuto(
+				autoId ~= 0 and PassShop.owned()[autoId] == true,
+				if autoId ~= 0 then PassShop.prices()[autoId] else nil
+			)
 		end
 	end
 	function UI.bait.setSecond(kind: string?)
@@ -2660,6 +2837,13 @@ do
 		end
 		push()
 		renderBait()
+	end
+	-- #4266: the Auto Bowl offer's price button: Roblox's purchase window; the server saves the pass
+	function UI.bait.buyAuto()
+		local id: number = Config.AutoBowlPassId or 0
+		if id ~= 0 then
+			PassShop.prompt(id, "bait")
+		end
 	end
 	-- the locked tab's buy button: Roblox's purchase window; the server turns bowl 2 on (PassService)
 	function UI.bait.buySecond()
@@ -2739,7 +2923,7 @@ function UI.bait.busy(): boolean
 		or (UI.bait.cutting ~= nil and (UI.bait.cutting :: () -> boolean)()) -- #2946: the first bait's cutscene
 		or UI.bigTraitCutting() -- #3846: a Legendary or Mythic trait roll's cutscene
 		or UI.bait.away() -- #4035: out catching in an area
-		or UI.cutscene.on -- #4018: any cutscene (UI.setCutscene)
+		or UI.cutscene.held() -- #4018: any cutscene (UI.setCutscene) or quiet key (UI.setQuiet)
 		or (modal ~= nil and modal:current() == "Store") -- Derek 2026-11-14: no bowl cards over the Store
 end
 
@@ -3580,17 +3764,39 @@ end
 -- #3179 (Derek2 11-10: "remove the loading screen honestly I think that would make people leave faster then
 -- before"): it shows only with the `loadingScreen` live switch on (off unless set to true), so by default the wait
 -- is the still picture alone and the intro starts the moment the save is in (race() is 0 with no screen up).
+-- #4314: a new save in the loading screen test (shared/LoadingTest) follows its arm, the player's LoadingArm
+-- attribute, in place of the switch: "on" always shows the screen, "off" never. The arm can land a moment after the
+-- wait began, so while a wait is asked for (UI.intro.wanted) a new arm shows or hides the screen then.
+UI.intro.wanted = false
+UI.intro.armWatch = nil :: RBXScriptConnection?
 function UI.intro.waiting(on: boolean)
+	UI.intro.wanted = on
+	local shared = ReplicatedStorage:WaitForChild("Shared")
 	if on then
-		local LiveFlags =
-			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local LiveFlags = require(shared:WaitForChild("LiveFlags")) :: any
+		local LoadingTest = require(shared:WaitForChild("LoadingTest")) :: any
 		local key = "loadingScreen"
+		local player = Players.LocalPlayer
+		if UI.intro.armWatch == nil then
+			UI.intro.armWatch = player
+				:GetAttributeChangedSignal(LoadingTest.ATTRIBUTE)
+				:Connect(function()
+					if UI.intro.wanted then
+						UI.intro.waiting(true)
+					end
+				end)
+		end
+		local flagOn =
+			LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
 		if
-			not LiveFlags.shown(
-				key,
-				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+			not LoadingTest.shows(
+				LoadingTest.arm(player:GetAttribute(LoadingTest.ATTRIBUTE)),
+				flagOn
 			)
 		then
+			if introScreen then
+				introScreen:waiting(false) -- an "off" arm that landed while the switch had it up
+			end
 			return
 		end
 	end
@@ -4143,6 +4349,14 @@ do
 			catch:hide()
 		end
 		activeInfo = nil
+	end
+
+	-- #4307: the "Tap to catch!" nudge (Screens/CatchPrompt) shows until the first press this session; the gate's
+	-- scenes put it back
+	function UI.catch.resetNudge()
+		if catch then
+			catch:resetNudge()
+		end
 	end
 
 	function UI.catch.getActivePrompt(): ProximityPrompt?
@@ -5202,6 +5416,21 @@ function UI.roadmap.step(n: number)
 		return
 	end
 	local RoadmapLogic = require(script.Components.RoadmapLogic)
+	-- #4384: no prize toast or confetti during the tutorial while checkInCalm is on; the strip shows it done later
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	if
+		n < #RoadmapLogic.STEPS
+		and RoadmapLogic.calm(
+			LiveFlags.shown(
+				RoadmapLogic.CALM_FLAG,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RoadmapLogic.CALM_FLAG)
+			),
+			state.tutorialStep
+		)
+	then
+		return
+	end
 	if hud then
 		hud:roadmapStep(n)
 		local strip = hud.screenGui:FindFirstChild("GrandOpening", true)
@@ -5350,7 +5579,7 @@ do
 			intro = UI.intro.playing(),
 			flying = os.clock() < tipsHeldUntil,
 			window = (modal ~= nil and modal:current() ~= nil)
-				or UI.cutscene.on -- #4018: tips, ask and first visit cards wait through a cutscene
+				or UI.cutscene.held() -- #4018: tips, ask and first visit cards wait through a cutscene
 				or (popups ~= nil and popups:isShowing())
 				or (baitCard ~= nil and baitCard:isShowing())
 				or (askCard ~= nil and askCard:isShowing()),
@@ -9339,7 +9568,19 @@ do
 		}
 	end
 	local function rows(): { StoreLogic.Row }
-		return StoreLogic.rows(Config, PassShop.owned(), state.longNap, view())
+		-- #4266: the Auto Bowl card waits for its switch, as the Bait bowl window's offer does
+		local flags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local config: any = Config
+		if
+			not flags.shown(
+				"autoBowl",
+				ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. "autoBowl")
+			)
+		then
+			config = setmetatable({ AutoBowlPassId = 0 }, { __index = Config })
+		end
+		return StoreLogic.rows(config, PassShop.owned(), state.longNap, view())
 	end
 
 	-- The window's cards when it is up, and the HUD's tile when its open state changes.
@@ -9356,7 +9597,7 @@ do
 			if up and list then
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
-				screen:setDeal((state :: any).dailyDeal) -- #3996
+				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238
 				screen:render(list, PassShop.prices())
 			end
 			if hud then
@@ -9464,7 +9705,7 @@ do
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				-- #3572: the Potions tab's bag strip (rework only)
 				screen:setBag(StoreLogic.bag(view()))
-				screen:setDeal((state :: any).dailyDeal) -- #3996
+				screen:setDeal((state :: any).dailyDeal, state.tier) -- #3996, #4238
 				screen:render(rows(), PassShop.prices())
 				PassShop.refresh() -- a price changed in the Creator Hub shows without a rejoin
 			end,
@@ -10280,12 +10521,10 @@ do
 				local LiveFlags = require(
 					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
 				) :: any
-				local Catalog =
-					require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
 				local secrets = EventLogic.secretsBanner(
 					view,
 					LiveFlags.shown("secretCats", get(LiveFlags.ATTRIBUTE_PREFIX .. "secretCats")),
-					#Catalog.secretCats
+					#EventBanner.shapeModels() -- #4221: the first three only, as the shapes under it
 				)
 				if secrets ~= nil then
 					EventBanner.show({

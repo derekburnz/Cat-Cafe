@@ -97,12 +97,24 @@ export type Budget = {
 	waterfalls: number, -- Ruins waterfalls and fountains whose water runs at once (Effects/RuinsWater)
 }
 
+-- When a phone or tablet counts as struggling (#4311, Logic.slowStep; Derek 2026-11-14): under `fps` frames a second
+-- on average over a `window` second window, `windows` windows in a row, not counting the first `after` seconds or
+-- frames longer than `pause` seconds. Gameplay's Low performance suggestion uses the same numbers.
+Presets.slow = {
+	fps = 30,
+	window = 20,
+	windows = 2,
+	after = 60,
+	pause = 1,
+}
+
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
 -- (skill section 7). "high" is a PC. "console" is an Xbox or PlayStation (#2871): it runs at the "high" tier, but
 -- with a budget between the phone's and the PC's, since an Xbox One or PS4 is far slower than a gaming PC and the
 -- console pass watches the frame rate in a busy Alleyway. "lowPerformance" is the Low performance setting on any
 -- device: under the phone budget everywhere, with half the steady particles. "lite" (#3794, the `fxLite` switch) is
--- a phone, or any device with graphics quality set to 1 to 3: between the phone budget and Low performance, for the
+-- a struggling phone or tablet (Presets.slow, #4311), or any device with graphics quality set to 1 to 3: between the
+-- phone budget and Low performance, for the
 -- phones' frame rate (about 47 fps against 65 on PC): fewer moving cats at 20 Hz, fewer and thinner steady emitters,
 -- smaller bursts, fewer Highlights, and no decor motion or bunting flutter.
 Presets.budget = {
@@ -714,26 +726,100 @@ Presets.emitters = {
 	goldHourDrift = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.golden, Presets.palette.goldLight },
-		size = { 0.4, 0.15 },
-		transparency = { 0.25, 1 },
-		lifetime = { 4, 5 },
-		speed = { 2.5, 4 },
-		spread = 10,
-		rate = 8,
+		size = { 0.55, 0.2 },
+		transparency = { 0.1, 0.9 },
+		lifetime = { 3.5, 4.5 },
+		speed = { 3, 5 },
+		spread = 8,
+		rate = 10,
 		lightEmission = 0.6,
-		rotSpeed = { -20, 20 },
+		rotSpeed = { -40, 40 },
 	},
 	moneyStormDrift = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.goldLight, Presets.palette.golden },
-		size = { 0.55, 0.3 },
-		transparency = { 0.1, 0.8 },
+		size = { 0.75, 0.4 },
+		transparency = { 0.1, 0.9 },
 		lifetime = { 2.2, 3 },
-		speed = { 8, 11 },
-		spread = 6,
-		rate = 12,
+		speed = { 9, 12 },
+		spread = 8,
+		rate = 14,
 		lightEmission = 0.5,
 		rotSpeed = { -200, 200 },
+	},
+	-- #4325: every admin event rains something (AdminFlashLogic.rainOf), each in its look's colours, and thinly:
+	-- Derek 2026-11-14 22:54, "the money amount everywhere on screen is too much"
+	adminRoseDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.neonPink, Presets.palette.furRose },
+		size = { 0.6, 0.25 },
+		transparency = { 0.1, 0.9 },
+		lifetime = { 2.6, 3.4 },
+		speed = { 6, 9 },
+		spread = 8,
+		rate = 11,
+		lightEmission = 0.5,
+		rotSpeed = { -120, 120 },
+	},
+	adminStormDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.fishBlue, Presets.palette.offwhite },
+		size = { 0.5, 0.2 },
+		transparency = { 0.1, 0.9 },
+		lifetime = { 2, 2.8 },
+		speed = { 10, 14 },
+		spread = 8,
+		rate = 11,
+		lightEmission = 0.5,
+		rotSpeed = { -60, 60 },
+	},
+	adminRainbowDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.neonPink, Presets.palette.fishBlue },
+		size = { 0.6, 0.25 },
+		transparency = { 0.1, 0.9 },
+		lifetime = { 2.6, 3.4 },
+		speed = { 6, 9 },
+		spread = 8,
+		rate = 11,
+		lightEmission = 0.5,
+		rotSpeed = { -160, 160 },
+	},
+	adminVioletDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.aurora, Presets.palette.offwhite },
+		size = { 0.55, 0.2 },
+		transparency = { 0.1, 0.9 },
+		lifetime = { 3, 4 },
+		speed = { 4, 6 },
+		spread = 8,
+		rate = 9,
+		lightEmission = 0.6,
+		rotSpeed = { -60, 60 },
+	},
+	adminBlueDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.fishBlue, Presets.palette.goldLight },
+		size = { 0.6, 0.25 },
+		transparency = { 0.1, 0.9 },
+		lifetime = { 2.6, 3.4 },
+		speed = { 6, 9 },
+		spread = 8,
+		rate = 10,
+		lightEmission = 0.5,
+		rotSpeed = { -120, 120 },
+	},
+	adminMintDrift = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.mint, Presets.palette.offwhite },
+		size = { 0.5, 0.2 },
+		transparency = { 0.1, 0.9 },
+		lifetime = { 1.8, 2.4 },
+		speed = { 12, 16 },
+		spread = 8,
+		rate = 11,
+		lightEmission = 0.5,
+		rotSpeed = { -90, 90 },
 	},
 	-- Soft sparkles rising off the guide trail's dots (Effects/TrailSparkle, #3022), recoloured to each dot.
 	trailSparkle = {
@@ -2883,6 +2969,18 @@ export type SignatureOrbit = {
 export type SignatureArrive = { ring: number, burst: number, preset: string }
 
 local palette = Presets.palette
+-- the Secret cats' circling motes: one more than a Mythical's, a little wider and slower
+local function secretOrbit(emitter: string): SignatureOrbit
+	return {
+		emitter = emitter,
+		count = 6,
+		countLow = 3,
+		radius = 0.9,
+		height = 0.6,
+		tilt = 0.35,
+		seconds = 3.5,
+	}
+end
 Presets.signature = {
 	void = { -- Ninja Cat: glowing eyes and a twinkle on the black coat
 		emitter = "sigGlint",
@@ -3187,6 +3285,154 @@ Presets.signature = {
 			{ emitter = "sigGlintSmall", on = "Cherry_Glow" },
 		},
 	},
+	-- The Secret cats (#4369): the rung above Mythical on the same ladder, on top of the starlight halo every
+	-- Secret shares (Effects/SecretGlow). Each has its own steady effect on its lit part (..._Stars_Glow and so on; a
+	-- copy without that part shows it on its body), four extras (one only while it walks), six motes circling it
+	-- (three on a phone) and a gust where it appears. Every emitter stays at Rate 2 or less.
+	nebula = { -- Nebula: stars drift up off its starfield
+		emitter = "sigRise",
+		on = "Stars_Glow",
+		colors = { palette.aurora, palette.pastelSky, palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigHalo", on = "Body" },
+			{ emitter = "sigGlint", on = "Glow" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	glitch = { -- Glitch: its sprite blinks in three screen colours
+		emitter = "sigGlint",
+		on = "Sprite_Glow",
+		colors = {
+			Color3.fromRGB(90, 240, 255),
+			Color3.fromRGB(255, 90, 220),
+			Color3.fromRGB(140, 255, 120),
+		},
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigGlintSmall", on = "Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	cafe_ghost = { -- Cafe Ghost: a pale mist round it, wisps rising off its head
+		emitter = "sigHalo",
+		on = "Body",
+		colors = { palette.offwhite, palette.pastelSky },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigRise", on = "Head" },
+			{ emitter = "sigGlintSmall", on = "Tail" },
+			{ emitter = "sigWhoosh", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	lucky_clover = { -- Lucky Clover: its rainbow twinkles, green luck drifts up
+		emitter = "sigRise",
+		on = "Rainbow_Glow",
+		colors = { Color3.fromRGB(120, 230, 120), palette.mint, palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigGlint", on = "Glow" },
+			{ emitter = "sigFall", on = "Body" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	moonstag = { -- Moonstag: moonlight falls off its antlers
+		emitter = "sigFall",
+		on = "Grove_Glow",
+		colors = { palette.pastelSky, palette.offwhite, palette.aurora },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigGlint", on = "Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	ooze = { -- Ooze: drips off its spill, a glowing trail where it walks
+		emitter = "sigDrip",
+		on = "Spill_Glow",
+		colors = { Color3.fromRGB(150, 255, 110), Color3.fromRGB(90, 220, 140) },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigBubble", on = "Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+			{ emitter = "sigWetTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigBubble"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	djinn = { -- Djinn: smoke curls off it, gold dust in the air
+		emitter = "sigHalo",
+		on = "Smoke_Glow",
+		colors = { palette.aurora, palette.eyeBlue, palette.goldLight },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigRise", on = "Glow" },
+			{ emitter = "sigGlint", on = "Prop" },
+			{ emitter = "sigWhoosh", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	phoenix = { -- Phoenix: warm sparks rise off its wings (little lights, no flame)
+		emitter = "sigRise",
+		on = "Wings_Glow",
+		colors = { Color3.fromRGB(255, 170, 80), Color3.fromRGB(255, 96, 64), palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigGlint", on = "Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	abyss = { -- Abyss: deep sea lights on its sail, bubbles rising
+		emitter = "sigBubble",
+		on = "Sail_Glow",
+		colors = { Color3.fromRGB(80, 220, 255), palette.eyeBlue, palette.mint },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigGlint", on = "Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+			{ emitter = "sigWetTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigBubble"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
+	excalipurr = { -- Excalipurr: its blade glints, light rises round it
+		emitter = "sigGlint",
+		on = "Blade_Glow",
+		colors = { palette.sparkle, palette.offwhite, palette.pastelSky },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		extras = {
+			{ emitter = "sigGlintSmall", on = "Head" },
+			{ emitter = "sigRise", on = "Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = secretOrbit("sigEmber"),
+		arrive = { ring = 10, burst = 12, preset = "catchSparkle" },
+	},
 } :: { [string]: Signature }
 Presets.signatureFx = {
 	radius = 40, -- studs from the player
@@ -3384,14 +3630,148 @@ Presets.stormFall = {
 	markWait = 2,
 }
 
--- #4197 (Effects/AdminAir): the drift an admin event hangs round you while it runs, by its effect's name
--- (AdminEventLogic.AIR). One emitter on an unseen `box` held `height` studs over the camera's focus, looked at every
--- `every` seconds. None with Reduce Motion or in Low performance.
+-- #4197 (Effects/AdminAir): the drift an admin event hangs round you while it runs, by its effect's name. Since #4325
+-- every event has one (AdminFlashLogic.rainOf), all of them thin. One emitter on an unseen `box` held `height`
+-- studs over the camera's focus, looked at every `every` seconds. None with Reduce Motion or in Low performance.
 Presets.adminAir = {
-	kinds = { goldBoost = "goldHourDrift", moneyStorm = "moneyStormDrift" } :: { [string]: string },
+	kinds = {
+		goldBoost = "goldHourDrift",
+		moneyStorm = "moneyStormDrift",
+		crateDrop = "goldHourDrift",
+		bowlSpeed = "adminRoseDrift",
+		catStorm = "adminStormDrift",
+		rainbowBoost = "adminRainbowDrift",
+		secretHunt = "adminVioletDrift",
+		traitParty = "adminVioletDrift",
+		fishFountain = "adminBlueDrift",
+		speedRush = "adminMintDrift",
+	} :: { [string]: string },
 	box = Vector3.new(70, 1, 70),
 	height = 22,
 	every = 0.5,
+}
+
+-- #4325 (Effects/AdminFlash): an admin event takes the screen and the world. The 3, 2, 1 begins `countFrom` seconds
+-- before the start; the name splash holds `splashSeconds`; the strip comes in `stripAfter` seconds in (as the
+-- splash leaves) at `stripY` of the screen's height, and in the event's last `lastSeconds` (events of
+-- `lastMinEvent` seconds or longer) turns red and swells by `pulse` `pulseHz` times a second, under the 3 a second
+-- flashing limit. The end card holds `overSeconds`. Sizes are pixels on a `designHeight` tall screen, scaled to the
+-- screen's shorter side between `scaleMin` and `scaleMax`. `looks`: the world's tint while each kind runs, eased
+-- over `tintSeconds`, and the band's and strip's colours.
+Presets.adminFlash = {
+	displayOrder = 13, -- the countdown, splash and end card: over the HUD and the area title (12), under the windows (20)
+	stripOrder = 11, -- the strip: just over the HUD (10), under every window (20)
+	countFrom = 3,
+	splashSeconds = 3.2,
+	stripAfter = 3.4, -- as the splash leaves (the start card is skipped while the splash shows)
+	lastSeconds = 60,
+	lastMinEvent = 180,
+	overSeconds = 2.5,
+	readEvery = 0.25,
+	tintSeconds = 2,
+	designHeight = 720,
+	scaleMin = 0.5,
+	scaleMax = 1.4,
+	dim = 0.55,
+	band = 0.5,
+	bandClear = 0.2,
+	wide = 0.92,
+	titleSize = 66,
+	headSize = 46,
+	lineSize = 26,
+	countSize = 190,
+	countPop = 0.35,
+	splashPop = 0.4,
+	popSeconds = 0.25,
+	stripY = 0.17,
+	stripWidth = 220,
+	stripHeight = 56,
+	stripBig = 25,
+	stripSmall = 15,
+	earnEase = 0.12,
+	pulseHz = 1,
+	pulse = 0.08,
+	overWidth = 460,
+	overHeight = 130,
+	overTitle = 34,
+	overLine = 24,
+	sparkles = 18,
+	sparkle = { size = 16, seconds = 0.7, reach = 140, stagger = 0.15 },
+	ringSeconds = 0.6,
+	symbol = "$",
+	gold = Color3.fromRGB(255, 216, 74),
+	outline = Color3.fromRGB(20, 12, 8),
+	card = Color3.fromRGB(90, 59, 41),
+	earnColour = Color3.fromRGB(125, 255, 138),
+	lastTop = Color3.fromRGB(255, 143, 107),
+	lastBottom = Color3.fromRGB(226, 72, 58),
+	looks = {
+		gold = {
+			tint = Color3.fromRGB(255, 232, 170),
+			saturation = 0.15,
+			brightness = 0.04,
+			top = Color3.fromRGB(255, 216, 74),
+			bottom = Color3.fromRGB(243, 154, 28),
+			text = Color3.fromRGB(255, 216, 74),
+		},
+		rose = {
+			tint = Color3.fromRGB(255, 214, 224),
+			saturation = 0.12,
+			brightness = 0.03,
+			top = Color3.fromRGB(255, 150, 175),
+			bottom = Color3.fromRGB(217, 97, 127),
+			text = Color3.fromRGB(255, 170, 190),
+		},
+		storm = {
+			tint = Color3.fromRGB(196, 214, 255),
+			saturation = 0.05,
+			brightness = -0.03,
+			top = Color3.fromRGB(110, 193, 255),
+			bottom = Color3.fromRGB(60, 125, 217),
+			text = Color3.fromRGB(150, 210, 255),
+		},
+		rainbow = {
+			tint = Color3.fromRGB(246, 220, 255),
+			saturation = 0.3,
+			brightness = 0.04,
+			top = Color3.fromRGB(255, 130, 190),
+			bottom = Color3.fromRGB(110, 150, 255),
+			text = Color3.fromRGB(255, 190, 240),
+		},
+		violet = {
+			tint = Color3.fromRGB(222, 208, 255),
+			saturation = 0.1,
+			brightness = -0.02,
+			top = Color3.fromRGB(172, 150, 250),
+			bottom = Color3.fromRGB(110, 90, 200),
+			text = Color3.fromRGB(200, 185, 255),
+		},
+		blue = {
+			tint = Color3.fromRGB(205, 232, 255),
+			saturation = 0.1,
+			brightness = 0.02,
+			top = Color3.fromRGB(120, 205, 255),
+			bottom = Color3.fromRGB(60, 140, 225),
+			text = Color3.fromRGB(160, 220, 255),
+		},
+		mint = {
+			tint = Color3.fromRGB(210, 255, 236),
+			saturation = 0.12,
+			brightness = 0.03,
+			top = Color3.fromRGB(150, 230, 205),
+			bottom = Color3.fromRGB(70, 175, 150),
+			text = Color3.fromRGB(170, 245, 220),
+		},
+	} :: {
+		[string]: {
+			tint: Color3,
+			saturation: number,
+			brightness: number,
+			top: Color3,
+			bottom: Color3,
+			text: Color3,
+		},
+	},
 }
 
 -- The Rally board's marquee (F101, Model-Agent's #759: `CatCafe_Square_RallyBoard` with its 32 bulbs in the
@@ -3958,8 +4338,11 @@ Presets.orders = {
 -- Clouds in the sky (Sky.luau; Derek 2026-10-28 17:05: "add clouds in sky"): Roblox's cloud layer at `cover` (0 to
 -- 1, how much of the sky it hides) and `density` (how thick each cloud looks), tinted `color`, drifting on `wind`
 -- studs a second when the place has no wind of its own. Off in Low performance.
+-- #4291 (Derek 2026-11-14: "the sky still needs to be changed off the boring cloudy view"): the sky box now has its
+-- own painted clouds (assets/cat-cafe/vfx/sky_painted.py), so this layer is a few drifting clouds (0.5 before, which
+-- hid half the blue behind flat white).
 Presets.sky = {
-	cover = 0.5,
+	cover = 0.22,
 	density = 0.5,
 	color = Color3.fromRGB(255, 252, 247),
 	wind = Vector3.new(3, 0, 1.5),

@@ -51,6 +51,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	-- second the second and third were dropped and each waited out the button's 3 s
 	ClaimRichTip = RateLimiter.new(3, 1),
 	AfkIdle = RateLimiter.new(4, 2), -- #3573: idle and back again
+	AfkMode = RateLimiter.new(2, 2), -- #4346: the AFK tile, on and off
 	TakeCozy = RateLimiter.new(1, 1), -- #2854: one bag waits at a time
 	Tackle = RateLimiter.new(2, 1), -- a flood guard; ShoveService holds TackleCooldownSeconds from each press
 	LockCat = RateLimiter.new(4, 1), -- data-model section 15: 4 a second (tapping the lock icon on cat cards)

@@ -87,6 +87,13 @@ function Logic.tier(touch: boolean, keyboard: boolean, mouse: boolean?): Presets
 	return "high"
 end
 
+-- How much of a cutscene's letterbox bars a device draws: none on a phone or tablet (Derek 2026-11-15, of the Mythic
+-- and Secret trait scenes: "on phone it has the black bar on top and bottom that needs to be gone"; a phone's screen
+-- is already wide and short, so the bars only took picture away), all of them elsewhere.
+function Logic.letterbox(device: Presets.Tier): number
+	return if device == "low" then 0 else 1
+end
+
 -- The player's Settings switches that effects follow, from ProfileSync `settings`: screen shake is on and Low
 -- performance off until the player flips them, so a missing key or no settings at all keeps those.
 function Logic.readSettings(settings: { [string]: unknown }?): (boolean, boolean)
@@ -117,17 +124,72 @@ function Logic.budgetFor(
 	return device, Presets.budget[device]
 end
 
--- #3794: whether the lighter effects budget applies: the `fxLite` switch is on and this is a phone or tablet (the
--- "low" device tier) or its graphics quality is set by hand to 1 to 3 (`quality`, SavedQualityLevel's number; 0 is
--- Automatic, which says nothing about the device, and 4 to 10 are left as they are).
+-- #3794: whether the lighter effects budget applies: the `fxLite` switch is on and either this is a phone or tablet
+-- (the "low" device tier) that is struggling (`struggling`, Logic.slowStep; Derek 2026-11-14: "turn it on for
+-- phones/tablets if they are struggling (slower devices) not if they are doing fine"), or its graphics quality is
+-- set by hand to 1 to 3 (`quality`, SavedQualityLevel's number; 0 is Automatic, which says nothing about the device,
+-- and 4 to 10 are left as they are).
 Logic.LITE_QUALITY_MAX = 3
 
-function Logic.wantsLite(switchOn: boolean, device: Presets.Tier, quality: number?): boolean
+function Logic.wantsLite(
+	switchOn: boolean,
+	device: Presets.Tier,
+	quality: number?,
+	struggling: boolean?
+): boolean
 	if not switchOn then
 		return false
 	end
-	return device == "low"
+	return (device == "low" and struggling == true)
 		or (quality ~= nil and quality >= 1 and quality <= Logic.LITE_QUALITY_MAX)
+end
+
+-- Whether this device is struggling (#4311, Presets.slow): frames are counted in windows of `window` seconds, a
+-- window whose average is under `fps` frames a second is a slow one, and `windows` slow ones in a row mean it is
+-- struggling, for the rest of the session (the lighter budget lifts the frame rate, so letting go again would
+-- flap). Nothing counts in the first `after` seconds (loading), a frame longer than `pause` seconds is a pause and
+-- not a slow frame (the app in the background), and `hold` (a cutscene has the screen) starts the window again.
+export type SlowSpec = { fps: number, window: number, windows: number, after: number, pause: number }
+export type SlowState = {
+	age: number, -- seconds watched
+	time: number, -- seconds in this window
+	frames: number, -- frames in this window
+	slow: number, -- slow windows in a row
+	struggling: boolean,
+}
+
+function Logic.slowStart(): SlowState
+	return { age = 0, time = 0, frames = 0, slow = 0, struggling = false }
+end
+
+-- Counts one frame of `dt` seconds; true on the frame the device is first found to be struggling.
+function Logic.slowStep(state: SlowState, dt: number, p: SlowSpec, hold: boolean?): boolean
+	if state.struggling then
+		return false
+	end
+	if dt > p.pause then
+		return false
+	end
+	state.age += dt
+	if state.age < p.after or hold == true then
+		state.time = 0
+		state.frames = 0
+		return false
+	end
+	state.time += dt
+	state.frames += 1
+	if state.time < p.window then
+		return false
+	end
+	local slow = state.frames / state.time < p.fps
+	state.time = 0
+	state.frames = 0
+	state.slow = if slow then state.slow + 1 else 0
+	if state.slow >= p.windows then
+		state.struggling = true
+		return true
+	end
+	return false
 end
 
 -- One circle from CatchResult: "perfect", "good" or "miss" (catching v0.4), or the v0.3 score 1, 0.5 or 0.

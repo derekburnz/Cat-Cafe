@@ -1504,6 +1504,12 @@ local function wireIntents()
 			Net.fire("BuyHarvest", id)
 		end)
 	end
+	-- #4251: a note on the Thankful Board; the server checks the note, the area and one pin every 10 s
+	if looseEvents.pinHarvestNote ~= nil then
+		looseEvents.pinHarvestNote:Connect(function(note: number)
+			Net.fire("PinHarvestNote", note)
+		end)
+	end
 	if looseEvents.mysterySeen ~= nil then
 		looseEvents.mysterySeen:Connect(function()
 			Net.fire("MarkMysterySeen")

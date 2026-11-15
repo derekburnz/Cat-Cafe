@@ -13,6 +13,7 @@
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local FitText = require(script.Parent.Parent.Components.FitText)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalLines = require(script.Parent.Parent.Components.GoalLines) -- #3997: no goal behind a live switch
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
@@ -601,6 +602,12 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 		Text = if family and item.met then "✓" else item.status,
 		Parent = row,
 	})
+	-- #4479 (Derek 2026-11-15: "in the rankup cards on mobile the coins don't show the full ... $##/..."): the need and
+	-- its numbers shrink to fit on a phone instead of ending in "..."
+	FitText.shrink(row:FindFirstChild("Label") :: TextLabel)
+	if not (family and item.met) then
+		FitText.shrink(row:FindFirstChild("Status") :: TextLabel)
+	end
 	if family and item.met then
 		-- #3961: a met need's tick in a green circle, as in the mock
 		local tick = row:FindFirstChild("Status") :: TextLabel

@@ -26,6 +26,22 @@ function TicketBoothLogic.commas(value: number): string
 	end
 end
 
+-- #4429: the balance pill's number, short past 99,999 so it stays inside the pill: "99,999", "123K", "1.2M", "12M"
+function TicketBoothLogic.countText(value: number): string
+	local n = math.max(math.floor(value), 0)
+	if n < 100000 then
+		return TicketBoothLogic.commas(n)
+	elseif n < 1000000 then
+		return math.floor(n / 1000) .. "K"
+	elseif n < 10000000 then
+		local tenths = math.floor(n / 100000)
+		return if tenths % 10 == 0
+			then (tenths // 10) .. "M"
+			else ("%d.%dM"):format(tenths // 10, tenths % 10)
+	end
+	return TicketBoothLogic.commas(math.floor(n / 1000000)) .. "M"
+end
+
 function TicketBoothLogic.ticketText(value: number): string
 	return TicketBoothLogic.TICKET .. " " .. TicketBoothLogic.commas(value)
 end

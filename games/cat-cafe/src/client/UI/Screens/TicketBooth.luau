@@ -108,8 +108,13 @@ end
 -- sizes to its number and sits a half picture right of centre, so picture and number centre together; the 🎟️ shows
 -- until the picture has loaded.
 local TICKET_GAP = 4
-local function ticketed(label: TextLabel, size: number)
+local function ticketed(label: TextLabel, size: number, widest: number)
 	label.AutomaticSize = Enum.AutomaticSize.X
+	-- never wider than its box, less the picture (the numbers are kept short: TicketBoothLogic.countText)
+	Create(
+		"UISizeConstraint",
+		{ MaxSize = Vector2.new(widest - size - TICKET_GAP, math.huge), Parent = label }
+	)
 	label.AnchorPoint = Vector2.new(0.5, label.AnchorPoint.Y)
 	label.Position =
 		UDim2.new(0.5, (size + TICKET_GAP) / 2, label.Position.Y.Scale, label.Position.Y.Offset)
@@ -186,7 +191,7 @@ function TicketBooth.new(callbacks: Callbacks): TicketBooth
 		Text = "0",
 		Parent = count,
 	})
-	ticketed(self._count, TOP_H - 10)
+	ticketed(self._count, TOP_H - 10, COUNT_W - 12)
 	Outline.text(self._count, 1.5)
 
 	-- the prize cards
@@ -318,7 +323,7 @@ function TicketBooth._card(self: any, id: string, order: number): any
 		TextColor3 = MenuFamily.onCard(Theme.colors.goldDark),
 		Parent = frame,
 	})
-	ticketed(price, PRICE_H - 2)
+	ticketed(price, PRICE_H - 2, CELL_MIN - 12)
 	local made: any = {}
 	made.buy = Button.new({
 		name = "Buy",
@@ -354,7 +359,7 @@ function TicketBooth._paint(self: any)
 	local view: Types.TicketBoothView? = self._view
 	local now = Workspace:GetServerTimeNow()
 	local tickets = if view then view.tickets else 0
-	self._count.Text = TicketBoothLogic.commas(tickets)
+	self._count.Text = TicketBoothLogic.countText(tickets)
 	self._rush.Text = if view
 		then TicketBoothLogic.rushLine(view.rushEndsAt, view.rushUsedToday, now)
 		else ""

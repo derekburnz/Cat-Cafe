@@ -10607,9 +10607,15 @@ UI.perks = {
 	REDUCED_SECONDS = 0.5,
 	WINDOW_WAIT_SECONDS = 300,
 	YIELD_STEP = 0.25, -- how often a showing card looks for a window that opened after it
+	-- #4547 (Derek 2026-11-15: "dont do perk unlock pop ups for every tier it adds bloat"): no "Unlocked!" card when a
+	-- perk opens; the perk still works and Rank up's Perks button lists it. True brings the card back.
+	POP = false,
 }
 
 function UI.perks.unlock(perkId: string)
+	if not UI.perks.POP then
+		return
+	end
 	local StationPerks =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationPerks")) :: any
 	local perk = StationPerks.get(perkId)

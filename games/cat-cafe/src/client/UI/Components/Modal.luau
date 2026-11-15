@@ -31,6 +31,7 @@ export type Modal = {
 	register: (self: Modal, name: string, screen: Screen) -> (),
 	open: (self: Modal, name: string) -> (),
 	close: (self: Modal) -> (),
+	back: (self: Modal) -> (),
 	toggle: (self: Modal, name: string) -> (),
 	current: (self: Modal) -> string?,
 	tuck: (self: Modal, name: string, away: boolean) -> (),
@@ -159,6 +160,8 @@ function Modal.open(self: any, name: string)
 		return
 	end
 	local fresh = self._current == nil
+	-- #4224: the window this one opened from (the Cannon picker's Open strip opening the Yard Sale), for B
+	self._from = self._current
 	if self._current then
 		local previous: Screen = self._screens[self._current]
 		-- #3702: a tucked window is no longer tucked once another opens, so its onClose (which may ask to bring it
@@ -209,6 +212,7 @@ function Modal.close(self: any)
 	end
 	local screen: Screen = self._screens[name]
 	local frame = screen.frame
+	self._from = nil
 	self._closing = frame
 	self._tucked = nil
 	self._backdrop.Active = true -- #4016: a tuck left it off
@@ -241,6 +245,18 @@ function Modal.close(self: any)
 		self._selectedBefore = nil
 		GamepadNav.restore(before)
 	end
+end
+
+-- #4224 (console): B steps back to the window this one was opened from, else closes it
+function Modal.back(self: any)
+	local from: string? = self._from
+	if from ~= nil and self._current ~= nil and self._screens[from] ~= nil then
+		self._from = nil
+		self:open(from)
+		self._from = nil
+		return
+	end
+	self:close()
 end
 
 -- #3702: tucks the open window and the dim away for a moment (the Mystic Pool's animation plays in the world behind

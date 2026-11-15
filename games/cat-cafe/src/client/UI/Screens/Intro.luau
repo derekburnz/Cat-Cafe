@@ -33,7 +33,9 @@
 
 local ContextActionService = game:GetService("ContextActionService")
 local GuiService = game:GetService("GuiService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local CatEars = require(script.Parent.Parent.Components.CatEars)
@@ -41,6 +43,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local IntroLogic = require(script.Parent.Parent.Components.IntroLogic)
 local LoadingCount = require(script.Parent.Parent.Components.LoadingCount)
+local LoadingNews = require(script.Parent.Parent.Components.LoadingNews)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Parent.Components.Signal)
@@ -102,6 +105,47 @@ local WAIT_BAR = Vector2.new(300, 22) -- the bar, in design pixels
 local WAIT_PAW = 34 -- the paw that walks the bar
 local WAIT_FACE = Vector2.new(104, 88) -- the cat's face
 local WAIT_FUR = Color3.fromHex("F3B56B") -- a ginger cat, warm on the cream
+-- #4314: the cute look
+local WAIT_TOP = Color3.fromHex("FFE3EC") -- the gradient's pink top, to cream at the bottom
+local WAIT_PATTERN = Color3.fromHex("F7B8CB") -- the faint paws
+local WAIT_HEART = Color3.fromHex("FF9EBB")
+local WAIT_FILL = Color3.fromHex("FF8FB1")
+local WAIT_BADGE = Color3.fromHex("FF6F9C")
+local WAIT_SHADOW = Color3.fromHex("1E1A22") -- the Secret cats' dark shapes
+local WAIT_SUB = Color3.fromHex("7A5A4A") -- the tip and the card's line (6.2:1 on the cream)
+local WAIT_WIDE = 860 -- design px across before the card fits beside the cat
+local WAIT_CARD = Vector2.new(320, 286)
+local WAIT_PIC_H = 124
+local WAIT_PAWS = {
+	Vector2.new(0.06, 0.08),
+	Vector2.new(0.16, 0.2),
+	Vector2.new(0.04, 0.42),
+	Vector2.new(0.12, 0.62),
+	Vector2.new(0.05, 0.86),
+	Vector2.new(0.28, 0.9),
+	Vector2.new(0.24, 0.1),
+	Vector2.new(0.44, 0.06),
+	Vector2.new(0.4, 0.94),
+	Vector2.new(0.56, 0.86),
+	Vector2.new(0.52, 0.12),
+	Vector2.new(0.66, 0.06),
+	Vector2.new(0.84, 0.08),
+	Vector2.new(0.95, 0.2),
+	Vector2.new(0.93, 0.48),
+	Vector2.new(0.96, 0.76),
+	Vector2.new(0.8, 0.92),
+	Vector2.new(0.68, 0.94),
+}
+local WAIT_HEARTS = {
+	Vector2.new(0.12, 0.52),
+	Vector2.new(0.42, 0.24),
+	Vector2.new(0.49, 0.24),
+	Vector2.new(0.67, 0.15),
+	Vector2.new(0.4, 0.94),
+	Vector2.new(0.24, 0.24),
+	Vector2.new(0.9, 0.62),
+	Vector2.new(0.6, 0.72),
+}
 local CAPTION_HEIGHT = 44
 local CAPTION_TEXT = 30
 local DOT = 10
@@ -470,6 +514,71 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 		Parent = cover,
 	})
 	self._waitScale = Scale.bind(waitRoot)
+	-- #4314 (Derek 2026-11-14, the cute loading screen, mock OK'd 21:44 UTC): pink to cream with faint pink paws and
+	-- hearts, the cat, name, bar and count on the left (Main) and the WHAT'S NEW card on the right (News); a screen
+	-- too narrow for both keeps Main in the middle and drops the card (_waitLayout)
+	Create("UIGradient", {
+		Color = ColorSequence.new(WAIT_TOP, Theme.colors.cream),
+		Rotation = 90,
+		Parent = cover,
+	})
+	local pattern: Frame = Create("Frame", {
+		Name = "Pattern",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Parent = waitRoot,
+	})
+	for index, spot in WAIT_PAWS do
+		local paw: Frame = Create("Frame", {
+			Name = "Paw" .. index,
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(spot.X, spot.Y),
+			Size = UDim2.fromOffset(18, 18),
+			Rotation = (index * 37) % 50 - 25,
+			Parent = pattern,
+		})
+		for _, toe in
+			{
+				{ 0.5, 0.68, 0.62 },
+				{ 0.12, 0.3, 0.26 },
+				{ 0.38, 0.12, 0.26 },
+				{ 0.62, 0.12, 0.26 },
+				{ 0.88, 0.3, 0.26 },
+			}
+		do
+			Create("Frame", {
+				BackgroundColor3 = WAIT_PATTERN,
+				BackgroundTransparency = 0.45,
+				BorderSizePixel = 0,
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.fromScale(toe[1], toe[2]),
+				Size = UDim2.fromScale(toe[3], toe[3] * 0.9),
+				Parent = paw,
+			}, { Create("UICorner", { CornerRadius = UDim.new(0.5, 0) }) })
+		end
+	end
+	for index, spot in WAIT_HEARTS do
+		Create("TextLabel", {
+			Name = "Heart" .. index,
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(spot.X, spot.Y),
+			Size = UDim2.fromOffset(24, 24),
+			FontFace = Theme.fonts.body,
+			TextSize = 20,
+			TextColor3 = WAIT_HEART,
+			Text = "♥",
+			Parent = pattern,
+		})
+	end
+	local main: Frame = Create("Frame", {
+		Name = "Main",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Parent = waitRoot,
+	})
+	self._waitMain = main
 	-- the cat: a round ginger face with two ears behind it, eyes, a pink nose, cheeks and whiskers
 	local cat: Frame = Create("Frame", {
 		Name = "Cat",
@@ -477,7 +586,7 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 0.5, -40),
 		Size = UDim2.fromOffset(WAIT_FACE.X, WAIT_FACE.Y + 22),
-		Parent = waitRoot,
+		Parent = main,
 	})
 	CatEars.add(cat, WAIT_FUR, { size = 38, inset = 0.24, y = 30, outline = 3, zIndex = 1 })
 	local face: Frame = Create("Frame", {
@@ -570,7 +679,7 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 		TextColor3 = Theme.colors.gold,
 		TextSize = 44,
 		Text = WAIT_TITLE,
-		Parent = waitRoot,
+		Parent = main,
 	})
 	Outline.text(title, 3)
 	-- the bar: a paper track, a gold fill from its left end and a paw that walks at the fill's tip
@@ -581,7 +690,7 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0.5, 38),
 		Size = UDim2.fromOffset(WAIT_BAR.X, WAIT_BAR.Y),
-		Parent = waitRoot,
+		Parent = main,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(bar, 3)
 	local well: Frame = Create("Frame", {
@@ -593,7 +702,7 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	self._waitFill = Create("Frame", {
 		Name = "Fill",
-		BackgroundColor3 = Theme.colors.gold,
+		BackgroundColor3 = WAIT_FILL, -- #4314: pink
 		BorderSizePixel = 0,
 		Size = UDim2.fromScale(0, 1),
 		Parent = well,
@@ -620,8 +729,147 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 		TextColor3 = Theme.colors.ink,
 		TextSize = 30,
 		Text = LoadingCount.text(0),
-		Parent = waitRoot,
+		Parent = main,
 	})
+	-- #4314: a tip under the count, for the device in hand (_waitTip)
+	self._waitTip = Create("TextLabel", {
+		Name = "Tip",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0.5, 110),
+		Size = UDim2.fromOffset(420, 26),
+		FontFace = Theme.fonts.body,
+		TextColor3 = WAIT_SUB,
+		TextSize = 20,
+		Text = LoadingNews.tip("keyboard"),
+		Parent = main,
+	})
+	-- #4314: the WHAT'S NEW card, turning through Components/LoadingNews
+	local news: Frame = Create("Frame", {
+		Name = "News",
+		BackgroundColor3 = Theme.colors.paper,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.72, 0.5),
+		Size = UDim2.fromOffset(WAIT_CARD.X, WAIT_CARD.Y),
+		Parent = waitRoot,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, 22) }) })
+	Outline.border(news, 3)
+	local badge: TextLabel = Create("TextLabel", {
+		Name = "Badge",
+		BackgroundColor3 = WAIT_BADGE,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0),
+		Size = UDim2.fromOffset(150, 32),
+		FontFace = Theme.fonts.display,
+		TextColor3 = Theme.colors.white,
+		TextSize = 20,
+		Text = "WHAT'S NEW",
+		ZIndex = 3,
+		Parent = news,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0.5, 0) }) })
+	Outline.border(badge, 3)
+	self._newsPic = Create("Frame", {
+		Name = "Picture",
+		BackgroundColor3 = Theme.colors.sky,
+		BorderSizePixel = 0,
+		ClipsDescendants = true,
+		Position = UDim2.fromOffset(16, 28),
+		Size = UDim2.new(1, -32, 0, WAIT_PIC_H),
+		Parent = news,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, 14) }),
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._newsTitle = Create("TextLabel", {
+		Name = "NewsTitle",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(12, 28 + WAIT_PIC_H + 8),
+		Size = UDim2.new(1, -24, 0, 34),
+		FontFace = Theme.fonts.display,
+		TextColor3 = Theme.colors.ink,
+		TextSize = 28,
+		Text = "",
+		Parent = news,
+	})
+	self._newsLine = Create("TextLabel", {
+		Name = "Line",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(12, 28 + WAIT_PIC_H + 42),
+		Size = UDim2.new(1, -24, 0, 42), -- two lines
+		FontFace = Theme.fonts.body,
+		TextColor3 = WAIT_SUB,
+		TextSize = 16,
+		TextWrapped = true,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		Text = "",
+		Parent = news,
+	})
+	self._newsWhen = Create("TextLabel", {
+		Name = "When",
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -12),
+		Size = UDim2.fromOffset(0, 26),
+		AutomaticSize = Enum.AutomaticSize.X,
+		FontFace = Theme.fonts.display,
+		TextColor3 = Theme.colors.ink,
+		TextSize = 16,
+		Text = "",
+		Parent = news,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0.5, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14) }),
+	})
+	Outline.border(self._newsWhen, 2)
+	local dots: Frame = Create("Frame", {
+		Name = "Dots",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 1, 12),
+		Size = UDim2.fromOffset(120, 14),
+		Parent = news,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._newsDots = {} :: { Frame }
+	for index in LoadingNews.ENTRIES do
+		table.insert(
+			self._newsDots,
+			Create("Frame", {
+				Name = "Dot" .. index,
+				BorderSizePixel = 0,
+				LayoutOrder = index,
+				Size = UDim2.fromOffset(9, 9),
+				Parent = dots,
+			}, { Create("UICorner", { CornerRadius = UDim.new(0.5, 0) }) })
+		)
+	end
+	self._news = news
+	self._newsIndex = 0
+	self._waitWide = true
+	self._waitTitle = title
+	table.insert(
+		self._connections,
+		waitRoot:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			self:_waitLayout()
+		end)
+	)
+	self:_waitLayout()
 	waitGui.Parent = parent
 	return self :: Intro
 end
@@ -668,6 +916,134 @@ function Intro._waitSet(self: any, value: number)
 	self._waitLabel.Text = LoadingCount.text(value)
 end
 
+-- #4314: the card beside the cat when the screen is wide enough (WAIT_WIDE design px), else the cat in the middle alone
+function Intro._waitLayout(self: any)
+	local scale = self._waitScale.Scale
+	local width = self._waitCover.AbsoluteSize.X / (if scale > 0 then scale else 1)
+	local wide = width <= 0 or width >= WAIT_WIDE
+	self._waitWide = wide
+	self._news.Visible = wide
+	self._waitMain.Position = if wide then UDim2.fromScale(-0.2, 0) else UDim2.fromScale(0, 0)
+	self._waitTitle.Size = if wide
+		then UDim2.new(0.6, -2 * SIDE, 0, 56)
+		else UDim2.new(1, -2 * SIDE, 0, 56)
+end
+
+-- #4314: the WHAT'S NEW card's entry `index` of LoadingNews.ENTRIES, popping in
+function Intro._newsShow(self: any, index: number)
+	if index == self._newsIndex then
+		return
+	end
+	self._newsIndex = index
+	local entry = LoadingNews.ENTRIES[index]
+	local pic: Frame = self._newsPic
+	for _, child in pic:GetChildren() do
+		if child:IsA("GuiObject") then
+			child:Destroy()
+		end
+	end
+	pic.BackgroundColor3 = Color3.fromHex(entry.back)
+	if entry.secret then
+		-- dark shapes only (the dark-shape rule): five black cats with gold eyes and a ?
+		for order = 1, 5 do
+			local shape: Frame = Create("Frame", {
+				Name = "Shape" .. order,
+				BackgroundTransparency = 1,
+				LayoutOrder = order,
+				Size = UDim2.fromOffset(46, 60),
+				Parent = pic,
+			})
+			CatEars.add(
+				shape,
+				WAIT_SHADOW,
+				{ size = 18, inset = 0.2, y = 16, outline = 2, zIndex = 1 }
+			)
+			local head: Frame = Create("Frame", {
+				Name = "Head",
+				BackgroundColor3 = WAIT_SHADOW,
+				BorderSizePixel = 0,
+				AnchorPoint = Vector2.new(0.5, 1),
+				Position = UDim2.fromScale(0.5, 1),
+				Size = UDim2.fromOffset(46, 44),
+				ZIndex = 2,
+				Parent = shape,
+			}, { Create("UICorner", { CornerRadius = UDim.new(0.5, 0) }) })
+			Outline.border(head, 2)
+			Create("TextLabel", {
+				Name = "Mark",
+				BackgroundTransparency = 1,
+				Size = UDim2.fromScale(1, 1),
+				FontFace = Theme.fonts.display,
+				TextColor3 = Theme.colors.gold,
+				TextSize = 24,
+				Text = "?",
+				ZIndex = 3,
+				Parent = head,
+			})
+		end
+	else
+		local tiles: { LoadingNews.Tile } = entry.tiles or {}
+		local width = math.floor((WAIT_CARD.X - 32 - 16 - 8 * (#tiles - 1)) / math.max(#tiles, 1))
+		width = math.min(width, 140)
+		for order, tile in tiles do
+			local box: Frame = Create("Frame", {
+				Name = "Tile" .. order,
+				BackgroundColor3 = Color3.fromHex(tile.color),
+				BorderSizePixel = 0,
+				LayoutOrder = order,
+				Size = UDim2.fromOffset(width, WAIT_PIC_H - 14),
+				Parent = pic,
+			}, { Create("UICorner", { CornerRadius = UDim.new(0, 10) }) })
+			Outline.border(box, 2)
+			Create("TextLabel", {
+				Name = "Emoji",
+				BackgroundTransparency = 1,
+				Position = UDim2.fromOffset(0, 10),
+				Size = UDim2.new(1, 0, 0, 56),
+				FontFace = Theme.fonts.body,
+				TextSize = 44,
+				Text = tile.emoji,
+				Parent = box,
+			})
+			Create("TextLabel", {
+				Name = "Word",
+				BackgroundTransparency = 1,
+				AnchorPoint = Vector2.new(0, 1),
+				Position = UDim2.new(0, 4, 1, -8),
+				Size = UDim2.new(1, -8, 0, 20),
+				FontFace = Theme.fonts.bodyBold,
+				TextColor3 = Theme.colors.ink,
+				TextSize = 15,
+				Text = tile.word,
+				Parent = box,
+			})
+		end
+	end
+	self._newsTitle.Text = entry.title
+	self._newsLine.Text = entry.line
+	local live = LoadingNews.live(entry, function(key: string): boolean
+		local shared = ReplicatedStorage:FindFirstChild("Shared")
+		local module = if shared then shared:FindFirstChild("LiveFlags") else nil
+		if module == nil or not module:IsA("ModuleScript") then
+			return false
+		end
+		local LiveFlags = require(module) :: any
+		return LiveFlags.shown(
+			key,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
+		)
+	end)
+	self._newsWhen.Text = LoadingNews.whenText(entry.at, Workspace:GetServerTimeNow(), live)
+	for at, dot: Frame in self._newsDots do
+		local on = at == index
+		dot.BackgroundColor3 = if on then WAIT_BADGE else Color3.fromHex("E8C9D3")
+		dot.Size = if on then UDim2.fromOffset(12, 12) else UDim2.fromOffset(9, 9)
+	end
+	if self._waitWide then
+		Tween.popIn(self._news, 0.96)
+	end
+end
+
 -- #3105: shows the loading screen, or slides it away. A play slides it away (start), and so does WAIT_LIMIT.
 -- #3109: shown, its count creeps up until race(); sliding away it reads 100.
 function Intro.waiting(self: any, on: boolean)
@@ -702,6 +1078,16 @@ function Intro.waiting(self: any, on: boolean)
 	self._waitBegan = os.clock()
 	self._raceAt = nil
 	self:_waitSet(0)
+	-- #4314: the tip for the device in hand, and the card from its first entry
+	local lastInput = UserInputService:GetLastInputType()
+	self._waitTip.Text = LoadingNews.tip(
+		if string.sub(lastInput.Name, 1, 7) == "Gamepad"
+			then "gamepad"
+			elseif lastInput == Enum.UserInputType.Touch or Scale.isTouch() then "touch"
+			else "keyboard"
+	)
+	self._newsIndex = 0
+	self:_newsShow(1)
 	task.spawn(function()
 		while self._alive and self._waiting and token == self._waitToken do
 			local now = os.clock()
@@ -715,6 +1101,7 @@ function Intro.waiting(self: any, on: boolean)
 				else LoadingCount.creep(now - self._waitBegan)
 			-- never back: a race starts from where the creep stood
 			self:_waitSet(math.max(value, self._waitValue))
+			self:_newsShow(select(2, LoadingNews.pick(now - self._waitBegan)))
 			task.wait()
 		end
 	end)

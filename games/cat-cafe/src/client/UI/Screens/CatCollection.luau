@@ -17,7 +17,7 @@
 --         rainbow cat's tile has a slowly turning rainbow border and its name in rainbow letters (Components/Rainbow);
 --         the rest stay silhouettes. It starts with a Rainbow cats line, the one Rainbow track for the whole Index
 --         (rainbow1 to rainbow25), whose prizes add rainbow luck. The tab shows once the catalog has the track.
---   Decor: the Decor Index (F53, Screens/DecorIndex): a page per crate with its twelve pieces and two rewards.
+--   Decor: the Decor Index (F53, Screens/DecorIndex): one scroll of a section per crate (#4265), each with its pieces and two rewards.
 --   In the title bar, the forever bonuses the claimed rewards add up to (F54 v0.10): tips, gold luck with the gold
 --   chance it gives, rainbow luck with the rainbow chance (F99, on the bands) and faster bait, each in its track's
 --   colour (Components/IndexRewards.totals). They sat beside the tabs until the Rainbow tab filled that row. Right of the tabs,
@@ -428,7 +428,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	local bookPad = self._book:FindFirstChildOfClass("UIPadding") :: UIPadding
 	bookPad.PaddingTop = UDim.new(0, Outline.ROOM + 4)
 
-	-- Decor Index: a page per crate (Screens/DecorIndex)
+	-- Decor Index: a section per crate in one scroll (Screens/DecorIndex, #4265)
 	self._decor = Create("Frame", {
 		Name = "Decor",
 		BackgroundTransparency = 1,

@@ -6,6 +6,7 @@
 -- chase and odds live here.
 
 local CollectionService = game:GetService("CollectionService")
+local HttpService = game:GetService("HttpService")
 local PathfindingService = game:GetService("PathfindingService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +14,7 @@ local RunService = game:GetService("RunService")
 local StarterPlayer = game:GetService("StarterPlayer")
 local Workspace = game:GetService("Workspace")
 
+local AreaRares = require(ReplicatedStorage.Shared.AreaRares)
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local Badges = require(ReplicatedStorage.Shared.Badges)
 local BagColours = require(ReplicatedStorage.Shared.BagColours)
@@ -505,6 +507,27 @@ end
 
 -- `catcher` is the player who just caught it, nil when it leaves. A knocked-loose cat logs who ended up with it
 -- (drop_outcome, F16): against the catcher, or its old carrier when nobody caught it.
+-- #4227: the wild Mythicals and Secrets out in each area, in ReplicatedStorage's AreaRares attribute for the Cannon
+-- picker's and the HUD Cannon button's bubbles. Rewritten after each spawn and despawn, only when it changed.
+local areaRaresText = ""
+local function writeAreaRares()
+	local rows: { AreaRares.Row } = {}
+	for _, stray in strays do
+		if stray.alive then
+			table.insert(rows, {
+				area = stray.area,
+				rarity = stray.def.rarity :: string,
+				wild = stray.drop == nil and stray.beginner == nil,
+			})
+		end
+	end
+	local text = HttpService:JSONEncode(AreaRares.count(rows))
+	if text ~= areaRaresText then
+		areaRaresText = text
+		ReplicatedStorage:SetAttribute(AreaRares.ATTRIBUTE, text)
+	end
+end
+
 local function despawn(stray: Stray, catcher: Player?)
 	if not stray.alive then
 		return
@@ -524,6 +547,7 @@ local function despawn(stray: Stray, catcher: Player?)
 		end
 	end
 	strays[stray.id] = nil
+	writeAreaRares()
 	if stray.def.rarity == Catalog.SECRET then
 		SecretBeacons.clear(stray.id)
 		-- #3470: gone with nobody holding it (dusk, or a Dropped one nobody picked up)
@@ -743,6 +767,7 @@ local function spawnStray(
 		alive = true,
 	}
 	strays[id] = stray
+	writeAreaRares()
 	if def.rarity == Catalog.SECRET then
 		-- #3470: its sky beam shows from anywhere (Effects)
 		SecretBeacons.set(id, areaId, position)
@@ -885,7 +910,8 @@ local function spawnAt(
 	areaId: string,
 	pointIndex: number,
 	rarity: Types.Rarity,
-	beginner: number?
+	beginner: number?,
+	owned: { [string]: any }? -- #4188: a beginner's collection, so their tutorial stray is a kind they lack
 ): Stray
 	local area = world.areas[areaId]
 	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the `secretCats` switch is on (never a beginner's
@@ -903,7 +929,12 @@ local function spawnAt(
 			if LiveFlagService.on(Catching.SECRET_AREAS_FLAG) then { areaId } else nil
 		)
 		else nil
-	local def = secret or Catching.pickCat(rarity, areaId, rng:NextNumber())
+	local def = secret
+		or (
+			if owned ~= nil
+				then Catching.pickNewCat(rarity, areaId, rng:NextNumber(), owned)
+				else Catching.pickCat(rarity, areaId, rng:NextNumber())
+		)
 	local point = area.spawnPoints[pointIndex]
 	local stray = spawnStray(def, areaId, point.Position, pointIndex, nil, nil, nil, beginner)
 	if secret ~= nil then
@@ -990,6 +1021,21 @@ local function tutorialTick()
 				and not stray.returning
 				and (stray.lockedBy == 0 or lockExpired(stray))
 			then
+				if
+					profile.collection[stray.def.id] ~= nil
+					and profile.collection[Catching.pickNewCat(
+							"Common",
+							TUTORIAL_AREA,
+							0.5,
+							profile.collection
+						).id]
+						== nil
+				then
+					-- #4188: a kind this beginner already has (a stray left at the point from before) goes, and the next
+					-- tick brings one they lack in its place
+					despawn(stray)
+					continue
+				end
 				reserve(stray, player.UserId)
 			end
 			-- funnel steps first_stray_in_view and near_stray (easy-start.md section 5)
@@ -1004,7 +1050,8 @@ local function tutorialTick()
 				end
 			end
 		elseif strayId == nil then
-			spawnAt(TUTORIAL_AREA, own, "Common", player.UserId)
+			-- #4188: a kind the beginner lacks, so the tutorial ends on three kinds (the starter, this one, the bait cat)
+			spawnAt(TUTORIAL_AREA, own, "Common", player.UserId, profile.collection)
 		end
 	end
 	local leaving: { Stray } = {}

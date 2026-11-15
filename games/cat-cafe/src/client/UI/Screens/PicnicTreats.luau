@@ -239,10 +239,27 @@ function PicnicTreats._paint(self: any)
 	end
 end
 
+PicnicTreats.CLOSE_AFTER = 0.4 -- #4286: seconds the greyed card shows after a pick went through, before it closes
+
 function PicnicTreats.setView(self: any, view: Types.CampExtraView?)
+	local before: Types.CampExtraView? = self._view
+	local picked = self._pending ~= nil
+		and before ~= nil
+		and view ~= nil
+		and (view :: Types.CampExtraView).held < (before :: Types.CampExtraView).held
 	self._view = view
 	self._pending = nil -- a new state answers the pick
 	self:_paint()
+	-- #4286 (Derek 2026-11-14: "the menu after picking picnic food ... should close so it doesn't look like it didnt
+	-- work"): a pick the server took (one treat fewer held) closes the card a moment later
+	if picked and self._open then
+		local tick = self._tick
+		task.delay(PicnicTreats.CLOSE_AFTER, function()
+			if self._open and self._tick == tick then
+				self._callbacks.close()
+			end
+		end)
+	end
 end
 
 function PicnicTreats.refused(self: any)

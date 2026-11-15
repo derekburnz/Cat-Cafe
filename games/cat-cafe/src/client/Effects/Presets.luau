@@ -3651,6 +3651,39 @@ Presets.adminAir = {
 	every = 0.5,
 }
 
+-- #4197 (Effects/AdminDrops): the stand-ins that fly in what an admin event drops, for drops within `within` studs.
+-- Fish Fountain: a `blob` arcs from the plinth to its fish in `seconds`, `rise` studs high at the middle, then
+-- `splashCount` glints. Crate Drop: a `box` under a `canopy` on `cord` studs of line comes down from `height` over
+-- the `seconds` before the server's LandsAt, leaning up to `swayDegrees` each way every `swaySeconds`, then a ring
+-- and a puff.
+Presets.adminDrops = {
+	within = 160,
+	fish = {
+		seconds = 0.8,
+		rise = 9,
+		blob = Vector3.new(1.1, 1.1, 1.1),
+		colour = Presets.palette.golden,
+		splash = "coinGlint",
+		splashCount = 6,
+	},
+	crate = {
+		seconds = 3,
+		height = 45,
+		box = Vector3.new(3, 3, 3),
+		colour = Presets.palette.golden,
+		canopy = Vector3.new(8, 3.2, 8),
+		canopyColour = Presets.palette.neonPink,
+		cord = 5,
+		cordColour = Presets.palette.offwhite,
+		swayDegrees = 6,
+		swaySeconds = 1.6,
+		ring = 7,
+		ringSeconds = 0.5,
+		puff = "stormPuff",
+		puffCount = 10,
+	},
+}
+
 -- #4325 (Effects/AdminFlash): an admin event takes the screen and the world. The 3, 2, 1 begins `countFrom` seconds
 -- before the start; the name splash holds `splashSeconds`; the strip comes in `stripAfter` seconds in (as the
 -- splash leaves) at `stripY` of the screen's height, and in the event's last `lastSeconds` (events of

@@ -351,49 +351,118 @@ return function()
 			end
 		)
 
-		it("adds reach cards to the net, held to REACH_CAP, only with the switch on", function()
+		it("adds the Claw set's reach to the net, only with the switch on", function()
 			local NetSwing = require(Shared.NetSwing)
 			local Config = require(Shared.Config)
 			local profile = ProfileSchema.migrate({ version = 49 }, T) :: any
-			-- Sharp Eye plus two more Claw cards light the Claw set: 0.03 + 0.03, held to 0.05
+			-- three Claw cards light the Claw set: +0.03 reach (Sharp Eye is bowl luck since #4569)
 			profile.dragon = withSlots({ "sharpEye", "quickPaws", "steadyClaw" })
 			DragonKeep.setOn(false)
 			expect(NetSwing.extraForProfile(profile)).to.equal(0)
 			DragonKeep.setOn(true)
 			local extra = NetSwing.extraForProfile(profile)
+			local fx = DragonKeep.of(profile)
 			DragonKeep.setOn(nil)
-			expect(math.abs(extra - Config.NetReachStuds * DragonKeep.REACH_CAP) < 1e-9).to.equal(
+			expect(math.abs(extra - Config.NetReachStuds * DragonKeep.SET_REACH.claw) < 1e-9).to.equal(
 				true
 			)
 			expect(extra < Config.LongNetReachStuds - Config.NetReachStuds).to.equal(true)
+			expect(math.abs(fx.luck - DragonKeep.BOWL_LUCK.sharpEye) < 1e-9).to.equal(true)
 		end)
 
-		it("adds the wing cards' walk speed, the Wing set held to WALK_CAP", function()
+		it(
+			"#4569: no card adds walk speed; the wing cards and the Wing set pay money and tips",
+			function()
+				DragonKeep.setOn(true)
+				local fx = DragonKeep.of(
+					{ dragon = withSlots({ "lightStep", "wingbeat", "glide" }) } :: any
+				)
+				DragonKeep.setOn(false)
+				local off = DragonKeep.of({ dragon = withSlots({ "lightStep" }) } :: any)
+				DragonKeep.setOn(nil)
+				expect(fx.walk).to.equal(0)
+				expect(math.abs(fx.money - DragonKeep.SET_MONEY.wing) < 1e-9).to.equal(true)
+				expect(math.abs(fx.tips - DragonKeep.TIPS.lightStep) < 1e-9).to.equal(true)
+				expect(math.abs(fx.rich - DragonKeep.RICH_CARDS.wingbeat) < 1e-9).to.equal(true)
+				expect(off.tips).to.equal(0)
+			end
+		)
+
+		it("#4569: Soft Landing pays money, not a skipped cannon wait", function()
 			DragonKeep.setOn(true)
-			local one = DragonKeep.of({ dragon = withSlots({ "lightStep" }) } :: any).walk
-			-- Light Step 0.5 + Wingbeat 1.5 + the lit Wing set 1, held to 2
-			local all = DragonKeep.of(
-				{ dragon = withSlots({ "lightStep", "wingbeat", "glide" }) } :: any
-			).walk
-			DragonKeep.setOn(false)
-			local off = DragonKeep.of({ dragon = withSlots({ "lightStep" }) } :: any).walk
+			local fx = DragonKeep.of({ dragon = withSlots({ "softLanding" }) } :: any)
 			DragonKeep.setOn(nil)
-			expect(one).to.equal(0.5)
-			expect(all).to.equal(DragonKeep.WALK_CAP)
-			expect(off).to.equal(0)
+			expect(fx.softLanding).to.equal(false)
+			expect(math.abs(fx.money - DragonKeep.MONEY.softLanding) < 1e-9).to.equal(true)
 		end)
 
-		it("turns Soft Landing on only while it is slotted and the switch is on", function()
-			DragonKeep.setOn(true)
-			local on = DragonKeep.of({ dragon = withSlots({ "softLanding" }) } :: any).softLanding
-			local other = DragonKeep.of({ dragon = withSlots({ "lightStep" }) } :: any).softLanding
-			DragonKeep.setOn(false)
-			local off = DragonKeep.of({ dragon = withSlots({ "softLanding" }) } :: any).softLanding
-			DragonKeep.setOn(nil)
-			expect(on).to.equal(true)
-			expect(other).to.equal(false)
-			expect(off).to.equal(false)
+		it("#4569: every card pays a bonus (Derek: all cards have some value)", function()
+			local tables = {
+				DragonKeep.MONEY,
+				DragonKeep.TIPS,
+				DragonKeep.BOWL_LUCK,
+				DragonKeep.GOLD,
+				DragonKeep.RICH_CARDS,
+				DragonKeep.PILE,
+				DragonKeep.XP,
+				DragonKeep.REACH,
+			}
+			-- the cards whose bonus is a rule of its own in DragonKeep.effects
+			local own = {
+				kindred = true,
+				ticketDragon = true,
+				fishScale = true,
+				emberNet = true,
+				quickPaws = true,
+				steadyClaw = true,
+				doubleCatch = true,
+				doubleJump = true,
+				glide = true,
+				cosyNap = true,
+				nightGlow = true,
+				patPat = true,
+				hoarder = true,
+				baitWhisperer = true,
+				coinSniffer = true,
+				goldenBreath = true,
+			}
+			local bare: { string } = {}
+			for _, card in DragonKeep.CARDS do
+				local found = own[card.id] == true
+				for _, map in tables do
+					if (map :: any)[card.id] ~= nil then
+						found = true
+					end
+				end
+				if not found then
+					table.insert(bare, card.id)
+				end
+			end
+			expect(table.concat(bare, ", ")).to.equal("")
 		end)
+
+		it(
+			"#4569: holds card bowl luck, gold luck, rich visitors and tip piles to CAP each",
+			function()
+				DragonKeep.setOn(true)
+				local fx = DragonKeep.of({
+					dragon = withSlots({
+						"skyfire",
+						"dragonGaze",
+						"luckyScale",
+						"luckyCrate",
+						"quickCannon",
+					}),
+				} :: any)
+				local rich = DragonKeep.of({
+					dragon = withSlots({ "mythicRoar", "smokeSignal", "wingbeat", "treasureNose" }),
+				} :: any)
+				DragonKeep.setOn(nil)
+				expect(fx.luck <= DragonKeep.CAP + 1e-9).to.equal(true)
+				expect(math.abs(fx.luck - 0.32) < 1e-9).to.equal(true)
+				expect(rich.rich <= DragonKeep.CAP + 1e-9).to.equal(true)
+			end
+		)
 
 		it("names Double Jump and Glide for the client while slotted", function()
 			DragonKeep.setOn(true)

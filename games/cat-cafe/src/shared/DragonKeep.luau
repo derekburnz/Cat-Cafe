@@ -64,7 +64,7 @@ DragonKeep.PITY_STAGE = 4
 DragonKeep.SETS = {
 	flame = "+5% money",
 	claw = "+3% net reach",
-	wing = "+1 stud/s walk speed",
+	wing = "+5% money",
 	hoard = "+5 golden fish a day",
 	heart = "+10% cat XP",
 } :: { [string]: string }
@@ -84,7 +84,7 @@ DragonKeep.CARDS = {
 		name = "Toasty Tables",
 		family = "flame",
 		rarity = "Common",
-		text = "Customers wait 10% longer before leaving.",
+		text = "+3% money.",
 	},
 	{
 		id = "emberTips",
@@ -105,7 +105,7 @@ DragonKeep.CARDS = {
 		name = "Hot Seats",
 		family = "flame",
 		rarity = "Rare",
-		text = "One extra customer seat in your cafe.",
+		text = "+5% money.",
 	},
 	{
 		id = "smokeSignal",
@@ -147,7 +147,7 @@ DragonKeep.CARDS = {
 		name = "Sharp Eye",
 		family = "claw",
 		rarity = "Common",
-		text = "+3% net reach (+5% total cap with the Claw set).",
+		text = "+3% bowl luck, within the luck cap.",
 	},
 	{
 		id = "quickPaws",
@@ -196,14 +196,14 @@ DragonKeep.CARDS = {
 		name = "Glint Spotter",
 		family = "claw",
 		rarity = "Epic",
-		text = "Gold coats show a spark from further away.",
+		text = "+0.05 gold luck, within the gold cap.",
 	},
 	{
 		id = "dragonGaze",
 		name = "Dragon Gaze",
 		family = "claw",
 		rarity = "Legendary",
-		text = "Every 30 minutes, the next catch is guaranteed to land.",
+		text = "+8% bowl luck, within the luck cap.",
 	},
 	{
 		id = "goldFever",
@@ -217,14 +217,14 @@ DragonKeep.CARDS = {
 		name = "Light Step",
 		family = "wing",
 		rarity = "Common",
-		text = "+0.5 stud/s walk speed.",
+		text = "+4% tips.",
 	},
 	{
 		id = "softLanding",
 		name = "Soft Landing",
 		family = "wing",
 		rarity = "Common",
-		text = "No wait after a cannon landing.",
+		text = "+3% money.",
 	},
 	{
 		id = "glide",
@@ -238,14 +238,14 @@ DragonKeep.CARDS = {
 		name = "Fire Trail",
 		family = "wing",
 		rarity = "Rare",
-		text = "Your footsteps leave a warm ember trail (look only).",
+		text = "+5% tips, and your footsteps leave a warm ember trail.",
 	},
 	{
 		id = "quickCannon",
-		name = "Quick Cannon",
+		name = "Lucky Wings",
 		family = "wing",
 		rarity = "Rare",
-		text = "Cannon travel is 30% faster.",
+		text = "+4% bowl luck, within the luck cap.",
 	},
 	{
 		id = "doubleJump",
@@ -266,21 +266,21 @@ DragonKeep.CARDS = {
 		name = "Dragon Ride",
 		family = "wing",
 		rarity = "Legendary",
-		text = "Once every 10 minutes, ride Cinder to any open area.",
+		text = "+10% money.",
 	},
 	{
 		id = "wingbeat",
 		name = "Wingbeat",
 		family = "wing",
 		rarity = "Legendary",
-		text = "+1.5 stud/s and a small gust that pushes nearby loose cats toward your net.",
+		text = "Rich visitors come 15% more often.",
 	},
 	{
 		id = "shinyPocket",
 		name = "Shiny Pocket",
 		family = "hoard",
 		rarity = "Common",
-		text = "+2 golden fish from each daily quest set.",
+		text = "Tip piles pay 10% more.",
 	},
 	{
 		id = "coinSniffer",
@@ -294,7 +294,7 @@ DragonKeep.CARDS = {
 		name = "Treasure Nose",
 		family = "hoard",
 		rarity = "Rare",
-		text = "Mystery gifts show on the map.",
+		text = "Rich visitors come 10% more often.",
 	},
 	{
 		id = "hoarder",
@@ -315,7 +315,7 @@ DragonKeep.CARDS = {
 		name = "Gem Hoard",
 		family = "hoard",
 		rarity = "Epic",
-		text = "+15 golden fish at the first catch of each day.",
+		text = "+6% money.",
 	},
 	{
 		id = "ticketDragon",
@@ -326,24 +326,24 @@ DragonKeep.CARDS = {
 	},
 	{
 		id = "luckyCrate",
-		name = "Lucky Crate",
+		name = "Lucky Charm",
 		family = "hoard",
 		rarity = "Epic",
-		text = "5% chance a crate opens twice.",
+		text = "+5% bowl luck, within the luck cap.",
 	},
 	{
 		id = "dragonsHoard",
 		name = "Dragon's Hoard",
 		family = "hoard",
 		rarity = "Legendary",
-		text = "Every 4 hours Cinder leaves a hoard chest in the Keep (50 to 150 golden fish).",
+		text = "Tip piles pay 25% more.",
 	},
 	{
 		id = "rummageKing",
 		name = "Rummage King",
 		family = "hoard",
 		rarity = "Legendary",
-		text = "The Rummage Bin's best prize odds go up by a quarter (the odds shown at the bin update to match).",
+		text = "+0.10 gold luck, within the gold cap.",
 	},
 	{
 		id = "cosyNap",
@@ -371,14 +371,14 @@ DragonKeep.CARDS = {
 		name = "Spa Day",
 		family = "heart",
 		rarity = "Rare",
-		text = "Oasis Spa soaks take 45 minutes, not 60.",
+		text = "+10% cat XP.",
 	},
 	{
 		id = "happyCrew",
 		name = "Happy Crew",
 		family = "heart",
 		rarity = "Rare",
-		text = "Staff cats start the day at full mood.",
+		text = "+5% money.",
 	},
 	{
 		id = "kindred",
@@ -392,28 +392,28 @@ DragonKeep.CARDS = {
 		name = "Trait Spark",
 		family = "heart",
 		rarity = "Epic",
-		text = "The first Mystic Pool roll each day is free.",
+		text = "+15% cat XP.",
 	},
 	{
 		id = "bigHeart",
 		name = "Big Heart",
 		family = "heart",
 		rarity = "Epic",
-		text = "The first cat in each role earns +10% (no extra slot).",
+		text = "+8% money.",
 	},
 	{
 		id = "dragonBond",
 		name = "Dragon Bond",
 		family = "heart",
 		rarity = "Legendary",
-		text = "Your best cat wears a little dragon wing look and earns +25%.",
+		text = "+12% money.",
 	},
 	{
 		id = "elderLore",
 		name = "Elder Lore",
 		family = "heart",
 		rarity = "Legendary",
-		text = "Fusion Observatory fusions take 25% less time.",
+		text = "+20% cat XP.",
 	},
 	{
 		id = "crownOfEmbers",
@@ -427,28 +427,28 @@ DragonKeep.CARDS = {
 		name = "Skyfire",
 		family = "crown",
 		rarity = "Mythic",
-		text = "Every 60 minutes a meteor of golden fish (20 to 40) lands in your area. Only you can pick it up.",
+		text = "+10% bowl luck, within the luck cap.",
 	},
 	{
 		id = "royalDecree",
 		name = "Royal Decree",
 		family = "crown",
 		rarity = "Mythic",
-		text = "Once a day, choose one cat rarity to give double Warmth and tickets for an hour.",
+		text = "+0.15 gold luck, within the gold cap.",
 	},
 	{
 		id = "dragonHeart",
 		name = "Dragon Heart",
 		family = "crown",
 		rarity = "Mythic",
-		text = "+1 Rekindle hand every 24 hours at stage 5.",
+		text = "+15% money.",
 	},
 	{
 		id = "mythicRoar",
 		name = "Mythic Roar",
 		family = "crown",
 		rarity = "Mythic",
-		text = "Once an hour, roar to stun every loose cat near you for 3 seconds (an easy catch).",
+		text = "Rich visitors come 25% more often.",
 	},
 } :: { Card }
 
@@ -999,16 +999,50 @@ end
 -- Economy while the dragonKeep switch is on. All card money is additive into cafeMultiplier (Economy), never a
 -- multiplier on top, and money plus tips is held to MONEY_CAP together (Gameplay-Engineer's check, section 4).
 DragonKeep.MONEY_CAP = 0.50
+-- #4569 (Derek 2026-11-15 18:27 UTC: "all cards have some value", no faster flight, no move faster after the cannon,
+-- no look-only cards, no "see gold coats from further away"): every card pays a bonus that is already wired (money,
+-- tips, bowl luck, gold luck, rich visitors, tip piles, cat XP). Crate, trait and spin luck and the set looks follow.
 DragonKeep.MONEY = { -- card id -> what it adds into cafeMultiplier
 	dragonCoin = 0.10, -- every 10th customer pays double, as a steady +10%
 	treasureTax = 0.15, -- every earning cat is in a staff slot
 	crownOfEmbers = 0.20,
+	toastyTables = 0.03,
+	hotSeats = 0.05,
+	softLanding = 0.03,
+	dragonRide = 0.10,
+	gemHoard = 0.06,
+	happyCrew = 0.05,
+	bigHeart = 0.08,
+	dragonBond = 0.12,
+	dragonHeart = 0.15,
 } :: { [string]: number }
-DragonKeep.TIPS = { warmTips = 0.04, emberTips = 0.08 } :: { [string]: number } -- into Economy.tipMultiplier
-DragonKeep.SET_MONEY = { flame = 0.05 } :: { [string]: number }
+DragonKeep.TIPS =
+	{ warmTips = 0.04, emberTips = 0.08, lightStep = 0.04, fireTrail = 0.05 } :: { [string]: number } -- into Economy.tipMultiplier
+DragonKeep.SET_MONEY = { flame = 0.05, wing = 0.05 } :: { [string]: number }
+DragonKeep.BOWL_LUCK = { -- card id -> bowl luck (a Luck source, inside LuckMax)
+	luckyScale = 0.05,
+	sharpEye = 0.03,
+	dragonGaze = 0.08,
+	quickCannon = 0.04,
+	luckyCrate = 0.05,
+	skyfire = 0.10,
+} :: { [string]: number }
+DragonKeep.GOLD = { -- card id -> gold luck (inside GoldLuckMax with the Index's)
+	goldFever = 0.10,
+	glintSpotter = 0.05,
+	rummageKing = 0.10,
+	royalDecree = 0.15,
+} :: { [string]: number }
+DragonKeep.RICH_CARDS = { -- card id -> share more rich visitors (into Economy.richRate)
+	smokeSignal = 0.15,
+	wingbeat = 0.15,
+	treasureNose = 0.10,
+	mythicRoar = 0.25,
+} :: { [string]: number }
+DragonKeep.CAP = 0.50 -- bowl luck, rich visitors and tip piles from cards, each in total
 DragonKeep.LUCK = 0.05 -- Lucky Scale: +5% bowl luck (a Luck source, inside LuckMax)
 DragonKeep.GOLD_LUCK = 0.10 -- Gold Fever: +0.10 gold luck, inside GoldLuckMax with the Index's
-DragonKeep.REACH = { sharpEye = 0.03 } :: { [string]: number } -- share of NetReachStuds added to the net's reach
+DragonKeep.REACH = {} :: { [string]: number } -- #4569: Sharp Eye is bowl luck now -- share of NetReachStuds added to the net's reach
 DragonKeep.SET_REACH = { claw = 0.03 } :: { [string]: number }
 DragonKeep.REACH_CAP = 0.05 -- card reach in total, so it stays under the Long Net's +1 stud
 DragonKeep.SLOW_RINGS = 0.05 -- Quick Paws: catch circles move 5% slower (their shrink time 5% longer)
@@ -1016,9 +1050,10 @@ DragonKeep.FRIEND_CHANCE = 0.04 -- Double Catch: a caught Common or Rare brings 
 DragonKeep.SWING = 0.08 -- Ember Net: nets swing 8% faster (NetSwingCooldown 8% shorter)
 DragonKeep.TICKET_BONUS = 0.25 -- Ticket Dragon: +25% Ticket Booth tickets (rounded down a catch)
 DragonKeep.REPEAT_FISH = 1 -- Fish Scale: a repeat Epic or better catch gives +1 golden fish
-DragonKeep.WALK = { lightStep = 0.5, wingbeat = 1.5 } :: { [string]: number } -- stud/s on the walk speed
-DragonKeep.SET_WALK = { wing = 1 } :: { [string]: number }
-DragonKeep.XP = { fastLearner = 0.10 } :: { [string]: number } -- share more cat XP, every cat
+DragonKeep.WALK = {} :: { [string]: number } -- stud/s on the walk speed; #4569: no card adds walk speed now
+DragonKeep.SET_WALK = {} :: { [string]: number }
+DragonKeep.XP =
+	{ fastLearner = 0.10, spaDay = 0.10, traitSpark = 0.15, elderLore = 0.20 } :: { [string]: number } -- share more cat XP, every cat
 DragonKeep.SET_XP = { heart = 0.10 } :: { [string]: number }
 DragonKeep.REST_XP = 0.10 -- Cosy Nap: resting cats (no spot) gain 10% more XP
 DragonKeep.KINDRED_EACH = 0.001 -- Kindred: +0.1% money for each cat ever given to the Keep (save.kept)
@@ -1026,7 +1061,8 @@ DragonKeep.KINDRED_MAX = 0.10
 DragonKeep.NIGHT = 0.12 -- Night Glow: +12% income at night (Economy.nightTraitRate)
 DragonKeep.PET_EXTRA = 15 * 60 -- Pat Pat: a pet's happy heart lasts 15 minutes longer (inside Pet.EXTRA_MAX)
 DragonKeep.RICH = 0.15 -- Smoke Signal: rich visitors come 15% more often (into Economy.richRate)
-DragonKeep.PILE = { furnace = 0.20, skyMail = 0.10 } :: { [string]: number } -- share more on each tip pile
+DragonKeep.PILE =
+	{ furnace = 0.20, skyMail = 0.10, shinyPocket = 0.10, dragonsHoard = 0.25 } :: { [string]: number } -- share more on each tip pile
 -- (Furnace's "20% faster" is paid as 20% more a pile on the same clock; Sky Mail's text since Design-Agent, Nov 15)
 DragonKeep.REFUND = 0.25 -- Hoarder: a crate repeat's golden fish refund 25% more (rounded down)
 DragonKeep.BAIT_SPEED = 0.15 -- Bait Whisperer: the bowl wait 15% shorter, inside Config.BaitSpeedMax
@@ -1076,6 +1112,9 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 			walk += DragonKeep.WALK[id] or 0
 			xp += DragonKeep.XP[id] or 0
 			pile += DragonKeep.PILE[id] or 0
+			luck += DragonKeep.BOWL_LUCK[id] or 0
+			goldLuck += DragonKeep.GOLD[id] or 0
+			rich += DragonKeep.RICH_CARDS[id] or 0
 			if id == "kindred" then
 				money += math.min(save.kept * DragonKeep.KINDRED_EACH, DragonKeep.KINDRED_MAX)
 			end
@@ -1083,10 +1122,6 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 				tickets = DragonKeep.TICKET_BONUS
 			elseif id == "fishScale" then
 				repeatFish = DragonKeep.REPEAT_FISH
-			elseif id == "luckyScale" then
-				luck = DragonKeep.LUCK
-			elseif id == "goldFever" then
-				goldLuck = DragonKeep.GOLD_LUCK
 			elseif id == "emberNet" then
 				swing = DragonKeep.SWING
 			elseif id == "quickPaws" then
@@ -1095,8 +1130,6 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 				forgive = true
 			elseif id == "doubleCatch" then
 				friend = DragonKeep.FRIEND_CHANCE
-			elseif id == "softLanding" then
-				softLanding = true
 			elseif id == "doubleJump" then
 				doubleJump = true
 			elseif id == "glide" then
@@ -1107,8 +1140,6 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 				night = DragonKeep.NIGHT
 			elseif id == "patPat" then
 				petExtra = DragonKeep.PET_EXTRA
-			elseif id == "smokeSignal" then
-				rich = DragonKeep.RICH
 			elseif id == "hoarder" then
 				refund = DragonKeep.REFUND
 			elseif id == "baitWhisperer" then
@@ -1126,6 +1157,10 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 		walk += DragonKeep.SET_WALK[family] or 0
 		xp += DragonKeep.SET_XP[family] or 0
 	end
+	luck = math.min(luck, DragonKeep.CAP)
+	goldLuck = math.min(goldLuck, DragonKeep.CAP)
+	rich = math.min(rich, DragonKeep.CAP)
+	pile = math.min(pile, DragonKeep.CAP)
 	reach = math.min(reach, DragonKeep.REACH_CAP)
 	walk = math.min(walk, DragonKeep.WALK_CAP)
 	money = math.min(money, DragonKeep.MONEY_CAP)

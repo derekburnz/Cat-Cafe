@@ -1653,8 +1653,8 @@ Catalog.tiers = {
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 150000, -- #4189 (Derek 2026-11-14: "we need to get them into the next area's asap", "lower for right now by a decent bit", then "its fine to make less hours of play": Tier 3 near 12 min): 300,000 at first, 520,000 before; #3195 + #3204 (Design-Agent: nights 45 s and the Tier 2 caps brought Tier 3 to 27.7 min; 520,000 gives about 30, and 560,000 only 1.2 min more): 420,000 before; #2895 (Derek2 2026-11-10: "lower the 3-6 tier costs", 30% off): 600,000 before; #2683: 1,240,000 before; #2559 (Derek2 2026-11-09: "increase tier 2 to tier 3 by 35%"): 920,000 before; #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
-		distinctCats = 8, -- #4189: 10 before; #3111 (Derek2 2026-11-10: "lower the different cats requirement a little bit between 3-7"): 11 before; #2683: 13 before; #2230: 12 before
+		cost = 110000, -- #4320 (Derek 2026-11-14 21:41 UTC: "lower all tier requirements for money and different cats now so people start getting to 7 before new areas unlock"): 150,000 before; #4189 (Derek 2026-11-14: "we need to get them into the next area's asap", "lower for right now by a decent bit", then "its fine to make less hours of play": Tier 3 near 12 min): 300,000 at first, 520,000 before; #3195 + #3204 (Design-Agent: nights 45 s and the Tier 2 caps brought Tier 3 to 27.7 min; 520,000 gives about 30, and 560,000 only 1.2 min more): 420,000 before; #2895 (Derek2 2026-11-10: "lower the 3-6 tier costs", 30% off): 600,000 before; #2683: 1,240,000 before; #2559 (Derek2 2026-11-09: "increase tier 2 to tier 3 by 35%"): 920,000 before; #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
+		distinctCats = 6, -- #4320: 8 before; #4189: 10 before; #3111 (Derek2 2026-11-10: "lower the different cats requirement a little bit between 3-7"): 11 before; #2683: 13 before; #2230: 12 before
 		needsRarity = "Epic",
 		needsRarityCount = 1,
 		slots = 6,
@@ -1665,8 +1665,8 @@ Catalog.tiers = {
 	{
 		tier = 4,
 		name = "Famous Cafe",
-		cost = 4000000, -- #4189: 8,000,000 at first, 16,800,000 before; #2895 (30% off): 24,000,000 before; #2683: 48,000,000 before; #2559 (Derek2 2026-11-09: "lower the Tier 3 to tier 4 jump by about 70%"): 160,000,000 before; #2496 (Derek2: "more money"; Design 160M, Pace Tier 4 5 h 15): 90,000,000 before; #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
-		distinctCats = 17, -- #4189 (the 4x Money 2 hour floor is dropped): 22 before; #3111: stays 22 (21 or 20 puts Tier 5 under Pace's 2 hour floor for 4x Money); #2683: 25 before; #2230: 20 before
+		cost = 2600000, -- #4320: 4,000,000 before; #4189: 8,000,000 at first, 16,800,000 before; #2895 (30% off): 24,000,000 before; #2683: 48,000,000 before; #2559 (Derek2 2026-11-09: "lower the Tier 3 to tier 4 jump by about 70%"): 160,000,000 before; #2496 (Derek2: "more money"; Design 160M, Pace Tier 4 5 h 15): 90,000,000 before; #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
+		distinctCats = 13, -- #4320: 17 before; #4189 (the 4x Money 2 hour floor is dropped): 22 before; #3111: stays 22 (21 or 20 puts Tier 5 under Pace's 2 hour floor for 4x Money); #2683: 25 before; #2230: 20 before
 		needsRarity = "Mythical", -- #2496 (Derek2: "requires at least 1 mythic"): Legendary before
 		needsRarityCount = 1,
 		slots = 8,
@@ -1677,8 +1677,8 @@ Catalog.tiers = {
 	{
 		tier = 5,
 		name = "Grand Cafe",
-		cost = 90000000, -- #4189: 180,000,000 at first, 390,000,000 before; #3360 (money bags wait 3 min and stack, so fewer are missed; keeps the 4x Money floor of 2 h): 370,000,000 before; #3195 (Design-Agent: keeps the 4x Money Tier 5 floor of 2 h with 45 s nights): 350,000,000 before; #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
-		distinctCats = 20, -- #4189: 26 before; #3111: 28 before; #2683: 33 before; #2230: 30 before
+		cost = 45000000, -- #4320: 90,000,000 before; #4189: 180,000,000 at first, 390,000,000 before; #3360 (money bags wait 3 min and stack, so fewer are missed; keeps the 4x Money floor of 2 h): 370,000,000 before; #3195 (Design-Agent: keeps the 4x Money Tier 5 floor of 2 h with 45 s nights): 350,000,000 before; #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
+		distinctCats = 14, -- #4320: 20 before; #4189: 26 before; #3111: 28 before; #2683: 33 before; #2230: 30 before
 		needsRarity = "Legendary",
 		needsRarityCount = 2,
 		slots = 10,
@@ -1692,8 +1692,8 @@ Catalog.tiers = {
 	{
 		tier = 6,
 		name = "Sunstone Cafe",
-		cost = 1250000000, -- #4189: 2,500,000,000 at first, 5,600,000,000 before; #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
-		distinctCats = 30, -- #4189: 38 before; #3111: 42 before
+		cost = 625000000, -- #4320: 1,250,000,000 before; #4189: 2,500,000,000 at first, 5,600,000,000 before; #2895 (30% off): 8,000,000,000 before; #2683: 9,000,000,000 before, so the gap after the earlier Tier 5 stays 5 to 7 h
+		distinctCats = 21, -- #4320: 30 before; #4189: 38 before; #3111: 42 before
 		needsRarity = "Mythical",
 		needsRarityCount = 2,
 		slots = 12,
@@ -1704,8 +1704,8 @@ Catalog.tiers = {
 	{
 		tier = 7,
 		name = "Wonder Cafe",
-		cost = 12500000000, -- #4189: 25,000,000,000 at first, 54,000,000,000 before; #2895 (10% off): 60,000,000,000 before
-		distinctCats = 38, -- #4189: 47 before; #3111: 52 before
+		cost = 6250000000, -- #4320: 12,500,000,000 before; #4189: 25,000,000,000 at first, 54,000,000,000 before; #2895 (10% off): 60,000,000,000 before
+		distinctCats = 27, -- #4320: 38 before; #4189: 47 before; #3111: 52 before
 		needsRarity = "Mythical",
 		needsRarityCount = 3,
 		slots = 14,
@@ -1717,8 +1717,8 @@ Catalog.tiers = {
 	{
 		tier = 8,
 		name = "Summit Cafe",
-		cost = 520000000000,
-		distinctCats = 56,
+		cost = 21000000000, -- #4320 (Tiers 3 to 7 were halved, so Tier 8 follows): 42,000,000,000 before; #4192 (Pace: about 4 to 5 h after Tier 7): 520,000,000,000 before
+		distinctCats = 36, -- #4320: 47 before, the step of 9 kinds is kept on Tier 7's 27; #4192: 56 before
 		needsRarity = "Mythical",
 		needsRarityCount = 4,
 		slots = 16,
@@ -1731,8 +1731,8 @@ Catalog.tiers = {
 	{
 		tier = 9,
 		name = "Funfair Cafe",
-		cost = 5000000000000,
-		distinctCats = 65,
+		cost = 250000000000, -- #4320: 500,000,000,000 before; #4192 (Pace: about 6 to 7 h after Tier 8): 5,000,000,000,000 before
+		distinctCats = 45, -- #4320: 56 before; #4192: 65 before
 		needsRarity = "Mythical",
 		needsRarityCount = 5,
 		slots = 18,
@@ -1745,8 +1745,8 @@ Catalog.tiers = {
 	{
 		tier = 10,
 		name = "Royal Cafe",
-		cost = 48000000000000,
-		distinctCats = 74,
+		cost = 1500000000000, -- #4320: 3,000,000,000,000 before; #4192 (Pace: about 8 to 10 h after Tier 9): 48,000,000,000,000 before
+		distinctCats = 54, -- #4320: 65 before; #4192: 74 before
 		needsRarity = "Mythical",
 		needsRarityCount = 6,
 		slots = 20,
@@ -1802,9 +1802,9 @@ Catalog.upgrades = {
 			6000000,
 			200000000,
 			1300000000,
-			12000000000,
-			115000000000,
-			1100000000000,
+			2100000000, -- #4320: levels 8 to 10 halved with their tiers (4.2B, 50B and 300B before); #4192: they keep their share of the tier's cost (12B, 115B and 1.1T before)
+			25000000000,
+			150000000000,
 		}, -- #1896 re-fit with Catch v3: Espresso 4 700,000 before
 		startLevel = 1,
 	},
@@ -1847,9 +1847,9 @@ Catalog.upgrades = {
 			80000000,
 			250000000,
 			1700000000,
-			14000000000,
-			135000000000,
-			1300000000000,
+			2500000000, -- #4320: levels 8 to 10 halved with their tiers (5B, 58B and 350B before); #4192: they keep their share of the tier's cost (14B, 135B and 1.3T before)
+			29000000000,
+			175000000000,
 		},
 		startLevel = 0,
 	},

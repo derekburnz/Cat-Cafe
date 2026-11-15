@@ -725,19 +725,19 @@ return function()
 			-- Tiers 3, 5, 6 and 7; Tier 4 stays 22, any cut there fails Pace's 2 hour floor for 4x Money
 			-- #4189 (Derek 2026-11-14: into the next areas sooner): 520,000, 16.8M, 390M, 5.6B and 54B, and 10, 22, 26, 38
 			-- and 47 kinds before; the 4x Money 2 hour floor is dropped
-			{ "Busy Cafe", 150000, 8, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 2 } },
-			{ "Famous Cafe", 4000000, 17, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 2 } },
-			{ "Grand Cafe", 90000000, 20, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			{ "Busy Cafe", 110000, 6, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 2 } },
+			{ "Famous Cafe", 2600000, 13, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 2 } },
+			{ "Grand Cafe", 45000000, 14, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 			-- #2651 (tier6-7-areas.md sections 1 and 7b), QA-Planner's Pace fit
-			{ "Sunstone Cafe", 1250000000, 30, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
-			{ "Wonder Cafe", 12500000000, 38, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
+			{ "Sunstone Cafe", 625000000, 21, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
+			{ "Wonder Cafe", 6250000000, 27, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
 			-- #3997 (tier8-snowy-mountain.md section 1, draft numbers)
-			{ "Summit Cafe", 520000000000, 56, "Mythical", 4, 16, 2.75, "snowy", { 6, 8, 3 } },
+			{ "Summit Cafe", 21000000000, 36, "Mythical", 4, 16, 2.75, "snowy", { 6, 8, 3 } },
 			-- #4070 (draft numbers on Tier 8's pattern)
 			{
 				"Funfair Cafe",
-				5000000000000,
-				65,
+				250000000000,
+				45,
 				"Mythical",
 				5,
 				18,
@@ -748,8 +748,8 @@ return function()
 			-- #4184 (draft numbers on the same pattern)
 			{
 				"Royal Cafe",
-				48000000000000,
-				74,
+				1500000000000,
+				54,
 				"Mythical",
 				6,
 				20,
@@ -898,9 +898,9 @@ return function()
 						6000000,
 						200000000,
 						1300000000,
-						12000000000,
-						115000000000,
-						1100000000000,
+						2100000000,
+						25000000000,
+						150000000000,
 					}, -- F95; #1896; #2651; #4070; #4184
 					startLevel = 1,
 					atLevel = {
@@ -939,9 +939,9 @@ return function()
 						80000000,
 						250000000,
 						1700000000,
-						14000000000,
-						135000000000,
-						1300000000000,
+						2500000000,
+						29000000000,
+						175000000000,
 					}, -- #2651; #3997; #4070; #4184
 					startLevel = 0,
 					atLevel = {

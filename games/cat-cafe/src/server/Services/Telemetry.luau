@@ -1672,8 +1672,8 @@ end
 function Telemetry.collected(player: Player, profile: Profile, def: Types.CatDef)
 	goalsCheck(player, profile) -- #2916
 	logRarity(player, profile) -- #3876
-	if def.area == "spare" or def.area == "secret" then
-		return -- #3470: a Secret cat is on no area's Index page
+	if def.area == "spare" or def.area == "secret" or def.area == "harvest" then
+		return -- #3470: a Secret cat is on no area's Index page (#4251: nor a harvest cat)
 	end
 	for _, other in Catalog.cats do
 		if other.area == def.area and profile.collection[other.id] == nil then

@@ -19,7 +19,8 @@ export type Area =
 -- A cat's area: one of the ten (#3997, #4070, #4184: the Snowy Mountain, the Water Park and the Medieval Castle are not open yet), the spare pool of cats an area-themed
 -- cat replaced (data-model 3d, F78), or "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
 -- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.
-export type CatArea = Area | "spare" | "exclusive" | "secret"
+-- #4251: "harvest" for a Harvest Hollow cat (the limited area, not one of the ten): kept, it earns like `earnsLike`.
+export type CatArea = Area | "spare" | "exclusive" | "secret" | "harvest"
 -- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
 export type CatSource = "free" | "shop" | "pass"
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
@@ -150,6 +151,9 @@ export type CatDef = {
 	secretArea: Area?,
 	-- Derek 2026-11-14: one of the seven Secrets of the one-per-area update; it only rolls while `secretAreas` is on
 	secretNew: boolean?,
+	-- #4251: a harvest cat earns like a cat of this rarity from the owner's newest area (two rarities lower, never
+	-- below Common; harvest-hollow-spec 3b)
+	earnsLike: Rarity?,
 }
 
 export type UpgradeDef = {

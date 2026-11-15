@@ -204,6 +204,25 @@ local function secret(def: Types.CatDef, home: Types.Area, new: boolean?): Types
 	return def
 end
 
+-- #4251 Harvest Hollow (harvest-hollow-spec 3b): a harvest cat is kept and earns like the cat two rarities lower in
+-- the owner's newest area, never below Common (CatStats.areaMultiplier). `area = "harvest"`: it spawns only in Harvest
+-- Hollow and counts toward no Index page, total, track or reward (like the Secrets).
+Catalog.HARVEST_EARNS_LIKE = table.freeze({
+	Common = "Common",
+	Rare = "Common",
+	Epic = "Common",
+	Legendary = "Rare",
+	Mythical = "Epic",
+}) :: { [string]: Types.Rarity }
+
+local function harvest(def: Types.CatDef): Types.CatDef
+	local like = Catalog.HARVEST_EARNS_LIKE[def.rarity] or "Common"
+	def.area = "harvest"
+	def.earnsLike = like
+	def.incomePerSecond = Catalog.rarities[like].incomePerSecond
+	return def
+end
+
 -- Section 3: 50 cats, 10 per area (four Common, two Rare, two Epic, one Legendary, one Mythical), then the ten of
 -- the spare pool (3d). Each lives in exactly one area. Colors are the placeholder body's {r, g, b}. Rares and up in the Alleyway and the Park are
 -- themed cats with a signature prop (v0.5.2, Derek 2026-10-27); their ids keep the old breed names so saves and
@@ -1559,6 +1578,104 @@ Catalog.cats = {
 		"castle",
 		true
 	),
+	-- #4251 Harvest Hollow's eight cats (harvest-hollow-spec 3b; Model-Agent's CatCafe_Cat_HayBale and the rest, with
+	-- gold and rainbow coats). The `alley` only feeds the helper: `harvest` takes the area away.
+	harvest(
+		cat(
+			"hay_bale",
+			"Hay Bale",
+			"Common",
+			"alley",
+			"greeter",
+			"stripes",
+			{ 214, 186, 120 },
+			"Naps in the hay and wakes up for the pie."
+		)
+	),
+	harvest(
+		cat(
+			"acorn_cap",
+			"Acorn Cap",
+			"Common",
+			"alley",
+			"waiter",
+			"patches",
+			{ 150, 98, 52 },
+			"Wears an acorn cap it found under the oak."
+		)
+	),
+	harvest(
+		cat(
+			"apple_pie",
+			"Apple Pie",
+			"Rare",
+			"alley",
+			"barista",
+			"stripes",
+			{ 222, 170, 96 },
+			"Smells like cinnamon and warm crust."
+		)
+	),
+	harvest(
+		cat(
+			"cornstalk",
+			"Cornstalk",
+			"Rare",
+			"alley",
+			"entertainer",
+			"spots",
+			{ 232, 196, 74 },
+			"Hides in the corn maze and pops out to say hi."
+		)
+	),
+	harvest(
+		cat(
+			"pumpkin_spice",
+			"Pumpkin Spice",
+			"Rare",
+			"alley",
+			"barista",
+			"stripes",
+			{ 226, 128, 52 },
+			"Every latte it makes comes with a little leaf on top."
+		)
+	),
+	harvest(
+		cat(
+			"cranberry",
+			"Cranberry",
+			"Epic",
+			"alley",
+			"waiter",
+			"spots",
+			{ 150, 32, 58 },
+			"Brings the cranberry sauce, never spills a drop."
+		)
+	),
+	harvest(
+		cat(
+			"maple_leaf",
+			"Maple Leaf",
+			"Legendary",
+			"alley",
+			"greeter",
+			"gradient",
+			{ 214, 110, 40 },
+			"Its tail rustles like falling leaves."
+		)
+	),
+	harvest(
+		cat(
+			"harvest_moon",
+			"Harvest Moon",
+			"Mythical",
+			"alley",
+			"entertainer",
+			"gradient",
+			{ 30, 30, 72 },
+			"Glows like the big orange moon over the patch."
+		)
+	),
 } :: { Types.CatDef }
 
 -- #3470: the Secret cats, in catalog order
@@ -1566,6 +1683,14 @@ Catalog.secretCats = {} :: { Types.CatDef }
 for _, def in Catalog.cats do
 	if def.rarity == "Secret" then
 		table.insert(Catalog.secretCats, def)
+	end
+end
+
+-- #4251: the harvest cats, in catalog order
+Catalog.harvestCats = {} :: { Types.CatDef }
+for _, def in Catalog.cats do
+	if def.area == "harvest" then
+		table.insert(Catalog.harvestCats, def)
 	end
 end
 

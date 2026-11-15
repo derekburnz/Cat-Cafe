@@ -6248,93 +6248,107 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ cats = player.cats })
 		UI.open("Cats")
 	end },
-	-- #1766: the Decor Index's Rally page says where its pieces come from, and a piece not owned reads "Rally Crate"
+	-- #1766: the Decor Index's Rally section says where its pieces come from, and a piece not owned reads "Rally Crate"
 	{ "IndexDecorRally", function()
 		UI.open("Collection")
 		press("Collection", "DecorTab")
-		press("Collection", "rally")
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
-		local window = modals and modals:FindFirstChild("Collection", true)
-		local source = window and window:FindFirstChild("Source", true)
-		-- #3931: beside a short screen's tab column the Rally tab itself says "weekends"
-		local rallyTab = window and window:FindFirstChild("rally", true)
-		local tabName = rallyTab and rallyTab:FindFirstChild("Name") :: TextLabel?
-		local onTab = tabName ~= nil and string.find(tabName.Text, "weekend") ~= nil
-		assert(source and (source.Visible or onTab), "uigate: the Rally page does not say where its pieces come from (#1766)")
+		local window = modals and modals:FindFirstChild("Collection", true) :: Instance
+		local decor = window:FindFirstChild("DecorIndex", true) :: Instance
+		local grid = decor:FindFirstChild("Grid") :: ScrollingFrame
+		local rally = grid:FindFirstChild("rally") :: GuiObject
+		assert(rally, "uigate: no Rally section in the Decor Index (#1766)")
+		-- #4265: scrolled down to the Rally section, its cells build as it comes into view
+		-- (each step down builds the sections it nears, which grows the canvas, so a few steps)
+		for _ = 1, 30 do
+			local to = rally.AbsolutePosition.Y - grid.AbsolutePosition.Y + grid.CanvasPosition.Y - 8
+			grid.CanvasPosition = Vector2.new(0, math.max(0, math.min(to, grid.AbsoluteCanvasSize.Y - grid.AbsoluteWindowSize.Y)))
+			task.wait(0.1)
+		end
+		local source = rally:FindFirstChild("Source")
+		assert(source and (source :: GuiObject).Visible, "uigate: the Rally section does not say where its pieces come from (#1766)")
 		local locked = 0
-		for _, child in window:GetDescendants() do
+		for _, child in rally:GetDescendants() do
 			if child:IsA("TextLabel") and child.Text == "Rally Crate" and child.Visible then
 				locked += 1
 			end
 		end
-		assert(locked > 0, "uigate: no Rally piece reads Rally Crate (#1766)")
+		local cells = rally:FindFirstChild("Cells") :: Instance
+		assert(locked > 0, ("uigate: no Rally piece reads Rally Crate (#1766; %d cells, section at %.0f, page %.0f to %.0f)"):format(#cells:GetChildren(), rally.AbsolutePosition.Y, grid.AbsolutePosition.Y, grid.AbsolutePosition.Y + grid.AbsoluteSize.Y))
 	end },
-	-- #3931 (Derek 2026-11-13: "the decor menu side gets cut off for the new areas in index"): with every area the
-	-- page tabs wrap into rows, each tab whole inside the tab row, none past the window's right edge
-	{ "IndexDecorTabsFit", function()
+	-- #4265 (Derek 2026-11-14: "make the decor index like the cats index in the way that you just scroll through
+	-- downward through the areas"): no page tabs; every area's section in one scroll, top to bottom, each header's name
+	-- whole and its Rewards button inside the page, and pieces in view with no tap
+	{ "IndexDecorScroll", function()
 		UI.setCatalog(catalogLikeTheGame())
 		UI.open("Collection")
 		press("Collection", "DecorTab")
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("Collection", true) :: Instance
 		local decor = window:FindFirstChild("DecorIndex", true) :: Instance
-		local bar = decor:FindFirstChild("Pages") :: GuiObject
-		assert(bar, "uigate: no Decor Index tab row (#3931)")
-		-- Review-QA: each page checked from a named tab, whatever page the scene before left open
-		for _, pool in { "alley", "rally" } do
-			press("Collection", "Pages." .. pool)
-			task.wait(0.2)
-			local x0, x1 = bar.AbsolutePosition.X, bar.AbsolutePosition.X + bar.AbsoluteSize.X
-			local y0, y1 = bar.AbsolutePosition.Y, bar.AbsolutePosition.Y + bar.AbsoluteSize.Y
-			-- on a short screen the tabs stand in a scrolling column on the left: only their width must fit there
-			local rail = (bar :: ScrollingFrame).ScrollingDirection == Enum.ScrollingDirection.Y
-			local tabs = 0
-			for _, tab in bar:GetChildren() do
-				if tab:IsA("TextButton") then
-					tabs += 1
-					local p, z = tab.AbsolutePosition, tab.AbsoluteSize
-					local across = p.X >= x0 - 1 and p.X + z.X <= x1 + 1
-					local down = rail or (p.Y >= y0 - 1 and p.Y + z.Y <= y1 + 1)
-					assert(across and down, "uigate: the " .. tab.Name .. " tab is cut off (#3931)")
-					local name = tab:FindFirstChild("Name") :: TextLabel
-					assert(name and name.TextFits, "uigate: the " .. tab.Name .. " tab's name does not fit (#3931)")
-				end
+		;(decor:FindFirstChild("Grid") :: ScrollingFrame).CanvasPosition = Vector2.zero -- an earlier scene scrolled it
+		task.wait(0.1)
+		assert(decor:FindFirstChild("Pages") == nil, "uigate: the Decor Index still has page tabs (#4265)")
+		local grid = decor:FindFirstChild("Grid") :: ScrollingFrame
+		assert(grid and grid:IsA("ScrollingFrame") and grid.ScrollingDirection == Enum.ScrollingDirection.Y, "uigate: the Decor Index is not one scroll down (#4265)")
+		local sections = {}
+		for _, child in grid:GetChildren() do
+			if child:IsA("Frame") and child:FindFirstChild("Header") then
+				table.insert(sections, child)
 			end
-			assert(tabs >= 9, "uigate: only " .. tabs .. " Decor Index tabs (#3931)")
-			local progress = decor:FindFirstChild("Progress") :: GuiObject
-			if rail then
-				assert(not progress.Visible, "uigate: the completion line shows beside the tab column (#3931)")
-			else
-				assert(progress.AbsolutePosition.Y >= y1 - 1, "uigate: the completion line sits under the tabs (#3931)")
-			end
-			-- decor in view under (or beside) the tabs with no scrolling: a cell with at least a third of it showing
-			-- (the Index's next reward card sits over the cells on every page)
-			local grid = decor:FindFirstChild("Grid", true) :: GuiObject
-			local g0, g1 = grid.AbsolutePosition, grid.AbsolutePosition + grid.AbsoluteSize
-			local seen = 0
-			for _, cell in grid:GetDescendants() do
-				if cell:IsA("Frame") and cell.Visible and cell.Parent and cell.Parent.Name == "Cells" then
-					local p, z = cell.AbsolutePosition, cell.AbsoluteSize
-					if p.X >= g0.X - 1 and p.Y >= g0.Y - 1 and p.X + z.X <= g1.X + 1 and p.Y + z.Y / 3 <= g1.Y + 1 then
-						seen += 1
-					end
-				end
-			end
-			assert(seen >= 1, "uigate: no decor cell shows under the Decor Index tabs on the " .. pool .. " page (#3931)")
 		end
+		table.sort(sections, function(a, b)
+			return a.LayoutOrder < b.LayoutOrder
+		end)
+		assert(#sections >= 9, ("uigate: only %d Decor Index sections (#4265)"):format(#sections))
+		local g0, g1 = grid.AbsolutePosition, grid.AbsolutePosition + grid.AbsoluteSize
+		local lastY = -math.huge
+		for _, section in sections do
+			assert(section.AbsolutePosition.Y > lastY, "uigate: the " .. section.Name .. " section is out of order (#4265)")
+			lastY = section.AbsolutePosition.Y
+			local header = section:FindFirstChild("Header") :: GuiObject
+			local name = header:FindFirstChild("Area") :: TextLabel
+			assert(name and name.TextFits, "uigate: the " .. section.Name .. " section's name does not fit (#4265)")
+			local rewards = header:FindFirstChild("Rewards") :: GuiObject
+			if rewards and rewards.Visible then
+				assert(rewards.AbsolutePosition.X + rewards.AbsoluteSize.X <= g1.X + 1, "uigate: the " .. section.Name .. " Rewards button runs past the page (#4265)")
+			end
+		end
+		-- the first section's pieces show with no tap: a cell with at least a third of it in view
+		local first = sections[1]
+		local seen = 0
+		for _, cell in (first:FindFirstChild("Cells") :: Instance):GetChildren() do
+			if cell:IsA("Frame") then
+				local p, z = cell.AbsolutePosition, cell.AbsoluteSize
+				if p.X >= g0.X - 1 and p.Y >= g0.Y - 1 and p.X + z.X <= g1.X + 1 and p.Y + z.Y / 3 <= g1.Y + 1 then
+					seen += 1
+				end
+			end
+		end
+		assert(seen >= 1, "uigate: no decor cell of the first section in view (#4265)")
+		-- the Rewards button opens the section's reward strip under its header, as on the Cats index
+		press("Collection", "DecorIndex.Grid." .. first.Name .. ".Header.Rewards")
+		local slot = first:FindFirstChild("Rewards") :: GuiObject
+		assert(slot and slot.Visible, "uigate: Rewards does not open the " .. first.Name .. " reward strip (#4265)")
+		press("Collection", "DecorIndex.Grid." .. first.Name .. ".Header.Rewards")
+		assert(not slot.Visible, "uigate: Hide does not shut the " .. first.Name .. " reward strip (#4265)")
 	end },
-	-- #3722: the Decor Index builds no cells at start-up; a page's cells are made the first time it shows
+	-- #3722: the Decor Index builds no cells at start-up; a section's cells are made when it first comes near view
 	{ "DecorIndexLazy", function()
 		UI.setCatalog(catalogLikeTheGame())
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("Collection", true) :: Instance?
-		local cells = window and window:FindFirstChild("Cells", true) :: Instance?
-		assert(cells, "uigate: no Decor Index cells frame (#3722)")
+		local decor = window and window:FindFirstChild("DecorIndex", true) :: Instance?
+		assert(decor, "uigate: no Decor Index (#3722)")
 		local function count(): number
 			local n = 0
-			for _, cell in (cells :: Instance):GetChildren() do
-				if cell:IsA("Frame") then
-					n += 1
+			for _, frame in (decor :: Instance):GetDescendants() do
+				if frame.Name == "Cells" then
+					for _, cell in frame:GetChildren() do
+						if cell:IsA("Frame") then
+							n += 1
+						end
+					end
 				end
 			end
 			return n
@@ -6342,25 +6356,15 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(count() == 0, ("uigate: setCatalog built %d Decor Index cells (#3722)"):format(count()))
 		UI.open("Collection")
 		press("Collection", "DecorTab")
+		task.wait(0.1)
 		local first = count()
-		assert(first > 0, "uigate: the Decor Index's first page has no cells (#3722)")
-		-- another page than the one open builds its own cells the first time it shows
-		local chipBar = (window :: Instance):FindFirstChild("rally", true)
-		local other: string? = nil
-		if chipBar ~= nil and chipBar.Parent ~= nil then
-			for _, chip in chipBar.Parent:GetChildren() do
-				if chip:IsA("TextButton") and chip.Name ~= "rally" then
-					other = chip.Name
-					break
-				end
-			end
-		end
-		assert(other, "uigate: the Decor Index has one page only (#3722)")
-		local otherChip = (chipBar :: Instance).Parent:FindFirstChild(other :: string) :: GuiButton
-		UIShim.fire(UIShim.eventOf(otherChip, "Activated"))
-		local after = count()
-		UIShim.fire(UIShim.eventOf((chipBar :: Instance) :: GuiButton, "Activated"))
-		assert(after > first or count() > first, ("uigate: a second page built no cells of its own (%d, %d, %d, #3722)"):format(first, after, count()))
+		assert(first > 0, "uigate: the Decor Index's first section has no cells (#3722)")
+		local grid = (decor :: Instance):FindFirstChild("Grid") :: ScrollingFrame
+		grid.CanvasPosition = Vector2.new(0, math.max(0, grid.AbsoluteCanvasSize.Y - grid.AbsoluteWindowSize.Y))
+		task.wait(0.1)
+		grid.CanvasPosition = Vector2.new(0, math.max(0, grid.AbsoluteCanvasSize.Y - grid.AbsoluteWindowSize.Y))
+		task.wait(0.1)
+		assert(count() > first, ("uigate: scrolling down built no more cells (%d, %d, #3722)"):format(first, count()))
 	end },
 	-- #1772: the Gold tab opens with a Gold cats line over the areas, as the Rainbow tab has Rainbow cats
 	{ "IndexGold", function()

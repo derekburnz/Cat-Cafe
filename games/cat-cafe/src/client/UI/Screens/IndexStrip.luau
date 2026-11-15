@@ -6,9 +6,10 @@
 -- bait forever", v0.10), and either a bar toward it, a green Claim button or "✓ Claimed".
 -- Only the next reward shows, as one big card with bigger pictures (Derek 2026-10-28: "only show next reward and make
 -- it bigger unless they click a expand milestones then show rest"): a reward waiting to be claimed first, else the
--- first one still to earn. Expand milestones opens the full row of small cards under it, which scrolls sideways and
--- opens on the first NEXT card; the button carries a red count of the other rewards waiting. The sums live in
--- Components/IndexRewards; the strip hides itself when the catalog has no prizes for the area.
+-- first one still to earn. Expand milestones opens the full row of small cards under it, which pages sideways with ◀ ▶
+-- (#4264, Components/SidePager as on the Cafe Pass) and opens on the first NEXT card; the button carries a red count of
+-- the other rewards waiting. The sums live in Components/IndexRewards; the strip hides itself when the catalog has no
+-- prizes for the area.
 -- setTrack("normal" | "gold") keeps one track's milestones (the Index's Cats and Gold tabs, 2026-11-01); nil shows
 -- both, as before. "rainbow" is the Rainbow track (F99, rainbow-coat.md section 4), whose cards' bars and NEXT
 -- sticker and the rainbow luck band turn on the rainbow bands (Components/Rainbow).
@@ -22,6 +23,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
+local SidePager = require(script.Parent.Parent.Components.SidePager)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Types = require(script.Parent.Parent.Types)
@@ -44,7 +46,8 @@ export type IndexStrip = {
 local CARD = Vector2.new(200, 172) -- a small card: room for three lines of pictures above the bonus band
 local STICKER = 10 -- room above the cards for the NEXT sticker
 local EDGE = 4 -- room round the cards for their outline inside the scrolling row
-local SCROLLBAR = 6
+local ARROW = Vector2.new(44, 76) -- #4264: the ◀ and ▶ either side of the row, as on the Cafe Pass
+local ARROW_GAP = 6
 local TILE = 26 -- a prize picture on a small card
 local PAD = 10
 local BAND = 18 -- the forever bonus band
@@ -195,19 +198,26 @@ function IndexStrip.new(parent: Instance, callbacks: Callbacks): IndexStrip
 		Parent = dot,
 	})
 
+	-- #4264 (Derek 2026-11-14: "expanded milestones index side scrolling doesn't work and the scroll bar is too small
+	-- anyways just add arrows like the cafe pass"): the row has no bar and no spring back; ◀ and ▶ either side of it
+	-- page through the cards (Components/SidePager, as on the Cafe Pass), and show only when the cards do not all fit
+	local rowH = CARD.Y + STICKER + EDGE * 2
+	self._rowFrame = Create("Frame", {
+		Name = "Row",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, rowH),
+		LayoutOrder = 2,
+		Visible = false,
+		Parent = self.frame,
+	})
 	self._row = Create("ScrollingFrame", {
 		Name = "All",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 0, CARD.Y + STICKER + EDGE * 2 + SCROLLBAR),
-		CanvasSize = UDim2.new(),
-		AutomaticCanvasSize = Enum.AutomaticSize.X,
-		ScrollingDirection = Enum.ScrollingDirection.X,
-		ScrollBarThickness = SCROLLBAR,
-		ScrollBarImageColor3 = Theme.modal.subtext,
-		LayoutOrder = 2,
-		Visible = false,
-		Parent = self.frame,
+		Position = UDim2.fromOffset(ARROW.X + ARROW_GAP, 0),
+		Size = UDim2.new(1, -2 * (ARROW.X + ARROW_GAP), 1, 0),
+		CanvasSize = UDim2.new(), -- _sizeRow sets the width from the cards shown
+		Parent = self._rowFrame,
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
@@ -220,6 +230,19 @@ function IndexStrip.new(parent: Instance, callbacks: Callbacks): IndexStrip
 			PaddingRight = UDim.new(0, EDGE),
 		}),
 	})
+	self._pager = SidePager.new({
+		track = self._row,
+		parent = self._rowFrame,
+		step = CARD.X + Theme.sizes.gap,
+		lead = EDGE - Theme.sizes.gap,
+		size = ARROW,
+		hideWhenFits = true,
+	})
+	-- centred on the cards, under the NEXT sticker's room
+	for side, arrow in self._pager.arrows do
+		arrow.instance.Position =
+			UDim2.new(if side < 0 then 0 else 1, 0, 0, STICKER + EDGE + math.floor(CARD.Y / 2))
+	end
 
 	return self :: IndexStrip
 end
@@ -571,7 +594,7 @@ function IndexStrip._refresh(self: any)
 	local expanded = self._expanded == true and #views > 1
 	self._expand.instance.Visible = #views > 1
 	self._expand:setText(if expanded then "Hide milestones" else "Expand milestones")
-	self._row.Visible = expanded
+	self._rowFrame.Visible = expanded
 	if not expanded then
 		return -- the row's cards are built and filled when it opens (#3064)
 	end
@@ -588,7 +611,22 @@ function IndexStrip._refresh(self: any)
 		card.frame.Visible = true
 		self:_fill(card, view, look, view == nextNormal or view == nextGold or view == nextRainbow)
 	end
+	self:_sizeRow()
 	self:_scrollToNext(views, area, nextView)
+end
+
+-- #4264: the canvas just as wide as the cards shown (AutomaticCanvasSize read wrong under the view's UIScale, #4258)
+function IndexStrip._sizeRow(self: any)
+	local shown = 0
+	for _, card in self._cards do
+		if card.frame.Visible then
+			shown += 1
+		end
+	end
+	local gap = Theme.sizes.gap
+	self._row.CanvasSize =
+		UDim2.fromOffset(if shown > 0 then EDGE * 2 + shown * CARD.X + (shown - 1) * gap else 0, 0)
+	self._pager:paint()
 end
 
 -- Opens the row on the next card once per area and per next card, so a player who scrolls away is left alone.
@@ -615,8 +653,9 @@ function IndexStrip._scrollToNext(
 		end
 	end
 	-- keep one card of the past in view, so the row reads as progress
-	local x = math.max(0, before - 1) * (CARD.X + Theme.sizes.gap)
-	self._row.CanvasPosition = Vector2.new(x, 0)
+	-- in on-screen pixels, as CanvasPosition is (#4258); the ScrollingFrame keeps it inside the canvas
+	self._row.CanvasPosition = Vector2.new(math.max(0, before - 1) * self._pager:step(), 0)
+	self._pager:paint()
 end
 
 function IndexStrip.destroy(self: any)
@@ -628,6 +667,7 @@ function IndexStrip.destroy(self: any)
 	self._featured.claim:destroy()
 	self._featured.chips:destroy()
 	self._expand:destroy()
+	self._pager:destroy()
 	self.frame:Destroy()
 end
 

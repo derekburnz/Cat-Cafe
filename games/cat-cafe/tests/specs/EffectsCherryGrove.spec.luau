@@ -1,6 +1,6 @@
 --!strict
 -- Cherry Blossom Grove's ambience rows (#4386, a future area with id "cherry"): petals in the air, a stray puff, a
--- catch touch, a cannon tint and koi ripples on its pond, all inside the budgets the other areas keep.
+-- catch touch, a cannon tint, koi ripples on its pond and the falls' running water (RuinsWater), all inside the budgets the other areas keep.
 -- Written by the vfx-animator.
 return function()
 	local Client =
@@ -9,6 +9,7 @@ return function()
 	local Presets = require(Effects:WaitForChild("Presets")) :: any
 	local Logic = require(Effects:WaitForChild("Logic")) :: any
 	local AreaWater = require(Effects:WaitForChild("AreaWater")) :: any
+	local RuinsWater = require(Effects:WaitForChild("RuinsWater")) :: any
 
 	describe("Effects Cherry Blossom Grove", function()
 		it("has thin petals in the air, a stray puff and a cannon tint", function()
@@ -38,10 +39,14 @@ return function()
 			expect(kind.piece).to.equal("Pond")
 			expect(kind.ringEvery >= 1).to.equal(true) -- far under 3 a second
 			expect(AreaWater.kindOf("CatCafe_Cherry_Set_004_Petals_Decor")).to.equal(nil)
-			local falls = AreaWater.kindOf("CatCafe_Cherry_Set_005_Waterfall_Water")
-			expect(falls).to.be.ok()
-			expect(falls.piece).to.equal("Waterfall")
-			expect(Presets.emitters[falls.mist]).to.be.ok()
+		end)
+
+		it("leaves the blockout's falls to RuinsWater, so they get one mist, not two", function()
+			-- Model-Agent's #4423 eaff71fe6: the three falls are their own object
+			local falls = "CatCafe_Cherry_Set_005_Waterfall_Water"
+			expect(RuinsWater.isWater(falls)).to.equal(true) -- streaks, mist at the foot and rings
+			local kind = AreaWater.kindOf(falls)
+			expect(kind == nil or kind.mist == nil).to.equal(true)
 		end)
 	end)
 end

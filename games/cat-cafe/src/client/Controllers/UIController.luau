@@ -429,7 +429,34 @@ local stuckGoal = {
 	aside = false, -- near the trap: the marker and trail are put away so the cat's own call shows (StuckGoal.aside)
 }
 
+-- #4383 (shared/RankFirst, switch rankFirst): after the tutorial, a Tier 1 cafe with every Tier 2 need met goes to
+-- the rank up first; the stuck cat goal waits until then (and comes back should the coins be spent).
+local function rankFirstNow(s: Types.PlayerState): boolean
+	if (s.tier or 1) ~= 1 or s.tutorialStep < 5 then
+		return false
+	end
+	local RankFirst = require(Shared:WaitForChild("RankFirst")) :: any
+	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+	local on: boolean = LiveFlags.shown(
+		RankFirst.FLAG,
+		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankFirst.FLAG)
+	)
+	if not on then
+		return false
+	end
+	local GoalLines = require(script.Parent.Parent.UI.Components.GoalLines) :: any
+	local RankUpNeeds = require(script.Parent.Parent.UI.Components.RankUpNeeds) :: any
+	local nextTier = GoalLines.nextTier(Catalog.tiers :: any, 1)
+	if nextTier == nil then
+		return false
+	end
+	return RankFirst.holds(on, s.tier, RankUpNeeds.of(nextTier, s :: any).ready == true)
+end
+
 local function stuckGoalActive(s: Types.PlayerState): boolean
+	if rankFirstNow(s) then
+		return false
+	end
 	local shownAt = stuckGoal.shownAt
 	return StuckGoal.active(
 		s.stuckGoal,
@@ -713,6 +740,18 @@ local function refreshTutorial(s: Types.PlayerState)
 				"Bowl"
 			)
 		end
+	elseif rankFirstNow(s) then
+		-- #4383: the strip names the goal card; RankSpotController's walk-through lights it
+		local RankFirst = require(Shared:WaitForChild("RankFirst")) :: any
+		local last = UserInputService:GetLastInputType().Name
+		local device = if last:sub(1, 7) == "Gamepad"
+			then "gamepad"
+			elseif
+				last == "Touch"
+				or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+			then "touch"
+			else "keyboard"
+		showTutorial(s, RankFirst.line(device))
 	elseif stuckGoalActive(s) then
 		-- #2912: after the walk-through, to the Alleyway's stuck cat (the cannon first from town); nothing at night,
 		-- when the goal card says the cats come back at sunrise
@@ -1877,6 +1916,21 @@ local function wireIntents()
 			end
 		end)
 	end
+	if events.loadingSeen ~= nil then
+		-- #4314: once a session, only the first wait (the one before the first spawn or the intro)
+		local seen = false
+		events.loadingSeen:Connect(function(seconds: number)
+			if seen then
+				return
+			end
+			seen = true
+			Net.fire(
+				"TelemetryReport",
+				"loading_seen",
+				math.clamp(math.floor(seconds + 0.5), 0, 120)
+			)
+		end)
+	end
 	if events.introChoice ~= nil then
 		events.introChoice:Connect(function(from: string)
 			Net.fire("TelemetryReport", "intro_choice", from)
@@ -2603,6 +2657,11 @@ local function wireServerEvents()
 	Net.on("OwnerShout", function(text: string)
 		(UI :: any).ownerShout(text)
 	end)
+	-- #4227: a queued spawn line's sting plays as it shows, not as it arrives
+	local hooks: any = UI
+	hooks.onAnnounceShown = function(text: string, rarity: string?)
+		Moments.Announce:Fire(text, rarity)
+	end
 	Net.on("Announce", function(text: string, rarity: string?)
 		-- #2399: the sting plays only with a shout-out that shows; UI.announce says false when it drops one (it said
 		-- nothing before #2426, which counts as shown)

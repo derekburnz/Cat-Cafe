@@ -1602,6 +1602,18 @@ return function()
 			)
 		end)
 
+		it("widens a phone or tablet's bands while the touch switch is on (#4299)", function()
+			expect(Circles.touchScale("phone", true)).to.equal(Config.TouchCatchWindowScale)
+			expect(Circles.touchScale("tablet", true)).to.equal(Config.TouchCatchWindowScale)
+			expect(Circles.touchScale("pc", true)).to.equal(1)
+			expect(Circles.touchScale("console", true)).to.equal(1)
+			expect(Circles.touchScale(nil, true)).to.equal(1)
+			expect(Circles.touchScale("phone", false)).to.equal(1)
+			expect(Config.TouchCatchWindowScale > 1 and Config.TouchCatchWindowScale <= 1.5).to.equal(
+				true
+			)
+		end)
+
 		it("scales both bands", function()
 			local w = Circles.scaled({ perfect = 0.05, good = 0.1 }, 1.3)
 			expect(math.abs(w.perfect - 0.065) < 1e-9).to.equal(true)

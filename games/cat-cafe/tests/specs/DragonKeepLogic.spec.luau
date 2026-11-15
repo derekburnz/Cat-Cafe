@@ -42,13 +42,27 @@ return function()
 	describe("DragonKeepLogic.setsLine and oddsLine", function()
 		it("explains sets before any card is slotted", function()
 			expect(Logic.setsLine({ slots = { "" } })).to.equal(
-				"3 cards of one family in your slots light a set bonus"
+				"3 cards of one family light a set bonus · tap to see them"
 			)
 		end)
 		it("counts each family in the slots", function()
 			expect(Logic.setsLine({ slots = { "warmTips", "emberTips", "sharpEye" } })).to.equal(
-				"Sets: Flame 2/3 · Claw 1/3"
+				"Sets: Flame 2/3 · Claw 1/3 · tap to see"
 			)
+			-- #4576: past 3 the count goes on to 5
+			expect(
+				Logic.setsLine({ slots = { "warmTips", "emberTips", "toastyTables", "hotSeats" } })
+			).to.equal("Sets: Flame 4/5 · tap to see")
+		end)
+		it("lists every family's 3 and 5 card bonuses (#4576)", function()
+			local rows = Logic.setRows({ slots = { "warmTips", "emberTips", "toastyTables" } })
+			expect(#rows).to.equal(6)
+			expect(rows[1].family).to.equal("flame")
+			expect(rows[1].count).to.equal("3/5")
+			expect(rows[1].level).to.equal(3)
+			expect(string.sub(rows[1].three, 1, 9)).to.equal("3 cards: ")
+			expect(rows[1].five ~= nil).to.equal(true)
+			expect(rows[2].level).to.equal(0)
 		end)
 		it("lists the odds in rarity order", function()
 			expect(Logic.oddsLine({ Rare = 30, Common = 45, Epic = 25 })).to.equal(

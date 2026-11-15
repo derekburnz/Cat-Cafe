@@ -141,11 +141,8 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
            mysterymarket, mysteryitems, desertset, ruinsset, snowyset, waterparkset, castleset, campgrowth, townsfolk, nooks, feedbackstand,
-<<<<<<< HEAD
            arcadecabinet, mysticpool, moneybag, riftrun, storepacks, harvestoutfits, harvestdecor, harvestset, dragon,
-=======
-           arcadecabinet, mysticpool, moneybag, riftrun, storepacks, dragon, updateposter,
->>>>>>> origin/main
+           updateposter,
            waterparkshelf, wallperch]
 
 PIVOT_NOTES = {

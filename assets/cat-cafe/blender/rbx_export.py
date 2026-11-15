@@ -120,12 +120,9 @@ MODEL_PROPS = {"_IndexBoard": {"ModelStreamingMode": "Atomic"},
                "_LeaderboardRow": {"ModelStreamingMode": "Atomic"},
                "_ThanksBoard": {"ModelStreamingMode": "Atomic"},
                "_PitySign": {"ModelStreamingMode": "Atomic"},
-<<<<<<< HEAD
                "_Harvest_Arch": {"ModelStreamingMode": "Atomic"},     # #4251: their Screens with them
                "_Harvest_Board": {"ModelStreamingMode": "Atomic"},
-=======
                "_UpdatePoster": {"ModelStreamingMode": "Atomic"},   # #4362: its Screen with it
->>>>>>> origin/main
                "_ArcadeCabinet": {"ModelStreamingMode": "Atomic"}}   # #3062: its Screen with it
 # Objects whose Model goes inside another object's Model rather than the root: name suffix -> the suffix of the
 # object it rides, with the same prefix. Turning the Head Model (PivotTo) carries the eyes and ears with it.

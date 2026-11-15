@@ -2727,13 +2727,17 @@ Layout.townSquare = {
 		-- end on the Day Cart's side (Layout.fishMarket), turned to face the spawn. Its arrow points at the market
 		-- from here. 1 stud clear of the market, 7 of its walk-up ring and 8 of everything else (world scan).
 		-- Skipped until its model is in (AssetRegistry.known).
-		{ asset = "CatCafe_Square_DecorStand", x = 37.8, y = 0.1, z = 57.4, rotY = 27.9 },
+		-- #4532: with the square 180 deep the market stands at (47, 79); the stand keeps its place off the market's
+		-- end on the Coin Cart's side, where its arrow points at the market.
+		{ asset = "CatCafe_Square_DecorStand", x = 39, y = 0.1, z = 83.1, rotY = 21.9 },
 		-- #4508 (Derek2 2026-11-15: "make a signboard beside the mystery market ... that shows the new items like
 		-- backpack/shoes on it so people know where that is"): Model-Agent's `CatCafe_Square_MysterySign` (front -Z,
 		-- about 5.3 x 2.9), just past the wagon's easel end (Layout.mysteryCart), turned to face the spawn. Its arrow
 		-- points at the wagon from here. 1 stud clear of the wagon, 5 of its walk-up ring and 6 of everything else
 		-- (world scan). Skipped until its model is in (AssetRegistry.known).
-		{ asset = "CatCafe_Square_MysterySign", x = -37.1, y = 0.1, z = -58.4, rotY = -140.1 },
+		-- #4532: with the square 180 deep the wagon stands at (-46, -78); the sign keeps its place off the wagon's
+		-- easel end, where its arrow points at the wagon.
+		{ asset = "CatCafe_Square_MysterySign", x = -37.3, y = 0.1, z = -82, rotY = -151.2 },
 	} :: { Prop },
 }
 

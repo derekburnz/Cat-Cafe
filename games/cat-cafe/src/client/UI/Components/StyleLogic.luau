@@ -66,6 +66,11 @@ local NAMES: { [string]: string } = {
 	acc_bobble_hat = "Bobble Hat",
 	acc_chef_hat = "Chef Hat",
 	acc_bubble_helmet = "Bubble Helmet",
+	-- #4061: the Ticket Booth's weekly wearables
+	acc_snorkel_mask = "Snorkel Mask",
+	acc_swim_cap = "Swim Cap",
+	acc_sun_visor = "Sun Visor",
+	acc_starfish_shades = "Starfish Shades",
 	-- #1708: shared/Looks.ACCESSORIES
 	hat = "Tiny Hat",
 	glasses = "Round Glasses",
@@ -111,6 +116,10 @@ local ICONS: { [string]: string } = {
 	acc_bobble_hat = "🧶",
 	acc_chef_hat = "🍳",
 	acc_bubble_helmet = "🛸",
+	acc_snorkel_mask = "🤿",
+	acc_swim_cap = "🏊",
+	acc_sun_visor = "🧢",
+	acc_starfish_shades = "⭐",
 	jukebox_rainy_window = "🌧️",
 	jukebox_catnap_waltz = "💤",
 	jukebox_bakery_bounce = "🥐",

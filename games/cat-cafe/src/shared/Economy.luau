@@ -17,6 +17,7 @@ local Pet = require(script.Parent.Pet)
 local Potions = require(script.Parent.Potions)
 local StationPerks = require(script.Parent.StationPerks)
 local StorePacks = require(script.Parent.StorePacks)
+local TicketBooth = require(script.Parent.TicketBooth)
 local Traits = require(script.Parent.Traits)
 local Types = require(script.Parent.Types)
 
@@ -304,6 +305,12 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	multiplier += Economy.passCafeBonus(profile)
 	multiplier += Economy.packBonus(profile)
 	multiplier += Economy.dragonEffects(profile).money -- #4447: the Dragon Keep's money cards and Flame set
+	-- #4061: a Ticket Booth wearable while it is the cafe's accessory
+	local looks = (profile :: any).looks
+	local tickets = (profile :: any).tickets
+	if type(looks) == "table" and type(tickets) == "table" then
+		multiplier += TicketBooth.wearBonus(tickets, looks.accessory)
+	end
 	return multiplier
 end
 

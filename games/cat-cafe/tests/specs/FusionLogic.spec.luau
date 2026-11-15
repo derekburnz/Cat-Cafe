@@ -140,6 +140,7 @@ return function()
 		end)
 		it("falls back to the spec's times", function()
 			expect(Logic.seconds(nil, "gold")).to.equal(600)
+			expect(Logic.seconds({ goldSeconds = 0, rainbowSeconds = 0 }, "gold")).to.equal(0) -- #4590: instant
 			expect(Logic.seconds({ rainbowSeconds = 2700 }, "rainbow")).to.equal(2700)
 		end)
 	end)

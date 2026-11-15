@@ -50,8 +50,12 @@ YARD = 10.0                                  # Config.World.YardDepth: the yard 
 # 8 wide passage before it, end 4 short of the street's ends.
 SQUARE_HALF_D = 90.0                                # Config.World.TownSquareHalfDepth: 32 until #2707, 44 until #3001,
                                                     # 55 until #3070, 70 until #4532
-TOWN_EDGE_X = 16 + 2 + 5 + 1 + ID + 1 + YARD        # 63 at 28 deep
-STREET_END_Z = SQUARE_HALF_D + 2 * (8 + IW) + 4      # 198 at 90 deep (178 at 70, 163 at 55)
+# #4543 (Derek 2026-11-15: the cafe grows with rank ups, bigger plots for eight Tier 10 cafes): each plot is laid out for
+# the biggest room, CAP_W x CAP_D (Config.World.PlotCapWidth and PlotCapDepth), whatever room stands on it.
+CAP_W, CAP_D = 60.0, 46.0
+SQUARE_EDGE_X = 16 + 2 + 5 + 1 + 34 + 1 + YARD      # 69: the Town Square's own garden wall keeps the 34 deep row's line
+TOWN_EDGE_X = 16 + 2 + 5 + 1 + CAP_D + 1 + YARD     # 81 (69 with 34 deep plots, 63 at 28 deep)
+STREET_END_Z = SQUARE_HALF_D + 2 * (8 + CAP_W) + 4   # 230 (198 with 44 wide plots at 90 deep, 178 at 70, 163 at 55)
 H = 12.8                 # wall height to the eave
 HW = HWI + 1             # outer half width (walls x 18..19 at 36 wide)
 PITCH = math.radians(25)

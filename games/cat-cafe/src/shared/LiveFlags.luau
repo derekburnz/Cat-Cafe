@@ -261,12 +261,13 @@ LiveFlags.OFF_BY_DEFAULT = {
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to
--- #4613: a fresh server copies the defaults out at once and the store's switches only after its first read, a few
--- seconds later. It sets this ReplicatedStorage attribute true once that first read has been tried (or at once where
--- nothing is read), and the client waits for it, up to CLIENT_WAIT_SECONDS, before it builds anything that takes a
--- switch once (the menu family look, the Store's rework), so nobody who joins a new server keeps an old look.
+-- #4607, #4613: a fresh server copies the defaults out at once and the store's switches only after its first read, a
+-- few seconds later. It sets this ReplicatedStorage attribute true once that first read has been tried (or at once
+-- where nothing is read), and the client waits for it before it builds anything that takes a switch once (the menu
+-- family look, the Store's rework), so nobody who joins a new server keeps an old look.
 LiveFlags.READY_ATTRIBUTE = "LiveFlagsReady"
-LiveFlags.CLIENT_WAIT_SECONDS = 8
+LiveFlags.CLIENT_WAIT_SECONDS = 8 -- #4613: Main.client's wait, before any UI module latches a switch
+LiveFlags.READY_WAIT = 6 -- #4607: UIController's own wait, which ends at once after Main.client's
 
 export type Flags = { [string]: boolean }
 

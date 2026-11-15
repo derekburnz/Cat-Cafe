@@ -3534,6 +3534,18 @@ function UIController.start()
 		:Connect(function()
 			catalog.indexPrizes = SharedIndexRewards.shownPrizes()
 		end)
+	-- #4607 (Derek 2026-11-15: menus "reverted to the old menu style" after the 22:00 publish): a new server publishes
+	-- the switches' defaults before its first read of the store, and MenuFamily takes its look once, at the first
+	-- window built, so the first players in a fresh server latched the old look (and white words on the Store's
+	-- white sheet rows). Wait for the store's values, a few seconds at most.
+	local LiveFlagsShared = require(Shared:WaitForChild("LiveFlags")) :: any
+	local readyBy = os.clock() + LiveFlagsShared.READY_WAIT
+	while
+		ReplicatedStorage:GetAttribute(LiveFlagsShared.READY_ATTRIBUTE) ~= true
+		and os.clock() < readyBy
+	do
+		task.wait(0.1)
+	end
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({
 		catalog = catalog,

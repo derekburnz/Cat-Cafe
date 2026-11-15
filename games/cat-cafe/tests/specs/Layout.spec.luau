@@ -754,11 +754,13 @@ return function()
 		end)
 
 		it(
-			"ends every cafe's yard at the town's back edge, where the back alleys began (v4)",
+			"ends every plot at the town's back edge: the yard, then the lawn the biggest room grows into (v4, #4543)",
 			function()
+				-- the room keeps its front wall, so a plot laid out for the cap leaves the difference behind the yard
+				local spare = W.PlotCapDepth - W.PlotDepth
 				for index = 1, W.PlotCount do
 					local backX = plotToWorld(index, 0, Layout.plot.yard.z2)
-					expect(math.abs(math.abs(backX) - W.TownEdgeX) <= 1).to.equal(true)
+					expect(math.abs(W.TownEdgeX - math.abs(backX) - spare) <= 1).to.equal(true)
 				end
 			end
 		)
@@ -1251,10 +1253,11 @@ return function()
 		end)
 
 		it("puts plots 1 to 4 by the square and 5 to 8 one row out, west then east", function()
-			-- the bigger cafes (44 x 34, #917)
-			local want = { { -41, -120 }, { 41, -120 }, { -41, 120 }, { 41, 120 } } -- #4532: 100 before the 120 x 180 square
+			-- the bigger cafes (44 x 34, #917) on plots laid out for the biggest room (60 x 46, #4543): the front wall
+			-- stays put, so x does not move; the plots stand 68 apart along the street (52 before)
+			local want = { { -41, -128 }, { 41, -128 }, { -41, 128 }, { 41, 128 } } -- #4532: 100 before the 120 x 180 square
 			for n = 1, 4 do
-				want[n + 4] = { want[n][1], want[n][2] + (if want[n][2] < 0 then -52 else 52) }
+				want[n + 4] = { want[n][1], want[n][2] + (if want[n][2] < 0 then -68 else 68) }
 			end
 			for index, xz in want do
 				local placement = Layout.plotPlacement(index)
@@ -1269,10 +1272,10 @@ return function()
 			function()
 				for index = 1, W.PlotCount do
 					local z = Layout.plotPlacement(index).z
-					expect(math.abs(z) - W.PlotWidth / 2 >= W.TownSquareHalfDepth + W.PlotRowGap).to.equal(
+					expect(math.abs(z) - W.PlotCapWidth / 2 >= W.TownSquareHalfDepth + W.PlotRowGap).to.equal(
 						true
 					)
-					expect(math.abs(z) + W.PlotWidth / 2 <= W.StreetNorthZ).to.equal(true)
+					expect(math.abs(z) + W.PlotCapWidth / 2 <= W.StreetNorthZ).to.equal(true)
 				end
 			end
 		)
@@ -1285,7 +1288,7 @@ return function()
 				for _, z in passages do
 					for index = 1, W.PlotCount do
 						local placement = Layout.plotPlacement(index)
-						expect(math.abs(placement.z - z) >= W.PlotWidth / 2 + W.PlotRowGap / 2).to.equal(
+						expect(math.abs(placement.z - z) >= W.PlotCapWidth / 2 + W.PlotRowGap / 2).to.equal(
 							true
 						)
 					end
@@ -1444,9 +1447,9 @@ return function()
 			-- the width grows inside the town edge: the gardens keep a strip either side
 			expect(W.TownEdgeX - W.TownSquareHalfWidth >= 9).to.equal(true)
 			-- the streets and the town ground follow the deeper square, so the outer cafe row keeps its margin
-			expect(W.StreetNorthZ).to.equal(198)
-			expect(W.StreetSouthZ).to.equal(-198)
-			expect(W.TownGroundDepth).to.equal(448)
+			expect(W.StreetNorthZ).to.equal(230) -- #4543: 198 before the 60 wide plots
+			expect(W.StreetSouthZ).to.equal(-230)
+			expect(W.TownGroundDepth).to.equal(512)
 		end)
 
 		it("brings the Thank You board and the Rally board out into the open (#3070)", function()
@@ -1698,10 +1701,13 @@ return function()
 		)
 
 		it(
-			"runs the gardens out to the town's back edge, where the side arches into the back alleys stood (v4)",
+			"runs the gardens out to the square's garden wall, where the side arches into the back alleys stood (v4)",
 			function()
-				expect(square.gardens[1].x1).to.equal(-W.TownEdgeX)
-				expect(square.gardens[2].x2).to.equal(W.TownEdgeX)
+				-- #4543: the wall keeps its line when the town edge moves out for the bigger plots
+				expect(W.TownSquareEdgeX).to.equal(69)
+				expect(W.TownSquareEdgeX <= W.TownEdgeX).to.equal(true)
+				expect(square.gardens[1].x1).to.equal(-W.TownSquareEdgeX)
+				expect(square.gardens[2].x2).to.equal(W.TownSquareEdgeX)
 				expect((square :: any).arches).to.equal(nil)
 			end
 		)

@@ -11,7 +11,7 @@
 --      "no need for the money showing on the events not related to money"). Derek 2026-11-14 22:54: "the ui is still on the
 --      screen too much in the events and the intro can [be] over the top ... but the money amount everywhere on
 --      screen is too much": the splash stays loud, and after it this strip is all that is left on the screen;
---   4. its last minute: the strip turns red and swells slowly (once a second, far under the flashing limit);
+--   4. its last minute: the strip turns red and says LEFT!, steady (#4603: no swell, Derek found it annoying);
 --   5. as it ends: a card with what the player earned.
 -- Effects/AdminAir rains the event's motes round the player the whole time (AdminFlashLogic.rainOf).
 --
@@ -523,9 +523,8 @@ local function frame()
 		made.left.Text = AdminEventLogic.clock(step.left)
 			.. (if last then " LEFT!" else " left")
 			.. (if countsMoney and earned >= 1 then "   " .. moneyText(earnedShown) else "")
-		made.stripScale.Scale = if last and not still
-			then AdminFlashLogic.pulse(step.left, p.pulseHz, p.pulse)
-			else 1
+		-- #4603 (Derek 2026-11-15: "no need to make this flash its annoying"): steady, the red colour is the cue
+		made.stripScale.Scale = 1
 	end
 
 	made.over.Visible = clock < overUntil and not middle and not calm

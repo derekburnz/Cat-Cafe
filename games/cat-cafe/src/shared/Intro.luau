@@ -346,8 +346,8 @@ function Intro.plot(index: number): Plot
 		* (
 			W.TownSquareHalfDepth
 			+ W.PlotRowGap
-			+ W.PlotWidth / 2
-			+ ring * (W.PlotWidth + W.PlotRowGap)
+			+ W.PlotCapWidth / 2
+			+ ring * (W.PlotCapWidth + W.PlotRowGap)
 		)
 	local x = side * (W.StreetHalfWidth + 2 + W.FrontGardenDepth + 1 + W.PlotDepth / 2)
 	return { x = x, z = z, side = side, index = index }

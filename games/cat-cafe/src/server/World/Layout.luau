@@ -205,8 +205,8 @@ function Layout.plotPlacement(index: number): { x: number, z: number, side: numb
 		* (
 			W.TownSquareHalfDepth
 			+ W.PlotRowGap
-			+ W.PlotWidth / 2
-			+ ring * (W.PlotWidth + W.PlotRowGap)
+			+ W.PlotCapWidth / 2
+			+ ring * (W.PlotCapWidth + W.PlotRowGap)
 		)
 	local x = side * (W.StreetHalfWidth + 2 + W.FrontGardenDepth + 1 + W.PlotDepth / 2)
 	return { x = x, z = z, side = side, index = index }
@@ -226,10 +226,10 @@ function Layout.sidePassages(): { number }
 	table.sort(north)
 	local edge = W.TownSquareHalfDepth -- the gardens' edge, then each cafe's far side in turn
 	for _, z in north do
-		local passage = (edge + z - W.PlotWidth / 2) / 2
+		local passage = (edge + z - W.PlotCapWidth / 2) / 2
 		table.insert(passages, -passage)
 		table.insert(passages, passage)
-		edge = z + W.PlotWidth / 2
+		edge = z + W.PlotCapWidth / 2
 	end
 	table.sort(passages)
 	return passages
@@ -2595,8 +2595,8 @@ Layout.townSquare = {
 	-- trees and flower beds from the square out to the town's back edge, with a garden wall along it; the side
 	-- arches into the back alleys that stood in the middle of each wall closed with the back alleys (v4)
 	gardens = {
-		{ x1 = -W.TownEdgeX, z1 = -TSD, x2 = -TSW, z2 = TSD },
-		{ x1 = TSW, z1 = -TSD, x2 = W.TownEdgeX, z2 = TSD },
+		{ x1 = -W.TownSquareEdgeX, z1 = -TSD, x2 = -TSW, z2 = TSD },
+		{ x1 = TSW, z1 = -TSD, x2 = W.TownSquareEdgeX, z2 = TSD },
 	} :: { Rect },
 	-- the round plinth in the middle: the fountain's until v4, the Cat Cannon's since (Layout.cannons.town)
 	fountainRadius = 6,

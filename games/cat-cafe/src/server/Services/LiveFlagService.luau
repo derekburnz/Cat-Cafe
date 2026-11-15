@@ -95,6 +95,7 @@ local function read()
 	end
 	current = new
 	publish()
+	markReady() -- #4607
 end
 
 -- Studio only: switches named in the Workspace attribute DebugFlagsOn ("menuFamily,petCats", set in edit mode before

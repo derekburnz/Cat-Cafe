@@ -57,6 +57,7 @@ local Config = {
 	GardenDecorPackPassId = 2075342357, -- #1168 row 3: six looks-only decor pieces (R$149); made off sale by Tools-Agent 2026-11-06
 	GoldenPondPassId = 2071704337, -- #1232
 	SecondBowlPassId = 2072132265, -- #1161
+	AutoBowlPassId = 2088615375, -- #4266 (R$19): the Auto Bowl pass (auto claim, auto refill); 0 hides its offer and Store card
 	-- #4026: the four outfit packs (R$99 each); made off sale with game-passes.yml 2026-11-13, on sale with this
 	StylishPackPassId = 2087936654,
 	WinterPackPassId = 2089766669,
@@ -434,6 +435,21 @@ local Config = {
 		kingPack = { was = 999, now = 299 }, -- #4261: the Cat King Pack at R$299; the King Cat is no longer sold alone
 		thankYou = { was = 25, now = 13 },
 		cafePass = { was = 299, now = 149 },
+		-- #4377 (Derek 2026-11-15: half price on every Robux item): the cards cut on 2026-11-15. The money ladder's
+		-- rungs share the card key "money", so each rung is keyed "money" plus its multiplier (StoreLogic.saleKey).
+		money2 = { was = 25, now = 12 },
+		money3 = { was = 59, now = 29 },
+		money4 = { was = 99, now = 49 },
+		vip = { was = 25, now = 12 },
+		longNap = { was = 199, now = 99 },
+		accessories = { was = 149, now = 75 },
+		secondBowl = { was = 149, now = 75 },
+		gardenDecor = { was = 149, now = 75 },
+		signStylePack = { was = 79, now = 39 },
+		packStylish = { was = 99, now = 49 },
+		packChef = { was = 99, now = 49 },
+		packSpace = { was = 99, now = 49 },
+		packWinter = { was = 99, now = 49 },
 	} :: { [string]: { was: number, now: number } },
 	StoreSaleEnds = 1797120000,
 	-- #4175 (Derek 2026-11-14: an occasional push on big update days, at most once a week): the update's own item
@@ -770,6 +786,10 @@ local Config = {
 			id = "8139939288161845916",
 			startsAt = 1794772800, -- "3 New Worlds", Sunday 2026-11-15 20:00 UTC
 			title = "🔔 Next update Sunday: 3 NEW WORLDS! Want a reminder when it lands?",
+			-- #4362: the Town Square update poster's name and picture (UI/Screens/UpdatePoster); an entry with
+			-- neither reads "NEW UPDATE" on a plain face
+			name = "3 NEW WORLDS",
+			poster = "rbxassetid://136446394707169",
 		},
 		-- Derek 2026-11-14 17:59 UTC: Rift Run moves to tonight, Sunday 2026-11-15 01:00 UTC (Saturday 8 PM ET, the busier
 		-- hour), and the Golden Fish Store to Sunday 2026-11-15 22:00 UTC (5 PM ET), each with its own ask
@@ -782,18 +802,32 @@ local Config = {
 			id = "8042541751075996433",
 			startsAt = 1794780000, -- "Golden Fish Store", Sunday 2026-11-15 22:00 UTC
 			title = "🔔 Next update Sunday: the GOLDEN FISH STORE! Want a reminder when it lands?",
+			name = "GOLDEN FISH STORE",
+			poster = "rbxassetid://78033321655386",
 		},
 		{
 			id = "6810389993696133776",
 			startsAt = 1795032000, -- "Better on Every Device", Wednesday 2026-11-18 20:00 UTC
 			title = "🔔 Next update Wednesday: better controls on every device! Want a reminder?",
+			name = "BETTER ON EVERY DEVICE",
+			poster = "rbxassetid://138232412903853",
 		},
 		{
 			id = "8700676156604678758",
 			startsAt = 1794799800, -- "10 Secret Cats", Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, Derek 17:40 UTC)
 			title = "🔔 Next update: 10 SECRET CATS! Want a reminder when it lands?",
+			name = "10 SECRET CATS",
+			poster = "rbxassetid://119053796760824",
 		},
-	} :: { { id: string, startsAt: number, title: string? } },
+	} :: {
+		{
+			id: string,
+			startsAt: number,
+			title: string?,
+			name: string?,
+			poster: string?,
+		}
+	},
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,

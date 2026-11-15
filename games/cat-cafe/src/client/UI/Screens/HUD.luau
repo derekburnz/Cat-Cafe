@@ -58,6 +58,7 @@ local GiftLogic = require(script.Parent.Parent.Components.GiftLogic)
 local GoalCard = require(script.Parent.GoalCard)
 local GoalFold = require(script.Parent.Parent.Components.GoalFold)
 local GoalLines = require(script.Parent.Parent.Components.GoalLines) -- #4098
+local HarvestLogic = require(script.Parent.Parent.Components.HarvestLogic) -- #4251: the Harvest travel button
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexHints = require(script.Parent.Parent.Components.IndexHints)
@@ -2186,6 +2187,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			image = ShopIcons.hud("Cannon"),
 			style = "close",
 		},
+		-- #4251 (harvest-hollow-spec section 1): Harvest Hollow, while it is open and from Tier 2 (_paintHarvest)
+		{
+			key = "harvest",
+			name = "Harvest",
+			label = "Harvest",
+			icon = HarvestLogic.PUMPKIN,
+			style = "gold",
+		},
 	}
 	for index, item in travelItems do
 		local home = item.key == "home"
@@ -2217,6 +2226,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		table.insert(self._buttons, button)
 	end
 	self._travelButtons.cannon.instance.Visible = false
+	self._travelButtons.harvest.instance.Visible = false
+	self._harvestTier = 0
+	table.insert(
+		self._connections,
+		ReplicatedStorage:GetAttributeChangedSignal(HarvestLogic.FLAG_ATTRIBUTE):Connect(function()
+			self:_paintHarvest()
+		end)
+	)
 	-- #4227: the wild Mythical and Secret cats out now in the areas this player has open, on the Cannon button
 	self._rareBubbles =
 		RareBubbles.new(self._travelButtons.cannon.instance, UDim2.new(1, 8, 0, -8), 12)
@@ -2618,7 +2635,13 @@ function HUD.pressTravel(self: any, destination: string): boolean
 		return false
 	end
 	-- the Cannon button works at night too: the picker shows the sunrise countdown (F84)
-	if destination ~= "home" and destination ~= "cannon" and not self._areasOpen then
+	-- and so does Harvest (#4251): the server keeps Harvest Hollow open all night
+	if
+		destination ~= "home"
+		and destination ~= "cannon"
+		and destination ~= "harvest"
+		and not self._areasOpen
+	then
 		self:travelResult(destination, false) -- shut for the night (F66): wobble, as the server would refuse it
 		return false
 	end
@@ -2649,6 +2672,36 @@ function HUD.setCannonMode(self: any, on: boolean)
 	self._carrySub.Text = if on then CannonLogic.CARRY_SUB else CARRY_SUB
 	self._homeCarrying = nil -- the next render writes Home's text for the new mode
 	self:_renderTravel()
+end
+
+-- #4251: the Harvest button shows while Harvest Hollow is open, from Tier 2, with its switch on, and comes and goes
+-- by itself at the opening and closing times (one timer to the next change).
+function HUD._paintHarvest(self: any)
+	if self._gone then
+		return
+	end
+	local now = Workspace:GetServerTimeNow()
+	local shown = HarvestLogic.hudShown(
+		now,
+		self._harvestTier,
+		ReplicatedStorage:GetAttribute(HarvestLogic.FLAG_ATTRIBUTE)
+	)
+	local button: Button.Button = self._travelButtons.harvest
+	if button.instance.Visible ~= shown then
+		button.instance.Visible = shown
+		if shown then
+			Tween.popIn(button.instance, 0.85)
+		end
+		self:_sizeTravelRow()
+		self:_layoutMenu()
+	end
+	local nextAt = HarvestLogic.nextChange(now)
+	if nextAt ~= nil and self._harvestTimer == nil then
+		self._harvestTimer = task.delay(math.max(1, nextAt - now + 1), function()
+			self._harvestTimer = nil
+			self:_paintHarvest()
+		end)
+	end
 end
 
 -- The server's answer (TravelResult). A refusal lifts the cooldown at once and wobbles the button that
@@ -3087,6 +3140,10 @@ function HUD.render(self: any, state: Types.PlayerState)
 	if (state.tier or 1) ~= self._rareTier then
 		self._rareTier = state.tier or 1
 		self:_paintRares()
+	end
+	if (state.tier or 1) ~= self._harvestTier then
+		self._harvestTier = state.tier or 1
+		self:_paintHarvest()
 	end
 	-- #2211: the tutorial's last step done just now (not a player who finished it before this join): the × pulses
 	local step = state.tutorialStep or TUTORIAL_DONE
@@ -5912,6 +5969,10 @@ end
 
 function HUD.destroy(self: any)
 	self._gone = true -- #3022: the second cat goal's timers stop here
+	if self._harvestTimer ~= nil then
+		task.cancel(self._harvestTimer) -- #4251
+		self._harvestTimer = nil
+	end
 	self:_stopClock()
 	local shine: Tween? = self._storeShine
 	if shine then

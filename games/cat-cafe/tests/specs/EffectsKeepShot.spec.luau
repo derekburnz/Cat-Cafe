@@ -43,6 +43,18 @@ return function()
 			expect(eye.Y).to.equal(3)
 		end)
 
+		it("measures the walls from the box's middle when it is off the yard centre", function()
+			-- the box 4 studs toward the gate: its front wall at z = -11.5, not -7.5
+			local off = { halfX = 7.5, halfZ = 7.5, top = 7.5, x = 0, z = -4 }
+			local look = Vector3.new(0, 2, 0)
+			local eye = KeepShot.lift(Vector3.new(0, 3, -20), look, off, 2, 0)
+			local share = (-11.5 - look.Z) / (eye.Z - look.Z)
+			expect(look.Y + (eye.Y - look.Y) * share >= 9.5 - 1e-6).to.equal(true)
+			expect(KeepShot.walls(Vector3.new(1, 3.5, -4), Vector3.new(15, 7, 14), 12).z).to.equal(
+				-4
+			)
+		end)
+
 		it("reads the walls from the Keep's box, top capped", function()
 			local read = KeepShot.walls(Vector3.new(0, 3.5, 0), Vector3.new(15, 7, 14), 12)
 			expect(read.halfX).to.equal(7.5)

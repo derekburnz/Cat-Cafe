@@ -432,7 +432,9 @@ function LuckChip.toggle(self: any)
 	self._onOpen()
 	self:_renderCard()
 	self:_place()
-	self._hint.Text = if GamepadNav.on() and GamepadNav.isGamepad() then "Press B to close" else "Tap to close"
+	self._hint.Text = if GamepadNav.on() and GamepadNav.isGamepad()
+		then "Press B to close"
+		else "Tap to close"
 	self.card.Visible = true
 	Tween.popIn(self.card, 0.9)
 	Sound.play("uiClick")

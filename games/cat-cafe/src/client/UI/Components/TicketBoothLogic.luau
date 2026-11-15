@@ -26,8 +26,55 @@ function TicketBoothLogic.commas(value: number): string
 	end
 end
 
+-- #4429: the balance pill's number, short past 99,999 so it stays inside the pill: "99,999", "123K", "1.2M", "12M"
+function TicketBoothLogic.countText(value: number): string
+	local n = math.max(math.floor(value), 0)
+	if n < 100000 then
+		return TicketBoothLogic.commas(n)
+	elseif n < 1000000 then
+		return math.floor(n / 1000) .. "K"
+	elseif n < 10000000 then
+		local tenths = math.floor(n / 100000)
+		return if tenths % 10 == 0
+			then (tenths // 10) .. "M"
+			else ("%d.%dM"):format(tenths // 10, tenths % 10)
+	end
+	return TicketBoothLogic.commas(math.floor(n / 1000000)) .. "M"
+end
+
 function TicketBoothLogic.ticketText(value: number): string
 	return TicketBoothLogic.TICKET .. " " .. TicketBoothLogic.commas(value)
+end
+
+-- #4061: the Water Park card's strip in the Cannon picker (the booth's way in until its kiosk is placed): the ticket
+-- count and Open, which brings up the booth window from anywhere. Nil on other cards and while the booth is shut
+-- (PlayerState.ticketBooth unset: switch off or below its tier). The shape is CampExtrasLogic.Line.
+TicketBoothLogic.AREA = "waterpark"
+TicketBoothLogic.STATION = "ticketBooth"
+function TicketBoothLogic.pickerLine(
+	view: any,
+	areaId: string
+): {
+	extraId: string,
+	icon: string,
+	name: string,
+	state: string,
+	ready: boolean,
+}?
+	if
+		areaId ~= TicketBoothLogic.AREA
+		or type(view) ~= "table"
+		or type(view.tickets) ~= "number"
+	then
+		return nil
+	end
+	return {
+		extraId = TicketBoothLogic.STATION,
+		icon = TicketBoothLogic.TICKET,
+		name = "Ticket Booth",
+		state = TicketBoothLogic.commas(view.tickets) .. " tickets",
+		ready = false,
+	}
 end
 
 export type Row = {

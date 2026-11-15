@@ -23,6 +23,7 @@ local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -223,6 +224,7 @@ function FusionObservatory.new(callbacks: Callbacks): FusionObservatory
 		subtitle = "5 of a cat make 1 in the next coat",
 		color = Color3.fromHex("2F6E9E"),
 		icon = "🔭",
+		image = ShopIcons.clean("Observatory"), -- #4417: the station's clean picture
 		size = UDim2.fromScale(1, 1),
 		onClose = callbacks.close,
 	})

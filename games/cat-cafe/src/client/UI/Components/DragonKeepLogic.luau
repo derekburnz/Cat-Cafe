@@ -62,6 +62,38 @@ local function commas(value: number): string
 end
 DragonKeepLogic.commas = commas
 
+-- #4062: the Castle card's strip in the Cannon picker (the Keep's way in until its model and prompt are placed): the
+-- dragon's stage and Open, which brings up the Keep window from anywhere. Nil on other cards and while the Keep is
+-- shut (PlayerState.dragon unset: switch off or below the Castle's tier). The shape is CampExtrasLogic.Line.
+DragonKeepLogic.AREA = "castle"
+DragonKeepLogic.STATION = "dragon"
+DragonKeepLogic.ICON = "🐉"
+
+function DragonKeepLogic.pickerLine(
+	view: any,
+	areaId: string
+): {
+	extraId: string,
+	icon: string,
+	name: string,
+	state: string,
+	ready: boolean,
+}?
+	if areaId ~= DragonKeepLogic.AREA or type(view) ~= "table" then
+		return nil
+	end
+	local stage = view.stageName
+	return {
+		extraId = DragonKeepLogic.STATION,
+		icon = DragonKeepLogic.ICON,
+		name = "Dragon Keep",
+		state = DragonKeepLogic.NAME .. " the " .. (if type(stage) == "string"
+			then stage
+			else "Egg"),
+		ready = false,
+	}
+end
+
 function DragonKeepLogic.title(view: any): string
 	local stage = if view ~= nil then view.stageName else nil
 	return DragonKeepLogic.NAME .. " · " .. (if type(stage) == "string" then stage else "Egg")

@@ -143,6 +143,29 @@ return function()
 		end)
 	end)
 
+	describe("FusionLogic.cannonLine", function()
+		it("shows the Observatory on the Snowy Mountain card only while it is open", function()
+			local free = Logic.cannonLine({ ready = false, made = {} }, "snowy", 0)
+			expect(free ~= nil).to.equal(true)
+			expect(free.extraId).to.equal("fusion")
+			expect(free.name).to.equal("Observatory")
+			expect(free.state).to.equal("The dome is free")
+			expect(free.ready).to.equal(false)
+			local done = Logic.cannonLine(
+				{
+					running = { catId = "tabby", coat = "gold", doneAt = 0, level = 3 },
+					ready = true,
+				},
+				"snowy",
+				10
+			)
+			expect(done.ready).to.equal(true)
+			expect(Logic.cannonLine({}, "castle", 0)).to.equal(nil)
+			expect(Logic.cannonLine(false, "snowy", 0)).to.equal(nil)
+			expect(Logic.cannonLine(nil, "snowy", 0)).to.equal(nil)
+		end)
+	end)
+
 	describe("FusionLogic.pickerLine and coatTrack", function()
 		it("says what waits at the dome", function()
 			local view = { running = { catId = "tabby", coat = "gold", doneAt = 400, level = 1 } }

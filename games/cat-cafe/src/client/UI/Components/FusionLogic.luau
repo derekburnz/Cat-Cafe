@@ -386,6 +386,38 @@ function FusionLogic.coatTrack(
 	return out
 end
 
+-- #4104: the Snowy Mountain card's strip in the Cannon picker (the Observatory's way in until its dome has a prompt):
+-- the dome's state and Open, which brings up the window from anywhere; the red dot while a fusion waits to be
+-- collected. Nil on other cards and while the Observatory is shut (PlayerState.fusion unset: switch off or below
+-- Tier 8). The shape is CampExtrasLogic.Line.
+FusionLogic.AREA = "snowy"
+FusionLogic.STATION = "fusion"
+FusionLogic.ICON = "🔭"
+
+function FusionLogic.cannonLine(
+	view: any,
+	areaId: string,
+	now: number
+): {
+	extraId: string,
+	icon: string,
+	name: string,
+	state: string,
+	ready: boolean,
+}?
+	if areaId ~= FusionLogic.AREA or type(view) ~= "table" then
+		return nil
+	end
+	local dome = FusionLogic.dome(view, now)
+	return {
+		extraId = FusionLogic.STATION,
+		icon = FusionLogic.ICON,
+		name = "Observatory",
+		state = dome.title,
+		ready = dome.state == "ready",
+	}
+end
+
 -- The cannon picker's line and the station's "!" (section 2).
 function FusionLogic.pickerLine(view: any, readyCount: number, now: number): (string, boolean)
 	local dome = FusionLogic.dome(view, now)

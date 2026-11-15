@@ -10821,6 +10821,78 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		task.wait(0.4)
 		assert(UI.isOpen() == "OasisSpa", "uigate: Open on the Desert strip opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#3082)")
 	end },
+	-- #4061: until the kiosk is placed, the Water Park card's strip (on the Desert camp's cannon) is the Ticket Booth's
+	-- way in: the ticket count and Open, which brings up the booth window from anywhere
+	{ "CannonOpensBooth", function()
+		atTier(9) -- the Water Park opens at Tier 9; Scenes.close puts the tier back
+		UI.update({ ticketBooth = { tickets = 1234, spent = 0, rushUsedToday = false, weekEndsAt = workspace:GetServerTimeNow() + 86400, ready = 0, prizes = {} } } :: any)
+		UI.cannon.open("desert") -- the Water Park's cannon is the Desert camp's (launchFrom)
+		task.wait(0.3)
+		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+		local card = window:FindFirstChild("waterpark", true) :: Instance
+		local words = {}
+		for _, piece in card:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Visible then
+				words[piece.Text] = true
+			end
+		end
+		assert(words["Ticket Booth"] and words["1,234 tickets"], "uigate: the Water Park card has no Ticket Booth line (#4061)")
+		press("Cannon", "waterpark.Collect")
+		task.wait(0.4)
+		assert(UI.isOpen() == "TicketBooth", "uigate: Open on the Water Park strip opened " .. tostring(UI.isOpen()) .. " (#4061)")
+		UI.update({ ticketBooth = false } :: any)
+		-- the sample tier again before the scan: the Tier 9 HUD's TierGoal chip is not this scene's subject
+		UI.update({ tier = Scenes._rankTier } :: any)
+		Scenes._rankTier = nil
+	end },
+	-- #4062: the Dragon Keep's way in until its model is placed: the Castle card on the Ruins camp's cannon has the
+	-- Keep's strip, and its Open brings up the Keep window
+	-- #4104: the Fusion Observatory's way in until its dome has a prompt: the Snowy Mountain card has the Observatory's
+	-- strip, and its Open brings up the window
+	{ "CannonOpensFusion", function()
+		atTier(8) -- Snowy Mountain opens at Tier 8; Scenes.close puts the tier back
+		UI.update({ fusion = { ready = false, goldSeconds = 600, rainbowSeconds = 3600, made = { gold = 0, rainbow = 0 } } } :: any)
+		UI.cannon.open()
+		task.wait(0.3)
+		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+		local card = window:FindFirstChild("snowy", true) :: Instance
+		local words = {}
+		for _, piece in card:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Visible then
+				words[piece.Text] = true
+			end
+		end
+		assert(words["Observatory"] and words["The dome is free"], "uigate: the Snowy Mountain card has no Observatory line (#4104)")
+		press("Cannon", "snowy.Collect")
+		task.wait(0.4)
+		assert(UI.isOpen() == "FusionObservatory", "uigate: Open on the Snowy strip opened " .. tostring(UI.isOpen()) .. " (#4104)")
+		UI.update({ fusion = false } :: any)
+		-- the sample tier again before the scan: the Tier 8 HUD's TierGoal chip is not this scene's subject
+		UI.update({ tier = Scenes._rankTier } :: any)
+		Scenes._rankTier = nil
+	end },
+	{ "CannonOpensKeep", function()
+		atTier(10) -- the Castle opens at Tier 10; Scenes.close puts the tier back
+		UI.update({ dragon = { warmth = 1480, stage = 3, stageName = "Drake", nextAt = 2500, slots = { "warmTips", "sharpEye", "" }, binder = { warmTips = true, sharpEye = true }, hand = {}, hands = 0, colour = "ruby", sets = {}, napping = false, kept = 312, odds = { Common = 45, Rare = 30, Epic = 15, Legendary = 8, Mythic = 2 } } } :: any)
+		UI.cannon.open("ruins") -- the Castle's cannon is the Ruins camp's (launchFrom)
+		task.wait(0.3)
+		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+		local card = window:FindFirstChild("castle", true) :: Instance
+		local words = {}
+		for _, piece in card:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Visible then
+				words[piece.Text] = true
+			end
+		end
+		assert(words["Dragon Keep"] and words["Cinder the Drake"], "uigate: the Castle card has no Dragon Keep line (#4062)")
+		press("Cannon", "castle.Collect")
+		task.wait(0.4)
+		assert(UI.isOpen() == "DragonKeep", "uigate: Open on the Castle strip opened " .. tostring(UI.isOpen()) .. " (#4062)")
+		UI.update({ dragon = false } :: any)
+		-- the sample tier again before the scan: the Tier 10 HUD's TierGoal chip is not this scene's subject
+		UI.update({ tier = Scenes._rankTier } :: any)
+		Scenes._rankTier = nil
+	end },
 	-- #3082: 14 fish in the pond: Collect on the Woods strip in place of the red dot, for every player (#1463 had it
 	-- for a Golden Pond owner; the pass doubles the fish instead, #3093)
 	{ "CannonPondCollect", function()

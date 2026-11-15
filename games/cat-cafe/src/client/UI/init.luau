@@ -1122,6 +1122,12 @@ function UI.init(config: Types.InitConfig)
 				UI.campExtras.openYardSale(nil, true)
 			elseif stationId == "mysticPool" then
 				UI.mysticPool.open(true) -- #3196
+			elseif stationId == "ticketBooth" then
+				UI.lateStations.openBooth() -- #4061: no kiosk in the world yet, so this is its way in
+			elseif stationId == "dragon" then
+				UI.lateStations.openKeep() -- #4062: no Keep in the world yet, so this is its way in
+			elseif stationId == "fusion" then
+				UI.lateStations.openFusion() -- #4104: the Observatory's way in until its dome has a prompt
 			else
 				UI.lateStations.open(stationId, true)
 			end
@@ -8198,6 +8204,7 @@ do
 		fusion = nil :: FusionScreen.FusionObservatory?, -- #4104
 		test = nil :: { [string]: any }?, -- Studio only: StationFixtures views in place of PlayerState's (#4103)
 		testLink = nil :: RBXScriptConnection?,
+		boothPrompt = nil :: RBXScriptConnection?, -- #4061: TicketBoothPrompt's Triggered
 	}
 
 	-- Studio only: a made-up view from the Workspace attribute StationTest, else PlayerState's own field.
@@ -8390,6 +8397,19 @@ do
 				fusion:closed()
 			end,
 		})
+		-- the kiosk's own prompt (TicketBoothPrompt, placed by the server with the model) opens it the same way, and so
+		-- does the Keep's (DragonKeepPrompt) once its model is placed
+		late.boothPrompt = ProximityPromptService.PromptTriggered:Connect(
+			function(prompt: ProximityPrompt)
+				if prompt.Name == "TicketBoothPrompt" then
+					UI.lateStations.openBooth()
+				elseif prompt.Name == "DragonKeepPrompt" then
+					UI.lateStations.openKeep() -- #4062: the Keep's own prompt, once its model is placed
+				elseif prompt.Name == "FusionObservatoryPrompt" then
+					UI.lateStations.openFusion() -- #4104: the dome's own prompt, once the server places it
+				end
+			end
+		)
 		spa:render(state)
 		museum:render(state)
 		booth:setView(UI.lateStations.boothView(state))
@@ -8640,6 +8660,11 @@ do
 			testLink:Disconnect()
 		end
 		late.testLink = nil
+		local boothPrompt: RBXScriptConnection? = late.boothPrompt
+		if boothPrompt then
+			boothPrompt:Disconnect()
+		end
+		late.boothPrompt = nil
 	end
 end
 
@@ -8738,6 +8763,9 @@ do
 	function UI.mysticPool.render(playerState: Types.PlayerState)
 		if cannonScreen then
 			cannonScreen:setTraits((playerState :: any).traits) -- the Park card's strip in the Cannon menu
+			cannonScreen:setBooth((playerState :: any).ticketBooth) -- #4061: the Water Park card's Ticket Booth
+			cannonScreen:setKeep((playerState :: any).dragon) -- #4062: the Castle card's Dragon Keep
+			cannonScreen:setFusion((playerState :: any).fusion) -- #4104: the Snowy Mountain card's Observatory
 		end
 		local card = pool.card
 		if card then

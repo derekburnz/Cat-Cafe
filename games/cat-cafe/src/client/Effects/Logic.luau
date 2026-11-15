@@ -87,6 +87,13 @@ function Logic.tier(touch: boolean, keyboard: boolean, mouse: boolean?): Presets
 	return "high"
 end
 
+-- How much of a cutscene's letterbox bars a device draws: none on a phone or tablet (Derek 2026-11-15, of the Mythic
+-- and Secret trait scenes: "on phone it has the black bar on top and bottom that needs to be gone"; a phone's screen
+-- is already wide and short, so the bars only took picture away), all of them elsewhere.
+function Logic.letterbox(device: Presets.Tier): number
+	return if device == "low" then 0 else 1
+end
+
 -- The player's Settings switches that effects follow, from ProfileSync `settings`: screen shake is on and Low
 -- performance off until the player flips them, so a missing key or no settings at all keeps those.
 function Logic.readSettings(settings: { [string]: unknown }?): (boolean, boolean)

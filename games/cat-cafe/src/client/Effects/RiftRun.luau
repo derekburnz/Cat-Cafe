@@ -727,6 +727,7 @@ local function makeScreen(): Screen?
 	gui.Name = "EffectsRiftRun"
 	gui.ResetOnSpawn = false
 	gui.IgnoreGuiInset = true
+	gui.ScreenInsets = Enum.ScreenInsets.None -- edge to edge, past a phone's notch sides
 	gui.DisplayOrder = r.displayOrder
 
 	local bars: { Frame } = {}
@@ -1195,7 +1196,8 @@ function RiftRun.play(
 			shown.flash.BackgroundTransparency = 1 - white
 			local barK = Logic.smoothstep01(t / r.flareIn)
 			for _, bar in shown.bars do
-				bar.Size = UDim2.fromScale(1, 0.1 * barK)
+				bar.Size =
+					UDim2.fromScale(1, 0.1 * barK * Logic.letterbox(Context.device :: Presets.Tier))
 			end
 			local w = now - wordAt
 			if w < r.wordSeconds then

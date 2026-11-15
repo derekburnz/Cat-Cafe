@@ -1382,7 +1382,11 @@ return function()
 				}
 				expect(Layout.cornerShop.x).to.equal(Layout.dayCart.x)
 				expect(Layout.cornerShop.z).to.equal(Layout.dayCart.z)
-				local props: { any } = { Layout.townSquare.pitySign, Layout.playerSpawn }
+				local props: { any } = {
+					Layout.townSquare.pitySign,
+					Layout.townSquare.updatePoster,
+					Layout.playerSpawn,
+				}
 				for _, prop in Layout.townSquare.rallyBoards do
 					table.insert(props, prop)
 				end
@@ -2371,6 +2375,33 @@ return function()
 						end
 					end
 				end
+			end
+		)
+
+		it(
+			"stands the update poster on the square facing the spawn, off the lanes (#4362)",
+			function()
+				local poster = square.updatePoster
+				expect(poster.asset).to.equal("CatCafe_Square_UpdatePoster")
+				-- about 9.4 wide and 1.4 deep (the manifest); every corner of that, turned, stays on the square off the lanes
+				local yaw = math.rad(poster.rotY or 0)
+				local cos, sin = math.cos(yaw), math.sin(yaw)
+				for _, corner in { { -4.7, -0.7 }, { 4.7, -0.7 }, { -4.7, 0.7 }, { 4.7, 0.7 } } do
+					local x = poster.x + corner[1] * cos + corner[2] * sin
+					local z = poster.z - corner[1] * sin + corner[2] * cos
+					expect(inside(x, z, square.floor, 2)).to.equal(true)
+					for _, lane in lanes do
+						expect(inside(x, z, lane, -0.5)).to.equal(false)
+					end
+				end
+				local spawn = Layout.playerSpawn
+				local toX, toZ = spawn.x - poster.x, spawn.z - poster.z
+				local length = math.sqrt(toX ^ 2 + toZ ^ 2)
+				expect((-sin * toX - cos * toZ) / length > 0.99).to.equal(true)
+				local sign = square.pitySign
+				expect(math.sqrt((sign.x - poster.x) ^ 2 + (sign.z - poster.z) ^ 2) > 12).to.equal(
+					true
+				)
 			end
 		)
 

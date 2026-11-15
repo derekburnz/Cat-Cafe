@@ -1703,6 +1703,7 @@ function UI.init(config: Types.InitConfig)
 	-- every area's Index Board, including boards that stream in later; its prompt opens that area's Index page
 	require(script.Screens.ThanksBoard).new(parent) -- #1083: the Thank You board's face (no local: init is at Luau's 200)
 	require(script.Screens.PitySign).new(parent) -- #1572: the pity cat sign's countdowns (no local, as above)
+	require(script.Screens.UpdatePoster).new(parent) -- #4362: the next update's poster stand (no local, as above)
 	indexBoards = IndexBoards.new(parent, {
 		open = function(areaId: string)
 			UI.openIndex(areaId)

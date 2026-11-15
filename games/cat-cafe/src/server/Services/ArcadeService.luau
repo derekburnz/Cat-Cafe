@@ -29,6 +29,7 @@ local CatService = require(script.Parent.CatService)
 local Circles = require(ReplicatedStorage.Shared.Circles)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
+local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
@@ -37,6 +38,7 @@ local MouseDash = require(ReplicatedStorage.Shared.MouseDash)
 local Net = require(script.Parent.Net)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local Payout = require(script.Parent.Payout)
+local StationTiers = require(ReplicatedStorage.Shared.StationTiers)
 local Telemetry = require(script.Parent.Telemetry)
 local TradeService = require(script.Parent.TradeService)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -473,6 +475,18 @@ local function onStart(player: Player)
 	-- #3296: `circleStreak` off vaults this game (Mouse Dash is the arcade's game then); a game running finishes
 	if not (LiveFlagService.on(Arcade.FLAG) and LiveFlagService.on(MouseDash.CIRCLE_FLAG)) then
 		Net.toast(player, CLOSED_TEXT, "warn")
+		blocked(true, true, false, false)
+		return
+	end
+	-- #4539: the Cat Arcade opens from Tier 3 (shared/StationTiers)
+	if
+		StationTiers.locked(
+			Arcade.TAG,
+			Economy.tier(profile),
+			LiveFlagService.on(StationTiers.FLAG)
+		)
+	then
+		Net.toast(player, StationTiers.refusal(Arcade.TAG), "warn")
 		blocked(true, true, false, false)
 		return
 	end

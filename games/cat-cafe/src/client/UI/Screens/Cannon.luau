@@ -35,6 +35,7 @@ local CampExtrasLogic = require(script.Parent.Parent.Components.CampExtrasLogic)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local DragonKeepLogic = require(script.Parent.Parent.Components.DragonKeepLogic)
+local FusionLogic = require(script.Parent.Parent.Components.FusionLogic)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local LateBuild = require(script.Parent.Parent.Components.LateBuild)
@@ -90,6 +91,7 @@ export type Cannon = {
 	setTraits: (self: Cannon, traits: any) -> (), -- #3196: PlayerState.traits, for the Mystic Pool's strip
 	setBooth: (self: Cannon, booth: any) -> (), -- #4061: PlayerState.ticketBooth, for the Water Park card's strip
 	setKeep: (self: Cannon, keep: any) -> (), -- #4062: PlayerState.dragon, for the Castle card's strip
+	setFusion: (self: Cannon, fusion: any) -> (), -- #4104: PlayerState.fusion, for the Snowy Mountain card's strip
 	setLate: (self: Cannon, late: any) -> (), -- #2651 part 4: LateStationsState, for the Desert and Ruins strips
 	render: (self: Cannon, state: Types.PlayerState, carrying: boolean) -> (),
 	opened: (self: Cannon) -> (),
@@ -184,6 +186,7 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._traits = nil :: any -- #3196: PlayerState.traits, for the Mystic Pool's strip
 	self._booth = nil :: any -- #4061: PlayerState.ticketBooth, for the Water Park card's strip
 	self._keep = nil :: any -- #4062: PlayerState.dragon, for the Castle card's strip
+	self._fusion = nil :: any -- #4104: PlayerState.fusion, for the Snowy Mountain card's strip
 	self._late = nil :: any -- #2651 part 4: the last LateStationsState
 	self._tall = false -- the cards have room for a camp extra's strip
 	self._ring = nil :: string? -- #2915: the area whose Launch wears the ring
@@ -546,6 +549,7 @@ function Cannon._line(self: any, id: string): CampExtrasLogic.Line?
 		or LateStationsLogic.pickerLine(self._late, id)
 		or TicketBoothLogic.pickerLine(self._booth, id) -- #4061: the Water Park card's Ticket Booth
 		or DragonKeepLogic.pickerLine(self._keep, id) -- #4062: the Castle card's Dragon Keep
+		or FusionLogic.cannonLine(self._fusion, id, now) -- #4104: the Snowy Mountain card's Observatory
 	-- the Rummage Bin on its area's card (Derek 2026-11-12): the player's BinNextAt and the `alleyBin` switch
 	local bin = CampExtrasLogic.binLine(
 		id,
@@ -559,6 +563,11 @@ end
 -- #4061: PlayerState.ticketBooth (nil or false while the booth is shut), for the Water Park card's strip.
 function Cannon.setBooth(self: any, booth: any)
 	self._booth = if type(booth) == "table" then booth else nil
+end
+
+-- #4104: PlayerState.fusion (nil or false while the Observatory is shut), for the Snowy Mountain card's strip.
+function Cannon.setFusion(self: any, fusion: any)
+	self._fusion = if type(fusion) == "table" then fusion else nil
 end
 
 -- #4062: PlayerState.dragon (nil or false while the Keep is shut), for the Castle card's strip.

@@ -59,7 +59,7 @@ local function tick(dt: number): boolean
 		end
 		local chances = RareCustomers.chances(
 			Economy.richRate(profile),
-			Economy.traitBonus(profile, "rareCustomer")
+			Economy.traitBonus(profile, "rareCustomer") + Economy.dragonEffects(profile).rich -- #4569: the Keep's rare customer cards
 		)
 		for _ = 1, count do
 			local kind = RareCustomers.pick(chances, rng:NextNumber())

@@ -159,6 +159,11 @@ local function applyReach(player: Player, profile: Types.PlayerProfile)
 	local trail = LiveFlagService.on(DragonKeep.FLAG)
 		and table.find(profile.dragon.slots, "fireTrail") ~= nil
 	player:SetAttribute("FireTrail", if trail then true else nil)
+	-- #4569: the lit sets for their looks (client Effects): "flame5,claw3", nil with none or the switch off
+	player:SetAttribute(
+		"DragonSets",
+		if LiveFlagService.on(DragonKeep.FLAG) then DragonKeep.setsTag(profile.dragon) else nil
+	)
 end
 
 local function onPick(player: Player, rawIndex: unknown, rawSlot: unknown)

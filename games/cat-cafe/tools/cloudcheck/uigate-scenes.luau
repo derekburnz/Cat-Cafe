@@ -11845,6 +11845,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local RS = game:GetService("ReplicatedStorage")
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		local was = Config.UpdateFeature
+		-- #4377: every Robux card has a Sale row now, and a Sale badge outranks "New today"; this scene is about the
+		-- New today line, so it runs with no sale rows
+		local wasSale = Config.StoreWasPrice
+		Config.StoreWasPrice = {}
 		Config.UpdateFeature = { keys = { "money" }, starts = 0, ends = math.huge }
 		RS:SetAttribute("LiveFlag_updateFeature", true)
 		UI.update({ dailyDeal = false } :: any)
@@ -11858,6 +11862,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local pickName = (pick:FindFirstChild("Name") :: TextLabel).Text
 		local pickBadge = pick:FindFirstChild("Badge", true) :: TextLabel
 		Config.UpdateFeature = was
+		Config.StoreWasPrice = wasSale
 		RS:SetAttribute("LiveFlag_updateFeature", nil)
 		assert(hero.Visible and string.find(heroName, "Money", 1, true), "uigate: the update's item is not the hero: " .. heroName .. " (#4175)")
 		assert(badge.Visible and badge.Text == "New today", "uigate: the hero's badge reads " .. tostring(badge.Text) .. " (#4175)")

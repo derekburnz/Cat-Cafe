@@ -15,7 +15,8 @@ export type Area =
 	| "ruins"
 	| "snowy"
 	| "waterpark"
--- A cat's area: one of the nine (#3997, #4070: the Snowy Mountain and the Water Park are not open yet), the spare pool of cats an area-themed
+	| "castle"
+-- A cat's area: one of the ten (#3997, #4070, #4184: the Snowy Mountain, the Water Park and the Medieval Castle are not open yet), the spare pool of cats an area-themed
 -- cat replaced (data-model 3d, F78), or "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
 -- #3470: "secret" for a Secret cat, which belongs to no area and can turn up in any of them.
 export type CatArea = Area | "spare" | "exclusive" | "secret"

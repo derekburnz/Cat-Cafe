@@ -142,7 +142,7 @@ ICONS = {
     **{f"CatCafe_Icon_Net_L{n}": ((lambda m, n=n: items.build_net(n, m)), INK, 10, (-62.0, 40.0)) for n in (1, 2, 3, 4)},
     # #4061 the Ticket Booth's two toys, for their prize cards
     "CatCafe_Icon_WaterSquirter": (items.build_water_squirter, INK, 10, (-70.0, 12.0)),
-    "CatCafe_Icon_PoolNoodle": (items.build_pool_noodle_icon, INK, 10, (-20.0, 10.0)),
+    "CatCafe_Icon_PoolNoodle": (items.build_pool_noodle_icon, INK, 10, (-28.0, 14.0)),
     **{f"CatCafe_Icon_Potion_{k}": ((lambda m, k=k: potions.build_potion(k, m)), INK, 10, (8.0, 10.0))
        for k in potions.POTIONS},
     **{f"CatCafe_Icon_PotionFlask_{n}": (fn, INK, 10, (-12.0, 8.0)) for n, fn in potion_icons.BUILDERS.items()},

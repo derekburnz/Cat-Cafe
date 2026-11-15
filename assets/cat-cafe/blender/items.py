@@ -484,17 +484,18 @@ def build_pool_noodle(mat):
 
 
 def build_pool_noodle_icon(mat):
-    """The Pool Noodle's picture only (icons.py): the same noodle bent into an arch, so it fills a square card. The
-    held model is too long and thin to read at 52 px."""
+    """The Pool Noodle's picture only (icons.py): the same noodle in a soft S wave, fatter and shorter, so it fills a
+    square card. The held model is too long and thin to read at 52 px. One run of short overlapping rods, no joint
+    balls (their poles showed as dark marks under the outline pass)."""
     b = Builder()
-    pts = [Vector(p) for p in ((-0.9, 0, 0), (-0.9, 0, 1.0), (-0.45, 0, 1.6), (0.45, 0, 1.6), (0.9, 0, 1.0), (0.9, 0, 0))]
-    for p, q in zip(pts, pts[1:]):
-        _rod(b, p, q, 0.28, "leaf_green", segments=10, extend=0.06)
-    for p in pts[1:-1]:
-        b.sphere(tuple(p), 0.28, "leaf_green", segments=10, rings=6)
-    for x in (-0.9, 0.9):
-        _rod(b, (x, 0, 0.35), (x, 0, 0.65), 0.295, "fur_bubblegum", segments=10)
-        _rod(b, (x, 0, -0.012), (x, 0, 0.02), 0.13, "choco", segments=8)
+    n = 18
+    pts = [Vector((-1.5 + 3.0 * k / n, 0.0, 0.5 * math.sin(2 * math.pi * k / n) + 0.35 * (k / n - 0.5))) for k in range(n + 1)]
+    for k, (p, q) in enumerate(zip(pts, pts[1:])):
+        band = k in (2, 3, n - 4, n - 3)
+        _rod(b, p, q, 0.305 if band else 0.29, "fur_bubblegum" if band else "leaf_green", segments=12, extend=0.05)
+    for p, q in ((pts[0], pts[1]), (pts[-1], pts[-2])):
+        d = (p - q).normalized()
+        _rod(b, p + d * 0.03, p + d * 0.07, 0.14, "choco", segments=8)                               # the hollow ends
     return [b.finalize(NOODLE + "_Icon", mat)]
 
 

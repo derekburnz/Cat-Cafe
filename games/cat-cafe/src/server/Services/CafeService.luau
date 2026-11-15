@@ -387,7 +387,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		dailyDeal = dealView(player, profile, now), -- #3996
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
-		secondCat = SecondCat.view(profile), -- #3022
+		secondCat = SecondCat.view(profile, LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)), -- #3022, #4624
 		stuckGoal = StuckGoal.waiting(profile, LiveFlagService.on(StuckGoal.AFTER_SECOND_FLAG)), -- #2912, #4473
 		introSeen = profile.introSeen,
 		introAuto = introAuto, -- #3666
@@ -1588,9 +1588,17 @@ function CafeService.addCaughtCat(
 		profile.stats.rainbowCatches += 1
 	end
 	Telemetry.custom(player, "cat_caught", 1, { def.id, howText, instance.variant })
+	-- #4624: what this new kind pays (3x a Common's for kinds 2 to 5 in Tier 1 behind earlyKindBonus); the toasts say it
+	local newKindReward = 0
 	if isNew then
+		newKindReward = SecondCat.newKindReward(
+			Catalog.rarities[def.rarity].firstCatchReward,
+			Economy.tier(profile),
+			ProfileSchema.collectionCount(profile),
+			LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)
+		)
 		profile.collection[def.id] = now
-		local reward = Catalog.rarities[def.rarity].firstCatchReward
+		local reward = newKindReward
 		Economy.credit(profile, reward)
 		-- the starter cat is the first book entry, so two entries means this was the player's first new cat
 		local first = ProfileSchema.collectionCount(profile) <= 2
@@ -1672,7 +1680,7 @@ function CafeService.addCaughtCat(
 					"Your first cat! %s is your %s (+$%s)",
 					def.name,
 					roleName(spotHere),
-					ShortNumber.format(Catalog.rarities[def.rarity].firstCatchReward)
+					ShortNumber.format(newKindReward)
 				),
 				"good"
 			)
@@ -1682,7 +1690,7 @@ function CafeService.addCaughtCat(
 				string.format(
 					"New cat! %s joins the collection (+$%s, %s)",
 					def.name,
-					ShortNumber.format(Catalog.rarities[def.rarity].firstCatchReward),
+					ShortNumber.format(newKindReward),
 					fishText(fish)
 				),
 				"good"

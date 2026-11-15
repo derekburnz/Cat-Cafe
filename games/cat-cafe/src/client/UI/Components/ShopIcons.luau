@@ -317,6 +317,7 @@ local IDS: { [string]: string } = {
 	Icon_Store_KingPack = "rbxassetid://93204952454452",
 	Icon_Store_GoldenPond = "rbxassetid://89558912583122",
 	Icon_Store_SecondBowl = "rbxassetid://135271113321879",
+	Icon_Store_AutoBowl = "rbxassetid://135271113321879", -- #4266: the bowl picture, as on the Bait bowl window's offer
 	Icon_Store_StarterBundle = "rbxassetid://95362407964835",
 	Icon_Store_PotionXS = "rbxassetid://97739871449916",
 	Icon_Store_PotionS = "rbxassetid://101008485240894",
@@ -593,6 +594,11 @@ end
 -- #4026: an outfit pack's 2:1 store art (cats close up in the pack), by its Row key ("packWinter")
 function ShopIcons.packArt(key: string): string?
 	return IDS["Icon_Store_" .. key:sub(1, 1):upper() .. key:sub(2) .. "Art"]
+end
+
+-- #4276: an outfit pack's square pass icon, by its Row key ("packWinter"), for the Store rail's Packs tab
+function ShopIcons.packIcon(key: string): string?
+	return IDS["Icon_Store_" .. key:sub(1, 1):upper() .. key:sub(2)]
 end
 
 function ShopIcons.storeTab(id: string): string?

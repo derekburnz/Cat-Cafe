@@ -3089,22 +3089,29 @@ end
 -- #4061: the Ticket Booth kiosk (CatCafe_Camp_WaterPark_TicketBooth, pivot its base centre, front -Z, 9.2 wide and
 -- 5.4 deep) in the Water Park's set space, as Layout.lawnStall: in the camp right of the way out (the Index Board is
 -- on the left at x -19), 10 in from the gate line (set z -280) and level with the landing pad (z -293, x 0), turned 90
--- so its front faces set -X, toward the pad. Its turned footprint runs x 19.3 to 24.7, clear of the opening (12 either
--- side of the middle).
-Layout.ticketBooth = { area = "waterpark", x = 22, y = 0, z = -290, turn = 90 }
+-- so its front faces set -X, toward the pad. Its turned footprint runs x 23.3 to 28.7, clear of the opening (12 either
+-- side of the middle) and of the balloon bunch at x 30.
+-- #4628 (Derek 2026-11-15: "push the ticket booth back a little its circle is on the paw"): x 22 to 26 and a ring of
+-- radius 7 (8 before), so the ring (x 9.3 to 23.3) clears the landing pad (radius 8 round x 0) and its paw.
+-- `front` is how far the model's front stands from its pivot and `ring` its walk-up ring's radius (WorldBuilder
+-- buildCampStation): the ring touches the front, so it reaches front + 2 * ring toward the pad.
+Layout.ticketBooth =
+	{ area = "waterpark", x = 26, y = 0, z = -290, turn = 90, front = 2.7, ring = 7 }
 
 -- #4103: the Dragon Keep (CatCafe_Camp_Castle_DragonKeep, pivot its base centre, front -Z, 15.1 wide and 15.0 deep)
 -- in the Medieval Castle's set space, as Layout.ticketBooth: right of the way out (its Index Board on the left at
 -- x -19), its centre level with the pad (z -293), turned 90 so its front faces the pad. Its footprint runs x 24.5 to
 -- 39.5 and z -285.5 to -300.5, inside the camp (gate line z -280, back wall -310) and clear of the opening.
-Layout.dragonKeep = { area = "castle", x = 32, y = 0, z = -293, turn = 90 }
+Layout.dragonKeep = { area = "castle", x = 32, y = 0, z = -293, turn = 90, front = 7.5, ring = 8 }
 
 -- #4104 (Derek 2026-11-15 18:00 UTC: "I want all stations and maps out with the update"): the Fusion Observatory's
 -- dome (CatCafe_Camp_Snowy_FusionObservatory, pivot its base centre, front -Z, about 15 wide and 13 deep) in the Snowy
 -- Mountain's camp, as Layout.dragonKeep: right of the way out, its centre level with the pad, turned 90 so its front
 -- faces the pad. Model-Agent's fit against the Snowy camp's parts (2026-11-15 18:05 UTC): turned, it runs x 20.5 to
 -- 33.4 and z -299.9 to -284.9, clear of the opening, the ski rack and the Cocoa Lodge front (x 33.7 on).
-Layout.fusionObservatory = { area = "snowy", x = 27, y = 0, z = -294, turn = 90 }
+-- #4628: a ring of radius 6 (8 before, which lay over the landing pad's east side): x 8.5 to 20.5
+Layout.fusionObservatory =
+	{ area = "snowy", x = 27, y = 0, z = -294, turn = 90, front = 6.5, ring = 6 }
 
 -- Where a camp spot ({area, x, y, z, turn} in its area's set space) stands in the world, as lawnStallAt, or nil
 -- without that area or its camp.

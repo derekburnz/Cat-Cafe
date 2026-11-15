@@ -50,6 +50,7 @@ local Crown = require(script.Crown)
 local Decor = require(script.Decor)
 local DoorSign = require(script.DoorSign)
 local Equip = require(script.Equip)
+local FireTrail = require(script.FireTrail)
 local FirstBaitCut = require(script.FirstBaitCut)
 local Fish = require(script.Fish)
 local FusionFx = require(script.FusionFx)
@@ -155,6 +156,7 @@ function Effects.start()
 		Equip.start,
 		Potions.start,
 		SpeedShoes.start,
+		FireTrail.start, -- #4558: the Dragon Keep's Fire Trail card, embers at the heels
 		Pull.start,
 		Mystery.start,
 		Levels.start,

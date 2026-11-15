@@ -6613,8 +6613,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		press("Collection", "IndexTab")
 		assert(title.Text ~= "Gold cats", "uigate: the Cats tab's line still reads Gold cats (#1772)")
 	end },
-	-- #4221: the Secret tab (secretAreas on): one card per area, Cafe Ghost found in gold, Glitch hidden in an open
-	-- area, the areas with no Secret yet "Coming soon"; the old Secret page is gone from the Cats tab
+	-- #4221: the Secret tab (secretAreas on): one card per area, Cafe Ghost found in gold, an open area's Secret hidden,
+	-- an area with no Secret yet "Coming soon"; the old Secret page is gone from the Cats tab
 	{ "IndexSecretTab", function()
 		local RS = game:GetService("ReplicatedStorage")
 		RS:SetAttribute("LiveFlag_secretAreas", true)
@@ -6633,14 +6633,30 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local ghost = page:FindFirstChild("alley", true)
 		local nameLabel = ghost and ghost:FindFirstChild("Name")
 		assert(nameLabel and nameLabel.Text == "Cafe Ghost", "uigate: the Alleyway card reads " .. tostring(nameLabel and nameLabel.Text))
+		-- #4255 put a Secret in every area: the Park's (open at Tier 3, not found) is hidden, and an area with no
+		-- Secret in the catalog (none since #4255) would read "Coming soon"
+		local Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog") :: any
+		local homes: { [string]: boolean } = {}
+		for _, def in Catalog.cats do
+			if def.secretArea ~= nil then
+				homes[def.secretArea] = true
+			end
+		end
 		local park = page:FindFirstChild("park", true)
 		local parkName = park and park:FindFirstChild("Name")
-		assert(parkName and parkName.Text == "Coming soon", "uigate: the Park card reads " .. tostring(parkName and parkName.Text))
+		local parkWant = if homes.park then "???" else "Coming soon"
+		assert(parkName and parkName.Text == parkWant, "uigate: the Park card reads " .. tostring(parkName and parkName.Text) .. ", not " .. parkWant .. " (#4221)")
+		for _, area in Catalog.areas do
+			local card = page:FindFirstChild(area.id, true)
+			local label = card and card:FindFirstChild("Name")
+			if not homes[area.id] then
+				assert(label and label.Text == "Coming soon", "uigate: " .. area.id .. " has no Secret yet but reads " .. tostring(label and label.Text) .. " (#4221)")
+			end
+		end
 		local count = page:FindFirstChild("Count", true)
 		assert(count and string.find(count.Text, "^1 / %d+ found$") ~= nil, "uigate: the Secret count reads " .. tostring(count and count.Text))
 		-- Review-QA in Studio: a bad property on the first card stopped the rest; every area has its card, and a
 		-- locked area's shape is faint on the portrait's ViewportFrame
-		local Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog") :: any
 		for _, area in Catalog.areas do
 			local card = page:FindFirstChild(area.id, true) :: GuiObject?
 			assert(card ~= nil and card.Visible, "uigate: no Secret card for " .. area.id .. " (#4221)")
@@ -12360,23 +12376,26 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local tab = window:FindFirstChild("Rail", true):FindFirstChild("packs") :: GuiObject
 			assert(tab and tab.Visible, "uigate: the Store has no Packs tab (#4276)")
 			local icon = tab:FindFirstChild("Icon", true) :: TextLabel
+			-- Model-Agent's WebAssembly runs: the turn loop's phase and wake-up lag are not the scene's, so fixed 2.6 s
+			-- steps could see one pack twice. Step in quarter seconds until the picture changes, four times.
 			local seen: { [string]: boolean } = {}
 			local turns = 0
-			-- up to eight turns: the turn loop runs on the gate's shared clock, so what ran before decides its phase, and
-			-- CI's merged runs missed one turn in four (desktop and laptop, not phone); every pack must show within two rounds
-			for _ = 1, 8 do
-				UIShim.advance(2.6)
+			local last = icon:GetAttribute("Pack")
+			for _ = 1, 4 do
+				local waited = 0
+				while icon:GetAttribute("Pack") == last and waited < 6 do
+					UIShim.advance(0.25)
+					waited += 0.25
+				end
 				local pack = icon:GetAttribute("Pack")
-				assert(type(pack) == "string", "uigate: the Packs tab did not turn to a pack's picture (#4276)")
+				assert(type(pack) == "string" and pack ~= last, "uigate: the Packs tab did not turn to the next pack's picture within 6 s (#4276)")
+				last = pack
 				if not seen[pack] then
 					seen[pack] = true
 					turns += 1
 				end
-				if turns == 4 then
-					break
-				end
 			end
-			assert(turns == 4, ("uigate: the Packs tab showed %d of the 4 packs in eight turns (#4276)"):format(turns))
+			assert(turns == 4, ("uigate: the Packs tab showed %d of the 4 packs in four turns (#4276)"):format(turns))
 			local sweep = tab:FindFirstChild("Sweep", true) :: GuiObject
 			local face = tab:FindFirstChild("Face") :: GuiObject
 			assert(sweep and sweep.Parent == face and sweep:FindFirstChildOfClass("UIGradient"), "uigate: the Packs tab has no light sweep (#4276)")

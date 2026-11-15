@@ -503,7 +503,8 @@ end
 -- the Snowy Mountain), "arrive" a cat's gust where it lands (the Blizzard Cat's), "catch" a catch there: the
 -- Blizzard Cat's gust again and the White Tiger Cat's frost chime. Nil for everything else, which keeps the sounds
 -- every catch already has.
-local AREA_STEPS: { [string]: string } = { snowy = "snowStep" }
+-- #4251: Harvest Hollow's steps crunch dry leaves (leafStep: the snow crunch pitched up, crisper and lighter)
+local AREA_STEPS: { [string]: string } = { snowy = "snowStep", harvest = "leafStep" }
 -- #4070: the Water Cat lands and is caught with a splash (the Camp pond's, until the Water Park has its own sheet)
 -- #4071: the Dragon Knight lands and is caught with a little dragon's roar (the Dragon Keep hatchling's)
 local CAT_ARRIVES: { [string]: string } =

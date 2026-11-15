@@ -10,8 +10,10 @@ the Park, 150 x 120.
                          x > 25, z < 0  the sand garden: raked sand, three mossy rocks, a low fence on three sides
                          x < -10, z > 5 the koi pond (flat `_Water`, no kerb) with the red hump bridge across its
                                         narrow part, and the cliff behind it with three waterfalls
-                         the far middle the four tier pagoda on its stone base (solid; looks only)
-                         x > 30, z > 10 the tea house on stilts: a deck 2.5 up with steps at its -X end
+                         the far middle the four tier pagoda on its stone base (solid; looks only), a red rail
+                                        round the base, two stone cats by the step, bells on every roof tip
+                         x > 30, z > 10 the tea house on stilts: a railed deck 2.5 up with steps at its -X end, two
+                                        low tables with cushions
   Nothing invisible stands inside the area: the only _Barrier is the 30 high ring in the wall band. Lights are `_Glow`,
   the pond (`_003_Pond_Water`) and the three falls (`_005_Waterfall_Water`, for Effects' mist) `_Water`, petals, koi and lily pads `_Decor` (no collision).
 
@@ -98,6 +100,10 @@ def _roof(b, x, y, z, w, dd, h=1.6, col=ROOF):
             b.box((cx + sx * 0.5, cy + sy * 0.5, z + 0.55), (2.6, 0.7, 0.4), col, bevel=False,
                   rot=_turn_tilt(a, 28))
             b.box((cx + sx * 1.35, cy + sy * 1.35, z + 1.2), (0.8, 0.8, 0.5), "gold_mid", bevel=False, rot=rz(a))
+            # a little bell hangs from each tip
+            b.box((cx + sx * 1.5, cy + sy * 1.5, z + 0.82), (0.08, 0.08, 0.3), "fur_ink", bevel=False)
+            b.cyl((cx + sx * 1.5, cy + sy * 1.5, z + 0.45), 0.3, 0.45, "gold_light", segments=6, bevel=False,
+                  radius2=0.16)
 
 
 def _arch(b, x, y, w=12.0, h=11.0):
@@ -117,6 +123,28 @@ def _bamboo(b, rnd, x, y):
         h = rnd.uniform(9, 14)
         b.cyl_base((x + dx, y + dy, G), 0.28, h, "fur_fern", segments=6, bevel=False)
         b.ico((x + dx, y + dy, h + 0.2), 1.1, "leaf_green", scale=(1, 1, 0.6))
+
+
+def _koi(d, x, y, z, yaw, s, col, spot):
+    """One koi seen from above: a long flat body, a head patch and a tail fin."""
+    c, sn = math.cos(math.radians(yaw)), math.sin(math.radians(yaw))
+    d.ico((x, y, z), s, col, scale=(1, 0.36, 0.13), rot=rz(yaw))
+    d.ico((x + 0.45 * s * c, y + 0.45 * s * sn, z + 0.06), s * 0.42, spot, scale=(1, 0.55, 0.2), rot=rz(yaw))
+    d.box((x - 1.12 * s * c, y - 1.12 * s * sn, z), (0.62 * s, 0.62 * s, 0.05), col, bevel=False, rot=rz(yaw + 45))
+    for side in (-1, 1):                                                           # side fins
+        d.box((x + 0.2 * s * c - side * 0.36 * s * sn, y + 0.2 * s * sn + side * 0.36 * s * c, z - 0.02),
+              (0.4 * s, 0.22 * s, 0.04), col, bevel=False, rot=rz(yaw + side * 35))
+
+
+def _cat_statue(b, x, y, z, s=1.0):
+    """A stone cat sitting on a block, facing the arrival end."""
+    b.box_base((x, y, z), (2.2 * s, 2.2 * s, 0.8 * s), STONE, bevel=False)
+    b.ico((x, y, z + 1.75 * s), 1.05 * s, "fur_slate", scale=(0.9, 0.95, 1.15))
+    b.ico((x, y - 0.25 * s, z + 3.25 * s), 0.8 * s, "fur_slate")
+    for sx in (-1, 1):
+        b.pyramid((x + sx * 0.45 * s, y - 0.25 * s, z + 3.8 * s), 0.5 * s, 0.6 * s, "fur_slate")
+        b.ico((x + sx * 0.4 * s, y - 0.85 * s, z + 1.1 * s), 0.3 * s, "fur_slate")                   # the front paws
+    b.box((x, y - 0.75 * s, z + 2.65 * s), (0.9 * s, 0.25 * s, 0.25 * s), RED, bevel=False)          # a red collar bib
 
 
 def _ground(b):
@@ -184,8 +212,9 @@ def _pond(b, w, d, rnd):
         w.cyl_base((x, y, G + 0.02), 1, 0.12 + 0.004 * k, "fish_blue", segments=24, bevel=False, scale=(rx_, ry_, 1))
     for k in range(9):                                                             # koi
         x, y = px + rnd.uniform(-16, 14), py + rnd.uniform(-8, 10)
-        d.box((x, y, G + 0.19 + 0.004 * k), (1.6, 0.6, 0.05), rnd.choice(("fur_marmalade", "offwhite", "gold_mid", "bowl_red")),
-              bevel=False, rot=rz(rnd.uniform(0, 180)))
+        col, spot = rnd.choice((("fur_marmalade", "offwhite"), ("offwhite", "bowl_red"), ("gold_mid", "offwhite"),
+                                ("bowl_red", "offwhite"), ("offwhite", "fur_ink")))
+        _koi(d, x, y, G + 0.2 + 0.004 * k, rnd.uniform(0, 360), rnd.uniform(1.0, 1.5), col, spot)
     for k in range(10):                                                            # lily pads
         x, y = px + rnd.uniform(-17, 15), py + rnd.uniform(-9, 11)
         d.cyl_base((x, y, G + 0.24 + 0.004 * k), 1.0, 0.05, "leaf_dark", segments=8, bevel=False)
@@ -234,7 +263,7 @@ def _pagoda(b, g):
     b.box_base((gx, gy, G), (24, 24, 1.6), STONE, bevel=False)
     b.box_base((gx, gy - 13, G), (8, 3, 0.8), STONE, bevel=False)                           # the step
     z = G + 1.6
-    for (wd, hh) in ((16, 6.5), (13, 5.5), (10, 5), (7, 4.5)):
+    for tier, (wd, hh) in enumerate(((16, 6.5), (13, 5.5), (10, 5), (7, 4.5))):
         b.box_base((gx, gy, z), (wd, wd, hh), "fur_vanilla", bevel=False)
         for sx in (-1, 1):
             for sy in (-1, 1):
@@ -244,12 +273,51 @@ def _pagoda(b, g):
         for dx in (-1, 1):
             g.box((gx + dx * wd * 0.36, gy - wd / 2 - 0.05, z + hh * 0.5), (wd * 0.14, 0.2, hh * 0.3), "lamp_warm",
                   bevel=False)
+        for s in (-1, 1):                                                          # lit windows on the other sides
+            g.box((gx + s * (wd / 2 + 0.05), gy, z + hh * 0.5), (0.2, wd * 0.4, hh * 0.42), "lamp_warm", bevel=False)
+            b.box((gx + s * (wd / 2 + 0.2), gy, z + hh * 0.5), (0.1, wd * 0.4, 0.2), WOODD, bevel=False)
+            b.box((gx + s * (wd / 2 + 0.2), gy, z + hh * 0.5), (0.1, 0.2, hh * 0.42), WOODD, bevel=False)
+        g.box((gx, gy + wd / 2 + 0.05, z + hh * 0.5), (wd * 0.4, 0.2, hh * 0.42), "lamp_warm", bevel=False)
+        if tier:                                                                   # window bars (the door covers tier 1)
+            b.box((gx, gy - wd / 2 - 0.2, z + hh * 0.5), (wd * 0.4, 0.1, 0.2), WOODD, bevel=False)
+            b.box((gx, gy - wd / 2 - 0.2, z + hh * 0.5), (0.2, 0.1, hh * 0.42), WOODD, bevel=False)
+        n = 5 if wd > 9 else 3                                                     # brackets under the eave
+        for k in range(n):
+            o = (k - (n - 1) / 2) * (wd - 2.4) / (n - 1)
+            for s in (-1, 1):
+                b.box_base((gx + o, gy + s * (wd / 2 + 0.6), z + hh - 0.3), (0.7, 0.9, 0.3), WOODD, bevel=False)
+                b.box_base((gx + s * (wd / 2 + 0.6), gy + o, z + hh - 0.3), (0.9, 0.7, 0.3), WOODD, bevel=False)
         _roof(b, gx, gy, z + hh, wd + 7, wd + 7, 1.8)
         z += hh + 1.9
     b.cyl_base((gx, gy, z), 0.35, 5, "gold_mid", segments=6, bevel=False)                   # the spire
     for k in range(3):
         b.cyl_base((gx, gy, z + 1 + k * 1.2), 0.9 - k * 0.2, 0.3, "gold_light", segments=8, bevel=False)
     b.box_base((gx, gy - 8.2, G + 1.6), (4, 0.5, 5), WOODD, bevel=False)                    # the door
+    top = G + 1.6
+    for s in (-1, 1):                                                              # its frame, knobs and lanterns
+        b.box_base((gx + s * 2.3, gy - 8.3, top), (0.6, 0.7, 5.6), RED, bevel=False)
+        b.cyl((gx + s * 0.5, gy - 8.5, top + 2.4), 0.22, 0.2, "gold_mid", segments=8, bevel=False,
+              rot=(math.radians(90), "X"))
+        g.cyl((gx + s * 4.6, gy - 9.6, top + 4.4), 0.75, 1.3, "bowl_red", segments=8, bevel=False)
+        b.box((gx + s * 4.6, gy - 9.6, top + 5.75), (0.12, 0.12, 1.4), WOODD, bevel=False)
+        _cat_statue(b, gx + s * 6.5, gy - 14.6, G)
+    b.box_base((gx, gy - 8.3, top + 5.6), (5.8, 0.8, 0.6), RED, bevel=False)
+    b.box((gx, gy - 8.48, top + 0.02 + 2.5), (0.12, 0.1, 5.0), "fur_ink", bevel=False)      # the gap between the two leaves
+    # a red rail round the stone base, open at the step
+    R = 11.4
+    for k in range(7):
+        o = -R + k * 2 * R / 6
+        for s in (-1, 1):
+            b.box_base((gx + s * R, gy + o, top), (0.5, 0.5, 1.5), RED, bevel=False)
+            if 0 < k < 6:
+                b.box_base((gx + o, gy + R, top), (0.5, 0.5, 1.5), RED, bevel=False)
+                if abs(o) > 4.5:
+                    b.box_base((gx + o, gy - R, top), (0.5, 0.5, 1.5), RED, bevel=False)
+    for s in (-1, 1):
+        b.box((gx + s * R, gy, top + 1.25), (0.3, 2 * R, 0.3), RED, bevel=False)
+        b.box((gx + s * 7.6, gy - R, top + 1.25), (7.6, 0.3, 0.3), RED, bevel=False)
+        b.box_base((gx + s * 4.05, gy - R, top), (0.5, 0.5, 1.5), RED, bevel=False)
+    b.box((gx, gy + R, top + 1.25), (2 * R, 0.3, 0.3), RED, bevel=False)
 
 
 def _tea_house(b, g):
@@ -271,8 +339,36 @@ def _tea_house(b, g):
     for dx in (-5, 5):                                                                      # hanging lanterns
         g.cyl((tx + dx, ty - 7.5, 6.9), 0.9, 1.6, "bowl_red", segments=8, bevel=False)
         b.box((tx + dx, ty - 7.5, 8.3), (0.15, 0.15, 1.2), WOODD, bevel=False)
-    b.box_base((tx - 3, ty - 6, 2.7), (3.2, 3.2, 0.9), WOODD, bevel=False)                  # a low table and a pot
-    b.cyl_base((tx - 3, ty - 6, 3.6), 0.5, 0.5, "offwhite", segments=8, bevel=False)
+    for k, ox in enumerate((-3, 4.5)):                                                      # low tables, pots, cups, cushions
+        b.box_base((tx + ox, ty - 6, 2.7), (3.2, 2.6, 0.9), WOODD, bevel=False)
+        b.cyl_base((tx + ox, ty - 6, 3.6), 0.5, 0.5, "offwhite", segments=8, bevel=False)
+        b.cyl_base((tx + ox, ty - 6, 4.1), 0.2, 0.15, "fur_ink", segments=6, bevel=False)
+        for s in (-1, 1):
+            b.cyl_base((tx + ox + s * 0.95, ty - 6.4, 3.6), 0.22, 0.25, "offwhite", segments=6, bevel=False)
+            b.cyl_base((tx + ox + s * 2.6, ty - 6, 2.7), 0.85, 0.25, (RED, "apron_pink")[(k + (s > 0)) % 2], segments=10,
+                       bevel=False)
+    # the deck rail: along the front and the +X end (the steps come up at the -X end)
+    FY, EX, RZ = ty - 8.2, tx + 10.7, 2.7
+    for k in range(9):
+        b.box_base((tx - 10.6 + k * 2.6625, FY, RZ), (0.35, 0.35, 1.5), WOODD, bevel=False)
+    b.box((tx + 0.05, FY, RZ + 1.3), (21.3, 0.25, 0.25), WOODD, bevel=False)
+    b.box((tx + 0.05, FY, RZ + 0.7), (21.3, 0.15, 0.15), WOODD, bevel=False)
+    for k in range(1, 5):
+        b.box_base((EX, FY + k * 3.6, RZ), (0.35, 0.35, 1.5), WOODD, bevel=False)
+    b.box((EX, FY + 7.2, RZ + 1.3), (0.25, 14.4, 0.25), WOODD, bevel=False)
+    b.box((EX, FY + 7.2, RZ + 0.7), (0.15, 14.4, 0.15), WOODD, bevel=False)
+    # the ridge with gold ends, a door curtain over the middle, a round window on the +X end
+    b.box_base((tx, ty + 1, 11.71), (14, 0.8, 0.6), "fur_ink", bevel=False)
+    for s in (-1, 1):
+        b.box_base((tx + s * 7.2, ty + 1, 11.71), (0.6, 1.0, 1.1), "gold_mid", bevel=False)
+    b.box((tx, ty - 3.9, 8.75), (4.6, 0.2, 0.2), WOODD, bevel=False)
+    for k in range(4):
+        b.box((tx - 1.65 + k * 1.1, ty - 3.9, 7.85), (1.0, 0.1, 1.6), "pants_navy", bevel=False)
+        b.cyl((tx - 1.65 + k * 1.1, ty - 3.96, 7.9), 0.28, 0.06, "offwhite", segments=8, bevel=False,
+              rot=(math.radians(90), "X"))
+    g.cyl((tx + 9.05, ty + 1, 6.3), 1.7, 0.2, "pearl", segments=14, bevel=False, rot=ry(90))
+    b.box((tx + 9.2, ty + 1, 6.3), (0.1, 3.4, 0.2), WOODD, bevel=False)
+    b.box((tx + 9.2, ty + 1, 6.3), (0.1, 0.2, 3.4), WOODD, bevel=False)
 
 
 def _sand_garden(b):
@@ -289,7 +385,7 @@ def _sand_garden(b):
         b.box_base((zx + sx, zy + sy, G), (wd, dd, 0.5), WOODD, bevel=False)
 
 
-def _wishing_tree(b, g):
+def _wishing_tree(b, g, d):
     wx, wy = WISH
     b.cyl_base((wx, wy, G), 7, 0.5, STONE, segments=12, bevel=False)
     b.cyl_base((wx, wy, G + 0.5), 6, 0.2, "fur_moss", segments=12, bevel=False)
@@ -301,6 +397,31 @@ def _wishing_tree(b, g):
     for (dx, dy, dz, r, c) in ((0, 0, 15, 7.5, "blush"), (5, -1, 12.5, 5.2, "fur_rose"), (-5, 2, 13, 5.4, "fur_bubblegum"),
                                (1, 4.5, 17, 4.6, "offwhite"), (-1, -4.5, 13.5, 4.8, "apron_pink")):
         b.ico((wx + dx, wy + dy, dz), r, c)
+    for k in range(5):                                                                      # roots and big branches
+        a = 20 + k * 72
+        c, s = math.cos(math.radians(a)), math.sin(math.radians(a))
+        b.box((wx + 2.3 * c, wy + 2.3 * s, G + 1.25), (3.2, 0.9, 0.8), "fur_bramble", bevel=False,
+              rot=_turn_tilt(a, -24))
+        b.box((wx + 3.4 * c, wy + 3.4 * s, 10.6), (6.5, 0.9, 0.9), "fur_bramble", bevel=False, rot=_turn_tilt(a, 34))
+    for k in range(16):                                                                     # wishes on red strings
+        a = k * 2.399
+        q = 4.2 + (k * 5 % 7) * 0.55
+        ln = 2.2 + (k * 3 % 5) * 0.45
+        x, y, zt = wx + q * math.cos(a), wy + q * math.sin(a), 10.2
+        d.box((x, y, zt - ln / 2), (0.08, 0.08, ln), RED, bevel=False)
+        d.box((x, y, zt - ln - 0.4), (0.7, 0.1, 0.8), ("caramel_wood", "offwhite", "blush")[k % 3], bevel=False,
+              rot=rz(math.degrees(a) + 90))
+    posts = (0, 60, 90, 120, 180, 210, 240, 300, 330)                                       # a rope ring, open at the benches
+    for a in posts:
+        b.cyl_base((wx + 6.5 * math.cos(math.radians(a)), wy + 6.5 * math.sin(math.radians(a)), G + 0.5), 0.3, 1.2,
+                   STONE, segments=6, bevel=False)
+    for a in (75, 105, 195, 225, 315, 345):
+        b.box((wx + 6.28 * math.cos(math.radians(a)), wy + 6.28 * math.sin(math.radians(a)), G + 1.45),
+              (3.36, 0.12, 0.12), "offwhite", bevel=False, rot=rz(a + 90))
+    ox, oy = wx + 4.2 * math.cos(math.radians(-90)), wy + 4.2 * math.sin(math.radians(-90))  # the wish box, arrival side
+    b.box_base((ox, oy, G + 0.7), (1.8, 1.1, 1.1), WOODD, bevel=False)
+    b.box_base((ox, oy, G + 1.8), (2.0, 1.3, 0.15), RED, bevel=False)
+    b.box_base((ox, oy, G + 1.95), (1.0, 0.2, 0.03), "gold_mid", bevel=False)
     for a in (30, 150, 270):                                                                # benches
         x, y = wx + 10 * math.cos(math.radians(a)), wy + 10 * math.sin(math.radians(a))
         b.box_base((x, y, G), (3, 1, 0.6), STONE, bevel=False, rot=rz(a + 90))
@@ -369,7 +490,7 @@ def build_cherry_set(mat):
     _pagoda(b, g)
     _tea_house(b, g)
     _sand_garden(b)
-    _wishing_tree(b, g)
+    _wishing_tree(b, g, d)
     _dressing(b, g, d, rnd)
     _props(b, g, w)
     areakit.POINTS[NAME] = _points()

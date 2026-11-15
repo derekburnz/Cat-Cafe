@@ -487850,15 +487850,15 @@
         "CatCafe_Cherry_Set_004_Petals_Decor",
         "CatCafe_Cherry_Set_005_Waterfall_Water"
       ],
-      "triangles": 22210,
+      "triangles": 27054,
       "budget": 150000,
       "size_studs": {
-        "x": 151.53,
+        "x": 152.0,
         "y": 120.0,
         "z": 37.17
       },
       "size_roblox": [
-        151.53,
+        152.0,
         37.17,
         120.0
       ],
@@ -487868,7 +487868,7 @@
         -1.44
       ],
       "bounds_max": [
-        76.43,
+        76.9,
         60.0,
         35.73
       ],
@@ -487965,7 +487965,7 @@
       },
       "studio": "#4386 Cherry Blossom Grove, a future area (blockout: no tier, cats or station yet, nothing in the game uses it). Place it at the area's centre on its floor; walled all round, players arrive at points_roblox player_spawn. The only _Barrier is the 30 high ring in the wall band. The pond and the three waterfalls are _Water (flat, no kerb); petals, koi and lily pads are _Decor. The pagoda is solid; the tea house deck is 2.5 up with steps at its -X end. points_roblox: spawn (14 stray spots) and nook (the pond's far shore, between two waterfalls).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cherry_Set.model.json",
-      "rbx_parts": 1591,
+      "rbx_parts": 1987,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cherry_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Cherry_Set.glb"
@@ -487978,13 +487978,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "22210/150000 tris",
+          "budget": "27054/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "12799 faces on swatch centers",
+          "uv": "15359 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.44 (want 0)",
-          "centered": "footprint center x=0.66 y=0.00",
+          "centered": "footprint center x=0.90 y=0.00",
           "cat_spots": "16 cat spots clear of every collidable part"
         }
       }

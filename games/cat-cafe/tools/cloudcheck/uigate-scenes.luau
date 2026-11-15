@@ -614,6 +614,18 @@ local function tradeState(fields)
 end
 
 -- #2487: a Cafe Party on ReplicatedStorage's attributes (EventService's shape, shared/CafeEvents), painted at once
+-- #4195: an Admin Wheel event starting at `startsAt`, five minutes long, as AdminBarLogic.info gives it
+local function adminInfo(startsAt: number): any
+	return {
+		id = "gate-wheel",
+		title = "Admin Wheel",
+		startsAt = startsAt,
+		endsAt = startsAt + 300,
+		running = startsAt <= workspace:GetServerTimeNow(),
+		wheel = true,
+	}
+end
+
 local function cafeEvent(fields: { [string]: any })
 	local store = game:GetService("ReplicatedStorage")
 	local attrs: { [string]: any } = {
@@ -4978,6 +4990,70 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local maple = list:FindFirstChild("tag_maple")
 		local locked = maple and maple:FindFirstChild("Equip", true)
 		assert(maple and not (locked and (locked :: any).Visible), "uigate: a locked title shows Equip")
+	end },
+	-- #4195 (Derek 2026-11-14, admin events on update days): the Admin Wheel's window, and the window once a spin has
+	-- landed. Derek 22:54 UTC ("the ui is still on the screen too much"): no admin bar or timer of its own; the window
+	-- opens by itself once, after the splash, and not over another window
+	{ "AdminWheelAuto", function()
+		Scenes._admin = true
+		local t = workspace:GetServerTimeNow()
+		local info = adminInfo(t - 60)
+		info.id = "wheel-auto-gate"
+		local wheel = { eventId = info.id, spun = false, endsAt = info.endsAt }
+		assert(UIShim.playerGui:FindFirstChild("CatCafeAdminEvent") == nil, "uigate: the admin bar is still built (Derek 22:54 UTC)")
+		UI.open("Settings")
+		UI.admin.set(info, wheel)
+		UIShim.advance(5)
+		UI.admin.set(info, wheel)
+		assert(UI.isOpen() == "Settings", "uigate: the Admin Wheel opened over another window")
+		UI.close()
+		-- Review-QA: nor over a cutscene (Rift Run, a Mythic roll), the "every pop-up muted while it plays" rule
+		UI.cutscene.on = true
+		UI.admin.set(info, wheel)
+		UI.cutscene.on = false
+		assert(UI.isOpen() ~= "AdminWheel", "uigate: the Admin Wheel opened over a cutscene")
+		UI.admin.set(info, wheel)
+		assert(UI.isOpen() == "AdminWheel", "uigate: the Admin Wheel did not open by itself once the wheel was up (#4195)")
+		UI.close()
+		UIShim.advance(5)
+		UI.admin.set(info, wheel)
+		assert(UI.isOpen() ~= "AdminWheel", "uigate: the Admin Wheel opened by itself a second time")
+	end },
+	{ "AdminWheel", function()
+		Scenes._admin = true
+		local t = workspace:GetServerTimeNow()
+		local info = adminInfo(t - 60)
+		UI.admin.set(info, { eventId = info.id, spun = false, endsAt = info.endsAt })
+		UI.admin.open()
+		assert(UI.isOpen() == "AdminWheel", "uigate: the Admin Wheel window did not open (#4195)")
+		local window = UIShim.playerGui:FindFirstChild("AdminWheel", true) :: GuiObject
+		for _, piece in window:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Visible and (piece.Name == "Name" or piece.Name == "Odds") then
+				assert(piece.TextFits, "uigate: the Admin Wheel's odds row is cut: " .. piece.Text .. " (#4195)")
+			end
+		end
+		local side = window:FindFirstChild("Side", true) :: GuiObject
+		local body = window:FindFirstChild("Body", true) :: GuiObject
+		local foot = side.AbsolutePosition.Y + side.AbsoluteSize.Y
+		assert(foot <= body.AbsolutePosition.Y + body.AbsoluteSize.Y + 1, "uigate: the Admin Wheel's Spin and line run out of the window (#4195)")
+		-- Review-QA in Studio: Spun ran ~10 px past the window's right edge; Spin and its outline stay inside
+		local spin = side:FindFirstChild("Spin") :: GuiObject
+		local right = body.AbsolutePosition.X + body.AbsoluteSize.X
+		assert(spin.AbsolutePosition.X + spin.AbsoluteSize.X + 3 <= right + 0.5,
+			("uigate: Spin ends at %.0f, the window at %.0f (#4210)"):format(spin.AbsolutePosition.X + spin.AbsoluteSize.X, right))
+	end },
+	{ "AdminWheelWon", function()
+		Scenes._admin = true
+		local t = workspace:GetServerTimeNow()
+		local info = adminInfo(t - 60)
+		UI.admin.set(info, { eventId = info.id, spun = false, endsAt = info.endsAt })
+		UI.admin.open()
+		UI.admin.result(2, "fish200", { "+200 golden fish" })
+		UIShim.advance(6)
+		UI.admin.set(info, { eventId = info.id, spun = true, endsAt = info.endsAt })
+		local window = UIShim.playerGui:FindFirstChild("AdminWheel", true) :: GuiObject
+		local line = window:FindFirstChild("Line", true) :: TextLabel
+		assert(line.Text == "You won +200 golden fish!", "uigate: the Admin Wheel's line after a spin: " .. line.Text .. " (#4195)")
 	end },
 	{ "Spin", function()
 		UI.spin.open()
@@ -12408,6 +12484,11 @@ function Scenes.close()
 	if Scenes._rankSpot then
 		Scenes._rankSpot = nil
 		(UI.rankSpot :: any).set("none") -- #3555's scene
+	end
+	if Scenes._admin then
+		Scenes._admin = nil
+		UI.admin.set(nil, nil) -- #4195's scenes
+		UI.close()
 	end
 	if Scenes._askClose ~= nil then
 		-- #4174's scene: the untimed ask (on a touch screen the X's Hit pad takes the press)

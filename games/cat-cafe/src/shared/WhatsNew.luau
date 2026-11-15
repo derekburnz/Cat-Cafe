@@ -127,8 +127,9 @@ WhatsNew.rows = table.freeze({
 		text = "New code: UPDATE5",
 	},
 	-- Derek 2026-11-15 15:54 UTC ("update whats new board with recent changes"): the changes that reach every server
-	-- with the 20:00 UTC restart (Tiers 3 to 7 pace #4500 and #4511, the decor stand #4524, the Coin Cart name #4533)
-	-- wait for it; the gold fish trading row waits until Gameplay-Engineer confirms the tradeFish switch is on. Fewer pop-ups and the trade note are live.
+	-- with the 20:00 UTC restart (Tier 3 to 7 pace #4500, #4511, #4538, the decor stand #4524, the Coin Cart name
+	-- #4533, the trade note #4520, fewer pop-ups #4478 to #4528) wait for it. Gold fish trading gets its row once
+	-- the tradeFish switch is on.
 	{
 		id = "tiers_sooner",
 		date = "2026-11-15",

@@ -13,7 +13,7 @@ the Park, 150 x 120.
                          the far middle the four tier pagoda on its stone base (solid; looks only)
                          x > 30, z > 10 the tea house on stilts: a deck 2.5 up with steps at its -X end
   Nothing invisible stands inside the area: the only _Barrier is the 30 high ring in the wall band. Lights are `_Glow`,
-  the pond and the falls `_Water`, petals, koi and lily pads `_Decor` (no collision).
+  the pond (`_003_Pond_Water`) and the three falls (`_005_Waterfall_Water`, for Effects' mist) `_Water`, petals, koi and lily pads `_Decor` (no collision).
 
 Points (manifest points_roblox, area space [x, y, z]): `player_spawn` (1, with a turn), `spawn` (14 stray spots, no
 two within 12), `nook` (1, on the pond's far shore between two waterfalls: Rare or better).
@@ -160,7 +160,7 @@ def _barrier(mat):
     return bar.finalize(NAME + "_001_Wall_Barrier", mat)
 
 
-def _cliff(b, g, w, d, rnd):
+def _cliff(b, g, f, d, rnd):
     """The cliff along the far left with its three waterfalls."""
     for k in range(9):
         x = -70 + k * 8.5
@@ -171,8 +171,8 @@ def _cliff(b, g, w, d, rnd):
         if k in (1, 6):
             _cherry(b, d, rnd, x, 52, 9)
     for (x, wd, h) in FALLS:
-        w.box_base((x, 44.6, G + 0.1), (wd, 0.5, h), "fish_blue", bevel=False)
-        w.box_base((x - wd * 0.2, 44.3, G + 0.1), (wd * 0.25, 0.4, h), "fish_belly", bevel=False)
+        f.box_base((x, 44.6, G + 0.1), (wd, 0.5, h), "fish_blue", bevel=False)
+        f.box_base((x - wd * 0.2, 44.3, G + 0.1), (wd * 0.25, 0.4, h), "fish_belly", bevel=False)
         g.ico((x, 43, 0.9), wd * 0.55, "offwhite", scale=(1, 0.7, 0.4))                     # the foam
 
 
@@ -360,10 +360,10 @@ def _points():
 
 def build_cherry_set(mat):
     rnd = random.Random(7)
-    b, g, w, d = Builder(), Builder(), Builder(), Builder()
+    b, g, w, d, f = Builder(), Builder(), Builder(), Builder(), Builder()
     _ground(b)
     _border(b, d, rnd)
-    _cliff(b, g, w, d, rnd)
+    _cliff(b, g, f, d, rnd)
     _pond(b, w, d, rnd)
     _gate_walk(b)
     _pagoda(b, g)
@@ -374,7 +374,8 @@ def build_cherry_set(mat):
     _props(b, g, w)
     areakit.POINTS[NAME] = _points()
     return [b.finalize(NAME, mat), _barrier(mat), g.finalize(NAME + "_002_Lights_Glow", mat),
-            w.finalize(NAME + "_003_Pond_Water", mat), d.finalize(NAME + "_004_Petals_Decor", mat)]
+            w.finalize(NAME + "_003_Pond_Water", mat), d.finalize(NAME + "_004_Petals_Decor", mat),
+            f.finalize(NAME + "_005_Waterfall_Water", mat)]
 
 
 ASSETS = {

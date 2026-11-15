@@ -159,5 +159,23 @@ return function()
 			expect(HarvestSave.STRAY_CAP >= 1 and HarvestSave.STRAY_CAP <= 15).to.equal(true)
 			expect(Catalog.harvestCats[1].area).to.equal(HarvestSave.AREA)
 		end)
+
+		it(
+			"owes the full pie's reward once, to a helper, only when the pie is full (part 6)",
+			function()
+				local save = HarvestSave.fresh()
+				expect(save.pieReward).to.equal(false)
+				expect(HarvestSave.pieRewardDue(save, HarvestSave.PIE_SLICES)).to.equal(false) -- not a helper
+				save.helped = true
+				expect(HarvestSave.pieRewardDue(save, HarvestSave.PIE_SLICES - 1)).to.equal(false)
+				expect(HarvestSave.pieRewardDue(save, HarvestSave.PIE_SLICES)).to.equal(true)
+				save.pieReward = true
+				expect(HarvestSave.pieRewardDue(save, HarvestSave.PIE_SLICES)).to.equal(false)
+				-- kept through a save round trip; anything but true is false
+				expect(HarvestSave.sanitize({ pieReward = true }).pieReward).to.equal(true)
+				expect(HarvestSave.sanitize({ pieReward = "yes" }).pieReward).to.equal(false)
+				expect(HarvestSave.forClient(save).pieReward).to.equal(true)
+			end
+		)
 	end)
 end

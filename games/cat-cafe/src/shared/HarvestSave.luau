@@ -14,6 +14,9 @@
 --   pieGoal(low) / pieSlices(count, goal) the Feast Pie's goal (PIE_GOAL, or PIE_GOAL_LOW with the harvestPieLow switch
 --                                      on) and its slices baked, 0 to PIE_SLICES (spec section 5)
 --   NOTES / pinNote(list, userId, note) the Thankful Board's six fixed notes and its last NOTE_KEEP pins (spec section 6)
+--   pieRewardDue(save, slices)        whether the full pie's reward is owed: a helper, the pie at PIE_SLICES, not given
+--   FEAST_PIE / PIE_REWARD_SPINS      the reward (spec section 5): the Feast Pie decor (pieReward marks it owned) and
+--                                      one banked Spin Wheel spin
 --   AREA / ODDS / STRAY_CAP / TOPUP_SECONDS the harvest strays (spec 3b): the area id the harvest cats carry, the odds
 --                                      shown on the area's card, at most STRAY_CAP out at once, one more every
 --                                      TOPUP_SECONDS by day while under it
@@ -28,6 +31,7 @@ export type Save = {
 	bought: { [string]: boolean },
 	visitDay: number, -- the UTC day (os.time // 86400) of the last arch +10; 0 for never
 	helped: boolean, -- caught at least one harvest cat (the Feast Pie reward goes to everyone who helped)
+	pieReward: boolean, -- #4251 part 6: got the full Feast Pie's reward (the Feast Pie decor and a banked spin)
 }
 
 HarvestSave.FLAG = "harvestHollow" -- a kill switch, on by default; the dates in HarvestHollow open and close the area
@@ -56,6 +60,14 @@ HarvestSave.NOTES = table.freeze({
 })
 HarvestSave.NOTE_KEEP = 12
 
+-- #4251 part 6 (spec section 5): the full pie's reward for everyone who helped, at once or at their next join.
+HarvestSave.FEAST_PIE = "feast_pie" -- CatCafe_Decor_FeastPie; owned when save.pieReward
+HarvestSave.PIE_REWARD_SPINS = 1
+
+function HarvestSave.pieRewardDue(save: Save, slices: number): boolean
+	return save.helped and not save.pieReward and slices >= HarvestSave.PIE_SLICES
+end
+
 -- #4251 (spec 3b): the harvest strays. AREA is the `area` of the eight harvest cats (Catalog.harvestCats). ODDS sum
 -- to 100 and are the ones the area's card shows; like the Park's, with a little more at the top, since every harvest
 -- cat is kept and the Feast Pie counts each one.
@@ -81,7 +93,7 @@ local function whole(value: unknown, max: number): number
 end
 
 function HarvestSave.fresh(): Save
-	return { pumpkins = 0, bought = {}, visitDay = 0, helped = false }
+	return { pumpkins = 0, bought = {}, visitDay = 0, helped = false, pieReward = false }
 end
 
 function HarvestSave.sanitize(raw: unknown): Save
@@ -93,6 +105,7 @@ function HarvestSave.sanitize(raw: unknown): Save
 	out.pumpkins = whole(t.pumpkins, HarvestSave.MAX_PUMPKINS)
 	out.visitDay = whole(t.visitDay, 1e7)
 	out.helped = t.helped == true
+	out.pieReward = t.pieReward == true
 	if type(t.bought) == "table" then
 		for id, yes in t.bought do
 			if yes == true and HarvestHollow.item(id) ~= nil then
@@ -214,9 +227,15 @@ export type ForClient = {
 	bought: { [string]: boolean }?,
 	pie: { count: number, goal: number }?,
 	helped: boolean?,
+	pieReward: boolean?,
 }
 function HarvestSave.forClient(save: Save): ForClient
-	return { pumpkins = save.pumpkins, bought = table.clone(save.bought), helped = save.helped }
+	return {
+		pumpkins = save.pumpkins,
+		bought = table.clone(save.bought),
+		helped = save.helped,
+		pieReward = save.pieReward,
+	}
 end
 
 return HarvestSave

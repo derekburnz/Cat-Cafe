@@ -20,6 +20,9 @@
 --     a player may catch only while the area is open for them. By day (ClockService.areasOpen) while it is open by
 --     the dates and the switch, one stray of HarvestSave.ODDS arrives every TOPUP_SECONDS while fewer than
 --     STRAY_CAP are out. A net catch there gives its pumpkins (caught) with a toast.
+--   The full pie's reward (part 6): once the pie reads full, everyone here who helped gets the Feast Pie decor
+--     (profile.harvest.pieReward) and PIE_REWARD_SPINS banked Spin Wheel spins, once; a helper who joins later, or
+--     helps after it is full, gets it then. Never while the harvestHollow switch is off.
 --   PinHarvestNote(note): one of HarvestSave.NOTES (1 to 6) on the Thankful Board, from inside the area while it is
 --     open, one pin every NOTE_GAP seconds a player; the board keeps the last NOTE_KEEP in this server as its
 --     HarvestNotes attribute (JSON [{userId, note}], newest last), one pin a player.
@@ -47,6 +50,7 @@ local HarvestPieService = require(script.Parent.HarvestPieService)
 local HarvestWorld = require(script.Parent.Parent.World.HarvestWorld)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local Spin = require(ReplicatedStorage.Shared.Spin)
 local Telemetry = require(script.Parent.Telemetry)
 
 local HarvestService = {}
@@ -322,6 +326,34 @@ function HarvestService.strays()
 	end)
 end
 
+-- #4251 part 6: the full pie's reward, if this player is owed it (HarvestSave.pieRewardDue). Saved with the profile.
+local function rewardPie(player: Player)
+	local profile = DataService.get(player)
+	if
+		profile == nil
+		or not LiveFlagService.on(HarvestSave.FLAG)
+		or not HarvestSave.pieRewardDue(profile.harvest, HarvestPieService.slices())
+	then
+		return
+	end
+	profile.harvest.pieReward = true
+	local spins = Spin.bank(profile.spin, HarvestSave.PIE_REWARD_SPINS)
+	Telemetry.custom(
+		player,
+		"harvest_pie_reward",
+		spins,
+		{ "T" .. tostring(Economy.tier(profile)) }
+	)
+	Net.toast(
+		player,
+		if spins > 0
+			then "The Feast Pie is baked! The Feast Pie decor and a free spin are yours"
+			else "The Feast Pie is baked! The Feast Pie decor is yours",
+		"good"
+	)
+	CafeService.sync(player)
+end
+
 -- #4251 part 5: a net catch in Harvest Hollow gives the cat's pumpkins.
 local function onCaught(player: Player, def: Types.CatDef, areaId: string)
 	if areaId ~= HarvestSave.AREA then
@@ -335,6 +367,7 @@ local function onCaught(player: Player, def: Types.CatDef, areaId: string)
 			"good"
 		)
 	end
+	rewardPie(player) -- a first catch after the pie is full
 end
 
 -- The Thankful Board's pin: a fixed note by index, from a player standing in the open area.
@@ -415,6 +448,14 @@ function HarvestService.start()
 	Net.on("BuyHarvest", onBuy)
 	Net.on("PinHarvestNote", onPinNote)
 	CatService.onCaught(onCaught)
+	HarvestPieService.onFull(function()
+		for _, player in DataService.loadedPlayers() do
+			rewardPie(player)
+		end
+	end)
+	DataService.onLoaded:Connect(function(player: Player, _profile: Types.PlayerProfile)
+		rewardPie(player)
+	end)
 	HarvestPieService.start()
 	watchTag(HarvestService.PUMPKIN_TAG, pick)
 	watchTag(HarvestService.ARRIVAL_TAG, arrive)

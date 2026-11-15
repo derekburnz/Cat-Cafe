@@ -8,6 +8,8 @@
 --   not in a quiet start): "The Feast Pie is 3/8 baked!" (the first read
 --   in a server only sets the mark, so a new server does not toast old slices).
 --   HarvestPieService.add(n): catches to count (HarvestService.caught).
+--   HarvestPieService.slices(): the slices at the last read (0 before it); onFull(fn) runs fn once the pie reads full
+--   in this server (HarvestService gives the reward).
 -- Runs from the area's build time until PIE_SHOW_DAYS after it closes, so the board keeps its full pie for a while.
 -- A push that fails keeps the catches for the next one. The reward when the pie is full is the next part.
 --
@@ -40,6 +42,8 @@ local EXPIRY_SECONDS = 40 * 86400
 local pending = 0
 local count = 0
 local markSlices: number? = nil -- the slices at this server's last read (nil before the first)
+local fullHooks: { () -> () } = {}
+local toldFull = false
 
 function HarvestPieService.add(n: number)
 	if n > 0 and n == math.floor(n) then
@@ -49,6 +53,14 @@ end
 
 function HarvestPieService.count(): number
 	return count
+end
+
+function HarvestPieService.slices(): number
+	return markSlices or 0
+end
+
+function HarvestPieService.onFull(fn: () -> ())
+	table.insert(fullHooks, fn)
 end
 
 local function publish()
@@ -72,6 +84,12 @@ local function publish()
 		end
 	end
 	markSlices = slices
+	if slices >= HarvestSave.PIE_SLICES and not toldFull then
+		toldFull = true
+		for _, fn in fullHooks do
+			task.spawn(fn)
+		end
+	end
 end
 
 -- One push and read: the catches since the last push go in with the total; with none, the total is read.

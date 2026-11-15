@@ -10845,6 +10845,30 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ tier = Scenes._rankTier } :: any)
 		Scenes._rankTier = nil
 	end },
+	-- #4062: the Dragon Keep's way in until its model is placed: the Castle card on the Ruins camp's cannon has the
+	-- Keep's strip, and its Open brings up the Keep window
+	{ "CannonOpensKeep", function()
+		atTier(10) -- the Castle opens at Tier 10; Scenes.close puts the tier back
+		UI.update({ dragon = { warmth = 1480, stage = 3, stageName = "Drake", nextAt = 2500, slots = { "warmTips", "sharpEye", "" }, binder = { warmTips = true, sharpEye = true }, hand = {}, hands = 0, colour = "ruby", sets = {}, napping = false, kept = 312, odds = { Common = 45, Rare = 30, Epic = 15, Legendary = 8, Mythic = 2 } } } :: any)
+		UI.cannon.open("ruins") -- the Castle's cannon is the Ruins camp's (launchFrom)
+		task.wait(0.3)
+		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+		local card = window:FindFirstChild("castle", true) :: Instance
+		local words = {}
+		for _, piece in card:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Visible then
+				words[piece.Text] = true
+			end
+		end
+		assert(words["Dragon Keep"] and words["Cinder the Drake"], "uigate: the Castle card has no Dragon Keep line (#4062)")
+		press("Cannon", "castle.Collect")
+		task.wait(0.4)
+		assert(UI.isOpen() == "DragonKeep", "uigate: Open on the Castle strip opened " .. tostring(UI.isOpen()) .. " (#4062)")
+		UI.update({ dragon = false } :: any)
+		-- the sample tier again before the scan: the Tier 10 HUD's TierGoal chip is not this scene's subject
+		UI.update({ tier = Scenes._rankTier } :: any)
+		Scenes._rankTier = nil
+	end },
 	-- #3082: 14 fish in the pond: Collect on the Woods strip in place of the red dot, for every player (#1463 had it
 	-- for a Golden Pond owner; the pass doubles the fish instead, #3093)
 	{ "CannonPondCollect", function()

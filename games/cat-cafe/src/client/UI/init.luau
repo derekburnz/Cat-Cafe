@@ -1124,6 +1124,8 @@ function UI.init(config: Types.InitConfig)
 				UI.mysticPool.open(true) -- #3196
 			elseif stationId == "ticketBooth" then
 				UI.lateStations.openBooth() -- #4061: no kiosk in the world yet, so this is its way in
+			elseif stationId == "dragon" then
+				UI.lateStations.openKeep() -- #4062: no Keep in the world yet, so this is its way in
 			else
 				UI.lateStations.open(stationId, true)
 			end
@@ -8369,11 +8371,14 @@ do
 				keep:closed()
 			end,
 		})
-		-- the kiosk's own prompt (TicketBoothPrompt, placed by the server with the model) opens it the same way
+		-- the kiosk's own prompt (TicketBoothPrompt, placed by the server with the model) opens it the same way, and so
+		-- does the Keep's (DragonKeepPrompt) once its model is placed
 		late.boothPrompt = ProximityPromptService.PromptTriggered:Connect(
 			function(prompt: ProximityPrompt)
 				if prompt.Name == "TicketBoothPrompt" then
 					UI.lateStations.openBooth()
+				elseif prompt.Name == "DragonKeepPrompt" then
+					UI.lateStations.openKeep() -- #4062: the Keep's own prompt, once its model is placed
 				end
 			end
 		)
@@ -8685,6 +8690,7 @@ do
 		if cannonScreen then
 			cannonScreen:setTraits((playerState :: any).traits) -- the Park card's strip in the Cannon menu
 			cannonScreen:setBooth((playerState :: any).ticketBooth) -- #4061: the Water Park card's Ticket Booth
+			cannonScreen:setKeep((playerState :: any).dragon) -- #4062: the Castle card's Dragon Keep
 		end
 		local card = pool.card
 		if card then

@@ -12360,12 +12360,20 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local tab = window:FindFirstChild("Rail", true):FindFirstChild("packs") :: GuiObject
 			assert(tab and tab.Visible, "uigate: the Store has no Packs tab (#4276)")
 			local icon = tab:FindFirstChild("Icon", true) :: TextLabel
+			-- Model-Agent's WebAssembly runs: the turn loop's phase and wake-up lag are not the scene's, so fixed 2.6 s
+			-- steps could see one pack twice. Step in quarter seconds until the picture changes, four times.
 			local seen: { [string]: boolean } = {}
 			local turns = 0
+			local last = icon:GetAttribute("Pack")
 			for _ = 1, 4 do
-				UIShim.advance(2.6)
+				local waited = 0
+				while icon:GetAttribute("Pack") == last and waited < 6 do
+					UIShim.advance(0.25)
+					waited += 0.25
+				end
 				local pack = icon:GetAttribute("Pack")
-				assert(type(pack) == "string", "uigate: the Packs tab did not turn to a pack's picture (#4276)")
+				assert(type(pack) == "string" and pack ~= last, "uigate: the Packs tab did not turn to the next pack's picture within 6 s (#4276)")
+				last = pack
 				if not seen[pack] then
 					seen[pack] = true
 					turns += 1

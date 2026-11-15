@@ -9887,6 +9887,39 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	-- #2912: after the first bait cat the goal card reads "Free a stuck cat" until the first rescue starts; at night it
 	-- says when the stuck cats come back; the tier goal returns after.
+	-- #4383: after the tutorial a Tier 1 cafe that can rank up gets the tier goal with its Rank up! sticker, not the
+	-- stuck cat, and the strip names the goal card (shared/RankFirst)
+	{ "RankFirstGoal", function()
+		local before: any = UI.getState()
+		Scenes._secondCat = Scenes._secondCat or { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }
+		UI.update({ tier = 1, tutorialStep = 5, money = 2000, secondCat = false, stuckGoal = false } :: any)
+		local RankFirst = UIShim.require("ReplicatedStorage.Shared.RankFirst") :: any
+		UI.tutorial.show(RankFirst.line("touch"))
+		UIShim.advance(0.1)
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		assert(goal.Visible, "uigate: no goal card for the rank up (#4383)")
+		assert((goal:FindFirstChild("RankReady") :: GuiObject).Visible, "uigate: no Rank up! sticker on a ready Tier 1 goal (#4383)")
+		local title = goal:FindFirstChild("Title") :: TextLabel
+		assert(title.Text ~= "Free a stuck cat 🐾", "uigate: the stuck cat goal over a ready rank up (#4383)")
+		-- the walk-through just ended this session: the cannon's wrap-up hint gives way to the rank up line (Review-QA's
+		-- laptop run of #4388)
+		UI.cannon.setWild(nil)
+		UI.cannon.wrapUp.on = true
+		UI.tutorial.show(RankFirst.line("touch"))
+		UIShim.advance(0.1)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD", true) :: Instance
+		local texts: { string } = {}
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Visible then
+				table.insert(texts, piece.Text)
+			end
+		end
+		UI.cannon.wrapUp.on = false
+		assert(
+			table.find(texts, RankFirst.line("touch")) and not table.find(texts, "Hop in the cannon to catch more cats!"),
+			"uigate: after the walk-through the strip reads " .. table.concat(texts, " | ") .. ", not the rank up line (#4383)"
+		)
+	end },
 	{ "StuckCatGoal", function()
 		local before: any = UI.getState()
 		Scenes._secondCat = Scenes._secondCat or { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }

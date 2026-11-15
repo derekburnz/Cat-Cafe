@@ -457,7 +457,13 @@ function applyTutorial()
 	local text: string? = tutorialText
 	local target: (BasePart | Attachment | Vector3)? = tutorialTarget
 	local label: string? = tutorialLabel
-	if hint ~= nil then
+	-- #4383: the wrap-up hint gives way to the rank up line (UIController sends it only while rankFirst holds)
+	-- (required here: the main chunk is at Luau's 200 local limit)
+	local rankLine = hint == CannonLogic.WRAP_UP_HINT
+		and (require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RankFirst")) :: any).isLine(
+			tutorialText
+		)
+	if hint ~= nil and not rankLine then
 		text, target, label = hint, cannonPart, "Cannon"
 	end
 	-- #3893 (Review-QA's Studio run, 2026-11-14): after the Park's "is open" hint has had its time, the walk to the Park

@@ -7,6 +7,7 @@ local Catalog = require(script.Parent.Catalog)
 local Catching = require(script.Parent.Catching)
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
+local DragonKeep = require(script.Parent.DragonKeep)
 local IndexRewards = require(script.Parent.IndexRewards)
 local LateTiers = require(script.Parent.LateTiers)
 local Lawn = require(script.Parent.Lawn)
@@ -101,7 +102,9 @@ end
 -- Everything on top of the cafe's rate at `now`: the running tip potions (Potions.tipMultiplier, at most
 -- TimedTipsMax) plus the pal bonus. Income, the tip piles and rich visitors use it; offline pay does not.
 function Economy.tipMultiplier(profile: Types.PlayerProfile, now: number): number
-	return Potions.tipMultiplier(profile, now) + Economy.palBonus(profile)
+	return Potions.tipMultiplier(profile, now)
+		+ Economy.palBonus(profile)
+		+ Economy.dragonEffects(profile).tips
 end
 
 -- The Money pass multiplier on all cafe income, 1 without one. #2850: a bought once-per-account product with a
@@ -134,6 +137,25 @@ function Economy.vipBoost(): boolean
 	end
 	return game:GetService("ReplicatedStorage")
 		:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Economy.VIP_BOOST_FLAG) ~= false
+end
+
+-- #4447: the Dragon Keep's slotted cards and sets (DragonKeep.effects), all zero while the dragonKeep switch is off
+-- (read from its ReplicatedStorage attribute, which LiveFlagService sets for both sides; specs set it here).
+local dragonOverride: boolean? = nil
+function Economy.setDragonKeep(on: boolean?)
+	dragonOverride = on
+end
+local NO_DRAGON: DragonKeep.Effects = table.freeze({ money = 0, tips = 0 }) :: any
+function Economy.dragonEffects(profile: Types.PlayerProfile): DragonKeep.Effects
+	local on = if dragonOverride ~= nil
+		then dragonOverride
+		else game:GetService("ReplicatedStorage")
+			:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. DragonKeep.FLAG) == true
+	local save = (profile :: any).dragon
+	if not on or type(save) ~= "table" then
+		return NO_DRAGON
+	end
+	return DragonKeep.effects(save)
 end
 
 -- #1624 (economy-ladder.md section 6a): what VIP, Cafe Style and Grand Cafe add into cafeMultiplier, 0 without them.
@@ -289,6 +311,7 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	multiplier += Economy.lawnBonus(profile)
 	multiplier += Economy.passCafeBonus(profile)
 	multiplier += Economy.packBonus(profile)
+	multiplier += Economy.dragonEffects(profile).money -- #4447: the Dragon Keep's money cards and Flame set
 	return multiplier
 end
 

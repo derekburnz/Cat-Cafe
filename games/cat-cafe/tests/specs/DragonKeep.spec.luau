@@ -277,4 +277,63 @@ return function()
 			expect(#profile.dragon.slots).to.equal(1)
 		end)
 	end)
+
+	describe("card effects (#4447 part 1)", function()
+		local Economy = require(Shared.Economy)
+
+		local function withSlots(ids: { string }): any
+			local save = DragonKeep.fresh() :: any
+			save.stage = 5
+			save.slots = ids
+			for _, id in ids do
+				save.binder[id] = true
+			end
+			return save
+		end
+
+		it("adds the money and tip cards and the Flame set, slotted only", function()
+			local save = withSlots({ "warmTips", "emberTips", "dragonCoin" })
+			local fx = DragonKeep.effects(save)
+			-- three Flame cards slotted light the Flame set (+0.05)
+			expect(math.abs(fx.money - 0.15) < 1e-9).to.equal(true)
+			expect(math.abs(fx.tips - 0.12) < 1e-9).to.equal(true)
+			local binderOnly = withSlots({})
+			binderOnly.binder.crownOfEmbers = true
+			local none = DragonKeep.effects(binderOnly)
+			expect(none.money).to.equal(0)
+			expect(none.tips).to.equal(0)
+		end)
+
+		it("holds money and tips together to MONEY_CAP", function()
+			local save =
+				withSlots({ "crownOfEmbers", "treasureTax", "dragonCoin", "warmTips", "emberTips" })
+			local fx = DragonKeep.effects(save)
+			expect(fx.money <= DragonKeep.MONEY_CAP + 1e-9).to.equal(true)
+			expect(fx.money + fx.tips <= DragonKeep.MONEY_CAP + 1e-9).to.equal(true)
+			expect(math.abs(fx.money - 0.50) < 1e-9).to.equal(true) -- 0.45 of cards plus the Flame set's 0.05
+		end)
+
+		it("names only real cards in its tables", function()
+			for id in DragonKeep.MONEY do
+				expect(DragonKeep.card(id)).to.be.ok()
+			end
+			for id in DragonKeep.TIPS do
+				expect(DragonKeep.card(id)).to.be.ok()
+			end
+		end)
+
+		it("reach cafeMultiplier and tipMultiplier only with the switch on", function()
+			local profile = ProfileSchema.migrate({ version = 49 }, T) :: any
+			profile.dragon = withSlots({ "crownOfEmbers", "warmTips" })
+			Economy.setDragonKeep(false)
+			local off = Economy.cafeMultiplier(profile)
+			local offTips = Economy.tipMultiplier(profile, T)
+			Economy.setDragonKeep(true)
+			local on = Economy.cafeMultiplier(profile)
+			local onTips = Economy.tipMultiplier(profile, T)
+			Economy.setDragonKeep(nil)
+			expect(math.abs(on - off - 0.20) < 1e-9).to.equal(true)
+			expect(math.abs(onTips - offTips - 0.04) < 1e-9).to.equal(true)
+		end)
+	end)
 end

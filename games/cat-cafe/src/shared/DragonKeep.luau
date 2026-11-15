@@ -995,6 +995,36 @@ function DragonKeep.sets(save: Types.DragonSave): { string }
 	return out
 end
 
+-- #4447 part 1: what the slotted cards and lit sets do (slotted cards only; binder cards do nothing). Pure, read by
+-- Economy while the dragonKeep switch is on. All card money is additive into cafeMultiplier (Economy), never a
+-- multiplier on top, and money plus tips is held to MONEY_CAP together (Gameplay-Engineer's check, section 4).
+DragonKeep.MONEY_CAP = 0.50
+DragonKeep.MONEY = { -- card id -> what it adds into cafeMultiplier
+	dragonCoin = 0.10, -- every 10th customer pays double, as a steady +10%
+	treasureTax = 0.15, -- every earning cat is in a staff slot
+	crownOfEmbers = 0.20,
+} :: { [string]: number }
+DragonKeep.TIPS = { warmTips = 0.04, emberTips = 0.08 } :: { [string]: number } -- into Economy.tipMultiplier
+DragonKeep.SET_MONEY = { flame = 0.05 } :: { [string]: number }
+
+export type Effects = { money: number, tips: number }
+
+function DragonKeep.effects(save: Types.DragonSave): Effects
+	local money, tips = 0, 0
+	for _, id in save.slots do
+		if cardsById[id] ~= nil then
+			money += DragonKeep.MONEY[id] or 0
+			tips += DragonKeep.TIPS[id] or 0
+		end
+	end
+	for _, family in DragonKeep.sets(save) do
+		money += DragonKeep.SET_MONEY[family] or 0
+	end
+	money = math.min(money, DragonKeep.MONEY_CAP)
+	tips = math.min(tips, DragonKeep.MONEY_CAP - money)
+	return { money = money, tips = tips }
+end
+
 -- The Warmth still to the next stage or Rekindle hand.
 function DragonKeep.nextAt(save: Types.DragonSave): number
 	if save.stage < DragonKeep.MAX_STAGE then

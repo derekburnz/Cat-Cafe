@@ -18,6 +18,7 @@ local AreaRares = require(ReplicatedStorage.Shared.AreaRares)
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local Badges = require(ReplicatedStorage.Shared.Badges)
 local BagColours = require(ReplicatedStorage.Shared.BagColours)
+local CafeEvents = require(ReplicatedStorage.Shared.CafeEvents)
 local CafeService = require(script.Parent.CafeService)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
@@ -34,6 +35,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local EventRewardService = require(script.Parent.EventRewardService)
 local EventService = require(script.Parent.EventService)
 local FreeCatch = require(ReplicatedStorage.Shared.FreeCatch)
+local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local HeldCat = require(ReplicatedStorage.Shared.HeldCat)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
@@ -416,7 +418,8 @@ local function carrySpeed(player: Player): number
 		Config.CarryWalkSpeed + paws,
 		Config.NormalWalkSpeed + paws,
 		DataService.get(player),
-		LiveFlagService.on(SpeedShoes.FLAG)
+		LiveFlagService.on(SpeedShoes.FLAG),
+		EventService.speedRush() -- #4197: Speed Rush lends everyone the shoes
 	)
 end
 
@@ -519,6 +522,18 @@ end
 
 -- Spawning ------------------------------------------------------------------------------------------------
 
+-- #4197 Secret Hunt: the running hunt's Secret strays (huntTick below). `gone` is huntTick's, called by despawn.
+type Hunt = {
+	id: string,
+	count: number, -- cats the hunt hides
+	spawned: number, -- of them out now or caught
+	found: number,
+	paid: boolean,
+	ids: { [string]: boolean }, -- stray id -> one of the hunt's, still out
+}
+local hunt: Hunt? = nil
+local huntGone: (stray: Stray, catcher: Player?) -> () = function() end
+
 -- `catcher` is the player who just caught it, nil when it leaves. A knocked-loose cat logs who ended up with it
 -- (drop_outcome, F16): against the catcher, or its old carrier when nobody caught it.
 -- #4227: the wild Mythicals and Secrets out in each area, in ReplicatedStorage's AreaRares attribute for the Cannon
@@ -562,6 +577,10 @@ local function despawn(stray: Stray, catcher: Player?)
 	end
 	strays[stray.id] = nil
 	writeAreaRares()
+	local running = hunt
+	if running ~= nil and running.ids[stray.id] then
+		huntGone(stray, catcher)
+	end
 	if stray.def.rarity == Catalog.SECRET then
 		SecretBeacons.clear(stray.id)
 		-- #3470: gone with nobody holding it (dusk, or a Dropped one nobody picked up)
@@ -905,7 +924,7 @@ end
 -- #3470: a wild Secret stray is out. The players with its area open (#3897) get the banner and chat line with its
 -- area's name, and
 -- it is logged as `secret_spawn` (a server event with no player of its own: under the first player here).
-local function secretSpawned(stray: Stray)
+local function secretSpawned(stray: Stray, source: string?)
 	local areaDef = Catalog.getArea(stray.area)
 	local text = Catching.waveShoutOut(
 		stray.def.rarity,
@@ -917,7 +936,7 @@ local function secretSpawned(stray: Stray)
 	end
 	local someone: Player? = DataService.loadedPlayers()[1]
 	if someone ~= nil then
-		Telemetry.custom(someone, "secret_spawn", 1, { stray.area, "wild" })
+		Telemetry.custom(someone, "secret_spawn", 1, { stray.area, source or "wild" })
 	end
 end
 
@@ -1548,6 +1567,113 @@ local function stormTick(dt: number)
 	end
 end
 
+-- #4197 Secret Hunt (shared/CafeEvents ADMIN_KINDS.hunt): while the admin event runs, by day, its Secret strays come
+-- out one a second in random areas somebody has open, each with a Secret's own area line, until the hunt has
+-- `count` of them. Whoever catches one keeps it as any Secret. One gone at dusk comes back at sunrise while the hunt
+-- runs. When all are caught every player here gets ADMIN.huntFish golden fish, once. EventService publishes the
+-- count caught as the effects' `secretFound` (the bar's "1/3"). Its strays carry HUNT_ATTRIBUTE; ones still out at
+-- the end stay until dusk like any Secret. Only while the `secretCats` switch is on.
+local HUNT_ATTRIBUTE = "HuntCat"
+
+huntGone = function(stray: Stray, catcher: Player?)
+	local running = hunt :: Hunt
+	running.ids[stray.id] = nil
+	if catcher == nil then
+		running.spawned -= 1 -- gone at dusk: out again at sunrise
+		return
+	end
+	running.found += 1
+	EventService.setHuntFound(running.id, running.found)
+	Telemetry.custom(catcher, "secret_hunt_found", running.found, { running.id })
+	if running.found < running.count or running.paid then
+		return
+	end
+	running.paid = true
+	local fish = CafeEvents.ADMIN.huntFish
+	for _, player in DataService.loadedPlayers() do
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			GoldenFish.credit(profile, fish)
+			Telemetry.fishSource(player, profile, fish, "TimedReward", "secret_hunt")
+			CafeService.sync(player)
+			Net.toast(
+				player,
+				string.format("All %d Secret cats found! +%d golden fish", running.count, fish),
+				"good"
+			)
+		end
+	end
+end
+
+local function huntTick()
+	local id, count = EventService.secretHunt()
+	if id == nil then
+		hunt = nil
+		return
+	end
+	local running = hunt
+	if running == nil or running.id ~= id then
+		running = { id = id, count = count, spawned = 0, found = 0, paid = false, ids = {} }
+		hunt = running
+		EventService.setHuntFound(id, 0)
+	end
+	assert(running ~= nil, "secret hunt run")
+	if
+		running.spawned >= running.count
+		or not ClockService.areasOpen()
+		or not LiveFlagService.on(Catching.SECRET_FLAG)
+		or #Catalog.secretCats == 0
+	then
+		return
+	end
+	-- #4221: with secretAreas on each area hides only its own Secret, so the hunt picks among the open areas that
+	-- have one and spawns that area's Secret there
+	local perArea = LiveFlagService.on(Catching.SECRET_AREAS_FLAG)
+	local own: { [string]: { Types.CatDef } } = {}
+	for _, secretDef in Catalog.secretCats do
+		local home = secretDef.secretArea
+		if home ~= nil then
+			local list = own[home] or {}
+			table.insert(list, secretDef)
+			own[home] = list
+		end
+	end
+	local open: { string } = {}
+	local seen: { [string]: boolean } = {}
+	for _, player in DataService.loadedPlayers() do
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			local tier = Economy.tier(profile)
+			for _, areaDef in Catalog.areas do
+				if
+					tier >= areaDef.tier
+					and not seen[areaDef.id]
+					and world.areas[areaDef.id] ~= nil
+					and (not perArea or own[areaDef.id] ~= nil)
+				then
+					seen[areaDef.id] = true
+					table.insert(open, areaDef.id)
+				end
+			end
+		end
+	end
+	if #open == 0 then
+		return
+	end
+	local areaId = open[rng:NextInteger(1, #open)]
+	local point = freeSpawnPoint(areaId, "Mythical")
+	if point == nil then
+		return -- that area is full; another next second
+	end
+	local choices: { Types.CatDef } = if perArea then own[areaId] else Catalog.secretCats
+	local def = choices[rng:NextInteger(1, #choices)]
+	local stray = spawnStray(def, areaId, world.areas[areaId].spawnPoints[point].Position, point)
+	stray.model:SetAttribute(HUNT_ATTRIBUTE, true)
+	running.ids[stray.id] = true
+	running.spawned += 1
+	secretSpawned(stray, "hunt")
+end
+
 -- Runs `after` once nobody holds the stray's lock: at once when it is free, else when the catch in progress ends
 -- (the catch wins a stray it lands, which leaves it dead here).
 local function whenUnlocked(stray: Stray, after: (Stray) -> ())
@@ -1726,6 +1852,7 @@ end
 
 -- #4050: the Speed Shoes' owner wears them (SpeedShoes.wear) while the switch is on, at spawn, after the buy and
 -- whenever they came off (keepBackpack's check); every player sees them. Without them, or with the switch off, none.
+-- #4197: while Speed Rush runs everyone wears a pair, put on and taken off at its start and end (CatService.start).
 local function keepShoes(player: Player)
 	local character = player.Character
 	if character == nil or character.Parent == nil then
@@ -1735,7 +1862,8 @@ local function keepShoes(player: Player)
 	if humanoid == nil or humanoid.Health <= 0 then
 		return
 	end
-	local want = LiveFlagService.on(SpeedShoes.FLAG) and SpeedShoes.owns(DataService.get(player))
+	local want = (LiveFlagService.on(SpeedShoes.FLAG) and SpeedShoes.owns(DataService.get(player)))
+		or EventService.speedRush()
 	local old = character:FindFirstChild(SpeedShoes.WORN)
 	if old ~= nil and want and SpeedShoes.onFeet(old, character) then
 		return
@@ -3534,6 +3662,25 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		keepShoes(player) -- #4050
 	end)
 
+	-- #4197: Speed Rush starts or ends: everyone's shoes and carry speed follow at once
+	local rushing = EventService.speedRush()
+	EventService.adminChanged:Connect(function()
+		local now = EventService.speedRush()
+		if now == rushing then
+			return
+		end
+		rushing = now
+		for _, player in Players:GetPlayers() do
+			local ok, err = pcall(function()
+				keepShoes(player)
+				CatService.refreshSpeed(player)
+			end)
+			if not ok then
+				warn("[CatService] speed rush: " .. tostring(err))
+			end
+		end
+	end)
+
 	-- #2856: the pack stays on. Again once the avatar's appearance is in (it can rebuild the torso), and a light
 	-- check every PACK_CHECK_SECONDS for any other way it came off. #3165: the cat in the hands the same way.
 	task.spawn(function()
@@ -3665,6 +3812,9 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			xpcall(stormTick, function(err: unknown)
 				warn("[CatService] cat storm: " .. tostring(err))
 			end, nowClock - last) -- #4195
+			xpcall(huntTick, function(err: unknown)
+				warn("[CatService] secret hunt: " .. tostring(err))
+			end) -- #4197
 			last = nowClock
 		end
 	end)

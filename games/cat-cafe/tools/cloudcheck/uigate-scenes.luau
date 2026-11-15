@@ -12796,13 +12796,17 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 			assert(ticked == 5, ("uigate: %d copies ticked, not 5 (#4104)"):format(ticked))
 			local result = (confirm:FindFirstChild("Result", true) :: TextLabel).Text
-			assert(string.find(result, "Lv 12", 1, true) and string.find(result, "Mochi", 1, true), "uigate: the result reads " .. result .. " (#4104)")
+			-- #4588: the default five are the lowest levels (1, 2, 3, 4 and 7), so Lv 12 Mochi is kept out
+			assert(string.find(result, "Lv 7", 1, true) and not string.find(result, "Mochi", 1, true), "uigate: the result reads " .. result .. " (#4104, #4588)")
 			local chip = confirm:FindFirstChild("Trait1", true) :: GuiObject
 			assert(chip and chip.Visible, "uigate: no trait to keep (#4104)")
 			local goText = (confirm:FindFirstChild("FuseGo", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel)
-			press("FusionObservatory", "Copy1") -- the Lv 12 copy leads the strip: untick it
+			press("FusionObservatory", "Copy6") -- the Lv 1 copy ends the strip: untick it
 			assert(goText.Text == "Pick 1 more", "uigate: four picked reads " .. goText.Text .. " (#4104)")
-			press("FusionObservatory", "Copy1")
+			press("FusionObservatory", "Copy1") -- the Lv 12 copy leads the strip: swap Mochi in by hand
+			result = (confirm:FindFirstChild("Result", true) :: TextLabel).Text
+			assert(string.find(result, "Lv 12", 1, true) and string.find(result, "Mochi", 1, true), "uigate: with Mochi picked the result reads " .. result .. " (#4104)")
+			press("FusionObservatory", "Trait1") -- the rarest trait leads the chips: keep Mochi's
 			press("FusionObservatory", "FuseGo")
 			assert(#sent == 0 and string.find(goText.Text, "Tap again", 1, true) and goText.TextFits, "uigate: the first Fuse tap did not ask, it reads " .. goText.Text .. " (#4104)")
 			press("FusionObservatory", "FuseGo")

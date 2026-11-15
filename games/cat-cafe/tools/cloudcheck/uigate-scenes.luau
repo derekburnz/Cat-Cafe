@@ -12747,6 +12747,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			fits(confirm, "Title")
 			fits(confirm, "Result")
 			fits(confirm, "Time")
+			-- #4590 (Derek): fusion is instant on main (0 seconds), so the card shows no "Ready in" time
+			local timeLine = confirm:FindFirstChild("Time", true) :: TextLabel
+			assert(string.find(timeLine.Text, "Ready in 10 min", 1, true), "uigate: a 600 s fusion reads " .. timeLine.Text .. " (#4104)")
+			UI.update({ fusion = { goldSeconds = 0, rainbowSeconds = 0, made = { gold = 0, rainbow = 0 } } } :: any)
+			UIShim.advance(0.1)
+			assert(confirm.Visible and not string.find(timeLine.Text, "Ready", 1, true), "uigate: an instant fusion still reads " .. timeLine.Text .. " (#4590)")
+			UI.update({ fusion = view } :: any)
+			UIShim.advance(0.1)
 			local copies = confirm:FindFirstChild("Copies", true) :: GuiObject
 			local ticked = 0
 			for _, cell in copies:GetChildren() do

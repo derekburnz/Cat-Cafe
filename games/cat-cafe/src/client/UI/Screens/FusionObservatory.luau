@@ -1183,7 +1183,7 @@ function FusionObservatory._paintConfirm(self: any)
 	end
 	local wait = FusionLogic.seconds(self._view, group.next)
 	self._timeLine.Text = if wait <= 0
-		then "Ready at once · uses these 5" -- #4556: instant fusions
+		then "Uses these 5" -- #4556 instant fusions; #4590 (Derek): no "Ready" time line for them
 		else "Ready in " .. FusionLogic.duration(wait) .. " · uses these 5"
 	local ready = #picked == FusionLogic.COPIES
 	self._fuseButton:setText(

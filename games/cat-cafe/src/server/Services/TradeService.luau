@@ -56,6 +56,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local PassService = require(script.Parent.PassService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local QuietStart = require(ReplicatedStorage.Shared.QuietStart)
 local QuietStartService = require(script.Parent.QuietStartService)
@@ -1218,6 +1219,30 @@ end
 
 function TradeService.start()
 	publish()
+	-- #2745: the Golden Pond pass starts the fish trade hold (Trade.fishRefusal): bought in game, or first seen owned
+	-- (a buy on the website or before joining, found at the join lookup or its retry; an owner from before this gets
+	-- one hold too, while fish trading was off anyway)
+	local function startHold(player: Player, always: boolean)
+		local profile = DataService.get(player)
+		if profile == nil or not PassService.owns(player, Config.GoldenPondPassId) then
+			return
+		end
+		if always or profile.stats.pondSeen == 0 then
+			profile.stats.pondSeen = 1
+			profile.stats.pondPassAt = os.time()
+		end
+	end
+	PassService.purchased:Connect(function(player: Player, passId: number)
+		if passId == Config.GoldenPondPassId then
+			startHold(player, true)
+		end
+	end)
+	PassService.changed:Connect(function(player: Player)
+		startHold(player, false)
+	end)
+	DataService.onLoaded:Connect(function(player: Player)
+		startHold(player, false)
+	end)
 	CafeService.setOfferCheck(function(player: Player, uid: string): boolean
 		return TradeBook.isOffered(book, player.UserId, uid)
 	end)

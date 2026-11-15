@@ -132,6 +132,7 @@ LiveFlags.KEYS = {
 	"codes",
 	"vipBoost", -- #4235: VIP pays +50% and shows a tag over the owner's head (Economy.vipBoost, Services/VipTagService)
 	"rally",
+	"stationTiers", -- #4539: Mystery Market, Cat Arcade and Mystic Pool open from Tiers 2, 3 and 4 (shared/StationTiers)
 	"tradeCrates",
 	"tradeFish",
 	"awayNotes",
@@ -198,7 +199,9 @@ LiveFlags.KEYS = {
 	"deviceFixes", -- the Wed 2026-11-18 phone and tablet first 5 minutes fixes (no Tackle before the first check-in, ...)
 	"afkButton", -- #4346: the HUD's AFK tile and AfkMode (shared/AfkCafe): home, 2x rest at once, the rejoin keeps it
 	"freeCatchPads", -- Derek 2026-11-14: phone, tablet and console catches below Tier 2 are the tutorial's (shared/FreeCatch)
+	"stuckAfterSecond", -- #4473: the stuck cat goal, pointer and call wait until the second cat is caught (shared/StuckGoal)
 	"fusion", -- #4104: the Fusion Observatory (shared/Fusion); on after the save version 50 restart
+	"catchFirst", -- #4518: on, today's walk-through order; false, bowl first (shared/TutorialOrder)
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -258,6 +261,10 @@ LiveFlags.OFF_BY_DEFAULT = {
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to
+-- #4607: true on ReplicatedStorage once the attributes hold the store's values (the server's first read came back), so
+-- a look the client takes once at its start (the menu family) waits for it instead of latching the defaults
+LiveFlags.READY_ATTRIBUTE = "LiveFlagsReady"
+LiveFlags.READY_WAIT = 6 -- seconds the client waits for it at most before building the UI
 
 export type Flags = { [string]: boolean }
 

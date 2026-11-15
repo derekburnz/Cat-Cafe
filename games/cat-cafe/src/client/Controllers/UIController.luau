@@ -1285,6 +1285,7 @@ local function applyState(s: Types.PlayerState)
 		-- #4061: the Ticket Booth window; false (not nil, which UI.update would skip) while off or below its tier
 		ticketBooth = s.ticketBooth or false,
 		dragon = s.dragon or false, -- #4062: the Dragon Keep window, false while off or below its tier
+		fusion = (s :: any).fusion or false, -- #4104 (typed by Gameplay-Engineer's server side): the Fusion Observatory window, false while off or below its tier
 		crates = s.crates, -- F53: unopened crates, crate luck and Market perks
 		crateLuck = s.crateLuck,
 		fishPerks = s.fishPerks,
@@ -3274,9 +3275,8 @@ local function wireServerEvents()
 			show(kind, paid)
 		end
 	end)
-	-- #3420: the update gift's banners (Effects/EventBanner): "a gift is coming" and the gift paid. The words are
-	-- built here from shared/UpdateGift, which refuses anything but small whole numbers; a paid gift that cannot
-	-- show as a banner falls back to the toast.
+	-- #3420: the update gift's "a gift is coming" banner (Effects/EventBanner), and the gift paid as a toast (#4484).
+	-- The words are built here from shared/UpdateGift, which refuses anything but small whole numbers.
 	Net.on(
 		"UpdateGiftNotice",
 		function(
@@ -3290,14 +3290,13 @@ local function wireServerEvents()
 			if banner == nil then
 				return
 			end
-			local shown = EventBanner.show({
-				kind = if kind == "paid" then "gift" else "giftSoon",
-				title = banner.title,
-				lines = banner.lines,
-			})
-			if not shown and kind == "paid" then
+			-- #4484 (Derek 2026-11-15: "remove the big banner thanks for playing that gives fish on join because new
+			-- players cant see tutorial then"): the gift paid on join is a small toast, never the big banner
+			if kind == "paid" then
 				UI.toast(banner.title .. " " .. banner.lines[1], "good")
+				return
 			end
+			EventBanner.show({ kind = "giftSoon", title = banner.title, lines = banner.lines })
 		end
 	)
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.
@@ -3535,6 +3534,18 @@ function UIController.start()
 		:Connect(function()
 			catalog.indexPrizes = SharedIndexRewards.shownPrizes()
 		end)
+	-- #4607 (Derek 2026-11-15: menus "reverted to the old menu style" after the 22:00 publish): a new server publishes
+	-- the switches' defaults before its first read of the store, and MenuFamily takes its look once, at the first
+	-- window built, so the first players in a fresh server latched the old look (and white words on the Store's
+	-- white sheet rows). Wait for the store's values, a few seconds at most.
+	local LiveFlagsShared = require(Shared:WaitForChild("LiveFlags")) :: any
+	local readyBy = os.clock() + LiveFlagsShared.READY_WAIT
+	while
+		ReplicatedStorage:GetAttribute(LiveFlagsShared.READY_ATTRIBUTE) ~= true
+		and os.clock() < readyBy
+	do
+		task.wait(0.1)
+	end
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({
 		catalog = catalog,

@@ -1347,7 +1347,7 @@ return function()
 			"at Tier 8 there is nothing left while the tier9 switch is off, whatever the coins (#3997, #4070)",
 			function()
 				LateTiers.setOpen(8) -- tier8 on, tier9 off
-				local p = profileWith(8, 70, "Mythical", 6, 1e14)
+				local p = profileWith(8, 70, "Mythical", 7, 1e14) -- #4513: Tier 9 needs 7
 				expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Summit Cafe")
 				LateTiers.setOpen(true)
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
@@ -1363,7 +1363,7 @@ return function()
 			"at Tier 9 there is nothing left while the tier10 switch is off, whatever the coins (#4184)",
 			function()
 				LateTiers.setOpen(9) -- tier8 and tier9 on, tier10 off
-				local p = profileWith(9, 80, "Mythical", 7, 1e15)
+				local p = profileWith(9, 80, "Mythical", 8, 1e15) -- #4513: Tier 10 needs 8
 				expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Funfair Cafe")
 				LateTiers.setOpen(true)
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()

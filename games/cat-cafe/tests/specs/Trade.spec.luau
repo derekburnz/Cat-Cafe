@@ -830,6 +830,25 @@ return function()
 		)
 
 		it(
+			"holds fish offers for a day after the Golden Pond pass is bought with Robux (#2745)",
+			function()
+				local me, them = profile(150), profile(0)
+				expect(Config.TradeFishPassHoldSeconds).to.equal(86400)
+				me.stats.pondPassAt = DAY3 - 3600
+				expect(Trade.fishRefusal(me, them, 10, DAY3)).to.equal(Trade.Messages.fishPassHold)
+				expect(Trade.fishRefusal(me, them, 0, DAY3)).never.to.be.ok() -- taking them off is fine
+				me.stats.pondPassAt = DAY3 - 86400
+				expect(Trade.fishRefusal(me, them, 10, DAY3)).never.to.be.ok()
+				me.stats.pondPassAt = 0 -- never seen bought
+				expect(Trade.fishRefusal(me, them, 10, DAY3)).never.to.be.ok()
+				-- the receiver's pass does not hold the giver
+				me.stats.pondPassAt = 0
+				them.stats.pondPassAt = DAY3
+				expect(Trade.fishRefusal(me, them, 10, DAY3)).never.to.be.ok()
+			end
+		)
+
+		it(
 			"keeps each receiver to TradeFishPerDay a game day, afresh at the next sunrise",
 			function()
 				local me, them = profile(999), profile(0)

@@ -91,6 +91,7 @@ local WorldTags = require(script.Screens.WorldTags)
 
 local UI = {}
 UI.together = {} -- F92 playing together, filled at the end of the file
+UI._padHints = nil :: any -- #4224: the controller hint strip (Components/GamepadHints), made in UI.init
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.lateStations = {} -- #2651 part 4 the Oasis Spa and Relic Museum cards, filled at the end of the file
 UI.mysticPool = {} -- #3196 the Mystic Pool's card (traits), filled at the end of the file
@@ -1745,6 +1746,12 @@ function UI.init(config: Types.InitConfig)
 	require(script.Screens.ThanksBoard).new(parent) -- #1083: the Thank You board's face (no local: init is at Luau's 200)
 	require(script.Screens.PitySign).new(parent) -- #1572: the pity cat sign's countdowns (no local, as above)
 	require(script.Screens.UpdatePoster).new(parent) -- #4362: the next update's poster stand (no local, as above)
+	require(script.Screens.HarvestSign).new(
+		parent,
+		function() -- #4251: Harvest Hollow's arch sign (no local, as above)
+			return (UI.getState() :: any).tier
+		end
+	)
 	indexBoards = IndexBoards.new(parent, {
 		open = function(areaId: string)
 			UI.openIndex(areaId)
@@ -1797,6 +1804,8 @@ function UI.init(config: Types.InitConfig)
 	if config.keybinds ~= false then
 		-- #2872 (console): the selection ring, and Select starts on the menu grid instead of Roblox's own pick
 		UI.gamepadStart(parent)
+		-- #4224: which buttons do what, on a controller (a field, not a local: this chunk is at Luau's 200 locals)
+		UI._padHints = require(script.Components.GamepadHints).new(parent, modalInstance)
 		table.insert(
 			connections,
 			UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
@@ -2156,6 +2165,10 @@ function UI.destroy()
 	UI.newKind.stop()
 	if catCard then
 		catCard:destroy()
+	end
+	if UI._padHints then
+		UI._padHints:destroy()
+		UI._padHints = nil
 	end
 	if actionPills then
 		actionPills:destroy()
@@ -6430,7 +6443,7 @@ do
 		EVERY = 0.25,
 	}
 	-- the controller's last state and the line it was given, so a switch of input can say it again
-	local hinted: { state: any, text: string?, device: TipQueue.Device? } = {}
+	local hinted: { state: any, text: string?, device: TipQueue.Device?, recheck: boolean? } = {}
 	local stall = { step = -1, seconds = 0, pulses = 0, asked = false, clock = 0 }
 
 	-- #3865: the strip follows a new input only once it has held a moment (TipQueue.settle)
@@ -6463,13 +6476,23 @@ do
 	end
 
 	-- The strip says its line again when the input changes (a pad picked up, a tap on a touch laptop).
-	local function followInput()
+	local followInput: () -> ()
+	function followInput()
 		local s = hinted.state
 		if s == nil or hinted.text == nil or tutorialText ~= hinted.text then
 			return
 		end
 		local device: TipQueue.Device = inputDevice()
 		if device == hinted.device then
+			-- #4224 (Review-QA: a pad kept the "(F)" line): a new device counts only once it has held for
+			-- TipQueue.SETTLE_SECONDS, and no input change may come after it to ask again, so look once more then
+			if settle.candidate ~= nil and not hinted.recheck then
+				hinted.recheck = true
+				task.delay(TipQueue.SETTLE_SECONDS + 0.1, function()
+					hinted.recheck = false
+					followInput()
+				end)
+			end
 			return
 		end
 		hinted.device = device

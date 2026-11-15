@@ -81,6 +81,20 @@ return function()
 			)
 			expect(Logic.keepLine("Legendary", nil)).to.equal("Yours to keep · earns like a Rare")
 		end)
+		it("words the arch sign's line for each state (#4251)", function()
+			local H = HarvestHollow
+			expect(Logic.signLine(H.OPENS_AT - 3 * 86400, 1, nil, "Wed 3 PM")).to.equal(
+				"Opens Wed 3 PM"
+			)
+			expect(Logic.signLine(H.OPENS_AT - (5 * 3600 + 12 * 60), 1, nil, "Wed 3 PM")).to.equal(
+				"Opens in 5h 12m"
+			)
+			expect(Logic.signLine(H.OPENS_AT - 90, 4, nil, "Wed 3 PM")).to.equal("Opens in 2m")
+			expect(Logic.signLine(H.OPENS_AT, 1, nil, "x")).to.equal("Opens at Tier 2")
+			expect(Logic.signLine(H.OPENS_AT + 60, 2, nil, "x")).to.equal("Open until Sun Dec 6")
+			expect(Logic.signLine(H.OPENS_AT + 60, 5, false, "x")).to.equal("Closed for now")
+			expect(Logic.signLine(H.CLOSES_AT, 5, nil, "x")).to.equal("Back next autumn")
+		end)
 		it(
 			"shows the HUD Harvest button only while open, from Tier 2, with the switch on (#4251)",
 			function()

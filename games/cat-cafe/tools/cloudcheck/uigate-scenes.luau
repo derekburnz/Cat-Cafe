@@ -2752,6 +2752,94 @@ local SCENES = {
 		assert(GuiService.SelectedObject == nil, "uigate: Select again did not let go (#2872)")
 		UIShim.setLastInput(nil)
 	end },
+	-- #4224: on a controller with the padControls switch on, a strip along the bottom says what A, B and LB / RB do
+	-- in the open window (the Index has tabs), and it hides off the controller
+	{ "GamepadHints", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local GuiService = game:GetService("GuiService")
+		Scenes._padReset = function()
+			ReplicatedStorage:SetAttribute("LiveFlag_padControls", nil)
+			UIShim.setLastInput(nil)
+			GuiService.SelectedObject = nil
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", true)
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		UI.open("Collection")
+		UIShim.advance(0.4)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafePadHints") :: ScreenGui
+		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale") :: any
+		if Scale.isShort() then
+			-- a short screen's window reaches the bottom edge, so the strip stays away while it is open
+			assert(gui ~= nil and not gui.Enabled, "uigate: controller hints over a short screen's window (#4224)")
+			return
+		end
+		assert(gui ~= nil and gui.Enabled, "uigate: no controller hints over an open window (#4224)")
+		local labels: { [string]: boolean } = {}
+		for _, piece in gui:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Name == "Label" then
+				labels[piece.Text] = true
+			end
+		end
+		local seen = {}
+		for word in labels do
+			table.insert(seen, word)
+		end
+		assert(labels.Select and labels.Back and labels.Tabs, "uigate: the hints miss Select, Back or Tabs in the Index (#4224): " .. table.concat(seen, ","))
+	end },
+	-- #4224 (Review-QA in Studio): with nothing open the strip sits at the right edge, clear of the tip cards at the top
+	-- and the travel row at the bottom
+	{ "GamepadHintsHUD", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local GuiService = game:GetService("GuiService")
+		Scenes._padReset = function()
+			ReplicatedStorage:SetAttribute("LiveFlag_padControls", nil)
+			UIShim.setLastInput(nil)
+			GuiService.SelectedObject = nil
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", true)
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		UI.open("Upgrades")
+		UIShim.advance(0.3)
+		UI.close()
+		UIShim.advance(0.4)
+		GuiService.SelectedObject = nil
+		UIShim.advance(0.2)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafePadHints") :: ScreenGui
+		local strip = gui and gui:FindFirstChild("Strip", true) :: Frame?
+		assert(gui.Enabled and strip ~= nil, "uigate: no controller hint with nothing open (#4224)")
+		assert(strip.AnchorPoint.X == 1, "uigate: the controller hint with nothing open is not at the right edge (#4224)")
+	end },
+	-- #4224 (Review-QA controller pass): L1 / R1 find the Store's rail and the Decor chips as tab rows, and Potions
+	-- does not land on "Use all potions" first
+	{ "GamepadTabRows", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local GuiService = game:GetService("GuiService")
+		local Nav = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.GamepadNav") :: any
+		Scenes._padReset = function()
+			ReplicatedStorage:SetAttribute("LiveFlag_padControls", nil)
+			UIShim.setLastInput(nil)
+			GuiService.SelectedObject = nil
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", true)
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals") :: any
+		local container = modals:FindFirstChild("Container", true)
+		for _, name in { "Store", "Decor" } do
+			UI.open(name)
+			UIShim.advance(0.4)
+			local row, tabs = Nav.tabs(container)
+			assert(row ~= nil and #tabs >= 2, "uigate: L1 / R1 find no tab row in " .. name .. " (#4224)")
+			UI.close()
+			UIShim.advance(0.4)
+		end
+		UI.open("Potions")
+		UIShim.advance(0.4)
+		local first = Nav.first(container)
+		assert(
+			first == nil or (first.Name ~= "UseAllPotions" and (first.Parent :: Instance).Name ~= "UseAllPotions"),
+			"uigate: Potions lands on Use all potions first (#4224)"
+		)
+	end },
 	-- #3839 (84 "Setting GuiService.SelectedObject to invalid GuiObject" a day): a button whose ScreenGui was taken out of
 	-- PlayerGui keeps Enabled and Visible, and the engine refuses it; GamepadNav.select and restore leave it alone
 	-- Review-QA's controller pass (Nov 14): L1 / R1 step the Cats book's All / Working / Resting switch and Mouse Dash's
@@ -3827,6 +3915,66 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			ReplicatedStorage:SetAttribute(Logic.ATTRIBUTE, nil)
 			Logic.decode = decode
 		end
+	end },
+	-- #4251: Harvest Hollow's arch sign says when it opens, then "Opens at Tier 2" below the tier and "Open until Sun
+	-- Dec 6" from Tier 2 (the dates are moved to now for the second half); its face is moved onto a frame for the shot
+	{ "HarvestArchSign", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local HarvestSign = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.HarvestSign") :: any
+		local Hollow = UIShim.require("ReplicatedStorage.Shared.HarvestHollow") :: any
+		local opens, closes = Hollow.OPENS_AT, Hollow.CLOSES_AT
+		local model = Instance.new("Model")
+		model.Name = "CatCafe_Harvest_Arch"
+		local screen = Instance.new("Part")
+		screen.Name = "CatCafe_Harvest_Arch_Screen"
+		screen.Parent = model
+		model.Parent = workspace
+		model:AddTag("HarvestArch")
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "HarvestSignGate"
+		gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+		gui.DisplayOrder = 100 -- over the HUD, so the shot shows the face
+		gui.Parent = UIShim.playerGui
+		local tier = 1
+		local sign = HarvestSign.new(gui, function()
+			return tier
+		end)
+		Scenes._harvestReset = function()
+			sign:destroy()
+			gui:Destroy()
+			model:Destroy()
+			Hollow.OPENS_AT, Hollow.CLOSES_AT = opens, closes
+			ReplicatedStorage:SetAttribute("LiveFlag_harvestHollow", nil)
+		end
+		UIShim.advance(0.2)
+		local surface = gui:FindFirstChild("HarvestSignFace") :: SurfaceGui
+		assert(surface ~= nil and surface:IsA("SurfaceGui"), "uigate: the tagged arch got no sign face (#4251)")
+		local line = surface:FindFirstChild("Line") :: TextLabel
+		assert(string.sub(line.Text, 1, 6) == "Opens ", "uigate: before the dates the arch reads " .. line.Text .. " (#4251)")
+		local now = workspace:GetServerTimeNow()
+		Hollow.OPENS_AT, Hollow.CLOSES_AT = now - 60, now + 3600
+		ReplicatedStorage:SetAttribute("LiveFlag_harvestHollow", true) -- repaints at once
+		assert(line.Text == "Opens at Tier 2", "uigate: below Tier 2 the open arch reads " .. line.Text .. " (#4251)")
+		tier = 3
+		UIShim.advance(6)
+		assert(line.Text == "Open until Sun Dec 6", "uigate: at Tier 3 the open arch reads " .. line.Text .. " (#4251)")
+		-- the 8 x 2.6 stud face at 50 px a stud, on a frame the shot can show
+		local face = Instance.new("Frame")
+		face.Name = "Face"
+		face.BackgroundColor3 = Color3.fromHex("1F2A44")
+		face.AnchorPoint = Vector2.new(0.5, 0.5)
+		face.Position = UDim2.fromScale(0.5, 0.5)
+		local width = math.min(400, workspace.CurrentCamera.ViewportSize.X - 32)
+		face.Size = UDim2.fromOffset(width, width * 2.6 / 8)
+		face.Parent = gui
+		local scale = Instance.new("UIScale")
+		scale.Scale = width / 800
+		for _, child in surface:GetChildren() do
+			child.Parent = face
+		end
+		face.Size = UDim2.fromOffset(800, 260)
+		scale.Parent = face
+		UIShim.advance(0.2)
 	end },
 	-- #4251: the HUD's Harvest travel button shows while Harvest Hollow is open and the player is Tier 2 or higher, and
 	-- goes with the harvestHollow switch off or below Tier 2 (the dates are moved to now for the scene)
@@ -13553,12 +13701,16 @@ function Scenes.close()
 		Scenes._parkFly = nil
 		UI.cannon.clearFly() -- #2915's scene
 	end
+	if Scenes._padReset ~= nil then
+		Scenes._padReset() -- #4224's GamepadHints: off the controller again
+		Scenes._padReset = nil
+	end
 	if Scenes._rareReset ~= nil then
 		Scenes._rareReset() -- #4227's CannonRares: no bubbles again
 		Scenes._rareReset = nil
 	end
 	if Scenes._harvestReset ~= nil then
-		Scenes._harvestReset() -- #4251's HudHarvest: the real dates again
+		Scenes._harvestReset() -- #4251's Harvest scenes: the real dates again
 		Scenes._harvestReset = nil
 	end
 	if Scenes._rankTier ~= nil then

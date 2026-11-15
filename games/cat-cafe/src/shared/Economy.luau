@@ -145,7 +145,8 @@ local dragonOverride: boolean? = nil
 function Economy.setDragonKeep(on: boolean?)
 	dragonOverride = on
 end
-local NO_DRAGON: DragonKeep.Effects = table.freeze({ money = 0, tips = 0 }) :: any
+local NO_DRAGON: DragonKeep.Effects =
+	table.freeze({ money = 0, tips = 0, tickets = 0, repeatFish = 0 }) :: any
 function Economy.dragonEffects(profile: Types.PlayerProfile): DragonKeep.Effects
 	local on = if dragonOverride ~= nil
 		then dragonOverride

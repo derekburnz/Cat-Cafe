@@ -1006,15 +1006,22 @@ DragonKeep.MONEY = { -- card id -> what it adds into cafeMultiplier
 } :: { [string]: number }
 DragonKeep.TIPS = { warmTips = 0.04, emberTips = 0.08 } :: { [string]: number } -- into Economy.tipMultiplier
 DragonKeep.SET_MONEY = { flame = 0.05 } :: { [string]: number }
+DragonKeep.TICKET_BONUS = 0.25 -- Ticket Dragon: +25% Ticket Booth tickets (rounded down a catch)
+DragonKeep.REPEAT_FISH = 1 -- Fish Scale: a repeat Epic or better catch gives +1 golden fish
 
-export type Effects = { money: number, tips: number }
+export type Effects = { money: number, tips: number, tickets: number, repeatFish: number }
 
 function DragonKeep.effects(save: Types.DragonSave): Effects
-	local money, tips = 0, 0
+	local money, tips, tickets, repeatFish = 0, 0, 0, 0
 	for _, id in save.slots do
 		if cardsById[id] ~= nil then
 			money += DragonKeep.MONEY[id] or 0
 			tips += DragonKeep.TIPS[id] or 0
+			if id == "ticketDragon" then
+				tickets = DragonKeep.TICKET_BONUS
+			elseif id == "fishScale" then
+				repeatFish = DragonKeep.REPEAT_FISH
+			end
 		end
 	end
 	for _, family in DragonKeep.sets(save) do
@@ -1022,7 +1029,22 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 	end
 	money = math.min(money, DragonKeep.MONEY_CAP)
 	tips = math.min(tips, DragonKeep.MONEY_CAP - money)
-	return { money = money, tips = tips }
+	return { money = money, tips = tips, tickets = tickets, repeatFish = repeatFish }
+end
+
+-- Fish Scale's golden fish for one catch: a repeat (not a new Index entry) of Epic or better.
+local REPEAT_RANK =
+	{ Epic = true, Legendary = true, Mythical = true, Secret = true } :: { [string]: boolean }
+function DragonKeep.catchFish(fx: Effects, rarity: string, isNew: boolean): number
+	if isNew or not REPEAT_RANK[rarity] then
+		return 0
+	end
+	return fx.repeatFish
+end
+
+-- Ticket Dragon's extra tickets on a catch that credited `n`.
+function DragonKeep.extraTickets(fx: Effects, n: number): number
+	return math.floor(n * fx.tickets)
 end
 
 -- The Warmth still to the next stage or Rekindle hand.

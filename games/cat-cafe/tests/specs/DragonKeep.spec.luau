@@ -313,6 +313,19 @@ return function()
 			expect(math.abs(fx.money - 0.50) < 1e-9).to.equal(true) -- 0.45 of cards plus the Flame set's 0.05
 		end)
 
+		it("gives Ticket Dragon's quarter more tickets and Fish Scale's repeat fish", function()
+			local none = DragonKeep.effects(withSlots({}))
+			expect(DragonKeep.extraTickets(none, 8)).to.equal(0)
+			expect(DragonKeep.catchFish(none, "Epic", false)).to.equal(0)
+			local fx = DragonKeep.effects(withSlots({ "ticketDragon", "fishScale" }))
+			expect(DragonKeep.extraTickets(fx, 8)).to.equal(2)
+			expect(DragonKeep.extraTickets(fx, 3)).to.equal(0) -- rounded down
+			expect(DragonKeep.catchFish(fx, "Epic", false)).to.equal(1)
+			expect(DragonKeep.catchFish(fx, "Mythical", false)).to.equal(1)
+			expect(DragonKeep.catchFish(fx, "Epic", true)).to.equal(0) -- a new entry has its own fish
+			expect(DragonKeep.catchFish(fx, "Rare", false)).to.equal(0)
+		end)
+
 		it("names only real cards in its tables", function()
 			for id in DragonKeep.MONEY do
 				expect(DragonKeep.card(id)).to.be.ok()

@@ -1252,7 +1252,7 @@ return function()
 
 		it("puts plots 1 to 4 by the square and 5 to 8 one row out, west then east", function()
 			-- the bigger cafes (44 x 34, #917)
-			local want = { { -41, -100 }, { 41, -100 }, { -41, 100 }, { 41, 100 } } -- #3070: 85 before the 120 x 140 square
+			local want = { { -41, -120 }, { 41, -120 }, { -41, 120 }, { 41, 120 } } -- #4532: 100 before the 120 x 180 square
 			for n = 1, 4 do
 				want[n + 4] = { want[n][1], want[n][2] + (if want[n][2] < 0 then -52 else 52) }
 			end
@@ -1436,17 +1436,17 @@ return function()
 			end
 		)
 
-		it("is 120 by 140: #3001's width, and 15 deeper either side (#3070)", function()
+		it("is 120 by 180: #3001's width, 20 deeper either side (#4532)", function()
 			expect(W.TownSquareHalfWidth).to.equal(60)
-			expect(W.TownSquareHalfDepth).to.equal(70)
+			expect(W.TownSquareHalfDepth).to.equal(90)
 			expect(square.floor.x2 - square.floor.x1).to.equal(120)
-			expect(square.floor.z2 - square.floor.z1).to.equal(140)
+			expect(square.floor.z2 - square.floor.z1).to.equal(180)
 			-- the width grows inside the town edge: the gardens keep a strip either side
 			expect(W.TownEdgeX - W.TownSquareHalfWidth >= 9).to.equal(true)
 			-- the streets and the town ground follow the deeper square, so the outer cafe row keeps its margin
-			expect(W.StreetNorthZ).to.equal(178)
-			expect(W.StreetSouthZ).to.equal(-178)
-			expect(W.TownGroundDepth).to.equal(408)
+			expect(W.StreetNorthZ).to.equal(198)
+			expect(W.StreetSouthZ).to.equal(-198)
+			expect(W.TownGroundDepth).to.equal(448)
 		end)
 
 		it("brings the Thank You board and the Rally board out into the open (#3070)", function()

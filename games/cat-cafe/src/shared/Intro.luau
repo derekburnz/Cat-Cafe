@@ -666,9 +666,10 @@ function Intro.shots(
 	-- (-35, 35) and (-45, -25.5), 60 apart, so the camera stands 12 further east and 4 higher to keep the same angles
 	-- (29 and 25 degrees) and still look over the cannon; #3454's four corners put them at (-26, 54) and (-44, -23),
 	-- 79 apart, so the camera stands 14 further east and 4 higher and looks at the point between them (29 degrees
-	-- off the axis each)
-	local stations = v(-35, 3, 15.5)
-	local stationsCam = v(34, 28, 0)
+	-- off the axis each); #4532's 120 x 180 square put them at (-26, 56) and (-45, -30), 88 apart, so the camera stands
+	-- 14 further east again, 4 higher and 6 north, and looks along their bisector (28 degrees off the axis each)
+	local stations = v(-31.4, 3, 16)
+	local stationsCam = v(48, 32, 6)
 	local shotFrom = key(v(px - (halfD + 16) * s, 9, pz - 6), v(px - (halfD + 0.3) * s, 7, pz))
 	local streamed = alleyStreamed ~= false
 	local all: { Shot } = {

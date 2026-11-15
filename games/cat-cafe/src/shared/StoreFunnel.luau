@@ -116,8 +116,16 @@ end
 
 -- #4176: where a purchase prompt started, as the client tags it (TelemetryReport buy_source "<source>:<id>"); a
 -- receipt or bought pass within BUY_SOURCE_SECONDS of its tag logs purchase_source with it, else "store".
-StoreFunnel.BUY_SOURCES =
-	{ "store", "hud_badge", "deal_card", "starter_suggest", "featured_new", "bait", "cafe_pass" }
+StoreFunnel.BUY_SOURCES = {
+	"store",
+	"hud_badge",
+	"deal_card",
+	"starter_suggest",
+	"featured_new",
+	"bait",
+	"cafe_pass",
+	"money_card",
+} -- money_card #4437
 StoreFunnel.BUY_SOURCE_SECONDS = 120
 StoreFunnel.BUY_SOURCES_MAX = 60 -- tags a session; past it the rest count as "store"
 -- PassShop's guard sources to their purchase source (the guard's own names stay as they were for its event)

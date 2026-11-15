@@ -97,6 +97,9 @@ end)
 
 -- #2697: the tutorial moved forward (player, from step, to step), from the server or the client's TutorialAdvance
 CafeService.tutorialStepped = Signal.new() :: Signal.Signal<Player, number, number>
+-- #4518: a move the walk-through asks for outside a step change (bowl first: to the cannon once the bowl cat is
+-- claimed); TutorialMoveService does it
+CafeService.tutorialMove = Signal.new() :: Signal.Signal<Player, string>
 
 -- Whether `player` owns pass `passId`, for the pass sign styles (#1625).
 local function ownsPassOf(player: Player): (number) -> boolean
@@ -379,7 +382,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile), -- #3022
-		stuckGoal = StuckGoal.waiting(profile), -- #2912
+		stuckGoal = StuckGoal.waiting(profile, LiveFlagService.on(StuckGoal.AFTER_SECOND_FLAG)), -- #2912, #4473
 		introSeen = profile.introSeen,
 		introAuto = introAuto, -- #3666
 		introShort = Telemetry.introShort(profile), -- #4001: the short intro test's "short" arm
@@ -2137,6 +2140,9 @@ local function onRankUp(player: Player)
 	local profile = profileFor(player)
 	if profile == nil then
 		return
+	end
+	if profile.tier == 1 then
+		Telemetry.cleanEvent(player, profile, Telemetry.CLEAN_EVENTS.rankUpPressed) -- #4504: pressed, met or not
 	end
 	local blocker = Economy.rankUpBlocker(profile)
 	if blocker ~= nil then

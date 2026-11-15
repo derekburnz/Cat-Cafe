@@ -2710,6 +2710,12 @@ Layout.townSquare = {
 		{ asset = "CatCafe_Square_GardenEnd", x = 64, y = 0.1, z = 51.5, rotY = 90 },
 		{ asset = "CatCafe_Square_GardenMid", x = -64, y = 0.1, z = 0, rotY = -90 },
 		{ asset = "CatCafe_Square_GardenMid", x = 64, y = 0.1, z = 0, rotY = 90 },
+		-- #4516 (Derek2 2026-11-15: "add a little decor stand beside the fish market so people know thats where to
+		-- get decor"): Model-Agent's `CatCafe_Square_DecorStand` (front -Z, about 4.9 x 2.9), just past the market's
+		-- end on the Day Cart's side (Layout.fishMarket), turned to face the spawn. Its arrow points at the market
+		-- from here. 1 stud clear of the market, 7 of its walk-up ring and 8 of everything else (world scan).
+		-- Skipped until its model is in (AssetRegistry.known).
+		{ asset = "CatCafe_Square_DecorStand", x = 37.8, y = 0.1, z = 57.4, rotY = 27.9 },
 	} :: { Prop },
 }
 
@@ -3142,12 +3148,16 @@ for id, camp in Layout.camps do
 	Layout.cannons[id] = camp.cannon
 end
 
--- In front of each cannon (section 5: the Cannon button), facing it with its "Hop in" prompt in reach: in town just
--- off the plinth's south side on the landing pad, at a camp on the pad side of the cannon's paving.
-local TOWN_FRONT_OUT = 1.5 -- studs past the plinth's edge
+-- In front of each cannon (section 5: the Cannon button), facing it: at a camp on the pad side of the cannon's
+-- paving, its "Hop in" prompt in reach. In town just outside the cannon's ring, south of it on the landing pad where
+-- players spawn: Derek 2026-11-15, "teleports people just outside of the circle for cannon not instantly inside so
+-- people can still use it as a shortcut to get to the market". It was 7.5 studs out, inside the ring, so the Cat
+-- Cannon window opened at once. The ring's edge is TownCannonRangeStuds less WalkUp.EDGE_SLACK (9.5 studs); one step
+-- forward opens it. Still within the server's reach plus Cannon.RANGE_SLACK, so "Fly to the Park" opens the picker.
+local TOWN_FRONT_STUDS = W.TownCannonRangeStuds + 2.5
 local CAMP_FRONT = { x = 0, z = CAMP_CANNON.z + 6.5 }
 Layout.cannonFronts = {
-	town = { x = 0, y = 0.1, z = -(Layout.townSquare.fountainRadius + TOWN_FRONT_OUT), rotY = 180 } :: Point,
+	town = { x = 0, y = 0.1, z = -TOWN_FRONT_STUDS, rotY = 180 } :: Point,
 } :: { [string]: Point }
 for id, camp in Layout.camps do
 	local x, z = Layout.campPoint(camp, CAMP_FRONT.x, CAMP_FRONT.z)

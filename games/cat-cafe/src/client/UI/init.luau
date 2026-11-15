@@ -3053,32 +3053,11 @@ function UI.bait.arrived(cat: Types.BaitCat, bowl: number?)
 	end)
 end
 
--- #1897: FirstWow(rarity, first) from the server: the first wow cat came to the bowl (UI.bigPull.wow plays it). The
--- card's portrait is the cat at a bowl with that rarity (BaitReady comes first), unless the server names it.
-function UI.bait.wow(rarity: string, first: boolean?, catId: string?)
-	if UI.bait.busy() then
-		-- #2412: after the catch or the carry; gone if the bowl's cat left meanwhile
-		UI.bait.whenCalm(function()
-			return bowls.cats[1] ~= nil or bowls.cats[2] ~= nil
-		end, function()
-			UI.bait.wow(rarity, first, catId)
-		end)
-		return
-	end
-	local id = catId
-	if id == nil then
-		for _, cat in bowls.cats do
-			local catAt: Types.BaitCat? = cat
-			if catAt then
-				local def = lookupCat(catAt.catId)
-				if def and def.rarity == rarity then
-					id = catAt.catId
-				end
-			end
-		end
-	end
-	UI.bigPull.wow(rarity, first, id)
-end
+-- #1897: FirstWow(rarity, first) from the server: the first wow cat came to the bowl. #4488 (Derek 2026-11-15: "make
+-- it so the 'your first rare' after foodbowl scene doesn't show up just the tame button so they don't have to clear 2
+-- things for the same cat"): no card and no toast; the bait card's Tame button is the one thing for that cat.
+-- UI.bigPull.wow still draws the card, for the UI gate and should it come back.
+function UI.bait.wow(_rarity: string, _first: boolean?, _catId: string?) end
 
 -- The server resolved the cat (tamed or let go): close its card and forget it. `bowl` is 1 or 2 (#1161), nil is 1.
 function UI.bait.hideReady(bowl: number?)
@@ -4751,9 +4730,13 @@ do
 			cancel = function()
 				UI.events.rescueCancelled:Fire(rescueSpotId)
 			end,
-			ended = function(success: boolean)
+			ended = function(success: boolean, said: string?)
 				if rescueTarget == rescueSpotId then
 					endRescue(success)
+				end
+				-- #4492: the bar is gone at once; its closing words show as one small toast
+				if said ~= nil and toasts then
+					toasts:show(said, if success then "good" else "warn", true)
 				end
 			end,
 		})
@@ -4785,11 +4768,11 @@ do
 				elseif guess == "perfect" then "perfect"
 				else "good"
 			if hud then
-				hud:setCatching(false) -- #3078: at once, as a catch's result does; endRescue does the rest after the word
+				hud:setCatching(false) -- #3078: at once, as a catch's result does
 			end
-			screen:showResult({ grades = { grade }, success = success }, function()
-				endRescue(success)
-			end)
+			-- #4492: the rescue is over the moment the result is in; the grade word still flashes, as on a catch
+			screen:showResult({ grades = { grade }, success = success }, function() end)
+			endRescue(success)
 			return
 		end
 		if rescueBar then
@@ -6109,6 +6092,11 @@ do
 
 	-- #2880: true when a slide-in ask may show now (AskPacing), false while it is too soon
 	function UI.asks.paced(): boolean
+		-- #4483 (Derek 2026-11-15: "if the tips menu is X'd ... don't show cafe recap or pop ups at all like rate the
+		-- game"): a player who X'd the Tutorial tile gets no slide-in ask at all
+		if not tutorialButtonOn then
+			return false
+		end
 		return AskPacing.allow(os.clock() - sessionStart, early.lastAsk)
 	end
 
@@ -7608,7 +7596,7 @@ do
 				then
 					return nil
 				end
-				return MysteryLogic.bang(value)
+				return MysteryLogic.bang(value, workspace:GetServerTimeNow()) -- #4525
 			end,
 		})
 		bang:update(state)
@@ -10479,8 +10467,8 @@ local function recapTry(): boolean
 	end
 	local RecapLogic = require(script.Components.RecapLogic)
 	local settings: { [string]: any } = state.settings or {}
-	if settings[RecapLogic.SETTING] == false then
-		UI.recap.waiting = nil -- off: this session's card is dropped
+	if settings[RecapLogic.SETTING] == false or not tutorialButtonOn then
+		UI.recap.waiting = nil -- off (#4483: or the Tutorial tile X'd): this session's card is dropped
 		return true
 	end
 	local busy = (modal ~= nil and modal:current() ~= nil)
@@ -10669,6 +10657,10 @@ local function giftTry(): boolean
 	local waiting = UI.gift.queue[1]
 	if waiting == nil or card == nil then
 		return true
+	end
+	if not tutorialButtonOn then
+		table.remove(UI.gift.queue, 1) -- #4483: the Tutorial tile X'd: the gift is paid, its thank-you card is not shown
+		return #UI.gift.queue == 0
 	end
 	local GiftCardLogic = require(script.Components.GiftCardLogic)
 	local busy = (modal ~= nil and modal:current() ~= nil)

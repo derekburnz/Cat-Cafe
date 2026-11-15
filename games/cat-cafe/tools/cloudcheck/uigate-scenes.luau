@@ -4116,7 +4116,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 					string.match(text, "^You have %d+$")
 						or text == "Get more at the Corner Shop"
 						or text == "Sold by the night dealer's cart"
-						or text == "Sold on the Day Cart from Tier 6", -- #3462
+						or text == "Sold on the Coin Cart from Tier 6", -- #3462
 					("uigate: a food row says %q (#1281)"):format(text)
 				)
 			end
@@ -4865,7 +4865,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		task.wait(UI.bait.SETTLE + 0.6)
 		assert(card.Enabled, "uigate: the bait card never showed after the carry (#2412)")
 		pull = UIShim.playerGui:FindFirstChild("CatCafeBigPull")
-		assert(pull and pull.Enabled, "uigate: the wow card never showed after the carry (#2412)")
+		-- #4488: the bowl's first wow cat has no card of its own now, only the bait card's Tame
+		assert(not (pull and pull.Enabled), "uigate: the wow card showed for a bowl cat (#4488)")
 		UI.bait.set(nil, 1) -- the bowl empty again for the scenes after
 	end },
 	-- #1161: the cat's card with two bowls names the bowl, and its banner stays clear of the X on a phone
@@ -7777,8 +7778,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			zoneEndsAt = t + 5,
 		})
 	end },
-	-- #2460: once the server says the rescue is done, the full-screen tap catcher goes so a phone can move again under
-	-- the "Rescued!" banner; the next rescue has it back
+	-- #2460: once the server says the rescue is done, the full-screen tap catcher goes so a phone can move again; the
+	-- next rescue has it back. #4492: the bar itself goes at that moment too, win or loss
 	{ "RescueResultTapThrough", function()
 		UI.rescue.show("gate_rescue", rescueChallenge())
 		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
@@ -7792,9 +7793,15 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			speed = 1,
 			zoneEndsAt = t + 5,
 		})
-		local outcome = barGui:FindFirstChild("Outcome", true) :: TextLabel?
-		assert(outcome and outcome.Text == "Rescued!", "uigate: no Rescued! banner (#2460)")
+		-- #4492: no banner any more, the whole bar is gone the moment the result is in
+		assert(not barGui.Enabled, "uigate: the rescue bar is still up after a win (#4492)")
+		assert(not UI.rescue.isActive(), "uigate: the rescue is still on after a win (#4492)")
 		assert(not tap.Visible, "uigate: the tap catcher still covers the screen after the rescue (#2460)")
+		-- a loss closes it at once too, and so does Give up
+		UI.rescue.show("gate_rescue", rescueChallenge())
+		UI.rescue.update("gate_rescue", 1, 0, true, false, nil)
+		assert(not barGui.Enabled and not UI.rescue.isActive(), "uigate: the rescue bar is still up after a loss (#4492)")
+		assert(barGui:FindFirstChild("Outcome", true) == nil, "uigate: the rescue bar still has its result banner (#4492)")
 		UIShim.advance(5)
 		UI.rescue.show("gate_rescue", rescueChallenge())
 		assert(tap.Visible, "uigate: the next rescue has no tap catcher (#2460)")
@@ -7938,11 +7945,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			speed = 0.5,
 			zoneEndsAt = t + 5,
 		})
+		-- #4492: the bar closes at once; its words ("Try again!") go on a toast
 		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
-		local outcome = barGui:FindFirstChild("Outcome", true) :: TextLabel
-		local detail = barGui:FindFirstChild("Detail", true) :: TextLabel
-		assert(outcome.Text == "Try again!" and detail.Text == "", "uigate: a bin miss reads " .. outcome.Text .. " / " .. detail.Text .. " (#3050, #3885)")
-		assert(outcome.TextFits and detail.TextFits, "uigate: the bin's miss words do not fit (#3050)")
+		assert(not barGui.Enabled and not UI.rescue.isActive(), "uigate: the bin's bar is still up after a miss (#4492)")
 	end },
 	-- #2219 (crispi_255): a rescuer two hits in misses; the server sends the bar back to the start (no hits, zone 1)
 	-- and the flash says "MISS! Back to the start", whole, with every pip empty
@@ -8348,6 +8353,31 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(not chip.Visible, "uigate: the shield chip stayed after the shield ended (#3342)")
 		me:SetAttribute("TackleShieldUntil", workspace:GetServerTimeNow() + 272)
 		UIShim.advance(0.3)
+	end },
+	-- #4481 (Derek 2026-11-15: "remove the tackle button while safe so that people don't mistake it for the net
+	-- button"): on the Town Square, the street and in a camp the controller keeps the Tackle off (TackleLogic.shown),
+	-- so nothing of it is on screen: no bar, no round touch button and no key cap
+	{ "TackleSafe", function()
+		UI.setZone("Town")
+		UI.net.setEnabled(false)
+		UI.shove.setEnabled(true)
+		UIShim.advance(0.3)
+		UI.shove.setEnabled(false)
+		UIShim.advance(0.3)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
+		local button = gui:FindFirstChild("Tackle", true) :: GuiObject
+		assert(not (gui.Enabled and button.Visible), "uigate: the Tackle shows in a safe place (#4481)")
+	end },
+	-- and in an area's wild part it is back, beside the Net button
+	{ "TackleWild", function()
+		UI.setZone("Alley")
+		UI.net.setEnabled(true)
+		UI.shove.setEnabled(true)
+		Scenes._tackle = true
+		UIShim.advance(0.3)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
+		local button = gui:FindFirstChild("Tackle", true) :: GuiObject
+		assert(gui.Enabled and button.Visible, "uigate: no Tackle in a catching area (#4481)")
 	end },
 	-- #3744 (Studio 11-12: "D... Safe 8:18 ..."): a cat in the bag in a catching area while the join shield runs, so
 	-- the Drop pill, the Tackle and the Safe chip all show: the chip touches neither the pill nor the Tackle
@@ -10602,7 +10632,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		task.delay(0.9, function()
 			-- BaitReady first, then FirstWow(rarity, first): the card takes the bowl cat of that rarity for its portrait
 			UI.bait.showReady({ catId = epic }, 1)
-			UI.bait.wow("Epic", true)
+			UI.bait.wow("Epic", true) -- #4488: draws nothing now
+			UI.bigPull.wow("Epic", true, epic) -- the card itself, kept should it come back
 			UI.securedRare(localUserId(), epic, "Epic", false, nil)
 			local pull = UIShim.playerGui:FindFirstChild("CatCafeBigPull")
 			local word = pull and pull:FindFirstChild("Word", true)

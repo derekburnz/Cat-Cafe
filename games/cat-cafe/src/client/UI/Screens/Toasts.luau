@@ -74,6 +74,7 @@ export type Toasts = {
 	setHeld: (self: Toasts, held: boolean) -> (),
 	setFocus: (self: Toasts, on: boolean) -> (), -- #2724: mid-catch toasts wait
 	setBusy: (self: Toasts, on: boolean) -> (), -- Mouse Dash or the Mystic Pool open: shout-outs dropped, toasts wait
+	setNewcomer: (self: Toasts, quiet: () -> boolean) -> (), -- #4472: true in a new account's first minutes
 	isBusy: (self: Toasts) -> boolean,
 	isHeld: (self: Toasts) -> boolean,
 	pin: (self: Toasts, piece: GuiObject) -> (), -- #3701: the rest banner, kept at the head of the stack
@@ -242,6 +243,10 @@ function Toasts.show(
 	if ToastRules.quiet(text, kind) or self:_repeat(text, kind) then
 		return
 	end
+	-- #4472: a new account's first minutes keep only warnings and purchases
+	if self:_newcomer() and ToastRules.newcomerDrops(kind, text) then
+		return
+	end
 	-- warn covers can't afford, not allowed and bumps: the gentle bonk; everything else the small pop
 	-- Review-QA on #3854: a toast that will wait (held, mid-catch or a busy window) makes no sound now
 	local waits = kind ~= "warn"
@@ -268,8 +273,8 @@ end
 -- #4227: `more` (the spawn line queue, UI.spawns) is how many spawn lines wait after this one: a "+N" badge on the
 -- pill's corner, and a thin bar along its bottom runs down its time so the player sees when the next comes.
 function Toasts.announce(self: any, text: string, rarity: string?, more: number?)
-	if self._busy then
-		return -- setBusy: a shout-out is news of the moment, so it is dropped, not kept for later
+	if self._busy or self:_newcomer() then
+		return -- setBusy: a shout-out is news of the moment, so it is dropped, not kept for later (#4472: and new players)
 	end
 	-- #3470: a Secret's pill is its near black swatch under the white words, not the pale UI colour
 	local fill = if rarity == "Secret"
@@ -335,7 +340,7 @@ end
 
 -- A rainbow stray's shout-out: the announce pill in the cat's rarity colour with the rainbow bands on its edge.
 function Toasts.rainbow(self: any, text: string, rarity: string?)
-	if self._busy then
+	if self._busy or self:_newcomer() then
 		return
 	end
 	local fill = if rarity == "Secret"
@@ -421,8 +426,8 @@ function Toasts.setCatalog(self: any, catalog: Types.Catalog)
 end
 
 function Toasts.prize(self: any, text: string, prize: Types.IndexPrize?)
-	if ToastRules.quiet(text, "good") then
-		return -- #3080, #3054: a claim shows no bubble; the counters say it
+	if ToastRules.quiet(text, "good") or self:_newcomer() then
+		return -- #3080, #3054: a claim shows no bubble; the counters say it (#4472: none in a new player's first minutes)
 	end
 	self:_push(text, KIND_COLORS.good, PRIZE_LIFETIME, false, prize)
 end
@@ -982,6 +987,16 @@ end
 -- Derek 2026-11-13 ("turn off pop up bubbles for spawns etc when doing trait rerolls and arcade game"): while Mouse
 -- Dash's or the Mystic Pool's window is open, server shout-outs (spawns, other players' rare catches) are dropped and
 -- every other toast but a warning waits (QUEUE_MAX at most) to show when the window closes.
+-- #4472: `quiet` says whether this is a new account's first minutes (ToastRules.newcomer); the HUD's UI sets it.
+function Toasts.setNewcomer(self: any, quiet: () -> boolean)
+	self._quiet = quiet
+end
+
+function Toasts._newcomer(self: any): boolean
+	local quiet: (() -> boolean)? = self._quiet
+	return quiet ~= nil and (quiet :: () -> boolean)() == true
+end
+
 function Toasts.setBusy(self: any, on: boolean)
 	if (self._busy == true) == on then
 		return

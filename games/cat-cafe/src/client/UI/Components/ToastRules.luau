@@ -15,6 +15,8 @@
 --   oneLine(kind, text) -> boolean                     #2729: good and info toasts keep to one row and end in "…";
 --                                                     a warning and a shout-out wrap so every word shows. #3205: so
 --                                                     does a line with one of WRAP's phrases (the restart warning)
+--   newcomer(on, played) -> boolean                    #4472: a new account's first NEWCOMER_SECONDS of play
+--   newcomerDrops(kind, text) -> boolean               #4472: what goes then: all but a warning and a purchase
 
 local ToastRules = {}
 
@@ -88,6 +90,22 @@ ToastRules.PURCHASE = {
 	" again: %+",
 	"^Opened %d+ crates: ",
 }
+
+-- #4472 (Derek 2026-11-15: "way too much bubble pop ups on screen during tutorial steps turn them all off for first 5
+-- minutes not needed"): while an account has under NEWCOMER_SECONDS of play (PlayerState.playSeconds, counted on),
+-- the top centre pop-ups are dropped (not kept for later, so none floods in at minute 5): shout-outs, prize and
+-- rainbow pills and every toast but a warning (a refused press says why) and a purchase's confirmation. Behind the
+-- `newcomerQuiet` switch (shared/LiveFlags). No play time known: not quiet.
+ToastRules.NEWCOMER_SECONDS = 300
+ToastRules.NEWCOMER_FLAG = "newcomerQuiet"
+
+function ToastRules.newcomer(on: boolean, played: number?): boolean
+	return on and played ~= nil and played < ToastRules.NEWCOMER_SECONDS
+end
+
+function ToastRules.newcomerDrops(kind: string?, text: string): boolean
+	return kind ~= "warn" and not ToastRules.purchase(text)
+end
 
 function ToastRules.purchase(text: string): boolean
 	for _, pattern in ToastRules.PURCHASE do

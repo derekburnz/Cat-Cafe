@@ -10622,14 +10622,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 	end },
-	-- #3615: the pick taken: rows dimmed, "Next pick in 1 h 20 m", the button off
+	-- #3615: the pick taken: rows dimmed, "New crate in 1 h 20 m" (#4225: the station pill's words), the button off
 	{ "YardSalePickWait", function()
 		local extras = yardPickExtras(4, true)
 		UI.campExtras.update(extras)
 		UI.campExtras.openYardSale(extras.yardSale)
 		task.wait(0.3)
 		local line = yardPickCard():FindFirstChild("Line", true)
-		assert(line and string.find(line.Text, "Next pick in", 1, true), "uigate: no wait on the taken lucky pick (#3615)")
+		assert(line and string.find(line.Text, "New crate in", 1, true), "uigate: no wait on the taken lucky pick (#3615)")
 	end },
 	-- #3615: YardSalePicked(1): the light rolls down the board twice and stops on row 1, the only lit row. Tier 1's
 	-- short board and its first row, so the whole roll ends inside the 1.5 s a scene is given: a longer one ran on

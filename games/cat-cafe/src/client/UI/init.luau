@@ -8650,8 +8650,15 @@ do
 		elseif wheel ~= nil and not admin.autoOpened[wheel.eventId] then
 			local upAt = admin.upAt or os.clock()
 			admin.upAt = upAt
+			-- Review-QA: never over a cutscene (Rift Run, a big trait roll, the first bait), a roll window or a carried
+			-- cat either, the "every pop-up muted while it plays" rule; upAt is kept, so it opens once they end
 			local current = hud
-			local busy = current ~= nil and current:isCatching()
+			local busy = (current ~= nil and (current:isCatching() or current:isCarrying()))
+				or UI.cutscene.on
+				or UI.bigTraitCutting()
+				or UI.rollBusy.window
+				or UI.rollBusy.held()
+				or (UI.bait.cutting ~= nil and (UI.bait.cutting :: () -> boolean)())
 			if os.clock() - upAt >= AUTO_OPEN and modal and modal:current() == nil and not busy then
 				admin.autoOpened[wheel.eventId] = true
 				UI.admin.open()

@@ -4898,6 +4898,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.admin.set(info, wheel)
 		assert(UI.isOpen() == "Settings", "uigate: the Admin Wheel opened over another window")
 		UI.close()
+		-- Review-QA: nor over a cutscene (Rift Run, a Mythic roll), the "every pop-up muted while it plays" rule
+		UI.cutscene.on = true
+		UI.admin.set(info, wheel)
+		UI.cutscene.on = false
+		assert(UI.isOpen() ~= "AdminWheel", "uigate: the Admin Wheel opened over a cutscene")
 		UI.admin.set(info, wheel)
 		assert(UI.isOpen() == "AdminWheel", "uigate: the Admin Wheel did not open by itself once the wheel was up (#4195)")
 		UI.close()

@@ -56,8 +56,25 @@ local Types = require(script.Parent.Parent.Types)
 local PAL = MenuFamily.pal
 local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
+local AdminEventLogic = require(script.Parent.Parent.Parent.Effects.AdminEventLogic) -- #4338
 local Bait = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Bait"))
 local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
+local HttpService = game:GetService("HttpService")
+
+-- #4338 (Derek 2026-11-14: during Bowl Frenzy "the current ones also tick down 4x faster"): the wait a filling bowl
+-- shows for `left` real seconds. While the frenzy runs it counts down bowlSpeed seconds a second and lands on 0 with
+-- the cat (Bait.frenzyShown); otherwise it is `left`.
+local function shownLeft(left: number, now: number): number
+	local view = AdminEventLogic.read(function(name: string): any
+		return ReplicatedStorage:GetAttribute(name)
+	end, function(json: string): any
+		return HttpService:JSONDecode(json)
+	end)
+	if view == nil or not AdminEventLogic.runs(view, now) or view.bowlSpeed <= 1 then
+		return left
+	end
+	return Bait.frenzyShown(left, view.bowlSpeed, view.endsAt - now)
+end
 
 local CART_FLAG = "cartTier6" -- shared/CornerShop.TOP_SHELF_FLAG
 
@@ -997,7 +1014,10 @@ function BaitBowl._renderTabs(self: any)
 		elseif bait.readyAt - now <= 0 then
 			label = ("Bowl %d · Cat!"):format(bowl)
 		else
-			label = ("Bowl %d · %s"):format(bowl, Format.duration(math.ceil(bait.readyAt - now)))
+			label = ("Bowl %d · %s"):format(
+				bowl,
+				Format.duration(math.ceil(shownLeft(bait.readyAt - now, now)))
+			)
 		end
 		button:setText(label)
 		button:setStyle(if bowl == self._selected then "gold" else "ghost")
@@ -1060,7 +1080,7 @@ function BaitBowl._renderStatus(self: any)
 				then BigPullLogic.WOW_LINE -- #1897: the first wow cat on its way (the food shows in the picture)
 				elseif self._tabsShown then foodName .. " is in bowl " .. tostring(selected)
 				else foodName .. " is in the bowl"
-			local inTime = Format.duration(math.ceil(left))
+			local inTime = Format.duration(math.ceil(shownLeft(left, Workspace:GetServerTimeNow()))) -- #4338
 			sub = if bait.night
 				then ("%s Night bait: a cat comes by in %s"):format(Theme.icons.moon, inTime)
 				elseif FirstBait.coming(bait) then "A cat is coming! "

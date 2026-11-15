@@ -150,6 +150,8 @@ local ProfileSchema = {}
 -- #3694 section 3 (no new version): stats.binWins, yardPicks, traitRolls, dashRuns, goldenCratesOpened and
 -- restSeconds, for the newer features' achievements. An older server drops them, which only loses those counts.
 -- #3618 (no new version): stats.cannonFlights, for the Liftoff badge; an older server dropping it only loses the count.
+-- #4453 (no new version): stats.tier2TopUp, the Tier 2 top up paid; it pays only as the first bait cat is tamed
+-- (stats.baitsTamed 1), so an older server dropping it cannot make it pay twice.
 -- Version 42 (#1947, like-prompts.md section 2) adds likeGift and favGift, the two once-per-account gifts for play
 -- time: an older server would drop them and pay each gift again. A save from before it gets them by its play time:
 -- one past 10 or 30 minutes already is paid on its next join.
@@ -257,6 +259,7 @@ local function newStats(): Types.Stats
 		goldenCratesOpened = 0,
 		restSeconds = 0,
 		cannonFlights = 0, -- #3618
+		tier2TopUp = 0, -- #4453
 	}
 end
 

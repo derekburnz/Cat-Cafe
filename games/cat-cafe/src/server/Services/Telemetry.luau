@@ -138,6 +138,8 @@ export type CustomEvent =
 	| "bait_rolled"
 	| "bait_resolved"
 	| "auto_bowl" -- #4266: the Auto Bowl pass tamed or refilled a bowl ("claim" or "refill", the bowl)
+	| "auto_bait" -- #4452: the starter Kibble went in bowl 1 by itself (value 1; field: the tutorial step)
+	| "tier2_topup" -- #4453: the first tamed bait cat's welcome paid this many coins toward Tier 2 (field: the cost)
 	| "gold_found"
 	| "rainbow_found" -- F99 (rainbow-coat.md section 5): rarity, net, bait or rescue, first of the cat yes or no
 	| "rally_step" -- F101 (rescue-rally.md section 5): value the players in the server; the step (25, 50, 100), lap, paid

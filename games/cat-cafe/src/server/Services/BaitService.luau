@@ -40,6 +40,7 @@ local Potions = require(ReplicatedStorage.Shared.Potions)
 local RallyService = require(script.Parent.RallyService)
 local RareMomentService = require(script.Parent.RareMomentService)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
+local SecondCatHelp = require(ReplicatedStorage.Shared.SecondCatHelp)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -269,6 +270,26 @@ end
 
 -- Tames or lets go the cat at `bowl`, once it has arrived. The Tame tap (ResolveBait) and the Auto Bowl pass's
 -- claim (#4266) both come here.
+-- #4453 (switch tier2TopUp): the account's first tamed bait cat is most players' third kind, so at Tier 1 the coins
+-- are the last thing Tier 2 needs. The welcome pays the gap to exactly its cost, once, as a gift the player sees.
+local function topUpTier2(player: Player, profile: Types.PlayerProfile)
+	local gift = SecondCatHelp.topUpFor(profile, LiveFlagService.on(SecondCatHelp.TOP_UP_FLAG))
+	if gift <= 0 then
+		return
+	end
+	profile.stats.tier2TopUp = gift
+	Economy.credit(profile, gift)
+	Telemetry.source(player, profile, gift, "Onboarding", "tier2_topup")
+	local cost = (Catalog.getTier(2) :: Types.TierDef).cost
+	Telemetry.custom(player, "tier2_topup", gift, { tostring(cost) })
+	Net.toast(
+		player,
+		string.format("Welcome gift: +$%d. Your cafe is ready to rank up!", gift),
+		"good"
+	)
+	CafeService.sync(player)
+end
+
 local function resolveBait(
 	player: Player,
 	profile: Types.PlayerProfile,
@@ -317,6 +338,7 @@ local function resolveBait(
 		)
 		RareMomentService.secured(player, def, bait.variant, "bait", hadEpicOrBetter)
 		RallyService.score(player, "tame") -- F101
+		topUpTier2(player, profile)
 		return
 	end
 	profile.stats.baitsLetGo += 1
@@ -438,6 +460,20 @@ end
 
 -- Within a second of a cat arriving, put it at the bowl and send the bowl state that names it. A rejoin is
 -- caught on the first pass after load as well.
+-- #4452 (switch autoFirstBait): at the tutorial's bowl step an account that has never baited gets its starter
+-- Kibble put in bowl 1 by the server, as if the player had used it (the same roll, the same short first wait and
+-- the same first_bait step), so the second cat is the bait cat with one press (Tame it) instead of three. The
+-- tutorial holds its last step until that cat is tamed or let go (#3158), as for food the player puts in.
+local function autoFirstBait(player: Player, profile: Types.PlayerProfile)
+	if not SecondCatHelp.autoBaitDue(profile, LiveFlagService.on(SecondCatHelp.AUTO_BAIT_FLAG)) then
+		return
+	end
+	useLure(player, profile, SecondCatHelp.FOOD, SecondCatHelp.BOWL, true)
+	if profile.stats.luresUsed > 0 then
+		Telemetry.custom(player, "auto_bait", 1, { tostring(profile.tutorialStep) })
+	end
+end
+
 local function checkArrivals()
 	local now = os.time()
 	for _, player in DataService.loadedPlayers() do
@@ -445,6 +481,7 @@ local function checkArrivals()
 		if profile == nil then
 			continue
 		end
+		autoFirstBait(player, profile) -- #4452: before the arrivals, so its bowl is read below
 		autoBowl(player, profile, now) -- #4266: before the arrivals, so an auto claimed cat never flashes its card
 		local shown = shownArrival[player]
 		if shown == nil then

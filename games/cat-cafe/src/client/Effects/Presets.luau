@@ -6142,6 +6142,24 @@ Presets.baitCrumbs = {
 	most = 4,
 }
 
+-- Bowl Frenzy at your bait bowl (#4195; Effects/BowlFrenzyFx): every `every` seconds while the frenzy runs, `count`
+-- gold `preset` sparkles pop `lift` studs over the food in each of your bowls whose cat is still on the way, and every
+-- `ringEvery`th pop a `ring` stud gold ring spreads from it; within `within` studs, checked every `check` seconds.
+-- Low performance: every `lowEvery` seconds, `lowCount` sparkles, no ring. `folders` are CafeService's bowl folders.
+Presets.bowlFrenzy = {
+	folders = { "Bait", "Bait2" },
+	preset = "catchSparkle",
+	count = 5,
+	lowCount = 2,
+	lift = 0.6,
+	every = 1.2,
+	lowEvery = 3,
+	ringEvery = 3,
+	ring = 5,
+	within = 80,
+	check = 0.3,
+}
+
 -- The stray waiting for your second cat (#3022; Effects/WaitingCat): `emitter` sparkles rise off it and a `ring` stud
 -- gold ring pulses out at its feet every `ringEvery` seconds, from `delay` seconds after it shows for `seconds`, then
 -- every `calmEvery` seconds until it is caught (#3238: it used to stop at `seconds`), within `within` studs, checked

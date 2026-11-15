@@ -213,7 +213,7 @@ local Cues: { [string]: Cue } = {
 	-- #4251: Harvest Hollow's song starts a third area sheet (synth/music.py, AREAS3). It plays while Effects/HarvestFx
 	-- says you are in the area (Logic.songZone), since the area has no zone box.
 	sheetMusicAreas3 = {
-		ids = {},
+		ids = { "rbxassetid://75995598698980" },
 		group = "Music",
 		volume = 0.3,
 	}, -- stereo, 80.0 s: Cider Lane

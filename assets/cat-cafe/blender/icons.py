@@ -16,6 +16,7 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
   CatCafe_Icon_Coins, _Spin the prize pictures: a stack of three gold coins and the Spin Wheel's wheel (icon_art.py)
   CatCafe_Icon_Net_L<n>     the catching net at each level, L1 Basic to L4 Master (items.py)
   CatCafe_Icon_WaterSquirter, _PoolNoodle  the Ticket Booth's two toys (#4061, items.py), for their prize cards
+  CatCafe_Icon_Dragon_<Stage>  Cinder at each of his five stages (#4062, dragon.py), for the Dragon Keep window
   CatCafe_Icon_Shelf_<Name>  the booth's weekly shelf (#4061, waterparkshelf.py): six decor pieces and four wearables
   CatCafe_Icon_Decor        the HUD's Decor button: a cat-eared armchair and a potted plant (Set 5 Q10)
   CatCafe_Icon_PotionFlask_<Name>  the potion rework (#1176, potion_icons.py): a clear flask per potion in its Theme
@@ -50,6 +51,7 @@ import common  # noqa: E402
 import arcade_icons  # noqa: E402
 import cats  # noqa: E402
 import crates  # noqa: E402
+import dragon  # noqa: E402
 import icon_art  # noqa: E402
 import hud_icons  # noqa: E402
 import items  # noqa: E402
@@ -182,6 +184,8 @@ ICONS = {
     # #4061 the Ticket Booth's weekly shelf: its six decor pieces and four wearables (waterparkshelf.py), each alone
     **{"CatCafe_Icon_Shelf_" + n.split("_", 2)[2]: (fn, INK, 10, SHELF_VIEWS.get(n.split("_", 2)[2], (-28.0, 18.0)))
        for n, (fn, _budget) in waterparkshelf.ASSETS.items() if "_Camp_" not in n},
+    # #4062 the Dragon Keep window's portrait of Cinder, one per stage (dragon.py), three-quarter front
+    **{"CatCafe_Icon_Dragon_" + n.rsplit("_", 1)[1]: (fn, INK, 10, (-16.0, 10.0)) for n, (fn, _budget) in dragon.ASSETS.items()},
     # #2836 pass 2: the Garden Nursery's lawn pieces, paths and fences (lawn.py), one picture per Catalog.lawn model
     **{"CatCafe_Icon_Lawn_" + n[len("CatCafe_Lawn_"):]: (_lawn_piece(n, fn), INK, 10, LAWN_VIEWS.get(n[len("CatCafe_Lawn_"):].split("_")[0],
                                                                                 (-28.0, 22.0)))

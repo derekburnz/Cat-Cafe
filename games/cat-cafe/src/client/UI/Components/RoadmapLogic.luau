@@ -18,6 +18,15 @@ export type View = { count: number, total: number, rows: { Row }, title: string 
 -- tutorial's end, 5)
 RoadmapLogic.SHOW_FROM = 2
 RoadmapLogic.TUTORIAL_DONE = 5 -- tutorialStep at the tutorial's end (easy-start.md; RecapLogic waits for it)
+-- #4384 (switch checkInCalm, on unless switched off): the first check-in brought the strip, its first prize toast and
+-- confetti on top of the catch card and the job toast, while the tutorial asked for the Bait bowl. With the switch on
+-- the strip and its prize toasts wait for the tutorial's end; the prizes are paid as before and show as done then.
+RoadmapLogic.CALM_FLAG = "checkInCalm"
+
+-- Whether the strip and its toasts wait now: the switch on and the tutorial not yet done.
+function RoadmapLogic.calm(on: boolean, tutorialStep: number?): boolean
+	return on and (tutorialStep or RoadmapLogic.TUTORIAL_DONE) < RoadmapLogic.TUTORIAL_DONE
+end
 RoadmapLogic.TITLE = "Grand Opening"
 -- the banner's 72 px title fits a small phone at 14 letters, so the spec's "Your cafe's Grand Opening!" is the line
 RoadmapLogic.BANNER = "Grand Opening!"

@@ -9,8 +9,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local AdminWheel = require(ReplicatedStorage.Shared.AdminWheel)
 local AfkCafe = require(ReplicatedStorage.Shared.AfkCafe)
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
+local AutoBowl = require(ReplicatedStorage.Shared.AutoBowl)
 local Bait = require(ReplicatedStorage.Shared.Bait)
 local Bedtime = require(ReplicatedStorage.Shared.Bedtime)
 local CatPose = require(script.Parent.Parent.World.CatPose)
@@ -23,9 +25,11 @@ local DailyDeal = require(ReplicatedStorage.Shared.DailyDeal)
 local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
 local DecorBest = require(ReplicatedStorage.Shared.DecorBest)
+local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local EventService = require(script.Parent.EventService)
+local FishStore = require(ReplicatedStorage.Shared.FishStore)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -69,6 +73,7 @@ local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StoreTabs = require(ReplicatedStorage.Shared.StoreTabs)
 local StuckGoal = require(ReplicatedStorage.Shared.StuckGoal)
 local Telemetry = require(script.Parent.Telemetry)
+local TicketBooth = require(ReplicatedStorage.Shared.TicketBooth)
 local TipService = require(script.Parent.TipService)
 local Trade = require(ReplicatedStorage.Shared.Trade)
 local Traits = require(ReplicatedStorage.Shared.Traits)
@@ -273,6 +278,13 @@ function CafeService.dealTokensOk(player: Player, profile: Profile): boolean
 		)
 end
 
+-- #4238: whether Today's Deal may be a golden crate deal for this player: a golden crate opens to a decor piece by
+-- odds, so it is a paid random item, offered only where the policy was read and does not restrict them
+function CafeService.dealCratesOk(player: Player): boolean
+	local policy = DataService.policy(player)
+	return policy ~= nil and policy.ArePaidRandomItemsRestricted == false
+end
+
 -- #3996: PlayerState.dailyDeal, false while the dailyDeal switch is off
 local function dealView(player: Player, profile: Profile, now: number): Types.DailyDealView | false
 	if not LiveFlagService.on(DailyDeal.FLAG) then
@@ -282,7 +294,8 @@ local function dealView(player: Player, profile: Profile, now: number): Types.Da
 		profile,
 		now,
 		CafeService.dealTokensOk(player, profile),
-		Economy.tier(profile)
+		Economy.tier(profile),
+		CafeService.dealCratesOk(player)
 	)
 end
 
@@ -312,6 +325,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		bait = baitView(profile, now, 1),
 		bait2 = baitView(profile, now, 2), -- #1161: sent while food is in it, even after the pass went, so it can be emptied
 		secondBowl = CafeService.secondBowl(player, profile),
+		autoBowl = { owned = PassService.owns(player, AutoBowl.passId()) }, -- #4266
 		cats = CafeService.catViews(player, profile),
 		collection = profile.collection,
 		goldCollection = profile.goldCollection,
@@ -327,6 +341,15 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		bagColours = profile.bagColours, -- #3699
 		shoeColours = profile.shoeColours, -- #4049
 		mysteryOpen = Config.MysteryOpen or RunService:IsStudio(),
+		fishStore = if LiveFlagService.on(FishStore.FLAG) then FishStore.view(profile) else nil, -- #4055
+		ticketBooth = if LiveFlagService.on(TicketBooth.FLAG)
+				and TicketBooth.open(Economy.tier(profile))
+			then TicketBooth.view(profile.tickets, now)
+			else nil, -- #4061
+		dragon = if LiveFlagService.on(DragonKeep.FLAG)
+				and DragonKeep.open(Economy.tier(profile))
+			then DragonKeep.view(profile.dragon)
+			else nil, -- #4062
 		goldLuck = totals.goldLuck,
 		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line
 		baitSpeed = totals.baitSpeed,
@@ -340,6 +363,12 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		giftNext = PlaytimeGifts.upcoming(profile, 2), -- #2791: the gift icon's next step and the popover's two
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
 		traits = traitsView(player, profile, now), -- #3196: the Mystic Pool card, nil while it is shut
+		-- #4195: the Admin Wheel that is up and whether this account has spun it
+		adminWheel = AdminWheel.view(
+			profile.codesRedeemed,
+			EventService.admin(),
+			LiveFlagService.on("adminEvents")
+		),
 		dailyDeal = dealView(player, profile, now), -- #3996
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		returnGoals = joinGoals[player], -- #2916
@@ -1570,6 +1599,11 @@ function CafeService.addCaughtCat(
 			if isNew or firstGold then "first_catch" else "repeat_catch"
 		)
 	end
+	-- #4061: the Ticket Booth's tickets, from TicketBoothTier, any area, a repeat cat as much as a new one
+	if LiveFlagService.on(TicketBooth.FLAG) and TicketBooth.open(Economy.tier(profile)) then
+		-- the catch pop's "+2" is the rise in PlayerState.ticketBooth.tickets at the next sync
+		TicketBooth.credit(profile.tickets, def.rarity, instance.variant, how, now)
+	end
 	-- F87 (easy-start.md section 2d): the first check-in, before it moves the tutorial on
 	local firstCheckIn = profile.tutorialStep < Config.TutorialGuaranteedStrayStep
 	CafeService.advanceTutorial(player, profile, 2)
@@ -1599,7 +1633,27 @@ function CafeService.addCaughtCat(
 		if profile.stats.catsCaught >= 2 and not firstTame then
 			TipService.show(player, "second_cat")
 		end
-		if isNew then
+		-- #4384 (Derek 2026-11-15 "still the drop off at second cat"): one ask at a time at the first check-in, so the
+		-- new cat and its job come as one toast ("Your first cat! Mochi is your Barista (+$50)"), behind checkInCalm
+		local spotHere = if instance.spotId ~= nil
+			then Catalog.getSpot(instance.spotId :: string)
+			else nil
+		local oneToast = isNew
+			and firstCheckIn
+			and spotHere ~= nil
+			and LiveFlagService.on("checkInCalm")
+		if oneToast and spotHere ~= nil then
+			Net.toast(
+				player,
+				string.format(
+					"Your first cat! %s is your %s (+$%s)",
+					def.name,
+					roleName(spotHere),
+					ShortNumber.format(Catalog.rarities[def.rarity].firstCatchReward)
+				),
+				"good"
+			)
+		elseif isNew then
 			Net.toast(
 				player,
 				string.format(
@@ -1618,7 +1672,7 @@ function CafeService.addCaughtCat(
 		local spot = if instance.spotId ~= nil
 			then Catalog.getSpot(instance.spotId :: string)
 			else nil
-		if spot ~= nil and firstCheckIn then
+		if spot ~= nil and firstCheckIn and not oneToast then
 			-- F87 section 2d: the first cat's card, with the cafe's new rate
 			Net.toast(
 				player,
@@ -2426,6 +2480,13 @@ local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
 	local value = Settings.clean(rawKey, rawValue)
 	local profile = profileFor(player)
 	if profile == nil or value == nil then
+		return
+	end
+	-- #4266: the Auto Bowl switches change only for a pass owner
+	if
+		(rawKey == AutoBowl.KEYS.claim or rawKey == AutoBowl.KEYS.refill)
+		and not PassService.owns(player, AutoBowl.passId())
+	then
 		return
 	end
 	local settings = profile.settings :: any

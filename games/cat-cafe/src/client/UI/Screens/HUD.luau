@@ -76,6 +76,8 @@ local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local PromptKey = require(script.Parent.Parent.Components.PromptKey)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
+local RareBubbleLogic = require(script.Parent.Parent.Components.RareBubbleLogic)
+local RareBubbles = require(script.Parent.Parent.Components.RareBubbles)
 local RestChip = require(script.Parent.Parent.Components.RestChip)
 local Roadmap = require(script.Parent.Roadmap)
 local RoadmapLogic = require(script.Parent.Parent.Components.RoadmapLogic)
@@ -2131,6 +2133,16 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		table.insert(self._buttons, button)
 	end
 	self._travelButtons.cannon.instance.Visible = false
+	-- #4227: the wild Mythical and Secret cats out now in the areas this player has open, on the Cannon button
+	self._rareBubbles =
+		RareBubbles.new(self._travelButtons.cannon.instance, UDim2.new(1, 8, 0, -8), 12)
+	self._rareTier = 0
+	table.insert(
+		self._connections,
+		ReplicatedStorage:GetAttributeChangedSignal(RareBubbleLogic.ATTRIBUTE):Connect(function()
+			self:_paintRares()
+		end)
+	)
 	-- the arrow tab right of the row folds it below the screen edge and back; it stays where it is
 	self._travelFolded = false
 	local travelFold = Button.new({
@@ -2723,6 +2735,23 @@ function HUD.setMenuFolded(self: any, folded: boolean)
 	end
 	self:_placeMenuFold()
 	self:_renderFoldDot()
+	self:_placeFoldArrow()
+end
+
+-- While a tutorial step points at a menu tile and the player folded the menu away, the big arrow points at the
+-- menu's arrow tab instead, so there is always something to tap.
+function HUD._placeFoldArrow(self: any)
+	local want = self._menuAsk ~= nil and self._menuFolded == true
+	if want == (self._foldArrow == true) then
+		return
+	end
+	self._foldArrow = want
+	local tab: GuiObject = self._menuFold.instance
+	if want then
+		TutorialArrow.add(tab)
+	else
+		TutorialArrow.remove(tab)
+	end
 end
 
 function HUD.setTravelFolded(self: any, folded: boolean)
@@ -2925,8 +2954,27 @@ function HUD.setCatalog(self: any, catalog: Types.Catalog)
 	self._luck:setCatalog(catalog)
 end
 
+-- #4227: the Cannon button's bubbles, every area the player's tier has open added up.
+function HUD._paintRares(self: any)
+	local catalog: Types.Catalog? = self._catalog
+	local open: { [string]: boolean } = {}
+	if catalog ~= nil then
+		for _, area in (catalog.areas or {}) :: { Types.AreaDef } do
+			if area.tier <= self._rareTier then
+				open[area.id] = true
+			end
+		end
+	end
+	local rares = RareBubbleLogic.decode(ReplicatedStorage:GetAttribute(RareBubbleLogic.ATTRIBUTE))
+	self._rareBubbles:set(RareBubbleLogic.totals(rares, open))
+end
+
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
+	if (state.tier or 1) ~= self._rareTier then
+		self._rareTier = state.tier or 1
+		self:_paintRares()
+	end
 	-- #2211: the tutorial's last step done just now (not a player who finished it before this join): the × pulses
 	local step = state.tutorialStep or TUTORIAL_DONE
 	local before: number? = self._stepBefore
@@ -2959,6 +3007,29 @@ function HUD.render(self: any, state: Types.PlayerState)
 		TutorialHints.ask(TutorialHints.view(state, if catalog then catalog.spots else nil))
 	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, not held and asks == "job")
 	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, not held and asks == "food")
+	-- Review-QA 2026-11-14: a step that points at a menu tile (Upgrades, Cats, Bowl) with the menu folded off the edge
+	-- had no tile on screen and no arrow, only the strip's words. The folded menu slides back out once as such a step
+	-- starts; a player who folds it again keeps it folded until the next step.
+	local menuAsk: string? = nil
+	if not held then
+		if asks == "job" or asks == "food" then
+			menuAsk = asks
+		elseif
+			not holdsTable
+			and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+		then
+			menuAsk = "upgrade"
+		end
+	end
+	local askKey = if menuAsk ~= nil then `{step}:{menuAsk}` else nil
+	self._menuAsk = menuAsk
+	if askKey ~= self._menuAskKey then
+		self._menuAskKey = askKey
+		if askKey ~= nil and self._menuFolded then
+			self:setMenuFolded(false)
+		end
+	end
+	self:_placeFoldArrow()
 	-- #2912: the strip's Buy button
 	local offer = if held
 		then nil

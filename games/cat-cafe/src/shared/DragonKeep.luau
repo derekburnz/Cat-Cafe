@@ -60,14 +60,26 @@ local ODDS = {
 }
 DragonKeep.PITY_STAGE = 4
 
--- The set bonus words per family (slotted cards only); Crown has none
+-- The set bonus words per family (slotted cards only). #4569 (Derek 2026-11-15 18:36 UTC: "make 3/3 set bonuses and
+-- 5/5 set bonuses for each the 5/5 ones can be crazy"): SET_SIZE cards of one family light its set, all SET_FULL slots
+-- of one family light its full set (which keeps the 3/3 bonus). The numbers are in SET_LEVELS.
 DragonKeep.SETS = {
-	flame = "+5% money",
-	claw = "+3% net reach",
-	wing = "+5% money",
-	hoard = "+5 golden fish a day",
-	heart = "+10% cat XP",
+	flame = "+25% money",
+	claw = "+25% bowl luck",
+	wing = "+25% tips",
+	hoard = "Every tip pile drops 1 golden fish",
+	heart = "+50% cat XP",
+	crown = "+50% money and +25% bowl luck",
 } :: { [string]: string }
+DragonKeep.SETS_FULL = {
+	flame = "+200% money",
+	claw = "+25% bowl luck, then 2x luck on every bowl and crate roll",
+	wing = "+25% tips, and every rich customer tip also gives 50 golden fish",
+	hoard = "Every tip pile drops 10 golden fish",
+	heart = "+200% cat XP, and rare customers come 50% more often",
+	crown = "+300% money and 2x luck on every bowl and crate roll",
+} :: { [string]: string }
+DragonKeep.SET_FULL = 5
 
 export type Card = { id: string, name: string, family: string, rarity: string, text: string }
 
@@ -977,8 +989,10 @@ function DragonKeep.slot(save: Types.DragonSave, id: string, slot: number)
 	end
 end
 
--- The families with a set lit (DragonKeep.SET_SIZE slotted cards of it), in SETS order.
-function DragonKeep.sets(save: Types.DragonSave): { string }
+DragonKeep.FAMILY_ORDER = { "flame", "claw", "wing", "hoard", "heart", "crown" }
+
+-- #4569: each family's set level from the slots: 0, SET_SIZE (3) or SET_FULL (5).
+function DragonKeep.setLevels(save: Types.DragonSave): { [string]: number }
 	local counts: { [string]: number } = {}
 	for _, id in save.slots do
 		local card = cardsById[id]
@@ -986,13 +1000,40 @@ function DragonKeep.sets(save: Types.DragonSave): { string }
 			counts[card.family] = (counts[card.family] or 0) + 1
 		end
 	end
+	local out: { [string]: number } = {}
+	for _, family in DragonKeep.FAMILY_ORDER do
+		local n = counts[family] or 0
+		if n >= DragonKeep.SET_FULL then
+			out[family] = DragonKeep.SET_FULL
+		elseif n >= DragonKeep.SET_SIZE then
+			out[family] = DragonKeep.SET_SIZE
+		end
+	end
+	return out
+end
+
+-- The families with a set lit (DragonKeep.SET_SIZE slotted cards of it or more), in FAMILY_ORDER.
+function DragonKeep.sets(save: Types.DragonSave): { string }
+	local levels = DragonKeep.setLevels(save)
 	local out: { string } = {}
-	for _, family in { "flame", "claw", "wing", "hoard", "heart" } do
-		if (counts[family] or 0) >= DragonKeep.SET_SIZE then
+	for _, family in DragonKeep.FAMILY_ORDER do
+		if levels[family] ~= nil then
 			table.insert(out, family)
 		end
 	end
 	return out
+end
+
+-- "flame5,claw3" for the DragonSets player attribute (the set looks, client Effects), or nil with no set lit.
+function DragonKeep.setsTag(save: Types.DragonSave): string?
+	local levels = DragonKeep.setLevels(save)
+	local parts: { string } = {}
+	for _, family in DragonKeep.FAMILY_ORDER do
+		if levels[family] ~= nil then
+			table.insert(parts, family .. tostring(levels[family]))
+		end
+	end
+	return if #parts > 0 then table.concat(parts, ",") else nil
 end
 
 -- #4447 part 1: what the slotted cards and lit sets do (slotted cards only; binder cards do nothing). Pure, read by
@@ -1017,7 +1058,6 @@ DragonKeep.MONEY = { -- card id -> what it adds into cafeMultiplier
 } :: { [string]: number }
 DragonKeep.TIPS =
 	{ warmTips = 0.04, emberTips = 0.08, lightStep = 0.04, fireTrail = 0.05 } :: { [string]: number } -- into Economy.tipMultiplier
-DragonKeep.SET_MONEY = { flame = 0.05, wing = 0.05 } :: { [string]: number }
 DragonKeep.BOWL_LUCK = { -- card id -> bowl luck (a Luck source, inside LuckMax)
 	luckyScale = 0.05,
 	sharpEye = 0.03,
@@ -1041,10 +1081,28 @@ DragonKeep.RICH_CARDS =
 		mythicRoar = 0.25,
 	} :: { [string]: number }
 DragonKeep.CAP = 0.50 -- bowl luck, rich visitors and tip piles from cards, each in total
+export type SetBonus = {
+	money: number?,
+	tips: number?,
+	luck: number?,
+	luckMult: number?,
+	richFish: number?,
+	pileFishEach: number?,
+	xp: number?,
+	rich: number?,
+}
+-- #4569: what each set level adds, on top of the card caps (the full set's row is the whole bonus, 3/3 part included)
+DragonKeep.SET_LEVELS = {
+	flame = { [3] = { money = 0.25 }, [5] = { money = 2.00 } },
+	claw = { [3] = { luck = 0.25 }, [5] = { luck = 0.25, luckMult = 2 } },
+	wing = { [3] = { tips = 0.25 }, [5] = { tips = 0.25, richFish = 50 } },
+	hoard = { [3] = { pileFishEach = 1 }, [5] = { pileFishEach = 10 } },
+	heart = { [3] = { xp = 0.50 }, [5] = { xp = 2.00, rich = 0.50 } },
+	crown = { [3] = { money = 0.50, luck = 0.25 }, [5] = { money = 3.00, luckMult = 2 } },
+} :: { [string]: { [number]: SetBonus } }
 DragonKeep.LUCK = 0.05 -- Lucky Scale: +5% bowl luck (a Luck source, inside LuckMax)
 DragonKeep.GOLD_LUCK = 0.10 -- Gold Fever: +0.10 gold luck, inside GoldLuckMax with the Index's
 DragonKeep.REACH = {} :: { [string]: number } -- #4569: Sharp Eye is bowl luck now -- share of NetReachStuds added to the net's reach
-DragonKeep.SET_REACH = { claw = 0.03 } :: { [string]: number }
 DragonKeep.REACH_CAP = 0.05 -- card reach in total, so it stays under the Long Net's +1 stud
 DragonKeep.SLOW_RINGS = 0.05 -- Quick Paws: catch circles move 5% slower (their shrink time 5% longer)
 DragonKeep.FRIEND_CHANCE = 0.04 -- Double Catch: a caught Common or Rare brings a second copy
@@ -1052,10 +1110,8 @@ DragonKeep.SWING = 0.08 -- Ember Net: nets swing 8% faster (NetSwingCooldown 8% 
 DragonKeep.TICKET_BONUS = 0.25 -- Ticket Dragon: +25% Ticket Booth tickets (rounded down a catch)
 DragonKeep.REPEAT_FISH = 1 -- Fish Scale: a repeat Epic or better catch gives +1 golden fish
 DragonKeep.WALK = {} :: { [string]: number } -- stud/s on the walk speed; #4569: no card adds walk speed now
-DragonKeep.SET_WALK = {} :: { [string]: number }
 DragonKeep.XP =
 	{ fastLearner = 0.10, spaDay = 0.10, traitSpark = 0.15, elderLore = 0.20 } :: { [string]: number } -- share more cat XP, every cat
-DragonKeep.SET_XP = { heart = 0.10 } :: { [string]: number }
 DragonKeep.REST_XP = 0.10 -- Cosy Nap: resting cats (no spot) gain 10% more XP
 DragonKeep.KINDRED_EACH = 0.001 -- Kindred: +0.1% money for each cat ever given to the Keep (save.kept)
 DragonKeep.KINDRED_MAX = 0.10
@@ -1098,6 +1154,9 @@ export type Effects = {
 	breath: boolean, -- Golden Breath (DragonKeepService)
 	refund: number, -- share more on a crate repeat's fish refund
 	baitSpeed: number, -- share off the bowl wait (Economy.baitWaitSeconds)
+	luckMult: number, -- #4569: the Claw and Crown full sets, 2x on the whole Luck (shared/Luck), else 1
+	richFish: number, -- #4569: the Wing full set, golden fish on every rich customer tip claimed
+	pileFishEach: number, -- #4569: the Hoard set, golden fish on every tip pile (0: Coin Sniffer's chance only)
 }
 
 function DragonKeep.effects(save: Types.DragonSave): Effects
@@ -1152,12 +1211,6 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 			end
 		end
 	end
-	for _, family in DragonKeep.sets(save) do
-		money += DragonKeep.SET_MONEY[family] or 0
-		reach += DragonKeep.SET_REACH[family] or 0
-		walk += DragonKeep.SET_WALK[family] or 0
-		xp += DragonKeep.SET_XP[family] or 0
-	end
 	luck = math.min(luck, DragonKeep.CAP)
 	goldLuck = math.min(goldLuck, DragonKeep.CAP)
 	rich = math.min(rich, DragonKeep.CAP)
@@ -1166,6 +1219,22 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 	walk = math.min(walk, DragonKeep.WALK_CAP)
 	money = math.min(money, DragonKeep.MONEY_CAP)
 	tips = math.min(tips, DragonKeep.MONEY_CAP - money)
+	-- #4569: the set bonuses come on top of the card caps (Luck.of still holds the Luck to LuckMax)
+	local luckMult, richFish, pileFishEach = 1, 0, 0
+	for family, level in DragonKeep.setLevels(save) do
+		local row: { [number]: SetBonus }? = DragonKeep.SET_LEVELS[family]
+		local bonus: SetBonus? = if row ~= nil then row[level] else nil
+		if bonus ~= nil then
+			money += bonus.money or 0
+			tips += bonus.tips or 0
+			luck += bonus.luck or 0
+			xp += bonus.xp or 0
+			rich += bonus.rich or 0
+			luckMult = math.max(luckMult, bonus.luckMult or 1)
+			richFish = math.max(richFish, bonus.richFish or 0)
+			pileFishEach = math.max(pileFishEach, bonus.pileFishEach or 0)
+		end
+	end
 	return {
 		money = money,
 		tips = tips,
@@ -1192,6 +1261,9 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 		breath = breath,
 		refund = refund,
 		baitSpeed = baitSpeed,
+		luckMult = luckMult,
+		richFish = richFish,
+		pileFishEach = pileFishEach,
 	}
 end
 
@@ -1227,6 +1299,9 @@ local NONE: Effects = table.freeze({
 	breath = false,
 	refund = 0,
 	baitSpeed = 0,
+	luckMult = 1,
+	richFish = 0,
+	pileFishEach = 0,
 }) :: any
 function DragonKeep.of(profile: Types.PlayerProfile): Effects
 	local on = if onOverride ~= nil
@@ -1257,6 +1332,9 @@ end
 
 -- Coin Sniffer's golden fish for one tip pile: 1 when `roll` (0 to 1) lands inside its chance.
 function DragonKeep.pileFish(fx: Effects, roll: number): number
+	if fx.pileFishEach > 0 then
+		return fx.pileFishEach -- #4569: the Hoard set, on every pile
+	end
 	return if roll < fx.pileFish then 1 else 0
 end
 

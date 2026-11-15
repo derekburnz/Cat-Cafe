@@ -9293,7 +9293,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "CannonAfterBowl", function()
 		UI.parkTrail.reach(true) -- a player who has been to the Park: the Park line (#3893) would come first otherwise
 		UI.cannon.setWild(nil)
-		UI.update({ tutorialStep = 4, tier = 2 } :: any)
+		-- #4480: at Tier 1 (the bowl's tier): with the walk to the Park off, the Tier 2 rank up ends the tutorial
+		UI.update({ tutorialStep = 4, tier = 1 } :: any)
 		UI.update({ tutorialStep = 5 } :: any)
 		task.wait(0.1)
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD", true) :: Instance
@@ -9308,7 +9309,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			"uigate: the tutorial strip after the bowl reads " .. table.concat(texts, " | ") .. " (#2477)"
 		)
 		UI.cannon.wrapUp.on = false -- as a flight clears it, so later scenes keep their own lines
-		UI.update({ tutorialStep = 9 } :: any)
+		UI.update({ tutorialStep = 9, tier = 2 } :: any)
 		UI.parkTrail.reach(false)
 	end },
 	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on

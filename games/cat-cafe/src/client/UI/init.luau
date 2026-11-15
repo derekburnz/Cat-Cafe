@@ -476,7 +476,9 @@ local function cannonHint(): string?
 		told = tutorialText ~= nil,
 		opened = cannonOpened,
 		first = first,
-		wrapUp = UI.cannon.wrapUp.on,
+		-- #4480: with the walk to the Park off, the Tier 2 rank up ends the tutorial, the wrap-up line with it
+		wrapUp = UI.cannon.wrapUp.on
+			and ((state.tier or 1) < CannonLogic.HINT_TIER or (UI :: any).parkTrail.walkOn()),
 	})
 end
 

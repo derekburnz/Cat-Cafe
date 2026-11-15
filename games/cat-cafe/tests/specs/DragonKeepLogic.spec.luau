@@ -78,7 +78,7 @@ return function()
 		end)
 	end)
 
-	describe("DragonKeepLogic.candidates, quick and picked", function()
+	describe("DragonKeepLogic.candidates, byRarity and picked", function()
 		local cats = {
 			a = { catId = "tabby" },
 			b = { catId = "tabby" },
@@ -108,20 +108,23 @@ return function()
 			expect(special.h).to.equal(true)
 			expect(special.a).to.equal(false)
 		end)
-		it("keeps one copy of each cat and skips working and special cats", function()
+		it("picks every cat of one rarity but working ones (#4566)", function()
 			local list = Logic.candidates(cats, nil)
-			local commons = Logic.quick(list, "commons", 10)
-			-- the working tabby is the copy kept, so both free tabbies go; the gold tuxedo stays, so the plain one goes
-			expect(#commons).to.equal(3)
-			local repeats = Logic.quick(list, "repeats", 10)
-			expect(#repeats).to.equal(4) -- two tabbies, the plain tuxedo and one binbag
-			-- never the last copy: a lone Smoke stays
-			local twins =
-				Logic.quick(Logic.candidates({ x = { catId = "smoke" } }, nil), "commons", 10)
-			expect(#twins).to.equal(0)
-			for _, uid in repeats do
-				expect(uid ~= "c" and uid ~= "e" and uid ~= "h").to.equal(true)
+			local commons = Logic.byRarity(list, "Common", 10)
+			expect(#commons > 0).to.equal(true)
+			local rarity: { [string]: string } = {}
+			for _, cand in list do
+				rarity[cand.uid] = cand.rarity
 			end
+			for _, uid in commons do
+				expect(rarity[uid]).to.equal("Common")
+				expect(uid ~= "c").to.equal(true) -- the working tabby stays
+			end
+			-- never all the player's cats: the cap is total - 1
+			expect(#Logic.byRarity(list, "Common", 2)).to.equal(1)
+			expect(#Logic.byRarity(Logic.candidates({ x = { catId = "smoke" } }, nil), "Common", 1)).to.equal(
+				0
+			)
 		end)
 		it("adds up the picked warmth and special cats", function()
 			local list = Logic.candidates(cats, nil)

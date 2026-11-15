@@ -677,7 +677,7 @@ return function()
 
 		it("logs the ledger steps in order, a done step proving those before it", function()
 			local state = fresh()
-			local facts = { tier = 1, areas = {} }
+			local facts: Onboarding.CleanFacts = { tier = 1, areas = {} }
 			expect(#Onboarding.cleanDue(state, 0, facts)).to.equal(0)
 			play(state, { "joined" })
 			expect(Onboarding.cleanDue(state, 0, facts) :: any).to.deepEqual({ 1 })
@@ -694,7 +694,7 @@ return function()
 			"logs in_cannon on the cannon window, and the second trip's cannon only after the bowl",
 			function()
 				local state = fresh()
-				local facts = { tier = 1, areas = {}, tutorialStep = 1 }
+				local facts: Onboarding.CleanFacts = { tier = 1, areas = {}, tutorialStep = 1 }
 				play(state, { "first_move" })
 				expect(Onboarding.cleanDue(state, 3, facts, EV.cannonOpen) :: any).to.deepEqual({
 					4,
@@ -748,7 +748,7 @@ return function()
 			"never lets a first trip moment pass the second trip, nor a later moment skip a stored step",
 			function()
 				local state = fresh()
-				local facts = { tier = 1, areas = {}, tutorialStep = 2 }
+				local facts: Onboarding.CleanFacts = { tier = 1, areas = {}, tutorialStep = 2 }
 				play(state, { "first_move", "first_cannon" })
 				-- the first net catch is first_catch's: it never logs second_net_catch
 				expect(#Onboarding.cleanDue(state, 5, facts, EV.netCatch)).to.equal(0)
@@ -788,12 +788,13 @@ return function()
 			function()
 				local state = fresh()
 				play(state, tutorial)
-				local facts = { tier = 1, areas = { park = true }, tutorialStep = 5, handCats = 2 }
+				local facts: Onboarding.CleanFacts =
+					{ tier = 1, areas = { park = true }, tutorialStep = 5, handCats = 2 }
 				-- a Park cat with the cafe still at Tier 1 (a gift) passes no tier
 				expect(Onboarding.cleanDue(state, 17, facts) :: any).to.deepEqual({})
-				local all = {
+				local all: Onboarding.CleanFacts = {
 					tier = 10,
-					areas = {} :: { [string]: boolean },
+					areas = {},
 					tutorialStep = 5,
 					handCats = 2,
 				}

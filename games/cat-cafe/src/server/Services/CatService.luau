@@ -274,7 +274,16 @@ local function openFor(profile: Types.PlayerProfile?): boolean
 	)
 end
 
+-- #4251: an area that is not one of the ten (Harvest Hollow) says itself who may catch there (CatService.addArea).
+local areaGates: { [string]: (Types.PlayerProfile) -> boolean } = {}
+-- #4251: told of every stray caught by net, with the area it was caught in (CatService.onCaught).
+local caughtHooks: { (Player, Types.CatDef, string) -> () } = {}
+
 local function areaUnlocked(profile: Types.PlayerProfile, areaId: string): boolean
+	local gate = areaGates[areaId]
+	if gate ~= nil then
+		return gate(profile)
+	end
 	local area = Catalog.getArea(areaId)
 	if area == nil then
 		return false
@@ -935,6 +944,7 @@ local function spawnAt(
 	-- rolls exactly as before)
 	local secret = if beginner == nil
 			and rarity == "Mythical"
+			and Catalog.getArea(areaId) ~= nil -- #4251: never in Harvest Hollow
 			and LiveFlagService.on(Catching.SECRET_FLAG)
 		then Catching.secret(
 			rarity,
@@ -2352,7 +2362,12 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		if area == "park" then
 			Telemetry.onboarding(player, profile, "first_park_catch")
 		end
-		Telemetry.caughtIn(player, profile, area) -- #3695: the clean funnel's area steps
+		if Catalog.getArea(area) ~= nil then
+			Telemetry.caughtIn(player, profile, area) -- #3695: the clean funnel's area steps (the ten areas)
+		end
+		for _, hook in caughtHooks do
+			task.spawn(hook, player, def, area)
+		end
 		return
 	end
 
@@ -4026,6 +4041,34 @@ end
 
 function CatService.strayCount(areaId: string): number
 	return countStrays(areaId)
+end
+
+-- #4251: an area that is not one of the ten (Harvest Hollow, World/HarvestWorld), added once it is built: its
+-- AreaInfo (spawn points, floor, bounds, roam) and who may catch there. Its strays come only from spawnIn; no
+-- wave, top-up, bait, rescue or pity knows it.
+function CatService.addArea(info: WorldBuilder.AreaInfo, gate: (Types.PlayerProfile) -> boolean)
+	world.areas[info.id] = info
+	areaGates[info.id] = gate
+end
+
+-- #4251: one stray of `rarity` (a cat of that rarity whose `area` is `areaId`) at a free spawn point of an added
+-- area, spread from the others there. False when the area is unknown or every point is taken.
+function CatService.spawnIn(areaId: string, rarity: Types.Rarity): boolean
+	if world.areas[areaId] == nil or areaGates[areaId] == nil then
+		return false
+	end
+	local point = freeSpawnPoint(areaId, rarity)
+	if point == nil then
+		return false
+	end
+	spawnAt(areaId, point, rarity)
+	return true
+end
+
+-- #4251: `hook(player, def, areaId)` runs (in its own thread) after every successful net catch, as the cat goes
+-- into the catcher's arms.
+function CatService.onCaught(hook: (Player, Types.CatDef, string) -> ())
+	table.insert(caughtHooks, hook)
 end
 
 -- #1572 (luck-and-rare-moments.md 1h): spawns slot `slot`'s pity cat `catId` (`kind`) at a free hiding spot of the

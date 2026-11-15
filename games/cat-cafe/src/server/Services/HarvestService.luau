@@ -16,6 +16,10 @@
 --     (at start, or on a timer), never once it has closed. A picked pumpkin hides until it regrows.
 --   HarvestService.tripBlocker(player): why a Travel "harvest" trip is refused, or nil (TravelService asks).
 --   The Feast Pie (HarvestPieService): each harvest cat caught adds one to the all-servers count.
+--   The harvest strays (part 5): once the area is built it is added to CatService (HarvestWorld.areaInfo), where
+--     a player may catch only while the area is open for them. By day (ClockService.areasOpen) while it is open by
+--     the dates and the switch, one stray of HarvestSave.ODDS arrives every TOPUP_SECONDS while fewer than
+--     STRAY_CAP are out. A net catch there gives its pumpkins (caught) with a toast.
 --   PinHarvestNote(note): one of HarvestSave.NOTES (1 to 6) on the Thankful Board, from inside the area while it is
 --     open, one pin every NOTE_GAP seconds a player; the board keeps the last NOTE_KEEP in this server as its
 --     HarvestNotes attribute (JSON [{userId, note}], newest last), one pin a player.
@@ -34,6 +38,9 @@ local HarvestSave = require(ReplicatedStorage.Shared.HarvestSave)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local CafeService = require(script.Parent.CafeService)
+local CatService = require(script.Parent.CatService)
+local Catching = require(ReplicatedStorage.Shared.Catching)
+local ClockService = require(script.Parent.ClockService)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local HarvestPieService = require(script.Parent.HarvestPieService)
@@ -292,6 +299,44 @@ function HarvestService.caught(player: Player, rarity: string): number
 	return HarvestSave.give(profile.harvest, HarvestSave.catchPumpkins(rarity))
 end
 
+-- #4251 part 5: the harvest strays' top-up, from the build until the area closes. Stray spawns follow the day like
+-- every area's (a dusk clears them); with the switch off or past the dates none arrive.
+local strayRandom = Random.new()
+function HarvestService.strays()
+	task.spawn(function()
+		while os.time() < HarvestHollow.CLOSES_AT do
+			task.wait(HarvestSave.TOPUP_SECONDS)
+			local now = os.time()
+			if
+				now >= HarvestHollow.OPENS_AT
+				and now < HarvestHollow.CLOSES_AT
+				and LiveFlagService.on(HarvestSave.FLAG)
+				and ClockService.areasOpen()
+				and CatService.strayCount(HarvestSave.AREA) < HarvestSave.STRAY_CAP
+			then
+				local rarity: Types.Rarity =
+					Catching.pickRarity(HarvestSave.ODDS :: any, strayRandom:NextNumber()) :: any
+				CatService.spawnIn(HarvestSave.AREA, rarity)
+			end
+		end
+	end)
+end
+
+-- #4251 part 5: a net catch in Harvest Hollow gives the cat's pumpkins.
+local function onCaught(player: Player, def: Types.CatDef, areaId: string)
+	if areaId ~= HarvestSave.AREA then
+		return
+	end
+	local given = HarvestService.caught(player, def.rarity)
+	if given > 0 then
+		Net.toast(
+			player,
+			string.format("+%d pumpkin%s", given, if given == 1 then "" else "s"),
+			"good"
+		)
+	end
+end
+
 -- The Thankful Board's pin: a fixed note by index, from a player standing in the open area.
 local function onPinNote(player: Player, rawNote: unknown)
 	if not HarvestSave.validNote(rawNote) then
@@ -353,7 +398,15 @@ local function buildWhenDue()
 	task.delay(wait, function()
 		if not built then
 			built = true
-			HarvestWorld.buildArea(Workspace)
+			local _, info = HarvestWorld.buildArea(Workspace)
+			CatService.addArea(info, function(profile: Types.PlayerProfile): boolean
+				return HarvestSave.areaBlocker(
+					os.time(),
+					Economy.tier(profile),
+					LiveFlagService.on(HarvestSave.FLAG)
+				) == nil
+			end)
+			HarvestService.strays()
 		end
 	end)
 end
@@ -361,6 +414,7 @@ end
 function HarvestService.start()
 	Net.on("BuyHarvest", onBuy)
 	Net.on("PinHarvestNote", onPinNote)
+	CatService.onCaught(onCaught)
 	HarvestPieService.start()
 	watchTag(HarvestService.PUMPKIN_TAG, pick)
 	watchTag(HarvestService.ARRIVAL_TAG, arrive)

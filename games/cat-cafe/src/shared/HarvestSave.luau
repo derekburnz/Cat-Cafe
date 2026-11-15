@@ -14,6 +14,9 @@
 --   pieGoal(low) / pieSlices(count, goal) the Feast Pie's goal (PIE_GOAL, or PIE_GOAL_LOW with the harvestPieLow switch
 --                                      on) and its slices baked, 0 to PIE_SLICES (spec section 5)
 --   NOTES / pinNote(list, userId, note) the Thankful Board's six fixed notes and its last NOTE_KEEP pins (spec section 6)
+--   AREA / ODDS / STRAY_CAP / TOPUP_SECONDS the harvest strays (spec 3b): the area id the harvest cats carry, the odds
+--                                      shown on the area's card, at most STRAY_CAP out at once, one more every
+--                                      TOPUP_SECONDS by day while under it
 -- Fixed prices, nothing random, nothing sold for Robux. Nothing owned is taken away when the area closes.
 
 local HarvestHollow = require(script.Parent.HarvestHollow)
@@ -52,6 +55,15 @@ HarvestSave.NOTES = table.freeze({
 	"See you next autumn!",
 })
 HarvestSave.NOTE_KEEP = 12
+
+-- #4251 (spec 3b): the harvest strays. AREA is the `area` of the eight harvest cats (Catalog.harvestCats). ODDS sum
+-- to 100 and are the ones the area's card shows; like the Park's, with a little more at the top, since every harvest
+-- cat is kept and the Feast Pie counts each one.
+HarvestSave.AREA = "harvest"
+HarvestSave.ODDS =
+	table.freeze({ Common = 55, Rare = 32, Epic = 9, Legendary = 3.5, Mythical = 0.5 })
+HarvestSave.STRAY_CAP = 10 -- of the 14 spots and the nook
+HarvestSave.TOPUP_SECONDS = 8
 
 HarvestSave.CATCH_PUMPKINS = table.freeze({
 	Common = 1,

@@ -11,6 +11,9 @@
 --                       patch pumpkins (HarvestPumpkin, each with an invisible Touch part) and the arrival pad
 --                       (HarvestArrival) at the player spawn. HarvestService watches those tags.
 --   landing()           where a trip in lands: the player spawn, facing the patch.
+--   areaInfo(folder)    the area as CatService knows the ten (WorldBuilder.AreaInfo, id "harvest"): the 14 stray spots
+--                       and the nook (zone "rare", where a Rare or rarer stray goes first) as invisible parts in
+--                       `folder`, the fence as its one floor and roam box (FENCE_IN studs in).
 --   spawns / nook       the 14 stray spots and the maze's middle, in world space, for the harvest cats (part 3).
 -- Built once a server: HarvestService builds the area at start when it is due within AREA_EARLY_SECONDS, else on a
 -- timer, and never after the area has closed.
@@ -116,6 +119,54 @@ function HarvestWorld.inArea(position: Vector3): boolean
 		and offset.Y < 60
 end
 
+local FENCE_IN = 4 -- strays keep this far inside the fence (75 x 60 from the centre)
+
+-- The area for CatService (part 5): a WorldBuilder.AreaInfo (not required here, so the specs can read this module)
+-- with its spawn points as parts under `folder`.
+function HarvestWorld.areaInfo(folder: Instance, model: Model): any
+	local points: { BasePart } = {}
+	local function spot(name: string, at: Vector3, zone: string?)
+		local p = Instance.new("Part")
+		p.Name = name
+		p.Size = Vector3.new(1, 1, 1)
+		p.CFrame = CFrame.new(at + Vector3.new(0, 0.5, 0))
+		p.Anchored = true
+		p.CanCollide = false
+		p.CanQuery = false
+		p.CanTouch = false
+		p.Transparency = 1
+		if zone ~= nil then
+			p:SetAttribute("Zone", zone)
+		end
+		p.Parent = folder
+		table.insert(points, p)
+	end
+	for index, at in HarvestWorld.spawns do
+		spot(string.format("HarvestSpawn%02d", index), at)
+	end
+	spot("HarvestNook", HarvestWorld.nook, "rare")
+	local c = HarvestWorld.CENTER
+	local rect = {
+		x1 = c.X - 75 + FENCE_IN,
+		z1 = c.Z - 60 + FENCE_IN,
+		x2 = c.X + 75 - FENCE_IN,
+		z2 = c.Z + 60 - FENCE_IN,
+	}
+	return {
+		id = "harvest",
+		model = model,
+		floorY = c.Y,
+		spawnPoints = points,
+		rescueSpots = {},
+		rescueMix = {},
+		bounds = { minX = rect.x1, maxX = rect.x2, minZ = rect.z1, maxZ = rect.z2 },
+		rects = { rect },
+		roam = { rect },
+		arrival = HarvestWorld.landing(),
+		camp = nil,
+	}
+end
+
 local function invisible(name: string, size: Vector3, cframe: CFrame, parent: Instance): BasePart
 	local part = Instance.new("Part")
 	part.Name = name
@@ -172,11 +223,12 @@ function HarvestWorld.buildArch(parent: Instance): Model?
 	return arch
 end
 
--- The area: the set, its Stall, Board and pumpkins, and the arrival pad. Returns the folder it built into.
-function HarvestWorld.buildArea(parent: Instance): Folder
+-- The area: the set, its Stall, Board and pumpkins, the arrival pad and the stray spots. Returns the folder it built
+-- into and the area for CatService.
+function HarvestWorld.buildArea(parent: Instance): (Folder, any)
 	local folder = Instance.new("Folder")
 	folder.Name = "HarvestHollow"
-	place(HarvestWorld.SET, CFrame.new(HarvestWorld.CENTER), folder)
+	local set = place(HarvestWorld.SET, CFrame.new(HarvestWorld.CENTER), folder)
 	local stall = place(HarvestWorld.STALL, CFrame.new(world(POINTS.stall)), folder)
 	if stall ~= nil then
 		prompt("HarvestStallPrompt", "Shop", "Harvest Stall", stall)
@@ -208,8 +260,12 @@ function HarvestWorld.buildArea(parent: Instance): Folder
 		folder
 	)
 	CollectionService:AddTag(arrival, HarvestWorld.ARRIVAL_TAG)
+	local spots = Instance.new("Folder")
+	spots.Name = "StraySpots"
+	spots.Parent = folder
+	local info = HarvestWorld.areaInfo(spots, set or Instance.new("Model"))
 	folder.Parent = parent
-	return folder
+	return folder, info
 end
 
 return HarvestWorld

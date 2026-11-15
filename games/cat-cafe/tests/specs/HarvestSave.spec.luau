@@ -141,5 +141,23 @@ return function()
 			expect(profile.harvest.pumpkins).to.equal(0)
 			expect(LiveFlags.defaults()[HarvestSave.FLAG]).to.equal(true)
 		end)
+
+		it("spawns harvest cats on odds that sum to 100, with room for the cap (part 5)", function()
+			local Catalog = require(game:GetService("ReplicatedStorage").Shared.Catalog) :: any
+			local total = 0
+			for rarity, odds in HarvestSave.ODDS do
+				expect(Catalog.rarities[rarity]).to.be.ok()
+				expect(odds > 0).to.equal(true)
+				total += odds
+				local any = false
+				for _, def in Catalog.harvestCats do
+					any = any or def.rarity == rarity
+				end
+				expect(any).to.equal(true) -- every rarity it rolls has a harvest cat
+			end
+			expect(math.abs(total - 100) < 1e-9).to.equal(true)
+			expect(HarvestSave.STRAY_CAP >= 1 and HarvestSave.STRAY_CAP <= 15).to.equal(true)
+			expect(Catalog.harvestCats[1].area).to.equal(HarvestSave.AREA)
+		end)
 	end)
 end

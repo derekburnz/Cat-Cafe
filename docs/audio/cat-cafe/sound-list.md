@@ -521,3 +521,11 @@ No new files: every cue here is one the game already has, played at a new pitch 
 | `adminCrateLand` | a Crate Drop crate touches down | as the cannon's landing | the landing thump, a little lower and heavier, in the world | P3 |
 
 All of these are quiet next to the catch sounds, so ten fish landing at once never drown the music.
+
+## Harvest Hollow (#4251, 2026-11-15)
+
+| cue | when | length | feel | P |
+|---|---|---|---|---|
+| `harvestPick` | a patch pumpkin is picked near you, by you or anyone | as the coin pop | a soft low "pluck": the coin pop a third lower, in the world; at most one every 0.3 s | P3 |
+
+No new file. The area's music and its strays' voices are still to pick.

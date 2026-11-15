@@ -842,6 +842,17 @@ local Cues: { [string]: Cue } = {
 		range = 45,
 		voices = 2,
 	},
+	-- #4251 (Effects/HarvestFx.onPick): a Harvest Hollow patch pumpkin is picked near you. The coin pop, lower and
+	-- rounder, in the world: a soft "pluck". The patch is shared, so minGap keeps a busy patch to a patter.
+	harvestPick = {
+		ids = { "rbxassetid://84089684524419" },
+		group = "Sfx",
+		volume = 0.3,
+		pitch = { 0.68, 0.78 },
+		minGap = 0.3,
+		range = 45,
+		voices = 2,
+	},
 	adminCrateLand = {
 		ids = { "rbxassetid://103029343434588" },
 		group = "Sfx",

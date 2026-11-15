@@ -32,6 +32,7 @@ local DragonRise = require(script.Parent.Effects.DragonRise)
 local Effects = require(script.Parent.Effects)
 local EventBanner = require(script.Parent.Effects.EventBanner)
 local FusionFx = require(script.Parent.Effects.FusionFx)
+local HarvestFx = require(script.Parent.Effects.HarvestFx)
 local Logic = require(script.Logic)
 local MysticIntroCut = require(script.Parent.Effects.MysticIntroCut)
 local MysticPool = require(script.Parent.Effects.MysticPool)
@@ -2310,6 +2311,10 @@ local function followAreas()
 		if cue ~= nil then
 			Audio.play(cue, at)
 		end
+	end)
+	-- #4251: a Harvest Hollow patch pumpkin is picked near you
+	HarvestFx.onPick(function(at)
+		Audio.play(Logic.HARVEST_PICK_CUE, at)
 	end)
 end
 

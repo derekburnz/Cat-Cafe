@@ -1717,4 +1717,18 @@ return function()
 			expect(seen).to.equal(2)
 		end)
 	end)
+
+	describe("Audio Harvest Hollow (#4251)", function()
+		it("has a soft pick cue for the shared pumpkin patch", function()
+			local cue = Cues[Logic.HARVEST_PICK_CUE]
+			expect(cue).to.be.ok()
+			expect(cue.group).to.equal("Sfx")
+			-- twelve pumpkins and a full server stay a patter: spaced out, few voices, heard only nearby
+			expect(cue.minGap >= 0.3).to.equal(true)
+			expect(cue.voices <= 2).to.equal(true)
+			expect(cue.range ~= nil and cue.range <= 60).to.equal(true)
+			expect(cue.volume <= 0.4).to.equal(true)
+			expect(#cue.ids > 0).to.equal(true)
+		end)
+	end)
 end

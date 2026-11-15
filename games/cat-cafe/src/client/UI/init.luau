@@ -6119,6 +6119,11 @@ do
 
 	-- #2880: true when a slide-in ask may show now (AskPacing), false while it is too soon
 	function UI.asks.paced(): boolean
+		-- #4483 (Derek 2026-11-15: "if the tips menu is X'd ... don't show cafe recap or pop ups at all like rate the
+		-- game"): a player who X'd the Tutorial tile gets no slide-in ask at all
+		if not tutorialButtonOn then
+			return false
+		end
 		return AskPacing.allow(os.clock() - sessionStart, early.lastAsk)
 	end
 
@@ -10465,8 +10470,8 @@ local function recapTry(): boolean
 	end
 	local RecapLogic = require(script.Components.RecapLogic)
 	local settings: { [string]: any } = state.settings or {}
-	if settings[RecapLogic.SETTING] == false then
-		UI.recap.waiting = nil -- off: this session's card is dropped
+	if settings[RecapLogic.SETTING] == false or not tutorialButtonOn then
+		UI.recap.waiting = nil -- off (#4483: or the Tutorial tile X'd): this session's card is dropped
 		return true
 	end
 	local busy = (modal ~= nil and modal:current() ~= nil)
@@ -10655,6 +10660,10 @@ local function giftTry(): boolean
 	local waiting = UI.gift.queue[1]
 	if waiting == nil or card == nil then
 		return true
+	end
+	if not tutorialButtonOn then
+		table.remove(UI.gift.queue, 1) -- #4483: the Tutorial tile X'd: the gift is paid, its thank-you card is not shown
+		return #UI.gift.queue == 0
 	end
 	local GiftCardLogic = require(script.Components.GiftCardLogic)
 	local busy = (modal ~= nil and modal:current() ~= nil)

@@ -8815,6 +8815,48 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(count.Text ~= "100%", "uigate: the loading count sat at 100 while still loading (#3109)")
 		ReplicatedStorage:SetAttribute("LiveFlag_loadingScreen", nil) -- #3179: back to its default
 	end },
+	-- #4314 (Derek 2026-11-14, the cute loading screen): the WHAT'S NEW card beside the cat on a wide enough screen,
+	-- turning through Components/LoadingNews every few seconds; the Secret Cats card shows dark shapes only. Left on
+	-- the Secret Cats card for the picture.
+	{ "IntroLoadingNews", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local LoadingNews = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.LoadingNews")
+		ReplicatedStorage:SetAttribute("LiveFlag_loadingScreen", true)
+		UI.intro.waiting(false)
+		UIShim.advance(0.4)
+		UI.intro.waiting(true)
+		UIShim.advance(0.3)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntroWait") :: ScreenGui
+		local news = gui:FindFirstChild("News", true) :: Frame
+		local title = news:FindFirstChild("NewsTitle") :: TextLabel
+		local tip = gui:FindFirstChild("Tip", true) :: TextLabel
+		assert(tip.Text:find("CATCH", 1, true) or tip.Text:find("hold", 1, true), "uigate: the loading tip reads " .. tip.Text .. " (#4314)")
+		local screenW = select(1, UIShim.screen())
+		if not news.Visible then
+			-- only a screen too narrow for both may drop the card
+			assert(screenW < 700, "uigate: no WHAT'S NEW card on a " .. screenW .. " px wide screen (#4314)")
+			ReplicatedStorage:SetAttribute("LiveFlag_loadingScreen", nil)
+			return
+		end
+		assert(title.Text == LoadingNews.ENTRIES[1].title, "uigate: the card starts on " .. title.Text .. " (#4314)")
+		assert(title.TextFits, "uigate: the card's title does not fit (#4314)")
+		local face = gui:FindFirstChild("Face", true) :: Frame
+		local fx = face.AbsolutePosition.X + face.AbsoluteSize.X
+		assert(fx < news.AbsolutePosition.X, "uigate: the cat runs into the WHAT'S NEW card (#4314)")
+		assert(news.AbsolutePosition.X + news.AbsoluteSize.X <= screenW, "uigate: the WHAT'S NEW card runs off the screen (#4314)")
+		UIShim.advance(LoadingNews.SECONDS * (#LoadingNews.ENTRIES - 1))
+		assert(title.Text == LoadingNews.ENTRIES[#LoadingNews.ENTRIES].title, "uigate: the card did not turn to the last entry (#4314)")
+		local pic = news:FindFirstChild("Picture") :: Frame
+		assert(pic:FindFirstChild("Shape1"), "uigate: the Secret Cats card has no dark shapes (#4314)")
+		for _, label in pic:GetDescendants() do
+			if label:IsA("TextLabel") then
+				assert(label.Text == "?", "uigate: the Secret Cats card shows words " .. label.Text .. " (#4314, dark-shape rule)")
+			end
+		end
+		local line = news:FindFirstChild("Line") :: TextLabel
+		assert(line.TextFits, "uigate: the card's line does not fit: " .. line.Text .. " (#4314)")
+		ReplicatedStorage:SetAttribute("LiveFlag_loadingScreen", nil)
+	end },
 	-- #3109 (Derek2 11-10: "instantly goes up to 100 really fast then transitions to the tutorial scenes"): once the
 	-- save is in the count races to 100 in SHOWN_MIN at most from the screen's start, and stays up until the play
 	{ "IntroLoadingRace", function()

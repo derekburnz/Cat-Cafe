@@ -429,6 +429,21 @@ local Config = {
 		kingPack = { was = 999, now = 299 }, -- #4261: the Cat King Pack at R$299; the King Cat is no longer sold alone
 		thankYou = { was = 25, now = 13 },
 		cafePass = { was = 299, now = 149 },
+		-- #4377 (Derek 2026-11-15: half price on every Robux item): the cards cut on 2026-11-15. The money ladder's
+		-- rungs share the card key "money", so each rung is keyed "money" plus its multiplier (StoreLogic.saleKey).
+		money2 = { was = 25, now = 12 },
+		money3 = { was = 59, now = 29 },
+		money4 = { was = 99, now = 49 },
+		vip = { was = 25, now = 12 },
+		longNap = { was = 199, now = 99 },
+		accessories = { was = 149, now = 75 },
+		secondBowl = { was = 149, now = 75 },
+		gardenDecor = { was = 149, now = 75 },
+		signStylePack = { was = 79, now = 39 },
+		packStylish = { was = 99, now = 49 },
+		packChef = { was = 99, now = 49 },
+		packSpace = { was = 99, now = 49 },
+		packWinter = { was = 99, now = 49 },
 	} :: { [string]: { was: number, now: number } },
 	StoreSaleEnds = 1797120000,
 	-- #4175 (Derek 2026-11-14: an occasional push on big update days, at most once a week): the update's own item

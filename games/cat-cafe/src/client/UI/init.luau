@@ -99,6 +99,7 @@ UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
 UI.rest = {} -- #3573: the rest chip, filled at the end of the file
 UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
+UI.mailbox = {} -- #4249 the Mailbox window, filled at the end of the file
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
@@ -695,6 +696,7 @@ local function render()
 	UI.cornerShop.render(state)
 	UI.mystery.render(state)
 	UI.trade.render(state)
+	UI.mailbox.render(state)
 	UI.nursery.render(state)
 	UI.harvest.render(state)
 	UI.store.render()
@@ -977,6 +979,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		openFeedback = function()
 			UI.bugReport.open() -- F87: the faces page first
+		end,
+		openMailbox = function()
+			UI.open("Mailbox") -- #4249: the HUD shows its tile only with the `mailbox` switch on
 		end,
 	})
 	local hudInstance = hud :: HUD.HUD
@@ -1763,6 +1768,7 @@ function UI.init(config: Types.InitConfig)
 	UI.admin.start(parent) -- #4195: the Admin Wheel's window
 	UI.cafeEvent.start(parent) -- the Cafe Event chip, its start banner and the square's board face (#2487)
 	UI.trade.start() -- the Trade window in the modal (F102)
+	UI.mailbox.start() -- the Mailbox window, behind the `mailbox` switch (#4249)
 	UI.nursery.start() -- the Garden Nursery window, opened from its stall's prompt (#1200)
 	UI.harvest.start() -- the Harvest Stall window, opened from its stall's prompt (#4251)
 	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
@@ -1986,6 +1992,7 @@ function UI.destroy()
 	UI.admin.reset()
 	UI.cafeEvent.reset()
 	UI.trade.reset()
+	UI.mailbox.reset()
 	UI.nursery.reset()
 	UI.harvest.reset()
 	UI.store.reset()
@@ -10676,6 +10683,80 @@ do
 			return nil
 		end
 		return NewKind.line(UI.newKind.kinds(), state.tier or 1)
+	end
+end
+
+-- #4249 (Derek 2026-11-14): the Mailbox window, letters from Derek with a gift and a Claim. The HUD's Mailbox tile
+-- opens it while the `mailbox` switch is on. The claim goes to the server through the function UIController hands
+-- to UI.mailbox.setClaim (the ClaimMail RemoteFunction); the server's answer comes back to the card. Its own block,
+-- as the module is short of locals.
+do
+	local Mailbox = require(script.Screens.Mailbox)
+	local mail = {
+		screen = nil :: Mailbox.Mailbox?,
+		claim = nil :: ((letterId: string) -> (boolean, string?))?,
+	}
+
+	-- UIController: sends a claim and returns the server's answer (ok, why). Called off the UI's thread.
+	function UI.mailbox.setClaim(claim: ((letterId: string) -> (boolean, string?))?)
+		mail.claim = claim
+	end
+
+	function UI.mailbox.start()
+		UI.mailbox.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local screen = Mailbox.new({
+			close = function()
+				if modalView:current() == "Mailbox" then
+					modalView:close()
+				end
+			end,
+			claim = function(letterId: string, done: (ok: boolean, why: string?) -> ())
+				local claim = mail.claim
+				if claim == nil then
+					done(false, "The Mailbox opens soon")
+					return
+				end
+				task.spawn(function()
+					local ok, worked, why = pcall(claim, letterId)
+					if not ok then
+						done(false, "Try again in a moment")
+					else
+						done(worked == true, if type(why) == "string" then why else nil)
+					end
+				end)
+			end,
+		})
+		mail.screen = screen
+		modalView:register("Mailbox", {
+			frame = screen.frame,
+			onOpen = function()
+				if currentCatalog then
+					screen:setCatalog(currentCatalog)
+				end
+				screen:render(state)
+			end,
+		})
+	end
+
+	-- Builds its cards only while open; onOpen renders the latest state.
+	function UI.mailbox.render(playerState: Types.PlayerState)
+		local screen = mail.screen
+		local modalView = modal
+		if screen and modalView and modalView:current() == "Mailbox" then
+			screen:render(playerState)
+		end
+	end
+
+	function UI.mailbox.reset()
+		local screen = mail.screen
+		if screen then
+			screen:destroy()
+			mail.screen = nil
+		end
 	end
 end
 

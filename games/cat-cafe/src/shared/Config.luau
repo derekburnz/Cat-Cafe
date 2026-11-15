@@ -812,6 +812,21 @@ local Config = {
 			name = "BETTER ON EVERY DEVICE",
 			poster = "rbxassetid://138232412903853",
 		},
+		-- Derek 2026-11-15 17:13 UTC ("are we still prompting people ... we should be"): the two after Better on Every
+		-- Device, so the ask keeps rolling to the next update with no gap. Cherry Blossom Grove's Roblox Event was
+		-- made 2026-11-15 (one week, Dec 5 to Dec 12), Harvest Hollow's on Nov 14.
+		{
+			id = "2956295611862876771",
+			startsAt = 1795636800, -- "Harvest Hollow", Wednesday 2026-11-25 20:00 UTC
+			title = "🔔 Next update Wed Nov 25: HARVEST HOLLOW! Want a reminder when it lands?",
+			name = "HARVEST HOLLOW",
+		},
+		{
+			id = "6693355219203523122",
+			startsAt = 1796500800, -- "Cherry Blossom Grove", Saturday 2026-12-05 20:00 UTC
+			title = "🔔 Next update Sat Dec 5: CHERRY BLOSSOM GROVE! Want a reminder when it lands?",
+			name = "CHERRY BLOSSOM GROVE",
+		},
 		{
 			id = "8700676156604678758",
 			startsAt = 1794799800, -- "10 Secret Cats", Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, Derek 17:40 UTC)

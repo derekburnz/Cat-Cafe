@@ -91,6 +91,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SetDragonColour = RateLimiter.new(1, 1),
 	StartFusion = RateLimiter.new(1, 1), -- #4104
 	CollectFusion = RateLimiter.new(1, 1),
+	FuseAll = RateLimiter.new(1, 2), -- #4589: 1 every 2 seconds
 	MarkMysterySeen = RateLimiter.new(1, 2), -- #2565: one save flag
 	SetBagColours = RateLimiter.new(1, 1), -- #3699: 1 a second
 	PromptDeal = RateLimiter.new(1, 1), -- #3996

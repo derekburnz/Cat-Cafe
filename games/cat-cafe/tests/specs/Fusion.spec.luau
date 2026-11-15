@@ -276,6 +276,55 @@ return function()
 		end)
 	end)
 
+	describe("Fuse all (#4589)", function()
+		local function catsOf(sets: { { string } }): { [string]: number }
+			local seen: { [string]: number } = {}
+			for _, set in sets do
+				expect(#set).to.equal(Fusion.COPIES)
+				for _, uid in set do
+					seen[uid] = (seen[uid] or 0) + 1
+				end
+			end
+			return seen
+		end
+
+		it(
+			"makes one set per five free copies, weakest first, leaving the strongest over",
+			function()
+				local profile = profileWith(12) -- levels 1 to 12
+				local sets = Fusion.allSets(profile)
+				expect(#sets).to.equal(2)
+				local seen = catsOf(sets)
+				for i = 1, 10 do
+					expect(seen["a" .. i]).to.equal(1)
+				end
+				expect(seen.a11).to.equal(nil)
+				expect(seen.a12).to.equal(nil)
+			end
+		)
+
+		it("skips busy copies, rainbow coats and cats short of five", function()
+			local profile = profileWith(6)
+			profile.cats.a1.locked = true
+			profile.cats.a2.locked = true -- only four free now
+			expect(#Fusion.allSets(profile)).to.equal(0)
+			local rainbow = profileWith(5, MYTH, "rainbow")
+			expect(#Fusion.allSets(rainbow)).to.equal(0)
+			local five = profileWith(5)
+			expect(#Fusion.allSets(five, function(uid: string): boolean
+				return uid ~= "a3" -- offered in a trade
+			end)).to.equal(0)
+		end)
+
+		it("stops at ALL_MAX sets and every set can start", function()
+			local profile = profileWith(Fusion.COPIES * (Fusion.ALL_MAX + 2))
+			local sets = Fusion.allSets(profile)
+			expect(#sets).to.equal(Fusion.ALL_MAX)
+			catsOf(sets) -- no copy in two sets
+			expect(Fusion.startBlocker(profile, 10, sets[1], nil, false)).to.equal(nil)
+		end)
+	end)
+
 	describe("the save", function()
 		it("starts empty and keeps a good running fusion through a save round trip", function()
 			local profile = ProfileSchema.template(T)

@@ -78,6 +78,7 @@ Fusion.Messages = table.freeze({
 	trait = "Pick a trait from the five",
 	notReady = "The fusion is not done yet",
 	empty = "The dome is empty",
+	noneReady = "No cat has 5 free copies yet", -- #4589: Fuse all with nothing to fuse
 })
 
 -- Why `uid` cannot go in, or nil. Trades are checked by the caller (`trading`).
@@ -221,6 +222,51 @@ function Fusion.defaultPick(
 		table.insert(out, list[index].uid)
 	end
 	return out
+end
+
+-- #4589 (Derek 2026-11-15: "add a fuse all possible"): at most this many fusions in one Fuse all tap.
+Fusion.ALL_MAX = 20
+
+-- #4589: every set Fuse all makes, in a stable order (cat id, then coat): for each cat and coat the free copies
+-- (`free(uid)` false skips one, as defaultPick) weakest first, in fives, so a cat with 10 free copies makes 2 and the
+-- leftover copies are its strongest. Only coats with a next coat (base and gold), only the copies owned now (a cat
+-- made by this tap never joins another set), and at most ALL_MAX sets.
+function Fusion.allSets(profile: Types.PlayerProfile, free: ((string) -> boolean)?): { { string } }
+	local groups: { [string]: { Types.CatInstance } } = {}
+	local keys: { string } = {}
+	for uid, instance in profile.cats do
+		local variant = instance.variant or "base"
+		if
+			Fusion.nextCoat(variant) ~= nil
+			and Fusion.busyReason(profile, uid) == nil
+			and (free == nil or free(uid))
+		then
+			local key = instance.catId .. ":" .. variant
+			local list = groups[key]
+			if list == nil then
+				list = {}
+				groups[key] = list
+				table.insert(keys, key)
+			end
+			table.insert(list, instance)
+		end
+	end
+	table.sort(keys)
+	local sets: { { string } } = {}
+	for _, key in keys do
+		local list = groups[key]
+		table.sort(list, weaker)
+		local index = 1
+		while index + Fusion.COPIES - 1 <= #list and #sets < Fusion.ALL_MAX do
+			local set: { string } = {}
+			for offset = 0, Fusion.COPIES - 1 do
+				table.insert(set, list[index + offset].uid)
+			end
+			table.insert(sets, set)
+			index += Fusion.COPIES
+		end
+	end
+	return sets
 end
 
 -- The trait the result keeps: `keepTraitUid`'s, or with none named the rarest of the five (none when none has one).

@@ -113,6 +113,9 @@ Remotes.ClientToServer = {
 	-- free; `keepTraitUid` one of them with a trait, or nil for the rarest. From FusionTier, only while the fusion
 	-- switch is on. 1 a second; answered with a toast and a ProfileSync (PlayerState.fusion)
 	"CollectFusion", -- ()  #4104: the finished fusion's cat into the save. 1 a second
+	"FuseAll", -- ()  #4589: every set of five free copies (Fusion.allSets, the server picks, nothing is sent) is fused
+	-- and collected at once, up to Fusion.ALL_MAX; a finished fusion in the dome comes out first. Same switch and tier as
+	-- StartFusion. 1 every 2 seconds; answered with FusionSummary, a toast and a ProfileSync
 	"MarkMysterySeen", -- ()  #2565: the player opened Juniper's window; sets profile.mysterySeen (the cart's "!")
 	"SetBagColours", -- (main: string, trim: string, kind: string?)  #3699: the Backpack's owner picks its two colours,
 	-- each an id of BagColours.LIST and nothing else; free, from anywhere, behind the switch bagColours; 1 a second;
@@ -273,6 +276,8 @@ Remotes.ClientToServer = {
 -- Server -> client.
 Remotes.ServerToClient = {
 	"ProfileSync", -- (state: Types.PlayerState)  full state; the client merges
+	"FusionSummary", -- (made: { { catId: string, coat: string, level: number, name: string?, newCoat: boolean } })
+	-- #4589: what one Fuse all made, in order, for the one summary reveal
 	-- F102 trading (TradeService)
 	"TradeAsked", -- (requestId: string, fromUserId: number, fromName: string, expiresAt: number)  someone asks the
 	-- receiver to trade; expiresAt is server time (Workspace:GetServerTimeNow())

@@ -29,6 +29,7 @@ local LiveFlagService = require(script.Parent.LiveFlagService)
 local MysteryMarket = require(ReplicatedStorage.Shared.MysteryMarket)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
+local StationTiers = require(ReplicatedStorage.Shared.StationTiers)
 local Telemetry = require(script.Parent.Telemetry)
 local TradeService = require(script.Parent.TradeService)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -94,6 +95,17 @@ local function onBuy(player: Player, rawItemId: unknown, rawShown: unknown)
 	end
 	if not MysteryMarketService.isOpen() then
 		refuse("Juniper's cart opens soon")
+		return
+	end
+	-- #4539: the cart opens from Tier 2 (shared/StationTiers)
+	if
+		StationTiers.locked(
+			"MysteryMarket",
+			Economy.tier(profile),
+			LiveFlagService.on(StationTiers.FLAG)
+		)
+	then
+		refuse(StationTiers.refusal("MysteryMarket"))
 		return
 	end
 	-- #3535: an item behind a live switch is not sold while the switch is off (the window hides it)

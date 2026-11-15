@@ -7594,6 +7594,22 @@ do
 			tag = CART_TAG,
 			name = "CatCafeMysteryBang",
 			line = function(value: any): string?
+				-- #4539: no "!" over a cart that is hidden below Tier 2 (Controllers/StationLockController)
+				local StationTiers = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationTiers")
+				) :: any
+				local LiveFlags = require(
+					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
+				) :: any
+				local on = LiveFlags.shown(
+					StationTiers.FLAG,
+					ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. StationTiers.FLAG)
+				)
+				if
+					type(value) == "table" and StationTiers.locked("MysteryMarket", value.tier, on)
+				then
+					return nil
+				end
 				return MysteryLogic.bang(value)
 			end,
 		})

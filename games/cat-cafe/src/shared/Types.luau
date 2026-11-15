@@ -784,6 +784,10 @@ export type Stats = {
 	-- F73 (quests.md section 6): Rare or better and gold cats added by net, rescue or bait, tip piles collected, and
 	-- quests and full sets finished
 	rareCatches: number,
+	-- #2745 (Derek 2026-11-12, "go w recommend"): when the Golden Pond pass was bought with Robux (os.time), 0 for never
+	-- seen; golden fish offers wait Config.TradeFishPassHoldSeconds after it. A number in stats with a default, so no
+	-- save version (a server without it drops it, and the hold then reads as long past)
+	pondPassAt: number,
 	goldCatches: number,
 	rainbowCatches: number, -- F99: rainbow cats added by net, rescue or bait
 	tipPilesCollected: number,

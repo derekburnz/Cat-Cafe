@@ -56,6 +56,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
+local PassService = require(script.Parent.PassService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local QuietStart = require(ReplicatedStorage.Shared.QuietStart)
 local QuietStartService = require(script.Parent.QuietStartService)
@@ -1218,6 +1219,13 @@ end
 
 function TradeService.start()
 	publish()
+	-- #2745: a Golden Pond pass bought with Robux starts the fish trade hold (Trade.fishRefusal)
+	PassService.purchased:Connect(function(player: Player, passId: number)
+		local profile = if passId == Config.GoldenPondPassId then DataService.get(player) else nil
+		if profile ~= nil then
+			profile.stats.pondPassAt = os.time()
+		end
+	end)
 	CafeService.setOfferCheck(function(player: Player, uid: string): boolean
 		return TradeBook.isOffered(book, player.UserId, uid)
 	end)

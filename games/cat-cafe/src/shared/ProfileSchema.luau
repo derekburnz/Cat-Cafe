@@ -238,6 +238,7 @@ local function newStats(): Types.Stats
 		mysteryGifts = 0,
 		collectorTrades = 0,
 		rareCatches = 0,
+		pondPassAt = 0, -- #2745: the Golden Pond pass bought with Robux, for the fish trade hold (no version)
 		goldCatches = 0,
 		rainbowCatches = 0, -- F99
 		tipPilesCollected = 0,

@@ -15,6 +15,7 @@ local BigPullLogic = require(script.Parent.Parent.Components.BigPullLogic)
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
+local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
@@ -433,6 +434,15 @@ function BigPull.show(self: any, view: View)
 			self:_close()
 		end
 	end)
+	-- #4224 (console): B closes the card as a tap does (not before `tapAfter`, then B stops here). It never takes
+	-- the selection, so the thumbstick keeps moving the player while it shows.
+	GamepadNav.pushBack("bigPull", self._holder, function(): boolean?
+		if not self._open or os.clock() - self._startedAt < self._tapAfter then
+			return false
+		end
+		self:_close()
+		return true
+	end)
 end
 
 -- A tap on the card closes it once it has been up `tapAfter` seconds.
@@ -461,6 +471,7 @@ function BigPull._close(self: any)
 	end
 	self._open = false
 	self._onUse = nil
+	GamepadNav.popBack("bigPull")
 	self._token += 1
 	local token = self._token
 	if still() then

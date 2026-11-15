@@ -10,6 +10,7 @@
 -- each row's picture `Icon`.
 
 local Create = require(script.Parent.Parent.Components.Create)
+local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LootCardFx = require(script.Parent.Parent.Parent.Effects.LootCardFx)
 local LootCardLogic = require(script.Parent.Parent.Components.LootCardLogic)
@@ -242,9 +243,15 @@ function LootCard.show(self: any, win: unknown, hint: string?)
 			self:hide()
 		end
 	end)
+	-- #4224 (console): B puts the card away, without taking the selection (the player keeps moving)
+	GamepadNav.pushBack("lootCard", card, function(): boolean?
+		self:hide()
+		return true
+	end)
 end
 
 function LootCard.hide(self: any)
+	GamepadNav.popBack("lootCard")
 	self._token += 1
 	local card: TextButton = self._card
 	card.Visible = false

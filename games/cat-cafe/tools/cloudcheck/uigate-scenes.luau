@@ -2809,6 +2809,36 @@ local SCENES = {
 		assert(gui.Enabled and strip ~= nil, "uigate: no controller hint with nothing open (#4224)")
 		assert(strip.AnchorPoint.X == 1, "uigate: the controller hint with nothing open is not at the right edge (#4224)")
 	end },
+	-- #4224 (Review-QA's audit, gap 2): on a controller B puts away the passive cards (the loot card and a tip) like
+	-- their tap or X, and they never take the selection, so the thumbstick keeps moving the player
+	{ "GamepadBackCards", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local GuiService = game:GetService("GuiService")
+		local Nav = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.GamepadNav") :: any
+		Scenes._padReset = function()
+			ReplicatedStorage:SetAttribute("LiveFlag_padControls", nil)
+			UIShim.setLastInput(nil)
+			GuiService.SelectedObject = nil
+		end
+		ReplicatedStorage:SetAttribute("LiveFlag_padControls", true)
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		GuiService.SelectedObject = nil
+		UI.loot.show({ id = "first_tuna", first = true, items = { { kind = "fish", count = 10 } } })
+		UIShim.advance(0.5)
+		local loot = UIShim.playerGui:FindFirstChild("CatCafeLoot"):FindFirstChild("Card", true) :: GuiObject
+		assert(loot.Visible, "uigate: no loot card to put away (#4224)")
+		assert(GuiService.SelectedObject == nil, "uigate: the loot card took the controller's selection (#4224)")
+		assert(Nav.back() == true and not loot.Visible, "uigate: B did not put the loot card away (#4224)")
+		UI.tips.show("second_cat")
+		UIShim.advance(0.6)
+		local tip = UIShim.playerGui:FindFirstChild("CatCafeTips"):FindFirstChild("Card", true) :: GuiObject
+		assert(tip.Visible, "uigate: no tip card to put away (#4224)")
+		assert(GuiService.SelectedObject == nil, "uigate: the tip card took the controller's selection (#4224)")
+		assert(Nav.back() == true, "uigate: B did not put the tip away (#4224)")
+		UIShim.advance(0.6)
+		assert(not tip.Visible, "uigate: the tip stayed after B (#4224)")
+		assert(Nav.back() == false, "uigate: B still finds a card after both went (#4224)")
+	end },
 	-- #4224 (Review-QA controller pass): L1 / R1 find the Store's rail and the Decor chips as tab rows, and Potions
 	-- does not land on "Use all potions" first
 	{ "GamepadTabRows", function()

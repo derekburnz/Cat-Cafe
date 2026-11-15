@@ -383,6 +383,18 @@ return function()
 			expect(off).to.equal(0)
 		end)
 
+		it("turns Soft Landing on only while it is slotted and the switch is on", function()
+			DragonKeep.setOn(true)
+			local on = DragonKeep.of({ dragon = withSlots({ "softLanding" }) } :: any).softLanding
+			local other = DragonKeep.of({ dragon = withSlots({ "lightStep" }) } :: any).softLanding
+			DragonKeep.setOn(false)
+			local off = DragonKeep.of({ dragon = withSlots({ "softLanding" }) } :: any).softLanding
+			DragonKeep.setOn(nil)
+			expect(on).to.equal(true)
+			expect(other).to.equal(false)
+			expect(off).to.equal(false)
+		end)
+
 		it("shortens the swing wait with Ember Net, only with the switch on", function()
 			local NetSwing = require(Shared.NetSwing)
 			local Config = require(Shared.Config)

@@ -1033,11 +1033,12 @@ export type Effects = {
 	forgive: boolean, -- Steady Claw: the first Miss in each net catch costs no trust
 	friend: number, -- Double Catch's chance
 	walk: number, -- stud/s added to the walk speed, inside WALK_CAP
+	softLanding: boolean, -- Soft Landing: no CannonCooldownSeconds wait after a landing
 }
 
 function DragonKeep.effects(save: Types.DragonSave): Effects
 	local money, tips, tickets, repeatFish, luck, goldLuck, reach, swing = 0, 0, 0, 0, 0, 0, 0, 0
-	local slowRings, forgive, friend, walk = 0, false, 0, 0
+	local slowRings, forgive, friend, walk, softLanding = 0, false, 0, 0, false
 	for _, id in save.slots do
 		if cardsById[id] ~= nil then
 			money += DragonKeep.MONEY[id] or 0
@@ -1060,6 +1061,8 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 				forgive = true
 			elseif id == "doubleCatch" then
 				friend = DragonKeep.FRIEND_CHANCE
+			elseif id == "softLanding" then
+				softLanding = true
 			end
 		end
 	end
@@ -1085,6 +1088,7 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 		forgive = forgive,
 		friend = friend,
 		walk = walk,
+		softLanding = softLanding,
 	}
 end
 
@@ -1107,6 +1111,7 @@ local NONE: Effects = table.freeze({
 	forgive = false,
 	friend = 0,
 	walk = 0,
+	softLanding = false,
 }) :: any
 function DragonKeep.of(profile: Types.PlayerProfile): Effects
 	local on = if onOverride ~= nil

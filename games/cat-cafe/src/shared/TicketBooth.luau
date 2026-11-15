@@ -126,11 +126,18 @@ local function weekly(
 	}
 end
 TicketBooth.WEEKLY = {
-	weekly("wFlamingoFloat", "Flamingo Float", "+4% money", 1500, "decor", "decor_flamingo_float"),
+	weekly(
+		"wFlamingoFloat",
+		"Flamingo Float",
+		"Rare decor, +4% money",
+		1500,
+		"decor",
+		"decor_flamingo_float"
+	),
 	weekly(
 		"wSnorkelMask",
 		"Snorkel Mask",
-		"+5% money while worn",
+		"Glasses, +5% while worn",
 		1200,
 		"look",
 		"acc_snorkel_mask"
@@ -138,18 +145,25 @@ TicketBooth.WEEKLY = {
 	weekly(
 		"wSplashFountain",
 		"Splash Fountain",
-		"+8% money",
+		"Epic decor, +8% money",
 		3000,
 		"decor",
 		"decor_splash_fountain"
 	),
-	weekly("wSwimCap", "Swim Cap", "+5% money while worn", 1500, "look", "acc_swim_cap"),
-	weekly("wTicketArch", "Ticket Arch", "+8% money", 2500, "decor", "decor_ticket_arch"),
-	weekly("wSunVisor", "Sun Visor", "+5% money while worn", 1800, "look", "acc_sun_visor"),
+	weekly("wSwimCap", "Swim Cap", "Hat, +5% while worn", 1500, "look", "acc_swim_cap"),
+	weekly(
+		"wTicketArch",
+		"Ticket Arch",
+		"Epic decor, +8% money",
+		2500,
+		"decor",
+		"decor_ticket_arch"
+	),
+	weekly("wSunVisor", "Sun Visor", "Hat, +5% while worn", 1800, "look", "acc_sun_visor"),
 	weekly(
 		"wWavePoolTiles",
 		"Wave Pool Tiles",
-		"+4% money",
+		"Rare decor, +4% money",
 		1800,
 		"decor",
 		"decor_wave_pool_tiles"
@@ -157,7 +171,7 @@ TicketBooth.WEEKLY = {
 	weekly(
 		"wStarfishShades",
 		"Starfish Shades",
-		"+5% money while worn",
+		"Glasses, +5% while worn",
 		2000,
 		"look",
 		"acc_starfish_shades"
@@ -165,12 +179,12 @@ TicketBooth.WEEKLY = {
 	weekly(
 		"wLifeguardChair",
 		"Lifeguard Chair",
-		"+4% money",
+		"Rare decor, +4% money",
 		2000,
 		"decor",
 		"decor_lifeguard_chair"
 	),
-	weekly("wSnackHut", "Snack Hut", "+8% money", 3000, "decor", "decor_snack_hut"),
+	weekly("wSnackHut", "Snack Hut", "Epic decor, +8% money", 3000, "decor", "decor_snack_hut"),
 } :: { Prize }
 
 -- #4061 (spec 1.3): the "Park Regular" chat title, held for good once a save has spent this many tickets

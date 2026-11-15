@@ -2368,6 +2368,8 @@ local SCENES = {
 	-- #2915: ranking up to Tier 2 turns the rank-up button into "Fly to the Park"; pressing it closes the window, and
 	-- the picker (opened here, as the trip to the cannon would) rings the Park card's Launch. A flight ends both.
 	{ "ParkFly", function()
+		-- #4480: "Fly to the Park" shows only while the walk to the Park is on (parkGateTrail, off by default)
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_parkGateTrail", true)
 		Scenes._rankTier = (UI.getState() :: any).tier -- Scenes.close puts the sample tier back
 		Scenes._parkFly = (UI.getState() :: any).money or 0 -- the sample's money would make Tier 3 ready
 		UI.update({ money = 0, tier = 1 } :: any)
@@ -2397,6 +2399,7 @@ local SCENES = {
 		local town = window:FindFirstChild("town", true) :: Instance
 		local other = town and town:FindFirstChild("Launch", true) :: Instance
 		assert(other == nil or other:FindFirstChild("TutorialGlow") == nil, "uigate: the ring is on the wrong card (#2915)")
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_parkGateTrail", nil)
 	end },
 	-- #2687 part 4: the "Unlocked!" card a station's reveal brings: the station's picture and name, the new perk in gold
 	-- and its one line, every word fitting, the card on screen with its button a finger tall

@@ -103,7 +103,9 @@ UI.mailbox = {} -- #4249 the Mailbox window, filled at the end of the file
 -- #4346: AFK mode's side for the HUD's AFK tile, set by Controllers/AfkController.start (shown, on, toggle, changed);
 -- nil until then. UI.bindAfk() hands it to the HUD.
 UI.afk = nil :: any
-UI.firstCat = { held = false } -- #4821: the first cat hold (UI.setFirstCatHold)
+-- #4821: the first cat hold (UI.setFirstCatHold); `tutorial`, the walk-through hold after it (UI.setTutorialHold)
+-- `clearedAt`: os.clock() the walk-through hold last ended, so a held event card waits a beat past it (CARD_AFTER)
+UI.firstCat = { held = false, tutorial = false, clearedAt = nil :: number?, CARD_AFTER = 3 }
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
@@ -656,6 +658,7 @@ local function autoOpenDailyTreat()
 		-- strip and the cannon walk-through after it go first
 		or tutorialText ~= nil
 		or hintShown ~= nil
+		or UI.firstCat.tutorial -- Derek 2026-11-16 15:22 UTC: and not until the walk-through is done
 		-- #4005: on the account's first day the "!" on its button is enough
 		or not (function(): boolean
 			local QuietStart =
@@ -2537,7 +2540,10 @@ task.defer(function()
 		else nil
 	if type(quietWhen) == "function" then
 		(quietWhen :: (() -> boolean) -> ())(function()
-			return UI.firstCat.held
+			local hold = UI.firstCat
+			return hold.held
+				or hold.tutorial
+				or (hold.clearedAt ~= nil and os.clock() - hold.clearedAt < hold.CARD_AFTER)
 		end)
 	end
 	local onPlaying: any = if ok and type(adminFlash) == "table"
@@ -2566,6 +2572,23 @@ function UI.setFirstCatHold(on: boolean)
 	end
 	if hud ~= nil then
 		hud:holdBanner("firstCat", on)
+	end
+end
+-- Derek 2026-11-16 15:22 UTC ("no unnecessary pop ups until tutorial steps done"; QuietStart.tutorialHolds,
+-- UIController says when): through the rest of the walk-through the event and day strip steps aside, the asks wait
+-- (UIController's quiet), and the Starter Bundle card, the Daily Treat window opening itself, the return hook line, the
+-- big event cards and the admin event's middle of the screen wait. Toasts and the walk-through's tips still show.
+function UI.setTutorialHold(on: boolean)
+	if UI.firstCat.tutorial == on then
+		return
+	end
+	UI.firstCat.tutorial = on
+	if not on then
+		UI.firstCat.clearedAt = os.clock()
+	end
+	if hud ~= nil then
+		hud:holdBanner("tutorial", on)
+		hud:setDropHidden(on) -- #4832: and no Drop buttons (UIController drops nothing meanwhile)
 	end
 end
 function UI.setCutscene(on: boolean)
@@ -6560,7 +6583,10 @@ do
 			owned = (state :: any).starterBought,
 			quietUntil = Players.LocalPlayer:GetAttribute(QuietStart.ATTRIBUTE),
 			now = Workspace:GetServerTimeNow(),
-			tutorialDone = type(state.tutorialStep) == "number" and state.tutorialStep >= 5,
+			-- Derek 2026-11-16 15:22 UTC: and the walk-through hold is off (UI.firstCat.tutorial)
+			tutorialDone = type(state.tutorialStep) == "number"
+				and state.tutorialStep >= 5
+				and not UI.firstCat.tutorial,
 			clear = UI.tips.quiet() and not (okBusy and busy == true) and UI.asks.paced(),
 			priced = robux ~= nil,
 		})
@@ -10895,6 +10921,7 @@ function UI.returnHook.try(): boolean
 		or state.carrying ~= nil
 		or UI.cutscene.held()
 		or UI.firstCat.held -- #4821
+		or UI.firstCat.tutorial -- Derek 2026-11-16 15:22 UTC
 		or UI.rollBusy.held()
 	if busy then
 		return false
@@ -11200,8 +11227,20 @@ do
 		local now = Workspace:GetServerTimeNow()
 		local view = EventLogic.read(get, UI.cafeEvent.decode)
 		local seen, started = EventLogic.follow(events.seen, view, now)
-		events.seen = seen
-		if started and view ~= nil and toasts then
+		-- Derek 2026-11-16 15:22 UTC: no event card or toast in the walk-through (UI.firstCat.tutorial). Its start is
+		-- not marked seen meanwhile, so the card comes once the hold ends: right after the first sync for a returning
+		-- player (the hold starts on at load), after the Tier 2 rank up for a new one, while the event still runs.
+		-- Sync's Studio read: and before the first sync (the placeholder state has no tutorialStep; the card played
+		-- under the loading cover) and CARD_AFTER seconds past the hold's end
+		local hold = UI.firstCat
+		local waiting = hold.tutorial
+			or state.tutorialStep == nil
+			or (hold.clearedAt ~= nil and os.clock() - hold.clearedAt < hold.CARD_AFTER)
+		local held = started and waiting
+		if not held then
+			events.seen = seen
+		end
+		if started and view ~= nil and toasts and not held then
 			-- #3420: an Update Party starts with the party card; any other event with the toast
 			local party = EventLogic.partyBanner(
 				view,
@@ -11241,13 +11280,20 @@ do
 		local AdminEventLogic = require(script.Parent.Effects.AdminEventLogic) :: any
 		local adminView = AdminEventLogic.read(get, UI.cafeEvent.decode)
 		local adminSeen, adminBeat = AdminEventLogic.follow(events.adminSeen, adminView, now)
-		events.adminSeen = adminSeen
-		if adminBeat ~= nil and adminView ~= nil then
+		-- an admin event running at join or through the walk-through: its start card comes once the hold ends, as
+		-- the Cafe Event's (its 2 minute warning is only dropped)
+		local adminHeld = adminBeat == "start" and waiting
+		if not adminHeld then
+			events.adminSeen = adminSeen
+		end
+		if adminBeat ~= nil and adminView ~= nil and not adminHeld then
 			local card = if adminBeat == "start"
 				then AdminEventLogic.startBanner(adminView, now)
 				else AdminEventLogic.soonBanner(adminView, now)
 			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
-			EventBanner.show(card)
+			if not UI.firstCat.tutorial then -- Derek 2026-11-16 15:22 UTC: the chat line only, in the walk-through
+				EventBanner.show(card)
+			end
 			-- the same words as one line in the chat window, for a player who looked away
 			local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any
 			AdminEventChat.say(AdminEventLogic.chatLine(card))

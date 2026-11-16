@@ -42,11 +42,19 @@ local function booth(now: number): { [string]: any }
 		ready = 3,
 		prizes = {
 			prize("fish25", "25 golden fish", "25 golden fish", 300, 4, "day"),
-			prize("traitToken", "Trait Token", "One Mystic Pool roll", 700, 3, "week"),
+			prize("tokens10", "10 Trait Tokens", "Ten Mystic Pool rolls", 6000, 1, "week", short),
 			prize("goldenCrate", "Golden Crate", "A golden Cafe Crate", 900, 2, "day"),
-			prize("bigGoldRush", "Big Gold Rush Potion", "30 minutes", 1200, nil, nil, short),
-			prize("bigLucky", "Big Lucky Potion", "30 minutes", 1200, nil, nil, short),
-			prize("swiftPaws", "Swift Paws", "1 hour of Big Swift Potion", 800, nil, nil),
+			prize("spins5", "5 Wheel Spins", "Five spins of the wheel", 1000, 3, "day"),
+			prize("caviar", "Caviar Bait", "The best bait", 1200, 3, "day", short),
+			prize(
+				"bestGolden",
+				"Best Golden Crate",
+				"Your best area's golden crate",
+				1800,
+				1,
+				"day",
+				short
+			),
 		},
 	}
 end

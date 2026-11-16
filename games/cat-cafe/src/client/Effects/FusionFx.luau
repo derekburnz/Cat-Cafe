@@ -570,11 +570,67 @@ local function studioTest(coat: string)
 	end)
 end
 
+-- Pure: what a ProfileSync `fusion` view says for the dome: the running fusion's coat ("gold" or "rainbow", nil for a
+-- free dome or a shut Observatory), whether it is ready, and how many of each coat were made so far.
+function FusionFx.read(view: unknown): (string?, boolean, number, number)
+	if type(view) ~= "table" then
+		return nil, false, 0, 0
+	end
+	local v = view :: { [string]: any }
+	local running = v.running
+	local coat = if type(running) == "table" then running.coat else nil
+	local made = if type(v.made) == "table" then v.made else {}
+	local gold = if type(made.gold) == "number" then made.gold else 0
+	local rainbow = if type(made.rainbow) == "number" then made.rainbow else 0
+	return if coat == "gold" or coat == "rainbow" then coat else nil, v.ready == true, gold, rainbow
+end
+
+-- Pure: the coat just collected, or nil: a fusion of `before` was in the dome and is gone now, and that coat's made
+-- count went up (a Collect, not the switch going off).
+function FusionFx.collectedCoat(
+	before: string?,
+	now: string?,
+	madeBefore: { [string]: number },
+	madeNow: { [string]: number }
+): string?
+	if before == nil or now ~= nil then
+		return nil
+	end
+	if (madeNow[before] or 0) > (madeBefore[before] or 0) then
+		return before
+	end
+	return nil
+end
+
+-- #4563: the dome follows your own fusion from ProfileSync (nothing called set or collected before, so the slit never
+-- lit and the paw lights never circled): set on every sync, the burst at the dome when a Collect lands.
+local function follow()
+	local Net = require(script.Parent.Parent.Net) :: any
+	local lastCoat: string? = nil
+	local lastMade: { [string]: number }? = nil
+	Net.on("ProfileSync", function(state: unknown)
+		if type(state) ~= "table" then
+			return
+		end
+		local coat, ready, gold, rainbow = FusionFx.read((state :: { [string]: any }).fusion)
+		local made = { gold = gold, rainbow = rainbow }
+		local done = if lastMade ~= nil
+			then FusionFx.collectedCoat(lastCoat, coat, lastMade, made)
+			else nil
+		FusionFx.set(coat, ready)
+		if done ~= nil then
+			FusionFx.collected(done :: string)
+		end
+		lastCoat, lastMade = coat, made
+	end)
+end
+
 function FusionFx.start()
 	if started then
 		return
 	end
 	started = true
+	follow()
 	if RunService:IsStudio() then
 		Workspace:GetAttributeChangedSignal("FusionFxTest"):Connect(function()
 			local coat = Workspace:GetAttribute("FusionFxTest")

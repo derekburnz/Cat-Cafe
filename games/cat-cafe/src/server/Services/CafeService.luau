@@ -86,6 +86,11 @@ type Profile = Types.PlayerProfile
 
 local CafeService = {}
 
+-- #4712: the player's last Auto Roll this session (TraitService sets this at start, since it requires this module)
+CafeService.autoRolled = function(_player: Player): { id: string, n: number }?
+	return nil
+end
+
 -- #3694 section 3: the achievements behind a feature switch read the live switches (here, since this file sends
 -- the achievements view; QuestService and Claim all reach Quests through it)
 Quests.setFlagReader(LiveFlagService.on)
@@ -266,6 +271,7 @@ local function traitsView(player: Player, profile: Profile, now: number): Types.
 		and policy.ArePaidRandomItemsRestricted == false
 	local party = EventService.partyLeft(player) -- #4197 Trait Party
 	view.party = if party > 0 then party else nil
+	view.autoRoll = CafeService.autoRolled(player) -- #4712
 	return view
 end
 
@@ -386,8 +392,13 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		),
 		dailyDeal = dealView(player, profile, now), -- #3996
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
+		-- #4626: the minute 6 line for a player before Tier 3, behind returnHookEarly (the client times it)
+		tomorrowHook = if LiveFlagService.on(ReturnHook.EARLY_FLAG)
+				and Economy.tier(profile) <= ReturnHook.EARLY_MAX_TIER
+			then ReturnHook.early(profile, now, LiveFlagService.on(ReturnHook.GIFT_FLAG))
+			else nil,
 		returnGoals = joinGoals[player], -- #2916
-		secondCat = SecondCat.view(profile), -- #3022
+		secondCat = SecondCat.view(profile, LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)), -- #3022, #4624
 		stuckGoal = StuckGoal.waiting(profile, LiveFlagService.on(StuckGoal.AFTER_SECOND_FLAG)), -- #2912, #4473
 		introSeen = profile.introSeen,
 		introAuto = introAuto, -- #3666
@@ -1588,9 +1599,17 @@ function CafeService.addCaughtCat(
 		profile.stats.rainbowCatches += 1
 	end
 	Telemetry.custom(player, "cat_caught", 1, { def.id, howText, instance.variant })
+	-- #4624: what this new kind pays (3x a Common's for kinds 2 to 5 in Tier 1 behind earlyKindBonus); the toasts say it
+	local newKindReward = 0
 	if isNew then
+		newKindReward = SecondCat.newKindReward(
+			Catalog.rarities[def.rarity].firstCatchReward,
+			Economy.tier(profile),
+			ProfileSchema.collectionCount(profile),
+			LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)
+		)
 		profile.collection[def.id] = now
-		local reward = Catalog.rarities[def.rarity].firstCatchReward
+		local reward = newKindReward
 		Economy.credit(profile, reward)
 		-- the starter cat is the first book entry, so two entries means this was the player's first new cat
 		local first = ProfileSchema.collectionCount(profile) <= 2
@@ -1672,7 +1691,7 @@ function CafeService.addCaughtCat(
 					"Your first cat! %s is your %s (+$%s)",
 					def.name,
 					roleName(spotHere),
-					ShortNumber.format(Catalog.rarities[def.rarity].firstCatchReward)
+					ShortNumber.format(newKindReward)
 				),
 				"good"
 			)
@@ -1682,7 +1701,7 @@ function CafeService.addCaughtCat(
 				string.format(
 					"New cat! %s joins the collection (+$%s, %s)",
 					def.name,
-					ShortNumber.format(Catalog.rarities[def.rarity].firstCatchReward),
+					ShortNumber.format(newKindReward),
 					fishText(fish)
 				),
 				"good"
@@ -1711,9 +1730,41 @@ function CafeService.addCaughtCat(
 		-- #2399 (Derek2: "way too many bubble pop ups"): no "X is working as Y" toast for a cat that took a role (the
 		-- Cats window shows it); #2727: nor "X is in the cat room. Every role is taken" for one with no role free (the
 		-- Cats tile's dot shows a resting cat; slots_full is still logged above)
+		CafeService.tier2ReadyTopUp(player, profile)
 		CafeService.sync(player)
 	end
 	return instance, isNew
+end
+
+-- #4674 (Derek 2026-11-16: "give more starter money ... if you the 2nd cat safe it should be ready for rankup and park
+-- teleport"): under bowl first (shared/TutorialOrder) the catch that completes Tier 2's kinds at Tier 1 tops the coins
+-- up to exactly Tier 2's cost, once a save (stats.tier2TopUp, shared with the bait cat's #4453 top up), so the Rank Up
+-- and the move into the Park come right after it. Behind the same `tier2TopUp` switch.
+function CafeService.tier2ReadyTopUp(player: Player, profile: Profile)
+	local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder)
+	if not TutorialOrder.bowlFirst() then
+		return
+	end
+	local SecondCatHelp = require(ReplicatedStorage.Shared.SecondCatHelp)
+	local gift =
+		SecondCatHelp.topUpFor(profile, LiveFlagService.on(SecondCatHelp.TOP_UP_FLAG), true)
+	if gift <= 0 then
+		return
+	end
+	profile.stats.tier2TopUp = gift
+	Economy.credit(profile, gift)
+	Telemetry.source(player, profile, gift, "Onboarding", "tier2_topup")
+	Telemetry.custom(
+		player,
+		"tier2_topup",
+		gift,
+		{ tostring((Catalog.getTier(2) :: Types.TierDef).cost) }
+	)
+	Net.toast(
+		player,
+		string.format("Welcome gift: +$%d. Your cafe is ready to rank up!", gift),
+		"good"
+	)
 end
 
 -- F96 (starter-cat.md section 2): a cat given, not caught (the free Bellhop Cat): level 1, base coat and `charm`,
@@ -1863,7 +1914,7 @@ end
 -- cat still takes it, F87 section 2d). The cats EquipBest.held names stay where they are: a locked working cat, a cat
 -- placed or rested by hand in the last AutoEquipHoldSeconds and a cat on offer in a trade. At most one run every
 -- AutoEquipEverySeconds: a run asked for sooner waits for then and is merged with any others (that run refreshes the
--- plot and syncs itself; this call returns 0). A run that moves cats sends AutoEquipped for the toast.
+-- plot and syncs itself; this call returns 0). #4656: the AutoEquipped toast remote is gone (no toast since #2399).
 local function runAutoEquip(player: Player, profile: Profile): number
 	local hand = handAt[player] or {}
 	local held = EquipBest.held(profile, os.clock(), hand, function(uid: string): boolean
@@ -1874,40 +1925,20 @@ local function runAutoEquip(player: Player, profile: Profile): number
 		return 0
 	end
 	Economy.settle(profile, os.time(), ClockService.epoch())
-	local rateBefore = currentRate(profile)
 	local before: { [string]: string? } = {}
 	for uid, instance in profile.cats do
 		before[uid] = instance.spotId
 	end
 	local changed = EquipBest.apply(profile, plan)
-	local swaps: { Types.AutoEquipSwap } = {}
 	for uid, instance in profile.cats do
 		-- only the cats that took a new spot, so a join or rank up doesn't log the whole cafe again
 		if instance.spotId ~= nil and instance.spotId ~= before[uid] then
 			Telemetry.catWorking(player, uid)
-			local def = Catalog.getCat(instance.catId)
-			local spot = Catalog.getSpot(instance.spotId :: string)
-			if spot ~= nil then
-				table.insert(swaps, {
-					catName = if instance.name ~= nil and instance.name ~= ""
-						then instance.name :: string
-						elseif def ~= nil then def.name
-						else instance.catId,
-					role = roleName(spot),
-				})
-			end
 		end
 	end
 	if plan.catsPlaced > 0 then
 		CafeService.advanceTutorial(player, profile, stepAfterJob(profile))
 		Telemetry.onboarding(player, profile, "first_role_assigned")
-	end
-	if #swaps > 0 then
-		if #swaps == 1 then
-			local gain = currentRate(profile) - rateBefore
-			swaps[1].perSecond = if gain >= 0.05 then math.floor(gain * 10 + 0.5) / 10 else nil
-		end
-		Net.fire(player, "AutoEquipped", swaps)
 	end
 	return changed
 end
@@ -2191,6 +2222,12 @@ local function onRankUp(player: Player)
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 	LeaderboardService.rankedUp(player) -- F98: after the sync noted the new rate
+	-- #4674: under bowl first the rank up to Tier 2 takes the player into the Park (TutorialMoveService)
+	local TutorialMoves = require(ReplicatedStorage.Shared.TutorialMoves)
+	local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder)
+	if TutorialMoves.parkAfterRankUp(def.tier, TutorialOrder.bowlFirst()) then
+		CafeService.tutorialMove:Fire(player, "park")
+	end
 end
 
 local function onBuyDecor(player: Player, rawId: unknown)

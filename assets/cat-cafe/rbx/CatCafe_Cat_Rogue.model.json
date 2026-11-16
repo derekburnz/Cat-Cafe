@@ -3012,13 +3012,7 @@
       "BottomSurface": "Smooth"
      },
      "attributes": {
-      "GoldColor": {
-       "Color3": [
-        0.7882,
-        0.5412,
-        0.2941
-       ]
-      }
+      "GoldTone": 3
      }
     },
     {

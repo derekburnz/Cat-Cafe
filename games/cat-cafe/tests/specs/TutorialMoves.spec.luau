@@ -36,6 +36,12 @@ return function()
 			function()
 				expect(TutorialMoves.delay("bowl")).to.equal(0)
 				expect(TutorialMoves.delay("cannon")).to.equal(TutorialMoves.CANNON_DELAY)
+				expect(TutorialMoves.delay("park")).to.equal(TutorialMoves.PARK_DELAY) -- #4674
+				expect(TutorialMoves.PARK_DELAY > 0).to.equal(true)
+				-- only bowl first's rank up to Tier 2 moves the player into the Park
+				expect(TutorialMoves.parkAfterRankUp(2, true)).to.equal(true)
+				expect(TutorialMoves.parkAfterRankUp(2, false)).to.equal(false)
+				expect(TutorialMoves.parkAfterRankUp(3, true)).to.equal(false)
 				expect(TutorialMoves.CANNON_DELAY > 0).to.equal(true)
 				expect(TutorialMoves.CANNON_DELAY <= 2).to.equal(true)
 			end

@@ -8903,8 +8903,11 @@ do
 			toyButton:destroy()
 		end
 		late.toyButton = nil
-		for _, link in late.heldLinks or {} do
-			link:Disconnect()
+		local heldLinks: { RBXScriptConnection }? = late.heldLinks
+		if heldLinks then
+			for _, link in heldLinks do
+				link:Disconnect()
+			end
 		end
 		late.heldLinks = nil
 		local keep = late.keep

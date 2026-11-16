@@ -66,13 +66,7 @@ export type Dealer = {
 	destroy: (self: Dealer) -> (),
 }
 
-local STRIP_HEIGHT = 84
-local ROW_HEIGHT = 108 -- #1612: the picture and its margins; the odds moved into Details
-local ICON = 84
 local BUTTON = Vector2.new(128, Theme.sizes.touchMin + 4)
-local DETAILS_H = 42 -- a 37 px face with a mouse; Scale.tapHeight makes Buy and Details 44 px faces on a phone
-local TEXT_LEFT = ICON + 28
-local TEXT_RIGHT = BUTTON.X + 28
 -- a Buy waits this long after it is sent for the next DealerStock before the button comes back (#2290: was 5 s)
 local PENDING_SECONDS = 2
 -- #2290 (Derek2: "buying items fast from shop sometimes stays too long on the ... waiting button"): the server takes
@@ -157,9 +151,9 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	-- Restock strip: the moon, "Fresh stock in 4:12" and a line on what to do
 	local strip: Frame = Create("Frame", {
 		Name = "Restock",
-		BackgroundColor3 = if MenuFamily.on() then PAL.card else Theme.colors.cocoaDeep,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, -10, 0, if MenuFamily.on() then FAMILY_STRIP else STRIP_HEIGHT),
+		Size = UDim2.new(1, -10, 0, FAMILY_STRIP),
 		Parent = panel.content,
 	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
 	Outline.border(strip, Theme.sizes.outline)
@@ -177,16 +171,12 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	})
 	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = moon })
 	Outline.border(moon, 2)
-	local family = MenuFamily.on()
-	self._family = family
-	if family then
-		moon.Size = UDim2.fromOffset(44, 44)
-		moon.TextSize = 24
-	end
-	local textLeft = if family then 66 else 86
+	moon.Size = UDim2.fromOffset(44, 44) -- #3961, #4657: the family look's slimmer strip
+	moon.TextSize = 24
+	local textLeft = 66
 	self._stripTitle = text({
 		Name = "Title",
-		Position = UDim2.fromOffset(textLeft, if family then 6 else 12),
+		Position = UDim2.fromOffset(textLeft, 6),
 		Size = UDim2.new(1, -(textLeft + 14 + ALL_BUTTON.X), 0, 28),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
@@ -196,8 +186,8 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	Outline.text(self._stripTitle, 2)
 	self._stripSub = text({
 		Name = "Sub",
-		Position = UDim2.fromOffset(textLeft, if family then 34 else 42),
-		Size = UDim2.new(1, -(textLeft + 14 + ALL_BUTTON.X), 0, if family then 20 else 34),
+		Position = UDim2.fromOffset(textLeft, 34),
+		Size = UDim2.new(1, -(textLeft + 14 + ALL_BUTTON.X), 0, 20),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.hud.subtext,
 		TextWrapped = true,
@@ -209,7 +199,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	-- #2573: Buy all, on the strip's right
 	self._allButton = Button.new({
 		name = "BuyAll",
-		text = if family then "BUY ALL" else "Buy all",
+		text = "BUY ALL",
 		style = "gold",
 		size = UDim2.fromOffset(
 			ALL_BUTTON.X,
@@ -226,20 +216,15 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	self._allButton.instance.Visible = false
 	self:_buildConfirm(panel.frame)
 
-	local listTop = (if family then FAMILY_STRIP else STRIP_HEIGHT) + Theme.sizes.gap + 4
+	local listTop = FAMILY_STRIP + Theme.sizes.gap + 4
 	self._listTop = listTop
 	self._content = panel.content
-	local layout: Instance = if family
-		then Create("UIGridLayout", {
-			CellSize = GridFit.cell(GridFit.FEWEST, Theme.sizes.gap, self:_cardHeight()),
-			CellPadding = UDim2.fromOffset(Theme.sizes.gap, Theme.sizes.gap),
-			HorizontalAlignment = Enum.HorizontalAlignment.Center,
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		})
-		else Create("UIListLayout", {
-			Padding = UDim.new(0, Theme.sizes.gap),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		})
+	local layout: UIGridLayout = Create("UIGridLayout", {
+		CellSize = GridFit.cell(GridFit.FEWEST, Theme.sizes.gap, self:_cardHeight()),
+		CellPadding = UDim2.fromOffset(Theme.sizes.gap, Theme.sizes.gap),
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	})
 	self._list = Create("ScrollingFrame", {
 		Name = "Foods",
 		BackgroundTransparency = 1,
@@ -256,29 +241,21 @@ function Dealer.new(callbacks: Callbacks): Dealer
 		layout,
 		Outline.listPadding(10, 6), -- #2294: room for the cards' outlines
 	})
-	if family then
-		-- #4007: four cards a row where they fit, else three
-		GridFit.fit(
-			self._list,
-			layout :: UIGridLayout,
-			MIN_CELL,
-			Theme.sizes.gap,
-			function(): number
-				return self:_cardHeight()
-			end
-		)
-	end
+	-- #4007: four cards a row where they fit, else three
+	GridFit.fit(self._list, layout, MIN_CELL, Theme.sizes.gap, function(): number
+		return self:_cardHeight()
+	end)
 	-- before the first DealerStock arrives, or when every food in it is unknown (#3961: over the grid, not a cell of it)
 	self._empty = text({
 		Name = "Empty",
-		Position = if family then UDim2.fromOffset(0, listTop + 10) else UDim2.new(),
+		Position = UDim2.fromOffset(0, listTop + 10),
 		Size = UDim2.new(1, 0, 0, 60),
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextColor3 = PAL.subtext,
 		TextWrapped = true,
 		Text = "",
 		Visible = false,
-		Parent = if family then panel.content else self._list,
+		Parent = panel.content,
 	})
 
 	-- the countdown ticks once a second while the screen is open
@@ -300,10 +277,8 @@ function Dealer._clearRows(self: any)
 		row.buy:destroy()
 		row.details:destroy()
 		row.icon:destroy()
-		if row.close then
-			row.close:destroy()
-			row.cover:Destroy()
-		end
+		row.close:destroy()
+		row.cover:Destroy()
 		row.frame:Destroy()
 	end
 	table.clear(self._rows)
@@ -321,165 +296,8 @@ function Dealer._buildRows(self: any)
 		return
 	end
 	assert(stock, "stock")
-	if self._family then
-		for index, group in DealerRows.group(stock, self._lureById) do
-			self:_buildCard(index, group)
-		end
-		self._tier = -1
-		self._extras = ""
-		return
-	end
-	-- on a phone Buy and Details grow to a 44 px face and the row with them
-	local buyH = Scale.tapHeight(BUTTON.Y, Theme.sizes.buttonDepth)
-	local detailsH = Scale.tapHeight(DETAILS_H, Theme.sizes.buttonDepth)
-	local topHeight = math.max(ROW_HEIGHT, 12 + buyH + 10 + detailsH + 12)
 	for index, group in DealerRows.group(stock, self._lureById) do
-		local def = group.def
-		local row: Frame = Create("Frame", {
-			Name = group.lureId,
-			BackgroundColor3 = CARD.card,
-			BorderSizePixel = 0,
-			AutomaticSize = Enum.AutomaticSize.Y,
-			Size = UDim2.new(1, 0, 0, 0),
-			LayoutOrder = index,
-			Parent = self._list,
-		}, {
-			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			-- rarity colours on borders (world-and-feel section 6 style rules): the food's grade (F69)
-			Create(
-				"UIStroke",
-				{ Color = Theme.rarityColor(FoodGrade.of(def)), Thickness = Theme.sizes.stroke + 1 }
-			),
-			Create("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder }),
-		})
-		local top: Frame = Create("Frame", {
-			Name = "Top",
-			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 0, topHeight),
-			LayoutOrder = 1,
-			Parent = row,
-		})
-		local icon = ItemIcon.new({
-			parent = top,
-			size = UDim2.fromOffset(ICON, ICON),
-			position = UDim2.fromOffset(12, 12),
-		})
-		icon:setFood(def)
-		local heading: Frame = Create("Frame", {
-			Name = "Heading",
-			BackgroundTransparency = 1,
-			Position = UDim2.fromOffset(TEXT_LEFT, 10),
-			Size = UDim2.new(1, -(TEXT_LEFT + TEXT_RIGHT), 0, 26),
-			Parent = top,
-		}, {
-			Create("UIListLayout", {
-				FillDirection = Enum.FillDirection.Horizontal,
-				VerticalAlignment = Enum.VerticalAlignment.Center,
-				Padding = UDim.new(0, 8),
-				SortOrder = Enum.SortOrder.LayoutOrder,
-			}),
-		})
-		text({
-			Name = "Name",
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, 26),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textLarge - 2,
-			Text = def.name,
-			LayoutOrder = 1,
-			Parent = heading,
-		})
-		local stockLine: Frame = Create("Frame", {
-			Name = "StockLine",
-			BackgroundTransparency = 1,
-			Position = UDim2.fromOffset(TEXT_LEFT, 38),
-			Size = UDim2.new(1, -(TEXT_LEFT + TEXT_RIGHT), 0, 20),
-			Parent = top,
-		}, {
-			Create("UIListLayout", {
-				FillDirection = Enum.FillDirection.Horizontal,
-				VerticalAlignment = Enum.VerticalAlignment.Center,
-				Padding = UDim.new(0, 10),
-				SortOrder = Enum.SortOrder.LayoutOrder,
-			}),
-		})
-		local stockText = text({
-			Name = "Stock",
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, 20),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textSmall + 1,
-			LayoutOrder = 1,
-			Parent = stockLine,
-		})
-		local have = text({
-			Name = "Have",
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, 20),
-			TextSize = Theme.sizes.textSmall,
-			TextColor3 = CARD.subtext,
-			LayoutOrder = 2,
-			Parent = stockLine,
-		})
-		local lureId = group.lureId
-		local buy = Button.new({
-			name = "Buy",
-			text = Format.money(group.cost),
-			style = "primary",
-			size = UDim2.fromOffset(BUTTON.X, buyH),
-			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -12, 0, 12),
-			textSize = Theme.sizes.textBody + 2,
-			parent = top,
-			onClick = function()
-				self:_buy(lureId)
-			end,
-		})
-		local details = Button.new({
-			name = "Details",
-			text = "Details",
-			style = "ghost",
-			size = UDim2.fromOffset(BUTTON.X, detailsH),
-			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -12, 0, 12 + buyH + 10),
-			textSize = Theme.sizes.textSmall,
-			parent = top,
-			onClick = function()
-				self:_toggleDetail(lureId)
-			end,
-		})
-		local detail = text({
-			Name = "Detail",
-			AutomaticSize = Enum.AutomaticSize.Y,
-			Size = UDim2.new(1, 0, 0, 0),
-			TextSize = Theme.sizes.textTiny,
-			TextColor3 = CARD.subtext,
-			TextWrapped = true,
-			TextTruncate = Enum.TextTruncate.None,
-			TextYAlignment = Enum.TextYAlignment.Top,
-			RichText = true, -- #1612: the odds in their colours lead Details
-			Visible = false,
-			LayoutOrder = 2,
-			Parent = row,
-		})
-		Create("UIPadding", {
-			PaddingLeft = UDim.new(0, 16),
-			PaddingRight = UDim.new(0, 16),
-			PaddingBottom = UDim.new(0, 12),
-			Parent = detail,
-		})
-		table.insert(self._rows, {
-			frame = row,
-			icon = icon,
-			stock = stockText,
-			have = have,
-			buy = buy,
-			details = details,
-			detail = detail,
-			odds = FoodOdds.rich(def.odds, rarityHex), -- #1612: Details' first line, rich text
-			split = nil :: string?, -- the per-cat split for the tier and bowl last drawn
-			group = group,
-		})
+		self:_buildCard(index, group)
 	end
 	self._tier = -1 -- rebuild the odds and split text on the next render
 	self._extras = ""
@@ -697,16 +515,11 @@ end
 
 function Dealer._toggleDetail(self: any, lureId: string)
 	for _, row in self._rows do
-		if row.cover then
-			-- #3961: one food's odds open over the grid at a time; its X (or its ? again) closes them
-			local open = row.group.lureId == lureId and not row.cover.Visible
-			row.cover.Visible = open
-			row.close.instance.Visible = open
-			row.cover.CanvasPosition = Vector2.zero
-		elseif row.group.lureId == lureId then
-			row.detail.Visible = not row.detail.Visible
-			row.details:setText(if row.detail.Visible then "Hide details" else "Details")
-		end
+		-- #3961: one food's odds open over the grid at a time; its X (or its ? again) closes them
+		local open = row.group.lureId == lureId and not row.cover.Visible
+		row.cover.Visible = open
+		row.close.instance.Visible = open
+		row.cover.CanvasPosition = Vector2.zero
 	end
 end
 
@@ -1026,9 +839,7 @@ function Dealer._renderAll(self: any)
 			elseif left > 0 then Theme.colors.good
 			else Theme.colors.red
 		local have = state.lures[group.lureId] or 0
-		row.have.Text = if have > 0
-			then (if row.cover then "Have %d" else "You have %d"):format(have)
-			else ""
+		row.have.Text = if have > 0 then ("Have %d"):format(have) else ""
 		row.buy:setText(
 			if pending
 				then "Buying..."
@@ -1044,9 +855,7 @@ function Dealer._renderAll(self: any)
 		then DealerRows.buyAll(self._stock, self._lureById, state.money)
 		else nil
 	self._allButton.instance.Visible = self._plan ~= nil or allPending
-	self._allButton:setText(
-		if allPending then "Buying..." elseif self._family then "BUY ALL" else "Buy all"
-	)
+	self._allButton:setText(if allPending then "Buying..." else "BUY ALL")
 	self._allButton:setEnabled(self._plan ~= nil and not allPending)
 	if self._plan == nil then
 		self:_closeConfirm()

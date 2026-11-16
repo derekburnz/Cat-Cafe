@@ -238,7 +238,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
-		layout,
+		layout :: Instance,
 		Outline.listPadding(10, 6), -- #2294: room for the cards' outlines
 	})
 	-- #4007: four cards a row where they fit, else three

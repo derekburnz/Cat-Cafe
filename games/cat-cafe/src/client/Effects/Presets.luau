@@ -6506,6 +6506,28 @@ Presets.waitingCat = {
 
 -- The first catch's held ring (#2920; Effects/HoldPulse): gold rings swell off it every `gap` seconds (under 3 Hz)
 -- from `from` to `to` times its size while it waits for the press, for at most `most` seconds.
+-- #4920 Effects/RankUpPulse: the RANK UP button's glows when a tier's rank up is first ready, and the strip's tick.
+Presets.rankUpPulse = {
+	displayOrder = 29, -- over the HUD and windows, under toasts (30)
+	wait = 0.35, -- the Rank Up window slides in first
+	pulses = 3,
+	every = 0.55,
+	seconds = 0.7,
+	grow = 26, -- pixels the glow swells past the button
+	corner = 14,
+	thickness = 4,
+	fill = 0.35, -- the glow's own fill at its start (0 none)
+	colour = Color3.fromRGB(255, 214, 92),
+	sparkle = { size = 12, seconds = 0.5, reach = 34, stagger = 0.1 },
+	tick = {
+		sparks = 6,
+		sparkle = { size = 9, seconds = 0.45, reach = 26, stagger = 0.06 },
+		ringFrom = 8,
+		ringTo = 44,
+		ringSeconds = 0.4,
+	},
+}
+
 Presets.holdPulse = {
 	displayOrder = 26, -- just over the catch screen (25), under toasts (30)
 	gap = 0.9,

@@ -78,12 +78,11 @@ return function()
 		)
 
 		it(
-			"has its own live switch, on by default, and one for levels 3 to 5, off by default",
+			"has its own live switch, on by default, and one for levels 6 to 10, off by default (levels 3 to 5 have none since #4654 batch 7)",
 			function()
 				expect(table.find(LiveFlags.KEYS, SwiftPaws.FLAG) ~= nil).to.equal(true)
 				expect(LiveFlags.defaults()[SwiftPaws.FLAG]).to.equal(true)
-				expect(table.find(LiveFlags.KEYS, SwiftPaws.FLAG_FIVE) ~= nil).to.equal(true)
-				expect(LiveFlags.defaults()[SwiftPaws.FLAG_FIVE]).to.equal(false)
+				expect(table.find(LiveFlags.KEYS, "swiftPaws5")).to.equal(nil)
 				expect(table.find(LiveFlags.KEYS, SwiftPaws.FLAG_TEN) ~= nil).to.equal(true)
 				expect(LiveFlags.defaults()[SwiftPaws.FLAG_TEN]).to.equal(false)
 			end

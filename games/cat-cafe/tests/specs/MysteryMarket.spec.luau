@@ -21,7 +21,7 @@ return function()
 				expect(Catalog.mysteryItems[3].id).to.equal("speed_shoes")
 				expect(Catalog.mysteryItems[3].cost).to.equal(500)
 				expect(Catalog.mysteryItems[3].minTier).to.equal(1)
-				expect(Catalog.mysteryItems[3].flag).to.equal("speedShoes")
+				expect(Catalog.mysteryItems[3].flag).to.equal(nil) -- #4654 batch 7
 				expect(backpack.flag).to.equal(nil)
 				expect(longNet.flag).to.equal(nil)
 				expect(Catalog.mysteryItems[1].id).to.equal("backpack")
@@ -90,11 +90,19 @@ return function()
 		end)
 
 		it("keeps an item behind a live switch off the shelf until the switch is on", function()
-			local shoes = Catalog.getMysteryItem("speed_shoes") :: any
+			-- #4654 batch 7: the Speed Shoes lost their switch, so a made-up row stands in
+			local shoes = {
+				id = "made_up",
+				name = "Made up",
+				cost = 1,
+				minTier = 1,
+				kind = "tool",
+				flag = "someSwitch",
+			} :: any
 			expect(MysteryMarket.listed(shoes, nil)).to.equal(false)
 			expect(MysteryMarket.listed(shoes, {})).to.equal(false)
-			expect(MysteryMarket.listed(shoes, { speedShoes = false })).to.equal(false)
-			expect(MysteryMarket.listed(shoes, { speedShoes = true })).to.equal(true)
+			expect(MysteryMarket.listed(shoes, { someSwitch = false })).to.equal(false)
+			expect(MysteryMarket.listed(shoes, { someSwitch = true })).to.equal(true)
 			expect(MysteryMarket.listed(backpack, nil)).to.equal(true)
 		end)
 

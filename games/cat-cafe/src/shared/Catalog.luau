@@ -6026,7 +6026,7 @@ Catalog.mysteryItems = {
 		minTier = 2,
 		kind = "tool",
 	},
-	-- #3535: carry speed only (shared/SpeedShoes); hidden and not sold while its live switch is off
+	-- #3535: carry speed only (shared/SpeedShoes); its live switch is retired since #4654 batch 7
 	{
 		id = "speed_shoes",
 		name = "Speed Shoes",
@@ -6034,7 +6034,6 @@ Catalog.mysteryItems = {
 		cost = 500,
 		minTier = 1,
 		kind = "tool",
-		flag = "speedShoes",
 	},
 } :: { Types.MysteryItem }
 

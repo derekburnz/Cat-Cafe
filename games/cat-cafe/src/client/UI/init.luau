@@ -7701,16 +7701,9 @@ do
 				local distance = cartDistance()
 				return distance ~= nil and distance > FAR_STUDS
 			end,
-			-- #3699: the Backpack's colour picker, behind the switch bagColours
+			-- #3699: the Backpack's colour picker (#4654 batch 7: its `bagColours` switch is retired)
 			colours = function(): boolean
-				local LiveFlags = require(
-					ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")
-				) :: any
-				local key = "bagColours"
-				return LiveFlags.shown(
-					key,
-					ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
-				)
+				return true
 			end,
 			saveColours = function(main: string, trim: string, kind: string?)
 				UI.events.setBagColours:Fire(main, trim, kind) -- #4049: kind "shoes" for the Speed Shoes

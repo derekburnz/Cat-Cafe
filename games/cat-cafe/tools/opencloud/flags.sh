@@ -51,8 +51,6 @@
 #                 with the picture at the left; client only, read when the Store is built at join
 #   quietAway     true holds the food bowl cards while a player is out catching, until they are back (#4035); client
 #                 only
-#   riftRun       true plays the Rift Run cutscene for a Mythic or Secret trait roll (Effects/RiftRun); client
-#                 only, safe at any time
 #   menuFamily    true gives every dark window the station menu family's look (#3558); client only, a window
 #                 open at the change keeps its look until it is opened again
 #   speedShoes    true puts the Speed Shoes on the Mystery Market shelf and counts their carry speed (#3535);
@@ -182,7 +180,6 @@ show_key() {
 	speedShoes) if [ "$raw" = true ]; then meaning="Speed Shoes ON in every server"; else meaning="Speed Shoes off (its default)"; fi ;;
 	storeRework) if [ "$raw" = true ]; then meaning="the reworked Store layout"; else meaning="the Store as before (its default)"; fi ;;
 	quietAway) if [ "$raw" = true ]; then meaning="Food bowl cards wait while out catching ON"; else meaning="Food bowl cards show anywhere (its default)"; fi ;;
-	riftRun) if [ "$raw" = true ]; then meaning="the Rift Run cutscene for Mythic and Secret trait rolls"; else meaning="the pool's own trait cutscene (its default)"; fi ;;
 	circleStreak) if [ "$raw" = false ]; then meaning="Circle Streak VAULTED in every server (no new games)"; else meaning="Circle Streak on"; fi ;;
 	tradeMinTier)
 		if [[ $raw =~ ^[0-9]+(\.[0-9]+)?$ ]]; then

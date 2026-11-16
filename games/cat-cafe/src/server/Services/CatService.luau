@@ -2632,7 +2632,7 @@ function startCatch(
 	local hold = tutorial
 		and M.Config.CatchHoldFirstRing
 		and (SecondCat.caught(profile.stats) == 0 or freeCatch(player, profile))
-	local circles = if tutorial
+	local circles: { Types.CatchCircle } = if tutorial -- typed: luau-lsp cannot iterate the if's union (#4814)
 		then Circles.tutorialSchedule(now, roll, hold)
 		else Circles.schedule(
 			stray.def.rarity,

@@ -10,7 +10,7 @@ from common import Builder
 
 FOOD_IN_BOWL = 0.18      # kibble top in CatCafe_Item_FoodBowl, studs above its pivot
 GRIP = 0.36              # a net's grip wrap centre, studs along the pole from its end
-FOODS = ("Sardines", "Caviar", "MoonMilk", "StarTreat", "HoneyCream", "CometTreat")     # the dealer and Day Cart (#3462) foods that sit in a bowl
+FOODS = ("Sardines", "Caviar", "MoonMilk", "StarTreat", "HoneyCream", "CometTreat", "EclipseTreat")     # the dealer and Day Cart (#3462, #4900) foods that sit in a bowl
 
 
 def _bowl(b, outer, rim, food, premium=False):
@@ -426,6 +426,25 @@ def build_comet_treat(mat):
     return [b.finalize("CatCafe_Item_CometTreat", mat)]
 
 
+def build_eclipse_treat(mat):
+    """#4900 the Secret tier bait: the Comet Treat gone dark. A round deep indigo biscuit with a near black rim and a
+    gold star, tipped up on the kibble, a tail of purple and gold light behind it and purple sparkles round it."""
+    b = Builder()
+    tilt = Matrix.Rotation(math.radians(60), 3, "X")
+    b.cyl((0, 0, 0.2), 0.24, 0.1, "fur_indigo", segments=16, rot=tilt)
+    b.ring((0, -0.003, 0.2), 0.245, 0.04, 0.105, "fur_black", segments=16, bevel=False, rot=tilt)   # the dark rim
+    b.star((0, -0.05, 0.23), 0.15, 0.068, 0.03, "rarity_legend", rot=tilt)
+    b.star((0, -0.06, 0.235), 0.085, 0.038, 0.02, "pastel_butter", rot=tilt)
+    back = Matrix.Rotation(math.radians(-68), 3, "X")                                          # out behind, a little up
+    for (x, sw, h, r) in ((-0.11, "rarity_epic", 0.3, 0.05), (0.0, "sparkle", 0.4, 0.06),
+                          (0.11, "aurora_violet", 0.26, 0.045)):
+        b.cyl((x, 0.1 + 0.46 * h, 0.3 + 0.19 * h), r, h, sw, segments=8, bevel=False, radius2=0.008, rot=back)
+    for (x, y, z, r, sw) in ((0.24, 0.05, 0.5, 0.06, "rarity_epic"), (-0.24, 0.1, 0.45, 0.05, "sparkle"),
+                             (0.05, 0.25, 0.68, 0.045, "rarity_epic")):
+        b.star((x, y, z), r, r * 0.45, 0.03, sw, rot=(math.radians(90), "X"))
+    return [b.finalize("CatCafe_Item_EclipseTreat", mat)]
+
+
 def build_tip_pile(mat):
     """The rich customer's tip: a heap of gold coins with a few short stacks. Sits on a table."""
     b = Builder()
@@ -458,5 +477,6 @@ ASSETS = {
     "CatCafe_Item_StarTreat": (build_star_treat, 600),
     "CatCafe_Item_HoneyCream": (build_honey_cream, 1100),     # #3462 the Day Cart's own baits
     "CatCafe_Item_CometTreat": (build_comet_treat, 900),
+    "CatCafe_Item_EclipseTreat": (build_eclipse_treat, 900),      # #4900
     "CatCafe_Prop_TipPile": (build_tip_pile, 600),
 }

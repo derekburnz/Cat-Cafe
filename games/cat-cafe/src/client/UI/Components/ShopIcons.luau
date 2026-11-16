@@ -140,6 +140,9 @@ local IDS: { [string]: string } = {
 	-- #3462: the Day Cart's own two baits (upload run 43189985202, 11-12)
 	Icon_Clean_HoneyCream = "rbxassetid://101594576071338",
 	Icon_Clean_CometTreat = "rbxassetid://130150324251209",
+	-- #4900: the Secret tier bait and the 50,000 XP cat food (upload run 43919997285, 11-16)
+	Icon_Clean_EclipseTreat = "rbxassetid://101916822452098",
+	Icon_Clean_RoyalFeast = "rbxassetid://133381821214039",
 	Icon_Clean_Spin = "rbxassetid://92256242473029",
 	Icon_Clean_TipJar = "rbxassetid://88738180093821", -- #4046: the Tip Jar quest's picture (🫙 draws blank on Roblox)
 	Icon_Clean_TipPile = "rbxassetid://120928045593770", -- #4046: the tip piles quest's (🪙 draws blank too)
@@ -693,9 +696,20 @@ function ShopIcons.snackGlyph(foodId: string?): string
 	return (if type(foodId) == "string" then SNACK_GLYPHS[foodId] else nil) or ShopIcons.SNACK_GLYPH
 end
 
--- Cat food's uploaded picture (#1181): the clean star treat, now only for a food without its own glyph (#1616)
+-- #4900: a cat food with a drawn picture of its own shows it everywhere its glyph would go
+local CAT_FOOD_PICTURES: { [string]: string } = { royal_feast = "Icon_Clean_RoyalFeast" }
+
+-- Cat food's uploaded picture (#1181): its own drawn one (#4900), else the clean star treat, now only for a food
+-- without its own glyph (#1616)
 function ShopIcons.catFood(foodId: string?): string?
-	if type(foodId) ~= "string" or SNACK_GLYPHS[foodId] ~= nil then
+	if type(foodId) ~= "string" then
+		return nil
+	end
+	local own = CAT_FOOD_PICTURES[foodId]
+	if own ~= nil then
+		return IDS[own]
+	end
+	if SNACK_GLYPHS[foodId] ~= nil then
 		return nil
 	end
 	return IDS.Icon_Clean_StarTreat

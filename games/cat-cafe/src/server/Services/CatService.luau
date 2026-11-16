@@ -3564,9 +3564,10 @@ local function canReact(stray: Stray, now: number): boolean
 	return area ~= nil and stray.home.Y <= area.floorY + PERCH_ABOVE
 end
 
--- A Curious stray walks CuriousWalkStuds toward the first player who comes within CuriousRangeStuds, once.
-local function curious(stray: Stray, _player: Player, root: Vector3, now: number)
-	local at = stray.model:GetPivot().Position
+-- A Curious stray walks CuriousWalkStuds toward the first player who comes within CuriousRangeStuds, once. `pivot`
+-- is the stray's own, read once a look by moodTick (#4601).
+local function curious(stray: Stray, pivot: CFrame, root: Vector3, now: number)
+	local at = pivot.Position
 	if not M.Moods.noticed(at, root) then
 		return
 	end
@@ -3587,11 +3588,16 @@ end
 
 -- A Skittish stray hops SkittishHopStuds away from a player inside its front arc, at most once a SkittishCooldown;
 -- never from a player before tutorialStep 2 (7a).
-local function skittish(stray: Stray, player: Player, root: Vector3, now: number): boolean
+local function skittish(
+	stray: Stray,
+	pivot: CFrame,
+	player: Player,
+	root: Vector3,
+	now: number
+): boolean
 	if not M.Moods.hopReady(stray.skittishAt, now) then
 		return false
 	end
-	local pivot = stray.model:GetPivot()
 	if not M.Moods.inFrontArc(pivot.Position, pivot.LookVector, root) then
 		return false
 	end
@@ -3634,13 +3640,16 @@ local function moodTick()
 		if not reacts or not canReact(stray, now) then
 			continue
 		end
+		-- #4601: one pivot read per stray a look, not one per stray and player (30 players and a full server of
+		-- strays made it thousands of engine calls a second); the stray only moves after the break below
+		local pivot = stray.model:GetPivot()
 		for player, root in roots do
 			if stray.mood == "Curious" then
-				curious(stray, player, root, now)
+				curious(stray, pivot, root, now)
 				if stray.curiousAt ~= nil then
 					break
 				end
-			elseif skittish(stray, player, root, now) then
+			elseif skittish(stray, pivot, player, root, now) then
 				break
 			end
 		end

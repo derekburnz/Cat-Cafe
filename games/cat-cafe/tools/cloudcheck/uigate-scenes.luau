@@ -12429,6 +12429,73 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		link:Disconnect()
 		assert(ok, problem)
 	end },
+	-- #4061 spec 1.3: the two toys on the booth, one owned (HOLD, then PUT AWAY once it is in hand) and one not yet;
+	-- in hand, the use button shows clear of the Net and Tackle spots and fires UseToy
+	{ "TicketBoothToys", function()
+		local function toy(id, item, name, left, owned)
+			return { id = id, name = name, line = name, price = 2000, left = left, per = "once", kind = "toy", item = item, owned = owned }
+		end
+		local view = {
+			tickets = 2400,
+			spent = 0,
+			rushUsedToday = true,
+			weekEndsAt = workspace:GetServerTimeNow() + 3 * 86400,
+			ready = 1,
+			prizes = {
+				toy("toySquirter", "squirter", "Water Squirter", 0, true),
+				toy("toyNoodle", "noodle", "Pool Noodle", 1, false),
+			},
+		}
+		local player = UIShim.player
+		local character = player.Character
+		if character == nil then
+			character = Instance.new("Model")
+			character.Name = "Tester"
+			character.Parent = workspace;
+			(player :: any).Character = character
+			UIShim.fire(UIShim.eventOf(player, "CharacterAdded"), character)
+		end
+		local sent = {}
+		local link = UI.events.lateStation:Connect(function(remote, id)
+			table.insert(sent, { remote = remote, id = id })
+		end)
+		local ok, problem = pcall(function()
+			UI.update({ ticketBooth = view } :: any)
+			UI.lateStations.openBooth()
+			local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("TicketBooth", true) :: GuiObject
+			assert(window and window.Visible, "uigate: the Ticket Booth window did not open (#4061 toys)")
+			local grid = window:FindFirstChild("Prizes", true) :: GuiObject
+			local function part(id, name)
+				return grid:FindFirstChild("Prize_" .. id):FindFirstChild(name, true)
+			end
+			local function buyText(id)
+				return (part(id, "Buy"):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel).Text
+			end
+			assert((part("toySquirter", "Chip") :: TextLabel).Text == "Owned", "uigate: an owned toy's chip reads " .. (part("toySquirter", "Chip") :: TextLabel).Text .. " (#4061)")
+			assert(buyText("toySquirter") == "HOLD", "uigate: an owned toy's button reads " .. buyText("toySquirter") .. " (#4061)")
+			assert(not (part("toySquirter", "Price") :: GuiObject).Visible, "uigate: an owned toy still shows its price (#4061)")
+			assert(buyText("toyNoodle") == "BUY", "uigate: a toy not yet bought reads " .. buyText("toyNoodle") .. " (#4061)")
+			press("TicketBooth", "Prize_toySquirter.Buy")
+			assert(#sent == 1 and sent[1].remote == "HoldToy" and sent[1].id == "squirter", "uigate: HOLD sent no HoldToy squirter (#4061)")
+			-- the server takes it in hand
+			character:SetAttribute("HeldToy", "squirter")
+			assert(buyText("toySquirter") == "PUT AWAY", "uigate: the toy in hand's button reads " .. buyText("toySquirter") .. " (#4061)")
+			local toyGui = UIShim.playerGui:FindFirstChild("CatCafeToyButton") :: ScreenGui
+			assert(toyGui and toyGui.Enabled, "uigate: no use button with a toy in hand (#4061)")
+			local button = toyGui:FindFirstChild("Toy") :: GuiObject
+			local word = button:FindFirstChild("Word") :: TextLabel
+			assert(word.Text == "SPRAY" and word.TextFits, "uigate: the use button reads " .. word.Text .. " (#4061)")
+			press("CatCafeToyButton", "Toy")
+			assert(#sent == 2 and sent[2].remote == "UseToy", "uigate: the use button sent no UseToy (#4061)")
+			press("CatCafeToyButton", "Toy")
+			assert(#sent == 2, "uigate: a second press inside the cooldown sent UseToy again (#4061)")
+			press("TicketBooth", "Prize_toySquirter.Buy")
+			assert(#sent == 3 and sent[3].remote == "HoldToy" and sent[3].id == nil, "uigate: PUT AWAY sent no HoldToy(nil) (#4061)")
+		end)
+		link:Disconnect()
+		Scenes._toyCharacter = character
+		assert(ok, problem)
+	end },
 	-- #4062: the Dragon Keep window at stage 3 (three slots, one empty), the binder's 54 cards, a card slotted from the
 	-- binder, the give picker's All Common, a special cat's second tap and the stage hand over the window
 	{ "DragonKeep", function()
@@ -14336,6 +14403,10 @@ function Scenes.close()
 		UI.loot.card:hide()
 	end
 	reel(false)
+	if Scenes._toyCharacter ~= nil then
+		Scenes._toyCharacter:SetAttribute("HeldToy", nil) -- #4061's toys scene: back to the net
+		Scenes._toyCharacter = nil
+	end
 	if Scenes._packed ~= nil then
 		Scenes._packed:SetAttribute("PackedCatId", nil) -- #2731's scene
 		Scenes._packed = nil

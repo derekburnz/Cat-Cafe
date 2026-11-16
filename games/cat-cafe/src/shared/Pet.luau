@@ -2,7 +2,7 @@
 -- Pet a cat (#3651, a player's idea from the Feedback board). Derek 2026-11-12: "add the petting cat in shop to
 -- increase how much money they make by 2x and display a heart beside their money while it lasts make it 1 hour
 -- long", then "make the petting 1 cat only at a time and petting a new one changes it" and "online pay only".
--- Behind the `petCats` switch (Pet.FLAG, off by default).
+-- #4654: the `petCats` switch shipped and is gone.
 --   One happy cat a player: petting a working cat in your own cafe makes it the happy cat for Config.PetSeconds by
 --   the clock (the hour runs while away) and takes the heart off the cat that had it. Petting the happy cat again
 --   starts a fresh hour.
@@ -20,7 +20,6 @@ local Types = require(script.Parent.Types)
 
 local Pet = {}
 
-Pet.FLAG = "petCats" -- LiveFlags, off by default
 Pet.PROMPT = "PetPrompt" -- the client's prompt on each of the player's own working cats
 Pet.ACTION = "Pet"
 Pet.ATTRIBUTE = "HappyUntil" -- on the happy cat's model: the heart's end (server time), for the money tag

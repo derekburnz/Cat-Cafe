@@ -1505,15 +1505,30 @@ return function()
 			tab = "packs",
 		}
 		local row = { key = "winterPack", fish = 4950, bought = false, made = true }
-		it("maps the ten fish passes and never the money ladder", function()
+		it("maps every pass card but the money ladder and the Starter Bundle (#4610)", function()
 			local count = 0
 			for _ in StoreLogic.FISH_KEYS do
 				count += 1
 			end
-			expect(count).to.equal(10)
+			expect(count).to.equal(19)
 			expect(StoreLogic.FISH_KEYS.money).to.equal(nil)
-			expect(StoreLogic.FISH_KEYS.vip).to.equal(nil)
+			expect(StoreLogic.FISH_KEYS.vip).to.equal("vip")
 			expect(StoreLogic.FISH_KEYS.starterBundle).to.equal(nil)
+			expect(StoreLogic.FISH_KEYS[StoreLogic.THANK_YOU.key]).to.equal("thankYou")
+			expect(StoreLogic.FISH_KEYS[StoreLogic.CAFE_PASS.key]).to.equal("cafePass")
+			expect(StoreLogic.FISH_KEYS[StoreLogic.STARTER.key]).to.equal(nil)
+			local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+			local SharedFishStore = require(Shared:WaitForChild("FishStore")) :: any
+			for _, key in StoreLogic.FISH_KEYS do
+				expect(SharedFishStore.item(key) ~= nil or SharedFishStore.product(key) ~= nil).to.equal(
+					true
+				)
+			end
+			for _, pass in StoreLogic.PASSES do
+				if not pass.retired then
+					expect(StoreLogic.FISH_KEYS[pass.key] ~= nil).to.equal(true)
+				end
+			end
 		end)
 		it("shows the fish price, and asks before it buys", function()
 			local first = StoreLogic.fishButton(pack, row, 5000, false)
@@ -1530,21 +1545,35 @@ return function()
 			expect(short.action).to.equal("none")
 			expect(short.progress).to.equal(0.5)
 		end)
-		it("says Robux only off the list, and taps back to Robux", function()
-			local money = StoreLogic.fishButton(
+		it("says Next season on a closed Cafe Pass card (#4610)", function()
+			local closed = StoreLogic.fishButton(
 				{
-					key = "money",
-					passId = 2,
+					key = "cafePass",
+					passId = 1,
 					name = "",
 					icon = "",
 					effect = "",
 					owned = false,
-					tab = "passes",
-				},
-				nil,
+					tab = "cafePass",
+					closed = true,
+				} :: any,
+				{ key = "cafePass", fish = 14950, bought = false, made = true },
 				99999,
 				false
 			)
+			expect(closed.text).to.equal("Next season")
+			expect(closed.action).to.equal("none")
+		end)
+		it("says Robux only off the list, and taps back to Robux", function()
+			local money = StoreLogic.fishButton({
+				key = "money",
+				passId = 2,
+				name = "",
+				icon = "",
+				effect = "",
+				owned = false,
+				tab = "passes",
+			}, nil, 99999, false)
 			expect(money.text).to.equal("Robux only")
 			expect(money.action).to.equal("robux")
 		end)

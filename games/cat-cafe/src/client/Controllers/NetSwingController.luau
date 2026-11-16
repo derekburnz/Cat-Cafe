@@ -23,7 +23,6 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
-local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local NetSwing = require(Shared:WaitForChild("NetSwing"))
@@ -51,11 +50,7 @@ local walking = false
 local reported: { [string]: boolean } = {}
 
 local function touchReachOn(): boolean
-	return Scale.isTouch()
-		and LiveFlags.shown(
-			TouchReach.FLAG,
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. TouchReach.FLAG)
-		)
+	return Scale.isTouch() -- #4654: the touchCatchReach switch shipped
 end
 
 local function report(kind: string)

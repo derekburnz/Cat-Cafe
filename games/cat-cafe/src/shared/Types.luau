@@ -222,8 +222,6 @@ export type IndexMilestone = {
 	-- F97: every piece of the Decor page, whatever its size (decor10: sixteen on the Classic page, twelve elsewhere);
 	-- `needs` is then the least it asks
 	whole: boolean?,
-	-- #3992: shown and paid only while the `indexTo70` switch is on (shared/IndexRewards.lateOpen)
-	late: boolean?,
 }
 
 -- What one Index milestone pays (golden-fish.md section 8), any of it. `coins` is the minimum and `coinSeconds`
@@ -914,8 +912,8 @@ export type TradeStateView = {
 	cratesOn: boolean, -- #2745: the tradeCrates live switch; false hides the Crates tab
 	fishOn: boolean, -- #2745 (section 1d): the tradeFish live switch; false hides the fish rows
 	-- #2745: golden fish the other player can still receive today (TradeFishPerDay less what they got), so Max and
-	-- the "They can get N more today" line never ask for more
-	fishRoom: number,
+	-- the "They can get N more today" line never ask for more; nil with no daily cap (#4623)
+	fishRoom: number?,
 }
 
 -- F98: one row of a leaderboard list as LeaderboardSync sends it: the player's display name, the list's whole-number
@@ -1402,6 +1400,7 @@ export type Settings = {
 	autoBowlClaim: boolean, -- #4266: the Auto Bowl pass tames arrived bowl cats (shared/AutoBowl)
 	autoBowlRefill: boolean, -- #4266: the Auto Bowl pass refills empty bowls with owned food
 	bowlNewCatCard: boolean, -- #4266: a cat tamed at a bowl shows the big Cat found card (off: a toast)
+	stationCircles: boolean, -- #4668: the walk-up rings in front of the stations show, off by default
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
@@ -1691,6 +1690,8 @@ export type PlayerState = {
 	looks: LooksView, -- #1624: the Style tab's theme and uniform rows (shared/Looks), SetLook
 	luck: number, -- F88: the player's Luck now (shared/Luck), x1 to LuckMax; the HUD chip shows it above 1
 	luckSources: { LuckSource }, -- F88: what adds it, in order (statue, potion, lucky_day)
+	-- Derek 2026-11-15: the Dragon Keep's crate, trait and spin luck (0.15 is +15%), for the odds lists; nil before
+	cardLuck: { crate: number, trait: number, spin: number }?,
 	-- F95 (economy-ladder.md section 5): the Long Nap pass is owned, so the welcome back card says full pay up to
 	-- OfflineCapPassSeconds instead of half pay up to OfflineCapSeconds
 	longNap: boolean,

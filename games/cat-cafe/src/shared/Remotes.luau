@@ -13,7 +13,8 @@ Remotes.ClientToServer = {
 	"SwingNet", -- ()  F93 (catch-rework.md section 1): not carrying, in a catch or rescue, flying or in a camp; one per
 	-- NetSwingCooldown, 3 a second at most. Judged NetSmackDelay later from the root and its facing: the nearest free
 	-- stray in reach starts its catch (CatchSchedule) or, Dropped, is picked up; a miss makes nearby strays hop
-	"CatchPress", -- (strayId: string, index: number)  no time is sent: the server stamps the press on arrival
+	"CatchPress", -- (strayId: string, index: number, stamp: number?)  #4597: the tap's GetServerTimeNow, held to at
+	-- most CatchPressStampSeconds before arrival (Circles.pressTime, as RescuePress since #2241); none: arrival time
 	"RescueBegin", -- (rescueSpotId: string)  trap holds a stuck cat, unlocked, past its retry waits, in range, not carrying
 	"RescuePress", -- (rescueSpotId: string, pressedAt: number?)  the press's GetServerTimeNow; the server keeps it within half the ping of arrival (#2241) and judges the marker
 	"RescueCancel", -- (rescueSpotId: string)  Give up: ends the attempt as a fail; a helper's only ends their help
@@ -249,13 +250,6 @@ Remotes.ClientToServer = {
 	"OwnerGrant", -- (productId: number)  #1770 owner test mode: only a Config.OwnerTestUserIds caller (anyone else is
 	-- dropped and logged); a made product's Roblox id; granted as a receipt would be, with no receipt record and no
 	-- Robux (OwnerTestService); 1 a second, answered with a toast
-	"ArcadeStart", -- ()  #3062 (shared/Arcade): the `arcade` switch on, the arcade read, no game running, not in a catch,
-	-- rescue or flight, no trade fish freeze and ArcadeCostFish golden fish held: spends them and starts a game.
-	-- #3296: the first game of each UTC day is free (no fish, no trade freeze check). Starts are
-	-- answered with ArcadeBlock (refusals are a toast); 1 a second
-	"ArcadePress", -- (run: number, block: number, index: number)  #3062: a press on circle `index` of the game's block
-	-- `block`; no time is sent, the server stamps it on arrival and judges it as CatchPress does
-	"ArcadeQuit", -- (run: number)  #3062: Close mid game ends it where it stands, answered with ArcadeOver; 1 a second
 	"MouseDashStart", -- ()  #3296 (shared/MouseDash, MouseDashService): the `arcade` and `mouseDash` switches on, both
 	-- arcade saves read, no arcade game running, not in a catch, rescue or flight; uses the day's free run, else
 	-- spends ArcadeCostFish golden fish (no trade fish freeze). Answered with MouseDashBegan (refusals are a toast);
@@ -444,13 +438,6 @@ Remotes.ServerToClient = {
 	-- first); the client shows the banner with UpdateGift.banner's words
 	"ArcadeState", -- (state: Arcade.State)  #3062: this player's best, today's paid milestones, the title and the
 	-- server's best, on join once the arcade is read and after every game
-	"ArcadeBlock", -- (run: number, block: number, circles: { Types.CatchCircle }, windows: Types.CatchWindows,
-	-- points: number)  #3062: the game's next BLOCK circles (the first block answers ArcadeStart)
-	"ArcadeJudged", -- (run: number, block: number, index: number, grade: Types.RingGrade, points: number, milestones:
-	-- { number })  #3062: the server's grade for each circle as it is judged, the points after it and any milestone
-	-- it paid (shown in the window only: no toast)
-	"ArcadeOver", -- (run: number, result: Arcade.Result)  #3062: the game ended (a Miss, 100 points, Close or the
-	-- switch going off before it started)
 	"MouseDashState", -- (state: MouseDash.State)  #3296: this player's best, today's milestones (the arcade's), the
 	-- titles, the free run and the board, once both saves are read and after every game
 	"MouseDashBegan", -- (run: number, hearts: number, firstAt: number, endsAt: number?)  #3296: a game started; the

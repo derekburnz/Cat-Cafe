@@ -802,8 +802,10 @@ return function()
 		end
 
 		it("has the caps and value the spec sets", function()
-			expect(Config.TradeMaxFish).to.equal(200)
-			expect(Config.TradeFishPerDay).to.equal(250) -- Derek2 2026-11-10 (400 before)
+			-- #4623 (Derek 2026-11-15: "no fish limit a trade", "no 250 fish a day either"): only a sanity bound a side and
+			-- no daily cap
+			expect(Config.TradeMaxFish).to.equal(1000000)
+			expect(Config.TradeFishPerDay).to.equal(0)
 			expect(Trade.fishValue(40)).to.be.near(3, 1e-9) -- 40 fish count as one Rare
 		end)
 
@@ -821,10 +823,11 @@ return function()
 				expect(Trade.fishRefusal(me, them, 151, DAY3)).to.equal(
 					Trade.Messages.fishNotEnough
 				) -- balance + 1
-				me.goldenFish = 999
-				expect(Trade.fishRefusal(me, them, 200, DAY3)).never.to.be.ok()
-				expect(Trade.fishRefusal(me, them, 201, DAY3)).to.equal(
-					string.format(Trade.Messages.fullFish, 200)
+				me.goldenFish = 2000000
+				expect(Trade.fishRefusal(me, them, 500, DAY3)).never.to.be.ok() -- #4623: 500 moves, no cap
+				expect(Trade.fishRefusal(me, them, Config.TradeMaxFish, DAY3)).never.to.be.ok()
+				expect(Trade.fishRefusal(me, them, Config.TradeMaxFish + 1, DAY3)).to.equal(
+					string.format(Trade.Messages.fullFish, Config.TradeMaxFish)
 				)
 			end
 		)
@@ -849,19 +852,14 @@ return function()
 		)
 
 		it(
-			"keeps each receiver to TradeFishPerDay a game day, afresh at the next sunrise",
+			"has no daily cap on fish received (#4623), and the received count still adds up",
 			function()
 				local me, them = profile(999), profile(0)
-				expect(Trade.fishRoom(them, DAY3)).to.equal(250)
-				them.stats.tradesToday = { day = Trade.day(DAY3), count = 2, fishIn = 100 }
-				expect(Trade.fishRoom(them, DAY3)).to.equal(150)
-				expect(Trade.fishRefusal(me, them, 150, DAY3)).never.to.be.ok()
-				expect(Trade.fishRefusal(me, them, 151, DAY3)).to.equal(
-					string.format(Trade.Messages.fishRoom, 150)
-				)
-				expect(Trade.fishRoom(them, DAY4)).to.equal(250) -- the next game day
-				them.stats.tradesToday.fishIn = 999 -- over the cap: no room, never below 0
-				expect(Trade.fishRoom(them, DAY3)).to.equal(0)
+				expect(Trade.fishRoom(them, DAY3)).to.equal(math.huge)
+				them.stats.tradesToday = { day = Trade.day(DAY3), count = 2, fishIn = 5000 }
+				expect(Trade.fishRoom(them, DAY3)).to.equal(math.huge)
+				expect(Trade.fishInToday(them, DAY3)).to.equal(5000)
+				expect(Trade.fishRefusal(me, them, 999, DAY3)).never.to.be.ok()
 			end
 		)
 
@@ -915,7 +913,8 @@ return function()
 			expect(Trade.sanitizeFish(2.5)).to.equal(0)
 			expect(Trade.sanitizeFish(0 / 0)).to.equal(0)
 			expect(Trade.sanitizeFish(math.huge)).to.equal(0)
-			expect(Trade.sanitizeFish(5000)).to.equal(200)
+			expect(Trade.sanitizeFish(5000)).to.equal(5000) -- #4623: no real cap a side
+			expect(Trade.sanitizeFish(Config.TradeMaxFish + 1)).to.equal(Config.TradeMaxFish)
 			expect(Trade.sanitizeFish(37)).to.equal(37)
 		end)
 

@@ -120,27 +120,35 @@ return function()
 			)
 		end)
 
-		it("refuses a locked, working, spa, pending or trading copy", function()
-			local profile = profileWith(5)
-			profile.cats.a2.locked = true
-			expect(Fusion.startBlocker(profile, TIER, FIVE, nil, false)).to.equal(
-				Fusion.Messages.locked
-			)
-			profile = profileWith(5)
-			profile.cats.a2.spotId = "barista_1"
-			expect(Fusion.startBlocker(profile, TIER, FIVE, nil, false)).to.equal(
-				Fusion.Messages.working
-			)
-			profile = profileWith(5)
-			profile.traits.pending = { uid = "a3" } :: any
-			expect(Fusion.startBlocker(profile, TIER, FIVE, nil, false)).to.equal(
-				Fusion.Messages.pending
-			)
-			profile = profileWith(5)
-			expect(Fusion.startBlocker(profile, TIER, FIVE, nil, true)).to.equal(
-				Fusion.Messages.inTrade
-			)
-		end)
+		it(
+			"refuses a locked, spa, pending or trading copy, and lets a working one in (#4605)",
+			function()
+				local profile = profileWith(5)
+				profile.cats.a2.locked = true
+				expect(Fusion.startBlocker(profile, TIER, FIVE, nil, false)).to.equal(
+					Fusion.Messages.locked
+				)
+				profile = profileWith(5)
+				profile.cats.a2.spotId = "barista_1"
+				expect(Fusion.startBlocker(profile, TIER, FIVE, nil, false)).to.equal(nil)
+				-- the result takes the strongest working copy's spot
+				profile.cats.a4.spotId = "waiter_1"
+				expect(Fusion.workSpot(profile, FIVE)).to.equal("waiter_1")
+				profile.cats.a4.spotId = nil
+				expect(Fusion.workSpot(profile, FIVE)).to.equal("barista_1")
+				profile.cats.a2.spotId = nil
+				expect(Fusion.workSpot(profile, FIVE)).to.equal(nil)
+				profile = profileWith(5)
+				profile.traits.pending = { uid = "a3" } :: any
+				expect(Fusion.startBlocker(profile, TIER, FIVE, nil, false)).to.equal(
+					Fusion.Messages.pending
+				)
+				profile = profileWith(5)
+				expect(Fusion.startBlocker(profile, TIER, FIVE, nil, true)).to.equal(
+					Fusion.Messages.inTrade
+				)
+			end
+		)
 
 		it(
 			"refuses another player's or a made-up uid, and a second start while the dome is busy",

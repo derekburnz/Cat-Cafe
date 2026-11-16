@@ -33,6 +33,7 @@ return function()
 					autoBowlClaim = true,
 					autoBowlRefill = true,
 					bowlNewCatCard = true,
+					stationCircles = false, -- #4668
 				})
 				for key in pairs(Settings.defaults() :: any) do
 					expect(Settings.kinds[key]).to.be.ok()
@@ -128,7 +129,16 @@ return function()
 				autoBowlClaim = true,
 				autoBowlRefill = true,
 				bowlNewCatCard = true,
+				stationCircles = false, -- #4668
 			})
+		end)
+
+		it("hides the station circles by default and keeps a saved on (#4668)", function()
+			expect(Settings.kinds.stationCircles).to.equal("switch")
+			expect(Settings.defaults().stationCircles).to.equal(false)
+			expect(Settings.sanitize({}).stationCircles).to.equal(false)
+			expect(Settings.sanitize({ stationCircles = true }).stationCircles).to.equal(true)
+			expect(Settings.clean("stationCircles", "yes")).never.to.be.ok()
 		end)
 
 		it("keeps the pick-a-cat Sort and Show chips as saved (#3940)", function()

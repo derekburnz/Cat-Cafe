@@ -308,14 +308,22 @@ return function()
 				-- with the intro switched off, an account that never saw it still goes home once it has a cat
 				expect(Cannon.joinsAtHome(false, false, 2, 2)).to.equal(true)
 				expect(Cannon.joinsAtHome(nil, false, 1, 2)).to.equal(false)
+				-- #4716: in the bowl first order the walk-through starts at the bowl, so a new player starts home
+				expect(Cannon.joinsAtHome(true, true, 0, 2, true)).to.equal(true)
+				expect(Cannon.joinsAtHome(nil, false, nil, 2, true)).to.equal(true)
+				expect(Cannon.joinsAtHome(false, true, 0, 2, true)).to.equal(false) -- the intro still starts in town
+				expect(Cannon.joinsAtHome(true, true, 0, 2, false)).to.equal(false)
 			end
 		)
 
-		it("waits longer for a rest's rejoin, whose save comes late (Derek 2026-11-13)", function()
-			expect(Cannon.homeWaitSeconds(false)).to.equal(Cannon.HOME_WAIT_SECONDS)
-			expect(Cannon.homeWaitSeconds(true)).to.equal(Cannon.REJOIN_HOME_WAIT_SECONDS)
-			expect(Cannon.REJOIN_HOME_WAIT_SECONDS > Cannon.HOME_WAIT_SECONDS).to.equal(true)
-		end)
+		it(
+			"waits the rejoin's long wait on every join, whose save can come late (Derek 2026-11-13, #4716)",
+			function()
+				expect(Cannon.homeWaitSeconds(false)).to.equal(Cannon.REJOIN_HOME_WAIT_SECONDS)
+				expect(Cannon.homeWaitSeconds(true)).to.equal(Cannon.REJOIN_HOME_WAIT_SECONDS)
+				expect(Cannon.REJOIN_HOME_WAIT_SECONDS > Cannon.HOME_WAIT_SECONDS).to.equal(true)
+			end
+		)
 
 		it("moves only a character that still stands at the spawn", function()
 			local spawn = Vector3.new(0, 0.6, -14)

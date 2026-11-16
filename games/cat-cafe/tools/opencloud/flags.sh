@@ -13,8 +13,6 @@
 #   swiftPaws     false hides the Golden Fish Market's Swift Paws perk and drops its speed (#3063); levels are kept
 #   alleyBin      false hides the Rummage Bin at the Alleyway camp and refuses a rummage (#3050); its waits are kept
 #   arcade        false hides the Cat Arcade's prompt and menu tile (#3062); a game already running finishes and pays
-#   circleStreak  false vaults Circle Streak (#3296): no start from the cabinet, the Menu row or the remote; its
-#                 save and board stay. The swap is mouseDash true and this false
 #   fxLite        false puts phones and graphics quality 1 to 3 back on the full phone effects budget (#3794)
 #   stuckCall     false hides the stuck cat's call for help (pillar, bubble, wiggle, meows) for every player (#2912)
 # and some start off, so only true turns them on (LiveFlags.OFF_BY_DEFAULT):
@@ -41,40 +39,24 @@
 #                 Roblox's idle disconnect, landing at their cafe (#3602); needs afkCafe on
 #   binRoll       true makes the Rummage Bin roll its prize before the bar and keep it until it is won, with the
 #                 board, the roll and the pad (#3608)
-#   yardSaleRoll  true turns the Yard Sale's free crate into a free lucky pick every 2 hours that lands on a
-#                 crate, golden crates included (#3609); only once its board is in the game
 #   introSplit    true plays the intro scene by itself for half of new players, by account number, and tags
 #                 their funnel steps intro_on or intro_off (#3666); false or no entry is no test
-#   newKindTag    true shows the "NEW" tag over strays of kinds the player has never owned, the catch card's
 #   parkGateTrail true shows the "Visit the Park" goal and the paw trail after Tier 2, until the first Park catch
 #                 (#3554); false or no entry shows nothing
-#   touchCatchReach true shows the glow and Net button from 1.5 times the swing's reach on touch screens and walks
-#                 the last steps on a press (#3556); false or no entry keeps the reach as on a PC
 #   rankUpSpotlight true dims the screen and points a Tier 1 player through the first rank up once it is possible,
 #                 in the safe area only (#3555); false or no entry shows nothing
 #   bagColours    true lets the Backpack's owner pick its two colours at the Featured Shop (#3699); false or no
 #                 entry refuses the picks and every bag wears its built colours. Turn on only after a restart
-#   picnicTreats  true makes the Park's Picnic Basket a pick of one of three treats every 4 hours (#3715); false or
-#                 no entry keeps the Money Potion basket
 #   traitBundles  true offers the Trait Token bundles (20 and 50, Robux) on the Mystic Pool card once the free rolls
 #                 are used (#3864); only after the products exist and QA
 #   storeRework   true shows the reworked Store (#3572): Cats above Passes, cheapest first, two columns of cards
 #                 with the picture at the left; client only, read when the Store is built at join
-#                 "New kind!" line and the five cats pointer (#3529); client and telemetry only, after review and QA
-#   indexTo70     true shows and pays the Index milestones past 50 and the Rainbow track past 25 (#3992); on
-#                 only with a restart publish, as an older server drops a claim it does not know
-#   quietStart    true hides other players' pop ups and the extra tips and cards in a new player's first 15 minutes
-#                 (#4005); after the restart that carries it
 #   quietAway     true holds the food bowl cards while a player is out catching, until they are back (#4035); client
 #                 only
 #   riftRun       true plays the Rift Run cutscene for a Mythic or Secret trait roll (Effects/RiftRun); client
 #                 only, safe at any time
 #   speedShoes    true puts the Speed Shoes on the Mystery Market shelf and counts their carry speed (#3535);
 #                 only once every server runs a build that has them (an older one drops the owned pair)
-#   petCats       true shows the Pet prompt on the cats in a player's own cafe (#3651): the petted cat earns double
-#                 for an hour, one cat at a time. Off by default; only with or after the restart that ships it
-#   returnGift    true pays a golden crate once per account on its first join on a later UTC day than its first,
-#                 for accounts first seen from Config.ReturnGiftFromDay (#3772); false or no entry pays nothing
 #   loadingScreen true brings back the loading screen before the opening scenes (#3179: Derek had it removed);
 #                 false or no entry is no loading screen. Players who join after the change see it
 #   tradeFish     true lets golden fish into trades (#2745, section 1d). Turn it on only after QA and the security
@@ -190,27 +172,18 @@ show_key() {
 	rareCatsTab) if [ "$raw" = true ]; then meaning="Rare Cats chat tab ON in every server"; else meaning="Rare Cats chat tab off (its default)"; fi ;;
 	autoRejoin) if [ "$raw" = true ]; then meaning="Auto rejoin for resting players ON in every server"; else meaning="Auto rejoin off (its default)"; fi ;;
 	binRoll) if [ "$raw" = true ]; then meaning="Rummage Bin prize roll ON in every server"; else meaning="Rummage Bin prize roll off (its default)"; fi ;;
-	yardSaleRoll) if [ "$raw" = true ]; then meaning="Yard Sale lucky pick ON in every server"; else meaning="Yard Sale lucky pick off (its default)"; fi ;;
 	introSplit) if [ "$raw" = true ]; then meaning="intro scene test ON: half of new players get the scene"; else meaning="intro scene test off (its default)"; fi ;;
-	petCats) if [ "$raw" = true ]; then meaning="pet a cat ON: the Pet prompt shows in a player's own cafe"; else meaning="pet a cat off (its default)"; fi ;;
-	returnGift) if [ "$raw" = true ]; then meaning="welcome back golden crate ON"; else meaning="welcome back golden crate off (its default)"; fi ;;
 	stuckCall) if [ "$raw" = false ]; then meaning="stuck cat call OFF (no pillar, bubble or meows)"; else meaning="stuck cat call on for saves with no rescue yet"; fi ;;
 	fxLite) if [ "$raw" = false ]; then meaning="lighter effects budget OFF (phones back on the full phone budget)"; else meaning="lighter effects budget on phones and graphics quality 1 to 3"; fi ;;
 	afkCafe) if [ "$raw" = true ]; then meaning="Resting in your cafe pays 2x cat pay, ON in every server"; else meaning="Cafe rest 2x off (its default)"; fi ;;
-	newKindTag) if [ "$raw" = true ]; then meaning="NEW tag over cat kinds not owned ON in every server"; else meaning="NEW tag off (its default)"; fi ;;
 	parkGateTrail) if [ "$raw" = true ]; then meaning="Park goal and paw trail after Tier 2 ON"; else meaning="Park goal and paw trail off (its default)"; fi ;;
-	touchCatchReach) if [ "$raw" = true ]; then meaning="wider Net button reach on touch screens ON"; else meaning="wider Net button reach on touch screens off (its default)"; fi ;;
 	rankUpSpotlight) if [ "$raw" = true ]; then meaning="first rank up walk-through (dim and pointer) ON"; else meaning="first rank up walk-through off (its default)"; fi ;;
 	bagColours) if [ "$raw" = true ]; then meaning="Backpack colour picks at the Featured Shop ON"; else meaning="Backpack colour picks off (its default)"; fi ;;
 	speedShoes) if [ "$raw" = true ]; then meaning="Speed Shoes ON in every server"; else meaning="Speed Shoes off (its default)"; fi ;;
-	picnicTreats) if [ "$raw" = true ]; then meaning="Picnic Treats (pick one of three) ON in every server"; else meaning="Picnic Treats off (its default: the Money Potion basket)"; fi ;;
 	traitBundles) if [ "$raw" = true ]; then meaning="Trait Token bundles offered at the Mystic Pool"; else meaning="Trait Token bundles off (its default)"; fi ;;
 	storeRework) if [ "$raw" = true ]; then meaning="the reworked Store layout"; else meaning="the Store as before (its default)"; fi ;;
-	indexTo70) if [ "$raw" = true ]; then meaning="the Index milestones up to every cat"; else meaning="the Index milestones up to 50 (its default)"; fi ;;
-	quietStart) if [ "$raw" = true ]; then meaning="Quiet start for new players ON"; else meaning="Quiet start off (its default)"; fi ;;
 	quietAway) if [ "$raw" = true ]; then meaning="Food bowl cards wait while out catching ON"; else meaning="Food bowl cards show anywhere (its default)"; fi ;;
 	riftRun) if [ "$raw" = true ]; then meaning="the Rift Run cutscene for Mythic and Secret trait rolls"; else meaning="the pool's own trait cutscene (its default)"; fi ;;
-	circleStreak) if [ "$raw" = false ]; then meaning="Circle Streak VAULTED in every server (no new games)"; else meaning="Circle Streak on"; fi ;;
 	tradeMinTier)
 		if [[ $raw =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
 			meaning="live minimum tier $(jq -n "[[$raw | floor, 0] | max, 99] | min")"

@@ -317,6 +317,12 @@ local function lookItems(profile: Profile): { [string]: boolean }
 	return TicketBooth.lookItems(profile.tickets, profile.pass.items)
 end
 
+-- The Dragon Keep's crate, trait and spin luck for the odds lists, the same numbers the rolls use (DragonKeep.of).
+local function cardLuckOf(profile: Profile): { crate: number, trait: number, spin: number }
+	local fx = Economy.dragonEffects(profile)
+	return { crate = fx.crateLuck, trait = fx.traitLuck, spin = fx.spinLuck }
+end
+
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
 	-- #3666: a new save joins the intro test before its first sync says whether the intro plays itself; the answer
 	-- holds for the session
@@ -395,7 +401,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		-- #4626: the minute 6 line for a player before Tier 3, behind returnHookEarly (the client times it)
 		tomorrowHook = if LiveFlagService.on(ReturnHook.EARLY_FLAG)
 				and Economy.tier(profile) <= ReturnHook.EARLY_MAX_TIER
-			then ReturnHook.early(profile, now, LiveFlagService.on(ReturnHook.GIFT_FLAG))
+			then ReturnHook.early(profile, now, true) -- #4654: returnGift shipped
 			else nil,
 		returnGoals = joinGoals[player], -- #2916
 		secondCat = SecondCat.view(profile, LiveFlagService.on(SecondCat.EARLY_KIND_FLAG)), -- #3022, #4624
@@ -450,6 +456,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		},
 		luck = luck, -- F88
 		luckSources = luckSources,
+		cardLuck = cardLuckOf(profile),
 		longNap = Economy.passes(profile).longNap, -- F95: the welcome back card's line
 		passBoosts = { -- #1624: the store passes' rows in the money card's Boosts list
 			cafe = Economy.passCafeBonus(profile),
@@ -582,7 +589,7 @@ local function markHappy(plot: WorldBuilder.Plot, profile: Profile)
 	local now = os.time()
 	Pet.prune(profile, now)
 	local pet = profile.pet
-	local uid = if LiveFlagService.on(Pet.FLAG) then Pet.active(pet, profile.cats, now) else nil
+	local uid = Pet.active(pet, profile.cats, now) -- #4654: petCats shipped
 	for _, child in plot.cats:GetChildren() do
 		local untilAt = if pet ~= nil and uid ~= nil and child.Name == uid then pet.untilAt else nil
 		if child:GetAttribute(Pet.ATTRIBUTE) ~= untilAt then

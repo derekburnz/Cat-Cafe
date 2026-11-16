@@ -507,14 +507,30 @@ end
 local AREA_STEPS: { [string]: string } = { snowy = "snowStep", harvest = "leafStep" }
 -- #4070: the Water Cat lands and is caught with a splash (the Camp pond's, until the Water Park has its own sheet)
 -- #4071: the Dragon Knight lands and is caught with a little dragon's roar (the Dragon Keep hatchling's)
-local CAT_ARRIVES: { [string]: string } =
-	{ blizzard = "snowGust", water = "campSplash", dragon_knight = "dragonChirp" }
+-- #4070: the Coaster Cat rushes in on a whoosh of air and is caught with a splash, like the end of a water ride
+-- #4071: the Queen Cat is caught with a royal bell (the Cat Museum's)
+local CAT_ARRIVES: { [string]: string } = {
+	blizzard = "snowGust",
+	water = "campSplash",
+	dragon_knight = "dragonChirp",
+	coaster = "cannonClouds",
+}
 local CAT_CATCHES: { [string]: string } = {
 	blizzard = "snowGust",
 	white_tiger = "frostChime",
 	water = "campSplash",
 	dragon_knight = "dragonChirp",
+	coaster = "campSplash",
+	queen = "museumBell",
 }
+-- #4069 to #4071: a new area's gate adds its own sound on top of the barrier dissolving: a snow gust on the
+-- Snowy Mountain, a splash at the Water Park, the Castle's portcullis rumbling
+local GATE_EXTRA: { [string]: string } =
+	{ snowy = "snowGust", waterpark = "campSplash", castle = "dragonRumble" }
+function Logic.gateCues(areaId: any): { string }
+	local extra = if type(areaId) == "string" then GATE_EXTRA[areaId] else nil
+	return if extra then { "gateOpen", extra } else { "gateOpen" }
+end
 -- #4197: what an admin event drops lands (Effects/AdminDrops.onLand)
 Logic.ADMIN_DROP_CUES = { fish = "adminFishLand", crate = "adminCrateLand" } :: { [string]: string }
 Logic.HARVEST_PICK_CUE = "harvestPick" -- #4251: a Harvest Hollow patch pumpkin is picked (Effects/HarvestFx)

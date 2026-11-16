@@ -85,7 +85,7 @@ local DEMO_SHOTS: { { seconds: number, caption: string, cards: { string }? } } =
 		cards = { "THE PARK", "THE NEIGHBOURHOOD", "THE WOODS", "THE SEWER" },
 	},
 	{ seconds = 2.5, caption = "Find all 50 cats for Index rewards" },
-	{ seconds = 2.7, caption = "Free spin every day. Codes at the Codes Cat!" },
+	{ seconds = 2.7, caption = "Free spin every day. Codes unlock at Tier 2!" },
 	{ seconds = 3.0, caption = "Night closes the areas. Fresh cats at sunrise!" },
 	{ seconds = 2.0, caption = "Go catch your first cat!" },
 }

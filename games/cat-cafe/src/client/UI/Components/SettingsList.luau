@@ -107,6 +107,14 @@ SettingsList.SECTIONS = {
 				name = "Map icons",
 				detail = "My Cafe, and the Night Market while it's open",
 			},
+			{
+				-- #4668 (Derek 2026-11-15): off by default; the menus still open when you step up to a station
+				key = "stationCircles",
+				kind = "switch",
+				icon = "⭕",
+				name = "Station circles",
+				detail = "The glowing rings in front of stations",
+			},
 		},
 	},
 } :: { Section }

@@ -83,7 +83,8 @@ function AssetRegistry.stowGoldTwins(): number
 	end
 	local moved = 0
 	for _, child in from:GetChildren() do
-		if GoldTone.isTwin(child.Name) then
+		-- a gold _Work body is the server's alone whatever the switch says (ServerOnlyAssets, #4601)
+		if GoldTone.isTwin(child.Name) and not ServerOnlyAssets.matches(child.Name) then
 			child.Parent = to
 			moved += 1
 		end

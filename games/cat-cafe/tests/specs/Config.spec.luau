@@ -329,8 +329,8 @@ return function()
 		TradeMaxDecor = 9, -- #1574: decor pieces each side may offer
 		TradeMaxCrateKinds = 6, -- #2745 (trading.md section 1c): crate kinds each side may offer
 		TradeMaxCrates = 20, -- #2745: crates in all each side may offer
-		TradeMaxFish = 200, -- #2745 (section 1d): golden fish each side may offer
-		TradeFishPerDay = 250, -- #2745: golden fish one player may receive in trades a game day (Derek2 11-10: 400 before)
+		TradeMaxFish = 1000000, -- #4623 (Derek 2026-11-15): no fish cap a trade, only the remote's sanity bound
+		TradeFishPerDay = 0, -- #4623 (Derek 2026-11-15): no daily cap on fish received (250 before)
 		TradeFishValue = 0.075, -- #2745: 40 fish count as one Rare (3)
 		TradeCountdownSeconds = 5,
 		TradeLopsidedRatio = 3,
@@ -547,6 +547,7 @@ return function()
 				SpeedShoesCarryBonus = true, -- #3535: checked in SpeedShoes.spec
 				MysteryMarketRange = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				TicketBoothTier = true, -- #4061: checked in TicketBooth.spec (the Water Park taken as Tier 9)
+				CatchPressStampSeconds = true, -- #4609: checked in Circles.spec (the late tap stamp window)
 				SecretNextMythicTimes = true, -- #4618: checked in SecretCats.spec (a Secret earns 10x the next area's Mythic)
 				LongNetReachStuds = true, -- #2565: the Long Net's extra reach, checked in NetSwing.spec
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor

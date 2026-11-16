@@ -4411,11 +4411,18 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 			cannonCard:show(destination, name, launchAt, hold) -- in the clouds (the UI gate's held card)
 		else
 			-- counted from launchAt, so the zip lands on the BOOM whatever the lag; it still pops in on arrival
+			-- #4920: a quick first flight (CannonFlightScale on the character) zips the card off sooner too
+			local Cannon =
+				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cannon")) :: any
+			local character = Players.LocalPlayer.Character
+			local scale = Cannon.scaleOf(
+				if character ~= nil then character:GetAttribute(Cannon.FLIGHT_SCALE) else nil
+			)
 			cannonCard:show(
 				destination,
 				name,
 				launchAt,
-				CannonLogic.CHOSEN_HOLD,
+				CannonLogic.CHOSEN_HOLD * scale,
 				CannonLogic.CHOSEN_IN
 			)
 		end

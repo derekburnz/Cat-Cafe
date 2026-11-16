@@ -5859,31 +5859,33 @@ Presets.contextCut = {
 -- transparency) sits in the bottom right on a ScreenGui at `displayOrder`. Everything is given back at `cap` s
 -- whatever happened. Off when the bowl is more than `maxDistance` studs from the player.
 Presets.firstBaitCut = {
-	swingIn = 0.5,
-	swingOut = 0.5,
+	-- #4920 cut 2 (Design-Agent, first 5 minutes): about 2.5 s from the food to the camera back, with the cat out
+	-- at food + 0.3 s: swing in 0.4, walk about 0.8 (5.4 studs at SlotWalk's 7), eat 0.6, swing out 0.4
+	swingIn = 0.4,
+	swingOut = 0.4,
 	back = 10,
 	up = 6,
 	backTall = 13,
 	upTall = 7,
 	lookUp = 1.5,
 	swings = { 0, 45, -45, 90, -90 },
-	walk = 1.6,
-	walkMax = 2.2,
-	walkDistance = 9,
-	walkSide = 3,
-	eat = 1.0,
+	walk = 0.8,
+	walkMax = 1.0,
+	walkDistance = 5,
+	walkSide = 2,
+	eat = 0.6,
 	bites = 2,
 	dip = 0.1,
 	pitch = 30,
 	happy = 10,
 	happyUp = 2,
-	waitCat = 2.5,
+	waitCat = 2.0, -- room for a laggy phone while the server still puts the cat out at food + 1 s
 	skipAfter = 0.3,
 	skipOut = 0.25,
 	skipSize = 18,
 	skipFade = 0.4,
 	displayOrder = 10,
-	cap = 6.5,
+	cap = 4.5,
 	maxDistance = 120,
 	tvSafe = 0.05, -- #2871: the TV's title-safe margin, as a fraction of the screen
 }
@@ -6502,6 +6504,30 @@ Presets.waitingCat = {
 		bob = 0.6, -- studs up and down
 		seconds = 1.4, -- one bob
 		glyph = "🐾",
+	},
+}
+
+-- #4920 Effects/RankUpPulse: the RANK UP button's glows when a tier's rank up is first ready, and the strip's tick.
+Presets.rankUpPulse = {
+	displayOrder = 29, -- over the HUD and windows, under toasts (30)
+	wait = 0.35, -- the Rank Up window slides in first
+	look = 0.5, -- seconds between looks for a RANK UP button once a tier's rank up is ready
+	lookFor = 120, -- and for how long (the window waits for a calm screen; a later flip looks again)
+	pulses = 3,
+	every = 0.55,
+	seconds = 0.7,
+	grow = 26, -- pixels the glow swells past the button
+	corner = 14,
+	thickness = 4,
+	fill = 0.35, -- the glow's own fill at its start (0 none)
+	colour = Color3.fromRGB(255, 214, 92),
+	sparkle = { size = 12, seconds = 0.5, reach = 34, stagger = 0.1 },
+	tick = {
+		sparks = 6,
+		sparkle = { size = 9, seconds = 0.45, reach = 26, stagger = 0.06 },
+		ringFrom = 8,
+		ringTo = 44,
+		ringSeconds = 0.4,
 	},
 }
 

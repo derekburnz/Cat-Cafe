@@ -13,8 +13,6 @@
 -- (Moments.NetSwung), which also says whether it hit; a miss bounces the net back up from where the arm is when this
 -- client hears it. A staged character (no player) smacks from the server time in its own `SmackAt` (the tackle
 -- lesson's carrier, TackleStage.SWING_ATTRIBUTE, #2469). A server that never sets `NetLevel` shows the Basic net.
--- #4061: while the server's `HeldToy` names a Ticket Booth toy (Avatar.toyOf), that toy's model is in the hand in
--- place of the net, held the same way (Presets.toys); Effects/ToyFx swings the Pool Noodle with `NetHold.swing`.
 -- Nothing here replicates or fires a remote.
 
 local Players = game:GetService("Players")
@@ -34,10 +32,7 @@ type Held = {
 	rig: Avatar.Rig,
 	weight: number,
 	model: Model?, -- the net in the hand, while it shows
-	key: string, -- the model it should be (Avatar.heldModels' first: the toy's, or the net's)
-	toy: string?, -- the toy in the hand (Avatar.toyOf), nil for the net
-	turn: CFrame, -- the toy's extra turn in the hand (Presets.toys), identity for the net
-	aim: boolean, -- the toy turns with the body instead of the hand (Presets.toys `aim`)
+	level: number, -- the model it is (1 to 4)
 	offset: CFrame, -- the model's pivot from its Grip
 	parts: { BasePart }, -- the net's parts, to fade with the hand
 	smackAt: number?, -- server time the last smack began
@@ -64,14 +59,16 @@ local function drop(entry: Held)
 	end
 end
 
--- A copy of the first of `names` the assets have (Avatar.heldModels: the toy, else the level's net or the next one
--- down) that never collides or blocks a click, its pivot from the Grip (the pivot itself on a net made before the
--- Grip was added) and its parts. nil when the assets have none of them.
-local function make(names: { string }): (Model?, CFrame, { BasePart })
+-- A copy of the level's net (or, when the assets lack it, of the next one down) that never collides or blocks a
+-- click, its pivot from the Grip (the pivot itself on a net made before the Grip was added) and its parts. nil when
+-- the assets have no net at all.
+local function make(level: number): (Model?, CFrame, { BasePart })
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	local template: Instance? = nil
-	for _, name in names do
-		local found = if assets ~= nil then assets:FindFirstChild(name) else nil
+	for n = level, 1, -1 do
+		local found = if assets ~= nil
+			then assets:FindFirstChild("CatCafe_Item_Net_L" .. n)
+			else nil
 		if found ~= nil and found:IsA("Model") then
 			template = found
 			break
@@ -106,10 +103,7 @@ local function entryOf(character: Model, rig: Avatar.Rig): Held
 			rig = rig,
 			weight = 0,
 			model = nil,
-			key = "",
-			toy = nil,
-			turn = CFrame.identity,
-			aim = false,
+			level = 0,
 			offset = CFrame.identity,
 			parts = {},
 			smackAt = nil,
@@ -142,23 +136,15 @@ function NetHold.weight(character: Model, rig: Avatar.Rig, dt: number, near: boo
 	if netLevel == nil and player ~= nil then
 		netLevel = player:GetAttribute("NetLevel")
 	end
-	local toy = Avatar.toyOf(character:GetAttribute("HeldToy"))
-	local names = Avatar.heldModels(toy, Avatar.netModel(netLevel))
-	if entry.model ~= nil and entry.key ~= names[1] then
-		drop(entry) -- an upgrade bought, or a toy taken out or put away, while holding: the new one comes next
+	local level = Avatar.netModel(netLevel)
+	if entry.model ~= nil and entry.level ~= level then
+		drop(entry) -- an upgrade bought while holding: the new net comes next
 	end
 	entry.weight = Avatar.holdWeight(entry.weight, holding and near, dt)
 	if entry.weight >= Presets.netHold.showAt then
 		if entry.model == nil then
-			local model, offset, parts = make(names)
-			entry.model, entry.offset, entry.parts, entry.key = model, offset, parts, names[1]
-			local turn = if toy ~= nil then Presets.toys.kinds[toy].turn else Vector3.zero
-			entry.toy = toy
-			entry.aim = toy ~= nil and Presets.toys.kinds[toy].aim
-			if model ~= nil then
-				model:PivotTo(character:GetPivot()) -- near its owner until the hand places it
-			end
-			entry.turn = CFrame.Angles(math.rad(turn.X), math.rad(turn.Y), math.rad(turn.Z))
+			local model, offset, parts = make(level)
+			entry.model, entry.offset, entry.parts, entry.level = model, offset, parts, level
 			if model == nil then
 				entry.weight = 0 -- no net to hold, so the arm stays down
 			end
@@ -210,24 +196,6 @@ function NetHold.net(character: Model): Model?
 	return if entry ~= nil then entry.model else nil
 end
 
--- #4061: the toy in `character`'s hand while it shows ("squirter" or "noodle"), nil while it holds the net or nothing.
-function NetHold.toy(character: Model): string?
-	local entry = held[character]
-	return if entry ~= nil and entry.model ~= nil then entry.toy else nil
-end
-
--- #4061: a smack that hits starting now on `character` (the Pool Noodle's bonk, Effects/ToyFx), unless one is
--- still playing or nothing is in its hand. True when it started.
-function NetHold.swing(character: Model): boolean
-	local entry = held[character]
-	if entry == nil or entry.model == nil then
-		return false
-	end
-	local before = entry.smackAt
-	smack(character, Workspace:GetServerTimeNow())
-	return entry.smackAt ~= before
-end
-
 -- Lets go of a character that left or was rebuilt.
 function NetHold.forget(character: Model)
 	local entry = held[character]
@@ -250,12 +218,7 @@ local function place()
 		end
 		local hand, grip = Avatar.netHand(entry.rig)
 		if hand ~= nil then
-			local at = hand.CFrame * grip
-			local root = if entry.aim then character:FindFirstChild("HumanoidRootPart") else nil
-			if root ~= nil and root:IsA("BasePart") then
-				at = CFrame.new(at.Position) * (root :: BasePart).CFrame.Rotation
-			end
-			model:PivotTo(at * entry.turn * entry.offset)
+			model:PivotTo(hand.CFrame * grip * entry.offset)
 			local fade = hand.LocalTransparencyModifier
 			for _, part in entry.parts do
 				part.LocalTransparencyModifier = fade

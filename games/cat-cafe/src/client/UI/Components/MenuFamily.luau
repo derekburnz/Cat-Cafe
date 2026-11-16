@@ -15,8 +15,6 @@ local Theme = require(script.Parent.Parent.Theme)
 
 local MenuFamily = {}
 
-MenuFamily.FLAG = "menuFamily"
-
 export type Palette = typeof(Theme.dark)
 
 -- #3965 (Derek 2026-11-13 17:32: "do the old colour for menus", "gives cozy vibes"): the cocoa body and cards of
@@ -30,12 +28,8 @@ MenuFamily.BULB_SIZE = 6
 MenuFamily.BULB_COLORS = { Color3.fromHex("FFF096"), Color3.fromHex("FFFFFF") }
 
 -- #4657 (Derek 2026-11-15 23:28 UTC, after #4607 sent fresh servers back to the old look: "remove the old stuff from
--- code so it doesn't happen again"): the family look is the only look. The `menuFamily` switch is no longer read, so
--- no server, Studio session or slow first DataStore read can draw the old one. The old-look branches below go in
--- the next #4657 PRs.
-function MenuFamily.on(): boolean
-	return true
-end
+-- code so it doesn't happen again"): the family look is the only look. The `menuFamily` switch and MenuFamily.on()
+-- are gone, so no server, Studio session or slow first DataStore read can draw the old one.
 
 -- The family's picture cards (the mocks' cream cards on the dark body): the colours for a card and for what sits
 -- on it, with the same keys as PALETTE. Every text colour reads at 4.5:1 or better on `card`.

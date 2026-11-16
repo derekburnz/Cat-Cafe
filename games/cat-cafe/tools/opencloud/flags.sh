@@ -47,8 +47,6 @@
 #                 with the picture at the left; client only, read when the Store is built at join
 #   quietAway     true holds the food bowl cards while a player is out catching, until they are back (#4035); client
 #                 only
-#   menuFamily    true gives every dark window the station menu family's look (#3558); client only, a window
-#                 open at the change keeps its look until it is opened again
 #   speedShoes    true puts the Speed Shoes on the Mystery Market shelf and counts their carry speed (#3535);
 #                 only once every server runs a build that has them (an older one drops the owned pair)
 #   loadingScreen true brings back the loading screen before the opening scenes (#3179: Derek had it removed);
@@ -170,7 +168,6 @@ show_key() {
 	parkGateTrail) if [ "$raw" = true ]; then meaning="Park goal and paw trail after Tier 2 ON"; else meaning="Park goal and paw trail off (its default)"; fi ;;
 	rankUpSpotlight) if [ "$raw" = true ]; then meaning="first rank up walk-through (dim and pointer) ON"; else meaning="first rank up walk-through off (its default)"; fi ;;
 	bagColours) if [ "$raw" = true ]; then meaning="Backpack colour picks at the Featured Shop ON"; else meaning="Backpack colour picks off (its default)"; fi ;;
-	menuFamily) if [ "$raw" = true ]; then meaning="Station menu family look ON in every server"; else meaning="Station menu family look off (its default)"; fi ;;
 	speedShoes) if [ "$raw" = true ]; then meaning="Speed Shoes ON in every server"; else meaning="Speed Shoes off (its default)"; fi ;;
 	storeRework) if [ "$raw" = true ]; then meaning="the reworked Store layout"; else meaning="the Store as before (its default)"; fi ;;
 	quietAway) if [ "$raw" = true ]; then meaning="Food bowl cards wait while out catching ON"; else meaning="Food bowl cards show anywhere (its default)"; fi ;;

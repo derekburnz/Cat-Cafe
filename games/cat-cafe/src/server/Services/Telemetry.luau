@@ -45,6 +45,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local IntroModeService = require(script.Parent.IntroModeService)
 local IntroSplit = require(ReplicatedStorage.Shared.IntroSplit)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
+local Journeys = require(ReplicatedStorage.Shared.Journeys)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LiveFlagService = require(script.Parent.LiveFlagService)
 local LoadingTest = require(ReplicatedStorage.Shared.LoadingTest)
@@ -645,6 +646,7 @@ type Session = {
 	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
 	store: StoreVisit?, -- #1888: the Store visit open now, for the Store funnel
 	storeVisits: number, -- #1888: Store funnels started this session (StoreFunnel.VISITS_MAX)
+	askJourney: string?, -- #4544: this session's EventAsk journey session id, made at the first answer
 	recapShown: boolean, -- #1920: session_recap logged this session
 	recapClosed: boolean, -- #1920: session_recap_close logged this session
 	goals: { ShownGoal }, -- #2916: next goals shown this session (recap) or at the join, until each is met
@@ -1354,6 +1356,31 @@ local function funnelStep(
 	end)
 end
 
+-- #4544: one node of a Roblox Journey (shared/Journeys holds the names; they must match the published config). Behind
+-- the `journeys` switch. `sessionId` ties one attempt's nodes together (a Store visit, a trade, a play session).
+function Telemetry.journey(
+	player: Player,
+	journey: string,
+	node: string,
+	sessionId: string,
+	values: { string }?
+)
+	if not LiveFlagService.on(Journeys.FLAG) then
+		return
+	end
+	local fields = values or {}
+	remember(player, "journey", journey .. " " .. node, 1, fields)
+	send(player, "journey " .. journey, function()
+		(AnalyticsService :: any):LogJourneyEvent(
+			player,
+			journey,
+			node,
+			sessionId,
+			customFields(fields)
+		)
+	end)
+end
+
 -- #3378: stray_call. The client reports each call of its own waiting stray (TelemetryReport "stray_call"); a catch
 -- that starts within STRAY_CALL_SECONDS answers it "yes", otherwise it is logged "no" when the time is up.
 local STRAY_CALL_SECONDS = 10
@@ -1863,6 +1890,11 @@ local function storeStep(player: Player, name: string, values: { string })
 	end
 	visit.step = step
 	funnelStep(player, StoreFunnel.NAME, visit.id, step, name, values)
+	-- #4544: the same step as a StoreVisit journey node
+	local node, fields = Journeys.storeNode(name, values)
+	if node ~= nil then
+		Telemetry.journey(player, Journeys.STORE, node, visit.id, fields)
+	end
 end
 
 -- #2914: the store_v1 prompt_closed step, for the sku this visit's buy button pressed only (a bait or Cafe Pass
@@ -2266,6 +2298,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if kind ~= nil and not session.nudges["rsvp:" .. kind] then
 			session.nudges["rsvp:" .. kind] = true -- the stuck nudges' once-a-session set, keyed apart
 			Telemetry.custom(player, "event_rsvp", 1, { kind })
+			-- #4544: the same answer as an EventAsk journey node, one journey session a play session
+			local node = Journeys.askNode(kind)
+			if node ~= nil then
+				session.askJourney = session.askJourney or HttpService:GenerateGUID(false)
+				Telemetry.journey(player, Journeys.EVENT, node, session.askJourney :: string)
+			end
 		end
 	elseif name == "boot_ui" or name == "boot_sync" then
 		-- #4307: where the wait before the intro goes (FirstFive.bootBucket)

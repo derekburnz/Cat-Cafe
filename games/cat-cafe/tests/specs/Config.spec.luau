@@ -581,7 +581,7 @@ return function()
 				StrayTopUpMaxSeconds = true,
 				WaveAtOnce = true, -- #3661: the sunrise wave placed over time, checked in StrayTopUp.spec
 				WaveSpreadSeconds = true,
-				MysteryRangeStuds = true, -- sections 12b and 15: OpenMysteryGift "within 12 studs"
+				MysteryRangeStuds = true, -- sections 12b and 15: the gift opens "within 12 studs"
 				CollectorValue = true, -- section 17's "1, 3, 8, 20, 50 by rarity", checked in Collector.spec
 				CollectorAskWeight = true, -- #1144: a table, checked in Collector.spec
 				CollectorRangeStuds = true, -- section 12b: his card opens "within 12 studs"

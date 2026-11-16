@@ -910,7 +910,7 @@ local Config = {
 	MysteryStaySeconds = 120, -- the hooded visitor sits this long; dusk or a plot release sends it home sooner
 	MysteryGiftKeepSeconds = 900, -- an unopened gift is gone after this, or when its owner leaves (#2614: was 600)
 	MysteryRareStreak = 4, -- #2614: after this many Common gifts in a row in a session, the next is Rare or better
-	MysteryRangeStuds = 12, -- OpenMysteryGift from this close to the gift
+	MysteryRangeStuds = 12, -- the GiftPrompt opens the gift from this close
 	-- The Cat Collector (F63, data-model section 12b, round 3 Q6): by day, each earning cafe with a table and a
 	-- resting, unlocked cat has him when its timer runs out (#1135: CollectorEveryMin to CollectorEveryMax seconds of
 	-- open day, 300 on average since #2272, Derek2: "make it more common"; 360 to 840 since #2107, was 600 to 1400); he waits at the counter for CollectorStaySeconds. He values the cat he asks for at CollectorValue by its rarity, times

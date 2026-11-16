@@ -52,7 +52,7 @@ CannonLogic.WALKTHROUGH_STEP = 5
 CannonLogic.FIRST_FLIGHT = "Hop in the cannon: " -- #4777; #4926: then "wild cats wait in the <area>!"
 -- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the line once the walk-through's last
 -- step (the bowl) is done this session, until the next flight
-CannonLogic.WRAP_UP_HINT = "Catch more cats to earn more and rank up!" -- #4926
+CannonLogic.WRAP_UP_HINT = "Hop in the cannon: catch more cats to rank up!" -- #4926
 CannonLogic.HINT_TIER = 2 -- the rank up that gets its own "is open!" hint (section 3a)
 -- how long that hint, its marker and its trail of dots stay up when the player does not fly (Derek 2026-11-03: "the
 -- tutorial yellow dots are still showing")

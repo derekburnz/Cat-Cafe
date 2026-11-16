@@ -9330,7 +9330,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 		assert(
-			table.find(texts, "Catch more cats to earn more and rank up!"),
+			table.find(texts, "Hop in the cannon: catch more cats to rank up!"),
 			"uigate: the tutorial strip after the bowl reads " .. table.concat(texts, " | ") .. " (#2477)"
 		)
 		UI.cannon.wrapUp.on = false -- as a flight clears it, so later scenes keep their own lines
@@ -10461,7 +10461,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		UI.cannon.wrapUp.on = false
 		assert(
-			table.find(texts, RankFirst.line("touch")) and not table.find(texts, "Catch more cats to earn more and rank up!"),
+			table.find(texts, RankFirst.line("touch")) and not table.find(texts, "Hop in the cannon: catch more cats to rank up!"),
 			"uigate: after the walk-through the strip reads " .. table.concat(texts, " | ") .. ", not the rank up line (#4383)"
 		)
 	end },

@@ -31,7 +31,9 @@ return function()
 				local line = RankFirst.line(device)
 				expect(RankFirst.isLine(line)).to.equal(true)
 			end
-			expect(RankFirst.isLine("Catch more cats to earn more and rank up!")).to.equal(false)
+			expect(RankFirst.isLine("Hop in the cannon: catch more cats to rank up!")).to.equal(
+				false
+			)
 			expect(RankFirst.isLine(nil)).to.equal(false)
 		end)
 

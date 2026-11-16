@@ -102,8 +102,14 @@ local LINES: { [string]: Line } = {
 		touch = "Tap Tame to keep your cat. It earns you money!",
 		gamepad = "Press A on Tame to keep your cat. It earns money!",
 	},
-	-- #4926: bowl first, the Alleyway catches before the rank up; UIController adds the count (" · 1/2")
+	-- #4926: bowl first, the Alleyway catches before the rank up, by what is left (the tamed bowl cat counts as one,
+	-- so most players see alleyCatch; one who let the bowl cat go sees alleyCatch2)
 	alleyCatch = {
+		keyboard = "Catch 1 more cat to rank up! Click by one",
+		touch = "Catch 1 more cat to rank up! Tap NET by one",
+		gamepad = "Catch 1 more cat to rank up! Press R2 by one",
+	},
+	alleyCatch2 = {
 		keyboard = "Catch 2 cats to rank up! Click by one",
 		touch = "Catch 2 cats to rank up! Tap NET by one",
 		gamepad = "Catch 2 cats to rank up! Press R2 by one",

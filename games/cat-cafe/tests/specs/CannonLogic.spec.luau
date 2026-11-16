@@ -331,7 +331,7 @@ return function()
 			"points at the cannon once the walk-through ends this session, until a flight (#2477)",
 			function()
 				local done = CannonLogic.WALKTHROUGH_STEP
-				local line = "Catch more cats to earn more and rank up!"
+				local line = "Hop in the cannon: catch more cats to rank up!"
 				expect(CannonLogic.WRAP_UP_HINT).to.equal(line)
 				expect(CannonLogic.hint(view({ tutorialStep = done, wrapUp = true }))).to.equal(
 					line

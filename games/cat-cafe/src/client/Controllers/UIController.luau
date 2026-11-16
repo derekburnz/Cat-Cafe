@@ -782,14 +782,12 @@ local function refreshTutorial(s: Types.PlayerState)
 			-- Alleyway (camp included): before the flight the cannon hint and its lit button lead (Sync on #4816).
 			-- Straight to UI.tutorial.show: the hint's step 2 line would ask for a job here.
 			local stray = nearestAlleyStray()
-			-- #4926: what to do and why, with the goal card's count (the bowl cat is the first of the two)
+			-- #4926: what to do and why, by the cats still to catch (the tamed bowl cat counts as one)
+			local left = SecondCat.CATS - SecondCat.progress(s.stats, true)
 			UI.tutorial.show(
-				string.format(
-					"%s · %d/%d",
-					deviceLine("alleyCatch", "Catch 2 cats to rank up! Click by one"),
-					SecondCat.progress(s.stats, true),
-					SecondCat.CATS
-				),
+				if left >= 2
+					then deviceLine("alleyCatch2", "Catch 2 cats to rank up! Click by one")
+					else deviceLine("alleyCatch", "Catch 1 more cat to rank up! Click by one"),
 				stray or tutorialStrayPoint(),
 				"Cat"
 			)
@@ -869,11 +867,16 @@ local function refreshTutorial(s: Types.PlayerState)
 		elseif s.bait ~= nil then
 			-- #3158: the first bait holds step 4 until its cat is tamed or let go (the line is TutorialHints'
 			-- "waiting", then "arrived")
-			showTutorial(s, "A cat is on its way to your bowl", UIController.ownBaitBowl(), "Bowl")
+			showTutorial(
+				s,
+				deviceLine("waiting", "A cat smells your food. It's on its way!"),
+				UIController.ownBaitBowl(),
+				"Bowl"
+			)
 		else
 			showTutorial(
 				s,
-				deviceLine("food", "Put Kibble in your bowl on the back step"),
+				deviceLine("food", "Press F, then Use on Kibble to call a cat"),
 				UIController.ownBaitBowl(),
 				"Bowl"
 			)

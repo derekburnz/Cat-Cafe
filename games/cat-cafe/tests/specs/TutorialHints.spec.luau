@@ -361,7 +361,7 @@ return function()
 			)
 			expect(TutorialHints.lineFor("nope", "touch")).to.equal(nil)
 			-- #4926: what to do and why, one line on the smallest phone's strip (52 characters at most on touch)
-			for _, id in { "food", "waiting", "arrived", "alleyCatch" } do
+			for _, id in { "food", "waiting", "arrived", "alleyCatch", "alleyCatch2" } do
 				local touch = TutorialHints.lineFor(id, "touch") :: string
 				expect((utf8.len(touch) or 99) <= 52).to.equal(true)
 			end
@@ -369,7 +369,7 @@ return function()
 				"Tap Tame to keep your cat. It earns you money!"
 			)
 			expect(TutorialHints.lineFor("alleyCatch", "gamepad")).to.equal(
-				"Catch 2 cats to rank up! Press R2 by one"
+				"Catch 1 more cat to rank up! Press R2 by one"
 			)
 		end)
 	end)

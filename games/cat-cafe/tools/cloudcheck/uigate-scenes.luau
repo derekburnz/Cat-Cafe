@@ -3090,14 +3090,10 @@ local SCENES = {
 		assert(name.Text == "Golden Whiskers", "uigate: the trait card reads " .. name.Text .. " (#3196)")
 		local effects = window:FindFirstChild("Trait", true):FindFirstChild("Effect2")
 		assert(effects.Text ~= "", "uigate: a Legendary trait shows one effect only (#3196)")
-		-- #3961: the main card's odds are rarity pills; #3908: seven with the Secret trait, Mythic 4.9% (#4654 batch 3:
-		-- its secretTrait switch is retired, so the Secret pill always shows)
-		local secretOn = true
-		local pills = window:FindFirstChild("OddsPills", true)
-		local mythic = pills and pills:FindFirstChild("Mythic") :: TextLabel?
-		local secret = pills and pills:FindFirstChild("Secret") :: TextLabel?
-		assert(pills and pills.Visible and mythic and mythic.Text == (if secretOn then "Mythic 4.9%" else "Mythic 5%"), "uigate: the odds pills are not on the card (#3196, #3961)")
-		assert((secret ~= nil) == secretOn and (secret == nil or secret.Text == "Secret 0.1%"), "uigate: the Secret pill shows only with its switch on (#3908)")
+		-- #4890 (Derek 2026-11-16): no odds pills on the card; the odds list opens from Odds
+		assert(window:FindFirstChild("OddsPills", true) == nil, "uigate: the odds pills are still on the card (#4890)")
+		local oddsList = window:FindFirstChild("OddsList", true) :: GuiObject?
+		assert(oddsList and not oddsList.Visible, "uigate: the odds list shows before Odds is tapped (#4890)")
 		local roll = window:FindFirstChild("Roll", true):FindFirstChildWhichIsA("TextLabel", true)
 		assert(roll.Text == "Re-roll · 1 Trait Token", "uigate: Roll reads " .. roll.Text .. " (#3196)")
 		local tokens = window:FindFirstChild("Tokens", true)
@@ -3106,6 +3102,9 @@ local SCENES = {
 		local _, screenH, inset = UIShim.screen()
 		local bottom = window.AbsolutePosition.Y + window.AbsoluteSize.Y + (inset or 0) -- the modals sit under the top bar
 		assert(bottom <= screenH - 8, ("uigate: the Mystic Pool card ends %d px from the screen's bottom (#3848)"):format(screenH - bottom))
+		-- #4890 (Derek 2026-11-16: "collect button isnt squished"): Collect sits wholly inside the card with room under it
+		local collect = window:FindFirstChild("Collect", true) :: GuiObject?
+		assert(collect and collect.AbsolutePosition.Y + collect.AbsoluteSize.Y <= window.AbsolutePosition.Y + window.AbsoluteSize.Y - 4, "uigate: Collect is cut at the card's bottom (#4890)")
 		local sent = nil
 		local connection = UI.events.rollTrait:Connect(function(uid)
 			sent = uid
@@ -3453,8 +3452,9 @@ local SCENES = {
 		local line = side:FindFirstChild("Line") :: TextLabel
 		assert(line and line.Visible and line.TextFits and not line.Text:find("%", 1, true), "uigate: the token panel's line is missing, cut or still has odds")
 		assert(line.AbsolutePosition.Y < side:FindFirstChild("Bundle1").AbsolutePosition.Y, "uigate: the token line sits under Buy (#4006)")
-		local pills = window:FindFirstChild("OddsPills", true) :: GuiObject?
-		assert(pills ~= nil and pills.Visible and pills.AbsoluteSize.Y > 0, "uigate: no roll odds on screen beside the token panel (monetization-policy 2.1)")
+		-- #4890: the odds are one tap from every Buy: See odds under the bundles opens the odds list
+		local seeOdds = side:FindFirstChild("SeeOdds") :: GuiObject?
+		assert(seeOdds ~= nil and seeOdds.Visible and seeOdds.AbsoluteSize.Y > 0, "uigate: no See odds on the token panel (monetization-policy, #4890)")
 		local roll = window:FindFirstChild("Roll", true)
 		assert(roll == nil or not roll.Visible or roll.AbsolutePosition.X + roll.AbsoluteSize.X <= side.AbsolutePosition.X, "uigate: Roll sits under the token panel (#4006)")
 assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has an X (Derek: no X, #4006)")

@@ -526,8 +526,13 @@ local newKind = {
 	reported = {} :: { [string]: boolean },
 }
 
--- Different kinds of cat this state owns toward rank up (the sync's own collection, not the UI's last copy).
+-- Different kinds of cat this state owns toward rank up (the sync's own collection, not the UI's last copy). #4809:
+-- every cat owned while the next tier takes any cats (NewKind.anyAt), as the goal card then counts them.
 local function kindsOf(s: Types.PlayerState): number
+	local nextTier = if NewKind.anyAt(s.tier or 1) then Catalog.getTier((s.tier or 1) + 1) else nil
+	if nextTier ~= nil then
+		return NewKindEconomy.rankUpCats(s.collection or {}, s.cats :: any, nextTier)
+	end
 	return NewKindEconomy.rankUpCatCount(s.collection)
 end
 
@@ -870,6 +875,7 @@ local function refreshTutorial(s: Types.PlayerState)
 				if where == "stray"
 					then NewKind.LINE
 					elseif where == "next" then NewKind.NEXT_AREA
+					elseif NewKind.anyAt(s.tier or 1) then NewKind.ANY_CANNON_LINE -- #4809
 					else NewKind.CANNON_LINE,
 				target,
 				if where == "stray" then NewKind.LABEL else "Cannon"

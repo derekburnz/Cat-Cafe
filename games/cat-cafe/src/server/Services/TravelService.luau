@@ -204,6 +204,9 @@ local function onTravel(player: Player, rawDestination: unknown): boolean
 		end
 		character:PivotTo(landing :: CFrame)
 		Cannon.noteMove(player, landing :: CFrame)
+		if destination == "harvest" then
+			HarvestService.arrived(player) -- #4251: the day's +10; the PivotTo fires no touch on the arrival mat
+		end
 	end
 	Net.fire(player, "TravelResult", destination, true, nil)
 	Telemetry.custom(player, "travel", 1, { destination }) -- "home" or "cannon": landingFor allowed it

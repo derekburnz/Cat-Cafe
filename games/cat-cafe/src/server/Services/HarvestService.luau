@@ -8,7 +8,8 @@
 --     player who touches a ready one gets +1 and it regrows after HarvestSave.regrowSeconds (45 s with 6 or more
 --     players near it, else 90 s). Attributes for the client: Ready (boolean) and RegrowAt (os.time).
 --   Touches count only with the player's root within TOUCH_STUDS (plus half the part's or model's size) of the spot.
---   The arrival: touching a part tagged HarvestArrival gives the first visit of the UTC day +10.
+--   The arrival: a trip that lands in the area (TravelService calls arrived(player)), or a touch on the part tagged
+--     HarvestArrival, gives the first visit of the UTC day +10.
 --   HarvestService.caught(player, rarity): pumpkins for a harvest cat caught and marks the player as a Feast Pie
 --     helper (wired once the harvest cats are in the Catalog).
 --   The world (World/HarvestWorld): the arch in the Town Square ARCH_EARLY_SECONDS before the area opens with the
@@ -244,10 +245,8 @@ local function pick(spot: Instance, player: Player)
 	end)
 end
 
-local function arrive(arrival: Instance, player: Player)
-	if not standsAt(player, arrival) or not touchedOk(player) then
-		return
-	end
+-- The day's +VISIT_PUMPKINS, once a UTC day (HarvestSave.visit), while the area is open for this player.
+function HarvestService.arrived(player: Player)
 	local profile, reason = shut(player)
 	if profile == nil or reason ~= nil then
 		return
@@ -257,6 +256,16 @@ local function arrive(arrival: Instance, player: Player)
 		Net.toast(player, string.format("Welcome to Harvest Hollow! +%d pumpkins", added), "good")
 		CafeService.sync(player)
 	end
+end
+
+-- The arrival mat's touch. A trip lands on the mat by PivotTo, which fires no Touched (Roblox fires it for physics
+-- movement only), so TravelService also calls arrived() as a trip lands (Sync's Studio rerun: a repeat entry got no
+-- +10); the mat stays for a touch that does come.
+local function arrive(arrival: Instance, player: Player)
+	if not standsAt(player, arrival) or not touchedOk(player) then
+		return
+	end
+	HarvestService.arrived(player)
 end
 
 local function touchPartsOf(instance: Instance): { BasePart }

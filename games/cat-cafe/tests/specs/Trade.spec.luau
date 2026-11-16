@@ -802,7 +802,7 @@ return function()
 		end
 
 		it("has the caps and value the spec sets", function()
-			expect(Config.TradeMaxFish).to.equal(200)
+			expect(Config.TradeMaxFish).to.equal(250) -- #4623: was 200, now the per day cap
 			expect(Config.TradeFishPerDay).to.equal(250) -- Derek2 2026-11-10 (400 before)
 			expect(Trade.fishValue(40)).to.be.near(3, 1e-9) -- 40 fish count as one Rare
 		end)
@@ -822,9 +822,9 @@ return function()
 					Trade.Messages.fishNotEnough
 				) -- balance + 1
 				me.goldenFish = 999
-				expect(Trade.fishRefusal(me, them, 200, DAY3)).never.to.be.ok()
-				expect(Trade.fishRefusal(me, them, 201, DAY3)).to.equal(
-					string.format(Trade.Messages.fullFish, 200)
+				expect(Trade.fishRefusal(me, them, 250, DAY3)).never.to.be.ok() -- #4623: the cap is 250 (was 200)
+				expect(Trade.fishRefusal(me, them, 251, DAY3)).to.equal(
+					string.format(Trade.Messages.fullFish, 250)
 				)
 			end
 		)
@@ -915,7 +915,7 @@ return function()
 			expect(Trade.sanitizeFish(2.5)).to.equal(0)
 			expect(Trade.sanitizeFish(0 / 0)).to.equal(0)
 			expect(Trade.sanitizeFish(math.huge)).to.equal(0)
-			expect(Trade.sanitizeFish(5000)).to.equal(200)
+			expect(Trade.sanitizeFish(5000)).to.equal(250)
 			expect(Trade.sanitizeFish(37)).to.equal(37)
 		end)
 

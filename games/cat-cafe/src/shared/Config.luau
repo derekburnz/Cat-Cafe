@@ -1166,7 +1166,9 @@ local Config = {
 	TradeMaxCrates = 20,
 	-- #2745 (section 1d): golden fish a side (whole fish, at most the giver's wallet), the most one player may receive
 	-- in trades in a game day, and one fish's Collector value for the lopsided warning (40 fish count as one Rare, 3)
-	TradeMaxFish = 200,
+	-- #4623 (Derek 2026-11-15: "make golden fish trading free"): no fee was ever taken; the per side cap now matches
+	-- the per day cap (was 200), so one trade can send a whole day's room. The per day cap and the Golden Pond hold stay.
+	TradeMaxFish = 250,
 	-- #2745 (Derek 2026-11-12, "go w recommend"): no golden fish offers for this long after buying the Golden Pond pass
 	-- with Robux, so the pass is never a way to buy fish for another account
 	TradeFishPassHoldSeconds = 24 * 60 * 60,

@@ -1170,6 +1170,18 @@ function UI.init(config: Types.InitConfig)
 				UI.lateStations.open(stationId, true)
 			end
 		end,
+		-- #4961: Rummage on the Alleyway card: the picker closes and the bar comes where the player stands
+		rummage = function()
+			local start = UI.cannon.rummage.start
+			if start ~= nil then
+				closeModal()
+				start()
+			end
+		end,
+		rummageOn = function(): boolean
+			local on = UI.cannon.rummage.on
+			return on ~= nil and on()
+		end,
 		close = closeModal,
 	})
 	cannonCard = CannonCard.new(parent)
@@ -4029,6 +4041,8 @@ end
 -- Every catching area is reached by the Cat Cannon in the Town Square, and each has a safe camp with a cannon back.
 -- Off until setEnabled(true), so the Areas button and panel work as before on a server without F84.
 UI.cannon = {}
+-- #4961: the Cat Cannon picker's Rummage button (BinController sets both): whether it may show, and the press
+UI.cannon.rummage = { on = nil :: (() -> boolean)?, start = nil :: (() -> ())? }
 
 -- On: the HUD's Cannon button takes the Areas button's place and fires events.travel("cannon") (the server moves
 -- the player to the front of the nearest cannon), the Alley button goes, and the carry banner reads "Bring it to the

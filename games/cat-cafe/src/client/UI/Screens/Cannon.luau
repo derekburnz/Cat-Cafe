@@ -74,6 +74,9 @@ export type Callbacks = {
 	collect: ((extraId: string) -> ())?,
 	-- #3082: Open on a card's strip: the Yard Sale's, the Oasis Spa's or the Relic Museum's own card
 	open: ((stationId: string) -> ())?,
+	-- #4961: Rummage on the Alleyway card's Rummage Bin line, and whether it may show now (not in the walk-through)
+	rummage: (() -> ())?,
+	rummageOn: (() -> boolean)?,
 }
 
 export type Cannon = {
@@ -112,7 +115,7 @@ local EXTRA_H = 40 -- F100: the camp extra's strip, added to the cards while one
 local EXTRA_ROOM = 8 -- #3961: more room under the strip in the family look (4 px to LAUNCH read as touching)
 -- #3082: the strip's button, as wide as its word needs, so the station's name and what waits keep their room on a
 -- phone's slim cards (#1463: the Golden Pond's Collect was 84)
-local BUTTON_W = { collect = 66, open = 52 } :: { [string]: number }
+local BUTTON_W = { collect = 66, open = 52, rummage = 84 } :: { [string]: number }
 local COLLECT_REST = 2 -- seconds Collect hides after a press, while the server answers
 local PENDING_SECONDS = 1 -- Launch greys this long after a press, so a double tap is one launch
 local DUSK_SECONDS: number = 15
@@ -595,6 +598,15 @@ function Cannon._collect(self: any, id: string)
 		end
 		return
 	end
+	if action == "rummage" then
+		local rummage: (() -> ())? = self._callbacks.rummage
+		if rummage ~= nil and os.clock() - card.collectedAt >= COLLECT_REST then
+			card.collectedAt = os.clock()
+			card.collect.instance.Visible = false
+			rummage()
+		end
+		return
+	end
 	local collect: ((string) -> ())? = self._callbacks.collect
 	if collect == nil or os.clock() - card.collectedAt < COLLECT_REST then
 		return
@@ -793,13 +805,19 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			-- #3082: Collect in place of the dot (it rests a moment after a press, until the server's answer
 			-- refreshes the strip), or Open for a station with its own card (green words say when something waits)
 			local action = CampExtrasLogic.remoteAction(line)
+			local rummageOn: (() -> boolean)? = self._callbacks.rummageOn
 			if
 				(action == "collect" and self._callbacks.collect == nil)
 				or (action == "open" and self._callbacks.open == nil)
+				or (
+					action == "rummage"
+					and (self._callbacks.rummage == nil or rummageOn == nil or not rummageOn())
+				)
 			then
 				action = nil
 			end
-			local resting = action == "collect" and os.clock() - card.collectedAt < COLLECT_REST
+			local resting = (action == "collect" or action == "rummage")
+				and os.clock() - card.collectedAt < COLLECT_REST
 			local button = action ~= nil
 			local width = BUTTON_W[action or "collect"]
 			if action ~= nil and card.collectWord ~= action then

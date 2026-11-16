@@ -807,6 +807,16 @@ local function track(instance: Instance)
 end
 
 function BinController.start()
+	-- #4961: the Cat Cannon picker's Rummage button, past the walk-through, on a full bin
+	UI.cannon.rummage.on = function(): boolean
+		return ready() and not inTutorial()
+	end
+	UI.cannon.rummage.start = function()
+		if busy() or not ready() or inTutorial() then
+			return
+		end
+		Net.fire("RescueBegin", RummageBin.REMOTE_SPOT)
+	end
 	for _, instance in CollectionService:GetTagged(RummageBin.TAG) do
 		track(instance)
 	end

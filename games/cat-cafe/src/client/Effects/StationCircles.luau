@@ -91,7 +91,7 @@ local function track(instance: Instance)
 		return
 	end
 	local ring = instance
-	if rings[ring] ~= nil then
+	if rings[ring] then
 		return
 	end
 	-- pieces that stream in after the part

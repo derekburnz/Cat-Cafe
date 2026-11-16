@@ -17,6 +17,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Audio = require(script.Parent.Parent.Audio)
 local Config = require(Shared:WaitForChild("Config"))
 local DayLight = require(Shared:WaitForChild("DayLight"))
+local Effects = require(script.Parent.Parent.Effects)
 local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
@@ -169,7 +170,9 @@ end
 -- The sky follows DayLight's curve through the server's day and night (Derek 2026-10-27 22:37). Technology, Bloom and
 -- ColorCorrection are place settings in Studio; the Atmosphere is the place's, or one this client adds.
 local SKY_STEP_SECONDS = 0.1 -- how often the sky moves on (a day of 300 s moves it about 14 game seconds a step)
-local SKY_STEP_LOW_SECONDS = 0.5 -- the same with Low performance on
+-- the same with Low performance on, and on a phone or tablet (#4783: each step moves the sun, which redoes the
+-- scene's lighting and shadows; phones ran about 49 fps against 86 on PC). The device's effects tier says which.
+local SKY_STEP_LOW_SECONDS = 0.5
 local SKY_JUMP_SECONDS = 4 -- a phase change eases over this long, so a jump of the clock (Studio's debug) is no snap
 local SKY_NAME = "CatCafe_Sky" -- a simple sky under ReplicatedStorage.Assets replaces the place's Roblox default
 
@@ -493,7 +496,11 @@ local function followClock()
 		end
 	end)
 	while true do
-		task.wait(if lowPerformance then SKY_STEP_LOW_SECONDS else SKY_STEP_SECONDS)
+		task.wait(
+			if lowPerformance or Effects.tier() == "low"
+				then SKY_STEP_LOW_SECONDS
+				else SKY_STEP_SECONDS
+		)
 		stepSky(clock)
 	end
 end

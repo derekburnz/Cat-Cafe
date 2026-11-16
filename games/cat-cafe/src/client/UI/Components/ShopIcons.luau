@@ -108,8 +108,9 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Caviar = "rbxassetid://75650997072096",
 	Icon_Clean_Coin = "rbxassetid://85581311877137", -- CoinGold (#1253); was 112195289471900,
 	-- #2089 (Derek2: the "?" box "shouldn't be anywhere"): the crate glyph draws the Classic Crate's picture, not the
-	-- mystery box (76162414943592) from icons-clean-2026-11-03
-	Icon_Clean_Crate = "rbxassetid://81784091360384",
+	-- mystery box (76162414943592) from icons-clean-2026-11-03. #4886 (Derek 2026-11-16, banned twice): never the
+	-- wooden box with the gold cat coin (81784091360384); the crate glyph is the Classic Crate (Crate_Classic)
+	Icon_Clean_Crate = "rbxassetid://72888217681662",
 	Icon_Clean_Decor = "rbxassetid://91027671376875",
 	Icon_Clean_Feedback = "rbxassetid://86899710660019",
 	Icon_Clean_Fish = "rbxassetid://101061912700342", -- FishGold (#1253); was 111395416488950,

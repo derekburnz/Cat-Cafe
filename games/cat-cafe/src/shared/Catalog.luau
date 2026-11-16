@@ -1785,8 +1785,10 @@ Catalog.tiers = {
 		name = "Busy Cafe",
 		cost = 50000, -- #4496 (Derek 2026-11-15 13:58 UTC: "the money jump between tier 2 and 3 is a little much make it like 50k coins"): 110,000 before; #4320 (Derek 2026-11-14 21:41 UTC: "lower all tier requirements for money and different cats now so people start getting to 7 before new areas unlock"): 150,000 before; #4189 (Derek 2026-11-14: "we need to get them into the next area's asap", "lower for right now by a decent bit", then "its fine to make less hours of play": Tier 3 near 12 min): 300,000 at first, 520,000 before; #3195 + #3204 (Design-Agent: nights 45 s and the Tier 2 caps brought Tier 3 to 27.7 min; 520,000 gives about 30, and 560,000 only 1.2 min more): 420,000 before; #2895 (Derek2 2026-11-10: "lower the 3-6 tier costs", 30% off): 600,000 before; #2683: 1,240,000 before; #2559 (Derek2 2026-11-09: "increase tier 2 to tier 3 by 35%"): 920,000 before; #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
 		distinctCats = 6, -- #4320: 8 before; #4189: 10 before; #3111 (Derek2 2026-11-10: "lower the different cats requirement a little bit between 3-7"): 11 before; #2683: 13 before; #2230: 12 before
-		needsRarity = "Epic",
-		needsRarityCount = 1,
+		-- #4844 (Derek 2026-11-16 15:49 UTC: "make it so its only 2 rares for the tier 2 to 3 instead of an epic"):
+		-- one Epic before. The free Bellhop Cat is a Rare and counts.
+		needsRarity = "Rare",
+		needsRarityCount = 2,
 		slots = 6,
 		multiplier = 1.50,
 		area = "neighbourhood",

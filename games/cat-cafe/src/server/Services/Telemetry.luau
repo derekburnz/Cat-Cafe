@@ -700,7 +700,7 @@ type Session = {
 	loadingArm: string?, -- #4314: this new save's loading screen test arm (shared/LoadingTest), nil outside it
 	loadingSeen: boolean, -- #4314: ab_loading_seen logged this session
 	loadLogged: boolean, -- #4783: client_load logged this session
-	loadPending: { number | string }?, -- #4783: client_load's seconds and bucket, held until the device report comes
+	loadPending: { seconds: number, bucket: string }?, -- #4783: client_load's, held until the device report comes
 	fpsLogged: { [number]: boolean }, -- #4783: client_fps marks logged this session
 }
 
@@ -2323,9 +2323,9 @@ local function logLoad(player: Player, session: Session, profile: Profile)
 		return
 	end
 	session.loadPending = nil
-	Telemetry.custom(player, "client_load", pending[1] :: number, {
+	Telemetry.custom(player, "client_load", pending.seconds, {
 		session.device :: string,
-		pending[2] :: string,
+		pending.bucket,
 		if profile.stats.sessions <= 1 then "first" else "back",
 	})
 end
@@ -2529,8 +2529,8 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.loadLogged = true
 			local since = addedClock[player] or session.joinedClock
 			session.loadPending = {
-				math.floor(math.max(0, os.clock() - since) * 10) / 10,
-				PerfWatch.loadBucket(rawValue :: number),
+				seconds = math.floor(math.max(0, os.clock() - since) * 10) / 10,
+				bucket = PerfWatch.loadBucket(rawValue :: number),
 			}
 			logLoad(player, session, profile)
 		end

@@ -348,6 +348,11 @@ local Config = {
 	-- food), so the cutscene (camera over 0.5 s, the walk 1.6 s, the eat 1 s, camera back 0.5 s) plays while the
 	-- timer runs down and the Tame card comes up as it ends.
 	FirstBaitCatLeadSeconds = 4,
+	-- #4920 (Derek 2026-11-16: keep new players past 60 seconds): the account's first bait is ready this long after the
+	-- food goes in (Bait.firstWait), so the Tame card comes as the shorter first bait cut (#4931, about 2.7 s on touch
+	-- and 3.0 s on PC) ends instead of 2 s later. FirstBaitWaitSeconds stays the shortest wait there is (Bowl Frenzy's
+	-- floor, Bait.eventWait) and the bound for Bait.isFirst. The client's claim card still waits for the cut's end.
+	FirstBaitReadySeconds = 3,
 	-- #1920 (Design-Agent, first-hour.md 6): seconds of play in one session before the recap card (SessionRecap)
 	RecapAfterSeconds = 2400,
 	-- #2123 (first-hour.md 6a): the account's first session shows it sooner, as most first sessions end before 40 minutes.
@@ -1306,7 +1311,7 @@ local Config = {
 			tier: number?,
 		}
 	},
-	BinPadRadius = 4,
+	BinPadRadius = 7, -- #4862 (Derek 2026-11-16: "make it work from further away"): 4 before
 	BinPadDwellSeconds = 0.5,
 	BinRollSeconds = 2.5,
 	BinRevealSeconds = 1,

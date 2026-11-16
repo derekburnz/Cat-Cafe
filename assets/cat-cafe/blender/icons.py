@@ -143,6 +143,8 @@ ICONS = {
     "CatCafe_Icon_StarTreat": (icon_art.star_treat, INK, 10, (-16.0, 8.0)),
     "CatCafe_Icon_HoneyCream": (icon_art.honey_cream, INK, 10, (-14.0, 12.0)),     # #3462
     "CatCafe_Icon_CometTreat": (icon_art.comet_treat, INK, 10, (-12.0, 8.0)),
+    "CatCafe_Icon_EclipseTreat": (icon_art.eclipse_treat, INK, 10, (-12.0, 8.0)),    # #4900, on a purple glow
+    "CatCafe_Icon_RoyalFeast": (icon_art.royal_feast, GOLD_INK, 10, (-10.0, 22.0)),    # #4900, on a warm glow
     "CatCafe_Icon_Perk_GoldenEspresso": (icon_art.golden_espresso, GOLD_INK, 10, (-20.0, 34.0)),
     "CatCafe_Icon_Perk_BigBowl": (icon_art.big_bowl, INK, 10, (-18.0, 26.0)),
     "CatCafe_Icon_Perk_ExtraDecorSpot": (icon_art.extra_decor_spot, INK, 10, (-26.0, 40.0)),
@@ -297,7 +299,8 @@ def _outline(path, colour, width):
     bpy.data.images.remove(img)
 
 
-GLOW = {"CatCafe_Icon_StarterPopup": (255, 214, 130)}       # name -> the glow's colour (0-255 RGB)
+GLOW = {"CatCafe_Icon_StarterPopup": (255, 214, 130),       # name -> the glow's colour (0-255 RGB)
+        "CatCafe_Icon_EclipseTreat": (160, 60, 255), "CatCafe_Icon_RoyalFeast": (255, 214, 130)}     # #4900
 
 
 def _glow(path, colour):

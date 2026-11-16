@@ -39,6 +39,14 @@ local shown: Shown? = nil
 local claimedAt = -math.huge
 local lastLook = 0
 
+-- The wow cat's rarity while it glows or is on its way, else nil (Effects/FirstMinuteFx's card jingle).
+function WowBaitGlow.rarity(): string?
+	if shown ~= nil then
+		return shown.rarity
+	end
+	return if wanted ~= nil then wanted.rarity else nil
+end
+
 -- The tag's words for a rarity ("RARE!", "EPIC!"), nil for one that gets no glow.
 function WowBaitGlow.tagFor(rarity: unknown): string?
 	if type(rarity) ~= "string" or Presets.wowBait.rarities[rarity] ~= true then

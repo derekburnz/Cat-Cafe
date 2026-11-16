@@ -64,6 +64,9 @@ end
 
 -- Whether the intro plays itself on a join for a save in `group`: Config.IntroAutoPlay (`base`) for everyone, or
 -- the scene half while the switch is on. With the switch off again nobody new gets the scene.
+-- #4929: the live switch that stops the intro playing by itself for everyone (LiveFlags, off unless switched on)
+IntroSplit.NO_INTRO = "noIntro"
+
 function IntroSplit.plays(group: string?, on: boolean, base: boolean): boolean
 	return base
 		or group == IntroSplit.FULL

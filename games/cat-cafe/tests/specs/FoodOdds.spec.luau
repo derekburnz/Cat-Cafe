@@ -19,6 +19,24 @@ return function()
 		end)
 	end)
 
+	describe("a Secret tier food's odds (#4900)", function()
+		it("splits its Mythical share into Mythical and Secret, as the bowl rolls it", function()
+			local odds = { Common = 0, Rare = 0, Epic = 0, Legendary = 50, Mythical = 50 }
+			expect(FoodOdds.line(odds, 0.1)).to.equal(
+				"Odds: 0% Common · 0% Rare · 0% Epic · 50% Legendary · 45% Mythical · 5% Secret"
+			)
+			expect(FoodOdds.line(odds)).to.equal(
+				"Odds: 0% Common · 0% Rare · 0% Epic · 50% Legendary · 50% Mythical"
+			)
+			local rich = FoodOdds.rich(odds, function()
+				return "FFFFFF"
+			end, 0.1)
+			expect(string.find(rich, "Secret" .. utf8.char(0xA0) .. "5%", 1, true) ~= nil).to.equal(
+				true
+			)
+		end)
+	end)
+
 	describe("FoodOdds.split", function()
 		it("adds each rarity's per-cat shares back up to its share (N69)", function()
 			local Catalog = require(

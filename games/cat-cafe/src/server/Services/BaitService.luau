@@ -168,7 +168,8 @@ local function useLure(
 			true,
 			if LiveFlagService.on(Catching.SECRET_AREAS_FLAG)
 				then Catching.baitAreas(Economy.tier(profile))
-				else nil
+				else nil,
+			lure.secretShare -- #4900: the Eclipse Treat's 1 in 10
 		)
 		else nil
 	if secret ~= nil then

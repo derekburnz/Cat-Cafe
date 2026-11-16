@@ -27,6 +27,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Avatar = require(script.Parent.Avatar)
+local FlightClock = require(script.Parent.FlightClock)
 local Logic = require(script.Parent.Logic)
 local Presets = require(script.Parent.Presets)
 
@@ -76,7 +77,11 @@ function CannonGlide.frames(
 	local launching = character:GetAttribute("Launching") == true and type(at) == "number"
 	if launching and at ~= f.launchAt and at ~= f.done then
 		f.launchAt, f.from, f.seat = at :: number, f.free, nil
-	elseif not launching and f.launchAt ~= nil and now < f.launchAt + c.drop then
+	elseif
+		not launching
+		and f.launchAt ~= nil
+		and FlightClock.seconds(character, f.launchAt :: number, now) < c.drop
+	then
 		f.launchAt, f.from, f.seat = nil, nil, nil -- called off
 	end
 	local launchAt = f.launchAt
@@ -88,7 +93,7 @@ function CannonGlide.frames(
 	end
 	local from = if f.from ~= nil then root:Inverse() * f.from else nil
 	local heading = character:GetAttribute("CannonHeading")
-	local seconds = now - launchAt
+	local seconds = FlightClock.seconds(character, launchAt, now) -- #4933 follow-up: a shorter first flight
 	-- #3292: the root waits at the barrel's seat until the server's move to the pad arrives. Note where that is while
 	-- the body is out of sight, and if the move comes in late, keep it out of sight (up to `lateHold` seconds past
 	-- `drop`) rather than drawing the fall from the seat.
@@ -296,7 +301,7 @@ end
 -- `character` rising into view from cannonPose's `gone` after `launchAt` and diving out at its `drop`.
 function CannonGlide.mount(parent: GuiObject, zIndex: number, character: Model, launchAt: number)
 	fly(parent, zIndex, character, function()
-		return Workspace:GetServerTimeNow() - launchAt
+		return FlightClock.seconds(character, launchAt, Workspace:GetServerTimeNow())
 	end)
 end
 
@@ -459,7 +464,9 @@ local function track()
 	local launchAt = if f ~= nil then f.launchAt else nil
 	holdArrows(launchAt ~= nil or not grounded(me))
 	local c, k = Presets.cannonPose, Presets.cannonCamera
-	local seconds = if launchAt ~= nil then Workspace:GetServerTimeNow() - launchAt else 0
+	local seconds = if launchAt ~= nil and me ~= nil
+		then FlightClock.seconds(me, launchAt, Workspace:GetServerTimeNow())
+		else 0
 	if camera == nil or me == nil or f == nil or launchAt == nil or launchAt == handedBack then
 		if view ~= nil and camera ~= nil then
 			camera.CameraType = Enum.CameraType.Custom -- the game's camera again, from where this left it

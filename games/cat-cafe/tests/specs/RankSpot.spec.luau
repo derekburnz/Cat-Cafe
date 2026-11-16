@@ -27,9 +27,9 @@ return function()
 		)
 
 		it("waits until the player has been free for 2 seconds", function()
-			expect(RankSpot.FREE_SECONDS).to.equal(2)
-			expect(RankSpot.phase(true, "none", 1.9, nil)).to.equal("none")
-			expect(RankSpot.phase(true, "none", 2, nil)).to.equal("button")
+			expect(RankSpot.FREE_SECONDS).to.equal(0.5)
+			expect(RankSpot.phase(true, "none", 0.4, nil)).to.equal("none")
+			expect(RankSpot.phase(true, "none", 0.5, nil)).to.equal("button")
 			expect(RankSpot.phase(false, "none", 10, nil)).to.equal("none")
 		end)
 
@@ -73,7 +73,7 @@ return function()
 			expect(RankSpot.phase(true, "button", 0.25, RankSpot.WINDOW)).to.equal("confirm")
 			expect(RankSpot.phase(true, "confirm", 5, RankSpot.WINDOW)).to.equal("confirm")
 			expect(RankSpot.phase(true, "confirm", 5, nil)).to.equal("button") -- the window closed
-			expect(RankSpot.phase(true, "none", 0.5, RankSpot.WINDOW)).to.equal("none")
+			expect(RankSpot.phase(true, "none", 0.4, RankSpot.WINDOW)).to.equal("none")
 			expect(RankSpot.phase(true, "none", 2, RankSpot.WINDOW)).to.equal("confirm")
 		end)
 

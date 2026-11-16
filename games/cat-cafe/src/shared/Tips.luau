@@ -46,9 +46,7 @@ Tips.LIST = table.freeze({
 	tip("codes_cat", "card", "client"),
 	tip("luck", "card", "client"),
 	tip("offline", "card", "client"),
-	-- #2282 (Derek2: "on the persons first perfect catch have a quick side tip that explains it boosts their charm
-	-- giving more money"): after the first catch whose Perfects added Charm (CatchResult charmGain > 0)
-	tip("perfect", "card", "client"),
+	-- #2282's "perfect" tip (Perfects boost Charm) removed in #4838 (Derek 2026-11-16: "just adds bloat")
 	-- #2302 (Derek2: "add tackling somewhere in tutorial or something if it's not already"): after the tackling
 	-- lesson, the first time this player's tackle is ready with someone carrying a cat within a lunge
 	tip("tackle_try", "card", "client"),
@@ -77,12 +75,16 @@ Tips.INVITE_ASK = "invite_ask" -- F92: the one invite nudge, after the first ran
 Tips.NOTIFY_PLAY_SECONDS = 30 * 60
 -- #2553: in a return visit, the notification ask waits this long into the session
 Tips.NOTIFY_RETURN_SECONDS = 5 * 60
+Tips.ASK_PLAY_SECONDS = 5 * 60 -- #4854: the favorite, like and invite asks wait for this much play
 -- The asks in the order `dueAsk` offers them (starter-cat.md section 3's table, then F92's invite nudge).
 Tips.ASKS = table.freeze({ Tips.NOTIFY_ASK, Tips.FAVORITE_ASK, Tips.LIKE_ASK, Tips.INVITE_ASK })
 Tips.FEEDBACK_ASK = "feedback_ask"
 -- #3430: the Mystic Pool's first walk-up cutscene (Effects/MysticIntroCut), once per account ever. Its mark rides
 -- tipsSeen like the asks (no new save field) and "Show tips again" keeps it.
 Tips.MYSTIC_INTRO = "mystic_intro"
+-- #4858 (Derek 2026-11-16: the pool's "!" only "until the first time you go to the station"): the account's first
+-- walk-up to the Mystic Pool, sent by the client as it opens the card there. Rides tipsSeen like the cutscene's mark.
+Tips.POOL_VISIT = "pool_visit"
 Tips.STUCK_HELP = "stuck_help"
 
 -- SendFeedback's values (section 4): the three faces and the optional chips, as analytics' short fixed values.
@@ -111,6 +113,7 @@ function Tips.seenId(id: string): boolean
 		or id == Tips.STUCK_HELP
 		or id == Tips.LESSON
 		or id == Tips.MYSTIC_INTRO -- #3430
+		or id == Tips.POOL_VISIT -- #4858
 		or id == RankSpot.SEEN -- #3555: the first rank up's walk-through, put away
 		or StationReveal.isKey(id) -- #2687: a station's reveal, played once
 end
@@ -229,6 +232,11 @@ function Tips.dueAsk(
 		return nil
 	end
 	local seen = profile.tipsSeen
+	-- #4854 (Derek 2026-11-16: no favourite, like or invite asks during the tutorial or the first 5 minutes): the
+	-- favorite, like and invite asks also wait for ASK_PLAY_SECONDS of play on the account (the notification ask has
+	-- its own, longer rules below)
+	local played = playSeconds or profile.stats.playtimeSeconds or 0
+	local settled = played >= Tips.ASK_PLAY_SECONDS
 	if
 		seen[Tips.NOTIFY_ASK] ~= true
 		and (Tips.notifyLongPlay(profile, playSeconds) or Tips.notifyReturn(
@@ -239,6 +247,9 @@ function Tips.dueAsk(
 		and (profile.notifyAskAt <= 0 or now - profile.notifyAskAt >= Tips.NOTIFY_RETRY_SECONDS)
 	then
 		return Tips.NOTIFY_ASK
+	end
+	if not settled then
+		return nil
 	end
 	if seen[Tips.FAVORITE_ASK] ~= true and Economy.tier(profile) >= 2 then
 		return Tips.FAVORITE_ASK

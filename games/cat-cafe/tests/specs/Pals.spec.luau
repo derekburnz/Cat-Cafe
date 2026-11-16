@@ -128,6 +128,7 @@ return function()
 			profile.tutorialStep = 5
 			profile.tier = tier
 			profile.telemetry.firstDay = TODAY
+			profile.stats.playtimeSeconds = Tips.ASK_PLAY_SECONDS -- #4854: the asks wait for 5 minutes of play
 			for _, id in { Tips.NOTIFY_ASK, Tips.FAVORITE_ASK, Tips.LIKE_ASK } do
 				profile.tipsSeen[id] = true
 			end

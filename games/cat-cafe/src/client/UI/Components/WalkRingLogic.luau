@@ -31,4 +31,17 @@ function WalkRingLogic.area(view: View): string?
 	return WalkRingLogic.AREA
 end
 
+-- #4920 (Derek's first minute goal; Sync's stopwatch: Cannon tap, cloud hop, Hop in, picker and Launch took 8 to 16 s
+-- before the first flight): with the `firstFlightDirect` switch on (on unless switched off), the walk-through's
+-- flight from the Town Square cannon goes straight to the Alleyway, with no picker. The Park trip after the rank up
+-- still opens the picker with its ring. Returns the destination, or nil to open the picker.
+WalkRingLogic.FLAG = "firstFlightDirect"
+
+function WalkRingLogic.direct(view: View, on: boolean): string?
+	if not on or view.cannonId ~= "town" then
+		return nil
+	end
+	return WalkRingLogic.area(view)
+end
+
 return WalkRingLogic

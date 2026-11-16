@@ -585,6 +585,7 @@ export type CatFoundExtra = {
 	line: string?, -- in gold under the name, in place of the description
 	rate: number?, -- in place of the catalog's incomePerSecond (an exclusive cat earns like its rarity in the newest area)
 	source: string?, -- #4266: "bowl" for a cat tamed at the bait bowl (the server's CatCaught source)
+	quick: boolean?, -- #4920: the card closes itself sooner (Popups.QUICK_CLOSE), as at Tier 1
 }
 
 export type InitConfig = {

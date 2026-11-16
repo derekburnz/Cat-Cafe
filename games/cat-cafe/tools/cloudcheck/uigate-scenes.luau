@@ -4609,7 +4609,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(#trips == 1 and trips[1] == "home", "uigate: Go to my cafe travelled to " .. table.concat(trips, ", ") .. " (#2792)")
 		UI.firstVisit.changed(nil, away)
 		UI.firstVisit.changed("mystery", away)
-		task.wait(0.1)
+		task.wait(0.4)
+		-- #4946: one pop-up every 5 minutes, so the Mystery Visitor's card waits after the rich customer's
+		assert(not ask:FindFirstChild("Holder", true).Visible, "uigate: two first visit cards inside 5 minutes (#4946)")
+		UI.popPace.lastAt = nil -- as 5 minutes on
+		task.wait(1.2) -- present() looks again each second
 		assert(ask:FindFirstChild("Holder", true).Visible and title.Text == "🎁  A visitor left you a gift!", "uigate: no card for the first Mystery Visitor (#2792)")
 		UI.firstVisit.changed(nil, away)
 		task.wait(0.4)

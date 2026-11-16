@@ -2661,12 +2661,14 @@ local ASK_LINES: { [string]: string } = {
 local function showAsk(id: string)
 	task.spawn(function()
 		local waited = 0
-		while not quiet() do
+		-- #4946 (Sync's PC run: the favorite card came 20 s after a gift ask): and one pop-up every 5 minutes
+		while not quiet() or not UI.popPace.free() do
 			if waited >= ASK_WAIT_SECONDS then
 				return
 			end
 			waited += task.wait(1)
 		end
+		UI.popPace.used() -- #4946: the ask, its card or its toast, is this 5 minutes' pop-up
 		if id == Tips.NOTIFY_ASK then
 			local ok, can = pcall(function()
 				return ExperienceNotificationService:CanPromptOptInAsync()

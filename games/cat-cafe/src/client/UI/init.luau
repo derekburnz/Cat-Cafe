@@ -124,6 +124,20 @@ end
 function UI.popPace.used()
 	UI.popPace.lastAt = os.clock()
 end
+-- #4946 (Sync's PC run: "Golden Day!" four times in the first 5 minutes while an admin event ran): the day banners
+-- (AreaTitle's lucky_day and lucky_warning) wait out the hold above, and the same banner shows at most once every
+-- QuietStart.POP_GAP_SECONDS. They are not paced against the other pop-ups.
+UI.popPace.banners = {} :: { [string]: number }
+function UI.popPace.banner(key: string): boolean
+	local last = UI.popPace.banners[key]
+	local QuietStart =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
+	if UI.firstCat.tutorial or not QuietStart.popFree(last, os.clock()) then
+		return false
+	end
+	UI.popPace.banners[key] = os.clock()
+	return true
+end
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
@@ -5637,6 +5651,7 @@ function UI.clock.bind(clock: Instance)
 						areaTitle
 						and not (toasts and toasts:isBusy())
 						and not UI.intro.playing()
+						and UI.popPace.banner("lucky_day")
 					then
 						areaTitle:banner("lucky_day", title, line, Theme.colors.gold, 4)
 					end
@@ -5695,6 +5710,7 @@ function UI.luckyDay(
 			and title ~= nil
 			and not (toasts and toasts:isBusy())
 			and not UI.intro.playing()
+			and UI.popPace.banner("lucky_warning")
 		then
 			areaTitle:banner("lucky_warning", title, said, Theme.colors.gold, 4)
 		end
@@ -5967,6 +5983,15 @@ do
 			return
 		end
 		local id: string = picked -- closures below do not keep the refinement
+		-- #4946 (Sync's PC run: an ask card 20 s after a gift ask): an ask in the queue (the like ask) waits out the
+		-- hold and one pop-up every 5 minutes; it goes back in the queue meanwhile
+		if Tips.isAsk(id) then
+			if UI.firstCat.tutorial or not UI.popPace.free() then
+				tipQueue:push(id)
+				return
+			end
+			UI.popPace.used()
+		end
 		tipQueue:shown(now)
 		local device: TipQueue.Device = tipDevice()
 		local area = nextAreaName()
@@ -6231,14 +6256,16 @@ do
 	-- free; true when it shows. The card answers through the ask's own answer.
 	-- #2880: `news` is a card that tells of something happening now (a first visitor at the cafe, #2792), not an ask
 	-- for something: it skips the pace and does not hold the next ask back.
-	function UI.asks.card(ask: any, news: boolean?): boolean
+	-- #4946: `back` is a news card that already showed and stepped aside for a window (#3620); it comes back without
+	-- waiting for UI.popPace, as it is still the same pop-up
+	function UI.asks.card(ask: any, news: boolean?, back: boolean?): boolean
 		local card = askCard
 		local pace: any = UI.asks -- #2880: paced and shown are set further down the file
 		if card == nil or not initialized or card:isShowing() or not (news or pace.paced()) then
 			return false -- #2880: too soon after the last ask, or too early in the session; offered again later
 		end
 		-- #4946: news too waits out the walk-through and first 5 minutes, then one pop-up every 5 minutes
-		if news and (UI.firstCat.tutorial or not UI.popPace.free()) then
+		if news and (UI.firstCat.tutorial or not (back or UI.popPace.free())) then
 			return false
 		end
 		-- Review-QA (Studio, 667x375): the rich customer's card came up over a Rummage Bin roll and covered Give up;
@@ -6249,7 +6276,7 @@ do
 		card:show(ask)
 		if not news then
 			pace.shown()
-		else
+		elseif not back then
 			UI.popPace.used()
 		end
 		return true
@@ -7006,7 +7033,7 @@ end
 -- from the cafe. At a free moment (UI.tips.quiet: no catch, rescue, window or other ask) it toasts at the cafe, or away
 -- puts the slide-in ask card up with "Go to my cafe" (events.travel "home") and Later (Components/FirstVisitLogic).
 -- The card goes when the visit ends. Its own block, as the module is short of locals.
-UI.firstVisit = { kind = nil :: string?, token = 0, carded = false }
+UI.firstVisit = { kind = nil :: string?, token = 0, carded = false, shown = 0 }
 do
 	local FirstVisitLogic = require(script.Components.FirstVisitLogic)
 
@@ -7030,13 +7057,14 @@ do
 			return -- the visit ended, or another came, while it waited
 		end
 		-- #4946: and not in the walk-through or the account's first 5 minutes, then one pop-up every 5 minutes (the toast
-		-- at the cafe too)
+		-- at the cafe too); a card that already showed for this visit and stepped aside for a window is the same pop-up
+		local back = visit.shown == token
 		if
 			not initialized
 			or not UI.tips.quiet()
 			or busy()
 			or UI.firstCat.tutorial
-			or not UI.popPace.free()
+			or not (back or UI.popPace.free())
 		then
 			task.delay(1, present, token, away)
 			return
@@ -7078,10 +7106,11 @@ do
 						UI.events.travel:Fire("home")
 					end
 				end,
-			}, true) -- news, not an ask: AskPacing does not hold it back (#2880)
+			}, true, back) -- news, not an ask: AskPacing does not hold it back (#2880)
 			if not visit.carded then
 				task.delay(1, present, token, away) -- the card's slot is taken (another card, or its own way out)
 			else
+				visit.shown = token
 				-- #3620: a window or the perk card that opens over the shown card takes the screen; the card
 				-- steps aside and comes back when it has closed, while the visit lasts
 				task.spawn(function()

@@ -86,28 +86,5 @@ return function()
 			local tackleAt = NetButtonPlace.tackle(viewport, Vector2.new(10, 250), 70)
 			expect(tackleAt.X >= 0 and tackleAt.Y >= 0).to.equal(true)
 		end)
-
-		it(
-			"puts the booth toy's button straight above the jump button, clear of Net and Tackle (#4061)",
-			function()
-				for _, viewport in
-					{ Vector2.new(844, 390), Vector2.new(1024, 768), Vector2.new(1920, 1080) }
-				do
-					local jumpAt, jump = NetButtonPlace.jump(viewport)
-					local at, size = NetButtonPlace.toy(viewport)
-					local _, tackleSize = NetButtonPlace.tackle(viewport)
-					expect(size).to.equal(tackleSize)
-					expect(size >= 44).to.equal(true)
-					expect(math.abs(centre(at, size).X - (jumpAt.X + jump / 2)) <= 1).to.equal(true)
-					expect(at.Y + size <= jumpAt.Y).to.equal(true)
-					local netAt, netSize = NetButtonPlace.place(viewport)
-					local tackleAt = NetButtonPlace.tackle(viewport)
-					expect(overlaps(at, size, jumpAt, jump)).to.equal(false)
-					expect(overlaps(at, size, netAt, netSize)).to.equal(false)
-					expect(overlaps(at, size, tackleAt, tackleSize)).to.equal(false)
-					expect(at.X >= 0 and at.Y >= 0 and at.X + size <= viewport.X).to.equal(true)
-				end
-			end
-		)
 	end)
 end

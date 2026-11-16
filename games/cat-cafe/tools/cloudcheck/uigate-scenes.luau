@@ -4194,10 +4194,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				end
 			end
 		end
-		-- #3462: the Day Cart's own foods are off the list while its Tier 6 shelf is shut (the cartTier6 switch)
+		-- #3462: the Day Cart's own foods are on the list (#4654 batch 4: the cartTier6 switch that hid them is retired)
 		for _, id in { "honey_cream", "comet_treat" } do
 			local row = window:FindFirstChild(id, true)
-			assert(row and row:IsA("GuiObject") and not row.Visible, "uigate: " .. id .. " is listed with the cart's shelf shut (#3462)")
+			assert(row and row:IsA("GuiObject") and row.Visible, "uigate: " .. id .. " is not listed with the cart's shelf open (#3462)")
 		end
 	end },
 	-- Studio 2026-11-13 (#3976): in the family look, before the bowl is bought the Upgrades button sits at the status

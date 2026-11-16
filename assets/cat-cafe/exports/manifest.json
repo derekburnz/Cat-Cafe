@@ -369254,18 +369254,19 @@
       "objects": [
         "CatCafe_Camp_Snowy_FusionObservatory",
         "CatCafe_Camp_Snowy_FusionObservatory_Slit_Glow",
-        "CatCafe_Camp_Snowy_FusionObservatory_Bulb"
+        "CatCafe_Camp_Snowy_FusionObservatory_Bulb",
+        "CatCafe_Camp_Snowy_FusionObservatory_Slit_Spin"
       ],
       "triangles": 2192,
       "budget": 6000,
       "size_studs": {
         "x": 15.33,
         "y": 13.02,
-        "z": 11.09
+        "z": 15.79
       },
       "size_roblox": [
         15.33,
-        11.09,
+        15.79,
         13.02
       ],
       "bounds_min": [
@@ -369276,10 +369277,24 @@
       "bounds_max": [
         9.12,
         6.52,
-        10.39
+        15.09
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Snowy_FusionObservatory_Slit_Spin": [
+          0.0,
+          0.0,
+          4.7
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Snowy_FusionObservatory_Slit_Spin": [
+          0.0,
+          4.7,
+          0.0
+        ]
+      },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Snowy_FusionObservatory.model.json",
       "rbx_parts": 140,
       "files": [

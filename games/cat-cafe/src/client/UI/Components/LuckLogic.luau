@@ -363,20 +363,20 @@ function LuckLogic.dayRows(view: DayView?, have: { Row }): { Row }
 			if not listed then
 				table.insert(out, {
 					id = "lucky_day",
-					name = "Lucky Day: rarer cats",
+					name = "Lucky Day",
 					value = plus(cfg.LuckyDayPlayerLuck or 0.5),
 				})
 			end
 		elseif kind.id == "golden" then
 			table.insert(out, {
 				id = "golden_day",
-				name = "Golden Day: more gold cats",
+				name = "Golden Day",
 				value = ("x%s"):format(tostring(cfg.GoldenDayGoldMultiplier or 2)),
 			})
 		elseif kind.id == "rainbow" then
 			table.insert(out, {
 				id = "rainbow_day",
-				name = "Rainbow Day: more rainbow cats",
+				name = "Rainbow Day",
 				value = ("x%s"):format(tostring(cfg.RainbowDayMultiplier or 3)),
 			})
 		end

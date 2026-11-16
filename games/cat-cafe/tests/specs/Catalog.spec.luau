@@ -727,7 +727,7 @@ return function()
 			-- #4189 (Derek 2026-11-14: into the next areas sooner): 520,000, 16.8M, 390M, 5.6B and 54B, and 10, 22, 26, 38
 			-- and 47 kinds before; the 4x Money 2 hour floor is dropped
 			{ "Busy Cafe", 50000, 6, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 2 } },
-			{ "Famous Cafe", 1000000, 13, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 2 } },
+			{ "Famous Cafe", 1000000, 13, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 2 } },
 			{ "Grand Cafe", 17000000, 14, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 			-- #2651 (tier6-7-areas.md sections 1 and 7b), QA-Planner's Pace fit
 			{ "Sunstone Cafe", 312500000, 21, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },

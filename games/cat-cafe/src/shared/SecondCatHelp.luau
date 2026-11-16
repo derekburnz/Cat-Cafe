@@ -3,7 +3,8 @@
 -- the drop off from first to secondcat in funnels and improving the tier 2 drop off"; Design-Agent's plan in the
 -- project files, Design-Agent/dropoff-2026-11-15/second-cat-and-tier2.md). Pure; BaitService acts on it.
 --   autoBaitDue(profile, on) -> boolean   #4452 (switch autoFirstBait): the starter Kibble goes in bowl 1 by itself
---   topUpFor(profile, on) -> number       #4453 (switch tier2TopUp): coins the first tamed bait cat's welcome pays
+--   topUpFor(profile, on, anyCatch?) -> number  #4453 (switch tier2TopUp): coins the first tamed bait cat's welcome
+--                                         pays; #4674: with anyCatch (bowl first) any catch that completes Tier 2's cats
 -- Both switches are on unless switched off (not in LiveFlags.OFF_BY_DEFAULT); off brings back the flow before.
 
 local Bait = require(script.Parent.Bait)
@@ -34,8 +35,19 @@ end
 -- stats.baitsTamed already counting it), else 0. Only once (stats.tier2TopUp holds what was paid), only at Tier 1
 -- with Tier 2's cats need met, and only up to exactly Tier 2's cost: the price shown stays the real price and the
 -- gift is shown as a gift.
-function SecondCatHelp.topUpFor(profile: Types.PlayerProfile, on: boolean): number
-	if not on or profile.stats.baitsTamed ~= 1 or profile.stats.tier2TopUp > 0 then
+function SecondCatHelp.topUpFor(
+	profile: Types.PlayerProfile,
+	on: boolean,
+	anyCatch: boolean?
+): number
+	-- #4674 (Derek 2026-11-16: "give more starter money ... if you the 2nd cat safe it should be ready for rankup and
+	-- park teleport"): bowl first's bait cat is the first cat, so there the catch that completes Tier 2's kinds (any
+	-- route) pays the gap instead of the first tamed bait cat
+	if
+		not on
+		or (anyCatch ~= true and profile.stats.baitsTamed ~= 1)
+		or profile.stats.tier2TopUp > 0
+	then
 		return 0
 	end
 	if Economy.tier(profile) ~= 1 then

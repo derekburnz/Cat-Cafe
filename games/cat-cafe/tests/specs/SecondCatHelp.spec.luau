@@ -124,6 +124,24 @@ return function()
 			expect(SecondCatHelp.topUpFor(profile, true)).to.equal(0)
 		end)
 
+		it(
+			"#4674: under bowl first any catch that completes Tier 2's kinds pays it, once",
+			function()
+				local profile = tamed(300)
+				profile.stats.baitsTamed = 0
+				expect(SecondCatHelp.topUpFor(profile, true)).to.equal(0)
+				expect(SecondCatHelp.topUpFor(profile, true, true)).to.equal(tier2.cost - 300)
+				profile.stats.baitsTamed = 2
+				expect(SecondCatHelp.topUpFor(profile, true, true)).to.equal(tier2.cost - 300)
+				profile.stats.tier2TopUp = 1
+				expect(SecondCatHelp.topUpFor(profile, true, true)).to.equal(0)
+				profile.stats.tier2TopUp = 0
+				profile.collection = kinds(tier2.distinctCats - 1)
+				expect(SecondCatHelp.topUpFor(profile, true, true)).to.equal(0)
+				expect(SecondCatHelp.topUpFor(profile, false, true)).to.equal(0)
+			end
+		)
+
 		it("not short of Tier 2's kinds", function()
 			local profile = tamed(400)
 			profile.collection = kinds(tier2.distinctCats - 1)

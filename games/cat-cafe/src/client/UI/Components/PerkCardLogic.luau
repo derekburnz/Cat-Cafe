@@ -72,14 +72,9 @@ PerkCardLogic.POOL_PERK = "fresh_bait"
 PerkCardLogic.POOL_ICON = "🔮"
 PerkCardLogic.POOL_STATION = "Mystic Pool" -- Traits.NAME
 
--- Whether the pool stands there now: the `traits` live switch, as this client sees it (the one impure reader here).
+-- Whether the pool stands there now: always, since #4654 batch 3 retired the `traits` switch (kept for its callers).
 function PerkCardLogic.poolStands(): boolean
-	local LiveFlags =
-		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-	return LiveFlags.shown(
-		"traits",
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "traits")
-	) == true
+	return true
 end
 
 function PerkCardLogic.unlocked(perk: Perk, pool: boolean?): Unlocked

@@ -35,6 +35,7 @@ export type Attempt = {
 	trust: number?,
 	need: number?,
 	caught: boolean,
+	forgive: boolean?, -- #4447: the Dragon Keep's Steady Claw, until the first Miss uses it
 }
 
 -- #1884: the trust bar an attempt starts with and the trust that catches the cat.
@@ -132,10 +133,13 @@ function Circles.schedule(
 	_netLevel: number,
 	now: number,
 	roll: () -> number,
-	areaId: string?
+	areaId: string?,
+	slow: number? -- #4447: the Dragon Keep's Quick Paws, the share the shrink time grows by
 ): { Types.CatchCircle }
 	local def = Catalog.rarities[rarity]
-	local shrink = def.shrinkSeconds * Circles.ringSpeed(rarity, areaId)
+	local shrink = def.shrinkSeconds
+		* Circles.ringSpeed(rarity, areaId)
+		* (1 + math.max(0, slow or 0))
 	local jitter = Config.CircleJitter
 	local cap = Circles.ringCap(rarity)
 	local circles: { Types.CatchCircle } = {}
@@ -293,6 +297,16 @@ function Circles.latency(pingSeconds: number): number
 	return math.min(pingSeconds / 2, Config.CatchLatencyCapSeconds)
 end
 
+-- #4597: the time a catch press is judged at. The client's own `stamp` (its tap on the ring clock) when it is a real
+-- number, held between CatchPressStampSeconds before the arrival and the arrival itself, so a stamp can never claim a
+-- tap later than it came in or much earlier; with no stamp (an older client), the arrival less half the ping, capped.
+function Circles.pressTime(arrival: number, pingSeconds: number, stamp: unknown): number
+	if type(stamp) == "number" and stamp == stamp then
+		return math.clamp(stamp, arrival - Config.CatchPressStampSeconds, arrival)
+	end
+	return arrival - Circles.latency(pingSeconds)
+end
+
 function Circles.grade(errorSeconds: number, windows: Types.NetWindows): (Types.CircleGrade, number)
 	local err = math.abs(errorSeconds)
 	if err <= windows.perfect then
@@ -307,9 +321,11 @@ end
 function Circles.newAttempt(
 	circles: { Types.CatchCircle },
 	windows: Types.NetWindows,
-	trust: Trust?
+	trust: Trust?,
+	forgive: boolean?
 ): Attempt
 	return {
+		forgive = if trust ~= nil and forgive == true then true else nil,
 		circles = circles,
 		windows = windows,
 		scores = {},
@@ -345,7 +361,11 @@ local function settle(attempt: Attempt, grade: Types.RingGrade)
 		end
 		return
 	end
-	trust += Circles.trustDelta(grade)
+	if grade == "miss" and attempt.forgive == true then
+		attempt.forgive = nil -- #4447: Steady Claw forgives this Miss's trust once a catch
+	else
+		trust += Circles.trustDelta(grade)
+	end
 	attempt.trust = trust
 	if trust >= (attempt.need :: number) then
 		attempt.caught = true
@@ -426,7 +446,8 @@ function Circles.press(
 	pressTime: number,
 	now: number
 ): Types.RingGrade?
-	Circles.expire(attempt, now)
+	-- #4597: only the rings already over when the press was made, so a tap that arrived late is still judged
+	Circles.expire(attempt, math.min(now, pressTime))
 	if math.floor(index) ~= index or index < attempt.nextIndex or index > #attempt.circles then
 		return nil -- not a whole number (NaN included), already judged or past the last circle
 	end

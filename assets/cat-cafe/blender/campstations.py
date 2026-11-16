@@ -1333,7 +1333,8 @@ def build_dragon_keep(mat):
     centre; hide it from stage 2). Four torches burn on the wall (`_Flame`, Neon). The gold is `_Gold` (and its
     jewels `_Gold_Glow`), so the pile can be shown fuller as he grows. Attachments: PromptAnchor (the gate, 1.5 up),
     BangAnchor (2 over the arch), DragonSpot (the yard's middle, on the paving), CatSpot1 to CatSpot12 (where the
-    cats that moved in nap, round the gold)."""
+    cats that moved in nap, round the gold), ChestSpot (on the +X heap, where the Dragon's Hoard card's chest stands:
+    put CatCafe_Camp_Castle_HoardChest's pivot there and turn its front to DragonSpot)."""
     b, gold_, glow, flame, cush = RB(), RB(), RB(), RB(), RB()
     b.cyl((0, KEEP_FLOOR / 2, 0), KEEP_R + 0.5, KEEP_FLOOR, STONE_DARK, segments=20)
     b.cyl((0, KEEP_FLOOR + 0.02, 0), KEEP_R - 0.7, 0.04, "paving_tan", segments=20)
@@ -1403,6 +1404,7 @@ def build_dragon_keep(mat):
     _anchor(KEEP, "PromptAnchor", (0.0, KEEP_FLOOR + 1.5, gz - 1.2))
     _anchor(KEEP, "BangAnchor", (0.0, KEEP_FLOOR + 7.0, gz))
     _anchor(KEEP, "DragonSpot", (0.0, KEEP_FLOOR + 0.07, 0.0))
+    _anchor(KEEP, "ChestSpot", (4.0, KEEP_FLOOR + 0.62, 1.6))                      # sunk a little into the +X heap
     spots = [(5.3, d) for d in (200, 220, 240, 300, 320, 340, 180, 0)] + [(3.9, d) for d in (205, 335, 250, 290)]
     for k, (r, deg) in enumerate(spots):                                           # the cats' nap spots
         a = math.radians(deg)
@@ -1410,6 +1412,51 @@ def build_dragon_keep(mat):
     return [b.finalize(KEEP, mat), gold_.finalize(KEEP + "_Gold", mat), glow.finalize(KEEP + "_Gold_Glow", mat),
             flame.finalize(KEEP + "_Flame", mat),
             cush.finalize(KEEP + "_Cushion", mat, location=(0.0, KEEP_FLOOR + 0.47, 0.0))]
+
+
+# the Dragon's Hoard card (ticket-booth-and-dragon-keep.md 2.7, Legendary Hoard): "every 4 hours Cinder leaves a hoard
+# chest in the Keep". The chest, to stand at the Keep's ChestSpot while one waits.
+HOARD_CHEST = "CatCafe_Camp_Castle_HoardChest"
+HC_X, HC_Z, HC_H = 1.1, 0.7, 0.9                               # the box: half width, half depth, height under the lid
+
+
+def build_hoard_chest(mat):
+    """A chunky treasure chest, 2.2 wide: dark wood with three brass straps, corner feet and a lock plate with a
+    berry gem. The lid is its own object (`_Lid`, pivot on the hinge line at the back top edge, so turning it about X
+    opens it); under it lies a heap of coins (`_Gold`) with three jewels (`_Gold_Glow`). Front -Z, pivot at the base
+    centre. Attachments: PromptAnchor (over the lid's front), FxAnchor (the middle of the coins)."""
+    b, lid, gold_, glow = RB(), RB(), RB(), RB()
+    b.span((-HC_X, 0.12, -HC_Z), (HC_X, HC_H, HC_Z), "dark_wood")
+    b.span((-HC_X - 0.04, 0.2, -HC_Z - 0.04), (HC_X + 0.04, 0.34, HC_Z + 0.04), "brass")           # the bottom band
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            b.box((sx * (HC_X - 0.1), 0.09, sz * (HC_Z - 0.1)), (0.34, 0.18, 0.34), "brass")       # feet
+    for x in (-0.72, 0.0, 0.72):                                                                   # straps
+        b.span((x - 0.12, 0.34, -HC_Z - 0.05), (x + 0.12, HC_H - 0.02, HC_Z + 0.05), "brass")
+    b.box((0.0, 0.62, -HC_Z - 0.09), (0.46, 0.42, 0.08), "gold_mid")                               # the lock plate
+    glow_y = 0.64
+    glow.box((0.0, glow_y, -HC_Z - 0.14), (0.18, 0.18, 0.06), "royal_berry", rot=rot_z(45))
+    # the lid, built about the hinge: y up from the box top, z from 0 (the hinge) to the front
+    D = 2 * HC_Z
+    for k, (y0, y1, z0, z1, dx) in enumerate(((0.0, 0.26, -D - 0.03, 0.03, 0.03), (0.26, 0.44, -D + 0.14, -0.14, 0.01),
+                                              (0.44, 0.56, -D + 0.36, -0.36, -0.01))):
+        lid.span((-HC_X - dx, y0, z0), (HC_X + dx, y1, z1), "dark_wood")
+        for x in (-0.72, 0.0, 0.72):
+            lid.span((x - 0.12, y0 + 0.01, z0 - 0.03), (x + 0.12, y1 + 0.03, z1 + 0.03), "brass")
+    lid.box((0.0, 0.1, -D - 0.07), (0.3, 0.2, 0.08), "gold_mid")                                   # the hasp
+    # the coins under the lid
+    gold_.span((-HC_X + 0.1, HC_H - 0.2, -HC_Z + 0.1), (HC_X - 0.1, HC_H + 0.06, HC_Z - 0.1), "gold_mid")
+    gold_.cyl((-0.35, HC_H + 0.12, 0.05), 0.5, 0.16, "gold_light", r2=0.3, segments=10)
+    gold_.cyl((0.42, HC_H + 0.1, -0.1), 0.42, 0.12, "gold_light", r2=0.24, segments=10)
+    for k, (x, z) in enumerate(((-0.8, -0.35), (0.85, 0.3), (0.05, 0.38), (-0.1, -0.42), (0.75, -0.4))):
+        gold_.cyl((x, HC_H + 0.085, z), 0.14, 0.05, ("gold_light", "gold_dark")[k % 2], segments=8)
+    for (x, z, sw) in ((-0.35, 0.05, "rarity_mythic"), (0.42, -0.1, "fish_blue"), (0.1, 0.2, "eye_green")):
+        glow.box((x, HC_H + 0.27, z), (0.2, 0.2, 0.2), sw, rot=rot_x(45) @ rot_z(45))
+    _anchor(HOARD_CHEST, "PromptAnchor", (0.0, HC_H + 1.2, -HC_Z))
+    _anchor(HOARD_CHEST, "FxAnchor", (0.0, HC_H + 0.2, 0.0))
+    return [b.finalize(HOARD_CHEST, mat), gold_.finalize(HOARD_CHEST + "_Gold", mat),
+            glow.finalize(HOARD_CHEST + "_Gold_Glow", mat),
+            lid.finalize(HOARD_CHEST + "_Lid", mat, location=(0.0, HC_H, HC_Z))]
 
 
 # ------------------------------------------------------------------------------------------ the Ticket Booth --
@@ -1505,6 +1552,7 @@ def build_ticket_booth(mat):
 # #1800: the moving child Models' own numbers for Effects/Motion (rbx_export model_attributes), by asset
 MOVING = {YARD: {"model_attributes": {"_Sign_Swing": {"Angle": {"Float64": SIGN_ANGLE}}}},
           KEEP: {"nest": {"_Gold_Glow": "_Gold"}},   # #4062: the jewels ride the gold
+          HOARD_CHEST: {"nest": {"_Gold_Glow": "_Gold"}},
           # #4061: the ticket wheel faces the front, so its _Spin pivot's Y axis is turned onto -Z
           BOOTH: {"pivot_turns": {"_Spin": Matrix.Rotation(math.radians(-90), 3, "X")}}}
 
@@ -1607,6 +1655,7 @@ ASSETS = {
     BIN: (build_rummage_bin, 2500),
     COCOA: (build_cocoa_stand, 6000),
     KEEP: (build_dragon_keep, 6000),
+    HOARD_CHEST: (build_hoard_chest, 600),
     BOOTH: (build_ticket_booth, 6000),
     OBS: (build_fusion_observatory, 6000),
 }

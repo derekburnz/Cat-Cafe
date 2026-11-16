@@ -6,7 +6,7 @@
 -- Controllers/NetSwingController drives them, behind the live switch `touchCatchReach` (off by default).
 -- #4299: the one exception, behind the same switch: the server widens a reported phone or tablet's catch bands
 -- (Circles.touchScale). A spoofed report gets only those 1.3x bands, the same as a real phone (see the PR).
---   FLAG, SHARE, WALK_SECONDS, FOLLOW_SECONDS, TELEMETRY
+--   SHARE, WALK_SECONDS, FOLLOW_SECONDS, TELEMETRY
 --   reach(extra?)                     how far the touch glow and button reach, in studs
 --   pick(origin, targets, extra?)     the nearest target inside that reach, or nil
 --   walking(elapsed, canSwing)        whether a walk goes on
@@ -16,7 +16,6 @@ local NetSwing = require(script.Parent.NetSwing)
 
 local TouchReach = {}
 
-TouchReach.FLAG = "touchCatchReach"
 TouchReach.SHARE = 1.5 -- of NetSwing.reach
 TouchReach.WALK_SECONDS = 2.5 -- a walk that has not reached the stray by now ends without a swing
 -- #4041: after the walk's swing the character keeps walking at the stray this long, so the root is where

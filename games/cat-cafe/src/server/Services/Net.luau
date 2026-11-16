@@ -21,8 +21,6 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SwingNet = RateLimiter.new(3, 1), -- F93: a flood guard; CatService holds NetSwingCooldown from each swing
 	RescueBegin = RateLimiter.new(1, 1),
 	RescueCancel = RateLimiter.new(1, 1),
-	ArcadeStart = RateLimiter.new(1, 1), -- #3062
-	ArcadeQuit = RateLimiter.new(1, 1),
 	MouseDashStart = RateLimiter.new(1, 1), -- #3296
 	MouseDashTap = RateLimiter.new(12, 1),
 	MouseDashQuit = RateLimiter.new(1, 1),
@@ -90,6 +88,9 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	KeepCards = RateLimiter.new(1, 1),
 	SlotDragonCard = RateLimiter.new(4, 1),
 	SetDragonColour = RateLimiter.new(1, 1),
+	StartFusion = RateLimiter.new(1, 1), -- #4104
+	CollectFusion = RateLimiter.new(1, 1),
+	FuseAll = RateLimiter.new(1, 2), -- #4589: 1 every 2 seconds
 	MarkMysterySeen = RateLimiter.new(1, 2), -- #2565: one save flag
 	SetBagColours = RateLimiter.new(1, 1), -- #3699: 1 a second
 	PromptDeal = RateLimiter.new(1, 1), -- #3996
@@ -100,7 +101,6 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ReportBug = RateLimiter.new(1, 1), -- a flood guard; BugReportService answers its own 1 per 20 s with a toast
 	UsePotion = RateLimiter.new(2, 1), -- data-model section 15: 2 a second
 	UsePotionAll = RateLimiter.new(1, 2), -- #3326: 1 per 2 s; one call drinks the whole bag
-	OpenMysteryGift = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	AnswerCollector = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimQuest = RateLimiter.new(2, 1), -- quests.md section 6: 2 a second
 	RerollQuest = RateLimiter.new(1, 1), -- 1 a second
@@ -114,6 +114,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SendFeedback = RateLimiter.new(1, 10), -- F87: 1 per 10 s; TipService also holds FeedbackSessionLimit a session
 	SessionFeedback = RateLimiter.new(1, 30), -- #3272: 1 per 30 s; TipService also holds it to once a UTC day
 	ClaimStarterCat = RateLimiter.new(1, 2), -- F96 (starter-cat.md section 4): 1 per 2 s
+	GroupJoinPrompted = RateLimiter.new(1, 5), -- #4679: 1 per 5 s; a note that the join prompt opened
 	-- F100 (camp-extras.md section 4) was 1 a second for every station together. #3993 (Derek 2026-11-13: "sometimes
 	-- the claiming fish pond from cannon menu doesnt work"): the Cat Cannon menu has a Collect per station, so a
 	-- Picnic Basket then a Fish Pond inside a second dropped the pond's with no answer. 4 a second; each call is
@@ -137,7 +138,6 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	-- 1 per 2 s the second section's Buy all (or a second press after a partial one) was dropped in silence, so its
 	-- button sat on "Buying..." with nothing bought
 	BuyCornerShopAll = RateLimiter.new(3, 2),
-	SellExtraCommons = RateLimiter.new(1, 2), -- #1573: 1 per 2 s; sells many at once and sends a full sync
 	FeedCat = RateLimiter.new(4, 1), -- #1181: 4 a second
 	PetCat = RateLimiter.new(2, 1), -- #3651: 2 a second; PetService also holds one pet each PetCooldownSeconds
 	-- F91 (front-lawn.md section 5): each rebuilds the lawn and sends a full sync

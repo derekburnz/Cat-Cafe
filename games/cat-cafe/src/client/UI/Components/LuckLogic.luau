@@ -74,6 +74,7 @@ local NAMES: { [string]: string } = {
 	charm = "Lucky Charm", -- #3298: the Golden Fish Market perk
 	potion = "Lucky Potion",
 	lucky_day = "Lucky Day",
+	dragon = "Lucky Scale (Dragon Keep)", -- #4447
 	event = "Cafe Event", -- #2539: a Cafe Event's luck; rows() takes the running event's title ("Cafe Party") over it
 }
 
@@ -245,7 +246,15 @@ function LuckLogic.crateOdds(
 		end
 	end
 	local opens = if state.crateLuck then state.crateLuck[crate.area] else nil
-	return MarketLogic.nextOdds(crate :: any, opens, LUCKY_EVERY, golden, luck)
+	-- the Dragon Keep's Lucky Crate on top, as the server rolls (Crates.withCardLuck)
+	local card = if state.cardLuck then state.cardLuck.crate else nil
+	return MarketLogic.nextOdds(
+		crate :: any,
+		opens,
+		LUCKY_EVERY,
+		golden,
+		Crates.withCardLuck(luck, card)
+	)
 end
 
 -- #1572 (luck-and-rare-moments.md 1g): the kinds of a day, in this order, each with its name, its HUD word, what it

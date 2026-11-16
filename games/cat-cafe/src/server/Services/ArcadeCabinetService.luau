@@ -1,7 +1,7 @@
 --!strict
 -- #3443 (Derek 2026-11-12: "remove the arcade machine and its circle for now"): whether the Cat Arcade's cabinet and
 -- its floor ring are in the world. They stand only while the arcade has a game to play: the `arcade` switch on and
--- one of `circleStreak` or `mouseDash` on. Otherwise both wait in ServerStorage, so no client has the machine, its
+-- `mouseDash` on (#4656: Circle Streak is gone). Otherwise both wait in ServerStorage, so no client has the machine, its
 -- ring or its prompt. The switches are read every CHECK_SECONDS, so the machine goes and comes back in every
 -- running server with no publish and no restart. Nothing about the games, the saves, the board or the prizes
 -- changes here; ArcadeService still finds the cabinet by its tag while it is put away.
@@ -16,7 +16,6 @@ local ServerStorage = game:GetService("ServerStorage")
 
 local Arcade = require(ReplicatedStorage.Shared.Arcade)
 local LiveFlagService = require(script.Parent.LiveFlagService)
-local MouseDash = require(ReplicatedStorage.Shared.MouseDash)
 local WalkUp = require(ReplicatedStorage.Shared.WalkUp)
 
 local ArcadeCabinetService = {}
@@ -64,8 +63,7 @@ function ArcadeCabinetService.apply(): boolean
 	end
 	local on = Arcade.cabinetStands(
 		LiveFlagService.on(Arcade.FLAG),
-		LiveFlagService.on(MouseDash.CIRCLE_FLAG),
-		LiveFlagService.on(MouseDash.FLAG),
+		true, -- #4654 batch 9: the `mouseDash` switch is retired
 		LiveFlagService.ready()
 	)
 	if shown ~= on then

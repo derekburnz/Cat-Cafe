@@ -171,8 +171,6 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 	self._facesQueued = false
 	-- #3961: the batch 3 mock's inside (picture cards that say what each slot is, a green "+3 levels ready" chip,
 	-- chunky capital buttons, a wide COLLECT and the fish count in the title band) while the family look is on
-	local family = MenuFamily.on()
-	self._family = family
 	local buttonH = Scale.tapHeight(40, Theme.sizes.buttonDepth)
 	self._buttonH = buttonH
 	local tileH = PICTURE + 84 + buttonH
@@ -237,12 +235,10 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 			TextColor3 = CARD.subtext,
 			Parent = frame,
 		})
-		if family then
-			-- the mock's soft square behind the + and the lock
-			glyph.BackgroundTransparency = 0
-			glyph.BackgroundColor3 = CARD.caramel
-			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius), Parent = glyph })
-		end
+		-- the mock's soft square behind the + and the lock
+		glyph.BackgroundTransparency = 0
+		glyph.BackgroundColor3 = CARD.caramel
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius), Parent = glyph })
 		local name = text({
 			Name = "Name",
 			Position = UDim2.fromOffset(6, PICTURE + 14),
@@ -324,9 +320,7 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 		name = "Collect",
 		text = "Collect",
 		style = "primary",
-		size = if family
-			then UDim2.new(0.7, 0, 0, buttonH + 6)
-			else UDim2.fromOffset(240, buttonH + 4),
+		size = UDim2.new(0.7, 0, 0, buttonH + 6),
 		anchorPoint = Vector2.new(0.5, 0),
 		position = UDim2.new(0.5, 0, 0, tileH + GAP + 2),
 		textSize = Theme.sizes.textBody + 1,
@@ -348,7 +342,7 @@ function OasisSpa.new(callbacks: Callbacks): OasisSpa
 	})
 	-- #3961: the fish count as a chip in the title band, left of the X (the mock), in place of the line
 	local header = panel.body:FindFirstChild("Header") :: Frame?
-	if family and header ~= nil then
+	if header ~= nil then
 		self._have.Visible = false
 		local pill: Frame = Create("Frame", {
 			Name = "Fish",
@@ -979,7 +973,7 @@ function OasisSpa._paint(self: any)
 		end
 		tile.line.Text = if row.kind == "empty" then "Room for one more cat" else row.line
 		tile.line.TextColor3 = if row.ready then CARD.good else CARD.subtext
-		local words = if self._family then LateStationsLogic.spaCardText(row) else nil
+		local words = LateStationsLogic.spaCardText(row)
 		if words ~= nil then
 			if words.title ~= nil then
 				tile.name.Text = words.title
@@ -994,14 +988,11 @@ function OasisSpa._paint(self: any)
 		if tile.chipText.Text ~= chipWords then
 			tile.chipText.Text = chipWords
 		end
-		local family = self._family
 		local label, style, enabled, show = "", "primary", false, true
 		if row.kind == "cat" then
-			label, style, enabled, show =
-				if family then "TAKE OUT" else "Take out", "ghost", not self._pending, not row.ready
+			label, style, enabled, show = "TAKE OUT", "ghost", not self._pending, not row.ready
 		elseif row.kind == "empty" then
-			label, style, enabled =
-				if family then "ADD A CAT" else "Add a cat", "primary", not self._pending
+			label, style, enabled = "ADD A CAT", "primary", not self._pending
 		else
 			local price = row.price or 0
 			label, style = tostring(price), "gold"
@@ -1027,9 +1018,7 @@ function OasisSpa._paint(self: any)
 	end
 	local levels = LateStationsLogic.spaReady(self._spa, self._cats, now())
 	local collect = LateStationsLogic.collectText(levels)
-	self._collect:setText(
-		if self._pending then "..." elseif self._family then collect:upper() else collect
-	)
+	self._collect:setText(if self._pending then "..." else collect:upper())
 	self._collect:setEnabled(levels > 0 and not self._pending)
 	self._have.Text = ("You have %s golden fish"):format(ShortNumber.format(self._fish))
 	local haveChip: TextLabel? = self._haveChip

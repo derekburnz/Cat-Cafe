@@ -12,7 +12,6 @@
 --   step(view, now, seenAt, p)  what the screen shows now: the 3, 2, 1 before the start, the name splash, the strip,
 --                               its last minute
 --   earned(total, before, after) the running "You earned" sum: money that came in, never what was spent
---   pulse(t, hz, amount)        the last minute's slow swell, 1 to 1 + amount
 --   money(n, symbol)            12340 -> "+$12,340"
 -- The words count down nothing but the event's own start and end, and sell nothing.
 
@@ -48,6 +47,13 @@ export type Step = {
 
 -- In the order an event with several effects picks its look: the first one it has.
 AdminFlashLogic.KINDS = {
+	{
+		name = "wheel",
+		head = "SPIN THE ADMIN WHEEL!",
+		stay = "One free spin for everyone!",
+		look = "gold",
+		rain = "wheel",
+	},
 	{
 		name = "moneyStorm",
 		head = "x%s MONEY",
@@ -254,9 +260,21 @@ function AdminFlashLogic.earned(total: number, before: number?, after: number?):
 	return total
 end
 
--- A slow swell `hz` times a second: 1 at rest, 1 + amount at its top.
-function AdminFlashLogic.pulse(t: number, hz: number, amount: number): number
-	return 1 + amount * (0.5 - 0.5 * math.cos(2 * math.pi * hz * t))
+-- #4616 (Derek2 2026-11-15: "the 4x bowl speed on mobile pushes other ui into the middle of screen like 2x money"):
+-- on a phone or tablet the money, the X2 Cash button and the event chip hang under the top bar in the middle, right
+-- where the strip sat (`stripY` of the height), so there it sits at the bottom middle instead, `stripLift` design px
+-- (times the strip's scale `s`) over the screen's bottom edge, above My Cafe and Cannon. Returns the strip's
+-- AnchorPoint Y and its Position's Y scale and offset.
+function AdminFlashLogic.stripSpot(
+	touch: boolean,
+	s: number,
+	stripY: number,
+	stripLift: number
+): (number, number, number)
+	if touch then
+		return 1, 1, -math.floor(stripLift * s)
+	end
+	return 0, stripY, 0
 end
 
 -- 12340 -> "+$12,340"

@@ -18,16 +18,15 @@ return function()
 	local r = Presets.riftRun
 
 	describe("Effects Rift Run", function()
-		it("plays for Mythic and Secret only, behind a switch that starts off", function()
+		it("plays for Mythic and Secret only, for everyone (#4654: no switch)", function()
 			expect(Logic.riftPlan("mythic") ~= nil).to.equal(true)
 			expect(Logic.riftPlan("secret") ~= nil).to.equal(true)
 			for _, id in { "common", "uncommon", "rare", "epic", "legendary", "nope" } do
 				expect(Logic.riftPlan(id)).to.equal(nil)
 			end
 			expect(Logic.riftPlan(nil)).to.equal(nil)
-			expect(table.find(LiveFlags.KEYS, "riftRun") ~= nil).to.equal(true)
-			expect(LiveFlags.OFF_BY_DEFAULT.riftRun).to.equal(true)
-			expect(LiveFlags.defaults().riftRun).to.equal(false)
+			expect(table.find(LiveFlags.KEYS, "riftRun")).to.equal(nil)
+			expect(LiveFlags.OFF_BY_DEFAULT.riftRun).to.equal(nil)
 		end)
 
 		it("passes a gate a tier, Common first, up to the rolled tier and never past it", function()

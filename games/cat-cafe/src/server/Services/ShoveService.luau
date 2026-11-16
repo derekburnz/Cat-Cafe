@@ -38,7 +38,7 @@ local lastShovedAt: { [number]: number } = {} -- target UserId -> server time an
 -- whose position reaches the server late still counts
 type Seen = { at: number, position: Vector3 }
 local trails: { [Player]: { Seen } } = {}
--- #3342: server time each player's join shield ends; nil once it ran out or their own tackle ended it. Mirrored to
+-- #3342: server time each player's join shield ends; nil once it ran out (#4499: their own tackle no longer ends it). Mirrored to
 -- the Player's TackleShieldUntil attribute so their own Tackle bar can show the shield (display only).
 local shieldUntil: { [Player]: number } = {}
 -- #3378: tackles the join shield stopped since the last tackle_shield event, and who made the last one
@@ -106,14 +106,6 @@ local function startShield(player: Player)
 	if untilAt ~= nil then
 		shieldUntil[player] = untilAt
 		player:SetAttribute("TackleShieldUntil", untilAt)
-	end
-end
-
--- #3342: ends `player`'s join shield (their own tackle).
-local function endShield(player: Player)
-	if shieldUntil[player] ~= nil then
-		shieldUntil[player] = nil
-		player:SetAttribute("TackleShieldUntil", nil)
 	end
 end
 
@@ -256,6 +248,7 @@ local function tackle(player: Player, forced: Shove.KnockResult?)
 		areasClosed = not ClockService.areasOpen(),
 		sinceTackle = since(lastTackleAt[player], now),
 		newcomer = newcomer(player),
+		shielded = Shove.shielded(shieldUntil[player], now), -- #4499: a shielded player cannot tackle either
 	})
 	if reason ~= nil or root == nil then
 		-- a refusal spends nothing; the button is hidden or greyed in these states anyway
@@ -264,7 +257,6 @@ local function tackle(player: Player, forced: Shove.KnockResult?)
 		return
 	end
 	lastTackleAt[player] = now
-	endShield(player) -- #3342: tackling gives up your own join shield
 	profile.stats.bumpsGiven += 1
 	local character = player.Character
 	if character ~= nil then

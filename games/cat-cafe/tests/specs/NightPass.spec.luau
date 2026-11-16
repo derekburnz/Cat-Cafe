@@ -52,7 +52,7 @@ return function()
 			local profile: any = ProfileSchema.template(1700000000)
 			profile.tutorialStep = 3
 			profile.stats.sessions = 1
-			profile.stats.catsCaught = 1 -- one caught by hand: past the walk-through's trip out (#3659)
+			profile.stats.catsCaught = 2 -- two caught by hand: past the walk-through's trip out (#3659, #4494)
 			expect(Economy.tier(profile)).to.equal(1)
 			expect(NightPass.of(profile, true)).to.equal(true)
 			expect(NightPass.firstOf(profile, true)).to.equal(true)
@@ -69,11 +69,13 @@ return function()
 			function()
 				expect(NightPass.learner(2, 1, 0)).to.equal(true)
 				expect(NightPass.learner(5, 1, 0)).to.equal(true) -- stood at the cannon by the last step
-				expect(NightPass.learner(5, 1, 1)).to.equal(false) -- caught one by hand
+				expect(NightPass.learner(5, 1, 1)).to.equal(true) -- #4494: one by hand, the second cat's trip still ahead
+				expect(NightPass.learner(5, 1, 2)).to.equal(false) -- the second cat caught by hand
 				expect(NightPass.learner(5, 2, 0)).to.equal(false) -- ranked up
 				expect(NightPass.learner(1, 1, 0)).to.equal(false) -- a beginner holds #2692's pass instead
 				expect(NightPass.holds(5, 1, 9, false, 0)).to.equal(true) -- any session, the switch off
-				expect(NightPass.holds(5, 1, 9, false, 1)).to.equal(false)
+				expect(NightPass.holds(5, 1, 9, false, 1)).to.equal(true) -- #4494
+				expect(NightPass.holds(5, 1, 9, false, 2)).to.equal(false)
 				expect(NightPass.holds(5, 1, 9, false)).to.equal(false) -- not asked: as before
 			end
 		)
@@ -88,7 +90,10 @@ return function()
 			expect(NightPass.of(profile, false)).to.equal(true)
 			expect(NightPass.nightCatOf(profile, false)).to.equal(true)
 			expect(NightPass.firstOf(profile, false)).to.equal(false)
-			profile.stats.catsCaught = 2 -- the second was caught by hand and checked in
+			profile.stats.catsCaught = 2 -- the first caught by hand: the second cat's trip is still ahead (#4494)
+			expect(NightPass.learnerOf(profile)).to.equal(true)
+			expect(NightPass.of(profile, false)).to.equal(true)
+			profile.stats.catsCaught = 3 -- the second was caught by hand and checked in
 			expect(NightPass.learnerOf(profile)).to.equal(false)
 			expect(NightPass.of(profile, false)).to.equal(false)
 			expect(NightPass.nightCatOf(profile, false)).to.equal(false)

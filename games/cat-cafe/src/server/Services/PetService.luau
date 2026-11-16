@@ -16,9 +16,9 @@ local CafeService = require(script.Parent.CafeService)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
+local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
-local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Pet = require(ReplicatedStorage.Shared.Pet)
 local PlotService = require(script.Parent.PlotService)
@@ -31,9 +31,6 @@ local RANGE_SLACK = 3 -- studs over PetRangeStuds: the server sees the character
 local lastPet: { [Player]: number } = {} -- os.clock() of each player's last pet
 
 local function onPet(player: Player, rawUid: unknown)
-	if not LiveFlagService.on(Pet.FLAG) then
-		return
-	end
 	local uid = Guard.id(rawUid)
 	local profile = DataService.get(player)
 	local plot = PlotService.get(player)
@@ -61,7 +58,7 @@ local function onPet(player: Player, rawUid: unknown)
 	lastPet[player] = now
 	local at = os.time()
 	Economy.settle(profile, at, ClockService.epoch()) -- the window so far at its own rate
-	local how, previous = Pet.pet(profile, uid, at)
+	local how, previous = Pet.pet(profile, uid, at, DragonKeep.of(profile).petExtra) -- #4447: Pat Pat
 	CafeService.markHappy(player)
 	Telemetry.custom(player, "cat_pet", 1, { how })
 	local from = if previous ~= nil then plot.cats:FindFirstChild(previous) else nil
@@ -73,26 +70,7 @@ function PetService.start()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		lastPet[player] = nil
 	end)
-	task.spawn(function()
-		local on = false
-		while true do
-			local now = LiveFlagService.on(Pet.FLAG)
-			if now ~= on then
-				for _, player in DataService.loadedPlayers() do
-					local profile = DataService.get(player)
-					if profile ~= nil then
-						Economy.settle(profile, os.time(), ClockService.epoch())
-					end
-				end
-				on = now
-				Economy.setPetOn(on)
-				for _, player in DataService.loadedPlayers() do
-					CafeService.markHappy(player)
-				end
-			end
-			task.wait(1)
-		end
-	end)
+	Economy.setPetOn(true) -- #4654: the petCats switch shipped; nobody's save is loaded yet at start
 end
 
 return PetService

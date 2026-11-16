@@ -31,6 +31,7 @@ local Logic = require(script.Parent.Logic)
 local Net = require(script.Parent.Parent.Net)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
+local Rumble = require(script.Parent.Rumble)
 local ScreenFx = require(script.Parent.ScreenFx)
 
 local Catch = {}
@@ -477,6 +478,7 @@ function Catch.start()
 				if spot == nil then
 					return
 				end
+				Context.rumble(Rumble.catch(spot.rarity)) -- #4224: your own catch buzzes a gamepad, more the rarer
 				if finish ~= nil then
 					finished(spot, finish)
 				elseif Logic.isPurrfect(grades) then

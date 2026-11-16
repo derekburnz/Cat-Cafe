@@ -265,4 +265,43 @@ return function()
 			expect(Config.SpinAllMax >= Config.SpinBankCap + 1).to.equal(true)
 		end)
 	end)
+
+	describe("spin luck (the Dragon Keep's Lucky Spin)", function()
+		local function weights(rows: { any }): ({ [number]: number }, number)
+			local by: { [number]: number } = {}
+			local total = 0
+			for _, row in rows do
+				by[row.slice] = row.weight
+				total += row.weight
+			end
+			return by, total
+		end
+
+		it("lifts the crate and both jackpots, takes it from slice 1, keeps the total", function()
+			local base, baseTotal = weights(Catalog.spinWheel)
+			local lucky, luckyTotal = weights(Spin.rows(0.10))
+			expect(luckyTotal).to.be.near(baseTotal, 1e-9)
+			for slice in Spin.LUCKY_SLICES do
+				expect(lucky[slice]).to.be.near(base[slice] * 1.10, 1e-9)
+			end
+			expect(lucky[2]).to.equal(base[2])
+			expect(lucky[Spin.GIVER_SLICE] < base[Spin.GIVER_SLICE]).to.equal(true)
+		end)
+
+		it("is the plain wheel with no luck, and holds luck to LUCK_MAX", function()
+			expect(Spin.rows(0) :: any).to.equal(Catalog.spinWheel)
+			expect(Spin.rows(nil) :: any).to.equal(Catalog.spinWheel)
+			local capped = weights(Spin.rows(5))
+			local max = weights(Spin.rows(Spin.LUCK_MAX))
+			expect(capped[8]).to.equal(max[8])
+		end)
+
+		it("picks the catalog's own row, with the lucky weights", function()
+			local row = Spin.pick(0.99999, 0.10)
+			expect(row :: any).to.equal(Catalog.spinWheel[8])
+			-- slice 1's share shrinks, so a roll just under its old edge lands on slice 2 now
+			expect(Spin.pick(0.3499, 0.30).slice).to.equal(2)
+			expect(Spin.pick(0.3499).slice).to.equal(1)
+		end)
+	end)
 end

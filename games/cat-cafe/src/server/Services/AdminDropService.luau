@@ -1,7 +1,7 @@
 --!strict
 -- #4197 part 2: the two admin events that put things on the ground to grab (shared/CafeEvents, EventService).
--- - Fish Fountain (`fishFountain`): golden fish pickups land in a ring around the Town Square cannon plinth, where
---   the fountain stood until v4, FOUNTAIN_PER_SECOND a second while fewer than FOUNTAIN_OUT are out. The first
+-- - Fish Fountain (`fishFountain`): golden fish pickups land in a ring around a golden fountain in the Town Square
+--   (#4889; round the cannon plinth before), FOUNTAIN_PER_SECOND a second while fewer than FOUNTAIN_OUT are out. The first
 --   player to touch one gets ADMIN.fountainFish golden fish, at most ADMIN.fountainCap in one fountain. One left
 --   untouched goes after FISH_LIFE seconds.
 -- - Crate Drop (`crateDrop`): by day, every ADMIN.crateGap seconds, a golden crate drops into each area somebody
@@ -9,6 +9,13 @@
 --   after that opens it: the toucher and every player within ADMIN.crateShareStuds get one golden crate of their
 --   best open area (Prizes.HIGHEST_GOLDEN), at most ADMIN.crateCap each in one drop. One left untouched goes after
 --   CRATE_LIFE seconds; all of them go when the event ends.
+-- #4889 (Derek 2026-11-16: "spawn a gold fish fountain but no ontop of the cannon and make it actual gold fish
+-- models that pop out now just gold bars", "make sure that all fish spawning for fountain admin event actually can
+-- be picked up"): while the fountain runs, the CatCafe_Square_FishFountain model ("AdminFountain") stands in the
+-- square's open quarter at FOUNTAIN_AT, and the fish land in a ring round it, each on open ground found with a ray
+-- (a spot on a prop or off the paving is thrown again). A fish is the CatCafe_Prop_GoldenFish model inside the
+-- unseen AdminFish part, and it is taken by the nearest player within FISH_GRAB studs, checked CRATE_GRAB_SECONDS
+-- apart, as well as on a touch (a Touched event only fires as a touch starts). `From` is the fountain's spout.
 -- For the client's effects (Motion-FX): pickups are Parts named "AdminFish" with attribute AdminFish = true and
 -- `From` (the plinth's centre, for the spray's arc); crates are Models named "AdminCrate" with attribute
 -- AdminCrate = true and `LandsAt` (for the parachute). Both sit in Workspace.AdminDrops. Nothing here is sold.
@@ -44,8 +51,18 @@ local ADMIN = CafeEvents.ADMIN
 local FOUNTAIN_PER_SECOND = 2
 local FOUNTAIN_OUT = 30
 local FISH_LIFE = 20
-local RING_IN = 3 -- studs past the plinth's edge
-local RING_OUT = 16
+local RING_IN = 6.5 -- #4889: studs from the fountain's centre to the nearest fish (the fountain is 4.8 out)
+local RING_OUT = 10.5 -- and how much farther the farthest lands
+local FOUNTAIN_ART = "CatCafe_Square_FishFountain"
+local FISH_ART = "CatCafe_Prop_GoldenFish"
+-- #4889: the middle of the square's quarter between the street's line (x under 8), the east to west lane (z under
+-- 6) and the edge stations (x 50): the whole ring of fish stays on open paving, clear of the cannon and its pad
+local FOUNTAIN_AT = Vector3.new(26, 0, 28)
+local FOUNTAIN_SPOUT = 9 -- studs over the ground to the fish statue's mouth, where the spray starts
+local FISH_GRAB = 4.5 -- studs (flat) from a fish that pick it up
+local FISH_GRAB_HEIGHT = 8
+local FISH_TRIES = 8 -- throws at finding open ground for one fish
+local GROUND_SLACK = 1.5 -- a spot this far over or under the square's ground is on a prop or off the paving
 local CRATE_FALL = 3 -- seconds from the drop to the landing (the client's parachute)
 local CRATE_LIFE = 90
 local CRATE_SIZE = Vector3.new(4.2, 3.4, 3.2) -- #4888: the Crate Drop model's body (3 x 3 x 3 before)
@@ -54,7 +71,7 @@ local CRATE_GRAB = 7 -- #4888: studs (flat) from the crate's centre that open it
 local CRATE_GRAB_HEIGHT = 8 -- and this far over or under it
 local CRATE_GRAB_SECONDS = 0.2
 local CRATE_MARK_UP = 5.2 -- studs over the crate's middle to the "!"
-local FISH_SIZE = Vector3.new(1.6, 0.6, 0.9)
+local FISH_SIZE = Vector3.new(2.2, 1.6, 1.2) -- #4889: the golden fish model's box (a 1.6 x 0.6 x 0.9 bar before)
 local GOLD = Color3.fromRGB(255, 196, 61)
 
 type Run = {
@@ -129,29 +146,128 @@ local function grabFish(run: Run, fish: BasePart, player: Player)
 	end
 end
 
+-- #4889: the square's ground under (x, z): the top of whatever a ray down from high over it meets, drops and
+-- characters left out; nil over nothing.
+local function groundAt(x: number, z: number): number?
+	local params = RaycastParams.new()
+	local skip: { Instance } = { folder }
+	for _, player in Players:GetPlayers() do
+		if player.Character ~= nil then
+			table.insert(skip, player.Character)
+		end
+	end
+	params.FilterDescendantsInstances = skip
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local hit = Workspace:Raycast(Vector3.new(x, 60, z), Vector3.new(0, -120, 0), params)
+	return if hit ~= nil then hit.Position.Y else nil
+end
+
+local fountainModel: Model? = nil
+local fountainGround: number? = nil
+
+-- #4889: stands the golden fish fountain up for this run (once); false when it cannot stand.
+local function raiseFountain(): boolean
+	if fountainModel ~= nil and fountainModel.Parent ~= nil then
+		return true
+	end
+	-- the paving's top under the spot, or the square's own height (the cannon's) should the ray meet nothing
+	local ground = groundAt(FOUNTAIN_AT.X, FOUNTAIN_AT.Z) or Layout.cannons.town.y
+	fountainGround = ground
+	local model: Model
+	if AssetRegistry.has(FOUNTAIN_ART) then
+		model = AssetRegistry.clone(FOUNTAIN_ART)
+		for _, piece in model:GetDescendants() do
+			if piece:IsA("BasePart") then
+				local part = piece :: BasePart
+				part.Anchored = true
+				part.CanQuery = false -- so the fish's ground ray and the players' taps pass it by
+				part.CanTouch = false
+			end
+		end
+	else
+		model = Instance.new("Model")
+		local basin = Instance.new("Part")
+		basin.Name = "Basin"
+		basin.Shape = Enum.PartType.Cylinder
+		basin.Size = Vector3.new(1.6, 9, 9)
+		basin.Color = GOLD
+		basin.Material = Enum.Material.Metal
+		basin.Anchored = true
+		basin.CanQuery = false
+		basin.CanTouch = false
+		basin.CFrame = CFrame.new(0, 0.8, 0) * CFrame.Angles(0, 0, math.pi / 2)
+		basin.Parent = model
+		model.PrimaryPart = basin
+		model.WorldPivot = CFrame.new()
+	end
+	model.Name = "AdminFountain"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	model:SetAttribute("AdminFountain", true)
+	model:PivotTo(CFrame.new(FOUNTAIN_AT.X, ground, FOUNTAIN_AT.Z))
+	model.Parent = folder
+	fountainModel = model
+	return true
+end
+
+local function lowerFountain()
+	if fountainModel ~= nil then
+		fountainModel:Destroy()
+		fountainModel = nil
+	end
+	fountainGround = nil
+end
+
 local function sprayFish(run: Run, at: number)
-	local cannon: Model? = world.cannons.town
-	if cannon == nil then
+	local ground = fountainGround
+	if ground == nil then
 		return
 	end
-	local centre = cannon:GetPivot().Position
-	local inner = Layout.townSquare.fountainRadius + RING_IN
-	local angle = rng:NextNumber(0, 2 * math.pi)
-	local distance = rng:NextNumber(inner, inner + RING_OUT)
-	local spot = centre + Vector3.new(math.cos(angle) * distance, 0, math.sin(angle) * distance)
+	-- a spot on open ground: one on a bench, a lamp or a station, or off the paving, is thrown again
+	local spot: Vector3? = nil
+	local angle = 0
+	for _ = 1, FISH_TRIES do
+		angle = rng:NextNumber(0, 2 * math.pi)
+		local distance = rng:NextNumber(RING_IN, RING_IN + RING_OUT)
+		local x = FOUNTAIN_AT.X + math.cos(angle) * distance
+		local z = FOUNTAIN_AT.Z + math.sin(angle) * distance
+		local y = groundAt(x, z) or ground
+		if math.abs(y - ground) <= GROUND_SLACK then
+			spot = Vector3.new(x, y, z)
+			break
+		end
+	end
+	if spot == nil then
+		return
+	end
+	local art: Model? = if AssetRegistry.has(FISH_ART) then AssetRegistry.clone(FISH_ART) else nil
+	local turn = CFrame.Angles(0, angle, 0)
 	local fish = Instance.new("Part")
 	fish.Name = "AdminFish"
 	fish.Size = FISH_SIZE
 	fish.Color = GOLD
 	fish.Material = Enum.Material.SmoothPlastic
+	fish.Transparency = if art ~= nil then 1 else 0 -- the art is the look; the part is what is touched
 	fish.Anchored = true
 	fish.CanCollide = false
 	fish.CanQuery = false
 	fish.CanTouch = true
-	fish.CFrame = CFrame.new(spot + Vector3.new(0, FISH_SIZE.Y / 2 + 0.4, 0))
-		* CFrame.Angles(0, angle, 0)
+	fish.CFrame = CFrame.new(spot + Vector3.new(0, FISH_SIZE.Y / 2, 0)) * turn
+	if art ~= nil then
+		for _, piece in art:GetDescendants() do
+			if piece:IsA("BasePart") then
+				local part = piece :: BasePart
+				part.Anchored = true
+				part.CanCollide = false
+				part.CanQuery = false
+				part.CanTouch = false
+			end
+		end
+		art.Name = "Art"
+		art:PivotTo(CFrame.new(spot) * turn)
+		art.Parent = fish
+	end
 	fish:SetAttribute("AdminFish", true)
-	fish:SetAttribute("From", centre)
+	fish:SetAttribute("From", Vector3.new(FOUNTAIN_AT.X, ground + FOUNTAIN_SPOUT, FOUNTAIN_AT.Z))
 	fish:SetAttribute("DroppedAt", Workspace:GetServerTimeNow()) -- #4788: a fish that streams in late skips its arc (Effects)
 	fish.Touched:Connect(function(hit: BasePart)
 		local player = playerOf(hit)
@@ -163,6 +279,36 @@ local function sprayFish(run: Run, at: number)
 	fish.Parent = folder
 end
 
+-- #4889: each fish goes to the nearest player within FISH_GRAB of it who can still take one. A touch works too.
+local function grabFishNear()
+	local run = fountain
+	if run == nil then
+		return
+	end
+	for thing in run.out do
+		if not thing:IsA("BasePart") then
+			continue
+		end
+		local where = (thing :: BasePart).Position
+		local nearest: Player? = nil
+		local best = FISH_GRAB
+		for _, player in DataService.loadedPlayers() do
+			local root = rootOf(player)
+			if root ~= nil and (run.got[player] or 0) < ADMIN.fountainCap then
+				local offset = root.Position - where
+				local flat = Vector3.new(offset.X, 0, offset.Z).Magnitude
+				if flat <= best and math.abs(offset.Y) <= FISH_GRAB_HEIGHT then
+					nearest = player
+					best = flat
+				end
+			end
+		end
+		if nearest ~= nil then
+			grabFish(run, thing :: BasePart, nearest)
+		end
+	end
+end
+
 local function fountainTick(at: number)
 	local id = EventService.fishFountain()
 	if fountain ~= nil and fountain.id ~= id then
@@ -170,6 +316,10 @@ local function fountainTick(at: number)
 		fountain = nil
 	end
 	if id == nil then
+		lowerFountain()
+		return
+	end
+	if not raiseFountain() then
 		return
 	end
 	local run = fountain
@@ -456,6 +606,9 @@ function AdminDropService.start(built: WorldBuilder.World)
 			task.wait(CRATE_GRAB_SECONDS)
 			xpcall(grabCrates, function(err: unknown)
 				warn("[AdminDropService] crate grab: " .. tostring(err))
+			end)
+			xpcall(grabFishNear, function(err: unknown)
+				warn("[AdminDropService] fish grab: " .. tostring(err))
 			end)
 		end
 	end)

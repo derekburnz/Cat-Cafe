@@ -428,6 +428,11 @@ return function()
 				expect(MysticPoolLogic.bangShows({ tokens = 10, freeLeft = 2, held = 1 }, true)).to.equal(
 					false
 				)
+				-- a player who walked up before #4858 has the cutscene's mystic_intro mark, which counts as a visit
+				expect(MysticPoolLogic.visited(nil)).to.equal(false)
+				expect(MysticPoolLogic.visited({})).to.equal(false)
+				expect(MysticPoolLogic.visited({ pool_visit = true })).to.equal(true)
+				expect(MysticPoolLogic.visited({ mystic_intro = true })).to.equal(true)
 			end
 		)
 		it("shows every roll's odds, summing to 100 (monetization-policy 2.1)", function()

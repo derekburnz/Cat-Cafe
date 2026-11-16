@@ -94,7 +94,12 @@ end
 -- TipSeen; this client's state at once, so the "!" goes as the card opens)
 local function poolVisited()
 	local state = UIController.state
-	if state == nil or state.tipsSeen == nil or state.tipsSeen[Tips.POOL_VISIT] == true then
+	if
+		state == nil
+		or state.tipsSeen == nil
+		or state.tipsSeen[Tips.POOL_VISIT] == true
+		or state.tipsSeen[Tips.MYSTIC_INTRO] == true -- a walk-up before #4858
+	then
 		return
 	end
 	state.tipsSeen[Tips.POOL_VISIT] = true

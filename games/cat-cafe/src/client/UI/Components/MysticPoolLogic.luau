@@ -251,6 +251,13 @@ end
 -- pool exclamation mark when you have rolls to claim or use make it so its only their until the first time you go to
 -- the station"): while the pool is open to the player (`view` a table) and they have never walked up to it (`visited`,
 -- tipsSeen's Tips.POOL_VISIT). Rolls and tokens no longer bring it back. False while the pool is shut.
+-- #4858: whether this account has walked up to the pool: its pool_visit mark, or the first walk-up cutscene's
+-- mystic_intro mark (#3430), which every player who went before #4858 already has.
+function MysticPoolLogic.visited(seen: unknown): boolean
+	return type(seen) == "table"
+		and ((seen :: any).pool_visit == true or (seen :: any).mystic_intro == true)
+end
+
 function MysticPoolLogic.bangShows(view: View?, visited: boolean?): boolean
 	return type(view) == "table" and visited ~= true
 end

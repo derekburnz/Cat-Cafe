@@ -9063,8 +9063,7 @@ do
 		local bang = pool.bang
 		if bang then
 			-- #4858: once the player has walked up to the pool, no "!" (a nil view hides it)
-			local seen: any = playerState.tipsSeen
-			local visited = type(seen) == "table" and seen.pool_visit == true
+			local visited = MysticPoolLogic.visited(playerState.tipsSeen)
 			bang:update(if visited then nil else (playerState :: any).traits)
 		end
 	end

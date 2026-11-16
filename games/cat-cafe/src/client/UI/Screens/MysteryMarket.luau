@@ -242,6 +242,7 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 	})
 	Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = ribbon })
 	Outline.text(ribbon, 1)
+	self._ribbon = ribbon -- hidden on the no-sale card
 	local left = 12 + PICTURE + 12
 	local right = BUY_W + 24
 	self._featuredName = text({
@@ -572,6 +573,7 @@ function MysteryMarketScreen._paint(self: any)
 	-- switch that is off shows a calm "no sale" card there instead of an empty half window
 	self._featured.Visible = true
 	self._featuredBuy.instance.Visible = featured ~= nil
+	self._ribbon.Visible = featured ~= nil
 	if featured == nil then
 		self._featuredId = nil
 		self._featuredName.Text = "No sale this week"

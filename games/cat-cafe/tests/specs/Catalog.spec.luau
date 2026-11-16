@@ -1180,7 +1180,7 @@ return function()
 			}
 
 		it("has the three shop foods and four dealer foods with the table odds", function()
-			expect(#Catalog.lures).to.equal(9) -- and the Day Cart's own two (#3462, Economy.spec and CornerShop.spec)
+			expect(#Catalog.lures).to.equal(10) -- and the Day Cart's own three (#3462, #4900, Economy.spec and CornerShop.spec)
 			for id, row in pairs(expected) do
 				local def = Catalog.getLure(id)
 				expect(def).to.be.ok()
@@ -1207,6 +1207,7 @@ return function()
 				star_treat = "Mythical",
 				honey_cream = "Legendary", -- #3462
 				comet_treat = "Mythical",
+				eclipse_treat = "Secret", -- #4900
 			}
 			for _, def in ipairs(Catalog.lures) do
 				expect(def.rarity).to.equal(grades[def.id])
@@ -1288,13 +1289,20 @@ return function()
 					caviar = { 15, 35, 30, 15, 5 },
 					moon_milk = { 25, 40, 25, 10, 0 },
 					star_treat = { 55, 35, 10, 0, 0 },
+					eclipse_treat = { 40, 40, 20, 0, 0 }, -- #4900
 				})
-				local averages =
-					{ sardines = 2.45, caviar = 1.60, moon_milk = 1.20, star_treat = 0.55 }
+				local averages = {
+					sardines = 2.45,
+					caviar = 1.60,
+					moon_milk = 1.20,
+					star_treat = 0.55,
+					eclipse_treat = 0.8,
+				}
 				for id, weights in pairs(Catalog.dealerAmountWeights) do
 					local def = Catalog.getLure(id)
 					assert(def, id)
-					expect(def.source).to.equal("dealer")
+					-- #4900: the Eclipse Treat is a Day Cart food the dealer sells too
+					expect(def.source).to.equal(if id == "eclipse_treat" then "cart" else "dealer")
 					local total, mean = 0, 0
 					for index, weight in weights do
 						total += weight

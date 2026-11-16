@@ -74,6 +74,9 @@ return function()
 				{ "mega_tip_potion", "mega_money", "regular", 20000000000 },
 				{ "honey_cream", "bait", "big", 1000000000 },
 				{ "comet_treat", "bait", "mega", 3000000000 },
+				-- #4900: the late game money sinks, Tier 8 and up
+				{ "eclipse_treat", "bait", "mega", 20000000000000 },
+				{ "royal_feast", "food", "mega", 5000000000000 },
 			}
 			expect(#Catalog.cornerShop).to.equal(#want)
 			for index, row in Catalog.cornerShop do
@@ -84,7 +87,10 @@ return function()
 				expect(Catalog.getCornerShopRow(row.id)).to.equal(row)
 				-- QA check 3: Big from Tier 3, the Cat Feast from Tier 4, the rest for everyone; #3118's Money Potion
 				-- from Tier 3 and Big Money from Tier 4 (Monetization-Agent)
-				local gate = if row.id == "honey_cream"
+				local gate = if row.id == "eclipse_treat" or row.id == "royal_feast"
+					then 8 -- #4900
+					elseif
+						row.id == "honey_cream"
 						or row.id == "comet_treat"
 						or row.family == "big_lucky"
 						or row.family == "big_gold_rush"
@@ -107,7 +113,9 @@ return function()
 					local lure = Catalog.getLure(row.lureId :: string)
 					expect(lure).to.be.ok()
 					-- dealer foods stay with the dealer; #3462: the cart's own two are sold nowhere else
-					local own = row.id == "honey_cream" or row.id == "comet_treat"
+					local own = row.id == "honey_cream"
+						or row.id == "comet_treat"
+						or row.id == "eclipse_treat" -- #4900
 					expect((lure :: any).source).to.equal(if own then "cart" else "shop")
 				else
 					error(row.id .. ": no shows since #1381") -- the Bubble Machine and Cafe Fireworks are gone
@@ -117,9 +125,14 @@ return function()
 		end)
 
 		it("has the four cat foods and their XP (section 3)", function()
-			local want =
-				{ small_cat_snack = 600, cat_snack = 2000, big_cat_snack = 6000, cat_feast = 20000 }
-			expect(#Catalog.catFood).to.equal(4)
+			local want = {
+				small_cat_snack = 600,
+				cat_snack = 2000,
+				big_cat_snack = 6000,
+				cat_feast = 20000,
+				royal_feast = 50000, -- #4900
+			}
+			expect(#Catalog.catFood).to.equal(5)
 			for _, food in Catalog.catFood do
 				expect(food.xp).to.equal(want[food.id])
 			end
@@ -575,7 +588,7 @@ return function()
 				if row.topShelf == true then
 					top += 1
 					-- the last rows of the list, so a shut shelf leaves the rows before it where they were
-					expect(index > #Catalog.cornerShop - 5).to.equal(true)
+					expect(index > #Catalog.cornerShop - 7).to.equal(true) -- #4900: seven since the late game two
 				end
 			end
 			expect(top >= 2).to.equal(true)

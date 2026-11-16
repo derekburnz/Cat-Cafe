@@ -689,6 +689,7 @@ local SNACK_GLYPHS: { [string]: string } = {
 	cat_snack = "🍪",
 	big_cat_snack = "🧁",
 	cat_feast = "🍱",
+	royal_feast = "👑", -- #4900, until Model-Agent's picture
 }
 ShopIcons.SNACK_GLYPH = "🍪" -- a cat food with no glyph of its own
 

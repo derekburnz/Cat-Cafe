@@ -114,6 +114,7 @@ return function()
 				-- #3462: the Day Cart's own two
 				honey_cream = "HoneyCream",
 				comet_treat = "CometTreat",
+				eclipse_treat = "EclipseTreat", -- #4900
 			}
 			local missing: { string } = {}
 			for _, lure in Catalog.lures do

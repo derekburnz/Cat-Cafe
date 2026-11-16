@@ -23,13 +23,14 @@ return function()
 				star_treat = "Mythical",
 				honey_cream = "Legendary", -- #3462: the Day Cart's own two
 				comet_treat = "Mythical",
+				eclipse_treat = "Mythical", -- #4900: Secret is not a badge grade, so it shows as Mythical
 			}
 			local seen = 0
 			for _, def in Catalog.lures do
 				expect(FoodGrade.of(def)).to.equal(want[def.id])
 				seen += 1
 			end
-			expect(seen).to.equal(9)
+			expect(seen).to.equal(10)
 		end)
 
 		it("reads the catalog's own rarity first, when the engineer adds it", function()

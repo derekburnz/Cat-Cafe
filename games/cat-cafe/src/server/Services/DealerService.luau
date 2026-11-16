@@ -130,6 +130,10 @@ local function stockFor(player: Player, tonight: { Dealer.FoodAmount }): Types.D
 	local tier = if profile ~= nil then Economy.tier(profile) else 1
 	local rows: { Types.DealerFood } = {}
 	for _, food in tonight do
+		local def = Catalog.getLure(food.lureId)
+		if def ~= nil and not Dealer.sells(def, tier) then
+			continue -- #4900: the Eclipse Treat only shows from Tier 8
+		end
 		table.insert(rows, {
 			lureId = food.lureId,
 			cost = Economy.foodPrice(food.lureId, tier),
@@ -209,8 +213,12 @@ local function onBuyDealerFood(player: Player, rawLureId: unknown, rawNight: unk
 		return
 	end
 	local def = Catalog.getLure(lureId)
-	if def == nil or def.source ~= "dealer" then
+	if def == nil or table.find(Dealer.FOODS, lureId) == nil then
 		refuse("That food isn't on the cart.")
+		return
+	end
+	if not Dealer.sells(def, Economy.tier(profile)) then
+		refuse(string.format("Opens at Tier %d", def.needsTier or 1)) -- #4900
 		return
 	end
 	local amount = Dealer.amountIn(tonight, lureId)
@@ -288,7 +296,7 @@ local function onBuyDealerAll(player: Player, rawNight: unknown)
 	for _, item in plan do
 		local def = Catalog.getLure(item.lureId)
 		local amount = Dealer.amountIn(tonight, item.lureId)
-		if def == nil or def.source ~= "dealer" then
+		if def == nil or not Dealer.sells(def, tier) then
 			continue
 		end
 		local price = Economy.foodPrice(item.lureId, tier)

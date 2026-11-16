@@ -447,6 +447,10 @@ export type LureDef = {
 	description: string,
 	odds: LureOdds, -- percentages summing to 100, shown before purchase
 	asset: string, -- food model shown in the bowl while the lure is active
+	-- #4900: a Secret tier food's share of its rolled Mythicals that turn Secret (Catalog.secretPerMythical else),
+	-- shown on its odds line as its own Secret %
+	secretShare: number?,
+	needsTier: number?, -- #4900: the night dealer sells it only from this tier (the Day Cart's row has its own)
 }
 
 -- A Cafe Crate (F53, golden-fish.md section 4): ten cosmetics of one pool, opened at the Golden Fish Market. The

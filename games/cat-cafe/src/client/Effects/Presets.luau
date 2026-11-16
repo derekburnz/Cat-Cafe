@@ -3943,6 +3943,20 @@ Presets.adminDrops = {
 		fresh = 2, -- seconds after the server's DroppedAt that a fish still arcs in; later it streamed in and just shows
 		remember = 120, -- seconds a fish's spot is remembered, so one streaming back in does not arc again
 	},
+	-- the pickup pop (Derek2 11-16): a bead `bead` studs wide hops `hop` studs and shrinks away over `seconds`, with
+	-- `glints` glints and a `ring` stud ring; only within `within` studs, and only when a character was within
+	-- `reach` studs of the fish as it went (a touch, not a fish running out)
+	pickup = {
+		reach = 7,
+		within = 120,
+		bead = 0.7,
+		hop = 2,
+		seconds = 0.35,
+		glint = "coinGlint",
+		glints = 5,
+		ring = 3,
+		colour = Presets.palette.golden,
+	},
 	crate = {
 		seconds = 3,
 		height = 45,

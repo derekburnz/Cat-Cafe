@@ -72,8 +72,11 @@ type Cell = {
 
 -- #2735 (Derek2: "see which decor images to make more clear/bigger since so many players are on mobile"): on touch
 -- a bigger picture in a wider, taller cell (96 px, about 65 on a phone, was about 50)
-local ICON = if Scale.isTouch() then 96 else 76
-local CELL = Vector2.new(112 + (ICON - 76), 134 + (ICON - 76))
+-- #4599 (Derek 2026-11-15: "feels a little crammed can make the decor boxes slightly smaller"): a smaller picture and
+-- box, and a wider gap between the boxes
+local ICON = if Scale.isTouch() then 84 else 64
+local CELL = Vector2.new(ICON + 38, ICON + 58) -- 12 pieces stay two even rows of 6 on a PC
+local CELL_GAP = Theme.sizes.gap + 6
 local HEADER_HEIGHT = 52 -- as the Cats index's area lines (Screens/CatCollection)
 local REWARDS = Vector2.new(124, 40) -- a section's Rewards button
 local NAME_W = 200
@@ -321,7 +324,7 @@ function DecorIndex._buildSection(
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 		Create("UIGridLayout", {
 			CellSize = UDim2.fromOffset(CELL.X, CELL.Y),
-			CellPadding = UDim2.fromOffset(gap, gap),
+			CellPadding = UDim2.fromOffset(CELL_GAP, CELL_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
@@ -408,7 +411,7 @@ function DecorIndex._fitCells(self: any)
 	if scale <= 0 or width <= 0 then
 		return
 	end
-	local gap = Theme.sizes.gap
+	local gap = CELL_GAP
 	local columns = math.max(1, math.floor((width / scale + gap) / (CELL.X + gap)))
 	local size = UDim2.new(1 / columns, -math.ceil(gap * (columns - 1) / columns), 0, CELL.Y)
 	for _, section: Section in self._sections do

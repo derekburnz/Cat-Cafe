@@ -13,7 +13,8 @@ Remotes.ClientToServer = {
 	"SwingNet", -- ()  F93 (catch-rework.md section 1): not carrying, in a catch or rescue, flying or in a camp; one per
 	-- NetSwingCooldown, 3 a second at most. Judged NetSmackDelay later from the root and its facing: the nearest free
 	-- stray in reach starts its catch (CatchSchedule) or, Dropped, is picked up; a miss makes nearby strays hop
-	"CatchPress", -- (strayId: string, index: number)  no time is sent: the server stamps the press on arrival
+	"CatchPress", -- (strayId: string, index: number, stamp: number?)  #4597: the tap's GetServerTimeNow, held to at
+	-- most CatchPressStampSeconds before arrival (Circles.pressTime, as RescuePress since #2241); none: arrival time
 	"RescueBegin", -- (rescueSpotId: string)  trap holds a stuck cat, unlocked, past its retry waits, in range, not carrying
 	"RescuePress", -- (rescueSpotId: string, pressedAt: number?)  the press's GetServerTimeNow; the server keeps it within half the ping of arrival (#2241) and judges the marker
 	"RescueCancel", -- (rescueSpotId: string)  Give up: ends the attempt as a fail; a helper's only ends their help
@@ -26,8 +27,6 @@ Remotes.ClientToServer = {
 	"UnplaceCat", -- (uid: string)
 	"EquipBest", -- ()  places owned cats on open spots for the highest rate (shared/EquipBest.plan)
 	"UnequipAll", -- ()  rests every working cat in the cat room (shared/EquipBest.restAll)
-	"SellCat", -- (uid: string)  2026-11-13: cats are not sold; the server only answers with a toast
-	"SellExtraCommons", -- ()  2026-11-13: the same, for #1573's old Sell extras
 	"LockCat", -- (uid: string, locked: boolean)  F62: owns uid; a locked cat cannot be sold or traded
 	"LockDecor", -- (pieceId: string, locked: boolean)  #1574: an owned Legendary and up decor or lawn piece; a locked
 	-- piece cannot be traded, and one on offer cannot be locked; 4 a second
@@ -60,7 +59,7 @@ Remotes.ClientToServer = {
 	"Tackle", -- ()  v0.11 F74 (data-model section 10c, shared/Shove): in an unlocked catching area, areas open, not
 	-- carrying, no lock, off TackleCooldownSeconds; lunges and hits the first player in reach who could be shoved
 	"ClaimRichTip", -- (bagId: string?)  #3360: own plot has that unexpired money bag (none: the front one), within RichTipRangeStuds of it
-	"AfkMode", -- (on: boolean)  #4346: the AFK tile; afkButton and afkCafe on; true takes the player home (TravelService's checks) and starts AFK mode, false ends it
+	"AfkMode", -- (on: boolean)  #4346: the AFK tile; afkButton on; true takes the player home (TravelService's checks) and starts AFK mode, false ends it
 	"AfkIdle", -- (idle: boolean)  #3573: the client has had no input for Config.AfkCafeSeconds (true) or has input again (false); the server decides whether the player rests (AfkCafeService)
 	"TakeCozy", -- ()  #2854: own plot has a waiting Cozy gift bag (the Rewards list's row takes it from anywhere)
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
@@ -112,6 +111,14 @@ Remotes.ClientToServer = {
 	"PromptDeal", -- (productId: string)  #3996 (shared/DailyDeal): opens Roblox's purchase prompt for Today's Deal from
 	-- the server, only for today's deal, not yet bought today, from Tier 2 and while the dailyDeal switch is on; refused
 	-- with a toast otherwise. 1 a second
+	"StartFusion", -- (uids: { string }, keepTraitUid: string?)  #4104 (shared/Fusion): exactly FusionCopies distinct
+	-- owned, free copies of one cat in one coat (Fusion.startBlocker) go into the Fusion Observatory's dome, which must be
+	-- free; `keepTraitUid` one of them with a trait, or nil for the rarest. From FusionTier, only while the fusion
+	-- switch is on. 1 a second; answered with a toast and a ProfileSync (PlayerState.fusion)
+	"CollectFusion", -- ()  #4104: the finished fusion's cat into the save. 1 a second
+	"FuseAll", -- ()  #4589: every set of five free copies (Fusion.allSets, the server picks, nothing is sent) is fused
+	-- and collected at once, up to Fusion.ALL_MAX; a finished fusion in the dome comes out first. Same switch and tier as
+	-- StartFusion. 1 every 2 seconds; answered with FusionSummary, a toast and a ProfileSync
 	"MarkMysterySeen", -- ()  #2565: the player opened Juniper's window; sets profile.mysterySeen (the cart's "!")
 	"SetBagColours", -- (main: string, trim: string, kind: string?)  #3699: the Backpack's owner picks its two colours,
 	-- each an id of BagColours.LIST and nothing else; free, from anywhere, behind the switch bagColours; 1 a second;
@@ -123,6 +130,9 @@ Remotes.ClientToServer = {
 	"ClaimStarterCat", -- ()  F96 (starter-cat.md section 4): within StarterCatRangeStuds of a BellhopStand, the
 	-- Bellhop Cat not yet claimed, and the first goals done (GroupId 0) or the player in GroupId; 1 per 2 s, answered
 	-- with StarterCatResult
+	"GroupJoinPrompted", -- ()  #4679: the player pressed "Join the group" on the Bellhop Cat's card and Roblox's join
+	-- prompt opened. A note only, kept for the session: a ClaimStarterCat inside Config.GroupJoinTrustSeconds of it
+	-- asks Roblox again a few times and, if the answer is still an old "no", lets the cat go home; 1 per 5 s
 	"IntroDone", -- (shot: number, replay: boolean, seconds: number?)  integer 0 to 10: 0 when the intro cutscene played
 	-- to the end, else the shot showing at Skip (F72, shared/Intro); seconds watched, whole, 0 to 600 (#3773, optional
 	-- so an old client still counts); 1 a second. The first non-replay call sets introSeen
@@ -131,8 +141,6 @@ Remotes.ClientToServer = {
 	-- #1600: count (whole, 1 to 1000; nil is 1) drinks up to that many, cut to the bag's count and to what fits
 	"UsePotionAll", -- ()  #3326: the Bag's "Use all potions": every kind in the bag, as many as fit under
 	-- PotionMaxMinutes each (Potions.useAll); one toast and one ProfileSync, or a toast when nothing fits; 1 per 2 s
-	"OpenMysteryGift", -- ()  F64: a gift waits on the caller's own plot, within MysteryRangeStuds of its
-	-- MysteryGiftAnchor (the GiftPrompt's hold does the same); answered with MysteryGiftResult
 	"AnswerCollector", -- (accept: boolean)  F63: a live Cat Collector visit on the caller's own plot, from
 	-- anywhere (#3216, his banner opens the card); on accept the cat he asks for is still owned, resting, unlocked and not the
 	-- caller's last cat, else a toast says why and he waits on. A trade or No thanks ends the visit (CollectorOffer "")
@@ -242,13 +250,6 @@ Remotes.ClientToServer = {
 	"OwnerGrant", -- (productId: number)  #1770 owner test mode: only a Config.OwnerTestUserIds caller (anyone else is
 	-- dropped and logged); a made product's Roblox id; granted as a receipt would be, with no receipt record and no
 	-- Robux (OwnerTestService); 1 a second, answered with a toast
-	"ArcadeStart", -- ()  #3062 (shared/Arcade): the `arcade` switch on, the arcade read, no game running, not in a catch,
-	-- rescue or flight, no trade fish freeze and ArcadeCostFish golden fish held: spends them and starts a game.
-	-- #3296: the first game of each UTC day is free (no fish, no trade freeze check). Starts are
-	-- answered with ArcadeBlock (refusals are a toast); 1 a second
-	"ArcadePress", -- (run: number, block: number, index: number)  #3062: a press on circle `index` of the game's block
-	-- `block`; no time is sent, the server stamps it on arrival and judges it as CatchPress does
-	"ArcadeQuit", -- (run: number)  #3062: Close mid game ends it where it stands, answered with ArcadeOver; 1 a second
 	"MouseDashStart", -- ()  #3296 (shared/MouseDash, MouseDashService): the `arcade` and `mouseDash` switches on, both
 	-- arcade saves read, no arcade game running, not in a catch, rescue or flight; uses the day's free run, else
 	-- spends ArcadeCostFish golden fish (no trade fish freeze). Answered with MouseDashBegan (refusals are a toast);
@@ -261,7 +262,8 @@ Remotes.ClientToServer = {
 	-- has not opened the Park's camp extra; no range check (it opens from the Cannon menu too); answered with one sync
 	"RollTrait", -- (uid: string)  the cat owned and no re-roll waiting; paid by a free starter roll, else a Trait Token,
 	-- else Traits.COST_FISH golden fish (none held in an open trade). A cat with no trait takes the roll; one with a trait keeps it
-	-- and the roll waits (PlayerState.traits.pending) for ChooseTrait. 1 a second
+	-- and the roll waits (PlayerState.traits.pending) for ChooseTrait. 1 a second. #4712: (uid, stopAt: string) is one
+	-- Auto Roll step: no golden fish, and a re-roll below rarity `stopAt` (Uncommon up) is dropped at once
 	"ChooseTrait", -- (takeNew: boolean)  the waiting re-roll goes on its cat (true) or is dropped; 1 a second
 	"CollectTraitTokens", -- ()  the station's free tokens (one each 12 h, holding 2) go to the bank; 1 a second
 	"PetCat", -- (catUid: string)  #3651 (shared/Pet, switch `petCats`): pet one of the player's own working cats from
@@ -272,6 +274,8 @@ Remotes.ClientToServer = {
 -- Server -> client.
 Remotes.ServerToClient = {
 	"ProfileSync", -- (state: Types.PlayerState)  full state; the client merges
+	"FusionSummary", -- (made: { { catId: string, coat: string, level: number, name: string?, newCoat: boolean } })
+	-- #4589: what one Fuse all made, in order, for the one summary reveal
 	-- F102 trading (TradeService)
 	"TradeAsked", -- (requestId: string, fromUserId: number, fromName: string, expiresAt: number)  someone asks the
 	-- receiver to trade; expiresAt is server time (Workspace:GetServerTimeNow())
@@ -432,17 +436,8 @@ Remotes.ServerToClient = {
 	"UpdateGiftNotice", -- (kind: "soon" | "paid", fish, spins, secondsLeft, crates: number)  #3420, #3535: the
 	-- update gift is on its way (once, in the UpdateGift.NOTICE_SECONDS before it) or was just paid (ProfileSync
 	-- first); the client shows the banner with UpdateGift.banner's words
-	"AutoEquipped", -- (swaps: { Types.AutoEquipSwap })  #1955: an Auto Equip run moved cats into roles (ProfileSync
-	-- first): each cat's name and role, and the coins a second gained when exactly one moved; the client toasts it
 	"ArcadeState", -- (state: Arcade.State)  #3062: this player's best, today's paid milestones, the title and the
 	-- server's best, on join once the arcade is read and after every game
-	"ArcadeBlock", -- (run: number, block: number, circles: { Types.CatchCircle }, windows: Types.CatchWindows,
-	-- points: number)  #3062: the game's next BLOCK circles (the first block answers ArcadeStart)
-	"ArcadeJudged", -- (run: number, block: number, index: number, grade: Types.RingGrade, points: number, milestones:
-	-- { number })  #3062: the server's grade for each circle as it is judged, the points after it and any milestone
-	-- it paid (shown in the window only: no toast)
-	"ArcadeOver", -- (run: number, result: Arcade.Result)  #3062: the game ended (a Miss, 100 points, Close or the
-	-- switch going off before it started)
 	"MouseDashState", -- (state: MouseDash.State)  #3296: this player's best, today's milestones (the arcade's), the
 	-- titles, the free run and the board, once both saves are read and after every game
 	"MouseDashBegan", -- (run: number, hearts: number, firstAt: number, endsAt: number?)  #3296: a game started; the

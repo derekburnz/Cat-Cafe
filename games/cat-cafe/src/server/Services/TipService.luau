@@ -30,7 +30,6 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
-local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local SessionFeedback = require(ReplicatedStorage.Shared.SessionFeedback)
@@ -158,7 +157,7 @@ local function mysticIntro(
 )
 	local skipped = Guard.bool(rawSkipped)
 	if skipped == nil then
-		local open = LiveFlagService.on(Traits.FLAG) and Traits.openAt(Economy.tier(profile))
+		local open = Traits.openAt(Economy.tier(profile))
 		if open and profile.tipsSeen[Tips.MYSTIC_INTRO] ~= true then
 			profile.tipsSeen[Tips.MYSTIC_INTRO] = true
 			session.introAt = os.clock()

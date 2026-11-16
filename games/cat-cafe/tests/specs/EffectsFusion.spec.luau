@@ -46,6 +46,46 @@ return function()
 			expect(p.turns <= 1).to.equal(true)
 		end)
 
+		it(
+			"lands the five on the dome card's picture with a ring sized from its height (#4563)",
+			function()
+				local p = Presets.fusion
+				-- the window's dome card: 600 wide, 88 high, its picture at the left end
+				local at, across = FusionFx.landing(Vector2.new(20, 40), Vector2.new(600, 88))
+				expect(at).to.equal(Vector2.new(20 + 44, 40 + 44))
+				expect(across).to.equal(p.acrossMin)
+				-- a square picture: its middle, its own width, never over acrossMax
+				at, across = FusionFx.landing(Vector2.new(0, 0), Vector2.new(140, 140))
+				expect(at).to.equal(Vector2.new(70, 70))
+				expect(across).to.equal(140)
+				at, across = FusionFx.landing(Vector2.new(0, 0), Vector2.new(400, 400))
+				expect(across).to.equal(p.acrossMax)
+				expect(p.acrossMax * p.swirl.ringTo <= 400).to.equal(true)
+			end
+		)
+
+		it("reads the dome's fusion from ProfileSync and spots a Collect (#4563)", function()
+			local coat, ready, gold, rainbow = FusionFx.read({
+				running = { coat = "gold", doneAt = 0 },
+				ready = true,
+				made = { gold = 2, rainbow = 0 },
+			})
+			expect(coat).to.equal("gold")
+			expect(ready).to.equal(true)
+			expect(gold).to.equal(2)
+			expect(rainbow).to.equal(0)
+			coat, ready = FusionFx.read(false)
+			expect(coat).to.equal(nil)
+			expect(ready).to.equal(false)
+			coat = FusionFx.read({ running = { coat = "plain" } })
+			expect(coat).to.equal(nil)
+			-- gone with its count up: collected; gone with no count change (the switch off): not
+			expect(FusionFx.collectedCoat("gold", nil, { gold = 2 }, { gold = 3 })).to.equal("gold")
+			expect(FusionFx.collectedCoat("gold", nil, { gold = 2 }, { gold = 2 })).to.equal(nil)
+			expect(FusionFx.collectedCoat("gold", "gold", { gold = 2 }, { gold = 3 })).to.equal(nil)
+			expect(FusionFx.collectedCoat(nil, nil, {}, { rainbow = 1 })).to.equal(nil)
+		end)
+
 		it("shows gold steady and the rainbow drifting slowly round its hues", function()
 			local p = Presets.fusion
 			expect(FusionFx.coatColour("gold", 0)).to.equal(p.gold)

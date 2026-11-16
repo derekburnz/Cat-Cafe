@@ -134,8 +134,6 @@ end
 function CafePassScreen.new(callbacks: Callbacks): CafePass
 	local self = setmetatable({}, CafePassScreen) :: any
 	-- #3961 (batch 4 panel 8): the level as a chip, FREE and PAID chips beside the rows and capital words
-	local family = MenuFamily.on()
-	self._family = family
 	self._callbacks = callbacks
 	self._catalog = nil :: Types.Catalog?
 	self._view = nil :: Types.CafePassView?
@@ -184,19 +182,17 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = top,
 	})
-	if family then
-		local level: TextLabel = self._levelText
-		level.AnchorPoint = Vector2.new(0, 0.5)
-		level.Position = UDim2.new(0, 8, 0.5, 0)
-		level.Size = UDim2.fromOffset(BAR_X - 16, 32)
-		level.BackgroundTransparency = 0
-		level.BackgroundColor3 = MAPLE
-		level.TextColor3 = Theme.colors.white
-		level.TextSize = Theme.sizes.textBody + 1
-		level.TextXAlignment = Enum.TextXAlignment.Center
-		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = level })
-		Outline.text(level)
-	end
+	local level: TextLabel = self._levelText
+	level.AnchorPoint = Vector2.new(0, 0.5)
+	level.Position = UDim2.new(0, 8, 0.5, 0)
+	level.Size = UDim2.fromOffset(BAR_X - 16, 32)
+	level.BackgroundTransparency = 0
+	level.BackgroundColor3 = MAPLE
+	level.TextColor3 = Theme.colors.white
+	level.TextSize = Theme.sizes.textBody + 1
+	level.TextXAlignment = Enum.TextXAlignment.Center
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = level })
+	Outline.text(level)
 	local bar: Frame = Create("Frame", {
 		Name = "Bar",
 		BackgroundColor3 = CARD.line,
@@ -221,9 +217,6 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 		ZIndex = 2,
 		Parent = bar,
 	})
-	if not MenuFamily.on() then
-		Create("UIStroke", { Color = Theme.colors.outline, Thickness = 1.5, Parent = self._xpText })
-	end
 	self._claimAll = Button.new({
 		name = "ClaimAll",
 		text = "Claim all",
@@ -298,37 +291,35 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 		Text = "Paid",
 		Parent = side,
 	})
-	if family then
-		-- the words sit on a chip each (green for the free row, gold for the paid one)
-		for _, pair in
-			{
-				{ self._freeWord, Theme.colors.goodDark, Theme.colors.white },
-				{ self._paidWord, Theme.colors.gold, Theme.colors.goldText },
-			}
-		do
-			local word: TextLabel, fill: Color3, ink: Color3 = pair[1], pair[2], pair[3]
-			-- the chip carries the word; the row's own label keeps its place and size for the layout
-			local chip: Frame = Create("Frame", {
-				Name = "Chip",
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				BackgroundColor3 = fill,
-				BorderSizePixel = 0,
-				Position = UDim2.fromScale(0.5, 0.5),
-				Size = UDim2.new(1, -2, 0, 24),
-				Parent = word,
-			}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-			Outline.border(chip, 2)
-			text({
-				Name = "Word",
-				Size = UDim2.fromScale(1, 1),
-				FontFace = Theme.fonts.display,
-				TextSize = Theme.sizes.textSmall,
-				TextColor3 = ink,
-				Text = string.upper(word.Text),
-				Parent = chip,
-			})
-			word.TextTransparency = 1
-		end
+	-- the words sit on a chip each (green for the free row, gold for the paid one)
+	for _, pair in
+		{
+			{ self._freeWord, Theme.colors.goodDark, Theme.colors.white },
+			{ self._paidWord, Theme.colors.gold, Theme.colors.goldText },
+		}
+	do
+		local word: TextLabel, fill: Color3, ink: Color3 = pair[1], pair[2], pair[3]
+		-- the chip carries the word; the row's own label keeps its place and size for the layout
+		local chip: Frame = Create("Frame", {
+			Name = "Chip",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundColor3 = fill,
+			BorderSizePixel = 0,
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.new(1, -2, 0, 24),
+			Parent = word,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+		Outline.border(chip, 2)
+		text({
+			Name = "Word",
+			Size = UDim2.fromScale(1, 1),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = ink,
+			Text = string.upper(word.Text),
+			Parent = chip,
+		})
+		word.TextTransparency = 1
 	end
 	self._track = Create("ScrollingFrame", {
 		Name = "Track",
@@ -612,7 +603,7 @@ function CafePassScreen._build(self: any, view: Types.CafePassView?)
 			Size = UDim2.fromOffset(COL_W, LEVEL_H - 2),
 			FontFace = Theme.fonts.display,
 			TextColor3 = PAL.text, -- on the window's body, over the column
-			Text = (if self._family then "LEVEL %d" else "Level %d"):format(level),
+			Text = ("LEVEL %d"):format(level),
 			Parent = frame,
 		})
 		local free: Slot? = nil
@@ -749,7 +740,7 @@ local function paintSlot(slot: Slot, cell: PassLogic.Cell?, pending: boolean)
 	local ready = cell ~= nil and state == "ready"
 	slot.claim.instance.Visible = ready
 	slot.claim:setEnabled(not pending)
-	slot.claim:setText(if pending then "..." elseif MenuFamily.on() then "CLAIM" else "Claim")
+	slot.claim:setText(if pending then "..." else "CLAIM")
 	slot.status.Visible = cell ~= nil and (state == "claimed" or state == "locked")
 	slot.status.Text = if state == "claimed" then "✓ Claimed" else "🔒 Paid track"
 	slot.status.TextColor3 = if state == "claimed" then CARD.good else CARD.gold
@@ -783,7 +774,7 @@ function CafePassScreen._refresh(self: any)
 	local def: Types.PassSeasonDef? = SharedPass.seasonDef(view.season)
 	self._panel:setTitle("Cafe Pass", PassLogic.subtitle(view, if def then def.name else nil))
 	local progress = PassLogic.progress(view)
-	self._levelText.Text = (if self._family then "LEVEL %d" else "Level %d"):format(progress.level)
+	self._levelText.Text = ("LEVEL %d"):format(progress.level)
 	self._xpFill.Size = UDim2.fromScale(progress.fraction, 1)
 	self._xpText.Text = progress.text
 	if not self.frame.Visible then
@@ -795,11 +786,7 @@ function CafePassScreen._refresh(self: any)
 	local ready = PassLogic.readyCount(cells)
 	self._claimAll.instance.Visible = ready > 0
 	self._claimAll:setEnabled(not pending)
-	self._claimAll:setText(
-		if pending
-			then "..."
-			else (if self._family then "CLAIM ALL (%d)" else "Claim all (%d)"):format(ready)
-	)
+	self._claimAll:setText(if pending then "..." else ("CLAIM ALL (%d)"):format(ready))
 	self:_placeTop()
 	local spin: Types.SpinState? = self._spin
 	local look: PrizeChips.Look = {

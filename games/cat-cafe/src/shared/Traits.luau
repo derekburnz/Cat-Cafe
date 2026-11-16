@@ -33,10 +33,8 @@ local Types = require(script.Parent.Types)
 
 local Traits = {}
 
-Traits.FLAG = "traits"
--- #3908: the Secret rarity in the rolls and on every odds list. Off (LiveFlags.OFF_BY_DEFAULT): Mythic 5% and no
--- Secret, as before. Switch it at a restart, so every card a player has open shows the odds the server rolls.
-Traits.SECRET_FLAG = "secretTrait"
+-- #4654 batch 3: the `traits`, `secretTrait` and `traitBundles` switches are retired (all on live since Nov 12 to 14):
+-- the pool always stands, the Secret rarity is always in the rolls and odds, and the bundles show where policy allows.
 Traits.NAME = "Mystic Pool"
 Traits.KEEPER = "Sage Sorrel"
 -- #3715 (Derek 2026-11-12: "move this station into spawn so more people see it"): the pool stands in the Town Square
@@ -44,7 +42,7 @@ Traits.KEEPER = "Sage Sorrel"
 -- camp's Picnic Basket's spot and that extra's Tier 2 unlock.
 Traits.OPEN_TIER = 1
 -- The station in the world (WorldBuilder builds it at Layout.mysticPool; MysticPoolStationService shows it while
--- the switch is on): its model, its CollectionService tag and its prompt's name.
+-- the art is there): its model, its CollectionService tag and its prompt's name.
 Traits.STATION_MODEL = "CatCafe_Camp_Park_MysticPool"
 Traits.TAG = "MysticPool"
 -- #3942: a Mythic or better roll marks the station (TraitService.announce) so every client near it sees the pillar
@@ -62,7 +60,6 @@ Traits.TOKEN_HOLD = 2
 Traits.TOKEN_MAX = 999 -- a save's tokens are clamped here (no source comes near it)
 -- #3864: the token bundles on the card once the free rolls are used, by Catalog.products id; `robux` is the price (#4377: halved 2026-11-15, R$49 and R$99)
 -- set in tools/opencloud/products.json (Roblox's own prompt shows the live price before anything is paid)
-Traits.BUNDLE_FLAG = "traitBundles"
 Traits.BUNDLES = table.freeze({
 	table.freeze({ product = "trait_tokens_20", tokens = 20, robux = 49 }),
 	table.freeze({ product = "trait_tokens_50", tokens = 50, robux = 99 }),
@@ -107,6 +104,7 @@ Traits.RARITIES = {
 	{ id = "secret", name = "Secret", rank = 7, odds = 0.1, color = "#E2D6FF" },
 } :: { Rarity }
 local MYTHIC_ALONE = 5
+Traits.LUCK_MAX = 0.30 -- trait luck at most (DragonKeep.LUCK_KIND_CAP)
 
 local COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, MYTHIC, SECRET =
 	Traits.RARITIES[1],
@@ -130,8 +128,46 @@ for _, rarity in Traits.RARITIES do
 	end
 end
 
-function Traits.rarities(secret: boolean?): { Rarity }
-	return if secret == true then Traits.RARITIES else WITHOUT_SECRET
+-- Derek 2026-11-15 (the Dragon Keep's Trait Spark, keep-luck-cards spec): with trait luck `luck` (0.15 is +15%,
+-- at most DragonKeep.LUCK_KIND_CAP) the Epic, Legendary and Mythic odds are each times 1 + luck, in tenths of a
+-- percent as the roll counts them, and Common then Uncommon give up the difference, so they still add up to 100.
+-- Rare and Secret stay as they are. A roll IS a paid random item, so every odds list reads these same numbers.
+local BOOSTED = { epic = true, legendary = true, mythic = true } :: { [string]: boolean }
+local function tenthsOf(odds: number): number
+	return math.floor(odds * 10 + 0.5)
+end
+local function lucky(base: { Rarity }, luck: number): { Rarity }
+	local out: { Rarity } = {}
+	local added = 0
+	for _, rarity in base do
+		local row = table.clone(rarity)
+		if BOOSTED[row.id] then
+			local was = tenthsOf(row.odds)
+			local now = math.floor(was * (1 + luck) + 0.5)
+			added += now - was
+			row.odds = now / 10
+		end
+		table.insert(out, row)
+	end
+	for _, id in { "common", "uncommon" } do
+		for _, row in out do
+			if row.id == id and added > 0 then
+				local was = tenthsOf(row.odds)
+				local take = math.min(was, added)
+				added -= take
+				row.odds = (was - take) / 10
+			end
+		end
+	end
+	return out
+end
+
+function Traits.rarities(secret: boolean?, luck: number?): { Rarity }
+	local base = if secret == true then Traits.RARITIES else WITHOUT_SECRET
+	if type(luck) ~= "number" or luck <= 0 then
+		return base
+	end
+	return lucky(base, math.min(luck, Traits.LUCK_MAX))
 end
 
 -- "30%", "4.9%", "0.1%": a rarity's odds as the cards print them.
@@ -393,9 +429,9 @@ function Traits.effectLines(trait: Trait): { string }
 end
 
 -- The odds line every card shows, and the Odds button's list; `secret` is the `secretTrait` switch.
-function Traits.oddsText(secret: boolean?): string
+function Traits.oddsText(secret: boolean?, luck: number?): string
 	local parts: { string } = {}
-	for _, rarity in Traits.rarities(secret) do
+	for _, rarity in Traits.rarities(secret, luck) do
 		table.insert(parts, rarity.name .. " " .. Traits.percentText(rarity.odds))
 	end
 	return table.concat(parts, ", ") .. ". Each trait inside a rarity is equally likely."
@@ -403,9 +439,9 @@ end
 
 -- One roll: the rarity first, then a trait of that rarity evenly. `random(n)` returns a whole number from 1 to n
 -- (Random:NextInteger(1, n) on the server). The rarity is picked in tenths of a percent (1 to 1000), so Secret's 0.1
--- is one number in a thousand. `secret` is the `secretTrait` switch (Traits.rarities).
-function Traits.roll(random: (number) -> number, secret: boolean?): Trait
-	local rarities = Traits.rarities(secret)
+-- is one number in a thousand. `secret` is the `secretTrait` switch, `luck` the trait luck (Traits.rarities).
+function Traits.roll(random: (number) -> number, secret: boolean?, luck: number?): Trait
+	local rarities = Traits.rarities(secret, luck)
 	local function tenths(rarity: Rarity): number
 		return math.floor(rarity.odds * 10 + 0.5)
 	end
@@ -587,7 +623,7 @@ function Traits.sanitizeSave(value: any, now: number, cats: { [string]: boolean 
 		local trait = Traits.sanitize(pending)
 		if trait ~= nil then
 			local paid: string? = pending.paid
-			if paid ~= "free" and paid ~= "token" and paid ~= "fish" then
+			if paid ~= "free" and paid ~= "token" and paid ~= "fish" and paid ~= "party" then -- #4197 Trait Party
 				paid = nil
 			end
 			local kept: Types.TraitPending = { uid = pending.uid, id = trait.id, paid = paid }

@@ -362,5 +362,21 @@ return function()
 			end
 			expect(count).to.equal(8)
 		end)
+		it("finds the late stations' pictures (#4412, #4415, #4417, #4061)", function()
+			expect(ShopIcons.hud("TicketBooth")).to.equal("rbxassetid://96195139920509")
+			expect(ShopIcons.clean("DragonKeep")).to.equal("rbxassetid://122710978883444")
+			for _, stage in { "Hatchling", "Whelp", "Drake", "Elder", "Crowned" } do
+				expect(ShopIcons.dragonStage(stage) ~= nil).to.equal(true)
+			end
+			expect(ShopIcons.dragonStage("Egg")).to.equal(nil)
+			expect(ShopIcons.dragonStage(nil)).to.equal(nil)
+			for _, family in { "flame", "claw", "wing", "hoard", "heart", "crown" } do
+				expect(ShopIcons.dragonFamily(family) ~= nil).to.equal(true)
+			end
+			expect(ShopIcons.dragonFamily("")).to.equal(nil)
+			expect(ShopIcons.booth("PoolNoodle")).to.equal("rbxassetid://137047405302523")
+			expect(ShopIcons.booth("BoothPlush")).to.equal("rbxassetid://126308376800797")
+			expect(ShopIcons.booth("Nothing")).to.equal(nil)
+		end)
 	end)
 end

@@ -345897,6 +345897,5394 @@
     }
    },
    "name": "CatCafe_Snowy_Set_322_Rock"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Snowy_Set/355"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Snowy_Set_323_Rock",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         56.0237,
+         0.6875,
+         -55.5767
+        ],
+        "orientation": [
+         [
+          0.7986,
+          0.0,
+          0.6018
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.6018,
+          0.0,
+          0.7986
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.25,
+       1.5,
+       1.875
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -78.1894,
+         -0.6875,
+         10.6696
+        ],
+        "orientation": [
+         [
+          0.7986,
+          0.0,
+          -0.6018
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.6018,
+          0.0,
+          0.7986
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Snowy_Set/355"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Snowy_Set_323_Rock",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         55.9239,
+         1.3125,
+         -55.5015
+        ],
+        "orientation": [
+         [
+          0.7986,
+          0.0,
+          0.6018
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.6018,
+          0.0,
+          0.7986
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.875,
+       0.48,
+       1.575
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Snowy_Set_323_Rock"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Snowy_Set/356"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Snowy_Set_324_Rock",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         41.0122,
+         0.6875,
+         -34.0589
+        ],
+        "orientation": [
+         [
+          -0.848,
+          0.0,
+          0.5299
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.5299,
+          0.0,
+          -0.848
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.25,
+       1.5,
+       1.875
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         16.7319,
+         -0.6875,
+         -50.6167
+        ],
+        "orientation": [
+         [
+          -0.848,
+          0.0,
+          -0.5299
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.5299,
+          0.0,
+          -0.848
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Snowy_Set/356"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Snowy_Set_324_Rock",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         41.1182,
+         1.3125,
+         -33.9926
+        ],
+        "orientation": [
+         [
+          -0.848,
+          0.0,
+          0.5299
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.5299,
+          0.0,
+          -0.848
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.875,
+       0.48,
+       1.575
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Snowy_Set_324_Rock"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Snowy_Set/357"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Snowy_Set_325_Rock",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -41.0122,
+         0.6875,
+         -34.0589
+        ],
+        "orientation": [
+         [
+          -0.515,
+          0.0,
+          0.8572
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.8572,
+          0.0,
+          -0.515
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.25,
+       1.5,
+       1.875
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -50.317,
+         -0.6875,
+         17.6127
+        ],
+        "orientation": [
+         [
+          -0.515,
+          0.0,
+          -0.8572
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.8572,
+          0.0,
+          -0.515
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Snowy_Set/357"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Snowy_Set_325_Rock",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -40.9478,
+         1.3125,
+         -33.9517
+        ],
+        "orientation": [
+         [
+          -0.515,
+          0.0,
+          0.8572
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.8572,
+          0.0,
+          -0.515
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.875,
+       0.48,
+       1.575
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Snowy_Set_325_Rock"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Snowy_Set/358"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Snowy_Set_326_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -49.8469,
+         2.618,
+         -48.9822
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.716,
+       7.48,
+       7.48
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -2.618,
+         34.4118,
+         60.826
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.2588,
+          0.0,
+          0.9659
+         ],
+         [
+          0.9659,
+          0.0,
+          0.2588
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Snowy_Set/358"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_326_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -49.8469,
+         4.95,
+         -48.9822
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       9.9,
+       0.8067,
+       0.8067
+      ],
+      "Color": [
+       0.4784,
+       0.3098,
+       0.1804
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_326_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -49.8469,
+         3.696,
+         -48.9822
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.44,
+       5.984,
+       5.984
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_326_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -49.8469,
+         4.818,
+         -48.9822
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.716,
+       5.94,
+       5.94
+      ],
+      "Color": [
+       0.149,
+       0.4392,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_326_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -49.8469,
+         5.896,
+         -48.9822
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.44,
+       4.752,
+       4.752
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_326_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -49.8469,
+         6.908,
+         -48.9822
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.716,
+       4.18,
+       4.18
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_326_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -49.8469,
+         7.986,
+         -48.9822
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.44,
+       3.344,
+       3.344
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_326_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -49.8469,
+         8.778,
+         -48.9822
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.716,
+       2.42,
+       2.42
+      ],
+      "Color": [
+       0.149,
+       0.4392,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_326_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -49.8469,
+         9.856,
+         -48.9822
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.44,
+       1.936,
+       1.936
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_326_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -49.8469,
+         10.45,
+         -48.9822
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.1,
+       1.32,
+       1.32
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Snowy_Set_326_PineSmall"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Snowy_Set/359"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Snowy_Set_327_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.188,
+         1.309,
+         -53.1385
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          -0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.858,
+       3.74,
+       3.74
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -1.309,
+         65.3528,
+         38.5883
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.2588,
+          0.0,
+          0.9659
+         ],
+         [
+          0.9659,
+          0.0,
+          -0.2588
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Snowy_Set/359"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_327_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.188,
+         2.475,
+         -53.1385
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          -0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       4.95,
+       0.4033,
+       0.4033
+      ],
+      "Color": [
+       0.4784,
+       0.3098,
+       0.1804
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_327_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.188,
+         1.848,
+         -53.1385
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          -0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       2.992,
+       2.992
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_327_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.188,
+         2.409,
+         -53.1385
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          -0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.858,
+       2.97,
+       2.97
+      ],
+      "Color": [
+       0.149,
+       0.4392,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_327_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.188,
+         2.948,
+         -53.1385
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          -0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       2.376,
+       2.376
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_327_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.188,
+         3.454,
+         -53.1385
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          -0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.858,
+       2.09,
+       2.09
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_327_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.188,
+         3.993,
+         -53.1385
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          -0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       1.672,
+       1.672
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_327_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.188,
+         4.389,
+         -53.1385
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          -0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.858,
+       1.21,
+       1.21
+      ],
+      "Color": [
+       0.149,
+       0.4392,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_327_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.188,
+         4.928,
+         -53.1385
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          -0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.968,
+       0.968
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_327_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.188,
+         5.225,
+         -53.1385
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.2588,
+          0.9659
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9659,
+          -0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.55,
+       0.66,
+       0.66
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Snowy_Set_327_PineSmall"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Snowy_Set/360"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Snowy_Set_328_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -45.0534,
+         2.142,
+         -93.8109
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5446,
+          0.8387
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.404,
+       6.12,
+       6.12
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -2.142,
+         13.3082,
+         103.2143
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.8387,
+          0.0,
+          0.5446
+         ],
+         [
+          0.5446,
+          0.0,
+          0.8387
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Snowy_Set/360"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_328_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -45.0534,
+         4.05,
+         -93.8109
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5446,
+          0.8387
+         ]
+        ]
+       }
+      },
+      "Size": [
+       8.1,
+       0.66,
+       0.66
+      ],
+      "Color": [
+       0.4784,
+       0.3098,
+       0.1804
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_328_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -45.0534,
+         3.024,
+         -93.8109
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5446,
+          0.8387
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       4.896,
+       4.896
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_328_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -45.0534,
+         3.942,
+         -93.8109
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5446,
+          0.8387
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.404,
+       4.86,
+       4.86
+      ],
+      "Color": [
+       0.149,
+       0.4392,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_328_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -45.0534,
+         4.824,
+         -93.8109
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5446,
+          0.8387
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       3.888,
+       3.888
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_328_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -45.0534,
+         5.652,
+         -93.8109
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5446,
+          0.8387
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.404,
+       3.42,
+       3.42
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_328_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -45.0534,
+         6.534,
+         -93.8109
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5446,
+          0.8387
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       2.736,
+       2.736
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_328_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -45.0534,
+         7.182,
+         -93.8109
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5446,
+          0.8387
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.404,
+       1.98,
+       1.98
+      ],
+      "Color": [
+       0.149,
+       0.4392,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_328_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -45.0534,
+         8.064,
+         -93.8109
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5446,
+          0.8387
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       1.584,
+       1.584
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_328_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -45.0534,
+         8.55,
+         -93.8109
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5446,
+          0.8387
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.9,
+       1.08,
+       1.08
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Snowy_Set_328_PineSmall"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Snowy_Set/361"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Snowy_Set_329_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -43.786,
+         1.309,
+         -98.9881
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3584,
+          -0.9336
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9336,
+          0.3584
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.858,
+       3.74,
+       3.74
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -1.309,
+         -108.1049,
+         -5.4037
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.3584,
+          0.0,
+          -0.9336
+         ],
+         [
+          -0.9336,
+          0.0,
+          0.3584
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Snowy_Set/361"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_329_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -43.786,
+         2.475,
+         -98.9881
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3584,
+          -0.9336
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9336,
+          0.3584
+         ]
+        ]
+       }
+      },
+      "Size": [
+       4.95,
+       0.4033,
+       0.4033
+      ],
+      "Color": [
+       0.4784,
+       0.3098,
+       0.1804
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_329_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -43.786,
+         1.848,
+         -98.9881
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3584,
+          -0.9336
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9336,
+          0.3584
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       2.992,
+       2.992
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_329_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -43.786,
+         2.409,
+         -98.9881
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3584,
+          -0.9336
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9336,
+          0.3584
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.858,
+       2.97,
+       2.97
+      ],
+      "Color": [
+       0.149,
+       0.4392,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_329_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -43.786,
+         2.948,
+         -98.9881
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3584,
+          -0.9336
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9336,
+          0.3584
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       2.376,
+       2.376
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_329_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -43.786,
+         3.454,
+         -98.9881
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3584,
+          -0.9336
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9336,
+          0.3584
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.858,
+       2.09,
+       2.09
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_329_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -43.786,
+         3.993,
+         -98.9881
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3584,
+          -0.9336
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9336,
+          0.3584
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       1.672,
+       1.672
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_329_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -43.786,
+         4.389,
+         -98.9881
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3584,
+          -0.9336
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9336,
+          0.3584
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.858,
+       1.21,
+       1.21
+      ],
+      "Color": [
+       0.149,
+       0.4392,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_329_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -43.786,
+         4.928,
+         -98.9881
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3584,
+          -0.9336
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9336,
+          0.3584
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.968,
+       0.968
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_329_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -43.786,
+         5.225,
+         -98.9881
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3584,
+          -0.9336
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9336,
+          0.3584
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.55,
+       0.66,
+       0.66
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Snowy_Set_329_PineSmall"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Snowy_Set/362"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Snowy_Set_330_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -34.9882,
+         0.075,
+         -109.7768
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7314,
+          -0.682
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.682,
+          -0.7314
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       2.6333,
+       2.6333
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -0.075,
+         -49.2788,
+         -104.1475
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.7314,
+          0.0,
+          -0.682
+         ],
+         [
+          -0.682,
+          0.0,
+          -0.7314
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Snowy_Set/362"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_330_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -34.9882,
+         0.225,
+         -109.7768
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7314,
+          -0.682
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.682,
+          -0.7314
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       2.3,
+       2.3
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_330_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -34.9882,
+         0.375,
+         -109.7768
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7314,
+          -0.682
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.682,
+          -0.7314
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       1.9667,
+       1.9667
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_330_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -35.2392,
+         2.0,
+         -109.6794
+        ],
+        "orientation": [
+         [
+          -0.7304,
+          0.0366,
+          -0.682
+         ],
+         [
+          0.05,
+          0.9988,
+          0.0
+         ],
+         [
+          0.6811,
+          -0.0341,
+          -0.7314
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       3.6,
+       0.08
+      ],
+      "Color": [
+       0.2353,
+       0.4902,
+       0.851
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_330_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -35.1983,
+         3.85,
+         -109.6355
+        ],
+        "orientation": [
+         [
+          -0.7314,
+          0.3851,
+          -0.5629
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          0.682,
+          0.413,
+          -0.6036
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.3,
+       0.2
+      ],
+      "Color": [
+       0.2353,
+       0.4902,
+       0.851
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_330_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -34.8735,
+         2.0,
+         -110.0204
+        ],
+        "orientation": [
+         [
+          -0.7304,
+          -0.0366,
+          -0.682
+         ],
+         [
+          -0.05,
+          0.9988,
+          0.0
+         ],
+         [
+          0.6811,
+          0.0341,
+          -0.7314
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       3.6,
+       0.08
+      ],
+      "Color": [
+       0.851,
+       0.2824,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_330_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -34.8326,
+         3.85,
+         -109.9765
+        ],
+        "orientation": [
+         [
+          -0.7314,
+          0.3851,
+          -0.5629
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          0.682,
+          0.413,
+          -0.6036
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.3,
+       0.2
+      ],
+      "Color": [
+       0.851,
+       0.2824,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_330_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -35.7828,
+         1.6,
+         -109.3092
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7314,
+          -0.682
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.682,
+          -0.7314
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8,
+       0.1,
+       0.1
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_330_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -35.7828,
+         0.57,
+         -109.3092
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7314,
+          -0.682
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.682,
+          -0.7314
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.04,
+       0.52,
+       0.52
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_330_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -34.4663,
+         1.6,
+         -110.5368
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7314,
+          -0.682
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.682,
+          -0.7314
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8,
+       0.1,
+       0.1
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_330_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -34.4663,
+         0.57,
+         -110.5368
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7314,
+          -0.682
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.682,
+          -0.7314
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.04,
+       0.52,
+       0.52
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Snowy_Set_330_SkiPair"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Snowy_Set/363"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Snowy_Set_331_Rock",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -15.0115,
+         0.6875,
+         -114.3644
+        ],
+        "orientation": [
+         [
+          -0.9063,
+          0.0,
+          -0.4226
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.4226,
+          0.0,
+          -0.9063
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.25,
+       1.5,
+       1.875
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         34.7274,
+         -0.6875,
+         -109.9935
+        ],
+        "orientation": [
+         [
+          -0.9063,
+          0.0,
+          0.4226
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.4226,
+          0.0,
+          -0.9063
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Snowy_Set/363"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Snowy_Set_331_Rock",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -14.8982,
+         1.3125,
+         -114.4173
+        ],
+        "orientation": [
+         [
+          -0.9063,
+          0.0,
+          -0.4226
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.4226,
+          0.0,
+          -0.9063
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.875,
+       0.48,
+       1.575
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere",
+        "Scale": [
+         1.3333,
+         1.3333,
+         1.3333
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Snowy_Set_331_Rock"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Snowy_Set/364"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Snowy_Set_332_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         49.8469,
+         2.142,
+         -87.0178
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.6293,
+          -0.7771
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7771,
+          0.6293
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.404,
+       6.12,
+       6.12
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -2.142,
+         -36.2559,
+         93.5004
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.6293,
+          0.0,
+          -0.7771
+         ],
+         [
+          -0.7771,
+          0.0,
+          0.6293
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Snowy_Set/364"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_332_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         49.8469,
+         4.05,
+         -87.0178
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.6293,
+          -0.7771
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7771,
+          0.6293
+         ]
+        ]
+       }
+      },
+      "Size": [
+       8.1,
+       0.66,
+       0.66
+      ],
+      "Color": [
+       0.4784,
+       0.3098,
+       0.1804
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_332_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         49.8469,
+         3.024,
+         -87.0178
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.6293,
+          -0.7771
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7771,
+          0.6293
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       4.896,
+       4.896
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_332_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         49.8469,
+         3.942,
+         -87.0178
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.6293,
+          -0.7771
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7771,
+          0.6293
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.404,
+       4.86,
+       4.86
+      ],
+      "Color": [
+       0.149,
+       0.4392,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_332_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         49.8469,
+         4.824,
+         -87.0178
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.6293,
+          -0.7771
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7771,
+          0.6293
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       3.888,
+       3.888
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_332_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         49.8469,
+         5.652,
+         -87.0178
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.6293,
+          -0.7771
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7771,
+          0.6293
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.404,
+       3.42,
+       3.42
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_332_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         49.8469,
+         6.534,
+         -87.0178
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.6293,
+          -0.7771
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7771,
+          0.6293
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       2.736,
+       2.736
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_332_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         49.8469,
+         7.182,
+         -87.0178
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.6293,
+          -0.7771
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7771,
+          0.6293
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.404,
+       1.98,
+       1.98
+      ],
+      "Color": [
+       0.149,
+       0.4392,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_332_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         49.8469,
+         8.064,
+         -87.0178
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.6293,
+          -0.7771
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7771,
+          0.6293
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       1.584,
+       1.584
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_332_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         49.8469,
+         8.55,
+         -87.0178
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.6293,
+          -0.7771
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7771,
+          0.6293
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.9,
+       1.08,
+       1.08
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Snowy_Set_332_PineSmall"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Snowy_Set/365"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Snowy_Set_333_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.6968,
+         1.309,
+         -83.3317
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5446,
+          -0.8387
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.858,
+       3.74,
+       3.74
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -1.309,
+         -40.6425,
+         90.4196
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.5446,
+          0.0,
+          -0.8387
+         ],
+         [
+          -0.8387,
+          0.0,
+          0.5446
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Snowy_Set/365"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_333_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.6968,
+         2.475,
+         -83.3317
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5446,
+          -0.8387
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ]
+        ]
+       }
+      },
+      "Size": [
+       4.95,
+       0.4033,
+       0.4033
+      ],
+      "Color": [
+       0.4784,
+       0.3098,
+       0.1804
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_333_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.6968,
+         1.848,
+         -83.3317
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5446,
+          -0.8387
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       2.992,
+       2.992
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_333_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.6968,
+         2.409,
+         -83.3317
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5446,
+          -0.8387
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.858,
+       2.97,
+       2.97
+      ],
+      "Color": [
+       0.149,
+       0.4392,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_333_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.6968,
+         2.948,
+         -83.3317
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5446,
+          -0.8387
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       2.376,
+       2.376
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_333_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.6968,
+         3.454,
+         -83.3317
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5446,
+          -0.8387
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.858,
+       2.09,
+       2.09
+      ],
+      "Color": [
+       0.2431,
+       0.498,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_333_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.6968,
+         3.993,
+         -83.3317
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5446,
+          -0.8387
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       1.672,
+       1.672
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_333_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.6968,
+         4.389,
+         -83.3317
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5446,
+          -0.8387
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.858,
+       1.21,
+       1.21
+      ],
+      "Color": [
+       0.149,
+       0.4392,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_333_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.6968,
+         4.928,
+         -83.3317
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5446,
+          -0.8387
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.968,
+       0.968
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_333_PineSmall",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.6968,
+         5.225,
+         -83.3317
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5446,
+          -0.8387
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.8387,
+          0.5446
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.55,
+       0.66,
+       0.66
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Snowy_Set_333_PineSmall"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Snowy_Set/366"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Snowy_Set_334_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         60.7679,
+         0.075,
+         -72.4449
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9962,
+          -0.0872
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.0872,
+          0.9962
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       2.6333,
+       2.6333
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -0.075,
+         54.2227,
+         77.4655
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.9962,
+          0.0,
+          -0.0872
+         ],
+         [
+          -0.0872,
+          0.0,
+          0.9962
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Snowy_Set/366"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_334_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         60.7679,
+         0.225,
+         -72.4449
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9962,
+          -0.0872
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.0872,
+          0.9962
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       2.3,
+       2.3
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_334_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         60.7679,
+         0.375,
+         -72.4449
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9962,
+          -0.0872
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.0872,
+          0.9962
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       1.9667,
+       1.9667
+      ],
+      "Color": [
+       1.0,
+       1.0,
+       1.0
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_334_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         61.0082,
+         2.0,
+         -72.3235
+        ],
+        "orientation": [
+         [
+          0.9949,
+          -0.0498,
+          -0.0872
+         ],
+         [
+          0.05,
+          0.9988,
+          0.0
+         ],
+         [
+          0.087,
+          -0.0044,
+          0.9962
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       3.6,
+       0.08
+      ],
+      "Color": [
+       0.2353,
+       0.4902,
+       0.851
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_334_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         61.0134,
+         3.85,
+         -72.3833
+        ],
+        "orientation": [
+         [
+          0.9962,
+          0.0492,
+          -0.0719
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          0.0872,
+          -0.5625,
+          0.8222
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.3,
+       0.2
+      ],
+      "Color": [
+       0.2353,
+       0.4902,
+       0.851
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_334_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         60.5101,
+         2.0,
+         -72.3671
+        ],
+        "orientation": [
+         [
+          0.9949,
+          0.0498,
+          -0.0872
+         ],
+         [
+          -0.05,
+          0.9988,
+          0.0
+         ],
+         [
+          0.087,
+          0.0044,
+          0.9962
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       3.6,
+       0.08
+      ],
+      "Color": [
+       0.851,
+       0.2824,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_334_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         60.5153,
+         3.85,
+         -72.4269
+        ],
+        "orientation": [
+         [
+          0.9962,
+          0.0492,
+          -0.0719
+         ],
+         [
+          0.0,
+          0.8253,
+          0.5646
+         ],
+         [
+          0.0872,
+          -0.5625,
+          0.8222
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.3,
+       0.2
+      ],
+      "Color": [
+       0.851,
+       0.2824,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_334_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         61.647,
+         1.6,
+         -72.1673
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9962,
+          -0.0872
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.0872,
+          0.9962
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8,
+       0.1,
+       0.1
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_334_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         61.647,
+         0.57,
+         -72.1673
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9962,
+          -0.0872
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.0872,
+          0.9962
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.04,
+       0.52,
+       0.52
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_334_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         59.8539,
+         1.6,
+         -72.3242
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9962,
+          -0.0872
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.0872,
+          0.9962
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8,
+       0.1,
+       0.1
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Snowy_Set_334_SkiPair",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         59.8539,
+         0.57,
+         -72.3242
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9962,
+          -0.0872
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.0872,
+          0.9962
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.04,
+       0.52,
+       0.52
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Snowy_Set_334_SkiPair"
   }
  ],
  "properties": {

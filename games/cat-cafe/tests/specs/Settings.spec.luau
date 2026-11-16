@@ -23,6 +23,7 @@ return function()
 					tradeRequests = "everyone",
 					roadmapOpen = false,
 					sessionRecap = true,
+					perfAsked = false,
 					autoEquip = true, -- #1955: on for a new account
 					catIncome = true, -- #2551: the rate tags show, as they always did
 					goalFolded = false, -- #2714
@@ -32,6 +33,7 @@ return function()
 					autoBowlClaim = true,
 					autoBowlRefill = true,
 					bowlNewCatCard = true,
+					stationCircles = false, -- #4668
 				})
 				for key in pairs(Settings.defaults() :: any) do
 					expect(Settings.kinds[key]).to.be.ok()
@@ -117,6 +119,7 @@ return function()
 				tradeRequests = "everyone",
 				roadmapOpen = false,
 				sessionRecap = true,
+				perfAsked = false,
 				autoEquip = false, -- #1955: a save from before Auto Equip starts with it off
 				catIncome = true, -- #2551: a save from before Cat income has the tags on
 				goalFolded = false, -- #2714
@@ -126,7 +129,16 @@ return function()
 				autoBowlClaim = true,
 				autoBowlRefill = true,
 				bowlNewCatCard = true,
+				stationCircles = false, -- #4668
 			})
+		end)
+
+		it("hides the station circles by default and keeps a saved on (#4668)", function()
+			expect(Settings.kinds.stationCircles).to.equal("switch")
+			expect(Settings.defaults().stationCircles).to.equal(false)
+			expect(Settings.sanitize({}).stationCircles).to.equal(false)
+			expect(Settings.sanitize({ stationCircles = true }).stationCircles).to.equal(true)
+			expect(Settings.clean("stationCircles", "yes")).never.to.be.ok()
 		end)
 
 		it("keeps the pick-a-cat Sort and Show chips as saved (#3940)", function()

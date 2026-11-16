@@ -11,8 +11,8 @@
 -- #2339: on a short screen (a phone held sideways, Scale.isShort) the header is slimmer (HEADER_SHORT) and the title
 -- and its subtitle closer, so the content gets the rows back.
 --
--- #3558: with the `menuFamily` switch on, a dark window wears the station menu family's dress (Components/MenuFamily):
--- the violet body, a row of party bulbs along the top of the title band, the badge sitting straight, and no ears.
+-- #3558, #4657: a dark window always wears the station menu family's dress (Components/MenuFamily):
+-- the cocoa body, a row of party bulbs along the top of the title band, the badge sitting straight, and no ears.
 --
 -- Roblox terms: `frame` is a see-through holder that does not clip, so the ears, badge and touch X can stick out of the
 -- window; the window itself is its child `Body`, which clips the content to the rounded corners. A child
@@ -84,7 +84,7 @@ Panel.__index = Panel
 function Panel.new(props: Props): Panel
 	local color = props.color or Theme.modal.header
 	local HEADER_HEIGHT = if Scale.isShort() then HEADER_SHORT else HEADER_TALL
-	local family = props.dark == true and MenuFamily.on() -- #3558
+	local family = props.dark == true -- #3558, #4657: every dark window wears the family look
 	local frame: Frame = Create("Frame", {
 		Name = props.name or "Panel",
 		BackgroundTransparency = 1,

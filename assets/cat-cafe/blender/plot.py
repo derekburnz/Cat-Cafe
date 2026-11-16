@@ -48,10 +48,14 @@ YARD = 10.0                                  # Config.World.YardDepth: the yard 
 # The town grows round the cafes (Config.World): the cafe rows end at the town's back edge, x TownEdgeX (street 16,
 # sidewalk 2, front garden 5, front wall, the floor, back wall, yard), and two cafes a side of the square, each with an
 # 8 wide passage before it, end 4 short of the street's ends.
-SQUARE_HALF_D = 70.0                                # Config.World.TownSquareHalfDepth: 32 until #2707, 44 until #3001,
-                                                    # 55 until #3070
-TOWN_EDGE_X = 16 + 2 + 5 + 1 + ID + 1 + YARD        # 63 at 28 deep
-STREET_END_Z = SQUARE_HALF_D + 2 * (8 + IW) + 4      # 178 at 70 deep (163 at 55)
+SQUARE_HALF_D = 90.0                                # Config.World.TownSquareHalfDepth: 32 until #2707, 44 until #3001,
+                                                    # 55 until #3070, 70 until #4532
+# #4543 (Derek 2026-11-15: the cafe grows with rank ups, bigger plots for eight Tier 10 cafes): each plot is laid out for
+# the biggest room, CAP_W x CAP_D (Config.World.PlotCapWidth and PlotCapDepth), whatever room stands on it.
+CAP_W, CAP_D = 60.0, 46.0
+SQUARE_EDGE_X = 16 + 2 + 5 + 1 + 34 + 1 + YARD      # 69: the Town Square's own garden wall keeps the 34 deep row's line
+TOWN_EDGE_X = 16 + 2 + 5 + 1 + CAP_D + 1 + YARD     # 81 (69 with 34 deep plots, 63 at 28 deep)
+STREET_END_Z = SQUARE_HALF_D + 2 * (8 + CAP_W) + 4   # 230 (198 with 44 wide plots at 90 deep, 178 at 70, 163 at 55)
 H = 12.8                 # wall height to the eave
 HW = HWI + 1             # outer half width (walls x 18..19 at 36 wide)
 PITCH = math.radians(25)
@@ -917,10 +921,12 @@ def build_tier(n, mat):
         for k in range(6):
             x = bd0 - 1.0 + k * (bd1 - bd0 + 2.0) / 5
             b.span((x - 0.1, 8.58, BACK + 0.8), (x + 0.1, 8.85, BACK + 4.6), beam)   # 0.02 into the beams
-        for x in (bd0 - 2.2, bd1 + 2.2):
-            for z in (BACK + 4.0, BACK + 8.0):
-                b.span((x - 0.7, 0, z - 0.7), (x + 0.7, 1.0, z + 0.7), "terracotta")
-                b.ball((x, 1.5, z), 0.8, "leaf_green")
+        # #4335: the bowl side's front planter stood in the first bait bowl's walk-up ring (centre about z 22.9,
+        # radius 2.2), so it moves out beside the back one, clear of the ring
+        planters = ((bd0 - 2.2, BACK + 4.0), (bd0 - 2.2, BACK + 8.0), (bd1 + 2.2, BACK + 8.0), (bd1 + 4.4, BACK + 8.0))
+        for (x, z) in planters:
+            b.span((x - 0.7, 0, z - 0.7), (x + 0.7, 1.0, z + 0.7), "terracotta")
+            b.ball((x, 1.5, z), 0.8, "leaf_green")
         bulbs = RB()
         _string_lights(b, bulbs, bd0 - 1.0, bd1 + 1.0, 8.4, BACK + 4.2, 0.8, 6, r=0.13)
         extra = [glass.finalize(name + "_Glass", mat), water.finalize(name + "_Water", mat),

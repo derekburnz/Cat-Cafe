@@ -662,17 +662,55 @@ local function refreshTutorial(s: Types.PlayerState)
 	end
 	-- the cards the funnel counts: 0 (to the alley), 1 (catch the cat), 3 (a table) and 4 (the bowl and its food);
 	-- card 2 shows only when the first cat found no free role
-	if s.tutorialStep <= 1 or s.tutorialStep == 3 or s.tutorialStep == 4 then
+	-- #4518: bowl first, the bowl part before the first catch (the first food in, its cat on the way or waiting)
+	local TutorialOrder = require(Shared:WaitForChild("TutorialOrder")) :: any
+	local bowlNow = s.tutorialStep < 2
+		and TutorialOrder.bowlFirst()
+		and TutorialOrder.bowlPending(
+			s.tutorialStep,
+			(s.stats :: any).luresUsed or 0,
+			s.bait ~= nil
+		)
+	if (s.tutorialStep <= 1 and not bowlNow) or s.tutorialStep == 3 or s.tutorialStep == 4 then
 		reportStep(string.format("tut_%d_shown", s.tutorialStep))
 	end
 	-- #2636 (onboarding_v6): the first instruction after the first check-in (card 2, 3 or 4) is on screen
 	if s.tutorialStep >= 2 and s.tutorialStep <= 4 then
 		reportStep("next_goal_shown")
 	end
+	-- #4674: the cannon hint waits while the bowl part runs (UI's cannonHint reads this), pal line or not
+	UI.cannon.bowlPending = bowlNow
 	if s.tutorialStep < 2 and palJoinLine(s) then
 		return
 	end
-	if s.tutorialStep < 2 then
+	-- #4674 (Derek 2026-11-16: "Just stop tutorial steps until rankup possible then have them rank up into park cannon
+	-- teleport then tutorial done"): bowl first, after the first check-in at Tier 1 the strip is quiet (no job, table,
+	-- second cat, bowl or rescue lines) until the Rank Up is possible, then it names the goal card's Rank Up
+	local bowlRest = TutorialOrder.bowlFirst() and s.tutorialStep >= 2 and (s.tier or 1) == 1
+	if bowlNow then
+		local bait: any = s.bait
+		-- #4674: the bowl part's three lines stand in for tut_0_shown and tut_1_shown (TutorialOrder.BOWL_STEPS)
+		local key = if bait ~= nil and bait.cat ~= nil
+			then "arrived"
+			elseif bait ~= nil then "waiting"
+			else "food"
+		if not stepsReported["bowl:" .. key] then
+			stepsReported["bowl:" .. key] = true
+			Net.fire("TelemetryReport", TutorialOrder.REPORT, key)
+		end
+		if bait ~= nil and bait.cat ~= nil then
+			showTutorial(s, "Your bowl cat is here! Tame it", UIController.ownBaitBowl(), "Bowl")
+		elseif bait ~= nil then
+			showTutorial(s, "A cat is on its way to your bowl", UIController.ownBaitBowl(), "Bowl")
+		else
+			showTutorial(
+				s,
+				deviceLine("food", "Put Kibble in your bowl on the back step"),
+				UIController.ownBaitBowl(),
+				"Bowl"
+			)
+		end
+	elseif s.tutorialStep < 2 then
 		showTutorial(
 			s,
 			string.format(
@@ -683,6 +721,24 @@ local function refreshTutorial(s: Types.PlayerState)
 			tutorialStrayPoint(),
 			"Alley"
 		)
+	elseif bowlRest then
+		local GoalLines = require(script.Parent.Parent.UI.Components.GoalLines) :: any
+		local RankUpNeeds = require(script.Parent.Parent.UI.Components.RankUpNeeds) :: any
+		local nextTier = GoalLines.nextTier(Catalog.tiers :: any, 1)
+		if nextTier ~= nil and RankUpNeeds.of(nextTier, s :: any).ready == true then
+			local RankFirst = require(Shared:WaitForChild("RankFirst")) :: any
+			local last = UserInputService:GetLastInputType().Name
+			local device = if last:sub(1, 7) == "Gamepad"
+				then "gamepad"
+				elseif
+					last == "Touch"
+					or (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+				then "touch"
+				else "keyboard"
+			showTutorial(s, RankFirst.line(device))
+		else
+			UI.tutorial.hide()
+		end
 	elseif s.tutorialStep == 2 then
 		if hasRestingCatAndFreeSpot(s) then
 			showTutorial(
@@ -841,21 +897,14 @@ local function watchPalJoin()
 	end)
 end
 
--- #3995 (friend-join-3995.md 4 to 6): PalArrived with the palJoin switch on. The joiner's note waits a moment for the
+-- #3995 (friend-join-3995.md 4 to 6): PalArrived (#4654 batch 8: its `palJoin` switch is retired). The joiner's note waits a moment for the
 -- server's PalNextDoor attribute (it is set once the save and the plot are in), then shows; a new joiner next door
 -- gets the strip's next-door line. The friend gets their note at once.
 function UIController.palJoined(joinerId: number, palId: number)
 	if joinerId ~= player.UserId and palId ~= player.UserId then
 		return
 	end
-	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
 	local PalJoin = require(Shared:WaitForChild("PalJoin")) :: any
-	local key: string = PalJoin.FLAG
-	if
-		not LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
-	then
-		return
-	end
 	local hook: unknown = (UI :: any).palJoined
 	if type(hook) ~= "function" then
 		return
@@ -887,7 +936,6 @@ end
 
 -- Role changes since the last sync, for the sounds (sound list: place and unplace): a cat newly in a role or moved
 -- to another fires CatPlaced with the role, a cat taken off fires UnplaceCat. Unequip all fires one per cat.
--- (#2952's CatSold moment is unused since 2026-11-13: cats are not sold.)
 local function firePlacements(old: Types.PlayerState, new: Types.PlayerState)
 	for uid, cat in new.cats do
 		local before = old.cats[uid]
@@ -1199,6 +1247,7 @@ local function applySettings()
 	Effects.applySettings({
 		screenShake = setting("screenShake"),
 		lowPerformance = setting("lowPerformance"),
+		stationCircles = setting("stationCircles"), -- #4668: the walk-up rings, off by default
 	})
 end
 
@@ -1282,6 +1331,10 @@ local function applyState(s: Types.PlayerState)
 		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done
 		spin = s.spin, -- F49: the free spin and the banked ones, for the Spin window
 		goldenFish = s.goldenFish, -- F52: the HUD's fish counter
+		-- #4061: the Ticket Booth window; false (not nil, which UI.update would skip) while off or below its tier
+		ticketBooth = s.ticketBooth or false,
+		dragon = s.dragon or false, -- #4062: the Dragon Keep window, false while off or below its tier
+		fusion = (s :: any).fusion or false, -- #4104 (typed by Gameplay-Engineer's server side): the Fusion Observatory window, false while off or below its tier
 		crates = s.crates, -- F53: unopened crates, crate luck and Market perks
 		crateLuck = s.crateLuck,
 		fishPerks = s.fishPerks,
@@ -1315,7 +1368,11 @@ local function applyState(s: Types.PlayerState)
 		-- #2555: the free Bellhop Cat's stand "!" (#2501) and its speech bubble show only while this is false
 		starterCatClaimed = s.starterCatClaimed,
 		storeSeen = s.storeSeen, -- #1823 §4: the Store tabs' New dots
+		-- #4055: the Store's golden fish prices; false (not nil, which UI.update would skip) while the switch is off
+		fishStore = s.fishStore or false,
 		dailyDeal = s.dailyDeal or false, -- #3996: Today's Deal on the Store's Featured tab
+		-- #4626: the minute 6 "come back tomorrow" line's reason (false with none, so a switch turned off clears it)
+		tomorrowHook = (s :: any).tomorrowHook or false,
 		-- #2574: Juniper's Mystery Market: the items owned, the cart's "!" until the first visit, and whether buys are
 		-- taken yet
 		mystery = s.mystery,
@@ -1334,6 +1391,10 @@ local function applyState(s: Types.PlayerState)
 		tradeLog = s.tradeLog, -- F102: the Trades page
 		-- #3686: sent since #1714 but never copied, so "Codes you've used" stayed empty in the live game
 		codesRedeemed = s.codesRedeemed,
+		-- #4472 (Sync's Studio check): sent since #2791 but never copied, so the gift ladder, the #1936 store guard
+		-- and the newcomer quiet clock all saw no play time
+		playSeconds = s.playSeconds,
+		giftNext = s.giftNext,
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.
@@ -1457,6 +1518,18 @@ local function wireIntents()
 	end)
 	local seenQueue: { string } = {}
 	local seenSending = false
+	-- #4055: one fish buy at a time; the server answers with a toast and a ProfileSync
+	local fishBuying = false
+	UI.events.buyWithFish:Connect(function(key: string, fish: number)
+		if fishBuying or type(key) ~= "string" or type(fish) ~= "number" then
+			return
+		end
+		fishBuying = true
+		Net.fire("BuyWithFish", key, fish)
+		task.delay(1, function()
+			fishBuying = false
+		end)
+	end)
 	UI.events.storeSeen:Connect(function(tab: string)
 		if table.find(seenQueue, tab) then
 			return
@@ -1806,8 +1879,12 @@ local function wireIntents()
 			end
 		end)
 	end
-	UI.events.rollTrait:Connect(function(uid: string)
-		Net.fire("RollTrait", uid)
+	UI.events.rollTrait:Connect(function(uid: string, stopAt: string?)
+		if stopAt ~= nil then
+			Net.fire("RollTrait", uid, stopAt) -- #4712: one Auto Roll step
+		else
+			Net.fire("RollTrait", uid)
+		end
 	end)
 	UI.events.chooseTrait:Connect(function(takeNew: boolean)
 		Net.fire("ChooseTrait", takeNew == true)
@@ -1956,6 +2033,12 @@ local function wireIntents()
 			end
 		end)
 	end
+	-- #4626: the minute 6 "come back tomorrow" line showed (once a session; the server checks the kind and the switch)
+	if events.returnHookEarly ~= nil then
+		events.returnHookEarly:Connect(function(kind: string)
+			Net.fire("TelemetryReport", "return_hook_early", kind)
+		end)
+	end
 	-- #1920: the session recap card showed, and how long it stayed up; the server allowlists both
 	if events.sessionRecap ~= nil then
 		events.sessionRecap:Connect(function()
@@ -1996,6 +2079,12 @@ local function wireIntents()
 	if events.starterSuggest ~= nil then
 		events.starterSuggest:Connect(function(outcome: string)
 			Net.fire("TelemetryReport", "starter_suggest", outcome)
+		end)
+	end
+	-- #4437: the Money boost card shown or how it ended, "<outcome>:<rung>"; the server logs each once a session
+	if events.moneyCard ~= nil then
+		events.moneyCard:Connect(function(what: string)
+			Net.fire("TelemetryReport", "money_card", what)
 		end)
 	end
 	-- #4176: a purchase prompt's source, "source:id"; the server allowlists it and keeps it 2 minutes for the receipt
@@ -2093,13 +2182,13 @@ local function wireIntents()
 		Net.fire("TelemetryReport", "tutorial_closed", "x")
 	end)
 	-- The net (data-model section 10): since F93 a swing starts the circles or picks a Dropped cat up
-	-- (Controllers/NetSwingController); the server answers with CatchSchedule, and each press on a circle sends only
-	-- its index, since the server stamps the time itself.
+	-- (Controllers/NetSwingController); the server answers with CatchSchedule, and each press on a circle sends its
+	-- index and the tap's time on the ring clock (#4597), which the server believes only within a short bound.
 	-- Each press is heard the instant it lands (sound list 5.1): the swing, then this device's grade estimate.
 	-- The server's own grades come back in CatchResult.
 	UI.events.catchPressed:Connect(
 		function(strayId: string, index: number, grade: Types.CircleGrade?)
-			Net.fire("CatchPress", strayId, index)
+			Net.fire("CatchPress", strayId, index, Workspace:GetServerTimeNow())
 			Moments.NetSwing:Fire(index)
 			if grade ~= nil then
 				Moments.CircleGrade:Fire(index, grade)
@@ -2281,27 +2370,18 @@ local function bindStations()
 		table.insert(arcadePrompts, prompt)
 		prompt.Enabled = arcadeOn()
 	end)
-	-- #3296: `mouseDash` on makes Mouse Dash the arcade's game; `circleStreak` off vaults Circle Streak
-	local function flagOn(key: string): boolean
-		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
-		return LiveFlags.shown(
-			key,
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
-		)
-	end
+	-- #3296: Mouse Dash is the arcade's game (#4656: the only one, Circle Streak is gone; #4654 batch 9: its
+	-- `mouseDash` switch is retired)
 	local function applyArcade()
 		local on = arcadeOn()
-		local circle = flagOn("circleStreak")
-		local dash = on and flagOn("mouseDash")
-		UI.arcade.setOn(on and circle, on and (circle or dash))
-		UI.mouseDash.setFlags(dash, on and circle)
+		local dash = on
+		UI.arcade.setOn(on, dash)
+		UI.mouseDash.setFlags(dash)
 		for _, prompt in arcadePrompts do
-			prompt.Enabled = on and (circle or dash)
+			prompt.Enabled = dash
 		end
 	end
-	for _, key in { Arcade.FLAG, "mouseDash", "circleStreak" } do
-		ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. key):Connect(applyArcade)
-	end
+	ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. Arcade.FLAG):Connect(applyArcade)
 	applyArcade()
 end
 
@@ -2703,7 +2783,7 @@ local function wireServerEvents()
 		function(areaId: string, catId: string, strayId: string, toast: boolean)
 			Moments.RainbowSpawned:Fire(areaId, catId, strayId)
 			-- #4005: the cat stays, the toast waits out a new player's quiet start
-			if toast ~= true or select(2, require(Shared:WaitForChild("QuietStart")).live()) then
+			if toast ~= true or require(Shared:WaitForChild("QuietStart")).live() then
 				return
 			end
 			local hook: unknown = (UI :: any).rainbowSpawned
@@ -2752,24 +2832,11 @@ local function wireServerEvents()
 		end
 	end)
 	-- F92 (playing-together.md section 5): a player arrived at a pal's front door. Moments.PalArrived on every client
-	-- for the wave; the joiner's own HUD gets `UI.palArrived(palUserId, palArea)` once the UI has it (the marker and
-	-- the glowing travel button), else a toast when the pal is out in an area.
-	Net.on("PalArrived", function(joinerId: number, palId: number, palArea: string?)
+	-- for the wave. #4702 (Derek 2026-11-16): no friend location bubble or "is in the" toast any more, and the server
+	-- no longer sends a joiner to the pal's door, so this only answers a server still on an older build.
+	Net.on("PalArrived", function(joinerId: number, palId: number, _palArea: string?)
 		Moments.PalArrived:Fire(joinerId, palId)
 		UIController.palJoined(joinerId, palId)
-		if joinerId ~= player.UserId then
-			return
-		end
-		local hook: unknown = (UI :: any).palArrived
-		if type(hook) == "function" then
-			(hook :: (number, string?) -> ())(palId, palArea)
-			return
-		end
-		local pal = Players:GetPlayerByUserId(palId)
-		local area = if palArea ~= nil then Catalog.getArea(palArea) else nil
-		if pal ~= nil and area ~= nil then
-			UI.toast(string.format("%s is in the %s", pal.DisplayName, area.name), "info")
-		end
 	end)
 	-- F92 Team Rescue: a helped rescue freed its cat. Moments.TeamRescue for the pop and the chime on both screens;
 	-- the UI's `UI.teamRescue(rescuerUserId, helperUserId, coins)` once it has one, else a toast with the helper's tip.
@@ -3043,92 +3110,16 @@ local function wireServerEvents()
 			end
 		end
 	)
-	-- #3062: the Cat Arcade. Its circles sound as a catch's do (CircleAppear, CircleGrade), with Sound-Agent's
-	-- ArcadeStart, ArcadeMilestone and ArcadeEnd moments when the build has them.
-	local arcadeTimers: { thread } = {}
-	local arcadeRun: number? = nil
+	-- #3062, #4656: the Cat Arcade's game is Mouse Dash (Circle Streak is gone). ArcadeState still carries today's
+	-- free play and the records for the cabinet's "!" (UI.arcade.state). The sound moments play when the build has them.
 	local function arcadeMoment(name: string, ...: any)
 		local moment: any = (Moments :: any)[name]
 		if moment ~= nil then
 			moment:Fire(...)
 		end
 	end
-	local function cancelArcadeTimers()
-		for _, timer in arcadeTimers do
-			pcall(task.cancel, timer)
-		end
-		table.clear(arcadeTimers)
-	end
 	Net.on("ArcadeState", function(view: any)
 		UI.arcade.state(view)
-	end)
-	Net.on(
-		"ArcadeBlock",
-		function(
-			run: number,
-			block: number,
-			circles: { Types.CatchCircle },
-			windows: Types.CatchWindows,
-			points: number
-		)
-			if arcadeRun ~= run then
-				arcadeRun = run
-				arcadeMoment("ArcadeStart")
-			end
-			UI.arcade.block(run, block, circles, windows, points)
-			cancelArcadeTimers()
-			for index, circle in circles do
-				local shrink = circle.shrinkSeconds
-				table.insert(
-					arcadeTimers,
-					task.delay(
-						math.max(0, circle.startsAt - Workspace:GetServerTimeNow()),
-						function()
-							if UI.arcade.playing() then
-								Moments.CircleAppear:Fire(index, shrink)
-							end
-						end
-					)
-				)
-			end
-		end
-	)
-	Net.on(
-		"ArcadeJudged",
-		function(
-			run: number,
-			block: number,
-			index: number,
-			grade: string,
-			points: number,
-			milestones: { number }
-		)
-			if grade == "perfect" or grade == "good" or grade == "miss" then
-				Moments.CircleGrade:Fire(index, grade)
-			end
-			if type(milestones) == "table" and #milestones > 0 then
-				arcadeMoment("ArcadeMilestone", milestones[#milestones])
-			end
-			UI.arcade.judged(run, block, index, grade, points, milestones)
-		end
-	)
-	Net.on("ArcadeOver", function(run: number, result: any)
-		cancelArcadeTimers()
-		arcadeRun = nil
-		if type(result) == "table" then
-			arcadeMoment("ArcadeEnd", result.points, result.win == true)
-		end
-		UI.arcade.over(run, result)
-	end)
-	UI.events.arcadePlay:Connect(function()
-		Net.fire("ArcadeStart")
-	end)
-	UI.events.arcadePress:Connect(function(run: number, block: number, index: number)
-		Net.fire("ArcadePress", run, block, index)
-		Moments.NetSwing:Fire(index)
-	end)
-	UI.events.arcadeQuit:Connect(function(run: number)
-		Net.fire("ArcadeQuit", run)
 	end)
 	-- #3296: Mouse Dash. The server draws and judges everything; these only pass its answers to the window and the
 	-- sound moments (Motion-FX-Agent's, played when the build has them).
@@ -3242,19 +3233,6 @@ local function wireServerEvents()
 			show(view)
 		end
 	end)
-	-- #1955: Auto Equip moved cats; UI.autoEquip merges swaps within 2 s into one toast. Wired only once the server
-	-- declares the remote, so this never waits on one that is not there.
-	local serverEvents: { string } = (require(
-		ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes")
-	) :: any).ServerToClient
-	if table.find(serverEvents, "AutoEquipped") then
-		Net.on("AutoEquipped", function(swaps: any)
-			local auto = (UI :: any).autoEquip
-			if auto ~= nil then
-				auto.swapped(swaps)
-			end
-		end)
-	end
 	-- #1947: the like or favourite gift, already paid; UI.gift.show waits for the player to be idle before the card
 	Net.on("PlaytimeGift", function(kind: string, paid: { string }?)
 		local gift = (UI :: any).gift
@@ -3263,9 +3241,8 @@ local function wireServerEvents()
 			show(kind, paid)
 		end
 	end)
-	-- #3420: the update gift's banners (Effects/EventBanner): "a gift is coming" and the gift paid. The words are
-	-- built here from shared/UpdateGift, which refuses anything but small whole numbers; a paid gift that cannot
-	-- show as a banner falls back to the toast.
+	-- #3420: the update gift's "a gift is coming" banner (Effects/EventBanner), and the gift paid as a toast (#4484).
+	-- The words are built here from shared/UpdateGift, which refuses anything but small whole numbers.
 	Net.on(
 		"UpdateGiftNotice",
 		function(
@@ -3279,14 +3256,13 @@ local function wireServerEvents()
 			if banner == nil then
 				return
 			end
-			local shown = EventBanner.show({
-				kind = if kind == "paid" then "gift" else "giftSoon",
-				title = banner.title,
-				lines = banner.lines,
-			})
-			if not shown and kind == "paid" then
+			-- #4484 (Derek 2026-11-15: "remove the big banner thanks for playing that gives fish on join because new
+			-- players cant see tutorial then"): the gift paid on join is a small toast, never the big banner
+			if kind == "paid" then
 				UI.toast(banner.title .. " " .. banner.lines[1], "good")
+				return
 			end
+			EventBanner.show({ kind = "giftSoon", title = banner.title, lines = banner.lines })
 		end
 	)
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.
@@ -3516,14 +3492,18 @@ function UIController.start()
 		achievementPrizesById = achievementPrizesById(), -- #3694: each one's own prize, its line's item
 		dailyTreat = Catalog.dailyTreat, -- F70: the Daily Treat card's seven days and their prizes
 	}
-	-- #3992: the Index's milestones past 50 (and the Rainbow track's past 25) wait for the `indexTo70` switch; the UI
-	-- reads catalog.indexPrizes each time, so a switch change shows at the next render
-	local SharedIndexRewards = require(Shared:WaitForChild("IndexRewards")) :: any
-	catalog.indexPrizes = SharedIndexRewards.shownPrizes()
-	ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. SharedIndexRewards.LATE_FLAG)
-		:Connect(function()
-			catalog.indexPrizes = SharedIndexRewards.shownPrizes()
-		end)
+	-- #4607 (Derek 2026-11-15: menus "reverted to the old menu style" after the 22:00 publish): a new server publishes
+	-- the switches' defaults before its first read of the store, and MenuFamily takes its look once, at the first
+	-- window built, so the first players in a fresh server latched the old look (and white words on the Store's
+	-- white sheet rows). Wait for the store's values, a few seconds at most.
+	local LiveFlagsShared = require(Shared:WaitForChild("LiveFlags")) :: any
+	local readyBy = os.clock() + LiveFlagsShared.READY_WAIT
+	while
+		ReplicatedStorage:GetAttribute(LiveFlagsShared.READY_ATTRIBUTE) ~= true
+		and os.clock() < readyBy
+	do
+		task.wait(0.1)
+	end
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({
 		catalog = catalog,

@@ -36,12 +36,10 @@ return function()
 	end
 
 	describe("Pet's numbers", function()
-		it("are Derek's: 2x for an hour, behind a switch that is off", function()
+		it("are Derek's: 2x for an hour", function()
 			expect(Config.PetMoneyBoost).to.equal(2)
 			expect(Config.PetSeconds).to.equal(3600)
 			expect(Config.PetCooldownSeconds).to.equal(3)
-			expect(Pet.FLAG).to.equal("petCats")
-			expect(LiveFlags.defaults()[Pet.FLAG]).to.equal(false)
 		end)
 	end)
 
@@ -79,6 +77,17 @@ return function()
 		end)
 	end)
 
+	describe("Pet.pet extra", function()
+		it("adds a card's extra seconds, at most EXTRA_MAX", function()
+			local profile, worker = cafe()
+			Pet.pet(profile, worker, T, 900)
+			expect((profile.pet :: any).untilAt).to.equal(T + 3600 + 900)
+			Pet.pet(profile, worker, T, 1e9)
+			expect((profile.pet :: any).untilAt).to.equal(T + 3600 + Pet.EXTRA_MAX)
+			expect((Pet.sanitize(profile.pet, T) :: any).untilAt).to.equal(T + 3600 + Pet.EXTRA_MAX)
+		end)
+	end)
+
 	describe("Pet.prune", function()
 		it("ends the heart with the hour, a sale or the cat leaving its job", function()
 			local profile, worker = cafe()
@@ -102,7 +111,7 @@ return function()
 			expect(kept.uid).to.equal("abc-1")
 			expect(kept.untilAt).to.equal(T + 100)
 			expect((Pet.sanitize({ uid = "abc-1", untilAt = T + 99999 }, T) :: any).untilAt).to.equal(
-				T + 3600
+				T + 3600 + Pet.EXTRA_MAX -- #4447: one pet with Pat Pat's extra
 			)
 			expect(Pet.sanitize({ uid = "abc-1", untilAt = T }, T)).to.equal(nil)
 			expect(Pet.sanitize({ uid = "", untilAt = T + 5 }, T)).to.equal(nil)

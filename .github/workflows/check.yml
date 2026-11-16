@@ -50,6 +50,7 @@ jobs:
       main: ${{ steps.main.outputs.main }}
       tree: ${{ steps.main.outputs.tree }}
       passed: ${{ steps.passed.outputs.cache-hit }}
+      light: ${{ steps.light.outputs.light }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -68,10 +69,28 @@ jobs:
           key: check-passed-${{ steps.main.outputs.tree }}
           lookup-only: true
 
+      # Docs and pictures only (#4241 follow-up, 2026-11-15): when every file the change touches is under docs/,
+      # .claude/, a .md file, or the source folders of assets/cat-cafe that Rojo does not sync (anim, audio,
+      # blender, exports, ui, vfx), no check can fail, so gate, unit tests and UI shards are skipped like on a tree
+      # that passed. assets/cat-cafe/rbx (synced into the game) and everything else still gets the full check.
+      # An empty list (nothing to compare) is never light.
+      - name: Docs or pictures only?
+        id: light
+        run: |
+          if [ "$GITHUB_REF" = refs/heads/main ]; then base=HEAD^1; else base="${{ steps.main.outputs.main }}"; fi
+          files=$(git diff --name-only "$base" HEAD || true)
+          light=false
+          if [ -n "$files" ] && ! grep -qvE '^(docs/|\.claude/|assets/cat-cafe/(anim|audio|blender|exports|ui|vfx)/)|\.md$' <<<"$files"; then
+            light=true
+          fi
+          echo "light=$light" >>"$GITHUB_OUTPUT"
+          echo "Docs or pictures only: $light ($(wc -l <<<"$files") files)"
+
   gate:
     name: Rojo sourcemap, luau-lsp, Selene, StyLua
     needs: plan
-    if: ${{ needs.plan.outputs.passed != 'true' }}
+    # Only a run that checked the UI scenes marks a tree (not a docs-only change, not a main push).
+    if: ${{ needs.plan.outputs.passed != 'true' && needs.plan.outputs.light != 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -109,7 +128,7 @@ jobs:
   units:
     name: Unit tests and strict type check
     needs: plan
-    if: ${{ needs.plan.outputs.passed != 'true' }}
+    if: ${{ needs.plan.outputs.passed != 'true' && needs.plan.outputs.light != 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -142,7 +161,9 @@ jobs:
   uigate:
     name: UI gate scenes ${{ matrix.shard }}/4
     needs: plan
-    if: ${{ needs.plan.outputs.passed != 'true' }}
+    # A main push runs only the gate and the unit tests: the UI scenes already ran on the PR, and the runner queue
+    # is the bottleneck (2026-11-15).
+    if: ${{ needs.plan.outputs.passed != 'true' && needs.plan.outputs.light != 'true' && github.event_name != 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -204,39 +225,43 @@ jobs:
           echo "plan: ${{ needs.plan.result }} (already passed: ${{ needs.plan.outputs.passed }}), unit tests: ${{ needs.units.result }}, UI gate shards: ${{ needs.uigate.result }}"
           [ "${{ needs.plan.result }}" = success ] || exit 1
           [ "${{ needs.plan.outputs.passed }}" = true ] && exit 0
-          [ "${{ needs.units.result }}" = success ] && [ "${{ needs.uigate.result }}" = success ]
+          [ "${{ needs.plan.outputs.light }}" = true ] && exit 0
+          [ "${{ needs.units.result }}" = success ] || exit 1
+          # A main push skips the UI shards on purpose (they ran on the PR).
+          [ "${{ github.event_name }}" = push ] && [ "${{ needs.uigate.result }}" = skipped ] && exit 0
+          [ "${{ needs.uigate.result }}" = success ]
 
       - uses: actions/checkout@v5
-        if: needs.plan.outputs.passed != 'true'
+        if: needs.uigate.result == 'success'
         with:
           fetch-depth: 0
           filter: blob:none
 
       # The same main every other job merged, so every part saw one tree.
       - name: Merge main in (not pushed)
-        if: needs.plan.outputs.passed != 'true'
+        if: needs.uigate.result == 'success'
         working-directory: .
         run: bash .github/scripts/merge-main.sh "${{ needs.plan.outputs.main }}"
 
       - uses: actions/setup-node@v5
-        if: needs.plan.outputs.passed != 'true'
+        if: needs.uigate.result == 'success'
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: games/cat-cafe/tools/cloudcheck/package-lock.json
 
       - run: npm ci
-        if: needs.plan.outputs.passed != 'true'
+        if: needs.uigate.result == 'success'
 
       - uses: actions/download-artifact@v4
-        if: needs.plan.outputs.passed != 'true'
+        if: needs.uigate.result == 'success'
         with:
           pattern: uigate-shard-*
           merge-multiple: true
           path: ${{ runner.temp }}/uigate-shards
 
       - name: UI gate (every shard checked as one run)
-        if: needs.plan.outputs.passed != 'true'
+        if: needs.uigate.result == 'success'
         env:
           MAIN: ${{ needs.plan.outputs.main }}
         run: |
@@ -254,7 +279,8 @@ jobs:
   passed:
     name: Mark this tree as passed
     needs: [plan, gate, cloudcheck]
-    if: ${{ needs.plan.outputs.passed != 'true' }}
+    # Only a run that checked the UI scenes marks a tree (not a docs-only change, not a main push).
+    if: ${{ needs.plan.outputs.passed != 'true' && needs.plan.outputs.light != 'true' && github.event_name != 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -274,7 +300,7 @@ jobs:
     # the script dispatched on a PR branch. Never on main.
     if: >-
       !cancelled() && needs.plan.result == 'success' && needs.cloudcheck.result == 'success' &&
-      (needs.gate.result == 'success' || (needs.gate.result == 'skipped' && needs.plan.outputs.passed == 'true')) &&
+      (needs.gate.result == 'success' || (needs.gate.result == 'skipped' && (needs.plan.outputs.passed == 'true' || needs.plan.outputs.light == 'true'))) &&
       ((github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')) ||
       (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main'))
     runs-on: ubuntu-latest

@@ -4,7 +4,6 @@
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Config = require(Shared.Config)
-	local LiveFlags = require(Shared.LiveFlags)
 	local ProfileSchema = require(Shared.ProfileSchema)
 	local ReturnGift = require(Shared.ReturnGift)
 	local UpdateGift = require(Shared.UpdateGift)
@@ -19,12 +18,6 @@ return function()
 		profile.telemetry.firstDay = day
 		return profile
 	end
-
-	it("starts off behind its own switch", function()
-		expect(LiveFlags.OFF_BY_DEFAULT[ReturnGift.FLAG]).to.equal(true)
-		expect(table.find(LiveFlags.KEYS, ReturnGift.FLAG) ~= nil).to.equal(true)
-		expect(LiveFlags.defaults()[ReturnGift.FLAG]).to.equal(false)
-	end)
 
 	it("waits on the first day and pays on any later day, once", function()
 		local profile = newAccount(FIRST)

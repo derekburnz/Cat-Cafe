@@ -360,9 +360,5 @@ ASSETS = {
     "CatCafe_Decor_MenuBoard": (build_menu_board, 500),
     "CatCafe_Decor_Cup": (build_cup, 300),
     "CatCafe_Decor_MuralPrint": (build_mural_print, 1500),
-    "CatCafe_Decor_MuralPrint_Gold": (lambda mat: build_mural_print(
-        mat, "CatCafe_Decor_MuralPrint_Gold", frame="gold_mid", lip="gold_light", plaque="gold_light"), 1500),
     "CatCafe_Decor_ParkBench": (build_book_bench, 1200),
-    "CatCafe_Decor_ParkBench_Gold": (lambda mat: build_book_bench(
-        mat, "CatCafe_Decor_ParkBench_Gold", slat="gold_light", iron="gold_dark", cap="gold_mid"), 1200),
 }

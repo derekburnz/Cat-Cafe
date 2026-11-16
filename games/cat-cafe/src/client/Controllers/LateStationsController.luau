@@ -32,6 +32,17 @@ local REMOTES: { [string]: boolean } = {
 	SpaBuySlot = true,
 	MuseumDonate = true,
 	MuseumFill = true, -- #3130
+	BuyTicketPrize = true, -- #4061: the Ticket Booth's BUY (prize id)
+	-- #4062: the Dragon Keep window
+	GiveToKeep = true,
+	PickDragonCard = true,
+	KeepCards = true,
+	SlotDragonCard = true,
+	SetDragonColour = true,
+	-- #4104: the Fusion Observatory window
+	StartFusion = true,
+	CollectFusion = true,
+	FuseAll = true, -- #4589
 }
 
 local tracked: { [ProximityPrompt]: boolean } = {}
@@ -101,6 +112,13 @@ function LateStationsController.start()
 		local result = hook("result")
 		if result ~= nil then
 			result(stationId, ok, detail)
+		end
+	end)
+	-- #4589: what one Fuse all made, for the Observatory's summary card
+	Net.on("FusionSummary", function(made: any)
+		local summary = hook("fusionSummary")
+		if summary ~= nil then
+			summary(made)
 		end
 	end)
 	for _, instance in CollectionService:GetTagged(LateStations.TAG) do

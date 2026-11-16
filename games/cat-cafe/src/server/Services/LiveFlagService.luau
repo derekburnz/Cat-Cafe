@@ -53,6 +53,14 @@ function LiveFlagService.ready(): boolean
 	return readOnce or not live()
 end
 
+-- #4613: tells the clients the switches are the store's (or as good as they will get: a first read that failed keeps
+-- the defaults, and waiting longer would not change them). Set once, never cleared.
+local function markReady()
+	if ReplicatedStorage:GetAttribute(LiveFlags.READY_ATTRIBUTE) ~= true then
+		ReplicatedStorage:SetAttribute(LiveFlags.READY_ATTRIBUTE, true)
+	end
+end
+
 local function read()
 	if not live() then
 		return
@@ -87,9 +95,10 @@ local function read()
 	end
 	current = new
 	publish()
+	markReady() -- #4607
 end
 
--- Studio only: switches named in the Workspace attribute DebugFlagsOn ("menuFamily,petCats", set in edit mode before
+-- Studio only: switches named in the Workspace attribute DebugFlagsOn ("petCats,fusion", set in edit mode before
 -- Play) are on from this server's first moment, for a look the client takes once at its start (the menu family).
 LiveFlagService.DEBUG_ATTRIBUTE = "DebugFlagsOn"
 
@@ -105,9 +114,13 @@ function LiveFlagService.start()
 		end
 	end
 	publish()
+	if not live() then
+		markReady() -- nothing to read (Studio without API access): the defaults and overrides are final
+	end
 	task.spawn(function()
 		while true do
 			read()
+			markReady() -- #4613: after the first try, whether it came back or failed
 			task.wait(LiveFlags.CHECK_SECONDS)
 		end
 	end)

@@ -55,7 +55,7 @@ return function()
 			end
 		)
 		it("shows the Day Cart's name (#1577) and no help line (#1688)", function()
-			expect(Logic.TITLE).to.equal("Day Cart")
+			expect(Logic.TITLE).to.equal("Coin Cart")
 			expect((Logic :: any).HELP).to.equal(nil)
 		end)
 		it("words the stock line", function()

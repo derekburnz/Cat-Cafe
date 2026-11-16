@@ -2,7 +2,7 @@
 -- Pet a cat (#3651, a player's idea from the Feedback board). Derek 2026-11-12: "add the petting cat in shop to
 -- increase how much money they make by 2x and display a heart beside their money while it lasts make it 1 hour
 -- long", then "make the petting 1 cat only at a time and petting a new one changes it" and "online pay only".
--- Behind the `petCats` switch (Pet.FLAG, off by default).
+-- #4654: the `petCats` switch shipped and is gone.
 --   One happy cat a player: petting a working cat in your own cafe makes it the happy cat for Config.PetSeconds by
 --   the clock (the hour runs while away) and takes the heart off the cat that had it. Petting the happy cat again
 --   starts a fresh hour.
@@ -20,7 +20,6 @@ local Types = require(script.Parent.Types)
 
 local Pet = {}
 
-Pet.FLAG = "petCats" -- LiveFlags, off by default
 Pet.PROMPT = "PetPrompt" -- the client's prompt on each of the player's own working cats
 Pet.ACTION = "Pet"
 Pet.ATTRIBUTE = "HappyUntil" -- on the happy cat's model: the heart's end (server time), for the money tag
@@ -28,6 +27,8 @@ Pet.EVENT = "cat_pet" -- Telemetry.custom (value 1; fields: moved, same or first
 Pet.HEART = "💗"
 
 export type Save = Types.PetSave
+
+Pet.EXTRA_MAX = 15 * 60 -- #4447: the most a card (Pat Pat) adds to one pet, so a saved end stays checkable
 
 -- A saved pet made safe, or nil: a cat id and an end still ahead, no further off than one full pet.
 function Pet.sanitize(raw: unknown, now: number): Save?
@@ -41,7 +42,10 @@ function Pet.sanitize(raw: unknown, now: number): Save?
 	if type(untilAt) ~= "number" or untilAt ~= untilAt or untilAt <= now then
 		return nil
 	end
-	return { uid = uid, untilAt = math.min(math.floor(untilAt), now + Config.PetSeconds) }
+	return {
+		uid = uid,
+		untilAt = math.min(math.floor(untilAt), now + Config.PetSeconds + Pet.EXTRA_MAX),
+	}
 end
 
 -- The happy cat's uid at `now`, or nil: the hour still runs and the cat is still owned and on a job.
@@ -80,9 +84,16 @@ end
 
 -- Pets `uid` at `now`: it is the happy cat for a full fresh hour. Returns how the heart came ("first": no heart
 -- was running, "same": this cat had it, "moved": another cat had it) and the uid that had it before, if another.
-function Pet.pet(profile: Types.PlayerProfile, uid: string, now: number): (string, string?)
+-- `extra` (#4447, Pat Pat) is seconds more, at most EXTRA_MAX.
+function Pet.pet(
+	profile: Types.PlayerProfile,
+	uid: string,
+	now: number,
+	extra: number?
+): (string, string?)
 	local had = Pet.active(profile.pet, profile.cats, now)
-	profile.pet = { uid = uid, untilAt = now + Config.PetSeconds }
+	local more = math.clamp(extra or 0, 0, Pet.EXTRA_MAX)
+	profile.pet = { uid = uid, untilAt = now + Config.PetSeconds + more }
 	if had == nil then
 		return "first", nil
 	elseif had == uid then

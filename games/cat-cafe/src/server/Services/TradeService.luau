@@ -830,6 +830,8 @@ local function onRespond(player: Player, rawId: unknown, rawAccept: unknown)
 	sendState(trade)
 	journey(asker, trade.id, Journeys.TradeNodes.opened) -- #4544
 	journey(player, trade.id, Journeys.TradeNodes.opened)
+	Telemetry.firstAct(asker, "trade")
+	Telemetry.firstAct(player, "trade")
 end
 
 -- The trade `player` is in when it is `rawTradeId`, else nil.

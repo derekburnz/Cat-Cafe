@@ -15,8 +15,6 @@ local Theme = require(script.Parent.Parent.Theme)
 
 local MenuFamily = {}
 
-MenuFamily.FLAG = "menuFamily"
-
 export type Palette = typeof(Theme.dark)
 
 -- #3965 (Derek 2026-11-13 17:32: "do the old colour for menus", "gives cozy vibes"): the cocoa body and cards of

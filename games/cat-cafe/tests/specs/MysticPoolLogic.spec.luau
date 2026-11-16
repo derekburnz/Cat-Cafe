@@ -223,11 +223,14 @@ return function()
 			)
 		end)
 
-		it("reads the Secret switch the server copied, off when missing (#3908)", function()
-			expect(MysticPoolLogic.secret()).to.equal(false)
-			expect(#MysticPoolLogic.odds()).to.equal(6)
-			expect(#MysticPoolLogic.odds(true)).to.equal(7)
-		end)
+		it(
+			"always rolls with the Secret rarity (#3908; #4654 batch 3 retired its switch)",
+			function()
+				expect(MysticPoolLogic.secret()).to.equal(true)
+				expect(#MysticPoolLogic.odds()).to.equal(7)
+				expect(#MysticPoolLogic.odds(false)).to.equal(6)
+			end
+		)
 
 		it("never uses near-miss words on its buttons", function()
 			for _, text in

@@ -142,8 +142,6 @@ UI.events = {
 	rescueCancelled = Signal.new(), -- (rescueSpotId)   Give up on the rescue bar: forward as RescueCancel (F27)
 	screenOpened = Signal.new(), -- (name or nil)
 	-- design v0.3
-	-- #3062 (the Cat Arcade): Play on its card, a press on circle `index` of the game's block, and Close mid game:
-	-- forward as ArcadeStart, ArcadePress(run, block, index) and ArcadeQuit(run)
 	-- #3296 (Mouse Dash): Play, a tap on a hole while wave `index` is up, and Close mid game: forward as
 	-- MouseDashStart, MouseDashTap(run, index, hole) and MouseDashQuit(run)
 	mouseDashPlay = Signal.new(),
@@ -232,6 +230,7 @@ UI.events = {
 	-- #1920 (first-hour.md section 6), analytics only: the session recap card showed, then went after this many seconds
 	sessionRecap = Signal.new(), -- ()   forward as TelemetryReport("session_recap"); the server adds the minutes and step
 	sessionRecapClose = Signal.new(), -- (secondsUp)   forward as TelemetryReport("session_recap_close", secondsUp)
+	returnHookEarly = Signal.new(), -- (kind)   #4626: the minute 6 "come back tomorrow" line showed: forward as TelemetryReport("return_hook_early", kind)
 	-- #1919 (first-hour.md section 5), analytics only: the goal card's "Find N more cats" opened the Index on this area
 	indexHintTap = Signal.new(), -- (areaId)   forward as TelemetryReport("index_hint_tap", areaId)
 	-- #1947 (like-prompts.md section 3), analytics only: the button pressed on a like or favourite gift card, once a
@@ -1645,6 +1644,21 @@ function UI.init(config: Types.InitConfig)
 	})
 	local toastsInstance = Toasts.new(parent)
 	toasts = toastsInstance
+	-- #4472: no pop-ups in a new account's first minutes (ToastRules.newcomer), on the gift ladder's play clock
+	toastsInstance:setNewcomer(function(): boolean
+		local rules = require(script.Components.ToastRules)
+		local flags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local ladder = UI.giftLadder
+		local played: number? = if ladder.played ~= nil
+			then (ladder.played :: number) + (os.clock() - ladder.playedAt)
+			else nil
+		local on = flags.shown(
+			rules.NEWCOMER_FLAG,
+			ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. rules.NEWCOMER_FLAG)
+		)
+		return rules.newcomer(on, played)
+	end)
 	-- #2724/#2727: toasts that come while the catch circles or the rescue bar run wait for the end (the HUD steps aside
 	-- then too, HUD._applyFocus)
 	hudInstance.catchingChanged:Connect(function(active: boolean)
@@ -1686,6 +1700,7 @@ function UI.init(config: Types.InitConfig)
 		return { current:buffRow(), current:counterRow() }
 	end)
 	UI.recap.card = require(script.Screens.RecapCard).new(parent) -- #1920
+	UI.returnHook.watch() -- #4626
 	UI.gift.card = require(script.Screens.GiftCard).new(parent) -- #1947
 	UI.loot.card = require(script.Screens.LootCard).new(parent) -- #3464
 	UI.perks.card = require(script.Screens.PerkCard).new(parent) -- #2687
@@ -2214,6 +2229,7 @@ function UI.destroy()
 		UI.recap.card = nil
 	end
 	UI.recap.waiting = nil
+	UI.returnHook.token += 1 -- #4626: this build's watcher ends
 	if UI.loot.card then
 		UI.loot.card:destroy()
 		UI.loot.card = nil
@@ -10043,7 +10059,13 @@ do
 			shop.playedAt = os.clock()
 		end
 		local seconds = shop.guard.playSeconds(shop.played, shop.playedAt, os.clock())
-		local calm = shop.guard.quiet(seconds)
+		-- #4472: the quiet half hour waits behind storeGuard (off) for Derek's call, now that playSeconds arrives
+		local flags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local calm = flags.shown(
+			"storeGuard",
+			ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. "storeGuard")
+		) and shop.guard.quiet(seconds)
 		if calm and seconds ~= nil then
 			local untilAt = os.clock() + shop.guard.QUIET_SECONDS - seconds
 			if shop.quietUntil == nil or math.abs(shop.quietUntil - untilAt) > 1 then
@@ -10765,6 +10787,64 @@ function UI.recap.show(view: any)
 			UI.recap.watching = false
 		end)
 	end
+end
+
+-- #4626 (Design-Agent's spec; Components/ReturnHookLine): at minute 6 of the session a player past the tutorial and
+-- before Tier 3 gets one quiet line in the toast stack with tomorrow's reason to come back (PlayerState.tomorrowHook,
+-- nil with the returnHookEarly switch off). Once a session; it waits for a calm screen (no window or card, no catch,
+-- nothing carried, no cutscene or roll). `startedAt` is when this client started, so the client times it.
+-- (init.luau is at Luau's 200 locals a scope, so the pieces live on UI.returnHook.)
+UI.returnHook = { shown = false, startedAt = os.clock(), token = 0 }
+
+-- true when the watcher can stop (the line showed, or it never will this session)
+function UI.returnHook.try(): boolean
+	local hook = UI.returnHook
+	if hook.shown then
+		return true
+	end
+	local ReturnHookLine = require(script.Components.ReturnHookLine)
+	local RoadmapLogic = require(script.Components.RoadmapLogic) :: any
+	local tier = state.tier or 1
+	if tier > ReturnHookLine.MAX_TIER then
+		return true -- ranked past the new player Tiers: the line is not for them
+	end
+	local tutorialDone = (state.tutorialStep or 0) >= RoadmapLogic.TUTORIAL_DONE
+	if not ReturnHookLine.due(os.clock() - hook.startedAt, tier, tutorialDone, false) then
+		return false
+	end
+	local words = ReturnHookLine.words((state :: any).tomorrowHook)
+	if words == nil then
+		return false -- nothing to name yet (today's Daily Treat stamp is still unclaimed), or the switch is off
+	end
+	local busy = (modal ~= nil and modal:current() ~= nil)
+		or (baitCard ~= nil and baitCard:isShowing())
+		or (tipCard ~= nil and tipCard:isShowing())
+		or (UI.gift.card ~= nil and UI.gift.card:isShowing())
+		or (UI.recap.card ~= nil and UI.recap.card:isShowing())
+		or not visible
+		or (hud ~= nil and hud:isCatching())
+		or state.carrying ~= nil
+		or UI.cutscene.held()
+		or UI.rollBusy.held()
+	if busy then
+		return false
+	end
+	hook.shown = true
+	UI.toast(words, "info", ReturnHookLine.SHOW_SECONDS)
+	UI.events.returnHookEarly:Fire(ReturnHookLine.kind((state :: any).tomorrowHook))
+	return true
+end
+
+-- Looks once a second until the line showed; a rebuilt UI (token) starts its own watcher and ends the old one.
+function UI.returnHook.watch()
+	local hook = UI.returnHook
+	hook.token += 1
+	local token = hook.token
+	task.spawn(function()
+		while hook.token == token and not UI.returnHook.try() do
+			task.wait(1)
+		end
+	end)
 end
 
 -- #1947 (like-prompts.md section 2): UIController's hook for PlaytimeGift(kind, paid). The server has already paid the

@@ -66,17 +66,13 @@ end
 function TraitService.open(profile: Profile): boolean
 	local tier = Economy.tier(profile)
 	-- #4539: the pool opens from Tier 4 (shared/StationTiers)
-	return LiveFlagService.on(Traits.FLAG)
-		and Traits.openAt(tier)
+	return Traits.openAt(tier)
 		and not StationTiers.locked(Traits.TAG, tier, LiveFlagService.on(StationTiers.FLAG))
 end
 
 -- Adds `count` Trait Tokens from `source` (a spin, the Daily Treat, a quest set, Lost and Found, a code) and logs
--- trait_token; the caller syncs. Returns how many were added (0 while the switch is off).
+-- trait_token; the caller syncs. Returns how many were added.
 function TraitService.give(player: Player, profile: Profile, count: number, source: string): number
-	if not LiveFlagService.on(Traits.FLAG) then
-		return 0
-	end
 	local added = Traits.give(profile.traits, count)
 	if added > 0 then
 		Telemetry.custom(player, "trait_token", added, { source })
@@ -106,13 +102,10 @@ local function announce(player: Player, rolled: Traits.Trait)
 		end
 	end
 	-- #3908: the chat line here and on the other servers, like a Mythical catch (#2203). It waits CHAT_DELAY_SECONDS so
-	-- the roller's own chat does not show it before their scene's reveal. Only with the secretTrait switch on, so
-	-- off stays exactly as before (Review-QA on ffbea7ba4).
-	if LiveFlagService.on(Traits.SECRET_FLAG) then
-		task.delay(CHAT_DELAY_SECONDS, function()
-			GlobalCatchService.share(line, chat)
-		end)
-	end
+	-- the roller's own chat does not show it before their scene's reveal.
+	task.delay(CHAT_DELAY_SECONDS, function()
+		GlobalCatchService.share(line, chat)
+	end)
 	-- #3942: everyone near the pool sees its pillar go up (Effects/BigTraitCut.watchPool). Attributes on the station,
 	-- no new remote: who rolled (so their own client skips it, it plays the scene) and the rarity, then the time last,
 	-- which is what the clients watch.
@@ -191,7 +184,7 @@ local function onRoll(player: Player, rawUid: unknown, rawStopAt: unknown)
 		function(n: number): number
 			return rng:NextInteger(1, n)
 		end,
-		LiveFlagService.on(Traits.SECRET_FLAG),
+		true, -- #4654 batch 3: the Secret rarity is always in the rolls
 		Economy.dragonEffects(profile).traitLuck -- the Dragon Keep's Trait Spark; the odds lists show the same
 	)
 	profile.stats.traitRolls += 1 -- #3694 section 3: every roll, a first or a re-roll

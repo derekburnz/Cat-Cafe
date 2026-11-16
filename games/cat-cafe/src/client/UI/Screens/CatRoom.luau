@@ -26,7 +26,6 @@
 -- MyCats owns the window; this view only reads state and calls back.
 
 local GuiService = game:GetService("GuiService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
 local BagLogic = require(script.Parent.Parent.Components.BagLogic)
@@ -58,8 +57,6 @@ local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Types = require(script.Parent.Parent.Types)
 
 -- #3717: the trait row reads the `traits` switch and the trait's name
-local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
-local Traits = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Traits")) :: any
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = MenuFamily.pal
@@ -1995,12 +1992,8 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	self._detailInfo.Visible = not showBuffs
 	self._detailBuffs.Visible = showBuffs
 	self._detailDesc.Text = if def then def.description or "" else ""
-	-- #3717: the trait row; hidden for a cat with no trait while the `traits` switch is off
-	local traitsOpen = LiveFlags.shown(
-		Traits.FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Traits.FLAG)
-	)
-	local traitTitle, traitEffects = CatCardLogic.traitRow(instance.trait, traitsOpen)
+	-- #3717: the trait row (#4654 batch 3: the pool is always open, so it always shows)
+	local traitTitle, traitEffects = CatCardLogic.traitRow(instance.trait, true)
 	local hasTrait = traitTitle ~= nil and traitEffects ~= ""
 	local traitLabel: TextLabel = self._detailTrait
 	local stats: TextLabel = self._detailStats

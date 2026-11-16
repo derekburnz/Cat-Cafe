@@ -256,32 +256,29 @@ end
 
 -- #3196: the Mystic Pool card's numbers, its free tokens brought up to `now` first; nil while the `traits` switch is
 -- off or the tier has not opened the station (TraitService.open reads the same)
--- #3864: `bundles` says whether the token bundles may be offered: the traitBundles switch on, and the player's policy
+-- #3864: `bundles` says whether the token bundles may be offered: the player's policy
 -- read and not restricting paid random items (unread counts as restricted, monetization-policy section 2.3)
 local function traitsView(player: Player, profile: Profile, now: number): Types.TraitsView?
-	local open = LiveFlagService.on(Traits.FLAG) and Traits.openAt(Economy.tier(profile))
+	local open = Traits.openAt(Economy.tier(profile))
 	Traits.settle(profile.traits, open, now)
 	if not open then
 		return nil
 	end
 	local view = Traits.view(profile.traits)
 	local policy = DataService.policy(player)
-	view.bundles = LiveFlagService.on(Traits.BUNDLE_FLAG)
-		and policy ~= nil
-		and policy.ArePaidRandomItemsRestricted == false
+	view.bundles = policy ~= nil and policy.ArePaidRandomItemsRestricted == false
 	local party = EventService.partyLeft(player) -- #4197 Trait Party
 	view.party = if party > 0 then party else nil
 	view.autoRoll = CafeService.autoRolled(player) -- #4712
 	return view
 end
 
--- #3996: whether Today's Deal may be the token deal for this player: the token bundles may be offered (the
--- traitBundles switch on and the policy read and not restricting paid random items) and the bank has room
+-- #3996: whether Today's Deal may be the token deal for this player: the token bundles may be offered (the policy
+-- read and not restricting paid random items) and the bank has room
 function CafeService.dealTokensOk(player: Player, profile: Profile): boolean
 	local policy = DataService.policy(player)
 	local tokens = Catalog.getProduct("deal_2")
-	return LiveFlagService.on(Traits.BUNDLE_FLAG)
-		and policy ~= nil
+	return policy ~= nil
 		and policy.ArePaidRandomItemsRestricted == false
 		and DailyDeal.roomFor(
 			profile.traits.tokens,
@@ -2070,17 +2067,6 @@ local function onUnequipAll(player: Player)
 	CafeService.sync(player)
 end
 
--- Derek 2026-11-13 ("remove sell from game it's not needed"): cats are not sold. The two old sell remotes stay
--- registered only to say so to an old client (an exploiter firing them gets the same words and nothing else).
-CafeService.NO_SELL = "Cats can't be sold. Trade them or give them to the Cat Collector."
-local function onSellCat(player: Player, _rawUid: unknown)
-	Net.toast(player, CafeService.NO_SELL, "info")
-end
-
-local function onSellExtraCommons(player: Player)
-	Net.toast(player, CafeService.NO_SELL, "info")
-end
-
 -- F62 (section 4): the lock icon on a cat card. A locked cat cannot be traded or given to the Cat Collector.
 local function onLockCat(player: Player, rawUid: unknown, rawLocked: unknown)
 	local uid = Guard.id(rawUid)
@@ -2693,8 +2679,6 @@ function CafeService.start()
 	Net.on("UnplaceCat", onUnplaceCat)
 	Net.on("EquipBest", onEquipBest)
 	Net.on("UnequipAll", onUnequipAll)
-	Net.on("SellCat", onSellCat)
-	Net.on("SellExtraCommons", onSellExtraCommons)
 	Net.on("LockCat", onLockCat)
 	Net.on("LockDecor", onLockDecor)
 	Net.on("BuyUpgrade", onBuyUpgrade)

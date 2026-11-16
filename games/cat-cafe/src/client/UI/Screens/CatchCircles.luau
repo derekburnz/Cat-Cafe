@@ -761,9 +761,22 @@ end
 function CatchCircles._step(self: any, t: number)
 	local windows: Types.CatchWindows = self._windows
 	local lead = if self._v3 then LEAD_IN else PREVIEW_SECONDS
+	-- #4845: while a held ring waits for its press, the rings after it wait too (their clock runs `lag` behind); the
+	-- press makes it for good (CatchCircles._press shifts them, as the server does)
+	-- and stay hidden, so only the waiting ring is on screen
+	local lag = 0
+	local waiting = false
 	for ringIndex, view in self._views :: { CircleView } do
 		local circle = view.circle
-		local visible = t >= circle.startsAt - lead
+		local t = t - lag
+		local behind = waiting
+		if view.hold and not view.pressed and not view.judged then
+			waiting = true
+			if t > view.target then
+				lag += t - view.target
+			end
+		end
+		local visible = t >= circle.startsAt - lead and not behind
 		if
 			visible
 			and not view.holder.Visible
@@ -890,6 +903,18 @@ function CatchCircles._press(self: any)
 			return
 		end
 		view.pressed = true
+		-- #4845: the rings after it start as much later as this press came after the target (the server shifts its
+		-- copy by the same press time)
+		local delay = t - view.target
+		if delay > 0 then
+			for later = index + 1, #self._views do
+				local next: CircleView = self._views[later]
+				next.circle.startsAt += delay
+				next.target += delay
+				next.holdUntil += delay
+			end
+			self._lastTarget += delay
+		end
 		if self._v3 then
 			self:_trustBy("perfect")
 		end

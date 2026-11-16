@@ -3344,7 +3344,7 @@ function HUD._unlockTarget(self: any, key: HudUnlocks.Key): (GuiObject?, boolean
 				elseif key == "feedback" then (if self:_mailOn()
 					then self._mailTile
 					elseif self:_afkOn() then self._afkTile
-					else self._feedbackTile)
+					else self._menuTile) -- #4698: Feedback lives in the Menu list
 				elseif key == "invite" then self._menuTile
 				elseif key == "potions" then (if TOUCH
 					then self._pills.Bag
@@ -4785,9 +4785,11 @@ function HUD._afkOn(self: any): boolean
 	return afk ~= nil and afk.shown() == true
 end
 
--- #4249, #4346: Feedback sits in the Menu list (not its own tile) while the Mailbox or the AFK tile shows
+-- #4249, #4346: Feedback sat in the Menu list while the Mailbox or the AFK tile showed. #4698 (Derek 2026-11-16:
+-- "move the feedback button into the settings menu drop down"): it's always in the list once Feedback is open, and
+-- the top row no longer has a Feedback tile.
 function HUD._feedbackInMenu(self: any): boolean
-	return self:_mailOn() or self:_afkOn()
+	return self:_open("feedback") or self:_mailOn() or self:_afkOn()
 end
 
 -- #4346: UI.afk from Controllers/AfkController (shown, on, toggle, changed): the AFK tile shows and follows it.

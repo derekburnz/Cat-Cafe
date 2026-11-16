@@ -175,6 +175,19 @@ return function()
 			expect(p.after + p.window * p.windows <= 30).to.equal(true)
 		end)
 
+		it("reports when it tripped and how slow it ran, for fx_lite (#4945)", function()
+			local p = Presets.slow
+			local laggy = Logic.slowStart()
+			run(laggy, 60, p.after)
+			expect(run(laggy, 35, p.window * p.windows + 1)).to.equal(true)
+			local value = Logic.liteReport(laggy)
+			local seconds, fps = value // 100, value % 100
+			expect(seconds).to.equal(math.floor(laggy.age))
+			expect(seconds >= p.after and seconds <= 60).to.equal(true)
+			expect(fps >= 33 and fps <= 35).to.equal(true)
+			expect(Logic.liteReport(Logic.slowStart())).to.equal(0)
+		end)
+
 		it("does not count pauses or cutscenes", function()
 			local p = Presets.slow
 			local state = Logic.slowStart()

@@ -368,11 +368,14 @@ local function auroraLook(middle: number)
 		for b, band in ribbon.bands do
 			local own = 1 - level * (1 - (ribbon.full[b] or ribbon.base))
 			-- #4687: along the ray, foot to top: a soft foot, its strongest just over it, then fading to nothing
+			-- Sync's second look: a longer fade in at the foot (no hard bottom edge) and gone a little before the top,
+			-- where the overlapping rays' tips showed thin facets
 			band.Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0, 1 - (1 - own) * 0.25),
-				NumberSequenceKeypoint.new(0.08, own),
-				NumberSequenceKeypoint.new(0.3, own + (1 - own) * 0.3),
-				NumberSequenceKeypoint.new(0.65, own + (1 - own) * 0.7),
+				NumberSequenceKeypoint.new(0, 1),
+				NumberSequenceKeypoint.new(0.16, own),
+				NumberSequenceKeypoint.new(0.35, own + (1 - own) * 0.3),
+				NumberSequenceKeypoint.new(0.6, own + (1 - own) * 0.7),
+				NumberSequenceKeypoint.new(0.88, 1),
 				NumberSequenceKeypoint.new(1, 1),
 			})
 		end
@@ -465,12 +468,14 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, place: CFrame
 				#auroraRibbons * 1.7
 			)
 		do
+			-- the feet rise and dip a little, ray to ray, so the curtain's foot is no straight line (Sync's second look)
+			local step = Vector3.new(0, spec.footVary * math.sin(n * 2.3 + #auroraRibbons), 0)
 			local foot = Instance.new("Attachment")
-			foot.Position = ray.foot
+			foot.Position = ray.foot + step
 			foot.Axis = along -- a Beam bows along its attachments' X axes: side to side along the curtain
 			foot.Parent = part
 			local top = Instance.new("Attachment")
-			top.Position = ray.foot + Vector3.new(0, ray.height, 0)
+			top.Position = ray.foot + step + Vector3.new(0, ray.height, 0)
 			top.Axis = along
 			top.Parent = part
 			local band = Instance.new("Beam")
@@ -484,7 +489,7 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, place: CFrame
 			band.LightInfluence = 0
 			band.Brightness = spec.bright
 			band.Width0 = gap * spec.wide
-			band.Width1 = gap * spec.wide * 1.25 -- a little wider at the top, as the light spreads
+			band.Width1 = gap * spec.wide -- as wide at the top: wider ones crossed into facets (Sync's second look)
 			local bow = if n % 2 == 1 then spec.sway else -spec.sway
 			band.CurveSize0 = bow
 			band.CurveSize1 = -bow * 0.5

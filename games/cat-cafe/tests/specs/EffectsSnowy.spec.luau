@@ -236,6 +236,7 @@ return function()
 			expect(a.tallVary > 0 and a.tallVary < 0.6).to.equal(true)
 			expect(a.tall >= 15 and a.tall <= 60).to.equal(true)
 			expect(a.sway > 0 and a.sway <= 8).to.equal(true)
+			expect(a.footVary > 0 and a.footVary < a.tall / 4).to.equal(true)
 			for _, seconds in a.seconds do
 				expect(seconds >= 8).to.equal(true) -- a slow sway
 			end

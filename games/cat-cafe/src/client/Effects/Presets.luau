@@ -6097,6 +6097,7 @@ export type AuroraSpec = {
 	columns: { number }, -- rays a ribbon by tier (high, medium, low)
 	tall: number, -- studs a ray reaches up from the foot
 	tallVary: number, -- of `tall`, how much the rays' tops rise and dip along the curtain, a slow wave
+	footVary: number, -- studs the rays' feet rise and dip, ray to ray, so the foot is no straight edge
 	wide: number, -- each ray's width as a share of the gap between rays: over 1 they overlap into one curtain
 	sway: number, -- studs a ray's middle bows side to side as it sways
 	bright: number, -- Beam.Brightness
@@ -6216,6 +6217,7 @@ Presets.areaFx = {
 				columns = { 14, 10, 7 },
 				tall = 30,
 				tallVary = 0.35,
+				footVary = 3,
 				wide = 1.7,
 				sway = 3,
 				bright = 1.2,

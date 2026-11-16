@@ -2349,7 +2349,7 @@ local function bindStations()
 		table.insert(arcadePrompts, prompt)
 		prompt.Enabled = arcadeOn()
 	end)
-	-- #3296: `mouseDash` on makes Mouse Dash the arcade's game; `circleStreak` off vaults Circle Streak
+	-- #3296: `mouseDash` on makes Mouse Dash the arcade's game (#4656: the only one, Circle Streak is gone)
 	local function flagOn(key: string): boolean
 		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
 		return LiveFlags.shown(
@@ -2359,15 +2359,14 @@ local function bindStations()
 	end
 	local function applyArcade()
 		local on = arcadeOn()
-		local circle = flagOn("circleStreak")
 		local dash = on and flagOn("mouseDash")
-		UI.arcade.setOn(on and circle, on and (circle or dash))
-		UI.mouseDash.setFlags(dash, on and circle)
+		UI.arcade.setOn(on, dash)
+		UI.mouseDash.setFlags(dash)
 		for _, prompt in arcadePrompts do
-			prompt.Enabled = on and (circle or dash)
+			prompt.Enabled = dash
 		end
 	end
-	for _, key in { Arcade.FLAG, "mouseDash", "circleStreak" } do
+	for _, key in { Arcade.FLAG, "mouseDash" } do
 		ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. key):Connect(applyArcade)
 	end
 	applyArcade()
@@ -3098,92 +3097,16 @@ local function wireServerEvents()
 			end
 		end
 	)
-	-- #3062: the Cat Arcade. Its circles sound as a catch's do (CircleAppear, CircleGrade), with Sound-Agent's
-	-- ArcadeStart, ArcadeMilestone and ArcadeEnd moments when the build has them.
-	local arcadeTimers: { thread } = {}
-	local arcadeRun: number? = nil
+	-- #3062, #4656: the Cat Arcade's game is Mouse Dash (Circle Streak is gone). ArcadeState still carries today's
+	-- free play and the records for the cabinet's "!" (UI.arcade.state). The sound moments play when the build has them.
 	local function arcadeMoment(name: string, ...: any)
 		local moment: any = (Moments :: any)[name]
 		if moment ~= nil then
 			moment:Fire(...)
 		end
 	end
-	local function cancelArcadeTimers()
-		for _, timer in arcadeTimers do
-			pcall(task.cancel, timer)
-		end
-		table.clear(arcadeTimers)
-	end
 	Net.on("ArcadeState", function(view: any)
 		UI.arcade.state(view)
-	end)
-	Net.on(
-		"ArcadeBlock",
-		function(
-			run: number,
-			block: number,
-			circles: { Types.CatchCircle },
-			windows: Types.CatchWindows,
-			points: number
-		)
-			if arcadeRun ~= run then
-				arcadeRun = run
-				arcadeMoment("ArcadeStart")
-			end
-			UI.arcade.block(run, block, circles, windows, points)
-			cancelArcadeTimers()
-			for index, circle in circles do
-				local shrink = circle.shrinkSeconds
-				table.insert(
-					arcadeTimers,
-					task.delay(
-						math.max(0, circle.startsAt - Workspace:GetServerTimeNow()),
-						function()
-							if UI.arcade.playing() then
-								Moments.CircleAppear:Fire(index, shrink)
-							end
-						end
-					)
-				)
-			end
-		end
-	)
-	Net.on(
-		"ArcadeJudged",
-		function(
-			run: number,
-			block: number,
-			index: number,
-			grade: string,
-			points: number,
-			milestones: { number }
-		)
-			if grade == "perfect" or grade == "good" or grade == "miss" then
-				Moments.CircleGrade:Fire(index, grade)
-			end
-			if type(milestones) == "table" and #milestones > 0 then
-				arcadeMoment("ArcadeMilestone", milestones[#milestones])
-			end
-			UI.arcade.judged(run, block, index, grade, points, milestones)
-		end
-	)
-	Net.on("ArcadeOver", function(run: number, result: any)
-		cancelArcadeTimers()
-		arcadeRun = nil
-		if type(result) == "table" then
-			arcadeMoment("ArcadeEnd", result.points, result.win == true)
-		end
-		UI.arcade.over(run, result)
-	end)
-	UI.events.arcadePlay:Connect(function()
-		Net.fire("ArcadeStart")
-	end)
-	UI.events.arcadePress:Connect(function(run: number, block: number, index: number)
-		Net.fire("ArcadePress", run, block, index)
-		Moments.NetSwing:Fire(index)
-	end)
-	UI.events.arcadeQuit:Connect(function(run: number)
-		Net.fire("ArcadeQuit", run)
 	end)
 	-- #3296: Mouse Dash. The server draws and judges everything; these only pass its answers to the window and the
 	-- sound moments (Motion-FX-Agent's, played when the build has them).

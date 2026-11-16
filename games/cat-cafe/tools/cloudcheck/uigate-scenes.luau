@@ -4087,6 +4087,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(not (button() :: GuiObject).Visible, "uigate: the Harvest button stays with its switch off (#4251)")
 		ReplicatedStorage:SetAttribute("LiveFlag_harvestHollow", true)
 		UIShim.advance(0.5) -- the scene's picture shows the row with the button in it
+		-- #4586: the row grows to three tiles and the arrow tab moves with it, clear of the Harvest tile and its label
+		local harvest = button() :: GuiObject
+		local fold = hud:FindFirstChild("TravelFold", true) :: GuiObject
+		local tileL, tileR = harvest.AbsolutePosition.X, harvest.AbsolutePosition.X + harvest.AbsoluteSize.X
+		local foldL, foldR = fold.AbsolutePosition.X, fold.AbsolutePosition.X + fold.AbsoluteSize.X
+		assert(foldR <= travel.AbsolutePosition.X + 1 or foldL >= travel.AbsolutePosition.X + travel.AbsoluteSize.X - 1, "uigate: the bottom row's arrow tab sits over the row with Harvest shown (#4586)")
+		assert(foldR <= tileL + 1 or foldL >= tileR - 1, "uigate: the arrow tab covers the Harvest tile (#4586)")
+		assert(tileR <= travel.AbsolutePosition.X + travel.AbsoluteSize.X + 1, "uigate: the Harvest tile runs past its row (#4586)")
 	end },
 	-- #3884: a rank up to Tier 2 since the picker last opened: the Park card keeps its lock a moment, the lock breaks
 	-- with "Unlocked!", and about 3 s later the cover is gone and the card can launch

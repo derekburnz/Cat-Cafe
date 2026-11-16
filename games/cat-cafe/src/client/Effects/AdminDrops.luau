@@ -153,6 +153,15 @@ function AdminDrops.fresh(droppedAt: unknown, now: number, fresh: number): boole
 	return now - (droppedAt :: number) <= fresh
 end
 
+-- True when a drop made at server time `bornAt` that lasts `life` seconds has run out by `now` (within `margin`), so
+-- its going was not a grab, whoever stands beside it. False when the server does not say when it was made.
+function AdminDrops.ranOut(bornAt: unknown, life: number, now: number, margin: number): boolean
+	if type(bornAt) ~= "number" then
+		return false
+	end
+	return now >= (bornAt :: number) + life - margin
+end
+
 -- True when one of `roots` (character root positions) is within `reach` studs of `at`: the fish was grabbed, not
 -- left to run out.
 function AdminDrops.grabbed(at: Vector3, roots: { Vector3 }, reach: number): boolean
@@ -211,6 +220,7 @@ end
 local function fish(part: BasePart)
 	local p = Presets.adminDrops
 	local spot = part.Position
+	local droppedAt = part:GetAttribute("DroppedAt")
 	local gone: RBXScriptConnection? = nil
 	gone = part.AncestryChanged:Connect(function(_, parent: Instance?)
 		if parent ~= nil then
@@ -220,7 +230,12 @@ local function fish(part: BasePart)
 			gone:Disconnect()
 			gone = nil
 		end
-		if AdminDrops.grabbed(spot, roots(), p.pickup.reach) then
+		-- Sync's read: a fish that runs out with someone beside it is not a pickup (the server takes it on a touch)
+		local now = Workspace:GetServerTimeNow()
+		if
+			not AdminDrops.ranOut(droppedAt, p.pickup.life, now, p.pickup.margin)
+			and AdminDrops.grabbed(spot, roots(), p.pickup.reach)
+		then
 			pop(spot)
 		end
 	end)
@@ -360,9 +375,13 @@ local function crate(model: Model)
 			gone:Disconnect()
 			gone = nil
 		end
-		local landed = type(opens) ~= "number"
-			or Workspace:GetServerTimeNow() >= (opens :: number) - 0.5
-		if landed and AdminDrops.grabbed(spot.Position, roots(), p.cratePop.reach) then
+		local now = Workspace:GetServerTimeNow()
+		local landed = type(opens) ~= "number" or now >= (opens :: number) - 0.5
+		if
+			landed
+			and not AdminDrops.ranOut(opens, p.cratePop.life, now, p.pickup.margin)
+			and AdminDrops.grabbed(spot.Position, roots(), p.cratePop.reach)
+		then
 			popCrate(spot)
 		end
 	end)

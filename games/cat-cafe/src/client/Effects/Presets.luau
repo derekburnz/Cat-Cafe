@@ -3947,6 +3947,10 @@ Presets.adminDrops = {
 	-- `glints` glints and a `ring` stud ring; only within `within` studs, and only when a character was within
 	-- `reach` studs of the fish as it went (a touch, not a fish running out)
 	pickup = {
+		-- a fish's life on the server (AdminDropService FISH_LIFE, from its DroppedAt): one going within `margin` of it
+		-- ran out, so it gets no pop
+		life = 20,
+		margin = 1,
 		reach = 7,
 		within = 120,
 		bead = 0.7,
@@ -3978,6 +3982,7 @@ Presets.adminDrops = {
 	-- stud ring. Only within `within` studs, and only when a character was within `reach` studs as it went.
 	cratePop = {
 		art = "CatCafe_Prop_Crate_Drop",
+		life = 90, -- a crate's life after it lands (AdminDropService CRATE_LIFE, from LandsAt); later it ran out
 		reach = 9,
 		within = 140,
 		lidDegrees = 110,

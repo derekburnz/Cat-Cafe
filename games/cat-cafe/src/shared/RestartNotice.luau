@@ -83,13 +83,13 @@ local LAUNCH_BEFORE, LAUNCH_AFTER = 3600, 1800
 -- (2x money, the lucky, golden and rainbow days as Golden Hour, Mythical and rainbow Legendary showers), so their
 -- warnings name it instead of the party line.
 -- Monday 2026-11-16 03:30 UTC (Sunday 10:30 PM ET, the 10 Secret cats update; Derek moved it from Nov 21) too.
--- Wednesday 2026-11-18 20:00 UTC (the controls and devices update, Growth-Agent's devices-update-event-plan) too.
+-- Tuesday 2026-11-17 20:00 UTC (the controls and devices update, Growth-Agent's devices-update-event-plan) too.
 -- Derek 2026-11-14 17:59 UTC: Rift Run moves to Sunday 2026-11-15 01:00 UTC (Saturday 8 PM ET) and the Golden Fish
 -- Store to Sunday 2026-11-15 22:00 UTC (Sunday 5 PM ET), each a switch flip with a restart and admin events after.
 -- Rift Run may instead go at 03:30 UTC (Saturday 10:30 PM ET); both times are listed, and only the restart that
 -- really runs shows its words.
 RestartNotice.ADMIN_LAUNCHES =
-	{ 1794693600, 1794772800, 1794799800, 1795032000, 1794704400, 1794780000, 1794713400 }
+	{ 1794693600, 1794772800, 1794799800, 1794945600, 1794704400, 1794780000, 1794713400 }
 RestartNotice.ADMIN_LINE = "then ADMIN EVENTS: 2x money, Golden Hour and cat showers!"
 RestartNotice.ADMIN_AFTER = "ADMIN EVENTS: 2x money, Golden Hour and cat showers!"
 -- A launch whose update has its own headline says it first (Growth-Agent's copy, 2026-11-14): { line, at zero }.
@@ -97,7 +97,7 @@ RestartNotice.ADMIN_AFTER = "ADMIN EVENTS: 2x money, Golden Hour and cat showers
 RestartNotice.ADMIN_WORDS = {
 	[1794772800] = { "then 3 NEW WORLDS and ADMIN EVENTS!", "3 NEW WORLDS and ADMIN EVENTS!" },
 	[1794799800] = { "then 10 SECRET CATS and ADMIN EVENTS!", "10 SECRET CATS and ADMIN EVENTS!" },
-	[1795032000] = { "then better controls and ADMIN EVENTS!", "better controls and ADMIN EVENTS!" },
+	[1794945600] = { "then better controls and ADMIN EVENTS!", "better controls and ADMIN EVENTS!" },
 	[1794704400] = { "then RIFT RUN and ADMIN EVENTS!", "RIFT RUN and ADMIN EVENTS!" },
 	[1794713400] = { "then RIFT RUN and ADMIN EVENTS!", "RIFT RUN and ADMIN EVENTS!" },
 	[1794780000] = {

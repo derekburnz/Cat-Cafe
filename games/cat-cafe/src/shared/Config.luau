@@ -815,8 +815,8 @@ local Config = {
 		},
 		{
 			id = "6810389993696133776",
-			startsAt = 1795032000, -- "Better on Every Device", Wednesday 2026-11-18 20:00 UTC
-			title = "🔔 Next update Wednesday: better controls on every device! Want a reminder?",
+			startsAt = 1794945600, -- "Better on Every Device", Tuesday 2026-11-17 20:00 UTC
+			title = "🔔 Next update Tuesday: better controls on every device! Want a reminder?",
 			name = "BETTER ON EVERY DEVICE",
 			poster = "rbxassetid://138232412903853",
 		},

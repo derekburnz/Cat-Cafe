@@ -13,8 +13,6 @@
 #   swiftPaws     false hides the Golden Fish Market's Swift Paws perk and drops its speed (#3063); levels are kept
 #   alleyBin      false hides the Rummage Bin at the Alleyway camp and refuses a rummage (#3050); its waits are kept
 #   arcade        false hides the Cat Arcade's prompt and menu tile (#3062); a game already running finishes and pays
-#   circleStreak  false vaults Circle Streak (#3296): no start from the cabinet, the Menu row or the remote; its
-#                 save and board stay. The swap is mouseDash true and this false
 # and some start off, so only true turns them on (LiveFlags.OFF_BY_DEFAULT):
 #   nightCatch    true lets a Tier 1 player in their first session keep catching in the Alleyway at night (#3035);
 #                 false or no entry is the normal night for them
@@ -176,7 +174,6 @@ show_key() {
 	speedShoes) if [ "$raw" = true ]; then meaning="Speed Shoes ON in every server"; else meaning="Speed Shoes off (its default)"; fi ;;
 	storeRework) if [ "$raw" = true ]; then meaning="the reworked Store layout"; else meaning="the Store as before (its default)"; fi ;;
 	quietAway) if [ "$raw" = true ]; then meaning="Food bowl cards wait while out catching ON"; else meaning="Food bowl cards show anywhere (its default)"; fi ;;
-	circleStreak) if [ "$raw" = false ]; then meaning="Circle Streak VAULTED in every server (no new games)"; else meaning="Circle Streak on"; fi ;;
 	tradeMinTier)
 		if [[ $raw =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
 			meaning="live minimum tier $(jq -n "[[$raw | floor, 0] | max, 99] | min")"

@@ -524,7 +524,10 @@ function applyTutorial()
 		and (state.tier or 1) >= 2
 		and not park.reached
 	then
-		text = if park.goal ~= nil then park.STRIP else park.STRIP_PLAIN
+		-- Sync's Studio run of #4947: the line named the paws while no trail showed (the trail rests after
+		-- ParkTrailLogic.REST_AFTER seconds, and waits while a window is up), so it names them only while a trail
+		-- target is set
+		text = if park.goal ~= nil and park.target ~= nil then park.STRIP else park.STRIP_PLAIN
 	end
 	-- #4836: the Tutorial tile's × waits to pulse until the Park is reached, so its arrow never shows beside the walk's
 	if hud then
@@ -4056,7 +4059,7 @@ UI.parkTrail = {
 	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
 	-- #3893: the strip's line while the walk is on; #4926: what to do, then why
 	STRIP = "Follow the paws to a cannon: new cats in the Park! 🐾",
-	STRIP_PLAIN = "Hop in the cannon: new cats wait in the Park! 🐾", -- the same with the paw trail switched off
+	STRIP_PLAIN = "Hop in the cannon: new cats wait in the Park! 🐾", -- the same while no paw trail shows
 }
 
 -- #4480: whether the walk to the Park shows at all (the strip line, the "is open" hint, "Fly to the Park"): the
@@ -4109,11 +4112,14 @@ end
 
 function UI.parkTrail.set(target: BasePart?, goal: string?)
 	local changed = UI.parkTrail.target ~= target
+	local shows = (UI.parkTrail.target ~= nil) ~= (target ~= nil) -- the strip names the paws only while they show
 	UI.parkTrail.target = target
 	if UI.parkTrail.goal ~= goal and hud ~= nil then
 		UI.parkTrail.goal = goal
 		hud:setParkGoal(goal)
 		applyTutorial() -- #3893: the strip's Park line comes and goes with the walk
+	elseif shows and hud ~= nil then
+		applyTutorial()
 	end
 	if changed and not UI.parkTrail.tutorial then
 		UI.parkTrail.apply(nil)

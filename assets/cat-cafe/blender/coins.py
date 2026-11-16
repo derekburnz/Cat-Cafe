@@ -80,4 +80,84 @@ def build_fish_coin(mat, name="CatCafe_Prop_FishCoin"):
     return [b.finalize(name, mat)]
 
 
-ASSETS = {"CatCafe_Prop_FishCoin": (build_fish_coin, 1200)}
+# ---------------------------------------------------------------------------------------------- Fish Fountain --
+# #4889 (Derek 2026-11-16: "make the admin fountain event spawn a gold fish fountain but no ontop of the cannon and
+# make it actual gold fish models that pop out now just gold bars"): the fountain that stands in the Town Square
+# while the Fish Fountain admin event runs, and the golden fish it throws out (AdminDropService).
+#   CatCafe_Square_FishFountain   about 9.6 across and 10 tall: an eight sided gold basin on a step, navy tiles on
+#                                 its wall with a gold paw on the four main sides, water in it (_Water), a pedestal,
+#                                 a gold bowl with its own water, and a big golden fish leaping from it, head up, a
+#                                 glowing jet from its mouth and glowing drops (_Glow). Pivot base centre.
+#   CatCafe_Prop_GoldenFish       the pickup: a chunky golden fish about 2 long, tipped up a little on a small
+#                                 glowing puddle of sparkle (_Glow), its side toward -Z. Pivot base centre.
+FOUNTAIN = "CatCafe_Square_FishFountain"
+GOLDEN_FISH = "CatCafe_Prop_GoldenFish"
+
+
+def _gold_fish(b, cx, cy, cz, s, rot=None, eye=True):
+    """A chunky fish s long, nose toward +X, centred at (cx, cy, cz), turned by `rot` about its centre."""
+    def put(dx, dy, dz, size, swatch, extra=None):
+        v = (dx * s, dy * s, dz * s)
+        if rot is not None:
+            from mathutils import Vector
+            w = rot @ Vector(v)
+            v = (w.x, w.y, w.z)
+        r = rot if extra is None else (rot @ extra if rot is not None else extra)
+        b.box((cx + v[0], cy + v[1], cz + v[2]), tuple(k * s for k in size), swatch, rot=r)
+    put(0.0, 0.0, 0.0, (0.56, 0.36, 0.26), "gold_mid")               # body
+    put(0.0, 0.0, 0.0, (0.4, 0.44, 0.22), "gold_mid")                # its deeper middle
+    put(0.3, 0.0, 0.0, (0.18, 0.3, 0.24), "gold_light")              # head
+    put(0.42, -0.02, 0.0, (0.1, 0.18, 0.18), "gold_light")           # nose
+    put(0.475, -0.05, 0.0, (0.03, 0.07, 0.12), "gold_dark")          # mouth
+    put(-0.33, 0.0, 0.0, (0.16, 0.2, 0.16), "gold_mid")              # tail stem
+    put(-0.5, 0.15, 0.0, (0.32, 0.15, 0.08), "gold_dark", rot_z(-40))  # forked tail
+    put(-0.5, -0.15, 0.0, (0.32, 0.15, 0.08), "gold_dark", rot_z(40))
+    put(-0.04, 0.26, 0.0, (0.3, 0.1, 0.06), "gold_dark")             # back fin
+    put(0.02, -0.25, 0.0, (0.14, 0.08, 0.06), "gold_dark")           # belly fin
+    for sz in (-1, 1):
+        put(0.08, -0.06, sz * 0.15, (0.16, 0.1, 0.04), "gold_dark", rot_z(-25))   # side fins
+        if eye:
+            put(0.31, 0.06, sz * 0.125, (0.08, 0.08, 0.02), "fur_black")
+
+
+def build_fish_fountain(mat):
+    b, water, glow = RB(), RB(), RB()
+    b.cyl((0, 0.15, 0), 4.8, 0.3, "gold_dark", segments=8)                       # the step
+    b.cyl((0, 0.85, 0), 4.2, 1.1, "gold_mid", segments=8)                        # the basin, solid under the water
+    b.cyl((0, 1.5, 0), 4.45, 0.24, "gold_light", segments=8)                     # coping
+    for k in range(8):                                                           # a navy tile on each side
+        a = math.radians(45 * k)
+        r = 4.2 * math.cos(math.pi / 8) + 0.02
+        from plot import rot_y
+        b.box((r * math.cos(a), 0.85, r * math.sin(a)), (0.06, 0.7, 2.5), "pants_navy", rot=rot_y(-math.degrees(a)))
+        if k % 2 == 0:                                                           # a glowing paw on the four main sides
+            glow.box((r * math.cos(a) * 1.01, 0.85, r * math.sin(a) * 1.01), (0.06, 0.34, 0.5), "rarity_legend",
+                     rot=rot_y(-math.degrees(a)))
+    water.cyl((0, 1.66, 0), 3.9, 0.12, "fish_blue", segments=8)                  # pool, on the coping inside its rim
+    b.cyl((0, 2.3, 0), 0.8, 1.6, "gold_mid", segments=8)                         # pedestal
+    b.cyl((0, 1.75, 0), 0.95, 0.3, "gold_dark", segments=8)
+    b.cyl((0, 3.4, 0), 0.8, 0.7, "gold_light", r2=2.2, segments=8)               # bowl
+    b.cyl((0, 3.85, 0), 2.35, 0.22, "gold_dark", segments=8)                     # its lip
+    water.cyl((0, 3.9, 0), 2.0, 0.2, "fish_blue", segments=8)
+    for k in range(4):                                                           # four streams off the bowl
+        a = math.radians(45 + 90 * k)
+        water.box((2.3 * math.cos(a), 2.75, 2.3 * math.sin(a)), (0.3, 2.3, 0.3), "fish_blue")
+    _gold_fish(b, 0.0, 6.0, 0.0, 4.2, rot=rot_z(70))                             # the leaping fish, head up
+    b.span((-0.35, 3.9, -0.35), (0.35, 4.5, 0.35), "gold_dark")                  # the splash it stands on
+    for (x, y, z, r) in ((0.75, 8.6, 0.0, 0.34), (1.0, 9.3, 0.15, 0.26), (0.8, 9.9, -0.15, 0.2)):   # the jet
+        glow.box((x, y, z), (r, r, r), "lamp_warm", rot=rot_z(45))
+    for k in range(6):                                                           # coins of light on the water
+        a = math.radians(20 + 60 * k)
+        glow.box((3.0 * math.cos(a), 1.75, 3.0 * math.sin(a)), (0.3, 0.06, 0.3), "rarity_legend")
+    return [b.finalize(FOUNTAIN, mat), water.finalize(FOUNTAIN + "_Water", mat), glow.finalize(FOUNTAIN + "_Glow", mat)]
+
+
+def build_golden_fish(mat):
+    b, glow = RB(), RB()
+    _gold_fish(b, 0.0, 0.85, 0.0, 2.0, rot=rot_z(18))
+    glow.cyl((0, 0.04, 0), 0.9, 0.08, "rarity_legend", segments=8)
+    return [b.finalize(GOLDEN_FISH, mat), glow.finalize(GOLDEN_FISH + "_Glow", mat)]
+
+
+ASSETS = {"CatCafe_Prop_FishCoin": (build_fish_coin, 1200), FOUNTAIN: (build_fish_fountain, 2500),
+          GOLDEN_FISH: (build_golden_fish, 400)}

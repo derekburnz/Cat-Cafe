@@ -743,12 +743,17 @@ local function refreshTutorial(s: Types.PlayerState)
 				then "touch"
 				else "keyboard"
 			showTutorial(s, RankFirst.line(device))
-		elseif not SecondCat.done(s.stats, true) and not areasShut() then
+		elseif
+			not SecondCat.done(s.stats, true)
+			and not areasShut()
+			and (UI.cannon :: any).area == "alley"
+		then
 			-- #4808 (Derek 2026-11-16: "for tutorial the steps towards cat and pointing to the net on phone is
 			-- missing"): until the Alleyway catch is in, the strip names the catch on this device, the trail and
 			-- marker lead to the nearest stray this player may catch (the tutorial spot until one streams in) and,
-			-- on a touch screen, the Net button gets the tutorial's ring and arrow while it shows. Straight to
-			-- UI.tutorial.show: the hint's step 2 line would ask for a job here.
+			-- on a touch screen, the Net button gets the tutorial's ring and arrow while it shows. Only in the
+			-- Alleyway (camp included): before the flight the cannon hint and its lit button lead (Sync on #4816).
+			-- Straight to UI.tutorial.show: the hint's step 2 line would ask for a job here.
 			local stray = nearestAlleyStray()
 			UI.tutorial.show(
 				deviceLine("catch", "Follow the trail and catch the cat! Click by it"),
@@ -3585,6 +3590,22 @@ function UIController.start()
 			if on ~= stuckGoal.on then
 				stuckGoal.on = on
 				UI.update({ stuckGoal = on })
+			end
+		end
+	end)
+	-- #4808: bowl first's catch line shows only in the Alleyway, so the strip is looked at again as the player
+	-- comes into or leaves an area (UI.cannon.area, WorldController's zone)
+	task.spawn(function()
+		local lastArea: string? = nil
+		while true do
+			task.wait(0.5)
+			local area: string? = (UI.cannon :: any).area
+			if area ~= lastArea then
+				lastArea = area
+				local current = state
+				if current ~= nil and current.tutorialStep >= 2 and (current.tier or 1) == 1 then
+					refreshTutorial(current)
+				end
 			end
 		end
 	end)

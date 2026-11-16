@@ -36,6 +36,7 @@ local Workspace = game:GetService("Workspace")
 
 local AdminEventLogic = require(script.Parent.AdminEventLogic)
 local AdminFlashLogic = require(script.Parent.AdminFlashLogic)
+local AdminHide = require(script.Parent.AdminHide)
 local Context = require(script.Parent.Context)
 local EventBanner = require(script.Parent.EventBanner)
 local Net = require(script.Parent.Parent.Net)
@@ -93,7 +94,6 @@ local overUntil = 0 -- os.clock until which the end card shows
 local look: string? = nil
 local tint: ColorCorrectionEffect? = nil
 local quietProbe: (() -> boolean)? = nil
-local hideProbe: (() -> boolean)? = nil
 local playingListeners: { (on: boolean) -> () } = {}
 local wasPlaying = false
 
@@ -118,18 +118,13 @@ end
 
 -- #4877 (Derek 2026-11-16: "no admin events ui or anything on screen for people in tutorial steps"): `probe()` says
 -- whether this player is in the walk-through (the UI's UI.firstCat.tutorial). While it is, nothing of an admin event
--- shows: no splash, no strip, no tint, no drift (AdminAir reads AdminFlash.hidden). With none set, all shows.
+-- shows: no splash, no strip, no tint, no drift (AdminHide, which AdminAir reads too). With none set, all shows.
 function AdminFlash.hideWhen(probe: () -> boolean)
-	hideProbe = probe
+	AdminHide.set(probe)
 end
 
 function AdminFlash.hidden(): boolean
-	local probe = hideProbe
-	if probe == nil then
-		return false
-	end
-	local ok, value = pcall(probe)
-	return ok and value == true
+	return AdminHide.on()
 end
 
 local function quiet(): boolean

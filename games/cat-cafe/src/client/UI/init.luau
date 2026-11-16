@@ -3076,12 +3076,22 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 		local lureId = if view then view.lureId else nil
 		-- #1161: with two bowls the banner names the bowl
 		local two = bowls.second == "on" or bowls.views[2] ~= nil
+		-- #4920 (Sync's stopwatch runs 2026-11-16: no arrow on Tame): bowl first, the first bowl cat comes before the
+		-- first check-in (step 0 or 1), not at step 4, so it got the usual card with X and Let go and no arrow. It
+		-- is the first bowl cat while the bowl part is still to do (TutorialOrder.bowlPending), as the strip reads it.
+		local TutorialOrder =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")) :: any
+		local stats: any = (state :: any).stats or {}
+		local bowlPart = TutorialOrder.bowlFirst()
+			and (stats.baitsTamed or 0) == 0
+			and TutorialOrder.bowlPending(state.tutorialStep or 0, stats.luresUsed or 0, true)
 		baitCard:show(
 			def :: Types.CatDef,
 			cat,
 			if lureId then foodName(lureId) else nil,
 			if two then index else nil,
-			state.tutorialStep == 4 -- #3815: the first bowl cat, which the tutorial's last step waits on (#3158)
+			-- #3815: the first bowl cat, which the tutorial's last step waits on (#3158)
+			state.tutorialStep == 4 or bowlPart
 		)
 	end
 	renderBait()

@@ -4965,6 +4965,25 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(not card:FindFirstChild("Hint", true).Visible, "uigate: the first bowl cat's line sits under the arrow (#3815)")
 		local label = tame:FindFirstChildWhichIsA("TextLabel", true)
 		assert(label and label.Text == "Tame it!", "uigate: the first bowl cat's button says " .. tostring(label and label.Text))
+		-- #4920: bowl first, the first bowl cat comes before the first check-in (step 0), and gets the same card
+		local RS = game:GetService("ReplicatedStorage")
+		local TutorialOrder = UIShim.require("ReplicatedStorage.Shared.TutorialOrder")
+		local flagWas = RS:GetAttribute("LiveFlag_" .. TutorialOrder.FLAG)
+		local statsWas = (UI.getState() :: any).stats
+		RS:SetAttribute("LiveFlag_" .. TutorialOrder.FLAG, false)
+		UI.update({ tutorialStep = 9 })
+		UI.bait.showReady(cat, 1)
+		UI.update({ tutorialStep = 0, stats = { luresUsed = 1, baitsTamed = 0 } } :: any)
+		UI.bait.showReady(cat, 1)
+		assert(tame:FindFirstChild("TutorialGlow") ~= nil, "uigate: bowl first's first bowl cat's Tame does not glow (#4920)")
+		assert(not card:FindFirstChild("LetGo", true).Visible, "uigate: bowl first's first bowl cat's card shows Let go (#4920)")
+		-- a bowl cat after one was tamed is a later one
+		UI.update({ stats = { luresUsed = 2, baitsTamed = 1 } } :: any)
+		UI.bait.showReady(cat, 1)
+		assert(card:FindFirstChild("LetGo", true).Visible, "uigate: a second bowl cat before the check-in lost Let go (#4920)")
+		RS:SetAttribute("LiveFlag_" .. TutorialOrder.FLAG, flagWas)
+		UI.update({ tutorialStep = 4, stats = statsWas } :: any)
+		UI.bait.showReady(cat, 1)
 	end },
 	-- #1161: a cat at each bowl: bowl 1 first, and each tab says its own bowl
 	{ "BaitBothReady", function()

@@ -2811,24 +2811,11 @@ local function wireServerEvents()
 		end
 	end)
 	-- F92 (playing-together.md section 5): a player arrived at a pal's front door. Moments.PalArrived on every client
-	-- for the wave; the joiner's own HUD gets `UI.palArrived(palUserId, palArea)` once the UI has it (the marker and
-	-- the glowing travel button), else a toast when the pal is out in an area.
-	Net.on("PalArrived", function(joinerId: number, palId: number, palArea: string?)
+	-- for the wave. #4702 (Derek 2026-11-16): no friend location bubble or "is in the" toast any more, and the server
+	-- no longer sends a joiner to the pal's door, so this only answers a server still on an older build.
+	Net.on("PalArrived", function(joinerId: number, palId: number, _palArea: string?)
 		Moments.PalArrived:Fire(joinerId, palId)
 		UIController.palJoined(joinerId, palId)
-		if joinerId ~= player.UserId then
-			return
-		end
-		local hook: unknown = (UI :: any).palArrived
-		if type(hook) == "function" then
-			(hook :: (number, string?) -> ())(palId, palArea)
-			return
-		end
-		local pal = Players:GetPlayerByUserId(palId)
-		local area = if palArea ~= nil then Catalog.getArea(palArea) else nil
-		if pal ~= nil and area ~= nil then
-			UI.toast(string.format("%s is in the %s", pal.DisplayName, area.name), "info")
-		end
 	end)
 	-- F92 Team Rescue: a helped rescue freed its cat. Moments.TeamRescue for the pop and the chime on both screens;
 	-- the UI's `UI.teamRescue(rescuerUserId, helperUserId, coins)` once it has one, else a toast with the helper's tip.

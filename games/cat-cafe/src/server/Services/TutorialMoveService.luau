@@ -16,8 +16,10 @@ local CafeService = require(script.Parent.CafeService)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CannonService = require(script.Parent.CannonService)
 local CatService = require(script.Parent.CatService)
+local DataService = require(script.Parent.DataService)
 local Layout = require(script.Parent.Parent.World.Layout)
 local PlotService = require(script.Parent.PlotService)
+local Telemetry = require(script.Parent.Telemetry)
 local TutorialMoves = require(ReplicatedStorage.Shared.TutorialMoves)
 local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -88,6 +90,11 @@ local function move(player: Player, target: TutorialMoves.Target)
 			local root = character.PrimaryPart
 			if root ~= nil then
 				Cannon.noteMove(player, root.CFrame) -- the client's camera goes behind the character there
+			end
+			-- #4694: the onboarding funnel's park_arrived, as a cannon landing logs it (landOnPad does not)
+			local profile = DataService.get(player)
+			if profile ~= nil then
+				Telemetry.cleanEvent(player, profile, Telemetry.arrivedEvent("park"))
 			end
 		end
 		return

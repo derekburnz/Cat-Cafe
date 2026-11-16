@@ -187,10 +187,11 @@ return function()
 							or key == "fusion" -- #4104
 							or key == "earlyKindBonus" -- #4624
 							or key == "returnHookEarly" -- #4626
+							or key == "journeys" -- #4544
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(48) -- #4654: 56 less the 8 shipped switches retired in batches 1 and 2
+				expect(count).to.equal(49) -- #4654: 56 less the 8 shipped switches retired in batches 1 and 2; #4544 adds journeys
 				-- #3462 and #3470: new saved ids stay off until every server knows them
 				expect(LiveFlags.defaults().cartTier6).to.equal(false)
 				expect(LiveFlags.defaults().secretCats).to.equal(false)

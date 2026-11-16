@@ -5,7 +5,7 @@
 --     the right (name in the rarity's colour, rarity and one line per effect, or "No trait yet");
 --   Roll under them ("Free roll (5 left)", "Re-roll · 1 Trait Token", "Roll · 10 golden fish"), greyed with the
 --     reason while the player cannot pay, and Odds beside it: the rarity odds, one tap from Roll;
---   what the player has ("2 Trait Tokens · 34 golden fish"); #4890: the odds show only behind Odds (and See odds);
+--   what the player has ("2 Trait Tokens · 34 golden fish"); #4890: the odds show only behind Odds (and on the token panel);
 --   the station's free tokens ("1 Trait Token ready" with Collect, or "Next free token in 3h 12m").
 -- Pick a cat turns the card to the player's cats, as the Oasis Spa's list (#3136): a search box, All / Resting /
 -- Working and a face per row, built a few a frame and with faces only near the visible rows, so hundreds of cats stay
@@ -14,7 +14,7 @@
 -- is the next PlayerState: the buttons rest until it shows (MysticPoolLogic.stamp) or PENDING_SECONDS, then
 -- `callbacks.play` (the pool's animation, Effects/MysticPool) runs with a tap to skip, and the card shows the
 -- result. The server decides every roll and payment; this only asks. #3864: once the free rolls are used, the Trait
--- Token bundles sit on a slim panel beside the card (#4006) with See odds under them, while the card is open
+-- Token bundles sit on a slim panel beside the card (#4006) with the roll odds under them, while the card is open
 -- (MysticPoolLogic.bundles; only when the server's `bundles` says so); a pick opens Roblox's own prompt.
 -- #4712: Auto beside Roll opens the Auto Roll sheet: pick the rarity to stop at, Start, and it sends one roll at a
 -- time (no animation, the roll count, Trait Tokens used and the last rarity on the sheet) until a roll meets it, the
@@ -101,7 +101,7 @@ local ODDS_W = 84
 local AUTO_W = 72 -- #4712
 -- #4890 (Derek 2026-11-16: "make it so odds only show when odds is clicked and collect button isnt squished"): the
 -- rarity pills left the card, so only the line of what the player has (or why Roll is grey) sits above the token row;
--- the odds are Odds beside Roll and See odds on the token panel, one tap from any roll or Buy
+-- the odds are Odds beside Roll (the full list) and one small line on the token panel under its Buys
 local WORDS_H = 18
 -- #3848 (Derek 2026-11-13: "the collect trait reroll button is cutoff a bit on mobile"): on a short screen the card
 -- reached the screen's bottom edge, so the line of what the player has moves beside Collect, over the token line, and
@@ -994,6 +994,10 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._redrawOdds = function()
 		oddsLines(choice, 30 + cardH + GAP + buttonH + 4 + 6, 9)
 		oddsRows()
+		local refresh: (() -> ())? = self._sideOddsRefresh
+		if refresh ~= nil then
+			refresh()
+		end
 	end
 
 	-- #4006 (Derek 2026-11-13: "instead of making this the pop up when opening mystic pool have the back open up on the
@@ -1051,7 +1055,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		Parent = head,
 	})
 	-- Derek 2026-11-13 ("no need to say odds they are already on screen just keep it simple"): the token's one line;
-	-- #4890: the odds are See odds under the bundles
+	-- #4890: the roll odds are the small line under the bundles
 	text({
 		Name = "Line",
 		Size = UDim2.new(1, 0, 0, 0),
@@ -1087,21 +1091,32 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		button.instance.LayoutOrder = 2 + index
 		table.insert(self._offerButtons, button)
 	end
-	-- #4890: the pills left the card, so the roll odds are one tap from every Buy here too (monetization-policy)
-	local seeOdds = Button.new({
-		name = "SeeOdds",
-		text = "See odds",
-		style = "sky",
-		size = UDim2.new(1, 0, 0, buttonH),
-		textSize = Theme.sizes.textSmall,
-		parent = side,
-		zIndex = 6,
-		onClick = function()
-			self:_openOdds()
-		end,
+	-- #4890: the pills left the card, so the token panel itself shows the roll odds in one small line under the Buys
+	-- (Review-QA: monetization-policy rule 1, odds in the purchase UI); Odds on the card has the full list
+	local function sideOddsText(): string
+		local parts: { string } = {}
+		for _, row in MysticPoolLogic.odds() do
+			table.insert(parts, row.name .. " " .. row.label)
+		end
+		return "Roll odds: " .. table.concat(parts, " · ")
+	end
+	local sideOdds = text({
+		Name = "SideOdds",
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		TextSize = Theme.sizes.textTiny,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextColor3 = CARD.subtext,
+		Text = sideOddsText(),
+		LayoutOrder = 3 + #Traits.BUNDLES,
+		ZIndex = 6,
+		Parent = side,
 	})
-	seeOdds.instance.LayoutOrder = 3 + #Traits.BUNDLES
-	self._seeOdds = seeOdds
+	self._sideOddsRefresh = function()
+		sideOdds.Text = sideOddsText()
+	end
 	self._offerBundles = nil :: { MysticPoolLogic.Bundle }?
 	self._sideOn = false
 
@@ -1365,7 +1380,7 @@ function MysticPool._autoTargets(self: any)
 	self:_paintAuto()
 end
 
--- #4890: the odds list, from Odds beside Roll or See odds on the token panel
+-- #4890: the odds list, from Odds beside Roll
 function MysticPool._openOdds(self: any)
 	self._oddsSheet.Visible = true
 	GamepadNav.pushBack("mysticOdds", self._oddsSheet, function()
@@ -2384,7 +2399,6 @@ function MysticPool.destroy(self: any)
 		pick:destroy()
 	end
 	self._autoButton:destroy()
-	self._seeOdds:destroy()
 	self._autoBack:destroy()
 	self._autoGo:destroy()
 	for _, chip: Button.Button in self._autoLimits do

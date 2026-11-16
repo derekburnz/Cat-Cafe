@@ -3452,9 +3452,9 @@ local SCENES = {
 		local line = side:FindFirstChild("Line") :: TextLabel
 		assert(line and line.Visible and line.TextFits and not line.Text:find("%", 1, true), "uigate: the token panel's line is missing, cut or still has odds")
 		assert(line.AbsolutePosition.Y < side:FindFirstChild("Bundle1").AbsolutePosition.Y, "uigate: the token line sits under Buy (#4006)")
-		-- #4890: the odds are one tap from every Buy: See odds under the bundles opens the odds list
-		local seeOdds = side:FindFirstChild("SeeOdds") :: GuiObject?
-		assert(seeOdds ~= nil and seeOdds.Visible and seeOdds.AbsoluteSize.Y > 0, "uigate: no See odds on the token panel (monetization-policy, #4890)")
+		-- #4890: the roll odds show on the token panel itself (monetization-policy rule 1)
+		local sideOdds = side:FindFirstChild("SideOdds") :: TextLabel?
+		assert(sideOdds and sideOdds.Visible and sideOdds.TextFits and string.find(sideOdds.Text, "Common 30%", 1, true) and string.find(sideOdds.Text, "Secret", 1, true), "uigate: the token panel does not show the roll odds (monetization-policy rule 1, #4890)")
 		local roll = window:FindFirstChild("Roll", true)
 		assert(roll == nil or not roll.Visible or roll.AbsolutePosition.X + roll.AbsoluteSize.X <= side.AbsolutePosition.X, "uigate: Roll sits under the token panel (#4006)")
 assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has an X (Derek: no X, #4006)")

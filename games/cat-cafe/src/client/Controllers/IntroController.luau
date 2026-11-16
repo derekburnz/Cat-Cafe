@@ -2251,6 +2251,18 @@ function IntroController.play(replay: boolean)
 	-- ready it should be fine"): no wait for the camp before shot 1 any more (it was up to STREAM_WAIT 5 s, then
 	-- CAMP_WAIT 2.5 s, on a still picture). The loading screen's quick run to 100 is the only pause, and the camp
 	-- streams in behind it and behind shot 1; a camp still missing at shot 1's fuse is lateStream()'s to handle.
+	-- #4314 (Nov 16 read: most "on" saves never saw the loading screen): a first play waits for the server's answer
+	-- on the loading screen test (LoadingTest.answered), so an "on" arm shows the screen before the intro starts
+	if not replay then
+		local LoadingTest = require(Shared:WaitForChild("LoadingTest")) :: any
+		local waited = 0
+		while
+			not LoadingTest.answered(player:GetAttribute(LoadingTest.ATTRIBUTE))
+			and waited < LoadingTest.CLIENT_WAIT
+		do
+			waited += task.wait(0.1)
+		end
+	end
 	local race = UI.intro.race()
 	if race > 0 then
 		task.wait(race)

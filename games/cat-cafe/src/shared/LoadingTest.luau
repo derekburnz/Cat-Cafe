@@ -22,6 +22,17 @@ LoadingTest.SEEN_EVENT = "ab_loading_seen"
 LoadingTest.SEEN_REPORT = "loading_seen" -- TelemetryReport name; value the whole seconds the screen was up
 LoadingTest.SEEN_MAX = 120
 LoadingTest.LAST_STEP = "played_5m"
+-- Nov 16 read (68 saves in the test on Nov 15, 7 seen times where about 34 were due): the arm could land after the
+-- intro had already started, and the "on" arm then never showed the screen. The server now always answers a save that
+-- may join: its arm, or NONE when the Experiment gives it none. A new save's intro waits for that answer, up to
+-- CLIENT_WAIT seconds, before it starts (IntroController.play).
+LoadingTest.NONE = "none"
+LoadingTest.CLIENT_WAIT = 3
+
+-- Whether the server has answered (the attribute holds an arm or NONE).
+function LoadingTest.answered(value: unknown): boolean
+	return value == "on" or value == "off" or value == LoadingTest.NONE
+end
 
 function LoadingTest.arm(value: unknown): string?
 	if value == "on" or value == "off" then

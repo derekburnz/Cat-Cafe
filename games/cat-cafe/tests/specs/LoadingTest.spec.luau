@@ -21,6 +21,18 @@ return function()
 			expect(LoadingTest.joins(1, true)).to.equal(false)
 		end)
 
+		it(
+			"knows when the server has answered, so a first intro waits for the arm (Nov 16 read)",
+			function()
+				expect(LoadingTest.answered("on")).to.equal(true)
+				expect(LoadingTest.answered("off")).to.equal(true)
+				expect(LoadingTest.answered(LoadingTest.NONE)).to.equal(true)
+				expect(LoadingTest.answered(nil)).to.equal(false)
+				expect(LoadingTest.arm(LoadingTest.NONE)).to.equal(nil) -- not in the test: the switch decides
+				expect(LoadingTest.CLIENT_WAIT > 0 and LoadingTest.CLIENT_WAIT <= 3).to.equal(true)
+			end
+		)
+
 		it("lets the arm decide over the switch, and the switch decide with no arm", function()
 			expect(LoadingTest.shows("on", false)).to.equal(true)
 			expect(LoadingTest.shows("on", true)).to.equal(true)

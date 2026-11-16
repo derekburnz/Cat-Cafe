@@ -2890,7 +2890,12 @@ local function onLoaded(player: Player, profile: Profile)
 	if LoadingTest.joins(profile.stats.sessions, profile.introSeen) then
 		task.spawn(function()
 			local arm = LoadingTest.arm(IntroModeService.loadingArm(player))
-			if arm == nil or sessions[player] ~= session or player.Parent == nil then
+			if sessions[player] ~= session or player.Parent == nil then
+				return
+			end
+			if arm == nil then
+				-- the answer the intro waits for (LoadingTest.CLIENT_WAIT): not in the test
+				player:SetAttribute(LoadingTest.ATTRIBUTE, LoadingTest.NONE)
 				return
 			end
 			session.loadingArm = arm

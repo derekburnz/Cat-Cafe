@@ -3446,6 +3446,30 @@ Presets.signature = {
 	},
 	-- #4251 Harvest Hollow's rarer cats (Wed Nov 25 to Sun Dec 6), the same ladder in autumn colours, on the lit
 	-- parts of their models (`..._Leaves_Glow`, `..._Wheat_Glow`, `..._Glow`; a copy without them shows on its body).
+	-- the three Rares: a small touch each, never ahead of a rarer cat
+	apple_pie = { -- Apple Pie Cat (Rare): a warm glint now and then off its pie's glaze
+		emitter = "sigGlintSmall",
+		on = "Prop",
+		colors = { Color3.fromRGB(255, 220, 160), palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+		minor = true,
+	},
+	cornstalk = { -- Cornstalk Cat (Rare): a few husk flecks fall off its stalk as it moves
+		emitter = "sigSnowKick",
+		on = "Prop",
+		colors = { Color3.fromRGB(246, 214, 110), Color3.fromRGB(196, 178, 96) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
+	},
+	pumpkin_spice = { -- Pumpkin Spice Cat (Rare): a puff of cinnamon behind it as it walks
+		emitter = "sigSnowKick",
+		on = "Body",
+		colors = { Color3.fromRGB(214, 130, 70), Color3.fromRGB(240, 196, 150) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
+	},
 	cranberry = { -- Cranberry Cat (Epic): a glint now and then off its berries
 		emitter = "sigGlint",
 		on = "Prop",

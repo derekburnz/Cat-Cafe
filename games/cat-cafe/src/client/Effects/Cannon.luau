@@ -25,6 +25,7 @@ local Moments = require(script.Parent.Parent.Moments)
 
 local Clouds = require(script.Parent.Clouds)
 local Context = require(script.Parent.Context)
+local FlightClock = require(script.Parent.FlightClock)
 local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
@@ -257,7 +258,10 @@ end
 local function stepFlight(character: Model, flight: Flight, now: number)
 	local c = Presets.cannon
 	local s = flight.stage
-	local t = now - flight.at
+	-- a real flight's beats run on its CannonFlightScale (FlightClock); the intro's copy keeps its own stage
+	local t = if flight.staged
+		then now - flight.at
+		else FlightClock.seconds(character, flight.at, now)
 	local root = rootOf(character)
 	if t > s.endAt + c.stale or character.Parent == nil or (root == nil and not flight.staged) then
 		endFlight(character)
@@ -354,7 +358,8 @@ local function fly(
 	spot: Vector3
 )
 	local c = Presets.cannon
-	local t = Workspace:GetServerTimeNow() - at
+	local now = Workspace:GetServerTimeNow()
+	local t = if staged then now - at else FlightClock.seconds(character, at, now)
 	local muzzle, fuse, aim = aimOf(cannon, spot)
 	local beats: { [string]: number } =
 		{ boom = stage.boomAt, puff = stage.puffAt, land = stage.landAt }
@@ -395,14 +400,19 @@ local function launched(character: Model)
 	end
 	endFlight(character)
 	local c = Presets.cannon
-	local t = Workspace:GetServerTimeNow() - at
+	local scale = FlightClock.scale(character, at)
+	local t = FlightClock.toBeats(Workspace:GetServerTimeNow() - at, scale)
 	if t > c.endAt + c.stale then
 		return -- joined or streamed in after it was over
 	end
 	local spot = (root :: BasePart).Position
 	fly(character, at, REAL, false, findCannon(character, spot), spot)
 	if character == Players.LocalPlayer.Character then
-		Clouds.play(at, Presets.clouds.cannon, tintOf(character:GetAttribute("CannonTo")))
+		Clouds.play(
+			at,
+			FlightClock.clouds(Presets.clouds.cannon, scale),
+			tintOf(character:GetAttribute("CannonTo"))
+		)
 		-- your own character glides through the clouds (Animation-Engineer), between the clouds behind and in front
 		local g, rider = glide, Clouds.rider()
 		if g ~= nil and rider ~= nil then

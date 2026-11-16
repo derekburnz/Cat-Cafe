@@ -208,10 +208,16 @@ function EventService.crateDrop(): string?
 	return if event ~= nil and event.effects.crateDrop then event.id else nil
 end
 
--- #4197 (Speed Rush): whether every player counts as wearing the Speed Shoes now.
+-- #4197 (Speed Rush): whether it runs now.
 function EventService.speedRush(): boolean
 	local event = adminRunning
 	return event ~= nil and event.effects.speedRush
+end
+
+-- #4878 (Derek 2026-11-16: "make it so everyone gets more speed by like 10 speed"): the walk speed Speed Rush adds
+-- to every player now, 0 when it does not run.
+function EventService.speedRushWalk(): number
+	return if EventService.speedRush() then CafeEvents.ADMIN.speedRushWalk else 0
 end
 
 local function daysText(event: CafeEvents.Event): string

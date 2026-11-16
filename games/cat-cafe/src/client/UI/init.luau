@@ -11496,7 +11496,7 @@ do
 		local tips: any = UI.tips
 		-- #4848 (folded in from #4902): no "Stand still for 2x money" banner in the hold (the walk-through and the
 		-- first 5 minutes)
-		return tips.calm() and not UI.firstCat.tutorial
+		return tips.calm() and not UI.firstCat.tutorial and UI.popPace.free()
 	end
 
 	-- one pass: read, follow, paint; the banner shows once per event this session

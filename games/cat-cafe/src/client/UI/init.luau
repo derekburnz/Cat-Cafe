@@ -3304,6 +3304,20 @@ function UI.potions.giftResult(
 	if type(fish) == "number" and fish > 0 then
 		title ..= (" + %d golden fish"):format(fish)
 	end
+	-- #4527 (Derek 2026-11-15, a playtester: "just too much popups on screen maybe remove popups from claiming
+	-- stuff"): with the giftCard switch off (its default) no card, only the gift's sound; the prize is in the
+	-- counters and the Bag
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	if
+		not LiveFlags.shown(
+			"giftCard",
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "giftCard")
+		)
+	then
+		Sound.play("giftOpen")
+		return
+	end
 	local GiftLogic = require(script.Components.GiftLogic)
 	popups:showGift(title, PotionLogic.giftPrize(kind, id, count, fish), GiftLogic.title(tier), {
 		tier = state.tier,

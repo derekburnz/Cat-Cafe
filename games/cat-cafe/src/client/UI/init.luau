@@ -640,7 +640,6 @@ local function autoOpenDailyTreat()
 				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
 			local firstDay = Players.LocalPlayer:GetAttribute(QuietStart.DAY_ATTRIBUTE)
 			return QuietStart.treatOpensItself(
-				(QuietStart.live()),
 				firstDay,
 				now // QuietStart.DAY_SECONDS
 			)
@@ -2675,7 +2674,7 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Onboarding")) :: any
 		local tutorial = (state.tutorialStep or math.huge) < Onboarding.NEW_PLAYER_STEP
 		if
-			plain and QuietStart.foundToast((QuietStart.live()), state.tier, def.rarity, tutorial)
+			plain and QuietStart.foundToast(state.tier, def.rarity, tutorial)
 		then
 			UI.toast(string.format("New cat: %s!", def.name), "good")
 			return
@@ -5970,13 +5969,13 @@ do
 		local shared = ReplicatedStorage:WaitForChild("Shared")
 		local QuietStart = require(shared:WaitForChild("QuietStart")) :: any
 		local LiveFlags = require(shared:WaitForChild("LiveFlags")) :: any
-		local on, quiet = QuietStart.live()
+		local quiet = QuietStart.live()
 		local spotlight = LiveFlags.shown(
 			"rankUpSpotlight",
 			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "rankUpSpotlight")
 		)
 		local now: any = UI.getState()
-		if QuietStart.holdsTip(on, id, if now ~= nil then now.tier else nil, quiet, spotlight) then
+		if QuietStart.holdsTip(id, if now ~= nil then now.tier else nil, quiet, spotlight) then
 			return
 		end
 		if id == TackleLessonLogic.TIP then
@@ -6671,7 +6670,7 @@ do
 		local QuietStart =
 			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
 		if
-			QuietStart.holdsFirstVisit((QuietStart.live()), if now ~= nil then now.tier else nil)
+			QuietStart.holdsFirstVisit(if now ~= nil then now.tier else nil)
 		then
 			return -- #4005: the first visit calls wait for Tier 2 (Design-Agent, folding #3891's hold in)
 		end

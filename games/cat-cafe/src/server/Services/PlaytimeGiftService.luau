@@ -17,7 +17,6 @@ local CafeService = require(script.Parent.CafeService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
-local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
@@ -121,11 +120,7 @@ end
 local function returnGift(player: Player): boolean
 	local profile = DataService.get(player)
 	local now = os.time()
-	if
-		profile == nil
-		or not LiveFlagService.on(ReturnGift.FLAG)
-		or not ReturnGift.due(profile, now)
-	then
+	if profile == nil or not ReturnGift.due(profile, now) then
 		return false
 	end
 	profile.codesRedeemed[ReturnGift.KEY] = now

@@ -5870,7 +5870,7 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 		-- #3529 (shared/NewKind): "Catch new kinds of cat 3/5" while five different cats is the goal
 		local newKind = if state ~= nil then state.newKindGoal else nil
 		if state ~= nil and type(newKind) == "number" and state.carrying == nil then
-			local title = NewKind.title(newKind, TOUCH)
+			local title = NewKind.title(newKind, TOUCH, NewKind.anyAt(state.tier or 1)) -- #4809: "Catch cats 2/3"
 			-- #4098: Tier 2 reads as the goal from the second cat on, with the name of what it opens under the count
 			local opens = GoalLines.opens(self._nextTierName, TOUCH)
 			local lines: { string } = if opens then { opens } else {}

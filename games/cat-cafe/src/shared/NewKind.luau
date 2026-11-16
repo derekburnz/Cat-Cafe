@@ -22,6 +22,7 @@ NewKind.FOLLOWED_STUDS = 25 -- the player came this near the stray: new_kind_tra
 NewKind.LABEL = "New kind"
 NewKind.LINE = "A kind of cat you don't have yet is close by"
 NewKind.CANNON_LINE = "New kinds of cat wait in the Alleyway"
+NewKind.ANY_CANNON_LINE = "More cats wait in the Alleyway" -- #4809: while Tier 2 takes any cats (anyAt)
 NewKind.NEXT_AREA = "Try the next area"
 -- The step_time names (Telemetry.custom "step_time", field 1), each once a session.
 NewKind.SHOWN = "new_kind_trail_shown"
@@ -55,28 +56,38 @@ function NewKind.shows(isNew: boolean, busy: boolean, lockedBy: unknown, distanc
 	return distance >= NewKind.NEAR and distance <= NewKind.RANGE
 end
 
--- The catch card's line for a new kind: `kinds` different cats owned before this one, at cafe tier `tier`.
-function NewKind.line(kinds: number, tier: number): string
+-- #4809 (Derek 2026-11-16: "make the first rank up 3 of ANY cat not different"): whether a cafe at `tier` counts any
+-- cat toward its next rank up (that tier's anyCats), so the cards say "cats" and count every cat, not new kinds.
+function NewKind.anyAt(tier: number): boolean
+	local nextTier = Catalog.getTier(math.max(1, math.floor(tier)) + 1)
+	return nextTier ~= nil and nextTier.anyCats == true
+end
+
+-- The catch card's line for a new kind: `kinds` different cats owned before this one, at cafe tier `tier`. With
+-- `any` (anyAt) it is every cat's line and `kinds` counts every cat owned toward Tier 2: "Cat 2/3 for Cozy Cafe".
+function NewKind.line(kinds: number, tier: number, any: boolean?): string
 	if tier >= 2 then
 		return "New kind!"
 	end
 	local tier2 = Catalog.getTier(2)
 	local after = math.clamp(math.floor(kinds) + 1, 1, NewKind.KINDS)
 	return string.format(
-		"New kind! %d/%d for %s",
+		if any == true then "Cat %d/%d for %s" else "New kind! %d/%d for %s",
 		after,
 		NewKind.KINDS,
 		if tier2 ~= nil then tier2.name else "Tier 2"
 	)
 end
 
--- The goal card's title with `kinds` different cats owned; `narrow` on the phone's narrower card.
-function NewKind.title(kinds: number, narrow: boolean?): string
-	return string.format(
-		if narrow then "New kinds of cat 🐾 %d/%d" else "Catch new kinds of cat 🐾 %d/%d",
-		math.clamp(math.floor(kinds), 0, NewKind.KINDS),
-		NewKind.KINDS
-	)
+-- The goal card's title with `kinds` different cats owned; `narrow` on the phone's narrower card. With `any`
+-- (anyAt) `kinds` counts every cat and the words say so.
+function NewKind.title(kinds: number, narrow: boolean?, any: boolean?): string
+	local words = if any == true
+		then (if narrow then "Cats 🐾 %d/%d" else "Catch cats 🐾 %d/%d")
+		else (if narrow
+			then "New kinds of cat 🐾 %d/%d"
+			else "Catch new kinds of cat 🐾 %d/%d")
+	return string.format(words, math.clamp(math.floor(kinds), 0, NewKind.KINDS), NewKind.KINDS)
 end
 
 -- Whether five different cats is the goal: the switch is on, it is the Grand Opening's next milestone (`current`,

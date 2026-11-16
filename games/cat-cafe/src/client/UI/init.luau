@@ -11270,9 +11270,15 @@ do
 		return true
 	end
 
-	-- Different kinds owned toward rank up, from the Index the client has.
+	-- Different kinds owned toward rank up, from the Index the client has. #4809: every cat owned while the next
+	-- tier takes any cats (NewKind.anyAt).
 	function UI.newKind.kinds(): number
 		local Economy = require(Shared:WaitForChild("Economy")) :: any
+		local tier = state.tier or 1
+		if NewKind.anyAt(tier) then
+			local Catalog = require(Shared:WaitForChild("Catalog")) :: any
+			return Economy.rankUpCats(state.collection or {}, state.cats, Catalog.getTier(tier + 1))
+		end
 		return Economy.rankUpCatCount(state.collection or {})
 	end
 
@@ -11311,10 +11317,22 @@ do
 
 	-- The catch card's line for a cat of this kind, nil when the switch is off or the kind is not new.
 	function UI.newKind.line(catId: unknown, rarity: unknown): string?
-		if not UI.newKind.on() or not NewKind.isNew(state.collection, catId, rarity) then
+		if not UI.newKind.on() then
 			return nil
 		end
-		return NewKind.line(UI.newKind.kinds(), state.tier or 1)
+		-- #4809: while Tier 2 takes any cats, every cat that counts gets "Cat 2/3 for Cozy Cafe", new kind or not
+		local tier = state.tier or 1
+		if NewKind.anyAt(tier) and type(catId) == "string" and rarity ~= "Secret" then
+			local Economy = require(Shared:WaitForChild("Economy")) :: any
+			local Catalog = require(Shared:WaitForChild("Catalog")) :: any
+			if Catalog.getCat(catId) ~= nil and Economy.countsForRankUp(catId) then
+				return NewKind.line(UI.newKind.kinds(), tier, true)
+			end
+		end
+		if not NewKind.isNew(state.collection, catId, rarity) then
+			return nil
+		end
+		return NewKind.line(UI.newKind.kinds(), tier)
 	end
 end
 

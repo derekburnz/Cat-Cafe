@@ -10485,8 +10485,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
 		assert(goal.Visible, "uigate: no goal card for new kinds (#3529)")
 		local title = goal:FindFirstChild("Title") :: TextLabel
-		local expected = "Catch new kinds of cat 🐾 2/3"
-		if title.Text == "New kinds of cat 🐾 2/3" then
+		-- #4809: Tier 2 takes any 3 cats, so at Tier 1 the card counts every cat
+		local expected = "Catch cats 🐾 2/3"
+		if title.Text == "Cats 🐾 2/3" then
 			expected = title.Text -- the phone's narrower card
 		end
 		assert(title.Visible and title.Text == expected, "uigate: the new kinds goal reads " .. title.Text .. " (#3529)")

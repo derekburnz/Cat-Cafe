@@ -21,14 +21,17 @@ return function()
 			expect(LoadingTest.joins(1, true)).to.equal(false)
 		end)
 
-		it("lets the arm decide over the switch, and the switch decide with no arm", function()
-			expect(LoadingTest.shows("on", false)).to.equal(true)
-			expect(LoadingTest.shows("on", true)).to.equal(true)
-			expect(LoadingTest.shows("off", true)).to.equal(false)
-			expect(LoadingTest.shows("off", false)).to.equal(false)
-			expect(LoadingTest.shows(nil, true)).to.equal(true)
-			expect(LoadingTest.shows(nil, false)).to.equal(false)
-		end)
+		it(
+			'shows with an "on" arm or the switch on, an "off" arm no longer hiding it (#4780)',
+			function()
+				expect(LoadingTest.shows("on", false)).to.equal(true)
+				expect(LoadingTest.shows("on", true)).to.equal(true)
+				expect(LoadingTest.shows("off", true)).to.equal(true) -- #4780: the test is over
+				expect(LoadingTest.shows("off", false)).to.equal(false)
+				expect(LoadingTest.shows(nil, true)).to.equal(true)
+				expect(LoadingTest.shows(nil, false)).to.equal(false)
+			end
+		)
 
 		it("stops at a playtime step that exists, past every mark Derek named", function()
 			local last = table.find(Onboarding.PLAYTIME_STEPS, LoadingTest.LAST_STEP)

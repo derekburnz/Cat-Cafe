@@ -500,32 +500,20 @@ return function()
 				autoRoll = { id = first.id, n = 1 },
 			}
 			local base = MysticPoolLogic.stamp(view, 0, nil)
-			expect(
-				MysticPoolLogic.stamp(
-					{
-						tokens = 2,
-						freeLeft = 0,
-						held = 0,
-						party = 3,
-						autoRoll = { id = first.id, n = 2 },
-					},
-					0,
-					nil
-				)
-			).never.to.equal(base)
-			expect(
-				MysticPoolLogic.stamp(
-					{
-						tokens = 2,
-						freeLeft = 0,
-						held = 0,
-						party = 2,
-						autoRoll = { id = first.id, n = 1 },
-					},
-					0,
-					nil
-				)
-			).never.to.equal(base)
+			expect(MysticPoolLogic.stamp({
+				tokens = 2,
+				freeLeft = 0,
+				held = 0,
+				party = 3,
+				autoRoll = { id = first.id, n = 2 },
+			}, 0, nil)).never.to.equal(base)
+			expect(MysticPoolLogic.stamp({
+				tokens = 2,
+				freeLeft = 0,
+				held = 0,
+				party = 2,
+				autoRoll = { id = first.id, n = 1 },
+			}, 0, nil)).never.to.equal(base)
 		end)
 	end)
 end

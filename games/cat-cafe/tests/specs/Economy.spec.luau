@@ -1242,19 +1242,17 @@ return function()
 		)
 
 		it(
-			"Tier 2 to 3 needs one Epic or better; 3 to 4 one Mythical (#2496); 4 to 5 two Legendary or better",
+			"Tier 2 to 3 needs one Epic or better; 3 to 4 one Legendary (#4713); 4 to 5 two Legendary or better",
 			function()
 				expect(Economy.rankUpBlocker(profileWith(2, 13))).to.equal(
 					"Needs one cat, Epic or better"
 				)
 				expect(Economy.rankUpBlocker(profileWith(2, 13, "Epic", 1))).never.to.be.ok()
 				expect(Economy.rankUpBlocker(profileWith(3, 25, "Epic", 3))).to.equal(
-					"Needs one cat, Mythical or better"
+					"Needs one cat, Legendary or better"
 				)
-				-- #2496: a Legendary no longer opens Tier 4
-				expect(Economy.rankUpBlocker(profileWith(3, 25, "Legendary", 3))).to.equal(
-					"Needs one cat, Mythical or better"
-				)
+				-- #4713: one Legendary opens Tier 4 again (#2496 asked for a Mythical)
+				expect(Economy.rankUpBlocker(profileWith(3, 25, "Legendary", 1))).never.to.be.ok()
 				expect(Economy.rankUpBlocker(profileWith(3, 25, "Mythical", 1))).never.to.be.ok()
 				expect(Economy.rankUpBlocker(profileWith(4, 33, "Legendary", 1))).to.equal(
 					"Needs 2 different cats, Legendary or better"

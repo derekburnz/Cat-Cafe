@@ -283,11 +283,7 @@ local function check(player: Player, now: number)
 			player:SetAttribute(AfkCafe.ATTRIBUTE, doubled)
 		end
 		local since = watch.idleSince
-		if
-			since ~= nil
-			and LiveFlagService.on(AfkCafe.REJOIN_FLAG)
-			and AfkCafe.rejoinDue(now - since, watch.rejoinTry, now)
-		then
+		if since ~= nil and AfkCafe.rejoinDue(now - since, watch.rejoinTry, now) then
 			watch.rejoinTry = now
 			rejoin(player)
 		end

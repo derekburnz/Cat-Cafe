@@ -2998,19 +2998,11 @@ function UI.bait.busy(): boolean
 end
 
 -- #4035 (Derek 2026-11-13: "remove all food bowl pop ups etc until your back in town square way too many annoying
--- popups when out looking for and catching cats"): with the quietAway switch on, the bowl cards wait while the
+-- popups when out looking for and catching cats"): the bowl cards wait while the
 -- player's net is out (the server's NetHidden is clear only in a catching area's wild part, outside its camp), and
 -- come one at a time once they are back in town, a cafe or a camp. The bowl chip still shows its "!" meanwhile.
+-- #4654 batch 6: the `quietAway` switch is retired (on live since 2026-11-13).
 function UI.bait.away(): boolean
-	local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
-	if
-		not LiveFlags.shown(
-			"quietAway",
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "quietAway")
-		)
-	then
-		return false
-	end
 	local character = Players.LocalPlayer.Character
 	-- NetHidden is off in an area's wild part outside its camp, and on while carrying (CatService.markCamps), so a
 	-- carry counts as away too: the run back to camp stays quiet (review of #4040)
@@ -6000,12 +5992,8 @@ do
 		-- walk through. Never marked seen, so the server sends it again later.
 		local shared = ReplicatedStorage:WaitForChild("Shared")
 		local QuietStart = require(shared:WaitForChild("QuietStart")) :: any
-		local LiveFlags = require(shared:WaitForChild("LiveFlags")) :: any
 		local quiet = QuietStart.live()
-		local spotlight = LiveFlags.shown(
-			"rankUpSpotlight",
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "rankUpSpotlight")
-		)
+		local spotlight = true -- #4654 batch 6: the `rankUpSpotlight` switch is retired
 		local now: any = UI.getState()
 		if QuietStart.holdsTip(id, if now ~= nil then now.tier else nil, quiet, spotlight) then
 			return

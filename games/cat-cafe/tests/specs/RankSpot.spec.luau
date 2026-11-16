@@ -9,9 +9,9 @@ return function()
 	local Tips = require(Shared:WaitForChild("Tips"))
 
 	describe("RankSpot", function()
-		it("is behind a switch that starts off", function()
-			expect(LiveFlags.OFF_BY_DEFAULT[RankSpot.FLAG]).to.equal(true)
-			expect(LiveFlags.shown(RankSpot.FLAG, nil)).to.equal(false)
+		it("has no switch any more (#4654 batch 6)", function()
+			expect(table.find(LiveFlags.KEYS, "rankUpSpotlight")).to.equal(nil)
+			expect(LiveFlags.OFF_BY_DEFAULT.rankUpSpotlight).to.equal(nil)
 		end)
 
 		it(

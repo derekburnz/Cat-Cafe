@@ -10,7 +10,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
-local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
 local PlotService = require(script.Parent.PlotService)
 local RankSpot = require(ReplicatedStorage.Shared.RankSpot)
 local Telemetry = require(script.Parent.Telemetry)
@@ -67,10 +66,7 @@ function RankSpotService.start()
 	end)
 	task.spawn(function()
 		while true do
-			local on = LiveFlags.shown(
-				RankSpot.FLAG,
-				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RankSpot.FLAG)
-			)
+			local on = true -- #4654 batch 6: the `rankUpSpotlight` switch is retired (on live since launch week)
 			for _, player in Players:GetPlayers() do
 				watch(player, on)
 			end

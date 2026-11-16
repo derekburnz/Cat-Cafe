@@ -6,7 +6,8 @@
 --                               "?" teaser ("Next sale: 4d 06h") and every other item at its full price, each with its
 --                               Buy button's words and whether it can be pressed
 --   left(seconds) -> string     "4d 06h", "6h 12m", "12m", at least "1m"
---   bang(state) -> string?      the bubble under the cart's "!" until the player first opens the window (#2574)
+--   bang(state, now?) -> string? the bubble under the cart's "!" until the player first opens the window (#2574), and
+--                               only while they can afford something on the shelf (#4525)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -131,12 +132,24 @@ function MysteryLogic.view(state: any, now: number, flags: { [string]: boolean }
 	}
 end
 
--- The bubble under the cart's "!" (#2574): only until the player first opens Juniper's window.
-function MysteryLogic.bang(state: any): string?
+-- The bubble under the cart's "!" (#2574): only until the player first opens Juniper's window. #4525 (Derek
+-- 2026-11-15: "remove the exclamation mark from mystery market until they can even afford it"): and only while one
+-- item they don't own, at their tier, can be bought with the golden fish they have (an enabled Buy button).
+function MysteryLogic.bang(state: any, now: number?, flags: { [string]: boolean }?): string?
 	if type(state) ~= "table" or state.mysterySeen ~= false then
 		return nil
 	end
-	return MysteryLogic.BANG_TEXT
+	local view = MysteryLogic.view(state, now or os.time(), flags)
+	local rows: { Row } = table.clone(view.others)
+	if view.featured ~= nil then
+		table.insert(rows, view.featured)
+	end
+	for _, made in rows do
+		if made.enabled then
+			return MysteryLogic.BANG_TEXT
+		end
+	end
+	return nil
 end
 
 return MysteryLogic

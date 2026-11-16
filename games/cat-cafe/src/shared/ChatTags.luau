@@ -40,6 +40,27 @@ local TAGS: { [string]: Tag } = {
 	title_devoted = { text = "[Devoted]", color = "#C79BE8" },
 	title_week_champion = { text = "[Week Champion]", color = "#6FB3E8" },
 	title_gold_rush = { text = "[Gold Rush]", color = "#E8C547" },
+	-- #4061: the Ticket Booth's title, held for good from 10,000 tickets spent (TicketBooth.REGULAR_SPENT)
+	title_park_regular = { text = "[Park Regular]", color = "#4FC3D9" },
+	-- #4709 (Derek 2026-11-16: "I got the 100 cat index title but can't equipped it in bag"): the Index milestones'
+	-- titles, held for good once the milestone is claimed (ChatTags.INDEX_TITLES). all/totalAll gives title_cat_legend
+	title_cat_master = { text = "[Cat Master]", color = "#F0B95A" },
+	title_golden_paw = { text = "[Golden Paw]", color = "#F2C94C" },
+	title_golden_legend = { text = "[Golden Legend]", color = "#FFD86B" },
+	title_rainbow_finder = { text = "[Rainbow Finder]", color = "#F59AC8" },
+	title_rainbow_master = { text = "[Rainbow Master]", color = "#C38BF2" },
+	title_rainbow_star = { text = "[Rainbow Star]", color = "#7FB8F5" },
+	title_rainbow_legend = { text = "[Rainbow Legend]", color = "#FF8FA3" },
+	title_gold_alley = { text = "[Alleyway Gold Master]", color = "#C9A15B" },
+	title_gold_park = { text = "[Park Gold Master]", color = "#8CC46B" },
+	title_gold_neighbourhood = { text = "[Neighbourhood Gold Master]", color = "#E8A0B4" },
+	title_gold_woods = { text = "[Woods Gold Master]", color = "#6FA36B" },
+	title_gold_sewer = { text = "[Sewer Gold Master]", color = "#7FB5A8" },
+	title_gold_desert = { text = "[Desert Gold Master]", color = "#E3B062" },
+	title_gold_ruins = { text = "[Ruins Gold Master]", color = "#B89C7A" },
+	title_gold_snowy = { text = "[Snowy Mountain Gold Master]", color = "#A8D8F0" },
+	title_gold_waterpark = { text = "[Water Park Gold Master]", color = "#5CC8E8" },
+	title_gold_castle = { text = "[Medieval Castle Gold Master]", color = "#B8A0E0" },
 }
 for _, tag in TAGS do
 	table.freeze(tag)
@@ -58,6 +79,24 @@ local ORDER: { string } = {
 	"title_devoted",
 	"title_week_champion",
 	"title_gold_rush",
+	"title_park_regular",
+	"title_cat_master",
+	"title_golden_paw",
+	"title_golden_legend",
+	"title_rainbow_finder",
+	"title_rainbow_master",
+	"title_rainbow_star",
+	"title_rainbow_legend",
+	"title_gold_alley",
+	"title_gold_park",
+	"title_gold_neighbourhood",
+	"title_gold_woods",
+	"title_gold_sewer",
+	"title_gold_desert",
+	"title_gold_ruins",
+	"title_gold_snowy",
+	"title_gold_waterpark",
+	"title_gold_castle",
 	"rank_1",
 	"rank_2",
 	"rank_3",
@@ -74,6 +113,33 @@ ChatTags.ACHIEVEMENT_TITLES = table.freeze({
 	a_week10 = "title_week_champion",
 	a_gold50 = "title_gold_rush",
 }) :: { [string]: string }
+
+-- #4709: Index page -> milestone -> the title its claim gives (the Catalog prize's `tag`). Read from the save's
+-- claimed Index rewards each time, so a milestone claimed before the titles shipped gives it on the next join.
+ChatTags.INDEX_TITLES = table.freeze({
+	all = table.freeze({
+		total50 = "title_cat_master",
+		totalAll = "title_cat_legend",
+		goldtotal50 = "title_golden_paw",
+		goldtotalAll = "title_golden_legend",
+	}),
+	rainbow = table.freeze({
+		rainbow1 = "title_rainbow_finder",
+		rainbow25 = "title_rainbow_master",
+		rainbow50 = "title_rainbow_star",
+		rainbowAll = "title_rainbow_legend",
+	}),
+	alley = table.freeze({ gold10 = "title_gold_alley" }),
+	park = table.freeze({ gold10 = "title_gold_park" }),
+	neighbourhood = table.freeze({ gold10 = "title_gold_neighbourhood" }),
+	woods = table.freeze({ gold10 = "title_gold_woods" }),
+	sewer = table.freeze({ gold10 = "title_gold_sewer" }),
+	desert = table.freeze({ gold10 = "title_gold_desert" }),
+	ruins = table.freeze({ gold10 = "title_gold_ruins" }),
+	snowy = table.freeze({ gold10 = "title_gold_snowy" }),
+	waterpark = table.freeze({ gold10 = "title_gold_waterpark" }),
+	castle = table.freeze({ gold10 = "title_gold_castle" }),
+}) :: { [string]: { [string]: string } }
 
 ChatTags.OFF = "off" -- the pick that shows no tag
 ChatTags.OWNER = "owner" -- #3324: the owner's tag, set by the server from the user id alone
@@ -154,6 +220,28 @@ function ChatTags.addAchievementTitles(
 	for achievementId, tagId in ChatTags.ACHIEVEMENT_TITLES do
 		if achievements[achievementId] == true then
 			items[tagId] = true
+		end
+	end
+	return items
+end
+
+-- #4709: `items` with the title of each claimed Index milestone in INDEX_TITLES set (`indexRewards` the save's
+-- page -> milestone -> claimed). Changes and returns `items`.
+function ChatTags.addIndexTitles(
+	items: { [string]: boolean },
+	indexRewards: { [string]: { [string]: boolean } }?
+): { [string]: boolean }
+	if indexRewards == nil then
+		return items
+	end
+	for page, milestones in ChatTags.INDEX_TITLES do
+		local claims = indexRewards[page]
+		if claims ~= nil then
+			for milestoneId, tagId in milestones do
+				if claims[milestoneId] == true then
+					items[tagId] = true
+				end
+			end
 		end
 	end
 	return items

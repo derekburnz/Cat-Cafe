@@ -413,7 +413,10 @@ def _theme(s, mat, area, G, B, W, half):
         s.put(cs.pavilion(mat, 1), 54.0, B + 9.0, 180)
         s.put(cs.barrels(mat, 0), 38.0, B + 4.5, 0)
         s.put(cs.crate_stack(mat, 1), 67.0, B + 5.0, 0)
-        s.put(cs.hay_cart(mat), 40.0, G - 9.0, 20)
+        # #4567: the Dragon Keep stands at x 24.5 to 39.5, 5.5 to 20.5 in from the gate line (Layout.dragonKeep). The
+        # hay cart, the east banner pole and the east barrel stood inside it (the pole came up through the dragon), so
+        # they stand east of it now, between the Keep and the pavilion.
+        s.put(cs.hay_cart(mat), 44.0, G - 7.5, 0)
         s.put(cs.haystack(mat, 0.8), 64.0, G - 10.0, 0)
         s.put(cs.bench(mat), 52.0, G - 8.0, 0)
         s.put(cs.bench(mat), -32.0, G - 9.0, 0)
@@ -424,9 +427,12 @@ def _theme(s, mat, area, G, B, W, half):
             s.put(cs.torch_post(mat), sx * 9, cz, 0)
             s.put(cs.torch_post(mat), sx * (W / 2 - 3), G - 2.5, 0)
             s.put(cs.banner_pole(mat, 0 if sx > 0 else 1), sx * (W / 2 - 5), B + 5, 180)
-            s.put(cs.banner_pole(mat, 2 if sx > 0 else 3), sx * 30.0, G - 12.0, 180)
+            if sx > 0:
+                s.put(cs.banner_pole(mat, 2), 44.0, B + 11.0, 180)
+            else:
+                s.put(cs.banner_pole(mat, 3), -30.0, G - 12.0, 180)
         s.put(cs.barrel(mat, 1), -14.5, G - 3.0, 0)
-        s.put(cs.barrel(mat, 0), 34.0, G - 4.0, 0)
+        s.put(cs.barrel(mat, 0), 38.5, G - 2.3, 0)
 
 
 def rbx_attachments(name):

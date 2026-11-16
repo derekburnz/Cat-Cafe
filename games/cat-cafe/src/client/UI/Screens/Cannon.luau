@@ -34,6 +34,8 @@ local Button = require(script.Parent.Parent.Components.Button)
 local CampExtrasLogic = require(script.Parent.Parent.Components.CampExtrasLogic)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local Create = require(script.Parent.Parent.Components.Create)
+local DragonKeepLogic = require(script.Parent.Parent.Components.DragonKeepLogic)
+local FusionLogic = require(script.Parent.Parent.Components.FusionLogic)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local LateBuild = require(script.Parent.Parent.Components.LateBuild)
@@ -50,6 +52,7 @@ local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
+local TicketBoothLogic = require(script.Parent.Parent.Components.TicketBoothLogic)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -86,6 +89,9 @@ export type Cannon = {
 	-- F100: the last CampExtrasState, or nil before the first
 	setExtras: (self: Cannon, extras: Types.CampExtrasState?) -> (),
 	setTraits: (self: Cannon, traits: any) -> (), -- #3196: PlayerState.traits, for the Mystic Pool's strip
+	setBooth: (self: Cannon, booth: any) -> (), -- #4061: PlayerState.ticketBooth, for the Water Park card's strip
+	setKeep: (self: Cannon, keep: any) -> (), -- #4062: PlayerState.dragon, for the Castle card's strip
+	setFusion: (self: Cannon, fusion: any) -> (), -- #4104: PlayerState.fusion, for the Snowy Mountain card's strip
 	setLate: (self: Cannon, late: any) -> (), -- #2651 part 4: LateStationsState, for the Desert and Ruins strips
 	render: (self: Cannon, state: Types.PlayerState, carrying: boolean) -> (),
 	opened: (self: Cannon) -> (),
@@ -173,11 +179,13 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._open = false
 	self._tick = 0
 	self._seenTier = nil :: number? -- #3884: the tier the picker last knew, from the first synced state
-	self._family = MenuFamily.on() -- #3961: the batch 3 mock's words and chips while the family look is on
 	self._toBreak = {} :: { [string]: boolean } -- #3884: cards whose lock breaks the next time the picker opens
 	self._pal = nil :: { areaId: string, name: string }?
 	self._extras = nil :: Types.CampExtrasState?
 	self._traits = nil :: any -- #3196: PlayerState.traits, for the Mystic Pool's strip
+	self._booth = nil :: any -- #4061: PlayerState.ticketBooth, for the Water Park card's strip
+	self._keep = nil :: any -- #4062: PlayerState.dragon, for the Castle card's strip
+	self._fusion = nil :: any -- #4104: PlayerState.fusion, for the Snowy Mountain card's strip
 	self._late = nil :: any -- #2651 part 4: the last LateStationsState
 	self._tall = false -- the cards have room for a camp extra's strip
 	self._ring = nil :: string? -- #2915: the area whose Launch wears the ring
@@ -406,7 +414,7 @@ function Cannon._buildCards(self: any)
 			Text = if id == CannonLogic.TOWN then "Cafes and markets" else "",
 			Parent = frame,
 		})
-		if self._family and id ~= CannonLogic.TOWN then
+		if id ~= CannonLogic.TOWN then
 			-- #3961: the "5/10 cats" chip of the batch 3 mock (render shows its fill on open areas only)
 			count.AnchorPoint = Vector2.new(0.5, 0)
 			count.Position = UDim2.new(0.5, 0, 0, ART_H + NAME_GAP + 27)
@@ -538,6 +546,9 @@ function Cannon._line(self: any, id: string): CampExtrasLogic.Line?
 	local station: CampExtrasLogic.Line? = MysticPoolLogic.pickerLine(self._traits, id)
 		or CampExtrasLogic.pickerLine(self._extras, id, now)
 		or LateStationsLogic.pickerLine(self._late, id)
+		or TicketBoothLogic.pickerLine(self._booth, id) -- #4061: the Water Park card's Ticket Booth
+		or DragonKeepLogic.pickerLine(self._keep, id) -- #4062: the Castle card's Dragon Keep
+		or FusionLogic.cannonLine(self._fusion, id, now) -- #4104: the Snowy Mountain card's Observatory
 	-- the Rummage Bin on its area's card (Derek 2026-11-12): the player's BinNextAt and the `alleyBin` switch
 	local bin = CampExtrasLogic.binLine(
 		id,
@@ -546,6 +557,21 @@ function Cannon._line(self: any, id: string): CampExtrasLogic.Line?
 		ReplicatedStorage:GetAttribute(BIN_FLAG) ~= false
 	)
 	return CampExtrasLogic.withBin(station, bin)
+end
+
+-- #4061: PlayerState.ticketBooth (nil or false while the booth is shut), for the Water Park card's strip.
+function Cannon.setBooth(self: any, booth: any)
+	self._booth = if type(booth) == "table" then booth else nil
+end
+
+-- #4104: PlayerState.fusion (nil or false while the Observatory is shut), for the Snowy Mountain card's strip.
+function Cannon.setFusion(self: any, fusion: any)
+	self._fusion = if type(fusion) == "table" then fusion else nil
+end
+
+-- #4062: PlayerState.dragon (nil or false while the Keep is shut), for the Castle card's strip.
+function Cannon.setKeep(self: any, keep: any)
+	self._keep = if type(keep) == "table" then keep else nil
 end
 
 -- #3196: PlayerState.traits (nil while the Mystic Pool is shut), for the Park card's strip.
@@ -744,16 +770,14 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		if id ~= CannonLogic.TOWN then
 			local counts = IndexRewards.counts(catalog, state, id)
 			-- #3961 (batch 3 mock): in the family look an open area's count is a chip, and a shut one says what waits
-			if self._family and locked then
+			if locked then
 				card.count.Text = "New cats wait here"
 				card.count.BackgroundTransparency = 1
 				card.count.Size = UDim2.new(1, -20, 0, 18)
 			else
 				card.count.Text = ("%d/%d cats"):format(counts.found, counts.total)
-				card.count.BackgroundTransparency = if self._family then 0 else 1
-				if self._family then
-					card.count.Size = UDim2.fromOffset(96, 18)
-				end
+				card.count.BackgroundTransparency = 0
+				card.count.Size = UDim2.fromOffset(96, 18)
 			end
 		end
 		local line: CampExtrasLogic.Line? = if locked then nil else self:_line(id)
@@ -791,20 +815,14 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		local enabled = buttonState == "launch" and not pending
 		if card.buttonState ~= buttonState then
 			card.buttonState = buttonState
-			local family = self._family
 			card.launch:setText(
-				if buttonState == "locked" and family
+				if buttonState == "locked"
 					then ("Opens at Tier %d"):format(card.tier :: number)
-					elseif buttonState == "locked" then ("%s Tier %d"):format(
-						Theme.icons.lock :: string,
-						card.tier :: number
-					)
 					elseif buttonState == "night" then Theme.icons.moon .. " Sunrise"
 					elseif buttonState == "dusk" then "Night soon"
-					elseif family then "LAUNCH"
-					else "Launch"
+					else "LAUNCH"
 			)
-			if buttonState == "locked" and family then
+			if buttonState == "locked" then
 				-- #3961 (Studio look): a shut card shows only the lock, not the launch burst beside it
 				card.launch.label.Text = ("%s Opens at Tier %d"):format(
 					Theme.icons.lock :: string,
@@ -821,7 +839,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 	if tall ~= self._tall then
 		self._tall = tall
 		-- #3961 (Studio look, #3990): in the family look the strip keeps 8 px or more clear of LAUNCH
-		local roomy = if tall and self._family then EXTRA_ROOM else 0
+		local roomy = if tall then EXTRA_ROOM else 0
 		self._layout.CellSize =
 			UDim2.fromOffset(CARD.X, CARD.Y + (if tall then EXTRA_H else 0) + roomy)
 	end

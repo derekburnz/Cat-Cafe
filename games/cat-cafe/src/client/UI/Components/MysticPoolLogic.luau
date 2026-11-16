@@ -22,12 +22,15 @@
 --   rolled(view, uid, hadTrait, trait)  the trait id a roll on `uid` gave, once the state shows it: the waiting
 --                               re-roll, or a first trait
 --   rarityId(traitId)           "rare", for the pool's colour (Effects/MysticPool.roll)
+--   #4712 Auto Roll: autoTargets(secret?) the rarities it can stop at (Uncommon up); autoRolls(view) how many rolls
+--     it can pay for (party, free and token rolls, never golden fish); autoHit(traitId, target) whether a roll meets
+--     the target; autoLine(run, view) the sheet's status line
 -- Button words stay neutral ("Roll again" is never "so close"), for a young audience (spec section 1a).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
-local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
+local DragonKeep = require(Shared:WaitForChild("DragonKeep")) :: any
 local Traits = require(Shared:WaitForChild("Traits")) :: any
 
 local MysticPoolLogic = {}
@@ -39,26 +42,34 @@ MysticPoolLogic.KEEP_OLD = "Keep old"
 MysticPoolLogic.TAKE_NEW = "Take new"
 MysticPoolLogic.EQUAL_LINE = "Each trait inside a rarity is equally likely."
 
--- #3908: whether the Secret rarity is in the rolls (the server's `secretTrait` switch, copied to ReplicatedStorage).
--- It can flip while a server runs (secretChanged), so the menu redraws its odds then.
+-- #3908: whether the Secret rarity is in the rolls: always, since #4654 batch 3 retired the `secretTrait` switch
+-- (kept as a function for its callers).
 function MysticPoolLogic.secret(): boolean
-	return ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. Traits.SECRET_FLAG) == true
+	return true
 end
 
--- #4314 follow-up (Derek 2026-11-14: "make sure the odds show secret trait odds in the trait menu also on update"):
--- the switch reaches running servers within a minute with no restart (LiveFlagService), so the menu redraws its odds
--- when the copied attribute changes. `fn` runs on each change; the caller disconnects the connection.
-function MysticPoolLogic.secretChanged(fn: () -> ()): RBXScriptConnection
-	return ReplicatedStorage
-		:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. Traits.SECRET_FLAG)
-		:Connect(fn)
+-- The Dragon Keep's trait luck (PlayerState.cardLuck.trait) every odds list here reads, as the server rolls with it
+-- (Traits.rarities). MysticPool.render sets it; true when it changed, so the screen draws its odds again.
+local traitLuck = 0
+function MysticPoolLogic.setLuck(luck: number?): boolean
+	local value = if type(luck) == "number" and luck > 0 then luck else 0
+	if value == traitLuck then
+		return false
+	end
+	traitLuck = value
+	return true
 end
 
--- The odds line as two short lines, for a narrow card: the rarity odds, then "Each trait inside a rarity ...".
--- `secret` defaults to the switch (MysticPoolLogic.secret).
+function MysticPoolLogic.luck(): number
+	return traitLuck
+end
+
+-- The odds line as two short lines, for a narrow card: the rarity odds, then "Each trait inside a rarity ..." (with
+-- the Dragon Keep note while Trait Spark is slotted). `secret` defaults to the switch (MysticPoolLogic.secret).
 function MysticPoolLogic.oddsLines(secret: boolean?): { string }
 	local on = if secret == nil then MysticPoolLogic.secret() else secret
-	local line: string = Traits.oddsText(on)
+	local line: string = Traits.oddsText(on, traitLuck)
+		.. DragonKeep.cardLuckNote("trait", traitLuck)
 	local cut = string.find(line, ". ", 1, true)
 	if cut == nil then
 		return { line, "" }
@@ -88,6 +99,8 @@ type View = {
 	nextAt: number?,
 	pending: { uid: string?, id: string? }?,
 	bundles: boolean?, -- #3864: the server's word that the token bundles may be offered
+	party: number?, -- #4197: free Trait Party rolls left while one runs
+	autoRoll: { id: string?, n: number? }?, -- #4712: the last Auto Roll step's trait and count
 }
 
 local function whole(value: any): number
@@ -133,6 +146,8 @@ function MysticPoolLogic.card(trait: any): Card
 	}
 end
 
+MysticPoolLogic.PARTY_TEXT = "Free party roll"
+
 -- The Roll button for the picked cat. `fish` is the player's golden fish.
 function MysticPoolLogic.roll(view: View?, hasTrait: boolean, fish: number): Roll
 	if view == nil then
@@ -143,6 +158,10 @@ function MysticPoolLogic.roll(view: View?, hasTrait: boolean, fish: number): Rol
 	local text = Traits.rollText(Traits.FREE_ROLLS - freeLeft, tokens, hasTrait)
 	if view.pending ~= nil then
 		return { text = text, enabled = false, why = "Pick Keep old or Take new first" }
+	end
+	-- #4197: a Trait Party roll costs nothing (the server counts them, ADMIN.traitPartyRolls an event)
+	if whole(view.party) > 0 then
+		return { text = MysticPoolLogic.PARTY_TEXT, enabled = true }
 	end
 	if Traits.payment(Traits.FREE_ROLLS - freeLeft, tokens, whole(fish)) == nil then
 		return {
@@ -256,7 +275,7 @@ end
 function MysticPoolLogic.odds(secret: boolean?): { OddsRow }
 	local on = if secret == nil then MysticPoolLogic.secret() else secret
 	local rows: { OddsRow } = {}
-	for _, rarity in Traits.rarities(on) do
+	for _, rarity in Traits.rarities(on, traitLuck) do
 		table.insert(rows, {
 			name = rarity.name,
 			color = rarity.color,
@@ -326,14 +345,18 @@ function MysticPoolLogic.stamp(view: View?, fish: number, trait: any): string
 	local waitingKey: string = if type(waiting) == "table"
 		then tostring(waiting.uid) .. "=" .. tostring(waiting.id)
 		else ""
+	-- #4712: the party count and the Auto Roll count too, so a dropped party roll (nothing else moves) still answers
+	local auto = view.autoRoll
 	return string.format(
-		"%d:%d:%d:%d:%s:%s",
+		"%d:%d:%d:%d:%s:%s:%d:%d",
 		whole(view.tokens),
 		whole(view.freeLeft),
 		whole(view.held),
 		whole(fish),
 		waitingKey,
-		traitId(trait)
+		traitId(trait),
+		whole(view.party),
+		if type(auto) == "table" then whole(auto.n) else 0
 	)
 end
 
@@ -347,6 +370,115 @@ function MysticPoolLogic.rolled(view: View?, uid: string, hadTrait: boolean, tra
 		return id
 	end
 	return nil
+end
+
+-- #4712 (Derek 2026-11-16: "make an auto roll option for traits where you can select what rarity to stop at"): Auto
+-- Roll sends one roll at a time with the picked rarity; the server drops a re-roll below it and holds one at it or
+-- better for Keep old or Take new. It pays with party, free and token rolls only, never golden fish, and stops on a
+-- hit, when nothing is left to pay with, or on Stop. The words stay plain (no "so close"), for a young audience.
+MysticPoolLogic.AUTO = "Auto"
+MysticPoolLogic.AUTO_TITLE = "Auto Roll"
+MysticPoolLogic.AUTO_ASK = "Keep rolling until a trait is this rarity or better:"
+MysticPoolLogic.AUTO_DEFAULT = "epic"
+-- Review-QA on #4714 (monetization-policy, young audience): a run rolls at most this many times, picked on the
+-- sheet, so one tap never spends every bought token
+MysticPoolLogic.AUTO_LIMITS = { 5, 10, 25 }
+MysticPoolLogic.AUTO_LIMIT = 10
+MysticPoolLogic.SECRET_NOTE = "A Mythic roll is skipped too."
+
+-- The run's roll limit: the pick, never more than the rolls the player can pay for (0 for none).
+function MysticPoolLogic.autoMost(view: View?, pick: number): number
+	return math.min(whole(pick), MysticPoolLogic.autoRolls(view))
+end
+
+-- "Start (up to 10 Trait Tokens)", "Start (up to 3 rolls)" with free or party rolls among them
+function MysticPoolLogic.autoStart(view: View?, most: number): string
+	local tokens = if view ~= nil then whole(view.tokens) else 0
+	if most <= 0 then
+		return "Start"
+	end
+	if
+		most <= tokens
+		and whole(if view ~= nil then view.party else 0) == 0
+		and whole(if view ~= nil then view.freeLeft else 0) == 0
+	then
+		return "Start (up to " .. plural(most, "Trait Token", "Trait Tokens") .. ")"
+	end
+	return "Start (up to " .. plural(most, "roll", "rolls") .. ")"
+end
+
+export type AutoTarget = { id: string, name: string, color: string, rank: number }
+
+function MysticPoolLogic.autoTargets(secret: boolean?): { AutoTarget }
+	local out: { AutoTarget } = {}
+	for _, rarity in Traits.rarities(secret == true) do
+		if rarity.rank >= 2 then
+			table.insert(
+				out,
+				{ id = rarity.id, name = rarity.name, color = rarity.color, rank = rarity.rank }
+			)
+		end
+	end
+	return out
+end
+
+function MysticPoolLogic.autoRolls(view: View?): number
+	if view == nil or view.pending ~= nil then
+		return 0
+	end
+	return whole(view.party)
+		+ math.min(whole(view.freeLeft), Traits.FREE_ROLLS)
+		+ whole(view.tokens)
+end
+
+function MysticPoolLogic.autoHit(id: string?, target: string): boolean
+	local want = 0
+	for _, rarity in Traits.RARITIES do
+		if rarity.id == target then
+			want = rarity.rank
+		end
+	end
+	return id ~= nil and want > 0 and Traits.rank({ id = id }) >= want
+end
+
+export type AutoRun = {
+	rolls: number, -- answered so far
+	most: number?, -- the run's roll limit
+	spent: number, -- Trait Tokens used so far
+	last: string?, -- the last roll's trait id
+	running: boolean,
+	ended: string?, -- why it stopped: "hit", "out", "stop", "limit"
+}
+
+function MysticPoolLogic.autoLine(run: AutoRun?, view: View?): string
+	if run == nil or (run.rolls == 0 and not run.running) then
+		local tokens = if view ~= nil then whole(view.tokens) else 0
+		local free = whole(if view ~= nil then view.party else 0)
+			+ math.min(whole(if view ~= nil then view.freeLeft else 0), Traits.FREE_ROLLS)
+		local have = plural(tokens, "Trait Token", "Trait Tokens")
+		if free > 0 then
+			have = plural(free, "free roll", "free rolls") .. " and " .. have
+		end
+		return "Each roll uses 1 Trait Token. You have " .. have .. ". Golden fish are never used."
+	end
+	local last = ""
+	if run.last ~= nil then
+		local def: any = Traits.get(run.last)
+		if def ~= nil then
+			last = " · last: " .. def.rarity.name
+		end
+	end
+	local used = plural(run.spent, "Trait Token", "Trait Tokens") .. " used"
+	local rolls = plural(run.rolls, "roll", "rolls")
+	if run.running then
+		if run.most ~= nil then
+			rolls = string.format("%d of %s", run.rolls, plural(run.most, "roll", "rolls"))
+		end
+		return rolls .. " · " .. used .. last
+	elseif run.ended == "out" then
+		return "Out of Trait Tokens after " .. rolls .. " · " .. used
+	end
+	return "Stopped after " .. rolls .. " · " .. used .. last
 end
 
 function MysticPoolLogic.rarityId(id: string): string
@@ -380,7 +512,9 @@ function MysticPoolLogic.oddsLine(secret: boolean?): string
 	for _, row in MysticPoolLogic.odds(secret) do
 		table.insert(parts, row.name .. " " .. row.label)
 	end
-	return "Roll odds: " .. table.concat(parts, " · ")
+	return "Roll odds: "
+		.. table.concat(parts, " · ")
+		.. DragonKeep.cardLuckNote("trait", traitLuck)
 end
 
 -- #3948: `tokens` and `price` ("R$99") for the bundle's picture card, `rolls` its plain fact ("50 rolls")

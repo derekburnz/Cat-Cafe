@@ -58,6 +58,7 @@ local GiftLogic = require(script.Parent.Parent.Components.GiftLogic)
 local GoalCard = require(script.Parent.GoalCard)
 local GoalFold = require(script.Parent.Parent.Components.GoalFold)
 local GoalLines = require(script.Parent.Parent.Components.GoalLines) -- #4098
+local HarvestLogic = require(script.Parent.Parent.Components.HarvestLogic) -- #4251: the Harvest travel button
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexHints = require(script.Parent.Parent.Components.IndexHints)
@@ -65,6 +66,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Invite = require(script.Parent.Parent.Components.Invite)
 local LuckChip = require(script.Parent.LuckChip)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
+local MailLogic = require(script.Parent.Parent.Components.MailLogic)
 local MoneyFlash = require(script.Parent.Parent.Components.MoneyFlash)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
@@ -76,11 +78,7 @@ local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local PromptKey = require(script.Parent.Parent.Components.PromptKey)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
-local RareBubbleLogic = require(script.Parent.Parent.Components.RareBubbleLogic)
-local RareBubbles = require(script.Parent.Parent.Components.RareBubbles)
 local RestChip = require(script.Parent.Parent.Components.RestChip)
-local Roadmap = require(script.Parent.Roadmap)
-local RoadmapLogic = require(script.Parent.Parent.Components.RoadmapLogic)
 local Scale = require(script.Parent.Parent.Scale)
 local SecondCatGoal = require(script.Parent.Parent.Components.SecondCatGoal)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
@@ -112,7 +110,10 @@ export type Callbacks = {
 	replayIntro: () -> (), -- the Tutorial tile (F72)
 	hideTutorialButton: () -> (), -- the Tutorial tile's red ×
 	openFeedback: () -> (), -- the Feedback tile: the Feedback window on its Idea chip
-	setSetting: ((key: string, value: boolean) -> ())?, -- #1893: the Grand Opening strip saves roadmapOpen
+	-- #4249: the Mailbox tile, in the Feedback tile's place while the `mailbox` switch is on (Feedback moves into the
+	-- Menu list); nil keeps the Feedback tile
+	openMailbox: (() -> ())?,
+	setSetting: ((key: string, value: boolean) -> ())?,
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
 	takeCozy: (() -> ())?, -- #2854: the Rewards list's "Cozy gift waiting!" row takes the bag
@@ -122,6 +123,7 @@ export type HUD = {
 	screenGui: ScreenGui,
 	setCatalog: (self: HUD, catalog: Types.Catalog) -> (),
 	render: (self: HUD, state: Types.PlayerState) -> (),
+	bindAfk: (self: HUD, afk: any) -> (), -- #4346: UI.afk for the AFK tile
 	goalSeen: (self: HUD) -> (), -- #2331: the rank up card opened, so the goal card's ready pulse and arrow stop
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
@@ -157,7 +159,6 @@ export type HUD = {
 	toastAvoid: (self: HUD) -> { Types.Box }, -- #2338: what the toasts keep clear of
 	edgeAvoid: (self: HUD) -> { Types.Box }, -- #4152: what the tutorial's edge arrow keeps clear of, in screen px
 	setCatching: (self: HUD, active: boolean) -> (),
-	roadmapStep: (self: HUD, n: number) -> (),
 	setCatchStreak: (self: HUD, streak: number) -> (),
 	-- F101: fires (active) when a catch or rescue starts or ends, so the Rally banner gets out of its way
 	catchingChanged: Signal.Signal,
@@ -192,8 +193,12 @@ export type HUD = {
 	destroy: (self: HUD) -> (),
 }
 
+local AFK_ICON = "💤" -- #4346: the AFK tile's glyph (a sleeping cat's Zs)
+local AFK_ON = "AFK ON" -- the tile's words while the mode is on
+
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local LiveFlags = require(Shared:WaitForChild("LiveFlags")) -- #4249: the `mailbox` switch
 local NewKind = require(Shared:WaitForChild("NewKind")) -- #3529: the goal card's "Catch new kinds of cat"
 local Pals = require(Shared:WaitForChild("Pals")) :: any -- #3954: the Menu's Invite row names the pal tip bonus
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel")) -- #1888: where a Store open came from
@@ -230,11 +235,7 @@ local CASH_TEXT = 22
 local CASH_PRICE_H = 14
 local CASH_PULSE = 1.08 -- the badge's scale at the top of each pulse
 local CASH_PULSE_SECONDS = 0.7 -- one way
--- Derek 2026-11-14 ("how the 2x money badge looks across devices"): a green button in the HUD's button family with the
--- price on it, which pulses CASH_PULSES times the first time it shows in a session and then holds still
-local CASH_PULSES = 3
-local CASH_PAD = 8 -- the button's side padding
-local CASH_CHIP_PAD = 6 -- the price chip's side padding
+local CASH_PAD = 8 -- the pill's side padding
 local COUNTER_GAP = 14
 -- the row's widest usual reach (the money at MONEY_W and "12.3K" golden fish): the bottom row moves right of it
 local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
@@ -658,6 +659,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		}),
 	})
 	self._counters = counters
+	-- #4529: bigger on a tablet only (Scale.counterBoost), kept up to date as the screen turns or resizes
+	self._counterBoost = Create("UIScale", {
+		Name = "TabletBoost",
+		Scale = Scale.counterBoost(),
+		Parent = counters,
+	}) :: UIScale
 	-- #2393 (Derek2 11-08: "the 2x money pop up, money amount/breakdown menu, golden fish, and lucky and the breakdown
 	-- menu are all kind of where you want your left thumb to move around maybe make it on the top middle of the screen
 	-- ... and put the 2x money advertising on the right side above potions"): on touch the counters sit at the top
@@ -769,13 +776,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- #2334 (Derek2: "the gold fish and money should be side by side in bottom left and the 2x cash ... should be to
 	-- the right of both of those"): the row is the money, the golden fish, then the money badge.
 	-- #1606: the money pass badge right of the two counters (setMoneyBadge): "2x" to "4x" in gold once a money pass is owned
-	-- (a tap opens the boosts card, as the money does), or a green button for the next rung up with its price on it
-	-- ("2x Money", then "3x Money", then "4x Money", Derek 2026-11-14; was a rainbow "X2 Cash" pill with "Only R$5"
-	-- under it, #1759). Hidden until the Store knows, and once 4x is owned.
+	-- (a tap opens the boosts card, as the money does), or for the next rung up a rainbow "X2 Cash" pill (then X3, X4)
+	-- with "Only R$..." under it, pulsing (#1759; the green button of 2026-11-14 went back, #4617). Hidden until the
+	-- Store knows, and once 4x is owned.
 	-- the tap area is the counters' height and at least as wide (a finger's 44 px on a phone); the pill sits inside it
-	-- Derek 2026-11-14: for sale, the button is a green face (Theme.button.primary top to bottom, the Face gradient on a
-	-- white background, as Components/Button does, since a UIGradient multiplies the colour under it) with the words and
-	-- the price chip side by side on it; owned or quiet, it is bare words as before
 	local badge: TextButton = Create("TextButton", {
 		Name = "MoneyBadge",
 		AutoButtonColor = false,
@@ -790,27 +794,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = if TOUCH then root else counters,
 	}, {
 		Create("UISizeConstraint", { MinSize = Vector2.new(counterH, 0) }),
+		-- #4617 (Derek 2026-11-15: "swap back to the old 2x money button style as it got wayyyy more purchases"): the
+		-- rainbow "X2 Cash" pill with "Only R$..." under it, pulsing all the time (#1759), as before #4173
 		Create("UIListLayout", {
-			FillDirection = Enum.FillDirection.Horizontal,
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 			SortOrder = Enum.SortOrder.LayoutOrder,
-			Padding = UDim.new(0, 4),
-		}),
-		Create("UICorner", { CornerRadius = UDim.new(0, 12) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }),
-		Create("UIGradient", {
-			Name = "Face",
-			Rotation = 90,
-			Color = ColorSequence.new(Theme.button.primary.top, Theme.button.primary.bottom),
-			Enabled = false,
-		}),
-		Create("UIStroke", {
-			Name = "Edge",
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Color = Theme.colors.outline,
-			Thickness = 2.5,
-			Enabled = false,
 		}),
 	})
 	self._moneyPulse = Create("UIScale", { Parent = badge }) :: UIScale
@@ -832,30 +821,27 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			"UIPadding",
 			{ PaddingLeft = UDim.new(0, CASH_PAD), PaddingRight = UDim.new(0, CASH_PAD) }
 		),
+		-- #1759: the rainbow under the "X2 Cash" words while a money pass is for sale
+		Create("UIGradient", { Name = "Rainbow", Color = Theme.rainbow, Enabled = false }),
 	})
 	Outline.text(pill, 2.5)
 	self._moneyPill = pill
-	-- the price chip on the button, right of the words (Derek 2026-11-14: the price on the button, no "Only")
+	-- #1759: "Only R$..." under the pill ("Only" in green, the price in white, as Derek2's reference)
 	local price: TextLabel = Create("TextLabel", {
 		Name = "Price",
-		BackgroundColor3 = Theme.colors.ink,
-		BackgroundTransparency = 0,
-		Size = UDim2.fromOffset(0, CASH_H - 6),
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(0, CASH_PRICE_H),
 		AutomaticSize = Enum.AutomaticSize.X,
 		FontFace = Theme.fonts.display,
-		TextSize = CASH_PRICE_H + 4,
+		TextSize = CASH_PRICE_H,
 		TextColor3 = Theme.colors.white,
+		RichText = true,
 		Text = "",
 		LayoutOrder = 2,
 		Visible = false,
 		Parent = badge,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, 8) }),
-		Create(
-			"UIPadding",
-			{ PaddingLeft = UDim.new(0, CASH_CHIP_PAD), PaddingRight = UDim.new(0, CASH_CHIP_PAD) }
-		),
 	})
+	Outline.text(price, 2)
 	self._moneyPrice = price
 	self._moneyBadge = badge
 	self._moneyBadgeOwned = false
@@ -1107,6 +1093,80 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 	})
 	table.insert(self._buttons, self._feedbackTile)
+	-- #4249 (Derek 2026-11-14, mockup OK'd 18:04 UTC): while the `mailbox` switch is on the Mailbox tile takes the
+	-- Feedback tile's place, with a red count of the letters waiting, and Feedback moves into the Menu list
+	-- (_mailOn). The switch is followed live, so turning it on reaches players already in.
+	local openMailbox = callbacks.openMailbox
+	self._mailTile = nil :: Button.Button?
+	self._mailWaiting = 0
+	if openMailbox ~= nil then
+		local mailTile = Button.new({
+			name = "Mailbox",
+			text = "Mailbox",
+			icon = "✉️",
+			layout = "clean",
+			textSize = ICON_TEXT,
+			style = "berry",
+			size = UDim2.fromOffset(ICON, ICON_H),
+			layoutOrder = 4,
+			parent = icons,
+			sound = false, -- the modal swish is the sound
+			onClick = function()
+				openMailbox()
+			end,
+		})
+		mailTile.instance.Visible = false
+		table.insert(self._buttons, mailTile)
+		self._mailTile = mailTile
+		local mailDot: Frame = Create("Frame", {
+			Name = "Dot",
+			BackgroundColor3 = Theme.colors.red,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(1, 0.5),
+			Position = UDim2.new(1, 2, 0, 4),
+			Size = UDim2.fromOffset(24, 24),
+			Visible = false,
+			ZIndex = 6,
+			Parent = mailTile.instance,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+		Outline.border(mailDot, 2)
+		self._mailDot = mailDot
+		self._mailCount = label({
+			Name = "Count",
+			Size = UDim2.fromScale(1, 1),
+			TextSize = Theme.sizes.textSmall,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Text = "",
+			ZIndex = 7,
+			Parent = mailDot,
+		})
+	end
+	-- #4346 (Derek 2026-11-14: "add an afk button on the top right maybe on top of where the feedback button was
+	-- before"): the AFK tile, left of the Feedback place, while UI.afk says it shows (the afkButton
+	-- switch; HUD.bindAfk). A tap asks the server for AFK mode on or off: home, 2x rest at once, and the rejoin
+	-- before Roblox's idle kick keeps it. Purple with "AFK" while off, gold with "AFK ON" while on. With it
+	-- showing, Feedback moves into the Menu list (_feedbackInMenu), so the row keeps its width.
+	self._afk = nil :: any -- UI.afk (Controllers/AfkController), once bound
+	self._afkTile = Button.new({
+		name = "AFK",
+		text = "AFK",
+		icon = AFK_ICON,
+		layout = "clean",
+		textSize = ICON_TEXT,
+		style = "purple",
+		size = UDim2.fromOffset(ICON, ICON_H),
+		layoutOrder = 3,
+		parent = icons,
+		sound = "uiToggle",
+		onClick = function()
+			local afk = self._afk
+			if afk ~= nil then
+				afk.toggle()
+			end
+		end,
+	})
+	self._afkTile.instance.Visible = false
+	table.insert(self._buttons, self._afkTile)
 	-- Menu (Derek 2026-11-02, fewer buttons): Settings and Invite behind one gear. Once Invite is unlocked a press
 	-- opens the short list; before that it opens Settings.
 	self._menuTile = Button.new({
@@ -1558,16 +1618,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._secondPreviewed = true -- #3155: the preview lines no longer show
 	self._secondRun = 0
 	self._gone = false
-	-- #1893 (first-hour.md 1b): the Grand Opening strip just under the goal card; a tap opens or closes its steps,
-	-- saved as the roadmapOpen setting
-	self._roadmap = Roadmap.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function(open: boolean)
-		self._roadmapOpen = open
-		local save = callbacks.setSetting
-		if save then
-			save("roadmapOpen", open)
-		end
-		self:_layoutRight()
-	end)
+	-- #4162: the Grand Opening strip under the goal card (#1893) is retired; its steps, prizes and toasts stay
 	-- #2358 (Derek2: "show an exclamation mark near spin when you have one"): the red "!" at the line's left, the
 	-- words right-aligned after it
 	local spinLine: Frame = Create("Frame", {
@@ -1624,6 +1675,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 	self._scaleConnection = Scale.changed:Connect(function()
+		self._counterBoost.Scale = Scale.counterBoost() -- #4529
 		self:_liftRight()
 	end)
 	self:_liftRight()
@@ -2103,6 +2155,15 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			image = ShopIcons.hud("Cannon"),
 			style = "close",
 		},
+		-- #4251 (harvest-hollow-spec section 1): Harvest Hollow, while it is open and from Tier 2 (_paintHarvest)
+		{
+			key = "harvest",
+			name = "Harvest",
+			label = "Harvest",
+			icon = HarvestLogic.PUMPKIN,
+			image = ShopIcons.hud("Harvest"), -- #4460: the pumpkin picture; the 🎃 shows if it fails to load
+			style = "gold",
+		},
 	}
 	for index, item in travelItems do
 		local home = item.key == "home"
@@ -2134,16 +2195,15 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		table.insert(self._buttons, button)
 	end
 	self._travelButtons.cannon.instance.Visible = false
-	-- #4227: the wild Mythical and Secret cats out now in the areas this player has open, on the Cannon button
-	self._rareBubbles =
-		RareBubbles.new(self._travelButtons.cannon.instance, UDim2.new(1, 8, 0, -8), 12)
-	self._rareTier = 0
+	self._travelButtons.harvest.instance.Visible = false
+	self._harvestTier = 0
 	table.insert(
 		self._connections,
-		ReplicatedStorage:GetAttributeChangedSignal(RareBubbleLogic.ATTRIBUTE):Connect(function()
-			self:_paintRares()
+		ReplicatedStorage:GetAttributeChangedSignal(HarvestLogic.FLAG_ATTRIBUTE):Connect(function()
+			self:_paintHarvest()
 		end)
 	)
+	-- #4450 (Derek 2026-11-15): the Cannon button carries no Mythical or Secret count; only the picker's cards do (#4227)
 	-- the arrow tab right of the row folds it below the screen edge and back; it stays where it is
 	self._travelFolded = false
 	local travelFold = Button.new({
@@ -2408,6 +2468,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 	self:_paintKeys()
+	-- #4249: the `mailbox` switch flipped while playing: the tiles and the Menu list follow
+	if self._mailTile ~= nil then
+		table.insert(
+			self._connections,
+			ReplicatedStorage
+				:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. MailLogic.FLAG)
+				:Connect(function()
+					self:_applyUnlocks()
+				end)
+		)
+	end
 	return self :: HUD
 end
 
@@ -2524,7 +2595,13 @@ function HUD.pressTravel(self: any, destination: string): boolean
 		return false
 	end
 	-- the Cannon button works at night too: the picker shows the sunrise countdown (F84)
-	if destination ~= "home" and destination ~= "cannon" and not self._areasOpen then
+	-- and so does Harvest (#4251): the server keeps Harvest Hollow open all night
+	if
+		destination ~= "home"
+		and destination ~= "cannon"
+		and destination ~= "harvest"
+		and not self._areasOpen
+	then
 		self:travelResult(destination, false) -- shut for the night (F66): wobble, as the server would refuse it
 		return false
 	end
@@ -2555,6 +2632,36 @@ function HUD.setCannonMode(self: any, on: boolean)
 	self._carrySub.Text = if on then CannonLogic.CARRY_SUB else CARRY_SUB
 	self._homeCarrying = nil -- the next render writes Home's text for the new mode
 	self:_renderTravel()
+end
+
+-- #4251: the Harvest button shows while Harvest Hollow is open, from Tier 2, with its switch on, and comes and goes
+-- by itself at the opening and closing times (one timer to the next change).
+function HUD._paintHarvest(self: any)
+	if self._gone then
+		return
+	end
+	local now = Workspace:GetServerTimeNow()
+	local shown = HarvestLogic.hudShown(
+		now,
+		self._harvestTier,
+		ReplicatedStorage:GetAttribute(HarvestLogic.FLAG_ATTRIBUTE)
+	)
+	local button: Button.Button = self._travelButtons.harvest
+	if button.instance.Visible ~= shown then
+		button.instance.Visible = shown
+		if shown then
+			Tween.popIn(button.instance, 0.85)
+		end
+		self:_sizeTravelRow()
+		self:_layoutMenu()
+	end
+	local nextAt = HarvestLogic.nextChange(now)
+	if nextAt ~= nil and self._harvestTimer == nil then
+		self._harvestTimer = task.delay(math.max(1, nextAt - now + 1), function()
+			self._harvestTimer = nil
+			self:_paintHarvest()
+		end)
+	end
 end
 
 -- The server's answer (TravelResult). A refusal lifts the cooldown at once and wobbles the button that
@@ -2697,11 +2804,6 @@ function HUD._applyFocus(self: any)
 	if state then
 		self:render(state)
 	end
-end
-
--- #1893: RoadmapStep(n) from the server: the strip's dot pops gold (the toast is the UI's)
-function HUD.roadmapStep(self: any, n: number)
-	self._roadmap:pop(n)
 end
 
 -- #2464 (Derek2 11-08: "remove the purrrfect text from top as that squishes the buttons especially mobile"): the
@@ -2966,32 +3068,37 @@ function HUD.setCatalog(self: any, catalog: Types.Catalog)
 	self._luck:setCatalog(catalog)
 end
 
--- #4227: the Cannon button's bubbles, every area the player's tier has open added up.
-function HUD._paintRares(self: any)
-	local catalog: Types.Catalog? = self._catalog
-	local open: { [string]: boolean } = {}
-	if catalog ~= nil then
-		for _, area in (catalog.areas or {}) :: { Types.AreaDef } do
-			if area.tier <= self._rareTier then
-				open[area.id] = true
-			end
-		end
-	end
-	local rares = RareBubbleLogic.decode(ReplicatedStorage:GetAttribute(RareBubbleLogic.ATTRIBUTE))
-	self._rareBubbles:set(RareBubbleLogic.totals(rares, open))
-end
-
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
-	if (state.tier or 1) ~= self._rareTier then
-		self._rareTier = state.tier or 1
-		self:_paintRares()
+	-- #4249: the Mailbox tile's red count, the letters still to claim
+	if self._mailTile ~= nil then
+		local waiting = MailLogic.waiting(state.mail, os.time())
+		self._mailWaiting = waiting
+		self._mailDot.Visible = waiting > 0
+		self._mailCount.Text = if waiting > 9 then "9+" else tostring(waiting)
+	end
+	if (state.tier or 1) ~= self._harvestTier then
+		self._harvestTier = state.tier or 1
+		self:_paintHarvest()
 	end
 	-- #2211: the tutorial's last step done just now (not a player who finished it before this join): the × pulses
 	local step = state.tutorialStep or TUTORIAL_DONE
 	local before: number? = self._stepBefore
 	self._stepBefore = step
-	if before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE then
+	-- #4674 (Sync's Studio walk 2026-11-16: a lone "Hide tips with ×" after the bowl cat): bowl first, the walk-through
+	-- goes on at Tier 1 with a quiet strip, so the pulse waits for the rank up to Tier 2 (the Park)
+	local bowlWalk = (require(
+		ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")
+	) :: any).bowlFirst() and (state.tier or 1) < 2
+	local justDone = before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE
+	if justDone and bowlWalk then
+		self._hideAfterRank = true
+		justDone = false
+	elseif self._hideAfterRank == true and not bowlWalk then
+		self._hideAfterRank = false
+		justDone = step >= TUTORIAL_DONE
+	end
+	if justDone then
 		-- #3154: HIDE_AFTER later, so the tamed bowl cat's card and the move to the cannon (4 s after the step, #3175)
 		-- go first; pulseHide then waits for the HUD to be back on screen
 		task.delay(HIDE_AFTER, function()
@@ -3117,6 +3224,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- #3022: from the first customer served until the second cat, the card's goal is "Catch a 2nd cat"
 	-- (Components/SecondCatGoal); its preview lines show once, for PREVIEW_SECONDS
 	local nextTier = if tierProgress then tierProgress.nextTier else nil
+	self._tierProgress = tierProgress -- #4625: the new kinds goal's coins line
 	self._nextTierName = if nextTier then nextTier.name else nil -- #4098: the new kinds goal names what it opens
 	local second =
 		SecondCatGoal.view(state, TOUCH, if nextTier then nextTier.name else nil, self._areasOpen)
@@ -3142,29 +3250,6 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self._chimedTier = tierProgress.tier
 		Sound.play("uiRankReady")
 	end
-	-- #1893: the Grand Opening strip (Components/RoadmapLogic), open as the roadmapOpen setting says
-	local settings: any = state.settings
-	if
-		self._roadmapOpen == nil
-		and type(settings) == "table"
-		and type(settings.roadmapOpen) == "boolean"
-	then
-		self._roadmapOpen = settings.roadmapOpen
-	end
-	-- #4384: the strip waits for the tutorial's end while the checkInCalm switch is on
-	local LiveFlags =
-		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-	local calm = RoadmapLogic.calm(
-		LiveFlags.shown(
-			RoadmapLogic.CALM_FLAG,
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RoadmapLogic.CALM_FLAG)
-		),
-		state.tutorialStep
-	)
-	self._roadmap:render(
-		if calm then nil else RoadmapLogic.view(state :: any),
-		self._roadmapOpen == true
-	)
 	self:_renderQuests(state, catalog)
 	self:_renderFreeSpin()
 	self:_layoutRight()
@@ -3224,7 +3309,14 @@ function HUD._applyUnlocks(self: any)
 	end
 	self._questsPill.instance.Visible = self._questsLive == true and self:_open("quests")
 	self:_renderRewards()
-	self._feedbackTile.instance.Visible = self:_open("feedback")
+	local mailTile: Button.Button? = self._mailTile
+	local mailOn = self:_mailOn()
+	self._feedbackTile.instance.Visible = self:_open("feedback") and not self:_feedbackInMenu()
+	if mailTile ~= nil then
+		mailTile.instance.Visible = mailOn and self:_open("feedback") -- #4249: the Mailbox opens when Feedback would
+	end
+	-- #4346: the AFK tile opens when Feedback would, while its switches are on
+	self._afkTile.instance.Visible = self:_afkOn() and self:_open("feedback")
 	-- #2710 (Derek2: "maybe just move potions to bag for mobile and remove that button entirely"): on touch the Bag
 	-- pill holds the potions (its Potions tab), and the one potion chip takes the tile's place while any run
 	self._potionsTile.instance.Visible = self:_open("potions") and not TOUCH
@@ -3262,7 +3354,10 @@ function HUD._unlockTarget(self: any, key: HudUnlocks.Key): (GuiObject?, boolean
 			if key == "quests"
 				then self._questsPill
 				elseif key == "gifts" or key == "daily" then self._rewards
-				elseif key == "feedback" then self._feedbackTile
+				elseif key == "feedback" then (if self:_mailOn()
+					then self._mailTile
+					elseif self:_afkOn() then self._afkTile
+					else self._menuTile) -- #4698: Feedback lives in the Menu list
 				elseif key == "invite" then self._menuTile
 				elseif key == "potions" then (if TOUCH
 					then self._pills.Bag
@@ -3982,26 +4077,7 @@ function HUD._layoutRight(self: any)
 	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)
 	local goal = self._goal.frame
 	local lineTop = if goal.Visible then top + goal.Size.Y.Offset + Theme.sizes.gap else top
-	-- #1893: the Grand Opening strip under the goal card, the free spin line under it
-	local roadmap: TextButton = self._roadmap.frame
-	local stripTop = lineTop - lift
-	if roadmap.Visible and self._roadmapOpen == true then
-		-- open on a short screen (a phone turned sideways): the list rises over the goal card so all eight steps fit
-		local parent = roadmap.Parent
-		local screenH = if parent and parent:IsA("GuiObject")
-			then parent.AbsoluteSize.Y / math.max(Scale.get(), 0.01)
-			else math.huge
-		local room = screenH - MARGIN - roadmap.Size.Y.Offset
-		stripTop = math.max(MARGIN, math.min(stripTop, room))
-	end
-	roadmap.Position = UDim2.new(1, -MARGIN, 0, stripTop)
-	if roadmap.Visible then
-		lineTop += self._roadmap:closedHeight() + Theme.sizes.gap
-		if self._roadmapOpen == true then
-			-- #3990: the open steps list ran down over the spin and gift lines (a PC); they move under it
-			lineTop = math.max(lineTop, stripTop + lift + roadmap.Size.Y.Offset + Theme.sizes.gap)
-		end
-	end
+	-- the free spin line under the goal card (the Grand Opening strip between them is retired, #4162)
 	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
 	local giftTop = if self._spinLine.Visible then lineTop + SPIN_LINE_H + 2 else lineTop
 	self._giftLine.Position = UDim2.new(1, -MARGIN, 0, giftTop - lift)
@@ -4707,8 +4783,56 @@ end
 -- The Menu tile's press: the list (Settings, Invite) once Invite is unlocked, else Settings at once. Derek
 -- 2026-11-13 ("remove the old cat arcade icon from settings"): the list has no Cat Arcade row (#3062's); the arcade
 -- opens at its cabinet.
+-- #4249: true while the Mailbox tile stands in the Feedback tile's place (the `mailbox` switch, live)
+function HUD._mailOn(self: any): boolean
+	return self._mailTile ~= nil
+		and LiveFlags.shown(
+			MailLogic.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. MailLogic.FLAG)
+		)
+end
+
+-- #4346: true while the AFK tile shows (UI.afk bound and its switches on)
+function HUD._afkOn(self: any): boolean
+	local afk = self._afk
+	return afk ~= nil and afk.shown() == true
+end
+
+-- #4249, #4346: Feedback sat in the Menu list while the Mailbox or the AFK tile showed. #4698 (Derek 2026-11-16:
+-- "move the feedback button into the settings menu drop down"): it's always in the list once Feedback is open, and
+-- the top row no longer has a Feedback tile.
+function HUD._feedbackInMenu(self: any): boolean
+	return self:_open("feedback") or self:_mailOn() or self:_afkOn()
+end
+
+-- #4346: UI.afk from Controllers/AfkController (shown, on, toggle, changed): the AFK tile shows and follows it.
+function HUD.bindAfk(self: any, afk: any)
+	if afk == nil or self._afk == afk then
+		return
+	end
+	self._afk = afk
+	afk.changed(function()
+		if self._gone then
+			return
+		end
+		self:_applyUnlocks()
+		self:_paintAfk()
+	end)
+	self:_applyUnlocks()
+	self:_paintAfk()
+end
+
+-- #4346: purple "AFK" while off, gold "AFK ON" while on (the tile's On attribute for the UI gate).
+function HUD._paintAfk(self: any)
+	local afk = self._afk
+	local on = afk ~= nil and afk.on() == true
+	self._afkTile:setStyle(if on then "gold" else "purple")
+	self._afkTile:setText(if on then AFK_ON else "AFK")
+	self._afkTile.instance:SetAttribute("On", on)
+end
+
 function HUD._pressMenu(self: any)
-	if self:_open("invite") then
+	if self:_open("invite") or self:_feedbackInMenu() then -- #4249, #4346: the list holds Feedback then
 		self:_togglePop("menu")
 	else
 		self._callbacks.openScreen("Settings")
@@ -4781,6 +4905,17 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 				style = "secondary" :: Button.Style,
 				press = function()
 					Invite.prompt() -- F92: with this player's name in the launch data
+				end,
+			})
+		end
+		-- #4249, #4346: Feedback's place while the Mailbox or the AFK tile shows
+		if self:_feedbackInMenu() then
+			table.insert(rows, {
+				id = "Feedback",
+				icon = Theme.icons.feedback,
+				style = "sky" :: Button.Style,
+				press = function()
+					callbacks.openFeedback()
 				end,
 			})
 		end
@@ -4866,11 +5001,13 @@ function HUD._togglePop(self: any, kind: string)
 	pop.Visible = true
 	Tween.popIn(pop, 0.9)
 	Sound.play("uiClick")
-	-- #4224 (console): on a gamepad the list takes the selection on its first row, and B closes it
+	-- #4224 (console): on a gamepad the list takes the selection, on Gifts or Daily treat when it has them (the
+	-- countdown rows above them only close it), else its first row, and B closes it
+	local main = self._popRows.Gifts or self._popRows.Daily
 	self._popNav = GamepadNav.card("hudPop", pop, function(): boolean?
 		self:_closePop()
 		return nil
-	end)
+	end, if main ~= nil then main.face else nil)
 end
 
 -- The open list's rows say what they say now (the gift countdown ticks while it is open).
@@ -5028,29 +5165,30 @@ function HUD.setMoneyBadge(
 	pill.Size = UDim2.fromOffset(0, if sell then CASH_H else MONEY_BADGE_H)
 	pill.TextSize = if sell then CASH_TEXT else MONEY_BADGE_TEXT
 	pill.TextColor3 = if sell then Theme.colors.white else Theme.colors.gold
-	pill.BackgroundTransparency = 1
-	-- Derek 2026-11-14: a green button while for sale (not in the quiet first 30 minutes), bare gold words once owned
+	-- #4617: a rainbow pill (white under the gradient) while for sale, as #1759; bare words in the quiet first 30 min
 	local button = sell and not badge.quiet
-	self._moneyBadge.BackgroundTransparency = if button then 0 else 1
-	local face = self._moneyBadge:FindFirstChild("Face") :: UIGradient?
-	if face then
-		face.Enabled = button
+	pill.BackgroundColor3 = Theme.colors.white
+	pill.BackgroundTransparency = if button then 0 else 1
+	local rainbow = pill:FindFirstChild("Rainbow") :: UIGradient?
+	if rainbow then
+		rainbow.Enabled = button
 	end
-	local edge = self._moneyBadge:FindFirstChild("Edge") :: UIStroke?
-	if edge then
-		edge.Enabled = button
+	-- the old words: "X2 Cash" (then X3, X4 for the next rung) over "Only R$..."
+	local rung = string.match(badge.text, "^(%d+)x Money$")
+	if button and rung then
+		pill.Text = "X" .. rung .. " Cash"
 	end
 	local price: TextLabel = self._moneyPrice
 	local line = if button then badge.price else nil
 	price.Visible = line ~= nil
 	if line ~= nil then
-		price.Text = line
+		price.Text = '<font color="#7CFC6A">Only</font> ' .. line
 	end
 	self:_pulseMoneyBadge(button)
 end
 
 -- #1759: the for-sale badge grows and shrinks a little; it holds still once owned or with Reduce Motion on.
--- Derek 2026-11-14: CASH_PULSES times the first time it shows in a session, then still.
+-- #4617: over and over while it is for sale, as before #4173.
 function HUD._pulseMoneyBadge(self: any, on: boolean)
 	local tween: Tween? = self._moneyPulseTween
 	if not on or GuiService.ReducedMotionEnabled then
@@ -5061,25 +5199,18 @@ function HUD._pulseMoneyBadge(self: any, on: boolean)
 		end
 		return
 	end
-	-- a pulse under way runs out; one already played this session is not played again
-	if tween ~= nil or self._moneyPulsed == true then
-		return
+	if tween ~= nil then
+		return -- already pulsing
 	end
+	-- #4617: back to the old pulse, over and over while it is for sale (#1759)
 	local info = TweenInfo.new(
 		CASH_PULSE_SECONDS,
 		Enum.EasingStyle.Sine,
 		Enum.EasingDirection.InOut,
-		CASH_PULSES - 1,
+		-1,
 		true
 	)
 	local made = TweenService:Create(self._moneyPulse, info, { Scale = CASH_PULSE })
-	self._moneyPulsed = true
-	made.Completed:Connect(function()
-		if self._moneyPulseTween == made then
-			self._moneyPulseTween = nil
-			self._moneyPulse.Scale = 1
-		end
-	end)
 	made:Play()
 	self._moneyPulseTween = made
 end
@@ -5697,7 +5828,14 @@ function HUD._secondGoal(self: any): GoalCard.Goal?
 			local title = NewKind.title(newKind, TOUCH)
 			-- #4098: Tier 2 reads as the goal from the second cat on, with the name of what it opens under the count
 			local opens = GoalLines.opens(self._nextTierName, TOUCH)
-			return { title = title, lines = if opens then { opens } else {}, chip = title }
+			local lines: { string } = if opens then { opens } else {}
+			-- #4625: and the coins half of that tier as a short meter line, until the coins are there
+			local progress: RankUp.Progress? = self._tierProgress
+			local coins = GoalLines.coins(if progress then progress.requirements else nil, TOUCH)
+			if coins then
+				table.insert(lines, coins)
+			end
+			return { title = title, lines = lines, chip = title }
 		end
 		return nil
 	end
@@ -5742,6 +5880,10 @@ end
 
 function HUD.destroy(self: any)
 	self._gone = true -- #3022: the second cat goal's timers stop here
+	if self._harvestTimer ~= nil then
+		task.cancel(self._harvestTimer) -- #4251
+		self._harvestTimer = nil
+	end
 	self:_stopClock()
 	local shine: Tween? = self._storeShine
 	if shine then

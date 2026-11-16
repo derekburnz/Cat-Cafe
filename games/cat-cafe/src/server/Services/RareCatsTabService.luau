@@ -12,7 +12,6 @@
 local Players = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
 
-local LiveFlagService = require(script.Parent.LiveFlagService)
 local RareCatsTab = require(game:GetService("ReplicatedStorage").Shared.RareCatsTab)
 
 local RareCatsTabService = {}
@@ -71,15 +70,10 @@ local function addReaders(into: TextChannel)
 end
 
 local function step()
-	if LiveFlagService.on(RareCatsTab.FLAG) then
-		local current = ensure()
-		if current ~= nil then
-			addReaders(current)
-		end
-	elseif channel ~= nil then
-		channel:Destroy()
-		channel = nil
-		table.clear(reading)
+	-- #4654 batch 4: the `rareCatsTab` switch is retired (on live since launch), so the tab is always made
+	local current = ensure()
+	if current ~= nil then
+		addReaders(current)
 	end
 end
 

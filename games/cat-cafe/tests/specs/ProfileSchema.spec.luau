@@ -109,7 +109,7 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 49 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 51 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
 			expect(ProfileSchema.VERSION).to.equal(51) -- #4251: Harvest Hollow's pumpkins (#4136 fusion takes 50)
 			expect(profile.version).to.equal(51)
@@ -181,6 +181,7 @@ return function()
 				tradeRequests = "everyone",
 				roadmapOpen = false,
 				sessionRecap = true,
+				perfAsked = false,
 				autoEquip = true, -- #1955: on for a new account
 				catIncome = true, -- #2551
 				goalFolded = false, -- #2714
@@ -190,6 +191,7 @@ return function()
 				autoBowlClaim = true,
 				autoBowlRefill = true,
 				bowlNewCatCard = true,
+				stationCircles = false, -- #4668
 			})
 		end)
 
@@ -253,6 +255,7 @@ return function()
 					firstHourStep = 10,
 					firstHourV3Step = 0,
 					cleanStep = 0,
+					cleanV8Step = 0,
 					playtimeStep = 0,
 				})
 				expect(ProfileSchema.template(86400 * 20394 + 5).telemetry.firstDay).to.equal(20394)
@@ -277,6 +280,7 @@ return function()
 					firstHourStep = 10,
 					firstHourV3Step = 12,
 					cleanStep = 27,
+					cleanV8Step = 43,
 					playtimeStep = 16,
 				})
 				raw.telemetry = { onboardingStep = 2, achieved = { ["5"] = true } }
@@ -289,6 +293,7 @@ return function()
 					firstHourStep = 10,
 					firstHourV3Step = 0,
 					cleanStep = 0,
+					cleanV8Step = 0,
 					playtimeStep = 0,
 				})
 				raw.telemetry = "junk"
@@ -301,6 +306,7 @@ return function()
 					firstHourStep = 10,
 					firstHourV3Step = 0,
 					cleanStep = 0,
+					cleanV8Step = 0,
 					playtimeStep = 0,
 				})
 			end
@@ -651,6 +657,7 @@ return function()
 					tradeRequests = "everyone",
 					roadmapOpen = false,
 					sessionRecap = true,
+					perfAsked = false,
 					autoEquip = false, -- #1955: a save from before Auto Equip
 					catIncome = true, -- #2551: on for a save from before it
 					goalFolded = false, -- #2714
@@ -660,6 +667,7 @@ return function()
 					autoBowlClaim = true,
 					autoBowlRefill = true,
 					bowlNewCatCard = true,
+					stationCircles = false, -- #4668
 				})
 				-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
 				expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })
@@ -2064,6 +2072,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
+						cleanV8Step = 43,
 						playtimeStep = 16,
 					})
 				end
@@ -2088,6 +2097,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
+						cleanV8Step = 43,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2105,6 +2115,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 0,
 						cleanStep = 0,
+						cleanV8Step = 0,
 						playtimeStep = 0,
 					})
 				end
@@ -2130,6 +2141,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
+						cleanV8Step = 43,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2148,6 +2160,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 0,
 						cleanStep = 0,
+						cleanV8Step = 0,
 						playtimeStep = 0,
 					})
 				end
@@ -2173,6 +2186,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
+						cleanV8Step = 43,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2191,6 +2205,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 0,
 						cleanStep = 0,
+						cleanV8Step = 0,
 						playtimeStep = 0,
 					})
 				end
@@ -2217,6 +2232,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 0,
+						cleanV8Step = 0,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2270,6 +2286,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
+						cleanV8Step = 43,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2289,6 +2306,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 0,
+						cleanV8Step = 0,
 						playtimeStep = 16,
 					})
 					raw.telemetry.firstHourStep = 0
@@ -2297,7 +2315,7 @@ return function()
 			)
 
 			it(
-				"starts the clean funnel and playtime_v1 (#3695) only for a save new to them, and keeps their own fields after",
+				"starts the clean funnel (onboarding_v8 since #4504) and playtime_v1 (#3695) only for a save new to them, and keeps their own fields after",
 				function()
 					local raw: any = ProfileSchema.template(NOW)
 					-- a v6 save before its first catch that logged none of first_hour: both from their start
@@ -2311,32 +2329,33 @@ return function()
 						firstHourV3Step = 0,
 					}
 					local telemetry = ProfileSchema.migrate(raw, NOW).telemetry
-					expect(telemetry.cleanStep).to.equal(0)
+					expect(telemetry.cleanV8Step).to.equal(0)
+					expect(telemetry.cleanStep).to.equal(0) -- v7 too, for today's order
 					expect(telemetry.playtimeStep).to.equal(0)
 					-- any first_hour_v3 step logged: out of playtime_v1
 					raw.telemetry.firstHourV3Step = 3
 					expect(ProfileSchema.migrate(raw, NOW).telemetry.playtimeStep).to.equal(16)
 					-- past the first catch, logged or held: out of the clean funnel
 					raw.telemetry.onboardingStep = 13
-					expect(ProfileSchema.migrate(raw, NOW).telemetry.cleanStep).to.equal(27)
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.cleanV8Step).to.equal(43)
 					raw.telemetry.onboardingStep = 9
 					raw.telemetry.achieved = { ["13"] = true }
-					expect(ProfileSchema.migrate(raw, NOW).telemetry.cleanStep).to.equal(27)
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.cleanV8Step).to.equal(43)
 					-- their own fields win once saved, clamped; a damaged one falls back to the rule above
-					raw.telemetry.cleanStep = 7
+					raw.telemetry.cleanV8Step = 7
 					raw.telemetry.playtimeStep = 4
 					telemetry = ProfileSchema.migrate(raw, NOW).telemetry
-					expect(telemetry.cleanStep).to.equal(7)
+					expect(telemetry.cleanV8Step).to.equal(7)
 					expect(telemetry.playtimeStep).to.equal(4)
-					raw.telemetry.cleanStep = 99
+					raw.telemetry.cleanV8Step = 99
 					raw.telemetry.playtimeStep = -3
 					telemetry = ProfileSchema.migrate(raw, NOW).telemetry
-					expect(telemetry.cleanStep).to.equal(27)
+					expect(telemetry.cleanV8Step).to.equal(43)
 					expect(telemetry.playtimeStep).to.equal(0)
-					raw.telemetry.cleanStep = "x"
+					raw.telemetry.cleanV8Step = "x"
 					raw.telemetry.playtimeStep = "x"
 					telemetry = ProfileSchema.migrate(raw, NOW).telemetry
-					expect(telemetry.cleanStep).to.equal(27)
+					expect(telemetry.cleanV8Step).to.equal(43)
 					expect(telemetry.playtimeStep).to.equal(16)
 				end
 			)

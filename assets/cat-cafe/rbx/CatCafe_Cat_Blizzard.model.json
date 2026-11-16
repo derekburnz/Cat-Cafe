@@ -86,13 +86,7 @@
    },
    "attributes": {
     "Rojo_Id": "CatCafe_Cat_Blizzard/0",
-    "GoldColor": {
-     "Color3": [
-      0.6588,
-      0.8471,
-      0.9412
-     ]
-    }
+    "GoldTone": 3
    },
    "children": [
     {

@@ -100,6 +100,8 @@ PART_NAMES = {"_SignBoard": "SignBoard", "_Bars": "Bars", "_Screen": "Screen", "
 # code shows and hides every NightFence piece (gate fences, alley pieces, shut back doors). CafeDoor and WorkingCat
 # are tagged by WorldBuilder at placement.
 TAGS = {"CatCafe_Decor_FishTank": ["FishTank"], "CatCafe_Plot_Tier4_Water": ["FishTank"],
+        **{f"CatCafe_Plot_Tier4_{w}x{d}_Water": ["FishTank"]           # #4543: the bigger rooms (plotsizes.SIZES)
+           for w, d in ((48, 37), (52, 40), (56, 43), (60, 46))},
         "CatCafe_Park_Fountain": ["Fountain"], "_IndexBoard": ["IndexBoard"],
         "CatCafe_Street_CodesCat": ["CodesCat"], "CatCafe_Street_BellhopStand": ["BellhopStand"],
         "_NightFence": ["NightFence"],

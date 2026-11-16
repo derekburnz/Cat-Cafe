@@ -205,7 +205,7 @@ return function()
 			end)
 
 			it(
-				"bait speed shortens the next bowl in whole seconds, 372 s on the full All Cats track (F54)",
+				"bait speed shortens the next bowl in whole seconds, 300 s (BaitSpeedMax) on the full All Cats track (F54; #4654: 372 before the past-50 milestones counted)",
 				function()
 					local p = freshProfile()
 					expect(Economy.baitWaitSeconds(p)).to.equal(600)
@@ -216,7 +216,7 @@ return function()
 						all[id] = true
 					end
 					p.indexRewards.all = all
-					expect(Economy.baitWaitSeconds(p)).to.equal(372)
+					expect(Economy.baitWaitSeconds(p)).to.equal(300) -- #4654: the indexTo70 milestones count, so the cap
 				end
 			)
 
@@ -236,7 +236,7 @@ return function()
 						all[id] = true
 					end
 					p.indexRewards.all = all
-					expect(Economy.baitWaitSeconds(p, true)).to.equal(186)
+					expect(Economy.baitWaitSeconds(p, true)).to.equal(150) -- #4654: 186 before indexTo70 shipped (the cap now)
 				end
 			)
 
@@ -1025,10 +1025,10 @@ return function()
 
 	describe("features.md section 8: the ten minute loop in numbers (v0.3)", function()
 		it(
-			"step 1: $250 (#4097, was $850; #1796, was $50) and 1.5 per second with the Tabby as Barista",
+			"step 1: $1,000 (#4674, was $250; #4097, was $850; #1796, was $50) and 1.5 per second with the Tabby as Barista",
 			function()
 				local p = freshProfile()
-				expect(p.coins).to.equal(250)
+				expect(p.coins).to.equal(1000)
 				expect(Economy.incomePerSecond(p)).to.be.near(1.5)
 			end
 		)
@@ -1073,13 +1073,14 @@ return function()
 		it(
 			"a new save has its first table, Bait bowl and Kibble without buying (#3660, #4097; #1796 bought them)",
 			function()
-				-- the tutorial asks for no purchase, so it never waits on coins; the start coins are what was left after
-				-- the old buys (850 - 600 for the bowl, the table and Kibble given)
+				-- the tutorial asks for no purchase, so it never waits on coins; #4674: the start coins are $1,000 so the
+				-- Rank Up is close once the Alleyway cat is in (250 before, what was left after the old buys)
 				local p = ProfileSchema.template(0)
 				expect(Economy.level(p, "tables") >= 1).to.equal(true)
 				expect(Economy.level(p, "lure_bowl") >= 1).to.equal(true)
 				expect(p.lures.kibble).to.equal(1)
-				expect(p.coins).to.equal(850 - Catalog.upgradesById.lure_bowl.costs[1])
+				expect(p.coins).to.equal(Config.StartCoins)
+				expect(Config.StartCoins).to.equal(1000)
 			end
 		)
 
@@ -1101,25 +1102,13 @@ return function()
 		)
 
 		it(
-			"Tier 2's coins after the loop's purchases take more than 10 minutes on cafe income alone (v0.13.6)",
+			"Tier 2's coins still take some play: the start coins are under its cost (#4674; the 10 minute guard is gone)",
 			function()
-				-- Balance guard at the loop's end rates: two Commons and two tables earn 3.0 or 3.6 per second. Since
-				-- v0.13.6 (Derek 01:38: "you can max out almost instantly every unlock") Tier 2 waits on coins after the
-				-- cats are ready at about 9 minutes, so cafe income alone must not reach it inside 10. The 20 minute top
-				-- of features section 8's window is the data-model 11 pace model's (16 min with first catch rewards,
-				-- Index coins and the Tip Jar), which this income-only sum leaves out; the S14 playtest times it. QA:
-				-- every cost comes from the Catalog (this guard read 1,500 and the old prices until v0.13.6).
-				local tables = Catalog.upgradesById.tables.costs
-				local spend = tables[1]
-					+ tables[2]
-					+ Catalog.upgradesById.lure_bowl.costs[1]
-					+ Catalog.luresById.kibble.cost
-					+ Catalog.tiers[2].cost
-					- Config.StartCoins
-				for _, rate in ipairs({ 2.5 * 1.2, 3.0 * 1.2 }) do
-					local minutes = spend / rate / 60
-					expect(minutes >= 10).to.equal(true)
-				end
+				-- #4674 (Derek 2026-11-16: "start players at 1,000$ so by the time they hit the 1 catch its ready for
+				-- rankup"): Tier 2 is meant to be ready right after the walk-through's Alleyway cat now, so the old
+				-- v0.13.6 guard (Tier 2's coins over 10 minutes of cafe income) no longer holds; the Rank Up still
+				-- waits on the cats and on some coins earned
+				expect(Config.StartCoins < Catalog.tiers[2].cost).to.equal(true)
 			end
 		)
 
@@ -1242,19 +1231,17 @@ return function()
 		)
 
 		it(
-			"Tier 2 to 3 needs one Epic or better; 3 to 4 one Mythical (#2496); 4 to 5 two Legendary or better",
+			"Tier 2 to 3 needs one Epic or better; 3 to 4 one Legendary (#4713); 4 to 5 two Legendary or better",
 			function()
 				expect(Economy.rankUpBlocker(profileWith(2, 13))).to.equal(
 					"Needs one cat, Epic or better"
 				)
 				expect(Economy.rankUpBlocker(profileWith(2, 13, "Epic", 1))).never.to.be.ok()
 				expect(Economy.rankUpBlocker(profileWith(3, 25, "Epic", 3))).to.equal(
-					"Needs one cat, Mythical or better"
+					"Needs one cat, Legendary or better"
 				)
-				-- #2496: a Legendary no longer opens Tier 4
-				expect(Economy.rankUpBlocker(profileWith(3, 25, "Legendary", 3))).to.equal(
-					"Needs one cat, Mythical or better"
-				)
+				-- #4713: one Legendary opens Tier 4 again (#2496 asked for a Mythical)
+				expect(Economy.rankUpBlocker(profileWith(3, 25, "Legendary", 1))).never.to.be.ok()
 				expect(Economy.rankUpBlocker(profileWith(3, 25, "Mythical", 1))).never.to.be.ok()
 				expect(Economy.rankUpBlocker(profileWith(4, 33, "Legendary", 1))).to.equal(
 					"Needs 2 different cats, Legendary or better"
@@ -1346,7 +1333,7 @@ return function()
 			"at Tier 8 there is nothing left while the tier9 switch is off, whatever the coins (#3997, #4070)",
 			function()
 				LateTiers.setOpen(8) -- tier8 on, tier9 off
-				local p = profileWith(8, 70, "Mythical", 6, 1e14)
+				local p = profileWith(8, 70, "Mythical", 7, 1e14) -- #4513: Tier 9 needs 7
 				expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Summit Cafe")
 				LateTiers.setOpen(true)
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
@@ -1362,7 +1349,7 @@ return function()
 			"at Tier 9 there is nothing left while the tier10 switch is off, whatever the coins (#4184)",
 			function()
 				LateTiers.setOpen(9) -- tier8 and tier9 on, tier10 off
-				local p = profileWith(9, 80, "Mythical", 7, 1e15)
+				local p = profileWith(9, 80, "Mythical", 8, 1e15) -- #4513: Tier 10 needs 8
 				expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Funfair Cafe")
 				LateTiers.setOpen(true)
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()

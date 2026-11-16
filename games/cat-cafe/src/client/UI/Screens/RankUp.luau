@@ -13,6 +13,7 @@
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local FitText = require(script.Parent.Parent.Components.FitText)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalLines = require(script.Parent.Parent.Components.GoalLines) -- #3997: no goal behind a live switch
 local MenuFamily = require(script.Parent.Parent.Components.MenuFamily)
@@ -359,7 +360,6 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		Visible = false,
 		Parent = content,
 	})
-	self._family = MenuFamily.on()
 	self._opensCards = {} :: { Frame }
 	-- #3961: what opens as cards, where the family look has them (the plain lines stay hidden then)
 	self._opensList = Create("ScrollingFrame", {
@@ -378,7 +378,7 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		-- shrank the canvas, the bar went off, the width came back, and round again every frame. The bar's strip is
 		-- now always kept, so the cards' width never depends on the bar.
 		VerticalScrollBarInset = Enum.ScrollBarInset.Always,
-		Visible = self._family,
+		Visible = true,
 		Parent = content,
 	}, {
 		Create("UIListLayout", {
@@ -394,7 +394,7 @@ function RankUp.new(callbacks: Callbacks): RankUp
 	})
 	self._opens = text({
 		Name = "Opens",
-		Visible = not self._family,
+		Visible = false,
 		Position = UDim2.fromOffset(0, OPENS_TOP + 22),
 		Size = UDim2.new(1, 0, 0, 84),
 		TextWrapped = true,
@@ -561,25 +561,22 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 			Thickness = Theme.sizes.stroke,
 		}),
 	})
-	local family = self._family
 	local left = 14
-	if family then
-		-- #3961: the need's picture on the left
-		local tile: TextLabel = text({
-			Name = "Picture",
-			AnchorPoint = Vector2.new(0, 0.5),
-			Position = UDim2.new(0, 8, 0.5, -2),
-			Size = UDim2.fromOffset(30, 30),
-			BackgroundTransparency = 0,
-			BackgroundColor3 = CARD.line,
-			TextXAlignment = Enum.TextXAlignment.Center,
-			TextSize = 18,
-			Text = NEED_ICONS[index] or "✨",
-			Parent = row,
-		})
-		Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = tile })
-		left = 46
-	end
+	-- #3961: the need's picture on the left
+	local tile: TextLabel = text({
+		Name = "Picture",
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 8, 0.5, -2),
+		Size = UDim2.fromOffset(30, 30),
+		BackgroundTransparency = 0,
+		BackgroundColor3 = CARD.line,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextSize = 18,
+		Text = NEED_ICONS[index] or "✨",
+		Parent = row,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = tile })
+	left = 46
 	text({
 		Name = "Label",
 		Position = UDim2.fromOffset(left, 0),
@@ -598,10 +595,16 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 		FontFace = Theme.fonts.display,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		TextColor3 = if item.met then CARD.good else CARD.warn,
-		Text = if family and item.met then "✓" else item.status,
+		Text = if item.met then "✓" else item.status,
 		Parent = row,
 	})
-	if family and item.met then
+	-- #4479 (Derek 2026-11-15: "in the rankup cards on mobile the coins don't show the full ... $##/..."): the need and
+	-- its numbers shrink to fit on a phone instead of ending in "..."
+	FitText.shrink(row:FindFirstChild("Label") :: TextLabel)
+	if not item.met then
+		FitText.shrink(row:FindFirstChild("Status") :: TextLabel)
+	end
+	if item.met then
 		-- #3961: a met need's tick in a green circle, as in the mock
 		local tick = row:FindFirstChild("Status") :: TextLabel
 		tick.AnchorPoint = Vector2.new(1, 0.5)
@@ -689,18 +692,14 @@ function RankUp.render(self: any, state: Types.PlayerState)
 	self._teaser.Text = teaser or ""
 	self._teaser.Visible = teaser ~= nil
 	self._opens.Text = table.concat(progress.opens, "\n")
-	self:_fillOpens(if self._family then progress.opens else {})
+	self:_fillOpens(progress.opens)
 	self._button.instance.Visible = true
 	-- #2915: a ready rank up wins over "Fly to the Park"
 	local fly: string? = if progress.ready then nil else self._fly
 	self._flying = fly ~= nil
 	self._button:setEnabled(progress.ready or fly ~= nil)
 	self._button:setText(
-		if progress.ready
-			then (if self._family then "RANK UP  ·  " else "Rank up  ·  ") .. Format.money(
-				nextTier.cost
-			)
-			else fly or "Not yet"
+		if progress.ready then "RANK UP  ·  " .. Format.money(nextTier.cost) else fly or "Not yet"
 	)
 end
 

@@ -246,9 +246,10 @@ function MarketBang._apply(self: any)
 	for _, model in CollectionService:GetTagged(self._tag) do
 		local bang: Bang? = self._bangs[model]
 		if bang == nil and words ~= nil then
-			bang = MarketBang.build(self._parent, self._name)
-			bang.gui.SizeOffset = Vector2.new(0, MarketBang.STAND) -- #4677
-			self._bangs[model] = bang
+			local made = MarketBang.build(self._parent, self._name)
+			made.gui.SizeOffset = Vector2.new(0, MarketBang.STAND) -- #4677
+			bang = made
+			self._bangs[model] = made
 		end
 		if bang ~= nil then
 			local anchor: BasePart?, lift = nil, Vector3.zero

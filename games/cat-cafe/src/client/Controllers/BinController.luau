@@ -807,12 +807,17 @@ local function track(instance: Instance)
 end
 
 function BinController.start()
-	-- #4961: the Cat Cannon picker's Rummage button, past the walk-through, on a full bin
+	-- #4961: the Cat Cannon picker's Rummage button, past the walk-through, on a full bin. Sync's run: under bowl first
+	-- tutorialStep is past 5 while the walk-through still runs ("Hop in the cannon", "Catch a 2nd cat"), so the UI's
+	-- walk-through hold (UI.firstCat.tutorial) keeps it away too
+	local function walkThrough(): boolean
+		return inTutorial() or UI.firstCat.tutorial == true
+	end
 	UI.cannon.rummage.on = function(): boolean
-		return ready() and not inTutorial()
+		return ready() and not walkThrough()
 	end
 	UI.cannon.rummage.start = function()
-		if busy() or not ready() or inTutorial() then
+		if busy() or not ready() or walkThrough() then
 			return
 		end
 		Net.fire("RescueBegin", RummageBin.REMOTE_SPOT)

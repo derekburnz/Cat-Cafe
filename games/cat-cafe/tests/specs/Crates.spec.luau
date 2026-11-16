@@ -506,13 +506,13 @@ return function()
 			expect(Crates.buyCost(profile, row("big_bowl"))).never.to.be.ok()
 			profile.fishPerks.extra_decor_spot = 1
 			expect(Crates.buyCost(profile, row("extra_decor_spot"))).to.equal(250)
-			-- #3317: Swift Paws, five levels
-			local paws = { 60, 150, 300, 500, 800 }
-			for level = 0, 4 do
+			-- #3317, #4705: Swift Paws, ten levels
+			local paws = { 60, 150, 300, 500, 800, 1200, 1700, 2300, 3000, 3800 }
+			for level = 0, 9 do
 				profile.fishPerks.swift_paws = if level > 0 then level else nil
 				expect(Crates.buyCost(profile, row("swift_paws"))).to.equal(paws[level + 1])
 			end
-			profile.fishPerks.swift_paws = 5
+			profile.fishPerks.swift_paws = 10
 			expect(Crates.buyCost(profile, row("swift_paws"))).never.to.be.ok()
 		end)
 	end)

@@ -30,6 +30,7 @@ local NetSwingController = require(script.Parent.Controllers.NetSwingController)
 local ParkFirstController = require(script.Parent.Controllers.ParkFirstController)
 local ParkTrailController = require(script.Parent.Controllers.ParkTrailController)
 local PerfSuggestController = require(script.Parent.Controllers.PerfSuggestController)
+local PerfWatchController = require(script.Parent.Controllers.PerfWatchController)
 local PetController = require(script.Parent.Controllers.PetController)
 local RallyController = require(script.Parent.Controllers.RallyController)
 local RankSpotController = require(script.Parent.Controllers.RankSpotController)
@@ -66,6 +67,7 @@ do
 	Net.fire("TelemetryReport", "boot_ui", math.min(os.clock() - bootAt, 300))
 	local function synced()
 		Net.fire("TelemetryReport", "boot_sync", math.min(os.clock() - bootAt, 300))
+		PerfWatchController.synced() -- #4783: client_load's ready waits for the save too
 	end
 	if UIController.state ~= nil then
 		synced() -- the save came while the UI was being built
@@ -83,6 +85,7 @@ end
 WorldController.start()
 DoorController.start()
 IntroController.start() -- after the UI and the world controller, whose hooks it uses
+PerfWatchController.start(bootAt) -- #4783: load time and average FPS for every player, analytics only
 MemoryWatchController.start() -- #3743: the client's memory at 5, 15, 30 and 60 minutes, analytics only
 StyleController.start()
 ShoveController.start()

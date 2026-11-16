@@ -1541,20 +1541,15 @@ return function()
 			expect(short.progress).to.equal(0.5)
 		end)
 		it("says Robux only off the list, and taps back to Robux", function()
-			local money = StoreLogic.fishButton(
-				{
-					key = "money",
-					passId = 2,
-					name = "",
-					icon = "",
-					effect = "",
-					owned = false,
-					tab = "passes",
-				},
-				nil,
-				99999,
-				false
-			)
+			local money = StoreLogic.fishButton({
+				key = "money",
+				passId = 2,
+				name = "",
+				icon = "",
+				effect = "",
+				owned = false,
+				tab = "passes",
+			}, nil, 99999, false)
 			expect(money.text).to.equal("Robux only")
 			expect(money.action).to.equal("robux")
 		end)

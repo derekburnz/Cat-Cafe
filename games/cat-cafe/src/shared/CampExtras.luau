@@ -47,7 +47,6 @@ CampExtras.TAKEN = "You took this crate" -- buyBlocker adds ". A new one in 3 h 
 -- `treats` (the ids below), walking up opens the pick card instead of collecting, and CollectCampExtra refuses the
 -- basket: PickPicnicTreat takes it. The save's picnic slot is the same one, so a basket holding potions on the day
 -- the switch goes on is one pick ready now.
-CampExtras.TREATS_FLAG = "picnicTreats"
 CampExtras.TREATS_NAME = "Picnic Treats"
 export type Treat = { id: string, name: string, potion: string }
 CampExtras.TREATS = {

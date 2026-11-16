@@ -11016,21 +11016,17 @@ end
 
 ----------------------------------------------------------------------------------------------------
 -- #3529 (shared/NewKind): the "NEW" tag over strays and stuck cats of kinds this player has never owned
--- (Screens/NewKindTags), and the catch card's "New kind!" line. Behind the `newKindTag` live switch, off by default.
+-- (Screens/NewKindTags), and the catch card's "New kind!" line. #4654: the `newKindTag` switch shipped and is gone.
 ----------------------------------------------------------------------------------------------------
 
 do
 	local Shared = ReplicatedStorage:WaitForChild("Shared")
 	local NewKind = require(Shared:WaitForChild("NewKind"))
-	local kind: { tags: any, watch: RBXScriptConnection? } = { tags = nil, watch = nil }
+	local kind: { tags: any } = { tags = nil }
 
+	-- #4654: always on since the `newKindTag` switch shipped; kept for its callers
 	function UI.newKind.on(): boolean
-		local LiveFlags =
-			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-		return LiveFlags.shown(
-			NewKind.FLAG,
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. NewKind.FLAG)
-		)
+		return true
 	end
 
 	-- Different kinds owned toward rank up, from the Index the client has.
@@ -11050,19 +11046,10 @@ do
 			return
 		end
 		kind.tags = require(script.Screens.NewKindTags).new()
-		local LiveFlags =
-			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-		kind.watch = ReplicatedStorage
-			:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. NewKind.FLAG)
-			:Connect(UI.newKind.refresh)
 		UI.newKind.refresh()
 	end
 
 	function UI.newKind.stop()
-		if kind.watch ~= nil then
-			kind.watch:Disconnect()
-			kind.watch = nil
-		end
 		if kind.tags ~= nil then
 			kind.tags:destroy()
 			kind.tags = nil

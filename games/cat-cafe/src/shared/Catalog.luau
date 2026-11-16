@@ -3200,7 +3200,6 @@ Catalog.achievements = {
 		measure = "yardPicks",
 		needs = 10,
 		size = "M",
-		flag = "yardSaleRoll",
 	},
 	{
 		id = "a_traits10",

@@ -102,7 +102,8 @@ function IndexHints.nudge(catalog: Types.Catalog, state: Types.PlayerState): Nud
 	-- the newest open area with the most cats still to find: sections are in tier order, so a tie goes to the later
 	-- #4251: only the ten areas: a page of its own (Harvest Hollow's, a limited area) is never where it points
 	local areaIds: { [string]: boolean } = {}
-	for _, area in catalog.areas or {} do
+	local areas: { Types.AreaDef } = catalog.areas or {}
+	for _, area in areas do
 		areaIds[area.id] = true
 	end
 	local best: IndexBook.Section? = nil

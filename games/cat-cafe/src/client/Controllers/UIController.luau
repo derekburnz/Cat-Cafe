@@ -1379,6 +1379,8 @@ local function applyState(s: Types.PlayerState)
 		-- #4055: the Store's golden fish prices; false (not nil, which UI.update would skip) while the switch is off
 		fishStore = s.fishStore or false,
 		dailyDeal = s.dailyDeal or false, -- #3996: Today's Deal on the Store's Featured tab
+		-- #4626: the minute 6 "come back tomorrow" line's reason (false with none, so a switch turned off clears it)
+		tomorrowHook = (s :: any).tomorrowHook or false,
 		-- #2574: Juniper's Mystery Market: the items owned, the cart's "!" until the first visit, and whether buys are
 		-- taken yet
 		mystery = s.mystery,

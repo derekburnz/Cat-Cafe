@@ -4748,7 +4748,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- holds the wait a second longer (FirstBait.SLACK) so the line is still up when it is checked
 	{ "BaitFirstComing", function()
 		local now = workspace:GetServerTimeNow()
-		local first = UIShim.require("ReplicatedStorage.Shared.Config").FirstBaitWaitSeconds + 1
+		local first = UIShim.require("ReplicatedStorage.Shared.Config").FirstBaitReadySeconds + 1 -- #4920: 3 s
 		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + first, placedAt = now }, 1)
 		local chip = UIShim.playerGui:FindFirstChild("CatComing", true)
 		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then

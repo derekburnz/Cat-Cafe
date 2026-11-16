@@ -4008,8 +4008,26 @@ function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?):
 	if target == nil then
 		return false
 	end
-	-- the goal card's lines start at its edge: its ring goes round it, not over the first letters
-	UI.rankSpot.close = SpotlightGuide.show(target, words or "", onOutside, phase == "button")
+	-- the goal card's lines start at its edge: its ring goes round it, not over the first letters. Derek 2026-11-16
+	-- ("when they click into menu point to the rankup button make sure it works properly for all devices"): inside the
+	-- window the button gets the ring, the arrow and the words but no dim (Sync's Studio run of #4769: the dim over an
+	-- open window covered its X and Escape did nothing), and a controller's selection lands on it so A ranks up
+	local confirm = phase == "confirm"
+	UI.rankSpot.close =
+		SpotlightGuide.show(target, words or "", onOutside, phase == "button", confirm)
+	if confirm then
+		local pad = require(script.Components.GamepadNav) :: any
+		-- the Button component is a frame round its Face: the selection goes on the GuiButton
+		local found: Instance? = if target:IsA("GuiButton")
+			then target
+			else target:FindFirstChildWhichIsA("GuiButton", true)
+		local face: GuiObject? = if found ~= nil and found:IsA("GuiObject")
+			then found :: any
+			else nil
+		if pad.isGamepad() and face ~= nil then
+			pad.select(face)
+		end
+	end
 	return true
 end
 

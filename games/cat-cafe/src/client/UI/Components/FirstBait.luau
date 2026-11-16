@@ -25,7 +25,8 @@ FirstBait.NUDGE_ICON = "🐾"
 export type Bait = { readyAt: number, placedAt: number?, night: boolean? }
 
 function FirstBait.wait(): number
-	local value = (Config :: any).FirstBaitWaitSeconds
+	-- #4920: the first bait is ready after FirstBaitReadySeconds (shared Bait.firstWait)
+	local value = (Config :: any).FirstBaitReadySeconds or (Config :: any).FirstBaitWaitSeconds
 	return if type(value) == "number" and value > 0 then value else 120
 end
 

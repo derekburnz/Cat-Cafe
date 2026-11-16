@@ -82,9 +82,10 @@ end
 -- #1895: the wait for food going in now when the account has set `luresUsed` baits before: the account's first
 -- bait waits at most FirstBaitWaitSeconds (5 seconds since #3161, so a first session sees its first bait cat), every later one
 -- `wait` (Economy.baitWaitSeconds). Speed-ups only ever shorten it. No Robux buys it.
+-- #4920: FirstBaitReadySeconds (3) now, so the Tame card comes as the first bait cut ends.
 function Bait.firstWait(wait: number, luresUsed: number): number
 	if luresUsed <= 0 then
-		return math.min(wait, Config.FirstBaitWaitSeconds)
+		return math.min(wait, Config.FirstBaitReadySeconds)
 	end
 	return wait
 end

@@ -341,7 +341,7 @@ return function()
 				expect(out >= math.min(wait, least)).to.equal(true)
 			end
 			-- the account's first bait keeps its own short wait
-			expect(Bait.firstWait(Bait.eventWait(600, 4), 0)).to.equal(least)
+			expect(Bait.firstWait(Bait.eventWait(600, 4), 0)).to.equal(Config.FirstBaitReadySeconds) -- #4920
 		end)
 	end)
 

@@ -3517,7 +3517,9 @@ function HUD._renderStripBuy(self: any)
 	local shown = rank or (offer ~= nil and self._tutorial.Visible)
 	-- Derek 2026-11-16 ("point to rank-up after its ready"): the RANK UP button gets the tutorial's ring and arrow,
 	-- with no dim (the dimmed walk-through stays on the safe side of the gates, RankSpot)
-	TutorialGlow.set(button.instance, rank, nil, true)
+	-- #4847 (Sync's audit): not while a window is open; under the rank up window the ring sat on this button, not on
+	-- the window's own (RankUp lights that one)
+	TutorialGlow.set(button.instance, rank and self._openScreen == nil, nil, true)
 	if rank then
 		button:setText(rankFirst.BUTTON)
 		if not button.instance.Visible then
@@ -5170,6 +5172,7 @@ function HUD.screenOpened(self: any, name: string?)
 		end
 		self:_renderFoldDot()
 	end
+	self:_renderStripBuy() -- #4847: the RANK UP ring steps aside for a window
 end
 
 function HUD._stopClock(self: any)

@@ -9,8 +9,9 @@
 -- by its used once-limit.
 -- The two toys (shared/Toys, spec 1.3): HoldToy(toyId?) takes an owned toy in hand or puts it away, as the character
 -- attribute Toys.ATTRIBUTE (a respawn starts with none); UseToy() uses it, at most once every Toys.COOLDOWN seconds and
--- never in a catch, a rescue or a flight or with a cat in the arms, and tells the players within Toys.RANGE with ToyUsed. Fun only: a use
--- changes nothing on the server and touches no other player. The client clones the model and plays the effect.
+-- never in a catch, a rescue or a flight or with a cat in the arms, and tells the players within Toys.RANGE with
+-- ToyUsed. Fun only: a use changes nothing on the server and touches no other player. The client clones the model and
+-- plays the effect.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

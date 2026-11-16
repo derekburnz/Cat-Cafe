@@ -313133,6 +313133,68 @@
       }
     },
     {
+      "name": "CatCafe_Item_EclipseTreat",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_EclipseTreat"
+      ],
+      "triangles": 536,
+      "budget": 900,
+      "size_studs": {
+        "x": 0.58,
+        "y": 0.64,
+        "z": 0.76
+      },
+      "size_roblox": [
+        0.58,
+        0.76,
+        0.64
+      ],
+      "bounds_min": [
+        -0.29,
+        -0.17,
+        -0.04
+      ],
+      "bounds_max": [
+        0.3,
+        0.47,
+        0.73
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "food_in_bowl_roblox": [
+        0,
+        0.18,
+        0
+      ],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_EclipseTreat.model.json",
+      "rbx_parts": 76,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_EclipseTreat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_EclipseTreat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "536/900 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "326 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.04 (want 0)",
+          "centered": "footprint center x=0.00 y=0.15"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_EclipseTreat.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_EclipseTreat.png"
+    },
+    {
       "name": "CatCafe_Prop_TipPile",
       "category": "Prop",
       "module": "items",

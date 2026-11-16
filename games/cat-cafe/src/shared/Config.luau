@@ -283,7 +283,9 @@ local Config = {
 	-- press carries the client's own tap time on the ring clock (Workspace:GetServerTimeNow), believed up to this long
 	-- before it reaches the server, so a Good tap on a phone or a busy server is no longer judged by its late arrival.
 	-- An unpressed ring waits this long past its deadline before the server calls it a Miss, for a tap still on its way.
-	CatchPressStampSeconds = 0.4,
+	-- 0.6 since the #4609 PC check: at about 0.55 s one way, Perfect taps clamped at 0.4 came back Miss. No exploit
+	-- edge (CatchSchedule already allows scripted perfects); the cost is a 0.6 s wait after an unpressed final ring.
+	CatchPressStampSeconds = 0.6,
 	-- Per net level (0 Basic, 1 Sturdy, 2 Pro, 3 Master): perfect and good are half-widths in seconds either side of
 	-- the target. F93 (catch-rework.md section 2): a net only widens the bands; the number and speed of the circles
 	-- come from the stray's rarity, and every circle's shrink time wobbles by up to CircleJitter either way.

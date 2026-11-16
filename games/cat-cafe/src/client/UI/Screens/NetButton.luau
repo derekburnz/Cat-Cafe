@@ -22,6 +22,7 @@ local NetButtonPlace = require(script.Parent.Parent.Components.NetButtonPlace)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
+local TutorialGlow = require(script.Parent.Parent.Components.TutorialGlow)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
@@ -41,6 +42,7 @@ export type NetButton = {
 	setEnabled: (self: NetButton, on: boolean) -> (),
 	setInArea: (self: NetButton, on: boolean) -> (),
 	setInReach: (self: NetButton, on: boolean) -> (),
+	point: (self: NetButton, on: boolean) -> (),
 	destroy: (self: NetButton) -> (),
 }
 
@@ -54,6 +56,8 @@ function NetButton.new(parent: Instance, callbacks: Callbacks): NetButton
 	self._enabled = false
 	self._inArea = false
 	self._inReach = false
+	self._point = false -- #4808: the tutorial's catch step asks for the ring and arrow
+	self._glowing = false
 	self._coolUntil = 0 -- os.clock()
 	self._loop = nil :: RBXScriptConnection?
 	self._connections = {} :: { RBXScriptConnection }
@@ -191,6 +195,12 @@ function NetButton._tick(self: any)
 		Tween.popIn(self._button, 0.85)
 	end
 	self.screenGui.Enabled = show
+	-- #4808: the ring and arrow while the button shows during a catch step; no dim, the player is mid-play
+	local glow = show and self._point
+	if glow ~= self._glowing then
+		self._glowing = glow
+		TutorialGlow.set(self._button, glow, nil, true)
+	end
 	self:_drawCool()
 end
 
@@ -239,6 +249,13 @@ function NetButton.setInReach(self: any, on: boolean)
 	if self._inReach ~= on then
 		self._inReach = on
 		self:_watch()
+	end
+end
+
+function NetButton.point(self: any, on: boolean)
+	if self._point ~= on then
+		self._point = on
+		self:_tick()
 	end
 end
 

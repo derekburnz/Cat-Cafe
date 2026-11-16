@@ -630,6 +630,11 @@ local function palJoinLine(s: Types.PlayerState): boolean
 	return true
 end
 
+-- #4808: the touch Net button's tutorial ring and arrow while a catch line is on the strip
+local function pointNet(on: boolean)
+	UI.net.point(on)
+end
+
 local function refreshTutorial(s: Types.PlayerState)
 	if tutorialWatch.connection ~= nil then
 		tutorialWatch.connection:Disconnect()
@@ -637,6 +642,7 @@ local function refreshTutorial(s: Types.PlayerState)
 	end
 	newKind.target = nil -- #3529: set again below only while its trail is what shows
 	newKind.where = "none"
+	pointNet(false) -- #4808: set again below only while a catch line shows
 	if s.carrying ~= nil then
 		tutorialCarry.was = true
 		UI.tutorial.hide()
@@ -721,6 +727,7 @@ local function refreshTutorial(s: Types.PlayerState)
 			tutorialStrayPoint(),
 			"Alley"
 		)
+		pointNet(true)
 	elseif bowlRest then
 		local GoalLines = require(script.Parent.Parent.UI.Components.GoalLines) :: any
 		local RankUpNeeds = require(script.Parent.Parent.UI.Components.RankUpNeeds) :: any
@@ -736,6 +743,29 @@ local function refreshTutorial(s: Types.PlayerState)
 				then "touch"
 				else "keyboard"
 			showTutorial(s, RankFirst.line(device))
+		elseif not SecondCat.done(s.stats, true) and not areasShut() then
+			-- #4808 (Derek 2026-11-16: "for tutorial the steps towards cat and pointing to the net on phone is
+			-- missing"): until the Alleyway catch is in, the strip names the catch on this device, the trail and
+			-- marker lead to the nearest stray this player may catch (the tutorial spot until one streams in) and,
+			-- on a touch screen, the Net button gets the tutorial's ring and arrow while it shows. Straight to
+			-- UI.tutorial.show: the hint's step 2 line would ask for a job here.
+			local stray = nearestAlleyStray()
+			UI.tutorial.show(
+				deviceLine("catch", "Follow the trail and catch the cat! Click by it"),
+				stray or tutorialStrayPoint(),
+				"Cat"
+			)
+			pointNet(true)
+			if stray ~= nil then
+				tutorialWatch.connection = stray.AncestryChanged:Connect(function()
+					if not stray:IsDescendantOf(Workspace) then
+						local current = state
+						if current ~= nil then
+							refreshTutorial(current)
+						end
+					end
+				end)
+			end
 		else
 			UI.tutorial.hide()
 		end

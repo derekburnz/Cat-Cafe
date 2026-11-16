@@ -4247,6 +4247,36 @@ function UI.cannon.openAfterTravel()
 	task.delay(0.4, look, true)
 end
 
+-- #4920: the walk-through's Cannon button: once the cloud hop has put the player at the Town Square cannon, it opens
+-- (UI.cannon.open), which launches straight to the Alleyway while the walk-through's first flight is due. Nothing
+-- when the picker would open with no Alleyway ring (it then waits for Hop in, as before).
+function UI.cannon.directAfterTravel()
+	if UI.cannon.fly.travel or UI.cannon.fly.ring ~= nil then
+		return -- "Fly to the Park" opens its own picker
+	end
+	local WalkRingLogic = require(script.Components.WalkRingLogic)
+	local TutorialOrder =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")) :: any
+	local walk = WalkRingLogic.area({
+		bowlFirst = TutorialOrder.bowlFirst(),
+		tier = state.tier,
+		secondCatDone = (state :: any).secondCatDone,
+		cannonId = CannonLogic.TOWN,
+		flyRing = nil,
+	})
+	if walk == nil then
+		return
+	end
+	-- after the cloud hop (Config.CloudHopSeconds), so the launch is not refused mid-hop
+	task.delay((Config :: any).CloudHopSeconds or 1.6, function()
+		local nearest = UI.cannon.nearest
+		local near = if nearest ~= nil then nearest() else nil
+		if near == CannonLogic.TOWN and (modal == nil or modal:current() == nil) then
+			UI.cannon.open(near)
+		end
+	end)
+end
+
 -- The Town Square cannon, for the hint's arrow and trail.
 function UI.cannon.setCannon(part: BasePart?)
 	cannonPart = part
@@ -4280,6 +4310,26 @@ function UI.cannon.open(cannonId: string?)
 		cannonId = cannonId or CannonLogic.TOWN,
 		flyRing = UI.cannon.fly.ring,
 	})
+	-- #4920: the walk-through's first flight from the Town Square goes straight to the Alleyway (no picker)
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	local direct = WalkRingLogic.direct(
+		{
+			bowlFirst = TutorialOrder.bowlFirst(),
+			tier = state.tier,
+			secondCatDone = (state :: any).secondCatDone,
+			cannonId = cannonId or CannonLogic.TOWN,
+			flyRing = UI.cannon.fly.ring,
+		},
+		LiveFlags.shown(
+			WalkRingLogic.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. WalkRingLogic.FLAG)
+		)
+	)
+	if direct ~= nil then
+		UI.events.launchCannon:Fire(cannonId or CannonLogic.TOWN, direct)
+		return
+	end
 	if walk ~= nil then
 		UI.cannon.walkRing = walk
 		screen:setRing(walk)
@@ -4388,6 +4438,7 @@ function UI.travel.result(destination: string, ok: boolean, _reason: string?)
 	end
 	if destination == "cannon" then
 		if ok then
+			UI.cannon.directAfterTravel() -- #4920
 			UI.cannon.openAfterTravel() -- #2915
 		else
 			UI.cannon.fly.travel = false

@@ -19,6 +19,7 @@ local CatService = require(script.Parent.CatService)
 local DataService = require(script.Parent.DataService)
 local Layout = require(script.Parent.Parent.World.Layout)
 local PlotService = require(script.Parent.PlotService)
+local StreamAround = require(script.Parent.Parent.Util.StreamAround)
 local Telemetry = require(script.Parent.Telemetry)
 local TutorialMoves = require(ReplicatedStorage.Shared.TutorialMoves)
 local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder)
@@ -100,6 +101,14 @@ local function move(player: Player, target: TutorialMoves.Target)
 		return
 	end
 	local landing = targetFor(player, target)
+	-- #4788: with streaming on, the spot streams in first (never a wait while it is off)
+	if
+		landing ~= nil
+		and StreamAround.wait(player, landing.Position)
+		and (player.Character ~= character or character.Parent == nil)
+	then
+		return
+	end
 	if landing ~= nil then
 		character:PivotTo(landing)
 		Cannon.noteMove(player, landing) -- the client's camera goes behind the character there

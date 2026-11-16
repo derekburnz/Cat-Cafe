@@ -38,6 +38,7 @@ local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local NightService = require(script.Parent.NightService)
 local PalService = require(script.Parent.PalService)
 local PlotService = require(script.Parent.PlotService)
+local StreamAround = require(script.Parent.Parent.Util.StreamAround)
 local Telemetry = require(script.Parent.Telemetry)
 local TravelService = require(script.Parent.TravelService)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -446,6 +447,13 @@ function CannonService.landOnPad(player: Player, destination: string): boolean
 	local character = player.Character
 	local landing = if character ~= nil then landingFor(player, destination) else nil
 	if character == nil or landing == nil then
+		return false
+	end
+	-- #4788: with streaming on, the pad streams in first (yields up to StreamAround.SECONDS; never while it is off)
+	if
+		StreamAround.wait(player, landing.Position)
+		and (player.Character ~= character or character.Parent == nil)
+	then
 		return false
 	end
 	character:PivotTo(landing)

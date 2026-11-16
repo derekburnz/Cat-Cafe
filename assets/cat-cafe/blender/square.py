@@ -457,9 +457,11 @@ def build_lamp(mat):
     b.cyl((0, 6.0, 0), 0.75, 0.55, "terracotta", r2=0.95, segments=12)                         # flower ring
     flowers = RB()
     flowers.cyl((0, 6.31, 0), 0.85, 0.08, "leaf_green", segments=12)
-    for k in range(5):
-        a = 2 * math.pi * k / 5
-        flower_clump(flowers, 0.6 * math.cos(a), 6.35, 0.6 * math.sin(a), n=3, spread=0.2)
+    for k in range(5):                         # #4783: one bigger bloom a spot (three small ones until then; 28 lamps
+        a = 2 * math.pi * k / 5                # stand in the square, so ten parts fewer a lamp is 280 fewer in town)
+        fx, fz, r = 0.6 * math.cos(a), 0.6 * math.sin(a), 0.24 - 0.012 * k
+        flowers.span((fx - r, 6.35, fz - r), (fx + r, 6.35 + 2 * r, fz + r),
+                     ("blush", "sparkle", "offwhite", "nose_pink", "sparkle")[k])
     return [b.finalize("CatCafe_Square_Lamp", mat), lamps.finalize("CatCafe_Square_Lamp_Bulb", mat),
             flowers.finalize("CatCafe_Square_Lamp_Flowers", mat)]
 

@@ -322597,9 +322597,12 @@
       "module": "square",
       "objects": [
         "CatCafe_Square_Paving",
-        "CatCafe_Square_Paving_Slab"
+        "CatCafe_Square_Paving_Slab",
+        "CatCafe_Square_Paving_Checker",
+        "CatCafe_Square_Paving_LanePavers",
+        "CatCafe_Square_Paving_WalkPavers"
       ],
-      "triangles": 19552,
+      "triangles": 2872,
       "budget": 20000,
       "size_studs": {
         "x": 120.0,
@@ -322632,7 +322635,7 @@
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Paving.model.json",
-      "rbx_parts": 1628,
+      "rbx_parts": 238,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_Paving.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_Paving.glb"
@@ -322644,10 +322647,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "19552/20000 tris",
+          "budget": "2872/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "9720 faces on swatch centers",
+          "uv": "1380 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.40 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -323004,7 +323007,7 @@
         "CatCafe_Square_Lamp_Bulb",
         "CatCafe_Square_Lamp_Flowers"
       ],
-      "triangles": 676,
+      "triangles": 556,
       "budget": 1500,
       "size_studs": {
         "x": 3.88,
@@ -323199,7 +323202,7 @@
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Lamp.model.json",
-      "rbx_parts": 47,
+      "rbx_parts": 37,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_Lamp.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_Lamp.glb"
@@ -323209,10 +323212,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "676/1500 tris",
+          "budget": "556/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "302 faces on swatch centers",
+          "uv": "242 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"

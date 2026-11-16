@@ -191,6 +191,9 @@ UI.events = {
 	introNext = Signal.new(),
 	-- (seconds)   #4314: the loading screen slid away; forward as TelemetryReport("loading_seen", whole seconds), once
 	loadingSeen = Signal.new(),
+	-- ()   #4780: Skip (or gamepad B) on the loading screen: IntroController stops waiting for the world and starts
+	-- the intro or hands the camera to the character at once
+	loadingSkip = Signal.new(),
 	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
 	introReplay = Signal.new(),
 	-- F64
@@ -1738,6 +1741,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		waitEnded = function(seconds: number)
 			UI.events.loadingSeen:Fire(seconds) -- #4314
+		end,
+		waitSkipped = function()
+			UI.events.loadingSkip:Fire() -- #4780
 		end,
 	})
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker", nil, false, true) -- #3055: the small, quiet one

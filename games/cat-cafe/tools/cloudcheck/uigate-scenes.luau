@@ -9174,19 +9174,20 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ tipsSeen = before } :: any)
 	end },
 	-- #2408 (Derek2: "because of so many pop ups on cafe tier up its hard to see the cutscene showing next place
-	-- unlocked"): the rank up's camera cut (a stand-in cut player here): the HUD steps aside, a toast sent meanwhile
-	-- waits, and both come back when the cut ends
+	-- unlocked"): a context tip's camera cut (a stand-in cut player here): the HUD steps aside, a toast sent meanwhile
+	-- waits, and both come back when the cut ends. #4654 batch 6: the rank up walk-through is always on, so the
+	-- rank up cut itself is held (QuietStart.holdsTip); the scene checks the same cut path on the golden fish tip
 	{ "RankUpCutQuiet", function()
 		local before: any = (UI.getState() :: any).tipsSeen or {}
 		local tipsSeen = table.clone(before)
 		for _, def in UIShim.require("ReplicatedStorage.Shared.Tips").LIST do
 			tipsSeen[def.id] = true
 		end
-		tipsSeen.rank_up = nil
+		tipsSeen.golden_fish = nil
 		UI.update({ tipsSeen = tipsSeen } :: any)
 		local cut: { started: boolean, done: ((boolean) -> ())? } = { started = false, done = nil }
 		UI.tips.setCutPlayer(function(id: string, _caption: string, _seconds: number, done: (boolean) -> ()): boolean
-			if id ~= "rank_up" then
+			if id ~= "golden_fish" then
 				return false
 			end
 			cut.started = true
@@ -9194,7 +9195,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			return true
 		end)
 		UIShim.advance(tipGap() + 1, 1) -- past TipGapSeconds after an earlier scene's tip, in 1 s frames (#4241)
-		UI.tips.show("rank_up")
+		UI.tips.show("golden_fish")
 		UIShim.advance(1)
 		assert(cut.started, "uigate: the rank up cut never played (#2408)")
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui

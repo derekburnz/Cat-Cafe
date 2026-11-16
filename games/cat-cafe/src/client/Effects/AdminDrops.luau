@@ -12,8 +12,13 @@
 -- Only drops within `within` studs get a stand-in; the rest just appear. Reduce Motion: no arc and no sway (the
 -- chute comes straight down). Low performance: nothing here, the things just appear. A thing's parts can arrive
 -- after it does (Review-QA, #4211), so the hide follows DescendantAdded until the landing.
+-- Derek2 11-16 (#4883: "a little animation (very small) and vfx each gold fish picked up"): when a fish goes
+--   with a player's character within `pickup.reach` studs of it (the server takes it on a touch), a small gold bead
+--   hops up out of it and shrinks away, a few glints and a small gold ring. Reduce Motion: the glints only. Low
+--   performance or far off: nothing. A fish that runs out untouched has nobody beside it, so it just goes.
 -- Sound: AdminDrops.onLand(listener) is told "fish" or "crate" and where, as a stand-in lands.
 -- Listening only: it sends nothing and changes nothing the server reads. Numbers in Presets.adminDrops.
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -143,8 +148,77 @@ function AdminDrops.fresh(droppedAt: unknown, now: number, fresh: number): boole
 	return now - (droppedAt :: number) <= fresh
 end
 
+-- True when one of `roots` (character root positions) is within `reach` studs of `at`: the fish was grabbed, not
+-- left to run out.
+function AdminDrops.grabbed(at: Vector3, roots: { Vector3 }, reach: number): boolean
+	for _, root in roots do
+		if (root - at).Magnitude <= reach then
+			return true
+		end
+	end
+	return false
+end
+
+local function roots(): { Vector3 }
+	local found: { Vector3 } = {}
+	for _, player in Players:GetPlayers() do
+		local character = player.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if root ~= nil and root:IsA("BasePart") then
+			table.insert(found, (root :: BasePart).Position)
+		end
+	end
+	return found
+end
+
+-- The pickup pop: a gold bead hops up out of the fish and shrinks away, with a few glints and a small ring.
+local function pop(at: Vector3)
+	local q = Presets.adminDrops.pickup
+	if Context.lowPerformance or Context.distance(at) > q.within then
+		return
+	end
+	Particles.burst(q.glint, at + Vector3.new(0, q.hop * 0.5, 0), q.glints, q.colour)
+	if Context.reducedMotion() then
+		return
+	end
+	Particles.ring(at, q.colour, q.ring, q.seconds)
+	local bead = Context.effectPart("EffectsFishPop", Vector3.one * q.bead, q.colour)
+	bead.Shape = Enum.PartType.Ball
+	bead.Material = Enum.Material.Neon
+	bead.CFrame = CFrame.new(at)
+	bead.Parent = Context.folder()
+	local startedAt = Workspace:GetServerTimeNow()
+	run({
+		step = function(now: number): boolean
+			local t = (now - startedAt) / q.seconds
+			if t >= 1 then
+				bead:Destroy()
+				return false
+			end
+			local up = 1 - (1 - t) * (1 - t) -- eases out
+			bead.CFrame = CFrame.new(at + Vector3.new(0, q.hop * up, 0))
+			bead.Size = Vector3.one * (q.bead * (1 - t))
+			return true
+		end,
+	})
+end
+
 local function fish(part: BasePart)
 	local p = Presets.adminDrops
+	local spot = part.Position
+	local gone: RBXScriptConnection? = nil
+	gone = part.AncestryChanged:Connect(function(_, parent: Instance?)
+		if parent ~= nil then
+			return
+		end
+		if gone ~= nil then
+			gone:Disconnect()
+			gone = nil
+		end
+		if AdminDrops.grabbed(spot, roots(), p.pickup.reach) then
+			pop(spot)
+		end
+	end)
 	local from = part:GetAttribute("From")
 	local to = part.Position
 	local now = Workspace:GetServerTimeNow()

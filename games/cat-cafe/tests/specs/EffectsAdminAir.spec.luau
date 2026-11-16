@@ -170,5 +170,17 @@ return function()
 				expect(f.remember >= 60).to.equal(true)
 			end
 		)
+
+		it(
+			"pops a fish only when someone was beside it as it went (a pickup, not a timeout)",
+			function()
+				local q = Presets.adminDrops.pickup
+				local at = Vector3.new(10, 0, 10)
+				expect(AdminDrops.grabbed(at, { Vector3.new(12, 2, 10) }, q.reach)).to.equal(true)
+				expect(AdminDrops.grabbed(at, { Vector3.new(40, 2, 10) }, q.reach)).to.equal(false)
+				expect(AdminDrops.grabbed(at, {}, q.reach)).to.equal(false)
+				expect(q.glints <= 8 and q.seconds <= 0.5 and q.bead <= 1).to.equal(true) -- very small, for phones
+			end
+		)
 	end)
 end

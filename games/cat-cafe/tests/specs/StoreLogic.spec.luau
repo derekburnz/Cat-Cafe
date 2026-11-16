@@ -1520,7 +1520,9 @@ return function()
 			local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 			local SharedFishStore = require(Shared:WaitForChild("FishStore")) :: any
 			for _, key in StoreLogic.FISH_KEYS do
-				expect(SharedFishStore.item(key) ~= nil or SharedFishStore.product(key) ~= nil).to.equal(true)
+				expect(SharedFishStore.item(key) ~= nil or SharedFishStore.product(key) ~= nil).to.equal(
+					true
+				)
 			end
 			for _, pass in StoreLogic.PASSES do
 				if not pass.retired then
@@ -1544,16 +1546,21 @@ return function()
 			expect(short.progress).to.equal(0.5)
 		end)
 		it("says Next season on a closed Cafe Pass card (#4610)", function()
-			local closed = StoreLogic.fishButton({
-				key = "cafePass",
-				passId = 1,
-				name = "",
-				icon = "",
-				effect = "",
-				owned = false,
-				tab = "cafePass",
-				closed = true,
-			} :: any, { key = "cafePass", fish = 14950, bought = false, made = true }, 99999, false)
+			local closed = StoreLogic.fishButton(
+				{
+					key = "cafePass",
+					passId = 1,
+					name = "",
+					icon = "",
+					effect = "",
+					owned = false,
+					tab = "cafePass",
+					closed = true,
+				} :: any,
+				{ key = "cafePass", fish = 14950, bought = false, made = true },
+				99999,
+				false
+			)
 			expect(closed.text).to.equal("Next season")
 			expect(closed.action).to.equal("none")
 		end)

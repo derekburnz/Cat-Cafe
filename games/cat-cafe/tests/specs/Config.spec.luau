@@ -547,6 +547,7 @@ return function()
 				SpeedShoesCarryBonus = true, -- #3535: checked in SpeedShoes.spec
 				MysteryMarketRange = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				TicketBoothTier = true, -- #4061: checked in TicketBooth.spec (the Water Park taken as Tier 9)
+				SecretNextMythicTimes = true, -- #4618: checked in SecretCats.spec (a Secret earns 10x the next area's Mythic)
 				LongNetReachStuds = true, -- #2565: the Long Net's extra reach, checked in NetSwing.spec
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
 				WaveMinRareRerollOdds = true, -- a table, checked in Catching.spec (F97 section 7)
@@ -565,6 +566,9 @@ return function()
 				DecorSpots = true, -- a table, checked below
 				CodeWrongWindowSeconds = true, -- section 11d: "5 wrong codes in a minute"
 				GroupCheckSeconds = true, -- section 11d: IsInGroup "cached per player for 60 s"
+				GroupJoinTrustSeconds = true, -- #4679: checked in StarterCat.spec
+				GroupJoinRetries = true, -- #4679: checked in StarterCat.spec
+				GroupJoinRetrySeconds = true, -- #4679: checked in StarterCat.spec
 				StraySpawnSpacingStuds = true, -- Derek 22:38: strays spawn spread out; the designer logs it in section 17
 				StrayFloorBase = true, -- #1159: top-ups, checked in StrayTopUp.spec
 				StrayFloorPerPlayer = true,

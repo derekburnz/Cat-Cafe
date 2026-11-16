@@ -8,10 +8,20 @@
 --                                                 again in a moment"). The cat (level 1, base coat, StarterCatCharm) takes a
 --                                                 free role slot or rests (CafeService.addGiftCat); starterCatClaimed
 --                                                 is saved before the answer, so one claim per account.
+--   GroupJoinPrompted()                   C -> S  1 per 5 s (#4679): "Join the group" was pressed and the prompt
+--                                                 opened. Kept for the session. A claim inside
+--                                                 GroupJoinTrustSeconds of it that Roblox still answers "no" asks
+--                                                 again (IsInGroupAsync, then the uncached
+--                                                 GroupService:GetGroupsAsync) GroupJoinRetries times,
+--                                                 GroupJoinRetrySeconds apart, while the card shows its "..."; if
+--                                                 it is still "no" the cat goes home anyway (gate "join_prompt").
+--                                                 Nothing else changes: range, one claim per account.
 --   StarterCatResult(ok, reason?)         S -> C  ok plays the happy hop; a refusal's reason is the card's line.
--- Logs `starter_cat` (gate "task" or "group") and funnel step 25 `starter_cat`.
+-- Logs `starter_cat` (gate "task", "group", "group_fresh" when only the uncached check said yes, or "join_prompt")
+-- and funnel step 25 `starter_cat`.
 
 local CollectionService = game:GetService("CollectionService")
+local GroupService = game:GetService("GroupService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -31,6 +41,7 @@ type Answer = { member: boolean, at: number } -- os.clock()
 
 local answers: { [Player]: Answer } = {}
 local claiming: { [Player]: boolean } = {} -- a claim waiting on IsInGroupAsync
+local prompted: { [Player]: number } = {} -- #4679: os.clock() of the last "Join the group" press
 
 -- True when the player stands within StarterCatRangeStuds of a stand, measured flat like the Codes Cat's.
 local function nearStand(player: Player): boolean
@@ -74,8 +85,56 @@ local function inGroup(player: Player): boolean?
 	return member == true
 end
 
+-- #4679: the same question asked past Roblox's per-session answer: the player's group list, fetched new each call.
+-- nil when the call failed. Yields.
+local function inGroupFresh(player: Player): boolean?
+	local ok, groups = pcall(function()
+		return GroupService:GetGroupsAsync(player.UserId)
+	end)
+	if not ok or type(groups) ~= "table" then
+		return nil
+	end
+	for _, group in groups :: { any } do
+		if type(group) == "table" and group.Id == Config.GroupId then
+			answers[player] = { member = true, at = os.clock() }
+			return true
+		end
+	end
+	return false
+end
+
 local function answer(player: Player, ok: boolean, reason: string?)
 	Net.fire(player, "StarterCatResult", ok, reason)
+end
+
+-- #4679: how the group gate was passed, for the log: "group" (Roblox's own answer), "group_fresh" (only the uncached
+-- list said yes) or "join_prompt" (still "no" after the retries, let through on the join press); nil when it was not.
+-- `member` is the first answer. Asks again only for a player who pressed "Join the group" this session. Yields.
+local function passGroup(player: Player, member: boolean?): (boolean?, string?)
+	if member == true then
+		return true, "group"
+	end
+	local at = prompted[player]
+	if not StarterCat.trustsJoin(if at ~= nil then os.clock() - at else nil) then
+		return member, nil
+	end
+	-- no line is sent while this runs: the card shows its own "..." until the answer (5 s at most, which the
+	-- retries below stay inside)
+	for try = 1, Config.GroupJoinRetries do
+		if inGroupFresh(player) == true then
+			return true, "group_fresh"
+		end
+		if player.Parent == nil then
+			return nil, nil
+		end
+		if try < Config.GroupJoinRetries then
+			task.wait(Config.GroupJoinRetrySeconds)
+			if inGroup(player) == true then
+				return true, "group"
+			end
+		end
+	end
+	return true, "join_prompt"
 end
 
 local function onClaim(player: Player)
@@ -86,6 +145,7 @@ local function onClaim(player: Player)
 	local near = nearStand(player)
 	local groupId = Config.GroupId
 	local gate = StarterCat.gate(groupId)
+	local logGate: string = gate -- #4679: how the gate was passed, for the log
 	local member: boolean? = nil
 	-- the cheap refusals first, so a claim already made or out of range never asks Roblox
 	local early = StarterCat.blocker(profile, near, if gate == "group" then true else nil, groupId)
@@ -95,8 +155,12 @@ local function onClaim(player: Player)
 	end
 	if gate == "group" then
 		claiming[player] = true
-		member = inGroup(player)
+		local how: string?
+		member, how = passGroup(player, inGroup(player))
 		claiming[player] = nil
+		if how ~= nil then
+			logGate = how
+		end
 		-- the call yielded: the player may have left, claimed on another path or walked away
 		local now = DataService.get(player)
 		if now ~= profile or player.Parent == nil then
@@ -112,7 +176,7 @@ local function onClaim(player: Player)
 	local def = Catalog.getCat(StarterCat.CAT_ID) :: Types.CatDef
 	profile.starterCatClaimed = true -- before the cat, so nothing can claim twice
 	CafeService.addGiftCat(player, profile, def, Config.StarterCatCharm)
-	Telemetry.custom(player, "starter_cat", 1, { gate })
+	Telemetry.custom(player, "starter_cat", 1, { logGate })
 	Telemetry.onboarding(player, profile, "starter_cat")
 	answer(player, true, nil)
 end
@@ -129,6 +193,7 @@ function StarterCatService.debugReset(player: Player, profile: Types.PlayerProfi
 	end
 	profile.starterCatClaimed = false
 	answers[player] = nil
+	prompted[player] = nil
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 	return removed
@@ -136,9 +201,15 @@ end
 
 function StarterCatService.start()
 	Net.on("ClaimStarterCat", onClaim)
+	Net.on("GroupJoinPrompted", function(player: Player)
+		if Config.GroupId ~= 0 then
+			prompted[player] = os.clock()
+		end
+	end)
 	Players.PlayerRemoving:Connect(function(player: Player)
 		answers[player] = nil
 		claiming[player] = nil
+		prompted[player] = nil
 	end)
 end
 

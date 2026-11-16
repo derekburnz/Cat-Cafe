@@ -3,7 +3,7 @@
 -- PlayerState.fusion and the player's cats. Five copies of one cat in one coat make one in the next coat. Pure apart
 -- from the shared modules it reads (Catalog, CatStats, Traits), so the specs check it.
 --   groups(cats, busy) -> (ready, almost)        the cats and coats with 5+ free copies, and those at 3 or 4
---   defaultPick(group) -> { string }             the best level copy and the four weakest others
+--   defaultPick(group) -> { string }             the five lowest level copies (#4588)
 --   result(group, picked) -> Result              the level, name and traits the new cat may keep
 --   dome(view, now) -> Dome                      the dome card: free, running with a timer, or ready
 --   clock(seconds) -> string                     "6:42", "1:02:05"
@@ -80,6 +80,11 @@ export type Group = {
 local function weakerFirst(a: Copy, b: Copy): boolean
 	if a.level ~= b.level then
 		return a.level < b.level
+	end
+	-- #4588: then the least XP, as the server's Fusion.defaultPick
+	local xa, xb = a.instance and a.instance.xp or 0, b.instance and b.instance.xp or 0
+	if xa ~= xb then
+		return xa < xb
 	end
 	if a.charm ~= b.charm then
 		return a.charm < b.charm
@@ -166,15 +171,15 @@ function FusionLogic.groups(
 	return ready, almost
 end
 
--- The best level copy (the strongest, last in `free`) and the four weakest others, so the new cat keeps the level the
--- player worked for and the weakest copies are the ones spent.
+-- #4588 (Derek 2026-11-15: "make it so it picks the 5 lowest level copies"): the five weakest copies (first in
+-- `free`), so a fusion spends the lowest levels unless the player ticks others.
 function FusionLogic.defaultPick(group: Group): { string }
 	local free = group.free
 	if #free < FusionLogic.COPIES then
 		return {}
 	end
-	local out = { free[#free].uid }
-	for index = 1, FusionLogic.COPIES - 1 do
+	local out = {}
+	for index = 1, FusionLogic.COPIES do
 		table.insert(out, free[index].uid)
 	end
 	return out

@@ -3254,19 +3254,6 @@ local function wireServerEvents()
 			show(view)
 		end
 	end)
-	-- #1955: Auto Equip moved cats; UI.autoEquip merges swaps within 2 s into one toast. Wired only once the server
-	-- declares the remote, so this never waits on one that is not there.
-	local serverEvents: { string } = (require(
-		ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes")
-	) :: any).ServerToClient
-	if table.find(serverEvents, "AutoEquipped") then
-		Net.on("AutoEquipped", function(swaps: any)
-			local auto = (UI :: any).autoEquip
-			if auto ~= nil then
-				auto.swapped(swaps)
-			end
-		end)
-	end
 	-- #1947: the like or favourite gift, already paid; UI.gift.show waits for the player to be idle before the card
 	Net.on("PlaytimeGift", function(kind: string, paid: { string }?)
 		local gift = (UI :: any).gift
@@ -3534,6 +3521,18 @@ function UIController.start()
 		:Connect(function()
 			catalog.indexPrizes = SharedIndexRewards.shownPrizes()
 		end)
+	-- #4607 (Derek 2026-11-15: menus "reverted to the old menu style" after the 22:00 publish): a new server publishes
+	-- the switches' defaults before its first read of the store, and MenuFamily takes its look once, at the first
+	-- window built, so the first players in a fresh server latched the old look (and white words on the Store's
+	-- white sheet rows). Wait for the store's values, a few seconds at most.
+	local LiveFlagsShared = require(Shared:WaitForChild("LiveFlags")) :: any
+	local readyBy = os.clock() + LiveFlagsShared.READY_WAIT
+	while
+		ReplicatedStorage:GetAttribute(LiveFlagsShared.READY_ATTRIBUTE) ~= true
+		and os.clock() < readyBy
+	do
+		task.wait(0.1)
+	end
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({
 		catalog = catalog,

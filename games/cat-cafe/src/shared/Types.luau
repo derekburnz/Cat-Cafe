@@ -827,6 +827,7 @@ export type Stats = {
 	goldenCratesOpened: number,
 	restSeconds: number,
 	cannonFlights: number, -- #3618: cannon flights taken, for the Liftoff badge
+	tier2TopUp: number, -- #4453: coins the first tamed bait cat's welcome paid toward Tier 2 (0: none yet)
 }
 
 export type WeekPlay = { week: number, seconds: number }
@@ -1375,10 +1376,6 @@ export type DealerStock = { night: number, stock: { DealerFood } }
 
 -- Saved per player (data-model section 14). JSON-safe values only.
 -- The player's settings (data-model section 14; shared/Settings validates them). Volumes run from 0 to 1.
--- #1955: one cat an Auto Equip run put to work (the AutoEquipped remote): its name (nickname or catalog name), the
--- role's name ("Barista") and the coins a second the run gained, sent only when it moved exactly one cat
-export type AutoEquipSwap = { catName: string, role: string, perSecond: number? }
-
 export type Settings = {
 	music: boolean,
 	sfx: boolean,
@@ -1651,6 +1648,9 @@ export type PlayerState = {
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,
+	-- #4626: tomorrow's reason to come back for the minute 6 line (shared/ReturnHook.early, "gift" or "treat"); nil
+	-- with the returnHookEarly switch off, from Tier 3, with nothing to name, and from an older server
+	tomorrowHook: ReturnHookView?,
 	returnGoals: { ReturnGoalView }?, -- #2916: a returning player's next goals on the welcome back card
 	-- #3022: set from the first customer served until the second cat is checked in (shared/SecondCat.view); nil
 	-- otherwise, and from an older server

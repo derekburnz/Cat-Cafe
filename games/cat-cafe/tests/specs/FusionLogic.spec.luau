@@ -67,20 +67,19 @@ return function()
 	end)
 
 	describe("FusionLogic.defaultPick and result", function()
-		it("keeps the best level copy and spends the weakest", function()
+		it("picks the five lowest level copies (#4588)", function()
 			local cats = sample()
 			cats.t7 = cat("tabby", 4)
 			local ready = Logic.groups(cats, nil)
 			local tabby = ready[2]
 			local pick = Logic.defaultPick(tabby)
 			expect(#pick).to.equal(5)
-			expect(pick[1]).to.equal("t2") -- Lv 12
-			expect(table.find(pick, "t4")).to.equal(nil) -- Lv 7 is the one left over
+			expect(pick[1]).to.equal("t3") -- Lv 1, the lowest
+			expect(table.find(pick, "t2")).to.equal(nil) -- Lv 12 is the one left over
 			local result = Logic.result(tabby, pick)
-			expect(result.level).to.equal(12)
-			expect(result.name).to.equal("Mochi")
+			expect(result.level).to.equal(7) -- the best of the five kept (t4)
 			expect(#result.traits).to.equal(1)
-			expect(result.traits[1].id).to.equal("bigTipper_epic")
+			expect(result.traits[1].id).to.equal("nightOwl_common")
 		end)
 		it("lists every trait in the pick, rarest first", function()
 			local ready = Logic.groups(sample(), nil)

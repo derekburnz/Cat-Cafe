@@ -3964,8 +3964,7 @@ Presets.harvestFx = {
 -- #4325 (Effects/AdminFlash): an admin event takes the screen and the world. The 3, 2, 1 begins `countFrom` seconds
 -- before the start; the name splash holds `splashSeconds`; the strip comes in `stripAfter` seconds in (as the
 -- splash leaves) at `stripY` of the screen's height, and in the event's last `lastSeconds` (events of
--- `lastMinEvent` seconds or longer) turns red and swells by `pulse` `pulseHz` times a second, under the 3 a second
--- flashing limit. The end card holds `overSeconds`. Sizes are pixels on a `designHeight` tall screen, scaled to the
+-- `lastMinEvent` seconds or longer) turns red and stays steady (#4603: no swell). The end card holds `overSeconds`. Sizes are pixels on a `designHeight` tall screen, scaled to the
 -- screen's shorter side between `scaleMin` and `scaleMax`. `looks`: the world's tint while each kind runs, eased
 -- over `tintSeconds`, and the band's and strip's colours.
 Presets.adminFlash = {
@@ -3994,13 +3993,12 @@ Presets.adminFlash = {
 	splashPop = 0.4,
 	popSeconds = 0.25,
 	stripY = 0.17,
+	stripLift = 140, -- #4616: on touch the strip's bottom edge sits this far over the screen's bottom (above My Cafe)
 	stripWidth = 220,
 	stripHeight = 56,
 	stripBig = 25,
 	stripSmall = 15,
 	earnEase = 0.12,
-	pulseHz = 1,
-	pulse = 0.08,
 	overWidth = 460,
 	overHeight = 130,
 	overTitle = 34,
@@ -7382,6 +7380,14 @@ Presets.dragonRise = {
 		clearGap = 1.5,
 		clearLeast = 0.25,
 		clearEase = 0.12,
+		-- #4612 (Derek: "make it show from above"): the yard shots look down on him by at least `pitch` and over the
+		-- Keep's walls by `wallGap` studs (Effects/KeepShot). The walls come from the Keep model's box (top at most
+		-- `wallsMost`); without one, `wallsHalf` and `wallsTop` (the Keep export: 15 x 15 studs, 7.5 high)
+		pitch = math.rad(38),
+		wallGap = 2,
+		wallsHalf = 7.5,
+		wallsTop = 7.5,
+		wallsMost = 16,
 	},
 	-- the ember ball
 	ball = {

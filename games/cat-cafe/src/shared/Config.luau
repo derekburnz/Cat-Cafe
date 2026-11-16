@@ -1050,6 +1050,10 @@ local Config = {
 	FusionGoldSeconds = 0,
 	FusionRainbowSeconds = 0,
 	FusionTier = 8,
+	-- #4221 (Derek 2026-11-15 21:57 UTC: "make them behave like 10x money of the mythic cat from the next tier area so
+	-- secret tier 9 is 10x the tier 10 mythic"): an area's Secret earns this many times the Mythical of the area one
+	-- tier past its home (Catalog's secret). Tier 10's next area is taken as three times the Castle, the ladder's step.
+	SecretNextMythicTimes = 10,
 	-- #4055 (Derek 2026-11-13 23:53 UTC): Tiers 8 to 10 pay 300 each, so the fish Store can be reached by playing
 	FishRankUp = { 5, 15, 30, 60, 100, 150, 300, 300, 300 } :: { number },
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds
@@ -1536,6 +1540,13 @@ local Config = {
 	GroupId = 107520049, -- Creampuff Games, the community group (since 2026-11-03, #999): the starter cat's gate and
 	-- requiresGroup codes. 0 turns both off (the starter cat back on the first goals)
 	GroupCheckSeconds = 60, -- how long a player's group membership answer is kept
+	-- #4679 (Derek 2026-11-16: players join the group and still cannot take the Bellhop Cat until they rejoin, as
+	-- Roblox keeps its "not a member" answer for the session): for this long after a player presses "Join the group",
+	-- a claim asks Roblox again GroupJoinRetries times, GroupJoinRetrySeconds apart, and if the answer is still "no"
+	-- the cat goes home anyway. The cat is a one-time gift; the group check is a nudge, not a lock.
+	GroupJoinTrustSeconds = 600,
+	GroupJoinRetries = 2, -- with the wait below it stays inside the card's 5 s wait for an answer
+	GroupJoinRetrySeconds = 1.5,
 
 	-- The free Bellhop Cat (F96, starter-cat.md sections 2 and 4). Its stand's card opens and ClaimStarterCat is taken
 	-- within StarterCatRangeStuds (flat) of a BellhopStand's pivot. While GroupId is 0 a claim needs the first goals

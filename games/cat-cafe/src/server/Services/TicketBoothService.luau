@@ -12,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local TicketBooth = require(ReplicatedStorage.Shared.TicketBooth)
 local Traits = require(ReplicatedStorage.Shared.Traits)
@@ -62,6 +63,10 @@ local function onBuy(player: Player, rawId: unknown)
 		and profile.traits.tokens + prize.tokens > Traits.TOKEN_MAX
 	then
 		reason = "Your token bank is full" -- Review-QA on #4088: never spend tickets on tokens that do not fit
+	end
+	local spins = if prize.prize ~= nil then prize.prize.spins else nil
+	if reason == nil and spins ~= nil and profile.spin.banked + spins > Config.SpinBankCap then
+		reason = "Your spins are full, spin a few first" -- #4596: the same for banked spins (Config.SpinBankCap)
 	end
 	if reason ~= nil then
 		Net.toast(player, reason, "warn")

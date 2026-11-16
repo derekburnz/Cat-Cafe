@@ -8,10 +8,13 @@
 -- instantly into a cannon teleport"): step 5 now comes when the first bowl cat is tamed or let go (BaitService), and
 -- the move to the cannon waits CANNON_DELAY seconds after it (a beat since #3640); a player who has
 -- walked more than LEFT_STUDS from where they stood by then has moved on by themselves and is left alone.
+-- #4674 (Derek 2026-11-16: "then upgrade to tier 2 into park teleport"): under bowl first (shared/TutorialOrder) the
+-- rank up to Tier 2 moves the player onto the Park's landing pad, PARK_DELAY seconds after it (the rank up toast first).
+-- A rank up happens once a save, so this move does too.
 
 local TutorialMoves = {}
 
-export type Target = "bowl" | "cannon"
+export type Target = "bowl" | "cannon" | "park"
 
 TutorialMoves.BOWL_STEP = 4
 TutorialMoves.CANNON_STEP = 5
@@ -27,6 +30,8 @@ TutorialMoves.CANNON_STUDS = 15
 -- enough to read which cat it is (Review-QA measured 0.7 to 1.1 seconds of card at a 1 second wait).
 TutorialMoves.CANNON_DELAY = 2 -- seconds between the step and the move to the cannon
 TutorialMoves.LEFT_STUDS = 30 -- walked this far in that time: no move
+TutorialMoves.PARK_DELAY = 2 -- seconds between the rank up to Tier 2 and the move into the Park (#4674)
+TutorialMoves.PARK_TIER = 2 -- the rank up that moves the player (its area is the Park)
 -- The tags the client's step pointers (#2697 part 1) find the targets by: the bowl part in each plot (the owner's
 -- plot is the Plot-tagged ancestor with OwnerUserId), and the cannons (CannonId "town" for the Town Square's).
 TutorialMoves.BOWL_TAG = "BaitBowl"
@@ -44,9 +49,20 @@ function TutorialMoves.target(from: number, to: number): Target?
 	return target
 end
 
--- How long after a step change the move to `target` waits: the cannon's waits CANNON_DELAY, the bowl's none.
+-- How long after a step change the move to `target` waits: the cannon's waits CANNON_DELAY, the Park's PARK_DELAY,
+-- the bowl's none.
 function TutorialMoves.delay(target: Target): number
-	return if target == "cannon" then TutorialMoves.CANNON_DELAY else 0
+	if target == "cannon" then
+		return TutorialMoves.CANNON_DELAY
+	elseif target == "park" then
+		return TutorialMoves.PARK_DELAY
+	end
+	return 0
+end
+
+-- #4674: whether a rank up to `tier` moves the player into the Park: bowl first on (`bowlFirst`) and the Tier 2 one.
+function TutorialMoves.parkAfterRankUp(tier: number, bowlFirst: boolean): boolean
+	return bowlFirst and tier == TutorialMoves.PARK_TIER
 end
 
 -- Whether a player who stood at `from` when the step came and stands at `now` after the wait is still there to be

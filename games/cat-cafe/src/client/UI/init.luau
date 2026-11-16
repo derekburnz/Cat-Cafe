@@ -1106,6 +1106,7 @@ function UI.init(config: Types.InitConfig)
 	})
 	cannonScreen = Cannon.new({
 		launch = function(cannonId: string, destination: string)
+			UI.cannon.endWalkRing() -- #4674: Launch pressed, the walk-through's Alleyway ring goes
 			UI.events.launchCannon:Fire(cannonId, destination)
 		end,
 		-- #3082: Collect on a card's strip, from anywhere (UIController sends CollectCampExtra; #1463 had it for a
@@ -3692,6 +3693,19 @@ function UI.carryMarker.apply()
 	else
 		marker:hide()
 	end
+	-- #4699 (Derek 2026-11-16: "first catch in tutorial ... have foodsteps after catching to the safezone as some
+	-- people get lost (make them disapear once cat secured)"): while one of the first cats is carried to the camp
+	-- basket, the tutorial's trail runs to it as paw prints. The carry ending (secured, or dropped) takes them away.
+	-- Review-QA: under bowl first (#4518) the bowl cat moves tutorialStep on before the first hand catch, so the
+	-- prints also show while the second cat is not done yet (SecondCat.done, UIController's secondCatDone)
+	local early = (state.tutorialStep or 0) < 2 or (state :: any).secondCatDone == false
+	local first = shown ~= nil and shown.camp ~= nil and early
+	local camp: BasePart? = if first and shown ~= nil then shown.camp :: BasePart else nil
+	local cards: any = UI -- UI.parkTrail is built further down
+	if cards.parkTrail.carry ~= camp then
+		cards.parkTrail.carry = camp
+		cards.parkTrail.apply(tutorialTarget)
+	end
 end
 
 -- #2864: the Backpack's cat while the hands are empty ({ catId, door, camp }), or nil once the bag is empty or a cat
@@ -3904,6 +3918,7 @@ UI.cannon.wrapUp = { step = nil :: number?, on = false }
 -- #2915: "Fly to the Park" on the rank-up card (flyToPark). `ring` is the area whose picker card is ringed, `travel`
 -- that the trip to the cannon is under way (UI.travel.result opens the picker when it lands), `token` the newest press.
 UI.cannon.fly = { ring = nil :: string?, travel = false, token = 0 }
+UI.cannon.walkRing = nil :: string? -- #4674: the walk-through's Alleyway ring on the picker, until Launch
 -- The wild area the character is in (setWild), and the cannon the character stands by (CannonController sets it).
 UI.cannon.area = nil :: string?
 
@@ -3914,6 +3929,7 @@ UI.parkTrail = {
 	target = nil :: BasePart?,
 	goal = nil :: string?,
 	tutorial = false, -- a tutorial target has the trail
+	carry = nil :: BasePart?, -- #4699: the camp basket the first carried cat goes to; paw prints lead there
 	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
 	STRIP = "Visit the Park: follow the paws to a cannon 🐾", -- #3893: the strip's line while the walk is on
 	STRIP_PLAIN = "Visit the Park: hop in a cannon to fly there 🐾", -- the same with the paw trail switched off
@@ -3941,6 +3957,13 @@ end
 function UI.parkTrail.apply(tutorialTarget: any)
 	local trail = tutorialTrail
 	if trail == nil then
+		return
+	end
+	-- #4699: the first cat carried to the camp: paw prints to its basket (no tutorial target shows while carrying)
+	local carry: BasePart? = UI.parkTrail.carry
+	if tutorialTarget == nil and carry ~= nil and carry.Parent ~= nil then
+		trail:mark("Paws", true)
+		trail:show(carry)
 		return
 	end
 	local park: BasePart? = UI.parkTrail.target
@@ -4119,7 +4142,35 @@ function UI.cannon.open(cannonId: string?)
 		return
 	end
 	screen:setCannon(cannonId or CannonLogic.TOWN)
+	-- #4674: in the bowl first walk-through the Alleyway card's Launch is ringed until it is pressed
+	local WalkRingLogic = require(script.Components.WalkRingLogic)
+	local TutorialOrder =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")) :: any
+	local walk = WalkRingLogic.area({
+		bowlFirst = TutorialOrder.bowlFirst(),
+		tier = state.tier,
+		secondCatDone = (state :: any).secondCatDone, -- (UIController's; PlayerState has no field for it)
+		cannonId = cannonId or CannonLogic.TOWN,
+		flyRing = UI.cannon.fly.ring,
+	})
+	if walk ~= nil then
+		UI.cannon.walkRing = walk
+		screen:setRing(walk)
+	else
+		UI.cannon.endWalkRing()
+	end
 	windows:open("Cannon")
+end
+
+-- #4674: ends the walk-through's Alleyway ring (Launch pressed), leaving the Park ring from Rank Up alone.
+function UI.cannon.endWalkRing()
+	if UI.cannon.walkRing == nil then
+		return
+	end
+	UI.cannon.walkRing = nil
+	if cannonScreen and UI.cannon.fly.ring == nil then
+		cannonScreen:setRing(nil)
+	end
 end
 
 -- CannonLaunch(destination, launchAt) from the server: the picker closes, and the name card pops in at once, as it
@@ -10813,12 +10864,6 @@ function UI.gift.show(kind: any, paid: any)
 		end)
 	end
 end
-
--- #1955 (auto-equip.md): UIController's hook for AutoEquipped(swaps). #2399 (Derek2: "auto equip bubble pop-ups are
--- also just more bloat on the screen"): no toast any more; the Cats window shows the jobs.
-UI.autoEquip = {}
-
-function UI.autoEquip.swapped(_raw: any) end
 
 ----------------------------------------------------------------------------------------------------
 -- Cafe Events (#2487, live-events.md section 3)

@@ -183,6 +183,13 @@ return function()
 			end
 		)
 
+		it("gives no pop to drops cleared when the admin event ends", function()
+			expect(AdminDrops.eventOver(false, 500, 100, 1)).to.equal(true)
+			expect(AdminDrops.eventOver(true, 500, 499.5, 1)).to.equal(true)
+			expect(AdminDrops.eventOver(true, 500, 200, 1)).to.equal(false)
+			expect(AdminDrops.eventOver(nil, nil, 200, 1)).to.equal(false)
+		end)
+
 		it("gives no pop to a drop that ran out with someone beside it", function()
 			local q = Presets.adminDrops.pickup
 			expect(AdminDrops.ranOut(100, q.life, 100 + q.life, q.margin)).to.equal(true)

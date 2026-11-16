@@ -162,6 +162,30 @@ function AdminDrops.ranOut(bornAt: unknown, life: number, now: number, margin: n
 	return now >= (bornAt :: number) + life - margin
 end
 
+-- True when the admin event is over (or ends within `margin`) by `now`: the server clears every drop at the end, so
+-- none of those goings is a grab (Review-QA on #4905). `running` and `endsAt` are ReplicatedStorage's
+-- AdminEventRunning and AdminEventEndsAt (CafeEvents.ADMIN_ATTRIBUTES).
+function AdminDrops.eventOver(
+	running: unknown,
+	endsAt: unknown,
+	now: number,
+	margin: number
+): boolean
+	if running == false then
+		return true
+	end
+	return AdminDrops.ranOut(endsAt, 0, now, margin)
+end
+
+local function over(now: number): boolean
+	return AdminDrops.eventOver(
+		ReplicatedStorage:GetAttribute("AdminEventRunning"),
+		ReplicatedStorage:GetAttribute("AdminEventEndsAt"),
+		now,
+		Presets.adminDrops.pickup.margin
+	)
+end
+
 -- True when one of `roots` (character root positions) is within `reach` studs of `at`: the fish was grabbed, not
 -- left to run out.
 function AdminDrops.grabbed(at: Vector3, roots: { Vector3 }, reach: number): boolean
@@ -234,6 +258,7 @@ local function fish(part: BasePart)
 		local now = Workspace:GetServerTimeNow()
 		if
 			not AdminDrops.ranOut(droppedAt, p.pickup.life, now, p.pickup.margin)
+			and not over(now)
 			and AdminDrops.grabbed(spot, roots(), p.pickup.reach)
 		then
 			pop(spot)
@@ -380,6 +405,7 @@ local function crate(model: Model)
 		if
 			landed
 			and not AdminDrops.ranOut(opens, p.cratePop.life, now, p.pickup.margin)
+			and not over(now)
 			and AdminDrops.grabbed(spot.Position, roots(), p.cratePop.reach)
 		then
 			popCrate(spot)

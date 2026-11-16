@@ -14291,7 +14291,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 			return ""
 		end
-		assert(tile:GetAttribute("On") == false and words() == "AFK", "uigate: the AFK tile looks on while the mode is off (#4346)")
+		assert(tile:GetAttribute("On") == false and words() == "AFK OFF", "uigate: the AFK tile looks on while the mode is off (#4346, #4974)")
 		tapPiece(tile)
 		assert(fake.toggles == 1, ("uigate: the AFK tile asked %d times for one tap (#4346)"):format(fake.toggles))
 		fake.onNow = true

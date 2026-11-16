@@ -2603,14 +2603,17 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		end
 	elseif name == "share" then
 		-- #4911: once a session each event (the button shows once a session); share_result keeps the first ending
-		local event = if type(rawValue) == "string" then SHARE_REPORTS[rawValue] else nil
+		local event: CustomEvent? = if type(rawValue) == "string"
+			then SHARE_REPORTS[rawValue]
+			else nil
 		if event ~= nil and not session.nudges["share:" .. event] then
 			session.nudges["share:" .. event] = true
 			local fields = { session.device or "unknown" }
-			if event == "share_result" then
+			-- the result's outcome as a second field (a string compare here would widen `event` to string)
+			if SHARE_REPORTS[rawValue :: string] == SHARE_REPORTS.shared then
 				table.insert(fields, rawValue :: string)
 			end
-			Telemetry.custom(player, event, 1, fields)
+			Telemetry.custom(player, event :: CustomEvent, 1, fields)
 		end
 	elseif name == "fx_lite" then
 		-- #4945: once a session; seconds 0 to 3600 and fps 0 to 60, else dropped

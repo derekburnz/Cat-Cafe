@@ -182,6 +182,11 @@ local function showServerBest()
 	end
 end
 
+-- #4722 review (Sync-Agent 2026-11-16): MouseDashState carries `loaded` (Mouse Dash's save and this one), so when
+-- this save comes after Mouse Dash's, MouseDashService sends its state again through this hook; before, the client kept
+-- loaded=false and the cabinet's "!" stayed down for the session.
+ArcadeService.onSaveLoaded = nil :: ((player: Player) -> ())?
+
 -- Reads `player`'s arcade save when they join, trying again a few times; nothing read keeps the arcade shut for them.
 local function load(player: Player)
 	task.spawn(function()
@@ -189,6 +194,10 @@ local function load(player: Player)
 		if where == nil then
 			saves[player] = Arcade.fresh()
 			sendState(player)
+			local hook = ArcadeService.onSaveLoaded
+			if hook ~= nil then
+				hook(player)
+			end
 			return
 		end
 		local key = tostring(player.UserId)
@@ -204,6 +213,10 @@ local function load(player: Player)
 				saves[player] = save
 				ArcadeBoard.note(player, save.best, save.bestCircles) -- #3338
 				sendState(player)
+				local hook = ArcadeService.onSaveLoaded
+				if hook ~= nil then
+					hook(player) -- #4722 review: Mouse Dash's state names this save as loaded
+				end
 				return
 			end
 			local wait = READ_WAITS[attempt]

@@ -38,5 +38,18 @@ return function()
 		it("rings nothing at the Alleyway camp's own cannon", function()
 			expect(WalkRingLogic.area(view({ cannonId = "alley" }))).to.equal(nil)
 		end)
+
+		it(
+			"flies the walk-through's first flight from the Town Square straight to the Alleyway (#4920)",
+			function()
+				expect(WalkRingLogic.direct(view({}), true)).to.equal("alley")
+				expect(WalkRingLogic.direct(view({}), false)).to.equal(nil) -- the switch off: the picker
+				expect(WalkRingLogic.direct(view({ cannonId = "alley" }), true)).to.equal(nil)
+				expect(WalkRingLogic.direct(view({ tier = 2 }), true)).to.equal(nil)
+				expect(WalkRingLogic.direct(view({ flyRing = "park" }), true)).to.equal(nil)
+				expect(WalkRingLogic.direct(view({ bowlFirst = false }), true)).to.equal(nil)
+				expect(WalkRingLogic.FLAG).to.equal("firstFlightDirect")
+			end
+		)
 	end)
 end

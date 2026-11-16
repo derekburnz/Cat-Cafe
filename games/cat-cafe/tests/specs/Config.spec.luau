@@ -230,6 +230,7 @@ return function()
 		BigBowlWaitCutSeconds = 120, -- F95 (economy-ladder.md section 6b): the Big Bowl takes 2 minutes off
 		FirstBaitWaitSeconds = 5, -- #1895: the account's first bait; #3161: was 1 (#2946), 45 (#2774), 120 before
 		FirstBaitCatLeadSeconds = 4, -- #3161: the first bait's cat stands at the bowl this long before its timer ends
+		FirstBaitReadySeconds = 3, -- #4920: the account's first bait is ready this long after the food
 		RecapAfterSeconds = 2400, -- #1920: seconds of play before the session recap card
 		RecapFirstSessionSeconds = 480, -- #2123: sooner in the account's first session; #3772: 8 minutes
 		LikeGiftMinutes = 10, -- #1947 (like-prompts.md section 3): the like card's play time

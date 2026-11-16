@@ -9694,6 +9694,10 @@ do
 				or UI.rollBusy.window
 				or UI.rollBusy.held()
 				or (UI.bait.cutting ~= nil and (UI.bait.cutting :: () -> boolean)())
+				-- #4877 (Derek 2026-11-16 16:36 UTC: "no admin events ui or anything on screen for people in tutorial
+				-- steps"): not through the first cat hold or the walk-through either; it opens once they end
+				or UI.firstCat.held
+				or UI.firstCat.tutorial
 			if os.clock() - upAt >= AUTO_OPEN and modal and modal:current() == nil and not busy then
 				admin.autoOpened[wheel.eventId] = true
 				UI.admin.open()
@@ -11561,13 +11565,15 @@ do
 				then AdminEventLogic.startBanner(adminView, now)
 				else AdminEventLogic.soonBanner(adminView, now)
 			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
-			if not UI.firstCat.tutorial then -- Derek 2026-11-16 15:22 UTC: the chat line only, in the walk-through
+			-- Derek 2026-11-16 15:22 UTC and #4877 (16:36 UTC, "no admin events ui or anything on screen for people in
+			-- tutorial steps"): through the first cat hold and the walk-through, no banner and no chat line either
+			if not (UI.firstCat.tutorial or UI.firstCat.held) then
 				EventBanner.show(card)
 				UI.popPace.used() -- #4946: it counts as the one pop-up
+				-- the same words as one line in the chat window, for a player who looked away
+				local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any
+				AdminEventChat.say(AdminEventLogic.chatLine(card))
 			end
-			-- the same words as one line in the chat window, for a player who looked away
-			local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any
-			AdminEventChat.say(AdminEventLogic.chatLine(card))
 		end
 		local current = hud
 		if current then

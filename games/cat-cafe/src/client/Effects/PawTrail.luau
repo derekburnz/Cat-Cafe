@@ -1,11 +1,13 @@
 --!strict
 -- Paw prints for a guide trail (#3554: "Paw prints only. No arrows, no timer"). UI's GuideTrail lays flat gold dots
--- from the player to a target. While its folder carries the attribute `Paws = true` (the caller sets it for the walk
--- to the Park gate and to the first Park stray), each dot is drawn as a paw print instead: a pad and four toes,
+-- from the player to a target. #4940 (Derek 2026-11-16: "make the paw trails pointing to stuff in tutorial steps"):
+-- every tutorial step's trail is paws now, whatever the folder's `Paws` attribute says (UI still sets it for the Park
+-- walk and the carry; it no longer gates anything). Each dot is drawn as a paw print instead: a pad and four toes,
 -- toes towards the target, left and right in turn like a cat's steps. The dot itself is hidden on this client
 -- (LocalTransparencyModifier, which GuideTrail never writes), and each paw fades with its dot, so GuideTrail's
--- comet of light still runs along the trail and Reduce Motion still holds it lit and still. GuideTrail is untouched.
--- Clearing the attribute, or the folder leaving the Workspace, puts the dots back. On this client only; listening
+-- comet of light still runs along the trail and Reduce Motion still holds it lit and still, but never fades past
+-- `faintest`, and a soft dark rim keeps them clear on pale floors by day (they glow on their own at night).
+-- GuideTrail is untouched. The folder leaving the Workspace takes the prints with it. On this client only; listening
 -- only. Numbers in Presets.pawTrail.
 --
 -- Roblox terms: a SurfaceGui is 2D UI drawn on one face of a part, here an invisible flat part lying on the ground.
@@ -48,6 +50,12 @@ function PawTrail.place(
 	return here + right * (PawTrail.side(index) * offset), forward
 end
 
+-- How see-through a print is for its dot's `transparency`: the comet's tail never fades it past `faintest`; a dot
+-- put fully out stays out. Pure.
+function PawTrail.faded(transparency: number, faintest: number): number
+	return if transparency >= 0.99 then 1 else math.min(transparency, faintest)
+end
+
 local function blob(parent: Instance, x: number, y: number, w: number, h: number): Frame
 	local frame = Instance.new("Frame")
 	frame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -57,6 +65,12 @@ local function blob(parent: Instance, x: number, y: number, w: number, h: number
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0.5, 0)
 	corner.Parent = frame
+	local rim = Presets.pawTrail.rim
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = rim.colour
+	stroke.Thickness = rim.pixels
+	stroke.Transparency = rim.transparency
+	stroke.Parent = frame
 	frame.Parent = parent
 	return frame
 end
@@ -143,9 +157,10 @@ local function draw(folder: Instance)
 		paw.part.CFrame = if forward ~= nil then CFrame.lookAt(at, at + forward) else CFrame.new(at)
 		last = here
 		dot.LocalTransparencyModifier = 1
-		if dot.Transparency ~= paw.shown then
-			paw.shown = dot.Transparency
-			paw.group.GroupTransparency = dot.Transparency
+		local shown = PawTrail.faded(dot.Transparency, p.faintest)
+		if shown ~= paw.shown then
+			paw.shown = shown
+			paw.group.GroupTransparency = shown
 		end
 		if dot.Color ~= paw.colour then
 			paw.colour = dot.Color
@@ -182,10 +197,8 @@ function PawTrail.start()
 			if folder.Parent == nil then
 				clear(folder)
 				folders[folder] = nil
-			elseif folder:GetAttribute(Presets.pawTrail.attribute) == true then
+			else
 				draw(folder)
-			elseif next(prints) ~= nil then
-				clear(folder)
 			end
 		end
 	end)

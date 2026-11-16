@@ -1634,7 +1634,7 @@ export type PlayerState = {
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
 	baitSpeed: number, -- F54: the All Cats track's summed bait speed, capped at BaitSpeedMax
-	firstBait: boolean?, -- #1895: no bait set yet on this account, so the next waits at most FirstBaitWaitSeconds
+	firstBait: boolean?, -- #1895: no bait set yet on this account, so the next waits at most FirstBaitReadySeconds
 	-- #1893: the Grand Opening roadmap's milestones done and whether it is over; the strip shows from tutorialStep 5
 	-- while finished is not true (a save already at Tier 3 when it shipped is finished)
 	grandOpening: GrandOpeningState?,

@@ -279,7 +279,7 @@ return function()
 					firstHourStep = 10,
 					firstHourV3Step = 12,
 					cleanStep = 27,
-					cleanV8Step = 49,
+					cleanV8Step = 47,
 					playtimeStep = 16,
 				})
 				raw.telemetry = { onboardingStep = 2, achieved = { ["5"] = true } }
@@ -2069,7 +2069,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
-						cleanV8Step = 49,
+						cleanV8Step = 47,
 						playtimeStep = 16,
 					})
 				end
@@ -2094,7 +2094,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
-						cleanV8Step = 49,
+						cleanV8Step = 47,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2138,7 +2138,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
-						cleanV8Step = 49,
+						cleanV8Step = 47,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2183,7 +2183,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
-						cleanV8Step = 49,
+						cleanV8Step = 47,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {
@@ -2283,7 +2283,7 @@ return function()
 						firstHourStep = 10,
 						firstHourV3Step = 12,
 						cleanStep = 27,
-						cleanV8Step = 49,
+						cleanV8Step = 47,
 						playtimeStep = 16,
 					})
 					raw.telemetry = {

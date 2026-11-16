@@ -3692,6 +3692,16 @@ function UI.carryMarker.apply()
 	else
 		marker:hide()
 	end
+	-- #4699 (Derek 2026-11-16: "first catch in tutorial ... have foodsteps after catching to the safezone as some
+	-- people get lost (make them disapear once cat secured)"): while the very first cat is carried to the camp
+	-- basket, the tutorial's trail runs to it as paw prints. The carry ending (secured, or dropped) takes them away.
+	local first = shown ~= nil and shown.camp ~= nil and (state.tutorialStep or 0) < 2
+	local camp: BasePart? = if first and shown ~= nil then shown.camp :: BasePart else nil
+	local cards: any = UI -- UI.parkTrail is built further down
+	if cards.parkTrail.carry ~= camp then
+		cards.parkTrail.carry = camp
+		cards.parkTrail.apply(tutorialTarget)
+	end
 end
 
 -- #2864: the Backpack's cat while the hands are empty ({ catId, door, camp }), or nil once the bag is empty or a cat
@@ -3914,6 +3924,7 @@ UI.parkTrail = {
 	target = nil :: BasePart?,
 	goal = nil :: string?,
 	tutorial = false, -- a tutorial target has the trail
+	carry = nil :: BasePart?, -- #4699: the camp basket the first carried cat goes to; paw prints lead there
 	reached = false, -- #3893: the player has reached the Park (been in it, or owns a Park cat)
 	STRIP = "Visit the Park: follow the paws to a cannon 🐾", -- #3893: the strip's line while the walk is on
 	STRIP_PLAIN = "Visit the Park: hop in a cannon to fly there 🐾", -- the same with the paw trail switched off
@@ -3941,6 +3952,13 @@ end
 function UI.parkTrail.apply(tutorialTarget: any)
 	local trail = tutorialTrail
 	if trail == nil then
+		return
+	end
+	-- #4699: the first cat carried to the camp: paw prints to its basket (no tutorial target shows while carrying)
+	local carry: BasePart? = UI.parkTrail.carry
+	if tutorialTarget == nil and carry ~= nil and carry.Parent ~= nil then
+		trail:mark("Paws", true)
+		trail:show(carry)
 		return
 	end
 	local park: BasePart? = UI.parkTrail.target

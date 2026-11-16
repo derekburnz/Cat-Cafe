@@ -512,6 +512,34 @@ return function()
 			end
 		)
 
+		it("/event stop ends every event on screen, the workflow's too (#4870)", function()
+			local mine = assert(CafeEvents.ownerRecord("full", NOW, 10))
+			local workflow = raw({ id = "update-party", startsAt = NOW - 60, endsAt = NOW + HOUR })
+			local soon =
+				raw({ id = "party-soon", startsAt = NOW + 2 * HOUR, endsAt = NOW + 3 * HOUR })
+			local far =
+				raw({ id = "party-wed", startsAt = NOW + 50 * HOUR, endsAt = NOW + 51 * HOUR })
+			local admin = {
+				id = "owner-admin-1",
+				title = "Cat Storm",
+				admin = true,
+				startsAt = NOW,
+				endsAt = NOW + 600,
+			}
+			local list, count =
+				CafeEvents.stopRemove({ mine, workflow, soon, far, admin }, NOW, false)
+			expect(count).to.equal(3)
+			expect(list).to.deepEqual({ far, admin })
+			-- nothing showing: nothing to stop
+			list, count = CafeEvents.stopRemove({ far }, NOW, false)
+			expect(count).to.equal(0)
+			list, count = CafeEvents.stopRemove(nil, NOW, false)
+			expect(count).to.equal(0)
+			list, count = CafeEvents.stopRemove("party", NOW, false)
+			expect(list).to.equal(nil)
+			expect(count).to.equal(0)
+		end)
+
 		it("stops only the owner's own records, running or coming", function()
 			local record = assert(CafeEvents.ownerRecord("full", NOW, 10))
 			local later = raw()

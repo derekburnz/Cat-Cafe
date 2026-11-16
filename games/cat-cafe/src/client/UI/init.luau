@@ -10044,7 +10044,13 @@ do
 			shop.playedAt = os.clock()
 		end
 		local seconds = shop.guard.playSeconds(shop.played, shop.playedAt, os.clock())
-		local calm = shop.guard.quiet(seconds)
+		-- #4472: the quiet half hour waits behind storeGuard (off) for Derek's call, now that playSeconds arrives
+		local flags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local calm = flags.shown(
+			"storeGuard",
+			ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. "storeGuard")
+		) and shop.guard.quiet(seconds)
 		if calm and seconds ~= nil then
 			local untilAt = os.clock() + shop.guard.QUIET_SECONDS - seconds
 			if shop.quietUntil == nil or math.abs(shop.quietUntil - untilAt) > 1 then

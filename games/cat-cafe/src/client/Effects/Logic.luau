@@ -2679,11 +2679,6 @@ end
 
 -- Luck (F88, luck-and-rare-moments.md section 1) ------------------------------------------------------------------
 
--- Whether the Lucky Day look is on: the Clock's `LuckyDay` is true and its `Phase` is not night (it is for the day).
-function Logic.luckyDayOn(luckyDay: unknown, phase: unknown): boolean
-	return luckyDay == true and phase ~= "night"
-end
-
 -- Whether the gold sky tint is on (luck-and-rare-moments.md 1g, #1572): any of the day's kinds (the Clock's
 -- `LuckyDay`, `GoldenDay` and `RainbowDay`) is true and its `Phase` is not night.
 function Logic.specialDayOn(

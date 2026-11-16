@@ -262,7 +262,8 @@ function MarketBang._apply(self: any)
 				gui.Adornee = anchor -- nil while hidden, so a streamed-out stall isn't held on to
 			end
 			-- #4677: a new stall part, or a top that moved more than JUMP_STUDS; a part that sways leaves it be
-			if moved or (gui.StudsOffsetWorldSpace - lift).Magnitude > MarketBang.JUMP_STUDS then
+			local held: Vector3? = gui.StudsOffsetWorldSpace -- (nil in the UI gate's stand-in billboards)
+			if moved or held == nil or (held - lift).Magnitude > MarketBang.JUMP_STUDS then
 				gui.StudsOffsetWorldSpace = lift
 			end
 			local on = anchor ~= nil

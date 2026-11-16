@@ -52,19 +52,22 @@ FoodOdds.percent = percent
 
 -- #4900: the shares to show, rarity by rarity. A Secret tier food (LureDef.secretShare) turns that part of its
 -- Mythicals Secret, so Mythical shows the rest and Secret its own share after it, as the server rolls (Catching.secret).
-local function shares(
-	odds: Types.LureOdds,
-	secretShare: number?
-): { { rarity: string, share: number } }
-	local out: { { rarity: string, share: number } } = {}
+type Share = { rarity: string, share: number }
+
+local function shares(odds: Types.LureOdds, secretShare: number?): { Share }
+	local out: { Share } = {}
 	for _, rarity in RARITIES do
-		local share = (odds :: any)[rarity]
+		local name: string = rarity
+		local share = (odds :: any)[name]
 		if type(share) == "number" then
-			if rarity == "Mythical" and secretShare ~= nil and secretShare > 0 then
-				table.insert(out, { rarity = rarity, share = share * (1 - secretShare) })
-				table.insert(out, { rarity = "Secret", share = share * secretShare })
+			if name == "Mythical" and secretShare ~= nil and secretShare > 0 then
+				local mythical: Share = { rarity = name, share = share * (1 - secretShare) }
+				local secret: Share = { rarity = "Secret", share = share * secretShare }
+				table.insert(out, mythical)
+				table.insert(out, secret)
 			else
-				table.insert(out, { rarity = rarity, share = share })
+				local row: Share = { rarity = name, share = share }
+				table.insert(out, row)
 			end
 		end
 	end

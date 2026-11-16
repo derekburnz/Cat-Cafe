@@ -90,9 +90,7 @@ function Fusion.busyReason(profile: Types.PlayerProfile, uid: string): string?
 	if instance.locked == true then
 		return Fusion.Messages.locked
 	end
-	if instance.spotId ~= nil then
-		return Fusion.Messages.working
-	end
+	-- #4605 (Derek 2026-11-15: "let you fuse together working cats"): a working copy may go in; it leaves its spot
 	if CatStats.atSpa(profile, uid) then
 		return Fusion.Messages.atSpa
 	end
@@ -287,6 +285,24 @@ local function keptTrait(
 		end
 	end
 	return best
+end
+
+-- #4605: the spot the result takes over: that of the strongest working copy among `uids` (the copy whose level the
+-- result keeps, when it was working), or nil when none of them works. The caller puts the collected cat there if the
+-- spot is still free, so fusing working cats never leaves the cafe a worker short.
+function Fusion.workSpot(profile: Types.PlayerProfile, uids: { string }): string?
+	local best: Types.CatInstance? = nil
+	for _, uid in uids do
+		local instance = profile.cats[uid]
+		if
+			instance ~= nil
+			and instance.spotId ~= nil
+			and (best == nil or better(instance, best))
+		then
+			best = instance
+		end
+	end
+	return if best ~= nil then best.spotId else nil
 end
 
 -- Starts the fusion (the caller checked startBlocker): the five leave the save and the dome holds the result.

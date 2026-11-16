@@ -12878,7 +12878,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				return list:FindFirstChild("Row" .. index) :: GuiObject
 			end
 			assert(fits(row(1), "Count").Text == "Gold Ginger ×5", "uigate: the first row is not the rainbow fusion (#4104)")
-			assert(fits(row(2), "Count").Text == "Tabby ×6", "uigate: the Tabby row reads " .. (row(2):FindFirstChild("Count") :: TextLabel).Text .. " (#4104)")
+			-- #4605: the working Lv 30 copy can fuse too, so the Tabby row counts seven
+			assert(fits(row(2), "Count").Text == "Tabby ×7", "uigate: the Tabby row reads " .. (row(2):FindFirstChild("Count") :: TextLabel).Text .. " (#4104)")
 			assert(fits(row(3), "Count").Text == "Tuxedo ×3 · 2 more", "uigate: no almost row for the Tuxedos (#4104)")
 			assert(not (row(3):FindFirstChild("Fuse") :: GuiObject).Visible, "uigate: an almost row has a Fuse button (#4104)")
 			for index = 1, 2 do
@@ -12931,9 +12932,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local chip = confirm:FindFirstChild("Trait1", true) :: GuiObject
 			assert(chip and chip.Visible, "uigate: no trait to keep (#4104)")
 			local goText = (confirm:FindFirstChild("FuseGo", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel)
-			press("FusionObservatory", "Copy6") -- the Lv 1 copy ends the strip: untick it
+			press("FusionObservatory", "Copy7") -- the Lv 1 copy ends the strip: untick it
 			assert(goText.Text == "Pick 1 more", "uigate: four picked reads " .. goText.Text .. " (#4104)")
-			press("FusionObservatory", "Copy1") -- the Lv 12 copy leads the strip: swap Mochi in by hand
+			press("FusionObservatory", "Copy2") -- the Lv 12 copy follows the working Lv 30 one: swap Mochi in by hand
 			result = (confirm:FindFirstChild("Result", true) :: TextLabel).Text
 			assert(string.find(result, "Lv 12", 1, true) and string.find(result, "Mochi", 1, true), "uigate: with Mochi picked the result reads " .. result .. " (#4104)")
 			press("FusionObservatory", "Trait1") -- the rarest trait leads the chips: keep Mochi's

@@ -3040,7 +3040,17 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 			cat,
 			if lureId then foodName(lureId) else nil,
 			if two then index else nil,
-			state.tutorialStep == 4 -- #3815: the first bowl cat, which the tutorial's last step waits on (#3158)
+			-- #3815: the first bowl cat, which the tutorial's last step waits on (#3158). #4849: under bowl first that
+			-- cat comes before the first check-in (TutorialOrder.BOWL_STEP_BELOW), and it got the plain card with X
+			-- and Let go, no ring or arrow on Tame
+			state.tutorialStep == 4
+				or (
+					(
+						require(
+							ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")
+						) :: any
+					).bowlFirst() and (state.tutorialStep or 0) < 2
+				)
 		)
 	end
 	renderBait()

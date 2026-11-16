@@ -1724,9 +1724,41 @@ function CafeService.addCaughtCat(
 		-- #2399 (Derek2: "way too many bubble pop ups"): no "X is working as Y" toast for a cat that took a role (the
 		-- Cats window shows it); #2727: nor "X is in the cat room. Every role is taken" for one with no role free (the
 		-- Cats tile's dot shows a resting cat; slots_full is still logged above)
+		CafeService.tier2ReadyTopUp(player, profile)
 		CafeService.sync(player)
 	end
 	return instance, isNew
+end
+
+-- #4674 (Derek 2026-11-16: "give more starter money ... if you the 2nd cat safe it should be ready for rankup and park
+-- teleport"): under bowl first (shared/TutorialOrder) the catch that completes Tier 2's kinds at Tier 1 tops the coins
+-- up to exactly Tier 2's cost, once a save (stats.tier2TopUp, shared with the bait cat's #4453 top up), so the Rank Up
+-- and the move into the Park come right after it. Behind the same `tier2TopUp` switch.
+function CafeService.tier2ReadyTopUp(player: Player, profile: Profile)
+	local TutorialOrder = require(ReplicatedStorage.Shared.TutorialOrder)
+	if not TutorialOrder.bowlFirst() then
+		return
+	end
+	local SecondCatHelp = require(ReplicatedStorage.Shared.SecondCatHelp)
+	local gift =
+		SecondCatHelp.topUpFor(profile, LiveFlagService.on(SecondCatHelp.TOP_UP_FLAG), true)
+	if gift <= 0 then
+		return
+	end
+	profile.stats.tier2TopUp = gift
+	Economy.credit(profile, gift)
+	Telemetry.source(player, profile, gift, "Onboarding", "tier2_topup")
+	Telemetry.custom(
+		player,
+		"tier2_topup",
+		gift,
+		{ tostring((Catalog.getTier(2) :: Types.TierDef).cost) }
+	)
+	Net.toast(
+		player,
+		string.format("Welcome gift: +$%d. Your cafe is ready to rank up!", gift),
+		"good"
+	)
 end
 
 -- F96 (starter-cat.md section 2): a cat given, not caught (the free Bellhop Cat): level 1, base coat and `charm`,

@@ -827,6 +827,7 @@ export type Stats = {
 	goldenCratesOpened: number,
 	restSeconds: number,
 	cannonFlights: number, -- #3618: cannon flights taken, for the Liftoff badge
+	tier2TopUp: number, -- #4453: coins the first tamed bait cat's welcome paid toward Tier 2 (0: none yet)
 }
 
 export type WeekPlay = { week: number, seconds: number }

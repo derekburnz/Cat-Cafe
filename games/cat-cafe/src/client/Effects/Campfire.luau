@@ -4,6 +4,7 @@
 -- tongue stretches and squashes, leans and bends a little more at the tip, and flickers brighter, out of step with
 -- the other two, so the fire looks alive without any fire texture. Warm embers drift up off it, a few more pop up
 -- now and then, and a warm light flickers with the flame, brighter at night. With Reduce Motion the flame moves less.
+-- In Smooth mode the light holds steady.
 -- Only the nearest campfires within the budget's range move; the others stand as modelled, and every disc goes back
 -- to its modelled place, size and colour when its fire stops.
 --
@@ -253,8 +254,15 @@ local function step()
 		Workspace:BulkMoveTo(fire.parts, fire.frames, Enum.BulkMoveMode.FireCFrameChanged)
 		local light = fire.light
 		if light ~= nil then
-			local flicker = flickers / math.max(1, #fire.tongues)
-			light.Brightness = glow * fire.kind.bright * (1 + c.flicker * (flicker * 2 - 1))
+			-- Smooth mode holds the light steady: a Brightness change each frame makes the engine relight the area
+			-- around the fire (Sync's phone budget read, #4069 to #4071)
+			local flicker = if Context.lowPerformance
+				then 0.5
+				else flickers / math.max(1, #fire.tongues)
+			local bright = glow * fire.kind.bright * (1 + c.flicker * (flicker * 2 - 1))
+			if light.Brightness ~= bright then
+				light.Brightness = bright
+			end
 		end
 		if now >= fire.nextPop then
 			fire.nextPop = now + rng:NextNumber(c.popEvery[1], c.popEvery[2])

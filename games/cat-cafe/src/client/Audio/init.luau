@@ -2149,6 +2149,18 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	-- #2946: the first bait cutscene's bait cat eats at your bowl: a soft purr there while it eats (`seconds`, 2.5 when
 	-- not given, at most 5), fired by Effects/FirstBaitCut at the eating beat. The arrival and the bowl already sound
 	-- through ProfileSync (baitArrive, the food cue), so the cut adds only this.
+	-- First minute (Effects/FirstMinuteFx): the first bowl cat's card gets its rarity's jingle (the found jingle when
+	-- the rarity is unknown), and the first net catch a cheer on top of the catch sparkle.
+	FirstBowlCard = function(rarity: any)
+		-- a rarity whose jingle has no file yet (Rare today) falls back to the found jingle
+		local jingle = Logic.jingleFor(str(rarity))
+		if jingle == nil or Audio.play(jingle) == nil then
+			Audio.play("jingleCatFound")
+		end
+	end,
+	FirstCatchCheer = function()
+		Audio.play("jingleCatFound")
+	end,
 	FirstBaitEat = function(position: any, seconds: any)
 		local at = vec(position)
 		if at == nil then

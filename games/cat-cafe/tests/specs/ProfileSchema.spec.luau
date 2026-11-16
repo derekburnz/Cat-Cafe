@@ -192,6 +192,7 @@ return function()
 				autoBowlRefill = true,
 				bowlNewCatCard = true,
 				stationCircles = false, -- #4668
+				vipTag = false, -- #4991
 			})
 		end)
 
@@ -667,6 +668,7 @@ return function()
 					autoBowlRefill = true,
 					bowlNewCatCard = true,
 					stationCircles = false, -- #4668
+					vipTag = false, -- #4991
 				})
 				-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
 				expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })

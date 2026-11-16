@@ -34,6 +34,7 @@ return function()
 					autoBowlRefill = true,
 					bowlNewCatCard = true,
 					stationCircles = false, -- #4668
+					vipTag = false, -- #4991
 				})
 				for key in pairs(Settings.defaults() :: any) do
 					expect(Settings.kinds[key]).to.be.ok()
@@ -130,6 +131,7 @@ return function()
 				autoBowlRefill = true,
 				bowlNewCatCard = true,
 				stationCircles = false, -- #4668
+				vipTag = false, -- #4991
 			})
 		end)
 
@@ -139,6 +141,14 @@ return function()
 			expect(Settings.sanitize({}).stationCircles).to.equal(false)
 			expect(Settings.sanitize({ stationCircles = true }).stationCircles).to.equal(true)
 			expect(Settings.clean("stationCircles", "yes")).never.to.be.ok()
+		end)
+
+		it("saves the VIP tag switch, off by default (#4991)", function()
+			expect(Settings.kinds.vipTag).to.equal("switch")
+			expect(Settings.defaults().vipTag).to.equal(false)
+			expect(Settings.sanitize({}).vipTag).to.equal(false)
+			expect(Settings.sanitize({ vipTag = true }).vipTag).to.equal(true)
+			expect(Settings.clean("vipTag", 1)).never.to.be.ok()
 		end)
 
 		it("keeps the pick-a-cat Sort and Show chips as saved (#3940)", function()

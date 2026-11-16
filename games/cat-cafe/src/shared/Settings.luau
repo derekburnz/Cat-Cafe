@@ -51,6 +51,9 @@ Settings.kinds = {
 	-- #4668 (Derek 2026-11-15: "have it default turn to visibility off"): the glowing walk-up rings in front of the
 	-- stations (client Effects/StationCircles). Off by default; the windows still open on stepping in
 	stationCircles = "switch",
+	-- #4991 (Derek 2026-11-16: "make a toggle for showing vip above head in titles and toggle it off by default"): the
+	-- gold VIP tag over a VIP owner's head (server Services/VipTagService). Off by default; the VIP money stays
+	vipTag = "switch",
 } :: { [string]: Kind }
 
 -- #3940: every way the four Show chips can be on, as CatPickLogic.packShown writes them (chip names in this order,
@@ -100,6 +103,7 @@ function Settings.defaults(): Types.Settings
 		autoBowlRefill = true,
 		bowlNewCatCard = true,
 		stationCircles = false,
+		vipTag = false, -- #4991
 	}
 end
 

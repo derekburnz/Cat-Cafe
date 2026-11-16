@@ -3085,7 +3085,20 @@ function HUD.render(self: any, state: Types.PlayerState)
 	local step = state.tutorialStep or TUTORIAL_DONE
 	local before: number? = self._stepBefore
 	self._stepBefore = step
-	if before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE then
+	-- #4674 (Sync's Studio walk 2026-11-16: a lone "Hide tips with ×" after the bowl cat): bowl first, the walk-through
+	-- goes on at Tier 1 with a quiet strip, so the pulse waits for the rank up to Tier 2 (the Park)
+	local bowlWalk = (require(
+		ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")
+	) :: any).bowlFirst() and (state.tier or 1) < 2
+	local justDone = before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE
+	if justDone and bowlWalk then
+		self._hideAfterRank = true
+		justDone = false
+	elseif self._hideAfterRank == true and not bowlWalk then
+		self._hideAfterRank = false
+		justDone = step >= TUTORIAL_DONE
+	end
+	if justDone then
 		-- #3154: HIDE_AFTER later, so the tamed bowl cat's card and the move to the cannon (4 s after the step, #3175)
 		-- go first; pulseHide then waits for the HUD to be back on screen
 		task.delay(HIDE_AFTER, function()

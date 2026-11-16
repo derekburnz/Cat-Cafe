@@ -263,6 +263,30 @@ return function()
 			)
 		end)
 
+		it(
+			"points at the cannon after the bowl part until the first Launch under bowl first (#4674)",
+			function()
+				local quiet = { bowlFirst = true, tutorialStep = 5, told = false }
+				expect(CannonLogic.hint(view(quiet))).to.equal(
+					"Hop in the cannon to fly to the Alleyway!"
+				)
+				expect(CannonLogic.hint(view({ bowlFirst = true, tutorialStep = 5, told = true }))).to.equal(
+					nil
+				)
+				expect(
+					CannonLogic.hint(
+						view({ bowlFirst = true, tutorialStep = 5, told = false, launched = true })
+					)
+				).to.equal(nil)
+				expect(
+					CannonLogic.hint(
+						view({ bowlFirst = true, tutorialStep = 5, told = false, tier = 2 })
+					)
+				).to.equal(nil)
+				expect(CannonLogic.hint(view({ tutorialStep = 5, told = false }))).to.equal(nil)
+			end
+		)
+
 		it("shows only in town, outside the intro, with the cannon live", function()
 			expect(CannonLogic.hint(view({ wild = true }))).to.equal(nil)
 			expect(CannonLogic.hint(view({ intro = true }))).to.equal(nil)

@@ -3901,15 +3901,16 @@ function HUD._renderLuckyLine(self: any)
 	local line: string? = nil
 	local today: LuckLogic.DayView? = nil
 	if view ~= nil and clock ~= nil then
-		today = {
+		local now: LuckLogic.DayView = {
 			day = view.day,
 			luckyDay = view.luckyDay,
 			goldenDay = view.goldenDay,
 			rainbowDay = view.rainbowDay,
 			phase = clock.phase,
 		}
-		line = LuckLogic.dayLine(today :: LuckLogic.DayView)
-		self._dayCardText.Text = table.concat(LuckLogic.dayCard(today :: LuckLogic.DayView), "\n")
+		today = now
+		line = LuckLogic.dayLine(now)
+		self._dayCardText.Text = table.concat(LuckLogic.dayCard(now), "\n")
 	end
 	-- #4990 (Derek 2026-11-16: "remove the lucky day/ all day showing just show they are active if people click into
 	-- the luck breakdown"): the day line never shows in the strip, so a day with no event or Rally has no strip at

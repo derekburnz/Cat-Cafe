@@ -125,6 +125,29 @@ local EXACT: { [string]: boolean } = {
 	CatCafe_Woods_IndexBoard = true,
 }
 
+-- #4601 (Motion-FX audit of src/client and src/shared): the camp stations, 14 models and about 3,850 instances.
+-- WorldBuilder places each one through AssetRegistry; every client script reads the placed model in Workspace by its
+-- tag (WalkUpController, BinController, SpaPoolController, StationReveal, StationBuild, CampExtras) and none copies
+-- a template. The Garden Nursery, Cocoa Stand and Hoard Chest are not placed at all yet. Left with the client: the
+-- gold Fishing Hut (GoldHutController reads its looks from the template), the Spa towel (SpaPoolController clones
+-- it) and every camp's Growth model (Effects/CampGrowth clones it).
+local STATIONS: { [string]: boolean } = {
+	CatCafe_Camp_Alley_RummageBin = true,
+	CatCafe_Camp_Park_PicnicStation = true,
+	CatCafe_Camp_Park_MysticPool = true,
+	CatCafe_Camp_Park_GardenNursery = true,
+	CatCafe_Camp_Neighbourhood_YardSaleStall = true,
+	CatCafe_Camp_Woods_FishingHut = true,
+	CatCafe_Camp_Sewer_LostFoundBooth = true,
+	CatCafe_Camp_Desert_OasisSpa = true,
+	CatCafe_Camp_Ruins_RelicMuseum = true,
+	CatCafe_Camp_Snowy_CocoaStand = true,
+	CatCafe_Camp_Snowy_FusionObservatory = true,
+	CatCafe_Camp_WaterPark_TicketBooth = true,
+	CatCafe_Camp_Castle_DragonKeep = true,
+	CatCafe_Camp_Castle_HoardChest = true,
+}
+
 -- `name` is `stem` alone or `stem` plus a version tag.
 local function tagged(name: string, stem: string): boolean
 	return name == stem or string.match(name, "^" .. stem .. TAG .. "$") ~= nil
@@ -163,6 +186,9 @@ function ServerOnlyAssets.matches(name: string): boolean
 		if string.match(name, "^CatCafe_" .. family .. "%w+$") ~= nil then
 			return true
 		end
+	end
+	if STATIONS[name] then
+		return true
 	end
 	-- #4601: the Cat Cannons (the Town Square's and each camp's, 11 models and about 4,100 instances). WorldBuilder
 	-- places them; the client's Effects/Cannon finds the placed model in Workspace by its name and never copies a

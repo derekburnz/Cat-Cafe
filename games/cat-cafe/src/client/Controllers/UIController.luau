@@ -1379,6 +1379,8 @@ local function applyState(s: Types.PlayerState)
 		-- #4055: the Store's golden fish prices; false (not nil, which UI.update would skip) while the switch is off
 		fishStore = s.fishStore or false,
 		dailyDeal = s.dailyDeal or false, -- #3996: Today's Deal on the Store's Featured tab
+		-- #4626: the minute 6 "come back tomorrow" line's reason (false with none, so a switch turned off clears it)
+		tomorrowHook = (s :: any).tomorrowHook or false,
 		-- #2574: Juniper's Mystery Market: the items owned, the cart's "!" until the first visit, and whether buys are
 		-- taken yet
 		mystery = s.mystery,
@@ -1397,6 +1399,10 @@ local function applyState(s: Types.PlayerState)
 		tradeLog = s.tradeLog, -- F102: the Trades page
 		-- #3686: sent since #1714 but never copied, so "Codes you've used" stayed empty in the live game
 		codesRedeemed = s.codesRedeemed,
+		-- #4472 (Sync's Studio check): sent since #2791 but never copied, so the gift ladder, the #1936 store guard
+		-- and the newcomer quiet clock all saw no play time
+		playSeconds = s.playSeconds,
+		giftNext = s.giftNext,
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.
@@ -2027,6 +2033,12 @@ local function wireIntents()
 				nudged[key] = true
 				Net.fire("TelemetryReport", "stuck_nudge", kind)
 			end
+		end)
+	end
+	-- #4626: the minute 6 "come back tomorrow" line showed (once a session; the server checks the kind and the switch)
+	if events.returnHookEarly ~= nil then
+		events.returnHookEarly:Connect(function(kind: string)
+			Net.fire("TelemetryReport", "return_hook_early", kind)
 		end)
 	end
 	-- #1920: the session recap card showed, and how long it stayed up; the server allowlists both

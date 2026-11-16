@@ -77,6 +77,70 @@ return function()
 		end)
 	end)
 
+	describe("the products (#4610 part 2)", function()
+		it("sells the Thank You Badge and the Cafe Pass, never the Starter Bundle", function()
+			expect(#FishStore.PRODUCTS).to.equal(2)
+			expect(FishStore.product("thankYou") ~= nil).to.equal(true)
+			expect(FishStore.product("cafePass") ~= nil).to.equal(true)
+			expect(FishStore.product("starterBundle")).to.equal(nil)
+			expect(FishStore.ROBUX_ONLY_PRODUCTS[1]).to.equal("starter_bundle")
+			for _, product in FishStore.PRODUCTS do
+				expect(product.productId == "starter_bundle").to.equal(false)
+				expect(Config.ProductIds[product.productId] ~= nil).to.equal(true)
+				expect(FishStore.item(product.key)).to.equal(nil) -- never both a pass and a product
+			end
+			expect(FishStore.price(FishStore.product("thankYou") :: FishStore.Product)).to.equal(
+				1250
+			)
+			expect(FishStore.price(FishStore.product("cafePass") :: FishStore.Product)).to.equal(
+				14950
+			)
+		end)
+
+		it("sells the badge once an account", function()
+			local profile = ProfileSchema.template(1700000000)
+			local badge = FishStore.product("thankYou") :: FishStore.Product
+			profile.goldenFish = 1249
+			expect(FishStore.productBlocker(profile, badge, 1, true)).to.equal(
+				"Not enough golden fish yet"
+			)
+			profile.goldenFish = 1250
+			expect(FishStore.productBlocker(profile, badge, 0, false)).to.equal(nil) -- no season needed
+			profile.onceBought.thank_you_badge = true
+			expect(FishStore.productBlocker(profile, badge, 1, true)).to.equal(
+				"You own this already"
+			)
+		end)
+
+		it("sells the Cafe Pass once a running season, while its sale is open", function()
+			local profile = ProfileSchema.template(1700000000)
+			local pass = FishStore.product("cafePass") :: FishStore.Product
+			profile.goldenFish = 20000
+			expect(FishStore.productBlocker(profile, pass, 0, true)).never.to.equal(nil)
+			expect(FishStore.productBlocker(profile, pass, 2, false)).never.to.equal(nil)
+			expect(FishStore.productBlocker(profile, pass, 2, true)).to.equal(nil)
+			profile.pass.season = 2
+			profile.pass.paidSeason = 2
+			expect(FishStore.productBlocker(profile, pass, 2, true)).to.equal(
+				"You own this already"
+			)
+			expect(FishStore.productBlocker(profile, pass, 3, true)).to.equal(nil) -- a new season sells again
+		end)
+
+		it("puts both in the view with whether this save has them", function()
+			local profile = ProfileSchema.template(1700000000)
+			profile.onceBought.thank_you_badge = true
+			local byKey: { [string]: FishStore.ViewRow } = {}
+			for _, row in FishStore.view(profile) do
+				byKey[row.key] = row
+			end
+			expect(byKey.thankYou.bought).to.equal(true)
+			expect(byKey.thankYou.fish).to.equal(1250)
+			expect(byKey.cafePass.bought).to.equal(false)
+			expect(byKey.starterBundle).to.equal(nil)
+		end)
+	end)
+
 	describe("the save", function()
 		it("keeps only known keys set true", function()
 			local out =

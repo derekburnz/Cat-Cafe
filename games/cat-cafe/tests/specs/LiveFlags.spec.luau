@@ -6,6 +6,55 @@ return function()
 	local LiveFlags = require(Shared.LiveFlags)
 	local Codes = require(Shared.Codes)
 
+	describe("the first read, before the client takes a switch once (#4613)", function()
+		local function fake(readyAfter: number?)
+			local now = 0
+			local holder = {
+				GetAttribute = function(_self: any, name: string): any
+					if name ~= LiveFlags.READY_ATTRIBUTE then
+						return nil
+					end
+					return if readyAfter ~= nil and now >= readyAfter then true else nil
+				end,
+			}
+			local function clock(): number
+				return now
+			end
+			local function sleep(seconds: number)
+				now += seconds
+			end
+			return holder, clock, sleep
+		end
+
+		it("goes on at once when the server has read its switches", function()
+			local holder, clock, sleep = fake(0)
+			local ready, waited = LiveFlags.awaitReady(holder, 8, clock, sleep)
+			expect(ready).to.equal(true)
+			expect(waited).to.equal(0)
+		end)
+
+		it("waits for the server's first read", function()
+			local holder, clock, sleep = fake(2.5)
+			local ready, waited = LiveFlags.awaitReady(holder, 8, clock, sleep, 0.5)
+			expect(ready).to.equal(true)
+			expect(waited).to.be.near(2.5, 1e-9)
+		end)
+
+		it("gives up at the cap so a stuck store never holds the game", function()
+			local holder, clock, sleep = fake(nil)
+			local ready, waited =
+				LiveFlags.awaitReady(holder, LiveFlags.CLIENT_WAIT_SECONDS, clock, sleep, 0.5)
+			expect(ready).to.equal(false)
+			expect(waited >= LiveFlags.CLIENT_WAIT_SECONDS).to.equal(true)
+			expect(waited < LiveFlags.CLIENT_WAIT_SECONDS + 0.5 + 1e-9).to.equal(true)
+		end)
+
+		it("an off-by-default switch reads off until the server has copied it out", function()
+			expect(LiveFlags.shown("menuFamily", nil)).to.equal(false)
+			expect(LiveFlags.shown("menuFamily", true)).to.equal(true)
+		end)
+	end)
+
 	describe("parse", function()
 		it("is every switch on when nothing is set", function()
 			local flags = LiveFlags.parse({})
@@ -84,7 +133,7 @@ return function()
 		end)
 
 		it(
-			"starts off with nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, swiftPaws10, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, bagColours, menuFamily, speedShoes, petCats, returnGift, picnicTreats, traitBundles, storeRework, indexTo70, quietStart, quietAway, riftRun, secretTrait, rareCustomers, goldTone, palJoin, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox and fusion alone beside it",
+			"starts off with nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, swiftPaws10, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, introSplit, parkGateTrail, rankUpSpotlight, bagColours, menuFamily, speedShoes, traitBundles, storeRework, quietAway, riftRun, secretTrait, rareCustomers, goldTone, palJoin, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox and fusion alone beside it",
 			function()
 				local count = 0
 				for key in LiveFlags.OFF_BY_DEFAULT do
@@ -105,22 +154,14 @@ return function()
 							or key == "afkCafe"
 							or key == "autoRejoin"
 							or key == "binRoll"
-							or key == "yardSaleRoll"
 							or key == "introSplit"
-							or key == "newKindTag"
 							or key == "parkGateTrail"
-							or key == "touchCatchReach"
 							or key == "rankUpSpotlight"
 							or key == "bagColours"
 							or key == "menuFamily"
 							or key == "speedShoes"
-							or key == "petCats"
-							or key == "returnGift"
-							or key == "picnicTreats"
 							or key == "traitBundles"
 							or key == "storeRework"
-							or key == "indexTo70"
-							or key == "quietStart"
 							or key == "quietAway"
 							or key == "fishStore"
 							or key == "ticketBooth"
@@ -149,7 +190,7 @@ return function()
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(56)
+				expect(count).to.equal(48) -- #4654: 56 less the 8 shipped switches retired in batches 1 and 2
 				-- #3462 and #3470: new saved ids stay off until every server knows them
 				expect(LiveFlags.defaults().cartTier6).to.equal(false)
 				expect(LiveFlags.defaults().secretCats).to.equal(false)

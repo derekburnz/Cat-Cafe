@@ -475,6 +475,18 @@ return function()
 			expect(DragonKeep.pileFish(none, 0.99)).to.equal(0)
 		end)
 
+		it("crate, trait and spin luck from Lucky Crate, Trait Spark and Lucky Spin", function()
+			local fx = DragonKeep.effects(withSlots({ "luckyCrate", "traitSpark", "quickCannon" }))
+			expect(math.abs(fx.crateLuck - 0.15) < 1e-9).to.equal(true)
+			expect(math.abs(fx.traitLuck - 0.15) < 1e-9).to.equal(true)
+			expect(math.abs(fx.spinLuck - 0.10) < 1e-9).to.equal(true)
+			expect(fx.luck).to.equal(0) -- no bowl luck from them any more
+			expect(fx.xp).to.equal(0) -- Trait Spark gave cat XP before
+			local none = DragonKeep.effects(withSlots({ "lightStep" }))
+			expect(none.crateLuck + none.traitLuck + none.spinLuck).to.equal(0)
+			expect(DragonKeep.LUCK_KIND_CAP).to.equal(0.30)
+		end)
+
 		it("#4569: the Claw full set doubles the whole Luck, still at most LuckMax", function()
 			local Luck = require(Shared.Luck)
 			local Config = require(Shared.Config)
@@ -502,6 +514,9 @@ return function()
 				DragonKeep.PILE,
 				DragonKeep.XP,
 				DragonKeep.REACH,
+				DragonKeep.CRATE_LUCK,
+				DragonKeep.TRAIT_LUCK,
+				DragonKeep.SPIN_LUCK,
 			}
 			-- the cards whose bonus is a rule of its own in DragonKeep.effects
 			local own = {
@@ -561,7 +576,7 @@ return function()
 				} :: any)
 				DragonKeep.setOn(nil)
 				expect(fx.luck <= DragonKeep.CAP + 1e-9).to.equal(true)
-				expect(math.abs(fx.luck - 0.32) < 1e-9).to.equal(true)
+				expect(math.abs(fx.luck - 0.23) < 1e-9).to.equal(true) -- Lucky Crate and Lucky Spin are crate and spin luck now
 				expect(rich.rich <= DragonKeep.CAP + 1e-9).to.equal(true)
 			end
 		)

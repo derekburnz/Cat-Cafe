@@ -12,12 +12,8 @@
 -- Every text colour of PALETTE reads at 4.5:1 or better on the card, and white, `subtext`, `good` and `gold` do on
 -- the body too (measured when the colours were picked; the UI gate checks the windows).
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
 local Outline = require(script.Parent.Outline)
 local Theme = require(script.Parent.Parent.Theme)
-
-local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
 
 local MenuFamily = {}
 
@@ -35,23 +31,12 @@ MenuFamily.BULBS = 0 -- #3965: none (was 14)
 MenuFamily.BULB_SIZE = 6
 MenuFamily.BULB_COLORS = { Color3.fromHex("FFF096"), Color3.fromHex("FFFFFF") }
 
--- One look for a whole session: the switch is read the first time anything asks (the UI's build at the start) and
--- kept. Windows take some colours when they are built and others each time they paint, so a switch that flipped
--- mid-session left cream cards under white words (Quests, the Mystic Pool's cat list) and an old Store beside new
--- windows (Studio look, 2026-11-13). A flip now reaches each player at their next join.
-local latched: boolean? = nil
-
+-- #4657 (Derek 2026-11-15 23:28 UTC, after #4607 sent fresh servers back to the old look: "remove the old stuff from
+-- code so it doesn't happen again"): the family look is the only look. The `menuFamily` switch is no longer read, so
+-- no server, Studio session or slow first DataStore read can draw the old one. The old-look branches below go in
+-- the next #4657 PRs.
 function MenuFamily.on(): boolean
-	local was = latched
-	if was ~= nil then
-		return was
-	end
-	local now = LiveFlags.shown(
-		MenuFamily.FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. MenuFamily.FLAG)
-	)
-	latched = now
-	return now
+	return true
 end
 
 -- The family's picture cards (the mocks' cream cards on the dark body): the colours for a card and for what sits

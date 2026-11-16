@@ -11,9 +11,16 @@ return function()
 	local Catalog = require(Shared:WaitForChild("Catalog")) :: any
 
 	local PENDING: { [string]: boolean } = {} -- #4184: the Castle's six are in the Catalog
-	-- #4251: Harvest Hollow's three may be in the Catalog or not yet (its cats merge on their own day), so neither
+	-- #4251: Harvest Hollow's six may be in the Catalog or not yet (its cats merge on their own day), so neither
 	-- order of merging turns main red. Drop the list once they are in.
-	local SOON: { [string]: boolean } = { cranberry = true, maple_leaf = true, harvest_moon = true }
+	local SOON: { [string]: boolean } = {
+		apple_pie = true,
+		cornstalk = true,
+		pumpkin_spice = true,
+		cranberry = true,
+		maple_leaf = true,
+		harvest_moon = true,
+	}
 
 	describe("Effects signature cats and the Catalog", function()
 		it("names only cats the Catalog has", function()

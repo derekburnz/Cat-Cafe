@@ -1,6 +1,6 @@
 --!strict
 -- FishStore.luau (#4055): the Store passes sold for golden fish, their prices (50 fish a Robux, to the nearest 50),
--- the passes that are never on the list, the save's sanitising and why a buy is refused.
+-- the Money passes that are never on the list (#4610: the only ones), the save's sanitising and why a buy is refused.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Config = require(Shared.Config)
@@ -8,37 +8,54 @@ return function()
 	local ProfileSchema = require(Shared.ProfileSchema)
 
 	describe("the list", function()
-		it("holds the ten approved passes, each a Config pass id field", function()
-			expect(#FishStore.LIST).to.equal(10)
+		it("holds every Store pass, each a Config pass id field", function()
+			expect(#FishStore.LIST).to.equal(17)
 			for _, item in FishStore.LIST do
-				expect(type((Config :: any)[item.passField])).to.equal("number")
+				local field = (Config :: any)[item.passField]
+				expect(type(field) == "number" or type(field) == "table").to.equal(true)
 				expect(FishStore.item(item.key)).to.equal(item)
 			end
 		end)
 
-		it(
-			"never holds the money passes, VIP, slots, the second bowl or the shop cats (Robux only)",
-			function()
-				local banned: { [string]: boolean } = {
-					VipPassId = true,
-					LongNapPassId = true,
-					SecondBowlPassId = true,
-					GoldenPondPassId = true,
-				}
-				for _, item in FishStore.LIST do
-					expect(banned[item.passField] == true).to.equal(false)
-					local id = FishStore.passId(item)
-					if id ~= 0 then
-						for _, money in Config.MoneyPassIds do
-							expect(id == money).to.equal(false)
-						end
-						for _, slot in Config.ExtraSlotPassIds do
-							expect(id == slot).to.equal(false)
-						end
+		it("leaves only the 2x, 3x and 4x Money passes Robux only (#4610)", function()
+			expect(#FishStore.ROBUX_ONLY_PASSES).to.equal(1)
+			expect(FishStore.ROBUX_ONLY_PASSES[1]).to.equal("MoneyPassIds")
+			for _, item in FishStore.LIST do
+				expect(item.passField == "MoneyPassIds").to.equal(false)
+				local id = FishStore.passId(item)
+				if id ~= 0 then
+					for _, money in Config.MoneyPassIds do
+						expect(id == money).to.equal(false)
 					end
 				end
 			end
-		)
+			for _, key in
+				{ "vip", "extraSlot", "longNap", "secondBowl", "autoBowl", "royalCat", "kingPack" }
+			do
+				expect(FishStore.item(key) ~= nil).to.equal(true)
+			end
+			expect(FishStore.item("starterBundle")).to.equal(nil)
+		end)
+
+		it("reads a list field's first made id (Extra Slot)", function()
+			local slot = FishStore.item("extraSlot") :: FishStore.Item
+			local first = 0
+			for _, id in Config.ExtraSlotPassIds do
+				if id ~= 0 then
+					first = id
+					break
+				end
+			end
+			expect(FishStore.passId(slot)).to.equal(first)
+			expect(
+				FishStore.passId({ key = "x", name = "x", passField = "NoSuchField", robux = 1 })
+			).to.equal(0)
+		end)
+
+		it("waits for the Auto Bowl's own switch", function()
+			expect((FishStore.item("autoBowl") :: FishStore.Item).flag).to.equal("autoBowl")
+			expect((FishStore.item("vip") :: FishStore.Item).flag).to.equal(nil)
+		end)
 
 		it("prices 50 fish a Robux to the nearest 50", function()
 			local prices: { [string]: number } = {}
@@ -50,6 +67,13 @@ return function()
 			expect(prices.accessories).to.equal(7450)
 			expect(prices.cafeStyle).to.equal(12450)
 			expect(prices.grand).to.equal(39950)
+			-- #4610: from the full price, never the half price sale
+			expect(prices.vip).to.equal(1250)
+			expect(prices.autoBowl).to.equal(950)
+			expect(prices.extraSlot).to.equal(7450)
+			expect(prices.longNap).to.equal(9950)
+			expect(prices.royalCat).to.equal(29950)
+			expect(prices.kingPack).to.equal(49950)
 		end)
 	end)
 

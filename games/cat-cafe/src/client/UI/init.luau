@@ -18,7 +18,6 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local ActionPill = require(script.Screens.ActionPill)
-local Arcade = require(script.Screens.Arcade)
 local AreaTitle = require(script.Screens.AreaTitle)
 local Areas = require(script.Screens.Areas)
 local AskCard = require(script.Screens.AskCard)
@@ -145,9 +144,6 @@ UI.events = {
 	-- design v0.3
 	-- #3062 (the Cat Arcade): Play on its card, a press on circle `index` of the game's block, and Close mid game:
 	-- forward as ArcadeStart, ArcadePress(run, block, index) and ArcadeQuit(run)
-	arcadePlay = Signal.new(),
-	arcadePress = Signal.new(),
-	arcadeQuit = Signal.new(),
 	-- #3296 (Mouse Dash): Play, a tap on a hole while wave `index` is up, and Close mid game: forward as
 	-- MouseDashStart, MouseDashTap(run, index, hole) and MouseDashQuit(run)
 	mouseDashPlay = Signal.new(),
@@ -247,6 +243,7 @@ UI.events = {
 	storeGuardBlocked = Signal.new(), -- (what)   forward as TelemetryReport("store_guard_blocked", what)
 	buySource = Signal.new(), -- (what)   #4176: forward as TelemetryReport("buy_source", what)
 	starterSuggest = Signal.new(), -- (outcome)   #4174: forward as TelemetryReport("starter_suggest", outcome)
+	moneyCard = Signal.new(), -- ("<outcome>:<rung>")   #4437: forward as TelemetryReport("money_card", what)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
@@ -391,7 +388,6 @@ local tipJarScreen: TipJar.TipJar? = nil -- the playtime gifts (F47), opened fro
 local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), opened from the plaza station's prompt
 local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53), opened from the stall's prompt
 local bugReportScreen: BugReport.BugReport? = nil -- the Feedback window, from the HUD's Feedback tile
-local arcadeScreen: Arcade.Arcade? = nil -- #3062: the Cat Arcade window (the cabinet and the Menu list open it)
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
 local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
 local bagFed: { [string]: number } = {} -- #1181: cat uid -> its level when fed, so FeedResult can tell a level up
@@ -643,11 +639,7 @@ local function autoOpenDailyTreat()
 			local QuietStart =
 				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
 			local firstDay = Players.LocalPlayer:GetAttribute(QuietStart.DAY_ATTRIBUTE)
-			return QuietStart.treatOpensItself(
-				(QuietStart.live()),
-				firstDay,
-				now // QuietStart.DAY_SECONDS
-			)
+			return QuietStart.treatOpensItself(firstDay, now // QuietStart.DAY_SECONDS)
 		end)()
 		-- #3188: last, so the plot is only looked up when everything else is ready (defined further down the module)
 		or not DailyTreatLogic.autoOpen(view, now, nil, nil, (UI.giftWait :: any).atCafe())
@@ -705,7 +697,6 @@ local function render()
 		cannonScreen:render(state, hud:isCarrying())
 	end
 	UI.campExtras.render(state)
-	UI.arcade.render(state)
 	UI.mouseDash.render(state)
 	UI.lateStations.render(state)
 	UI.mysticPool.render(state)
@@ -929,6 +920,10 @@ function UI.init(config: Types.InitConfig)
 		end,
 		-- #2353: the X2 Cash pill opens Roblox's window for the 2x pass, through the Store's tap guard (#1936)
 		buyPass = function(id: number)
+			-- #4437: the session's first tap opens the Money boost card; its Buy opens the prompt
+			if UI.tips.offerMoneyCard(id) then
+				return
+			end
 			local PassShop = require(script.Components.PassShop)
 			PassShop.prompt(id, "hud_badge") -- #4176: purchase_source tells these from Store buys
 		end,
@@ -1431,29 +1426,6 @@ function UI.init(config: Types.InitConfig)
 			marketView:render(state)
 		end,
 	})
-	arcadeScreen = Arcade.new({
-		play = function()
-			UI.events.arcadePlay:Fire()
-		end,
-		press = function(run: number, block: number, index: number)
-			UI.events.arcadePress:Fire(run, block, index)
-		end,
-		quit = function(run: number)
-			UI.events.arcadeQuit:Fire(run)
-		end,
-		close = closeModal,
-	})
-	local arcadeView = arcadeScreen :: Arcade.Arcade
-	modalInstance:register("Arcade", {
-		frame = arcadeView.frame,
-		onOpen = function()
-			arcadeView:setFish(state.goldenFish or 0)
-			arcadeView:onOpen()
-		end,
-		onClose = function()
-			arcadeView:onClose()
-		end,
-	})
 	codesScreen = Codes.new({
 		redeem = function(code: string)
 			UI.events.redeemCode:Fire(code)
@@ -1606,10 +1578,7 @@ function UI.init(config: Types.InitConfig)
 			local poolWindow = require(script.Components.MysticPoolLogic).WINDOW
 			-- Derek 2026-11-14 ("mute all pop ups while in store"): the Store too, so toasts wait (warnings still show),
 			-- shout-outs drop and the event and day strip steps aside until it closes
-			UI.rollBusy.window = name == dashWindow
-				or name == "Arcade"
-				or name == poolWindow
-				or name == "Store"
+			UI.rollBusy.window = name == dashWindow or name == poolWindow or name == "Store"
 			view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.held())
 		end
 		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
@@ -2693,9 +2662,7 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		local Onboarding =
 			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Onboarding")) :: any
 		local tutorial = (state.tutorialStep or math.huge) < Onboarding.NEW_PLAYER_STEP
-		if
-			plain and QuietStart.foundToast((QuietStart.live()), state.tier, def.rarity, tutorial)
-		then
+		if plain and QuietStart.foundToast(state.tier, def.rarity, tutorial) then
 			UI.toast(string.format("New cat: %s!", def.name), "good")
 			return
 		end
@@ -2896,8 +2863,18 @@ do
 			screen:setSecond(bowls.second, if id ~= 0 then PassShop.prices()[id] else nil)
 			-- #4266: the Auto Bowl pass's price and Roblox's word on owning it (0 until the pass is made)
 			local autoId: number = Config.AutoBowlPassId or 0
+			-- #4610: bought with golden fish counts as owned too (PlayerState.fishStore, as the Store reads it)
+			local fishAuto = false
+			local fishList = (state :: any).fishStore
+			if type(fishList) == "table" then
+				for _, row in fishList do
+					if type(row) == "table" and row.key == "autoBowl" and row.bought == true then
+						fishAuto = true
+					end
+				end
+			end
 			screen:setAuto(
-				autoId ~= 0 and PassShop.owned()[autoId] == true,
+				autoId ~= 0 and (PassShop.owned()[autoId] == true or fishAuto),
 				if autoId ~= 0 then PassShop.prices()[autoId] else nil
 			)
 		end
@@ -3371,36 +3348,22 @@ function UI.quests.result(paid: { string })
 end
 
 ----------------------------------------------------------------------------------------------------
--- The Cat Arcade (#3062, Screens/Arcade; the rules are shared/Arcade)
+-- The Cat Arcade (#3062; the rules are shared/Arcade). #4656: its game is Mouse Dash, the Circle Streak window is gone
 ----------------------------------------------------------------------------------------------------
 
 UI.arcade = {}
 
--- Opens the arcade's card (the cabinet's prompt, the Menu list's Arcade row). A window already up stays open.
--- #3296: with the `mouseDash` switch on the arcade's game is Mouse Dash, so its card opens instead.
+-- Opens the arcade's card (the cabinet's prompt). #4656: Mouse Dash is the arcade's only game (Circle Streak is gone),
+-- so its card opens, while the `mouseDash` switch is on.
 function UI.arcade.open()
 	local dash: any = (UI :: any).mouseDash -- filled later in the file
 	if dash.isMain() then
 		dash.open()
-		return
-	end
-	if modal and arcadeScreen and (modal:current() == nil or modal:current() == "Arcade") then
-		modal:open("Arcade")
-	end
-end
-
--- The golden fish on the card's Play line.
-function UI.arcade.render(newState: Types.PlayerState)
-	if arcadeScreen then
-		arcadeScreen:setFish(newState.goldenFish or 0)
 	end
 end
 
 -- ArcadeState: the records and today's paid prizes.
 function UI.arcade.state(view: any)
-	if arcadeScreen and type(view) == "table" then
-		arcadeScreen:setState(view)
-	end
 	local bang: any = (UI :: any).arcadeBang -- filled with Mouse Dash, later in the file
 	if type(view) == "table" and type(bang) == "table" then
 		bang.classic = view
@@ -3408,12 +3371,9 @@ function UI.arcade.state(view: any)
 	end
 end
 
--- The `arcade` live switch: off greys Play (a game running finishes). `row` was the Settings list's Arcade row,
--- gone since 2026-11-13 (Derek: "remove the old cat arcade icon from settings"); callers may still pass it.
+-- The `arcade` live switch. `row` was the Settings list's Arcade row, gone since 2026-11-13 (Derek: "remove the old
+-- cat arcade icon from settings"); callers may still pass it. Mouse Dash's own Play follows UI.mouseDash.setFlags.
 function UI.arcade.setOn(on: boolean, _row: boolean?)
-	if arcadeScreen then
-		arcadeScreen:setOn(on)
-	end
 	local bang: any = (UI :: any).arcadeBang -- #4272: no "!" while the arcade is switched off
 	if type(bang) == "table" then
 		bang.on = on
@@ -3421,37 +3381,10 @@ function UI.arcade.setOn(on: boolean, _row: boolean?)
 	end
 end
 
--- ArcadeBlock, ArcadeJudged and ArcadeOver, straight to the window.
-function UI.arcade.block(run: number, block: number, circles: any, windows: any, points: number)
-	if arcadeScreen then
-		arcadeScreen:block(run, block, circles, windows, points)
-	end
-end
-
-function UI.arcade.judged(
-	run: number,
-	block: number,
-	index: number,
-	grade: any,
-	points: number,
-	milestones: any
-)
-	if arcadeScreen then
-		arcadeScreen:judged(run, block, index, grade, points, milestones)
-	end
-end
-
-function UI.arcade.over(run: number, result: any)
-	if arcadeScreen then
-		arcadeScreen:over(run, result)
-	end
-end
-
 -- Whether a game is running on the board (the net and other taps stay out of its way).
 function UI.arcade.playing(): boolean
 	local dash: any = (UI :: any).mouseDash -- filled later in the file
-	return (arcadeScreen ~= nil and (arcadeScreen :: Arcade.Arcade):playing())
-		or dash.playing() == true
+	return dash.playing() == true
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -4181,6 +4114,16 @@ function UI.cannon.open(cannonId: string?)
 		screen:setRing(walk)
 	else
 		UI.cannon.endWalkRing()
+		-- #4540 (Derek 2026-11-15: "point at park in cannon menu after unlocking"): from the Tier 2 rank up until the
+		-- player first reaches the Park (been in it, or owns a Park cat: UI.parkTrail.reached), every picker rings the
+		-- Park card's Launch, whatever parkGateTrail says. "Fly to the Park" keeps its own ring while it runs.
+		if UI.cannon.fly.ring == nil then
+			local parkFirst = require(script.Components.ParkFirstLogic)
+			local due = type(state.tier) == "number"
+				and state.tier >= 2
+				and not UI.parkTrail.reached
+			screen:setRing(if due then parkFirst.AREA else nil)
+		end
 	end
 	windows:open("Cannon")
 end
@@ -6044,13 +5987,13 @@ do
 		local shared = ReplicatedStorage:WaitForChild("Shared")
 		local QuietStart = require(shared:WaitForChild("QuietStart")) :: any
 		local LiveFlags = require(shared:WaitForChild("LiveFlags")) :: any
-		local on, quiet = QuietStart.live()
+		local quiet = QuietStart.live()
 		local spotlight = LiveFlags.shown(
 			"rankUpSpotlight",
 			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "rankUpSpotlight")
 		)
 		local now: any = UI.getState()
-		if QuietStart.holdsTip(on, id, if now ~= nil then now.tier else nil, quiet, spotlight) then
+		if QuietStart.holdsTip(id, if now ~= nil then now.tier else nil, quiet, spotlight) then
 			return
 		end
 		if id == TackleLessonLogic.TIP then
@@ -6532,6 +6475,122 @@ do
 	end
 end
 
+-- #4437 (zero-sales dig, Derek 2026-11-15): the HUD's Money button's first tap of a session opens the Money boost card
+-- (Screens/MoneyCard, Components/MoneyCardLogic): this cafe's money a minute now and with the pass, Buy and the X. Its
+-- Buy opens Roblox's prompt (source money_card); later taps go straight to the prompt. Behind the moneyCard switch
+-- (on by default). Its own block, as the module is short of locals.
+do
+	local MoneyCardLogic = require(script.Components.MoneyCardLogic)
+	local SharedMoneyCard =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("MoneyCard")) :: any
+	local money = { screen = nil :: any, shown = false, ended = true, rung = 0, id = 0 }
+
+	local function finish(how: string)
+		if money.ended then
+			return
+		end
+		money.ended = true
+		UI.events.moneyCard:Fire(how .. ":" .. tostring(money.rung))
+	end
+
+	-- the window, made the first time it is needed
+	local function window(): any
+		if money.screen ~= nil then
+			return money.screen
+		end
+		local modalView = modal
+		if modalView == nil then
+			return nil
+		end
+		local function shut()
+			if modalView:current() == "MoneyCard" then
+				modalView:close()
+			end
+		end
+		local made = require(script.Screens.MoneyCard).new({
+			buy = function()
+				finish("buy")
+				shut()
+				local PassShop = require(script.Components.PassShop) :: any
+				PassShop.noteTap()
+				PassShop.prompt(money.id, SharedMoneyCard.SOURCE)
+			end,
+			close = function()
+				finish("closed")
+				shut()
+			end,
+		})
+		modalView:register("MoneyCard", {
+			frame = made.frame,
+			onClose = function()
+				finish("hidden") -- another window took the screen (Buy and the X have already ended it)
+			end,
+		})
+		money.screen = made
+		return made
+	end
+
+	local function show(id: number, rung: number, robux: number?): boolean
+		local made = window()
+		local modalView = modal
+		if made == nil or modalView == nil then
+			return false
+		end
+		local boosts = (state :: any).passBoosts
+		local current = if type(boosts) == "table" and type(boosts.money) == "number"
+			then boosts.money
+			else 1
+		local rate = (state :: any).prizeRate or state.incomePerSecond or 0
+		local now, with = SharedMoneyCard.perMinute(rate, current, rung)
+		local ShopIcons = require(script.Components.ShopIcons) :: any
+		made:render(MoneyCardLogic.view(rung, now, with, robux), ShopIcons.store("money", rung))
+		money.id, money.rung, money.shown, money.ended = id, rung, true, false
+		modalView:open("MoneyCard")
+		UI.events.moneyCard:Fire("shown:" .. tostring(rung))
+		return true
+	end
+
+	-- The HUD button's tap: true when the card opened (so no prompt), false to prompt as before.
+	function UI.tips.offerMoneyCard(id: number): boolean
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local boosts = (state :: any).passBoosts
+		local rung = MoneyCardLogic.rungOf(Config, id)
+		local offer = MoneyCardLogic.offer({
+			on = LiveFlags.shown(
+				MoneyCardLogic.FLAG,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. MoneyCardLogic.FLAG)
+			),
+			shown = money.shown,
+			rung = rung,
+			current = if type(boosts) == "table" and type(boosts.money) == "number"
+				then boosts.money
+				else 1,
+		})
+		if not offer or rung == nil then
+			return false
+		end
+		local PassShop = require(script.Components.PassShop) :: any
+		local price = PassShop.prices()[id]
+		return show(
+			id,
+			rung,
+			if price ~= nil and type(price.robux) == "number" then price.robux else nil
+		)
+	end
+
+	-- The card now, whatever the session and the switch say (QA in Studio and the UI gate), with a stand-in price
+	-- until Roblox's is known.
+	function UI.tips.showMoneyCard(rung: number?)
+		local r = rung or 2
+		local ids = (Config :: any).MoneyPassIds
+		local id = if type(ids) == "table" and type(ids[r]) == "number" then ids[r] else 0
+		local PassShop = require(script.Components.PassShop) :: any
+		local price = PassShop.prices()[id]
+		show(id, r, if price ~= nil and type(price.robux) == "number" then price.robux else 49)
+	end
+end
+
 -- F87 (easy-start.md sections 2e and 2g): the tutorial strip's device-aware words (UI.tutorial.hint), the nudges when
 -- a step stalls and the "Need a hand?" card. A step's clock runs only while its hint shows and nothing else goes on
 -- (UI.tips.quiet). After StuckNudgeSeconds (40) and every 40 s after, the strip pulses and the trail is drawn again
@@ -6744,9 +6803,7 @@ do
 		local wrapHint = UI.cannon.wrapUp.on and cannonHint() == CannonLogic.WRAP_UP_HINT
 		local QuietStart =
 			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
-		if
-			QuietStart.holdsFirstVisit((QuietStart.live()), if now ~= nil then now.tier else nil)
-		then
+		if QuietStart.holdsFirstVisit(if now ~= nil then now.tier else nil) then
 			return -- #4005: the first visit calls wait for Tier 2 (Design-Agent, folding #3891's hold in)
 		end
 		if
@@ -8893,6 +8950,9 @@ do
 			cannonScreen:setKeep((playerState :: any).dragon) -- #4062: the Castle card's Dragon Keep
 			cannonScreen:setFusion((playerState :: any).fusion) -- #4104: the Snowy Mountain card's Observatory
 		end
+		-- the Dragon Keep's trait luck for every trait odds list (the card's, the Store's Trait Tokens offer)
+		local cardLuck: any = (playerState :: any).cardLuck
+		MysticPoolLogic.setLuck(if type(cardLuck) == "table" then cardLuck.trait else nil)
 		local card = pool.card
 		if card then
 			card:render(playerState)
@@ -8964,14 +9024,12 @@ do
 		screen = nil :: MouseDash.MouseDash?,
 		view = nil :: any,
 		on = false, -- the `arcade` and `mouseDash` switches
-		circle = true, -- the `circleStreak` switch: Circle Streak can still be played
 	}
 
 	local function apply()
 		local screen = dash.screen
 		if screen then
 			screen:setOn(dash.on)
-			screen:setOther(dash.circle)
 		end
 	end
 
@@ -8994,13 +9052,6 @@ do
 			close = function()
 				if modalView:current() == MouseDashLogic.WINDOW then
 					modalView:close()
-				end
-			end,
-			-- to Circle Streak's card, while that game is not vaulted
-			other = function()
-				if dash.circle and modalView:current() == MouseDashLogic.WINDOW then
-					modalView:close()
-					modalView:open("Arcade")
 				end
 			end,
 		})
@@ -9054,10 +9105,9 @@ do
 		end
 	end
 
-	-- The switches: `on` the arcade's and Mouse Dash's both, `circle` Circle Streak's.
-	function UI.mouseDash.setFlags(on: boolean, circle: boolean)
+	-- The switches: `on` the arcade's and Mouse Dash's both.
+	function UI.mouseDash.setFlags(on: boolean)
 		dash.on = on
-		dash.circle = circle
 		apply()
 		arcadeBang.refresh()
 	end
@@ -11090,21 +11140,17 @@ end
 
 ----------------------------------------------------------------------------------------------------
 -- #3529 (shared/NewKind): the "NEW" tag over strays and stuck cats of kinds this player has never owned
--- (Screens/NewKindTags), and the catch card's "New kind!" line. Behind the `newKindTag` live switch, off by default.
+-- (Screens/NewKindTags), and the catch card's "New kind!" line. #4654: the `newKindTag` switch shipped and is gone.
 ----------------------------------------------------------------------------------------------------
 
 do
 	local Shared = ReplicatedStorage:WaitForChild("Shared")
 	local NewKind = require(Shared:WaitForChild("NewKind"))
-	local kind: { tags: any, watch: RBXScriptConnection? } = { tags = nil, watch = nil }
+	local kind: { tags: any } = { tags = nil }
 
+	-- #4654: always on since the `newKindTag` switch shipped; kept for its callers
 	function UI.newKind.on(): boolean
-		local LiveFlags =
-			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-		return LiveFlags.shown(
-			NewKind.FLAG,
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. NewKind.FLAG)
-		)
+		return true
 	end
 
 	-- Different kinds owned toward rank up, from the Index the client has.
@@ -11124,19 +11170,10 @@ do
 			return
 		end
 		kind.tags = require(script.Screens.NewKindTags).new()
-		local LiveFlags =
-			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
-		kind.watch = ReplicatedStorage
-			:GetAttributeChangedSignal(LiveFlags.ATTRIBUTE_PREFIX .. NewKind.FLAG)
-			:Connect(UI.newKind.refresh)
 		UI.newKind.refresh()
 	end
 
 	function UI.newKind.stop()
-		if kind.watch ~= nil then
-			kind.watch:Disconnect()
-			kind.watch = nil
-		end
 		if kind.tags ~= nil then
 			kind.tags:destroy()
 			kind.tags = nil

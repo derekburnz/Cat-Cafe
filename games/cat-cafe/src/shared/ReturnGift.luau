@@ -2,7 +2,7 @@
 -- The welcome back gift (#3772, come-back-tomorrow.md section 2a): once per account, on the first join on a later UTC
 -- day than the account's first day, a golden crate of the best open area. It never expires. Only accounts first seen
 -- on or after Config.ReturnGiftFromDay can get it, so players from before it shipped are not all paid at once.
--- Behind the switch FLAG (LiveFlags.OFF_BY_DEFAULT). Pure, so the specs load it.
+-- Always on since #4654 (its `returnGift` switch shipped and is gone). Pure, so the specs load it.
 -- No new save field and no save version step (Gameplay-Engineer's advice on #3772): the gift paid is marked in the
 -- save's codesRedeemed under KEY, which every server since version 9 keeps as it is, so a player hopping servers
 -- during a rollout can never take it twice. KEY starts with UpdateGift.PREFIX ("gift"), so the Store's "Codes you've
@@ -17,7 +17,6 @@ local Types = require(script.Parent.Types)
 
 local ReturnGift = {}
 
-ReturnGift.FLAG = "returnGift"
 ReturnGift.KEY = "giftreturn"
 ReturnGift.REASON = "return_gift" -- Payout's reason
 ReturnGift.TOAST = "Welcome back gift! " -- ToastRules.KEEP lets this green toast through

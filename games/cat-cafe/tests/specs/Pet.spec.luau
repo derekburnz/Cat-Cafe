@@ -36,12 +36,10 @@ return function()
 	end
 
 	describe("Pet's numbers", function()
-		it("are Derek's: 2x for an hour, behind a switch that is off", function()
+		it("are Derek's: 2x for an hour", function()
 			expect(Config.PetMoneyBoost).to.equal(2)
 			expect(Config.PetSeconds).to.equal(3600)
 			expect(Config.PetCooldownSeconds).to.equal(3)
-			expect(Pet.FLAG).to.equal("petCats")
-			expect(LiveFlags.defaults()[Pet.FLAG]).to.equal(false)
 		end)
 	end)
 

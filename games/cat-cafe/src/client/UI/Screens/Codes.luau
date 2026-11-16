@@ -45,6 +45,7 @@ local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+local SharedCodes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Codes")) :: any
 
 export type Callbacks = {
 	redeem: (code: string) -> (),
@@ -425,6 +426,17 @@ end
 function Codes.render(self: any, state: Types.PlayerState)
 	self._state = state
 	self:_renderUsed()
+	self:_refresh()
+end
+
+-- #4655 (Derek 2026-11-15: codes need Tier 2): the server's refusal line while this player is under it, else nil
+function Codes._tierLock(self: any): string?
+	local state: any = self._state
+	local tier = if state ~= nil and type(state.tier) == "number" then state.tier else nil
+	if tier == nil or type(SharedCodes.tierRefusal) ~= "function" then
+		return nil
+	end
+	return SharedCodes.tierRefusal(tier)
 end
 
 -- #1714: the used list, rebuilt when the codes or their times change
@@ -568,17 +580,31 @@ function Codes._resting(self: any): boolean
 end
 
 function Codes._refresh(self: any)
-	self._box.TextEditable = not self._pending
+	-- #4655: under Tier 2 the box is shut and Redeem grey, with the reason, so no new player types a code to be
+	-- refused
+	local lock = self:_tierLock()
+	self._box.TextEditable = not self._pending and lock == nil
 	self._redeem:setText(
 		if self._pending then "..." elseif MenuFamily.on() then "REDEEM" else "Redeem"
 	)
-	local ready = not self._pending and not self:_resting()
+	local ready = not self._pending and not self:_resting() and lock == nil
 	self._redeem:setEnabled(ready and CodeEntry.canRedeem(self._box.Text))
+	-- Review-QA: in the Store the gold hint strip says it in place of "Check the game description for codes", which
+	-- would still invite a try; elsewhere the answer line does
+	local hint: TextLabel = self._hint
+	hint.Text = lock or HINT_LINE
+	if lock ~= nil and not hint.Visible then
+		self._locked = true
+		self:_setAnswer(false, lock, nil)
+	elseif self._locked and (lock == nil or hint.Visible) then
+		self._locked = false
+		self:_setAnswer(nil, nil, nil)
+	end
 end
 
 function Codes._submit(self: any)
 	local code = CodeEntry.clean(self._box.Text)
-	if self._pending or code == "" or self:_resting() then
+	if self._pending or code == "" or self:_resting() or self:_tierLock() ~= nil then
 		return
 	end
 	self._pending = true
@@ -655,6 +681,7 @@ function Codes.mount(self: any, parent: Instance?)
 	self._hint.Visible = mounted
 	self._usedTitle.Visible = mounted
 	self._used.Visible = mounted
+	self:_refresh() -- #4655: the Tier 2 line moves between the hint strip and the answer line
 end
 
 function Codes.destroy(self: any)

@@ -48,6 +48,9 @@ Settings.kinds = {
 	autoBowlClaim = "switch",
 	autoBowlRefill = "switch",
 	bowlNewCatCard = "switch",
+	-- #4668 (Derek 2026-11-15: "have it default turn to visibility off"): the glowing walk-up rings in front of the
+	-- stations (client Effects/StationCircles). Off by default; the windows still open on stepping in
+	stationCircles = "switch",
 } :: { [string]: Kind }
 
 -- #3940: every way the four Show chips can be on, as CatPickLogic.packShown writes them (chip names in this order,
@@ -96,6 +99,7 @@ function Settings.defaults(): Types.Settings
 		autoBowlClaim = true,
 		autoBowlRefill = true,
 		bowlNewCatCard = true,
+		stationCircles = false,
 	}
 end
 

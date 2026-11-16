@@ -205,7 +205,7 @@ return function()
 			end)
 
 			it(
-				"bait speed shortens the next bowl in whole seconds, 372 s on the full All Cats track (F54)",
+				"bait speed shortens the next bowl in whole seconds, 300 s (BaitSpeedMax) on the full All Cats track (F54; #4654: 372 before the past-50 milestones counted)",
 				function()
 					local p = freshProfile()
 					expect(Economy.baitWaitSeconds(p)).to.equal(600)
@@ -216,7 +216,7 @@ return function()
 						all[id] = true
 					end
 					p.indexRewards.all = all
-					expect(Economy.baitWaitSeconds(p)).to.equal(372)
+					expect(Economy.baitWaitSeconds(p)).to.equal(300) -- #4654: the indexTo70 milestones count, so the cap
 				end
 			)
 
@@ -236,7 +236,7 @@ return function()
 						all[id] = true
 					end
 					p.indexRewards.all = all
-					expect(Economy.baitWaitSeconds(p, true)).to.equal(186)
+					expect(Economy.baitWaitSeconds(p, true)).to.equal(150) -- #4654: 186 before indexTo70 shipped (the cap now)
 				end
 			)
 
@@ -1231,19 +1231,17 @@ return function()
 		)
 
 		it(
-			"Tier 2 to 3 needs one Epic or better; 3 to 4 one Mythical (#2496); 4 to 5 two Legendary or better",
+			"Tier 2 to 3 needs one Epic or better; 3 to 4 one Legendary (#4713); 4 to 5 two Legendary or better",
 			function()
 				expect(Economy.rankUpBlocker(profileWith(2, 13))).to.equal(
 					"Needs one cat, Epic or better"
 				)
 				expect(Economy.rankUpBlocker(profileWith(2, 13, "Epic", 1))).never.to.be.ok()
 				expect(Economy.rankUpBlocker(profileWith(3, 25, "Epic", 3))).to.equal(
-					"Needs one cat, Mythical or better"
+					"Needs one cat, Legendary or better"
 				)
-				-- #2496: a Legendary no longer opens Tier 4
-				expect(Economy.rankUpBlocker(profileWith(3, 25, "Legendary", 3))).to.equal(
-					"Needs one cat, Mythical or better"
-				)
+				-- #4713: one Legendary opens Tier 4 again (#2496 asked for a Mythical)
+				expect(Economy.rankUpBlocker(profileWith(3, 25, "Legendary", 1))).never.to.be.ok()
 				expect(Economy.rankUpBlocker(profileWith(3, 25, "Mythical", 1))).never.to.be.ok()
 				expect(Economy.rankUpBlocker(profileWith(4, 33, "Legendary", 1))).to.equal(
 					"Needs 2 different cats, Legendary or better"

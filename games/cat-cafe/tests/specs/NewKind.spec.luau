@@ -17,17 +17,6 @@ return function()
 		error("no alley " .. rarity)
 	end
 
-	describe("the switch", function()
-		it("is a live switch that starts off", function()
-			expect(NewKind.FLAG).to.equal("newKindTag")
-			expect(table.find(LiveFlags.KEYS, NewKind.FLAG) ~= nil).to.equal(true)
-			expect(LiveFlags.OFF_BY_DEFAULT[NewKind.FLAG]).to.equal(true)
-			expect(LiveFlags.defaults()[NewKind.FLAG]).to.equal(false)
-			expect(LiveFlags.shown(NewKind.FLAG, nil)).to.equal(false)
-			expect(LiveFlags.shown(NewKind.FLAG, true)).to.equal(true)
-		end)
-	end)
-
 	describe("isNew", function()
 		it("is a kind the collection does not hold", function()
 			local tabby = alley("Common")

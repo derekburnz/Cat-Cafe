@@ -90,6 +90,19 @@ local function mysticIntro(station: Instance): boolean
 	return true
 end
 
+-- #4858: the account's first walk-up to the Mystic Pool takes its "!" away for good (tipsSeen pool_visit, saved by
+-- TipSeen; this client's state at once, so the "!" goes as the card opens)
+local function poolVisited()
+	local state = UIController.state
+	if state == nil or state.tipsSeen == nil or state.tipsSeen[Tips.POOL_VISIT] == true then
+		return
+	end
+	state.tipsSeen[Tips.POOL_VISIT] = true
+	Net.fire("TipSeen", Tips.POOL_VISIT)
+	local pool: any = UI.mysticPool
+	pool.render(state)
+end
+
 local player = Players.LocalPlayer
 local POLL_SECONDS = 0.05 -- Derek 2026-11-14: rings open at once (was 0.15, plus a 0.3 s wait in WalkUp)
 
@@ -170,6 +183,7 @@ local KINDS: { Kind } = {
 		window = "MysticPool",
 		-- #3430: the first walk-up plays the pool's cutscene, and the card opens as it ends
 		open = function(model: Instance)
+			poolVisited()
 			if not mysticIntro(model) then
 				UI.mysticPool.open()
 			end

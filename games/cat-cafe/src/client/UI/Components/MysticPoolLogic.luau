@@ -247,13 +247,12 @@ function MysticPoolLogic.pickerLine(
 	}
 end
 
--- #3936: whether the red "!" hangs over the pool (Components/PoolBang): a free roll left, a Trait Token banked or
--- free tokens waiting at the station, and no Keep old / Take new choice waiting. False while the pool is shut.
-function MysticPoolLogic.bangShows(view: View?): boolean
-	if view == nil or view.pending ~= nil then
-		return false
-	end
-	return whole(view.freeLeft) > 0 or whole(view.tokens) > 0 or whole(view.held) > 0
+-- #3936: whether the red "!" hangs over the pool (Components/PoolBang). #4858 (Derek 2026-11-16: "remove the mystic
+-- pool exclamation mark when you have rolls to claim or use make it so its only their until the first time you go to
+-- the station"): while the pool is open to the player (`view` a table) and they have never walked up to it (`visited`,
+-- tipsSeen's Tips.POOL_VISIT). Rolls and tokens no longer bring it back. False while the pool is shut.
+function MysticPoolLogic.bangShows(view: View?, visited: boolean?): boolean
+	return type(view) == "table" and visited ~= true
 end
 
 -- The station's free tokens: the line, and whether Collect has something to take. `now` is the server's time.

@@ -83,6 +83,9 @@ Tips.FEEDBACK_ASK = "feedback_ask"
 -- #3430: the Mystic Pool's first walk-up cutscene (Effects/MysticIntroCut), once per account ever. Its mark rides
 -- tipsSeen like the asks (no new save field) and "Show tips again" keeps it.
 Tips.MYSTIC_INTRO = "mystic_intro"
+-- #4858 (Derek 2026-11-16: the pool's "!" only "until the first time you go to the station"): the account's first
+-- walk-up to the Mystic Pool, sent by the client as it opens the card there. Rides tipsSeen like the cutscene's mark.
+Tips.POOL_VISIT = "pool_visit"
 Tips.STUCK_HELP = "stuck_help"
 
 -- SendFeedback's values (section 4): the three faces and the optional chips, as analytics' short fixed values.
@@ -111,6 +114,7 @@ function Tips.seenId(id: string): boolean
 		or id == Tips.STUCK_HELP
 		or id == Tips.LESSON
 		or id == Tips.MYSTIC_INTRO -- #3430
+		or id == Tips.POOL_VISIT -- #4858
 		or id == RankSpot.SEEN -- #3555: the first rank up's walk-through, put away
 		or StationReveal.isKey(id) -- #2687: a station's reveal, played once
 end

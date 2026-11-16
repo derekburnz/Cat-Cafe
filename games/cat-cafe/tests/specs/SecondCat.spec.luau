@@ -62,21 +62,24 @@ return function()
 
 	-- #4518: bowl first, the bowl cat counts for nothing and the goal is two catches by hand
 	describe("bowl first (#4518)", function()
-		it("counts only cats caught by hand, two to finish", function()
-			local stats: any = { catsCaught = 1, baitsTamed = 1 }
-			expect(SecondCat.progress(stats, true)).to.equal(0)
-			expect(SecondCat.done(stats, true)).to.equal(false)
-			stats.catsCaught = 2
-			expect(SecondCat.progress(stats, true)).to.equal(1)
-			expect(SecondCat.done(stats, true)).to.equal(false)
-			stats.catsCaught = 3
-			expect(SecondCat.progress(stats, true)).to.equal(2)
-			expect(SecondCat.done(stats, true)).to.equal(true)
-			-- today's order keeps the bowl cat as one
-			stats.catsCaught = 2
-			expect(SecondCat.progress(stats, false)).to.equal(2)
-			expect(SecondCat.done(stats, false)).to.equal(true)
-		end)
+		it(
+			"#4674: the bowl cat counts as one, so one Alleyway catch by hand finishes it",
+			function()
+				local stats: any = { catsCaught = 1, baitsTamed = 1 }
+				expect(SecondCat.progress(stats, true)).to.equal(1)
+				expect(SecondCat.done(stats, true)).to.equal(false)
+				stats.catsCaught = 2
+				expect(SecondCat.progress(stats, true)).to.equal(2)
+				expect(SecondCat.done(stats, true)).to.equal(true)
+				-- two bowl cats and none by hand never finish it
+				local bowls: any = { catsCaught = 2, baitsTamed = 2 }
+				expect(SecondCat.done(bowls, true)).to.equal(false)
+				-- today's order keeps the bowl cat as one
+				stats.catsCaught = 2
+				expect(SecondCat.progress(stats, false)).to.equal(2)
+				expect(SecondCat.done(stats, false)).to.equal(true)
+			end
+		)
 		it(
 			"reads the switch when not told: on (today's order) with no copy in ReplicatedStorage",
 			function()

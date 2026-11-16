@@ -189,7 +189,7 @@ return function()
 					golden_espresso = 5,
 					big_bowl = 1,
 					extra_decor_spot = 2,
-					swift_paws = 5,
+					swift_paws = 10, -- #4705
 					lucky_charm = 3, -- #3298
 				}
 				for id, maxLevel in perks do
@@ -358,7 +358,7 @@ return function()
 				golden_espresso = { 40, 80, 150, 250, 400 },
 				big_bowl = { 150 },
 				extra_decor_spot = { 100, 250 },
-				swift_paws = { 60, 150, 300, 500, 800 }, -- #3317 (Monetization-Agent: five levels)
+				swift_paws = { 60, 150, 300, 500, 800, 1200, 1700, 2300, 3000, 3800 }, -- #3317, #4705 (ten levels)
 				lucky_charm = { 100, 250, 500 }, -- #3298 (new-activities.md section 5)
 			}
 			for _, def in Catalog.crates do

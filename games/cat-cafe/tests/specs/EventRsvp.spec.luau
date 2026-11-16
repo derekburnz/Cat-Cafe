@@ -94,6 +94,14 @@ return function()
 				expect((EventRsvp.next(Config.UpdateEvents, 1794799800 + 600))).to.equal(
 					"6810389993696133776"
 				)
+				-- Derek 2026-11-15 17:13 UTC: it rolls on to Harvest Hollow, then Cherry Blossom Grove
+				expect((EventRsvp.next(Config.UpdateEvents, 1795032000 + 600))).to.equal(
+					"2956295611862876771"
+				)
+				expect((EventRsvp.next(Config.UpdateEvents, 1795636800 + 600))).to.equal(
+					"6693355219203523122"
+				)
+				expect((EventRsvp.next(Config.UpdateEvents, 1796500800 + 600))).to.equal(nil)
 			end
 		)
 

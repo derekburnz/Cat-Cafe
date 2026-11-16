@@ -97,10 +97,10 @@ local FEATURE_NOTE =
 	"If we build your idea, your display name goes on the Thank You board. You can hide it in Settings."
 -- #3961 (batch 2 mock, station-menus-batch2-3558.png): with the family look the chips, Cancel and Send are chunky
 -- capitals, the chosen chip in its own colour (BUG red, STUCK gold, IDEA sky) and the counter sits inside the box
-local FAMILY = MenuFamily.on()
+-- #4657: the family look is the only look
 local CHOSEN: { [string]: Button.Style } = { bug = "close", stuck = "gold", idea = "sky" }
 local function caps(words: string): string
-	return if FAMILY then string.upper(words) else words
+	return string.upper(words)
 end
 local TOP_EDGE = 30 -- compact: room above the window for the panel's ears and badge
 local BOTTOM_EDGE = 8 -- compact: room between the window and the keyboard
@@ -229,7 +229,7 @@ function BugReport.new(callbacks: Callbacks): BugReport
 
 	self._note = text({
 		Name = "Note",
-		Size = UDim2.new(1, if FAMILY then 0 else -COUNTER_WIDTH, 0, FOOT_HEIGHT),
+		Size = UDim2.new(1, 0, 0, FOOT_HEIGHT),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
 		Text = PRIVACY,
@@ -592,13 +592,9 @@ function BugReport._layout(self: any, compact: boolean)
 		self._box.Size = UDim2.new(1, 0, 1, -(top + below))
 		local foot = UDim2.new(0, 0, 1, -(BUTTON_HEIGHT + GAP + FOOT_HEIGHT))
 		self._note.Position = foot
-		if FAMILY then
-			-- #3961: the counter in the box's bottom right corner, the privacy line the whole width under it
-			self._counter.AnchorPoint = Vector2.new(1, 1)
-			self._counter.Position = UDim2.new(1, -10, 1, -(below + 4))
-		else
-			self._counter.Position = UDim2.new(1, 0, foot.Y.Scale, foot.Y.Offset)
-		end
+		-- #3961: the counter in the box's bottom right corner, the privacy line the whole width under it
+		self._counter.AnchorPoint = Vector2.new(1, 1)
+		self._counter.Position = UDim2.new(1, -10, 1, -(below + 4))
 		cancel.AnchorPoint = Vector2.new(0, 1)
 		cancel.Position = UDim2.fromScale(0, 1)
 		cancel.Size = UDim2.new(0.5, -GAP / 2, 0, BUTTON_HEIGHT)
@@ -668,8 +664,7 @@ end
 function BugReport._refresh(self: any)
 	local raw: string = self._box.Text
 	self._counter.Text = BugReportLogic.counter(raw)
-	-- on the box's cream card in the family look (#3961), under it on the window otherwise
-	local ink = if FAMILY then CARD else PAL
+	local ink = CARD -- #3961: on the box's cream card
 	self._counter.TextColor3 = if #raw >= BugReportLogic.MAX_BYTES then ink.red else ink.subtext
 	self._note.Text = if self._noAnswer then NO_ANSWER else PRIVACY
 	self._note.TextColor3 = if self._noAnswer then PAL.red else PAL.subtext
@@ -677,7 +672,7 @@ function BugReport._refresh(self: any)
 	self._send:setText(caps(if self._pending then "Sending..." else "Send"))
 	self._send:setEnabled(not self._pending and BugReportLogic.canSend(raw))
 	for id, chip: Button.Button in self._chips do
-		local chosen: Button.Style = if FAMILY then CHOSEN[id] or "secondary" else "secondary"
+		local chosen: Button.Style = CHOSEN[id] or "secondary"
 		chip:setStyle(if id == self._kind then chosen else "ghost")
 	end
 	self._prompt.Text = BugReportLogic.prompt(self._kind)

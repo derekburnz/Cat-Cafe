@@ -1,5 +1,5 @@
 --!strict
--- #3053: the chat's Rare Cats tab (shared/RareCatsTab), behind the `rareCatsTab` switch.
+-- #3053: the chat's Rare Cats tab (shared/RareCatsTab), once behind the `rareCatsTab` switch (retired in #4654 batch 4).
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local GlobalCatch = require(Shared.GlobalCatch)
@@ -109,12 +109,9 @@ return function()
 			end
 		)
 
-		it("waits behind a switch that starts off", function()
-			expect(table.find(LiveFlags.KEYS, RareCatsTab.FLAG) ~= nil).to.equal(true)
-			expect(LiveFlags.OFF_BY_DEFAULT[RareCatsTab.FLAG]).to.equal(true)
-			expect(LiveFlags.defaults()[RareCatsTab.FLAG]).to.equal(false)
-			expect(LiveFlags.shown(RareCatsTab.FLAG, nil)).to.equal(false)
-			expect(LiveFlags.shown(RareCatsTab.FLAG, true)).to.equal(true)
+		it("has no switch any more (#4654 batch 4)", function()
+			expect(table.find(LiveFlags.KEYS, "rareCatsTab")).to.equal(nil)
+			expect(LiveFlags.OFF_BY_DEFAULT.rareCatsTab).to.equal(nil)
 		end)
 	end)
 end

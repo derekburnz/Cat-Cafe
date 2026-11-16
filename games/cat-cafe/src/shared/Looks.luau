@@ -156,7 +156,7 @@ Looks.UNIFORMS = UNIFORMS
 -- section 3) are looks only. The pass's +15% is in Economy and never depends on the pick.
 -- #2109 (store-pass-looks.md 6a, Derek2 2026-11-07: "replace the tiny hat with something else"): the Tail Bow took the
 -- Tiny Hat's place, as a cat's own head prop kept the hat off about half the working cats. A saved "hat" reads as
--- "tail_bow" (RENAMED); the CatCafe_Accessory_Hat model stays in the Assets folder, unused.
+-- "tail_bow" (RENAMED); the CatCafe_Accessory_Hat model left the Assets folder (#4656; Blender keeps the mesh).
 local ACCESSORIES: { Accessory } = {
 	{
 		id = "tail_bow",
@@ -221,6 +221,24 @@ local ACCESSORIES: { Accessory } = {
 		piece = "BubbleHelmet",
 		slot = "Head",
 		at = "Hat",
+	},
+	-- #4061 the Ticket Booth's weekly wearables (Model-Agent's booth models): no pass; owned once bought with tickets,
+	-- through the items CafeService hands Looks (TicketBooth.lookItems). Each pays TicketBooth.WEAR_BONUS while worn.
+	{
+		id = "acc_snorkel_mask",
+		name = "Snorkel Mask",
+		piece = "SnorkelMask",
+		slot = "Face",
+		at = "Glasses",
+	},
+	{ id = "acc_swim_cap", name = "Swim Cap", piece = "SwimCap", slot = "Head", at = "Hat" },
+	{ id = "acc_sun_visor", name = "Sun Visor", piece = "SunVisor", slot = "Head", at = "Hat" },
+	{
+		id = "acc_starfish_shades",
+		name = "Starfish Shades",
+		piece = "StarfishShades",
+		slot = "Face",
+		at = "Glasses",
 	},
 }
 for _, accessory in ACCESSORIES do

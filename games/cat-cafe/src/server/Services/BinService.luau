@@ -136,10 +136,7 @@ local function publish(player: Player)
 	-- #3460: the wins so far, so the prompt's note names the next fixed prize or the chances
 	player:SetAttribute(RummageBin.USES_ATTRIBUTE, if bin ~= nil then bin.uses else nil)
 	-- #3608: the prize that waits, for the board ("Waiting for you: ...")
-	player:SetAttribute(
-		RummageBin.PRIZE_ATTRIBUTE,
-		if bin ~= nil and LiveFlagService.on(RummageBin.ROLL_FLAG) then bin.prize else nil
-	)
+	player:SetAttribute(RummageBin.PRIZE_ATTRIBUTE, if bin ~= nil then bin.prize else nil)
 end
 
 local function store(): DataStore?
@@ -357,19 +354,15 @@ local function begin(player: Player)
 		Net.toast(player, Cooldown.text(retry - now), "warn")
 		return
 	end
-	-- #3680: with the roll on, a rummage starts only for a player standing on the pad, so the roll never plays for
-	-- someone still walking up
-	if LiveFlagService.on(RummageBin.ROLL_FLAG) and not onPad(player) then
+	-- #3680: a rummage starts only for a player standing on the pad, so the roll never plays for someone still
+	-- walking up (#4654 batch 4: the `binRoll` switch is retired, the roll always plays)
+	if not onPad(player) then
 		Net.toast(player, RummageBin.PAD_FIRST, "info")
 		return
 	end
 	local run: Run = { attempt = nil, early = RummageBin.early(bin) }
 	runs[player] = run
 	watch(player, run)
-	if not LiveFlagService.on(RummageBin.ROLL_FLAG) then
-		startBar(player, run)
-		return
-	end
 	-- #3608: the prize first. It is stored before anything is shown, so nothing the player does next changes it.
 	local had = bin.prize
 	local row, mode = RummageBin.choose(bin, rng:NextNumber())

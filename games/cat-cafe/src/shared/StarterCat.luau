@@ -21,6 +21,13 @@ StarterCat.TRY_AGAIN = "Try again in a moment"
 -- never a paid step (Premium raises the limit, and we never say so), never pushy.
 StarterCat.GROUP_FULL = "Your group list may be full. Leave a group to join ours."
 
+-- #4679: whether a "not a member" answer may be set aside because the player pressed "Join the group" this session:
+-- `promptedAgo` is how long ago (seconds), nil when they never did. Roblox keeps a player's membership answer for
+-- the session, so a fresh join can read as "no" until they rejoin.
+function StarterCat.trustsJoin(promptedAgo: number?): boolean
+	return promptedAgo ~= nil and promptedAgo >= 0 and promptedAgo <= Config.GroupJoinTrustSeconds
+end
+
 -- What a claim is checked against: the first goals ("task") while the game has no group, the group after.
 export type Gate = "task" | "group"
 

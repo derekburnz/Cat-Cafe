@@ -197,7 +197,7 @@ local function updateMist(area: string?, feet: Vector3)
 end
 
 -- #4069: a little puff under your feet for every `footStuds` you walk on the ground in an area with one (snow in
--- the Snowy Mountain), and a step for whoever listens (AreaFx.onStep). No puff in Low performance or with Reduce
+-- the Snowy Mountain, dry leaves in Harvest Hollow), and a step for whoever listens (AreaFx.onStep). No puff in Low performance or with Reduce
 -- Motion.
 local footAt: Vector3? = nil
 
@@ -340,7 +340,7 @@ end
 
 -- #4069: the northern lights. In the day's last minute (`auroraEvening`; night closes the areas, so nobody would
 -- see them then) and at night, while you stand in an area with an `aurora`, its ribbons hang over the
--- area: two soft bands each, on one unseen part, bending slowly from side to side. They hang `ahead` studs out
+-- area: each a curtain of upright rays (#4687), on one unseen part, rippling slowly. They hang `ahead` studs out
 -- the way the camera looks, across that look, and glide to stay there as you walk or turn. They fade in when they start and
 -- out when night ends or you leave.
 -- `full[i]` is band i's own middle transparency when the lights are fully shown, `base` the spec's `shown`
@@ -367,14 +367,15 @@ local function auroraLook(middle: number)
 		local level = math.clamp((1 - middle) / math.max(1 - ribbon.base, 0.01), 0, 1)
 		for b, band in ribbon.bands do
 			local own = 1 - level * (1 - (ribbon.full[b] or ribbon.base))
-			-- soft ends: nothing, half way, then the middle's own value
-			local half = (1 + own) / 2
+			-- #4687: along the ray, foot to top: a soft foot, its strongest just over it, then fading to nothing
+			-- Sync's second look: a longer fade in at the foot (no hard bottom edge) and gone a little before the top,
+			-- where the overlapping rays' tips showed thin facets
 			band.Transparency = NumberSequence.new({
 				NumberSequenceKeypoint.new(0, 1),
-				NumberSequenceKeypoint.new(0.12, half),
-				NumberSequenceKeypoint.new(0.3, own),
-				NumberSequenceKeypoint.new(0.7, own),
-				NumberSequenceKeypoint.new(0.88, half),
+				NumberSequenceKeypoint.new(0.16, own),
+				NumberSequenceKeypoint.new(0.35, own + (1 - own) * 0.3),
+				NumberSequenceKeypoint.new(0.6, own + (1 - own) * 0.7),
+				NumberSequenceKeypoint.new(0.88, 1),
 				NumberSequenceKeypoint.new(1, 1),
 			})
 		end
@@ -430,7 +431,7 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, place: CFrame
 	local box = { centre = { x = 0, z = 0 }, size = { width = spec.window, depth = spec.deep } }
 	part.CFrame = place
 	local calm = Context.reducedMotion()
-	local nestMost = if Context.tier == "low" then spec.nestLow else #spec.nest
+	local rayCount = spec.columns[tiers[Context.tier] or 3] or 7
 	for _, r in
 		Logic.auroraRibbons(
 			count,
@@ -445,56 +446,70 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, place: CFrame
 		)
 	do
 		local ribbon: Ribbon = { bands = {}, full = {}, base = spec.shown, tweens = {} }
-		for layer, colour in { spec.foot, spec.top } do
-			local lift = (layer - 1) * spec.width * (1 - spec.overlap)
-			-- a Beam bends along its attachments' X axes, so they point across the ribbon
-			local from = Instance.new("Attachment")
-			from.Position = r.from - middle + Vector3.new(0, lift, 0)
-			from.Axis = r.across
-			from.Parent = part
-			local to = Instance.new("Attachment")
-			to.Position = r.to - middle + Vector3.new(0, lift, 0)
-			to.Axis = r.across
-			to.Parent = part
-			-- No picture on the bands: the particle smoke picture draws as nothing on a Beam (#4085 Studio look). The
-			-- soft edge across the band comes from thinner bands laid over wider ones, their light adding up toward
-			-- the middle.
-			for n, share in spec.nest do
-				if n > nestMost then
-					break
-				end
-				local band = Instance.new("Beam")
-				band.Name = "Ribbon"
-				band.Attachment0 = from
-				band.Attachment1 = to
-				band.FaceCamera = true
-				band.Segments = 16
-				band.Color = ColorSequence.new(colour)
-				band.LightEmission = 1
-				band.LightInfluence = 0
-				band.Brightness = spec.nestBright[n] or spec.brightness
-				band.Width0 = spec.width * share
-				band.Width1 = spec.width * share
-				band.CurveSize0 = r.bend
-				band.CurveSize1 = r.bend -- the far end bends the other way: a slow S
-				band.Parent = part
-				table.insert(ribbon.bands, band)
-				table.insert(ribbon.full, spec.nestShown[n] or spec.shown)
-				if not calm then
-					local tween = TweenService:Create(
-						band,
-						TweenInfo.new(
-							r.seconds + (layer - 1) * 1.5,
-							Enum.EasingStyle.Sine,
-							Enum.EasingDirection.InOut,
-							-1,
-							true
-						),
-						{ CurveSize0 = -r.bend, CurveSize1 = -r.bend }
-					)
-					tween:Play()
-					table.insert(ribbon.tweens, tween)
-				end
+		-- #4687: upright rays side by side along the ribbon, each a Beam from its foot up (see Presets' note)
+		local from = r.from - middle
+		local to = r.to - middle
+		local gap = (to - from).Magnitude / math.max(rayCount, 1)
+		local along = if (to - from).Magnitude > 0 then (to - from).Unit else Vector3.xAxis
+		local colours = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, spec.foot),
+			ColorSequenceKeypoint.new(0.4, spec.middle),
+			ColorSequenceKeypoint.new(1, spec.top),
+		})
+		for n, ray in
+			Logic.auroraRays(
+				rayCount,
+				from,
+				to,
+				r.across,
+				r.bend * 0.3,
+				spec.tall,
+				spec.tallVary,
+				#auroraRibbons * 1.7
+			)
+		do
+			-- the feet rise and dip a little, ray to ray, so the curtain's foot is no straight line (Sync's second look)
+			local step = Vector3.new(0, spec.footVary * math.sin(n * 2.3 + #auroraRibbons), 0)
+			local foot = Instance.new("Attachment")
+			foot.Position = ray.foot + step
+			foot.Axis = along -- a Beam bows along its attachments' X axes: side to side along the curtain
+			foot.Parent = part
+			local top = Instance.new("Attachment")
+			top.Position = ray.foot + step + Vector3.new(0, ray.height, 0)
+			top.Axis = along
+			top.Parent = part
+			local band = Instance.new("Beam")
+			band.Name = "Ribbon"
+			band.Attachment0 = foot
+			band.Attachment1 = top
+			band.FaceCamera = true
+			band.Segments = 6
+			band.Color = colours
+			band.LightEmission = 1
+			band.LightInfluence = 0
+			band.Brightness = spec.bright
+			band.Width0 = gap * spec.wide
+			band.Width1 = gap * spec.wide -- as wide at the top: wider ones crossed into facets (Sync's second look)
+			local bow = if n % 2 == 1 then spec.sway else -spec.sway
+			band.CurveSize0 = bow
+			band.CurveSize1 = -bow * 0.5
+			band.Parent = part
+			table.insert(ribbon.bands, band)
+			table.insert(ribbon.full, spec.shown)
+			if not calm then
+				local tween = TweenService:Create(
+					band,
+					TweenInfo.new(
+						r.seconds * (0.8 + 0.4 * ((n * 7) % 10) / 10),
+						Enum.EasingStyle.Sine,
+						Enum.EasingDirection.InOut,
+						-1,
+						true
+					),
+					{ CurveSize0 = -bow, CurveSize1 = bow * 0.5 }
+				)
+				tween:Play()
+				table.insert(ribbon.tweens, tween)
 			end
 		end
 		table.insert(auroraRibbons, ribbon)
@@ -608,6 +623,22 @@ local function updateAurora(here: string?, feet: Vector3)
 	buildAurora(area, wanted, place)
 end
 
+-- Harvest Hollow's Thankful Boards in the world (tag Presets.harvestFx.boardTag), kept from the tag's signals in
+-- AreaFx.start so a step never builds a new list.
+local harvestBoards: { [Instance]: boolean } = {}
+
+-- How far your feet are from the Thankful Board, nil while it is not in the world (outside the event, or not
+-- streamed in).
+local function harvestBoard(feet: Vector3): number?
+	for board in harvestBoards do
+		local at = Context.positionOf(board)
+		if at ~= nil then
+			return (at - feet).Magnitude
+		end
+	end
+	return nil
+end
+
 local function step()
 	local character = Players.LocalPlayer.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
@@ -624,7 +655,11 @@ local function step()
 	updateDunes(area, feet)
 	updateAurora(area, feet)
 	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
-	updateFeet(area, feet, humanoid :: Humanoid?)
+	updateFeet(
+		Logic.walkArea(area, harvestBoard(feet), Presets.harvestFx.airWithin),
+		feet,
+		humanoid :: Humanoid?
+	)
 end
 
 function AreaFx.start()
@@ -639,6 +674,16 @@ function AreaFx.start()
 		strayAdded(instance)
 	end)
 	CollectionService:GetInstanceRemovedSignal("Stray"):Connect(strayRemoved)
+	local boardTag = Presets.harvestFx.boardTag
+	for _, board in CollectionService:GetTagged(boardTag) do
+		harvestBoards[board] = true
+	end
+	CollectionService:GetInstanceAddedSignal(boardTag):Connect(function(board: Instance)
+		harvestBoards[board] = true
+	end)
+	CollectionService:GetInstanceRemovedSignal(boardTag):Connect(function(board: Instance)
+		harvestBoards[board] = nil
+	end)
 	if RunService:IsStudio() then
 		Workspace:GetAttributeChangedSignal("AreaAuroraTest"):Connect(function()
 			local value = Workspace:GetAttribute("AreaAuroraTest")

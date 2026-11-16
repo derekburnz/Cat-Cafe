@@ -86,6 +86,13 @@ function Logic.songsFor(phase: string?, has: (string) -> boolean): { string }
 	return songs
 end
 
+-- #4251: the zone the area song follows. Harvest Hollow has no World.Zones box, so while Effects/HarvestFx says you
+-- are in it the song's zone is "Harvest" (musicAreaHarvest), whatever zone the world gives.
+Logic.HARVEST_ZONE = "Harvest"
+function Logic.songZone(zone: string?, inHarvest: boolean): string?
+	return if inHarvest then Logic.HARVEST_ZONE else zone
+end
+
 -- #2651: the song of the area a zone names ("Desert" plays musicAreaDesert), or nil when the zone has none (the cafe
 -- and the town areas) or its file is not uploaded yet. Played in place of the cafe music while you are in it.
 function Logic.areaSongFor(zone: string?, has: (string) -> boolean): string?
@@ -330,6 +337,29 @@ function Logic.restingPurrs(pose: any, night: boolean, loafing: boolean): boolea
 	return pose == "sit" or loafing
 end
 
+-- #4470 (Derek 2026-11-15: "remove the ding sound from a mythic spawn bubble pop up its so annoying because of how
+-- the pop ups queue now"): a spawn shout-out ("A Mythical cat appeared in the Park!", "... is somewhere in the ...!",
+-- the queue's merged "2 Mythical cats are out in the ...!") plays no sting. The words match UI/Components/SpawnQueue's,
+-- copied here because Audio does not require the UI. Catch shout-outs ("Sam secured a Mythical ...") keep theirs.
+local SPAWN_WORDS = {
+	" appeared in the ",
+	" is somewhere in the ",
+	" is out in the ",
+	" are out in the ",
+	" are somewhere in the ",
+}
+function Logic.isSpawnLine(text: any): boolean
+	if type(text) ~= "string" then
+		return false
+	end
+	for _, words in SPAWN_WORDS do
+		if string.find(text, words, 1, true) ~= nil then
+			return true
+		end
+	end
+	return false
+end
+
 -- The shout-out cue for a rarity (F58): a Mythical gets its own sting, everything else the two-note chime.
 function Logic.announceCue(rarity: string?): string
 	local step = Logic.rarityStep(rarity)
@@ -473,17 +503,47 @@ end
 -- the Snowy Mountain), "arrive" a cat's gust where it lands (the Blizzard Cat's), "catch" a catch there: the
 -- Blizzard Cat's gust again and the White Tiger Cat's frost chime. Nil for everything else, which keeps the sounds
 -- every catch already has.
-local AREA_STEPS: { [string]: string } = { snowy = "snowStep" }
+-- #4251: Harvest Hollow's steps crunch dry leaves (leafStep: the snow crunch pitched up, crisper and lighter)
+local AREA_STEPS: { [string]: string } = { snowy = "snowStep", harvest = "leafStep" }
 -- #4070: the Water Cat lands and is caught with a splash (the Camp pond's, until the Water Park has its own sheet)
 -- #4071: the Dragon Knight lands and is caught with a little dragon's roar (the Dragon Keep hatchling's)
-local CAT_ARRIVES: { [string]: string } =
-	{ blizzard = "snowGust", water = "campSplash", dragon_knight = "dragonChirp" }
+-- #4070: the Coaster Cat rushes in on a whoosh of air and is caught with a splash, like the end of a water ride
+-- #4071: the Queen Cat is caught with a royal bell (the Cat Museum's)
+-- #4251: Harvest Hollow's cats. The Maple Leaf Cat lands and is caught in a crunch of dry leaves (leafStep), the
+-- Harvest Moon Cat with a soft chime (the Oasis Spa's); the Cranberry Cat is caught with the patch's pick pop
+-- (harvestPick), the Apple Pie Cat with the cafe's order ding and the Pumpkin Spice Cat with its pour
+local CAT_ARRIVES: { [string]: string } = {
+	blizzard = "snowGust",
+	water = "campSplash",
+	dragon_knight = "dragonChirp",
+	coaster = "cannonClouds",
+	maple_leaf = "leafStep",
+	harvest_moon = "spaChime",
+}
 local CAT_CATCHES: { [string]: string } = {
 	blizzard = "snowGust",
 	white_tiger = "frostChime",
 	water = "campSplash",
 	dragon_knight = "dragonChirp",
+	coaster = "campSplash",
+	queen = "museumBell",
+	cranberry = "harvestPick",
+	maple_leaf = "leafStep",
+	harvest_moon = "spaChime",
+	apple_pie = "orderDing",
+	pumpkin_spice = "orderPour",
 }
+-- #4069 to #4071: a new area's gate adds its own sound on top of the barrier dissolving: a snow gust on the
+-- Snowy Mountain, a splash at the Water Park, the Castle's portcullis rumbling
+local GATE_EXTRA: { [string]: string } =
+	{ snowy = "snowGust", waterpark = "campSplash", castle = "dragonRumble" }
+function Logic.gateCues(areaId: any): { string }
+	local extra = if type(areaId) == "string" then GATE_EXTRA[areaId] else nil
+	return if extra then { "gateOpen", extra } else { "gateOpen" }
+end
+-- #4197: what an admin event drops lands (Effects/AdminDrops.onLand)
+Logic.ADMIN_DROP_CUES = { fish = "adminFishLand", crate = "adminCrateLand" } :: { [string]: string }
+Logic.HARVEST_PICK_CUE = "harvestPick" -- #4251: a Harvest Hollow patch pumpkin is picked (Effects/HarvestFx)
 Logic.STORM_LAND_CUE = "stormLand" -- #4197: a Cat Storm's stray lands (Effects/StormFall)
 function Logic.areaCue(beat: any, area: any, catId: any): string?
 	if beat == "step" then
@@ -959,6 +1019,8 @@ local BEAT_CUES: { [string]: string } = {
 	basketOpen = "campBasket",
 	lidRattle = "campRattle",
 	stuckCall = "strayCall", -- #2912: the starter trap's cat calls for help (Effects/StuckCall)
+	toySquirt = "campSplash", -- #4061: the Water Squirter's splash landing (Effects/ToyFx)
+	toyBonk = "toyBonk", -- #4061: the Pool Noodle's bonk (Effects/ToyFx)
 }
 
 function Logic.beatCue(beat: any): string?

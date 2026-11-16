@@ -29,6 +29,7 @@ local LiveFlagService = require(script.Parent.LiveFlagService)
 local MysteryMarket = require(ReplicatedStorage.Shared.MysteryMarket)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
+local StationTiers = require(ReplicatedStorage.Shared.StationTiers)
 local Telemetry = require(script.Parent.Telemetry)
 local TradeService = require(script.Parent.TradeService)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -42,7 +43,7 @@ local MAX_PRICE = 1e6
 -- #2565: the Long Net's extra reach as the player attribute NetExtraStuds, for the client's reach glow (the server
 -- reads the profile itself).
 local function applyPerks(player: Player, profile: Types.PlayerProfile)
-	local extra = NetSwing.extraFor(profile.mystery)
+	local extra = NetSwing.extraForProfile(profile) -- #4447: the Dragon Keep's reach cards too
 	player:SetAttribute("NetExtraStuds", if extra > 0 then extra else nil)
 end
 
@@ -94,6 +95,17 @@ local function onBuy(player: Player, rawItemId: unknown, rawShown: unknown)
 	end
 	if not MysteryMarketService.isOpen() then
 		refuse("Juniper's cart opens soon")
+		return
+	end
+	-- #4539: the cart opens from Tier 2 (shared/StationTiers)
+	if
+		StationTiers.locked(
+			"MysteryMarket",
+			Economy.tier(profile),
+			LiveFlagService.on(StationTiers.FLAG)
+		)
+	then
+		refuse(StationTiers.refusal("MysteryMarket"))
 		return
 	end
 	-- #3535: an item behind a live switch is not sold while the switch is off (the window hides it)
@@ -161,7 +173,6 @@ local function onBagColours(player: Player, rawMain: unknown, rawTrim: unknown, 
 		main == nil
 		or trim == nil
 		or profile == nil
-		or not LiveFlagService.on(BagColours.FLAG)
 		or not BagColours.valid(main, kind)
 		or not BagColours.valid(trim, kind)
 	then

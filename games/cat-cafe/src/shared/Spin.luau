@@ -57,17 +57,51 @@ function Spin.bank(spin: Types.SpinState, count: number): number
 	return added
 end
 
--- The slice a roll in [0, 1) lands on, walking the weights in wheel order.
-function Spin.pick(roll: number): Types.SpinSlice
-	local total = 0
+-- Derek 2026-11-15 (the Dragon Keep's Lucky Spin, keep-luck-cards spec): the rare slices whose weight spin luck
+-- multiplies (the crate, the golden crate and the 60 fish jackpot); slice 1, the commonest coins, gives up the
+-- difference, so the wheel's total stays the same.
+Spin.LUCKY_SLICES = { [6] = true, [7] = true, [8] = true } :: { [number]: boolean }
+Spin.GIVER_SLICE = 1
+Spin.LUCK_MAX = 0.30 -- spin luck at most (DragonKeep.LUCK_KIND_CAP)
+
+-- The wheel's slices with spin luck `luck` (0.10 is +10%) in their weights: Catalog.spinWheel itself with none, else
+-- copies. The server picks with these and the wheel's Odds list shows them (SpinLogic.share and chance).
+function Spin.rows(luck: number?): { Types.SpinSlice }
+	if type(luck) ~= "number" or luck <= 0 then
+		return Catalog.spinWheel
+	end
+	local boost = 1 + math.min(luck, Spin.LUCK_MAX)
+	local out: { Types.SpinSlice } = {}
+	local added = 0
 	for _, row in Catalog.spinWheel do
+		local copy = table.clone(row)
+		if Spin.LUCKY_SLICES[copy.slice] then
+			local weight = copy.weight * boost
+			added += weight - copy.weight
+			copy.weight = weight
+		end
+		table.insert(out, copy)
+	end
+	for _, row in out do
+		if row.slice == Spin.GIVER_SLICE then
+			row.weight = math.max(0, row.weight - added)
+		end
+	end
+	return out
+end
+
+-- The slice a roll in [0, 1) lands on, walking the weights in wheel order (with spin luck `luck`, Spin.rows).
+function Spin.pick(roll: number, luck: number?): Types.SpinSlice
+	local rows = Spin.rows(luck)
+	local total = 0
+	for _, row in rows do
 		total += row.weight
 	end
 	local target = math.clamp(roll, 0, 1) * total
-	for _, row in Catalog.spinWheel do
+	for _, row in rows do
 		target -= row.weight
 		if target < 0 then
-			return row
+			return Catalog.spinWheel[row.slice] or row
 		end
 	end
 	return Catalog.spinWheel[#Catalog.spinWheel]

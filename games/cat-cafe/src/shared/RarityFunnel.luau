@@ -4,7 +4,7 @@
 -- player (the user id is its funnel session). Step n is "the best cat in the save's Index is this rarity or better",
 -- so a player whose best is Epic has steps 1 to 3 and the report reads straight down. It is read off the lifetime
 -- Index (`collection`, which never loses an entry), so a save from before the funnel logs its steps on its next join.
--- Telemetry logs it only while the `secretCats` switch (Catching.SECRET_FLAG) is on, so it starts with that update.
+-- Telemetry logs it since the Secret cats update (its `secretCats` switch is retired since #4654 batch 5).
 -- Pure: Telemetry keeps the step logged this session and logs what `due` returns.
 
 local Catalog = require(script.Parent.Catalog)

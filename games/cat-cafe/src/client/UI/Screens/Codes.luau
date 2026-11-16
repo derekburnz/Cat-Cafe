@@ -45,6 +45,7 @@ local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+local SharedCodes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Codes")) :: any
 
 export type Callbacks = {
 	redeem: (code: string) -> (),
@@ -249,7 +250,7 @@ function Codes.new(callbacks: Callbacks): Codes
 	self._box = box
 	self._redeem = Button.new({
 		name = "Redeem",
-		text = "Redeem",
+		text = "REDEEM",
 		style = "primary",
 		size = UDim2.fromOffset(REDEEM_WIDTH, ROW),
 		anchorPoint = Vector2.new(1, 0),
@@ -425,6 +426,17 @@ end
 function Codes.render(self: any, state: Types.PlayerState)
 	self._state = state
 	self:_renderUsed()
+	self:_refresh()
+end
+
+-- #4655 (Derek 2026-11-15: codes need Tier 2): the server's refusal line while this player is under it, else nil
+function Codes._tierLock(self: any): string?
+	local state: any = self._state
+	local tier = if state ~= nil and type(state.tier) == "number" then state.tier else nil
+	if tier == nil or type(SharedCodes.tierRefusal) ~= "function" then
+		return nil
+	end
+	return SharedCodes.tierRefusal(tier)
 end
 
 -- #1714: the used list, rebuilt when the codes or their times change
@@ -458,33 +470,29 @@ function Codes._renderUsed(self: any)
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		})
 		-- #3961: the family look (Codes Cat mock): a green tick before each used code, the code upper case
-		local family = MenuFamily.on()
-		local codeLeft = 10
-		if family then
-			local tick: TextLabel = text({
-				Name = "Tick",
-				AnchorPoint = Vector2.new(0, 0.5),
-				Position = UDim2.new(0, 8, 0.5, 0),
-				Size = UDim2.fromOffset(24, 24),
-				BackgroundTransparency = 0,
-				BackgroundColor3 = Theme.colors.good,
-				FontFace = Theme.fonts.display,
-				TextSize = Theme.sizes.textSmall,
-				TextColor3 = Theme.colors.white,
-				TextXAlignment = Enum.TextXAlignment.Center,
-				Text = "✓",
-				Parent = frame,
-			})
-			Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = tick })
-			codeLeft = 40
-		end
+		local tick: TextLabel = text({
+			Name = "Tick",
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.new(0, 8, 0.5, 0),
+			Size = UDim2.fromOffset(24, 24),
+			BackgroundTransparency = 0,
+			BackgroundColor3 = Theme.colors.good,
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = Theme.colors.white,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Text = "✓",
+			Parent = frame,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = tick })
+		local codeLeft = 40
 		text({
 			Name = "Code",
 			Position = UDim2.fromOffset(codeLeft, 0),
 			Size = UDim2.new(0.34, -codeLeft, 1, 0),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody,
-			Text = if family then string.upper(entry.code) else entry.code,
+			Text = string.upper(entry.code),
 			Parent = frame,
 		})
 		text({
@@ -548,9 +556,7 @@ end
 function Codes._setAnswer(self: any, ok: boolean?, message: string?, prize: Types.IndexPrize?)
 	self._failed = ok == false
 	-- #3961: the family look's redeemed card leads with a tick, upper case
-	self._answer.Text = if ok
-			and message ~= nil
-			and MenuFamily.on()
+	self._answer.Text = if ok and message ~= nil
 		then "✓ " .. string.upper(message)
 		else message or ""
 	self._answer.TextColor3 = if ok then Theme.colors.white else CARD.subtext
@@ -568,17 +574,29 @@ function Codes._resting(self: any): boolean
 end
 
 function Codes._refresh(self: any)
-	self._box.TextEditable = not self._pending
-	self._redeem:setText(
-		if self._pending then "..." elseif MenuFamily.on() then "REDEEM" else "Redeem"
-	)
-	local ready = not self._pending and not self:_resting()
+	-- #4655: under Tier 2 the box is shut and Redeem grey, with the reason, so no new player types a code to be
+	-- refused
+	local lock = self:_tierLock()
+	self._box.TextEditable = not self._pending and lock == nil
+	self._redeem:setText(if self._pending then "..." else "REDEEM")
+	local ready = not self._pending and not self:_resting() and lock == nil
 	self._redeem:setEnabled(ready and CodeEntry.canRedeem(self._box.Text))
+	-- Review-QA: in the Store the gold hint strip says it in place of "Check the game description for codes", which
+	-- would still invite a try; elsewhere the answer line does
+	local hint: TextLabel = self._hint
+	hint.Text = lock or HINT_LINE
+	if lock ~= nil and not hint.Visible then
+		self._locked = true
+		self:_setAnswer(false, lock, nil)
+	elseif self._locked and (lock == nil or hint.Visible) then
+		self._locked = false
+		self:_setAnswer(nil, nil, nil)
+	end
 end
 
 function Codes._submit(self: any)
 	local code = CodeEntry.clean(self._box.Text)
-	if self._pending or code == "" or self:_resting() then
+	if self._pending or code == "" or self:_resting() or self:_tierLock() ~= nil then
 		return
 	end
 	self._pending = true
@@ -655,6 +673,7 @@ function Codes.mount(self: any, parent: Instance?)
 	self._hint.Visible = mounted
 	self._usedTitle.Visible = mounted
 	self._used.Visible = mounted
+	self:_refresh() -- #4655: the Tier 2 line moves between the hint strip and the answer line
 end
 
 function Codes.destroy(self: any)

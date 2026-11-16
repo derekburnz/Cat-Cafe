@@ -17,6 +17,7 @@ local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
+local StationCircles = require(script.Parent.StationCircles)
 
 local Codes = {}
 
@@ -191,7 +192,7 @@ end
 -- an invisible square pad that fits inside the circle (the glow part is the circle's whole square, so its corners
 -- stick out).
 local function mote(circle: Circle, near: boolean)
-	local on = near and not Context.lowPerformance
+	local on = near and not Context.lowPerformance and StationCircles.shown() -- #4668: no motes with the circles hidden
 	local motes = circle.motes
 	if on and motes == nil then
 		local side = circle.radius * Presets.codes.padShare
@@ -231,7 +232,7 @@ local function check()
 		if inside ~= circle.inside then
 			circle.inside = inside
 			breathe(circle)
-			if inside then
+			if inside and StationCircles.shown() then -- #4668: no step-in ring with the circles hidden
 				Particles.ring(
 					circle.centre,
 					Presets.palette.mint,

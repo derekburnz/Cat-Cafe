@@ -15,7 +15,6 @@ local RankSpot = {}
 
 export type Phase = "none" | "button" | "confirm"
 
-RankSpot.FLAG = "rankUpSpotlight"
 RankSpot.SEEN = "rank_spotlight" -- the tipsSeen id
 RankSpot.ATTRIBUTE = "RankSpotlight" -- on the Player, true while the walk-through may show
 RankSpot.FREE_SECONDS = 2

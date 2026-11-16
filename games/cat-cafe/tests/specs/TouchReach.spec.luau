@@ -14,12 +14,6 @@ return function()
 	end
 
 	describe("TouchReach", function()
-		it("is behind a switch that starts off", function()
-			expect(LiveFlags.OFF_BY_DEFAULT[TouchReach.FLAG]).to.equal(true)
-			expect(LiveFlags.shown(TouchReach.FLAG, nil)).to.equal(false)
-			expect(LiveFlags.shown(TouchReach.FLAG, true)).to.equal(true)
-		end)
-
 		it("reaches 1.5 times a swing, and the Long Net's extra with it", function()
 			expect(TouchReach.reach()).to.equal(NetSwing.reach() * 1.5)
 			expect(TouchReach.reach(3)).to.equal(NetSwing.reach(3) * 1.5)

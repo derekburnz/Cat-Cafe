@@ -153,13 +153,12 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 	self._plans = {} :: { [string]: CornerShopLogic.BuyAll }
 	self._cardKind = nil :: string?
 	self._allH = Scale.tapHeight(36, Theme.sizes.buttonDepth)
-	self._family = MenuFamily.on()
 	self._grids = {} :: { [string]: Frame } -- #3961: section kind -> its grid of cards
 
 	local panel = Panel.new({
 		dark = true,
 		name = "CornerShop",
-		title = CornerShopLogic.TITLE, -- "Day Cart" (#1577, day-cart.md: only the shown name changes)
+		title = CornerShopLogic.TITLE, -- "Coin Cart" (#1577, day-cart.md: only the shown name changes)
 		subtitle = "Coins only",
 		color = Theme.colors.caramel,
 		icon = "🏪",
@@ -546,11 +545,9 @@ function CornerShop._showTab(self: any, kind: string)
 	for gridKind, grid in self._grids do
 		grid.Visible = gridKind == kind
 	end
-	if self._family then
-		for _, row: Row in self._rows do
-			local def = rowOf(row.itemId)
-			row.frame.Visible = (if def ~= nil then def.kind else "other") == kind
-		end
+	for _, row: Row in self._rows do
+		local def = rowOf(row.itemId)
+		row.frame.Visible = (if def ~= nil then def.kind else "other") == kind
 	end
 	self._list.CanvasPosition = Vector2.zero
 end
@@ -727,10 +724,8 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 	for _, section in CornerShopLogic.sections(stock.stock) do
 		order += 1
 		self:_header(section, order)
-		if self._family then
-			order += 1
-			self:_grid(section.kind, order)
-		end
+		order += 1
+		self:_grid(section.kind, order)
 		for _, index in section.indexes do
 			order += 1
 			orderOf[index] = order

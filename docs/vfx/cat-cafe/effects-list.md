@@ -1241,7 +1241,7 @@ Derek 2026-11-13: "make the rarer ones more special". First pass, all client sid
 | White Tiger Cat (Legendary) | Frosty breath off the head, a glint on the coat, glowing ice-blue eyes | 2 emitters, each Rate 2 or less |
 | Blizzard Cat (Mythical) | Falling flakes, 5 motes circling it (3 on a phone) every 3.2 s leaving flakes, a frost trail while it walks, glowing eyes, a ring and puff where it lands as a stray | 3 emitters plus the swirl sharing Rate 2; the swirl holds still with Reduce Motion |
 
-Still to do in #4069: camp chimney smoke, the gate's opening moment, the Observatory telescope, commons' prop motion, the phone budget measurement once the area is built.
+Done since: camp chimney smoke (Ambient's `Smoke` attachments) and the summit flag's cloth (`_Swing`), commons' head props bouncing as they walk (`motion.propBounce`, all three new areas). Still to do in #4069: the gate's opening moment, the Observatory telescope (no model yet), the phone budget measurement.
 
 ## Water Park and Medieval Castle (#4070, #4071, 2026-11-14)
 The same ladder as the Snowy Mountain: more effect the rarer the cat. All client side and data driven, so it starts when each area's box and cats are wired.
@@ -1260,4 +1260,50 @@ The same ladder as the Snowy Mountain: more effect the rarer the cat. All client
 | Water Cat (Mythical) | Drips, circling bubbles, a wet trail while it walks, glowing eyes, a splash where it lands, a taller catch fountain | As the Blizzard Cat |
 | Dragon Knight Cat (Mythical) | Rising sparks, glowing eyes, a shield glint, an ember trail while it moves, circling embers, a burst where it lands, a taller catch column | As the Blizzard Cat |
 
-Still to do: water flow and slide splashes, ride lamps at night, banners, the gates' opening moments, the Ticket Booth and Throne Hall moments.
+Done since: water flow and slide splashes (`AreaWater`), ride lamps chasing at night (`BulbChase`, #4206), the banners, pennants and balloons swaying (`_Swing` models). Commons' head props bounce as they walk (`motion.propBounce`). Still to do: the gates' opening moments, the Ticket Booth and Throne Hall moments.
+
+## Admin events (#4325, #4197, 2026-11-14 and 15)
+Derek 2026-11-14: a big intro, then a clear screen with one small strip, and money shown only in money events. All client side, self-driving from ReplicatedStorage's `AdminEvent*` attributes.
+
+| Effect | What | Budget |
+|---|---|---|
+| The start (`AdminFlash`) | 3, 2, 1 in big numbers, then the event's name with its reward and why to stay (3.2 s) | Screen only, no particles; one pop per number, well under 3 Hz |
+| While it runs | A soft world tint in the event's colour (2 s in and out) and one small strip under the top bar with the time left; "You earned" counts up only in money events | One strip; the Cafe Party chip keeps its own words; pop-ups stay quiet while the intro plays (`AdminFlash.onPlaying`) |
+| Last minute and end | The strip turns red for the last 60 s (events of 3 minutes or more), then an end card for 2.5 s | Screen only |
+| The air (`AdminAir`) | A thin drift round you in the event's colour: gold motes, coin glints, rose, rainbow, violet, blue or mint | 1 emitter over the camera's focus; none with Reduce Motion or in Low performance |
+| Cat Storm (`StormFall`) | Each storm stray within 140 studs drops out of the sky on a streak of light (60 studs in 0.55 s), then a ring and a sparkle puff; slow sparkles drift down while the storm runs | At most the area puff budget of falls a second; Reduce Motion and Low performance keep only the puff |
+| Bowl Frenzy (`BowlFrenzyFx`) | While the frenzy runs, gold sparkles pop off the food in each of your bait bowls whose cat is still on the way, every 1.2 s, and every third pop a small gold ring spreads | Within 80 studs; Low performance every 3 s with 2 sparkles and no ring; Reduce Motion no ring |
+| Fish Fountain (`AdminDrops`) | Each fish arrives as a gold blob arcing from the Town Square plinth (0.8 s, 9 studs high), then 6 glints | Within 160 studs; no arc with Reduce Motion; nothing in Low performance |
+| Crate Drop (`AdminDrops`) | Each crate comes down under a pink parachute over 3 s, swaying 6 degrees, landing on the server's time, then a ring and a puff | The same; no sway with Reduce Motion |
+
+A new event kind needs one row in `AdminFlashLogic.KINDS` (its words, its look in `Presets.adminFlash.looks`, its drift in `Presets.adminAir.kinds`).
+
+## The new Secret cats' signature effects (#4369, 2026-11-15)
+Ten new Secret cats, each one rung above the Mythicals. Data only (`Presets.signature`), so each starts when its cat ships behind the `secretAreas` switch. Until a player finds one it shows only as a dark shape, so no row here names them.
+
+| Effect | What | Budget |
+|---|---|---|
+| On the cat | Four touches: a small glint on the head, two on its lit prop and one that shows only while it moves, plus glowing eyes | 4 emitters sharing one signature cat's rate |
+| Circling motes | 6 motes circling it every 3.5 s (3 on a phone), tilted a little | Still with Reduce Motion |
+| Arrival | A 10 stud ring and a 12 piece sparkle burst where it lands as a stray | Once per stray |
+
+The dark haze, the beam of starlight and the taller catch pop every Secret has are in `SecretStray`, `Catch` and `Pull` (#3470).
+
+## Harvest Hollow (#4251, 2026-11-15)
+The limited autumn area, Wed Nov 25 to Sun Dec 6. All client side and listening only (`Effects/HarvestFx`, plus data rows), so each piece starts when the server's part is in the world.
+
+| Effect | What | Budget |
+|---|---|---|
+| The air | Amber, gold and rust leaves fall slowly round you within 130 studs of the Thankful Board | 1 emitter, Rate 8; a fifth with Reduce Motion, none in Low performance |
+| Pumpkin picked | An orange pop and a ring where a patch pumpkin stood, for anyone's pick near you, with a soft pluck (`harvestPick`) | 10 pieces and one ring a pick; the sound at most every 0.3 s |
+| Pumpkin back | A small sprout of green sparkles when one regrows | 5 pieces |
+| Pick me | Every 5 s the nearest 3 ready pumpkins within 60 studs give a small gold glint | 2 pieces each; none with Reduce Motion or in Low performance |
+| Feast Pie slice | A slice baked while you are in the area: gold sparkles and a ring at the board; the last slice adds confetti and a gold beam | 12 pieces; no beam with Reduce Motion |
+| The creek | Small glints on the nearest 4 plates and a ring now and then (`AreaWater`) | The water budget of every area |
+| The windmill | Its sails turn once every 16 s (a `_Spin` model, `Motion`) | Still with Reduce Motion |
+| Rares (Apple Pie, Cornstalk, Pumpkin Spice) | One small touch each: a glaze glint, husk flecks while it moves, a puff of cinnamon while it walks | 1 emitter, only in a slot no rarer cat nearby needs |
+| Cranberry Cat (Epic) | A glint now and then off its berries | One signature cat's rate |
+| Maple Leaf Cat (Legendary) | Leaves drift down off it, its lit leaves glint, a soft halo, glowing eyes | 3 emitters, each Rate 2 or less |
+| Harvest Moon Cat (Mythical) | Moonlit motes rise off its wheat, 5 fireflies circle it (3 on a phone), a trail while it walks, glowing eyes, a ring and burst where it lands | As the Blizzard Cat |
+
+The area's song, "Cider Lane", is in the sound list. Still to do: stray puffs in the area's colour, the strays' voices, a Studio look of all of it once the area is in the dev copy.

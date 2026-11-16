@@ -23,7 +23,6 @@ local RareCatsTab = {}
 -- "Global" tab with a globe as the example): the tab is called "🌍 Global" and takes every line of the rare-catch
 -- chat while it is there; the Here tab then keeps only this server's lines (RareCatsTab.route).
 RareCatsTab.NAME = "🌍 Global" -- the channel's Name, which is the tab's label
-RareCatsTab.FLAG = "rareCatsTab" -- the LiveFlags key
 RareCatsTab.FROM = "Mythical"
 RareCatsTab.COAT_FROM = "Legendary" -- Catching.COAT_SHOUT_FROM: a gold or rainbow coat's line from here up
 RareCatsTab.COATS = { " a gold ", " a rainbow " } -- how Catching.shoutOut words a coat

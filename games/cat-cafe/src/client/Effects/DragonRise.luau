@@ -14,7 +14,8 @@
 --
 --   local skip = DragonRise.play({ stage = 3, keep = yard.CFrame, colour = "ruby", dragon = cinder }, onDone)
 --
--- `keep` is the yard centre on the ground, its LookVector out the gate (where the camera stands). `dragon` is the
+-- `keep` is the yard centre on the ground, its LookVector out the gate (the camera stands out that way and, since #4612,
+-- high over the walls looking down: Effects/KeepShot). `dragon` is the
 -- owner's live Cinder, hidden on this client while the scene's own copies play and shown again after onDone (by
 -- then the caller has swapped it to the new look). onDone runs exactly once, whatever happens, and a hard cap
 -- (the plan's total plus Presets.dragonRise.cap) always gives the camera, controls, prompts and windows back.
@@ -36,6 +37,7 @@ local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild(
 
 local Context = require(script.Parent.Context)
 local CutsceneShell = require(script.Parent.CutsceneShell)
+local KeepShot = require(script.Parent.KeepShot)
 local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
@@ -739,8 +741,34 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 	for _, cat in cheer do
 		table.insert(unseen, cat)
 	end
+	-- #4612: the Keep's walls (from its box, the nearest tagged Keep) so the camera looks over them from above
+	local walls: KeepShot.Walls = {
+		halfX = c.wallsHalf,
+		halfZ = c.wallsHalf,
+		top = c.wallsTop,
+	}
+	local nearest = math.huge
 	for _, tagged in CollectionService:GetTagged("DragonKeep") do
 		table.insert(unseen, tagged)
+		if tagged:IsA("Model") then
+			local frame, size = (tagged :: Model):GetBoundingBox()
+			local away = (frame.Position - keep.Position).Magnitude
+			if away < nearest then
+				nearest = away
+				walls = KeepShot.walls(keep:PointToObjectSpace(frame.Position), size, c.wallsMost)
+			end
+		end
+	end
+	-- the eye lifted over the walls, looking down at least `pitch` (0 on the lap, where he flies out of the yard)
+	local function overWalls(eye: Vector3, look: Vector3, pitch: number): Vector3
+		local lifted = KeepShot.lift(
+			keep:PointToObjectSpace(eye),
+			keep:PointToObjectSpace(look),
+			walls,
+			c.wallGap,
+			pitch
+		)
+		return keep * lifted
 	end
 	local rays = RaycastParams.new()
 	rays.FilterType = Enum.RaycastFilterType.Exclude
@@ -1183,6 +1211,7 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 					crack(now, ground)
 				end
 				local eye, look = shot(new.height, 1, 0)
+				eye = overWalls(eye, look, c.pitch)
 				cam.CameraType = Enum.CameraType.Scriptable
 				cam.CFrame = CFrame.lookAt(eye, look)
 				cam.FieldOfView = c.fov
@@ -1230,7 +1259,8 @@ function DragonRise.play(info: Info, onDone: () -> ()): () -> ()
 				shot(tall + (new.height - tall) * push, 1 + (c.push - 1) * push, c.drift)
 		end
 		lookAt = lookAt:Lerp(wantLook, 0.2)
-		wantEye = clearEye(lookAt, wantEye)
+		local lap = flying or (landAt ~= nil and t >= landAt)
+		wantEye = clearEye(lookAt, overWalls(wantEye, lookAt, if lap then 0 else c.pitch))
 		local scene = CFrame.lookAt(wantEye, lookAt)
 		local frame: CFrame
 		if t < plan.swing then

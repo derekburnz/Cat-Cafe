@@ -81,7 +81,7 @@ local function pay(
 		local def = AdminWheel.catFor(
 			prize,
 			Economy.tier(profile),
-			LiveFlagService.on("secretCats"),
+			true, -- #4654 batch 5: the `secretCats` switch is retired
 			random:NextNumber(),
 			LiveFlagService.on("secretAreas") -- #4221: the seven new Secrets wait for it
 		)

@@ -20,6 +20,13 @@ return function()
 			expect(StationCircles.isCircle("CodesCircle", "Model")).to.equal(true)
 			expect(StationCircles.isCircle("CodesCircle", "Part")).to.equal(true)
 			expect(StationCircles.isCircle("CodesGlow", "Part")).to.equal(true)
+			expect(StationCircles.isCircle("CatCafe_Street_CodesCat_Glow", "Model")).to.equal(true)
+			expect(StationCircles.isCircle("CatCafe_Street_CodesCat_Ticket_Decor", "Part")).to.equal(
+				true
+			)
+			expect(StationCircles.isCircle("CatCafe_Street_CodesCat_Cat_Body", "Part")).to.equal(
+				false
+			)
 			expect(StationCircles.isCircle("Counter", "Part")).to.equal(false)
 		end)
 	end)

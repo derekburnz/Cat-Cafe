@@ -59,7 +59,15 @@ end
 
 -- #4671 Studio check: the Codes Cat's circle is no walk-up ring but reads as one, so it goes with them: its modelled
 -- `CodesCircle` (a part, or a model with the ticket on it) and Effects/Codes' mint `CodesGlow` ring over it
-local NAMES = { [WalkUp.CIRCLE] = true, CodesCircle = true, CodesGlow = true }
+-- the Codes Cat's own floor ring and red ticket are modelled into its stand (Sync's #4671 Studio check)
+local NAMES = {
+	[WalkUp.CIRCLE] = true,
+	CodesCircle = true,
+	CodesGlow = true,
+	CatCafe_Street_CodesCat_CodesCircle = true,
+	CatCafe_Street_CodesCat_Glow = true,
+	CatCafe_Street_CodesCat_Ticket_Decor = true,
+}
 
 -- Pure: whether an instance called `name` of class `className` is a circle this hides (a WalkUpCircle ObjectValue
 -- link is not; a CodesCircle may be a part or a model).

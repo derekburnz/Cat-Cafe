@@ -17937,7 +17937,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Camp_WaterPark_014_BalloonBunch_Swing"
   },
@@ -20295,7 +20296,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Camp_WaterPark_018_BalloonBunch_Swing"
   },
@@ -23130,7 +23132,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Camp_WaterPark_023_BalloonBunch_Swing"
   },

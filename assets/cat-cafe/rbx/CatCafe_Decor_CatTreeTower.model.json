@@ -5798,7 +5798,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Decor_CatTreeTower_Toy1_Swing"
   },
@@ -6073,7 +6074,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Decor_CatTreeTower_Toy2_Swing"
   },
@@ -6358,7 +6360,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Decor_CatTreeTower_Moon_Swing"
   }

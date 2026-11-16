@@ -6592,7 +6592,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Lawn_GoldenCatThrone_Crown_Spin"
   }

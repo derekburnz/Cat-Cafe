@@ -21,7 +21,7 @@ local SWEEP = 1 -- seconds between sweeps of the known rings (a station unlockin
 
 local started = false
 local shown = false
-local rings: { [BasePart]: RBXScriptConnection } = {}
+local rings: { [Instance]: RBXScriptConnection } = {}
 local faded: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any -- what this module faded
 
 -- Pure: whether the rings show for a `stationCircles` setting value (only an explicit true shows them).
@@ -29,7 +29,7 @@ function StationCircles.visible(setting: unknown): boolean
 	return setting == true
 end
 
-local function paint(ring: BasePart)
+local function paint(ring: Instance)
 	for _, child in ring:GetChildren() do
 		if child:IsA("SurfaceGui") then
 			for _, piece in child:GetChildren() do
@@ -39,7 +39,9 @@ local function paint(ring: BasePart)
 			end
 		end
 	end
-	for _, piece in ring:GetDescendants() do
+	local pieces = ring:GetDescendants()
+	table.insert(pieces, ring) -- a modelled CodesCircle part is itself the look (a WalkUpCircle part is see-through)
+	for _, piece in pieces do
 		if piece:IsA("BasePart") or piece:IsA("Decal") then
 			local thing = piece :: any
 			if not shown then
@@ -55,11 +57,32 @@ local function paint(ring: BasePart)
 	end
 end
 
+-- #4671 Studio check: the Codes Cat's circle is no walk-up ring but reads as one, so it goes with them: its modelled
+-- `CodesCircle` (a part, or a model with the ticket on it) and Effects/Codes' mint `CodesGlow` ring over it
+local NAMES = { [WalkUp.CIRCLE] = true, CodesCircle = true, CodesGlow = true }
+
+-- Pure: whether an instance called `name` of class `className` is a circle this hides (a WalkUpCircle ObjectValue
+-- link is not; a CodesCircle may be a part or a model).
+function StationCircles.isCircle(name: string, className: string): boolean
+	if NAMES[name] ~= true then
+		return false
+	end
+	return className ~= "ObjectValue"
+end
+
+-- Whether the circles show now (Effects/Codes asks before its motes and step-in ring).
+function StationCircles.shown(): boolean
+	return shown
+end
+
 local function track(instance: Instance)
-	if instance.Name ~= WalkUp.CIRCLE or not instance:IsA("BasePart") then
+	if not StationCircles.isCircle(instance.Name, instance.ClassName) then
 		return
 	end
-	local ring = instance :: BasePart
+	if not (instance:IsA("BasePart") or instance:IsA("Model")) then
+		return
+	end
+	local ring = instance
 	if rings[ring] ~= nil then
 		return
 	end

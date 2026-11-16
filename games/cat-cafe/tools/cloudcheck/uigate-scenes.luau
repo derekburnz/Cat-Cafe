@@ -10995,6 +10995,35 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		task.wait(0.4)
 		assert(UI.isOpen() == "OasisSpa", "uigate: Open on the Desert strip opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#3082)")
 	end },
+	-- #4835: a station opened from the Cannon picker hands back to the picker as it closes, while the player stands at
+	-- a cannon; walked off (no cannon near), it just closes
+	{ "CannonStationBack", function()
+		atTier(6)
+		UI.lateStations.update(lateState(3 * 3600 + 600))
+		local before = (UI :: any).cannon.nearest
+		local near: string? = "town"
+		;(UI :: any).cannon.nearest = function(): string?
+			return near
+		end
+		UI.cannon.open()
+		press("Cannon", "desert.Collect")
+		task.wait(0.4)
+		assert(UI.isOpen() == "OasisSpa", "uigate: Open on the Desert strip opened " .. tostring(UI.isOpen()) .. " (#4835)")
+		UI.close()
+		task.wait(0.4)
+		local back = UI.isOpen()
+		near = nil
+		UI.cannon.open()
+		press("Cannon", "desert.Collect")
+		task.wait(0.4)
+		UI.close()
+		task.wait(0.4)
+		local away = UI.isOpen()
+		;(UI :: any).cannon.nearest = before
+		assert(back == "Cannon", "uigate: closing the spa at a cannon left " .. tostring(back) .. " open, not the Cannon (#4835)")
+		assert(away == nil, "uigate: closing the spa away from a cannon opened " .. tostring(away) .. " (#4835)")
+		UI.cannon.open()
+	end },
 	-- #4061: until the kiosk is placed, the Water Park card's strip (on the Desert camp's cannon) is the Ticket Booth's
 	-- way in: the ticket count and Open, which brings up the booth window from anywhere
 	{ "CannonOpensBooth", function()

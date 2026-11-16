@@ -10307,6 +10307,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		-- a rank up in an earlier scene leaves "The Park is open!" up for its time; the Park line comes after it
 		local CannonLogic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.CannonLogic")
 		UIShim.advance(CannonLogic.OPENED_HINT_SECONDS + 1)
+		-- Sync's Studio run of #4947: with no trail showing (resting, or a window up) the line does not name the paws
+		assert(strip() == UI.parkTrail.STRIP_PLAIN, "uigate: with no trail showing the strip reads " .. strip() .. " (#4947)")
+		local cannonMark = Instance.new("Part")
+		cannonMark.Name = "ParkStripCannon"
+		cannonMark.Anchored = true
+		cannonMark.Parent = workspace
+		UI.parkTrail.set(cannonMark, "Visit the Park 🐾")
+		UIShim.advance(0.1)
 		assert(strip() == UI.parkTrail.STRIP, "uigate: on the way to the Park the strip reads " .. strip() .. " (#3893)")
 		-- the Tutorial tile's red X (its Hide button, the Cross's grandparent)
 		local cross = hud:FindFirstChild("Cross", true) :: Instance
@@ -10322,6 +10330,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(strip() == UI.parkTrail.STRIP, "uigate: the wrap-up hint took the Park line's place, the strip reads " .. strip() .. " (#3893)")
 		-- with the paw trail switched off (no goal) the line stays, without naming the paws (Review-QA's PC run)
 		UI.parkTrail.set(nil, nil)
+		cannonMark:Destroy()
 		UIShim.advance(0.1)
 		assert(strip() == UI.parkTrail.STRIP_PLAIN, "uigate: with the trail off the strip reads " .. strip() .. " (#3893)")
 		UI.cannon.wrapUp.on = false

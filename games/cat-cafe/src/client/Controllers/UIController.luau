@@ -1818,8 +1818,12 @@ local function wireIntents()
 			end
 		end)
 	end
-	UI.events.rollTrait:Connect(function(uid: string)
-		Net.fire("RollTrait", uid)
+	UI.events.rollTrait:Connect(function(uid: string, stopAt: string?)
+		if stopAt ~= nil then
+			Net.fire("RollTrait", uid, stopAt) -- #4712: one Auto Roll step
+		else
+			Net.fire("RollTrait", uid)
+		end
 	end)
 	UI.events.chooseTrait:Connect(function(takeNew: boolean)
 		Net.fire("ChooseTrait", takeNew == true)

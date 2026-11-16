@@ -259,7 +259,7 @@ UI.events = {
 	-- SpaTakeOut, SpaCollect, SpaBuySlot, MuseumDonate or MuseumFill) with its arguments
 	lateStation = Signal.new(),
 	-- #3196 (the Mystic Pool's card): forward as RollTrait(uid), ChooseTrait(takeNew) and CollectTraitTokens()
-	rollTrait = Signal.new(), -- (uid)
+	rollTrait = Signal.new(), -- (uid, stopAt?)  #4712: stopAt (a rarity id) makes it one Auto Roll step
 	chooseTrait = Signal.new(), -- (takeNew)
 	collectTraitTokens = Signal.new(), -- ()
 	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
@@ -8766,8 +8766,8 @@ do
 			return
 		end
 		local card = MysticPool.new({
-			roll = function(uid: string)
-				UI.events.rollTrait:Fire(uid)
+			roll = function(uid: string, stopAt: string?)
+				UI.events.rollTrait:Fire(uid, stopAt)
 			end,
 			choose = function(takeNew: boolean)
 				UI.events.chooseTrait:Fire(takeNew)

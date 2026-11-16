@@ -7098,6 +7098,40 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(seenShout, "uigate: the shout-out did not come out after the cutscene (#4018)")
 		assert(seenSaved, "uigate: the toast did not come out after the cutscene (#4018)")
 	end },
+	-- #4821: before the first bowl cat is claimed (UI.setFirstCatHold) toasts but warnings wait and come out after, and
+	-- the food bowl cards (the Tame card) are not held
+	{ "FirstCatHold", function()
+		UIShim.advance(6) -- earlier scenes' toasts gone
+		local saved = "First cat gate note"
+		local warning = "First cat gate warning"
+		local function showing(text: string): boolean
+			for _, label in UIShim.playerGui:GetDescendants() do
+				if label:IsA("TextLabel") and label.Name == "Text" and label.Visible and label.Text == text then
+					local gui = label:FindFirstAncestorWhichIsA("ScreenGui")
+					return gui == nil or gui.Enabled
+				end
+			end
+			return false
+		end
+		UI.setFirstCatHold(true)
+		assert(not UI.bait.busy(), "uigate: the first cat hold holds the food bowl cards too (#4821)")
+		UI.toast(saved, "info")
+		UI.toast(warning, "warn")
+		local seenWarning = false
+		for _ = 1, 6 do
+			UIShim.advance(0.5)
+			seenWarning = seenWarning or showing(warning)
+			assert(not showing(saved), "uigate: a toast showed before the first cat (#4821)")
+		end
+		assert(seenWarning, "uigate: a warning waited for the first cat (#4821)")
+		UI.setFirstCatHold(false)
+		local seenSaved = false
+		for _ = 1, 20 do
+			UIShim.advance(0.25)
+			seenSaved = seenSaved or showing(saved)
+		end
+		assert(seenSaved, "uigate: the toast did not come out after the first cat hold (#4821)")
+	end },
 	-- #2729 (Derek2: "big claims of index and quests cap at one line and put …"; "remove all the extra ones"): a long
 	-- Index claim is one row ending in "…", no reward chips under it; a cut nudge never shows; a long warning wraps
 	{ "ToastOneLine", function()

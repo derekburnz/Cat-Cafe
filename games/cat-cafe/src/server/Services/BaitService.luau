@@ -338,6 +338,9 @@ local function resolveBait(
 	end
 	if choice == "tame" and def ~= nil then
 		profile.stats.baitsTamed += 1
+		if profile.stats.baitsTamed == 1 and profile.stats.luresUsed == 1 then
+			Telemetry.firstCatOwned(player, rarityText) -- #4821: the account's first food's cat
+		end
 		local hadEpicOrBetter = RareMoments.ownsEpicOrBetter(profile.collection) -- F89: the first Epic's card
 		local instance, isNew =
 			CafeService.addCaughtCat(player, def, true, nil, bait.charm, "bait", bait.variant)

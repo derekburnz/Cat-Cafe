@@ -447,6 +447,10 @@ export type CustomEvent =
 	-- #4783: the client's average frames a second over each window up to a PerfWatch.MARKS minute, for every player;
 	-- the device, the mark ("m1"), "<low|std>:q<graphics quality>" (the Low performance setting, 0 Automatic)
 	| "client_fps"
+	-- #4821 (Design-Agent's first-60-seconds spec): once an account, as its first bowl cat is tamed, value the seconds
+	-- from the world ready on this session's client (the "loaded" step; the join when that never came); the device,
+	-- the cat's rarity
+	| "first_cat_owned"
 	-- #2486 (live-events.md section 7): a player in a running Cafe Event (joined during it, or in the server as it
 	-- started), value 1; the event id, the Experience Event id the join came through ("" for none), the join source
 	| "event_join"
@@ -1246,6 +1250,22 @@ end
 -- above; #3022's three second cat steps (shared/SecondCat.STEPS) come through here from CatService.
 function Telemetry.stepTime(player: Player, profile: Profile, name: string)
 	Telemetry.custom(player, "step_time", math.floor(PlayTime.seconds(player, profile)), { name })
+end
+
+-- #4821: the account's first bowl cat was just tamed (BaitService, once an account): first_cat_owned.
+function Telemetry.firstCatOwned(player: Player, rarity: string)
+	local session = sessions[player]
+	local from = if session ~= nil then session.stepClock.loaded else nil
+	from = from or addedClock[player]
+	if from == nil then
+		return
+	end
+	Telemetry.custom(
+		player,
+		"first_cat_owned",
+		math.floor(os.clock() - from),
+		{ if session ~= nil then session.device or "unknown" else "unknown", rarity }
+	)
 end
 
 -- #2996: call right after an upgrade's level went up. Logs how long after the previous buy it came, so the first

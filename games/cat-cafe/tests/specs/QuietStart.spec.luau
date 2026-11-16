@@ -64,4 +64,18 @@ return function()
 			expect(QuietStart.treatOpensItself(nil, 20405)).to.equal(true)
 		end)
 	end)
+
+	describe("the first cat hold (#4821)", function()
+		it("holds before the bowl cat is claimed and FIRST_CAT_AFTER seconds after", function()
+			expect(QuietStart.FIRST_CAT_AFTER).to.equal(10)
+			expect(QuietStart.firstCatHolds(true, nil, 100)).to.equal(true)
+			expect(QuietStart.firstCatHolds(false, 100, 100)).to.equal(true)
+			expect(QuietStart.firstCatHolds(false, 100, 109.9)).to.equal(true)
+			expect(QuietStart.firstCatHolds(false, 100, 110)).to.equal(false)
+		end)
+
+		it("does not hold for a player whose claim was not seen this session", function()
+			expect(QuietStart.firstCatHolds(false, nil, 5)).to.equal(false)
+		end)
+	end)
 end

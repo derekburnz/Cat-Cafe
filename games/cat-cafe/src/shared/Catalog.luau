@@ -2214,7 +2214,7 @@ Catalog.lures = {
 		source = "cart",
 		description = "A bite of the night sky. Secret cats wake up for it.",
 		odds = { Common = 0, Rare = 0, Epic = 0, Legendary = 50, Mythical = 50 },
-		asset = "CatCafe_Item_CometTreat",
+		asset = "CatCafe_Item_EclipseTreat",
 		secretShare = 0.1,
 		needsTier = 8,
 	},

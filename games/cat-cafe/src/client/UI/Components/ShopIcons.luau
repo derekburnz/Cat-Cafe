@@ -718,7 +718,7 @@ end
 
 -- #3462: the Day Cart's own baits have their own pictures now; the dealer's two best stay as the fallback key
 local FOOD_STAND_INS: { [string]: string } =
-	{ honey_cream = "moon_milk", comet_treat = "star_treat", eclipse_treat = "comet_treat" } -- #4900
+	{ honey_cream = "moon_milk", comet_treat = "star_treat" }
 
 function ShopIcons.food(lureId: string?): string?
 	if type(lureId) ~= "string" then

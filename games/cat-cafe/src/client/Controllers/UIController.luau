@@ -678,11 +678,11 @@ local function refreshTutorial(s: Types.PlayerState)
 	if s.tutorialStep >= 2 and s.tutorialStep <= 4 then
 		reportStep("next_goal_shown")
 	end
+	-- #4674: the cannon hint waits while the bowl part runs (UI's cannonHint reads this), pal line or not
+	UI.cannon.bowlPending = bowlNow
 	if s.tutorialStep < 2 and palJoinLine(s) then
 		return
 	end
-	-- #4674: the cannon hint waits while the bowl part runs (UI's cannonHint reads this)
-	UI.cannon.bowlPending = bowlNow
 	-- #4674 (Derek 2026-11-16: "Just stop tutorial steps until rankup possible then have them rank up into park cannon
 	-- teleport then tutorial done"): bowl first, after the first check-in at Tier 1 the strip is quiet (no job, table,
 	-- second cat, bowl or rescue lines) until the Rank Up is possible, then it names the goal card's Rank Up

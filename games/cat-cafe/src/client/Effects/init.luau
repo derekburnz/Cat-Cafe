@@ -88,6 +88,7 @@ local Pull = require(script.Pull)
 local PullHop = require(script.PullHop)
 local Rainbow = require(script.Rainbow)
 local Rally = require(script.Rally)
+local RankUpPulse = require(script.RankUpPulse)
 local Rarity = require(script.Rarity)
 local Rescue = require(script.Rescue)
 local Rides = require(script.Rides)
@@ -210,6 +211,7 @@ function Effects.start()
 		StationMotion.start,
 		Rides.start,
 		HoldPulse.start,
+		RankUpPulse.start, -- #4920: RANK UP glows when ready, the tutorial strip's count tick
 		BaitCrumbs.start,
 		WaitingCat.start,
 		ArcadeGlow.start,

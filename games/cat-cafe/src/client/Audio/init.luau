@@ -207,6 +207,34 @@ local function dropVoice(voice: Voice)
 	voice.sound:Destroy()
 end
 
+-- #3918: every REAP_EVERY seconds, voices idle for REAP_IDLE seconds are destroyed (a cue marked preload keeps
+-- one warm, so the first net swing stays on time); the next play of that cue makes a fresh Sound.
+local REAP_EVERY = 20
+local REAP_IDLE = 45
+
+local function reapIdleVoices()
+	local now = os.clock()
+	for cueId, pool in pools do
+		local states: { Logic.VoiceState } = {}
+		for index, voice in pool do
+			states[index] = {
+				playing = voice.sound.Parent ~= nil and voice.sound.IsPlaying,
+				startedAt = voice.startedAt,
+			}
+		end
+		local keep = if Cues[cueId] ~= nil and Cues[cueId].preload then 1 else 0
+		for _, index in Logic.idleVoices(states, now, REAP_IDLE) do
+			if #pool <= keep then
+				break
+			end
+			dropVoice(table.remove(pool, index) :: Voice)
+		end
+		if #pool == 0 then
+			pools[cueId] = nil
+		end
+	end
+end
+
 -- The pooled Sound for the next play of a cue: an idle one, a new one while under `voices`, else the oldest.
 local function voiceFor(cueId: string, cue: Cues.Cue): Voice
 	local pool = pools[cueId]
@@ -2496,6 +2524,12 @@ function Audio.start()
 	started = true
 	build()
 	task.spawn(preload)
+	task.spawn(function()
+		while true do
+			task.wait(REAP_EVERY)
+			reapIdleVoices()
+		end
+	end)
 	task.spawn(followClock)
 	followTags()
 	followStrays()

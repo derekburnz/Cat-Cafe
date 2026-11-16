@@ -3208,7 +3208,6 @@ Catalog.achievements = {
 		measure = "traitRolls",
 		needs = 10,
 		size = "M",
-		flag = "traits",
 	},
 	{
 		id = "a_traits50",
@@ -3217,7 +3216,6 @@ Catalog.achievements = {
 		measure = "traitRolls",
 		needs = 50,
 		size = "L",
-		flag = "traits",
 	},
 	{
 		id = "a_dash10",

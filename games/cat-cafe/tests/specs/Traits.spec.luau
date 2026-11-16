@@ -45,25 +45,21 @@ return function()
 			end
 		)
 
-		it(
-			"rolls without Secret while its switch is off: Mythic 5 and six rarities (#3908)",
-			function()
-				expect(Traits.SECRET_FLAG).to.equal("secretTrait")
-				local off = Traits.rarities(false)
-				expect(#off).to.equal(6)
-				expect(off[6].id).to.equal("mythic")
-				expect(off[6].odds).to.equal(5)
-				expect(Traits.rarities() :: any).to.equal(off)
-				expect(Traits.rarities(true) :: any).to.equal(Traits.RARITIES)
-				-- the shared row is never changed by the copy
-				expect(Traits.RARITIES[6].odds).to.equal(4.9)
-				local total = 0
-				for _, rarity in off do
-					total += rarity.odds
-				end
-				expect(total).to.equal(100)
+		it("rolls without Secret when asked to: Mythic 5 and six rarities (#3908)", function()
+			local off = Traits.rarities(false)
+			expect(#off).to.equal(6)
+			expect(off[6].id).to.equal("mythic")
+			expect(off[6].odds).to.equal(5)
+			expect(Traits.rarities() :: any).to.equal(off)
+			expect(Traits.rarities(true) :: any).to.equal(Traits.RARITIES)
+			-- the shared row is never changed by the copy
+			expect(Traits.RARITIES[6].odds).to.equal(4.9)
+			local total = 0
+			for _, rarity in off do
+				total += rarity.odds
 			end
-		)
+			expect(total).to.equal(100)
+		end)
 
 		it("prints odds as whole percents or tenths", function()
 			expect(Traits.percentText(30)).to.equal("30%")
@@ -183,10 +179,10 @@ return function()
 			expect(#Traits.effectLines(t("nothing"))).to.equal(0)
 		end)
 
-		it("is behind the traits flag, off until switched on", function()
-			expect(Traits.FLAG).to.equal("traits")
-			expect(table.find(LiveFlags.KEYS, Traits.FLAG) ~= nil).to.equal(true)
-			expect(LiveFlags.OFF_BY_DEFAULT[Traits.FLAG]).to.equal(true)
+		it("has no switch any more (#4654 batch 3)", function()
+			expect(table.find(LiveFlags.KEYS, "traits")).to.equal(nil)
+			expect(table.find(LiveFlags.KEYS, "secretTrait")).to.equal(nil)
+			expect(table.find(LiveFlags.KEYS, "traitBundles")).to.equal(nil)
 		end)
 	end)
 

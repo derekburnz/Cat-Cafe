@@ -1644,6 +1644,21 @@ function UI.init(config: Types.InitConfig)
 	})
 	local toastsInstance = Toasts.new(parent)
 	toasts = toastsInstance
+	-- #4472: no pop-ups in a new account's first minutes (ToastRules.newcomer), on the gift ladder's play clock
+	toastsInstance:setNewcomer(function(): boolean
+		local rules = require(script.Components.ToastRules)
+		local flags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local ladder = UI.giftLadder
+		local played: number? = if ladder.played ~= nil
+			then (ladder.played :: number) + (os.clock() - ladder.playedAt)
+			else nil
+		local on = flags.shown(
+			rules.NEWCOMER_FLAG,
+			ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. rules.NEWCOMER_FLAG)
+		)
+		return rules.newcomer(on, played)
+	end)
 	-- #2724/#2727: toasts that come while the catch circles or the rescue bar run wait for the end (the HUD steps aside
 	-- then too, HUD._applyFocus)
 	hudInstance.catchingChanged:Connect(function(active: boolean)
@@ -10044,7 +10059,13 @@ do
 			shop.playedAt = os.clock()
 		end
 		local seconds = shop.guard.playSeconds(shop.played, shop.playedAt, os.clock())
-		local calm = shop.guard.quiet(seconds)
+		-- #4472: the quiet half hour waits behind storeGuard (off) for Derek's call, now that playSeconds arrives
+		local flags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local calm = flags.shown(
+			"storeGuard",
+			ReplicatedStorage:GetAttribute(flags.ATTRIBUTE_PREFIX .. "storeGuard")
+		) and shop.guard.quiet(seconds)
 		if calm and seconds ~= nil then
 			local untilAt = os.clock() + shop.guard.QUIET_SECONDS - seconds
 			if shop.quietUntil == nil or math.abs(shop.quietUntil - untilAt) > 1 then

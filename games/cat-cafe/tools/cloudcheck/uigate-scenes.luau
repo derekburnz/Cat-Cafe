@@ -3094,8 +3094,9 @@ local SCENES = {
 		assert(name.Text == "Golden Whiskers", "uigate: the trait card reads " .. name.Text .. " (#3196)")
 		local effects = window:FindFirstChild("Trait", true):FindFirstChild("Effect2")
 		assert(effects.Text ~= "", "uigate: a Legendary trait shows one effect only (#3196)")
-		-- #3961: the main card's odds are six rarity pills; #3908: seven with the secretTrait switch on, Mythic 4.9%
-		local secretOn = game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_secretTrait") == true
+		-- #3961: the main card's odds are rarity pills; #3908: seven with the Secret trait, Mythic 4.9% (#4654 batch 3:
+		-- its secretTrait switch is retired, so the Secret pill always shows)
+		local secretOn = true
 		local pills = window:FindFirstChild("OddsPills", true)
 		local mythic = pills and pills:FindFirstChild("Mythic") :: TextLabel?
 		local secret = pills and pills:FindFirstChild("Secret") :: TextLabel?
@@ -3395,7 +3396,7 @@ local SCENES = {
 		assert(old.Text == "Golden Whiskers" and new.Text == "Cosmic Fortune", "uigate: the choice reads " .. old.Text .. " / " .. new.Text .. " (#3196)")
 		assert(choice.New.Effect3.Text ~= "", "uigate: a Mythic trait does not show its three effects (#3196)")
 		assert(choice.KeepOld.AbsoluteSize == choice.TakeNew.AbsoluteSize, "uigate: Keep old and Take new differ in size (#3196)")
-		assert(choice.OddsLine.Text:find("Mythic 5%", 1, true), "uigate: the choice has no odds line (#3196)")
+		assert(choice.OddsLine.Text:find("Mythic 4.9%", 1, true), "uigate: the choice has no odds line (#3196)")
 		local sent = nil
 		local connection = UI.events.chooseTrait:Connect(function(takeNew)
 			sent = takeNew
@@ -3410,7 +3411,7 @@ local SCENES = {
 		press("MysticPool", "Odds")
 		local list = window:FindFirstChild("OddsList", true)
 		assert(list.Visible, "uigate: Odds did not open the list (#3196)")
-		local secretOn = game:GetService("ReplicatedStorage"):GetAttribute("LiveFlag_secretTrait") == true
+		local secretOn = true -- #4654 batch 3: the secretTrait switch is retired
 		assert(list.Mythic.Percent.Text == (if secretOn then "4.9%" else "5%") and list.Common.Percent.Text == "30%" and list.Epic.Percent.Text == "12%", "uigate: the odds list reads wrong (#3196)")
 		assert(list.Equal.Text:find("equally likely", 1, true), "uigate: the odds list lacks the equal line (#3196)")
 		-- #4063 Studio: every row and the Equal line sit inside the sheet, the Secret row too with its switch on
@@ -3421,53 +3422,6 @@ local SCENES = {
 			local itemBottom = item.AbsolutePosition.Y + item.AbsoluteSize.Y
 			assert(itemBottom <= bottom + 1, ("uigate: %s is cut %d px under the odds sheet (#4063)"):format(item.Name, itemBottom - bottom))
 		end
-	end },
-	-- Derek 2026-11-14 ("make sure the odds show secret trait odds in the trait menu also on update"): the secretTrait
-	-- switch reaches a running server with no restart, so the open menu redraws every odds display when it flips: the
-	-- card's pills, the choice card's lines and the Odds list gain Secret 0.1% (Mythic 4.9%), and lose them again
-	{ "MysticPoolOddsFlip", function()
-		local ReplicatedStorage = game:GetService("ReplicatedStorage")
-		local key = "LiveFlag_secretTrait"
-		Scenes._secretRestore = { value = ReplicatedStorage:GetAttribute(key) }
-		local window = mysticPool(nil, "gate_1")
-		press("MysticPool", "Odds")
-		local list = window:FindFirstChild("OddsList", true) :: Instance
-		local function check(on: boolean)
-			ReplicatedStorage:SetAttribute(key, on)
-			task.wait(0.05)
-			local pills = window:FindFirstChild("OddsPills", true) :: Instance
-			local count = 0
-			for _, child in list:GetChildren() do
-				if child:GetAttribute("OddsRow") and child.Name ~= "Equal" then
-					count += 1
-				end
-			end
-			local secretRow = list:FindFirstChild("Secret") :: any
-			local mythic = list:FindFirstChild("Mythic") :: any
-			local line = window:FindFirstChild("OddsLine", true) :: TextLabel
-			local where = if on then "on" else "off"
-			assert(count == (if on then 7 else 6), ("uigate: the Odds list has %d rows with the Secret switch %s"):format(count, where))
-			assert((secretRow ~= nil) == on, "uigate: the Secret row does not follow the switch (" .. where .. ")")
-			assert(secretRow == nil or secretRow.Percent.Text == "0.1%", "uigate: the Secret row does not read 0.1%")
-			assert(mythic.Percent.Text == (if on then "4.9%" else "5%"), "uigate: Mythic reads " .. mythic.Percent.Text .. " with the switch " .. where)
-			assert((pills:FindFirstChild("Secret") ~= nil) == on, "uigate: the card's odds pills do not follow the switch (" .. where .. ")")
-			assert(#window:GetDescendants() > 0 and #pills.Parent:GetChildren() > 0, "uigate: the card lost its pieces")
-			local pillsCount = 0
-			for _, piece in window:GetDescendants() do
-				if piece.Name == "OddsPills" then
-					pillsCount += 1
-				end
-			end
-			assert(pillsCount == 1, ("uigate: %d odds pill rows after the switch flipped (old ones kept)"):format(pillsCount))
-			assert(line and (string.find(line.Text, "Secret 0.1%", 1, true) ~= nil) == on, "uigate: the choice card's odds line does not follow the switch (" .. where .. ")")
-		end
-		check(false)
-		check(true)
-		check(false)
-		check(true) -- left on, for the picture
-		local bottom = (list :: GuiObject).AbsolutePosition.Y + (list :: GuiObject).AbsoluteSize.Y
-		local equal = list:FindFirstChild("Equal") :: GuiObject
-		assert(equal.AbsolutePosition.Y + equal.AbsoluteSize.Y <= bottom + 1, "uigate: the Equal line is cut under the odds sheet after the flip")
 	end },
 	-- #3864: the Trait Token offer once the free rolls are used: both bundles with their prices, the full odds, a
 	-- No thanks that hides it, and once a session only
@@ -12333,6 +12287,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "HUDMoneyBadgeQuiet", function()
 		-- Scenes.close puts the play time and an earlier scene's 2x Money pass back
 		Scenes._quiet = { passBoosts = (UI.getState() :: any).passBoosts or false }
+		-- #4472: the quiet half hour sits behind the storeGuard switch (off live); Scenes.close turns it back off
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_storeGuard", true)
 		UI.update({ playSeconds = 600, passBoosts = false } :: any)
 		UI.store.preview(storePrices(true), {})
 		local badge = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("MoneyBadge", true)
@@ -14515,10 +14471,6 @@ function Scenes.close()
 		UI.update(Scenes._marketRestore :: any) -- #4274's MarketCrateShort scene
 		Scenes._marketRestore = nil
 	end
-	if Scenes._secretRestore then
-		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_secretTrait", Scenes._secretRestore.value)
-		Scenes._secretRestore = nil
-	end
 	if Scenes._settings then
 		UI.update({ settings = Scenes._settings } :: any) -- #1955's Auto Equip scene
 		Scenes._settings = nil
@@ -14539,6 +14491,7 @@ function Scenes.close()
 		local before = Scenes._quiet
 		Scenes._quiet = nil
 		UI.update({ playSeconds = false, passBoosts = before.passBoosts } :: any) -- #1936's quiet badge scene
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_storeGuard", nil)
 	end
 	if Scenes._passXp then
 		-- #2070's pass XP scene: the pass closed again and the S prize as it was

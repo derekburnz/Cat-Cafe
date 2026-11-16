@@ -1078,7 +1078,6 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		oddsLines(choice, 30 + cardH + GAP + buttonH + 4 + 6, 9)
 		oddsRows()
 	end
-	self._secretChanged = MysticPoolLogic.secretChanged(self._redrawOdds)
 
 	-- #4006 (Derek 2026-11-13: "instead of making this the pop up when opening mystic pool have the back open up on the
 	-- side of screen prompting people to buy it until they click a small X"): the Trait Token offer is a slim cream
@@ -1279,9 +1278,6 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	})
 	self._autoGoText = nil :: string?
 	self:_autoTargets()
-	self._autoSecret = MysticPoolLogic.secretChanged(function()
-		self:_autoTargets()
-	end)
 
 	-- while the pool's animation plays: a tap anywhere on the card skips to the result
 	local rolling = sheet("Rolling", content, 14)
@@ -2442,8 +2438,6 @@ function MysticPool.destroy(self: any)
 	self:_stopPlay()
 	self:_clearRows()
 	self._searchChanged:Disconnect()
-	self._secretChanged:Disconnect()
-	self._autoSecret:Disconnect()
 	for _, pick: Button.Button in self._autoPicks do
 		pick:destroy()
 	end

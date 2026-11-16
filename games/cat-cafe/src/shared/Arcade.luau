@@ -1,21 +1,9 @@
 --!strict
--- The Cat Arcade's Circle Streak (#3062; a player's idea, credited on the card by IDEA_BY, Derek2 2026-11-10). Pure: times are server time
--- (Workspace:GetServerTimeNow()) and rolls come from a passed function, so the specs are deterministic.
---
--- One run costs Config.ArcadeCostFish golden fish. It is the catch's closing circles with no stray: every circle hit
--- Perfect is +2 points and Good +1 (Derek2 17:48: "make a perfect +2 and normal circle 1 that way good players can
--- go through the game fast"), and the first Miss, or a circle left alone, ends the run. Reaching Config.ArcadeMaxPoints
--- (100) ends it as a win, clamped (a Perfect from 99 shows 100).
---   - Fair for everyone: every player uses the net level 1 windows of a Common (Circles.windowsFor(1, "Common")), so
---     a net bought with coins gives no edge.
---   - Harder every Config.ArcadeStepEvery (5 since #3359) points from a start twice a Common's pace: the shrink time x
---     ArcadeShrinkStep (0.96) per step (never under ArcadeShrinkFloorSeconds), the Perfect and Good windows x
---     ArcadeWindowStep (0.97), the gap between circles from CircleGapMax toward CircleGapMin and the shrink wobble
---     from CircleJitter up to ArcadeJitterMax. Steps stop at MAX_STEP (20), which is 100 points.
---   - The server builds the circles BLOCK at a time (block), each block at the step its first circle starts on, and
---     judges every press as a catch's (Circles.press). The client never reports a score.
---   - Milestones every 10 points (Config.ArcadeMilestones) pay once per UTC day each: crossing one pays it even when
---     a +2 skips its number (9 -> 11 pays the 10). After a day's are paid, runs still chase the records.
+-- The Cat Arcade's shared save, milestones, Arcade Legend title, board and cabinet rules (#3062; a player's idea,
+-- credited on the card by IDEA_BY, Derek2 2026-11-10). Pure: times are server time (Workspace:GetServerTimeNow()).
+-- #4656 step 4 (claim #4722): Circle Streak, the first game, is gone; its circle builder,
+-- scoring and result went with it. Mouse Dash (#3296) is the arcade's game and uses this save, these milestones
+-- (once per UTC day each, Config.ArcadeMilestones) and the title.
 --   - Records rank by points, then fewest circles: score(points, circles) = points * 1000 + (999 - circles).
 -- No Robux anywhere: no extra try, continue or skip (Monetization-Agent's conditions, #3062).
 -- #3296 (Derek2 2026-11-11: "arcade game 1 free attempt daily"): the first run of each UTC day is free; later runs
@@ -26,17 +14,12 @@
 -- An older server reading a save drops `freeDay` (sanitize keeps only what it knows), so for the few minutes old and
 -- new servers overlap a player could get one more free run; nothing else is lost.
 
-local Circles = require(script.Parent.Circles)
 local Config = require(script.Parent.Config)
 local Types = require(script.Parent.Types)
 
 local Arcade = {}
 
 Arcade.FLAG = "arcade"
-Arcade.BLOCK = 10 -- circles in each block the server builds
-Arcade.PERFECT_POINTS = 2
-Arcade.GOOD_POINTS = 1
-Arcade.MAX_STEP = 20 -- #3359: was 10; with a step every 5 points it climbs all the way to 100
 Arcade.LEGEND_TITLE = "Arcade Legend"
 Arcade.IDEA_BY = "Idea by its_cuzu098"
 Arcade.TAG = "ArcadeCabinet"
@@ -51,10 +34,6 @@ Arcade.PROMPT_RANGE = 10
 Arcade.RING_RANGE = 20
 Arcade.DAY_SECONDS = 86400
 
--- Where circles may appear on screen, as fractions of its width and height (the Catch screen's area).
-local SCREEN_MIN_X, SCREEN_MAX_X = 0.25, 0.75
-local SCREEN_MIN_Y, SCREEN_MAX_Y = 0.3, 0.7
-
 export type Milestone = { at: number, prize: Types.IndexPrize, name: string }
 
 export type Save = {
@@ -66,21 +45,6 @@ export type Save = {
 	runs: number,
 	freeDay: number, -- #3296: the UTC day the free run was last used, 0 never
 	epoch: number, -- #3378: the board `best` is for (Arcade.BOARD_EPOCH)
-}
-
-export type Result = {
-	points: number,
-	circles: number,
-	win: boolean,
-	best: number,
-	bestCircles: number,
-	newBest: boolean,
-	serverBest: number,
-	serverCircles: number,
-	serverName: string?,
-	paid: { number }, -- milestones paid in this run
-	today: { number }, -- every milestone paid today, this run's included
-	legend: boolean,
 }
 
 -- What the window shows before and after a game (ArcadeState): `loaded` false while the save is still being read.
@@ -121,69 +85,6 @@ function Arcade.milestoneAt(at: number): Milestone?
 		end
 	end
 	return nil
-end
-
--- The difficulty step at `points`: one per ArcadeStepEvery, 0 to MAX_STEP.
-function Arcade.step(points: number): number
-	return math.clamp(math.floor(points / Config.ArcadeStepEvery), 0, Arcade.MAX_STEP)
-end
-
-local function along(step: number): number
-	return math.clamp(step, 0, Arcade.MAX_STEP) / Arcade.MAX_STEP
-end
-
--- The Perfect and Good windows at `step`: the net level 1 Common's, narrowed ArcadeWindowStep per step.
-function Arcade.windows(step: number): Types.NetWindows
-	local base = Circles.windowsFor(1, "Common")
-	local scale = Config.ArcadeWindowStep ^ math.clamp(step, 0, Arcade.MAX_STEP)
-	return { perfect = base.perfect * scale, good = base.good * scale }
-end
-
--- A circle's shrink time at `step`, before its wobble: ArcadeStartShrinkSeconds (#3359: half a Common's), quicker by
--- ArcadeShrinkStep per step.
-function Arcade.shrink(step: number): number
-	return Config.ArcadeStartShrinkSeconds
-		* Config.ArcadeShrinkStep ^ math.clamp(step, 0, Arcade.MAX_STEP)
-end
-
-function Arcade.gap(step: number): number
-	return Config.CircleGapMax + (Config.CircleGapMin - Config.CircleGapMax) * along(step)
-end
-
-function Arcade.jitter(step: number): number
-	return Config.CircleJitter + (Config.ArcadeJitterMax - Config.CircleJitter) * along(step)
-end
-
--- BLOCK circles at `step`, the first starting to shrink at `startsAt`, each the step's gap after the last's target,
--- each away from the one before on screen. `roll` returns a number in [0, 1).
-function Arcade.block(step: number, startsAt: number, roll: () -> number): { Types.CatchCircle }
-	local shrink = Arcade.shrink(step)
-	local jitter = Arcade.jitter(step)
-	local gap = Arcade.gap(step)
-	local circles: { Types.CatchCircle } = {}
-	local at = startsAt
-	for _ = 1, Arcade.BLOCK do
-		local u = (roll() * 2 - 1) * jitter
-		local circle: Types.CatchCircle = {
-			startsAt = at,
-			shrinkSeconds = math.max(shrink * (1 + u), Config.ArcadeShrinkFloorSeconds), -- #3359
-			x = SCREEN_MIN_X + roll() * (SCREEN_MAX_X - SCREEN_MIN_X),
-			y = SCREEN_MIN_Y + roll() * (SCREEN_MAX_Y - SCREEN_MIN_Y),
-			kind = "single",
-		}
-		table.insert(circles, circle)
-		at = Circles.target(circle) + gap
-	end
-	return circles
-end
-
--- The points after a circle judged `grade`, clamped to ArcadeMaxPoints.
-function Arcade.add(points: number, grade: Types.RingGrade): number
-	local gain = if grade == "perfect"
-		then Arcade.PERFECT_POINTS
-		elseif grade == "good" then Arcade.GOOD_POINTS
-		else 0
-	return math.min(points + gain, Config.ArcadeMaxPoints)
 end
 
 -- The milestones whose points lie in (before, after], lowest first.
@@ -319,23 +220,6 @@ function Arcade.freeToday(save: Save, now: number): boolean
 	return save.freeDay ~= Arcade.day(now)
 end
 
--- #3296: uses today's free run; false when it was already used.
-function Arcade.useFree(save: Save, now: number): boolean
-	if not Arcade.freeToday(save, now) then
-		return false
-	end
-	save.freeDay = Arcade.day(now)
-	return true
-end
-
--- The Play button's words: "Play (free)" while today's free run is there, else "Play (1 🐟)".
-function Arcade.playText(free: boolean): string
-	if free then
-		return "Play (free)"
-	end
-	return string.format("Play (%d 🐟)", Config.ArcadeCostFish)
-end
-
 -- The leaderboard score: points first, then fewer circles.
 function Arcade.score(points: number, circles: number): number
 	return math.clamp(math.floor(points), 0, Config.ArcadeMaxPoints) * 1000
@@ -376,52 +260,6 @@ function Arcade.topRows(rows: { Types.LeaderboardRow }, viewer: number?): { Row 
 	return out
 end
 
--- Whether a run of `points` in `circles` beats a record of `best` in `bestCircles` (nothing beats an empty one with 0).
-function Arcade.beats(points: number, circles: number, best: number, bestCircles: number): boolean
-	if points <= 0 then
-		return false
-	end
-	if best <= 0 then
-		return true
-	end
-	return Arcade.score(points, circles) > Arcade.score(best, bestCircles)
-end
-
--- Records the run in `save`; true when it is a new personal best. Reaching the top earns the title for good.
-function Arcade.record(save: Save, points: number, circles: number): boolean
-	save.runs += 1
-	if points >= Config.ArcadeMaxPoints then
-		save.legend = true
-	end
-	if Arcade.beats(points, circles, save.best, save.bestCircles) then
-		save.best = points
-		save.bestCircles = circles
-		return true
-	end
-	return false
-end
-
--- "37", or "100 in 58 circles" for a full run.
-function Arcade.words(points: number, circles: number): string
-	if points >= Config.ArcadeMaxPoints and circles > 0 then
-		return string.format("%d in %d circles", points, circles)
-	end
-	return tostring(points)
-end
-
--- The results card's line: "Score 37 · Best 52 · Server best 61 (Sam)".
-function Arcade.cardLine(result: Result): string
-	local line = "Score " .. Arcade.words(result.points, result.circles)
-	line ..= " · Best " .. Arcade.words(result.best, result.bestCircles)
-	if result.serverBest > 0 then
-		line ..= " · Server best " .. Arcade.words(result.serverBest, result.serverCircles)
-		if result.serverName ~= nil then
-			line ..= " (" .. result.serverName .. ")"
-		end
-	end
-	return line
-end
-
 -- Why `profile` can't start a run now, in words, or nil. `busy` names a catch, rescue or flight in progress. `free`
 -- (#3296): today's free run is still there, so no fish are needed.
 function Arcade.startBlocker(
@@ -447,15 +285,10 @@ function Arcade.startBlocker(
 end
 
 -- #3443: whether the cabinet and its floor ring are in the world: only while the arcade has a game to play, the
--- `arcade` switch on and one of `circleStreak` or `mouseDash` on (ArcadeCabinetService puts them away otherwise).
+-- `arcade` switch on and `mouseDash` on (ArcadeCabinetService puts them away otherwise; #4656: Circle Streak is gone).
 -- #3627: and never before the server has read the switches (`ready` false), when all it has is their defaults.
-function Arcade.cabinetStands(
-	arcade: boolean,
-	circleStreak: boolean,
-	mouseDash: boolean,
-	ready: boolean?
-): boolean
-	return ready ~= false and arcade and (circleStreak or mouseDash)
+function Arcade.cabinetStands(arcade: boolean, mouseDash: boolean, ready: boolean?): boolean
+	return ready ~= false and arcade and mouseDash
 end
 
 return Arcade

@@ -6,8 +6,8 @@
 -- client builds the visitor and the gift from them (CustomerController) and the effects follow their tags;
 -- MysteryTable names the gift's table.
 -- The gift's anchor, MysteryGiftAnchor on the table top, carries the one-press GiftPrompt (Custom style: the UI draws
--- the pill with the gift's chances and turns it off for anyone but the owner). The owner opens it with the prompt or
--- OpenMysteryGift() within MysteryRangeStuds. Only an opening pays (Derek 2026-10-28 01:32: "if you miss it you miss
+-- the pill with the gift's chances and turns it off for anyone but the owner). The owner opens it with the prompt
+-- within MysteryRangeStuds (#4656: the OpenMysteryGift remote is gone). Only an opening pays (Derek 2026-10-28 01:32: "if you miss it you miss
 -- it"): an unopened gift is gone after MysteryGiftKeepSeconds or when its owner leaves, never opened for them.
 -- Nightfall sends the visitor home; the gift stays on the table until it is opened or its time is up.
 -- Owner safety: the gift comes out of the visit before it is paid, so a gift pays once.
@@ -332,7 +332,8 @@ function MysteryService.arriveRare(player: Player, u: number): boolean
 end
 
 function MysteryService.start()
-	Net.on("OpenMysteryGift", onOpen)
+	-- #4656: the gift opens only through its GiftPrompt (prompt.Triggered above); the OpenMysteryGift remote no
+	-- client fired is gone
 	-- leaving: the visitor goes home and an unopened gift is gone with its owner
 	DataService.beforeRelease(function(player, profile)
 		commons[player.UserId] = nil

@@ -3,7 +3,7 @@
 -- Pure: no Roblox globals, so tests can require it.
 
 -- #3470: "Secret" is a cat rarity above Mythical. No odds table lists it (Types.LureOdds and Catalog.rarityOrder
--- keep the five): a rolled Mythical turns Secret at Catalog.secretPerMythical while the `secretCats` switch is on.
+-- keep the five): a rolled Mythical turns Secret at Catalog.secretPerMythical (no switch since #4654 batch 5).
 export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical" | "Secret"
 export type Area =
 	"alley"
@@ -22,7 +22,7 @@ export type Area =
 -- #4251: "harvest" for a Harvest Hollow cat (the limited area, not one of the ten): kept, it earns like `earnsLike`.
 export type CatArea = Area | "spare" | "exclusive" | "secret" | "harvest"
 -- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
-export type CatSource = "free" | "shop" | "pass"
+export type CatSource = "free" | "shop" | "pass" | "booth" -- booth #4061: the Ticket Booth's prize cat
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 -- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
 export type SpotType = Role
@@ -170,7 +170,7 @@ export type UpgradeDef = {
 -- "shop" decor is bought with BuyDecor; "crate" decor (F53) only comes out of a Cafe Crate. The F48 Index pieces
 -- became their zones' Epic crate pieces in F54, and the gold Index pieces were retired before anyone earned one.
 -- #2486: "event", a Cafe Event's free reward piece (Catalog.passDecor holds it too, live-events.md section 2e)
-export type DecorSource = "shop" | "crate" | "pass" | "event" -- #1645: "pass", a pass piece (a rarity and bonus since #2006)
+export type DecorSource = "shop" | "crate" | "pass" | "event" | "booth" -- booth #4061: the Ticket Booth's weekly shelf; -- #1645: "pass", a pass piece (a rarity and bonus since #2006)
 
 -- What a crate piece is (F53, golden-fish.md section 4). The cafe has one wallpaper, one floor and one paint in use
 -- at a time, and since F80 (section 4b) one door set (front and back door together) and one cat flap; furniture and
@@ -226,8 +226,6 @@ export type IndexMilestone = {
 	-- F97: every piece of the Decor page, whatever its size (decor10: sixteen on the Classic page, twelve elsewhere);
 	-- `needs` is then the least it asks
 	whole: boolean?,
-	-- #3992: shown and paid only while the `indexTo70` switch is on (shared/IndexRewards.lateOpen)
-	late: boolean?,
 }
 
 -- What one Index milestone pays (golden-fish.md section 8), any of it. `coins` is the minimum and `coinSeconds`
@@ -634,6 +632,37 @@ export type DragonSave = {
 	colour: string?,
 	napping: { { id: string, variant: string? } },
 }
+-- #4104 (save version 50, shared/Fusion): the Fusion Observatory's dome. `running` the fusion under way, holding the
+-- result's cat, coat, level, XP, charm, name and trait (the five copies left the save at its start); `made` counts.
+export type FusionRunning = {
+	catId: string,
+	coat: string, -- "gold" or "rainbow"
+	startedAt: number,
+	doneAt: number,
+	level: number,
+	xp: number,
+	charm: number,
+	name: string?,
+	trait: TraitData?,
+}
+export type FusionSave = {
+	running: FusionRunning?,
+	made: { gold: number, rainbow: number },
+}
+export type FusionView = {
+	running: {
+		catId: string,
+		coat: string,
+		doneAt: number,
+		level: number,
+		name: string?,
+		trait: { id: string, rarity: string }?,
+	}?,
+	ready: boolean,
+	goldSeconds: number,
+	rainbowSeconds: number,
+	made: { gold: number, rainbow: number },
+}
 export type DragonView = {
 	warmth: number,
 	stage: number,
@@ -668,6 +697,11 @@ export type TicketPrizeRow = {
 	left: number?, -- more that may be bought now, nil for no limit
 	per: string?, -- "day", "week" or "once" with a limit
 	blocker: string?, -- why BUY is off now, nil when it can be bought
+	-- #4061 the weekly shelf's cards only: "decor" or "look", its Catalog decor or Looks accessory id, and whether the
+	-- save bought it (the card says "Owned")
+	kind: string?,
+	item: string?,
+	owned: boolean?,
 }
 export type TicketBoothView = {
 	tickets: number,
@@ -676,6 +710,7 @@ export type TicketBoothView = {
 	rushUsedToday: boolean,
 	weekEndsAt: number,
 	prizes: { TicketPrizeRow },
+	week: { TicketPrizeRow }, -- #4061: this week's Water Park shelf (TicketBooth.weekShelf), until weekEndsAt
 	ready: number, -- prizes that can be bought now (the "!")
 }
 
@@ -702,6 +737,10 @@ export type TraitsView = {
 	-- #3864: whether the Trait Token bundles may be offered to this player (the traitBundles switch on, and their
 	-- policy read and not restricting paid random items); nil or false hides the offer
 	bundles: boolean?,
+	-- #4197: the free Trait Party rolls left while an admin Trait Party runs; nil with none
+	party: number?,
+	-- #4712: the last Auto Roll this session: the trait it gave and a count that moves on with each; nil with none
+	autoRoll: { id: string, n: number }?,
 }
 
 export type PassBoostsView = { cafe: number, staff: number, rich: number, money: number }
@@ -755,6 +794,13 @@ export type Stats = {
 	-- F73 (quests.md section 6): Rare or better and gold cats added by net, rescue or bait, tip piles collected, and
 	-- quests and full sets finished
 	rareCatches: number,
+	-- #2745 (Derek 2026-11-12, "go w recommend"): when the Golden Pond pass was bought with Robux (os.time), 0 for never
+	-- seen; golden fish offers wait Config.TradeFishPassHoldSeconds after it. A number in stats with a default, so no
+	-- save version (a server without it drops it, and the hold then reads as long past)
+	pondPassAt: number,
+	-- #2745: 1 once this save has been seen owning the Golden Pond pass (a buy on the website or before joining never
+	-- fires the in-game purchase, so the first sighting starts the hold too); 0 before
+	pondSeen: number,
 	goldCatches: number,
 	rainbowCatches: number, -- F99: rainbow cats added by net, rescue or bait
 	tipPilesCollected: number,
@@ -785,6 +831,7 @@ export type Stats = {
 	goldenCratesOpened: number,
 	restSeconds: number,
 	cannonFlights: number, -- #3618: cannon flights taken, for the Liftoff badge
+	tier2TopUp: number, -- #4453: coins the first tamed bait cat's welcome paid toward Tier 2 (0: none yet)
 }
 
 export type WeekPlay = { week: number, seconds: number }
@@ -869,8 +916,8 @@ export type TradeStateView = {
 	cratesOn: boolean, -- #2745: the tradeCrates live switch; false hides the Crates tab
 	fishOn: boolean, -- #2745 (section 1d): the tradeFish live switch; false hides the fish rows
 	-- #2745: golden fish the other player can still receive today (TradeFishPerDay less what they got), so Max and
-	-- the "They can get N more today" line never ask for more
-	fishRoom: number,
+	-- the "They can get N more today" line never ask for more; nil with no daily cap (#4623)
+	fishRoom: number?,
 }
 
 -- F98: one row of a leaderboard list as LeaderboardSync sends it: the player's display name, the list's whole-number
@@ -1313,6 +1360,11 @@ export type TelemetryState = {
 	-- first catch or has logged any first_hour step (ProfileSchema), so nothing is counted twice
 	cleanStep: number?,
 	playtimeStep: number?,
+	-- #4504: the furthest step logged of onboarding_v8 (Onboarding.CLEAN_STEPS), 0 before any and the count once out
+	-- of it; cleanStep above keeps v7's numbers, written as v7's count by this code so a server still on v7 logs no v7
+	-- step for a player this code has seen. Optional with a default, so no save version: a server without it drops it,
+	-- and the save then comes back out of v8 once it is past its first catch (ProfileSchema)
+	cleanV8Step: number?,
 	-- #3666 (shared/IntroSplit): the intro test's group, "intro_on" or "intro_off"; nil for a save never in the test.
 	-- An optional field inside telemetry, so it needs no save version (a server without it drops it: the save then
 	-- reads as never in the test)
@@ -1328,10 +1380,6 @@ export type DealerStock = { night: number, stock: { DealerFood } }
 
 -- Saved per player (data-model section 14). JSON-safe values only.
 -- The player's settings (data-model section 14; shared/Settings validates them). Volumes run from 0 to 1.
--- #1955: one cat an Auto Equip run put to work (the AutoEquipped remote): its name (nickname or catalog name), the
--- role's name ("Barista") and the coins a second the run gained, sent only when it moved exactly one cat
-export type AutoEquipSwap = { catName: string, role: string, perSecond: number? }
-
 export type Settings = {
 	music: boolean,
 	sfx: boolean,
@@ -1346,6 +1394,7 @@ export type Settings = {
 	tradeRequests: string, -- F102: who may ask to trade, "everyone", "friends" or "off" (Settings.choices)
 	roadmapOpen: boolean, -- #1893: the Grand Opening strip opened into its list
 	sessionRecap: boolean, -- #1920: the session recap card after Config.RecapAfterSeconds of play
+	perfAsked: boolean, -- #4311: the Low performance ask was answered (shared/PerfSuggest)
 	autoEquip: boolean, -- #1955: Auto Equip, on for new accounts and off for saves from before it
 	catIncome: boolean, -- #2551: the rate tags over working cats (UI WorldTags), on by default
 	goalFolded: boolean, -- #2714: the HUD's goal card folded into its chip (touch), off by default
@@ -1355,6 +1404,7 @@ export type Settings = {
 	autoBowlClaim: boolean, -- #4266: the Auto Bowl pass tames arrived bowl cats (shared/AutoBowl)
 	autoBowlRefill: boolean, -- #4266: the Auto Bowl pass refills empty bowls with owned food
 	bowlNewCatCard: boolean, -- #4266: a cat tamed at a bowl shows the big Cat found card (off: a toast)
+	stationCircles: boolean, -- #4668: the walk-up rings in front of the stations show, off by default
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
@@ -1444,6 +1494,7 @@ export type PlayerProfile = {
 	fishBought: { [string]: boolean },
 	tickets: TicketSave, -- #4061 (save version 49): the Ticket Booth
 	dragon: DragonSave, -- #4062 (save version 49): the Dragon Keep
+	fusion: FusionSave, -- #4104 (save version 50): the Fusion Observatory
 	-- #4251 (save version 51, shared/HarvestSave): Harvest Hollow's pumpkins, Stall items bought, the arch's last +10
 	-- day and whether the player caught a harvest cat (the Feast Pie's helpers)
 	harvest: { pumpkins: number, bought: { [string]: boolean }, visitDay: number, helped: boolean },
@@ -1577,6 +1628,7 @@ export type PlayerState = {
 	fishStore: { { key: string, fish: number, bought: boolean, made: boolean } }?,
 	ticketBooth: TicketBoothView?, -- #4061: nil while the ticketBooth switch is off or below TicketBoothTier
 	dragon: DragonView?, -- #4062: nil while the dragonKeep switch is off or below the Castle's tier
+	fusion: FusionView?, -- #4104: nil while the fusion switch is off or below FusionTier
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
 	baitSpeed: number, -- F54: the All Cats track's summed bait speed, capped at BaitSpeedMax
@@ -1604,6 +1656,9 @@ export type PlayerState = {
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,
+	-- #4626: tomorrow's reason to come back for the minute 6 line (shared/ReturnHook.early, "gift" or "treat"); nil
+	-- with the returnHookEarly switch off, from Tier 3, with nothing to name, and from an older server
+	tomorrowHook: ReturnHookView?,
 	returnGoals: { ReturnGoalView }?, -- #2916: a returning player's next goals on the welcome back card
 	-- #3022: set from the first customer served until the second cat is checked in (shared/SecondCat.view); nil
 	-- otherwise, and from an older server
@@ -1642,6 +1697,8 @@ export type PlayerState = {
 	looks: LooksView, -- #1624: the Style tab's theme and uniform rows (shared/Looks), SetLook
 	luck: number, -- F88: the player's Luck now (shared/Luck), x1 to LuckMax; the HUD chip shows it above 1
 	luckSources: { LuckSource }, -- F88: what adds it, in order (statue, potion, lucky_day)
+	-- Derek 2026-11-15: the Dragon Keep's crate, trait and spin luck (0.15 is +15%), for the odds lists; nil before
+	cardLuck: { crate: number, trait: number, spin: number }?,
 	-- F95 (economy-ladder.md section 5): the Long Nap pass is owned, so the welcome back card says full pay up to
 	-- OfflineCapPassSeconds instead of half pay up to OfflineCapSeconds
 	longNap: boolean,

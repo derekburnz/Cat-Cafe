@@ -39,6 +39,7 @@
 --   countText(n) -> string               "x3"
 -- #2745 (section 1d): golden fish, an amount on each side while the server's fishOn says so.
 --   fishOf(side) -> number               the fish on offer, a whole number, 0 for none
+--   fishLine(fish) -> string             #4623 a side's fish in words under its grid: "🐟 50 golden fish"
 --   fishMax(wallet, room) -> number      the fish picker's top: the wallet, MAX_FISH and the other player's room today
 --   fishHint(wallet, room, offered)      why the picker can't open: "You have no golden fish", the daily cap
 --   fishRoomLine(room) -> string         "They can get 150 more today"
@@ -160,6 +161,9 @@ type Cat = {
 type Def = { name: string, rarity: string, exclusive: boolean? }
 
 local TradeLogic = {}
+
+-- #4517: the line under the offer grids; every $/s in the window is at the player's own multipliers
+TradeLogic.RATE_NOTE = "Cats show what they earn with your current multipliers"
 
 TradeLogic.ICON = "🤝"
 TradeLogic.TITLE = "Trade"
@@ -445,6 +449,14 @@ function TradeLogic.fishOf(side: any): number
 end
 
 -- The cats and pieces on one side of the trade (#1574: decor counts toward Ready too, and #2745 crates and fish).
+-- #4623: "🐟 50 golden fish", "🐟 1 golden fish", "🐟 No golden fish"
+function TradeLogic.fishLine(fish: number): string
+	if fish <= 0 then
+		return "🐟 No golden fish"
+	end
+	return ("🐟 %s golden fish"):format(TradeLogic.compact(fish))
+end
+
 function TradeLogic.offerCount(side: any): number
 	local decor = if type(side.decor) == "table" then #side.decor else 0
 	local crates = if type(side.crates) == "table" then #side.crates else 0
@@ -660,7 +672,7 @@ end
 -- #2745: the picker's line under its title: the other player's room left today.
 function TradeLogic.fishRoomLine(room: number?): string
 	if type(room) ~= "number" or room ~= room or room >= TradeLogic.MAX_FISH then
-		return string.format("Up to %d a trade", TradeLogic.MAX_FISH)
+		return "No limit" -- #4623 (Derek 2026-11-15): no cap a trade or a day
 	elseif room < 1 then
 		return "They can't get more today"
 	end

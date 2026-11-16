@@ -34,7 +34,6 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Create = require(script.Parent.Parent.UI.Components.Create)
-local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Outline = require(script.Parent.Parent.UI.Components.Outline)
@@ -213,7 +212,6 @@ local near: { [Model]: boolean } = {}
 -- the prize a roll, a reveal or the bar is up for, and the row the roll is on
 local play: { row: string, rolling: boolean, lit: number?, untilAt: number, barSeen: boolean }? =
 	nil
-local rollOn: () -> boolean
 
 local function dropBoard(model: Model)
 	local found = boards[model]
@@ -286,13 +284,11 @@ local POP_HOLD = 1.3 -- seconds: Presets.binRoll.prize.seconds and a little more
 local popHold = 0 -- os.clock() before which the board stays hidden
 -- Shows each bin's board to a player standing near it, with what it says now; hides it otherwise.
 local function boardRefresh()
-	local on = rollOn()
 	local view: RollBoardLogic.View? = nil
 	local anyShown = false
 	for model, prompt in models do
 		-- #3861 (Review-QA: the board overlapped the bar's title card): it steps away while the bar runs
-		local shown = on
-			and prompt ~= nil
+		local shown = prompt ~= nil
 			and prompt.Enabled
 			and near[model] == true
 			and not (UI :: any).rescue.isActive()
@@ -389,11 +385,8 @@ end
 local function label()
 	local full = ready()
 	local action = if full then RummageBin.ACTION else RummageBin.EMPTY
-	local uses = Players.LocalPlayer:GetAttribute(RummageBin.USES_ATTRIBUTE)
-	-- #3611: with the roll on, the board over the bin says it all, so the pill has no note
-	local note = if rollOn()
-		then ""
-		else RummageBin.note(if type(uses) == "number" then uses else Config.BinFirstUses)
+	-- #3611: the board over the bin says it all, so the pill has no note (#4654 batch 4: the roll is always on)
+	local note = ""
 	for model, prompt in models do
 		if prompt ~= nil then
 			if prompt.ActionText ~= action then
@@ -441,13 +434,6 @@ local function onTriggered()
 		return -- an empty bin's pill already says so
 	end
 	Net.fire("RescueBegin", RummageBin.SPOT)
-end
-
-function rollOn(): boolean
-	return LiveFlags.shown(
-		RummageBin.ROLL_FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. RummageBin.ROLL_FLAG)
-	)
 end
 
 -- The bin's floor ring (World/WalkUpCircles): the part, or nil while it is streamed out.
@@ -649,9 +635,6 @@ local function onWin(rowId: string, _first: boolean)
 	if BinController.onPrize ~= nil then
 		BinController.onPrize(nil, nil)
 	end
-	if not rollOn() then
-		return
-	end
 	local row, model, fx = RummageBin.rollRow(rowId), firstBin(), binFx()
 	if row == nil or model == nil or fx == nil then
 		return
@@ -687,7 +670,6 @@ local function inTutorial(): boolean
 end
 
 local function padStep()
-	local on = rollOn()
 	local character = Players.LocalPlayer.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
 	local inside = false
@@ -742,7 +724,7 @@ local function padStep()
 			-- silenced: no pill over the bar and no press from off the pad. A player still in the tutorial keeps the
 			-- prompt, since the pad waits for the tutorial's end; so does a bin whose ring is streamed out.
 			local reach = WalkUp.promptReach(
-				on and pad ~= nil and not inTutorial(),
+				pad ~= nil and not inTutorial(),
 				RummageBin.RANGE_STUDS -- the reach WorldBuilder gives it
 			)
 			if prompt.MaxActivationDistance ~= reach then
@@ -753,7 +735,7 @@ local function padStep()
 			continue
 		end
 		local gui = pad:FindFirstChildWhichIsA("SurfaceGui") :: SurfaceGui?
-		local shown = on and prompt ~= nil and prompt.Enabled
+		local shown = prompt ~= nil and prompt.Enabled
 		if gui ~= nil and gui.Enabled ~= shown then
 			gui.Enabled = shown
 		end

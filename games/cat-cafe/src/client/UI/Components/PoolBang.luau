@@ -164,8 +164,17 @@ function PoolBang._set(self: any, model: Instance)
 	end
 end
 
+-- #4680 (Derek 2026-11-16: no "!" until the tier, "just dont show it at all"): whether the stations tagged `tag` are
+-- still locked for this player's tier (shared/StationTiers). Controllers/StationLockController puts its own check
+-- here when it starts; read on every update, and the pool and arcade update on every render, so the "!" comes back at
+-- the tier.
+function PoolBang.locked(_tag: string): boolean
+	return false
+end
+
 function PoolBang.update(self: any, view: unknown)
 	local on = self._shows(if type(view) == "table" then view :: any else nil) == true
+		and not PoolBang.locked(self._tag)
 	if on == self._on then
 		return
 	end

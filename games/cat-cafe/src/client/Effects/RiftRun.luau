@@ -24,8 +24,8 @@
 -- controls, prompts and windows back. Nothing random, no near miss (the gates only go up to the rolled tier, and
 -- each rises only as the cat nears it), nothing flashes faster than about once a second. Reduce Motion: no Rift Run
 -- (wanted is false). Model-Agent's kit (ReplicatedStorage.Assets.RiftRun, CatCafe_RiftRun_*) is used when it is
--- there, else the same pieces are drawn here. Switch `riftRun` (shared/LiveFlags); in Studio the Workspace attribute
--- RiftRunTest ("mythic" or "secret") plays it with the switch off. Client only; it sends nothing.
+-- there, else the same pieces are drawn here. Shipped for everyone (#4654 retired its `riftRun` switch); in Studio the
+-- Workspace attribute RiftRunTest ("mythic" or "secret") plays it from any roll. Client only; it sends nothing.
 
 local GuiService = game:GetService("GuiService")
 local Lighting = game:GetService("Lighting")
@@ -37,7 +37,6 @@ local Workspace = game:GetService("Workspace")
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog"))
 local GoldTone = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("GoldTone"))
-local LiveFlags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags"))
 
 local Context = require(script.Parent.Context)
 local CutsceneShell = require(script.Parent.CutsceneShell)
@@ -68,7 +67,6 @@ export type Beat =
 local listeners: { (beat: Beat, step: number, tier: string) -> () } = {}
 local holds: { (on: boolean) -> () } = {}
 
-local SWITCH = "riftRun"
 local TEST_ATTRIBUTE = "RiftRunTest"
 local STEP = "EffectsRiftRun"
 local KIT = "RiftRun"
@@ -113,23 +111,10 @@ function RiftRun.testRarity(): string?
 	return if value == "mythic" or value == "secret" then value else nil
 end
 
-local function switchOn(): boolean
-	if RiftRun.testRarity() ~= nil then
-		return true
-	end
-	return LiveFlags.shown(
-		SWITCH,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SWITCH)
-	)
-end
-
--- Whether a roll of `rarity` gets the Rift Run now: Mythic or Secret, the switch on, not under Reduce Motion, and
+-- Whether a roll of `rarity` gets the Rift Run now: Mythic or Secret, not under Reduce Motion, and
 -- not while one is already running.
 function RiftRun.wanted(rarity: string): boolean
-	return Logic.riftPlan(rarity) ~= nil
-		and switchOn()
-		and not Context.reducedMotion()
-		and not running
+	return Logic.riftPlan(rarity) ~= nil and not Context.reducedMotion() and not running
 end
 
 -- Whether the Rift Run holds the screen now (the realm or its hand back).

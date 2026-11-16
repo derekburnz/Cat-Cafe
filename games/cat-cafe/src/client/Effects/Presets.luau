@@ -326,6 +326,87 @@ export type EmitterPreset = {
 }
 
 Presets.emitters = {
+	-- The Dragon Keep's set looks (Effects/KeepSets, Derek 2026-11-15): one soft look per lit card family, from the
+	-- body (the crown's from the head). Level 5 doubles the rate and grows the size (Presets.dragonSets).
+	dragonSetFlame = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Color3.fromRGB(255, 130, 50),
+			Color3.fromRGB(255, 205, 110),
+			Color3.fromRGB(255, 240, 200),
+		},
+		size = { 0.3, 0.05 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.6, 1 },
+		speed = { 0.5, 1.2 },
+		spread = 40,
+		rate = 5,
+		acceleration = Vector3.new(0, 2, 0),
+		drag = 1,
+		lightEmission = 0.6,
+	},
+	dragonSetClaw = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(235, 240, 250), Color3.fromRGB(170, 185, 210) },
+		size = { 0.35, 0 },
+		transparency = { 0, 1 },
+		lifetime = { 0.25, 0.4 },
+		speed = { 0, 0.3 },
+		spread = 180,
+		rate = 3,
+		lightEmission = 0.8,
+		rotSpeed = { -90, 90 },
+	},
+	dragonSetWing = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(225, 240, 255), Color3.fromRGB(190, 215, 245) },
+		size = { 0.25, 0.15 },
+		transparency = { 0.3, 1 },
+		lifetime = { 1.2, 1.8 },
+		speed = { 0.3, 0.6 },
+		spread = 70,
+		rate = 3,
+		acceleration = Vector3.new(0, -1, 0),
+		drag = 1.5,
+		rotSpeed = { -40, 40 },
+	},
+	dragonSetHoard = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 215, 90), Color3.fromRGB(255, 180, 40) },
+		size = { 0.3, 0.15 },
+		transparency = { 0, 1 },
+		lifetime = { 0.7, 1 },
+		speed = { 0.2, 0.5 },
+		spread = 60,
+		rate = 3,
+		acceleration = Vector3.new(0, -3, 0),
+		lightEmission = 0.5,
+	},
+	dragonSetHeart = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 150, 190), Color3.fromRGB(255, 200, 220) },
+		size = { 0.3, 0.1 },
+		transparency = { 0.1, 1 },
+		lifetime = { 1, 1.5 },
+		speed = { 0.3, 0.7 },
+		spread = 35,
+		rate = 3,
+		acceleration = Vector3.new(0, 0.8, 0),
+		drag = 0.8,
+		lightEmission = 0.4,
+	},
+	dragonSetCrown = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(255, 225, 120), Color3.fromRGB(255, 250, 220) },
+		size = { 0.25, 0.05 },
+		transparency = { 0, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 0.6, 1 },
+		spread = 15,
+		rate = 4,
+		drag = 2,
+		lightEmission = 0.8,
+	},
 	-- Ambient
 	-- The Desert's air (#2657, tier6-7-areas.md section 4): sand motes drifting downwind round you, in sand and
 	-- sandstone; the Ruins' air (section 5): slow glyph-gold and jade motes floating up, glowing a little at night.
@@ -1280,6 +1361,24 @@ Presets.emitters = {
 	},
 	-- The Speed Shoes' trail (#3523, Effects/SpeedShoes): small mint and cream puffs left at the heels of a wearer who
 	-- carries a cat on the move. Thinner and shorter than the Swift Potion's blue wisps, so the two read apart.
+	-- #4558: Fire Trail's embers, at the heels of a walker with the Dragon Keep card (Effects/FireTrail)
+	fireTrail = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Color3.fromRGB(255, 130, 50),
+			Color3.fromRGB(255, 205, 110),
+			Color3.fromRGB(255, 240, 200),
+		},
+		size = { 0.35, 0.05 },
+		transparency = { 0.05, 1 },
+		lifetime = { 0.45, 0.8 },
+		speed = { 0.4, 1.2 },
+		spread = 60,
+		rate = 12,
+		acceleration = Vector3.new(0, 1.8, 0),
+		drag = 1.5,
+		lightEmission = 0.8,
+	},
 	shoeTrail = {
 		texture = Presets.textures.smoke,
 		colors = { Presets.palette.mint, Presets.palette.offwhite },
@@ -1547,6 +1646,21 @@ Presets.emitters = {
 		drag = 0.7,
 		rotSpeed = { -90, 90 },
 	},
+	-- #4251 Harvest Hollow's air (Effects/HarvestFx): amber, gold and rust leaves falling slowly round you, rocking
+	-- as they go. Thin: it sits behind the strays and the pumpkins.
+	harvestLeaves = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(236, 160, 60), Color3.fromRGB(196, 84, 44) },
+		size = { 0.3, 0.22 },
+		transparency = { 0.1, 0.9 },
+		lifetime = { 4, 5.5 },
+		speed = { 0.4, 1 },
+		spread = 40,
+		rate = 8,
+		acceleration = Vector3.new(0.5, -1.2, 0.2),
+		drag = 0.5,
+		rotSpeed = { -90, 90 },
+	},
 	-- King Croissant's gold motes (Effects/ShopCats, #1191): a slow drift of tiny warm gold lights rising off him.
 	goldMote = {
 		texture = Presets.textures.sparkle,
@@ -1759,6 +1873,22 @@ Presets.catchFlavour = {
 			gustHeight = 8,
 			gustEvery = 0.18,
 			cats = { dragon_knight = 2 }, -- a taller fanfare for the Dragon Knight
+		},
+		-- #4251 Harvest Hollow (area id "harvest"): a puff of pumpkin orange, then gold sparkles, a warm ring, and
+		-- climbing orange puffs for the rarest
+		harvest = {
+			preset = "smokePuff",
+			colour = Color3.fromRGB(232, 140, 60),
+			puff = 6,
+			flakes = 10,
+			flakesFrom = "Epic",
+			ringScale = 1.3,
+			ringFrom = "Legendary",
+			gusts = 3,
+			gustsFrom = "Mythical",
+			gustHeight = 7,
+			gustEvery = 0.15,
+			cats = { harvest_moon = 2 }, -- the moon over the hollow: a taller column
 		},
 	} :: { [string]: CatchFlavour },
 }
@@ -2110,6 +2240,28 @@ Presets.motion = {
 		swaySeconds = 3.1,
 		resting = 0.5,
 	},
+	-- The new areas' Common cats (#4069, #4070, #4071; Derek 2026-11-13: commons get prop motion only): the hat or
+	-- tufts in the head (`_Prop`, Pose's "cap") bounce with each stride while the cat walks, tipping up to the cat's
+	-- `degrees` front and back about the prop's own pivot, `lag` radians behind the legs so it reads as loose. One
+	-- bounce a leg cycle (about 2 a second at a stray's walk), still while it stands. The Elf Cat's belled hood swings
+	-- the most and the Dwarf Cat's beard and iron cap bounce; the Squire wears nothing on its head, so it has none.
+	-- Small on purpose: the exported props pivot at the neck like the head, so a bigger tip would lift them off it.
+	propBounce = {
+		lag = 0.9,
+		cats = {
+			elf = 5,
+			dwarf = 4,
+			pinwheel = 4,
+			hot_chocolate = 3,
+			crumpet = 3,
+			flurry = 3,
+			mitten = 3,
+			spruce = 3,
+			popcorn = 3,
+			splash = 3,
+			taffy = 3,
+		} :: { [string]: number },
+	},
 }
 
 -- Model-Agent's piece poses for the new bodies (manifest `cat_poses`, PR #259), copied here because the
@@ -2376,6 +2528,30 @@ Presets.catPoses = {
 
 Presets.shake = { seconds = 0.18, studs = 0.22 }
 
+-- Controller rumble and phone taps (#4224; Effects/Rumble): a camera bump of `studs` buzzes the gamepad's big motor at `perStud` a
+-- stud, between `least` and `most` of full, for the bump's seconds kept between `shortest` and `longest`. `catch` is
+-- your own catch's pulse by rarity: light for a Common, firmer and a little longer the rarer the cat.
+Presets.rumble = {
+	perStud = 1.6,
+	least = 0.2,
+	most = 0.7,
+	shortest = 0.08,
+	longest = 0.5,
+	-- a phone taps once: a click, a knock from `knockFrom` of full or a thump from `thumpFrom`, felt within `tapReach`
+	-- studs of where the camera looks
+	knockFrom = 0.3,
+	thumpFrom = 0.5,
+	tapReach = 60,
+	catch = {
+		Common = { seconds = 0.08, strength = 0.2 },
+		Rare = { seconds = 0.1, strength = 0.25 },
+		Epic = { seconds = 0.14, strength = 0.35 },
+		Legendary = { seconds = 0.2, strength = 0.45 },
+		Mythical = { seconds = 0.3, strength = 0.55 },
+		Secret = { seconds = 0.4, strength = 0.65 },
+	} :: { [string]: { seconds: number, strength: number } },
+}
+
 -- A shove (F41), a landed tackle since F74: a puff where it lands, dizzy stars over the shoved player's head and,
 -- for them, a bigger camera bump than a missed catch. The knockback itself is the engineer's, on the target's own
 -- client.
@@ -2563,6 +2739,40 @@ Presets.netSmack = {
 		-- higher than a hit's eased return at the same moment, so the recoil reads as a miss's alone
 		bounced = { sh = 72, tw = 0, sp = 6, el = 26, sh6 = 60, waist = 10 },
 	},
+}
+
+-- #4061 (Ticket Booth spec 1.3): the two toys (`kinds`), fun only. While the server's `HeldToy` names one, NetHold puts its
+-- model in the hand in place of the net, by its `Grip` like a net, then turned by `turn` (degrees about X, Y, Z in
+-- the Grip's space; 0 keeps the net's hold). With `aim` the toy keeps the hand's place but turns with the body (the
+-- squirter's barrel along the facing, its Grip lined up with the HumanoidRootPart), since the net's hold points back
+-- over the shoulder (Studio, #4755). Effects/ToyFx plays each use from the server's ToyUsed, for players
+-- within `radius` studs:
+-- - squirter: `drops` water drops (`dropsLow` on a low budget, none with reduced motion) leave the Muzzle `every`
+--   seconds apart and arc `lift` studs (plus `liftPer` a stud of the shot) over `seconds` to the splash point, where
+--   a splash of `splash` drops and a pastel ring `ring` studs wide land with the campSplash sound. With no point,
+--   the splash lands `ahead` studs in front of the player.
+-- - noodle: NetHold's smack swings it (a hit, so no bounce back); as it lands (Presets.netSmack.land) the noodle
+--   squishes to `squish` of its size and back over `squishSeconds`, with a puff of `stars` sparkles and the
+--   toyBonk squeak.
+Presets.toys = {
+	kinds = {
+		squirter = { model = "CatCafe_Item_WaterSquirter", turn = Vector3.new(0, 0, 0), aim = true },
+		noodle = { model = "CatCafe_Item_PoolNoodle", turn = Vector3.new(0, 0, 0), aim = false },
+	} :: { [string]: { model: string, turn: Vector3, aim: boolean } },
+	radius = 90,
+	drops = 7,
+	dropsLow = 3,
+	every = 0.035,
+	seconds = 0.42,
+	lift = 1.2,
+	liftPer = 0.12,
+	dropSize = 0.35,
+	ahead = 10,
+	splash = 10,
+	ring = 4,
+	squish = 0.8,
+	squishSeconds = 0.2,
+	stars = 6,
 }
 
 -- The pal wave (F92, playing-together.md section 5: "a little wave from both characters" when an invited or
@@ -2875,7 +3085,9 @@ Presets.nap = {
 	tilt = 12,
 }
 
-Presets.gate = { seconds = 1.4, playWithin = 70 }
+-- `areaPuff` (#4069): pieces of the area's own puff at each of Presets.areas.points places along the foot of a gate
+-- whose area has effects of its own (Presets.areaFx.areas), on top of the dissolve.
+Presets.gate = { seconds = 1.4, playWithin = 70, areaPuff = 3 }
 
 Presets.shutter = { seconds = 0.9, signSeconds = 0.6 }
 
@@ -3266,6 +3478,74 @@ Presets.signature = {
 		},
 		arrive = { ring = 9, burst = 10, preset = "catchSparkle" },
 	},
+	-- #4251 Harvest Hollow's rarer cats (Wed Nov 25 to Sun Dec 6), the same ladder in autumn colours, on the lit
+	-- parts of their models (`..._Leaves_Glow`, `..._Wheat_Glow`, `..._Glow`; a copy without them shows on its body).
+	-- the three Rares: a small touch each, never ahead of a rarer cat
+	apple_pie = { -- Apple Pie Cat (Rare): a warm glint now and then off its pie's glaze
+		emitter = "sigGlintSmall",
+		on = "Prop",
+		colors = { Color3.fromRGB(255, 220, 160), palette.offwhite },
+		gold = { palette.goldLight, palette.sparkle },
+		minor = true,
+	},
+	cornstalk = { -- Cornstalk Cat (Rare): a few husk flecks fall off its stalk as it moves
+		emitter = "sigSnowKick",
+		on = "Prop",
+		colors = { Color3.fromRGB(246, 214, 110), Color3.fromRGB(196, 178, 96) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
+	},
+	pumpkin_spice = { -- Pumpkin Spice Cat (Rare): a puff of cinnamon behind it as it walks
+		emitter = "sigSnowKick",
+		on = "Body",
+		colors = { Color3.fromRGB(214, 130, 70), Color3.fromRGB(240, 196, 150) },
+		gold = { palette.goldLight, palette.offwhite },
+		moving = true,
+		minor = true,
+	},
+	cranberry = { -- Cranberry Cat (Epic): a glint now and then off its berries
+		emitter = "sigGlint",
+		on = "Prop",
+		colors = { Color3.fromRGB(226, 60, 84), palette.sparkle },
+		gold = { palette.goldLight, palette.sparkle },
+	},
+	maple_leaf = { -- Maple Leaf Cat (Legendary): leaves drift down off it, the lit leaves glint, and it glows a little
+		emitter = "sigFall",
+		on = "Leaves_Glow",
+		colors = {
+			Color3.fromRGB(236, 160, 60),
+			Color3.fromRGB(214, 84, 44),
+			Color3.fromRGB(246, 206, 96),
+		},
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = {
+			{ emitter = "sigGlint", on = "Leaves_Glow" },
+			{ emitter = "sigHalo", on = "Body" },
+		},
+	},
+	harvest_moon = { -- Harvest Moon Cat (Mythical): moonlit motes rise off its wheat and circle it like fireflies
+		emitter = "sigRise",
+		on = "Wheat_Glow",
+		colors = { Color3.fromRGB(255, 214, 120), Color3.fromRGB(255, 168, 72), palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		extras = {
+			{ emitter = "sigGlint", on = "Prop" },
+			{ emitter = "sigEmberTrail", on = "Body", moving = true },
+		},
+		orbit = {
+			emitter = "sigEmber",
+			count = 5,
+			countLow = 3,
+			radius = 0.8,
+			height = 0.6,
+			tilt = 0.3,
+			seconds = 3.4,
+		},
+		arrive = { ring = 9, burst = 10, preset = "catchSparkle" },
+	},
 	-- Sprinkles, the Starter Bundle's baker (Derek 2026-11-14: as good as an Epic from the best area, effects
 	-- included). The Epic rung of the same ladder on the lit parts of its model (#4190): sprinkles drift up off the
 	-- cupcake's candle through the puff's own colours, and the cherry on its toque twinkles a little. `on` names
@@ -3638,6 +3918,7 @@ Presets.adminAir = {
 		goldBoost = "goldHourDrift",
 		moneyStorm = "moneyStormDrift",
 		crateDrop = "goldHourDrift",
+		wheel = "goldHourDrift",
 		bowlSpeed = "adminRoseDrift",
 		catStorm = "adminStormDrift",
 		rainbowBoost = "adminRainbowDrift",
@@ -3651,11 +3932,97 @@ Presets.adminAir = {
 	every = 0.5,
 }
 
+-- #4197 (Effects/AdminDrops): the stand-ins that fly in what an admin event drops, for drops within `within` studs.
+-- Fish Fountain: a `blob` arcs from the plinth to its fish in `seconds`, `rise` studs high at the middle, then
+-- `splashCount` glints. Crate Drop: a `box` under a `canopy` on `cord` studs of line comes down from `height` over
+-- the `seconds` before the server's LandsAt, leaning up to `swayDegrees` each way every `swaySeconds`, then a ring
+-- and a puff.
+Presets.adminDrops = {
+	within = 160,
+	fish = {
+		seconds = 0.8,
+		rise = 9,
+		blob = Vector3.new(1.1, 1.1, 1.1),
+		colour = Presets.palette.golden,
+		splash = "coinGlint",
+		splashCount = 6,
+	},
+	crate = {
+		seconds = 3,
+		height = 45,
+		box = Vector3.new(3, 3, 3),
+		colour = Presets.palette.golden,
+		canopy = Vector3.new(8, 3.2, 8),
+		canopyColour = Presets.palette.neonPink,
+		cord = 5,
+		cordColour = Presets.palette.offwhite,
+		swayDegrees = 6,
+		swaySeconds = 1.6,
+		ring = 7,
+		ringSeconds = 0.5,
+		puff = "stormPuff",
+		puffCount = 10,
+	},
+}
+
+-- #4251 (Effects/HarvestFx): Harvest Hollow. Leaves (`air`) fall from a `box` held `height` studs over the camera's
+-- focus while you are within `airWithin` studs of the Thankful Board (`boardTag`), looked at every `every` seconds,
+-- at `calmRate` of the rate with Reduce Motion. A patch pumpkin (`pumpkinTag`) whose `readyAttribute` goes false
+-- within `within` studs pops `pickCount` pieces `lift` studs up and a `pickRing` stud ring; one that comes back
+-- sprouts `regrowCount` green sparkles. Every `glintEvery` seconds the nearest `glintMost` ready pumpkins within
+-- `glintWithin` studs give `glintCount` gold glints. `inside` the area is within `airWithin` too (the song, the pie).
+Presets.harvestFx = {
+	pumpkinTag = "HarvestPumpkin",
+	boardTag = "HarvestBoard",
+	readyAttribute = "Ready",
+	airWithin = 130,
+	air = "harvestLeaves",
+	box = Vector3.new(60, 1, 60),
+	height = 18,
+	every = 0.5,
+	calmRate = 0.2,
+	within = 120,
+	lift = 1.2,
+	pick = "catchSparkle",
+	pickCount = 10,
+	pickColour = Color3.fromRGB(240, 140, 40), -- pumpkin orange
+	pickRing = 5,
+	regrow = "catchSparkle",
+	regrowCount = 5,
+	regrowColour = Presets.palette.leaf,
+	glint = "coinGlint",
+	glintCount = 2,
+	glintEvery = 5,
+	glintWithin = 60,
+	glintMost = 3,
+	-- the Feast Pie: a slice baked while you are in the area pops `pieCount` gold pieces `pieLift` studs over the
+	-- board and a `pieRing` stud ring; the last of `pieFull` slices adds confetti and a gold beam
+	pieAttribute = "HarvestPieSlices",
+	pieFull = 8,
+	pieLift = 6,
+	pieBurst = "catchSparkle",
+	pieCount = 12,
+	pieRing = 8,
+	pieConfetti = 0.6,
+	pieBeamWidth = 1.2,
+	pieBeamHeight = 14,
+	pieBeamSeconds = 1.2,
+	-- walking in: `arriveSpots` puffs of `arriveCount` leaves in a circle `arriveRadius` studs round you, `arriveLift`
+	-- studs up, `arriveStep` seconds apart (each spot puffs once), with `arriveSparkles` gold
+	-- sparkles; not again within `arriveGap` seconds
+	arriveSpots = 6,
+	arriveCount = 4,
+	arriveRadius = 5,
+	arriveLift = 3,
+	arriveStep = 0.12,
+	arriveSparkles = 8,
+	arriveGap = 90,
+}
+
 -- #4325 (Effects/AdminFlash): an admin event takes the screen and the world. The 3, 2, 1 begins `countFrom` seconds
 -- before the start; the name splash holds `splashSeconds`; the strip comes in `stripAfter` seconds in (as the
 -- splash leaves) at `stripY` of the screen's height, and in the event's last `lastSeconds` (events of
--- `lastMinEvent` seconds or longer) turns red and swells by `pulse` `pulseHz` times a second, under the 3 a second
--- flashing limit. The end card holds `overSeconds`. Sizes are pixels on a `designHeight` tall screen, scaled to the
+-- `lastMinEvent` seconds or longer) turns red and stays steady (#4603: no swell). The end card holds `overSeconds`. Sizes are pixels on a `designHeight` tall screen, scaled to the
 -- screen's shorter side between `scaleMin` and `scaleMax`. `looks`: the world's tint while each kind runs, eased
 -- over `tintSeconds`, and the band's and strip's colours.
 Presets.adminFlash = {
@@ -3684,13 +4051,12 @@ Presets.adminFlash = {
 	splashPop = 0.4,
 	popSeconds = 0.25,
 	stripY = 0.17,
+	stripLift = 140, -- #4616: on touch the strip's bottom edge sits this far over the screen's bottom (above My Cafe)
 	stripWidth = 220,
 	stripHeight = 56,
 	stripBig = 25,
 	stripSmall = 15,
 	earnEase = 0.12,
-	pulseHz = 1,
-	pulse = 0.08,
 	overWidth = 460,
 	overHeight = 130,
 	overTitle = 34,
@@ -3900,12 +4266,14 @@ Presets.fusion = {
 	gold = Presets.palette.golden,
 	huePeriod = 6,
 	acrossMin = 110, -- pixels: rings are sized as if the picture were at least this wide, so a small one still reads
+	acrossMax = 180, -- and never wider than this, so the meeting ring stays round the dome's picture (#4563)
+	wide = 1.6, -- a centre wider than this many times its height is a card: the tiles land on its left square
 	swirl = {
 		most = 5,
-		stagger = 0.07,
-		seconds = 0.9,
+		stagger = 0.09,
+		seconds = 1.1,
 		turns = 0.75,
-		land = 0.3,
+		land = 0.2,
 		sparkles = 10,
 		sparkleSize = 12,
 		sparkleSeconds = 0.5,
@@ -3945,7 +4313,7 @@ Presets.fusion = {
 		collect = 12,
 		collectRing = 1.2,
 		collectConfetti = 0.5,
-		rate = 1 / 20,
+		rate = 1 / 60, -- every frame near the dome: at 20 a second the paw lights stepped round in jerks (#4563)
 		lookSeconds = 3,
 	},
 }
@@ -4020,8 +4388,9 @@ Presets.moneyBag = {
 	colours = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.offwhite },
 }
 
--- #3062 (Cat Arcade, Circle Streak): the pops round a ring hit, a 10-point milestone and the golden fish a run
--- costs (Effects/ArcadeFx). Pixels and seconds.
+-- #3062 (Cat Arcade): the pops round a 10-point milestone and the golden fish a run costs, and the sparkles, rings
+-- and words Mouse Dash draws with them (Effects/ArcadeFx). Circle Streak's ring grades went with it (#4722). Pixels
+-- and seconds.
 Presets.arcade = {
 	displayOrder = 23, -- over the arcade window (a modal, 20), under toasts (30)
 	sparkSize = 10,
@@ -4031,14 +4400,8 @@ Presets.arcade = {
 	ringFrom = 0.5, -- of the target's longer side
 	ringTo = 1.5,
 	ringSeconds = 0.35,
-	wordSize = 26,
 	wordRise = 34,
 	wordSeconds = 0.6,
-	grades = {
-		perfect = { word = "Perfect!", colour = Presets.palette.golden, sparkles = 8, rings = 1 },
-		good = { word = "Good", colour = Presets.palette.mint, sparkles = 4, rings = 1 },
-		miss = { word = "Miss", colour = Presets.palette.furGrey, sparkles = 0, rings = 0 },
-	},
 	milestone = {
 		colour = Presets.palette.golden,
 		sparkles = 12, -- the phone's burst cap
@@ -4944,6 +5307,36 @@ Presets.speedShoes = {
 	model = "CatCafe_Item_SpeedShoes",
 }
 
+-- #4558 Fire Trail (Dragon Keep card, look only; Effects/FireTrail): embers at the heels while a player whose
+-- `FireTrail` attribute is true (DragonKeepService) walks on the ground faster than `moving` of full speed; the nearest
+-- budget.potionGlows within `radius`, yours first, re-picked every `pickEvery` seconds. None in Low performance.
+Presets.fireTrail = {
+	radius = 60,
+	pickEvery = 0.25,
+	moving = 0.2,
+	lift = 0.2,
+	behind = 0.5,
+}
+
+-- The Dragon Keep's set looks (Effects/KeepSets): `families` maps each card family to its emitter, `onHead` the
+-- ones worn on the head. Level 5 runs `bigRate` times the rate at `bigSize` times the size. The nearest
+-- budget.potionGlows players within `radius` studs show theirs, checked every `pickEvery` seconds.
+Presets.dragonSets = {
+	radius = 60,
+	pickEvery = 0.5,
+	bigRate = 2,
+	bigSize = 1.4,
+	families = {
+		flame = "dragonSetFlame",
+		claw = "dragonSetClaw",
+		wing = "dragonSetWing",
+		hoard = "dragonSetHoard",
+		heart = "dragonSetHeart",
+		crown = "dragonSetCrown",
+	} :: { [string]: string },
+	onHead = { crown = true } :: { [string]: boolean },
+}
+
 Presets.potionFx =
 	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }
 
@@ -5750,11 +6143,17 @@ Presets.bedWalk = { fade = 0.25 }
 -- performance. `ribbons` is per budget tier (high, medium, low).
 export type AuroraSpec = {
 	ribbons: { number },
-	brightness: number, -- Beam.Brightness
-	nest: { number }, -- each colour is these bands laid over each other, as shares of `width`: a soft edge
-	nestLow: number, -- how many of them on the low tier
-	nestShown: { number }, -- each of those bands' own transparency at the ribbon's middle
-	nestBright: { number }, -- and its Beam.Brightness
+	-- #4687: each ribbon is a curtain of upright rays side by side along it, each one Beam from its foot up
+	columns: { number }, -- rays a ribbon by tier (high, medium, low)
+	tall: number, -- studs a ray reaches up from the foot
+	tallVary: number, -- of `tall`, how much the rays' tops rise and dip along the curtain, a slow wave
+	footVary: number, -- studs the rays' feet rise and dip, ray to ray, so the foot is no straight edge
+	wide: number, -- each ray's width as a share of the gap between rays: over 1 they overlap into one curtain
+	sway: number, -- studs a ray's middle bows side to side as it sways
+	bright: number, -- Beam.Brightness
+	foot: Color3, -- the curtain's colour at its foot, then `middle`, then `top`
+	middle: Color3,
+	top: Color3,
 	height: number,
 	window: number, -- studs across your look the ribbons' box is wide: they run over 0.8 of it, side to side
 	deep: number, -- studs front to back the ribbons are spread over, centred `ahead` of you
@@ -5763,15 +6162,11 @@ export type AuroraSpec = {
 	glide: number, -- seconds it takes to move
 	spread: number, -- of the area's shorter side the ribbons are spread over (over 1: the outer ones hang past its walls)
 	rise: number, -- studs each ribbon hangs above the one in front
-	width: number,
-	overlap: number, -- of `width`, how far the top band sits over the foot band
 	curve: number,
 	curveMost: number,
 	seconds: { number },
-	shown: number, -- each band's transparency at the ribbon's middle (its ends fade to nothing)
+	shown: number, -- a ray's transparency just over its foot when fully shown; it fades to nothing going up
 	fade: number,
-	foot: Color3,
-	top: Color3,
 }
 export type AreaFxSpec = {
 	air: string,
@@ -5838,7 +6233,7 @@ Presets.areaFx = {
 			footColour = Color3.fromRGB(246, 250, 255),
 			footStuds = 3,
 			aurora = {
-				ribbons = { 3, 2, 2 },
+				ribbons = { 2, 2, 1 },
 				-- #4216 Studio look: hung over the whole 560 stud area at 90 studs they sat far off behind the
 				-- mountain and the top of the screen. So a window of them keeps ahead of you, lower. Second look: at
 				-- 62 studs they were still above what the default camera shows (it looks a little down, and the top
@@ -5853,28 +6248,33 @@ Presets.areaFx = {
 				deep = 80,
 				ahead = 150,
 				recentre = 90,
-				glide = 4,
+				glide = 6,
 				spread = 1,
-				rise = 4,
-				width = 30,
-				overlap = 0.45,
-				curve = 0.22,
-				curveMost = 60,
-				seconds = { 11, 14, 17 },
-				-- #4085 Studio looks: the smoke picture drew as nothing on a Beam, a bare band at 0.4 is a solid sheet,
-				-- and three bands at 0.8 were only a haze. So no picture: three bands a colour, thinner over wider,
-				-- the thinner ones a little stronger and brighter, for a soft edge round a core line that reads.
-				-- #4216: they show at dusk now (night closes the area), and against the brighter dusk sky 0.55 to 0.62
-				-- vanished, so each band is stronger.
-				shown = 0.42,
-				brightness = 1,
-				nest = { 1, 0.62, 0.3 },
-				nestShown = { 0.42, 0.45, 0.38 },
-				nestBright = { 1, 1.5, 2 },
-				nestLow = 2,
-				fade = 3,
-				foot = Presets.palette.mint,
+				rise = 6,
+				curve = 0.12,
+				curveMost = 30,
+				seconds = { 21, 27 },
+				-- #4687 (Derek 2026-11-16: "redone to look way more like a gentle aurora right now its so bad"): the
+				-- old ribbons were thick solid stripes, mint under violet, which read as coloured clouds. First redo
+				-- (stacked flat bands) was still stripes in Sync's Studio look: a Beam only fades along its length,
+				-- never across its width, so every band had hard top and bottom edges. So the curtain now stands up:
+				-- upright rays side by side along each ribbon, each one Beam from its foot to its top, its colour and
+				-- see-through running along that length, a soft green foot fading up through teal into a faint violet
+				-- top. The rays are wider than the gap between them, so they merge into one curtain with faint streaks
+				-- like a real aurora's. Each ray bows a few studs side to side on its own slow clock, so the curtain
+				-- ripples, and the tops rise and dip in a slow wave along it. Still no picture (#4085).
+				shown = 0.5,
+				columns = { 14, 10, 7 },
+				tall = 30,
+				tallVary = 0.35,
+				footVary = 3,
+				wide = 1.7,
+				sway = 3,
+				bright = 1.2,
+				foot = Color3.fromRGB(128, 242, 180),
+				middle = Color3.fromRGB(110, 214, 214),
 				top = Presets.palette.aurora,
+				fade = 4,
 			},
 		},
 		-- #4070 the Water Park: fine spray in the air and a splash where its strays come and go. #4071 the Medieval
@@ -5892,6 +6292,20 @@ Presets.areaFx = {
 			colour = Color3.fromRGB(255, 214, 120),
 			puffPreset = "catchSparkle",
 			puff = 6,
+		},
+		-- #4251 Harvest Hollow (area id "harvest"): a pumpkin-orange puff where its strays come and go. The falling
+		-- leaves are Effects/HarvestFx's (by the Thankful Board), so Config.World has no Harvest box and `air` here
+		-- never starts. Your steps there (no box, so Logic.walkArea goes by the distance to the Thankful Board) kick up a few
+		-- dry leaves in amber and play the leaf crunch.
+		harvest = {
+			air = "harvestLeaves",
+			colour = Color3.fromRGB(232, 140, 60),
+			puffPreset = "smokePuff",
+			puff = 6,
+			footPuff = 2,
+			footPreset = "dust",
+			footColour = Color3.fromRGB(214, 128, 52),
+			footStuds = 3,
 		},
 	} :: { [string]: AreaFxSpec },
 }
@@ -5966,14 +6380,40 @@ Presets.baitCrumbs = {
 	most = 4,
 }
 
+-- Bowl Frenzy at your bait bowl (#4195; Effects/BowlFrenzyFx): every `every` seconds while the frenzy runs, `count`
+-- gold `preset` sparkles pop `lift` studs over the food in each of your bowls whose cat is still on the way, and every
+-- `ringEvery`th pop a `ring` stud gold ring spreads from it; within `within` studs, checked every `check` seconds.
+-- Low performance: every `lowEvery` seconds, `lowCount` sparkles, no ring. `folders` are CafeService's bowl folders.
+Presets.bowlFrenzy = {
+	folders = { "Bait", "Bait2" },
+	preset = "catchSparkle",
+	count = 5,
+	lowCount = 2,
+	lift = 0.6,
+	every = 1.2,
+	lowEvery = 3,
+	ringEvery = 3,
+	ring = 5,
+	within = 80,
+	check = 0.3,
+}
+
 -- The stray waiting for your second cat (#3022; Effects/WaitingCat): `emitter` sparkles rise off it and a `ring` stud
 -- gold ring pulses out at its feet every `ringEvery` seconds, from `delay` seconds after it shows for `seconds`, then
 -- every `calmEvery` seconds until it is caught (#3238: it used to stop at `seconds`), within `within` studs, checked
 -- every `check` seconds. `marker` is the gold paw over it, drawn through walls within `marker.within` studs (#3238:
 -- only 51 of 139 players reached the second cat's trail). `attribute`, `delay` and `seconds` are shared/SecondCat's
 -- when it is in.
+-- #4384 (one ask at a time after the first check-in): while the player's tutorialStep is `holdStep` (the bowl step)
+-- the beacon, the call and its sound wait, so the Bait bowl is the only ask; switch `holdSwitch` (on unless false).
+-- Only once the player owns the Bait bowl (upgrade `holdUpgrade`): one who cannot buy it yet keeps the beacon to the
+-- free second cat. And for `holdMost` seconds at most, so nobody is left with no next step.
 Presets.waitingCat = {
 	attribute = "WaitsFor",
+	holdStep = 4,
+	holdSwitch = "checkInCalm",
+	holdUpgrade = "lure_bowl",
+	holdMost = 180,
 	delay = 2,
 	seconds = 120,
 	within = 400,
@@ -6020,6 +6460,19 @@ Presets.lateStations = {
 	beamWidth = 1.2,
 	beamHeight = 14,
 	beamSeconds = 1.2,
+}
+
+-- The Ticket Booth's buy moment (#4061; Effects/BoothFx): paper tickets in the booth's own red, cream and gold off
+-- the `anchor` attachment of the `tag`-tagged model (else `under` of its height above its middle), `tickets` of the
+-- device's confetti budget, `sparkles` gold sparkles and one gold ring `ring` studs wide at its feet.
+Presets.boothFx = {
+	tag = "TicketBooth",
+	anchor = "BangAnchor",
+	under = 0.2,
+	tickets = 0.5,
+	sparkles = 8,
+	ring = 7,
+	colours = { Presets.palette.shirtRed, Presets.palette.cream, Presets.palette.golden },
 }
 
 -- The Relic Museum's room names (#3129; Effects/MuseumPlaques, Logic.plaqueGlow): a finished room's plaque letters
@@ -6108,6 +6561,7 @@ Presets.areaWater = {
 		"CatCafe_Castle_",
 		"CatCafe_Camp_WaterPark",
 		"CatCafe_Camp_Castle",
+		"CatCafe_Harvest_", -- #4251: Harvest Hollow's creek
 	},
 	suffix = "_Water",
 	within = 110,
@@ -6127,6 +6581,8 @@ Presets.areaWater = {
 		{ piece = "KidsPool", glint = "poolGlint", parts = 1, ringEvery = 2.2, ring = 2.6 },
 		{ piece = "Moat", glint = "poolGlint", parts = 2, ringEvery = 2.2, ring = 3 },
 		{ piece = "Well", glint = "wellGlint", parts = 1, ringEvery = 3.5, ring = 1.2 },
+		-- #4251: Harvest Hollow's creek is a run of small plates, so the well's small glints on the nearest few
+		{ piece = "Creek", glint = "wellGlint", parts = 4, ringEvery = 3, ring = 1.4 },
 	} :: { AreaWaterKind },
 }
 
@@ -6984,6 +7440,14 @@ Presets.dragonRise = {
 		clearGap = 1.5,
 		clearLeast = 0.25,
 		clearEase = 0.12,
+		-- #4612 (Derek: "make it show from above"): the yard shots look down on him by at least `pitch` and over the
+		-- Keep's walls by `wallGap` studs (Effects/KeepShot). The walls come from the Keep model's box (top at most
+		-- `wallsMost`); without one, `wallsHalf` and `wallsTop` (the Keep export: 15 x 15 studs, 7.5 high)
+		pitch = math.rad(38),
+		wallGap = 2,
+		wallsHalf = 7.5,
+		wallsTop = 7.5,
+		wallsMost = 16,
 	},
 	-- the ember ball
 	ball = {

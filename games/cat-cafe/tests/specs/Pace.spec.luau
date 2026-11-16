@@ -948,13 +948,15 @@ return function()
 		-- features section 8 and data-model 12: 10 to 20 minutes; under 10, the tier costs go up. #2915 (Design-Agent):
 		-- 9 to 12 minutes for a new player now, Tier 2 only; #3170 (the Alleyway's strays spread through it, shorter
 		-- walks): 8.5 to 12
-		local band = options.tier2Band or { 1.5, 4 } -- #4188: Tier 2 at 1,500 and 3 cats, about 2.2; #4098: Tier 2 at 7,500 and 4 cats, about 8.3 (8.5 to 12 before)
+		local band = options.tier2Band or { 0.5, 4 } -- #4696: the $1,000 start, so the third kind is the last wait, about 0.9; #4188: Tier 2 at 1,500 and 3 cats, about 2.2; #4098: Tier 2 at 7,500 and 4 cats, about 8.3 (8.5 to 12 before)
 		if median < band[1] or median > band[2] then
 			error(string.format("Tier 2 outside %g to %g minutes: ", band[1], band[2]) .. text)
 		end
-		-- v0.13.6: the coins are the last thing a player waits for
-		if ready >= median then
-			error("the cats come after the coins: " .. text)
+		-- v0.13.6: the coins were the last thing a player waited for. #4696: the $1,000 start covers most of Tier 2 and
+		-- the welcome top-up the rest, so the third kind is now the last wait and the rank up comes with it; only a rank
+		-- up before the cats are ready is wrong
+		if ready > median then
+			error("Tier 2 came before the cats were ready: " .. text)
 		end
 	end
 
@@ -1030,7 +1032,7 @@ return function()
 		"Tier 2 in the loop script (QA re-time after F60 and F61, misses and chases for F83)",
 		function()
 			it(
-				"takes 1.5 to 4 minutes for the pace model player at 4 or 5 catches a day (#4188: was 5 to 12)",
+				"takes 0.5 to 4 minutes for the pace model player at 4 or 5 catches a day (#4696: was 1.5; #4188: was 5 to 12)",
 				function()
 					check({ catches = 4 })
 					check({ catches = 5 })
@@ -1038,16 +1040,16 @@ return function()
 			)
 
 			it(
-				"takes 1.5 to 20 minutes for a player who buys only the tables and the bait bowl first (#4188: was 4.5; #3170: was 8; #2683: was 10 to 20)",
+				"takes 0.5 to 20 minutes for a player who buys only the tables and the bait bowl first (#4696: was 1.5; #4188: was 4.5; #3170: was 8; #2683: was 10 to 20)",
 				function()
 					-- #2683: Tier 2 at 22,000 (was 30,000), so the quickest saver comes in at about 10; #2915: 12,000
-					check({ catches = 4, saver = true, tier2Band = { 1.5, 20 } }) -- #4188: about 2.2; #4098: about 5.4
-					check({ catches = 5, saver = true, tier2Band = { 1.5, 20 } })
+					check({ catches = 4, saver = true, tier2Band = { 0.5, 20 } }) -- #4188: about 2.2; #4098: about 5.4
+					check({ catches = 5, saver = true, tier2Band = { 0.5, 20 } })
 				end
 			)
 
 			it(
-				"takes 1.5 to 4 minutes for a shakier player whose presses land within about 70 ms (F83; #4188: was 5 to 12)",
+				"takes 0.5 to 4 minutes for a shakier player whose presses land within about 70 ms (F83; #4696: was 1.5; #4188: was 5 to 12)",
 				function()
 					-- data-model 10 (v0.13.15): a young player on a phone
 					check({ catches = 4, spread = 0.07 })
@@ -1060,7 +1062,7 @@ return function()
 		"Tier 5 on the money ladder (F95, economy-ladder.md section 8 checks 3 and 7)",
 		function()
 			it(
-				"takes 1.5 to 3 hours of play in one go, Tier 4 at 0.9 to 1.75 (#4320: 2 h 15 and 1 h 30, were 2.5 to 4 and 0.9 to 1.5; #4189: Tiers 3 to 7 cut, 2 h 33 and 1 h 10, were 3.5 to 5.5 and 1.5 to 2; #2895: Tiers 3 to 6 30% cheaper, was 4.5 to 6; #2683: were 8.3 to 11.2 and 2.2 to 2.9)",
+				"takes 0.75 to 3 hours of play in one go, Tier 4 at 0.35 to 1.75 (#4713: 1 h 04 and 0 h 31, were 1.5 to 3 and 0.9 to 1.75; #4320: 2 h 15 and 1 h 30, were 2.5 to 4 and 0.9 to 1.5; #4189: Tiers 3 to 7 cut, 2 h 33 and 1 h 10, were 3.5 to 5.5 and 1.5 to 2; #2895: Tiers 3 to 6 30% cheaper, was 4.5 to 6; #2683: were 8.3 to 11.2 and 2.2 to 2.9)",
 				function()
 					local list, text =
 						toTier5({ catches = 4, target = 5, limit = 16 * HOUR, long = true })
@@ -1069,8 +1071,9 @@ return function()
 					-- #2683 (Derek2 2026-11-09: Tiers 2 to 5 "significantly easier"; Design-Agent's bands)
 					-- #4189 (Derek: Tiers 3 to 7 "lower for right now by a decent bit"): 3 h 01, Tier 4 1 h 42
 					-- #4320 (Derek: every tier lower now): 2 h 15, Tier 4 1 h 30
-					if median < 1.5 * HOUR or median > 3 * HOUR then
-						error("Tier 5 outside 1.5 to 3 hours of play: " .. text)
+					-- #4713 (Derek 2026-11-16: Tier 4 asks for a Legendary, not a Mythical; with #4685's costs): 1 h 04, Tier 4 0 h 31
+					if median < 0.75 * HOUR or median > 3 * HOUR then
+						error("Tier 5 outside 0.75 to 3 hours of play: " .. text)
 					end
 					-- #2496: Tier 4 wants a Mythical and 120M; the time from Tier 3 to the first Mythical is reported
 					local four = quantile(list, tierAt(4), 0.5, 16 * HOUR)
@@ -1099,14 +1102,15 @@ return function()
 					-- #2559 (Derek2: Tier 3 to 4 about 70% cheaper; Design-Agent's band): 3 h 01 (was 5 h 15 at 160M)
 					-- #2683: 1.5 to 2 h (was 2.2 to 2.9)
 					-- #4189 (second cut): 1 h 10
-					if four < 0.9 * HOUR or four > 1.75 * HOUR then
-						error("Tier 4 outside 0.9 to 1.75 hours of play: " .. text)
+					-- #4713: 0 h 31 (a Legendary, not a Mythical)
+					if four < 0.35 * HOUR or four > 1.75 * HOUR then
+						error("Tier 4 outside 0.35 to 1.75 hours of play: " .. text)
 					end
 				end
 			)
 
 			it(
-				"takes 1.75 to 4 hours in one go with one 2-hour x2 Cafe Event in the run (#2486; #4189: was 3 to 5.5; #2895: was 4 to 6; #2683: was 8 to 9.2)",
+				"takes 0.75 to 4 hours in one go with one 2-hour x2 Cafe Event in the run (#2486; #4713: 1 h 04, was 1.25 to 4; #4685: 1 h 41, was 1.75 to 4; #4189: was 3 to 5.5; #2895: was 4 to 6; #2683: was 8 to 9.2)",
 				function()
 					-- live-events.md 2b: if not, the event's window gets shorter, not its multiplier smaller. The window
 					-- sits late in the run, where the cafe earns the most and the boost is worth the most.
@@ -1120,9 +1124,12 @@ return function()
 					local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
 					-- #2557 with #2559 (Design-Agent): 8 h 00, plus 15%, with the one-go floor of 8 h (was 9 to 14)
 					-- #2683: at least 4 h (Design-Agent; the old one-go floor of 8 h is gone), at most the one-go top
-					if median < 1.75 * HOUR or median > 4 * HOUR then
+					-- #4685 (Derek 2026-11-16: Tier 4 at 1,000,000 and Tier 5 at 17,000,000): 1 h 41; the cats needed
+					-- now set the pace (Tier 4 at 1 h 30), so the floor comes down to 1.25 h
+					-- #4713: 1 h 04 (Tier 4 at 0 h 31 with a Legendary; the event window starts after Tier 5)
+					if median < 0.75 * HOUR or median > 4 * HOUR then
 						error(
-							"Tier 5 outside 1.75 to 4 hours of play with a 2-hour x2 event: "
+							"Tier 5 outside 0.75 to 4 hours of play with a 2-hour x2 event: "
 								.. text
 						)
 					end
@@ -1149,7 +1156,7 @@ return function()
 			)
 
 			it(
-				"takes over an hour of play in one go with 4x Money (#4189: 1 h 08, was 1.75; #4097: was 2)",
+				"takes over 25 minutes of play in one go with 4x Money (#4713: 37 min, was over an hour; #4189: 1 h 08, was 1.75; #4097: was 2)",
 				function()
 					local list, text = toTier5({
 						catches = 4,
@@ -1162,14 +1169,15 @@ return function()
 					print("[Pace check 7] " .. text)
 					-- #4097: the Bait bowl from the start brings bait cats from the first minutes (1 h 51 measured, about 2 h
 					-- before); Design-Agent to re-fit the Tier 5 cost if this should stay over 2 h
-					if quantile(list, tierAt(5), 0.5, 8 * HOUR) <= HOUR then
-						error("Tier 5 in an hour or less with 4x Money: " .. text)
+					-- #4713 (Derek 2026-11-16: Tier 4 asks for a Legendary, not a Mythical; with #4685's costs): 37 min
+					if quantile(list, tierAt(5), 0.5, 8 * HOUR) <= 25 * 60 then
+						error("Tier 5 in 25 minutes or less with 4x Money: " .. text)
 					end
 				end
 			)
 
 			it(
-				"takes over 40 minutes of play in one go with every paid bonus (about 24x; #4320: 55 min, was over an hour)",
+				"takes over 15 minutes of play in one go with every paid bonus (about 24x; #4713: 24 min, was over 40; #4320: 55 min, was over an hour)",
 				function()
 					-- section 6: Monetization-Agent's floor; if not, the cat requirements go up. The extra role slot is not
 					-- in the model yet (EquipBest does not read the pass), so this player is a slot short of the real one.
@@ -1180,8 +1188,9 @@ return function()
 						money = 24,
 						long = true,
 					})
-					if quantile(list, tierAt(5), 0.5, 8 * HOUR) <= 40 * 60 then
-						error("Tier 5 in 40 minutes or less with every paid bonus: " .. text)
+					-- #4713: 24 min
+					if quantile(list, tierAt(5), 0.5, 8 * HOUR) <= 15 * 60 then
+						error("Tier 5 in 15 minutes or less with every paid bonus: " .. text)
 					end
 				end
 			)
@@ -1194,7 +1203,7 @@ return function()
 	-- after Tier 5, Tier 7 8 to 11 h after Tier 6, both in one go. Fit run (10 runs): Tier 6 16 h 17, Tier 7 26 h 19.
 	describe("Tiers 6 and 7 on the money ladder (QA edges, #2651)", function()
 		it(
-			"Tier 6 comes 1 to 2.5 h after Tier 5 and Tier 7 1.5 to 3.5 h after Tier 6, in one go (#4320: 1 h 17 and 2 h 20, were 1.75 to 3.5 and 2.5 to 5; #4189: 2 h 27 and 3 h 32, were 4.5 to 7.5 and 8 to 11.5)",
+			"Tier 6 comes 0.5 to 2 h after Tier 5 and Tier 7 0.75 to 2.5 h after Tier 6, in one go (#4537: 0 h 56 and 1 h 24, were 1 to 2.5 and 1.5 to 3.5; #4320: 1 h 17 and 2 h 20, were 1.75 to 3.5 and 2.5 to 5; #4189: 2 h 27 and 3 h 32, were 4.5 to 7.5 and 8 to 11.5)",
 			function()
 				local limit = 40 * HOUR
 				local list =
@@ -1220,11 +1229,12 @@ return function()
 				-- #3660 (Design-Agent): the floor is 4.5 h, was 5 h, since a new save starts with one table
 				-- #4189: 2 h 27 and 3 h 32 with Tier 6 at 1.25B and Tier 7 at 12.5B (3 h 10 and 5 h 10 at 2.5B and 25B)
 				-- #4320: 1 h 17 and 2 h 20 with Tier 6 at 625M and Tier 7 at 6.25B
-				if six < 1 * HOUR or six > 2.5 * HOUR then
-					error("Tier 6 outside 1 to 2.5 h after Tier 5: " .. text)
+				-- #4537 (Derek 2026-11-15: halve both): 0 h 56 and 1 h 24 with Tier 6 at 312.5M and Tier 7 at 3.125B
+				if six < 0.5 * HOUR or six > 2 * HOUR then
+					error("Tier 6 outside 0.5 to 2 h after Tier 5: " .. text)
 				end
-				if seven < 1.5 * HOUR or seven > 3.5 * HOUR then
-					error("Tier 7 outside 1.5 to 3.5 h after Tier 6: " .. text)
+				if seven < 0.75 * HOUR or seven > 2.5 * HOUR then
+					error("Tier 7 outside 0.75 to 2.5 h after Tier 6: " .. text)
 				end
 			end
 		)
@@ -1242,7 +1252,7 @@ return function()
 	-- Two runs only, since one run to Tier 10 is about 22 hours of play.
 	describe("Tiers 8 to 10 on the money ladder (#4192)", function()
 		it(
-			"takes 1.5 to 4 hours from Tier 7 to Tier 8, 2.5 to 6 on to Tier 9 and 4 to 9 on to Tier 10 (#4320: was 2.5 to 5.5, 4.5 to 9 and 5.5 to 11; #4192: the draft was 12 to 15 for Tier 8, untested)",
+			"takes 1.5 to 4 hours from Tier 7 to Tier 8, 2.5 to 18 on to Tier 9 and up to 14 on to Tier 10 (#4515 and +25%: was 2.5 to 6 and 4 to 9; #4320: was 2.5 to 5.5, 4.5 to 9 and 5.5 to 11; #4192: the draft was 12 to 15 for Tier 8, untested)",
 			function()
 				local LateTiers = require(Shared.LateTiers)
 				local limit = 200 * HOUR
@@ -1253,7 +1263,10 @@ return function()
 				if not ok then
 					error(list)
 				end
-				local bands = { [8] = { 1.5, 4 }, [9] = { 2.5, 6 }, [10] = { 4, 9 } }
+				-- Derek 2026-11-15 (#4515 more cats and Mythicals for Tiers 8 to 10; 18:39 UTC Tiers 9 and 10 +25% "to slow
+				-- progress"): Tier 9 came in at +10 h 12 and Tier 10 at +0 h 15 after it (a 2-run median), so the late bands
+				-- are wide for now; Design-Agent tunes them after the 20:00 UTC update
+				local bands = { [8] = { 1.5, 4 }, [9] = { 2.5, 18 }, [10] = { 0, 14 } }
 				local parts, bad = {}, {}
 				for tier = 8, 10 do
 					local function gap(run: Run): number?
@@ -1289,27 +1302,27 @@ return function()
 
 	describe("Tier 2 with stray top-ups (#1159) and a 4-friend server (#1165)", function()
 		it(
-			"takes 1 to 20 minutes for a non-stop catcher with a top-up every 60 s (60 an hour an area; #4188: was 4; #3170: was 7, #2915: 8, #2683: 10)",
+			"takes 0.5 to 20 minutes for a non-stop catcher with a top-up every 60 s (60 an hour an area; #4696: was 1; #4188: was 4; #3170: was 7, #2915: 8, #2683: 10)",
 			function()
 				-- #2683: about 9 minutes with Tier 2 at 22,000; #2915: about 7.9 at 12,000, as the new player's 9 to 12
 				-- band pulls every run in, and a non-stop catcher stays ahead of it
 				check({
 					catches = NON_STOP,
 					strays = { players = 1, wait = 60 },
-					tier2Band = { 1, 20 }, -- #4188: about 1.6; #4098: about 4.9; #3170: about 6.1 with the Alleyway's strays spread through it
+					tier2Band = { 0.5, 20 }, -- #4696: about 1.0; #4188: about 1.6; #4098: about 4.9; #3170: about 6.1 with the Alleyway's strays spread through it
 				})
 			end
 		)
 
 		it(
-			"takes 1.5 to 4 minutes for the usual 4 or 5 catches a day with the real 60 to 120 s top-ups (#4188: was 5 to 12)",
+			"takes 0.5 to 4 minutes for the usual 4 or 5 catches a day with the real 60 to 120 s top-ups (#4696: was 1.5; #4188: was 5 to 12)",
 			function()
 				check({ catches = 4, strays = { players = 1 } })
 			end
 		)
 
 		it(
-			"takes 1.5 to 4 minutes for a player who buys the best affordable lawn piece after saving for the rank up (#1283; #4188: was 5 to 12)",
+			"takes 0.5 to 4 minutes for a player who buys the best affordable lawn piece after saving for the rank up (#1283; #4696: was 1.5; #4188: was 5 to 12)",
 			function()
 				check({ catches = 4, lawn = "saving" })
 			end
@@ -1319,15 +1332,18 @@ return function()
 		-- the moment it could (10,000, where Tier 2 costs 13,500) reached Tier 2 at a median of 25.1 min, over the 20
 		-- minute bound. Design-Agent (#1451) opened the Commons at Tier 2 instead.
 		it(
-			"takes 1.5 to 4 minutes for a player who buys the best affordable lawn piece at once (#1283; #4188: was 5 to 12)",
+			"takes 0.5 to 4 minutes for a player who buys the best affordable lawn piece at once (#1283; #4696: was 1.5; #4188: was 5 to 12)",
 			function()
 				check({ catches = 4, lawn = "greedy" })
 			end
 		)
 
-		it("takes 1.5 to 4 minutes with 3 pals on the server (#4188: was 5 to 12)", function()
-			check({ catches = 4, pals = FOUR_FRIENDS })
-		end)
+		it(
+			"takes 0.5 to 4 minutes with 3 pals on the server (#4696: was 1.5; #4188: was 5 to 12)",
+			function()
+				check({ catches = 4, pals = FOUR_FRIENDS })
+			end
+		)
 
 		-- Found 2026-11-05: at Tier 2's old 12,000 coins this quickest case (a non-stop catcher with +20% from 3 pals
 		-- and every top-up of a 4-player floor to itself) reached Tier 2 at a median of 9.4 min, under the 10 minute
@@ -1336,13 +1352,13 @@ return function()
 		-- 700,000, 60M and 2B. #1499's dearer bait (less sunk into food) put it at 9.9 min, so v3.1 makes it 30,000.
 		it(
 			-- #2557 (Design-Agent: the combined median, 9.5 min, plus or minus 15%, floor 8): was 10 to 20
-			"takes 1 to 4 minutes on a server of 4 friends, the non-stop catcher with every top-up to itself (#4188: was 4 to 11; #2557, #2915, #3170)",
+			"takes 0.5 to 4 minutes on a server of 4 friends, the non-stop catcher with every top-up to itself (#4696: was 1; #4188: was 4 to 11; #2557, #2915, #3170)",
 			function()
 				check({
 					catches = NON_STOP,
 					pals = FOUR_FRIENDS,
 					strays = { players = 4, wait = 60 },
-					tier2Band = { 1, 4 }, -- #4188: about 1.3; #4098: about 4.9; #2915: about 6.9 min at Tier 2's 12,000 (floor 8 before); #3170: about 5.9
+					tier2Band = { 0.5, 4 }, -- #4696: about 1.0; #4188: about 1.3; #4098: about 4.9; #2915: about 6.9 min at Tier 2's 12,000 (floor 8 before); #3170: about 5.9
 				})
 			end
 		)
@@ -1350,7 +1366,7 @@ return function()
 
 	describe("Tier 5 with stray top-ups (#1159) and a 4-friend server (#1165)", function()
 		it(
-			"takes 1.75 to 3.5 hours in one go for a player who buys the best affordable lawn (#1283; #4320: 2 h 20, was 3 to 5; #4189: 3 h 41, was 4 to 7; #3195 + #3204: was 4.25; #3170: was 4.5; #2683: was 9 to 14)",
+			"takes 0.75 to 3.5 hours in one go for a player who buys the best affordable lawn (#1283; #4713: 1 h 14, was 1.25 to 3.5; #4685: 1 h 32, was 1.75 to 3.5; #4320: 2 h 20, was 3 to 5; #4189: 3 h 41, was 4 to 7; #3195 + #3204: was 4.25; #3170: was 4.5; #2683: was 9 to 14)",
 			function()
 				local list, text = toTier5({
 					catches = 4,
@@ -1364,14 +1380,16 @@ return function()
 				-- #3170: 4 h 28 with the Alleyway's strays spread through it
 				-- #3195 + #3204: 4 h 14 with 45 s nights, the Tier 2 caps and Tier 3 at 520,000
 				-- #4320: 2 h 20 with every tier lower
-				if median < 1.75 * HOUR or median > 3.5 * HOUR then
-					error("Tier 5 outside 1.75 to 3.5 hours of play: " .. text)
+				-- #4685: 1 h 32 with Tier 4 at 1,000,000 and Tier 5 at 17,000,000
+				-- #4713: 1 h 14 with a Legendary for Tier 4 (Tier 4 at 0 h 40)
+				if median < 0.75 * HOUR or median > 3.5 * HOUR then
+					error("Tier 5 outside 0.75 to 3.5 hours of play: " .. text)
 				end
 			end
 		)
 
 		it(
-			"takes 1 to 2.5 hours in one go on a server of 4 friends, the non-stop catcher (#4320: 1 h 29, was 1.75 to 3.5; #4189: 2 h 19, was 3 to 5.5; #2895: was 4 to 6; #2683: was 8 to 14)",
+			"takes 0.6 to 2.5 hours in one go on a server of 4 friends, the non-stop catcher (#4713: 0 h 57, was 1 to 2.5; #4320: 1 h 29, was 1.75 to 3.5; #4189: 2 h 19, was 3 to 5.5; #2895: was 4 to 6; #2683: was 8 to 14)",
 			function()
 				local list, text = toTier5({
 					catches = NON_STOP,
@@ -1384,8 +1402,9 @@ return function()
 				local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
 				-- #2559 (Design-Agent): 8 h 55 with the cheaper Tier 4; #2683: 4 h 33 with the cheaper Tiers 2 to 5
 				-- #4320: 1 h 29 with every tier lower
-				if median < 1 * HOUR or median > 2.5 * HOUR then
-					error("Tier 5 outside 1 to 2.5 hours of play: " .. text)
+				-- #4713: 0 h 57 with a Legendary for Tier 4
+				if median < 0.6 * HOUR or median > 2.5 * HOUR then
+					error("Tier 5 outside 0.6 to 2.5 hours of play: " .. text)
 				end
 			end
 		)
@@ -1412,7 +1431,7 @@ return function()
 		)
 
 		it(
-			"takes over an hour in one go with 4x Money and 3 pals (check 7; #4189: 1 h 06, was 1.5; #2895: was 2)",
+			"takes over 20 minutes in one go with 4x Money and 3 pals (check 7; #4713: 29 min, was over an hour; #4189: 1 h 06, was 1.5; #2895: was 2)",
 			function()
 				local list, text = toTier5({
 					catches = 4,
@@ -1422,8 +1441,9 @@ return function()
 					long = true,
 					pals = FOUR_FRIENDS,
 				})
-				if quantile(list, tierAt(5), 0.5, 8 * HOUR) <= HOUR then
-					error("Tier 5 in an hour or less with 4x Money and 3 pals: " .. text)
+				-- #4713: 29 min
+				if quantile(list, tierAt(5), 0.5, 8 * HOUR) <= 20 * 60 then
+					error("Tier 5 in 20 minutes or less with 4x Money and 3 pals: " .. text)
 				end
 			end
 		)
@@ -1592,16 +1612,17 @@ return function()
 		end)
 
 		it(
-			"reaches Tier 3 at 12 to 30 minutes (the middle run, #4189: 17.8, was 26 to 45; #4097: was 28 to 45; #4098: was 30 to 45; #3195 + #3204: was 33 to 45; #2895: was 40 to 50; #2683: was 50 to 62), the fastest tenth at 8 or later (#4189: was 15); Tier 2 at 1.5 to 20 (#4188: was 4; #4098: was 8; #3195 + #3204: was 10)",
+			"reaches Tier 3 at 8 to 30 minutes (the middle run, #4496: 12.2, was 12 to 30; #4189: 17.8, was 26 to 45; #4097: was 28 to 45; #4098: was 30 to 45; #3195 + #3204: was 33 to 45; #2895: was 40 to 50; #2683: was 50 to 62), the fastest tenth at 4 or later (#4496: 5.2, was 8; #4189: was 15); Tier 2 at 0.5 to 20 (#4696: 0.8, was 1.5; #4188: was 4; #4098: was 8; #3195 + #3204: was 10)",
 			function()
 				local list = firstHour()
 				local median = quantile(list, tierAt(3), 0.5, HOUR + 15 * 60 + 1) / 60
 				local fast = quantile(list, tierAt(3), 0.1, HOUR + 15 * 60 + 1) / 60
 				-- #4098: about 29.9 with the cheaper Tier 2 (30 and 20 before); #4097: 27.3 with the bowl from the start (28)
-				if median < 12 or median > 30 or fast < 8 then
+				-- #4496 (Tier 3 at 50,000): 12.2, the fastest tenth 5.2
+				if median < 8 or median > 30 or fast < 4 then
 					error(
 						string.format(
-							"Tier 3 at %.1f min (tenth %.1f), outside 12 to 30 or before 8",
+							"Tier 3 at %.1f min (tenth %.1f), outside 8 to 30 or before 4",
 							median,
 							fast
 						)
@@ -1610,8 +1631,8 @@ return function()
 				-- #3195 + #3204: 8 (was 10). The 45 s nights put this middle run's Tier 2 at 8.1 min; raising Tier 2 to 17,500
 				-- to pull it back pushed the loop-script and stray Tier 2 runs past their 20 min ceiling
 				local tier2 = quantile(list, tierAt(2), 0.5, HOUR + 1) / 60
-				if tier2 < 1.5 or tier2 > 20 then -- #4188: 1.5 (was 4); #4098: 4 (was 8)
-					error(string.format("Tier 2 at %.1f min, outside 1.5 to 20", tier2))
+				if tier2 < 0.5 or tier2 > 20 then -- #4696: 0.5 (was 1.5, the $1,000 start); #4188: 1.5 (was 4); #4098: 4 (was 8)
+					error(string.format("Tier 2 at %.1f min, outside 0.5 to 20", tier2))
 				end
 			end
 		)
@@ -1633,10 +1654,11 @@ return function()
 				-- Espresso 4 by 50
 				-- #4097: Espresso 4 at 38.2 with the bowl from the start (no $600 buy first), so 7 either side (5.5)
 				-- #4189: 24.6 and 32.2 with the cheaper Tiers 2 and 3 (the shop opens sooner)
-				if math.abs(tables - 21) > 4 or math.abs(espresso - 29.5) > 7 then -- #4320: 20.7 and 29.5 (were about 25 and 32)
+				-- #4496 (Tier 3 at 50,000, so the Tier 3 caps open sooner): 16.7 and 26.3
+				if math.abs(tables - 17) > 4 or math.abs(espresso - 27) > 7 then -- #4320: 20.7 and 29.5 (were about 25 and 32)
 					error(
 						string.format(
-							"Tables 5 at %.1f min, Espresso 4 at %.1f min (want about 25 and 32)",
+							"Tables 5 at %.1f min, Espresso 4 at %.1f min (want about 17 and 27)",
 							tables,
 							espresso
 						)
@@ -1646,7 +1668,7 @@ return function()
 		)
 
 		it(
-			"buys Lucky Cat 3 at about minute 25 (the middle run; #4189: was 37; #4098: was 34; #2683: was 37)",
+			"buys Lucky Cat 3 at about minute 21 (the middle run; #4696: 20.4, was 25 with the $1,000 start; #4189: was 37; #4098: was 34; #2683: was 37)",
 			function()
 				-- #1896 follow-up: level 3 opens at Tier 2, a buy inside the Tier 3 save; about 31 since #2107 and #2121
 				-- (first-hour.md 4e: the middle run's figure, no longer a fitted target). #2192: about 37 with the 320 s day
@@ -1654,8 +1676,8 @@ return function()
 				-- bowl cats come in the first hour. Tier 3 stays inside 45 to 55 minutes.
 				local lucky = quantile(firstHour(), nthBuy("lucky_cat", 3), 0.5, HOUR + 1) / 60
 				-- #2683: about 34 with the cheaper Tier 2 (the middle run's figure, not a fitted target)
-				if math.abs(lucky - 25) > 3 then -- #4189: 24.8 with the cheaper Tiers 2 and 3; #4098: about 37.6 (34 before)
-					error(string.format("Lucky Cat 3 at %.1f min (want about 25)", lucky))
+				if math.abs(lucky - 21) > 3 then -- #4696: 20.4 with the $1,000 start -- #4189: 24.8 with the cheaper Tiers 2 and 3; #4098: about 37.6 (34 before)
+					error(string.format("Lucky Cat 3 at %.1f min (want about 21)", lucky))
 				end
 			end
 		)

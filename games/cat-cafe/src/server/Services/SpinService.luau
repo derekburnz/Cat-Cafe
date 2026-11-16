@@ -102,7 +102,10 @@ local function onSpinWheel(player: Player)
 	lastSpinAt[player] = os.clock()
 	local forced = forcedSlice[player]
 	forcedSlice[player] = nil
-	local row = if forced ~= nil then Catalog.spinWheel[forced] else Spin.pick(random:NextNumber())
+	-- the Dragon Keep's Lucky Spin lifts the rare slices (Spin.rows); the wheel's Odds list shows the same
+	local row = if forced ~= nil
+		then Catalog.spinWheel[forced]
+		else Spin.pick(random:NextNumber(), Economy.dragonEffects(profile).spinLuck)
 	local amount = pay(player, profile, row)
 	profile.stats.spins += 1
 	Telemetry.custom(player, "spin", row.slice, { kind :: string })
@@ -140,7 +143,7 @@ local function onSpinAll(player: Player)
 		if kind == nil then
 			break
 		end
-		local row = Spin.pick(random:NextNumber())
+		local row = Spin.pick(random:NextNumber(), Economy.dragonEffects(profile).spinLuck)
 		local amount = pay(player, profile, row)
 		profile.stats.spins += 1
 		Telemetry.custom(player, "spin", row.slice, { kind :: string, "all" })

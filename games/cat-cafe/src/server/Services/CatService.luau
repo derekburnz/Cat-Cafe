@@ -15,56 +15,68 @@ local StarterPlayer = game:GetService("StarterPlayer")
 local Workspace = game:GetService("Workspace")
 
 local AreaRares = require(ReplicatedStorage.Shared.AreaRares)
-local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
-local Badges = require(ReplicatedStorage.Shared.Badges)
-local BagColours = require(ReplicatedStorage.Shared.BagColours)
-local CafeService = require(script.Parent.CafeService)
+local CafeEvents = require(ReplicatedStorage.Shared.CafeEvents)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
-local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local CatStorm = require(ReplicatedStorage.Shared.CatStorm)
-local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Catching = require(ReplicatedStorage.Shared.Catching)
 local Circles = require(ReplicatedStorage.Shared.Circles)
-local Clock = require(ReplicatedStorage.Shared.Clock)
-local ClockService = require(script.Parent.ClockService)
-local Config = require(ReplicatedStorage.Shared.Config)
-local Cooldown = require(ReplicatedStorage.Shared.Cooldown)
-local DataService = require(script.Parent.DataService)
-local Economy = require(ReplicatedStorage.Shared.Economy)
-local EventRewardService = require(script.Parent.EventRewardService)
 local EventService = require(script.Parent.EventService)
 local FreeCatch = require(ReplicatedStorage.Shared.FreeCatch)
-local Guard = require(script.Parent.Parent.Util.Guard)
 local HeldCat = require(ReplicatedStorage.Shared.HeldCat)
-local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
-local Layout = require(script.Parent.Parent.World.Layout)
-local LiveFlagService = require(script.Parent.LiveFlagService)
 local Luck = require(ReplicatedStorage.Shared.Luck)
-local Moods = require(ReplicatedStorage.Shared.Moods)
 local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local NightPass = require(ReplicatedStorage.Shared.NightPass)
-local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
-local Payout = require(script.Parent.Payout)
-local Pity = require(ReplicatedStorage.Shared.Pity)
-local PlotService = require(script.Parent.PlotService)
-local Potions = require(ReplicatedStorage.Shared.Potions)
-local RallyService = require(script.Parent.RallyService)
-local RareMomentService = require(script.Parent.RareMomentService)
-local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local SecondCat = require(ReplicatedStorage.Shared.SecondCat)
-local SecretBeacons = require(script.Parent.SecretBeacons)
 local SecretCalm = require(ReplicatedStorage.Shared.SecretCalm)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local SpeedShoes = require(ReplicatedStorage.Shared.SpeedShoes)
-local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StrayTopUp = require(ReplicatedStorage.Shared.StrayTopUp)
-local SwiftPaws = require(ReplicatedStorage.Shared.SwiftPaws)
 local Telemetry = require(script.Parent.Telemetry)
-local TouchReach = require(ReplicatedStorage.Shared.TouchReach)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
+
+-- Modules whose exported types CatService does not name sit in one table, so the main chunk stays under
+-- Luau's limit of 200 local registers (the Open Cloud engine smoke test failed on it, 2026-11-15).
+local M = {
+	-- #4251: an area that is not one of the ten (Harvest Hollow) says itself who may catch there (CatService.addArea),
+	-- and the hooks told of every stray caught by net, with the area it was caught in (CatService.onCaught)
+	areaGates = {} :: { [string]: (Types.PlayerProfile) -> boolean },
+	caughtHooks = {} :: { (Player, Types.CatDef, string) -> () },
+	AssetRegistry = require(script.Parent.Parent.World.AssetRegistry),
+	Badges = require(ReplicatedStorage.Shared.Badges),
+	BagColours = require(ReplicatedStorage.Shared.BagColours),
+	CafeService = require(script.Parent.CafeService),
+	CatStats = require(ReplicatedStorage.Shared.CatStats),
+	Catalog = require(ReplicatedStorage.Shared.Catalog),
+	Clock = require(ReplicatedStorage.Shared.Clock),
+	ClockService = require(script.Parent.ClockService),
+	Config = require(ReplicatedStorage.Shared.Config),
+	Cooldown = require(ReplicatedStorage.Shared.Cooldown),
+	DataService = require(script.Parent.DataService),
+	DragonKeep = require(ReplicatedStorage.Shared.DragonKeep),
+	Economy = require(ReplicatedStorage.Shared.Economy),
+	EventRewardService = require(script.Parent.EventRewardService),
+	GoldenFish = require(ReplicatedStorage.Shared.GoldenFish),
+	Guard = require(script.Parent.Parent.Util.Guard),
+	IndexRewards = require(ReplicatedStorage.Shared.IndexRewards),
+	Layout = require(script.Parent.Parent.World.Layout),
+	LiveFlagService = require(script.Parent.LiveFlagService),
+	Moods = require(ReplicatedStorage.Shared.Moods),
+	Onboarding = require(ReplicatedStorage.Shared.Onboarding),
+	Payout = require(script.Parent.Payout),
+	Pity = require(ReplicatedStorage.Shared.Pity),
+	PlotService = require(script.Parent.PlotService),
+	Potions = require(ReplicatedStorage.Shared.Potions),
+	RallyService = require(script.Parent.RallyService),
+	RareMomentService = require(script.Parent.RareMomentService),
+	RareMoments = require(ReplicatedStorage.Shared.RareMoments),
+	SecretBeacons = require(script.Parent.SecretBeacons),
+	StationPerks = require(ReplicatedStorage.Shared.StationPerks),
+	SwiftPaws = require(ReplicatedStorage.Shared.SwiftPaws),
+	TouchReach = require(ReplicatedStorage.Shared.TouchReach),
+}
 
 local CatService = {}
 
@@ -233,14 +245,14 @@ end
 -- F84: the camp the player stands in (its area id), or nil. Nobody catches, picks up, rescues or tackles in a camp.
 local function campOf(player: Player): string?
 	local root = rootPosition(player)
-	return if root ~= nil then Layout.campAt(root.X, root.Z) else nil
+	return if root ~= nil then M.Layout.campAt(root.X, root.Z) else nil
 end
 
 -- True while the player's character stands on the Town Square (Derek 2026-11-03: "character in town square should
 -- put net away"). No strays roam it, so the net is away there as it is while a cat is in the arms.
 local function inTownSquare(player: Player): boolean
 	local root = rootPosition(player)
-	return root ~= nil and Layout.inTownSquare(root.X, root.Z)
+	return root ~= nil and M.Layout.inTownSquare(root.X, root.Z)
 end
 
 -- Whether the net is away for this player (Derek 2026-11-04, #1080: "the net should only come out inside a catching
@@ -258,7 +270,7 @@ end
 -- F84 (section 4): a drop spot in a camp or at its edge moves out into the wild part (Layout.outOfCamp), then onto
 -- that area's roam floor, since straight out from the Alleyway camp's middle can meet the building backs (N279).
 local function outOfCamp(position: Vector3): Vector3
-	local x, z, campId = Layout.outOfCamp(position.X, position.Z)
+	local x, z, campId = M.Layout.outOfCamp(position.X, position.Z)
 	local out = Vector3.new(x, position.Y, z)
 	local area = if campId ~= nil then world.areas[campId] else nil
 	return if area ~= nil then WorldBuilder.clampToArea(area, out, 2) else out
@@ -269,36 +281,31 @@ end
 -- nightCatch switch is on.
 local function openFor(profile: Types.PlayerProfile?): boolean
 	return NightPass.open(
-		ClockService.areasOpen(),
-		profile ~= nil and NightPass.of(profile, LiveFlagService.on(NightPass.FLAG))
+		M.ClockService.areasOpen(),
+		profile ~= nil and NightPass.of(profile, M.LiveFlagService.on(NightPass.FLAG))
 	)
 end
 
--- #4251: an area that is not one of the ten (Harvest Hollow) says itself who may catch there (CatService.addArea).
-local areaGates: { [string]: (Types.PlayerProfile) -> boolean } = {}
--- #4251: told of every stray caught by net, with the area it was caught in (CatService.onCaught).
-local caughtHooks: { (Player, Types.CatDef, string) -> () } = {}
-
 local function areaUnlocked(profile: Types.PlayerProfile, areaId: string): boolean
-	local gate = areaGates[areaId]
+	local gate = M.areaGates[areaId]
 	if gate ~= nil then
 		return gate(profile)
 	end
-	local area = Catalog.getArea(areaId)
+	local area = M.Catalog.getArea(areaId)
 	if area == nil then
 		return false
 	end
-	return Economy.tier(profile) >= area.tier
+	return M.Economy.tier(profile) >= area.tier
 end
 
 -- #3897: a rare cat's spawn banner goes only to the players who have its area open, never to the whole server.
 local function announceToArea(areaId: string, text: string, rarity: Types.Rarity)
-	local area = Catalog.getArea(areaId)
+	local area = M.Catalog.getArea(areaId)
 	for _, player in Players:GetPlayers() do
-		local profile = DataService.get(player)
+		local profile = M.DataService.get(player)
 		if
 			profile ~= nil
-			and Catching.hearsSpawn(Economy.tier(profile), if area ~= nil then area.tier else nil)
+			and Catching.hearsSpawn(M.Economy.tier(profile), if area ~= nil then area.tier else nil)
 		then
 			Net.fire(player, "Announce", text, rarity)
 		end
@@ -315,20 +322,20 @@ end
 
 -- The same gold luck and the player it comes from (nil when it is 0), for the area's Index Board.
 function CatService.goldLuckSource(areaId: string): (number, Player?)
-	local area = Catalog.getArea(areaId)
+	local area = M.Catalog.getArea(areaId)
 	if area == nil then
 		return 0, nil
 	end
 	local players: { Player } = {}
 	local profiles: { Types.PlayerProfile } = {}
-	for _, player in DataService.loadedPlayers() do
-		local profile = DataService.get(player)
+	for _, player in M.DataService.loadedPlayers() do
+		local profile = M.DataService.get(player)
 		if profile ~= nil then
 			table.insert(players, player)
 			table.insert(profiles, profile)
 		end
 	end
-	local luck, from = IndexRewards.luckiest(profiles, area.tier, Economy.tier, os.time())
+	local luck, from = M.IndexRewards.luckiest(profiles, area.tier, M.Economy.tier, os.time())
 	return luck, if from ~= nil then players[from] else nil
 end
 
@@ -336,33 +343,33 @@ end
 -- Index rainbow luck among the players in the server whose tier has the area open, 0 when nobody has. No potion
 -- adds to it.
 function CatService.rainbowLuckFor(areaId: string): number
-	local area = Catalog.getArea(areaId)
+	local area = M.Catalog.getArea(areaId)
 	if area == nil then
 		return 0
 	end
 	local profiles: { Types.PlayerProfile } = {}
-	for _, player in DataService.loadedPlayers() do
-		local profile = DataService.get(player)
+	for _, player in M.DataService.loadedPlayers() do
+		local profile = M.DataService.get(player)
 		if profile ~= nil then
 			table.insert(profiles, profile)
 		end
 	end
-	return IndexRewards.bestRainbowLuck(profiles, area.tier, Economy.tier)
+	return M.IndexRewards.bestRainbowLuck(profiles, area.tier, M.Economy.tier)
 end
 
 -- The coat a stray of `def` spawning in the area gets (F99): one roll, rainbow first and then gold
 -- (Catching.rollCoat), each with the best luck in the server for the area.
 local function rollStrayCoat(def: Types.CatDef, areaId: string): string
-	local kinds = ClockService.dayKinds() -- #1572: a Golden or Rainbow Day lifts both chances until night
+	local kinds = M.ClockService.dayKinds() -- #1572: a Golden or Rainbow Day lifts both chances until night
 	return Catching.rollCoat(
 		def,
 		rng:NextNumber(),
-		IndexRewards.rainbowChance(
-			Clock.rainbowChance(Config.RainbowChanceNet, kinds),
+		M.IndexRewards.rainbowChance(
+			M.Clock.rainbowChance(M.Config.RainbowChanceNet, kinds),
 			CatService.rainbowLuckFor(areaId)
 		),
-		IndexRewards.rollChance(
-			Clock.goldChance(Config.GoldChanceNet, kinds),
+		M.IndexRewards.rollChance(
+			M.Clock.goldChance(M.Config.GoldChanceNet, kinds),
 			CatService.goldLuckFor(areaId)
 		)
 	)
@@ -410,31 +417,33 @@ local holdsCatch: (Player) -> boolean
 -- #3063: the Swift Paws perk's walk speed for `player` (0 while its switch is off). Only the normal walk and a carry
 -- add it, never the catch rush or a Startled slow.
 local function pawsBonus(player: Player): number
-	local profile = DataService.get(player)
+	local profile = M.DataService.get(player)
 	-- #3871: plus the working cats' speed traits (Quick Paws and the combos that hold it), the best one only
-	local traits = if profile ~= nil then Economy.traitBonus(profile, "speed") else 0
-	return SwiftPaws.bonus(profile, LiveFlagService.on(SwiftPaws.FLAG)) + traits
+	local traits = if profile ~= nil then M.Economy.traitBonus(profile, "speed") else 0
+	-- #4447: the Dragon Keep's wing cards and set, inside DragonKeep.WALK_CAP
+	local dragon = if profile ~= nil then M.DragonKeep.of(profile).walk else 0
+	return M.SwiftPaws.bonus(profile, M.LiveFlagService.on(M.SwiftPaws.FLAG)) + traits + dragon
 end
 
--- #3535: the carry walk speed: CarryWalkSpeed with Swift Paws and, with the Speed Shoes owned and their switch on,
--- the shoes' bonus, which stops one short of the player's own walk speed with no cat (shared/SpeedShoes.carry).
+-- #3535: the carry walk speed: CarryWalkSpeed with Swift Paws and, with the Speed Shoes owned, the shoes' bonus, which stops one short of the player's own walk speed with no cat (shared/SpeedShoes.carry).
 -- Never on the catch rush or a Startled slow.
 local function carrySpeed(player: Player): number
 	local paws = pawsBonus(player)
 	return SpeedShoes.carry(
-		Config.CarryWalkSpeed + paws,
-		Config.NormalWalkSpeed + paws,
-		DataService.get(player),
-		LiveFlagService.on(SpeedShoes.FLAG)
+		M.Config.CarryWalkSpeed + paws,
+		M.Config.NormalWalkSpeed + paws,
+		M.DataService.get(player),
+		true, -- #4654 batch 7: the `speedShoes` switch is retired
+		EventService.speedRush() -- #4197: Speed Rush lends everyone the shoes
 	)
 end
 
 local function setSpeed(player: Player, humanoid: Humanoid, base: number)
-	local profile = DataService.get(player)
+	local profile = M.DataService.get(player)
 	local still = holdsCatch(player)
 	humanoid.WalkSpeed = if still
 		then 0
-		else base + (if profile ~= nil then Potions.speedBonus(profile, os.time()) else 0)
+		else base + (if profile ~= nil then M.Potions.speedBonus(profile, os.time()) else 0)
 	humanoid.JumpPower = if still then 0 else StarterPlayer.CharacterJumpPower
 	humanoid.JumpHeight = if still then 0 else StarterPlayer.CharacterJumpHeight
 end
@@ -528,6 +537,18 @@ end
 
 -- Spawning ------------------------------------------------------------------------------------------------
 
+-- #4197 Secret Hunt: the running hunt's Secret strays (huntTick below). `gone` is huntTick's, called by despawn.
+type Hunt = {
+	id: string,
+	count: number, -- cats the hunt hides
+	spawned: number, -- of them out now or caught
+	found: number,
+	paid: boolean,
+	ids: { [string]: boolean }, -- stray id -> one of the hunt's, still out
+}
+local hunt: Hunt? = nil
+local huntGone: (stray: Stray, catcher: Player?) -> () = function() end
+
 -- `catcher` is the player who just caught it, nil when it leaves. A knocked-loose cat logs who ended up with it
 -- (drop_outcome, F16): against the catcher, or its old carrier when nobody caught it.
 -- #4227: the wild Mythicals and Secrets out in each area, in ReplicatedStorage's AreaRares attribute for the Cannon
@@ -571,10 +592,14 @@ local function despawn(stray: Stray, catcher: Player?)
 	end
 	strays[stray.id] = nil
 	writeAreaRares()
-	if stray.def.rarity == Catalog.SECRET then
-		SecretBeacons.clear(stray.id)
+	local running = hunt
+	if running ~= nil and running.ids[stray.id] then
+		huntGone(stray, catcher)
+	end
+	if stray.def.rarity == M.Catalog.SECRET then
+		M.SecretBeacons.clear(stray.id)
 		-- #3470: gone with nobody holding it (dusk, or a Dropped one nobody picked up)
-		local someone: Player? = if catcher == nil then DataService.loadedPlayers()[1] else nil
+		local someone: Player? = if catcher == nil then M.DataService.loadedPlayers()[1] else nil
 		if someone ~= nil then
 			Telemetry.custom(
 				someone,
@@ -652,10 +677,10 @@ local PERCH_ABOVE = 0.5
 local function wander(stray: Stray)
 	local area = world.areas[stray.area]
 	-- #3545: a Secret roams fast and far and never settles for a nap
-	local secret = stray.def.rarity == Catalog.SECRET
-	local speed = if secret then Config.SecretWanderSpeed else Config.StrayWanderSpeed
-	local radius = if secret then Config.SecretWanderRadius else Config.StrayWanderRadius
-	local pause = if secret then Config.SecretWanderPauseScale else 1
+	local secret = stray.def.rarity == M.Catalog.SECRET
+	local speed = if secret then M.Config.SecretWanderSpeed else M.Config.StrayWanderSpeed
+	local radius = if secret then M.Config.SecretWanderRadius else M.Config.StrayWanderRadius
+	local pause = if secret then M.Config.SecretWanderPauseScale else 1
 	if stray.mood == "Sleepy" and not secret then
 		stray.model:SetAttribute("Napping", true) -- #1884 (7a): curled up from the start
 	end
@@ -714,7 +739,7 @@ local function spawnStray(
 		else rollStrayCoat(def, areaId)
 	nextStrayNumber += 1
 	local id = string.format("stray_%d_%d", os.time() % 100000, nextStrayNumber)
-	local model = AssetRegistry.cloneCat(def.id, variant)
+	local model = M.AssetRegistry.cloneCat(def.id, variant)
 	model.Name = id
 	-- #3843: a stray never wears an outfit (CatDress only dresses fresh clones from Assets), so its 13 to 17 empty
 	-- Outfit_ slots go before it is parented, 15 to 20 percent fewer instances sent to each client
@@ -729,7 +754,7 @@ local function spawnStray(
 	-- #3470: a Secret stray nobody has caught yet keeps its name to itself (a Dropped one was caught once)
 	model:SetAttribute(
 		"CatName",
-		if def.rarity == Catalog.SECRET and kept == nil then Catching.SECRET_NAME else def.name
+		if def.rarity == M.Catalog.SECRET and kept == nil then Catching.SECRET_NAME else def.name
 	)
 	model:SetAttribute("Rarity", def.rarity)
 	model:SetAttribute("Area", areaId)
@@ -748,7 +773,7 @@ local function spawnStray(
 	model:SetAttribute("PickUp", kept ~= nil)
 	model:SetAttribute("Returning", kept ~= nil and kept.returning == true) -- F67: walking home
 	-- #1884 (catch-rework.md 7a): the tutorial stray is always Sleepy
-	local mood: Types.CatMood = Moods.roll(def.rarity, rng:NextNumber(), beginner ~= nil)
+	local mood: Types.CatMood = M.Moods.roll(def.rarity, rng:NextNumber(), beginner ~= nil)
 	model:SetAttribute("Mood", mood)
 	CollectionService:AddTag(model, "Stray")
 	-- F93 (catch-rework.md section 1): no Catch prompt; the net swing finds the stray (SwingNet).
@@ -775,7 +800,7 @@ local function spawnStray(
 		jumping = false,
 		charm = if kept ~= nil and kept.charm ~= nil
 			then kept.charm
-			else CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
+			else M.CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
 		variant = variant,
 		method = if kept ~= nil then kept.method else "net",
 		drop = if kept ~= nil then kept.drop else nil,
@@ -792,10 +817,10 @@ local function spawnStray(
 	}
 	strays[id] = stray
 	writeAreaRares()
-	if def.rarity == Catalog.SECRET then
+	if def.rarity == M.Catalog.SECRET then
 		-- #3470: its sky beam shows from anywhere (Effects)
-		SecretBeacons.set(id, areaId, position)
-		SecretBeacons.follow(id, model)
+		M.SecretBeacons.set(id, areaId, position)
+		M.SecretBeacons.follow(id, model)
 	end
 	if pointIndex ~= nil then
 		occupiedPoints[areaId] = occupiedPoints[areaId] or {}
@@ -806,7 +831,7 @@ local function spawnStray(
 	if variant == "rainbow" and kept == nil then
 		local clock = os.clock()
 		local toast = lastRainbowToastAt == nil
-			or clock - (lastRainbowToastAt :: number) >= Config.RainbowSpawnToastSeconds
+			or clock - (lastRainbowToastAt :: number) >= M.Config.RainbowSpawnToastSeconds
 		if toast then
 			lastRainbowToastAt = clock
 		end
@@ -840,11 +865,11 @@ local IN_VIEW_STUDS = 40 -- #1273: funnel step first_stray_in_view, this close t
 local CARRY_STEP_SECONDS = 10 -- #1273: carrying_first_cat, the first cat still held this long after its catch
 -- #1621: the area's gate on the ground plane (Layout.gatePosition), nil for the Alleyway, which has none.
 local function gateOf(areaId: string): (number?, number?)
-	local spec = Layout.areas[areaId]
+	local spec = M.Layout.areas[areaId]
 	if spec == nil then
 		return nil, nil
 	end
-	return Layout.gatePosition(spec)
+	return M.Layout.gatePosition(spec)
 end
 
 -- #1621: how many live strays stand near the area's gate, and how many in all (0, live for an area with no gate).
@@ -914,8 +939,8 @@ end
 -- #3470: a wild Secret stray is out. The players with its area open (#3897) get the banner and chat line with its
 -- area's name, and
 -- it is logged as `secret_spawn` (a server event with no player of its own: under the first player here).
-local function secretSpawned(stray: Stray)
-	local areaDef = Catalog.getArea(stray.area)
+local function secretSpawned(stray: Stray, source: string?)
+	local areaDef = M.Catalog.getArea(stray.area)
 	local text = Catching.waveShoutOut(
 		stray.def.rarity,
 		stray.variant,
@@ -924,9 +949,9 @@ local function secretSpawned(stray: Stray)
 	if text ~= nil then
 		announceToArea(stray.area, text, stray.def.rarity)
 	end
-	local someone: Player? = DataService.loadedPlayers()[1]
+	local someone: Player? = M.DataService.loadedPlayers()[1]
 	if someone ~= nil then
-		Telemetry.custom(someone, "secret_spawn", 1, { stray.area, "wild" })
+		Telemetry.custom(someone, "secret_spawn", 1, { stray.area, source or "wild" })
 	end
 end
 
@@ -938,20 +963,18 @@ local function spawnAt(
 	owned: { [string]: any }? -- #4188: a beginner's collection, so their tutorial stray is a kind they lack
 ): Stray
 	local area = world.areas[areaId]
-	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the `secretCats` switch is on (never a beginner's
-	-- stray). It takes the Mythical's point, and everyone hears the area and never the spot.
-	-- (review note on #3486: the two draws are made only for a Mythical with the switch on, so a switched off build
-	-- rolls exactly as before)
+	-- #3470: a rolled Mythical turns Secret 1 time in 100 (never a beginner's stray; #4654 batch 5: the `secretCats`
+	-- switch is retired). It takes the Mythical's point, and everyone hears the area and never the spot.
+	-- (review note on #3486: the two draws are made only for a Mythical)
 	local secret = if beginner == nil
 			and rarity == "Mythical"
-			and Catalog.getArea(areaId) ~= nil -- #4251: never in Harvest Hollow
-			and LiveFlagService.on(Catching.SECRET_FLAG)
+			and M.Catalog.getArea(areaId) ~= nil -- #4251: never in Harvest Hollow
 		then Catching.secret(
 			rarity,
 			rng:NextNumber(),
 			rng:NextNumber(),
 			true,
-			if LiveFlagService.on(Catching.SECRET_AREAS_FLAG) then { areaId } else nil
+			if M.LiveFlagService.on(Catching.SECRET_AREAS_FLAG) then { areaId } else nil
 		)
 		else nil
 	local def = secret
@@ -996,10 +1019,10 @@ end
 -- #2692: nothing else spawns at night (v0.9, F66), but a beginner holds the night pass, so their stray comes at night
 -- too, and one whose beginner has gone or checked in leaves at once by night instead of waiting for the sunrise.
 local function tutorialTick()
-	local night = not ClockService.areasOpen()
-	local nightCatch = LiveFlagService.on(NightPass.FLAG)
-	for _, player in DataService.loadedPlayers() do
-		local profile = DataService.get(player)
+	local night = not M.ClockService.areasOpen()
+	local nightCatch = M.LiveFlagService.on(NightPass.FLAG)
+	for _, player in M.DataService.loadedPlayers() do
+		local profile = M.DataService.get(player)
 		if profile ~= nil then
 			local pass = NightPass.of(profile, nightCatch)
 			if player:GetAttribute(NightPass.ATTRIBUTE) ~= pass then
@@ -1011,13 +1034,13 @@ local function tutorialTick()
 	local near = tutorialPoints()
 	local beginners: { [number]: boolean } = {}
 	local nightHolders: { [number]: boolean } = {}
-	for _, player in DataService.loadedPlayers() do
-		local profile = DataService.get(player)
-		local plot = PlotService.get(player)
+	for _, player in M.DataService.loadedPlayers() do
+		local profile = M.DataService.get(player)
+		local plot = M.PlotService.get(player)
 		if profile == nil or plot == nil then
 			continue
 		end
-		if profile.tutorialStep >= Config.TutorialGuaranteedStrayStep then
+		if profile.tutorialStep >= M.Config.TutorialGuaranteedStrayStep then
 			-- #3035: at night a first-session Tier 1 player with the pass finds one Common at their own point too,
 			-- a new one within a tick of the last being caught. Not reserved and no easy catch: the Beginner
 			-- attribute would give them the tutorial's "Try again!" and swing help on the client.
@@ -1064,11 +1087,11 @@ local function tutorialTick()
 				reserve(stray, player.UserId)
 			end
 			-- funnel steps first_stray_in_view and near_stray (easy-start.md section 5)
-			if not Onboarding.reached(profile.telemetry, "near_stray") then
+			if not M.Onboarding.reached(profile.telemetry, "near_stray") then
 				if withinRange(player, stray.body.Position, NEAR_STRAY_STUDS) then
 					Telemetry.onboarding(player, profile, "near_stray")
 				elseif
-					not Onboarding.reached(profile.telemetry, "first_stray_in_view")
+					not M.Onboarding.reached(profile.telemetry, "first_stray_in_view")
 					and withinRange(player, stray.body.Position, IN_VIEW_STUDS)
 				then
 					Telemetry.onboarding(player, profile, "first_stray_in_view")
@@ -1131,7 +1154,7 @@ do
 	end
 
 	local function secondPad(): Vector3?
-		local pad = Layout.landingPads[SecondCat.AREA]
+		local pad = M.Layout.landingPads[SecondCat.AREA]
 		if pad == nil then
 			return nil
 		end
@@ -1145,7 +1168,7 @@ do
 		if userId == nil or pad == nil then
 			return
 		end
-		stray.home = SecondCat.leash(stray.home, pad, Config.StrayWanderRadius)
+		stray.home = SecondCat.leash(stray.home, pad, M.Config.StrayWanderRadius)
 		if stray.mood ~= "Curious" or stray.curiousAt ~= nil then
 			stray.mood = "Curious"
 			stray.curiousAt = nil
@@ -1206,7 +1229,7 @@ do
 		end
 		local occupied = occupiedPoints[TUTORIAL_AREA] or {}
 		local near = tutorialPoints()
-		local plot = PlotService.get(player)
+		local plot = M.PlotService.get(player)
 		local own = if plot ~= nil then near[plot.index] else nil
 		local pick: number? = nil
 		if own ~= nil and occupied[own] == nil then
@@ -1250,19 +1273,27 @@ do
 		local root = rootPosition(player)
 		if root ~= nil and SecondCat.followed(root, waiting.body.Position) then
 			Second.step(player, profile, SecondCat.FOLLOWED)
+			if
+				M.Onboarding.cleanWants(
+					profile.telemetry.cleanV8Step or 0,
+					M.Onboarding.CLEAN_EVENTS.nearStray
+				)
+			then
+				Telemetry.cleanEvent(player, profile, M.Onboarding.CLEAN_EVENTS.nearStray) -- #4504: near_stray_2
+			end
 		end
 	end
 
 	-- Whether the rule runs for the player now: their save waits for its second cat, the areas are open and their hands
 	-- and Backpack are empty.
 	local function secondCatDue(player: Player): Types.PlayerProfile?
-		local profile = DataService.get(player)
+		local profile = M.DataService.get(player)
 		if
 			profile == nil
 			or not SecondCat.waiting(profile)
 			or carrying[player] ~= nil
 			or packed[player] ~= nil
-			or not ClockService.areasOpen()
+			or not M.ClockService.areasOpen()
 		then
 			return nil
 		end
@@ -1275,7 +1306,7 @@ do
 			return
 		end
 		local due: { [number]: { player: Player, profile: Types.PlayerProfile } } = {}
-		for _, player in DataService.loadedPlayers() do
+		for _, player in M.DataService.loadedPlayers() do
 			local profile = secondCatDue(player)
 			if profile ~= nil then
 				due[player.UserId] = { player = player, profile = profile }
@@ -1352,13 +1383,13 @@ local function rollWave(areaDef: Types.AreaDef, luck: number): ({ WavePlace }, b
 	local rerolled = Catching.waveRare(rarities, rng:NextNumber())
 	if rerolled ~= nil then
 		-- a server event with no player of its own: logged under the first player here, none in an empty server
-		local someone: Player? = DataService.loadedPlayers()[1]
+		local someone: Player? = M.DataService.loadedPlayers()[1]
 		if someone ~= nil then
 			Telemetry.custom(someone, "wave_rare", 1, { areaDef.id, rerolled })
 		end
 	end
 	table.sort(rarities, function(a, b)
-		return Catalog.rarityRank[a] > Catalog.rarityRank[b]
+		return M.Catalog.rarityRank[a] > M.Catalog.rarityRank[b]
 	end)
 	local mythical = false
 	local places: { WavePlace } = {}
@@ -1412,24 +1443,24 @@ local entryLeft: { [string]: number } = {}
 -- who have it open) counts its timer down, and when it runs out one stray of the area's normal odds arrives at a far
 -- free point. An area at its floor drops its timer, so the next shortfall draws a fresh one.
 local function topUpTick(dt: number)
-	if not ClockService.areasOpen() then
+	if not M.ClockService.areasOpen() then
 		table.clear(topUpLeft)
 		table.clear(entryLeft)
 		return
 	end
 	local open: { [string]: number } = {}
-	for _, player in DataService.loadedPlayers() do
-		local profile = DataService.get(player)
+	for _, player in M.DataService.loadedPlayers() do
+		local profile = M.DataService.get(player)
 		if profile ~= nil then
-			local tier = Economy.tier(profile)
-			for _, areaDef in Catalog.areas do
+			local tier = M.Economy.tier(profile)
+			for _, areaDef in M.Catalog.areas do
 				if tier >= areaDef.tier then
 					open[areaDef.id] = (open[areaDef.id] or 0) + 1
 				end
 			end
 		end
 	end
-	for _, areaDef in Catalog.areas do
+	for _, areaDef in M.Catalog.areas do
 		if world.areas[areaDef.id] == nil then
 			continue
 		end
@@ -1437,7 +1468,7 @@ local function topUpTick(dt: number)
 		local gateX = gateOf(areaDef.id)
 		if gateX ~= nil and StrayTopUp.entryShort(nearGate, live, areaDef.entryFloor) then
 			-- #1621: the start of the area gets its own quicker top-up
-			local wait = (entryLeft[areaDef.id] or Config.StrayEntryTopUpSeconds) - dt
+			local wait = (entryLeft[areaDef.id] or M.Config.StrayEntryTopUpSeconds) - dt
 			if wait <= 0 then
 				local rarity: Types.Rarity = Catching.pickRarity(areaDef.odds, rng:NextNumber())
 				local point = freeSpawnPoint(areaDef.id, rarity, nil, true)
@@ -1445,7 +1476,7 @@ local function topUpTick(dt: number)
 					spawnAt(areaDef.id, point, rarity)
 					live += 1
 				end
-				wait = Config.StrayEntryTopUpSeconds
+				wait = M.Config.StrayEntryTopUpSeconds
 			end
 			entryLeft[areaDef.id] = wait
 		else
@@ -1487,7 +1518,7 @@ local function stormOver()
 		end
 	end
 	if dropped > 0 then
-		local someone: Player? = DataService.loadedPlayers()[1]
+		local someone: Player? = M.DataService.loadedPlayers()[1]
 		if someone ~= nil then
 			Telemetry.custom(someone, "storm_strays", dropped, { tostring(mythical) })
 		end
@@ -1511,23 +1542,23 @@ local function stormTick(dt: number)
 		end
 		stormEndsAt = endsAt
 	end
-	if not ClockService.areasOpen() then
+	if not M.ClockService.areasOpen() then
 		return -- the areas are closed at night; the storm picks up at sunrise
 	end
 	local open: { [string]: boolean } = {}
-	for _, player in DataService.loadedPlayers() do
-		local profile = DataService.get(player)
+	for _, player in M.DataService.loadedPlayers() do
+		local profile = M.DataService.get(player)
 		if profile ~= nil then
-			local tier = Economy.tier(profile)
-			for _, areaDef in Catalog.areas do
+			local tier = M.Economy.tier(profile)
+			for _, areaDef in M.Catalog.areas do
 				if tier >= areaDef.tier then
 					open[areaDef.id] = true
 				end
 			end
 		end
 	end
-	local count = #Catalog.areas
-	for index, areaDef in Catalog.areas do
+	local count = #M.Catalog.areas
+	for index, areaDef in M.Catalog.areas do
 		local id = areaDef.id
 		if world.areas[id] == nil or not open[id] then
 			continue
@@ -1556,6 +1587,112 @@ local function stormTick(dt: number)
 		end
 		stormLeft[id] = left
 	end
+end
+
+-- #4197 Secret Hunt (shared/CafeEvents ADMIN_KINDS.hunt): while the admin event runs, by day, its Secret strays come
+-- out one a second in random areas somebody has open, each with a Secret's own area line, until the hunt has
+-- `count` of them. Whoever catches one keeps it as any Secret. One gone at dusk comes back at sunrise while the hunt
+-- runs. When all are caught every player here gets ADMIN.huntFish golden fish, once. EventService publishes the
+-- count caught as the effects' `secretFound` (the bar's "1/3"). Its strays carry HUNT_ATTRIBUTE; ones still out at
+-- the end stay until dusk like any Secret. Only while the `secretCats` switch is on.
+local HUNT_ATTRIBUTE = "HuntCat"
+
+huntGone = function(stray: Stray, catcher: Player?)
+	local running = hunt :: Hunt
+	running.ids[stray.id] = nil
+	if catcher == nil then
+		running.spawned -= 1 -- gone at dusk: out again at sunrise
+		return
+	end
+	running.found += 1
+	EventService.setHuntFound(running.id, running.found)
+	Telemetry.custom(catcher, "secret_hunt_found", running.found, { running.id })
+	if running.found < running.count or running.paid then
+		return
+	end
+	running.paid = true
+	local fish = CafeEvents.ADMIN.huntFish
+	for _, player in M.DataService.loadedPlayers() do
+		local profile = M.DataService.get(player)
+		if profile ~= nil then
+			M.GoldenFish.credit(profile, fish)
+			Telemetry.fishSource(player, profile, fish, "TimedReward", "secret_hunt")
+			M.CafeService.sync(player)
+			Net.toast(
+				player,
+				string.format("All %d Secret cats found! +%d golden fish", running.count, fish),
+				"good"
+			)
+		end
+	end
+end
+
+local function huntTick()
+	local id, count = EventService.secretHunt()
+	if id == nil then
+		hunt = nil
+		return
+	end
+	local running = hunt
+	if running == nil or running.id ~= id then
+		running = { id = id, count = count, spawned = 0, found = 0, paid = false, ids = {} }
+		hunt = running
+		EventService.setHuntFound(id, 0)
+	end
+	assert(running ~= nil, "secret hunt run")
+	if
+		running.spawned >= running.count
+		or not M.ClockService.areasOpen()
+		or #M.Catalog.secretCats == 0
+	then
+		return
+	end
+	-- #4221: with secretAreas on each area hides only its own Secret, so the hunt picks among the open areas that
+	-- have one and spawns that area's Secret there
+	local perArea = M.LiveFlagService.on(Catching.SECRET_AREAS_FLAG)
+	local own: { [string]: { Types.CatDef } } = {}
+	for _, secretDef in M.Catalog.secretCats do
+		local home = secretDef.secretArea
+		if home ~= nil then
+			local list = own[home] or {}
+			table.insert(list, secretDef)
+			own[home] = list
+		end
+	end
+	local open: { string } = {}
+	local seen: { [string]: boolean } = {}
+	for _, player in M.DataService.loadedPlayers() do
+		local profile = M.DataService.get(player)
+		if profile ~= nil then
+			local tier = M.Economy.tier(profile)
+			for _, areaDef in M.Catalog.areas do
+				if
+					tier >= areaDef.tier
+					and not seen[areaDef.id]
+					and world.areas[areaDef.id] ~= nil
+					and (not perArea or own[areaDef.id] ~= nil)
+				then
+					seen[areaDef.id] = true
+					table.insert(open, areaDef.id)
+				end
+			end
+		end
+	end
+	if #open == 0 then
+		return
+	end
+	local areaId = open[rng:NextInteger(1, #open)]
+	local point = freeSpawnPoint(areaId, "Mythical")
+	if point == nil then
+		return -- that area is full; another next second
+	end
+	local choices: { Types.CatDef } = if perArea then own[areaId] else M.Catalog.secretCats
+	local def = choices[rng:NextInteger(1, #choices)]
+	local stray = spawnStray(def, areaId, world.areas[areaId].spawnPoints[point].Position, point)
+	stray.model:SetAttribute(HUNT_ATTRIBUTE, true)
+	running.ids[stray.id] = true
+	running.spawned += 1
+	secretSpawned(stray, "hunt")
 end
 
 -- Runs `after` once nobody holds the stray's lock: at once when it is free, else when the catch in progress ends
@@ -1608,7 +1745,7 @@ local function attachHeldCat(player: Player, carry: Carry)
 	if carry.model ~= nil then
 		carry.model:Destroy()
 	end
-	local model = AssetRegistry.cloneCat(carry.def.id, carry.variant)
+	local model = M.AssetRegistry.cloneCat(carry.def.id, carry.variant)
 	model.Name = "HeldCat"
 	model:SetAttribute("CatId", carry.def.id)
 	model:SetAttribute("Gold", carry.variant == "gold") -- a rescued gold shows its sparkle from here
@@ -1644,13 +1781,13 @@ local function getaway(player: Player, carry: Carry)
 	end
 	local root = rootInstance :: BasePart
 	local now = serverNow()
-	carry.rushUntil = now + Config.CatchRushSeconds
+	carry.rushUntil = now + M.Config.CatchRushSeconds
 	character:SetAttribute("RushUntil", carry.rushUntil)
 	local humanoid = character:FindFirstChildOfClass("Humanoid") :: Humanoid?
 	if humanoid ~= nil then
-		setSpeed(player, humanoid, Config.CatchRushWalkSpeed)
+		setSpeed(player, humanoid, M.Config.CatchRushWalkSpeed)
 	end
-	task.delay(Config.CatchRushSeconds, function()
+	task.delay(M.Config.CatchRushSeconds, function()
 		local current = player.Character
 		local nowHumanoid = if current ~= nil
 			then current:FindFirstChildOfClass("Humanoid") :: Humanoid?
@@ -1675,7 +1812,7 @@ end
 
 -- #2565: whether the player owns the Backpack (Mystery Market).
 local function hasBackpack(player: Player): boolean
-	local profile = DataService.get(player)
+	local profile = M.DataService.get(player)
 	return profile ~= nil and profile.mystery.backpack == true
 end
 
@@ -1684,14 +1821,12 @@ end
 local function tintBackpack(player: Player)
 	local character = player.Character
 	local pack = if character ~= nil then HeldCat.pack(character) else nil
-	local profile = DataService.get(player)
+	local profile = M.DataService.get(player)
 	if pack == nil or profile == nil then
 		return
 	end
-	BagColours.tint(
-		pack,
-		BagColours.picks(if LiveFlagService.on(BagColours.FLAG) then profile.bagColours else nil)
-	)
+	local picked = profile.bagColours
+	M.BagColours.tint(pack, M.BagColours.picks(picked))
 end
 
 -- #2719: the Backpack's owner wears it (HeldCat.wearPack), at spawn and after the buy; every player sees it.
@@ -1701,11 +1836,11 @@ local function wearBackpack(player: Player)
 		character == nil
 		or not hasBackpack(player)
 		or HeldCat.pack(character) ~= nil
-		or not AssetRegistry.has(HeldCat.PACK_ASSET)
+		or not M.AssetRegistry.has(HeldCat.PACK_ASSET)
 	then
 		return
 	end
-	local pack = AssetRegistry.clone(HeldCat.PACK_ASSET)
+	local pack = M.AssetRegistry.clone(HeldCat.PACK_ASSET)
 	if HeldCat.wearPack(pack, character) then
 		pack.Parent = character
 		tintBackpack(player) -- #3699
@@ -1714,28 +1849,21 @@ local function wearBackpack(player: Player)
 	end
 end
 
--- #4049: the worn Speed Shoes in their owner's two colour picks (the built colours with the switch off or nothing
--- picked). The server colours the parts, so every player sees them.
+-- #4049: the worn Speed Shoes in their owner's two colour picks (the built colours with nothing picked). The server colours the parts, so every player sees them.
 local function tintShoes(player: Player, worn: Instance?)
 	local character = player.Character
 	local folder = worn
 		or (if character ~= nil then character:FindFirstChild(SpeedShoes.WORN) else nil)
-	local profile = DataService.get(player)
+	local profile = M.DataService.get(player)
 	if folder == nil or profile == nil then
 		return
 	end
-	BagColours.tint(
-		folder,
-		BagColours.picks(
-			if LiveFlagService.on(BagColours.FLAG) then profile.shoeColours else nil,
-			"shoes"
-		),
-		"shoes"
-	)
+	M.BagColours.tint(folder, M.BagColours.picks(profile.shoeColours, "shoes"), "shoes")
 end
 
--- #4050: the Speed Shoes' owner wears them (SpeedShoes.wear) while the switch is on, at spawn, after the buy and
--- whenever they came off (keepBackpack's check); every player sees them. Without them, or with the switch off, none.
+-- #4050: the Speed Shoes' owner wears them (SpeedShoes.wear), at spawn, after the buy and whenever they came off
+-- (keepBackpack's check); every player sees them. Without them, none.
+-- #4197: while Speed Rush runs everyone wears a pair, put on and taken off at its start and end (CatService.start).
 local function keepShoes(player: Player)
 	local character = player.Character
 	if character == nil or character.Parent == nil then
@@ -1745,7 +1873,7 @@ local function keepShoes(player: Player)
 	if humanoid == nil or humanoid.Health <= 0 then
 		return
 	end
-	local want = LiveFlagService.on(SpeedShoes.FLAG) and SpeedShoes.owns(DataService.get(player))
+	local want = SpeedShoes.owns(M.DataService.get(player)) or EventService.speedRush()
 	local old = character:FindFirstChild(SpeedShoes.WORN)
 	if old ~= nil and want and SpeedShoes.onFeet(old, character) then
 		return
@@ -1753,8 +1881,8 @@ local function keepShoes(player: Player)
 	if old ~= nil then
 		old:Destroy()
 	end
-	if want and AssetRegistry.has(SpeedShoes.ASSET) then
-		local folder = SpeedShoes.wear(AssetRegistry.clone(SpeedShoes.ASSET), character)
+	if want and M.AssetRegistry.has(SpeedShoes.ASSET) then
+		local folder = SpeedShoes.wear(M.AssetRegistry.clone(SpeedShoes.ASSET), character)
 		if folder ~= nil then
 			tintShoes(player, folder) -- #4049
 			folder.Parent = character
@@ -1778,7 +1906,7 @@ local function attachPacked(player: Player, carry: Carry)
 		carry.model:Destroy()
 		carry.model = nil
 	end
-	local model = AssetRegistry.cloneCat(carry.def.id, carry.variant)
+	local model = M.AssetRegistry.cloneCat(carry.def.id, carry.variant)
 	model.Name = "PackedCat"
 	model:SetAttribute("CatId", carry.def.id)
 	model:SetAttribute("Variant", carry.variant or "base")
@@ -1879,7 +2007,7 @@ local function unpackCat(player: Player, quiet: boolean?): boolean
 	carrying[player] = carry
 	attachHeldCat(player, carry)
 	if quiet ~= true then
-		CafeService.setCarrying(player, carry.def.id)
+		M.CafeService.setCarrying(player, carry.def.id)
 	end
 	return true
 end
@@ -1887,8 +2015,8 @@ end
 -- #3145: after a quiet unpack whose put-down did not happen: the cat is in the hands after all, so the client hears.
 local function sayHeld(player: Player)
 	local carry = carrying[player]
-	if carry ~= nil and CafeService.carrying(player) ~= carry.def.id then
-		CafeService.setCarrying(player, carry.def.id)
+	if carry ~= nil and M.CafeService.carrying(player) ~= carry.def.id then
+		M.CafeService.setCarrying(player, carry.def.id)
 	end
 end
 
@@ -1920,15 +2048,18 @@ local function startCarry(
 	end
 	-- #3022: a catch (not a cat picked up off the ground) while the save waits for its second cat
 	if pickedUp ~= true then
-		local profile = DataService.get(player)
+		local profile = M.DataService.get(player)
 		if profile ~= nil and SecondCat.waiting(profile) then
 			Second.step(player, profile, SecondCat.CAUGHT)
+		end
+		if profile ~= nil and method == "net" then
+			Telemetry.cleanEvent(player, profile, M.Onboarding.CLEAN_EVENTS.netCatch) -- #4504: second_net_catch
 		end
 		-- #3035: a first-session Tier 1 player's first night catch of the session (Research-Agent: do they use it)
 		if
 			profile ~= nil
-			and not ClockService.areasOpen()
-			and NightPass.firstOf(profile, LiveFlagService.on(NightPass.FLAG))
+			and not M.ClockService.areasOpen()
+			and NightPass.firstOf(profile, M.LiveFlagService.on(NightPass.FLAG))
 		then
 			Second.step(player, profile, NightPass.CAUGHT)
 		end
@@ -1961,11 +2092,11 @@ local function startCarry(
 	if pickedUp ~= true then
 		getaway(player, carry) -- a net catch or a rescue; picking up a dropped cat gives neither (F55)
 	end
-	CafeService.setCarrying(player, def.id)
-	local profile = DataService.get(player)
+	M.CafeService.setCarrying(player, def.id)
+	local profile = M.DataService.get(player)
 	if profile ~= nil then
 		-- a catch is out in an area: first_catch implies the alley step when TutorialAdvance 1 never came (#1273)
-		if not Onboarding.reached(profile.telemetry, "first_catch") then
+		if not M.Onboarding.reached(profile.telemetry, "first_catch") then
 			local tries = if method == "rescue"
 				then profile.stats.rescueAttempts
 				else profile.stats.grabsAttempted
@@ -1975,7 +2106,7 @@ local function startCarry(
 			Telemetry.onboarding(player, profile, "first_catch")
 			-- #1273: still holding it CARRY_STEP_SECONDS later (a check-in sooner implies the step)
 			task.delay(CARRY_STEP_SECONDS, function()
-				local current = DataService.get(player)
+				local current = M.DataService.get(player)
 				-- the same carry: a cat dropped and another picked up in the meantime does not count (review)
 				if current ~= nil and carrying[player] == carry then
 					Telemetry.onboarding(player, current, "carrying_first_cat")
@@ -1999,7 +2130,7 @@ local function endCarry(player: Player): Carry?
 	carrying[player] = nil
 	-- the cafe's copy feeds ProfileSync.carrying; while it is set the client keeps the walk-home banner and door
 	-- marker up and holds back tutorial hints
-	CafeService.setCarrying(player, nil)
+	M.CafeService.setCarrying(player, nil)
 	showCarry(player, nil)
 	if carry.model ~= nil then
 		carry.model:Destroy()
@@ -2134,7 +2265,7 @@ local function flee(stray: Stray, player: Player, selfRetry: number)
 	stray.jumping = true
 	stray.home = target -- it wanders from where it stopped, not back toward whoever missed (reviewer N52)
 	task.spawn(function()
-		Mover.walkTo(stray.model, target, Config.StrayFleeSpeed, function()
+		Mover.walkTo(stray.model, target, M.Config.StrayFleeSpeed, function()
 			return stray.alive and stray.lockedBy == 0
 		end)
 		task.wait(math.max(0, stray.fleeingUntil - serverNow()))
@@ -2149,11 +2280,11 @@ local function startle(player: Player)
 	if character == nil then
 		return
 	end
-	local ends = serverNow() + Config.StartledSeconds
+	local ends = serverNow() + M.Config.StartledSeconds
 	startledUntil[player] = ends
 	character:SetAttribute("StartledUntil", ends)
 	CatService.refreshSpeed(player)
-	task.delay(Config.StartledSeconds, function()
+	task.delay(M.Config.StartledSeconds, function()
 		if startledUntil[player] == ends then
 			startledUntil[player] = nil
 			CatService.refreshSpeed(player)
@@ -2167,9 +2298,9 @@ end
 -- #3022: so is the catch of the stray that waits for a player's second cat (shared/SecondCat), for that player.
 local function freeCatch(player: Player, profile: Types.PlayerProfile): boolean
 	return FreeCatch.applies(
-		LiveFlagService.on(FreeCatch.FLAG),
+		M.LiveFlagService.on(FreeCatch.FLAG),
 		Telemetry.device(player),
-		Economy.tier(profile)
+		M.Economy.tier(profile)
 	)
 end
 
@@ -2191,7 +2322,7 @@ local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: St
 		return true
 	end
 	-- #3181: another beginner's tutorial stray too, now that anyone may catch one
-	return profile.tutorialStep < Config.TutorialGuaranteedStrayStep
+	return profile.tutorialStep < M.Config.TutorialGuaranteedStrayStep
 end
 
 -- startCatch, below; a beginner's Miss on their tutorial stray starts the circle again through it (F87).
@@ -2216,7 +2347,7 @@ local function tutorialMiss(
 		attempt.grades,
 		false,
 		0,
-		serverNow() + Config.TutorialRetrySeconds,
+		serverNow() + M.Config.TutorialRetrySeconds,
 		finishOf(player, attempt, "bolt")
 	)
 	if forfeit ~= nil then
@@ -2227,8 +2358,8 @@ local function tutorialMiss(
 	if next(attempt.errors) == nil then
 		return -- no press reached the server: wait for the next swing
 	end
-	task.delay(Config.TutorialRetrySeconds, function()
-		local profile = DataService.get(player)
+	task.delay(M.Config.TutorialRetrySeconds, function()
+		local profile = M.DataService.get(player)
 		if
 			profile == nil
 			or player.Parent ~= Players
@@ -2255,7 +2386,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	end
 	stray.attempt = nil
 	CatService.refreshSpeed(player) -- #2052: the circles are over, so the catcher walks again
-	local profile = DataService.get(player)
+	local profile = M.DataService.get(player)
 	if profile == nil or player.Parent ~= Players then
 		setLock(stray, 0)
 		return
@@ -2267,11 +2398,11 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	local forfeit: string? = nil
 	if carrying[player] ~= nil then
 		forfeit = "Check in the cat you are carrying first"
-	elseif not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
+	elseif not withinRange(player, stray.body.Position, M.Config.GrabRangeStuds + 2) then
 		forfeit = "Too far away"
 	end
 	local succeeded = forfeit == nil and Circles.succeeded(attempt)
-	local pitySlot = stray.model:GetAttribute(Pity.SLOT_ATTRIBUTE)
+	local pitySlot = stray.model:GetAttribute(M.Pity.SLOT_ATTRIBUTE)
 	local claim = pityClaim
 	if succeeded and type(pitySlot) == "number" and claim ~= nil then
 		-- #1572 (luck-and-rare-moments.md 1h): only the first catch anywhere gets the pity cat. The claim yields, so
@@ -2299,7 +2430,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	local finishKind: Types.CatchFinishKind = if succeeded then Circles.finish(attempt) else "bolt"
 	if forfeit == nil then
 		-- #1934: the PURRFECT badges' counts (a forfeit is no judged catch, so it leaves the run as it is)
-		Badges.noteFinish(profile.stats, finishKind == "purrfect" and not profile.flags.autoPress)
+		M.Badges.noteFinish(profile.stats, finishKind == "purrfect" and not profile.flags.autoPress)
 	end
 	-- #2913: a miss says how its first missed ring went (early, late or no press)
 	local result: string = if not succeeded
@@ -2310,7 +2441,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		player,
 		"catch_circles",
 		perfect,
-		{ rarity, tostring(Economy.level(profile, "net")), result }
+		{ rarity, tostring(M.Economy.level(profile, "net")), result }
 	)
 
 	if succeeded then
@@ -2342,10 +2473,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		-- Dropped or re-caught cat's, so shoving and catching one cat again cannot farm them
 		local dropsSnack = stray.drop == nil
 			and not stray.recaught
-			and snackRandom:NextNumber() < Config.CatchSnackChance
+			and snackRandom:NextNumber() < M.Config.CatchSnackChance
 		despawn(stray, player)
 		local bonusXp = if finishKind == "purrfect" and not profile.flags.autoPress
-			then Config.CatXpBase
+			then M.Config.CatXpBase
 			else nil
 		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks, bonusXp, pity)
 		if waitedFor ~= nil and waitedFor ~= player.UserId then
@@ -2354,7 +2485,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		end
 		if dropsSnack then
 			local paid =
-				Payout.pay(player, profile, { catFood = { small_cat_snack = 1 } }, "catch_snack")
+				M.Payout.pay(player, profile, { catFood = { small_cat_snack = 1 } }, "catch_snack")
 			if #paid > 0 then
 				Net.toast(player, "The cat dropped a snack: " .. paid[1] .. " in your Bag", "good")
 			end
@@ -2362,10 +2493,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		if area == "park" then
 			Telemetry.onboarding(player, profile, "first_park_catch")
 		end
-		if Catalog.getArea(area) ~= nil then
+		if M.Catalog.getArea(area) ~= nil then
 			Telemetry.caughtIn(player, profile, area) -- #3695: the clean funnel's area steps (the ten areas)
 		end
-		for _, hook in caughtHooks do
+		for _, hook in M.caughtHooks do
 			task.spawn(hook, player, def, area)
 		end
 		return
@@ -2460,7 +2591,7 @@ function startCatch(
 	end
 	if not openFor(profile) then
 		-- a stray still waiting out someone's catch at dusk (v0.9, F66); #2692: not for a night pass
-		return Clock.CLOSED_TEXT
+		return M.Clock.CLOSED_TEXT
 	end
 	if stray.lockedBy ~= 0 and not lockExpired(stray) then
 		-- busy, including the player's own catch in progress: a second start never restarts the circles
@@ -2468,7 +2599,7 @@ function startCatch(
 			then "Keep going, the circles are coming"
 			else "Someone else is catching it"
 	end
-	if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
+	if not withinRange(player, stray.body.Position, M.Config.GrabRangeStuds + 2) then
 		return "Too far away"
 	end
 	local now = serverNow()
@@ -2477,10 +2608,10 @@ function startCatch(
 	end
 	local selfRetryAt = stray.selfRetryAt[player.UserId]
 	if selfRetryAt ~= nil and now < selfRetryAt then
-		return Cooldown.text(selfRetryAt - now) -- #2324
+		return M.Cooldown.text(selfRetryAt - now) -- #2324
 	end
 	local last = lastCatchStart[player]
-	if last ~= nil and now - last < Config.GrabCooldownSeconds then
+	if last ~= nil and now - last < M.Config.GrabCooldownSeconds then
 		return "Give it a moment"
 	end
 	-- One catch at a time: a script must not run circles on two strays at once.
@@ -2490,12 +2621,13 @@ function startCatch(
 	lastCatchStart[player] = now
 
 	-- a Steady Paw Potion running now plays the circles of the next net level (F64)
-	local netLevel = Potions.netLevel(profile, Economy.level(profile, "net"), os.time())
+	local netLevel = M.Potions.netLevel(profile, M.Economy.level(profile, "net"), os.time())
 	local function roll(): number
 		return rng:NextNumber()
 	end
 	-- F87: a beginner's own tutorial stray is one slow circle with doubled bands (easy-start.md section 2b)
 	local tutorial = easyCatch(player, profile, stray) -- #2774: any rarity, until the first check-in
+	local dragonFx = M.DragonKeep.of(profile) -- #4447: Quick Paws and Steady Claw
 	-- F83: the rarer the cat, the narrower its bands; CatchSchedule sends these, so the client draws the real ones
 	local windows = if tutorial
 		then Circles.tutorialWindows(netLevel)
@@ -2506,24 +2638,31 @@ function startCatch(
 			-- #4299: or wider on a phone or tablet, whichever is wider
 			math.max(
 				Circles.earlyScale(SecondCat.caught(profile.stats)),
-				Circles.touchScale(Telemetry.device(player), LiveFlagService.on(TouchReach.FLAG))
+				Circles.touchScale(Telemetry.device(player), true) -- #4654: touchCatchReach shipped
 			)
 		)
 	-- #2920: a player's very first catch holds its ring on the target until the press
 	-- #3662: the first catch by hand, which a bowl cat in the cafe no longer uses up
 	-- Derek 2026-11-14: and every free catch on a phone, tablet or console below Tier 2 (shared/FreeCatch)
 	local hold = tutorial
-		and Config.CatchHoldFirstRing
+		and M.Config.CatchHoldFirstRing
 		and (SecondCat.caught(profile.stats) == 0 or freeCatch(player, profile))
 	local circles = if tutorial
 		then Circles.tutorialSchedule(now, roll, hold)
-		else Circles.schedule(stray.def.rarity, netLevel, now, roll, stray.area) -- #3140: quicker late on
+		else Circles.schedule(
+			stray.def.rarity,
+			netLevel,
+			now,
+			roll,
+			stray.area,
+			dragonFx.slowRings
+		) -- #3140, #4447
 	-- #1884 (catch-rework.md 7b): the trust bar; the tutorial stray's one ring catches on a Good or Perfect
 	-- #1884 (7a): a swing landing just as a Curious cat walks up starts with CuriousTrustBonus more
 	local trust = if tutorial
 		then Circles.tutorialTrust()
-		else Circles.trustFor(stray.def.rarity, Moods.trustBonus(stray.curiousAt, now))
-	local attempt = Circles.newAttempt(circles, windows, trust)
+		else Circles.trustFor(stray.def.rarity, M.Moods.trustBonus(stray.curiousAt, now))
+	local attempt = Circles.newAttempt(circles, windows, trust, not tutorial and dragonFx.forgive)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
 	CatService.refreshSpeed(player) -- #2052: the catcher stands still until the circles end
@@ -2538,13 +2677,14 @@ function startCatch(
 		trust.need
 	)
 	stray.funnel = Telemetry.catchEngaged(player, stray.def.rarity, "net", stray.area, funnel)
-	local pitySlot = stray.model:GetAttribute(Pity.SLOT_ATTRIBUTE)
+	local pitySlot = stray.model:GetAttribute(M.Pity.SLOT_ATTRIBUTE)
 	if type(pitySlot) == "number" and pityStarted ~= nil then
 		pityStarted(player, pitySlot) -- #2796
 	end
 	-- a catch starts in reach of a stray, so catch_started implies near_stray when the tutorial stray was never the one
 	-- (a player who caught another cat first would hold every later step behind it)
 	Telemetry.onboarding(player, profile, "catch_started")
+	Telemetry.cleanEvent(player, profile, M.Onboarding.CLEAN_EVENTS.catchStart) -- #4504: catch_2_started
 
 	-- A circle nobody presses is a Miss at its deadline (#1884: trust lost, and the catch ends only if the cat bolts);
 	-- walking out of range ends it.
@@ -2554,16 +2694,18 @@ function startCatch(
 			if deadline == nil then
 				return
 			end
-			task.wait(math.max(0, deadline - serverNow()) + 0.05)
+			-- #4597: a tap made before the deadline may still be on its way, so wait CatchPressStampSeconds more
+			local grace = M.Config.CatchPressStampSeconds
+			task.wait(math.max(0, deadline + grace - serverNow()) + 0.05)
 			if stray.attempt ~= attempt then
 				return
 			end
 			local before = attempt.nextIndex
-			Circles.expire(attempt, serverNow())
+			Circles.expire(attempt, serverNow() - grace)
 			sendJudged(player, stray.id, attempt, before)
 			if
 				Circles.isDone(attempt)
-				or not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2)
+				or not withinRange(player, stray.body.Position, M.Config.GrabRangeStuds + 2)
 			then
 				finishCatch(player, stray, attempt)
 				return
@@ -2579,12 +2721,18 @@ function startCatch(
 	return nil
 end
 
--- One press for circle `index`. The client sends no time: the press is stamped on arrival and half the player's
--- ping (capped) is taken off. Out-of-order, repeated and early presses are ignored (Circles.press). A Miss or the
+-- One press for circle `index`. #4597: the client sends its own tap time (`rawStamp`, the ring clock), believed up to
+-- CatchPressStampSeconds before the arrival (Circles.pressTime); with none, the press is stamped on arrival and half
+-- the player's ping (capped) is taken off. Out-of-order, repeated and early presses are ignored (Circles.press). A Miss or the
 -- last circle ends the catch at once.
-local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unknown)
-	local strayId = Guard.id(rawStrayId)
-	local index = Guard.int(rawIndex, 1, MAX_CIRCLES)
+local function onCatchPress(
+	player: Player,
+	rawStrayId: unknown,
+	rawIndex: unknown,
+	rawStamp: unknown
+)
+	local strayId = M.Guard.id(rawStrayId)
+	local index = M.Guard.int(rawIndex, 1, MAX_CIRCLES)
 	if strayId == nil or index == nil then
 		return
 	end
@@ -2597,7 +2745,8 @@ local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unkno
 		return
 	end
 	local arrival = serverNow()
-	local pressTime = arrival - Circles.latency(player:GetNetworkPing())
+	-- #4597: the tap's own time when the client sent one (held to a short bound), else arrival less half the ping
+	local pressTime = Circles.pressTime(arrival, player:GetNetworkPing(), rawStamp)
 	local before = attempt.nextIndex
 	Circles.press(attempt, index, pressTime, arrival)
 	-- #1727: the server's grade at once, so a device that guessed Miss on an edge press (S101) shows the rest
@@ -2606,7 +2755,7 @@ local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unkno
 		logCircle(player, strayId, attempt, judged)
 		local grade = attempt.grades[judged]
 		if grade == "good" or grade == "perfect" then
-			local profile = DataService.get(player)
+			local profile = M.DataService.get(player)
 			if profile ~= nil then
 				Telemetry.onboarding(player, profile, "first_circle_hit")
 			end
@@ -2692,7 +2841,7 @@ local function hop(stray: Stray, player: Player, studs: number?)
 	stray.walk += 1
 	local walk = stray.walk
 	task.spawn(function()
-		Mover.walkTo(stray.model, target, Config.StrayFleeSpeed, function()
+		Mover.walkTo(stray.model, target, M.Config.StrayFleeSpeed, function()
 			return stray.alive and stray.lockedBy == 0 and stray.walk == walk
 		end)
 		task.wait(math.max(0, stray.fleeingUntil - serverNow()))
@@ -2714,11 +2863,12 @@ end
 
 -- #4255 follow-up (SecretCalm rule 1): whether a stray may hop away from `player`; only a Secret is capped.
 local function secretMayHop(stray: Stray, player: Player): boolean
-	return stray.def.rarity ~= Catalog.SECRET or SecretCalm.mayHop(stray.secretHops[player.UserId])
+	local hops = stray.secretHops[player.UserId]
+	return stray.def.rarity ~= M.Catalog.SECRET or SecretCalm.mayHop(hops)
 end
 
 local function countSecretHop(stray: Stray, player: Player)
-	if stray.def.rarity == Catalog.SECRET then
+	if stray.def.rarity == M.Catalog.SECRET then
 		stray.secretHops[player.UserId] = (stray.secretHops[player.UserId] or 0) + 1
 	end
 end
@@ -2733,7 +2883,9 @@ end
 
 local function swingCheck(player: Player): NetSwing.SwingCheck
 	local last = lastSwing[player]
+	local profile = M.DataService.get(player)
 	return {
+		cooldown = if profile ~= nil then NetSwing.cooldownFor(profile) else nil, -- #4447: Ember Net
 		carrying = carrying[player] ~= nil,
 		busy = holdsCatch(player) or inRescue(player),
 		inFlight = inFlight(player),
@@ -2769,7 +2921,7 @@ end
 -- (#2341, swingRescue); a miss makes the free strays near the swinger hop away, unless the
 -- player has not caught a cat yet. At night in an area there is nothing to land on and nothing hops.
 local function landSwing(player: Player)
-	local profile = DataService.get(player)
+	local profile = M.DataService.get(player)
 	local character = player.Character
 	local rootInstance = if character ~= nil
 		then character:FindFirstChild("HumanoidRootPart")
@@ -2807,9 +2959,9 @@ local function landSwing(player: Player)
 			end
 		end
 	end
-	local picked = NetSwing.pick(origin, look, targets, NetSwing.extraFor(profile.mystery)) -- #2565: the Long Net
+	local picked = NetSwing.pick(origin, look, targets, NetSwing.extraForProfile(profile)) -- #2565, #4447
 	-- #2774: a beginner's swing near their own tutorial stray lands on it whichever way they face
-	if picked == nil and profile.tutorialStep < Config.TutorialGuaranteedStrayStep then
+	if picked == nil and profile.tutorialStep < M.Config.TutorialGuaranteedStrayStep then
 		for _, target in targets do
 			local candidate = strays[target.id]
 			if
@@ -2856,21 +3008,21 @@ local function landSwing(player: Player)
 		end
 	end
 	announceSwing(player, origin, started)
-	Telemetry.netSwing(player, NetSwing.result(stray ~= nil, near), Economy.level(profile, "net"))
+	Telemetry.netSwing(player, NetSwing.result(stray ~= nil, near), M.Economy.level(profile, "net"))
 end
 
 -- SwingNet() (F93): no arguments; one per NetSwingCooldown (the limiter in Net is the flood guard). The swing is
 -- judged when the net lands, NetSmackDelay from now. A refused swing gets no answer: the client checks the same
 -- before it plays the smack.
 local function onSwingNet(player: Player)
-	if DataService.get(player) == nil then
+	if M.DataService.get(player) == nil then
 		return
 	end
 	if NetSwing.refusal(swingCheck(player)) ~= nil then
 		return
 	end
 	lastSwing[player] = serverNow()
-	task.delay(Config.NetSmackDelay, landSwing, player)
+	task.delay(M.Config.NetSmackDelay, landSwing, player)
 end
 
 -- Adds the cat to the player's cafe and, with `notify`, tells them and the server (CatCaught, the shout-out). The
@@ -2878,9 +3030,9 @@ end
 local function checkIn(player: Player, carry: Carry, notify: boolean, profile: Types.PlayerProfile?)
 	local def = carry.def
 	-- F89: whether the collection held an Epic or better before this cat, for the first Epic's card
-	local before = profile or DataService.get(player)
-	local hadEpicOrBetter = before ~= nil and RareMoments.ownsEpicOrBetter(before.collection)
-	local instance, isNew = CafeService.addCaughtCat(
+	local before = profile or M.DataService.get(player)
+	local hadEpicOrBetter = before ~= nil and M.RareMoments.ownsEpicOrBetter(before.collection)
+	local instance, isNew = M.CafeService.addCaughtCat(
 		player,
 		def,
 		notify,
@@ -2891,10 +3043,10 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 	)
 	local bonusXp = carry.bonusXp
 	if bonusXp ~= nil and bonusXp > 0 then
-		CatStats.addXp(instance, bonusXp) -- #1884: a PURRFECT catch joins a level up (CatXpBase is level 2)
+		M.CatStats.addXp(instance, bonusXp) -- #1884: a PURRFECT catch joins a level up (CatXpBase is level 2)
 	end
 	if notify then
-		local current = DataService.get(player)
+		local current = M.DataService.get(player)
 		if current ~= nil then
 			Telemetry.onboarding(player, current, "first_checkin")
 		end
@@ -2902,27 +3054,36 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 			Telemetry.catchCheckedIn(player, carry.funnel, instance.uid, instance.spotId ~= nil)
 		end
 		Net.fire(player, "CatCaught", def.id, isNew, instance.variant)
+		-- #4447: the Dragon Keep's Double Catch, a plain second copy that joins quietly with its own toast
+		local keeper = M.DataService.get(player)
+		if
+			keeper ~= nil
+			and M.DragonKeep.bringsFriend(M.DragonKeep.of(keeper), def.rarity, rng:NextNumber())
+		then
+			M.CafeService.addCaughtCat(player, def, false, keeper, nil, carry.method, nil)
+			Net.toast(player, string.format("Your %s brought a friend!", def.name), "good")
+		end
 		local verb = if carry.method == "rescue" then "rescued" else "caught"
 		-- the shout-out chime rises with rarity; F89: a Legendary or Mythical one at most once a minute a player
-		RareMomentService.shoutOut(
+		M.RareMomentService.shoutOut(
 			player,
 			def.rarity,
 			Catching.shoutOut(player.DisplayName, verb, def, carry.variant),
 			-- #2567: a pity or shower cat's line stays in this server; #3470: a Secret's too
-			carry.pity == true or def.rarity == Catalog.SECRET
+			carry.pity == true or def.rarity == M.Catalog.SECRET
 		)
-		if def.rarity == Catalog.SECRET then
+		if def.rarity == M.Catalog.SECRET then
 			Telemetry.custom(
 				player,
 				"secret_caught",
 				carry.knocks,
-				{ RareMoments.how(carry.method), instance.variant }
+				{ M.RareMoments.how(carry.method), instance.variant }
 			)
 		end
-		RareMomentService.secured(player, def, carry.variant, carry.method, hadEpicOrBetter)
-		EventRewardService.secured(player) -- #2486: a Cafe Event's reward for a secure in its window
+		M.RareMomentService.secured(player, def, carry.variant, carry.method, hadEpicOrBetter)
+		M.EventRewardService.secured(player) -- #2486: a Cafe Event's reward for a secure in its window
 		-- F101: a check-in scores for the Rescue Rally, a rescued cat three times (the rescue's points)
-		RallyService.score(player, if carry.method == "rescue" then "rescue" else "checkIn")
+		M.RallyService.score(player, if carry.method == "rescue" then "rescue" else "checkIn")
 	end
 end
 
@@ -2951,7 +3112,7 @@ end
 local function leaveAtDusk(stray: Stray)
 	local drop = stray.drop
 	local owner = if drop ~= nil then Players:GetPlayerByUserId(drop.owner) else nil
-	if owner == nil or DataService.get(owner) == nil then
+	if owner == nil or M.DataService.get(owner) == nil then
 		despawn(stray)
 		return
 	end
@@ -2978,12 +3139,12 @@ local CHECK_IN_LAG_STUDS = 4
 
 local function onCheckIn(player: Player)
 	local carry = carrying[player] or packed[player] -- #2565
-	local plot = PlotService.get(player)
+	local plot = M.PlotService.get(player)
 	if carry == nil or plot == nil then
 		return
 	end
 	-- Either door works (layout v2): the back door is the short way in from the back alley.
-	local range = Config.CheckInRangeStuds + CHECK_IN_LAG_STUDS
+	local range = M.Config.CheckInRangeStuds + CHECK_IN_LAG_STUDS
 	if
 		not withinRange(player, plot.door.Position, range)
 		and not withinRange(player, plot.backDoorZone.Position, range)
@@ -3040,11 +3201,11 @@ local function checkInPassing()
 	-- #3145: each carrier on its own, so one whose check-in throws does not skip everyone after it in this look
 	local function look(player: Player)
 		local position = rootPosition(player)
-		local plot = PlotService.get(player)
+		local plot = M.PlotService.get(player)
 		if position == nil or plot == nil then
 			return -- no cafe to check a cat in to, at a camp or a door (review N280)
 		end
-		local campId = Layout.campAt(position.X, position.Z)
+		local campId = M.Layout.campAt(position.X, position.Z)
 		if campId ~= nil then
 			campCheckIn(player, campId)
 			return
@@ -3054,7 +3215,7 @@ local function checkInPassing()
 			from = position
 		end
 		seen[player] = position
-		local range = Config.CheckInRangeStuds
+		local range = M.Config.CheckInRangeStuds
 		if
 			pathDistance(from, position, plot.door.Position) <= range
 			or pathDistance(from, position, plot.backDoorZone.Position) <= range
@@ -3186,13 +3347,13 @@ local RETURN_AGENT = { AgentRadius = 1, AgentHeight = 2, AgentCanJump = true, Wa
 -- since a walk is short and someone may be chasing it. A home up on a perch (a porch, a rock, the Sewer's catwalk) is
 -- walked to on the floor under it, and arriveHome puts the cat up there (review S88).
 local function walkHome(stray: Stray, home: Vector3)
-	local deadline = os.clock() + Config.DropReturnMaxSeconds
+	local deadline = os.clock() + M.Config.DropReturnMaxSeconds
 	-- #2687: the Lost and Found's Homing Bell walks the dropper's own cat home faster from Tier 5
 	local drop = stray.drop
 	local owner = if drop ~= nil then Players:GetPlayerByUserId(drop.owner) else nil
-	local ownerProfile = if owner ~= nil then DataService.get(owner) else nil
-	local speed = Config.DropReturnWalkSpeed
-		* StationPerks.homingSpeed(if ownerProfile ~= nil then Economy.tier(ownerProfile) else nil)
+	local ownerProfile = if owner ~= nil then M.DataService.get(owner) else nil
+	local ownerTier = if ownerProfile ~= nil then M.Economy.tier(ownerProfile) else nil
+	local speed = M.Config.DropReturnWalkSpeed * M.StationPerks.homingSpeed(ownerTier)
 	local walking = function(): boolean
 		return stray.alive and stray.returning and os.clock() < deadline
 	end
@@ -3203,7 +3364,7 @@ local function walkHome(stray: Stray, home: Vector3)
 	local path = PathfindingService:CreatePath(RETURN_AGENT)
 	while walking() do
 		local at = stray.model:GetPivot().Position
-		if (at - goal).Magnitude <= Config.DropHomeRadiusStuds then
+		if (at - goal).Magnitude <= M.Config.DropHomeRadiusStuds then
 			break
 		end
 		local computed = pcall(function()
@@ -3261,7 +3422,7 @@ local function dropAtNight(player: Player, carry: Carry, root: Vector3?)
 		knocks = carry.knocks,
 		pity = carry.pity,
 	})
-	local areaDef = Catalog.getArea(homeId)
+	local areaDef = M.Catalog.getArea(homeId)
 	Net.toast(
 		player,
 		string.format(
@@ -3290,7 +3451,7 @@ local function dropRefusal(player: Player, carry: Carry): (string?, string?)
 	if player.Character == nil or rootPosition(player) == nil then
 		return "no_body", "" -- between a death and the respawn: nowhere to put it down, and nobody to read a toast
 	end
-	if not openFor(DataService.get(player)) then -- #2692: a night pass drops as by day
+	if not openFor(M.DataService.get(player)) then -- #2692: a night pass drops as by day
 		return "closed", DROP_CLOSED_TEXT
 	end
 	if homeFor(carry, rootPosition(player)) == nil then
@@ -3319,7 +3480,7 @@ local function dropCarry(player: Player, died: boolean)
 	if carry == nil or character == nil or (root == nil and not died) then
 		return
 	end
-	if not openFor(DataService.get(player)) then -- #2692: a night pass drops as by day
+	if not openFor(M.DataService.get(player)) then -- #2692: a night pass drops as by day
 		if died then
 			dropAtNight(player, carry, root)
 		else
@@ -3385,7 +3546,7 @@ local function onDropCat(player: Player)
 		-- takes the carry banner down (UIController checks it against every sync). At most one a second (DropCat's
 		-- limiter); a G press with nothing on screen never gets here, the client only sends it while it shows a cat.
 		refuseDrop(player, "none", nil)
-		CafeService.setCarrying(player, nil)
+		M.CafeService.setCarrying(player, nil)
 		return
 	end
 	-- #3145: asked before the cat leaves the Backpack. Before, a Drop that could not finish (no home to walk to)
@@ -3421,7 +3582,7 @@ end
 -- A Curious stray walks CuriousWalkStuds toward the first player who comes within CuriousRangeStuds, once.
 local function curious(stray: Stray, _player: Player, root: Vector3, now: number)
 	local at = stray.model:GetPivot().Position
-	if not Moods.noticed(at, root) then
+	if not M.Moods.noticed(at, root) then
 		return
 	end
 	stray.curiousAt = now
@@ -3429,11 +3590,11 @@ local function curious(stray: Stray, _player: Player, root: Vector3, now: number
 	stray.model:SetAttribute("Napping", false)
 	local area = world.areas[stray.area]
 	local target =
-		clearPath(at, WorldBuilder.clampToArea(area, Moods.curiousTarget(at, root), 2, at))
+		clearPath(at, WorldBuilder.clampToArea(area, M.Moods.curiousTarget(at, root), 2, at))
 	stray.walk += 1
 	local walk = stray.walk
 	task.spawn(function()
-		Mover.walkTo(stray.model, target, Config.StrayWanderSpeed, function()
+		Mover.walkTo(stray.model, target, M.Config.StrayWanderSpeed, function()
 			return stray.alive and stray.lockedBy == 0 and stray.walk == walk
 		end)
 	end)
@@ -3442,19 +3603,19 @@ end
 -- A Skittish stray hops SkittishHopStuds away from a player inside its front arc, at most once a SkittishCooldown;
 -- never from a player before tutorialStep 2 (7a).
 local function skittish(stray: Stray, player: Player, root: Vector3, now: number): boolean
-	if not Moods.hopReady(stray.skittishAt, now) then
+	if not M.Moods.hopReady(stray.skittishAt, now) then
 		return false
 	end
 	local pivot = stray.model:GetPivot()
-	if not Moods.inFrontArc(pivot.Position, pivot.LookVector, root) then
+	if not M.Moods.inFrontArc(pivot.Position, pivot.LookVector, root) then
 		return false
 	end
-	local profile = DataService.get(player)
-	if profile == nil or not Moods.canStartle(profile.tutorialStep) then
+	local profile = M.DataService.get(player)
+	if profile == nil or not M.Moods.canStartle(profile.tutorialStep) then
 		return false
 	end
 	-- #4255 follow-up (SecretCalm): a Secret startles once a visit, only at a player running at it, never mid-swing
-	if stray.def.rarity == Catalog.SECRET then
+	if stray.def.rarity == M.Catalog.SECRET then
 		local last = lastSwing[player]
 		if
 			not secretMayHop(stray, player)
@@ -3465,7 +3626,7 @@ local function skittish(stray: Stray, player: Player, root: Vector3, now: number
 		end
 	end
 	stray.skittishAt = now
-	hop(stray, player, Config.SkittishHopStuds)
+	hop(stray, player, M.Config.SkittishHopStuds)
 	countSecretHop(stray, player)
 	return true
 end
@@ -3536,7 +3697,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 
 	-- A player who leaves mid-carry keeps the cat. The finalizer runs before the session closes and is handed
 	-- the profile, so it never depends on a lookup that is about to go nil.
-	DataService.beforeRelease(function(player, profile)
+	M.DataService.beforeRelease(function(player, profile)
 		if carrying[player] ~= nil or packed[player] ~= nil then
 			finishCheckIn(player, false, profile)
 		end
@@ -3544,9 +3705,28 @@ function CatService.start(builtWorld: WorldBuilder.World)
 
 	-- #2845: an owner's save usually loads after their first character spawns, so CharacterAdded's wearBackpack finds
 	-- no Backpack yet; put it on once the save is in (a no-op without a character, or with the pack already worn)
-	DataService.onLoaded:Connect(function(player: Player)
+	M.DataService.onLoaded:Connect(function(player: Player)
 		wearBackpack(player)
 		keepShoes(player) -- #4050
+	end)
+
+	-- #4197: Speed Rush starts or ends: everyone's shoes and carry speed follow at once
+	local rushing = EventService.speedRush()
+	EventService.adminChanged:Connect(function()
+		local now = EventService.speedRush()
+		if now == rushing then
+			return
+		end
+		rushing = now
+		for _, player in Players:GetPlayers() do
+			local ok, err = pcall(function()
+				keepShoes(player)
+				CatService.refreshSpeed(player)
+			end)
+			if not ok then
+				warn("[CatService] speed rush: " .. tostring(err))
+			end
+		end
 	end)
 
 	-- #2856: the pack stays on. Again once the avatar's appearance is in (it can rebuild the torso), and a light
@@ -3617,7 +3797,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			end
 			local humanoid = character:FindFirstChildOfClass("Humanoid") :: Humanoid?
 			if humanoid ~= nil then
-				setSpeed(player, humanoid, Config.NormalWalkSpeed + pawsBonus(player))
+				setSpeed(player, humanoid, M.Config.NormalWalkSpeed + pawsBonus(player))
 			end
 		end)
 	end)
@@ -3625,10 +3805,10 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		purrfectStreak[player] = nil
 		-- endCarry (via the finalizer above) clears the carry record; this only mops up when the profile is
 		-- already gone, so the handler order between services does not matter.
-		if carrying[player] ~= nil and DataService.get(player) == nil then
+		if carrying[player] ~= nil and M.DataService.get(player) == nil then
 			carrying[player] = nil
 		end
-		if packed[player] ~= nil and DataService.get(player) == nil then
+		if packed[player] ~= nil and M.DataService.get(player) == nil then
 			packed[player] = nil
 		end
 		circleHistory[player] = nil
@@ -3664,8 +3844,8 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			xpcall(Second.served, function(err: unknown)
 				warn("[CatService] second cat: " .. tostring(err))
 			end, player)
-			if DataService.get(player) ~= nil then
-				CafeService.sync(player)
+			if M.DataService.get(player) ~= nil then
+				M.CafeService.sync(player)
 			end
 		end)
 	end)
@@ -3680,6 +3860,9 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			xpcall(stormTick, function(err: unknown)
 				warn("[CatService] cat storm: " .. tostring(err))
 			end, nowClock - last) -- #4195
+			xpcall(huntTick, function(err: unknown)
+				warn("[CatService] secret hunt: " .. tostring(err))
+			end) -- #4197
 			last = nowClock
 		end
 	end)
@@ -3701,7 +3884,7 @@ function CatService.nightFalls()
 	local leaving: { Stray } = {}
 	local keeps = pityKeeps
 	for _, stray in strays do
-		local slot = stray.model:GetAttribute(Pity.SLOT_ATTRIBUTE)
+		local slot = stray.model:GetAttribute(M.Pity.SLOT_ATTRIBUTE)
 		local waits = type(slot) == "number" and keeps ~= nil and keeps(slot)
 		-- #2692: a beginner's own tutorial stray stays for their night pass
 		if stray.beginner == nil and not waits then
@@ -3719,8 +3902,8 @@ end
 -- server; the first area a Mythical came to, or "none"). #1888: any special day logs it, with its kinds ("lucky",
 -- "golden+rainbow").
 function CatService.sunriseWave()
-	local luckyDay = ClockService.luckyDay()
-	local kinds = ClockService.dayKinds()
+	local luckyDay = M.ClockService.luckyDay()
+	local kinds = M.ClockService.dayKinds()
 	local kindNames: { string } = {}
 	if kinds ~= nil then
 		for _, kind in { "lucky", "golden", "rainbow" } do
@@ -3729,12 +3912,12 @@ function CatService.sunriseWave()
 			end
 		end
 	end
-	local luck = if luckyDay then Config.LuckyDayWaveLuck else 1
+	local luck = if luckyDay then M.Config.LuckyDayWaveLuck else 1
 	local mythicalArea = "none"
 	waveNumber += 1
 	local wave = waveNumber
 	local waves: { { WavePlace } } = {}
-	for _, areaDef in Catalog.areas do
+	for _, areaDef in M.Catalog.areas do
 		local places, mythical = rollWave(areaDef, luck)
 		if mythical and mythicalArea == "none" then
 			mythicalArea = areaDef.id
@@ -3742,17 +3925,17 @@ function CatService.sunriseWave()
 		table.insert(waves, places)
 	end
 	-- #3661: the first few of every area (its rarest) at once, then the rest in turn, one area after another
-	local order = StrayTopUp.waveOrder(waves, Config.WaveAtOnce)
+	local order = StrayTopUp.waveOrder(waves, M.Config.WaveAtOnce)
 	local later: { WavePlace } = order.later
 	for _, entry: WavePlace in order.now do
 		placeWave(entry)
 	end
 	if #later > 0 then
-		local gap = StrayTopUp.waveGap(#later, Config.WaveSpreadSeconds)
+		local gap = StrayTopUp.waveGap(#later, M.Config.WaveSpreadSeconds)
 		task.spawn(function()
 			for _, entry: WavePlace in later do
 				task.wait(gap)
-				if waveNumber ~= wave or not ClockService.areasOpen() then
+				if waveNumber ~= wave or not M.ClockService.areasOpen() then
 					return -- dusk came (or the next sunrise): this wave is over
 				end
 				xpcall(placeWave, function(err: unknown)
@@ -3763,7 +3946,7 @@ function CatService.sunriseWave()
 	end
 	if #kindNames > 0 then
 		-- a server event with no player of its own: logged under the first player here, none in an empty server
-		local players = DataService.loadedPlayers()
+		local players = M.DataService.loadedPlayers()
 		local someone: Player? = players[1]
 		if someone ~= nil then
 			Telemetry.custom(
@@ -3798,8 +3981,8 @@ end
 -- #2692: whether the night leaves this player alone: a beginner who has not checked in a first cat, or (#3035) a
 -- Tier 1 player in their first session while the nightCatch switch is on (shared/NightPass).
 function CatService.nightPass(player: Player): boolean
-	local profile = DataService.get(player)
-	return profile ~= nil and NightPass.of(profile, LiveFlagService.on(NightPass.FLAG))
+	local profile = M.DataService.get(player)
+	return profile ~= nil and NightPass.of(profile, M.LiveFlagService.on(NightPass.FLAG))
 end
 
 function CatService.inFlight(player: Player): boolean
@@ -3925,17 +4108,17 @@ function CatService.refreshSpeed(player: Player)
 	local startled = startledUntil[player]
 	-- #2706: a little faster on the Town Square
 	local square = if (character :: Model):GetAttribute("OnSquare") == true
-		then Config.TownWalkSpeedBonus
+		then M.Config.TownWalkSpeedBonus
 		else 0
 	local base = if carry == nil
-		then Config.NormalWalkSpeed + pawsBonus(player) + square
+		then M.Config.NormalWalkSpeed + pawsBonus(player) + square
 		elseif
 			carry.rushUntil ~= nil and carry.rushUntil > serverNow()
-		then Config.CatchRushWalkSpeed
+		then M.Config.CatchRushWalkSpeed
 		else carrySpeed(player) -- #3063, #3535: Swift Paws and the Speed Shoes, never on the rush
 	-- Startled slows a carry too (a forfeit miss), never speeds one up (review N247)
 	if startled ~= nil and startled > serverNow() then
-		base = math.min(base, Config.StartledWalkSpeed)
+		base = math.min(base, M.Config.StartledWalkSpeed)
 	end
 	setSpeed(player, humanoid, base)
 end
@@ -4048,13 +4231,13 @@ end
 -- wave, top-up, bait, rescue or pity knows it.
 function CatService.addArea(info: WorldBuilder.AreaInfo, gate: (Types.PlayerProfile) -> boolean)
 	world.areas[info.id] = info
-	areaGates[info.id] = gate
+	M.areaGates[info.id] = gate
 end
 
 -- #4251: one stray of `rarity` (a cat of that rarity whose `area` is `areaId`) at a free spawn point of an added
 -- area, spread from the others there. False when the area is unknown or every point is taken.
 function CatService.spawnIn(areaId: string, rarity: Types.Rarity): boolean
-	if world.areas[areaId] == nil or areaGates[areaId] == nil then
+	if world.areas[areaId] == nil or M.areaGates[areaId] == nil then
 		return false
 	end
 	local point = freeSpawnPoint(areaId, rarity)
@@ -4068,7 +4251,7 @@ end
 -- #4251: `hook(player, def, areaId)` runs (in its own thread) after every successful net catch, as the cat goes
 -- into the catcher's arms.
 function CatService.onCaught(hook: (Player, Types.CatDef, string) -> ())
-	table.insert(caughtHooks, hook)
+	table.insert(M.caughtHooks, hook)
 end
 
 -- #1572 (luck-and-rare-moments.md 1h): spawns slot `slot`'s pity cat `catId` (`kind`) at a free hiding spot of the
@@ -4083,7 +4266,7 @@ function CatService.spawnPity(
 	slot: number,
 	coat: string? -- #2486: a Cafe Event shower's "rainbow"; nil rolls the coat as a stray's
 ): string?
-	local def = Catalog.getCat(catId)
+	local def = M.Catalog.getCat(catId)
 	local area = world.areas[areaId]
 	if def == nil or area == nil or #area.spawnPoints == 0 then
 		return nil
@@ -4091,8 +4274,8 @@ function CatService.spawnPity(
 	local pointIndex = freeSpawnPoint(areaId, def.rarity) or 1
 	local point = area.spawnPoints[pointIndex]
 	local stray = spawnStray(def, areaId, point.Position, pointIndex, nil, coat)
-	stray.model:SetAttribute(Pity.ATTRIBUTE, kind)
-	stray.model:SetAttribute(Pity.SLOT_ATTRIBUTE, slot)
+	stray.model:SetAttribute(M.Pity.ATTRIBUTE, kind)
+	stray.model:SetAttribute(M.Pity.SLOT_ATTRIBUTE, slot)
 	stray.pity = true
 	return stray.id
 end
@@ -4102,7 +4285,7 @@ end
 function CatService.removePity(slot: number): number
 	local leaving: { Stray } = {}
 	for _, stray in strays do
-		if stray.alive and stray.model:GetAttribute(Pity.SLOT_ATTRIBUTE) == slot then
+		if stray.alive and stray.model:GetAttribute(M.Pity.SLOT_ATTRIBUTE) == slot then
 			table.insert(leaving, stray)
 		end
 	end
@@ -4137,7 +4320,7 @@ end
 -- #2796: where the uncaught pity cat of `slot` is in this server, or nil.
 function CatService.pityPosition(slot: number): Vector3?
 	for _, stray in strays do
-		if stray.alive and stray.model:GetAttribute(Pity.SLOT_ATTRIBUTE) == slot then
+		if stray.alive and stray.model:GetAttribute(M.Pity.SLOT_ATTRIBUTE) == slot then
 			return stray.body.Position
 		end
 	end
@@ -4152,8 +4335,8 @@ function CatService.debugSpawnStray(
 	coat: (boolean | string)?
 ): string
 	assert(RunService:IsStudio(), "debugSpawnStray is Studio only")
-	local def = Catalog.getCat(catId)
-	local areaDef = Catalog.getArea(areaId)
+	local def = M.Catalog.getCat(catId)
+	local areaDef = M.Catalog.getArea(areaId)
 	assert(def ~= nil and areaDef ~= nil, "unknown cat or area")
 	local area = world.areas[areaId]
 	local pointIndex = freeSpawnPoint(areaId, def.rarity) or 1
@@ -4163,7 +4346,7 @@ function CatService.debugSpawnStray(
 		areaId,
 		point.Position,
 		pointIndex,
-		Config.StrayDespawnSeconds,
+		M.Config.StrayDespawnSeconds,
 		if coat == true or coat == "gold"
 			then "gold"
 			elseif coat == "rainbow" then "rainbow"
@@ -4185,7 +4368,7 @@ end
 -- one walking home or another beginner's.
 local PARK_BESIDE_STUDS = 60 -- a Park stray further than this from the pad doesn't count
 function CatService.firstLandingStray(player: Player, areaId: string): Vector3?
-	local profile = DataService.get(player)
+	local profile = M.DataService.get(player)
 	if profile == nil then
 		return nil
 	end
@@ -4207,11 +4390,11 @@ function CatService.firstLandingStray(player: Player, areaId: string): Vector3?
 		end
 		return nil
 	end
-	local pad = Layout.landingPads[areaId]
+	local pad = M.Layout.landingPads[areaId]
 	if
 		areaId ~= "park"
 		or pad == nil
-		or Onboarding.reached(profile.telemetry, "first_park_catch")
+		or M.Onboarding.reached(profile.telemetry, "first_park_catch")
 	then
 		return nil
 	end

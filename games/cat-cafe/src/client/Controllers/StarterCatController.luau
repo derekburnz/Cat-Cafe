@@ -120,6 +120,9 @@ function StarterCatController.start()
 			task.spawn(function()
 				-- Closing the prompt or joining needs no line; a failed prompt (most often the account's group list
 				-- is full) gets a kind one on the card, never a paid step (#999).
+				-- #4679: tell the server the prompt is opening, so "Take me home" works right after the join even
+				-- while Roblox still answers "not a member" for this session
+				Net.fire("GroupJoinPrompted")
 				local ok = pcall(function()
 					GroupService:PromptJoinAsync(Config.GroupId)
 				end)

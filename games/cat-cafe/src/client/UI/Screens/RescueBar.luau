@@ -48,11 +48,11 @@ local RescueMarker = require(Shared:WaitForChild("RescueMarker"))
 -- #3050: a bar that is not a stuck cat's (the Rummage Bin's) words its own ends. Any line left out reads as a rescue's.
 export type Words = {
 	slow: string?, -- the hint when the time runs out ("Too slow! It's still stuck.")
-	gaveUp: string?, -- the hint after Give up ("You let it be for now.")
-	won: string?, -- the hint on a win ("It's free!")
-	win: string?, -- the banner's title and detail on a win, when update() brings no closing words
+	gaveUp: string?, -- not shown since #4492 (the bar closes at once on Give up and on a win); kept so callers
+	won: string?, -- need no change
+	win: string?, -- the closing line's title and detail on a win, when update() brings no closing words
 	winDetail: string?,
-	lose: string?, -- the banner's title and detail on anything else
+	lose: string?, -- the closing line's title and detail on anything else
 	loseDetail: string?,
 }
 
@@ -62,13 +62,16 @@ export type Header = {
 	words: Words?,
 }
 
--- #3050: the win banner's words when the server names what was won (the Rummage Bin's prize).
+-- #3050: the win's closing words when the server names what was won (the Rummage Bin's prize).
 export type Closing = { title: string, detail: string }
 
 export type Callbacks = {
 	press: () -> (), -- every press: forward as RescuePress
 	cancel: () -> (), -- Give up: forward as RescueCancel
-	ended: (success: boolean) -> (), -- the bar has hidden after the attempt ended
+	-- the bar has hidden after the attempt ended. #4492: `said` is the one line that tells how it went ("Still stuck.
+	-- Try again in a moment"), for the caller's toast; nil when the moment says it itself (the cat in the rescuer's
+	-- arms, Give up)
+	ended: (success: boolean, said: string?) -> (),
 }
 
 export type RescueBar = {
@@ -116,9 +119,6 @@ local GIVE_UP_GAP = 20 -- between the bar and Give up
 local TOLERANCE: number = Config.RescueTolerance
 local MAX_SECONDS: number = Config.RescueAttemptMaxSeconds
 local PRESS_GAP = 0.12 -- a second press this soon is a bounce, not a try (the server allows 10 a second)
-local RESULT_SECONDS = 1.6
-local FAIL_SECONDS = 1.2
-local GIVE_UP_SECONDS = 0.5
 -- #3024 (Review-QA-Agent's read of the tablet numbers: half of tablet rescue attempts end "cancelled", which only
 -- Give up sends, and the button sits just under the right end of the bar a finger is tapping): on a touch screen
 -- Give up takes two taps. The first changes it to GIVE_UP_ASK for GIVE_UP_ASK_SECONDS and does nothing else; a
@@ -463,38 +463,6 @@ function RescueBar.new(parent: Instance): RescueBar
 	self._askToken = 0
 	self._asking = false
 
-	-- Result banner: Rescued! or Still stuck
-	local banner: Frame = Create("Frame", {
-		Name = "Result",
-		BackgroundColor3 = Theme.hud.panel,
-		BackgroundTransparency = Theme.hud.panelTransparency,
-		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 1, -110),
-		Size = UDim2.fromOffset(320, 74),
-		Visible = false,
-		Parent = root,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 2 }),
-	})
-	self._banner = banner
-	self._outcome = label({
-		Name = "Outcome",
-		Position = UDim2.fromOffset(0, 6),
-		Size = UDim2.new(1, 0, 0, 36),
-		TextSize = 30,
-		Parent = banner,
-	})
-	Outline.text(self._outcome, 3)
-	self._detail = label({
-		Name = "Detail",
-		Position = UDim2.fromOffset(0, 44),
-		Size = UDim2.new(1, 0, 0, 22),
-		TextColor3 = Theme.hud.subtext,
-		Parent = banner,
-	})
-
 	if parent then
 		screenGui.Parent = parent
 	end
@@ -611,7 +579,6 @@ function RescueBar.show(
 	self:_buildPips(math.max(1, hitsNeeded))
 	self:_paintPips()
 	self:_placeZone(false)
-	self._banner.Visible = false
 	self._word.Visible = false
 	self._bar.Position = self._barBase
 	self._cancel:setEnabled(true)
@@ -860,27 +827,33 @@ function RescueBar._giveUp(self: any)
 	self._askToken += 1
 	self._asking = false
 	self._cancel:setEnabled(false)
-	self._hint.Text = (self._words :: Words).gaveUp or "You let it be for now."
 	local callbacks: Callbacks? = self._callbacks
 	if callbacks then
 		callbacks.cancel()
 	end
-	-- the server ends the attempt on RescueCancel; the bar does not wait for its answer
-	self._token += 1
-	local token = self._token
-	task.delay(GIVE_UP_SECONDS, function()
-		if self._token == token then
-			self:_finish(false)
-		end
-	end)
+	-- the server ends the attempt on RescueCancel; the bar does not wait for its answer. #4492: and it goes at once
+	self:_finish(false)
+end
+
+-- #4492: the old banner's title and detail as one line, "Still stuck. Try again in a moment"; nil with neither.
+local function closingLine(title: string?, detail: string): string?
+	local head = title or ""
+	if head == "" then
+		return if detail ~= "" then detail else nil
+	end
+	if detail == "" then
+		return head
+	end
+	local last = string.sub(head, -1)
+	return head .. (if last == "!" or last == "." or last == "?" then " " else ". ") .. detail
 end
 
 -- Hides the bar and tells init the attempt is over, once.
-function RescueBar._finish(self: any, success: boolean)
+function RescueBar._finish(self: any, success: boolean, said: string?)
 	local callbacks: Callbacks? = self._callbacks
 	self:hide()
 	if callbacks then
-		callbacks.ended(success)
+		callbacks.ended(success, said)
 	end
 end
 
@@ -951,47 +924,30 @@ function RescueBar.update(
 	if not done then
 		return
 	end
-	self._done = true
-	self._token += 1
-	local token = self._token
-	ContextActionService:UnbindAction(ACTION_NAME)
-	ContextActionService:UnbindAction(GIVE_UP_ACTION)
-	self._cancel:setEnabled(false)
-	-- #2460 (Derek2 11-08: "the "rescued" on mobile has the same issue that catching used to ... it doesn't let you
-	-- move for a little while after a rescue"): as on the catch circles (#2405), the full-screen tap catcher goes the
-	-- moment the attempt is over, so the result banner shows over a screen that moves again (a thumbstick or a tap
-	-- to move) instead of eating every touch until it closes
-	self._tap.Visible = false
+	-- #4492 (Derek2 2026-11-15: "the rescue game ui stays on screen for a little bit even after finishing it and
+	-- picking up cat make after winning or losing it instantly dissapear"): the bar goes the moment the server says
+	-- the attempt is over. It stayed 1.6 s under a "Rescued!" banner (1.2 s under "Still stuck") before. What the
+	-- banner said goes to the caller as one line for a toast; a rescuer's own win says nothing, the cat in their
+	-- arms does.
 	local words: Words = self._words
+	local title: string?, detail: string
 	if success then
-		self._outcome.Text = if closing ~= nil then closing.title else words.win or "Rescued!"
-		self._outcome.TextColor3 = Theme.colors.good
+		title = if closing ~= nil then closing.title else words.win
 		-- F92: the helper's cat goes to the rescuer
-		self._detail.Text = if closing ~= nil
+		detail = if closing ~= nil
 			then closing.detail
 			elseif words.win ~= nil then words.winDetail or ""
 			elseif self._helper then "Thanks for helping!"
-			else "Carry it home to check in"
-		self._banner.UIStroke.Color = Theme.colors.good
-		self._hint.Text = words.won or "It's free!"
+			else ""
 	else
-		self._outcome.Text = words.lose or "Still stuck"
-		self._outcome.TextColor3 = Theme.colors.red
-		self._detail.Text = if words.lose ~= nil
+		title = words.lose or "Still stuck"
+		detail = if words.lose ~= nil
 			then words.loseDetail or ""
 			elseif self._helper then "Thanks for helping"
 			elseif pawsLeft == 0 then "Out of paws. Try again soon"
 			else "Try again in a moment"
-		self._banner.UIStroke.Color = Theme.colors.red
-		wobble(self._bar, self._barBase)
 	end
-	self._banner.Visible = true
-	Tween.popIn(self._banner, 0.8)
-	task.delay(if success then RESULT_SECONDS else FAIL_SECONDS, function()
-		if self._token == token then
-			self:_finish(success)
-		end
-	end)
+	self:_finish(success, closingLine(title, detail))
 end
 
 function RescueBar.isActive(self: any): boolean
@@ -1013,7 +969,6 @@ function RescueBar.hide(self: any)
 	end
 	ContextActionService:UnbindAction(ACTION_NAME)
 	ContextActionService:UnbindAction(GIVE_UP_ACTION)
-	self._banner.Visible = false
 	self._word.Visible = false
 	self._tap.Visible = false -- #3885: a bin win hides the bar at once, without the result's own clear of it
 	self.screenGui.Enabled = false

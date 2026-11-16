@@ -107,6 +107,14 @@ SettingsList.SECTIONS = {
 				name = "Map icons",
 				detail = "My Cafe, and the Night Market while it's open",
 			},
+			{
+				-- #4668 (Derek 2026-11-15): off by default; the menus still open when you step up to a station
+				key = "stationCircles",
+				kind = "switch",
+				icon = "⭕",
+				name = "Station circles",
+				detail = "The glowing rings in front of stations",
+			},
 		},
 	},
 } :: { Section }
@@ -159,13 +167,14 @@ end
 
 -- Saved keys the Settings screen shows outside these rows. F102: Trade requests is a three-way choice ("everyone",
 -- "friends" or "off", default "everyone") in the Trading section (Screens/Settings, TradeLogic.requestsMode), so the
--- server can save its key without a switch row here. #1893: roadmapOpen is the Grand Opening strip's open or closed
--- state, set by tapping the strip (Screens/Roadmap), so it has no row either.
+-- server can save its key without a switch row here. #1893: roadmapOpen was the Grand Opening strip's open or closed
+-- state; the strip is retired (#4162) but saves still hold the key, so it has no row either.
 SettingsList.TRADE_REQUESTS_KEY = "tradeRequests"
 SettingsList.OTHER_KEYS = {
 	[SettingsList.TRADE_REQUESTS_KEY] = true,
 	roadmapOpen = true,
 	goalFolded = true, -- #2714: the goal card's fold tab and chip set it
+	perfAsked = true, -- #4311: the Low performance ask sets it (shared/PerfSuggest)
 	shopAlerts = true, -- #3118: still saved, but its Fresh Catch alert is gone, so no row
 	catPickSort = true, -- #3940: the Mystic Pool's Filter pop-up sets these three
 	catPickFlipped = true,

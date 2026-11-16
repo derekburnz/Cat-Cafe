@@ -28,6 +28,7 @@ Settings.kinds = {
 	tradeRequests = "choice",
 	roadmapOpen = "switch", -- #1893: the Grand Opening strip opened into its list (remembered)
 	sessionRecap = "switch", -- #1920: the session recap card after about 40 minutes of play
+	perfAsked = "switch", -- #4311: the Low performance ask was answered (shared/PerfSuggest), so it never comes again
 	-- #1955 (auto-equip.md): Equip Best runs by itself after a new or better cat. On for new accounts; a save from
 	-- before it has no value and reads as off until the player turns it on (Settings.sanitize)
 	autoEquip = "switch",
@@ -47,6 +48,9 @@ Settings.kinds = {
 	autoBowlClaim = "switch",
 	autoBowlRefill = "switch",
 	bowlNewCatCard = "switch",
+	-- #4668 (Derek 2026-11-15: "have it default turn to visibility off"): the glowing walk-up rings in front of the
+	-- stations (client Effects/StationCircles). Off by default; the windows still open on stepping in
+	stationCircles = "switch",
 } :: { [string]: Kind }
 
 -- #3940: every way the four Show chips can be on, as CatPickLogic.packShown writes them (chip names in this order,
@@ -85,6 +89,7 @@ function Settings.defaults(): Types.Settings
 		tradeRequests = "everyone",
 		roadmapOpen = false,
 		sessionRecap = true,
+		perfAsked = false,
 		autoEquip = true,
 		catIncome = true,
 		goalFolded = false,
@@ -94,6 +99,7 @@ function Settings.defaults(): Types.Settings
 		autoBowlClaim = true,
 		autoBowlRefill = true,
 		bowlNewCatCard = true,
+		stationCircles = false,
 	}
 end
 

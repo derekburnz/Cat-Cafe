@@ -48,6 +48,22 @@
 --   ADMIN.bowlSpeedMax (Bait.eventWait; BaitService).
 -- - `catStorm` (shared/CatStorm): while it runs, by day, extra strays drop into every open area with the Mythical
 --   weight of their roll times it, 1 to ADMIN.catStormMax.
+-- - #4197 part 2 (the names agreed with Motion-FX's Effects/AdminEventLogic.EXTRA and the client's admin bar):
+--   `goldBoost` and `rainbowBoost` (Golden Hour): every gold and rainbow coat roll times them while it runs, 1 to
+--   ADMIN.goldBoostMax and ADMIN.rainbowBoostMax (Clock.setAdminCoats; each chance stays at most ADMIN.coatChanceMax);
+--   `moneyStorm` (Money Storm): every player's cafe pay is at least that many times while it runs, in place of the
+--   event money slot and the rest's 2x when larger, never on top of them, 1 to ADMIN.moneyStormMax
+--   (Economy.setAdminMoney); `traitParty` (Trait Party): Mystic Pool rolls cost nothing while it runs, at most
+--   ADMIN.traitPartyRolls an account an event (TraitService); `speedRush` (Speed Rush): every player counts as
+--   wearing the Speed Shoes while it runs (CatService). traitParty and speedRush are on with true or a number above
+--   0, and travel as 1 in AdminEventEffects. `secretHunt` (Secret Hunt): that many Secret cats hide in this server's
+--   open areas by day, 1 to ADMIN.secretHuntMax; whoever catches one keeps it, and when all are caught everyone
+--   online gets ADMIN.huntFish golden fish (CatService). The server adds `secretFound`, the count caught so far, to
+--   AdminEventEffects as it changes. `fishFountain` (Fish Fountain): golden fish pickups land around the Town Square
+--   cannon plinth while it runs, ADMIN.fountainFish each, at most ADMIN.fountainCap a player an event; `crateDrop`
+--   (Crate Drop): by day a golden crate drops into each open area every ADMIN.crateGap seconds, and the first touch
+--   gives the toucher and every player within ADMIN.crateShareStuds a golden crate of their best area, at most
+--   ADMIN.crateCap a player an event (AdminDropService). Both are switches like traitParty.
 -- An admin record runs ADMIN.minSeconds to ADMIN.maxSeconds and never overlaps another admin record (the later one
 -- is dropped, with a note); it needs at least one admin effect. Everything waits behind the LiveFlags switch
 -- ADMIN.flag (EventService), off by default.
@@ -101,15 +117,37 @@ CafeEvents.ADMIN = {
 	testWarnSeconds = 10, -- a test in one server: a short warning, so the banner is seen without the wait
 	bowlSpeedMax = 4,
 	catStormMax = 10,
+	goldBoostMax = 10, -- #4197 Golden Hour
+	rainbowBoostMax = 5,
+	coatChanceMax = 0.5, -- a boosted gold or rainbow chance never goes over this
+	moneyStormMax = 5, -- #4197 Money Storm
+	traitPartyRolls = 30, -- #4197 Trait Party: free rolls an account may take in one party
+	secretHuntMax = 5, -- #4197 Secret Hunt
+	huntFish = 100, -- each player online when the last hunted cat is caught
+	fountainFish = 5, -- #4197 Fish Fountain: golden fish in each pickup
+	fountainCap = 150, -- the most one player can pick up in one fountain
+	crateGap = 30, -- #4197 Crate Drop: seconds between drops into each open area
+	crateShareStuds = 30, -- everyone this close to the crate's first touch gets one too
+	crateCap = 5, -- the most crates one player can get in one Crate Drop
 }
 -- The owner's kinds (`/admin <kind> [minutes] [now]`): each one's title, effects and length in minutes when none is given.
-CafeEvents.ADMIN_KINDS =
-	{
-		bowl = { title = "Bowl Frenzy", minutes = 15, effects = { bowlSpeed = 4 } },
-		-- the Admin Wheel (AdminWheel.luau): every player may spin it once while it is up
-		wheel = { title = "Admin Wheel", minutes = 5, effects = { wheel = true } },
-		storm = { title = "Cat Storm", minutes = 10, effects = { catStorm = 10 } },
-	} :: { [string]: { title: string, minutes: number, effects: { [string]: any } } }
+CafeEvents.ADMIN_KINDS = {
+	bowl = { title = "Bowl Frenzy", minutes = 15, effects = { bowlSpeed = 4 } },
+	storm = { title = "Cat Storm", minutes = 10, effects = { catStorm = 10 } },
+	-- #4197 part 2 (Derek's `/admin golden|money|traits|speed|hunt`)
+	golden = { title = "Golden Hour", minutes = 15, effects = { goldBoost = 10, rainbowBoost = 5 } },
+	-- Derek 2026-11-14 22:09 UTC (#4325): "make it like 4x money for a little bit": 4x for 5 minutes
+	money = { title = "Money Storm", minutes = 5, effects = { moneyStorm = 4 } },
+	traits = { title = "Trait Party", minutes = 10, effects = { traitParty = true } },
+	speed = { title = "Speed Rush", minutes = 10, effects = { speedRush = true } },
+	hunt = { title = "Secret Hunt", minutes = 15, effects = { secretHunt = 3 } },
+	fountain = { title = "Fish Fountain", minutes = 5, effects = { fishFountain = true } },
+	crates = { title = "Crate Drop", minutes = 5, effects = { crateDrop = true } },
+	-- the Admin Wheel (AdminWheel.luau): every player may spin it once while it is up
+	wheel = { title = "Admin Wheel", minutes = 5, effects = { wheel = true } },
+} :: {
+	[string]: { title: string, minutes: number, effects: { [string]: any } },
+}
 -- OwnerTest's presets (section 8): "full" every effect, with test showers a minute apart; "days" the stacked days
 -- only; "money" x2 only; "luck" +0.5 only; "showers" test showers only.
 CafeEvents.PRESETS = { "full", "days", "money", "luck", "showers" }
@@ -139,8 +177,16 @@ export type Effects = {
 }
 export type AdminEffects = {
 	bowlSpeed: number, -- 1 when the record has none
-	wheel: boolean, -- the Admin Wheel is up (AdminWheelService: one spin an account for this event's id)
 	catStorm: number, -- 1 when the record has none
+	wheel: boolean, -- the Admin Wheel is up (AdminWheelService: one spin an account for this event's id)
+	goldBoost: number, -- #4197: 1 when the record has none
+	rainbowBoost: number,
+	moneyStorm: number,
+	traitParty: boolean,
+	speedRush: boolean,
+	secretHunt: number, -- #4197: the Secret cats hiding, 0 when the record has none
+	fishFountain: boolean,
+	crateDrop: boolean,
 }
 export type AdminEvent = {
 	id: string,
@@ -318,7 +364,76 @@ end
 
 -- Whether `effects` holds at least one admin effect that does something.
 local function adminActive(effects: AdminEffects): boolean
-	return effects.bowlSpeed > 1 or effects.catStorm > 1 or effects.wheel
+	return effects.bowlSpeed > 1
+		or effects.catStorm > 1
+		or effects.wheel
+		or effects.goldBoost > 1
+		or effects.rainbowBoost > 1
+		or effects.moneyStorm > 1
+		or effects.traitParty
+		or effects.speedRush
+		or effects.secretHunt > 0
+		or effects.fishFountain
+		or effects.crateDrop
+end
+
+-- #4195/#4197: the admin effects of `values` (a record's `effects`, or an ADMIN_KINDS row), each checked and clamped
+-- to its cap with a note under `id`; nil and why for a bad one. A missing multiplier is 1 and a missing switch off.
+local ADMIN_TIMES = {
+	{ key = "bowlSpeed", max = "bowlSpeedMax" },
+	{ key = "catStorm", max = "catStormMax" },
+	{ key = "goldBoost", max = "goldBoostMax" },
+	{ key = "rainbowBoost", max = "rainbowBoostMax" },
+	{ key = "moneyStorm", max = "moneyStormMax" },
+}
+local ADMIN_SWITCHES = { "traitParty", "speedRush", "fishFountain", "crateDrop" }
+
+local function adminEffectsOf(
+	values: { [string]: any },
+	id: string,
+	notes: { string }
+): (AdminEffects?, string?)
+	local out: { [string]: any } = {}
+	for _, row in ADMIN_TIMES do
+		local value = if values[row.key] == nil then 1 else finite(values[row.key])
+		if value == nil then
+			return nil, `{id}: a bad {row.key}`
+		end
+		local high = (CafeEvents.ADMIN :: any)[row.max] :: number
+		local clamped = math.clamp(value, 1, high)
+		if clamped ~= value then
+			table.insert(notes, `{id}: {row.key} {value} clamped to {clamped}`)
+		end
+		out[row.key] = clamped
+	end
+	if values.wheel ~= nil and type(values.wheel) ~= "boolean" then
+		return nil, id .. ": a bad wheel"
+	end
+	out.wheel = values.wheel == true
+	for _, key in ADMIN_SWITCHES do
+		local value = values[key]
+		if value == nil or value == false then
+			out[key] = false
+		elseif value == true then
+			out[key] = true
+		else
+			local n = finite(value)
+			if n == nil then
+				return nil, `{id}: a bad {key}`
+			end
+			out[key] = n > 0
+		end
+	end
+	local hunt = if values.secretHunt == nil then 0 else finite(values.secretHunt)
+	if hunt == nil then
+		return nil, id .. ": a bad secretHunt"
+	end
+	local cats = math.clamp(math.floor(hunt), 0, CafeEvents.ADMIN.secretHuntMax)
+	if cats ~= hunt and hunt > 0 then
+		table.insert(notes, `{id}: secretHunt {hunt} clamped to {cats}`)
+	end
+	out.secretHunt = cats
+	return out :: any, nil
 end
 
 -- #4195: one admin record against the rules, or nil and why (nil and no why for one that is over).
@@ -346,30 +461,10 @@ local function adminOf(
 	if type(rawEffects) ~= "table" then
 		return nil, id .. ": no effects"
 	end
-	local values = rawEffects :: { [string]: any }
-	local bowlSpeed = if values.bowlSpeed == nil then 1 else finite(values.bowlSpeed)
-	if bowlSpeed == nil then
-		return nil, id .. ": a bad bowlSpeed"
+	local effects, why = adminEffectsOf(rawEffects :: { [string]: any }, id, notes)
+	if effects == nil then
+		return nil, why
 	end
-	local catStorm = if values.catStorm == nil then 1 else finite(values.catStorm)
-	if catStorm == nil then
-		return nil, id .. ": a bad catStorm"
-	end
-	if values.wheel ~= nil and type(values.wheel) ~= "boolean" then
-		return nil, id .. ": a bad wheel"
-	end
-	local function clamp(name: string, value: number, high: number): number
-		local out = math.clamp(value, 1, high)
-		if out ~= value then
-			table.insert(notes, `{id}: {name} {value} clamped to {out}`)
-		end
-		return out
-	end
-	local effects: AdminEffects = {
-		bowlSpeed = clamp("bowlSpeed", bowlSpeed, CafeEvents.ADMIN.bowlSpeedMax),
-		catStorm = clamp("catStorm", catStorm, CafeEvents.ADMIN.catStormMax),
-		wheel = values.wheel == true,
-	}
 	if not adminActive(effects) then
 		return nil, id .. ": no admin effect"
 	end
@@ -504,11 +599,25 @@ function CafeEvents.adminEffectsData(event: AdminEvent): { [string]: any }
 	if event.effects.bowlSpeed > 1 then
 		out.bowlSpeed = event.effects.bowlSpeed
 	end
+	if event.effects.catStorm > 1 then
+		out.catStorm = event.effects.catStorm
+	end
 	if event.effects.wheel then
 		out.wheel = true
 	end
-	if event.effects.catStorm > 1 then
-		out.catStorm = event.effects.catStorm
+	for _, key in { "goldBoost", "rainbowBoost", "moneyStorm" } do
+		local value = (event.effects :: any)[key] :: number
+		if value > 1 then
+			out[key] = value
+		end
+	end
+	for _, key in ADMIN_SWITCHES do
+		if (event.effects :: any)[key] == true then
+			out[key] = 1
+		end
+	end
+	if event.effects.secretHunt > 0 then
+		out.secretHunt = event.effects.secretHunt
 	end
 	return out
 end
@@ -815,18 +924,17 @@ function CafeEvents.adminTest(
 		return nil
 	end
 	local startsAt = math.floor(now) + (if skipWarning then 0 else CafeEvents.ADMIN.testWarnSeconds)
-	local bowlSpeed, catStorm = def.effects.bowlSpeed, def.effects.catStorm
+	local effects = adminEffectsOf(def.effects, "test-admin-" .. kind, {})
+	if effects == nil then
+		return nil
+	end
 	return {
 		id = "test-admin-" .. kind,
 		title = def.title,
 		startsAt = startsAt,
 		endsAt = startsAt + adminSeconds(kind, minutes),
 		test = true,
-		effects = {
-			bowlSpeed = if type(bowlSpeed) == "number" then bowlSpeed else 1,
-			catStorm = if type(catStorm) == "number" then catStorm else 1,
-			wheel = def.effects.wheel == true,
-		},
+		effects = effects,
 	}
 end
 

@@ -10,7 +10,7 @@ return function()
 
 	local expected: { [string]: any } = {
 		ServerPlayers = 8,
-		StartCoins = 250, -- #4097: was 850 (#1796: was 50)
+		StartCoins = 1000, -- #4674: was 250 (#4097: was 850; #1796: was 50)
 		FavoriteMultiplier = 1.5,
 		TableBonus = 0.10,
 		EspressoBonus = 0.15,
@@ -329,8 +329,8 @@ return function()
 		TradeMaxDecor = 9, -- #1574: decor pieces each side may offer
 		TradeMaxCrateKinds = 6, -- #2745 (trading.md section 1c): crate kinds each side may offer
 		TradeMaxCrates = 20, -- #2745: crates in all each side may offer
-		TradeMaxFish = 200, -- #2745 (section 1d): golden fish each side may offer
-		TradeFishPerDay = 250, -- #2745: golden fish one player may receive in trades a game day (Derek2 11-10: 400 before)
+		TradeMaxFish = 1000000, -- #4623 (Derek 2026-11-15): no fish cap a trade, only the remote's sanity bound
+		TradeFishPerDay = 0, -- #4623 (Derek 2026-11-15): no daily cap on fish received (250 before)
 		TradeFishValue = 0.075, -- #2745: 40 fish count as one Rare (3)
 		TradeCountdownSeconds = 5,
 		TradeLopsidedRatio = 3,
@@ -547,6 +547,8 @@ return function()
 				SpeedShoesCarryBonus = true, -- #3535: checked in SpeedShoes.spec
 				MysteryMarketRange = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				TicketBoothTier = true, -- #4061: checked in TicketBooth.spec (the Water Park taken as Tier 9)
+				CatchPressStampSeconds = true, -- #4609: checked in Circles.spec (the late tap stamp window)
+				SecretNextMythicTimes = true, -- #4618: checked in SecretCats.spec (a Secret earns 10x the next area's Mythic)
 				HarvestStallRange = true, -- #4251: the Harvest Stall prompt and BuyHarvest range
 				LongNetReachStuds = true, -- #2565: the Long Net's extra reach, checked in NetSwing.spec
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
@@ -566,6 +568,9 @@ return function()
 				DecorSpots = true, -- a table, checked below
 				CodeWrongWindowSeconds = true, -- section 11d: "5 wrong codes in a minute"
 				GroupCheckSeconds = true, -- section 11d: IsInGroup "cached per player for 60 s"
+				GroupJoinTrustSeconds = true, -- #4679: checked in StarterCat.spec
+				GroupJoinRetries = true, -- #4679: checked in StarterCat.spec
+				GroupJoinRetrySeconds = true, -- #4679: checked in StarterCat.spec
 				StraySpawnSpacingStuds = true, -- Derek 22:38: strays spawn spread out; the designer logs it in section 17
 				StrayFloorBase = true, -- #1159: top-ups, checked in StrayTopUp.spec
 				StrayFloorPerPlayer = true,
@@ -577,7 +582,7 @@ return function()
 				StrayTopUpMaxSeconds = true,
 				WaveAtOnce = true, -- #3661: the sunrise wave placed over time, checked in StrayTopUp.spec
 				WaveSpreadSeconds = true,
-				MysteryRangeStuds = true, -- sections 12b and 15: OpenMysteryGift "within 12 studs"
+				MysteryRangeStuds = true, -- sections 12b and 15: the gift opens "within 12 studs"
 				CollectorValue = true, -- section 17's "1, 3, 8, 20, 50 by rarity", checked in Collector.spec
 				CollectorAskWeight = true, -- #1144: a table, checked in Collector.spec
 				CollectorRangeStuds = true, -- section 12b: his card opens "within 12 studs"
@@ -660,6 +665,11 @@ return function()
 				ChefPackPassId = true,
 				SpacePackPassId = true,
 				AutoBowlPassId = true, -- #4266: the Auto Bowl pass id, its Store card hidden while 0
+				FusionCopies = true, -- #4104: checked in Fusion.spec
+				FusionGoldSeconds = true,
+				FusionRainbowSeconds = true,
+				FusionTier = true,
+				TradeFishPassHoldSeconds = true, -- #4521: the Golden Pond fish hold, checked in Trade.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

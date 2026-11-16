@@ -86,13 +86,7 @@
    },
    "attributes": {
     "Rojo_Id": "CatCafe_Cat_Abyss_Work/0",
-    "GoldColor": {
-     "Color3": [
-      0.5608,
-      0.8275,
-      0.7569
-     ]
-    }
+    "GoldTone": 2
    },
    "children": [
     {
@@ -306,7 +300,7 @@
     "BottomSurface": "Smooth"
    },
    "attributes": {
-    "GoldTone": 2
+    "GoldTone": 3
    }
   },
   {
@@ -358,7 +352,7 @@
     "BottomSurface": "Smooth"
    },
    "attributes": {
-    "GoldTone": 2
+    "GoldTone": 3
    }
   },
   {

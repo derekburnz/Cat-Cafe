@@ -11,8 +11,9 @@
 -- its camp's pad (section 4); any other respawn comes back just inside its own cafe's back door (Layout.plot's
 -- respawnSpot, Derek 2026-10-28 01:17), never a carrier. Every cannon's moon cover (its ..._MoonCover model) is down
 -- over the barrel while the areas are closed and lifted by day (section 3a: "At dusk a moon cover drops").
--- F92 (playing-together.md section 5): a first spawn after joining through a pal's invite or by following them stands
--- at that pal's front door instead (palArrival).
+-- #4702 (Derek 2026-11-16): a first spawn after joining through a friend no longer moves to the friend's front door
+-- (F92's palArrival move is gone), so an AFK rest rejoin onto a friend's server lands at home like any other; the
+-- PalArrived wave and the #3995 friend-join notes still go out (palJoinedNote), with no area for a location bubble.
 -- #3072 (Derek2 2026-11-10: "you spawn with camera inside cannon when rejoining put yourself infront of your cafe"):
 -- any other first spawn of a returning player moves to the street outside their own front door (homeArrival).
 
@@ -27,6 +28,7 @@ local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
+local DragonKeep = require(ReplicatedStorage.Shared.DragonKeep)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
@@ -158,7 +160,8 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	local area = if destination ~= Cannon.TOWN then Catalog.getArea(destination) else nil
 	local now = serverNow()
 	local shovedAt = if character ~= nil then character:GetAttribute("ShovedAt") else nil
-	local landed = landedAt[player]
+	-- #4447: Soft Landing skips the wait after a landing
+	local landed = if DragonKeep.of(profile).softLanding then nil else landedAt[player]
 	-- #2692: a beginner flies at night and in the dusk warning; #3035: a first-session Tier 1 player too
 	local pass = NightPass.of(profile, LiveFlagService.on(NightPass.FLAG))
 	local reason = Cannon.launchRefusal({
@@ -190,6 +193,10 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		reason = "Still loading"
 	end
 	if reason ~= nil or character == nil or root == nil or model == nil then
+		-- #4544: a pick refused because the area's Tier is above the player's (the AreaVisit journey)
+		if area ~= nil and area.tier > Economy.tier(profile) then
+			Telemetry.tripPicked(player, profile, destination, true)
+		end
 		refuse(player, destination, reason or "Still loading")
 		return
 	end
@@ -211,6 +218,9 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	flyer:SetAttribute("CannonHeading", heading)
 	Net.fire(player, "CannonLaunch", destination, now)
 	Telemetry.custom(player, "cannon_launch", 1, { cannonId, destination })
+	if area ~= nil then
+		Telemetry.tripPicked(player, profile, destination, false) -- #4544: the AreaVisit journey
+	end
 	profile.stats.cannonFlights += 1 -- #3618: the Liftoff badge
 	if
 		pass
@@ -224,6 +234,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	local launcher = DataService.get(player)
 	if launcher ~= nil then
 		Telemetry.onboarding(player, launcher, "first_cannon") -- #1273: the way out to the first catch
+		Telemetry.cleanEvent(player, launcher, Telemetry.CLEAN_EVENTS.launch) -- #4504: the second trip's launch
 	end
 
 	-- this flight is still the character's: not respawned, not left, not a newer flight
@@ -265,6 +276,11 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		end
 		landedAt[player] = serverNow()
 		NightService.landed(player) -- a flight into an area that lands after night start is swept at once
+		local lander = if area ~= nil then DataService.get(player) else nil
+		if lander ~= nil then
+			Telemetry.cleanEvent(player, lander, Telemetry.arrivedEvent(destination)) -- #4504: arrived
+			Telemetry.tripArrived(player, destination) -- #4544
+		end
 	end)
 end
 
@@ -279,32 +295,8 @@ local function cafeLanding(player: Player): CFrame?
 	return plot.cframe * CFrame.new(spot.x, spot.y, spot.z) * CFrame.Angles(0, math.pi, 0)
 end
 
--- F92 (playing-together.md section 5): a player who joined through a pal's invite or by following them starts on the
--- path just out from that pal's front door, facing the street (Layout.plot.palArrival), new players too. Then every
--- client gets PalArrived(joinerUserId, palUserId, palArea) for the wave from both characters, and the joiner's HUD
--- says where the pal is: palArea is the catching area the pal stands in, nil in town or a cafe.
-local function palArrival(player: Player, character: Model): boolean
-	local pal = PalService.joinedVia(player)
-	local plot = if pal ~= nil then PlotService.get(pal) else nil
-	if pal == nil or plot == nil then
-		return false
-	end
-	task.wait(0.1) -- after Roblox has placed the character at the town spawn
-	local spot = Layout.plot.palArrival
-	local landing = plot.cframe * CFrame.new(spot.x, spot.y, spot.z) -- plot space -Z is the street
-	pcall(function()
-		player:RequestStreamAroundAsync(landing.Position, 2)
-	end)
-	if player.Character ~= character or character.Parent == nil or pal.Parent ~= Players then
-		return false
-	end
-	character:PivotTo(landing)
-	local palRoot = rootOf(pal.Character)
-	local area = if palRoot ~= nil then WorldBuilder.areaAt(world, palRoot.Position) else nil
-	Net.fireAll("PalArrived", player.UserId, pal.UserId, area)
-	return true
-end
-
+-- #4716 (Derek 2026-11-16): every join, AFK rejoins included, waits Cannon.homeWaitSeconds (2 minutes) and a new
+-- player in the bowl first order starts home too.
 -- #3072: a returning player's first character of the session moves from the Town Square spawn to the street outside
 -- their own front door, facing it (TravelService.homeFront, where the Home button lands). The save and the cafe come
 -- a moment after the character (PlotService assigns the plot once the profile has loaded), so this waits for both,
@@ -335,7 +327,8 @@ local function homeArrival(player: Player, character: Model)
 			-- #3666: the intro test's scene half starts at home as everyone did while the intro played itself
 			Telemetry.introPlays(player, profile),
 			profile.tutorialStep,
-			Config.TutorialGuaranteedStrayStep
+			Config.TutorialGuaranteedStrayStep,
+			require(ReplicatedStorage.Shared.TutorialOrder).bowlFirst() -- #4716: a new player starts home too
 		)
 	then
 		return
@@ -363,10 +356,21 @@ local function homeArrival(player: Player, character: Model)
 	player:SetAttribute(Cannon.HOME_ATTRIBUTE, (landing :: CFrame).Position)
 end
 
+-- #4702: a player who joined through a friend's invite or by following them stays where everyone else spawns, but
+-- every client still gets PalArrived(joinerUserId, palUserId, nil) for the wave and the #3995 joined notes; no area,
+-- so no friend location bubble.
+local function palJoinedNote(player: Player)
+	local pal = PalService.joinedVia(player)
+	if pal == nil or pal.Parent ~= Players or player.Parent ~= Players then
+		return
+	end
+	Net.fireAll("PalArrived", player.UserId, pal.UserId, nil)
+end
+
 -- Where a respawn lands: on its camp's pad after a death in a wild area by day (section 4), on a free spot, else
--- inside its own cafe. A first spawn of the session goes to a pal's door for a player who joined through one
--- (palArrival), to the player's own front door for a returning player (homeArrival, #3072), and stays at the
--- hometown spawn, facing the cannon, for a new one.
+-- inside its own cafe. A first spawn of the session goes to the player's own front door for a returning player
+-- (homeArrival, #3072; also after joining through a friend, #4702), and stays at the hometown spawn, facing the
+-- cannon, for a new one.
 local function watchCharacter(player: Player, character: Model, respawn: boolean)
 	local area = diedIn[player]
 	diedIn[player] = nil
@@ -386,9 +390,8 @@ local function watchCharacter(player: Player, character: Model, respawn: boolean
 		return
 	end
 	if not respawn then
-		if not palArrival(player, character) then
-			homeArrival(player, character) -- #3072
-		end
+		homeArrival(player, character) -- #3072
+		palJoinedNote(player)
 		return
 	end
 	task.wait(0.1) -- after Roblox has placed the character at the town spawn

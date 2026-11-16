@@ -589,8 +589,9 @@ function Cannon.playStaged(
 	local plan = stage or Presets.cannon.introStage
 	endFlight(model)
 	fly(model, startedAt, plan, true, cannon, model:GetPivot().Position)
+	local beat: StagedBeat = "boom"
 	for _, listener in stagedListeners do
-		task.spawn(listener, "boom", startedAt + plan.boomAt, model)
+		task.spawn(listener, beat, startedAt + plan.boomAt, model)
 	end
 	Clouds.play(startedAt, plan.clouds, tintOf(destination))
 	local g, rider = glide, Clouds.rider()

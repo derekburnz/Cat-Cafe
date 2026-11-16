@@ -243,6 +243,7 @@ UI.events = {
 	storeGuardBlocked = Signal.new(), -- (what)   forward as TelemetryReport("store_guard_blocked", what)
 	buySource = Signal.new(), -- (what)   #4176: forward as TelemetryReport("buy_source", what)
 	starterSuggest = Signal.new(), -- (outcome)   #4174: forward as TelemetryReport("starter_suggest", outcome)
+	moneyCard = Signal.new(), -- ("<outcome>:<rung>")   #4437: forward as TelemetryReport("money_card", what)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
@@ -919,6 +920,10 @@ function UI.init(config: Types.InitConfig)
 		end,
 		-- #2353: the X2 Cash pill opens Roblox's window for the 2x pass, through the Store's tap guard (#1936)
 		buyPass = function(id: number)
+			-- #4437: the session's first tap opens the Money boost card; its Buy opens the prompt
+			if UI.tips.offerMoneyCard(id) then
+				return
+			end
 			local PassShop = require(script.Components.PassShop)
 			PassShop.prompt(id, "hud_badge") -- #4176: purchase_source tells these from Store buys
 		end,
@@ -6467,6 +6472,122 @@ do
 		end
 		local id, robux = price()
 		open(card, id or 0, robux or 99)
+	end
+end
+
+-- #4437 (zero-sales dig, Derek 2026-11-15): the HUD's Money button's first tap of a session opens the Money boost card
+-- (Screens/MoneyCard, Components/MoneyCardLogic): this cafe's money a minute now and with the pass, Buy and the X. Its
+-- Buy opens Roblox's prompt (source money_card); later taps go straight to the prompt. Behind the moneyCard switch
+-- (on by default). Its own block, as the module is short of locals.
+do
+	local MoneyCardLogic = require(script.Components.MoneyCardLogic)
+	local SharedMoneyCard =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("MoneyCard")) :: any
+	local money = { screen = nil :: any, shown = false, ended = true, rung = 0, id = 0 }
+
+	local function finish(how: string)
+		if money.ended then
+			return
+		end
+		money.ended = true
+		UI.events.moneyCard:Fire(how .. ":" .. tostring(money.rung))
+	end
+
+	-- the window, made the first time it is needed
+	local function window(): any
+		if money.screen ~= nil then
+			return money.screen
+		end
+		local modalView = modal
+		if modalView == nil then
+			return nil
+		end
+		local function shut()
+			if modalView:current() == "MoneyCard" then
+				modalView:close()
+			end
+		end
+		local made = require(script.Screens.MoneyCard).new({
+			buy = function()
+				finish("buy")
+				shut()
+				local PassShop = require(script.Components.PassShop) :: any
+				PassShop.noteTap()
+				PassShop.prompt(money.id, SharedMoneyCard.SOURCE)
+			end,
+			close = function()
+				finish("closed")
+				shut()
+			end,
+		})
+		modalView:register("MoneyCard", {
+			frame = made.frame,
+			onClose = function()
+				finish("hidden") -- another window took the screen (Buy and the X have already ended it)
+			end,
+		})
+		money.screen = made
+		return made
+	end
+
+	local function show(id: number, rung: number, robux: number?): boolean
+		local made = window()
+		local modalView = modal
+		if made == nil or modalView == nil then
+			return false
+		end
+		local boosts = (state :: any).passBoosts
+		local current = if type(boosts) == "table" and type(boosts.money) == "number"
+			then boosts.money
+			else 1
+		local rate = (state :: any).prizeRate or state.incomePerSecond or 0
+		local now, with = SharedMoneyCard.perMinute(rate, current, rung)
+		local ShopIcons = require(script.Components.ShopIcons) :: any
+		made:render(MoneyCardLogic.view(rung, now, with, robux), ShopIcons.store("money", rung))
+		money.id, money.rung, money.shown, money.ended = id, rung, true, false
+		modalView:open("MoneyCard")
+		UI.events.moneyCard:Fire("shown:" .. tostring(rung))
+		return true
+	end
+
+	-- The HUD button's tap: true when the card opened (so no prompt), false to prompt as before.
+	function UI.tips.offerMoneyCard(id: number): boolean
+		local LiveFlags =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+		local boosts = (state :: any).passBoosts
+		local rung = MoneyCardLogic.rungOf(Config, id)
+		local offer = MoneyCardLogic.offer({
+			on = LiveFlags.shown(
+				MoneyCardLogic.FLAG,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. MoneyCardLogic.FLAG)
+			),
+			shown = money.shown,
+			rung = rung,
+			current = if type(boosts) == "table" and type(boosts.money) == "number"
+				then boosts.money
+				else 1,
+		})
+		if not offer or rung == nil then
+			return false
+		end
+		local PassShop = require(script.Components.PassShop) :: any
+		local price = PassShop.prices()[id]
+		return show(
+			id,
+			rung,
+			if price ~= nil and type(price.robux) == "number" then price.robux else nil
+		)
+	end
+
+	-- The card now, whatever the session and the switch say (QA in Studio and the UI gate), with a stand-in price
+	-- until Roblox's is known.
+	function UI.tips.showMoneyCard(rung: number?)
+		local r = rung or 2
+		local ids = (Config :: any).MoneyPassIds
+		local id = if type(ids) == "table" and type(ids[r]) == "number" then ids[r] else 0
+		local PassShop = require(script.Components.PassShop) :: any
+		local price = PassShop.prices()[id]
+		show(id, r, if price ~= nil and type(price.robux) == "number" then price.robux else 49)
 	end
 end
 

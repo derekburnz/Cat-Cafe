@@ -14238,6 +14238,59 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 		assert(ask:FindFirstChild("Title", true).TextFits, "uigate: the Starter card's title does not fit (#4174)")
 	end },
+	-- #4437: the HUD Money button's boost card: the pass picture, the cafe's money a minute now and with 2x (from
+	-- prizeRate), Buy with the price, the X; every line fits, no timer, and the X reports closed
+	{ "MoneyCard", function()
+		local said = {}
+		local connection = UI.events.moneyCard:Connect(function(what)
+			table.insert(said, what)
+		end)
+		local ok, problem = pcall(function()
+			UI.update({ prizeRate = 3, passBoosts = { money = 1 } } :: any)
+			UI.tips.showMoneyCard(2)
+			UIShim.advance(0.4)
+			local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("MoneyCard", true) :: GuiObject
+			assert(window and window.Visible, "uigate: the Money card did not open (#4437)")
+			assert(said[1] == "shown:2", "uigate: the Money card reported " .. tostring(said[1]) .. " (#4437)")
+			local function line(name, want)
+				local label = window:FindFirstChild(name, true) :: TextLabel
+				assert(label and label.Visible, "uigate: the Money card has no " .. name .. " line (#4437)")
+				assert(label.Text == want, ("uigate: the Money card's %s reads %q, not %q (#4437)"):format(name, label.Text, want))
+				assert(label.TextFits, "uigate: the Money card's " .. name .. " does not fit (#4437)")
+				return label
+			end
+			line("NowLabel", "Now")
+			line("Now", "$180 a minute")
+			line("WithLabel", "With 2x Money")
+			local with = line("With", "$360 a minute")
+			local picture = window:FindFirstChild("Picture", true) :: GuiObject
+			assert(picture and picture.Visible and picture.AbsoluteSize.X >= 56, "uigate: the Money card has no pass picture (#4437)")
+			assert(picture.AbsolutePosition.X + picture.AbsoluteSize.X <= with.AbsolutePosition.X + 1, "uigate: the pass picture runs under the words (#4437)")
+			local buy = window:FindFirstChild("Buy", true) :: GuiObject
+			local label = buy:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel
+			assert(string.find(label.Text, "Buy R$", 1, true) and label.TextFits, "uigate: the Money card's Buy reads " .. label.Text .. " (#4437)")
+			assert(buy.AbsolutePosition.Y >= with.AbsolutePosition.Y + with.AbsoluteSize.Y, "uigate: the Buy button sits over the numbers (#4437)")
+			-- a cafe with no money yet: one plain line in place of the numbers
+			UI.update({ prizeRate = 0 } :: any)
+			UI.tips.showMoneyCard(2)
+			UIShim.advance(0.2)
+			local plain = window:FindFirstChild("Plain", true) :: TextLabel
+			assert(plain.Visible and plain.TextFits and not (window:FindFirstChild("Now", true) :: GuiObject).Visible, "uigate: the Money card's plain line (#4437)")
+			press("MoneyCard", "Close")
+			UIShim.advance(0.6) -- the window's close slide
+			assert(not window.Visible, "uigate: the X did not close the Money card (#4437)")
+			assert(said[#said] == "closed:2", "uigate: the X reported " .. tostring(said[#said]) .. " (#4437)")
+		end)
+		connection:Disconnect()
+		UI.update({ prizeRate = false, passBoosts = false } :: any)
+		assert(ok, problem)
+	end },
+	-- #4437: the same card left open with a Tier 3 sized cafe, so the gate's pictures show it on every device
+	{ "MoneyCardShown", function()
+		UI.update({ prizeRate = 41.5, passBoosts = { money = 1 } } :: any)
+		UI.tips.showMoneyCard(2)
+		UIShim.advance(0.6)
+	end },
 }
 
 Scenes.names = {}

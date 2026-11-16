@@ -5599,7 +5599,7 @@ function UI.luckyDay(
 		return
 	end
 	if kind == "warning" then
-		local title: string?, said: string? = "Lucky Day soon!", line
+		local title: string?, said: string? = "Lucky Day soon!", nil -- #4867: no explaining line
 		if type(coming) == "table" then
 			title, said = (require(script.Components.LuckLogic) :: any).warnBanner(coming)
 		end
@@ -5609,7 +5609,7 @@ function UI.luckyDay(
 			and not (toasts and toasts:isBusy())
 			and not UI.intro.playing()
 		then
-			areaTitle:banner("lucky_warning", title, said or line, Theme.colors.gold, 4)
+			areaTitle:banner("lucky_warning", title, said, Theme.colors.gold, 4)
 		end
 		return
 	end

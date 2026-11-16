@@ -10,6 +10,7 @@ ReplicatedStorage:WaitForChild("Remotes")
 
 local AdminEventController = require(script.Parent.Controllers.AdminEventController)
 local AfkController = require(script.Parent.Controllers.AfkController)
+local AirMovesController = require(script.Parent.Controllers.AirMovesController)
 local Audio = require(script.Parent.Audio)
 local BinController = require(script.Parent.Controllers.BinController)
 local CampExtrasController = require(script.Parent.Controllers.CampExtrasController)
@@ -36,12 +37,26 @@ local RareCatchChatController = require(script.Parent.Controllers.RareCatchChatC
 local ShoveController = require(script.Parent.Controllers.ShoveController)
 local SpaPoolController = require(script.Parent.Controllers.SpaPoolController)
 local StarterCatController = require(script.Parent.Controllers.StarterCatController)
+local StationLockController = require(script.Parent.Controllers.StationLockController)
 local StyleController = require(script.Parent.Controllers.StyleController)
 local TradeController = require(script.Parent.Controllers.TradeController)
 local UIController = require(script.Parent.Controllers.UIController)
 local WalkUpController = require(script.Parent.Controllers.WalkUpController)
 local WorldController = require(script.Parent.Controllers.WorldController)
 
+do
+	-- #4613: a switch the UI takes once (the menu family look, the Store's rework) would latch the defaults on a server
+	-- that has not read its switches yet, so wait for that first read, a few seconds at most, usually none
+	local LiveFlags = require(ReplicatedStorage.Shared.LiveFlags)
+	LiveFlags.awaitReady(
+		ReplicatedStorage,
+		LiveFlags.CLIENT_WAIT_SECONDS,
+		os.clock,
+		function(seconds: number)
+			task.wait(seconds)
+		end
+	)
+end
 Audio.start()
 Audio.bindMoments(Moments :: any)
 UIController.start()
@@ -72,6 +87,7 @@ MemoryWatchController.start() -- #3743: the client's memory at 5, 15, 30 and 60 
 StyleController.start()
 ShoveController.start()
 NetSwingController.start() -- F93: the net swing, after the UI whose Net button it listens to
+AirMovesController.start() -- #4447: the Dragon Keep's Double Jump and Glide
 CannonController.start() -- F84: after the UI, whose cannon picker it opens
 ParkFirstController.start() -- #2915: the first Park landing toast and the stray ring, after the cannon
 ParkTrailController.start() -- #3554: the goal and paw trail to a first Park catch, behind parkGateTrail
@@ -85,6 +101,7 @@ TradeController.start() -- F102: trading, after the UI whose trade window it fee
 CodesController.start()
 PetController.start() -- #3651: the Pet prompt on your own working cats, after the UI whose pill it uses
 AfkController.start() -- #3573: resting in your cafe, after the UI whose chip it shows
+StationLockController.start() -- #4539: Mystery Market, Cat Arcade and Mystic Pool hidden below their tiers
 WalkUpController.start() -- #2398: the stations' windows open as you walk up, after the UI that draws them
 ChatTagController.start() -- #1624: the VIP tag in chat
 RareCatchChatController.start() -- #2203: rare catches here and in other servers, as chat lines

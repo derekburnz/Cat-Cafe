@@ -3082,13 +3082,7 @@
      },
      "attributes": {
       "Rojo_Id": "CatCafe_Cat_Rogue_Sit/6",
-      "GoldColor": {
-       "Color3": [
-        0.7882,
-        0.5412,
-        0.2941
-       ]
-      }
+      "GoldTone": 3
      },
      "children": [
       {

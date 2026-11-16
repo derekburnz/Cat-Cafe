@@ -1697,4 +1697,63 @@ return function()
 			)
 		end)
 	end)
+
+	describe("Audio admin drops (#4197)", function()
+		it("has a gentle landing cue for a fountain fish and a dropped crate", function()
+			local seen = 0
+			for kind, name in Logic.ADMIN_DROP_CUES do
+				local cue = Cues[name]
+				expect(cue).to.be.ok()
+				expect(cue.group).to.equal("Sfx")
+				-- a spray of fish or a field of crates stays a patter: spaced out, few voices, heard only nearby
+				expect(cue.minGap >= 0.3).to.equal(true)
+				expect(cue.voices <= 2).to.equal(true)
+				expect(cue.range ~= nil and cue.range <= 60).to.equal(true)
+				expect(cue.volume <= 0.5).to.equal(true)
+				expect(#cue.ids > 0 or cue.sheet ~= nil).to.equal(true)
+				expect(kind == "fish" or kind == "crate").to.equal(true)
+				seen += 1
+			end
+			expect(seen).to.equal(2)
+		end)
+	end)
+
+	describe("Audio Harvest Hollow (#4251)", function()
+		it("has a soft pick cue for the shared pumpkin patch", function()
+			local cue = Cues[Logic.HARVEST_PICK_CUE]
+			expect(cue).to.be.ok()
+			expect(cue.group).to.equal("Sfx")
+			-- twelve pumpkins and a full server stay a patter: spaced out, few voices, heard only nearby
+			expect(cue.minGap >= 0.3).to.equal(true)
+			expect(cue.voices <= 2).to.equal(true)
+			expect(cue.range ~= nil and cue.range <= 60).to.equal(true)
+			expect(cue.volume <= 0.4).to.equal(true)
+			expect(#cue.ids > 0).to.equal(true)
+		end)
+
+		it(
+			"plays the area's own song while you are in it, whatever zone the world gives",
+			function()
+				local function has(name: string): boolean
+					return name == "musicAreaHarvest" or name == "musicAreaDesert"
+				end
+				expect(Logic.songZone(nil, true)).to.equal("Harvest")
+				expect(Logic.songZone("Cafe", true)).to.equal("Harvest")
+				expect(Logic.songZone("Desert", false)).to.equal("Desert")
+				expect(Logic.songZone(nil, false)).to.equal(nil)
+				expect(Logic.areaSongFor(Logic.songZone("Cafe", true), has)).to.equal(
+					"musicAreaHarvest"
+				)
+				expect(Logic.areaSongFor(Logic.songZone("Cafe", false), has)).to.equal(nil)
+				-- the song is a looped region of its own sheet, as quiet as the other area songs
+				local song = Cues.musicAreaHarvest
+				expect(song).to.be.ok()
+				expect(song.sheet).to.equal("sheetMusicAreas3")
+				expect(song.looped).to.equal(true)
+				expect(song.group).to.equal("Music")
+				expect(song.volume).to.equal(Cues.musicAreaSnowy.volume)
+				expect(Cues.sheetMusicAreas3).to.be.ok()
+			end
+		)
+	end)
 end

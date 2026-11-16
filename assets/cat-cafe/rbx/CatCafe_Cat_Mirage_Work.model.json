@@ -334,7 +334,7 @@
     "Transparency": 0.15
    },
    "attributes": {
-    "GoldTone": 3,
+    "GoldTone": 2,
     "GoldSolid": true
    }
   },
@@ -388,7 +388,7 @@
     "Transparency": 0.15
    },
    "attributes": {
-    "GoldTone": 3,
+    "GoldTone": 1,
     "GoldSolid": true
    }
   },

@@ -21,4 +21,20 @@ return function()
 			expect(GoalLines.opens("", true)).to.equal(nil)
 		end)
 	end)
+	describe("GoalLines.coins (#4625)", function()
+		local rows = {
+			{ short = "Coins", status = "$40 / $1,500", met = false },
+			{ short = "Different cats", status = "2 / 5", met = false },
+		}
+		it("names the coins half of the tier", function()
+			expect(GoalLines.coins(rows, false)).to.equal("💰 Coins too: $40 / $1,500")
+			expect(GoalLines.coins(rows, true)).to.equal("💰 $40 / $1,500")
+		end)
+		it("says nothing once the coins are there, or with no tier", function()
+			expect(GoalLines.coins({ { short = "Coins", status = "Done", met = true } }, false)).to.equal(
+				nil
+			)
+			expect(GoalLines.coins(nil, true)).to.equal(nil)
+		end)
+	end)
 end

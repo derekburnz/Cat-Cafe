@@ -30,6 +30,7 @@ local FeedbackStand = require(Shared:WaitForChild("FeedbackStand"))
 local LateStations = require(Shared:WaitForChild("LateStations"))
 local MysticIntroCut = require(script.Parent.Parent.Effects.MysticIntroCut)
 local Net = require(script.Parent.Parent.Net)
+local StationLockController = require(script.Parent.StationLockController)
 local StationOpens = require(Shared:WaitForChild("StationOpens"))
 local Tips = require(Shared:WaitForChild("Tips"))
 local Traits = require(Shared:WaitForChild("Traits"))
@@ -242,6 +243,46 @@ local KINDS: { Kind } = {
 			UI.lateStations.open(LateStations.MUSEUM)
 		end,
 	},
+	-- #4554 (Derek 2026-11-15): the Water Park's Ticket Booth and the Castle's Dragon Keep open from their rings too,
+	-- only while their switches are on (the server lays the rings and takes them away with the switch)
+	{
+		tag = "TicketBooth",
+		prompt = "TicketBoothPrompt",
+		window = "TicketBooth",
+		only = function()
+			return ReplicatedStorage:GetAttribute("LiveFlag_ticketBooth") == true
+		end,
+		open = function()
+			UI.lateStations.openBooth()
+		end,
+	},
+	{
+		tag = "DragonKeep",
+		prompt = "DragonKeepPrompt",
+		window = "DragonKeep",
+		only = function()
+			return ReplicatedStorage:GetAttribute("LiveFlag_dragonKeep") == true
+		end,
+		open = function()
+			UI.lateStations.openKeep()
+		end,
+	},
+	-- #4554 (Derek 2026-11-15: "observatory also needs the circle infront"): the Snowy camp's Fusion Observatory dome
+	{
+		tag = "FusionObservatory",
+		prompt = "FusionObservatoryPrompt",
+		window = "FusionObservatory",
+		only = function()
+			return ReplicatedStorage:GetAttribute("LiveFlag_fusion") == true
+		end,
+		open = function()
+			-- the window comes with #4107; until then the ring opens nothing
+			local stations: any = (UI :: any).lateStations
+			if stations ~= nil and stations.openFusion ~= nil then
+				(stations.openFusion :: any)()
+			end
+		end,
+	},
 	{
 		tag = "IndexBoard", -- each area's board opens the Index on that area's page (Screens/IndexBoards)
 		prompt = "IndexPrompt",
@@ -450,6 +491,9 @@ function WalkUpController.start()
 				})
 			end
 			for _, kind in KINDS do
+				if StationLockController.locked(kind.tag) then
+					continue -- #4539: below its tier the station is hidden and its ring does not open
+				end
 				for _, model in CollectionService:GetTagged(kind.tag) do
 					if not model:IsDescendantOf(Workspace) then
 						continue -- the templates in ReplicatedStorage.Assets carry the tags too

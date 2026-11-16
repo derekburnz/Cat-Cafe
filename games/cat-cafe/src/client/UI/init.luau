@@ -11147,7 +11147,7 @@ function UI.autoRank.calm(): boolean
 end
 
 function UI.autoRank.check()
-	local auto = UI.autoRank
+	local auto: any = UI.autoRank -- any: luau-lsp lost `calm` on the table it is still building (CI)
 	if auto.watching then
 		return
 	end

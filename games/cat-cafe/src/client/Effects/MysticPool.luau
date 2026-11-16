@@ -92,6 +92,11 @@ local function copyCat(cat: (Model | string)?): Model?
 	elseif type(cat) == "string" then
 		local assets = ReplicatedStorage:FindFirstChild("Assets")
 		source = if assets ~= nil then assets:FindFirstChild(cat) else nil
+		-- #4601: a cat's seated body is the server's alone now (ServerOnlyAssets), so float its walking body
+		local walking = string.match(cat, "^(.+)_Sit$")
+		if source == nil and assets ~= nil and walking ~= nil then
+			source = assets:FindFirstChild(walking)
+		end
 	end
 	if source == nil or not source:IsA("Model") then
 		return nil

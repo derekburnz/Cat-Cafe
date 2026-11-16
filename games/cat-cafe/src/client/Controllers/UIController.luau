@@ -2029,6 +2029,12 @@ local function wireIntents()
 			end
 		end)
 	end
+	-- #4626: the minute 6 "come back tomorrow" line showed (once a session; the server checks the kind and the switch)
+	if events.returnHookEarly ~= nil then
+		events.returnHookEarly:Connect(function(kind: string)
+			Net.fire("TelemetryReport", "return_hook_early", kind)
+		end)
+	end
 	-- #1920: the session recap card showed, and how long it stayed up; the server allowlists both
 	if events.sessionRecap ~= nil then
 		events.sessionRecap:Connect(function()

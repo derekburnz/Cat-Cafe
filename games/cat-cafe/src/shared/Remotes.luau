@@ -170,6 +170,8 @@ Remotes.ClientToServer = {
 	-- season, a reward there, unclaimed, and on the paid track only once it is bought; answered with CafePassState
 	"PassClaimAll", -- ()  #1645: every reward PassClaim would take, in order
 	"PassSetTag", -- (tagId: string)  #1626: a ChatTags id in the player's choices, or "off"; answered with CafePassState
+	"ChatTagAsk", -- (userId: number)  #4882: the chat tag of a speaker on another server (a Global tab line); a whole
+	-- number from 1 up (ChatTags.askable). Answered with ChatTagOf; 10 every 10 s
 	"CollectCampExtra", -- (extraId: string)  F100 (camp-extras.md section 4): "picnic", "pond" or "lostFound", the
 	-- player's tier opens its area, within CampExtraRangeStuds (and a little slack) of its PromptAnchor, something held;
 	-- takes it all; 1 a second, answered with CampExtraResult and CampExtrasState
@@ -368,6 +370,8 @@ Remotes.ServerToClient = {
 	-- per id until TipSeen. The client queues and times it, then answers TipSeen
 	"SpinAllResult", -- (rolls: { Spin.SpinRoll }, totals: { Spin.SpinTotal })  #1078: each spin's slice and amount in
 	-- order, and the prizes added up for the one results card; both empty when nothing was spent
+	"ChatTagOf", -- (userId: number, tagId: string)  #4882: the answer to ChatTagAsk: that user's shown ChatTags id,
+	-- "" for none or not known
 	"AdminWheelResult", -- (slice: number, prizeId: string, paid: { string })  #4195: where an AdminWheelSpin landed
 	-- (the place in AdminWheel.PRIZES) and what it paid, as short lines; 0, "", {} when refused
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0

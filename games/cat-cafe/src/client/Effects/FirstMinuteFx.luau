@@ -1,12 +1,14 @@
 --!strict
 -- The first minute's two payoffs (Growth-Agent's first-minute timeline, Design-Agent's edits on Nov 16; first 5
 -- minutes priority):
---   * The first bowl cat's bait card (the account's first food, ProfileSync stats luresUsed 1 and no bait cat tamed
---     yet; not the Let go button, which #4863 hides on every card): as the card pops in, gold sparkles burst off its Tame button with two rings, and Moments.FirstBowlCard(rarity)
---     has Audio play that rarity's jingle. No new card: this is the reveal.
---   * The first net catch of the walk-through (Moments.CatchSuccess while ProfileSync's tutorialStep is still before
---     the first check-in, TutorialOrder.BOWL_STEP_BELOW): a confetti cheer round the player and
---     Moments.FirstCatchCheer for Audio's cheer.
+--   * The first bowl cat's bait card (the walk-through still running, ProfileSync tutorialStep below
+--     QuietStart.TUTORIAL_DONE, and the account's first food: stats luresUsed 1 or less and no bait cat tamed yet;
+--     not the Let go button, which #4863 hides on every card): as the card pops in, gold sparkles burst off its Tame
+--     button with two rings, and Moments.FirstBowlCard(rarity) has Audio play that rarity's jingle. No new card.
+--   * The account's first net catch (Moments.CatchSuccess while ProfileSync stats catsCaught is 2 or less: the bowl
+--     cat counts there too, and the sync may land before or after the catch; tutorialStep is no use, since bowl first
+--     jumps to step 5 before its Alleyway catches): a confetti cheer round the player and Moments.FirstCatchCheer
+--     for Audio's cheer.
 -- Each once a session. Screen parts through ScreenFx (it only reads the UI); Reduce Motion: no confetti or rings,
 -- the sounds still play. Listening only: no remotes, no game state.
 
@@ -21,8 +23,7 @@ local Presets = require(script.Parent.Presets)
 local ScreenFx = require(script.Parent.ScreenFx)
 local WowBaitGlow = require(script.Parent.WowBaitGlow)
 
-local TutorialOrder =
-	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder"))
+local QuietStart = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart"))
 
 local FirstMinuteFx = {}
 
@@ -32,16 +33,30 @@ local catchDone = false
 local tutorialStep: number? = nil
 local luresUsed: number? = nil
 local baitsTamed: number? = nil
+local catsCaught: number? = nil
 
--- Whether a catch now is the walk-through's first net catch: before the first check-in, and not yet cheered.
-function FirstMinuteFx.cheers(step: number?, already: boolean): boolean
-	return not already and step ~= nil and step < TutorialOrder.BOWL_STEP_BELOW
+-- At most this many cats on the save when the cheer plays: the bowl cat and the catch itself.
+FirstMinuteFx.CHEER_MOST = 2
+
+-- Whether a catch now gets the cheer: a brand new save (`caught` from its stats), and not yet cheered this session.
+function FirstMinuteFx.cheers(caught: number?, already: boolean): boolean
+	return not already and caught ~= nil and caught <= FirstMinuteFx.CHEER_MOST
 end
 
 -- Whether a bait card now is the account's first: one food in so far and no bait cat tamed yet, and not yet
 -- sparkled. Nil counts (the save not heard yet) never sparkle.
-function FirstMinuteFx.firstCard(lures: number?, tamed: number?, already: boolean): boolean
-	return not already and lures ~= nil and lures <= 1 and (tamed == nil or tamed == 0)
+function FirstMinuteFx.firstCard(
+	step: number?,
+	lures: number?,
+	tamed: number?,
+	already: boolean
+): boolean
+	return not already
+		and step ~= nil
+		and step < QuietStart.TUTORIAL_DONE
+		and lures ~= nil
+		and lures <= 1
+		and (tamed == nil or tamed == 0)
 end
 
 local function button(gui: Instance, name: string): GuiObject?
@@ -62,7 +77,7 @@ local function cardShown(gui: ScreenGui)
 		if
 			tame == nil
 			or not ScreenFx.shown(tame :: GuiObject)
-			or not FirstMinuteFx.firstCard(luresUsed, baitsTamed, cardDone)
+			or not FirstMinuteFx.firstCard(tutorialStep, luresUsed, baitsTamed, cardDone)
 		then
 			return
 		end
@@ -110,7 +125,7 @@ local function watchCard(playerGui: Instance)
 end
 
 local function caught()
-	if not FirstMinuteFx.cheers(tutorialStep, catchDone) then
+	if not FirstMinuteFx.cheers(catsCaught, catchDone) then
 		return
 	end
 	catchDone = true
@@ -152,6 +167,9 @@ function FirstMinuteFx.start()
 				end
 				if type(s.baitsTamed) == "number" then
 					baitsTamed = s.baitsTamed :: number
+				end
+				if type(s.catsCaught) == "number" then
+					catsCaught = s.catsCaught :: number
 				end
 			end
 		end

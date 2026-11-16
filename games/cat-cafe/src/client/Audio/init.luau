@@ -2144,10 +2144,9 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	-- First minute (Effects/FirstMinuteFx): the first bowl cat's card gets its rarity's jingle (the found jingle when
 	-- the rarity is unknown), and the first net catch a cheer on top of the catch sparkle.
 	FirstBowlCard = function(rarity: any)
+		-- a rarity whose jingle has no file yet (Rare today) falls back to the found jingle
 		local jingle = Logic.jingleFor(str(rarity))
-		if jingle ~= nil then
-			playSting(jingle)
-		else
+		if jingle == nil or Audio.play(jingle) == nil then
 			Audio.play("jingleCatFound")
 		end
 	end,

@@ -7029,7 +7029,15 @@ do
 		if visit.token ~= token or kind == nil then
 			return -- the visit ended, or another came, while it waited
 		end
-		if not initialized or not UI.tips.quiet() or busy() then
+		-- #4946: and not in the walk-through or the account's first 5 minutes, then one pop-up every 5 minutes (the toast
+		-- at the cafe too)
+		if
+			not initialized
+			or not UI.tips.quiet()
+			or busy()
+			or UI.firstCat.tutorial
+			or not UI.popPace.free()
+		then
 			task.delay(1, present, token, away)
 			return
 		end
@@ -7048,6 +7056,7 @@ do
 		end
 		local how, line = FirstVisitLogic.show(kind, away())
 		if how == "toast" then
+			UI.popPace.used() -- #4946
 			UI.toast(line, "good")
 		elseif how == "card" then
 			local choices: { AskCard.Choice } = {

@@ -99,12 +99,14 @@ export type Budget = {
 
 -- When a phone or tablet counts as struggling (#4311, Logic.slowStep; Derek 2026-11-14): under `fps` frames a second
 -- on average over a `window` second window, `windows` windows in a row, not counting the first `after` seconds or
--- frames longer than `pause` seconds. Gameplay's Low performance suggestion uses the same numbers.
+-- frames longer than `pause` seconds. #4307 (phones leave at 61 to 180 s): it used to need 60 + 2 x 20 = 100 s, past
+-- most of the tutorial, so a struggling phone ran the full budget through its first minutes; now 20 + 2 x 10 = 40 s
+-- at the earliest (cutscenes still hold the count, so the intro does not count).
 Presets.slow = {
 	fps = 30,
-	window = 20,
+	window = 10,
 	windows = 2,
-	after = 60,
+	after = 20,
 	pause = 1,
 }
 

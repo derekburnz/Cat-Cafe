@@ -23,7 +23,6 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
-local LiveFlags = require(Shared:WaitForChild("LiveFlags"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local NetSwing = require(Shared:WaitForChild("NetSwing"))

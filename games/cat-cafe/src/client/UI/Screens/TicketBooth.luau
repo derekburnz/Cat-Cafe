@@ -6,10 +6,8 @@
 -- price in tickets and one green BUY. Short of the price, BUY reads SAVE UP and a thin bar shows "1,240 / 3,000". At
 -- 1,000 tickets and over, the first tap turns BUY into "Tap again" for 3 seconds. Nothing random and nothing sold for
 -- Robux. The server decides every buy (BuyTicketPrize) and answers with a toast and a sync.
--- The two toys (spec 1.3, shared/Toys): once bought, a toy's card reads Owned and its button HOLD takes it in hand
--- (HoldToy(id)); while it is in hand the card reads PUT AWAY (HoldToy(nil)). The HUD's ToyButton uses it.
 --   TicketBooth.new(callbacks)   built hidden; the UI registers its frame as the "TicketBooth" modal
---   :setView(view) :setHeld(toyId?) :opened() :closed() :destroy()
+--   :setView(view) :opened() :closed() :destroy()
 
 local Workspace = game:GetService("Workspace")
 
@@ -33,14 +31,12 @@ local CARD = MenuFamily.card
 
 export type Callbacks = {
 	buy: (prizeId: string) -> (),
-	hold: (toyId: string?) -> (), -- #4061: HoldToy, nil puts the toy away
 	close: () -> (),
 }
 
 export type TicketBooth = {
 	frame: Frame,
 	setView: (self: TicketBooth, view: Types.TicketBoothView?) -> (),
-	setHeld: (self: TicketBooth, toyId: string?) -> (),
 	opened: (self: TicketBooth) -> (),
 	closed: (self: TicketBooth) -> (),
 	destroy: (self: TicketBooth) -> (),
@@ -106,21 +102,6 @@ local PICTURES: { [string]: { glyph: string, rarity: string, image: (() -> strin
 				return ShopIcons.crate("classic_golden_crate") -- the golden crate's look; it pays the best area's
 			end,
 		},
-		-- #4061 spec 1.3: the two toys (Model-Agent's booth pictures)
-		toySquirter = {
-			glyph = "💦",
-			rarity = "Epic",
-			image = function()
-				return ShopIcons.booth("WaterSquirter")
-			end,
-		},
-		toyNoodle = {
-			glyph = "🏊",
-			rarity = "Epic",
-			image = function()
-				return ShopIcons.booth("PoolNoodle")
-			end,
-		},
 	}
 
 local TicketBooth = {}
@@ -175,7 +156,6 @@ function TicketBooth.new(callbacks: Callbacks): TicketBooth
 	self._view = nil :: Types.TicketBoothView?
 	self._cards = {} :: { [string]: any }
 	self._armed = nil :: string?
-	self._held = nil :: string? -- the toy in hand (the character's HeldToy)
 	self._open = false
 	self._tick = 0
 	self._buyH = Scale.tapHeight(40, Theme.sizes.buttonDepth)
@@ -423,13 +403,6 @@ function TicketBooth.setView(self: any, view: Types.TicketBoothView?)
 	self:_paint()
 end
 
-function TicketBooth.setHeld(self: any, toyId: string?)
-	if self._held ~= toyId then
-		self._held = toyId
-		self:_paint()
-	end
-end
-
 function TicketBooth._paint(self: any)
 	local view: Types.TicketBoothView? = self._view
 	local now = Workspace:GetServerTimeNow()
@@ -444,11 +417,10 @@ function TicketBooth._paint(self: any)
 		local entry = self:_card(row.id, order)
 		shown[row.id] = true
 		entry.frame.Visible = true
-		local card = TicketBoothLogic.card(row :: any, tickets, self._armed == row.id, self._held)
+		local card = TicketBoothLogic.card(row :: any, tickets, self._armed == row.id)
 		entry.name.Text = row.name
 		entry.chip.Text = card.chip
 		entry.price.Text = TicketBoothLogic.commas(row.price)
-		entry.price.Visible = card.action ~= "hold" and card.action ~= "away" -- an owned toy has no price left
 		entry.saved.Visible = card.progress ~= nil
 		entry.fill.Size = UDim2.fromScale(card.progress or 0, 1)
 		entry.numbers.Text = card.saved or ""
@@ -456,7 +428,6 @@ function TicketBooth._paint(self: any)
 		entry.buy:setStyle(card.style :: any)
 		entry.buy:setEnabled(card.enabled)
 		entry.action = card.action
-		entry.item = row.item
 	end
 	for id, entry in self._cards do
 		if not shown[id] then
@@ -480,11 +451,6 @@ function TicketBooth._press(self: any, id: string)
 				self:_paint()
 			end
 		end)
-		return
-	end
-	if entry.action == "hold" or entry.action == "away" then
-		-- the server sets HeldToy and setHeld repaints; nothing changes here until it does
-		self._callbacks.hold(if entry.action == "hold" then entry.item else nil)
 		return
 	end
 	if entry.action ~= "buy" then

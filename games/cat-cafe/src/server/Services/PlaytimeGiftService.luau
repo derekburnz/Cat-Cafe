@@ -8,7 +8,7 @@
 -- #2791: the gift ladder's small steps (2, 4, 6, 15 and 20 minutes) pay the same way, with a "Gift! ..." toast in place
 -- of the card; each paid step logs playtime_gift {step, "paid"}.
 -- #3772: and the welcome back gift (shared/ReturnGift), a golden crate once per account on its first later-day join,
--- behind the returnGift switch.
+-- (the returnGift switch shipped and is gone, #4654).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

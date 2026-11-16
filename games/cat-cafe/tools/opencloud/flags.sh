@@ -69,8 +69,6 @@
 #                 only
 #   riftRun       true plays the Rift Run cutscene for a Mythic or Secret trait roll (Effects/RiftRun); client
 #                 only, safe at any time
-#   menuFamily    true gives every dark window the station menu family's look (#3558); client only, a window
-#                 open at the change keeps its look until it is opened again
 #   speedShoes    true puts the Speed Shoes on the Mystery Market shelf and counts their carry speed (#3535);
 #                 only once every server runs a build that has them (an older one drops the owned pair)
 #   petCats       true shows the Pet prompt on the cats in a player's own cafe (#3651): the petted cat earns double
@@ -204,7 +202,6 @@ show_key() {
 	touchCatchReach) if [ "$raw" = true ]; then meaning="wider Net button reach on touch screens ON"; else meaning="wider Net button reach on touch screens off (its default)"; fi ;;
 	rankUpSpotlight) if [ "$raw" = true ]; then meaning="first rank up walk-through (dim and pointer) ON"; else meaning="first rank up walk-through off (its default)"; fi ;;
 	bagColours) if [ "$raw" = true ]; then meaning="Backpack colour picks at the Featured Shop ON"; else meaning="Backpack colour picks off (its default)"; fi ;;
-	menuFamily) if [ "$raw" = true ]; then meaning="Station menu family look ON in every server"; else meaning="Station menu family look off (its default)"; fi ;;
 	speedShoes) if [ "$raw" = true ]; then meaning="Speed Shoes ON in every server"; else meaning="Speed Shoes off (its default)"; fi ;;
 	picnicTreats) if [ "$raw" = true ]; then meaning="Picnic Treats (pick one of three) ON in every server"; else meaning="Picnic Treats off (its default: the Money Potion basket)"; fi ;;
 	traitBundles) if [ "$raw" = true ]; then meaning="Trait Token bundles offered at the Mystic Pool"; else meaning="Trait Token bundles off (its default)"; fi ;;

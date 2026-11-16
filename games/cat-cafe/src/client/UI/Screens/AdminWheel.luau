@@ -66,6 +66,14 @@ local SPIN_TURNS = 5
 local RIM = Theme.colors.cocoa
 local INK = Theme.colors.outline
 local BULB = { Color3.fromHex("FFF096"), Color3.fromHex("FFFFFF") }
+-- #4881 (Derek 2026-11-16, "make the admin wheel a much better model / look"): two pictures over the drawn wheel,
+-- assets/cat-cafe/ui/admin-wheel. The face turns with the Face frame: the eight slices at PRIZES' weights, slice 1
+-- centred at the top and then clockwise (SpinLogic's order), each with its prize picture. The frame stays still: the
+-- gold rim with its lights, the Lucky Cat hub and the pointer. The drawn wheel stays underneath, so the window still
+-- reads while Roblox is still checking the pictures. Redraw both with the weights if PRIZES change.
+local FACE_IMAGE = "rbxassetid://76596036710944"
+local FRAME_IMAGE = "rbxassetid://104531670337320"
+local FRAME_SCALE = 512 / 490 -- the frame picture's rim is 490 px of its 512 px half
 
 local AdminWheel = {}
 AdminWheel.__index = AdminWheel
@@ -166,6 +174,14 @@ function AdminWheel.new(callbacks: Callbacks): AdminWheel
 	})
 	self._face = face
 	self:_buildSlices()
+	Create("ImageLabel", {
+		Name = "FacePicture",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Image = FACE_IMAGE,
+		ZIndex = 4,
+		Parent = face,
+	})
 	-- the hub and the pointer stay still
 	local hub: Frame = Create("Frame", {
 		Name = "Hub",
@@ -204,6 +220,16 @@ function AdminWheel.new(callbacks: Callbacks): AdminWheel
 		Parent = wheel,
 	})
 	Outline.text(pointer, 3, INK)
+	Create("ImageLabel", {
+		Name = "FramePicture",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(FRAME_SCALE, FRAME_SCALE),
+		BackgroundTransparency = 1,
+		Image = FRAME_IMAGE,
+		ZIndex = 8,
+		Parent = wheel,
+	})
 
 	-- the side: every prize and its odds, Spin, and the line
 	local side: Frame = Create("Frame", {

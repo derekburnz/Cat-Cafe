@@ -9422,9 +9422,11 @@ UI.admin = {
 do
 	local AdminBarLogic = require(script.Components.AdminBarLogic)
 	local AdminWheel = require(script.Screens.AdminWheel)
+	local WheelPrize = require(script.Screens.WheelPrize)
 	local AUTO_OPEN = 4 -- seconds after the wheel comes up before its window opens by itself (the splash first)
 	local admin = {
 		window = nil :: AdminWheel.AdminWheel?,
+		prize = nil :: WheelPrize.WheelPrize?, -- #4876: the prize card after each spin
 		info = nil :: AdminBarLogic.Info?,
 		wheel = nil :: AdminBarLogic.Wheel?,
 		upAt = nil :: number?, -- when this event's wheel came up for this account (os.clock)
@@ -9443,8 +9445,10 @@ do
 	end
 
 	-- UI.init: the wheel's window in the modal.
-	function UI.admin.start(_parent: Instance)
+	function UI.admin.start(parent: Instance)
 		UI.admin.reset()
+		local prizeCard = WheelPrize.new(parent)
+		admin.prize = prizeCard
 		local window = AdminWheel.new({
 			spin = function()
 				UI.admin.spin:Fire()
@@ -9454,10 +9458,26 @@ do
 					modal:close()
 				end
 			end,
-			toast = function(text: string)
-				if toasts then
-					toasts:show(text, "good")
+			-- #4876 (Derek 2026-11-16): the wheel closes and the prize card shows for a few seconds; with spins
+			-- left the window comes back after it
+			won = function(prizeId: string, words: string, catId: string)
+				if modal and modal:current() == "AdminWheel" then
+					modal:close()
 				end
+				prizeCard:show(prizeId, words, catId, function()
+					local wheel = admin.wheel
+					local info = admin.info
+					if
+						wheel ~= nil
+						and not wheel.spun
+						and info ~= nil
+						and info.running
+						and modal
+						and modal:current() == nil
+					then
+						UI.admin.open()
+					end
+				end)
 			end,
 		})
 		admin.window = window
@@ -9514,10 +9534,10 @@ do
 	end
 
 	-- AdminWheelResult(slice, prizeId, paid).
-	function UI.admin.result(slice: number, prizeId: string, paid: { string })
+	function UI.admin.result(slice: number, prizeId: string, paid: { string }, catId: string?)
 		local window = admin.window
 		if window then
-			window:result(slice, prizeId, paid)
+			window:result(slice, prizeId, paid, catId)
 		end
 	end
 
@@ -9528,6 +9548,11 @@ do
 			window:destroy()
 		end
 		admin.window = nil
+		local prizeCard = admin.prize
+		if prizeCard then
+			prizeCard:destroy()
+		end
+		admin.prize = nil
 	end
 end
 

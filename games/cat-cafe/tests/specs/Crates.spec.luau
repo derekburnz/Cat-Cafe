@@ -507,7 +507,7 @@ return function()
 			profile.fishPerks.extra_decor_spot = 1
 			expect(Crates.buyCost(profile, row("extra_decor_spot"))).to.equal(250)
 			-- #3317, #4705: Swift Paws, ten levels
-			local paws = { 60, 150, 300, 500, 800, 1200, 1700, 2300, 3000, 3800 }
+			local paws = { 60, 150, 300, 500, 800, 850, 900, 950, 1000, 1100 } -- #4860: 6 to 10 cheaper
 			for level = 0, 9 do
 				profile.fishPerks.swift_paws = if level > 0 then level else nil
 				expect(Crates.buyCost(profile, row("swift_paws"))).to.equal(paws[level + 1])

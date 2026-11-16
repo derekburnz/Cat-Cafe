@@ -271,10 +271,13 @@ LiveFlags.OFF_BY_DEFAULT = {
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to
--- #4607: true on ReplicatedStorage once the attributes hold the store's values (the server's first read came back), so
--- a look the client takes once at its start (the menu family) waits for it instead of latching the defaults
+-- #4607, #4613: a fresh server copies the defaults out at once and the store's switches only after its first read, a
+-- few seconds later. It sets this ReplicatedStorage attribute true once that first read has been tried (or at once
+-- where nothing is read), and the client waits for it before it builds anything that takes a switch once (the menu
+-- family look, the Store's rework), so nobody who joins a new server keeps an old look.
 LiveFlags.READY_ATTRIBUTE = "LiveFlagsReady"
-LiveFlags.READY_WAIT = 6 -- seconds the client waits for it at most before building the UI
+LiveFlags.CLIENT_WAIT_SECONDS = 8 -- #4613: Main.client's wait, before any UI module latches a switch
+LiveFlags.READY_WAIT = 6 -- #4607: UIController's own wait, which ends at once after Main.client's
 
 export type Flags = { [string]: boolean }
 
@@ -313,6 +316,28 @@ function LiveFlags.parse(raw: unknown): Flags
 		end
 	end
 	return out
+end
+
+-- #4613: waits until `holder` (ReplicatedStorage) carries READY_ATTRIBUTE true, at most `cap` seconds, checking every
+-- `step` seconds through `sleep` (task.wait) against `clock` (os.clock). Returns whether it was ready and how long it
+-- waited. Pure apart from the calls it is handed, so the spec runs it with a fake holder and clock.
+function LiveFlags.awaitReady(
+	holder: any,
+	cap: number,
+	clock: () -> number,
+	sleep: (number) -> (),
+	step: number?
+): (boolean, number)
+	local started = clock()
+	local every = step or 0.1
+	while holder:GetAttribute(LiveFlags.READY_ATTRIBUTE) ~= true do
+		local waited = clock() - started
+		if waited >= cap then
+			return false, waited
+		end
+		sleep(every)
+	end
+	return true, clock() - started
 end
 
 -- The keys whose value differs between `old` and `new`, in KEYS order.

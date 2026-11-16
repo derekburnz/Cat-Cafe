@@ -3122,6 +3122,36 @@ local SCENES = {
 		UI.update({ traits = { tokens = 1, freeLeft = 0, held = 1 } } :: any)
 		assert(resting.Text == "Re-roll · 1 Trait Token", "uigate: Roll did not wake on the answer: " .. resting.Text .. " (#3196)")
 	end },
+	-- #4712: Auto opens the Auto Roll sheet; Legendary picked, Start sends RollTrait's event with the cat and the
+	-- rarity, and a dropped Rare re-roll shows the run's numbers with Stop
+	{ "MysticPoolAuto", function()
+		local window = mysticPool(nil, "gate_1", { tokens = 5, freeLeft = 0, held = 0 })
+		press("MysticPool", "Auto")
+		local sheet = window:FindFirstChild("AutoRoll", true)
+		assert(sheet and sheet.Visible, "uigate: Auto did not open the Auto Roll sheet (#4712)")
+		press("MysticPool", "AutoRoll.Targets.TargetLegendary")
+		local start = sheet:FindFirstChild("Go"):FindFirstChildWhichIsA("TextLabel", true)
+		assert(start.Text == "Start (up to 5 Trait Tokens)", "uigate: Start reads " .. start.Text .. " (#4714 review)")
+		local sentUid, sentAt = nil, nil
+		local connection = UI.events.rollTrait:Connect(function(uid, stopAt)
+			sentUid, sentAt = uid, stopAt
+		end)
+		press("MysticPool", "AutoRoll.Go")
+		connection:Disconnect()
+		assert(sentUid == "gate_1" and sentAt == "legendary", ("uigate: Auto Roll sent %s, %s (#4712)"):format(tostring(sentUid), tostring(sentAt)))
+		local Traits = require(game:GetService("ReplicatedStorage").Shared.Traits) :: any
+		local rare = nil
+		for _, trait in Traits.LIST do
+			if rare == nil and Traits.rarity(trait).id == "rare" then
+				rare = trait.id
+			end
+		end
+		UI.update({ traits = { tokens = 4, freeLeft = 0, held = 0, autoRoll = { id = rare, n = 1 } } } :: any)
+		local status = sheet:FindFirstChild("Status")
+		assert(status.Text == "1 of 5 rolls · 1 Trait Token used · last: Rare", "uigate: the Auto Roll line reads " .. status.Text .. " (#4712)")
+		local go = sheet:FindFirstChild("Go"):FindFirstChildWhichIsA("TextLabel", true)
+		assert(go.Text == "Stop", "uigate: the running Auto Roll's button reads " .. go.Text .. " (#4712)")
+	end },
 	-- #3196: a new player's card: a cat with no trait picked from the list, and "Free roll (5 left)"
 	{ "MysticPoolFree", function()
 		local window = mysticPool(nil, nil, { tokens = 0, freeLeft = 5, held = 0, nextAt = workspace:GetServerTimeNow() + 3 * 3600 })

@@ -437,4 +437,106 @@ return function()
 			expect(#MysticPoolLogic.oddsLines() >= 1).to.equal(true)
 		end)
 	end)
+	describe("MysticPoolLogic Auto Roll (#4712)", function()
+		it("offers Uncommon up, Secret only with its switch", function()
+			local off = MysticPoolLogic.autoTargets(false)
+			local on = MysticPoolLogic.autoTargets(true)
+			expect(off[1].id).to.equal("uncommon")
+			expect(#on).to.equal(#off + 1)
+			expect(on[#on].id).to.equal("secret")
+			for _, target in off do
+				expect(target.id ~= "common" and target.id ~= "secret").to.equal(true)
+			end
+		end)
+		it(
+			"counts party, free and token rolls, never golden fish, and none while a choice waits",
+			function()
+				expect(MysticPoolLogic.autoRolls(nil)).to.equal(0)
+				expect(MysticPoolLogic.autoRolls({ tokens = 3, freeLeft = 2, party = 1 })).to.equal(
+					6
+				)
+				expect(MysticPoolLogic.autoRolls({ tokens = 0, freeLeft = 0 })).to.equal(0)
+				expect(MysticPoolLogic.autoRolls({ tokens = 3, pending = { uid = "a", id = "b" } })).to.equal(
+					0
+				)
+				expect(MysticPoolLogic.autoRolls({ tokens = -2, freeLeft = 0 / 0 } :: any)).to.equal(
+					0
+				)
+			end
+		)
+		it("hits at the target rarity or better", function()
+			local function idOf(rarity: string): string
+				for _, trait in Traits.LIST do
+					if Traits.rarity(trait).id == rarity then
+						return trait.id
+					end
+				end
+				error("no " .. rarity)
+			end
+			expect(MysticPoolLogic.autoHit(idOf("rare"), "epic")).to.equal(false)
+			expect(MysticPoolLogic.autoHit(idOf("epic"), "epic")).to.equal(true)
+			expect(MysticPoolLogic.autoHit(idOf("legendary"), "epic")).to.equal(true)
+			expect(MysticPoolLogic.autoHit(nil, "epic")).to.equal(false)
+			expect(MysticPoolLogic.autoHit(idOf("mythic"), "nope")).to.equal(false)
+		end)
+		it("says what a roll uses before the start and the run's numbers after", function()
+			local before = MysticPoolLogic.autoLine(nil, { tokens = 4, freeLeft = 0 })
+			expect(string.find(before, "4 Trait Tokens", 1, true) ~= nil).to.equal(true)
+			expect(string.find(before, "Golden fish are never used", 1, true) ~= nil).to.equal(true)
+			local running = MysticPoolLogic.autoLine({ rolls = 3, spent = 2, running = true }, nil)
+			expect(running).to.equal("3 rolls · 2 Trait Tokens used")
+			local capped =
+				MysticPoolLogic.autoLine({ rolls = 3, spent = 3, running = true, most = 10 }, nil)
+			expect(capped).to.equal("3 of 10 rolls · 3 Trait Tokens used")
+			local limit = MysticPoolLogic.autoLine(
+				{ rolls = 10, spent = 10, running = false, ended = "limit", most = 10 },
+				nil
+			)
+			expect(limit).to.equal("Stopped after 10 rolls · 10 Trait Tokens used")
+			local out = MysticPoolLogic.autoLine(
+				{ rolls = 1, spent = 1, running = false, ended = "out" },
+				nil
+			)
+			expect(out).to.equal("Out of Trait Tokens after 1 roll · 1 Trait Token used")
+		end)
+		it(
+			"caps a run at the picked limit and the rolls the player can pay for (Review-QA on #4714)",
+			function()
+				expect(MysticPoolLogic.autoMost({ tokens = 40 }, 10)).to.equal(10)
+				expect(MysticPoolLogic.autoMost({ tokens = 3 }, 25)).to.equal(3)
+				expect(MysticPoolLogic.autoMost({ tokens = 0 }, 5)).to.equal(0)
+				expect(MysticPoolLogic.autoStart({ tokens = 40 }, 10)).to.equal(
+					"Start (up to 10 Trait Tokens)"
+				)
+				expect(MysticPoolLogic.autoStart({ tokens = 40, freeLeft = 2 }, 10)).to.equal(
+					"Start (up to 10 rolls)"
+				)
+				expect(MysticPoolLogic.autoStart({ tokens = 0 }, 0)).to.equal("Start")
+			end
+		)
+		it("moves the stamp on an Auto Roll step or a party roll alone", function()
+			local view = {
+				tokens = 2,
+				freeLeft = 0,
+				held = 0,
+				party = 3,
+				autoRoll = { id = first.id, n = 1 },
+			}
+			local base = MysticPoolLogic.stamp(view, 0, nil)
+			expect(MysticPoolLogic.stamp({
+				tokens = 2,
+				freeLeft = 0,
+				held = 0,
+				party = 3,
+				autoRoll = { id = first.id, n = 2 },
+			}, 0, nil)).never.to.equal(base)
+			expect(MysticPoolLogic.stamp({
+				tokens = 2,
+				freeLeft = 0,
+				held = 0,
+				party = 2,
+				autoRoll = { id = first.id, n = 1 },
+			}, 0, nil)).never.to.equal(base)
+		end)
+	end)
 end

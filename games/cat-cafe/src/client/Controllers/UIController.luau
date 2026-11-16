@@ -3526,14 +3526,6 @@ function UIController.start()
 		achievementPrizesById = achievementPrizesById(), -- #3694: each one's own prize, its line's item
 		dailyTreat = Catalog.dailyTreat, -- F70: the Daily Treat card's seven days and their prizes
 	}
-	-- #3992: the Index's milestones past 50 (and the Rainbow track's past 25) wait for the `indexTo70` switch; the UI
-	-- reads catalog.indexPrizes each time, so a switch change shows at the next render
-	local SharedIndexRewards = require(Shared:WaitForChild("IndexRewards")) :: any
-	catalog.indexPrizes = SharedIndexRewards.shownPrizes()
-	ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. SharedIndexRewards.LATE_FLAG)
-		:Connect(function()
-			catalog.indexPrizes = SharedIndexRewards.shownPrizes()
-		end)
 	-- #4607 (Derek 2026-11-15: menus "reverted to the old menu style" after the 22:00 publish): a new server publishes
 	-- the switches' defaults before its first read of the store, and MenuFamily takes its look once, at the first
 	-- window built, so the first players in a fresh server latched the old look (and white words on the Store's

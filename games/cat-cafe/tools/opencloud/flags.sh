@@ -59,10 +59,6 @@
 #   storeRework   true shows the reworked Store (#3572): Cats above Passes, cheapest first, two columns of cards
 #                 with the picture at the left; client only, read when the Store is built at join
 #                 "New kind!" line and the five cats pointer (#3529); client and telemetry only, after review and QA
-#   indexTo70     true shows and pays the Index milestones past 50 and the Rainbow track past 25 (#3992); on
-#                 only with a restart publish, as an older server drops a claim it does not know
-#   quietStart    true hides other players' pop ups and the extra tips and cards in a new player's first 15 minutes
-#                 (#4005); after the restart that carries it
 #   quietAway     true holds the food bowl cards while a player is out catching, until they are back (#4035); client
 #                 only
 #   riftRun       true plays the Rift Run cutscene for a Mythic or Secret trait roll (Effects/RiftRun); client
@@ -73,8 +69,6 @@
 #                 only once every server runs a build that has them (an older one drops the owned pair)
 #   petCats       true shows the Pet prompt on the cats in a player's own cafe (#3651): the petted cat earns double
 #                 for an hour, one cat at a time. Off by default; only with or after the restart that ships it
-#   returnGift    true pays a golden crate once per account on its first join on a later UTC day than its first,
-#                 for accounts first seen from Config.ReturnGiftFromDay (#3772); false or no entry pays nothing
 #   loadingScreen true brings back the loading screen before the opening scenes (#3179: Derek had it removed);
 #                 false or no entry is no loading screen. Players who join after the change see it
 #   tradeFish     true lets golden fish into trades (#2745, section 1d). Turn it on only after QA and the security
@@ -192,7 +186,6 @@ show_key() {
 	yardSaleRoll) if [ "$raw" = true ]; then meaning="Yard Sale lucky pick ON in every server"; else meaning="Yard Sale lucky pick off (its default)"; fi ;;
 	introSplit) if [ "$raw" = true ]; then meaning="intro scene test ON: half of new players get the scene"; else meaning="intro scene test off (its default)"; fi ;;
 	petCats) if [ "$raw" = true ]; then meaning="pet a cat ON: the Pet prompt shows in a player's own cafe"; else meaning="pet a cat off (its default)"; fi ;;
-	returnGift) if [ "$raw" = true ]; then meaning="welcome back golden crate ON"; else meaning="welcome back golden crate off (its default)"; fi ;;
 	stuckCall) if [ "$raw" = false ]; then meaning="stuck cat call OFF (no pillar, bubble or meows)"; else meaning="stuck cat call on for saves with no rescue yet"; fi ;;
 	fxLite) if [ "$raw" = false ]; then meaning="lighter effects budget OFF (phones back on the full phone budget)"; else meaning="lighter effects budget on phones and graphics quality 1 to 3"; fi ;;
 	afkCafe) if [ "$raw" = true ]; then meaning="Resting in your cafe pays 2x cat pay, ON in every server"; else meaning="Cafe rest 2x off (its default)"; fi ;;
@@ -206,8 +199,6 @@ show_key() {
 	picnicTreats) if [ "$raw" = true ]; then meaning="Picnic Treats (pick one of three) ON in every server"; else meaning="Picnic Treats off (its default: the Money Potion basket)"; fi ;;
 	traitBundles) if [ "$raw" = true ]; then meaning="Trait Token bundles offered at the Mystic Pool"; else meaning="Trait Token bundles off (its default)"; fi ;;
 	storeRework) if [ "$raw" = true ]; then meaning="the reworked Store layout"; else meaning="the Store as before (its default)"; fi ;;
-	indexTo70) if [ "$raw" = true ]; then meaning="the Index milestones up to every cat"; else meaning="the Index milestones up to 50 (its default)"; fi ;;
-	quietStart) if [ "$raw" = true ]; then meaning="Quiet start for new players ON"; else meaning="Quiet start off (its default)"; fi ;;
 	quietAway) if [ "$raw" = true ]; then meaning="Food bowl cards wait while out catching ON"; else meaning="Food bowl cards show anywhere (its default)"; fi ;;
 	riftRun) if [ "$raw" = true ]; then meaning="the Rift Run cutscene for Mythic and Secret trait rolls"; else meaning="the pool's own trait cutscene (its default)"; fi ;;
 	circleStreak) if [ "$raw" = false ]; then meaning="Circle Streak VAULTED in every server (no new games)"; else meaning="Circle Streak on"; fi ;;

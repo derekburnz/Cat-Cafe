@@ -166,7 +166,6 @@ LiveFlags.KEYS = {
 	"picnicTreats",
 	"traitBundles", -- #3864: the Trait Token bundles at the Mystic Pool
 	"storeRework", -- #3572: the reworked Store layout
-	"indexTo70", -- #3992: the Index's All Cats tracks past 50 and Rainbow track past 25 (shared/IndexRewards.lateOpen)
 	"quietAway", -- #4035: food bowl cards wait while the player is out catching
 	"fishStore", -- #4055: Store passes for golden fish (shared/FishStore); on after the save version 49 restart
 	"dragonKeep", -- #4062: the Dragon Keep (shared/DragonKeep); on after the version 49 restart
@@ -226,7 +225,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	picnicTreats = true,
 	traitBundles = true,
 	storeRework = true,
-	indexTo70 = true,
 	quietAway = true,
 	fishStore = true,
 	ticketBooth = true,

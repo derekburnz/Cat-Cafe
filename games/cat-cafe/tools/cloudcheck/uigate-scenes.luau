@@ -8544,6 +8544,83 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		back("a miss's result comes")
 		UIShim.advance(2)
 	end },
+	-- #4973 (Derek 2026-11-16: "during the tutorial catching the tutorial steps ... will flash through"): a Miss on the
+	-- player's own tutorial stray comes back by itself (CatService.tutorialMiss), so the HUD stays aside through the
+	-- gap until the new circle; with no new circle it comes back after TutorialRetrySeconds plus the grace
+	{ "TutorialMissHold", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local root = hud:FindFirstChild("Root") :: Frame
+		UIShim.advance(4)
+		local before: { [Instance]: boolean } = {}
+		for _, child in root:GetChildren() do
+			if child:IsA("GuiObject") then
+				before[child] = child.Visible
+			end
+		end
+		local function aside(): boolean
+			for child, was in before do
+				if was and not (child :: GuiObject).Visible then
+					return true
+				end
+			end
+			return false
+		end
+		local function back(what: string)
+			for child, was in before do
+				assert(
+					(child :: GuiObject).Visible == was,
+					"uigate: the HUD's " .. child.Name .. " is not back " .. what .. " (#4973)"
+				)
+			end
+		end
+		local function beginner(strayId: string)
+			local model = workspace:FindFirstChild("Stray_" .. strayId)
+			assert(model ~= nil, "uigate: no stray model for " .. strayId)
+			model:SetAttribute("Beginner", UIShim.player.UserId)
+		end
+		startCatchV3("gate_tm", "Common", { "single" }, 0, 1)
+		beginner("gate_tm")
+		UIShim.advance(0.3)
+		assert(aside(), "uigate: the HUD did not step aside for the catch, so the scene proves nothing (#4973)")
+		UI.catch.showGrades("gate_tm", { "miss" }, false, 0, nil, nil)
+		assert(aside(), "uigate: the HUD came back on a tutorial Miss while its circle is on its way back (#4973)")
+		UIShim.advance(1.0)
+		assert(aside(), "uigate: the HUD flashed back before the tutorial circle came back (#4973)")
+		startCatchV3("gate_tm", "Common", { "single" }, 0, 1) -- the server's own restart
+		UIShim.advance(2.5)
+		assert(aside(), "uigate: the HUD came back mid catch after a tutorial retry (#4973)")
+		UI.catch.showGrades("gate_tm", { "perfect" }, true, 0)
+		back("the moment the retried catch lands")
+		UIShim.advance(2)
+		-- no new circle (walked off, no press): back after the retry time and the grace
+		startCatchV3("gate_tm2", "Common", { "single" }, 0, 1)
+		beginner("gate_tm2")
+		UIShim.advance(0.3)
+		UI.catch.showGrades("gate_tm2", { "miss" }, false, 0, nil, nil)
+		UIShim.advance(1.5)
+		assert(aside(), "uigate: the HUD came back inside the retry wait (#4973)")
+		UIShim.advance(1.0)
+		back("after a tutorial Miss with no new circle")
+		UIShim.advance(2)
+		-- Sync's forced Miss run: an easy catch on a stray that is not the Beginner one; its retryAt (now + 1 s) says
+		-- the circle comes back, so the HUD stays aside too
+		startCatchV3("gate_tm3", "Common", { "single" }, 0, 1)
+		UIShim.advance(0.3)
+		local t = workspace:GetServerTimeNow()
+		UI.catch.showGrades("gate_tm3", { "miss" }, false, 0, t + 1, nil)
+		assert(aside(), "uigate: the HUD came back on an easy catch's Miss whose circle comes back (#4973)")
+		startCatchV3("gate_tm3", "Common", { "single" }, 0, 1)
+		UIShim.advance(0.3)
+		UI.catch.showGrades("gate_tm3", { "perfect" }, true, 0)
+		back("the moment the easy catch lands")
+		UIShim.advance(2)
+		-- an ordinary Miss (retryAt 3 s or more away): the HUD is back at once (#3078)
+		startCatchV3("gate_tm4", "Common", { "single" }, 0, 1)
+		UIShim.advance(0.3)
+		UI.catch.showGrades("gate_tm4", { "miss" }, false, 0, workspace:GetServerTimeNow() + 3, nil)
+		back("the moment an ordinary Miss lands")
+		UIShim.advance(4)
+	end },
 	-- #2731 (Derek2's backpack bugs: no way to drop a packed cat with empty arms): with a PackedCatId on the character
 	-- and nothing in the arms, a small "Drop bag cat" pill sits where the carry banner would, thumb sized, on screen,
 	-- one line; a tap fires dropCat. While carrying, the carry banner's Drop takes over and the pill hides.

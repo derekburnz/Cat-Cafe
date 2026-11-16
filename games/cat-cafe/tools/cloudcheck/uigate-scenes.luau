@@ -4279,13 +4279,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		local shown = order()
 		assert(
-			shown == "kibble,comet_treat,honey_cream,star_treat,moon_milk,caviar,salmon,sardines,tuna",
+			shown == "kibble,eclipse_treat,comet_treat,honey_cream,star_treat,moon_milk,caviar,salmon,sardines,tuna",
 			"uigate: the bowl with only Kibble lists " .. shown .. " (#2323)"
 		)
 		UI.update({ lures = { kibble = 3, salmon = 1 } })
 		shown = order()
 		assert(
-			shown == "salmon,kibble,comet_treat,honey_cream,star_treat,moon_milk,caviar,sardines,tuna",
+			shown == "salmon,kibble,eclipse_treat,comet_treat,honey_cream,star_treat,moon_milk,caviar,sardines,tuna",
 			"uigate: the bowl with Kibble and Salmon lists " .. shown .. " (#2323)"
 		)
 		UI.update({ lures = before.lures }) -- later Bait scenes keep their own bag (BaitRefill needs its Tuna)

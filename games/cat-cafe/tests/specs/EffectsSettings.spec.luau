@@ -113,22 +113,18 @@ return function()
 			expect(lite.animatedCats < low.animatedCats and lite.animHz < low.animHz).to.equal(true)
 		end)
 
-		it(
-			"wants lite on a struggling phone and on graphics quality 1 to 3, only with the switch on",
-			function()
-				-- Derek 2026-11-14: "turn it on for phones/tablets if they are struggling ... not if they are doing fine"
-				expect(Logic.wantsLite(true, "low", 0, true)).to.equal(true)
-				expect(Logic.wantsLite(true, "low", 0, false)).to.equal(false)
-				expect(Logic.wantsLite(true, "low", 0)).to.equal(false)
-				expect(Logic.wantsLite(true, "low", 2, false)).to.equal(true)
-				expect(Logic.wantsLite(true, "high", 2)).to.equal(true)
-				expect(Logic.wantsLite(true, "high", 3)).to.equal(true)
-				expect(Logic.wantsLite(true, "high", 4)).to.equal(false)
-				expect(Logic.wantsLite(true, "high", 0, true)).to.equal(false)
-				expect(Logic.wantsLite(true, "high", nil)).to.equal(false)
-				expect(Logic.wantsLite(false, "low", 1, true)).to.equal(false)
-			end
-		)
+		it("wants lite on a struggling phone and on graphics quality 1 to 3", function()
+			-- Derek 2026-11-14: "turn it on for phones/tablets if they are struggling ... not if they are doing fine"
+			expect(Logic.wantsLite("low", 0, true)).to.equal(true)
+			expect(Logic.wantsLite("low", 0, false)).to.equal(false)
+			expect(Logic.wantsLite("low", 0)).to.equal(false)
+			expect(Logic.wantsLite("low", 2, false)).to.equal(true)
+			expect(Logic.wantsLite("high", 2)).to.equal(true)
+			expect(Logic.wantsLite("high", 3)).to.equal(true)
+			expect(Logic.wantsLite("high", 4)).to.equal(false)
+			expect(Logic.wantsLite("high", 0, true)).to.equal(false)
+			expect(Logic.wantsLite("high", nil)).to.equal(false)
+		end)
 
 		-- #4311: Logic.slowStep with Presets.slow
 		local function run(state: any, fps: number, seconds: number, hold: boolean?): boolean

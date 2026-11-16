@@ -131,8 +131,6 @@ LiveFlags.KEYS = {
 	"rankFirst", -- #4383: a Tier 1 cafe that can rank up is sent to the rank up before the stuck cat, and a stray press no longer closes the walk-through for good (shared/RankFirst)
 	"bagColours",
 	"speedShoes",
-	"stuckCall", -- #2912: the stuck cat's call for help (pillar, Help! bubble, wiggle, meows) while a save waits for its first rescue; false hides it
-	"fxLite", -- #3794: phones and graphics quality 1 to 3 run the lighter effects budget; false goes back to today's
 	"storeRework", -- #3572: the reworked Store layout
 	"quietAway", -- #4035: food bowl cards wait while the player is out catching
 	"fishStore", -- #4055: Store passes for golden fish (shared/FishStore); on after the save version 49 restart

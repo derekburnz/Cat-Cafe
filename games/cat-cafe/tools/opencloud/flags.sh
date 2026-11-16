@@ -13,8 +13,6 @@
 #   swiftPaws     false hides the Golden Fish Market's Swift Paws perk and drops its speed (#3063); levels are kept
 #   alleyBin      false hides the Rummage Bin at the Alleyway camp and refuses a rummage (#3050); its waits are kept
 #   arcade        false hides the Cat Arcade's prompt and menu tile (#3062); a game already running finishes and pays
-#   fxLite        false puts phones and graphics quality 1 to 3 back on the full phone effects budget (#3794)
-#   stuckCall     false hides the stuck cat's call for help (pillar, bubble, wiggle, meows) for every player (#2912)
 # and some start off, so only true turns them on (LiveFlags.OFF_BY_DEFAULT):
 #   nightCatch    true lets a Tier 1 player in their first session keep catching in the Alleyway at night (#3035);
 #                 false or no entry is the normal night for them
@@ -166,8 +164,6 @@ show_key() {
 	autoRejoin) if [ "$raw" = true ]; then meaning="Auto rejoin for resting players ON in every server"; else meaning="Auto rejoin off (its default)"; fi ;;
 	binRoll) if [ "$raw" = true ]; then meaning="Rummage Bin prize roll ON in every server"; else meaning="Rummage Bin prize roll off (its default)"; fi ;;
 	introSplit) if [ "$raw" = true ]; then meaning="intro scene test ON: half of new players get the scene"; else meaning="intro scene test off (its default)"; fi ;;
-	stuckCall) if [ "$raw" = false ]; then meaning="stuck cat call OFF (no pillar, bubble or meows)"; else meaning="stuck cat call on for saves with no rescue yet"; fi ;;
-	fxLite) if [ "$raw" = false ]; then meaning="lighter effects budget OFF (phones back on the full phone budget)"; else meaning="lighter effects budget on phones and graphics quality 1 to 3"; fi ;;
 	afkCafe) if [ "$raw" = true ]; then meaning="Resting in your cafe pays 2x cat pay, ON in every server"; else meaning="Cafe rest 2x off (its default)"; fi ;;
 	parkGateTrail) if [ "$raw" = true ]; then meaning="Park goal and paw trail after Tier 2 ON"; else meaning="Park goal and paw trail off (its default)"; fi ;;
 	rankUpSpotlight) if [ "$raw" = true ]; then meaning="first rank up walk-through (dim and pointer) ON"; else meaning="first rank up walk-through off (its default)"; fi ;;

@@ -3447,32 +3447,35 @@ end
 -- Rare 25, Super 5, then a row of it. A Common potion is Money, Lucky or Steady (the Swift Potion left the pool), its
 -- coins are 3 minutes of income, a Rare quest potion is one of the three 30-minute ones, and a Super crate is the one
 -- of the highest open area plus 15 golden fish. About 3.8 golden fish a gift on average (it was 3).
+-- #4884 (Derek 2026-11-16: "buff it by a lot"): wraps 60 / 30 / 10 (were 70 / 25 / 5); Common 2 potions, 10 minutes
+-- of income or 25 fish (were 1, 3 minutes, 8); Rare 2 quest potions, 60 fish, 2 spins or 4 Big Snacks (were 1, 20, 1,
+-- 2); Super 2 crates plus 40 fish or 150 fish (were 1 plus 15, 50). About 15.9 golden fish a gift on average.
 Catalog.mysteryGiftTiers = {
 	{
 		tier = "Common",
-		chance = 70,
+		chance = 60,
 		rows = {
-			{ kind = "potion", count = 1, chance = 45 },
-			{ kind = "coins", count = 180, chance = 35 },
-			{ kind = "fish", count = 8, chance = 20 },
+			{ kind = "potion", count = 2, chance = 45 },
+			{ kind = "coins", count = 600, chance = 35 },
+			{ kind = "fish", count = 25, chance = 20 },
 		},
 	},
 	{
 		tier = "Rare",
-		chance = 25,
+		chance = 30,
 		rows = {
-			{ kind = "questPotion", count = 1, chance = 40 },
-			{ kind = "fish", count = 20, chance = 25 },
-			{ kind = "spin", count = 1, chance = 20 },
-			{ kind = "food", id = "big_cat_snack", count = 2, chance = 15 },
+			{ kind = "questPotion", count = 2, chance = 40 },
+			{ kind = "fish", count = 60, chance = 25 },
+			{ kind = "spin", count = 2, chance = 20 },
+			{ kind = "food", id = "big_cat_snack", count = 4, chance = 15 },
 		},
 	},
 	{
 		tier = "Super",
-		chance = 5,
+		chance = 10,
 		rows = {
-			{ kind = "crate", id = "highest", count = 1, fish = 15, chance = 60 },
-			{ kind = "fish", count = 50, chance = 40 },
+			{ kind = "crate", id = "highest", count = 2, fish = 40, chance = 60 },
+			{ kind = "fish", count = 150, chance = 40 },
 		},
 	},
 } :: { Types.MysteryGiftTier }

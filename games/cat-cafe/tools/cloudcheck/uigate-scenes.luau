@@ -5806,6 +5806,23 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local title = card and card:FindFirstChild("Title") :: TextLabel?
 		assert(title and string.find(title.Text, "Super gift!", 1, true), "uigate: the gift card's heading (#2614)")
 	end },
+	-- #4884 (Derek 2026-11-16): with the giftCard switch off (its default) an opened Mystery gift shows the Rummage
+	-- Bin's small "You found:" card: the crate it paid and the Super wrap's golden fish, no centre card
+	{ "MysteryGiftLoot", function()
+		UI.setCatalog(catalogLikeTheGame())
+		UI.potions.giftResult("crate", "highest", 2, "Super", 40)
+		local loot = UIShim.playerGui:FindFirstChild("CatCafeLoot") :: ScreenGui?
+		local card = loot and loot:FindFirstChild("Card", true) :: GuiObject?
+		assert(card and card.Visible, "uigate: no loot card for the Mystery gift (#4884)")
+		local row1 = card:FindFirstChild("Row1", true)
+		local row2 = card:FindFirstChild("Row2", true)
+		local name1 = row1 and row1:FindFirstChild("Name") :: TextLabel?
+		local amount2 = row2 and row2:FindFirstChild("Amount") :: TextLabel?
+		assert(name1 and string.find(name1.Text, "Crate", 1, true), "uigate: the gift's crate row (#4884)")
+		assert(amount2 and amount2.Text == "+40", "uigate: the gift's golden fish row (#4884)")
+		local gift = UIShim.playerGui:FindFirstChild("Gift", true) :: GuiObject?
+		assert(gift == nil or not gift.Visible, "uigate: the centre gift card showed with giftCard off (#4884)")
+	end },
 	-- #3722: the Market's crate cards are not built inside setCatalog; opening the window builds them at once
 	{ "MarketDelayedBuild", function()
 		UI.setCatalog(catalogLikeTheGame())

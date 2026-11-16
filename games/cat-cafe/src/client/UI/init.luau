@@ -3419,7 +3419,30 @@ function UI.potions.giftResult(
 			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. "giftCard")
 		)
 	then
+		-- #4884 (Derek 2026-11-16: "make it so that reward does pop up briefly so it doesnt feel like it didnt
+		-- work"): the Rummage Bin's small "You found:" card instead of the centre card, gone by itself, never blocking
 		Sound.play("giftOpen")
+		local items: { { kind: string, id: string?, count: number } } = {}
+		if kind == "coins" then -- seconds of income, priced at the cafe's rate as the gift card does
+			local rate: number = state.prizeRate or state.incomePerSecond or 0
+			local money = math.floor(count * rate)
+			if money >= 1 then
+				table.insert(items, { kind = "coins", count = money })
+			end
+		elseif kind == "crate" then
+			local Prizes =
+				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Prizes")) :: any
+			local paid: string? = Prizes.crateFor(id or "", state.tier or 1)
+			if paid ~= nil then
+				table.insert(items, { kind = "crate", id = paid, count = count })
+			end
+		else
+			table.insert(items, { kind = kind, id = id, count = count })
+		end
+		if type(fish) == "number" and fish > 0 then
+			table.insert(items, { kind = "fish", count = fish })
+		end
+		UI.loot.show({ items = items })
 		return
 	end
 	local GiftLogic = require(script.Components.GiftLogic)

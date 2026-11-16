@@ -250,6 +250,11 @@ def prim_parts(name, kind, M4, swatch, extra):
     raise ValueError(f"unknown primitive {kind}")
 
 
+# #4783: object name -> a picture tiled over its parts' top face, {"Texture": "rbxassetid://...", "StudsPerTileU":
+# studs along the part's X, "StudsPerTileV": studs along its Z}. One flat slab with a picture in place of hundreds
+# of tile parts (square.py's paving). The part keeps its swatch colour under the picture, which shows while Roblox
+# has not loaded or approved it.
+TEXTURES = {}
 LOOKS = {}  # object name -> ([r, g, b] in 0..1, Material): a look from outside the palette (style_icons' samples)
 SWATCH_MATERIALS = {}  # asset -> {swatch: Material}: a statue cast in bronze or carved in jade (luckycat.py, F88)
 
@@ -344,6 +349,12 @@ def _props(p, asset, uid):
     node = {"name": p["name"], "className": "TrussPart" if climb else p["cls"], "properties": props}
     if uid:
         node["attributes"] = {"Rojo_Id": uid}
+    tex = TEXTURES.get(p["name"])
+    if tex:
+        node["children"] = [{"name": "Paving", "className": "Texture",
+                             "properties": {"Texture": tex["Texture"], "Face": "Top",
+                                            "StudsPerTileU": _r(tex["StudsPerTileU"]),
+                                            "StudsPerTileV": _r(tex["StudsPerTileV"])}}]
     if p["mesh"]:
         mesh = {"MeshType": p["mesh"]}
         if fit != 1.0:

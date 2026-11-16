@@ -118,7 +118,7 @@ local function onAsk(player: Player, rawUserId: unknown)
 		else
 			warnOnce("read failed: " .. tostring(value))
 		end
-		local askers = waiting[userId] or {}
+		local askers: { Player } = waiting[userId] or {}
 		waiting[userId] = nil
 		for _, asker in askers do
 			answer(asker, userId, tag)

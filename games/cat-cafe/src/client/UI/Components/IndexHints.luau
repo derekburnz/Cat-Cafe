@@ -100,9 +100,19 @@ function IndexHints.nudge(catalog: Types.Catalog, state: Types.PlayerState): Nud
 		return nil -- the server pays the step on its next check
 	end
 	-- the newest open area with the most cats still to find: sections are in tier order, so a tie goes to the later
+	-- #4251: only the ten areas: a page of its own (Harvest Hollow's, a limited area) is never where it points
+	local areaIds: { [string]: boolean } = {}
+	for _, area in catalog.areas or {} do
+		areaIds[area.id] = true
+	end
 	local best: IndexBook.Section? = nil
 	for _, section in IndexBook.sections(catalog, state, "normal") do
-		if section.exclusive or section.locked or (state.tier or 1) < section.tier then
+		if
+			section.exclusive
+			or section.locked
+			or (state.tier or 1) < section.tier
+			or not areaIds[section.id]
+		then
 			continue
 		end
 		local missing = section.total - section.have

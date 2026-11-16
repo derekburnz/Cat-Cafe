@@ -956,13 +956,10 @@ local function spawnAt(
 	owned: { [string]: any }? -- #4188: a beginner's collection, so their tutorial stray is a kind they lack
 ): Stray
 	local area = world.areas[areaId]
-	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the `secretCats` switch is on (never a beginner's
-	-- stray). It takes the Mythical's point, and everyone hears the area and never the spot.
-	-- (review note on #3486: the two draws are made only for a Mythical with the switch on, so a switched off build
-	-- rolls exactly as before)
-	local secret = if beginner == nil
-			and rarity == "Mythical"
-			and M.LiveFlagService.on(Catching.SECRET_FLAG)
+	-- #3470: a rolled Mythical turns Secret 1 time in 100 (never a beginner's stray; #4654 batch 5: the `secretCats`
+	-- switch is retired). It takes the Mythical's point, and everyone hears the area and never the spot.
+	-- (review note on #3486: the two draws are made only for a Mythical)
+	local secret = if beginner == nil and rarity == "Mythical"
 		then Catching.secret(
 			rarity,
 			rng:NextNumber(),
@@ -1637,7 +1634,6 @@ local function huntTick()
 	if
 		running.spawned >= running.count
 		or not M.ClockService.areasOpen()
-		or not M.LiveFlagService.on(Catching.SECRET_FLAG)
 		or #M.Catalog.secretCats == 0
 	then
 		return

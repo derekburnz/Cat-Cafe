@@ -39,9 +39,6 @@
 -- - `cartTier6` (#3462): the Day Cart's Tier 6 shelf, its own two baits and three potions (shared/CornerShop's top
 --   shelf). It starts OFF (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the
 --   items is running, since an older server's save check drops a food or potion id it does not know.
--- - `secretCats` (#3470): Secret cats, the rarity above Mythical. It starts OFF (OFF_BY_DEFAULT): off, nothing rolls
---   Secret anywhere. Switch it on only once no server older than the publish that added them is running, since an
---   older server's save check drops a cat id it does not know.
 -- - `secretAreas` (#4221): one Secret per area (Catalog's `secretArea`). It starts OFF (OFF_BY_DEFAULT): off, a
 --   Secret comes from any area as before; on, a wild stray's or trap's Mythical turns only into its area's Secret and
 --   a bait bowl's into one of its open areas' Secrets, and an area with none keeps its Mythical. The Index's Secret
@@ -118,7 +115,6 @@ LiveFlags.KEYS = {
 	"swiftPaws10", -- #4705
 	"mouseDash",
 	"cartTier6",
-	"secretCats",
 	"luckyCharm",
 	"rareCatsTab",
 	"autoRejoin",
@@ -181,7 +177,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	swiftPaws10 = true, -- #4705
 	mouseDash = true,
 	cartTier6 = true,
-	secretCats = true,
 	luckyCharm = true,
 	rareCatsTab = true,
 	autoRejoin = true,

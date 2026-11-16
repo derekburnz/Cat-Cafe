@@ -11380,6 +11380,22 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local want = "Row" .. landing
 		assert(#lit == 1 and lit[1] == want, "uigate: the pick's light is on " .. table.concat(lit, ",") .. ", not " .. want .. " (#3615)")
 	end },
+	-- #4861 (Derek 2026-11-16): a moment after the pick lands the Yard Sale card closes and the Rummage Bin's loot card
+	-- ("You found:") shows the crate
+	{ "YardSalePickLoot", function()
+		local extras = yardPickExtras(1, false)
+		UI.campExtras.update(extras)
+		UI.campExtras.openYardSale(extras.yardSale)
+		task.wait(0.1)
+		UI.campExtras.picked(1)
+		local total = 0
+		for _, step in UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RollBoardLogic").rollSteps(#extras.yardSale.pick, 1) do
+			total += step.rest
+		end
+		task.wait(total + 1.3)
+		assert(UI.isOpen() ~= "YardSale", "uigate: the Yard Sale card stayed open after the pick landed (#4861)")
+		assert((UI :: any).loot.card:isShowing(), "uigate: no loot card after the Yard Sale pick (#4861)")
+	end },
 	-- #1200: the Garden Nursery at Tier 3: owned pieces read Owned, the rest Buy with the price, Tier 4 and 5 pieces
 	-- "Opens at Tier 4"; then its Fences tab
 	{ "LawnStall", function()

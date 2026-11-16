@@ -4455,6 +4455,7 @@ UI.catch = {}
 UI.catch.promptTouch = false
 -- #3464 (Derek 2026-11-12: "show the loot obtained from rummage also"): the Rummage Bin's loot card
 -- (Screens/LootCard). It lists the server's items; since #3885 it shows as the prize lands in the hands.
+local YARD_LOOT_AFTER_SECONDS = 1 -- #4861: the Yard Sale's lit row shows this long before its card closes
 local LOOT_AFTER_POP_SECONDS = 0.9 -- #3885: as the prize's picture lands in the hands (Presets.binRoll.prize)
 UI.loot = { card = nil :: any, token = 0 }
 function UI.loot.show(win: unknown, after: number?, hint: string?)
@@ -8087,7 +8088,6 @@ do
 				Moments.YardSaleTick:Fire()
 			end,
 			landed = function(crateId: string)
-				local name = crateId
 				local golden = false
 				local crates: { Types.CrateDef } = if currentCatalog ~= nil
 						and currentCatalog.crates ~= nil
@@ -8095,16 +8095,21 @@ do
 					else {}
 				for _, crate in crates do
 					if crate.id == crateId then
-						name = crate.name
 						golden = crate.golden == true
 					end
-				end
-				if toasts then
-					toasts:prize("Lucky pick: " .. name, { crates = { [crateId] = 1 } })
 				end
 				-- #3615: the landing's sound and, for a golden crate, the bigger show at the stall
 				Moments.YardSaleLanded:Fire(golden)
 				UI.events.yardSaleLanded:Fire(crateId)
+				-- #4861 (Derek 2026-11-16: "yard sale after landing on the reward close the menu and briefly show the
+				-- pop up of what you got on screen like rummage bin"): a moment on the lit row, then the card closes and
+				-- the Rummage Bin's loot card says what was won (it was a toast)
+				task.delay(YARD_LOOT_AFTER_SECONDS, function()
+					if modalView:current() == "YardSale" then
+						modalView:close()
+					end
+					UI.loot.show({ items = { { kind = "crate", id = crateId, count = 1 } } })
+				end)
 			end,
 			close = function()
 				if modalView:current() == "YardSale" then

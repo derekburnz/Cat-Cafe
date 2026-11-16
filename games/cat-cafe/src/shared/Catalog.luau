@@ -2199,6 +2199,25 @@ Catalog.lures = {
 		odds = { Common = 0, Rare = 0, Epic = 35, Legendary = 48, Mythical = 17 },
 		asset = "CatCafe_Item_CometTreat",
 	},
+	-- #4900 (Derek 2026-11-16: "a new secret tier of bait bowl food ... night market and coin shop ... assume people are
+	-- making 1B a second so make it really expensive", then "make the price 10x"): a late game money sink at a flat
+	-- $20T (about 5.5 hours at $1B a second), used up by one bowl. A tenth of its Mythicals turn Secret
+	-- (secretShare; 1 in 100 for every other food), so its card reads Legendary 50%, Mythical 45%, Secret 5%. Sold by
+	-- the night dealer and the Day Cart from Tier 8. It wears the Comet Treat's model until its own is made.
+	{
+		id = "eclipse_treat",
+		name = "Eclipse Treat",
+		cost = 20000000000000,
+		sortOrder = 10,
+		attracts = "Mythical",
+		rarity = "Secret",
+		source = "cart",
+		description = "A bite of the night sky. Secret cats wake up for it.",
+		odds = { Common = 0, Rare = 0, Epic = 0, Legendary = 50, Mythical = 50 },
+		asset = "CatCafe_Item_CometTreat",
+		secretShare = 0.1,
+		needsTier = 8,
+	},
 } :: { Types.LureDef }
 
 -- Section 11b (F47): the Tip Jar's twelve playtime gifts in step order, unlocked by minutes of the current session.
@@ -3522,6 +3541,7 @@ Catalog.dealerSlotWeights =
 -- Config.DealerDryNights a long run without Moon Milk or a Star Treat ends on its own (shared/Dealer). F94
 -- (rewards-and-shops.md section 4): each server rolls one stock at dusk that holds all night (was every 5 minutes).
 Catalog.dealerAmountWeights = {
+	eclipse_treat = { 40, 40, 20, 0, 0 }, -- #4900: in stock 3 nights in 5, 1 or 2 (Tier 8 and up only)
 	sardines = { 5, 15, 30, 30, 20 },
 	caviar = { 15, 35, 30, 15, 5 },
 	moon_milk = { 25, 40, 25, 10, 0 },
@@ -6347,6 +6367,31 @@ Catalog.cornerShop = {
 		needsTier = 6,
 		topShelf = true,
 	},
+	-- #4900 (Derek 2026-11-16, prices 10x the draft): the late game money sinks, Tier 8 and up. The Eclipse Treat at its
+	-- flat $20T, and the Royal Feast, 50,000 XP (Cat Feast is 20,000), at $5T (about 1.4 hours at $1B a second)
+	{
+		id = "eclipse_treat",
+		name = "Eclipse Treat",
+		family = "bait",
+		size = "mega",
+		kind = "bait",
+		lureId = "eclipse_treat",
+		price = 20000000000000,
+		needsTier = 8,
+		topShelf = true,
+	},
+	{
+		id = "royal_feast",
+		name = "Royal Feast",
+		family = "food",
+		size = "mega",
+		kind = "food",
+		foodId = "royal_feast",
+		xp = 50000,
+		price = 5000000000000,
+		needsTier = 8,
+		topShelf = true,
+	},
 } :: { Types.CornerShopRow }
 Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }
 for _, row in Catalog.cornerShop do
@@ -6370,6 +6415,7 @@ Catalog.catFood = {
 	{ id = "cat_snack", name = "Cat Snack", xp = 2000 },
 	{ id = "big_cat_snack", name = "Big Snack", xp = 6000 },
 	{ id = "cat_feast", name = "Cat Feast", xp = 20000 },
+	{ id = "royal_feast", name = "Royal Feast", xp = 50000 }, -- #4900
 } :: { Types.CatFoodDef }
 Catalog.catFoodById = {} :: { [string]: Types.CatFoodDef }
 for _, food in Catalog.catFood do

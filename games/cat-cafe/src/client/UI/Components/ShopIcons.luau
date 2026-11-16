@@ -685,6 +685,7 @@ local SNACK_GLYPHS: { [string]: string } = {
 	cat_snack = "🍪",
 	big_cat_snack = "🧁",
 	cat_feast = "🍱",
+	royal_feast = "👑", -- #4900, until Model-Agent's picture
 }
 ShopIcons.SNACK_GLYPH = "🍪" -- a cat food with no glyph of its own
 
@@ -702,7 +703,7 @@ end
 
 -- #3462: the Day Cart's own baits have their own pictures now; the dealer's two best stay as the fallback key
 local FOOD_STAND_INS: { [string]: string } =
-	{ honey_cream = "moon_milk", comet_treat = "star_treat" }
+	{ honey_cream = "moon_milk", comet_treat = "star_treat", eclipse_treat = "comet_treat" } -- #4900
 
 function ShopIcons.food(lureId: string?): string?
 	if type(lureId) ~= "string" then

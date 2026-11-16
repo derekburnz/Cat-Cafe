@@ -945,6 +945,7 @@ return function()
 				"star_treat",
 				"honey_cream", -- #3462: the Day Cart's own two, last
 				"comet_treat",
+				"eclipse_treat", -- #4900
 			})
 		end)
 

@@ -392,11 +392,11 @@ local function mysticPool(waiting, uid, view)
 	return modals:FindFirstChild("MysticPool", true)
 end
 
--- #3296: Mouse Dash's card open with its switch on; `circle` whether Circle Streak is still playable beside it.
-local function mouseDashCard(circle)
+-- #3296: Mouse Dash's card open with its switch on (#4656: the arcade's only game).
+local function mouseDashCard()
 	UI.close()
 	UI.update({ goldenFish = 12 } :: any)
-	UI.mouseDash.setFlags(true, circle)
+	UI.mouseDash.setFlags(true)
 	UI.mouseDash.state({
 		loaded = true,
 		best = 37,
@@ -6198,11 +6198,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(glyphs >= 3, ("uigate: the session ask shows %d of the three thumbs and face (#3272)"):format(glyphs))
 	end },
 	-- #3296: Mouse Dash. With its switch on the cabinet opens its card: the best and titles, today's prizes (the
-	-- arcade's, shared), "Play (free)" and no way to Circle Streak once that game is vaulted
+	-- arcade's, shared), "Play (free)" and no way to Circle Streak (#4656: that game is gone)
 	{
 		"MouseDashCard",
 		function()
-			local window = mouseDashCard(false)
+			local window = mouseDashCard()
 			local play = window:FindFirstChild("Play", true):FindFirstChildWhichIsA("TextLabel", true)
 			assert(play.Text == "Play (free)", "uigate: Mouse Dash's Play reads " .. play.Text .. " (#3296)")
 			local records = window:FindFirstChild("Records", true)
@@ -6237,8 +6237,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			press("MouseDash", "Leaderboard")
 			assert(not top.Visible, "uigate: a second press did not fold the leaderboard away (#3553)")
 			assert(window:FindFirstChild("IdeaBy", true), "uigate: no idea credit on Mouse Dash's card (#3296)")
-			local other = window:FindFirstChild("CircleStreak", true)
-			assert(other and not other.Visible, "uigate: a vaulted Circle Streak still has its button (#3296)")
+			assert(window:FindFirstChild("CircleStreak", true) == nil, "uigate: Mouse Dash's card still has a Circle Streak button (#4656)")
 			local sent = false
 			local connection = UI.events.mouseDashPlay:Connect(function()
 				sent = true
@@ -6248,25 +6247,12 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			assert(sent, "uigate: Play on Mouse Dash's card sent nothing (#3296)")
 		end,
 	},
-	-- #3296: while both switches are on (testing) the card has a button to Circle Streak, which opens its card
-	{
-		"MouseDashBoth",
-		function()
-			local window = mouseDashCard(true)
-			local other = window:FindFirstChild("CircleStreak", true)
-			assert(other and other.Visible, "uigate: no button to Circle Streak while both games are on (#3296)")
-			press("MouseDash", "CircleStreak")
-			assert(UI.isOpen() == "Arcade", "uigate: the Circle Streak button opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#3296)")
-			UI.close()
-			mouseDashCard(true)
-		end,
-	},
 	-- #3296: a game on the board: nine holes that never overlap, 64 px or more each, the hearts and score strip clear
 	-- of every hole, and each animal centred in its hole. A tap sends the run, the wave and the hole.
 	{
 		"MouseDashBoard",
 		function()
-			local window = mouseDashCard(false)
+			local window = mouseDashCard()
 			local nowAt = workspace:GetServerTimeNow()
 			UI.mouseDash.began(7, 3, nowAt, nowAt + 92)
 			UI.mouseDash.wave(7, 1, {
@@ -6347,7 +6333,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{
 		"MouseDashBanner",
 		function()
-			local window = mouseDashCard(false)
+			local window = mouseDashCard()
 			local nowAt = workspace:GetServerTimeNow()
 			UI.mouseDash.began(9, 3, nowAt, nowAt + 92)
 			local banner = window:FindFirstChild("Banner", true)
@@ -6373,7 +6359,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{
 		"MouseDashOver",
 		function()
-			local window = mouseDashCard(false)
+			local window = mouseDashCard()
 			UI.mouseDash.began(8, 3, workspace:GetServerTimeNow())
 			UI.mouseDash.over(8, { points = 42, seconds = 51, reason = "quit", win = false, best = 42, bestSeconds = 51, newBest = true, paid = { 30, 40 }, today = { 10, 20, 30, 40 }, legend = false, mouser = true })
 			task.wait(0.1)
@@ -6387,7 +6373,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{
 		"MouseDashClose",
 		function()
-			local window = mouseDashCard(false)
+			local window = mouseDashCard()
 			UI.mouseDash.began(9, 3, workspace:GetServerTimeNow())
 			assert(UI.mouseDash.playing(), "uigate: no Mouse Dash game after it began (#3296)")
 			local quit = nil
@@ -6403,170 +6389,6 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			UI.mouseDash.open()
 			local last = window:FindFirstChild("LastGame", true)
 			assert(last.Visible and string.find(last.Text, "12", 1, true) ~= nil, "uigate: the closed game's line reads " .. last.Text .. " (#3296)")
-		end,
-	},
-	-- #3062: the Cat Arcade's card (records, today's prizes, Play, the idea credit), a game on the board, and the card
-	-- after a game
-	{
-		"ArcadeCard",
-		function()
-			UI.update({ goldenFish = 12 } :: any)
-			UI.arcade.state({
-				loaded = true,
-				best = 37,
-				bestCircles = 30,
-				today = { 10, 20 },
-				legend = false,
-				serverBest = 61,
-				serverCircles = 45,
-				serverName = "Sam",
-			})
-			UI.arcade.open()
-			local window = UIShim.playerGui:FindFirstChild("Arcade", true)
-			assert(
-				window and window:FindFirstChild("IdeaBy", true),
-				"uigate: no idea credit on the arcade card (#3062)"
-			)
-			assert(
-				window:FindFirstChild("Prize100", true),
-				"uigate: no milestone list on the arcade card (#3062)"
-			)
-		end,
-	},
-	-- #3296: the first game of the day is free, so Play reads "Play (free)" and is on with no golden fish
-	{
-		"ArcadeFree",
-		function()
-			UI.update({ goldenFish = 0 } :: any)
-			UI.arcade.state({
-				loaded = true,
-				best = 12,
-				bestCircles = 10,
-				today = {},
-				legend = false,
-				serverBest = 0,
-				serverCircles = 0,
-				free = true,
-			})
-			UI.arcade.open()
-			local window = UIShim.playerGui:FindFirstChild("Arcade", true)
-			assert(window, "uigate: the arcade window didn't open (#3296)")
-			local found = false
-			for _, item in window:GetDescendants() do
-				if (item:IsA("TextLabel") or item:IsA("TextButton")) and (item :: any).Text == "FREE" then
-					found = true
-				end
-			end
-			assert(found, "uigate: Play's pill doesn't say FREE for the day's free game (#3296)")
-		end,
-	},
-	-- #3338: the Leaderboard tab, ten names (a long one), the viewer's line marked
-	{
-		"ArcadeLeaderboard",
-		function()
-			UI.update({ goldenFish = 12 } :: any)
-			local top = {}
-			for rank = 1, 10 do
-				table.insert(top, {
-					rank = rank,
-					name = if rank == 2 then "AVeryLongDisplayName_Here" else "Player" .. rank,
-					points = if rank == 1 then 100 else 100 - rank * 7,
-					circles = 50 + rank,
-					me = if rank == 4 then true else nil,
-				})
-			end
-			UI.arcade.state({
-				loaded = true,
-				best = 72,
-				bestCircles = 54,
-				today = { 10, 20 },
-				legend = false,
-				serverBest = 72,
-				serverCircles = 54,
-				serverName = "Sam",
-				top = top,
-			} :: any)
-			UI.arcade.open()
-			press("Arcade", "LeaderboardTab")
-			local window = UIShim.playerGui:FindFirstChild("Arcade", true)
-			local board = window and window:FindFirstChild("Leaderboard", true)
-			assert(board and board.Visible, "uigate: the arcade's Leaderboard tab does not show (#3338)")
-			local line = board:FindFirstChild("Line4", true)
-			assert(line and line.Visible, "uigate: the arcade leaderboard has no 4th line (#3338)")
-			local name = line:FindFirstChild("Name")
-			assert(
-				name and string.find(name.Text, "(you)", 1, true),
-				"uigate: the viewer's line is not marked (#3338)"
-			)
-		end,
-	},
-	{
-		"ArcadeBoard",
-		function()
-			UI.update({ goldenFish = 12 } :: any)
-			UI.arcade.state({
-				loaded = true,
-				best = 0,
-				bestCircles = 0,
-				today = {},
-				legend = false,
-				serverBest = 0,
-				serverCircles = 0,
-			})
-			UI.arcade.open()
-			local at = workspace:GetServerTimeNow()
-			local circles = {}
-			for i = 1, 10 do
-				table.insert(circles, {
-					startsAt = at - 0.2 + (i - 1) * 1.9,
-					shrinkSeconds = 1.2,
-					x = 0.25 + (i % 3) * 0.25,
-					y = 0.3 + (i % 2) * 0.4,
-					kind = "single",
-				})
-			end
-			UI.arcade.block(1, 1, circles, { perfect = 0.06, good = 0.15 }, 0)
-			UI.arcade.judged(1, 1, 1, "perfect", 12, { 10 })
-		end,
-	},
-	{
-		"ArcadeOver",
-		function()
-			UI.update({ goldenFish = 12 } :: any)
-			UI.arcade.state({
-				loaded = true,
-				best = 52,
-				bestCircles = 40,
-				today = { 10, 20, 30, 40, 50 },
-				legend = true,
-				serverBest = 100,
-				serverCircles = 58,
-				serverName = "Sam",
-			})
-			UI.arcade.open()
-			local at = workspace:GetServerTimeNow()
-			UI.arcade.block(
-				2,
-				1,
-				{ { startsAt = at + 1, shrinkSeconds = 1.2, x = 0.5, y = 0.5, kind = "single" } },
-				{ perfect = 0.06, good = 0.15 },
-				0
-			)
-			UI.arcade.over(2, {
-				points = 52,
-				circles = 40,
-				win = false,
-				best = 52,
-				bestCircles = 40,
-				newBest = true,
-				serverBest = 100,
-				serverCircles = 58,
-				serverName = "Sam",
-				paid = { 50 },
-				today = { 10, 20, 30, 40, 50 },
-				legend = true,
-			})
-			task.wait(1.4)
 		end,
 	},
 	-- #1633: the Codes Cat's circle opens the Store on Featured; the player taps Codes on the rail

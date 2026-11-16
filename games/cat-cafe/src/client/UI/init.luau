@@ -18,7 +18,6 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local ActionPill = require(script.Screens.ActionPill)
-local Arcade = require(script.Screens.Arcade)
 local AreaTitle = require(script.Screens.AreaTitle)
 local Areas = require(script.Screens.Areas)
 local AskCard = require(script.Screens.AskCard)
@@ -145,9 +144,6 @@ UI.events = {
 	-- design v0.3
 	-- #3062 (the Cat Arcade): Play on its card, a press on circle `index` of the game's block, and Close mid game:
 	-- forward as ArcadeStart, ArcadePress(run, block, index) and ArcadeQuit(run)
-	arcadePlay = Signal.new(),
-	arcadePress = Signal.new(),
-	arcadeQuit = Signal.new(),
 	-- #3296 (Mouse Dash): Play, a tap on a hole while wave `index` is up, and Close mid game: forward as
 	-- MouseDashStart, MouseDashTap(run, index, hole) and MouseDashQuit(run)
 	mouseDashPlay = Signal.new(),
@@ -391,7 +387,6 @@ local tipJarScreen: TipJar.TipJar? = nil -- the playtime gifts (F47), opened fro
 local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), opened from the plaza station's prompt
 local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53), opened from the stall's prompt
 local bugReportScreen: BugReport.BugReport? = nil -- the Feedback window, from the HUD's Feedback tile
-local arcadeScreen: Arcade.Arcade? = nil -- #3062: the Cat Arcade window (the cabinet and the Menu list open it)
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
 local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
 local bagFed: { [string]: number } = {} -- #1181: cat uid -> its level when fed, so FeedResult can tell a level up
@@ -701,7 +696,6 @@ local function render()
 		cannonScreen:render(state, hud:isCarrying())
 	end
 	UI.campExtras.render(state)
-	UI.arcade.render(state)
 	UI.mouseDash.render(state)
 	UI.lateStations.render(state)
 	UI.mysticPool.render(state)
@@ -1427,29 +1421,6 @@ function UI.init(config: Types.InitConfig)
 			marketView:render(state)
 		end,
 	})
-	arcadeScreen = Arcade.new({
-		play = function()
-			UI.events.arcadePlay:Fire()
-		end,
-		press = function(run: number, block: number, index: number)
-			UI.events.arcadePress:Fire(run, block, index)
-		end,
-		quit = function(run: number)
-			UI.events.arcadeQuit:Fire(run)
-		end,
-		close = closeModal,
-	})
-	local arcadeView = arcadeScreen :: Arcade.Arcade
-	modalInstance:register("Arcade", {
-		frame = arcadeView.frame,
-		onOpen = function()
-			arcadeView:setFish(state.goldenFish or 0)
-			arcadeView:onOpen()
-		end,
-		onClose = function()
-			arcadeView:onClose()
-		end,
-	})
 	codesScreen = Codes.new({
 		redeem = function(code: string)
 			UI.events.redeemCode:Fire(code)
@@ -1602,10 +1573,7 @@ function UI.init(config: Types.InitConfig)
 			local poolWindow = require(script.Components.MysticPoolLogic).WINDOW
 			-- Derek 2026-11-14 ("mute all pop ups while in store"): the Store too, so toasts wait (warnings still show),
 			-- shout-outs drop and the event and day strip steps aside until it closes
-			UI.rollBusy.window = name == dashWindow
-				or name == "Arcade"
-				or name == poolWindow
-				or name == "Store"
+			UI.rollBusy.window = name == dashWindow or name == poolWindow or name == "Store"
 			view:setBusy(UI.rollBusy.window or UI.rollBusy.on or UI.cutscene.held())
 		end
 		-- Derek 2026-11-13: and the event and day strip steps aside while Mouse Dash or the Mystic Pool is open
@@ -3375,36 +3343,22 @@ function UI.quests.result(paid: { string })
 end
 
 ----------------------------------------------------------------------------------------------------
--- The Cat Arcade (#3062, Screens/Arcade; the rules are shared/Arcade)
+-- The Cat Arcade (#3062; the rules are shared/Arcade). #4656: its game is Mouse Dash, the Circle Streak window is gone
 ----------------------------------------------------------------------------------------------------
 
 UI.arcade = {}
 
--- Opens the arcade's card (the cabinet's prompt, the Menu list's Arcade row). A window already up stays open.
--- #3296: with the `mouseDash` switch on the arcade's game is Mouse Dash, so its card opens instead.
+-- Opens the arcade's card (the cabinet's prompt). #4656: Mouse Dash is the arcade's only game (Circle Streak is gone),
+-- so its card opens, while the `mouseDash` switch is on.
 function UI.arcade.open()
 	local dash: any = (UI :: any).mouseDash -- filled later in the file
 	if dash.isMain() then
 		dash.open()
-		return
-	end
-	if modal and arcadeScreen and (modal:current() == nil or modal:current() == "Arcade") then
-		modal:open("Arcade")
-	end
-end
-
--- The golden fish on the card's Play line.
-function UI.arcade.render(newState: Types.PlayerState)
-	if arcadeScreen then
-		arcadeScreen:setFish(newState.goldenFish or 0)
 	end
 end
 
 -- ArcadeState: the records and today's paid prizes.
 function UI.arcade.state(view: any)
-	if arcadeScreen and type(view) == "table" then
-		arcadeScreen:setState(view)
-	end
 	local bang: any = (UI :: any).arcadeBang -- filled with Mouse Dash, later in the file
 	if type(view) == "table" and type(bang) == "table" then
 		bang.classic = view
@@ -3412,12 +3366,9 @@ function UI.arcade.state(view: any)
 	end
 end
 
--- The `arcade` live switch: off greys Play (a game running finishes). `row` was the Settings list's Arcade row,
--- gone since 2026-11-13 (Derek: "remove the old cat arcade icon from settings"); callers may still pass it.
+-- The `arcade` live switch. `row` was the Settings list's Arcade row, gone since 2026-11-13 (Derek: "remove the old
+-- cat arcade icon from settings"); callers may still pass it. Mouse Dash's own Play follows UI.mouseDash.setFlags.
 function UI.arcade.setOn(on: boolean, _row: boolean?)
-	if arcadeScreen then
-		arcadeScreen:setOn(on)
-	end
 	local bang: any = (UI :: any).arcadeBang -- #4272: no "!" while the arcade is switched off
 	if type(bang) == "table" then
 		bang.on = on
@@ -3425,37 +3376,10 @@ function UI.arcade.setOn(on: boolean, _row: boolean?)
 	end
 end
 
--- ArcadeBlock, ArcadeJudged and ArcadeOver, straight to the window.
-function UI.arcade.block(run: number, block: number, circles: any, windows: any, points: number)
-	if arcadeScreen then
-		arcadeScreen:block(run, block, circles, windows, points)
-	end
-end
-
-function UI.arcade.judged(
-	run: number,
-	block: number,
-	index: number,
-	grade: any,
-	points: number,
-	milestones: any
-)
-	if arcadeScreen then
-		arcadeScreen:judged(run, block, index, grade, points, milestones)
-	end
-end
-
-function UI.arcade.over(run: number, result: any)
-	if arcadeScreen then
-		arcadeScreen:over(run, result)
-	end
-end
-
 -- Whether a game is running on the board (the net and other taps stay out of its way).
 function UI.arcade.playing(): boolean
 	local dash: any = (UI :: any).mouseDash -- filled later in the file
-	return (arcadeScreen ~= nil and (arcadeScreen :: Arcade.Arcade):playing())
-		or dash.playing() == true
+	return dash.playing() == true
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -8976,14 +8900,12 @@ do
 		screen = nil :: MouseDash.MouseDash?,
 		view = nil :: any,
 		on = false, -- the `arcade` and `mouseDash` switches
-		circle = true, -- the `circleStreak` switch: Circle Streak can still be played
 	}
 
 	local function apply()
 		local screen = dash.screen
 		if screen then
 			screen:setOn(dash.on)
-			screen:setOther(dash.circle)
 		end
 	end
 
@@ -9006,13 +8928,6 @@ do
 			close = function()
 				if modalView:current() == MouseDashLogic.WINDOW then
 					modalView:close()
-				end
-			end,
-			-- to Circle Streak's card, while that game is not vaulted
-			other = function()
-				if dash.circle and modalView:current() == MouseDashLogic.WINDOW then
-					modalView:close()
-					modalView:open("Arcade")
 				end
 			end,
 		})
@@ -9066,10 +8981,9 @@ do
 		end
 	end
 
-	-- The switches: `on` the arcade's and Mouse Dash's both, `circle` Circle Streak's.
-	function UI.mouseDash.setFlags(on: boolean, circle: boolean)
+	-- The switches: `on` the arcade's and Mouse Dash's both.
+	function UI.mouseDash.setFlags(on: boolean)
 		dash.on = on
-		dash.circle = circle
 		apply()
 		arcadeBang.refresh()
 	end

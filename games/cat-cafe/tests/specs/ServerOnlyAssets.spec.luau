@@ -137,11 +137,44 @@ return function()
 					local model = Catalog.catModelName(cat.id)
 					expect(ServerOnlyAssets.matches(model)).to.equal(false)
 					expect(ServerOnlyAssets.matches(Catalog.sitModelName(model))).to.equal(false)
-					expect(ServerOnlyAssets.matches(Catalog.workModelName(model))).to.equal(false)
 					expect(ServerOnlyAssets.matches(Catalog.goldModelName(cat.id))).to.equal(false)
+					-- #4601: the standing worker body is the server's alone
+					expect(ServerOnlyAssets.matches(Catalog.workModelName(model))).to.equal(true)
+					expect(
+						ServerOnlyAssets.matches(
+							Catalog.workModelName(Catalog.goldModelName(cat.id))
+						)
+					).to.equal(true)
 				end
 				for _, extra in Catalog.campExtras do
 					expect(ServerOnlyAssets.matches(extra.model)).to.equal(false)
+				end
+			end
+		)
+
+		it(
+			"takes every cat's standing worker body and leaves its walking and seated ones (#4601)",
+			function()
+				for _, name in
+					{
+						"CatCafe_Cat_Tabby_Work",
+						"CatCafe_Cat_Tabby_Gold_Work",
+						"CatCafe_Cat_BellhopCat_Work",
+						"CatCafe_Cat_SnowLeopard_Gold_Work",
+					}
+				do
+					expect(ServerOnlyAssets.matches(name)).to.equal(true)
+				end
+				for _, name in
+					{
+						"CatCafe_Cat_Tabby",
+						"CatCafe_Cat_Tabby_Sit",
+						"CatCafe_Cat_Tabby_Gold",
+						"CatCafe_Cat_Tabby_Gold_Sit",
+						"CatCafe_Cat_Work", -- a cat named Work would be a walking body
+					}
+				do
+					expect(ServerOnlyAssets.matches(name)).to.equal(false)
 				end
 			end
 		)

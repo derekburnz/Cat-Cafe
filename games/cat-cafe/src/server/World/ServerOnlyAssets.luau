@@ -6,7 +6,8 @@
 -- (AssetRegistry.stowServerOnly) and no client downloads or keeps them.
 --
 -- A name belongs here only when no client script looks its template up, by a written name or a built one. The
--- client builds names from these stems, so nothing under them may ever match: CatCafe_Cat_, _Accessory_, _Decor_,
+-- client builds names from these stems, so nothing under them may ever match (but a cat's _Work body, which no
+-- client names, #4601): CatCafe_Cat_, _Accessory_, _Decor_,
 -- _Style_, _Menu_, _Door_, _CatFlap_, _Item_, _Prop_, _NPC_, _Lawn_, _Furniture_, CatCafe_Camp_<Area>_<Station>,
 -- CatCafe_Camp_<Area>_Growth and CatCafe_Camp_Cannon. The spec pins both sides.
 
@@ -137,6 +138,16 @@ function ServerOnlyAssets.matches(name: string): boolean
 	-- CatCafe_Plot_<model>_<W>x<D>). Only WorldBuilder places a plot's room, so no client looks these up, and
 	-- there are 48 of them: none may ride along to every phone.
 	if string.match(name, "^CatCafe_Plot_[%w_]+_%d+x%d+$") ~= nil then
+		return true
+	end
+	-- #4601: the standing worker body of every cat (CatCafe_Cat_<Name>_Work and its _Gold_Work twin). Only the
+	-- server dresses a working cat at its station (AssetRegistry.cloneCat "work"); every client copy of a cat is
+	-- the walking body or the seated one (portraits, the Index, cafe walkers, the intro). 131 base models, about
+	-- 16,000 instances, a fifth of what a client downloads once the gold twins are stowed.
+	if
+		string.match(name, "^CatCafe_Cat_%w+_Work$") ~= nil
+		or string.match(name, "^CatCafe_Cat_%w+_Gold_Work$") ~= nil
+	then
 		return true
 	end
 	for _, kind in ANY_AREA_KINDS do

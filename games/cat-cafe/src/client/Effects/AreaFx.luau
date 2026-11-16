@@ -340,7 +340,7 @@ end
 
 -- #4069: the northern lights. In the day's last minute (`auroraEvening`; night closes the areas, so nobody would
 -- see them then) and at night, while you stand in an area with an `aurora`, its ribbons hang over the
--- area: two soft bands each, on one unseen part, bending slowly from side to side. They hang `ahead` studs out
+-- area: each a curtain of soft bands (#4687), on one unseen part, bending slowly from side to side. They hang `ahead` studs out
 -- the way the camera looks, across that look, and glide to stay there as you walk or turn. They fade in when they start and
 -- out when night ends or you leave.
 -- `full[i]` is band i's own middle transparency when the lights are fully shown, `base` the spec's `shown`
@@ -422,7 +422,7 @@ end
 local function buildAurora(area: string, spec: Presets.AuroraSpec, place: CFrame)
 	local tiers: { [string]: number } = { high = 1, medium = 2, low = 3 }
 	local count = spec.ribbons[tiers[Context.tier] or 3] or 2
-	local part = Context.effectPart("AreaAurora", Vector3.one, spec.foot)
+	local part = Context.effectPart("AreaAurora", Vector3.one, spec.curtain[1].colour)
 	part.Transparency = 1
 	-- the ribbons are laid out about the part's own middle, `window` across and `deep` front to back, so the
 	-- part's place and facing set where they hang
@@ -430,7 +430,7 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, place: CFrame
 	local box = { centre = { x = 0, z = 0 }, size = { width = spec.window, depth = spec.deep } }
 	part.CFrame = place
 	local calm = Context.reducedMotion()
-	local nestMost = if Context.tier == "low" then spec.nestLow else #spec.nest
+	local bandsMost = if Context.tier == "low" then spec.curtainLow else #spec.curtain
 	for _, r in
 		Logic.auroraRibbons(
 			count,
@@ -445,56 +445,52 @@ local function buildAurora(area: string, spec: Presets.AuroraSpec, place: CFrame
 		)
 	do
 		local ribbon: Ribbon = { bands = {}, full = {}, base = spec.shown, tweens = {} }
-		for layer, colour in { spec.foot, spec.top } do
-			local lift = (layer - 1) * spec.width * (1 - spec.overlap)
+		-- #4687: one pair of attachments on the ribbon's line; each band of the curtain hangs `up` studs over it
+		for n, layer in spec.curtain do
+			if n > bandsMost then
+				break
+			end
+			local lift = Vector3.new(0, layer.up, 0)
 			-- a Beam bends along its attachments' X axes, so they point across the ribbon
 			local from = Instance.new("Attachment")
-			from.Position = r.from - middle + Vector3.new(0, lift, 0)
+			from.Position = r.from - middle + lift
 			from.Axis = r.across
 			from.Parent = part
 			local to = Instance.new("Attachment")
-			to.Position = r.to - middle + Vector3.new(0, lift, 0)
+			to.Position = r.to - middle + lift
 			to.Axis = r.across
 			to.Parent = part
-			-- No picture on the bands: the particle smoke picture draws as nothing on a Beam (#4085 Studio look). The
-			-- soft edge across the band comes from thinner bands laid over wider ones, their light adding up toward
-			-- the middle.
-			for n, share in spec.nest do
-				if n > nestMost then
-					break
-				end
-				local band = Instance.new("Beam")
-				band.Name = "Ribbon"
-				band.Attachment0 = from
-				band.Attachment1 = to
-				band.FaceCamera = true
-				band.Segments = 16
-				band.Color = ColorSequence.new(colour)
-				band.LightEmission = 1
-				band.LightInfluence = 0
-				band.Brightness = spec.nestBright[n] or spec.brightness
-				band.Width0 = spec.width * share
-				band.Width1 = spec.width * share
-				band.CurveSize0 = r.bend
-				band.CurveSize1 = r.bend -- the far end bends the other way: a slow S
-				band.Parent = part
-				table.insert(ribbon.bands, band)
-				table.insert(ribbon.full, spec.nestShown[n] or spec.shown)
-				if not calm then
-					local tween = TweenService:Create(
-						band,
-						TweenInfo.new(
-							r.seconds + (layer - 1) * 1.5,
-							Enum.EasingStyle.Sine,
-							Enum.EasingDirection.InOut,
-							-1,
-							true
-						),
-						{ CurveSize0 = -r.bend, CurveSize1 = -r.bend }
-					)
-					tween:Play()
-					table.insert(ribbon.tweens, tween)
-				end
+			local band = Instance.new("Beam")
+			band.Name = "Ribbon"
+			band.Attachment0 = from
+			band.Attachment1 = to
+			band.FaceCamera = true
+			band.Segments = 16
+			band.Color = ColorSequence.new(layer.colour)
+			band.LightEmission = 1
+			band.LightInfluence = 0
+			band.Brightness = layer.bright
+			band.Width0 = layer.width
+			band.Width1 = layer.width
+			band.CurveSize0 = r.bend
+			band.CurveSize1 = r.bend -- the far end bends the other way: a slow S
+			band.Parent = part
+			table.insert(ribbon.bands, band)
+			table.insert(ribbon.full, layer.shown)
+			if not calm then
+				local tween = TweenService:Create(
+					band,
+					TweenInfo.new(
+						r.seconds + (n - 1) * spec.sway,
+						Enum.EasingStyle.Sine,
+						Enum.EasingDirection.InOut,
+						-1,
+						true
+					),
+					{ CurveSize0 = -r.bend, CurveSize1 = -r.bend }
+				)
+				tween:Play()
+				table.insert(ribbon.tweens, tween)
 			end
 		end
 		table.insert(auroraRibbons, ribbon)

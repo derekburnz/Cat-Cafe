@@ -5,11 +5,15 @@
 -- - Fuse: the dome card (free, a live timer while a fusion runs, or "Gold Mochi is ready" with Collect), then every
 --   cat and coat with five free copies, best result first, each with Fuse, and up to three dimmed "1 more" rows.
 -- - Coats: every cat's three coats as dots, lit when found, with the copies owned; a cat that can fuse now has a "!".
--- Fuse opens the confirm card over the window: the free copies with the default five ticked (the best level and the
--- four weakest), what comes out (level, name, the trait to keep), the time, and a two tap Fuse, because the five leave
+-- Fuse opens the confirm card over the window: the free copies with the default five ticked (the five lowest level
+-- copies, #4588), what comes out (level, name, the trait to keep), the time, and a two tap Fuse, because the five leave
 -- when it starts.
 --   FusionObservatory.new(callbacks)   built hidden; the UI registers its frame as the "FusionObservatory" modal
---   :setView(view, cats, busy, collection) :opened() :closed() :destroy()
+-- #4589 Fuse all: a bar at the head of the Fuse list fuses every set of five free copies in one go (weakest first, locked
+-- cats kept, the rarest trait of each set kept), with a two tap confirm that says how many sets and that locked cats
+-- are kept; grey with its reason when it can't ("Needs 5", "Dome busy"). The server's FusionSummary comes back to
+-- :summary(made), one card with every cat made.
+--   :setView(view, cats, busy, collection) :summary(made) :opened() :closed() :destroy()
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -36,6 +40,7 @@ export type Callbacks = {
 	start: (uids: { string }, keepTraitUid: string?) -> (),
 	collect: () -> (),
 	close: () -> (),
+	fuseAll: (() -> ())?, -- #4589: sends FuseAll (no arguments)
 }
 
 export type FusionObservatory = {
@@ -48,6 +53,7 @@ export type FusionObservatory = {
 		collection: { [string]: { [string]: any }? }?
 	) -> (),
 	showTab: (self: FusionObservatory, tab: string) -> (),
+	summary: (self: FusionObservatory, made: { FusionLogic.Made }) -> (),
 	opened: (self: FusionObservatory) -> (),
 	closed: (self: FusionObservatory) -> (),
 	destroy: (self: FusionObservatory) -> (),
@@ -64,6 +70,10 @@ local HEAD_H = 48 -- the confirm card's title and picked lines
 local COAT_CELL = 112
 local COAT_H = 104
 local ARM_SECONDS = 4 -- the confirm's "Tap again" waits this long
+local ALL_H = 64 -- #4589 the Fuse all bar
+local ALL_ARMED_H = 84 -- with its warning line while it asks "Tap again"
+local ALL_MAX = 20 -- the server's Fusion.ALL_MAX: sets one Fuse all tap fuses at most
+local MADE_CELL = Vector2.new(112, 112) -- #4589 one cat on the summary card
 local ICE = FusionLogic.ICE
 local COAT_COLOURS: { [string]: Color3 } = {
 	base = Color3.fromHex("C9B8A6"),
@@ -216,6 +226,9 @@ function FusionObservatory.new(callbacks: Callbacks): FusionObservatory
 	self._keep = nil :: string? -- the trait to keep: the copy's uid
 	self._armed = false
 	self._armToken = 0
+	self._allArmed = false -- #4589
+	self._allToken = 0
+	self._madeCells = {} :: { any }
 	self._buyH = Scale.tapHeight(40, Theme.sizes.buttonDepth)
 
 	local panel = Panel.new({
@@ -274,6 +287,7 @@ function FusionObservatory.new(callbacks: Callbacks): FusionObservatory
 	self:_buildFuse(pages)
 	self:_buildCoats(pages)
 	self:_buildConfirm(content)
+	self:_buildSummary(content)
 	self:showTab("fuse")
 	return self :: FusionObservatory
 end
@@ -379,6 +393,7 @@ function FusionObservatory._buildFuse(self: any, pages: Frame)
 	})
 	self._readyList = list
 	self._rows = {} :: { any }
+	self:_buildAll(list)
 	self._empty = text({
 		Name = "Empty",
 		Size = UDim2.new(1, 0, 0, 44),
@@ -389,6 +404,282 @@ function FusionObservatory._buildFuse(self: any, pages: Frame)
 		LayoutOrder = 999,
 		Parent = list,
 	})
+end
+
+-- #4589 the Fuse all bar, first in the Fuse list
+function FusionObservatory._buildAll(self: any, list: ScrollingFrame)
+	local bar = card({
+		Name = "FuseAll",
+		Size = UDim2.new(1, -4, 0, ALL_H),
+		LayoutOrder = 0,
+		Visible = false,
+		Parent = list,
+	}, ICE)
+	local width = 150
+	self._allTitle = text({
+		Name = "Title",
+		Position = UDim2.fromOffset(12, 8),
+		Size = UDim2.new(1, -(12 + width + 12), 0, 24),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = bar,
+	})
+	FitText.shrink(self._allTitle)
+	self._allLine = text({
+		Name = "Line",
+		Position = UDim2.fromOffset(12, 34),
+		Size = UDim2.new(1, -(12 + width + 12), 0, 20),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = CARD.subtext,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = bar,
+	})
+	FitText.shrink(self._allLine)
+	-- Review-QA: Fuse all keeps only the rarest trait of each set, so the ask says so and points to the lock
+	self._allNote = text({
+		Name = "Note",
+		Position = UDim2.fromOffset(12, 56),
+		Size = UDim2.new(1, -(12 + width + 12), 0, 20),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.gold,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "🔒 Lock a cat to keep it out",
+		Visible = false,
+		Parent = bar,
+	})
+	FitText.shrink(self._allNote)
+	self._allButton = Button.new({
+		name = "FuseAllGo",
+		text = "Fuse all",
+		style = "primary",
+		size = UDim2.fromOffset(width - 10, self._buyH),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, -8, 0.5, 0),
+		textSize = Theme.sizes.textBody,
+		parent = bar,
+		onClick = function()
+			self:_fuseAll()
+		end,
+	})
+	self._allBar = bar
+end
+
+function FusionObservatory._paintAll(self: any, domeState: string)
+	local bar: Frame = self._allBar
+	bar.Visible = #self._ready + #self._almost > 0
+	local sets, list = FusionLogic.allPlan(self._ready, ALL_MAX)
+	if sets <= 0 then
+		self._allArmed = false
+	end
+	local armed = self._allArmed
+	local label, enabled = FusionLogic.allButton(sets, domeState, armed)
+	self._allButton:setText(label)
+	self._allButton:setEnabled(enabled)
+	if sets <= 0 then
+		self._allTitle.Text = "Fuse all"
+		self._allLine.Text = "Needs 5 free copies of one cat"
+		self._allLine.TextColor3 = CARD.subtext
+	elseif armed then
+		self._allTitle.Text = ("Fuse %d %s at once?"):format(
+			sets,
+			if sets == 1 then "set" else "sets"
+		)
+		self._allLine.Text = "Only the rarest trait in each set is kept"
+		self._allLine.TextColor3 = PAL.gold
+	else
+		self._allTitle.Text = ("Fuse all · %d %s"):format(
+			sets,
+			if sets == 1 then "set" else "sets"
+		)
+		self._allLine.Text = if domeState == "running" then "When the dome is free" else list
+		self._allLine.TextColor3 = CARD.subtext
+	end
+	self._allNote.Visible = armed and sets > 0
+	bar.Size = UDim2.new(1, -4, 0, if self._allNote.Visible then ALL_ARMED_H else ALL_H)
+	paintEdge(bar:FindFirstChildOfClass("UIStroke") :: UIStroke, if enabled then "gold" else nil)
+end
+
+-- two taps, as single Fuse: the first says how many sets and that locked cats are kept, the second sends FuseAll
+function FusionObservatory._fuseAll(self: any)
+	local fuseAll: (() -> ())? = (self._callbacks :: Callbacks).fuseAll
+	local sets = FusionLogic.allPlan(self._ready, ALL_MAX)
+	if fuseAll == nil or sets <= 0 then
+		return
+	end
+	if not self._allArmed then
+		self._allArmed = true
+		self._allToken += 1
+		local token = self._allToken
+		self:_paintFuse()
+		task.delay(ARM_SECONDS, function()
+			if self._allToken == token and self._allArmed then
+				self._allArmed = false
+				self:_paintFuse()
+			end
+		end)
+		return
+	end
+	self._allArmed = false
+	self._allToken += 1
+	self._allButton:setEnabled(false) -- until the server's answer repaints the window
+	if fuseAll then
+		fuseAll()
+	end
+end
+
+-- #4589 the summary card: every cat one Fuse all made, over the window
+function FusionObservatory._buildSummary(self: any, content: Frame)
+	local shade: TextButton = Create("TextButton", {
+		Name = "Summary",
+		AutoButtonColor = false,
+		BackgroundColor3 = PAL.panel,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		Text = "",
+		Visible = false,
+		ZIndex = 30,
+		Parent = content,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+	self._summary = shade
+	self._summaryTitle = text({
+		Name = "Title",
+		Position = UDim2.fromOffset(8, 0),
+		Size = UDim2.new(1, -16, 0, 30),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 4,
+		TextColor3 = ICE,
+		ZIndex = 31,
+		Parent = shade,
+	})
+	Outline.text(self._summaryTitle, 1)
+	FitText.shrink(self._summaryTitle)
+	local footH = self._buyH + 8
+	local grid = scroller("Made", shade)
+	grid.ZIndex = 31
+	grid.Position = UDim2.fromOffset(0, 34)
+	grid.Size = UDim2.new(1, 0, 1, -(34 + footH))
+	Create("UIGridLayout", {
+		CellSize = UDim2.fromOffset(MADE_CELL.X, MADE_CELL.Y),
+		CellPadding = UDim2.fromOffset(GAP, GAP),
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = grid,
+	})
+	self._madeGrid = grid
+	Button.new({
+		name = "SummaryOk",
+		text = "Nice!",
+		style = "primary",
+		size = UDim2.fromOffset(160, self._buyH),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -4),
+		textSize = Theme.sizes.textBody,
+		zIndex = 31,
+		parent = shade,
+		onClick = function()
+			shade.Visible = false
+		end,
+	})
+end
+
+function FusionObservatory._madeCell(self: any, index: number): any
+	local made = self._madeCells[index]
+	if made then
+		return made
+	end
+	local cell = card({
+		Name = "Made" .. index,
+		LayoutOrder = index,
+		ZIndex = 31,
+		Parent = self._madeGrid,
+	})
+	local stroke = cell:FindFirstChildOfClass("UIStroke") :: UIStroke
+	local portrait = CatPortrait.new({
+		parent = cell,
+		size = UDim2.fromOffset(62, 62),
+		anchorPoint = Vector2.new(0.5, 0),
+		position = UDim2.new(0.5, 0, 0, 6),
+		still = true,
+		head = true,
+	})
+	portrait.frame.ZIndex = 32
+	local name = text({
+		Name = "Name",
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -22),
+		Size = UDim2.new(1, -8, 0, 18),
+		TextSize = Theme.sizes.textSmall,
+		ZIndex = 32,
+		Parent = cell,
+	})
+	FitText.shrink(name)
+	local level = text({
+		Name = "Level",
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -4),
+		Size = UDim2.new(1, -8, 0, 18),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall,
+		ZIndex = 32,
+		Parent = cell,
+	})
+	local new = text({
+		Name = "New",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -4, 0, 4),
+		Size = UDim2.fromOffset(40, 18),
+		BackgroundColor3 = PAL.gold,
+		BackgroundTransparency = 0,
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall - 2,
+		TextColor3 = Color3.fromHex("3A2410"),
+		Text = "NEW",
+		ZIndex = 33,
+		Parent = cell,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = new })
+	made =
+		{ cell = cell, stroke = stroke, portrait = portrait, name = name, level = level, new = new }
+	self._madeCells[index] = made
+	return made
+end
+
+-- FusionSummary: what one Fuse all made, in order
+function FusionObservatory.summary(self: any, made: { FusionLogic.Made })
+	if type(made) ~= "table" or #made == 0 then
+		return
+	end
+	self:_closeConfirm()
+	self._summaryTitle.Text = ("You made %d %s!"):format(
+		#made,
+		if #made == 1 then "cat" else "cats"
+	)
+	for index = 1, math.max(#made, #self._madeCells) do
+		local entry = made[index]
+		if entry == nil then
+			local spare = self._madeCells[index]
+			if spare then
+				spare.cell.Visible = false
+			end
+			continue
+		end
+		local def = Catalog.getCat(entry.catId)
+		local cell = self:_madeCell(index)
+		cell.cell.Visible = true
+		if def then
+			cell.portrait:set(def, true)
+		end
+		cell.name.Text, cell.level.Text =
+			FusionLogic.madeText(entry, if def then def.name else entry.catId)
+		cell.new.Visible = entry.newCoat == true
+		paintEdge(cell.stroke, entry.coat)
+	end
+	self._summary.Visible = true
+	local fx = fusionFx()
+	if fx and type(fx.burst) == "function" then
+		pcall(fx.burst, self._summaryTitle, made[1].coat)
+	end
 end
 
 function FusionObservatory._row(self: any, index: number): any
@@ -549,6 +840,7 @@ function FusionObservatory._paintFuse(self: any)
 		paintEdge(made.stroke, if entry.ready then group.next else nil)
 	end
 	self._empty.Visible = #rows == 0
+	self:_paintAll(dome.state)
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -1329,6 +1621,8 @@ function FusionObservatory.closed(self: any)
 	self._open = false
 	self._tick += 1
 	self:_closeConfirm()
+	self._allArmed = false
+	self._summary.Visible = false
 end
 
 function FusionObservatory.destroy(self: any)
@@ -1343,6 +1637,9 @@ function FusionObservatory.destroy(self: any)
 		made.portrait:destroy()
 	end
 	for _, made in self._coatCells do
+		made.portrait:destroy()
+	end
+	for _, made in self._madeCells do
 		made.portrait:destroy()
 	end
 	self._panel:destroy()

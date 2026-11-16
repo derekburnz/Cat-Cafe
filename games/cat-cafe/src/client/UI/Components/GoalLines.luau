@@ -7,6 +7,8 @@
 --                                         the next one waits behind its live switch (#3997: tier8, tier9, tier10), as
 --                                         the server's rank up check says. RankUp.progress reads it, so the goal card,
 --                                         the rank up card, the upgrade shop and the gate signs agree.
+--   coins(requirements, narrow) -> string? #4625: while "Catch new kinds of cat" is the card's goal, the coins half of the
+--                                         next tier as a short meter line ("💰 Coins too: $40 / $1,500"), nil once met
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
@@ -45,6 +47,24 @@ function GoalLines.opens(tierName: string?, narrow: boolean?): string?
 		return "Opens " .. tierName .. " 🏆"
 	end
 	return "Opens " .. tierName .. " and the " .. areaName .. " 🏆"
+end
+
+-- #4625 (Growth-Agent's drop-off read, Nov 8 to 14: 76% of players who leave before Tier 2 had under a quarter of
+-- its coins and half owned one kind): the card names both halves of the goal, so the coins are a goal too while the
+-- kinds are counted. The status is RankUp's own ("$40 / $1,500"), so it matches the rank up card.
+function GoalLines.coins(requirements: { any }?, narrow: boolean?): string?
+	if type(requirements) ~= "table" then
+		return nil
+	end
+	for _, row in requirements do
+		if type(row) == "table" and row.short == "Coins" then
+			if row.met == true or type(row.status) ~= "string" then
+				return nil
+			end
+			return (if narrow then "💰 " else "💰 Coins too: ") .. row.status
+		end
+	end
+	return nil
 end
 
 return GoalLines

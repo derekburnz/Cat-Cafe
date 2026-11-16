@@ -201,7 +201,7 @@ local ITEMS: { [string]: { name: string, icon: string, blurb: string } } = {
 		-- first words; #3317: +1 for levels 1 and 2, +0.5 for 3 to 5
 		name = "Swift Paws: +Speed",
 		icon = "💨",
-		blurb = ("Run faster, forever: +1 speed, +1, then +0.5 a level. Idea by %s"):format(
+		blurb = ("Run faster, forever: +1 speed, +1, then +0.5 a level. Idea by %s"):format( -- #4705: to level 10
 			SwiftPaws.CREDIT
 		),
 	},
@@ -2025,8 +2025,13 @@ function FishMarket._refresh(self: any)
 				SwiftPaws.FLAG_FIVE,
 				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SwiftPaws.FLAG_FIVE)
 			)
+			-- #4705: and levels 6 to 10 once theirs is
+			local tenOn = LiveFlags.shown(
+				SwiftPaws.FLAG_TEN,
+				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SwiftPaws.FLAG_TEN)
+			)
 			local shown = table.clone(row)
-			shown.maxLevel = SwiftPaws.topLevel(row.maxLevel or 1, fiveOn)
+			shown.maxLevel = SwiftPaws.topLevel(row.maxLevel or 1, fiveOn, tenOn)
 			row = shown
 		end
 		local level = if state.fishPerks then state.fishPerks[row.id] else nil

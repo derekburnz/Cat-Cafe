@@ -9331,6 +9331,35 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	-- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the walk-through ending this session
 	-- (step 4, the bowl, to 5) puts "Hop in the cannon to catch more cats!" on the tutorial strip, with the arrow
+	-- #4674 (Derek 2026-11-16: "when going into the cannon menu for tutorial steps point to the alleyway button until
+	-- launch clicked"): bowl first, the picker rings the Alleyway card's Launch while the two catches are owed, and
+	-- Launch takes the ring off
+	{ "CannonWalkRing", function()
+		local RS = game:GetService("ReplicatedStorage")
+		local was: any = UI.getState()
+		local tier, done = was.tier, was.secondCatDone
+		RS:SetAttribute("LiveFlag_catchFirst", false)
+		UI.update({ tier = 1, secondCatDone = false } :: any)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+		local alley = window:FindFirstChild("alley", true) :: Instance
+		local launch = alley and alley:FindFirstChild("Launch", true) :: Instance
+		assert(launch and launch:FindFirstChild("TutorialGlow"), "uigate: no ring on the Alleyway card's Launch (#4674)")
+		assert(UI.cannon.walkRing == "alley", "uigate: the walk ring is not kept (#4674)")
+		press("Cannon", "alley.Launch")
+		UIShim.advance(0.3)
+		assert(UI.cannon.walkRing == nil, "uigate: Launch left the walk ring on (#4674)")
+		assert(launch:FindFirstChild("TutorialGlow") == nil, "uigate: the Alleyway Launch still glows after Launch (#4674)")
+		-- the two catches in: the next opening rings nothing
+		UI.update({ secondCatDone = true } :: any)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		assert(UI.cannon.walkRing == nil and launch:FindFirstChild("TutorialGlow") == nil, "uigate: the ring came back after the catches (#4674)")
+		RS:SetAttribute("LiveFlag_catchFirst", nil)
+		UI.update({ tier = tier, secondCatDone = if done == nil then true else done } :: any)
+		UI.close("Cannon")
+	end },
 	{ "CannonAfterBowl", function()
 		UI.parkTrail.reach(true) -- a player who has been to the Park: the Park line (#3893) would come first otherwise
 		UI.cannon.setWild(nil)

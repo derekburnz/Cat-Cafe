@@ -651,6 +651,49 @@ return function()
 		end)
 	end)
 
+	describe("the press's own time (#4597)", function()
+		it("believes a stamp up to CatchPressStampSeconds before arrival", function()
+			local arrival = 1000
+			local bound = Config.CatchPressStampSeconds
+			expect(Circles.pressTime(arrival, 0.3, arrival - 0.2)).to.be.near(arrival - 0.2, 1e-9)
+			expect(Circles.pressTime(arrival, 0.3, arrival - 5)).to.be.near(arrival - bound, 1e-9)
+			-- never later than it came in
+			expect(Circles.pressTime(arrival, 0.3, arrival + 3)).to.equal(arrival)
+		end)
+
+		it("falls back to arrival less half the ping with no stamp or a bad one", function()
+			local arrival = 1000
+			local fallback = arrival - Circles.latency(0.3)
+			expect(Circles.pressTime(arrival, 0.3, nil)).to.be.near(fallback, 1e-9)
+			expect(Circles.pressTime(arrival, 0.3, 0 / 0)).to.be.near(fallback, 1e-9)
+			expect(Circles.pressTime(arrival, 0.3, "999.9")).to.be.near(fallback, 1e-9)
+			expect(Circles.pressTime(arrival, 0.3, math.huge)).to.equal(arrival)
+		end)
+
+		it(
+			"a Good tap that arrives after the ring's deadline is still a Good, not a Miss",
+			function()
+				local attempt, circles = attemptFor("Common", 0)
+				local target = Circles.target(circles[1])
+				local tap = target + attempt.windows.good * 0.8
+				local arrival = Circles.deadline(circles[1], attempt.windows) + 0.2 -- slow phone or busy server
+				local before = attempt.trust :: number
+				local pressTime = Circles.pressTime(arrival, 0.1, tap)
+				expect(Circles.press(attempt, 1, pressTime, arrival)).to.equal("good")
+				expect(attempt.trust).to.equal(before + Config.TrustGood)
+			end
+		)
+
+		it("leaves a ring unpressed until its deadline plus the grace has passed", function()
+			local attempt, circles = attemptFor("Common", 0)
+			local deadline = Circles.deadline(circles[1], attempt.windows)
+			local grace = Config.CatchPressStampSeconds
+			-- the server's sweep looks at now less the grace (CatService)
+			expect(Circles.expire(attempt, deadline + grace * 0.5 - grace)).to.equal(0)
+			expect(Circles.expire(attempt, deadline + grace + 0.01 - grace)).to.equal(1)
+		end)
+	end)
+
 	describe("grade (section 10 flow step 4)", function()
 		it("within perfect scores 1.0, within good 0.5, else 0, early or late alike", function()
 			local windows = Circles.windows(0)
@@ -789,7 +832,8 @@ return function()
 			local attempt, circles = attemptFor("Rare", 3)
 			local windows = Circles.windows(3)
 			local tooLate = Circles.deadline(circles[1], windows) + 0.01
-			expect(Circles.press(attempt, 1, tooLate - Config.CatchLatencyCapSeconds, tooLate)).never.to.be.ok()
+			-- #4597: a press is over its circle by its own time now, not its arrival
+			expect(Circles.press(attempt, 1, tooLate, tooLate + 0.1)).never.to.be.ok()
 			expect(attempt.scores[1]).to.equal(0)
 			expect(attempt.nextIndex).to.equal(2)
 			expect(attempt.scores[2]).never.to.be.ok()

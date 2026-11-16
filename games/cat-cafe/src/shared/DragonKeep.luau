@@ -21,8 +21,8 @@ DragonKeep.STAGES = {
 	{ name = "Hatchling", warmth = 50 },
 	{ name = "Whelp", warmth = 300 },
 	{ name = "Drake", warmth = 1000 },
-	{ name = "Elder", warmth = 2500 },
-	{ name = "Crowned", warmth = 5000 },
+	{ name = "Elder", warmth = 2100 }, -- #4615 (Derek 2026-11-15): was 2,500
+	{ name = "Crowned", warmth = 4000 }, -- #4615: was 5,000
 }
 DragonKeep.MAX_STAGE = #DragonKeep.STAGES
 DragonKeep.REKINDLE = 1500
@@ -254,10 +254,10 @@ DragonKeep.CARDS = {
 	},
 	{
 		id = "quickCannon",
-		name = "Lucky Wings",
+		name = "Lucky Spin",
 		family = "wing",
 		rarity = "Rare",
-		text = "+4% bowl luck, within the luck cap.",
+		text = "+10% spin luck.",
 	},
 	{
 		id = "doubleJump",
@@ -338,10 +338,10 @@ DragonKeep.CARDS = {
 	},
 	{
 		id = "luckyCrate",
-		name = "Lucky Charm",
+		name = "Lucky Crate",
 		family = "hoard",
 		rarity = "Epic",
-		text = "+5% bowl luck, within the luck cap.",
+		text = "+15% crate luck.",
 	},
 	{
 		id = "dragonsHoard",
@@ -404,7 +404,7 @@ DragonKeep.CARDS = {
 		name = "Trait Spark",
 		family = "heart",
 		rarity = "Epic",
-		text = "+15% cat XP.",
+		text = "+15% trait luck at the Mystic Pool.",
 	},
 	{
 		id = "bigHeart",
@@ -511,7 +511,12 @@ local function whole(value: unknown, max: number): number
 	return 0
 end
 
+-- grow, defined below with the giving code: sanitize ends with it
+local grow: (save: Types.DragonSave) -> ()
+
 -- A save's dragon made whole: known cards only, slots only up to the stage, no slotted card outside the binder.
+-- #4615: a save whose Warmth already reaches a stage (the stage Warmths were lowered) gets that stage and its hand
+-- queued here, on load, and not only at its next gift.
 function DragonKeep.sanitize(raw: unknown): Types.DragonSave
 	local out = DragonKeep.fresh()
 	if type(raw) ~= "table" then
@@ -587,6 +592,7 @@ function DragonKeep.sanitize(raw: unknown): Types.DragonSave
 			end
 		end
 	end
+	grow(out)
 	return out
 end
 
@@ -778,7 +784,7 @@ end
 
 -- Queues the stage hands and Rekindle hands the Warmth has reached (Rekindle up to HAND_CAP waiting; past the cap
 -- the Warmth waits too, so no hand is lost).
-local function grow(save: Types.DragonSave)
+function grow(save: Types.DragonSave)
 	while
 		save.stage < DragonKeep.MAX_STAGE
 		and save.warmth >= DragonKeep.STAGES[save.stage + 1].warmth
@@ -1062,8 +1068,6 @@ DragonKeep.BOWL_LUCK = { -- card id -> bowl luck (a Luck source, inside LuckMax)
 	luckyScale = 0.05,
 	sharpEye = 0.03,
 	dragonGaze = 0.08,
-	quickCannon = 0.04,
-	luckyCrate = 0.05,
 	skyfire = 0.10,
 } :: { [string]: number }
 DragonKeep.GOLD = { -- card id -> gold luck (inside GoldLuckMax with the Index's)
@@ -1113,8 +1117,31 @@ DragonKeep.SWING = 0.08 -- Ember Net: nets swing 8% faster (NetSwingCooldown 8% 
 DragonKeep.TICKET_BONUS = 0.25 -- Ticket Dragon: +25% Ticket Booth tickets (rounded down a catch)
 DragonKeep.REPEAT_FISH = 1 -- Fish Scale: a repeat Epic or better catch gives +1 golden fish
 DragonKeep.WALK = {} :: { [string]: number } -- stud/s on the walk speed; #4569: no card adds walk speed now
-DragonKeep.XP =
-	{ fastLearner = 0.10, spaDay = 0.10, traitSpark = 0.15, elderLore = 0.20 } :: { [string]: number } -- share more cat XP, every cat
+DragonKeep.XP = { fastLearner = 0.10, spaDay = 0.10, elderLore = 0.20 } :: { [string]: number } -- share more cat XP, every cat
+-- Derek 2026-11-15 18:27 UTC ("crate luck, trait luck, spin luck"), Design-Agent's keep-luck-cards spec: three more
+-- luck kinds. Each multiplies the Epic-and-rarer odds by 1 + its total (Luck.apply's rule), capped at LUCK_KIND_CAP.
+-- Crate luck multiplies the player's Luck on a plain crate open (Crates.withCardLuck, still inside LuckMax), trait luck
+-- the Mystic Pool's Epic, Legendary and Mythic odds (Traits.rarities; Secret stays 0.1), spin luck the wheel's rare
+-- slices (Spin.rows). Trait rolls and Deal crates are paid random items, so every odds list shows the boosted odds.
+DragonKeep.CRATE_LUCK = { luckyCrate = 0.15 } :: { [string]: number }
+DragonKeep.TRAIT_LUCK = { traitSpark = 0.15 } :: { [string]: number }
+DragonKeep.SPIN_LUCK = { quickCannon = 0.10 } :: { [string]: number }
+DragonKeep.LUCK_KIND_CAP = 0.30
+DragonKeep.LUCK_KIND_WORDS =
+	{ crate = "crate luck", trait = "trait luck", spin = "spin luck" } :: { [string]: string }
+
+-- The line under an odds list while a luck card is slotted (monetization-policy: the player sees their own odds and
+-- why), e.g. " · Your Dragon Keep cards: +15% trait luck"; "" with none.
+function DragonKeep.cardLuckNote(kind: string, value: number?): string
+	if type(value) ~= "number" or value <= 0 then
+		return ""
+	end
+	return string.format(
+		" · Your Dragon Keep cards: +%d%% %s",
+		math.floor(value * 100 + 0.5),
+		DragonKeep.LUCK_KIND_WORDS[kind] or "luck"
+	)
+end
 DragonKeep.REST_XP = 0.10 -- Cosy Nap: resting cats (no spot) gain 10% more XP
 DragonKeep.KINDRED_EACH = 0.001 -- Kindred: +0.1% money for each cat ever given to the Keep (save.kept)
 DragonKeep.KINDRED_MAX = 0.10
@@ -1160,6 +1187,9 @@ export type Effects = {
 	luckMult: number, -- #4569: the Claw and Crown full sets, 2x on the whole Luck (shared/Luck), else 1
 	richFish: number, -- #4569: the Wing full set, golden fish on every rich customer tip claimed
 	pileFishEach: number, -- #4569: the Hoard set, golden fish on every tip pile (0: Coin Sniffer's chance only)
+	crateLuck: number, -- Lucky Crate: share more on the Luck of a plain crate open (Crates.withCardLuck)
+	traitLuck: number, -- Trait Spark: share more on the Mystic Pool's Epic and rarer odds (Traits.rarities)
+	spinLuck: number, -- Lucky Spin: share more on the Spin Wheel's rare slices (Spin.rows)
 }
 
 function DragonKeep.effects(save: Types.DragonSave): Effects
@@ -1167,6 +1197,7 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 	local slowRings, forgive, friend, walk, softLanding = 0, false, 0, 0, false
 	local doubleJump, glide, xp, restXp, night, petExtra = false, false, 0, 0, 0, 0
 	local rich, pile, pileFish, breath, refund, baitSpeed = 0, 0, 0, false, 0, 0
+	local crateLuck, traitLuck, spinLuck = 0, 0, 0
 	for _, id in save.slots do
 		if cardsById[id] ~= nil then
 			money += DragonKeep.MONEY[id] or 0
@@ -1178,6 +1209,9 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 			luck += DragonKeep.BOWL_LUCK[id] or 0
 			goldLuck += DragonKeep.GOLD[id] or 0
 			rich += DragonKeep.RICH_CARDS[id] or 0
+			crateLuck += DragonKeep.CRATE_LUCK[id] or 0
+			traitLuck += DragonKeep.TRAIT_LUCK[id] or 0
+			spinLuck += DragonKeep.SPIN_LUCK[id] or 0
 			if id == "kindred" then
 				money += math.min(save.kept * DragonKeep.KINDRED_EACH, DragonKeep.KINDRED_MAX)
 			end
@@ -1218,6 +1252,9 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 	goldLuck = math.min(goldLuck, DragonKeep.CAP)
 	rich = math.min(rich, DragonKeep.CAP)
 	pile = math.min(pile, DragonKeep.CAP)
+	crateLuck = math.min(crateLuck, DragonKeep.LUCK_KIND_CAP)
+	traitLuck = math.min(traitLuck, DragonKeep.LUCK_KIND_CAP)
+	spinLuck = math.min(spinLuck, DragonKeep.LUCK_KIND_CAP)
 	reach = math.min(reach, DragonKeep.REACH_CAP)
 	walk = math.min(walk, DragonKeep.WALK_CAP)
 	money = math.min(money, DragonKeep.MONEY_CAP)
@@ -1267,6 +1304,9 @@ function DragonKeep.effects(save: Types.DragonSave): Effects
 		luckMult = luckMult,
 		richFish = richFish,
 		pileFishEach = pileFishEach,
+		crateLuck = crateLuck,
+		traitLuck = traitLuck,
+		spinLuck = spinLuck,
 	}
 end
 
@@ -1305,6 +1345,9 @@ local NONE: Effects = table.freeze({
 	luckMult = 1,
 	richFish = 0,
 	pileFishEach = 0,
+	crateLuck = 0,
+	traitLuck = 0,
+	spinLuck = 0,
 }) :: any
 function DragonKeep.of(profile: Types.PlayerProfile): Effects
 	local on = if onOverride ~= nil

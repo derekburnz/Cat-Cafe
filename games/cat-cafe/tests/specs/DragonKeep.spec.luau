@@ -193,9 +193,31 @@ return function()
 			)
 		end)
 
+		it("asks 2,100 Warmth for stage 4 and 4,000 for stage 5 (#4615)", function()
+			expect(DragonKeep.STAGES[3].warmth).to.equal(1000)
+			expect(DragonKeep.STAGES[4].warmth).to.equal(2100)
+			expect(DragonKeep.STAGES[5].warmth).to.equal(4000)
+			expect(DragonKeep.REKINDLE).to.equal(1500)
+		end)
+
+		it("gives a loaded save the stage its Warmth already reaches (#4615)", function()
+			local save = DragonKeep.sanitize({ warmth = 2200, stage = 3, slots = { "", "", "" } })
+			expect(save.stage).to.equal(4)
+			expect(#save.slots).to.equal(4)
+			expect(save.queue[1]).to.equal("stage")
+			-- and nothing twice: a second pass over the same save adds no hand
+			local again = DragonKeep.sanitize(save)
+			expect(again.stage).to.equal(4)
+			expect(#again.queue).to.equal(1)
+			-- a save below the next stage is left alone
+			local low = DragonKeep.sanitize({ warmth = 2099, stage = 3 })
+			expect(low.stage).to.equal(3)
+			expect(#low.queue).to.equal(0)
+		end)
+
 		it("caps Rekindle hands at 3 waiting and keeps the Warmth for later", function()
 			local save = DragonKeep.fresh()
-			save.warmth = 5000 + 1500 * 5
+			save.warmth = 4000 + 1500 * 5
 			DragonKeep.give({ cats = {}, dragon = save } :: any, {})
 			expect(save.stage).to.equal(5)
 			local rekindles = 0
@@ -453,6 +475,18 @@ return function()
 			expect(DragonKeep.pileFish(none, 0.99)).to.equal(0)
 		end)
 
+		it("crate, trait and spin luck from Lucky Crate, Trait Spark and Lucky Spin", function()
+			local fx = DragonKeep.effects(withSlots({ "luckyCrate", "traitSpark", "quickCannon" }))
+			expect(math.abs(fx.crateLuck - 0.15) < 1e-9).to.equal(true)
+			expect(math.abs(fx.traitLuck - 0.15) < 1e-9).to.equal(true)
+			expect(math.abs(fx.spinLuck - 0.10) < 1e-9).to.equal(true)
+			expect(fx.luck).to.equal(0) -- no bowl luck from them any more
+			expect(fx.xp).to.equal(0) -- Trait Spark gave cat XP before
+			local none = DragonKeep.effects(withSlots({ "lightStep" }))
+			expect(none.crateLuck + none.traitLuck + none.spinLuck).to.equal(0)
+			expect(DragonKeep.LUCK_KIND_CAP).to.equal(0.30)
+		end)
+
 		it("#4569: the Claw full set doubles the whole Luck, still at most LuckMax", function()
 			local Luck = require(Shared.Luck)
 			local Config = require(Shared.Config)
@@ -480,6 +514,9 @@ return function()
 				DragonKeep.PILE,
 				DragonKeep.XP,
 				DragonKeep.REACH,
+				DragonKeep.CRATE_LUCK,
+				DragonKeep.TRAIT_LUCK,
+				DragonKeep.SPIN_LUCK,
 			}
 			-- the cards whose bonus is a rule of its own in DragonKeep.effects
 			local own = {
@@ -539,7 +576,7 @@ return function()
 				} :: any)
 				DragonKeep.setOn(nil)
 				expect(fx.luck <= DragonKeep.CAP + 1e-9).to.equal(true)
-				expect(math.abs(fx.luck - 0.32) < 1e-9).to.equal(true)
+				expect(math.abs(fx.luck - 0.23) < 1e-9).to.equal(true) -- Lucky Crate and Lucky Spin are crate and spin luck now
 				expect(rich.rich <= DragonKeep.CAP + 1e-9).to.equal(true)
 			end
 		)

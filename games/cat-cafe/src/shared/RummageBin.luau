@@ -49,7 +49,7 @@ RummageBin.MODE_FIXED = "fixed"
 RummageBin.MODE_WAITING = "waiting"
 RummageBin.RANGE_STUDS = 10 -- the prompt's reach; the server allows a little past it
 RummageBin.PAD_HEIGHT = 8 -- studs over or under the pad that still count as standing on it (#3680)
-RummageBin.PAD_FIRST = "Step onto the circle to rummage" -- #3680: a press from off the pad, `binRoll` on
+RummageBin.PAD_FIRST = "Step up to the bin to rummage" -- #3680: a press from off the pad, `binRoll` on
 local RARITY: Types.Rarity = "Common"
 RummageBin.RARITY = RARITY -- the bar's pace
 

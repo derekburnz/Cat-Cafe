@@ -197,7 +197,15 @@ end
 -- Mythicals it can take the place of (its `secretArea`); its `area` still says "secret".
 -- Derek 2026-11-14 ("draft all 10"): `new` marks the seven Secrets of the one-per-area update, which only roll while
 -- the `secretAreas` switch is on (Catching.secret); with it off the first three are the only Secrets, as before.
+-- #4221 (Derek 2026-11-15): its own rate is Config.SecretNextMythicTimes times the Mythical of the area one tier past
+-- `home` (each area pays three times the one before, so that is the home's multiplier times 3, Tier 10's too). An
+-- owner's best open area still lifts it when that pays more (CatStats.areaMultiplier keeps the larger), so no Secret
+-- earns less than the old four Mythicals at the owner's best area.
 local function secret(def: Types.CatDef, home: Types.Area, new: boolean?): Types.CatDef
+	local nextArea = (AREA_INCOME[home] or 1) * 3
+	def.incomePerSecond = Config.SecretNextMythicTimes
+		* Catalog.rarities.Mythical.incomePerSecond
+		* nextArea
 	def.area = "secret"
 	def.secretArea = home
 	def.secretNew = new
@@ -1784,9 +1792,9 @@ Catalog.tiers = {
 	{
 		tier = 4,
 		name = "Famous Cafe",
-		cost = 2600000, -- #4320: 4,000,000 before; #4189: 8,000,000 at first, 16,800,000 before; #2895 (30% off): 24,000,000 before; #2683: 48,000,000 before; #2559 (Derek2 2026-11-09: "lower the Tier 3 to tier 4 jump by about 70%"): 160,000,000 before; #2496 (Derek2: "more money"; Design 160M, Pace Tier 4 5 h 15): 90,000,000 before; #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
+		cost = 1000000, -- #4685 (Derek 2026-11-16: "lower the money needed from tier 3 to 4 to like 1million and tier 4 to 5 also"): 2,600,000 before; #4320: 4,000,000 before; #4189: 8,000,000 at first, 16,800,000 before; #2895 (30% off): 24,000,000 before; #2683: 48,000,000 before; #2559 (Derek2 2026-11-09: "lower the Tier 3 to tier 4 jump by about 70%"): 160,000,000 before; #2496 (Derek2: "more money"; Design 160M, Pace Tier 4 5 h 15): 90,000,000 before; #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
 		distinctCats = 13, -- #4320: 17 before; #4189 (the 4x Money 2 hour floor is dropped): 22 before; #3111: stays 22 (21 or 20 puts Tier 5 under Pace's 2 hour floor for 4x Money); #2683: 25 before; #2230: 20 before
-		needsRarity = "Mythical", -- #2496 (Derek2: "requires at least 1 mythic"): Legendary before
+		needsRarity = "Legendary", -- #4713 (Derek 2026-11-16: "make tier 3-4 just a legendary needed not a mythic"): Mythical before; #2496 (Derek2: "requires at least 1 mythic"): Legendary before
 		needsRarityCount = 1,
 		slots = 8,
 		multiplier = 1.75,
@@ -1796,7 +1804,7 @@ Catalog.tiers = {
 	{
 		tier = 5,
 		name = "Grand Cafe",
-		cost = 45000000, -- #4320: 90,000,000 before; #4189: 180,000,000 at first, 390,000,000 before; #3360 (money bags wait 3 min and stack, so fewer are missed; keeps the 4x Money floor of 2 h): 370,000,000 before; #3195 (Design-Agent: keeps the 4x Money Tier 5 floor of 2 h with 45 s nights): 350,000,000 before; #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
+		cost = 17000000, -- #4685 (the same cut as Tier 4, about 38% of the old cost): 45,000,000 before; #4320: 90,000,000 before; #4189: 180,000,000 at first, 390,000,000 before; #3360 (money bags wait 3 min and stack, so fewer are missed; keeps the 4x Money floor of 2 h): 370,000,000 before; #3195 (Design-Agent: keeps the 4x Money Tier 5 floor of 2 h with 45 s nights): 350,000,000 before; #2895 (Derek2 2026-11-10: "do 50% 30% 10% cheaper for T5/6/7", 50% off): 700,000,000 before; #2683: 2,300,000,000 before; #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
 		distinctCats = 14, -- #4320: 20 before; #4189: 26 before; #3111: 28 before; #2683: 33 before; #2230: 30 before
 		needsRarity = "Legendary",
 		needsRarityCount = 2,
@@ -3192,7 +3200,6 @@ Catalog.achievements = {
 		measure = "yardPicks",
 		needs = 10,
 		size = "M",
-		flag = "yardSaleRoll",
 	},
 	{
 		id = "a_traits10",
@@ -3691,12 +3698,11 @@ Catalog.indexMilestones = {
 	{ id = "total50", track = "normal", needs = 50 },
 	-- #3992 (Derek: "add more index rewards for rainbow /gold up to 70"; Design-Agent's table on the issue): every All
 	-- Cats track runs to the whole book. The last step is `whole`, so it needs every cat the book counts (100 with Tier 10, #4184)
-	-- and moves up when an area adds cats. `late`: nothing shows or pays until the `indexTo70` switch is on, which waits
-	-- for the restart, as an older server's save check drops a claim id it does not know (shared/IndexRewards).
-	{ id = "total55", track = "normal", needs = 55, late = true },
-	{ id = "total60", track = "normal", needs = 60, late = true },
-	{ id = "total65", track = "normal", needs = 65, late = true },
-	{ id = "totalAll", track = "normal", needs = 100, whole = true, late = true },
+	-- and moves up when an area adds cats.
+	{ id = "total55", track = "normal", needs = 55 },
+	{ id = "total60", track = "normal", needs = 60 },
+	{ id = "total65", track = "normal", needs = 65 },
+	{ id = "totalAll", track = "normal", needs = 100, whole = true },
 	{ id = "decor5", track = "decor", needs = 5 },
 	-- every piece of the page: 12 since F80 (golden-fish.md 4b), and 16 on the Classic page since F97 (`whole`)
 	{ id = "decor10", track = "decor", needs = 12, whole = true },
@@ -3707,15 +3713,15 @@ Catalog.indexMilestones = {
 	{ id = "rainbow10", track = "rainbow", needs = 10 },
 	{ id = "rainbow25", track = "rainbow", needs = 25 },
 	-- #3992: on to every rainbow cat
-	{ id = "rainbow30", track = "rainbow", needs = 30, late = true },
-	{ id = "rainbow35", track = "rainbow", needs = 35, late = true },
-	{ id = "rainbow40", track = "rainbow", needs = 40, late = true },
-	{ id = "rainbow45", track = "rainbow", needs = 45, late = true },
-	{ id = "rainbow50", track = "rainbow", needs = 50, late = true },
-	{ id = "rainbow55", track = "rainbow", needs = 55, late = true },
-	{ id = "rainbow60", track = "rainbow", needs = 60, late = true },
-	{ id = "rainbow65", track = "rainbow", needs = 65, late = true },
-	{ id = "rainbowAll", track = "rainbow", needs = 100, whole = true, late = true },
+	{ id = "rainbow30", track = "rainbow", needs = 30 },
+	{ id = "rainbow35", track = "rainbow", needs = 35 },
+	{ id = "rainbow40", track = "rainbow", needs = 40 },
+	{ id = "rainbow45", track = "rainbow", needs = 45 },
+	{ id = "rainbow50", track = "rainbow", needs = 50 },
+	{ id = "rainbow55", track = "rainbow", needs = 55 },
+	{ id = "rainbow60", track = "rainbow", needs = 60 },
+	{ id = "rainbow65", track = "rainbow", needs = 65 },
+	{ id = "rainbowAll", track = "rainbow", needs = 100, whole = true },
 	-- #1772 (Derek2: "Gold cats X / 50" like the Rainbow cats): the gold track on the All Cats page, different gold
 	-- cats across every area (profile.goldCollection), next to total5 to total50
 	{ id = "goldtotal5", track = "gold", needs = 5 },
@@ -3729,10 +3735,10 @@ Catalog.indexMilestones = {
 	{ id = "goldtotal45", track = "gold", needs = 45 },
 	{ id = "goldtotal50", track = "gold", needs = 50 },
 	-- #3992: on to every gold cat
-	{ id = "goldtotal55", track = "gold", needs = 55, late = true },
-	{ id = "goldtotal60", track = "gold", needs = 60, late = true },
-	{ id = "goldtotal65", track = "gold", needs = 65, late = true },
-	{ id = "goldtotalAll", track = "gold", needs = 100, whole = true, late = true },
+	{ id = "goldtotal55", track = "gold", needs = 55 },
+	{ id = "goldtotal60", track = "gold", needs = 60 },
+	{ id = "goldtotal65", track = "gold", needs = 65 },
+	{ id = "goldtotalAll", track = "gold", needs = 100, whole = true },
 } :: { Types.IndexMilestone }
 
 -- What each milestone pays per page (golden-fish.md sections 4, 5 and 5b). Everything is free and only the server
@@ -5981,7 +5987,13 @@ end
 -- #3317 (Derek2 2026-11-11: "move to the top of perks"): Swift Paws first, five levels (shared/SwiftPaws; Monetization-
 -- Agent's prices, 1,810 fish in all). The Star Treat's row (150 fish) is gone from the Market only (Derek2: "remove
 -- star treat from fish market"); it still comes from the Daily Treat, the Dealer and prizes, and saved ones stay.
-shopRow({ id = "swift_paws", kind = "perk", costs = { 60, 150, 300, 500, 800 }, maxLevel = 5 })
+-- #4705 (Derek 2026-11-16: "add more speed upgrade stages past 5"): levels 6 to 10, each about 1.3 to 1.5 times the last
+shopRow({
+	id = "swift_paws",
+	kind = "perk",
+	costs = { 60, 150, 300, 500, 800, 1200, 1700, 2300, 3000, 3800 },
+	maxLevel = 10,
+})
 shopRow({ id = "golden_espresso", kind = "perk", costs = { 40, 80, 150, 250, 400 }, maxLevel = 5 })
 shopRow({ id = "big_bowl", kind = "perk", costs = { 150 }, maxLevel = 1 })
 shopRow({ id = "extra_decor_spot", kind = "perk", costs = { 100, 250 }, maxLevel = 2 })

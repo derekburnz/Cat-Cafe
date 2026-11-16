@@ -8,8 +8,9 @@ local Config = {
 	-- #1796 (Derek2 11-06: the tutorial asks for a table and then the Bait bowl, and $50 covered neither): the first
 	-- table, the Bait bowl and its Kibble ($150 + $600 + $100), so tutorial steps 3 and 4 never wait on coins. #4097:
 	-- 850 to 250 now the table (#3660), the bowl and its Kibble are given: what a new player had left after buying the
-	-- bowl, so the money after the tutorial is as before
-	StartCoins = 250,
+	-- bowl, so the money after the tutorial is as before. #4674 (Derek 2026-11-16: "start players at 1,000$ so by the
+	-- time they hit the 1 catch its ready for rankup"): 250 before
+	StartCoins = 1000,
 	-- #3660 (Derek 2026-11-12: "make the players start with one table upgrade done and remove it from tutorial
 	-- steps"): the Tables level a new save starts at. Saves made before keep what they have
 	StartTables = 1,
@@ -278,6 +279,13 @@ local Config = {
 	AutoPressFlagRate = 0.95,
 	AutoPressClearRate = 0.85,
 	CatchLatencyCapSeconds = 0.15, -- most of a player's ping taken off a press (half the round trip, capped)
+	-- #4597 (Derek 2026-11-15: "the cats are doing the thing where they randomly tick down their heart bar"): a catch
+	-- press carries the client's own tap time on the ring clock (Workspace:GetServerTimeNow), believed up to this long
+	-- before it reaches the server, so a Good tap on a phone or a busy server is no longer judged by its late arrival.
+	-- An unpressed ring waits this long past its deadline before the server calls it a Miss, for a tap still on its way.
+	-- 0.6 since the #4609 PC check: at about 0.55 s one way, Perfect taps clamped at 0.4 came back Miss. No exploit
+	-- edge (CatchSchedule already allows scripted perfects); the cost is a 0.6 s wait after an unpressed final ring.
+	CatchPressStampSeconds = 0.6,
 	-- Per net level (0 Basic, 1 Sturdy, 2 Pro, 3 Master): perfect and good are half-widths in seconds either side of
 	-- the target. F93 (catch-rework.md section 2): a net only widens the bands; the number and speed of the circles
 	-- come from the stray's rarity, and every circle's shrink time wobbles by up to CircleJitter either way.
@@ -1050,6 +1058,10 @@ local Config = {
 	FusionGoldSeconds = 0,
 	FusionRainbowSeconds = 0,
 	FusionTier = 8,
+	-- #4221 (Derek 2026-11-15 21:57 UTC: "make them behave like 10x money of the mythic cat from the next tier area so
+	-- secret tier 9 is 10x the tier 10 mythic"): an area's Secret earns this many times the Mythical of the area one
+	-- tier past its home (Catalog's secret). Tier 10's next area is taken as three times the Castle, the ladder's step.
+	SecretNextMythicTimes = 10,
 	-- #4055 (Derek 2026-11-13 23:53 UTC): Tiers 8 to 10 pay 300 each, so the fish Store can be reached by playing
 	FishRankUp = { 5, 15, 30, 60, 100, 150, 300, 300, 300 } :: { number },
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds
@@ -1536,6 +1548,13 @@ local Config = {
 	GroupId = 107520049, -- Creampuff Games, the community group (since 2026-11-03, #999): the starter cat's gate and
 	-- requiresGroup codes. 0 turns both off (the starter cat back on the first goals)
 	GroupCheckSeconds = 60, -- how long a player's group membership answer is kept
+	-- #4679 (Derek 2026-11-16: players join the group and still cannot take the Bellhop Cat until they rejoin, as
+	-- Roblox keeps its "not a member" answer for the session): for this long after a player presses "Join the group",
+	-- a claim asks Roblox again GroupJoinRetries times, GroupJoinRetrySeconds apart, and if the answer is still "no"
+	-- the cat goes home anyway. The cat is a one-time gift; the group check is a nudge, not a lock.
+	GroupJoinTrustSeconds = 600,
+	GroupJoinRetries = 2, -- with the wait below it stays inside the card's 5 s wait for an answer
+	GroupJoinRetrySeconds = 1.5,
 
 	-- The free Bellhop Cat (F96, starter-cat.md sections 2 and 4). Its stand's card opens and ClaimStarterCat is taken
 	-- within StarterCatRangeStuds (flat) of a BellhopStand's pivot. While GroupId is 0 a claim needs the first goals

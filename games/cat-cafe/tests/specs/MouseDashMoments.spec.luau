@@ -18,10 +18,6 @@ return function()
 				"MouseDashFaster",
 				"MouseDashMilestone",
 				"MouseDashEnd",
-				-- the first arcade game's, fired the same way
-				"ArcadeStart",
-				"ArcadeMilestone",
-				"ArcadeEnd",
 			}
 			for _, name in names do
 				local signal = Moments[name]

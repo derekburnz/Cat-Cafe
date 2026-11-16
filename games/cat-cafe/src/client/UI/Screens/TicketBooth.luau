@@ -66,9 +66,9 @@ local PICTURES: { [string]: { glyph: string, rarity: string, image: (() -> strin
 				return Theme.textures.fishCoin
 			end,
 		},
-		traitToken = {
+		tokens10 = { -- #4596
 			glyph = "🔮",
-			rarity = "Epic",
+			rarity = "Legendary",
 			image = function()
 				return ShopIcons.hud("TraitToken")
 			end,
@@ -80,9 +80,28 @@ local PICTURES: { [string]: { glyph: string, rarity: string, image: (() -> strin
 				return ShopIcons.crate("classic_golden_crate")
 			end,
 		},
-		bigGoldRush = { glyph = "💰", rarity = "Epic", potion = "big_gold_rush_potion" },
-		bigLucky = { glyph = "🍀", rarity = "Epic", potion = "big_lucky_potion" },
-		swiftPaws = { glyph = "👟", rarity = "Rare", potion = "swift_potion_big" },
+		-- #4596: in place of the three potions
+		spins5 = {
+			glyph = "🎡",
+			rarity = "Epic",
+			image = function()
+				return ShopIcons.prize("spins")
+			end,
+		},
+		caviar = {
+			glyph = "🐟",
+			rarity = "Legendary",
+			image = function()
+				return ShopIcons.food("caviar")
+			end,
+		},
+		bestGolden = {
+			glyph = "📦",
+			rarity = "Mythical",
+			image = function()
+				return ShopIcons.crate("classic_golden_crate") -- the golden crate's look; it pays the best area's
+			end,
+		},
 	}
 
 local TicketBooth = {}

@@ -3,7 +3,10 @@
 -- PlayerState.fusion and the player's cats. Five copies of one cat in one coat make one in the next coat. Pure apart
 -- from the shared modules it reads (Catalog, CatStats, Traits), so the specs check it.
 --   groups(cats, busy) -> (ready, almost)        the cats and coats with 5+ free copies, and those at 3 or 4
---   defaultPick(group) -> { string }             the best level copy and the four weakest others
+--   defaultPick(group) -> { string }             the five lowest level copies (#4588)
+--   allPlan(ready, cap) -> (sets, list)          #4589 Fuse all: how many sets one tap fuses, and a short list
+--   allButton(sets, domeState, armed)            #4589 the Fuse all button's words and whether it can be pressed
+--   madeText(made, catName) -> (name, level)     #4589 one cat on the Fuse all summary: "Gold Mochi", "Lv 12"
 --   result(group, picked) -> Result              the level, name and traits the new cat may keep
 --   dome(view, now) -> Dome                      the dome card: free, running with a timer, or ready
 --   clock(seconds) -> string                     "6:42", "1:02:05"
@@ -48,13 +51,16 @@ function FusionLogic.blocker(instance: any, uid: string, busy: { [string]: boole
 	if instance.locked == true then
 		return "Locked"
 	end
-	if instance.spotId ~= nil then
-		return "Working"
-	end
+	-- #4605: a working copy may go in (it leaves its spot; FusionLogic.working tags it)
 	if busy and busy[uid] then
 		return "Busy"
 	end
 	return nil
+end
+
+-- #4605: whether a copy is working now, for the picker's "Working" tag and the confirm card's line.
+function FusionLogic.working(instance: any): boolean
+	return type(instance) == "table" and instance.spotId ~= nil
 end
 
 export type Copy = {
@@ -80,6 +86,11 @@ export type Group = {
 local function weakerFirst(a: Copy, b: Copy): boolean
 	if a.level ~= b.level then
 		return a.level < b.level
+	end
+	-- #4588: then the least XP, as the server's Fusion.defaultPick
+	local xa, xb = a.instance and a.instance.xp or 0, b.instance and b.instance.xp or 0
+	if xa ~= xb then
+		return xa < xb
 	end
 	if a.charm ~= b.charm then
 		return a.charm < b.charm
@@ -166,15 +177,15 @@ function FusionLogic.groups(
 	return ready, almost
 end
 
--- The best level copy (the strongest, last in `free`) and the four weakest others, so the new cat keeps the level the
--- player worked for and the weakest copies are the ones spent.
+-- #4588 (Derek 2026-11-15: "make it so it picks the 5 lowest level copies"): the five weakest copies (first in
+-- `free`), so a fusion spends the lowest levels unless the player ticks others.
 function FusionLogic.defaultPick(group: Group): { string }
 	local free = group.free
 	if #free < FusionLogic.COPIES then
 		return {}
 	end
-	local out = { free[#free].uid }
-	for index = 1, FusionLogic.COPIES - 1 do
+	local out = {}
+	for index = 1, FusionLogic.COPIES do
 		table.insert(out, free[index].uid)
 	end
 	return out
@@ -337,6 +348,62 @@ end
 function FusionLogic.almostText(group: Group): string
 	local more = FusionLogic.COPIES - #group.free
 	return ("%s · %d more"):format(FusionLogic.countText(group), more)
+end
+
+-- #4589 Fuse all: the sets one tap would fuse (every set of five free copies, weakest first, at most `cap`, as the
+-- server's Fusion.allSets) and a short list of them: "Mochi ×2, Gold Biscuit, +3 more".
+function FusionLogic.allPlan(ready: { Group }, cap: number): (number, string)
+	local sets = 0
+	local parts: { string } = {}
+	local more = 0
+	for _, group in ready do
+		local room = cap - sets
+		if room <= 0 then
+			break
+		end
+		local count = math.min(math.floor(#group.free / FusionLogic.COPIES), room)
+		if count <= 0 then
+			continue
+		end
+		sets += count
+		local prefix = if group.coat == "base"
+			then ""
+			else (FusionLogic.COAT_NAMES[group.coat] .. " ")
+		if #parts < 3 then
+			table.insert(
+				parts,
+				prefix .. group.name .. (if count > 1 then (" ×%d"):format(count) else "")
+			)
+		else
+			more += 1
+		end
+	end
+	if more > 0 then
+		table.insert(parts, ("+%d more"):format(more))
+	end
+	return sets, table.concat(parts, ", ")
+end
+
+-- The Fuse all button's words and whether it can be pressed: grey with the reason when it can't.
+function FusionLogic.allButton(sets: number, domeState: string, armed: boolean): (string, boolean)
+	if domeState == "running" then
+		return "Dome busy", false
+	end
+	if sets <= 0 then
+		return "Needs 5", false
+	end
+	if armed then
+		return "Tap again", true
+	end
+	return "Fuse all", true
+end
+
+-- One made cat on the summary: its name ("Gold Mochi") and its level line ("Lv 12").
+export type Made = { catId: string, coat: string, level: number, name: string?, newCoat: boolean }
+
+function FusionLogic.madeText(made: Made, catName: string): (string, string)
+	local coat = FusionLogic.COAT_NAMES[made.coat] or "Gold"
+	return ("%s %s"):format(coat, made.name or catName), ("Lv %d"):format(made.level)
 end
 
 export type Track = {

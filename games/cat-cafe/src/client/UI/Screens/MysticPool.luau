@@ -16,6 +16,9 @@
 -- result. The server decides every roll and payment; this only asks. #3864: once the free rolls are used, the Trait
 -- Token bundles sit on a slim panel beside the card (#4006) with the roll's full odds, while the card is open
 -- (MysticPoolLogic.bundles; only when the server's `bundles` says so); a pick opens Roblox's own prompt.
+-- #4712: Auto beside Roll opens the Auto Roll sheet: pick the rarity to stop at, Start, and it sends one roll at a
+-- time (no animation, the roll count, Trait Tokens used and the last rarity on the sheet) until a roll meets it, the
+-- party, free and token rolls run out (never golden fish) or Stop. A hit plays as a normal roll.
 -- Words in Components/MysticPoolLogic.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -46,7 +49,7 @@ local PAL = MenuFamily.pal
 local CARD = MenuFamily.card -- #3558: what sits on a picture card (cream in the family look)
 
 export type Callbacks = {
-	roll: (uid: string) -> (),
+	roll: (uid: string, stopAt: string?) -> (), -- #4712: stopAt makes it one Auto Roll step
 	choose: (takeNew: boolean) -> (),
 	collect: () -> (),
 	close: () -> (),
@@ -95,6 +98,7 @@ local PICTURE = 48
 local TILE_W = 150
 local TILE_H = 100 -- the cat's tile and the trait's card
 local ODDS_W = 84
+local AUTO_W = 72 -- #4712
 local ODDS_SHARE = 0.66 -- #3961: the odds pills' share of the row, the "equally likely" line in the rest
 local WORDS_H = 18 + 28 -- what the player has (or why Roll is grey), then the odds on two lines
 -- #3848 (Derek 2026-11-13: "the collect trait reroll button is cutoff a bit on mobile"): on a short screen the card
@@ -161,6 +165,8 @@ local remembered = {
 	shown = {} :: CatPickLogic.Shown,
 	seeded = false,
 	saved = { sort = CatPickLogic.DEFAULT_SORT, flipped = false, show = "" },
+	autoTarget = MysticPoolLogic.AUTO_DEFAULT, -- #4712: the Auto Roll rarity picked last this session
+	autoLimit = MysticPoolLogic.AUTO_LIMIT, -- and the roll limit
 }
 
 local function text(props: { [string]: any }, children: { Instance }?): TextLabel
@@ -464,6 +470,11 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._lastFire = -math.huge -- #4477: when the last press went (or goes) out
 	self._stamp = nil :: string? -- MysticPoolLogic.stamp when the last press went out
 	self._rolling = nil :: { uid: string, hadTrait: boolean }? -- a Roll waiting for its answer
+	self._auto = nil :: MysticPoolLogic.AutoRun? -- #4712: the Auto Roll run on the sheet
+	self._autoUid = nil :: string?
+	self._autoWaiting = false -- an Auto Roll step is out
+	self._autoBefore = { tokens = 0, n = 0 }
+	self._autoStop = false -- Stop pressed while a step is out
 	self._skip = nil :: (() -> ())? -- the running animation's skip
 	self._tapSkip = nil :: (() -> ())? -- #3943: what a tap does while it plays (nothing for Mythic and Secret)
 	self._lift = nil :: (() -> ())? -- #3702: ends the running reveal's shade and brings the card back
@@ -589,7 +600,7 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		name = "Roll",
 		text = "Roll",
 		style = "primary",
-		size = UDim2.new(1, -(TILE_W + ODDS_W + GAP * 2), 0, rowH),
+		size = UDim2.new(1, -(TILE_W + ODDS_W + AUTO_W + GAP * 3), 0, rowH),
 		position = UDim2.fromOffset(TILE_W + GAP, rollTop),
 		textSize = Theme.sizes.textBody,
 		parent = content,
@@ -598,6 +609,20 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 		end,
 	})
 	self._rollText = nil :: string?
+	-- #4712: Auto Roll, between Roll and Odds
+	self._autoButton = Button.new({
+		name = "Auto",
+		text = MysticPoolLogic.AUTO,
+		style = "purple",
+		size = UDim2.fromOffset(AUTO_W, rowH),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -(ODDS_W + GAP), 0, rollTop),
+		textSize = Theme.sizes.textSmall + 1,
+		parent = content,
+		onClick = function()
+			self:_showAuto(true)
+		end,
+	})
 	self._oddsButton = Button.new({
 		name = "Odds",
 		text = "Odds",
@@ -1047,11 +1072,13 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	end
 	oddsRows()
 	-- #4314 follow-up: Secret 0.1% shows (or goes) on every odds display as soon as the switch flips
-	self._secretChanged = MysticPoolLogic.secretChanged(function()
+	-- and the Dragon Keep's trait luck: render draws them again when a slotted Trait Spark changes it
+	self._redrawOdds = function()
 		oddsPills(pillsLayer, if short then lineTop else lineTop + 18, 1)
 		oddsLines(choice, 30 + cardH + GAP + buttonH + 4 + 6, 9)
 		oddsRows()
-	end)
+	end
+	self._secretChanged = MysticPoolLogic.secretChanged(self._redrawOdds)
 
 	-- #4006 (Derek 2026-11-13: "instead of making this the pop up when opening mystic pool have the back open up on the
 	-- side of screen prompting people to buy it until they click a small X"): the Trait Token offer is a slim cream
@@ -1147,6 +1174,115 @@ function MysticPool.new(callbacks: Callbacks): MysticPool
 	self._offerBundles = nil :: { MysticPoolLogic.Bundle }?
 	self._sideOn = false
 
+	-- #4712: the Auto Roll sheet: the rarity to stop at, what each roll uses, the run's numbers and Start or Stop
+	local auto = sheet("AutoRoll", content, 11)
+	self._autoSheet = auto
+	local titleH = if short then 30 else 36
+	text({
+		Name = "Title",
+		Size = UDim2.new(1, -110, 0, titleH),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 2,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = MysticPoolLogic.AUTO_TITLE,
+		ZIndex = 12,
+		TextColor3 = PAL.text,
+		Parent = auto,
+	})
+	self._autoBack = Button.new({
+		name = "Back",
+		text = "Back",
+		style = "ghost",
+		size = UDim2.fromOffset(96, titleH),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, 0, 0, 0),
+		textSize = Theme.sizes.textSmall,
+		parent = auto,
+		zIndex = 12,
+		onClick = function()
+			self:_showAuto(false)
+		end,
+	})
+	local askTop = titleH + 2
+	text({
+		Name = "Ask",
+		Position = UDim2.fromOffset(0, askTop),
+		Size = UDim2.new(1, 0, 0, 18),
+		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextColor3 = PAL.text,
+		Text = MysticPoolLogic.AUTO_ASK,
+		ZIndex = 12,
+		Parent = auto,
+	})
+	local pickTop = askTop + 20
+	local pickH = if short then 34 else math.min(buttonH, 40)
+	self._autoPickTop = pickTop
+	self._autoPickH = pickH
+	self._autoPicks = {} :: { [string]: Button.Button }
+	self._autoPickFrame = Create("Frame", {
+		Name = "Targets",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(0, pickTop),
+		Size = UDim2.new(1, 0, 0, pickH * 2 + GAP),
+		ZIndex = 12,
+		Parent = auto,
+	})
+	local statusTop = pickTop + pickH * 2 + GAP + 2
+	local statusH = if short then 30 else 34
+	self._autoStatus = text({
+		Name = "Status",
+		Position = UDim2.fromOffset(0, statusTop),
+		Size = UDim2.new(1, 0, 0, statusH),
+		TextSize = Theme.sizes.textSmall,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		TextColor3 = PAL.text,
+		ZIndex = 12,
+		Parent = auto,
+	})
+	-- Review-QA on #4714: the roll limit (5, 10 or 25) beside Start, which says it ("Start (up to 10 Trait Tokens)")
+	local goTop = statusTop + statusH + 2
+	local limitW = 52
+	self._autoLimits = {} :: { [number]: Button.Button }
+	for index, limit in MysticPoolLogic.AUTO_LIMITS do
+		self._autoLimits[limit] = Button.new({
+			name = "Limit" .. limit,
+			text = tostring(limit),
+			style = "ghost",
+			size = UDim2.fromOffset(limitW, buttonH),
+			position = UDim2.fromOffset((index - 1) * (limitW + GAP), goTop),
+			textSize = Theme.sizes.textSmall + 1,
+			parent = auto,
+			zIndex = 12,
+			onClick = function()
+				if not (self._auto ~= nil and self._auto.running) then
+					remembered.autoLimit = limit
+					self:_paintAuto()
+				end
+			end,
+		})
+	end
+	local limitsW = #MysticPoolLogic.AUTO_LIMITS * (limitW + GAP)
+	self._autoGo = Button.new({
+		name = "Go",
+		text = "Start",
+		style = "primary",
+		size = UDim2.new(1, -limitsW, 0, buttonH),
+		position = UDim2.fromOffset(limitsW, goTop),
+		textSize = Theme.sizes.textBody,
+		parent = auto,
+		zIndex = 12,
+		onClick = function()
+			self:_autoPress()
+		end,
+	})
+	self._autoGoText = nil :: string?
+	self:_autoTargets()
+	self._autoSecret = MysticPoolLogic.secretChanged(function()
+		self:_autoTargets()
+	end)
+
 	-- while the pool's animation plays: a tap anywhere on the card skips to the result
 	local rolling = sheet("Rolling", content, 14)
 	self._rollingSheet = rolling
@@ -1221,6 +1357,7 @@ function MysticPool._send(self: any, fire: () -> ())
 		if self._pendingToken == token and self._pending then
 			self._pending = false
 			self._rolling = nil
+			self:_autoLost()
 			warn(
 				"MysticPool: no answer to a press within "
 					.. PENDING_SECONDS
@@ -1259,6 +1396,222 @@ function MysticPool._rollPress(self: any)
 	self:_send(function()
 		self._callbacks.roll(uid)
 	end)
+end
+
+-- #4712: the rarity buttons (Uncommon up, Secret with its switch), three a row; drawn again when the switch flips
+function MysticPool._autoTargets(self: any)
+	for _, pick: Button.Button in self._autoPicks do
+		pick:destroy()
+	end
+	self._autoPicks = {}
+	local targets = MysticPoolLogic.autoTargets(MysticPoolLogic.secret())
+	local known = false
+	for _, target in targets do
+		known = known or target.id == remembered.autoTarget
+	end
+	if not known then
+		remembered.autoTarget = MysticPoolLogic.AUTO_DEFAULT
+	end
+	local perRow = 3
+	local pickH: number = self._autoPickH
+	for index, target in targets do
+		local column = (index - 1) % perRow
+		local row = (index - 1) // perRow
+		self._autoPicks[target.id] = Button.new({
+			name = "Target" .. target.name,
+			text = target.name,
+			style = "ghost",
+			size = UDim2.new(1 / perRow, -GAP * (perRow - 1) / perRow, 0, pickH),
+			position = UDim2.new(column / perRow, column * GAP / perRow, 0, row * (pickH + GAP)),
+			textSize = Theme.sizes.textSmall,
+			parent = self._autoPickFrame,
+			zIndex = 12,
+			onClick = function()
+				if not (self._auto ~= nil and self._auto.running) then
+					remembered.autoTarget = target.id
+					self:_paintAuto()
+				end
+			end,
+		})
+	end
+	self:_paintAuto()
+end
+
+function MysticPool._showAuto(self: any, on: boolean)
+	local sheetFrame: Frame = self._autoSheet
+	if not on then
+		self:_autoEnd("stop")
+		self._auto = nil
+		if sheetFrame.Visible then
+			sheetFrame.Visible = false
+			self:_refocus()
+		end
+		return
+	end
+	if self:_cat() == nil or self._pending then
+		return
+	end
+	self._auto = nil
+	sheetFrame.Visible = true
+	self:_paintAuto()
+	GamepadNav.pushBack("mysticAuto", sheetFrame, function()
+		self:_showAuto(false)
+		return true
+	end)
+end
+
+-- Start, or Stop while it runs (a step already out still lands; nothing more goes)
+function MysticPool._autoPress(self: any)
+	local run: MysticPoolLogic.AutoRun? = self._auto
+	if run ~= nil and run.running then
+		if self._autoWaiting then
+			self._autoStop = true
+		else
+			self:_autoEnd("stop")
+		end
+		self:_paintAuto()
+		return
+	end
+	local uid = self._uid
+	if uid == nil or self._pending or MysticPoolLogic.autoRolls(self._view) <= 0 then
+		return
+	end
+	self._auto = {
+		rolls = 0,
+		spent = 0,
+		running = true,
+		most = MysticPoolLogic.autoMost(self._view, remembered.autoLimit),
+	}
+	self._autoUid = uid
+	self._autoStop = false
+	self:_autoStep()
+end
+
+function MysticPool._autoEnd(self: any, why: string)
+	local run: MysticPoolLogic.AutoRun? = self._auto
+	if run ~= nil and run.running then
+		run.running = false
+		run.ended = why
+	end
+	self._autoStop = false
+end
+
+-- One step: the next roll goes out (the card's own send keeps them SEND_GAP_SECONDS apart), or the run ends
+function MysticPool._autoStep(self: any)
+	local run: MysticPoolLogic.AutoRun? = self._auto
+	local uid: string? = self._autoUid
+	if run == nil or not run.running or uid == nil then
+		return
+	end
+	if not self._open or self._cats[uid] == nil or self._autoStop then
+		self:_autoEnd("stop")
+		self:_paintAuto()
+		return
+	end
+	local view = self._view
+	if run.most ~= nil and run.rolls >= run.most then
+		self:_autoEnd("limit")
+		self:_paintAuto()
+		return
+	end
+	if MysticPoolLogic.autoRolls(view) <= 0 then
+		self:_autoEnd("out")
+		self:_paintAuto()
+		return
+	end
+	local last = if view ~= nil then view.autoRoll else nil
+	self._autoBefore = {
+		tokens = if view ~= nil then tonumber(view.tokens) or 0 else 0,
+		n = if type(last) == "table" then tonumber(last.n) or 0 else 0,
+	}
+	self._autoWaiting = true
+	local target: string = remembered.autoTarget
+	self:_send(function()
+		self._callbacks.roll(uid, target)
+	end)
+end
+
+-- The step's answer is in the state: count it, and stop on a hit (played as a normal roll) or go again
+function MysticPool._autoAnswer(self: any)
+	self._autoWaiting = false
+	local run: MysticPoolLogic.AutoRun? = self._auto
+	local uid: string? = self._autoUid
+	if run == nil or not run.running or uid == nil then
+		return
+	end
+	local view = self._view
+	local last = if view ~= nil then view.autoRoll else nil
+	local n = if type(last) == "table" then tonumber(last.n) or 0 else 0
+	if n == self._autoBefore.n or type(last) ~= "table" or type(last.id) ~= "string" then
+		-- refused (its toast says why): the run ends
+		self:_autoEnd("stop")
+		return
+	end
+	run.rolls += 1
+	run.spent += math.max(
+		0,
+		self._autoBefore.tokens - (if view ~= nil then tonumber(view.tokens) or 0 else 0)
+	)
+	run.last = last.id
+	if MysticPoolLogic.autoHit(last.id, remembered.autoTarget) then
+		self:_autoEnd("hit")
+		self._autoSheet.Visible = false
+		self:_refocus()
+		local ok, problem = pcall(self._reveal, self, uid, last.id)
+		if not ok then
+			warn("MysticPool reveal: " .. tostring(problem))
+		end
+		return
+	end
+	if self._autoStop then
+		self:_autoEnd("stop")
+		return
+	end
+	task.defer(function()
+		self:_autoStep()
+	end)
+end
+
+-- the step got no answer within PENDING_SECONDS: the run ends
+function MysticPool._autoLost(self: any)
+	if self._autoWaiting then
+		self._autoWaiting = false
+		self:_autoEnd("stop")
+	end
+end
+
+function MysticPool._paintAuto(self: any)
+	local run: MysticPoolLogic.AutoRun? = self._auto
+	local running = run ~= nil and run.running
+	for id, pick: Button.Button in self._autoPicks do
+		pick:setStyle(if id == remembered.autoTarget then "purple" else "ghost")
+		pick:setEnabled(not running or id == remembered.autoTarget)
+	end
+	for limit, chip: Button.Button in self._autoLimits do
+		chip:setStyle(if limit == remembered.autoLimit then "purple" else "ghost")
+		chip:setEnabled(not running or limit == remembered.autoLimit)
+	end
+	local line = MysticPoolLogic.autoLine(run, self._view)
+	if not running and remembered.autoTarget == "secret" then
+		line ..= " " .. MysticPoolLogic.SECRET_NOTE
+	end
+	self._autoStatus.Text = line
+	local goText = if running
+		then (if self._autoStop then "Stopping..." else "Stop")
+		else MysticPoolLogic.autoStart(
+			self._view,
+			MysticPoolLogic.autoMost(self._view, remembered.autoLimit)
+		)
+	if self._autoGoText ~= goText then
+		self._autoGoText = goText
+		self._autoGo:setText(goText)
+		self._autoGo:setStyle(if running then "danger" else "primary")
+	end
+	self._autoGo:setEnabled(
+		if running
+			then not self._autoStop
+			else self:_cat() ~= nil and MysticPoolLogic.autoRolls(self._view) > 0
+	)
 end
 
 -- The roll's answer has come: the pool plays it (a tap skips), then the card shows it. #3702: while it plays the
@@ -1852,6 +2205,7 @@ function MysticPool._paint(self: any)
 		self._pending = false
 		self._pendingToken += 1
 		self._rolling = nil
+		self:_autoLost()
 		warn(
 			"MysticPool: no answer to a press within " .. PENDING_SECONDS .. " s; the buttons wake"
 		) -- #4015
@@ -1869,6 +2223,11 @@ function MysticPool._paint(self: any)
 		self._roll:setText(rollText)
 	end
 	self._roll:setEnabled(roll.enabled and cat ~= nil and not resting)
+	-- #4712: Auto needs a cat and a party, free or token roll (never golden fish)
+	self._autoButton:setEnabled(cat ~= nil and not resting and MysticPoolLogic.autoRolls(view) > 0)
+	if self._autoSheet.Visible then
+		self:_paintAuto()
+	end
 	local why = if not roll.enabled then roll.why else nil
 	self._why.Text = why or MysticPoolLogic.haveLine(view, self._fish)
 	self._why.TextColor3 = if why ~= nil then PAL.warn else PAL.text
@@ -1979,6 +2338,16 @@ end
 
 function MysticPool.render(self: any, state: Types.PlayerState)
 	self:_seed((state :: any).settings)
+	-- the Dragon Keep's trait luck (UI.mysticPool.render sets it): the odds drawn again when it changed
+	local cardLuck: any = (state :: any).cardLuck
+	MysticPoolLogic.setLuck(if type(cardLuck) == "table" then cardLuck.trait else nil)
+	local luck = MysticPoolLogic.luck()
+	local redraw = (self :: any)._redrawOdds :: (() -> ())?
+	if luck ~= (self._drawnLuck or 0) and redraw ~= nil then
+		self._drawnLuck = luck
+		local draw = redraw :: () -> ()
+		draw()
+	end
 	local view: any = (state :: any).traits
 	self._view = if type(view) == "table" then view else nil
 	self._fish = state.goldenFish or 0
@@ -1993,6 +2362,14 @@ function MysticPool.render(self: any, state: Types.PlayerState)
 		self._pendingToken += 1
 		local rolling = self._rolling
 		self._rolling = nil
+		if self._autoWaiting then
+			local ok, problem = pcall(self._autoAnswer, self)
+			if not ok then
+				self._autoWaiting = false
+				self:_autoEnd("stop")
+				warn("MysticPool auto roll: " .. tostring(problem))
+			end
+		end
 		if rolling ~= nil then
 			local cat = self._cats[rolling.uid]
 			local rolled = MysticPoolLogic.rolled(
@@ -2022,6 +2399,7 @@ function MysticPool.opened(self: any)
 	local tick = self._tick
 	self:_showPicker(false)
 	self._oddsSheet.Visible = false
+	self:_showAuto(false)
 	self:_warmFaces()
 	local waiting = MysticPoolLogic.pending(self._view, self._cats)
 	if waiting ~= nil and self._cats[waiting.uid] ~= nil then
@@ -2053,6 +2431,7 @@ function MysticPool.closed(self: any)
 	self:_stopPlay()
 	self:_showPicker(false)
 	self._oddsSheet.Visible = false
+	self:_showAuto(false)
 	self:_showSide(false)
 end
 
@@ -2064,6 +2443,16 @@ function MysticPool.destroy(self: any)
 	self:_clearRows()
 	self._searchChanged:Disconnect()
 	self._secretChanged:Disconnect()
+	self._autoSecret:Disconnect()
+	for _, pick: Button.Button in self._autoPicks do
+		pick:destroy()
+	end
+	self._autoButton:destroy()
+	self._autoBack:destroy()
+	self._autoGo:destroy()
+	for _, chip: Button.Button in self._autoLimits do
+		chip:destroy()
+	end
 	self._scrolled:Disconnect()
 	self._skipPressed:Disconnect()
 	for _, chip: Button.Button in self._sorts do

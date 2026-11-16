@@ -31,7 +31,6 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
-local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local Potions = require(ReplicatedStorage.Shared.Potions)
@@ -95,9 +94,9 @@ local function pondTimes(player: Player): number
 	return CampExtras.pondTimes(player:GetAttribute(CampExtras.GOLD_POND_ATTRIBUTE) == true)
 end
 
--- #3614: the Yard Sale's lucky pick, behind its switch.
+-- #3614: the Yard Sale's lucky pick (#4654: the yardSaleRoll switch shipped, always on).
 local function pickOn(): boolean
-	return LiveFlagService.on(YardPick.FLAG)
+	return true
 end
 
 -- The Yard Sale's wait in hours when it is not the free crate's (nil while the pick's switch is off).
@@ -105,9 +104,10 @@ local function yardHours(): number?
 	return if pickOn() then YardPick.hours(true) else nil
 end
 
--- #3715: Picnic Treats, behind its switch: the basket fills by the treats' rule and is taken with a pick.
+-- #3715: Picnic Treats: the basket fills by the treats' rule and is taken with a pick (#4654: the picnicTreats
+-- switch shipped, always on).
 local function treatsOn(): boolean
-	return LiveFlagService.on(CampExtras.TREATS_FLAG)
+	return true
 end
 
 -- #3614: with the pick on, the Yard Sale's view carries this player's rows: what the board shows is what is rolled.

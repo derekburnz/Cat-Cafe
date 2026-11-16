@@ -120,27 +120,35 @@ return function()
 			)
 		end)
 
-		it("refuses a locked, working, spa, pending or trading copy", function()
-			local profile = profileWith(5)
-			profile.cats.a2.locked = true
-			expect(Fusion.startBlocker(profile, TIER, FIVE, nil, false)).to.equal(
-				Fusion.Messages.locked
-			)
-			profile = profileWith(5)
-			profile.cats.a2.spotId = "barista_1"
-			expect(Fusion.startBlocker(profile, TIER, FIVE, nil, false)).to.equal(
-				Fusion.Messages.working
-			)
-			profile = profileWith(5)
-			profile.traits.pending = { uid = "a3" } :: any
-			expect(Fusion.startBlocker(profile, TIER, FIVE, nil, false)).to.equal(
-				Fusion.Messages.pending
-			)
-			profile = profileWith(5)
-			expect(Fusion.startBlocker(profile, TIER, FIVE, nil, true)).to.equal(
-				Fusion.Messages.inTrade
-			)
-		end)
+		it(
+			"refuses a locked, spa, pending or trading copy, and lets a working one in (#4605)",
+			function()
+				local profile = profileWith(5)
+				profile.cats.a2.locked = true
+				expect(Fusion.startBlocker(profile, TIER, FIVE, nil, false)).to.equal(
+					Fusion.Messages.locked
+				)
+				profile = profileWith(5)
+				profile.cats.a2.spotId = "barista_1"
+				expect(Fusion.startBlocker(profile, TIER, FIVE, nil, false)).to.equal(nil)
+				-- the result takes the strongest working copy's spot
+				profile.cats.a4.spotId = "waiter_1"
+				expect(Fusion.workSpot(profile, FIVE)).to.equal("waiter_1")
+				profile.cats.a4.spotId = nil
+				expect(Fusion.workSpot(profile, FIVE)).to.equal("barista_1")
+				profile.cats.a2.spotId = nil
+				expect(Fusion.workSpot(profile, FIVE)).to.equal(nil)
+				profile = profileWith(5)
+				profile.traits.pending = { uid = "a3" } :: any
+				expect(Fusion.startBlocker(profile, TIER, FIVE, nil, false)).to.equal(
+					Fusion.Messages.pending
+				)
+				profile = profileWith(5)
+				expect(Fusion.startBlocker(profile, TIER, FIVE, nil, true)).to.equal(
+					Fusion.Messages.inTrade
+				)
+			end
+		)
 
 		it(
 			"refuses another player's or a made-up uid, and a second start while the dome is busy",
@@ -256,16 +264,72 @@ return function()
 			expect((profile.fusion.running :: any).trait).to.equal(nil)
 		end)
 
-		it("picks the best copy and the four weakest by default", function()
+		it("picks the five lowest level copies by default (#4588)", function()
 			local profile = profileWith(8) -- levels 1 to 8
 			local pick = Fusion.defaultPick(profile, MYTH, "base")
 			table.sort(pick)
-			expect(pick).to.deepEqual({ "a1", "a2", "a3", "a4", "a8" })
-			profile.cats.a1.locked = true
+			expect(pick).to.deepEqual({ "a1", "a2", "a3", "a4", "a5" })
+			profile.cats.a1.locked = true -- a busy low copy is skipped
 			pick = Fusion.defaultPick(profile, MYTH, "base")
 			table.sort(pick)
-			expect(pick).to.deepEqual({ "a2", "a3", "a4", "a5", "a8" })
+			expect(pick).to.deepEqual({ "a2", "a3", "a4", "a5", "a6" })
+			-- a tie on level goes to the one with less XP
+			profile.cats.a1.locked = nil
+			profile.cats.a6.level = 1
+			profile.cats.a6.xp = 0
+			profile.cats.a1.xp = 5
+			pick = Fusion.defaultPick(profile, MYTH, "base")
+			expect(pick[1]).to.equal("a6")
 			expect(#Fusion.defaultPick(profileWith(3), MYTH, "base")).to.equal(3)
+		end)
+	end)
+
+	describe("Fuse all (#4589)", function()
+		local function catsOf(sets: { { string } }): { [string]: number }
+			local seen: { [string]: number } = {}
+			for _, set in sets do
+				expect(#set).to.equal(Fusion.COPIES)
+				for _, uid in set do
+					seen[uid] = (seen[uid] or 0) + 1
+				end
+			end
+			return seen
+		end
+
+		it(
+			"makes one set per five free copies, weakest first, leaving the strongest over",
+			function()
+				local profile = profileWith(12) -- levels 1 to 12
+				local sets = Fusion.allSets(profile)
+				expect(#sets).to.equal(2)
+				local seen = catsOf(sets)
+				for i = 1, 10 do
+					expect(seen["a" .. i]).to.equal(1)
+				end
+				expect(seen.a11).to.equal(nil)
+				expect(seen.a12).to.equal(nil)
+			end
+		)
+
+		it("skips busy copies, rainbow coats and cats short of five", function()
+			local profile = profileWith(6)
+			profile.cats.a1.locked = true
+			profile.cats.a2.locked = true -- only four free now
+			expect(#Fusion.allSets(profile)).to.equal(0)
+			local rainbow = profileWith(5, MYTH, "rainbow")
+			expect(#Fusion.allSets(rainbow)).to.equal(0)
+			local five = profileWith(5)
+			expect(#Fusion.allSets(five, function(uid: string): boolean
+				return uid ~= "a3" -- offered in a trade
+			end)).to.equal(0)
+		end)
+
+		it("stops at ALL_MAX sets and every set can start", function()
+			local profile = profileWith(Fusion.COPIES * (Fusion.ALL_MAX + 2))
+			local sets = Fusion.allSets(profile)
+			expect(#sets).to.equal(Fusion.ALL_MAX)
+			catsOf(sets) -- no copy in two sets
+			expect(Fusion.startBlocker(profile, 10, sets[1], nil, false)).to.equal(nil)
 		end)
 	end)
 

@@ -392,11 +392,11 @@ local function mysticPool(waiting, uid, view)
 	return modals:FindFirstChild("MysticPool", true)
 end
 
--- #3296: Mouse Dash's card open with its switch on; `circle` whether Circle Streak is still playable beside it.
-local function mouseDashCard(circle)
+-- #3296: Mouse Dash's card open with its switch on (#4656: the arcade's only game).
+local function mouseDashCard()
 	UI.close()
 	UI.update({ goldenFish = 12 } :: any)
-	UI.mouseDash.setFlags(true, circle)
+	UI.mouseDash.setFlags(true)
 	UI.mouseDash.state({
 		loaded = true,
 		best = 37,
@@ -1475,6 +1475,21 @@ local function richTipBubbles()
 end
 
 -- name, how the game opens it
+-- #4589: ten Tabbies, five gold Gingers and a Tuxedo in the Fusion Observatory, open on the Fuse tab
+function Scenes._fusionAllOpen()
+	local cats = {}
+	for index = 1, 10 do
+		cats["t" .. index] = { uid = "t" .. index, catId = "tabby", variant = "base", level = index, xp = 0, charm = 50, caughtAt = 0 }
+	end
+	for index = 1, 5 do
+		cats["g" .. index] = { uid = "g" .. index, catId = "ginger", variant = "gold", level = 5 + index, xp = 0, charm = 50, caughtAt = 0 }
+	end
+	cats.x1 = { uid = "x1", catId = "tuxedo", variant = "base", level = 1, xp = 0, charm = 50, caughtAt = 0 }
+	Scenes._fusionCats = Scenes._fusionCats or (UI.getState() :: any).cats
+	UI.update({ cats = cats, fusion = { goldSeconds = 600, rainbowSeconds = 3600, made = { gold = 0, rainbow = 0 } } } :: any)
+	UI.lateStations.openFusion()
+end
+
 local SCENES = {
 	{ "Upgrades", function()
 		UI.open("Upgrades")
@@ -3107,6 +3122,36 @@ local SCENES = {
 		UI.update({ traits = { tokens = 1, freeLeft = 0, held = 1 } } :: any)
 		assert(resting.Text == "Re-roll · 1 Trait Token", "uigate: Roll did not wake on the answer: " .. resting.Text .. " (#3196)")
 	end },
+	-- #4712: Auto opens the Auto Roll sheet; Legendary picked, Start sends RollTrait's event with the cat and the
+	-- rarity, and a dropped Rare re-roll shows the run's numbers with Stop
+	{ "MysticPoolAuto", function()
+		local window = mysticPool(nil, "gate_1", { tokens = 5, freeLeft = 0, held = 0 })
+		press("MysticPool", "Auto")
+		local sheet = window:FindFirstChild("AutoRoll", true)
+		assert(sheet and sheet.Visible, "uigate: Auto did not open the Auto Roll sheet (#4712)")
+		press("MysticPool", "AutoRoll.Targets.TargetLegendary")
+		local start = sheet:FindFirstChild("Go"):FindFirstChildWhichIsA("TextLabel", true)
+		assert(start.Text == "Start (up to 5 Trait Tokens)", "uigate: Start reads " .. start.Text .. " (#4714 review)")
+		local sentUid, sentAt = nil, nil
+		local connection = UI.events.rollTrait:Connect(function(uid, stopAt)
+			sentUid, sentAt = uid, stopAt
+		end)
+		press("MysticPool", "AutoRoll.Go")
+		connection:Disconnect()
+		assert(sentUid == "gate_1" and sentAt == "legendary", ("uigate: Auto Roll sent %s, %s (#4712)"):format(tostring(sentUid), tostring(sentAt)))
+		local Traits = require(game:GetService("ReplicatedStorage").Shared.Traits) :: any
+		local rare = nil
+		for _, trait in Traits.LIST do
+			if rare == nil and Traits.rarity(trait).id == "rare" then
+				rare = trait.id
+			end
+		end
+		UI.update({ traits = { tokens = 4, freeLeft = 0, held = 0, autoRoll = { id = rare, n = 1 } } } :: any)
+		local status = sheet:FindFirstChild("Status")
+		assert(status.Text == "1 of 5 rolls · 1 Trait Token used · last: Rare", "uigate: the Auto Roll line reads " .. status.Text .. " (#4712)")
+		local go = sheet:FindFirstChild("Go"):FindFirstChildWhichIsA("TextLabel", true)
+		assert(go.Text == "Stop", "uigate: the running Auto Roll's button reads " .. go.Text .. " (#4712)")
+	end },
 	-- #3196: a new player's card: a cat with no trait picked from the list, and "Free roll (5 left)"
 	{ "MysticPoolFree", function()
 		local window = mysticPool(nil, nil, { tokens = 0, freeLeft = 5, held = 0, nextAt = workspace:GetServerTimeNow() + 3 * 3600 })
@@ -3903,6 +3948,34 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "Cannon", function()
 		UI.cannon.open()
 	end },
+	-- #4540: at Tier 2 before the Park is reached, the picker rings the Park card; after a visit it does not
+	{ "CannonParkRing", function()
+		atTier(2)
+		UI.cannon.clearFly()
+		-- a Launch rings only while it is live: in a full run the clock an earlier scene set has reached dusk ("Night
+		-- soon"), so no day clock and the areas open
+		UI.clock.clear()
+		UI.clock.setAreasOpen(true)
+		local reachedWas = UI.parkTrail.reached
+		local function ringed(): boolean
+			local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+			local park = window:FindFirstChild("park", true)
+			assert(park ~= nil, "uigate: no Park card in the picker (#4540)")
+			local glow = park:FindFirstChild("TutorialGlow", true)
+			return glow ~= nil and (not glow:IsA("GuiObject") or glow.Visible)
+		end
+		UI.parkTrail.reached = true
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		assert(not ringed(), "uigate: the Park card is ringed after the Park was reached (#4540)")
+		UI.close()
+		UIShim.advance(0.5)
+		UI.parkTrail.reached = false
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		assert(ringed(), "uigate: the Park card is not ringed at Tier 2 before the Park (#4540)")
+		UI.parkTrail.reached = reachedWas
+	end },
 	-- #4227: three spawn lines at once show one at a time: the first with a "+2" badge and its drain bar
 	{ "SpawnQueueBadge", function()
 		UIShim.advance(31) -- earlier scenes' shout-out gap and queue are past
@@ -4042,6 +4115,14 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(not (button() :: GuiObject).Visible, "uigate: the Harvest button stays with its switch off (#4251)")
 		ReplicatedStorage:SetAttribute("LiveFlag_harvestHollow", true)
 		UIShim.advance(0.5) -- the scene's picture shows the row with the button in it
+		-- #4586: the row grows to three tiles and the arrow tab moves with it, clear of the Harvest tile and its label
+		local harvest = button() :: GuiObject
+		local fold = hud:FindFirstChild("TravelFold", true) :: GuiObject
+		local tileL, tileR = harvest.AbsolutePosition.X, harvest.AbsolutePosition.X + harvest.AbsoluteSize.X
+		local foldL, foldR = fold.AbsolutePosition.X, fold.AbsolutePosition.X + fold.AbsoluteSize.X
+		assert(foldR <= travel.AbsolutePosition.X + 1 or foldL >= travel.AbsolutePosition.X + travel.AbsoluteSize.X - 1, "uigate: the bottom row's arrow tab sits over the row with Harvest shown (#4586)")
+		assert(foldR <= tileL + 1 or foldL >= tileR - 1, "uigate: the arrow tab covers the Harvest tile (#4586)")
+		assert(tileR <= travel.AbsolutePosition.X + travel.AbsoluteSize.X + 1, "uigate: the Harvest tile runs past its row (#4586)")
 	end },
 	-- #3884: a rank up to Tier 2 since the picker last opened: the Park card keeps its lock a moment, the lock breaks
 	-- with "Unlocked!", and about 3 s later the cover is gone and the card can launch
@@ -6117,11 +6198,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(glyphs >= 3, ("uigate: the session ask shows %d of the three thumbs and face (#3272)"):format(glyphs))
 	end },
 	-- #3296: Mouse Dash. With its switch on the cabinet opens its card: the best and titles, today's prizes (the
-	-- arcade's, shared), "Play (free)" and no way to Circle Streak once that game is vaulted
+	-- arcade's, shared), "Play (free)" and no way to Circle Streak (#4656: that game is gone)
 	{
 		"MouseDashCard",
 		function()
-			local window = mouseDashCard(false)
+			local window = mouseDashCard()
 			local play = window:FindFirstChild("Play", true):FindFirstChildWhichIsA("TextLabel", true)
 			assert(play.Text == "Play (free)", "uigate: Mouse Dash's Play reads " .. play.Text .. " (#3296)")
 			local records = window:FindFirstChild("Records", true)
@@ -6156,8 +6237,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			press("MouseDash", "Leaderboard")
 			assert(not top.Visible, "uigate: a second press did not fold the leaderboard away (#3553)")
 			assert(window:FindFirstChild("IdeaBy", true), "uigate: no idea credit on Mouse Dash's card (#3296)")
-			local other = window:FindFirstChild("CircleStreak", true)
-			assert(other and not other.Visible, "uigate: a vaulted Circle Streak still has its button (#3296)")
+			assert(window:FindFirstChild("CircleStreak", true) == nil, "uigate: Mouse Dash's card still has a Circle Streak button (#4656)")
 			local sent = false
 			local connection = UI.events.mouseDashPlay:Connect(function()
 				sent = true
@@ -6167,25 +6247,12 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			assert(sent, "uigate: Play on Mouse Dash's card sent nothing (#3296)")
 		end,
 	},
-	-- #3296: while both switches are on (testing) the card has a button to Circle Streak, which opens its card
-	{
-		"MouseDashBoth",
-		function()
-			local window = mouseDashCard(true)
-			local other = window:FindFirstChild("CircleStreak", true)
-			assert(other and other.Visible, "uigate: no button to Circle Streak while both games are on (#3296)")
-			press("MouseDash", "CircleStreak")
-			assert(UI.isOpen() == "Arcade", "uigate: the Circle Streak button opened " .. tostring(UI.isOpen()) .. " wrap=" .. tostring((UI :: any).cannon.wrapUp.on) .. " (#3296)")
-			UI.close()
-			mouseDashCard(true)
-		end,
-	},
 	-- #3296: a game on the board: nine holes that never overlap, 64 px or more each, the hearts and score strip clear
 	-- of every hole, and each animal centred in its hole. A tap sends the run, the wave and the hole.
 	{
 		"MouseDashBoard",
 		function()
-			local window = mouseDashCard(false)
+			local window = mouseDashCard()
 			local nowAt = workspace:GetServerTimeNow()
 			UI.mouseDash.began(7, 3, nowAt, nowAt + 92)
 			UI.mouseDash.wave(7, 1, {
@@ -6266,7 +6333,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{
 		"MouseDashBanner",
 		function()
-			local window = mouseDashCard(false)
+			local window = mouseDashCard()
 			local nowAt = workspace:GetServerTimeNow()
 			UI.mouseDash.began(9, 3, nowAt, nowAt + 92)
 			local banner = window:FindFirstChild("Banner", true)
@@ -6292,7 +6359,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{
 		"MouseDashOver",
 		function()
-			local window = mouseDashCard(false)
+			local window = mouseDashCard()
 			UI.mouseDash.began(8, 3, workspace:GetServerTimeNow())
 			UI.mouseDash.over(8, { points = 42, seconds = 51, reason = "quit", win = false, best = 42, bestSeconds = 51, newBest = true, paid = { 30, 40 }, today = { 10, 20, 30, 40 }, legend = false, mouser = true })
 			task.wait(0.1)
@@ -6306,7 +6373,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{
 		"MouseDashClose",
 		function()
-			local window = mouseDashCard(false)
+			local window = mouseDashCard()
 			UI.mouseDash.began(9, 3, workspace:GetServerTimeNow())
 			assert(UI.mouseDash.playing(), "uigate: no Mouse Dash game after it began (#3296)")
 			local quit = nil
@@ -6322,170 +6389,6 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			UI.mouseDash.open()
 			local last = window:FindFirstChild("LastGame", true)
 			assert(last.Visible and string.find(last.Text, "12", 1, true) ~= nil, "uigate: the closed game's line reads " .. last.Text .. " (#3296)")
-		end,
-	},
-	-- #3062: the Cat Arcade's card (records, today's prizes, Play, the idea credit), a game on the board, and the card
-	-- after a game
-	{
-		"ArcadeCard",
-		function()
-			UI.update({ goldenFish = 12 } :: any)
-			UI.arcade.state({
-				loaded = true,
-				best = 37,
-				bestCircles = 30,
-				today = { 10, 20 },
-				legend = false,
-				serverBest = 61,
-				serverCircles = 45,
-				serverName = "Sam",
-			})
-			UI.arcade.open()
-			local window = UIShim.playerGui:FindFirstChild("Arcade", true)
-			assert(
-				window and window:FindFirstChild("IdeaBy", true),
-				"uigate: no idea credit on the arcade card (#3062)"
-			)
-			assert(
-				window:FindFirstChild("Prize100", true),
-				"uigate: no milestone list on the arcade card (#3062)"
-			)
-		end,
-	},
-	-- #3296: the first game of the day is free, so Play reads "Play (free)" and is on with no golden fish
-	{
-		"ArcadeFree",
-		function()
-			UI.update({ goldenFish = 0 } :: any)
-			UI.arcade.state({
-				loaded = true,
-				best = 12,
-				bestCircles = 10,
-				today = {},
-				legend = false,
-				serverBest = 0,
-				serverCircles = 0,
-				free = true,
-			})
-			UI.arcade.open()
-			local window = UIShim.playerGui:FindFirstChild("Arcade", true)
-			assert(window, "uigate: the arcade window didn't open (#3296)")
-			local found = false
-			for _, item in window:GetDescendants() do
-				if (item:IsA("TextLabel") or item:IsA("TextButton")) and (item :: any).Text == "FREE" then
-					found = true
-				end
-			end
-			assert(found, "uigate: Play's pill doesn't say FREE for the day's free game (#3296)")
-		end,
-	},
-	-- #3338: the Leaderboard tab, ten names (a long one), the viewer's line marked
-	{
-		"ArcadeLeaderboard",
-		function()
-			UI.update({ goldenFish = 12 } :: any)
-			local top = {}
-			for rank = 1, 10 do
-				table.insert(top, {
-					rank = rank,
-					name = if rank == 2 then "AVeryLongDisplayName_Here" else "Player" .. rank,
-					points = if rank == 1 then 100 else 100 - rank * 7,
-					circles = 50 + rank,
-					me = if rank == 4 then true else nil,
-				})
-			end
-			UI.arcade.state({
-				loaded = true,
-				best = 72,
-				bestCircles = 54,
-				today = { 10, 20 },
-				legend = false,
-				serverBest = 72,
-				serverCircles = 54,
-				serverName = "Sam",
-				top = top,
-			} :: any)
-			UI.arcade.open()
-			press("Arcade", "LeaderboardTab")
-			local window = UIShim.playerGui:FindFirstChild("Arcade", true)
-			local board = window and window:FindFirstChild("Leaderboard", true)
-			assert(board and board.Visible, "uigate: the arcade's Leaderboard tab does not show (#3338)")
-			local line = board:FindFirstChild("Line4", true)
-			assert(line and line.Visible, "uigate: the arcade leaderboard has no 4th line (#3338)")
-			local name = line:FindFirstChild("Name")
-			assert(
-				name and string.find(name.Text, "(you)", 1, true),
-				"uigate: the viewer's line is not marked (#3338)"
-			)
-		end,
-	},
-	{
-		"ArcadeBoard",
-		function()
-			UI.update({ goldenFish = 12 } :: any)
-			UI.arcade.state({
-				loaded = true,
-				best = 0,
-				bestCircles = 0,
-				today = {},
-				legend = false,
-				serverBest = 0,
-				serverCircles = 0,
-			})
-			UI.arcade.open()
-			local at = workspace:GetServerTimeNow()
-			local circles = {}
-			for i = 1, 10 do
-				table.insert(circles, {
-					startsAt = at - 0.2 + (i - 1) * 1.9,
-					shrinkSeconds = 1.2,
-					x = 0.25 + (i % 3) * 0.25,
-					y = 0.3 + (i % 2) * 0.4,
-					kind = "single",
-				})
-			end
-			UI.arcade.block(1, 1, circles, { perfect = 0.06, good = 0.15 }, 0)
-			UI.arcade.judged(1, 1, 1, "perfect", 12, { 10 })
-		end,
-	},
-	{
-		"ArcadeOver",
-		function()
-			UI.update({ goldenFish = 12 } :: any)
-			UI.arcade.state({
-				loaded = true,
-				best = 52,
-				bestCircles = 40,
-				today = { 10, 20, 30, 40, 50 },
-				legend = true,
-				serverBest = 100,
-				serverCircles = 58,
-				serverName = "Sam",
-			})
-			UI.arcade.open()
-			local at = workspace:GetServerTimeNow()
-			UI.arcade.block(
-				2,
-				1,
-				{ { startsAt = at + 1, shrinkSeconds = 1.2, x = 0.5, y = 0.5, kind = "single" } },
-				{ perfect = 0.06, good = 0.15 },
-				0
-			)
-			UI.arcade.over(2, {
-				points = 52,
-				circles = 40,
-				win = false,
-				best = 52,
-				bestCircles = 40,
-				newBest = true,
-				serverBest = 100,
-				serverCircles = 58,
-				serverName = "Sam",
-				paid = { 50 },
-				today = { 10, 20, 30, 40, 50 },
-				legend = true,
-			})
-			task.wait(1.4)
 		end,
 	},
 	-- #1633: the Codes Cat's circle opens the Store on Featured; the player taps Codes on the rail
@@ -6552,6 +6455,27 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(box.Text == "", "uigate: a refused code stays in the box when the player taps it again (#3686)")
 		box.Text = "WRONGCODE"
 		UI.codes.result(false, "That code doesn't exist", nil)
+	end },
+	-- #4655: under Tier 2 the Codes page is shut: the box takes no typing, Redeem is grey and the server's reason shows
+	{ "CodesTier1", function()
+		local tierWas = (UI.getState() :: any).tier
+		UI.update({ tier = 1 } :: any)
+		UI.codes.open()
+		press("Store", "codes")
+		local store = UIShim.playerGui:FindFirstChild("Store", true)
+		local box = store and store:FindFirstChildWhichIsA("TextBox", true)
+		assert(box and not box.TextEditable, "uigate: the code box takes typing under Tier 2 (#4655)")
+		local found = false
+		for _, label in store:GetDescendants() do
+			if label:IsA("TextLabel") and label.Visible and label.Text == "Reach Tier 2 to use codes" then
+				found = label.TextFits
+			end
+		end
+		assert(found, "uigate: no fitting 'Reach Tier 2 to use codes' line under Tier 2 (#4655)")
+		UI.update({ tier = tierWas } :: any)
+		assert(box.TextEditable, "uigate: the code box stays shut at Tier 2 (#4655)")
+		UI.update({ tier = 1 } :: any) -- shut again for the picture
+		Scenes._codesTier = tierWas
 	end },
 	-- #1633: the circle's Store opens on Featured, and walking out closes it from any tab; a Store the player opened
 	-- with the tile stays when they walk out
@@ -7723,12 +7647,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.open("Quests")
 		press("Quests", "DailyTab")
 		press("Quests", "Daily.Quest2.Claim")
-		-- #4025 (Derek: "the quests blend in and is hard to see"): a claimed card stays light behind its ink words
+		-- #4600 (Derek: "the annoying white highlight of quests when being finished is not needed"): a claimed card keeps
+		-- the same card as every other row, so it never lights up behind light words; the ✓ Claimed says it is done
 		local window = UIShim.playerGui:FindFirstChild("Quests", true)
 		local row = window:FindFirstChild("Quest2", true)
-		local c = row.BackgroundColor3
-		local light = 0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B
-		assert(light >= 0.6, ("uigate: a claimed quest card is dark (%.2f) behind its ink words (#4025)"):format(light))
+		local MenuFamily = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily")
+		assert(row.BackgroundColor3 == MenuFamily.card.card, ("uigate: a claimed quest card is %s, not the rows' card (#4600)"):format(row.BackgroundColor3:ToHex()))
+		assert((row:FindFirstChild("Check", true) :: GuiObject).Visible, "uigate: a claimed quest shows no ✓ Claimed (#4600)")
 	end },
 	-- Claim all on the Achievements tab (two met in the sample player)
 	{ "QuestsClaimAll", function()
@@ -9330,6 +9255,35 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	-- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the walk-through ending this session
 	-- (step 4, the bowl, to 5) puts "Hop in the cannon to catch more cats!" on the tutorial strip, with the arrow
+	-- #4674 (Derek 2026-11-16: "when going into the cannon menu for tutorial steps point to the alleyway button until
+	-- launch clicked"): bowl first, the picker rings the Alleyway card's Launch while the two catches are owed, and
+	-- Launch takes the ring off
+	{ "CannonWalkRing", function()
+		local RS = game:GetService("ReplicatedStorage")
+		local was: any = UI.getState()
+		local tier, done = was.tier, was.secondCatDone
+		RS:SetAttribute("LiveFlag_catchFirst", false)
+		UI.update({ tier = 1, secondCatDone = false } :: any)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+		local alley = window:FindFirstChild("alley", true) :: Instance
+		local launch = alley and alley:FindFirstChild("Launch", true) :: Instance
+		assert(launch and launch:FindFirstChild("TutorialGlow"), "uigate: no ring on the Alleyway card's Launch (#4674)")
+		assert(UI.cannon.walkRing == "alley", "uigate: the walk ring is not kept (#4674)")
+		press("Cannon", "alley.Launch")
+		UIShim.advance(0.3)
+		assert(UI.cannon.walkRing == nil, "uigate: Launch left the walk ring on (#4674)")
+		assert(launch:FindFirstChild("TutorialGlow") == nil, "uigate: the Alleyway Launch still glows after Launch (#4674)")
+		-- the two catches in: the next opening rings nothing
+		UI.update({ secondCatDone = true } :: any)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		assert(UI.cannon.walkRing == nil and launch:FindFirstChild("TutorialGlow") == nil, "uigate: the ring came back after the catches (#4674)")
+		RS:SetAttribute("LiveFlag_catchFirst", nil)
+		UI.update({ tier = tier, secondCatDone = if done == nil then true else done } :: any)
+		UI.close("Cannon")
+	end },
 	{ "CannonAfterBowl", function()
 		UI.parkTrail.reach(true) -- a player who has been to the Park: the Park line (#3893) would come first otherwise
 		UI.cannon.setWild(nil)
@@ -10266,19 +10220,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(5)
 		assert(strip() ~= UI.parkTrail.STRIP and strip() ~= UI.parkTrail.STRIP_PLAIN, "uigate: the Park line showed with the walk off (#4480)")
 	end },
-	-- #3558: one menu look for a whole session. The switch flipping after the UI was built changes nothing here, so no
-	-- window can end up with cream cards under white words; the flip reaches a player at their next join.
+	-- #4657: the family look is the only look; a switch flip changes nothing
 	{ "MenuFamilyLatch", function()
 		local MenuFamily = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.MenuFamily")
 		local RS = game:GetService("ReplicatedStorage")
-		local name = "LiveFlag_" .. MenuFamily.FLAG
-		local was = RS:GetAttribute(name)
-		local on = MenuFamily.on()
-		local card = MenuFamily.card.card
-		RS:SetAttribute(name, not on)
-		assert(MenuFamily.on() == on, "uigate: the menu look followed a mid-session switch flip (#3558)")
-		assert(MenuFamily.card.card == card, "uigate: the card colour followed a mid-session switch flip (#3558)")
-		RS:SetAttribute(name, was)
+		RS:SetAttribute("LiveFlag_menuFamily", false)
+		assert(MenuFamily.on() == true and MenuFamily.card.card == MenuFamily.CARD.card, "uigate: the old menu look can still show (#4657)")
+		RS:SetAttribute("LiveFlag_menuFamily", nil)
 		UI.open("Quests")
 	end },
 	-- #3555: the first rank up's walk-through: the goal card lit with "You can rank up!", then the rank up window's
@@ -10503,6 +10451,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local opens = goal:FindFirstChild("GoalLine1") :: TextLabel
 		assert(opens.Visible and string.find(opens.Text, "Opens Cozy Cafe", 1, true) and opens.TextFits, "uigate: the new kinds goal's line reads " .. opens.Text .. " (#4098)")
 		assert(opens.AbsolutePosition.Y + opens.AbsoluteSize.Y <= goal.AbsolutePosition.Y + goal.AbsoluteSize.Y + 0.5, "uigate: the new kinds goal's line runs out of the card (#4098)")
+		-- #4625: and the coins half of Cozy Cafe as a short meter line, in the card
+		local coins = goal:FindFirstChild("GoalLine2") :: TextLabel
+		assert(coins.Visible and string.find(coins.Text, "💰", 1, true) and string.find(coins.Text, "$120 / ", 1, true) and coins.TextFits, "uigate: the new kinds goal has no coins line, it reads " .. coins.Text .. " (#4625)")
+		assert(coins.AbsolutePosition.Y + coins.AbsoluteSize.Y <= goal.AbsolutePosition.Y + goal.AbsoluteSize.Y + 0.5, "uigate: the coins line runs out of the card (#4625)")
 		-- the stuck cat goal wins while both are set
 		UI.update({ stuckGoal = true } :: any)
 		UIShim.advance(0.1)
@@ -11654,7 +11606,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(line.Text == "📦 1 crate to open", "uigate: crates did not come first over the treats line (#2571)")
 		UI.update({ crates = {} } :: any)
 		assert(
-			gui.Enabled and line.Text == "🍪 Treats and perks to check out!",
+			gui.Enabled and line.Text == "🍪 Treats and perks\nto check out!", -- #4677: a fixed line break
 			"uigate: the Fish Market's ! does not ask to check the treats: " .. line.Text .. " (#2571)"
 		)
 		UI.update({ storeSeen = { treats = 1 } } :: any)
@@ -12402,12 +12354,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local price = badge:FindFirstChild("Price") :: TextLabel
 		local view = workspace.CurrentCamera.ViewportSize
 		local inset = game:GetService("GuiService"):GetGuiInset()
-		for _, step in { { owned = {}, text = "2x Money", price = "R$25" }, { owned = { [ids[2]] = true }, text = "3x Money", price = "R$59" }, { owned = { [ids[3]] = true }, text = "4x Money", price = "R$99" } } do
+		for _, step in { { owned = {}, text = "X2 Cash", price = "R$25" }, { owned = { [ids[2]] = true }, text = "X3 Cash", price = "R$59" }, { owned = { [ids[3]] = true }, text = "X4 Cash", price = "R$99" } } do
 			UI.store.preview(prices, step.owned)
 			UIShim.advance(1 / 60)
 			assert(badge.Visible, "uigate: no money button before " .. step.text .. " (Derek 2026-11-14)")
 			assert(pill.Text == step.text and pill.TextFits, "uigate: the money button reads " .. pill.Text .. ", not " .. step.text .. " (Derek 2026-11-14)")
-			assert(price.Visible and price.Text == step.price and price.TextFits, "uigate: the " .. step.text .. " price reads " .. price.Text .. " (Derek 2026-11-14)")
+			-- #4617: the old look, "X2 Cash" over a green "Only" and the price
+			assert(price.Visible and string.find(price.Text, "Only</font> " .. step.price, 1, true) and price.TextFits, "uigate: the " .. step.text .. " price reads " .. price.Text .. " (#4617)")
 			assert(badge.AbsolutePosition.X + inset.X >= 0 and badge.AbsolutePosition.X + badge.AbsoluteSize.X + inset.X <= view.X, "uigate: the " .. step.text .. " button runs off screen (Derek 2026-11-14)")
 		end
 		UI.store.preview(prices, { [ids[4]] = true })
@@ -12475,11 +12428,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			ready = 3,
 			prizes = {
 				prize("fish25", "25 golden fish", "25 golden fish", 300, 4, "day"),
-				prize("traitToken", "Trait Token", "One Mystic Pool roll", 700, 3, "week"),
+				prize("tokens10", "10 Trait Tokens", "Ten Mystic Pool rolls", 6000, 1, "week", short), -- #4596
 				prize("goldenCrate", "Golden Crate", "A golden Cafe Crate", 900, 2, "day"),
-				prize("bigGoldRush", "Big Gold Rush Potion", "30 minutes", 1200, nil, nil, short),
-				prize("bigLucky", "Big Lucky Potion", "30 minutes", 1200, nil, nil, short),
-				prize("swiftPaws", "Swift Paws", "1 hour of Big Swift Potion", 800, nil, nil),
+				prize("spins5", "5 Wheel Spins", "Five spins of the wheel", 1000, 3, "day"),
+				prize("caviar", "Caviar Bait", "The best bait", 1200, 3, "day", short),
+				prize("bestGolden", "Best Golden Crate", "Your best area's golden crate", 1800, 1, "day", short),
 			},
 		}
 		local sent = {}
@@ -12512,7 +12465,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				end
 			end
 			assert(cards == 6, ("uigate: the booth shows %d prizes, not 6 (#4061)"):format(cards))
-			local lucky = grid:FindFirstChild("Prize_bigLucky") :: GuiObject
+			local lucky = grid:FindFirstChild("Prize_caviar") :: GuiObject
 			local saved = lucky:FindFirstChild("Saved") :: GuiObject
 			assert(saved.Visible, "uigate: no bar of tickets saved on a prize short of its price (#4061)")
 			local numbers = saved:FindFirstChild("Numbers") :: TextLabel
@@ -12520,7 +12473,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local function buyText(id)
 				return (grid:FindFirstChild("Prize_" .. id):FindFirstChild("Buy", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel).Text
 			end
-			assert(buyText("bigLucky") == "SAVE UP", "uigate: a short prize's button reads " .. buyText("bigLucky") .. " (#4061)")
+			assert(buyText("caviar") == "SAVE UP", "uigate: a short prize's button reads " .. buyText("caviar") .. " (#4061)")
 			press("TicketBooth", "Prize_fish25.Buy")
 			assert(#sent == 1 and sent[1].remote == "BuyTicketPrize" and sent[1].id == "fish25", "uigate: BUY sent no BuyTicketPrize fish25 (#4061)")
 			-- 1,000 and over asks first
@@ -12528,10 +12481,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			view.prizes[4].blocker = nil
 			UI.update({ ticketBooth = view } :: any)
 			UI.lateStations.render(UI.getState() :: any)
-			press("TicketBooth", "Prize_bigGoldRush.Buy")
-			assert(#sent == 1 and buyText("bigGoldRush") == "Tap again", "uigate: the first tap at 1,200 did not ask, it reads " .. buyText("bigGoldRush") .. " (#4061)")
-			press("TicketBooth", "Prize_bigGoldRush.Buy")
-			assert(#sent == 2 and sent[2].id == "bigGoldRush", "uigate: Tap again sent no BuyTicketPrize (#4061)")
+			press("TicketBooth", "Prize_spins5.Buy")
+			assert(#sent == 1 and buyText("spins5") == "Tap again", "uigate: the first tap at 1,000 did not ask, it reads " .. buyText("spins5") .. " (#4061)")
+			press("TicketBooth", "Prize_spins5.Buy")
+			assert(#sent == 2 and sent[2].id == "spins5", "uigate: Tap again sent no BuyTicketPrize (#4061)")
 		end)
 		link:Disconnect()
 		assert(ok, problem)
@@ -12768,7 +12721,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 				return list:FindFirstChild("Row" .. index) :: GuiObject
 			end
 			assert(fits(row(1), "Count").Text == "Gold Ginger ×5", "uigate: the first row is not the rainbow fusion (#4104)")
-			assert(fits(row(2), "Count").Text == "Tabby ×6", "uigate: the Tabby row reads " .. (row(2):FindFirstChild("Count") :: TextLabel).Text .. " (#4104)")
+			-- #4605: the working Lv 30 copy can fuse too, so the Tabby row counts seven
+			assert(fits(row(2), "Count").Text == "Tabby ×7", "uigate: the Tabby row reads " .. (row(2):FindFirstChild("Count") :: TextLabel).Text .. " (#4104)")
 			assert(fits(row(3), "Count").Text == "Tuxedo ×3 · 2 more", "uigate: no almost row for the Tuxedos (#4104)")
 			assert(not (row(3):FindFirstChild("Fuse") :: GuiObject).Visible, "uigate: an almost row has a Fuse button (#4104)")
 			for index = 1, 2 do
@@ -12816,13 +12770,17 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			local foot = confirm:FindFirstChild("Foot", true) :: GuiObject
 			assert(foot.AbsolutePosition.Y >= copies.AbsolutePosition.Y + copies.AbsoluteSize.Y - 1, "uigate: the confirm's foot covers the copies (#4563)")
 			local result = (confirm:FindFirstChild("Result", true) :: TextLabel).Text
-			assert(string.find(result, "Lv 12", 1, true) and string.find(result, "Mochi", 1, true), "uigate: the result reads " .. result .. " (#4104)")
+			-- #4588: the default five are the lowest levels (1, 2, 3, 4 and 7), so Lv 12 Mochi is kept out
+			assert(string.find(result, "Lv 7", 1, true) and not string.find(result, "Mochi", 1, true), "uigate: the result reads " .. result .. " (#4104, #4588)")
 			local chip = confirm:FindFirstChild("Trait1", true) :: GuiObject
 			assert(chip and chip.Visible, "uigate: no trait to keep (#4104)")
 			local goText = (confirm:FindFirstChild("FuseGo", true):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel)
-			press("FusionObservatory", "Copy1") -- the Lv 12 copy leads the strip: untick it
+			press("FusionObservatory", "Copy7") -- the Lv 1 copy ends the strip: untick it
 			assert(goText.Text == "Pick 1 more", "uigate: four picked reads " .. goText.Text .. " (#4104)")
-			press("FusionObservatory", "Copy1")
+			press("FusionObservatory", "Copy2") -- the Lv 12 copy follows the working Lv 30 one: swap Mochi in by hand
+			result = (confirm:FindFirstChild("Result", true) :: TextLabel).Text
+			assert(string.find(result, "Lv 12", 1, true) and string.find(result, "Mochi", 1, true), "uigate: with Mochi picked the result reads " .. result .. " (#4104)")
+			press("FusionObservatory", "Trait1") -- the rarest trait leads the chips: keep Mochi's
 			press("FusionObservatory", "FuseGo")
 			assert(#sent == 0 and string.find(goText.Text, "Tap again", 1, true) and goText.TextFits, "uigate: the first Fuse tap did not ask, it reads " .. goText.Text .. " (#4104)")
 			press("FusionObservatory", "FuseGo")
@@ -12867,6 +12825,71 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		link:Disconnect()
 		UI.update({ cats = before.cats } :: any)
 		assert(ok, problem)
+	end },
+	-- #4589 Fuse all: the bar heads the Fuse list with the sets it would fuse; the first tap asks, says only the rarest
+	-- trait of each set is kept and points to the lock (left asked, for the picture); the second sends FuseAll
+	{ "FusionAll", function()
+		Scenes._fusionAllOpen()
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("FusionObservatory", true) :: GuiObject
+		local bar = window:FindFirstChild("FuseAll", true) :: GuiObject
+		assert(bar and bar.Visible, "uigate: no Fuse all bar (#4589)")
+		local function fits(name: string): TextLabel
+			local label = bar:FindFirstChild(name, true) :: TextLabel
+			assert(label and label.Text ~= "" and label.TextFits, ("uigate: the Fuse all bar's %s %q does not fit (#4589)"):format(name, label and label.Text or "nil"))
+			return label
+		end
+		assert(fits("Title").Text == "Fuse all · 3 sets", "uigate: the Fuse all bar reads " .. fits("Title").Text .. " (#4589)")
+		assert(fits("Line").Text == "Gold Ginger, Tabby ×2", "uigate: the Fuse all list reads " .. fits("Line").Text .. " (#4589)")
+		local row1 = window:FindFirstChild("Row1", true) :: GuiObject
+		assert(bar.AbsolutePosition.Y + bar.AbsoluteSize.Y <= row1.AbsolutePosition.Y, "uigate: the Fuse all bar is not above the rows (#4589)")
+		local sent = {}
+		local link = UI.events.lateStation:Connect(function(remote, a)
+			table.insert(sent, { remote = remote, a = a })
+		end)
+		press("FusionObservatory", "FuseAll.FuseAllGo")
+		link:Disconnect()
+		assert(#sent == 0, "uigate: the first Fuse all tap sent " .. tostring(sent[1] and sent[1].remote) .. " without asking (#4589)")
+		assert(fits("Title").Text == "Fuse 3 sets at once?", "uigate: the asked bar reads " .. fits("Title").Text .. " (#4589)")
+		assert(fits("Line").Text == "Only the rarest trait in each set is kept", "uigate: the ask does not say only the rarest trait is kept (#4589)")
+		fits("Note")
+		local go = bar:FindFirstChild("FuseAllGo", true) :: GuiObject
+		assert(go.AbsolutePosition.X + go.AbsoluteSize.X <= window.AbsolutePosition.X + window.AbsoluteSize.X, "uigate: Fuse all's button runs past the window (#4589)")
+		assert(bar.AbsolutePosition.Y + bar.AbsoluteSize.Y <= row1.AbsolutePosition.Y, "uigate: the asked bar covers the rows (#4589)")
+	end },
+	-- #4589: the second tap sends FuseAll with nothing, and the server's FusionSummary opens one card with every cat made
+	{ "FusionAllSummary", function()
+		Scenes._fusionAllOpen()
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("FusionObservatory", true) :: GuiObject
+		local sent = {}
+		local link = UI.events.lateStation:Connect(function(remote, a)
+			table.insert(sent, { remote = remote, a = a })
+		end)
+		press("FusionObservatory", "FuseAll.FuseAllGo")
+		press("FusionObservatory", "FuseAll.FuseAllGo")
+		link:Disconnect()
+		assert(#sent == 1 and sent[1].remote == "FuseAll" and sent[1].a == nil, "uigate: Tap again sent no bare FuseAll (#4589)")
+		UI.lateStations.fusionSummary({
+			{ catId = "ginger", coat = "rainbow", level = 10, newCoat = true },
+			{ catId = "tabby", coat = "gold", level = 5, name = "Mochi", newCoat = true },
+			{ catId = "tabby", coat = "gold", level = 10, newCoat = false },
+		})
+		local card = window:FindFirstChild("Summary", true) :: GuiObject
+		assert(card and card.Visible, "uigate: FusionSummary opened no card (#4589)")
+		local title = card:FindFirstChild("Title") :: TextLabel
+		assert(title.Text == "You made 3 cats!" and title.TextFits, "uigate: the summary reads " .. title.Text .. " (#4589)")
+		for index = 1, 3 do
+			local cell = card:FindFirstChild("Made" .. index, true) :: GuiObject
+			assert(cell and cell.Visible, "uigate: no Made" .. index .. " on the summary (#4589)")
+			local name = cell:FindFirstChild("Name") :: TextLabel
+			assert(name.Text ~= "" and name.TextFits, "uigate: Made" .. index .. "'s name " .. name.Text .. " does not fit (#4589)")
+			local level = cell:FindFirstChild("Level") :: TextLabel
+			assert(level.Text ~= "" and level.TextFits, "uigate: Made" .. index .. "'s level does not fit (#4589)")
+			assert(cell.AbsolutePosition.X >= window.AbsolutePosition.X and cell.AbsolutePosition.X + cell.AbsoluteSize.X <= window.AbsolutePosition.X + window.AbsoluteSize.X, "uigate: Made" .. index .. " runs off the window (#4589)")
+		end
+		assert(((card:FindFirstChild("Made2", true) :: Instance):FindFirstChild("Name") :: TextLabel).Text == "Gold Mochi", "uigate: a named cat is not called by its name (#4589)")
+		assert(((card:FindFirstChild("Made3", true) :: Instance):FindFirstChild("New") :: GuiObject).Visible == false, "uigate: a coat already found says NEW (#4589)")
+		UI.update({ cats = Scenes._fusionCats } :: any)
+		Scenes._fusionCats = nil
 	end },
 	{ "Store", function()
 		UI.store.preview(storePrices(true), {})
@@ -13884,6 +13907,23 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local theirs = modals:FindFirstChild("Theirs", true)
 		local fish = theirs and theirs:FindFirstChild("Fish", true)
 		assert(fish ~= nil and fish.Visible, "uigate: Sam's fish card is hidden")
+		-- #4623: each side's fish in words under its grid, clear of the rate note and the button row
+		local mine = modals:FindFirstChild("Mine", true)
+		local offer = mine.Parent :: GuiObject -- the trade's offer face
+		for _, pair in { { mine, "🐟 50 golden fish", "🐟 50" }, { theirs, "🐟 120 golden fish", "🐟 120" } } do
+			local line = pair[1]:FindFirstChild("FishLine") :: TextLabel
+			local title = (pair[1]:FindFirstChild("Header") :: Instance):FindFirstChild("Title") :: TextLabel
+			if line.Visible then
+				assert(line.Text == pair[2] and line.TextFits, "uigate: the fish line reads " .. line.Text .. " (#4623)")
+				local note = modals:FindFirstChild("RateNote", true) :: GuiObject
+				assert(line.AbsolutePosition.Y >= note.AbsolutePosition.Y + note.AbsoluteSize.Y - 1, "uigate: the fish line covers the rate note (#4623)")
+				assert(line.AbsolutePosition.Y + line.AbsoluteSize.Y <= offer.AbsolutePosition.Y + offer.AbsoluteSize.Y + 1, ("uigate: the fish line runs into the button row %d+%d vs %d+%d (#4623)"):format(line.AbsolutePosition.Y, line.AbsoluteSize.Y, offer.AbsolutePosition.Y, offer.AbsoluteSize.Y))
+			else
+				-- a short screen: the grid's fish card alone says the amount
+				local card = pair[1]:FindFirstChild("Fish", true) :: GuiObject
+				assert(card and card.Visible and title, "uigate: no fish line and no fish card (#4623)")
+			end
+		end
 	end },
 	-- #2745: no fish yet: my card says Add, Sam's is hidden; with fishOn false neither shows
 	{ "TradeFishNone", function()
@@ -14219,6 +14259,59 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 		assert(ask:FindFirstChild("Title", true).TextFits, "uigate: the Starter card's title does not fit (#4174)")
 	end },
+	-- #4437: the HUD Money button's boost card: the pass picture, the cafe's money a minute now and with 2x (from
+	-- prizeRate), Buy with the price, the X; every line fits, no timer, and the X reports closed
+	{ "MoneyCard", function()
+		local said = {}
+		local connection = UI.events.moneyCard:Connect(function(what)
+			table.insert(said, what)
+		end)
+		local ok, problem = pcall(function()
+			UI.update({ prizeRate = 3, passBoosts = { money = 1 } } :: any)
+			UI.tips.showMoneyCard(2)
+			UIShim.advance(0.4)
+			local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("MoneyCard", true) :: GuiObject
+			assert(window and window.Visible, "uigate: the Money card did not open (#4437)")
+			assert(said[1] == "shown:2", "uigate: the Money card reported " .. tostring(said[1]) .. " (#4437)")
+			local function line(name, want)
+				local label = window:FindFirstChild(name, true) :: TextLabel
+				assert(label and label.Visible, "uigate: the Money card has no " .. name .. " line (#4437)")
+				assert(label.Text == want, ("uigate: the Money card's %s reads %q, not %q (#4437)"):format(name, label.Text, want))
+				assert(label.TextFits, "uigate: the Money card's " .. name .. " does not fit (#4437)")
+				return label
+			end
+			line("NowLabel", "Now")
+			line("Now", "$180 a minute")
+			line("WithLabel", "With 2x Money")
+			local with = line("With", "$360 a minute")
+			local picture = window:FindFirstChild("Picture", true) :: GuiObject
+			assert(picture and picture.Visible and picture.AbsoluteSize.X >= 56, "uigate: the Money card has no pass picture (#4437)")
+			assert(picture.AbsolutePosition.X + picture.AbsoluteSize.X <= with.AbsolutePosition.X + 1, "uigate: the pass picture runs under the words (#4437)")
+			local buy = window:FindFirstChild("Buy", true) :: GuiObject
+			local label = buy:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel
+			assert(string.find(label.Text, "Buy R$", 1, true) and label.TextFits, "uigate: the Money card's Buy reads " .. label.Text .. " (#4437)")
+			assert(buy.AbsolutePosition.Y >= with.AbsolutePosition.Y + with.AbsoluteSize.Y, "uigate: the Buy button sits over the numbers (#4437)")
+			-- a cafe with no money yet: one plain line in place of the numbers
+			UI.update({ prizeRate = 0 } :: any)
+			UI.tips.showMoneyCard(2)
+			UIShim.advance(0.2)
+			local plain = window:FindFirstChild("Plain", true) :: TextLabel
+			assert(plain.Visible and plain.TextFits and not (window:FindFirstChild("Now", true) :: GuiObject).Visible, "uigate: the Money card's plain line (#4437)")
+			press("MoneyCard", "Close")
+			UIShim.advance(0.6) -- the window's close slide
+			assert(not window.Visible, "uigate: the X did not close the Money card (#4437)")
+			assert(said[#said] == "closed:2", "uigate: the X reported " .. tostring(said[#said]) .. " (#4437)")
+		end)
+		connection:Disconnect()
+		UI.update({ prizeRate = false, passBoosts = false } :: any)
+		assert(ok, problem)
+	end },
+	-- #4437: the same card left open with a Tier 3 sized cafe, so the gate's pictures show it on every device
+	{ "MoneyCardShown", function()
+		UI.update({ prizeRate = 41.5, passBoosts = { money = 1 } } :: any)
+		UI.tips.showMoneyCard(2)
+		UIShim.advance(0.6)
+	end },
 }
 
 Scenes.names = {}
@@ -14242,6 +14335,10 @@ function Scenes.close()
 		Scenes._mailbox = nil
 		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_mailbox", nil)
 		UI.update({ mail = {} } :: any)
+	end
+	if Scenes._codesTier ~= nil then
+		UI.update({ tier = Scenes._codesTier } :: any) -- #4655's scene
+		Scenes._codesTier = nil
 	end
 	if Scenes._richTipGate ~= nil then
 		-- #3633's scene: its bubbles and made-up plots

@@ -22,7 +22,11 @@
 -- cat caught, since every cafe also has its starter Tabby.
 -- Pure, so the cloud spec runner checks it.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local TipQueue = require(script.Parent.TipQueue)
+local TutorialOrder =
+	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder"))
 
 local TutorialHints = {}
 
@@ -41,6 +45,9 @@ export type View = {
 	cats: number?,
 	-- #3238: the areas are shut (dusk to sunrise), so step 3's "second" line says when the strays are back
 	night: boolean?,
+	-- #4518: the walk-through runs bowl first (shared/TutorialOrder), and the first food's cat is not claimed yet
+	bowlFirst: boolean?,
+	luresUsed: number?,
 }
 
 type Line = string | { keyboard: string, touch: string, gamepad: string }
@@ -95,6 +102,17 @@ local LINES: { [string]: Line } = {
 local function pick(view: View): string?
 	local step = view.step
 	if step < 2 then
+		-- #4518 (Derek 2026-11-15: "food bowl first ... into cannon to alleyway for 2 catches"): the bowl part comes
+		-- before the first catch
+		if
+			view.bowlFirst == true
+			and TutorialOrder.bowlPending(step, view.luresUsed or 0, view.baited == true)
+		then
+			if view.arrived then
+				return "arrived"
+			end
+			return if view.baited then "waiting" else "food"
+		end
 		return "catch"
 	elseif step == 2 then
 		return if view.resting then "job" else "more"
@@ -121,13 +139,16 @@ function TutorialHints.ask(view: View): string?
 end
 
 -- The view of `state` (a PlayerState), with the catalog's spots for step 2's choice.
--- `areasOpen` false from dusk to sunrise (the Clock folder's AreasOpen, #3238).
+-- `areasOpen` false from dusk to sunrise (the Clock folder's AreasOpen, #3238). `bowlFirst` (#4518) nil reads the
+-- catchFirst switch.
 function TutorialHints.view(
 	state: any,
 	spots: { any }?,
 	device: TipQueue.Device?,
-	areasOpen: boolean?
+	areasOpen: boolean?,
+	bowlFirst: boolean?
 ): View
+	local first = if bowlFirst == nil then TutorialOrder.bowlFirst() else bowlFirst
 	local levels: { [string]: number } = state.upgradeLevels or {}
 	-- #3022: the cats caught so far (stats.catsCaught), not the cats in the cafe. A new cafe's starter Tabby made that
 	-- count 2 after the first catch, so #2912's "second" line never showed.
@@ -140,6 +161,7 @@ function TutorialHints.view(
 		local hand = math.max(0, stats.catsCaught - tamed)
 		local counted = hand + (if tamed >= 1 then 1 else 0)
 		cats = if hand >= 1 then counted else math.min(counted, 1)
+		-- #4674: bowl first counts the same way (the bowl cat and one Alleyway catch, shared/SecondCat.progress)
 	elseif type(state.secondCatDone) == "boolean" then
 		-- #4097: the UI's own state carries no stats, only SecondCat.done as UIController worked it out
 		cats = if state.secondCatDone then SECOND_DONE else 1
@@ -153,6 +175,10 @@ function TutorialHints.view(
 		arrived = type(state.bait) == "table" and state.bait.cat ~= nil,
 		cats = cats,
 		night = areasOpen == false,
+		bowlFirst = first,
+		luresUsed = if type(stats) == "table" and type(stats.luresUsed) == "number"
+			then stats.luresUsed
+			else 0,
 	}
 end
 

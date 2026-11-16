@@ -222,8 +222,6 @@ export type IndexMilestone = {
 	-- F97: every piece of the Decor page, whatever its size (decor10: sixteen on the Classic page, twelve elsewhere);
 	-- `needs` is then the least it asks
 	whole: boolean?,
-	-- #3992: shown and paid only while the `indexTo70` switch is on (shared/IndexRewards.lateOpen)
-	late: boolean?,
 }
 
 -- What one Index milestone pays (golden-fish.md section 8), any of it. `coins` is the minimum and `coinSeconds`
@@ -737,6 +735,8 @@ export type TraitsView = {
 	bundles: boolean?,
 	-- #4197: the free Trait Party rolls left while an admin Trait Party runs; nil with none
 	party: number?,
+	-- #4712: the last Auto Roll this session: the trait it gave and a count that moves on with each; nil with none
+	autoRoll: { id: string, n: number }?,
 }
 
 export type PassBoostsView = { cafe: number, staff: number, rich: number, money: number }
@@ -827,6 +827,7 @@ export type Stats = {
 	goldenCratesOpened: number,
 	restSeconds: number,
 	cannonFlights: number, -- #3618: cannon flights taken, for the Liftoff badge
+	tier2TopUp: number, -- #4453: coins the first tamed bait cat's welcome paid toward Tier 2 (0: none yet)
 }
 
 export type WeekPlay = { week: number, seconds: number }
@@ -1375,10 +1376,6 @@ export type DealerStock = { night: number, stock: { DealerFood } }
 
 -- Saved per player (data-model section 14). JSON-safe values only.
 -- The player's settings (data-model section 14; shared/Settings validates them). Volumes run from 0 to 1.
--- #1955: one cat an Auto Equip run put to work (the AutoEquipped remote): its name (nickname or catalog name), the
--- role's name ("Barista") and the coins a second the run gained, sent only when it moved exactly one cat
-export type AutoEquipSwap = { catName: string, role: string, perSecond: number? }
-
 export type Settings = {
 	music: boolean,
 	sfx: boolean,
@@ -1403,6 +1400,7 @@ export type Settings = {
 	autoBowlClaim: boolean, -- #4266: the Auto Bowl pass tames arrived bowl cats (shared/AutoBowl)
 	autoBowlRefill: boolean, -- #4266: the Auto Bowl pass refills empty bowls with owned food
 	bowlNewCatCard: boolean, -- #4266: a cat tamed at a bowl shows the big Cat found card (off: a toast)
+	stationCircles: boolean, -- #4668: the walk-up rings in front of the stations show, off by default
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
@@ -1651,6 +1649,9 @@ export type PlayerState = {
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,
+	-- #4626: tomorrow's reason to come back for the minute 6 line (shared/ReturnHook.early, "gift" or "treat"); nil
+	-- with the returnHookEarly switch off, from Tier 3, with nothing to name, and from an older server
+	tomorrowHook: ReturnHookView?,
 	returnGoals: { ReturnGoalView }?, -- #2916: a returning player's next goals on the welcome back card
 	-- #3022: set from the first customer served until the second cat is checked in (shared/SecondCat.view); nil
 	-- otherwise, and from an older server
@@ -1689,6 +1690,8 @@ export type PlayerState = {
 	looks: LooksView, -- #1624: the Style tab's theme and uniform rows (shared/Looks), SetLook
 	luck: number, -- F88: the player's Luck now (shared/Luck), x1 to LuckMax; the HUD chip shows it above 1
 	luckSources: { LuckSource }, -- F88: what adds it, in order (statue, potion, lucky_day)
+	-- Derek 2026-11-15: the Dragon Keep's crate, trait and spin luck (0.15 is +15%), for the odds lists; nil before
+	cardLuck: { crate: number, trait: number, spin: number }?,
 	-- F95 (economy-ladder.md section 5): the Long Nap pass is owned, so the welcome back card says full pay up to
 	-- OfflineCapPassSeconds instead of half pay up to OfflineCapSeconds
 	longNap: boolean,

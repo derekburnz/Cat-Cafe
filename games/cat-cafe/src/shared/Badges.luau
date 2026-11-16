@@ -5,7 +5,8 @@
 -- (a shop-only cat counts toward none), and nothing has a streak that can be lost once earned.
 --   id(key) -> number                         the Roblox badge id in Config.Badges, 0 while not made
 --   earned(profile) -> { key }                every badge the profile has earned, in LIST order
---   due(profile, owned, waitUntil, now) -> { key }  earned, made, not owned and not waiting on a retry
+--   due(profile, owned, waitUntil, now) -> { key }  earned, made, not owned, not waiting on a retry, and allowed
+--   allowed(profile, key) -> boolean          #4775: before Tier 3 only the EARLY badges award
 --   noteFinish(stats, purrfect)               a net catch's end: counts a PURRFECT and its run, or ends the run
 
 local Catalog = require(script.Parent.Catalog)
@@ -22,6 +23,11 @@ Badges.WELCOME_STEP = 5 -- tutorialStep once the first loop ends
 Badges.COLLECTOR_CATS = 25
 Badges.EXPERT_CATS = 50
 Badges.PURRFECT_RUN = 5
+-- #4775 (Derek 2026-11-16: "way too many pop up badges in the first bit of game ... no more then 2 until tier 3"):
+-- below QUIET_BELOW_TIER only these two award; every other badge earned meanwhile waits for Tier 3, then comes out
+-- one at a time (BadgeAwardService's AWARD_GAP_SECONDS).
+Badges.QUIET_BELOW_TIER = 3
+Badges.EARLY = table.freeze({ firstCatch = true, cozyCafe = true }) :: { [string]: boolean }
 
 -- key: the Config.Badges field; name and description: what Creator Hub shows (one plain line, nothing pressuring)
 export type Badge = {
@@ -330,8 +336,13 @@ function Badges.earned(profile: Profile): { string }
 	return keys
 end
 
--- The badges to award now: earned, made (id not 0), not in `owned` (badge id -> true, this join's cache) and not
--- waiting on a retry (`waitUntil[key]` later than `now`). `extra` (#3324): keys earned by something outside the
+-- #4775: whether `key` may award now: from Tier 3 every badge, before it only the EARLY two.
+function Badges.allowed(profile: Profile, key: string): boolean
+	return Badges.EARLY[key] == true or Economy.tier(profile) >= Badges.QUIET_BELOW_TIER
+end
+
+-- The badges to award now: earned, made (id not 0), not in `owned` (badge id -> true, this join's cache), not
+-- waiting on a retry (`waitUntil[key]` later than `now`) and allowed at the profile's tier (#4775). `extra` (#3324): keys earned by something outside the
 -- profile right now (Met the Owner while the owner is here), added after the profile's, in LIST order.
 function Badges.due(
 	profile: Profile,
@@ -352,7 +363,12 @@ function Badges.due(
 	for _, key in earned do
 		local id = Badges.id(key)
 		local wait = waitUntil[key]
-		if id ~= 0 and owned[id] ~= true and (wait == nil or wait <= now) then
+		if
+			id ~= 0
+			and owned[id] ~= true
+			and (wait == nil or wait <= now)
+			and Badges.allowed(profile, key)
+		then
 			table.insert(keys, key)
 		end
 	end

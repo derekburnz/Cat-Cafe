@@ -3,7 +3,9 @@
 -- puts each thing where it ends up, in Workspace.AdminDrops; this hides it on this client only until a stand-in made
 -- here has flown in, then shows it.
 --   Fish Fountain: a Part with AdminFish = true and From (the Town Square plinth's centre). A gold blob arcs from
---     From to the fish in Presets.adminDrops.fish.seconds, then a few glints where it lands.
+--     From to the fish in Presets.adminDrops.fish.seconds, then a few glints where it lands. Only once per spot, and
+--     (when the server sets DroppedAt) only within fish.fresh seconds of the drop, so a fish that streams in late
+--     or back in just shows (#4788).
 --   Crate Drop: a Model with AdminCrate = true and LandsAt (server time). A box under a parachute comes down on the
 --     crate's spot, swaying a little, and touches the ground at LandsAt; then a ring and a puff. The server takes no
 --     touch before LandsAt, so nothing can be grabbed while only the stand-in shows.
@@ -123,12 +125,41 @@ local function hide(thing: Instance): () -> ()
 	end
 end
 
+-- Fish this client has already seen arrive, by spot. With instance streaming a fish that streams out and back in
+-- is a new part on the same spot, and one far off streams in late: neither just arrived (#4788).
+local seenFish: { [string]: number } = {}
+
+-- The key a fish's spot is remembered by (to a tenth of a stud).
+function AdminDrops.spotKey(at: Vector3): string
+	return string.format("%.1f,%.1f,%.1f", at.X, at.Y, at.Z)
+end
+
+-- True when a fish dropped at server time `droppedAt` (nil when the server does not say) is still arriving at
+-- `now`: within `fresh` seconds of the drop.
+function AdminDrops.fresh(droppedAt: unknown, now: number, fresh: number): boolean
+	if type(droppedAt) ~= "number" then
+		return true
+	end
+	return now - (droppedAt :: number) <= fresh
+end
+
 local function fish(part: BasePart)
 	local p = Presets.adminDrops
 	local from = part:GetAttribute("From")
 	local to = part.Position
+	local now = Workspace:GetServerTimeNow()
+	for key, at in seenFish do
+		if now - at > p.fish.remember then
+			seenFish[key] = nil
+		end
+	end
+	local key = AdminDrops.spotKey(to)
+	local seen = seenFish[key] ~= nil
+	seenFish[key] = now
 	if
-		typeof(from) ~= "Vector3"
+		seen
+		or not AdminDrops.fresh(part:GetAttribute("DroppedAt"), now, p.fish.fresh)
+		or typeof(from) ~= "Vector3"
 		or Context.reducedMotion()
 		or AdminDrops.plan(Context.distance(to), p.within, Context.lowPerformance) == "show"
 	then

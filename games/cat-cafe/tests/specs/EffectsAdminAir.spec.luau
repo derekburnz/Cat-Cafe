@@ -152,5 +152,23 @@ return function()
 			expect(p.fish.seconds <= 1).to.equal(true) -- two fish a second: each arc is done before the next two
 			expect(p.crate.seconds).to.equal(3) -- the server's LandsAt is 3 s after the drop
 		end)
+
+		it(
+			"arcs a fish in only once per spot and only fresh off the drop (instance streaming, #4788)",
+			function()
+				local f = Presets.adminDrops.fish
+				expect(AdminDrops.fresh(nil, 100, f.fresh)).to.equal(true) -- the server does not say: arc as before
+				expect(AdminDrops.fresh(99, 100, f.fresh)).to.equal(true)
+				expect(AdminDrops.fresh(100 - f.fresh - 1, 100, f.fresh)).to.equal(false) -- streamed in late
+				expect(AdminDrops.fresh("99", 100, f.fresh)).to.equal(true)
+				expect(AdminDrops.spotKey(Vector3.new(1.04, 2, -3.26))).to.equal(
+					AdminDrops.spotKey(Vector3.new(1.01, 2, -3.3))
+				)
+				expect(AdminDrops.spotKey(Vector3.new(1, 2, 3))).never.to.equal(
+					AdminDrops.spotKey(Vector3.new(1, 2, 4))
+				)
+				expect(f.remember >= 60).to.equal(true)
+			end
+		)
 	end)
 end

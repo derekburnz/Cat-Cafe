@@ -58,6 +58,7 @@ local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassService = require(script.Parent.PassService)
 local PerfSuggest = require(ReplicatedStorage.Shared.PerfSuggest)
+local PerfWatch = require(ReplicatedStorage.Shared.PerfWatch)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
@@ -383,7 +384,8 @@ export type CustomEvent =
 	| "stray_near_first"
 	-- #3555: the first rank up's walk-through. rank_up_ready_first (value 1) and rank_up_pressed_first (value the
 	-- seconds from ready to the rank up) from RankSpotService, once a session; shown and closed from the client
-	-- (RANK_SPOT), value 1, once a session each; the device
+	-- (RANK_SPOT), value 1, once a session each; the device. rank_up_ready_first's second field: where the player
+	-- stood, "safe" or the catching area's id (the Nov 16 drop-off read)
 	| "rank_up_ready_first"
 	| "rank_up_pressed_first"
 	| "rank_up_spotlight_shown"
@@ -439,6 +441,12 @@ export type CustomEvent =
 	-- #4307: the join to the first ProfileSync on the client, once a session below Tier 2; the device, the Roblox load
 	-- and "<UI build>/<save wait>" (FirstFive.bootBucket each)
 	| "client_boot"
+	-- #4783 (shared/PerfWatch): once a session for every player, value the seconds (tenths) from the join to the world
+	-- ready on the client; the device, the client's own part (PerfWatch.loadBucket), "first" or "back" (sessions)
+	| "client_load"
+	-- #4783: the client's average frames a second over each window up to a PerfWatch.MARKS minute, for every player;
+	-- the device, the mark ("m1"), "<low|std>:q<graphics quality>" (the Low performance setting, 0 Automatic)
+	| "client_fps"
 	-- #2486 (live-events.md section 7): a player in a running Cafe Event (joined during it, or in the server as it
 	-- started), value 1; the event id, the Experience Event id the join came through ("" for none), the join source
 	| "event_join"
@@ -537,6 +545,8 @@ local REPORTS = {
 	"boot_sync", -- #4307: seconds from the client's first script line to its first ProfileSync (client_boot)
 	"intro_shot", -- #3098 P1b: an intro shot started, 1 to FirstFive.INTRO_SHOTS (quit_scene; the first logs first_scene)
 	LoadingTest.SEEN_REPORT, -- #4314: the whole seconds the loading screen was up (0 to LoadingTest.SEEN_MAX), once
+	PerfWatch.READY, -- #4783: seconds from the client's first script line to the world ready (client_load), once
+	PerfWatch.FPS, -- #4783: the average fps up to a mark (PerfWatch.encode), once a mark a session (client_fps)
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -689,6 +699,8 @@ type Session = {
 	rarityStep: number?, -- #3876: rarity_v1 steps logged this session (nil until joined is logged)
 	loadingArm: string?, -- #4314: this new save's loading screen test arm (shared/LoadingTest), nil outside it
 	loadingSeen: boolean, -- #4314: ab_loading_seen logged this session
+	loadLogged: boolean, -- #4783: client_load logged this session
+	fpsLogged: { [number]: boolean }, -- #4783: client_fps marks logged this session
 }
 
 -- #2916: one next goal shown: where ("recap" or "join") and os.time() it was shown
@@ -2485,6 +2497,44 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				{ arm, session.device or "unknown" }
 			)
 		end
+	elseif name == PerfWatch.READY then
+		-- #4783: once a session, every player; the value is the server's own clock since the join, the client's part
+		-- only buckets (a client cannot stretch the logged time past the real one)
+		if
+			type(rawValue) == "number"
+			and rawValue == rawValue
+			and rawValue >= 0
+			and rawValue <= PerfWatch.MAX_READY
+			and not session.loadLogged
+		then
+			session.loadLogged = true
+			local total = math.max(0, os.clock() - session.joinedClock)
+			Telemetry.custom(player, "client_load", math.floor(total * 10) / 10, {
+				session.device or "unknown",
+				PerfWatch.loadBucket(rawValue :: number),
+				if profile.stats.sessions <= 1 then "first" else "back",
+			})
+		end
+	elseif name == PerfWatch.FPS then
+		-- #4783: once a mark a session, and not before the mark's minute (less half a minute for the two clocks)
+		local mark, quality, fps = PerfWatch.decode(rawValue)
+		local minutes = if mark ~= nil then PerfWatch.MARKS[mark] else nil
+		if
+			mark ~= nil
+			and quality ~= nil
+			and fps ~= nil
+			and minutes ~= nil
+			and not session.fpsLogged[mark]
+			and os.time() - session.joinedAt >= minutes * 60 - 30
+		then
+			session.fpsLogged[mark] = true
+			local low = if profile.settings.lowPerformance then "low" else "std"
+			Telemetry.custom(player, "client_fps", fps, {
+				session.device or "unknown",
+				"m" .. tostring(minutes),
+				low .. ":q" .. tostring(quality),
+			})
+		end
 	elseif name == "health_fps" then
 		if
 			type(rawValue) == "number"
@@ -2856,6 +2906,8 @@ local function onLoaded(player: Player, profile: Profile)
 		memFirst = nil,
 		introShot = 0,
 		loadingSeen = false,
+		loadLogged = false,
+		fpsLogged = {},
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
 	local ok, joinData = pcall(function(): any

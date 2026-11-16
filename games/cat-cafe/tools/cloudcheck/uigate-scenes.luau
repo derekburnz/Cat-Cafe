@@ -9223,6 +9223,49 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.update({ tier = tier, secondCatDone = if done == nil then true else done } :: any)
 		UI.close("Cannon")
 	end },
+	-- #4777 (Derek 2026-11-16: "instead of teleporting player to the cannon after food bowl have them click the cannon
+	-- button with dim screen and arrow"): bowl first, the first flight's line with no cannon in reach lights the HUD's
+	-- Cannon button (ring, arrow, dim); the line gone, so is the light
+	{ "CannonButtonPoint", function()
+		local RS = game:GetService("ReplicatedStorage")
+		RS:SetAttribute("LiveFlag_catchFirst", false)
+		UI.parkTrail.reach(true)
+		UI.cannon.setWild(nil)
+		UI.cannon.setEnabled(true)
+		UI.update({ tier = 1, tutorialStep = 9 } :: any)
+		UI.tutorial.hide()
+		UIShim.advance(0.3)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD", true) :: Instance
+		local strip = ""
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Visible then
+				strip = piece.Text
+			end
+		end
+		assert(string.find(strip, "Hop in the cannon to fly to the", 1, true) ~= nil, "uigate: bowl first's strip reads " .. strip .. " (#4777)")
+		local lit: GuiObject? = nil
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "TutorialGlow" and piece.Parent and piece.Parent:IsA("GuiObject") then
+				local frame = (piece.Parent :: GuiObject):FindFirstAncestorWhichIsA("Frame")
+				if frame and string.lower(frame.Name) == "cannon" then
+					lit = piece.Parent :: GuiObject
+				end
+			end
+		end
+		assert(lit ~= nil, "uigate: the HUD's Cannon button has no ring beside the first flight's line (#4777)")
+		assert(tutorialSpotlight() ~= nil, "uigate: no dim round the Cannon button (#4777)")
+		-- the walk-up opens the picker: the dim goes, so it never sits over the window (Review-QA on #4779)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		assert((lit :: GuiObject):FindFirstChild("TutorialGlow") == nil, "uigate: the Cannon button stays lit over the open picker (#4777)")
+		UI.close("Cannon")
+		UI.cannon.setEnabled(false)
+		UIShim.advance(0.3)
+		assert((lit :: GuiObject):FindFirstChild("TutorialGlow") == nil, "uigate: the Cannon button stays lit with the line gone (#4777)")
+		RS:SetAttribute("LiveFlag_catchFirst", nil)
+		UI.cannon.setEnabled(true)
+		UI.parkTrail.reach(false)
+	end },
 	{ "CannonAfterBowl", function()
 		UI.parkTrail.reach(true) -- a player who has been to the Park: the Park line (#3893) would come first otherwise
 		UI.cannon.setWild(nil)
@@ -9813,6 +9856,42 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		assert(not b.Visible, "uigate: the Buy button shows with 100 coins for a 150 table (#2912)")
 		UI.update({ money = 850 } :: any)
 	end },
+	-- The Nov 16 drop-off read (a third of ready players never pressed rank up): beside the rank up line the strip's
+	-- button reads RANK UP, whole on screen and over the strip, and goes with the line
+	{ "TutorialRankUp", function()
+		local RankFirst = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("RankFirst")) :: any
+		UI.update({ tutorialStep = 99, tier = 1, money = 2000 } :: any)
+		UI.tutorial.show(RankFirst.line("touch"))
+		task.wait(0.2)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local buy = hud:FindFirstChild("TutorialBuy", true) :: GuiObject?
+		local strip: GuiObject? = nil
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Text ~= "" then
+				strip = piece
+			end
+		end
+		assert(strip ~= nil and strip.Visible, "uigate: the rank up line is not on the strip")
+		assert(buy ~= nil and buy.Visible, "uigate: no RANK UP button beside the rank up line")
+		local text: TextLabel? = nil
+		for _, piece in (buy :: GuiObject):GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Text == RankFirst.BUTTON then
+				text = piece
+			end
+		end
+		assert(text ~= nil, "uigate: the strip's button does not say " .. RankFirst.BUTTON)
+		assert((text :: TextLabel).TextFits ~= false, "uigate: RANK UP does not fit its button")
+		assert((buy :: GuiObject):FindFirstChild("TutorialGlow") ~= nil, "uigate: the RANK UP button has no ring (Derek 2026-11-16)")
+		assert(tutorialSpotlight() == nil, "uigate: the RANK UP button dims the screen (the dim is the safe side's walk-through)")
+		local b, st = (buy :: GuiObject), (strip :: GuiObject)
+		local screen = hud.AbsoluteSize
+		assert(b.AbsolutePosition.X >= 0 and b.AbsolutePosition.X + b.AbsoluteSize.X <= screen.X and b.AbsolutePosition.Y >= 0, "uigate: the RANK UP button runs off screen")
+		assert(b.AbsolutePosition.Y + b.AbsoluteSize.Y <= st.AbsolutePosition.Y + 1, "uigate: the RANK UP button overlaps the strip")
+		UI.tutorial.hide()
+		task.wait(0.1)
+		assert(not b.Visible, "uigate: the RANK UP button stays after the line goes")
+		assert(b:FindFirstChild("TutorialGlow") == nil, "uigate: the RANK UP ring stays on the strip's button after the line goes")
+	end },
 	-- #2314 (Derek2: "also show big arrow on screen temporarily pointing toward what to click next"): step 3's big
 	-- arrow points at the HUD's Upgrades tile, whole on screen and off the tile; with Upgrades open it moves to the
 	-- table row; the step done, it is gone
@@ -10195,6 +10274,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		words = caption()
 		assert(words ~= nil and words.Visible, "uigate: no words by the lit rank up button (#3555)")
 		assert(words.Text == "Press to rank up" and words.TextFits, "uigate: the button's words do not fit (#3555)")
+		-- Derek 2026-11-16: inside the window the button is pointed at with no dim, so the window's X stays clear
+		UIShim.advance(0.3)
+		assert(tutorialSpotlight() == nil, "uigate: the lit rank up button dims the open window (its X must stay usable)")
 		local screen = (words:FindFirstAncestorOfClass("ScreenGui") :: ScreenGui).AbsoluteSize
 		assert(
 			words.AbsolutePosition.X >= 0
@@ -12429,73 +12511,6 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		link:Disconnect()
 		assert(ok, problem)
 	end },
-	-- #4061 spec 1.3: the two toys on the booth, one owned (HOLD, then PUT AWAY once it is in hand) and one not yet;
-	-- in hand, the use button shows clear of the Net and Tackle spots and fires UseToy
-	{ "TicketBoothToys", function()
-		local function toy(id, item, name, left, owned)
-			return { id = id, name = name, line = name, price = 2000, left = left, per = "once", kind = "toy", item = item, owned = owned }
-		end
-		local view = {
-			tickets = 2400,
-			spent = 0,
-			rushUsedToday = true,
-			weekEndsAt = workspace:GetServerTimeNow() + 3 * 86400,
-			ready = 1,
-			prizes = {
-				toy("toySquirter", "squirter", "Water Squirter", 0, true),
-				toy("toyNoodle", "noodle", "Pool Noodle", 1, false),
-			},
-		}
-		local player = UIShim.player
-		local character = player.Character
-		if character == nil then
-			character = Instance.new("Model")
-			character.Name = "Tester"
-			character.Parent = workspace;
-			(player :: any).Character = character
-			UIShim.fire(UIShim.eventOf(player, "CharacterAdded"), character)
-		end
-		local sent = {}
-		local link = UI.events.lateStation:Connect(function(remote, id)
-			table.insert(sent, { remote = remote, id = id })
-		end)
-		local ok, problem = pcall(function()
-			UI.update({ ticketBooth = view } :: any)
-			UI.lateStations.openBooth()
-			local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("TicketBooth", true) :: GuiObject
-			assert(window and window.Visible, "uigate: the Ticket Booth window did not open (#4061 toys)")
-			local grid = window:FindFirstChild("Prizes", true) :: GuiObject
-			local function part(id, name)
-				return grid:FindFirstChild("Prize_" .. id):FindFirstChild(name, true)
-			end
-			local function buyText(id)
-				return (part(id, "Buy"):FindFirstChildWhichIsA("TextLabel", true) :: TextLabel).Text
-			end
-			assert((part("toySquirter", "Chip") :: TextLabel).Text == "Owned", "uigate: an owned toy's chip reads " .. (part("toySquirter", "Chip") :: TextLabel).Text .. " (#4061)")
-			assert(buyText("toySquirter") == "HOLD", "uigate: an owned toy's button reads " .. buyText("toySquirter") .. " (#4061)")
-			assert(not (part("toySquirter", "Price") :: GuiObject).Visible, "uigate: an owned toy still shows its price (#4061)")
-			assert(buyText("toyNoodle") == "BUY", "uigate: a toy not yet bought reads " .. buyText("toyNoodle") .. " (#4061)")
-			press("TicketBooth", "Prize_toySquirter.Buy")
-			assert(#sent == 1 and sent[1].remote == "HoldToy" and sent[1].id == "squirter", "uigate: HOLD sent no HoldToy squirter (#4061)")
-			-- the server takes it in hand
-			character:SetAttribute("HeldToy", "squirter")
-			assert(buyText("toySquirter") == "PUT AWAY", "uigate: the toy in hand's button reads " .. buyText("toySquirter") .. " (#4061)")
-			local toyGui = UIShim.playerGui:FindFirstChild("CatCafeToyButton") :: ScreenGui
-			assert(toyGui and toyGui.Enabled, "uigate: no use button with a toy in hand (#4061)")
-			local button = toyGui:FindFirstChild("Toy") :: GuiObject
-			local word = button:FindFirstChild("Word") :: TextLabel
-			assert(word.Text == "SPRAY" and word.TextFits, "uigate: the use button reads " .. word.Text .. " (#4061)")
-			press("CatCafeToyButton", "Toy")
-			assert(#sent == 2 and sent[2].remote == "UseToy", "uigate: the use button sent no UseToy (#4061)")
-			press("CatCafeToyButton", "Toy")
-			assert(#sent == 2, "uigate: a second press inside the cooldown sent UseToy again (#4061)")
-			press("TicketBooth", "Prize_toySquirter.Buy")
-			assert(#sent == 3 and sent[3].remote == "HoldToy" and sent[3].id == nil, "uigate: PUT AWAY sent no HoldToy(nil) (#4061)")
-		end)
-		link:Disconnect()
-		Scenes._toyCharacter = character
-		assert(ok, problem)
-	end },
 	-- #4062: the Dragon Keep window at stage 3 (three slots, one empty), the binder's 54 cards, a card slotted from the
 	-- binder, the give picker's All Common, a special cat's second tap and the stage hand over the window
 	{ "DragonKeep", function()
@@ -14403,10 +14418,6 @@ function Scenes.close()
 		UI.loot.card:hide()
 	end
 	reel(false)
-	if Scenes._toyCharacter ~= nil then
-		Scenes._toyCharacter:SetAttribute("HeldToy", nil) -- #4061's toys scene: back to the net
-		Scenes._toyCharacter = nil
-	end
 	if Scenes._packed ~= nil then
 		Scenes._packed:SetAttribute("PackedCatId", nil) -- #2731's scene
 		Scenes._packed = nil

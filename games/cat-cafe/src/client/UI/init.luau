@@ -191,6 +191,9 @@ UI.events = {
 	introNext = Signal.new(),
 	-- (seconds)   #4314: the loading screen slid away; forward as TelemetryReport("loading_seen", whole seconds), once
 	loadingSeen = Signal.new(),
+	-- ()   #4780: Skip (or gamepad B) on the loading screen: IntroController stops waiting for the world and starts
+	-- the intro or hands the camera to the character at once
+	loadingSkip = Signal.new(),
 	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
 	introReplay = Signal.new(),
 	-- F64
@@ -550,6 +553,25 @@ function applyTutorial()
 	if hud then
 		hud:holdTutorial(introPending)
 		hud:setTutorial(text)
+		-- #4777 (Derek 2026-11-16: "have them click the cannon button with dim screen and arrow"): bowl first's cannon
+		-- line after the first bowl cat, with no cannon in reach, lights the HUD's Cannon button (dim, ring, arrow)
+		-- in reach: within REACH studs of the Town Square cannon (cannonPart), where its walk-up opens the picker
+		local inReach = false
+		local character = game:GetService("Players").LocalPlayer.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if cannonPart ~= nil and root ~= nil and root:IsA("BasePart") then
+			inReach = (root.Position - cannonPart.Position).Magnitude <= 30
+		end
+		local order: any =
+			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder"))
+		local first = hint ~= nil
+			and not rankLine
+			and not introPending
+			and CannonLogic.isFirstFlight(hint)
+			and order.bowlFirst()
+			and not inReach
+		local board: any = hud
+		board:pointCannon(first == true)
 	end
 	if introScreen ~= nil and introScreen:playing() then
 		return -- the marker and trail come back when the intro ends
@@ -1739,6 +1761,9 @@ function UI.init(config: Types.InitConfig)
 		waitEnded = function(seconds: number)
 			UI.events.loadingSeen:Fire(seconds) -- #4314
 		end,
+		waitSkipped = function()
+			UI.events.loadingSkip:Fire() -- #4780
+		end,
 	})
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker", nil, false, true) -- #3055: the small, quiet one
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker", nil, true) -- #2697: flashes its target
@@ -1771,7 +1796,7 @@ function UI.init(config: Types.InitConfig)
 	UI.leaderboards.start(parent) -- the town boards' faces and the crowns over heads (F98)
 	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
 	UI.campExtras.start(parent) -- the Yard Sale card, the Cannon picker's strips and the stations' "!" (F100)
-	UI.lateStations.start(parent) -- the Oasis Spa and Relic Museum cards (#2651 part 4)
+	UI.lateStations.start() -- the Oasis Spa and Relic Museum cards (#2651 part 4)
 	UI.mysticPool.start() -- the Mystic Pool's card (#3196)
 	UI.mouseDash.start() -- the arcade's Mouse Dash window (#3296)
 	UI.giftWait.start() -- #2614: the HUD's line while a Mystery gift waits on your plot
@@ -4008,8 +4033,26 @@ function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?):
 	if target == nil then
 		return false
 	end
-	-- the goal card's lines start at its edge: its ring goes round it, not over the first letters
-	UI.rankSpot.close = SpotlightGuide.show(target, words or "", onOutside, phase == "button")
+	-- the goal card's lines start at its edge: its ring goes round it, not over the first letters. Derek 2026-11-16
+	-- ("when they click into menu point to the rankup button make sure it works properly for all devices"): inside the
+	-- window the button gets the ring, the arrow and the words but no dim (Sync's Studio run of #4769: the dim over an
+	-- open window covered its X and Escape did nothing), and a controller's selection lands on it so A ranks up
+	local confirm = phase == "confirm"
+	UI.rankSpot.close =
+		SpotlightGuide.show(target, words or "", onOutside, phase == "button", confirm)
+	if confirm then
+		local pad = require(script.Components.GamepadNav) :: any
+		-- the Button component is a frame round its Face: the selection goes on the GuiButton
+		local found: Instance? = if target:IsA("GuiButton")
+			then target
+			else target:FindFirstChildWhichIsA("GuiButton", true)
+		local face: GuiObject? = if found ~= nil and found:IsA("GuiObject")
+			then found :: any
+			else nil
+		if pad.isGamepad() and face ~= nil then
+			pad.select(face)
+		end
+	end
 	return true
 end
 
@@ -4061,9 +4104,9 @@ function UI.cannon.flyToPark()
 	local near = if nearest ~= nil then nearest() else nil
 	if near ~= nil then
 		UI.cannon.open(near)
-	elseif hud then
-		fly.travel = hud:pressTravel("cannon")
 	end
+	-- #4776 (Derek 2026-11-16: "make them walk to the cannon after rank up and do it themselves"): away from a cannon
+	-- there is no trip any more; the paw trail and the strip walk them there, and the Park's ring waits for the picker
 end
 
 -- Ends "Fly to the Park": the rank-up button is Rank up again and the picker's ring goes.
@@ -4120,6 +4163,11 @@ function UI.cannon.open(cannonId: string?)
 		return
 	end
 	screen:setCannon(cannonId or CannonLogic.TOWN)
+	-- #4777 (Review-QA on #4779): the Cannon button's dim goes as the picker opens, so it never sits over the window
+	if hud then
+		local board: any = hud
+		board:pointCannon(false)
+	end
 	-- #4674: in the bowl first walk-through the Alleyway card's Launch is ringed until it is pressed
 	local WalkRingLogic = require(script.Components.WalkRingLogic)
 	local TutorialOrder =
@@ -8353,7 +8401,6 @@ do
 	local OasisSpa = require(script.Screens.OasisSpa)
 	local RelicMuseum = require(script.Screens.RelicMuseum)
 	local TicketBooth = require(script.Screens.TicketBooth) -- #4061
-	local ToyButton = require(script.Screens.ToyButton) -- #4061 spec 1.3: the toy in hand's use button
 	local DragonKeepScreen = require(script.Screens.DragonKeep) -- #4062
 	local FusionScreen = require(script.Screens.FusionObservatory) -- #4104
 	local StationFixtures = require(script.Components.StationFixtures) -- Studio only (#4103)
@@ -8374,8 +8421,6 @@ do
 		spa = nil :: OasisSpa.OasisSpa?,
 		museum = nil :: RelicMuseum.RelicMuseum?,
 		booth = nil :: TicketBooth.TicketBooth?, -- #4061
-		toyButton = nil :: ToyButton.ToyButton?, -- #4061 spec 1.3
-		heldLinks = nil :: { RBXScriptConnection }?, -- the HeldToy watch
 		keep = nil :: DragonKeepScreen.DragonKeep?, -- #4062
 		fusion = nil :: FusionScreen.FusionObservatory?, -- #4104
 		test = nil :: { [string]: any }?, -- Studio only: StationFixtures views in place of PlayerState's (#4103)
@@ -8451,7 +8496,7 @@ do
 	end
 
 	-- UI.init: both cards in the modal.
-	function UI.lateStations.start(parent: Instance?)
+	function UI.lateStations.start()
 		UI.lateStations.reset()
 		local modalView = modal
 		if modalView == nil then
@@ -8510,46 +8555,9 @@ do
 			buy = function(prizeId: string)
 				send("BuyTicketPrize", prizeId)
 			end,
-			hold = function(toyId: string?)
-				send("HoldToy", toyId) -- nil puts it away
-			end,
 			close = closer(WINDOWS.ticketBooth),
 		})
 		late.booth = booth
-		-- #4061 spec 1.3: the toy in hand is the character's HeldToy (the server's alone); the booth cards and the use
-		-- button follow it, and a respawn starts with none
-		if parent ~= nil then
-			local toyButton = ToyButton.new(parent, {
-				use = function()
-					send("UseToy")
-				end,
-				blocked = function()
-					return UI.catch.circlesActive() or UI.rescue.isActive() or UI.intro.playing()
-				end,
-			})
-			late.toyButton = toyButton
-			local function heldNow()
-				local character = Players.LocalPlayer.Character
-				local raw = if character then character:GetAttribute("HeldToy") else nil
-				local held = if type(raw) == "string" and raw ~= "" then raw else nil
-				toyButton:setHeld(held)
-				booth:setHeld(held)
-			end
-			local heldLinks: { RBXScriptConnection } = {}
-			local function watch(character: Model?)
-				local old = heldLinks[2]
-				if old then
-					old:Disconnect()
-				end
-				if character then
-					heldLinks[2] = character:GetAttributeChangedSignal("HeldToy"):Connect(heldNow)
-				end
-				heldNow()
-			end
-			heldLinks[1] = Players.LocalPlayer.CharacterAdded:Connect(watch)
-			watch(Players.LocalPlayer.Character)
-			late.heldLinks = heldLinks
-		end
 		modalView:register(WINDOWS.ticketBooth, {
 			frame = booth.frame,
 			onOpen = function()
@@ -8869,18 +8877,6 @@ do
 			booth:destroy()
 		end
 		late.booth = nil
-		local toyButton = late.toyButton
-		if toyButton then
-			toyButton:destroy()
-		end
-		late.toyButton = nil
-		local heldLinks: { RBXScriptConnection }? = late.heldLinks
-		if heldLinks then
-			for _, link in heldLinks do
-				link:Disconnect()
-			end
-		end
-		late.heldLinks = nil
 		local keep = late.keep
 		if keep then
 			keep:destroy()

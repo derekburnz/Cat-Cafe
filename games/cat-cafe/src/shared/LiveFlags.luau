@@ -104,7 +104,7 @@ LiveFlags.KEYS = {
 	"spawnQueue", -- #4227: spawn pop-ups one at a time (UI/Components/SpawnQueue); false shows them as they come
 	"checkInCalm", -- #4384: one ask at a time at the first check-in (one toast, the waiting stray's call holds); false goes back
 	"padControls", -- #4224: B back one step, L1/R1 tabs and pop-ups taking focus on a gamepad (UI/Components/GamepadNav)
-	"deviceFixes", -- the Wed 2026-11-18 phone and tablet first 5 minutes fixes (no Tackle before the first check-in, ...)
+	"deviceFixes", -- the Tue 2026-11-17 phone and tablet first 5 minutes fixes (no Tackle before the first check-in, ...)
 	"afkButton", -- #4346: the HUD's AFK tile and AfkMode (shared/AfkCafe): home, 2x rest at once, the rejoin keeps it
 	"freeCatchPads", -- Derek 2026-11-14: phone, tablet and console catches below Tier 2 are the tutorial's (shared/FreeCatch)
 	"newcomerQuiet", -- #4472: no pop-up bubbles in a new account's first 5 minutes (UI/Components/ToastRules.newcomer)
@@ -119,8 +119,6 @@ LiveFlags.KEYS = {
 	"catchFirst", -- #4518: on, today's walk-through order; false, bowl first (shared/TutorialOrder)
 	"earlyKindBonus", -- #4624: kinds 2 to 5 pay 3x a Common's new-kind money in Tier 1 (shared/SecondCat); off until the Nov 16 read
 	"returnHookEarly", -- #4626: the minute 6 "come back tomorrow" line for players before Tier 3 (shared/ReturnHook.early)
-	"toys", -- #4061: the Ticket Booth's two held toys (shared/Toys); on only after a restart and once the hold and use
-	-- buttons have shipped (their prize ids are new saved ids)
 	"journeys", -- #4544: Roblox Journey events (shared/Journeys); on once the configs are published in Creator Hub
 	"storeGuard", -- #1936: no price or pulse on the money badge under 30 minutes of play (UI/Components/StoreGuard); off for Derek
 }
@@ -158,7 +156,6 @@ LiveFlags.OFF_BY_DEFAULT = {
 	earlyKindBonus = true,
 	returnHookEarly = true,
 	journeys = true,
-	toys = true,
 	storeGuard = true, -- #4472: the 30 minute quiet came alive with playSeconds; Derek decides
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60

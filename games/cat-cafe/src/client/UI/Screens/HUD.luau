@@ -2370,6 +2370,11 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		textSize = DROP_TEXT,
 		parent = root,
 		onClick = function()
+			-- #3951 read (Nov 15 data: 431 ready, 283 pressed): beside a rank up line it opens the rank up window
+			if self._stripRank then
+				callbacks.openScreen("RankUp")
+				return
+			end
 			local offer = self._stripOffer
 			if offer ~= nil then
 				callbacks.buyUpgrade(offer.id)
@@ -3499,8 +3504,22 @@ function HUD._renderStripBuy(self: any)
 		return
 	end
 	local offer = self._stripOffer
-	local shown = offer ~= nil and self._tutorial.Visible
-	if shown then
+	-- the drop-off read of Nov 16 (Nov 15 data): a third of the players whose Tier 2 was ready never pressed it, and
+	-- the walk-through's spotlight only shows on the safe side of the gates, so the rank up line (shared/RankFirst)
+	-- brings its own button wherever the strip shows (required here: the main chunk is at Luau's 200 local limit)
+	local rankFirst = require(Shared:WaitForChild("RankFirst")) :: any
+	local rank = self._tutorial.Visible and rankFirst.isLine(self._tutorial.Text)
+	self._stripRank = rank
+	local shown = rank or (offer ~= nil and self._tutorial.Visible)
+	-- Derek 2026-11-16 ("point to rank-up after its ready"): the RANK UP button gets the tutorial's ring and arrow,
+	-- with no dim (the dimmed walk-through stays on the safe side of the gates, RankSpot)
+	TutorialGlow.set(button.instance, rank, nil, true)
+	if rank then
+		button:setText(rankFirst.BUTTON)
+		if not button.instance.Visible then
+			Tween.popIn(button.instance, 0.92)
+		end
+	elseif shown and offer ~= nil then
 		button:setText(("%s · %s"):format(offer.text, Format.money(offer.cost)))
 		if not button.instance.Visible then
 			Tween.popIn(button.instance, 0.92)
@@ -4010,6 +4029,25 @@ function HUD.clockFrame(self: any): GuiObject?
 		return frame
 	end
 	return nil
+end
+
+-- #4777 (Derek 2026-11-16: "instead of teleporting player to the cannon after food bowl have them click the cannon
+-- button with dim screen and arrow"): the tutorial's spotlight on the Cannon travel button (the dim, the gold ring and
+-- the big arrow), while `on`; a controller's selection goes to it once, so A presses it.
+function HUD.pointCannon(self: any, on: boolean)
+	local button = self._travelButtons.cannon
+	if button == nil then
+		return
+	end
+	local lit = on and button.instance.Visible
+	TutorialGlow.set(button.face, lit)
+	if lit and not self._cannonPadOnce then
+		self._cannonPadOnce = true
+		local pad = require(script.Parent.Parent.Components.GamepadNav) :: any
+		if pad.isGamepad() then
+			pad.select(button.face)
+		end
+	end
 end
 
 -- #3555: the goal card, the button that opens the rank up window, while it is on screen.

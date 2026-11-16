@@ -57,6 +57,7 @@ export type Callbacks = {
 	ended: (replay: boolean) -> (), -- the end began (finish, or the Skip fallback): bring the HUD back
 	nextShot: ((shot: number) -> ())?, -- #2182: Next, a tap, Space, Enter or gamepad A, once a shot
 	waitEnded: ((seconds: number) -> ())?, -- #4314: the loading screen slid away after `seconds` up
+	waitSkipped: (() -> ())?, -- #4780: Skip (or gamepad B) on the loading screen
 }
 
 export type Intro = {
@@ -155,6 +156,7 @@ local DOT_GAP = 8
 local SKIP_WIDTH = 174 -- #3773: 1.5 times the old 116
 local NEXT_WIDTH = 116
 local SKIP_ACTION = "CatCafeIntroSkip"
+local WAIT_SKIP_ACTION = "CatCafeLoadingSkip" -- #4780: gamepad B on the loading screen
 local NEXT_ACTION = "CatCafeIntroNext" -- #2182: Space, Enter and gamepad A
 local SKIP_DIM = 0.5 -- Skip's label and outline while its bar fills
 -- to 1.05 and back (#3773: at 1.1 the bigger pill touched Next for the pop)
@@ -745,6 +747,29 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 		Text = LoadingNews.tip("keyboard"),
 		Parent = main,
 	})
+	-- #4780 (Derek 2026-11-16: "add a skip button to skip it"): Skip in the bottom right corner, the intro's pill
+	local waitSkip: TextButton = Create("TextButton", {
+		Name = "Skip",
+		Text = "Skip »",
+		AutoButtonColor = true,
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 1),
+		Position = UDim2.new(1, -24, 1, -24),
+		Size = UDim2.fromOffset(170, 64),
+		FontFace = Theme.fonts.display,
+		TextSize = 28,
+		TextColor3 = Theme.colors.ink,
+		ZIndex = 5,
+		Parent = waitRoot,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(waitSkip, 3, Theme.colors.ink)
+	table.insert(
+		self._connections,
+		waitSkip.Activated:Connect(function()
+			self:_waitSkip()
+		end)
+	)
 	-- #4314: the WHAT'S NEW card, turning through Components/LoadingNews
 	local news: Frame = Create("Frame", {
 		Name = "News",
@@ -1045,6 +1070,18 @@ function Intro._newsShow(self: any, index: number)
 	end
 end
 
+-- #4780: Skip on the loading screen, once a showing: the caller stops waiting (UI.events.loadingSkip).
+function Intro._waitSkip(self: any)
+	if not self._waiting or self._waitSkipped then
+		return
+	end
+	self._waitSkipped = true
+	local skipped = self._callbacks.waitSkipped
+	if skipped ~= nil then
+		skipped()
+	end
+end
+
 -- #3105: shows the loading screen, or slides it away. A play slides it away (start), and so does WAIT_LIMIT.
 -- #3109: shown, its count creeps up until race(); sliding away it reads 100.
 function Intro.waiting(self: any, on: boolean)
@@ -1057,6 +1094,7 @@ function Intro.waiting(self: any, on: boolean)
 	local token = self._waitToken
 	local cover: Frame = self._waitCover
 	if not show then
+		ContextActionService:UnbindAction(WAIT_SKIP_ACTION) -- #4780
 		self._raceAt = nil
 		self:_waitSet(LoadingCount.FULL)
 		local ended = self._callbacks.waitEnded
@@ -1080,6 +1118,20 @@ function Intro.waiting(self: any, on: boolean)
 	end
 	cover.Position = UDim2.fromScale(0, 0)
 	self._waitGui.Enabled = true
+	-- #4780: gamepad B skips too, as on the intro
+	self._waitSkipped = false
+	ContextActionService:BindActionAtPriority(
+		WAIT_SKIP_ACTION,
+		function(_name: string, inputState: Enum.UserInputState): Enum.ContextActionResult
+			if inputState == Enum.UserInputState.Begin then
+				self:_waitSkip()
+			end
+			return Enum.ContextActionResult.Sink
+		end,
+		false,
+		Enum.ContextActionPriority.High.Value,
+		Enum.KeyCode.ButtonB
+	)
 	self._waitBegan = os.clock()
 	self._raceAt = nil
 	self:_waitSet(0)

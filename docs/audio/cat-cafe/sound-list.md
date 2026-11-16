@@ -337,7 +337,6 @@ Derek's net swing replaces hold E: every character carries the net, a click smac
 |---|---|---|---|---|---|
 | `netSwing` then `netSmack` | NetSmackPress (your press), or NetSwung from another player (when their smack starts); the smack follows NetSmackDelay later | 3D on the swinger, 40 studs | 0.35 s | the mesh slaps down with a soft rustle, a padded thump on the ground and the hoop's light tok; cartoon soft, never a hit | P0 |
 | `netBounce` | NetSwung with hit false, your own swing only | 3D on you | 0.5 s | the net springs back with a rubbery boing and taps down once more, a friendly miss | P1 |
-| `toyBonk` | ToyUsed for the Pool Noodle (#4061), as the bonk lands | 3D at the noodle | 0.5 s | netBounce's boing pitched up into a soft squeak; the Water Squirter's splash plays `campSplash` | P2 |
 | `strayHop` | a stray's `HopAt` (a near miss makes free strays within 12 studs hop away) | 3D on the cat, 40 studs | 0.5 s | a fur puff, the take-off scrabble and two soft paws landing; no voice | P1 |
 | `wordGreat` | GREAT! (every circle Good or better), from `CatchResult` grades | 2D | 0.6 s | the word's pop and two warm marimba notes up a fifth, under the catch sparkle in its key | P1 |
 | `wordExcellent` | EXCELLENT! (at least half Perfect), from `CatchResult` grades | 2D | 0.9 s | the pop and a quick four note vibes fanfare up the A major chord, a step below PURRFECT | P1 |

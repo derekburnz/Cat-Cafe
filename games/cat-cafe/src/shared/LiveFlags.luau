@@ -27,14 +27,8 @@
 -- - `goldenDrops` (#3222): the rare drop-only Golden lawn pieces from freed cats (Lawn.dropPick). It starts OFF
 --   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the pieces is running, since
 --   an older server's save check drops a lawn id it does not know.
--- - `swiftPaws5` (#3317): Swift Paws levels 3 to 5 in the Golden Fish Market (shared/SwiftPaws). It starts OFF
---   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added them is running, since an
---   older server keeps a saved level only up to 2.
 -- - `swiftPaws10` (#4705): Swift Paws levels 6 to 10. It starts OFF (OFF_BY_DEFAULT): switch it on only once no server
 --   older than the publish that added them is running, since an older server keeps a saved level only up to 5.
--- - `cartTier6` (#3462): the Day Cart's Tier 6 shelf, its own two baits and three potions (shared/CornerShop's top
---   shelf). It starts OFF (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added the
---   items is running, since an older server's save check drops a food or potion id it does not know.
 -- - `secretAreas` (#4221): one Secret per area (Catalog's `secretArea`). It starts OFF (OFF_BY_DEFAULT): off, a
 --   Secret comes from any area as before; on, a wild stray's or trap's Mythical turns only into its area's Secret and
 --   a bait bowl's into one of its open areas' Secrets, and an area with none keeps its Mythical. The Index's Secret
@@ -42,37 +36,18 @@
 -- - `luckyCharm` (#3298): the Golden Fish Market's Lucky Charm perk (shared/LuckyCharm). It starts OFF
 --   (OFF_BY_DEFAULT): off hides the row, refuses a buy and adds no Luck. Switch it on only once no server older than
 --   the publish that added the row is running, since an older server's save check drops a perk id it does not know.
--- - `rareCatsTab` (#3053): the chat's own "Rare Cats" tab with every Mythical or better line from every server
---   (shared/RareCatsTab). It starts OFF (OFF_BY_DEFAULT): off, no channel is made and the chat has no tab bar. Derek
---   said on 2026-11-10 he did not want a tab of our own, so it goes on only after he has seen the pictures.
--- - `autoRejoin` (#3602): a player resting in their cafe with no input for Config.AutoRejoinSeconds is teleported back into
---   the game before Roblox's 20 minute idle disconnect (shared/AfkCafe). It starts OFF (OFF_BY_DEFAULT).
--- - `binRoll` (#3608): the Rummage Bin rolls its prize before the bar, from Config.BinRollTable, and keeps it for the
---   player until they win it (shared/RummageBin); the board, the roll and the pad come with it. It starts OFF
---   (OFF_BY_DEFAULT); off, the bin is as it was.
 -- - `introSplit` (#3666): the intro scene plays itself for half of new players (shared/IntroSplit), so the two
 --   halves' first minutes can be compared. It starts OFF (OFF_BY_DEFAULT); off, nobody new joins the test and no
 --   intro plays itself.
 -- - `parkGateTrail` (#3554): after Tier 2 the goal card reads "Visit the Park" and a trail of paw prints leads to the
 --   nearest Cat Cannon, then to the first Park stray (UI/Components/ParkTrailLogic). It starts OFF (OFF_BY_DEFAULT);
 --   off, nothing shows.
--- - `rankUpSpotlight` (#3555): the first rank up's walk-through, the tutorial's dim and pointer on the goal card and
---   then on the rank up button, once the server says the rank up is possible and the player is in the safe area
---   (shared/RankSpot). It starts OFF (OFF_BY_DEFAULT).
--- - `bagColours` (#3699): the Backpack's owner picks its two colours at the Featured Shop (shared/BagColours); off,
---   SetBagColours is refused, the card has no Colours button and every bag wears the built colours. It starts OFF
---   (OFF_BY_DEFAULT) and goes on only after a restart, so every server keeps the saved picks.
 -- - `menuFamily` (#3558): the station menu family's look for every dark window (client/UI/Components/MenuFamily).
 --   It starts OFF (OFF_BY_DEFAULT); read by the client alone. A window open when it flips keeps its look until
 --   it is opened again.
--- - `speedShoes` (#3535): the Mystery Market's Speed Shoes (shared/SpeedShoes). It starts OFF (OFF_BY_DEFAULT): off
---   hides the shelf row, refuses a buy and adds no carry speed. Switch it on only once no server older than the
---   publish that added the row is running, since an older server's save check drops an item id it does not know.
 -- - `storeRework` (#3572): the Store as in Model-Agent's OK'd mock: Cats above Passes on the rail, each tab cheapest
 --   first, two columns of cards with the picture at the left and the price button under the words
 --   (client/UI/Screens/Store). It starts OFF (OFF_BY_DEFAULT); read by the client alone, once when the Store is built.
--- - `quietAway` (#4035): while a player's net is out in a catching area, the food bowl cards wait until they are
---   back (town, a cafe or a camp; client/UI UI.bait.busy). Client only. It starts OFF (OFF_BY_DEFAULT).
 -- - `rareCustomers` (#3889): each customer walking into an open cafe has a chance to be a rich customer, a Mystery
 --   Visitor or the Cat Collector (shared/RareCustomers, RareCustomerService), sitting at any open table, in place of
 --   their three timers. It starts OFF (OFF_BY_DEFAULT); off, the timers run as before.
@@ -107,25 +82,16 @@ LiveFlags.KEYS = {
 	"alleyBin",
 	"arcade", -- #3062: false hides the Cat Arcade's prompt and menu tile; a game already running finishes and pays
 	"goldenDrops",
-	"swiftPaws5",
 	"swiftPaws10", -- #4705
-	"cartTier6",
 	"luckyCharm",
-	"rareCatsTab",
-	"autoRejoin",
-	"binRoll",
 	"introSplit",
 	"parkGateTrail",
 	"nearLights", -- #4311: at night only the nearest Light objects are on (shared/NightLights); on by default
-	"rankUpSpotlight",
 	"rankFirst", -- #4383: a Tier 1 cafe that can rank up is sent to the rank up before the stuck cat, and a stray press no longer closes the walk-through for good (shared/RankFirst)
-	"bagColours",
 	"menuFamily",
-	"speedShoes",
 	"stuckCall", -- #2912: the stuck cat's call for help (pillar, Help! bubble, wiggle, meows) while a save waits for its first rescue; false hides it
 	"fxLite", -- #3794: phones and graphics quality 1 to 3 run the lighter effects budget; false goes back to today's
 	"storeRework", -- #3572: the reworked Store layout
-	"quietAway", -- #4035: food bowl cards wait while the player is out catching
 	"fishStore", -- #4055: Store passes for golden fish (shared/FishStore); on after the save version 49 restart
 	"dragonKeep", -- #4062: the Dragon Keep (shared/DragonKeep); on after the version 49 restart
 	"ticketBooth", -- #4061: the Ticket Booth's tickets and prizes (shared/TicketBooth); on after the version 49 restart
@@ -167,21 +133,12 @@ LiveFlags.OFF_BY_DEFAULT = {
 	nightCatch = true,
 	loadingScreen = true,
 	goldenDrops = true,
-	swiftPaws5 = true,
 	swiftPaws10 = true, -- #4705
-	cartTier6 = true,
 	luckyCharm = true,
-	rareCatsTab = true,
-	autoRejoin = true,
-	binRoll = true,
 	introSplit = true,
 	parkGateTrail = true,
-	rankUpSpotlight = true,
-	bagColours = true,
 	menuFamily = true,
-	speedShoes = true,
 	storeRework = true,
-	quietAway = true,
 	fishStore = true,
 	ticketBooth = true,
 	dragonKeep = true,

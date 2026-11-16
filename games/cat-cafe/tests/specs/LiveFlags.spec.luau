@@ -133,7 +133,7 @@ return function()
 		end)
 
 		it(
-			"starts off with nightCatch, loadingScreen, goldenDrops, swiftPaws5, swiftPaws10, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, autoRejoin, binRoll, introSplit, parkGateTrail, rankUpSpotlight, bagColours, menuFamily, speedShoes, storeRework, quietAway, riftRun, rareCustomers, goldTone, palJoin, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox, fusion and giftCard alone beside it",
+			"starts off with nightCatch, loadingScreen, goldenDrops, swiftPaws10, luckyCharm, introSplit, parkGateTrail, menuFamily, storeRework, riftRun, rareCustomers, goldTone, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox, fusion and giftCard alone beside it",
 			function()
 				local count = 0
 				for key in LiveFlags.OFF_BY_DEFAULT do
@@ -143,30 +143,18 @@ return function()
 							or key == "nightCatch"
 							or key == "loadingScreen"
 							or key == "goldenDrops"
-							or key == "swiftPaws5"
 							or key == "swiftPaws10"
-							or key == "mouseDash"
-							or key == "cartTier6"
-							or key == "secretCats"
 							or key == "luckyCharm"
-							or key == "rareCatsTab"
-							or key == "autoRejoin"
-							or key == "binRoll"
 							or key == "introSplit"
 							or key == "parkGateTrail"
-							or key == "rankUpSpotlight"
-							or key == "bagColours"
 							or key == "menuFamily"
-							or key == "speedShoes"
 							or key == "storeRework"
-							or key == "quietAway"
 							or key == "fishStore"
 							or key == "ticketBooth"
 							or key == "dragonKeep"
 							or key == "riftRun"
 							or key == "rareCustomers"
 							or key == "goldTone"
-							or key == "palJoin"
 							or key == "dailyDeal"
 							or key == "starterSuggest"
 							or key == "updateFeature"
@@ -187,15 +175,7 @@ return function()
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(45) -- #4654: 56 less the 11 shipped switches retired in batches 1 to 3 and afkCafe (batch 10), plus giftCard (#4527)
-				-- #3462 and #3470: new saved ids stay off until every server knows them
-				expect(LiveFlags.defaults().cartTier6).to.equal(false)
-				expect(LiveFlags.defaults().secretCats).to.equal(false)
-				expect(LiveFlags.parse({ cartTier6 = true }).cartTier6).to.equal(true)
-				expect(LiveFlags.parse({ secretCats = "yes" }).secretCats).to.equal(false)
-				-- #3296: no Mouse Dash until QA passes and it is switched on
-				expect(LiveFlags.defaults().mouseDash).to.equal(false)
-				expect(LiveFlags.parse({ mouseDash = true }).mouseDash).to.equal(true)
+				expect(count).to.equal(33) -- #4654: 56 less the 11 shipped switches retired in batches 1 to 3 and the 13 in batches 4 to 10, plus giftCard (#4527)
 				-- #2912: the stuck cat's call stays on (it is live) until an explicit false hides it
 				expect(LiveFlags.defaults().stuckCall).to.equal(true)
 				expect(LiveFlags.parse({ stuckCall = false }).stuckCall).to.equal(false)

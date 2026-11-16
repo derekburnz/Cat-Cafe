@@ -350,7 +350,7 @@ return function()
 				for _ in Quests.achievementsView(p) do
 					n += 1
 				end
-				expect(n).to.equal(64) -- the 63 with no switch (Lucky Picker, the two Mystic Pool ones and the rest one since #4654) and golden crates
+				expect(n).to.equal(67) -- all 69 but the Rummage Bin's two (Lucky Picker, the Mystic Pool, Secret, Mouse Chaser and rest ones have no switch since #4654)
 			end)
 			Quests.setFlagReader(default)
 			if not ok then
@@ -729,10 +729,9 @@ return function()
 				expect(row.claimed).to.equal(id == first.id)
 				expect(row.progress <= (Catalog.getAchievement(id) :: any).needs).to.equal(true)
 			end
-			-- every switch at its default: the Rummage Bin's two (alleyBin is on by default) and the golden crates
-			-- one join the 63 (Lucky Picker, the two Mystic Pool ones and the rest one have no switch since #4654); the
-			-- three whose switch starts off stay out
-			expect(n).to.equal(66)
+			-- every switch at its default: the Rummage Bin's two (alleyBin is on by default) join the 67 with no switch
+			-- (Lucky Picker, the Mystic Pool, Secret, Mouse Chaser and rest ones since #4654), so all 69 show
+			expect(n).to.equal(69)
 		end)
 	end)
 

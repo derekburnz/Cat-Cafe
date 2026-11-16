@@ -402,11 +402,19 @@ local function inPennantModel(part: Instance): boolean
 	return false
 end
 
+local LAST_T = string.byte("t") -- #4987: "_Pennant"'s last letter
+
 local function considerPennant(instance: Instance)
+	-- #4987 (Sync's load read: 115 ms of the Effects start on a PC): the name's last letter first, with no new string,
+	-- so most of the map is passed over before the two class checks
+	local name = instance.Name
+	if string.byte(name, -1) ~= LAST_T or string.sub(name, -8) ~= "_Pennant" then
+		return
+	end
 	if not (instance:IsA("BasePart") or instance:IsA("Model")) or pennants[instance] ~= nil then
 		return
 	end
-	if string.sub(instance.Name, -8) ~= "_Pennant" or not inBunting(instance) then
+	if not inBunting(instance) then
 		return
 	end
 	if instance:IsA("BasePart") and inPennantModel(instance) then

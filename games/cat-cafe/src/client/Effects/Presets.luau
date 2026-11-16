@@ -3099,6 +3099,7 @@ Presets.rankUp = {
 	fountains = 3,
 	fountainEvery = 0.3,
 	fountain = 12, -- gateSparkle particles in each
+	awayRoof = 10, -- #4922: away from the door the beam drops from this far over your feet
 }
 
 -- The Spin Wheel station (F49): the world wheel turns for everyone nearby whenever anyone spins and stops on the

@@ -10814,12 +10814,6 @@ function UI.gift.show(kind: any, paid: any)
 	end
 end
 
--- #1955 (auto-equip.md): UIController's hook for AutoEquipped(swaps). #2399 (Derek2: "auto equip bubble pop-ups are
--- also just more bloat on the screen"): no toast any more; the Cats window shows the jobs.
-UI.autoEquip = {}
-
-function UI.autoEquip.swapped(_raw: any) end
-
 ----------------------------------------------------------------------------------------------------
 -- Cafe Events (#2487, live-events.md section 3)
 ----------------------------------------------------------------------------------------------------

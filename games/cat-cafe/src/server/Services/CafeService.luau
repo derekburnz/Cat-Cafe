@@ -1871,7 +1871,7 @@ end
 -- cat still takes it, F87 section 2d). The cats EquipBest.held names stay where they are: a locked working cat, a cat
 -- placed or rested by hand in the last AutoEquipHoldSeconds and a cat on offer in a trade. At most one run every
 -- AutoEquipEverySeconds: a run asked for sooner waits for then and is merged with any others (that run refreshes the
--- plot and syncs itself; this call returns 0). A run that moves cats sends AutoEquipped for the toast.
+-- plot and syncs itself; this call returns 0). #4656: the AutoEquipped toast remote is gone (no toast since #2399).
 local function runAutoEquip(player: Player, profile: Profile): number
 	local hand = handAt[player] or {}
 	local held = EquipBest.held(profile, os.clock(), hand, function(uid: string): boolean
@@ -1882,40 +1882,20 @@ local function runAutoEquip(player: Player, profile: Profile): number
 		return 0
 	end
 	Economy.settle(profile, os.time(), ClockService.epoch())
-	local rateBefore = currentRate(profile)
 	local before: { [string]: string? } = {}
 	for uid, instance in profile.cats do
 		before[uid] = instance.spotId
 	end
 	local changed = EquipBest.apply(profile, plan)
-	local swaps: { Types.AutoEquipSwap } = {}
 	for uid, instance in profile.cats do
 		-- only the cats that took a new spot, so a join or rank up doesn't log the whole cafe again
 		if instance.spotId ~= nil and instance.spotId ~= before[uid] then
 			Telemetry.catWorking(player, uid)
-			local def = Catalog.getCat(instance.catId)
-			local spot = Catalog.getSpot(instance.spotId :: string)
-			if spot ~= nil then
-				table.insert(swaps, {
-					catName = if instance.name ~= nil and instance.name ~= ""
-						then instance.name :: string
-						elseif def ~= nil then def.name
-						else instance.catId,
-					role = roleName(spot),
-				})
-			end
 		end
 	end
 	if plan.catsPlaced > 0 then
 		CafeService.advanceTutorial(player, profile, stepAfterJob(profile))
 		Telemetry.onboarding(player, profile, "first_role_assigned")
-	end
-	if #swaps > 0 then
-		if #swaps == 1 then
-			local gain = currentRate(profile) - rateBefore
-			swaps[1].perSecond = if gain >= 0.05 then math.floor(gain * 10 + 0.5) / 10 else nil
-		end
-		Net.fire(player, "AutoEquipped", swaps)
 	end
 	return changed
 end

@@ -63,13 +63,11 @@ def _run(b, a, c, fixed, along_x, inward, rails=True, pickets=True):
     start = (lo + hi) / 2 - (n - 1) * PITCH / 2
     for k in range(n):
         u = start + k * PITCH
-        box(u - PICKET_W / 2, u + PICKET_W / 2, in0, in1, 0.05, PICKET_TOP, "offwhite")
-        mid = (in0 + in1) / 2
-        d = PICKET_W / math.sqrt(2)                                     # the pointed top: a turned square
-        if along_x:
-            b.box((u, PICKET_TOP, mid), (d, d, PICKET_T - 0.02), "offwhite", rot=rot_about("Z", 45))
-        else:
-            b.box((mid, PICKET_TOP, u), (PICKET_T - 0.02, d, d), "offwhite", rot=rot_about("X", 45))
+        # #4783: one part a picket. The pointed top was a second, turned part on each (about 100 a fence, on all
+        # eight plots by the town spawn); the tops now step tall and short along the run, which reads as a picket
+        # fence from the street and the yard alike.
+        top = PICKET_TOP + (0.12 if k % 2 == 0 else -0.04)
+        box(u - PICKET_W / 2, u + PICKET_W / 2, in0, in1, 0.05, top, "offwhite")
 
 
 def _roses(b, x, z, sx, sz):

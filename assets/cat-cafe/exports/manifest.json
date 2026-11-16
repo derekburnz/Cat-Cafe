@@ -316145,7 +316145,7 @@
         "CatCafe_Plot_ForRent_Sign",
         "CatCafe_Plot_ForRent_Shutter"
       ],
-      "triangles": 4420,
+      "triangles": 4300,
       "budget": 5000,
       "size_studs": {
         "x": 39.7,
@@ -316171,7 +316171,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent.model.json",
-      "rbx_parts": 285,
+      "rbx_parts": 275,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent.glb"
@@ -316183,10 +316183,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "4420/5000 tris",
+          "budget": "4300/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1960 faces on swatch centers",
+          "uv": "1900 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-2.60"
@@ -348351,7 +348351,7 @@
         "CatCafe_Plot_YardFence",
         "CatCafe_Plot_YardFence_Barrier"
       ],
-      "triangles": 3600,
+      "triangles": 2664,
       "budget": 8000,
       "size_studs": {
         "x": 46.4,
@@ -348377,7 +348377,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_YardFence.model.json",
-      "rbx_parts": 264,
+      "rbx_parts": 186,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_YardFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_YardFence.glb"
@@ -348390,10 +348390,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "3600/8000 tris",
+          "budget": "2664/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2304 faces on swatch centers",
+          "uv": "1836 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.20 (want 0)",
           "centered": "footprint center x=0.00 y=23.09"
@@ -369941,7 +369941,7 @@
         "CatCafe_Plot_ForRent_48x37_Sign",
         "CatCafe_Plot_ForRent_48x37_Shutter"
       ],
-      "triangles": 4420,
+      "triangles": 4300,
       "budget": 5000,
       "size_studs": {
         "x": 43.7,
@@ -369967,7 +369967,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ForRent laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_ForRent on a cafe of that size. Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent_48x37.model.json",
-      "rbx_parts": 285,
+      "rbx_parts": 275,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_48x37.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_48x37.glb"
@@ -369979,10 +369979,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "4420/5000 tris",
+          "budget": "4300/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1960 faces on swatch centers",
+          "uv": "1900 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=17.20 (want 0)",
           "centered": "footprint center x=0.00 y=-2.60"
@@ -370281,7 +370281,7 @@
         "CatCafe_Plot_YardFence_48x37",
         "CatCafe_Plot_YardFence_48x37_Barrier"
       ],
-      "triangles": 3764,
+      "triangles": 2768,
       "budget": 8000,
       "size_studs": {
         "x": 50.4,
@@ -370307,7 +370307,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_YardFence laid out for the 48 x 37 room (Tier 3 and 4), in place of CatCafe_Plot_YardFence on a cafe of that size. Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_YardFence_48x37.model.json",
-      "rbx_parts": 277,
+      "rbx_parts": 194,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_YardFence_48x37.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_YardFence_48x37.glb"
@@ -370319,10 +370319,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "3764/8000 tris",
+          "budget": "2768/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2396 faces on swatch centers",
+          "uv": "1898 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=29.67 (want 0)",
           "centered": "footprint center x=0.00 y=24.59"
@@ -370771,7 +370771,7 @@
         "CatCafe_Plot_ForRent_52x40_Sign",
         "CatCafe_Plot_ForRent_52x40_Shutter"
       ],
-      "triangles": 4420,
+      "triangles": 4300,
       "budget": 5000,
       "size_studs": {
         "x": 47.7,
@@ -370797,7 +370797,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ForRent laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_ForRent on a cafe of that size. Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent_52x40.model.json",
-      "rbx_parts": 285,
+      "rbx_parts": 275,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_52x40.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_52x40.glb"
@@ -370809,10 +370809,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "4420/5000 tris",
+          "budget": "4300/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1960 faces on swatch centers",
+          "uv": "1900 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=18.70 (want 0)",
           "centered": "footprint center x=0.00 y=-2.60"
@@ -371111,7 +371111,7 @@
         "CatCafe_Plot_YardFence_52x40",
         "CatCafe_Plot_YardFence_52x40_Barrier"
       ],
-      "triangles": 3928,
+      "triangles": 2872,
       "budget": 8000,
       "size_studs": {
         "x": 54.4,
@@ -371137,7 +371137,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_YardFence laid out for the 52 x 40 room (Tier 5 and 6), in place of CatCafe_Plot_YardFence on a cafe of that size. Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_YardFence_52x40.model.json",
-      "rbx_parts": 290,
+      "rbx_parts": 202,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_YardFence_52x40.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_YardFence_52x40.glb"
@@ -371149,10 +371149,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "3928/8000 tris",
+          "budget": "2872/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2488 faces on swatch centers",
+          "uv": "1960 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=31.17 (want 0)",
           "centered": "footprint center x=0.00 y=26.09"
@@ -371601,7 +371601,7 @@
         "CatCafe_Plot_ForRent_56x43_Sign",
         "CatCafe_Plot_ForRent_56x43_Shutter"
       ],
-      "triangles": 4420,
+      "triangles": 4300,
       "budget": 5000,
       "size_studs": {
         "x": 51.7,
@@ -371627,7 +371627,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ForRent laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_ForRent on a cafe of that size. Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent_56x43.model.json",
-      "rbx_parts": 285,
+      "rbx_parts": 275,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_56x43.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_56x43.glb"
@@ -371639,10 +371639,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "4420/5000 tris",
+          "budget": "4300/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1960 faces on swatch centers",
+          "uv": "1900 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=20.20 (want 0)",
           "centered": "footprint center x=0.00 y=-2.60"
@@ -371941,7 +371941,7 @@
         "CatCafe_Plot_YardFence_56x43",
         "CatCafe_Plot_YardFence_56x43_Barrier"
       ],
-      "triangles": 4092,
+      "triangles": 2976,
       "budget": 8000,
       "size_studs": {
         "x": 58.4,
@@ -371967,7 +371967,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_YardFence laid out for the 56 x 43 room (Tier 7 and 8), in place of CatCafe_Plot_YardFence on a cafe of that size. Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_YardFence_56x43.model.json",
-      "rbx_parts": 303,
+      "rbx_parts": 210,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_YardFence_56x43.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_YardFence_56x43.glb"
@@ -371979,10 +371979,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "4092/8000 tris",
+          "budget": "2976/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2580 faces on swatch centers",
+          "uv": "2022 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=32.67 (want 0)",
           "centered": "footprint center x=0.00 y=27.58"
@@ -372431,7 +372431,7 @@
         "CatCafe_Plot_ForRent_60x46_Sign",
         "CatCafe_Plot_ForRent_60x46_Shutter"
       ],
-      "triangles": 4420,
+      "triangles": 4300,
       "budget": 5000,
       "size_studs": {
         "x": 55.7,
@@ -372457,7 +372457,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_ForRent laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_ForRent on a cafe of that size. Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent_60x46.model.json",
-      "rbx_parts": 285,
+      "rbx_parts": 275,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_60x46.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent_60x46.glb"
@@ -372469,10 +372469,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "4420/5000 tris",
+          "budget": "4300/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1960 faces on swatch centers",
+          "uv": "1900 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=21.70 (want 0)",
           "centered": "footprint center x=0.00 y=-2.60"
@@ -372771,7 +372771,7 @@
         "CatCafe_Plot_YardFence_60x46",
         "CatCafe_Plot_YardFence_60x46_Barrier"
       ],
-      "triangles": 4256,
+      "triangles": 3080,
       "budget": 8000,
       "size_studs": {
         "x": 62.4,
@@ -372797,7 +372797,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "#4543 the cafe grows with rank ups: CatCafe_Plot_YardFence laid out for the 60 x 46 room (Tier 9 and 10), in place of CatCafe_Plot_YardFence on a cafe of that size. Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_YardFence_60x46.model.json",
-      "rbx_parts": 316,
+      "rbx_parts": 218,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_YardFence_60x46.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_YardFence_60x46.glb"
@@ -372809,10 +372809,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "4256/8000 tris",
+          "budget": "3080/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2672 faces on swatch centers",
+          "uv": "2084 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=34.17 (want 0)",
           "centered": "footprint center x=0.00 y=29.08"

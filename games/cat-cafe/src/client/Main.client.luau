@@ -12,6 +12,7 @@ local AdminEventController = require(script.Parent.Controllers.AdminEventControl
 local AfkController = require(script.Parent.Controllers.AfkController)
 local AirMovesController = require(script.Parent.Controllers.AirMovesController)
 local Audio = require(script.Parent.Audio)
+local BackdropController = require(script.Parent.Controllers.BackdropController)
 local BinController = require(script.Parent.Controllers.BinController)
 local CampExtrasController = require(script.Parent.Controllers.CampExtrasController)
 local CannonController = require(script.Parent.Controllers.CannonController)
@@ -87,6 +88,7 @@ WorldController.start()
 DoorController.start()
 IntroController.start() -- after the UI and the world controller, whose hooks it uses
 PerfWatchController.start(bootAt) -- #4783: load time and average FPS for every player, analytics only
+BackdropController.start() -- #4857: far areas' backdrop rings out of this client's Workspace, behind backdropsNear
 MemoryWatchController.start() -- #3743: the client's memory at 5, 15, 30 and 60 minutes, analytics only
 StyleController.start()
 NoClimbController.start() -- #4073: the player's own character climbs only at the real ladders

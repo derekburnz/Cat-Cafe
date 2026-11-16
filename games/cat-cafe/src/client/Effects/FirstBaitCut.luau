@@ -436,11 +436,12 @@ function FirstBaitCut.start(clientUi: any)
 		wasFirst = first
 		if was == true and first == false then
 			-- the first food just went in. #4850: the bowl's window closes whether or not the cut plays (Reduce Motion,
-			-- night, a cut already running and the other skips left the food picker open over the screen)
-			if ui ~= nil and type(ui.close) == "function" then
-				pcall(ui.close)
-			end
+			-- night, a cut already running and the other skips left the food picker open over the screen). play() is
+			-- tried first and closes it itself, so a cut that plays sees the screen exactly as before.
 			if not FirstBaitCut.play() then
+				if ui ~= nil and type(ui.close) == "function" then
+					pcall(ui.close)
+				end
 				report("none")
 			end
 		end

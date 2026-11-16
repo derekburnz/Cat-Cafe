@@ -131,6 +131,9 @@ CafeEvents.ADMIN = {
 	crateCap = 5, -- the most crates one player can get in one Crate Drop
 }
 -- The owner's kinds (`/admin <kind> [minutes] [now]`): each one's title, effects and length in minutes when none is given.
+-- Derek 2026-11-16 16:10 UTC: the longest a Trait Party (free trait rolls) may run
+CafeEvents.TRAIT_PARTY_MAX_SECONDS = 180
+
 CafeEvents.ADMIN_KINDS = {
 	bowl = { title = "Bowl Frenzy", minutes = 15, effects = { bowlSpeed = 4 } },
 	storm = { title = "Cat Storm", minutes = 10, effects = { catStorm = 10 } },
@@ -138,7 +141,9 @@ CafeEvents.ADMIN_KINDS = {
 	golden = { title = "Golden Hour", minutes = 15, effects = { goldBoost = 10, rainbowBoost = 5 } },
 	-- Derek 2026-11-14 22:09 UTC (#4325): "make it like 4x money for a little bit": 4x for 5 minutes
 	money = { title = "Money Storm", minutes = 5, effects = { moneyStorm = 4 } },
-	traits = { title = "Trait Party", minutes = 10, effects = { traitParty = true } },
+	-- Derek 2026-11-16 16:10 UTC ("don't make the free trait rerolls 15 minutes make it 3 min MAX"): 3, was 10, and
+	-- never longer (TRAIT_PARTY_MAX_SECONDS)
+	traits = { title = "Trait Party", minutes = 3, effects = { traitParty = true } },
 	speed = { title = "Speed Rush", minutes = 10, effects = { speedRush = true } },
 	hunt = { title = "Secret Hunt", minutes = 15, effects = { secretHunt = 3 } },
 	fountain = { title = "Fish Fountain", minutes = 5, effects = { fishFountain = true } },
@@ -467,6 +472,15 @@ local function adminOf(
 	end
 	if not adminActive(effects) then
 		return nil, id .. ": no admin effect"
+	end
+	-- Derek 2026-11-16: free trait rolls run 3 minutes at most, whatever the record says (the owner's /admin, the
+	-- events workflow or a hand-written record)
+	local party: any = (effects :: any).traitParty
+	if party == true or (type(party) == "number" and party > 0) then
+		endsAt = math.min(endsAt, startsAt + CafeEvents.TRAIT_PARTY_MAX_SECONDS)
+		if endsAt <= now then
+			return nil, nil
+		end
 	end
 	local event: AdminEvent = {
 		id = id,
@@ -884,11 +898,10 @@ local function adminSeconds(kind: string, minutes: number?): number
 	local asked = if minutes ~= nil and minutes == minutes
 		then minutes
 		else CafeEvents.ADMIN_KINDS[kind].minutes
-	return math.clamp(
-		math.floor(asked) * 60,
-		CafeEvents.ADMIN.minSeconds,
-		CafeEvents.ADMIN.maxSeconds
-	)
+	local most = if kind == "traits"
+		then CafeEvents.TRAIT_PARTY_MAX_SECONDS
+		else CafeEvents.ADMIN.maxSeconds
+	return math.clamp(math.floor(asked) * 60, CafeEvents.ADMIN.minSeconds, most)
 end
 
 function CafeEvents.adminRecord(

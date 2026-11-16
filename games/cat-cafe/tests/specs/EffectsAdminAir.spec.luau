@@ -170,5 +170,42 @@ return function()
 				expect(f.remember >= 60).to.equal(true)
 			end
 		)
+
+		it(
+			"pops a fish only when someone was beside it as it went (a pickup, not a timeout)",
+			function()
+				local q = Presets.adminDrops.pickup
+				local at = Vector3.new(10, 0, 10)
+				expect(AdminDrops.grabbed(at, { Vector3.new(12, 2, 10) }, q.reach)).to.equal(true)
+				expect(AdminDrops.grabbed(at, { Vector3.new(40, 2, 10) }, q.reach)).to.equal(false)
+				expect(AdminDrops.grabbed(at, {}, q.reach)).to.equal(false)
+				expect(q.glints <= 8 and q.seconds <= 0.5 and q.bead <= 1).to.equal(true) -- very small, for phones
+			end
+		)
+
+		it("gives no pop to drops cleared when the admin event ends", function()
+			expect(AdminDrops.eventOver(false, 500, 100, 1)).to.equal(true)
+			expect(AdminDrops.eventOver(true, 500, 499.5, 1)).to.equal(true)
+			expect(AdminDrops.eventOver(true, 500, 200, 1)).to.equal(false)
+			expect(AdminDrops.eventOver(nil, nil, 200, 1)).to.equal(false)
+		end)
+
+		it("gives no pop to a drop that ran out with someone beside it", function()
+			local q = Presets.adminDrops.pickup
+			expect(AdminDrops.ranOut(100, q.life, 100 + q.life, q.margin)).to.equal(true)
+			expect(AdminDrops.ranOut(100, q.life, 100 + q.life - q.margin + 0.01, q.margin)).to.equal(
+				true
+			)
+			expect(AdminDrops.ranOut(100, q.life, 105, q.margin)).to.equal(false)
+			expect(AdminDrops.ranOut(nil, q.life, 1e9, q.margin)).to.equal(false)
+			expect(Presets.adminDrops.cratePop.life).to.equal(90)
+		end)
+
+		it("keeps the crate grab pop short and light (#4888)", function()
+			local c = Presets.adminDrops.cratePop
+			expect(c.open + c.hold + c.shrink <= 1).to.equal(true)
+			expect(c.count <= 16).to.equal(true)
+			expect(c.reach > 0 and c.within >= c.reach).to.equal(true)
+		end)
 	end)
 end

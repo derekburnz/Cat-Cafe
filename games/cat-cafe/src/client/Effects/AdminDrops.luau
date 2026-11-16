@@ -12,8 +12,18 @@
 -- Only drops within `within` studs get a stand-in; the rest just appear. Reduce Motion: no arc and no sway (the
 -- chute comes straight down). Low performance: nothing here, the things just appear. A thing's parts can arrive
 -- after it does (Review-QA, #4211), so the hide follows DescendantAdded until the landing.
+-- Derek2 11-16 (#4883: "a little animation (very small) and vfx each gold fish picked up"): when a fish goes
+--   with a player's character within `pickup.reach` studs of it (the server takes it on a touch), a small gold bead
+--   hops up out of it and shrinks away, a few glints and a small gold ring. Reduce Motion: the glints only. Low
+--   performance or far off: nothing. A fish that runs out untouched has nobody beside it, so it just goes.
+-- #4888 (Derek2 11-16: "a little animation/vfx on pop grabbing it"): when a landed crate goes with a character within
+--   `cratePop.reach` studs, a copy of the crate art (Model-Agent's CatCafe_Prop_Crate_Drop from ReplicatedStorage.Assets)
+--   stands on its spot, its lid flips open, gold sparkles burst out of it with a ring, then it shrinks away. Reduce
+--   Motion: the sparkles only. Low performance or far off: nothing. No art in Assets: sparkles and ring only.
 -- Sound: AdminDrops.onLand(listener) is told "fish" or "crate" and where, as a stand-in lands.
 -- Listening only: it sends nothing and changes nothing the server reads. Numbers in Presets.adminDrops.
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -143,8 +153,117 @@ function AdminDrops.fresh(droppedAt: unknown, now: number, fresh: number): boole
 	return now - (droppedAt :: number) <= fresh
 end
 
+-- True when a drop made at server time `bornAt` that lasts `life` seconds has run out by `now` (within `margin`), so
+-- its going was not a grab, whoever stands beside it. False when the server does not say when it was made.
+function AdminDrops.ranOut(bornAt: unknown, life: number, now: number, margin: number): boolean
+	if type(bornAt) ~= "number" then
+		return false
+	end
+	return now >= (bornAt :: number) + life - margin
+end
+
+-- True when the admin event is over (or ends within `margin`) by `now`: the server clears every drop at the end, so
+-- none of those goings is a grab (Review-QA on #4905). `running` and `endsAt` are ReplicatedStorage's
+-- AdminEventRunning and AdminEventEndsAt (CafeEvents.ADMIN_ATTRIBUTES).
+function AdminDrops.eventOver(
+	running: unknown,
+	endsAt: unknown,
+	now: number,
+	margin: number
+): boolean
+	if running == false then
+		return true
+	end
+	return AdminDrops.ranOut(endsAt, 0, now, margin)
+end
+
+local function over(now: number): boolean
+	return AdminDrops.eventOver(
+		ReplicatedStorage:GetAttribute("AdminEventRunning"),
+		ReplicatedStorage:GetAttribute("AdminEventEndsAt"),
+		now,
+		Presets.adminDrops.pickup.margin
+	)
+end
+
+-- True when one of `roots` (character root positions) is within `reach` studs of `at`: the fish was grabbed, not
+-- left to run out.
+function AdminDrops.grabbed(at: Vector3, roots: { Vector3 }, reach: number): boolean
+	for _, root in roots do
+		if (root - at).Magnitude <= reach then
+			return true
+		end
+	end
+	return false
+end
+
+local function roots(): { Vector3 }
+	local found: { Vector3 } = {}
+	for _, player in Players:GetPlayers() do
+		local character = player.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if root ~= nil and root:IsA("BasePart") then
+			table.insert(found, (root :: BasePart).Position)
+		end
+	end
+	return found
+end
+
+-- The pickup pop: a gold bead hops up out of the fish and shrinks away, with a few glints and a small ring.
+local function pop(at: Vector3)
+	local q = Presets.adminDrops.pickup
+	if Context.lowPerformance or Context.distance(at) > q.within then
+		return
+	end
+	Particles.burst(q.glint, at + Vector3.new(0, q.hop * 0.5, 0), q.glints, q.colour)
+	if Context.reducedMotion() then
+		return
+	end
+	Particles.ring(at, q.colour, q.ring, q.seconds)
+	local bead = Context.effectPart("EffectsFishPop", Vector3.one * q.bead, q.colour)
+	bead.Shape = Enum.PartType.Ball
+	bead.Material = Enum.Material.Neon
+	bead.CFrame = CFrame.new(at)
+	bead.Parent = Context.folder()
+	local startedAt = Workspace:GetServerTimeNow()
+	run({
+		step = function(now: number): boolean
+			local t = (now - startedAt) / q.seconds
+			if t >= 1 then
+				bead:Destroy()
+				return false
+			end
+			local up = 1 - (1 - t) * (1 - t) -- eases out
+			bead.CFrame = CFrame.new(at + Vector3.new(0, q.hop * up, 0))
+			bead.Size = Vector3.one * (q.bead * (1 - t))
+			return true
+		end,
+	})
+end
+
 local function fish(part: BasePart)
 	local p = Presets.adminDrops
+	local spot = part.Position
+	local droppedAt = part:GetAttribute("DroppedAt")
+	local gone: RBXScriptConnection? = nil
+	gone = part.AncestryChanged:Connect(function(_, parent: Instance?)
+		if parent ~= nil then
+			return
+		end
+		if gone ~= nil then
+			gone:Disconnect()
+			gone = nil
+		end
+		-- Sync's read: a fish that runs out with someone beside it is not a pickup (the server takes it on a touch)
+		local now = Workspace:GetServerTimeNow()
+		if
+			not AdminDrops.ranOut(droppedAt, p.pickup.life, now, p.pickup.margin)
+			and not over(now)
+			and AdminDrops.grabbed(spot, roots(), p.pickup.reach)
+		then
+			pop(spot)
+		end
+	end)
 	local from = part:GetAttribute("From")
 	local to = part.Position
 	local now = Workspace:GetServerTimeNow()
@@ -193,8 +312,105 @@ local function fish(part: BasePart)
 	})
 end
 
+-- The crate's lid hinge (its back top edge; a positive turn about X lifts the front), from its bounding box.
+local function lidHinge(lid: Model): CFrame
+	local box, size = lid:GetBoundingBox()
+	return box * CFrame.new(0, size.Y / 2, size.Z / 2)
+end
+
+-- The crate grab pop at `pivot` (the crate's spot on the ground).
+local function popCrate(pivot: CFrame)
+	local q = Presets.adminDrops.cratePop
+	if Context.lowPerformance or Context.distance(pivot.Position) > q.within then
+		return
+	end
+	Particles.burst(q.burst, pivot.Position + Vector3.new(0, q.lift, 0), q.count, q.colour)
+	if Context.reducedMotion() then
+		return
+	end
+	Particles.ring(pivot.Position + Vector3.new(0, 0.1, 0), q.colour, q.ring, q.ringSeconds)
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local template = if assets ~= nil then assets:FindFirstChild(q.art, true) else nil
+	if template == nil or not template:IsA("Model") then
+		return
+	end
+	local copy = (template :: Model):Clone()
+	for _, piece in copy:GetDescendants() do
+		if piece:IsA("BasePart") then
+			local part = piece :: BasePart
+			part.Anchored = true
+			part.CanCollide = false
+			part.CanQuery = false
+			part.CanTouch = false
+			part.CastShadow = false
+		end
+	end
+	copy.Name = "EffectsCratePop"
+	copy:PivotTo(pivot)
+	local lid: Model? = nil
+	for _, piece in copy:GetDescendants() do
+		if piece:IsA("Model") and string.sub(piece.Name, -4) == "_Lid" then
+			lid = piece :: Model
+			break
+		end
+	end
+	local hinge = if lid ~= nil then lidHinge(lid) else nil
+	local lidAt = if lid ~= nil then lid:GetPivot() else nil
+	copy.Parent = Context.folder()
+	local startedAt = Workspace:GetServerTimeNow()
+	run({
+		step = function(now: number): boolean
+			local t = now - startedAt
+			if lid ~= nil and hinge ~= nil and lidAt ~= nil and t <= q.open + 0.05 then
+				local u = math.clamp(t / q.open, 0, 1)
+				local turn = math.rad(q.lidDegrees * (1 - (1 - u) * (1 - u)))
+				lid:PivotTo(hinge * CFrame.Angles(turn, 0, 0) * hinge:Inverse() * lidAt)
+			end
+			local shrinkFrom = q.open + q.hold
+			if t >= shrinkFrom + q.shrink or copy.Parent == nil then
+				copy:Destroy()
+				return false
+			end
+			if t > shrinkFrom then
+				copy:ScaleTo(math.max(0.05, 1 - (t - shrinkFrom) / q.shrink))
+			end
+			return true
+		end,
+	})
+end
+
 local function crate(model: Model)
 	local p = Presets.adminDrops
+	-- #4888: the grab pop, wherever the crate is when it goes (the art's spot on the ground, else under the box)
+	local art = model:FindFirstChild("Art")
+	local spot: CFrame
+	if art ~= nil and art:IsA("Model") then
+		spot = (art :: Model):GetPivot()
+	else
+		local box, size = model:GetBoundingBox()
+		spot = box * CFrame.new(0, -size.Y / 2, 0)
+	end
+	local opens = model:GetAttribute("LandsAt")
+	local gone: RBXScriptConnection? = nil
+	gone = model.AncestryChanged:Connect(function(_, parent: Instance?)
+		if parent ~= nil then
+			return
+		end
+		if gone ~= nil then
+			gone:Disconnect()
+			gone = nil
+		end
+		local now = Workspace:GetServerTimeNow()
+		local landed = type(opens) ~= "number" or now >= (opens :: number) - 0.5
+		if
+			landed
+			and not AdminDrops.ranOut(opens, p.cratePop.life, now, p.pickup.margin)
+			and not over(now)
+			and AdminDrops.grabbed(spot.Position, roots(), p.cratePop.reach)
+		then
+			popCrate(spot)
+		end
+	end)
 	local landsAt = model:GetAttribute("LandsAt")
 	if type(landsAt) ~= "number" then
 		return

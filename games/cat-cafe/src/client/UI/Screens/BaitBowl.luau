@@ -1032,7 +1032,7 @@ function BaitBowl._buildRows(self: any)
 			use = use,
 			details = details,
 			detail = detail,
-			odds = FoodOdds.rich(lure.odds, rarityHex), -- the five-rarity odds at the bowl's level, for Details
+			odds = FoodOdds.rich(lure.odds, rarityHex, lure.secretShare), -- the five-rarity odds at the bowl's level, for Details
 			split = nil :: string?, -- the per-cat split for the tier and bowl last drawn
 			def = lure,
 			dealer = dealer,
@@ -1171,7 +1171,11 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 		self._luck = luck
 		self._panel:setTitle(if bowlLevel >= 1 then Bait.bowlName(bowlLevel) else TITLE, SUBTITLE)
 		for _, row in self._rows do
-			row.odds = FoodOdds.rich(FoodOdds.atBowl(row.def.odds, bowlLevel, luck), rarityHex)
+			row.odds = FoodOdds.rich(
+				FoodOdds.atBowl(row.def.odds, bowlLevel, luck),
+				rarityHex,
+				row.def.secretShare
+			)
 			row.split = FoodOdds.split(catalog, row.def, state.tier, bowlLevel, luck)
 		end
 	end

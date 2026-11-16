@@ -453,7 +453,9 @@ local function frame()
 	if shownId ~= nil and (not running or (current ~= nil and current.id ~= shownId)) then
 		endEvent(made)
 	end
-	if running and current ~= nil and shownId == nil then
+	-- #4830 (Sync's Studio read: a returning save never saw the running event, as its splash time passed under the
+	-- UI's hold at load): the event counts as seen only once the middle is free, so the splash plays then
+	if running and current ~= nil and shownId == nil and not quiet() then
 		shownId, seenAt, shownTitle = current.id, now, current.title
 		earned, earnedShown = 0, 0
 		countsMoney = AdminFlashLogic.countsMoney(current)

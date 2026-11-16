@@ -3090,14 +3090,10 @@ local SCENES = {
 		assert(name.Text == "Golden Whiskers", "uigate: the trait card reads " .. name.Text .. " (#3196)")
 		local effects = window:FindFirstChild("Trait", true):FindFirstChild("Effect2")
 		assert(effects.Text ~= "", "uigate: a Legendary trait shows one effect only (#3196)")
-		-- #3961: the main card's odds are rarity pills; #3908: seven with the Secret trait, Mythic 4.9% (#4654 batch 3:
-		-- its secretTrait switch is retired, so the Secret pill always shows)
-		local secretOn = true
-		local pills = window:FindFirstChild("OddsPills", true)
-		local mythic = pills and pills:FindFirstChild("Mythic") :: TextLabel?
-		local secret = pills and pills:FindFirstChild("Secret") :: TextLabel?
-		assert(pills and pills.Visible and mythic and mythic.Text == (if secretOn then "Mythic 4.9%" else "Mythic 5%"), "uigate: the odds pills are not on the card (#3196, #3961)")
-		assert((secret ~= nil) == secretOn and (secret == nil or secret.Text == "Secret 0.1%"), "uigate: the Secret pill shows only with its switch on (#3908)")
+		-- #4890 (Derek 2026-11-16): no odds pills on the card; the odds list opens from Odds
+		assert(window:FindFirstChild("OddsPills", true) == nil, "uigate: the odds pills are still on the card (#4890)")
+		local oddsList = window:FindFirstChild("OddsList", true) :: GuiObject?
+		assert(oddsList and not oddsList.Visible, "uigate: the odds list shows before Odds is tapped (#4890)")
 		local roll = window:FindFirstChild("Roll", true):FindFirstChildWhichIsA("TextLabel", true)
 		assert(roll.Text == "Re-roll · 1 Trait Token", "uigate: Roll reads " .. roll.Text .. " (#3196)")
 		local tokens = window:FindFirstChild("Tokens", true)
@@ -3106,6 +3102,9 @@ local SCENES = {
 		local _, screenH, inset = UIShim.screen()
 		local bottom = window.AbsolutePosition.Y + window.AbsoluteSize.Y + (inset or 0) -- the modals sit under the top bar
 		assert(bottom <= screenH - 8, ("uigate: the Mystic Pool card ends %d px from the screen's bottom (#3848)"):format(screenH - bottom))
+		-- #4890 (Derek 2026-11-16: "collect button isnt squished"): Collect sits wholly inside the card with room under it
+		local collect = window:FindFirstChild("Collect", true) :: GuiObject?
+		assert(collect and collect.AbsolutePosition.Y + collect.AbsoluteSize.Y <= window.AbsolutePosition.Y + window.AbsoluteSize.Y - 4, "uigate: Collect is cut at the card's bottom (#4890)")
 		local sent = nil
 		local connection = UI.events.rollTrait:Connect(function(uid)
 			sent = uid
@@ -3453,8 +3452,9 @@ local SCENES = {
 		local line = side:FindFirstChild("Line") :: TextLabel
 		assert(line and line.Visible and line.TextFits and not line.Text:find("%", 1, true), "uigate: the token panel's line is missing, cut or still has odds")
 		assert(line.AbsolutePosition.Y < side:FindFirstChild("Bundle1").AbsolutePosition.Y, "uigate: the token line sits under Buy (#4006)")
-		local pills = window:FindFirstChild("OddsPills", true) :: GuiObject?
-		assert(pills ~= nil and pills.Visible and pills.AbsoluteSize.Y > 0, "uigate: no roll odds on screen beside the token panel (monetization-policy 2.1)")
+		-- #4890: the roll odds show on the token panel itself (monetization-policy rule 1)
+		local sideOdds = side:FindFirstChild("SideOdds") :: TextLabel?
+		assert(sideOdds and sideOdds.Visible and sideOdds.TextFits and string.find(sideOdds.Text, "Common 30%", 1, true) and string.find(sideOdds.Text, "Secret", 1, true), "uigate: the token panel does not show the roll odds (monetization-policy rule 1, #4890)")
 		local roll = window:FindFirstChild("Roll", true)
 		assert(roll == nil or not roll.Visible or roll.AbsolutePosition.X + roll.AbsoluteSize.X <= side.AbsolutePosition.X, "uigate: Roll sits under the token panel (#4006)")
 assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has an X (Derek: no X, #4006)")
@@ -4279,13 +4279,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		local shown = order()
 		assert(
-			shown == "kibble,comet_treat,honey_cream,star_treat,moon_milk,caviar,salmon,sardines,tuna",
+			shown == "kibble,eclipse_treat,comet_treat,honey_cream,star_treat,moon_milk,caviar,salmon,sardines,tuna",
 			"uigate: the bowl with only Kibble lists " .. shown .. " (#2323)"
 		)
 		UI.update({ lures = { kibble = 3, salmon = 1 } })
 		shown = order()
 		assert(
-			shown == "salmon,kibble,comet_treat,honey_cream,star_treat,moon_milk,caviar,sardines,tuna",
+			shown == "salmon,kibble,eclipse_treat,comet_treat,honey_cream,star_treat,moon_milk,caviar,sardines,tuna",
 			"uigate: the bowl with Kibble and Salmon lists " .. shown .. " (#2323)"
 		)
 		UI.update({ lures = before.lures }) -- later Bait scenes keep their own bag (BaitRefill needs its Tuna)
@@ -5805,6 +5805,23 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local card = UIShim.playerGui:FindFirstChild("Gift", true)
 		local title = card and card:FindFirstChild("Title") :: TextLabel?
 		assert(title and string.find(title.Text, "Super gift!", 1, true), "uigate: the gift card's heading (#2614)")
+	end },
+	-- #4884 (Derek 2026-11-16): with the giftCard switch off (its default) an opened Mystery gift shows the Rummage
+	-- Bin's small "You found:" card: the crate it paid and the Super wrap's golden fish, no centre card
+	{ "MysteryGiftLoot", function()
+		UI.setCatalog(catalogLikeTheGame())
+		UI.potions.giftResult("crate", "highest", 2, "Super", 40)
+		local loot = UIShim.playerGui:FindFirstChild("CatCafeLoot") :: ScreenGui?
+		local card = loot and loot:FindFirstChild("Card", true) :: GuiObject?
+		assert(card and card.Visible, "uigate: no loot card for the Mystery gift (#4884)")
+		local row1 = card:FindFirstChild("Row1", true)
+		local row2 = card:FindFirstChild("Row2", true)
+		local name1 = row1 and row1:FindFirstChild("Name") :: TextLabel?
+		local amount2 = row2 and row2:FindFirstChild("Amount") :: TextLabel?
+		assert(name1 and string.find(name1.Text, "Crate", 1, true), "uigate: the gift's crate row (#4884)")
+		assert(amount2 and amount2.Text == "+40", "uigate: the gift's golden fish row (#4884)")
+		local gift = UIShim.playerGui:FindFirstChild("Gift", true) :: GuiObject?
+		assert(gift == nil or not gift.Visible, "uigate: the centre gift card showed with giftCard off (#4884)")
 	end },
 	-- #3722: the Market's crate cards are not built inside setCatalog; opening the window builds them at once
 	{ "MarketDelayedBuild", function()
@@ -10863,6 +10880,12 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 		assert(found, "uigate: the sunrise warning doesn't say tomorrow is a Triple Day (#1572)")
+		-- #4867: just the days, no explaining line
+		for _, d in UIShim.playerGui:GetDescendants() do
+			if d:IsA("TextLabel") and d.Visible and (d.Text:find("sunrise", 1, true) or d.Text:find("likely", 1, true)) and d:FindFirstAncestor("CatCafeAreaTitle") then
+				error("uigate: the day banner still explains itself: " .. d.Text .. " (#4867)")
+			end
+		end
 	end },
 	-- #2453: the Bag tile is a backpack, not the Potions tile's bottle (nor the gold money bag)
 	{ "HUDBagBackpack", function()
@@ -11354,6 +11377,22 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		local want = "Row" .. landing
 		assert(#lit == 1 and lit[1] == want, "uigate: the pick's light is on " .. table.concat(lit, ",") .. ", not " .. want .. " (#3615)")
+	end },
+	-- #4861 (Derek 2026-11-16): a moment after the pick lands the Yard Sale card closes and the Rummage Bin's loot card
+	-- ("You found:") shows the crate
+	{ "YardSalePickLoot", function()
+		local extras = yardPickExtras(1, false)
+		UI.campExtras.update(extras)
+		UI.campExtras.openYardSale(extras.yardSale)
+		task.wait(0.1)
+		UI.campExtras.picked(1)
+		local total = 0
+		for _, step in UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RollBoardLogic").rollSteps(#extras.yardSale.pick, 1) do
+			total += step.rest
+		end
+		task.wait(total + 1.3)
+		assert(UI.isOpen() ~= "YardSale", "uigate: the Yard Sale card stayed open after the pick landed (#4861)")
+		assert((UI :: any).loot.card:isShowing(), "uigate: no loot card after the Yard Sale pick (#4861)")
 	end },
 	-- #1200: the Garden Nursery at Tier 3: owned pieces read Owned, the rest Buy with the price, Tier 4 and 5 pieces
 	-- "Opens at Tier 4"; then its Fences tab

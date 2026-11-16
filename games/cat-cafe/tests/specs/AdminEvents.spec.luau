@@ -243,6 +243,18 @@ return function()
 			expect(#(both :: { any })).to.equal(2)
 		end)
 
+		it("/admin stop ends every admin event running or in its warning (#4870)", function()
+			local running =
+				frenzy({ id = "workflow-storm", startsAt = NOW - 60, endsAt = NOW + 540 })
+			local warning = frenzy({ id = "frenzy-warn", startsAt = NOW + 90, endsAt = NOW + 990 })
+			local later =
+				frenzy({ id = "frenzy-later", startsAt = NOW + 3000, endsAt = NOW + 3600 })
+			local party = CafeEvents.ownerRecord("money", NOW, 10) :: { [string]: any }
+			local list, count = CafeEvents.stopRemove({ running, warning, later, party }, NOW, true)
+			expect(count).to.equal(2)
+			expect(list).to.deepEqual({ later, party })
+		end)
+
 		it("stops only its own lane", function()
 			local admin = CafeEvents.adminRecord("bowl", NOW, nil) :: { [string]: any }
 			local own = CafeEvents.ownerRecord("money", NOW, 10) :: { [string]: any }
@@ -424,12 +436,49 @@ return function()
 			expect(admins[1].effects.wheel).to.equal(false)
 		end)
 
-		it("drops a record whose wheel is no boolean, or is off with nothing else", function()
-			for _, effects in { { wheel = "yes" }, { wheel = 1 }, { wheel = false } } do
-				local _, notes, admins = CafeEvents.parse({ wheel({ effects = effects }) }, NOW)
-				expect(#admins).to.equal(0)
-				expect(#notes).to.equal(1)
+		it(
+			"drops a record whose wheel is no boolean or number, or is off with nothing else",
+			function()
+				for _, effects in { { wheel = "yes" }, { wheel = 0 }, { wheel = false } } do
+					local _, notes, admins = CafeEvents.parse({ wheel({ effects = effects }) }, NOW)
+					expect(#admins).to.equal(0)
+					expect(#notes).to.equal(1)
+				end
 			end
+		)
+
+		it("gives each account the spins /admin wheel <spins> asks for (#4876)", function()
+			local ask = OwnerTest.adminAsk("/admin wheel 3")
+			expect(ask.kind).to.equal("wheel")
+			expect(ask.spins).to.equal(3)
+			expect(ask.minutes).to.equal(nil)
+			local long = OwnerTest.adminAsk("/admin wheel 2 10 now")
+			expect(long.spins).to.equal(2)
+			expect(long.minutes).to.equal(10)
+			expect(long.now).to.equal(true)
+			-- other kinds keep the number as minutes
+			expect(OwnerTest.adminAsk("/admin bowl 3").minutes).to.equal(3)
+			expect(OwnerTest.adminAsk("/admin bowl 3").spins).to.equal(nil)
+			-- 2 minutes by default (Derek 16:35 UTC)
+			expect(CafeEvents.ADMIN_KINDS.wheel.minutes).to.equal(2)
+			local record = CafeEvents.adminRecord("wheel", NOW, nil, true, 3) :: { [string]: any }
+			expect(record.effects).to.deepEqual({ wheel = 3 })
+			expect(record.endsAt - record.startsAt).to.equal(120)
+			local _, notes, admins = CafeEvents.parse({ record }, NOW)
+			expect(#notes).to.equal(0)
+			expect(admins[1].effects.wheel).to.equal(true)
+			expect(admins[1].effects.wheelSpins).to.equal(3)
+			expect(CafeEvents.adminEffectsData(admins[1])).to.deepEqual({
+				wheel = true,
+				wheelSpins = 3,
+			})
+			-- no number is one spin; too many is cut to the most
+			local one = CafeEvents.adminRecord("wheel", NOW, nil, true) :: { [string]: any }
+			expect(one.effects).to.deepEqual({ wheel = true })
+			local many = CafeEvents.adminRecord("wheel", NOW, nil, true, 99) :: { [string]: any }
+			expect(many.effects.wheel).to.equal(CafeEvents.ADMIN.wheelSpinsMax)
+			local test = CafeEvents.adminTest("wheel", NOW, nil, true, 4) :: CafeEvents.AdminEvent
+			expect(test.effects.wheelSpins).to.equal(4)
 		end)
 
 		it("runs as a test in one server", function()

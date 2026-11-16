@@ -414,23 +414,27 @@ return function()
 			expect(#one).to.equal(1)
 			expect(one[1].product).to.equal("trait_tokens_50")
 		end)
-		it("hangs the red ! over the pool while a roll waits (#3936)", function()
-			expect(MysticPoolLogic.bangShows(nil)).to.equal(false)
-			expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 0, held = 0 })).to.equal(
-				false
-			)
-			expect(MysticPoolLogic.bangShows({ tokens = 10, freeLeft = 0, held = 0 })).to.equal(
-				true
-			)
-			expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 2, held = 0 })).to.equal(true)
-			expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 0, held = 1 })).to.equal(true)
-			expect(MysticPoolLogic.bangShows({ tokens = 3, pending = { uid = "a", id = "b" } })).to.equal(
-				false
-			)
-			expect(MysticPoolLogic.bangShows({ tokens = -4, freeLeft = 0 / 0 } :: any)).to.equal(
-				false
-			)
-		end)
+		it(
+			"hangs the red ! over the pool only until the first visit (#4858, was while a roll waits #3936)",
+			function()
+				expect(MysticPoolLogic.bangShows(nil)).to.equal(false)
+				expect(MysticPoolLogic.bangShows(false :: any)).to.equal(false)
+				expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 0, held = 0 })).to.equal(
+					true
+				)
+				expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 0, held = 0 }, false)).to.equal(
+					true
+				)
+				expect(MysticPoolLogic.bangShows({ tokens = 10, freeLeft = 2, held = 1 }, true)).to.equal(
+					false
+				)
+				-- a player who walked up before #4858 has the cutscene's mystic_intro mark, which counts as a visit
+				expect(MysticPoolLogic.visited(nil)).to.equal(false)
+				expect(MysticPoolLogic.visited({})).to.equal(false)
+				expect(MysticPoolLogic.visited({ pool_visit = true })).to.equal(true)
+				expect(MysticPoolLogic.visited({ mystic_intro = true })).to.equal(true)
+			end
+		)
 		it("shows every roll's odds, summing to 100 (monetization-policy 2.1)", function()
 			local sum = 0
 			for _, row in MysticPoolLogic.odds() do

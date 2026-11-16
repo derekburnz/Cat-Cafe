@@ -2534,7 +2534,10 @@ task.defer(function()
 		else nil
 	if type(quietWhen) == "function" then
 		(quietWhen :: (() -> boolean) -> ())(function()
-			return UI.firstCat.held or UI.firstCat.tutorial
+			local hold = UI.firstCat
+			return hold.held
+				or hold.tutorial
+				or (hold.clearedAt ~= nil and os.clock() - hold.clearedAt < hold.CARD_AFTER)
 		end)
 	end
 	local onPlaying: any = if ok and type(adminFlash) == "table"

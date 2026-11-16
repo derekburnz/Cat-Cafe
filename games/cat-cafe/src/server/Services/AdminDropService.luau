@@ -24,7 +24,7 @@
 -- (a plain gold block without the art) round an unseen `Box` that is solid from the landing on, with a "!" over
 -- it. It opens for the first player within CRATE_GRAB studs of it, checked CRATE_GRAB_SECONDS apart, as well as on
 -- a touch: a Touched event only fires as a touch starts, so a player already against the crate as it landed, or
--- one who stood still beside it, got nothing. A player who already has ADMIN.crateCap crates is told so once.
+-- one who stood still beside it, got nothing. A player who already has ADMIN.crateCap crates is told so, again every few seconds while they keep trying.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -70,6 +70,7 @@ local CRATE_ART = "CatCafe_Prop_Crate_Drop"
 local CRATE_GRAB = 7 -- #4888: studs (flat) from the crate's centre that open it; its sides are about 2 out
 local CRATE_GRAB_HEIGHT = 8 -- and this far over or under it
 local CRATE_GRAB_SECONDS = 0.2
+local REMIND_SECONDS = 8 -- a player at a cap who keeps trying is told so this often
 local CRATE_MARK_UP = 5.2 -- studs over the crate's middle to the "!"
 local FISH_SIZE = Vector3.new(2.2, 1.6, 1.2) -- #4889: the golden fish model's box (a 1.6 x 0.6 x 0.9 bar before)
 local GOLD = Color3.fromRGB(255, 196, 61)
@@ -79,7 +80,7 @@ type Run = {
 	got: { [Player]: number }, -- fish or crates each player has had in this run
 	out: { [Instance]: number }, -- each pickup or crate still out, and when it goes (server time)
 	left: { [string]: number }, -- Crate Drop: seconds until each area's next crate
-	told: { [Player]: boolean }, -- #4888 Crate Drop: players already told they have every crate of this drop
+	told: { [Player]: number }, -- #4888: when a player at the cap was last told so (said again every REMIND_SECONDS)
 }
 
 local world: WorldBuilder.World
@@ -121,6 +122,18 @@ end
 
 -- Fish Fountain ----------------------------------------------------------------------------------------------
 
+-- A player at an event's cap who keeps trying is told why nothing happens, at most once every REMIND_SECONDS, so a
+-- full player never reads the drop as broken (Derek 2026-11-16: "picking up ... does not work").
+local function remind(run: Run, player: Player, text: string)
+	local at = os.clock()
+	local last = run.told[player]
+	if last ~= nil and at - last < REMIND_SECONDS then
+		return
+	end
+	run.told[player] = at
+	Net.toast(player, text, "info")
+end
+
 local function grabFish(run: Run, fish: BasePart, player: Player)
 	if run.out[fish] == nil or fountain ~= run then
 		return
@@ -138,6 +151,7 @@ local function grabFish(run: Run, fish: BasePart, player: Player)
 	Telemetry.fishSource(player, profile, amount, "TimedReward", "fish_fountain")
 	CafeService.sync(player)
 	if had + amount >= ADMIN.fountainCap then
+		run.told[player] = os.clock()
 		Net.toast(
 			player,
 			string.format("Fish Fountain: you caught the most fish, %d!", ADMIN.fountainCap),
@@ -294,12 +308,24 @@ local function grabFishNear()
 		local best = FISH_GRAB
 		for _, player in DataService.loadedPlayers() do
 			local root = rootOf(player)
-			if root ~= nil and (run.got[player] or 0) < ADMIN.fountainCap then
+			if root ~= nil then
 				local offset = root.Position - where
 				local flat = Vector3.new(offset.X, 0, offset.Z).Magnitude
 				if flat <= best and math.abs(offset.Y) <= FISH_GRAB_HEIGHT then
-					nearest = player
-					best = flat
+					if (run.got[player] or 0) < ADMIN.fountainCap then
+						nearest = player
+						best = flat
+					else
+						-- full: the fish stays for the others, and they are told why it does
+						remind(
+							run,
+							player,
+							string.format(
+								"Fish Fountain: you have all %d fish from this fountain",
+								ADMIN.fountainCap
+							)
+						)
+					end
 				end
 			end
 		end
@@ -381,15 +407,14 @@ local function openCrate(run: Run, crate: Model, player: Player, at: number)
 		end
 		if had >= ADMIN.crateCap then
 			-- #4888: said once, so a crate that does nothing for them is not a mystery; it stays for the others
-			if winner == player and not run.told[winner] then
-				run.told[winner] = true
-				Net.toast(
+			if winner == player then
+				remind(
+					run,
 					winner,
 					string.format(
 						"Crate Drop: you have all %d crates from this drop",
 						ADMIN.crateCap
-					),
-					"info"
+					)
 				)
 			end
 			continue

@@ -693,8 +693,8 @@ export type TicketPrizeRow = {
 	left: number?, -- more that may be bought now, nil for no limit
 	per: string?, -- "day", "week" or "once" with a limit
 	blocker: string?, -- why BUY is off now, nil when it can be bought
-	-- #4061 the weekly shelf's cards only: "decor" or "look", its Catalog decor or Looks accessory id, and whether the
-	-- save bought it (the card says "Owned")
+	-- #4061 the weekly shelf's cards and the toys only: "decor", "look" or "toy", its Catalog decor, Looks accessory or
+	-- shared/Toys id, and whether the save bought it (the card says "Owned")
 	kind: string?,
 	item: string?,
 	owned: boolean?,

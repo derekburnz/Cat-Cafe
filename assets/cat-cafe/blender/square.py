@@ -192,7 +192,8 @@ def _compass(b):
 # a tile in the picture is a tile on the ground; upload them once (upload-image.yml) and put the ids in TEXTURE_IDS.
 CHECKER, LANE_PAVERS, WALK_PAVERS = (
     "CatCafe_Square_Paving_Checker", "CatCafe_Square_Paving_LanePavers", "CatCafe_Square_Paving_WalkPavers")
-TEXTURE_IDS = {CHECKER: "rbxassetid://0", LANE_PAVERS: "rbxassetid://0", WALK_PAVERS: "rbxassetid://0"}
+TEXTURE_IDS = {CHECKER: "rbxassetid://79826597041207", LANE_PAVERS: "rbxassetid://140389683301172",
+               WALK_PAVERS: "rbxassetid://94807277022223"}   # exports/textures/CatCafe_Tex_Square*.png, run 43871713881
 PAVER_UNIT_ROWS = 6                            # rows in a paver picture before it repeats
 
 

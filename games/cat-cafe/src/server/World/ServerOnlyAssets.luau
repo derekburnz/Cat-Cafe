@@ -9,7 +9,7 @@
 -- client builds names from these stems, so nothing under them may ever match (but a cat's _Work body, which no
 -- client names, #4601): CatCafe_Cat_, _Accessory_, _Decor_,
 -- _Style_, _Menu_, _Door_, _CatFlap_, _Item_, _Prop_, _NPC_, _Lawn_, _Furniture_, CatCafe_Camp_<Area>_<Station>,
--- CatCafe_Camp_<Area>_Growth and CatCafe_Camp_Cannon. The spec pins both sides.
+-- and CatCafe_Camp_<Area>_Growth. The spec pins both sides.
 
 local ServerOnlyAssets = {}
 
@@ -164,7 +164,16 @@ function ServerOnlyAssets.matches(name: string): boolean
 			return true
 		end
 	end
+	-- #4601: the Cat Cannons (the Town Square's and each camp's, 11 models and about 4,100 instances). WorldBuilder
+	-- places them; the client's Effects/Cannon finds the placed model in Workspace by its name and never copies a
+	-- template.
+	if name == "CatCafe_Square_Cannon" then
+		return true
+	end
 	for _, area in AREAS do
+		if name == "CatCafe_Camp_Cannon_" .. area then
+			return true
+		end
 		-- the camp set (CatCafe_Camp_Park, CatCafe_Camp_ParkF85), never a camp's station or growth model
 		if tagged(name, "CatCafe_Camp_" .. area) or name == "CatCafe_Nook_" .. area then
 			return true

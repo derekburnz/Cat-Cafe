@@ -47,7 +47,6 @@ return function()
 				{
 					"CatCafe_Street_DealerCart_RingIcon_Decor",
 					"CatCafe_Square_MysteryCart_RingIcon_Decor",
-					"CatCafe_Square_Cannon",
 					"CatCafe_Plot_BackDoor",
 					"CatCafe_Plot_LuckyCat_3",
 					"CatCafe_Town_ArcadeCabinet",
@@ -179,6 +178,23 @@ return function()
 			end
 		)
 
+		it("takes the Cat Cannons, the Town Square's and every camp's (#4601)", function()
+			for _, name in
+				{
+					"CatCafe_Square_Cannon",
+					"CatCafe_Camp_Cannon_Alleyway",
+					"CatCafe_Camp_Cannon_Park",
+					"CatCafe_Camp_Cannon_WaterPark",
+					"CatCafe_Camp_Cannon_Castle",
+				}
+			do
+				expect(ServerOnlyAssets.matches(name)).to.equal(true)
+			end
+			-- not a model today; a part of a cannon or a plain name is left alone
+			expect(ServerOnlyAssets.matches("CatCafe_Camp_Cannon")).to.equal(false)
+			expect(ServerOnlyAssets.matches("CatCafe_Camp_Cannon_Barrel")).to.equal(false)
+		end)
+
 		it("leaves the models a client clones or draws", function()
 			for _, name in
 				{
@@ -187,9 +203,7 @@ return function()
 					"CatCafe_Camp_Snowy_FusionObservatory", -- #4070: a camp's station stays with the client
 					"CatCafe_Camp_Snowy_CocoaStand",
 					"CatCafe_Camp_WaterPark_TicketBooth",
-					"CatCafe_Camp_Cannon_WaterPark",
 					"CatCafe_Camp_Castle_DragonKeep",
-					"CatCafe_Camp_Cannon_Castle",
 					"CatCafe_Furniture_TableRound",
 					"CatCafe_Furniture_Chair",
 					"CatCafe_Cat_Tabby",
@@ -210,7 +224,6 @@ return function()
 					"CatCafe_Plot_ThemeGarden",
 					"CatCafe_Plot_Cafe_Oven",
 					"CatCafe_Cafe_Oven",
-					"CatCafe_Square_Cannon",
 					"CatCafe_Town_FeedbackStand",
 					"CatCafe_Town_ArcadeCabinet",
 					"CatCafe_Town_Gate",

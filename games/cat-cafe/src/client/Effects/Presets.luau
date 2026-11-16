@@ -101,12 +101,14 @@ export type Budget = {
 -- on average over a `window` second window, `windows` windows in a row, not counting the first `after` seconds or
 -- frames longer than `pause` seconds. #4307 (phones leave at 61 to 180 s): it used to need 60 + 2 x 20 = 100 s, past
 -- most of the tutorial, so a struggling phone ran the full budget through its first minutes; now 20 + 2 x 10 = 40 s
--- at the earliest (cutscenes still hold the count, so the intro does not count).
+-- at the earliest (cutscenes still hold the count, so the intro does not count). #4857 read (Nov 16, first 5 minutes
+-- priority): phones average about 49 fps, so "a little laggy" ones (35 to 39) never tripped at 30; now under 40, and
+-- from 10 s in, so the lighter budget can be on by 30 s.
 Presets.slow = {
-	fps = 30,
+	fps = 40, -- 30 before
 	window = 10,
 	windows = 2,
-	after = 20,
+	after = 10, -- 20 before
 	pause = 1,
 }
 
@@ -6507,6 +6509,27 @@ Presets.waitingCat = {
 	},
 }
 
+-- Effects/FirstMinuteFx: the first bowl cat card's sparkle and the first net catch's cheer.
+Presets.firstMinute = {
+	card = {
+		wait = 0.35, -- the card pops in first
+		displayOrder = 36, -- over the bait card (35), under the cat found reveal (40)
+		sparks = 10,
+		sparkle = { size = 14, seconds = 0.6, reach = 46, stagger = 0.15 },
+		rings = 2,
+		ringEvery = 0.25,
+		ringGrow = 2.2,
+		ringSeconds = 0.6,
+		colour = Color3.fromRGB(255, 214, 92),
+	},
+	cheer = {
+		confetti = 0.75, -- of the budget's confetti, from each side
+		side = 3,
+		up = 3,
+		sparkle = 12,
+	},
+}
+
 -- #4920 Effects/RankUpPulse: the RANK UP button's glows when a tier's rank up is first ready, and the strip's tick.
 Presets.rankUpPulse = {
 	displayOrder = 29, -- over the HUD and windows, under toasts (30)
@@ -6817,12 +6840,14 @@ Presets.petCat = {
 -- line in turn. `toes` are x, y, width and height of each toe as shares of the canvas (the pad sits under them).
 -- `turn` turns the drawing on its part, should the toes come out facing the wrong way in Studio.
 Presets.pawTrail = {
-	attribute = "Paws",
+	attribute = "Paws", -- UI's mark; since #4940 every tutorial trail is paws, so it gates nothing
 	home = "CatCafePawTrail",
-	size = 1.7,
+	size = 2.1, -- #4940: bigger for phones (1.7 before)
 	pixels = 64,
 	offset = 0.45,
-	brightness = 1.6,
+	brightness = 2, -- the SurfaceGui ignores light (LightInfluence 0), so this is how it glows at night (1.6 before)
+	faintest = 0.4, -- the comet's tail fades a print no further than this (GuideTrail's tail is 0.75)
+	rim = { colour = Color3.fromRGB(92, 58, 34), pixels = 2, transparency = 0.45 }, -- cocoa, for pale floors
 	turn = 0,
 	toes = {
 		{ 0.2, 0.36, 0.2, 0.26 },

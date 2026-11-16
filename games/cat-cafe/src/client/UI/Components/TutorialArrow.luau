@@ -35,7 +35,9 @@ local BOB_INFO = TweenInfo.new(0.45, Enum.EasingStyle.Sine, Enum.EasingDirection
 local Z = 60 -- over the target's ScreenGui's own pieces (they stay under 30)
 local SPOT_Z = Z - 1 -- #3153: the spotlight's dim, under the arrow and over the rest of the ScreenGui
 
-type Entry = { target: GuiObject, since: number, low: boolean }
+-- `plain` (#4909): a tutorial target that leads the arrow like any other but gets no dim (a card's button: the dim
+-- would darken the card itself)
+type Entry = { target: GuiObject, since: number, low: boolean, plain: boolean? }
 
 local entries: { Entry } = {}
 local arrow: Frame? = nil
@@ -48,6 +50,11 @@ TutorialArrow.EDGES_NAME = "CatCafeTutorialSpotEdges"
 local spotFor: GuiObject? = nil
 local spotSince = 0
 local lead = false
+-- #4920 (Sync's stopwatch runs 2026-11-16: after RANK UP the arrow flashed on the Tutorial tile's X and the goal card
+-- for 0.2 to 0.4 s): a `low` target takes the arrow only once no tutorial target has led for LOW_SETTLE seconds, so
+-- the gap between one step's button and the next (a window opening) never shows it
+TutorialArrow.LOW_SETTLE = 0.8
+local leadAt = -math.huge -- os.clock() when a tutorial (not `low`) target last had the arrow
 local loop: RBXScriptConnection? = nil
 -- the other buttons the arrow should keep off, measured again every OTHERS_SECONDS (a walk of the whole ScreenGui)
 local OTHERS_SECONDS = 0.5
@@ -378,6 +385,12 @@ local function update()
 		hide()
 		return
 	end
+	if not chosen.low then
+		leadAt = now
+	elseif now - leadAt < TutorialArrow.LOW_SETTLE then
+		hide()
+		return
+	end
 	local current = arrow or TutorialArrow.make()
 	arrow = current
 	local px = SIZE * Scale.get()
@@ -416,7 +429,7 @@ local function update()
 	end
 	current.Visible = true
 	lead = not chosen.low
-	if lead then
+	if lead and not chosen.plain then
 		showSpot(into, target, screen, now)
 	else
 		hideSpot() -- the goal card's rank up nudge is no tutorial step: no dim for it
@@ -439,9 +452,10 @@ local function watch()
 	update()
 end
 
-function TutorialArrow.add(target: GuiObject, low: boolean?)
+function TutorialArrow.add(target: GuiObject, low: boolean?, plain: boolean?)
 	for _, entry in entries do
 		if entry.target == target then
+			entry.plain = plain == true
 			-- #4847 follow-up (Sync's camp run: "You can rank up!" with no dim): the goal card's ready nudge adds the
 			-- card as a `low` target first, so the rank up walk-through's spotlight on the same card found it there
 			-- and kept it low, with no dim. A tutorial ask on a low target lifts it.
@@ -452,7 +466,10 @@ function TutorialArrow.add(target: GuiObject, low: boolean?)
 			return
 		end
 	end
-	table.insert(entries, { target = target, since = os.clock(), low = low == true })
+	table.insert(
+		entries,
+		{ target = target, since = os.clock(), low = low == true, plain = plain == true }
+	)
 	watch()
 end
 

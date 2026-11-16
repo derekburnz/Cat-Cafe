@@ -75,6 +75,7 @@ Tips.INVITE_ASK = "invite_ask" -- F92: the one invite nudge, after the first ran
 Tips.NOTIFY_PLAY_SECONDS = 30 * 60
 -- #2553: in a return visit, the notification ask waits this long into the session
 Tips.NOTIFY_RETURN_SECONDS = 5 * 60
+Tips.ASK_PLAY_SECONDS = 5 * 60 -- #4854: the favorite, like and invite asks wait for this much play
 -- The asks in the order `dueAsk` offers them (starter-cat.md section 3's table, then F92's invite nudge).
 Tips.ASKS = table.freeze({ Tips.NOTIFY_ASK, Tips.FAVORITE_ASK, Tips.LIKE_ASK, Tips.INVITE_ASK })
 Tips.FEEDBACK_ASK = "feedback_ask"
@@ -231,6 +232,11 @@ function Tips.dueAsk(
 		return nil
 	end
 	local seen = profile.tipsSeen
+	-- #4854 (Derek 2026-11-16: no favourite, like or invite asks during the tutorial or the first 5 minutes): the
+	-- favorite, like and invite asks also wait for ASK_PLAY_SECONDS of play on the account (the notification ask has
+	-- its own, longer rules below)
+	local played = playSeconds or profile.stats.playtimeSeconds or 0
+	local settled = played >= Tips.ASK_PLAY_SECONDS
 	if
 		seen[Tips.NOTIFY_ASK] ~= true
 		and (Tips.notifyLongPlay(profile, playSeconds) or Tips.notifyReturn(
@@ -241,6 +247,9 @@ function Tips.dueAsk(
 		and (profile.notifyAskAt <= 0 or now - profile.notifyAskAt >= Tips.NOTIFY_RETRY_SECONDS)
 	then
 		return Tips.NOTIFY_ASK
+	end
+	if not settled then
+		return nil
 	end
 	if seen[Tips.FAVORITE_ASK] ~= true and Economy.tier(profile) >= 2 then
 		return Tips.FAVORITE_ASK

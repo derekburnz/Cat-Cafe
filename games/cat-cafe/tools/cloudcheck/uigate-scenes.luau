@@ -5863,7 +5863,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.giftWait.start()
 		local line = UIShim.playerGui:FindFirstChild("GiftWaiting", true) :: TextLabel?
 		assert(line and line.Visible and string.find(line.Text, "super gift", 1, true), "uigate: no gift line (#2614)")
+		-- #4527: the card shows only with the giftCard switch on (off by default)
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_giftCard", true)
 		UI.potions.giftResult("crate", "highest", 1, "Super", 15)
+		game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_giftCard", nil)
 		local card = UIShim.playerGui:FindFirstChild("Gift", true)
 		local title = card and card:FindFirstChild("Title") :: TextLabel?
 		assert(title and string.find(title.Text, "Super gift!", 1, true), "uigate: the gift card's heading (#2614)")

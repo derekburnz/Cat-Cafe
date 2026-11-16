@@ -7,7 +7,7 @@
 --
 -- A name belongs here only when no client script looks its template up, by a written name or a built one. The
 -- client builds names from these stems, so nothing under them may ever match (but a cat's _Work body, which no
--- client names, #4601): CatCafe_Cat_, _Accessory_, _Decor_,
+-- client names, and its seated _Sit body outside CLIENT_SIT, #4601): CatCafe_Cat_, _Accessory_, _Decor_,
 -- _Style_, _Menu_, _Door_, _CatFlap_, _Item_, _Prop_, _NPC_, _Lawn_, _Furniture_, CatCafe_Camp_<Area>_<Station>,
 -- and CatCafe_Camp_<Area>_Growth. The spec pins both sides.
 
@@ -37,6 +37,16 @@ local ANY_AREA_KINDS = { "Set", "Backdrop" }
 local AREA_KINDS = { "Gate", "NightFence" }
 -- families where every model is a world piece: CatCafe_<stem><one word>
 local FAMILIES = { "Alley_Blocker_", "Alley_Building_" }
+
+-- #4601: the seated cat bodies a client script copies from the templates, by a written name: the intro's demo cat
+-- (Intro.DEMO_CAT), the Bellhop Cat (Effects Presets.bellhop.sitModel) and the Mystic Pool intro's silhouette
+-- (Presets.mysticIntro.cat). Every other seated body is the server's alone. The spec pins these three.
+local CLIENT_SIT: { [string]: boolean } = {
+	CatCafe_Cat_Tuxedo_Sit = true,
+	CatCafe_Cat_BellhopCat_Sit = true,
+	CatCafe_Cat_Tabby_Sit = true,
+}
+ServerOnlyAssets.CLIENT_SIT = CLIENT_SIT
 
 local EXACT: { [string]: boolean } = {
 	CatCafe_Alley_NightFence = true,
@@ -170,6 +180,17 @@ function ServerOnlyAssets.matches(name: string): boolean
 	if
 		string.match(name, "^CatCafe_Cat_%w+_Work$") ~= nil
 		or string.match(name, "^CatCafe_Cat_%w+_Gold_Work$") ~= nil
+	then
+		return true
+	end
+	-- #4601: the seated body of every cat (CatCafe_Cat_<Name>_Sit and its _Gold_Sit twin) but the three in
+	-- CLIENT_SIT. The server seats a cat in a cafe, a spa or a museum (AssetRegistry.cloneCat "sit") and clients get
+	-- that placed copy; every client copy of a cat from the templates is the walking body (portraits, the Index,
+	-- cafe walkers, the Rift Run). The one other reader was the Mystic Pool's floating cat, which now falls back to
+	-- the walking body (Effects/MysticPool). 134 base models, about 13,300 instances, a sixth of the client download.
+	if
+		(string.match(name, "^CatCafe_Cat_%w+_Sit$") ~= nil and not CLIENT_SIT[name])
+		or string.match(name, "^CatCafe_Cat_%w+_Gold_Sit$") ~= nil
 	then
 		return true
 	end

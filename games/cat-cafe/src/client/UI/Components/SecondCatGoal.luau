@@ -99,6 +99,11 @@ function SecondCatGoal.view(
 			chip = title,
 		}
 	end
+	-- #4920 (Design-Agent's check-in spec, comment 6927771103): bowl first, the strip already says the goal and why
+	-- ("Catch 1 more cat to rank up!", #4928), so the card is its title only: no hook and no preview lines
+	if first then
+		return { title = title, hook = nil, lines = {}, chip = title }
+	end
 	local free = now ~= nil and with ~= nil and with > now -- a job is free and a second cat would earn
 	local hook: string? = nil
 	local lines: { string } = {}

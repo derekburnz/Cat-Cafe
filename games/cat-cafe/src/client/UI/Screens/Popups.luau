@@ -70,6 +70,7 @@ export type Popups = {
 }
 
 local CAT_AUTO_CLOSE = 5
+local QUICK_CLOSE = 2.5 -- #4920: a Tier 1 player's card (CatFoundExtra.quick)
 local GIFT_AUTO_CLOSE = 4
 local OFFLINE_W = 380 -- the welcome back card
 local OFFLINE_H = 260
@@ -774,7 +775,7 @@ function Popups.showCatFound(
 				Rotation = 45 + 180,
 			})
 		end
-		task.delay(CAT_AUTO_CLOSE, function()
+		task.delay(if info.quick == true then QUICK_CLOSE else CAT_AUTO_CLOSE, function()
 			if self._token == token then
 				self:dismiss()
 			end

@@ -130,7 +130,7 @@ Catalog.catRarityOrder =
 	{ "Common", "Rare", "Epic", "Legendary", "Mythical", "Secret" } :: { Types.Rarity }
 Catalog.SECRET = "Secret" :: Types.Rarity
 -- #3470: the share of rolled Mythicals that turn Secret (wild strays, bait and rescues), so a source's Secret chance
--- is its Mythical chance over 100 and no other rarity moves. Only while the `secretCats` switch is on.
+-- is its Mythical chance over 100 and no other rarity moves. (Its `secretCats` switch is retired since #4654 batch 5.)
 Catalog.secretPerMythical = 0.01
 
 -- Data-model v0.13.7 (Derek 2026-10-28 01:50: "just make the base money generation more from further areas"): a
@@ -3224,7 +3224,6 @@ Catalog.achievements = {
 		measure = "dashRuns",
 		needs = 10,
 		size = "M",
-		flag = "mouseDash",
 	},
 	{
 		id = "a_secret1",
@@ -3233,7 +3232,6 @@ Catalog.achievements = {
 		measure = "secretCats",
 		needs = 1,
 		size = "L",
-		flag = "secretCats",
 	},
 	{
 		id = "a_secret3",
@@ -3242,7 +3240,6 @@ Catalog.achievements = {
 		measure = "secretCats",
 		needs = 3,
 		size = "XL",
-		flag = "secretCats",
 	},
 	{
 		id = "a_rest1h",
@@ -3251,7 +3248,6 @@ Catalog.achievements = {
 		measure = "restSeconds",
 		needs = 3600,
 		size = "M",
-		flag = "afkCafe",
 	},
 	{
 		id = "a_goldcrate5",
@@ -6029,7 +6025,7 @@ Catalog.mysteryItems = {
 		minTier = 2,
 		kind = "tool",
 	},
-	-- #3535: carry speed only (shared/SpeedShoes); hidden and not sold while its live switch is off
+	-- #3535: carry speed only (shared/SpeedShoes); its live switch is retired since #4654 batch 7
 	{
 		id = "speed_shoes",
 		name = "Speed Shoes",
@@ -6037,7 +6033,6 @@ Catalog.mysteryItems = {
 		cost = 500,
 		minTier = 1,
 		kind = "tool",
-		flag = "speedShoes",
 	},
 } :: { Types.MysteryItem }
 

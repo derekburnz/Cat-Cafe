@@ -81,8 +81,6 @@ local function shownLeft(left: number, now: number): number
 	return Bait.frenzyShown(left, view.bowlSpeed, view.endsAt - now)
 end
 
-local CART_FLAG = "cartTier6" -- shared/CornerShop.TOP_SHELF_FLAG
-
 export type Callbacks = {
 	useLure: (lureId: string, bowl: number) -> (), -- #1161: into bowl 1 or 2
 	openUpgrades: () -> (),
@@ -1231,11 +1229,8 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 			end
 		end
 	end
-	-- #3462: the Day Cart's own foods stay off the list until its Tier 6 shelf is open (the `cartTier6` switch)
-	local cartOpen = LiveFlags.shown(
-		CART_FLAG,
-		ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. CART_FLAG)
-	)
+	-- #3462: the Day Cart's own foods are listed (#4654 batch 4: the `cartTier6` switch that hid them is retired)
+	local cartOpen = true
 	for lureId, row in self._rows do
 		local have = state.lures[lureId] or 0
 		-- the locked tab shows what bowl 2 gives in place of the foods

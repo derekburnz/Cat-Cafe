@@ -439,7 +439,7 @@ local function onBuyFishItem(player: Player, rawItemId: unknown)
 		and (profile.fishPerks[itemId] or 0)
 			>= SwiftPaws.topLevel(
 				row.maxLevel or 1,
-				LiveFlagService.on(SwiftPaws.FLAG_FIVE),
+				true, -- #4654 batch 7: the `swiftPaws5` switch is retired
 				LiveFlagService.on(SwiftPaws.FLAG_TEN)
 			)
 	then

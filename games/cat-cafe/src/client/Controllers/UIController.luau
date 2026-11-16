@@ -897,21 +897,14 @@ local function watchPalJoin()
 	end)
 end
 
--- #3995 (friend-join-3995.md 4 to 6): PalArrived with the palJoin switch on. The joiner's note waits a moment for the
+-- #3995 (friend-join-3995.md 4 to 6): PalArrived (#4654 batch 8: its `palJoin` switch is retired). The joiner's note waits a moment for the
 -- server's PalNextDoor attribute (it is set once the save and the plot are in), then shows; a new joiner next door
 -- gets the strip's next-door line. The friend gets their note at once.
 function UIController.palJoined(joinerId: number, palId: number)
 	if joinerId ~= player.UserId and palId ~= player.UserId then
 		return
 	end
-	local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
 	local PalJoin = require(Shared:WaitForChild("PalJoin")) :: any
-	local key: string = PalJoin.FLAG
-	if
-		not LiveFlags.shown(key, ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key))
-	then
-		return
-	end
 	local hook: unknown = (UI :: any).palJoined
 	if type(hook) ~= "function" then
 		return
@@ -2371,26 +2364,18 @@ local function bindStations()
 		table.insert(arcadePrompts, prompt)
 		prompt.Enabled = arcadeOn()
 	end)
-	-- #3296: `mouseDash` on makes Mouse Dash the arcade's game (#4656: the only one, Circle Streak is gone)
-	local function flagOn(key: string): boolean
-		local LiveFlags = require(Shared:WaitForChild("LiveFlags")) :: any
-		return LiveFlags.shown(
-			key,
-			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. key)
-		)
-	end
+	-- #3296: Mouse Dash is the arcade's game (#4656: the only one, Circle Streak is gone; #4654 batch 9: its
+	-- `mouseDash` switch is retired)
 	local function applyArcade()
 		local on = arcadeOn()
-		local dash = on and flagOn("mouseDash")
+		local dash = on
 		UI.arcade.setOn(on, dash)
 		UI.mouseDash.setFlags(dash)
 		for _, prompt in arcadePrompts do
 			prompt.Enabled = dash
 		end
 	end
-	for _, key in { Arcade.FLAG, "mouseDash" } do
-		ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. key):Connect(applyArcade)
-	end
+	ReplicatedStorage:GetAttributeChangedSignal("LiveFlag_" .. Arcade.FLAG):Connect(applyArcade)
 	applyArcade()
 end
 

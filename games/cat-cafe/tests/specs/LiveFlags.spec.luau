@@ -50,8 +50,8 @@ return function()
 		end)
 
 		it("an off-by-default switch reads off until the server has copied it out", function()
-			expect(LiveFlags.shown("secretCats", nil)).to.equal(false)
-			expect(LiveFlags.shown("secretCats", true)).to.equal(true)
+			expect(LiveFlags.shown("goldenDrops", nil)).to.equal(false)
+			expect(LiveFlags.shown("goldenDrops", true)).to.equal(true)
 		end)
 	end)
 
@@ -133,7 +133,7 @@ return function()
 		end)
 
 		it(
-			"starts off with nightCatch, loadingScreen, goldenDrops, swiftPaws5, swiftPaws10, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, introSplit, parkGateTrail, rankUpSpotlight, bagColours, speedShoes, storeRework, quietAway, rareCustomers, goldTone, palJoin, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox, fusion, giftCard and storeGuard alone beside it",
+			"starts off with nightCatch, loadingScreen, goldenDrops, swiftPaws10, luckyCharm, introSplit, parkGateTrail, storeRework, rareCustomers, goldTone, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox, fusion, giftCard and storeGuard alone beside it",
 			function()
 				local count = 0
 				for key in LiveFlags.OFF_BY_DEFAULT do
@@ -143,29 +143,16 @@ return function()
 							or key == "nightCatch"
 							or key == "loadingScreen"
 							or key == "goldenDrops"
-							or key == "swiftPaws5"
 							or key == "swiftPaws10"
-							or key == "mouseDash"
-							or key == "cartTier6"
-							or key == "secretCats"
 							or key == "luckyCharm"
-							or key == "rareCatsTab"
-							or key == "afkCafe"
-							or key == "autoRejoin"
-							or key == "binRoll"
 							or key == "introSplit"
 							or key == "parkGateTrail"
-							or key == "rankUpSpotlight"
-							or key == "bagColours"
-							or key == "speedShoes"
 							or key == "storeRework"
-							or key == "quietAway"
 							or key == "fishStore"
 							or key == "ticketBooth"
 							or key == "dragonKeep"
 							or key == "rareCustomers"
 							or key == "goldTone"
-							or key == "palJoin"
 							or key == "dailyDeal"
 							or key == "starterSuggest"
 							or key == "updateFeature"
@@ -188,15 +175,7 @@ return function()
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(46) -- #4654: 56 less the 12 shipped switches retired in batches 1 to 3 and riftRun, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544)
-				-- #3462 and #3470: new saved ids stay off until every server knows them
-				expect(LiveFlags.defaults().cartTier6).to.equal(false)
-				expect(LiveFlags.defaults().secretCats).to.equal(false)
-				expect(LiveFlags.parse({ cartTier6 = true }).cartTier6).to.equal(true)
-				expect(LiveFlags.parse({ secretCats = "yes" }).secretCats).to.equal(false)
-				-- #3296: no Mouse Dash until QA passes and it is switched on
-				expect(LiveFlags.defaults().mouseDash).to.equal(false)
-				expect(LiveFlags.parse({ mouseDash = true }).mouseDash).to.equal(true)
+				expect(count).to.equal(33) -- #4654: 56 less the 12 shipped switches retired in batches 1 to 3 and riftRun, plus giftCard (#4527) and storeGuard (#4472), less menuFamily (#4657), plus journeys (#4544), less the 13 in batches 4 to 10
 				-- #4654: the shipped stuckCall and fxLite switches are gone
 				expect(table.find(LiveFlags.KEYS, "stuckCall")).to.equal(nil)
 				expect(table.find(LiveFlags.KEYS, "fxLite")).to.equal(nil)

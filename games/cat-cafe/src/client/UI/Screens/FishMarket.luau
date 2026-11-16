@@ -2028,11 +2028,8 @@ function FishMarket._refresh(self: any)
 		local row = entry.row
 		entry.frame.Visible = rowShown(row)
 		if row.id == SwiftPaws.ID then
-			-- #3317: levels 3 to 5 show once their switch (copied to ReplicatedStorage) is on
-			local fiveOn = LiveFlags.shown(
-				SwiftPaws.FLAG_FIVE,
-				ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. SwiftPaws.FLAG_FIVE)
-			)
+			-- #3317: levels 3 to 5 always show (#4654 batch 7: their `swiftPaws5` switch is retired)
+			local fiveOn = true
 			-- #4705: and levels 6 to 10 once theirs is
 			local tenOn = LiveFlags.shown(
 				SwiftPaws.FLAG_TEN,

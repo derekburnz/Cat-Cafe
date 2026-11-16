@@ -3912,14 +3912,7 @@
        },
        "attributes": {
         "Rojo_Id": "CatCafe_Cat_Glitch_Sit/9",
-        "Follows": "Head",
-        "GoldColor": {
-         "Color3": [
-          1.0,
-          0.4196,
-          0.5059
-         ]
-        }
+        "Follows": "Head"
        }
       },
       {
@@ -4127,14 +4120,7 @@
         "BottomSurface": "Smooth"
        },
        "attributes": {
-        "Follows": "Head",
-        "GoldColor": {
-         "Color3": [
-          0.5608,
-          0.8275,
-          0.7569
-         ]
-        }
+        "Follows": "Head"
        }
       },
       {

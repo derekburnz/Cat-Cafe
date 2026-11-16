@@ -14,7 +14,7 @@
 -- the next fixed prize, then the chances, before the press (RummageBin.note; monetization-policy section 2; nothing
 -- here is sold or sped up, and no timer shows: Monetization-Agent 11-10).
 -- #3458: the bar needs BinHits hits, its own number.
--- #3608, behind the `binRoll` switch (RummageBin.ROLL_FLAG): the prize is rolled BEFORE the bar, from
+-- #3608 (its `binRoll` switch retired in #4654 batch 4): the prize is rolled BEFORE the bar, from
 -- Config.BinRollTable, and kept in the save's `prize` (a row id) until the player wins it: a miss, a leave or a
 -- rejoin never loses or rerolls it. The server tells the client the row and how it came (MODE_ROLL: just rolled,
 -- play the roll; MODE_WAITING: it was waiting, straight to the bar) with the BinRolled remote, then sends the bar
@@ -42,14 +42,13 @@ RummageBin.NAME = "Rummage Bin"
 RummageBin.ACTION = "Rummage"
 RummageBin.EMPTY = "Empty for now 🐾" -- no countdown (Monetization-Agent 11-10)
 RummageBin.TRAP = "rummage_bin" -- the challenge's trap type: a plain bar
-RummageBin.ROLL_FLAG = "binRoll" -- LiveFlags, off by default
 RummageBin.PRIZE_ATTRIBUTE = "BinPrize" -- on the Player: the waiting prize's row id, for the board (nil: none)
 RummageBin.MODE_ROLL = "roll"
 RummageBin.MODE_FIXED = "fixed"
 RummageBin.MODE_WAITING = "waiting"
 RummageBin.RANGE_STUDS = 10 -- the prompt's reach; the server allows a little past it
 RummageBin.PAD_HEIGHT = 8 -- studs over or under the pad that still count as standing on it (#3680)
-RummageBin.PAD_FIRST = "Step onto the circle to rummage" -- #3680: a press from off the pad, `binRoll` on
+RummageBin.PAD_FIRST = "Step up to the bin to rummage" -- #3680: a press from off the pad
 local RARITY: Types.Rarity = "Common"
 RummageBin.RARITY = RARITY -- the bar's pace
 

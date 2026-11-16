@@ -42,7 +42,10 @@ HarvestWorld.CENTER = Vector3.new(-2400, 0, -2400)
 -- The arch in the Town Square's north-west quarter, facing the cannon (Model-Agent's world scan on #4397): 2 studs or
 -- more clear all round, with a 12 wide path from the opening to the cannon between the Arcade Cabinet's ring and the
 -- Spin Wheel's. (-46, 30) had the Arcade Cabinet 6.5 studs in front of the opening.
-HarvestWorld.ARCH_AT = Vector3.new(-42, 0.1, 38)
+-- #4667 moved the quarter's stations to its west edge (x -50: Arcade Cabinet at z 28.6, Spin Wheel at 48.75, the Rally
+-- board at 68.9), which put the Spin Wheel 13.4 studs from (-42, 38); the arch now stands in the quarter's open middle,
+-- 22 studs or more from each, off the street's line and the lane, still facing the cannon.
+HarvestWorld.ARCH_AT = Vector3.new(-30, 0.1, 40)
 HarvestWorld.AREA_EARLY_SECONDS = 3600 -- built this long before it opens, so the first trip never waits on it
 HarvestWorld.ARCH_EARLY_SECONDS = 86400 -- the arch and its countdown from a day before (the update countdown's 24 hours)
 

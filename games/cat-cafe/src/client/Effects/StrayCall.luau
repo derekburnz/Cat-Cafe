@@ -4,7 +4,8 @@
 -- stray the server keeps waiting for their second cat (number attribute `WaitsFor` = their UserId, shared/SecondCat)
 -- does a "come here" every few seconds while they are within Presets.motion.beckon.near studs: a couple of small hops,
 -- its head turned to them and tipped up, tail up and flicking (Logic.beckon, drawn by Cats). VFX-Agent's WaitingCat
--- draws the sparkles, rings and paw badge over the same cat. Off with Reduce Motion. Listening only.
+-- draws the sparkles, rings and paw badge over the same cat. Off with Reduce Motion, and while the bowl step is the
+-- one ask (#4384, WaitingCat.held). Listening only.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -15,6 +16,7 @@ local Cats = require(script.Parent.Cats)
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
 local Presets = require(script.Parent.Presets)
+local WaitingCat = require(script.Parent.WaitingCat)
 
 local StrayCall = {}
 
@@ -52,7 +54,7 @@ end
 local function step(attribute: string)
 	local b = Presets.motion.beckon
 	local now = os.clock()
-	if now - lastAt < b.every or Context.reducedMotion() then
+	if now - lastAt < b.every or Context.reducedMotion() or WaitingCat.held() then
 		return
 	end
 	local focus = Context.focus()

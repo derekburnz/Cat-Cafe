@@ -190,10 +190,9 @@ local function questStat(catalog: Types.Catalog?, id: string): string?
 	return nil
 end
 local PENDING_SECONDS = 2 -- ClaimQuest and ClaimAchievement take 2 a second, RerollQuest 1
--- #4025 (Derek 2026-11-13: "ui with weekly the quests blend in and is hard to see", daily and achievements too): a
--- claimed card stays a light card, a shade darker than the cream, so its ink title, count and prize words still read;
--- the green "✓ Claimed" and its place at the bottom say it is done
-local CLAIMED_CARD = Color3.fromHex("E6DAC6")
+-- #4600 (Derek 2026-11-15: "the annoying white highlight of quests when being finished is not needed"): a claimed card
+-- keeps the same card as the others (the light E6DAC6 of #4025 lit up under the dark look and washed its words out);
+-- the green "✓ Claimed", the gold bar and its place at the bottom say it is done
 local CLAIM_HOLD = 4 -- how long a claim shows as done with no sync before it goes back to Claim
 local SYNC_GRACE = 0.5 -- a sync this soon after a press may predate it (one round trip)
 local CLAIM_ALL_W = 150 -- fits right of the three tabs at the window's narrowest (636 px of tab row)
@@ -456,7 +455,7 @@ function Quests.new(callbacks: Callbacks): Quests
 		style = "primary",
 		size = UDim2.fromOffset(CLAIM_ALL_W, tabHeight),
 		-- Review-QA's Studio pass 2026-11-13: cut to "Claim al" on a phone in the family look
-		textSize = if MenuFamily.on() then Theme.sizes.textSmall + 1 else Theme.sizes.textBody,
+		textSize = Theme.sizes.textSmall + 1,
 		anchorPoint = Vector2.new(1, 0),
 		position = UDim2.fromScale(1, 0),
 		parent = content,
@@ -607,26 +606,23 @@ end
 
 function Quests._buildRow(self: any, kind: string, slot: number, parent: Instance): QuestRow
 	local frame = card("Quest" .. slot, UDim2.new(1, 0, 0, ROW), parent, 10 + slot)
-	local family = MenuFamily.on()
 	local left = 14
 	local picture: TextLabel? = nil
-	if family then
-		local tile: TextLabel = text({
-			Name = "Picture",
-			AnchorPoint = Vector2.new(0, 0.5),
-			Position = UDim2.new(0, 10, 0.5, 0),
-			Size = UDim2.fromOffset(QUEST_PICTURE, QUEST_PICTURE),
-			BackgroundTransparency = 0,
-			BackgroundColor3 = CREAM.line,
-			TextXAlignment = Enum.TextXAlignment.Center,
-			TextSize = 26,
-			Text = "📜",
-			Parent = frame,
-		})
-		Create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = tile })
-		picture = tile
-		left = 10 + QUEST_PICTURE + 10
-	end
+	local tile: TextLabel = text({
+		Name = "Picture",
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 10, 0.5, 0),
+		Size = UDim2.fromOffset(QUEST_PICTURE, QUEST_PICTURE),
+		BackgroundTransparency = 0,
+		BackgroundColor3 = CREAM.line,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextSize = 26,
+		Text = "📜",
+		Parent = frame,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = tile })
+	picture = tile
+	left = 10 + QUEST_PICTURE + 10
 	local title = text({
 		Name = "Title",
 		Position = UDim2.fromOffset(left, 10),
@@ -640,8 +636,8 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 	-- there the bar is shorter and the chips end a clear gap before the button
 	-- Studio again (5e74d9b4): Roblox draws the "+1" wider than the chips' fit allows at the 9 px floor, so on a 667 x 375
 	-- window it ran 4 px under CLAIM; the chips now stop 34 px short of CLAIM, the widest of the two buttons
-	local split = if family then 0.34 else 0.42
-	local gap = if family then 44 else 16
+	local split = 0.34
+	local gap = 44
 	local fill = bar(frame, UDim2.fromOffset(left, 48), UDim2.new(split, -left, 0, BAR))
 	local count = text({
 		Name = "Count",
@@ -678,7 +674,7 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 	local actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth) -- 64 of the 80 on a phone
 	local claim = Button.new({
 		name = "Claim",
-		text = if family then "CLAIM" else "Claim",
+		text = "CLAIM",
 		style = "primary",
 		size = UDim2.fromOffset(ACTION_W, actionHeight),
 		anchorPoint = Vector2.new(1, 0.5),
@@ -690,11 +686,11 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 	})
 	local swap = Button.new({
 		name = "Swap",
-		text = if family then "SWAP" else "Swap",
+		text = "SWAP",
 		icon = "🔄",
-		style = if family then "sky" else "ghost",
+		style = "sky",
 		textSize = Theme.sizes.textSmall,
-		size = UDim2.fromOffset(if family then SWAP_W + 16 else SWAP_W, SWAP_H),
+		size = UDim2.fromOffset(SWAP_W + 16, SWAP_H),
 		anchorPoint = Vector2.new(1, 0.5),
 		position = actionPosition,
 		parent = frame,
@@ -993,7 +989,7 @@ function Quests._renderRow(
 		Tween.popIn(row.check, 0.6)
 	end
 	row.claimed = claimed
-	row.frame.BackgroundColor3 = if claimed then CLAIMED_CARD else CREAM.card
+	row.frame.BackgroundColor3 = CREAM.card
 	row.frame.LayoutOrder = QuestLogic.rowOrder(slot, claimed)
 end
 
@@ -1058,9 +1054,8 @@ function Quests._renderAchievements(self: any, state: Types.PlayerState, look: P
 			Tween.popIn(entry.check, 0.6)
 		end
 		entry.claimed = row.claimed
-		entry.frame.BackgroundColor3 = if row.claimed
-			then CLAIMED_CARD
-			elseif row.ready then CREAM.goldCard
+		entry.frame.BackgroundColor3 = if row.ready and not row.claimed
+			then CREAM.goldCard
 			else CREAM.card
 		if row.ready then
 			ready += 1

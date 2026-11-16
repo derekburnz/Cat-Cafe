@@ -45,25 +45,21 @@ return function()
 			end
 		)
 
-		it(
-			"rolls without Secret while its switch is off: Mythic 5 and six rarities (#3908)",
-			function()
-				expect(Traits.SECRET_FLAG).to.equal("secretTrait")
-				local off = Traits.rarities(false)
-				expect(#off).to.equal(6)
-				expect(off[6].id).to.equal("mythic")
-				expect(off[6].odds).to.equal(5)
-				expect(Traits.rarities() :: any).to.equal(off)
-				expect(Traits.rarities(true) :: any).to.equal(Traits.RARITIES)
-				-- the shared row is never changed by the copy
-				expect(Traits.RARITIES[6].odds).to.equal(4.9)
-				local total = 0
-				for _, rarity in off do
-					total += rarity.odds
-				end
-				expect(total).to.equal(100)
+		it("rolls without Secret when asked to: Mythic 5 and six rarities (#3908)", function()
+			local off = Traits.rarities(false)
+			expect(#off).to.equal(6)
+			expect(off[6].id).to.equal("mythic")
+			expect(off[6].odds).to.equal(5)
+			expect(Traits.rarities() :: any).to.equal(off)
+			expect(Traits.rarities(true) :: any).to.equal(Traits.RARITIES)
+			-- the shared row is never changed by the copy
+			expect(Traits.RARITIES[6].odds).to.equal(4.9)
+			local total = 0
+			for _, rarity in off do
+				total += rarity.odds
 			end
-		)
+			expect(total).to.equal(100)
+		end)
 
 		it("prints odds as whole percents or tenths", function()
 			expect(Traits.percentText(30)).to.equal("30%")
@@ -183,10 +179,10 @@ return function()
 			expect(#Traits.effectLines(t("nothing"))).to.equal(0)
 		end)
 
-		it("is behind the traits flag, off until switched on", function()
-			expect(Traits.FLAG).to.equal("traits")
-			expect(table.find(LiveFlags.KEYS, Traits.FLAG) ~= nil).to.equal(true)
-			expect(LiveFlags.OFF_BY_DEFAULT[Traits.FLAG]).to.equal(true)
+		it("has no switch any more (#4654 batch 3)", function()
+			expect(table.find(LiveFlags.KEYS, "traits")).to.equal(nil)
+			expect(table.find(LiveFlags.KEYS, "secretTrait")).to.equal(nil)
+			expect(table.find(LiveFlags.KEYS, "traitBundles")).to.equal(nil)
 		end)
 	end)
 
@@ -467,6 +463,70 @@ return function()
 			local view = Traits.view(save)
 			expect(view.freeLeft).to.equal(5)
 			expect(view.nextAt).to.equal(5 * Traits.TOKEN_EVERY_SECONDS)
+		end)
+	end)
+
+	describe("trait luck (the Dragon Keep's Trait Spark)", function()
+		local function total(list: { any }): number
+			local tenths = 0
+			for _, rarity in list do
+				tenths += math.floor(rarity.odds * 10 + 0.5)
+			end
+			return tenths
+		end
+		local function oddsOf(list: { any }, id: string): number
+			for _, rarity in list do
+				if rarity.id == id then
+					return rarity.odds
+				end
+			end
+			return -1
+		end
+
+		it("still adds up to 100 with and without Secret, at 15% and at the cap", function()
+			for _, secret in { false, true } do
+				for _, luck in { 0.15, 0.30, 5 } do
+					expect(total(Traits.rarities(secret, luck))).to.equal(1000)
+				end
+			end
+		end)
+
+		it(
+			"lifts Epic, Legendary and Mythic, takes it from Common, keeps Rare and Secret",
+			function()
+				local base = Traits.rarities(true)
+				local lucky = Traits.rarities(true, 0.15)
+				expect(oddsOf(lucky, "epic")).to.equal(13.8)
+				expect(oddsOf(lucky, "legendary")).to.equal(11.5)
+				expect(oddsOf(lucky, "mythic")).to.be.near(5.6, 1e-9)
+				expect(oddsOf(lucky, "rare")).to.equal(oddsOf(base, "rare"))
+				expect(oddsOf(lucky, "secret")).to.equal(0.1)
+				expect(oddsOf(lucky, "common") < oddsOf(base, "common")).to.equal(true)
+				expect(oddsOf(lucky, "uncommon")).to.equal(oddsOf(base, "uncommon"))
+			end
+		)
+
+		it("holds trait luck to LUCK_MAX and leaves the odds alone at 0", function()
+			expect(Traits.rarities(false, 0) :: any).to.equal(Traits.rarities(false))
+			expect(Traits.rarities(false, nil) :: any).to.equal(Traits.rarities(false))
+			local capped = Traits.rarities(false, 5)
+			local max = Traits.rarities(false, Traits.LUCK_MAX)
+			expect(oddsOf(capped, "epic")).to.equal(oddsOf(max, "epic"))
+		end)
+
+		it("rolls with the same odds the text shows", function()
+			-- Common is the first of the 1000 tenths, less the lift the three rare ones got
+			local lucky = Traits.rarities(false, 0.15)
+			local common = math.floor(oddsOf(lucky, "common") * 10 + 0.5)
+			expect((Traits.rarity(Traits.roll(answers({ common, 1 }), false, 0.15)) :: any).id).to.equal(
+				"common"
+			)
+			expect((Traits.rarity(Traits.roll(answers({ common + 1, 1 }), false, 0.15)) :: any).id).to.equal(
+				"uncommon"
+			)
+			expect(string.find(Traits.oddsText(false, 0.15), "Epic 13.8%", 1, true) ~= nil).to.equal(
+				true
+			)
 		end)
 	end)
 end

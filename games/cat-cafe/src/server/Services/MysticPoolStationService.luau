@@ -10,7 +10,6 @@ local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 
-local LiveFlagService = require(script.Parent.LiveFlagService)
 local Traits = require(ReplicatedStorage.Shared.Traits)
 local WalkUp = require(ReplicatedStorage.Shared.WalkUp)
 
@@ -65,12 +64,12 @@ local function put(station: Station, standing: boolean)
 	end
 end
 
--- One pass: the pool stands while the switch is on. Returns whether the pool is the one standing.
+-- One pass: the pool stands (#4654 batch 3: no `traits` switch any more). Returns whether the pool is the one standing.
 function MysticPoolStationService.apply(): boolean
 	if not find() then
 		return false
 	end
-	local on = LiveFlagService.on(Traits.FLAG)
+	local on = true
 	if shown ~= on then
 		shown = on
 		put(pool :: Station, on)
@@ -78,7 +77,7 @@ function MysticPoolStationService.apply(): boolean
 	return on
 end
 
--- Whether the pool stands right now. False while the switch is off, and also when the pool was never built (no art).
+-- Whether the pool stands right now. False when the pool was never built (no art).
 function MysticPoolStationService.standing(): boolean
 	return shown == true
 end

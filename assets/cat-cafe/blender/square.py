@@ -64,7 +64,7 @@ import math
 
 from alleyway import _arch, flower_clump, label, lantern
 from common import RB
-from plot import SQUARE_HALF_D, TOWN_EDGE_X, rot_x, rot_y, rot_z
+from plot import SQUARE_EDGE_X, SQUARE_HALF_D, rot_x, rot_y, rot_z
 
 SQ_W, SQ_D = 60.0, SQUARE_HALF_D               # the square's half width (x) and half depth (z): 48 x 32 until #2707,
                                                # 48 x 44 until #3001 (Derek2 11-10)
@@ -73,10 +73,10 @@ LANE, CROSS = 8.0, 6.0                         # half widths of the street's lin
 # #3001: the square grew to |x| 60 inside the same town edge (69), so the beds are 7 deep and stand against the wall's
 # inner face (67.5), x 60.5 to 67.5, centred on 64; 58.5 with 12 deep beds before.
 GARDEN_D = 7.0
-GARDEN_CX = TOWN_EDGE_X - 1.5 - GARDEN_D / 2
+GARDEN_CX = SQUARE_EDGE_X - 1.5 - GARDEN_D / 2
 BORDER, KERB = 2.0, 0.6
-TILE_X, TILE_Z, JOINT = 3.8, 4.0, 0.14
-PAVER_L, PAVER_W = 3.7, 2.0                    # across the walk, along the walk
+TILE_X, TILE_Z, JOINT = 4.2, 4.4, 0.14         # #4532: 3.8 x 4.0 until the 180 deep square (the triangle budget)
+PAVER_L, PAVER_W = 3.7, 2.2                    # across the walk, along the walk
 STONE = 0.02                                   # stones on the slab: 0 to 0.02 above the pivot (world 0.1 to 0.12)
 MED_R = 11.6                                   # the compass medallion's brick ring
 POINT_TIP = 13.6                               # paw paths start past this (Layout.pawPrints, PAW_START 14.5)
@@ -88,7 +88,7 @@ ARCH_LAMP = 24.5                               # the lamps beside the sign arche
 LAMP_STEP = (EDGE_X - ARCH_LAMP) / 2           # #3001: 17.25 lamp to lamp along the north and south sides, two spans a
                                                # quarter (one of 22.5 before); a span is 0.5 less
 LANE_LAMP = 8.5                                # the lamps either side of the lane's ends
-SIDE_SPANS = 3                                 # #3070: three spans a quarter on the east and west sides (two before)
+SIDE_SPANS = 4                                 # #4532: four spans a quarter on the east and west sides (three in #3070)
 SIDE_STEP = (EDGE_Z - LANE_LAMP) / SIDE_SPANS  # lamp to lamp along the east and west sides: 20.17 since #3070
 BUNTING_SPAN, SHORT_SPAN = LAMP_STEP - 0.5, 16.5   # the north and south spans (16.75; 22 before #3001), and the short
                                                # one across each end of the lane

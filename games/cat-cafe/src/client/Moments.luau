@@ -40,8 +40,6 @@ local Moments = {
 	-- moved to another one
 	UnplaceCat = Signal.new() :: Signal.Signal<string>, -- (uid) a sync shows a cat off its role; Unequip all fires
 	-- one per cat in the same frame
-	-- #2952: (uid) a cat this player asked to sell (SellCat) is gone from the next sync; a refused sale stays quiet
-	CatSold = Signal.new() :: Signal.Signal<string>,
 	TipJarClaim = Signal.new() :: Signal.Signal<number>, -- (step) a TipJarState shows this step newly claimed (F47)
 	IndexReward = Signal.new() :: Signal.Signal<string, string>, -- (areaId, milestoneId) a sync shows this Index
 	-- reward newly claimed (F48)
@@ -149,11 +147,8 @@ local Moments = {
 	-- #2946: (bowl position, seconds) the first bait's cat starts eating in its cutscene (Effects/FirstBaitCut), for
 	-- the purr at the bowl (Sound, #2951).
 	FirstBaitEat = Signal.new() :: Signal.Signal<Vector3, number?>,
-	-- #3062 Cat Arcade (Circle Streak), fired by UIController's arcade window for the sounds (Sound, #3244): a run begins
-	-- (the fish is paid), every 10 points, and the run ends with (points, won).
-	ArcadeStart = Signal.new() :: Signal.Signal<()>,
-	ArcadeMilestone = Signal.new() :: Signal.Signal<number>,
-	ArcadeEnd = Signal.new() :: Signal.Signal<number, boolean>,
+	-- #3062 Circle Streak's ArcadeStart, ArcadeMilestone and ArcadeEnd went with the game (#4722); UIController's
+	-- arcadeMoment skips a name with no signal.
 	-- #3296 Mouse Dash (the second Cat Arcade game), fired by UIController's Mouse Dash window for the sounds
 	-- (Audio's handlers of the same names). They were missing here at the 2026-11-12 launch, so UIController found
 	-- no signal to fire and the game was silent. A run begins; one pops up (kind "mouse", "golden" or "kitten");

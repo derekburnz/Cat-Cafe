@@ -1,8 +1,9 @@
 --!strict
 -- Fast travel (features F19; v4, F84, hometown-cannon.md section 5): the HUD's Home and Cannon buttons fire
 -- Travel(destination). "home" goes to the player's front door from anywhere, as a cloud hop from a wild area;
--- "cannon" goes at once to the front of the nearest Cat Cannon, facing it: the Town Square's in town, the camp's in
--- a wild area. Area travel is by cannon only (CannonService). The server checks the player is not carrying a cat,
+-- "cannon" goes at once to the front of the nearest Cat Cannon, facing it: the Town Square's in town (just outside
+-- its ring since #4509, so it is a shortcut to the square too), the camp's in a wild area. Area travel is by cannon
+-- only (CannonService). The server checks the player is not carrying a cat,
 -- mid catch or rescue (leaving would be a Miss, reviewer N47), in a flight or knocked down by a tackle (the same
 -- TackledDownSeconds refusal as the cannon, N281), and that TravelCooldownSeconds have passed. Every answer goes back as TravelResult. At night NightService sends anyone in a wild area home with
 -- sendHome, the same cloud hop.

@@ -758,7 +758,8 @@ function TradeBook.view(
 		crateBlocked = if crates ~= nil then crates.blocked else {},
 		cratesOn = crates ~= nil and crates.on,
 		fishOn = fish ~= nil and fish.on,
-		fishRoom = if fish ~= nil then fish.room else 0,
+		-- #4623: nil while there is no daily cap (math.huge), which the client reads as no limit
+		fishRoom = if fish == nil then 0 elseif fish.room == math.huge then nil else fish.room,
 	}
 	return view
 end

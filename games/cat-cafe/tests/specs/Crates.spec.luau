@@ -506,13 +506,13 @@ return function()
 			expect(Crates.buyCost(profile, row("big_bowl"))).never.to.be.ok()
 			profile.fishPerks.extra_decor_spot = 1
 			expect(Crates.buyCost(profile, row("extra_decor_spot"))).to.equal(250)
-			-- #3317: Swift Paws, five levels
-			local paws = { 60, 150, 300, 500, 800 }
-			for level = 0, 4 do
+			-- #3317, #4705: Swift Paws, ten levels
+			local paws = { 60, 150, 300, 500, 800, 1200, 1700, 2300, 3000, 3800 }
+			for level = 0, 9 do
 				profile.fishPerks.swift_paws = if level > 0 then level else nil
 				expect(Crates.buyCost(profile, row("swift_paws"))).to.equal(paws[level + 1])
 			end
-			profile.fishPerks.swift_paws = 5
+			profile.fishPerks.swift_paws = 10
 			expect(Crates.buyCost(profile, row("swift_paws"))).never.to.be.ok()
 		end)
 	end)
@@ -1219,5 +1219,36 @@ return function()
 			expect(#empty.rarities).to.equal(0)
 			expect(empty.refund).to.equal(0)
 		end)
+	end)
+
+	describe("crate luck (the Dragon Keep's Lucky Crate)", function()
+		it("multiplies the Luck, starting from 1, inside LuckMax", function()
+			expect(Crates.withCardLuck(1, 0.15)).to.equal(1.15)
+			expect(Crates.withCardLuck(1.5, 0.15)).to.equal(1.73)
+			expect(Crates.withCardLuck(1.5, 0)).to.equal(1.5)
+			expect(Crates.withCardLuck(1.5, nil)).to.equal(1.5)
+			expect(Crates.withCardLuck(Config.LuckMax, 0.3)).to.equal(Config.LuckMax)
+		end)
+
+		it(
+			"lifts a plain crate's odds and leaves golden crates and the lucky twentieth alone",
+			function()
+				local plain: any, golden: any = nil, nil
+				for _, crate in Catalog.crates do
+					if crate.golden then
+						golden = golden or crate
+					else
+						plain = plain or crate
+					end
+				end
+				local luck = Crates.withCardLuck(1, 0.15)
+				local lifted = Crates.oddsFor(plain, 0, luck)
+				expect(lifted.Epic).to.be.near((plain.odds.Epic or 0) * 1.15, 1e-9)
+				expect(Crates.oddsFor(golden, 0, luck) :: any).to.equal(golden.odds)
+				expect(Crates.oddsFor(plain, Config.CrateLuckyEvery - 1, luck) :: any).to.equal(
+					Crates.LUCKY_ODDS
+				)
+			end
+		)
 	end)
 end

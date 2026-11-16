@@ -27,6 +27,8 @@ Shove.HELD_IMMUNE_SECONDS = 3 -- after "It held on tight!" (only when BumpChance
 -- #2193 (Derek2: direct hits that don't count): a target's position reaches the server late (their ping and the
 -- replication's interpolation), so the server also checks where it saw each player this long ago.
 Shove.LAG_SECONDS = 0.3
+-- #4499: what a tackle from inside the new player shield is told
+Shove.SHIELD_TEXT = "You can tackle once your new player shield ends"
 
 -- What the server knows when a Tackle press arrives. Times since are nil when it never happened.
 export type TackleCheck = {
@@ -37,6 +39,7 @@ export type TackleCheck = {
 	areasClosed: boolean, -- night: the catching areas are closed (v0.9, F66)
 	sinceTackle: number?, -- since this tackler's last press that was not refused
 	newcomer: boolean?, -- F87: the tackler has not checked in a cat yet, so the shield works both ways (review N300)
+	shielded: boolean?, -- #4499: the tackler is still inside their new player shield (Shove.shielded)
 }
 
 -- What the server knows about one player in the lunge's reach.
@@ -119,6 +122,12 @@ function Shove.tackleRefusal(check: TackleCheck): string?
 	end
 	if check.newcomer == true then
 		return "Check in your first cat before you tackle"
+	end
+	-- #4499 (Derek2 2026-11-15: "players in the first 15min immune shield can't be tackled thats the whole point but
+	-- they shouldn't be able to tackle back also"): the shield works both ways for as long as it runs. A tackle
+	-- ended it early before (#3342).
+	if check.shielded == true then
+		return Shove.SHIELD_TEXT
 	end
 	if check.area == nil then
 		return "You can only tackle inside a catching area"

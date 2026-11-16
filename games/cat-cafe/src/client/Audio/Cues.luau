@@ -210,6 +210,23 @@ local Cues: { [string]: Cue } = {
 		seconds = 83.478, -- 32 bars at 92 BPM
 		sections = 4,
 	}, -- "Banner Hall" (the Medieval Castle)
+	-- #4251: Harvest Hollow's song starts a third area sheet (synth/music.py, AREAS3). It plays while Effects/HarvestFx
+	-- says you are in the area (Logic.songZone), since the area has no zone box.
+	sheetMusicAreas3 = {
+		ids = { "rbxassetid://75995598698980" },
+		group = "Music",
+		volume = 0.3,
+	}, -- stereo, 80.0 s: Cider Lane
+	musicAreaHarvest = {
+		ids = {},
+		sheet = "sheetMusicAreas3",
+		region = { 0.000, 80.000 },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 80.000, -- 32 bars at 96 BPM
+		sections = 4,
+	}, -- "Cider Lane" (Harvest Hollow, the limited autumn area)
 	-- 2026-11-05 (#1541, Derek): the tutorial plays its own calm song instead of the day and night songs, from the intro
 	-- cutscene and through the first tutorial steps, until it is skipped or done. Uploaded by upload-audio run
 	-- 42068848366.
@@ -612,7 +629,6 @@ local Cues: { [string]: Cue } = {
 		volume = 0.55,
 		minGap = 0.3,
 	}, -- a cat leaves its role; Unequip All plays one
-	catSold = { ids = { "rbxassetid://74026102899667" }, group = "Sfx", volume = 0.6 }, -- #2952, run 42830310860 (group)
 	strayCall = {
 		ids = { "rbxassetid://115966888994390" },
 		group = "Sfx",
@@ -827,6 +843,39 @@ local Cues: { [string]: Cue } = {
 		pitch = { 1.25, 1.45 },
 		minGap = 0.4,
 		range = 50,
+		voices = 2,
+	},
+	-- #4197 (Effects/AdminDrops.onLand): a Fish Fountain fish plops down (the Fish Pond's splash, lighter and higher;
+	-- minGap keeps a whole spray to a patter) and a Crate Drop crate touches the ground (the cannon's landing, lower)
+	adminFishLand = {
+		ids = {},
+		sheet = "sheetWorld",
+		region = { 3.600, 4.500 },
+		group = "Sfx",
+		volume = 0.35,
+		pitch = { 1.15, 1.4 },
+		minGap = 0.35,
+		range = 45,
+		voices = 2,
+	},
+	-- #4251 (Effects/HarvestFx.onPick): a Harvest Hollow patch pumpkin is picked near you. The coin pop, lower and
+	-- rounder, in the world: a soft "pluck". The patch is shared, so minGap keeps a busy patch to a patter.
+	harvestPick = {
+		ids = { "rbxassetid://84089684524419" },
+		group = "Sfx",
+		volume = 0.3,
+		pitch = { 0.68, 0.78 },
+		minGap = 0.3,
+		range = 45,
+		voices = 2,
+	},
+	adminCrateLand = {
+		ids = { "rbxassetid://103029343434588" },
+		group = "Sfx",
+		volume = 0.5,
+		pitch = { 0.8, 0.9 },
+		minGap = 0.4,
+		range = 60,
 		voices = 2,
 	},
 	cloudHop = {
@@ -1277,6 +1326,16 @@ local Cues: { [string]: Cue } = {
 		minGap = 0.3,
 		range = 30,
 	}, -- your swing hit nothing: a rubbery boing and one more tap
+	toyBonk = {
+		ids = {},
+		sheet = "sheetCatch",
+		region = { 0.850, 1.350 },
+		group = "Sfx",
+		volume = 0.4,
+		pitch = { 1.35, 1.5 },
+		minGap = 0.3,
+		range = 30,
+	}, -- #4061: the Pool Noodle's bonk, netBounce's boing pitched up into a squeak
 	strayHop = {
 		ids = {},
 		sheet = "sheetCatch",
@@ -1691,6 +1750,15 @@ local Cues: { [string]: Cue } = {
 		pitch = { 0.88, 1.12 },
 		minGap = 0.2,
 	}, -- your step in the Snowy Mountain's snow
+	leafStep = {
+		ids = {},
+		sheet = "sheetKeep",
+		region = { 15.620, 15.820 },
+		group = "Sfx",
+		volume = 0.22,
+		pitch = { 1.25, 1.5 },
+		minGap = 0.2,
+	}, -- #4251: your step in Harvest Hollow, dry leaves: the snow step's crunch pitched up, a little quieter
 	snowGust = {
 		ids = {},
 		sheet = "sheetKeep",

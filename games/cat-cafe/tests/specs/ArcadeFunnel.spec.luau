@@ -17,19 +17,16 @@ return function()
 
 	describe("Arcade.cabinetStands (#3443)", function()
 		it("stands only while the arcade is on and has a game to play", function()
-			expect(Arcade.cabinetStands(true, true, false)).to.equal(true) -- Circle Streak alone
-			expect(Arcade.cabinetStands(true, false, true)).to.equal(true) -- the swap: Mouse Dash alone
-			expect(Arcade.cabinetStands(true, true, true)).to.equal(true)
-			expect(Arcade.cabinetStands(true, false, false)).to.equal(false) -- no game on
-			expect(Arcade.cabinetStands(false, true, true)).to.equal(false) -- the arcade switched off
-			expect(Arcade.cabinetStands(false, false, false)).to.equal(false)
+			expect(Arcade.cabinetStands(true, true)).to.equal(true) -- Mouse Dash on (#4656: Circle Streak is gone)
+			expect(Arcade.cabinetStands(true, false)).to.equal(false) -- no game on
+			expect(Arcade.cabinetStands(false, true)).to.equal(false) -- the arcade switched off
+			expect(Arcade.cabinetStands(false, false)).to.equal(false)
 		end)
 
 		it("stays put away until the server has read the switches (#3627)", function()
-			expect(Arcade.cabinetStands(true, true, false, false)).to.equal(false)
-			expect(Arcade.cabinetStands(true, false, true, false)).to.equal(false)
-			expect(Arcade.cabinetStands(true, true, false, true)).to.equal(true)
-			expect(Arcade.cabinetStands(false, true, true, true)).to.equal(false)
+			expect(Arcade.cabinetStands(true, true, false)).to.equal(false)
+			expect(Arcade.cabinetStands(true, true, true)).to.equal(true)
+			expect(Arcade.cabinetStands(false, true, true)).to.equal(false)
 		end)
 	end)
 
@@ -197,7 +194,7 @@ return function()
 				local stored =
 					Arcade.sanitize({ best = 90, bestCircles = 95, day = 100, paid = { at } }, now)
 				local mine = Arcade.fresh()
-				Arcade.record(mine, 20, 21)
+				mine.best, mine.bestCircles, mine.runs = 20, 21, 1
 				local out = Arcade.merge(stored, mine)
 				expect(out.best).to.equal(20)
 				expect(out.epoch).to.equal(Arcade.BOARD_EPOCH)

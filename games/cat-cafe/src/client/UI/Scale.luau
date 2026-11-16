@@ -93,6 +93,14 @@ end
 -- #2770: a world bubble stops growing once the camera is closer than this (its BillboardGui's DistanceLowerLimit)
 Scale.BUBBLE_NEAR = 14
 
+-- #4529 (Derek 2026-11-15: "for tablet make the ui for money/gold fish slightly bigger so they can see make sure
+-- this does not effect mobile phone players tho"): a touch screen that is not short (a tablet; a phone held sideways is
+-- short) draws the HUD's money and golden fish counters TABLET_COUNTERS times; phones and PCs stay at 1.
+Scale.TABLET_COUNTERS = 1.2
+function Scale.counterBoost(): number
+	return if Scale.isTouch() and not Scale.isShort() then Scale.TABLET_COUNTERS else 1
+end
+
 -- #2762: a world bubble's studs on this screen: 0.8 of them on a phone, so one close by covers less of it.
 Scale.PHONE_STUDS = 0.8
 function Scale.phoneStuds(): number

@@ -41,9 +41,7 @@ LoadingNews.ENTRIES = {
 	{
 		key = "rift",
 		title = "Rift Run",
-		line = "Roll a Mythic or Secret trait and the rift opens!",
-		at = 1794704400, -- Sunday 2026-11-15 01:00 UTC
-		flags = { "riftRun" },
+		line = "Roll a Mythic or Secret trait and the rift opens!", -- out since 2026-11-15 01:00 UTC (#4654: no switch)
 		back = "3B2E63",
 		tiles = { { emoji = "🌀", word = "Rift Run", color = "8E6BE8" } },
 	},

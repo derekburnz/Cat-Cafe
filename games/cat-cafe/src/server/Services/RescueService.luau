@@ -285,8 +285,8 @@ local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePa
 	local luck = if ClockService.luckyDay() then Config.LuckyDayWaveLuck else 1
 	local rarity: Types.Rarity =
 		Catching.pickRarity(Luck.apply(Catching.rescueOdds(areaDef.odds), luck), rng:NextNumber())
-	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the switch is on; a trap's cat gets no banner
-	local secret = if rarity == "Mythical" and LiveFlagService.on(Catching.SECRET_FLAG)
+	-- #3470: a rolled Mythical turns Secret 1 time in 100; a trap's cat gets no banner
+	local secret = if rarity == "Mythical"
 		then Catching.secret(
 			rarity,
 			rng:NextNumber(),

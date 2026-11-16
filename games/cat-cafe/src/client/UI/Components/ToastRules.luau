@@ -15,6 +15,8 @@
 --   oneLine(kind, text) -> boolean                     #2729: good and info toasts keep to one row and end in "…";
 --                                                     a warning and a shout-out wrap so every word shows. #3205: so
 --                                                     does a line with one of WRAP's phrases (the restart warning)
+--   newcomer(on, played) -> boolean                    #4472: a new account's first NEWCOMER_SECONDS of play
+--   newcomerDrops(kind, text) -> boolean               #4472: what goes then: all but a warning and a purchase
 
 local ToastRules = {}
 
@@ -89,6 +91,35 @@ ToastRules.PURCHASE = {
 	"^Opened %d+ crates: ",
 }
 
+-- #4472 (Derek 2026-11-15: "way too much bubble pop ups on screen during tutorial steps turn them all off for first 5
+-- minutes not needed"): while an account has under NEWCOMER_SECONDS of play (PlayerState.playSeconds, counted on),
+-- the top centre pop-ups are dropped (not kept for later, so none floods in at minute 5): shout-outs, prize and
+-- rainbow pills and every toast but a warning (a refused press says why) and a purchase's confirmation. Behind the
+-- `newcomerQuiet` switch (shared/LiveFlags). No play time known: not quiet.
+ToastRules.NEWCOMER_SECONDS = 300
+ToastRules.NEWCOMER_FLAG = "newcomerQuiet"
+
+function ToastRules.newcomer(on: boolean, played: number?): boolean
+	return on and played ~= nil and played < ToastRules.NEWCOMER_SECONDS
+end
+
+-- Review-QA on #4478: the lines a new player still gets, as Lua patterns (a gift paid with no other word)
+ToastRules.NEWCOMER_KEEP = {
+	"^Welcome gift: ", -- #4453: the Tier 2 top up after the first bait cat
+}
+
+function ToastRules.newcomerDrops(kind: string?, text: string): boolean
+	if kind == "warn" or ToastRules.purchase(text) then
+		return false
+	end
+	for _, pattern in ToastRules.NEWCOMER_KEEP do
+		if string.find(text, pattern) ~= nil then
+			return false
+		end
+	end
+	return true
+end
+
 function ToastRules.purchase(text: string): boolean
 	for _, pattern in ToastRules.PURCHASE do
 		if string.find(text, pattern) ~= nil then
@@ -114,12 +145,11 @@ ToastRules.KEEP = {
 	"^Golden find! ", -- #3222 LawnService.giveDrop: a drop-only Golden lawn piece from a freed cat
 	"^Update gift! ", -- #2997 PlaytimeGiftService: the Saturday update gift, paid with no card
 	"^Welcome back gift! ", -- #3772 PlaytimeGiftService: the welcome back golden crate (shared/ReturnGift.TOAST)
-	-- #3106 (Derek2 11-10, after two new players left in the tutorial: "maybe add those two buttons back"): a new
-	-- player's first delivery and first cat. Each comes once: the server sends the second on the first check-in
-	-- only, and UI.cannon.checkedIn sends the first only while the first walk-through is not done
-	" is on its way to your cafe!$",
-	"^Your first cat! ",
+	-- #4497 (Derek 2026-11-15: "remove all the pop ups that happen after first catch like "cat" is captured, "cat" is
+	-- on the way to your cafe etc"): the first delivery and first cat lines (#3106) are dropped again; the catch card,
+	-- the flight and the goal card say it
 	"^Welcome back! Your cats earned ", -- #3573 AfkCafe.welcome: what a rest in the cafe paid, once on coming back
+	"^Welcome gift: ", -- #4453 BaitService: the Tier 2 top up after the first bait cat, so the coins never jump unsaid
 }
 
 function ToastRules.kept(text: string): boolean
@@ -158,7 +188,8 @@ end
 -- toasts (#2720), and one row dropped their last words, "your cafe is saved". A line with one of these phrases
 -- (plain, any case) wraps whatever its kind. shared/RestartNotice.text ends every warning with the first.
 -- #3212: and an owner command's reply ("Owner test mode: Cafe Party started on all servers for 10 minutes").
-ToastRules.WRAP = { "your cafe is saved", "owner test mode:" }
+-- #4626: the minute 6 "come back tomorrow" line (ReturnHookLine.PREFIX, the wrapped gift) names a prize, so it wraps
+ToastRules.WRAP = { "your cafe is saved", "owner test mode:", "\u{1F381}" }
 
 function ToastRules.oneLine(kind: string?, text: string?): boolean
 	if text ~= nil then

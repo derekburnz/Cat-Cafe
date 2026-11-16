@@ -213,6 +213,15 @@ return function()
 			expect(ToastRules.oneLine("good", "Claimed 3 quests")).to.equal(true)
 		end)
 
+		it("lets the minute 6 come back tomorrow line wrap (#4626)", function()
+			expect(
+				ToastRules.oneLine("info", "\u{1F381} Tomorrow: Daily Treat day 2, 2 Cat Snacks")
+			).to.equal(false)
+			expect(ToastRules.quiet("\u{1F381} Come back tomorrow for a golden crate", "info")).to.equal(
+				false
+			)
+		end)
+
 		-- Review-QA on #4260: a purchase's confirmation gets through a busy window (the Store)
 		it("lets purchase confirmations through a busy window, and nothing else", function()
 			expect(ToastRules.purchase("Thank you! You got 4 Big Money potions")).to.equal(true)

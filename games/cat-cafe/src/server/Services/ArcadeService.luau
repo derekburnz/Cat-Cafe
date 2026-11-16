@@ -329,7 +329,7 @@ function ArcadeService.grantLegend(player: Player)
 end
 
 function ArcadeService.start()
-	-- #4656: ArcadeStart, ArcadePress and ArcadeQuit stay declared (old clients) with nothing listening
+	-- #4656 step 4: Circle Streak's game remotes are gone; ArcadeState stays (milestones, title, board)
 	DataService.onLoaded:Connect(function(player: Player, _profile: Types.PlayerProfile)
 		load(player)
 	end)

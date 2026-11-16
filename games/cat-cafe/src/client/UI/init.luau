@@ -8950,6 +8950,9 @@ do
 			cannonScreen:setKeep((playerState :: any).dragon) -- #4062: the Castle card's Dragon Keep
 			cannonScreen:setFusion((playerState :: any).fusion) -- #4104: the Snowy Mountain card's Observatory
 		end
+		-- the Dragon Keep's trait luck for every trait odds list (the card's, the Store's Trait Tokens offer)
+		local cardLuck: any = (playerState :: any).cardLuck
+		MysticPoolLogic.setLuck(if type(cardLuck) == "table" then cardLuck.trait else nil)
 		local card = pool.card
 		if card then
 			card:render(playerState)

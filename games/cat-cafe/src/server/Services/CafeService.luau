@@ -317,6 +317,12 @@ local function lookItems(profile: Profile): { [string]: boolean }
 	return TicketBooth.lookItems(profile.tickets, profile.pass.items)
 end
 
+-- The Dragon Keep's crate, trait and spin luck for the odds lists, the same numbers the rolls use (DragonKeep.of).
+local function cardLuckOf(profile: Profile): { crate: number, trait: number, spin: number }
+	local fx = Economy.dragonEffects(profile)
+	return { crate = fx.crateLuck, trait = fx.traitLuck, spin = fx.spinLuck }
+end
+
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
 	-- #3666: a new save joins the intro test before its first sync says whether the intro plays itself; the answer
 	-- holds for the session
@@ -450,6 +456,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		},
 		luck = luck, -- F88
 		luckSources = luckSources,
+		cardLuck = cardLuckOf(profile),
 		longNap = Economy.passes(profile).longNap, -- F95: the welcome back card's line
 		passBoosts = { -- #1624: the store passes' rows in the money card's Boosts list
 			cafe = Economy.passCafeBonus(profile),

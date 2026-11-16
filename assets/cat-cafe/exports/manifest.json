@@ -339030,35 +339030,34 @@
         "CatCafe_Camp_Alleyway_007_Lamp",
         "CatCafe_Camp_Alleyway_007_Lamp_Bulb",
         "CatCafe_Camp_Alleyway_007_Lamp_Flowers",
-        "CatCafe_Camp_Alleyway_008_Bench",
-        "CatCafe_Camp_Alleyway_009_FlowerBed",
-        "CatCafe_Camp_Alleyway_009_FlowerBed_Decor",
-        "CatCafe_Camp_Alleyway_010_Lamp",
-        "CatCafe_Camp_Alleyway_010_Lamp_Bulb",
-        "CatCafe_Camp_Alleyway_010_Lamp_Flowers",
-        "CatCafe_Camp_Alleyway_011_Bench",
-        "CatCafe_Camp_Alleyway_012_FlowerBed",
-        "CatCafe_Camp_Alleyway_012_FlowerBed_Decor",
-        "CatCafe_Camp_Alleyway_013_Dumpster",
-        "CatCafe_Camp_Alleyway_014_GarbageBags",
+        "CatCafe_Camp_Alleyway_008_FlowerBed",
+        "CatCafe_Camp_Alleyway_008_FlowerBed_Decor",
+        "CatCafe_Camp_Alleyway_009_Lamp",
+        "CatCafe_Camp_Alleyway_009_Lamp_Bulb",
+        "CatCafe_Camp_Alleyway_009_Lamp_Flowers",
+        "CatCafe_Camp_Alleyway_010_Bench",
+        "CatCafe_Camp_Alleyway_011_FlowerBed",
+        "CatCafe_Camp_Alleyway_011_FlowerBed_Decor",
+        "CatCafe_Camp_Alleyway_012_Dumpster",
+        "CatCafe_Camp_Alleyway_013_GarbageBags",
+        "CatCafe_Camp_Alleyway_014_TrashCan",
         "CatCafe_Camp_Alleyway_015_TrashCan",
-        "CatCafe_Camp_Alleyway_016_TrashCan",
+        "CatCafe_Camp_Alleyway_016_Crate",
         "CatCafe_Camp_Alleyway_017_Crate",
         "CatCafe_Camp_Alleyway_018_Crate",
-        "CatCafe_Camp_Alleyway_019_Crate",
+        "CatCafe_Camp_Alleyway_019_CardboardBox",
         "CatCafe_Camp_Alleyway_020_CardboardBox",
         "CatCafe_Camp_Alleyway_021_CardboardBox",
         "CatCafe_Camp_Alleyway_022_CardboardBox",
-        "CatCafe_Camp_Alleyway_023_CardboardBox",
+        "CatCafe_Camp_Alleyway_023_Puddle",
         "CatCafe_Camp_Alleyway_024_Puddle",
-        "CatCafe_Camp_Alleyway_025_Puddle",
+        "CatCafe_Camp_Alleyway_025_FlowerBed",
+        "CatCafe_Camp_Alleyway_025_FlowerBed_Decor",
         "CatCafe_Camp_Alleyway_026_FlowerBed",
         "CatCafe_Camp_Alleyway_026_FlowerBed_Decor",
-        "CatCafe_Camp_Alleyway_027_FlowerBed",
-        "CatCafe_Camp_Alleyway_027_FlowerBed_Decor",
         "CatCafe_Camp_Alleyway_Barrier"
       ],
-      "triangles": 14014,
+      "triangles": 13290,
       "budget": 20000,
       "size_studs": {
         "x": 92.0,
@@ -339125,7 +339124,7 @@
         "depth": 30.0
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Alleyway.model.json",
-      "rbx_parts": 789,
+      "rbx_parts": 758,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Alleyway.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Alleyway.glb"
@@ -339138,10 +339137,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "14014/20000 tris",
+          "budget": "13290/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "8229 faces on swatch centers",
+          "uv": "7823 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-141.50"
@@ -368814,6 +368813,77 @@
           "centered": "footprint center x=0.00 y=-0.01"
         }
       }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Drop",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Drop",
+        "CatCafe_Prop_Crate_Drop_Lid",
+        "CatCafe_Prop_Crate_Drop_Glow"
+      ],
+      "triangles": 984,
+      "budget": 2500,
+      "size_studs": {
+        "x": 4.2,
+        "y": 3.21,
+        "z": 5.36
+      },
+      "size_roblox": [
+        4.2,
+        5.36,
+        3.21
+      ],
+      "bounds_min": [
+        -2.1,
+        -1.61,
+        0.0
+      ],
+      "bounds_max": [
+        2.1,
+        1.6,
+        5.36
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Drop_Lid": [
+          -0.0,
+          1.58,
+          2.3
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Drop_Lid": [
+          0.0,
+          2.3,
+          1.58
+        ]
+      },
+      "studio": "F53 Cafe Crate: pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Drop_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Drop.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Drop.model.json",
+      "rbx_parts": 82,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Drop.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Drop.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "984/2500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "492 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_Crate_Drop.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_Crate_Drop.png"
     },
     {
       "name": "CatCafe_Camp_Cannon_Castle",

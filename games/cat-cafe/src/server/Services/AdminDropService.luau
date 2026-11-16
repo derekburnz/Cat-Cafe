@@ -12,11 +12,18 @@
 -- For the client's effects (Motion-FX): pickups are Parts named "AdminFish" with attribute AdminFish = true and
 -- `From` (the plinth's centre, for the spray's arc); crates are Models named "AdminCrate" with attribute
 -- AdminCrate = true and `LandsAt` (for the parachute). Both sit in Workspace.AdminDrops. Nothing here is sold.
+-- #4888 (Derek 2026-11-16: "make the model soo much better", "make them solid not walkthrough and put exclamation
+-- marks above them", "half the time walking into it does nothing"): the crate is the CatCafe_Prop_Crate_Drop model
+-- (a plain gold block without the art) round an unseen `Box` that is solid from the landing on, with a "!" over
+-- it. It opens for the first player within CRATE_GRAB studs of it, checked CRATE_GRAB_SECONDS apart, as well as on
+-- a touch: a Touched event only fires as a touch starts, so a player already against the crate as it landed, or
+-- one who stood still beside it, got nothing. A player who already has ADMIN.crateCap crates is told so once.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local CafeEvents = require(ReplicatedStorage.Shared.CafeEvents)
 local CafeService = require(script.Parent.CafeService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -41,7 +48,12 @@ local RING_IN = 3 -- studs past the plinth's edge
 local RING_OUT = 16
 local CRATE_FALL = 3 -- seconds from the drop to the landing (the client's parachute)
 local CRATE_LIFE = 90
-local CRATE_SIZE = Vector3.new(3, 3, 3)
+local CRATE_SIZE = Vector3.new(4.2, 3.4, 3.2) -- #4888: the Crate Drop model's body (3 x 3 x 3 before)
+local CRATE_ART = "CatCafe_Prop_Crate_Drop"
+local CRATE_GRAB = 7 -- #4888: studs (flat) from the crate's centre that open it; its sides are about 2 out
+local CRATE_GRAB_HEIGHT = 8 -- and this far over or under it
+local CRATE_GRAB_SECONDS = 0.2
+local CRATE_MARK_UP = 5.2 -- studs over the crate's middle to the "!"
 local FISH_SIZE = Vector3.new(1.6, 0.6, 0.9)
 local GOLD = Color3.fromRGB(255, 196, 61)
 
@@ -50,6 +62,7 @@ type Run = {
 	got: { [Player]: number }, -- fish or crates each player has had in this run
 	out: { [Instance]: number }, -- each pickup or crate still out, and when it goes (server time)
 	left: { [string]: number }, -- Crate Drop: seconds until each area's next crate
+	told: { [Player]: boolean }, -- #4888 Crate Drop: players already told they have every crate of this drop
 }
 
 local world: WorldBuilder.World
@@ -59,7 +72,13 @@ local fountain: Run? = nil
 local crates: Run? = nil
 
 local function newRun(id: string): Run
-	return { id = id, got = setmetatable({}, { __mode = "k" }) :: any, out = {}, left = {} }
+	return {
+		id = id,
+		got = setmetatable({}, { __mode = "k" }) :: any,
+		out = {},
+		left = {},
+		told = setmetatable({}, { __mode = "k" }) :: any,
+	}
 end
 
 local function clear(run: Run?)
@@ -207,7 +226,22 @@ local function openCrate(run: Run, crate: Model, player: Player, at: number)
 		local crateId = if profile ~= nil
 			then Prizes.crateFor(Prizes.HIGHEST_GOLDEN, Economy.tier(profile))
 			else nil
-		if profile == nil or crateId == nil or had >= ADMIN.crateCap then
+		if profile == nil or crateId == nil then
+			continue
+		end
+		if had >= ADMIN.crateCap then
+			-- #4888: said once, so a crate that does nothing for them is not a mystery; it stays for the others
+			if winner == player and not run.told[winner] then
+				run.told[winner] = true
+				Net.toast(
+					winner,
+					string.format(
+						"Crate Drop: you have all %d crates from this drop",
+						ADMIN.crateCap
+					),
+					"info"
+				)
+			end
 			continue
 		end
 		run.got[winner] = had + 1
@@ -224,27 +258,72 @@ local function openCrate(run: Run, crate: Model, player: Player, at: number)
 	end
 end
 
+-- #4888: the "!" over a crate, off until it lands.
+local function crateMark(box: BasePart): BillboardGui
+	local mark = Instance.new("BillboardGui")
+	mark.Name = "Mark"
+	mark.Adornee = box
+	mark.Size = UDim2.fromScale(2.4, 3)
+	mark.StudsOffsetWorldSpace = Vector3.new(0, CRATE_MARK_UP, 0)
+	mark.MaxDistance = 160
+	mark.LightInfluence = 0
+	mark.Enabled = false
+	local label = Instance.new("TextLabel")
+	label.Name = "Text"
+	label.BackgroundTransparency = 1
+	label.Size = UDim2.fromScale(1, 1)
+	label.Text = "!"
+	label.TextScaled = true
+	label.Font = Enum.Font.FredokaOne
+	label.TextColor3 = GOLD
+	label.Parent = mark
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = 3
+	stroke.Color = Color3.fromRGB(60, 30, 0)
+	stroke.Parent = label
+	mark.Parent = box
+	return mark
+end
+
 local function dropCrate(run: Run, area: WorldBuilder.AreaInfo, at: number)
 	if #area.spawnPoints == 0 then
 		return
 	end
 	local point = area.spawnPoints[rng:NextInteger(1, #area.spawnPoints)]
 	local spot = Vector3.new(point.Position.X, area.floorY, point.Position.Z)
+	local turn = CFrame.Angles(0, rng:NextNumber(0, 2 * math.pi), 0)
 	local crate = Instance.new("Model")
 	crate.Name = "AdminCrate"
+	crate.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	local art: Model? = if AssetRegistry.has(CRATE_ART) then AssetRegistry.clone(CRATE_ART) else nil
 	local box = Instance.new("Part")
 	box.Name = "Box"
 	box.Size = CRATE_SIZE
 	box.Color = GOLD
 	box.Material = Enum.Material.WoodPlanks
+	box.Transparency = if art ~= nil then 1 else 0 -- the art is the look; the box is what is solid and touched
 	box.Anchored = true
-	box.CanCollide = false
+	box.CanCollide = false -- solid from the landing on, so nobody walks into an unseen wall while it falls
 	box.CanQuery = false
 	box.CanTouch = true
-	box.CFrame = CFrame.new(spot + Vector3.new(0, CRATE_SIZE.Y / 2, 0))
-		* CFrame.Angles(0, rng:NextNumber(0, 2 * math.pi), 0)
+	box.CFrame = CFrame.new(spot + Vector3.new(0, CRATE_SIZE.Y / 2, 0)) * turn
 	box.Parent = crate
 	crate.PrimaryPart = box
+	if art ~= nil then
+		for _, piece in art:GetDescendants() do
+			if piece:IsA("BasePart") then
+				local part = piece :: BasePart
+				part.Anchored = true
+				part.CanCollide = false
+				part.CanQuery = false
+				part.CanTouch = false
+			end
+		end
+		art.Name = "Art"
+		art:PivotTo(CFrame.new(spot) * turn)
+		art.Parent = crate
+	end
+	local mark = crateMark(box)
 	crate:SetAttribute("AdminCrate", true)
 	crate:SetAttribute("LandsAt", at + CRATE_FALL)
 	crate:SetAttribute("Area", area.id)
@@ -254,8 +333,50 @@ local function dropCrate(run: Run, area: WorldBuilder.AreaInfo, at: number)
 			openCrate(run, crate, player, Workspace:GetServerTimeNow())
 		end
 	end)
+	task.delay(CRATE_FALL, function()
+		if run.out[crate] ~= nil then
+			box.CanCollide = true
+			mark.Enabled = true
+		end
+	end)
 	run.out[crate] = at + CRATE_FALL + CRATE_LIFE
 	crate.Parent = folder
+end
+
+-- #4888: opens each landed crate for the nearest player within CRATE_GRAB of it. A touch still opens one too.
+local function grabCrates()
+	local run = crates
+	if run == nil then
+		return
+	end
+	local at = Workspace:GetServerTimeNow()
+	for thing in run.out do
+		if not thing:IsA("Model") or at < ((thing:GetAttribute("LandsAt") :: number?) or 0) then
+			continue
+		end
+		local where = (thing :: Model):GetPivot().Position
+		local nearest: Player? = nil
+		local best = CRATE_GRAB
+		for _, player in DataService.loadedPlayers() do
+			local root = rootOf(player)
+			if root ~= nil then
+				local offset = root.Position - where
+				local flat = Vector3.new(offset.X, 0, offset.Z).Magnitude
+				-- a player with every crate of this drop is passed over, so they never block someone behind them
+				if
+					flat <= best
+					and math.abs(offset.Y) <= CRATE_GRAB_HEIGHT
+					and ((run.got[player] or 0) < ADMIN.crateCap or nearest == nil)
+				then
+					nearest = player
+					best = flat
+				end
+			end
+		end
+		if nearest ~= nil then
+			openCrate(run, thing :: Model, nearest, at)
+		end
+	end
 end
 
 local function crateTick(at: number, dt: number)
@@ -327,6 +448,15 @@ function AdminDropService.start(built: WorldBuilder.World)
 				warn("[AdminDropService] crates: " .. tostring(err))
 			end, at, nowClock - last)
 			last = nowClock
+		end
+	end)
+	-- #4888: crates open for a player standing by them, checked far more often than the drops tick
+	task.spawn(function()
+		while true do
+			task.wait(CRATE_GRAB_SECONDS)
+			xpcall(grabCrates, function(err: unknown)
+				warn("[AdminDropService] crate grab: " .. tostring(err))
+			end)
 		end
 	end)
 end

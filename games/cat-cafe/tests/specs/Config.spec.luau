@@ -362,7 +362,7 @@ return function()
 		BinZoneWidth = 0.18, -- Design-Agent on #3050: absolute, never the rescue bars' width or speed; #3458: 0.42 before; #4284: 0.22 before
 		BinBarSpeed = 0.80, -- #3458: 0.64 before
 		BinHits = 5, -- #3458: the bin's own hit count
-		BinPadRadius = 4, -- #3608: the pad in front of the bin
+		BinPadRadius = 7, -- #3608: the pad in front of the bin; #4862: 4 before
 		BinPadDwellSeconds = 0.5,
 		BinRollSeconds = 2.5, -- #3608: the roll before the bar
 		BinRevealSeconds = 1,

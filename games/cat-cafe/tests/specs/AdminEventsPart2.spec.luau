@@ -77,6 +77,19 @@ return function()
 			expect(storm.endsAt - storm.startsAt).to.equal(900)
 		end)
 
+		it("runs a Secret Hunt 3 minutes at most (#4871)", function()
+			expect(CafeEvents.SECRET_HUNT_MAX_SECONDS).to.equal(180)
+			local made = CafeEvents.adminRecord("hunt", NOW, nil, true) :: { [string]: any }
+			expect(made.endsAt - made.startsAt).to.equal(180)
+			local asked = CafeEvents.adminRecord("hunt", NOW, 15, true) :: { [string]: any }
+			expect(asked.endsAt - asked.startsAt).to.equal(180)
+			local event = parseOne({ secretHunt = 3 })
+			assert(event ~= nil)
+			expect(event.endsAt - event.startsAt).to.equal(180)
+			local golden = CafeEvents.adminRecord("golden", NOW, nil, true) :: { [string]: any }
+			expect(golden.endsAt - golden.startsAt).to.equal(900)
+		end)
+
 		it("clamps each multiplier to its cap and drops a bad one", function()
 			local event, notes = parseOne({ goldBoost = 99, rainbowBoost = 99, moneyStorm = 99 })
 			assert(event ~= nil)

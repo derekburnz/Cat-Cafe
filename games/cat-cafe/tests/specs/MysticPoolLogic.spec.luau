@@ -414,23 +414,27 @@ return function()
 			expect(#one).to.equal(1)
 			expect(one[1].product).to.equal("trait_tokens_50")
 		end)
-		it("hangs the red ! over the pool while a roll waits (#3936)", function()
-			expect(MysticPoolLogic.bangShows(nil)).to.equal(false)
-			expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 0, held = 0 })).to.equal(
-				false
-			)
-			expect(MysticPoolLogic.bangShows({ tokens = 10, freeLeft = 0, held = 0 })).to.equal(
-				true
-			)
-			expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 2, held = 0 })).to.equal(true)
-			expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 0, held = 1 })).to.equal(true)
-			expect(MysticPoolLogic.bangShows({ tokens = 3, pending = { uid = "a", id = "b" } })).to.equal(
-				false
-			)
-			expect(MysticPoolLogic.bangShows({ tokens = -4, freeLeft = 0 / 0 } :: any)).to.equal(
-				false
-			)
-		end)
+		it(
+			"hangs the red ! over the pool only until the first visit (#4858, was while a roll waits #3936)",
+			function()
+				expect(MysticPoolLogic.bangShows(nil)).to.equal(false)
+				expect(MysticPoolLogic.bangShows(false :: any)).to.equal(false)
+				expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 0, held = 0 })).to.equal(
+					true
+				)
+				expect(MysticPoolLogic.bangShows({ tokens = 0, freeLeft = 0, held = 0 }, false)).to.equal(
+					true
+				)
+				expect(MysticPoolLogic.bangShows({ tokens = 10, freeLeft = 2, held = 1 }, true)).to.equal(
+					false
+				)
+				-- a player who walked up before #4858 has the cutscene's mystic_intro mark, which counts as a visit
+				expect(MysticPoolLogic.visited(nil)).to.equal(false)
+				expect(MysticPoolLogic.visited({})).to.equal(false)
+				expect(MysticPoolLogic.visited({ pool_visit = true })).to.equal(true)
+				expect(MysticPoolLogic.visited({ mystic_intro = true })).to.equal(true)
+			end
+		)
 		it("shows every roll's odds, summing to 100 (monetization-policy 2.1)", function()
 			local sum = 0
 			for _, row in MysticPoolLogic.odds() do
@@ -486,6 +490,11 @@ return function()
 			local before = MysticPoolLogic.autoLine(nil, { tokens = 4, freeLeft = 0 })
 			expect(string.find(before, "4 Trait Tokens", 1, true) ~= nil).to.equal(true)
 			expect(string.find(before, "Golden fish are never used", 1, true) ~= nil).to.equal(true)
+			-- a Trait Party has no cap (Derek 2026-11-16): never its count
+			local party =
+				MysticPoolLogic.autoLine(nil, { tokens = 2, freeLeft = 3, party = 100000 })
+			expect(string.find(party, "100", 1, true)).to.equal(nil)
+			expect(string.find(party, "until it ends", 1, true) ~= nil).to.equal(true)
 			local running = MysticPoolLogic.autoLine({ rolls = 3, spent = 2, running = true }, nil)
 			expect(running).to.equal("3 rolls · 2 Trait Tokens used")
 			local capped =

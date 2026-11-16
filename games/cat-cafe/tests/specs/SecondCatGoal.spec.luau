@@ -28,6 +28,20 @@ return function()
 			expect(before.title).to.equal("2nd cat: your Bait bowl 🐾 1/2")
 		end)
 
+		it("is its title only under bowl first, the strip saying the why (#4920)", function()
+			for _, narrow in { true, false } do
+				local view: any =
+					SecondCatGoal.view(full({ tutorialStep = 5 }), narrow, "Cozy Cafe", true, true)
+				expect(view.hook).to.equal(nil)
+				expect(#view.lines).to.equal(0)
+				expect(view.chip).to.equal(view.title)
+			end
+			-- the night line stays for a player whose areas are shut
+			local night: any =
+				SecondCatGoal.view(full({ tutorialStep = 5 }), false, "Cozy Cafe", false, true)
+			expect(night.hook).to.equal(SecondCatGoal.NIGHT)
+		end)
+
 		it("is nothing without the server's secondCat", function()
 			expect(SecondCatGoal.view({}, true, "Cozy Cafe")).to.equal(nil)
 			expect(SecondCatGoal.view(nil, true, "Cozy Cafe")).to.equal(nil)

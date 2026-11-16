@@ -3249,8 +3249,15 @@ function HUD.render(self: any, state: Types.PlayerState)
 	local nextTier = if tierProgress then tierProgress.nextTier else nil
 	self._tierProgress = tierProgress -- #4625: the new kinds goal's coins line
 	self._nextTierName = if nextTier then nextTier.name else nil -- #4098: the new kinds goal names what it opens
-	local second =
-		SecondCatGoal.view(state, TOUCH, if nextTier then nextTier.name else nil, self._areasOpen)
+	-- #4920 (Sync's night run): a night pass holder (the walk-through) has its own cat out at night, so the card
+	-- does not send it to bed with "Strays come back at sunrise"
+	local me = game:GetService("Players").LocalPlayer
+	local second = SecondCatGoal.view(
+		state,
+		TOUCH,
+		if nextTier then nextTier.name else nil,
+		self._areasOpen or (me ~= nil and me:GetAttribute("NightPass") == true)
+	)
 	local started = second ~= nil and self._second == nil
 	self._second = second
 	-- #3554: after it, on the way to a first Park catch, "Visit the Park 🐾" then "Catch a Park cat 🐾"

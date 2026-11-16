@@ -2729,6 +2729,9 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 			banner = extra and extra.banner,
 			line = extra and extra.line,
 			rate = extra and extra.rate,
+			-- #4920 (Design-Agent's check-in spec): before the first rank up the card holds 2.5 s, not 5, so the
+			-- Rank Up (#4925) and the next step come sooner; Nice! still closes it at once
+			quick = (state.tier or 1) <= 1,
 		}
 		local cats: { [string]: Types.CatInstance } = state.cats or {}
 		local newest: Types.CatInstance? = nil

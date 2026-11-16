@@ -239,6 +239,9 @@ function Scenes.setup()
 	Config.TipJarClaimAll = true
 	-- F99: the food cards' "Rainbow 0.5%" line shows once the server has rainbow rolls (Gameplay-Engineer)
 	Config.RainbowChanceBait = Config.RainbowChanceBait or 0.005
+	-- #4924: the Rank Up window opening by itself is off for every scene but its own, so a scene with a ready rank up
+	-- shows what it sets up
+	game:GetService("ReplicatedStorage"):SetAttribute("LiveFlag_autoRankUp", false)
 	UI.init({ catalog = catalogLikeTheGame(), keybinds = true })
 	UI.cannon.setEnabled(true) -- the Cat Cannon is live (F84): Cannon in the bottom row, no Alley or Areas
 	local now = os.time()
@@ -9941,6 +9944,21 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	-- The Nov 16 drop-off read (a third of ready players never pressed rank up): beside the rank up line the strip's
 	-- button reads RANK UP, whole on screen and over the strip, and goes with the line
+	-- #4924: a ready rank up opens the Rank Up window by itself once the screen has been calm, once a tier
+	{ "RankUpAuto", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local AutoRankUp = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.AutoRankUp") :: any
+		ReplicatedStorage:SetAttribute("LiveFlag_autoRankUp", true)
+		UI.autoRank.opened[1] = nil
+		UI.update({ tutorialStep = 99, tier = 1, money = 2000 } :: any)
+		local ready = UI.autoRank.ready()
+		assert(ready, "uigate: the sample save cannot rank up to Tier 2")
+		task.wait(AutoRankUp.CALM_SECONDS + AutoRankUp.CHECK_SECONDS * 2 + 0.2)
+		local window = UIShim.playerGui:FindFirstChild("RankUp", true)
+		assert(UI.autoRank.opened[1] == true, "uigate: the ready rank up did not open the Rank Up window")
+		ReplicatedStorage:SetAttribute("LiveFlag_autoRankUp", false)
+		local _ = window
+	end },
 	{ "TutorialRankUp", function()
 		local RankFirst = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("RankFirst")) :: any
 		UI.update({ tutorialStep = 99, tier = 1, money = 2000 } :: any)

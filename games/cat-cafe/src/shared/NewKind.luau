@@ -21,6 +21,7 @@ NewKind.TRAIL_SECONDS = 120 -- the trail goes this long after it showed
 NewKind.FOLLOWED_STUDS = 25 -- the player came this near the stray: new_kind_trail_followed
 NewKind.LABEL = "New kind"
 NewKind.LINE = "A kind of cat you don't have yet is close by"
+NewKind.ANY_LINE = "A cat is close by" -- #4809: while Tier 2 takes any cats (anyAt)
 NewKind.CANNON_LINE = "New kinds of cat wait in the Alleyway"
 NewKind.ANY_CANNON_LINE = "More cats wait in the Alleyway" -- #4809: while Tier 2 takes any cats (anyAt)
 NewKind.NEXT_AREA = "Try the next area"

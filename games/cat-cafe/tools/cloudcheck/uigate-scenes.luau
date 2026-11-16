@@ -9254,6 +9254,11 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assert(lit ~= nil, "uigate: the HUD's Cannon button has no ring beside the first flight's line (#4777)")
 		assert(tutorialSpotlight() ~= nil, "uigate: no dim round the Cannon button (#4777)")
+		-- the walk-up opens the picker: the dim goes, so it never sits over the window (Review-QA on #4779)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		assert((lit :: GuiObject):FindFirstChild("TutorialGlow") == nil, "uigate: the Cannon button stays lit over the open picker (#4777)")
+		UI.close("Cannon")
 		UI.cannon.setEnabled(false)
 		UIShim.advance(0.3)
 		assert((lit :: GuiObject):FindFirstChild("TutorialGlow") == nil, "uigate: the Cannon button stays lit with the line gone (#4777)")

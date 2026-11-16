@@ -4139,6 +4139,11 @@ function UI.cannon.open(cannonId: string?)
 		return
 	end
 	screen:setCannon(cannonId or CannonLogic.TOWN)
+	-- #4777 (Review-QA on #4779): the Cannon button's dim goes as the picker opens, so it never sits over the window
+	if hud then
+		local board: any = hud
+		board:pointCannon(false)
+	end
 	-- #4674: in the bowl first walk-through the Alleyway card's Launch is ringed until it is pressed
 	local WalkRingLogic = require(script.Components.WalkRingLogic)
 	local TutorialOrder =

@@ -4147,8 +4147,16 @@ function UI.rankSpot.set(phase: string, words: string?, onOutside: (() -> ())?):
 	-- window the button gets the ring, the arrow and the words but no dim (Sync's Studio run of #4769: the dim over an
 	-- open window covered its X and Escape did nothing), and a controller's selection lands on it so A ranks up
 	local confirm = phase == "confirm"
-	UI.rankSpot.close =
-		SpotlightGuide.show(target, words or "", onOutside, phase == "button", confirm)
+	-- #4909 (Sync's rerun: the "You can rank up!" bubble sat over the strip and hid its line): on the strip's own
+	-- RANK UP the strip's words say it, so no bubble
+	local onStrip = phase == "button" and target.Name == "TutorialBuy"
+	UI.rankSpot.close = SpotlightGuide.show(
+		target,
+		if onStrip then "" else words or "",
+		onOutside,
+		phase == "button" and not onStrip,
+		confirm
+	)
 	if confirm then
 		local pad = require(script.Components.GamepadNav) :: any
 		-- the Button component is a frame round its Face: the selection goes on the GuiButton

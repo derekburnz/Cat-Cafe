@@ -121,7 +121,9 @@ CafeEvents.ADMIN = {
 	rainbowBoostMax = 5,
 	coatChanceMax = 0.5, -- a boosted gold or rainbow chance never goes over this
 	moneyStormMax = 5, -- #4197 Money Storm
-	traitPartyRolls = 30, -- #4197 Trait Party: free rolls an account may take in one party
+	-- #4197 Trait Party: free rolls an account may take in one party. Derek 2026-11-16 16:53 UTC ("don't put a cap just
+	-- make it a cap time"): no real cap, the party's 3 minutes are the limit (was 30)
+	traitPartyRolls = 100000,
 	secretHuntMax = 5, -- #4197 Secret Hunt
 	huntFish = 100, -- each player online when the last hunted cat is caught
 	fountainFish = 5, -- #4197 Fish Fountain: golden fish in each pickup

@@ -68,8 +68,8 @@ WhatsNew.rows = table.freeze({
 		text = "New code: UPDATE6",
 	},
 	-- #2718 refresh, 2026-11-16 07:00 UTC (about 70 PRs since the 03:30 UTC rows): changes that are live with no switch
-	-- to wait for. Fuse all #4639, Auto Roll #4714, Tier 4 and 5 kinds #4719, the lighter join #4635 #4730 #4735, joins
-	-- at your own cafe #4717, Index titles #4710, the Snowy aurora #4689.
+	-- to wait for. Fuse all #4639, Auto Roll #4714, Tier 4's kinds #4719, the lighter join #4635 #4730 #4735. Four rows
+	-- only, so the 03:30 rows stay on the visible list (Review-QA).
 	{
 		id = "fuse_all",
 		date = "2026-11-16",
@@ -83,34 +83,16 @@ WhatsNew.rows = table.freeze({
 		text = "Auto Roll for cat traits",
 	},
 	{
-		id = "tier5_no_mythic",
+		id = "tier4_legendary",
 		date = "2026-11-16",
 		icon = "faster",
-		text = "Tier 4 and 5 need no Mythic",
+		text = "Tier 4 needs a Legendary now",
 	},
 	{
 		id = "join_lighter",
 		date = "2026-11-16",
 		icon = "faster",
 		text = "Faster to join the game",
-	},
-	{
-		id = "join_at_cafe",
-		date = "2026-11-16",
-		icon = "fix",
-		text = "Joins start at your cafe",
-	},
-	{
-		id = "index_titles_bag",
-		date = "2026-11-16",
-		icon = "look",
-		text = "Index titles in your Bag",
-	},
-	{
-		id = "snowy_aurora",
-		date = "2026-11-16",
-		icon = "look",
-		text = "Northern lights on Snowy",
 	},
 	-- 10 Secret Cats (#4221, Mon 2026-11-16 03:30 UTC): in tonight's build, shown only once the secretAreas switch opens.
 	{

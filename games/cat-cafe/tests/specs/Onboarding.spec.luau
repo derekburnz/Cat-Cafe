@@ -642,10 +642,10 @@ return function()
 		}
 
 		it(
-			"is onboarding_v8: 49 steps in the bowl first order, ending at the Park, then catch, tier and arrival per area",
+			"is onboarding_v8: 47 steps in the bowl first order, ending at the Park, then catch, tier and arrival per area",
 			function()
 				expect(Onboarding.CLEAN_FUNNEL).to.equal("onboarding_v8")
-				expect(Onboarding.CLEAN_COUNT).to.equal(49)
+				expect(Onboarding.CLEAN_COUNT).to.equal(47)
 				expect(Onboarding.CLEAN_STEPS :: any).to.deepEqual(Onboarding.CLEAN_RULE_NAMES)
 				expect(Onboarding.CLEAN_STEPS[4]).to.equal("bowl_opened")
 				expect(Onboarding.CLEAN_STEPS[5]).to.equal("first_bowl")
@@ -659,14 +659,12 @@ return function()
 				expect(Onboarding.CLEAN_STEPS[18]).to.equal("second_checkin")
 				expect(Onboarding.CLEAN_STEPS[19]).to.equal("rank_up_ready_shown")
 				expect(Onboarding.CLEAN_STEPS[21]).to.equal("tier_2")
-				expect(Onboarding.CLEAN_STEPS[22]).to.equal("park_cannon")
-				expect(Onboarding.CLEAN_STEPS[23]).to.equal("park_launch")
 				expect(Onboarding.CLEAN_STEPS[Onboarding.CLEAN_TUTORIAL]).to.equal("park_arrived")
-				expect(Onboarding.CLEAN_TUTORIAL).to.equal(24)
-				expect(Onboarding.CLEAN_STEPS[25]).to.equal("park_catch")
-				expect(Onboarding.CLEAN_STEPS[26]).to.equal("tier_3")
-				expect(Onboarding.CLEAN_STEPS[27]).to.equal("neighbourhood_arrived")
-				expect(Onboarding.CLEAN_STEPS[49]).to.equal("castle_catch")
+				expect(Onboarding.CLEAN_TUTORIAL).to.equal(22)
+				expect(Onboarding.CLEAN_STEPS[23]).to.equal("park_catch")
+				expect(Onboarding.CLEAN_STEPS[24]).to.equal("tier_3")
+				expect(Onboarding.CLEAN_STEPS[25]).to.equal("neighbourhood_arrived")
+				expect(Onboarding.CLEAN_STEPS[47]).to.equal("castle_catch")
 				local seen: { [string]: boolean } = {}
 				for _, name in Onboarding.CLEAN_STEPS do
 					expect(seen[name]).to.equal(nil)
@@ -719,17 +717,15 @@ return function()
 			})
 			facts.tier = 2
 			expect(Onboarding.cleanDue(state, 20, facts) :: any).to.deepEqual({ 21 })
-			expect(Onboarding.cleanDue(state, 21, facts, EV.cannonOpen) :: any).to.deepEqual({ 22 })
-			expect(Onboarding.cleanDue(state, 22, facts, EV.launch) :: any).to.deepEqual({ 23 })
-			expect(Onboarding.cleanDue(state, 23, facts, Onboarding.arrivedEvent("park")) :: any).to.deepEqual({
-				24,
+			expect(Onboarding.cleanDue(state, 21, facts, Onboarding.arrivedEvent("park")) :: any).to.deepEqual({
+				22,
 			})
 			facts.areas.park = true
 			facts.tier = 3
-			expect(Onboarding.cleanDue(state, 24, facts) :: any).to.deepEqual({ 25, 26 })
+			expect(Onboarding.cleanDue(state, 22, facts) :: any).to.deepEqual({ 23, 24 })
 			expect(
-				Onboarding.cleanDue(state, 26, facts, Onboarding.arrivedEvent("neighbourhood")) :: any
-			).to.deepEqual({ 27 })
+				Onboarding.cleanDue(state, 24, facts, Onboarding.arrivedEvent("neighbourhood")) :: any
+			).to.deepEqual({ 25 })
 		end)
 
 		it(
@@ -748,8 +744,8 @@ return function()
 					all.areas[area] = true
 				end
 				local due = Onboarding.cleanDue(state, 18, all)
-				expect(#due).to.equal(49 - 18)
-				expect(due[#due]).to.equal(49)
+				expect(#due).to.equal(47 - 18)
+				expect(due[#due]).to.equal(47)
 			end
 		)
 

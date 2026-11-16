@@ -680,9 +680,7 @@ local CLEAN_RULES: { CleanRule } = {
 	{ name = "rank_up_ready_shown", event = EV.rankUpShown },
 	{ name = "rank_up_pressed", event = EV.rankUpPressed },
 	{ name = "tier_2", tier = 2 },
-	{ name = "park_cannon", event = EV.cannonOpen }, -- into the camp cannon after the Rank Up
-	{ name = "park_launch", event = EV.launch }, -- launched to the Park
-	{ name = "park_arrived", event = Onboarding.arrivedEvent("park") }, -- the walk-through's end
+	{ name = "park_arrived", event = Onboarding.arrivedEvent("park") }, -- the Rank Up moves the player in (#4674): the walk-through's end
 	{ name = "park_catch", area = "park", tier = 2 },
 }
 for index, area in LATER_AREAS do
@@ -720,8 +718,6 @@ Onboarding.CLEAN_STEPS = {
 	"rank_up_ready_shown",
 	"rank_up_pressed",
 	"tier_2",
-	"park_cannon",
-	"park_launch",
 	"park_arrived",
 	"park_catch",
 	"tier_3",
@@ -750,7 +746,7 @@ Onboarding.CLEAN_STEPS = {
 	"castle_catch",
 } :: { string }
 Onboarding.CLEAN_COUNT = #Onboarding.CLEAN_STEPS
-Onboarding.CLEAN_TUTORIAL = 24 -- park_arrived, the walk-through's end: the areas come after
+Onboarding.CLEAN_TUTORIAL = 22 -- park_arrived, the walk-through's end: the areas come after
 Onboarding.CLEAN_RULE_NAMES = table.create(#CLEAN_RULES) :: { string } -- for the spec
 for index, rule in CLEAN_RULES do
 	Onboarding.CLEAN_RULE_NAMES[index] = rule.name

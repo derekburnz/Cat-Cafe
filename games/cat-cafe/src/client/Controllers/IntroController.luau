@@ -2168,15 +2168,18 @@ function IntroController.stagingTackle(): boolean
 	return lesson ~= nil
 end
 
--- #2759: hold the camera still on `at` until unpark() or a run takes it.
-local function park(at: Intro.Key)
+-- #2759: hold the camera still on `at` until unpark() or a run takes it. `bare` (#4781 follow-up): no loading screen
+-- over it, for a first play after the player already skipped that screen (it came back for a quarter second)
+local function park(at: Intro.Key, bare: boolean?)
 	local camera = Workspace.CurrentCamera
 	if camera == nil then
 		return
 	end
 	parked = true
 	parkedAt = at
-	UI.intro.waiting(true) -- #3105: the loading screen covers the still picture until it moves
+	if not bare then
+		UI.intro.waiting(true) -- #3105: the loading screen covers the still picture until it moves
+	end
 	camera.CameraType = Enum.CameraType.Scriptable
 	setCamera(at)
 	-- a spawn resets the camera to follow the character (Laptop-Tester: 5 s behind the cannon before the intro), so
@@ -2292,7 +2295,7 @@ function IntroController.play(replay: boolean)
 	local short = replay or Tail.introShort -- #4001: a replay always plays the short intro (Design-Agent on the issue)
 	local first = Intro.shots(Intro.plot(state.plotIndex), hasCodesCat(), false, short)[1]
 	if first ~= nil and first.cuts[1] ~= nil then
-		park(first.cuts[1].from)
+		park(first.cuts[1].from, loadSkipped and not replay)
 	end
 	-- with streaming on the camps are far from the spawn this client holds: ask for the Alleyway's camp, and its
 	-- middle too, where its big ground and set parts stand (#2961)

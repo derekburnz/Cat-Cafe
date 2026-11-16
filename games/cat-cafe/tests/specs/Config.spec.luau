@@ -566,6 +566,9 @@ return function()
 				DecorSpots = true, -- a table, checked below
 				CodeWrongWindowSeconds = true, -- section 11d: "5 wrong codes in a minute"
 				GroupCheckSeconds = true, -- section 11d: IsInGroup "cached per player for 60 s"
+				GroupJoinTrustSeconds = true, -- #4679: checked in StarterCat.spec
+				GroupJoinRetries = true, -- #4679: checked in StarterCat.spec
+				GroupJoinRetrySeconds = true, -- #4679: checked in StarterCat.spec
 				StraySpawnSpacingStuds = true, -- Derek 22:38: strays spawn spread out; the designer logs it in section 17
 				StrayFloorBase = true, -- #1159: top-ups, checked in StrayTopUp.spec
 				StrayFloorPerPlayer = true,

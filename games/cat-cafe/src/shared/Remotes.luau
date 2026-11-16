@@ -127,6 +127,9 @@ Remotes.ClientToServer = {
 	"ClaimStarterCat", -- ()  F96 (starter-cat.md section 4): within StarterCatRangeStuds of a BellhopStand, the
 	-- Bellhop Cat not yet claimed, and the first goals done (GroupId 0) or the player in GroupId; 1 per 2 s, answered
 	-- with StarterCatResult
+	"GroupJoinPrompted", -- ()  #4679: the player pressed "Join the group" on the Bellhop Cat's card and Roblox's join
+	-- prompt opened. A note only, kept for the session: a ClaimStarterCat inside Config.GroupJoinTrustSeconds of it
+	-- asks Roblox again a few times and, if the answer is still an old "no", lets the cat go home; 1 per 5 s
 	"IntroDone", -- (shot: number, replay: boolean, seconds: number?)  integer 0 to 10: 0 when the intro cutscene played
 	-- to the end, else the shot showing at Skip (F72, shared/Intro); seconds watched, whole, 0 to 600 (#3773, optional
 	-- so an old client still counts); 1 a second. The first non-replay call sets introSeen

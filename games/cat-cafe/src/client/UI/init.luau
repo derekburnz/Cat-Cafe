@@ -485,6 +485,7 @@ local function cannonHint(): string?
 		bowlFirst = (require(
 			ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")
 		) :: any).bowlFirst(),
+		loaded = state.tutorialStep ~= nil, -- #4967: not before the first sync
 	})
 end
 

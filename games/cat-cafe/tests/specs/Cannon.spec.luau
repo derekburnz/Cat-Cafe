@@ -374,6 +374,20 @@ return function()
 			expect(Cannon.stillAtSpawn(Vector3.new(0, 30, -14), spawn)).to.equal(true)
 		end)
 
+		it("moves a new player from anywhere in the Town Square (#4967)", function()
+			local spawn = Vector3.new(0, 0.6, -14)
+			-- walked to the cannon after a fast loading skip: a new player still goes to the door
+			expect(Cannon.stillAtSpawn(Vector3.new(0, 3, 40), spawn, true)).to.equal(true)
+			expect(Cannon.stillAtSpawn(Vector3.new(0, 3, 40), spawn, false)).to.equal(false)
+			expect(
+				Cannon.stillAtSpawn(
+					Vector3.new(0, 3, -14 + Cannon.HOME_SPAWN_STUDS_NEW + 1),
+					spawn,
+					true
+				)
+			).to.equal(false)
+		end)
+
 		it("puts the camera behind and above the character, looking the way it faces", function()
 			-- at the Town Square spawn the character faces the cannon (+Z): the camera is south of it, not in the cannon
 			local from, focus = Cannon.cameraBehind(Vector3.new(0, 3, -14), Vector3.new(0, 0, 1))

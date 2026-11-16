@@ -36,6 +36,9 @@ export type HintView = {
 	bowlPending: boolean?,
 	-- #4674 (Derek 2026-11-16: "no need for the hop in cannon to catch more cats"): bowl first has no wrap-up line
 	bowlFirst: boolean?,
+	-- #4967: the save's state has reached this client (its first sync). Before it, the step and the bowl part are
+	-- unknown, so no hint: a fast loading skip put "hop in the cannon" over a new player's bowl step
+	loaded: boolean?,
 }
 
 local CannonLogic = {}
@@ -252,7 +255,13 @@ function CannonLogic.isFirstFlight(text: string?): boolean
 end
 
 function CannonLogic.hint(view: HintView): string?
-	if not view.on or view.wild or view.intro or view.bowlPending == true then
+	if
+		not view.on
+		or view.wild
+		or view.intro
+		or view.bowlPending == true
+		or view.loaded == false
+	then
 		return nil
 	end
 	local text: string? = nil

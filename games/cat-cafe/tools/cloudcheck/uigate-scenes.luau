@@ -9231,6 +9231,28 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local tier, done = was.tier, was.secondCatDone
 		RS:SetAttribute("LiveFlag_catchFirst", false)
 		UI.update({ tier = 1, secondCatDone = false } :: any)
+		-- #4920: with firstFlightDirect on, the first flight launches straight to the Alleyway with no picker; a
+		-- refused launch opens the picker (with its ring) and stops the straight launch for the session
+		RS:SetAttribute("LiveFlag_firstFlightDirect", true)
+		local fired: { string } = {}
+		local listen = UI.events.launchCannon:Connect(function(_cannon: string, area: string)
+			table.insert(fired, area)
+		end)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		assert(fired[1] == "alley", "uigate: the first flight did not launch straight to the Alleyway (#4920)")
+		local shown = UIShim.playerGui:FindFirstChild("Cannon", true) :: GuiObject?
+		assert(shown == nil or not shown.Visible, "uigate: the picker opened on the straight launch (#4920)")
+		UI.cannon.result(false, "alley")
+		UIShim.advance(0.3)
+		assert(UI.cannon.direct.off, "uigate: a refused straight launch did not stop it (#4920)")
+		assert(UI.cannon.walkRing == "alley", "uigate: a refused straight launch did not open the picker (#4920)")
+		listen:Disconnect()
+		UI.close("Cannon")
+		UIShim.advance(0.3)
+		UI.cannon.direct.off = false
+		-- the switch off: the picker as before
+		RS:SetAttribute("LiveFlag_firstFlightDirect", false)
 		UI.cannon.open()
 		UIShim.advance(0.3)
 		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
@@ -9248,6 +9270,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UIShim.advance(0.3)
 		assert(UI.cannon.walkRing == nil and launch:FindFirstChild("TutorialGlow") == nil, "uigate: the ring came back after the catches (#4674)")
 		RS:SetAttribute("LiveFlag_catchFirst", nil)
+		RS:SetAttribute("LiveFlag_firstFlightDirect", nil)
 		UI.update({ tier = tier, secondCatDone = if done == nil then true else done } :: any)
 		UI.close("Cannon")
 	end },

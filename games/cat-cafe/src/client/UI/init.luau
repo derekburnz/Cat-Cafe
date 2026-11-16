@@ -4017,6 +4017,9 @@ UI.cannon.wrapUp = { step = nil :: number?, on = false }
 -- #2915: "Fly to the Park" on the rank-up card (flyToPark). `ring` is the area whose picker card is ringed, `travel`
 -- that the trip to the cannon is under way (UI.travel.result opens the picker when it lands), `token` the newest press.
 UI.cannon.fly = { ring = nil :: string?, travel = false, token = 0 }
+-- #4920: the walk-through's straight launch to the Alleyway: `pending` while its answer is out, `off` for the rest of
+-- the session once the server refused one (the picker opens instead, so a refused launch never loops)
+UI.cannon.direct = { pending = false, off = false }
 UI.cannon.bowlPending = false -- #4674: bowl first, the bowl part still to do (UIController)
 UI.cannon.walkRing = nil :: string? -- #4674: the walk-through's Alleyway ring on the picker, until Launch
 -- The wild area the character is in (setWild), and the cannon the character stands by (CannonController sets it).
@@ -4251,12 +4254,23 @@ end
 -- (UI.cannon.open), which launches straight to the Alleyway while the walk-through's first flight is due. Nothing
 -- when the picker would open with no Alleyway ring (it then waits for Hop in, as before).
 function UI.cannon.directAfterTravel()
-	if UI.cannon.fly.travel or UI.cannon.fly.ring ~= nil then
+	if UI.cannon.fly.travel or UI.cannon.fly.ring ~= nil or UI.cannon.direct.off then
 		return -- "Fly to the Park" opens its own picker
 	end
 	local WalkRingLogic = require(script.Components.WalkRingLogic)
 	local TutorialOrder =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TutorialOrder")) :: any
+	local LiveFlags =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LiveFlags")) :: any
+	-- review: with the switch off the picker waits for Hop in, as before
+	if
+		not LiveFlags.shown(
+			WalkRingLogic.FLAG,
+			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. WalkRingLogic.FLAG)
+		)
+	then
+		return
+	end
 	local walk = WalkRingLogic.area({
 		bowlFirst = TutorialOrder.bowlFirst(),
 		tier = state.tier,
@@ -4326,7 +4340,8 @@ function UI.cannon.open(cannonId: string?)
 			ReplicatedStorage:GetAttribute(LiveFlags.ATTRIBUTE_PREFIX .. WalkRingLogic.FLAG)
 		)
 	)
-	if direct ~= nil then
+	if direct ~= nil and not UI.cannon.direct.off then
+		UI.cannon.direct.pending = true
 		UI.events.launchCannon:Fire(cannonId or CannonLogic.TOWN, direct)
 		return
 	end
@@ -4417,6 +4432,15 @@ function UI.cannon.checkedIn(_catName: string?) end
 function UI.cannon.result(ok: boolean, destination: string?)
 	if cannonScreen then
 		cannonScreen:result(ok, destination)
+	end
+	-- #4920 (review): a refused straight launch (night without the pass, a cooldown, mid hop) opens the picker as
+	-- before and stops the straight launch for the session, so the next tap never loops on the same refusal
+	if UI.cannon.direct.pending then
+		UI.cannon.direct.pending = false
+		if not ok then
+			UI.cannon.direct.off = true
+			UI.cannon.open(CannonLogic.TOWN)
+		end
 	end
 end
 

@@ -2097,7 +2097,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Lawn_GoldenPawStatue_Paw_Spin"
   }

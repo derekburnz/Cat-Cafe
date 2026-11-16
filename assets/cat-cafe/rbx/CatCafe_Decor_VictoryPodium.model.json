@@ -4397,7 +4397,8 @@
        ]
       ]
      }
-    }
+    },
+    "ModelStreamingMode": "Atomic"
    },
    "name": "CatCafe_Decor_VictoryPodium_Trophy_Spin"
   }

@@ -2349,6 +2349,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = root,
 	})
 	Outline.text(self._tutorial) -- label() skips the outline on wrapped text
+	-- #4928 (Sync's run): the cannon arrow kept off the strip's words ("wait in" was covered on PC)
+	self._tutorial:SetAttribute(TutorialArrow.AVOID, true)
 	Create("UICorner", { CornerRadius = UDim.new(0, 20), Parent = self._tutorial })
 	Create("UIPadding", {
 		PaddingLeft = UDim.new(0, strip.padX),

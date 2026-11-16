@@ -35,7 +35,7 @@ export type View = {
 	chip: string, -- the folded card's line
 }
 
-SecondCatGoal.CARRY = "Bring your cat to the camp to keep it 🐾" -- #4926 -- the card's line while a cat is carried
+SecondCatGoal.CARRY = "Carry it to camp to keep it 🐾" -- #4926 -- the card's line while a cat is carried
 SecondCatGoal.NEED = 2 -- cats caught that end it (shared/SecondCat.CATS)
 SecondCatGoal.DOUBLE = 1.9 -- the rate with a second cat over the rate now from which the card may say "2x"
 SecondCatGoal.PREVIEW_SECONDS = 6 -- how long `lines` show (shared/SecondCat.PREVIEW_SECONDS)

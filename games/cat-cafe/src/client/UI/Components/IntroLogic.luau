@@ -45,7 +45,7 @@ IntroLogic.END = 2.0
 -- help"): Next, a tap outside Skip, Space, Enter or gamepad A moves on once a shot has shown this long, so a double tap
 -- never skips two shots (shared/Intro's NEXT_AFTER, else 1.0)
 IntroLogic.NEXT_AFTER = if type(Intro.NEXT_AFTER) == "number" then Intro.NEXT_AFTER else 0
-IntroLogic.NEXT_GAP = 10 -- design pixels between Next and Skip on the lower bar
+IntroLogic.NEXT_GAP = 14 -- design pixels between Next and Skip on the lower bar (14, not 10: Skip's 1.05 pop left 0.8 px on a 705 x 338 phone)
 IntroLogic.READ_WIDTH = 220 -- the read bar under the caption, in design pixels
 IntroLogic.READ_HEIGHT = 4
 

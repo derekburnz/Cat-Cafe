@@ -374,7 +374,7 @@ return function()
 				expect(ShopIcons.dragonFamily(family) ~= nil).to.equal(true)
 			end
 			expect(ShopIcons.dragonFamily("")).to.equal(nil)
-			expect(ShopIcons.booth("PoolNoodle")).to.equal("rbxassetid://137047405302523")
+			expect(ShopIcons.booth("PoolNoodle")).to.equal(nil) -- the toys were removed (Derek 2026-11-16)
 			expect(ShopIcons.booth("BoothPlush")).to.equal("rbxassetid://126308376800797")
 			expect(ShopIcons.booth("Nothing")).to.equal(nil)
 		end)

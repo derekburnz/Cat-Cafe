@@ -5989,7 +5989,13 @@ end
 -- #3317 (Derek2 2026-11-11: "move to the top of perks"): Swift Paws first, five levels (shared/SwiftPaws; Monetization-
 -- Agent's prices, 1,810 fish in all). The Star Treat's row (150 fish) is gone from the Market only (Derek2: "remove
 -- star treat from fish market"); it still comes from the Daily Treat, the Dealer and prizes, and saved ones stay.
-shopRow({ id = "swift_paws", kind = "perk", costs = { 60, 150, 300, 500, 800 }, maxLevel = 5 })
+-- #4705 (Derek 2026-11-16: "add more speed upgrade stages past 5"): levels 6 to 10, each about 1.3 to 1.5 times the last
+shopRow({
+	id = "swift_paws",
+	kind = "perk",
+	costs = { 60, 150, 300, 500, 800, 1200, 1700, 2300, 3000, 3800 },
+	maxLevel = 10,
+})
 shopRow({ id = "golden_espresso", kind = "perk", costs = { 40, 80, 150, 250, 400 }, maxLevel = 5 })
 shopRow({ id = "big_bowl", kind = "perk", costs = { 150 }, maxLevel = 1 })
 shopRow({ id = "extra_decor_spot", kind = "perk", costs = { 100, 250 }, maxLevel = 2 })

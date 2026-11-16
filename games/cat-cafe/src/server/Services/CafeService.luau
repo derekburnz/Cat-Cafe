@@ -86,6 +86,11 @@ type Profile = Types.PlayerProfile
 
 local CafeService = {}
 
+-- #4712: the player's last Auto Roll this session (TraitService sets this at start, since it requires this module)
+CafeService.autoRolled = function(_player: Player): { id: string, n: number }?
+	return nil
+end
+
 -- #3694 section 3: the achievements behind a feature switch read the live switches (here, since this file sends
 -- the achievements view; QuestService and Claim all reach Quests through it)
 Quests.setFlagReader(LiveFlagService.on)
@@ -266,6 +271,7 @@ local function traitsView(player: Player, profile: Profile, now: number): Types.
 		and policy.ArePaidRandomItemsRestricted == false
 	local party = EventService.partyLeft(player) -- #4197 Trait Party
 	view.party = if party > 0 then party else nil
+	view.autoRoll = CafeService.autoRolled(player) -- #4712
 	return view
 end
 

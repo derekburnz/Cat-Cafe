@@ -5676,6 +5676,15 @@ function HUD._layoutMenu(self: any)
 	-- (Derek 2026-11-02: "the luck on mobile should be moved somewhere better"); else they go beside the arrow tab
 	self._buffsLow = roomy
 		or self._menuTop + storeH + menuH + gap <= bandBottom - (buffsH + BUFFS_GAP)
+	-- #4826: the grid and its arrow tab go in place first, so _liftTop's _leftClear reads where they are now (the Luck
+	-- chip sat under the arrow tab on a 667 x 375 phone when it read the tab's old spot)
+	self._menu.Position =
+		UDim2.new(0, if self._menuFolded then menuFoldedX(menuW) else MARGIN, 0, self._gridTop)
+	if not TOUCH then
+		store.Position =
+			UDim2.new(0, if self._menuFolded then menuFoldedX(MENU_W) else MARGIN, 0, self._menuTop)
+	end
+	self:_placeMenuFold()
 	if TOUCH then
 		-- #2393: under the counters at the top middle, wherever the menu goes
 		self:_liftTop()
@@ -5685,14 +5694,6 @@ function HUD._layoutMenu(self: any)
 			Vector2.new(0, 1)
 		)
 	end
-
-	self._menu.Position =
-		UDim2.new(0, if self._menuFolded then menuFoldedX(menuW) else MARGIN, 0, self._gridTop)
-	if not TOUCH then
-		store.Position =
-			UDim2.new(0, if self._menuFolded then menuFoldedX(MENU_W) else MARGIN, 0, self._menuTop)
-	end
-	self:_placeMenuFold()
 
 	-- the bottom row (and its arrow tab) keeps clear of the counters
 	-- #2334: the money badge sits after the golden fish now, so the counters' measured width counts too (the badge

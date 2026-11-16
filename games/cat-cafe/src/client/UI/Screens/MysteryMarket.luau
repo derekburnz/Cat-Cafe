@@ -577,6 +577,7 @@ function MysteryMarketScreen._paint(self: any)
 		self._featuredName.Text = "No sale this week"
 		self._featuredText.Text = "A new item goes on sale soon"
 		self._featuredPicture.Text = "❓"
+		art(self._featuredPicture, "") -- clears the last item's picture
 		self._featuredPrice.Text = ""
 		self._ends.Text = view.nextLine or ""
 		self._featuredNote.Text = ""
@@ -607,7 +608,7 @@ function MysteryMarketScreen._paint(self: any)
 			self._featuredBuy:setEnabled(enabled)
 		end
 	end
-	self._next.Text = view.nextLine or ""
+	self._next.Text = if featured ~= nil then view.nextLine or "" else "" -- the no-sale card says it once
 	local ids: { string } = {}
 	for _, row in view.others do
 		table.insert(ids, row.id)

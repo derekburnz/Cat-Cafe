@@ -20,7 +20,7 @@ return function()
 					local p = prize :: TicketBooth.Prize
 					expect(p.toy).to.equal(toy.id)
 					expect(p.price).to.equal(2000)
-					expect(p.limit.per).to.equal("once")
+					expect((p.limit :: any).per).to.equal("once")
 					expect(p.weekly).to.equal(nil)
 					expect(Toys.get(toy.id)).to.equal(toy)
 				end

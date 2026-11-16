@@ -14,7 +14,7 @@
 --       "quests"  a new UTC day since the player was last seen, so the daily quests are new ("New daily quests are here")
 --       nil       none of these, and the line is left out
 --   early(profile, now, giftOn) -> Hook?   #4626: the line a new player sees at minute 6 (PlayerState.tomorrowHook):
---       "gift"    the welcome back golden crate pays tomorrow (giftOn is the returnGift switch)
+--       "gift"    the welcome back golden crate pays tomorrow (giftOn: the gift is on; always true since #4654 retired the returnGift switch)
 --       "treat"   today's Daily Treat stamp is claimed, so tomorrow's day `day` is certain
 --       nil       neither (an unclaimed stamp today is the better nudge, and a bowl's cat comes this session)
 -- No timers, no "you'll lose" and nothing paid: it only names what is already there.
@@ -38,7 +38,6 @@ ReturnHook.KINDS = table.freeze({ "gift", "bait", "treat", "quests" }) :: { stri
 ReturnHook.EARLY_FLAG = "returnHookEarly"
 ReturnHook.EARLY_MAX_TIER = 2
 ReturnHook.EARLY_KINDS = table.freeze({ "gift", "treat" }) :: { string }
-ReturnHook.GIFT_FLAG = ReturnGift.FLAG
 
 -- When the bowl's cat comes (a save from before readyAt waits LureWaitSeconds from placedAt).
 local function readyAt(bait: Types.BaitState): number

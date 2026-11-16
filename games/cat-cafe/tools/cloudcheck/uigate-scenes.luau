@@ -10622,6 +10622,27 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
 	end },
+	-- #4909 (Sync's Studio run: the arrow stayed on the HUD's Cannon behind a NEW EPIC CAT card): in the walk-through
+	-- the card's Nice! takes the arrow from a HUD tutorial target, with no dim over the card
+	{ "CatFoundLeads", function()
+		local Glow = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.TutorialGlow") :: any
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local cannon = hud:FindFirstChild("Cannon", true) :: GuiObject
+		assert(cannon ~= nil, "uigate: no Cannon tile on the HUD")
+		Glow.set(cannon, true)
+		local was = UI.firstCat.tutorial
+		UI.firstCat.tutorial = true
+		UI.showCatFound(Catalog.cats[2].id, true)
+		UIShim.advance(1) -- the card's pop in settles
+		local popups = UIShim.playerGui:FindFirstChild("CatCafePopups") :: ScreenGui
+		local card = popups:FindFirstChild("CatFound", true) :: GuiObject
+		local ok = card:FindFirstChild("Ok", true) :: GuiObject
+		assert(ok ~= nil, "uigate: no Nice! on the cat found card")
+		assertArrowAt(ok, "Nice! on the cat found card")
+		assert(tutorialSpotlight() == nil, "uigate: the cat found card is dimmed")
+		UI.firstCat.tutorial = was
+		Glow.set(cannon, false)
+	end },
 	-- #2833 (Derek2: "only do the double pop-up if its a legendary+ or any new cat"): a repeat Common catch gets no big
 	-- card and (#2844) no toast; a repeat Legendary still gets the card
 	{ "CatFoundRepeat", function()

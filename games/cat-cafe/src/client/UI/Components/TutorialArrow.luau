@@ -35,7 +35,9 @@ local BOB_INFO = TweenInfo.new(0.45, Enum.EasingStyle.Sine, Enum.EasingDirection
 local Z = 60 -- over the target's ScreenGui's own pieces (they stay under 30)
 local SPOT_Z = Z - 1 -- #3153: the spotlight's dim, under the arrow and over the rest of the ScreenGui
 
-type Entry = { target: GuiObject, since: number, low: boolean }
+-- `plain` (#4909): a tutorial target that leads the arrow like any other but gets no dim (a card's button: the dim
+-- would darken the card itself)
+type Entry = { target: GuiObject, since: number, low: boolean, plain: boolean? }
 
 local entries: { Entry } = {}
 local arrow: Frame? = nil
@@ -408,7 +410,7 @@ local function update()
 	end
 	current.Visible = true
 	lead = not chosen.low
-	if lead then
+	if lead and not chosen.plain then
 		showSpot(into, target, screen, now)
 	else
 		hideSpot() -- the goal card's rank up nudge is no tutorial step: no dim for it
@@ -431,9 +433,10 @@ local function watch()
 	update()
 end
 
-function TutorialArrow.add(target: GuiObject, low: boolean?)
+function TutorialArrow.add(target: GuiObject, low: boolean?, plain: boolean?)
 	for _, entry in entries do
 		if entry.target == target then
+			entry.plain = plain == true
 			-- #4847 follow-up (Sync's camp run: "You can rank up!" with no dim): the goal card's ready nudge adds the
 			-- card as a `low` target first, so the rank up walk-through's spotlight on the same card found it there
 			-- and kept it low, with no dim. A tutorial ask on a low target lifts it.
@@ -444,7 +447,10 @@ function TutorialArrow.add(target: GuiObject, low: boolean?)
 			return
 		end
 	end
-	table.insert(entries, { target = target, since = os.clock(), low = low == true })
+	table.insert(
+		entries,
+		{ target = target, since = os.clock(), low = low == true, plain = plain == true }
+	)
 	watch()
 end
 

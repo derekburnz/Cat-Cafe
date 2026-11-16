@@ -36,7 +36,6 @@ local Types = require(script.Parent.Types)
 
 local MouseDash = {}
 
-MouseDash.FLAG = "mouseDash" -- on: the arcade's game; off until QA passes
 MouseDash.HOLES = 9 -- a 3 x 3 grid, numbered row by row from the top left
 MouseDash.MAX_STEP = 20 -- a step every MouseDashStepEvery points, to ArcadeMaxPoints
 MouseDash.STORE = "CatCafe_MouseDash"

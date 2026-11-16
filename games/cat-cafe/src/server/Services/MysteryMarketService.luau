@@ -173,7 +173,6 @@ local function onBagColours(player: Player, rawMain: unknown, rawTrim: unknown, 
 		main == nil
 		or trim == nil
 		or profile == nil
-		or not LiveFlagService.on(BagColours.FLAG)
 		or not BagColours.valid(main, kind)
 		or not BagColours.valid(trim, kind)
 	then

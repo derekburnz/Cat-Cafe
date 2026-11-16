@@ -111,6 +111,7 @@ local StuckCall = require(script.StuckCall)
 local Tackle = require(script.Tackle)
 local Themes = require(script.Themes)
 local Townsfolk = require(script.Townsfolk)
+local ToyFx = require(script.ToyFx)
 local Trade = require(script.Trade)
 local TrailSparkle = require(script.TrailSparkle)
 local Trampoline = require(script.Trampoline)
@@ -186,6 +187,7 @@ function Effects.start()
 		Lawn.start,
 		NetPin.start,
 		NetTrail.start,
+		ToyFx.start, -- #4061: the Ticket Booth toys in use
 		LuckyCat.start,
 		CampWater.start,
 		CampCollect.start,

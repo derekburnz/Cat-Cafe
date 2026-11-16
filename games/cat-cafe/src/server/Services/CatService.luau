@@ -417,8 +417,7 @@ local function pawsBonus(player: Player): number
 	return M.SwiftPaws.bonus(profile, M.LiveFlagService.on(M.SwiftPaws.FLAG)) + traits + dragon
 end
 
--- #3535: the carry walk speed: CarryWalkSpeed with Swift Paws and, with the Speed Shoes owned and their switch on,
--- the shoes' bonus, which stops one short of the player's own walk speed with no cat (shared/SpeedShoes.carry).
+-- #3535: the carry walk speed: CarryWalkSpeed with Swift Paws and, with the Speed Shoes owned, the shoes' bonus, which stops one short of the player's own walk speed with no cat (shared/SpeedShoes.carry).
 -- Never on the catch rush or a Startled slow.
 local function carrySpeed(player: Player): number
 	local paws = pawsBonus(player)
@@ -426,7 +425,7 @@ local function carrySpeed(player: Player): number
 		M.Config.CarryWalkSpeed + paws,
 		M.Config.NormalWalkSpeed + paws,
 		M.DataService.get(player),
-		M.LiveFlagService.on(SpeedShoes.FLAG),
+		true, -- #4654 batch 7: the `speedShoes` switch is retired
 		EventService.speedRush() -- #4197: Speed Rush lends everyone the shoes
 	)
 end
@@ -956,13 +955,10 @@ local function spawnAt(
 	owned: { [string]: any }? -- #4188: a beginner's collection, so their tutorial stray is a kind they lack
 ): Stray
 	local area = world.areas[areaId]
-	-- #3470: a rolled Mythical turns Secret 1 time in 100 while the `secretCats` switch is on (never a beginner's
-	-- stray). It takes the Mythical's point, and everyone hears the area and never the spot.
-	-- (review note on #3486: the two draws are made only for a Mythical with the switch on, so a switched off build
-	-- rolls exactly as before)
-	local secret = if beginner == nil
-			and rarity == "Mythical"
-			and M.LiveFlagService.on(Catching.SECRET_FLAG)
+	-- #3470: a rolled Mythical turns Secret 1 time in 100 (never a beginner's stray; #4654 batch 5: the `secretCats`
+	-- switch is retired). It takes the Mythical's point, and everyone hears the area and never the spot.
+	-- (review note on #3486: the two draws are made only for a Mythical)
+	local secret = if beginner == nil and rarity == "Mythical"
 		then Catching.secret(
 			rarity,
 			rng:NextNumber(),
@@ -1637,7 +1633,6 @@ local function huntTick()
 	if
 		running.spawned >= running.count
 		or not M.ClockService.areasOpen()
-		or not M.LiveFlagService.on(Catching.SECRET_FLAG)
 		or #M.Catalog.secretCats == 0
 	then
 		return
@@ -1820,7 +1815,7 @@ local function tintBackpack(player: Player)
 	if pack == nil or profile == nil then
 		return
 	end
-	local picked = if M.LiveFlagService.on(M.BagColours.FLAG) then profile.bagColours else nil
+	local picked = profile.bagColours
 	M.BagColours.tint(pack, M.BagColours.picks(picked))
 end
 
@@ -1844,8 +1839,7 @@ local function wearBackpack(player: Player)
 	end
 end
 
--- #4049: the worn Speed Shoes in their owner's two colour picks (the built colours with the switch off or nothing
--- picked). The server colours the parts, so every player sees them.
+-- #4049: the worn Speed Shoes in their owner's two colour picks (the built colours with nothing picked). The server colours the parts, so every player sees them.
 local function tintShoes(player: Player, worn: Instance?)
 	local character = player.Character
 	local folder = worn
@@ -1854,18 +1848,11 @@ local function tintShoes(player: Player, worn: Instance?)
 	if folder == nil or profile == nil then
 		return
 	end
-	M.BagColours.tint(
-		folder,
-		M.BagColours.picks(
-			if M.LiveFlagService.on(M.BagColours.FLAG) then profile.shoeColours else nil,
-			"shoes"
-		),
-		"shoes"
-	)
+	M.BagColours.tint(folder, M.BagColours.picks(profile.shoeColours, "shoes"), "shoes")
 end
 
--- #4050: the Speed Shoes' owner wears them (SpeedShoes.wear) while the switch is on, at spawn, after the buy and
--- whenever they came off (keepBackpack's check); every player sees them. Without them, or with the switch off, none.
+-- #4050: the Speed Shoes' owner wears them (SpeedShoes.wear), at spawn, after the buy and whenever they came off
+-- (keepBackpack's check); every player sees them. Without them, none.
 -- #4197: while Speed Rush runs everyone wears a pair, put on and taken off at its start and end (CatService.start).
 local function keepShoes(player: Player)
 	local character = player.Character
@@ -1876,8 +1863,7 @@ local function keepShoes(player: Player)
 	if humanoid == nil or humanoid.Health <= 0 then
 		return
 	end
-	local sold = M.LiveFlagService.on(SpeedShoes.FLAG)
-	local want = (sold and SpeedShoes.owns(M.DataService.get(player))) or EventService.speedRush()
+	local want = SpeedShoes.owns(M.DataService.get(player)) or EventService.speedRush()
 	local old = character:FindFirstChild(SpeedShoes.WORN)
 	if old ~= nil and want and SpeedShoes.onFeet(old, character) then
 		return

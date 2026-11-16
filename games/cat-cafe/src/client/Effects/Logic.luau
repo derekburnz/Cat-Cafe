@@ -124,22 +124,14 @@ function Logic.budgetFor(
 	return device, Presets.budget[device]
 end
 
--- #3794: whether the lighter effects budget applies: the `fxLite` switch is on and either this is a phone or tablet
+-- #3794: whether the lighter effects budget applies (shipped for everyone; #4654 retired its `fxLite` switch): this is a phone or tablet
 -- (the "low" device tier) that is struggling (`struggling`, Logic.slowStep; Derek 2026-11-14: "turn it on for
 -- phones/tablets if they are struggling (slower devices) not if they are doing fine"), or its graphics quality is
 -- set by hand to 1 to 3 (`quality`, SavedQualityLevel's number; 0 is Automatic, which says nothing about the device,
 -- and 4 to 10 are left as they are).
 Logic.LITE_QUALITY_MAX = 3
 
-function Logic.wantsLite(
-	switchOn: boolean,
-	device: Presets.Tier,
-	quality: number?,
-	struggling: boolean?
-): boolean
-	if not switchOn then
-		return false
-	end
+function Logic.wantsLite(device: Presets.Tier, quality: number?, struggling: boolean?): boolean
 	return (device == "low" and struggling == true)
 		or (quality ~= nil and quality >= 1 and quality <= Logic.LITE_QUALITY_MAX)
 end

@@ -103,7 +103,8 @@ UI.mailbox = {} -- #4249 the Mailbox window, filled at the end of the file
 -- #4346: AFK mode's side for the HUD's AFK tile, set by Controllers/AfkController.start (shown, on, toggle, changed);
 -- nil until then. UI.bindAfk() hands it to the HUD.
 UI.afk = nil :: any
-UI.firstCat = { held = false } -- #4821: the first cat hold (UI.setFirstCatHold)
+-- #4821: the first cat hold (UI.setFirstCatHold); `tutorial`, the walk-through hold after it (UI.setTutorialHold)
+UI.firstCat = { held = false, tutorial = false }
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.harvest = {} -- #4251 the Harvest Stall's window, filled at the end of the file
@@ -656,6 +657,7 @@ local function autoOpenDailyTreat()
 		-- strip and the cannon walk-through after it go first
 		or tutorialText ~= nil
 		or hintShown ~= nil
+		or UI.firstCat.tutorial -- Derek 2026-11-16 15:22 UTC: and not until the walk-through is done
 		-- #4005: on the account's first day the "!" on its button is enough
 		or not (function(): boolean
 			local QuietStart =
@@ -2521,7 +2523,7 @@ task.defer(function()
 		else nil
 	if type(quietWhen) == "function" then
 		(quietWhen :: (() -> boolean) -> ())(function()
-			return UI.firstCat.held
+			return UI.firstCat.held or UI.firstCat.tutorial
 		end)
 	end
 	local onPlaying: any = if ok and type(adminFlash) == "table"
@@ -2550,6 +2552,19 @@ function UI.setFirstCatHold(on: boolean)
 	end
 	if hud ~= nil then
 		hud:holdBanner("firstCat", on)
+	end
+end
+-- Derek 2026-11-16 15:22 UTC ("no unnecessary pop ups until tutorial steps done"; QuietStart.tutorialHolds,
+-- UIController says when): through the rest of the walk-through the event and day strip steps aside, the asks wait
+-- (UIController's quiet), and the Starter Bundle card, the Daily Treat window opening itself, the return hook line, the
+-- big event cards and the admin event's middle of the screen wait. Toasts and the walk-through's tips still show.
+function UI.setTutorialHold(on: boolean)
+	if UI.firstCat.tutorial == on then
+		return
+	end
+	UI.firstCat.tutorial = on
+	if hud ~= nil then
+		hud:holdBanner("tutorial", on)
 	end
 end
 function UI.setCutscene(on: boolean)
@@ -6548,7 +6563,10 @@ do
 			owned = (state :: any).starterBought,
 			quietUntil = Players.LocalPlayer:GetAttribute(QuietStart.ATTRIBUTE),
 			now = Workspace:GetServerTimeNow(),
-			tutorialDone = type(state.tutorialStep) == "number" and state.tutorialStep >= 5,
+			-- Derek 2026-11-16 15:22 UTC: and the walk-through hold is off (UI.firstCat.tutorial)
+			tutorialDone = type(state.tutorialStep) == "number"
+				and state.tutorialStep >= 5
+				and not UI.firstCat.tutorial,
 			clear = UI.tips.quiet() and not (okBusy and busy == true) and UI.asks.paced(),
 			priced = robux ~= nil,
 		})
@@ -10883,6 +10901,7 @@ function UI.returnHook.try(): boolean
 		or state.carrying ~= nil
 		or UI.cutscene.held()
 		or UI.firstCat.held -- #4821
+		or UI.firstCat.tutorial -- Derek 2026-11-16 15:22 UTC
 		or UI.rollBusy.held()
 	if busy then
 		return false
@@ -11189,7 +11208,8 @@ do
 		local view = EventLogic.read(get, UI.cafeEvent.decode)
 		local seen, started = EventLogic.follow(events.seen, view, now)
 		events.seen = seen
-		if started and view ~= nil and toasts then
+		-- Derek 2026-11-16 15:22 UTC: no event card or toast in the walk-through (UI.firstCat.tutorial)
+		if started and view ~= nil and toasts and not UI.firstCat.tutorial then
 			-- #3420: an Update Party starts with the party card; any other event with the toast
 			local party = EventLogic.partyBanner(
 				view,
@@ -11235,7 +11255,9 @@ do
 				then AdminEventLogic.startBanner(adminView, now)
 				else AdminEventLogic.soonBanner(adminView, now)
 			local EventBanner = require(script.Parent.Effects.EventBanner) :: any
-			EventBanner.show(card)
+			if not UI.firstCat.tutorial then -- Derek 2026-11-16 15:22 UTC: the chat line only, in the walk-through
+				EventBanner.show(card)
+			end
 			-- the same words as one line in the chat window, for a player who looked away
 			local AdminEventChat = require(script.Parent.Effects.AdminEventChat) :: any
 			AdminEventChat.say(AdminEventLogic.chatLine(card))

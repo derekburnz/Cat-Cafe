@@ -66,7 +66,12 @@ end
 
 -- Whether tip `id` waits now. `tier` is the player's tier (nil reads as 1); `quiet` is QuietStart.quiet's answer;
 -- `spotlight` says the rank up walk through (`rankUpSpotlight`) is on.
-function QuietStart.holdsTip(id: string, tier: number?, quiet: boolean, spotlight: boolean?): boolean
+function QuietStart.holdsTip(
+	id: string,
+	tier: number?,
+	quiet: boolean,
+	spotlight: boolean?
+): boolean
 	if QuietStart.TIER_TIPS[id] and (tier or 1) < QuietStart.TIER then
 		return true
 	end

@@ -17,10 +17,7 @@ local QuietStart = require(ReplicatedStorage.Shared.QuietStart)
 local QuietStartService = {}
 
 function QuietStartService.quiet(player: Player): boolean
-	return QuietStart.quiet(
-		player:GetAttribute(QuietStart.ATTRIBUTE),
-		Workspace:GetServerTimeNow()
-	)
+	return QuietStart.quiet(player:GetAttribute(QuietStart.ATTRIBUTE), Workspace:GetServerTimeNow())
 end
 
 function QuietStartService.fireAll(actor: Player?, name: string, ...: any)

@@ -643,10 +643,7 @@ local function autoOpenDailyTreat()
 			local QuietStart =
 				require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
 			local firstDay = Players.LocalPlayer:GetAttribute(QuietStart.DAY_ATTRIBUTE)
-			return QuietStart.treatOpensItself(
-				firstDay,
-				now // QuietStart.DAY_SECONDS
-			)
+			return QuietStart.treatOpensItself(firstDay, now // QuietStart.DAY_SECONDS)
 		end)()
 		-- #3188: last, so the plot is only looked up when everything else is ready (defined further down the module)
 		or not DailyTreatLogic.autoOpen(view, now, nil, nil, (UI.giftWait :: any).atCafe())
@@ -2692,9 +2689,7 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		local Onboarding =
 			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Onboarding")) :: any
 		local tutorial = (state.tutorialStep or math.huge) < Onboarding.NEW_PLAYER_STEP
-		if
-			plain and QuietStart.foundToast(state.tier, def.rarity, tutorial)
-		then
+		if plain and QuietStart.foundToast(state.tier, def.rarity, tutorial) then
 			UI.toast(string.format("New cat: %s!", def.name), "good")
 			return
 		end
@@ -6743,9 +6738,7 @@ do
 		local wrapHint = UI.cannon.wrapUp.on and cannonHint() == CannonLogic.WRAP_UP_HINT
 		local QuietStart =
 			require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
-		if
-			QuietStart.holdsFirstVisit(if now ~= nil then now.tier else nil)
-		then
+		if QuietStart.holdsFirstVisit(if now ~= nil then now.tier else nil) then
 			return -- #4005: the first visit calls wait for Tier 2 (Design-Agent, folding #3891's hold in)
 		end
 		if

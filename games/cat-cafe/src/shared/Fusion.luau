@@ -23,6 +23,9 @@ Fusion.TIER = Config.FusionTier
 Fusion.COPIES = Config.FusionCopies
 Fusion.ELDER_LORE = "elderLore" -- the Dragon Keep card that takes ELDER_LORE_CUT off every fusion
 Fusion.ELDER_LORE_CUT = 0.25
+-- The longest a running fusion may hold in a save (the sanitizer's bound): the old hour into rainbow, so a save from
+-- before the instant fusion (Config.FusionRainbowSeconds 3600 until 2026-11-15) keeps its fusion.
+Fusion.MAX_SECONDS = 3600
 Fusion.COATS = table.freeze({ "gold", "rainbow" })
 
 -- The coat five copies in `variant` make, or nil at the top coat (rainbow) or for an unknown one.
@@ -75,6 +78,7 @@ Fusion.Messages = table.freeze({
 	trait = "Pick a trait from the five",
 	notReady = "The fusion is not done yet",
 	empty = "The dome is empty",
+	noneReady = "No cat has 5 free copies yet", -- #4589: Fuse all with nothing to fuse
 })
 
 -- Why `uid` cannot go in, or nil. Trades are checked by the caller (`trading`).
@@ -170,8 +174,24 @@ local function better(a: Types.CatInstance, b: Types.CatInstance): boolean
 	return a.uid < b.uid
 end
 
--- The window's default pick for `catId` in `variant` (section 1): the best copy plus the four weakest others, among
--- the free copies (`free(uid)` false skips a busy one). Fewer than COPIES when there are not enough.
+-- The weakest first: the lowest level, then the least XP, then the lowest charm, then uid (#4588).
+local function weaker(a: Types.CatInstance, b: Types.CatInstance): boolean
+	local la, lb = CatStats.level(a), CatStats.level(b)
+	if la ~= lb then
+		return la < lb
+	end
+	if (a.xp or 0) ~= (b.xp or 0) then
+		return (a.xp or 0) < (b.xp or 0)
+	end
+	if CatStats.charm(a) ~= CatStats.charm(b) then
+		return CatStats.charm(a) < CatStats.charm(b)
+	end
+	return a.uid < b.uid
+end
+
+-- The window's default pick for `catId` in `variant` (section 1): #4588 (Derek 2026-11-15: "make it so it picks the 5
+-- lowest level copies") the five weakest free copies (`free(uid)` false skips a busy one), so a fusion never spends
+-- the player's best copies unless they tick them. Fewer than COPIES when there are not enough.
 function Fusion.defaultPick(
 	profile: Types.PlayerProfile,
 	catId: string,
@@ -196,15 +216,57 @@ function Fusion.defaultPick(
 		end
 		return out
 	end
-	table.sort(list, better)
-	local out = { list[1].uid }
-	for index = #list, 2, -1 do
-		if #out >= Fusion.COPIES then
-			break
-		end
+	table.sort(list, weaker)
+	local out = {}
+	for index = 1, Fusion.COPIES do
 		table.insert(out, list[index].uid)
 	end
 	return out
+end
+
+-- #4589 (Derek 2026-11-15: "add a fuse all possible"): at most this many fusions in one Fuse all tap.
+Fusion.ALL_MAX = 20
+
+-- #4589: every set Fuse all makes, in a stable order (cat id, then coat): for each cat and coat the free copies
+-- (`free(uid)` false skips one, as defaultPick) weakest first, in fives, so a cat with 10 free copies makes 2 and the
+-- leftover copies are its strongest. Only coats with a next coat (base and gold), only the copies owned now (a cat
+-- made by this tap never joins another set), and at most ALL_MAX sets.
+function Fusion.allSets(profile: Types.PlayerProfile, free: ((string) -> boolean)?): { { string } }
+	local groups: { [string]: { Types.CatInstance } } = {}
+	local keys: { string } = {}
+	for uid, instance in profile.cats do
+		local variant = instance.variant or "base"
+		if
+			Fusion.nextCoat(variant) ~= nil
+			and Fusion.busyReason(profile, uid) == nil
+			and (free == nil or free(uid))
+		then
+			local key = instance.catId .. ":" .. variant
+			local list = groups[key]
+			if list == nil then
+				list = {}
+				groups[key] = list
+				table.insert(keys, key)
+			end
+			table.insert(list, instance)
+		end
+	end
+	table.sort(keys)
+	local sets: { { string } } = {}
+	for _, key in keys do
+		local list = groups[key]
+		table.sort(list, weaker)
+		local index = 1
+		while index + Fusion.COPIES - 1 <= #list and #sets < Fusion.ALL_MAX do
+			local set: { string } = {}
+			for offset = 0, Fusion.COPIES - 1 do
+				table.insert(set, list[index + offset].uid)
+			end
+			table.insert(sets, set)
+			index += Fusion.COPIES
+		end
+	end
+	return sets
 end
 
 -- The trait the result keeps: `keepTraitUid`'s, or with none named the rarest of the five (none when none has one).
@@ -340,7 +402,11 @@ function Fusion.sanitize(raw: any, cleanName: ((any) -> string?)?): Types.Fusion
 		and type(running.doneAt) == "number"
 		and running.doneAt == running.doneAt
 		and running.doneAt
-			<= running.startedAt + math.max(Config.FusionGoldSeconds, Config.FusionRainbowSeconds)
+			<= running.startedAt + math.max(
+				Fusion.MAX_SECONDS,
+				Config.FusionGoldSeconds,
+				Config.FusionRainbowSeconds
+			)
 	then
 		local probe = { level = running.level, charm = running.charm } :: any
 		save.running = {

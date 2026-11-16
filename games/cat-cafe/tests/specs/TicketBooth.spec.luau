@@ -56,6 +56,34 @@ return function()
 			expect(TicketBooth.prize("fish25")).to.be.ok()
 		end)
 
+		it(
+			"sells Design-Agent's #4596 shelf: no potions, 10 tokens, spins, caviar and the best golden crate",
+			function()
+				for _, gone in { "traitToken", "bigGoldRush", "bigLucky", "swiftPaws" } do
+					expect(TicketBooth.prize(gone)).to.equal(nil)
+				end
+				for _, prize in TicketBooth.PRIZES do
+					expect(prize.prize == nil or prize.prize.potions == nil).to.equal(true)
+				end
+				local tokens = TicketBooth.prize("tokens10") :: TicketBooth.Prize
+				expect(tokens.tokens).to.equal(10)
+				expect(tokens.price).to.equal(6000)
+				expect(tokens.limit).to.deepEqual({ per = "week", n = 1 })
+				local spins = TicketBooth.prize("spins5") :: TicketBooth.Prize
+				expect((spins.prize :: any).spins).to.equal(5)
+				expect(spins.price).to.equal(1000)
+				expect(spins.limit).to.deepEqual({ per = "day", n = 3 })
+				local caviar = TicketBooth.prize("caviar") :: TicketBooth.Prize
+				expect((caviar.prize :: any).lures.caviar).to.equal(1)
+				expect(caviar.price).to.equal(1200)
+				expect(caviar.limit).to.deepEqual({ per = "day", n = 3 })
+				local best = TicketBooth.prize("bestGolden") :: TicketBooth.Prize
+				expect((best.prize :: any).crates.highest_golden).to.equal(1)
+				expect(best.price).to.equal(1800)
+				expect(best.limit).to.deepEqual({ per = "day", n = 1 })
+			end
+		)
+
 		it("keeps the day limit, then opens again the next day", function()
 			local save = TicketBooth.fresh()
 			save.have = 10000
@@ -73,10 +101,9 @@ return function()
 		it("keeps the week limit until Monday 00:00 UTC", function()
 			local save = TicketBooth.fresh()
 			save.have = 10000
-			local token = TicketBooth.prize("traitToken") :: TicketBooth.Prize
-			for _ = 1, 3 do
-				TicketBooth.spend(save, token, MONDAY + 86400)
-			end
+			save.have = 20000 -- the week's bundle and one more
+			local token = TicketBooth.prize("tokens10") :: TicketBooth.Prize
+			TicketBooth.spend(save, token, MONDAY + 86400)
 			expect(TicketBooth.blocker(save, token, MONDAY + 6 * 86400 + 86399)).to.equal(
 				"That's all for this week"
 			)
@@ -108,6 +135,134 @@ return function()
 			local profile = ProfileSchema.migrate({ version = 49, tickets = { have = 40 } }, MONDAY)
 			expect(profile.tickets.have).to.equal(40)
 			expect(ProfileSchema.template(MONDAY).tickets.have).to.equal(0)
+		end)
+	end)
+	describe("Booth Plush Cat and Park Regular", function()
+		it(
+			"sells the plush cat once for 8,000, an exclusive booth cat that is never gold",
+			function()
+				local prize = TicketBooth.prize("boothPlush")
+				expect(prize).to.be.ok()
+				local p = prize :: TicketBooth.Prize
+				expect(p.price).to.equal(8000)
+				expect((p.limit :: TicketBooth.Limit).per).to.equal("once")
+				local def = Catalog.getCat(p.cat :: string)
+				expect(def).to.be.ok()
+				local d = def :: any
+				expect(d.exclusive).to.equal(true)
+				expect(d.source).to.equal("booth")
+				expect(d.rarity).to.equal("Legendary")
+				expect(Catalog.catModelName(d.id)).to.equal("CatCafe_Cat_BoothPlush")
+				local save = TicketBooth.fresh()
+				save.have = 20000
+				expect(TicketBooth.blocker(save, p, MONDAY)).to.equal(nil)
+				TicketBooth.spend(save, p, MONDAY)
+				expect(save.have).to.equal(12000)
+				expect(TicketBooth.blocker(save, p, MONDAY + 30 * 86400)).to.be.ok()
+			end
+		)
+
+		it("gives Park Regular from 10,000 tickets spent, a tag in ChatTags", function()
+			local ChatTags = require(Shared.ChatTags)
+			local save = TicketBooth.fresh()
+			save.spent = 9999
+			expect(TicketBooth.regular(save)).to.equal(false)
+			save.spent = 10000
+			expect(TicketBooth.regular(save)).to.equal(true)
+			expect(ChatTags.TAGS[TicketBooth.REGULAR_TAG]).to.be.ok()
+			expect(table.find(ChatTags.ORDER, TicketBooth.REGULAR_TAG)).to.be.ok()
+		end)
+	end)
+	describe("weekly Water Park shelf", function()
+		it("shows four cards a week in turn, every one named in the Catalog or Looks", function()
+			local Looks = require(Shared.Looks)
+			local seen: { [string]: boolean } = {}
+			for week = 0, 4 do
+				local shelf = TicketBooth.weekShelf(MONDAY + week * 7 * 86400 + 5)
+				expect(#shelf).to.equal(TicketBooth.SHELF_SIZE)
+				for _, prize in shelf do
+					seen[prize.id] = true
+				end
+			end
+			for _, prize in TicketBooth.WEEKLY do
+				expect(seen[prize.id]).to.equal(true) -- the whole pool comes round in five weeks
+				local w = prize.weekly :: any
+				expect((prize.limit :: TicketBooth.Limit).per).to.equal("once")
+				if w.kind == "decor" then
+					local def = Catalog.getDecor(w.item) :: any
+					expect(def).to.be.ok()
+					expect(def.source).to.equal("booth")
+				else
+					local found = false
+					for _, acc in Looks.ACCESSORIES do
+						if acc.id == w.item then
+							found = true
+						end
+					end
+					expect(found).to.equal(true)
+				end
+				expect(TicketBooth.prize(prize.id)).to.equal(prize)
+			end
+			-- the same week, all day long
+			local a = TicketBooth.weekShelf(MONDAY + 10)
+			local b = TicketBooth.weekShelf(MONDAY + 6 * 86400 + 86399)
+			expect(a[1]).to.equal(b[1])
+		end)
+
+		it("sells a card only the week it is on the shelf, once", function()
+			local save = TicketBooth.fresh()
+			save.have = 100000
+			local onNow = TicketBooth.weekShelf(MONDAY + 5)[1]
+			local offNow: TicketBooth.Prize? = nil
+			for _, prize in TicketBooth.WEEKLY do
+				if not TicketBooth.onShelf(prize, MONDAY + 5) then
+					offNow = prize
+				end
+			end
+			expect(TicketBooth.blocker(save, onNow, MONDAY + 5)).to.equal(nil)
+			expect(TicketBooth.blocker(save, offNow :: TicketBooth.Prize, MONDAY + 5)).to.equal(
+				"Not on the shelf this week"
+			)
+			TicketBooth.spend(save, onNow, MONDAY + 5)
+			expect(TicketBooth.owns(save, onNow)).to.equal(true)
+			expect(TicketBooth.blocker(save, onNow, MONDAY + 5)).to.equal("You have this already")
+			local migrated = TicketBooth.sanitize(save)
+			expect(TicketBooth.owns(migrated, onNow)).to.equal(true) -- kept through a save round trip
+		end)
+
+		it(
+			"adds owned wearables to the Looks items and pays the wear bonus only while worn",
+			function()
+				local save = TicketBooth.fresh()
+				local cap: TicketBooth.Prize? = nil
+				for _, prize in TicketBooth.WEEKLY do
+					if prize.weekly ~= nil and prize.weekly.kind == "look" then
+						cap = prize
+						break
+					end
+				end
+				local p = cap :: TicketBooth.Prize
+				local item = (p.weekly :: any).item
+				expect(TicketBooth.wearBonus(save, item)).to.equal(0)
+				save.limits[p.id] = { key = 0, n = 1 }
+				local items = { tag_maple = true }
+				local out = TicketBooth.lookItems(save, items)
+				expect(out[item]).to.equal(true)
+				expect(out.tag_maple).to.equal(true)
+				expect(items[item]).to.equal(nil) -- a copy
+				expect(TicketBooth.wearBonus(save, item)).to.equal(TicketBooth.WEAR_BONUS)
+				expect(TicketBooth.wearBonus(save, nil)).to.equal(0)
+				expect(TicketBooth.wearBonus(save, "glasses")).to.equal(0)
+			end
+		)
+
+		it("sends this week's cards with the view, owned marked", function()
+			local save = TicketBooth.fresh()
+			local view = TicketBooth.view(save, MONDAY + 5)
+			expect(#view.week).to.equal(TicketBooth.SHELF_SIZE)
+			expect(view.week[1].owned).to.equal(false)
+			expect(view.week[1].kind ~= nil).to.equal(true)
+			expect(view.prizes[1].kind).to.equal(nil)
 		end)
 	end)
 	describe("open", function()

@@ -2051,7 +2051,6 @@ end
 -- level in sky, Likes on the dark card (#1028).
 local BUFF_LOOK: { [string]: { fill: Color3, text: Color3 } } = {
 	favourite = { fill = Theme.colors.berry, text = Theme.colors.white },
-	likes = { fill = PAL.card, text = PAL.text },
 	gold = { fill = Theme.colors.gold, text = Theme.colors.goldText },
 	rainbow = { fill = Theme.colors.white, text = Theme.colors.ink },
 	level = { fill = Theme.colors.sky, text = Theme.colors.white },
@@ -2074,7 +2073,8 @@ function CatRoom._renderBuffs(self: any, chips: { CatBuffs.Chip }, role: string?
 		end
 	end
 	for order, chip in chips do
-		local look = BUFF_LOOK[chip.kind] or BUFF_LOOK.likes
+		-- #4607: Likes read the menu family's colours here, not at module load (before the switches arrive)
+		local look = BUFF_LOOK[chip.kind] or { fill = PAL.card, text = PAL.text }
 		local words = chip.text
 		if chip.kind == "favourite" then
 			words = "♥ " .. words

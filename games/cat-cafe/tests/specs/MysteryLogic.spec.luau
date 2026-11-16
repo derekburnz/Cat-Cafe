@@ -108,9 +108,16 @@ return function()
 
 	describe("MysteryLogic.bang", function()
 		it("shows only until the first visit", function()
-			expect(MysteryLogic.bang(state())).to.equal(MysteryLogic.BANG_TEXT)
-			expect(MysteryLogic.bang(state({ mysterySeen = true }))).to.equal(nil)
-			expect(MysteryLogic.bang(nil)).to.equal(nil)
+			expect(MysteryLogic.bang(state(), NOW)).to.equal(MysteryLogic.BANG_TEXT)
+			expect(MysteryLogic.bang(state({ mysterySeen = true }), NOW)).to.equal(nil)
+			expect(MysteryLogic.bang(nil, NOW)).to.equal(nil)
+		end)
+		it("shows only while something can be bought (#4525)", function()
+			expect(MysteryLogic.bang(state({ goldenFish = 0 }), NOW)).to.equal(nil)
+			expect(MysteryLogic.bang(state({ mysteryOpen = false }), NOW)).to.equal(nil)
+			expect(MysteryLogic.bang(state({ goldenFish = 1e9 }), NOW)).to.equal(
+				MysteryLogic.BANG_TEXT
+			)
 		end)
 	end)
 end

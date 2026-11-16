@@ -178,4 +178,44 @@ return function()
 			)
 		end)
 	end)
+
+	describe("Index titles (#4709)", function()
+		local Catalog = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared").Catalog)
+
+		it("gives every Index prize tag a title with its name, offered in ORDER", function()
+			local n = 0
+			for page, milestones in Catalog.indexPrizes do
+				for milestoneId, prize in milestones do
+					if prize.tag ~= nil then
+						n += 1
+						local pageTitles = ChatTags.INDEX_TITLES[page]
+						local tagId = pageTitles and pageTitles[milestoneId]
+						expect(tagId).to.be.ok()
+						expect(ChatTags.TAGS[tagId :: string].text).to.equal(
+							"[" .. prize.tag .. "]"
+						)
+						expect(table.find(ChatTags.ORDER, tagId :: string)).to.be.ok()
+						expect(ChatTags.validPick(tagId)).to.equal(true)
+					end
+				end
+			end
+			expect(n).to.equal(18)
+		end)
+
+		it("adds only the titles of claimed milestones, from the save alone", function()
+			local items = ChatTags.addIndexTitles({ tag_maple = true }, {
+				all = { totalAll = true, total50 = false, total10 = true },
+				rainbow = { rainbow1 = true },
+			})
+			expect(items.title_cat_legend).to.equal(true)
+			expect(items.title_rainbow_finder).to.equal(true)
+			expect(items.title_cat_master).to.equal(nil)
+			expect(ChatTags.choices(false, items)).to.deepEqual({
+				"tag_maple",
+				"title_cat_legend",
+				"title_rainbow_finder",
+			})
+			expect(ChatTags.addIndexTitles({}, nil)).to.deepEqual({})
+		end)
+	end)
 end

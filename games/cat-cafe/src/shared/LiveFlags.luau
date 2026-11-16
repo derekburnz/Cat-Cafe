@@ -32,6 +32,8 @@
 -- - `swiftPaws5` (#3317): Swift Paws levels 3 to 5 in the Golden Fish Market (shared/SwiftPaws). It starts OFF
 --   (OFF_BY_DEFAULT): switch it on only once no server older than the publish that added them is running, since an
 --   older server keeps a saved level only up to 2.
+-- - `swiftPaws10` (#4705): Swift Paws levels 6 to 10. It starts OFF (OFF_BY_DEFAULT): switch it on only once no server
+--   older than the publish that added them is running, since an older server keeps a saved level only up to 5.
 -- - `mouseDash` (#3296): the Cat Arcade's second game, Mouse Dash (shared/MouseDash). It starts OFF (OFF_BY_DEFAULT)
 --   until QA passes: off refuses a start; a game already running finishes and pays. On, it is the game the
 --   cabinet and the Menu row open (Derek 2026-11-11: "Swap this in for the current arcade game and vault the other
@@ -132,6 +134,7 @@ LiveFlags.KEYS = {
 	"codes",
 	"vipBoost", -- #4235: VIP pays +50% and shows a tag over the owner's head (Economy.vipBoost, Services/VipTagService)
 	"rally",
+	"stationTiers", -- #4539: Mystery Market, Cat Arcade and Mystic Pool open from Tiers 2, 3 and 4 (shared/StationTiers)
 	"tradeCrates",
 	"tradeFish",
 	"awayNotes",
@@ -144,6 +147,7 @@ LiveFlags.KEYS = {
 	"goldenDrops",
 	"traits",
 	"swiftPaws5",
+	"swiftPaws10", -- #4705
 	"mouseDash",
 	"circleStreak",
 	"cartTier6",
@@ -198,10 +202,16 @@ LiveFlags.KEYS = {
 	"deviceFixes", -- the Wed 2026-11-18 phone and tablet first 5 minutes fixes (no Tackle before the first check-in, ...)
 	"afkButton", -- #4346: the HUD's AFK tile and AfkMode (shared/AfkCafe): home, 2x rest at once, the rejoin keeps it
 	"freeCatchPads", -- Derek 2026-11-14: phone, tablet and console catches below Tier 2 are the tutorial's (shared/FreeCatch)
+	"autoFirstBait", -- #4452: the starter Kibble goes in bowl 1 by itself at the tutorial's bowl step (shared/SecondCatHelp)
+	"tier2TopUp", -- #4453: the first tamed bait cat's welcome tops coins up to Tier 2's cost once (shared/SecondCatHelp)
+	"stuckAfterSecond", -- #4473: the stuck cat goal, pointer and call wait until the second cat is caught (shared/StuckGoal)
 	"fusion", -- #4104: the Fusion Observatory (shared/Fusion); on after the save version 50 restart
 	-- #4527 (Derek 2026-11-15: "too much popups on screen maybe remove popups from claiming stuff"): the Mystery gift's
 	-- centre card; off (the default) the gift opens with its sound alone
 	"giftCard",
+	"catchFirst", -- #4518: on, today's walk-through order; false, bowl first (shared/TutorialOrder)
+	"earlyKindBonus", -- #4624: kinds 2 to 5 pay 3x a Common's new-kind money in Tier 1 (shared/SecondCat); off until the Nov 16 read
+	"returnHookEarly", -- #4626: the minute 6 "come back tomorrow" line for players before Tier 3 (shared/ReturnHook.early)
 }
 -- Switches that stay off until the store holds an explicit true.
 LiveFlags.OFF_BY_DEFAULT = {
@@ -212,6 +222,7 @@ LiveFlags.OFF_BY_DEFAULT = {
 	goldenDrops = true,
 	traits = true,
 	swiftPaws5 = true,
+	swiftPaws10 = true, -- #4705
 	mouseDash = true,
 	cartTier6 = true,
 	secretCats = true,
@@ -259,9 +270,18 @@ LiveFlags.OFF_BY_DEFAULT = {
 	deviceFixes = true,
 	afkButton = true,
 	fusion = true,
+	earlyKindBonus = true,
+	returnHookEarly = true,
 } :: { [string]: boolean }
 LiveFlags.CHECK_SECONDS = 60
 LiveFlags.ATTRIBUTE_PREFIX = "LiveFlag_" -- #3063: the ReplicatedStorage attribute each switch is copied to
+-- #4607, #4613: a fresh server copies the defaults out at once and the store's switches only after its first read, a
+-- few seconds later. It sets this ReplicatedStorage attribute true once that first read has been tried (or at once
+-- where nothing is read), and the client waits for it before it builds anything that takes a switch once (the menu
+-- family look, the Store's rework), so nobody who joins a new server keeps an old look.
+LiveFlags.READY_ATTRIBUTE = "LiveFlagsReady"
+LiveFlags.CLIENT_WAIT_SECONDS = 8 -- #4613: Main.client's wait, before any UI module latches a switch
+LiveFlags.READY_WAIT = 6 -- #4607: UIController's own wait, which ends at once after Main.client's
 
 export type Flags = { [string]: boolean }
 
@@ -300,6 +320,28 @@ function LiveFlags.parse(raw: unknown): Flags
 		end
 	end
 	return out
+end
+
+-- #4613: waits until `holder` (ReplicatedStorage) carries READY_ATTRIBUTE true, at most `cap` seconds, checking every
+-- `step` seconds through `sleep` (task.wait) against `clock` (os.clock). Returns whether it was ready and how long it
+-- waited. Pure apart from the calls it is handed, so the spec runs it with a fake holder and clock.
+function LiveFlags.awaitReady(
+	holder: any,
+	cap: number,
+	clock: () -> number,
+	sleep: (number) -> (),
+	step: number?
+): (boolean, number)
+	local started = clock()
+	local every = step or 0.1
+	while holder:GetAttribute(LiveFlags.READY_ATTRIBUTE) ~= true do
+		local waited = clock() - started
+		if waited >= cap then
+			return false, waited
+		end
+		sleep(every)
+	end
+	return true, clock() - started
 end
 
 -- The keys whose value differs between `old` and `new`, in KEYS order.

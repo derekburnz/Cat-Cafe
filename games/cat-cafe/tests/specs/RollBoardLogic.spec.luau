@@ -170,19 +170,27 @@ return function()
 		end)
 	end)
 
-	describe("RollBoardLogic.rollSteps (#3615)", function()
+	describe("RollBoardLogic.rollSteps (#3615, #4692)", function()
 		it(
-			"walks down from the top row to the landing row and never lights a row under it",
+			"runs the whole list YARD_LAPS times, then walks down to the landing row and never lingers under it",
 			function()
+				local laps = RollBoardLogic.YARD_LAPS
+				expect(laps >= 2).to.equal(true)
 				for landing = 1, 5 do
 					local steps = RollBoardLogic.rollSteps(5, landing)
-					expect(#steps).to.equal(landing)
-					expect(steps[1].index).to.equal(1)
+					expect(#steps).to.equal(laps * 5 + landing)
+					-- the laps: every row in turn, at the even fast tick
+					for at = 1, laps * 5 do
+						expect(steps[at].index).to.equal((at - 1) % 5 + 1)
+						expect(steps[at].rest).to.equal(RollBoardLogic.FAST)
+					end
+					-- the last run: from the top down to the landing, slowing, never under it
+					expect(steps[laps * 5 + 1].index).to.equal(1)
 					expect(steps[#steps].index).to.equal(landing)
-					for at = 1, #steps do
-						-- no rarer row (further down the list) is ever lit before the landing
+					for at = laps * 5 + 1, #steps do
 						expect(steps[at].index <= landing).to.equal(true)
-						if at > 1 then
+						expect(steps[at].rest > RollBoardLogic.FAST).to.equal(true)
+						if at > laps * 5 + 1 then
 							expect(steps[at].index).to.equal(steps[at - 1].index + 1)
 							-- it only ever slows: no pause that could look like a near miss
 							expect(steps[at].rest >= steps[at - 1].rest).to.equal(true)
@@ -193,11 +201,11 @@ return function()
 		)
 
 		it(
-			"lights the top row straight away, clamps a landing past the end, and has no steps for no rows",
+			"with no laps lights the top row straight away, clamps a landing past the end, and has no steps for no rows",
 			function()
 				expect(#RollBoardLogic.rollSteps(0, 1)).to.equal(0)
-				expect(#RollBoardLogic.rollSteps(4, 1)).to.equal(1)
-				local past = RollBoardLogic.rollSteps(4, 9)
+				expect(#RollBoardLogic.rollSteps(4, 1, 0)).to.equal(1)
+				local past = RollBoardLogic.rollSteps(4, 9, 0)
 				expect(#past).to.equal(4)
 				expect(past[4].index).to.equal(4)
 			end

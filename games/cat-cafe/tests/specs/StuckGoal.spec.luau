@@ -41,6 +41,38 @@ return function()
 		end)
 	end)
 
+	describe("StuckGoal.waiting with the second cat first (#4473)", function()
+		local function baited(caught: number): any
+			local profile = save({ "first_bait", "first_bait_resolved" })
+			profile.stats.baitsTamed = 1
+			profile.stats.catsCaught = caught + 1 -- the bowl cat counts in catsCaught too
+			return profile
+		end
+
+		it("waits for two cats caught by hand while the switch is on", function()
+			-- the tutorial's first catch and the bowl cat are not enough: the next cat is a plain stray, not a rescue
+			expect(StuckGoal.waiting(baited(1), true)).to.equal(false)
+			expect(StuckGoal.waiting(baited(2), true)).to.equal(true)
+		end)
+
+		it("goes as before with the switch off or not given", function()
+			expect(StuckGoal.waiting(baited(1), false)).to.equal(true)
+			expect(StuckGoal.waiting(baited(1))).to.equal(true)
+		end)
+
+		it("still ends with a rescue started, whichever cat came first", function()
+			local profile = baited(2)
+			profile.stats.rescues = 1
+			expect(StuckGoal.waiting(profile, true)).to.equal(false)
+		end)
+
+		it("is a known switch, on unless switched off", function()
+			local LiveFlags = require(Shared.LiveFlags)
+			expect(table.find(LiveFlags.KEYS, StuckGoal.AFTER_SECOND_FLAG) ~= nil).to.equal(true)
+			expect(LiveFlags.OFF_BY_DEFAULT[StuckGoal.AFTER_SECOND_FLAG]).to.equal(nil)
+		end)
+	end)
+
 	describe("StuckGoal.active", function()
 		it("needs the server's word", function()
 			expect(StuckGoal.active(nil, nil, false)).to.equal(false)

@@ -67,6 +67,12 @@ return function()
 			end
 		)
 
+		it("a shielded new player cannot tackle: the shield works both ways (#4499)", function()
+			expect(Shove.tackleRefusal(press({ shielded = true }))).to.equal(Shove.SHIELD_TEXT)
+			expect(Shove.tackleRefusal(press({ shielded = false }))).never.to.be.ok()
+			expect(Shove.tackleRefusal(press())).never.to.be.ok()
+		end)
+
 		it("only inside a catching area", function()
 			expect(Shove.tackleRefusal(press({ area = NONE }))).to.be.ok()
 		end)

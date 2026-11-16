@@ -419,6 +419,13 @@ local function areasShut(): boolean
 	return clock ~= nil and clock:GetAttribute("AreasOpen") == false
 end
 
+-- #4916 (Sync's Studio run of #4917: the night Common waited 22 studs away with no strip, marker or trail): for the
+-- walk-through's Alleyway steps the areas are open to a night pass holder (the server's NightPass attribute)
+local function areasShutForMe(): boolean
+	local me = Players.LocalPlayer
+	return areasShut() and not (me ~= nil and me:GetAttribute("NightPass") == true)
+end
+
 -- #2912 (shared/StuckGoal): the stuck cat pointer after the first bait cat. `shownAt` is when it first showed this
 -- session, `rescuing` while this player's rescue bar is up, `on` what the goal card was last told.
 local stuckGoal = {
@@ -762,7 +769,7 @@ local function refreshTutorial(s: Types.PlayerState)
 			showTutorial(s, RankFirst.line(device))
 		elseif
 			not SecondCat.done(s.stats, true)
-			and not areasShut()
+			and not areasShutForMe()
 			and (UI.cannon :: any).area == "alley"
 		then
 			-- #4808 (Derek 2026-11-16: "for tutorial the steps towards cat and pointing to the net on phone is
@@ -790,7 +797,7 @@ local function refreshTutorial(s: Types.PlayerState)
 			end
 		elseif
 			not SecondCat.done(s.stats, true)
-			and not areasShut()
+			and not areasShutForMe()
 			and tutorialWatch.alley == true
 			and (UI.cannon :: any).area == nil
 		then

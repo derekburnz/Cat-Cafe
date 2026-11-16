@@ -147,12 +147,7 @@ local function attach(model: Model, rarity: string)
 	}
 end
 
-local function detach(claimed: boolean)
-	local s = shown
-	if s == nil then
-		return
-	end
-	shown = nil
+local function detach(s: Shown, claimed: boolean)
 	s.highlight:Destroy()
 	local emitter = s.emitter
 	if emitter ~= nil then
@@ -196,8 +191,7 @@ local function step()
 			local current = s
 			shown = nil
 			task.delay(Presets.wowBait.claimWindow, function()
-				shown = current
-				detach(WowBaitGlow.claimed(goneAt, claimedAt, Presets.wowBait.claimWindow))
+				detach(current, WowBaitGlow.claimed(goneAt, claimedAt, Presets.wowBait.claimWindow))
 			end)
 		end
 		return

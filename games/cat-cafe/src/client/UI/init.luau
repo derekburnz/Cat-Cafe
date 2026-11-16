@@ -132,18 +132,29 @@ end
 function UI.popPace.used()
 	UI.popPace.lastAt = os.clock()
 end
--- #4946 (Sync's PC run: "Golden Day!" four times in the first 5 minutes while an admin event ran): the day banners
--- (AreaTitle's lucky_day and lucky_warning) wait out the hold above, and the same banner shows at most once every
--- QuietStart.POP_GAP_SECONDS. They are not paced against the other pop-ups.
+-- #4946 (Sync's PC run: "Golden Day!" four times in the first 5 minutes while an admin event ran): the day and night
+-- title cards (AreaTitle's sunrise, night_market, lucky_day and lucky_warning) wait out the hold above, and the same
+-- banner shows at most once every QuietStart.POP_GAP_SECONDS. Since Sync's checks 1 and 2 of #4953 (title cards and a
+-- tip card seconds apart) they are also the one pop-up of their 5 minutes, as UI.popPace above. `follows`: the banner
+-- that leads into this one (the day kinds after the sunrise) and showed within FOLLOW_SECONDS, so both are one pop-up.
+-- The dusk warning ("Night falls in 15 s!") is a warning, so it is never paced.
 UI.popPace.banners = {} :: { [string]: number }
-function UI.popPace.banner(key: string): boolean
+UI.popPace.FOLLOW_SECONDS = 15
+function UI.popPace.banner(key: string, follows: string?): boolean
 	local last = UI.popPace.banners[key]
 	local QuietStart =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("QuietStart")) :: any
-	if UI.firstCat.tutorial or not QuietStart.popFree(last, os.clock()) then
+	local now = os.clock()
+	if UI.firstCat.tutorial or not QuietStart.popFree(last, now) then
 		return false
 	end
-	UI.popPace.banners[key] = os.clock()
+	local led = if follows ~= nil then UI.popPace.banners[follows] else nil
+	local same = led ~= nil and now - led <= UI.popPace.FOLLOW_SECONDS
+	if not (same or UI.popPace.free()) then
+		return false
+	end
+	UI.popPace.banners[key] = now
+	UI.popPace.used()
 	return true
 end
 UI.newKind = {} -- #3529 the "NEW" tag over kinds not owned, filled at the end of the file
@@ -5519,6 +5530,8 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 						and windows
 						and windows:current() == nil
 						and tips.quiet()
+						-- #4946 (Sync's check 1 of #4953): not in the hold, and at most once every 5 minutes
+						and UI.popPace.banner("night_market")
 					then
 						-- #1737 (Derek2 11-06): the Night Market's own cart picture, as on its map marker, not the moon
 						-- (required here: this file is at Luau's 200-local limit)
@@ -5665,7 +5678,7 @@ function UI.clock.bind(clock: Instance)
 						areaTitle
 						and not (toasts and toasts:isBusy())
 						and not UI.intro.playing()
-						and UI.popPace.banner("lucky_day")
+						and UI.popPace.banner("lucky_day", "sunrise")
 					then
 						areaTitle:banner("lucky_day", title, line, Theme.colors.gold, 4)
 					end
@@ -11398,6 +11411,9 @@ local function giftTry(): boolean
 		or card:isShowing()
 		or not visible
 		or UI.bigTraitCutting() -- #3846: never over a trait roll's cutscene
+		-- #4946 (Sync's check 1 of #4953): the thank-you card opens by itself, so it waits out the hold and the pace
+		or UI.firstCat.tutorial
+		or not UI.popPace.free()
 	if
 		not GiftCardLogic.canShow({
 			idleSeconds = recapIdleSeconds(),
@@ -11413,6 +11429,7 @@ local function giftTry(): boolean
 		return false
 	end
 	table.remove(UI.gift.queue, 1)
+	UI.popPace.used()
 	giftOpen(waiting.kind, waiting.paid)
 	return #UI.gift.queue == 0
 end

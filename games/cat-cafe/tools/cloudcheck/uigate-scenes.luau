@@ -4499,8 +4499,13 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	{ "GiftCardLike", function()
 		UI.recap.lastInput = os.clock() - 30 -- idle
+		-- #4946: within 5 minutes of another card that opened by itself the thank-you card waits, then shows
+		UI.popPace.used()
 		UI.gift.show("like", { "+$12500", "1 Tip Potion" })
 		local card = UIShim.playerGui:FindFirstChild("CatCafeGift"):FindFirstChild("Card", true)
+		assert(not card.Visible, "uigate: the like gift card shows within 5 minutes of another pop-up (#4946)")
+		UI.popPace.lastAt = nil
+		task.wait(1.2)
 		assert(card.Visible, "uigate: no like gift card when idle (#1947)")
 		-- #3171: the drawing of the game page with the cursor on its 👍
 		local holder = card:FindFirstChild("PictureHolder") :: Frame
@@ -4518,6 +4523,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 	end },
 	{ "GiftCardFav", function()
+		UI.popPace.lastAt = nil -- #4946: as if no other pop-up showed in the last 5 minutes
 		UI.recap.lastInput = os.clock() - 30
 		UI.gift.show("fav", { "+$25000", "1 Tip Potion", "1 Lucky Potion", "1 Swift Potion" })
 		local card = UIShim.playerGui:FindFirstChild("CatCafeGift"):FindFirstChild("Card", true)
@@ -4526,6 +4532,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	end },
 	-- How to like pressed: the thumbs-up hint and Close alone; the press is reported once
 	{ "GiftCardLiked", function()
+		UI.popPace.lastAt = nil -- #4946: as if no other pop-up showed in the last 5 minutes
 		local reports = {}
 		local watch = UI.events.playtimeGift:Connect(function(what)
 			table.insert(reports, what)
@@ -9733,6 +9740,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		end
 		assert(banner and shown(), "uigate: no day strip before the intro (#4032)")
 		local titles = UIShim.playerGui:FindFirstChild("CatCafeAreaTitle", true)
+		table.clear(UI.popPace.banners) -- #4953: as if no title card or pop-up showed in the last 5 minutes
+		UI.popPace.lastAt = nil
 		UI.luckyDay("warning", "Rare cats are twice as likely from sunrise", { lucky = true, golden = true })
 		UIShim.advance(0.5)
 		local holder = titles and titles:FindFirstChild("Card", true) :: Frame?
@@ -11009,6 +11018,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		clock:SetAttribute("LuckyDay", false)
 		UI.clock.bind(clock)
 		table.clear(UI.popPace.banners) -- #4953: a warning earlier scenes showed would hold this one for 5 minutes
+		UI.popPace.lastAt = nil -- and title cards are the one pop-up of their 5 minutes
 		UI.luckyDay("warning", "A Lucky Day starts at sunrise!", { lucky = true, golden = true, rainbow = true })
 		-- #1572: the warning names every kind tomorrow brings
 		local found = false

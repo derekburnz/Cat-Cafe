@@ -3570,6 +3570,8 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		local words = { ["Tap now!"] = true, ["Click now!"] = true, ["Press Space now!"] = true, ["Press A now!"] = true }
 		assert(prompt and prompt.Visible and words[prompt.Text], "uigate: no press prompt on the held ring (#2920)")
 		assert(art.Parent and (art.Parent :: GuiObject).Visible, "uigate: the held ring went before the press (#2920)")
+		-- #4836: and the tutorial's big arrow points at the waiting ring (its ScreenGui ignores the top bar inset)
+		assertArrowAt(ring, "the held catch ring")
 	end },
 	-- #2871 (console): on a gamepad the catch line under the cat's name names A or R2
 	{ "GamepadCatchWords", function()

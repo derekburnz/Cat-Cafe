@@ -99,12 +99,14 @@ export type Budget = {
 
 -- When a phone or tablet counts as struggling (#4311, Logic.slowStep; Derek 2026-11-14): under `fps` frames a second
 -- on average over a `window` second window, `windows` windows in a row, not counting the first `after` seconds or
--- frames longer than `pause` seconds. Gameplay's Low performance suggestion uses the same numbers.
+-- frames longer than `pause` seconds. #4307 (phones leave at 61 to 180 s): it used to need 60 + 2 x 20 = 100 s, past
+-- most of the tutorial, so a struggling phone ran the full budget through its first minutes; now 20 + 2 x 10 = 40 s
+-- at the earliest (cutscenes still hold the count, so the intro does not count).
 Presets.slow = {
 	fps = 30,
-	window = 20,
+	window = 10,
 	windows = 2,
-	after = 60,
+	after = 20,
 	pause = 1,
 }
 
@@ -3099,6 +3101,7 @@ Presets.rankUp = {
 	fountains = 3,
 	fountainEvery = 0.3,
 	fountain = 12, -- gateSparkle particles in each
+	awayRoof = 10, -- #4922: away from the door the beam drops from this far over your feet
 }
 
 -- The Spin Wheel station (F49): the world wheel turns for everyone nearby whenever anyone spins and stops on the
@@ -6499,6 +6502,30 @@ Presets.waitingCat = {
 		bob = 0.6, -- studs up and down
 		seconds = 1.4, -- one bob
 		glyph = "🐾",
+	},
+}
+
+-- #4920 Effects/RankUpPulse: the RANK UP button's glows when a tier's rank up is first ready, and the strip's tick.
+Presets.rankUpPulse = {
+	displayOrder = 29, -- over the HUD and windows, under toasts (30)
+	wait = 0.35, -- the Rank Up window slides in first
+	look = 0.5, -- seconds between looks for a RANK UP button once a tier's rank up is ready
+	lookFor = 120, -- and for how long (the window waits for a calm screen; a later flip looks again)
+	pulses = 3,
+	every = 0.55,
+	seconds = 0.7,
+	grow = 26, -- pixels the glow swells past the button
+	corner = 14,
+	thickness = 4,
+	fill = 0.35, -- the glow's own fill at its start (0 none)
+	colour = Color3.fromRGB(255, 214, 92),
+	sparkle = { size = 12, seconds = 0.5, reach = 34, stagger = 0.1 },
+	tick = {
+		sparks = 6,
+		sparkle = { size = 9, seconds = 0.45, reach = 26, stagger = 0.06 },
+		ringFrom = 8,
+		ringTo = 44,
+		ringSeconds = 0.4,
 	},
 }
 

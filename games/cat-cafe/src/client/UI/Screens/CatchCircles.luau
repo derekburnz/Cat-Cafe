@@ -60,6 +60,7 @@ local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local TrustBar = require(script.Parent.Parent.Components.TrustBar)
+local TutorialArrow = require(script.Parent.Parent.Components.TutorialArrow)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -766,6 +767,7 @@ function CatchCircles._step(self: any, t: number)
 	-- and stay hidden, so only the waiting ring is on screen
 	local lag = 0
 	local waiting = false
+	local point: GuiObject? = nil -- #4836: the held ring the tutorial's arrow points at this frame
 	for ringIndex, view in self._views :: { CircleView } do
 		local circle = view.circle
 		local t = t - lag
@@ -811,6 +813,9 @@ function CatchCircles._step(self: any, t: number)
 						Moments.CircleHold:Fire(ringIndex) -- Sound's "now!" ping (#2928)
 					end
 					prompt.Visible = frozen
+					if frozen and not view.pressed then
+						point = view.ringStroke.Parent :: GuiObject?
+					end
 					local promptScale = view.promptScale
 					if promptScale then
 						promptScale.Scale = if frozen and not Motion.reduced()
@@ -823,6 +828,7 @@ function CatchCircles._step(self: any, t: number)
 			view.closer.Size = UDim2.fromOffset(math.max(2, diameter), math.max(2, diameter))
 		end
 	end
+	self:_pointAt(point)
 	self:_expire(t)
 	if self._awaitingResult == false and self._next > #self._views and #self._views > 0 then
 		self._awaitingResult = true
@@ -1266,7 +1272,24 @@ function CatchCircles.isActive(self: any): boolean
 	return self._active
 end
 
+-- #4836 (Sync's pointer audit: "Catch ring: text only"): while the first catch's held ring waits on its ring for
+-- the press, the tutorial's big arrow (with its spotlight) points at that ring; it goes with the press or the catch.
+function CatchCircles._pointAt(self: any, ring: GuiObject?)
+	local was: GuiObject? = self._pointed
+	if was == ring then
+		return
+	end
+	if was ~= nil then
+		TutorialArrow.remove(was)
+	end
+	self._pointed = ring
+	if ring ~= nil then
+		TutorialArrow.add(ring)
+	end
+end
+
 function CatchCircles.hide(self: any)
+	self:_pointAt(nil)
 	self._token += 1
 	self._active = false
 	self._awaitingResult = false

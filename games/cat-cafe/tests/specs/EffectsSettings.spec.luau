@@ -135,20 +135,19 @@ return function()
 			return tripped
 		end
 
-		it(
-			"finds a device struggling after two slow windows in a row, past the loading minute",
-			function()
-				local p = Presets.slow
-				local state = Logic.slowStart()
-				expect(run(state, 20, p.after)).to.equal(false) -- loading does not count
-				expect(run(state, 20, p.window + 0.5)).to.equal(false) -- one slow window
-				expect(state.slow).to.equal(1)
-				expect(run(state, 20, p.window + 0.5)).to.equal(true)
-				expect(state.struggling).to.equal(true)
-				expect(run(state, 20, p.window * 3)).to.equal(false) -- it says so once, and stays
-				expect(state.struggling).to.equal(true)
-			end
-		)
+		it("finds a device struggling after two slow windows in a row, past loading", function()
+			local p = Presets.slow
+			local state = Logic.slowStart()
+			expect(run(state, 20, p.after)).to.equal(false) -- loading does not count
+			expect(run(state, 20, p.window + 0.5)).to.equal(false) -- one slow window
+			expect(state.slow).to.equal(1)
+			expect(run(state, 20, p.window + 0.5)).to.equal(true)
+			expect(state.struggling).to.equal(true)
+			expect(run(state, 20, p.window * 3)).to.equal(false) -- it says so once, and stays
+			-- #4307: a struggling phone gets the lighter budget inside its first minute
+			expect(p.after + p.window * p.windows <= 60).to.equal(true)
+			expect(state.struggling).to.equal(true)
+		end)
 
 		it(
 			"leaves a device that is doing fine alone, and a good window starts the count again",

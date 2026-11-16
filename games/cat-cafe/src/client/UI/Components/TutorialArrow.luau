@@ -334,8 +334,14 @@ local function showSpot(into: ScreenGui, target: GuiObject, screen: Vector2, now
 	if holder.Parent ~= into then
 		holder.Parent = into
 	end
-	-- the holder sits at the ScreenGui's origin, in the same pixels as the arrow and AbsolutePosition
-	local rects = TutorialArrowLogic.holes(target.AbsolutePosition, target.AbsoluteSize, screen)
+	-- the holder sits at the ScreenGui's origin, in the same pixels as the arrow and AbsolutePosition. #4836: a
+	-- ScreenGui that ignores the top bar inset has its origin up in the bar (AbsolutePosition 0, -inset), so the
+	-- target is measured from that origin (the catch's held ring sat 58 px under its hole and arrow)
+	local rects = TutorialArrowLogic.holes(
+		target.AbsolutePosition - into.AbsolutePosition,
+		target.AbsoluteSize,
+		screen
+	)
 	local shade = if GuiService.ReducedMotionEnabled
 		then TutorialArrowLogic.SPOT_SOFT
 		else TutorialArrowLogic.dim(now - spotSince)
@@ -397,7 +403,9 @@ local function update()
 		top
 	)
 	current.Size = UDim2.fromOffset(px, px)
-	current.Position = UDim2.fromOffset(place.x, place.y)
+	-- #4836: Position counts from the ScreenGui's origin, which is up in the top bar when it ignores the inset
+	local origin = into.AbsolutePosition
+	current.Position = UDim2.fromOffset(place.x - origin.X, place.y - origin.Y)
 	current.Rotation = place.rotation
 	local head = current:FindFirstChild("Head", true)
 	if head and head:IsA("TextLabel") then

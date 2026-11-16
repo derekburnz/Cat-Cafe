@@ -199,10 +199,10 @@ return function()
 			expect(Bait.wowDue(false)).to.equal(true) -- the first bait (#2793: was the second), or the next for an
 			-- account that set baits before without one
 			expect(Bait.wowDue(true)).to.equal(false) -- had it
-			expect(Bait.WOW_EPIC_CHANCE).to.be.near(0.15, 1e-12)
-			expect(Bait.wowRarity("Common", 0.5)).to.equal("Rare")
-			expect(Bait.wowRarity("Common", 0.149)).to.equal("Epic")
-			expect(Bait.wowRarity("Common", 0.15)).to.equal("Rare")
+			expect(Bait.WOW_EPIC_CHANCE).to.be.near(0.35, 1e-12) -- #4920: was 0.15
+			expect(Bait.wowRarity("Common", 0.6)).to.equal("Rare")
+			expect(Bait.wowRarity("Common", 0.349)).to.equal("Epic")
+			expect(Bait.wowRarity("Common", 0.35)).to.equal("Rare")
 			for _, rarity in { "Rare", "Epic", "Legendary", "Mythical" } do
 				expect(Bait.wowRarity(rarity :: any, 0)).to.equal(rarity)
 			end

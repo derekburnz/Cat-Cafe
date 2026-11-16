@@ -952,6 +952,12 @@ function Telemetry.introJoin(player: Player, profile: Profile)
 		introChecked[player] = false
 		return
 	end
+	-- #4929 (Derek's first minute goal, Sync's stopwatch: 22 s of loading and intro before the first press): with the
+	-- noIntro switch on, no intro plays by itself; the bowl step comes at once and the intro stays on the Tutorial tile
+	if LiveFlagService.on(IntroSplit.NO_INTRO) then
+		introChecked[player] = false
+		return
+	end
 	local on = LiveFlagService.on(IntroSplit.FLAG)
 	local state = profile.telemetry
 	-- #4252, #4001 ended (Derek 2026-11-14 18:07 UTC: "switch the entire game to be the short intro so no more of the full

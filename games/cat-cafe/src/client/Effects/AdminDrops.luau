@@ -426,6 +426,37 @@ local function crate(model: Model)
 	end
 	local c = p.crate
 	local still = Context.reducedMotion()
+	-- #4888 follow-up: the crate's own art (#4891) rides the parachute when the server sent it, else the gold box.
+	-- Copied before hide(), so the copy is not hidden with it.
+	local source = model:FindFirstChild("Art")
+	local art: Model? = nil
+	local artSize = c.box
+	local artLift = 0 -- the art's pivot above its lowest point
+	local artTurn = CFrame.identity
+	local floor = at -- where the falling thing's bottom ends up: the art's own lowest point, so it lands where it rests
+	if source ~= nil and source:IsA("Model") then
+		local copy = (source :: Model):Clone() :: Model
+		for _, piece in copy:GetDescendants() do
+			if piece:IsA("BasePart") then
+				local part = piece :: BasePart
+				part.Anchored = true
+				part.CanCollide = false
+				part.CanQuery = false
+				part.CanTouch = false
+				part.CastShadow = false
+			elseif piece:IsA("LuaSourceContainer") then
+				piece:Destroy()
+			end
+		end
+		local bounds, size = copy:GetBoundingBox()
+		local pivot = copy:GetPivot()
+		artSize = size
+		artLift = pivot.Position.Y - (bounds.Position.Y - size.Y / 2)
+		artTurn = pivot.Rotation
+		floor = pivot.Position - Vector3.new(0, artLift, 0)
+		copy.Name = "EffectsAdminCrate"
+		art = copy
+	end
 	local show = hide(model)
 	local box = Context.effectPart("EffectsAdminCrate", c.box, c.colour)
 	local canopy = Context.effectPart("EffectsAdminChute", c.canopy, c.canopyColour)
@@ -440,19 +471,29 @@ local function crate(model: Model)
 		local height = AdminDrops.hang(lands - now, c.seconds, c.height)
 		local lean = math.rad(AdminDrops.sway(now, c.swayDegrees, c.swaySeconds, still))
 		-- swing about the canopy, so the box swings under it
-		local top = CFrame.new(at + Vector3.new(0, height + c.cord + c.box.Y, 0))
+		local top = CFrame.new(floor + Vector3.new(0, height + c.cord + artSize.Y, 0))
 			* CFrame.Angles(0, 0, lean)
 		canopy.CFrame = top
-		box.CFrame = top * CFrame.new(0, -(c.cord + c.box.Y / 2), 0)
+		local base = top * CFrame.new(0, -(c.cord + artSize.Y), 0)
+		if art ~= nil then
+			(art :: Model):PivotTo(base * CFrame.new(0, artLift, 0) * artTurn)
+		else
+			box.CFrame = base * CFrame.new(0, c.box.Y / 2, 0)
+		end
 		for i, cord in cords do
 			local side = if i == 1 then -1 else 1
 			cord.CFrame = top
-				* CFrame.new(side * c.box.X * 0.35, -c.cord / 2, 0)
+				* CFrame.new(side * artSize.X * 0.35, -c.cord / 2, 0)
 				* CFrame.Angles(0, 0, side * math.rad(12))
 		end
 	end
 	place(Workspace:GetServerTimeNow())
-	box.Parent = Context.folder()
+	if art ~= nil then
+		box:Destroy()
+		art.Parent = Context.folder()
+	else
+		box.Parent = Context.folder()
+	end
 	canopy.Parent = Context.folder()
 	for _, cord in cords do
 		cord.Parent = Context.folder()
@@ -464,6 +505,9 @@ local function crate(model: Model)
 				return true
 			end
 			box:Destroy()
+			if art ~= nil then
+				art:Destroy()
+			end
 			canopy:Destroy()
 			for _, cord in cords do
 				cord:Destroy()

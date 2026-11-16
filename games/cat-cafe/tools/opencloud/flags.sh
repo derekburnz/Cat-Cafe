@@ -26,7 +26,6 @@
 #                 the publish that added them is running (an older one keeps a saved level only up to 2)
 #   swiftPaws10   true opens Swift Paws levels 6 to 10 (#4705); only once no server older than the publish that
 #                 added them is running (an older one keeps a saved level only up to 5)
-#   mouseDash     true makes Mouse Dash the Cat Arcade's game (#3296); only after QA passes
 #   cartTier6     true opens the Day Cart's Tier 6 shelf (#3462); only once every server runs a build that has it
 #   secretCats    true lets Secret cats roll (#3470); only once every server runs a build that has them
 #   luckyCharm    true shows and sells the Fish Market's Lucky Charm perk and counts its Luck (#3298); only once
@@ -167,7 +166,6 @@ show_key() {
 	traits) if [ "$raw" = true ]; then meaning="Cat Trainer traits ON in every server"; else meaning="Cat Trainer traits off (its default)"; fi ;;
 	swiftPaws5) if [ "$raw" = true ]; then meaning="Swift Paws levels 3 to 5 ON in every server"; else meaning="Swift Paws stops at level 2 (its default)"; fi ;;
 	swiftPaws10) if [ "$raw" = true ]; then meaning="Swift Paws levels 6 to 10 ON in every server"; else meaning="Swift Paws stops at level 5 (its default)"; fi ;;
-	mouseDash) if [ "$raw" = true ]; then meaning="Mouse Dash ON in every server (the Cat Arcade's game)"; else meaning="Mouse Dash off (its default)"; fi ;;
 	cartTier6) if [ "$raw" = true ]; then meaning="Day Cart Tier 6 shelf ON in every server (its own baits and potions)"; else meaning="Day Cart Tier 6 shelf off (its default)"; fi ;;
 	secretCats) if [ "$raw" = true ]; then meaning="Secret cats ON in every server"; else meaning="Secret cats off (its default)"; fi ;;
 	luckyCharm) if [ "$raw" = true ]; then meaning="Lucky Charm perk ON in every server"; else meaning="Lucky Charm perk off (its default)"; fi ;;

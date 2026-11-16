@@ -11161,6 +11161,12 @@ function UI.autoRank.check()
 		)
 	end
 	local ready, tier = auto.ready()
+	-- for Effects (Motion-FX's glow on RANK UP): the tier whose rank up is ready, nil while none is; local only
+	local player = Players.LocalPlayer
+	local readyTier = if ready then tier else nil
+	if player ~= nil and player:GetAttribute(AutoRankUp.ATTRIBUTE) ~= readyTier then
+		player:SetAttribute(AutoRankUp.ATTRIBUTE, readyTier)
+	end
 	if not on() or not ready or auto.opened[tier] then
 		return
 	end

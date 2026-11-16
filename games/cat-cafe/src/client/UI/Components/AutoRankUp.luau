@@ -11,6 +11,8 @@ local AutoRankUp = {}
 AutoRankUp.FLAG = "autoRankUp"
 AutoRankUp.CALM_SECONDS = 1.5 -- the screen calm this long first, so the window never lands as a card closes
 AutoRankUp.CHECK_SECONDS = 0.5 -- how often a ready rank up waiting for calm looks again
+-- the local player's attribute (client side only): the tier whose rank up is ready, nil while none is (client/Effects)
+AutoRankUp.ATTRIBUTE = "RankUpReady"
 
 export type Due = {
 	on: boolean, -- the switch

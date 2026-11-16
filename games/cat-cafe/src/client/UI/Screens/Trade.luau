@@ -127,6 +127,7 @@ local CONFIRM_TITLE_W = 76 -- "You give" beside its row on the confirm face
 local COLUMN_W = 220
 local ROW_H = 56
 local HEADER_H = 24
+local FISH_LINE_Y = 18 -- #4623: the fish line's top under the grid, right under the rate note
 local TICK_SECONDS = 0.25 -- the countdown, the confirm wait and the "Changed!" flash move on
 local PRESS_HOLD = 3 -- a Ready or Confirm press with no answer lets the button go again after this long
 local GAP = Theme.sizes.gap
@@ -509,16 +510,34 @@ function Trade._buildOffer(self: any, content: Frame)
 	-- #3932 (Derek: "a lot is cut off"): on a short screen the two grids' columns hug their grids, so the list on the
 	-- right gets a fourth card a row
 	local columnW = if Scale.isShort() then gridW + 8 else math.max(COLUMN_W, gridW)
-	local _mine, mineTitle, mineReady, mineChanged, mineGrid, mineTotal =
+	local mine, mineTitle, mineReady, mineChanged, mineGrid, mineTotal =
 		column("Mine", 0, "You give")
-	local _theirs, theirsTitle, theirsReady, theirsChanged, theirsGrid, theirsTotal =
+	local theirs, theirsTitle, theirsReady, theirsChanged, theirsGrid, theirsTotal =
 		column("Theirs", columnW + 16, "They give")
+	-- #4623 (Derek 2026-11-15: "make a better area to add it from maybe below the trade window on both sides so you can
+	-- see the value"): each side's golden fish in words under its grid, under the rate note, so both players read the
+	-- amounts at a glance; the fish card in the grid still opens the picker (a 44 px tap does not fit under the grids
+	-- on a phone, trading.md 1d)
+	local function fishLine(parent: Frame): TextLabel
+		return text({
+			Name = "FishLine",
+			Position = UDim2.fromOffset(0, HEADER_H + 4 + gridW + 4 + FISH_LINE_Y),
+			Size = UDim2.new(1, 0, 0, 18),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Visible = false,
+			Parent = parent,
+		})
+	end
+	local mineFish, theirsFish = fishLine(mine), fishLine(theirs)
 	self._side = {
 		me = {
 			title = mineTitle,
 			ready = mineReady,
 			changed = mineChanged,
 			total = mineTotal,
+			fishLine = mineFish,
 			tiles = {},
 			grid = mineGrid,
 			pieces = {} :: { TradeItemTile.TradeItemTile },
@@ -529,6 +548,7 @@ function Trade._buildOffer(self: any, content: Frame)
 			ready = theirsReady,
 			changed = theirsChanged,
 			total = theirsTotal,
+			fishLine = theirsFish,
 			tiles = {},
 			grid = theirsGrid,
 			pieces = {} :: { TradeItemTile.TradeItemTile },
@@ -1334,6 +1354,7 @@ function Trade._renderOffer(self: any, trade: Types.TradeState)
 		local side = self._side[key]
 		local data: Types.TradeSide = if key == "me" then trade.me else trade.them
 		side.title.Text = if key == "me" then "You give" else string.format("%s gives", data.name)
+		local fishNow = TradeLogic.fishOf(data)
 		side.ready.Visible = data.ready
 		-- #1574: the cats, then the pieces, then (#2745) the crates, then empty slots up to 9
 		local decor: { Types.TradeDecorTile } = data.decor or {}
@@ -1342,6 +1363,15 @@ function Trade._renderOffer(self: any, trade: Types.TradeState)
 		local fish = TradeLogic.fishOf(data)
 		local fishShown = (trade :: any).fishOn == true and (key == "me" or fish > 0)
 		side.fish:set(if fishShown then fishView(fish) else nil)
+		-- #4623: and in words under the grid, on both sides while fishOn; a screen too short for that line (it would
+		-- run under the button row) keeps the amount on the grid's fish card alone
+		local line: TextLabel = side.fishLine
+		local offer: Frame = self._offerFace
+		local fits = line.AbsolutePosition.Y + line.AbsoluteSize.Y
+			<= offer.AbsolutePosition.Y + offer.AbsoluteSize.Y + 1
+		line.Visible = (trade :: any).fishOn == true and fits
+		line.Text = TradeLogic.fishLine(fishNow)
+		line.TextColor3 = if fishNow > 0 then Theme.colors.gold else PAL.subtext
 		local slots = math.max(
 			0,
 			TradeLogic.MAX_CATS - #data.cats - #decor - #crates - (if fishShown then 1 else 0)

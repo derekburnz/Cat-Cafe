@@ -12,7 +12,6 @@
 --   step(view, now, seenAt, p)  what the screen shows now: the 3, 2, 1 before the start, the name splash, the strip,
 --                               its last minute
 --   earned(total, before, after) the running "You earned" sum: money that came in, never what was spent
---   pulse(t, hz, amount)        the last minute's slow swell, 1 to 1 + amount
 --   money(n, symbol)            12340 -> "+$12,340"
 -- The words count down nothing but the event's own start and end, and sell nothing.
 
@@ -276,11 +275,6 @@ function AdminFlashLogic.stripSpot(
 		return 1, 1, -math.floor(stripLift * s)
 	end
 	return 0, stripY, 0
-end
-
--- A slow swell `hz` times a second: 1 at rest, 1 + amount at its top.
-function AdminFlashLogic.pulse(t: number, hz: number, amount: number): number
-	return 1 + amount * (0.5 - 0.5 * math.cos(2 * math.pi * hz * t))
 end
 
 -- 12340 -> "+$12,340"

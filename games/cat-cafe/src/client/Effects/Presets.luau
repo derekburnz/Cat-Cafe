@@ -3964,8 +3964,7 @@ Presets.harvestFx = {
 -- #4325 (Effects/AdminFlash): an admin event takes the screen and the world. The 3, 2, 1 begins `countFrom` seconds
 -- before the start; the name splash holds `splashSeconds`; the strip comes in `stripAfter` seconds in (as the
 -- splash leaves) at `stripY` of the screen's height, and in the event's last `lastSeconds` (events of
--- `lastMinEvent` seconds or longer) turns red and swells by `pulse` `pulseHz` times a second, under the 3 a second
--- flashing limit. The end card holds `overSeconds`. Sizes are pixels on a `designHeight` tall screen, scaled to the
+-- `lastMinEvent` seconds or longer) turns red and stays steady (#4603: no swell). The end card holds `overSeconds`. Sizes are pixels on a `designHeight` tall screen, scaled to the
 -- screen's shorter side between `scaleMin` and `scaleMax`. `looks`: the world's tint while each kind runs, eased
 -- over `tintSeconds`, and the band's and strip's colours.
 Presets.adminFlash = {
@@ -4000,8 +3999,6 @@ Presets.adminFlash = {
 	stripBig = 25,
 	stripSmall = 15,
 	earnEase = 0.12,
-	pulseHz = 1,
-	pulse = 0.08,
 	overWidth = 460,
 	overHeight = 130,
 	overTitle = 34,

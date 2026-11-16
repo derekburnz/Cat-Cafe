@@ -123,4 +123,47 @@ return function()
 			end
 		)
 	end)
+
+	describe("early (#4626)", function()
+		it(
+			"names the welcome back gift first when its switch is on and it pays tomorrow",
+			function()
+				local ReturnGift = require(Shared.ReturnGift)
+				local profile = fresh()
+				profile.dailyTreat = { stamp = 2, lastDay = Spin.day(NOW) }
+				profile.telemetry.firstDay = NOW // DAY -- a first day today, so tomorrow's join pays it
+				expect(ReturnGift.waiting(profile, NOW)).to.equal(true)
+				expect((ReturnHook.early(profile, NOW, true) :: any).kind).to.equal("gift")
+				expect((ReturnHook.early(profile, NOW, false) :: any).kind).to.equal("treat")
+			end
+		)
+
+		it("names tomorrow's Daily Treat day once today's is claimed", function()
+			local profile = fresh()
+			profile.dailyTreat = { stamp = 2, lastDay = Spin.day(NOW) }
+			local hook = ReturnHook.early(profile, NOW, false) :: any
+			expect(hook.kind).to.equal("treat")
+			expect(hook.day).to.equal(DailyTreat.nextDay(profile.dailyTreat))
+		end)
+
+		it(
+			"names nothing while today's treat is still to claim, and never bait or quests",
+			function()
+				local profile = fresh()
+				profile.dailyTreat = { stamp = 1, lastDay = Spin.day(NOW) - 1 }
+				profile.bait = bait(NOW + 600)
+				expect(ReturnHook.early(profile, NOW, false)).to.equal(nil)
+				profile.dailyTreat = { stamp = 1, lastDay = Spin.day(NOW) }
+				local kind = (ReturnHook.early(profile, NOW, false) :: any).kind
+				expect(table.find(ReturnHook.EARLY_KINDS, kind) ~= nil).to.equal(true)
+			end
+		)
+
+		it("is for players before Tier 3, behind an off switch", function()
+			local LiveFlags = require(Shared.LiveFlags)
+			expect(ReturnHook.EARLY_MAX_TIER).to.equal(2)
+			expect(LiveFlags.OFF_BY_DEFAULT[ReturnHook.EARLY_FLAG]).to.equal(true)
+			expect(table.find(LiveFlags.KEYS, ReturnHook.EARLY_FLAG) ~= nil).to.equal(true)
+		end)
+	end)
 end

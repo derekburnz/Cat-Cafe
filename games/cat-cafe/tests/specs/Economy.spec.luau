@@ -205,7 +205,7 @@ return function()
 			end)
 
 			it(
-				"bait speed shortens the next bowl in whole seconds, 372 s on the full All Cats track (F54)",
+				"bait speed shortens the next bowl in whole seconds, 300 s (BaitSpeedMax) on the full All Cats track (F54; #4654: 372 before the past-50 milestones counted)",
 				function()
 					local p = freshProfile()
 					expect(Economy.baitWaitSeconds(p)).to.equal(600)
@@ -216,7 +216,7 @@ return function()
 						all[id] = true
 					end
 					p.indexRewards.all = all
-					expect(Economy.baitWaitSeconds(p)).to.equal(372)
+					expect(Economy.baitWaitSeconds(p)).to.equal(300) -- #4654: the indexTo70 milestones count, so the cap
 				end
 			)
 
@@ -236,7 +236,7 @@ return function()
 						all[id] = true
 					end
 					p.indexRewards.all = all
-					expect(Economy.baitWaitSeconds(p, true)).to.equal(186)
+					expect(Economy.baitWaitSeconds(p, true)).to.equal(150) -- #4654: 186 before indexTo70 shipped (the cap now)
 				end
 			)
 

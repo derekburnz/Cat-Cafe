@@ -155,7 +155,7 @@ end
 -- second; an account that set baits before without one gets it on its next) brings a Rare-or-better cat once. A one-time first-session guarantee, logged in decisions.md as the exception to
 -- "the same odds for everyone": the bowl's odds list is unchanged, every other roll is as it was, and bait is bought
 -- with coins only, so this is not a paid random item.
-Bait.WOW_EPIC_CHANCE = 0.15 -- a Common the guarantee lifts becomes Epic this often, else Rare
+Bait.WOW_EPIC_CHANCE = 0.35 -- a Common the guarantee lifts becomes Epic this often, else Rare (#4920: was 0.15)
 
 -- Whether the food going in now gets the guarantee: the account has not had it. #2793: from the first bait, so the
 -- first "wow" lands seconds after the first food (FirstBaitWaitSeconds), before the 2 to 5 minute drop.
@@ -163,7 +163,7 @@ function Bait.wowDue(firstWow: boolean): boolean
 	return not firstWow
 end
 
--- The guaranteed roll's rarity: the bowl's normal roll, with a Common lifted to Rare (85%) or Epic (15%, `u` below
+-- The guaranteed roll's rarity: the bowl's normal roll, with a Common lifted to Rare (65%) or Epic (35%, `u` below
 -- WOW_EPIC_CHANCE). Rare and better stay as rolled.
 function Bait.wowRarity(rarity: Types.Rarity, u: number): Types.Rarity
 	if rarity ~= "Common" then

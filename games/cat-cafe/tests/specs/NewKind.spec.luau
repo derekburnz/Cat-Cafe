@@ -86,6 +86,7 @@ return function()
 			expect(NewKind.title(2, false, true)).to.equal("Catch cats 🐾 2/3")
 			expect(NewKind.title(1, true, true)).to.equal("Cats 🐾 1/3")
 			expect(NewKind.ANY_CANNON_LINE).to.equal("More cats wait in the Alleyway")
+			expect(NewKind.ANY_LINE).to.equal("A cat is close by")
 		end)
 
 		it("needs what Tier 2 needs", function()

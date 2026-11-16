@@ -908,7 +908,7 @@ local function refreshTutorial(s: Types.PlayerState)
 			showTutorial(
 				s,
 				if where == "stray"
-					then NewKind.LINE
+					then (if NewKind.anyAt(s.tier or 1) then NewKind.ANY_LINE else NewKind.LINE) -- #4809
 					elseif where == "next" then NewKind.NEXT_AREA
 					elseif NewKind.anyAt(s.tier or 1) then NewKind.ANY_CANNON_LINE -- #4809
 					else NewKind.CANNON_LINE,

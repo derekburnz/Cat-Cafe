@@ -362,7 +362,12 @@ local function homeArrival(player: Player, character: Model)
 		or character.Parent == nil
 		or character:GetAttribute("Launching") == true
 		or CatService.isLoaded(player)
-		or not Cannon.stillAtSpawn(root.Position, Vector3.new(spawn.x, spawn.y, spawn.z))
+		or not Cannon.stillAtSpawn(
+			root.Position,
+			Vector3.new(spawn.x, spawn.y, spawn.z),
+			-- #4967: a new player anywhere in the Town Square still goes to their door
+			(profile.tutorialStep or 0) < Config.TutorialGuaranteedStrayStep
+		)
 	then
 		return -- gone, flying, carrying or walked off already: left where they are
 	end

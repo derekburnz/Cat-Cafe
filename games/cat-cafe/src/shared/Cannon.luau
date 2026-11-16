@@ -294,6 +294,12 @@ Cannon.REJOIN_HOME_WAIT_SECONDS = 120
 -- by Roblox's idle reconnect or a rejoin of their own also waits on the old server's session lock, and they stand
 -- still at the spawn until the save comes, so the move is still only for a character that has not walked off.
 Cannon.HOME_SPAWN_STUDS = 10
+-- #4967 (Derek 2026-11-16: "for when new players join put them infront of cafe doors ... sometimes when skipping
+-- loading screen right away it shows them infront of cannon"): a new player (before the first check-in) who skipped
+-- the loading screen at once can walk off the spawn before the save and the cafe are ready, and was left by the
+-- cannon. A new player still anywhere in the Town Square goes to their door; only a returning player keeps the
+-- 10 stud rule.
+Cannon.HOME_SPAWN_STUDS_NEW = 90
 Cannon.HOME_ATTRIBUTE = "HomeArrival"
 -- Review-QA's fresh join runs, 2026-11-12 (Derek: "the cannon step of tutorial steps pulls you super far out so you
 -- cant see"): the tutorial's own move to the cannon turned the character and left the camera where it was, in front
@@ -336,9 +342,11 @@ function Cannon.homeWaitSeconds(_restRejoin: boolean): number
 end
 
 -- Whether a character at `at` still stands at the spawn `spawn` (flat distance), so moving it surprises nobody.
-function Cannon.stillAtSpawn(at: Vector3, spawn: Vector3): boolean
+-- #4967: `newPlayer` (before the first check-in) counts the whole Town Square, HOME_SPAWN_STUDS_NEW.
+function Cannon.stillAtSpawn(at: Vector3, spawn: Vector3, newPlayer: boolean?): boolean
 	local dx, dz = at.X - spawn.X, at.Z - spawn.Z
-	return math.sqrt(dx * dx + dz * dz) <= Cannon.HOME_SPAWN_STUDS
+	local reach = if newPlayer == true then Cannon.HOME_SPAWN_STUDS_NEW else Cannon.HOME_SPAWN_STUDS
+	return math.sqrt(dx * dx + dz * dz) <= reach
 end
 
 -- The camera's place and what it looks at for a character whose root is at `at`, facing `facing`: behind and above

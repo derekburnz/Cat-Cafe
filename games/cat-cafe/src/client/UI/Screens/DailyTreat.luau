@@ -186,8 +186,6 @@ end
 function DailyTreat._build(self: any)
 	-- #3961: the family look (batch 2 mock): DAY 1 on the card's left, a stamped day tinted green with a tick in its
 	-- corner, CLAIM upper case
-	local family = MenuFamily.on()
-	self._family = family
 	for day = 1, DailyTreatLogic.DAYS do
 		local best = day == DailyTreatLogic.DAYS
 		local cell: Frame = Create("Frame", {
@@ -218,35 +216,33 @@ function DailyTreat._build(self: any)
 			else ("Day %d"):format(day)
 		text({
 			Name = "Day",
-			Position = UDim2.fromOffset(if family then 10 else 6, 4),
-			Size = UDim2.new(1, if family then -40 else -12, 0, 20),
+			Position = UDim2.fromOffset(10, 4),
+			Size = UDim2.new(1, -40, 0, 20),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody,
 			TextColor3 = if best then CREAM.gold else CREAM.text,
-			TextXAlignment = if family then Enum.TextXAlignment.Left else nil,
-			Text = if family then string.upper(dayWords) else dayWords,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Text = string.upper(dayWords),
 			Parent = frame,
 		})
 		local tick: TextLabel? = nil
-		if family then
-			local mark: TextLabel = text({
-				Name = "Tick",
-				AnchorPoint = Vector2.new(1, 0),
-				Position = UDim2.new(1, -5, 0, 4),
-				Size = UDim2.fromOffset(22, 22),
-				BackgroundTransparency = 0,
-				BackgroundColor3 = Theme.colors.good,
-				FontFace = Theme.fonts.display,
-				TextSize = Theme.sizes.textSmall,
-				TextColor3 = Theme.colors.white,
-				Text = "✓",
-				Visible = false,
-				ZIndex = 2,
-				Parent = frame,
-			})
-			Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = mark })
-			tick = mark
-		end
+		local mark: TextLabel = text({
+			Name = "Tick",
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, -5, 0, 4),
+			Size = UDim2.fromOffset(22, 22),
+			BackgroundTransparency = 0,
+			BackgroundColor3 = Theme.colors.good,
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = Theme.colors.white,
+			Text = "✓",
+			Visible = false,
+			ZIndex = 2,
+			Parent = frame,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = mark })
+		tick = mark
 		local chips = PrizeChips.new({
 			parent = frame,
 			tile = ICON,
@@ -273,7 +269,7 @@ function DailyTreat._build(self: any)
 		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = status })
 		local claim = Button.new({
 			name = "Claim",
-			text = if family then "CLAIM" else "Claim",
+			text = "CLAIM",
 			style = "primary",
 			size = UDim2.new(1, -16, 0, 34),
 			anchorPoint = Vector2.new(0.5, 1),
@@ -378,11 +374,9 @@ function DailyTreat._refresh(self: any)
 		end
 		card.claim.instance.Visible = ready
 		card.claim:setEnabled(not pending)
-		card.claim:setText(if pending then "..." elseif self._family then "CLAIM" else "Claim")
+		card.claim:setText(if pending then "..." else "CLAIM")
 		card.status.Visible = stamped or cell.state == "next"
-		card.status.Text = if stamped
-			then (if self._family then "Stamped" else "✓ Stamped")
-			else "Tomorrow"
+		card.status.Text = if stamped then "Stamped" else "Tomorrow"
 		local tick: TextLabel? = card.tick
 		if tick ~= nil then
 			tick.Visible = stamped
@@ -393,7 +387,7 @@ function DailyTreat._refresh(self: any)
 			elseif card.best then Theme.colors.goldDark
 			else CREAM.cardStroke
 		card.stroke.Thickness = Theme.sizes.stroke + (if ready or card.best then 1 else 0)
-		if self._family and not card.best then
+		if not card.best then
 			-- #3961: a stamped day is tinted green and stays solid, as in the mock
 			card.frame.BackgroundColor3 = if stamped
 				then CREAM.card:Lerp(Theme.colors.good, 0.22)

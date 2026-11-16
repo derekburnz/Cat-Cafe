@@ -145,8 +145,9 @@ return function()
 						)
 					).to.equal(true)
 				end
+				-- #4601: a camp station is placed by the server, and the client reads the placed model
 				for _, extra in Catalog.campExtras do
-					expect(ServerOnlyAssets.matches(extra.model)).to.equal(false)
+					expect(ServerOnlyAssets.matches(extra.model)).to.equal(true)
 				end
 			end
 		)
@@ -195,15 +196,40 @@ return function()
 			expect(ServerOnlyAssets.matches("CatCafe_Camp_Cannon_Barrel")).to.equal(false)
 		end)
 
+		it("takes the camp stations and leaves the camp pieces a client copies (#4601)", function()
+			for _, name in
+				{
+					"CatCafe_Camp_Alley_RummageBin",
+					"CatCafe_Camp_Park_MysticPool",
+					"CatCafe_Camp_Park_GardenNursery",
+					"CatCafe_Camp_Desert_OasisSpa",
+					"CatCafe_Camp_Ruins_RelicMuseum",
+					"CatCafe_Camp_Snowy_CocoaStand",
+					"CatCafe_Camp_Snowy_FusionObservatory",
+					"CatCafe_Camp_WaterPark_TicketBooth",
+					"CatCafe_Camp_Castle_DragonKeep",
+					"CatCafe_Camp_Castle_HoardChest",
+				}
+			do
+				expect(ServerOnlyAssets.matches(name)).to.equal(true)
+			end
+			for _, name in
+				{
+					"CatCafe_Camp_Woods_FishingHut_Gold", -- GoldHutController reads its looks
+					"CatCafe_Camp_Desert_SpaTowel", -- SpaPoolController clones it
+					"CatCafe_Camp_Park_Growth", -- Effects/CampGrowth clones it
+					"CatCafe_Camp_Castle_Growth",
+				}
+			do
+				expect(ServerOnlyAssets.matches(name)).to.equal(false)
+			end
+		end)
+
 		it("leaves the models a client clones or draws", function()
 			for _, name in
 				{
 					"CatCafe_Sky",
 					"CatCafe_Camp_Park_Growth",
-					"CatCafe_Camp_Snowy_FusionObservatory", -- #4070: a camp's station stays with the client
-					"CatCafe_Camp_Snowy_CocoaStand",
-					"CatCafe_Camp_WaterPark_TicketBooth",
-					"CatCafe_Camp_Castle_DragonKeep",
 					"CatCafe_Furniture_TableRound",
 					"CatCafe_Furniture_Chair",
 					"CatCafe_Cat_Tabby",
@@ -212,8 +238,6 @@ return function()
 					"CatCafe_Accessory_Sash",
 					"CatCafe_Camp_Cannon",
 					"CatCafe_Camp_Cannon_Barrel",
-					"CatCafe_Camp_Park_PicnicStation",
-					"CatCafe_Camp_Park_MysticPool",
 					"CatCafe_Camp_Woods_FishingHut_Gold",
 					"CatCafe_Camp_Sewer_Growth",
 					"CatCafe_Camp_Town",

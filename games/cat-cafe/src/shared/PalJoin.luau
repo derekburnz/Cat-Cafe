@@ -1,7 +1,7 @@
 --!strict
 -- #3995 (Design-Agent's friend-join-3995.md, from Growth-Agent's issue): a player who joins through a friend
--- (PalService.joinedVia: an invite, or Roblox's Join button that follows them) stays with that friend. Behind the
--- `palJoin` switch (LiveFlags, off by default):
+-- (PalService.joinedVia: an invite, or Roblox's Join button that follows them) stays with that friend (its
+-- `palJoin` switch is retired since #4654 batch 8):
 --   1. their cafe is the free plot whose door is nearest the friend's door (PalJoin.nearest), else the first free one;
 --   2. the intro scene does not play itself this session, and the save stays out of the intro test (no introGroup);
 --   3. Telemetry logs pal_join once (PalJoin.fields: how they were linked, new or returning, next door or not);

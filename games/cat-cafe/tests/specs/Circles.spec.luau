@@ -1348,290 +1348,162 @@ return function()
 	end)
 	-- #3062: the Cat Arcade's Circle Streak (shared/Arcade), the catch's circles with no stray. Here, not in a spec
 	-- file of its own, since the cloud checker holds a fixed number of spec files.
-	describe("the Cat Arcade's Circle Streak (#3062)", function()
-		local Arcade = require(Shared.Arcade)
-		local DAY = 86400
-		local NOW = 20400 * DAY + 3600 -- 1 a.m. UTC on a day
+	describe(
+		"the Cat Arcade's save, milestones and board (#3062; Circle Streak itself went in #4656)",
+		function()
+			local Arcade = require(Shared.Arcade)
+			local DAY = 86400
+			local NOW = 20400 * DAY + 3600 -- 1 a.m. UTC on a day
 
-		it(
-			"pays fish, foods, crates and potions every 10 points, about three times more since #3869, nothing sold",
-			function()
-				local list = Arcade.milestones()
-				expect(#list).to.equal(10)
-				local fish = 0
-				for i, m in list do
-					expect(m.at).to.equal(i * 10)
-					expect(type(m.name)).to.equal("string")
-					fish += m.prize.fish or 0
-					expect(m.prize.coins).to.equal(nil) -- the arcade pays no coins
-				end
-				expect(fish).to.equal(240) -- #3869: about three times every prize (238 before); under TradeFishPerDay
-				expect(fish < Config.TradeFishPerDay).to.equal(true)
-				expect(assert(Arcade.milestoneAt(10)).prize.fish).to.equal(15) -- #3869: was 5 (Derek2 17:41)
-				expect(assert(assert(Arcade.milestoneAt(30)).prize.crates).classic_golden_crate).to.equal(
-					1
-				)
-				-- every milestone pays at least two things
-				for _, m in list do
-					local kinds = 0
-					for _ in m.prize :: { [string]: any } do
-						kinds += 1
+			it(
+				"pays fish, foods, crates and potions every 10 points, about three times more since #3869, nothing sold",
+				function()
+					local list = Arcade.milestones()
+					expect(#list).to.equal(10)
+					local fish = 0
+					for i, m in list do
+						expect(m.at).to.equal(i * 10)
+						expect(type(m.name)).to.equal("string")
+						fish += m.prize.fish or 0
+						expect(m.prize.coins).to.equal(nil) -- the arcade pays no coins
 					end
-					expect(kinds >= 2).to.equal(true)
-				end
-				expect(Config.ArcadeCostFish).to.equal(1)
-			end
-		)
-
-		it("scores Perfect +2 and Good +1, a Miss nothing, clamped at 100", function()
-			expect(Arcade.add(0, "perfect")).to.equal(2)
-			expect(Arcade.add(0, "good")).to.equal(1)
-			expect(Arcade.add(5, "miss")).to.equal(5)
-			expect(Arcade.add(99, "perfect")).to.equal(100)
-		end)
-
-		it("steps every 5 points, stopping at the 20th (100 points) (#3359)", function()
-			expect(Arcade.step(0)).to.equal(0)
-			expect(Arcade.step(4)).to.equal(0)
-			expect(Arcade.step(5)).to.equal(1)
-			expect(Arcade.step(57)).to.equal(11)
-			expect(Arcade.step(99)).to.equal(19)
-			expect(Arcade.step(100)).to.equal(20)
-			expect(Arcade.step(500)).to.equal(20)
-		end)
-
-		it(
-			"starts at twice a Common's pace with its windows and keeps getting harder (#3359)",
-			function()
-				local start = Arcade.windows(0)
-				local common = Circles.windowsFor(1, "Common")
-				expect(start.perfect).to.be.near(common.perfect, 1e-9)
-				expect(start.good).to.be.near(common.good, 1e-9)
-				expect(Arcade.shrink(0)).to.be.near(Catalog.rarities.Common.shrinkSeconds / 2, 1e-9)
-				expect(Arcade.shrink(6)).to.be.near(0.60 * 0.96 ^ 6, 1e-9) -- about 0.47 s at 30 points
-				expect(Arcade.shrink(20) / Arcade.shrink(0)).to.be.near(0.96 ^ 20, 1e-9) -- about 0.44
-				expect(Arcade.windows(20).good / start.good).to.be.near(0.97 ^ 20, 1e-9)
-				expect(Arcade.gap(0)).to.be.near(Config.CircleGapMax, 1e-9)
-				expect(Arcade.gap(Arcade.MAX_STEP)).to.be.near(Config.CircleGapMin, 1e-9)
-				expect(Arcade.jitter(0)).to.be.near(Config.CircleJitter, 1e-9)
-				expect(Arcade.jitter(Arcade.MAX_STEP)).to.be.near(Config.ArcadeJitterMax, 1e-9)
-				for step = 1, Arcade.MAX_STEP do
-					expect(Arcade.shrink(step) < Arcade.shrink(step - 1)).to.equal(true)
-					expect(Arcade.windows(step).perfect < Arcade.windows(step - 1).perfect).to.equal(
-						true
+					expect(fish).to.equal(240) -- #3869: about three times every prize (238 before); under TradeFishPerDay
+					expect(fish < Config.TradeFishPerDay).to.equal(true)
+					expect(assert(Arcade.milestoneAt(10)).prize.fish).to.equal(15) -- #3869: was 5 (Derek2 17:41)
+					expect(assert(assert(Arcade.milestoneAt(30)).prize.crates).classic_golden_crate).to.equal(
+						1
 					)
-				end
-			end
-		)
-
-		it(
-			"builds blocks of 10 on screen, never close enough for a late press to land on the next (S24)",
-			function()
-				local roll = lcg(7)
-				for step = 0, Arcade.MAX_STEP do
-					local circles = Arcade.block(step, 1000, roll)
-					expect(#circles).to.equal(Arcade.BLOCK)
-					expect(circles[1].startsAt).to.equal(1000)
-					local windows = Arcade.windows(step)
-					for i, circle in circles do
-						expect(circle.kind).to.equal("single")
-						expect(circle.x >= 0.25 and circle.x <= 0.75).to.equal(true)
-						expect(circle.y >= 0.3 and circle.y <= 0.7).to.equal(true)
-						-- #3359: never under the floor, else within the step's wobble
-						expect(circle.shrinkSeconds >= Config.ArcadeShrinkFloorSeconds).to.equal(
-							true
-						)
-						if circle.shrinkSeconds > Config.ArcadeShrinkFloorSeconds then
-							local wobble = circle.shrinkSeconds / Arcade.shrink(step) - 1
-							expect(math.abs(wobble) <= Arcade.jitter(step) + 1e-9).to.equal(true)
+					-- every milestone pays at least two things
+					for _, m in list do
+						local kinds = 0
+						for _ in m.prize :: { [string]: any } do
+							kinds += 1
 						end
-						local nextOne = circles[i + 1]
-						if nextOne ~= nil then
-							local gap = nextOne.startsAt - Circles.target(circle)
-							expect(gap).to.be.near(Arcade.gap(step), 1e-9)
-							expect(gap > windows.good + Config.CatchLatencyCapSeconds).to.equal(
-								true
-							)
-						end
+						expect(kinds >= 2).to.equal(true)
 					end
+					expect(Config.ArcadeCostFish).to.equal(1)
 				end
-			end
-		)
+			)
 
-		it(
-			"plays a whole block through the catch's judge: all Perfect is 20 points, a Miss ends it",
-			function()
-				local circles = Arcade.block(0, 1000, lcg(3))
-				local attempt = Circles.newAttempt(circles, Arcade.windows(0))
-				local points = 0
-				for i, circle in circles do
-					local grade =
-						Circles.press(attempt, i, Circles.target(circle), Circles.target(circle))
-					points = Arcade.add(points, grade :: any)
-				end
-				expect(points).to.equal(20)
-				expect(Circles.isDone(attempt)).to.equal(true)
-				expect(attempt.missed).to.equal(false)
-				local second = Circles.newAttempt(Arcade.block(2, 2000, lcg(4)), Arcade.windows(2))
-				local late = Circles.target(second.circles[1]) + Arcade.windows(2).good + 0.01
-				expect(Circles.press(second, 1, late, late)).to.equal("miss")
-				expect(Circles.isDone(second)).to.equal(true)
-				expect(second.missed).to.equal(true)
-			end
-		)
-
-		it("pays a milestone a +2 skips over, and each one once per UTC day", function()
-			expect(Arcade.crossed(9, 11) :: any).to.deepEqual({ 10 })
-			expect(Arcade.crossed(10, 11) :: any).to.deepEqual({})
-			expect(Arcade.crossed(0, 100) :: any).to.deepEqual({
-				10,
-				20,
-				30,
-				40,
-				50,
-				60,
-				70,
-				80,
-				90,
-				100,
-			})
-			local save = Arcade.fresh()
-			expect(Arcade.claim(save, 0, 21, NOW) :: any).to.deepEqual({ 10, 20 })
-			expect(Arcade.claim(save, 0, 31, NOW + 60) :: any).to.deepEqual({ 30 })
-			expect(Arcade.claim(save, 0, 31, NOW + 120) :: any).to.deepEqual({})
-			-- the next UTC day pays them again
-			expect(Arcade.claim(save, 0, 12, NOW + DAY) :: any).to.deepEqual({ 10 })
-			expect(save.paid :: any).to.deepEqual({ 10 })
-		end)
-
-		local EPOCH = Arcade.BOARD_EPOCH -- #3378: a best counts only with the board's epoch
-
-		it("reads a save back safely, and yesterday's milestones are open again", function()
-			local junk = Arcade.sanitize({
-				best = 250,
-				bestCircles = -3,
-				paid = { 10, 15, "x", 10 },
-				day = 20400,
-				epoch = EPOCH,
-			}, NOW)
-			expect(junk.best).to.equal(100)
-			expect(junk.bestCircles).to.equal(0)
-			expect(junk.paid :: any).to.deepEqual({ 10 })
-			expect(
-				Arcade.sanitize({ paid = { 10, 20 }, day = 20399, legend = true }, NOW).paid :: any
-			).to.deepEqual({})
-			expect(Arcade.sanitize({ legend = true }, NOW).legend).to.equal(true)
-			expect(Arcade.sanitize("nope", NOW) :: any).to.deepEqual(Arcade.fresh() :: any)
-		end)
-
-		it(
-			"joins a late write with the stored save, so a server hop can't pay a milestone twice (#3251 review)",
-			function()
-				local stored = Arcade.sanitize({
-					best = 40,
-					bestCircles = 30,
-					epoch = EPOCH,
-					day = 20400,
-					paid = { 10, 20 },
-					legend = false,
-					runs = 6,
-				}, NOW)
-				local mine = Arcade.sanitize({
-					best = 40,
-					bestCircles = 28,
-					epoch = EPOCH,
-					day = 20400,
-					paid = { 10, 30 },
-					legend = true,
-					runs = 4,
-				}, NOW)
-				local joined = Arcade.merge(stored, mine)
-				expect(joined.paid :: any).to.deepEqual({ 10, 20, 30 })
-				expect(joined.best).to.equal(40)
-				expect(joined.bestCircles).to.equal(28)
-				expect(joined.runs).to.equal(6)
-				expect(joined.legend).to.equal(true)
-				-- a higher best wins whatever its circles; yesterday's paid list is left out
-				local old = Arcade.fresh()
-				old.best, old.bestCircles, old.day, old.paid = 52, 60, 20399, { 10, 20, 30, 40, 50 }
-				local new = Arcade.merge(old, mine)
-				expect(new.best).to.equal(52)
-				expect(new.bestCircles).to.equal(60)
-				expect(new.paid :: any).to.deepEqual({ 10, 30 })
-			end
-		)
-
-		it(
-			"ranks records by points, then fewest circles, and 100 earns the title for good",
-			function()
-				expect(Arcade.score(100, 58)).to.equal(100941)
-				expect(Arcade.beats(100, 58, 100, 60)).to.equal(true)
-				expect(Arcade.beats(100, 60, 100, 58)).to.equal(false)
-				expect(Arcade.beats(37, 30, 0, 0)).to.equal(true)
-				expect(Arcade.beats(0, 1, 0, 0)).to.equal(false)
+			it("pays a milestone a +2 skips over, and each one once per UTC day", function()
+				expect(Arcade.crossed(9, 11) :: any).to.deepEqual({ 10 })
+				expect(Arcade.crossed(10, 11) :: any).to.deepEqual({})
+				expect(Arcade.crossed(0, 100) :: any).to.deepEqual({
+					10,
+					20,
+					30,
+					40,
+					50,
+					60,
+					70,
+					80,
+					90,
+					100,
+				})
 				local save = Arcade.fresh()
-				expect(Arcade.record(save, 37, 30)).to.equal(true)
-				expect(Arcade.record(save, 20, 15)).to.equal(false)
-				expect(save.best).to.equal(37)
-				expect(save.legend).to.equal(false)
-				expect(Arcade.record(save, 100, 58)).to.equal(true)
-				expect(save.legend).to.equal(true)
-				expect(save.runs).to.equal(3)
-			end
-		)
+				expect(Arcade.claim(save, 0, 21, NOW) :: any).to.deepEqual({ 10, 20 })
+				expect(Arcade.claim(save, 0, 31, NOW + 60) :: any).to.deepEqual({ 30 })
+				expect(Arcade.claim(save, 0, 31, NOW + 120) :: any).to.deepEqual({})
+				-- the next UTC day pays them again
+				expect(Arcade.claim(save, 0, 12, NOW + DAY) :: any).to.deepEqual({ 10 })
+				expect(save.paid :: any).to.deepEqual({ 10 })
+			end)
 
-		it("words the card and why a game can't start", function()
-			expect(Arcade.words(37, 30)).to.equal("37")
-			expect(Arcade.words(100, 58)).to.equal("100 in 58 circles")
-			local line = Arcade.cardLine({
-				points = 37,
-				circles = 30,
-				win = false,
-				best = 52,
-				bestCircles = 40,
-				newBest = false,
-				serverBest = 61,
-				serverCircles = 45,
-				serverName = "Sam",
-				paid = {},
-				today = {},
-				legend = false,
-			})
-			expect(line).to.equal("Score 37 · Best 52 · Server best 61 (Sam)")
-			expect(Arcade.startBlocker(5, nil, false, true)).to.equal(nil)
-			expect(Arcade.startBlocker(0, nil, false, true)).to.equal(
-				"You need 1 golden fish 🐟 to play"
-			)
-			expect(Arcade.startBlocker(5, "Finish this catch first", false, true)).to.equal(
-				"Finish this catch first"
-			)
-			expect(Arcade.startBlocker(5, nil, true, true)).to.equal("Finish this game first")
-			expect(type(Arcade.startBlocker(5, nil, false, false))).to.equal("string")
-		end)
+			local EPOCH = Arcade.BOARD_EPOCH -- #3378: a best counts only with the board's epoch
 
-		it("gives one free game each UTC day (#3296)", function()
-			local save = Arcade.fresh()
-			expect(Arcade.freeToday(save, NOW)).to.equal(true)
-			expect(Arcade.startBlocker(0, nil, false, true, true)).to.equal(nil)
-			expect(Arcade.playText(true)).to.equal("Play (free)")
-			expect(Arcade.playText(false)).to.equal("Play (1 🐟)")
-			expect(Arcade.useFree(save, NOW)).to.equal(true)
-			expect(Arcade.freeToday(save, NOW)).to.equal(false)
-			expect(Arcade.useFree(save, NOW)).to.equal(false)
-			expect(Arcade.startBlocker(0, nil, false, true, false)).to.equal(
-				"You need 1 golden fish 🐟 to play"
+			it("reads a save back safely, and yesterday's milestones are open again", function()
+				local junk = Arcade.sanitize({
+					best = 250,
+					bestCircles = -3,
+					paid = { 10, 15, "x", 10 },
+					day = 20400,
+					epoch = EPOCH,
+				}, NOW)
+				expect(junk.best).to.equal(100)
+				expect(junk.bestCircles).to.equal(0)
+				expect(junk.paid :: any).to.deepEqual({ 10 })
+				expect(
+					Arcade.sanitize({ paid = { 10, 20 }, day = 20399, legend = true }, NOW).paid :: any
+				).to.deepEqual({})
+				expect(Arcade.sanitize({ legend = true }, NOW).legend).to.equal(true)
+				expect(Arcade.sanitize("nope", NOW) :: any).to.deepEqual(Arcade.fresh() :: any)
+			end)
+
+			it(
+				"joins a late write with the stored save, so a server hop can't pay a milestone twice (#3251 review)",
+				function()
+					local stored = Arcade.sanitize({
+						best = 40,
+						bestCircles = 30,
+						epoch = EPOCH,
+						day = 20400,
+						paid = { 10, 20 },
+						legend = false,
+						runs = 6,
+					}, NOW)
+					local mine = Arcade.sanitize({
+						best = 40,
+						bestCircles = 28,
+						epoch = EPOCH,
+						day = 20400,
+						paid = { 10, 30 },
+						legend = true,
+						runs = 4,
+					}, NOW)
+					local joined = Arcade.merge(stored, mine)
+					expect(joined.paid :: any).to.deepEqual({ 10, 20, 30 })
+					expect(joined.best).to.equal(40)
+					expect(joined.bestCircles).to.equal(28)
+					expect(joined.runs).to.equal(6)
+					expect(joined.legend).to.equal(true)
+					-- a higher best wins whatever its circles; yesterday's paid list is left out
+					local old = Arcade.fresh()
+					old.best, old.bestCircles, old.day, old.paid =
+						52, 60, 20399, { 10, 20, 30, 40, 50 }
+					local new = Arcade.merge(old, mine)
+					expect(new.best).to.equal(52)
+					expect(new.bestCircles).to.equal(60)
+					expect(new.paid :: any).to.deepEqual({ 10, 30 })
+				end
 			)
-			-- the next UTC day it's back
-			expect(Arcade.freeToday(save, NOW + Arcade.DAY_SECONDS)).to.equal(true)
-			-- kept through a save read and a join with another server's older save
-			local read = Arcade.sanitize(save, NOW)
-			expect(read.freeDay).to.equal(Arcade.day(NOW))
-			local joined = Arcade.merge(Arcade.fresh(), read)
-			expect(Arcade.freeToday(joined, NOW)).to.equal(false)
-			expect(Arcade.freeToday(Arcade.merge(read, Arcade.fresh()), NOW)).to.equal(false)
-			expect(Arcade.sanitize({ freeDay = "x" }, NOW).freeDay).to.equal(0)
-		end)
-	end)
+
+			it("ranks records by points, then fewest circles", function()
+				expect(Arcade.score(100, 58)).to.equal(100941)
+			end)
+
+			it("words why a game can't start", function()
+				expect(Arcade.startBlocker(5, nil, false, true)).to.equal(nil)
+				expect(Arcade.startBlocker(0, nil, false, true)).to.equal(
+					"You need 1 golden fish 🐟 to play"
+				)
+				expect(Arcade.startBlocker(5, "Finish this catch first", false, true)).to.equal(
+					"Finish this catch first"
+				)
+				expect(Arcade.startBlocker(5, nil, true, true)).to.equal("Finish this game first")
+				expect(type(Arcade.startBlocker(5, nil, false, false))).to.equal("string")
+			end)
+
+			it("gives one free game each UTC day (#3296)", function()
+				local save = Arcade.fresh()
+				expect(Arcade.freeToday(save, NOW)).to.equal(true)
+				expect(Arcade.startBlocker(0, nil, false, true, true)).to.equal(nil)
+				save.freeDay = Arcade.day(NOW) -- Mouse Dash used today's free run
+				expect(Arcade.freeToday(save, NOW)).to.equal(false)
+				expect(Arcade.startBlocker(0, nil, false, true, false)).to.equal(
+					"You need 1 golden fish 🐟 to play"
+				)
+				-- the next UTC day it's back
+				expect(Arcade.freeToday(save, NOW + Arcade.DAY_SECONDS)).to.equal(true)
+				-- kept through a save read and a join with another server's older save
+				local read = Arcade.sanitize(save, NOW)
+				expect(read.freeDay).to.equal(Arcade.day(NOW))
+				local joined = Arcade.merge(Arcade.fresh(), read)
+				expect(Arcade.freeToday(joined, NOW)).to.equal(false)
+				expect(Arcade.freeToday(Arcade.merge(read, Arcade.fresh()), NOW)).to.equal(false)
+				expect(Arcade.sanitize({ freeDay = "x" }, NOW).freeDay).to.equal(0)
+			end)
+		end
+	)
 
 	describe("Circles.earlyScale (#2913 follow-up)", function()
 		it("widens a new player's first catches by hand, then stops", function()

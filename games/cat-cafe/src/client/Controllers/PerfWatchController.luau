@@ -58,11 +58,13 @@ local function watchFps()
 	local started = os.clock()
 	for markIndex, minutes in PerfWatch.MARKS do
 		task.wait(math.max(0, minutes * 60 - (os.clock() - started)))
-		Net.fire(
-			"TelemetryReport",
-			PerfWatch.FPS,
-			PerfWatch.encode(markIndex, savedQuality(), PerfWatch.average(frames, seconds))
-		)
+		if frames > 0 then -- a window spent all in the background says nothing about the device
+			Net.fire(
+				"TelemetryReport",
+				PerfWatch.FPS,
+				PerfWatch.encode(markIndex, savedQuality(), PerfWatch.average(frames, seconds))
+			)
+		end
 		frames, seconds = 0, 0
 	end
 	counting:Disconnect()

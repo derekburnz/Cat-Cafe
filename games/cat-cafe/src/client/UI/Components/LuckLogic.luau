@@ -54,7 +54,7 @@ local LINE_CHARS = 36 -- letters a line of the card's odds holds at textSmall in
 local NBSP = utf8.char(0xA0) -- a no-break space, as FoodOdds.rich joins a name to its share
 
 export type Row = {
-	id: string, -- "statue" | "potion" | "lucky_day"
+	id: string, -- "statue" | "potion" | "lucky_day"; #4990: "golden_day" | "rainbow_day" from dayRows
 	name: string,
 	value: string, -- "+0.3"
 	time: string?, -- what is left of a timed source, "8:12"
@@ -341,6 +341,47 @@ function LuckLogic.dayCard(view: DayView): { string }
 		)
 	end
 	return lines
+end
+
+-- #4990 (Derek 2026-11-16: "remove the lucky day/ all day showing just show they are active if people click into the
+-- luck breakdown"): the day kinds running today as rows of the Luck card, under the Luck sources. A Lucky Day is
+-- already one of those (`rows`, "Lucky Day  3:10  +50%"), so it is listed here only when `have` lacks it.
+function LuckLogic.dayRows(view: DayView?, have: { Row }): { Row }
+	local out: { Row } = {}
+	if view == nil then
+		return out
+	end
+	local cfg: any = Config
+	for _, kind in kinds(view) do
+		if kind.id == "lucky" then
+			local listed = false
+			for _, row in have do
+				if row.id == "lucky_day" then
+					listed = true
+				end
+			end
+			if not listed then
+				table.insert(out, {
+					id = "lucky_day",
+					name = "Lucky Day: rarer cats",
+					value = plus(cfg.LuckyDayPlayerLuck or 0.5),
+				})
+			end
+		elseif kind.id == "golden" then
+			table.insert(out, {
+				id = "golden_day",
+				name = "Golden Day: more gold cats",
+				value = ("x%s"):format(tostring(cfg.GoldenDayGoldMultiplier or 2)),
+			})
+		elseif kind.id == "rainbow" then
+			table.insert(out, {
+				id = "rainbow_day",
+				name = "Rainbow Day: more rainbow cats",
+				value = ("x%s"):format(tostring(cfg.RainbowDayMultiplier or 3)),
+			})
+		end
+	end
+	return out
 end
 
 function LuckLogic.dayBanner(view: DayView): (string?, string?)

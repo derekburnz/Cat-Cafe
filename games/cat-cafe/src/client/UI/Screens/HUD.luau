@@ -3842,6 +3842,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 		self._nightTips.Visible = false
 		self._luckyLine.Visible = false
 		self._luckyRow.Visible = false
+		self._luck:setDay(nil) -- #4990
 		self._rallyLine.Visible = false
 		self._night = false
 		self._clockSeen = false
@@ -3898,23 +3899,28 @@ function HUD._renderLuckyLine(self: any)
 	local view: LuckLogic.DayView? = self._luckyDay
 	local clock: Types.ClockState? = self._clockState
 	local line: string? = nil
+	local today: LuckLogic.DayView? = nil
 	if view ~= nil and clock ~= nil then
-		local today: LuckLogic.DayView = {
+		today = {
 			day = view.day,
 			luckyDay = view.luckyDay,
 			goldenDay = view.goldenDay,
 			rainbowDay = view.rainbowDay,
 			phase = clock.phase,
 		}
-		line = LuckLogic.dayLine(today)
-		self._dayCardText.Text = table.concat(LuckLogic.dayCard(today), "\n")
+		line = LuckLogic.dayLine(today :: LuckLogic.DayView)
+		self._dayCardText.Text = table.concat(LuckLogic.dayCard(today :: LuckLogic.DayView), "\n")
 	end
-	self._luckyLine.Text = line or "" -- the clover is the circle in front (LuckChip.circle) on a Lucky Day
-	self._luckyClover.Visible = view ~= nil and view.luckyDay == true
-	self._luckyLine.Visible = line ~= nil and self._clock.Visible
-	self._luckyRow.Visible = self._luckyLine.Visible
+	-- #4990 (Derek 2026-11-16: "remove the lucky day/ all day showing just show they are active if people click into
+	-- the luck breakdown"): the day line never shows in the strip, so a day with no event or Rally has no strip at
+	-- all. The Luck card lists the kinds running today (LuckChip.setDay); the event strip's card keeps its day lines.
+	self._luck:setDay(today)
+	self._luckyLine.Text = line or ""
+	self._luckyClover.Visible = false
+	self._luckyLine.Visible = false
+	self._luckyRow.Visible = false
 	-- Derek 2026-11-13: the card opens from any piece of the strip, so it keeps open without the day line
-	self._dayCardText.Visible = self._luckyLine.Visible
+	self._dayCardText.Visible = line ~= nil and self._clock.Visible
 end
 
 -- Derek 2026-11-13: the card's top lines, the running event's full words ("Cafe Party · x2 money · ends in 1:59:40",

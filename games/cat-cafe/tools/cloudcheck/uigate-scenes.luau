@@ -2577,7 +2577,10 @@ local SCENES = {
 		local banner = hud:FindFirstChild("StatusBanner", true) :: Frame
 		assert(banner and banner.Visible, "uigate: no status banner on a lucky day with a party (#2885)")
 		assert(banner:FindFirstChild("Ring"), "uigate: the status banner has no ring (#2885)")
-		for _, name in { "LuckyDay", "EventChip", "EventNext" } do
+		-- #4990: the day's kinds are not in the strip any more (the Luck card lists them)
+		local dayLine = hud:FindFirstChild("LuckyDay", true) :: TextLabel?
+		assert(dayLine == nil or not dayLine.Visible, "uigate: the day line still shows in the status strip (#4990)")
+		for _, name in { "EventChip", "EventNext" } do
 			local line = banner:FindFirstChild(name, true) :: TextLabel
 			-- Derek 2026-11-13: on a narrow phone the strip may leave the day or the shower to its card (HUD._fitBanner)
 			if name ~= "EventChip" and line == nil then
@@ -9760,6 +9763,10 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 	-- Review-QA's Studio run (2026-11-14): the event and day strip waits out the intro, and comes back after it
 	{ "IntroHoldsBanner", function()
 		local t = workspace:GetServerTimeNow()
+		-- #4990: a day's kinds alone no longer make a strip, so a Cafe Event runs (cafeEvent binds a plain day's clock,
+		-- the day's own is bound after it)
+		Scenes._cafeEvent = true
+		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
 		local clock = Instance.new("Folder")
 		clock.Name = "Clock"
 		clock:SetAttribute("Phase", "day")
@@ -9785,7 +9792,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 			return true
 		end
-		assert(banner and shown(), "uigate: no day strip before the intro (#4032)")
+		assert(banner and shown(), "uigate: no event strip before the intro (#4032)")
 		local titles = UIShim.playerGui:FindFirstChild("CatCafeAreaTitle", true)
 		UI.luckyDay("warning", "Rare cats are twice as likely from sunrise", { lucky = true, golden = true })
 		UIShim.advance(0.5)
@@ -11043,14 +11050,9 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			end
 		end
 		assert(#rowText > 0, "uigate: the Luck card's Lucky Day row doesn't read +50% (#2079)")
-		-- #2084: the clover sits left of the day line's first letter, never over it
+		-- #4990: no day line or clover under the clock; the Lucky Day is the card's row above
 		local line = hud:FindFirstChild("LuckyDay", true)
-		-- #2416: the clover and the words share a row; the words start at their label's left edge
-		local clover = line and line.Parent and line.Parent:FindFirstChild("Clover")
-		assert(line and line.Visible and clover and clover.Visible, "uigate: no Lucky Day line with its clover (#2084)")
-		local cloverRight = clover.AbsolutePosition.X + clover.AbsoluteSize.X
-		local textLeft = line.AbsolutePosition.X
-		assert(cloverRight <= textLeft + 1, ("uigate: the clover ends at %d, over the day line's words from %d (#2084)"):format(cloverRight, textLeft))
+		assert(line == nil or not line.Visible, "uigate: the Lucky Day line still shows under the clock (#4990)")
 	end },
 	-- F88: the night before a Lucky, Golden and Rainbow Day, LuckyDayWarnSeconds before sunrise: "Triple Day soon!"
 	-- over the three names, on a small phone too (#1572; no countdown line under the clock since #1572), the Luck card from the scene before closed
@@ -11113,7 +11115,7 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 			picture
 		)
 	end },
-	-- #1572: a Lucky, Golden and Rainbow Day at once: "Lucky · Golden · Rainbow Day" under the clock, its card open
+	-- #1572, #4990: a Lucky, Golden and Rainbow Day at once: nothing under the clock, the three listed on the Luck card
 	{ "HUDDayKinds", function()
 		local t = workspace:GetServerTimeNow()
 		local clock = Instance.new("Folder")
@@ -11128,16 +11130,27 @@ assert(side:FindFirstChild("Close", true) == nil, "uigate: the token panel has a
 		UI.clock.bind(clock)
 		task.wait(0.1)
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
-		local line = hud and hud:FindFirstChild("LuckyDay", true) :: TextLabel
-		assert(line and line.Visible, "uigate: no day line under the clock")
-		assert(line.Text == "Lucky · Golden · Rainbow Day", "uigate: day line " .. line.Text)
-		press("CatCafeHUD", "LuckyDay.Tap")
-		local card = hud:FindFirstChild("DayCard", true) :: Frame
-		assert(card and card.Visible, "uigate: the day card did not open")
-		-- #1572 (1h): the pity sign's two lines on the day card too
-		local pity = card:FindFirstChild("Pity") :: TextLabel
-		assert(pity and string.find(pity.Text, "Legendary cat in", 1, true), "uigate: the day card has no pity lines (#1572)")
-		assert(string.find(pity.Text, "Mythical cat in", 1, true), "uigate: the day card has no Mythical line (#1572)")
+		-- #4990 (Derek 2026-11-16): no day line or strip all day; the Luck card lists every kind running today
+		local line = hud and hud:FindFirstChild("LuckyDay", true) :: TextLabel?
+		assert(line == nil or not line.Visible, "uigate: the day line still shows all day (#4990)")
+		local banner = hud:FindFirstChild("StatusBanner", true) :: Frame?
+		assert(banner == nil or not banner.Visible, "uigate: a strip shows on a day with no event (#4990)")
+		local card = hud:FindFirstChild("LuckCard", true) :: GuiObject?
+		if not (card and card.Visible) then
+			press("CatCafeHUD", "Luck")
+		end
+		card = hud:FindFirstChild("LuckCard", true) :: GuiObject?
+		assert(card and card.Visible, "uigate: the Luck card did not open (#4990)")
+		for _, want in { "Lucky Day", "Golden Day", "Rainbow Day" } do
+			local found = false
+			for _, d in (card :: GuiObject):GetDescendants() do
+				if d:IsA("TextLabel") and d.Visible and d.Name == "Name" and string.find(d.Text, want, 1, true) then
+					assert(d.TextFits, ("uigate: the Luck card's %s row is cut: %q (#4990)"):format(want, d.Text))
+					found = true
+				end
+			end
+			assert(found, "uigate: the Luck card does not list " .. want .. " (#4990)")
+		end
 	end },
 	-- F100: the Cannon picker with the Tier 3 player's camp extras: the Picnic Basket ready (red dot), the Yard Sale's
 	-- new crates (no dot)

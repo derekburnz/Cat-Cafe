@@ -37,6 +37,7 @@ export type LuckChip = {
 	hide: (self: LuckChip) -> (),
 	isShown: (self: LuckChip) -> boolean,
 	isOpen: (self: LuckChip) -> boolean,
+	setDay: (self: LuckChip, view: LuckLogic.DayView?) -> (), -- #4990: today's day kinds, listed on the card
 	destroy: (self: LuckChip) -> (),
 }
 
@@ -125,6 +126,7 @@ function LuckChip.new(
 	self._look = "plain"
 	self._onShown = onShown
 	self._said = nil :: string?
+	self._day = nil :: LuckLogic.DayView? -- #4990
 	self._loop = nil :: RBXScriptConnection?
 	self._clock = 0
 
@@ -501,6 +503,10 @@ function LuckChip._renderCard(self: any)
 	local now = Workspace:GetServerTimeNow()
 	local luck = LuckLogic.current(state, now)
 	local rows = LuckLogic.rows(state, now, eventTitle())
+	-- #4990: the day kinds running today (Golden Day, Rainbow Day; a Lucky Day is a Luck source above) under them
+	for _, row in LuckLogic.dayRows(self._day, rows) do
+		table.insert(rows, row)
+	end
 	-- the card's words, so it is drawn again only when they change (the money ticks render the HUD five times a
 	-- second)
 	local parts: { string } = { tostring(luck) }
@@ -554,6 +560,14 @@ function LuckChip._renderCard(self: any)
 			Text = row.value,
 			Parent = frame,
 		})
+	end
+end
+
+-- #4990: the HUD's day view (its phase is the clock's own); the open card is drawn again with it
+function LuckChip.setDay(self: any, view: LuckLogic.DayView?)
+	self._day = view
+	if self.card.Visible then
+		self:_renderCard()
 	end
 end
 

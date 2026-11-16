@@ -139,17 +139,10 @@ function ChatTagShareService.start()
 	for _, player in Players:GetPlayers() do
 		watch(player)
 	end
+	-- No remove on leave: a player hopping servers could have it land after their new server's write. The entry
+	-- expires by itself (SHARE_TTL_SECONDS), and a player who left has no chat lines to tag.
 	Players.PlayerRemoving:Connect(function(player: Player)
-		local had = written[player]
 		written[player] = nil
-		if had ~= nil and had ~= "" then
-			local key = tostring(player.UserId)
-			task.spawn(function()
-				pcall(function()
-					map():RemoveAsync(key)
-				end)
-			end)
-		end
 	end)
 	task.spawn(function()
 		while true do

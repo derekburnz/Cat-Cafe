@@ -2,13 +2,14 @@
 -- #4061 (spec 1.3, shared/Toys): the use button of the Ticket Booth toy in hand. While the character's HeldToy is
 -- "squirter" or "noodle" (the server sets it from the booth card's HOLD), one round button shows the toy's picture
 -- and SPRAY or BONK, on the jump button's arc straight above it (NetButtonPlace.toy), on every screen, since a
--- mouse click and R2 still swing the net. A press, or R on a keyboard, fires use() (UseToy) and greys the button
+-- mouse click and R2 still swing the net. A press, R on a keyboard or D-pad up on a controller (#4760, as D-pad down drops a cat) fires use() (UseToy) and greys the button
 -- for Toys.COOLDOWN while it refills from the bottom; the server keeps its own cooldown. It hides while blocked()
 -- (the catch circles or the rescue bar up). Fun only: nothing is earned or taken.
 --
 --   setHeld(toyId?)   the toy in hand, nil for none
 
 local ContextActionService = game:GetService("ContextActionService")
+local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -28,6 +29,7 @@ local COOLDOWN: number = Toys.COOLDOWN or 1.5
 local TICK = 0.1 -- seconds between blocked() checks while a toy is in hand
 local ACTION = "CatCafeUseToy"
 local KEY = Enum.KeyCode.R
+local PAD = Enum.KeyCode.DPadUp -- #4760
 
 -- a toy id's look on the button
 local LOOKS: { [string]: { glyph: string, word: string, picture: string, color: Color3 } } = {
@@ -216,11 +218,12 @@ function ToyButton.setHeld(self: any, toyId: string?)
 	self._icon.Text = look.glyph
 	IconArt.setImage(self._icon, ShopIcons.booth(look.picture))
 	ContextActionService:BindAction(ACTION, function(_, inputState: Enum.UserInputState)
-		if inputState == Enum.UserInputState.Begin then
+		-- D-pad up also moves a menu's selection: only with nothing selected
+		if inputState == Enum.UserInputState.Begin and GuiService.SelectedObject == nil then
 			self:_press()
 		end
 		return Enum.ContextActionResult.Pass
-	end, false, KEY)
+	end, false, KEY, PAD)
 	if loop == nil then
 		self:_place() -- the jump button is up by now, so follow where it really is
 		local accumulator = TICK

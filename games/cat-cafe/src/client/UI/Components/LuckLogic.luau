@@ -246,7 +246,15 @@ function LuckLogic.crateOdds(
 		end
 	end
 	local opens = if state.crateLuck then state.crateLuck[crate.area] else nil
-	return MarketLogic.nextOdds(crate :: any, opens, LUCKY_EVERY, golden, luck)
+	-- the Dragon Keep's Lucky Crate on top, as the server rolls (Crates.withCardLuck)
+	local card = if state.cardLuck then state.cardLuck.crate else nil
+	return MarketLogic.nextOdds(
+		crate :: any,
+		opens,
+		LUCKY_EVERY,
+		golden,
+		Crates.withCardLuck(luck, card)
+	)
 end
 
 -- #1572 (luck-and-rare-moments.md 1g): the kinds of a day, in this order, each with its name, its HUD word, what it

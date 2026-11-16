@@ -2228,13 +2228,9 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			Telemetry.stepTime(player, profile, step)
 		end
 	elseif name == "new_kind_trail" then
-		-- #3529: once a session each, as step_time, and only with the switch on
+		-- #3529: once a session each, as step_time (#4654: the newKindTag switch shipped)
 		local step = if type(rawValue) == "string" then NewKind.REPORTS[rawValue] else nil
-		if
-			step ~= nil
-			and LiveFlagService.on(NewKind.FLAG)
-			and not session.nudges["new_kind:" .. step]
-		then
+		if step ~= nil and not session.nudges["new_kind:" .. step] then
 			session.nudges["new_kind:" .. step] = true
 			Telemetry.stepTime(player, profile, step)
 		end

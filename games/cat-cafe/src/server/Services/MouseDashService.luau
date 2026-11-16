@@ -529,6 +529,7 @@ end
 
 function MouseDashService.start()
 	ArcadeService.otherGame = MouseDashService.running
+	ArcadeService.onSaveLoaded = sendState -- #4722 review: the arcade save came after this state went out
 	Net.on("MouseDashStart", onStart)
 	Net.on("MouseDashTap", onTap)
 	Net.on("MouseDashQuit", onQuit)

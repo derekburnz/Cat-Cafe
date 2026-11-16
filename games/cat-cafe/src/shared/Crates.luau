@@ -135,6 +135,15 @@ function Crates.oddsFor(
 	return Luck.applyMap(crate.odds, playerLuck)
 end
 
+-- The player's Luck on a plain crate open with the Dragon Keep's crate luck (`cardLuck`, 0.15 is +15%) on top: it
+-- multiplies the Luck (1 when nothing else lifts it) and stays inside LuckMax. The server rolls with it and every
+-- crate odds list shows it (monetization-policy section 2: Deal crates come from Robux products).
+function Crates.withCardLuck(playerLuck: number, cardLuck: number?): number
+	local card = if type(cardLuck) == "number" and cardLuck > 0 then cardLuck else 0
+	local luck = math.max(playerLuck, 1) * (1 + card)
+	return math.clamp(math.floor(luck * 100 + 0.5) / 100, 1, Config.LuckMax)
+end
+
 -- Each piece's chance in percent under `odds`: its rarity's share split equally among that rarity's pieces. The
 -- crate card shows these before it opens (monetization-policy section 2).
 function Crates.pieceChances(

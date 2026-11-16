@@ -1533,8 +1533,9 @@ function StoreLogic.justBought(seen: Seen, rows: { Row }): ({ string }, Seen)
 end
 
 -- #4055 (Derek's OK of the golden fish plan, 2026-11-13 23:53 UTC): the Store's Robux / Fish switch. A card's row key
--- to its shared/FishStore key, for the passes that can also be bought with golden fish. Every other card, the 2x, 3x
--- and 4x Money passes above all, reads "Robux only" in fish mode, and a tap on it goes back to Robux prices.
+-- to its shared/FishStore key, for the passes that can also be bought with golden fish. Every other card (since #4610
+-- only the 2x, 3x and 4x Money passes and the Starter Bundle) reads "Robux only" in fish mode, and a tap on it goes
+-- back to Robux prices.
 StoreLogic.FISH_KEYS = {
 	packStylish = "stylishPack",
 	packWinter = "winterPack",
@@ -1546,6 +1547,14 @@ StoreLogic.FISH_KEYS = {
 	grandTheme = "grand",
 	gardenDecor = "gardenDecor",
 	signStylePack = "signStyles",
+	-- #4610 (Derek 2026-11-15): every other pass card
+	vip = "vip",
+	extraSlot = "extraSlot",
+	longNap = "longNap",
+	secondBowl = "secondBowl",
+	autoBowl = "autoBowl",
+	royalCat = "royalCat",
+	kingPack = "kingPack",
 } :: { [string]: string }
 
 -- PlayerState.fishStore's rows (FishStore.view)

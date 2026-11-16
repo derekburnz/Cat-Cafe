@@ -133,7 +133,7 @@ return function()
 		end)
 
 		it(
-			"starts off with nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, swiftPaws10, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, yardSaleRoll, introSplit, newKindTag, parkGateTrail, touchCatchReach, rankUpSpotlight, bagColours, menuFamily, speedShoes, petCats, returnGift, picnicTreats, traitBundles, storeRework, indexTo70, quietStart, quietAway, riftRun, secretTrait, rareCustomers, goldTone, palJoin, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox and fusion and giftCard alone beside it",
+			"starts off with nightCatch, loadingScreen, goldenDrops, traits, swiftPaws5, swiftPaws10, mouseDash, cartTier6, secretCats, luckyCharm, rareCatsTab, afkCafe, autoRejoin, binRoll, introSplit, parkGateTrail, rankUpSpotlight, bagColours, menuFamily, speedShoes, traitBundles, storeRework, quietAway, riftRun, secretTrait, rareCustomers, goldTone, palJoin, dailyDeal, updateFeature, starterSuggest, adminEvents, dragonKeep, fishStore, ticketBooth, deviceFixes, afkButton, tier8, tier9, tier10, autoBowl, mailbox, fusion and giftCard alone beside it",
 			function()
 				local count = 0
 				for key in LiveFlags.OFF_BY_DEFAULT do
@@ -154,22 +154,14 @@ return function()
 							or key == "afkCafe"
 							or key == "autoRejoin"
 							or key == "binRoll"
-							or key == "yardSaleRoll"
 							or key == "introSplit"
-							or key == "newKindTag"
 							or key == "parkGateTrail"
-							or key == "touchCatchReach"
 							or key == "rankUpSpotlight"
 							or key == "bagColours"
 							or key == "menuFamily"
 							or key == "speedShoes"
-							or key == "petCats"
-							or key == "returnGift"
-							or key == "picnicTreats"
 							or key == "traitBundles"
 							or key == "storeRework"
-							or key == "indexTo70"
-							or key == "quietStart"
 							or key == "quietAway"
 							or key == "fishStore"
 							or key == "ticketBooth"
@@ -199,7 +191,7 @@ return function()
 					).to.equal(true)
 					expect(table.find(LiveFlags.KEYS, key) ~= nil).to.equal(true)
 				end
-				expect(count).to.equal(57)
+				expect(count).to.equal(49) -- #4654: 56 less the 8 shipped switches retired in batches 1 and 2, plus giftCard (#4527)
 				-- #3462 and #3470: new saved ids stay off until every server knows them
 				expect(LiveFlags.defaults().cartTier6).to.equal(false)
 				expect(LiveFlags.defaults().secretCats).to.equal(false)
